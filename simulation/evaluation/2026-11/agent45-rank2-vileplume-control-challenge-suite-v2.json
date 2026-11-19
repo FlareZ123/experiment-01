@@ -1,0 +1,4403 @@
+{
+  "schemaVersion": "aichi-policy-challenge-suite-v1",
+  "suiteId": "aichi-rank2-vileplume-control-agent45-v2",
+  "role": "opponent-policy",
+  "sourceRank": 2,
+  "producerId": "agent45",
+  "suiteAuthor": "Agent45",
+  "createdAt": "2026-11-19T17:30:00.000Z",
+  "frozenAt": "2026-11-19T17:30:00.000Z",
+  "status": "frozen-synthetic-contract-suite; not a competence attestation",
+  "sourceDeck": {
+    "path": "results/aichi-2026/full-decklists.json",
+    "gitBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "rank": 2,
+    "player": "Takahiro Ando",
+    "archetype": "Vileplume Control",
+    "physicalCardCount": 60,
+    "fingerprintSha256": "4845baf0e66c61139095b904a6929c0680bd69784dbf85b01a1a8f872a1a3996"
+  },
+  "candidateDeck": {
+    "path": "results/aichi-2026/candidate-hood-shadow-rider.json",
+    "gitBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+    "candidateId": "hood-shadow-rider-v1",
+    "physicalCardCount": 60,
+    "fingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+  },
+  "policy": {
+    "path": "simulation/evaluation/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.cjs",
+    "version": "agent45-rank2-vileplume-control-opponent-v2",
+    "producerId": "agent45",
+    "sha256": "2632afefaa0b69a8f16b4e77dc0f3a3a6f3daeca6ec6e1b3f5a836a405b92452",
+    "config": {},
+    "deterministic": true,
+    "imports": [],
+    "externalRuntimeDependencies": []
+  },
+  "commonConstraints": {
+    "path": "simulation/evaluation/2026-11/agent45-rank2-vileplume-control-common-constraints-v2.json",
+    "sha256": "5ad0c15f44f34d39bb5f102ed3289d84634e7c415883ca6bfdfd976bc158274d"
+  },
+  "workerProtocol": {
+    "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+    "gitBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+    "sha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
+    "initSchema": "aichi-policy-worker-init-v2",
+    "requestSchema": "aichi-policy-request-v2",
+    "promptSchema": "aichi-owner-prompt-projection-v3",
+    "responseSchema": "aichi-policy-response-v3",
+    "validatorsExecuted": [
+      "validateInit",
+      "validateRequest",
+      "validateDecision"
+    ],
+    "loadedThroughWorkerIpc": false
+  },
+  "engine": {
+    "submodulePath": "vendor/twinleaf",
+    "remote": "https://github.com/twinleafgg/twinleafgg.git",
+    "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "researchHookRevision": null,
+    "usedInThisPolicyHarness": false,
+    "upstreamModified": false
+  },
+  "actorViews": {
+    "mode0-grandtree-root": {
+      "actorSeat": 0,
+      "globalTurn": 3,
+      "phase": 2,
+      "decisionKind": "owner-root",
+      "pendingPromptType": null,
+      "pendingOwnerDeckSearch": false,
+      "ownHand": [
+        "Guzma & Hala CEC 193"
+      ],
+      "ownPublic": {
+        "active": {
+          "printing": "Fan Rotom SCR 118",
+          "name": "Fan Rotom",
+          "hp": 150,
+          "damage": 0,
+          "lastPlayedOrEvolvedTurn": 1,
+          "printed": {
+            "stage": "BASIC",
+            "subtypes": [
+              "Basic"
+            ],
+            "types": [
+              "Colorless"
+            ],
+            "retreatCost": [],
+            "weakness": [],
+            "resistance": []
+          },
+          "specialConditions": [],
+          "publicRestrictions": {
+            "cannotAttackNextTurn": false,
+            "cannotUseAttacksNextTurn": [],
+            "blockedAttackNameNextTurn": null,
+            "blockedAttackNameUntilLeavesActive": null,
+            "onlyAllowedAttackNameNextTurn": null,
+            "attackCostIncreaseNextTurn": 0,
+            "attackCostIncreaseWhileActive": 0,
+            "cannotRetreat": false,
+            "cannotRetreatNextTurn": false,
+            "cannotRetreatWhileActive": false,
+            "cannotEvolveNextTurn": false
+          },
+          "evolutionPrintings": [],
+          "energies": [],
+          "tools": [],
+          "attacks": [],
+          "abilities": [],
+          "abilityDetails": [],
+          "abilitySuppressions": []
+        },
+        "bench": [
+          {
+            "printing": "Oddish UNB 5",
+            "name": "Oddish",
+            "hp": 150,
+            "damage": 0,
+            "lastPlayedOrEvolvedTurn": 1,
+            "printed": {
+              "stage": "BASIC",
+              "subtypes": [
+                "Basic"
+              ],
+              "types": [
+                "Colorless"
+              ],
+              "retreatCost": [],
+              "weakness": [],
+              "resistance": []
+            },
+            "specialConditions": [],
+            "publicRestrictions": {
+              "cannotAttackNextTurn": false,
+              "cannotUseAttacksNextTurn": [],
+              "blockedAttackNameNextTurn": null,
+              "blockedAttackNameUntilLeavesActive": null,
+              "onlyAllowedAttackNameNextTurn": null,
+              "attackCostIncreaseNextTurn": 0,
+              "attackCostIncreaseWhileActive": 0,
+              "cannotRetreat": false,
+              "cannotRetreatNextTurn": false,
+              "cannotRetreatWhileActive": false,
+              "cannotEvolveNextTurn": false
+            },
+            "evolutionPrintings": [],
+            "energies": [],
+            "tools": [],
+            "attacks": [],
+            "abilities": [],
+            "abilityDetails": [],
+            "abilitySuppressions": []
+          },
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 1,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "opponentPublic": {
+        "active": null,
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "ownTurnResources": {
+        "supporterPlayedTurn": 0,
+        "retreatedTurn": 0,
+        "extraTurnActive": false,
+        "energyPlayedTurn": false,
+        "stadiumPlayedTurn": false,
+        "stadiumUsedTurn": false,
+        "vstarUsed": false,
+        "pokemonPlayLocked": false,
+        "abilityPokemonPlayLocked": false,
+        "evolutionPlayLocked": false,
+        "itemPlayLocked": false,
+        "supporterPlayLocked": false,
+        "stadiumPlayLocked": false,
+        "toolPlayLocked": false,
+        "energyPlayLocked": false,
+        "specialEnergyPlayLocked": false
+      },
+      "ownerK1": null
+    },
+    "mode0-no-useful-root": {
+      "actorSeat": 0,
+      "globalTurn": 3,
+      "phase": 2,
+      "decisionKind": "owner-root",
+      "pendingPromptType": null,
+      "pendingOwnerDeckSearch": false,
+      "ownHand": [
+        "Guzma & Hala CEC 193"
+      ],
+      "ownPublic": {
+        "active": {
+          "printing": "Fan Rotom SCR 118",
+          "name": "Fan Rotom",
+          "hp": 150,
+          "damage": 0,
+          "lastPlayedOrEvolvedTurn": 3,
+          "printed": {
+            "stage": "BASIC",
+            "subtypes": [
+              "Basic"
+            ],
+            "types": [
+              "Colorless"
+            ],
+            "retreatCost": [],
+            "weakness": [],
+            "resistance": []
+          },
+          "specialConditions": [],
+          "publicRestrictions": {
+            "cannotAttackNextTurn": false,
+            "cannotUseAttacksNextTurn": [],
+            "blockedAttackNameNextTurn": null,
+            "blockedAttackNameUntilLeavesActive": null,
+            "onlyAllowedAttackNameNextTurn": null,
+            "attackCostIncreaseNextTurn": 0,
+            "attackCostIncreaseWhileActive": 0,
+            "cannotRetreat": false,
+            "cannotRetreatNextTurn": false,
+            "cannotRetreatWhileActive": false,
+            "cannotEvolveNextTurn": false
+          },
+          "evolutionPrintings": [],
+          "energies": [],
+          "tools": [],
+          "attacks": [],
+          "abilities": [],
+          "abilityDetails": [],
+          "abilitySuppressions": []
+        },
+        "bench": [
+          {
+            "printing": "Girafarig LOT 94",
+            "name": "Girafarig",
+            "hp": 150,
+            "damage": 0,
+            "lastPlayedOrEvolvedTurn": 1,
+            "printed": {
+              "stage": "BASIC",
+              "subtypes": [
+                "Basic"
+              ],
+              "types": [
+                "Colorless"
+              ],
+              "retreatCost": [],
+              "weakness": [],
+              "resistance": []
+            },
+            "specialConditions": [],
+            "publicRestrictions": {
+              "cannotAttackNextTurn": false,
+              "cannotUseAttacksNextTurn": [],
+              "blockedAttackNameNextTurn": null,
+              "blockedAttackNameUntilLeavesActive": null,
+              "onlyAllowedAttackNameNextTurn": null,
+              "attackCostIncreaseNextTurn": 0,
+              "attackCostIncreaseWhileActive": 0,
+              "cannotRetreat": false,
+              "cannotRetreatNextTurn": false,
+              "cannotRetreatWhileActive": false,
+              "cannotEvolveNextTurn": false
+            },
+            "evolutionPrintings": [],
+            "energies": [],
+            "tools": [],
+            "attacks": [],
+            "abilities": [],
+            "abilityDetails": [],
+            "abilitySuppressions": []
+          },
+          {
+            "printing": "Mr. Mime PLF 47",
+            "name": "Mr. Mime",
+            "hp": 150,
+            "damage": 0,
+            "lastPlayedOrEvolvedTurn": 1,
+            "printed": {
+              "stage": "BASIC",
+              "subtypes": [
+                "Basic"
+              ],
+              "types": [
+                "Colorless"
+              ],
+              "retreatCost": [],
+              "weakness": [],
+              "resistance": []
+            },
+            "specialConditions": [],
+            "publicRestrictions": {
+              "cannotAttackNextTurn": false,
+              "cannotUseAttacksNextTurn": [],
+              "blockedAttackNameNextTurn": null,
+              "blockedAttackNameUntilLeavesActive": null,
+              "onlyAllowedAttackNameNextTurn": null,
+              "attackCostIncreaseNextTurn": 0,
+              "attackCostIncreaseWhileActive": 0,
+              "cannotRetreat": false,
+              "cannotRetreatNextTurn": false,
+              "cannotRetreatWhileActive": false,
+              "cannotEvolveNextTurn": false
+            },
+            "evolutionPrintings": [],
+            "energies": [],
+            "tools": [],
+            "attacks": [],
+            "abilities": [],
+            "abilityDetails": [],
+            "abilitySuppressions": []
+          },
+          {
+            "printing": "Relicanth TEF 84",
+            "name": "Relicanth",
+            "hp": 150,
+            "damage": 0,
+            "lastPlayedOrEvolvedTurn": 1,
+            "printed": {
+              "stage": "BASIC",
+              "subtypes": [
+                "Basic"
+              ],
+              "types": [
+                "Colorless"
+              ],
+              "retreatCost": [],
+              "weakness": [],
+              "resistance": []
+            },
+            "specialConditions": [],
+            "publicRestrictions": {
+              "cannotAttackNextTurn": false,
+              "cannotUseAttacksNextTurn": [],
+              "blockedAttackNameNextTurn": null,
+              "blockedAttackNameUntilLeavesActive": null,
+              "onlyAllowedAttackNameNextTurn": null,
+              "attackCostIncreaseNextTurn": 0,
+              "attackCostIncreaseWhileActive": 0,
+              "cannotRetreat": false,
+              "cannotRetreatNextTurn": false,
+              "cannotRetreatWhileActive": false,
+              "cannotEvolveNextTurn": false
+            },
+            "evolutionPrintings": [],
+            "energies": [],
+            "tools": [],
+            "attacks": [],
+            "abilities": [],
+            "abilityDetails": [],
+            "abilitySuppressions": []
+          },
+          {
+            "printing": "Budew ASC 16",
+            "name": "Budew",
+            "hp": 150,
+            "damage": 0,
+            "lastPlayedOrEvolvedTurn": 1,
+            "printed": {
+              "stage": "BASIC",
+              "subtypes": [
+                "Basic"
+              ],
+              "types": [
+                "Colorless"
+              ],
+              "retreatCost": [],
+              "weakness": [],
+              "resistance": []
+            },
+            "specialConditions": [],
+            "publicRestrictions": {
+              "cannotAttackNextTurn": false,
+              "cannotUseAttacksNextTurn": [],
+              "blockedAttackNameNextTurn": null,
+              "blockedAttackNameUntilLeavesActive": null,
+              "onlyAllowedAttackNameNextTurn": null,
+              "attackCostIncreaseNextTurn": 0,
+              "attackCostIncreaseWhileActive": 0,
+              "cannotRetreat": false,
+              "cannotRetreatNextTurn": false,
+              "cannotRetreatWhileActive": false,
+              "cannotEvolveNextTurn": false
+            },
+            "evolutionPrintings": [],
+            "energies": [],
+            "tools": [],
+            "attacks": [],
+            "abilities": [],
+            "abilityDetails": [],
+            "abilitySuppressions": []
+          },
+          {
+            "printing": "Jirachi XYP XY67",
+            "name": "Jirachi",
+            "hp": 150,
+            "damage": 0,
+            "lastPlayedOrEvolvedTurn": 1,
+            "printed": {
+              "stage": "BASIC",
+              "subtypes": [
+                "Basic"
+              ],
+              "types": [
+                "Colorless"
+              ],
+              "retreatCost": [],
+              "weakness": [],
+              "resistance": []
+            },
+            "specialConditions": [],
+            "publicRestrictions": {
+              "cannotAttackNextTurn": false,
+              "cannotUseAttacksNextTurn": [],
+              "blockedAttackNameNextTurn": null,
+              "blockedAttackNameUntilLeavesActive": null,
+              "onlyAllowedAttackNameNextTurn": null,
+              "attackCostIncreaseNextTurn": 0,
+              "attackCostIncreaseWhileActive": 0,
+              "cannotRetreat": false,
+              "cannotRetreatNextTurn": false,
+              "cannotRetreatWhileActive": false,
+              "cannotEvolveNextTurn": false
+            },
+            "evolutionPrintings": [],
+            "energies": [],
+            "tools": [],
+            "attacks": [],
+            "abilities": [],
+            "abilityDetails": [],
+            "abilitySuppressions": []
+          }
+        ],
+        "stadium": [
+          "Grand Tree SCR 136"
+        ],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 1,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "opponentPublic": {
+        "active": null,
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "ownTurnResources": {
+        "supporterPlayedTurn": 0,
+        "retreatedTurn": 0,
+        "extraTurnActive": false,
+        "energyPlayedTurn": false,
+        "stadiumPlayedTurn": false,
+        "stadiumUsedTurn": false,
+        "vstarUsed": false,
+        "pokemonPlayLocked": false,
+        "abilityPokemonPlayLocked": false,
+        "evolutionPlayLocked": false,
+        "itemPlayLocked": false,
+        "supporterPlayLocked": false,
+        "stadiumPlayLocked": false,
+        "toolPlayLocked": false,
+        "energyPlayLocked": false,
+        "specialEnergyPlayLocked": false
+      },
+      "ownerK1": null
+    },
+    "mode0-competing-supporter-root": {
+      "actorSeat": 0,
+      "globalTurn": 3,
+      "phase": 2,
+      "decisionKind": "owner-root",
+      "pendingPromptType": null,
+      "pendingOwnerDeckSearch": false,
+      "ownHand": [
+        "Guzma & Hala CEC 193",
+        "Cassius XY 123"
+      ],
+      "ownPublic": {
+        "active": {
+          "printing": "Fan Rotom SCR 118",
+          "name": "Fan Rotom",
+          "hp": 150,
+          "damage": 120,
+          "lastPlayedOrEvolvedTurn": 1,
+          "printed": {
+            "stage": "BASIC",
+            "subtypes": [
+              "Basic"
+            ],
+            "types": [
+              "Colorless"
+            ],
+            "retreatCost": [],
+            "weakness": [],
+            "resistance": []
+          },
+          "specialConditions": [],
+          "publicRestrictions": {
+            "cannotAttackNextTurn": false,
+            "cannotUseAttacksNextTurn": [],
+            "blockedAttackNameNextTurn": null,
+            "blockedAttackNameUntilLeavesActive": null,
+            "onlyAllowedAttackNameNextTurn": null,
+            "attackCostIncreaseNextTurn": 0,
+            "attackCostIncreaseWhileActive": 0,
+            "cannotRetreat": false,
+            "cannotRetreatNextTurn": false,
+            "cannotRetreatWhileActive": false,
+            "cannotEvolveNextTurn": false
+          },
+          "evolutionPrintings": [],
+          "energies": [],
+          "tools": [],
+          "attacks": [],
+          "abilities": [],
+          "abilityDetails": [],
+          "abilitySuppressions": []
+        },
+        "bench": [
+          {
+            "printing": "Oddish UNB 5",
+            "name": "Oddish",
+            "hp": 150,
+            "damage": 0,
+            "lastPlayedOrEvolvedTurn": 1,
+            "printed": {
+              "stage": "BASIC",
+              "subtypes": [
+                "Basic"
+              ],
+              "types": [
+                "Colorless"
+              ],
+              "retreatCost": [],
+              "weakness": [],
+              "resistance": []
+            },
+            "specialConditions": [],
+            "publicRestrictions": {
+              "cannotAttackNextTurn": false,
+              "cannotUseAttacksNextTurn": [],
+              "blockedAttackNameNextTurn": null,
+              "blockedAttackNameUntilLeavesActive": null,
+              "onlyAllowedAttackNameNextTurn": null,
+              "attackCostIncreaseNextTurn": 0,
+              "attackCostIncreaseWhileActive": 0,
+              "cannotRetreat": false,
+              "cannotRetreatNextTurn": false,
+              "cannotRetreatWhileActive": false,
+              "cannotEvolveNextTurn": false
+            },
+            "evolutionPrintings": [],
+            "energies": [],
+            "tools": [],
+            "attacks": [],
+            "abilities": [],
+            "abilityDetails": [],
+            "abilitySuppressions": []
+          },
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 2,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "opponentPublic": {
+        "active": null,
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "ownTurnResources": {
+        "supporterPlayedTurn": 0,
+        "retreatedTurn": 0,
+        "extraTurnActive": false,
+        "energyPlayedTurn": false,
+        "stadiumPlayedTurn": false,
+        "stadiumUsedTurn": false,
+        "vstarUsed": false,
+        "pokemonPlayLocked": false,
+        "abilityPokemonPlayLocked": false,
+        "evolutionPlayLocked": false,
+        "itemPlayLocked": false,
+        "supporterPlayLocked": false,
+        "stadiumPlayLocked": false,
+        "toolPlayLocked": false,
+        "energyPlayLocked": false,
+        "specialEnergyPlayLocked": false
+      },
+      "ownerK1": null
+    },
+    "stoutland-live-hooded-root": {
+      "actorSeat": 0,
+      "globalTurn": 3,
+      "phase": 2,
+      "decisionKind": "owner-root",
+      "pendingPromptType": null,
+      "pendingOwnerDeckSearch": false,
+      "ownHand": [],
+      "ownPublic": {
+        "active": {
+          "printing": "Bunnelby PRC 121",
+          "name": "Bunnelby",
+          "hp": 150,
+          "damage": 0,
+          "lastPlayedOrEvolvedTurn": 1,
+          "printed": {
+            "stage": "BASIC",
+            "subtypes": [
+              "Basic"
+            ],
+            "types": [
+              "Colorless"
+            ],
+            "retreatCost": [],
+            "weakness": [],
+            "resistance": []
+          },
+          "specialConditions": [],
+          "publicRestrictions": {
+            "cannotAttackNextTurn": false,
+            "cannotUseAttacksNextTurn": [],
+            "blockedAttackNameNextTurn": null,
+            "blockedAttackNameUntilLeavesActive": null,
+            "onlyAllowedAttackNameNextTurn": null,
+            "attackCostIncreaseNextTurn": 0,
+            "attackCostIncreaseWhileActive": 0,
+            "cannotRetreat": false,
+            "cannotRetreatNextTurn": false,
+            "cannotRetreatWhileActive": false,
+            "cannotEvolveNextTurn": false
+          },
+          "evolutionPrintings": [],
+          "energies": [],
+          "tools": [],
+          "attacks": [],
+          "abilities": [],
+          "abilityDetails": [],
+          "abilitySuppressions": []
+        },
+        "bench": [
+          {
+            "printing": "Stoutland BCR 122",
+            "name": "Stoutland",
+            "hp": 150,
+            "damage": 0,
+            "lastPlayedOrEvolvedTurn": 1,
+            "printed": {
+              "stage": "STAGE2",
+              "subtypes": [
+                "Stage 2"
+              ],
+              "types": [
+                "Colorless"
+              ],
+              "retreatCost": [],
+              "weakness": [],
+              "resistance": []
+            },
+            "specialConditions": [],
+            "publicRestrictions": {
+              "cannotAttackNextTurn": false,
+              "cannotUseAttacksNextTurn": [],
+              "blockedAttackNameNextTurn": null,
+              "blockedAttackNameUntilLeavesActive": null,
+              "onlyAllowedAttackNameNextTurn": null,
+              "attackCostIncreaseNextTurn": 0,
+              "attackCostIncreaseWhileActive": 0,
+              "cannotRetreat": false,
+              "cannotRetreatNextTurn": false,
+              "cannotRetreatWhileActive": false,
+              "cannotEvolveNextTurn": false
+            },
+            "evolutionPrintings": [],
+            "energies": [],
+            "tools": [
+              "Stealthy Hood UNB 186"
+            ],
+            "attacks": [],
+            "abilities": [
+              "Sentinel"
+            ],
+            "abilityDetails": [
+              {
+                "name": "Sentinel",
+                "powerType": "ABILITY",
+                "text": "Once during your turn."
+              }
+            ],
+            "abilitySuppressions": [
+              {
+                "abilityName": "Sentinel",
+                "suppressed": false,
+                "reasonCode": null,
+                "sourcePrinting": null
+              }
+            ]
+          },
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "opponentPublic": {
+        "active": {
+          "printing": "Garbodor DRX 54",
+          "name": "Garbodor",
+          "hp": 150,
+          "damage": 0,
+          "lastPlayedOrEvolvedTurn": 1,
+          "printed": {
+            "stage": "STAGE1",
+            "subtypes": [
+              "Stage 1"
+            ],
+            "types": [
+              "Colorless"
+            ],
+            "retreatCost": [],
+            "weakness": [],
+            "resistance": []
+          },
+          "specialConditions": [],
+          "publicRestrictions": {
+            "cannotAttackNextTurn": false,
+            "cannotUseAttacksNextTurn": [],
+            "blockedAttackNameNextTurn": null,
+            "blockedAttackNameUntilLeavesActive": null,
+            "onlyAllowedAttackNameNextTurn": null,
+            "attackCostIncreaseNextTurn": 0,
+            "attackCostIncreaseWhileActive": 0,
+            "cannotRetreat": false,
+            "cannotRetreatNextTurn": false,
+            "cannotRetreatWhileActive": false,
+            "cannotEvolveNextTurn": false
+          },
+          "evolutionPrintings": [],
+          "energies": [],
+          "tools": [
+            "Float Stone BKT 137"
+          ],
+          "attacks": [],
+          "abilities": [
+            "Garbotoxin"
+          ],
+          "abilityDetails": [
+            {
+              "name": "Garbotoxin",
+              "powerType": "ABILITY",
+              "text": "Once during your turn."
+            }
+          ],
+          "abilitySuppressions": [
+            {
+              "abilityName": "Garbotoxin",
+              "suppressed": false,
+              "reasonCode": null,
+              "sourcePrinting": null
+            }
+          ]
+        },
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "ownTurnResources": {
+        "supporterPlayedTurn": 0,
+        "retreatedTurn": 0,
+        "extraTurnActive": false,
+        "energyPlayedTurn": false,
+        "stadiumPlayedTurn": false,
+        "stadiumUsedTurn": false,
+        "vstarUsed": false,
+        "pokemonPlayLocked": false,
+        "abilityPokemonPlayLocked": false,
+        "evolutionPlayLocked": false,
+        "itemPlayLocked": false,
+        "supporterPlayLocked": false,
+        "stadiumPlayLocked": false,
+        "toolPlayLocked": false,
+        "energyPlayLocked": false,
+        "specialEnergyPlayLocked": false
+      },
+      "ownerK1": null
+    },
+    "stoutland-live-unhooded-root": {
+      "actorSeat": 0,
+      "globalTurn": 3,
+      "phase": 2,
+      "decisionKind": "owner-root",
+      "pendingPromptType": null,
+      "pendingOwnerDeckSearch": false,
+      "ownHand": [],
+      "ownPublic": {
+        "active": {
+          "printing": "Bunnelby PRC 121",
+          "name": "Bunnelby",
+          "hp": 150,
+          "damage": 0,
+          "lastPlayedOrEvolvedTurn": 1,
+          "printed": {
+            "stage": "BASIC",
+            "subtypes": [
+              "Basic"
+            ],
+            "types": [
+              "Colorless"
+            ],
+            "retreatCost": [],
+            "weakness": [],
+            "resistance": []
+          },
+          "specialConditions": [],
+          "publicRestrictions": {
+            "cannotAttackNextTurn": false,
+            "cannotUseAttacksNextTurn": [],
+            "blockedAttackNameNextTurn": null,
+            "blockedAttackNameUntilLeavesActive": null,
+            "onlyAllowedAttackNameNextTurn": null,
+            "attackCostIncreaseNextTurn": 0,
+            "attackCostIncreaseWhileActive": 0,
+            "cannotRetreat": false,
+            "cannotRetreatNextTurn": false,
+            "cannotRetreatWhileActive": false,
+            "cannotEvolveNextTurn": false
+          },
+          "evolutionPrintings": [],
+          "energies": [],
+          "tools": [],
+          "attacks": [],
+          "abilities": [],
+          "abilityDetails": [],
+          "abilitySuppressions": []
+        },
+        "bench": [
+          {
+            "printing": "Stoutland BCR 122",
+            "name": "Stoutland",
+            "hp": 150,
+            "damage": 0,
+            "lastPlayedOrEvolvedTurn": 1,
+            "printed": {
+              "stage": "STAGE2",
+              "subtypes": [
+                "Stage 2"
+              ],
+              "types": [
+                "Colorless"
+              ],
+              "retreatCost": [],
+              "weakness": [],
+              "resistance": []
+            },
+            "specialConditions": [],
+            "publicRestrictions": {
+              "cannotAttackNextTurn": false,
+              "cannotUseAttacksNextTurn": [],
+              "blockedAttackNameNextTurn": null,
+              "blockedAttackNameUntilLeavesActive": null,
+              "onlyAllowedAttackNameNextTurn": null,
+              "attackCostIncreaseNextTurn": 0,
+              "attackCostIncreaseWhileActive": 0,
+              "cannotRetreat": false,
+              "cannotRetreatNextTurn": false,
+              "cannotRetreatWhileActive": false,
+              "cannotEvolveNextTurn": false
+            },
+            "evolutionPrintings": [],
+            "energies": [],
+            "tools": [],
+            "attacks": [],
+            "abilities": [
+              "Sentinel"
+            ],
+            "abilityDetails": [
+              {
+                "name": "Sentinel",
+                "powerType": "ABILITY",
+                "text": "Once during your turn."
+              }
+            ],
+            "abilitySuppressions": [
+              {
+                "abilityName": "Sentinel",
+                "suppressed": false,
+                "reasonCode": null,
+                "sourcePrinting": null
+              }
+            ]
+          },
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "opponentPublic": {
+        "active": {
+          "printing": "Garbodor DRX 54",
+          "name": "Garbodor",
+          "hp": 150,
+          "damage": 0,
+          "lastPlayedOrEvolvedTurn": 1,
+          "printed": {
+            "stage": "STAGE1",
+            "subtypes": [
+              "Stage 1"
+            ],
+            "types": [
+              "Colorless"
+            ],
+            "retreatCost": [],
+            "weakness": [],
+            "resistance": []
+          },
+          "specialConditions": [],
+          "publicRestrictions": {
+            "cannotAttackNextTurn": false,
+            "cannotUseAttacksNextTurn": [],
+            "blockedAttackNameNextTurn": null,
+            "blockedAttackNameUntilLeavesActive": null,
+            "onlyAllowedAttackNameNextTurn": null,
+            "attackCostIncreaseNextTurn": 0,
+            "attackCostIncreaseWhileActive": 0,
+            "cannotRetreat": false,
+            "cannotRetreatNextTurn": false,
+            "cannotRetreatWhileActive": false,
+            "cannotEvolveNextTurn": false
+          },
+          "evolutionPrintings": [],
+          "energies": [],
+          "tools": [
+            "Float Stone BKT 137"
+          ],
+          "attacks": [],
+          "abilities": [
+            "Garbotoxin"
+          ],
+          "abilityDetails": [
+            {
+              "name": "Garbotoxin",
+              "powerType": "ABILITY",
+              "text": "Once during your turn."
+            }
+          ],
+          "abilitySuppressions": [
+            {
+              "abilityName": "Garbotoxin",
+              "suppressed": false,
+              "reasonCode": null,
+              "sourcePrinting": null
+            }
+          ]
+        },
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "ownTurnResources": {
+        "supporterPlayedTurn": 0,
+        "retreatedTurn": 0,
+        "extraTurnActive": false,
+        "energyPlayedTurn": false,
+        "stadiumPlayedTurn": false,
+        "stadiumUsedTurn": false,
+        "vstarUsed": false,
+        "pokemonPlayLocked": false,
+        "abilityPokemonPlayLocked": false,
+        "evolutionPlayLocked": false,
+        "itemPlayLocked": false,
+        "supporterPlayLocked": false,
+        "stadiumPlayLocked": false,
+        "toolPlayLocked": false,
+        "energyPlayLocked": false,
+        "specialEnergyPlayLocked": false
+      },
+      "ownerK1": null
+    },
+    "stoutland-no-tool-root": {
+      "actorSeat": 0,
+      "globalTurn": 3,
+      "phase": 2,
+      "decisionKind": "owner-root",
+      "pendingPromptType": null,
+      "pendingOwnerDeckSearch": false,
+      "ownHand": [],
+      "ownPublic": {
+        "active": {
+          "printing": "Bunnelby PRC 121",
+          "name": "Bunnelby",
+          "hp": 150,
+          "damage": 0,
+          "lastPlayedOrEvolvedTurn": 1,
+          "printed": {
+            "stage": "BASIC",
+            "subtypes": [
+              "Basic"
+            ],
+            "types": [
+              "Colorless"
+            ],
+            "retreatCost": [],
+            "weakness": [],
+            "resistance": []
+          },
+          "specialConditions": [],
+          "publicRestrictions": {
+            "cannotAttackNextTurn": false,
+            "cannotUseAttacksNextTurn": [],
+            "blockedAttackNameNextTurn": null,
+            "blockedAttackNameUntilLeavesActive": null,
+            "onlyAllowedAttackNameNextTurn": null,
+            "attackCostIncreaseNextTurn": 0,
+            "attackCostIncreaseWhileActive": 0,
+            "cannotRetreat": false,
+            "cannotRetreatNextTurn": false,
+            "cannotRetreatWhileActive": false,
+            "cannotEvolveNextTurn": false
+          },
+          "evolutionPrintings": [],
+          "energies": [],
+          "tools": [],
+          "attacks": [],
+          "abilities": [],
+          "abilityDetails": [],
+          "abilitySuppressions": []
+        },
+        "bench": [
+          {
+            "printing": "Stoutland BCR 122",
+            "name": "Stoutland",
+            "hp": 150,
+            "damage": 0,
+            "lastPlayedOrEvolvedTurn": 1,
+            "printed": {
+              "stage": "STAGE2",
+              "subtypes": [
+                "Stage 2"
+              ],
+              "types": [
+                "Colorless"
+              ],
+              "retreatCost": [],
+              "weakness": [],
+              "resistance": []
+            },
+            "specialConditions": [],
+            "publicRestrictions": {
+              "cannotAttackNextTurn": false,
+              "cannotUseAttacksNextTurn": [],
+              "blockedAttackNameNextTurn": null,
+              "blockedAttackNameUntilLeavesActive": null,
+              "onlyAllowedAttackNameNextTurn": null,
+              "attackCostIncreaseNextTurn": 0,
+              "attackCostIncreaseWhileActive": 0,
+              "cannotRetreat": false,
+              "cannotRetreatNextTurn": false,
+              "cannotRetreatWhileActive": false,
+              "cannotEvolveNextTurn": false
+            },
+            "evolutionPrintings": [],
+            "energies": [],
+            "tools": [],
+            "attacks": [],
+            "abilities": [
+              "Sentinel"
+            ],
+            "abilityDetails": [
+              {
+                "name": "Sentinel",
+                "powerType": "ABILITY",
+                "text": "Once during your turn."
+              }
+            ],
+            "abilitySuppressions": [
+              {
+                "abilityName": "Sentinel",
+                "suppressed": false,
+                "reasonCode": null,
+                "sourcePrinting": null
+              }
+            ]
+          },
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "opponentPublic": {
+        "active": {
+          "printing": "Garbodor DRX 54",
+          "name": "Garbodor",
+          "hp": 150,
+          "damage": 0,
+          "lastPlayedOrEvolvedTurn": 1,
+          "printed": {
+            "stage": "STAGE1",
+            "subtypes": [
+              "Stage 1"
+            ],
+            "types": [
+              "Colorless"
+            ],
+            "retreatCost": [],
+            "weakness": [],
+            "resistance": []
+          },
+          "specialConditions": [],
+          "publicRestrictions": {
+            "cannotAttackNextTurn": false,
+            "cannotUseAttacksNextTurn": [],
+            "blockedAttackNameNextTurn": null,
+            "blockedAttackNameUntilLeavesActive": null,
+            "onlyAllowedAttackNameNextTurn": null,
+            "attackCostIncreaseNextTurn": 0,
+            "attackCostIncreaseWhileActive": 0,
+            "cannotRetreat": false,
+            "cannotRetreatNextTurn": false,
+            "cannotRetreatWhileActive": false,
+            "cannotEvolveNextTurn": false
+          },
+          "evolutionPrintings": [],
+          "energies": [],
+          "tools": [],
+          "attacks": [],
+          "abilities": [
+            "Garbotoxin"
+          ],
+          "abilityDetails": [
+            {
+              "name": "Garbotoxin",
+              "powerType": "ABILITY",
+              "text": "Once during your turn."
+            }
+          ],
+          "abilitySuppressions": [
+            {
+              "abilityName": "Garbotoxin",
+              "suppressed": false,
+              "reasonCode": null,
+              "sourcePrinting": null
+            }
+          ]
+        },
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "ownTurnResources": {
+        "supporterPlayedTurn": 0,
+        "retreatedTurn": 0,
+        "extraTurnActive": false,
+        "energyPlayedTurn": false,
+        "stadiumPlayedTurn": false,
+        "stadiumUsedTurn": false,
+        "vstarUsed": false,
+        "pokemonPlayLocked": false,
+        "abilityPokemonPlayLocked": false,
+        "evolutionPlayLocked": false,
+        "itemPlayLocked": false,
+        "supporterPlayLocked": false,
+        "stadiumPlayLocked": false,
+        "toolPlayLocked": false,
+        "energyPlayLocked": false,
+        "specialEnergyPlayLocked": false
+      },
+      "ownerK1": null
+    },
+    "stoutland-unknown-suppression-root": {
+      "actorSeat": 0,
+      "globalTurn": 3,
+      "phase": 2,
+      "decisionKind": "owner-root",
+      "pendingPromptType": null,
+      "pendingOwnerDeckSearch": false,
+      "ownHand": [],
+      "ownPublic": {
+        "active": {
+          "printing": "Bunnelby PRC 121",
+          "name": "Bunnelby",
+          "hp": 150,
+          "damage": 0,
+          "lastPlayedOrEvolvedTurn": 1,
+          "printed": {
+            "stage": "BASIC",
+            "subtypes": [
+              "Basic"
+            ],
+            "types": [
+              "Colorless"
+            ],
+            "retreatCost": [],
+            "weakness": [],
+            "resistance": []
+          },
+          "specialConditions": [],
+          "publicRestrictions": {
+            "cannotAttackNextTurn": false,
+            "cannotUseAttacksNextTurn": [],
+            "blockedAttackNameNextTurn": null,
+            "blockedAttackNameUntilLeavesActive": null,
+            "onlyAllowedAttackNameNextTurn": null,
+            "attackCostIncreaseNextTurn": 0,
+            "attackCostIncreaseWhileActive": 0,
+            "cannotRetreat": false,
+            "cannotRetreatNextTurn": false,
+            "cannotRetreatWhileActive": false,
+            "cannotEvolveNextTurn": false
+          },
+          "evolutionPrintings": [],
+          "energies": [],
+          "tools": [],
+          "attacks": [],
+          "abilities": [],
+          "abilityDetails": [],
+          "abilitySuppressions": []
+        },
+        "bench": [
+          {
+            "printing": "Stoutland BCR 122",
+            "name": "Stoutland",
+            "hp": 150,
+            "damage": 0,
+            "lastPlayedOrEvolvedTurn": 1,
+            "printed": {
+              "stage": "STAGE2",
+              "subtypes": [
+                "Stage 2"
+              ],
+              "types": [
+                "Colorless"
+              ],
+              "retreatCost": [],
+              "weakness": [],
+              "resistance": []
+            },
+            "specialConditions": [],
+            "publicRestrictions": {
+              "cannotAttackNextTurn": false,
+              "cannotUseAttacksNextTurn": [],
+              "blockedAttackNameNextTurn": null,
+              "blockedAttackNameUntilLeavesActive": null,
+              "onlyAllowedAttackNameNextTurn": null,
+              "attackCostIncreaseNextTurn": 0,
+              "attackCostIncreaseWhileActive": 0,
+              "cannotRetreat": false,
+              "cannotRetreatNextTurn": false,
+              "cannotRetreatWhileActive": false,
+              "cannotEvolveNextTurn": false
+            },
+            "evolutionPrintings": [],
+            "energies": [],
+            "tools": [],
+            "attacks": [],
+            "abilities": [
+              "Sentinel"
+            ],
+            "abilityDetails": [
+              {
+                "name": "Sentinel",
+                "powerType": "ABILITY",
+                "text": "Once during your turn."
+              }
+            ],
+            "abilitySuppressions": [
+              {
+                "abilityName": "Sentinel",
+                "suppressed": false,
+                "reasonCode": null,
+                "sourcePrinting": null
+              }
+            ]
+          },
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "opponentPublic": {
+        "active": {
+          "printing": "Garbodor DRX 54",
+          "name": "Garbodor",
+          "hp": 150,
+          "damage": 0,
+          "lastPlayedOrEvolvedTurn": 1,
+          "printed": {
+            "stage": "STAGE1",
+            "subtypes": [
+              "Stage 1"
+            ],
+            "types": [
+              "Colorless"
+            ],
+            "retreatCost": [],
+            "weakness": [],
+            "resistance": []
+          },
+          "specialConditions": [],
+          "publicRestrictions": {
+            "cannotAttackNextTurn": false,
+            "cannotUseAttacksNextTurn": [],
+            "blockedAttackNameNextTurn": null,
+            "blockedAttackNameUntilLeavesActive": null,
+            "onlyAllowedAttackNameNextTurn": null,
+            "attackCostIncreaseNextTurn": 0,
+            "attackCostIncreaseWhileActive": 0,
+            "cannotRetreat": false,
+            "cannotRetreatNextTurn": false,
+            "cannotRetreatWhileActive": false,
+            "cannotEvolveNextTurn": false
+          },
+          "evolutionPrintings": [],
+          "energies": [],
+          "tools": [
+            "Float Stone BKT 137"
+          ],
+          "attacks": [],
+          "abilities": [
+            "Garbotoxin"
+          ],
+          "abilityDetails": [
+            {
+              "name": "Garbotoxin",
+              "powerType": "ABILITY",
+              "text": "Once during your turn."
+            }
+          ],
+          "abilitySuppressions": [
+            {
+              "abilityName": "Garbotoxin",
+              "suppressed": null,
+              "reasonCode": null,
+              "sourcePrinting": null
+            }
+          ]
+        },
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "ownTurnResources": {
+        "supporterPlayedTurn": 0,
+        "retreatedTurn": 0,
+        "extraTurnActive": false,
+        "energyPlayedTurn": false,
+        "stadiumPlayedTurn": false,
+        "stadiumUsedTurn": false,
+        "vstarUsed": false,
+        "pokemonPlayLocked": false,
+        "abilityPokemonPlayLocked": false,
+        "evolutionPlayLocked": false,
+        "itemPlayLocked": false,
+        "supporterPlayLocked": false,
+        "stadiumPlayLocked": false,
+        "toolPlayLocked": false,
+        "energyPlayLocked": false,
+        "specialEnergyPlayLocked": false
+      },
+      "ownerK1": null
+    },
+    "hood-under-item-lock-root": {
+      "actorSeat": 0,
+      "globalTurn": 3,
+      "phase": 2,
+      "decisionKind": "owner-root",
+      "pendingPromptType": null,
+      "pendingOwnerDeckSearch": false,
+      "ownHand": [
+        "Stealthy Hood UNB 186"
+      ],
+      "ownPublic": {
+        "active": {
+          "printing": "Bunnelby PRC 121",
+          "name": "Bunnelby",
+          "hp": 150,
+          "damage": 0,
+          "lastPlayedOrEvolvedTurn": 1,
+          "printed": {
+            "stage": "BASIC",
+            "subtypes": [
+              "Basic"
+            ],
+            "types": [
+              "Colorless"
+            ],
+            "retreatCost": [],
+            "weakness": [],
+            "resistance": []
+          },
+          "specialConditions": [],
+          "publicRestrictions": {
+            "cannotAttackNextTurn": false,
+            "cannotUseAttacksNextTurn": [],
+            "blockedAttackNameNextTurn": null,
+            "blockedAttackNameUntilLeavesActive": null,
+            "onlyAllowedAttackNameNextTurn": null,
+            "attackCostIncreaseNextTurn": 0,
+            "attackCostIncreaseWhileActive": 0,
+            "cannotRetreat": false,
+            "cannotRetreatNextTurn": false,
+            "cannotRetreatWhileActive": false,
+            "cannotEvolveNextTurn": false
+          },
+          "evolutionPrintings": [],
+          "energies": [],
+          "tools": [],
+          "attacks": [],
+          "abilities": [],
+          "abilityDetails": [],
+          "abilitySuppressions": []
+        },
+        "bench": [
+          {
+            "printing": "Stoutland BCR 122",
+            "name": "Stoutland",
+            "hp": 150,
+            "damage": 0,
+            "lastPlayedOrEvolvedTurn": 1,
+            "printed": {
+              "stage": "STAGE2",
+              "subtypes": [
+                "Stage 2"
+              ],
+              "types": [
+                "Colorless"
+              ],
+              "retreatCost": [],
+              "weakness": [],
+              "resistance": []
+            },
+            "specialConditions": [],
+            "publicRestrictions": {
+              "cannotAttackNextTurn": false,
+              "cannotUseAttacksNextTurn": [],
+              "blockedAttackNameNextTurn": null,
+              "blockedAttackNameUntilLeavesActive": null,
+              "onlyAllowedAttackNameNextTurn": null,
+              "attackCostIncreaseNextTurn": 0,
+              "attackCostIncreaseWhileActive": 0,
+              "cannotRetreat": false,
+              "cannotRetreatNextTurn": false,
+              "cannotRetreatWhileActive": false,
+              "cannotEvolveNextTurn": false
+            },
+            "evolutionPrintings": [],
+            "energies": [],
+            "tools": [],
+            "attacks": [],
+            "abilities": [
+              "Sentinel"
+            ],
+            "abilityDetails": [
+              {
+                "name": "Sentinel",
+                "powerType": "ABILITY",
+                "text": "Once during your turn."
+              }
+            ],
+            "abilitySuppressions": [
+              {
+                "abilityName": "Sentinel",
+                "suppressed": false,
+                "reasonCode": null,
+                "sourcePrinting": null
+              }
+            ]
+          },
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": true,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 1,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "opponentPublic": {
+        "active": {
+          "printing": "Garbodor DRX 54",
+          "name": "Garbodor",
+          "hp": 150,
+          "damage": 0,
+          "lastPlayedOrEvolvedTurn": 1,
+          "printed": {
+            "stage": "STAGE1",
+            "subtypes": [
+              "Stage 1"
+            ],
+            "types": [
+              "Colorless"
+            ],
+            "retreatCost": [],
+            "weakness": [],
+            "resistance": []
+          },
+          "specialConditions": [],
+          "publicRestrictions": {
+            "cannotAttackNextTurn": false,
+            "cannotUseAttacksNextTurn": [],
+            "blockedAttackNameNextTurn": null,
+            "blockedAttackNameUntilLeavesActive": null,
+            "onlyAllowedAttackNameNextTurn": null,
+            "attackCostIncreaseNextTurn": 0,
+            "attackCostIncreaseWhileActive": 0,
+            "cannotRetreat": false,
+            "cannotRetreatNextTurn": false,
+            "cannotRetreatWhileActive": false,
+            "cannotEvolveNextTurn": false
+          },
+          "evolutionPrintings": [],
+          "energies": [],
+          "tools": [
+            "Float Stone BKT 137"
+          ],
+          "attacks": [],
+          "abilities": [
+            "Garbotoxin"
+          ],
+          "abilityDetails": [
+            {
+              "name": "Garbotoxin",
+              "powerType": "ABILITY",
+              "text": "Once during your turn."
+            }
+          ],
+          "abilitySuppressions": [
+            {
+              "abilityName": "Garbotoxin",
+              "suppressed": false,
+              "reasonCode": null,
+              "sourcePrinting": null
+            }
+          ]
+        },
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "ownTurnResources": {
+        "supporterPlayedTurn": 0,
+        "retreatedTurn": 0,
+        "extraTurnActive": false,
+        "energyPlayedTurn": false,
+        "stadiumPlayedTurn": false,
+        "stadiumUsedTurn": false,
+        "vstarUsed": false,
+        "pokemonPlayLocked": false,
+        "abilityPokemonPlayLocked": false,
+        "evolutionPlayLocked": false,
+        "itemPlayLocked": true,
+        "supporterPlayLocked": false,
+        "stadiumPlayLocked": false,
+        "toolPlayLocked": false,
+        "energyPlayLocked": false,
+        "specialEnergyPlayLocked": false
+      },
+      "ownerK1": null
+    },
+    "discard-jet-duplicates-prompt": {
+      "actorSeat": 0,
+      "globalTurn": 3,
+      "phase": 2,
+      "decisionKind": "owner-prompt",
+      "pendingPromptType": "ChooseCardsPrompt",
+      "pendingOwnerDeckSearch": false,
+      "ownHand": [
+        "Jet Energy PAL 190",
+        "Jet Energy PAL 190",
+        "Grass Energy MEE 9"
+      ],
+      "ownPublic": {
+        "active": {
+          "printing": "Fan Rotom SCR 118",
+          "name": "Fan Rotom",
+          "hp": 150,
+          "damage": 0,
+          "lastPlayedOrEvolvedTurn": 1,
+          "printed": {
+            "stage": "BASIC",
+            "subtypes": [
+              "Basic"
+            ],
+            "types": [
+              "Colorless"
+            ],
+            "retreatCost": [],
+            "weakness": [],
+            "resistance": []
+          },
+          "specialConditions": [],
+          "publicRestrictions": {
+            "cannotAttackNextTurn": false,
+            "cannotUseAttacksNextTurn": [],
+            "blockedAttackNameNextTurn": null,
+            "blockedAttackNameUntilLeavesActive": null,
+            "onlyAllowedAttackNameNextTurn": null,
+            "attackCostIncreaseNextTurn": 0,
+            "attackCostIncreaseWhileActive": 0,
+            "cannotRetreat": false,
+            "cannotRetreatNextTurn": false,
+            "cannotRetreatWhileActive": false,
+            "cannotEvolveNextTurn": false
+          },
+          "evolutionPrintings": [],
+          "energies": [],
+          "tools": [],
+          "attacks": [],
+          "abilities": [],
+          "abilityDetails": [],
+          "abilitySuppressions": []
+        },
+        "bench": [
+          {
+            "printing": "Bunnelby PRC 121",
+            "name": "Bunnelby",
+            "hp": 150,
+            "damage": 0,
+            "lastPlayedOrEvolvedTurn": 1,
+            "printed": {
+              "stage": "BASIC",
+              "subtypes": [
+                "Basic"
+              ],
+              "types": [
+                "Colorless"
+              ],
+              "retreatCost": [],
+              "weakness": [],
+              "resistance": []
+            },
+            "specialConditions": [],
+            "publicRestrictions": {
+              "cannotAttackNextTurn": false,
+              "cannotUseAttacksNextTurn": [],
+              "blockedAttackNameNextTurn": null,
+              "blockedAttackNameUntilLeavesActive": null,
+              "onlyAllowedAttackNameNextTurn": null,
+              "attackCostIncreaseNextTurn": 0,
+              "attackCostIncreaseWhileActive": 0,
+              "cannotRetreat": false,
+              "cannotRetreatNextTurn": false,
+              "cannotRetreatWhileActive": false,
+              "cannotEvolveNextTurn": false
+            },
+            "evolutionPrintings": [],
+            "energies": [],
+            "tools": [],
+            "attacks": [],
+            "abilities": [],
+            "abilityDetails": [],
+            "abilitySuppressions": []
+          },
+          {
+            "printing": "Oddish UNB 5",
+            "name": "Oddish",
+            "hp": 150,
+            "damage": 0,
+            "lastPlayedOrEvolvedTurn": 1,
+            "printed": {
+              "stage": "BASIC",
+              "subtypes": [
+                "Basic"
+              ],
+              "types": [
+                "Colorless"
+              ],
+              "retreatCost": [],
+              "weakness": [],
+              "resistance": []
+            },
+            "specialConditions": [],
+            "publicRestrictions": {
+              "cannotAttackNextTurn": false,
+              "cannotUseAttacksNextTurn": [],
+              "blockedAttackNameNextTurn": null,
+              "blockedAttackNameUntilLeavesActive": null,
+              "onlyAllowedAttackNameNextTurn": null,
+              "attackCostIncreaseNextTurn": 0,
+              "attackCostIncreaseWhileActive": 0,
+              "cannotRetreat": false,
+              "cannotRetreatNextTurn": false,
+              "cannotRetreatWhileActive": false,
+              "cannotEvolveNextTurn": false
+            },
+            "evolutionPrintings": [],
+            "energies": [],
+            "tools": [],
+            "attacks": [],
+            "abilities": [],
+            "abilityDetails": [],
+            "abilitySuppressions": []
+          },
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 3,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "opponentPublic": {
+        "active": null,
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "ownTurnResources": {
+        "supporterPlayedTurn": 0,
+        "retreatedTurn": 0,
+        "extraTurnActive": false,
+        "energyPlayedTurn": false,
+        "stadiumPlayedTurn": false,
+        "stadiumUsedTurn": false,
+        "vstarUsed": false,
+        "pokemonPlayLocked": false,
+        "abilityPokemonPlayLocked": false,
+        "evolutionPlayLocked": false,
+        "itemPlayLocked": false,
+        "supporterPlayLocked": false,
+        "stadiumPlayLocked": false,
+        "toolPlayLocked": false,
+        "energyPlayLocked": false,
+        "specialEnergyPlayLocked": false
+      },
+      "ownerK1": null
+    },
+    "discard-tm-duplicates-prompt": {
+      "actorSeat": 0,
+      "globalTurn": 3,
+      "phase": 2,
+      "decisionKind": "owner-prompt",
+      "pendingPromptType": "ChooseCardsPrompt",
+      "pendingOwnerDeckSearch": false,
+      "ownHand": [
+        "Technical Machine: Evolution PAR 178",
+        "Technical Machine: Evolution PAR 178",
+        "Grass Energy MEE 9"
+      ],
+      "ownPublic": {
+        "active": {
+          "printing": "Fan Rotom SCR 118",
+          "name": "Fan Rotom",
+          "hp": 150,
+          "damage": 0,
+          "lastPlayedOrEvolvedTurn": 1,
+          "printed": {
+            "stage": "BASIC",
+            "subtypes": [
+              "Basic"
+            ],
+            "types": [
+              "Colorless"
+            ],
+            "retreatCost": [],
+            "weakness": [],
+            "resistance": []
+          },
+          "specialConditions": [],
+          "publicRestrictions": {
+            "cannotAttackNextTurn": false,
+            "cannotUseAttacksNextTurn": [],
+            "blockedAttackNameNextTurn": null,
+            "blockedAttackNameUntilLeavesActive": null,
+            "onlyAllowedAttackNameNextTurn": null,
+            "attackCostIncreaseNextTurn": 0,
+            "attackCostIncreaseWhileActive": 0,
+            "cannotRetreat": false,
+            "cannotRetreatNextTurn": false,
+            "cannotRetreatWhileActive": false,
+            "cannotEvolveNextTurn": false
+          },
+          "evolutionPrintings": [],
+          "energies": [],
+          "tools": [],
+          "attacks": [],
+          "abilities": [],
+          "abilityDetails": [],
+          "abilitySuppressions": []
+        },
+        "bench": [
+          {
+            "printing": "Bunnelby PRC 121",
+            "name": "Bunnelby",
+            "hp": 150,
+            "damage": 0,
+            "lastPlayedOrEvolvedTurn": 1,
+            "printed": {
+              "stage": "BASIC",
+              "subtypes": [
+                "Basic"
+              ],
+              "types": [
+                "Colorless"
+              ],
+              "retreatCost": [],
+              "weakness": [],
+              "resistance": []
+            },
+            "specialConditions": [],
+            "publicRestrictions": {
+              "cannotAttackNextTurn": false,
+              "cannotUseAttacksNextTurn": [],
+              "blockedAttackNameNextTurn": null,
+              "blockedAttackNameUntilLeavesActive": null,
+              "onlyAllowedAttackNameNextTurn": null,
+              "attackCostIncreaseNextTurn": 0,
+              "attackCostIncreaseWhileActive": 0,
+              "cannotRetreat": false,
+              "cannotRetreatNextTurn": false,
+              "cannotRetreatWhileActive": false,
+              "cannotEvolveNextTurn": false
+            },
+            "evolutionPrintings": [],
+            "energies": [],
+            "tools": [],
+            "attacks": [],
+            "abilities": [],
+            "abilityDetails": [],
+            "abilitySuppressions": []
+          },
+          {
+            "printing": "Oddish UNB 5",
+            "name": "Oddish",
+            "hp": 150,
+            "damage": 0,
+            "lastPlayedOrEvolvedTurn": 1,
+            "printed": {
+              "stage": "BASIC",
+              "subtypes": [
+                "Basic"
+              ],
+              "types": [
+                "Colorless"
+              ],
+              "retreatCost": [],
+              "weakness": [],
+              "resistance": []
+            },
+            "specialConditions": [],
+            "publicRestrictions": {
+              "cannotAttackNextTurn": false,
+              "cannotUseAttacksNextTurn": [],
+              "blockedAttackNameNextTurn": null,
+              "blockedAttackNameUntilLeavesActive": null,
+              "onlyAllowedAttackNameNextTurn": null,
+              "attackCostIncreaseNextTurn": 0,
+              "attackCostIncreaseWhileActive": 0,
+              "cannotRetreat": false,
+              "cannotRetreatNextTurn": false,
+              "cannotRetreatWhileActive": false,
+              "cannotEvolveNextTurn": false
+            },
+            "evolutionPrintings": [],
+            "energies": [],
+            "tools": [],
+            "attacks": [],
+            "abilities": [],
+            "abilityDetails": [],
+            "abilitySuppressions": []
+          },
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 3,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "opponentPublic": {
+        "active": null,
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "ownTurnResources": {
+        "supporterPlayedTurn": 0,
+        "retreatedTurn": 0,
+        "extraTurnActive": false,
+        "energyPlayedTurn": false,
+        "stadiumPlayedTurn": false,
+        "stadiumUsedTurn": false,
+        "vstarUsed": false,
+        "pokemonPlayLocked": false,
+        "abilityPokemonPlayLocked": false,
+        "evolutionPlayLocked": false,
+        "itemPlayLocked": false,
+        "supporterPlayLocked": false,
+        "stadiumPlayLocked": false,
+        "toolPlayLocked": false,
+        "energyPlayLocked": false,
+        "specialEnergyPlayLocked": false
+      },
+      "ownerK1": null
+    },
+    "own-hand-public-hand-dedup-root": {
+      "actorSeat": 0,
+      "globalTurn": 3,
+      "phase": 2,
+      "decisionKind": "owner-root",
+      "pendingPromptType": null,
+      "pendingOwnerDeckSearch": false,
+      "ownHand": [
+        "Jet Energy PAL 190"
+      ],
+      "ownPublic": {
+        "active": null,
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": [
+          "Jet Energy PAL 190"
+        ],
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 1,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "opponentPublic": {
+        "active": null,
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "ownTurnResources": {
+        "supporterPlayedTurn": 0,
+        "retreatedTurn": 0,
+        "extraTurnActive": false,
+        "energyPlayedTurn": false,
+        "stadiumPlayedTurn": false,
+        "stadiumUsedTurn": false,
+        "vstarUsed": false,
+        "pokemonPlayLocked": false,
+        "abilityPokemonPlayLocked": false,
+        "evolutionPlayLocked": false,
+        "itemPlayLocked": false,
+        "supporterPlayLocked": false,
+        "stadiumPlayLocked": false,
+        "toolPlayLocked": false,
+        "energyPlayLocked": false,
+        "specialEnergyPlayLocked": false
+      },
+      "ownerK1": null
+    },
+    "lusamine-unsupported-root": {
+      "actorSeat": 0,
+      "globalTurn": 3,
+      "phase": 2,
+      "decisionKind": "owner-root",
+      "pendingPromptType": null,
+      "pendingOwnerDeckSearch": false,
+      "ownHand": [
+        "Lusamine CIN 96"
+      ],
+      "ownPublic": {
+        "active": null,
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [
+          "Peonia CRE 149",
+          "Gladion CIN 95"
+        ],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 1,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "opponentPublic": {
+        "active": null,
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "ownTurnResources": {
+        "supporterPlayedTurn": 0,
+        "retreatedTurn": 0,
+        "extraTurnActive": false,
+        "energyPlayedTurn": false,
+        "stadiumPlayedTurn": false,
+        "stadiumUsedTurn": false,
+        "vstarUsed": false,
+        "pokemonPlayLocked": false,
+        "abilityPokemonPlayLocked": false,
+        "evolutionPlayLocked": false,
+        "itemPlayLocked": false,
+        "supporterPlayLocked": false,
+        "stadiumPlayLocked": false,
+        "toolPlayLocked": false,
+        "energyPlayLocked": false,
+        "specialEnergyPlayLocked": false
+      },
+      "ownerK1": null
+    },
+    "lusamine-unsupported-prompt": {
+      "actorSeat": 0,
+      "globalTurn": 3,
+      "phase": 2,
+      "decisionKind": "owner-prompt",
+      "pendingPromptType": "ChooseCardsPrompt",
+      "pendingOwnerDeckSearch": false,
+      "ownHand": [],
+      "ownPublic": {
+        "active": null,
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [
+          "Peonia CRE 149",
+          "Gladion CIN 95"
+        ],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "opponentPublic": {
+        "active": null,
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "ownTurnResources": {
+        "supporterPlayedTurn": 0,
+        "retreatedTurn": 0,
+        "extraTurnActive": false,
+        "energyPlayedTurn": false,
+        "stadiumPlayedTurn": false,
+        "stadiumUsedTurn": false,
+        "vstarUsed": false,
+        "pokemonPlayLocked": false,
+        "abilityPokemonPlayLocked": false,
+        "evolutionPlayLocked": false,
+        "itemPlayLocked": false,
+        "supporterPlayLocked": false,
+        "stadiumPlayLocked": false,
+        "toolPlayLocked": false,
+        "energyPlayLocked": false,
+        "specialEnergyPlayLocked": false
+      },
+      "ownerK1": null
+    },
+    "peonia-prize-blocked-prompt": {
+      "actorSeat": 0,
+      "globalTurn": 3,
+      "phase": 2,
+      "decisionKind": "owner-prompt",
+      "pendingPromptType": "ChoosePrizePrompt",
+      "pendingOwnerDeckSearch": false,
+      "ownHand": [],
+      "ownPublic": {
+        "active": null,
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "opponentPublic": {
+        "active": null,
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "ownTurnResources": {
+        "supporterPlayedTurn": 0,
+        "retreatedTurn": 0,
+        "extraTurnActive": false,
+        "energyPlayedTurn": false,
+        "stadiumPlayedTurn": false,
+        "stadiumUsedTurn": false,
+        "vstarUsed": false,
+        "pokemonPlayLocked": false,
+        "abilityPokemonPlayLocked": false,
+        "evolutionPlayLocked": false,
+        "itemPlayLocked": false,
+        "supporterPlayLocked": false,
+        "stadiumPlayLocked": false,
+        "toolPlayLocked": false,
+        "energyPlayLocked": false,
+        "specialEnergyPlayLocked": false
+      },
+      "ownerK1": null
+    },
+    "gladion-prize-blocked-prompt": {
+      "actorSeat": 0,
+      "globalTurn": 3,
+      "phase": 2,
+      "decisionKind": "owner-prompt",
+      "pendingPromptType": "ChoosePrizePrompt",
+      "pendingOwnerDeckSearch": false,
+      "ownHand": [],
+      "ownPublic": {
+        "active": null,
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "opponentPublic": {
+        "active": null,
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "ownTurnResources": {
+        "supporterPlayedTurn": 0,
+        "retreatedTurn": 0,
+        "extraTurnActive": false,
+        "energyPlayedTurn": false,
+        "stadiumPlayedTurn": false,
+        "stadiumUsedTurn": false,
+        "vstarUsed": false,
+        "pokemonPlayLocked": false,
+        "abilityPokemonPlayLocked": false,
+        "evolutionPlayLocked": false,
+        "itemPlayLocked": false,
+        "supporterPlayLocked": false,
+        "stadiumPlayLocked": false,
+        "toolPlayLocked": false,
+        "energyPlayLocked": false,
+        "specialEnergyPlayLocked": false
+      },
+      "ownerK1": null
+    },
+    "heldout-peonia-three-slot-prompt": {
+      "actorSeat": 0,
+      "globalTurn": 3,
+      "phase": 2,
+      "decisionKind": "owner-prompt",
+      "pendingPromptType": "ChoosePrizePrompt",
+      "pendingOwnerDeckSearch": false,
+      "ownHand": [
+        "Grass Energy MEE 9",
+        "Jet Energy PAL 190",
+        "Capture Energy RCL 171"
+      ],
+      "ownPublic": {
+        "active": null,
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [
+          {
+            "index": 0
+          },
+          {
+            "index": 1
+          },
+          {
+            "index": 2
+          }
+        ],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 3,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "opponentPublic": {
+        "active": null,
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "ownTurnResources": {
+        "supporterPlayedTurn": 0,
+        "retreatedTurn": 0,
+        "extraTurnActive": false,
+        "energyPlayedTurn": false,
+        "stadiumPlayedTurn": false,
+        "stadiumUsedTurn": false,
+        "vstarUsed": false,
+        "pokemonPlayLocked": false,
+        "abilityPokemonPlayLocked": false,
+        "evolutionPlayLocked": false,
+        "itemPlayLocked": false,
+        "supporterPlayLocked": false,
+        "stadiumPlayLocked": false,
+        "toolPlayLocked": false,
+        "energyPlayLocked": false,
+        "specialEnergyPlayLocked": false
+      },
+      "ownerK1": null
+    },
+    "heldout-gladion-identity-limited-prompt": {
+      "actorSeat": 0,
+      "globalTurn": 3,
+      "phase": 2,
+      "decisionKind": "owner-prompt",
+      "pendingPromptType": "ChoosePrizePrompt",
+      "pendingOwnerDeckSearch": false,
+      "ownHand": [],
+      "ownPublic": {
+        "active": null,
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [
+          {
+            "index": 0
+          },
+          {
+            "index": 1
+          },
+          {
+            "index": 2
+          }
+        ],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "opponentPublic": {
+        "active": null,
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "ownTurnResources": {
+        "supporterPlayedTurn": 0,
+        "retreatedTurn": 0,
+        "extraTurnActive": false,
+        "energyPlayedTurn": false,
+        "stadiumPlayedTurn": false,
+        "stadiumUsedTurn": false,
+        "vstarUsed": false,
+        "pokemonPlayLocked": false,
+        "abilityPokemonPlayLocked": false,
+        "evolutionPlayLocked": false,
+        "itemPlayLocked": false,
+        "supporterPlayLocked": false,
+        "stadiumPlayLocked": false,
+        "toolPlayLocked": false,
+        "energyPlayLocked": false,
+        "specialEnergyPlayLocked": false
+      },
+      "ownerK1": null
+    },
+    "heldout-mode0-opponent-stadium-root": {
+      "actorSeat": 0,
+      "globalTurn": 3,
+      "phase": 2,
+      "decisionKind": "owner-root",
+      "pendingPromptType": null,
+      "pendingOwnerDeckSearch": false,
+      "ownHand": [
+        "Guzma & Hala CEC 193"
+      ],
+      "ownPublic": {
+        "active": {
+          "printing": "Fan Rotom SCR 118",
+          "name": "Fan Rotom",
+          "hp": 150,
+          "damage": 0,
+          "lastPlayedOrEvolvedTurn": 1,
+          "printed": {
+            "stage": "BASIC",
+            "subtypes": [
+              "Basic"
+            ],
+            "types": [
+              "Colorless"
+            ],
+            "retreatCost": [],
+            "weakness": [],
+            "resistance": []
+          },
+          "specialConditions": [],
+          "publicRestrictions": {
+            "cannotAttackNextTurn": false,
+            "cannotUseAttacksNextTurn": [],
+            "blockedAttackNameNextTurn": null,
+            "blockedAttackNameUntilLeavesActive": null,
+            "onlyAllowedAttackNameNextTurn": null,
+            "attackCostIncreaseNextTurn": 0,
+            "attackCostIncreaseWhileActive": 0,
+            "cannotRetreat": false,
+            "cannotRetreatNextTurn": false,
+            "cannotRetreatWhileActive": false,
+            "cannotEvolveNextTurn": false
+          },
+          "evolutionPrintings": [],
+          "energies": [],
+          "tools": [],
+          "attacks": [],
+          "abilities": [],
+          "abilityDetails": [],
+          "abilitySuppressions": []
+        },
+        "bench": [
+          {
+            "printing": "Girafarig LOT 94",
+            "name": "Girafarig",
+            "hp": 150,
+            "damage": 0,
+            "lastPlayedOrEvolvedTurn": 1,
+            "printed": {
+              "stage": "BASIC",
+              "subtypes": [
+                "Basic"
+              ],
+              "types": [
+                "Colorless"
+              ],
+              "retreatCost": [],
+              "weakness": [],
+              "resistance": []
+            },
+            "specialConditions": [],
+            "publicRestrictions": {
+              "cannotAttackNextTurn": false,
+              "cannotUseAttacksNextTurn": [],
+              "blockedAttackNameNextTurn": null,
+              "blockedAttackNameUntilLeavesActive": null,
+              "onlyAllowedAttackNameNextTurn": null,
+              "attackCostIncreaseNextTurn": 0,
+              "attackCostIncreaseWhileActive": 0,
+              "cannotRetreat": false,
+              "cannotRetreatNextTurn": false,
+              "cannotRetreatWhileActive": false,
+              "cannotEvolveNextTurn": false
+            },
+            "evolutionPrintings": [],
+            "energies": [],
+            "tools": [],
+            "attacks": [],
+            "abilities": [],
+            "abilityDetails": [],
+            "abilitySuppressions": []
+          },
+          {
+            "printing": "Mr. Mime PLF 47",
+            "name": "Mr. Mime",
+            "hp": 150,
+            "damage": 0,
+            "lastPlayedOrEvolvedTurn": 1,
+            "printed": {
+              "stage": "BASIC",
+              "subtypes": [
+                "Basic"
+              ],
+              "types": [
+                "Colorless"
+              ],
+              "retreatCost": [],
+              "weakness": [],
+              "resistance": []
+            },
+            "specialConditions": [],
+            "publicRestrictions": {
+              "cannotAttackNextTurn": false,
+              "cannotUseAttacksNextTurn": [],
+              "blockedAttackNameNextTurn": null,
+              "blockedAttackNameUntilLeavesActive": null,
+              "onlyAllowedAttackNameNextTurn": null,
+              "attackCostIncreaseNextTurn": 0,
+              "attackCostIncreaseWhileActive": 0,
+              "cannotRetreat": false,
+              "cannotRetreatNextTurn": false,
+              "cannotRetreatWhileActive": false,
+              "cannotEvolveNextTurn": false
+            },
+            "evolutionPrintings": [],
+            "energies": [],
+            "tools": [],
+            "attacks": [],
+            "abilities": [],
+            "abilityDetails": [],
+            "abilitySuppressions": []
+          },
+          {
+            "printing": "Relicanth TEF 84",
+            "name": "Relicanth",
+            "hp": 150,
+            "damage": 0,
+            "lastPlayedOrEvolvedTurn": 1,
+            "printed": {
+              "stage": "BASIC",
+              "subtypes": [
+                "Basic"
+              ],
+              "types": [
+                "Colorless"
+              ],
+              "retreatCost": [],
+              "weakness": [],
+              "resistance": []
+            },
+            "specialConditions": [],
+            "publicRestrictions": {
+              "cannotAttackNextTurn": false,
+              "cannotUseAttacksNextTurn": [],
+              "blockedAttackNameNextTurn": null,
+              "blockedAttackNameUntilLeavesActive": null,
+              "onlyAllowedAttackNameNextTurn": null,
+              "attackCostIncreaseNextTurn": 0,
+              "attackCostIncreaseWhileActive": 0,
+              "cannotRetreat": false,
+              "cannotRetreatNextTurn": false,
+              "cannotRetreatWhileActive": false,
+              "cannotEvolveNextTurn": false
+            },
+            "evolutionPrintings": [],
+            "energies": [],
+            "tools": [],
+            "attacks": [],
+            "abilities": [],
+            "abilityDetails": [],
+            "abilitySuppressions": []
+          },
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 1,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "opponentPublic": {
+        "active": null,
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [
+          "Silent Lab PRC 140"
+        ],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "ownTurnResources": {
+        "supporterPlayedTurn": 0,
+        "retreatedTurn": 0,
+        "extraTurnActive": false,
+        "energyPlayedTurn": false,
+        "stadiumPlayedTurn": false,
+        "stadiumUsedTurn": false,
+        "vstarUsed": false,
+        "pokemonPlayLocked": false,
+        "abilityPokemonPlayLocked": false,
+        "evolutionPlayLocked": false,
+        "itemPlayLocked": false,
+        "supporterPlayLocked": false,
+        "stadiumPlayLocked": false,
+        "toolPlayLocked": false,
+        "energyPlayLocked": false,
+        "specialEnergyPlayLocked": false
+      },
+      "ownerK1": null
+    },
+    "heldout-stoutland-suppressed-garbotoxin-root": {
+      "actorSeat": 0,
+      "globalTurn": 3,
+      "phase": 2,
+      "decisionKind": "owner-root",
+      "pendingPromptType": null,
+      "pendingOwnerDeckSearch": false,
+      "ownHand": [],
+      "ownPublic": {
+        "active": {
+          "printing": "Bunnelby PRC 121",
+          "name": "Bunnelby",
+          "hp": 150,
+          "damage": 0,
+          "lastPlayedOrEvolvedTurn": 1,
+          "printed": {
+            "stage": "BASIC",
+            "subtypes": [
+              "Basic"
+            ],
+            "types": [
+              "Colorless"
+            ],
+            "retreatCost": [],
+            "weakness": [],
+            "resistance": []
+          },
+          "specialConditions": [],
+          "publicRestrictions": {
+            "cannotAttackNextTurn": false,
+            "cannotUseAttacksNextTurn": [],
+            "blockedAttackNameNextTurn": null,
+            "blockedAttackNameUntilLeavesActive": null,
+            "onlyAllowedAttackNameNextTurn": null,
+            "attackCostIncreaseNextTurn": 0,
+            "attackCostIncreaseWhileActive": 0,
+            "cannotRetreat": false,
+            "cannotRetreatNextTurn": false,
+            "cannotRetreatWhileActive": false,
+            "cannotEvolveNextTurn": false
+          },
+          "evolutionPrintings": [],
+          "energies": [],
+          "tools": [],
+          "attacks": [],
+          "abilities": [],
+          "abilityDetails": [],
+          "abilitySuppressions": []
+        },
+        "bench": [
+          {
+            "printing": "Stoutland BCR 122",
+            "name": "Stoutland",
+            "hp": 150,
+            "damage": 0,
+            "lastPlayedOrEvolvedTurn": 1,
+            "printed": {
+              "stage": "STAGE2",
+              "subtypes": [
+                "Stage 2"
+              ],
+              "types": [
+                "Colorless"
+              ],
+              "retreatCost": [],
+              "weakness": [],
+              "resistance": []
+            },
+            "specialConditions": [],
+            "publicRestrictions": {
+              "cannotAttackNextTurn": false,
+              "cannotUseAttacksNextTurn": [],
+              "blockedAttackNameNextTurn": null,
+              "blockedAttackNameUntilLeavesActive": null,
+              "onlyAllowedAttackNameNextTurn": null,
+              "attackCostIncreaseNextTurn": 0,
+              "attackCostIncreaseWhileActive": 0,
+              "cannotRetreat": false,
+              "cannotRetreatNextTurn": false,
+              "cannotRetreatWhileActive": false,
+              "cannotEvolveNextTurn": false
+            },
+            "evolutionPrintings": [],
+            "energies": [],
+            "tools": [],
+            "attacks": [],
+            "abilities": [
+              "Sentinel"
+            ],
+            "abilityDetails": [
+              {
+                "name": "Sentinel",
+                "powerType": "ABILITY",
+                "text": "Once during your turn."
+              }
+            ],
+            "abilitySuppressions": [
+              {
+                "abilityName": "Sentinel",
+                "suppressed": false,
+                "reasonCode": null,
+                "sourcePrinting": null
+              }
+            ]
+          },
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "opponentPublic": {
+        "active": {
+          "printing": "Garbodor DRX 54",
+          "name": "Garbodor",
+          "hp": 150,
+          "damage": 0,
+          "lastPlayedOrEvolvedTurn": 1,
+          "printed": {
+            "stage": "STAGE1",
+            "subtypes": [
+              "Stage 1"
+            ],
+            "types": [
+              "Colorless"
+            ],
+            "retreatCost": [],
+            "weakness": [],
+            "resistance": []
+          },
+          "specialConditions": [],
+          "publicRestrictions": {
+            "cannotAttackNextTurn": false,
+            "cannotUseAttacksNextTurn": [],
+            "blockedAttackNameNextTurn": null,
+            "blockedAttackNameUntilLeavesActive": null,
+            "onlyAllowedAttackNameNextTurn": null,
+            "attackCostIncreaseNextTurn": 0,
+            "attackCostIncreaseWhileActive": 0,
+            "cannotRetreat": false,
+            "cannotRetreatNextTurn": false,
+            "cannotRetreatWhileActive": false,
+            "cannotEvolveNextTurn": false
+          },
+          "evolutionPrintings": [],
+          "energies": [],
+          "tools": [
+            "Float Stone BKT 137"
+          ],
+          "attacks": [],
+          "abilities": [
+            "Garbotoxin"
+          ],
+          "abilityDetails": [
+            {
+              "name": "Garbotoxin",
+              "powerType": "ABILITY",
+              "text": "Once during your turn."
+            }
+          ],
+          "abilitySuppressions": [
+            {
+              "abilityName": "Garbotoxin",
+              "suppressed": true,
+              "reasonCode": "TEST_SUPPRESSED",
+              "sourcePrinting": "Ability suppression fixture"
+            }
+          ]
+        },
+        "bench": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "stadium": [],
+        "discard": [],
+        "lostZone": [],
+        "resolvingSupporter": [],
+        "publicHand": null,
+        "prizeSlots": [],
+        "publicTurnRestrictions": {
+          "gxUsed": false,
+          "vstarUsed": false,
+          "attackLockTurnsRemaining": 0,
+          "attackMaxEnergy": null,
+          "attackMaxEnergyTurnsRemaining": 0,
+          "ignoreAttackCostCardTypes": [],
+          "ignoreAttackCostTurnsRemaining": 0,
+          "cannotUseGXAttacks": false,
+          "pokemonPlayLocked": false,
+          "abilityPokemonPlayLocked": false,
+          "evolutionPlayLocked": false,
+          "itemPlayLocked": false,
+          "supporterPlayLocked": false,
+          "stadiumPlayLocked": false,
+          "toolPlayLocked": false,
+          "energyPlayLocked": false,
+          "specialEnergyPlayLocked": false,
+          "stadiumAndToolHaveNoEffectTurnsRemaining": null
+        },
+        "handCount": 0,
+        "deckCount": 30,
+        "prizeCount": 6
+      },
+      "ownTurnResources": {
+        "supporterPlayedTurn": 0,
+        "retreatedTurn": 0,
+        "extraTurnActive": false,
+        "energyPlayedTurn": false,
+        "stadiumPlayedTurn": false,
+        "stadiumUsedTurn": false,
+        "vstarUsed": false,
+        "pokemonPlayLocked": false,
+        "abilityPokemonPlayLocked": false,
+        "evolutionPlayLocked": false,
+        "itemPlayLocked": false,
+        "supporterPlayLocked": false,
+        "stadiumPlayLocked": false,
+        "toolPlayLocked": false,
+        "energyPlayLocked": false,
+        "specialEnergyPlayLocked": false
+      },
+      "ownerK1": null
+    }
+  },
+  "developmentCases": [
+    {
+      "caseId": "mode0-grandtree-root",
+      "objective": "Guzma & Hala mode zero is a root action only when a K0-valid Grand Tree line is visible",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 2,
+        "sourceDeckFingerprintSha256": "4845baf0e66c61139095b904a6929c0680bd69784dbf85b01a1a8f872a1a3996",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+      },
+      "actorViewRef": "mode0-grandtree-root",
+      "actorViewSha256": "cad7f73580c3300fa535a2f3285b39bb283962882c9017d693610dfd075a8772",
+      "decisionEnvelope": {
+        "acceptable": "select-action:guzma-hala",
+        "forbidden": [
+          "hidden-state inference",
+          "native fallback",
+          "unsupported Prize identity or accepted-use inference"
+        ],
+        "rationale": "Guzma & Hala mode zero is a root action only when a K0-valid Grand Tree line is visible"
+      },
+      "costLedger": "No discard; one Supporter; Stadium search targets Grand Tree",
+      "promptCoverage": "Root play-card, SelectOptionPrompt, Stadium search",
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.test.cjs",
+        "testName": "Guzma & Hala is a root action when mode zero has a real Grand Tree line",
+        "unitTestOutcome": "pending",
+        "nativeAcceptanceReceipt": null,
+        "traceDigest": null
+      },
+      "disposition": "blocked",
+      "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
+    },
+    {
+      "caseId": "mode0-no-useful-root",
+      "objective": "Do not spend the Supporter on mode zero without a useful Stadium target",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 2,
+        "sourceDeckFingerprintSha256": "4845baf0e66c61139095b904a6929c0680bd69784dbf85b01a1a8f872a1a3996",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+      },
+      "actorViewRef": "mode0-no-useful-root",
+      "actorViewSha256": "5706162295c5af005a8c49424f6b5bf24e3cfba27a649c1ee72f5b16d789ad10",
+      "decisionEnvelope": {
+        "acceptable": "select-action:pass",
+        "forbidden": [
+          "hidden-state inference",
+          "native fallback",
+          "unsupported Prize identity or accepted-use inference"
+        ],
+        "rationale": "Do not spend the Supporter on mode zero without a useful Stadium target"
+      },
+      "costLedger": "No Supporter spent; no Stadium target",
+      "promptCoverage": "Root play-card frontier",
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.test.cjs",
+        "testName": "Guzma & Hala is not a root action when neither Stadium has a useful target",
+        "unitTestOutcome": "pending",
+        "nativeAcceptanceReceipt": null,
+        "traceDigest": null
+      },
+      "disposition": "blocked",
+      "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
+    },
+    {
+      "caseId": "mode0-competing-supporter-root",
+      "objective": "A higher-value legal Supporter beats mode-zero setup",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 2,
+        "sourceDeckFingerprintSha256": "4845baf0e66c61139095b904a6929c0680bd69784dbf85b01a1a8f872a1a3996",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+      },
+      "actorViewRef": "mode0-competing-supporter-root",
+      "actorViewSha256": "2afab5b8fa4410fa3fd1113790ecd679dd6139fae8fc359960907a4e14cd815c",
+      "decisionEnvelope": {
+        "acceptable": "select-action:cassius",
+        "forbidden": [
+          "hidden-state inference",
+          "native fallback",
+          "unsupported Prize identity or accepted-use inference"
+        ],
+        "rationale": "A higher-value legal Supporter beats mode-zero setup"
+      },
+      "costLedger": "One Supporter per turn; compare immediate heal with setup",
+      "promptCoverage": "Root play-card frontier with two Supporters",
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.test.cjs",
+        "testName": "a higher-value competing Supporter beats the mode-zero Guzma & Hala setup",
+        "unitTestOutcome": "pending",
+        "nativeAcceptanceReceipt": null,
+        "traceDigest": null
+      },
+      "disposition": "blocked",
+      "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
+    },
+    {
+      "caseId": "stoutland-live-hooded",
+      "objective": "Hooded Stoutland can activate Sentinel through known-live Garbotoxin",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 2,
+        "sourceDeckFingerprintSha256": "4845baf0e66c61139095b904a6929c0680bd69784dbf85b01a1a8f872a1a3996",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+      },
+      "actorViewRef": "stoutland-live-hooded-root",
+      "actorViewSha256": "616937d74df5686f9e8c7f8ad6470746200bfe1c3fcd32cb25a0e050f8b1b4a0",
+      "decisionEnvelope": {
+        "acceptable": "select-action:retreat-stoutland",
+        "forbidden": [
+          "hidden-state inference",
+          "native fallback",
+          "unsupported Prize identity or accepted-use inference"
+        ],
+        "rationale": "Hooded Stoutland can activate Sentinel through known-live Garbotoxin"
+      },
+      "costLedger": "One retreat; target carries Stealthy Hood",
+      "promptCoverage": "Retreat; live Garbotoxin has Tool and suppression=false",
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.test.cjs",
+        "testName": "Hooded Stoutland can become Active through live Garbotoxin",
+        "unitTestOutcome": "pending",
+        "nativeAcceptanceReceipt": null,
+        "traceDigest": null
+      },
+      "disposition": "blocked",
+      "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
+    },
+    {
+      "caseId": "stoutland-live-unhooded",
+      "objective": "Do not promote unprotected Stoutland through live Garbotoxin",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 2,
+        "sourceDeckFingerprintSha256": "4845baf0e66c61139095b904a6929c0680bd69784dbf85b01a1a8f872a1a3996",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+      },
+      "actorViewRef": "stoutland-live-unhooded-root",
+      "actorViewSha256": "d980dd73ded63657f188af92138cd2b6d7fd99eb26af5d0eaf832a96cf8f4a4f",
+      "decisionEnvelope": {
+        "acceptable": "select-action:pass",
+        "forbidden": [
+          "hidden-state inference",
+          "native fallback",
+          "unsupported Prize identity or accepted-use inference"
+        ],
+        "rationale": "Do not promote unprotected Stoutland through live Garbotoxin"
+      },
+      "costLedger": "No retreat cost spent",
+      "promptCoverage": "Retreat; live Garbotoxin and no target Hood",
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.test.cjs",
+        "testName": "unhooded Stoutland is not promoted through live Garbotoxin",
+        "unitTestOutcome": "pending",
+        "nativeAcceptanceReceipt": null,
+        "traceDigest": null
+      },
+      "disposition": "blocked",
+      "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
+    },
+    {
+      "caseId": "stoutland-no-tool",
+      "objective": "A Garbotoxin name without a Tool is not a live lock",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 2,
+        "sourceDeckFingerprintSha256": "4845baf0e66c61139095b904a6929c0680bd69784dbf85b01a1a8f872a1a3996",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+      },
+      "actorViewRef": "stoutland-no-tool-root",
+      "actorViewSha256": "3c9c03925f9a7d57c0db0c68140c63b3f0c3bc7227e75f12de0d800f37f64e2f",
+      "decisionEnvelope": {
+        "acceptable": "select-action:retreat-stoutland",
+        "forbidden": [
+          "hidden-state inference",
+          "native fallback",
+          "unsupported Prize identity or accepted-use inference"
+        ],
+        "rationale": "A Garbotoxin name without a Tool is not a live lock"
+      },
+      "costLedger": "One retreat; Garbodor has no Tool",
+      "promptCoverage": "Retreat; no Tool on Garbodor",
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.test.cjs",
+        "testName": "a Garbotoxin name without an attached Tool does not suppress Stoutland",
+        "unitTestOutcome": "pending",
+        "nativeAcceptanceReceipt": null,
+        "traceDigest": null
+      },
+      "disposition": "blocked",
+      "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
+    },
+    {
+      "caseId": "stoutland-unknown-suppression",
+      "objective": "Unknown Garbotoxin status must not be assumed live or inactive",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 2,
+        "sourceDeckFingerprintSha256": "4845baf0e66c61139095b904a6929c0680bd69784dbf85b01a1a8f872a1a3996",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+      },
+      "actorViewRef": "stoutland-unknown-suppression-root",
+      "actorViewSha256": "836a181cd6d4abd6b3e03802ec886e5cadb05864f5c0d9f61a8dc6a5689d1805",
+      "decisionEnvelope": {
+        "acceptable": "select-action:pass",
+        "forbidden": [
+          "hidden-state inference",
+          "native fallback",
+          "unsupported Prize identity or accepted-use inference"
+        ],
+        "rationale": "Unknown Garbotoxin status must not be assumed live or inactive"
+      },
+      "costLedger": "No retreat cost spent while suppression is unknown",
+      "promptCoverage": "Retreat; abilitySuppressions.suppressed=null",
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.test.cjs",
+        "testName": "unknown Garbotoxin suppression status fails closed for Stoutland promotion",
+        "unitTestOutcome": "pending",
+        "nativeAcceptanceReceipt": null,
+        "traceDigest": null
+      },
+      "disposition": "blocked",
+      "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
+    },
+    {
+      "caseId": "hood-under-item-lock",
+      "objective": "Stealthy Hood remains attachable under own Item lock",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 2,
+        "sourceDeckFingerprintSha256": "4845baf0e66c61139095b904a6929c0680bd69784dbf85b01a1a8f872a1a3996",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+      },
+      "actorViewRef": "hood-under-item-lock-root",
+      "actorViewSha256": "4bae78d9a0b0bbab87d9fcb661fa6ff30dc18412e357831fc74e317f3802b727",
+      "decisionEnvelope": {
+        "acceptable": "select-action:hood",
+        "forbidden": [
+          "hidden-state inference",
+          "native fallback",
+          "unsupported Prize identity or accepted-use inference"
+        ],
+        "rationale": "Stealthy Hood remains attachable under own Item lock"
+      },
+      "costLedger": "One Tool attachment; Item lock is distinct from Tool lock",
+      "promptCoverage": "Play-card Tool action against Stoutland",
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.test.cjs",
+        "testName": "Stealthy Hood remains a valid Tool attachment under an own Item lock",
+        "unitTestOutcome": "pending",
+        "nativeAcceptanceReceipt": null,
+        "traceDigest": null
+      },
+      "disposition": "blocked",
+      "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
+    },
+    {
+      "caseId": "discard-jet-duplicates",
+      "objective": "Preserve one Jet Energy for the live Bunnelby pivot",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 2,
+        "sourceDeckFingerprintSha256": "4845baf0e66c61139095b904a6929c0680bd69784dbf85b01a1a8f872a1a3996",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+      },
+      "actorViewRef": "discard-jet-duplicates-prompt",
+      "actorViewSha256": "65e11ac8e6b7791bb859e63be70a84d6e9dbc9d47b0f389f988a3f8a59278c0b",
+      "decisionEnvelope": {
+        "acceptable": "select-choices:one Jet plus Grass Energy",
+        "forbidden": [
+          "hidden-state inference",
+          "native fallback",
+          "unsupported Prize identity or accepted-use inference"
+        ],
+        "rationale": "Preserve one Jet Energy for the live Bunnelby pivot"
+      },
+      "costLedger": "Discard two; keep one of two Jet copies",
+      "promptCoverage": "ChooseCardsPrompt card-combination; two Jet choices plus Grass Energy",
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.test.cjs",
+        "testName": "Guzma & Hala discard selection preserves one live Jet Energy pivot copy",
+        "unitTestOutcome": "pending",
+        "nativeAcceptanceReceipt": null,
+        "traceDigest": null
+      },
+      "disposition": "blocked",
+      "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
+    },
+    {
+      "caseId": "discard-tm-duplicates",
+      "objective": "Preserve one TM Evolution for the live Bunnelby line",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 2,
+        "sourceDeckFingerprintSha256": "4845baf0e66c61139095b904a6929c0680bd69784dbf85b01a1a8f872a1a3996",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+      },
+      "actorViewRef": "discard-tm-duplicates-prompt",
+      "actorViewSha256": "30c14082dcd8f591ffe25b6e91f81b2221f21bb03a8447838ac5af1244403d9f",
+      "decisionEnvelope": {
+        "acceptable": "select-choices:one TM plus Grass Energy",
+        "forbidden": [
+          "hidden-state inference",
+          "native fallback",
+          "unsupported Prize identity or accepted-use inference"
+        ],
+        "rationale": "Preserve one TM Evolution for the live Bunnelby line"
+      },
+      "costLedger": "Discard two; keep one of two TM copies",
+      "promptCoverage": "ChooseCardsPrompt card-combination; two TM choices plus Grass Energy",
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.test.cjs",
+        "testName": "Guzma & Hala discard selection preserves one live TM Evolution copy",
+        "unitTestOutcome": "pending",
+        "nativeAcceptanceReceipt": null,
+        "traceDigest": null
+      },
+      "disposition": "blocked",
+      "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
+    },
+    {
+      "caseId": "own-hand-public-hand-dedup",
+      "objective": "A public-hand mirror does not double-count a physical card",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 2,
+        "sourceDeckFingerprintSha256": "4845baf0e66c61139095b904a6929c0680bd69784dbf85b01a1a8f872a1a3996",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+      },
+      "actorViewRef": "own-hand-public-hand-dedup-root",
+      "actorViewSha256": "5a2a485928cc01d74cc41f36611da5f93f973ae3f76e5d2c26c90e9eb7077497",
+      "decisionEnvelope": {
+        "acceptable": "visibleSourceCopies:1",
+        "forbidden": [
+          "hidden-state inference",
+          "native fallback",
+          "unsupported Prize identity or accepted-use inference"
+        ],
+        "rationale": "A public-hand mirror does not double-count a physical card"
+      },
+      "costLedger": "One physical Jet represented in ownHand and publicHand",
+      "promptCoverage": "Actor observation publicHand mirror",
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.test.cjs",
+        "testName": "public-own-hand mirrors count one physical card only once",
+        "unitTestOutcome": "pending",
+        "nativeAcceptanceReceipt": null,
+        "traceDigest": null
+      },
+      "disposition": "blocked",
+      "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
+    },
+    {
+      "caseId": "lusamine-unsupported-root",
+      "objective": "Do not spend Lusamine when only unsupported Peonia/Gladion targets are visible",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 2,
+        "sourceDeckFingerprintSha256": "4845baf0e66c61139095b904a6929c0680bd69784dbf85b01a1a8f872a1a3996",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+      },
+      "actorViewRef": "lusamine-unsupported-root",
+      "actorViewSha256": "f0276c71f0cdb9f1c7a3557decdfa644d315ce1b5a04ec9ae0c07010f1bcbed1",
+      "decisionEnvelope": {
+        "acceptable": "select-action:pass",
+        "forbidden": [
+          "hidden-state inference",
+          "native fallback",
+          "unsupported Prize identity or accepted-use inference"
+        ],
+        "rationale": "Do not spend Lusamine when only unsupported Peonia/Gladion targets are visible"
+      },
+      "costLedger": "No Supporter spent; no supported recovery target",
+      "promptCoverage": "Root play-card frontier",
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.test.cjs",
+        "testName": "Lusamine is not spent when its only visible recovery targets are blocked Prize Supporters",
+        "unitTestOutcome": "pending",
+        "nativeAcceptanceReceipt": null,
+        "traceDigest": null
+      },
+      "disposition": "blocked",
+      "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
+    },
+    {
+      "caseId": "lusamine-unsupported-prompt",
+      "objective": "Lusamine choices containing only Peonia/Gladion must fail closed",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 2,
+        "sourceDeckFingerprintSha256": "4845baf0e66c61139095b904a6929c0680bd69784dbf85b01a1a8f872a1a3996",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+      },
+      "actorViewRef": "lusamine-unsupported-prompt",
+      "actorViewSha256": "2a3a0ee00ae2448c852fe18655785479b6b47608c9c0abc204fc15ceb94b2c28",
+      "decisionEnvelope": {
+        "acceptable": "abstain",
+        "forbidden": [
+          "hidden-state inference",
+          "native fallback",
+          "unsupported Prize identity or accepted-use inference"
+        ],
+        "rationale": "Lusamine choices containing only Peonia/Gladion must fail closed"
+      },
+      "costLedger": "No unsupported recovery target selected",
+      "promptCoverage": "ChooseCardsPrompt card-combination; Lusamine source",
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.test.cjs",
+        "testName": "Lusamine fails closed when only Peonia and Gladion are offered as recovery choices",
+        "unitTestOutcome": "pending",
+        "nativeAcceptanceReceipt": null,
+        "traceDigest": null
+      },
+      "disposition": "blocked",
+      "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
+    },
+    {
+      "caseId": "peonia-prize-blocked",
+      "objective": "Peonia Prize-slot handling remains blocked without cardinality and accepted-use support",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 2,
+        "sourceDeckFingerprintSha256": "4845baf0e66c61139095b904a6929c0680bd69784dbf85b01a1a8f872a1a3996",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+      },
+      "actorViewRef": "peonia-prize-blocked-prompt",
+      "actorViewSha256": "3446abf3138b086d5e74029d1468b7ededc2a4411362d986e336494be95b9906",
+      "decisionEnvelope": {
+        "acceptable": "abstain:UNSUPPORTED_PRIZE_SOURCE_POLICY",
+        "forbidden": [
+          "hidden-state inference",
+          "native fallback",
+          "unsupported Prize identity or accepted-use inference"
+        ],
+        "rationale": "Peonia Prize-slot handling remains blocked without cardinality and accepted-use support"
+      },
+      "costLedger": "No Prize position selected",
+      "promptCoverage": "ChoosePrizePrompt prize-slots boundary",
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.test.cjs",
+        "testName": "Peonia prize-slot prompts remain unsupported without an accepted-only ledger",
+        "unitTestOutcome": "pending",
+        "nativeAcceptanceReceipt": null,
+        "traceDigest": null
+      },
+      "disposition": "blocked",
+      "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
+    },
+    {
+      "caseId": "gladion-prize-blocked",
+      "objective": "Gladion remains blocked while owner-visible Prize identities are absent",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 2,
+        "sourceDeckFingerprintSha256": "4845baf0e66c61139095b904a6929c0680bd69784dbf85b01a1a8f872a1a3996",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+      },
+      "actorViewRef": "gladion-prize-blocked-prompt",
+      "actorViewSha256": "3446abf3138b086d5e74029d1468b7ededc2a4411362d986e336494be95b9906",
+      "decisionEnvelope": {
+        "acceptable": "abstain:UNSUPPORTED_PRIZE_SOURCE_POLICY",
+        "forbidden": [
+          "hidden-state inference",
+          "native fallback",
+          "unsupported Prize identity or accepted-use inference"
+        ],
+        "rationale": "Gladion remains blocked while owner-visible Prize identities are absent"
+      },
+      "costLedger": "No Prize identity inferred",
+      "promptCoverage": "ChoosePrizePrompt prize-slots boundary",
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.test.cjs",
+        "testName": "Gladion prize-slot prompts remain unsupported without owner-visible Prize identities",
+        "unitTestOutcome": "pending",
+        "nativeAcceptanceReceipt": null,
+        "traceDigest": null
+      },
+      "disposition": "blocked",
+      "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
+    }
+  ],
+  "heldOutCases": [
+    {
+      "caseId": "heldout-peonia-three-slot-prompt",
+      "objective": "Review Peonia only after exact native prompt cardinality and accepted-use state are supported.",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 2,
+        "sourceDeckFingerprintSha256": "4845baf0e66c61139095b904a6929c0680bd69784dbf85b01a1a8f872a1a3996",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+      },
+      "actorViewRef": "heldout-peonia-three-slot-prompt",
+      "actorViewSha256": "d63e2b91e062710cd9c1345c54db7b17582a9c5b8d047d1be3dc00933b0b2f3a",
+      "decisionEnvelope": {
+        "acceptable": "blocked until exact native prompt bounds and accepted-only history exist",
+        "forbidden": [
+          "assume 1/2-slot support",
+          "infer prior Peonia acceptance"
+        ]
+      },
+      "costLedger": "Three replacement cards are visible in ownHand; exact native selection contract is not admitted.",
+      "promptCoverage": "ChoosePrizePrompt / prize-slots; worker contract is exact-count only.",
+      "executionEvidence": null,
+      "disposition": "blocked",
+      "reviewerNote": "Held out from development tests; no native Store receipt."
+    },
+    {
+      "caseId": "heldout-gladion-owner-prize-identity",
+      "objective": "Review Gladion only after the owner prompt projection exposes allowed Prize identities.",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 2,
+        "sourceDeckFingerprintSha256": "4845baf0e66c61139095b904a6929c0680bd69784dbf85b01a1a8f872a1a3996",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+      },
+      "actorViewRef": "heldout-gladion-identity-limited-prompt",
+      "actorViewSha256": "e51918ab3c3d94ababb18f7d151cec0a9fde4bf7c161f3a90f064c053caec048",
+      "decisionEnvelope": {
+        "acceptable": "blocked while only blind Prize indices are exposed",
+        "forbidden": [
+          "choose based on concealed Prize identities"
+        ]
+      },
+      "costLedger": "No card cost; required owner-visible Prize identity is absent.",
+      "promptCoverage": "ChoosePrizePrompt; prizeSlots expose indices only.",
+      "executionEvidence": null,
+      "disposition": "blocked",
+      "reviewerNote": "Held out from development tests; no owner-visible Prize identity projection."
+    },
+    {
+      "caseId": "heldout-mode0-opponent-stadium-replacement",
+      "objective": "Adversarially review mode-zero replacement when opponent controls a different Stadium.",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 2,
+        "sourceDeckFingerprintSha256": "4845baf0e66c61139095b904a6929c0680bd69784dbf85b01a1a8f872a1a3996",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+      },
+      "actorViewRef": "heldout-mode0-opponent-stadium-root",
+      "actorViewSha256": "6a37339efb9bc9df47c01b0087cebe221b4fdc45ef10e9363f46910375a161f3",
+      "decisionEnvelope": {
+        "acceptable": "replace only if the selected Stadium has positive strategic value",
+        "forbidden": [
+          "replace a beneficial Stadium without valuation"
+        ]
+      },
+      "costLedger": "One Supporter and one Stadium search.",
+      "promptCoverage": "Root play-card and Stadium card-combination prompt.",
+      "executionEvidence": null,
+      "disposition": "blocked",
+      "reviewerNote": "Held out from development tests; independent strategic review required."
+    },
+    {
+      "caseId": "heldout-known-suppressed-garbotoxin",
+      "objective": "Verify explicit Garbotoxin suppression does not veto Stoutland Sentinel.",
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 2,
+        "sourceDeckFingerprintSha256": "4845baf0e66c61139095b904a6929c0680bd69784dbf85b01a1a8f872a1a3996",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+      },
+      "actorViewRef": "heldout-stoutland-suppressed-garbotoxin-root",
+      "actorViewSha256": "ea089e114aef0e8c43f75ed4452bfefd65204c06b7f45823ab5aefb5eac4140c",
+      "decisionEnvelope": {
+        "acceptable": "promote unhooded Stoutland when Garbotoxin is explicitly suppressed",
+        "forbidden": [
+          "treat suppressed ability as live"
+        ]
+      },
+      "costLedger": "One retreat; no Tool attachment.",
+      "promptCoverage": "Retreat action; abilitySuppressions.suppressed=true.",
+      "executionEvidence": null,
+      "disposition": "blocked",
+      "reviewerNote": "Held out from development tests; no native suppression receipt."
+    }
+  ],
+  "evidenceSummary": {
+    "developmentCaseCount": 15,
+    "heldOutCaseCount": 4,
+    "evidenceClasses": [
+      "synthetic"
+    ],
+    "nativeStagedCases": 0,
+    "sourceNaturalCases": 0,
+    "gamesPlayed": 0,
+    "matchupWinRate": null,
+    "independentReview": "not yet performed",
+    "overallDisposition": "blocked"
+  }
+}

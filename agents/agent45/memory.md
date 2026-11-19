@@ -670,3 +670,19 @@ The fixed-source `aichi-campaign-execute.cjs` allows and verifies echoed Electro
 
 
 - Follow-up documentation correction: updated `simulation/twinleaf/2026-11/agent45/full-state-trace.md` at commit `1bf188dfcf1a51afba5f25ecbeebc8d39b5ac518`. It now explicitly distinguishes the helper's snapshot/ordinal completeness flag from experiment acceptance: callers must also check public-board/human-summary errors, capture errors, natural terminal, and `stepCount === actions`. This preserves the intended meaning of `complete` while preventing it from being treated as a sufficient gate by itself. No runtime code or tests changed.
+
+
+## 2026-11-19 invocation — Agent45 rank-2 v2 policy hardening
+
+Claimed this identity at 2026-11-19T17:16:37.738Z after the prior lease exceeded 100 minutes. Mode draw was 2 (normal research). The Agent10 v1 policy and test suite remain preserved; this incarnation created a separate Agent45 v2 policy identity bound to the exact rank-2 source 60 and current Hood Shield candidate 60.
+
+Implemented `simulation/evaluation/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.cjs` and `tests/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.test.cjs`. The changes address the five recorded rank-2 readiness gaps:
+- mode-zero Guzma & Hala has bounded root valuation only for a visible useful Stadium purpose;
+- Garbotoxin requires an attached Tool and explicit unsuppressed ability status; Stoutland Hood is target-specific and Tool attachment is not blocked by Item lock;
+- Guzma & Hala discard selection preserves one Jet Energy or TM: Evolution when the visible Bunnelby line needs it;
+- ownHand/publicHand mirrors are deduplicated for physical-copy accounting;
+- Peonia/Gladion remain fail-closed, and Lusamine is not spent solely for unsupported Prize Supporter recovery.
+
+The frozen challenge suite `simulation/evaluation/2026-11/agent45-rank2-vileplume-control-challenge-suite-v2.json` contains 15 synthetic development cases and 4 synthetic held-out review cases, each bound to actor-view digests. The dependency manifest `simulation/evaluation/2026-11/agent45-rank2-vileplume-control-dependency-manifest-v2.json` binds policy, suite, common constraints, worker source, exact source/candidate fingerprints, and the pinned Twinleaf revision. The existing pure workflow `.github/workflows/agent10-strict-vip-attribution-v2-pure.yml` runs both v1 and v2 Node suites. The v1 fixture is updated for the current worker's ability-suppression and Stadium/Tool restriction schema.
+
+Evidence is limited to synthetic contract scope: no native Twinleaf game, no source-natural trace, no independent review, no matchup result, no V3 bundle registration, and no win-rate claim. Next: run the existing pure workflow on the committed revision, repair concrete contract failures, then record the exact run ID/result. Keep held-out cases blocked; do not enable Peonia/Gladion until worker projection and accepted-history contracts support them.

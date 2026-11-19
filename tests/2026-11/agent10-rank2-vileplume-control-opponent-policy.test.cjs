@@ -59,7 +59,8 @@ function publicRestrictions() {
     stadiumPlayLocked: false,
     toolPlayLocked: false,
     energyPlayLocked: false,
-    specialEnergyPlayLocked: false
+    specialEnergyPlayLocked: false,
+    stadiumAndToolHaveNoEffectTurnsRemaining: null
   };
 }
 
@@ -90,7 +91,8 @@ function pokemon(printing, options = {}) {
       name,
       powerType: 'ABILITY',
       text: 'Once during your turn.'
-    }))
+    })),
+    abilitySuppressions: abilities.map(name => ({ abilityName: name, suppressed: false, reasonCode: null, sourcePrinting: null }))
   };
 }
 
@@ -671,8 +673,9 @@ test('Stoutland is not promoted through a visible Garbotoxin ability suppression
       })]
     }),
     opponentPublic: player({
-      active: pokemon('Garbodor GRI 51', {
-        stage: 'STAGE1', subtypes: ['Stage 1'], abilities: ['Garbotoxin']
+      active: pokemon('Garbodor DRX 54', {
+        stage: 'STAGE1', subtypes: ['Stage 1'], abilities: ['Garbotoxin'],
+        tools: ['Float Stone BKT 137']
       })
     }),
     items: [

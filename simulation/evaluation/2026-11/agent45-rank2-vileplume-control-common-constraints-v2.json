@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "aichi-opponent-policy-common-constraints-v1",
+  "policyId": "agent45-rank2-vileplume-control-opponent-v2",
+  "producerId": "agent45",
+  "role": "opponent-policy",
+  "sourceRank": 2,
+  "sourceDeckFingerprintSha256": "4845baf0e66c61139095b904a6929c0680bd69784dbf85b01a1a8f872a1a3996",
+  "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+  "executionBoundary": {
+    "observation": "actor-only detached observation",
+    "hiddenState": "not consumed",
+    "ownerK1": "must remain null and is not read",
+    "rng": "not consumed",
+    "imports": [],
+    "synchronousDecision": true
+  },
+  "workerInit": {
+    "protocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+    "policyVersion": "agent45-rank2-vileplume-control-opponent-v2",
+    "config": {},
+    "validationSequence": [
+      "validateInit",
+      "createPolicy",
+      "validateRequest",
+      "validateDecision"
+    ]
+  },
+  "decisionConstraints": {
+    "guzmaHalaModeZero": "only when an available not-in-play Grand Tree has a K0-valid prior-turn Basic target, an available Artazon has an open Bench slot and missing setup line, or a different available Stadium can replace an opponent Stadium",
+    "guzmaHalaDiscard": "per-printing selection caps preserve one Jet Energy or TM Evolution when the live Bunnelby line requires it",
+    "garbotoxin": "requires actor-visible Garbotoxin, attached Tool, and abilitySuppressions explicitly suppressed=false",
+    "stoutland": "target-specific Stealthy Hood protects Stoutland against known-live Garbotoxin; unknown suppression fails closed",
+    "toolsVsItems": "Stealthy Hood is a Pokémon Tool; own Item lock alone does not block it, but Tool lock does",
+    "publicHand": "publicHand mirrors ownHand; use max matching count, not sum",
+    "prizeSupporters": "Peonia and Gladion fail closed; Lusamine is not spent solely for those unsupported targets"
+  },
+  "explicitNonClaims": [
+    "No native Twinleaf game",
+    "No source-natural or held-out competence pass",
+    "No matchup result",
+    "No 99.5% claim"
+  ]
+}

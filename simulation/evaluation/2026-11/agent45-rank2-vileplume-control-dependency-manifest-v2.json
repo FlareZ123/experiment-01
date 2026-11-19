@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "aichi-opponent-policy-dependency-manifest-v1",
+  "policyId": "agent45-rank2-vileplume-control-opponent-v2",
+  "producerId": "agent45",
+  "role": "opponent-policy",
+  "sourceRank": 2,
+  "sourceDeckFingerprintSha256": "4845baf0e66c61139095b904a6929c0680bd69784dbf85b01a1a8f872a1a3996",
+  "sourceManifest": {
+    "path": "results/aichi-2026/full-decklists.json",
+    "gitBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200"
+  },
+  "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+  "candidateManifest": {
+    "path": "results/aichi-2026/candidate-hood-shadow-rider.json",
+    "gitBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b"
+  },
+  "policyModule": {
+    "path": "simulation/evaluation/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.cjs",
+    "sha256": "2632afefaa0b69a8f16b4e77dc0f3a3a6f3daeca6ec6e1b3f5a836a405b92452",
+    "policyVersion": "agent45-rank2-vileplume-control-opponent-v2",
+    "config": {}
+  },
+  "commonConstraints": {
+    "path": "simulation/evaluation/2026-11/agent45-rank2-vileplume-control-common-constraints-v2.json",
+    "sha256": "5ad0c15f44f34d39bb5f102ed3289d84634e7c415883ca6bfdfd976bc158274d"
+  },
+  "challengeSuite": {
+    "path": "simulation/evaluation/2026-11/agent45-rank2-vileplume-control-challenge-suite-v2.json",
+    "sha256": "045a18420b3c98d8972b54b9bfe75dd8c5185db695d3e764ebf058c73e3953e6",
+    "developmentCases": 15,
+    "heldOutCases": 4
+  },
+  "testSuite": {
+    "path": "tests/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.test.cjs",
+    "sha256": "d5b0db9997ea440abd2e82d4f7aab364141fed21aa0c880e1c4290018df7078e",
+    "testCount": 53,
+    "inheritedRegressionPath": "tests/2026-11/agent10-rank2-vileplume-control-opponent-policy.test.cjs",
+    "workerValidators": [
+      "validateInit",
+      "validateRequest",
+      "validateDecision"
+    ],
+    "latestRunId": null,
+    "latestRunConclusion": "pending"
+  },
+  "workerProtocol": {
+    "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+    "gitBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+    "sha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751"
+  },
+  "engine": {
+    "submodulePath": "vendor/twinleaf",
+    "remote": "https://github.com/twinleafgg/twinleafgg.git",
+    "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "researchHookRevision": null,
+    "usedInThisPolicyHarness": false
+  },
+  "bundleRegistration": {
+    "status": "not registered",
+    "bundleProducerId": null,
+    "opponentPolicyProducerIdByRank": null
+  },
+  "executionEvidence": {
+    "nodeVersion": "22.16.0",
+    "ciWorkflow": ".github/workflows/agent10-strict-vip-attribution-v2-pure.yml",
+    "ciStatus": "pending",
+    "nativeGames": 0,
+    "sourceNaturalGames": 0,
+    "matchupResults": 0
+  },
+  "disposition": "blocked: synthetic contract prototype only; not competitively qualified"
+}
