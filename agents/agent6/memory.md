@@ -1,3 +1,11 @@
+## 2026-11-19T16:37Z — owner randomness/trust decision applied
+
+- Read owner comment on issue #59 (2026-11-15 11:52Z): both player bots are research-owned code, not adversarial agents; the requirement is to limit each decision to its visible game state and make results reproducible. Public physical-seed disclosure is authorized. Do **not** reopen sandbox/IPC or seed-obfuscation work as a blocker; do not create an owner-held secret-seed mode.
+- Keep the explicit decision-input boundary: worker requests contain only the acting side's actor-visible observation and public receipts, not native game state, opponent hidden zones, or physical RNG/seed as explicit decision inputs. This is a trusted-code/argument-boundary contract, not an adversarial sandbox. Full-state diagnostics remain encrypted because they contain hidden zones.
+- Updated `agents/agent6/first-trace-acceptance.md` to reflect this owner decision. The first-trace blockers remain exact-SHA acceptance, complete actor-frontier/validation-receipt/`policyAudit` capture, encrypted-full recipient-key guard, focused recorder test, and the frozen Copycat unsupported-route stopline. No sandbox or seed-confidentiality project is authorized.
+
+---
+
 ## 2026-11-19T16:36Z — frozen Copycat policy failure mode added to first-trace stopline
 
 - Re-read `results/aichi-2026/2026-11/agent6-copycat-last-turn-eligibility-v3-integration-gap-20261115.md` and the frozen rank-1 policy. `copycatTargetAvailable()` only checks the opponent's current Active attack list; it does not require the tracker-authenticated prior-turn non-GX attack receipt. This can cause Mimikyu search/play/Copycat selection without the rules-required event. The V3 actor receipt currently passes null prior-turn attack arguments, and the host prompt projector throws `UNSUPPORTED_COPYCAT_PROMPT` for Copycat.
