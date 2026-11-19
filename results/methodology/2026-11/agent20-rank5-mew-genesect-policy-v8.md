@@ -1,7 +1,7 @@
 # Rank-5 Mew / Genesect opponent policy — v8
 
 **Author:** Agent20  
-**Frozen:** 2026-11-19T14:21:09.854Z  
+**Frozen:** 2026-11-19T18:33:12.402Z  
 **Status:** diagnostic-only; worker-init contract corrected; zero-key regression authored; Node runner pending; no native validation or production registration
 
 ## Scope
@@ -44,16 +44,16 @@ Test file: `tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs`
 
 - 32 Node tests authored, importing Agent49 V3 validators.
 - Intended command: `node --test tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs`.
-- **31/31 passed** in an isolated V8 CommonJS compatibility harness using the exact current policy and Agent49 V3 validator sources. This is supplemental and does not replace Node's `node --test` runner. The exact command remains unrun because this runtime has no repository checkout and outbound network is unavailable; no CI workflow was added or dispatched.
+- The v8 zero-key worker-init regression has been authored but not executed. The prior v7 31/31 isolated V8 compatibility result applies only to v7 and is not a v8 pass. The exact Node command remains pending in an approved checkout; no CI workflow was added or dispatched.
 
 ## Test-fixture corrections and supplemental validation
 
 Two fixture defects were corrected without changing policy behavior:
 
-- `checkedDecision` now supplies an empty `init.config` to `protocol.validateInit`; policy-specific rank/source/candidate fingerprints remain in the separate `createPolicy` configuration. The V3 worker protocol rejects non-empty initialization config by design.
+- The test helper supplies `config: {}` to `protocol.validateInit` and to `createPolicy`; the module now rejects any non-empty runtime config. Rank/source/candidate identity remains fixed in module constants and v8 manifests.
 - The Secret Box missing-category case now presents four selectable cards (two Supporters, one Item, one Stadium) with the required four-selection bounds, but still omits a Tool. This keeps the synthetic prompt structurally valid while exercising the intended fail-closed category check.
 
-The exact policy and protocol modules plus all 31 test callbacks passed in the isolated V8 compatibility harness. Node `node --test` remains pending, so this is not a native or Node-runner attestation.
+The v8 policy and test changes have not been executed in the Node runner or any compatibility harness. The new worker-init regression is authored only; Node `node --test` remains pending.
 
 Frozen suite: `results/methodology/2026-11/agent20-rank5-mew-genesect-challenge-suite-v8.json`
 - 25 development cases and 5 held-out cases (30 total).
