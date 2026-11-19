@@ -457,10 +457,16 @@ test('Guzma targets a vulnerable two-Prize Shadow Rider V before an undamaged VM
       pokemon('Shadow Rider Calyrex VMAX CRE 75', { hp: 320, stage: 'VMAX', subtypes: ['VMAX'] })
     ]
   });
+  const own = player({
+    active: pokemon(P.mewVMAX, {
+      stage: 'VMAX', subtypes: ['VMAX', 'Fusion Strike'], energies: [P.dce]
+    }),
+    bench: [pokemon(P.genesect)]
+  });
   const request = promptRequest({
     promptType: 'ChoosePokemonPrompt',
     source: actorChoiceSource(P.guzma, 'Guzma'),
-    observation: { opponentPublic: opponent },
+    observation: { ownPublic: own, opponentPublic: opponent },
     choices: [
       pokemonChoice('vmax', 'Shadow Rider Calyrex VMAX CRE 75', 'opponent', 'bench', 0),
       pokemonChoice('v', 'Shadow Rider Calyrex V CRE 74', 'opponent', 'bench', 1)
