@@ -241,6 +241,65 @@ test('shared worker init accepts empty config and binds rank-4 identity in modul
   }
 });
 
+test('Almighty Evolution selects an eligible Ditto when Electrode-GX is in hand', () => {
+  const ditto = pokemon('Ditto ♢ LOT 154', { lastPlayedOrEvolvedTurn: 2 });
+  const request = rootRequest({
+    globalTurn: 3,
+    ownHand: ['Electrode-GX CES 48', 'Alolan Raichu UNM 57'],
+    ownPublic: player({ active: ditto }),
+    items: [
+      { token: 'almighty-evolution', kind: 'use-ability',
+        actorPrinting: 'Ditto ♢ LOT 154',
+        publicMetadata: { abilityName: 'Almighty Evolution' } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action', token: 'almighty-evolution'
+  });
+});
+
+test('Almighty Evolution is not selected on the turn Ditto entered play', () => {
+  const ditto = pokemon('Ditto ♢ LOT 154', { lastPlayedOrEvolvedTurn: 3 });
+  const request = rootRequest({
+    globalTurn: 3,
+    ownHand: ['Electrode-GX CES 48'],
+    ownPublic: player({ active: ditto }),
+    items: [
+      { token: 'almighty-evolution', kind: 'use-ability',
+        actorPrinting: 'Ditto ♢ LOT 154',
+        publicMetadata: { abilityName: 'Almighty Evolution' } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'pass' });
+});
+
+test('Almighty Evolution prompt prefers Electrode-GX over Alolan Raichu', () => {
+  const ditto = pokemon('Ditto ♢ LOT 154', { lastPlayedOrEvolvedTurn: 2 });
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Ditto ♢ LOT 154', 'Almighty Evolution'),
+    observation: {
+      globalTurn: 3,
+      ownHand: ['Electrode-GX CES 48', 'Alolan Raichu UNM 57'],
+      ownPublic: player({ active: ditto })
+    },
+    publicMetadata: {
+      selectionType: 'card-combination', minimumCount: 1, maximumCount: 1,
+      allowCancel: false, isSecret: false
+    },
+    choices: [
+      cardChoice('raichu', 'Alolan Raichu UNM 57'),
+      cardChoice('electrode', 'Electrode-GX CES 48')
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['electrode']
+  });
+});
+
+
 test('Dedechange is used when the actor hand is small and the deck is healthy', () => {
   const request = rootRequest({
     ownHand: ['Quick Ball FST 237', 'Unit Energy LPM UPR 138'],
