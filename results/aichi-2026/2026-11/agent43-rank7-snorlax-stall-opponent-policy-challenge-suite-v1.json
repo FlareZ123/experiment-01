@@ -1,6 +1,6 @@
 {
   "schema": "aichi-v3-opponent-policy-challenge-suite-v1",
-  "suiteSha256": "1b5a26792e2379b8c3f38ca8ba988e71197cc95907c608b14d04c1a119c11208",
+  "suiteSha256": "524a6e5d30a31e4046aa72b9839cdbed81536649c936d4275b52b49a76a2cbfd",
   "suiteHeader": {
     "producerId": "agent43",
     "role": "opponent",
@@ -12,11 +12,11 @@
     "candidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
     "policyVersion": "agent43-rank7-snorlax-stall-opponent-v1",
     "policyPath": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v1.cjs",
-    "policySha256": "6a129f76c997221962eac79840997ece629c61fb6acf35c386fb80f38b29fece",
+    "policySha256": "c30e4cc580e2ab1813228c2c169e57d18a1c6f64af7f30cd980849454da13638",
     "dependencyManifestPath": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-dependency-manifest-v1.json",
-    "dependencyManifestSha256": "798e78d399c50c6d4bd63813411437a0defbb889be021986b6e6fbffe51994ae",
+    "dependencyManifestSha256": "944c22f01007c1e3e1928f2b4ffebe2638b65c81f9830787b09dc4cf3502ba73",
     "testPath": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v1.test.cjs",
-    "testSha256": "f11c6b78eb2915ae91c2ac34c7ebb0473045473ac978a6d5c041aee4c09c1c0d",
+    "testSha256": "21f5110280422fd067ed4ce86bc3f53a84508f63ec9f852d4e105a92e90eabb7",
     "enginePath": "vendor/twinleaf",
     "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
     "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
@@ -28,11 +28,11 @@
       "agent43"
     ],
     "signedProducerIdSet": [],
-    "validationRunId": 44549090143,
-    "validationHeadSha": "ec1f6afaa21e7fedd5b9028b66c62d26b5438841",
+    "validationRunId": 44550181375,
+    "validationHeadSha": "2a510ee2d45cf2b98a34829f3d47798f20168d4d",
     "validationConclusion": "success",
-    "unitTestCount": 32,
-    "unitTestsPassed": 32,
+    "unitTestCount": 37,
+    "unitTestsPassed": 37,
     "unitTestsFailed": 0
   },
   "developmentCases": [
@@ -245,6 +245,41 @@
       "expected": "Protocol-valid abstention",
       "status": "covered-by-unit-test",
       "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-031",
+      "objective": "Faba with Wobbuffet already Active",
+      "expected": "Remove Hood without Jet Energy",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-032",
+      "objective": "Public Vileplume lock with empty restriction projection",
+      "expected": "Do not select Item action",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-033",
+      "objective": "Tool Jammer under Hooded Vileplume lock",
+      "expected": "Do not select Tool Item",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-034",
+      "objective": "Temple of Sinnoh on board",
+      "expected": "Do not promote Wobbuffet with Jet Energy",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
+    },
+    {
+      "caseId": "R7-035",
+      "objective": "Power of Alchemy counter-lock",
+      "expected": "Do not prioritize Wobbuffet",
+      "status": "covered-by-unit-test",
+      "evidenceClass": "synthetic-actor-view-only"
     }
   ],
   "heldOutReviewCases": [
@@ -294,7 +329,9 @@
         "R7-009",
         "R7-010",
         "R7-011",
-        "R7-012"
+        "R7-012",
+        "R7-031",
+        "R7-034"
       ],
       "evidenceClass": "synthetic-only",
       "nativeReceiptCount": 0,
@@ -307,7 +344,10 @@
         "R7-014",
         "R7-015",
         "R7-022",
-        "R7-023"
+        "R7-023",
+        "R7-032",
+        "R7-033",
+        "R7-035"
       ],
       "evidenceClass": "synthetic-only",
       "nativeReceiptCount": 0,
@@ -382,7 +422,7 @@
       "Policy module is bound to the exact rank-7 source-entry fingerprint and the fixed Hood Shield v1 candidate fingerprint.",
       "Policy factory accepts only the Agent49 role-only empty-config init contract.",
       "Unit tests invoke the actual Agent49 init, request, and decision validators on synthetic actor-view fixtures.",
-      "Focused GitHub Actions run 44549090143 on exact head ec1f6afaa21e7fedd5b9028b66c62d26b5438841 passed 32/32 synthetic validator-backed unit tests."
+      "Focused GitHub Actions run 44550181375 on exact head 2a510ee2d45cf2b98a34829f3d47798f20168d4d passed 37/37 synthetic validator-backed unit tests."
     ],
     "notDemonstrated": [
       "No Twinleaf native game was run by this policy.",
@@ -399,6 +439,6 @@
     "Obtain independent adversarial review of prompt metadata, target filtering, and resource priorities.",
     "Bind this producer into the shared V3 policy plan only after the owner accepts the exact policy and dependency hashes."
   ],
-  "caseRecordCount": 36,
-  "suiteStatus": "development-validated; held-out cases not run; not frozen; native validation absent"
+  "caseRecordCount": 41,
+  "suiteStatus": "development-validated; 37/37 synthetic tests pass; held-out cases not run; not frozen; native validation absent"
 }
