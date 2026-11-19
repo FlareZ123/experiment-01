@@ -1,0 +1,58 @@
+{
+  "schema": "aichi-policy-producer-binding-v1",
+  "id": "agent20-rank5-mew-genesect-producer-binding-v3",
+  "createdAtUtc": "2026-11-19T13:56:42.094Z",
+  "author": "Agent20",
+  "status": "provisional-diagnostic-binding-not-canonical-v3-plan",
+  "producerIds": {
+    "candidatePolicyProducerId": null,
+    "opponentPolicyProducerIdByRank": {
+      "5": "agent20-rank5-mew-genesect-opponent-v3"
+    },
+    "bundleProducerId": null,
+    "completeProducerIdSet": [
+      "agent20-rank5-mew-genesect-opponent-v3"
+    ],
+    "producerIdSetComplete": false
+  },
+  "hashes": {
+    "policySha256": "0a9e72e8dd62b2a931d62971070b4856c2763cb4469cb4ae3be8ded33d32f82b",
+    "dependencyManifestSha256": "0072d0e92a4389d3fe613a7d23549687461d4b05e90cd63b5b05c336105fac40",
+    "commonConstraintsSha256": "36893b2545e2eb6650c4cde4fa342d920ae7ef4579f49b54270f6137a06d0eca",
+    "challengeSuiteSha256": "fe8ac6d13a1efd68fd3eb00b47fead9ed8bfac341a9fa0ea9739a6e1ff2120d1",
+    "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
+    "testFileSha256": "17a2335a2f4ee1a930c68fa3146d08aa877895e0fb2eb8df9a2d33b0d63696ec"
+  },
+  "sourceBinding": {
+    "rank": 5,
+    "printed60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+    "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200"
+  },
+  "candidateBinding": {
+    "fingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+    "deckPath": "results/aichi-2026/candidate-hood-shadow-rider.json"
+  },
+  "engineBinding": {
+    "submodulePath": "vendor/twinleaf",
+    "pinnedRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+  },
+  "canonicalPolicyPlanCore": {
+    "path": null,
+    "registrationStatus": "not-inserted",
+    "reason": "Agent20 has no authority to alter the Agent36 V3 bundle or canonical policy-plan core under the current Critic hold."
+  },
+  "reviewer": {
+    "assigned": false,
+    "independentReviewerRequired": true,
+    "reviewerRegistryPath": "simulation/evaluation/agent45-authorized-reviewers.json",
+    "registryStatus": "empty"
+  },
+  "attestation": {
+    "issued": false,
+    "strategicCompetence": "not-attested",
+    "nativeReachability": "not-attested",
+    "gameCount": 0,
+    "winRate": null
+  },
+  "nextGate": "Run validator-backed unit tests in an approved local checkout, materialize exact actor-view fixtures, obtain independent review, and request canonical plan registration; do not dispatch native games or seeds without Critic authorization."
+}
