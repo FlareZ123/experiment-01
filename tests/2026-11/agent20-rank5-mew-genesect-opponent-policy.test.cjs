@@ -34,7 +34,8 @@ const P = {
   path: 'Path to the Peak CRE 148',
   specialCharge: 'Special Charge STS 105',
   specialRedCard: 'Special Red Card CRI 82',
-  muscleBand: 'Muscle Band XY 121'
+  muscleBand: 'Muscle Band XY 121',
+  forestSealStone: 'Forest Seal Stone SIT 156'
 };
 
 function makePolicy(seat = 0, overrides = {}) {
@@ -371,6 +372,88 @@ test('Double Colorless Energy is attached to Mew VMAX before Genesect', () => {
     ]
   });
   assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'attach' });
+});
+
+test('Star Alchemy is used when it can fetch the missing Mew VMAX', () => {
+  const own = player({
+    active: pokemon(P.mewV),
+    bench: [pokemon(P.genesect)]
+  });
+  const request = rootRequest({
+    ownPublic: own,
+    items: [
+      { token: 'star', kind: 'use-ability', actorPrinting: P.genesect,
+        publicMetadata: { abilityName: 'Star Alchemy' } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'star' });
+});
+
+test('Star Alchemy searches Mew VMAX before generic Trainer cards', () => {
+  const own = player({
+    active: pokemon(P.mewV),
+    bench: [pokemon(P.genesect)]
+  });
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource(P.forestSealStone, 'Star Alchemy'),
+    observation: { ownPublic: own },
+    publicMetadata: {
+      selectionType: 'card-combination',
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: false
+    },
+    choices: [
+      cardChoice('ultra', P.ultraBall, 'deck'),
+      cardChoice('mew-vmax', P.mewVMAX, 'deck')
+    ]
+  });
+  assert.deepEqual(checkedDecision(request),
+    { kind: 'select-choices', tokens: ['mew-vmax'] });
+});
+
+test('Star Alchemy searches DCE when Mew VMAX is already in play without Energy', () => {
+  const own = player({
+    active: pokemon(P.mewVMAX, { stage: 'VMAX', subtypes: ['VMAX', 'Fusion Strike'] }),
+    bench: [pokemon(P.genesect)]
+  });
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource(P.forestSealStone, 'Star Alchemy'),
+    observation: { ownPublic: own },
+    publicMetadata: {
+      selectionType: 'card-combination',
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: false
+    },
+    choices: [
+      cardChoice('ultra', P.ultraBall, 'deck'),
+      cardChoice('dce', P.dce, 'deck')
+    ]
+  });
+  assert.deepEqual(checkedDecision(request),
+    { kind: 'select-choices', tokens: ['dce'] });
+});
+
+test('Star Alchemy is not used after the VSTAR Power has been spent', () => {
+  const own = player({
+    active: pokemon(P.mewV),
+    bench: [pokemon(P.genesect)],
+    publicTurnRestrictions: { vstarUsed: true }
+  });
+  const request = rootRequest({
+    ownPublic: own,
+    ownTurnResources: turnResources({ vstarUsed: true }),
+    items: [
+      { token: 'star', kind: 'use-ability', actorPrinting: P.genesect,
+        publicMetadata: { abilityName: 'Star Alchemy' } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'pass' });
 });
 
 test('Genesect V is deployed as a second Fusion Strike System engine', () => {
