@@ -129,7 +129,7 @@ function sourceOf(suite) {
     entrySha256: pick(binding.sourceEntryJsonSha256,
       binding.sourceEntryFingerprintSha256),
     player: pick(source.player, binding.sourceDeckPlayer, binding.player),
-    physicalCardCount: pick(source.physicalCardCount,
+    cardCount: pick(source.physicalCardCount,
       binding.sourcePhysicalCardCount, binding.sourceDeckCardCount,
       suite.sourceDeck && suite.sourceDeck.physicalCards)
   };
@@ -146,7 +146,7 @@ function candidateOf(suite) {
     fingerprintSha256: pick(candidate.fingerprintSha256,
       binding.fixedCandidateFingerprintSha256,
       suite.suiteHeader && suite.suiteHeader.candidateDeckFingerprintSha256),
-    physicalCardCount: pick(candidate.physicalCardCount,
+    cardCount: pick(candidate.physicalCardCount,
       binding.fixedCandidatePhysicalCardCount)
   };
 }
@@ -273,7 +273,7 @@ function normalizeCase(suite, suiteMeta, raw, split, challengeFamily) {
       sourceDeckGitBlobSha1: source.gitBlobSha1 || null,
       sourceDeckFingerprintSha256: source.fingerprintSha256 || null,
       sourceDeckEntrySha256: source.entrySha256 || null,
-      sourceDeckPhysicalCardCount: source.physicalCardCount || null,
+      sourceDeckCardCount: source.cardCount || null,
       sourceDeckPlayer: source.player || null,
       candidateDeckPath: candidate.path || null,
       candidateDeckGitBlobSha1: candidate.gitBlobSha1 || null,
@@ -384,8 +384,8 @@ function buildCorpus(root = ROOT) {
 
     const sourceDeck = sourceOf(suite);
     const candidateDeck = candidateOf(suite);
-    if (sourceDeck.physicalCardCount !== 60)
-      throw new Error(input.path + ': source deck is not bound to 60 physical cards');
+    if (sourceDeck.cardCount !== 60)
+      throw new Error(input.path + ': source deck list card count is not 60');
     if (candidateDeck.fingerprintSha256 !== CANDIDATE_FINGERPRINT)
       throw new Error(input.path + ': candidate fingerprint mismatch');
 
