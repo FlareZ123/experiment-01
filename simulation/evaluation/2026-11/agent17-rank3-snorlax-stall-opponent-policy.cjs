@@ -83,6 +83,19 @@ const ITEM_PATTERNS = [
   PRINT.nightStretcher, PRINT.forestSealStone
 ];
 const TOOL_PATTERNS = [PRINT.toolJammer, PRINT.floatStone, PRINT.stealthyHood, PRINT.forestSealStone];
+
+// The fixed candidate's VS Seeker can recover Supporters from discard. It cannot
+// recover spent Items such as VS Seeker or Night Stretcher themselves.
+const CANDIDATE_RECOVERABLE_SUPPORTER_PRIORITIES = Object.freeze([
+  { pattern: /^Arven SVI 166\b/i, score: 280 },
+  { pattern: /^Guzma BUS 115\b/i, score: 270 },
+  { pattern: /^Acerola BUS 112\b/i, score: 260 },
+  { pattern: /^Raihan EVS 152\b/i, score: 250 },
+  { pattern: /^Teammates PRC 141\b/i, score: 240 },
+  { pattern: /^Pokémon Ranger STS 104\b/i, score: 230 },
+  { pattern: /^Iono PAL 185\b/i, score: 220 },
+  { pattern: /^Lillie's Determination MEG 119\b/i, score: 210 }
+]);
 // The bound Hood Shield v1 list has 17 Item-subtype cards. Forest Seal Stone
 // is dual-subtype Item + Pokémon Tool; Stealthy Hood and Float Stone are
 // Pokémon Tool-only and are not legal Eri discards.
@@ -254,9 +267,9 @@ function opponentActiveEnergy(observation) {
   return energyCount(opponentActive(observation));
 }
 
-function opponentDiscardHasRecovery(observation) {
+function opponentDiscardHasRecoverableSupporter(observation) {
   return list(observation?.opponentPublic?.discard).some(card =>
-    /VS Seeker|Night Stretcher|Lusamine|Acerola|Super Rod|Ordinary Rod/i.test(valueText(card))
+    CANDIDATE_RECOVERABLE_SUPPORTER_PRIORITIES.some(entry => matches(card, entry.pattern))
   );
 }
 
@@ -292,9 +305,10 @@ function scoreSearchCard(printing, observation, context = '') {
     return 0;
   }
   if (context === 'get-lost') {
-    if (/VS Seeker|Night Stretcher|Lusamine|Acerola|Super Rod|Ordinary Rod/i.test(valueText(printing))) return 230;
-    if (/Tool Jammer|Stealthy Hood|Float Stone|Forest Seal Stone/i.test(valueText(printing))) return 180;
-    return 0;
+    const recoveryTarget = CANDIDATE_RECOVERABLE_SUPPORTER_PRIORITIES.find(entry =>
+      matches(printing, entry.pattern)
+    );
+    return recoveryTarget?.score ?? 0;
   }
   if (context === 'land-maker') {
     if (matches(printing, PRINT.tropicalBeach)) return 230;
@@ -414,7 +428,7 @@ function scoreAttack(item, observation) {
       opponentDeckCount(observation) <= 20 ? 135 : 105;
   }
   if (name === 'Get Lost') {
-    if (opponentDiscardHasRecovery(observation)) return 150;
+    if (opponentDiscardHasRecoverableSupporter(observation)) return 150;
     return list(opponent.discard).length > 0 ? 65 : 10;
   }
   if (name === 'Rototiller') {
