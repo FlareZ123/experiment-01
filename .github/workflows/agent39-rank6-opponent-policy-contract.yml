@@ -1,0 +1,55 @@
+name: Agent39 rank-6 Iron Thorns V3 policy contract
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  policy-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Test rank-6 policy against the actual V3 request and decision validators
+        run: node --test tests/2026-11/agent39-rank6-iron-thorns-opponent-policy.test.cjs
+      - name: Verify source binding and report reproducible file hashes
+        run: |
+          node <<'NODE'
+          const fs = require('node:fs');
+          const crypto = require('node:crypto');
+          const policy = require('./simulation/evaluation/2026-11/agent39-rank6-iron-thorns-opponent-policy.cjs');
+          const source = JSON.parse(fs.readFileSync('results/aichi-2026/full-decklists.json', 'utf8'));
+          const deck = source.decks.find(row => row.rank === 6);
+          function canonical(value) {
+            if (Array.isArray(value)) return '[' + value.map(canonical).join(',') + ']';
+            if (value && typeof value === 'object') {
+              return '{' + Object.keys(value).sort().map(key =>
+                JSON.stringify(key) + ':' + canonical(value[key])).join(',') + '}';
+            }
+            return JSON.stringify(value);
+          }
+          const fingerprint = crypto.createHash('sha256').update(canonical(deck), 'utf8').digest('hex');
+          const cards = deck.cards.reduce((sum, row) => sum + row.count, 0);
+          if (cards !== 60) throw new Error('RANK6_SOURCE_NOT_60_CARDS:' + cards);
+          if (fingerprint !== policy.SOURCE_FINGERPRINT_SHA256) {
+            throw new Error('RANK6_SOURCE_FINGERPRINT_MISMATCH:' + fingerprint);
+          }
+          if (policy.SOURCE_LIST_BLOB_SHA1 !== 'ae773f6201d7aa69d31914dbfee66f3fba692200') {
+            throw new Error('RANK6_SOURCE_BLOB_SHA1_MISMATCH');
+          }
+          console.log('rank6_source_fingerprint_sha256=' + fingerprint);
+          console.log('rank6_card_count=' + cards);
+          console.log('engine_pin=' + policy.ENGINE_PIN);
+          console.log('worker_protocol_blob_sha1=' + policy.WORKER_PROTOCOL_BLOB_SHA1);
+          NODE
+          sha256sum \
+            simulation/evaluation/2026-11/agent39-rank6-iron-thorns-opponent-policy.cjs \
+            tests/2026-11/agent39-rank6-iron-thorns-opponent-policy.test.cjs
+          git hash-object \
+            simulation/evaluation/2026-11/agent39-rank6-iron-thorns-opponent-policy.cjs \
+            tests/2026-11/agent39-rank6-iron-thorns-opponent-policy.test.cjs
