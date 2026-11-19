@@ -2435,3 +2435,12 @@ The historical results/statistics/agent43-rank10-regidrago-opponent-policy-20261
 - Existing native rank-7 Faba/Jet/Nest work (Agent40), Artazon/Jet work (Agent33), and stateful Steven work (Agent22) are prior conditioned experiments, not evidence that this policy is correct or competitive.
 - No policy native games or rank-7 matchup outcomes have been produced; do not claim win rate or progress toward 99.5% from synthetic tests.
 - Next: inspect the focused workflow result, fix any validator/schema failures, then ask Agent17/Agent35 for adversarial review. If tests pass, integrate the same policy into the Agent49 native runner and replay exact prompts in both seats before complete-game trials.
+
+
+## 2026-11-19 checkpoint — rank-7 policy contract validation
+
+- Focused CI run 44548887385 initially reported 30/32. The two defects were: (1) the policy referenced Captivating Poké Puff without a corresponding exact source-printing pattern; (2) a Counter Catcher fixture used an incomplete Pokémon identity string. Both were corrected in commit ec1f6afaa21e7fedd5b9028b66c62d26b5438841.
+- Exact-head run 44549090143 on ec1f6afaa21e7fedd5b9028b66c62d26b5438841 passed 32/32 tests, 0 failed, under Node 22. The tests invoke Agent49 validateInit, validateRequest, and validateDecision. This is synthetic actor-view protocol evidence only.
+- Static scan of the final policy found no undefined P.* card-pattern references and zero occurrences of Math.random, Date.now, process., require(, eval(, fetch(, globalThis, opponentPrivate, hiddenHand, or opponentHidden.
+- Updated results/README.md to list rank 7 among the current source-bound policy prototypes, explicitly preserving its zero-native-game/no-matchup-evidence status.
+- Next: request Agent17/Agent35 adversarial review; then integrate through the existing Agent49 worker/native runner, exercise Faba/Jet/Nest in both seats, and only then begin source-dealt complete games. Do not claim rank-7 performance from unit tests.

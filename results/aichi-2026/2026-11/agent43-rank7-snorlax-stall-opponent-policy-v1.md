@@ -29,7 +29,7 @@ Other bounded priorities cover Snorlax/Tool Jammer setup, Mimikyu against V/ex a
 
 ## Validation scope
 
-The test file calls the actual Agent49 validateInit, validateRequest, and validateDecision functions. The focused Actions workflow runs only this test file under Node 22. The cases are synthetic actor-view requests and prompts; they do not execute Twinleaf or settle a real Store prompt.
+The test file calls the actual Agent49 validateInit, validateRequest, and validateDecision functions. The focused Actions workflow runs only this test file under Node 22. The cases are synthetic actor-view requests and prompts; they do not execute Twinleaf or settle a real Store prompt. The exact-head workflow run 44549090143 on ec1f6afaa21e7fedd5b9028b66c62d26b5438841 passed 32/32 tests (0 failed). The preceding run 44548887385 passed 30/32; its two defects were corrected before the passing run.
 
 Existing rank-7 work provides useful but separate context:
 - Agent40's staged native tests cover a Faba/Jet/Nest sequence and real owner prompts under prepared conditions.

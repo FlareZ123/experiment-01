@@ -1,6 +1,6 @@
 {
   "schema": "aichi-v3-opponent-policy-challenge-suite-v1",
-  "suiteSha256": "b96a31d46b4ea6e2b45da3db8a9f705d49a5c706737fba1a3406b89d010a6a78",
+  "suiteSha256": "1b5a26792e2379b8c3f38ca8ba988e71197cc95907c608b14d04c1a119c11208",
   "suiteHeader": {
     "producerId": "agent43",
     "role": "opponent",
@@ -14,7 +14,7 @@
     "policyPath": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v1.cjs",
     "policySha256": "6a129f76c997221962eac79840997ece629c61fb6acf35c386fb80f38b29fece",
     "dependencyManifestPath": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-dependency-manifest-v1.json",
-    "dependencyManifestSha256": "07261f2a531b6897a4c4c465b732058e0cc042e4c3068eec477d77c7545b0304",
+    "dependencyManifestSha256": "798e78d399c50c6d4bd63813411437a0defbb889be021986b6e6fbffe51994ae",
     "testPath": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v1.test.cjs",
     "testSha256": "f11c6b78eb2915ae91c2ac34c7ebb0473045473ac978a6d5c041aee4c09c1c0d",
     "enginePath": "vendor/twinleaf",
@@ -27,7 +27,13 @@
     "declaredProducerIdSet": [
       "agent43"
     ],
-    "signedProducerIdSet": []
+    "signedProducerIdSet": [],
+    "validationRunId": 44549090143,
+    "validationHeadSha": "ec1f6afaa21e7fedd5b9028b66c62d26b5438841",
+    "validationConclusion": "success",
+    "unitTestCount": 32,
+    "unitTestsPassed": 32,
+    "unitTestsFailed": 0
   },
   "developmentCases": [
     {
@@ -375,7 +381,8 @@
     "demonstrated": [
       "Policy module is bound to the exact rank-7 source-entry fingerprint and the fixed Hood Shield v1 candidate fingerprint.",
       "Policy factory accepts only the Agent49 role-only empty-config init contract.",
-      "Unit tests invoke the actual Agent49 init, request, and decision validators on synthetic actor-view fixtures."
+      "Unit tests invoke the actual Agent49 init, request, and decision validators on synthetic actor-view fixtures.",
+      "Focused GitHub Actions run 44549090143 on exact head ec1f6afaa21e7fedd5b9028b66c62d26b5438841 passed 32/32 synthetic validator-backed unit tests."
     ],
     "notDemonstrated": [
       "No Twinleaf native game was run by this policy.",
@@ -393,5 +400,5 @@
     "Bind this producer into the shared V3 policy plan only after the owner accepts the exact policy and dependency hashes."
   ],
   "caseRecordCount": 36,
-  "suiteStatus": "development-only; held-out cases not run; not frozen"
+  "suiteStatus": "development-validated; held-out cases not run; not frozen; native validation absent"
 }
