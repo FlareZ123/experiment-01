@@ -373,12 +373,38 @@ function resistanceAmount(target, attackerType = 'Dragon') {
   return Number.isFinite(parsed) ? Math.abs(parsed) : 30;
 }
 
-function activeDamage(base, observation) {
+function activeDamage(base, observation, attackerType = null) {
   const attacker = observation?.ownPublic?.active;
   const target = observation?.opponentPublic?.active;
+  const type = attackerType ?? list(attacker?.printed?.types)[0] ?? 'Dragon';
   const beforeWeakness = Math.max(0, base +
     (list(attacker?.tools).some(tool => matches(tool, PRINT.muscleBand)) ? 20 : 0));
-  return Math.max(0, beforeWeakness * weaknessMultiplier(target) - resistanceAmount(target));
+  return Math.max(0, beforeWeakness * weaknessMultiplier(target, type) - resistanceAmount(target, type));
+}
+
+function scoreDirectAttackChoice(choice, observation) {
+  const name = attackName(choice);
+  const own = observation?.ownPublic ?? {};
+  const target = observation?.opponentPublic?.active;
+  const targetHp = remainingHp(target);
+  const gxUsed = own.publicTurnRestrictions?.gxUsed;
+  if (name === 'Shred') {
+    const damage = activeDamage(80, observation);
+    const ko = targetHp > 0 && damage >= targetHp;
+    return ko ? 150 : 85;
+  }
+  if (name === 'Timeless-GX') {
+    if (gxUsed !== false) return -1;
+    const damage = activeDamage(150, observation);
+    const ko = targetHp > 0 && damage >= targetHp;
+    return ko ? 270 : 205;
+  }
+  if (name === 'Overclock') return handSize(observation) < 6 ? 80 + (6 - handSize(observation)) * 8 : 15;
+  if (name === 'Trifrost') {
+    const evaluated = evaluateApexAttackChoice(choice, observation);
+    return Number(evaluated?.score ?? -1);
+  }
+  return -1;
 }
 
 function chooseRank13ApexAttack(choices, observation) {
@@ -434,6 +460,9 @@ function chooseAttack(choices, observation, context) {
     const meta = metadata(choice);
     if (meta.eligible === false || meta.attackCostPayable === false) return { choice, index, score: -1 };
     if (name === 'Phantom Dive' || name === 'Dragon Impact') return { choice, index, score: -1 };
+    if (name === 'Shred' || name === 'Timeless-GX' || name === 'Overclock' || name === 'Trifrost') {
+      return { choice, index, score: scoreDirectAttackChoice(choice, observation) };
+    }
     if (name === 'Dominating Echo') {
       return { choice, index, score: opponentHasStadium(observation) ||
         opponentHasSpecialEnergy(observation) ? 245 : 180 };
@@ -463,17 +492,10 @@ function scoreAttack(item, observation) {
   if (name === 'Overclock') {
     return handSize(observation) < 6 ? 80 + (6 - handSize(observation)) * 8 : 15;
   }
-  if (name === 'Shred') {
-    const evaluated = evaluateApexAttackChoice({ ...item, publicMetadata: {
-      ...metadata(item), sourceAttack: 'Shred'
+  if (name === 'Shred' || name === 'Timeless-GX') {
+    return scoreDirectAttackChoice({ ...item, publicMetadata: {
+      ...metadata(item), sourceAttack: name
     } }, observation);
-    return Number(evaluated?.score ?? 0);
-  }
-  if (name === 'Timeless-GX') {
-    const evaluated = evaluateApexAttackChoice({ ...item, publicMetadata: {
-      ...metadata(item), sourceAttack: 'Timeless-GX'
-    } }, observation);
-    return Number(evaluated?.score ?? 0);
   }
   if (name === 'Dominating Echo') {
     return opponentHasStadium(observation) || opponentHasSpecialEnergy(observation) ? 235 : 175;
@@ -699,11 +721,44 @@ function promptDecision(request) {
     }
 
     if (/raihan/i.test(context)) {
+      if (meta.selectionType === 'pokemon') {
+        return selectMany(choices, choice => {
+          const value = printingValue(choice);
+          if (PRINT.regidragoVstar.test(value)) return 240;
+          if (PRINT.regidragoV.test(value)) return 225;
+          return 20;
+        }, minimum, maximum, 'NO_RANK13_RAIHAN_ATTACH_TARGET');
+      }
+      const isSearch = meta.sourceZone === 'deck' || meta.zone === 'deck' ||
+        choices.some(choice => PRINT.regidragoVstar.test(printingValue(choice)) ||
+          PRINT.compressor.test(printingValue(choice)) || PRINT.treasure.test(printingValue(choice)));
+      if (isSearch) {
+        return selectMany(choices, choice => {
+          const value = printingValue(choice);
+          if (PRINT.doubleDragon.test(value) && ownEnergyCount(observation) < 4) return 250;
+          if (PRINT.compressor.test(value) && dragonPayloadCount(observation) < 2) return 240;
+          if (PRINT.treasure.test(value) && !hasDragonPayload(observation)) return 230;
+          if (PRINT.regidragoVstar.test(value) && boardHas(own, PRINT.regidragoV) &&
+              !boardHas(own, PRINT.regidragoVstar)) return 225;
+          if (PRINT.regidragoV.test(value) && !boardHas(own, PRINT.regidragoV)) return 220;
+          if (PRINT.guzma.test(value)) return 175;
+          return 20;
+        }, minimum, maximum, 'NO_RANK13_RAIHAN_SEARCH_TARGET');
+      }
       return selectMany(choices, choice => {
         const value = printingValue(choice);
         if (PRINT.grassEnergy.test(value) || PRINT.fireEnergy.test(value)) return 210;
         return 0;
       }, minimum, maximum, 'NO_RANK13_RAIHAN_ENERGY');
+    }
+
+    if (/crispin/i.test(context) && meta.selectionType === 'pokemon') {
+      return selectMany(choices, choice => {
+        const value = printingValue(choice);
+        if (PRINT.regidragoVstar.test(value)) return 240;
+        if (PRINT.regidragoV.test(value)) return 225;
+        return 20;
+      }, minimum, maximum, 'NO_RANK13_CRISPIN_ATTACH_TARGET');
     }
 
     if (/dragon impact/i.test(context)) {
