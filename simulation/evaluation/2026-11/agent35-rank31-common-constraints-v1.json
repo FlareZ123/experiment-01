@@ -100,12 +100,31 @@
     "failClosedOnUnsupportedPrompts": true
   },
   "evidenceBoundary": {
-    "localTests": "14 synthetic actor-view fixtures passed through actual Agent49 validateRequest and validateDecision functions.",
+    "localTests": "15 synthetic actor-view tests / 17 fixtures passed through actual Agent49 validateRequest and validateDecision functions.",
+    "pinnedSourceInspection": true,
     "nativeTwinleafExecution": false,
+    "nativeStoreReceipts": 0,
     "sourceNaturalCases": 0,
     "nativeStagedPolicyCases": 0,
     "gamesPlayed": 0,
     "matchupWinRate": null,
     "strategicCompetenceDemonstrated": false
-  }
+  },
+  "pinnedSourceInspections": [
+    {
+      "path": "ptcg-server/src/sets/10-scarlet-and-violet/set-prismatic-evolution/alt-arts.ts",
+      "lines": "128-137",
+      "finding": "DusclopsPRE extends the Shrouded Fable Dusclops class and binds set PRE, number 36; DusknoirPRE extends the Dusknoir class and binds PRE 37."
+    },
+    {
+      "path": "ptcg-server/src/sets/10-scarlet-and-violet/set-shrouded-fable/dusclops.ts",
+      "lines": "27-77",
+      "finding": "Cursed Blast is an Ability with knocksOutSelf=true; opens TOP_PLAYER ChoosePokemonPrompt for Bench/Active, min 1/max 1/no cancel; applies PlaceDamageCountersEffect(50); then self-KOs even if counters were prevented (e.g. Stealthy Hood)."
+    },
+    {
+      "path": "ptcg-server/src/sets/10-scarlet-and-violet/set-shrouded-fable/dusknoir.ts",
+      "lines": "19-65",
+      "finding": "Cursed Blast is an Ability with knocksOutSelf=true; opens the same TOP_PLAYER ChoosePokemonPrompt; applies PlaceDamageCountersEffect(130); then self-KOs even if counters were prevented."
+    }
+  ]
 }
