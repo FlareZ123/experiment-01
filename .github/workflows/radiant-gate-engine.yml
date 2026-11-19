@@ -60,3 +60,6 @@ jobs:
 
       - name: Verify real Underworld Door and Latias retreat against Iron Thorns Tool Jammer
         run: node simulation/twinleaf/wobbuffet-latias-retreat-action.cjs
+
+      - name: Verify Flutter Mane Active unlock, Latias retreat, and Radiant Gate against Iron Thorns
+        run: node simulation/twinleaf/agent6-flutter-mane-latias-thorns-action.cjs
