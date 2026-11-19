@@ -17,11 +17,11 @@
   },
   "hashes": {
     "policySha256": "87cc1716e7a8c0db9d56514d91b0bb8327fc955ed0725ad8dde113cb9eed0213",
-    "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
+    "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "commonConstraintsSha256": "94af8564d2de9029633983d214d34ff8ba9c86194e9eadb38123d873e51a3190",
-    "dependencyManifestSha256": "77f9d70652ebea22132c79caa975a1a41c5907e78b4a4b7862b9386a638a304f",
-    "challengeSuiteSha256": "8eba097a58168471cd7d69ecdaf90a06a702088f831c31585b0837706ec38b55"
+    "dependencyManifestSha256": "e3b2e3f4aa9953be5a0f821da3ae81ff7861dab66739cacc00888d1a88f61e74",
+    "challengeSuiteSha256": "6488226b9bf220d080b2359f5e1cf87e25e4ea7ef06a2b7984b2d6cde1ae539d"
   },
   "sourceBinding": {
     "rank": 5,
