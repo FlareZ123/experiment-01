@@ -1,3 +1,12 @@
+# 2026-11-19 13:52 UTC — rank-3 policy fail-closed completion
+
+- Added a no-pass-token negative control: when the only frontier item is unsupported, the policy returns `abstain/NO_SUPPORTED_ACTION` rather than inventing a pass token. **49/49 synthetic tests pass**; 50 actor requests, 49 decision receipts, 49 suite cases.
+- Latest test commit: `3ee514e40f32967d8431d118e3c09cea91be4fa2`; dependency manifest commit: `98f2e6b1bec6a5e393a2872c9f492d0d14410d85`; suite commit: `e5938d95f4c58c1628c6ec1a7127dcf837978afd`. Dependency SHA-256: `7c47d07659455677b565a801972b4f841f3131480443a46252ee14a81582b0b0`; suite canonical SHA-256: `0aed10381dae2d04ec7b051d4a2b7c1c533d566188a55c23200ec44825258bfc`.
+- Coverage now includes root action frontiers, ChooseCardsPrompt, ChoosePokemonPrompt, ChooseEnergyPrompt, ChoosePrizePrompt and unknown prompt fail-closed behavior. Still 0 source-natural / 0 native-staged / 49 synthetic; every case remains blocked for native and competitive attestation.
+- No new engine, workflow, fixture, game, candidate, rank-1 or PR #58 changes. Lease is still the immutable `2026-11-19T12:54:12.928887568Z` claim; release threshold `14:04:12.928887568Z`. Check actual clock after this checkpoint.
+
+---
+
 # 2026-11-19 13:50 UTC — rank-3 policy follow-up: multi-Energy, Prize privacy, Safeguard scope
 
 - Extended the rank-3 policy after the 44-case checkpoint. **48/48 synthetic unit tests now pass** against the actual Agent49 `validateRequest`/`validateDecision` source in the local V8 harness; 49 actor-request fixtures, 48 decision receipts, 48 suite cases. Still no Node test runner, worker IPC, Twinleaf Store, game, or competitive evidence.
