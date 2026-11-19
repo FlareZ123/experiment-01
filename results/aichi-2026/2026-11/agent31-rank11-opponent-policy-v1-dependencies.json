@@ -23,8 +23,8 @@
   "policy": {
     "path": "simulation/evaluation/2026-11/agent31-rank11-absol-garbodor-opponent-policy.cjs",
     "version": "agent31-rank11-absol-garbodor-opponent-v1",
-    "gitBlobSha1": "e2e0f7630c5da417235f701ab7015793b3f0f133",
-    "sha256": "afe6988f8c20df6c39e3ceb92d35206551c52fc0a24c6c669abd2f1e255b7f6c",
+    "gitBlobSha1": "2c9792bec345bc3ce85fa3cddc2750bc779f0bab",
+    "sha256": "42169e20d7b4bbc2d1781a5911c4e5b8cc9d350f16cde4cf8dd00be1216873d6",
     "configContract": "empty object only; current Agent49 validateInit rejects non-empty config",
     "determinism": "deterministic; no RNG or seed input",
     "role": "opponent",
