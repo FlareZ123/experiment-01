@@ -35,6 +35,15 @@
         "Teammates"
       ],
       "unknownOrFalseBehavior": "do not play Teammates"
+    },
+    "arvenSearchGate": {
+      "method": "subtract visibleOwnCards from exact source-copy counts",
+      "requires": [
+        "at least one unseen Item",
+        "at least one unseen Pokémon Tool"
+      ],
+      "zeroRemainder": "no deck target remains in that class",
+      "positiveRemainder": "may include hidden Prize cards; possibility, not certainty"
     }
   },
   "sourceBinding": {
@@ -102,15 +111,15 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json",
-    "manifestSha256": "3b06baa5e97e223af20a48568b08b078413c3df93d0f0f5d550f04d1a9cec483",
+    "manifestSha256": "25d1b14465d77156f161caa37f4eb05f6f01318de3cff56a3da50aa87641ec82",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "testFilePath": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "testFileBlobSha1": "9ccc6e903dbe2b00b4fe6e9c2ec0291249bd3e0e",
-    "testFileSha256": "619940daa21a7c51929349a797742823c9e89158aff74a08cfab9990cce20196",
+    "testFileBlobSha1": "55ea227dd0c59da6741b48249b653b0f92f2b74a",
+    "testFileSha256": "f354c8ec04dec0dfb26d3a9da3401e5d1f19a9d5f1c4e60332ad6cbd40749d04",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -1155,7 +1164,7 @@
       "caseId": "r3-dev-06-arven-selects-one-item-and-one-tool-from-the-exact-rank-3-de",
       "split": "development",
       "caseClass": "policy-decision",
-      "objective": "Arven selects one Item and one Tool from the exact rank-3 deck-search choices",
+      "objective": "Arven root and search priorities require at least one unseen Item and one unseen Tool target",
       "evidenceClass": "synthetic",
       "actorView": {
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
@@ -1234,12 +1243,13 @@
           "hidden opponent hand or unrevealed Prize identity",
           "wrong-source ability",
           "unpayable target",
-          "delegated fallback"
+          "delegated fallback",
+          "Arven prioritized when every Item or every Tool copy is already visible"
         ],
         "acceptableOutcomeFamilies": [
           "select-choices"
         ],
-        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
+        "rationale": "Visible own cards are subtracted from exact rank-3 source-copy counts. A zero remainder proves there is no deck target; a positive remainder may include hidden Prizes and is only a possibility. The prompt-level pair-selection test remains unchanged."
       },
       "costLedger": {
         "supporterForTurn": true,
@@ -1310,10 +1320,22 @@
           "measured": false
         },
         "timeoutStatus": "not-tested",
-        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present",
+        "arvenSearchAvailability": {
+          "allToolCopiesVisible": {
+            "rootActionScore": 0,
+            "vsSeekerScore": 0,
+            "trainersMailScore": 0
+          },
+          "unseenItemAndToolPossible": {
+            "rootActionScore": 175,
+            "vsSeekerScore": 155,
+            "trainersMailScore": 190
+          }
+        }
       },
       "disposition": "blocked",
-      "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
+      "blockReason": "Synthetic visibility/counting and policy-score evidence only; positive unseen counts are not proof that a target is in the deck because Prize identities are hidden.",
       "reviewerStatus": "unreviewed",
       "sourceBinding": {
         "role": "opponent-policy",
@@ -1331,7 +1353,7 @@
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
         "evidenceClass": "synthetic"
       },
-      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
+      "reviewerExplanation": "Synthetic visibility/counting and policy-score evidence only; positive unseen counts are not proof that a target is in the deck because Prize identities are hidden."
     },
     {
       "caseId": "r3-dev-07-plumeria-pays-its-two-card-cost-with-low-value-cards-while-p",
@@ -9578,7 +9600,7 @@
     ]
   },
   "caseRecordCount": 49,
-  "suiteSha256": "d7d8805702d5a40a762a71f73f3af57d4aaa8260aec9810dec5c558651106d71",
+  "suiteSha256": "c726b418728c378c4ef22bae863afefc912a709067211484bde98b45366eb610",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
@@ -9586,8 +9608,8 @@
     "sourceRank": 3,
     "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
     "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
-    "policySha256": "5c005896a9f0998f3f5a9f77efb227d23f993120de6afc1c3ff5ce24713f77d2",
-    "dependencyManifestSha256": "3b06baa5e97e223af20a48568b08b078413c3df93d0f0f5d550f04d1a9cec483",
+    "policySha256": "00969420fc168b6f56883dedab2d99f22efbd168223a693e939142e437a7b49a",
+    "dependencyManifestSha256": "25d1b14465d77156f161caa37f4eb05f6f01318de3cff56a3da50aa87641ec82",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
@@ -9786,9 +9808,9 @@
   },
   "policyStaticAudit": {
     "sourcePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "sourceBlobSha1": "21c45d9a33c87d9d40622dea4d7f4070f3b27e41",
-    "sourceSha256": "5c005896a9f0998f3f5a9f77efb227d23f993120de6afc1c3ff5ce24713f77d2",
-    "scannedAt": "2026-11-19T17:09:13Z",
+    "sourceBlobSha1": "4b18a374472e8aff6f707dc1000fd2b1a5800f70",
+    "sourceSha256": "00969420fc168b6f56883dedab2d99f22efbd168223a693e939142e437a7b49a",
+    "scannedAt": "2026-11-19T17:13:58Z",
     "scannedTerms": [
       {
         "term": "Math.random",
