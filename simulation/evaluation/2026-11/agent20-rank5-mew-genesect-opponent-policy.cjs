@@ -386,6 +386,52 @@ function singleChoice(prompt, choices, scoreFn, reasonCode) {
   return { kind: 'select-choice', token: ranked[0].choice.token };
 }
 
+function scoreForestSealSearch(choice, observation) {
+  if (choiceOwner(choice) !== 'actor' || choiceZone(choice) !== 'deck') return 0;
+  const printing = valueText(choice);
+  const own = observation.ownPublic;
+  const hand = list(observation.ownHand);
+  const mewVMAXOnBoard = slots(own).some(row => matches(row.pokemon.printing, PRINT.mewVMAX));
+  const activeMewVMAX = matches(own.active?.printing ?? '', PRINT.mewVMAX) ? own.active : null;
+
+  if (matches(printing, PRINT.mewVMAX) && boardCount(own, PRINT.mewV) > 0 &&
+      boardCount(own, PRINT.mewVMAX) === 0) return 300;
+  if (matches(printing, PRINT.dce) && activeMewVMAX && !hasDce(activeMewVMAX)) return 290;
+  if (matches(printing, PRINT.genesect) && boardCount(own, PRINT.genesect) < 2) return 250;
+  if (matches(printing, PRINT.mewV) && boardCount(own, PRINT.mewV) < 2) return 240;
+  if (matches(printing, PRINT.vipPass) && observation.globalTurn <= 2 &&
+      benchCount(own) < 5) return 220;
+  if (matches(printing, PRINT.wally) && freshMew(observation) &&
+      supporterAvailable(observation)) return 210;
+  if (matches(printing, PRINT.specialCharge) &&
+      list(own.discard).filter(card => matches(card, PRINT.dce)).length >= 2) return 200;
+  if (matches(printing, PRINT.specialRedCard) &&
+      opponentPrizeCount(observation) <= 3 && opponentHandCount(observation) >= 3) return 185;
+  if (matches(printing, PRINT.guzma) && supporterAvailable(observation) &&
+      list(observation.opponentPublic?.bench).some(Boolean)) return 180;
+  if (matches(printing, PRINT.marnie) && supporterAvailable(observation) &&
+      opponentHandCount(observation) >= 4) return 170;
+  if (matches(printing, PRINT.pathToPeak) && candidateHasShadowRider(observation) &&
+      hand.length >= 4 && !hand.some(card => matches(card, PRINT.dedenne) || matches(card, PRINT.crobat)) &&
+      !list(own.stadium).some(card => matches(card, PRINT.pathToPeak))) return 160;
+  if (matches(printing, PRINT.muscleBand) && activeMewVMAX &&
+      remainingHp(observation.opponentPublic?.active) >= 211 &&
+      remainingHp(observation.opponentPublic?.active) <= 230) return 150;
+  if (matches(printing, PRINT.fieldBlower) &&
+      candidateToolOrStadiumTargets(observation).length > 0) return 140;
+  if (matches(printing, PRINT.lostVacuum) &&
+      candidateToolOrStadiumTargets(observation).length > 0) return 130;
+  if (matches(printing, PRINT.karen) && pokemonInDiscard(own) >= 2 &&
+      (ownDeckCount(observation) <= 20 || !mewVMAXOnBoard)) return 120;
+  if (matches(printing, PRINT.ultraBall) && !mewVMAXOnBoard &&
+      boardCount(own, PRINT.mewV) > 0) return 110;
+  if (matches(printing, PRINT.quickBall) &&
+      (boardCount(own, PRINT.mewV) < 2 || boardCount(own, PRINT.genesect) < 2)) return 100;
+  if (matches(printing, PRINT.trainersMail)) return 90;
+  if (matches(printing, PRINT.floatStone) && activeMewVMAX) return 80;
+  return 0;
+}
+
 function scoreSearchChoice(choice, observation, context) {
   const printing = valueText(choice);
   if (context === 'pokemon' || context === 'quick-ball' || context === 'ultra-ball' ||
@@ -396,6 +442,9 @@ function scoreSearchChoice(choice, observation, context) {
   if (context === 'wally') {
     return choiceOwner(choice) === 'actor' && choiceZone(choice) === 'deck' ?
       scoreSearchPokemon(printing, observation, 'wally') : 0;
+  }
+  if (context === 'forest-seal-stone') {
+    return scoreForestSealSearch(choice, observation);
   }
   if (context === 'trainers-mail') {
     if (choiceOwner(choice) !== 'actor' || choiceZone(choice) !== 'deck') return 0;
@@ -522,6 +571,14 @@ function promptDecision(request) {
         })), minimum, maximum, 'SECRET_BOX_COST_UNAVAILABLE');
       }
 
+      if (/star alchemy|forest seal stone/i.test(source)) {
+        const targets = choices.filter(choice => choiceOwner(choice) === 'actor' &&
+          choiceZone(choice) === 'deck');
+        return multiSelectDecision(prompt, targets.map(choice => ({
+          choice, score: scoreSearchChoice(choice, observation, 'forest-seal-stone')
+        })), minimum, maximum, 'NO_FOREST_SEAL_SEARCH_TARGET');
+      }
+
       if (/battle vip pass/i.test(source)) {
         const targets = choices.filter(choice => choiceOwner(choice) === 'actor' &&
           choiceZone(choice) === 'deck');
@@ -575,6 +632,12 @@ function promptDecision(request) {
         choiceOwner(choice) === 'actor' && choiceZone(choice) === 'hand');
       return singleChoice(prompt, handChoices,
         choice => scoreDiscardCard(choice, observation), 'NO_SAFE_DISCARD_COST');
+    }
+    if (/star alchemy|forest seal stone/i.test(source)) {
+      return singleChoice(prompt, choices.filter(choice =>
+        choiceOwner(choice) === 'actor' && choiceZone(choice) === 'deck'),
+      choice => scoreSearchChoice(choice, observation, 'forest-seal-stone'),
+      'NO_FOREST_SEAL_SEARCH_TARGET');
     }
     if (/wally/i.test(source)) {
       return singleChoice(prompt, choices, choice =>
@@ -771,6 +834,26 @@ function scoreAction(item, request) {
     }
     if (ability === 'Dark Asset' && matches(card, PRINT.crobat)) {
       return hand.length < 6 && ownDeckCount(observation) > 0 ? 175 : 0;
+    }
+    if (ability === 'Star Alchemy' && matches(card, PRINT.genesect)) {
+      const vstarUsed = request.observation.ownTurnResources?.vstarUsed === true ||
+        own.publicTurnRestrictions?.vstarUsed === true;
+      if (vstarUsed || ownDeckCount(observation) <= 0) return 0;
+      const usefulDrawAbilityAvailable = list(request.actionFrontier?.items).some(row => {
+        if (row.kind !== 'use-ability') return false;
+        const name = row.publicMetadata?.abilityName ?? '';
+        if (/Fusion Strike System/i.test(name)) return hand.length < fusionStrikeCount(own);
+        if (/Dark Asset/i.test(name)) return hand.length < 6;
+        if (/Dedechange/i.test(name)) {
+          const protectedCard = hand.some(value => matches(value, PRINT.dce) ||
+            matches(value, PRINT.mewVMAX) || matches(value, PRINT.wally) ||
+            matches(value, PRINT.secretBox));
+          return hand.length <= 3 && !protectedCard;
+        }
+        return false;
+      });
+      if (usefulDrawAbilityAvailable) return 100;
+      return boardCount(own, PRINT.mewV) > 0 && boardCount(own, PRINT.mewVMAX) === 0 ? 245 : 225;
     }
     return 0;
   }
