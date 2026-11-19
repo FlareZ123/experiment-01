@@ -115,6 +115,20 @@ function remainingHp(pokemon) {
   return pokemon.hp - pokemon.damage;
 }
 
+function expectedMewDamage(observation) {
+  const active = observation?.ownPublic?.active;
+  if (!matches(active?.printing ?? '', PRINT.mewVMAX) || !hasDce(active)) return 0;
+  const genesectBench = list(observation.ownPublic.bench).some(pokemon =>
+    pokemon && matches(pokemon.printing, PRINT.genesect));
+  if (genesectBench) {
+    const muscleBand = list(active.tools).some(tool => matches(tool, PRINT.muscleBand));
+    return muscleBand ? 230 : 210;
+  }
+  const mewBench = list(observation.ownPublic.bench).some(pokemon =>
+    pokemon && matches(pokemon.printing, PRINT.mewV));
+  return mewBench ? 70 : 0;
+}
+
 function handHas(observation, pattern) {
   return list(observation?.ownHand).some(card => matches(card, pattern));
 }
@@ -621,7 +635,7 @@ function promptDecision(request) {
       const opponentChoices = choices.filter(choice => choiceOwner(choice) === 'opponent');
       if (opponentChoices.length) {
         return singleChoice(prompt, opponentChoices,
-          choice => opponentPokemonScore(choice, observation, 230), 'NO_GUZMA_TARGET');
+          choice => opponentPokemonScore(choice, observation, expectedMewDamage(observation)), 'NO_GUZMA_TARGET');
       }
       return singleChoice(prompt, choices,
         choice => ownSwitchScore(choice, observation), 'NO_GUZMA_SWITCH_TARGET');
@@ -630,7 +644,7 @@ function promptDecision(request) {
       const opponentChoices = choices.filter(choice => choiceOwner(choice) === 'opponent');
       if (opponentChoices.length) {
         return singleChoice(prompt, opponentChoices,
-          choice => opponentPokemonScore(choice, observation, 230), 'NO_ESCAPE_ROPE_TARGET');
+          choice => opponentPokemonScore(choice, observation, expectedMewDamage(observation)), 'NO_ESCAPE_ROPE_TARGET');
       }
       return singleChoice(prompt, choices,
         choice => ownSwitchScore(choice, observation), 'NO_ESCAPE_ROPE_SWITCH_TARGET');
