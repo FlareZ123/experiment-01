@@ -45,8 +45,12 @@ This was not a Node `--test` runner execution, a Twinleaf execution, a native st
 
 - Policy SHA-256: `28939bb2c257ab444a065760fe3d10e963b37bf373e071d4e524019988cc1d80`
 - Test SHA-256: `c41388400ce56b352918e4397b02ff6333e3c7e5b5acbbfeb9f214158e8b7c71`
-- Dependency manifest SHA-256: `70bb50318f5862ef15ce40f42268ac5a3083db743f4c37709fabb13507bd6bba`
-- Challenge suite SHA-256: `a57dd3970a5394483d24f29e4b68ade95b1d885a55f6e4525eb9eebe6cb66cd4`
+- Dependency manifest SHA-256: `d3eaf896a5c789db2dce6247ce5b30a040250392d68a7dba128df5cac699f161`
+- Challenge suite SHA-256: `40a1b0d495f0adf83a031241b2c113cee238050e04e34b8b7791ca7ef93740fd`
+
+## Native integration gate
+
+The current Agent49 protocol-v3 document is explicit: worker-side validation exists, but the persistent asynchronous fixture loop is still unintegrated and the Docker launcher/capability/RNG/permission gate remains unverified. This policy therefore stays unregistered. Do not bypass that host integration gate or treat successful pure-validator tests as native execution evidence. Protocol document Git blob SHA-1: `4b28ad6274909de1a5a72fa0a593182d519686f1`.
 
 ## Development and held-out coverage
 

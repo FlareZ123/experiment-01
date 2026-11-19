@@ -36,14 +36,16 @@
   },
   "dependencies": {
     "manifestPath": "results/aichi-2026/2026-11/agent31-rank11-opponent-policy-v1-dependencies.json",
-    "manifestSha256": "70bb50318f5862ef15ce40f42268ac5a3083db743f4c37709fabb13507bd6bba",
+    "manifestSha256": "d3eaf896a5c789db2dce6247ce5b30a040250392d68a7dba128df5cac699f161",
     "policyTestPath": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
     "policyTestGitBlobSha1": "24f075dd1f948ed8fba07bea41ca3127053fa820",
     "policyTestSha256": "c41388400ce56b352918e4397b02ff6333e3c7e5b5acbbfeb9f214158e8b7c71",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "engineSubmodulePath": "vendor/twinleaf",
-    "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+    "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "workerProtocolDocPath": "simulation/evaluation/2026-11/agent49-policy-worker-protocol-v3.md",
+    "workerProtocolDocGitBlobSha1": "4b28ad6274909de1a5a72fa0a593182d519686f1"
   },
   "producerBindings": {
     "candidatePolicyProducerId": null,
@@ -66,7 +68,8 @@
     "seedInput": false,
     "actorVisibleObservationOnly": true,
     "fullNativeStateInput": false,
-    "unsupportedPrompt": "abstain"
+    "unsupportedPrompt": "abstain",
+    "nativeIntegrationStatus": "blocked: persistent async fixture loop unintegrated; Docker launcher/capability/RNG/permission gate unverified"
   },
   "developmentCases": [
     {
@@ -1079,6 +1082,7 @@
     "The rank-11 source is an English Expanded-legal diagnostic reconstruction; physical print identity is not verified.",
     "The Hood Shadow Rider candidate is not the final nominated deck; no matchup-level or field-level win rate is inferred.",
     "Policy heuristics, card-resolution sequencing, and target legality still require native trace review.",
-    "Twelve synthetic development cases are recorded; four separate held-out cases remain unexecuted."
+    "Twelve synthetic development cases are recorded; four separate held-out cases remain unexecuted.",
+    "The current Agent49 protocol v3 document keeps the persistent async fixture loop and Docker launcher/capability/RNG/permission gate outside the accepted path; this policy must not bypass those gates."
   ]
 }

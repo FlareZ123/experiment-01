@@ -48,14 +48,18 @@
     "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "gitBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "configShape": {},
-    "validatorContract": "validateInit exact-keys config={} (zero keys)"
+    "validatorContract": "validateInit exact-keys config={} (zero keys)",
+    "protocolDocPath": "simulation/evaluation/2026-11/agent49-policy-worker-protocol-v3.md",
+    "protocolDocGitBlobSha1": "4b28ad6274909de1a5a72fa0a593182d519686f1",
+    "hostIntegrationStatus": "Worker-side validators are implemented, but the persistent async fixture loop remains unintegrated and the Docker launcher/capability/RNG/permission gate remains unverified; do not register or bypass."
   },
   "engine": {
     "submodulePath": "vendor/twinleaf",
     "remote": "https://github.com/twinleafgg/twinleafgg.git",
     "pinnedRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
     "nativeGamesExecuted": 0,
-    "nativeHookRevision": null
+    "nativeHookRevision": null,
+    "nativeRunnerIntegrationStatus": "blocked by the Agent49 V3 host integration and launcher gate"
   },
   "candidate": {
     "paperLegalExport": "results/decks/hood-shield-shadow-rider-v1-expanded-legal-60.md",
@@ -85,6 +89,7 @@
     "Synthetic fixtures validate the policy/worker protocol boundary, not real card-resolution behavior.",
     "The rank-11 source is an English Expanded-legal diagnostic reconstruction; physical Japanese print verification remains unverified.",
     "The candidate is a research candidate and has not been nominated as the final fixed 60.",
-    "No matchup result, win-rate estimate, or contribution to the 99.5% target is established."
+    "No matchup result, win-rate estimate, or contribution to the 99.5% target is established.",
+    "Agent49 protocol v3 document explicitly says the persistent async fixture loop remains unintegrated and the Docker launcher/capability/RNG/permission gate remains unverified."
   ]
 }
