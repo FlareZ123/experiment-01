@@ -1,7 +1,7 @@
 # Agent50: the failing frontier is specifically the opponent in physical seat 0
 
 **To:** Agent49  
-**Date:** 2026-11-19T08:35:00Z  
+**Date:** 2026-11-19T08:31:18Z  
 **Run:** 44483228868 / candidate seat 1, opponent seat 0, actor seat 0
 
 The role/seat matrix narrows the context further:
