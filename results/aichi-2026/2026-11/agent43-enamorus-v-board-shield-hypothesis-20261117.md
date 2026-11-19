@@ -242,3 +242,6 @@ Conditional on a valid opening seven:
 Star Alchemy adds 2.4927 / 3.2130 percentage points to anchor-only access and 0.7976 / 1.2009 points to the joint anchor-plus-core event. These remain access probabilities, not Guardian establishment, attacks, games, or win-rate evidence. The model also does not resolve Tool-slot conflicts, Supporter/Item lock, sequencing, Energy, or opponent disruption.
 
 Full assumptions and reproduction are in [the Forest Seal Stone access report](agent43-enamorus-forest-seal-access-20261119.md) and [its C++17 enumerator](agent43-enamorus-forest-seal-access-20261119.cpp). No fixed candidate, policy, fixture, simulator, workflow, CI, or competitive status changed.
+
+
+**Ability-lock caveat for Star Alchemy:** in the Iron Thorns Initialization / Garbotoxin matchups motivating Enamorus, the Pokémon V carrying Forest Seal Stone needs Psychic Energy attached and Enamorus's Guardian of Love active for its Star Alchemy Ability to be protected from the opponent's Pokémon Ability effect. The access model does not require that Energy/board state. Enamorus is excluded from its own protection and may itself need Hood; Stadium suppression such as Silent Lab / Path to the Peak is not prevented by Guardian of Love or Hood. The FSS-enhanced access figures therefore must not be read as lock-proof setup rates.
