@@ -83,6 +83,21 @@ const ITEM_PATTERNS = [
   PRINT.nightStretcher, PRINT.forestSealStone
 ];
 const TOOL_PATTERNS = [PRINT.toolJammer, PRINT.floatStone, PRINT.stealthyHood];
+// The bound Hood Shield v1 list has 17 Item-subtype cards. Forest Seal Stone
+// is dual-subtype Item + Pokémon Tool; Stealthy Hood and Float Stone are
+// Pokémon Tool-only and are not legal Eri discards.
+const ERI_ITEM_PATTERNS = [
+  /^Field Blower GRI 125\\b/i,
+  /^Unfair Stamp TWM 165\\b/i,
+  PRINT.forestSealStone,
+  /^Mysterious Treasure FLI 113\\b/i,
+  /^Fog Crystal CRE 140\\b/i,
+  PRINT.vsSeeker,
+  PRINT.nightStretcher,
+  /^Battle Compressor PHF 92\\b/i,
+  PRINT.quickBall,
+  PRINT.heavyBall
+];
 
 function list(value) {
   return Array.isArray(value) ? value : [];
@@ -144,8 +159,7 @@ function opponentPublicHand(observation) {
 
 function opponentHasVisibleItem(observation) {
   return opponentPublicHand(observation).some(card =>
-    ITEM_PATTERNS.some(pattern => matches(card, pattern)) ||
-    /Field Blower/i.test(valueText(card))
+    ERI_ITEM_PATTERNS.some(pattern => matches(card, pattern))
   );
 }
 
@@ -507,7 +521,11 @@ function scoreAction(item, request) {
         185 : opponentActiveEnergy(observation) > 0 ? 115 : 35;
     }
     if (matches(card, PRINT.teammates)) return 140;
-    if (matches(card, PRINT.eri)) return opponentHasVisibleItem(observation) ? 150 : 0;
+    if (matches(card, PRINT.eri)) {
+      const opponentHandCount = Number.isSafeInteger(opponent.handCount) ? opponent.handCount : 0;
+      return opponentHasVisibleItem(observation) ? 160 :
+        opponentHandCount >= 3 ? 135 : opponentHandCount >= 1 ? 90 : 0;
+    }
     if (matches(card, PRINT.handiwork)) return opponentDeckCount(observation) <= 15 ? 130 : 65;
     if (matches(card, PRINT.lusamine)) {
       return list(own.discard).some(x =>
@@ -559,9 +577,17 @@ function choiceOwner(choice) {
 function cardChoiceScore(choice, observation, context) {
   const printing = valueText(choice);
   if (context === 'faba') {
-    if (matches(printing, PRINT.stealthyHood)) return 250;
-    if (matches(printing, PRINT.forestSealStone)) return 225;
-    if (matches(printing, PRINT.floatStone)) return 200;
+    if (/Field Blower GRI 125/i.test(printing)) return 260;
+    if (/Unfair Stamp TWM 165/i.test(printing)) return 250;
+    if (matches(printing, PRINT.forestSealStone)) return 230;
+    if (/Mysterious Treasure FLI 113/i.test(printing)) return 215;
+    if (/Fog Crystal CRE 140/i.test(printing)) return 205;
+    if (matches(printing, PRINT.vsSeeker)) return 190;
+    if (matches(printing, PRINT.nightStretcher)) return 180;
+    if (/Battle Compressor PHF 92/i.test(printing)) return 175;
+    if (matches(printing, PRINT.quickBall)) return 150;
+    if (matches(printing, PRINT.heavyBall)) return 140;
+    if (matches(printing, PRINT.stealthyHood) || matches(printing, PRINT.floatStone)) return 0;
     if (matches(printing, PRINT.temple) || /Sky Field|Dimension Valley/i.test(printing)) return 170;
     if (/Special Energy|Double Dragon Energy|Jet Energy|Capture Energy/i.test(printing)) return 120;
     return 10;
@@ -721,7 +747,7 @@ function promptDecision(request) {
       if (source.includes('eri')) {
         const itemChoices = choices.filter(choice => choiceOwner(choice) === 'opponent' &&
           choiceZone(choice) === 'hand' &&
-          (ITEM_PATTERNS.some(pattern => matches(choice, pattern)) || /Field Blower/i.test(valueText(choice))));
+          ERI_ITEM_PATTERNS.some(pattern => matches(choice, pattern)));
         return multiSelectDecision(prompt, itemChoices.map(choice => ({
           choice, score: cardChoiceScore(choice, observation, 'eri')
         })).filter(row => row.score > 0), min, max);
