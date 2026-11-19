@@ -318,12 +318,11 @@ function scoreSearchCard(printing, observation, context = '') {
   if (matches(printing, PRINT.toolJammer)) {
     return !boardHasTool(own, PRINT.toolJammer) ? 230 : 45;
   }
-  if (matches(printing, PRINT.faba)) return 205;
-  if (matches(printing, PRINT.guzma)) return 190;
-  if (matches(printing, PRINT.plumeria)) return 185;
-  if (matches(printing, PRINT.teamFlare)) return 175;
-  if (matches(printing, PRINT.handiwork)) return 170;
-  if (matches(printing, PRINT.eri)) return 160;
+  if (matches(printing, PRINT.faba)) {
+    return opponentHasAnyTool(observation) ||
+      opponentHasSpecialEnergy(observation.opponentPublic) ||
+      stadiumsInPlay(observation).length > 0 ? 190 : 75;
+  }
   if (matches(printing, PRINT.lusamine)) return 155;
   if (matches(printing, PRINT.forestSealStone)) {
     return !boardHasTool(own, PRINT.forestSealStone) && boardHas(own, PRINT.rotom) ? 165 : 65;
@@ -342,9 +341,6 @@ function scoreSearchCard(printing, observation, context = '') {
   }
   if (matches(printing, PRINT.rotom)) {
     return !boardHas(own, PRINT.rotom) && list(observation.ownHand).length <= 5 ? 135 : 35;
-  }
-  if (matches(printing, PRINT.faba)) {
-    return opponentHasAnyTool(observation) || stadiumsInPlay(observation).length > 0 ? 190 : 75;
   }
   if (matches(printing, PRINT.plumeria)) {
     return playerEnergyCount(observation.opponentPublic) > 0 &&
