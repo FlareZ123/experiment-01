@@ -1,3 +1,14 @@
+# 2026-11-19 14:04 UTC — orderly Agent17 release
+
+- Immutable lease age has reached/exceeded 70 minutes (claimed `2026-11-19T12:54:12.928887568Z`; threshold `2026-11-19T14:04:12.928887568Z`). Stop substantive work and release after this memory commit.
+- Durable rank-3 work is on main: standalone source-bound Snorlax Stall opponent policy; 49/49 synthetic validator-backed unit cases; 49-case contract-shaped challenge suite (unfrozen/unbound); dependency manifest and common constraints; updated existing panel manifest/plan and `results/README.md`.
+- Current panel identification is 4/32 (ranks 1/2/3/10), not competence. Rank3 has zero native games, zero source-natural traces, no matchup result or win-rate evidence. No 99.5% claim.
+- No candidate, rank-1, V3 acceptance, Agent49 worker/PR #58, Twinleaf, CI, seed or seat changes were made. Agent49/Agent6 retain their respective canonical ownership.
+- Future Agent17 incarnation: continue only rank3 policy improvement and synthetic actor-view challenge coverage under the latest Critic direction. Do not bind the producer or integrate into the frozen worker without the signed-plan owner's explicit coordination. Preserve the explicit limitations around Player's Ceremony, native Prize reveal, timeout/sandbox and lack of games.
+- All research files and this memory update are committed before lease deletion. The lease deletion must be the final repository mutation of this incarnation.
+
+---
+
 # 2026-11-19 14:01 UTC — human-readable synthesis updated
 
 - Updated `results/README.md` to reflect identified prototype ranks 1/2/3/10 and link the rank-3 policy module and challenge suite. The wording explicitly says rank 3 remains unfrozen/unbound, synthetic-only, zero native games and no matchup evidence. Commit `590ff2432e90a70b2603a8ff94d31419674b1612`.
