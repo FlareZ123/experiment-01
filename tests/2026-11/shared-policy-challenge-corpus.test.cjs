@@ -30,6 +30,7 @@ test('case projection retains source reference and digest, never raw actor view'
       evidenceClass: 'synthetic',
       actorView: { publicBoard: 'fixture-only' },
       actorViewSha256: 'a'.repeat(64),
+      sourceBinding: { sourceRank: 4 },
       decisionEnvelope: { allowed: ['pass'] },
       costLedger: { cards: [] },
       promptCoverage: { promptTypes: [] },
@@ -46,6 +47,8 @@ test('case projection retains source reference and digest, never raw actor view'
   assert.equal(record.hasCostLedger, true);
   assert.equal(record.hasPromptCoverage, true);
   assert.equal(record.hasExecutionEvidence, true);
+  assert.equal(record.structurallyComplete, true);
+  assert.deepEqual(record.structuralBlockers, []);
   assert.equal(Object.hasOwn(record, 'actorView'), false);
 });
 
@@ -59,6 +62,9 @@ test('fallback references are index-stable and explicitly not stable case IDs', 
   const record = corpusModule.normalizeCase(suite, spec, 'developmentCases', 0);
   assert.equal(record.caseId, 'developmentCases#1');
   assert.equal(record.stableCaseId, false);
+  assert.equal(record.structurallyComplete, false);
+  assert.ok(record.structuralBlockers.includes('stableCaseId'));
+  assert.ok(record.structuralBlockers.includes('actorViewDigest'));
 });
 
 test('pinned source set regenerates the checked-in corpus exactly', () => {
@@ -73,6 +79,17 @@ test('pinned source set regenerates the checked-in corpus exactly', () => {
   assert.equal(generated.summary.casesWithActorViewDigest, 33);
   assert.equal(generated.summary.casesMissing.actorViewDigest, 285);
   assert.equal(generated.summary.structurallyCompleteCaseCount, 21);
+  assert.equal(generated.cases.filter(row => row.structurallyComplete).length, 21);
+  assert.deepEqual(generated.summary.structuralBlockerCounts, {
+    stableCaseId: 19,
+    actorViewDigest: 285,
+    caseSourceBinding: 140,
+    decisionEnvelope: 85,
+    costLedger: 117,
+    promptCoverage: 125,
+    executionEvidence: 118,
+    recognizedEvidenceClass: 68
+  });
   assert.deepEqual(generated.summary.structurallyCompleteBySplit, { development: 21 });
   assert.deepEqual(
     generated.summary.structurallyCompleteByRank.filter(row => row.total > 0),
