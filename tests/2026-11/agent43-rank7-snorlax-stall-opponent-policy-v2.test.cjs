@@ -32,6 +32,11 @@ const C = {
   fieldBlower: 'Field Blower GRI 125',
   chaoticSwell: 'Chaotic Swell CEC 187',
   bellelba: 'Bellelba & Brycen-Man CEC 186',
+  electrike: 'Electrike PRC 60',
+  teammates: 'Teammates PRC 141',
+  teamFlare: 'Team Flare Grunt XY 129',
+  artazon: 'Artazon PAL 171',
+  capture: 'Capture Energy RCL 171',
   hood: 'Stealthy Hood UNB 186',
   radiant: 'Radiant Eternatus SIT 105',
   shadow: 'Shadow Rider Calyrex VMAX CRE 75',
@@ -145,7 +150,7 @@ function rootRequest(options = {}) {
     sequence: options.sequence ?? 1, role: 'opponent', seat,
     observationSchema: protocol.OBSERVATION_SCHEMA,
     observation: observation({ ...options, actorSeat: seat }),
-    prompt: null, publicEventReceipt: null,
+    prompt: null, publicEventReceipt: options.publicEventReceipt ?? null,
     actionFrontier: {
       schema: protocol.FRONTIER_SCHEMA,
       items: options.items ?? [{ token: 'pass', kind: 'pass', label: 'Pass turn' }]
@@ -176,8 +181,39 @@ function promptRequest(options = {}) {
       ...options, actorSeat: seat, prompt,
       pendingOwnerDeckSearch: options.pendingOwnerDeckSearch ?? false
     }),
-    prompt, publicEventReceipt: null,
+    prompt, publicEventReceipt: options.publicEventReceipt ?? null,
     actionFrontier: { schema: protocol.FRONTIER_SCHEMA, items: [] }
+  };
+}
+
+
+function receiptPokemon(slot) {
+  return slot === null ? null : {
+    printing: slot.printing,
+    movedFromBenchToActiveThisTurn: null,
+    knownAbilityUse: []
+  };
+}
+
+function makeEventReceipt(view) {
+  const priorTurn = view.globalTurn - 1;
+  const attack = {
+    attackerPrinting: view.opponentPublic.active.printing,
+    attackName: 'Phantom Star',
+    turn: priorTurn,
+    attackIndex: 0,
+    ownerSeat: 'opponent'
+  };
+  return {
+    version: protocol.EVENT_RECEIPT_VERSION,
+    actorSeat: view.actorSeat,
+    turn: view.globalTurn,
+    ownerActive: receiptPokemon(view.ownPublic.active),
+    ownerBench: view.ownPublic.bench.map(receiptPokemon),
+    priorOpponentTurnKO: { any: true, byAttack: true, turn: priorTurn },
+    opponentLastTurnAttack: attack,
+    opponentLastTurnTurn: priorTurn,
+    opponentLastTurnAttacks: [attack]
   };
 }
 
@@ -671,6 +707,103 @@ test('Bellelba optional bench reduction is gated by bench state and three other 
   });
   assert.deepEqual(checkedDecision(costPrompt),
     { kind: 'abstain', reasonCode: 'BELLELBA_BENCH_EFFECT_UNFAVORABLE' });
+});
+
+
+test('Teammates requires a prior-opponent-turn KO receipt', () => {
+  const board = rank7Board();
+  const items = [
+    { token: 'teammates', kind: 'play-card', actorPrinting: C.teammates },
+    { token: 'pass', kind: 'pass' }
+  ];
+  const withoutReceipt = rootRequest({
+    ownHand: [C.teammates], ownPublic: board.ownPublic,
+    opponentPublic: board.opponentPublic, items
+  });
+  assert.deepEqual(checkedDecision(withoutReceipt), { kind: 'select-action', token: 'pass' });
+
+  const withReceipt = rootRequest({
+    ownHand: [C.teammates], ownPublic: board.ownPublic,
+    opponentPublic: board.opponentPublic, items
+  });
+  withReceipt.publicEventReceipt = makeEventReceipt(withReceipt.observation);
+  assert.deepEqual(checkedDecision(withReceipt), { kind: 'select-action', token: 'teammates' });
+});
+
+test('VS Seeker requires a playable recovery and selects the best available Supporter', () => {
+  const dead = rank7Board({ radiantHood: false });
+  dead.ownPublic.discard = [C.faba];
+  const noTarget = rootRequest({
+    ownHand: [C.vs], ownPublic: dead.ownPublic, opponentPublic: dead.opponentPublic,
+    items: [
+      { token: 'vs', kind: 'play-card', actorPrinting: C.vs },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(noTarget), { kind: 'select-action', token: 'pass' });
+
+  const live = rank7Board();
+  live.ownPublic.discard = [C.faba, C.teamFlare];
+  live.opponentPublic.active.energies = [C.jet];
+  const root = rootRequest({
+    ownHand: [C.vs], ownPublic: live.ownPublic, opponentPublic: live.opponentPublic,
+    items: [
+      { token: 'vs', kind: 'play-card', actorPrinting: C.vs },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(root), { kind: 'select-action', token: 'vs' });
+
+  const prompt = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource(C.vs, 'VS Seeker'),
+    ownHand: [], ownPublic: live.ownPublic, opponentPublic: live.opponentPublic,
+    choices: [
+      cardChoice('faba', C.faba, 'actor', 'discard'),
+      cardChoice('team-flare', C.teamFlare, 'actor', 'discard')
+    ]
+  });
+  assert.deepEqual(checkedDecision(prompt), { kind: 'select-choice', token: 'team-flare' });
+});
+
+function allRank7BasicsVisibleBoard() {
+  const board = rank7Board({
+    ownBench: [
+      pokemon(C.wobb, { types: ['Psychic'], abilities: ['Bide Barricade'] }),
+      pokemon(C.mimikyu, { types: ['Psychic'] }),
+      pokemon(C.regirock, { types: ['Fighting'] }),
+      pokemon(C.electrike, { types: ['Lightning'] })
+    ]
+  });
+  board.ownPublic.discard = [
+    C.snorlax, C.wobb, C.wobb, C.mimikyu, C.mimikyu, C.regirock, C.girafarig
+  ];
+  return board;
+}
+
+test('Nest Ball abstains when every source Basic copy is already actor-visible outside the deck', () => {
+  const board = allRank7BasicsVisibleBoard();
+  const request = rootRequest({
+    ownHand: [C.nest], ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
+    items: [
+      { token: 'nest', kind: 'play-card', actorPrinting: C.nest },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'pass' });
+});
+
+test('Artazon does not activate when all source Basic copies are actor-visible elsewhere', () => {
+  const board = allRank7BasicsVisibleBoard();
+  board.ownPublic.stadium = [C.temple];
+  const request = rootRequest({
+    ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
+    items: [
+      { token: 'artazon', kind: 'use-stadium', actorPrinting: C.artazon },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'pass' });
 });
 
 test('unknown prompt family fails closed', () => {

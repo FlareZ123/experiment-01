@@ -1,14 +1,14 @@
 'use strict';
 
 /*
- * Rank-7 Hiroto Fuji Snorlax Stall opponent policy, v2.1.
+ * Rank-7 Hiroto Fuji Snorlax Stall opponent policy, v2.2.
  * Deterministic actor-view-only prototype bound to the exact rank-7 source
  * entry and Hood Shield v1. It prioritizes the public Faba -> Jet Energy ->
  * Wobbuffet -> Item-unlock line, then bounded stall/resource actions.
  * Unknown or ambiguous prompts abstain. Native Store legality is authoritative.
  */
 
-const POLICY_VERSION = 'agent43-rank7-snorlax-stall-opponent-v2.1';
+const POLICY_VERSION = 'agent43-rank7-snorlax-stall-opponent-v2.2';
 const SOURCE_RANK = 7;
 const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
 const SOURCE_FINGERPRINT_SHA256 = 'a66fa49dbeaa886c5509ff5edff727577bba5e4c9f4bbe9800b152975f8b4734';
@@ -62,6 +62,11 @@ const P = Object.freeze({
   basicEnergy: /^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal) Energy\b/i
 });
 
+const SOURCE_BASIC_COPIES = Object.freeze([
+  [P.snorlax, 2], [P.wobbuffet, 3], [P.mimikyu, 3],
+  [P.regirock, 2], [P.electrike, 1], [P.girafarig, 1]
+]);
+
 const EXECUTABLE = new Set(['play-card', 'attack', 'retreat', 'use-ability', 'use-stadium', 'pass']);
 
 function list(value) { return Array.isArray(value) ? value : []; }
@@ -91,6 +96,29 @@ function slots(player) {
 
 function boardHas(player, pattern) {
   return slots(player).some(row => matches(row.pokemon.printing, pattern));
+}
+
+function visibleOwnCards(view) {
+  const player = own(view);
+  const visible = [
+    ...hand(view), ...list(player.discard), ...list(player.lostZone),
+    ...list(player.resolvingSupporter), ...list(player.stadium)
+  ];
+  for (const row of slots(player)) {
+    visible.push(row.pokemon.printing, ...list(row.pokemon.evolutionPrintings),
+      ...list(row.pokemon.tools), ...list(row.pokemon.energies));
+  }
+  return visible.filter(Boolean);
+}
+
+function sourceCopiesRemaining(view, pattern) {
+  const total = SOURCE_BASIC_COPIES.find(([candidate]) => candidate === pattern)?.[1] ?? 0;
+  const visible = visibleOwnCards(view).filter(card => matches(card, pattern)).length;
+  return Math.max(0, total - visible);
+}
+
+function hasUnseenBasicSearchTarget(view) {
+  return SOURCE_BASIC_COPIES.some(([pattern]) => sourceCopiesRemaining(view, pattern) > 0);
 }
 
 function hasTool(pokemon, pattern) {
@@ -195,10 +223,10 @@ function wobbuffetAbilityReady(view) {
  * non-Psychic Abilities, including Snorlax Block; that opportunity cost is
  * represented by wobbuffetBlockCost rather than hidden behind a lock heuristic.
  */
-function source7FabaJetNestReady(view) {
+function source7FabaJetNestReady(view, allowDiscard = false) {
   const target = fabaUnlockTarget(view);
   if (!target || hasAlolanMuk(view) || view?.globalTurn <= 1 ||
-      !supporterAvailable(view) || !hasHand(view, P.faba)) return null;
+      !supporterAvailable(view) || (!allowDiscard && !hasHand(view, P.faba))) return null;
 
   if (matches(own(view).active?.printing ?? '', P.wobbuffet)) return target;
   if (!boardHas(own(view), P.wobbuffet) || !hasHand(view, P.jet) ||
@@ -215,10 +243,8 @@ function source7JetWobbuffetReady(view) {
 }
 
 function source7NestReady(view) {
-  const missing = [P.snorlax, P.wobbuffet, P.mimikyu, P.regirock, P.girafarig, P.electrike]
-    .some(pattern => !boardHas(own(view), pattern));
   return itemAvailable(view) && benchSpace(view) && deckCount(view) > 0 &&
-    hasHand(view, P.nest) && missing;
+    hasHand(view, P.nest) && hasUnseenBasicSearchTarget(view);
 }
 
 function opponentActiveHasTool(view) {
@@ -315,7 +341,7 @@ function choiceZone(choice) {
   return meta.sourceZone ?? meta.targetZone ?? meta.zone ?? null;
 }
 
-function scoreCardChoice(choice, view, context) {
+function scoreCardChoice(choice, view, context, request = { observation: view, publicEventReceipt: null }) {
   const printing = textOf(choice);
   const owner = choiceOwner(choice);
   const zone = choiceZone(choice);
@@ -364,17 +390,7 @@ function scoreCardChoice(choice, view, context) {
     return 0;
   }
 
-  if (context === 'vs-seeker') {
-    if (owner !== 'actor' || zone !== 'discard') return 0;
-    if (matches(printing, P.faba)) return 280;
-    if (matches(printing, P.teamFlare)) return 250;
-    if (matches(printing, P.guzma)) return 235;
-    if (matches(printing, P.steven)) return 220;
-    if (matches(printing, P.n)) return 210;
-    if (matches(printing, P.plumeria)) return 190;
-    if (matches(printing, P.lusamine)) return 180;
-    return 0;
-  }
+  if (context === 'vs-seeker') return scoreVsSeekerCandidate(choice, view, request);
 
   if (context === 'field-blower') {
     if (zone === 'stadium' && matches(printing, P.temple) &&
@@ -601,7 +617,7 @@ function promptDecision(request) {
       choiceOwner(choice) === 'opponent' && matches(choice, P.hood) ? 250 : 0,
       'FABA_HOOD_CARD_UNAVAILABLE');
     if (source.includes('vs seeker')) return selectOne(choices,
-      choice => scoreCardChoice(choice, view, 'vs-seeker'), 'VS_SEEKER_SUPPORTER_UNAVAILABLE');
+      choice => scoreCardChoice(choice, view, 'vs-seeker', request), 'VS_SEEKER_SUPPORTER_UNAVAILABLE');
     if (/nest ball|capture energy|artazon/i.test(source)) return selectOne(choices,
       choice => scoreCardChoice(choice, view, 'basic-search'), 'BASIC_SEARCH_TARGET_UNAVAILABLE');
     if (source.includes('target whistle')) return selectOne(choices,
@@ -644,7 +660,7 @@ function scoreAction(item, request) {
 
   if (item.kind === 'use-stadium') {
     const stadium = card || meta.stadiumPrinting || '';
-    if (matches(stadium, P.artazon)) return benchSpace(view) && deckCount(view) > 0 &&
+    if (matches(stadium, P.artazon)) return benchSpace(view) && hasUnseenBasicSearchTarget(view) &&
       !allStadiums(view).some(value => matches(value, P.artazon)) ? 165 : 0;
     if (matches(stadium, P.chaoticSwell)) return allStadiums(view).length > 0 &&
       !allStadiums(view).some(value => matches(value, P.chaoticSwell)) ? 175 : 0;
@@ -667,13 +683,7 @@ function scoreAction(item, request) {
         hasTool(targetSlot.pokemon, P.toolJammer) && energyAvailable(view) && !hasTemple(view)) return 230;
     return 0;
   }
-  if (matches(card, P.nest)) {
-    if (source7NestReady(view)) return 290;
-    const missing = [P.snorlax, P.wobbuffet, P.mimikyu, P.regirock, P.girafarig, P.electrike]
-      .some(pattern => !boardHas(player, pattern));
-    return itemAvailable(view) && benchSpace(view) && deckCount(view) > 0 &&
-      missing ? 155 : 0;
-  }
+  if (matches(card, P.nest)) return source7NestReady(view) ? 290 : 0;
   if (matches(card, P.palaceBook)) {
     return itemAvailable(view) && handSize <= 2 && deckCount(view) >= 4 ? 1 : 0;
   }
@@ -691,8 +701,7 @@ function scoreAction(item, request) {
   if (matches(card, P.counterCatcher)) return itemAvailable(view) &&
     ownPrizeCount(view) > opponentPrizeCount(view) && list(opponent.bench).some(Boolean) ? 145 : 0;
   if (matches(card, P.vsSeeker)) return itemAvailable(view) &&
-    list(player.discard).some(card => [P.faba, P.teamFlare, P.guzma, P.steven, P.n, P.plumeria]
-      .some(pattern => matches(card, pattern))) ? 150 : 65;
+    bestVsSeekerTargetScore(view, request) > 0 ? 150 : 0;
   if (matches(card, P.rescueStretcher)) return itemAvailable(view) &&
     list(player.discard).some(card => [P.snorlax, P.wobbuffet, P.mimikyu, P.regirock, P.girafarig, P.electrike]
       .some(pattern => matches(card, pattern))) ? 120 : 0;
@@ -702,14 +711,16 @@ function scoreAction(item, request) {
   if (matches(card, P.captivatingPokePuff) || matches(card, P.gladion)) return 0;
 
   if (matches(card, P.artazon)) return !allStadiums(view).some(value => matches(value, P.artazon)) &&
-    benchSpace(view) && deckCount(view) > 0 ? 165 : 0;
+    benchSpace(view) && hasUnseenBasicSearchTarget(view) ? 165 : 0;
   if (matches(card, P.chaoticSwell)) return allStadiums(view).length > 0 &&
     !allStadiums(view).some(value => matches(value, P.chaoticSwell)) ? 175 : 0;
-  if (matches(card, P.capture)) return energyAvailable(view) && benchSpace(view) && deckCount(view) > 0 ? 150 : 45;
+  if (matches(card, P.capture)) return !energyAvailable(view) ? 0 :
+    benchSpace(view) && hasUnseenBasicSearchTarget(view) ? 150 : 45;
   if (matches(card, P.recycle)) return energyAvailable(view) ? 70 : 0;
 
   if (matches(card, P.steven)) return supporterAvailable(view) && handSize <= 3 && deckCount(view) > 3 ? 215 : 0;
-  if (matches(card, P.teammates)) return supporterAvailable(view) && handSize <= 4 ? 205 : 0;
+  if (matches(card, P.teammates)) return supporterAvailable(view) &&
+    priorOpponentTurnKO(request) && handSize <= 4 ? 205 : 0;
   if (matches(card, P.n)) return supporterAvailable(view) &&
     opponentHandCount(view) >= handSize + 3 && handSize <= 5 ? 170 : 0;
   if (matches(card, P.lillie)) return supporterAvailable(view) && handSize <= 3 && deckCount(view) >= 6 ? 165 : 0;
@@ -734,10 +745,36 @@ function scoreAction(item, request) {
 
 function handSizeOf(view) { return hand(view).length; }
 
+function priorOpponentTurnKO(request) {
+  const receipt = request?.publicEventReceipt?.priorOpponentTurnKO;
+  const turn = request?.observation?.globalTurn;
+  return receipt?.any === true && Number.isSafeInteger(receipt.turn) &&
+    Number.isSafeInteger(turn) && receipt.turn < turn;
+}
+
 function bellelbaBenchEffectUseful(view) {
   const opponentBench = list(opp(view).bench).filter(Boolean).length;
   const ownBench = list(own(view).bench).filter(Boolean).length;
   return opponentBench > 3 && ownBench <= 3 && handSize(view) >= 3;
+}
+
+function scoreVsSeekerCandidate(choice, view, request) {
+  const printing = textOf(choice);
+  if (choiceOwner(choice) !== 'actor' || choiceZone(choice) !== 'discard') return 0;
+  const supported = [P.faba, P.teamFlare, P.guzma, P.steven, P.n, P.plumeria,
+    P.lusamine, P.teammates, P.bellelba, P.lillie, P.handiwork];
+  if (!supported.some(pattern => matches(printing, pattern))) return 0;
+  if (matches(printing, P.faba)) return source7FabaJetNestReady(view, true) ? 360 : 0;
+  const actionRequest = request?.observation ? request : { observation: view, publicEventReceipt: null };
+  return scoreAction({ kind: 'play-card', actorPrinting: printing }, actionRequest);
+}
+
+function bestVsSeekerTargetScore(view, request) {
+  return list(own(view).discard).reduce((best, card) => {
+    const choice = { token: 'recovery', kind: 'card', printing: textOf(card),
+      publicMetadata: { ownerSeat: 'actor', sourceZone: 'discard' } };
+    return Math.max(best, scoreVsSeekerCandidate(choice, view, request));
+  }, 0);
 }
 
 function bestAction(request) {
