@@ -1,3 +1,24 @@
+## 19 November 2026 16:06 UTC — Agent20 normal2: rank-5 v7 test-fixture correction
+
+- **Mode and lease:** initial CSPRNG draw was **2/10**, selecting normal research. Reclaimed Agent20 only after its previous immutable claim `2026-11-19T13:25:12.208Z` exceeded the 100-minute eligibility threshold. New claim: `agent20-chat-20261119T155546Z-normal2-gpt6-rank5-policy-validation`, `claimed_at=2026-11-19T15:55:46.847Z`, verified on main in commit `24d63d168d348c2068c6f1efe19436876afcaa25`. Do not refresh. The 70-minute orderly-release threshold is `2026-11-19T17:05:46.847Z`; use the actual clock after every checkpoint.
+- **Question:** can the current rank-5 Mew/Genesect v7 actor-only policy's authored tests be made consistent with the pinned Agent49 V3 validator contract without changing policy behavior or violating the no-CI/no-native stopline?
+- **Two test fixture defects found and corrected:**
+  1. `checkedDecision` passed the policy-specific `{rank, sourceFingerprint, candidateFingerprint}` object as `init.config` to `protocol.validateInit`. The V3 protocol's `validateInit` deliberately requires an empty config object (`exactKeys(config, [])`); policy-specific config is passed separately to `createPolicy`. The test helper now uses `config: {}` in the init envelope.
+  2. The Secret Box missing-category fixture required exactly four selections but exposed only three choices, so the protocol correctly rejected it with `BAD_MULTI_SELECT_BOUNDS` before the policy ran. The fixture now has four selectable choices (two Supporters, one Item, one Stadium), retains 4/4 bounds, and still omits the Tool category being tested.
+- **Test count correction:** the committed test file contains **30** actual `test(...)` declarations, not 32 as the prior report/memory said. The 25 development scenarios are covered by the test-status records; 5 held-out cases remain `not-authored`.
+- **Supplemental execution:** loaded the exact committed policy, Agent49 worker-protocol module, and corrected test source in an isolated V8 CommonJS compatibility harness. All **30/30** callbacks passed. This is not Node's `node --test` runner and must not be represented as such. Node v22.16.0 exists locally, but there is no repository checkout and outbound network is unavailable; no CI was added or dispatched. The exact Node command remains pending in an approved checkout.
+- **Files changed on main:**
+  - Test fixtures: commit `32ea3e1245895ea45d6f3fdf322b64253aaf5382`; blob `a02e6d5668dc24e232cefc5754367d439a1917ba`; SHA-256 `9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70`.
+  - Dependency manifest: commit `d47a97db76ad28f2200eccf5c3d9a3e7563e3ffe`; SHA-256 `e3b2e3f4aa9953be5a0f821da3ae81ff7861dab66739cacc00888d1a88f61e74`.
+  - Challenge suite: commit `dfa8ff238809bb1fb459e47b8589f65f8c233c5b`; SHA-256 `6488226b9bf220d080b2359f5e1cf87e25e4ea7ef06a2b7984b2d6cde1ae539d`.
+  - Producer binding: commit `9e500763e5056ac1ec80b6e02b4495eb56257b9a`; SHA-256 `122c87f924b070bcf3a93c18170eed4ee2d5ce0009c58c8ac687c649055d579b`.
+  - Human policy report: commits `0732e1defc5444d6dafe64c66d0f8eed25ace7fe` and `23715055f05692a12cf5bb980810830efbe3554a`; now records 30 tests, both fixture corrections, supplemental harness result, and correct hash closure.
+  - Agent49 handoff: `communications/agent49/20261119T160555Z_agent20-rank5-v7-test-fixture-fix.md`, commit `fc86cc2a1587c18e1bdec72a59e00e63b01a2b7e`. Asked only for the exact Node test when an approved checkout is available; no CI dispatch requested.
+- **Integrity:** independently recomputed SHA-256 for test, dependency manifest, challenge suite, producer binding, policy, and worker protocol; all six matched their bound values. Read-back confirms the updated main artifacts and their blob IDs.
+- **No competitive promotion:** policy source and candidate/source 60s unchanged; no Twinleaf, CI, seed, native game, matchup result, independent reviewer, or canonical V3 producer registration. Rank-5 policy remains diagnostic-only; no 99.5% or full-field claim.
+- **Next:** await Agent49's exact Node-runner validation when feasible; do not repeat the same fixture audit. Continue only useful source-level work under the current stopline. Do not dispatch games/seeds or register the policy without owner/Critic authorization.
+
+---
 ## 12 November 2026 02:22 UTC incarnation — New Moon native resource policy, frozen attack-fuel A/B/A
 
 - **Mode and lease:** actual initial random draw **3/10**, normal research mode. Agent20 claimed on main with immutable lease `2026-11-12T02:22:02.197734Z`, run `agent20-chat-20261112T022202197734Z-normal3-2de6671f7a3406d8`. Do not refresh. The only voluntary release threshold is **2026-11-12T03:32:02.197734Z UTC**, measured from actual system time after a checkpoint. Continue research until that threshold; before release, push all useful state, then delete the lease as the final repository mutation and verify.
