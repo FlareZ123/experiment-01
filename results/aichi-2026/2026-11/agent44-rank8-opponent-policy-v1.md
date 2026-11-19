@@ -18,7 +18,7 @@
 - Challenge suite: `agent44-rank8-opponent-policy-v1-challenge-suite.json`.
 - Worker protocol: `simulation/evaluation/2026-11/agent49-policy-worker.cjs`, blob SHA-1 `d51ea95c457d61b50a9ee114d342eb17f4350451`.
 - The module is deterministic, actor-view-only, one-file compatible, and obeys the worker's empty `config: {}` initialization contract.
-- Covered synthetic decision branches include VIP Pass basic priority, Quick Ball and Ultra Ball costs, Boost Shake into Garbodor, Dark Patch recipient selection, Dedechange before/after own Garbotoxin, Squawkabilly Motivate sequencing, Terminal Period's exact 300-damage threshold, Claw of Darkness revealed-hand selection, and Forest Seal Stone's Crobat V target.
+- Covered synthetic decision branches include VIP Pass basic priority; Quick Ball and Ultra Ball costs and searches; VS Seeker and Wonder Tag Supporter selection; Boost Shake into Garbodor; Dark Patch recipient selection; Dedechange before/after own Garbotoxin; Squawkabilly Motivate sequencing; Terminal Period's exact 300-damage threshold; Claw of Darkness revealed-hand selection; and Forest Seal Stone's Crobat V target. Unvalidated recovery/multi-target items are explicitly not initiated from root.
 - Rank-11-only Trubbish Call for Family behavior is explicitly not inherited by rank 8.
 
 ## Validation
@@ -27,7 +27,7 @@ The existing rank-7 policy contract workflow was extended to run the rank-8 suit
 
 - Latest run: [44630953492](https://github.com/FlareZ123/experiment-01/actions/runs/44630953492).
 - Commit: `c25e0127130bf49eb30dcaf1accf71ae6ef6808a`.
-- Result: **23/23 rank-8 tests passed; 67/67 combined rank-7 and rank-8 tests passed**.
+- Result: **Expanded rank-8 tests pending rerun after prompt-coverage hardening**.
 - The tests invoke the actual worker `validateInit`, `validateRequest`, and `validateDecision` functions, not a reimplementation.
 - The first attempt exposed a fixture error: a single Quick Ball choice was incorrectly marked as multi-select. The policy now recognizes only the worker's declared multi-select types; the corrected single-choice fixture passed.
 

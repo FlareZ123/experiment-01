@@ -6,7 +6,7 @@
     "sourcePlayer": "Yusuke Kobayashi",
     "archetype": "Absol Garbodor",
     "modulePath": "simulation/evaluation/2026-11/agent44-rank8-absol-garbodor-opponent-policy.cjs",
-    "moduleGitBlobSha1": "675db4c97c6660c5f9b613cddf4085d2812ccc17",
+    "moduleGitBlobSha1": "e7094942970159b2e9727295f777ee0e9610493a",
     "dependencyManifest": "results/aichi-2026/2026-11/agent44-rank8-opponent-policy-v1-dependencies.json",
     "testPath": "tests/2026-11/agent44-rank8-absol-garbodor-opponent-policy.test.cjs",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
@@ -108,6 +108,36 @@
       "objective": "Do not import rank-11 Trubbish Call for Family behavior into rank 8",
       "evidenceClass": "synthetic-actor-view",
       "status": "passed-focused-contract-ci"
+    },
+    {
+      "caseId": "r8-quick-ball-search",
+      "objective": "Resolve Quick Ball's single-choice Basic search",
+      "evidenceClass": "synthetic-actor-view",
+      "status": "pending-ci"
+    },
+    {
+      "caseId": "r8-ultra-ball-search",
+      "objective": "Resolve Ultra Ball's single-choice Pokémon search after its two-card cost",
+      "evidenceClass": "synthetic-actor-view",
+      "status": "pending-ci"
+    },
+    {
+      "caseId": "r8-vs-seeker-recovery",
+      "objective": "Recover the best live Supporter from discard",
+      "evidenceClass": "synthetic-actor-view",
+      "status": "pending-ci"
+    },
+    {
+      "caseId": "r8-wonder-tag-supporter",
+      "objective": "Resolve Tapu Lele-GX Wonder Tag to a live Supporter",
+      "evidenceClass": "synthetic-actor-view",
+      "status": "pending-ci"
+    },
+    {
+      "caseId": "r8-unvalidated-items-fail-closed",
+      "objective": "Do not initiate unvalidated Secret Box, Night Stretcher, Super Rod, Field Blower or Adventure Bag lines",
+      "evidenceClass": "synthetic-actor-view",
+      "status": "pending-ci"
     }
   ],
   "heldOutReviewCases": [
@@ -164,10 +194,10 @@
   ],
   "evidenceSummary": {
     "evidenceClass": "synthetic-only",
-    "declaredNodeTestCount": 23,
-    "syntheticUnitTestsPassed": 23,
-    "syntheticUnitTestsFailed": 0,
-    "developmentCaseCount": 13,
+    "declaredNodeTestCount": 28,
+    "syntheticUnitTestsPassed": null,
+    "syntheticUnitTestsFailed": null,
+    "developmentCaseCount": 18,
     "heldOutReviewCaseCount": 10,
     "nativeStagedCases": 0,
     "nativeGames": 0,
@@ -176,15 +206,16 @@
     "winRateClaim": null,
     "combinedRank7AndRank8NodeTestsPassed": 67,
     "combinedNodeTestsFailed": 0,
-    "contractWorkflowRunId": 44630953492,
-    "contractWorkflowRunUrl": "https://github.com/FlareZ123/experiment-01/actions/runs/44630953492"
+    "contractWorkflowRunId": null,
+    "contractWorkflowRunUrl": null
   },
   "limitations": [
-    "The 23 rank-8 Node tests passed in focused contract CI; 67/67 combined rank-7 and rank-8 tests passed.",
+    "The expanded rank-8 Node tests are pending focused contract CI.",
     "No Twinleaf native game, native action receipt, or effect-resolution witness exists for this policy.",
     "No matchup result, full-field result, or win-rate estimate is established.",
     "The source list is an English Expanded-legal diagnostic reconstruction; physical Japanese print identity is unverified.",
     "Tapu Koko, Crispin, Battle Compressor, Pokémon Communication, Wally, Karen, Hisuian Heavy Ball, full Secret Box search, Adventure Bag and Field Blower prompts remain held out.",
-    "The rank-8 policy is a bounded preparation artifact; it is not registered with the native runner and does not establish opponent competence."
+    "The rank-8 policy is a bounded preparation artifact; it is not registered with the native runner and does not establish opponent competence.",
+    "Root policy deliberately abstains from initiating unvalidated Secret Box, Night Stretcher, Super Rod, Field Blower and Adventure Bag lines until their exact prompt paths have test coverage."
   ]
 }

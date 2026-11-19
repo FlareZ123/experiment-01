@@ -3,15 +3,15 @@
   "policy": {
     "version": "agent44-rank8-absol-garbodor-opponent-v1",
     "path": "simulation/evaluation/2026-11/agent44-rank8-absol-garbodor-opponent-policy.cjs",
-    "gitBlobSha1": "675db4c97c6660c5f9b613cddf4085d2812ccc17",
+    "gitBlobSha1": "e7094942970159b2e9727295f777ee0e9610493a",
     "sourceRank": 8,
     "sourceEntryJsonSha256": "965a4a0d7bea2df491d44e7b3246d1058d676347c9521f1e3b5daaf0eecf39ad",
     "candidateEntryJsonSha256": "4c18dd93ba49fd8f7d88aad573249dc6941b4cf61d52b99f80309345b5d58c59"
   },
   "test": {
     "path": "tests/2026-11/agent44-rank8-absol-garbodor-opponent-policy.test.cjs",
-    "gitBlobSha1": "3fffb6457fbed5bb217eaddcfa1be36163438580",
-    "declaredNodeTestCount": 23
+    "gitBlobSha1": "c4205baaac6ffde7e03d36f8cd495a7fec8388e4",
+    "declaredNodeTestCount": 28
   },
   "source": {
     "path": "results/aichi-2026/full-decklists.json",
@@ -42,27 +42,12 @@
     "pinnedRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
   },
   "evidenceClass": "synthetic-only",
-  "status": "passed-focused-contract-ci",
+  "status": "awaiting-focused-contract-ci",
   "limitations": [
-    "Focused Node contract CI passed 23/23 rank-8 tests (67/67 combined rank-7 and rank-8); this is synthetic policy/validator evidence only.",
+    "The expanded rank-8 test suite is awaiting focused contract CI; no native game evidence is implied.",
     "No matchup result, full-field result, or win-rate estimate is established.",
     "The source list is an English Expanded-legal diagnostic reconstruction; physical Japanese print identity remains unverified.",
     "Tapu Koko two-recipient settlement, Crispin linked energy choices, Battle Compressor, Pokémon Communication, Wally, Karen, and prize-dependent or multi-step prompts remain held out.",
     "The policy has not been registered or executed in a native Twinleaf game."
-  ],
-  "testResult": {
-    "workflow": ".github/workflows/agent43-rank7-policy-v2-contract.yml",
-    "runId": 44630953492,
-    "runUrl": "https://github.com/FlareZ123/experiment-01/actions/runs/44630953492",
-    "headCommit": "c25e0127130bf49eb30dcaf1accf71ae6ef6808a",
-    "rank8NodeTestsPassed": 23,
-    "rank8NodeTestsFailed": 0,
-    "combinedRank7AndRank8NodeTestsPassed": 67,
-    "combinedNodeTestsFailed": 0,
-    "actualWorkerValidators": [
-      "validateInit",
-      "validateRequest",
-      "validateDecision"
-    ]
-  }
+  ]
 }

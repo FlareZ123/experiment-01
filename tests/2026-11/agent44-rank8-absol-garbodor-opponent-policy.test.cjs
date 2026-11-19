@@ -296,6 +296,39 @@ test('Crispin linked energy choices remain explicitly held out', () => {
     choices: [card('dark', P.dark), card('lightning', P.lightning)] });
   assert.deepEqual(checked(request), { kind: 'abstain', reasonCode: 'RANK8_MULTI_STEP_PROMPT_HELD_OUT' });
 });
+test('Quick Ball search chooses Trubbish for the open Garbodor line', () => {
+  const request = promptRequest({ promptType: 'ChooseCardsPrompt', source: source(P.quick, 'Quick Ball'),
+    ownPublic: player(), choices: [card('absol', P.mega), card('trubbish', P.trubbish)] });
+  assert.deepEqual(checked(request), { kind: 'select-choice', token: 'trubbish' });
+});
+test('Ultra Ball search chooses Mega Absol after the Trubbish line is full', () => {
+  const own = player({ active: pokemon(P.trubbish), bench: [pokemon(P.trubbish)] });
+  const request = promptRequest({ promptType: 'ChooseCardsPrompt', source: source(P.ultra, 'Ultra Ball'),
+    ownPublic: own, choices: [card('absol', P.mega), card('crobat', P.crobat)] });
+  assert.deepEqual(checked(request), { kind: 'select-choice', token: 'absol' });
+});
+test('VS Seeker recovers a live Guzma over Iono', () => {
+  const opponent = player({ bench: [pokemon('Shadow Rider Calyrex V CRE 74', { subtypes: ['Basic', 'V'] })] });
+  const request = promptRequest({ promptType: 'ChooseCardsPrompt', source: source(P.vs, 'VS Seeker'),
+    opponentPublic: opponent, ownPublic: player({ discard: [P.guzma, P.iono] }),
+    choices: [card('iono', P.iono, 'discard'), card('guzma', P.guzma, 'discard')] });
+  assert.deepEqual(checked(request), { kind: 'select-choice', token: 'guzma' });
+});
+test('Tapu Lele Wonder Tag selects a live supporter target', () => {
+  const opponent = player({ bench: [pokemon('Shadow Rider Calyrex V CRE 74', { subtypes: ['Basic', 'V'] })] });
+  const request = promptRequest({ promptType: 'ChooseCardsPrompt', source: source(P.tapuLele, 'Wonder Tag'),
+    opponentPublic: opponent, choices: [card('iono', P.iono), card('guzma', P.guzma), card('carmine', P.carmine)] });
+  assert.deepEqual(checked(request), { kind: 'select-choice', token: 'guzma' });
+});
+test('unvalidated recovery and multi-target items are not initiated from the root policy', () => {
+  const items = [
+    [P.secret, 'secret'], [P.night, 'night'], ['Super Rod PAL 188', 'rod'],
+    ['Field Blower GRI 125', 'blower'], ['Adventure Bag LOT 167', 'bag']
+  ].map(([actorPrinting, token]) => ({ token, kind: 'play-card', actorPrinting, publicMetadata: { cardType: 'item' } }));
+  items.push({ token: 'pass', kind: 'pass' });
+  const request = rootRequest({ globalTurn: 4, ownHand: [P.secret, P.vip, P.quick, P.dark], items });
+  assert.deepEqual(checked(request), { kind: 'select-action', token: 'pass' });
+});
 test('wrong actor seat fails closed', () => {
   assert.deepEqual(makePolicy(0).decide(rootRequest({ seat: 1 })),
     { kind: 'abstain', reasonCode: 'ROLE_SEAT_BINDING_MISMATCH' });

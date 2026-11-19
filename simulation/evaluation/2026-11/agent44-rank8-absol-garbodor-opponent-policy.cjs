@@ -281,15 +281,6 @@ function cardSearchScore(choice, observation) {
       [PRINT.guzma, PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination]
         .some(pattern => discardHas(observation.ownPublic, pattern)) ? 155 : 0;
   }
-  if (matches(printing, PRINT.fieldBlower)) {
-    return slots(observation.opponentPublic).some(row => list(row.pokemon.tools).length > 0) ||
-      list(observation.opponentPublic?.stadium).length > 0 ? 125 : 0;
-  }
-  if (matches(printing, PRINT.adventureBag)) {
-    return slots(observation.ownPublic).some(row =>
-      (matches(row.pokemon.printing, PRINT.trubbish) || matches(row.pokemon.printing, PRINT.crobat)) &&
-      list(row.pokemon.tools).length === 0) ? 115 : 0;
-  }
   if (matches(printing, PRINT.temple)) return list(observation.opponentPublic?.stadium).length > 0 ? 95 : 15;
   return 0;
 }
@@ -502,22 +493,6 @@ function scoreAction(item, request) {
       [PRINT.guzma, PRINT.carmine, PRINT.iono, PRINT.roxanne, PRINT.lilliesDetermination]
         .some(pattern => discardHas(own, pattern)) ? 150 : 15;
   }
-  if (matches(printing, PRINT.rod)) return list(own.discard).length >= 2 ? 90 : 0;
-  if (matches(printing, PRINT.nightStretcher)) {
-    return list(own.discard).some(card =>
-      [PRINT.mega, PRINT.trubbish, PRINT.garbodor, PRINT.dark, PRINT.lightning].some(pattern => matches(card, pattern))) ? 110 : 0;
-  }
-  if (matches(printing, PRINT.fieldBlower)) {
-    return slots(opponent).some(row => list(row.pokemon.tools).length > 0) || list(opponent.stadium).length > 0 ? 100 : 0;
-  }
-  if (matches(printing, PRINT.adventureBag)) {
-    return slots(own).some(row =>
-      (matches(row.pokemon.printing, PRINT.trubbish) || matches(row.pokemon.printing, PRINT.crobat)) &&
-      list(row.pokemon.tools).length === 0) ? 95 : 0;
-  }
-  if (matches(printing, PRINT.secret)) {
-    return hand.filter(card => !protectedHandCard(card, observation)).length >= 3 ? 105 : 0;
-  }
   if (matches(printing, PRINT.temple)) return list(opponent.stadium).length > 0 ? 85 : 15;
   return 0;
 }
@@ -597,6 +572,18 @@ function promptDecision(request) {
         return { kind: 'abstain', reasonCode: 'ULTRA_BALL_TWO_CARD_COST_UNAVAILABLE' };
       }
       return decision;
+    }
+    if (/quick ball/.test(source)) {
+      return singleChoice(prompt, deck, choice => basicScore(choice, observation), 'NO_QUICK_BALL_BASIC');
+    }
+    if (/ultra ball/.test(source)) {
+      return singleChoice(prompt, deck, choice => basicScore(choice, observation), 'NO_ULTRA_BALL_POKEMON');
+    }
+    if (/vs seeker/.test(source)) {
+      return singleChoice(prompt, discard, choice => supporterScore(choice, observation), 'NO_VS_SEEKER_SUPPORTER');
+    }
+    if (/wonder tag/.test(source)) {
+      return singleChoice(prompt, deck, choice => supporterScore(choice, observation), 'NO_WONDER_TAG_SUPPORTER');
     }
     if (/secret box/.test(source) && hand.length) {
       return multi ? multiSelect(prompt, hand, choice => discardScore(choice, observation), 'SECRET_BOX_DISCARD_COST_UNAVAILABLE')
