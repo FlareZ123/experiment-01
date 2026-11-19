@@ -8,8 +8,8 @@
   "producerBindingStatus": "prototype only; not inserted into the signed/hash-bound V3 policy plan",
   "policyModule": {
     "path": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "gitBlobSha1": "0032feb6e20ef56af74f26e13b973e78e423ba85",
-    "sha256": "570a29b510d2d4f97c0ed82f02186946b07c1d7ae6d95e9cf50fba096dac7a1a",
+    "gitBlobSha1": "21c45d9a33c87d9d40622dea4d7f4070f3b27e41",
+    "sha256": "5c005896a9f0998f3f5a9f77efb227d23f993120de6afc1c3ff5ce24713f77d2",
     "policyVersion": "agent17-rank3-snorlax-stall-opponent-v1",
     "config": {},
     "imports": [],
@@ -120,21 +120,23 @@
       "request": "aichi-policy-request-v2",
       "observation": "aichi-actor-observation-v3",
       "prompt": "aichi-owner-prompt-projection-v3",
-      "frontier": "aichi-action-frontier-v1"
+      "frontier": "aichi-action-frontier-v1",
+      "eventReceipt": "agent8-public-event-receipt-v3-turn-stamped"
     },
     "validatorsExecuted": [
       "validateInit",
       "validateRequest",
-      "validateDecision"
+      "validateDecision",
+      "validatePublicEventReceipt"
     ],
     "loadedThroughWorkerIpc": false
   },
   "testSuite": {
     "path": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "gitBlobSha1": "11c44e0760f080336de02fccb9e6c9ef898dcb15",
-    "sha256": "4b5d7833c2152c87a607b629aacd96f28be52cb64fac4c4498896c3b43c341ae",
+    "gitBlobSha1": "43f43579f72f31aaf9878b58d10d4404f98a0766",
+    "sha256": "8e8b889e7d4adc1cad9694c3f69f48f00bbc921151ca41ed059324cdbfa60423",
     "testFramework": "node:test source file",
-    "localExecution": "V8 deterministic harness; actual validateInit, validateRequest and validateDecision plus policy/test sources evaluated; not node --test or worker IPC",
+    "localExecution": "V8 deterministic harness; actual validateInit, validateRequest, validateDecision and validatePublicEventReceipt plus policy/test sources evaluated; not node --test or worker IPC",
     "testCount": 49
   },
   "commonConstraints": {
@@ -142,10 +144,10 @@
     "sha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27"
   },
   "repositoryBindings": {
-    "policyCommit": "f2e4cbee7e24dbce601c933e30fb8752fdf3743a",
-    "testCommit": "8728547bcf8580325bf897fb8768ad7d428f5d58",
+    "policyCommit": "9d6db4c6343a01befb48db532a678e402e9f48e3",
+    "testCommit": "2e2fa76e4ef91ba5a913c8775bfbf0ccd54d3650",
     "baselineMainCommitAtInitialInspection": "2a86d357bf5ae699148f0fa7ce74c497e6973d49",
-    "currentMainAtManifestUpdate": "8728547bcf8580325bf897fb8768ad7d428f5d58"
+    "currentMainAtManifestUpdate": "2e2fa76e4ef91ba5a913c8775bfbf0ccd54d3650"
   },
   "hashDefinitions": {
     "fileSha256": "SHA-256 of exact UTF-8 file bytes",
