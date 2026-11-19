@@ -430,6 +430,29 @@ function targetToolScore(choice, observation) {
   return 0;
 }
 
+function secretBoxDecision(prompt, choices, observation, minimum, maximum) {
+  const categories = ['supporter', 'item', 'tool', 'stadium'];
+  const selected = [];
+  for (const category of categories) {
+    const candidates = choices.filter(choice => {
+      if (choiceOwner(choice) !== 'actor' || choiceZone(choice) !== 'deck') return false;
+      const type = String(choice.publicMetadata?.cardType ??
+        choice.publicMetadata?.sourceCardType ?? '').toLowerCase();
+      return type === category;
+    }).map(choice => ({
+      choice,
+      score: scoreSearchChoice(choice, observation, 'secret-box')
+    })).filter(row => row.score > 0).sort((a, b) => b.score - a.score);
+    if (candidates.length) selected.push(candidates[0].choice);
+  }
+  if (selected.length < minimum) {
+    return { kind: 'abstain', reasonCode: 'SECRET_BOX_REQUIRED_CATEGORY_MISSING' };
+  }
+  const bounded = selected.slice(0, maximum);
+  if (!bounded.length) return { kind: 'abstain', reasonCode: 'SECRET_BOX_NO_SEARCH_TARGETS' };
+  return { kind: 'select-choices', tokens: bounded.map(choice => choice.token) };
+}
+
 function promptDecision(request) {
   const prompt = request.prompt;
   const observation = request.observation;
@@ -496,9 +519,7 @@ function promptDecision(request) {
       if (/secret box/i.test(source)) {
         const targets = choices.filter(choice => choiceOwner(choice) === 'actor' &&
           choiceZone(choice) === 'deck');
-        return multiSelectDecision(prompt, targets.map(choice => ({
-          choice, score: scoreSearchChoice(choice, observation, 'secret-box')
-        })), minimum, maximum, 'SECRET_BOX_SEARCH_SET_INCOMPLETE');
+        return secretBoxDecision(prompt, targets, observation, minimum, maximum);
       }
 
       if (/field blower/i.test(source)) {
