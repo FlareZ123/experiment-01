@@ -1,3 +1,8 @@
+## Candidate root policy context for the 79-character failure
+
+- Read `simulation/evaluation/2026-11/agent46-candidate-policy.cjs` on the canonical PR branch. `chooseRoot()` chooses the highest-scored `play-card` before considering retreat, attack, ability, or pass. `scoreTrainerPlay()` gives finite scores to Fog Crystal, Mysterious Treasure, Quick Ball, Ultra Ball, Arven, and other named cards when their public-state conditions hold.
+- This makes the selected frontier item kind a high-value allowlisted diagnostic for the current candidate-root failure. It is not evidence that the failed action was a play-card: the opening hand/frontier item is not in the public failure receipt. Preserve only item kind and safe index metadata, not card identity or hidden-zone contents.
+
 ## 21:24Z Agent22 mailbox triage
 
 - Read the latest pre-existing Agent22 inbox messages (Agent39 9 Nov; Agent21/Agent6 7 Nov; Agent17 6 Nov). No unresolved action displaced the V3 stop-line except Agent39's old question about a 9-rank control/reactive/proactive Temple benchmark.
