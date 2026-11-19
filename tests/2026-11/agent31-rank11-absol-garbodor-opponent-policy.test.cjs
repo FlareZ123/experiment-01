@@ -5,7 +5,7 @@ const policy=require('../../simulation/evaluation/2026-11/agent31-rank11-absol-g
 const {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_ENTRY_JSON_SHA256,CANDIDATE_ENTRY_JSON_SHA256,WORKER_PROTOCOL_BLOB_SHA1,SOURCE_INVENTORY,createPolicy}=policy;
 const root=path.resolve(__dirname,'../..'),config={};
 const bundleSha256=crypto.createHash('sha256').update(fs.readFileSync(path.join(root,'simulation/evaluation/2026-11/agent31-rank11-absol-garbodor-opponent-policy.cjs'))).digest('hex');
-const P={mega:'Mega Absol ex MEG 86',trubbish:'Trubbish FST 168',garbodor:'Garbodor BKP 57',oranguru:'Oranguru V ASR 133',latias:'Latias ex SSP 76',tapu:'Tapu Lele-GX GRI 60',crobat:'Crobat V DAA 104',carmine:'Carmine TWM 145',marnie:'Marnie SSH 169',guzma:'Guzma BUS 115',vip:'Battle VIP Pass FST 225',quick:'Quick Ball FST 237',darkPatch:'Dark Patch ASR 139',boost:'Boost Shake EVS 142',secret:'Secret Box TWM 163',float:'Float Stone BKT 137',forest:'Forest Seal Stone SIT 156',muscle:'Muscle Band XY 121',dark:'Darkness Energy MEE 15'};
+const P={mega:'Mega Absol ex MEG 86',trubbish:'Trubbish FST 168',garbodor:'Garbodor BKP 57',oranguru:'Oranguru V ASR 133',latias:'Latias ex SSP 76',tapu:'Tapu Lele-GX GRI 60',crobat:'Crobat V DAA 104',squawk:'Squawkabilly ex PAL 169',carmine:'Carmine TWM 145',marnie:'Marnie SSH 169',guzma:'Guzma BUS 115',vip:'Battle VIP Pass FST 225',quick:'Quick Ball FST 237',darkPatch:'Dark Patch ASR 139',boost:'Boost Shake EVS 142',secret:'Secret Box TWM 163',float:'Float Stone BKT 137',forest:'Forest Seal Stone SIT 156',muscle:'Muscle Band XY 121',dark:'Darkness Energy MEE 15'};
 function restrictions(){return{cannotAttackNextTurn:false,cannotUseAttacksNextTurn:[],blockedAttackNameNextTurn:null,blockedAttackNameUntilLeavesActive:null,onlyAllowedAttackNameNextTurn:null,attackCostIncreaseNextTurn:0,attackCostIncreaseWhileActive:0,cannotRetreat:false,cannotRetreatNextTurn:false,cannotRetreatWhileActive:false,cannotEvolveNextTurn:false}}
 function publicRestrictions(extra={}){return{gxUsed:false,vstarUsed:false,attackLockTurnsRemaining:0,attackMaxEnergy:null,attackMaxEnergyTurnsRemaining:0,ignoreAttackCostCardTypes:[],ignoreAttackCostTurnsRemaining:0,cannotUseGXAttacks:false,pokemonPlayLocked:false,abilityPokemonPlayLocked:false,evolutionPlayLocked:false,itemPlayLocked:false,supporterPlayLocked:false,stadiumPlayLocked:false,toolPlayLocked:false,energyPlayLocked:false,specialEnergyPlayLocked:false,stadiumAndToolHaveNoEffectTurnsRemaining:null,...extra}}
 function pokemon(printing,opt={}){const abilities=opt.abilities??[];return{printing,name:opt.name??printing.split(' ').slice(0,-2).join(' '),hp:opt.hp??180,damage:opt.damage??0,lastPlayedOrEvolvedTurn:opt.lastPlayedOrEvolvedTurn??1,printed:{stage:opt.stage??'BASIC',subtypes:opt.subtypes??['Basic'],types:opt.types??['Darkness'],retreatCost:opt.retreatCost??['Colorless'],weakness:[],resistance:[]},specialConditions:[],publicRestrictions:restrictions(),evolutionPrintings:opt.evolutionPrintings??[],energies:opt.energies??[],tools:opt.tools??[],attacks:opt.attacks??[],abilities,abilityDetails:abilities.map(name=>({name,powerType:'ABILITY',text:'Once during your turn.'})),abilitySuppressions:null}}
@@ -73,7 +73,7 @@ test('Quick Ball cost preserves Secret Box and discards a late VIP Pass',()=>{
  assert.deepEqual(checked(r),{kind:'select-choice',token:'vip'});
 });
 test('Dark Patch selects a benched Mega Absol missing Energy',()=>{
- const r=promptRequest({promptType:'ChoosePokemonPrompt',source:source(P.darkPatch,'Dark Patch'),ownPublic:player({bench:[pokemon(P.mega)]}),choices:[poke('absol',P.mega,'actor','bench',0)]});
+ const r=promptRequest({promptType:'ChoosePokemonPrompt',source:source(P.darkPatch,'Dark Patch'),ownPublic:player({bench:[pokemon(P.mega,{energies:[P.dark,P.dark]})]}),choices:[poke('absol',P.mega,'actor','bench',0)]});
  assert.deepEqual(checked(r),{kind:'select-choice',token:'absol'});
 });
 test('Guzma selects a damaged three-Prize VMAX inside the 220 damage envelope',()=>{
@@ -124,6 +124,40 @@ test('Secret Box discard preserves itself and a live Guzma',()=>{
  const r=promptRequest({promptType:'ChooseCardsPrompt',source:source(P.secret,'Secret Box'),globalTurn:4,ownHand:[P.secret,P.guzma,P.vip,P.dark,P.dark,P.dark,P.carmine,P.marnie],opponentPublic:opp,publicMetadata:{selectionType:'card-combination',minimumCount:3,maximumCount:3,allowCancel:false},choices:[card('secret',P.secret,'hand'),card('guzma',P.guzma,'hand'),card('vip',P.vip,'hand'),card('dark1',P.dark,'hand'),card('dark2',P.dark,'hand'),card('dark3',P.dark,'hand'),card('carmine',P.carmine,'hand'),card('marnie',P.marnie,'hand')]});
  const d=checked(r);assert.equal(d.kind,'select-choices');assert.equal(d.tokens.includes('secret'),false);assert.equal(d.tokens.includes('guzma'),false);
 });
+
+test('Claw of Darkness discards a high-value revealed opponent card',()=>{
+ const r=promptRequest({promptType:'ChooseCardsPrompt',source:source(P.mega,'Claw of Darkness'),choices:[
+  {token:'psychic',kind:'card',printing:'Psychic Energy MEE 13',label:'Psychic Energy MEE 13',publicMetadata:{sourceZone:'hand',ownerSeat:'opponent'}},
+  {token:'field-blower',kind:'card',printing:'Field Blower GRI 125',label:'Field Blower GRI 125',publicMetadata:{sourceZone:'hand',ownerSeat:'opponent'}},
+  {token:'hood',kind:'card',printing:'Stealthy Hood UNB 186',label:'Stealthy Hood UNB 186',publicMetadata:{sourceZone:'hand',ownerSeat:'opponent'}}
+ ]});
+ assert.deepEqual(checked(r),{kind:'select-choice',token:'field-blower'});
+});
+test('Squawkabilly Motivate attacks, targets Mega Absol, and selects Darkness Energy',()=>{
+ const own=player({bench:[pokemon(P.mega),pokemon(P.trubbish)],discard:[P.dark,P.dark]});
+ const attack=rootRequest({ownPublic:own,items:[{token:'motivate',kind:'attack',actorPrinting:P.squawk,attackName:'Motivate',publicMetadata:{attackCostPayable:true}},{token:'pass',kind:'pass'}]});
+ assert.deepEqual(checked(attack),{kind:'select-action',token:'motivate'});
+ const target=promptRequest({promptType:'ChoosePokemonPrompt',source:source(P.squawk,'Motivate'),ownPublic:own,choices:[poke('absol',P.mega,'actor','bench',0),poke('trubbish',P.trubbish,'actor','bench',1)]});
+ assert.deepEqual(checked(target),{kind:'select-choice',token:'absol'});
+ const energy=promptRequest({promptType:'ChooseCardsPrompt',source:source(P.squawk,'Motivate'),ownPublic:own,publicMetadata:{selectionType:'card-combination',minimumCount:1,maximumCount:2,allowCancel:false},choices:[card('dark1',P.dark,'discard'),card('dark2',P.dark,'discard')]});
+ assert.deepEqual(checked(energy),{kind:'select-choices',tokens:['dark1','dark2']});
+});
+test('Trubbish Call for Family attacks and searches Oranguru ahead of a redundant Trubbish',()=>{
+ const own=player({active:pokemon(P.trubbish)});
+ const attack=rootRequest({ownPublic:own,items:[{token:'call',kind:'attack',actorPrinting:P.trubbish,attackName:'Call for Family',publicMetadata:{attackCostPayable:true}},{token:'pass',kind:'pass'}]});
+ assert.deepEqual(checked(attack),{kind:'select-action',token:'call'});
+ const search=promptRequest({promptType:'ChooseCardsPrompt',source:source(P.trubbish,'Call for Family'),ownPublic:own,choices:[card('trubbish',P.trubbish),card('oranguru',P.oranguru),card('absol',P.mega)]});
+ assert.deepEqual(checked(search),{kind:'select-choice',token:'oranguru'});
+});
+test('Mega Absol retreat requires a payable attack line',()=>{
+ const two=player({active:pokemon(P.oranguru),bench:[pokemon(P.mega,{energies:[P.dark,P.dark]})]});
+ const noLine=rootRequest({ownPublic:two,items:[{token:'retreat',kind:'retreat',targetPrinting:P.mega},{token:'pass',kind:'pass'}]});
+ assert.deepEqual(checked(noLine),{kind:'select-action',token:'pass'});
+ const three=player({active:pokemon(P.oranguru),bench:[pokemon(P.mega,{energies:[P.dark,P.dark,P.dark]})]});
+ const line=rootRequest({ownPublic:three,items:[{token:'retreat',kind:'retreat',targetPrinting:P.mega},{token:'pass',kind:'pass'}]});
+ assert.deepEqual(checked(line),{kind:'select-action',token:'retreat'});
+});
+
 test('actor-only protocol rejects extra hidden observation keys',()=>{
  const r=rootRequest();r.observation.nativeState={};const init={schema:protocol.INIT_SCHEMA,type:'init',role:'opponent',seat:0,policyVersion:POLICY_VERSION,bundleSha256:bundleSha256,config};
  protocol.validateInit(init);assert.throws(()=>protocol.validateRequest(r,init,1,new Set()));
