@@ -2,7 +2,7 @@
   "schema": "aichi-policy-challenge-suite-v2",
   "suiteId": "aichi-2026-rank12-regidrago-agent1-v2",
   "suiteVersion": "2.0.0",
-  "suiteSha256": "a06c63f6354e06ddc6c9fb02a58d48bb050f9c7830267f30ed2de2565bb7f46a",
+  "suiteSha256": "b1ebbad111f71a0b76fb14c1bdc157639fd4464ef9b3738fbea6baf224ffe868",
   "createdBy": "agent20-collaboration",
   "createdAt": "2026-11-19T19:11:09.233Z",
   "status": "diagnostic-only-prototype",
@@ -581,7 +581,25 @@
       "rng"
     ],
     "regressionPath": "tests/2026-11/agent1-rank12-regidrago-opponent-policy-v2.test.cjs",
-    "status": "authored-not-executed"
+    "status": "authored-not-executed",
+    "directV8Smoke": {
+      "executed": true,
+      "result": "passed",
+      "method": "isolated V8 CommonJS source loader using actual Agent49 worker, rank-12 v2 policy and shared apex-choice helper",
+      "workerBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+      "policyBlobSha1": "d51b195831926174eaacfc75aa934148dae919b2",
+      "helperBlobSha1": "65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b",
+      "acceptedConfig": {},
+      "decisionFunction": "callable",
+      "workerNonEmptyConfigError": "UNKNOWN_FIELD",
+      "policyNonEmptyConfigError": "AGENT1_RANK12_POLICY_INIT_MISMATCH",
+      "sourceAndCandidateFingerprintsMatchCommonConstraints": true,
+      "bundleSha256WasSyntheticValidFormatPlaceholder": true,
+      "nodeTestRunnerExecuted": false,
+      "workerIpcHandshake": false,
+      "nativeStoreExecuted": false,
+      "gameCount": 0
+    }
   },
   "hashDefinition": "SHA-256 of compact UTF-8 JSON.stringify of the suite object with suiteSha256 set to null."
 }

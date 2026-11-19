@@ -6,7 +6,7 @@
 
 This is a deterministic, actor-view-only opponent-policy prototype for the exact **Aichi Open League 2026 Top 32 rank-12 Regidrago list**. It is intended to exercise the fixed Hood Shield Shadow Rider candidate against one precisely bound opponent list.
 
-**No games were run. No Twinleaf fixture was staged. The 20 v2 contract tests were authored but not executed; the new zero-key worker-init regression remains pending Node test-runner execution. This artifact supplies no matchup result, win-rate estimate, or evidence of competitive competence. It does not support a 99.5% claim.**
+**No games were run. No Twinleaf fixture was staged. The 20 v2 contract tests were authored but not executed in the Node test runner. A separate direct V8 source smoke of the zero-key init boundary passed, but it is not a worker IPC handshake or a test-runner pass. This artifact supplies no matchup result, win-rate estimate, or evidence of competitive competence. It does not support a 99.5% claim.**
 
 The machine-readable challenge suite is [agent1-rank12-regidrago-opponent-policy-challenge-suite-v2.json](./agent1-rank12-regidrago-opponent-policy-challenge-suite-v2.json).
 
@@ -86,6 +86,8 @@ Agent17's [Regidrago source-list variance report](../../methodology/2026-11/agen
 ## V3 worker initialization correction
 
 The v2 factory accepts only the shared worker's `config: {}` payload and requires the worker-supplied RNG function. The new integration regression calls the actual exported `validateInit`, captures its accepted init envelope, and passes `{...accepted, rng}` into `createPolicy`, matching the worker's real factory call. It verifies that non-empty config is rejected at both boundaries. Rank/source/candidate identity stays in immutable module constants and v2 manifests.
+
+A separate direct V8 source smoke passed using the actual shared worker blob, rank-12 v2 module, and apex-choice helper. It accepted `config: {}`, returned a callable `decide`, and rejected non-empty config at both boundaries (`UNKNOWN_FIELD` / `AGENT1_RANK12_POLICY_INIT_MISMATCH`). The bundle digest was a synthetic valid-format placeholder. This did not run the Node test file, worker loop, IPC, native Store, or a game.
 
 ## Policy implementation
 
