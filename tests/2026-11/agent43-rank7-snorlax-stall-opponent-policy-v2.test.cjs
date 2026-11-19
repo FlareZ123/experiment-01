@@ -195,25 +195,17 @@ function receiptPokemon(slot) {
   };
 }
 
-function makeEventReceipt(view) {
-  const priorTurn = view.globalTurn - 1;
-  const attack = {
-    attackerPrinting: view.opponentPublic.active.printing,
-    attackName: 'Phantom Star',
-    turn: priorTurn,
-    attackIndex: 0,
-    ownerSeat: 'opponent'
-  };
+function makeEventReceipt(view, priorKO) {
   return {
     version: protocol.EVENT_RECEIPT_VERSION,
     actorSeat: view.actorSeat,
     turn: view.globalTurn,
     ownerActive: receiptPokemon(view.ownPublic.active),
     ownerBench: view.ownPublic.bench.map(receiptPokemon),
-    priorOpponentTurnKO: { any: true, byAttack: true, turn: priorTurn },
-    opponentLastTurnAttack: attack,
-    opponentLastTurnTurn: priorTurn,
-    opponentLastTurnAttacks: [attack]
+    priorOpponentTurnKO: { any: priorKO, byAttack: priorKO },
+    opponentLastTurnAttack: null,
+    opponentLastTurnTurn: null,
+    opponentLastTurnAttacks: null
   };
 }
 
@@ -720,13 +712,14 @@ test('Teammates requires a prior-opponent-turn KO receipt', () => {
     ownHand: [C.teammates], ownPublic: board.ownPublic,
     opponentPublic: board.opponentPublic, items
   });
+  withoutReceipt.publicEventReceipt = makeEventReceipt(withoutReceipt.observation, false);
   assert.deepEqual(checkedDecision(withoutReceipt), { kind: 'select-action', token: 'pass' });
 
   const withReceipt = rootRequest({
     ownHand: [C.teammates], ownPublic: board.ownPublic,
     opponentPublic: board.opponentPublic, items
   });
-  withReceipt.publicEventReceipt = makeEventReceipt(withReceipt.observation);
+  withReceipt.publicEventReceipt = makeEventReceipt(withReceipt.observation, true);
   assert.deepEqual(checkedDecision(withReceipt), { kind: 'select-action', token: 'teammates' });
 });
 

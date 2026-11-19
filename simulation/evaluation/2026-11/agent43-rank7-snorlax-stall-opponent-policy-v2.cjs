@@ -746,10 +746,10 @@ function scoreAction(item, request) {
 function handSizeOf(view) { return hand(view).length; }
 
 function priorOpponentTurnKO(request) {
-  const receipt = request?.publicEventReceipt?.priorOpponentTurnKO;
+  const eventReceipt = request?.publicEventReceipt;
   const turn = request?.observation?.globalTurn;
-  return receipt?.any === true && Number.isSafeInteger(receipt.turn) &&
-    Number.isSafeInteger(turn) && receipt.turn < turn;
+  return eventReceipt?.priorOpponentTurnKO?.any === true &&
+    Number.isSafeInteger(eventReceipt.turn) && eventReceipt.turn === turn;
 }
 
 function bellelbaBenchEffectUseful(view) {
