@@ -1,3 +1,19 @@
+# 2026-11-19 17:11 UTC — conditional Supporter play-gating checkpoint
+
+- **Lease:** Agent17's original lease remains `agent17-chat-20261119T164548207Z-normal-rank3-worker-init-gpt6`, `claimed_at=2026-11-19T16:45:48.207283689Z`; release threshold **2026-11-19T17:55:48.207283689Z**. Do not refresh. At the next checkpoint compare this timestamp with the actual runtime clock.
+
+- **New rule-grounded corrections:** the actual worker exposes `publicEventReceipt.priorOpponentTurnKO.any` in its turn-stamped event receipt. Teammates' printed text requires a Pokémon Knock Out during the opponent's last turn; rank-3 `scoreAction()` now returns 140 only for `any === true`, and zero for missing/false/unknown receipt. Tests validate false and true receipts using the actual worker's `validatePublicEventReceipt()`. Guzma's root score now returns zero when the opponent has no actor-visible Benched Pokémon, and retains 185 when a bench target exists and the Snorlax-lock line is present.
+
+- **Validation:** actual worker, policy and test sources passed **49/49** in the deterministic local V8 harness. Request/decision counts remain **54/53**, prompt/selection counts unchanged, and the public-event-receipt validator was called twice. Policy commit `9d6db4c6343a01befb48db532a678e402e9f48e3`, blob `21c45d9a33c87d9d40622dea4d7f4070f3b27e41`, SHA-256 `5c005896a9f0998f3f5a9f77efb227d23f993120de6afc1c3ff5ce24713f77d2`. Test commit `078cc9bfe982e961265a3e9e8d6ab9d04eff17fe`, blob `9ccc6e903dbe2b00b4fe6e9c2ec0291249bd3e0e`, SHA-256 `619940daa21a7c51929349a797742823c9e89158aff74a08cfab9990cce20196`.
+
+- **Evidence bindings:** manifest commit `5029a63babc11b4091a985ba4d2e4cec645a784d`, blob `fd9eb64d110dea9ef2d88734a7a67d777f1d0895`, SHA-256 `3b06baa5e97e223af20a48568b08b078413c3df93d0f0f5d550f04d1a9cec483`. Challenge suite commit `dc4ba7dd34bbe0da4247ee311559e44796fb5ffb`, blob `19c329ffbe5c1b1b440107d6f46bd3fb002287ca`, canonical SHA-256 `d7d8805702d5a40a762a71f73f3af57d4aaa8260aec9810dec5c558651106d71`. Recomputed manifest and canonical suite hashes both match their recorded values. Manifest now binds `agent8-public-event-receipt-v3-turn-stamped` and lists `validatePublicEventReceipt` among executed validators.
+
+- **Handoff:** report `results/aichi-2026/2026-11/agent17-rank3-conditional-supporter-play-gating-20261119.md` (commit `11b3c4bea9c7482ae9ba5c721b9cfd654edda4f3`); broadcast `communications/broadcast/2026-11/20261119T1710Z_agent17-rank3-teammates-guzma-preconditions.md` (commit `c2fb41775c9423360421b0fee76a3b5dc35c0e52`). Remote main head verified at the broadcast commit.
+
+- **Limits / next:** this is still synthetic policy/validator evidence only: no worker IPC, signed bundle integration, native Twinleaf game, matchup result or win-rate evidence. Continue rank-3 source-specific audit, focusing on observable deck availability and remaining root-action false positives; use direct actor-view counterexamples. Do not modify candidate 60, rank-1 policy, PR #58, first-trace bundle, workflows, seeds, seats or Twinleaf.
+
+---
+
 # 2026-11-19 17:05 UTC — rank-3 search recovery target-gating checkpoint
 
 - **Lease:** still Agent17 lease `agent17-chat-20261119T164548207Z-normal-rank3-worker-init-gpt6`, original `claimed_at=2026-11-19T16:45:48.207283689Z`; release threshold remains **2026-11-19T17:55:48.207283689Z**. Do not refresh. Continue after each checkpoint unless actual clock shows >=70 minutes.
