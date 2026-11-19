@@ -97,6 +97,12 @@ const CANDIDATE_RECOVERABLE_SUPPORTER_PRIORITIES = Object.freeze([
   { pattern: /^Lillie's Determination MEG 119\b/i, score: 210 }
 ]);
 
+const VS_SEEKER_SUPPORTER_PATTERNS = Object.freeze([
+  PRINT.arven, PRINT.plumeria, PRINT.teamFlare, PRINT.teammates,
+  PRINT.lusamine, PRINT.handiwork, PRINT.gladion, PRINT.guzma,
+  PRINT.faba, PRINT.penny, PRINT.eri, PRINT.lillie
+]);
+
 const LUSAMINE_TARGET_PATTERNS = Object.freeze([
   PRINT.arven, PRINT.plumeria, PRINT.teamFlare, PRINT.teammates, PRINT.lusamine,
   PRINT.handiwork, PRINT.gladion, PRINT.guzma, PRINT.faba, PRINT.penny, PRINT.eri,
@@ -685,9 +691,13 @@ function scoreAction(item, request) {
 
   if (itemLocked(observation)) return 0;
   if (matches(card, PRINT.enhancedHammer)) return opponentSpecialEnergyCount(observation) > 0 ? 130 : 0;
-  if (matches(card, PRINT.vsSeeker)) return scoreSearchCard(
-    list(own.discard).find(x => [PRINT.faba, PRINT.plumeria, PRINT.teamFlare, PRINT.handiwork, PRINT.guzma, PRINT.eri]
-      .some(pattern => matches(x, pattern))) ?? '', observation, 'vs-seeker');
+  if (matches(card, PRINT.vsSeeker)) {
+    const recoverableSupporters = list(own.discard).filter(candidate =>
+      VS_SEEKER_SUPPORTER_PATTERNS.some(pattern => matches(candidate, pattern))
+    );
+    return recoverableSupporters.reduce((best, candidate) =>
+      Math.max(best, scoreSearchCard(candidate, observation, 'vs-seeker')), 0);
+  }
   if (matches(card, PRINT.trainersMail)) return hand.length <= 5 ? 90 : 45;
   if (matches(card, PRINT.nestBall) || matches(card, PRINT.quickBall)) {
     return hasBasicBenchSpace(observation) &&
