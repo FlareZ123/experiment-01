@@ -386,6 +386,13 @@ function singleChoice(prompt, choices, scoreFn, reasonCode) {
   return { kind: 'select-choice', token: ranked[0].choice.token };
 }
 
+function sourcePokemonDiscardCount(player) {
+  return list(player?.discard).filter(card =>
+    matches(card, PRINT.mewV) || matches(card, PRINT.mewVMAX) ||
+    matches(card, PRINT.genesect) || matches(card, PRINT.dedenne) ||
+    matches(card, PRINT.crobat) || matches(card, PRINT.clefairy)).length;
+}
+
 function scoreForestSealSearch(choice, observation) {
   if (choiceOwner(choice) !== 'actor' || choiceZone(choice) !== 'deck') return 0;
   const printing = valueText(choice);
@@ -421,7 +428,7 @@ function scoreForestSealSearch(choice, observation) {
       candidateToolOrStadiumTargets(observation).length > 0) return 140;
   if (matches(printing, PRINT.lostVacuum) &&
       candidateToolOrStadiumTargets(observation).length > 0) return 130;
-  if (matches(printing, PRINT.karen) && pokemonInDiscard(own) >= 2 &&
+  if (matches(printing, PRINT.karen) && sourcePokemonDiscardCount(own) >= 2 &&
       (ownDeckCount(observation) <= 20 || !mewVMAXOnBoard)) return 120;
   if (matches(printing, PRINT.ultraBall) && !mewVMAXOnBoard &&
       boardCount(own, PRINT.mewV) > 0) return 110;
