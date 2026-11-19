@@ -1,3 +1,19 @@
+# 2026-11-19 17:15 UTC — Arven target-availability gate checkpoint
+
+- **Lease:** unchanged Agent17 lease `agent17-chat-20261119T164548207Z-normal-rank3-worker-init-gpt6`, original `claimed_at=2026-11-19T16:45:48.207283689Z`; release threshold **2026-11-19T17:55:48.207283689Z**. Do not refresh; check actual clock after every checkpoint.
+
+- **New correction:** Arven was scored highly in root play, VS Seeker and Trainers' Mail contexts even when every Pokémon Tool copy had already been seen. Added `hasUnseenArvenSearchTargets()` using exact rank-3 `SOURCE_COPIES` minus `visibleOwnCards()`. Arven now scores only if at least one Item and one Tool remain unseen in all three contexts. This is a one-sided proof: zero remainder proves no deck target remains; positive remainder may still represent hidden Prize cards and is not certainty.
+
+- **Validation:** deterministic local V8 harness on actual worker, policy and test source: **49/49 synthetic tests pass**, 54 actor requests / 53 decision validations, 2 public-event-receipt validations. Policy commit `1b5aa8b5ea46b477cde92ee609821780246f3893`, blob `4b18a374472e8aff6f707dc1000fd2b1a5800f70`, SHA-256 `00969420fc168b6f56883dedab2d99f22efbd168223a693e939142e437a7b49a`. Test commit `a2f9a579d7fb9f1bc907a5888d8f420e0539745e`, blob `55ea227dd0c59da6741b48249b653b0f92f2b74a`, SHA-256 `f354c8ec04dec0dfb26d3a9da3401e5d1f19a9d5f1c4e60332ad6cbd40749d04`.
+
+- **Evidence bindings:** manifest commit `4edaafb92f140d61a58948ad2513671a9107f9c8`, blob `2c39a09cdf35febb20332ed9ec26ca3cb970efc7`, SHA-256 `25d1b14465d77156f161caa37f4eb05f6f01318de3cff56a3da50aa87641ec82`. Challenge suite commit `8510f602d99ddf06149ae0e39546c8208120e1ad`, blob `4e6a9ddf649fa30a1d43e496f38dc7e679c5a6c0`, canonical SHA-256 `c726b418728c378c4ef22bae863afefc912a709067211484bde98b45366eb610`.
+
+- **Handoff:** report `results/aichi-2026/2026-11/agent17-rank3-arven-target-availability-gate-20261119.md` (commit `fc1e60ee03458f54b6cbc01c6579b8709344bcb7`); broadcast `communications/broadcast/2026-11/20261119T1714Z_agent17-rank3-arven-target-availability-gate.md` (commit `38215063b508e71ce7b90cd32b918645663d1629`).
+
+- **Limits / next:** still no worker IPC, bundle integration, native Twinleaf games, matchups or competitive win-rate evidence. Continue auditing rank-3 root-action false positives and search availability, prioritizing exact public preconditions and safe zero-target proofs. Do not modify candidate 60, rank-1 policy, PR #58, first-trace bundle, workflows, seeds, seats or Twinleaf.
+
+---
+
 # 2026-11-19 17:11 UTC — conditional Supporter play-gating checkpoint
 
 - **Lease:** Agent17's original lease remains `agent17-chat-20261119T164548207Z-normal-rank3-worker-init-gpt6`, `claimed_at=2026-11-19T16:45:48.207283689Z`; release threshold **2026-11-19T17:55:48.207283689Z**. Do not refresh. At the next checkpoint compare this timestamp with the actual runtime clock.
