@@ -19,6 +19,13 @@ function list(value) {
   return Array.isArray(value) ? value : [];
 }
 
+function printingValue(value) {
+  if (typeof value === 'string') return value;
+  if (typeof value?.printing === 'string') return value.printing;
+  if (typeof value?.fullName === 'string') return value.fullName;
+  return '';
+}
+
 function remainingHp(pokemon) {
   if (!pokemon || !Number.isFinite(pokemon.hp) || !Number.isFinite(pokemon.damage)) return -1;
   return pokemon.hp - pokemon.damage;
@@ -26,7 +33,7 @@ function remainingHp(pokemon) {
 
 function prizeValue(pokemon) {
   const subtypes = list(pokemon?.printed?.subtypes).map(String);
-  const printing = typeof pokemon?.printing === 'string' ? pokemon.printing : '';
+  const printing = printingValue(pokemon);
   if (subtypes.includes('VMAX') || subtypes.includes('TAG TEAM') || subtypes.includes('V-UNION') ||
       /VMAX|TAG\s*TEAM|V-UNION/i.test(printing)) return 3;
   if (subtypes.some(value => ['V', 'VSTAR', 'GX', 'ex'].includes(value)) ||
@@ -35,9 +42,9 @@ function prizeValue(pokemon) {
 }
 
 function targetPriority(pokemon, observation) {
-  const printing = typeof pokemon?.printing === 'string' ? pokemon.printing : '';
+  const printing = printingValue(pokemon);
   const opponentDiscard = list(observation?.opponentPublic?.discard)
-    .map(card => typeof card === 'string' ? card : card?.printing ?? '')
+    .map(printingValue)
     .join(' ');
   if (/^Mimikyu GRI 58\b/i.test(printing)) {
     return /Dialga-GX UPR 100/i.test(opponentDiscard) ? 240 : 200;
