@@ -27,6 +27,14 @@
       "validator": "simulation/evaluation/2026-11/agent49-policy-worker.cjs:validateInit",
       "moduleFactory": "createPolicy",
       "workerIpcHandshake": false
+    },
+    "eventReceiptContract": {
+      "version": "agent8-public-event-receipt-v3-turn-stamped",
+      "field": "priorOpponentTurnKO.any",
+      "usedToGate": [
+        "Teammates"
+      ],
+      "unknownOrFalseBehavior": "do not play Teammates"
     }
   },
   "sourceBinding": {
@@ -94,15 +102,15 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json",
-    "manifestSha256": "6d6dbb1024a4d113ca390ade7ee9c162fc99b0bbf74bfc789d5ef9411051cadd",
+    "manifestSha256": "6fd719ab2c0e96698ec33ad3d73a99a5430e57df9a76c8d00c301101931fe524",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "testFilePath": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "testFileBlobSha1": "11c44e0760f080336de02fccb9e6c9ef898dcb15",
-    "testFileSha256": "4b5d7833c2152c87a607b629aacd96f28be52cb64fac4c4498896c3b43c341ae",
+    "testFileBlobSha1": "43f43579f72f31aaf9878b58d10d4404f98a0766",
+    "testFileSha256": "8e8b889e7d4adc1cad9694c3f69f48f00bbc921151ca41ed059324cdbfa60423",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -151,7 +159,9 @@
       "timeoutMeasured": false,
       "processSandboxVerified": false,
       "actualValidateInitExecuted": true,
-      "workerInitPayloadValidated": true
+      "workerInitPayloadValidated": true,
+      "actualPublicEventReceiptValidatorExecuted": true,
+      "publicEventReceiptValidationCount": 2
     },
     "fullMatchupCoverage": {
       "rank3VsFixedCandidateGames": 0,
@@ -2064,10 +2074,10 @@
       "reviewerExplanation": "The policy now prioritizes exact candidate Supporters that can be recovered by VS Seeker and does not waste Get Lost targets on spent Items. The test still does not establish natural target frequency, native Lost Zone effect execution, matchup performance, or policy competence."
     },
     {
-      "caseId": "r3-dev-10-guzma-first-chooses-an-opponent-bench-target-and-then-promot",
+      "caseId": "r3-dev-10-guzma-root-play-requires-opponent-bench-target",
       "split": "development",
       "caseClass": "policy-decision",
-      "objective": "Guzma first chooses an opponent Bench target and then promotes the Snorlax lock",
+      "objective": "Guzma root play requires an opponent Bench target before preserving the Snorlax lock through target sequencing",
       "evidenceClass": "synthetic",
       "actorView": {
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
@@ -2206,12 +2216,13 @@
           "hidden opponent hand or unrevealed Prize identity",
           "wrong-source ability",
           "unpayable target",
-          "delegated fallback"
+          "delegated fallback",
+          "Guzma selected when the opponent has no Benched Pokémon"
         ],
         "acceptableOutcomeFamilies": [
           "select-choice"
         ],
-        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
+        "rationale": "The source policy now returns zero for Guzma without an actor-visible opponent Bench target and retains its lock-preserving score when a target exists. Existing prompt fixtures still test the opponent and own switch choices."
       },
       "costLedger": {
         "supporterForTurn": true,
@@ -2311,10 +2322,11 @@
           "measured": false
         },
         "timeoutStatus": "not-tested",
-        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present",
+        "rootActionTargetGate": "scoreAction returns 0 with an empty opponent Bench and 185 with one visible opponent Bench target"
       },
       "disposition": "blocked",
-      "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
+      "blockReason": "Synthetic actor-view and direct score tests only; no worker IPC, native game or matchup result.",
       "reviewerStatus": "unreviewed",
       "sourceBinding": {
         "role": "opponent-policy",
@@ -2337,7 +2349,7 @@
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
         "evidenceClass": "synthetic"
       },
-      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
+      "reviewerExplanation": "Synthetic actor-view and direct score tests only; no worker IPC, native game or matchup result."
     },
     {
       "caseId": "r3-dev-11-player-s-ceremony-remains-explicitly-blocked-until-its-resea",
@@ -7370,14 +7382,14 @@
       "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
-      "caseId": "r3-dev-40-teammates-searches-for-tool-jammer-and-faba-when-snorlax-is-",
+      "caseId": "r3-dev-40-teammates-search-and-play-gated-by-prior-turn-ko",
       "split": "development",
       "caseClass": "policy-decision",
-      "objective": "Teammates search scoring conditions Faba, Plumeria, Team Flare Grunt, Handiwork, Guzma and Eri on actual targets and board state",
+      "objective": "Teammates search priorities remain target-aware; playing Teammates requires validated priorOpponentTurnKO.any evidence",
       "evidenceClass": "synthetic",
       "actorView": {
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-        "testName": "Teammates search scoring respects Faba targets and avoids dead Supporters",
+        "testName": "Teammates search scoring and play gating use validated prior-turn KO evidence",
         "requestDigests": [
           {
             "requestIndex": 0,
@@ -7550,12 +7562,13 @@
           "unknown or duplicate card choice",
           "hidden opponent hand or unrevealed Prize identity",
           "delegated fallback",
-          "search or play Lusamine when own discard contains no recoverable Supporter or Stadium"
+          "search or play Lusamine when own discard contains no recoverable Supporter or Stadium",
+          "Teammates selected without prior opponent-turn Knock Out evidence"
         ],
         "acceptableOutcomeFamilies": [
           "select-choices"
         ],
-        "rationale": "The positive Teammates fixture has an opponent Stealthy Hood with no Stadium, so Faba is a real target and is selected with Tool Jammer. The negative fixture has no opponent Tool, Special Energy, Stadium, visible Item or Active Energy; own Snorlax is already active. Tool Jammer and Team Rocket's Handiwork outrank the otherwise dead Faba, Plumeria, Team Flare Grunt, Guzma and Eri options. Lusamine is also gated by actual recoverable Supporter/Stadium targets in own discard: 0 targets score 35 for generic search, 1 scores 100, and 2 or more score 155; root play scores 0 / 85 / 120 respectively."
+        "rationale": "The actual worker event-receipt validator accepts the actor/turn-bound priorOpponentTurnKO field. The policy assigns Teammates zero without a receipt or when any=false, and 140 only when any=true. Search choices remain synthetic."
       },
       "costLedger": {
         "positive": {
@@ -7785,10 +7798,16 @@
             "actualScore": 120,
             "result": "pass"
           }
-        ]
+        ],
+        "publicEventReceiptValidationCount": 2,
+        "teammatesActionScore": {
+          "noReceipt": 0,
+          "priorOpponentTurnKOFalse": 0,
+          "priorOpponentTurnKOTrue": 140
+        }
       },
       "disposition": "blocked",
-      "blockReason": "Synthetic Teammates search fixtures only; no native search-resolution receipt, completed game, strategic outcome, or independent reviewer.",
+      "blockReason": "Direct action scoring and actual public-event-receipt validation only; no native worker IPC or completed game.",
       "reviewerStatus": "unreviewed",
       "sourceBinding": {
         "role": "opponent-policy",
@@ -7822,7 +7841,7 @@
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
         "evidenceClass": "synthetic"
       },
-      "reviewerExplanation": "The policy now uses the generic search branch's target-aware scoring for the exact rank-3 card printings. The fixtures show Faba selected only when a real opponent Tool target exists and avoid dead Supporters when it does not. They do not establish natural Teammates access frequency, native search resolution, matchup performance, or policy competence. Lusamine generic search and root-play scores now require actual recoverable Supporter/Stadium targets; direct assertions cover zero, one and two targets."
+      "reviewerExplanation": "Direct action scoring and actual public-event-receipt validation only; no native worker IPC or completed game."
     },
     {
       "caseId": "r3-dev-41-vs-seeker-recovery-target-gating-and-lusamine-availability",
@@ -9559,7 +9578,7 @@
     ]
   },
   "caseRecordCount": 49,
-  "suiteSha256": "3b8f9e45d64392baa8f27642e06529b4553c9cb1ade144be244fe97e8c5898ac",
+  "suiteSha256": "57955a7bcf897204ab3f8da6d09eba186925cec352ea1cef31f2b0d583e03e6f",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
@@ -9567,8 +9586,8 @@
     "sourceRank": 3,
     "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
     "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
-    "policySha256": "570a29b510d2d4f97c0ed82f02186946b07c1d7ae6d95e9cf50fba096dac7a1a",
-    "dependencyManifestSha256": "6d6dbb1024a4d113ca390ade7ee9c162fc99b0bbf74bfc789d5ef9411051cadd",
+    "policySha256": "5c005896a9f0998f3f5a9f77efb227d23f993120de6afc1c3ff5ce24713f77d2",
+    "dependencyManifestSha256": "6fd719ab2c0e96698ec33ad3d73a99a5430e57df9a76c8d00c301101931fe524",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
@@ -9663,7 +9682,7 @@
       "caseIds": [
         "r3-dev-02-tool-jammer-is-attached-to-snorlax-rather-than-spent-on-an-u",
         "r3-dev-05-faba-removes-a-visible-opponent-stealthy-hood-before-lower-v",
-        "r3-dev-10-guzma-first-chooses-an-opponent-bench-target-and-then-promot",
+        "r3-dev-10-guzma-root-play-requires-opponent-bench-target",
         "r3-dev-18-team-flare-grunt-chooses-only-the-opponent-active-for-its-ac",
         "r3-dev-20-quick-ball-discards-expendable-cards-before-the-unique-tool-",
         "r3-dev-22-lusamine-retrieves-faba-and-team-rocket-s-handiwork-before-a",
@@ -9673,7 +9692,7 @@
         "r3-dev-31-forest-seal-stone-star-alchemy-searches-for-tool-jammer-when",
         "r3-dev-32-guzma-does-not-abandon-an-established-snorlax-active-lock-wi",
         "r3-dev-39-mimikyu-is-prioritized-as-a-defensive-basic-against-the-cand",
-        "r3-dev-40-teammates-searches-for-tool-jammer-and-faba-when-snorlax-is-",
+        "r3-dev-40-teammates-search-and-play-gated-by-prior-turn-ko",
         "r3-dev-41-vs-seeker-recovery-target-gating-and-lusamine-availability",
         "r3-dev-42-trainers-mail-search-target-gating",
         "r3-dev-48-mimikyu-pokemon-ex-negative-control"
@@ -9686,13 +9705,13 @@
     "locksAndBoardConstraints": {
       "caseIds": [
         "r3-dev-02-tool-jammer-is-attached-to-snorlax-rather-than-spent-on-an-u",
-        "r3-dev-10-guzma-first-chooses-an-opponent-bench-target-and-then-promot",
+        "r3-dev-10-guzma-root-play-requires-opponent-bench-target",
         "r3-dev-20-quick-ball-discards-expendable-cards-before-the-unique-tool-",
         "r3-dev-30-arven-uses-dual-subtype-forest-seal-stone-as-its-item-and-a-",
         "r3-dev-31-forest-seal-stone-star-alchemy-searches-for-tool-jammer-when",
         "r3-dev-32-guzma-does-not-abandon-an-established-snorlax-active-lock-wi",
         "r3-dev-39-mimikyu-is-prioritized-as-a-defensive-basic-against-the-cand",
-        "r3-dev-40-teammates-searches-for-tool-jammer-and-faba-when-snorlax-is-",
+        "r3-dev-40-teammates-search-and-play-gated-by-prior-turn-ko",
         "r3-dev-43-penny-picks-up-the-most-damaged-legal-basic-pok-mon-without-",
         "r3-dev-44-scoop-up-cyclone-chooses-a-damaged-benched-pok-mon-and-prese",
         "r3-dev-48-mimikyu-pokemon-ex-negative-control"
@@ -9707,7 +9726,7 @@
         "r3-dev-03-bunnelby-burrow-is-preferred-when-the-opponent-deck-is-near-",
         "r3-dev-04-cold-crush-gx-is-reserved-unless-the-opponent-active-has-sub",
         "r3-dev-09-rank-3-get-lost-prompt-prioritizes-opponent-recovery-cards-i",
-        "r3-dev-10-guzma-first-chooses-an-opponent-bench-target-and-then-promot",
+        "r3-dev-10-guzma-root-play-requires-opponent-bench-target",
         "r3-dev-19-regirock-land-maker-recovers-the-two-useful-stadiums-and-exc",
         "r3-dev-23-counter-catcher-targets-the-opponent-bench-pok-mon-with-the-",
         "r3-dev-28-water-energy-is-allocated-to-articuno-when-it-enables-the-co",
@@ -9767,9 +9786,9 @@
   },
   "policyStaticAudit": {
     "sourcePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "sourceBlobSha1": "0032feb6e20ef56af74f26e13b973e78e423ba85",
-    "sourceSha256": "570a29b510d2d4f97c0ed82f02186946b07c1d7ae6d95e9cf50fba096dac7a1a",
-    "scannedAt": "2026-11-19T17:04:17Z",
+    "sourceBlobSha1": "21c45d9a33c87d9d40622dea4d7f4070f3b27e41",
+    "sourceSha256": "5c005896a9f0998f3f5a9f77efb227d23f993120de6afc1c3ff5ce24713f77d2",
+    "scannedAt": "2026-11-19T17:09:13Z",
     "scannedTerms": [
       {
         "term": "Math.random",
