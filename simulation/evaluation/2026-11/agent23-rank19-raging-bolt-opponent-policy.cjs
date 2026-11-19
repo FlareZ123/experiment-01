@@ -542,9 +542,10 @@ function scoreAttack(item, request) {
   }
   if (name === 'Bellowing Thunder') {
     if (!matches(active, PRINT.ragingBolt) || nonActiveBasicEnergyCount(own) > 0 ||
-        own.publicTurnRestrictions?.gxUsed !== false || opponentHasVisibleAbility(observation)) return 0;
+        own.publicTurnRestrictions?.gxUsed !== false || opponentHasVisibleAbility(observation) ||
+        attachedBasicEnergyCount(own) === 0) return 0;
     if (lethal) return 260;
-    return attachedBasicEnergyCount(own) > 0 ? 150 : 80;
+    return 150;
   }
   if (name === 'Burst Roar') return handSize(observation) <= 2 && observation.globalTurn <= 3 ? 125 : 0;
   if (name === 'Earthen Spike') return lethal ? 175 : 90;
