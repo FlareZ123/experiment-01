@@ -36,14 +36,14 @@
   },
   "test": {
     "path": "tests/2026-11/agent50-rank4-raichu-electrode-opponent-policy-v2.test.cjs",
-    "blobSha1": "e4a0a976176ac93b1b593b400b4b4903194907d0",
-    "fileSha256": "26c457c31941c3445d1ed2d4adae01729fea798077ae722c811dba408375533d",
-    "testCount": 29
+    "blobSha1": "1c8bfebf9034555c0853eaeb72541392d38020ae",
+    "fileSha256": "9b2217bf3f45e4f58ae59d14b6e3bcfe22f9caca05065492248b3bbf39431aa2",
+    "testCount": 32
   },
   "dependencyManifest": {
     "path": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-dependency-manifest-v2.json",
-    "blobSha1": "1fa95f2db1aa8b223e49a4ba0d5b3aee22b27a5d",
-    "sha256": "d06c6c7a5a14ed3574a4e36f7c21a6b327e4e947e751fcae6198bf65b155bcbf"
+    "blobSha1": "eedcb423ffefa2d7c2a0b7bf4db23f2497087145",
+    "sha256": "835907031fd10e837b4b79e0b8b9d6e23557c6ba6cf3fe97d2c71f95d8490de9"
   },
   "commonConstraints": {
     "path": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-common-constraints-v2.json",
@@ -96,7 +96,7 @@
     "exactPolicySourceEvaluated": false,
     "workerRequestAndDecisionValidators": false,
     "workerInitValidatorIncludedInTestSource": true,
-    "testsRegistered": 29,
+    "testsRegistered": 32,
     "testsPassed": null,
     "testsFailed": null,
     "actorViewCasesCaptured": 26,
@@ -8429,7 +8429,7 @@
     "No independent reviewer has assessed reachability, legality/cost, strategic adequacy or execution integrity.",
     "No full Aichi Top 32 policy panel exists; ranks 23/25/28 remain source-unavailable.",
     "The v2 node:test suite has not been executed; worker-initialization success is not yet demonstrated.",
-    "No dedicated v2 test covers Ditto Prism Star Almighty Evolution; inherited v1 actor-view cases do not validate that added line."
+    "The three Ditto Almighty Evolution regressions are test-source-only and have not yet been executed or promoted to separate actor-view suite records."
   ],
   "claims": [
     {
@@ -8438,7 +8438,7 @@
       "status": "source-bound"
     },
     {
-      "claim": "The v2 test source invokes the actual worker validateInit with config={}, instantiates the policy, and checks request/decision validators for both seats.",
+      "claim": "The v2 test source invokes the actual worker validateInit with config={}, instantiates the policy, and checks request/decision validators for both seats, plus three Ditto Almighty Evolution synthetic regressions.",
       "evidence": "tests/2026-11/agent50-rank4-raichu-electrode-opponent-policy-v2.test.cjs",
       "status": "authored-not-executed"
     },
@@ -8455,7 +8455,7 @@
   ],
   "caseRecordCount": 38,
   "hashAlgorithm": "SHA-256 of UTF-8 canonical JSON with suiteSha256=null; object keys sorted lexicographically, arrays preserve order",
-  "suiteSha256": "5cd1a9d8014559fc99b9c9532b1b4ba14046f6c58fda7c6cc205a80b888546be",
+  "suiteSha256": "dd8c3d5f39cbc328d008ede315d2fd2eec0b9e31814462a852e0338ba09fc94c",
   "workerInitialization": {
     "status": "authored-not-run",
     "initSchema": "aichi-policy-worker-init-v2",
