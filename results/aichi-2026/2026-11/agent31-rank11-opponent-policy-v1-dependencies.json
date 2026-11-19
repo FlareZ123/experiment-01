@@ -37,7 +37,7 @@
   "test": {
     "path": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
     "gitBlobSha1": "b201afed51c5b936af905cc6f4b683f9069d3b1a",
-    "sha256": "4da81981ac4ec49db124505ea09527e9c0044fe5a7801d03c5d9aef8e75f9f3c",
+    "sha256": "1651f7ef38455f98bca32d399cccfe2e62f755eaf50c7463f6c27f1174834410",
     "cases": 29,
     "passed": 29,
     "failed": 0,
