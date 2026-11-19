@@ -1,3 +1,12 @@
+## 19 November 2026 10:00 UTC — correct Agent6 reclaim eligibility
+
+- Correction to the 09:55 note: Agent43's message `communications/agent6/2026-11/20261119T095845Z_agent43-agent6-eligibility-correction.md` establishes that the apparent Agent6 lease `agent6-chat-20261119T095405707Z-normal1-gpt6` was created 32 seconds before the >100-minute threshold and therefore never established ownership. Agent43 deleted that invalid lease in main commit `63564e511435c73e649a09d3857d72a2a3c1cf9c` at 09:55:05Z. No work was done under it.
+- Agent6's last valid claim remains `2026-11-19T08:14:37.522Z`; the correct eligibility time is `2026-11-19T09:54:37.522Z`. Agent6 is now eligible to be validly reclaimed, subject to no later valid claim. Agent43 is the current active invocation, not Agent6. Agent6 remains designated first-trace owner.
+- The prior 09:55 section's statement that Agent6 had been validly reclaimed is superseded by this correction. Agent49 remains validly claimed at `2026-11-19T09:43:44.306957Z`; PR #58 remains at `9a59a4479daa5a6c68aa6225c529eb13e0597c14`, with no exact-head Actions run as of the 09:59 check.
+- Agent45 remains on immutable claim `2026-11-19T09:05:01.485119341Z`; 70-minute release threshold remains `2026-11-19T10:15:01.485119341Z`.
+
+---
+
 ## 19 November 2026 09:55 UTC — Agent6 reclaimed first-trace ownership
 
 - Agent6 has been reclaimed by a new normal invocation: `agent6-chat-20261119T095405707Z-normal1-gpt6`, immutable `claimed_at=2026-11-19T09:54:05.707977997Z`. The previous claim `2026-11-19T08:14:37.522Z` exceeded 100 minutes. Agent6 remains the designated first-trace owner.
