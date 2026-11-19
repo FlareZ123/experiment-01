@@ -441,10 +441,10 @@ function scoreTrainer(item, observation) {
     return firstTurn && hasBenchSpace(observation) ? 220 : 0;
   }
   if (PRINT.quickBall.test(card)) {
-    return hasBenchSpace(observation) ? 145 : 65;
+    return hasBenchSpace(observation) && discardCapacity(observation) >= 1 ? 145 : 0;
   }
   if (PRINT.ultraBall.test(card)) {
-    return hasBenchSpace(observation) || handSize >= 5 ? 135 : 75;
+    return hasBenchSpace(observation) && discardCapacity(observation) >= 2 ? 135 : 0;
   }
   if (PRINT.rescueStretcher.test(card)) {
     const discard = list(ownPlayer.discard);
@@ -452,7 +452,9 @@ function scoreTrainer(item, observation) {
       PRINT.voltorb, PRINT.pikachu].some(pattern => matches(value, pattern))) ? 155 : 35;
   }
   if (PRINT.heavyBall.test(card)) return 95;
-  if (PRINT.secretBox.test(card)) return handSize >= 4 ? 120 : 45;
+  if (PRINT.secretBox.test(card)) {
+    return handSize >= 4 && discardCapacity(observation) >= 3 ? 120 : 0;
+  }
   if (PRINT.escapeRope.test(card)) {
     const targetIsThreat = matches(active(opponentPlayer)?.printing, /^Shadow Rider Calyrex VMAX CRE 75\b/i) ||
       matches(active(opponentPlayer)?.printing, /^Trevenant & Dusknoir-GX SMP 217\b/i);
@@ -563,6 +565,79 @@ function choiceBounds(prompt) {
   return { minimum, maximum: Math.max(minimum, maximum) };
 }
 
+function selectSafeDiscards(choices, request, minimum, maximum, multiSelect) {
+  const counts = new Map();
+  for (const card of hand(request.observation)) {
+    const text = printingValue(card);
+    counts.set(text, (counts.get(text) ?? 0) + 1);
+  }
+  const ranked = list(choices).map((choice, index) => ({
+    choice,
+    index,
+    score: scoreDiscardChoice(choice, request, minimum)
+  })).filter(row => row.score > 0 && typeof row.choice?.token === 'string')
+    .sort((a, b) => b.score - a.score || a.index - b.index);
+  const selected = [];
+  for (const row of ranked) {
+    const text = printingValue(row.choice);
+    const remaining = counts.get(text) ?? 0;
+    const originalCount = hand(request.observation).filter(card =>
+      printingValue(card) === text).length;
+    const singletonIsDead = (PRINT.carmine.test(text) &&
+      request.observation.globalTurn !== 1) ||
+      (PRINT.lillie.test(text) && handCount(request.observation) > 4 &&
+        hand(request.observation).some(card => printingValue(card) !== text &&
+          SUPPORTERS.some(pattern => pattern.test(printingValue(card))))) ||
+      (PRINT.pokemonRanger.test(text) && hand(request.observation).some(card =>
+        SUPPORTERS.some(pattern => pattern.test(printingValue(card)) &&
+          !PRINT.pokemonRanger.test(printingValue(card)))));
+    if (remaining > 1 || (remaining === 1 && originalCount === 1 && singletonIsDead)) {
+      selected.push(row.choice.token);
+      counts.set(text, remaining - 1);
+    }
+    if (selected.length >= maximum) break;
+  }
+  if (selected.length < minimum) return { kind: 'abstain', reasonCode: 'NO_SAFE_DISCARD_COST' };
+  return multiSelect ? { kind: 'select-choices', tokens: selected } :
+    { kind: 'select-choice', token: selected[0] };
+}
+
+function selectSecretBox(choices, observation, prompt) {
+  const categories = [
+    {
+      name: 'item',
+      patterns: [PRINT.quickBall, PRINT.heavyBall, PRINT.rescueStretcher,
+        PRINT.escapeRope, PRINT.ultraBall, PRINT.vipPass]
+    },
+    {
+      name: 'tool',
+      patterns: [PRINT.forestSealStone, PRINT.uTurnBoard, PRINT.telescopicSight]
+    },
+    { name: 'supporter', patterns: SUPPORTERS },
+    { name: 'stadium', patterns: [PRINT.skyField] }
+  ];
+  const selected = [];
+  for (const category of categories) {
+    const candidates = list(choices).filter(choice =>
+      category.patterns.some(pattern => matches(choice, pattern)));
+    if (candidates.length === 0) {
+      return { kind: 'abstain', reasonCode: 'SECRET_BOX_CATEGORY_MISSING' };
+    }
+    const ranked = candidates.map((choice, index) => ({
+      choice,
+      index,
+      score: cardPriority(choice, observation, category.name === 'supporter' ?
+        'wonder tag' : category.name)
+    })).sort((a, b) => b.score - a.score || a.index - b.index);
+    selected.push(ranked[0].choice.token);
+  }
+  const { minimum, maximum } = choiceBounds(prompt);
+  if (selected.length < minimum || selected.length > maximum) {
+    return { kind: 'abstain', reasonCode: 'SECRET_BOX_SELECTION_BOUNDS' };
+  }
+  return { kind: 'select-choices', tokens: selected };
+}
+
 function promptDecision(request) {
   const prompt = request.prompt;
   const choices = list(prompt?.choices);
@@ -584,23 +659,15 @@ function promptDecision(request) {
   }
 
   if (prompt?.promptType === 'ChooseCardsPrompt') {
-    if (/quick ball/i.test(context) &&
+    if (/quick ball|ultra ball|secret box/i.test(context) &&
         choices.some(choice => metadata(choice).sourceZone === 'hand')) {
       const { minimum, maximum } = choiceBounds(prompt);
-      const discardScore = choice => scoreDiscardChoice(choice, request, minimum);
-      if (meta.selectionType === 'card-combination') {
-        return selectMany(choices, discardScore, minimum, maximum, 'NO_SAFE_DISCARD_COST');
-      }
-      return selectOne(choices, discardScore, 'NO_SAFE_DISCARD_COST');
+      return selectSafeDiscards(choices, request, minimum, maximum,
+        meta.selectionType === 'card-combination');
     }
 
-    if (/ultra ball|secret box/i.test(context) &&
-        meta.selectionType === 'card-combination' &&
-        choices.some(choice => metadata(choice).sourceZone === 'hand')) {
-      const { minimum, maximum } = choiceBounds(prompt);
-      return selectMany(choices, choice =>
-        scoreDiscardChoice(choice, request, minimum), minimum, maximum,
-      'NO_SAFE_DISCARD_COST');
+    if (/secret box/i.test(context)) {
+      return selectSecretBox(choices, observation, prompt);
     }
 
     if (/rescue stretcher/i.test(context)) {
