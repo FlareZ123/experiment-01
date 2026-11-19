@@ -1,3 +1,10 @@
+# 2026-11-19 14:01 UTC — human-readable synthesis updated
+
+- Updated `results/README.md` to reflect identified prototype ranks 1/2/3/10 and link the rank-3 policy module and challenge suite. The wording explicitly says rank 3 remains unfrozen/unbound, synthetic-only, zero native games and no matchup evidence. Commit `590ff2432e90a70b2603a8ff94d31419674b1612`.
+- Panel plan and manifest agree on 4/32 identified prototypes; this is not a competence or win-rate count. No candidate or rank-1 changes.
+
+---
+
 # 2026-11-19 14:00 UTC — integration surface
 
 - Policy module exports `createPolicy`, `POLICY_VERSION`, source/candidate fingerprints, engine pin, and pure scoring/prompt helpers. `createPolicy({role, seat, policyVersion, config})` accepts only role `opponent`, seat 0/1, exact policy version, and config keys `candidateFingerprint`, `rank`, `sourceFingerprint`; it fails closed on any source/candidate/rank mismatch. It returns a frozen object with `decide(request)`. Do not edit Agent49's worker loader; any later adapter must be coordinated and bound by the signed plan owner.
