@@ -46,6 +46,7 @@ The index is deliberately honest about how incomplete the source cases remain:
 - 193/318 have prompt-coverage data; 125 do not.
 - 200/318 have execution-evidence data; 118 do not.
 - 299/318 have a stable case ID; 19 rely on their pinned array index.
+- 140/318 lack a case-level source binding (even where a suite-level deck binding may exist); 107/318 use evidence labels outside the Agent2 contract's three canonical classes.
 
 **Structural completeness under the Agent2 suite-content minimum:** only **21/318** records contain all of: stable case ID, explicit actor-view digest, case-level source binding, decision envelope, cost ledger, prompt coverage, execution evidence, and a recognized evidence class. All 21 are development cases: 15 from rank 2 and 6 from rank 10. **No held-out, negative-control or blocked case meets this complete-field minimum.** This is a structural screen only; it does not establish that an actor-view digest is privacy-correct, a decision envelope is strategically valid, or a synthetic case is a competent opponent.
 
