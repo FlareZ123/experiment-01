@@ -40,6 +40,18 @@ The repository card records were checked for the exact source printings:
 - `resources/cards/en/sv8pt5.json`: Budew ASC 16 has the zero-cost Itchy Pollen Item-lock attack.
 - `resources/cards/en/sv7.json`: Crispin SCR 133 searches up to two Basic Energy cards of different types, puts one into hand and attaches the other to a Pokémon. Its search and attachment choices must be treated as a linked multi-prompt transaction.
 
+## Rank-8 sequencing hypothesis (not yet tested)
+
+The source inventory suggests a natural sequencing constraint that should become an explicit policy-state feature:
+
+1. **Spend the pre-lock Ability window first.** Squawkabilly ex's first-turn Squawk and Seize, Dedenne-GX Dedechange, Crobat V Dark Asset, Tapu Lele-GX Wonder Tag, Tapu Koko ◇ Dance of the Ancients, and Forest Seal Stone Star Alchemy are Ability-based. A Tool-bearing Garbodor with Garbotoxin suppresses the deck's own Abilities as well as the opponent's. Avoid establishing the lock before extracting value from the abilities that matter.
+2. **Establish Garbotoxin deliberately.** Evolve Trubbish PAR 116 into Garbodor LTR 68 and attach a Pokémon Tool (the list has four Float Stone, one Muscle Band, one Forest Seal Stone). Rank 11's Boost Shake/Garbodor helper is reusable only after rebinding; its toolless-Boost-Shake case remains held out.
+3. **Build Mega Absol's energy with three distinct routes.** Dark Patch and Squawkabilly's Motivate attack use Darkness Energy from discard; Tapu Koko ◇ moves Lightning from discard to two Benched Pokémon before going to the Lost Zone; Crispin finds two different Basic Energy types, puts one in hand and attaches the other. Battle Compressor may seed discard, but its three-card choice must protect singleton Supporters and preserve the Lightning/Darkness allocation plan.
+4. **Choose the control attack by state.** Mega Absol's Terminal Period condition is exactly six damage counters (the Agent49 frontier represents the tested boundary as `targetDamage === 300`); otherwise evaluate Claw of Darkness's damage and revealed-hand discard. Budew's Itchy Pollen is an attack-based Item lock and remains available under Garbotoxin; compare its tempo value against the Mega Absol attack line.
+5. **Keep disruption and recovery in the same ledger.** Temple of Sinnoh, Guzma, Field Blower, Secret Box, Night Stretcher, Super Rod, Karen, and VS Seeker compete for the same limited hand/discard resources. Do not spend one-ofs on Ultra Ball, Quick Ball, Battle Compressor, or Secret Box costs without a source-specific discard ledger.
+
+This is a strategy hypothesis derived from the exact rank-8 list and card text, not an established optimal sequence. Each branch needs actor-view fixtures and, where the engine has multi-prompt effects, a complete prompt-sequence test before it can be treated as policy coverage.
+
 ## Reuse and rank-8 delta
 
 | Branch | Reuse judgment |
