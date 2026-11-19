@@ -6,7 +6,7 @@
  * authority. This is a starting policy, not a competitive-strength claim.
  */
 
-const POLICY_VERSION = 'agent43-rank10-regidrago-opponent-v2';
+const POLICY_VERSION = 'agent43-rank10-regidrago-opponent-v3';
 const { chooseApexAttack } = require('./agent43-regidrago-apex-choice.cjs');
 const { choosePhantomDiveAllocation } = require('./agent43-phantom-dive-allocation.cjs');
 
