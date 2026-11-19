@@ -28,7 +28,7 @@
       "suiteVersion": "1.0.0",
       "status": "prototype-not-attestable",
       "attestationStatus": "blocked",
-      "role": "opponent-policy",
+      "role": "opponent",
       "sourceRank": 3,
       "sourceDeck": {
         "path": "results/aichi-2026/full-decklists.json",
@@ -66,7 +66,8 @@
         "development": 49,
         "heldOut": 8,
         "negativeControls": 11
-      }
+      },
+      "sourceRole": "opponent-policy"
     },
     {
       "path": "results/aichi-2026/2026-11/agent50-rank4-raichu-electrode-opponent-policy-challenge-suite-v2.json",
@@ -75,7 +76,7 @@
       "suiteVersion": 2,
       "status": "prototype-only",
       "attestationStatus": "blocked",
-      "role": "opponent-policy",
+      "role": "opponent",
       "sourceRank": 4,
       "sourceDeck": {
         "path": "results/aichi-2026/full-decklists.json",
@@ -113,7 +114,8 @@
         "development": 26,
         "heldOut": 9,
         "negativeControls": 3
-      }
+      },
+      "sourceRole": "opponent-policy"
     },
     {
       "path": "results/methodology/2026-11/agent20-rank5-mew-genesect-challenge-suite-v8.json",
@@ -155,7 +157,8 @@
         "development": 25,
         "heldOut": 5,
         "negativeControls": 0
-      }
+      },
+      "sourceRole": "opponent"
     },
     {
       "path": "results/aichi-2026/2026-11/agent39-rank6-iron-thorns-opponent-policy-challenge-suite-v1.json",
@@ -164,7 +167,7 @@
       "suiteVersion": 1,
       "status": "prototype-only",
       "attestationStatus": "blocked",
-      "role": "opponent-policy",
+      "role": "opponent",
       "sourceRank": 6,
       "sourceDeck": {
         "path": "results/aichi-2026/full-decklists.json",
@@ -201,7 +204,8 @@
         "development": 32,
         "heldOut": 3,
         "negativeControls": 0
-      }
+      },
+      "sourceRole": "opponent-policy"
     },
     {
       "path": "results/aichi-2026/2026-11/agent43-rank7-snorlax-stall-opponent-policy-challenge-suite-v2.json",
@@ -210,7 +214,7 @@
       "suiteVersion": "1.2.0",
       "status": "prototype-not-attestable",
       "attestationStatus": "blocked",
-      "role": "opponent-policy",
+      "role": "opponent",
       "sourceRank": 7,
       "sourceDeck": {
         "path": "results/aichi-2026/full-decklists.json",
@@ -248,7 +252,8 @@
         "development": 12,
         "heldOut": 4,
         "negativeControls": 8
-      }
+      },
+      "sourceRole": "opponent-policy"
     },
     {
       "path": "results/aichi-2026/2026-11/agent35-rank31-opponent-policy-challenge-suite-v3.json",
@@ -257,7 +262,7 @@
       "suiteVersion": "3",
       "status": "v2-v8-shim-passed-diagnostic-only",
       "attestationStatus": "not-attested",
-      "role": "opponent-policy",
+      "role": "opponent",
       "sourceRank": 31,
       "sourceDeck": {
         "path": "results/aichi-2026/full-decklists.json",
@@ -291,7 +296,8 @@
         "development": 15,
         "heldOut": 8,
         "negativeControls": 8
-      }
+      },
+      "sourceRole": "opponent-policy"
     }
   ],
   "summary": {
@@ -320,8 +326,7 @@
     "sourceNaturalCases": 0,
     "nativeStagedCases": 0,
     "roleCounts": {
-      "opponent-policy": 25,
-      "opponent": 5
+      "opponent": 30
     },
     "candidateRoleCases": 0
   },
@@ -329,7 +334,7 @@
     {
       "caseId": "r3-dev-05-faba-removes-a-visible-opponent-stealthy-hood-before-lower-v",
       "sourceRank": 3,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "development",
       "challengeFamily": "tool-control-and-counterplay",
       "caseClass": "policy-decision",
@@ -705,7 +710,7 @@
     {
       "caseId": "r3-dev-08-eri-can-discard-field-blower-and-dual-subtype-forest-seal-st",
       "sourceRank": 3,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "development",
       "challengeFamily": "resource-cost-and-card-subtypes",
       "caseClass": "policy-decision",
@@ -920,7 +925,7 @@
     {
       "caseId": "r3-dev-12-unsupported-native-prompt-families-fail-closed-rather-than-s",
       "sourceRank": 3,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "development",
       "challengeFamily": "unsupported-prompt-fail-closed",
       "caseClass": "negative-control",
@@ -1118,7 +1123,7 @@
     {
       "caseId": "r3-dev-40-teammates-search-and-play-gated-by-prior-turn-ko",
       "sourceRank": 3,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "development",
       "challengeFamily": "event-receipt-and-turn-state",
       "caseClass": "policy-decision",
@@ -1606,7 +1611,7 @@
     {
       "caseId": "r3-ho-01-fieldblower-hood-escape",
       "sourceRank": 3,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "held-out",
       "challengeFamily": "held-out-tool-counterplay",
       "caseClass": "decision-case",
@@ -1658,7 +1663,7 @@
     {
       "caseId": "rank4-dev-05-battle-vip-pass-searches-voltorb-and-pikachu-as-the-two-opening-",
       "sourceRank": 4,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "development",
       "challengeFamily": "opening-and-core-plan",
       "caseClass": "resource-and-search",
@@ -1975,7 +1980,7 @@
     {
       "caseId": "rank4-dev-11-hidden-prize-identities-remain-unknown-and-produce-an-abstention",
       "sourceRank": 4,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "development",
       "challengeFamily": "hidden-information",
       "caseClass": "prize-information",
@@ -2265,7 +2270,7 @@
     {
       "caseId": "rank4-dev-14-unit-energy-is-attached-to-alolan-raichu-rather-than-a-support-p",
       "sourceRank": 4,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "development",
       "challengeFamily": "energy-allocation",
       "caseClass": "tactical-conversion",
@@ -2557,7 +2562,7 @@
     {
       "caseId": "rank4-dev-19-extra-energy-bomb-prompt-is-declined-rather-than-delegated",
       "sourceRank": 4,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "development",
       "challengeFamily": "unsupported-prompt-fail-closed",
       "caseClass": "core-plan-blocked",
@@ -2809,7 +2814,7 @@
     {
       "caseId": "rank4-heldout-source-natural-opening-to-electro-rain",
       "sourceRank": 4,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "held-out",
       "challengeFamily": "held-out-core-plan",
       "caseClass": "decision-case",
@@ -3450,7 +3455,7 @@
     {
       "caseId": "rank6-dev-05-plumeria-denial-outranks-deckout-when-opponent-bench-has-energy-and-paym",
       "sourceRank": 6,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "development",
       "challengeFamily": "resource-denial-vs-deckout",
       "caseClass": "decision-case",
@@ -3510,7 +3515,7 @@
     {
       "caseId": "rank6-dev-13-volt-cyclone-removes-an-active-budew-lock-when-an-attack-is-offered",
       "sourceRank": 6,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "development",
       "challengeFamily": "lock-counterplay",
       "caseClass": "decision-case",
@@ -3570,7 +3575,7 @@
     {
       "caseId": "rank6-dev-29-gladion-prize-selection-abstains-because-face-down-prize-identities-are-",
       "sourceRank": 6,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "development",
       "challengeFamily": "prize-information",
       "caseClass": "decision-case",
@@ -3630,7 +3635,7 @@
     {
       "caseId": "rank6-dev-32-the-real-worker-request-validator-rejects-hidden-opponent-hand-and-rng-f",
       "sourceRank": 6,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "development",
       "challengeFamily": "hidden-information-and-seed-privacy",
       "caseClass": "decision-case",
@@ -3690,7 +3695,7 @@
     {
       "caseId": "rank6-ho-01-native-prompt-settlement",
       "sourceRank": 6,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "held-out",
       "challengeFamily": "held-out-native-prompt-completion",
       "caseClass": "decision-case",
@@ -3741,7 +3746,7 @@
     {
       "caseId": "r7v2-dev-01-faba-root",
       "sourceRank": 7,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "development",
       "challengeFamily": "tool-removal-counterplay",
       "caseClass": "policy-decision",
@@ -3945,7 +3950,7 @@
     {
       "caseId": "r7v2-dev-03-psychic-hood-negative",
       "sourceRank": 7,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "development",
       "challengeFamily": "negative-target-control",
       "caseClass": "negative-control",
@@ -4126,7 +4131,7 @@
     {
       "caseId": "r7v2-dev-04-jet-wobbuffet",
       "sourceRank": 7,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "development",
       "challengeFamily": "lock-and-board-tradeoff",
       "caseClass": "policy-decision",
@@ -4329,7 +4334,7 @@
     {
       "caseId": "r7v2-dev-06-alolan-muk-negative",
       "sourceRank": 7,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "development",
       "challengeFamily": "negative-ability-lock-control",
       "caseClass": "policy-decision",
@@ -4528,7 +4533,7 @@
     {
       "caseId": "r7v2-ho-03-snorlax-block-tradeoff",
       "sourceRank": 7,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "held-out",
       "challengeFamily": "held-out-lock-tradeoff",
       "caseClass": "decision-case",
@@ -4580,7 +4585,7 @@
     {
       "caseId": "r31-dev-02-dusknoir-pre-cursed-blast",
       "sourceRank": 31,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "development",
       "challengeFamily": "prize-conversion-and-damage",
       "caseClass": "decision-case",
@@ -4716,7 +4721,7 @@
     {
       "caseId": "r31-dev-03-dusclops-pre-cursed-blast",
       "sourceRank": 31,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "development",
       "challengeFamily": "effect-specific-damage-threshold",
       "caseClass": "decision-case",
@@ -4852,7 +4857,7 @@
     {
       "caseId": "r31-dev-05-field-blower-mode",
       "sourceRank": 31,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "development",
       "challengeFamily": "multi-target-tool-control",
       "caseClass": "decision-case",
@@ -4979,7 +4984,7 @@
     {
       "caseId": "r31-dev-10-poltergeist-information",
       "sourceRank": 31,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "development",
       "challengeFamily": "hidden-information",
       "caseClass": "negative-control",
@@ -5106,7 +5111,7 @@
     {
       "caseId": "r31-ho-01-dusclops-native-cursed-blast",
       "sourceRank": 31,
-      "role": "opponent-policy",
+      "role": "opponent",
       "split": "held-out",
       "challengeFamily": "held-out-native-prompt-effect",
       "caseClass": "decision-case",
