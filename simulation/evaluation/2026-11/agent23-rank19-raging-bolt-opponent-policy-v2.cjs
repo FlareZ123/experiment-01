@@ -1,7 +1,7 @@
 'use strict';
 
 /*
- * Aichi rank-19 Mark Takahashi Raging Bolt opponent-role policy, v1.
+ * Aichi rank-19 Mark Takahashi Raging Bolt opponent-role policy, v2.
  *
  * Deterministic and actor-view-only. It is a research prototype, not a
  * competence attestation. The exact source-60 identity is bound below.
