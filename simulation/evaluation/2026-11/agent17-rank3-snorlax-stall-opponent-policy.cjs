@@ -747,8 +747,12 @@ function promptDecision(request) {
 
   if (prompt.promptType === 'ChooseCardsPrompt') {
     if (selectionType) {
-      const min = Number.isSafeInteger(metadata.minimumCount) ? metadata.minimumCount : 1;
-      const max = Number.isSafeInteger(metadata.maximumCount) ? metadata.maximumCount : min;
+      const min = selectionType === 'energy-payment' ? 1 :
+        (Number.isSafeInteger(metadata.minimumCount) ? metadata.minimumCount : 1);
+      const max = selectionType === 'energy-payment' ?
+        (Number.isSafeInteger(metadata.energyCount) ? metadata.energyCount :
+          (Number.isSafeInteger(metadata.count) ? metadata.count : min)) :
+        (Number.isSafeInteger(metadata.maximumCount) ? metadata.maximumCount : min);
       if (source.includes('arven')) {
         const itemChoices = choices.filter(choice => choiceOwner(choice) === 'actor' &&
           choiceZone(choice) === 'deck' && ITEM_PATTERNS.some(pattern => matches(choice, pattern)));
