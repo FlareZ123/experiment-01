@@ -288,6 +288,13 @@ function hasUnseenBasicSearchTargets(observation) {
   return BASIC_SEARCH_PATTERNS.some(pattern => sourceCopiesRemaining(observation, pattern) > 0);
 }
 
+function hasNightStretcherTargets(observation) {
+  return list(observation.ownPublic?.discard).some(card =>
+    BASIC_SEARCH_PATTERNS.some(pattern => matches(card, pattern)) ||
+    matches(card, PRINT.waterEnergy)
+  );
+}
+
 function hasBasicBenchSpace(observation) {
   return list(observation?.ownPublic?.bench).some(slot => slot === null);
 }
@@ -318,6 +325,7 @@ function opponentSpecialEnergyCount(observation) {
 
 function scoreSearchCard(printing, observation, context = '') {
   const own = observation.ownPublic;
+  const opponent = observation.opponentPublic ?? {};
   if (context === 'basic-search') return scoreBasicPlay(printing, observation);
   if (context === 'night-stretcher') {
     if ([PRINT.snorlax, PRINT.bunnelby, PRINT.girafarig, PRINT.articuno, PRINT.rotom]
@@ -391,6 +399,13 @@ function scoreSearchCard(printing, observation, context = '') {
         row.pokemon.printed?.stage === 'BASIC') ? 90 : 0;
     }
     if (matches(printing, PRINT.gladion)) return 75;
+    if (matches(printing, PRINT.counterCatcher)) {
+      return own.prizeCount > opponent.prizeCount &&
+        slots(opponent).some(row => row.zone === 'bench') ? 135 : 0;
+    }
+    if (matches(printing, PRINT.nightStretcher)) {
+      return hasNightStretcherTargets(observation) ? 125 : 0;
+    }
     if (ITEM_PATTERNS.some(pattern => matches(printing, pattern))) return 125;
     if (TOOL_PATTERNS.some(pattern => matches(printing, pattern))) return 115;
     return 0;
@@ -467,9 +482,7 @@ function scoreSearchCard(printing, observation, context = '') {
     return hasBasicBenchSpace(observation) ? 95 : 20;
   }
   if (matches(printing, PRINT.nightStretcher)) {
-    return list(own.discard).some(card =>
-      [PRINT.snorlax, PRINT.bunnelby, PRINT.girafarig, PRINT.articuno, PRINT.rotom, PRINT.waterEnergy]
-        .some(pattern => matches(card, pattern))) ? 115 : 35;
+    return hasNightStretcherTargets(observation) ? 115 : 0;
   }
   if (matches(printing, PRINT.enhancedHammer)) {
     return opponentSpecialEnergyCount(observation) > 0 ? 130 : 0;
@@ -715,12 +728,11 @@ function scoreAction(item, request) {
       !boardHas(own, PRINT.girafarig)) ? 100 : 25;
   }
   if (matches(card, PRINT.nightStretcher)) {
-    return list(own.discard).some(x =>
-      [PRINT.snorlax, PRINT.bunnelby, PRINT.girafarig, PRINT.articuno, PRINT.rotom, PRINT.waterEnergy]
-        .some(pattern => matches(x, pattern))) ? 90 : 0;
+    return hasNightStretcherTargets(observation) ? 90 : 0;
   }
   if (matches(card, PRINT.counterCatcher)) {
-    return own.prizeCount > opponent.prizeCount ? 135 : 0;
+    return own.prizeCount > opponent.prizeCount &&
+      slots(opponent).some(row => row.zone === 'bench') ? 135 : 0;
   }
   if (matches(card, PRINT.scoopCyclone)) {
     return slots(own).some(row => row.pokemon.damage >= 80 &&
