@@ -153,7 +153,7 @@ function ancientBoardCount(player) {
 function abilityLive(pokemon, name) {
   if (!pokemon) return false;
   const suppression = list(pokemon.abilitySuppressions).find(row => row.abilityName === name);
-  return suppression?.suppressed !== true;
+  return suppression?.suppressed === false;
 }
 function currentStadium(observation) {
   return [...stadiums(observation?.ownPublic), ...stadiums(observation?.opponentPublic)];
@@ -272,6 +272,12 @@ function promptBounds(prompt) {
     if (Number.isSafeInteger(meta.minimumCount) && Number.isSafeInteger(meta.maximumCount)) {
       return { minimumCount: meta.minimumCount, maximumCount: meta.maximumCount };
     }
+  }
+  if (meta.selectionType === 'prize-slots' && Number.isSafeInteger(meta.requiredCount)) {
+    return { minimumCount: meta.requiredCount, maximumCount: meta.requiredCount };
+  }
+  if (meta.selectionType === 'card-order' && Number.isSafeInteger(meta.count)) {
+    return { minimumCount: meta.count, maximumCount: meta.count };
   }
   return null;
 }
@@ -648,11 +654,11 @@ function promptDecision(request) {
     if (lower.includes('guzma')) {
       const owner = choices.some(choice => metadata(choice).ownerSeat === 'opponent') ? 'opponent' : 'actor';
       if (owner === 'opponent') {
-        return selectOne(choices, choice => metadata(choice).ownerSeat === 'opponent'
-          ? targetPriority(choicePokemon(choice, observation), observation) : 0, 'NO_GUZMA_OPPONENT_TARGET');
+        return selectMany(prompt, choice => metadata(choice).ownerSeat === 'opponent'
+          ? targetPriority(choicePokemon(choice, observation), observation) : 0, 'NO_GUZMA_OPPONENT_TARGET', 1);
       }
-      return selectOne(choices, choice => metadata(choice).ownerSeat === 'actor'
-        ? ownSwitchPriority(choicePokemon(choice, observation), observation) : 0, 'NO_GUZMA_OWN_SWITCH_TARGET');
+      return selectMany(prompt, choice => metadata(choice).ownerSeat === 'actor'
+        ? ownSwitchPriority(choicePokemon(choice, observation), observation) : 0, 'NO_GUZMA_OWN_SWITCH_TARGET', 1);
     }
     if (lower.includes('professor sada')) {
       return selectMany(prompt, choice => metadata(choice).ownerSeat === 'actor' &&
@@ -678,23 +684,23 @@ function promptDecision(request) {
       return selectMany(prompt, choice => compressorPriority(choice, request), 'NO_COMPRESSOR_SETUP_TARGETS');
     }
     if (lower.includes('quick ball') && (meta.sourceZone === 'hand' || /discard/i.test(lower))) {
-      return selectOne(choices, choice => discardPriority(choice, request, lower), 'NO_SAFE_QUICK_BALL_DISCARD');
+      return selectMany(prompt, choice => discardPriority(choice, request, lower), 'NO_SAFE_QUICK_BALL_DISCARD', 1);
     }
     if (lower.includes('secret box') && (meta.sourceZone === 'hand' || /discard/i.test(lower))) {
       return selectMany(prompt, choice => discardPriority(choice, request, lower), 'NO_SAFE_SECRET_BOX_DISCARDS');
     }
     if (lower.includes('vs seeker')) {
-      return selectOne(choices, choice => supporterPriority(choice, request), 'NO_VS_SEEKER_SUPPORTER');
+      return selectMany(prompt, choice => supporterPriority(choice, request), 'NO_VS_SEEKER_SUPPORTER', 1);
     }
     if (lower.includes('night stretcher')) {
-      return selectOne(choices, choice => searchTargetPriority(choice, request, lower), 'NO_NIGHT_STRETCHER_TARGET');
+      return selectMany(prompt, choice => searchTargetPriority(choice, request, lower), 'NO_NIGHT_STRETCHER_TARGET', 1);
     }
     if (lower.includes('hisuian heavy ball')) {
-      return selectOne(choices, choice => searchTargetPriority(choice, request, lower), 'NO_KNOWN_HEAVY_BALL_TARGET');
+      return selectMany(prompt, choice => searchTargetPriority(choice, request, lower), 'NO_KNOWN_HEAVY_BALL_TARGET', 1);
     }
     if (lower.includes('cherish ball') || lower.includes('wonder tag') ||
         lower.includes('star alchemy') || lower.includes('raihan')) {
-      return selectOne(choices, choice => searchTargetPriority(choice, request, lower), 'NO_SEARCH_TARGET');
+      return selectMany(prompt, choice => searchTargetPriority(choice, request, lower), 'NO_SEARCH_TARGET', 1);
     }
     if (lower.includes('quick ball') || lower.includes('battle vip pass') ||
         lower.includes('search')) {
@@ -720,7 +726,7 @@ function promptDecision(request) {
   }
 
   if (prompt.promptType === 'ChoosePrizePrompt') {
-    return selectOne(choices, choice => printingValue(choice) ? 100 : 0, 'PRIZE_PRINTINGS_NOT_VISIBLE');
+    return selectMany(prompt, choice => printingValue(choice) ? 100 : 0, 'PRIZE_PRINTINGS_NOT_VISIBLE');
   }
 
   if (prompt.promptType === 'ConfirmPrompt') {
