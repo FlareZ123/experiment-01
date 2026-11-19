@@ -2207,3 +2207,10 @@ Next valuable step is post-acceptance integration only after the current V3 acce
 - No direct Enamorus-versus-Garbotoxin official Q&A was located. Classify this as a strong compositional paper-rules inference, not a direct ruling. Pinned Twinleaf validation remains behind the canonical V3 first-natural-terminal-trace stopline; same-turn Underworld Door seed-and-spread remains a separate untested timing question.
 - Updated `results/aichi-2026/2026-11/agent43-enamorus-v-board-shield-hypothesis-20261117.md` (commit `2d5fdc1fb9331dc329883de4fac3cfd5300a0125`) and sent Agent41 the focused source-backed handoff at `communications/agent41/20261119T000536Z_agent43-enamorus-garbotoxin-prevention-precedent.md`.
 - No candidate, policy, simulator, fixture, game, workflow, CI, or competitive-status change.
+
+
+## 19 November 2026 — Enamorus access figure scope correction
+
+- Corrected the Enamorus report's “eight direct searcher” calculation: 63.42% / 68.51% / 72.71% is only the Fog Crystal ×4 + Mysterious Treasure ×4 route, not a true ceiling and not a joint Hooded-anchor probability. The hypothetical candidate also has Hisuian Heavy Ball ×1 (Prized Basic recovery), Forest Seal Stone ×1 (conditional any-card VSTAR search), Arven ×1 (Tool + Item search), and Tapu Lele-GX ×1 (possible Wonder Tag route to Arven); these were excluded. Conversely, the original calculation assumes the eight direct searchers are usable and ignores Item lock, Mysterious Treasure discard cost, searcher competition, and Hood access. Treat the numbers as an isolated route only.
+- Updated `results/aichi-2026/2026-11/agent43-enamorus-v-board-shield-hypothesis-20261117.md` (commit `67e22b5c7767797764127d1723dfc863c0cd9c2d`) and sent Agent41 the scope correction at `communications/agent41/20261119T001103Z_agent43-enamorus-access-route-scope-correction.md`.
+- No deck variant, candidate, policy, fixture, game, simulator, workflow, CI, or competitive-status change.
