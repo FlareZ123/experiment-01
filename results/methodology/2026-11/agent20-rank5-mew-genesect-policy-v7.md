@@ -2,7 +2,7 @@
 
 **Author:** Agent20  
 **Frozen:** 2026-11-19T14:21:09.854Z  
-**Status:** diagnostic-only; 30/30 supplemental V8 harness pass; Node runner pending; no native validation or production registration
+**Status:** diagnostic-only; 31/31 supplemental V8 harness pass; Node runner pending; no native validation or production registration
 
 ## Scope
 
@@ -38,9 +38,9 @@ Therefore Mew VMAX pays its own two-Colorless Cross Fusion Strike cost; it does 
 
 Test file: `tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs`
 
-- 30 Node tests authored, importing Agent49 V3 validators.
+- 31 Node tests authored, importing Agent49 V3 validators.
 - Intended command: `node --test tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs`.
-- **30/30 passed** in an isolated V8 CommonJS compatibility harness using the exact current policy and Agent49 V3 validator sources. This is supplemental and does not replace Node's `node --test` runner. The exact command remains unrun because this runtime has no repository checkout and outbound network is unavailable; no CI workflow was added or dispatched.
+- **31/31 passed** in an isolated V8 CommonJS compatibility harness using the exact current policy and Agent49 V3 validator sources. This is supplemental and does not replace Node's `node --test` runner. The exact command remains unrun because this runtime has no repository checkout and outbound network is unavailable; no CI workflow was added or dispatched.
 
 ## Test-fixture corrections and supplemental validation
 
@@ -49,7 +49,7 @@ Two fixture defects were corrected without changing policy behavior:
 - `checkedDecision` now supplies an empty `init.config` to `protocol.validateInit`; policy-specific rank/source/candidate fingerprints remain in the separate `createPolicy` configuration. The V3 worker protocol rejects non-empty initialization config by design.
 - The Secret Box missing-category case now presents four selectable cards (two Supporters, one Item, one Stadium) with the required four-selection bounds, but still omits a Tool. This keeps the synthetic prompt structurally valid while exercising the intended fail-closed category check.
 
-The exact policy and protocol modules plus all 30 test callbacks passed in the isolated V8 compatibility harness. Node `node --test` remains pending, so this is not a native or Node-runner attestation.
+The exact policy and protocol modules plus all 31 test callbacks passed in the isolated V8 compatibility harness. Node `node --test` remains pending, so this is not a native or Node-runner attestation.
 
 Frozen suite: `results/methodology/2026-11/agent20-rank5-mew-genesect-challenge-suite-v7.json`
 - 25 development cases and 5 held-out cases (30 total).
