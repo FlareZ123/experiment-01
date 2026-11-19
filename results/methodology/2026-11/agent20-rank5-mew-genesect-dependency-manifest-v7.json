@@ -24,7 +24,8 @@
   },
   "commonConstraints": {
     "path": "results/methodology/2026-11/agent20-rank5-mew-genesect-common-constraints-v7.json",
-    "sha256": "94af8564d2de9029633983d214d34ff8ba9c86194e9eadb38123d873e51a3190"
+    "sha256": "71323a96a6e088fe5ad0271b873eae3fd369c7e911a913ba75a4b9d0f3f5f588",
+    "gitBlobSha1": "b85bc479488737acf7ec5035d67aa9694c502769"
   },
   "engine": {
     "submodulePath": "vendor/twinleaf",
@@ -44,7 +45,7 @@
     "policyModuleSha256": "87cc1716e7a8c0db9d56514d91b0bb8327fc955ed0725ad8dde113cb9eed0213",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
-    "commonConstraintsSha256": "94af8564d2de9029633983d214d34ff8ba9c86194e9eadb38123d873e51a3190"
+    "commonConstraintsSha256": "71323a96a6e088fe5ad0271b873eae3fd369c7e911a913ba75a4b9d0f3f5f588"
   },
   "bindingStatus": "diagnostic-only; not included in Agent36 V3 bundle or production policy plan"
 }
