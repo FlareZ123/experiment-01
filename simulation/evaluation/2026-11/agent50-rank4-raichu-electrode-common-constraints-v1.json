@@ -4,7 +4,7 @@
   "createdAt": "2026-11-19T14:07:39.603078779Z",
   "role": "opponent-policy",
   "sourceRank": 4,
-  "sourceDeckEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
+  "sourceDeckEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
   "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
   "engine": {
     "submodulePath": "vendor/twinleaf",
