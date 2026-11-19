@@ -127,11 +127,11 @@ function pokemonChoice(token, pokemonCard, ownerSeat = 'actor', targetZone = 'be
       ownerSeat, targetZone, isOwnerVisible: true }
   };
 }
-function energyChoice(token, printing, energyType) {
+function energyChoice(token, printing, energyType, ownerSeat = 'actor') {
   return {
     token, kind: 'energy', printing,
     publicMetadata: { selectionIndex: 0, selectedCount: 0, sourceZone: 'play',
-      ownerSeat: 'actor', isOwnerVisible: true, energyType }
+      ownerSeat, isOwnerVisible: true, energyType }
   };
 }
 function emptyChoice(token) {
@@ -174,9 +174,11 @@ const DARKNESS = 'Darkness Energy MEE 15';
 test('source identity and protocol dependency are explicit', () => {
   assert.equal(policyModule.SOURCE_RANK, 19);
   assert.match(policyModule.SOURCE_LIST_BLOB_SHA1, /^[a-f0-9]{40}$/);
-  assert.match(policyModule.SOURCE_FINGERPRINT_SHA256, /^[a-f0-9]{64}$/);
+  assert.equal(policyModule.SOURCE_FINGERPRINT_SHA256, '17280b4f2d1c9d10f60e7e3d0dbb7e7a1f49a75b2a3f7d18f42e7e0c1c5c7a00');
   assert.equal(policyModule.ENGINE_PIN, 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05');
   assert.equal(policyModule.basicEnergyType(LIGHTNING), 'lightning');
+  assert.equal(policyModule.basicEnergyType('Lightning Energy MEG 12'), 'lightning');
+  assert.equal(policyModule.basicEnergyType('Fighting Energy BKT 136'), 'fighting');
   assert.equal(policyModule.basicEnergyType(DDE), null);
 });
 
@@ -312,6 +314,53 @@ test('Bellowing Thunder abstains when other Pokémon Basic Energy cannot be attr
     action('pass', 'pass')
   ]});
   assert.deepEqual(rootResult.decision, { kind: 'select-action', token: 'pass' });
+});
+
+test('Bellowing Thunder fails closed when GX or opponent Ability modifiers are unresolved', () => {
+  const bolt = pokemon({ printing: RAGING, subtypes: ['Basic', 'ex', 'Ancient'], energies: [LIGHTNING, FIGHTING] });
+  const target = pokemon({ printing: 'Test Active Pokémon', hp: 240, damage: 0,
+    abilities: ['Unresolved Active Ability'] });
+  const obs = observation({ ownActive: bolt, opponentActive: target,
+    ownRestrictions: { gxUsed: true }, decisionKind: 'owner-prompt',
+    promptType: 'ChooseEnergyPrompt' });
+  const choices = [
+    energyChoice('l', LIGHTNING, 'Lightning'),
+    energyChoice('f', FIGHTING, 'Fighting')
+  ];
+  const p = prompt(0, 'ChooseEnergyPrompt', 'Bellowing Thunder', RAGING, choices, {
+    selectionType: 'energy-payment', energyCount: 2, count: 2,
+    energyType: 'Basic Energy', allowCancel: false
+  });
+  const result = runDecision({ obs, promptValue: p });
+  assert.deepEqual(result.decision, {
+    kind: 'abstain', reasonCode: 'BELLOWING_DAMAGE_MODIFIER_STATE_UNKNOWN'
+  });
+});
+
+test('Wait and See Hammer targets an opponent Energy and prioritizes Double Dragon Energy', () => {
+  const obs = observation({
+    ownHand: ['Wait and See Hammer LOT 192'], turn: 1,
+    opponentActive: pokemon({ printing: 'Arceus & Dialga & Palkia-GX CEC 156',
+      subtypes: ['Basic', 'TAG TEAM', 'GX'], energies: [DDE, LIGHTNING] }),
+    decisionKind: 'owner-prompt', promptType: 'ChooseEnergyPrompt'
+  });
+  const result = runDecision({ obs, items: [
+    action('hammer', 'play-card', { actorPrinting: 'Wait and See Hammer LOT 192' }),
+    action('pass', 'pass')
+  ]});
+  assert.deepEqual(result.decision, { kind: 'select-action', token: 'hammer' });
+
+  const choices = [
+    energyChoice('dde', DDE, 'Dragon/Colorless', 'opponent'),
+    energyChoice('lightning', LIGHTNING, 'Lightning', 'opponent')
+  ];
+  const p = prompt(0, 'ChooseEnergyPrompt', 'Wait and See Hammer',
+    'Wait and See Hammer LOT 192', choices, {
+      selectionType: 'energy-payment', energyCount: 2, count: 2,
+      energyType: 'Energy', allowCancel: false
+    });
+  const selected = runDecision({ obs, promptValue: p });
+  assert.deepEqual(selected.decision, { kind: 'select-choices', tokens: ['dde'] });
 });
 
 test('Bellowing Thunder accounts for Dragon Weakness without over-discarding', () => {
