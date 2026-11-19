@@ -18,7 +18,7 @@
 - Challenge suite: `agent44-rank8-opponent-policy-v1-challenge-suite.json`.
 - Worker protocol: `simulation/evaluation/2026-11/agent49-policy-worker.cjs`, blob SHA-1 `d51ea95c457d61b50a9ee114d342eb17f4350451`.
 - The module is deterministic, actor-view-only, one-file compatible, and obeys the worker's empty `config: {}` initialization contract.
-- The 18 development cases cover VIP Pass basic priority; Quick Ball and Ultra Ball costs and searches; VS Seeker and Wonder Tag Supporter selection; Boost Shake into Garbodor; Dark Patch recipient selection; Dedechange before/after own Garbotoxin; Squawkabilly Motivate sequencing; Terminal Period's exact 300-damage threshold; Claw of Darkness revealed-hand selection; Forest Seal Stone's Crobat V target; and fail-closed handling for unvalidated recovery/multi-target items.
+- The 18 development cases cover VIP Pass basic priority; Quick Ball and Ultra Ball costs and searches; VS Seeker and Wonder Tag Supporter selection; Boost Shake into Garbodor; Dark Patch recipient selection; Squawkabilly Motivate sequencing; Claw of Darkness revealed-hand selection; Forest Seal Stone's Crobat V target; and fail-closed handling for unvalidated recovery/multi-target items. The suite also contains Dedechange and Terminal Period synthetic placeholders, but the errata below invalidate those cases as game-rule evidence.
 - Rank-11-only Trubbish Call for Family behavior is explicitly not inherited by rank 8.
 
 ## Validation
