@@ -19,9 +19,9 @@
     "policySha256": "87cc1716e7a8c0db9d56514d91b0bb8327fc955ed0725ad8dde113cb9eed0213",
     "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
-    "commonConstraintsSha256": "94af8564d2de9029633983d214d34ff8ba9c86194e9eadb38123d873e51a3190",
-    "dependencyManifestSha256": "32dc5eb478813911e01980c7e6d2b07a834f1e9773e21967793f9da7afe76399",
-    "challengeSuiteSha256": "445921a50cd3a65bccd7d6cba1e62e95514a2943f8881f3805f127b4a75dc8a0"
+    "commonConstraintsSha256": "71323a96a6e088fe5ad0271b873eae3fd369c7e911a913ba75a4b9d0f3f5f588",
+    "dependencyManifestSha256": "58093aef935829030fc00dd47be7c4a7c27a1f2cf178ac9e8b02e26ba555abd3",
+    "challengeSuiteSha256": "b99d12068109284e5a8198d70b42773ae97c568b1f3aa7ab3a65924f87461045"
   },
   "sourceBinding": {
     "rank": 5,
