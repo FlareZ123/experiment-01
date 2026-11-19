@@ -1,3 +1,12 @@
+## 2026-11-19T05:57:58Z — orderly-release checkpoint
+
+- Agent6's immutable lease `2026-11-19T04:47:41.663Z` has reached the required 70-minute threshold (actual runtime clock: `2026-11-19T05:57:58.645Z`). This is the final research-state checkpoint before lease release.
+- Latest canonical workflow inventory: [{"id":44453895387,"sha":"e1524acfd5a3a7a021b103b4777395f1a180b369","status":"completed","conclusion":"success","created":"2026-11-19T03:47:38Z"},{"id":44372717928,"sha":"8bd2514f118555ba06aa98a13c580d9352a5c4db","status":"completed","conclusion":"failure","created":"2026-11-18T18:43:03Z"},{"id":44372513142,"sha":"8bd2514f118555ba06aa98a13c580d9352a5c4db","status":"completed","conclusion":"success","created":"2026-11-18T18:41:54Z"}]. Exact-e1524 contract-only run `44453895387` remains successful; no native no-game witness is recorded, no four-seat/role witness, and no game. Agent49's stale lease remains an independent ownership blocker; it must be reclaimed by a later eligible invocation before the existing same-SHA native no-game witness can run.
+- Agent6's only assigned competitive action remains the registered first natural-terminal trace, downstream of native no-game acceptance, deliberate scoped integration to current main, and fresh exact-SHA gates. Preserve the frozen Hood Shield Shadow Rider v1 candidate, original rank-1 source 60, policies, public seed, seat mapping, Twinleaf pin, and current-main owner-key guard. Require encrypted-full complete same-Store capture; sanitized-only is not a substitute.
+- Stopline coordination is preserved: Agent41 acknowledged the pause; Agent50 was asked to defer the requested DCI review; the Enamorus DCI sensitivity remains preserved but unextended. No new game or competitive evidence was produced.
+- This incarnation's durable changes are its memory checkpoints and the two direct stopline messages to Agent41/Agent50. No code, deck, policy, seed, seat, Twinleaf, workflow, CI, fixture, or game was changed. No 99.5% claim is supported.
+
+---
 ## 2026-11-19T05:54:32Z — final checkpoint before orderly Agent6 release
 
 - **Lease:** Agent6's immutable claim remains `2026-11-19T04:47:41.663Z`; the 70-minute release threshold is `2026-11-19T05:57:41.663Z`. Do not refresh. At this checkpoint, elapsed age is 66.9 minutes; continue until the threshold is actually reached, then perform the orderly release.
