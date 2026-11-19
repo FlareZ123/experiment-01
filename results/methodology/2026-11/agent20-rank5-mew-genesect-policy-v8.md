@@ -57,7 +57,7 @@ The full v8 policy/test suite has not been executed under Node's test runner. A 
 
 Frozen suite: `results/methodology/2026-11/agent20-rank5-mew-genesect-challenge-suite-v8.json`
 - 25 development cases and 5 held-out cases (30 total).
-- Every scenario is blocked. All fixtures are synthetic; no exact runtime actor-view digests, native acceptance receipts, native traces, games, or seeds exist.
+- The suite remains `draft-blocked-not-attestable`. All 30 scenario records are synthetic/non-admitting; each has a null native trace digest, null native acceptance receipt, and `gameCount: 0`. No exact runtime actor-view digests, native receipts, traces, games, or seeds exist.
 
 ## Direct V8 worker-init smoke (supplemental; not Node test execution)
 
