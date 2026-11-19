@@ -1,0 +1,93 @@
+{
+  "schema": "aichi-opponent-policy-dependency-manifest-v1",
+  "policyId": "agent17-rank3-snorlax-stall-opponent-v1",
+  "role": "opponent-policy",
+  "sourceRank": 3,
+  "policyProducerId": "agent17",
+  "bundleProducerId": null,
+  "producerBindingStatus": "prototype only; not inserted into the signed/hash-bound V3 policy plan",
+  "policyModule": {
+    "path": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
+    "gitBlobSha1": "fd16e16fbeb2b3357cfd388ca807624fba4f0f47",
+    "sha256": "91da9f7f4b71050e201463168a9caaf658b58b1feb8d9762b43d25dae998f017",
+    "policyVersion": "agent17-rank3-snorlax-stall-opponent-v1",
+    "config": {
+      "rank": 3,
+      "sourceFingerprint": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+      "candidateFingerprint": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+    },
+    "imports": [],
+    "externalRuntimeDependencies": []
+  },
+  "sourceDeck": {
+    "path": "results/aichi-2026/full-decklists.json",
+    "gitBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "rank": 3,
+    "deckName": "Rank 3 exact source inventory",
+    "physicalCardCount": 60,
+    "fingerprint": {
+      "algorithm": "SHA-256 of canonical JSON for the exact rank-3 deck entry; object keys sorted, arrays preserved, UTF-8",
+      "sha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368"
+    }
+  },
+  "candidateDeck": {
+    "path": "results/aichi-2026/candidate-hood-shadow-rider.json",
+    "gitBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+    "deckName": "Hood Shield Shadow Rider v1",
+    "physicalCardCount": 60,
+    "fingerprint": {
+      "algorithm": "SHA-256 of canonical JSON for the exact candidate file object; object keys sorted, arrays preserved, UTF-8",
+      "sha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+    }
+  },
+  "engine": {
+    "submodulePath": "vendor/twinleafgg",
+    "remote": "https://github.com/twinleafgg/twinleafgg.git",
+    "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "upstreamModified": false,
+    "localPatches": [],
+    "usedInThisPolicyHarness": false
+  },
+  "protocolContract": {
+    "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+    "gitBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+    "sha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
+    "schemas": {
+      "init": "aichi-policy-init-v1",
+      "request": "aichi-policy-request-v2",
+      "observation": "aichi-actor-observation-v3",
+      "prompt": "aichi-owner-prompt-projection-v3",
+      "frontier": "aichi-action-frontier-v1"
+    },
+    "validatorsExecuted": [
+      "validateRequest",
+      "validateDecision"
+    ],
+    "loadedThroughWorkerIpc": false
+  },
+  "testSuite": {
+    "path": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+    "gitBlobSha1": "f9ff74d7f62c85a855018652b3e5a01ee1cfa2f0",
+    "sha256": "c113952e7234105376fb87544924723459f403823460d113978528bf3ffd1e13",
+    "testFramework": "node:test source file",
+    "localExecution": "V8 isolate test shim; not node --test"
+  },
+  "commonConstraints": {
+    "path": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
+    "sha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27"
+  },
+  "repositoryBindings": {
+    "policyCommit": "b50dddf583e30768ee6a01e3fa0a17725c278816",
+    "testCommit": "b92993f94cd21039e6fa109bb9996526c79e06eb",
+    "baselineMainCommitAtInitialInspection": "2a86d357bf5ae699148f0fa7ce74c497e6973d49"
+  },
+  "hashDefinitions": {
+    "fileSha256": "SHA-256 of exact UTF-8 file bytes",
+    "deckFingerprint": "SHA-256 of canonical JSON as described per deck",
+    "manifestSha256": "SHA-256 of exact UTF-8 bytes for this JSON file"
+  },
+  "integrationStatus": "standalone prototype; the Agent49 worker run() currently loads ./policy.cjs, and this module has not been wired into that loader or a policy bundle",
+  "ciStatus": "no workflow added or run",
+  "nativeEvidence": "none",
+  "matchupEvidence": "none"
+}
