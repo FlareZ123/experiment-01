@@ -418,6 +418,42 @@ test('Battle Compressor chooses Ho-Oh plus missing Basic Energy types when one t
   assert.deepEqual(new Set(result.decision.tokens), new Set(['hooh', 'fighting', 'darkness']));
 });
 
+test('Professor Sada energy selection chooses up to two useful Basic Energy cards', () => {
+  const obs = observation({ ownActive: pokemon({ printing: RAGING,
+    subtypes: ['Basic', 'ex', 'Ancient'] }), ownDiscard: [LIGHTNING, FIGHTING, DARKNESS],
+    decisionKind: 'owner-prompt', promptType: 'ChooseEnergyPrompt' });
+  const choices = [
+    energyChoice('l', LIGHTNING, 'Lightning'),
+    energyChoice('f', FIGHTING, 'Fighting'),
+    energyChoice('d', DARKNESS, 'Darkness')
+  ];
+  const p = prompt(0, 'ChooseEnergyPrompt', "Professor Sada's Vitality",
+    "Professor Sada's Vitality PAR 170", choices, {
+      selectionType: 'energy-payment', energyCount: 3, count: 3,
+      energyType: 'Basic Energy', allowCancel: false
+    });
+  const result = runDecision({ obs, promptValue: p });
+  assert.deepEqual(result.decision, { kind: 'select-choices', tokens: ['l', 'f'] });
+});
+
+test('Tapu Koko energy selection takes two Lightning Energy cards', () => {
+  const obs = observation({ ownActive: pokemon({ printing: RAGING,
+    subtypes: ['Basic', 'ex', 'Ancient'] }), ownDiscard: [LIGHTNING, LIGHTNING],
+    decisionKind: 'owner-prompt', promptType: 'ChooseEnergyPrompt' });
+  const choices = [
+    energyChoice('l1', LIGHTNING, 'Lightning'),
+    energyChoice('l2', LIGHTNING, 'Lightning'),
+    energyChoice('f', FIGHTING, 'Fighting')
+  ];
+  const p = prompt(0, 'ChooseEnergyPrompt', 'Dance of the Ancients',
+    'Tapu Koko ◇ TEU 51', choices, {
+      selectionType: 'energy-payment', energyCount: 3, count: 3,
+      energyType: 'Lightning', allowCancel: false
+    });
+  const result = runDecision({ obs, promptValue: p });
+  assert.deepEqual(result.decision, { kind: 'select-choices', tokens: ['l1', 'l2'] });
+});
+
 test('Ho-Oh Rebirth chooses three distinct Basic Energy types', () => {
   const obs = observation({ ownActive: pokemon({ printing: RAGING,
     subtypes: ['Basic', 'ex', 'Ancient'] }), ownDiscard: [HOOH, LIGHTNING, FIGHTING, DARKNESS],
@@ -529,6 +565,38 @@ test('Quick Ball discard protects DDE and singleton Supporters', () => {
   assert.equal(result.decision.tokens.length, 1);
   assert.notEqual(result.decision.tokens[0], 'dde');
   assert.notEqual(result.decision.tokens[0], 'sada');
+});
+
+test('Hisuian Heavy Ball does not guess hidden prize identities', () => {
+  const obs = observation({ decisionKind: 'owner-prompt', promptType: 'ChoosePrizePrompt' });
+  const hiddenChoices = [
+    { token: 'p1', kind: 'prize', label: 'Prize 1',
+      publicMetadata: { selectionIndex: 0, selectedCount: 1, ownerSeat: 'actor', isOwnerVisible: false } },
+    { token: 'p2', kind: 'prize', label: 'Prize 2',
+      publicMetadata: { selectionIndex: 1, selectedCount: 1, ownerSeat: 'actor', isOwnerVisible: false } }
+  ];
+  const hiddenPrompt = prompt(0, 'ChoosePrizePrompt', 'Hisuian Heavy Ball',
+    'Hisuian Heavy Ball ASR 146', hiddenChoices, {
+      selectionType: 'prize-slots', requiredCount: 1, allowCancel: false
+    });
+  const hidden = runDecision({ obs, promptValue: hiddenPrompt });
+  assert.deepEqual(hidden.decision, {
+    kind: 'abstain', reasonCode: 'NO_VISIBLE_BASIC_POKEMON_PRIZE'
+  });
+
+  const visibleChoices = [
+    { token: 'raging', kind: 'prize', label: RAGING, printing: RAGING,
+      publicMetadata: { selectionIndex: 0, selectedCount: 1, ownerSeat: 'actor', isOwnerVisible: true } },
+    { token: 'sada', kind: 'prize', label: "Professor Sada's Vitality PAR 170",
+      printing: "Professor Sada's Vitality PAR 170",
+      publicMetadata: { selectionIndex: 1, selectedCount: 1, ownerSeat: 'actor', isOwnerVisible: true } }
+  ];
+  const visiblePrompt = prompt(0, 'ChoosePrizePrompt', 'Hisuian Heavy Ball',
+    'Hisuian Heavy Ball ASR 146', visibleChoices, {
+      selectionType: 'prize-slots', requiredCount: 1, allowCancel: false
+    });
+  const visible = runDecision({ obs, promptValue: visiblePrompt });
+  assert.deepEqual(visible.decision, { kind: 'select-choices', tokens: ['raging'] });
 });
 
 test('unsupported native prompt types fail closed', () => {
