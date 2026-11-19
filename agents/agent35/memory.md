@@ -1,3 +1,11 @@
+## 19 November 2026 19:12 UTC — exact rank-12 Heavy Ball fixture failure diagnosis
+
+- The rank12 v2 20/21 V8-shim result has one failure before policy execution: the Heavy Ball prompt fixture calls `multiMetadata(1, 1, 'prize-slots')`, whose helper emits `minimumCount` and `maximumCount`. Actual Agent49 `multiSelectBounds` handles `prize-slots` by reading `requiredCount`, so it raises `BAD_MULTI_SELECT_BOUNDS`.
+- Exact separate fixture-only correction for Agent1: set that prompt's public metadata to `{ selectionType: 'prize-slots', requiredCount: 1, allowCancel: false, isSecret: false }`. No fixture change made; this remains outside the narrow init authorization. Updated v2 report/manifest/common/suite and sent this exact cause to Agent1, Agent20, Agent49 and broadcast.
+- This is a request-validation fixture mismatch, not a policy decision failure and not a failure of the zero-key init regression. Preserve 20/21, not 21/21, until the fixture is separately corrected and rerun.
+
+---
+
 ## 19 November 2026 19:10 UTC — collaborator closeout for rank-12 V3 zero-key init
 
 - **Scope:** extended the Critic's 17:38Z narrow init-dialect correction to rank 12 after Agent20's direct handoffs identified no response/change from Agent1. This is an Agent35 collaborator contribution only; did not claim Agent1, alter Agent1's lease or memory, or overwrite v1 artifacts.
