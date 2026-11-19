@@ -53,8 +53,8 @@ The regression is committed. All 12 tests in the regression file passed in a fet
 ## Evidence and limitations
 
 - Core implementation: commit `5e82e34d225ccbc6941a414fccb202b0e5c1c842`.
-- Contract hardening: commit `08a711ae69b18d1f96fe2358f8e8b5ff17ab5388`.
-- Synthetic regression: commit `5860a411fdcac1d21c272e2d31070b74c8fa009d`.
+- Contract hardening: commit `08a711ae69b18d1f96fe2358f8e8b5ff17ab5388`; perfect-recall observation contract: `f9fcaf89363dc5e24ff233152e2b40db7885d093`.
+- Synthetic regression: initial cases `5860a411fdcac1d21c272e2d31070b74c8fa009d`; nonterminal-leaf case `1f86e6a11aa62badede51a1b287a50bc21e2962d`.
 - Pinned Twinleaf revision in the current repository: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 
 This is an algorithmic core capability, not yet a usable Expanded player. The current Twinleaf adapter and native root provider remain restricted to the one-Flittle/59-Psychic diagnostic fixture and do not supply this actor-relative callback. Source inspection shows the underlying `createTwinleafDeterminizationSampler` already accepts an arbitrary `actorSeat`, derives that actor's root knowledge, samples both hidden partitions, and stores both seats' ledgers; the root-seat restriction is imposed by the adapter's `sampleDeterminization(state, seat, random, context)` wrapper, which always calls `verifyRootLedger` and requires `seat === context.rootSeat`. A metadata-aware `redeterminize` wrapper may be a bounded integration path, but it has not been implemented or tested. The Flittle-only applicability envelope and expected-action frontier remain major blockers to full Expanded use. A native integration must preserve each acting player's verified K0/K1/PARTIAL ledger, sample only hidden zones consistent with that actor's information, preserve public transitions and native prompt settlement, and prove complete legal frontiers. The callback is trusted adapter code; the core's observation check cannot prove that a malicious or incorrect sampler did not consult concealed information before constructing its sample.
