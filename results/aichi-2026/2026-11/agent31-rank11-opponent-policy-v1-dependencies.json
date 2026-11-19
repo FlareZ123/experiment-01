@@ -36,10 +36,10 @@
   },
   "test": {
     "path": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
-    "gitBlobSha1": "0e5b1264681cd35aec353f427969ab034e916dbf",
-    "sha256": "eb6084e8462007b40e1e3f1874e98a90135974e535e40b275972e1eca560fa95",
-    "cases": 28,
-    "passed": 28,
+    "gitBlobSha1": "770d6e1203d7828a1ffbb54fb0b988245426106a",
+    "sha256": "793ad997aa00f704c3efd676c0d1fb6db3b4bbc24cf1d1153526a797396ac95b",
+    "cases": 29,
+    "passed": 29,
     "failed": 0,
     "execution": "test source evaluated in an isolated V8 harness with Node builtin shims; actual Agent49 worker module and validateInit/validateRequest/validateDecision functions executed",
     "nodeTestRunnerExecuted": false
@@ -67,7 +67,7 @@
     "qualification": "not paper-qualified; no matchup games"
   },
   "evidence": {
-    "syntheticTestsPassed": 28,
+    "syntheticTestsPassed": 29,
     "syntheticTestsFailed": 0,
     "nativeStagedCases": 0,
     "nativeGames": 0,

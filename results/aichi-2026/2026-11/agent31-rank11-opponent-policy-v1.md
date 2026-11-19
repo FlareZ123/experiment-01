@@ -28,25 +28,26 @@ The module is deterministic, takes only the V3 actor-visible request, accepts se
 
 The first policy priorities are:
 1. Early Battle VIP Pass / Quick Ball setup for Trubbish, Oranguru V, and Mega Absol.
-2. Oranguru V's Back Order search for Forest Seal Stone and Float Stone.
-3. Boost Shake into Garbodor when Trubbish is present, with Tool placement treated as part of the Garbotoxin setup.
-4. Mega Absol pressure, using Terminal Period only at exactly 60 damage counters; Claw of Darkness also chooses a high-priority card from the opponent's revealed hand.
-5. Squawkabilly ex Motivate and Trubbish Call for Family sequencing to build the Mega Absol attack line.
-6. Retreat only when Mega Absol has a payable attack line; Dark Patch energy placement, Marnie disruption, Guzma target selection, and protected discard choices.
-7. Abstention when prompt types or target identity are not sufficiently represented.
+2. Professor's Letter search for up to two Basic Darkness Energy when the hand needs energy.
+3. Oranguru V's Back Order search for Forest Seal Stone and Float Stone.
+4. Boost Shake into Garbodor when Trubbish is present, with Tool placement treated as part of the Garbotoxin setup.
+5. Mega Absol pressure, using Terminal Period only at exactly 60 damage counters; Claw of Darkness also chooses a high-priority card from the opponent's revealed hand.
+6. Squawkabilly ex Motivate and Trubbish Call for Family sequencing to build the Mega Absol attack line.
+7. Retreat only when Mega Absol has a payable attack line; Dark Patch energy placement, Marnie disruption, Guzma target selection, and protected discard choices.
+8. Abstention when prompt types or target identity are not sufficiently represented.
 
 These are policy heuristics, not validated claims of competitive strength.
 
 ## Validation
 
-**28/28 deterministic test cases passed** in an isolated V8 harness. The harness evaluated the committed test source with Node builtin shims while invoking the actual Agent49 worker module and its `validateInit`, `validateRequest`, and `validateDecision` validators. It also checked the exact source-list and candidate fingerprints.
+**29/29 deterministic test cases passed** in an isolated V8 harness. The harness evaluated the committed test source with Node builtin shims while invoking the actual Agent49 worker module and its `validateInit`, `validateRequest`, and `validateDecision` validators. It also checked the exact source-list and candidate fingerprints.
 
 This was not a Node `--test` runner execution, a Twinleaf execution, a native staged action, or a game. No native receipt, full-match transcript, matchup result, win-rate estimate, or 99.5% evidence exists.
 
 - Policy SHA-256: `42169e20d7b4bbc2d1781a5911c4e5b8cc9d350f16cde4cf8dd00be1216873d6`
-- Test SHA-256: `eb6084e8462007b40e1e3f1874e98a90135974e535e40b275972e1eca560fa95`
-- Dependency manifest SHA-256: `f2421785cde37d8f6f6ed6f8f28b876ceb782bab52e67a2abdf74ed5d8c05324`
-- Challenge suite SHA-256: `997c6c0d33c1bee5a10d67b736a21dc5c76e641ad4a80a6531cf652a911a1725`
+- Test SHA-256: `793ad997aa00f704c3efd676c0d1fb6db3b4bbc24cf1d1153526a797396ac95b`
+- Dependency manifest SHA-256: `833899b5be3575c1b647cc7720fcb73c032ca32ae3c7a26845a1f761c1098c5d`
+- Challenge suite SHA-256: `866e727249750e7822242c739f7837f921c2bb7e8f393796010b73c9b66c97d8`
 
 ## Native integration gate
 
@@ -56,7 +57,7 @@ The current Agent49 protocol-v3 document marks the persistent async fixture loop
 
 ## Development and held-out coverage
 
-The suite records twelve synthetic development cases with full actor-packet digests and four unexecuted held-out review cases. The held-out cases target seat-1 parity, Secret Box category selection, Tool-less Boost Shake, and Claw of Darkness damage conversion. They are not counted as passed tests.
+The suite records thirteen synthetic development cases with full actor-packet digests and four unexecuted held-out review cases. The held-out cases target seat-1 parity, Secret Box category selection, Tool-less Boost Shake, and Claw of Darkness damage conversion. They are not counted as passed tests.
 
 ## Next work
 

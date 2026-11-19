@@ -36,10 +36,10 @@
   },
   "dependencies": {
     "manifestPath": "results/aichi-2026/2026-11/agent31-rank11-opponent-policy-v1-dependencies.json",
-    "manifestSha256": "f2421785cde37d8f6f6ed6f8f28b876ceb782bab52e67a2abdf74ed5d8c05324",
+    "manifestSha256": "833899b5be3575c1b647cc7720fcb73c032ca32ae3c7a26845a1f761c1098c5d",
     "policyTestPath": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
-    "policyTestGitBlobSha1": "0e5b1264681cd35aec353f427969ab034e916dbf",
-    "policyTestSha256": "eb6084e8462007b40e1e3f1874e98a90135974e535e40b275972e1eca560fa95",
+    "policyTestGitBlobSha1": "770d6e1203d7828a1ffbb54fb0b988245426106a",
+    "policyTestSha256": "793ad997aa00f704c3efd676c0d1fb6db3b4bbc24cf1d1153526a797396ac95b",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "engineSubmodulePath": "vendor/twinleaf",
@@ -861,6 +861,83 @@
         "status": "synthetic-only"
       },
       "disposition": "synthetic-pass; native execution and matchup outcome not established"
+    },
+    {
+      "caseId": "r11-professors-letter-energy-search",
+      "objective": "Play Professor's Letter when Darkness Energy is missing and select up to two Basic Darkness Energy from the deck.",
+      "evidenceClass": "synthetic-actor-view",
+      "sourceBinding": {
+        "sourceRank": 11,
+        "sourcePlayer": "Wataru Yano",
+        "sourceArchetype": "Mega Absol / Garbodor",
+        "sourceListPath": "results/aichi-2026/full-decklists.json",
+        "sourceListGitBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "sourceEntryJsonSha256": "0da7b283f0416c883eda2825267a8e51e2d3b55ec130a2103da6539d04b350e6",
+        "sourceEntryHashMethod": "SHA-256 over UTF-8 JSON.stringify(parsed rank-11 entry), preserving source key and card-row order",
+        "sourceCardCount": 60,
+        "candidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateGitBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "candidateEntryJsonSha256": "4c18dd93ba49fd8f7d88aad573249dc6941b4cf61d52b99f80309345b5d58c59",
+        "candidateHashMethod": "SHA-256 over UTF-8 JSON.stringify(parsed complete candidate JSON object)",
+        "engineSubmodulePath": "vendor/twinleaf",
+        "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+      },
+      "actorView": {
+        "digestAlgorithm": "SHA-256",
+        "actorPacketDigest": "977a57a71b8dbe0a7b18beda9244912404070a9b6d219f4a3906833554f6f97e",
+        "actorViewDigest": "977a57a71b8dbe0a7b18beda9244912404070a9b6d219f4a3906833554f6f97e",
+        "actorPacketDigests": [
+          "93565479988457d2a4656e0a1ecca4041adedde846e56e16cc8129d92280bc54",
+          "704ee87d55b2dac63e10d38cfc9d73fc52932e879f1f3bcc2052d3dcbb94eeaa"
+        ],
+        "requestCount": 2,
+        "digestScope": "SHA-256(UTF-8 JSON.stringify(ordered array of full V3 decision requests))",
+        "fixtureRef": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs"
+      },
+      "decisionEnvelope": {
+        "expectedDecisionSequence": [
+          {
+            "kind": "select-action",
+            "token": "letter"
+          },
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "dark1",
+              "dark2"
+            ]
+          }
+        ],
+        "expectedDecisionKind": [
+          "select-action",
+          "select-choices"
+        ]
+      },
+      "costLedger": {
+        "policyDecisionCalls": 2,
+        "engineCalls": 0,
+        "stagedNativeCases": 0,
+        "nativeGames": 0,
+        "wallClockMs": null,
+        "measurement": "deterministic unit fixture; no engine execution"
+      },
+      "promptCoverage": [
+        "owner-root",
+        "ChooseCardsPrompt",
+        "Professor's Letter",
+        "Basic Darkness Energy"
+      ],
+      "executionEvidence": {
+        "testFile": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
+        "testName": "Professor's Letter searches two Basic Darkness Energy when the hand needs energy",
+        "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+        "policyBlobSha1": "2c9792bec345bc3ce85fa3cddc2750bc779f0bab",
+        "protocolValidation": "passed through actual Agent49 V3 validator functions",
+        "nativeActionReceipt": null,
+        "nativeTraceDigest": null,
+        "status": "synthetic-only"
+      },
+      "disposition": "synthetic-pass; native execution and matchup outcome not established"
     }
   ],
   "heldOutReviewCases": [
@@ -1087,10 +1164,10 @@
     }
   ],
   "evidenceSummary": {
-    "syntheticUnitTests": 28,
-    "syntheticUnitTestsPassed": 28,
+    "syntheticUnitTests": 29,
+    "syntheticUnitTestsPassed": 29,
     "syntheticUnitTestsFailed": 0,
-    "developmentCaseCount": 12,
+    "developmentCaseCount": 13,
     "heldOutReviewCaseCount": 4,
     "nativeStagedCases": 0,
     "nativeGames": 0,
