@@ -134,11 +134,11 @@
   },
   "testSuite": {
     "path": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "gitBlobSha1": "65a3b93b2ddd9cc49c21de1e9d35daa35e93bc39",
-    "sha256": "b52cb170355fdaa707703f9fa4e152bcf1664b8b3875ca65a91fea8f7abee522",
+    "gitBlobSha1": "516e95b4f135dda2650a84451e3f37fbaf02c64c",
+    "sha256": "54ae9212698d581b8b1b47e4fc6aa54b7110c6ae62cfe0923ea597e8327467d5",
     "testFramework": "node:test source file",
     "localExecution": "V8 isolate test shim; not node --test",
-    "testCount": 48
+    "testCount": 49
   },
   "commonConstraints": {
     "path": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
@@ -146,9 +146,9 @@
   },
   "repositoryBindings": {
     "policyCommit": "e0dbf9291bee74552a688012ba4ae9dd477b443e",
-    "testCommit": "dae5fb179f2b5d4760b0f37a92375f347b7b2325",
+    "testCommit": "3ee514e40f32967d8431d118e3c09cea91be4fa2",
     "baselineMainCommitAtInitialInspection": "2a86d357bf5ae699148f0fa7ce74c497e6973d49",
-    "currentMainAtManifestUpdate": "dae5fb179f2b5d4760b0f37a92375f347b7b2325"
+    "currentMainAtManifestUpdate": "f3e72b66bdb87c1a262be80b22d728a2b212cf86"
   },
   "hashDefinitions": {
     "fileSha256": "SHA-256 of exact UTF-8 file bytes",
