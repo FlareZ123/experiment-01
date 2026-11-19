@@ -265,6 +265,14 @@ function sourceCopiesRemaining(observation, pattern) {
   return Math.max(0, entry[1] - seen);
 }
 
+function hasUnseenArvenSearchTargets(observation) {
+  // A zero remainder proves there is no Item/Tool target outside visible zones.
+  // A positive remainder is only a possibility because unknown Prizes are hidden.
+  const itemPossible = ITEM_PATTERNS.some(pattern => sourceCopiesRemaining(observation, pattern) > 0);
+  const toolPossible = TOOL_PATTERNS.some(pattern => sourceCopiesRemaining(observation, pattern) > 0);
+  return itemPossible && toolPossible;
+}
+
 function hasBasicBenchSpace(observation) {
   return list(observation?.ownPublic?.bench).some(slot => slot === null);
 }
@@ -326,7 +334,8 @@ function scoreSearchCard(printing, observation, context = '') {
       const targets = lusamineTargetCount(observation);
       return targets >= 2 ? 180 : targets === 1 ? 100 : 0;
     }
-    if (matches(printing, PRINT.arven)) return !boardHasTool(own, PRINT.toolJammer) ? 155 : 95;
+    if (matches(printing, PRINT.arven)) return hasUnseenArvenSearchTargets(observation) ?
+      (!boardHasTool(own, PRINT.toolJammer) ? 155 : 95) : 0;
     if (matches(printing, PRINT.lillie)) return list(observation.ownHand).length <= 3 ? 130 : 0;
     if (matches(printing, PRINT.penny)) {
       return slots(own).some(row => row.pokemon.damage > 0 &&
@@ -341,7 +350,7 @@ function scoreSearchCard(printing, observation, context = '') {
         opponentHasSpecialEnergy(observation.opponentPublic) ||
         stadiumsInPlay(observation).length > 0 ? 190 : 0;
     }
-    if (matches(printing, PRINT.arven)) return 190;
+    if (matches(printing, PRINT.arven)) return hasUnseenArvenSearchTargets(observation) ? 190 : 0;
     if (matches(printing, PRINT.plumeria)) {
       return playerEnergyCount(observation.opponentPublic) > 0 &&
         list(observation.ownHand).length >= 3 ? 170 : 0;
@@ -635,6 +644,7 @@ function scoreAction(item, request) {
     PRINT.lillie].some(pattern => matches(card, pattern))) {
     if (!supporterAvailable(observation)) return 0;
     if (matches(card, PRINT.arven)) {
+      if (!hasUnseenArvenSearchTargets(observation)) return 0;
       return !boardHasTool(own, PRINT.toolJammer) ? 175 : 95;
     }
     if (matches(card, PRINT.faba)) return opponentHasAnyTool(observation) ||
