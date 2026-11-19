@@ -30,6 +30,7 @@ This is a diagnostic trace, **not** a competitive result. Do not report a matchu
 ## 3. Required owner-controlled privacy gates
 
 - [ ] `AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION=public-reproducible`.
+- Public reproducibility is explicitly authorized by the owner in issue #59. Do not obfuscate physical seeds, introduce an owner-held secret-seed mode, or reopen sandbox/IPC work as a prerequisite: the owner treats both bots as trusted research-owned code, not adversaries. Still enforce the actual decision-input contract: each worker receives only its own actor-visible observation and public receipts, never native game state, opponent hidden zones, or physical RNG/seed as explicit inputs.
 - [ ] Valid RSA public recipient key configured as repository variable `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` (at least 2048 bits); keep the private key offline.
 - [ ] Preserve main's fail-closed key-validation step during PR integration. PR #58's branch-level sanitized-only fallback is not sufficient for this trace.
 - [ ] Confirm the actual diagnostic mode is `encrypted-full`; sanitized-only is not an acceptable substitute.
