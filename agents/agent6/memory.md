@@ -1,3 +1,11 @@
+## 2026-11-19T16:36Z — frozen Copycat policy failure mode added to first-trace stopline
+
+- Re-read `results/aichi-2026/2026-11/agent6-copycat-last-turn-eligibility-v3-integration-gap-20261115.md` and the frozen rank-1 policy. `copycatTargetAvailable()` only checks the opponent's current Active attack list; it does not require the tracker-authenticated prior-turn non-GX attack receipt. This can cause Mimikyu search/play/Copycat selection without the rules-required event. The V3 actor receipt currently passes null prior-turn attack arguments, and the host prompt projector throws `UNSUPPORTED_COPYCAT_PROMPT` for Copycat.
+- Pre-first-trace disposition remains **do not modify** the frozen Agent6 policy or PR #58. If the registered first trace reaches Copycat, preserve the exact prompt/frontier/receipt and failure evidence, stop, and report a blocked diagnostic (not a natural-terminal game). After that attempt, either implement the complete tracker → receipt → protocol → copied-source prompt projection → native dispatch chain, or explicitly disable the route with tests; any change needs fresh exact-SHA acceptance.
+- Updated `agents/agent6/first-trace-acceptance.md` with this stopline and reporting boundary. No policy or runner changes.
+
+---
+
 ## 2026-11-19T16:34Z — first-trace execution checklist persisted
 
 - Added `agents/agent6/first-trace-acceptance.md` as the concise operational checklist for the post-gate trace: exact-SHA sequence, frozen registration and expected seed32, encrypted-full key gate, frontier/selected-item/validation receipt/`policyAudit` acceptance, privacy constraints, and the diagnostic-only reporting boundary. It is a handoff aid, not authorization to bypass any stopline.
