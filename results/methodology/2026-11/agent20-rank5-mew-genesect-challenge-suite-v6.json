@@ -1,0 +1,2635 @@
+{
+  "schema": "aichi-policy-challenge-suite-v1",
+  "suiteId": "agent20-rank5-mew-genesect-opponent-v6",
+  "version": 6,
+  "createdAtUtc": "2026-11-19T14:11:39.614Z",
+  "frozenAtUtc": "2026-11-19T14:11:39.614Z",
+  "frozenBeforeConfirmatoryOutcomes": true,
+  "author": "Agent20",
+  "status": "draft-blocked-not-attestable",
+  "role": "opponent",
+  "sourceRank": 5,
+  "sourceDeck": {
+    "path": "results/aichi-2026/full-decklists.json",
+    "blobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "printed60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+    "physicalCards": 60,
+    "unchanged": true
+  },
+  "candidateDeck": {
+    "path": "results/aichi-2026/candidate-hood-shadow-rider.json",
+    "blobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+    "fingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+    "unchanged": true
+  },
+  "engine": {
+    "submodulePath": "vendor/twinleaf",
+    "remote": "https://github.com/twinleafgg/twinleafgg.git",
+    "pinnedRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+  },
+  "policy": {
+    "path": "simulation/evaluation/2026-11/agent20-rank5-mew-genesect-opponent-policy.cjs",
+    "gitBlobSha1": "86e611bc4ff6468e5289356bb4560e80b5156983",
+    "sha256": "2d45fca8ddd8b1080fd4d8d14abf1fb26743d3fd1235ac5dd55cb4d674be0693",
+    "version": "agent20-rank5-mew-genesect-opponent-v6"
+  },
+  "dependencyManifest": {
+    "path": "results/methodology/2026-11/agent20-rank5-mew-genesect-dependency-manifest-v6.json",
+    "gitBlobSha1": "0ba7a1787ad21da983018bbb67aadd20cd393bda",
+    "sha256": "6839b2994b2349a46f763d4288c53743bf09d11a93fda375a29a7f631f221673"
+  },
+  "commonConstraints": {
+    "path": "results/methodology/2026-11/agent20-rank5-mew-genesect-common-constraints-v6.json",
+    "gitBlobSha1": "e57dbe5a032fe439b795e5b2be5d82b910dd2716",
+    "sha256": "40b719d7c4fb2b61c74c21dde185f0c4e020204be97ee3c42412c0735e662f64"
+  },
+  "workerProtocol": {
+    "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+    "gitBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+    "sha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751"
+  },
+  "testFile": {
+    "path": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+    "gitBlobSha1": "0e991a797ff862f2fd673396bc5d36686d4e2b93",
+    "sha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+    "status": "authored-not-run"
+  },
+  "producerBindings": {
+    "candidatePolicyProducerId": null,
+    "opponentPolicyProducerIdByRank": {
+      "5": "agent20-rank5-mew-genesect-opponent-v6"
+    },
+    "bundleProducerId": null,
+    "completeProducerIdSet": [
+      "agent20-rank5-mew-genesect-opponent-v6"
+    ],
+    "producerIdSetComplete": false,
+    "bindingLocation": "local diagnostic manifest only; not inserted into the canonical Agent36 V3 policy-plan core"
+  },
+  "split": {
+    "developmentCaseIds": [
+      "R5-FSS-DRAW",
+      "R5-NATURAL-MEW-VMAX",
+      "R5-WALLY-SAME-TURN",
+      "R5-DCE-MEW-VMAX",
+      "R5-GENESECT-ENGINE",
+      "R5-CROSS-FUSION-TECHNO",
+      "R5-COPIED-ENERGY-MIX",
+      "R5-GUZMA-KO-TARGET",
+      "R5-SPECIAL-CHARGE",
+      "R5-ULTRA-BALL-COST",
+      "R5-PATH-TO-PEAK",
+      "R5-SPECIAL-RED-CARD",
+      "R5-TYPED-COST-NEGATIVE",
+      "R5-VIP-PASS",
+      "R5-QUICK-BALL-DISCARD",
+      "R5-UNKNOWN-PROMPT",
+      "R5-SECRET-BOX-FOUR-CATEGORY",
+      "R5-SECRET-BOX-MISSING-CATEGORY",
+      "R5-LAST-MEW-VMAX-DISCARD",
+      "R5-GUZMA-MUSCLE-BAND-230",
+      "R5-STAR-ALCHEMY-ACTION",
+      "R5-STAR-ALCHEMY-MEW-VMAX-SEARCH",
+      "R5-STAR-ALCHEMY-DCE-SEARCH",
+      "R5-STAR-ALCHEMY-VSTAR-SPENT"
+    ],
+    "heldOutReviewCaseIds": [
+      "R5-HO-GUZMA-VMAX-KO",
+      "R5-HO-PATH-FUTURE-DRAW",
+      "R5-HO-ENERGY-MIX-WHIFF",
+      "R5-HO-SECRET-BOX-FOUR-CATEGORY",
+      "R5-HO-SEAT1-PROMPT"
+    ],
+    "developmentCount": 24,
+    "heldOutCount": 5
+  },
+  "scenarios": [
+    {
+      "caseId": "R5-FSS-DRAW",
+      "split": "development",
+      "title": "Fusion Strike System draws only while hand is below the Fusion Strike board count",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Genesect V FST 185"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "ownBoard": [
+            "Mew V FST 113",
+            "Genesect V FST 185"
+          ],
+          "ownHandCount": 1,
+          "globalTurn": 3,
+          "actionFrontier": [
+            "use-ability:Fusion Strike System",
+            "pass"
+          ]
+        },
+        "fixtureDescriptorSha256": "4e4ac6370ca233187467b2a16c945903d6a069ff315c68a0de9b020f5ec9f8f7",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "FSS may be selected only when hand size is below Fusion Strike Pokémon count.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "use Cross Fusion Strike donor attack cost as an additional payment",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
+        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "owner-root"
+        ],
+        "selectionBounds": "as declared by the owner prompt; exact bounds are in the test fixture or held-out plan",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "Fusion Strike System draws only while hand is below the Fusion Strike board count",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+      }
+    },
+    {
+      "caseId": "R5-NATURAL-MEW-VMAX",
+      "split": "development",
+      "title": "Mew VMAX natural evolution is prioritized over generic Pokémon deployment",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Mew V FST 113",
+          "Mew VMAX FST 114"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "ownActive": "Mew V FST 113",
+          "mewVLastPlayedTurn": 2,
+          "globalTurn": 3,
+          "ownHand": [
+            "Mew VMAX FST 114"
+          ],
+          "actionFrontier": [
+            "play-card:Mew VMAX FST 114"
+          ]
+        },
+        "fixtureDescriptorSha256": "54c67065331485b6c1ad7f2462c2fa96ec5c5e6eb4d8db6d0b693baffb7a1a32",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Natural evolution requires a Mew V from an earlier turn and a legal frontier token.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "use Cross Fusion Strike donor attack cost as an additional payment",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
+        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "owner-root"
+        ],
+        "selectionBounds": "as declared by the owner prompt; exact bounds are in the test fixture or held-out plan",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "Mew VMAX natural evolution is prioritized over generic Pokémon deployment",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+      }
+    },
+    {
+      "caseId": "R5-WALLY-SAME-TURN",
+      "split": "development",
+      "title": "Wally is used only for a same-turn Mew V evolution opportunity",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Mew V FST 113",
+          "Wally ROS 94",
+          "Mew VMAX FST 114"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "ownActive": "Mew V FST 113",
+          "mewVLastPlayedTurn": 3,
+          "globalTurn": 3,
+          "ownHand": [
+            "Wally ROS 94"
+          ],
+          "supporterPlayedTurn": 0
+        },
+        "fixtureDescriptorSha256": "7d1218aa3eda96043826d72b5a3eccb9a7e9416861fcabca6c30cb21b4b938e2",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Wally is a Supporter and its same-turn exception must be preserved.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "use Cross Fusion Strike donor attack cost as an additional payment",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
+        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "owner-root",
+          "ChooseCardsPrompt"
+        ],
+        "selectionBounds": "as declared by the owner prompt; exact bounds are in the test fixture or held-out plan",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "Wally is used only for a same-turn Mew V evolution opportunity",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+      }
+    },
+    {
+      "caseId": "R5-DCE-MEW-VMAX",
+      "split": "development",
+      "title": "Double Colorless Energy is attached to Mew VMAX before Genesect",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Mew VMAX FST 114",
+          "Double Colorless Energy SUM 136"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "ownActive": "Mew VMAX FST 114",
+          "ownEnergies": [],
+          "ownHand": [
+            "Double Colorless Energy SUM 136"
+          ],
+          "actionFrontier": [
+            "play-card:DCE->Mew VMAX"
+          ]
+        },
+        "fixtureDescriptorSha256": "edcb3db959f08357088ac43efe19160115d45e156f000a6c6dc0ff88acf8c88b",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "One DCE supplies the two Colorless units required by Cross Fusion Strike.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "use Cross Fusion Strike donor attack cost as an additional payment",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
+        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "owner-root"
+        ],
+        "selectionBounds": "as declared by the owner prompt; exact bounds are in the test fixture or held-out plan",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "Double Colorless Energy is attached to Mew VMAX before Genesect",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+      }
+    },
+    {
+      "caseId": "R5-GENESECT-ENGINE",
+      "split": "development",
+      "title": "Genesect V is deployed as a second Fusion Strike System engine",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Mew V FST 113",
+          "Genesect V FST 185"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "ownActive": "Mew V FST 113",
+          "ownBench": [],
+          "ownHand": [
+            "Genesect V FST 185"
+          ],
+          "actionFrontier": [
+            "play-card:Genesect V"
+          ]
+        },
+        "fixtureDescriptorSha256": "6643dc3d3be852c53e179ee3ab06e9c6ea5147b85fbb848a08e01f264dbc5d20",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Prioritize a second Genesect while the bench has room.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "use Cross Fusion Strike donor attack cost as an additional payment",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
+        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "owner-root"
+        ],
+        "selectionBounds": "as declared by the owner prompt; exact bounds are in the test fixture or held-out plan",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "Genesect V is deployed as a second Fusion Strike System engine",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+      }
+    },
+    {
+      "caseId": "R5-CROSS-FUSION-TECHNO",
+      "split": "development",
+      "title": "Cross Fusion Strike selects the Genesect Techno Blast donor",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Mew VMAX FST 114",
+          "Genesect V FST 185"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "ownActive": "Mew VMAX FST 114",
+          "ownAttached": [
+            "Double Colorless Energy SUM 136"
+          ],
+          "ownBench": [
+            "Genesect V FST 185"
+          ],
+          "choices": [
+            "Techno Blast",
+            "Energy Mix",
+            "Psychic Leap"
+          ]
+        },
+        "fixtureDescriptorSha256": "609ded023c2e8fa8c7a13f70640d3a62014e980629893115e26a149eda2f86ff",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "The donor attack is selected under Cross Fusion Strike; its printed Metal cost is not paid again.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "use Cross Fusion Strike donor attack cost as an additional payment",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
+        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "ChooseAttackPrompt"
+        ],
+        "selectionBounds": "as declared by the owner prompt; exact bounds are in the test fixture or held-out plan",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "Cross Fusion Strike selects the Genesect Techno Blast donor",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+      }
+    },
+    {
+      "caseId": "R5-COPIED-ENERGY-MIX",
+      "split": "development",
+      "title": "Copied Energy Mix selects DCE and attaches it to an unpowered Mew VMAX",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Mew VMAX FST 114",
+          "Mew V FST 113",
+          "Double Colorless Energy SUM 136"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "ownActive": "Mew VMAX FST 114",
+          "ownBench": [
+            "Mew V FST 113",
+            "Genesect V FST 185"
+          ],
+          "ownDeckChoice": [
+            "Double Colorless Energy SUM 136"
+          ],
+          "ownFusionStrikeTargets": [
+            "Mew VMAX FST 114",
+            "Mew V FST 113",
+            "Genesect V FST 185"
+          ]
+        },
+        "fixtureDescriptorSha256": "5ce8deb271a8538ef7b29bc9411364e781cde462ff3192807e930a2100ba04d5",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Energy Mix is not assumed payable directly by Mew V; this case is specifically a Cross Fusion Strike copy.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "use Cross Fusion Strike donor attack cost as an additional payment",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
+        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "ChooseEnergyPrompt",
+          "ChoosePokemonPrompt"
+        ],
+        "selectionBounds": "as declared by the owner prompt; exact bounds are in the test fixture or held-out plan",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "Copied Energy Mix selects DCE and attaches it to an unpowered Mew VMAX",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+      }
+    },
+    {
+      "caseId": "R5-GUZMA-KO-TARGET",
+      "split": "development",
+      "title": "Guzma selects a vulnerable prize target",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Guzma BUS 115",
+          "Shadow Rider Calyrex V CRE 74"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "ownBoard": {
+            "active": "Mew VMAX FST 114",
+            "attached": [
+              "Double Colorless Energy SUM 136"
+            ],
+            "bench": [
+              "Genesect V FST 185"
+            ]
+          },
+          "opponentBench": [
+            {
+              "printing": "Shadow Rider Calyrex V CRE 74",
+              "hp": 210,
+              "damage": 0,
+              "prizes": 2
+            },
+            {
+              "printing": "Shadow Rider Calyrex VMAX CRE 75",
+              "hp": 320,
+              "damage": 0,
+              "prizes": 3
+            }
+          ],
+          "expectedDamage": 210
+        },
+        "fixtureDescriptorSha256": "5f78bcc64014ce740ad31dd767873670786a5c5adab5b4667e701dfbce6e248f",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Choose the 210-HP Shadow Rider V only when the actor's public board proves Cross Fusion Strike can copy a Benched Genesect Techno Blast for 210 damage; do not assume Muscle Band unless visibly attached.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "use Cross Fusion Strike donor attack cost as an additional payment",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy; active Mew VMAX has one attached DCE; Benched Genesect V provides the Techno Blast donor.",
+        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
+        "donorAttack": "Techno Blast base damage 210; add 20 only when Muscle Band is visibly attached to active Mew VMAX.",
+        "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "ChoosePokemonPrompt"
+        ],
+        "selectionBounds": "as declared by the owner prompt; exact bounds are in the test fixture or held-out plan",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "Guzma selects a vulnerable prize target",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+      }
+    },
+    {
+      "caseId": "R5-SPECIAL-CHARGE",
+      "split": "development",
+      "title": "Special Charge recovers two DCE from discard",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Special Charge STS 105",
+          "Double Colorless Energy SUM 136"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "ownDiscard": [
+            "Double Colorless Energy SUM 136",
+            "Double Colorless Energy SUM 136",
+            "Mew V FST 113"
+          ],
+          "selection": {
+            "minimum": 2,
+            "maximum": 2
+          }
+        },
+        "fixtureDescriptorSha256": "60d90cdb9406c70320eb900594f8bfcd992b803f265b33be15dfab879857f466",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Recover exactly two Special Energy cards; do not select Pokémon.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "use Cross Fusion Strike donor attack cost as an additional payment",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
+        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "ChooseCardsPrompt"
+        ],
+        "selectionBounds": "as declared by the owner prompt; exact bounds are in the test fixture or held-out plan",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "Special Charge recovers two DCE from discard",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+      }
+    },
+    {
+      "caseId": "R5-ULTRA-BALL-COST",
+      "split": "development",
+      "title": "Ultra Ball discard cost preserves DCE and last Mew VMAX",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Ultra Ball MEG 131",
+          "Mew VMAX FST 114",
+          "Double Colorless Energy SUM 136"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "ownActive": "Mew V FST 113",
+          "ownHand": [
+            "Mew VMAX FST 114",
+            "Double Colorless Energy SUM 136",
+            "Quick Ball FST 237",
+            "Marnie SSH 169"
+          ],
+          "selection": {
+            "minimum": 2,
+            "maximum": 2
+          }
+        },
+        "fixtureDescriptorSha256": "bb80d8cfab4a9850974d48a04dee9b83ec479f1ed794cd76b368f95c975df377",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "The last evolution piece and scarce energy are protected.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "use Cross Fusion Strike donor attack cost as an additional payment",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
+        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "ChooseCardsPrompt"
+        ],
+        "selectionBounds": "as declared by the owner prompt; exact bounds are in the test fixture or held-out plan",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "Ultra Ball discard cost preserves DCE and last Mew VMAX",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+      }
+    },
+    {
+      "caseId": "R5-PATH-TO-PEAK",
+      "split": "development",
+      "title": "Path to the Peak is sequenced after own draw abilities",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Path to the Peak CRE 148",
+          "Shadow Rider Calyrex VMAX CRE 75"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "ownBoard": [
+            "Mew VMAX FST 114",
+            "Genesect V FST 185"
+          ],
+          "opponentBoard": [
+            "Shadow Rider Calyrex VMAX CRE 75"
+          ],
+          "ownHandCount": 4,
+          "drawAbilityFrontierAbsent": true
+        },
+        "fixtureDescriptorSha256": "4f5a2422f8edcfa3dda6b29eb70a3c7c686d78f7e08f232fe203ab13139fc9e1",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Path disables Rule Box abilities on both sides; draw first.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "use Cross Fusion Strike donor attack cost as an additional payment",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
+        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "owner-root"
+        ],
+        "selectionBounds": "as declared by the owner prompt; exact bounds are in the test fixture or held-out plan",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "Path to the Peak is sequenced after own draw abilities",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+      }
+    },
+    {
+      "caseId": "R5-SPECIAL-RED-CARD",
+      "split": "development",
+      "title": "Special Red Card is held until opponent has three or fewer Prizes",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Special Red Card CRI 82"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "opponentPrizeCount": 3,
+          "opponentHandCount": 4,
+          "actionFrontier": [
+            "play-card:Special Red Card",
+            "pass"
+          ]
+        },
+        "fixtureDescriptorSha256": "3934bc02c35560569db989f192007c14dd12038572f2580cef2eabe4ccf81685",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Use only under its prize-count condition.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "use Cross Fusion Strike donor attack cost as an additional payment",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
+        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "owner-root"
+        ],
+        "selectionBounds": "as declared by the owner prompt; exact bounds are in the test fixture or held-out plan",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "Special Red Card is held until opponent has three or fewer Prizes",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+      }
+    },
+    {
+      "caseId": "R5-TYPED-COST-NEGATIVE",
+      "split": "development",
+      "title": "DCE does not make standalone Techno Blast payable",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Genesect V FST 185",
+          "Double Colorless Energy SUM 136"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "ownActive": "Genesect V FST 185",
+          "ownAttached": [
+            "Double Colorless Energy SUM 136"
+          ],
+          "attack": "Techno Blast",
+          "attackCostPayable": false
+        },
+        "fixtureDescriptorSha256": "1beed51f12c6277174e9e0be88359799932c83c35fdf2a83eeb4705158c99139",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Fail closed when a typed-cost attack is not reported payable.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "use Cross Fusion Strike donor attack cost as an additional payment",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
+        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "owner-root"
+        ],
+        "selectionBounds": "as declared by the owner prompt; exact bounds are in the test fixture or held-out plan",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "DCE does not make standalone Techno Blast payable",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+      }
+    },
+    {
+      "caseId": "R5-VIP-PASS",
+      "split": "development",
+      "title": "Battle VIP Pass selects Mew V and Genesect V",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Battle VIP Pass FST 225",
+          "Mew V FST 113",
+          "Genesect V FST 185"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "ownHandCount": 0,
+          "ownBench": [],
+          "deckChoices": [
+            "Mew V FST 113",
+            "Genesect V FST 185",
+            "Crobat V DAA 104"
+          ],
+          "selection": {
+            "minimum": 1,
+            "maximum": 2
+          }
+        },
+        "fixtureDescriptorSha256": "bd1ba2c0b8f94a08021710e6bc3562ea57bba43c3c3e789a7cb20a7a1fc08769",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Opening board favors the attacker plus draw engine.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "use Cross Fusion Strike donor attack cost as an additional payment",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
+        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "ChooseCardsPrompt"
+        ],
+        "selectionBounds": "as declared by the owner prompt; exact bounds are in the test fixture or held-out plan",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "Battle VIP Pass selects Mew V and Genesect V",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+      }
+    },
+    {
+      "caseId": "R5-QUICK-BALL-DISCARD",
+      "split": "development",
+      "title": "Quick Ball discards a non-core Trainer instead of the only DCE",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Quick Ball FST 237",
+          "Double Colorless Energy SUM 136"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "ownHand": [
+            "Double Colorless Energy SUM 136",
+            "Ultra Ball MEG 131"
+          ],
+          "selection": {
+            "minimum": 1,
+            "maximum": 1
+          }
+        },
+        "fixtureDescriptorSha256": "970836b39ddd8a36275a5f8aea249a3534103988bf60fa9e51adb46678f14177",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Do not discard the only DCE for a Basic search.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "use Cross Fusion Strike donor attack cost as an additional payment",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
+        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "ChooseCardsPrompt"
+        ],
+        "selectionBounds": "as declared by the owner prompt; exact bounds are in the test fixture or held-out plan",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "Quick Ball discards a non-core Trainer instead of the only DCE",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+      }
+    },
+    {
+      "caseId": "R5-UNKNOWN-PROMPT",
+      "split": "development",
+      "title": "Unknown prompt family abstains",
+      "criticalPlanLine": false,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "promptType": "UnknownPrompt",
+          "choices": [
+            "opaque-choice"
+          ]
+        },
+        "fixtureDescriptorSha256": "a54823c649b59607aa07967d6cca0bbe7b7611e570ed60ca33879d662af7d814",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Unknown prompt families must abstain rather than invent a token.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "use Cross Fusion Strike donor attack cost as an additional payment",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
+        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "UnknownPrompt"
+        ],
+        "selectionBounds": "as declared by the owner prompt; exact bounds are in the test fixture or held-out plan",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "Unknown prompt family abstains",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+      }
+    },
+    {
+      "caseId": "R5-HO-GUZMA-VMAX-KO",
+      "split": "held-out",
+      "title": "Held-out: Guzma chooses a damaged VMAX when its prize conversion exceeds an undamaged V",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Guzma BUS 115"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "opponentBench": [
+            {
+              "printing": "Shadow Rider Calyrex VMAX CRE 75",
+              "hp": 320,
+              "damage": 110,
+              "prizes": 3
+            },
+            {
+              "printing": "Shadow Rider Calyrex V CRE 74",
+              "hp": 210,
+              "damage": 0,
+              "prizes": 2
+            }
+          ],
+          "expectedDamage": 210
+        },
+        "fixtureDescriptorSha256": "1f25cdef259015d3fd3e1640a3f4c3d7c54075e66980cd0d3cd1c45e73e892f8",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Choose the damaged 3-Prize VMAX when its 210 remaining HP is within the actor's proven 210 Techno Blast line and the undamaged V is not the higher prize conversion.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "use Cross Fusion Strike donor attack cost as an additional payment",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
+        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "ChoosePokemonPrompt"
+        ],
+        "selectionBounds": "as declared by the owner prompt; exact bounds are in the test fixture or held-out plan",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": null,
+        "testFileSha256": "89be34fa52a8ee47fbb6c12b2d2e17b777e58a4e195020e21d7abd61635a7448",
+        "testStatus": "not-authored",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+      }
+    },
+    {
+      "caseId": "R5-HO-PATH-FUTURE-DRAW",
+      "split": "held-out",
+      "title": "Held-out: Path to the Peak is withheld while Crobat or Dedenne remains in hand",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Path to the Peak CRE 148",
+          "Crobat V DAA 104"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "opponentBoard": [
+            "Shadow Rider Calyrex VMAX CRE 75"
+          ],
+          "ownHand": [
+            "Crobat V DAA 104",
+            "Path to the Peak CRE 148"
+          ],
+          "drawAbilityFrontierAbsent": true
+        },
+        "fixtureDescriptorSha256": "e0b1bc2ae940388b1d3d706755ffe3c57f34b96296b1052376f6f282cb98202b",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Self-lock prevention must preserve future draw options.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "use Cross Fusion Strike donor attack cost as an additional payment",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
+        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "owner-root"
+        ],
+        "selectionBounds": "as declared by the owner prompt; exact bounds are in the test fixture or held-out plan",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": null,
+        "testFileSha256": "89be34fa52a8ee47fbb6c12b2d2e17b777e58a4e195020e21d7abd61635a7448",
+        "testStatus": "not-authored",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+      }
+    },
+    {
+      "caseId": "R5-HO-ENERGY-MIX-WHIFF",
+      "split": "held-out",
+      "title": "Held-out: copied Energy Mix abstains when no DCE is available in the deck",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Double Colorless Energy SUM 136"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "copiedAttack": "Energy Mix",
+          "deckEnergyChoices": []
+        },
+        "fixtureDescriptorSha256": "0f0184ddcb83d9e51d15eeb34af67a1fcf9d9eb79cd63e74c93c9a4dcd519302",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "No fabricated energy target when the source energy is absent.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "use Cross Fusion Strike donor attack cost as an additional payment",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
+        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "ChooseEnergyPrompt"
+        ],
+        "selectionBounds": "as declared by the owner prompt; exact bounds are in the test fixture or held-out plan",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": null,
+        "testFileSha256": "89be34fa52a8ee47fbb6c12b2d2e17b777e58a4e195020e21d7abd61635a7448",
+        "testStatus": "not-authored",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+      }
+    },
+    {
+      "caseId": "R5-HO-SECRET-BOX-METADATA-MISSING",
+      "split": "held-out",
+      "title": "Held-out: Secret Box abstains when card-type metadata is absent",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Secret Box TWM 163"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "source": "Secret Box TWM 163",
+          "choices": [
+            "Wally ROS 94",
+            "Ultra Ball MEG 131",
+            "Forest Seal Stone SIT 156",
+            "Path to the Peak CRE 148"
+          ],
+          "cardTypeMetadata": "missing"
+        },
+        "fixtureDescriptorSha256": "0f44a6ac1dd56250d88cc28f71b24b72a59ff9f0ed60046858248be8b431785b",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Abstain when actor-visible cardType/sourceCardType metadata cannot prove distinct required categories.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "use Cross Fusion Strike donor attack cost as an additional payment",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
+        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "ChooseCardsPrompt"
+        ],
+        "selectionBounds": "as declared by the owner prompt; exact bounds are in the test fixture or held-out plan",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": null,
+        "testFileSha256": "89be34fa52a8ee47fbb6c12b2d2e17b777e58a4e195020e21d7abd61635a7448",
+        "testStatus": "not-authored",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "Held-out metadata-absence case is reserved for independent review and has not been materialized or executed."
+      }
+    },
+    {
+      "caseId": "R5-HO-SEAT1-PROMPT",
+      "split": "held-out",
+      "title": "Held-out: all owner-prompt choices remain actor-seat-relative at physical seat one",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Agent49 V3 actor observation"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "actorSeat": 1,
+          "ownerSeat": "actor",
+          "opponentSeat": 0,
+          "choices": [
+            "owner hand",
+            "opponent bench"
+          ]
+        },
+        "fixtureDescriptorSha256": "dc4fa4c637024c61eda855f9b2cd6d0799adcee95f9fb865d13e4780a2dd558c",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Seat-one owner/opponent mapping requires native receipt evidence.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "use Cross Fusion Strike donor attack cost as an additional payment",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
+        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "ChoosePokemonPrompt",
+          "ChooseCardsPrompt"
+        ],
+        "selectionBounds": "as declared by the owner prompt; exact bounds are in the test fixture or held-out plan",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": null,
+        "testFileSha256": "89be34fa52a8ee47fbb6c12b2d2e17b777e58a4e195020e21d7abd61635a7448",
+        "testStatus": "not-authored",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+      }
+    },
+    {
+      "caseId": "R5-SECRET-BOX-FOUR-CATEGORY",
+      "split": "development",
+      "title": "Secret Box selects distinct supporter, item, tool, and stadium categories",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Secret Box TWM 163",
+          "Wally ROS 94",
+          "Ultra Ball MEG 131",
+          "Forest Seal Stone SIT 156",
+          "Path to the Peak CRE 148"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "source": "Secret Box TWM 163",
+          "categories": {
+            "supporter": [
+              "Wally ROS 94",
+              "Marnie SSH 169"
+            ],
+            "item": [
+              "Ultra Ball MEG 131",
+              "Quick Ball FST 237"
+            ],
+            "tool": [
+              "Forest Seal Stone SIT 156",
+              "Muscle Band XY 121"
+            ],
+            "stadium": [
+              "Path to the Peak CRE 148"
+            ]
+          },
+          "selection": {
+            "minimum": 4,
+            "maximum": 4
+          }
+        },
+        "fixtureDescriptorSha256": "3573891403a96d68a22424326a164d1e1fa10f98979619245f2fbf50a74ce135",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Select exactly one best option from each category; do not duplicate a category.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "select duplicate Secret Box categories",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "trainerCosts": "Secret Box discards 3 other cards and requires one supporter, item, tool, and stadium; exact card-type metadata must be actor-visible",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "ChooseCardsPrompt"
+        ],
+        "selectionBounds": "minimumCount=4, maximumCount=4; one card from each distinct category",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "Secret Box selects distinct supporter, item, tool, and stadium categories",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present."
+      }
+    },
+    {
+      "caseId": "R5-SECRET-BOX-MISSING-CATEGORY",
+      "split": "development",
+      "title": "Secret Box abstains when a required category is absent",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Secret Box TWM 163"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "source": "Secret Box TWM 163",
+          "categories": {
+            "supporter": [
+              "Wally ROS 94"
+            ],
+            "item": [
+              "Ultra Ball MEG 131"
+            ],
+            "tool": [],
+            "stadium": [
+              "Path to the Peak CRE 148"
+            ]
+          },
+          "selection": {
+            "minimum": 4,
+            "maximum": 4
+          }
+        },
+        "fixtureDescriptorSha256": "e4a274d20a2bdc491ea21174722b85376a5f9d94f975e966a7a42dc3cc13743a",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Abstain rather than fabricate a tool choice when the required category is missing.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "select duplicate Secret Box categories",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "trainerCosts": "Secret Box discards 3 other cards and requires one supporter, item, tool, and stadium; exact card-type metadata must be actor-visible",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "ChooseCardsPrompt"
+        ],
+        "selectionBounds": "minimumCount=4, maximumCount=4; one card from each distinct category",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "Secret Box abstains when a required category is absent from the prompt",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present."
+      }
+    },
+    {
+      "caseId": "R5-LAST-MEW-VMAX-DISCARD",
+      "split": "development",
+      "title": "The last Mew VMAX is preserved as a discard resource",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Mew V FST 113",
+          "Mew VMAX FST 114"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "ownActive": "Mew V FST 113",
+          "ownHand": [
+            "Mew VMAX FST 114"
+          ],
+          "discardCostSource": "Ultra Ball or Secret Box"
+        },
+        "fixtureDescriptorSha256": "02ebeee11abfd619f1af441e0a571b634b7d806bdb639fb0d7b4399edf718dad",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Do not discard the only available Mew VMAX while a Mew V is in play.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "select a token absent from the validated frontier",
+          "infer opponent hidden hand/deck/prize identities",
+          "infer Psychic/Metal payment from DCE",
+          "select duplicate Secret Box categories",
+          "choose unsupported prompt options"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "trainerCosts": "Secret Box discards 3 other cards and requires one supporter, item, tool, and stadium; exact card-type metadata must be actor-visible",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "ChooseCardsPrompt"
+        ],
+        "selectionBounds": "minimumCount=4, maximumCount=4; one card from each distinct category",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "the last Mew VMAX is not an Ultra Ball or Secret Box discard target",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present."
+      }
+    },
+    {
+      "caseId": "R5-GUZMA-MUSCLE-BAND-230",
+      "split": "development",
+      "title": "Guzma damage estimate adds 20 only for a visibly attached Muscle Band",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Mew VMAX FST 114",
+          "Double Colorless Energy SUM 136",
+          "Muscle Band XY 121",
+          "Genesect V FST 185",
+          "Guzma BUS 115",
+          "Shadow Rider Calyrex V CRE 74",
+          "Shadow Rider Calyrex VMAX CRE 75"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "ownBoard": {
+            "active": "Mew VMAX FST 114",
+            "attached": [
+              "Double Colorless Energy SUM 136"
+            ],
+            "tools": [
+              "Muscle Band XY 121"
+            ],
+            "bench": [
+              "Genesect V FST 185"
+            ]
+          },
+          "opponentBench": [
+            {
+              "printing": "Shadow Rider Calyrex V CRE 74",
+              "hp": 210,
+              "damage": 0,
+              "prizes": 2
+            },
+            {
+              "printing": "Shadow Rider Calyrex VMAX CRE 75",
+              "hp": 320,
+              "damage": 110,
+              "prizes": 3
+            }
+          ],
+          "expectedDamage": 230
+        },
+        "fixtureDescriptorSha256": "ed67c2a6f9ecbc281905a3942a2979b1c317c708d35a6a993dc4491c3a1be7d7",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Choose the 3-Prize Shadow Rider VMAX when its 210 remaining HP is within the proven 230 damage line; the +20 is allowed only because Muscle Band is visibly attached.",
+        "acceptedDecisionFamilies": [
+          "select-choice",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "assume Muscle Band without a visible attachment",
+          "select a token absent from the prompt",
+          "inspect opponent hidden zones"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy; active Mew VMAX has one attached DCE.",
+        "donorAttack": "Techno Blast 210 plus 20 from visible Muscle Band; one DCE pays Cross Fusion Strike's 2 Colorless cost.",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "ChoosePokemonPrompt"
+        ],
+        "selectionBounds": "single choice; ownerSeat=opponent; targetZone=bench",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "Guzma damage estimate adds 20 only for a visibly attached Muscle Band",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "Synthetic test authored but not run; no exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence."
+      }
+    },
+    {
+      "caseId": "R5-STAR-ALCHEMY-ACTION",
+      "split": "development",
+      "title": "Star Alchemy is used when it can fetch the missing Mew VMAX",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Mew V FST 113",
+          "Genesect V FST 185",
+          "Forest Seal Stone SIT 156"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "ownBoard": {
+            "active": {
+              "printing": "Mew V FST 113",
+              "attachedTools": [
+                "Forest Seal Stone SIT 156"
+              ]
+            },
+            "bench": [
+              "Genesect V FST 185"
+            ]
+          },
+          "abilityActor": "Mew V FST 113",
+          "ownTurnResources": {
+            "vstarUsed": false
+          },
+          "actionFrontier": [
+            "use-ability:Star Alchemy",
+            "pass"
+          ]
+        },
+        "fixtureDescriptorSha256": "475ea60716eb1eff990823f5b3f67801299316e5476ca1bac35c206e47b824fd",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Use Star Alchemy from whichever actor-owned Pokémon V has Forest Seal Stone attached; this fixture grants it to Mew V, not Genesect.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "use Star Alchemy after VSTAR Power spent",
+          "infer hidden deck identities beyond offered choices",
+          "select a token absent from the validated frontier"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "forestSealStone": "Attach to a Pokémon V (not Mew VMAX); Star Alchemy is a once-per-game VSTAR Power that searches the deck for one card.",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "owner-root"
+        ],
+        "selectionBounds": "one legal ability action",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "Star Alchemy is used when it can fetch the missing Mew VMAX",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "Synthetic test authored but not run; no exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence."
+      }
+    },
+    {
+      "caseId": "R5-STAR-ALCHEMY-MEW-VMAX-SEARCH",
+      "split": "development",
+      "title": "Star Alchemy searches Mew VMAX before generic Trainer cards",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Forest Seal Stone SIT 156",
+          "Mew VMAX FST 114",
+          "Ultra Ball MEG 131"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "ownBoard": {
+            "active": "Mew V FST 113",
+            "bench": [
+              "Genesect V FST 185"
+            ]
+          },
+          "deckChoices": [
+            "Ultra Ball MEG 131",
+            "Mew VMAX FST 114"
+          ],
+          "selection": {
+            "minimum": 1,
+            "maximum": 1
+          }
+        },
+        "fixtureDescriptorSha256": "d65d49005fffb5780f16b3ef6aba6df52bdf147c3ebe3d69d408b6fcc4b33b1b",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Search the evolution piece before a generic Trainer when Mew V is established and Mew VMAX is absent.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "use Star Alchemy after VSTAR Power spent",
+          "infer hidden deck identities beyond offered choices",
+          "select a token absent from the validated frontier"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "forestSealStone": "Attach to a Pokémon V (not Mew VMAX); Star Alchemy is a once-per-game VSTAR Power that searches the deck for one card.",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "ChooseCardsPrompt"
+        ],
+        "selectionBounds": "minimumCount=1, maximumCount=1",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "Star Alchemy searches Mew VMAX before generic Trainer cards",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "Synthetic test authored but not run; no exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence."
+      }
+    },
+    {
+      "caseId": "R5-STAR-ALCHEMY-DCE-SEARCH",
+      "split": "development",
+      "title": "Star Alchemy searches DCE when Mew VMAX is in play without Energy",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Forest Seal Stone SIT 156",
+          "Mew VMAX FST 114",
+          "Double Colorless Energy SUM 136"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "ownBoard": {
+            "active": "Mew V FST 113",
+            "bench": [
+              {
+                "printing": "Mew VMAX FST 114",
+                "attached": []
+              },
+              "Genesect V FST 185"
+            ]
+          },
+          "deckChoices": [
+            "Ultra Ball MEG 131",
+            "Double Colorless Energy SUM 136"
+          ],
+          "selection": {
+            "minimum": 1,
+            "maximum": 1
+          }
+        },
+        "fixtureDescriptorSha256": "83cc22e0bd7b8c45701dbc3408423f0f83977783313ce42f66e41b366dfee24d",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Search DCE when any Mew VMAX on the board lacks it, including a Benched Mew VMAX.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "use Star Alchemy after VSTAR Power spent",
+          "infer hidden deck identities beyond offered choices",
+          "select a token absent from the validated frontier"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "forestSealStone": "Attach to a Pokémon V (not Mew VMAX); Star Alchemy is a once-per-game VSTAR Power that searches the deck for one card.",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "ChooseCardsPrompt"
+        ],
+        "selectionBounds": "minimumCount=1, maximumCount=1",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "Star Alchemy searches DCE when Mew VMAX is already in play without Energy",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "Synthetic test authored but not run; no exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence."
+      }
+    },
+    {
+      "caseId": "R5-STAR-ALCHEMY-VSTAR-SPENT",
+      "split": "development",
+      "title": "Star Alchemy is not used after the VSTAR Power has been spent",
+      "criticalPlanLine": true,
+      "evidenceClass": "synthetic",
+      "sourceBinding": {
+        "sourceRank": 5,
+        "sourcePrinted60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+        "sourceRosterBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "enginePin": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "relevantPrintings": [
+          "Genesect V FST 185",
+          "Forest Seal Stone SIT 156"
+        ],
+        "sourceDeckModified": false
+      },
+      "actorView": {
+        "scope": "actor-owned hand plus public board/counts and owner-authenticated prompt only",
+        "fixtureDescriptor": {
+          "ownBoard": {
+            "active": "Mew V FST 113",
+            "bench": [
+              "Genesect V FST 185"
+            ]
+          },
+          "ownTurnResources": {
+            "vstarUsed": true
+          },
+          "actionFrontier": [
+            "use-ability:Star Alchemy",
+            "pass"
+          ]
+        },
+        "fixtureDescriptorSha256": "9f62f8e12b679a1f23f041a9c99e644e4df769231c79207aab21008bd8d8bf88",
+        "runtimeActorViewDigestSha256": null,
+        "exactRuntimeObservationCaptured": false,
+        "hiddenOpponentZonesIncluded": false
+      },
+      "decisionEnvelope": {
+        "expectedPolicyBehavior": "Do not spend a VSTAR Power that the actor has already used this game.",
+        "acceptedDecisionFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ],
+        "forbiddenOutcomes": [
+          "use Star Alchemy after VSTAR Power spent",
+          "infer hidden deck identities beyond offered choices",
+          "select a token absent from the validated frontier"
+        ]
+      },
+      "costLedger": {
+        "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
+        "forestSealStone": "Attach to a Pokémon V (not Mew VMAX); Star Alchemy is a once-per-game VSTAR Power that searches the deck for one card.",
+        "nativePaymentReceipt": null
+      },
+      "promptCoverage": {
+        "promptTypes": [
+          "owner-root"
+        ],
+        "selectionBounds": "one legal ability action",
+        "physicalSeats": [
+          0,
+          1
+        ],
+        "actorSeatRelative": true,
+        "unsupportedBehavior": "abstain"
+      },
+      "executionEvidence": {
+        "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+        "testName": "Star Alchemy is not used after the VSTAR Power has been spent",
+        "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+        "testStatus": "authored-not-run",
+        "nativeTraceDigestSha256": null,
+        "nativeAcceptanceReceipt": null,
+        "gameCount": 0
+      },
+      "disposition": {
+        "status": "blocked",
+        "reason": "Synthetic test authored but not run; no exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence."
+      }
+    }
+  ],
+  "reviewIndependence": {
+    "reviewerAssigned": false,
+    "producerMayNotSelfReview": true,
+    "reviewerRegistryPath": "simulation/evaluation/agent45-authorized-reviewers.json",
+    "registryStatus": "empty",
+    "ownerOutreachHold": true,
+    "attestationIssued": false
+  },
+  "executionSummary": {
+    "authoredDevelopmentTests": 31,
+    "executedTests": 0,
+    "nativePromptCases": 0,
+    "nativeGames": 0,
+    "competitiveQualifiedGames": 0,
+    "winRate": null,
+    "matchupEstimate": null
+  },
+  "fieldCoverage": {
+    "rank5Only": true,
+    "fullTop32Covered": false,
+    "missingOriginalRanks": [
+      23,
+      25,
+      28
+    ],
+    "otherRanksNotCoveredByThisSuite": true
+  },
+  "releaseGates": {
+    "exactRuntimeActorViewDigests": false,
+    "testExecution": false,
+    "nativeCoreLineExecution": false,
+    "bothSeatNativeEvidence": false,
+    "independentPolicyReview": false,
+    "canonicalProducerSetBinding": false,
+    "productionAttestation": false
+  },
+  "limitations": [
+    "This is a synthetic, unexecuted diagnostic policy suite, not a V3 production registration.",
+    "All scenarios remain blocked until exact actor-view fixtures, validator-backed test execution, and native source-policy evidence exist.",
+    "No games, random seeds, Twinleaf modifications, CI workflows, candidate changes, or win-rate claims are included.",
+    "A passing synthetic test would not establish native reachability or strategic competence."
+  ]
+}
