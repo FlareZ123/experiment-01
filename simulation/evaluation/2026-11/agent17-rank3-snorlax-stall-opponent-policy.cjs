@@ -256,6 +256,37 @@ function opponentSpecialEnergyCount(observation) {
 
 function scoreSearchCard(printing, observation, context = '') {
   const own = observation.ownPublic;
+  if (context === 'basic-search') return scoreBasicPlay(printing, observation);
+  if (context === 'night-stretcher') {
+    if ([PRINT.snorlax, PRINT.bunnelby, PRINT.girafarig, PRINT.articuno, PRINT.rotom]
+      .some(pattern => matches(printing, pattern))) return scoreBasicPlay(printing, observation);
+    return matches(printing, PRINT.waterEnergy) ? 60 : 0;
+  }
+  if (context === 'vs-seeker') {
+    if (matches(printing, PRINT.faba)) return 220;
+    if (matches(printing, PRINT.plumeria) || matches(printing, PRINT.teamFlare)) return 190;
+    if (matches(printing, PRINT.handiwork) || matches(printing, PRINT.guzma)) return 175;
+    if (matches(printing, PRINT.eri) || matches(printing, PRINT.arven)) return 155;
+    return 0;
+  }
+  if (context === 'trainers-mail') {
+    if (matches(printing, PRINT.faba) || matches(printing, PRINT.arven)) return 190;
+    if (matches(printing, PRINT.plumeria) || matches(printing, PRINT.teamFlare)) return 170;
+    if (matches(printing, PRINT.handiwork) || matches(printing, PRINT.guzma)) return 155;
+    if (ITEM_PATTERNS.some(pattern => matches(printing, pattern))) return 125;
+    if (TOOL_PATTERNS.some(pattern => matches(printing, pattern))) return 115;
+    return 0;
+  }
+  if (context === 'get-lost') {
+    if (/VS Seeker|Night Stretcher|Lusamine|Acerola|Super Rod|Ordinary Rod/i.test(valueText(printing))) return 230;
+    if (/Tool Jammer|Stealthy Hood|Float Stone|Forest Seal Stone/i.test(valueText(printing))) return 180;
+    return 0;
+  }
+  if (context === 'land-maker') {
+    if (matches(printing, PRINT.tropicalBeach)) return 230;
+    if (matches(printing, PRINT.temple)) return 190;
+    return 0;
+  }
   if (matches(printing, PRINT.toolJammer)) {
     return !boardHasTool(own, PRINT.toolJammer) ? 230 : 45;
   }
@@ -427,8 +458,9 @@ function scoreAction(item, request) {
 
   if (item.kind === 'retreat') {
     if (matches(target, PRINT.snorlax)) {
-      return boardHasTool(own, PRINT.toolJammer) ? 180 :
-        opponentHasAnyTool(request) ? 140 : 110;
+      const targetSlot = slots(own).find(row => row.pokemon.printing === target);
+      return hasTool(targetSlot?.pokemon, PRINT.toolJammer) ? 180 :
+        opponentHasAnyTool(observation) ? 140 : 110;
     }
     if (matches(own.active?.printing ?? '', PRINT.snorlax)) {
       return (own.active.damage ?? 0) >= 100 ? 75 : 5;
@@ -446,8 +478,8 @@ function scoreAction(item, request) {
   }
 
   if (matches(card, PRINT.toolJammer)) {
-    return matches(target, PRINT.snorlax) || matches(own.active?.printing ?? '', PRINT.snorlax) ?
-      220 : 105;
+    return matches(target, PRINT.snorlax) ||
+      (!target && matches(own.active?.printing ?? '', PRINT.snorlax)) ? 220 : 105;
   }
   if (matches(card, PRINT.floatStone)) return matches(target, PRINT.snorlax) ? 10 : 95;
   if (matches(card, PRINT.stealthyHood)) return 45;
@@ -610,6 +642,19 @@ function ownPickupScore(choice, observation) {
     (matches(row.pokemon.printing, PRINT.rotom) || matches(row.pokemon.printing, PRINT.articuno) ? 20 : 0);
 }
 
+function ownSwitchScore(choice, observation) {
+  if (choiceOwner(choice) !== 'actor' || choiceZone(choice) !== 'bench') return 0;
+  const printing = valueText(choice);
+  const row = slots(observation.ownPublic).find(item => item.pokemon.printing === printing);
+  if (!row) return 0;
+  if (matches(row.pokemon.printing, PRINT.snorlax)) {
+    return hasTool(row.pokemon, PRINT.toolJammer) ? 260 : 220;
+  }
+  if (matches(row.pokemon.printing, PRINT.bunnelby) ||
+      matches(row.pokemon.printing, PRINT.girafarig)) return 65;
+  return 35 + energyCount(row.pokemon) * 5;
+}
+
 function promptDecision(request) {
   const prompt = request.prompt;
   const observation = request.observation;
@@ -649,6 +694,27 @@ function promptDecision(request) {
         return multiSelectDecision(prompt, handChoices.map(choice => ({
           choice, score: cardChoiceScore(choice, observation, 'plumeria-cost')
         })), min, max);
+      }
+      if (source.includes('quick ball')) {
+        const handChoices = choices.filter(choice => choiceOwner(choice) === 'actor' &&
+          choiceZone(choice) === 'hand');
+        return multiSelectDecision(prompt, handChoices.map(choice => ({
+          choice, score: cardChoiceScore(choice, observation, 'plumeria-cost')
+        })), min, max);
+      }
+      if (source.includes('get lost')) {
+        const discardChoices = choices.filter(choice => choiceOwner(choice) === 'opponent' &&
+          choiceZone(choice) === 'discard');
+        return multiSelectDecision(prompt, discardChoices.map(choice => ({
+          choice, score: cardChoiceScore(choice, observation, 'get-lost')
+        })).filter(row => row.score > 0), min, max);
+      }
+      if (source.includes('land maker')) {
+        const stadiumChoices = choices.filter(choice => choiceOwner(choice) === 'actor' &&
+          choiceZone(choice) === 'discard');
+        return multiSelectDecision(prompt, stadiumChoices.map(choice => ({
+          choice, score: cardChoiceScore(choice, observation, 'land-maker')
+        })).filter(row => row.score > 0), min, max);
       }
       if (source.includes('eri')) {
         const itemChoices = choices.filter(choice => choiceOwner(choice) === 'opponent' &&
@@ -711,9 +777,22 @@ function promptDecision(request) {
   }
 
   if (prompt.promptType === 'ChoosePokemonPrompt') {
-    if (/guzma|counter catcher/i.test(source)) {
+    if (/guzma/i.test(source)) {
+      const opponentChoices = choices.filter(choice => choiceOwner(choice) === 'opponent');
+      if (opponentChoices.length) {
+        return singleChoice(prompt, opponentChoices,
+          choice => opponentPokemonScore(choice, observation), 'NO_OPPONENT_BENCH_TARGET');
+      }
+      return singleChoice(prompt, choices,
+        choice => ownSwitchScore(choice, observation), 'NO_OWN_SWITCH_TARGET');
+    }
+    if (/counter catcher/i.test(source)) {
       return singleChoice(prompt, choices,
         choice => opponentPokemonScore(choice, observation), 'NO_OPPONENT_BENCH_TARGET');
+    }
+    if (/plumeria|team flare grunt/i.test(source)) {
+      return singleChoice(prompt, choices.filter(choice => choiceOwner(choice) === 'opponent'),
+        choice => opponentPokemonScore(choice, observation), 'NO_OPPONENT_ENERGY_TARGET');
     }
     if (/penny|scoop up cyclone/i.test(source)) {
       return singleChoice(prompt, choices,
@@ -727,6 +806,10 @@ function promptDecision(request) {
   }
 
   if (prompt.promptType === 'ChooseEnergyPrompt') {
+    if (/legendary ascent/i.test(source)) {
+      return singleChoice(prompt, choices.filter(choice => choiceOwner(choice) === 'actor' &&
+        matches(choice, PRINT.waterEnergy)), () => 100, 'NO_WATER_ENERGY_FOR_ASCENT');
+    }
     const owner = choices.filter(choice => choiceOwner(choice) === 'opponent');
     if (owner.length) {
       return singleChoice(prompt, owner, choice =>
