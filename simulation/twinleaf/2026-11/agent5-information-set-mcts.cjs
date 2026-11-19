@@ -80,6 +80,17 @@ function opponentPolicySeed(seed, iteration, seat, observationHash) {
   return digest.readUInt32BE(0);
 }
 
+function actorRelativeDeterminizationSeed(seed, iteration, seat, observationHash) {
+  const digest = createHash('sha256').update(JSON.stringify({
+    protocol: 'mcts-actor-relative-determinization-rng-v1',
+    seed,
+    iteration,
+    seat,
+    observationHash
+  })).digest();
+  return digest.readUInt32BE(0);
+}
+
 function normalizePriors(actions, actionPrior, observation, seat) {
   const raw = actions.map(action => {
     const value = actionPrior ? actionPrior(action, observation, seat) : 1;
@@ -182,15 +193,30 @@ function backpropagate(path, leafValue, leafSeat) {
  *   Must be pure/stateless across independent determinization rollouts. Any
  *   history-dependent memory must be represented in the actor-visible
  *   observation; the supplied RNG is the only stochastic source.
+ * @param {(state:object,seat:0|1,random:()=>number,actorObservation:object,deadline:object)=>object} [config.redeterminize]
+ *   If supplied, replaces root-only sampling and is called before every
+ *   nonterminal decision/leaf. It must return a detached world sampled from
+ *   the acting seat's verified belief, preserving that seat's complete
+ *   observation/knowledge ledger. Its isolated RNG is keyed only by seed,
+ *   iteration, seat and observation hash, never internal ply. This is trusted
+ *   host-side adapter code; never expose its full-State input to policy code.
  * @param {string} [config.opponentPolicyId] Required when an opponent policy is supplied.
  */
 function createInformationSetMcts(config) {
   const required = [
     'observe', 'activeSeat', 'enumerateActions', 'actionKey', 'applyAction',
-    'sampleDeterminization', 'isTerminal', 'terminalValue', 'evaluateObservation'
+    'isTerminal', 'terminalValue', 'evaluateObservation'
   ];
   for (const name of required) assert.equal(typeof config[name], 'function',
     'Missing search dependency: ' + name);
+  const redeterminize = config.redeterminize ?? null;
+  const sampleDeterminization = config.sampleDeterminization ?? null;
+  if (redeterminize !== null) assert.equal(typeof redeterminize, 'function',
+    'redeterminize must be a synchronous function');
+  if (sampleDeterminization !== null) assert.equal(typeof sampleDeterminization, 'function',
+    'sampleDeterminization must be a synchronous function');
+  assert.ok(redeterminize !== null || sampleDeterminization !== null,
+    'A root sampler or actor-relative re-determinizer is required');
   const iterations = config.iterations ?? 128;
   const maxPlies = config.maxPlies ?? 16;
   const cPuct = config.cPuct ?? 1.4;
@@ -233,6 +259,53 @@ function createInformationSetMcts(config) {
       const searchContext = Object.freeze({
         rootSeat,startedAt,deadlineAt,maxDecisionMs,seed,now,checkDeadline
       });
+      const redeterminizationDeadline = Object.freeze({
+        checkDeadline: stage => checkDeadline(stage)
+      });
+      const prepareActorState = (inputState, actorSeat, iteration, stage) => {
+        checkDeadline(stage + '-observation-start');
+        const beforeObservation = config.observe(inputState, actorSeat, searchContext);
+        checkDeadline(stage + '-observation-complete');
+        const beforeHash = observationSha256(beforeObservation);
+        if (redeterminize === null) {
+          return {
+            state: inputState,
+            observation: beforeObservation,
+            observationHash: beforeHash
+          };
+        }
+        checkDeadline(stage + '-redeterminization-start');
+        const actorRandom = seededRandom(
+          actorRelativeDeterminizationSeed(seed, iteration, actorSeat, beforeHash)
+        );
+        const sampledState = redeterminize(
+          inputState,
+          actorSeat,
+          actorRandom,
+          frozenPolicyObservation(beforeObservation),
+          redeterminizationDeadline
+        );
+        checkDeadline(stage + '-redeterminization-complete');
+        assert.ok(sampledState && typeof sampledState === 'object' &&
+          sampledState !== inputState,
+          'Actor-relative determinization must return a detached state');
+        assert.equal(isStable(sampledState), true,
+          'Actor-relative determinization returned a state with unresolved prompts');
+        assert.equal(config.activeSeat(sampledState), actorSeat,
+          'Actor-relative determinization changed the acting seat');
+        const afterObservation = config.observe(sampledState, actorSeat, searchContext);
+        checkDeadline(stage + '-redeterminized-observation');
+        const afterHash = observationSha256(afterObservation);
+        assert.equal(afterHash, beforeHash,
+          'Actor-relative determinization changed the acting player\'s information set');
+        actorRelativeDeterminizationCallsBySeat[actorSeat] += 1;
+        actorObservationPreservationChecks += 1;
+        return {
+          state: sampledState,
+          observation: afterObservation,
+          observationHash: afterHash
+        };
+      };
       checkDeadline('root-validation');
       assert.ok(rootSeat === 0 || rootSeat === 1);
       assert.equal(config.activeSeat(rootState), rootSeat,
@@ -260,6 +333,8 @@ function createInformationSetMcts(config) {
       let maxActionTransitions = 0;
       let completedIterations = 0;
       const seatActionTransitions = [0,0];
+      const actorRelativeDeterminizationCallsBySeat = [0,0];
+      let actorObservationPreservationChecks = 0;
       const rolloutPaths = [];
       const opponentFrontiers = new Map();
       let opponentPolicyCalls = 0;
@@ -271,19 +346,26 @@ function createInformationSetMcts(config) {
         const opponentPolicyDecisions = new Map();
         const sampleRandom = seededRandom(mixSeed(seed, iteration, 0x51ed270b));
         const transitionRandom = seededRandom(mixSeed(seed, iteration, 0x2c1b3c6d));
-        let state = config.sampleDeterminization(rootState, rootSeat, sampleRandom, searchContext);
-        checkDeadline('determinization');
-        assert.ok(state && typeof state === 'object' && state !== rootState,
-          'Determinization must return a detached state');
-        assert.equal(isStable(state), true,
-          'Determinized root must have no unresolved prompts');
-        assert.equal(config.activeSeat(state), rootSeat,
-          'Determinization changed the acting seat');
-        assert.equal(observationSha256(
-          config.observe(state, rootSeat, searchContext)),
-          rootObservationHash,
-          'Determinization changed the root player\'s legal observation');
-        checkDeadline('determinized-root-observation');
+        let state;
+        if (redeterminize === null) {
+          state = sampleDeterminization(rootState, rootSeat, sampleRandom, searchContext);
+          checkDeadline('determinization');
+          assert.ok(state && typeof state === 'object' && state !== rootState,
+            'Determinization must return a detached state');
+          assert.equal(isStable(state), true,
+            'Determinized root must have no unresolved prompts');
+          assert.equal(config.activeSeat(state), rootSeat,
+            'Determinization changed the acting seat');
+          assert.equal(observationSha256(
+            config.observe(state, rootSeat, searchContext)),
+            rootObservationHash,
+            'Determinization changed the root player\'s legal observation');
+          checkDeadline('determinized-root-observation');
+        } else {
+          // Each decision node, including the root, is sampled from the
+          // acting seat's own information set immediately before selection.
+          state = rootState;
+        }
 
         const path = [];
         const actionPath = [];
@@ -304,9 +386,12 @@ function createInformationSetMcts(config) {
           }
           assert.equal(isStable(state), true,
             'Transition adapter returned a state with unresolved prompts');
-          const observation = config.observe(state, seat, searchContext);
-          checkDeadline('node-observation');
-          const observationHash = observationSha256(observation);
+          const prepared = prepareActorState(state, seat, iteration, 'node');
+          state = prepared.state;
+          const observation = prepared.observation;
+          const observationHash = prepared.observationHash;
+          if (ply === 0) assert.equal(observationHash, rootObservationHash,
+            'Actor-relative root observation differs from the live root information set');
           const nodeKey = seat + ':' + observationHash;
           let node = nodes.get(nodeKey);
           const actions = config.enumerateActions(state, seat, searchContext);
@@ -425,8 +510,9 @@ function createInformationSetMcts(config) {
 
         rolloutPaths.push({iteration,actions:actionPath});
         if (!finished) {
-          const observation = config.observe(state, seat, searchContext);
-          checkDeadline('leaf-observation');
+          const prepared = prepareActorState(state, seat, iteration, 'leaf');
+          state = prepared.state;
+          const observation = prepared.observation;
           leafValue = config.evaluateObservation(observation, seat);
           checkDeadline('leaf-evaluation');
           leafSeat = seat;
@@ -463,9 +549,24 @@ function createInformationSetMcts(config) {
         action: rootActionMap.get(selected.actionKey),
         actionKey: selected.actionKey,
         audit: {
-          protocol: 'observation-keyed-determinization-puct-v1',
-          opponentModel: opponentActionPolicy === null ?
-            'root-determinization-puct' : 'fixed-actor-observation-policy',
+          protocol: redeterminize === null ?
+            'observation-keyed-determinization-puct-v1' :
+            'observation-keyed-actor-relative-redeterminization-puct-v1',
+          determinizationMode: redeterminize === null ? 'root-only' : 'actor-relative',
+          actorRelativeDeterminizationProtocol: redeterminize === null ? null :
+            'observation-preserving-per-decision-v1',
+          actorRelativeDeterminizationRngProtocol: redeterminize === null ? null :
+            'seed-iteration-seat-observation-v1',
+          actorRelativeDeterminizationCallsBySeat,
+          actorRelativeDeterminizationCalls:
+            actorRelativeDeterminizationCallsBySeat[0] +
+            actorRelativeDeterminizationCallsBySeat[1],
+          actorObservationPreservationChecks,
+          opponentModel: redeterminize !== null ?
+            (opponentActionPolicy === null ? 'actor-relative-puct' :
+              'actor-relative-fixed-actor-observation-policy') :
+            (opponentActionPolicy === null ?
+              'root-determinization-puct' : 'fixed-actor-observation-policy'),
           opponentPolicyId: opponentActionPolicy === null ? null : config.opponentPolicyId,
           opponentPolicyRngProtocol: opponentActionPolicy === null ? null :
             'mcts-opponent-policy-rng-v2',
