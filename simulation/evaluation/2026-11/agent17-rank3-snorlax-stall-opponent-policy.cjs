@@ -826,6 +826,11 @@ function promptDecision(request) {
         choice => /Special Energy|Double Dragon Energy|Jet Energy|Capture Energy/i.test(valueText(choice)) ? 100 : 0,
         'NO_SPECIAL_ENERGY_TARGET');
     }
+    if (source.includes('star alchemy')) {
+      return singleChoice(prompt, choices.filter(choice => choiceOwner(choice) === 'actor' &&
+        choiceZone(choice) === 'deck'),
+        choice => cardChoiceScore(choice, observation, 'star-alchemy'), 'NO_STAR_ALCHEMY_TARGET');
+    }
     if (source.includes('trainers')) {
       return singleChoice(prompt, choices, choice => cardChoiceScore(choice, observation, 'trainers-mail'),
         'NO_TRAINER_MAIL_TARGET');
