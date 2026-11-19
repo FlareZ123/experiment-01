@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "constraintsId": "agent50-rank4-raichu-electrode-common-constraints-v1",
+  "createdAt": "2026-11-19T14:07:39.603078779Z",
+  "role": "opponent-policy",
+  "sourceRank": 4,
+  "sourceDeckEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
+  "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+  "engine": {
+    "submodulePath": "vendor/twinleaf",
+    "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "researchHookRevision": null
+  },
+  "informationBoundary": {
+    "actorObservationOnly": true,
+    "ownHandVisible": true,
+    "opponentHandIdentitiesHidden": true,
+    "opponentHandCountMayBeUsed": true,
+    "prizeIdentitiesUsedOnlyWhenOwnerVisible": true,
+    "hiddenDeckOrderUnavailable": true,
+    "seedOrRngStateUnavailable": true
+  },
+  "decisionBoundary": {
+    "deterministic": true,
+    "actionFrontierOnly": true,
+    "noNativeFallback": true,
+    "noPolicyDelegation": true,
+    "supportedDecisionKinds": [
+      "select-action",
+      "select-choice",
+      "select-choices",
+      "abstain"
+    ]
+  },
+  "rank4Plan": {
+    "declaredArchetype": "Raichu Electrode Combo",
+    "intendedCoreLine": "Electrode-GX Extra Energy Bomb accelerates Energy from discard to a non-GX/EX Pokémon; Alolan Raichu Electro Rain converts Lightning Energy into distributed damage.",
+    "currentStatus": "blocked",
+    "unsupportedRootActions": [
+      {
+        "actor": "Electrode-GX CES 48",
+        "name": "Extra Energy Bomb",
+        "reason": "AttachEnergyPrompt unavailable"
+      },
+      {
+        "actor": "Alolan Raichu UNM 57",
+        "name": "Electro Rain",
+        "reason": "PutDamagePrompt unavailable"
+      },
+      {
+        "actor": "Electrode-GX CES 48",
+        "name": "Crush and Burn-GX",
+        "reason": "DiscardEnergyPrompt unavailable and pinned damage discrepancy"
+      }
+    ]
+  },
+  "promptPolicy": {
+    "failClosedOnUnknownPrompt": true,
+    "failClosedOnUnsupportedCorePrompt": true,
+    "blockedPromptTypes": [
+      "AttachEnergyPrompt",
+      "DiscardEnergyPrompt",
+      "PutDamagePrompt"
+    ],
+    "workerSchemaTestsDoNotImplyNativePromptSupport": true
+  },
+  "strategicGuardrails": {
+    "discardCostsMustBePayableBeforeItemSelection": true,
+    "preserveAtLeastOneCopyOfDuplicateHandCard": true,
+    "doNotInferHiddenPrizeIdentities": true,
+    "secretBoxMustSelectOneItemOneToolOneSupporterOneStadium": true,
+    "skyFieldRequiresOwnBenchPressureAndOpponentNotAlreadyWide": true,
+    "klefkiSelfLockMustBeConsidered": true
+  },
+  "evidenceBoundary": {
+    "syntheticTestsCanProveProtocolAndDeterministicDecisionBehavior": true,
+    "syntheticTestsCannotProveNativeCardResolution": true,
+    "noNativeGameEvidence": true,
+    "noMatchupEstimate": true,
+    "noWinRateClaim": true,
+    "independentReviewerRequiredForAttestation": true
+  }
+}
