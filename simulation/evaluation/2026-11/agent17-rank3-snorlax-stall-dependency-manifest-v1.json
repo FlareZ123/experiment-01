@@ -8,8 +8,8 @@
   "producerBindingStatus": "prototype only; not inserted into the signed/hash-bound V3 policy plan",
   "policyModule": {
     "path": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "gitBlobSha1": "ed74b1c5dd5b5a9e74ad58fd90633203105a06fd",
-    "sha256": "e46b848b325ad30d5ad831df0fd46ec2eddd8db444cce567f41d08ad82a7124b",
+    "gitBlobSha1": "0032feb6e20ef56af74f26e13b973e78e423ba85",
+    "sha256": "570a29b510d2d4f97c0ed82f02186946b07c1d7ae6d95e9cf50fba096dac7a1a",
     "policyVersion": "agent17-rank3-snorlax-stall-opponent-v1",
     "config": {},
     "imports": [],
@@ -131,8 +131,8 @@
   },
   "testSuite": {
     "path": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "gitBlobSha1": "c21390fcbd776f628e40a913a1db129bc88d979c",
-    "sha256": "0ef600a84bd862dac3d0439014fd1a691f25970d61374bc1a83c7c2204e0a494",
+    "gitBlobSha1": "11c44e0760f080336de02fccb9e6c9ef898dcb15",
+    "sha256": "4b5d7833c2152c87a607b629aacd96f28be52cb64fac4c4498896c3b43c341ae",
     "testFramework": "node:test source file",
     "localExecution": "V8 deterministic harness; actual validateInit, validateRequest and validateDecision plus policy/test sources evaluated; not node --test or worker IPC",
     "testCount": 49
@@ -142,10 +142,10 @@
     "sha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27"
   },
   "repositoryBindings": {
-    "policyCommit": "7de48581499c2cb1199ad8d5bef5619887571223",
-    "testCommit": "bd0f9431eee88bffad729c14816634a791306e68",
+    "policyCommit": "f2e4cbee7e24dbce601c933e30fb8752fdf3743a",
+    "testCommit": "8728547bcf8580325bf897fb8768ad7d428f5d58",
     "baselineMainCommitAtInitialInspection": "2a86d357bf5ae699148f0fa7ce74c497e6973d49",
-    "currentMainAtManifestUpdate": "bd0f9431eee88bffad729c14816634a791306e68"
+    "currentMainAtManifestUpdate": "8728547bcf8580325bf897fb8768ad7d428f5d58"
   },
   "hashDefinitions": {
     "fileSha256": "SHA-256 of exact UTF-8 file bytes",
