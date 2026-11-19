@@ -44,7 +44,14 @@
         "testName": "Hisuian Heavy Ball fails closed when face-down Prize identities are not visible",
         "errorCode": "BAD_MULTI_SELECT_BOUNDS",
         "stage": "Agent49 validateRequest/multiSelectBounds before policy execution",
-        "attribution": "fixture validation failure; not attributed to zero-key init change"
+        "attribution": "fixture validation failure; not attributed to zero-key init change",
+        "fixtureCause": "multiMetadata(1, 1, 'prize-slots') supplies minimumCount/maximumCount, but the worker's prize-slots branch reads requiredCount",
+        "missingField": "requiredCount",
+        "suppliedFields": [
+          "minimumCount",
+          "maximumCount"
+        ],
+        "fixHint": "For selectionType prize-slots, set publicMetadata to { selectionType: 'prize-slots', requiredCount: 1, allowCancel: false, isSecret: false }. Do not change the init-only patch; fixture correction is separate."
       }
     },
     "apexAttackHelper": {
@@ -104,7 +111,19 @@
       "executed": 21,
       "passed": 20,
       "failed": 1,
-      "harness": "V8 shim; no Node runner or worker IPC"
+      "harness": "V8 shim; no Node runner or worker IPC",
+      "failure": {
+        "testName": "Hisuian Heavy Ball fails closed when face-down Prize identities are not visible",
+        "errorCode": "BAD_MULTI_SELECT_BOUNDS",
+        "stage": "Agent49 validateRequest/multiSelectBounds before policy execution",
+        "fixtureCause": "multiMetadata(1, 1, 'prize-slots') supplies minimumCount/maximumCount, but the worker's prize-slots branch reads requiredCount",
+        "missingField": "requiredCount",
+        "suppliedFields": [
+          "minimumCount",
+          "maximumCount"
+        ],
+        "fixHint": "For selectionType prize-slots, set publicMetadata to { selectionType: 'prize-slots', requiredCount: 1, allowCancel: false, isSecret: false }. Do not change the init-only patch; fixture correction is separate."
+      }
     }
   }
 }
