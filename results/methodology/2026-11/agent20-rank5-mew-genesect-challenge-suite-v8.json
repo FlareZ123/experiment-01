@@ -35,8 +35,8 @@
   },
   "dependencyManifest": {
     "path": "results/methodology/2026-11/agent20-rank5-mew-genesect-dependency-manifest-v8.json",
-    "gitBlobSha1": "3dd7907e2a7f14610513f832a60f32916bb438d2",
-    "sha256": "eed1e3714ca3ec8cc75f72c11724ebb49014cb8f91b980c98deb4a194f354fa7"
+    "gitBlobSha1": "986b85aa568847f369a44077872f4e12e516e38c",
+    "sha256": "4ad7c50c2bd5b497932c60f6453beb5ece85ff1d2d339c8d23c3d5594482933b"
   },
   "commonConstraints": {
     "path": "results/methodology/2026-11/agent20-rank5-mew-genesect-common-constraints-v8.json",
@@ -52,7 +52,7 @@
     "path": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
     "gitBlobSha1": "67a7e1e94437e176ad39da794f63b40807b2e88c",
     "sha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-    "status": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed"
+    "status": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending"
   },
   "producerBindings": {
     "candidatePolicyProducerId": null,
@@ -179,7 +179,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Fusion Strike System draws only while hand is below the Fusion Strike board count",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -263,7 +263,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Mew VMAX natural evolution is prioritized over generic Pokémon deployment",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -347,7 +347,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Wally is used only for a same-turn Mew V evolution opportunity",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -430,7 +430,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Double Colorless Energy is attached to Mew VMAX before Genesect",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -513,7 +513,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Genesect V is deployed as a second Fusion Strike System engine",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -600,7 +600,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Cross Fusion Strike selects the Genesect Techno Blast donor",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -690,7 +690,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Copied Energy Mix selects DCE and attaches it to an unpowered Mew VMAX",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -789,7 +789,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Guzma selects a vulnerable prize target",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -873,7 +873,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Special Charge recovers two DCE from discard",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -960,7 +960,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Ultra Ball discard cost preserves DCE and last Mew VMAX",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -1044,7 +1044,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Path to the Peak is sequenced after own draw abilities",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -1124,7 +1124,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Special Red Card is held until opponent has three or fewer Prizes",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -1205,7 +1205,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "DCE does not make standalone Techno Blast payable",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -1292,7 +1292,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Battle VIP Pass selects Mew V and Genesect V",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -1375,7 +1375,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Quick Ball discards a non-core Trainer instead of the only DCE",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -1451,7 +1451,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Unknown prompt family abstains",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -1540,7 +1540,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": null,
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "not-authored",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -1623,7 +1623,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": null,
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "not-authored",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -1699,7 +1699,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": null,
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "not-authored",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -1781,7 +1781,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": null,
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "not-authored",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -1863,7 +1863,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": null,
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "not-authored",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -1961,7 +1961,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Secret Box selects distinct supporter, item, tool, and stadium categories",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -2050,7 +2050,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Secret Box abstains when a required category is absent from the prompt",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -2128,7 +2128,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "the last Mew VMAX is not an Ultra Ball or Secret Box discard target",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -2229,7 +2229,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Guzma damage estimate adds 20 only for a visibly attached Muscle Band",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -2320,7 +2320,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Star Alchemy is used when it can fetch the missing Mew VMAX",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -2406,7 +2406,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Star Alchemy searches Mew VMAX before generic Trainer cards",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -2496,7 +2496,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Star Alchemy searches DCE when Mew VMAX is already in play without Energy",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -2580,7 +2580,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Star Alchemy is not used after the VSTAR Power has been spent",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -2675,7 +2675,7 @@
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "DCE attachment uses public benchIndex when two Mew VMAX share a printing",
         "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-        "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
+        "testStatus": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0,
@@ -2699,12 +2699,19 @@
   },
   "executionSummary": {
     "authoredDevelopmentTests": 32,
-    "executedTests": 0,
+    "executedTests": 32,
     "nativePromptCases": 0,
     "nativeGames": 0,
     "competitiveQualifiedGames": 0,
     "winRate": null,
-    "matchupEstimate": null
+    "matchupEstimate": null,
+    "unitTestsPassed": 32,
+    "unitTestsFailed": 0,
+    "unitTestExecutionMode": "isolated V8 CommonJS shim; not Node node:test",
+    "unitTestExecutionAtUtc": "2026-11-19T20:41:00.249Z",
+    "testFileBlobSha1": "67a7e1e94437e176ad39da794f63b40807b2e88c",
+    "policyModuleBlobSha1": "7aff8fcc77351655083fec49cb4318cf4563f7f2",
+    "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451"
   },
   "fieldCoverage": {
     "rank5Only": true,
@@ -2736,6 +2743,20 @@
     "requiredConfig": {},
     "identityBinding": "source rank and source/candidate fingerprints remain module constants and versioned manifest bindings",
     "regressionTest": "rank-5 policy initializes through the real V3 worker zero-key contract",
-    "status": "authored; Node node --test pending"
+    "status": "32/32 isolated V8-shim tests pass, including real validateInit accepted-envelope initialization; Node node --test pending"
+  },
+  "supplementalTestExecution": {
+    "mode": "isolated V8 CommonJS shim; not Node node:test",
+    "executionAtUtc": "2026-11-19T20:41:00.249Z",
+    "registered": 32,
+    "passed": 32,
+    "failed": 0,
+    "exactBlobs": {
+      "test": "67a7e1e94437e176ad39da794f63b40807b2e88c",
+      "policy": "7aff8fcc77351655083fec49cb4318cf4563f7f2",
+      "workerProtocol": "d51ea95c457d61b50a9ee114d342eb17f4350451"
+    },
+    "scope": "unit-test callbacks only; challenge scenarios remain synthetic and blocked",
+    "limitation": "not Node node:test, worker IPC, native Store validation, independent competence, matchup, game, or win-rate evidence"
   }
 }
