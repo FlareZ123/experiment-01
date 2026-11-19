@@ -430,6 +430,9 @@ function promptDecision(request) {
   const selectionType = metadata.selectionType ?? null;
 
   if (prompt.promptType === 'ChooseAttackPrompt') {
+    if (!/cross fusion strike/i.test(source)) {
+      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_ATTACK_CHOICE_SOURCE' };
+    }
     const techno = choices.find(choice => /Techno Blast/i.test(choiceText(choice)));
     if (techno) return { kind: 'select-choice', token: techno.token };
     const energyMix = choices.find(choice => /Energy Mix/i.test(choiceText(choice)));
@@ -502,6 +505,20 @@ function promptDecision(request) {
       return { kind: 'abstain', reasonCode: 'UNSUPPORTED_MULTI_SELECT_SOURCE' };
     }
 
+    if (/quick ball|lost vacuum/i.test(source) &&
+        choices.some(choice => choiceOwner(choice) === 'actor' && choiceZone(choice) === 'hand')) {
+      const handChoices = choices.filter(choice =>
+        choiceOwner(choice) === 'actor' && choiceZone(choice) === 'hand');
+      return singleChoice(prompt, handChoices,
+        choice => scoreDiscardCard(choice, observation), 'NO_SAFE_DISCARD_COST');
+    }
+    if (/ultra ball/i.test(source) &&
+        choices.some(choice => choiceOwner(choice) === 'actor' && choiceZone(choice) === 'hand')) {
+      const handChoices = choices.filter(choice =>
+        choiceOwner(choice) === 'actor' && choiceZone(choice) === 'hand');
+      return singleChoice(prompt, handChoices,
+        choice => scoreDiscardCard(choice, observation), 'NO_SAFE_DISCARD_COST');
+    }
     if (/wally/i.test(source)) {
       return singleChoice(prompt, choices, choice =>
         scoreSearchChoice(choice, observation, 'wally'), 'NO_MEW_VMAX_WALLY_TARGET');
@@ -740,11 +757,20 @@ function scoreAction(item, request) {
     return 0;
   }
 
+  if (matches(card, PRINT.mewVMAX)) {
+    const evolvable = slots(own).some(row =>
+      matches(row.pokemon.printing, PRINT.mewV) &&
+      row.pokemon.lastPlayedOrEvolvedTurn < observation.globalTurn &&
+      row.pokemon.publicRestrictions?.cannotEvolveNextTurn !== true);
+    return evolvable && boardCount(own, PRINT.mewVMAX) === 0 ? 235 : 0;
+  }
+
   if (matches(card, PRINT.wally)) {
     const freshMew = slots(own).some(row =>
       matches(row.pokemon.printing, PRINT.mewV) &&
       row.pokemon.lastPlayedOrEvolvedTurn === observation.globalTurn);
-    return freshMew && boardCount(own, PRINT.mewVMAX) === 0 ? 245 : 0;
+    return supporterAvailable(observation) && freshMew &&
+      boardCount(own, PRINT.mewVMAX) === 0 ? 245 : 0;
   }
 
   if (matches(card, PRINT.guzma)) {
@@ -754,7 +780,7 @@ function scoreAction(item, request) {
         printing: row.pokemon.printing,
         publicMetadata: { ownerSeat: 'opponent', targetZone: 'bench' }
       }, observation, 230)));
-    return best > 0 ? 210 : 0;
+    return supporterAvailable(observation) && best > 0 ? 210 : 0;
   }
 
   if (matches(card, PRINT.marnie)) {
@@ -771,7 +797,7 @@ function scoreAction(item, request) {
     const pokemonInDiscard = list(own.discard).filter(value =>
       [PRINT.mewV, PRINT.mewVMAX, PRINT.genesect, PRINT.dedenne, PRINT.crobat]
         .some(pattern => matches(value, pattern))).length;
-    return pokemonInDiscard >= 2 &&
+    return supporterAvailable(observation) && pokemonInDiscard >= 2 &&
       (ownDeckCount(observation) <= 20 || boardCount(own, PRINT.mewVMAX) === 0) ? 125 : 0;
   }
 
@@ -779,7 +805,7 @@ function scoreAction(item, request) {
     const constrained = slots(own).some(row =>
       row.pokemon.publicRestrictions?.cannotAttackNextTurn === true ||
       row.pokemon.publicRestrictions?.blockedAttackNameNextTurn !== null);
-    return constrained ? 100 : 0;
+    return supporterAvailable(observation) && constrained ? 100 : 0;
   }
 
   if (matches(card, PRINT.vipPass)) {
