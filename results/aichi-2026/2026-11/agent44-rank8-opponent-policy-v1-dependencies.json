@@ -10,7 +10,7 @@
   },
   "test": {
     "path": "tests/2026-11/agent44-rank8-absol-garbodor-opponent-policy.test.cjs",
-    "gitBlobSha1": "3fffb6457fbed5bb217eaddcfa1be36163438580",
+    "gitBlobSha1": "145f79a59c31ebbb7fbc596684d6c0d18eed5a29",
     "declaredNodeTestCount": 23
   },
   "source": {
