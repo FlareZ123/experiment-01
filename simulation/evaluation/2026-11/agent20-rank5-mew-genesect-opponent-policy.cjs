@@ -196,14 +196,24 @@ function candidateToolOrStadiumTargets(observation) {
   return targets;
 }
 
-function ownPokemonByPrinting(observation, printing) {
-  return slots(observation?.ownPublic).find(row =>
-    row.pokemon.printing === printing || row.pokemon.printing.includes(printing)) ?? null;
+function pokemonByActionTarget(player, printing, actionItem) {
+  const rows = slots(player).filter(row =>
+    row.pokemon.printing === printing || row.pokemon.printing.includes(printing));
+  const metadata = actionItem?.publicMetadata ?? {};
+  const zone = metadata.targetZone ?? metadata.zone ?? null;
+  if (zone === 'active') return rows.find(row => row.zone === 'active') ?? null;
+  if (zone === 'bench' && Number.isInteger(metadata.benchIndex)) {
+    return rows.find(row => row.zone === 'bench' && row.index === metadata.benchIndex) ?? null;
+  }
+  return rows.length === 1 ? rows[0] : null;
 }
 
-function opponentPokemonByPrinting(observation, printing) {
-  return slots(observation?.opponentPublic).find(row =>
-    row.pokemon.printing === printing || row.pokemon.printing.includes(printing)) ?? null;
+function ownPokemonByPrinting(observation, printing, actionItem = null) {
+  return pokemonByActionTarget(observation?.ownPublic, printing, actionItem);
+}
+
+function opponentPokemonByPrinting(observation, printing, actionItem = null) {
+  return pokemonByActionTarget(observation?.opponentPublic, printing, actionItem);
 }
 
 function choiceOwner(choice) {
@@ -236,7 +246,7 @@ function prizeLiability(pokemon) {
 function opponentPokemonScore(choice, observation, expectedDamage = 210) {
   if (choiceOwner(choice) !== 'opponent' ||
       !['bench', 'active'].includes(choiceZone(choice))) return 0;
-  const row = opponentPokemonByPrinting(observation, valueText(choice));
+  const row = opponentPokemonByPrinting(observation, valueText(choice), choice);
   if (!row) return 5;
   const pokemon = row.pokemon;
   const hp = remainingHp(pokemon);
@@ -249,7 +259,7 @@ function opponentPokemonScore(choice, observation, expectedDamage = 210) {
 
 function ownSwitchScore(choice, observation) {
   if (choiceOwner(choice) !== 'actor' || choiceZone(choice) !== 'bench') return 0;
-  const row = ownPokemonByPrinting(observation, valueText(choice));
+  const row = ownPokemonByPrinting(observation, valueText(choice), choice);
   if (!row) return 0;
   if (matches(row.pokemon.printing, PRINT.mewVMAX) && hasDce(row.pokemon)) return 240;
   if (matches(row.pokemon.printing, PRINT.mewV) && hasDce(row.pokemon)) return 145;
@@ -886,7 +896,7 @@ function scoreAction(item, request) {
   }
 
   if (item.kind === 'retreat') {
-    const row = ownPokemonByPrinting(observation, target);
+    const row = ownPokemonByPrinting(observation, target, item);
     if (row && matches(row.pokemon.printing, PRINT.mewVMAX) && hasDce(row.pokemon)) return 220;
     if (row && matches(row.pokemon.printing, PRINT.mewV) && hasDce(row.pokemon)) return 150;
     if (row && matches(row.pokemon.printing, PRINT.genesect)) return 55;
