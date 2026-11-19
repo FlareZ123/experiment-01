@@ -28,8 +28,8 @@
   "files": {
     "policy": {
       "path": "simulation/evaluation/2026-11/agent1-rank12-regidrago-opponent-policy.cjs",
-      "blobSha1": "c090f9ac1f0e762b1dbc39bfeeee38222619a7be",
-      "sha256": "a698c015bce3eccd4a7df94c021eb3e5c8118d3d129afc560c47b912a445dc09"
+      "blobSha1": "cbdf7b145a2e385394715800efdf6099f5aef0ba",
+      "sha256": "a118e7f26a64edf2105338300624406aae26be54c52b094f228f352621ed7413"
     },
     "tests": {
       "path": "tests/2026-11/agent1-rank12-regidrago-opponent-policy.test.cjs",
