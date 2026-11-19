@@ -758,3 +758,120 @@ test('Eri prioritizes Field Blower and Unfair Stamp among the exact candidate It
     kind: 'select-choices', tokens: ['field', 'stamp']
   });
 });
+
+
+test('Water Energy is allocated to Articuno when it enables the Cold Crush-GX response', () => {
+  const request = rootRequest({
+    ownHand: ['Water Energy MEE 11'],
+    ownPublic: player({
+      active: pokemon('Snorlax PGO 55'),
+      bench: [
+        pokemon('Articuno-GX CES 31'),
+        pokemon('Bunnelby PRC 121')
+      ]
+    }),
+    opponentPublic: player({
+      active: pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+        energies: ['Psychic Energy', 'Psychic Energy']
+      })
+    }),
+    items: [
+      {
+        token: 'water-articuno', kind: 'play-card',
+        actorPrinting: 'Water Energy MEE 11', targetPrinting: 'Articuno-GX CES 31',
+        publicMetadata: { cardType: 'energy', handIndex: 0 }
+      },
+      {
+        token: 'water-bunnelby', kind: 'play-card',
+        actorPrinting: 'Water Energy MEE 11', targetPrinting: 'Bunnelby PRC 121',
+        publicMetadata: { cardType: 'energy', handIndex: 0 }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action', token: 'water-articuno'
+  });
+});
+
+test('Capture Energy is attached to Bunnelby to enable Burrow and its Basic search', () => {
+  const request = rootRequest({
+    ownHand: ['Capture Energy RCL 171'],
+    ownPublic: player({
+      active: pokemon('Snorlax PGO 55'),
+      bench: [pokemon('Bunnelby PRC 121')]
+    }),
+    items: [
+      {
+        token: 'capture-bunnelby', kind: 'play-card',
+        actorPrinting: 'Capture Energy RCL 171', targetPrinting: 'Bunnelby PRC 121',
+        publicMetadata: { cardType: 'energy', handIndex: 0 }
+      },
+      {
+        token: 'capture-snorlax', kind: 'play-card',
+        actorPrinting: 'Capture Energy RCL 171', targetPrinting: 'Snorlax PGO 55',
+        publicMetadata: { cardType: 'energy', handIndex: 0 }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action', token: 'capture-bunnelby'
+  });
+});
+
+test('Arven never selects a dual-subtype Forest Seal Stone twice for its Item and Tool pair', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Arven OBF 186', 'Arven'),
+    choices: [
+      cardChoice('seal', 'Forest Seal Stone SIT 156'),
+      cardChoice('nest', 'Nest Ball SVI 181'),
+      cardChoice('jammer', 'Tool Jammer BST 136')
+    ],
+    publicMetadata: multiMetadata(2, 2)
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['nest', 'jammer']
+  });
+});
+
+test('Forest Seal Stone Star Alchemy searches for Tool Jammer when the Snorlax lock is not established', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Forest Seal Stone SIT 156', 'Star Alchemy'),
+    choices: [
+      cardChoice('beach', 'Tropical Beach BWP 50'),
+      cardChoice('faba', 'Faba LOT 173'),
+      cardChoice('jammer', 'Tool Jammer BST 136')
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice', token: 'jammer'
+  });
+});
+
+test('Guzma does not abandon an established Snorlax Active lock without a replacement Snorlax', () => {
+  const request = rootRequest({
+    ownPublic: player({
+      active: pokemon('Snorlax PGO 55'),
+      bench: [pokemon('Bunnelby PRC 121')]
+    }),
+    opponentPublic: player({
+      active: pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+        energies: ['Psychic Energy', 'Psychic Energy']
+      })
+    }),
+    ownHand: ['Guzma BUS 115'],
+    items: [
+      {
+        token: 'guzma', kind: 'play-card', actorPrinting: 'Guzma BUS 115',
+        publicMetadata: { cardType: 'trainer', handIndex: 0 }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action', token: 'pass'
+  });
+});
