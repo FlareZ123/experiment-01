@@ -441,8 +441,15 @@ function chooseRank13ApexAttack(choices, observation) {
     if (name === 'Eon Blade') {
       const damage = activeDamage(200, observation);
       const ko = targetHp > 0 && damage >= targetHp;
-      return { choice, index, score: ko ? 235 : 120 + Math.min(40, damage / 5) };
+      return { choice, index, score: ko ? 275 : 120 + Math.min(40, damage / 5) };
     }
+    if (name === 'Shred') {
+      const evaluated = evaluateApexAttackChoice(choice, observation);
+      const score = evaluated?.immediateWin ? 300 :
+        (evaluated?.activeKnockout ? 285 : 95);
+      return { choice, index, score };
+    }
+    if (name === 'Jet Headbutt') return { choice, index, score: 85 };
     if (name === 'Phantom Dive') return { choice, index, score: -1 };
     const evaluated = evaluateApexAttackChoice(choice, observation);
     return { choice, index, score: Number(evaluated?.score ?? -1) };
