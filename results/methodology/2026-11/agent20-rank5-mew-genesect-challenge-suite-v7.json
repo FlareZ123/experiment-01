@@ -35,8 +35,8 @@
   },
   "dependencyManifest": {
     "path": "results/methodology/2026-11/agent20-rank5-mew-genesect-dependency-manifest-v7.json",
-    "gitBlobSha1": "4181ae0d8c6bd3edaddadb872b924776ce48f6d5",
-    "sha256": "77f9d70652ebea22132c79caa975a1a41c5907e78b4a4b7862b9386a638a304f"
+    "gitBlobSha1": "7bbc0ad0bc30022b1abfbaf2343a025aed73547d",
+    "sha256": "e3b2e3f4aa9953be5a0f821da3ae81ff7861dab66739cacc00888d1a88f61e74"
   },
   "commonConstraints": {
     "path": "results/methodology/2026-11/agent20-rank5-mew-genesect-common-constraints-v7.json",
@@ -50,9 +50,9 @@
   },
   "testFile": {
     "path": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
-    "gitBlobSha1": "b5ce94db01e944420a1c28a15d39a9645ced4938",
-    "sha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-    "status": "authored-not-run"
+    "gitBlobSha1": "a02e6d5668dc24e232cefc5754367d439a1917ba",
+    "sha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+    "status": "30/30 passed in isolated V8 compatibility harness; node --test pending"
   },
   "producerBindings": {
     "candidatePolicyProducerId": null,
@@ -178,15 +178,15 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Fusion Strike System draws only while hand is below the Fusion Strike board count",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -262,15 +262,15 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Mew VMAX natural evolution is prioritized over generic Pokémon deployment",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -346,15 +346,15 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Wally is used only for a same-turn Mew V evolution opportunity",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -429,15 +429,15 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Double Colorless Energy is attached to Mew VMAX before Genesect",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -512,15 +512,15 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Genesect V is deployed as a second Fusion Strike System engine",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -599,15 +599,15 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Cross Fusion Strike selects the Genesect Techno Blast donor",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -689,15 +689,15 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Copied Energy Mix selects DCE and attaches it to an unpowered Mew VMAX",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -788,15 +788,15 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Guzma selects a vulnerable prize target",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -872,15 +872,15 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Special Charge recovers two DCE from discard",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -959,15 +959,15 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Ultra Ball discard cost preserves DCE and last Mew VMAX",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -1043,15 +1043,15 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Path to the Peak is sequenced after own draw abilities",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -1123,15 +1123,15 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Special Red Card is held until opponent has three or fewer Prizes",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -1204,15 +1204,15 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "DCE does not make standalone Techno Blast payable",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -1291,15 +1291,15 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Battle VIP Pass selects Mew V and Genesect V",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -1374,15 +1374,15 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Quick Ball discards a non-core Trainer instead of the only DCE",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -1450,15 +1450,15 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Unknown prompt family abstains",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -1547,7 +1547,7 @@
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -1630,7 +1630,7 @@
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -1706,7 +1706,7 @@
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -1870,7 +1870,7 @@
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. Synthetic fixtures cannot attest core-line reachability or strategic competence."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -1960,15 +1960,15 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Secret Box selects distinct supporter, item, tool, and stadium categories",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -2049,15 +2049,15 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Secret Box abstains when a required category is absent from the prompt",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -2127,15 +2127,15 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "the last Mew VMAX is not an Ultra Ball or Secret Box discard target",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
       },
       "disposition": {
         "status": "blocked",
-        "reason": "No test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present."
+        "reason": "No Node node --test execution, exact runtime actor-view digest, native prompt acceptance, or independent reviewer evidence is present. The isolated V8 compatibility harness is supplemental and does not replace the Node runner."
       }
     },
     {
@@ -2228,8 +2228,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Guzma damage estimate adds 20 only for a visibly attached Muscle Band",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -2319,8 +2319,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Star Alchemy is used when it can fetch the missing Mew VMAX",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -2405,8 +2405,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Star Alchemy searches Mew VMAX before generic Trainer cards",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -2495,8 +2495,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Star Alchemy searches DCE when Mew VMAX is already in play without Energy",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -2579,8 +2579,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Star Alchemy is not used after the VSTAR Power has been spent",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -2674,8 +2674,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "DCE attachment uses public benchIndex when two Mew VMAX share a printing",
-        "testFileSha256": "60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9",
-        "testStatus": "authored-not-run",
+        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
+        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
