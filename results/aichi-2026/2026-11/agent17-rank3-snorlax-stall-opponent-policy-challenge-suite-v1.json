@@ -14,7 +14,7 @@
     "producerBindingStatus": "not bound into signed/hash-bound V3 plan; standalone prototype only",
     "modulePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
     "moduleBlobSha1": "f62bb071138621f218b5f849c657c8010187f4d1",
-    "moduleSha256": "4c7e06173ecb922051b49222c99e776cba73248f7ce12581844dbc29cba0b033",
+    "moduleSha256": "197dd2956c12dd89af7c341d99b13a71e861fd2dada3837437ce00e1d8214e15",
     "config": {
       "rank": 3,
       "sourceFingerprint": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
@@ -91,15 +91,15 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json",
-    "manifestSha256": "bc44191abc39dda4299cd88de56bf688f8a559b2f6b723945eb03d3870e45c9e",
+    "manifestSha256": "13c3a4982b9e89bc1a53722e1626b84c132ee2f33664406313887264d16473be",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
-    "workerProtocolSha256": "ceba49f8d31779c433a867aaa07588ce290adff7d2d820712ba044a38c8a692b",
+    "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "testFilePath": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
     "testFileBlobSha1": "d9e5e74675f4db47824bded5c399147dae5924f0",
-    "testFileSha256": "74029d8a38f93759a208f1a14e6a7178898746c1a439ec60caa295805a878421",
+    "testFileSha256": "d686a13bdeb0e46a4b7a12a14af29d810a3185d01b39c37f70cfd4a02487b070",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -219,7 +219,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "39902c5669862c8d369014cdc17285db3c28b276e6d0536392db7c97250294b2",
+            "digestSha256": "a47d69a47e57dc5dc63888c52cc59ee0f377fa5210dd0d0e5fc79121d553d1cc",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -361,7 +361,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "504d0e6c9afb4dd77786a2a359264e3e1c03fb04a2e88ba8b7680196cc06df8b",
+            "digestSha256": "f85349f2c854038ce31e8d7391ac592de6c102b22485c76436c823aa79ec2850",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -500,7 +500,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "fa976ac58920df34becf756408c11882811dc2d324cd800affe0fc7f6c6db72d",
+            "digestSha256": "5de42bebbe1e91c16d112ef2da8b131474fb4a228e23de4734de0aec11407a78",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -640,7 +640,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "62d53a2be0e6c6d196496a393992246f3e104a0b64a77ea44a069c2d6d1cf811",
+            "digestSha256": "61209e20c8e802b142f3771c30c572362610e4b6f31e4c18876ae51f73b3cb5f",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -775,7 +775,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "5cc06e8c5fe156003e15baab53e782f308f630b903d7196f9c7fbf543b22dbe2",
+            "digestSha256": "09ce0fb5b4bf2f18701b6327d2f839b766f37123a1e51143fdff9cbe329ff305",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -914,7 +914,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "cc3cf462b7541436dfcfea1be56a98c36a39eb72063d8606c96081b97f15bd42",
+            "digestSha256": "c558db3e6b3efa55fda8a1af7ebba3b7d0b42556b5c2b615e322698f9e16471d",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -1053,7 +1053,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "83a19d26baaf4efbd42ef01885596b22c2854421ed141dcd92c21dbc05be3be6",
+            "digestSha256": "474c956fc1b7fc3e7f8fdf8a1d845dc1cbe111f7e2789382e63cf7dec801201d",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -1199,7 +1199,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "cb287efbb9cf204e81614550f84f5fe4d2b1dc99181a6330a4fc615ef6b5120f",
+            "digestSha256": "12252c81a440d2eac5ccc33820aee5065988cd2e1bd5f31837bc0b45d7490bf9",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -1345,7 +1345,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "63a0307669958d61cfd03deb6990a201a2303d45c33c31c53f86ad3ee97cc7a1",
+            "digestSha256": "24018db356f853d792f864ed9b10f735f9c53c87342bbaf8368b071ece0df467",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -1395,7 +1395,7 @@
           },
           {
             "requestIndex": 1,
-            "digestSha256": "50c726569dd693a745803fe9545157c68cb5f2433c211e3d194207f697080d03",
+            "digestSha256": "87aded260386bcfdbdd8749f451714754301e782961e76f2227466c1bfa9e412",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -1571,7 +1571,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "9176f386da2064067a935a02e35fb3121fe7808db72242aa6dbfc7f4828b9702",
+            "digestSha256": "193b114399dbb69951ce1bbf7a7e14ae3824ae683a97d87b053866cc1b6a03d2",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -1705,7 +1705,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "5e5587b5c8f1409dce0edc4b6182a6a99d761338bff9309319f2f2ef6481a055",
+            "digestSha256": "825bda9bdc83e07f1fe0273b5a4d7a5df6337dce3935246a2936557ec5983e22",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -1839,7 +1839,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "aed60641481871d3ece6b60bf535b395618720d65c00fffa8fb3d67fe14c4632",
+            "digestSha256": "e46c82636800a4e64f736f63e3130f1f459a48b990929c7a3f23bd9c6bc78dd0",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -1967,7 +1967,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "3352c99fdedd4eb0068ab80485aeec93f1ee15cf7f92b2221d93621f9a7abe9c",
+            "digestSha256": "983bc74af5318c8dfc1dea74c541dfe38f6bc53bc1927d53350d13cdbfaaa633",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -2008,7 +2008,7 @@
           },
           {
             "requestIndex": 1,
-            "digestSha256": "3352c99fdedd4eb0068ab80485aeec93f1ee15cf7f92b2221d93621f9a7abe9c",
+            "digestSha256": "983bc74af5318c8dfc1dea74c541dfe38f6bc53bc1927d53350d13cdbfaaa633",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -2164,7 +2164,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "519186f462bd986b20c260e8756d961a035d7d4e5a499a02777eb44883cc4a17",
+            "digestSha256": "8f629181e696c01e158760312b865fc3cf11a03a277bdf6987ab8a46af96399d",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -2272,7 +2272,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "cc9971a2816487b9af46aca0d988b86f31bcbc286633cae9af125a5a47841b72",
+            "digestSha256": "5387ab7e7df23906364366e86788adc48e5b04a0deb57c4e1dc230205a261c8e",
             "requestValidation": "rejected",
             "validationError": "UNKNOWN_FIELD",
             "visibleSummary": {
@@ -2368,7 +2368,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "26dbad4f910fbc215a0232cdaa110d0841bb38d89c155f8d0d219a3f25f5f7c0",
+            "digestSha256": "bf9e7b42c0d57c7a891b31ecf3b285981ddc877f500a403a13a37494292be3f1",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -2476,7 +2476,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "ed6b9b8607e161bbe8832bcc3d62f6c30654498338b21398b9d3e9a945957066",
+            "digestSha256": "9bae2c8629c7ccc2409a80124ed1b0549587d4196dc52094533d57f84975752f",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -2616,7 +2616,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "018031ea43e5df088fbbfa0cb7810e11227c5924f94919becc8d8a9a78da4d53",
+            "digestSha256": "30706f92d4397ffd373aea267a15a3a90029eee9700f40651dfe654a274f118b",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -2762,7 +2762,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "7a6786e33e5d6a69439977c8defc2467d599a6b0e8c34b6f23ba7e41f83de2bd",
+            "digestSha256": "b4ec46a70ae51fd289e141260d07fc81e5c2d2a3c51a15dd2515d2c4dc96b644",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -2901,7 +2901,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "bfe5f18deaf1c57c1871fa27ee6462e479cb65b5df538d924c39a0eafb8949f2",
+            "digestSha256": "fca8394a27532951d9cae992074e49c62eaa46ebf34918061c7db52d2c1f0960",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -3025,7 +3025,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "85cb9144729a7a03926e5d59de6ee3ae5cd116cd0bd2bdadacf3bd31f4fc9023",
+            "digestSha256": "ee12e29b88d62d55ae98684d3f961b5f7c87bc649f498e7a58bad9d1c6a00332",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -3163,7 +3163,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "e33ad7c0563e0d527643611696c4ce602869bd7303083645cbe34f00b3135d74",
+            "digestSha256": "af02c8031dc8678d6a6da6210aaafa4b89c21a85f22a349ad9cf5731289f54c7",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -3302,7 +3302,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "46fa54eff7d8af59e568c340fb74e986e4e496df084b417c657ae168335032cb",
+            "digestSha256": "7db1ec84ebf03fe5180302cef8e967c99dd799bc3d106e088ff792fb29788367",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -3437,7 +3437,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "da1c04b8fd4d6ffa1c336d158d17612c79f7e0350f127da9b96d43094c24b1ad",
+            "digestSha256": "06e1382c48ef52bc36895175ae260757fc269d19486c7f1ed4cd76429ccd3de6",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -3573,7 +3573,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "6273c3af4e8e796e7fc7dcdc355f1f7e542d0bde8903d5cb73b534f27c81e5f5",
+            "digestSha256": "611c477185936b83669924e592f842487e51a1bf66e7275ffa0633257f5ef50c",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -3698,7 +3698,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "a6c42fa9759d8860d8b2b18af24520ddfe38303a8f352718e7e16c91dd1c9a90",
+            "digestSha256": "aa8300fcd6c25ca9bedf16ea5df6df10632bba9c3c7dd78140b037866af5048a",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -3844,7 +3844,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "fe2be4fc61ede3cf34fba5ab625de02f66b9896cbecfc308e7668b19e652107d",
+            "digestSha256": "1131316dccc0eae009b55d522ac8f58a62f5820b1284b164031845d256c763db",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -3987,7 +3987,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "7e28d218dc74a6112c5afb153e3463c317a8d7a5c7bb9f2af77fc5705250c914",
+            "digestSha256": "4b20411bbbb84fdfa41f99b0fc8bc98e9a7554a17043c9f1e99965fee0034b83",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -4129,7 +4129,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "bfd807d7278dee9c36c5709f7ce2703bc842155889070a5d1516902e93b6dfbf",
+            "digestSha256": "24c581522a236bd8c06d6cc2a7c8afc961e75e05494f36e5b501c225657ba022",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -4270,7 +4270,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "cc9947024599b45f9b18dfb7057817a44608fdc9af89f5183e0ed54332f3444d",
+            "digestSha256": "2363c885d8754feef1014b92ea4106931f3d054eed5f115b041f09b0fc2477eb",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -4406,7 +4406,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "80e567a62b862866e0908337096756153e18ac56480bd80980378b2e299fe3bd",
+            "digestSha256": "e7319eda68936f1d58e64c760883a6fa002c2800b5a128656649c121b4c523bb",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -4530,7 +4530,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "106d989c9519409fbd5709e279042226cdce5d22fea99b021e25e4f9300c85d2",
+            "digestSha256": "267bf278113c8fd8c8ce38da853ed57469b6cb6efb1d785f2b0bc4110c016ae1",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -4670,7 +4670,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "731c677a28db8f1901410a819e9e4a3169851e04abb7f16931c1e243b75586e1",
+            "digestSha256": "a9fb8f01235fdac878b4e96e029c825d3809dee540e35f9edde4618da2f2110d",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -4792,7 +4792,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "1442be0d75557d93a20ff8b7d39e2b998330844a4c12293bd0ee314f893fadb1",
+            "digestSha256": "97c90c49c54d0323a7af7424187300dba7e5f60643b62bdd1372dcb50372a0aa",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -4914,7 +4914,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "a2b8f0452f6ed4103021f54ec9e1008f7e906ba08c1d9acdbc00a04df1543fe5",
+            "digestSha256": "426a6b18bd852c4c042beace0d2c25ea44941e4bd2562a02736ce95a52cda9b4",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -5048,7 +5048,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "72b21671fb001115efa8042fc09bf6b6660a57d2d04d5d08236b5708d4cc1c98",
+            "digestSha256": "c9aec00864466651c219dc75d61341d5b8df46e332c9159b08035a2f788683d8",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -5175,7 +5175,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "b3fb7bd6ff69f123b2c4e75f116403ec59bca32f4acb327eb93070de13d11e1d",
+            "digestSha256": "6bc34371133b342cc7e49b23f0761089d224fa7c2dfe0abe6799bd87199a1303",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -5304,7 +5304,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "871a0a08886f35e2c63696e366e762e7ebb08ba6271ef5f5e73e342aa85a487d",
+            "digestSha256": "43208a63e70ddf1a5567d3175aee24d296ee4127bbc11f6ae6dffe2a54ffbe8e",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -5428,7 +5428,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "5f4084c722214b989cdd562c1d85e42a898b60668d8ba95308e4acd811ca506e",
+            "digestSha256": "00ab387587ec2db24fe0d25579a96374ba935badc01a0ccf3e096300e330b65b",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -5568,7 +5568,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "0eb6975eacbcb81aa21fcc618322185d0b04f7acf990c40b0b7d49bd21abf9b1",
+            "digestSha256": "1a3e1a4d382d5a787d820d62e38dcc4885be232f1512297e8a184bbe8dc494d2",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -5703,7 +5703,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "857380e97057f3dce517f533aebe17c0e65e831ed20e681c1f7e57face220ad9",
+            "digestSha256": "5b80dc7b316024f642c76721d6bae170575f0f83b04ece92eb70928e582f7426",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -5840,7 +5840,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "eed2fdfc1ce2536210537f6192415e22fc29105093c673e8f2ae63cf677fb325",
+            "digestSha256": "38095db4cbda57cba4b9c8be3e0205efac26114a23eae4952c4fd8bd397fe263",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -5981,7 +5981,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "32f8a7cde97c0fcc169d0e35217fc26d6396f195f569b486c7d70624bb7165ee",
+            "digestSha256": "c42b9314ccac764589024a77e5827afa0713488c6f61c61bbb7768132b2d505e",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -6264,6 +6264,6 @@
     ]
   },
   "caseRecordCount": 44,
-  "suiteSha256": "f27bbb183fcca9e361a9e755a46cafe8f5b052b6156b013fa7691543518d0295",
+  "suiteSha256": "f099562c9cc7c85df1366b0b5c88160b81d75d6f4002fec43de5a8505ba8ac33",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8."
 }
