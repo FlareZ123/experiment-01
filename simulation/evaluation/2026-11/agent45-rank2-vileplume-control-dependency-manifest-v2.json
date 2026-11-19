@@ -26,7 +26,7 @@
   },
   "challengeSuite": {
     "path": "simulation/evaluation/2026-11/agent45-rank2-vileplume-control-challenge-suite-v2.json",
-    "sha256": "045a18420b3c98d8972b54b9bfe75dd8c5185db695d3e764ebf058c73e3953e6",
+    "sha256": "e0c58ee525ab49ca4a27ce45041f1a65e0cd03e6ba19c21de8886e2aa4679761",
     "developmentCases": 15,
     "heldOutCases": 4
   },
@@ -40,8 +40,18 @@
       "validateRequest",
       "validateDecision"
     ],
-    "latestRunId": null,
-    "latestRunConclusion": "pending"
+    "latestRunId": 44579555406,
+    "latestRunConclusion": "failure: challenge-suite case-ID mapping mismatch; no policy assertion reached for the ten affected cases",
+    "attempts": [
+      {
+        "runId": 44579555406,
+        "headSha": "895a7e05ed8da4ac387d9616bbf015849600e50f",
+        "conclusion": "failure",
+        "passed": 80,
+        "failed": 10,
+        "reason": "All ten v2 failures were missing challenge-suite scenario IDs; the policy assertions were not reached."
+      }
+    ]
   },
   "workerProtocol": {
     "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
@@ -63,7 +73,7 @@
   "executionEvidence": {
     "nodeVersion": "22.16.0",
     "ciWorkflow": ".github/workflows/agent10-strict-vip-attribution-v2-pure.yml",
-    "ciStatus": "pending",
+    "ciStatus": "first run failed on test-to-suite case-ID mapping; mapping corrected; rerun pending",
     "nativeGames": 0,
     "sourceNaturalGames": 0,
     "matchupResults": 0

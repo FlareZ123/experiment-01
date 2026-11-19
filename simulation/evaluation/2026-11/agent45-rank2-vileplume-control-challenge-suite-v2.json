@@ -3908,7 +3908,7 @@
       "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
     },
     {
-      "caseId": "stoutland-live-hooded",
+      "caseId": "stoutland-live-hooded-root",
       "objective": "Hooded Stoutland can activate Sentinel through known-live Garbotoxin",
       "evidenceClass": "synthetic",
       "sourceBinding": {
@@ -3940,7 +3940,7 @@
       "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
     },
     {
-      "caseId": "stoutland-live-unhooded",
+      "caseId": "stoutland-live-unhooded-root",
       "objective": "Do not promote unprotected Stoutland through live Garbotoxin",
       "evidenceClass": "synthetic",
       "sourceBinding": {
@@ -3972,7 +3972,7 @@
       "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
     },
     {
-      "caseId": "stoutland-no-tool",
+      "caseId": "stoutland-no-tool-root",
       "objective": "A Garbotoxin name without a Tool is not a live lock",
       "evidenceClass": "synthetic",
       "sourceBinding": {
@@ -4004,7 +4004,7 @@
       "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
     },
     {
-      "caseId": "stoutland-unknown-suppression",
+      "caseId": "stoutland-unknown-suppression-root",
       "objective": "Unknown Garbotoxin status must not be assumed live or inactive",
       "evidenceClass": "synthetic",
       "sourceBinding": {
@@ -4036,7 +4036,7 @@
       "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
     },
     {
-      "caseId": "hood-under-item-lock",
+      "caseId": "hood-under-item-lock-root",
       "objective": "Stealthy Hood remains attachable under own Item lock",
       "evidenceClass": "synthetic",
       "sourceBinding": {
@@ -4068,7 +4068,7 @@
       "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
     },
     {
-      "caseId": "discard-jet-duplicates",
+      "caseId": "discard-jet-duplicates-prompt",
       "objective": "Preserve one Jet Energy for the live Bunnelby pivot",
       "evidenceClass": "synthetic",
       "sourceBinding": {
@@ -4100,7 +4100,7 @@
       "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
     },
     {
-      "caseId": "discard-tm-duplicates",
+      "caseId": "discard-tm-duplicates-prompt",
       "objective": "Preserve one TM Evolution for the live Bunnelby line",
       "evidenceClass": "synthetic",
       "sourceBinding": {
@@ -4132,7 +4132,7 @@
       "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
     },
     {
-      "caseId": "own-hand-public-hand-dedup",
+      "caseId": "own-hand-public-hand-dedup-root",
       "objective": "A public-hand mirror does not double-count a physical card",
       "evidenceClass": "synthetic",
       "sourceBinding": {
@@ -4228,7 +4228,7 @@
       "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
     },
     {
-      "caseId": "peonia-prize-blocked",
+      "caseId": "peonia-prize-blocked-prompt",
       "objective": "Peonia Prize-slot handling remains blocked without cardinality and accepted-use support",
       "evidenceClass": "synthetic",
       "sourceBinding": {
@@ -4260,7 +4260,7 @@
       "reviewerNote": "Synthetic regression only; not source-natural, native-staged, independent review, or strategic competence evidence."
     },
     {
-      "caseId": "gladion-prize-blocked",
+      "caseId": "gladion-prize-blocked-prompt",
       "objective": "Gladion remains blocked while owner-visible Prize identities are absent",
       "evidenceClass": "synthetic",
       "sourceBinding": {
