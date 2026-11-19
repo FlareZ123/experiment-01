@@ -495,3 +495,148 @@ test('fixed opponent policy receives a detached deeply frozen actor observation 
   assert.equal(result.audit.opponentPolicyPurityContract,
     'stateless-actor-observation-only-v1');
 });
+
+
+function runActorRelativeRootSearch(rootPrivateCard, rootSeat) {
+  const opponentSeat = 1 - rootSeat;
+  const opponentObservationHashes = [];
+  const redeterminizationCallsBySeat = [0, 0];
+  const search = createInformationSetMcts({
+    iterations: 400,
+    maxPlies: 2,
+    seed: 123,
+    cPuct: 1.4,
+    observe: (state, seat) => {
+      const observation = seat === rootSeat ? {
+        seat,
+        privateCard: state.privateCard,
+        public: state.public,
+        choice: state.choice
+      } : {
+        seat,
+        public: state.public,
+        choice: state.choice
+      };
+      if (seat === opponentSeat) {
+        opponentObservationHashes.push(observationSha256(observation));
+      }
+      return observation;
+    },
+    activeSeat: state => state.seat,
+    enumerateActions: state => state.seat === rootSeat ?
+      [{name: 'commit'}] :
+      [{name: 'block'}, {name: 'pass'}],
+    actionKey: action => action.name,
+    redeterminize: (state, seat, random, actorObservation, deadline) => {
+      redeterminizationCallsBySeat[seat] += 1;
+      assert.equal(actorObservation.seat, seat);
+      assert.equal(Object.hasOwn(actorObservation, 'privateCard'), seat === rootSeat);
+      deadline.checkDeadline('synthetic-actor-relative-sample');
+      // The root retains its actual private card. The opponent samples that
+      // card from the same public 20% threat prior in either root-private world.
+      const privateCard = seat === rootSeat ? state.privateCard :
+        (random() < 0.2 ? 'threat' : 'bluff');
+      return {...state, privateCard};
+    },
+    applyAction: (state, action) => {
+      if (state.seat === rootSeat) {
+        return {...state, choice: action.name, seat: opponentSeat};
+      }
+      const opponentWins = state.privateCard === 'threat' ?
+        action.name === 'block' :
+        action.name === 'pass';
+      return {
+        ...state,
+        terminal: true,
+        winner: opponentWins ? opponentSeat : rootSeat
+      };
+    },
+    isTerminal: state => state.terminal === true,
+    terminalValue: (state, seat) => state.winner === seat ? 1 : -1,
+    evaluateObservation: () => 0
+  });
+
+  const result = search.search({
+    seat: rootSeat,
+    privateCard: rootPrivateCard,
+    public: {opponentThreatPrior: 0.2},
+    choice: null,
+    terminal: false
+  }, rootSeat);
+
+  const opponentActions = {block: 0, pass: 0};
+  for (const rollout of result.audit.rolloutPaths) {
+    for (const action of rollout.actions) {
+      if (action.seat === opponentSeat) opponentActions[action.actionKey]++;
+    }
+  }
+  return {
+    result,
+    opponentActions,
+    opponentObservationHashes,
+    redeterminizationCallsBySeat
+  };
+}
+
+test('actor-relative re-determinization prevents opponent belief fusion and works from either physical seat', () => {
+  for (const rootSeat of [0, 1]) {
+    const threat = runActorRelativeRootSearch('threat', rootSeat);
+    const bluff = runActorRelativeRootSearch('bluff', rootSeat);
+
+    assert.equal(threat.opponentObservationHashes.length, 800);
+    assert.equal(bluff.opponentObservationHashes.length, 800);
+    assert.ok(threat.opponentObservationHashes.every(
+      hash => hash === threat.opponentObservationHashes[0]
+    ));
+    assert.ok(bluff.opponentObservationHashes.every(
+      hash => hash === bluff.opponentObservationHashes[0]
+    ));
+    assert.equal(
+      threat.opponentObservationHashes[0],
+      bluff.opponentObservationHashes[0],
+      'The opponent information set must be identical across root-private worlds'
+    );
+
+    assert.deepEqual(threat.opponentActions, bluff.opponentActions,
+      'The same opponent information set must produce the same PUCT action distribution');
+    assert.equal(threat.opponentActions.block + threat.opponentActions.pass, 399);
+    assert.ok(threat.opponentActions.pass > threat.opponentActions.block,
+      'The opponent should prefer Pass under its 20% threat prior');
+    assert.equal(threat.result.audit.determinizationMode, 'actor-relative');
+    assert.equal(threat.result.audit.opponentModel, 'actor-relative-puct');
+    assert.equal(threat.result.audit.actorRelativeDeterminizationProtocol,
+      'observation-preserving-per-decision-v1');
+    assert.equal(threat.result.audit.actorRelativeDeterminizationRngProtocol,
+      'seed-iteration-seat-observation-v1');
+    assert.deepEqual(threat.result.audit.actorRelativeDeterminizationCallsBySeat,
+      [400, 400]);
+    assert.equal(threat.result.audit.actorRelativeDeterminizationCalls, 800);
+    assert.equal(threat.result.audit.actorObservationPreservationChecks, 800);
+    assert.deepEqual(threat.redeterminizationCallsBySeat, [400, 400]);
+    assert.equal(threat.result.audit.completedIterations, 400);
+    assert.equal(threat.result.audit.rootActions[0].meanValue,
+      bluff.result.audit.rootActions[0].meanValue);
+  }
+});
+
+test('actor-relative re-determinization fails closed when it changes the acting information set', () => {
+  const search = createInformationSetMcts({
+    iterations: 1,
+    maxPlies: 1,
+    observe: (state, seat) => ({seat, public: state.public}),
+    activeSeat: state => state.seat,
+    enumerateActions: () => [{name: 'commit'}],
+    actionKey: action => action.name,
+    redeterminize: state => ({...state, public: {changed: true}}),
+    applyAction: state => ({...state, terminal: true, winner: 0}),
+    isTerminal: state => state.terminal === true,
+    terminalValue: (state, seat) => state.winner === seat ? 1 : -1,
+    evaluateObservation: () => 0
+  });
+
+  assert.throws(() => search.search({
+    seat: 0,
+    public: {unchanged: true},
+    terminal: false
+  }, 0), /changed the acting player's information set/);
+});
