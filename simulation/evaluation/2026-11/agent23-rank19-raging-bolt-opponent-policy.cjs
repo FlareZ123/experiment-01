@@ -343,20 +343,35 @@ function searchTargetPriority(choice, request, context) {
   }
   if (context.includes('wonder tag')) return supporterPriority(choice, request);
   if (context.includes('arven')) {
-    if (PRINT.forestSealStone.test(value) && observation.ownPublic.publicTurnRestrictions?.vstarUsed === false &&
-        boardSlots(own).some(pokemon => matches(pokemon, PRINT.crobat) || matches(pokemon, PRINT.moltres))) return 240;
+    const hasV = boardSlots(own).some(pokemon => matches(pokemon, PRINT.crobat) || matches(pokemon, PRINT.moltres));
+    if (PRINT.forestSealStone.test(value) && hasV &&
+        observation.ownPublic.publicTurnRestrictions?.vstarUsed === false) return 240;
     if (PRINT.floatStone.test(value) && !ownFreeRetreat(observation)) return 220;
-    if (PRINT.quickBall.test(value) || PRINT.compressor.test(value) || PRINT.fieldBlower.test(value)) return 120;
+    if (PRINT.quickBall.test(value) && (!boardHas(own, PRINT.ragingBolt) || !boardHas(own, PRINT.adp))) return 120;
+    if (PRINT.compressor.test(value) && discardEnergyTypes(own).size < 3) return 110;
+    if (PRINT.fieldBlower.test(value) && opponentHasToolsOrStadium(observation)) return 100;
     return 0;
   }
   if (context.includes('secret box')) {
-    if (PRINT.sada.test(value)) return supporterPriority(choice, request);
-    if (PRINT.skyField.test(value)) return currentStadium(observation).some(stadium => /Temple of Sinnoh/i.test(stadium)) ? 230 : 140;
-    if (PRINT.forestSealStone.test(value) && observation.ownPublic.publicTurnRestrictions?.vstarUsed === false) return 210;
+    if (SUPPORTER_PATTERNS.some(pattern => pattern.test(value))) return supporterPriority(choice, request);
+    if (PRINT.skyField.test(value)) {
+      if (currentStadium(observation).some(stadium => /Temple of Sinnoh/i.test(stadium)) &&
+          boardHas(own, PRINT.adp) && hasDdeOnAdp(observation)) return 230;
+      return benchCount(own) >= 4 && benchCount(observation.opponentPublic) <= 2 ? 140 : 0;
+    }
+    const hasV = boardSlots(own).some(pokemon => matches(pokemon, PRINT.crobat) || matches(pokemon, PRINT.moltres));
+    if (PRINT.forestSealStone.test(value) && hasV &&
+        observation.ownPublic.publicTurnRestrictions?.vstarUsed === false) return 210;
     if (PRINT.floatStone.test(value) && !ownFreeRetreat(observation)) return 190;
-    if (PRINT.quickBall.test(value) || PRINT.compressor.test(value) || PRINT.vsSeeker.test(value) ||
-        PRINT.nightStretcher.test(value) || PRINT.fieldBlower.test(value)) return 150;
-    return 20;
+    if (PRINT.quickBall.test(value) && (!boardHas(own, PRINT.ragingBolt) || !boardHas(own, PRINT.adp))) return 180;
+    if (PRINT.compressor.test(value) && discardEnergyTypes(own).size < 3) return 170;
+    if (PRINT.vsSeeker.test(value) && list(own.discard).some(card =>
+        SUPPORTER_PATTERNS.some(pattern => pattern.test(printingValue(card))))) return 160;
+    if (PRINT.nightStretcher.test(value) && list(own.discard).some(card =>
+        PRINT.ragingBolt.test(card) || isBasicEnergy(card))) return 150;
+    if (PRINT.fieldBlower.test(value) && opponentHasToolsOrStadium(observation)) return 150;
+    if (PRINT.cherishBall.test(value) && (!boardHas(own, PRINT.adp) || !boardHas(own, PRINT.dedenne))) return 140;
+    return 0;
   }
   if (context.includes('raihan')) {
     if (PRINT.doubleDragon.test(value) && inPlay(PRINT.adp) && !hasDdeOnAdp(observation)) return 250;
@@ -603,8 +618,8 @@ function scoreAction(item, request) {
   if (item.kind === 'use-stadium') {
     if (PRINT.skyField.test(printing)) {
       const temple = currentStadium(observation).some(value => /Temple of Sinnoh/i.test(value));
-      if (temple && boardHas(own, PRINT.adp)) return 250;
-      return benchCount(own) >= 4 && benchCount(opponent) < 5 ? 175 : 0;
+      if (temple && boardHas(own, PRINT.adp) && hasDdeOnAdp(observation)) return 250;
+      return benchCount(own) >= 4 && benchCount(opponent) <= 2 ? 175 : 0;
     }
     return 0;
   }
@@ -612,16 +627,31 @@ function scoreAction(item, request) {
   if (item.kind !== 'play-card') return 0;
 
   if (PRINT.vipPass.test(printing)) return turn === 1 && hasBenchSpace(own) ? 230 : 0;
-  if (PRINT.ragingBolt.test(printing)) return !boardHas(own, PRINT.ragingBolt) && hasBenchSpace(own) ? 220 : 0;
+  if (PRINT.ragingBolt.test(printing)) {
+    const count = boardCount(own, PRINT.ragingBolt);
+    return count < 2 && hasBenchSpace(own) ? (count === 0 ? 220 : 145) : 0;
+  }
   if (PRINT.adp.test(printing)) return !boardHas(own, PRINT.adp) && hasBenchSpace(own) ? 205 : 0;
   if (PRINT.sada.test(printing)) return discardEnergyTypes(own).size > 0 && ancientBoardCount(own) > 0 ? 250 : 0;
   if (PRINT.carmine.test(printing)) return turn === 1 && hand <= 5 ? 225 : 0;
   if (PRINT.raihan.test(printing)) return priorOpponentTurnKo(request) && discardEnergyTypes(own).size > 0 ? 235 : 0;
   if (PRINT.guzma.test(printing)) return benchCount(opponent) > 0 && benchCount(own) > 0 ? 200 : 0;
   if (PRINT.iono.test(printing)) return hand <= 3 || opponent.handCount >= hand + 3 ? 165 : 0;
-  if (PRINT.arven.test(printing)) return !handHas(observation, PRINT.floatStone) || !handHas(observation, PRINT.forestSealStone) ? 140 : 0;
+  if (PRINT.arven.test(printing)) {
+    const hasV = boardSlots(own).some(pokemon => matches(pokemon, PRINT.crobat) || matches(pokemon, PRINT.moltres));
+    const wantsTool = (!ownFreeRetreat(observation) && !handHas(observation, PRINT.floatStone)) ||
+      (hasV && own.publicTurnRestrictions?.vstarUsed === false && !handHas(observation, PRINT.forestSealStone));
+    const wantsItem = (!boardHas(own, PRINT.ragingBolt) || !boardHas(own, PRINT.adp)) ||
+      (discardEnergyTypes(own).size < 3 && !handHas(observation, PRINT.compressor)) ||
+      (opponentHasToolsOrStadium(observation) && !handHas(observation, PRINT.fieldBlower));
+    return wantsTool && wantsItem ? 145 : (wantsTool || wantsItem ? 85 : 0);
+  }
   if (PRINT.quickBall.test(printing)) return !boardHas(own, PRINT.ragingBolt) || !boardHas(own, PRINT.adp) ? 190 : 95;
-  if (PRINT.compressor.test(printing)) return discardEnergyTypes(own).size < 3 ? 190 : 80;
+  if (PRINT.compressor.test(printing)) {
+    const hasHoOhVisible = boardHas(own, PRINT.hoOh) || discardHas(own, PRINT.hoOh) ||
+      handHas(observation, PRINT.hoOh);
+    return discardEnergyTypes(own).size < 3 ? 190 : (hasHoOhVisible ? 0 : 80);
+  }
   if (PRINT.vsSeeker.test(printing)) return list(own.discard).some(card => SUPPORTER_PATTERNS.some(pattern => pattern.test(printingValue(card)))) ? 130 : 0;
   if (PRINT.nightStretcher.test(printing)) return list(own.discard).some(card =>
     PRINT.ragingBolt.test(card) || PRINT.hoOh.test(card) || isBasicEnergy(card)) ? 125 : 0;
@@ -629,7 +659,7 @@ function scoreAction(item, request) {
   if (PRINT.fieldBlower.test(printing)) return opponentHasToolsOrStadium(request.observation) ? 135 : 0;
   if (PRINT.cherishBall.test(printing)) return !boardHas(own, PRINT.adp) || !boardHas(own, PRINT.dedenne) ? 150 : 0;
   if (PRINT.heavyBall.test(printing)) return 0; // The current prize projector hides identities; fail closed.
-  if (PRINT.secretBox.test(printing)) return hand >= 5 ? 130 : 0;
+  if (PRINT.secretBox.test(printing)) return hand >= 4 ? 130 : 0;
   if (PRINT.floatStone.test(printing)) return !ownFreeRetreat(observation) &&
     active && Number.isFinite(active.printed?.retreatCost?.length) && active.printed.retreatCost.length > 0 ? 100 : 0;
   if (PRINT.forestSealStone.test(printing)) return own.publicTurnRestrictions?.vstarUsed === false &&
@@ -799,8 +829,14 @@ function promptDecision(request) {
       return selectMany(prompt, choice => searchTargetPriority(choice, request, lower), 'NO_SEARCH_TARGET');
     }
     if (lower.includes('field blower')) {
-      return selectMany(prompt, choice => /Stealthy Hood|Float Stone|Forest Seal Stone|Sky Field|Dimension Valley|Temple of Sinnoh/i.test(printingValue(choice)) ? 180 : 20,
-        'NO_FIELD_BLOWER_TARGET');
+      return selectMany(prompt, choice => {
+        const value = printingValue(choice);
+        const ownerSeat = metadata(choice).ownerSeat;
+        if (/Sky Field|Dimension Valley|Temple of Sinnoh|Path to the Peak|Silent Lab/i.test(value) &&
+            hasHostileStadium(request.observation)) return 180;
+        if (ownerSeat === 'opponent' && /Stealthy Hood|Float Stone|Forest Seal Stone/i.test(value)) return 170;
+        return 0;
+      }, 'NO_FIELD_BLOWER_TARGET');
     }
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_SELECTION_SOURCE' };
   }
