@@ -22,6 +22,19 @@ function checked(req,seat=0){const init={schema:protocol.INIT_SCHEMA,type:'init'
 function gitBlobSha1(s){return crypto.createHash('sha1').update('blob '+Buffer.byteLength(s,'utf8')+'\0'+s,'utf8').digest('hex')}
 function sha256(s){return crypto.createHash('sha256').update(s,'utf8').digest('hex')}
 
+test('dependency manifest binds policy, worker protocol, and pinned Twinleaf',()=>{
+ const m=JSON.parse(fs.readFileSync(path.join(root,'results/aichi-2026/2026-11/agent31-rank11-opponent-policy-v1-dependencies.json'),'utf8'));
+ const policyText=fs.readFileSync(path.join(root,'simulation/evaluation/2026-11/agent31-rank11-absol-garbodor-opponent-policy.cjs'),'utf8');
+ const testText=fs.readFileSync(path.join(root,'tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs'),'utf8');
+ const gitmodules=fs.readFileSync(path.join(root,'.gitmodules'),'utf8');
+ assert.equal(m.policy.sha256,bundleSha256);
+ assert.equal(m.policy.gitBlobSha1,gitBlobSha1(policyText));
+ assert.equal(m.workerProtocol.gitBlobSha1,WORKER_PROTOCOL_BLOB_SHA1);
+ assert.equal(m.engine.pinnedRevision,policy.ENGINE_PIN);
+ assert.equal(m.engine.submodulePath,'vendor/twinleaf');
+ assert.ok(gitmodules.includes(m.engine.remote));
+ assert.equal(m.test.sha256,sha256(testText));
+});
 test('rank-11 source inventory is the exact published 60',()=>{
  assert.equal(SOURCE_RANK,11);assert.equal(SOURCE_INVENTORY.reduce((n,r)=>n+r[1],0),60);
  const text=fs.readFileSync(path.join(root,'results/aichi-2026/full-decklists.json'),'utf8');
