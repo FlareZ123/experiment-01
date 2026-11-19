@@ -1,0 +1,1503 @@
+{
+  "schema": "aichi-policy-challenge-suite-v1",
+  "suiteId": "aichi-2026-rank31-dusknoir-chimecho-opponent-v2",
+  "suiteVersion": "1.1.0",
+  "status": "prototype-not-attestable",
+  "attestationStatus": "blocked",
+  "policy": {
+    "policyId": "agent35-rank31-dusknoir-chimecho-opponent-v1",
+    "role": "opponent-policy",
+    "sourceRank": 31,
+    "producerId": "agent35",
+    "modulePath": "simulation/evaluation/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.cjs",
+    "moduleBlobSha1": "2087c9edc1258489b6a1d6493b1096a9e08fab6d",
+    "moduleSha256": "5ec8612fa9d894f7c91ad3a226c7d515803deefe196595eb1367a442f730df46",
+    "sourceFingerprint": "36b077c17263471d3a2161f9cfcd352d9de7b9cfad6eeb8ad60310c32b5845c8",
+    "candidateFingerprint": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+    "gamesPlayed": 0,
+    "winRate": null
+  },
+  "sourceBinding": {
+    "sourceRank": 31,
+    "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+    "sourceDeckBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "sourceDeckFingerprintSha256": "36b077c17263471d3a2161f9cfcd352d9de7b9cfad6eeb8ad60310c32b5845c8",
+    "sourceDeckPlayer": "Yuhi Yokoyama",
+    "sourceDeckCardCount": 60,
+    "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+    "candidateDeckBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+    "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+    "cardPrintReferences": [
+      "Dusclops PRE 36",
+      "Dusknoir PRE 37",
+      "Dusknoir BCR 63",
+      "Radiant Alakazam SIT 59",
+      "Field Blower GRI 125",
+      "Roxie CEC 205",
+      "Koffing CEC 76",
+      "Chimecho CIN 43"
+    ],
+    "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "researchHookRevision": "none"
+  },
+  "dependencies": {
+    "dependencyManifestPath": "simulation/evaluation/2026-11/agent35-rank31-dependency-manifest-v1.json",
+    "dependencyManifestSha256": "c53e1926f16b503c10647413e0a1547a0032a55f627e811b766853f9d2bf8ea4",
+    "commonConstraintsPath": "simulation/evaluation/2026-11/agent35-rank31-common-constraints-v1.json",
+    "commonConstraintsSha256": "0f757176f928cf967660372011cb78744d527271a0ec14fbe6fa4274be4e6632",
+    "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+    "promptProjectionBlobSha1": "0487809d4fb3e213a73a02fa1e68f8f27b45ce1a",
+    "testFileBlobSha1": "d310be1703bb79a53ad8751774533289450e21d0",
+    "testFileSha256": "ece8592006511c32f98b2207ea40183ffa444671816d0d0634a54cf15e756a39",
+    "engine": {
+      "submodulePath": "vendor/twinleaf",
+      "remote": "https://github.com/twinleafgg/twinleafgg.git",
+      "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+    },
+    "manifestSha256": "630346ec6a6de7c629499487cc1085dce188647f9c7b73e2f78d58ced0a68033"
+  },
+  "executionSummary": {
+    "developmentTestCount": 15,
+    "unitTestsPassed": 15,
+    "unitTestsFailed": 0,
+    "actorViewFixtureCount": 16,
+    "evidenceClassCounts": {
+      "sourceNatural": 0,
+      "nativeStaged": 0,
+      "synthetic": 15
+    },
+    "nativeGames": 0,
+    "nativeStoreReceipts": 0,
+    "workerIpcHandshakes": 0,
+    "timeoutMeasured": false,
+    "nodeTestRunnerExecuted": false,
+    "localHarness": "V8 isolate with actual Agent49 validateRequest/validateDecision and node:test/assert shims",
+    "promptTypeCounts": {
+      "root-action-frontier": 9,
+      "ChoosePokemonPrompt": 4,
+      "SelectOptionPrompt": 2,
+      "ChooseCardsPrompt": 1,
+      "MoveDamagePrompt": 1
+    },
+    "fullMatchupCoverage": {
+      "rank31VsFixedCandidateGames": 0,
+      "top32MatchupsWithResults": 0,
+      "all32Assessed": false,
+      "aggregateWinRate": null,
+      "confidenceInterval": null
+    },
+    "actorRequestCount": 17,
+    "decisionReceiptCount": 17,
+    "selectionTypeCounts": {
+      "none": 10,
+      "pokemon": 4,
+      "option": 2,
+      "card-combination": 1
+    },
+    "pinnedSourceInspections": 3,
+    "nativeSourceMappingConfirmed": true
+  },
+  "dispositionSemantics": {
+    "pass": "Only with native reachability, paper legality, strategic suitability, execution integrity and required review.",
+    "blocked": "Synthetic-only, unsupported prompt, or missing required evidence.",
+    "fail": "Illegal/unreachable action, hidden information, or contradictory native evidence.",
+    "currentResult": "14/14 synthetic tests pass; all cases remain blocked for native/competitive attestation.",
+    "currentSuiteResult": "15/15 synthetic validator tests pass; Dusclops and Dusknoir Cursed Blast source mappings are pinned-source-inspected; all cases remain blocked for native/competitive attestation."
+  },
+  "developmentCases": [
+    {
+      "caseId": "r31-dev-01-source-binding",
+      "split": "development",
+      "testName": "source binding rejects wrong rank and candidate fingerprint",
+      "objective": "Reject wrong rank and candidate fingerprint at initialization.",
+      "caseClass": "negative-control",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.test.cjs",
+        "requestDigests": [],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unknown token",
+          "duplicate multi-select token",
+          "Hood-protected Cursed Blast target",
+          "hidden hand inference",
+          "wrong seat",
+          "fabricated pass token",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ]
+      },
+      "costLedger": {
+        "applicability": "synthetic only; no game action executed",
+        "description": "Reject wrong rank and candidate fingerprint at initialization."
+      },
+      "promptCoverage": [],
+      "executionEvidence": {
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with actual Agent49 validators",
+        "requestValidation": "validateRequest",
+        "decisionValidation": "validateDecision",
+        "nativeTwinleafExecution": false,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": false,
+        "timeoutMeasured": false,
+        "actualChosenActions": []
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic policy/validator case passed; no native or strategic evidence.",
+      "reviewerStatus": "unreviewed"
+    },
+    {
+      "caseId": "r31-dev-02-dusknoir-pre-cursed-blast",
+      "split": "development",
+      "testName": "Dusknoir PRE Cursed Blast only trades itself for an unprotected multi-Prize KO",
+      "objective": "Use 13 counters only for an unprotected multi-Prize KO.",
+      "caseClass": "decision-case",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.test.cjs",
+        "requestDigests": [
+          "5c0c32aefbb30df7bf7583709880a99e51e524cb35777154e7503122245c5150",
+          "dda40ec2ce1221fc8ad28e35b8b41f69052728b19415c8152baeb142942da184"
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "kind": "select-action",
+            "token": "blast"
+          },
+          {
+            "kind": "select-action",
+            "token": "pass"
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unknown token",
+          "duplicate multi-select token",
+          "Hood-protected Cursed Blast target",
+          "hidden hand inference",
+          "wrong seat",
+          "fabricated pass token",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ]
+      },
+      "costLedger": {
+        "applicability": "synthetic only; no game action executed",
+        "description": "Use 13 counters only for an unprotected multi-Prize KO."
+      },
+      "promptCoverage": [
+        {
+          "promptType": "root-action-frontier",
+          "executionClass": "synthetic",
+          "nativeReceipt": null
+        }
+      ],
+      "executionEvidence": {
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with actual Agent49 validators",
+        "requestValidation": "validateRequest",
+        "decisionValidation": "validateDecision",
+        "nativeTwinleafExecution": false,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": false,
+        "timeoutMeasured": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "blast"
+          },
+          {
+            "kind": "select-action",
+            "token": "pass"
+          }
+        ]
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic policy/validator case passed; no native or strategic evidence.",
+      "reviewerStatus": "unreviewed"
+    },
+    {
+      "caseId": "r31-dev-03-dusclops-pre-cursed-blast",
+      "split": "development",
+      "testName": "Dusclops PRE Cursed Blast uses its separate 5-counter KO threshold",
+      "objective": "Distinguish 5-counter Dusclops from 13-counter Dusknoir.",
+      "caseClass": "decision-case",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.test.cjs",
+        "requestDigests": [
+          "103b5c0fa75278045851be14c7adf680f8d378aa7f9b9d8fb998d1391d82fa35",
+          "18ed9c6af5a98b5bbc5afcfbb07f0a30bfe2b4543f91259e0e1f52d92d70ab7a"
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "kind": "select-action",
+            "token": "pass"
+          },
+          {
+            "kind": "select-action",
+            "token": "blast"
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unknown token",
+          "duplicate multi-select token",
+          "Hood-protected Cursed Blast target",
+          "hidden hand inference",
+          "wrong seat",
+          "fabricated pass token",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ]
+      },
+      "costLedger": {
+        "applicability": "synthetic only; no game action executed",
+        "description": "Distinguish 5-counter Dusclops from 13-counter Dusknoir."
+      },
+      "promptCoverage": [
+        {
+          "promptType": "root-action-frontier",
+          "executionClass": "synthetic",
+          "nativeReceipt": null
+        }
+      ],
+      "executionEvidence": {
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with actual Agent49 validators",
+        "requestValidation": "validateRequest",
+        "decisionValidation": "validateDecision",
+        "nativeTwinleafExecution": false,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": false,
+        "timeoutMeasured": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "pass"
+          },
+          {
+            "kind": "select-action",
+            "token": "blast"
+          }
+        ]
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic policy/validator case passed; no native or strategic evidence.",
+      "reviewerStatus": "unreviewed"
+    },
+    {
+      "caseId": "r31-dev-04-cursed-blast-prompt",
+      "split": "development",
+      "testName": "Cursed Blast prompt avoids a Hooded Active and selects the unprotected Bench KO",
+      "objective": "Select an unprotected opponent Bench target.",
+      "caseClass": "decision-case",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.test.cjs",
+        "requestDigests": [
+          "81c6a97c7994344325b3a8a6750c05224524bdd31e851c0c5611ac700c126f61"
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "bench"
+            ]
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unknown token",
+          "duplicate multi-select token",
+          "Hood-protected Cursed Blast target",
+          "hidden hand inference",
+          "wrong seat",
+          "fabricated pass token",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ]
+      },
+      "costLedger": {
+        "applicability": "synthetic only; no game action executed",
+        "description": "Select an unprotected opponent Bench target."
+      },
+      "promptCoverage": [
+        {
+          "promptType": "ChoosePokemonPrompt",
+          "executionClass": "synthetic",
+          "nativeReceipt": null
+        }
+      ],
+      "executionEvidence": {
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with actual Agent49 validators",
+        "requestValidation": "validateRequest",
+        "decisionValidation": "validateDecision",
+        "nativeTwinleafExecution": false,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": false,
+        "timeoutMeasured": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "bench"
+            ]
+          }
+        ]
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic policy/validator case passed; no native or strategic evidence.",
+      "reviewerStatus": "unreviewed"
+    },
+    {
+      "caseId": "r31-dev-05-field-blower-mode",
+      "split": "development",
+      "testName": "Field Blower chooses the two-Tool mode when two Hood targets are present",
+      "objective": "Prefer the two-Tool branch when two Hoods are present.",
+      "caseClass": "decision-case",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.test.cjs",
+        "requestDigests": [
+          "ed522c6b0c5e901deb5b00b959db67dc655746958c43ba9aca75b66f5d402bec"
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "kind": "select-choice",
+            "token": "two-tools"
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unknown token",
+          "duplicate multi-select token",
+          "Hood-protected Cursed Blast target",
+          "hidden hand inference",
+          "wrong seat",
+          "fabricated pass token",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ]
+      },
+      "costLedger": {
+        "applicability": "synthetic only; no game action executed",
+        "description": "Prefer the two-Tool branch when two Hoods are present."
+      },
+      "promptCoverage": [
+        {
+          "promptType": "SelectOptionPrompt",
+          "executionClass": "synthetic",
+          "nativeReceipt": null
+        }
+      ],
+      "executionEvidence": {
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with actual Agent49 validators",
+        "requestValidation": "validateRequest",
+        "decisionValidation": "validateDecision",
+        "nativeTwinleafExecution": false,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": false,
+        "timeoutMeasured": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choice",
+            "token": "two-tools"
+          }
+        ]
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic policy/validator case passed; no native or strategic evidence.",
+      "reviewerStatus": "unreviewed"
+    },
+    {
+      "caseId": "r31-dev-06-field-blower-targets",
+      "split": "development",
+      "testName": "Field Blower target prompt selects both opponent Pokémon carrying Hood",
+      "objective": "Select both opponent Pokémon carrying Stealthy Hood.",
+      "caseClass": "decision-case",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.test.cjs",
+        "requestDigests": [
+          "071b12ba7bfaefb77cace884e4edac46b43f8fce9d755f9d09cdad42dd84eebf"
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "hood-1",
+              "hood-2"
+            ]
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unknown token",
+          "duplicate multi-select token",
+          "Hood-protected Cursed Blast target",
+          "hidden hand inference",
+          "wrong seat",
+          "fabricated pass token",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ]
+      },
+      "costLedger": {
+        "applicability": "synthetic only; no game action executed",
+        "description": "Select both opponent Pokémon carrying Stealthy Hood."
+      },
+      "promptCoverage": [
+        {
+          "promptType": "ChoosePokemonPrompt",
+          "executionClass": "synthetic",
+          "nativeReceipt": null
+        }
+      ],
+      "executionEvidence": {
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with actual Agent49 validators",
+        "requestValidation": "validateRequest",
+        "decisionValidation": "validateDecision",
+        "nativeTwinleafExecution": false,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": false,
+        "timeoutMeasured": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "hood-1",
+              "hood-2"
+            ]
+          }
+        ]
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic policy/validator case passed; no native or strategic evidence.",
+      "reviewerStatus": "unreviewed"
+    },
+    {
+      "caseId": "r31-dev-07-field-blower-unknown-mode",
+      "split": "development",
+      "testName": "Field Blower abstains when option labels do not expose their semantics",
+      "objective": "Fail closed on unknown Field Blower labels.",
+      "caseClass": "negative-control",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.test.cjs",
+        "requestDigests": [
+          "f3b9ddf5b57cf6571c4c5801c7d41fe25f64fb900723878afc8d6b37bcab4928"
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "kind": "abstain",
+            "reasonCode": "FIELD_BLOWER_MODE_UNRECOGNIZED"
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unknown token",
+          "duplicate multi-select token",
+          "Hood-protected Cursed Blast target",
+          "hidden hand inference",
+          "wrong seat",
+          "fabricated pass token",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ]
+      },
+      "costLedger": {
+        "applicability": "synthetic only; no game action executed",
+        "description": "Fail closed on unknown Field Blower labels."
+      },
+      "promptCoverage": [
+        {
+          "promptType": "SelectOptionPrompt",
+          "executionClass": "synthetic",
+          "nativeReceipt": null
+        }
+      ],
+      "executionEvidence": {
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with actual Agent49 validators",
+        "requestValidation": "validateRequest",
+        "decisionValidation": "validateDecision",
+        "nativeTwinleafExecution": false,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": false,
+        "timeoutMeasured": false,
+        "actualChosenActions": [
+          {
+            "kind": "abstain",
+            "reasonCode": "FIELD_BLOWER_MODE_UNRECOGNIZED"
+          }
+        ]
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic policy/validator case passed; no native or strategic evidence.",
+      "reviewerStatus": "unreviewed"
+    },
+    {
+      "caseId": "r31-dev-08-roxie-koffing",
+      "split": "development",
+      "testName": "Roxie discards Koffing for Blow-Away Bomb and excludes rule-box Pokémon",
+      "objective": "Prioritize Koffing and exclude rule-box Pokémon.",
+      "caseClass": "decision-case",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.test.cjs",
+        "requestDigests": [
+          "5934164cc08372f64cd37f4ad31c35ecd81539c9c1a06718b4d2b47ca4200c17"
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "koffing",
+              "unown"
+            ]
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unknown token",
+          "duplicate multi-select token",
+          "Hood-protected Cursed Blast target",
+          "hidden hand inference",
+          "wrong seat",
+          "fabricated pass token",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ]
+      },
+      "costLedger": {
+        "applicability": "synthetic only; no game action executed",
+        "description": "Prioritize Koffing and exclude rule-box Pokémon."
+      },
+      "promptCoverage": [
+        {
+          "promptType": "ChooseCardsPrompt",
+          "executionClass": "synthetic",
+          "nativeReceipt": null
+        }
+      ],
+      "executionEvidence": {
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with actual Agent49 validators",
+        "requestValidation": "validateRequest",
+        "decisionValidation": "validateDecision",
+        "nativeTwinleafExecution": false,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": false,
+        "timeoutMeasured": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "koffing",
+              "unown"
+            ]
+          }
+        ]
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic policy/validator case passed; no native or strategic evidence.",
+      "reviewerStatus": "unreviewed"
+    },
+    {
+      "caseId": "r31-dev-09-chimecho-bell",
+      "split": "development",
+      "testName": "Chimecho Bell of Silence outranks Poison Gas against an Ability board",
+      "objective": "Prefer Bell of Silence against a visible Ability-bearing board.",
+      "caseClass": "decision-case",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.test.cjs",
+        "requestDigests": [
+          "035100e4559ec8bfdd05a4034e0873c939b56aa42bcf0896d278753e161b7e77"
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "kind": "select-action",
+            "token": "bell"
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unknown token",
+          "duplicate multi-select token",
+          "Hood-protected Cursed Blast target",
+          "hidden hand inference",
+          "wrong seat",
+          "fabricated pass token",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ]
+      },
+      "costLedger": {
+        "applicability": "synthetic only; no game action executed",
+        "description": "Prefer Bell of Silence against a visible Ability-bearing board."
+      },
+      "promptCoverage": [
+        {
+          "promptType": "root-action-frontier",
+          "executionClass": "synthetic",
+          "nativeReceipt": null
+        }
+      ],
+      "executionEvidence": {
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with actual Agent49 validators",
+        "requestValidation": "validateRequest",
+        "decisionValidation": "validateDecision",
+        "nativeTwinleafExecution": false,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": false,
+        "timeoutMeasured": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "bell"
+          }
+        ]
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic policy/validator case passed; no native or strategic evidence.",
+      "reviewerStatus": "unreviewed"
+    },
+    {
+      "caseId": "r31-dev-10-poltergeist-information",
+      "split": "development",
+      "testName": "Poltergeist does not infer a hidden opponent hand",
+      "objective": "Do not estimate Poltergeist damage from a hidden hand.",
+      "caseClass": "negative-control",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.test.cjs",
+        "requestDigests": [
+          "3457218e1c401809ce3c62fb377421ead2c02efb838a6a1c907568120b69c154"
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "kind": "select-action",
+            "token": "pass"
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unknown token",
+          "duplicate multi-select token",
+          "Hood-protected Cursed Blast target",
+          "hidden hand inference",
+          "wrong seat",
+          "fabricated pass token",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ]
+      },
+      "costLedger": {
+        "applicability": "synthetic only; no game action executed",
+        "description": "Do not estimate Poltergeist damage from a hidden hand."
+      },
+      "promptCoverage": [
+        {
+          "promptType": "root-action-frontier",
+          "executionClass": "synthetic",
+          "nativeReceipt": null
+        }
+      ],
+      "executionEvidence": {
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with actual Agent49 validators",
+        "requestValidation": "validateRequest",
+        "decisionValidation": "validateDecision",
+        "nativeTwinleafExecution": false,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": false,
+        "timeoutMeasured": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "pass"
+          }
+        ]
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic policy/validator case passed; no native or strategic evidence.",
+      "reviewerStatus": "unreviewed"
+    },
+    {
+      "caseId": "r31-dev-11-movedamage-fail-closed",
+      "split": "development",
+      "testName": "MoveDamagePrompt fails closed until shared projection supports it",
+      "objective": "Do not invent damage-transfer decisions when unprojected.",
+      "caseClass": "negative-control",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.test.cjs",
+        "requestDigests": [
+          "97c8eb20ad35311c7aa74c5d606d5608a84c929c942d4ba62ad95ce9be788f7a"
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "kind": "abstain",
+            "reasonCode": "MOVE_DAMAGE_PROMPT_NOT_PROJECTED"
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unknown token",
+          "duplicate multi-select token",
+          "Hood-protected Cursed Blast target",
+          "hidden hand inference",
+          "wrong seat",
+          "fabricated pass token",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ]
+      },
+      "costLedger": {
+        "applicability": "synthetic only; no game action executed",
+        "description": "Do not invent damage-transfer decisions when unprojected."
+      },
+      "promptCoverage": [
+        {
+          "promptType": "MoveDamagePrompt",
+          "executionClass": "synthetic",
+          "nativeReceipt": null
+        }
+      ],
+      "executionEvidence": {
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with actual Agent49 validators",
+        "requestValidation": "validateRequest",
+        "decisionValidation": "validateDecision",
+        "nativeTwinleafExecution": false,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": false,
+        "timeoutMeasured": false,
+        "actualChosenActions": [
+          {
+            "kind": "abstain",
+            "reasonCode": "MOVE_DAMAGE_PROMPT_NOT_PROJECTED"
+          }
+        ]
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic policy/validator case passed; no native or strategic evidence.",
+      "reviewerStatus": "unreviewed"
+    },
+    {
+      "caseId": "r31-dev-12-seat-one",
+      "split": "development",
+      "testName": "same policy handles the physical seat-1 Cursed Blast prompt",
+      "objective": "Apply actor-relative prompt selection from seat 1.",
+      "caseClass": "decision-case",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.test.cjs",
+        "requestDigests": [
+          "75a8559277345860024a7b6ee7ad2c7521ecad43954988b51f098b2430119639"
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "target"
+            ]
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unknown token",
+          "duplicate multi-select token",
+          "Hood-protected Cursed Blast target",
+          "hidden hand inference",
+          "wrong seat",
+          "fabricated pass token",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ]
+      },
+      "costLedger": {
+        "applicability": "synthetic only; no game action executed",
+        "description": "Apply actor-relative prompt selection from seat 1."
+      },
+      "promptCoverage": [
+        {
+          "promptType": "ChoosePokemonPrompt",
+          "executionClass": "synthetic",
+          "nativeReceipt": null
+        }
+      ],
+      "executionEvidence": {
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with actual Agent49 validators",
+        "requestValidation": "validateRequest",
+        "decisionValidation": "validateDecision",
+        "nativeTwinleafExecution": false,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": false,
+        "timeoutMeasured": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "target"
+            ]
+          }
+        ]
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic policy/validator case passed; no native or strategic evidence.",
+      "reviewerStatus": "unreviewed"
+    },
+    {
+      "caseId": "r31-dev-13-no-pass",
+      "split": "development",
+      "testName": "no supported root action does not invent a pass token",
+      "objective": "Abstain rather than fabricate a pass token.",
+      "caseClass": "negative-control",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.test.cjs",
+        "requestDigests": [
+          "4564427866a72224c9d576625d2f65dee82793c5f0deed3d08ce518a5ce6761f"
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "kind": "abstain",
+            "reasonCode": "NO_EXECUTABLE_ACTION"
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unknown token",
+          "duplicate multi-select token",
+          "Hood-protected Cursed Blast target",
+          "hidden hand inference",
+          "wrong seat",
+          "fabricated pass token",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ]
+      },
+      "costLedger": {
+        "applicability": "synthetic only; no game action executed",
+        "description": "Abstain rather than fabricate a pass token."
+      },
+      "promptCoverage": [
+        {
+          "promptType": "root-action-frontier",
+          "executionClass": "synthetic",
+          "nativeReceipt": null
+        }
+      ],
+      "executionEvidence": {
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with actual Agent49 validators",
+        "requestValidation": "validateRequest",
+        "decisionValidation": "validateDecision",
+        "nativeTwinleafExecution": false,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": false,
+        "timeoutMeasured": false,
+        "actualChosenActions": [
+          {
+            "kind": "abstain",
+            "reasonCode": "NO_EXECUTABLE_ACTION"
+          }
+        ]
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic policy/validator case passed; no native or strategic evidence.",
+      "reviewerStatus": "unreviewed"
+    },
+    {
+      "caseId": "r31-dev-14-determinism",
+      "split": "development",
+      "testName": "identical actor-visible requests produce identical decisions",
+      "objective": "Repeat identical input and compare validated decisions.",
+      "caseClass": "negative-control",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.test.cjs",
+        "requestDigests": [
+          "5c0c32aefbb30df7bf7583709880a99e51e524cb35777154e7503122245c5150",
+          "5c0c32aefbb30df7bf7583709880a99e51e524cb35777154e7503122245c5150"
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "kind": "select-action",
+            "token": "blast"
+          },
+          {
+            "kind": "select-action",
+            "token": "blast"
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unknown token",
+          "duplicate multi-select token",
+          "Hood-protected Cursed Blast target",
+          "hidden hand inference",
+          "wrong seat",
+          "fabricated pass token",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action",
+          "select-choice",
+          "select-choices",
+          "abstain"
+        ]
+      },
+      "costLedger": {
+        "applicability": "synthetic only; no game action executed",
+        "description": "Repeat identical input and compare validated decisions."
+      },
+      "promptCoverage": [
+        {
+          "promptType": "root-action-frontier",
+          "executionClass": "synthetic",
+          "nativeReceipt": null
+        }
+      ],
+      "executionEvidence": {
+        "unitTestResult": "pass",
+        "unitHarness": "V8 isolate with actual Agent49 validators",
+        "requestValidation": "validateRequest",
+        "decisionValidation": "validateDecision",
+        "nativeTwinleafExecution": false,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": false,
+        "timeoutMeasured": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "blast"
+          },
+          {
+            "kind": "select-action",
+            "token": "blast"
+          }
+        ]
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic policy/validator case passed; no native or strategic evidence.",
+      "reviewerStatus": "unreviewed"
+    },
+    {
+      "caseId": "r31-dev-15-dusclops-pre-cursed-blast-prompt",
+      "split": "development",
+      "testName": "Dusclops PRE Cursed Blast prompt uses its 5-counter threshold",
+      "objective": "Exercise Dusclops PRE 36 ChoosePokemonPrompt with its 50-damage-counter threshold.",
+      "caseClass": "decision-case",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.test.cjs",
+        "requestDigests": [
+          "c95ab4f715a0501e4d8a9d6c0bfc21821977e2c76208d9e733183b5d37112fcc"
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "target"
+            ]
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "using the 130-counter Dusknoir threshold for Dusclops",
+          "selecting a token outside the prompt",
+          "inventing a target"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choices"
+        ],
+        "rationale": "Synthetic actor-view fixture passed actual Agent49 request and decision validators."
+      },
+      "costLedger": {
+        "applicability": "synthetic only; no game action executed",
+        "description": "Dusclops PRE 36 Cursed Blast places 5 damage counters; pinned source confirms ChoosePokemonPrompt min 1/max 1 and self-KO."
+      },
+      "promptCoverage": [
+        {
+          "promptType": "ChoosePokemonPrompt",
+          "executionClass": "synthetic",
+          "sourcePrinting": "Dusclops PRE 36",
+          "pinnedSourceContract": "TOP_PLAYER; Active/Bench; min 1/max 1; no cancel",
+          "nativeReceipt": null
+        }
+      ],
+      "executionEvidence": {
+        "unitTestResult": "pass",
+        "unitHarness": "local V8 isolate with actual Agent49 validators",
+        "requestValidation": "validateRequest",
+        "decisionValidation": "validateDecision",
+        "nativeTwinleafExecution": false,
+        "nativeGameCount": 0,
+        "nativeStoreReceipt": null,
+        "pinnedSourceInspection": true,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": false,
+        "timeoutMeasured": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "target"
+            ]
+          }
+        ]
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic validator test passed and pinned source mapping is inspected; no native Store receipt or game exists.",
+      "reviewerStatus": "unreviewed"
+    }
+  ],
+  "negativeControls": [
+    {
+      "caseId": "r31-dev-01-source-binding",
+      "expected": "reject wrong rank/candidate fingerprint"
+    },
+    {
+      "caseId": "r31-dev-02-dusknoir-pre-cursed-blast",
+      "expected": "do not self-KO into Stealthy Hood prevention"
+    },
+    {
+      "caseId": "r31-dev-03-dusclops-pre-cursed-blast",
+      "expected": "do not spend 5-counter self-KO below KO threshold"
+    },
+    {
+      "caseId": "r31-dev-07-field-blower-unknown-mode",
+      "expected": "abstain on unknown option labels"
+    },
+    {
+      "caseId": "r31-dev-10-poltergeist-information",
+      "expected": "do not infer hidden opponent hand"
+    },
+    {
+      "caseId": "r31-dev-11-movedamage-fail-closed",
+      "expected": "abstain on unsupported MoveDamagePrompt"
+    },
+    {
+      "caseId": "r31-dev-13-no-pass",
+      "expected": "do not fabricate a pass token"
+    },
+    {
+      "caseId": "r31-dev-14-determinism",
+      "expected": "same input, same output"
+    }
+  ],
+  "heldOutReviewCases": [
+    {
+      "caseId": "r31-ho-01-dusclops-native-cursed-blast",
+      "objective": "Native Store receipt for Dusclops PRE 36 Cursed Blast prompt and self-KO in both seats (static mapping already verified).",
+      "split": "held-out",
+      "status": "not-run",
+      "notUsedForTuning": true,
+      "evidenceClass": "none",
+      "disposition": "blocked"
+    },
+    {
+      "caseId": "r31-ho-02-field-blower-native-options",
+      "objective": "Exact native Field Blower option labels, target choices and two-Hood discard receipt.",
+      "split": "held-out",
+      "status": "not-run",
+      "notUsedForTuning": true,
+      "evidenceClass": "none",
+      "disposition": "blocked"
+    },
+    {
+      "caseId": "r31-ho-03-sinister-hand-movedamage",
+      "objective": "Dusknoir BCR 63 Sinister Hand MoveDamagePrompt contract.",
+      "split": "held-out",
+      "status": "not-run",
+      "notUsedForTuning": true,
+      "evidenceClass": "none",
+      "disposition": "blocked"
+    },
+    {
+      "caseId": "r31-ho-04-painful-spoons-movedamage",
+      "objective": "Radiant Alakazam Painful Spoons MoveDamagePrompt contract.",
+      "split": "held-out",
+      "status": "not-run",
+      "notUsedForTuning": true,
+      "evidenceClass": "none",
+      "disposition": "blocked"
+    },
+    {
+      "caseId": "r31-ho-05-roxie-koffing-natural-chain",
+      "objective": "Source-natural Roxie/Koffing effect sequence from exact rank31 deck.",
+      "split": "held-out",
+      "status": "not-run",
+      "notUsedForTuning": true,
+      "evidenceClass": "none",
+      "disposition": "blocked"
+    },
+    {
+      "caseId": "r31-ho-06-chimecho-bell-lock",
+      "objective": "Native Bell of Silence attack and next-turn lock.",
+      "split": "held-out",
+      "status": "not-run",
+      "notUsedForTuning": true,
+      "evidenceClass": "none",
+      "disposition": "blocked"
+    },
+    {
+      "caseId": "r31-ho-07-full-deck-policy",
+      "objective": "Full 60-card rank31 policy playability and turn sequencing.",
+      "split": "held-out",
+      "status": "not-run",
+      "notUsedForTuning": true,
+      "evidenceClass": "none",
+      "disposition": "blocked"
+    },
+    {
+      "caseId": "r31-ho-08-worker-runtime",
+      "objective": "Worker IPC, timeout, process isolation and no-fallback behavior.",
+      "split": "held-out",
+      "status": "not-run",
+      "notUsedForTuning": true,
+      "evidenceClass": "none",
+      "disposition": "blocked"
+    }
+  ],
+  "unresolvedCoverage": [
+    {
+      "area": "Dusclops PRE Cursed Blast",
+      "status": "Card text and pinned Twinleaf mapping/prompt/effect implementation verified; native Store receipt and runtime effect execution not tested."
+    },
+    {
+      "area": "Field Blower",
+      "status": "synthetic label parsing; exact native labels and effect receipt untested"
+    },
+    {
+      "area": "Sinister Hand / Painful Spoons",
+      "status": "blocked by unsupported MoveDamagePrompt"
+    },
+    {
+      "area": "Full policy",
+      "status": "setup, prizes, energy, evolution and turn sequencing incomplete"
+    },
+    {
+      "area": "Native execution",
+      "status": "zero games, receipts, IPC handshakes or timeout tests"
+    },
+    {
+      "area": "Strategic strength",
+      "status": "no matchup win rate, confidence interval or 99.5% evidence"
+    }
+  ],
+  "reviewer": {
+    "status": "not reviewed",
+    "reviewerId": null,
+    "reviewReceipt": null
+  },
+  "claims": {
+    "demonstrated": "Deterministic policy decisions and actual Agent49 validator behavior on synthetic actor-view fixtures; static pinned-source mapping and Cursed Blast effect contracts for both PRE printings.",
+    "notDemonstrated": [
+      "native Twinleaf execution",
+      "full rank31 competence",
+      "any matchup win rate",
+      "all 32 Top 32 matchups",
+      "99.5% target",
+      "native Store receipt or runtime Cursed Blast execution for Dusclops PRE 36"
+    ]
+  },
+  "caseRecordCount": 15,
+  "suiteSha256": "bcd81937a46744776cfbb445279d1b93d5fb1ca50e127e4416c7509abcbf229d",
+  "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
+  "suiteHeader": {
+    "schemaVersion": "v3-policy-challenge-suite-content-v1",
+    "role": "opponent-policy",
+    "sourceRank": 31,
+    "sourceDeckFingerprintSha256": "36b077c17263471d3a2161f9cfcd352d9de7b9cfad6eeb8ad60310c32b5845c8",
+    "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+    "policySha256": "5ec8612fa9d894f7c91ad3a226c7d515803deefe196595eb1367a442f730df46",
+    "dependencyManifestSha256": "630346ec6a6de7c629499487cc1085dce188647f9c7b73e2f78d58ced0a68033",
+    "commonConstraintsSha256": "0f757176f928cf967660372011cb78744d527271a0ec14fbe6fa4274be4e6632",
+    "engine": {
+      "submodulePath": "vendor/twinleaf",
+      "remote": "https://github.com/twinleafgg/twinleafgg.git",
+      "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+    },
+    "candidatePolicyProducerId": null,
+    "opponentPolicyProducerIdByRank": {
+      "31": null
+    },
+    "declaredOpponentPolicyProducerIdByRank": {
+      "31": "agent35"
+    },
+    "bundleProducerId": null,
+    "declaredProducerIdSet": [
+      "agent35"
+    ],
+    "signedProducerIdSet": [],
+    "producerBindingStatus": "unbound; standalone prototype, not in signed V3 policy plan",
+    "suiteAuthor": "agent35",
+    "suiteProducerId": "agent35",
+    "createdAt": "2026-11-19T15:03:34.183Z",
+    "frozenAt": "2026-11-19T15:03:34.183Z",
+    "frozen": true,
+    "evidenceReferences": [
+      "simulation/evaluation/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.cjs",
+      "tests/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.test.cjs",
+      "simulation/evaluation/2026-11/agent35-rank31-dependency-manifest-v1.json",
+      "simulation/evaluation/2026-11/agent35-rank31-common-constraints-v1.json",
+      "results/aichi-2026/full-decklists.json",
+      "results/aichi-2026/candidate-hood-shadow-rider.json",
+      "resources/cards/en/sv8pt5.json",
+      "results/aichi-2026/2026-11/agent44-rank31-dusknoir-field-prompt-and-hood-counterline-20261115.md",
+      "ptcg-server/src/sets/10-scarlet-and-violet/set-prismatic-evolution/alt-arts.ts",
+      "ptcg-server/src/sets/10-scarlet-and-violet/set-shrouded-fable/dusclops.ts",
+      "ptcg-server/src/sets/10-scarlet-and-violet/set-shrouded-fable/dusknoir.ts"
+    ],
+    "developmentSplit": "developmentCases",
+    "heldOutSplit": "heldOutReviewCases",
+    "completeProducerIdSetUsedByPanel": null
+  },
+  "coverageMatrix": {
+    "corePlan": {
+      "caseIds": [
+        "r31-dev-02-dusknoir-pre-cursed-blast",
+        "r31-dev-03-dusclops-pre-cursed-blast",
+        "r31-dev-04-cursed-blast-prompt",
+        "r31-dev-08-roxie-koffing",
+        "r31-dev-09-chimecho-bell",
+        "r31-dev-15-dusclops-pre-cursed-blast-prompt"
+      ],
+      "evidenceClass": "synthetic-only",
+      "nativeStaged": 0,
+      "status": "blocked"
+    },
+    "toolCounterplay": {
+      "caseIds": [
+        "r31-dev-05-field-blower-mode",
+        "r31-dev-06-field-blower-targets",
+        "r31-dev-07-field-blower-unknown-mode"
+      ],
+      "evidenceClass": "synthetic-only",
+      "nativeStaged": 0,
+      "status": "blocked"
+    },
+    "informationControls": {
+      "caseIds": [
+        "r31-dev-10-poltergeist-information",
+        "r31-dev-11-movedamage-fail-closed",
+        "r31-dev-13-no-pass",
+        "r31-dev-14-determinism"
+      ],
+      "evidenceClass": "synthetic-only",
+      "nativeStaged": 0,
+      "status": "blocked"
+    },
+    "nativePromptCompletion": {
+      "promptFamilies": [
+        "ChoosePokemonPrompt",
+        "SelectOptionPrompt",
+        "ChooseCardsPrompt",
+        "MoveDamagePrompt"
+      ],
+      "physicalSeatsTested": [
+        0,
+        1
+      ],
+      "nativeReceipts": 0,
+      "status": "blocked"
+    },
+    "timeoutAndRuntimeSafety": {
+      "caseIds": [],
+      "timeoutTested": false,
+      "processSandboxVerified": false,
+      "status": "not-covered"
+    }
+  },
+  "policyStaticAudit": {
+    "sourcePath": "simulation/evaluation/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.cjs",
+    "sourceBlobSha1": "2087c9edc1258489b6a1d6493b1096a9e08fab6d",
+    "sourceSha256": "5ec8612fa9d894f7c91ad3a226c7d515803deefe196595eb1367a442f730df46",
+    "scannedAt": "2026-11-19T14:58:52.475Z",
+    "scannedTerms": [
+      {
+        "term": "Math.random",
+        "occurrences": 0
+      },
+      {
+        "term": "Date.now",
+        "occurrences": 0
+      },
+      {
+        "term": "process.",
+        "occurrences": 0
+      },
+      {
+        "term": "require(",
+        "occurrences": 0
+      },
+      {
+        "term": "eval(",
+        "occurrences": 0
+      },
+      {
+        "term": "fetch(",
+        "occurrences": 0
+      },
+      {
+        "term": "globalThis",
+        "occurrences": 0
+      },
+      {
+        "term": "opponentPrivate",
+        "occurrences": 0
+      },
+      {
+        "term": "hiddenHand",
+        "occurrences": 0
+      },
+      {
+        "term": "opponentHidden",
+        "occurrences": 0
+      },
+      {
+        "term": "seed",
+        "occurrences": 0
+      }
+    ],
+    "result": "zero occurrences for listed runtime/network/private-state references",
+    "determinism": "static scan plus repeated-request test",
+    "caveat": "not a process sandbox or native execution proof"
+  }
+}
