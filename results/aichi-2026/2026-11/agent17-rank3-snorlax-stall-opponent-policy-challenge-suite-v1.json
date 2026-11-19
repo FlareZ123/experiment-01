@@ -94,15 +94,15 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json",
-    "manifestSha256": "a99b9aa0a8db26216cba4ef486d0de0f1191e25535dddd8e6a432fe6a338342d",
+    "manifestSha256": "6d6dbb1024a4d113ca390ade7ee9c162fc99b0bbf74bfc789d5ef9411051cadd",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "testFilePath": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "testFileBlobSha1": "c21390fcbd776f628e40a913a1db129bc88d979c",
-    "testFileSha256": "0ef600a84bd862dac3d0439014fd1a691f25970d61374bc1a83c7c2204e0a494",
+    "testFileBlobSha1": "11c44e0760f080336de02fccb9e6c9ef898dcb15",
+    "testFileSha256": "4b5d7833c2152c87a607b629aacd96f28be52cb64fac4c4498896c3b43c341ae",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -7825,14 +7825,14 @@
       "reviewerExplanation": "The policy now uses the generic search branch's target-aware scoring for the exact rank-3 card printings. The fixtures show Faba selected only when a real opponent Tool target exists and avoid dead Supporters when it does not. They do not establish natural Teammates access frequency, native search resolution, matchup performance, or policy competence. Lusamine generic search and root-play scores now require actual recoverable Supporter/Stadium targets; direct assertions cover zero, one and two targets."
     },
     {
-      "caseId": "r3-dev-41-vs-seeker-recovers-faba-ahead-of-lower-impact-supporters",
+      "caseId": "r3-dev-41-vs-seeker-recovery-target-gating-and-lusamine-availability",
       "split": "development",
       "caseClass": "policy-decision",
-      "objective": "VS Seeker recovers Faba ahead of lower-impact Supporters",
+      "objective": "VS Seeker recovery gates Faba on a live opponent target and values Lusamine by recoverable Supporter/Stadium count",
       "evidenceClass": "synthetic",
       "actorView": {
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-        "testName": "VS Seeker recovers Faba ahead of lower-impact Supporters",
+        "testName": "VS Seeker recovery gates Faba and values Lusamine by recoverable targets",
         "requestDigests": [
           {
             "requestIndex": 0,
@@ -7891,7 +7891,7 @@
             "decisionIndex": 0,
             "decision": {
               "kind": "select-choice",
-              "token": "faba"
+              "token": "lillie"
             },
             "validatorResult": "accepted",
             "validationError": null
@@ -7904,12 +7904,13 @@
           "hidden opponent hand or unrevealed Prize identity",
           "wrong-source ability",
           "unpayable target",
-          "delegated fallback"
+          "delegated fallback",
+          "Faba recovered without an eligible opponent Tool, Special Energy or Stadium target"
         ],
         "acceptableOutcomeFamilies": [
           "select-choice"
         ],
-        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
+        "rationale": "The default actor-visible opponent board has no eligible Faba target, so the policy selects Lillie. Direct scoring assertions verify Faba rises only with a visible opponent Tool and Lusamine scales with 0/1/2 recoverable Supporter/Stadium cards."
       },
       "costLedger": {
         "itemPlayed": true,
@@ -7962,7 +7963,7 @@
         "actualChosenActions": [
           {
             "kind": "select-choice",
-            "token": "faba"
+            "token": "lillie"
           }
         ],
         "nativeAcceptance": null,
@@ -7976,10 +7977,11 @@
           "measured": false
         },
         "timeoutStatus": "not-tested",
-        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present",
+        "searchScoringAssertions": "Faba: 0 without target, 220 with visible Stealthy Hood; Lusamine: 0/100/180 with 0/1/2 recoverable targets"
       },
       "disposition": "blocked",
-      "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
+      "blockReason": "Synthetic actor-view and search-scoring tests only; no worker IPC, native Twinleaf game, matchup outcome, strategic-strength evidence or independent review.",
       "reviewerStatus": "unreviewed",
       "sourceBinding": {
         "role": "opponent-policy",
@@ -7997,17 +7999,17 @@
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
         "evidenceClass": "synthetic"
       },
-      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
+      "reviewerExplanation": "Synthetic actor-view and search-scoring tests only; no worker IPC, native Twinleaf game, matchup outcome, strategic-strength evidence or independent review."
     },
     {
-      "caseId": "r3-dev-42-trainers-mail-searches-for-faba-ahead-of-lower-priority-item",
+      "caseId": "r3-dev-42-trainers-mail-search-target-gating",
       "split": "development",
       "caseClass": "policy-decision",
-      "objective": "Trainers’ Mail searches for Faba ahead of lower-priority Item and Tool options",
+      "objective": "Trainers' Mail gates Faba and Lusamine on live targets while retaining higher-value legal Item/Tool options",
       "evidenceClass": "synthetic",
       "actorView": {
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-        "testName": "Trainers’ Mail searches for Faba ahead of lower-priority Item and Tool options",
+        "testName": "Trainers’ Mail target-gates Faba and Lusamine against live Item and Tool options",
         "requestDigests": [
           {
             "requestIndex": 0,
@@ -8066,7 +8068,7 @@
             "decisionIndex": 0,
             "decision": {
               "kind": "select-choice",
-              "token": "faba"
+              "token": "nest"
             },
             "validatorResult": "accepted",
             "validationError": null
@@ -8079,12 +8081,13 @@
           "hidden opponent hand or unrevealed Prize identity",
           "wrong-source ability",
           "unpayable target",
-          "delegated fallback"
+          "delegated fallback",
+          "Faba selected without an eligible opponent Tool, Special Energy or Stadium target"
         ],
         "acceptableOutcomeFamilies": [
           "select-choice"
         ],
-        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
+        "rationale": "With no visible opponent Tool, Special Energy or Stadium, Faba is not a live target and Nest Ball outranks it. Direct scoring assertions verify Faba rises with a visible opponent Tool and Lusamine scales with 0/1/2 recoverable Supporter/Stadium cards."
       },
       "costLedger": {
         "itemPlayed": true,
@@ -8139,7 +8142,7 @@
         "actualChosenActions": [
           {
             "kind": "select-choice",
-            "token": "faba"
+            "token": "nest"
           }
         ],
         "nativeAcceptance": null,
@@ -8153,10 +8156,11 @@
           "measured": false
         },
         "timeoutStatus": "not-tested",
-        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present",
+        "searchScoringAssertions": "Faba: 0 without target, 190 with visible Stealthy Hood; Lusamine: 0/100/155 with 0/1/2 recoverable targets"
       },
       "disposition": "blocked",
-      "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
+      "blockReason": "Synthetic actor-view and search-scoring tests only; no worker IPC, native Twinleaf game, matchup outcome, strategic-strength evidence or independent review.",
       "reviewerStatus": "unreviewed",
       "sourceBinding": {
         "role": "opponent-policy",
@@ -8174,7 +8178,7 @@
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
         "evidenceClass": "synthetic"
       },
-      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
+      "reviewerExplanation": "Synthetic actor-view and search-scoring tests only; no worker IPC, native Twinleaf game, matchup outcome, strategic-strength evidence or independent review."
     },
     {
       "caseId": "r3-dev-43-penny-picks-up-the-most-damaged-legal-basic-pok-mon-without-",
@@ -9555,7 +9559,7 @@
     ]
   },
   "caseRecordCount": 49,
-  "suiteSha256": "e4d1e87b599da07eda6b1a775814c44c6338713f9857b04753e6d85f90e3deaf",
+  "suiteSha256": "3b8f9e45d64392baa8f27642e06529b4553c9cb1ade144be244fe97e8c5898ac",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
@@ -9563,8 +9567,8 @@
     "sourceRank": 3,
     "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
     "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
-    "policySha256": "e46b848b325ad30d5ad831df0fd46ec2eddd8db444cce567f41d08ad82a7124b",
-    "dependencyManifestSha256": "a99b9aa0a8db26216cba4ef486d0de0f1191e25535dddd8e6a432fe6a338342d",
+    "policySha256": "570a29b510d2d4f97c0ed82f02186946b07c1d7ae6d95e9cf50fba096dac7a1a",
+    "dependencyManifestSha256": "6d6dbb1024a4d113ca390ade7ee9c162fc99b0bbf74bfc789d5ef9411051cadd",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
@@ -9642,8 +9646,8 @@
         "r3-dev-29-capture-energy-is-attached-to-bunnelby-to-enable-burrow-and-",
         "r3-dev-30-arven-uses-dual-subtype-forest-seal-stone-as-its-item-and-a-",
         "r3-dev-35-an-energy-attachment-to-a-pok-mon-absent-from-the-actor-visi",
-        "r3-dev-41-vs-seeker-recovers-faba-ahead-of-lower-impact-supporters",
-        "r3-dev-42-trainers-mail-searches-for-faba-ahead-of-lower-priority-item",
+        "r3-dev-41-vs-seeker-recovery-target-gating-and-lusamine-availability",
+        "r3-dev-42-trainers-mail-search-target-gating",
         "r3-dev-43-penny-picks-up-the-most-damaged-legal-basic-pok-mon-without-",
         "r3-dev-44-scoop-up-cyclone-chooses-a-damaged-benched-pok-mon-and-prese",
         "r3-dev-45-legendary-ascent-selects-every-actor-owned-water-energy-up-t",
@@ -9670,8 +9674,8 @@
         "r3-dev-32-guzma-does-not-abandon-an-established-snorlax-active-lock-wi",
         "r3-dev-39-mimikyu-is-prioritized-as-a-defensive-basic-against-the-cand",
         "r3-dev-40-teammates-searches-for-tool-jammer-and-faba-when-snorlax-is-",
-        "r3-dev-41-vs-seeker-recovers-faba-ahead-of-lower-impact-supporters",
-        "r3-dev-42-trainers-mail-searches-for-faba-ahead-of-lower-priority-item",
+        "r3-dev-41-vs-seeker-recovery-target-gating-and-lusamine-availability",
+        "r3-dev-42-trainers-mail-search-target-gating",
         "r3-dev-48-mimikyu-pokemon-ex-negative-control"
       ],
       "evidenceClass": "synthetic-only",
@@ -9763,9 +9767,9 @@
   },
   "policyStaticAudit": {
     "sourcePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "sourceBlobSha1": "ed74b1c5dd5b5a9e74ad58fd90633203105a06fd",
-    "sourceSha256": "e46b848b325ad30d5ad831df0fd46ec2eddd8db444cce567f41d08ad82a7124b",
-    "scannedAt": "2026-11-19T16:55:08Z",
+    "sourceBlobSha1": "0032feb6e20ef56af74f26e13b973e78e423ba85",
+    "sourceSha256": "570a29b510d2d4f97c0ed82f02186946b07c1d7ae6d95e9cf50fba096dac7a1a",
+    "scannedAt": "2026-11-19T17:04:17Z",
     "scannedTerms": [
       {
         "term": "Math.random",
