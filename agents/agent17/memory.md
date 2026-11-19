@@ -1,3 +1,10 @@
+# 2026-11-19 14:00 UTC — integration surface
+
+- Policy module exports `createPolicy`, `POLICY_VERSION`, source/candidate fingerprints, engine pin, and pure scoring/prompt helpers. `createPolicy({role, seat, policyVersion, config})` accepts only role `opponent`, seat 0/1, exact policy version, and config keys `candidateFingerprint`, `rank`, `sourceFingerprint`; it fails closed on any source/candidate/rank mismatch. It returns a frozen object with `decide(request)`. Do not edit Agent49's worker loader; any later adapter must be coordinated and bound by the signed plan owner.
+- Current suite remains unbound/unfrozen; do not interpret static source audit or synthetic tests as sandbox or native proof.
+
+---
+
 # 2026-11-19 13:59 UTC — final rank-3 suite audit
 
 - Added a source-only determinism/privacy scan to the challenge suite: zero occurrences of `Math.random`, `Date.now`, `process.`, `require(`, `eval(`, `fetch(`, `globalThis`, `opponentPrivate`, `hiddenHand`, `opponentHidden` or `seed` in the policy module. This is static inspection, not a sandbox or worker isolation proof.
