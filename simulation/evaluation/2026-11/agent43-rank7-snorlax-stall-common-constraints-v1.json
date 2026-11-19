@@ -71,7 +71,11 @@
     ],
     "unsupportedPromptBehavior": "abstain with a stable reason code; no delegated decoder or native fallback",
     "rootFallback": "select pass only when an actual pass token exists in the action frontier; otherwise abstain",
-    "selectionValidation": "actual Agent49 validateDecision enforces prompt choice tokens, uniqueness, selection bounds, cancel and empty-selection semantics"
+    "selectionValidation": "actual Agent49 validateDecision enforces prompt choice tokens, uniqueness, selection bounds, cancel and empty-selection semantics",
+    "cardSpecificBehavior": [
+      "Palace Book SMP NAN25 is treated as a no-prompt draw-three/end-turn Item; policy score is deliberately minimal and only considered with hand size <=2, deck count >=4, and Item lock cleared.",
+      "Faba -> Jet Energy -> Active Wobbuffet -> Nest Ball is gated by public Hood, Power of Alchemy, Temple of Sinnoh, hand, Bench-space and turn-resource state."
+    ]
   },
   "runtime": {
     "policyModuleHasImports": false,
