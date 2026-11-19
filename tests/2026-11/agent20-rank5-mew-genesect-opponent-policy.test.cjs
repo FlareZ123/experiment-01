@@ -374,6 +374,27 @@ test('Double Colorless Energy is attached to Mew VMAX before Genesect', () => {
   assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'attach' });
 });
 
+test('DCE attachment uses public benchIndex when two Mew VMAX share a printing', () => {
+  const own = player({
+    active: pokemon(P.mewVMAX, {
+      stage: 'VMAX', subtypes: ['VMAX', 'Fusion Strike'], energies: [P.dce]
+    }),
+    bench: [pokemon(P.mewVMAX, { stage: 'VMAX', subtypes: ['VMAX', 'Fusion Strike'] })]
+  });
+  const request = rootRequest({
+    ownPublic: own,
+    items: [
+      { token: 'active-dce', kind: 'play-card', actorPrinting: P.dce,
+        targetPrinting: P.mewVMAX, publicMetadata: { targetZone: 'active' } },
+      { token: 'bench-dce', kind: 'play-card', actorPrinting: P.dce,
+        targetPrinting: P.mewVMAX, publicMetadata: { targetZone: 'bench', benchIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request),
+    { kind: 'select-action', token: 'bench-dce' });
+});
+
 test('Star Alchemy is used when it can fetch the missing Mew VMAX', () => {
   const own = player({
     active: pokemon(P.mewV, { tools: [P.forestSealStone] }),
