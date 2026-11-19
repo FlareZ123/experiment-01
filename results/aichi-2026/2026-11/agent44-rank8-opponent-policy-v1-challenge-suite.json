@@ -1,0 +1,186 @@
+{
+  "schema": "aichi-opponent-policy-challenge-suite/v1",
+  "policy": {
+    "version": "agent44-rank8-absol-garbodor-opponent-v1",
+    "sourceRank": 8,
+    "sourcePlayer": "Yusuke Kobayashi",
+    "archetype": "Absol Garbodor",
+    "modulePath": "simulation/evaluation/2026-11/agent44-rank8-absol-garbodor-opponent-policy.cjs",
+    "moduleGitBlobSha1": "1de9e9558585ba843a07049342255f494b7df80d",
+    "dependencyManifest": "results/aichi-2026/2026-11/agent44-rank8-opponent-policy-v1-dependencies.json",
+    "testPath": "tests/2026-11/agent44-rank8-absol-garbodor-opponent-policy.test.cjs",
+    "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+    "workerProtocolGitBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451"
+  },
+  "sourceBinding": {
+    "sourceListPath": "results/aichi-2026/full-decklists.json",
+    "sourceListGitBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "sourceEntryJsonSha256": "965a4a0d7bea2df491d44e7b3246d1058d676347c9521f1e3b5daaf0eecf39ad",
+    "sourceCardCount": 60,
+    "sourceHashMethod": "SHA-256 over UTF-8 JSON.stringify(parsed rank-8 entry)"
+  },
+  "candidateBinding": {
+    "candidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+    "candidateGitBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+    "candidateEntryJsonSha256": "4c18dd93ba49fd8f7d88aad573249dc6941b4cf61d52b99f80309345b5d58c59",
+    "unchanged": true
+  },
+  "engineBinding": {
+    "submodulePath": "vendor/twinleaf",
+    "remote": "https://github.com/twinleafgg/twinleafgg.git",
+    "pinnedRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+  },
+  "developmentCases": [
+    {
+      "caseId": "r8-vip-pass-basic-priority",
+      "objective": "Search Trubbish and Mega Absol ahead of lower-priority basics",
+      "evidenceClass": "synthetic-actor-view",
+      "status": "pending-ci"
+    },
+    {
+      "caseId": "r8-boost-shake-garbodor",
+      "objective": "Evolve a live Trubbish into Garbodor and abstain when the line is already closed",
+      "evidenceClass": "synthetic-actor-view",
+      "status": "pending-ci"
+    },
+    {
+      "caseId": "r8-quick-ball-discard-protection",
+      "objective": "Protect Secret Box and a live Guzma while paying Quick Ball",
+      "evidenceClass": "synthetic-actor-view",
+      "status": "pending-ci"
+    },
+    {
+      "caseId": "r8-ultra-ball-two-card-cost",
+      "objective": "Choose two expendable hand cards while preserving one-of resources",
+      "evidenceClass": "synthetic-actor-view",
+      "status": "pending-ci"
+    },
+    {
+      "caseId": "r8-dark-patch-mega-recipient",
+      "objective": "Target a benched Mega Absol that still needs Energy",
+      "evidenceClass": "synthetic-actor-view",
+      "status": "pending-ci"
+    },
+    {
+      "caseId": "r8-dedechange-pre-lock",
+      "objective": "Use Dedechange before own Garbotoxin is established",
+      "evidenceClass": "synthetic-actor-view",
+      "status": "pending-ci"
+    },
+    {
+      "caseId": "r8-dedechange-post-lock",
+      "objective": "Do not attempt Dedechange after own Garbotoxin is active",
+      "evidenceClass": "synthetic-actor-view",
+      "status": "pending-ci"
+    },
+    {
+      "caseId": "r8-dedechange-confirm",
+      "objective": "Accept Dedechange only before own Garbotoxin",
+      "evidenceClass": "synthetic-actor-view",
+      "status": "pending-ci"
+    },
+    {
+      "caseId": "r8-squawk-motivate-sequence",
+      "objective": "Attack with Motivate, select Mega Absol, then choose Darkness Energy from discard",
+      "evidenceClass": "synthetic-actor-view",
+      "status": "pending-ci"
+    },
+    {
+      "caseId": "r8-terminal-period-threshold",
+      "objective": "Select Terminal Period at exactly six damage counters and reject 290 damage",
+      "evidenceClass": "synthetic-actor-view",
+      "status": "pending-ci"
+    },
+    {
+      "caseId": "r8-claw-of-darkness-discard",
+      "objective": "Prioritize a high-value revealed opponent-hand card",
+      "evidenceClass": "synthetic-actor-view",
+      "status": "pending-ci"
+    },
+    {
+      "caseId": "r8-forest-seal-stone-recipient",
+      "objective": "Attach Forest Seal Stone to Crobat V rather than Tapu Lele-GX",
+      "evidenceClass": "synthetic-actor-view",
+      "status": "pending-ci"
+    },
+    {
+      "caseId": "r8-trubbish-no-call-for-family",
+      "objective": "Do not import rank-11 Trubbish Call for Family behavior into rank 8",
+      "evidenceClass": "synthetic-actor-view",
+      "status": "pending-ci"
+    }
+  ],
+  "heldOutReviewCases": [
+    {
+      "caseId": "r8-tapu-koko-two-recipients",
+      "objective": "Resolve both Lightning attachments to two eligible Benched Pokémon and verify Tapu Koko Lost Zone settlement",
+      "status": "not-run"
+    },
+    {
+      "caseId": "r8-crispin-linked-energy-pair",
+      "objective": "Resolve two different Basic Energy types with linked hand-versus-attachment choices",
+      "status": "not-run"
+    },
+    {
+      "caseId": "r8-battle-compressor-three-card",
+      "objective": "Verify three-card discard selection and the Lightning/Darkness resource ledger",
+      "status": "not-run"
+    },
+    {
+      "caseId": "r8-pokemon-communication-two-stage",
+      "objective": "Verify the return-to-deck cost followed by Pokémon search",
+      "status": "not-run"
+    },
+    {
+      "caseId": "r8-wally-evolution-search",
+      "objective": "Verify Wally's target and evolution prompt sequence against exact rank-8 printings",
+      "status": "not-run"
+    },
+    {
+      "caseId": "r8-karen-discard-reset",
+      "objective": "Verify both discard-pile shuffle semantics and when the reset is beneficial",
+      "status": "not-run"
+    },
+    {
+      "caseId": "r8-hisuian-heavy-ball-prize-identity",
+      "objective": "Use only a Basic Pokémon actually revealed among Prize cards",
+      "status": "not-run"
+    },
+    {
+      "caseId": "r8-secret-box-four-categories",
+      "objective": "Resolve the three-card cost and four distinct search categories using the native prompt schema",
+      "status": "not-run"
+    },
+    {
+      "caseId": "r8-adventure-bag-two-tools",
+      "objective": "Resolve two tool selections without assuming deck visibility or target order",
+      "status": "not-run"
+    },
+    {
+      "caseId": "r8-field-blower-two-targets",
+      "objective": "Resolve up to two opposing Tool/Stadium targets without removing own lock tools",
+      "status": "not-run"
+    }
+  ],
+  "evidenceSummary": {
+    "evidenceClass": "synthetic-only",
+    "declaredNodeTestCount": 23,
+    "syntheticUnitTestsPassed": null,
+    "syntheticUnitTestsFailed": null,
+    "developmentCaseCount": 13,
+    "heldOutReviewCaseCount": 10,
+    "nativeStagedCases": 0,
+    "nativeGames": 0,
+    "matchupResult": null,
+    "fullFieldResult": null,
+    "winRateClaim": null
+  },
+  "limitations": [
+    "The 23 Node tests are declared but have not yet been run in CI at this checkpoint.",
+    "No Twinleaf native game, native action receipt, or effect-resolution witness exists for this policy.",
+    "No matchup result, full-field result, or win-rate estimate is established.",
+    "The source list is an English Expanded-legal diagnostic reconstruction; physical Japanese print identity is unverified.",
+    "Tapu Koko, Crispin, Battle Compressor, Pokémon Communication, Wally, Karen, Hisuian Heavy Ball, full Secret Box search, Adventure Bag and Field Blower prompts remain held out.",
+    "The rank-8 policy is a bounded preparation artifact; it is not registered with the native runner and does not establish opponent competence."
+  ]
+}
