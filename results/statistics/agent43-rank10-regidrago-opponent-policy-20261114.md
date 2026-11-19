@@ -1,3 +1,7 @@
+> **Update — 2026-11-19:** The policy-side Phantom Dive allocation gap has a v2 implementation and development challenge suite. See [the v2 report](../methodology/2026-11/agent43-rank10-phantom-dive-allocation-v2.md). The policy is still not ready for qualification: PutDamagePrompt host projection is absent, the v2 opt-in remains disabled by default, policy integration tests are authored but not run, and no native games were executed. The original report below is retained as historical v1 context.
+
+---
+
 # Aichi rank-10 Regidrago opponent-policy prototype
 
 **Status: prototype only. Not ready for benchmark games; no Twinleaf match results or matchup-strength claims.**
