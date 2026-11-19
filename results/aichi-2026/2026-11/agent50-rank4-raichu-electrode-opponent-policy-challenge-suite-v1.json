@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "suiteId": "aichi-2026-rank4-raichu-electrode-opponent-policy-v1",
   "suiteVersion": 1,
-  "createdAt": "2026-11-19T14:08:56.972580615Z",
-  "frozenAt": "2026-11-19T14:08:56.972580615Z",
+  "createdAt": "2026-11-19T14:11:43.916839993Z",
+  "frozenAt": "2026-11-19T14:11:43.916839993Z",
   "status": "prototype-only",
   "attestationStatus": "blocked",
   "role": "opponent-policy",
@@ -29,11 +29,11 @@
     "id": "agent50-rank4-raichu-electrode-opponent-v1",
     "version": "agent50-rank4-raichu-electrode-opponent-v1",
     "path": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-    "blobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-    "fileSha256": "e7c1f32d20c993097cad09544e401d5d954ea15cbf46d47a30f9ff22e54e94aa",
+    "blobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+    "fileSha256": "3028a301238059adf1172f5d3e6811c37655143a09c23a8a0a1c09d42840b950",
     "config": {
       "rank": 4,
-      "sourceFingerprint": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
+      "sourceFingerprint": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
       "candidateFingerprint": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
     },
     "decisionMode": "deterministic actor-view only"
@@ -41,16 +41,18 @@
   "test": {
     "path": "tests/2026-11/agent50-rank4-raichu-electrode-opponent-policy.test.cjs",
     "blobSha1": "03baf3d0295c20b97daf3297d1e42b1d11a17b8c",
-    "fileSha256": "c5f92bb87abe8d0854f872d6cce08886685ec9b83cc65707c583e9aa1b855038",
+    "fileSha256": "ea58ea8c321ee805a2c8fb6b26a9930eee8546c819ab59eee37fe2e9d8c32395",
     "testCount": 29
   },
   "dependencyManifest": {
     "path": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-dependency-manifest-v1.json",
-    "sha256": "c54aad6d8c118d526d77d3cfa12c9c43101f38f166ce4015b5b60971f5c99982"
+    "blobSha1": "2bbb36db58cbb48ae81888c9d17421228758a509",
+    "sha256": "5f85b10c502f41d5ebd8930f69f02b4c6454fd7096b08345aec0d6ec0d278aa7"
   },
   "commonConstraints": {
     "path": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-common-constraints-v1.json",
-    "sha256": "594235914609814f923c5f1802021a284642a9466891af6a4f2f3262f88b56a8"
+    "blobSha1": "53e0009dfd859d6ee081afd9f9cb3072400a6176",
+    "sha256": "3b226451877542f55179725536914c7c26f063168dfc430589cf20c709995d8f"
   },
   "sourceBinding": {
     "sourceRank": 4,
@@ -58,10 +60,13 @@
     "archetype": "Raichu Electrode Combo",
     "sourceListPath": "results/aichi-2026/full-decklists.json",
     "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-    "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-    "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+    "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+    "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+    "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+    "sourcePhysicalCardCount": 60,
     "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
     "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+    "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
     "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
     "engineSubmodulePath": "vendor/twinleaf",
     "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -79,6 +84,7 @@
   "protocol": {
     "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "blobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+    "fileSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "requestSchema": "aichi-policy-request-v2",
     "observationSchema": "aichi-actor-observation-v3",
     "validatorsUsed": [
@@ -219,10 +225,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -237,7 +246,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "e7c7dfbdb10018cda98b3608700119fb458bdaacd8cf435bd6f0c11750ad2821",
         "requestId": "agent50-root-1",
         "sequence": 1,
@@ -383,12 +392,12 @@
           "select-action"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 2,
@@ -433,8 +442,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -444,7 +453,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -462,10 +471,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -483,7 +495,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "5ff717e8cc021f6a49f9ceaebe49d7fe4e906ae4424f76536b820a5fc5620969",
         "requestId": "agent50-root-1",
         "sequence": 1,
@@ -632,12 +644,12 @@
           "select-action"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 5,
@@ -685,8 +697,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -696,7 +708,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -714,10 +726,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -730,7 +745,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "1733be4d2ea9e8a16386ebd0c512ca4f9e5e339c0dd13d2acee3fe2cce6f80dd",
         "requestId": "agent50-root-1",
         "sequence": 1,
@@ -873,12 +888,12 @@
           "select-action"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 0,
@@ -920,8 +935,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -931,7 +946,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -949,10 +964,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -968,7 +986,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "72219acc4d19dbb8b184bb4b4599767fc68829e6d22a38e9aafa8a928f6c655c",
         "requestId": "agent50-root-1",
         "sequence": 1,
@@ -1203,12 +1221,12 @@
           "select-action"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 0,
@@ -1252,8 +1270,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -1263,7 +1281,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -1281,10 +1299,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -1301,7 +1322,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "58e01decd80c42e31131eb7d01a4b4e2b00a78e62df8608b637bd5e00e071067",
         "requestId": "agent50-prompt-1",
         "sequence": 1,
@@ -1486,12 +1507,12 @@
           "select-choices"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 1,
@@ -1560,8 +1581,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -1571,7 +1592,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -1589,10 +1610,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -1607,7 +1631,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "715596cb495857328e5501d48506aeccc1a277044fc3688be6c27b1dc5709bc4",
         "requestId": "agent50-prompt-1",
         "sequence": 1,
@@ -1774,12 +1798,12 @@
           "select-choice"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 3,
@@ -1842,8 +1866,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -1853,7 +1877,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -1871,10 +1895,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -1892,8 +1919,8 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
-        "digestSha256": "714b9cdd2c144699c43eedfea6bd81244533294d8d7414389a6db2e2dc4357a3",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
+        "digestSha256": "9b0af913876018ccefd63632e303fb28ed3e8a74d9e9718b2d26fa9c7d2f11da",
         "requestId": "agent50-prompt-1",
         "sequence": 1,
         "view": {
@@ -2068,12 +2095,12 @@
           "select-choice"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 2,
@@ -2140,8 +2167,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -2151,7 +2178,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -2169,10 +2196,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -2188,7 +2218,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "de1b3ada16e0e443c7a45c935a27beaf0260dd8d522ad0b821559ea16281efad",
         "requestId": "agent50-prompt-1",
         "sequence": 1,
@@ -2370,12 +2400,12 @@
           "select-choices"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 0,
@@ -2441,8 +2471,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -2452,7 +2482,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -2470,10 +2500,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -2490,7 +2523,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "37a053cbbc98d5c8b22815a279f3194add29e8ca53df15d9eb7775c67fb944bc",
         "requestId": "agent50-prompt-1",
         "sequence": 1,
@@ -2708,12 +2741,12 @@
           "select-choice"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 0,
@@ -2777,8 +2810,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -2788,7 +2821,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -2806,10 +2839,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -2824,7 +2860,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "c962f5e357e05b2939f420456600b0ac020fe79795e9be197b00d0a335aaf58a",
         "requestId": "agent50-prompt-1",
         "sequence": 1,
@@ -2991,12 +3027,12 @@
           "select-choice"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 0,
@@ -3055,8 +3091,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -3066,7 +3102,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -3084,10 +3120,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -3102,7 +3141,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "91c9c997fa85ac61a0b311d8cf380841a37c27e7816976f655b57812be413d8f",
         "requestId": "agent50-prompt-1",
         "sequence": 1,
@@ -3269,12 +3308,12 @@
           "abstain"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 0,
@@ -3333,8 +3372,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -3344,7 +3383,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -3362,10 +3401,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -3382,7 +3424,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "83a6a7d509080f4a8c887b8fce4a7ed42370c86098c10f4e82c5398828e138b8",
         "requestId": "agent50-root-1",
         "sequence": 1,
@@ -3678,12 +3720,12 @@
           "select-action"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 0,
@@ -3725,8 +3767,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -3736,7 +3778,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -3754,10 +3796,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -3777,7 +3822,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "48afaec6912d9459876a1c1abb707571d8f395bde981523182c42966755deef2",
         "requestId": "agent50-root-1",
         "sequence": 1,
@@ -4191,12 +4236,12 @@
           "select-action"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 0,
@@ -4238,8 +4283,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -4249,7 +4294,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -4267,10 +4312,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -4285,7 +4333,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "734f62b5ae35cc338115418b094de97adea1034c31467966f3ee12a430325af0",
         "requestId": "agent50-root-1",
         "sequence": 1,
@@ -4471,12 +4519,12 @@
           "select-action"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 0,
@@ -4518,8 +4566,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -4529,7 +4577,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -4547,10 +4595,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -4563,7 +4614,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "f9ed15f8dbf2de355fa9002a46bb009bba8f7936e8bdd2a8da6fbaec7a894688",
         "requestId": "agent50-root-1",
         "sequence": 1,
@@ -4703,12 +4754,12 @@
           "select-action"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 0,
@@ -4750,8 +4801,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -4761,7 +4812,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -4779,10 +4830,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -4796,7 +4850,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "4613ef9df4d514cf0f8f71baa4e0af74e79db7228c528e53dfdf03e4ccb1ef91",
         "requestId": "agent50-root-1",
         "sequence": 1,
@@ -4975,12 +5029,12 @@
           "select-action"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 0,
@@ -5022,8 +5076,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -5033,7 +5087,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -5051,10 +5105,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -5068,7 +5125,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "f0ba50ff32adab362965b091cbc81d00084ad897389b6aa4ac087fc6d51f9913",
         "requestId": "agent50-root-1",
         "sequence": 1,
@@ -5249,12 +5306,12 @@
           "select-action"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 0,
@@ -5296,8 +5353,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -5307,7 +5364,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -5325,10 +5382,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -5342,7 +5402,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "b96a8797adf9c03611bf6ef7b0b4f53b589f3f14ac62f900958c695b045b9ca2",
         "requestId": "agent50-root-1",
         "sequence": 1,
@@ -5563,12 +5623,12 @@
           "select-action"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 0,
@@ -5610,8 +5670,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -5621,7 +5681,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -5639,10 +5699,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -5655,7 +5718,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "f276e8c05cd2067c7c4ee305d863a3072aa18090e1a7d25274c51e1e6feb54f2",
         "requestId": "agent50-prompt-1",
         "sequence": 1,
@@ -5797,12 +5860,12 @@
           "abstain"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 0,
@@ -5850,8 +5913,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -5861,7 +5924,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -5879,10 +5942,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -5895,7 +5961,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "fe74f1b0c5b9bc32bbf2ab9b219c4c37ab860e24db15b4ffd2071763d809993a",
         "requestId": "agent50-prompt-1",
         "sequence": 1,
@@ -6037,12 +6103,12 @@
           "abstain"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 0,
@@ -6090,8 +6156,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -6101,7 +6167,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -6119,10 +6185,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -6135,7 +6204,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "9018578a9c0771f7da59f14d0a95c6ea4adfa2df54d7a36e18be76441a5727da",
         "requestId": "agent50-prompt-1",
         "sequence": 1,
@@ -6277,12 +6346,12 @@
           "abstain"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 0,
@@ -6330,8 +6399,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -6341,7 +6410,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -6359,10 +6428,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -6375,7 +6447,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "03897a33b170cd4c2273f24175b06a111d0462d7386a9a921b8b8ea93a53c406",
         "requestId": "agent50-prompt-1",
         "sequence": 1,
@@ -6517,12 +6589,12 @@
           "abstain"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 0,
@@ -6570,8 +6642,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -6581,7 +6653,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -6599,10 +6671,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -6616,7 +6691,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "b9161e09782afe27a7cb4c3331b39550d6e29188eba1c9e3d4e58c724ebf0a75",
         "requestId": "agent50-root-1",
         "sequence": 1,
@@ -6758,12 +6833,12 @@
           "select-action"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 1,
@@ -6807,8 +6882,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -6818,7 +6893,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -6836,10 +6911,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -6856,7 +6934,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "ee067bef71b935fefd3de536509d76830a07e76a38a949a04a6c95651b93a14d",
         "requestId": "agent50-root-1",
         "sequence": 1,
@@ -7001,12 +7079,12 @@
           "select-action"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 4,
@@ -7053,8 +7131,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -7064,7 +7142,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -7082,10 +7160,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -7100,7 +7181,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "fe085939037e04d37773042a94a0c39e151b2ee755ac1b0ac0a5720073f0f00f",
         "requestId": "agent50-prompt-1",
         "sequence": 1,
@@ -7310,12 +7391,12 @@
           "select-choices"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 5,
@@ -7399,8 +7480,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -7410,7 +7491,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -7428,10 +7509,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -7450,7 +7534,7 @@
         ]
       },
       "actorView": {
-        "digestAlgorithm": "SHA-256 of canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order, UTF-8",
+        "digestAlgorithm": "SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order",
         "digestSha256": "6858cacea8a990196417eec04700cc0050685ffa6ca20ac4147bd8cd917df658",
         "requestId": "agent50-prompt-1",
         "sequence": 1,
@@ -7657,12 +7741,12 @@
           "select-choices"
         ],
         "forbiddenOutcomes": [
-          "selecting an action token absent from the actor's action frontier",
-          "selecting a hidden Prize identity",
-          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while their native prompt paths are unsupported",
+          "selecting an action token absent from the actor action frontier",
+          "selecting hidden Prize identities",
+          "selecting Extra Energy Bomb, Electro Rain or Crush and Burn-GX while native prompt paths are unsupported",
           "using opponent hidden-card identities or unobserved deck order"
         ],
-        "rationale": "Deterministic unit-test envelope; not a strategic competence envelope for a complete game."
+        "rationale": "Deterministic synthetic regression envelope; not a strategic competence envelope for a complete game."
       },
       "costLedger": {
         "actorHandCount": 1,
@@ -7743,8 +7827,8 @@
         "protocolSourcePath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
         "protocolSourceBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policySourcePath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-        "policySourceBlobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-        "nodeTestRunner": "not used; node:test callbacks executed by a deterministic V8 harness with assertion shim",
+        "policySourceBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+        "nodeTestRunner": "not used; node:test callbacks executed by deterministic V8 harness with assertion shim",
         "nativeTwinleafExecution": false,
         "nativeEffectReceipt": null,
         "sourceNaturalTrace": null,
@@ -7754,7 +7838,7 @@
         "fallback": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Synthetic-only evidence. Agent2's contract requires native execution for core lines and native prompt coverage; no source-natural or native-staged policy evidence exists.",
+      "dispositionReason": "Synthetic-only evidence; no native effect receipt or source-natural execution; no independent reviewer.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -7770,7 +7854,7 @@
       "actorView": null,
       "executionEvidence": "Policy initialization rejected wrong role, rank, source fingerprint and candidate fingerprint.",
       "disposition": "blocked",
-      "reason": "Protocol/policy boundary test only; not native evidence."
+      "reason": "Policy boundary test only; not native evidence."
     },
     {
       "caseId": "rank4-negative-hidden-opponent-hand",
@@ -7805,10 +7889,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -7820,7 +7907,7 @@
         "status": "not-instantiated",
         "digestSha256": null,
         "fixtureRef": null,
-        "reason": "Held-out scenario is pre-registered but no actor view or confirmatory game was generated."
+        "reason": "Pre-registered held-out scenario; no actor view or confirmatory game was generated."
       },
       "decisionEnvelope": {
         "status": "not-authored-to-an-action-level",
@@ -7828,7 +7915,7 @@
         "forbiddenOutcomes": [
           "Do not infer or fabricate native behavior."
         ],
-        "rationale": "Must be independently instantiated and frozen before any confirmatory outcome."
+        "rationale": "Must be independently instantiated and frozen before confirmatory outcome."
       },
       "costLedger": {
         "status": "not-computed",
@@ -7878,10 +7965,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -7893,7 +7983,7 @@
         "status": "not-instantiated",
         "digestSha256": null,
         "fixtureRef": null,
-        "reason": "Held-out scenario is pre-registered but no actor view or confirmatory game was generated."
+        "reason": "Pre-registered held-out scenario; no actor view or confirmatory game was generated."
       },
       "decisionEnvelope": {
         "status": "not-authored-to-an-action-level",
@@ -7901,7 +7991,7 @@
         "forbiddenOutcomes": [
           "Do not infer or fabricate native behavior."
         ],
-        "rationale": "Must be independently instantiated and frozen before any confirmatory outcome."
+        "rationale": "Must be independently instantiated and frozen before confirmatory outcome."
       },
       "costLedger": {
         "status": "not-computed",
@@ -7951,10 +8041,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -7966,7 +8059,7 @@
         "status": "not-instantiated",
         "digestSha256": null,
         "fixtureRef": null,
-        "reason": "Held-out scenario is pre-registered but no actor view or confirmatory game was generated."
+        "reason": "Pre-registered held-out scenario; no actor view or confirmatory game was generated."
       },
       "decisionEnvelope": {
         "status": "not-authored-to-an-action-level",
@@ -7974,7 +8067,7 @@
         "forbiddenOutcomes": [
           "Do not infer or fabricate native behavior."
         ],
-        "rationale": "Must be independently instantiated and frozen before any confirmatory outcome."
+        "rationale": "Must be independently instantiated and frozen before confirmatory outcome."
       },
       "costLedger": {
         "status": "not-computed",
@@ -8024,10 +8117,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -8039,7 +8135,7 @@
         "status": "not-instantiated",
         "digestSha256": null,
         "fixtureRef": null,
-        "reason": "Held-out scenario is pre-registered but no actor view or confirmatory game was generated."
+        "reason": "Pre-registered held-out scenario; no actor view or confirmatory game was generated."
       },
       "decisionEnvelope": {
         "status": "not-authored-to-an-action-level",
@@ -8047,7 +8143,7 @@
         "forbiddenOutcomes": [
           "Do not infer or fabricate native behavior."
         ],
-        "rationale": "Must be independently instantiated and frozen before any confirmatory outcome."
+        "rationale": "Must be independently instantiated and frozen before confirmatory outcome."
       },
       "costLedger": {
         "status": "not-computed",
@@ -8097,10 +8193,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -8112,7 +8211,7 @@
         "status": "not-instantiated",
         "digestSha256": null,
         "fixtureRef": null,
-        "reason": "Held-out scenario is pre-registered but no actor view or confirmatory game was generated."
+        "reason": "Pre-registered held-out scenario; no actor view or confirmatory game was generated."
       },
       "decisionEnvelope": {
         "status": "not-authored-to-an-action-level",
@@ -8120,7 +8219,7 @@
         "forbiddenOutcomes": [
           "Do not infer or fabricate native behavior."
         ],
-        "rationale": "Must be independently instantiated and frozen before any confirmatory outcome."
+        "rationale": "Must be independently instantiated and frozen before confirmatory outcome."
       },
       "costLedger": {
         "status": "not-computed",
@@ -8170,10 +8269,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -8185,7 +8287,7 @@
         "status": "not-instantiated",
         "digestSha256": null,
         "fixtureRef": null,
-        "reason": "Held-out scenario is pre-registered but no actor view or confirmatory game was generated."
+        "reason": "Pre-registered held-out scenario; no actor view or confirmatory game was generated."
       },
       "decisionEnvelope": {
         "status": "not-authored-to-an-action-level",
@@ -8193,7 +8295,7 @@
         "forbiddenOutcomes": [
           "Do not infer or fabricate native behavior."
         ],
-        "rationale": "Must be independently instantiated and frozen before any confirmatory outcome."
+        "rationale": "Must be independently instantiated and frozen before confirmatory outcome."
       },
       "costLedger": {
         "status": "not-computed",
@@ -8243,10 +8345,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -8258,7 +8363,7 @@
         "status": "not-instantiated",
         "digestSha256": null,
         "fixtureRef": null,
-        "reason": "Held-out scenario is pre-registered but no actor view or confirmatory game was generated."
+        "reason": "Pre-registered held-out scenario; no actor view or confirmatory game was generated."
       },
       "decisionEnvelope": {
         "status": "not-authored-to-an-action-level",
@@ -8266,7 +8371,7 @@
         "forbiddenOutcomes": [
           "Do not infer or fabricate native behavior."
         ],
-        "rationale": "Must be independently instantiated and frozen before any confirmatory outcome."
+        "rationale": "Must be independently instantiated and frozen before confirmatory outcome."
       },
       "costLedger": {
         "status": "not-computed",
@@ -8316,10 +8421,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -8331,7 +8439,7 @@
         "status": "not-instantiated",
         "digestSha256": null,
         "fixtureRef": null,
-        "reason": "Held-out scenario is pre-registered but no actor view or confirmatory game was generated."
+        "reason": "Pre-registered held-out scenario; no actor view or confirmatory game was generated."
       },
       "decisionEnvelope": {
         "status": "not-authored-to-an-action-level",
@@ -8339,7 +8447,7 @@
         "forbiddenOutcomes": [
           "Do not infer or fabricate native behavior."
         ],
-        "rationale": "Must be independently instantiated and frozen before any confirmatory outcome."
+        "rationale": "Must be independently instantiated and frozen before confirmatory outcome."
       },
       "costLedger": {
         "status": "not-computed",
@@ -8389,10 +8497,13 @@
         "archetype": "Raichu Electrode Combo",
         "sourceListPath": "results/aichi-2026/full-decklists.json",
         "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-        "sourceEntryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
-        "sourceEntryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
+        "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+        "sourceEntryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+        "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 JSON.stringify(rank4 entry); source object key order and card-row order preserved",
+        "sourcePhysicalCardCount": 60,
         "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
         "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "engineSubmodulePath": "vendor/twinleaf",
         "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -8404,7 +8515,7 @@
         "status": "not-instantiated",
         "digestSha256": null,
         "fixtureRef": null,
-        "reason": "Held-out scenario is pre-registered but no actor view or confirmatory game was generated."
+        "reason": "Pre-registered held-out scenario; no actor view or confirmatory game was generated."
       },
       "decisionEnvelope": {
         "status": "not-authored-to-an-action-level",
@@ -8412,7 +8523,7 @@
         "forbiddenOutcomes": [
           "Do not infer or fabricate native behavior."
         ],
-        "rationale": "Must be independently instantiated and frozen before any confirmatory outcome."
+        "rationale": "Must be independently instantiated and frozen before confirmatory outcome."
       },
       "costLedger": {
         "status": "not-computed",
@@ -8484,6 +8595,7 @@
       "status": "not-claimed"
     }
   ],
-  "hashAlgorithm": "SHA-256 of canonical JSON with suiteSha256=null; object keys sorted lexicographically, arrays preserve order, UTF-8",
-  "suiteSha256": "455b0b861620c859c1ebce65a809d7195d2aecbf1d2181c8379e467a14982ade"
+  "caseRecordCount": 38,
+  "hashAlgorithm": "SHA-256 of UTF-8 canonical JSON with suiteSha256=null; object keys sorted lexicographically, arrays preserve order",
+  "suiteSha256": "f23451be10484d59a81ced2074781d3f24275b155caebf9126bb371a45d3048b"
 }
