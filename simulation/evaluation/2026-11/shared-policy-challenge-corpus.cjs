@@ -146,9 +146,10 @@ function normalizeSuite(rootDir, spec, cases) {
     suite.sourceBinding || {};
   const candidateDeck = suite.candidateDeck || suite.candidateBinding ||
     (suite.sourceBinding && suite.sourceBinding.fixedCandidate) ||
-    suite.sourceBinding || {};
+    suite.sourceBinding || suite.sourceDeck || {};
   const engine = suite.engine || suite.engineBinding ||
-    (suite.dependencies && suite.dependencies.engine) || {};
+    (suite.dependencies && suite.dependencies.engine) ||
+    suite.sourceBinding || suite.sourceDeck || {};
   const rank = pick(suite, ['sourceRank']) ||
     pick(policy, ['sourceRank']) ||
     pick(suite.sourceBinding, ['sourceRank']) ||
@@ -183,28 +184,32 @@ function normalizeSuite(rootDir, spec, cases) {
   const sourceListBlobSha1 =
     pick(sourceDeck, [
       'sourceListBlobSha1', 'sourceListGitBlobSha1', 'sourceDeckDatasetGitBlobSha1',
-      'gitBlobSha1', 'blobSha1'
+      'sourceDeckBlobSha1', 'gitBlobSha1', 'blobSha1'
     ]) ||
     pick(suite.sourceBinding, [
-      'sourceListBlobSha1', 'sourceListGitBlobSha1', 'sourceDeckDatasetGitBlobSha1'
+      'sourceListBlobSha1', 'sourceListGitBlobSha1', 'sourceDeckDatasetGitBlobSha1',
+      'sourceDeckBlobSha1'
     ]);
   const candidateFingerprint =
     pick(candidateDeck, [
       'fingerprintSha256', 'fixedCandidateFingerprintSha256',
-      'candidateEntryJsonSha256', 'deckFingerprintSha256'
+      'candidateEntryJsonSha256', 'candidateDeckFingerprintSha256', 'deckFingerprintSha256'
     ]) ||
     pick(suite.suiteHeader, ['candidateDeckFingerprintSha256']) ||
     pick(suite.sourceBinding && suite.sourceBinding.fixedCandidate, [
-      'fingerprintSha256', 'fixedCandidateFingerprintSha256', 'candidateEntryJsonSha256'
+      'fingerprintSha256', 'fixedCandidateFingerprintSha256',
+      'candidateEntryJsonSha256', 'candidateDeckFingerprintSha256'
     ]);
   const candidateDeckBlobSha1 =
-    pick(candidateDeck, ['gitBlobSha1', 'candidateGitBlobSha1', 'blobSha1']) ||
-    pick(suite.sourceBinding, ['fixedCandidateBlobSha1']);
+    pick(candidateDeck, [
+      'gitBlobSha1', 'candidateGitBlobSha1', 'candidateDeckBlobSha1', 'blobSha1'
+    ]) || pick(suite.sourceBinding, ['fixedCandidateBlobSha1']);
   const candidateFingerprintKind =
     pick(candidateDeck, ['fingerprintKind', 'hashMethod', 'sourceHashMethod']) ||
     (pick(candidateDeck, ['candidateEntryJsonSha256']) ? 'candidate-entry-json-sha256' :
       (pick(candidateDeck, ['fixedCandidateFingerprintSha256']) ? 'fixed-candidate-fingerprint-sha256' :
-        (pick(candidateDeck, ['fingerprintSha256']) ? 'deck-fingerprint-sha256' : null)));
+        (pick(candidateDeck, ['candidateDeckFingerprintSha256']) ? 'candidate-deck-fingerprint-sha256' :
+          (pick(candidateDeck, ['fingerprintSha256']) ? 'deck-fingerprint-sha256' : null))));
 
   return {
     rank,
@@ -227,12 +232,12 @@ function normalizeSuite(rootDir, spec, cases) {
     ]),
     sourceListBlobSha1: sourceListBlobSha1 || null,
     sourceDeckFingerprintSha256: sourceFingerprint,
-    candidateDeckPath: pick(candidateDeck, ['path', 'candidatePath', 'fixedCandidatePath']),
+    candidateDeckPath: pick(candidateDeck, ['path', 'candidatePath', 'candidateDeckPath', 'fixedCandidatePath']),
     candidateDeckBlobSha1: candidateDeckBlobSha1 || null,
     candidateDeckFingerprintSha256: candidateFingerprint,
     candidateDeckFingerprintKind: candidateFingerprintKind,
-    enginePinnedCommit: pick(engine, ['pinnedCommit', 'pinnedRevision']) ||
-      pick(suite.sourceBinding, ['enginePinnedCommit']),
+    enginePinnedCommit: pick(engine, ['pinnedCommit', 'pinnedRevision', 'engineRevision', 'engineCommit']) ||
+      pick(suite.sourceBinding, ['enginePinnedCommit', 'engineRevision', 'engineCommit']),
     caseArrayCounts,
     caseCount: Object.values(caseArrayCounts).reduce((sum, count) => sum + count, 0),
     unresolvedCoverageCount: Array.isArray(suite.unresolvedCoverage) ? suite.unresolvedCoverage.length : 0,
