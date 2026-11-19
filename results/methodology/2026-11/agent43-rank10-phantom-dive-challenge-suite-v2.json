@@ -33,12 +33,12 @@
   "dependencyManifest": {
     "path": "results/methodology/2026-11/agent43-rank10-dependencies-v2.json",
     "gitBlobSha1": "2d25bbe91f18fdce5cbca869800abbc3d745a5f8",
-    "sha256": "f75f29524bcb47c353be4088288d50b7972fe0b174673785ef892bae6311021a"
+    "sha256": "f1db1bbfac7a067c9ca996a047256d1cdfc672d22738957cf6d8607295d67b80"
   },
   "commonConstraints": {
     "path": "results/methodology/2026-11/agent43-rank10-common-constraints-v2.json",
     "gitBlobSha1": "410b649a0d5ee0858dbeb36bfd04d7f2b6018aa3",
-    "sha256": "603b2ec7b56e3a96a94aa623658862351be896672cd06571d44d77226ef3e8a8",
+    "sha256": "baa57e0c4ccf852d2fad9411a6985b1033eca1e5f8989fed6ad6e6318554409e",
     "bindingStatus": "provisional; not bound to signed V3 policy-plan core"
   },
   "engine": {
@@ -73,7 +73,7 @@
   },
   "lifecycle": {
     "createdAt": "2026-11-19T13:05:45Z",
-    "frozenAt": "2026-11-19T13:11:20Z",
+    "frozenAt": "2026-11-19T13:13:48Z",
     "freezeScope": "development/regression case definitions only; no policy registration, deal generation, games, or fixtures",
     "suiteStatus": "blocked-not-attestation-ready",
     "confirmatoryGamesRun": 0,
