@@ -61,14 +61,16 @@
     "currently_identified_prototypes": [
       1,
       2,
+      3,
       10
     ],
-    "prototype_coverage_ranks": 3,
-    "prototype_coverage_fraction": 0.09375,
+    "prototype_coverage_ranks": 4,
+    "prototype_coverage_fraction": 0.125,
     "rank_specific_competence_required": true,
     "shared_archetype_core_allowed_only_with_exact_rank_configuration": true,
     "prototype_distance_method": "Exact half-L1 source multiset distance over name+printing.set+printing.number, from Agent35's independent 29-list calculation.",
-    "prototype_distance_source": "results/methodology/2026-11/agent35-prototype-transfer-distance-map-20261117.md"
+    "prototype_distance_source": "results/methodology/2026-11/agent35-prototype-transfer-distance-map-20261117.md",
+    "rank3_prototype_status": "synthetic_only_unbound_not_competent"
   },
   "ranks": [
     {
@@ -160,8 +162,8 @@
       "source_card_count": 60,
       "primary_benchmark_role": "unchanged_original_aichi_opponent",
       "english_expanded_diagnostic_status": "japanese_extra_incompatible_unchanged",
-      "prototype_identified": false,
-      "policy_status": "no_current_panel_prototype_identified",
+      "prototype_identified": true,
+      "policy_status": "synthetic_only_unbound_prototype",
       "strata_planned": 4,
       "prototype_distances": {
         "rank_1": 48,
@@ -192,6 +194,38 @@
         "can_return_opponent_energy_to_hand": false,
         "can_transfer_attacker_energy_on_damage": false,
         "has_special_energy_removal": true
+      },
+      "prototype_distance_scope": "distances to pre-existing rank-1/rank-2/rank-10 prototypes only; rank-3 policy is source-specific and not a transfer claim",
+      "policy_prototype": {
+        "policyId": "agent17-rank3-snorlax-stall-opponent-v1",
+        "declaredProducerId": "agent17",
+        "policyPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
+        "policySha256": "2264140ca2793e3eb1ec9589a1423b3b5d50f3f309ad3657c1dcab5312911188",
+        "testPath": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "testSha256": "54ae9212698d581b8b1b47e4fc6aa54b7110c6ae62cfe0923ea597e8327467d5",
+        "unitTestsPassed": 49,
+        "unitTestsTotal": 49,
+        "dependencyManifestPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json",
+        "dependencyManifestSha256": "7c47d07659455677b565a801972b4f841f3131480443a46252ee14a81582b0b0",
+        "commonConstraintsPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
+        "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
+        "challengeSuitePath": "results/aichi-2026/2026-11/agent17-rank3-snorlax-stall-opponent-policy-challenge-suite-v1.json",
+        "challengeSuiteSha256": "94b414818a12905fecadcdec8b4dd183c480c6b207645ec688ce6a099a6dc55c",
+        "challengeSuiteStatus": "synthetic_only_unbound_not_frozen",
+        "evidenceClassCounts": {
+          "sourceNatural": 0,
+          "nativeStaged": 0,
+          "synthetic": 49
+        },
+        "actorRequestFixtures": 50,
+        "decisionReceipts": 49,
+        "heldOutCases": 8,
+        "nativeGames": 0,
+        "matchupResults": null,
+        "winRate": null,
+        "signedPolicyPlanProducerBinding": null,
+        "independentReviewer": null,
+        "competitiveStatus": "not competent / not admitted"
       }
     },
     {
