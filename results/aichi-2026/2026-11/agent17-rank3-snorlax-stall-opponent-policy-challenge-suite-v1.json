@@ -102,15 +102,15 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json",
-    "manifestSha256": "6fd719ab2c0e96698ec33ad3d73a99a5430e57df9a76c8d00c301101931fe524",
+    "manifestSha256": "3b06baa5e97e223af20a48568b08b078413c3df93d0f0f5d550f04d1a9cec483",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "testFilePath": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "testFileBlobSha1": "43f43579f72f31aaf9878b58d10d4404f98a0766",
-    "testFileSha256": "8e8b889e7d4adc1cad9694c3f69f48f00bbc921151ca41ed059324cdbfa60423",
+    "testFileBlobSha1": "9ccc6e903dbe2b00b4fe6e9c2ec0291249bd3e0e",
+    "testFileSha256": "619940daa21a7c51929349a797742823c9e89158aff74a08cfab9990cce20196",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -9578,7 +9578,7 @@
     ]
   },
   "caseRecordCount": 49,
-  "suiteSha256": "57955a7bcf897204ab3f8da6d09eba186925cec352ea1cef31f2b0d583e03e6f",
+  "suiteSha256": "d7d8805702d5a40a762a71f73f3af57d4aaa8260aec9810dec5c558651106d71",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
@@ -9587,7 +9587,7 @@
     "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
     "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
     "policySha256": "5c005896a9f0998f3f5a9f77efb227d23f993120de6afc1c3ff5ce24713f77d2",
-    "dependencyManifestSha256": "6fd719ab2c0e96698ec33ad3d73a99a5430e57df9a76c8d00c301101931fe524",
+    "dependencyManifestSha256": "3b06baa5e97e223af20a48568b08b078413c3df93d0f0f5d550f04d1a9cec483",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
