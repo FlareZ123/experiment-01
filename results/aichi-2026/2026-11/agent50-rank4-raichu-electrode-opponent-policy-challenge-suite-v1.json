@@ -8597,5 +8597,20 @@
   ],
   "caseRecordCount": 38,
   "hashAlgorithm": "SHA-256 of UTF-8 canonical JSON with suiteSha256=null; object keys sorted lexicographically, arrays preserve order",
-  "suiteSha256": "f23451be10484d59a81ced2074781d3f24275b155caebf9126bb371a45d3048b"
+  "suiteSha256": "b7b6a5ae421869d574bd402d23da8d413667fbba11e7bfe4a8ab251a8c039d85",
+  "workerInitialization": {
+    "status": "incompatible",
+    "initSchema": "aichi-policy-worker-init-v2",
+    "workerPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+    "workerBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+    "workerFileSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
+    "policyPath": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
+    "policyBlobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+    "requiredConfig": {
+      "rank": 4,
+      "sourceFingerprint": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
+      "candidateFingerprint": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+    },
+    "reason": "Legacy v1 createPolicy requires non-empty config, while the shared worker validateInit requires config={}. This suite is historical and not worker-initializable."
+  }
 }
