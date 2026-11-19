@@ -790,3 +790,27 @@ test('the real worker request validator rejects hidden opponent-hand and RNG fie
     observation: { ...request.observation, rngSeed: 123 }
   }, init, request.sequence, new Set()));
 });
+
+// Temporary digest probe for rank-4 v2 metadata; branch-only.
+
+{
+  const rank4Fs = require('node:fs');
+  const rank4Crypto = require('node:crypto');
+  const rank4Canonical = value => {
+    if (Array.isArray(value)) return '[' + value.map(rank4Canonical).join(',') + ']';
+    if (value && typeof value === 'object') return '{' + Object.keys(value).sort().map(key =>
+      JSON.stringify(key) + ':' + rank4Canonical(value[key])).join(',') + '}';
+    return JSON.stringify(value);
+  };
+  const rank4Sha = path => rank4Crypto.createHash('sha256').update(rank4Fs.readFileSync(path)).digest('hex');
+  const rank4Suite = JSON.parse(rank4Fs.readFileSync('results/aichi-2026/2026-11/agent50-rank4-raichu-electrode-opponent-policy-challenge-suite-v2.json', 'utf8'));
+  const rank4SuiteForHash = { ...rank4Suite, suiteSha256: null };
+  console.log('AGENT50_RANK4_DIGESTS ' + JSON.stringify({
+    policy: rank4Sha('simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy-v2.cjs'),
+    test: rank4Sha('tests/2026-11/agent50-rank4-raichu-electrode-opponent-policy-v2.test.cjs'),
+    manifest: rank4Sha('simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-dependency-manifest-v2.json'),
+    constraints: rank4Sha('simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-common-constraints-v2.json'),
+    suiteCanonical: rank4Crypto.createHash('sha256').update(rank4Canonical(rank4SuiteForHash), 'utf8').digest('hex')
+  }));
+}
+require('./agent50-rank4-raichu-electrode-opponent-policy-v2.test.cjs');
