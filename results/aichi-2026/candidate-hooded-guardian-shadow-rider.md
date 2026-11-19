@@ -61,6 +61,10 @@ Keep Enamorus V on the Bench with Stealthy Hood attached. Guardian of Love preve
 
 The candidate's 11 Basic Psychic Energy and Shadow Rider VMAX Underworld Door engine are aligned with the Psychic-Energy condition. Under an already-active Iron Thorns or Garbotoxin effect, the first Shadow Rider VMAX still needs a manual Psychic Energy attachment to become a protected target; once its Underworld Door is live, it can attach Psychic Energy to other Benched Psychic Pokémon, extending the protected set.
 
+## Suggested Tool deployment against rank31
+
+Attach one Stealthy Hood to Enamorus V and keep the second Hood in hand/deck while the opponent's one-copy Field Blower / Tool-removal window remains. Guardian of Love should continue protecting the other Psychic-Energy-attached Pokémon even if Field Blower removes Enamorus's Hood, provided no Ability suppressor is also active; Enamorus itself is then exposed. One Cursed Blast leaves a healthy Enamorus at 80 HP and gives an Acerola response window; two already-established Dusknoir PRE could double-blast the anchor in one turn, self-KO twice, and trade two Prizes for the two-Prize Enamorus. This is a testable deployment hypothesis, not a guaranteed line. It follows the existing [two-Hood deployment rule](2026-11/agent17-two-hood-deployment-rule-20261117.md), which recommends keeping the second Hood in reserve against one-copy removal.
+
 ## Important limits
 
 - Enamorus V is excluded from its own Guardian of Love. If its Hood is removed, Enamorus itself is exposed; the rest of the board remains protected unless an Ability-lock effect also suppresses Enamorus.
