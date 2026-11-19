@@ -10,8 +10,8 @@ const {
 
 const config = {
   rank: 3,
-  sourceFingerprint: 'ac1d20123341795cec79fe93b2498c8b16c26016fad2a4902593ae527381d6d5',
-  candidateFingerprint: '1dd6fe4246c4b591ede71902d5ac523862a957727efcce835d286c14158af1bb'
+  sourceFingerprint: '0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368',
+  candidateFingerprint: '1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4'
 };
 
 function makePolicy(seat = 0) {
