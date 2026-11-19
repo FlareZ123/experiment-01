@@ -30,26 +30,27 @@ The first policy priorities are:
 1. Early Battle VIP Pass / Quick Ball setup for Trubbish, Oranguru V, and Mega Absol.
 2. Oranguru V's Back Order search for Forest Seal Stone and Float Stone.
 3. Boost Shake into Garbodor when Trubbish is present, with Tool placement treated as part of the Garbotoxin setup.
-4. Mega Absol pressure, using Terminal Period only at exactly 60 damage counters and otherwise preferring Claw of Darkness when payable.
-5. Dark Patch energy placement, Marnie disruption, Guzma target selection, and protected discard choices.
-6. Abstention when prompt types or target identity are not sufficiently represented.
+4. Mega Absol pressure, using Terminal Period only at exactly 60 damage counters; Claw of Darkness also chooses a high-priority card from the opponent's revealed hand.
+5. Squawkabilly ex Motivate and Trubbish Call for Family sequencing to build the Mega Absol attack line.
+6. Retreat only when Mega Absol has a payable attack line; Dark Patch energy placement, Marnie disruption, Guzma target selection, and protected discard choices.
+7. Abstention when prompt types or target identity are not sufficiently represented.
 
 These are policy heuristics, not validated claims of competitive strength.
 
 ## Validation
 
-**22/22 deterministic test cases passed** in an isolated V8 harness. The harness evaluated the committed test source with Node builtin shims while invoking the actual Agent49 worker module and its `validateInit`, `validateRequest`, and `validateDecision` validators. It also checked the exact source-list and candidate fingerprints.
+**26/26 deterministic test cases passed** in an isolated V8 harness. The harness evaluated the committed test source with Node builtin shims while invoking the actual Agent49 worker module and its `validateInit`, `validateRequest`, and `validateDecision` validators. It also checked the exact source-list and candidate fingerprints.
 
 This was not a Node `--test` runner execution, a Twinleaf execution, a native staged action, or a game. No native receipt, full-match transcript, matchup result, win-rate estimate, or 99.5% evidence exists.
 
 - Policy SHA-256: `28939bb2c257ab444a065760fe3d10e963b37bf373e071d4e524019988cc1d80`
 - Test SHA-256: `6493e7a95c1b22c3f7e888d62ec0c046ff10965b188a68eeaa1f33178d9afc54`
-- Dependency manifest SHA-256: `6cb5d85c54e69c32a69da16ef81f80895e847bdbae0ae5a0aef1b99c152acdee`
-- Challenge suite SHA-256: `74b24189958403e501cce3741cc7d086cf0d7facc56d7bacc3b0b6b4c2e49bfe`
+- Dependency manifest SHA-256: `aa3d3a3767d1acccfaad8a7f85cb054faa13bbbbc26ecd9676a11a8e5c3c7f46`
+- Challenge suite SHA-256: `755570e55d14687b6cb708cbe582c2dea0c1daf758b997e3e974ba1b18f24b0f`
 
 ## Development and held-out coverage
 
-The suite records eight synthetic development cases with full actor-packet digests and four unexecuted held-out review cases. The held-out cases target seat-1 parity, Secret Box category selection, Tool-less Boost Shake, and Claw of Darkness damage conversion. They are not counted as passed tests.
+The suite records twelve synthetic development cases with full actor-packet digests and four unexecuted held-out review cases. The held-out cases target seat-1 parity, Secret Box category selection, Tool-less Boost Shake, and Claw of Darkness damage conversion. They are not counted as passed tests.
 
 ## Next work
 

@@ -23,8 +23,8 @@
   "policy": {
     "path": "simulation/evaluation/2026-11/agent31-rank11-absol-garbodor-opponent-policy.cjs",
     "version": "agent31-rank11-absol-garbodor-opponent-v1",
-    "gitBlobSha1": "7328b98efe02743caef18fdf161174932c952c7c",
-    "sha256": "28939bb2c257ab444a065760fe3d10e963b37bf373e071d4e524019988cc1d80",
+    "gitBlobSha1": "e2e0f7630c5da417235f701ab7015793b3f0f133",
+    "sha256": "afe6988f8c20df6c39e3ceb92d35206551c52fc0a24c6c669abd2f1e255b7f6c",
     "configContract": "empty object only; current Agent49 validateInit rejects non-empty config",
     "determinism": "deterministic; no RNG or seed input",
     "role": "opponent",
@@ -36,10 +36,10 @@
   },
   "test": {
     "path": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
-    "gitBlobSha1": "5302afe87fa83a632fd261c0dfbffb06b97cd091",
-    "sha256": "6493e7a95c1b22c3f7e888d62ec0c046ff10965b188a68eeaa1f33178d9afc54",
-    "cases": 22,
-    "passed": 22,
+    "gitBlobSha1": "265d14b6bd1e8f53179e011d4093c461189d24b3",
+    "sha256": "7986506e4a3628cfaa0b50533aea33173588d9c696e6884582780f3d2474681e",
+    "cases": 26,
+    "passed": 26,
     "failed": 0,
     "execution": "test source evaluated in an isolated V8 harness with Node builtin shims; actual Agent49 worker module and validateInit/validateRequest/validateDecision functions executed",
     "nodeTestRunnerExecuted": false
@@ -63,7 +63,7 @@
     "qualification": "not paper-qualified; no matchup games"
   },
   "evidence": {
-    "syntheticTestsPassed": 22,
+    "syntheticTestsPassed": 26,
     "syntheticTestsFailed": 0,
     "nativeStagedCases": 0,
     "nativeGames": 0,

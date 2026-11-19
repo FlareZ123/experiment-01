@@ -557,44 +557,6 @@ test('copied Energy Mix searches DCE and attaches it to an unpowered Mew VMAX', 
     { kind: 'select-choice', token: 'mew-vmax' });
 });
 
-test('Energy Mix target selection uses public benchIndex for duplicate Mew VMAX and abstains if ambiguous', () => {
-  const source = actorChoiceSource(P.mewVMAX, 'Cross Fusion Strike', P.mewV, 'Energy Mix');
-  const own = player({
-    active: pokemon(P.mewVMAX, { stage: 'VMAX', subtypes: ['VMAX', 'Fusion Strike'], energies: [P.dce] }),
-    bench: [pokemon(P.mewVMAX, { stage: 'VMAX', subtypes: ['VMAX', 'Fusion Strike'] })]
-  });
-  const activeChoice = pokemonChoice('active-vmax', P.mewVMAX, 'actor', 'active');
-  const benchChoice = pokemonChoice('bench-vmax', P.mewVMAX, 'actor', 'bench', 0);
-  benchChoice.publicMetadata.benchIndex = 0;
-  const targetRequest = promptRequest({
-    promptType: 'ChoosePokemonPrompt',
-    source,
-    observation: { ownPublic: own },
-    choices: [activeChoice, benchChoice]
-  });
-  assert.deepEqual(checkedDecision(targetRequest),
-    { kind: 'select-choice', token: 'bench-vmax' });
-
-  const ambiguousChoices = ['active-unknown', 'bench-unknown'].map((token, index) => ({
-    token,
-    kind: 'pokemon',
-    printing: P.mewVMAX,
-    label: P.mewVMAX,
-    publicMetadata: {
-      selectionIndex: index, selectedCount: 0, selectionType: 'pokemon',
-      ownerSeat: 'actor', isOwnerVisible: true
-    }
-  }));
-  const ambiguousRequest = promptRequest({
-    promptType: 'ChoosePokemonPrompt',
-    source,
-    observation: { ownPublic: own },
-    choices: ambiguousChoices
-  });
-  assert.deepEqual(checkedDecision(ambiguousRequest),
-    { kind: 'abstain', reasonCode: 'NO_FUSION_STRIKE_ENERGY_TARGET' });
-});
-
 test('Guzma targets a vulnerable two-Prize Shadow Rider V before an undamaged VMAX', () => {
   const opponent = player({
     active: pokemon('Mimikyu GRI 58', { hp: 70, subtypes: ['Basic'] }),

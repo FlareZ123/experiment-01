@@ -31,15 +31,15 @@
   "policy": {
     "path": "simulation/evaluation/2026-11/agent31-rank11-absol-garbodor-opponent-policy.cjs",
     "version": "agent31-rank11-absol-garbodor-opponent-v1",
-    "gitBlobSha1": "7328b98efe02743caef18fdf161174932c952c7c",
-    "sha256": "28939bb2c257ab444a065760fe3d10e963b37bf373e071d4e524019988cc1d80"
+    "gitBlobSha1": "e2e0f7630c5da417235f701ab7015793b3f0f133",
+    "sha256": "afe6988f8c20df6c39e3ceb92d35206551c52fc0a24c6c669abd2f1e255b7f6c"
   },
   "dependencies": {
     "manifestPath": "results/aichi-2026/2026-11/agent31-rank11-opponent-policy-v1-dependencies.json",
-    "manifestSha256": "6cb5d85c54e69c32a69da16ef81f80895e847bdbae0ae5a0aef1b99c152acdee",
+    "manifestSha256": "aa3d3a3767d1acccfaad8a7f85cb054faa13bbbbc26ecd9676a11a8e5c3c7f46",
     "policyTestPath": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
-    "policyTestGitBlobSha1": "5302afe87fa83a632fd261c0dfbffb06b97cd091",
-    "policyTestSha256": "6493e7a95c1b22c3f7e888d62ec0c046ff10965b188a68eeaa1f33178d9afc54",
+    "policyTestGitBlobSha1": "265d14b6bd1e8f53179e011d4093c461189d24b3",
+    "policyTestSha256": "7986506e4a3628cfaa0b50533aea33173588d9c696e6884582780f3d2474681e",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "engineSubmodulePath": "vendor/twinleaf",
@@ -388,10 +388,10 @@
       },
       "actorView": {
         "digestAlgorithm": "SHA-256",
-        "actorPacketDigest": "86903827ff0777ef8e47df78f4fccc04454e258c4a0c310e8ab5856ebed5a9d3",
+        "actorPacketDigest": "ed1e1c07d6f9f985330642a2a0ed2431dc77f59d837c770c568a84448c880aba",
         "digestScope": "SHA-256(UTF-8 JSON.stringify(full V3 decision request: observation, prompt, public receipt, and action frontier))",
         "fixtureRef": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
-        "actorViewDigest": "86903827ff0777ef8e47df78f4fccc04454e258c4a0c310e8ab5856ebed5a9d3"
+        "actorViewDigest": "ed1e1c07d6f9f985330642a2a0ed2431dc77f59d837c770c568a84448c880aba"
       },
       "decisionEnvelope": {
         "expectedDecision": {
@@ -536,6 +536,300 @@
         "testName": "Marnie disrupts a large opponent hand but not a small one",
         "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
         "policyBlobSha1": "7328b98efe02743caef18fdf161174932c952c7c",
+        "protocolValidation": "passed through actual Agent49 V3 validator functions",
+        "nativeActionReceipt": null,
+        "nativeTraceDigest": null,
+        "status": "synthetic-only"
+      },
+      "disposition": "synthetic-pass; native execution and matchup outcome not established"
+    },
+    {
+      "caseId": "r11-claw-discard-field-blower",
+      "objective": "After Claw of Darkness reveals the opponent hand, discard the highest-priority exposed threat.",
+      "evidenceClass": "synthetic-actor-view",
+      "sourceBinding": {
+        "sourceRank": 11,
+        "sourcePlayer": "Wataru Yano",
+        "sourceArchetype": "Mega Absol / Garbodor",
+        "sourceListPath": "results/aichi-2026/full-decklists.json",
+        "sourceListGitBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "sourceEntryJsonSha256": "0da7b283f0416c883eda2825267a8e51e2d3b55ec130a2103da6539d04b350e6",
+        "sourceEntryHashMethod": "SHA-256 over UTF-8 JSON.stringify(parsed rank-11 entry), preserving source key and card-row order",
+        "sourceCardCount": 60,
+        "candidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateGitBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "candidateEntryJsonSha256": "4c18dd93ba49fd8f7d88aad573249dc6941b4cf61d52b99f80309345b5d58c59",
+        "candidateHashMethod": "SHA-256 over UTF-8 JSON.stringify(parsed complete candidate JSON object)",
+        "engineSubmodulePath": "vendor/twinleaf",
+        "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+      },
+      "actorView": {
+        "digestAlgorithm": "SHA-256",
+        "actorPacketDigest": "9b56a4cffcdf46ecf801d3d87cea6cb5fe9c5b3010f06489ad51d37e5fa205fb",
+        "actorViewDigest": "9b56a4cffcdf46ecf801d3d87cea6cb5fe9c5b3010f06489ad51d37e5fa205fb",
+        "digestScope": "SHA-256(UTF-8 JSON.stringify(full V3 decision request))",
+        "fixtureRef": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs"
+      },
+      "decisionEnvelope": {
+        "expectedDecisionSequence": [
+          {
+            "kind": "select-choice",
+            "token": "field-blower"
+          }
+        ],
+        "expectedDecisionKind": [
+          "select-choice"
+        ]
+      },
+      "costLedger": {
+        "policyDecisionCalls": 1,
+        "engineCalls": 0,
+        "stagedNativeCases": 0,
+        "nativeGames": 0,
+        "wallClockMs": null,
+        "measurement": "deterministic unit fixture; no engine execution"
+      },
+      "promptCoverage": [
+        "ChooseCardsPrompt",
+        "Claw of Darkness",
+        "opponent revealed hand"
+      ],
+      "executionEvidence": {
+        "testFile": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
+        "testName": "Claw of Darkness discards a high-value revealed opponent card",
+        "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+        "policyBlobSha1": "e2e0f7630c5da417235f701ab7015793b3f0f133",
+        "protocolValidation": "passed through actual Agent49 V3 validator functions",
+        "nativeActionReceipt": null,
+        "nativeTraceDigest": null,
+        "status": "synthetic-only"
+      },
+      "disposition": "synthetic-pass; native execution and matchup outcome not established"
+    },
+    {
+      "caseId": "r11-squawk-motivate-sequence",
+      "objective": "Use Squawkabilly ex Motivate to move toward a three-Energy Mega Absol attack line.",
+      "evidenceClass": "synthetic-actor-view",
+      "sourceBinding": {
+        "sourceRank": 11,
+        "sourcePlayer": "Wataru Yano",
+        "sourceArchetype": "Mega Absol / Garbodor",
+        "sourceListPath": "results/aichi-2026/full-decklists.json",
+        "sourceListGitBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "sourceEntryJsonSha256": "0da7b283f0416c883eda2825267a8e51e2d3b55ec130a2103da6539d04b350e6",
+        "sourceEntryHashMethod": "SHA-256 over UTF-8 JSON.stringify(parsed rank-11 entry), preserving source key and card-row order",
+        "sourceCardCount": 60,
+        "candidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateGitBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "candidateEntryJsonSha256": "4c18dd93ba49fd8f7d88aad573249dc6941b4cf61d52b99f80309345b5d58c59",
+        "candidateHashMethod": "SHA-256 over UTF-8 JSON.stringify(parsed complete candidate JSON object)",
+        "engineSubmodulePath": "vendor/twinleaf",
+        "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+      },
+      "actorView": {
+        "digestAlgorithm": "SHA-256",
+        "actorPacketDigest": "8b644836f4db7f020825805b8e3efda50ccde40b161a6c0e7025b19abc2c16fc",
+        "actorViewDigest": "8b644836f4db7f020825805b8e3efda50ccde40b161a6c0e7025b19abc2c16fc",
+        "actorPacketDigests": [
+          "1db61b3dd7522ccfcc0d7d8a190460edeae6814635157e8f0fa3780eb7b54cc1",
+          "6df1bf90ba8df0339e11bfac96f8b8ab5064dfb2610918258b7b625a73f5fed7",
+          "6db263e3f86cc8815db6c0d545ec7e0c8a01f4cad2bd5645406e1b5f2eda8b36"
+        ],
+        "requestCount": 3,
+        "digestScope": "SHA-256(UTF-8 JSON.stringify(ordered array of full V3 decision requests))",
+        "fixtureRef": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs"
+      },
+      "decisionEnvelope": {
+        "expectedDecisionSequence": [
+          {
+            "kind": "select-action",
+            "token": "motivate"
+          },
+          {
+            "kind": "select-choice",
+            "token": "absol"
+          },
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "dark1",
+              "dark2"
+            ]
+          }
+        ],
+        "expectedDecisionKind": [
+          "select-action",
+          "select-choice",
+          "select-choices"
+        ]
+      },
+      "costLedger": {
+        "policyDecisionCalls": 3,
+        "engineCalls": 0,
+        "stagedNativeCases": 0,
+        "nativeGames": 0,
+        "wallClockMs": null,
+        "measurement": "deterministic unit fixture; no engine execution"
+      },
+      "promptCoverage": [
+        "owner-root",
+        "ChoosePokemonPrompt",
+        "ChooseCardsPrompt",
+        "Motivate",
+        "Darkness Energy"
+      ],
+      "executionEvidence": {
+        "testFile": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
+        "testName": "Squawkabilly Motivate attacks, targets Mega Absol, and selects Darkness Energy",
+        "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+        "policyBlobSha1": "e2e0f7630c5da417235f701ab7015793b3f0f133",
+        "protocolValidation": "passed through actual Agent49 V3 validator functions",
+        "nativeActionReceipt": null,
+        "nativeTraceDigest": null,
+        "status": "synthetic-only"
+      },
+      "disposition": "synthetic-pass; native execution and matchup outcome not established"
+    },
+    {
+      "caseId": "r11-trubbish-call-for-family-sequence",
+      "objective": "Use Trubbish Call for Family when useful, then prefer the missing Oranguru V setup target over a redundant Trubbish.",
+      "evidenceClass": "synthetic-actor-view",
+      "sourceBinding": {
+        "sourceRank": 11,
+        "sourcePlayer": "Wataru Yano",
+        "sourceArchetype": "Mega Absol / Garbodor",
+        "sourceListPath": "results/aichi-2026/full-decklists.json",
+        "sourceListGitBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "sourceEntryJsonSha256": "0da7b283f0416c883eda2825267a8e51e2d3b55ec130a2103da6539d04b350e6",
+        "sourceEntryHashMethod": "SHA-256 over UTF-8 JSON.stringify(parsed rank-11 entry), preserving source key and card-row order",
+        "sourceCardCount": 60,
+        "candidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateGitBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "candidateEntryJsonSha256": "4c18dd93ba49fd8f7d88aad573249dc6941b4cf61d52b99f80309345b5d58c59",
+        "candidateHashMethod": "SHA-256 over UTF-8 JSON.stringify(parsed complete candidate JSON object)",
+        "engineSubmodulePath": "vendor/twinleaf",
+        "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+      },
+      "actorView": {
+        "digestAlgorithm": "SHA-256",
+        "actorPacketDigest": "995b367e2b2c0b60226dd3b8530282dbce648bc4f4acdeee1ec5fd1b30b3409b",
+        "actorViewDigest": "995b367e2b2c0b60226dd3b8530282dbce648bc4f4acdeee1ec5fd1b30b3409b",
+        "actorPacketDigests": [
+          "abfd03203c2dd9dfe2cf50353dfcb2059d033c4eeab78867d3ba843b0e973b32",
+          "09cb3618e526de72f80518aba9d685eb7ee208a87768163d4f83f609b6381a0e"
+        ],
+        "requestCount": 2,
+        "digestScope": "SHA-256(UTF-8 JSON.stringify(ordered array of full V3 decision requests))",
+        "fixtureRef": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs"
+      },
+      "decisionEnvelope": {
+        "expectedDecisionSequence": [
+          {
+            "kind": "select-action",
+            "token": "call"
+          },
+          {
+            "kind": "select-choice",
+            "token": "oranguru"
+          }
+        ],
+        "expectedDecisionKind": [
+          "select-action",
+          "select-choice"
+        ]
+      },
+      "costLedger": {
+        "policyDecisionCalls": 2,
+        "engineCalls": 0,
+        "stagedNativeCases": 0,
+        "nativeGames": 0,
+        "wallClockMs": null,
+        "measurement": "deterministic unit fixture; no engine execution"
+      },
+      "promptCoverage": [
+        "owner-root",
+        "ChooseCardsPrompt",
+        "Call for Family",
+        "Basic search"
+      ],
+      "executionEvidence": {
+        "testFile": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
+        "testName": "Trubbish Call for Family attacks and searches Oranguru ahead of a redundant Trubbish",
+        "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+        "policyBlobSha1": "e2e0f7630c5da417235f701ab7015793b3f0f133",
+        "protocolValidation": "passed through actual Agent49 V3 validator functions",
+        "nativeActionReceipt": null,
+        "nativeTraceDigest": null,
+        "status": "synthetic-only"
+      },
+      "disposition": "synthetic-pass; native execution and matchup outcome not established"
+    },
+    {
+      "caseId": "r11-mega-absol-retreat-threshold-sequence",
+      "objective": "Do not retreat into a two-Energy Mega Absol without a payable attack; retreat at three Energy for Claw of Darkness.",
+      "evidenceClass": "synthetic-actor-view",
+      "sourceBinding": {
+        "sourceRank": 11,
+        "sourcePlayer": "Wataru Yano",
+        "sourceArchetype": "Mega Absol / Garbodor",
+        "sourceListPath": "results/aichi-2026/full-decklists.json",
+        "sourceListGitBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+        "sourceEntryJsonSha256": "0da7b283f0416c883eda2825267a8e51e2d3b55ec130a2103da6539d04b350e6",
+        "sourceEntryHashMethod": "SHA-256 over UTF-8 JSON.stringify(parsed rank-11 entry), preserving source key and card-row order",
+        "sourceCardCount": 60,
+        "candidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateGitBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+        "candidateEntryJsonSha256": "4c18dd93ba49fd8f7d88aad573249dc6941b4cf61d52b99f80309345b5d58c59",
+        "candidateHashMethod": "SHA-256 over UTF-8 JSON.stringify(parsed complete candidate JSON object)",
+        "engineSubmodulePath": "vendor/twinleaf",
+        "engineRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+      },
+      "actorView": {
+        "digestAlgorithm": "SHA-256",
+        "actorPacketDigest": "2b084e756af38004d1db26231f2d2b9a4ee5022e89684e3b359525515c6ba637",
+        "actorViewDigest": "2b084e756af38004d1db26231f2d2b9a4ee5022e89684e3b359525515c6ba637",
+        "actorPacketDigests": [
+          "6569531512437199b7caf06a743c3ff7d8e04f55d4840d61f4d3ce06145bed69",
+          "42aa08d7449b99d30b7fd3509631aaf8baad541be1ee19128422f62e2c03c022"
+        ],
+        "requestCount": 2,
+        "digestScope": "SHA-256(UTF-8 JSON.stringify(ordered array of full V3 decision requests))",
+        "fixtureRef": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs"
+      },
+      "decisionEnvelope": {
+        "expectedDecisionSequence": [
+          {
+            "kind": "select-action",
+            "token": "pass"
+          },
+          {
+            "kind": "select-action",
+            "token": "retreat"
+          }
+        ],
+        "expectedDecisionKind": [
+          "select-action",
+          "select-action"
+        ]
+      },
+      "costLedger": {
+        "policyDecisionCalls": 2,
+        "engineCalls": 0,
+        "stagedNativeCases": 0,
+        "nativeGames": 0,
+        "wallClockMs": null,
+        "measurement": "deterministic unit fixture; no engine execution"
+      },
+      "promptCoverage": [
+        "owner-root",
+        "retreat",
+        "attack-cost readiness"
+      ],
+      "executionEvidence": {
+        "testFile": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
+        "testName": "Mega Absol retreat requires a payable attack line",
+        "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+        "policyBlobSha1": "e2e0f7630c5da417235f701ab7015793b3f0f133",
         "protocolValidation": "passed through actual Agent49 V3 validator functions",
         "nativeActionReceipt": null,
         "nativeTraceDigest": null,
@@ -768,10 +1062,10 @@
     }
   ],
   "evidenceSummary": {
-    "syntheticUnitTests": 22,
-    "syntheticUnitTestsPassed": 22,
+    "syntheticUnitTests": 26,
+    "syntheticUnitTestsPassed": 26,
     "syntheticUnitTestsFailed": 0,
-    "developmentCaseCount": 8,
+    "developmentCaseCount": 12,
     "heldOutReviewCaseCount": 4,
     "nativeStagedCases": 0,
     "nativeGames": 0,
@@ -782,9 +1076,9 @@
   "limitations": [
     "Synthetic actor-view tests exercise the exact current Agent49 V3 validator functions, but no Twinleaf native game was executed.",
     "No native action receipt, effect-resolution witness, or full-match transcript exists for this policy.",
-    "The eight development cases are synthetic; four additional cases remain held out and unexecuted.",
     "The rank-11 source is an English Expanded-legal diagnostic reconstruction; physical print identity is not verified.",
     "The Hood Shadow Rider candidate is not the final nominated deck; no matchup-level or field-level win rate is inferred.",
-    "Policy heuristics, card-resolution sequencing, and target legality still require native trace review."
+    "Policy heuristics, card-resolution sequencing, and target legality still require native trace review.",
+    "Twelve synthetic development cases are recorded; four separate held-out cases remain unexecuted."
   ]
 }
