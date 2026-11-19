@@ -60,6 +60,23 @@
       "source": "observation.ownTurnResources.vstarUsed",
       "whenTrue": "score 0",
       "whenFalse": "retain Rotom V attachment score"
+    },
+    "counterCatcherGate": {
+      "requires": [
+        "own.prizeCount > opponent.prizeCount",
+        "opponent has at least one Benched Pokémon"
+      ],
+      "rootScoreWhenMissingAny": 0,
+      "rootScoreWhenBothTrue": 135,
+      "trainersMailScoreWhenMissingAny": 0,
+      "trainersMailScoreWhenBothTrue": 135
+    },
+    "nightStretcherTargets": {
+      "sourceListPokémon": "all BASIC_SEARCH_PATTERNS",
+      "energy": "Basic Water Energy",
+      "scoreWhenNoTarget": 0,
+      "rootScoreWhenTarget": 90,
+      "trainersMailScoreWhenTarget": 125
     }
   },
   "sourceBinding": {
@@ -127,15 +144,15 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json",
-    "manifestSha256": "3991d6c3fef8e9d418de7f6e89f8d51edd4a60d6d22e25a2c530b0dbdb8b6ffe",
+    "manifestSha256": "488d612ef94684577b2f495166d7ba41272b96c4cb07e55af799a71de4bca2a6",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "testFilePath": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "testFileBlobSha1": "6c13223ac655706d8adf84a892dd0823589785dc",
-    "testFileSha256": "a21b9359d7dd957d34f49c033e3e1518567828497678d370d5c9f1437b01c09a",
+    "testFileBlobSha1": "8d77da0fe5e2403a9bdd04901a51829e9f413f80",
+    "testFileSha256": "3cbc56eb51fc457b335ae141865d503abcf7f3cf52f09e4ce0e1969681ded6d3",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -4472,7 +4489,7 @@
       "caseId": "r3-dev-23-counter-catcher-targets-the-opponent-bench-pok-mon-with-the-",
       "split": "development",
       "caseClass": "policy-decision",
-      "objective": "Counter Catcher targets the opponent Bench Pokémon with the greatest public Energy and retreat burden",
+      "objective": "Counter Catcher root play and Trainers' Mail search require both the prize lead and an opponent Bench target",
       "evidenceClass": "synthetic",
       "actorView": {
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
@@ -4551,12 +4568,13 @@
           "hidden opponent hand or unrevealed Prize identity",
           "wrong-source ability",
           "unpayable target",
-          "delegated fallback"
+          "delegated fallback",
+          "Counter Catcher prioritized without an opponent Bench target despite a prize lead"
         ],
         "acceptableOutcomeFamilies": [
           "select-choice"
         ],
-        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
+        "rationale": "The card's play condition is not sufficient by itself: its switch effect needs an opponent Benched Pokémon. Root and Trainers' Mail scores now require both conditions."
       },
       "costLedger": {
         "itemPlayed": true,
@@ -4624,10 +4642,20 @@
           "measured": false
         },
         "timeoutStatus": "not-tested",
-        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present",
+        "counterCatcherScores": {
+          "prizeLeadNoBench": {
+            "root": 0,
+            "trainersMail": 0
+          },
+          "prizeLeadWithBench": {
+            "root": 135,
+            "trainersMail": 135
+          }
+        }
       },
       "disposition": "blocked",
-      "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
+      "blockReason": "Synthetic actor-view and search-score tests only; no native game or prize-rule execution.",
       "reviewerStatus": "unreviewed",
       "sourceBinding": {
         "role": "opponent-policy",
@@ -4647,13 +4675,13 @@
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
         "evidenceClass": "synthetic"
       },
-      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
+      "reviewerExplanation": "Synthetic actor-view and search-score tests only; no native game or prize-rule execution."
     },
     {
       "caseId": "r3-dev-24-night-stretcher-recovers-a-missing-core-pok-mon-over-a-basic",
       "split": "development",
       "caseClass": "policy-decision",
-      "objective": "Night Stretcher recovers a missing core Pokémon over a basic Energy",
+      "objective": "Night Stretcher scores any source-list Basic Pokémon or Basic Water Energy in discard, including Mimikyu, and zero when no recoverable target exists",
       "evidenceClass": "synthetic",
       "actorView": {
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
@@ -4729,12 +4757,14 @@
           "hidden opponent hand or unrevealed Prize identity",
           "wrong-source ability",
           "unpayable target",
-          "delegated fallback"
+          "delegated fallback",
+          "Night Stretcher treated as dead when Mimikyu or another non-core Basic is in discard",
+          "Night Stretcher prioritized with no Pokémon or Basic Energy in discard"
         ],
         "acceptableOutcomeFamilies": [
           "select-choice"
         ],
-        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
+        "rationale": "The prior hardcoded recovery list omitted Mimikyu, Stunfisk and Regirock despite the effect accepting any Pokémon or Basic Energy. A shared target helper now covers all source-list Basic patterns and Basic Water Energy."
       },
       "costLedger": {
         "itemPlayed": true,
@@ -4801,10 +4831,20 @@
           "measured": false
         },
         "timeoutStatus": "not-tested",
-        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present",
+        "nightStretcherScores": {
+          "mimikyuInDiscard": {
+            "root": 90,
+            "trainersMail": 125
+          },
+          "noRecoveryTarget": {
+            "root": 0,
+            "trainersMail": 0
+          }
+        }
       },
       "disposition": "blocked",
-      "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
+      "blockReason": "Synthetic actor-visible discard and policy-score tests only; source-list Pokémon are all Basic in this deck.",
       "reviewerStatus": "unreviewed",
       "sourceBinding": {
         "role": "opponent-policy",
@@ -4822,7 +4862,7 @@
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
         "evidenceClass": "synthetic"
       },
-      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
+      "reviewerExplanation": "Synthetic actor-visible discard and policy-score tests only; source-list Pokémon are all Basic in this deck."
     },
     {
       "caseId": "r3-dev-25-enhanced-hammer-selects-a-special-energy-rather-than-a-basic",
@@ -9639,7 +9679,7 @@
     ]
   },
   "caseRecordCount": 49,
-  "suiteSha256": "e395739b89a5a870f25d15668418fa9dbea4b287c25840fd601fdbf210107b6a",
+  "suiteSha256": "474ab292583801a4eb38dc6fac17117c24c539eac11d34a5886fbaee7fe23c59",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
@@ -9647,8 +9687,8 @@
     "sourceRank": 3,
     "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
     "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
-    "policySha256": "f09fb3a486e0082fe53b32b8c9743927b6ef99901b70f89241047b75efbcbe5d",
-    "dependencyManifestSha256": "3991d6c3fef8e9d418de7f6e89f8d51edd4a60d6d22e25a2c530b0dbdb8b6ffe",
+    "policySha256": "c3ab0ea5c22fe48583391a480106814f950949f8c0ba114de0c345436da2e902",
+    "dependencyManifestSha256": "488d612ef94684577b2f495166d7ba41272b96c4cb07e55af799a71de4bca2a6",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
@@ -9847,9 +9887,9 @@
   },
   "policyStaticAudit": {
     "sourcePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "sourceBlobSha1": "d9120ac751251673e2b3a3b2444bdf6e5fd4fba4",
-    "sourceSha256": "f09fb3a486e0082fe53b32b8c9743927b6ef99901b70f89241047b75efbcbe5d",
-    "scannedAt": "2026-11-19T17:19:47Z",
+    "sourceBlobSha1": "c524698afdb097f07f634cf335354505db09b50d",
+    "sourceSha256": "c3ab0ea5c22fe48583391a480106814f950949f8c0ba114de0c345436da2e902",
+    "scannedAt": "2026-11-19T17:26:11Z",
     "scannedTerms": [
       {
         "term": "Math.random",
