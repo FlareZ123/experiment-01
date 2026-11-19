@@ -20,8 +20,8 @@
     "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "commonConstraintsSha256": "9f801c9e37758815bbd72bb138e6ec0cef45022837d016500943444069766626",
-    "dependencyManifestSha256": "4ad7c50c2bd5b497932c60f6453beb5ece85ff1d2d339c8d23c3d5594482933b",
-    "challengeSuiteSha256": "c20383d3a7baf6842de1b4f8eacbdf45baf1a2604686f45e2e6e2a9f410f0b96"
+    "dependencyManifestSha256": "8f53e9274af3e25e5f522b9a52ccadd76390c5d2db37333e89c0f8e877c3e347",
+    "challengeSuiteSha256": "2c1e455c1b24821f8d268e0c75a4aa327ebd2ca5f0d74afd8831777c19c372a0"
   },
   "sourceBinding": {
     "rank": 5,
@@ -54,7 +54,7 @@
     "gameCount": 0,
     "winRate": null
   },
-  "nextGate": "Run the authored Node node --test regression in an approved checkout; then obtain independent review. No native games or seeds without Critic authorization.",
+  "nextGate": "Independent review of the rank-5 v8 worker-init contract and test evidence. Do not register the policy, change strategy/deck, or run native games absent explicit authorization.",
   "supplementalUnitTestExecution": {
     "executionAtUtc": "2026-11-19T20:41:00.249Z",
     "mode": "isolated V8 CommonJS shim; not Node node:test",
@@ -64,5 +64,23 @@
     "passed": 32,
     "failed": 0,
     "limitations": "Node test runner, worker IPC, native Store, independent competence and competitive games remain unverified"
+  },
+  "nodeTestExecution": {
+    "executionStartedAtUtc": "2026-11-19T20:52:56.041367536Z",
+    "executionEndedAtUtc": "2026-11-19T20:52:56.228297307Z",
+    "nodeVersion": "v22.16.0",
+    "command": "node --test tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+    "exactBlobSha1s": {
+      "test": "67a7e1e94437e176ad39da794f63b40807b2e88c",
+      "policy": "7aff8fcc77351655083fec49cb4318cf4563f7f2",
+      "workerProtocol": "d51ea95c457d61b50a9ee114d342eb17f4350451"
+    },
+    "tests": 32,
+    "passed": 32,
+    "failed": 0,
+    "skipped": 0,
+    "durationMs": 127.52096,
+    "workingTree": "temporary isolated test tree; no full repository/submodule checkout",
+    "limitation": "the test file does not start the worker run loop or process IPC and does not establish native Store, independent competence, matchup or game evidence"
   }
 }
