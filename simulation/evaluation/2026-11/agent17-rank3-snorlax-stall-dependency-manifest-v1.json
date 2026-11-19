@@ -9,7 +9,7 @@
   "policyModule": {
     "path": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
     "gitBlobSha1": "f62bb071138621f218b5f849c657c8010187f4d1",
-    "sha256": "4c7e06173ecb922051b49222c99e776cba73248f7ce12581844dbc29cba0b033",
+    "sha256": "197dd2956c12dd89af7c341d99b13a71e861fd2dada3837437ce00e1d8214e15",
     "policyVersion": "agent17-rank3-snorlax-stall-opponent-v1",
     "config": {
       "rank": 3,
@@ -118,7 +118,7 @@
   "protocolContract": {
     "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "gitBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
-    "sha256": "ceba49f8d31779c433a867aaa07588ce290adff7d2d820712ba044a38c8a692b",
+    "sha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "schemas": {
       "init": "aichi-policy-init-v1",
       "request": "aichi-policy-request-v2",
@@ -135,7 +135,7 @@
   "testSuite": {
     "path": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
     "gitBlobSha1": "d9e5e74675f4db47824bded5c399147dae5924f0",
-    "sha256": "74029d8a38f93759a208f1a14e6a7178898746c1a439ec60caa295805a878421",
+    "sha256": "d686a13bdeb0e46a4b7a12a14af29d810a3185d01b39c37f70cfd4a02487b070",
     "testFramework": "node:test source file",
     "localExecution": "V8 isolate test shim; not node --test",
     "testCount": 44
@@ -148,7 +148,7 @@
     "policyCommit": "474947d0902c907570fc7bc1eb4858e9b9964209",
     "testCommit": "92c58cb3842ba76f55c9e060b6ae68f48a0ac1f4",
     "baselineMainCommitAtInitialInspection": "2a86d357bf5ae699148f0fa7ce74c497e6973d49",
-    "currentMainAtManifestUpdate": "6d7175c2ed81509b15d576edd183bce90b12d963"
+    "currentMainAtManifestUpdate": "80e04d9dbd1d338d70ef5c8a9bc28ce22e03bf76"
   },
   "hashDefinitions": {
     "fileSha256": "SHA-256 of exact UTF-8 file bytes",
