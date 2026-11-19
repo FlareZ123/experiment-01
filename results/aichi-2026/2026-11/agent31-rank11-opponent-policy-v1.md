@@ -39,14 +39,14 @@ These are policy heuristics, not validated claims of competitive strength.
 
 ## Validation
 
-**26/26 deterministic test cases passed** in an isolated V8 harness. The harness evaluated the committed test source with Node builtin shims while invoking the actual Agent49 worker module and its `validateInit`, `validateRequest`, and `validateDecision` validators. It also checked the exact source-list and candidate fingerprints.
+**27/27 deterministic test cases passed** in an isolated V8 harness. The harness evaluated the committed test source with Node builtin shims while invoking the actual Agent49 worker module and its `validateInit`, `validateRequest`, and `validateDecision` validators. It also checked the exact source-list and candidate fingerprints.
 
 This was not a Node `--test` runner execution, a Twinleaf execution, a native staged action, or a game. No native receipt, full-match transcript, matchup result, win-rate estimate, or 99.5% evidence exists.
 
 - Policy SHA-256: `28939bb2c257ab444a065760fe3d10e963b37bf373e071d4e524019988cc1d80`
-- Test SHA-256: `6493e7a95c1b22c3f7e888d62ec0c046ff10965b188a68eeaa1f33178d9afc54`
-- Dependency manifest SHA-256: `aa3d3a3767d1acccfaad8a7f85cb054faa13bbbbc26ecd9676a11a8e5c3c7f46`
-- Challenge suite SHA-256: `755570e55d14687b6cb708cbe582c2dea0c1daf758b997e3e974ba1b18f24b0f`
+- Test SHA-256: `9f25d2add423a01abcd1a4e2745296e83e37fceee64620b875381306e322ec24`
+- Dependency manifest SHA-256: `24c50830bedd68d3b4c1fdcb49b5239bb15ae03d993ed42ccac4641f6a2a14ab`
+- Challenge suite SHA-256: `f7e41324126fa9606d861444b8b56e0571794daed4e50c8848bf8beac22e76a5`
 
 ## Development and held-out coverage
 
