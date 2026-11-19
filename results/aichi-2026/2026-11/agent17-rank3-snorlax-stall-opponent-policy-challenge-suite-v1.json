@@ -8920,7 +8920,7 @@
     ]
   },
   "caseRecordCount": 49,
-  "suiteSha256": "cfffa0c092efb53844e40c7712082aba8db1ca3b2ef0ddc71533627c856a7b61",
+  "suiteSha256": "629b229462c660beecfa8e2fff8242e1525c78b3009ea60b3fe8aeb0f9ffd6d9",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
@@ -9125,5 +9125,61 @@
       "processSandboxVerified": false,
       "status": "not-covered"
     }
+  },
+  "policyStaticAudit": {
+    "sourcePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
+    "sourceBlobSha1": "9bfb23657040df38203e83aa2a354b1ef405fe1f",
+    "sourceSha256": "2264140ca2793e3eb1ec9589a1423b3b5d50f3f309ad3657c1dcab5312911188",
+    "scannedAt": "2026-11-19T13:58:10Z",
+    "scannedTerms": [
+      {
+        "term": "Math.random",
+        "occurrences": 0
+      },
+      {
+        "term": "Date.now",
+        "occurrences": 0
+      },
+      {
+        "term": "process.",
+        "occurrences": 0
+      },
+      {
+        "term": "require(",
+        "occurrences": 0
+      },
+      {
+        "term": "eval(",
+        "occurrences": 0
+      },
+      {
+        "term": "fetch(",
+        "occurrences": 0
+      },
+      {
+        "term": "globalThis",
+        "occurrences": 0
+      },
+      {
+        "term": "opponentPrivate",
+        "occurrences": 0
+      },
+      {
+        "term": "hiddenHand",
+        "occurrences": 0
+      },
+      {
+        "term": "opponentHidden",
+        "occurrences": 0
+      },
+      {
+        "term": "seed",
+        "occurrences": 0
+      }
+    ],
+    "result": "zero occurrences for all listed non-deterministic/runtime/network/private-state references",
+    "inputSurface": "role, seat, actor observation, prompt, public event receipt and legal action frontier",
+    "determinism": "static source inspection plus repeated-identical-request synthetic test",
+    "caveat": "static scan is not a process sandbox, worker IPC test, or native evidence; the policy still executes in the caller's runtime"
   }
 }
