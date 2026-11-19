@@ -4,6 +4,10 @@
 
 ## Exact binding
 
+- Canonical challenge suite SHA-256: 4dca93dc306ea906870964f6f9772771c84f765912e26ed566b1650729b7555e.
+- Dependency manifest SHA-256: 7b73724eccec3d79a96befed55382a3002a9a56ea1f896b12784920a7fbb223c.
+- Common constraints SHA-256: 9b36f1fee8046676a86e565a1a035f292c33c0da485c9760fb6e39ceb215e93d.
+
 - Opponent: Aichi Open League 2026 rank 7, Hiroto Fuji, Snorlax Stall; exact source list is 60 cards.
 - Source list blob SHA-1: ae773f6201d7aa69d31914dbfee66f3fba692200.
 - Rank-entry JSON SHA-256: a66fa49dbeaa886c5509ff5edff727577bba5e4c9f4bbe9800b152975f8b4734.
@@ -23,13 +27,13 @@ Other bounded priorities cover Snorlax/Tool Jammer setup, Mimikyu against V/ex a
 - Public Alolan Muk with Power of Alchemy blocks the Wobbuffet unlock line.
 - Jet promotion is declined while a Hood remains or Temple of Sinnoh blocks the Special Energy line.
 - Gladion Prize selection abstains when Prize identities are not owner-visible.
-- Palace Book SMP NAN25 remains unsupported pending exact paper/engine prompt mapping.
+- Palace Book SMP NAN25 is treated as a no-prompt Item: draw three and end the turn. The policy scores it minimally only with hand size <=2, deck count >=4, and the public Item lock cleared; it yields to any higher-scored action/attack. No native effect receipt has been collected for this policy.
 - Unknown prompt families and unsupported multi-Pokémon prompts abstain.
 - No opponent hand, deck, Prize identity, or other private field is read.
 
 ## Validation scope
 
-The test file calls the actual Agent49 validateInit, validateRequest, and validateDecision functions. The focused Actions workflow runs only this test file under Node 22. The cases are synthetic actor-view requests and prompts; they do not execute Twinleaf or settle a real Store prompt. The exact-head workflow run 44550181375 on 2a510ee2d45cf2b98a34829f3d47798f20168d4d passed 37/37 tests (0 failed). The revision adds an explicit Vileplume-derived Item-lock guard, blocks Wobbuffet priority under Power of Alchemy, and tests Temple of Sinnoh as a Jet Energy counter. An intermediate 36/37 run exposed a fixture that still had Wobbuffet on the Bench; the policy was tightened and the fixture corrected before the passing run.
+The test file calls the actual Agent49 validateInit, validateRequest, and validateDecision functions. The focused Actions workflow runs only this test file under Node 22. The cases are synthetic actor-view requests and prompts; they do not execute Twinleaf or settle a real Store prompt. The exact-head workflow run 44551743934 on 9e308a03b830378886d04a469e3b2c5097f7a3a3 passed 39/39 tests (0 failed). The revision adds an explicit Vileplume-derived Item-lock guard, blocks Wobbuffet priority under Power of Alchemy, tests Temple of Sinnoh as a Jet Energy counter, and treats Palace Book as a low-priority draw-three/end-turn action. Earlier intermediate failures were corrected before this passing run.
 
 Existing rank-7 work provides useful but separate context:
 - Agent40's staged native tests cover a Faba/Jet/Nest sequence and real owner prompts under prepared conditions.
