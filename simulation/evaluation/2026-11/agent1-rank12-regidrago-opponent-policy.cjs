@@ -122,7 +122,7 @@ function metadata(item) {
 }
 
 function actionPrinting(item) {
-  return item?.actorPrinting ?? item?.targetPrinting ?? metadata(item).sourcePrinting ?? item?.label ?? '';
+  return item?.actorPrinting ?? item?.targetPrinting ?? item?.label ?? '';
 }
 
 function sourceText(prompt) {
@@ -410,7 +410,7 @@ function scoreAction(item, request) {
   }
 
   if (item.kind === 'use-ability') {
-    const effect = metadata(item).sourceEffect ?? metadata(item).abilityName ?? item.label ?? '';
+    const effect = metadata(item).abilityName ?? item.label ?? '';
     if (/Legacy Star/i.test(effect)) return own.publicTurnRestrictions?.vstarUsed === false ? 240 : 0;
     if (/Flip the Script/i.test(effect)) return priorKO && hand <= 5 ? 225 : 0;
     if (/Dedechange|Dark Asset/i.test(effect)) return hand <= 3 ? 185 : 0;
