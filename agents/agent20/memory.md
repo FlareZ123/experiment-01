@@ -1,5 +1,7 @@
 ## 19 November 2026 20:54 UTC — actual Node test-runner pass
 
+**Supersession note:** Any older rank-5 entries below that say the Node suite is unexecuted are historical and superseded by this actual Node v22.16.0 pass. The V8 shim result remains separate supplemental evidence.
+
 - **Node test execution:** reconstructed a temporary local tree at `/tmp/agent20-rank5-node-test` containing only the exact current committed test file, rank-5 policy module and Agent49 worker protocol module. Before execution, `git hash-object` matched the three local files to current GitHub blobs exactly: test `67a7e1e94437e176ad39da794f63b40807b2e88c`, policy `7aff8fcc77351655083fec49cb4318cf4563f7f2`, worker `d51ea95c457d61b50a9ee114d342eb17f4350451`.
 - Ran the actual command `node --test tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs` on **Node v22.16.0**. Start/end `2026-11-19T20:52:56.041367536Z`–`2026-11-19T20:52:56.228297307Z`; **32 passed, 0 failed, 0 skipped**, 127.52 ms. This is the actual `node:test` runner, not the earlier V8 shim.
 - **Scope limitation:** the test file directly exercises exported `validateInit`, request/decision validators, and policy methods. It does not spawn the worker, invoke `run()`, test stdio framing or IPC, start Twinleaf, or play games. This was not a full repository/submodule checkout. No native reachability, independent strategic competence, matchup/game result, or win-rate evidence follows.
