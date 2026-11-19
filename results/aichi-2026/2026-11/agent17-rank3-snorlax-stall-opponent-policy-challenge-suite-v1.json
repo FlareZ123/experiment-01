@@ -13,8 +13,8 @@
     "bundleProducerId": null,
     "producerBindingStatus": "not bound into signed/hash-bound V3 plan; standalone prototype only",
     "modulePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "moduleBlobSha1": "9bfb23657040df38203e83aa2a354b1ef405fe1f",
-    "moduleSha256": "2264140ca2793e3eb1ec9589a1423b3b5d50f3f309ad3657c1dcab5312911188",
+    "moduleBlobSha1": "36616df3e1db0d750756f01922edac7973ab6c1f",
+    "moduleSha256": "30570e00c389d19097cc1bd4252647b63e11c11d18d007c38f2653d920556589",
     "config": {
       "rank": 3,
       "sourceFingerprint": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
@@ -91,15 +91,15 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json",
-    "manifestSha256": "7c47d07659455677b565a801972b4f841f3131480443a46252ee14a81582b0b0",
+    "manifestSha256": "f4492f4bc94fe20341f681846a673021a1d22f62665346c18c771822503f0af9",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "testFilePath": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "testFileBlobSha1": "516e95b4f135dda2650a84451e3f37fbaf02c64c",
-    "testFileSha256": "54ae9212698d581b8b1b47e4fc6aa54b7110c6ae62cfe0923ea597e8327467d5",
+    "testFileBlobSha1": "7dda7c178867522f03d803721fbc34f63ccdbf84",
+    "testFileSha256": "5fd8a97e1623ecafed8f1580afcf9a8eda2e39d4ac65b716b8f030e1ffcc93ae",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -117,10 +117,10 @@
     "developmentTestCount": 49,
     "unitTestsPassed": 49,
     "unitTestsFailed": 0,
-    "actorRequestCount": 50,
-    "decisionReceiptCount": 49,
+    "actorRequestCount": 52,
+    "decisionReceiptCount": 51,
     "promptTypeCounts": {
-      "root-action-frontier": 22,
+      "root-action-frontier": 24,
       "ChooseCardsPrompt": 18,
       "ChoosePokemonPrompt": 6,
       "UnknownNativePrompt": 1,
@@ -128,7 +128,7 @@
       "ChoosePrizePrompt": 2
     },
     "selectionTypeCounts": {
-      "none": 39,
+      "none": 41,
       "card-combination": 10,
       "energy-payment": 1
     },
@@ -788,14 +788,96 @@
       "caseId": "r3-dev-05-faba-removes-a-visible-opponent-stealthy-hood-before-lower-v",
       "split": "development",
       "caseClass": "policy-decision",
-      "objective": "Faba removes a visible opponent Stealthy Hood before lower-value tool targets",
+      "objective": "Faba is played for a visible opponent Tool even when no Stadium is in play, abstains when no eligible target exists, and removes the highest-value attached Tool",
       "evidenceClass": "synthetic",
       "actorView": {
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-        "testName": "Faba removes a visible opponent Stealthy Hood before lower-value tool targets",
+        "testName": "Faba is played for a visible opponent Tool without a Stadium and removes the highest-value target",
         "requestDigests": [
           {
             "requestIndex": 0,
+            "digestSha256": "fa19ea679203d2adfa653ece6315a28b3c8236c883ff019439bd02b0dc48375b",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "role": "opponent",
+              "seat": 0,
+              "actorSeat": 0,
+              "ownHandCount": 1,
+              "ownActive": "Snorlax PGO 55",
+              "ownBench": [],
+              "opponentHandCount": 0,
+              "opponentHandRevealed": false,
+              "opponentActive": "Shadow Rider Calyrex VMAX CRE 075",
+              "opponentBench": [],
+              "ownDeckCount": 30,
+              "opponentDeckCount": 30,
+              "ownPrizeCount": 6,
+              "opponentPrizeCount": 6
+            },
+            "promptCoverage": {
+              "promptType": null,
+              "frontier": [
+                {
+                  "kind": "play-card",
+                  "actorPrinting": "Faba LOT 173",
+                  "targetPrinting": null,
+                  "attackName": null,
+                  "abilityName": null
+                },
+                {
+                  "kind": "pass",
+                  "actorPrinting": null,
+                  "targetPrinting": null,
+                  "attackName": null,
+                  "abilityName": null
+                }
+              ]
+            }
+          },
+          {
+            "requestIndex": 1,
+            "digestSha256": "b95915c272c1c28d37af9073102e0f717a59acf01ed1c2689e24e135e296fb0b",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "role": "opponent",
+              "seat": 0,
+              "actorSeat": 0,
+              "ownHandCount": 1,
+              "ownActive": "Snorlax PGO 55",
+              "ownBench": [],
+              "opponentHandCount": 0,
+              "opponentHandRevealed": false,
+              "opponentActive": "Shadow Rider Calyrex VMAX CRE 075",
+              "opponentBench": [],
+              "ownDeckCount": 30,
+              "opponentDeckCount": 30,
+              "ownPrizeCount": 6,
+              "opponentPrizeCount": 6
+            },
+            "promptCoverage": {
+              "promptType": null,
+              "frontier": [
+                {
+                  "kind": "play-card",
+                  "actorPrinting": "Faba LOT 173",
+                  "targetPrinting": null,
+                  "attackName": null,
+                  "abilityName": null
+                },
+                {
+                  "kind": "pass",
+                  "actorPrinting": null,
+                  "targetPrinting": null,
+                  "attackName": null,
+                  "abilityName": null
+                }
+              ]
+            }
+          },
+          {
+            "requestIndex": 2,
             "digestSha256": "61209e20c8e802b142f3771c30c572362610e4b6f31e4c18876ae51f73b3cb5f",
             "requestValidation": "accepted",
             "validationError": null,
@@ -850,6 +932,24 @@
           {
             "decisionIndex": 0,
             "decision": {
+              "kind": "select-action",
+              "token": "faba"
+            },
+            "validatorResult": "accepted",
+            "validationError": null
+          },
+          {
+            "decisionIndex": 1,
+            "decision": {
+              "kind": "select-action",
+              "token": "pass"
+            },
+            "validatorResult": "accepted",
+            "validationError": null
+          },
+          {
+            "decisionIndex": 2,
+            "decision": {
               "kind": "select-choice",
               "token": "hood"
             },
@@ -859,23 +959,80 @@
         ],
         "expectedOutcomeAssertedByTest": true,
         "forbiddenOutcomes": [
+          "pass while an eligible opponent Tool is attached even though no Stadium is in play",
+          "play Faba when no eligible Tool, Special Energy or Stadium target exists",
+          "select a lower-value attached Tool instead of the visible Stealthy Hood",
           "unknown action or prompt token",
-          "duplicate physical card in a multi-select",
           "hidden opponent hand or unrevealed Prize identity",
-          "wrong-source ability",
-          "unpayable target",
           "delegated fallback"
         ],
         "acceptableOutcomeFamilies": [
+          "select-action",
           "select-choice"
         ],
-        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
+        "rationale": "The synthetic sequence tests root-action target detection separately from Faba's owner-prompt target selection: use Faba for a visible attached Tool without requiring a Stadium, preserve the Supporter when no legal target exists, then select Stealthy Hood over Float Stone and Forest Seal Stone."
       },
       "costLedger": {
-        "supporterForTurn": true,
-        "opponentAttachedToolOrStadiumToLostZone": 1
+        "rootPositive": {
+          "supporterPlayAvailable": true,
+          "eligibleTarget": "opponent Stealthy Hood UNB 186",
+          "stadiumsInPlay": 0,
+          "expectedAction": "play Faba"
+        },
+        "rootNegative": {
+          "supporterPlayAvailable": true,
+          "eligibleTargets": 0,
+          "expectedAction": "preserve Supporter and pass"
+        },
+        "promptResolution": {
+          "eligibleAttachedTools": [
+            "Float Stone BKT 137",
+            "Stealthy Hood UNB 186",
+            "Forest Seal Stone SIT 156"
+          ],
+          "selected": "Stealthy Hood UNB 186",
+          "effect": "put selected Tool into the Lost Zone"
+        }
       },
       "promptCoverage": [
+        {
+          "promptType": null,
+          "frontier": [
+            {
+              "kind": "play-card",
+              "actorPrinting": "Faba LOT 173",
+              "targetPrinting": null,
+              "attackName": null,
+              "abilityName": null
+            },
+            {
+              "kind": "pass",
+              "actorPrinting": null,
+              "targetPrinting": null,
+              "attackName": null,
+              "abilityName": null
+            }
+          ]
+        },
+        {
+          "promptType": null,
+          "frontier": [
+            {
+              "kind": "play-card",
+              "actorPrinting": "Faba LOT 173",
+              "targetPrinting": null,
+              "attackName": null,
+              "abilityName": null
+            },
+            {
+              "kind": "pass",
+              "actorPrinting": null,
+              "targetPrinting": null,
+              "attackName": null,
+              "abilityName": null
+            }
+          ]
+        },
         {
           "promptType": "ChooseCardsPrompt",
           "source": {
@@ -887,6 +1044,7 @@
           "selectionType": null,
           "minimumCount": null,
           "maximumCount": null,
+          "energyCount": null,
           "allowCancel": null,
           "isSecret": null,
           "choiceKinds": [
@@ -906,9 +1064,13 @@
         "unitHarness": "local V8 deterministic harness",
         "unitTestResult": "pass",
         "requestValidation": [
+          "accepted",
+          "accepted",
           "accepted"
         ],
         "decisionValidation": [
+          "accepted",
+          "accepted",
           "accepted"
         ],
         "nativeTwinleafExecution": false,
@@ -920,6 +1082,14 @@
         "timeoutMeasured": false,
         "processSandboxVerified": false,
         "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "faba"
+          },
+          {
+            "kind": "select-action",
+            "token": "pass"
+          },
           {
             "kind": "select-choice",
             "token": "hood"
@@ -939,7 +1109,7 @@
         "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
-      "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
+      "blockReason": "Synthetic root-action and prompt fixtures only; no native Twinleaf Store receipt, complete game, strategic outcome, or independent reviewer.",
       "reviewerStatus": "unreviewed",
       "sourceBinding": {
         "role": "opponent-policy",
@@ -949,7 +1119,12 @@
         "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "cardPrintReferences": [
-          "Faba LOT 173"
+          "Faba LOT 173",
+          "Snorlax PGO 55",
+          "Shadow Rider Calyrex VMAX CRE 075",
+          "Stealthy Hood UNB 186",
+          "Float Stone BKT 137",
+          "Forest Seal Stone SIT 156"
         ],
         "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
         "researchHookRevision": "none",
@@ -957,7 +1132,7 @@
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
         "evidenceClass": "synthetic"
       },
-      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
+      "reviewerExplanation": "The updated synthetic test verifies correct root Faba target detection and prompt target priority through the actual worker validators. It does not establish natural Faba access, native Lost Zone effect execution, matchup performance, or policy competence."
     },
     {
       "caseId": "r3-dev-06-arven-selects-one-item-and-one-tool-from-the-exact-rank-3-de",
@@ -8920,7 +9095,7 @@
     ]
   },
   "caseRecordCount": 49,
-  "suiteSha256": "629b229462c660beecfa8e2fff8242e1525c78b3009ea60b3fe8aeb0f9ffd6d9",
+  "suiteSha256": "1fb0f268c1bf06c38848fb31c0bdb1d5992f79ad0b8f43eef5c2d45c4fc9a075",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
@@ -8928,8 +9103,8 @@
     "sourceRank": 3,
     "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
     "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
-    "policySha256": "2264140ca2793e3eb1ec9589a1423b3b5d50f3f309ad3657c1dcab5312911188",
-    "dependencyManifestSha256": "7c47d07659455677b565a801972b4f841f3131480443a46252ee14a81582b0b0",
+    "policySha256": "30570e00c389d19097cc1bd4252647b63e11c11d18d007c38f2653d920556589",
+    "dependencyManifestSha256": "f4492f4bc94fe20341f681846a673021a1d22f62665346c18c771822503f0af9",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
@@ -9128,9 +9303,9 @@
   },
   "policyStaticAudit": {
     "sourcePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "sourceBlobSha1": "9bfb23657040df38203e83aa2a354b1ef405fe1f",
-    "sourceSha256": "2264140ca2793e3eb1ec9589a1423b3b5d50f3f309ad3657c1dcab5312911188",
-    "scannedAt": "2026-11-19T13:58:10Z",
+    "sourceBlobSha1": "36616df3e1db0d750756f01922edac7973ab6c1f",
+    "sourceSha256": "30570e00c389d19097cc1bd4252647b63e11c11d18d007c38f2653d920556589",
+    "scannedAt": "2026-11-19T15:06:41Z",
     "scannedTerms": [
       {
         "term": "Math.random",
