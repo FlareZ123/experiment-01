@@ -64,7 +64,19 @@
     "testsExecutedCount": 21,
     "testsPassed": 20,
     "testsFailed": 1,
-    "executionHarness": "V8 isolate with node:test/assert shims; actual Agent49 worker validateInit/validateRequest/validateDecision source, actual rank12 v2 policy and Agent43 Apex helper; 20/21 pass."
+    "executionHarness": "V8 isolate with node:test/assert shims; actual Agent49 worker validateInit/validateRequest/validateDecision source, actual rank12 v2 policy and Agent43 Apex helper; 20/21 pass.",
+    "testFailure": {
+      "testName": "Hisuian Heavy Ball fails closed when face-down Prize identities are not visible",
+      "errorCode": "BAD_MULTI_SELECT_BOUNDS",
+      "stage": "Agent49 validateRequest/multiSelectBounds before policy execution",
+      "fixtureCause": "multiMetadata(1, 1, 'prize-slots') supplies minimumCount/maximumCount, but the worker's prize-slots branch reads requiredCount",
+      "missingField": "requiredCount",
+      "suppliedFields": [
+        "minimumCount",
+        "maximumCount"
+      ],
+      "fixHint": "For selectionType prize-slots, set publicMetadata to { selectionType: 'prize-slots', requiredCount: 1, allowCancel: false, isSecret: false }. Do not change the init-only patch; fixture correction is separate."
+    }
   },
   "workerInitContract": {
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
