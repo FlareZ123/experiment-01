@@ -1,0 +1,2491 @@
+{
+  "schema": "aichi-policy-challenge-suite-v1",
+  "suiteId": "aichi-2026-rank7-snorlax-stall-opponent-policy-v2",
+  "suiteVersion": "1.0.0",
+  "status": "prototype-not-attestable",
+  "attestationStatus": "blocked",
+  "policy": {
+    "policyVersion": "agent43-rank7-snorlax-stall-opponent-v2",
+    "role": "opponent-policy",
+    "sourceRank": 7,
+    "policyProducerId": "agent43",
+    "bundleProducerId": null,
+    "producerBindingStatus": "not bound into signed V3 plan",
+    "modulePath": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.cjs",
+    "moduleBlobSha1": "8e7d7eed913d4f9fa3131cf7f3460c1ea0276d07",
+    "moduleSha256": "a068bc5271ec1478364cd5dd84079f924a632eb0a3c1bebe2d0d82fbb1543e76",
+    "config": {},
+    "configContract": "empty object",
+    "deterministic": true,
+    "gamesPlayed": 0,
+    "matchupResults": null,
+    "winRate": null,
+    "winRateClaim": "none"
+  },
+  "sourceBinding": {
+    "opponentDeck": {
+      "rank": 7,
+      "player": "Hiroto Fuji",
+      "archetype": "Snorlax Stall",
+      "path": "results/aichi-2026/full-decklists.json",
+      "gitBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+      "physicalCardCount": 60,
+      "fingerprintSha256": "a66fa49dbeaa886c5509ff5edff727577bba5e4c9f4bbe9800b152975f8b4734"
+    },
+    "fixedCandidate": {
+      "label": "Hood Shield Shadow Rider v1",
+      "path": "results/aichi-2026/candidate-hood-shadow-rider.json",
+      "gitBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+      "physicalCardCount": 60,
+      "fingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+    },
+    "cardPoolScope": "paper Expanded Black & White onward; source rank-7 list has no Vileplume; candidate list includes Radiant Eternatus and two Stealthy Hood; full legality and engine card support remain separate checks"
+  },
+  "dependencies": {
+    "manifestPath": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-dependency-manifest-v2.json",
+    "manifestSha256": "05ae459543fa405dadecd91e5922a793759897f17daaff2aba514d189ce4f0bb",
+    "commonConstraintsPath": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-common-constraints-v2.json",
+    "commonConstraintsSha256": "b6e2b2f4553737c5734bae97cf1028d063f896ae3f53d5a329a8761680e1abb3",
+    "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+    "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+    "workerProtocolSha256": "d72cc1d54bcbe78fcbd1e7b5cfe7e15167aa4ecf0638341a3e9ac89cfb36ff97",
+    "testFilePath": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+    "testFileBlobSha1": "4b4b4f441bb6f849ec1c708b3218c964791fa400",
+    "testFileSha256": "3bb9e5857f2698cfa0a653e4011f96dce51e78c9a4576fb43728893f85d25ec2",
+    "engine": {
+      "submodulePath": "vendor/twinleaf",
+      "remote": "https://github.com/twinleafgg/twinleafgg.git",
+      "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+      "researchHookRevision": "none",
+      "upstreamModified": false
+    }
+  },
+  "executionSummary": {
+    "evidenceClassCounts": {
+      "sourceNatural": 0,
+      "nativeStaged": 0,
+      "synthetic": 12
+    },
+    "developmentTestCount": 24,
+    "unitTestsPassed": 24,
+    "unitTestsFailed": 0,
+    "actorRequestCount": 20,
+    "decisionReceiptCount": 19,
+    "promptTypeCounts": {
+      "root-action-frontier": 17,
+      "ChoosePokemonPrompt": 3,
+      "ChooseCardsPrompt": 1,
+      "SelectPrompt": 1,
+      "NightWatchPhysicalPrompt": 1
+    },
+    "selectionTypeCounts": {
+      "none": 22,
+      "card-combination": 1
+    },
+    "localHarness": {
+      "type": "GitHub Actions Node 22 node:test",
+      "actualPolicySourceEvaluated": true,
+      "actualWorkerSourceEvaluated": true,
+      "actualValidateInitExecuted": true,
+      "actualValidateRequestExecuted": true,
+      "actualValidateDecisionExecuted": true,
+      "nodeTestRunnerExecuted": true,
+      "nodeTestShim": false,
+      "workerIpcHandshake": false,
+      "twinleafNativeGameExecution": false,
+      "nativeGameCount": 0,
+      "nativeActionReceiptCount": 0,
+      "timeoutMeasured": false,
+      "processSandboxVerified": false
+    },
+    "ciRunId": 44556226122,
+    "ciHeadSha": "bdf1ba5d15a1e510a62a1bb21f63741c994a92a1",
+    "ciConclusion": "success",
+    "ciJobId": 135672911108,
+    "fullMatchupCoverage": {
+      "rank7VsFixedCandidateGames": 0,
+      "aichiTop32MatchupsWithResults": 0,
+      "all32MatchupsAssessed": false,
+      "confidenceInterval": null,
+      "aggregateWinRate": null
+    }
+  },
+  "dispositionSemantics": {
+    "pass": "Only with native actor-state reachability, paper legality, strategic suitability and execution integrity plus required review.",
+    "blocked": "Synthetic-only or any required evidence is missing.",
+    "fail": "Illegal/unreachable action, hidden information use, or native evidence contradicts decision.",
+    "currentSuiteResult": "24/24 synthetic validator-backed tests pass; every case remains blocked for native/competitive attestation."
+  },
+  "developmentCases": [
+    {
+      "caseId": "r7v2-dev-01-faba-root",
+      "split": "development",
+      "caseClass": "policy-decision",
+      "objective": "Faba removes Hood from a non-Psychic Ability target before Wobbuffet promotion.",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "testName": "Faba root selects the unlock line ahead of pass when Radiant Eternatus is Hooded",
+        "requestDigests": [
+          {
+            "requestIndex": 0,
+            "digestSha256": "0de2b61239373173bc77664e747146756451bc3a135168807d13499fabf92bb8",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "actorSeat": 0,
+              "globalTurn": 3,
+              "ownHandCount": 3,
+              "ownActive": "Snorlax PGO 55",
+              "ownBench": [
+                "Wobbuffet PHF 36",
+                "Mimikyu PAL 97"
+              ],
+              "ownDeckCount": 28,
+              "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
+              "opponentBench": [
+                "Radiant Eternatus SIT 105",
+                "Dialga-GX UPR 100",
+                "Tapu Lele-GX GRI 60"
+              ],
+              "opponentDeckCount": 32,
+              "opponentHandCount": 0
+            },
+            "promptCoverage": {
+              "promptType": "root-action-frontier",
+              "selectionType": "none",
+              "minimumCount": null,
+              "maximumCount": null,
+              "allowCancel": false,
+              "isSecret": false,
+              "choices": [],
+              "actionFrontier": [
+                {
+                  "token": "faba",
+                  "kind": "play-card",
+                  "actorPrinting": "Faba LOT 173",
+                  "targetPrinting": null,
+                  "attackName": null
+                },
+                {
+                  "token": "pass",
+                  "kind": "pass",
+                  "actorPrinting": null,
+                  "targetPrinting": null,
+                  "attackName": null
+                }
+              ]
+            }
+          }
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-action",
+              "token": "faba"
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "wrong target",
+          "hidden information",
+          "unpayable action",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "Faba removes Hood from a non-Psychic Ability target before Wobbuffet promotion. Synthetic fixture only; no native game result."
+      },
+      "costLedger": {
+        "supporterConsumed": true,
+        "toolDiscardedFromOpponent": true,
+        "JetAndWobbuffetRemainAvailable": true
+      },
+      "promptCoverage": [
+        {
+          "promptType": "root-action-frontier",
+          "selectionType": "none",
+          "minimumCount": null,
+          "maximumCount": null,
+          "allowCancel": false,
+          "isSecret": false,
+          "choices": [],
+          "actionFrontier": [
+            {
+              "token": "faba",
+              "kind": "play-card",
+              "actorPrinting": "Faba LOT 173",
+              "targetPrinting": null,
+              "attackName": null
+            },
+            {
+              "token": "pass",
+              "kind": "pass",
+              "actorPrinting": null,
+              "targetPrinting": null,
+              "attackName": null
+            }
+          ]
+        }
+      ],
+      "executionEvidence": {
+        "unitHarness": "GitHub Actions Node 22 node:test",
+        "unitTestResult": "pass",
+        "requestValidation": [
+          "accepted"
+        ],
+        "decisionValidation": [
+          "accepted"
+        ],
+        "nativeTwinleafExecution": false,
+        "nativeStoreReceipt": null,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": true,
+        "timeoutMeasured": false,
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-action",
+              "token": "faba"
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback"
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic actor-view fixture only; no native Twinleaf receipt, completed game, independent review, or matchup result.",
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 7,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "a66fa49dbeaa886c5509ff5edff727577bba5e4c9f4bbe9800b152975f8b4734",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Faba LOT 173",
+          "Stealthy Hood UNB 186",
+          "Radiant Eternatus SIT 105",
+          "Jet Energy PAL 190",
+          "Wobbuffet PHF 36"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic-only; the scenario validates a policy decision and protocol boundary, not effect resolution or strategic competence."
+    },
+    {
+      "caseId": "r7v2-dev-02-faba-radiant-target",
+      "split": "development",
+      "caseClass": "policy-decision",
+      "objective": "Select the Hooded Dragon-type Radiant Eternatus with Climactic Gate, not Psychic Shadow Rider or abilityless Dialga.",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "testName": "Faba ChoosePokemonPrompt selects Hooded Radiant Eternatus",
+        "requestDigests": [
+          {
+            "requestIndex": 0,
+            "digestSha256": "d47de20ec206a824bb05757e5f7de13a896587b91d7ec82ee57d66066d48f85e",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "actorSeat": 0,
+              "globalTurn": 3,
+              "ownHandCount": 0,
+              "ownActive": "Snorlax PGO 55",
+              "ownBench": [
+                "Wobbuffet PHF 36",
+                "Mimikyu PAL 97"
+              ],
+              "ownDeckCount": 28,
+              "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
+              "opponentBench": [
+                "Radiant Eternatus SIT 105",
+                "Dialga-GX UPR 100",
+                "Tapu Lele-GX GRI 60"
+              ],
+              "opponentDeckCount": 32,
+              "opponentHandCount": 0
+            },
+            "promptCoverage": {
+              "promptType": "ChoosePokemonPrompt",
+              "selectionType": "none",
+              "minimumCount": null,
+              "maximumCount": null,
+              "allowCancel": false,
+              "isSecret": false,
+              "choices": [
+                {
+                  "token": "shadow",
+                  "kind": "pokemon",
+                  "label": null,
+                  "printing": "Shadow Rider Calyrex VMAX CRE 75",
+                  "ownerSeat": "opponent",
+                  "sourceZone": null,
+                  "targetZone": "active"
+                },
+                {
+                  "token": "radiant",
+                  "kind": "pokemon",
+                  "label": null,
+                  "printing": "Radiant Eternatus SIT 105",
+                  "ownerSeat": "opponent",
+                  "sourceZone": null,
+                  "targetZone": "bench"
+                },
+                {
+                  "token": "dialga",
+                  "kind": "pokemon",
+                  "label": null,
+                  "printing": "Dialga-GX UPR 100",
+                  "ownerSeat": "opponent",
+                  "sourceZone": null,
+                  "targetZone": "bench"
+                }
+              ]
+            }
+          }
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-choice",
+              "token": "radiant"
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "wrong target",
+          "hidden information",
+          "unpayable action",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choice"
+        ],
+        "rationale": "Select the Hooded Dragon-type Radiant Eternatus with Climactic Gate, not Psychic Shadow Rider or abilityless Dialga. Synthetic fixture only; no native game result."
+      },
+      "costLedger": {
+        "FabaSupporterConsumed": true,
+        "oneOpponentToolRemoved": true
+      },
+      "promptCoverage": [
+        {
+          "promptType": "ChoosePokemonPrompt",
+          "selectionType": "none",
+          "minimumCount": null,
+          "maximumCount": null,
+          "allowCancel": false,
+          "isSecret": false,
+          "choices": [
+            {
+              "token": "shadow",
+              "kind": "pokemon",
+              "label": null,
+              "printing": "Shadow Rider Calyrex VMAX CRE 75",
+              "ownerSeat": "opponent",
+              "sourceZone": null,
+              "targetZone": "active"
+            },
+            {
+              "token": "radiant",
+              "kind": "pokemon",
+              "label": null,
+              "printing": "Radiant Eternatus SIT 105",
+              "ownerSeat": "opponent",
+              "sourceZone": null,
+              "targetZone": "bench"
+            },
+            {
+              "token": "dialga",
+              "kind": "pokemon",
+              "label": null,
+              "printing": "Dialga-GX UPR 100",
+              "ownerSeat": "opponent",
+              "sourceZone": null,
+              "targetZone": "bench"
+            }
+          ]
+        }
+      ],
+      "executionEvidence": {
+        "unitHarness": "GitHub Actions Node 22 node:test",
+        "unitTestResult": "pass",
+        "requestValidation": [
+          "accepted"
+        ],
+        "decisionValidation": [
+          "accepted"
+        ],
+        "nativeTwinleafExecution": false,
+        "nativeStoreReceipt": null,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": true,
+        "timeoutMeasured": false,
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-choice",
+              "token": "radiant"
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback"
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic actor-view fixture only; no native Twinleaf receipt, completed game, independent review, or matchup result.",
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 7,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "a66fa49dbeaa886c5509ff5edff727577bba5e4c9f4bbe9800b152975f8b4734",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Faba LOT 173",
+          "Radiant Eternatus SIT 105",
+          "Stealthy Hood UNB 186",
+          "Shadow Rider Calyrex VMAX CRE 75",
+          "Dialga-GX UPR 100"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic-only; the scenario validates a policy decision and protocol boundary, not effect resolution or strategic competence."
+    },
+    {
+      "caseId": "r7v2-dev-03-psychic-hood-negative",
+      "split": "development",
+      "caseClass": "negative-control",
+      "objective": "Wobbuffet does not suppress Psychic Abilities; do not waste Faba removing Shadow Rider Hood for this line.",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "testName": "Faba abstains on Hooded Psychic Shadow Rider",
+        "requestDigests": [
+          {
+            "requestIndex": 0,
+            "digestSha256": "b0d38097b18559bafd2c5837e840dd8add9ea0b1bc3e7e122281e5c9a8d50f9a",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "actorSeat": 0,
+              "globalTurn": 3,
+              "ownHandCount": 0,
+              "ownActive": null,
+              "ownBench": [],
+              "ownDeckCount": 30,
+              "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
+              "opponentBench": [],
+              "opponentDeckCount": 32,
+              "opponentHandCount": 0
+            },
+            "promptCoverage": {
+              "promptType": "ChoosePokemonPrompt",
+              "selectionType": "none",
+              "minimumCount": null,
+              "maximumCount": null,
+              "allowCancel": false,
+              "isSecret": false,
+              "choices": [
+                {
+                  "token": "shadow",
+                  "kind": "pokemon",
+                  "label": null,
+                  "printing": "Shadow Rider Calyrex VMAX CRE 75",
+                  "ownerSeat": "opponent",
+                  "sourceZone": null,
+                  "targetZone": "active"
+                }
+              ]
+            }
+          }
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "abstain",
+              "reasonCode": "FABA_HOODED_NON_PSYCHIC_ABILITY_TARGET_UNAVAILABLE"
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "wrong target",
+          "hidden information",
+          "unpayable action",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "abstain"
+        ],
+        "rationale": "Wobbuffet does not suppress Psychic Abilities; do not waste Faba removing Shadow Rider Hood for this line. Synthetic fixture only; no native game result."
+      },
+      "costLedger": {
+        "noTargetSelected": true
+      },
+      "promptCoverage": [
+        {
+          "promptType": "ChoosePokemonPrompt",
+          "selectionType": "none",
+          "minimumCount": null,
+          "maximumCount": null,
+          "allowCancel": false,
+          "isSecret": false,
+          "choices": [
+            {
+              "token": "shadow",
+              "kind": "pokemon",
+              "label": null,
+              "printing": "Shadow Rider Calyrex VMAX CRE 75",
+              "ownerSeat": "opponent",
+              "sourceZone": null,
+              "targetZone": "active"
+            }
+          ]
+        }
+      ],
+      "executionEvidence": {
+        "unitHarness": "GitHub Actions Node 22 node:test",
+        "unitTestResult": "pass",
+        "requestValidation": [
+          "accepted"
+        ],
+        "decisionValidation": [
+          "accepted"
+        ],
+        "nativeTwinleafExecution": false,
+        "nativeStoreReceipt": null,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": true,
+        "timeoutMeasured": false,
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "abstain",
+              "reasonCode": "FABA_HOODED_NON_PSYCHIC_ABILITY_TARGET_UNAVAILABLE"
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback"
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic actor-view fixture only; no native Twinleaf receipt, completed game, independent review, or matchup result.",
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 7,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "a66fa49dbeaa886c5509ff5edff727577bba5e4c9f4bbe9800b152975f8b4734",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Faba LOT 173",
+          "Shadow Rider Calyrex VMAX CRE 75",
+          "Stealthy Hood UNB 186"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic-only; the scenario validates a policy decision and protocol boundary, not effect resolution or strategic competence."
+    },
+    {
+      "caseId": "r7v2-dev-04-jet-wobbuffet",
+      "split": "development",
+      "caseClass": "policy-decision",
+      "objective": "Promote Wobbuffet after Radiant Eternatus is unprotected and Wobbuffet ability value exceeds Snorlax Block opportunity cost.",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "testName": "Jet Energy promotes Wobbuffet after Hood removal",
+        "requestDigests": [
+          {
+            "requestIndex": 0,
+            "digestSha256": "d58dd981d56983af1859085eebdce27e75e7956c30dc7f1e0221c8426e58edfd",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "actorSeat": 0,
+              "globalTurn": 3,
+              "ownHandCount": 1,
+              "ownActive": "Snorlax PGO 55",
+              "ownBench": [
+                "Wobbuffet PHF 36",
+                "Mimikyu PAL 97"
+              ],
+              "ownDeckCount": 28,
+              "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
+              "opponentBench": [
+                "Radiant Eternatus SIT 105",
+                "Dialga-GX UPR 100",
+                "Tapu Lele-GX GRI 60"
+              ],
+              "opponentDeckCount": 32,
+              "opponentHandCount": 0
+            },
+            "promptCoverage": {
+              "promptType": "root-action-frontier",
+              "selectionType": "none",
+              "minimumCount": null,
+              "maximumCount": null,
+              "allowCancel": false,
+              "isSecret": false,
+              "choices": [],
+              "actionFrontier": [
+                {
+                  "token": "jet",
+                  "kind": "play-card",
+                  "actorPrinting": "Jet Energy PAL 190",
+                  "targetPrinting": "Wobbuffet PHF 36",
+                  "attackName": null
+                },
+                {
+                  "token": "pass",
+                  "kind": "pass",
+                  "actorPrinting": null,
+                  "targetPrinting": null,
+                  "attackName": null
+                }
+              ]
+            }
+          }
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-action",
+              "token": "jet"
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "wrong target",
+          "hidden information",
+          "unpayable action",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "Promote Wobbuffet after Radiant Eternatus is unprotected and Wobbuffet ability value exceeds Snorlax Block opportunity cost. Synthetic fixture only; no native game result."
+      },
+      "costLedger": {
+        "SpecialEnergyAttached": true,
+        "WobbuffetPromoted": true,
+        "SnorlaxBlockDisabledWhileWobbActive": true
+      },
+      "promptCoverage": [
+        {
+          "promptType": "root-action-frontier",
+          "selectionType": "none",
+          "minimumCount": null,
+          "maximumCount": null,
+          "allowCancel": false,
+          "isSecret": false,
+          "choices": [],
+          "actionFrontier": [
+            {
+              "token": "jet",
+              "kind": "play-card",
+              "actorPrinting": "Jet Energy PAL 190",
+              "targetPrinting": "Wobbuffet PHF 36",
+              "attackName": null
+            },
+            {
+              "token": "pass",
+              "kind": "pass",
+              "actorPrinting": null,
+              "targetPrinting": null,
+              "attackName": null
+            }
+          ]
+        }
+      ],
+      "executionEvidence": {
+        "unitHarness": "GitHub Actions Node 22 node:test",
+        "unitTestResult": "pass",
+        "requestValidation": [
+          "accepted"
+        ],
+        "decisionValidation": [
+          "accepted"
+        ],
+        "nativeTwinleafExecution": false,
+        "nativeStoreReceipt": null,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": true,
+        "timeoutMeasured": false,
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-action",
+              "token": "jet"
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback"
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic actor-view fixture only; no native Twinleaf receipt, completed game, independent review, or matchup result.",
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 7,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "a66fa49dbeaa886c5509ff5edff727577bba5e4c9f4bbe9800b152975f8b4734",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Jet Energy PAL 190",
+          "Wobbuffet PHF 36",
+          "Radiant Eternatus SIT 105",
+          "Snorlax PGO 55"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic-only; the scenario validates a policy decision and protocol boundary, not effect resolution or strategic competence."
+    },
+    {
+      "caseId": "r7v2-dev-05-temple-negative",
+      "split": "development",
+      "caseClass": "policy-decision",
+      "objective": "Temple of Sinnoh removes the Jet Energy Special Energy effect.",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "testName": "Temple of Sinnoh blocks Jet Energy promotion",
+        "requestDigests": [
+          {
+            "requestIndex": 0,
+            "digestSha256": "b1b0642e440e62395700891229d6dd47bf2b7e04a9baedd8d3adcfadc9393c35",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "actorSeat": 0,
+              "globalTurn": 3,
+              "ownHandCount": 1,
+              "ownActive": "Snorlax PGO 55",
+              "ownBench": [
+                "Wobbuffet PHF 36",
+                "Mimikyu PAL 97"
+              ],
+              "ownDeckCount": 28,
+              "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
+              "opponentBench": [
+                "Radiant Eternatus SIT 105",
+                "Dialga-GX UPR 100",
+                "Tapu Lele-GX GRI 60"
+              ],
+              "opponentDeckCount": 32,
+              "opponentHandCount": 0
+            },
+            "promptCoverage": {
+              "promptType": "root-action-frontier",
+              "selectionType": "none",
+              "minimumCount": null,
+              "maximumCount": null,
+              "allowCancel": false,
+              "isSecret": false,
+              "choices": [],
+              "actionFrontier": [
+                {
+                  "token": "jet",
+                  "kind": "play-card",
+                  "actorPrinting": "Jet Energy PAL 190",
+                  "targetPrinting": "Wobbuffet PHF 36",
+                  "attackName": null
+                },
+                {
+                  "token": "pass",
+                  "kind": "pass",
+                  "actorPrinting": null,
+                  "targetPrinting": null,
+                  "attackName": null
+                }
+              ]
+            }
+          }
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-action",
+              "token": "pass"
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "wrong target",
+          "hidden information",
+          "unpayable action",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "Temple of Sinnoh removes the Jet Energy Special Energy effect. Synthetic fixture only; no native game result."
+      },
+      "costLedger": {
+        "JetEnergyEffectBlocked": true
+      },
+      "promptCoverage": [
+        {
+          "promptType": "root-action-frontier",
+          "selectionType": "none",
+          "minimumCount": null,
+          "maximumCount": null,
+          "allowCancel": false,
+          "isSecret": false,
+          "choices": [],
+          "actionFrontier": [
+            {
+              "token": "jet",
+              "kind": "play-card",
+              "actorPrinting": "Jet Energy PAL 190",
+              "targetPrinting": "Wobbuffet PHF 36",
+              "attackName": null
+            },
+            {
+              "token": "pass",
+              "kind": "pass",
+              "actorPrinting": null,
+              "targetPrinting": null,
+              "attackName": null
+            }
+          ]
+        }
+      ],
+      "executionEvidence": {
+        "unitHarness": "GitHub Actions Node 22 node:test",
+        "unitTestResult": "pass",
+        "requestValidation": [
+          "accepted"
+        ],
+        "decisionValidation": [
+          "accepted"
+        ],
+        "nativeTwinleafExecution": false,
+        "nativeStoreReceipt": null,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": true,
+        "timeoutMeasured": false,
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-action",
+              "token": "pass"
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback"
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic actor-view fixture only; no native Twinleaf receipt, completed game, independent review, or matchup result.",
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 7,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "a66fa49dbeaa886c5509ff5edff727577bba5e4c9f4bbe9800b152975f8b4734",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Temple of Sinnoh ASR 155",
+          "Jet Energy PAL 190",
+          "Wobbuffet PHF 36"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic-only; the scenario validates a policy decision and protocol boundary, not effect resolution or strategic competence."
+    },
+    {
+      "caseId": "r7v2-dev-06-alolan-muk-negative",
+      "split": "development",
+      "caseClass": "policy-decision",
+      "objective": "Power of Alchemy suppresses Basic Wobbuffet.",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "testName": "Alolan Muk blocks Wobbuffet line",
+        "requestDigests": [
+          {
+            "requestIndex": 0,
+            "digestSha256": "3c9add9391cd005a717edf5d40a793f432d84d5d05ecd0459c0b5f6f3ce7130a",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "actorSeat": 0,
+              "globalTurn": 3,
+              "ownHandCount": 1,
+              "ownActive": "Snorlax PGO 55",
+              "ownBench": [
+                "Wobbuffet PHF 36",
+                "Mimikyu PAL 97"
+              ],
+              "ownDeckCount": 28,
+              "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
+              "opponentBench": [
+                "Radiant Eternatus SIT 105",
+                "Alolan Muk SUM 58"
+              ],
+              "opponentDeckCount": 32,
+              "opponentHandCount": 0
+            },
+            "promptCoverage": {
+              "promptType": "root-action-frontier",
+              "selectionType": "none",
+              "minimumCount": null,
+              "maximumCount": null,
+              "allowCancel": false,
+              "isSecret": false,
+              "choices": [],
+              "actionFrontier": [
+                {
+                  "token": "jet",
+                  "kind": "play-card",
+                  "actorPrinting": "Jet Energy PAL 190",
+                  "targetPrinting": "Wobbuffet PHF 36",
+                  "attackName": null
+                },
+                {
+                  "token": "pass",
+                  "kind": "pass",
+                  "actorPrinting": null,
+                  "targetPrinting": null,
+                  "attackName": null
+                }
+              ]
+            }
+          }
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-action",
+              "token": "pass"
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "wrong target",
+          "hidden information",
+          "unpayable action",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "Power of Alchemy suppresses Basic Wobbuffet. Synthetic fixture only; no native game result."
+      },
+      "costLedger": {
+        "WobbuffetAbilitySuppressed": true
+      },
+      "promptCoverage": [
+        {
+          "promptType": "root-action-frontier",
+          "selectionType": "none",
+          "minimumCount": null,
+          "maximumCount": null,
+          "allowCancel": false,
+          "isSecret": false,
+          "choices": [],
+          "actionFrontier": [
+            {
+              "token": "jet",
+              "kind": "play-card",
+              "actorPrinting": "Jet Energy PAL 190",
+              "targetPrinting": "Wobbuffet PHF 36",
+              "attackName": null
+            },
+            {
+              "token": "pass",
+              "kind": "pass",
+              "actorPrinting": null,
+              "targetPrinting": null,
+              "attackName": null
+            }
+          ]
+        }
+      ],
+      "executionEvidence": {
+        "unitHarness": "GitHub Actions Node 22 node:test",
+        "unitTestResult": "pass",
+        "requestValidation": [
+          "accepted"
+        ],
+        "decisionValidation": [
+          "accepted"
+        ],
+        "nativeTwinleafExecution": false,
+        "nativeStoreReceipt": null,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": true,
+        "timeoutMeasured": false,
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-action",
+              "token": "pass"
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback"
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic actor-view fixture only; no native Twinleaf receipt, completed game, independent review, or matchup result.",
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 7,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "a66fa49dbeaa886c5509ff5edff727577bba5e4c9f4bbe9800b152975f8b4734",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Alolan Muk SUM 58",
+          "Jet Energy PAL 190",
+          "Wobbuffet PHF 36"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic-only; the scenario validates a policy decision and protocol boundary, not effect resolution or strategic competence."
+    },
+    {
+      "caseId": "r7v2-dev-07-nest-ball",
+      "split": "development",
+      "caseClass": "policy-decision",
+      "objective": "Search a missing Basic; no Vileplume Item-lock premise applies to this 60-card list.",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "testName": "Nest Ball is an ordinary Item in the source deck",
+        "requestDigests": [
+          {
+            "requestIndex": 0,
+            "digestSha256": "b512f2774073b06fa703e6b735b02c4b88d158259712c4f7bd861492e69ab73b",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "actorSeat": 0,
+              "globalTurn": 3,
+              "ownHandCount": 1,
+              "ownActive": "Snorlax PGO 55",
+              "ownBench": [
+                "Wobbuffet PHF 36",
+                "Mimikyu PAL 97"
+              ],
+              "ownDeckCount": 28,
+              "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
+              "opponentBench": [
+                "Radiant Eternatus SIT 105",
+                "Dialga-GX UPR 100",
+                "Tapu Lele-GX GRI 60"
+              ],
+              "opponentDeckCount": 32,
+              "opponentHandCount": 0
+            },
+            "promptCoverage": {
+              "promptType": "root-action-frontier",
+              "selectionType": "none",
+              "minimumCount": null,
+              "maximumCount": null,
+              "allowCancel": false,
+              "isSecret": false,
+              "choices": [],
+              "actionFrontier": [
+                {
+                  "token": "nest",
+                  "kind": "play-card",
+                  "actorPrinting": "Nest Ball SVI 181",
+                  "targetPrinting": null,
+                  "attackName": null
+                },
+                {
+                  "token": "pass",
+                  "kind": "pass",
+                  "actorPrinting": null,
+                  "targetPrinting": null,
+                  "attackName": null
+                }
+              ]
+            }
+          }
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-action",
+              "token": "nest"
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "wrong target",
+          "hidden information",
+          "unpayable action",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "Search a missing Basic; no Vileplume Item-lock premise applies to this 60-card list. Synthetic fixture only; no native game result."
+      },
+      "costLedger": {
+        "ItemConsumed": true,
+        "BasicSearchAvailable": true
+      },
+      "promptCoverage": [
+        {
+          "promptType": "root-action-frontier",
+          "selectionType": "none",
+          "minimumCount": null,
+          "maximumCount": null,
+          "allowCancel": false,
+          "isSecret": false,
+          "choices": [],
+          "actionFrontier": [
+            {
+              "token": "nest",
+              "kind": "play-card",
+              "actorPrinting": "Nest Ball SVI 181",
+              "targetPrinting": null,
+              "attackName": null
+            },
+            {
+              "token": "pass",
+              "kind": "pass",
+              "actorPrinting": null,
+              "targetPrinting": null,
+              "attackName": null
+            }
+          ]
+        }
+      ],
+      "executionEvidence": {
+        "unitHarness": "GitHub Actions Node 22 node:test",
+        "unitTestResult": "pass",
+        "requestValidation": [
+          "accepted"
+        ],
+        "decisionValidation": [
+          "accepted"
+        ],
+        "nativeTwinleafExecution": false,
+        "nativeStoreReceipt": null,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": true,
+        "timeoutMeasured": false,
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-action",
+              "token": "nest"
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback"
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic actor-view fixture only; no native Twinleaf receipt, completed game, independent review, or matchup result.",
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 7,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "a66fa49dbeaa886c5509ff5edff727577bba5e4c9f4bbe9800b152975f8b4734",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Nest Ball SVI 181",
+          "Wobbuffet PHF 36",
+          "Mimikyu PAL 97"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic-only; the scenario validates a policy decision and protocol boundary, not effect resolution or strategic competence."
+    },
+    {
+      "caseId": "r7v2-dev-08-palace-book",
+      "split": "development",
+      "caseClass": "policy-decision",
+      "objective": "Use Palace Book only with a small hand and no higher-scored action.",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "testName": "Palace Book is a low-priority draw-three/end-turn action",
+        "requestDigests": [
+          {
+            "requestIndex": 0,
+            "digestSha256": "737926489aec0a91f75de2279e02204a38a00ed3e0e8ee11f087cb50bfb1f5de",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "actorSeat": 0,
+              "globalTurn": 3,
+              "ownHandCount": 1,
+              "ownActive": "Snorlax PGO 55",
+              "ownBench": [
+                "Wobbuffet PHF 36",
+                "Mimikyu PAL 97"
+              ],
+              "ownDeckCount": 28,
+              "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
+              "opponentBench": [
+                "Radiant Eternatus SIT 105",
+                "Dialga-GX UPR 100",
+                "Tapu Lele-GX GRI 60"
+              ],
+              "opponentDeckCount": 32,
+              "opponentHandCount": 0
+            },
+            "promptCoverage": {
+              "promptType": "root-action-frontier",
+              "selectionType": "none",
+              "minimumCount": null,
+              "maximumCount": null,
+              "allowCancel": false,
+              "isSecret": false,
+              "choices": [],
+              "actionFrontier": [
+                {
+                  "token": "palace",
+                  "kind": "play-card",
+                  "actorPrinting": "Palace Book SMP NAN25",
+                  "targetPrinting": null,
+                  "attackName": null
+                },
+                {
+                  "token": "pass",
+                  "kind": "pass",
+                  "actorPrinting": null,
+                  "targetPrinting": null,
+                  "attackName": null
+                }
+              ]
+            }
+          }
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-action",
+              "token": "palace"
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "wrong target",
+          "hidden information",
+          "unpayable action",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "Use Palace Book only with a small hand and no higher-scored action. Synthetic fixture only; no native game result."
+      },
+      "costLedger": {
+        "ItemConsumed": true,
+        "cardsDrawn": 3,
+        "turnEnded": true
+      },
+      "promptCoverage": [
+        {
+          "promptType": "root-action-frontier",
+          "selectionType": "none",
+          "minimumCount": null,
+          "maximumCount": null,
+          "allowCancel": false,
+          "isSecret": false,
+          "choices": [],
+          "actionFrontier": [
+            {
+              "token": "palace",
+              "kind": "play-card",
+              "actorPrinting": "Palace Book SMP NAN25",
+              "targetPrinting": null,
+              "attackName": null
+            },
+            {
+              "token": "pass",
+              "kind": "pass",
+              "actorPrinting": null,
+              "targetPrinting": null,
+              "attackName": null
+            }
+          ]
+        }
+      ],
+      "executionEvidence": {
+        "unitHarness": "GitHub Actions Node 22 node:test",
+        "unitTestResult": "pass",
+        "requestValidation": [
+          "accepted"
+        ],
+        "decisionValidation": [
+          "accepted"
+        ],
+        "nativeTwinleafExecution": false,
+        "nativeStoreReceipt": null,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": true,
+        "timeoutMeasured": false,
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-action",
+              "token": "palace"
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback"
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic actor-view fixture only; no native Twinleaf receipt, completed game, independent review, or matchup result.",
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 7,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "a66fa49dbeaa886c5509ff5edff727577bba5e4c9f4bbe9800b152975f8b4734",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Palace Book SMP NAN25"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic-only; the scenario validates a policy decision and protocol boundary, not effect resolution or strategic competence."
+    },
+    {
+      "caseId": "r7v2-dev-09-get-lost",
+      "split": "development",
+      "caseClass": "policy-decision",
+      "objective": "Prefer Get Lost when VS Seeker/Lusamine are public in opponent discard.",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "testName": "Girafarig Get Lost targets recovery in opponent discard",
+        "requestDigests": [
+          {
+            "requestIndex": 0,
+            "digestSha256": "8e58800ee219a186dadf2e3007fa1c724a30671d8e9b4bc5aa7841f19ec3a647",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "actorSeat": 0,
+              "globalTurn": 3,
+              "ownHandCount": 0,
+              "ownActive": "Girafarig LOT 94",
+              "ownBench": [
+                "Wobbuffet PHF 36",
+                "Mimikyu PAL 97"
+              ],
+              "ownDeckCount": 28,
+              "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
+              "opponentBench": [
+                "Radiant Eternatus SIT 105",
+                "Dialga-GX UPR 100",
+                "Tapu Lele-GX GRI 60"
+              ],
+              "opponentDeckCount": 32,
+              "opponentHandCount": 0
+            },
+            "promptCoverage": {
+              "promptType": "root-action-frontier",
+              "selectionType": "none",
+              "minimumCount": null,
+              "maximumCount": null,
+              "allowCancel": false,
+              "isSecret": false,
+              "choices": [],
+              "actionFrontier": [
+                {
+                  "token": "get-lost",
+                  "kind": "attack",
+                  "actorPrinting": "Girafarig LOT 94",
+                  "targetPrinting": null,
+                  "attackName": "Get Lost"
+                },
+                {
+                  "token": "mind",
+                  "kind": "attack",
+                  "actorPrinting": "Girafarig LOT 94",
+                  "targetPrinting": null,
+                  "attackName": "Mind Shock"
+                },
+                {
+                  "token": "pass",
+                  "kind": "pass",
+                  "actorPrinting": null,
+                  "targetPrinting": null,
+                  "attackName": null
+                }
+              ]
+            }
+          }
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-action",
+              "token": "get-lost"
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "wrong target",
+          "hidden information",
+          "unpayable action",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "Prefer Get Lost when VS Seeker/Lusamine are public in opponent discard. Synthetic fixture only; no native game result."
+      },
+      "costLedger": {
+        "AttackCostPayable": true,
+        "recoveryCardPressure": true
+      },
+      "promptCoverage": [
+        {
+          "promptType": "root-action-frontier",
+          "selectionType": "none",
+          "minimumCount": null,
+          "maximumCount": null,
+          "allowCancel": false,
+          "isSecret": false,
+          "choices": [],
+          "actionFrontier": [
+            {
+              "token": "get-lost",
+              "kind": "attack",
+              "actorPrinting": "Girafarig LOT 94",
+              "targetPrinting": null,
+              "attackName": "Get Lost"
+            },
+            {
+              "token": "mind",
+              "kind": "attack",
+              "actorPrinting": "Girafarig LOT 94",
+              "targetPrinting": null,
+              "attackName": "Mind Shock"
+            },
+            {
+              "token": "pass",
+              "kind": "pass",
+              "actorPrinting": null,
+              "targetPrinting": null,
+              "attackName": null
+            }
+          ]
+        }
+      ],
+      "executionEvidence": {
+        "unitHarness": "GitHub Actions Node 22 node:test",
+        "unitTestResult": "pass",
+        "requestValidation": [
+          "accepted"
+        ],
+        "decisionValidation": [
+          "accepted"
+        ],
+        "nativeTwinleafExecution": false,
+        "nativeStoreReceipt": null,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": true,
+        "timeoutMeasured": false,
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-action",
+              "token": "get-lost"
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback"
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic actor-view fixture only; no native Twinleaf receipt, completed game, independent review, or matchup result.",
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 7,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "a66fa49dbeaa886c5509ff5edff727577bba5e4c9f4bbe9800b152975f8b4734",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Girafarig LOT 94",
+          "VS Seeker PHF 109",
+          "Lusamine CIN 96"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic-only; the scenario validates a policy decision and protocol boundary, not effect resolution or strategic competence."
+    },
+    {
+      "caseId": "r7v2-dev-10-get-lost-target",
+      "split": "development",
+      "caseClass": "policy-decision",
+      "objective": "Choose high-value recovery from public opponent discard.",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "testName": "Get Lost prompt selects VS Seeker",
+        "requestDigests": [
+          {
+            "requestIndex": 0,
+            "digestSha256": "38b4df951180c3643aac463d958a7a00114d59c1e119dc56f878dbd994b0aa3e",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "actorSeat": 0,
+              "globalTurn": 3,
+              "ownHandCount": 0,
+              "ownActive": null,
+              "ownBench": [],
+              "ownDeckCount": 30,
+              "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
+              "opponentBench": [
+                "Radiant Eternatus SIT 105",
+                "Dialga-GX UPR 100",
+                "Tapu Lele-GX GRI 60"
+              ],
+              "opponentDeckCount": 32,
+              "opponentHandCount": 0
+            },
+            "promptCoverage": {
+              "promptType": "ChooseCardsPrompt",
+              "selectionType": "card-combination",
+              "minimumCount": 1,
+              "maximumCount": 1,
+              "allowCancel": false,
+              "isSecret": false,
+              "choices": [
+                {
+                  "token": "vs",
+                  "kind": "card",
+                  "label": null,
+                  "printing": "VS Seeker PHF 109",
+                  "ownerSeat": "opponent",
+                  "sourceZone": "discard",
+                  "targetZone": null
+                },
+                {
+                  "token": "lus",
+                  "kind": "card",
+                  "label": null,
+                  "printing": "Lusamine CIN 96",
+                  "ownerSeat": "opponent",
+                  "sourceZone": "discard",
+                  "targetZone": null
+                }
+              ]
+            }
+          }
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-choices",
+              "tokens": [
+                "vs"
+              ]
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "wrong target",
+          "hidden information",
+          "unpayable action",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choices"
+        ],
+        "rationale": "Choose high-value recovery from public opponent discard. Synthetic fixture only; no native game result."
+      },
+      "costLedger": {
+        "oneCardToLostZone": true
+      },
+      "promptCoverage": [
+        {
+          "promptType": "ChooseCardsPrompt",
+          "selectionType": "card-combination",
+          "minimumCount": 1,
+          "maximumCount": 1,
+          "allowCancel": false,
+          "isSecret": false,
+          "choices": [
+            {
+              "token": "vs",
+              "kind": "card",
+              "label": null,
+              "printing": "VS Seeker PHF 109",
+              "ownerSeat": "opponent",
+              "sourceZone": "discard",
+              "targetZone": null
+            },
+            {
+              "token": "lus",
+              "kind": "card",
+              "label": null,
+              "printing": "Lusamine CIN 96",
+              "ownerSeat": "opponent",
+              "sourceZone": "discard",
+              "targetZone": null
+            }
+          ]
+        }
+      ],
+      "executionEvidence": {
+        "unitHarness": "GitHub Actions Node 22 node:test",
+        "unitTestResult": "pass",
+        "requestValidation": [
+          "accepted"
+        ],
+        "decisionValidation": [
+          "accepted"
+        ],
+        "nativeTwinleafExecution": false,
+        "nativeStoreReceipt": null,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": true,
+        "timeoutMeasured": false,
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-choices",
+              "tokens": [
+                "vs"
+              ]
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback"
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic actor-view fixture only; no native Twinleaf receipt, completed game, independent review, or matchup result.",
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 7,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "a66fa49dbeaa886c5509ff5edff727577bba5e4c9f4bbe9800b152975f8b4734",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Girafarig LOT 94",
+          "VS Seeker PHF 109",
+          "Lusamine CIN 96"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic-only; the scenario validates a policy decision and protocol boundary, not effect resolution or strategic competence."
+    },
+    {
+      "caseId": "r7v2-dev-11-tool-jammer",
+      "split": "development",
+      "caseClass": "policy-decision",
+      "objective": "Attach Tool Jammer to own Active Snorlax only when opponent Active has a Tool.",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "testName": "Tool Jammer is used only against an Active Tool",
+        "requestDigests": [
+          {
+            "requestIndex": 0,
+            "digestSha256": "e8298733f1005850b98996b18efe1ea74bf0b04c1b85c057f265a876aa62079c",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "actorSeat": 0,
+              "globalTurn": 3,
+              "ownHandCount": 1,
+              "ownActive": "Snorlax PGO 55",
+              "ownBench": [
+                "Wobbuffet PHF 36",
+                "Mimikyu PAL 97"
+              ],
+              "ownDeckCount": 28,
+              "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
+              "opponentBench": [
+                "Radiant Eternatus SIT 105",
+                "Dialga-GX UPR 100",
+                "Tapu Lele-GX GRI 60"
+              ],
+              "opponentDeckCount": 32,
+              "opponentHandCount": 0
+            },
+            "promptCoverage": {
+              "promptType": "root-action-frontier",
+              "selectionType": "none",
+              "minimumCount": null,
+              "maximumCount": null,
+              "allowCancel": false,
+              "isSecret": false,
+              "choices": [],
+              "actionFrontier": [
+                {
+                  "token": "jammer",
+                  "kind": "play-card",
+                  "actorPrinting": "Tool Jammer BST 136",
+                  "targetPrinting": "Snorlax PGO 55",
+                  "attackName": null
+                },
+                {
+                  "token": "pass",
+                  "kind": "pass",
+                  "actorPrinting": null,
+                  "targetPrinting": null,
+                  "attackName": null
+                }
+              ]
+            }
+          }
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-action",
+              "token": "jammer"
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "wrong target",
+          "hidden information",
+          "unpayable action",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "Attach Tool Jammer to own Active Snorlax only when opponent Active has a Tool. Synthetic fixture only; no native game result."
+      },
+      "costLedger": {
+        "ItemConsumed": true,
+        "ToolAttachedToOwnActive": true
+      },
+      "promptCoverage": [
+        {
+          "promptType": "root-action-frontier",
+          "selectionType": "none",
+          "minimumCount": null,
+          "maximumCount": null,
+          "allowCancel": false,
+          "isSecret": false,
+          "choices": [],
+          "actionFrontier": [
+            {
+              "token": "jammer",
+              "kind": "play-card",
+              "actorPrinting": "Tool Jammer BST 136",
+              "targetPrinting": "Snorlax PGO 55",
+              "attackName": null
+            },
+            {
+              "token": "pass",
+              "kind": "pass",
+              "actorPrinting": null,
+              "targetPrinting": null,
+              "attackName": null
+            }
+          ]
+        }
+      ],
+      "executionEvidence": {
+        "unitHarness": "GitHub Actions Node 22 node:test",
+        "unitTestResult": "pass",
+        "requestValidation": [
+          "accepted"
+        ],
+        "decisionValidation": [
+          "accepted"
+        ],
+        "nativeTwinleafExecution": false,
+        "nativeStoreReceipt": null,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": true,
+        "timeoutMeasured": false,
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-action",
+              "token": "jammer"
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback"
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic actor-view fixture only; no native Twinleaf receipt, completed game, independent review, or matchup result.",
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 7,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "a66fa49dbeaa886c5509ff5edff727577bba5e4c9f4bbe9800b152975f8b4734",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Tool Jammer BST 136",
+          "Snorlax PGO 55",
+          "Stealthy Hood UNB 186"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic-only; the scenario validates a policy decision and protocol boundary, not effect resolution or strategic competence."
+    },
+    {
+      "caseId": "r7v2-dev-12-abilityless-hood-negative",
+      "split": "development",
+      "caseClass": "negative-control",
+      "objective": "Do not spend Faba on a non-Psychic Pokémon whose Ability Wobbuffet would not suppress.",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "testName": "Faba ignores Hood on abilityless Dialga",
+        "requestDigests": [
+          {
+            "requestIndex": 0,
+            "digestSha256": "54a0eb3c653282d1f913e530c4beb4ac2eb7400b46ae2d38a46edc1546d9d317",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "actorSeat": 0,
+              "globalTurn": 3,
+              "ownHandCount": 0,
+              "ownActive": null,
+              "ownBench": [],
+              "ownDeckCount": 30,
+              "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
+              "opponentBench": [
+                "Dialga-GX UPR 100"
+              ],
+              "opponentDeckCount": 32,
+              "opponentHandCount": 0
+            },
+            "promptCoverage": {
+              "promptType": "ChoosePokemonPrompt",
+              "selectionType": "none",
+              "minimumCount": null,
+              "maximumCount": null,
+              "allowCancel": false,
+              "isSecret": false,
+              "choices": [
+                {
+                  "token": "dialga",
+                  "kind": "pokemon",
+                  "label": null,
+                  "printing": "Dialga-GX UPR 100",
+                  "ownerSeat": "opponent",
+                  "sourceZone": null,
+                  "targetZone": "bench"
+                }
+              ]
+            }
+          }
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "abstain",
+              "reasonCode": "FABA_HOODED_NON_PSYCHIC_ABILITY_TARGET_UNAVAILABLE"
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "wrong target",
+          "hidden information",
+          "unpayable action",
+          "delegated fallback"
+        ],
+        "acceptableOutcomeFamilies": [
+          "abstain"
+        ],
+        "rationale": "Do not spend Faba on a non-Psychic Pokémon whose Ability Wobbuffet would not suppress. Synthetic fixture only; no native game result."
+      },
+      "costLedger": {
+        "noTargetSelected": true
+      },
+      "promptCoverage": [
+        {
+          "promptType": "ChoosePokemonPrompt",
+          "selectionType": "none",
+          "minimumCount": null,
+          "maximumCount": null,
+          "allowCancel": false,
+          "isSecret": false,
+          "choices": [
+            {
+              "token": "dialga",
+              "kind": "pokemon",
+              "label": null,
+              "printing": "Dialga-GX UPR 100",
+              "ownerSeat": "opponent",
+              "sourceZone": null,
+              "targetZone": "bench"
+            }
+          ]
+        }
+      ],
+      "executionEvidence": {
+        "unitHarness": "GitHub Actions Node 22 node:test",
+        "unitTestResult": "pass",
+        "requestValidation": [
+          "accepted"
+        ],
+        "decisionValidation": [
+          "accepted"
+        ],
+        "nativeTwinleafExecution": false,
+        "nativeStoreReceipt": null,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": true,
+        "timeoutMeasured": false,
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "abstain",
+              "reasonCode": "FABA_HOODED_NON_PSYCHIC_ABILITY_TARGET_UNAVAILABLE"
+            },
+            "validatorResult": "accepted"
+          }
+        ],
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback"
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic actor-view fixture only; no native Twinleaf receipt, completed game, independent review, or matchup result.",
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 7,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "a66fa49dbeaa886c5509ff5edff727577bba5e4c9f4bbe9800b152975f8b4734",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Faba LOT 173",
+          "Dialga-GX UPR 100",
+          "Stealthy Hood UNB 186"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "fixtureRef": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic-only; the scenario validates a policy decision and protocol boundary, not effect resolution or strategic competence."
+    }
+  ],
+  "negativeControls": [
+    {
+      "test": "Faba ignores Psychic Hood target",
+      "expected": "abstain; Wobbuffet does not suppress Psychic Abilities",
+      "unitResult": "pass"
+    },
+    {
+      "test": "Faba ignores Hood on abilityless Dialga",
+      "expected": "abstain; no relevant Ability target",
+      "unitResult": "pass"
+    },
+    {
+      "test": "Jet Energy blocked by Temple of Sinnoh",
+      "expected": "pass",
+      "unitResult": "pass"
+    },
+    {
+      "test": "Alolan Muk Power of Alchemy suppresses Basic Wobbuffet",
+      "expected": "pass",
+      "unitResult": "pass"
+    },
+    {
+      "test": "Snorlax Block opportunity cost prevents Wobbuffet for low-value target",
+      "expected": "do not promote Wobbuffet",
+      "unitResult": "pass"
+    },
+    {
+      "test": "Nest Ball respects actual Item restriction from actor projection",
+      "expected": "pass",
+      "unitResult": "pass"
+    },
+    {
+      "test": "unknown prompt family fails closed",
+      "expected": "abstain",
+      "unitResult": "pass"
+    },
+    {
+      "test": "worker rejects injected opponent-private field",
+      "expected": "reject UNKNOWN_FIELD",
+      "unitResult": "pass"
+    }
+  ],
+  "heldOutReviewCases": [
+    {
+      "caseId": "r7v2-ho-01-native-faba-jet-wobb",
+      "objective": "Native Faba Tool removal, Jet Energy promotion and Wobbuffet Ability suppression receipt.",
+      "split": "held-out",
+      "status": "not-run",
+      "notUsedForTuning": true,
+      "evidenceClass": "none",
+      "disposition": "blocked",
+      "reviewerStatus": "pending"
+    },
+    {
+      "caseId": "r7v2-ho-02-complete-source-games",
+      "objective": "Complete source-dealt games against the fixed Hood Shield Shadow Rider candidate.",
+      "split": "held-out",
+      "status": "not-run",
+      "notUsedForTuning": true,
+      "evidenceClass": "none",
+      "disposition": "blocked",
+      "reviewerStatus": "pending"
+    },
+    {
+      "caseId": "r7v2-ho-03-snorlax-block-tradeoff",
+      "objective": "Native comparison of maintaining Snorlax Block versus promoting Wobbuffet to suppress Radiant Eternatus.",
+      "split": "held-out",
+      "status": "not-run",
+      "notUsedForTuning": true,
+      "evidenceClass": "none",
+      "disposition": "blocked",
+      "reviewerStatus": "pending"
+    },
+    {
+      "caseId": "r7v2-ho-04-independent-review",
+      "objective": "Independent review of rules model, target scoring, policy decisions and suite bindings.",
+      "split": "held-out",
+      "status": "not-run",
+      "notUsedForTuning": true,
+      "evidenceClass": "none",
+      "disposition": "blocked",
+      "reviewerStatus": "pending"
+    }
+  ],
+  "unresolvedCoverage": [
+    "No native Twinleaf Store receipt for Faba, Jet Energy or Wobbuffet effects.",
+    "No complete game against the fixed candidate and no matchup win rate.",
+    "No Aichi Top 32 matchup results or aggregate confidence interval.",
+    "No independent reviewer has accepted the policy or suite.",
+    "No worker IPC handshake, timeout budget, process sandbox or compute-budget test.",
+    "Wobbuffet/ Snorlax Block tradeoff is a heuristic score, not a native strategic result.",
+    "No 99.5% evidence; policy is not bound to signed V3 plan."
+  ],
+  "reviewer": {
+    "status": "not reviewed",
+    "reviewerId": null,
+    "registryBinding": null,
+    "reviewReceipt": null
+  },
+  "claims": {
+    "demonstrated": "24/24 GitHub Actions Node 22 tests pass using actual Agent49 validators on synthetic actor-view fixtures; card-text model is aligned to the actual rank-7 source deck and fixed candidate.",
+    "notDemonstrated": [
+      "real game win rate",
+      "rank-7 matchup advantage",
+      "full policy competence",
+      "99.5% Aichi Top 32 target",
+      "native Twinleaf effect settlement",
+      "complete paper Expanded legality"
+    ]
+  },
+  "caseRecordCount": 16,
+  "suiteSha256": "c63d56afba52d79c703a4049ca106463028f3bf953cf4a5b31ecb641af627538",
+  "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
+  "suiteHeader": {
+    "schemaVersion": "v3-policy-challenge-suite-content-v1",
+    "role": "opponent-policy",
+    "sourceRank": 7,
+    "sourceDeckFingerprintSha256": "a66fa49dbeaa886c5509ff5edff727577bba5e4c9f4bbe9800b152975f8b4734",
+    "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+    "policySha256": "a068bc5271ec1478364cd5dd84079f924a632eb0a3c1bebe2d0d82fbb1543e76",
+    "dependencyManifestSha256": "05ae459543fa405dadecd91e5922a793759897f17daaff2aba514d189ce4f0bb",
+    "commonConstraintsSha256": "b6e2b2f4553737c5734bae97cf1028d063f896ae3f53d5a329a8761680e1abb3",
+    "engine": {
+      "submodulePath": "vendor/twinleaf",
+      "remote": "https://github.com/twinleafgg/twinleafgg.git",
+      "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+      "researchHookRevision": "none"
+    },
+    "candidatePolicyProducerId": null,
+    "opponentPolicyProducerIdByRank": {
+      "7": null
+    },
+    "declaredOpponentPolicyProducerIdByRank": {
+      "7": "agent43"
+    },
+    "bundleProducerId": null,
+    "declaredProducerIdSet": [
+      "agent43"
+    ],
+    "signedProducerIdSet": [],
+    "producerBindingStatus": "unbound; signed V3 plan owner must bind",
+    "suiteAuthor": "agent43",
+    "suiteProducerId": "agent43",
+    "createdAt": "2026-11-19T15:36:16.252Z",
+    "frozenAt": null,
+    "frozen": false,
+    "evidenceReferences": [
+      "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.cjs",
+      "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
+      "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-dependency-manifest-v2.json",
+      "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-common-constraints-v2.json",
+      "results/aichi-2026/full-decklists.json",
+      "results/aichi-2026/candidate-hood-shadow-rider.json",
+      "simulation/evaluation/2026-11/agent49-policy-worker.cjs"
+    ],
+    "developmentSplit": "developmentCases",
+    "heldOutSplit": "heldOutReviewCases",
+    "completeProducerIdSetUsedByPanel": null,
+    "completeProducerIdSetStatus": "not bound"
+  },
+  "coverageMatrix": {
+    "fabaJetWobbuffet": {
+      "caseIds": [
+        "r7v2-dev-01-faba-root",
+        "r7v2-dev-02-faba-radiant-target",
+        "r7v2-dev-03-psychic-hood-negative",
+        "r7v2-dev-04-jet-wobbuffet",
+        "r7v2-dev-05-temple-negative",
+        "r7v2-dev-06-alolan-muk-negative"
+      ],
+      "evidenceClass": "synthetic-only",
+      "sourceNatural": 0,
+      "nativeStaged": 0,
+      "status": "blocked"
+    },
+    "snorlaxBlockTradeoff": {
+      "caseIds": [
+        "r7v2-dev-04-jet-wobbuffet"
+      ],
+      "evidenceClass": "synthetic-only",
+      "nativeReceipts": 0,
+      "status": "blocked"
+    },
+    "setupAndItems": {
+      "caseIds": [
+        "r7v2-dev-07-nest-ball",
+        "r7v2-dev-08-palace-book"
+      ],
+      "evidenceClass": "synthetic-only",
+      "status": "blocked"
+    },
+    "discardPressure": {
+      "caseIds": [
+        "r7v2-dev-09-get-lost",
+        "r7v2-dev-10-get-lost-target"
+      ],
+      "evidenceClass": "synthetic-only",
+      "status": "blocked"
+    },
+    "toolControl": {
+      "caseIds": [
+        "r7v2-dev-11-tool-jammer"
+      ],
+      "evidenceClass": "synthetic-only",
+      "status": "blocked"
+    },
+    "negativeControls": {
+      "caseIds": [
+        "r7v2-dev-03-psychic-hood-negative",
+        "r7v2-dev-05-temple-negative",
+        "r7v2-dev-06-alolan-muk-negative",
+        "r7v2-dev-12-abilityless-hood-negative"
+      ],
+      "evidenceClass": "synthetic-only",
+      "status": "blocked"
+    },
+    "nativeExecution": {
+      "caseIds": [],
+      "evidenceClass": "none",
+      "nativeReceipts": 0,
+      "status": "not-covered"
+    }
+  },
+  "policyStaticAudit": {
+    "sourcePath": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.cjs",
+    "sourceBlobSha1": "8e7d7eed913d4f9fa3131cf7f3460c1ea0276d07",
+    "sourceSha256": "a068bc5271ec1478364cd5dd84079f924a632eb0a3c1bebe2d0d82fbb1543e76",
+    "scannedTerms": [
+      {
+        "term": "Math.random",
+        "occurrences": 0
+      },
+      {
+        "term": "Date.now",
+        "occurrences": 0
+      },
+      {
+        "term": "process.",
+        "occurrences": 0
+      },
+      {
+        "term": "require(",
+        "occurrences": 0
+      },
+      {
+        "term": "eval(",
+        "occurrences": 0
+      },
+      {
+        "term": "fetch(",
+        "occurrences": 0
+      },
+      {
+        "term": "globalThis",
+        "occurrences": 0
+      },
+      {
+        "term": "opponentPrivate",
+        "occurrences": 0
+      },
+      {
+        "term": "hiddenHand",
+        "occurrences": 0
+      },
+      {
+        "term": "seed",
+        "occurrences": 0
+      }
+    ],
+    "result": "static source scan; no listed nondeterministic/network/private-state references",
+    "inputSurface": "role, seat, actor observation, prompt and legal action frontier",
+    "caveat": "not a process sandbox or native game validation"
+  }
+}
