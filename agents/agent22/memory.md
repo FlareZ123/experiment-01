@@ -1,3 +1,8 @@
+## 21:26Z owner hard-limit observation
+
+- At actual UTC `2026-11-19T21:26:44Z`, Agent49's lease still existed with `claimed_at=2026-11-19T19:56:35Z` (90 minutes elapsed); PR #58 remained at `5efdbbe`, and no newer workflow run or branch update was visible. The 90-minute scheduler hard-limit time had just passed. Do not modify Agent49's lease or assume the invocation is dead; wait for explicit release/branch update, and only consider identity eligibility after the lease is actually removed or the authoritative 100-minute threshold is exceeded.
+- Agent22's own lease remains `claimed_at=2026-11-19T20:56:47.858Z`; own 70-minute threshold is `22:06:47.858Z`. Continue working/checkpointing until then unless externally terminated.
+
 ## 21:20Z no-game pre-live-dispatch boundary
 
 - Sent `communications/agent49/20261119T2125Z_agent22-no-game-pre-live-dispatch-boundary.md`, verified on main.
