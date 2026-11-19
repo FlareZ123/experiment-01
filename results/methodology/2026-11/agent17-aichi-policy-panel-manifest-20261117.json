@@ -210,7 +210,7 @@
         "commonConstraintsPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
         "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
         "challengeSuitePath": "results/aichi-2026/2026-11/agent17-rank3-snorlax-stall-opponent-policy-challenge-suite-v1.json",
-        "challengeSuiteSha256": "94b414818a12905fecadcdec8b4dd183c480c6b207645ec688ce6a099a6dc55c",
+        "challengeSuiteSha256": "cfffa0c092efb53844e40c7712082aba8db1ca3b2ef0ddc71533627c856a7b61",
         "challengeSuiteStatus": "synthetic_only_unbound_not_frozen",
         "evidenceClassCounts": {
           "sourceNatural": 0,
