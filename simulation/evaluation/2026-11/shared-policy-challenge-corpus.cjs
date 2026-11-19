@@ -74,6 +74,19 @@ function normalizeSplit(rawSplit, arrayKey) {
   return 'development';
 }
 
+function structuralBlockers(record) {
+  const blockers = [];
+  if (!record.stableCaseId) blockers.push('stableCaseId');
+  if (!record.actorViewDigest) blockers.push('actorViewDigest');
+  if (!record.hasCaseSourceBinding) blockers.push('caseSourceBinding');
+  if (!record.hasDecisionEnvelope) blockers.push('decisionEnvelope');
+  if (!record.hasCostLedger) blockers.push('costLedger');
+  if (!record.hasPromptCoverage) blockers.push('promptCoverage');
+  if (!record.hasExecutionEvidence) blockers.push('executionEvidence');
+  if (!VALID_EVIDENCE_CLASSES.has(record.evidenceClass)) blockers.push('recognizedEvidenceClass');
+  return blockers;
+}
+
 function normalizeCase(suite, spec, arrayKey, index) {
   const sourceCase = suite[arrayKey][index] || {};
   const rawId = pick(sourceCase, ['caseId', 'id']);
@@ -88,7 +101,7 @@ function normalizeCase(suite, spec, arrayKey, index) {
     : pick(sourceCase.disposition, ['status', 'result', 'outcome']) ||
       pick(sourceCase, ['status']);
 
-  return {
+  const record = {
     rank: spec.rank,
     suiteId: pick(suite, ['suiteId']) || pick(suite.suiteHeader, ['suiteId']) || null,
     sourceSuitePath: spec.path,
@@ -118,6 +131,9 @@ function normalizeCase(suite, spec, arrayKey, index) {
       pick(sourceCase.reviewer, ['status']) ||
       pick(sourceCase.review, ['status']) || null
   };
+  record.structuralBlockers = structuralBlockers(record);
+  record.structurallyComplete = record.structuralBlockers.length === 0;
+  return record;
 }
 
 function normalizeSuite(rootDir, spec, cases) {
@@ -237,14 +253,7 @@ function countBy(records, key) {
 }
 
 function isStructurallyComplete(record) {
-  return record.stableCaseId &&
-    !!record.actorViewDigest &&
-    record.hasCaseSourceBinding &&
-    record.hasDecisionEnvelope &&
-    record.hasCostLedger &&
-    record.hasPromptCoverage &&
-    record.hasExecutionEvidence &&
-    VALID_EVIDENCE_CLASSES.has(record.evidenceClass);
+  return structuralBlockers(record).length === 0;
 }
 
 function buildCorpus(rootDir) {
@@ -328,6 +337,12 @@ function buildCorpus(rootDir) {
       },
       structurallyCompleteCaseCount: cases.filter(isStructurallyComplete).length,
       structurallyCompleteBySplit: countBy(cases.filter(isStructurallyComplete), 'split'),
+      structuralBlockerCounts: cases.reduce((counts, record) => {
+        for (const blocker of structuralBlockers(record)) {
+          counts[blocker] = (counts[blocker] || 0) + 1;
+        }
+        return counts;
+      }, {}),
       structurallyCompleteByRank: sourceSuites.map(source => {
         const complete = cases.filter(record =>
           record.rank === source.rank && isStructurallyComplete(record));
@@ -391,6 +406,7 @@ module.exports = {
   gitBlobSha1,
   normalizeCase,
   normalizeSplit,
+  structuralBlockers,
   isStructurallyComplete,
   readPinnedJson,
   resolveCase
