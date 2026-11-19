@@ -1,0 +1,111 @@
+{
+  "schemaVersion": "aichi-opponent-policy-common-constraints-v1",
+  "policyId": "agent35-rank31-dusknoir-chimecho-opponent-v1",
+  "role": "opponent-policy",
+  "sourceRank": 31,
+  "sourceDeck": {
+    "path": "results/aichi-2026/full-decklists.json",
+    "blobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "fingerprintSha256": "36b077c17263471d3a2161f9cfcd352d9de7b9cfad6eeb8ad60310c32b5845c8"
+  },
+  "candidateDeck": {
+    "path": "results/aichi-2026/candidate-hood-shadow-rider.json",
+    "blobSha1": "24ace2d6a4d3a6a5b9c9b45ef5b8c2d8e3c6d7a0",
+    "fingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+  },
+  "engine": {
+    "submodulePath": "vendor/twinleaf",
+    "remote": "https://github.com/twinleafgg/twinleafgg.git",
+    "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "researchHookRevision": "none",
+    "upstreamModified": false
+  },
+  "inputSurface": [
+    "request.role",
+    "request.seat",
+    "observation.actorSeat",
+    "observation.globalTurn",
+    "observation.phase",
+    "observation.decisionKind",
+    "observation.pendingPromptType",
+    "observation.ownHand",
+    "observation.ownPublic",
+    "observation.opponentPublic",
+    "observation.ownTurnResources",
+    "observation.ownerK1",
+    "prompt",
+    "publicEventReceipt",
+    "actionFrontier"
+  ],
+  "informationRules": {
+    "permitted": "Only actor-visible observation, prompt choices, public event receipt and legal action frontier.",
+    "forbidden": [
+      "opponent hidden hand",
+      "unrevealed Prize identities",
+      "opponent deck order",
+      "raw Twinleaf state not projected to actor",
+      "random seeds or future information"
+    ],
+    "hiddenHandRule": "Poltergeist scoring is zero unless opponentPublic.publicHand is explicitly present."
+  },
+  "roleSeatContract": {
+    "role": "opponent",
+    "seats": [
+      0,
+      1
+    ],
+    "seatBinding": "request.role, request.seat and observation.actorSeat must agree exactly."
+  },
+  "decisionContract": {
+    "rootActionKinds": [
+      "play-card",
+      "attack",
+      "retreat",
+      "use-ability",
+      "use-stadium",
+      "pass"
+    ],
+    "promptFamiliesImplemented": [
+      "ChoosePokemonPrompt",
+      "SelectOptionPrompt",
+      "ChooseCardsPrompt",
+      "ChoosePrizePrompt"
+    ],
+    "promptFamiliesFailClosed": [
+      "MoveDamagePrompt",
+      "unknown prompt families"
+    ],
+    "decisionKinds": [
+      "select-action",
+      "select-choice",
+      "select-choices",
+      "abstain"
+    ],
+    "noDelegatedFallback": true
+  },
+  "determinism": {
+    "randomness": false,
+    "clockReads": false,
+    "networkReads": false,
+    "stableTieBreakByChoiceOrder": true,
+    "repeatRequestTest": "identical actor-visible request yields identical decisions"
+  },
+  "runtimeSafety": {
+    "filesystem": false,
+    "network": false,
+    "processAccess": false,
+    "eval": false,
+    "randomness": false,
+    "unboundedSearch": false,
+    "failClosedOnUnsupportedPrompts": true
+  },
+  "evidenceBoundary": {
+    "localTests": "14 synthetic actor-view fixtures passed through actual Agent49 validateRequest and validateDecision functions.",
+    "nativeTwinleafExecution": false,
+    "sourceNaturalCases": 0,
+    "nativeStagedPolicyCases": 0,
+    "gamesPlayed": 0,
+    "matchupWinRate": null,
+    "strategicCompetenceDemonstrated": false
+  }
+}

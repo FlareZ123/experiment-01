@@ -1,0 +1,102 @@
+{
+  "schemaVersion": "aichi-opponent-policy-dependency-manifest-v1",
+  "policyId": "agent35-rank31-dusknoir-chimecho-opponent-v1",
+  "policyProducerId": "agent35",
+  "role": "opponent-policy",
+  "sourceRank": 31,
+  "status": "prototype-not-attestable",
+  "sourceDeck": {
+    "path": "results/aichi-2026/full-decklists.json",
+    "blobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "fingerprintSha256": "36b077c17263471d3a2161f9cfcd352d9de7b9cfad6eeb8ad60310c32b5845c8",
+    "cardCount": 60
+  },
+  "candidateDeck": {
+    "path": "results/aichi-2026/candidate-hood-shadow-rider.json",
+    "blobSha1": "24ace2d6a4d3a6a5b9c9b45ef5b8c2d8e3c6d7a0",
+    "fingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+  },
+  "engine": {
+    "submodulePath": "vendor/twinleaf",
+    "remote": "https://github.com/twinleafgg/twinleafgg.git",
+    "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "researchHookRevision": "none",
+    "upstreamModified": false,
+    "localEnginePatches": [],
+    "nativeExecution": false
+  },
+  "workerProtocol": {
+    "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+    "blobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+    "validatorsExecuted": [
+      "validateRequest",
+      "validateDecision"
+    ],
+    "workerIpcHandshake": false
+  },
+  "promptProjection": {
+    "path": "simulation/evaluation/2026-11/agent36-prompt-projection.cjs",
+    "blobSha1": "0487809d7c19c2e6e0a2b2c1a2f6f4c8d1b8c5a3",
+    "supportedFamiliesObserved": [
+      "ChoosePokemonPrompt",
+      "SelectOptionPrompt",
+      "ChooseCardsPrompt",
+      "ChoosePrizePrompt"
+    ],
+    "unsupportedFamily": [
+      "MoveDamagePrompt"
+    ]
+  },
+  "cardPoolSnapshot": {
+    "path": "resources/cards/en/sv8pt5.json",
+    "blobSha1": "5acd25e8a7a4f30a8e0a6a5d5e8f6f4a7d6b5c4a",
+    "verifiedCardText": [
+      {
+        "printing": "Dusclops PRE 36",
+        "ability": "Cursed Blast",
+        "textSummary": "5 damage counters on an opposing Pokémon, then this Dusclops is Knocked Out"
+      },
+      {
+        "printing": "Dusknoir PRE 37",
+        "ability": "Cursed Blast",
+        "textSummary": "13 damage counters on an opposing Pokémon, then this Dusknoir is Knocked Out"
+      }
+    ]
+  },
+  "policyModule": {
+    "path": "simulation/evaluation/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.cjs",
+    "blobSha1": "2087c9edc1258489b6a1d6493b1096a9e08fab6d",
+    "sha256": "5ec8612fa9d894f7c91ad3a226c7d515803deefe196595eb1367a442f730df46",
+    "version": "agent35-rank31-dusknoir-chimecho-opponent-v1"
+  },
+  "testFile": {
+    "path": "tests/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.test.cjs",
+    "blobSha1": "02db0c1809be665d72c51b97af133a84aacf4072",
+    "sha256": "cb00fcdee28f5f9f2305e6123f47e6d6a5fce9ffb2a5b02dd191c97e9bbeb79e",
+    "testCount": 14,
+    "actorViewFixtureCount": 16,
+    "localHarness": "functions.exec V8 isolate with node:test/assert shims and actual Agent49 validator source"
+  },
+  "commonConstraints": {
+    "path": "simulation/evaluation/2026-11/agent35-rank31-common-constraints-v1.json",
+    "sha256": "42f162f1f15954c182d4af180a633f85b7cdc2fbb8713bedc7e098874cfcb738"
+  },
+  "assumptionsAndGaps": [
+    "Dusclops PRE 36 Cursed Blast is card-pool-text verified; Twinleaf source mapping and native prompt receipt are untested.",
+    "Dusknoir PRE 37 Cursed Blast and Stealthy Hood interaction are documented in Agent44's pinned-source report; this policy suite does not execute the native effect.",
+    "Field Blower option labels and target prompts are synthetic; exact pinned-source labels have not been exercised.",
+    "Sinister Hand and Painful Spoons are not used because MoveDamagePrompt is not projected by the shared host adapter.",
+    "Root action priorities are heuristics and have not been calibrated against natural games."
+  ],
+  "reproducibility": {
+    "policySha256": "5ec8612fa9d894f7c91ad3a226c7d515803deefe196595eb1367a442f730df46",
+    "sourceFingerprint": "36b077c17263471d3a2161f9cfcd352d9de7b9cfad6eeb8ad60310c32b5845c8",
+    "candidateFingerprint": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+  },
+  "claims": {
+    "nativeGames": 0,
+    "matchupResults": null,
+    "winRate": null,
+    "attestable": false
+  }
+}
