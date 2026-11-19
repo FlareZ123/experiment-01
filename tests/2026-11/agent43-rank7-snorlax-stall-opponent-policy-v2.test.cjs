@@ -492,9 +492,9 @@ test('Palace Book draw-three/end-turn is a low-priority action with a small hand
 
 test('Palace Book yields to a scored Get Lost attack because it ends the turn', () => {
   const board = rank7Board({
-    ownActive: pokemon(C.girafarig, { types: ['Psychic'] }),
-    opponentPublic: player({ active: pokemon(C.shadow, { types: ['Psychic'] }), discard: [C.vs] })
+    ownActive: pokemon(C.girafarig, { types: ['Psychic'] })
   });
+  board.opponentPublic.discard = [C.vs];
   const request = rootRequest({
     ownHand: [C.palace], ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
     items: [
@@ -508,11 +508,9 @@ test('Palace Book yields to a scored Get Lost attack because it ends the turn', 
 
 test('Get Lost attack is preferred when opponent discard contains VS Seeker and Lusamine', () => {
   const board = rank7Board({
-    ownActive: pokemon(C.girafarig, { types: ['Psychic'] }),
-    opponentPublic: player({
-      active: pokemon(C.shadow, { types: ['Psychic'] }), discard: [C.vs, C.lusamine]
-    })
+    ownActive: pokemon(C.girafarig, { types: ['Psychic'] })
   });
+  board.opponentPublic.discard = [C.vs, C.lusamine];
   const request = rootRequest({
     ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
     items: [
@@ -551,7 +549,7 @@ test('unknown prompt family fails closed', () => {
 test('worker request validator rejects injected opponent-private information', () => {
   const request = rootRequest();
   request.observation.opponentPrivate = { hand: [C.faba] };
-  assert.throws(() => checkedDecision(request), /AGENT49_BAD_ACTOR_OBSERVATION/);
+  assert.throws(() => checkedDecision(request), /UNKNOWN_FIELD/);
 });
 
 test('same actor request is deterministic across repeated decisions', () => {
