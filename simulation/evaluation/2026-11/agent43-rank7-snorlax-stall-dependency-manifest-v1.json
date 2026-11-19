@@ -20,7 +20,7 @@
     "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "blobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "initConfigContract": "empty object; role-only bundle",
-    "sha256": "6d9ef8cbe02f195fbb3c90f501355961d7b6db35fef09a3e5f11ca0402c7f31f"
+    "sha256": "ed0fed2b9c8acdb87376b95fb493a90ce75b59493fe610315490604e4eda8a5c"
   },
   "policy": {
     "path": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v1.cjs",
@@ -30,7 +30,7 @@
     "externalPackages": [],
     "localRuntimeImports": [],
     "sourceBinding": "immutable constants in policy module and this manifest",
-    "sha256": "0e05e03576c9c5a09dba6cbd121a60d6673493527ecb70c92d240bb06aff7b29",
+    "sha256": "2b83acef30050f3c29c7ba86281c7061bae61c6f190aa43a63921b4a778ae6a2",
     "blobSha1": "09a9469bce412569e00419d7749574997992e808",
     "configContract": "empty object; source/candidate fingerprints bound in module and suite"
   },
@@ -38,13 +38,13 @@
     "path": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v1.test.cjs",
     "validator": "actual Agent49 validateInit, validateRequest, validateDecision",
     "fixtureClass": "synthetic actor-view requests and prompts only",
-    "sha256": "15493d2b79e213e97538a925a501797acab38bf6545d5ef5110ab26085b4fba9",
-    "latestRunId": null,
-    "latestRunHeadSha": null,
-    "latestRunConclusion": "pending",
+    "sha256": "8f27ad4825cd28b22cfca9a43fbfc05e619ca4a44952c8b25bddb4a94b7450cf",
+    "latestRunId": 44551743934,
+    "latestRunHeadSha": "9e308a03b830378886d04a469e3b2c5097f7a3a3",
+    "latestRunConclusion": "success",
     "testCount": 39,
-    "passed": null,
-    "failed": null,
+    "passed": 39,
+    "failed": 0,
     "blobSha1": "aeda9927eb1faec283bcfc9e35c1b65faca27b58"
   },
   "supportedPromptFamilies": [
@@ -69,7 +69,7 @@
   ],
   "commonConstraints": {
     "path": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-common-constraints-v1.json",
-    "sha256": "ded0d933c59ed68de0c8a714e77dddd5e6c9e0850b87f30de0460defed636b3d"
+    "sha256": "9b36f1fee8046676a86e565a1a035f292c33c0da485c9760fb6e39ceb215e93d"
   },
   "supportedCardActions": [
     "Faba; Jet Energy; Nest Ball",
