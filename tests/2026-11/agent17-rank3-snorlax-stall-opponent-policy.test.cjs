@@ -1126,3 +1126,82 @@ test('Scoop Up Cyclone chooses a damaged benched Pokémon and preserves Active S
     kind: 'select-choice', token: 'rotom'
   });
 });
+
+
+test('Legendary Ascent selects every actor-owned Water Energy up to the prompt payment count', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Articuno-GX CES 31', 'Legendary Ascent'),
+    publicMetadata: {
+      selectionType: 'energy-payment',
+      energyCount: 2,
+      allowCancel: false,
+      isSecret: false
+    },
+    choices: [
+      {
+        token: 'water-bunnelby', kind: 'energy',
+        printing: 'Water Energy MEE 11', label: 'Water Energy MEE 11',
+        publicMetadata: { sourceZone: 'attached-energy', ownerSeat: 'actor', isOwnerVisible: true }
+      },
+      {
+        token: 'capture-bunnelby', kind: 'energy',
+        printing: 'Capture Energy RCL 171', label: 'Capture Energy RCL 171',
+        publicMetadata: { sourceZone: 'attached-energy', ownerSeat: 'actor', isOwnerVisible: true }
+      },
+      {
+        token: 'water-girafarig', kind: 'energy',
+        printing: 'Water Energy MEE 11', label: 'Water Energy MEE 11',
+        publicMetadata: { sourceZone: 'attached-energy', ownerSeat: 'actor', isOwnerVisible: true }
+      },
+      {
+        token: 'opponent-water', kind: 'energy',
+        printing: 'Water Energy MEE 11', label: 'Water Energy MEE 11',
+        publicMetadata: { sourceZone: 'attached-energy', ownerSeat: 'opponent', isOwnerVisible: true }
+      }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['water-bunnelby', 'water-girafarig']
+  });
+});
+
+test('Gladion selects a high-value Pokémon only when its Prize identity is actor-visible', () => {
+  const request = promptRequest({
+    promptType: 'ChoosePrizePrompt',
+    source: actorChoiceSource('Gladion BUS 127', 'Gladion'),
+    choices: [
+      {
+        token: 'nest', kind: 'prize', printing: 'Nest Ball SVI 181', label: 'Nest Ball',
+        publicMetadata: { sourceZone: 'prizes', ownerSeat: 'actor', isOwnerVisible: true }
+      },
+      {
+        token: 'snorlax', kind: 'prize', printing: 'Snorlax PGO 55', label: 'Snorlax',
+        publicMetadata: { sourceZone: 'prizes', ownerSeat: 'actor', isOwnerVisible: true }
+      }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice', token: 'snorlax'
+  });
+});
+
+test('Hisuian Heavy Ball abstains when Prize identities are concealed', () => {
+  const request = promptRequest({
+    promptType: 'ChoosePrizePrompt',
+    source: actorChoiceSource('Hisuian Heavy Ball ASR 146', 'Hisuian Heavy Ball'),
+    choices: [
+      {
+        token: 'prize-1', kind: 'prize', label: 'Face-down Prize 1',
+        publicMetadata: { sourceZone: 'prizes', ownerSeat: 'actor', isOwnerVisible: false }
+      },
+      {
+        token: 'prize-2', kind: 'prize', label: 'Face-down Prize 2',
+        publicMetadata: { sourceZone: 'prizes', ownerSeat: 'actor', isOwnerVisible: false }
+      }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'abstain', reasonCode: 'PRIZE_IDENTITY_UNAVAILABLE'
+  });
+});
