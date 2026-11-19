@@ -35,8 +35,8 @@
   },
   "dependencyManifest": {
     "path": "results/methodology/2026-11/agent20-rank5-mew-genesect-dependency-manifest-v7.json",
-    "gitBlobSha1": "7bbc0ad0bc30022b1abfbaf2343a025aed73547d",
-    "sha256": "e3b2e3f4aa9953be5a0f821da3ae81ff7861dab66739cacc00888d1a88f61e74"
+    "gitBlobSha1": "5f660465cf3660bedf6a88281cefa68cd625666f",
+    "sha256": "32dc5eb478813911e01980c7e6d2b07a834f1e9773e21967793f9da7afe76399"
   },
   "commonConstraints": {
     "path": "results/methodology/2026-11/agent20-rank5-mew-genesect-common-constraints-v7.json",
@@ -50,9 +50,9 @@
   },
   "testFile": {
     "path": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
-    "gitBlobSha1": "a02e6d5668dc24e232cefc5754367d439a1917ba",
-    "sha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-    "status": "30/30 passed in isolated V8 compatibility harness; node --test pending"
+    "gitBlobSha1": "0a63b41a93874336121eea72f9d77c7cb20ae257",
+    "sha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+    "status": "31/31 passed in isolated V8 compatibility harness; node --test pending"
   },
   "producerBindings": {
     "candidatePolicyProducerId": null,
@@ -178,8 +178,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Fusion Strike System draws only while hand is below the Fusion Strike board count",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -262,8 +262,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Mew VMAX natural evolution is prioritized over generic Pokémon deployment",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -346,8 +346,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Wally is used only for a same-turn Mew V evolution opportunity",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -429,8 +429,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Double Colorless Energy is attached to Mew VMAX before Genesect",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -512,8 +512,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Genesect V is deployed as a second Fusion Strike System engine",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -599,8 +599,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Cross Fusion Strike selects the Genesect Techno Blast donor",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -689,8 +689,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Copied Energy Mix selects DCE and attaches it to an unpowered Mew VMAX",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -788,8 +788,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Guzma selects a vulnerable prize target",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -872,8 +872,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Special Charge recovers two DCE from discard",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -959,8 +959,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Ultra Ball discard cost preserves DCE and last Mew VMAX",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -1043,8 +1043,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Path to the Peak is sequenced after own draw abilities",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -1123,8 +1123,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Special Red Card is held until opponent has three or fewer Prizes",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -1204,8 +1204,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "DCE does not make standalone Techno Blast payable",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -1291,8 +1291,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Battle VIP Pass selects Mew V and Genesect V",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -1374,8 +1374,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Quick Ball discards a non-core Trainer instead of the only DCE",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -1450,8 +1450,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Unknown prompt family abstains",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -1539,7 +1539,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": null,
-        "testFileSha256": "89be34fa52a8ee47fbb6c12b2d2e17b777e58a4e195020e21d7abd61635a7448",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
         "testStatus": "not-authored",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -1622,7 +1622,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": null,
-        "testFileSha256": "89be34fa52a8ee47fbb6c12b2d2e17b777e58a4e195020e21d7abd61635a7448",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
         "testStatus": "not-authored",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -1698,7 +1698,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": null,
-        "testFileSha256": "89be34fa52a8ee47fbb6c12b2d2e17b777e58a4e195020e21d7abd61635a7448",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
         "testStatus": "not-authored",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -1780,7 +1780,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": null,
-        "testFileSha256": "89be34fa52a8ee47fbb6c12b2d2e17b777e58a4e195020e21d7abd61635a7448",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
         "testStatus": "not-authored",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -1862,7 +1862,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": null,
-        "testFileSha256": "89be34fa52a8ee47fbb6c12b2d2e17b777e58a4e195020e21d7abd61635a7448",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
         "testStatus": "not-authored",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -1960,8 +1960,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Secret Box selects distinct supporter, item, tool, and stadium categories",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -2049,8 +2049,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Secret Box abstains when a required category is absent from the prompt",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -2127,8 +2127,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "the last Mew VMAX is not an Ultra Ball or Secret Box discard target",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -2228,8 +2228,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Guzma damage estimate adds 20 only for a visibly attached Muscle Band",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -2319,8 +2319,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Star Alchemy is used when it can fetch the missing Mew VMAX",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -2405,8 +2405,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Star Alchemy searches Mew VMAX before generic Trainer cards",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -2495,8 +2495,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Star Alchemy searches DCE when Mew VMAX is already in play without Energy",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -2579,8 +2579,8 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Star Alchemy is not used after the VSTAR Power has been spent",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
         "gameCount": 0
@@ -2674,11 +2674,14 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "DCE attachment uses public benchIndex when two Mew VMAX share a printing",
-        "testFileSha256": "9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70",
-        "testStatus": "30/30 passed in isolated V8 compatibility harness; node --test pending",
+        "testFileSha256": "c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535",
+        "testStatus": "31/31 passed in isolated V8 compatibility harness; node --test pending",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
-        "gameCount": 0
+        "gameCount": 0,
+        "supplementalTestNames": [
+          "Energy Mix target selection uses public benchIndex for duplicate Mew VMAX and abstains if ambiguous"
+        ]
       },
       "disposition": {
         "status": "blocked",
