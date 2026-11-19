@@ -1,0 +1,65 @@
+{
+  "schema": "aichi-opponent-policy-common-constraints-v1",
+  "constraintId": "aichi-2026-rank12-regidrago-agent1-common-constraints-v1",
+  "role": "opponent",
+  "sourceRank": 12,
+  "policyVersion": "agent1-rank12-regidrago-opponent-v1",
+  "sourceFingerprintSha256": "f176d6831f91a470ec4d3ef1e18636da8e4178b294c2978bb64cc371c37d3059",
+  "candidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+  "allowedInputs": [
+    "actorSeat",
+    "globalTurn",
+    "phase",
+    "ownHand",
+    "ownPublic",
+    "opponentPublic",
+    "ownTurnResources",
+    "ownerK1",
+    "publicEventReceipt",
+    "current actionFrontier",
+    "current actor-choice prompt and its owner-visible choices"
+  ],
+  "forbiddenInputs": [
+    "opponent hidden hand",
+    "opponent face-down Prize identities",
+    "opponent deck order",
+    "native Store/state",
+    "full game state",
+    "prompt resolver context",
+    "physical RNG or seed",
+    "unexposed card identities",
+    "future events",
+    "unoffered action or choice tokens"
+  ],
+  "decisionContract": {
+    "deterministic": true,
+    "randomDraws": 0,
+    "seatInvariant": true,
+    "onlySelectOfferedTokens": true,
+    "fallback": "pass only when a pass token is present; otherwise abstain",
+    "unknownPrompt": "abstain",
+    "unsupportedNativePrompt": "abstain",
+    "hiddenPrizeIdentity": "abstain",
+    "roleSeatMismatch": "abstain"
+  },
+  "rankSpecificDecisionEnvelopes": {
+    "apexDragon": "Select only a source-bound Dragon attack choice offered by the current owner prompt. Noivern Dominating Echo receives rank-specific priority when a Stadium or Special Energy is visible; Phantom Dive is not selected because its PutDamagePrompt allocation is unsupported.",
+    "discardManagement": "Preserve Regidrago V/VSTAR and Double Dragon/basic Energy; prefer a unique Noivern/Dialga/Koraidon/Kyurem attack payload for discard only when its matching payload is not already in the discard. Dragapult remains protected while Phantom Dive is blocked.",
+    "megatonBlower": "Only play when opponent Tools, Special Energy, or a Stadium are visible in the actor view; if own Stadium is the only Stadium, it is not a reason to play.",
+    "pathToPeak": "Withhold until own VSTAR power is spent and all relevant own Rule Box ability users are known spent; only then consider visible opponent Rule Box threats.",
+    "counterCatcher": "Use only when offered by the frontier; choose a visible high-Prize opponent Bench target.",
+    "echoingHorn": "Choose only a visible Basic Pokémon offered from opponent discard; prioritize high-Prize target if one is available.",
+    "heavyBall": "Do not infer concealed Prize identities; abstain unless a real identity is owner-visible."
+  },
+  "evidenceLimits": {
+    "nativeGames": 0,
+    "nativeStagedScenarios": 0,
+    "sourceNaturalScenarios": 0,
+    "syntheticOnly": true,
+    "testsAuthored": 20,
+    "testsExecuted": false,
+    "competitiveCompetenceAttested": false,
+    "winRateEstimate": null,
+    "matchupResult": null
+  }
+}
