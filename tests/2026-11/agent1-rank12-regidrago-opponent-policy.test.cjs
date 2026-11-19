@@ -421,9 +421,9 @@ test('Apex Dragon chooses Dominating Echo when the opponent has a Stadium in pla
       })
     },
     choices: [
-      { token: 'timeless', kind: 'attack', label: 'Timeless-GX', publicMetadata: { sourceAttack: 'Timeless-GX', attackCostPayable: true } },
-      { token: 'dominating', kind: 'attack', label: 'Dominating Echo', publicMetadata: { sourceAttack: 'Dominating Echo', attackCostPayable: true } },
-      { token: 'phantom', kind: 'attack', label: 'Phantom Dive', publicMetadata: { sourceAttack: 'Phantom Dive', attackCostPayable: true } }
+      { token: 'timeless', kind: 'attack', label: 'Timeless-GX', publicMetadata: { sourceAttack: 'Timeless-GX' } },
+      { token: 'dominating', kind: 'attack', label: 'Dominating Echo', publicMetadata: { sourceAttack: 'Dominating Echo' } },
+      { token: 'phantom', kind: 'attack', label: 'Phantom Dive', publicMetadata: { sourceAttack: 'Phantom Dive' } }
     ]
   });
   assert.deepEqual(checkedDecision(request), { kind: 'select-choice', token: 'dominating' });
@@ -507,7 +507,7 @@ test('Flip the Script is used only when the public event receipt records a prior
     bench: [pokemon('Fezandipiti ex ASC 142', { abilities: ['Flip the Script'] })]
   });
   const items = [
-    action('flip', 'use-ability', 'Fezandipiti ex ASC 142', { sourceEffect: 'Flip the Script' }),
+    action('flip', 'use-ability', 'Fezandipiti ex ASC 142', { abilityName: 'Flip the Script' }),
     { token: 'pass', kind: 'pass' }
   ];
   const withoutReceipt = rootRequest({ ownPublic, ownHand: ['Grass Energy MEE 9'], items });
