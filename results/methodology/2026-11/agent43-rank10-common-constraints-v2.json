@@ -16,7 +16,9 @@
     "enumeratedChoicesMustPassNativePromptValidation": true,
     "selectedChoiceMustBeRevalidatedAtDispatch": true,
     "zeroCapTargetsExcluded": true,
-    "positiveMaxAllowedDamageIsNotAssumedToBeAHardCap": true
+    "positiveMaxAllowedDamageIsNotAssumedToBeAHardCap": true,
+    "paperPutDamageGuardMustPass": true,
+    "projectionCallback": "combine validateRawPromptResult and paperPutDamageRejectReason"
   },
   "informationBoundary": "actor-visible observation and public prompt choices only",
   "policyRandomization": "none",
