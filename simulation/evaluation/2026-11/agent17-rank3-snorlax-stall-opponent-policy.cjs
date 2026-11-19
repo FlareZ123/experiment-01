@@ -304,6 +304,9 @@ function scoreSearchCard(printing, observation, context = '') {
   if (matches(printing, PRINT.toolJammer)) {
     return !boardHasTool(own, PRINT.toolJammer) ? 230 : 45;
   }
+  if (matches(printing, PRINT.forestSealStone)) {
+    return !boardHasTool(own, PRINT.forestSealStone) && boardHas(own, PRINT.rotom) ? 165 : 65;
+  }
   if (matches(printing, PRINT.snorlax)) {
     return !boardHas(own, PRINT.snorlax) ? 205 : 70;
   }
@@ -521,6 +524,9 @@ function scoreAction(item, request) {
       return energyCount(targetSlot.pokemon) === 0 ? 125 : 55;
     }
     return 45;
+  }
+  if (matches(card, PRINT.forestSealStone)) {
+    return matches(target, PRINT.rotom) && !boardHasTool(own, PRINT.forestSealStone) ? 180 : 40;
   }
   if (matches(card, PRINT.toolJammer)) {
     return matches(target, PRINT.snorlax) ||
