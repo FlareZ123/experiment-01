@@ -13,8 +13,8 @@
     "bundleProducerId": null,
     "producerBindingStatus": "not bound into signed/hash-bound V3 plan; standalone prototype only",
     "modulePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "moduleBlobSha1": "36616df3e1db0d750756f01922edac7973ab6c1f",
-    "moduleSha256": "30570e00c389d19097cc1bd4252647b63e11c11d18d007c38f2653d920556589",
+    "moduleBlobSha1": "18ba4a18cfe69bc6059d0d3941c9aa1dfea3ed12",
+    "moduleSha256": "8feb6c6d28e04c73ff7d2ff75b315c955a8bf0073228451184d97a6388320509",
     "config": {
       "rank": 3,
       "sourceFingerprint": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
@@ -91,15 +91,15 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json",
-    "manifestSha256": "f4492f4bc94fe20341f681846a673021a1d22f62665346c18c771822503f0af9",
+    "manifestSha256": "0c36a8829ea0c2882e7d660159801612131c217dfd706072b3172daa16e3861c",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "testFilePath": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "testFileBlobSha1": "7dda7c178867522f03d803721fbc34f63ccdbf84",
-    "testFileSha256": "5fd8a97e1623ecafed8f1580afcf9a8eda2e39d4ac65b716b8f030e1ffcc93ae",
+    "testFileBlobSha1": "2468511c334357c0c653291f5f318071a0549a21",
+    "testFileSha256": "96a4ad2ad6452b6494cce0dddf9906f6e861ceb25048fe22e196278e775b398a",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -117,11 +117,11 @@
     "developmentTestCount": 49,
     "unitTestsPassed": 49,
     "unitTestsFailed": 0,
-    "actorRequestCount": 52,
-    "decisionReceiptCount": 51,
+    "actorRequestCount": 53,
+    "decisionReceiptCount": 52,
     "promptTypeCounts": {
       "root-action-frontier": 24,
-      "ChooseCardsPrompt": 18,
+      "ChooseCardsPrompt": 19,
       "ChoosePokemonPrompt": 6,
       "UnknownNativePrompt": 1,
       "ChooseEnergyPrompt": 1,
@@ -129,7 +129,7 @@
     },
     "selectionTypeCounts": {
       "none": 41,
-      "card-combination": 10,
+      "card-combination": 11,
       "energy-payment": 1
     },
     "localHarness": {
@@ -1691,15 +1691,15 @@
       "caseId": "r3-dev-09-rank-3-get-lost-prompt-prioritizes-opponent-recovery-cards-i",
       "split": "development",
       "caseClass": "policy-decision",
-      "objective": "rank-3 Get Lost prompt prioritizes opponent recovery cards in the discard pile",
+      "objective": "Get Lost prioritizes candidate Supporters recoverable by VS Seeker, not spent recovery Items, and chooses empty when no recoverable Supporter remains",
       "evidenceClass": "synthetic",
       "actorView": {
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-        "testName": "rank-3 Get Lost prompt prioritizes opponent recovery cards in the discard pile",
+        "testName": "rank-3 Get Lost prioritizes recoverable candidate Supporters over spent Items",
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "12252c81a440d2eac5ccc33820aee5065988cd2e1bd5f31837bc0b45d7490bf9",
+            "digestSha256": "fc19c7d3286e0f8960e4e7932abef24b89c91a0c333b9ab0072199ff80e4c7eb",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -1734,13 +1734,82 @@
               "isSecret": false,
               "choiceKinds": [
                 "card",
+                "card",
+                "card",
+                "card",
+                "card",
                 "empty-selection"
               ],
               "ownerSeats": [
                 "opponent",
+                "opponent",
+                "opponent",
+                "opponent",
+                "opponent",
                 null
               ],
               "zones": [
+                "discard",
+                "discard",
+                "discard",
+                "discard",
+                "discard",
+                null
+              ],
+              "emptySelection": true,
+              "cancel": false
+            }
+          },
+          {
+            "requestIndex": 1,
+            "digestSha256": "2c8cd942bc7c8a5eb482f6e26b08f44c1b70a0e3ff38962a94e970902a52098a",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "role": "opponent",
+              "seat": 0,
+              "actorSeat": 0,
+              "ownHandCount": 0,
+              "ownActive": null,
+              "ownBench": [],
+              "opponentHandCount": 0,
+              "opponentHandRevealed": false,
+              "opponentActive": null,
+              "opponentBench": [],
+              "ownDeckCount": 30,
+              "opponentDeckCount": 30,
+              "ownPrizeCount": 6,
+              "opponentPrizeCount": 6
+            },
+            "promptCoverage": {
+              "promptType": "ChooseCardsPrompt",
+              "source": {
+                "classification": "actor-choice",
+                "sourceKind": "card-effect",
+                "sourcePrinting": "Girafarig LOT 94",
+                "effectName": "Get Lost"
+              },
+              "selectionType": "card-combination",
+              "minimumCount": 0,
+              "maximumCount": 2,
+              "energyCount": null,
+              "allowCancel": false,
+              "isSecret": false,
+              "choiceKinds": [
+                "card",
+                "card",
+                "card",
+                "empty-selection"
+              ],
+              "ownerSeats": [
+                "opponent",
+                "opponent",
+                "opponent",
+                null
+              ],
+              "zones": [
+                "discard",
+                "discard",
                 "discard",
                 null
               ],
@@ -1758,9 +1827,18 @@
             "decision": {
               "kind": "select-choices",
               "tokens": [
-                "seeker",
-                "stretcher"
+                "arven",
+                "acerola"
               ]
+            },
+            "validatorResult": "accepted",
+            "validationError": null
+          },
+          {
+            "decisionIndex": 1,
+            "decision": {
+              "kind": "select-choice",
+              "token": "empty"
             },
             "validatorResult": "accepted",
             "validationError": null
@@ -1768,23 +1846,43 @@
         ],
         "expectedOutcomeAssertedByTest": true,
         "forbiddenOutcomes": [
+          "prioritize spent VS Seeker or Night Stretcher Items over Supporters they cannot recover",
+          "leave Arven SVI 166 in discard when it can be recovered by VS Seeker",
+          "fail to remove Acerola BUS 112 when it is a recoverable escape Supporter",
+          "select a discard target when no recoverable candidate Supporter exists and empty-selection is legal",
           "unknown action or prompt token",
           "duplicate physical card in a multi-select",
           "hidden opponent hand or unrevealed Prize identity",
-          "wrong-source ability",
-          "unpayable target",
           "delegated fallback"
         ],
         "acceptableOutcomeFamilies": [
-          "select-choices"
+          "select-choices",
+          "select-choice"
         ],
-        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
+        "rationale": "The fixed candidate has two VS Seeker that retrieve Supporter cards from discard, not Items. Arven is the Tool-removal escape search and Acerola can pick up a damaged Active to bypass Block. Girafarig's Get Lost can put two opponent-discard cards into the Lost Zone; remove recoverable Supporters and choose empty when only spent Items remain."
       },
       "costLedger": {
-        "energyAlreadyAttached": "1 Colorless on Girafarig",
-        "attackForTurn": true,
-        "attackCost": "1 Colorless",
-        "opponentDiscardCardsToLostZone": 2
+        "attack": "Girafarig LOT 94 — Get Lost; put up to two opponent-discard cards into the Lost Zone",
+        "candidateRecovery": "VS Seeker PHF 109 retrieves Supporters, not Items",
+        "highValueTargets": [
+          "Arven SVI 166",
+          "Guzma BUS 115",
+          "Acerola BUS 112",
+          "Raihan EVS 152",
+          "Teammates PRC 141",
+          "Pokémon Ranger STS 104",
+          "Iono PAL 185",
+          "Lillie's Determination MEG 119"
+        ],
+        "spentItemsNotRecoverable": [
+          "VS Seeker PHF 109",
+          "Night Stretcher ASC 196"
+        ],
+        "selectedTargets": [
+          "Arven SVI 166",
+          "Acerola BUS 112"
+        ],
+        "noRecoverableSupporterAction": "select empty-selection"
       },
       "promptCoverage": [
         {
@@ -1798,17 +1896,65 @@
           "selectionType": "card-combination",
           "minimumCount": 0,
           "maximumCount": 2,
+          "energyCount": null,
           "allowCancel": false,
           "isSecret": false,
           "choiceKinds": [
+            "card",
+            "card",
+            "card",
+            "card",
             "card",
             "empty-selection"
           ],
           "ownerSeats": [
             "opponent",
+            "opponent",
+            "opponent",
+            "opponent",
+            "opponent",
             null
           ],
           "zones": [
+            "discard",
+            "discard",
+            "discard",
+            "discard",
+            "discard",
+            null
+          ],
+          "emptySelection": true,
+          "cancel": false
+        },
+        {
+          "promptType": "ChooseCardsPrompt",
+          "source": {
+            "classification": "actor-choice",
+            "sourceKind": "card-effect",
+            "sourcePrinting": "Girafarig LOT 94",
+            "effectName": "Get Lost"
+          },
+          "selectionType": "card-combination",
+          "minimumCount": 0,
+          "maximumCount": 2,
+          "energyCount": null,
+          "allowCancel": false,
+          "isSecret": false,
+          "choiceKinds": [
+            "card",
+            "card",
+            "card",
+            "empty-selection"
+          ],
+          "ownerSeats": [
+            "opponent",
+            "opponent",
+            "opponent",
+            null
+          ],
+          "zones": [
+            "discard",
+            "discard",
             "discard",
             null
           ],
@@ -1820,9 +1966,11 @@
         "unitHarness": "local V8 deterministic harness",
         "unitTestResult": "pass",
         "requestValidation": [
+          "accepted",
           "accepted"
         ],
         "decisionValidation": [
+          "accepted",
           "accepted"
         ],
         "nativeTwinleafExecution": false,
@@ -1837,9 +1985,13 @@
           {
             "kind": "select-choices",
             "tokens": [
-              "seeker",
-              "stretcher"
+              "arven",
+              "acerola"
             ]
+          },
+          {
+            "kind": "select-choice",
+            "token": "empty"
           }
         ],
         "nativeAcceptance": null,
@@ -1853,10 +2005,33 @@
           "measured": false
         },
         "timeoutStatus": "not-tested",
-        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present",
+        "directPolicyAssertions": [
+          {
+            "function": "scoreAttack",
+            "attackName": "Get Lost",
+            "opponentDiscard": [
+              "Arven SVI 166"
+            ],
+            "expectedScore": 150,
+            "actualScore": 150,
+            "result": "pass"
+          },
+          {
+            "function": "scoreAttack",
+            "attackName": "Get Lost",
+            "opponentDiscard": [
+              "VS Seeker PHF 109",
+              "Night Stretcher ASC 196"
+            ],
+            "expectedScore": 65,
+            "actualScore": 65,
+            "result": "pass"
+          }
+        ]
       },
       "disposition": "blocked",
-      "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
+      "blockReason": "Synthetic prompt and direct-scoring fixtures only; no native Twinleaf Lost Zone receipt, completed game, strategic outcome, or independent reviewer.",
       "reviewerStatus": "unreviewed",
       "sourceBinding": {
         "role": "opponent-policy",
@@ -1866,7 +2041,12 @@
         "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "cardPrintReferences": [
-          "Girafarig LOT 94"
+          "Girafarig LOT 94",
+          "Arven SVI 166",
+          "Acerola BUS 112",
+          "VS Seeker PHF 109",
+          "Night Stretcher ASC 196",
+          "Switch SVI 194"
         ],
         "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
         "researchHookRevision": "none",
@@ -1874,7 +2054,7 @@
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
         "evidenceClass": "synthetic"
       },
-      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
+      "reviewerExplanation": "The policy now prioritizes exact candidate Supporters that can be recovered by VS Seeker and does not waste Get Lost targets on spent Items. The test still does not establish natural target frequency, native Lost Zone effect execution, matchup performance, or policy competence."
     },
     {
       "caseId": "r3-dev-10-guzma-first-chooses-an-opponent-bench-target-and-then-promot",
@@ -9075,7 +9255,8 @@
     "No independent reviewer.",
     "Prize selection and hidden-identity abstention are covered only by synthetic fixtures; native prize reveal/selection semantics remain unverified.",
     "Legendary Ascent multi-Energy payment is covered only by synthetic fixtures; native effect and prompt semantics remain unverified.",
-    "Mimikyu V-only protection is tested synthetically against VMAX and ex fixtures; native ability/effect behavior remains unverified."
+    "Mimikyu V-only protection is tested synthetically against VMAX and ex fixtures; native ability/effect behavior remains unverified.",
+    "Get Lost target valuation uses the fixed candidate's Supporter/VS Seeker inventory; natural target frequency and native Lost Zone resolution remain untested."
   ],
   "reviewer": {
     "status": "not reviewed",
@@ -9095,7 +9276,7 @@
     ]
   },
   "caseRecordCount": 49,
-  "suiteSha256": "1fb0f268c1bf06c38848fb31c0bdb1d5992f79ad0b8f43eef5c2d45c4fc9a075",
+  "suiteSha256": "0af17843e5eccc396a3bef00c17d6cb4e89b756dd3f0a16c81a5315276a7906c",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
@@ -9103,8 +9284,8 @@
     "sourceRank": 3,
     "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
     "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
-    "policySha256": "30570e00c389d19097cc1bd4252647b63e11c11d18d007c38f2653d920556589",
-    "dependencyManifestSha256": "f4492f4bc94fe20341f681846a673021a1d22f62665346c18c771822503f0af9",
+    "policySha256": "8feb6c6d28e04c73ff7d2ff75b315c955a8bf0073228451184d97a6388320509",
+    "dependencyManifestSha256": "0c36a8829ea0c2882e7d660159801612131c217dfd706072b3172daa16e3861c",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
@@ -9303,9 +9484,9 @@
   },
   "policyStaticAudit": {
     "sourcePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "sourceBlobSha1": "36616df3e1db0d750756f01922edac7973ab6c1f",
-    "sourceSha256": "30570e00c389d19097cc1bd4252647b63e11c11d18d007c38f2653d920556589",
-    "scannedAt": "2026-11-19T15:06:41Z",
+    "sourceBlobSha1": "18ba4a18cfe69bc6059d0d3941c9aa1dfea3ed12",
+    "sourceSha256": "8feb6c6d28e04c73ff7d2ff75b315c955a8bf0073228451184d97a6388320509",
+    "scannedAt": "2026-11-19T15:14:47Z",
     "scannedTerms": [
       {
         "term": "Math.random",
