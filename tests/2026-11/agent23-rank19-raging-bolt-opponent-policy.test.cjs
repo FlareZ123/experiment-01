@@ -316,6 +316,18 @@ test('Bellowing Thunder abstains when other Pokémon Basic Energy cannot be attr
   assert.deepEqual(rootResult.decision, { kind: 'select-action', token: 'pass' });
 });
 
+test('Bellowing Thunder is not selected when no Basic Energy can be discarded', () => {
+  const bolt = pokemon({ printing: RAGING, subtypes: ['Basic', 'ex', 'Ancient'], energies: [DDE] });
+  const target = pokemon({ printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    hp: 320, subtypes: ['VMAX'], types: ['Psychic'] });
+  const obs = observation({ ownActive: bolt, opponentActive: target });
+  const result = runDecision({ obs, items: [
+    action('attack', 'attack', { attackName: 'Bellowing Thunder' }),
+    action('pass', 'pass')
+  ]});
+  assert.deepEqual(result.decision, { kind: 'select-action', token: 'pass' });
+});
+
 test('Bellowing Thunder fails closed when GX or opponent Ability modifiers are unresolved', () => {
   const bolt = pokemon({ printing: RAGING, subtypes: ['Basic', 'ex', 'Ancient'], energies: [LIGHTNING, FIGHTING] });
   const target = pokemon({ printing: 'Test Active Pokémon', hp: 240, damage: 0,
