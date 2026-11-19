@@ -1,6 +1,6 @@
 {
   "schema": "aichi-opponent-policy-dependency-manifest-v1",
-  "policyId": "agent43-rank7-snorlax-stall-opponent-v2",
+  "policyId": "agent43-rank7-snorlax-stall-opponent-v2.1",
   "role": "opponent-policy",
   "sourceRank": 7,
   "candidateId": "hood-shield-shadow-rider-v1",
@@ -20,9 +20,9 @@
   },
   "policy": {
     "path": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.cjs",
-    "blobSha1": "8e7d7eed913d4f9fa3131cf7f3460c1ea0276d07",
-    "sha256": "a068bc5271ec1478364cd5dd84079f924a632eb0a3c1bebe2d0d82fbb1543e76",
-    "version": "agent43-rank7-snorlax-stall-opponent-v2",
+    "blobSha1": "379ba49d8aefc37e0ab93e36a8b550bf3eac437e",
+    "sha256": "072bb267d3beb732a7e57bffefcca0b95a13d210dd1aa4774701312637a4b99d",
+    "version": "agent43-rank7-snorlax-stall-opponent-v2.1",
     "role": "opponent-policy",
     "configContract": "empty object; source/candidate fingerprints are module and suite bindings",
     "deterministic": true,
@@ -33,7 +33,7 @@
   },
   "commonConstraints": {
     "path": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-common-constraints-v2.json",
-    "sha256": "b6e2b2f4553737c5734bae97cf1028d063f896ae3f53d5a329a8761680e1abb3"
+    "sha256": "97d857745e078faccfe0308239dd78964a1734e8520d721cec8609d6dc27057f"
   },
   "workerProtocol": {
     "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
@@ -42,15 +42,15 @@
   },
   "tests": {
     "path": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
-    "blobSha1": "4b4b4f441bb6f849ec1c708b3218c964791fa400",
-    "sha256": "3bb9e5857f2698cfa0a653e4011f96dce51e78c9a4576fb43728893f85d25ec2",
-    "testCount": 24,
-    "passed": 24,
-    "failed": 0,
-    "latestRunId": 44556226122,
-    "latestRunHeadSha": "bdf1ba5d15a1e510a62a1bb21f63741c994a92a1",
-    "latestRunConclusion": "success",
-    "jobId": 135672911108
+    "blobSha1": "a95dca3a132927f917accbfcdfe5efaf53195c28",
+    "sha256": "6ed181c5e77fa992572d31e14896e1397dbb24e933bc91e5a8332208d396eba2",
+    "testCount": 30,
+    "passed": null,
+    "failed": null,
+    "latestRunId": null,
+    "latestRunHeadSha": null,
+    "latestRunConclusion": "pending",
+    "jobId": null
   },
   "engine": {
     "submodulePath": "vendor/twinleaf",
@@ -66,12 +66,18 @@
     "Nest Ball basic search",
     "Tool Jammer only against opponent Active Tools",
     "Girafarig Get Lost discard targeting",
-    "Palace Book low-priority draw-three/end-turn"
+    "Palace Book low-priority draw-three/end-turn",
+    "Field Blower removal of actor-owned Temple of Sinnoh when Jet Energy is held",
+    "Chaotic Swell replacement of a Stadium in either player's Stadium zone",
+    "Bellelba & Brycen-Man optional Bench reduction gated by Bench state and three-card payment",
+    "Faba root selection limited to the supported Hooded non-Psychic Ability target",
+    "Nest Ball missing-Basic readiness includes Electrike"
   ],
   "explicitAbstentions": [
     "unknown prompt families",
     "Faba Hood target unavailable or only Psychic/abilityless targets",
-    "unmapped or ambiguous effects"
+    "unmapped or ambiguous effects",
+    "Faba non-Hood Tool, Special Energy and Stadium target families remain unsupported"
   ],
   "status": "synthetic-only prototype; not wired into signed V3 policy bundle or native match runner"
 }

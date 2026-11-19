@@ -29,6 +29,9 @@ const C = {
   nest: 'Nest Ball SVI 181',
   palace: 'Palace Book SMP NAN25',
   toolJammer: 'Tool Jammer BST 136',
+  fieldBlower: 'Field Blower GRI 125',
+  chaoticSwell: 'Chaotic Swell CEC 187',
+  bellelba: 'Bellelba & Brycen-Man CEC 186',
   hood: 'Stealthy Hood UNB 186',
   radiant: 'Radiant Eternatus SIT 105',
   shadow: 'Shadow Rider Calyrex VMAX CRE 75',
@@ -534,6 +537,140 @@ test('Get Lost target prompt selects VS Seeker ahead of lower-value discard card
     ]
   });
   assert.deepEqual(checkedDecision(request), { kind: 'select-choices', tokens: ['vs'] });
+});
+
+
+test('Faba root abstains when only unsupported Stadium removal is available', () => {
+  const board = rank7Board({ radiantHood: false, opponentBench: [] });
+  board.opponentPublic.stadium = [C.temple];
+  const request = rootRequest({
+    ownHand: [C.faba], ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
+    items: [
+      { token: 'faba', kind: 'play-card', actorPrinting: C.faba },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'pass' });
+});
+
+test('Field Blower does not enter a special-energy-only prompt it cannot resolve', () => {
+  const board = rank7Board({ radiantHood: false, opponentBench: [] });
+  board.opponentPublic.active.energies = [C.jet];
+  const request = rootRequest({
+    ownHand: [C.fieldBlower], ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
+    items: [
+      { token: 'blower', kind: 'play-card', actorPrinting: C.fieldBlower },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'pass' });
+});
+
+test('Field Blower can remove the actor-owned Temple of Sinnoh when Jet Energy is held', () => {
+  const board = rank7Board({ radiantHood: false, opponentBench: [] });
+  board.ownPublic.stadium = [C.temple];
+  const root = rootRequest({
+    ownHand: [C.fieldBlower, C.jet], ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
+    items: [
+      { token: 'blower', kind: 'play-card', actorPrinting: C.fieldBlower },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(root), { kind: 'select-action', token: 'blower' });
+
+  const prompt = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource(C.fieldBlower, 'Field Blower'),
+    ownHand: [C.jet], ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
+    publicMetadata: multiMeta(1, 1),
+    choices: [cardChoice('temple', C.temple, 'actor', 'stadium')]
+  });
+  assert.deepEqual(checkedDecision(prompt), { kind: 'select-choices', tokens: ['temple'] });
+});
+
+test('Chaotic Swell can replace an actor-owned Stadium', () => {
+  const board = rank7Board({ radiantHood: false, opponentBench: [] });
+  board.ownPublic.stadium = [C.temple];
+  const request = rootRequest({
+    ownHand: [C.chaoticSwell], ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
+    items: [
+      { token: 'swell', kind: 'play-card', actorPrinting: C.chaoticSwell },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'swell' });
+});
+
+test('Nest Ball includes Electrike when the other rank-7 Basics are already established', () => {
+  const board = rank7Board({
+    ownBench: [
+      pokemon(C.wobb, { types: ['Psychic'], abilities: ['Bide Barricade'] }),
+      pokemon(C.mimikyu, { types: ['Psychic'] }),
+      pokemon(C.regirock, { types: ['Fighting'] }),
+      pokemon(C.girafarig, { types: ['Psychic'] })
+    ]
+  });
+  const request = rootRequest({
+    ownHand: [C.nest], ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
+    items: [
+      { token: 'nest', kind: 'play-card', actorPrinting: C.nest },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'nest' });
+});
+
+test('Bellelba optional bench reduction is gated by bench state and three other cards', () => {
+  const options = [
+    { token: 'yes', kind: 'option', label: 'Yes' },
+    { token: 'no', kind: 'option', label: 'No' }
+  ];
+  const deckOnlyBoard = rank7Board({
+    opponentBench: [
+      pokemon(C.shadow, { types: ['Psychic'], abilities: ['Underworld Door'] }),
+      pokemon(C.tapu, { types: ['Psychic'], abilities: ['Wonder Tag'] }),
+      pokemon(C.trevenant, { types: ['Psychic'], abilities: [] })
+    ]
+  });
+  deckOnlyBoard.ownPublic.deckCount = 40;
+  deckOnlyBoard.opponentPublic.deckCount = 10;
+  const deckOnly = promptRequest({
+    promptType: 'SelectPrompt', source: actorChoiceSource(C.bellelba, 'Bellelba & Brycen-Man'),
+    ownHand: [C.faba, C.jet, C.nest],
+    ownPublic: deckOnlyBoard.ownPublic, opponentPublic: deckOnlyBoard.opponentPublic,
+    choices: options
+  });
+  assert.deepEqual(checkedDecision(deckOnly), { kind: 'select-choice', token: 'no' });
+
+  const board = rank7Board();
+  const shortHand = promptRequest({
+    promptType: 'SelectPrompt', source: actorChoiceSource(C.bellelba, 'Bellelba & Brycen-Man'),
+    ownHand: [C.faba, C.jet], ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
+    choices: options
+  });
+  assert.deepEqual(checkedDecision(shortHand), { kind: 'select-choice', token: 'no' });
+
+  const positive = promptRequest({
+    promptType: 'SelectPrompt', source: actorChoiceSource(C.bellelba, 'Bellelba & Brycen-Man'),
+    ownHand: [C.faba, C.jet, C.nest],
+    ownPublic: board.ownPublic, opponentPublic: board.opponentPublic, choices: options
+  });
+  assert.deepEqual(checkedDecision(positive), { kind: 'select-choice', token: 'yes' });
+
+  const costPrompt = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource(C.bellelba, 'Bellelba & Brycen-Man'),
+    ownHand: [C.faba, C.jet, C.nest],
+    ownPublic: deckOnlyBoard.ownPublic, opponentPublic: deckOnlyBoard.opponentPublic,
+    publicMetadata: multiMeta(3, 3),
+    choices: [
+      cardChoice('electrike', 'Electrike PRC 60', 'actor', 'hand'),
+      cardChoice('robo', 'Robo Substitute PHF 102', 'actor', 'hand'),
+      cardChoice('doll', "Lillie's Poké Doll CEC 197", 'actor', 'hand')
+    ]
+  });
+  assert.deepEqual(checkedDecision(costPrompt),
+    { kind: 'abstain', reasonCode: 'BELLELBA_BENCH_EFFECT_UNFAVORABLE' });
 });
 
 test('unknown prompt family fails closed', () => {

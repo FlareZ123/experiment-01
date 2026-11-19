@@ -1,6 +1,6 @@
 {
   "schema": "aichi-policy-common-constraints-v1",
-  "policyId": "agent43-rank7-snorlax-stall-opponent-v2",
+  "policyId": "agent43-rank7-snorlax-stall-opponent-v2.1",
   "role": "opponent-policy",
   "sourceRank": 7,
   "candidateId": "hood-shield-shadow-rider-v1",
@@ -24,7 +24,9 @@
       "visible Abilities and attached Tools",
       "public discard, Stadium and deck counts",
       "prompt source/choices/selection metadata",
-      "legal action frontier"
+      "legal action frontier",
+      "Stadium owner/zone metadata and the actor's own Temple of Sinnoh when resolving Field Blower",
+      "remaining hand size and both Bench counts when deciding Bellelba & Brycen-Man's optional three-card cost"
     ],
     "forbiddenInformation": [
       "opponent private hand before public reveal",
@@ -76,7 +78,10 @@
     "Jet Energy PAL 190 can promote Benched Wobbuffet; Temple of Sinnoh disables the Special Energy effect.",
     "Alolan Muk SUM 58 Power of Alchemy suppresses Basic Wobbuffet and blocks the Wobbuffet line.",
     "Rank-7 source deck contains no Vileplume. Nest Ball is an ordinary Item; no Vileplume Item-lock premise is used.",
-    "Palace Book SMP NAN25 is a no-prompt Item: draw three and end the turn; low priority only."
+    "Palace Book SMP NAN25 is a no-prompt Item: draw three and end the turn; low priority only.",
+    "Field Blower GRI 125 discards Pokémon Tools and/or Stadiums in play, not Special Energy; the policy avoids a special-energy-only false positive and can remove its own Temple of Sinnoh when Jet Energy is held.",
+    "Chaotic Swell CEC 187 may replace the existing Stadium regardless of which player owns the Stadium-zone card.",
+    "Bellelba & Brycen-Man CEC 186 always mills three cards from each deck; its optional Bench reduction is selected only when the opponent has more than three Benched Pokémon, the actor has at most three, and three other cards remain in hand."
   ],
   "runtime": {
     "policyModuleHasImports": false,
@@ -99,5 +104,8 @@
     "policyDelegation": "forbidden",
     "workerInitConfig": "empty object",
     "testSplit": "development fixtures; held-out review cases unexecuted"
-  }
+  },
+  "explicitAbstentions": [
+    "Faba non-Hood Tool, Special Energy and Stadium target families; the current policy only enters the supported Hooded non-Psychic Ability unlock line"
+  ]
 }

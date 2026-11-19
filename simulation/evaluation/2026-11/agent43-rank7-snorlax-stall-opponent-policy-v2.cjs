@@ -1,14 +1,14 @@
 'use strict';
 
 /*
- * Rank-7 Hiroto Fuji Snorlax Stall opponent policy, v1.
+ * Rank-7 Hiroto Fuji Snorlax Stall opponent policy, v2.1.
  * Deterministic actor-view-only prototype bound to the exact rank-7 source
  * entry and Hood Shield v1. It prioritizes the public Faba -> Jet Energy ->
  * Wobbuffet -> Item-unlock line, then bounded stall/resource actions.
  * Unknown or ambiguous prompts abstain. Native Store legality is authoritative.
  */
 
-const POLICY_VERSION = 'agent43-rank7-snorlax-stall-opponent-v2';
+const POLICY_VERSION = 'agent43-rank7-snorlax-stall-opponent-v2.1';
 const SOURCE_RANK = 7;
 const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
 const SOURCE_FINGERPRINT_SHA256 = 'a66fa49dbeaa886c5509ff5edff727577bba5e4c9f4bbe9800b152975f8b4734';
@@ -32,6 +32,7 @@ const P = Object.freeze({
   megatonBlower: /^Megaton Blower SSP 182\b/i,
   toolJammer: /^Tool Jammer BST 136\b/i,
   chaoticSwell: /^Chaotic Swell CEC 187\b/i,
+  temple: /^Temple of Sinnoh ASR 155\b/i,
   artazon: /^Artazon PAL 171\b/i,
   capture: /^Capture Energy RCL 171\b/i,
   recycle: /^Recycle Energy UNM 212\b/i,
@@ -133,7 +134,7 @@ function energyAvailable(view) {
 }
 
 function allStadiums(view) { return [...list(own(view).stadium), ...list(opp(view).stadium)]; }
-function hasTemple(view) { return allStadiums(view).some(card => /Temple of Sinnoh/i.test(textOf(card))); }
+function hasTemple(view) { return allStadiums(view).some(card => matches(card, P.temple)); }
 
 function hasAlolanMuk(view) {
   return [...slots(own(view)), ...slots(opp(view))].some(row =>
@@ -214,7 +215,7 @@ function source7JetWobbuffetReady(view) {
 }
 
 function source7NestReady(view) {
-  const missing = [P.snorlax, P.wobbuffet, P.mimikyu, P.regirock, P.girafarig]
+  const missing = [P.snorlax, P.wobbuffet, P.mimikyu, P.regirock, P.girafarig, P.electrike]
     .some(pattern => !boardHas(own(view), pattern));
   return itemAvailable(view) && benchSpace(view) && deckCount(view) > 0 &&
     hasHand(view, P.nest) && missing;
@@ -226,6 +227,12 @@ function opponentActiveHasTool(view) {
 
 function opponentHasTool(view) {
   return slots(opp(view)).some(row => list(row.pokemon.tools).length > 0);
+}
+
+function fieldBlowerHasTarget(view) {
+  const ownTemple = list(own(view).stadium).some(card => matches(card, P.temple));
+  return opponentHasTool(view) || list(opp(view).stadium).length > 0 ||
+    (ownTemple && hasHand(view, P.jet));
 }
 
 function opponentHasSpecialEnergy(view) {
@@ -370,7 +377,10 @@ function scoreCardChoice(choice, view, context) {
   }
 
   if (context === 'field-blower') {
+    if (zone === 'stadium' && matches(printing, P.temple) &&
+        list(own(view).stadium).some(card => matches(card, P.temple)) && hasHand(view, P.jet)) return 320;
     if (owner !== 'opponent' || !['attached', 'tool', 'tools', 'stadium'].includes(zone)) return 0;
+    if (matches(printing, P.temple)) return 300;
     if (matches(printing, P.hood)) return 300;
     if (matches(printing, P.floatStone)) return 270;
     if (matches(printing, P.forestSeal)) return 250;
@@ -524,10 +534,7 @@ function promptDecision(request) {
         /tool/i.test(textOf(choice)) ? 100 : 0, 'FABA_TOOL_OPTION_UNAVAILABLE');
     }
     if (source.includes('bellelba')) {
-      const oppBench = list(opp(view).bench).filter(Boolean).length;
-      const ownBench = list(own(view).bench).filter(Boolean).length;
-      const useful = oppBench > 3 && ownBench <= 3 ||
-        deckCount(view) >= opponentDeckCount(view) + 3;
+      const useful = bellelbaBenchEffectUseful(view);
       const yes = choices.find(choice => /^(yes|true|confirm)$/i.test(choice.label ?? ''));
       const no = choices.find(choice => /^(no|false|decline|cancel)$/i.test(choice.label ?? ''));
       if (useful && yes) return { kind: 'select-choice', token: yes.token };
@@ -582,13 +589,8 @@ function promptDecision(request) {
       else if (source.includes('target whistle')) context = 'target-whistle';
       else if (source.includes('rescue stretcher')) context = 'rescue-stretcher';
       if (!context) return { kind: 'abstain', reasonCode: 'UNSUPPORTED_MULTI_SELECT_SOURCE' };
-      if (context === 'bellelba-cost') {
-        const oppBench = list(opp(view).bench).filter(Boolean).length;
-        const ownBench = list(own(view).bench).filter(Boolean).length;
-        if (!(oppBench > 3 && ownBench <= 3 ||
-            deckCount(view) >= opponentDeckCount(view) + 3)) {
-          return { kind: 'abstain', reasonCode: 'BELLELBA_BENCH_OR_DECK_TRADE_UNFAVORABLE' };
-        }
+      if (context === 'bellelba-cost' && !bellelbaBenchEffectUseful(view)) {
+        return { kind: 'abstain', reasonCode: 'BELLELBA_BENCH_EFFECT_UNFAVORABLE' };
       }
       return selectMany(prompt, choices,
         choice => scoreCardChoice(choice, view, context), bounds.min, bounds.max,
@@ -644,7 +646,7 @@ function scoreAction(item, request) {
     const stadium = card || meta.stadiumPrinting || '';
     if (matches(stadium, P.artazon)) return benchSpace(view) && deckCount(view) > 0 &&
       !allStadiums(view).some(value => matches(value, P.artazon)) ? 165 : 0;
-    if (matches(stadium, P.chaoticSwell)) return opponent.stadium.length > 0 &&
+    if (matches(stadium, P.chaoticSwell)) return allStadiums(view).length > 0 &&
       !allStadiums(view).some(value => matches(value, P.chaoticSwell)) ? 175 : 0;
     return 0;
   }
@@ -655,9 +657,7 @@ function scoreAction(item, request) {
     .some(pattern => matches(card, pattern))) return scoreBasicPlay(card, view);
 
   if (matches(card, P.faba)) {
-    if (source7FabaJetNestReady(view)) return 360;
-    if (supporterAvailable(view) && opponentHasRemovalTarget(view)) return 175;
-    return 0;
+    return source7FabaJetNestReady(view) ? 360 : 0;
   }
   if (matches(card, P.jet)) {
     if (matches(target, P.wobbuffet) && source7JetWobbuffetReady(view)) return 350;
@@ -669,7 +669,7 @@ function scoreAction(item, request) {
   }
   if (matches(card, P.nest)) {
     if (source7NestReady(view)) return 290;
-    const missing = [P.snorlax, P.wobbuffet, P.mimikyu, P.regirock, P.girafarig]
+    const missing = [P.snorlax, P.wobbuffet, P.mimikyu, P.regirock, P.girafarig, P.electrike]
       .some(pattern => !boardHas(player, pattern));
     return itemAvailable(view) && benchSpace(view) && deckCount(view) > 0 &&
       missing ? 155 : 0;
@@ -678,7 +678,7 @@ function scoreAction(item, request) {
     return itemAvailable(view) && handSize <= 2 && deckCount(view) >= 4 ? 1 : 0;
   }
   if (matches(card, P.megatonBlower)) return itemAvailable(view) && opponentHasRemovalTarget(view) ? 260 : 0;
-  if (matches(card, P.fieldBlower)) return itemAvailable(view) && opponentHasRemovalTarget(view) ? 215 : 0;
+  if (matches(card, P.fieldBlower)) return itemAvailable(view) && fieldBlowerHasTarget(view) ? 215 : 0;
   if (matches(card, P.toolJammer)) {
     if (!itemAvailable(view)) return 0;
     const targetSlot = slots(player).find(row => row.pokemon.printing === target);
@@ -703,7 +703,7 @@ function scoreAction(item, request) {
 
   if (matches(card, P.artazon)) return !allStadiums(view).some(value => matches(value, P.artazon)) &&
     benchSpace(view) && deckCount(view) > 0 ? 165 : 0;
-  if (matches(card, P.chaoticSwell)) return opponent.stadium.length > 0 &&
+  if (matches(card, P.chaoticSwell)) return allStadiums(view).length > 0 &&
     !allStadiums(view).some(value => matches(value, P.chaoticSwell)) ? 175 : 0;
   if (matches(card, P.capture)) return energyAvailable(view) && benchSpace(view) && deckCount(view) > 0 ? 150 : 45;
   if (matches(card, P.recycle)) return energyAvailable(view) ? 70 : 0;
@@ -733,6 +733,12 @@ function scoreAction(item, request) {
 }
 
 function handSizeOf(view) { return hand(view).length; }
+
+function bellelbaBenchEffectUseful(view) {
+  const opponentBench = list(opp(view).bench).filter(Boolean).length;
+  const ownBench = list(own(view).bench).filter(Boolean).length;
+  return opponentBench > 3 && ownBench <= 3 && handSize(view) >= 3;
+}
 
 function bestAction(request) {
   const items = list(request.actionFrontier?.items).filter(item => EXECUTABLE.has(item.kind));
