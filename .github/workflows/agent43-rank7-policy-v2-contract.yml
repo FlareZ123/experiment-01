@@ -1,0 +1,21 @@
+name: Agent43 rank-7 opponent policy v2 contract
+
+on:
+  push:
+    paths:
+      - 'simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.cjs'
+      - 'tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs'
+      - '.github/workflows/agent43-rank7-policy-v2-contract.yml'
+  workflow_dispatch:
+
+jobs:
+  policy-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate rank-7 Wobbuffet matchup policy and actor-only decisions
+        run: node --test tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs
