@@ -185,7 +185,9 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "applicability": "no game action is executed; protocol validation, abstention, or lock-preservation negative control"
@@ -203,11 +205,39 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Protocol/policy negative control passed locally, but this is not a native game or strategic-strength result.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Protocol/policy negative control passed locally, but this is not a native game or strategic-strength result."
     },
     {
       "caseId": "r3-dev-02-tool-jammer-is-attached-to-snorlax-rather-than-spent-on-an-u",
@@ -290,7 +320,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "hand": [
@@ -345,11 +379,48 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "jam-snorlax"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Tool Jammer BST 136",
+          "Snorlax PGO 55",
+          "Bunnelby PRC 121"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-03-bunnelby-burrow-is-preferred-when-the-opponent-deck-is-near-",
@@ -432,7 +503,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "energyAlreadyAttached": "1 Colorless",
@@ -484,11 +559,48 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "burrow"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Bunnelby PRC 121",
+          "Snorlax PGO 55",
+          "Shadow Rider Calyrex VMAX CRE 75"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-04-cold-crush-gx-is-reserved-unless-the-opponent-active-has-sub",
@@ -571,7 +683,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "energyAlreadyAttached": "1 Water on Articuno-GX",
@@ -624,11 +740,49 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "cold-crush"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Articuno-GX CES 31",
+          "Bunnelby PRC 121",
+          "Snorlax PGO 55",
+          "Shadow Rider Calyrex VMAX CRE 75"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-05-faba-removes-a-visible-opponent-stealthy-hood-before-lower-v",
@@ -711,7 +865,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choice"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "supporterForTurn": true,
@@ -760,11 +918,46 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choice",
+            "token": "hood"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Faba LOT 173"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-06-arven-selects-one-item-and-one-tool-from-the-exact-rank-3-de",
@@ -850,7 +1043,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choices"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "supporterForTurn": true,
@@ -900,11 +1097,49 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "nest",
+              "jammer"
+            ]
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Arven OBF 186"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-07-plumeria-pays-its-two-card-cost-with-low-value-cards-while-p",
@@ -990,7 +1225,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choices"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "supporterForTurn": true,
@@ -1040,11 +1279,49 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "nest",
+              "water"
+            ]
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Plumeria BUS 120"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-08-eri-can-discard-field-blower-and-dual-subtype-forest-seal-st",
@@ -1133,7 +1410,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choices"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "supporterForTurn": true,
@@ -1187,11 +1468,49 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "field-blower",
+              "seal"
+            ]
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Eri TEF 146"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-09-rank-3-get-lost-prompt-prioritizes-opponent-recovery-cards-i",
@@ -1280,7 +1599,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choices"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "energyAlreadyAttached": "1 Colorless on Girafarig",
@@ -1334,11 +1657,49 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "seeker",
+              "stretcher"
+            ]
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Girafarig LOT 94"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-10-guzma-first-chooses-an-opponent-bench-target-and-then-promot",
@@ -1484,7 +1845,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choice"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "supporterForTurn": true,
@@ -1562,11 +1927,55 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choice",
+            "token": "rider"
+          },
+          {
+            "kind": "select-choice",
+            "token": "snorlax"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Guzma BUS 115",
+          "Crobat V DAA 104",
+          "Shadow Rider Calyrex VMAX CRE 75",
+          "Bunnelby PRC 121",
+          "Snorlax PGO 55",
+          "Rotom V LOR 58"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-11-player-s-ceremony-remains-explicitly-blocked-until-its-resea",
@@ -1649,7 +2058,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "abstain"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "applicability": "no card played; policy abstains until the printing is represented by a research-owned hook"
@@ -1697,11 +2110,46 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "abstain",
+            "reasonCode": "PLAYERS_CEREMONY_ENGINE_HOOK_BLOCKED"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Player's Ceremony SP 127 is absent from the bundled English card snapshot and has no research-owned hook; policy deliberately abstains. This is not a legality ruling.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Player's Ceremony SP 127"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Player's Ceremony SP 127 is absent from the bundled English card snapshot and has no research-owned hook; policy deliberately abstains. This is not a legality ruling."
     },
     {
       "caseId": "r3-dev-12-unsupported-native-prompt-families-fail-closed-rather-than-s",
@@ -1784,7 +2232,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "abstain"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "applicability": "no game action is executed; protocol validation, abstention, or lock-preservation negative control"
@@ -1832,11 +2284,44 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "abstain",
+            "reasonCode": "UNSUPPORTED_PROMPT_TYPE"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Protocol/policy negative control passed locally, but this is not a native game or strategic-strength result.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Protocol/policy negative control passed locally, but this is not a native game or strategic-strength result."
     },
     {
       "caseId": "r3-dev-13-the-same-source-bound-policy-behaves-identically-at-physical",
@@ -1912,7 +2397,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "hand": [
@@ -1960,11 +2449,47 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "jammer"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Tool Jammer BST 136",
+          "Snorlax PGO 55"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-14-a-repeated-identical-actor-request-produces-the-same-determi",
@@ -2090,7 +2615,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "replayCount": 2,
@@ -2157,11 +2686,50 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "burrow"
+          },
+          {
+            "kind": "select-action",
+            "token": "burrow"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Bunnelby PRC 121"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-15-no-supported-positive-action-falls-back-only-to-a-real-pass-",
@@ -2230,7 +2798,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "applicability": "no game action is executed; protocol validation, abstention, or lock-preservation negative control"
@@ -2265,11 +2837,44 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "pass"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Protocol/policy negative control passed locally, but this is not a native game or strategic-strength result.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Protocol/policy negative control passed locally, but this is not a native game or strategic-strength result."
     },
     {
       "caseId": "r3-dev-16-the-real-worker-request-validator-rejects-a-forbidden-seed-f",
@@ -2328,7 +2933,9 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "applicability": "no game action is executed; protocol validation, abstention, or lock-preservation negative control"
@@ -2361,11 +2968,39 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Protocol/policy negative control passed locally, but this is not a native game or strategic-strength result.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Protocol/policy negative control passed locally, but this is not a native game or strategic-strength result."
     },
     {
       "caseId": "r3-dev-17-the-real-worker-decision-validator-rejects-an-unknown-action",
@@ -2434,7 +3069,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "applicability": "no game action is executed; protocol validation, abstention, or lock-preservation negative control"
@@ -2469,11 +3108,44 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "not-in-frontier"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Protocol/policy negative control passed locally, but this is not a native game or strategic-strength result.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Protocol/policy negative control passed locally, but this is not a native game or strategic-strength result."
     },
     {
       "caseId": "r3-dev-18-team-flare-grunt-chooses-only-the-opponent-active-for-its-ac",
@@ -2559,7 +3231,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choice"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "supporterForTurn": true,
@@ -2610,11 +3286,48 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choice",
+            "token": "active"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Team Flare Grunt XY 129",
+          "Shadow Rider Calyrex V CRE 74",
+          "Shadow Rider Calyrex VMAX CRE 75"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-19-regirock-land-maker-recovers-the-two-useful-stadiums-and-exc",
@@ -2703,7 +3416,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choices"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "energyAlreadyAttached": "1 Colorless on Regirock",
@@ -2757,11 +3474,49 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "beach",
+              "temple"
+            ]
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Player's Ceremony SP 127 is absent from the bundled English card snapshot and has no research-owned hook; policy deliberately abstains. This is not a legality ruling.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Regirock XYP 49"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Player's Ceremony SP 127 is absent from the bundled English card snapshot and has no research-owned hook; policy deliberately abstains. This is not a legality ruling."
     },
     {
       "caseId": "r3-dev-20-quick-ball-discards-expendable-cards-before-the-unique-tool-",
@@ -2846,7 +3601,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choices"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "itemPlayed": true,
@@ -2897,11 +3656,48 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "nest"
+            ]
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Quick Ball FST 237"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-21-tropical-beach-is-used-as-a-turn-ending-draw-only-with-a-mea",
@@ -2977,7 +3773,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "stadiumUsed": true,
@@ -3021,11 +3821,46 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "beach-use"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Snorlax PGO 55"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-22-lusamine-retrieves-faba-and-team-rocket-s-handiwork-before-a",
@@ -3111,7 +3946,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choices"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "supporterForTurn": true,
@@ -3160,11 +3999,49 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "faba",
+              "handiwork"
+            ]
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Lusamine CIN 96"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-23-counter-catcher-targets-the-opponent-bench-pok-mon-with-the-",
@@ -3250,7 +4127,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choice"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "itemPlayed": true,
@@ -3300,11 +4181,48 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choice",
+            "token": "rider"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Counter Catcher PAR 160",
+          "Crobat V DAA 104",
+          "Shadow Rider Calyrex VMAX CRE 75"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-24-night-stretcher-recovers-a-missing-core-pok-mon-over-a-basic",
@@ -3387,7 +4305,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choice"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "itemPlayed": true,
@@ -3436,11 +4358,46 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choice",
+            "token": "bunnelby"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Night Stretcher ASC 196"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-25-enhanced-hammer-selects-a-special-energy-rather-than-a-basic",
@@ -3523,7 +4480,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choice"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "itemPlayed": true,
@@ -3573,11 +4534,46 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choice",
+            "token": "special"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Enhanced Hammer TWM 148"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-26-eri-is-considered-from-public-hand-count-without-reading-the",
@@ -3653,7 +4649,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "supporterForTurn": true,
@@ -3698,11 +4698,47 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "eri"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Eri TEF 146",
+          "Snorlax PGO 55"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-27-eri-prioritizes-field-blower-and-unfair-stamp-among-the-exac",
@@ -3791,7 +4827,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choices"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "supporterForTurn": true,
@@ -3845,11 +4885,49 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "field",
+              "stamp"
+            ]
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Eri TEF 146"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-28-water-energy-is-allocated-to-articuno-when-it-enables-the-co",
@@ -3935,7 +5013,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "energyAlreadyAttached": "1 Water on Articuno-GX",
@@ -3988,11 +5070,50 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "water-articuno"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Water Energy MEE 11",
+          "Articuno-GX CES 31",
+          "Bunnelby PRC 121",
+          "Snorlax PGO 55",
+          "Shadow Rider Calyrex VMAX CRE 75"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-29-capture-energy-is-attached-to-bunnelby-to-enable-burrow-and-",
@@ -4077,7 +5198,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "manualEnergyAttachmentForTurn": true,
@@ -4130,11 +5255,48 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "capture-bunnelby"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Capture Energy RCL 171",
+          "Bunnelby PRC 121",
+          "Snorlax PGO 55"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-30-arven-uses-dual-subtype-forest-seal-stone-as-its-item-and-a-",
@@ -4222,7 +5384,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choices"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "supporterForTurn": true,
@@ -4272,11 +5438,51 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "seal",
+              "jammer"
+            ]
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Arven OBF 186",
+          "Snorlax PGO 55",
+          "Rotom V LOR 58"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-31-forest-seal-stone-star-alchemy-searches-for-tool-jammer-when",
@@ -4359,7 +5565,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choice"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "vstarPowerOncePerGame": true,
@@ -4409,11 +5619,46 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choice",
+            "token": "jammer"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Forest Seal Stone SIT 156"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-32-guzma-does-not-abandon-an-established-snorlax-active-lock-wi",
@@ -4491,7 +5736,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "applicability": "no game action is executed; protocol validation, abstention, or lock-preservation negative control"
@@ -4533,11 +5782,49 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "pass"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Protocol/policy negative control passed locally, but this is not a native game or strategic-strength result.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Guzma BUS 115",
+          "Snorlax PGO 55",
+          "Bunnelby PRC 121",
+          "Shadow Rider Calyrex VMAX CRE 75"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Protocol/policy negative control passed locally, but this is not a native game or strategic-strength result."
     },
     {
       "caseId": "r3-dev-33-forest-seal-stone-is-attached-to-rotom-v-to-enable-star-alch",
@@ -4622,7 +5909,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "toolAttached": "Forest Seal Stone SIT 156",
@@ -4673,11 +5964,48 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "seal-rotom"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Forest Seal Stone SIT 156",
+          "Rotom V LOR 58",
+          "Snorlax PGO 55"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-34-star-alchemy-cannot-be-invoked-from-an-unrelated-pok-mon-sou",
@@ -4753,7 +6081,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "applicability": "no game action is executed; protocol validation, abstention, or lock-preservation negative control"
@@ -4795,11 +6127,46 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "pass"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Protocol/policy negative control passed locally, but this is not a native game or strategic-strength result.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Snorlax PGO 55"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Protocol/policy negative control passed locally, but this is not a native game or strategic-strength result."
     },
     {
       "caseId": "r3-dev-35-an-energy-attachment-to-a-pok-mon-absent-from-the-actor-visi",
@@ -4875,7 +6242,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "applicability": "no game action is executed; protocol validation, abstention, or lock-preservation negative control"
@@ -4917,11 +6288,48 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "pass"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Protocol/policy negative control passed locally, but this is not a native game or strategic-strength result.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Water Energy MEE 11",
+          "Bunnelby PRC 121",
+          "Snorlax PGO 55"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Protocol/policy negative control passed locally, but this is not a native game or strategic-strength result."
     },
     {
       "caseId": "r3-dev-36-the-real-worker-decision-validator-rejects-an-unknown-prompt",
@@ -5004,7 +6412,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choice"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "applicability": "no game action is executed; protocol validation, abstention, or lock-preservation negative control"
@@ -5052,11 +6464,46 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choice",
+            "token": "not-in-prompt"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Protocol/policy negative control passed locally, but this is not a native game or strategic-strength result.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Faba LOT 173"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Protocol/policy negative control passed locally, but this is not a native game or strategic-strength result."
     },
     {
       "caseId": "r3-dev-37-rotom-v-instant-charge-is-used-for-its-three-card-refill-whe",
@@ -5134,7 +6581,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "abilityUse": "Instant Charge",
@@ -5179,11 +6630,47 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "instant-charge"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Rotom V LOR 58",
+          "Snorlax PGO 55"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-38-forest-seal-stone-star-alchemy-is-activated-only-from-its-ow",
@@ -5261,7 +6748,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "vstarPowerUsed": true,
@@ -5308,11 +6799,48 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "star-alchemy"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Forest Seal Stone SIT 156",
+          "Snorlax PGO 55",
+          "Rotom V LOR 58"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-39-mimikyu-is-prioritized-as-a-defensive-basic-against-the-cand",
@@ -5388,7 +6916,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "basicPokemonPlayed": "Mimikyu PAL 97",
@@ -5432,11 +6964,48 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "mimikyu"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Mimikyu PAL 97",
+          "Snorlax PGO 55",
+          "Shadow Rider Calyrex VMAX CRE 75"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-40-teammates-searches-for-tool-jammer-and-faba-when-snorlax-is-",
@@ -5522,7 +7091,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choices"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "supporterForTurn": true,
@@ -5573,11 +7146,50 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "jammer",
+              "faba"
+            ]
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Teammates PRC 141",
+          "Snorlax PGO 55"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-41-vs-seeker-recovers-faba-ahead-of-lower-impact-supporters",
@@ -5660,7 +7272,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choice"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "itemPlayed": true,
@@ -5709,11 +7325,46 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choice",
+            "token": "faba"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "VS Seeker PHF 109"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-42-trainers-mail-searches-for-faba-ahead-of-lower-priority-item",
@@ -5796,7 +7447,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choice"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "itemPlayed": true,
@@ -5847,11 +7502,46 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choice",
+            "token": "faba"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Trainers' Mail ROS 92"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-43-penny-picks-up-the-most-damaged-legal-basic-pok-mon-without-",
@@ -5938,7 +7628,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choice"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "supporterForTurn": true,
@@ -5989,11 +7683,49 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choice",
+            "token": "bunnelby"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Penny SVI 183",
+          "Snorlax PGO 55",
+          "Bunnelby PRC 121",
+          "Rotom V LOR 58"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-44-scoop-up-cyclone-chooses-a-damaged-benched-pok-mon-and-prese",
@@ -6080,7 +7812,11 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choice"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "aceSpecItemPlayed": true,
@@ -6132,11 +7868,49 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choice",
+            "token": "rotom"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Scoop Up Cyclone TWM 162",
+          "Snorlax PGO 55",
+          "Bunnelby PRC 121",
+          "Rotom V LOR 58"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
       "caseId": "r3-dev-45-legendary-ascent-selects-every-actor-owned-water-energy-up-t",
@@ -6221,7 +7995,11 @@
           "select an energy not owned by actor",
           "select Capture Energy for Legendary Ascent",
           "select a token absent from prompt"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choices"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "abilityUse": "Legendary Ascent",
@@ -6274,11 +8052,49 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "water-bunnelby",
+              "water-girafarig"
+            ]
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic prompt fixture only; no native Twinleaf Store receipt or completed game.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Articuno-GX CES 31"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic prompt fixture only; no native Twinleaf Store receipt or completed game."
     },
     {
       "caseId": "r3-dev-46-gladion-selects-a-high-value-pok-mon-only-when-its-prize-ide",
@@ -6359,7 +8175,11 @@
           "select an energy not owned by actor",
           "select Capture Energy for Legendary Ascent",
           "select a token absent from prompt"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-choice"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "supporterForTurn": true,
@@ -6411,11 +8231,46 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-choice",
+            "token": "snorlax"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic prompt fixture only; no native Twinleaf Store receipt or completed game.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Gladion BUS 127"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic prompt fixture only; no native Twinleaf Store receipt or completed game."
     },
     {
       "caseId": "r3-dev-47-hisuian-heavy-ball-abstains-when-prize-identities-are-concea",
@@ -6496,7 +8351,11 @@
           "select an energy not owned by actor",
           "select Capture Energy for Legendary Ascent",
           "select a token absent from prompt"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "abstain"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "itemPlayed": true,
@@ -6548,11 +8407,46 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "abstain",
+            "reasonCode": "PRIZE_IDENTITY_UNAVAILABLE"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic prompt fixture only; no native Twinleaf Store receipt or completed game.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Hisuian Heavy Ball ASR 146"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic prompt fixture only; no native Twinleaf Store receipt or completed game."
     },
     {
       "caseId": "r3-dev-48-mimikyu-pokemon-ex-negative-control",
@@ -6624,7 +8518,11 @@
         "forbiddenOutcomes": [
           "prioritize Safeguard against Pokémon ex",
           "select action token absent from frontier"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "select-action"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "applicability": "no Mimikyu play; preserve the card and pass because Pokémon ex is outside Safeguard protection"
@@ -6666,11 +8564,47 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "select-action",
+            "token": "pass"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic negative control only; native Safeguard effect not exercised.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Mimikyu PAL 97",
+          "Snorlax PGO 55"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic negative control only; native Safeguard effect not exercised."
     },
     {
       "caseId": "r3-dev-49-no-pass-token-abstention",
@@ -6735,7 +8669,11 @@
         "forbiddenOutcomes": [
           "invent a pass token",
           "select unsupported card action"
-        ]
+        ],
+        "acceptableOutcomeFamilies": [
+          "abstain"
+        ],
+        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
       },
       "costLedger": {
         "applicability": "no card or turn resource consumed; abstain because no supported action and no real pass token"
@@ -6770,11 +8708,47 @@
         "workerIpcHandshake": false,
         "nodeTestRunnerExecuted": false,
         "timeoutMeasured": false,
-        "processSandboxVerified": false
+        "processSandboxVerified": false,
+        "actualChosenActions": [
+          {
+            "kind": "abstain",
+            "reasonCode": "NO_SUPPORTED_ACTION"
+          }
+        ],
+        "nativeAcceptance": null,
+        "nativeEffectReceipt": null,
+        "traceDigest": null,
+        "budget": {
+          "wallTimeMs": null,
+          "cpuTimeMs": null,
+          "timeoutLimitMs": null,
+          "computeBudget": null,
+          "measured": false
+        },
+        "timeoutStatus": "not-tested",
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
       "blockReason": "Synthetic fail-closed negative control only; no native game.",
-      "reviewerStatus": "unreviewed"
+      "reviewerStatus": "unreviewed",
+      "sourceBinding": {
+        "role": "opponent-policy",
+        "sourceRank": 3,
+        "sourceDeckPath": "results/aichi-2026/full-decklists.json",
+        "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+        "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+        "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+        "cardPrintReferences": [
+          "Unknown Item XYZ 1",
+          "Snorlax PGO 55"
+        ],
+        "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+        "researchHookRevision": "none",
+        "sourceTraceRef": null,
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "evidenceClass": "synthetic"
+      },
+      "reviewerExplanation": "Synthetic fail-closed negative control only; no native game."
     }
   ],
   "negativeControls": [
@@ -6946,6 +8920,208 @@
     ]
   },
   "caseRecordCount": 49,
-  "suiteSha256": "0aed10381dae2d04ec7b051d4a2b7c1c533d566188a55c23200ec44825258bfc",
-  "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8."
+  "suiteSha256": "94b414818a12905fecadcdec8b4dd183c480c6b207645ec688ce6a099a6dc55c",
+  "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
+  "suiteHeader": {
+    "schemaVersion": "v3-policy-challenge-suite-content-v1",
+    "role": "opponent-policy",
+    "sourceRank": 3,
+    "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
+    "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+    "policySha256": "2264140ca2793e3eb1ec9589a1423b3b5d50f3f309ad3657c1dcab5312911188",
+    "dependencyManifestSha256": "7c47d07659455677b565a801972b4f841f3131480443a46252ee14a81582b0b0",
+    "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
+    "engine": {
+      "submodulePath": "vendor/twinleafgg",
+      "remote": "https://github.com/twinleafgg/twinleafgg.git",
+      "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+      "researchHookRevision": "none"
+    },
+    "candidatePolicyProducerId": null,
+    "opponentPolicyProducerIdByRank": {
+      "3": null
+    },
+    "declaredOpponentPolicyProducerIdByRank": {
+      "3": "agent17"
+    },
+    "bundleProducerId": null,
+    "declaredProducerIdSet": [
+      "agent17"
+    ],
+    "signedProducerIdSet": [],
+    "producerBindingStatus": "unbound; must be inserted into signed V3 policy-plan core by its owner",
+    "suiteAuthor": "agent17",
+    "suiteProducerId": "agent17",
+    "createdAt": "2026-11-19T13:53:39Z",
+    "frozenAt": null,
+    "frozen": false,
+    "evidenceReferences": [
+      "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
+      "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+      "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json",
+      "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
+      "results/aichi-2026/full-decklists.json",
+      "results/aichi-2026/candidate-hood-shadow-rider.json"
+    ],
+    "developmentSplit": "developmentCases",
+    "heldOutSplit": "heldOutReviewCases"
+  },
+  "coverageMatrix": {
+    "corePlan": {
+      "caseIds": [
+        "r3-dev-03-bunnelby-burrow-is-preferred-when-the-opponent-deck-is-near-",
+        "r3-dev-04-cold-crush-gx-is-reserved-unless-the-opponent-active-has-sub",
+        "r3-dev-09-rank-3-get-lost-prompt-prioritizes-opponent-recovery-cards-i",
+        "r3-dev-19-regirock-land-maker-recovers-the-two-useful-stadiums-and-exc",
+        "r3-dev-28-water-energy-is-allocated-to-articuno-when-it-enables-the-co",
+        "r3-dev-29-capture-energy-is-attached-to-bunnelby-to-enable-burrow-and-",
+        "r3-dev-31-forest-seal-stone-star-alchemy-searches-for-tool-jammer-when",
+        "r3-dev-33-forest-seal-stone-is-attached-to-rotom-v-to-enable-star-alch",
+        "r3-dev-34-star-alchemy-cannot-be-invoked-from-an-unrelated-pok-mon-sou",
+        "r3-dev-37-rotom-v-instant-charge-is-used-for-its-three-card-refill-whe",
+        "r3-dev-38-forest-seal-stone-star-alchemy-is-activated-only-from-its-ow",
+        "r3-dev-45-legendary-ascent-selects-every-actor-owned-water-energy-up-t"
+      ],
+      "evidenceClass": "synthetic-only",
+      "sourceNatural": 0,
+      "nativeStaged": 0,
+      "status": "blocked"
+    },
+    "resourceDiscardPrize": {
+      "caseIds": [
+        "r3-dev-04-cold-crush-gx-is-reserved-unless-the-opponent-active-has-sub",
+        "r3-dev-06-arven-selects-one-item-and-one-tool-from-the-exact-rank-3-de",
+        "r3-dev-07-plumeria-pays-its-two-card-cost-with-low-value-cards-while-p",
+        "r3-dev-08-eri-can-discard-field-blower-and-dual-subtype-forest-seal-st",
+        "r3-dev-18-team-flare-grunt-chooses-only-the-opponent-active-for-its-ac",
+        "r3-dev-20-quick-ball-discards-expendable-cards-before-the-unique-tool-",
+        "r3-dev-22-lusamine-retrieves-faba-and-team-rocket-s-handiwork-before-a",
+        "r3-dev-23-counter-catcher-targets-the-opponent-bench-pok-mon-with-the-",
+        "r3-dev-24-night-stretcher-recovers-a-missing-core-pok-mon-over-a-basic",
+        "r3-dev-25-enhanced-hammer-selects-a-special-energy-rather-than-a-basic",
+        "r3-dev-26-eri-is-considered-from-public-hand-count-without-reading-the",
+        "r3-dev-27-eri-prioritizes-field-blower-and-unfair-stamp-among-the-exac",
+        "r3-dev-28-water-energy-is-allocated-to-articuno-when-it-enables-the-co",
+        "r3-dev-29-capture-energy-is-attached-to-bunnelby-to-enable-burrow-and-",
+        "r3-dev-30-arven-uses-dual-subtype-forest-seal-stone-as-its-item-and-a-",
+        "r3-dev-35-an-energy-attachment-to-a-pok-mon-absent-from-the-actor-visi",
+        "r3-dev-41-vs-seeker-recovers-faba-ahead-of-lower-impact-supporters",
+        "r3-dev-42-trainers-mail-searches-for-faba-ahead-of-lower-priority-item",
+        "r3-dev-43-penny-picks-up-the-most-damaged-legal-basic-pok-mon-without-",
+        "r3-dev-44-scoop-up-cyclone-chooses-a-damaged-benched-pok-mon-and-prese",
+        "r3-dev-45-legendary-ascent-selects-every-actor-owned-water-energy-up-t",
+        "r3-dev-46-gladion-selects-a-high-value-pok-mon-only-when-its-prize-ide",
+        "r3-dev-47-hisuian-heavy-ball-abstains-when-prize-identities-are-concea"
+      ],
+      "evidenceClass": "synthetic-only",
+      "sourceNatural": 0,
+      "nativeStaged": 0,
+      "status": "blocked"
+    },
+    "opponentThreatsCounterplay": {
+      "caseIds": [
+        "r3-dev-02-tool-jammer-is-attached-to-snorlax-rather-than-spent-on-an-u",
+        "r3-dev-05-faba-removes-a-visible-opponent-stealthy-hood-before-lower-v",
+        "r3-dev-10-guzma-first-chooses-an-opponent-bench-target-and-then-promot",
+        "r3-dev-18-team-flare-grunt-chooses-only-the-opponent-active-for-its-ac",
+        "r3-dev-20-quick-ball-discards-expendable-cards-before-the-unique-tool-",
+        "r3-dev-22-lusamine-retrieves-faba-and-team-rocket-s-handiwork-before-a",
+        "r3-dev-23-counter-catcher-targets-the-opponent-bench-pok-mon-with-the-",
+        "r3-dev-25-enhanced-hammer-selects-a-special-energy-rather-than-a-basic",
+        "r3-dev-30-arven-uses-dual-subtype-forest-seal-stone-as-its-item-and-a-",
+        "r3-dev-31-forest-seal-stone-star-alchemy-searches-for-tool-jammer-when",
+        "r3-dev-32-guzma-does-not-abandon-an-established-snorlax-active-lock-wi",
+        "r3-dev-39-mimikyu-is-prioritized-as-a-defensive-basic-against-the-cand",
+        "r3-dev-40-teammates-searches-for-tool-jammer-and-faba-when-snorlax-is-",
+        "r3-dev-41-vs-seeker-recovers-faba-ahead-of-lower-impact-supporters",
+        "r3-dev-42-trainers-mail-searches-for-faba-ahead-of-lower-priority-item",
+        "r3-dev-48-mimikyu-pokemon-ex-negative-control"
+      ],
+      "evidenceClass": "synthetic-only",
+      "sourceNatural": 0,
+      "nativeStaged": 0,
+      "status": "blocked"
+    },
+    "locksAndBoardConstraints": {
+      "caseIds": [
+        "r3-dev-02-tool-jammer-is-attached-to-snorlax-rather-than-spent-on-an-u",
+        "r3-dev-10-guzma-first-chooses-an-opponent-bench-target-and-then-promot",
+        "r3-dev-20-quick-ball-discards-expendable-cards-before-the-unique-tool-",
+        "r3-dev-30-arven-uses-dual-subtype-forest-seal-stone-as-its-item-and-a-",
+        "r3-dev-31-forest-seal-stone-star-alchemy-searches-for-tool-jammer-when",
+        "r3-dev-32-guzma-does-not-abandon-an-established-snorlax-active-lock-wi",
+        "r3-dev-39-mimikyu-is-prioritized-as-a-defensive-basic-against-the-cand",
+        "r3-dev-40-teammates-searches-for-tool-jammer-and-faba-when-snorlax-is-",
+        "r3-dev-43-penny-picks-up-the-most-damaged-legal-basic-pok-mon-without-",
+        "r3-dev-44-scoop-up-cyclone-chooses-a-damaged-benched-pok-mon-and-prese",
+        "r3-dev-48-mimikyu-pokemon-ex-negative-control"
+      ],
+      "evidenceClass": "synthetic-only",
+      "sourceNatural": 0,
+      "nativeStaged": 0,
+      "status": "blocked"
+    },
+    "tacticalConversion": {
+      "caseIds": [
+        "r3-dev-03-bunnelby-burrow-is-preferred-when-the-opponent-deck-is-near-",
+        "r3-dev-04-cold-crush-gx-is-reserved-unless-the-opponent-active-has-sub",
+        "r3-dev-09-rank-3-get-lost-prompt-prioritizes-opponent-recovery-cards-i",
+        "r3-dev-10-guzma-first-chooses-an-opponent-bench-target-and-then-promot",
+        "r3-dev-19-regirock-land-maker-recovers-the-two-useful-stadiums-and-exc",
+        "r3-dev-23-counter-catcher-targets-the-opponent-bench-pok-mon-with-the-",
+        "r3-dev-28-water-energy-is-allocated-to-articuno-when-it-enables-the-co",
+        "r3-dev-29-capture-energy-is-attached-to-bunnelby-to-enable-burrow-and-",
+        "r3-dev-32-guzma-does-not-abandon-an-established-snorlax-active-lock-wi",
+        "r3-dev-39-mimikyu-is-prioritized-as-a-defensive-basic-against-the-cand",
+        "r3-dev-48-mimikyu-pokemon-ex-negative-control"
+      ],
+      "evidenceClass": "synthetic-only",
+      "sourceNatural": 0,
+      "nativeStaged": 0,
+      "status": "blocked"
+    },
+    "nativePromptCompletion": {
+      "promptFamilies": [
+        "root-action-frontier",
+        "ChooseCardsPrompt",
+        "ChoosePokemonPrompt",
+        "UnknownNativePrompt",
+        "ChooseEnergyPrompt",
+        "ChoosePrizePrompt"
+      ],
+      "evidenceClass": "synthetic-only",
+      "physicalSeatsTested": [
+        0,
+        1
+      ],
+      "nativeReceipts": 0,
+      "status": "blocked"
+    },
+    "negativeControls": {
+      "caseIds": [
+        "r3-dev-01-policy-initialization-is-bound-to-the-opponent-role-rank-3-a",
+        "r3-dev-12-unsupported-native-prompt-families-fail-closed-rather-than-s",
+        "r3-dev-15-no-supported-positive-action-falls-back-only-to-a-real-pass-",
+        "r3-dev-16-the-real-worker-request-validator-rejects-a-forbidden-seed-f",
+        "r3-dev-17-the-real-worker-decision-validator-rejects-an-unknown-action",
+        "r3-dev-32-guzma-does-not-abandon-an-established-snorlax-active-lock-wi",
+        "r3-dev-34-star-alchemy-cannot-be-invoked-from-an-unrelated-pok-mon-sou",
+        "r3-dev-35-an-energy-attachment-to-a-pok-mon-absent-from-the-actor-visi",
+        "r3-dev-36-the-real-worker-decision-validator-rejects-an-unknown-prompt",
+        "r3-dev-47-hisuian-heavy-ball-abstains-when-prize-identities-are-concea",
+        "r3-dev-48-mimikyu-pokemon-ex-negative-control",
+        "r3-dev-49-no-pass-token-abstention"
+      ],
+      "evidenceClass": "synthetic-only",
+      "nativeReceipts": 0,
+      "status": "blocked"
+    },
+    "timeoutAndRuntimeSafety": {
+      "caseIds": [],
+      "evidenceClass": "none",
+      "timeoutTested": false,
+      "processSandboxVerified": false,
+      "status": "not-covered"
+    }
+  }
 }
