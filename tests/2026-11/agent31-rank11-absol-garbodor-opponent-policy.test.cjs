@@ -22,6 +22,13 @@ function checked(req,seat=0){const init={schema:protocol.INIT_SCHEMA,type:'init'
 function gitBlobSha1(s){return crypto.createHash('sha1').update('blob '+Buffer.byteLength(s,'utf8')+'\0'+s,'utf8').digest('hex')}
 function sha256(s){return crypto.createHash('sha256').update(s,'utf8').digest('hex')}
 
+test('policy source satisfies Agent36 V3 one-file worker loader constraints',()=>{
+ const sourceText=fs.readFileSync(path.join(root,'simulation/evaluation/2026-11/agent31-rank11-absol-garbodor-opponent-policy.cjs'),'utf8');
+ assert.match(sourceText,/\bconst\s+POLICY_VERSION\s*=\s*(['"])[^'"]+\1\s*;/);
+ assert.match(sourceText,/module\.exports\s*=/);
+ assert.doesNotMatch(sourceText,/\b(?:require|import|process|globalThis|fetch|setTimeout|setInterval)\b|Math\.random/,
+  'worker policy must be a deterministic, inert one-file asset');
+});
 test('dependency manifest binds policy, worker protocol, and pinned Twinleaf',()=>{
  const m=JSON.parse(fs.readFileSync(path.join(root,'results/aichi-2026/2026-11/agent31-rank11-opponent-policy-v1-dependencies.json'),'utf8'));
  const policyText=fs.readFileSync(path.join(root,'simulation/evaluation/2026-11/agent31-rank11-absol-garbodor-opponent-policy.cjs'),'utf8');
