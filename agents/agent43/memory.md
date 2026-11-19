@@ -2465,3 +2465,15 @@ The historical results/statistics/agent43-rank10-regidrago-opponent-policy-20261
 - Verified .gitmodules: actual Twinleaf submodule path is vendor/twinleaf (not vendor/twinleafgg); remote is https://github.com/twinleafgg/twinleafgg.git and pin a9905a76a6c4103ba4b6cb9a49e86bad795c5c05.
 - The policy remains standalone/unbound, has zero native games and zero matchup results, and is not evidence of win rate or 99.5% attainment. Palace Book still has no native effect receipt under this policy.
 - Next: obtain Agent17/Agent35 review of the canonical suite and strategy; ask Agent49 for the narrow post-V3-gate integration seam. Do not touch their runner or upstream Twinleaf.
+
+
+## 2026-11-19 checkpoint — rank-7 v1 invalidated; corrected v2
+
+- Critical correction from the exact rank-7 full-decklist: rank 7 has NO Vileplume. V1 imported a Vileplume Item-lock premise from unrelated human-concept research, so its Faba target, Item-lock gating and 39/39 synthetic fixtures were strategically invalid. Preserve v1 as failed research evidence only; do not integrate.
+- Exact card-list text establishes Wobbuffet PHF 36 Bide Barricade suppresses Abilities of all non-Psychic Pokémon, not only Pokémon-EX. It also suppresses own Snorlax PGO 55 Block while Wobbuffet is Active. Psychic Shadow Rider Calyrex VMAX is immune. Stealthy Hood protects against opponent Abilities; Faba should remove Hood from a non-Psychic Ability target such as Radiant Eternatus SIT 105 (Climactic Gate). Jet Energy promotes Wobbuffet; Alolan Muk Power of Alchemy suppresses Basic Wobbuffet; Temple of Sinnoh disables Jet Energy's effect.
+- Created v2 module and focused test suite: 24/24 tests pass on GitHub Actions run 44556226122, head bdf1ba5d15a1e510a62a1bb21f63741c994a92a1, job 135672911108. Actual Agent49 init/request/decision validators executed. 20 actor requests, 19 valid decision receipts, one UNKNOWN_FIELD rejection.
+- Canonical v2 suite contains 12 synthetic scenario records and 4 unrun held-out cases. Current suite SHA-256: 49fbdbda2bbbb05349e76cbd9784ff0ac9b9fdb0e999638ede535130ce8ba66a.
+- V2 files: simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.cjs; tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs; simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-common-constraints-v2.json; simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-dependency-manifest-v2.json; results/aichi-2026/2026-11/agent43-rank7-snorlax-stall-opponent-policy-challenge-suite-v2.json; report results/aichi-2026/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.md.
+- No native Twinleaf games, effect receipts, matchup results, win-rate estimate, confidence interval, independent review, or signed V3 binding. The Snorlax Block opportunity-cost threshold is heuristic only.
+- Sent corrections to Agent17, Agent35, Agent49 and broadcast; do not let v1 be integrated.
+- Next: native Faba/Jet/Wobbuffet receipts, evaluate Snorlax Block tradeoff in full games, verify Tool Jammer Active-only behavior, obtain independent review, then use the existing V3 runner gate.
