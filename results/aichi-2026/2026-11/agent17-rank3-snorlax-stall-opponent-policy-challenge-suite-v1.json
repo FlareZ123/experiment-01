@@ -13,8 +13,8 @@
     "bundleProducerId": null,
     "producerBindingStatus": "not bound into signed/hash-bound V3 plan; standalone prototype only",
     "modulePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "moduleBlobSha1": "42308b4f593c95448d78f639c9f8733144469a0a",
-    "moduleSha256": "d6d7d0a63aa850dd183056a8e0ce8a93553cb74fceb45abbb92dfb656858d31d",
+    "moduleBlobSha1": "9bfb23657040df38203e83aa2a354b1ef405fe1f",
+    "moduleSha256": "2264140ca2793e3eb1ec9589a1423b3b5d50f3f309ad3657c1dcab5312911188",
     "config": {
       "rank": 3,
       "sourceFingerprint": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
@@ -91,15 +91,15 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json",
-    "manifestSha256": "ffe101221c036ef027d05178555f7662af088adf768ef6b70bf3760c1ceeb916",
+    "manifestSha256": "40d5f4202726a0902ace81777da7abfa3201f957cb390ef231f12e5bc7a92a30",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "testFilePath": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "testFileBlobSha1": "051c51e390b3573482e1774aef592a15e718e707",
-    "testFileSha256": "c6fd8f1e984dfceca499eaade6494125f406b3bf4fd2966df67d7151e25629b6",
+    "testFileBlobSha1": "65a3b93b2ddd9cc49c21de1e9d35daa35e93bc39",
+    "testFileSha256": "b52cb170355fdaa707703f9fa4e152bcf1664b8b3875ca65a91fea8f7abee522",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -112,15 +112,15 @@
     "evidenceClassCounts": {
       "sourceNatural": 0,
       "nativeStaged": 0,
-      "synthetic": 47
+      "synthetic": 48
     },
-    "developmentTestCount": 47,
-    "unitTestsPassed": 47,
+    "developmentTestCount": 48,
+    "unitTestsPassed": 48,
     "unitTestsFailed": 0,
-    "actorRequestCount": 48,
-    "decisionReceiptCount": 47,
+    "actorRequestCount": 49,
+    "decisionReceiptCount": 48,
     "promptTypeCounts": {
-      "root-action-frontier": 20,
+      "root-action-frontier": 21,
       "ChooseCardsPrompt": 18,
       "ChoosePokemonPrompt": 6,
       "UnknownNativePrompt": 1,
@@ -128,7 +128,7 @@
       "ChoosePrizePrompt": 2
     },
     "selectionTypeCounts": {
-      "none": 37,
+      "none": 38,
       "card-combination": 10,
       "energy-payment": 1
     },
@@ -160,7 +160,7 @@
     "pass": "Only when actor-state reachability, paper legality, strategic suitability and execution integrity are supported by native evidence and required independent review.",
     "blocked": "Any required evidence is missing, the prompt is unsupported, or the case is synthetic-only.",
     "fail": "A legal supported action is rejected, an illegal/unreachable action is selected, hidden information is used, or native evidence contradicts the decision.",
-    "currentSuiteResult": "All 47/47 local unit cases pass; every scenario remains blocked for native or competitive attestation."
+    "currentSuiteResult": "All 48/48 local unit cases pass; every scenario remains blocked for native or competitive attestation."
   },
   "developmentCases": [
     {
@@ -5318,11 +5318,11 @@
       "caseId": "r3-dev-39-mimikyu-is-prioritized-as-a-defensive-basic-against-the-cand",
       "split": "development",
       "caseClass": "policy-decision",
-      "objective": "Mimikyu is prioritized as a defensive Basic against the candidate V and ex board",
+      "objective": "Mimikyu is prioritized as a defensive Basic against the candidate Pokémon V board",
       "evidenceClass": "synthetic",
       "actorView": {
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-        "testName": "Mimikyu is prioritized as a defensive Basic against the candidate V and ex board",
+        "testName": "Mimikyu is prioritized as a defensive Basic against the candidate Pokémon V board",
         "requestDigests": [
           {
             "requestIndex": 0,
@@ -6553,6 +6553,124 @@
       "disposition": "blocked",
       "blockReason": "Synthetic prompt fixture only; no native Twinleaf Store receipt or completed game.",
       "reviewerStatus": "unreviewed"
+    },
+    {
+      "caseId": "r3-dev-48-mimikyu-pokemon-ex-negative-control",
+      "split": "development",
+      "caseClass": "negative-control",
+      "objective": "Mimikyu is not prioritized against Pokémon ex because Safeguard protects only from Pokémon V",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "testName": "Mimikyu is not prioritized against Pokémon ex because Safeguard protects only from Pokémon V",
+        "requestDigests": [
+          {
+            "requestIndex": 0,
+            "digestSha256": "cb9f92215e21902e79831e16f16dffbaf9fdbe25291209cb149ef9def3204d3b",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "role": "opponent",
+              "seat": 0,
+              "actorSeat": 0,
+              "ownHandCount": 1,
+              "ownActive": "Snorlax PGO 55",
+              "ownBench": [],
+              "opponentHandCount": 0,
+              "opponentHandRevealed": false,
+              "opponentActive": "Charizard ex OBF 125",
+              "opponentBench": [],
+              "ownDeckCount": 30,
+              "opponentDeckCount": 30,
+              "ownPrizeCount": 6,
+              "opponentPrizeCount": 6
+            },
+            "promptCoverage": {
+              "promptType": null,
+              "frontier": [
+                {
+                  "kind": "play-card",
+                  "actorPrinting": "Mimikyu PAL 97",
+                  "targetPrinting": null,
+                  "attackName": null,
+                  "abilityName": null
+                },
+                {
+                  "kind": "pass",
+                  "actorPrinting": null,
+                  "targetPrinting": null,
+                  "attackName": null,
+                  "abilityName": null
+                }
+              ]
+            }
+          }
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-action",
+              "token": "pass"
+            },
+            "validatorResult": "accepted",
+            "validationError": null
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "prioritize Safeguard against Pokémon ex",
+          "select action token absent from frontier"
+        ]
+      },
+      "costLedger": {
+        "applicability": "no Mimikyu play; preserve the card and pass because Pokémon ex is outside Safeguard protection"
+      },
+      "promptCoverage": [
+        {
+          "promptType": null,
+          "frontier": [
+            {
+              "kind": "play-card",
+              "actorPrinting": "Mimikyu PAL 97",
+              "targetPrinting": null,
+              "attackName": null,
+              "abilityName": null
+            },
+            {
+              "kind": "pass",
+              "actorPrinting": null,
+              "targetPrinting": null,
+              "attackName": null,
+              "abilityName": null
+            }
+          ]
+        }
+      ],
+      "executionEvidence": {
+        "unitHarness": "local V8 deterministic harness",
+        "unitTestResult": "pass",
+        "requestValidation": [
+          "accepted"
+        ],
+        "decisionValidation": [
+          "accepted"
+        ],
+        "nativeTwinleafExecution": false,
+        "nativeStoreReceipt": null,
+        "nativeGameId": null,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": false,
+        "timeoutMeasured": false,
+        "processSandboxVerified": false
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic negative control only; native Safeguard effect not exercised.",
+      "reviewerStatus": "unreviewed"
     }
   ],
   "negativeControls": [
@@ -6599,6 +6717,11 @@
     {
       "test": "Hisuian Heavy Ball abstains when Prize identities are concealed",
       "expected": "abstain rather than guess concealed Prize identities",
+      "unitResult": "pass"
+    },
+    {
+      "test": "Mimikyu is not prioritized against Pokémon ex because Safeguard protects only from Pokémon V",
+      "expected": "do not prioritize Mimikyu against Pokémon ex",
       "unitResult": "pass"
     }
   ],
@@ -6693,7 +6816,8 @@
     "Policy module is not wired into worker ./policy.cjs loader or signed bundle.",
     "No independent reviewer.",
     "Prize selection and hidden-identity abstention are covered only by synthetic fixtures; native prize reveal/selection semantics remain unverified.",
-    "Legendary Ascent multi-Energy payment is covered only by synthetic fixtures; native effect and prompt semantics remain unverified."
+    "Legendary Ascent multi-Energy payment is covered only by synthetic fixtures; native effect and prompt semantics remain unverified.",
+    "Mimikyu V-only protection is tested synthetically against VMAX and ex fixtures; native ability/effect behavior remains unverified."
   ],
   "reviewer": {
     "status": "not reviewed",
@@ -6712,7 +6836,7 @@
       "Twinleaf completeness for every effect"
     ]
   },
-  "caseRecordCount": 47,
-  "suiteSha256": "ab98c3c351a2b796ebe5456098c7f46ad5eec37de1bc1f987823435ceb15c7f3",
+  "caseRecordCount": 48,
+  "suiteSha256": "29cd10e3af3d2c1b6ca6336813081c9d7634ad9e1cbf887cabf6e766173c5efc",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8."
 }
