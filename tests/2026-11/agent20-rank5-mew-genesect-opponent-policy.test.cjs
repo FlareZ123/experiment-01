@@ -33,7 +33,8 @@ const P = {
   ultraBall: 'Ultra Ball MEG 131',
   path: 'Path to the Peak CRE 148',
   specialCharge: 'Special Charge STS 105',
-  specialRedCard: 'Special Red Card CRI 82'
+  specialRedCard: 'Special Red Card CRI 82',
+  muscleBand: 'Muscle Band XY 121'
 };
 
 function makePolicy(seat = 0, overrides = {}) {
@@ -508,6 +509,36 @@ test('Quick Ball discards a non-core Trainer rather than the only DCE', () => {
   });
   assert.deepEqual(checkedDecision(request),
     { kind: 'select-choice', token: 'ultra' });
+});
+
+test('Guzma damage estimate adds 20 only for a visibly attached Muscle Band', () => {
+  const opponent = player({
+    active: pokemon('Mimikyu GRI 58', { hp: 70, subtypes: ['Basic'] }),
+    bench: [
+      pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210, subtypes: ['Basic', 'V'] }),
+      pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+        hp: 320, damage: 110, stage: 'VMAX', subtypes: ['VMAX']
+      })
+    ]
+  });
+  const own = player({
+    active: pokemon(P.mewVMAX, {
+      stage: 'VMAX', subtypes: ['VMAX', 'Fusion Strike'],
+      energies: [P.dce], tools: [P.muscleBand]
+    }),
+    bench: [pokemon(P.genesect)]
+  });
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource(P.guzma, 'Guzma'),
+    observation: { ownPublic: own, opponentPublic: opponent },
+    choices: [
+      pokemonChoice('v', 'Shadow Rider Calyrex V CRE 74', 'opponent', 'bench', 0),
+      pokemonChoice('vmax', 'Shadow Rider Calyrex VMAX CRE 75', 'opponent', 'bench', 1)
+    ]
+  });
+  assert.deepEqual(checkedDecision(request),
+    { kind: 'select-choice', token: 'vmax' });
 });
 
 test('Special Charge recovers two DCE rather than Pokémon from the discard pile', () => {
