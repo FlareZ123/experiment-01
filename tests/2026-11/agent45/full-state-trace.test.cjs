@@ -52,7 +52,7 @@ test('trace snapshot and summaries never invoke array, collection, RegExp or fun
   assert.match(json,/Psychic Energy/);
   assert.match(json,/"source":"safe"/);
   assert.match(json,/"flags":"gi"/);
-  assert.match(json,/"$type":"Accessor"/);
+  assert.ok(json.includes('"$type":"Accessor"'));
 
   const hand=[{fullName:'Quick Ball'}];
   Object.defineProperty(hand,'map',{get:poison});
