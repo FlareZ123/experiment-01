@@ -455,8 +455,8 @@ function scoreAction(item, request) {
         !hasStadium(observation, PRINT.tropicalBeach) ? 115 : 0;
     }
     if (ability === 'Star Alchemy') {
-      return matches(item.actorPrinting ?? '', PRINT.forestSealStone) &&
-        observation.ownTurnResources?.vstarUsed !== true &&
+      if (!matches(item.actorPrinting ?? '', PRINT.forestSealStone)) return 0;
+      return observation.ownTurnResources?.vstarUsed !== true &&
         (!boardHasTool(own, PRINT.toolJammer) ||
           !list(own.discard).some(x => matches(x, PRINT.faba))) ? 170 : 45;
     }
