@@ -11,7 +11,7 @@ Can the existing observation-keyed PUCT core make decisions for both physical se
 
 The legacy mode samples one hidden world from the root player's information set, then traverses later decisions in that same world. Its opponent nodes are keyed by the opponent's observation, but their action values still depend on root-private cards that the opponent cannot see. The existing counterexample demonstrates the resulting strategy fusion: the same opponent information set chooses Block when the root secretly holds a threat and Pass when the root secretly holds a bluff, despite the opponent's public threat prior being 20% in both cases.
 
-See [the original counterexample](agent5-root-determinization-opponent-belief-fusion-20261113.md) and [its regression](../../../../tests/2026-11/agent5-root-determinization-opponent-belief-fusion.test.cjs).
+See [the original counterexample](agent5-root-determinization-opponent-belief-fusion-20261113.md) and [its regression](../../../tests/2026-11/agent5-root-determinization-opponent-belief-fusion.test.cjs).
 
 ## Implemented core change
 
