@@ -407,7 +407,12 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
       nativeLogDelta,
       pendingPrompt:pendingPrompt===null?null:snapshotFullState(pendingPrompt,limits),
       afterState:snapshotFullState(state,stateLimits),
-      ...(error?{error:snapshotFullState({name:error.name,message:error.message,code:error.code,stack:error.stack},limits)}:{}),
+      ...(error?{error:snapshotFullState({
+        name:safeDataProperty(error,'name'),
+        message:safeDataProperty(error,'message'),
+        code:safeDataProperty(error,'code'),
+        stack:safeDataProperty(error,'stack')
+      },limits)}:{}),
       ...(failureStage?{failureStage}: {})
     });
   }
