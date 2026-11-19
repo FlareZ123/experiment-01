@@ -13,8 +13,8 @@
     "bundleProducerId": null,
     "producerBindingStatus": "not bound into signed/hash-bound V3 plan; standalone prototype only",
     "modulePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "moduleBlobSha1": "f62bb071138621f218b5f849c657c8010187f4d1",
-    "moduleSha256": "197dd2956c12dd89af7c341d99b13a71e861fd2dada3837437ce00e1d8214e15",
+    "moduleBlobSha1": "42308b4f593c95448d78f639c9f8733144469a0a",
+    "moduleSha256": "d6d7d0a63aa850dd183056a8e0ce8a93553cb74fceb45abbb92dfb656858d31d",
     "config": {
       "rank": 3,
       "sourceFingerprint": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
@@ -91,15 +91,15 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json",
-    "manifestSha256": "13c3a4982b9e89bc1a53722e1626b84c132ee2f33664406313887264d16473be",
+    "manifestSha256": "ffe101221c036ef027d05178555f7662af088adf768ef6b70bf3760c1ceeb916",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "testFilePath": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "testFileBlobSha1": "d9e5e74675f4db47824bded5c399147dae5924f0",
-    "testFileSha256": "d686a13bdeb0e46a4b7a12a14af29d810a3185d01b39c37f70cfd4a02487b070",
+    "testFileBlobSha1": "051c51e390b3573482e1774aef592a15e718e707",
+    "testFileSha256": "c6fd8f1e984dfceca499eaade6494125f406b3bf4fd2966df67d7151e25629b6",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -112,23 +112,25 @@
     "evidenceClassCounts": {
       "sourceNatural": 0,
       "nativeStaged": 0,
-      "synthetic": 44
+      "synthetic": 47
     },
-    "developmentTestCount": 44,
-    "unitTestsPassed": 44,
+    "developmentTestCount": 47,
+    "unitTestsPassed": 47,
     "unitTestsFailed": 0,
-    "actorRequestCount": 45,
-    "decisionReceiptCount": 44,
+    "actorRequestCount": 48,
+    "decisionReceiptCount": 47,
     "promptTypeCounts": {
       "root-action-frontier": 20,
-      "ChooseCardsPrompt": 17,
+      "ChooseCardsPrompt": 18,
       "ChoosePokemonPrompt": 6,
       "UnknownNativePrompt": 1,
-      "ChooseEnergyPrompt": 1
+      "ChooseEnergyPrompt": 1,
+      "ChoosePrizePrompt": 2
     },
     "selectionTypeCounts": {
-      "none": 35,
-      "card-combination": 10
+      "none": 37,
+      "card-combination": 10,
+      "energy-payment": 1
     },
     "localHarness": {
       "type": "local V8 deterministic harness",
@@ -158,7 +160,7 @@
     "pass": "Only when actor-state reachability, paper legality, strategic suitability and execution integrity are supported by native evidence and required independent review.",
     "blocked": "Any required evidence is missing, the prompt is unsupported, or the case is synthetic-only.",
     "fail": "A legal supported action is rejected, an illegal/unreachable action is selected, hidden information is used, or native evidence contradicts the decision.",
-    "currentSuiteResult": "44/44 local unit cases pass; every scenario remains blocked for native or competitive attestation."
+    "currentSuiteResult": "All 47/47 local unit cases pass; every scenario remains blocked for native or competitive attestation."
   },
   "developmentCases": [
     {
@@ -670,6 +672,7 @@
               "selectionType": null,
               "minimumCount": null,
               "maximumCount": null,
+              "energyCount": null,
               "allowCancel": null,
               "isSecret": null,
               "choiceKinds": [
@@ -805,6 +808,7 @@
               "selectionType": "card-combination",
               "minimumCount": 2,
               "maximumCount": 2,
+              "energyCount": null,
               "allowCancel": false,
               "isSecret": false,
               "choiceKinds": [
@@ -944,6 +948,7 @@
               "selectionType": "card-combination",
               "minimumCount": 2,
               "maximumCount": 2,
+              "energyCount": null,
               "allowCancel": false,
               "isSecret": false,
               "choiceKinds": [
@@ -1083,6 +1088,7 @@
               "selectionType": "card-combination",
               "minimumCount": 0,
               "maximumCount": 2,
+              "energyCount": null,
               "allowCancel": false,
               "isSecret": false,
               "choiceKinds": [
@@ -1229,6 +1235,7 @@
               "selectionType": "card-combination",
               "minimumCount": 0,
               "maximumCount": 2,
+              "energyCount": null,
               "allowCancel": false,
               "isSecret": false,
               "choiceKinds": [
@@ -1378,6 +1385,7 @@
               "selectionType": null,
               "minimumCount": null,
               "maximumCount": null,
+              "energyCount": null,
               "allowCancel": null,
               "isSecret": null,
               "choiceKinds": [
@@ -1428,6 +1436,7 @@
               "selectionType": null,
               "minimumCount": null,
               "maximumCount": null,
+              "energyCount": null,
               "allowCancel": null,
               "isSecret": null,
               "choiceKinds": [
@@ -1601,6 +1610,7 @@
               "selectionType": null,
               "minimumCount": null,
               "maximumCount": null,
+              "energyCount": null,
               "allowCancel": null,
               "isSecret": null,
               "choiceKinds": [
@@ -1735,6 +1745,7 @@
               "selectionType": null,
               "minimumCount": null,
               "maximumCount": null,
+              "energyCount": null,
               "allowCancel": null,
               "isSecret": null,
               "choiceKinds": [
@@ -2508,6 +2519,7 @@
               "selectionType": null,
               "minimumCount": null,
               "maximumCount": null,
+              "energyCount": null,
               "allowCancel": null,
               "isSecret": null,
               "choiceKinds": [
@@ -2646,6 +2658,7 @@
               "selectionType": "card-combination",
               "minimumCount": 0,
               "maximumCount": 2,
+              "energyCount": null,
               "allowCancel": false,
               "isSecret": false,
               "choiceKinds": [
@@ -2792,6 +2805,7 @@
               "selectionType": "card-combination",
               "minimumCount": 1,
               "maximumCount": 1,
+              "energyCount": null,
               "allowCancel": false,
               "isSecret": false,
               "choiceKinds": [
@@ -3055,6 +3069,7 @@
               "selectionType": "card-combination",
               "minimumCount": 2,
               "maximumCount": 2,
+              "energyCount": null,
               "allowCancel": false,
               "isSecret": false,
               "choiceKinds": [
@@ -3196,6 +3211,7 @@
               "selectionType": null,
               "minimumCount": null,
               "maximumCount": null,
+              "energyCount": null,
               "allowCancel": null,
               "isSecret": null,
               "choiceKinds": [
@@ -3332,6 +3348,7 @@
               "selectionType": null,
               "minimumCount": null,
               "maximumCount": null,
+              "energyCount": null,
               "allowCancel": null,
               "isSecret": null,
               "choiceKinds": [
@@ -3467,6 +3484,7 @@
               "selectionType": null,
               "minimumCount": null,
               "maximumCount": null,
+              "energyCount": null,
               "allowCancel": null,
               "isSecret": null,
               "choiceKinds": [
@@ -3728,6 +3746,7 @@
               "selectionType": "card-combination",
               "minimumCount": 0,
               "maximumCount": 2,
+              "energyCount": null,
               "allowCancel": false,
               "isSecret": false,
               "choiceKinds": [
@@ -4161,6 +4180,7 @@
               "selectionType": "card-combination",
               "minimumCount": 2,
               "maximumCount": 2,
+              "energyCount": null,
               "allowCancel": false,
               "isSecret": false,
               "choiceKinds": [
@@ -4300,6 +4320,7 @@
               "selectionType": null,
               "minimumCount": null,
               "maximumCount": null,
+              "energyCount": null,
               "allowCancel": null,
               "isSecret": null,
               "choiceKinds": [
@@ -4944,6 +4965,7 @@
               "selectionType": null,
               "minimumCount": null,
               "maximumCount": null,
+              "energyCount": null,
               "allowCancel": null,
               "isSecret": null,
               "choiceKinds": [
@@ -5458,6 +5480,7 @@
               "selectionType": "card-combination",
               "minimumCount": 2,
               "maximumCount": 2,
+              "energyCount": null,
               "allowCancel": false,
               "isSecret": false,
               "choiceKinds": [
@@ -5598,6 +5621,7 @@
               "selectionType": null,
               "minimumCount": null,
               "maximumCount": null,
+              "energyCount": null,
               "allowCancel": null,
               "isSecret": null,
               "choiceKinds": [
@@ -5733,6 +5757,7 @@
               "selectionType": null,
               "minimumCount": null,
               "maximumCount": null,
+              "energyCount": null,
               "allowCancel": null,
               "isSecret": null,
               "choiceKinds": [
@@ -5873,6 +5898,7 @@
               "selectionType": null,
               "minimumCount": null,
               "maximumCount": null,
+              "energyCount": null,
               "allowCancel": null,
               "isSecret": null,
               "choiceKinds": [
@@ -6014,6 +6040,7 @@
               "selectionType": null,
               "minimumCount": null,
               "maximumCount": null,
+              "energyCount": null,
               "allowCancel": null,
               "isSecret": null,
               "choiceKinds": [
@@ -6110,6 +6137,422 @@
       "disposition": "blocked",
       "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
       "reviewerStatus": "unreviewed"
+    },
+    {
+      "caseId": "r3-dev-45-legendary-ascent-selects-every-actor-owned-water-energy-up-t",
+      "split": "development",
+      "caseClass": "policy-decision",
+      "objective": "Legendary Ascent selects every actor-owned Water Energy up to the prompt payment count",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "testName": "Legendary Ascent selects every actor-owned Water Energy up to the prompt payment count",
+        "requestDigests": [
+          {
+            "requestIndex": 0,
+            "digestSha256": "dab6b78f1992d8f578aca85a57fccd788dafb00e5c0b1bbe302ef4154c1db17f",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "role": "opponent",
+              "seat": 0,
+              "actorSeat": 0,
+              "ownHandCount": 0,
+              "ownActive": null,
+              "ownBench": [],
+              "opponentHandCount": 0,
+              "opponentHandRevealed": false,
+              "opponentActive": null,
+              "opponentBench": [],
+              "ownDeckCount": 30,
+              "opponentDeckCount": 30,
+              "ownPrizeCount": 6,
+              "opponentPrizeCount": 6
+            },
+            "promptCoverage": {
+              "promptType": "ChooseCardsPrompt",
+              "source": {
+                "classification": "actor-choice",
+                "sourceKind": "card-effect",
+                "sourcePrinting": "Articuno-GX CES 31",
+                "effectName": "Legendary Ascent"
+              },
+              "selectionType": "energy-payment",
+              "minimumCount": null,
+              "maximumCount": null,
+              "energyCount": 2,
+              "allowCancel": false,
+              "isSecret": false,
+              "choiceKinds": [
+                "energy"
+              ],
+              "ownerSeats": [
+                "actor",
+                "opponent"
+              ],
+              "zones": [
+                "attached-energy"
+              ],
+              "emptySelection": false,
+              "cancel": false
+            }
+          }
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-choices",
+              "tokens": [
+                "water-bunnelby",
+                "water-girafarig"
+              ]
+            },
+            "validatorResult": "accepted",
+            "validationError": null
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "select hidden Prize identities",
+          "select an energy not owned by actor",
+          "select Capture Energy for Legendary Ascent",
+          "select a token absent from prompt"
+        ]
+      },
+      "costLedger": {
+        "abilityUse": "Legendary Ascent",
+        "oncePerGame": false,
+        "energyMovement": "move up to energyCount actor-owned Water Energy to Articuno-GX; exclude Capture Energy and opponent Energy",
+        "energyDiscarded": 0
+      },
+      "promptCoverage": [
+        {
+          "promptType": "ChooseCardsPrompt",
+          "source": {
+            "classification": "actor-choice",
+            "sourceKind": "card-effect",
+            "sourcePrinting": "Articuno-GX CES 31",
+            "effectName": "Legendary Ascent"
+          },
+          "selectionType": "energy-payment",
+          "minimumCount": null,
+          "maximumCount": null,
+          "energyCount": 2,
+          "allowCancel": false,
+          "isSecret": false,
+          "choiceKinds": [
+            "energy"
+          ],
+          "ownerSeats": [
+            "actor",
+            "opponent"
+          ],
+          "zones": [
+            "attached-energy"
+          ],
+          "emptySelection": false,
+          "cancel": false
+        }
+      ],
+      "executionEvidence": {
+        "unitHarness": "local V8 deterministic harness",
+        "unitTestResult": "pass",
+        "requestValidation": [
+          "accepted"
+        ],
+        "decisionValidation": [
+          "accepted"
+        ],
+        "nativeTwinleafExecution": false,
+        "nativeStoreReceipt": null,
+        "nativeGameId": null,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": false,
+        "timeoutMeasured": false,
+        "processSandboxVerified": false
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic prompt fixture only; no native Twinleaf Store receipt or completed game.",
+      "reviewerStatus": "unreviewed"
+    },
+    {
+      "caseId": "r3-dev-46-gladion-selects-a-high-value-pok-mon-only-when-its-prize-ide",
+      "split": "development",
+      "caseClass": "policy-decision",
+      "objective": "Gladion selects a high-value Pokémon only when its Prize identity is actor-visible",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "testName": "Gladion selects a high-value Pokémon only when its Prize identity is actor-visible",
+        "requestDigests": [
+          {
+            "requestIndex": 0,
+            "digestSha256": "384336365c28d9205fbb7637959ca12939774d55e97acee8c17cf004216e97b8",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "role": "opponent",
+              "seat": 0,
+              "actorSeat": 0,
+              "ownHandCount": 0,
+              "ownActive": null,
+              "ownBench": [],
+              "opponentHandCount": 0,
+              "opponentHandRevealed": false,
+              "opponentActive": null,
+              "opponentBench": [],
+              "ownDeckCount": 30,
+              "opponentDeckCount": 30,
+              "ownPrizeCount": 6,
+              "opponentPrizeCount": 6
+            },
+            "promptCoverage": {
+              "promptType": "ChoosePrizePrompt",
+              "source": {
+                "classification": "actor-choice",
+                "sourceKind": "card-effect",
+                "sourcePrinting": "Gladion BUS 127",
+                "effectName": "Gladion"
+              },
+              "selectionType": null,
+              "minimumCount": null,
+              "maximumCount": null,
+              "energyCount": null,
+              "allowCancel": null,
+              "isSecret": null,
+              "choiceKinds": [
+                "prize"
+              ],
+              "ownerSeats": [
+                "actor"
+              ],
+              "zones": [
+                "prizes"
+              ],
+              "emptySelection": false,
+              "cancel": false
+            }
+          }
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "select-choice",
+              "token": "snorlax"
+            },
+            "validatorResult": "accepted",
+            "validationError": null
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "select hidden Prize identities",
+          "select an energy not owned by actor",
+          "select Capture Energy for Legendary Ascent",
+          "select a token absent from prompt"
+        ]
+      },
+      "costLedger": {
+        "supporterForTurn": true,
+        "PrizeCardsRevealed": 6,
+        "PrizeCardsTakenToHand": 1,
+        "remainingPrizesShuffled": true
+      },
+      "promptCoverage": [
+        {
+          "promptType": "ChoosePrizePrompt",
+          "source": {
+            "classification": "actor-choice",
+            "sourceKind": "card-effect",
+            "sourcePrinting": "Gladion BUS 127",
+            "effectName": "Gladion"
+          },
+          "selectionType": null,
+          "minimumCount": null,
+          "maximumCount": null,
+          "energyCount": null,
+          "allowCancel": null,
+          "isSecret": null,
+          "choiceKinds": [
+            "prize"
+          ],
+          "ownerSeats": [
+            "actor"
+          ],
+          "zones": [
+            "prizes"
+          ],
+          "emptySelection": false,
+          "cancel": false
+        }
+      ],
+      "executionEvidence": {
+        "unitHarness": "local V8 deterministic harness",
+        "unitTestResult": "pass",
+        "requestValidation": [
+          "accepted"
+        ],
+        "decisionValidation": [
+          "accepted"
+        ],
+        "nativeTwinleafExecution": false,
+        "nativeStoreReceipt": null,
+        "nativeGameId": null,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": false,
+        "timeoutMeasured": false,
+        "processSandboxVerified": false
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic prompt fixture only; no native Twinleaf Store receipt or completed game.",
+      "reviewerStatus": "unreviewed"
+    },
+    {
+      "caseId": "r3-dev-47-hisuian-heavy-ball-abstains-when-prize-identities-are-concea",
+      "split": "development",
+      "caseClass": "negative-control",
+      "objective": "Hisuian Heavy Ball abstains when Prize identities are concealed",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "testName": "Hisuian Heavy Ball abstains when Prize identities are concealed",
+        "requestDigests": [
+          {
+            "requestIndex": 0,
+            "digestSha256": "ffd955b4c310787fd5e15ecd9e6c695d109a19703cf30f18d42de16fc1f0710f",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "role": "opponent",
+              "seat": 0,
+              "actorSeat": 0,
+              "ownHandCount": 0,
+              "ownActive": null,
+              "ownBench": [],
+              "opponentHandCount": 0,
+              "opponentHandRevealed": false,
+              "opponentActive": null,
+              "opponentBench": [],
+              "ownDeckCount": 30,
+              "opponentDeckCount": 30,
+              "ownPrizeCount": 6,
+              "opponentPrizeCount": 6
+            },
+            "promptCoverage": {
+              "promptType": "ChoosePrizePrompt",
+              "source": {
+                "classification": "actor-choice",
+                "sourceKind": "card-effect",
+                "sourcePrinting": "Hisuian Heavy Ball ASR 146",
+                "effectName": "Hisuian Heavy Ball"
+              },
+              "selectionType": null,
+              "minimumCount": null,
+              "maximumCount": null,
+              "energyCount": null,
+              "allowCancel": null,
+              "isSecret": null,
+              "choiceKinds": [
+                "prize"
+              ],
+              "ownerSeats": [
+                "actor"
+              ],
+              "zones": [
+                "prizes"
+              ],
+              "emptySelection": false,
+              "cancel": false
+            }
+          }
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "abstain",
+              "reasonCode": "PRIZE_IDENTITY_UNAVAILABLE"
+            },
+            "validatorResult": "accepted",
+            "validationError": null
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "select hidden Prize identities",
+          "select an energy not owned by actor",
+          "select Capture Energy for Legendary Ascent",
+          "select a token absent from prompt"
+        ]
+      },
+      "costLedger": {
+        "itemPlayed": true,
+        "actorPrizeIdentitiesConcealed": true,
+        "policyAction": "abstain rather than infer hidden Prize identities",
+        "additionalGameAction": 0
+      },
+      "promptCoverage": [
+        {
+          "promptType": "ChoosePrizePrompt",
+          "source": {
+            "classification": "actor-choice",
+            "sourceKind": "card-effect",
+            "sourcePrinting": "Hisuian Heavy Ball ASR 146",
+            "effectName": "Hisuian Heavy Ball"
+          },
+          "selectionType": null,
+          "minimumCount": null,
+          "maximumCount": null,
+          "energyCount": null,
+          "allowCancel": null,
+          "isSecret": null,
+          "choiceKinds": [
+            "prize"
+          ],
+          "ownerSeats": [
+            "actor"
+          ],
+          "zones": [
+            "prizes"
+          ],
+          "emptySelection": false,
+          "cancel": false
+        }
+      ],
+      "executionEvidence": {
+        "unitHarness": "local V8 deterministic harness",
+        "unitTestResult": "pass",
+        "requestValidation": [
+          "accepted"
+        ],
+        "decisionValidation": [
+          "accepted"
+        ],
+        "nativeTwinleafExecution": false,
+        "nativeStoreReceipt": null,
+        "nativeGameId": null,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": false,
+        "timeoutMeasured": false,
+        "processSandboxVerified": false
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic prompt fixture only; no native Twinleaf Store receipt or completed game.",
+      "reviewerStatus": "unreviewed"
     }
   ],
   "negativeControls": [
@@ -6151,6 +6594,11 @@
     {
       "test": "Player’s Ceremony remains explicitly blocked until its research-owned engine hook exists",
       "expected": "abstain; no fallback",
+      "unitResult": "pass"
+    },
+    {
+      "test": "Hisuian Heavy Ball abstains when Prize identities are concealed",
+      "expected": "abstain rather than guess concealed Prize identities",
       "unitResult": "pass"
     }
   ],
@@ -6239,12 +6687,13 @@
   "unresolvedCoverage": [
     "No native Twinleaf Store receipt for any case.",
     "No completed game against the fixed candidate.",
-    "No public-prize identity test for Gladion/Hisuian Heavy Ball; hidden identities must remain unknown.",
     "Legendary Ascent energy-payment prompt is implemented but not exercised.",
     "Player's Ceremony SP 127 is absent from the bundled English snapshot and unsupported; not a legality ruling.",
     "No worker IPC handshake, timeout budget, runtime sandbox, or compute-budget test.",
     "Policy module is not wired into worker ./policy.cjs loader or signed bundle.",
-    "No independent reviewer."
+    "No independent reviewer.",
+    "Prize selection and hidden-identity abstention are covered only by synthetic fixtures; native prize reveal/selection semantics remain unverified.",
+    "Legendary Ascent multi-Energy payment is covered only by synthetic fixtures; native effect and prompt semantics remain unverified."
   ],
   "reviewer": {
     "status": "not reviewed",
@@ -6263,7 +6712,7 @@
       "Twinleaf completeness for every effect"
     ]
   },
-  "caseRecordCount": 44,
-  "suiteSha256": "f099562c9cc7c85df1366b0b5c88160b81d75d6f4002fec43de5a8505ba8ac33",
+  "caseRecordCount": 47,
+  "suiteSha256": "ab98c3c351a2b796ebe5456098c7f46ad5eec37de1bc1f987823435ceb15c7f3",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8."
 }
