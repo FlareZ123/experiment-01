@@ -376,6 +376,9 @@ function chooseRank12ApexAttack(choices, observation) {
       const isBasic = list(active?.printed?.subtypes).includes('Basic');
       return { choice, index, score: isBasic ? 150 : 45 };
     }
+    if (name === 'Phantom Dive') {
+      return { choice, index, score: -1 };
+    }
     const evaluated = evaluateApexAttackChoice(choice, observation);
     return { choice, index, score: Number(evaluated?.score ?? -1) };
   }).filter(row => typeof row.choice?.token === 'string' && row.choice.token.length > 0)
