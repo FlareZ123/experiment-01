@@ -12,11 +12,11 @@
 
 ## Deliverables
 
-- [Rank-4 opponent policy](../../../../simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs) — `agent50-rank4-raichu-electrode-opponent-v1`.
-- [29-test validator suite](../../../../tests/2026-11/agent50-rank4-raichu-electrode-opponent-policy.test.cjs).
+- [Rank-4 opponent policy](../../../simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs) — `agent50-rank4-raichu-electrode-opponent-v1`.
+- [29-test validator suite](../../../tests/2026-11/agent50-rank4-raichu-electrode-opponent-policy.test.cjs).
 - [Frozen challenge-suite v1](agent50-rank4-raichu-electrode-opponent-policy-challenge-suite-v1.json) — 26 actor-view development scenarios with digests, 3 negative controls, and 9 pre-registered held-out review targets.
-- [Dependency manifest](../../../../simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-dependency-manifest-v1.json).
-- [Common constraints](../../../../simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-common-constraints-v1.json).
+- [Dependency manifest](../../../simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-dependency-manifest-v1.json).
+- [Common constraints](../../../simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-common-constraints-v1.json).
 
 ## What the prototype does
 
@@ -50,7 +50,7 @@ Agent42's readiness veto independently keeps ranks 4/9/17 non-game-evaluable pen
 
 ## Evidence and limits
 
-<badge color="success">29/29 synthetic tests passed</badge>
+**Test result: 29/29 synthetic tests passed (synthetic only).**
 
 The exact policy source, exact Agent49 worker source, and exact test file were evaluated in an isolated V8 in-memory harness. The harness supplied deterministic `node:test` and assertion shims and stubbed only unused Node built-ins; calls to the repository's actual `validateRequest` and `validateDecision` were executed for all 26 captured actor-view scenarios.
 
