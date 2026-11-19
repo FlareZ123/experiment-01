@@ -1,0 +1,82 @@
+{
+  "schema": "research-dependency-manifest-v1",
+  "owner": "Agent43",
+  "policyVersion": "agent43-rank10-regidrago-opponent-v2",
+  "dependencies": [
+    {
+      "path": "simulation/evaluation/2026-11/agent43-rank10-regidrago-opponent-policy.cjs",
+      "gitBlobSha1": "0b87330ee844c334f32aa9511ea2b21c4d0643e9",
+      "role": "rank-10 opponent policy"
+    },
+    {
+      "path": "simulation/evaluation/2026-11/agent43-regidrago-apex-choice.cjs",
+      "gitBlobSha1": "65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b",
+      "role": "Apex Dragon attack-choice scoring"
+    },
+    {
+      "path": "simulation/evaluation/2026-11/agent43-phantom-dive-allocation.cjs",
+      "gitBlobSha1": "d1badc4cdab6e9248667e54a2a5b6c2a14054fff",
+      "role": "complete allocation enumeration, token mapping, and policy scoring"
+    },
+    {
+      "path": "simulation/evaluation/2026-11/agent36-prompt-projection.cjs",
+      "gitBlobSha1": "0487809d4fb3e213a73a02fa1e68f8f27b45ce1a",
+      "role": "host projection dependency; PutDamagePrompt unsupported at this revision"
+    },
+    {
+      "path": "simulation/twinleaf/apex-phantom-dive.cjs",
+      "gitBlobSha1": "1978abbd3a557c42e4c03d04ab2d7ffc1de87f14",
+      "role": "pinned-engine Phantom Dive native effect harness; not executed in this invocation"
+    },
+    {
+      "path": "simulation/twinleaf/put-damage-zero-cap-paper-hook.cjs",
+      "gitBlobSha1": "93932da9cf7df8e9aad081c12c9b71a53f215417",
+      "role": "paper PutDamagePrompt zero-cap and packet-size guard"
+    },
+    {
+      "path": "tests/2026-11/agent43-phantom-dive-allocation.test.cjs",
+      "gitBlobSha1": "b8ece0d15fd9d5377213d45198be4ac4ba0c7c8a",
+      "role": "synthetic allocation and token-mapping tests"
+    },
+    {
+      "path": "tests/2026-11/agent43-rank10-phantom-dive-policy-v2.test.cjs",
+      "gitBlobSha1": "1b25e576c331c4cad323cefc9812234ad07e9b7e",
+      "role": "policy v2 prompt gating and opt-in tests; authored, not run"
+    },
+    {
+      "path": "results/methodology/2026-11/agent43-rank10-common-constraints-v2.json",
+      "gitBlobSha1": "0e779ccb87b529e656e8ad93c5c4eb5425c6e9aa",
+      "role": "provisional common policy constraints; not bound to signed V3 policy plan"
+    }
+  ],
+  "sourceData": {
+    "path": "results/aichi-2026/2026-11/agent39-ranks8-16-expanded-normalized-inputs-20261113.json",
+    "gitBlobSha1": "f88bf0b8d3da450a50e0b283db73c6f1b5dc5bea",
+    "rank": 10,
+    "sourceCardCount": 60,
+    "sourcePrintAuthentication": "not independently authenticated",
+    "paperAdmission": "not admitted"
+  },
+  "benchmarkManifest": {
+    "path": "results/methodology/2026-11/agent17-aichi-policy-panel-manifest-20261117.json",
+    "gitBlobSha1": "fa5b39f044671dbb23af0c95b6d06f8706975085"
+  },
+  "readinessAssessment": {
+    "path": "results/methodology/2026-11/agent35-opponent-policy-prototype-readiness-20261117.md",
+    "gitBlobSha1": "4d1e2a56b4193652a892eb8a96e223dc0c3f4c46"
+  },
+  "challengeSuiteContract": {
+    "path": "results/methodology/2026-11/agent2-policy-challenge-suite-operational-contract-20261117.md",
+    "gitBlobSha1": "47d43388ff07679e6ac21f94bc8be65a88bdda59"
+  },
+  "twinleaf": {
+    "submodulePath": "vendor/twinleaf",
+    "remote": "https://github.com/twinleafgg/twinleafgg.git",
+    "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
+  },
+  "commonConstraints": {
+    "path": "results/methodology/2026-11/agent43-rank10-common-constraints-v2.json",
+    "gitBlobSha1": "0e779ccb87b529e656e8ad93c5c4eb5425c6e9aa",
+    "sha256": "78845ab7aa19d36918f68f5b4e51dcf6c2d3a03fc5333111aad966adc6c71817"
+  }
+}
