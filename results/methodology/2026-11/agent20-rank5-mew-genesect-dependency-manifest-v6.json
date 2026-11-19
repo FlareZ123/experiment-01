@@ -1,0 +1,50 @@
+{
+  "schema": "aichi-policy-dependency-manifest-v1",
+  "id": "agent20-rank5-mew-genesect-dependencies-v6",
+  "createdAtUtc": "2026-11-19T14:11:13.424Z",
+  "author": "Agent20",
+  "entrypoint": {
+    "path": "simulation/evaluation/2026-11/agent20-rank5-mew-genesect-opponent-policy.cjs",
+    "gitBlobSha1": "86e611bc4ff6468e5289356bb4560e80b5156983",
+    "sha256": "2d45fca8ddd8b1080fd4d8d14abf1fb26743d3fd1235ac5dd55cb4d674be0693",
+    "policyVersion": "agent20-rank5-mew-genesect-opponent-v6",
+    "sourceRank": 5
+  },
+  "protocol": {
+    "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+    "gitBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+    "sha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
+    "protocolVersion": "Agent49 V3 policy-worker request/decision protocol"
+  },
+  "tests": {
+    "path": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+    "gitBlobSha1": "0e991a797ff862f2fd673396bc5d36686d4e2b93",
+    "sha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+    "status": "authored-not-run"
+  },
+  "commonConstraints": {
+    "path": "results/methodology/2026-11/agent20-rank5-mew-genesect-common-constraints-v6.json",
+    "sha256": "40b719d7c4fb2b61c74c21dde185f0c4e020204be97ee3c42412c0735e662f64"
+  },
+  "engine": {
+    "submodulePath": "vendor/twinleaf",
+    "remote": "https://github.com/twinleafgg/twinleafgg.git",
+    "pinnedRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "importedByPolicyModule": false,
+    "usedForNativeValidation": false
+  },
+  "runtime": {
+    "intendedNodeMajor": 22,
+    "thirdPartyRuntimeDependencies": [],
+    "testCommand": "node --test tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+    "localExecution": "not run: no local repository checkout; no CI workflow was added or dispatched",
+    "noNewWorkflow": true
+  },
+  "dependencyClosure": {
+    "policyModuleSha256": "2d45fca8ddd8b1080fd4d8d14abf1fb26743d3fd1235ac5dd55cb4d674be0693",
+    "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
+    "testFileSha256": "da243f8f7047f8dd41531f66ef2df3da1edf3890ef63eb0c27a3a61f2dec0f9d",
+    "commonConstraintsSha256": "40b719d7c4fb2b61c74c21dde185f0c4e020204be97ee3c42412c0735e662f64"
+  },
+  "bindingStatus": "diagnostic-only; not included in Agent36 V3 bundle or production policy plan"
+}
