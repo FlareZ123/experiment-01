@@ -78,7 +78,7 @@ function normalizeSplit(rawSplit, arrayKey) {
   return 'development';
 }
 
-function structuralBlockers(record) {
+function presenceScreenBlockers(record) {
   const blockers = [];
   if (!record.stableCaseId) blockers.push('stableCaseId');
   if (!record.actorViewDigest) blockers.push('actorViewDigest');
@@ -135,8 +135,8 @@ function normalizeCase(suite, spec, arrayKey, index) {
       pick(sourceCase.reviewer, ['status']) ||
       pick(sourceCase.review, ['status']) || null
   };
-  record.structuralBlockers = structuralBlockers(record);
-  record.structurallyComplete = record.structuralBlockers.length === 0;
+  record.presenceScreenBlockers = presenceScreenBlockers(record);
+  record.passesPresenceScreen = record.presenceScreenBlockers.length === 0;
   return record;
 }
 
@@ -261,8 +261,8 @@ function countBy(records, key) {
   }, {});
 }
 
-function isStructurallyComplete(record) {
-  return structuralBlockers(record).length === 0;
+function passesPresenceScreen(record) {
+  return presenceScreenBlockers(record).length === 0;
 }
 
 function buildCorpus(rootDir) {
@@ -309,7 +309,7 @@ function buildCorpus(rootDir) {
       stableCaseId: sourceCase.stableCaseId,
       sourceSplit: sourceCase.split,
       splitMatches: sourceCase.split === item.split,
-      sourceCaseStructurallyComplete: sourceCase.structurallyComplete,
+      sourceCasePassesPresenceScreen: sourceCase.passesPresenceScreen,
       actorViewScope: actorView.scope || null,
       actorViewRuntimeDigestSha256: actorView.runtimeDigestSha256 || null,
       actorViewFixtureDescriptorSha256: actorView.fixtureDescriptorSha256 || null,
@@ -335,7 +335,7 @@ function buildCorpus(rootDir) {
     dispositionCounts: countBy(curatedCases, 'dispositionStatus'),
     matchedCaseReferences: curatedCases.length,
     splitMismatches: curatedCases.filter(record => !record.splitMatches).length,
-    structurallyCompleteCases: curatedCases.filter(record => record.sourceCaseStructurallyComplete).length,
+    fieldPresenceScreenPasses: curatedCases.filter(record => record.sourceCasePassesPresenceScreen).length,
     runtimeActorViewDigestCases: curatedCases.filter(record => record.actorViewRuntimeDigestSha256).length,
     exactRuntimeObservationCases: curatedCases.filter(record => record.exactRuntimeObservationCaptured).length,
     nativeStoreReceiptCases: curatedCases.filter(record => record.nativeStoreReceiptPresent).length,
@@ -404,27 +404,27 @@ function buildCorpus(rootDir) {
       casesWithExecutionEvidence: cases.filter(record => record.hasExecutionEvidence).length,
       casesWithStableCaseId: cases.filter(record => record.stableCaseId).length,
       casesWithCaseSourceBinding: cases.filter(record => record.hasCaseSourceBinding).length,
-      structuralCompletenessContract: {
+      fieldPresenceScreenDefinition: {
         required: [
           'stableCaseId', 'actorViewDigest', 'caseSourceBinding',
           'decisionEnvelope', 'costLedger', 'promptCoverage', 'executionEvidence',
           'recognizedEvidenceClass'
         ],
         recognizedEvidenceClasses: Array.from(VALID_EVIDENCE_CLASSES),
-        note: 'Structural completeness only; it does not prove actor-only privacy, strategic correctness, native execution, or competence.'
+        note: 'Eight-field presence screen only; not full conformance to the Agent2 operational contract, executable status, actor-only privacy, strategic correctness, native execution, or competence.'
       },
-      structurallyCompleteCaseCount: cases.filter(isStructurallyComplete).length,
-      structurallyCompleteBySplit: countBy(cases.filter(isStructurallyComplete), 'split'),
-      structurallyCompleteDispositionCounts: countBy(cases.filter(isStructurallyComplete), 'disposition'),
-      structuralBlockerCounts: cases.reduce((counts, record) => {
-        for (const blocker of structuralBlockers(record)) {
+      fieldPresenceScreenPassCount: cases.filter(passesPresenceScreen).length,
+      fieldPresenceScreenBySplit: countBy(cases.filter(passesPresenceScreen), 'split'),
+      fieldPresenceScreenDispositionCounts: countBy(cases.filter(passesPresenceScreen), 'disposition'),
+      presenceScreenBlockerCounts: cases.reduce((counts, record) => {
+        for (const blocker of presenceScreenBlockers(record)) {
           counts[blocker] = (counts[blocker] || 0) + 1;
         }
         return counts;
       }, {}),
-      structurallyCompleteByRank: sourceSuites.map(source => {
+      fieldPresenceScreenByRank: sourceSuites.map(source => {
         const complete = cases.filter(record =>
-          record.rank === source.rank && isStructurallyComplete(record));
+          record.rank === source.rank && passesPresenceScreen(record));
         return {
           rank: source.rank,
           total: complete.length,
@@ -488,8 +488,8 @@ module.exports = {
   gitBlobSha1,
   normalizeCase,
   normalizeSplit,
-  structuralBlockers,
-  isStructurallyComplete,
+  presenceScreenBlockers,
+  passesPresenceScreen,
   readPinnedJson,
   resolveCase
 };
