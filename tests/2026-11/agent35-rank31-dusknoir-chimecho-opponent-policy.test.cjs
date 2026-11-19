@@ -156,4 +156,14 @@ test('identical actor-visible requests produce identical decisions',()=>{
   assert.deepEqual(a,b);
 });
 
+
+test('Dusclops PRE Cursed Blast prompt uses its 5-counter threshold',()=>{
+  const target=pokemon('Shadow Rider Calyrex V CRE 74',{hp:210,damage:160,subtypes:['Basic','V']});
+  const p=prompt('ChoosePokemonPrompt','Dusclops PRE 36','Cursed Blast',
+    [pChoice('target',target.printing,'active',0)],
+    {minimumCount:1,maximumCount:1,allowCancel:false,isSecret:false,selectionType:'pokemon',targetZone:'active'});
+  assert.deepEqual(checked(req({prompt:p,opponentPublic:player({active:target}),items:[]}),
+    'r31-dev-15.dusclops-prompt'),{kind:'select-choices',tokens:['target']});
+});
+
 module.exports.__fixtureRecords=fixtureRecords;
