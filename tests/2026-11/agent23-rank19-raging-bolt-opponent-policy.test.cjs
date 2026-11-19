@@ -206,18 +206,18 @@ test('first-turn Battle VIP Pass outranks a second basic setup action', () => {
 test('Professor Sada is selected only when Basic Energy is already in discard and an Ancient target exists', () => {
   const bolt = pokemon({ printing: RAGING, subtypes: ['Basic', 'ex', 'Ancient'], energies: [] });
   const obs = observation({
-    ownActive: bolt, ownHand: ['Professor Sada\\'s Vitality PAR 170'],
+    ownActive: bolt, ownHand: ["Professor Sada's Vitality PAR 170"],
     ownDiscard: [LIGHTNING]
   });
   const result = runDecision({ obs, items: [
-    action('sada', 'play-card', { actorPrinting: 'Professor Sada\\'s Vitality PAR 170' }),
+    action('sada', 'play-card', { actorPrinting: "Professor Sada's Vitality PAR 170" }),
     action('pass', 'pass')
   ]});
   assert.deepEqual(result.decision, { kind: 'select-action', token: 'sada' });
 
-  const noFuel = observation({ ownActive: bolt, ownHand: ['Professor Sada\\'s Vitality PAR 170'] });
+  const noFuel = observation({ ownActive: bolt, ownHand: ["Professor Sada's Vitality PAR 170"] });
   const declined = runDecision({ obs: noFuel, items: [
-    action('sada', 'play-card', { actorPrinting: 'Professor Sada\\'s Vitality PAR 170' }),
+    action('sada', 'play-card', { actorPrinting: "Professor Sada's Vitality PAR 170" }),
     action('pass', 'pass')
   ]});
   assert.deepEqual(declined.decision, { kind: 'select-action', token: 'pass' });
@@ -331,7 +331,7 @@ test('Sada chooses only Ancient Pokémon and prefers Raging Bolt plus Sandy Shoc
     pokemonChoice('sandy', sandy, 'actor', 'bench'),
     pokemonChoice('latias', latias, 'actor', 'bench')
   ];
-  const p = prompt(0, 'ChoosePokemonPrompt', "Professor Sada's Vitality", 'Professor Sada\\'s Vitality PAR 170',
+  const p = prompt(0, 'ChoosePokemonPrompt', "Professor Sada's Vitality", "Professor Sada's Vitality PAR 170",
     choices, { selectionType: 'pokemon', minimumCount: 1, maximumCount: 2,
       allowCancel: false, targetZone: 'bench' });
   const result = runDecision({ obs, promptValue: p });
