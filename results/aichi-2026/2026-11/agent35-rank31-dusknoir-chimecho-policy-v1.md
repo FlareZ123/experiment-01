@@ -6,7 +6,7 @@
 
 - Policy: `simulation/evaluation/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.cjs`
 - Tests: `tests/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.test.cjs`
-- Challenge suite: `results/aichi-2026/2026-11/agent35-rank31-opponent-policy-challenge-suite-v1.json`
+- Challenge suite: `results/aichi-2026/2026-11/agent35-rank31-opponent-policy-challenge-suite-v2.json`
 - Dependency manifest: `simulation/evaluation/2026-11/agent35-rank31-dependency-manifest-v1.json`
 - Common constraints: `simulation/evaluation/2026-11/agent35-rank31-common-constraints-v1.json`
 
@@ -19,7 +19,17 @@ The rank-31 list contains **3 Dusclops PRE 36**, **3 Dusknoir PRE 37**, **1 Dusk
 - **Dusclops PRE 36:** 5 damage counters on one opposing Pokémon, then this Dusclops is Knocked Out.
 - **Dusknoir PRE 37:** 13 damage counters on one opposing Pokémon, then this Dusknoir is Knocked Out.
 
-Agent44's earlier rank-31 counterline report documents Dusknoir PRE 37, Dusknoir BCR 63 and Radiant Alakazam SIT 59, but does not account for the three Dusclops PRE 36 copies. Rank31 therefore has two source-specific Cursed Blast producers in addition to the two MoveDamage producers. The Dusclops fact is card-pool-text verified here; its exact Twinleaf source mapping and native prompt are not yet tested.
+Agent44's earlier rank-31 counterline report documents Dusknoir PRE 37, Dusknoir BCR 63 and Radiant Alakazam SIT 59, but does not account for the three Dusclops PRE 36 copies. Rank31 therefore has two source-specific Cursed Blast producers in addition to the two MoveDamage producers. The Dusclops fact is card-pool-text verified, and its class mapping/prompt/effect contract are now confirmed by direct inspection of the pinned Twinleaf source. Native Store receipt and runtime effect execution remain untested.
+
+## Pinned Twinleaf source inspection
+
+The pinned revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` confirms the previously missing Dusclops implementation:
+
+- `ptcg-server/src/sets/10-scarlet-and-violet/set-prismatic-evolution/alt-arts.ts` lines 128–137 maps `DusclopsPRE` to the Shrouded Fable `Dusclops` class with PRE number 36; it maps `DusknoirPRE` to the corresponding Dusknoir class with PRE number 37.
+- `ptcg-server/src/sets/10-scarlet-and-violet/set-shrouded-fable/dusclops.ts` lines 27–77 declares Cursed Blast with `knocksOutSelf: true`, opens a `ChoosePokemonPrompt` for the opponent's Active/Bench with min 1, max 1 and no cancel, applies `PlaceDamageCountersEffect(50)`, then self-KOs even if the counters were prevented (the source comment names Stealthy Hood).
+- `ptcg-server/src/sets/10-scarlet-and-violet/set-shrouded-fable/dusknoir.ts` lines 19–65 implements the same prompt/self-KO structure with `PlaceDamageCountersEffect(130)`.
+
+This is pinned-source implementation evidence, not a native Store receipt or executed game. The new synthetic Dusclops prompt test validates the policy's 50-counter branch through the shared request/decision validators.
 
 ## Implemented policy behavior
 
@@ -32,7 +42,7 @@ Agent44's earlier rank-31 counterline report documents Dusknoir PRE 37, Dusknoir
 
 ## Validation
 
-**14/14 synthetic tests passed**, using the actual repository Agent49 `validateRequest` and `validateDecision` functions. The test source was evaluated in a local V8 isolate with `node:test` and `node:assert/strict` shims. **16 actor-view fixtures** were digested. Both physical seats were covered by synthetic prompt tests. Repeated identical input produced identical validated output.
+**15/15 synthetic tests passed**, using the actual repository Agent49 `validateRequest` and `validateDecision` functions. The test source was evaluated in a local V8 isolate with `node:test` and `node:assert/strict` shims. **17 actor-view fixtures** were digested. Both physical seats were covered by synthetic prompt tests. Repeated identical input produced identical validated output.
 
 This establishes only deterministic policy/validator behavior on authored synthetic fixtures. It does not establish native effect resolution, full-deck policy competence, or competitive strength.
 
@@ -40,7 +50,7 @@ This establishes only deterministic policy/validator behavior on authored synthe
 
 - Zero native Twinleaf games, native Store receipts, source-natural cases, worker IPC handshakes, or timeout measurements.
 - Field Blower's exact pinned-source option labels and full effect chain have not been exercised.
-- Dusclops PRE 36's native Cursed Blast mapping is unverified.
+- Dusclops PRE 36's pinned-source mapping and prompt contract are verified; native Store receipt/runtime effect remains unverified.
 - MoveDamagePrompt remains unsupported; Sinister Hand and Painful Spoons remain blocked.
 - Root priorities and prize-trade thresholds are heuristics, not calibrated strategy.
 - No rank31 matchup result, no Top 32 aggregate, no win-rate estimate, and no 99.5% claim.
@@ -56,5 +66,5 @@ This establishes only deterministic policy/validator behavior on authored synthe
 
 - **Card-pool text:** Dusclops PRE 36 and Dusknoir PRE 37 Cursed Blast effects.
 - **Repository source analysis:** exact rank31 list, candidate fingerprint, pinned Twinleaf path/revision, shared worker validators and prompt projection.
-- **Synthetic computation:** 14/14 deterministic validator tests.
+- **Synthetic computation:** 15/15 deterministic validator tests.
 - **Not demonstrated:** native effect behavior for this policy, any games, matchup win rate, or the 99.5% objective.
