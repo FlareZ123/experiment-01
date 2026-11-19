@@ -105,7 +105,7 @@
     "Use Wally only when a Mew V entered play this turn and the Supporter resource is available.",
     "Use Genesect V Fusion Strike System only when hand size is below the number of Fusion Strike Pokémon in play.",
     "Prefer Mew VMAX Cross Fusion Strike copying a Benched Genesect V Techno Blast when that attack is offered.",
-    "Cross Fusion Strike pays its own Colorless cost; do not charge the donor attack cost again without native evidence.",
+    "Rulebook C-18: Mew VMAX Cross Fusion Strike says to use the chosen Benched Fusion Strike attack 'as this attack', so pay Cross Fusion Strike's own [C][C] cost but do not separately pay the chosen attack's printed Energy unless its text explicitly adds that requirement; D-09's Ditto Copy Anything is an explicit exception.",
     "Use copied Energy Mix only as a Cross Fusion Strike line and target DCE from the deck.",
     "Do not assume standalone Mew V Energy Mix/Psychic Leap, Mew VMAX Max Miracle, Genesect Techno Blast, or Clefairy Full Moon Rondo are payable from the source's DCE-only energy base.",
     "Sequence own draw abilities before Path to the Peak; Path suppresses Rule Box abilities on both sides, including Genesect Fusion Strike System and Shadow Rider VMAX Underworld Door.",
@@ -132,5 +132,52 @@
     "reviewerRegistryStatus": "owner hold; do not self-authorize",
     "v3ProductionRegistration": false
   },
-  "policyVersion": "agent20-rank5-mew-genesect-opponent-v7"
+  "policyVersion": "agent20-rank5-mew-genesect-opponent-v7",
+  "paperRuleResolutions": {
+    "crossFusionStrike": {
+      "rulebook": {
+        "path": "resources/manual/EN_advanced_manual-2025-transcription-structured.md",
+        "version": "Advanced Player’s Rulebook Ver. 3.4 (01/08/2025)",
+        "sectionC18": "Use it as this attack means choosing an attack and doing all of its effects and damage. Unless specified otherwise, even if your Pokémon does not have the necessary Energy for the cost of the chosen attack, it can still do all of that attack’s effects and damage.",
+        "sectionD09": "Attack cost is the Energy required to use an attack. Ditto’s Copy Anything is an explicit exception: if it does not have the necessary Energy to use the chosen attack, that attack does nothing."
+      },
+      "repositoryCardPool": {
+        "path": "resources/cards/en/swsh8.json",
+        "mewV": {
+          "name": "Mew V",
+          "number": "113",
+          "attack": "Energy Mix",
+          "cost": [
+            "Psychic"
+          ],
+          "text": "Search your deck for an Energy card and attach it to 1 of your Fusion Strike Pokémon. Then, shuffle your deck."
+        },
+        "mewVMAX": {
+          "name": "Mew VMAX",
+          "number": "114",
+          "attack": "Cross Fusion Strike",
+          "cost": [
+            "Colorless",
+            "Colorless"
+          ],
+          "text": "Choose 1 of your Benched Fusion Strike Pokémon's attacks and use it as this attack."
+        },
+        "genesectV": {
+          "name": "Genesect V",
+          "number": "185",
+          "attack": "Techno Blast",
+          "cost": [
+            "Metal",
+            "Metal",
+            "Colorless"
+          ],
+          "damage": "210",
+          "text": "During your next turn, this Pokémon can't attack."
+        }
+      },
+      "conclusion": "Mew VMAX pays its own two-Colorless Cross Fusion Strike cost. When copying Mew V Energy Mix or Genesect V Techno Blast, the donor attack's printed Psychic or Metal/Colorless cost is not separately required because Cross Fusion Strike uses the C-18 'as this attack' wording and neither copied attack text adds an Energy-payment exception.",
+      "evidenceClass": "direct paper-rulebook text plus exact repository card text; not a simulation result",
+      "engineStatus": "Paper interpretation resolved; Twinleaf implementation of the interaction has not been tested in this invocation."
+    }
+  }
 }
