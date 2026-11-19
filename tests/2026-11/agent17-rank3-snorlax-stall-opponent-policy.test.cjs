@@ -824,6 +824,12 @@ test('Arven uses dual-subtype Forest Seal Stone as its Item and a distinct Tool 
   const request = promptRequest({
     promptType: 'ChooseCardsPrompt',
     source: actorChoiceSource('Arven OBF 186', 'Arven'),
+    observation: {
+      ownPublic: player({
+        active: pokemon('Snorlax PGO 55'),
+        bench: [pokemon('Rotom V LOR 58')]
+      })
+    },
     choices: [
       cardChoice('seal', 'Forest Seal Stone SIT 156'),
       cardChoice('nest', 'Nest Ball SVI 181'),
