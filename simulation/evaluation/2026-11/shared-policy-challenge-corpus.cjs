@@ -185,7 +185,7 @@ function normalizeSuite(rootDir, spec, cases) {
     pick(candidateDeck, ['fingerprintKind', 'hashMethod', 'sourceHashMethod']) ||
     (pick(candidateDeck, ['candidateEntryJsonSha256']) ? 'candidate-entry-json-sha256' :
       (pick(candidateDeck, ['fixedCandidateFingerprintSha256']) ? 'fixed-candidate-fingerprint-sha256' :
-        (pick(candidateDeck, ['fingerprintSha256']) ? 'deck-fingerprint-sha256' : null));
+        (pick(candidateDeck, ['fingerprintSha256']) ? 'deck-fingerprint-sha256' : null)));
 
   return {
     rank,
