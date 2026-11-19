@@ -68,6 +68,60 @@ The [official Enamorus V Q&A](https://asia.pokemon-card.com/ph/rules/search/?key
 - Guardian of Love works from the Bench, but Enamorus consumes one Bench slot. The current 60 has only Sky Field ×1 and Dimension Valley ×1; Agent17's field inventory counts Stadium-removal cards in 20/29 exact lists. If Sky Field is removed, the Bench limit returns to five and the player must discard excess Benched Pokémon, potentially forcing a choice between Enamorus, Shadow Rider engine pieces and other support. Measure the actual Bench plan with and without Sky Field rather than assuming the extra slot is free.
 - The variant's displaced card matters to setup math: replacing a non-Basic card raises the candidate from 14 to 15 Basics; replacing a Basic keeps it at 14. Under a uniform seven-card opening, the exact probability of at least one Basic rises from 86.14% at 14 Basics to 88.25% at 15 Basics (+2.11 percentage points), using 1 − C(60−B,7)/C(60,7). This is only the opening-Basic component, not a net consistency result: the displaced trainer/VMAX, Prize placement, searcher competition and mulligan-draw effects still need paired evaluation.
 - **Restricted Enamorus direct-searcher baseline (not a ceiling):** with one Enamorus and only the eight direct searchers (Fog Crystal ×4 + Mysterious Treasure ×4), the no-mulligan sequential hypergeometric route gives 63.42% access in the opening seven, 68.51% by the first-turn draw, and 72.71% by the second-turn draw. “Access” means Enamorus is in hand or one of those eight searchers is available while Enamorus remains in the deck after six Prizes. Reproduction: let q = C(51,7)/C(59,7), the probability of no direct searcher in the opening seven conditional on Enamorus not being there. Then P(opening access) = 7/60 + (53/60)(1−q)(47/53); P(by turn-one draw) adds (53/60)q(47/53)(9/47); P(by turn-two draw) instead adds (53/60)q(47/53)[1−(38/47)(37/46)]. **These percentages are not a true access ceiling or a joint Hooded-anchor probability.** The proposed list also contains Hisuian Heavy Ball ×1 (which can recover a Prized Basic such as Enamorus), Forest Seal Stone ×1 (a conditional any-card VSTAR search), Arven ×1 (which can search a Pokémon Tool and an Item, potentially Hood plus Heavy Ball), and Tapu Lele-GX ×1 (a possible Wonder Tag route to Arven). Those additional routes were excluded from the 63.42–72.71% calculation. Conversely, the calculation assumes the direct searchers are usable and ignores Item lock, Mysterious Treasure discard costs, searcher competition with Shadow Rider / Clefairy / Energy, the conditions on the extra search routes, and the separate need to find and attach Stealthy Hood. Treat the figures only as the isolated eight-searcher route; do not use them as an upper bound on Enamorus access or as a setup probability.
+- **Joint Enamorus + Hood anchor access (restricted direct-route enumeration):** I enumerated a hypothetical 60 with one Enamorus, two Hoods, eight direct searchers, one Arven, and the existing fourteen other Basics (15 total Basics, assuming Enamorus replaces a non-Basic Trainer). After a valid opening seven, six Prizes are dealt, then one natural draw is included by the candidate's turn two when going first or two when going second. Access requires (a) Enamorus in the seen cards, or Enamorus still in deck plus a direct searcher seen; and (b) a Hood in the seen cards, or a Hood still in deck plus Arven seen. The exact conditional joint-access results are **21.7762% going first** and **25.9664% going second**; the valid-opening rate is 88.2499%. If Enamorus instead replaces a Basic (14 total Basics), the corresponding conditional joint access is **21.6962% / 25.8880%**, with an 86.1409% valid-opening rate. The extra Basic therefore improves the opening-Basic component but barely changes this restricted joint-access percentage. These are route-specific access calculations, **not anchor-establishment probabilities or strict bounds**: they exclude Heavy Ball, Forest Seal Stone, Tapu Lele-GX → Arven, opponent mulligan bonuses, and all game-state setup; they assume direct searchers are playable, Mysterious Treasure's discard cost can be paid, Arven is usable, and no Item / Supporter lock or resource competition prevents the line. The omitted search routes and optimistic use assumptions pull in opposite directions. Reproduction (standard-library Python; categories are Enamorus, Hood, direct searcher, Arven, other Basic, and all remaining cards):
+  
+  ```python
+  from math import comb
+
+  def bounded(total, caps, prefix=()):
+      if len(caps) == 1:
+          if 0 <= total <= caps[0]:
+              yield prefix + (total,)
+          return
+      for x in range(min(total, caps[0]) + 1):
+          yield from bounded(total - x, caps[1:], prefix + (x,))
+
+  def joint_access(other_basics, draws):
+      counts = (1, 2, 8, 1, other_basics,
+                60 - 1 - 2 - 8 - 1 - other_basics)
+      valid = success = 0
+      for hand in bounded(7, counts):
+          if hand[0] + hand[4] == 0:
+              continue
+          hw = 1
+          for n, k in zip(counts, hand):
+              hw *= comb(n, k)
+          valid += hw
+          after_hand = tuple(n-k for n, k in zip(counts, hand))
+          for prizes in bounded(6, after_hand):
+              pw = 1
+              for n, k in zip(after_hand, prizes):
+                  pw *= comb(n, k)
+              if not pw:
+                  continue
+              after_prizes = tuple(n-k for n, k in zip(after_hand, prizes))
+              for drawn in bounded(draws, after_prizes):
+                  dw = 1
+                  for n, k in zip(after_prizes, drawn):
+                      dw *= comb(n, k)
+                  seen = tuple(h+d for h, d in zip(hand, drawn))
+                  deck = tuple(n-h-p-d for n, h, p, d
+                               in zip(counts, hand, prizes, drawn))
+                  has_enamorus = (seen[0] > 0 or
+                                  (deck[0] > 0 and seen[2] > 0))
+                  has_hood = (seen[1] > 0 or
+                              (deck[1] > 0 and seen[3] > 0))
+                  if has_enamorus and has_hood:
+                      success += hw * pw * dw
+      denominator = valid * comb(53, 6) * comb(47, draws)
+      return success / denominator, valid / comb(60, 7)
+
+  for basics_other in (14, 13):
+      for draws in (1, 2):
+          print(basics_other, draws, joint_access(basics_other, draws))
+  ```
+
+  Expected output: `14 1 (0.2177619771, 0.8824992053)`, `14 2 (0.2596642905, 0.8824992053)`, `13 1 (0.2169622025, 0.8614093191)`, `13 2 (0.2588797667, 0.8614093191)`.
 - If Enamorus V is Knocked Out, the board-wide protection disappears. Night Stretcher can recover a Pokémon, but it does not recover a discarded Hood.
 - The candidate already has Acerola ×1 and VS Seeker ×2. If Enamorus has damage counters, Acerola can return Enamorus and all attached cards (including its Hood) to hand before it is Knocked Out; VS Seeker can later recover Acerola. This preserves the Tool but costs the Supporter turn and temporarily removes the board-wide shield, so test it as a tempo / resource line rather than assuming it is free.
 - Field Blower and Megaton Blower can still remove the Hood attached to Enamorus V. The second Hood is a reserve, not immunity to repeated removal.
