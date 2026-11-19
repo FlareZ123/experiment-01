@@ -559,7 +559,9 @@ function choiceOwner(choice) {
 function cardChoiceScore(choice, observation, context) {
   const printing = valueText(choice);
   if (context === 'faba') {
-    if ([PRINT.stealthyHood, PRINT.floatStone, PRINT.forestSealStone].some(p => matches(printing, p))) return 220;
+    if (matches(printing, PRINT.stealthyHood)) return 250;
+    if (matches(printing, PRINT.forestSealStone)) return 225;
+    if (matches(printing, PRINT.floatStone)) return 200;
     if (matches(printing, PRINT.temple) || /Sky Field|Dimension Valley/i.test(printing)) return 170;
     if (/Special Energy|Double Dragon Energy|Jet Energy|Capture Energy/i.test(printing)) return 120;
     return 10;
@@ -747,7 +749,9 @@ function promptDecision(request) {
     }
 
     if (source.includes('faba')) {
-      return singleChoice(prompt, choices.filter(choice => choiceOwner(choice) === 'opponent'),
+      const targets = choices.filter(choice => choiceOwner(choice) === 'opponent' ||
+        choiceZone(choice) === 'stadium' || choice.kind === 'stadium');
+      return singleChoice(prompt, targets,
         choice => cardChoiceScore(choice, observation, 'faba'), 'NO_FABA_TARGET');
     }
     if (source.includes('enhanced hammer')) {
@@ -790,7 +794,13 @@ function promptDecision(request) {
       return singleChoice(prompt, choices,
         choice => opponentPokemonScore(choice, observation), 'NO_OPPONENT_BENCH_TARGET');
     }
-    if (/plumeria|team flare grunt/i.test(source)) {
+    if (/team flare grunt/i.test(source)) {
+      const activeTargets = choices.filter(choice => choiceOwner(choice) === 'opponent' &&
+        choiceZone(choice) === 'active');
+      return singleChoice(prompt, activeTargets,
+        choice => opponentPokemonScore(choice, observation), 'NO_OPPONENT_ACTIVE_TARGET');
+    }
+    if (/plumeria/i.test(source)) {
       return singleChoice(prompt, choices.filter(choice => choiceOwner(choice) === 'opponent'),
         choice => opponentPokemonScore(choice, observation), 'NO_OPPONENT_ENERGY_TARGET');
     }
