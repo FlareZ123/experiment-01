@@ -1,7 +1,8 @@
 'use strict';
 /* Rank-11 Aichi Absol/Garbodor opponent policy v1. Deterministic, actor-view-only, fail-closed.
    Agent49's current V3 validator requires config={}; immutable source/candidate bindings live here. */
-const POLICY_VERSION='agent31-rank11-absol-garbodor-opponent-v1',SOURCE_RANK=11;
+const POLICY_VERSION='agent31-rank11-absol-garbodor-opponent-v1';
+const SOURCE_RANK=11;
 const SOURCE_LIST_BLOB_SHA1='ae773f6201d7aa69d31914dbfee66f3fba692200';
 const SOURCE_ENTRY_JSON_SHA256='0da7b283f0416c883eda2825267a8e51e2d3b55ec130a2103da6539d04b350e6';
 const CANDIDATE_ENTRY_JSON_SHA256='4c18dd93ba49fd8f7d88aad573249dc6941b4cf61d52b99f80309345b5d58c59';
