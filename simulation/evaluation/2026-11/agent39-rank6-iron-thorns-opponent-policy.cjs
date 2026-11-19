@@ -285,7 +285,7 @@ function choiceOwner(choice) {
 
 function choiceZone(choice) {
   const meta = choice?.publicMetadata ?? {};
-  return meta.sourceZone ?? meta.targetZone ?? meta.zone ?? null;
+  return meta.targetZone ?? meta.sourceZone ?? meta.zone ?? null;
 }
 
 function choicePrinting(choice) {
