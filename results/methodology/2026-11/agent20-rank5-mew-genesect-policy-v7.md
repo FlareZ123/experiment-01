@@ -24,6 +24,16 @@ Implemented lines:
 - Secret Box distinct supporter/item/tool/stadium categories; abstain if category metadata is missing.
 - Public target disambiguation: when identical Pokémon printings are on the board, use `targetZone` and `benchIndex`; if the target remains ambiguous, abstain rather than scoring the first matching printing.
 
+## Paper-rule resolution: Cross Fusion Strike donor Energy
+
+The repository's Advanced Player’s Rulebook Ver. 3.4 resolves the donor-cost question:
+
+- Section C-18, “Use it as this attack,” says the chosen attack's effects and damage apply even if the attacking Pokémon does not have the Energy for the chosen attack's cost, unless otherwise specified.
+- Section D-09 gives Ditto's Copy Anything as the explicit exception: its text specifically requires the necessary Energy for the chosen attack.
+- The exact repository card text in `resources/cards/en/swsh8.json` for Mew VMAX SWSH8 114 is “Choose 1 of your Benched Fusion Strike Pokémon's attacks and use it as this attack.” It has no additional donor-Energy condition. Mew V SWSH8 113's Energy Mix costs Psychic; Genesect V SWSH8 185's Techno Blast costs Metal, Metal, Colorless.
+
+Therefore Mew VMAX pays its own two-Colorless Cross Fusion Strike cost; it does not separately pay the copied Energy Mix or Techno Blast cost. This is a paper-rulebook conclusion, not a simulation result. Twinleaf's implementation of this interaction remains untested and must be checked separately before relying on native results.
+
 ## Tests and suite
 
 Test file: `tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs`
@@ -50,12 +60,12 @@ Frozen suite: `results/methodology/2026-11/agent20-rank5-mew-genesect-challenge-
 | Artifact | SHA-256 |
 |---|---|
 | Policy module | `87cc1716e7a8c0db9d56514d91b0bb8327fc955ed0725ad8dde113cb9eed0213` |
-| Test file | `9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70` |
+| Test file | `c6287017f65d91c3539b727836817b8112a4d244d44a2b2589b73b484a30c535` |
 | Agent49 worker protocol | `5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751` |
-| Common constraints v7 | `94af8564d2de9029633983d214d34ff8ba9c86194e9eadb38123d873e51a3190` |
-| Dependency manifest v7 | `e3b2e3f4aa9953be5a0f821da3ae81ff7861dab66739cacc00888d1a88f61e74` |
-| Challenge suite v7 | `6488226b9bf220d080b2359f5e1cf87e25e4ea7ef06a2b7984b2d6cde1ae539d` |
-| Producer binding v7 | `122c87f924b070bcf3a93c18170eed4ee2d5ce0009c58c8ac687c649055d579b` |
+| Common constraints v7 | `71323a96a6e088fe5ad0271b873eae3fd369c7e911a913ba75a4b9d0f3f5f588` |
+| Dependency manifest v7 | `58093aef935829030fc00dd47be7c4a7c27a1f2cf178ac9e8b02e26ba555abd3` |
+| Challenge suite v7 | `b99d12068109284e5a8198d70b42773ae97c568b1f3aa7ab3a65924f87461045` |
+| Producer binding v7 | `a10d137261967ac15d25acc05b6665ac0ff200088f9b7d4974b8bbbce1a769d6` |
 
 The dependency/suite/binding digests are SHA-256-bound to current GitHub file contents. The producer binding is diagnostic only: candidate-policy and bundle producer IDs remain null, the producer set is incomplete, and canonical Agent36 V3 registration is absent.
 
