@@ -820,7 +820,7 @@ test('Capture Energy is attached to Bunnelby to enable Burrow and its Basic sear
   });
 });
 
-test('Arven never selects a dual-subtype Forest Seal Stone twice for its Item and Tool pair', () => {
+test('Arven uses dual-subtype Forest Seal Stone as its Item and a distinct Tool Jammer as its Tool', () => {
   const request = promptRequest({
     promptType: 'ChooseCardsPrompt',
     source: actorChoiceSource('Arven OBF 186', 'Arven'),
@@ -832,7 +832,7 @@ test('Arven never selects a dual-subtype Forest Seal Stone twice for its Item an
     publicMetadata: multiMetadata(2, 2)
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'select-choices', tokens: ['nest', 'jammer']
+    kind: 'select-choices', tokens: ['seal', 'jammer']
   });
 });
 
@@ -873,5 +873,32 @@ test('Guzma does not abandon an established Snorlax Active lock without a replac
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-action', token: 'pass'
+  });
+});
+
+
+test('Forest Seal Stone is attached to Rotom V to enable Star Alchemy', () => {
+  const request = rootRequest({
+    ownHand: ['Forest Seal Stone SIT 156'],
+    ownPublic: player({
+      active: pokemon('Snorlax PGO 55'),
+      bench: [pokemon('Rotom V LOR 58')]
+    }),
+    items: [
+      {
+        token: 'seal-rotom', kind: 'play-card',
+        actorPrinting: 'Forest Seal Stone SIT 156', targetPrinting: 'Rotom V LOR 58',
+        publicMetadata: { cardType: 'trainer', handIndex: 0 }
+      },
+      {
+        token: 'seal-snorlax', kind: 'play-card',
+        actorPrinting: 'Forest Seal Stone SIT 156', targetPrinting: 'Snorlax PGO 55',
+        publicMetadata: { cardType: 'trainer', handIndex: 0 }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action', token: 'seal-rotom'
   });
 });
