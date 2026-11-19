@@ -8,8 +8,8 @@
   "producerBindingStatus": "prototype only; not inserted into the signed/hash-bound V3 policy plan",
   "policyModule": {
     "path": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "gitBlobSha1": "42308b4f593c95448d78f639c9f8733144469a0a",
-    "sha256": "d6d7d0a63aa850dd183056a8e0ce8a93553cb74fceb45abbb92dfb656858d31d",
+    "gitBlobSha1": "9bfb23657040df38203e83aa2a354b1ef405fe1f",
+    "sha256": "2264140ca2793e3eb1ec9589a1423b3b5d50f3f309ad3657c1dcab5312911188",
     "policyVersion": "agent17-rank3-snorlax-stall-opponent-v1",
     "config": {
       "rank": 3,
@@ -134,21 +134,21 @@
   },
   "testSuite": {
     "path": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "gitBlobSha1": "051c51e390b3573482e1774aef592a15e718e707",
-    "sha256": "c6fd8f1e984dfceca499eaade6494125f406b3bf4fd2966df67d7151e25629b6",
+    "gitBlobSha1": "65a3b93b2ddd9cc49c21de1e9d35daa35e93bc39",
+    "sha256": "b52cb170355fdaa707703f9fa4e152bcf1664b8b3875ca65a91fea8f7abee522",
     "testFramework": "node:test source file",
     "localExecution": "V8 isolate test shim; not node --test",
-    "testCount": 47
+    "testCount": 48
   },
   "commonConstraints": {
     "path": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
     "sha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27"
   },
   "repositoryBindings": {
-    "policyCommit": "33f3bf28955bacde773ab40631881176b1a32127",
-    "testCommit": "4a0372e9ae02de78ee4879326a1f8cb24e506222",
+    "policyCommit": "e0dbf9291bee74552a688012ba4ae9dd477b443e",
+    "testCommit": "dae5fb179f2b5d4760b0f37a92375f347b7b2325",
     "baselineMainCommitAtInitialInspection": "2a86d357bf5ae699148f0fa7ce74c497e6973d49",
-    "currentMainAtManifestUpdate": "8d5ffddd66af96294646d676cd89bf32ea41900e"
+    "currentMainAtManifestUpdate": "dae5fb179f2b5d4760b0f37a92375f347b7b2325"
   },
   "hashDefinitions": {
     "fileSha256": "SHA-256 of exact UTF-8 file bytes",
@@ -310,6 +310,12 @@
       ],
       "testCoverage": "synthetic two-Water selection; no native Twinleaf prompt/action receipt",
       "confidence": "rules-shaped policy heuristic; native engine behavior unverified"
+    },
+    "mimikyu": {
+      "card": "Mimikyu PAL 97",
+      "protectionScope": "Safeguard prevents damage from attacks by Pokémon V; it does not protect from Pokémon ex",
+      "policy": "prioritize only when opponent actor-visible board contains Pokémon V/VMAX/VSTAR and no Mimikyu is already established",
+      "testCoverage": "synthetic VMAX positive and Pokémon ex negative controls; native effect not tested"
     }
   }
 }
