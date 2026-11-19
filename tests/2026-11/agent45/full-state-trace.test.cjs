@@ -163,7 +163,7 @@ test('failure error projection does not invoke accessor fields',()=>{
   const snapshot=recorder.result().steps[0].error;
   assert.equal(getterCalls,0);
   for(const key of ['name','message','code','stack'])
-    assert.equal(snapshot.properties[key].$type,'Undefined');
+    assert.equal(snapshot.snapshot.properties[key].$type,'Undefined');
 });
 
 test('configurable recorder bounds make incomplete snapshots explicit',()=>{
