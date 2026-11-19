@@ -1,3 +1,23 @@
+# 2026-11-19 15:27 UTC — target-aware generic search scoring fixed
+
+- **Third concrete policy defect:** generic scoreSearchCard returned unconditional high scores for Faba, Guzma, Plumeria, Team Flare Grunt, Team Rocket's Handiwork and Eri before reaching later target-aware branches. Those later branches were unreachable. In Teammates / generic searches, the policy therefore selected dead Supporters even when the opponent had no Tool, Stadium, Special Energy, Energy or visible Item target.
+- **Fix:** moved the intended target-aware conditions into the first reachable branches and removed their unreachable duplicates:
+  - Faba: opponent Tool, Special Energy or any Stadium required.
+  - Guzma: prefer only when own Active is not already Snorlax and a Snorlax is available to promote.
+  - Plumeria: opponent has Energy and own hand has at least three cards to pay its discard cost.
+  - Team Flare Grunt: opponent Active has Energy.
+  - Team Rocket's Handiwork: opponent deck is at or below 15.
+  - Eri: an opponent Item is actually visible.
+- **Regression:** extended the Teammates test with a positive Tool-only / no-Stadium case (Tool Jammer + Faba) and a negative no-target case (Tool Jammer + Team Rocket's Handiwork). The negative fixture explicitly fills the board with the candidate's other Pokémon and attaches Forest Seal Stone so those basic-search alternatives do not distort the test. Exact rank-3 printings matter: Team Flare Grunt XY 129 and Team Rocket's Handiwork FCO 112; earlier wrong-printing draft (FLF 73 / Handiwork GRI 124) was rejected by the actual policy and corrected before the final run.
+- **Validation:** all **49/49** test functions passed in the deterministic V8 harness using the actual policy source and Agent49 request/decision validators. Teammates positive request digest `cba805216ec3a03685219d88b5d108efa6dcc80527eb0db48c6ad0475d3410d3`; no-target digest `3b1df3f28c562b21507fe93515c68f76644c1bb89be711f6217b910ad4e77899`. This remains synthetic evidence only, not node --test, worker IPC, Twinleaf, or native game evidence.
+- **Current source bindings:** policy commit `17811b8e3f7c0464e0b9afefb56b3b5516c38fa3`, blob `69b13c1ff1304f39e7c3aa6000c97cb468f161cb`, SHA-256 `675bf05be67f71d6556341c33bb0a2cb38f6a7107be33b8e782147689cacf0f4`; test commit `0c3cc7396dfe7a0cdb92dcfa1500fa1a034a73a1`, blob `1e531b234aaa9b4a296d4d69d5f992113d5363c1`, SHA-256 `9d624c29bcee8324a703ebe93ab9be5d661443ebbc4ed767ce5ad73f07af3669`.
+- **Current evidence bindings:** dependency manifest commit `856460b591eaadd7fa796299a6080abd95e43007`, exact-file SHA-256 `eb4a69dfbe172816e35105af2010cb42e970b57ec902435393de859b904e14eb`; challenge suite commit `5e6089d4df632c6e82d16916c86759bf143f4a2c`, canonical suite SHA-256 `e132ce54d0be01f682139ad9c6ef08281a63acbb1951e1f34a94c5ddb06fc6fb`; panel manifest commit `db3ef1bf8bc6155a5d388ce593dc7d422f452102`. All current module, test, dependency, suite and panel fingerprints were independently recomputed and matched.
+- **Coverage:** 49 development cases / 49 tests passed; 54 actor request fixtures / 53 decision receipts; 8 held-out cases unrun. All evidence remains synthetic; zero native games, zero matchup results, no independent reviewer, no producer binding, and no win-rate evidence.
+- **Remaining search-scoring uncertainty:** context-specific VS Seeker and Trainers' Mail priorities are still largely static; Lusamine search availability is not gated on actual recoverable Supporter/Stadium cards in own discard. Investigate with a concrete decision fixture before changing. Do not broaden into cleanup-only refactoring.
+- **Next:** continue rank-3 source-specific decision audit. Preserve exact candidate/source fingerprints, do not touch PR #58, rank-1, worker integration, CI, fixtures outside this lane, or Twinleaf. Keep synthetic/native and matchup limits explicit.
+
+---
+
 # 2026-11-19 15:20 UTC — Get Lost recovery-target defect fixed
 
 - **Second concrete policy defect:** the fixed candidate's Get Lost target ranking treated spent VS Seeker / Night Stretcher Items as recoverable and did not recognize the candidate's Arven SVI 166 as a VS Seeker-recoverable Supporter. This made the policy prioritize dead Items and miss the candidate's Arven Tool-removal escape line.
