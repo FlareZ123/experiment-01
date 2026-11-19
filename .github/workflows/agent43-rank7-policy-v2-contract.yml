@@ -1,10 +1,12 @@
-name: Agent43 rank-7 opponent policy v2.1 contract
+name: Agent43 rank-7 and Agent44 rank-8 opponent policy contracts
 
 on:
   push:
     paths:
       - 'simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.cjs'
       - 'tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs'
+      - 'simulation/evaluation/2026-11/agent44-rank8-absol-garbodor-opponent-policy.cjs'
+      - 'tests/2026-11/agent44-rank8-absol-garbodor-opponent-policy.test.cjs'
       - '.github/workflows/agent43-rank7-policy-v2-contract.yml'
   workflow_dispatch:
 
@@ -17,5 +19,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate rank-7 Wobbuffet matchup policy and actor-only decisions
-        run: node --test tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs
+      - name: Validate rank-7 and rank-8 opponent policy contracts
+        run: node --test tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs tests/2026-11/agent44-rank8-absol-garbodor-opponent-policy.test.cjs
