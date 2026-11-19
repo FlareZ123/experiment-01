@@ -9,8 +9,8 @@
     "archetype": "Raichu Electrode Combo",
     "path": "results/aichi-2026/full-decklists.json",
     "blobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
-    "fileSha256": "26545a4a6592ea7025768e73e32202112fb4eaa922a16ac27cf902535012def8",
-    "entryJsonSha256": "0025740b7eb19347dcca8e85e713bee5e0d79f0b9f1944b54a7678e55ce15fb8",
+    "fileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+    "entryJsonSha256": "2dcb4c65c31103bebe9c3e3a4185f4a21e1dd0705e5bedcb777b6c07defeb106",
     "entryHashAlgorithm": "SHA-256(UTF-8 JSON.stringify(rank4 entry)); source object key order and card-row order preserved",
     "physicalCardCount": 60,
     "distinctCardRows": 31
@@ -19,7 +19,7 @@
     "id": "hood-shield-shadow-rider-v1",
     "path": "results/aichi-2026/candidate-hood-shadow-rider.json",
     "blobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
-    "fileSha256": "a67660dc7b23edb037b30650c410e5dc28fb419f93a51e4b23d60bfb1cff61b3",
+    "fileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
     "canonicalFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
     "mutable": false
   },
@@ -45,14 +45,14 @@
   },
   "policyModule": {
     "path": "simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-opponent-policy.cjs",
-    "blobSha1": "486c8b7ba3ea2f4f40e75a82103927d63295312d",
-    "fileSha256": "e7c1f32d20c993097cad09544e401d5d954ea15cbf46d47a30f9ff22e54e94aa",
+    "blobSha1": "9d57e2ca909b8f88afc12d7990318cbe5d2caa92",
+    "fileSha256": "3028a301238059adf1172f5d3e6811c37655143a09c23a8a0a1c09d42840b950",
     "policyVersion": "agent50-rank4-raichu-electrode-opponent-v1"
   },
   "testModule": {
     "path": "tests/2026-11/agent50-rank4-raichu-electrode-opponent-policy.test.cjs",
     "blobSha1": "03baf3d0295c20b97daf3297d1e42b1d11a17b8c",
-    "fileSha256": "c5f92bb87abe8d0854f872d6cce08886685ec9b83cc65707c583e9aa1b855038",
+    "fileSha256": "ea58ea8c321ee805a2c8fb6b26a9930eee8546c819ab59eee37fe2e9d8c32395",
     "testCount": 29,
     "result": "29/29 passed in V8 in-memory harness against the exact worker validator source and policy module source"
   },
