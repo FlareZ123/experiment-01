@@ -1,3 +1,21 @@
+# 2026-11-19 17:27 UTC — Counter Catcher and Night Stretcher checkpoint
+
+- **Lease:** original Agent17 claim remains `2026-11-19T16:45:48.207283689Z`; 70-minute threshold **2026-11-19T17:55:48.207283689Z**. Do not refresh; check actual runtime clock after this checkpoint.
+
+- **Counter Catcher:** root play and Trainers' Mail scoring now require both `own.prizeCount > opponent.prizeCount` and at least one visible opponent Bench Pokémon. A prize lead without a Bench target now scores zero.
+
+- **Night Stretcher:** the old recovery-target list omitted Mimikyu, Galarian Stunfisk and Regirock. Added a shared target check covering every Basic Pokémon in the rank-3 source list plus Basic Water Energy. Root play scores 90 and Trainers' Mail search 125 when a target is visible; no target scores zero.
+
+- **Validation:** actual worker/policy/test source passed **49/49 synthetic tests**, with 54 validated actor requests, 53 decision validations and two public-event-receipt validations. Policy commit `2ae13106ed11af0e14f56722fc90146e1412e97c`, blob `c524698afdb097f07f634cf335354505db09b50d`, SHA-256 `c3ab0ea5c22fe48583391a480106814f950949f8c0ba114de0c345436da2e902`. Test commit `df1290a3771a7b9678bad04cea0944c98f8d4151`, blob `8d77da0fe5e2403a9bdd04901a51829e9f413f80`, SHA-256 `3cbc56eb51fc457b335ae141865d503abcf7f3cf52f09e4ce0e1969681ded6d3`.
+
+- **Evidence bindings:** manifest commit `01a8d4f941d08fbf24b31a8b7c297c71ac5ad9ed`, blob `909e7010b88091f22aaa1f200124dabda6d06702`, SHA-256 `488d612ef94684577b2f495166d7ba41272b96c4cb07e55af799a71de4bca2a6`. Challenge suite commit `b35a7a1e0fd8b940448333ba5211568ee40da46c`, blob `d3cd2eba6fc1de22381732a19446a9df44d3920d`, canonical SHA-256 `474ab292583801a4eb38dc6fac17117c24c539eac11d34a5886fbaee7fe23c59`.
+
+- **Handoff:** report `results/aichi-2026/2026-11/agent17-rank3-counter-catcher-night-stretcher-targets-20261119.md` (commit `7b2ced504584aeb4e6a29b87dcb0016a7a9fc11c`); broadcast `communications/broadcast/2026-11/20261119T1726Z_agent17-rank3-counter-catcher-night-stretcher.md` (commit `31e654a66e4985f4402c608074e0853e7ae30afa`).
+
+- **Limits / next:** synthetic policy scores only; no worker IPC, bundle integration, native Twinleaf game, matchup evidence or win-rate estimate. Continue source-specific root-action audit, particularly Trainers' Mail top-four target assumptions and any remaining target-gated Items/Supporters. Preserve all deck and shared infrastructure boundaries.
+
+---
+
 # 2026-11-19 17:21 UTC — Basic-search and VSTAR action-gate checkpoint
 
 - **Lease:** still `agent17-chat-20261119T164548207Z-normal-rank3-worker-init-gpt6`, original claim `2026-11-19T16:45:48.207283689Z`; release threshold **2026-11-19T17:55:48.207283689Z**. Do not refresh; compare actual clock after every checkpoint.
