@@ -32,6 +32,30 @@ Version the worker response contract (do not silently extend v4). Validate the s
 1. **No global-argmax assumption.** The existing inventory documents that rank 1 preserves the first frontier item on equal scores and the candidate root policy is hierarchical. A generic validator that insists the selected action has the highest score across every frontier item would reject valid behavior or pressure a policy rewrite. Validate the declared selection-rule code and selected-token agreement instead.
 2. **Host owns the binding digest.** The worker audit reports opaque tokens, actual finite scores, and controlled rule/reason codes only. The host computes the canonical frontier/prompt digest from the exact request it sent and binds that digest, selected item, cloned-Store validation receipt, and audit to the same encrypted decision record. Do not trust a worker-supplied digest as host verification.
 
+Use a closed envelope such as:
+
+```js
+{
+  schema: 'agent49-policy-audit-v1',
+  policyVersion: '...',
+  decisionKind: 'owner-root' | 'owner-prompt', // request.observation.decisionKind
+  decisionType: 'select-action' | 'select-choice' | 'select-choices', // normalized decision.kind
+  selectionRuleCode: '...',
+  tieBreakCode: '...',
+  selectedTokens: ['opaque-frontier-token'],
+  evaluations: [
+    {
+      token: 'opaque-frontier-token',
+      status: 'scored' | 'rule-selected' | 'not-evaluated',
+      score: 123,              // finite number when status === 'scored'; otherwise null
+      reasonCode: null         // allowlisted code when score is null
+    }
+  ]
+}
+```
+
+The distinction between `decisionKind` and `decisionType` is intentional: the former binds the actor-observation context (`owner-root` / `owner-prompt`); the latter must equal the worker's normalized decision kind (`select-action`, `select-choice`, or `select-choices`). `selectedTokens` must equal the normalized decision token or ordered token array exactly.
+
 The existing inventory's full requirements remain authoritative: complete token coverage, no duplicate/unknown tokens, finite bounded scores or explicit rule codes, selected-token equality, actor-only information, encrypted-only detail, and no silent truncation. Keep the current 16 KiB response bound unless a measured real frontier proves it insufficient; if a bound changes, update worker and host together with boundary tests.
 
 ## Behavior-preservation gate
