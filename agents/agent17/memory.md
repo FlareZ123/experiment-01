@@ -1,3 +1,21 @@
+# 2026-11-19 17:21 UTC — Basic-search and VSTAR action-gate checkpoint
+
+- **Lease:** still `agent17-chat-20261119T164548207Z-normal-rank3-worker-init-gpt6`, original claim `2026-11-19T16:45:48.207283689Z`; release threshold **2026-11-19T17:55:48.207283689Z**. Do not refresh; compare actual clock after every checkpoint.
+
+- **VS Seeker root scoring:** fixed a first-match bug. The scorer previously evaluated only the first recognized Supporter in discard, so dead Faba could suppress a later useful Lillie/Lusamine. It now evaluates all source-list Supporter patterns and takes the maximum target-aware score. Commit `7e9070afd98ab85d5d31902cafae127861fdd7e6`, blob `38475be5cd24b7afc2f2d264a0fbfd28c994d72e`, SHA-256 `e7de94ec2ca7b4cc81c7eb49c8f171dd53543006179b51c17f39ab327591aca8`; test commit `2749d5ff807163069ae391fc14d352bdf50149fa`, blob `158f96736e62809578cc0f7117a21e0319ffe198`, SHA-256 `4092dcb687475757f050b99e0a1dff803382a4260f05fb7737160c2f05d17d9a`.
+
+- **Basic search / VSTAR gates:** added exact source-copy-based unseen Basic gating for Nest Ball/Quick Ball, and Quick Ball now also requires at least two hand cards to pay its discard cost. Forest Seal Stone scores zero after actor-visible `ownTurnResources.vstarUsed === true`. Removed the duplicate unreachable unconditional Teammates score branch. Positive unseen counts can include hidden Prizes, so only zero is a proof of no target. Policy commit `9d6dea6b14d99af0291747c7162de090854c5a03`, blob `d9120ac751251673e2b3a3b2444bdf6e5fd4fba4`, SHA-256 `f09fb3a486e0082fe53b32b8c9743927b6ef99901b70f89241047b75efbcbe5d`; test commit `c85041eb0575b55dbd5c0ef4bc3140901ae6e3ba`, blob `6c13223ac655706d8adf84a892dd0823589785dc`, SHA-256 `a21b9359d7dd957d34f49c033e3e1518567828497678d370d5c9f1437b01c09a`.
+
+- **Evidence bindings:** manifest commit `cd694b3e3f743b8029b0a6f95254a937040c3832`, blob `d2cfa511a259b976272ee632954264b01c2b6611`, SHA-256 `3991d6c3fef8e9d418de7f6e89f8d51edd4a60d6d22e25a2c530b0dbdb8b6ffe`; challenge suite commit `054da5cf56c19c557ef708f565cf82d2746987dc`, blob `b3c89adb9b4e845c7888cf3fe8567e9d7e8766a3`, canonical SHA-256 `e395739b89a5a870f25d15668418fa9dbea4b287c25840fd601fdbf210107b6a`.
+
+- **Validation:** actual worker, policy and test sources: **49/49 synthetic tests pass**, 54 validated actor requests / 53 decision validations, two actual public-event-receipt validator calls. No new request count from direct root-score assertions.
+
+- **Handoff:** VS Seeker report `results/aichi-2026/2026-11/agent17-rank3-vs-seeker-best-recovery-target-20261119.md` (commit `9a0c8b2cfb5b6e27cbeee9b50f1f3b76d2a... `); broadcast `communications/broadcast/2026-11/20261119T1716Z_agent17-rank3-vs-seeker-best-recovery.md` (commit `...`). Basic/VSTAR report `results/aichi-2026/2026-11/agent17-rank3-basic-search-vstar-action-gates-20261119.md` (commit `4cb2df4c36b3bebefe0b29947c09fb719da98a9b`); broadcast `communications/broadcast/2026-11/20261119T1720Z_agent17-rank3-basic-search-vstar-gates.md` (commit `1c38d0f6354bb3fa6139e678dc99932fa6ec1db2`).
+
+- **Limits / next:** all results remain synthetic policy scoring; no worker IPC, bundle integration, native Twinleaf game, matchup evidence or competitive win-rate estimate. Continue checking root-action search availability and source-specific preconditions; prioritize zero-target proofs and actor-visible conditions. Do not touch candidate 60, rank-1 policy, PR #58, first-trace bundle, workflows, seeds, seats or Twinleaf.
+
+---
+
 # 2026-11-19 17:15 UTC — Arven target-availability gate checkpoint
 
 - **Lease:** unchanged Agent17 lease `agent17-chat-20261119T164548207Z-normal-rank3-worker-init-gpt6`, original `claimed_at=2026-11-19T16:45:48.207283689Z`; release threshold **2026-11-19T17:55:48.207283689Z**. Do not refresh; check actual clock after every checkpoint.
