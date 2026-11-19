@@ -915,13 +915,13 @@ function bestAction(request) {
 }
 
 function createPolicy({ role, seat, policyVersion, config }) {
-  const expectedKeys = ['candidateFingerprint', 'rank', 'sourceFingerprint'];
+  // The shared Agent49 worker's init-v2 contract permits only config: {}.
+  // Rank/source/candidate identity is immutable in this module and its suite
+  // manifest; it must not be transported as per-rank runtime configuration.
   if (role !== 'opponent' || (seat !== 0 && seat !== 1) ||
       policyVersion !== POLICY_VERSION || !config ||
-      Object.keys(config).sort().join(',') !== expectedKeys.join(',') ||
-      config.rank !== SOURCE_RANK ||
-      config.sourceFingerprint !== SOURCE_FINGERPRINT_SHA256 ||
-      config.candidateFingerprint !== CANDIDATE_FINGERPRINT_SHA256) {
+      typeof config !== 'object' || Array.isArray(config) ||
+      Object.keys(config).length !== 0) {
     throw new Error('AGENT39_RANK6_POLICY_INIT_MISMATCH');
   }
 

@@ -11,11 +11,9 @@ const {
   createPolicy
 } = require('../../simulation/evaluation/2026-11/agent39-rank6-iron-thorns-opponent-policy.cjs');
 
-const config = {
-  rank: SOURCE_RANK,
-  sourceFingerprint: SOURCE_FINGERPRINT_SHA256,
-  candidateFingerprint: CANDIDATE_FINGERPRINT_SHA256
-};
+// The shared worker requires a zero-key init config. Identity is bound
+// by immutable module constants and the versioned suite manifest.
+const config = Object.freeze({});
 
 function makePolicy(seat = 0) {
   return createPolicy({ role: 'opponent', seat, policyVersion: POLICY_VERSION, config });
@@ -294,25 +292,55 @@ function energyChoice(token, printing, zone = 'active', owner = 'opponent') {
 }
 
 function multiMetadata(minimumCount, maximumCount, selectionType = 'card-combination') {
+  if (selectionType === 'prize-slots') {
+    return { selectionType, requiredCount: minimumCount, allowCancel: false, isSecret: false };
+  }
   return { selectionType, minimumCount, maximumCount, allowCancel: false, isSecret: false };
 }
 
-test('initialization binds opponent role, seat, exact rank-6 source and fixed candidate', () => {
+test('initialization identity is immutable and rejects role, seat, version and config drift', () => {
+  assert.equal(SOURCE_RANK, 6);
+  assert.equal(SOURCE_FINGERPRINT_SHA256,
+    '12d135e3b5a2e119670d6dd2a2d996c18bedc6be3c044ebe9d472f43283b0642');
+  assert.equal(CANDIDATE_FINGERPRINT_SHA256,
+    '1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4');
   assert.throws(() => createPolicy({
     role: 'candidate', seat: 0, policyVersion: POLICY_VERSION, config
   }), /AGENT39_RANK6_POLICY_INIT_MISMATCH/);
   assert.throws(() => createPolicy({
-    role: 'opponent', seat: 0, policyVersion: POLICY_VERSION,
-    config: { ...config, rank: 5 }
+    role: 'opponent', seat: 2, policyVersion: POLICY_VERSION, config
+  }), /AGENT39_RANK6_POLICY_INIT_MISMATCH/);
+  assert.throws(() => createPolicy({
+    role: 'opponent', seat: 0, policyVersion: 'wrong-version', config
   }), /AGENT39_RANK6_POLICY_INIT_MISMATCH/);
   assert.throws(() => createPolicy({
     role: 'opponent', seat: 0, policyVersion: POLICY_VERSION,
-    config: { ...config, sourceFingerprint: '0'.repeat(64) }
+    config: { rank: SOURCE_RANK }
   }), /AGENT39_RANK6_POLICY_INIT_MISMATCH/);
-  assert.throws(() => createPolicy({
-    role: 'opponent', seat: 0, policyVersion: POLICY_VERSION,
-    config: { ...config, candidateFingerprint: '0'.repeat(64) }
-  }), /AGENT39_RANK6_POLICY_INIT_MISMATCH/);
+});
+
+test('the actual worker init validator accepts config empty and instantiates rank 6', () => {
+  const init = {
+    schema: protocol.INIT_SCHEMA,
+    type: 'init',
+    role: 'opponent',
+    seat: 0,
+    policyVersion: POLICY_VERSION,
+    bundleSha256: 'a'.repeat(64),
+    config
+  };
+  const accepted = protocol.validateInit(init);
+  assert.equal(accepted, init);
+  const policy = createPolicy({
+    role: accepted.role,
+    seat: accepted.seat,
+    policyVersion: accepted.policyVersion,
+    config: accepted.config
+  });
+  assert.equal(typeof policy.decide, 'function');
+  assert.throws(() => protocol.validateInit({
+    ...init, config: { rank: SOURCE_RANK }
+  }));
 });
 
 test('same actor view produces the same decision for either physical seat', () => {

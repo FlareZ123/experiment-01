@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "manifestId": "agent39-rank6-iron-thorns-dependencies-v1",
+  "createdAt": "2026-11-19T16:44:48.246Z",
+  "policyPath": "simulation/evaluation/2026-11/agent39-rank6-iron-thorns-opponent-policy.cjs",
+  "policyBlobSha1": "6628bff81da63eb4ef94e498b7d5c89976c9792e",
+  "runtimeImports": [],
+  "sharedWorkerContract": {
+    "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+    "blobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+    "initSchema": "aichi-policy-worker-init-v2",
+    "requestSchema": "aichi-policy-request-v2",
+    "observationSchema": "aichi-actor-observation-v3",
+    "requiredConfigKeys": []
+  },
+  "engine": {
+    "submodulePath": "vendor/twinleaf",
+    "remote": "https://github.com/twinleafgg/twinleafgg.git",
+    "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "researchHookRevision": "none"
+  },
+  "externalRuntimeDependencies": [],
+  "notes": [
+    "The policy module is self-contained and has no runtime require/import dependencies.",
+    "The shared worker is a tested host protocol dependency, not a policy-module import.",
+    "Rank/source/candidate identity is frozen in module constants and this versioned suite, not runtime config."
+  ]
+}

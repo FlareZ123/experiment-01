@@ -1,0 +1,731 @@
+{
+  "schemaVersion": 1,
+  "suiteId": "aichi-2026-rank6-iron-thorns-opponent-policy-v1",
+  "suiteVersion": 1,
+  "createdAt": "2026-11-19T16:44:48.246Z",
+  "frozenAt": null,
+  "status": "prototype-only",
+  "attestationStatus": "blocked",
+  "role": "opponent-policy",
+  "sourceRank": 6,
+  "suiteAuthor": "Agent39",
+  "policyProducerId": "Agent39",
+  "reviewer": {
+    "reviewerId": null,
+    "status": "not-reviewed",
+    "independentReviewerRequired": true
+  },
+  "policy": {
+    "id": "agent39-rank6-iron-thorns-opponent-v1",
+    "version": "agent39-rank6-iron-thorns-opponent-v1",
+    "path": "simulation/evaluation/2026-11/agent39-rank6-iron-thorns-opponent-policy.cjs",
+    "blobSha1": "6628bff81da63eb4ef94e498b7d5c89976c9792e",
+    "fileSha256": null,
+    "config": {},
+    "decisionMode": "deterministic actor-view only"
+  },
+  "test": {
+    "path": "tests/2026-11/agent39-rank6-iron-thorns-opponent-policy.test.cjs",
+    "blobSha1": "e75b4151c3aa148e0b4d8e4958cbeb67adbac94e",
+    "fileSha256": null,
+    "testCount": 32
+  },
+  "dependencyManifest": {
+    "path": "simulation/evaluation/2026-11/agent39-rank6-iron-thorns-dependency-manifest-v1.json",
+    "blobSha1": "84707bcc85cb172d4be024567de2f3efa09ae932",
+    "hashAlgorithm": "git-blob-sha1"
+  },
+  "sourceBinding": {
+    "sourceRank": 6,
+    "player": "Kazuma Kashi",
+    "archetype": "Iron Thorns",
+    "sourceListPath": "results/aichi-2026/full-decklists.json",
+    "sourceListBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "sourceListFileSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+    "sourceEntryFingerprintSha256": "12d135e3b5a2e119670d6dd2a2d996c18bedc6be3c044ebe9d472f43283b0642",
+    "sourceEntryHashAlgorithm": "SHA-256 of UTF-8 canonical JSON with recursively sorted object keys; array order preserved",
+    "sourcePhysicalCardCount": 60,
+    "fixedCandidatePath": "results/aichi-2026/candidate-hood-shadow-rider.json",
+    "fixedCandidateBlobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+    "fixedCandidateFileSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
+    "fixedCandidateFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+    "engineSubmodulePath": "vendor/twinleaf",
+    "engineRemote": "https://github.com/twinleafgg/twinleafgg.git",
+    "enginePinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "researchHookRevision": "none",
+    "sourceTrace": null
+  },
+  "engine": {
+    "submodulePath": "vendor/twinleaf",
+    "remote": "https://github.com/twinleafgg/twinleafgg.git",
+    "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "researchHookRevision": "none",
+    "researchHooksUsed": false
+  },
+  "protocol": {
+    "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+    "blobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+    "fileSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
+    "initSchema": "aichi-policy-worker-init-v2",
+    "requestSchema": "aichi-policy-request-v2",
+    "observationSchema": "aichi-actor-observation-v3",
+    "validatorsUsed": [
+      "validateInit",
+      "validateRequest",
+      "validateDecision"
+    ],
+    "initConfigKeys": []
+  },
+  "testExecution": {
+    "harness": "GitHub Actions Node 22 node:test invocation through the existing Agent39 rank-6 contract workflow",
+    "exactWorkerSourceEvaluated": true,
+    "exactPolicySourceEvaluated": true,
+    "workerRequestAndDecisionValidators": true,
+    "workerInitValidatorIncludedInTestSource": true,
+    "testsRegistered": 32,
+    "testsPassed": null,
+    "testsFailed": null,
+    "nodeTestRunnerUsed": true,
+    "TwinleafGamesExecuted": 0,
+    "nativeStagedPolicyCases": 0,
+    "sourceNaturalPolicyCases": 0,
+    "matchupsPlayed": 0,
+    "matchupsCovered": 0,
+    "fullTop32Coverage": false,
+    "winRateEstimate": null,
+    "winRateClaim": null,
+    "timeout": false,
+    "fallback": false,
+    "workflowFile": ".github/workflows/agent39-rank6-opponent-policy-contract.yml",
+    "executionStatus": "pending exact-main execution"
+  },
+  "coverageMatrix": {
+    "workerInitialization": {
+      "caseIds": [
+        "rank6-dev-01-initialization-identity",
+        "rank6-dev-02-the-actual-worker-init-validator-accepts-config-empty-and-instantiates-rank-6"
+      ],
+      "evidenceClass": "synthetic",
+      "status": "pending"
+    },
+    "rootActionsAndEnergy": {
+      "caseIds": [
+        "rank6-dev-03-same-actor-view-produces-the-same-decision-for-either-physical-seat",
+        "rank6-dev-04-speed-lightning-attachment-is-preferred-for-active-iron-thorns-when-lega",
+        "rank6-dev-05-plumeria-denial-outranks-deckout-when-opponent-bench-has-energy-and-paym",
+        "rank6-dev-06-team-flare-grunt-removes-an-active-energy-before-the-handiwork-loop",
+        "rank6-dev-07-enhanced-hammer-takes-a-special-energy-denial-window",
+        "rank6-dev-08-crushing-hammer-is-used-when-the-opponent-has-attached-energy",
+        "rank6-dev-09-handiwork-is-selected-as-the-deckout-channel-when-no-energy-denial-is-vi",
+        "rank6-dev-10-lusamine-is-selected-when-the-public-discard-contains-handiwork-and-a-re",
+        "rank6-dev-11-wondrous-labyrinth-is-considered-only-against-an-energized-non-fairy-act",
+        "rank6-dev-12-the-solo-active-initialization-lock-is-preserved-over-an-unnecessary-ret",
+        "rank6-dev-13-volt-cyclone-removes-an-active-budew-lock-when-an-attack-is-offered",
+        "rank6-dev-14-volt-cyclone-takes-an-immediate-ko-rather-than-preserving-a-stalled-atta",
+        "rank6-dev-15-guzma-is-offered-to-trap-a-low-energy-high-retreat-opponent-bench-target"
+      ],
+      "evidenceClass": "synthetic",
+      "status": "pending"
+    },
+    "promptDecisions": {
+      "caseIds": [
+        "rank6-dev-16-tool-jammer-is-attached-when-the-opponent-has-a-visible-tool",
+        "rank6-dev-17-plumeria-payment-discards-low-value-cards-and-preserves-lusamine-plus-ha",
+        "rank6-dev-18-plumeria-energy-selection-removes-the-highest-value-visible-special-ener",
+        "rank6-dev-19-team-flare-grunt-energy-selection-is-restricted-to-the-opponent-active",
+        "rank6-dev-20-guzma-chooses-the-lowest-energy-highest-retreat-opposing-bench-pok-mon",
+        "rank6-dev-21-guzma-returns-to-the-healthiest-funded-iron-thorns-on-the-owner-bench",
+        "rank6-dev-22-faba-removes-stealthy-hood-before-float-stone",
+        "rank6-dev-23-enhanced-hammer-selects-special-energy-and-ignores-basic-energy",
+        "rank6-dev-24-eri-selects-revealed-opponent-items-but-not-energy",
+        "rank6-dev-25-team-skull-grunt-selects-revealed-opponent-energy-and-no-non-energy-card",
+        "rank6-dev-26-lusamine-recovers-handiwork-and-a-distinct-lusamine-from-the-public-disc",
+        "rank6-dev-27-guzma-and-hala-searches-one-stadium-tool-jammer-and-double-colorless-ene",
+        "rank6-dev-28-tag-call-searches-guzma-and-hala-plus-cynthia-and-caitlin"
+      ],
+      "evidenceClass": "synthetic",
+      "status": "pending"
+    },
+    "hiddenInformationAndNegativeControls": {
+      "caseIds": [
+        "rank6-dev-29-gladion-prize-selection-abstains-because-face-down-prize-identities-are-",
+        "rank6-dev-30-player-s-ceremony-and-unknown-prompts-are-explicitly-blocked",
+        "rank6-dev-31-a-role-seat-mismatch-never-emits-an-executable-action",
+        "rank6-dev-32-the-real-worker-request-validator-rejects-hidden-opponent-hand-and-rng-f"
+      ],
+      "evidenceClass": "synthetic",
+      "status": "pending"
+    },
+    "nativeExecution": {
+      "caseIds": [],
+      "evidenceClass": "none",
+      "status": "not-covered"
+    },
+    "matchupEvidence": {
+      "caseIds": [],
+      "evidenceClass": "none",
+      "status": "not-covered"
+    }
+  },
+  "developmentCases": [
+    {
+      "caseId": "rank6-dev-01-initialization-identity-is-immutable-and-rejects-role-seat-version-and-c",
+      "testName": "initialization identity is immutable and rejects role, seat, version and config drift",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "reject invalid role/seat/version/config",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-02-the-actual-worker-init-validator-accepts-config-empty-and-instantiates-r",
+      "testName": "the actual worker init validator accepts config empty and instantiates rank 6",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "accept init-v2 and instantiate policy",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-03-same-actor-view-produces-the-same-decision-for-either-physical-seat",
+      "testName": "same actor view produces the same decision for either physical seat",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-action: attach; deterministic across seats",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-04-speed-lightning-attachment-is-preferred-for-active-iron-thorns-when-lega",
+      "testName": "Speed Lightning attachment is preferred for Active Iron Thorns when legal",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-action: Speed Lightning Energy",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-05-plumeria-denial-outranks-deckout-when-opponent-bench-has-energy-and-paym",
+      "testName": "Plumeria denial outranks deckout when opponent Bench has Energy and payment is available",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-action: Plumeria",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-06-team-flare-grunt-removes-an-active-energy-before-the-handiwork-loop",
+      "testName": "Team Flare Grunt removes an Active Energy before the Handiwork loop",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-action: Team Flare Grunt",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-07-enhanced-hammer-takes-a-special-energy-denial-window",
+      "testName": "Enhanced Hammer takes a Special Energy denial window",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-action: Enhanced Hammer",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-08-crushing-hammer-is-used-when-the-opponent-has-attached-energy",
+      "testName": "Crushing Hammer is used when the opponent has attached Energy",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-action: Crushing Hammer",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-09-handiwork-is-selected-as-the-deckout-channel-when-no-energy-denial-is-vi",
+      "testName": "Handiwork is selected as the deckout channel when no Energy denial is visible",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-action: Team Rocket's Handiwork",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-10-lusamine-is-selected-when-the-public-discard-contains-handiwork-and-a-re",
+      "testName": "Lusamine is selected when the public discard contains Handiwork and a recovery partner",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-action: Lusamine",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-11-wondrous-labyrinth-is-considered-only-against-an-energized-non-fairy-act",
+      "testName": "Wondrous Labyrinth is considered only against an energized non-Fairy Active when Volt Cyclone is not offered",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-action: Wondrous Labyrinth",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-12-the-solo-active-initialization-lock-is-preserved-over-an-unnecessary-ret",
+      "testName": "the solo Active Initialization lock is preserved over an unnecessary retreat",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "pass or avoid unnecessary retreat",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-13-volt-cyclone-removes-an-active-budew-lock-when-an-attack-is-offered",
+      "testName": "Volt Cyclone removes an active Budew lock when an attack is offered",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-action: Volt Cyclone",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-14-volt-cyclone-takes-an-immediate-ko-rather-than-preserving-a-stalled-atta",
+      "testName": "Volt Cyclone takes an immediate KO rather than preserving a stalled attack line",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-action: Volt Cyclone",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-15-guzma-is-offered-to-trap-a-low-energy-high-retreat-opponent-bench-target",
+      "testName": "Guzma is offered to trap a low-Energy, high-retreat opponent Bench target",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-action: Guzma",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-16-tool-jammer-is-attached-when-the-opponent-has-a-visible-tool",
+      "testName": "Tool Jammer is attached when the opponent has a visible Tool",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-action: Tool Jammer",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-17-plumeria-payment-discards-low-value-cards-and-preserves-lusamine-plus-ha",
+      "testName": "Plumeria payment discards low-value cards and preserves Lusamine plus Handiwork",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-choices: safe low-value Plumeria payment",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-18-plumeria-energy-selection-removes-the-highest-value-visible-special-ener",
+      "testName": "Plumeria energy selection removes the highest-value visible Special Energy",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-choice: opponent Special Energy",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-19-team-flare-grunt-energy-selection-is-restricted-to-the-opponent-active",
+      "testName": "Team Flare Grunt energy selection is restricted to the opponent Active",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-choice: opponent Active Energy",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-20-guzma-chooses-the-lowest-energy-highest-retreat-opposing-bench-pok-mon",
+      "testName": "Guzma chooses the lowest-Energy, highest-retreat opposing Bench Pokémon",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-choice: lowest-Energy/high-retreat Bench target",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-21-guzma-returns-to-the-healthiest-funded-iron-thorns-on-the-owner-bench",
+      "testName": "Guzma returns to the healthiest funded Iron Thorns on the owner Bench",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-choice: healthiest funded Iron Thorns",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-22-faba-removes-stealthy-hood-before-float-stone",
+      "testName": "Faba removes Stealthy Hood before Float Stone",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-choice: Stealthy Hood",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-23-enhanced-hammer-selects-special-energy-and-ignores-basic-energy",
+      "testName": "Enhanced Hammer selects Special Energy and ignores Basic Energy",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-choice: Special Energy only",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-24-eri-selects-revealed-opponent-items-but-not-energy",
+      "testName": "Eri selects revealed opponent Items but not Energy",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-choices: revealed opponent Items",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-25-team-skull-grunt-selects-revealed-opponent-energy-and-no-non-energy-card",
+      "testName": "Team Skull Grunt selects revealed opponent Energy and no non-Energy card",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-choices: revealed opponent Energy",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-26-lusamine-recovers-handiwork-and-a-distinct-lusamine-from-the-public-disc",
+      "testName": "Lusamine recovers Handiwork and a distinct Lusamine from the public discard",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-choices: Handiwork plus distinct Lusamine",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-27-guzma-and-hala-searches-one-stadium-tool-jammer-and-double-colorless-ene",
+      "testName": "Guzma and Hala searches one Stadium, Tool Jammer and Double Colorless Energy",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-choices: Stadium, Tool Jammer, Double Colorless Energy",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-28-tag-call-searches-guzma-and-hala-plus-cynthia-and-caitlin",
+      "testName": "Tag Call searches Guzma and Hala plus Cynthia and Caitlin",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "select-choices: Guzma & Hala plus Cynthia & Caitlin",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-29-gladion-prize-selection-abstains-because-face-down-prize-identities-are-",
+      "testName": "Gladion Prize selection abstains because face-down Prize identities are unavailable",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "abstain: face-down Prize identities unavailable",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-30-player-s-ceremony-and-unknown-prompts-are-explicitly-blocked",
+      "testName": "Player’s Ceremony and unknown prompts are explicitly blocked",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "abstain: Player's Ceremony and unknown prompt",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-31-a-role-seat-mismatch-never-emits-an-executable-action",
+      "testName": "a role/seat mismatch never emits an executable action",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "abstain: role/seat mismatch",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    },
+    {
+      "caseId": "rank6-dev-32-the-real-worker-request-validator-rejects-hidden-opponent-hand-and-rng-f",
+      "testName": "the real worker request validator rejects hidden opponent-hand and RNG fields",
+      "split": "development",
+      "evidenceClass": "synthetic",
+      "decisionEnvelope": {
+        "expectedOutcome": "reject: hidden opponent-hand and RNG fields",
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "unavailable action token",
+          "hidden opponent-hand or Prize identity",
+          "invalid multi-select bounds",
+          "delegated fallback"
+        ]
+      }
+    }
+  ],
+  "heldOutReviewCases": [
+    {
+      "caseId": "rank6-ho-01-native-prompt-settlement",
+      "objective": "Native Store settlement of representative Rank-6 prompt chains",
+      "status": "not-run",
+      "notUsedForTuning": true,
+      "evidenceClass": "none",
+      "disposition": "blocked"
+    },
+    {
+      "caseId": "rank6-ho-02-complete-source-games",
+      "objective": "Complete source-dealt games against the unchanged fixed candidate",
+      "status": "not-run",
+      "notUsedForTuning": true,
+      "evidenceClass": "none",
+      "disposition": "blocked"
+    },
+    {
+      "caseId": "rank6-ho-03-independent-review",
+      "objective": "Independent review of source binding, policy choices, and information-set compliance",
+      "status": "not-run",
+      "notUsedForTuning": true,
+      "evidenceClass": "none",
+      "disposition": "blocked"
+    }
+  ],
+  "unresolvedCoverage": [
+    "No native Twinleaf Store receipt or completed game for this policy.",
+    "No source-natural prompt frequency or effect-settlement evidence.",
+    "No worker IPC handshake, process sandbox, timeout, or runtime budget test.",
+    "No independent review.",
+    "No matchup outcome, field coverage, or win-rate estimate.",
+    "The policy remains a deterministic actor-view prototype, not a competitive-strength claim."
+  ],
+  "claims": {
+    "demonstrated": "The exact policy and test sources are bound to the shared worker protocol. A passing exact-main CI run is required before claiming the synthetic contract suite passed.",
+    "notDemonstrated": [
+      "native effect settlement",
+      "complete source-dealt gameplay",
+      "strategic competence",
+      "matchup advantage",
+      "full Aichi Top 32 performance",
+      "99.5% game win rate"
+    ]
+  },
+  "suiteSha256": null,
+  "hashDefinition": "If populated, SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8."
+}
