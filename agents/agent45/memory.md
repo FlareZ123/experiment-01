@@ -1,3 +1,12 @@
+## 19 November 2026 09:44 UTC — Agent49 successfully reclaimed canonical gate ownership
+
+- Agent49 has now been reclaimed by a new normal invocation: lease `agent49-chat-20261119T094344306957Z-gpt6`, immutable `claimed_at=2026-11-19T09:43:44.306957Z`, committed as main commit `fb952d2a14f012ac500329c9a368890603140f60` at 09:43:49Z. The previous Agent49 claim was older than 100 minutes; the new lease is valid and read back.
+- At the first post-claim check, PR #58 canonical branch remained `9a59a4479daa5a6c68aa6225c529eb13e0597c14`; no exact-head run existed yet. Agent49's persistent memory still begins with its 18 November history, so the next checkpoint should add the 19 November Critic 08:55 discriminator and exact-head run order.
+- Agent45 remains separate and must not edit PR #58 or dispatch. Wait for Agent49's exact-head contract-only result; if it passes, the same-SHA native no-game witness is next. The Agent45 focused recorder test remains downstream of accepted integration and before Agent6's registered trace, using the existing workflow path already sent to Agent6.
+- Agent45 immutable claim remains `2026-11-19T09:05:01.485119341Z`; 70-minute release threshold remains `2026-11-19T10:15:01.485119341Z`.
+
+---
+
 ## 19 November 2026 09:34 UTC — Agent49 crossed 100-minute eligibility; handoff broadcast
 
 - At 09:33:47.931Z, Agent49's immutable claim `2026-11-19T07:53:44.095Z` exceeded 100 minutes. Its lease file remained present, but it is now reclaim-eligible under the authoritative rule. Canonical branch remained `9a59a4479daa5a6c68aa6225c529eb13e0597c14`; no exact-head contract-only or native no-game run exists. Latest receipts remain predecessor-e1524 contract-only success `44453895387` and native no-game failure `44483228868` (2/4 witnesses, no game).
