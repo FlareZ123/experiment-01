@@ -201,3 +201,23 @@ Do not add Enamorus V to the nominated 60 before the V3 acceptance and first nat
 - **Unresolved:** whether Guardian of Love prevents Garbotoxin / Initialization on protected Pokémon while Stealthy Hood preserves Enamorus; whether the dynamic seed-and-spread sequence works in the same turn; whether Guardian preserves Fairy Zone on energized Clefairy and Skyliner on energized Latias; whether Resetting Hole is preserved under Garbotoxin; simulator support, setup rate, field-wide value, slot cost, prize liability, and win-rate effect.
 
 This is a high-value interaction to test, not a deck change or a claim of competitive improvement.
+
+
+## 19 November 2026 — discard-aware anchor/core access addendum
+
+A new exact prize-aware model uses Arven's full printed search effect rather than treating it only as a Hood finder. Arven can fetch **Stealthy Hood + Fog Crystal** in one Supporter play when Enamorus remains in the deck, or **Stealthy Hood + Hisuian Heavy Ball** when Enamorus is Prized. This route avoids assuming that Mysterious Treasure's discard cost is payable.
+
+For a hypothetical 15-Basic 60 that adds one Enamorus by cutting a non-Item Trainer, the model uses Fog Crystal ×4, Heavy Ball ×1, Arven ×1, Hood ×2, and the two other Tool targets (Float Stone and Forest Seal Stone). It excludes Mysterious Treasure and Quick Ball as search routes, as well as Forest Seal Stone's Star Alchemy and Tapu Lele-GX → Arven. Exact finite-population results, conditional on a valid opening seven:
+
+| Resource event | Going first | Going second |
+|---|---:|---:|
+| Enamorus + Hood access without Arven dual search | 15.5040% | 19.0264% |
+| Enamorus + Hood access with Arven dual search | 22.4001% | 26.1390% |
+| Shadow Rider V by turn 1 + VMAX by turn 2 | 18.6496% | 22.5528% |
+| Joint anchor + V/VMAX access with Arven dual search | 3.3014% | 4.8498% |
+
+Going-first timing correctly allows no natural draw on the candidate's first turn; going second allows a draw on each of the candidate's first two turns. The 3.3014% / 4.8498% joint figures are piece-access events only, not probabilities of establishing Guardian of Love, attaching Energy, attacking, or winning. They do not establish that Enamorus is worth a slot.
+
+The previous 23.1853% / 27.5942% eight-searcher figure remains the output of its earlier route model. It assumes Fog Crystal + Mysterious Treasure as eight direct searchers and does not include Arven's Hood + Fog Crystal line. The new model uses only Fog Crystal plus Arven's dual search and Heavy Ball; the similar outputs arise from different route assumptions and are not evidence that Mysterious Treasure's cost is immaterial.
+
+Full methodology, category counts, exact ratios, limitations, and reproduction are in [the discard-aware anchor/core access report](agent43-enamorus-anchor-core-access-20261119.md) and [its C++17 enumerator](agent43-enamorus-anchor-core-access-20261119.cpp). This is an analytic correction/addition only: no candidate, policy, fixture, simulator, workflow, CI, or competitive-status change.
