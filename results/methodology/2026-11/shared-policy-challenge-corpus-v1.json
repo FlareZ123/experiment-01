@@ -114,7 +114,128 @@
       "promptCoverage": 125,
       "executionEvidence": 118,
       "stableCaseId": 19
-    }
+    },
+    "structuralCompletenessContract": {
+      "required": [
+        "stableCaseId",
+        "actorViewDigest",
+        "caseSourceBinding",
+        "decisionEnvelope",
+        "costLedger",
+        "promptCoverage",
+        "executionEvidence",
+        "recognizedEvidenceClass"
+      ],
+      "recognizedEvidenceClasses": [
+        "synthetic",
+        "synthetic-actor-view",
+        "native-staged",
+        "source-natural"
+      ],
+      "note": "Structural completeness only; it does not prove actor-only privacy, strategic correctness, native execution, or competence."
+    },
+    "structurallyCompleteCaseCount": 21,
+    "structurallyCompleteBySplit": {
+      "development": 21
+    },
+    "structurallyCompleteByRank": [
+      {
+        "rank": 2,
+        "total": 15,
+        "development": 15,
+        "heldOut": 0,
+        "negativeControl": 0,
+        "blocked": 0
+      },
+      {
+        "rank": 3,
+        "total": 0,
+        "development": 0,
+        "heldOut": 0,
+        "negativeControl": 0,
+        "blocked": 0
+      },
+      {
+        "rank": 4,
+        "total": 0,
+        "development": 0,
+        "heldOut": 0,
+        "negativeControl": 0,
+        "blocked": 0
+      },
+      {
+        "rank": 5,
+        "total": 0,
+        "development": 0,
+        "heldOut": 0,
+        "negativeControl": 0,
+        "blocked": 0
+      },
+      {
+        "rank": 6,
+        "total": 0,
+        "development": 0,
+        "heldOut": 0,
+        "negativeControl": 0,
+        "blocked": 0
+      },
+      {
+        "rank": 7,
+        "total": 0,
+        "development": 0,
+        "heldOut": 0,
+        "negativeControl": 0,
+        "blocked": 0
+      },
+      {
+        "rank": 8,
+        "total": 0,
+        "development": 0,
+        "heldOut": 0,
+        "negativeControl": 0,
+        "blocked": 0
+      },
+      {
+        "rank": 10,
+        "total": 6,
+        "development": 6,
+        "heldOut": 0,
+        "negativeControl": 0,
+        "blocked": 0
+      },
+      {
+        "rank": 11,
+        "total": 0,
+        "development": 0,
+        "heldOut": 0,
+        "negativeControl": 0,
+        "blocked": 0
+      },
+      {
+        "rank": 12,
+        "total": 0,
+        "development": 0,
+        "heldOut": 0,
+        "negativeControl": 0,
+        "blocked": 0
+      },
+      {
+        "rank": 19,
+        "total": 0,
+        "development": 0,
+        "heldOut": 0,
+        "negativeControl": 0,
+        "blocked": 0
+      },
+      {
+        "rank": 31,
+        "total": 0,
+        "development": 0,
+        "heldOut": 0,
+        "negativeControl": 0,
+        "blocked": 0
+      }
+    ]
   },
   "sourceSuites": [
     {
