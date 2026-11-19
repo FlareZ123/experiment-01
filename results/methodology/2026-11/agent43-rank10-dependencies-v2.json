@@ -17,9 +17,9 @@
     },
     {
       "path": "simulation/evaluation/2026-11/agent43-phantom-dive-allocation.cjs",
-      "gitBlobSha1": "d1badc4cdab6e9248667e54a2a5b6c2a14054fff",
+      "gitBlobSha1": "4b07b010edb9eed2d164aeb724621c797418dac8",
       "role": "complete allocation enumeration, token mapping, and policy scoring",
-      "sha256": "b1e09b9a7d17a8818fc7ba38585ada37c8e0ed24f3c92e15d9426e5a586818ea"
+      "sha256": "0d3565fb5d6db914a14a95cd858b5afe6764278e847275d46d09806853ecea09"
     },
     {
       "path": "simulation/evaluation/2026-11/agent36-prompt-projection.cjs",
@@ -41,9 +41,9 @@
     },
     {
       "path": "tests/2026-11/agent43-phantom-dive-allocation.test.cjs",
-      "gitBlobSha1": "b8ece0d15fd9d5377213d45198be4ac4ba0c7c8a",
+      "gitBlobSha1": "5641361469bbf5e876881117d8591355e2fb99c3",
       "role": "synthetic allocation and token-mapping tests",
-      "sha256": "78b20efd80d64b50da77fadac02c98c85aed7f505275bb25047576736b3d6fbf"
+      "sha256": "8a331b43862e659575a593da6bb254fce83501a09067a98dc9ae6f064b14a232"
     },
     {
       "path": "tests/2026-11/agent43-rank10-phantom-dive-policy-v2.test.cjs",
@@ -53,9 +53,9 @@
     },
     {
       "path": "results/methodology/2026-11/agent43-rank10-common-constraints-v2.json",
-      "gitBlobSha1": "0e779ccb87b529e656e8ad93c5c4eb5425c6e9aa",
+      "gitBlobSha1": "410b649a0d5ee0858dbeb36bfd04d7f2b6018aa3",
       "role": "provisional common policy constraints; not bound to signed V3 policy plan",
-      "sha256": "78845ab7aa19d36918f68f5b4e51dcf6c2d3a03fc5333111aad966adc6c71817"
+      "sha256": "baa57e0c4ccf852d2fad9411a6985b1033eca1e5f8989fed6ad6e6318554409e"
     }
   ],
   "sourceData": {
@@ -87,7 +87,7 @@
   },
   "commonConstraints": {
     "path": "results/methodology/2026-11/agent43-rank10-common-constraints-v2.json",
-    "gitBlobSha1": "0e779ccb87b529e656e8ad93c5c4eb5425c6e9aa",
-    "sha256": "78845ab7aa19d36918f68f5b4e51dcf6c2d3a03fc5333111aad966adc6c71817"
+    "gitBlobSha1": "410b649a0d5ee0858dbeb36bfd04d7f2b6018aa3",
+    "sha256": "baa57e0c4ccf852d2fad9411a6985b1033eca1e5f8989fed6ad6e6318554409e"
   }
 }
