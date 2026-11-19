@@ -1225,3 +1225,21 @@ test('Mimikyu is not prioritized against Pokémon ex because Safeguard protects 
     kind: 'select-action', token: 'pass'
   });
 });
+
+
+test('the policy abstains rather than inventing a pass token when no supported action exists', () => {
+  const request = rootRequest({
+    ownPublic: player({ active: pokemon('Snorlax PGO 55') }),
+    ownHand: ['Unknown Item XYZ 1'],
+    items: [
+      {
+        token: 'unknown-item', kind: 'play-card',
+        actorPrinting: 'Unknown Item XYZ 1',
+        publicMetadata: { cardType: 'item', handIndex: 0 }
+      }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'abstain', reasonCode: 'NO_SUPPORTED_ACTION'
+  });
+});
