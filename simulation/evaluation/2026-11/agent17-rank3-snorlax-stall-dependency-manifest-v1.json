@@ -9,7 +9,7 @@
   "policyModule": {
     "path": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
     "gitBlobSha1": "18ba4a18cfe69bc6059d0d3941c9aa1dfea3ed12",
-    "sha256": "8feb6c6d28e04c73ff7d2ff75b315c955a8bf0073228451184d97a6388320509",
+    "sha256": "9751fe1e54e76899c7846f6a78e449b97fcccdfbeee6636de56857554fe579ac",
     "policyVersion": "agent17-rank3-snorlax-stall-opponent-v1",
     "config": {
       "rank": 3,
@@ -135,7 +135,7 @@
   "testSuite": {
     "path": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
     "gitBlobSha1": "2468511c334357c0c653291f5f318071a0549a21",
-    "sha256": "96a4ad2ad6452b6494cce0dddf9906f6e861ceb25048fe22e196278e775b398a",
+    "sha256": "e95533c0530915a7c0d17768f1ec209667acec5bae97de09ebc6a85abdbc7d35",
     "testFramework": "node:test source file",
     "localExecution": "V8 isolate test shim; all 49 cases rerun against the actual policy and worker validators; not node --test",
     "testCount": 49
@@ -148,7 +148,7 @@
     "policyCommit": "c73245b6a4ea48e03db08ebdaed1aeeb600b63eb",
     "testCommit": "47170237ed7a6dc3463c11bae74d0aa6a27be9a6",
     "baselineMainCommitAtInitialInspection": "2a86d357bf5ae699148f0fa7ce74c497e6973d49",
-    "currentMainAtManifestUpdate": "c12ad8754181462ddf95cf70016bb1bea3c12cb2"
+    "currentMainAtManifestUpdate": "60f23e696ec26d3db31683fd6ec9a7d5072425ab"
   },
   "hashDefinitions": {
     "fileSha256": "SHA-256 of exact UTF-8 file bytes",
