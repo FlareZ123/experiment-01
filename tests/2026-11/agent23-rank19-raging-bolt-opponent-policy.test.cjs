@@ -282,6 +282,38 @@ test('Bellowing Thunder discards Basic Energy only and preserves Double Dragon E
   assert.equal(result.decision.tokens.includes('e-dde'), false);
 });
 
+test('Bellowing Thunder abstains when other Pokémon Basic Energy cannot be attributed', () => {
+  const bolt = pokemon({ printing: RAGING, subtypes: ['Basic', 'ex', 'Ancient'], energies: [LIGHTNING, FIGHTING, DDE] });
+  const sandy = pokemon({ printing: SANDY, subtypes: ['Basic', 'ex', 'Ancient'], energies: [DARKNESS] });
+  const target = pokemon({ printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    hp: 320, damage: 0, subtypes: ['VMAX'], types: ['Psychic'] });
+  const obs = observation({ ownActive: bolt, ownBench: [sandy, null, null, null, null],
+    opponentActive: target, decisionKind: 'owner-prompt', promptType: 'ChooseEnergyPrompt' });
+  const choices = [
+    energyChoice('e-l', LIGHTNING, 'Lightning'),
+    energyChoice('e-f', FIGHTING, 'Fighting'),
+    energyChoice('e-d', DARKNESS, 'Darkness'),
+    energyChoice('e-dde', DDE, 'Colorless/Dragon')
+  ];
+  const p = prompt(0, 'ChooseEnergyPrompt', 'Bellowing Thunder', RAGING, choices, {
+    selectionType: 'energy-payment', energyCount: 4, count: 4,
+    energyType: 'Basic Energy', allowCancel: false
+  });
+  const result = runDecision({ obs, promptValue: p });
+  assert.deepEqual(result.decision, {
+    kind: 'abstain', reasonCode: 'BELLOWING_ENERGY_OWNER_UNATTRIBUTED'
+  });
+
+  const root = observation({ ownActive: bolt, ownBench: [sandy, null, null, null, null],
+    opponentActive: target });
+  const rootResult = runDecision({ obs: root, items: [
+    action('attack', 'attack', { attackName: 'Bellowing Thunder',
+      publicMetadata: { damageAfterWeakness: 280, targetHp: 320, targetDamage: 0 } }),
+    action('pass', 'pass')
+  ]});
+  assert.deepEqual(rootResult.decision, { kind: 'select-action', token: 'pass' });
+});
+
 test('Bellowing Thunder accounts for Dragon Weakness without over-discarding', () => {
   const bolt = pokemon({ printing: RAGING, subtypes: ['Basic', 'ex', 'Ancient'], energies: [LIGHTNING, FIGHTING, DDE] });
   const target = pokemon({
@@ -318,6 +350,43 @@ test('Battle Compressor chooses Ho-Oh plus missing Basic Energy types when one t
   });
   const result = runDecision({ obs, promptValue: p });
   assert.deepEqual(new Set(result.decision.tokens), new Set(['hooh', 'fighting', 'darkness']));
+});
+
+test('Ho-Oh Rebirth chooses three distinct Basic Energy types', () => {
+  const obs = observation({ ownActive: pokemon({ printing: RAGING,
+    subtypes: ['Basic', 'ex', 'Ancient'] }), ownDiscard: [HOOH, LIGHTNING, FIGHTING, DARKNESS],
+    decisionKind: 'owner-prompt', promptType: 'ChooseEnergyPrompt' });
+  const choices = [
+    energyChoice('l1', LIGHTNING, 'Lightning'),
+    energyChoice('l2', LIGHTNING, 'Lightning'),
+    energyChoice('f', FIGHTING, 'Fighting'),
+    energyChoice('d', DARKNESS, 'Darkness'),
+    energyChoice('dde', DDE, 'Colorless/Dragon')
+  ];
+  const p = prompt(0, 'ChooseEnergyPrompt', 'Rebirth', HOOH, choices, {
+    selectionType: 'energy-payment', energyCount: 5, count: 5,
+    energyType: 'Basic Energy', allowCancel: false
+  });
+  const result = runDecision({ obs, promptValue: p });
+  assert.deepEqual(new Set(result.decision.tokens), new Set(['l1', 'f', 'd']));
+});
+
+test('Ultimate Ray energy selection prefers distinct Basic Energy types', () => {
+  const obs = observation({ ownActive: pokemon({ printing: ADP,
+    subtypes: ['Basic', 'TAG TEAM', 'GX'], energies: [DDE] }),
+    decisionKind: 'owner-prompt', promptType: 'ChooseEnergyPrompt' });
+  const choices = [
+    energyChoice('l1', LIGHTNING, 'Lightning'),
+    energyChoice('l2', LIGHTNING, 'Lightning'),
+    energyChoice('f', FIGHTING, 'Fighting'),
+    energyChoice('d', DARKNESS, 'Darkness')
+  ];
+  const p = prompt(0, 'ChooseEnergyPrompt', 'Ultimate Ray', ADP, choices, {
+    selectionType: 'energy-payment', energyCount: 4, count: 4,
+    energyType: 'Basic Energy', allowCancel: false
+  });
+  const result = runDecision({ obs, promptValue: p });
+  assert.deepEqual(new Set(result.decision.tokens), new Set(['l1', 'f', 'd']));
 });
 
 test('Sada chooses only Ancient Pokémon and prefers Raging Bolt plus Sandy Shocks', () => {
