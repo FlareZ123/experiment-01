@@ -524,6 +524,14 @@ test('Special Charge recovers two DCE rather than Pokémon from the discard pile
     { kind: 'select-choices', tokens: ['dce-a', 'dce-b'] });
 });
 
+test('the last Mew VMAX is not an Ultra Ball or Secret Box discard target', () => {
+  const view = observation({
+    ownHand: [P.mewVMAX],
+    ownPublic: player({ active: pokemon(P.mewV) })
+  });
+  assert.equal(policyModule.scoreDiscardCard({ printing: P.mewVMAX }, view), 0);
+});
+
 test('Ultra Ball discards expendable Trainers while preserving DCE and the evolution piece', () => {
   const request = promptRequest({
     promptType: 'ChooseCardsPrompt',
