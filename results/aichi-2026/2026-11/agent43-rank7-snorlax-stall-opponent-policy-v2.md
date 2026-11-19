@@ -20,7 +20,7 @@
 
 ## Validation
 
-The updated Node 22 contract suite contains 30 tests and continues to execute the actual Agent49 init/request/decision validators. The new regressions are synthetic policy/protocol tests only. Record the exact Actions run, head SHA, job ID, and final pass count in the dependency manifest and challenge suite after CI completes.
+The updated Node 22 contract suite passed **30/30 tests** using the actual Agent49 init/request/decision validators. GitHub Actions run: `44576458711`; job: `135745141306`; head: `c47e173d3876c69ee05da0fb3bd278f555c89c70`. The new regressions are synthetic policy/protocol tests only.
 
 ## Limitations
 
@@ -28,4 +28,4 @@ The updated Node 22 contract suite contains 30 tests and continues to execute th
 - No full-game, matchup, or strategic-competence evidence was produced.
 - The policy remains a rank-specific prototype and is not part of a signed/released V3 policy bundle.
 - Faba's non-Hood target families are intentionally unsupported.
-- The 99.5% Aichi Top 32 objective remains entirely un demonstrated.
+- The 99.5% Aichi Top 32 objective remains entirely undemonstrated.
