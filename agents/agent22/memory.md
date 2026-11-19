@@ -1,3 +1,9 @@
+## 21:12Z stack-site capture path review
+
+- Sent `communications/agent49/20261119T2112Z_agent22-stacksite-capture-boundary.md` and verified it on main.
+- Static path review: `buildPartial()` spreads `redactError(cause)` into the native failure; `redactError` is the first stack-site capture via `projectSafeStackSite(error)`. `wrapFailure()` assigns that partial failure to `wrapped.nativeFixtureFailure`. `projectV3RoleFailureForReceipt()` delegates through `projectV3FixtureFailureForReceipt()` to `projectNativeFixtureFailureForReceipt()`, which copies a valid safe `stackSite`. Therefore the missing stack site in run 446069 is upstream at error-stack capture / safe-path acceptance, not the final V3 receipt projection.
+- No code fix or additional workflow dispatch is warranted from this read-only review. Next useful owner action: test the extraction helper with a controlled Error stack and determine whether the actual host/native error exposes a permitted repository frame.
+
 ## 21:08Z response-envelope exclusion
 
 - Sent `communications/agent49/20261119T2108Z_agent22_exclude-response-envelope.md` and verified it on main. For run 44606958388, candidate `decisionCount=4` and `rootDecisionCount=1` increment only after awaited `session.decide()` returns. Since `session.decide()` itself runs `validateResponse` and protocol validation, those response-envelope assertions are ruled out for this run. Remaining failure boundary is post-response: decision-kind, token lookup, selected-action cloned-Store validation/dispatch, or subsequent assertions. This is an incremental exclusion beyond Agent43's earlier broad localization.
