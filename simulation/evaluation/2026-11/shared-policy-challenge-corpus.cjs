@@ -9,6 +9,10 @@ const PANEL_MANIFEST = {
   path: 'results/methodology/2026-11/agent17-aichi-policy-panel-manifest-20261117.json',
   blob: '01fe1525c78369cfce964ef7532dc4f5db0cd0ea'
 };
+const CURATED_CORPUS = {
+  path: 'results/methodology/2026-11/agent19/shared-player-challenge-corpus-v1.json',
+  blob: '8c7e1edc6262d727d1a50695691250ac3456da84'
+};
 const SOURCE_SUITES = [
   { rank: 2, path: 'simulation/evaluation/2026-11/agent45-rank2-vileplume-control-challenge-suite-v2.json', blob: 'd5745e3c295bcd5ca485415943688dc29e062db6' },
   { rank: 3, path: 'results/aichi-2026/2026-11/agent17-rank3-snorlax-stall-opponent-policy-challenge-suite-v1.json', blob: 'd3cd2eba6fc1de22381732a19446a9df44d3920d' },
@@ -264,6 +268,7 @@ function isStructurallyComplete(record) {
 function buildCorpus(rootDir) {
   const repositoryRoot = rootDir || path.resolve(__dirname, '../../..');
   const panel = readPinnedJson(repositoryRoot, PANEL_MANIFEST);
+  const curated = readPinnedJson(repositoryRoot, CURATED_CORPUS);
   const panelRanks = new Set((panel.ranks || []).map(entry => entry.rank));
   const cases = [];
   const sourceSuites = SOURCE_SUITES.map(spec => {
@@ -272,6 +277,69 @@ function buildCorpus(rootDir) {
     }
     return normalizeSuite(repositoryRoot, spec, cases);
   });
+  const curatedCases = (curated.cases || []).map(item => {
+    const sourceRecord = item.sourceRecord || {};
+    const sourceCase = cases.find(record =>
+      record.sourceSuitePath === sourceRecord.suitePath &&
+      record.sourceSuiteGitBlobSha1 === sourceRecord.suiteBlobSha1 &&
+      record.caseId === sourceRecord.caseId);
+    if (!sourceCase) {
+      throw new Error('Curated case does not resolve to the pinned broad index: ' + item.caseId);
+    }
+    const actorView = item.actorView || {};
+    const execution = item.executionEvidence || {};
+    const disposition = item.disposition || {};
+    return {
+      curatedCaseId: item.caseId,
+      rank: item.sourceRank,
+      role: item.role || null,
+      split: item.split || null,
+      trainingUse: item.trainingUse || null,
+      challengeFamily: item.challengeFamily || null,
+      caseClass: item.caseClass || null,
+      objective: item.objective || null,
+      evidenceClass: item.evidenceClass || null,
+      dispositionStatus: disposition.status || null,
+      sourceSuitePath: sourceRecord.suitePath,
+      sourceSuiteGitBlobSha1: sourceRecord.suiteBlobSha1,
+      sourceSuiteId: sourceRecord.suiteId || null,
+      sourceArray: sourceCase.sourceArray,
+      sourceArrayIndex: sourceCase.sourceArrayIndex,
+      caseId: sourceCase.caseId,
+      stableCaseId: sourceCase.stableCaseId,
+      sourceSplit: sourceCase.split,
+      splitMatches: sourceCase.split === item.split,
+      sourceCaseStructurallyComplete: sourceCase.structurallyComplete,
+      actorViewScope: actorView.scope || null,
+      actorViewRuntimeDigestSha256: actorView.runtimeDigestSha256 || null,
+      actorViewFixtureDescriptorSha256: actorView.fixtureDescriptorSha256 || null,
+      exactRuntimeObservationCaptured: actorView.exactRuntimeObservationCaptured === true,
+      hiddenOpponentZonesIncluded: actorView.hiddenOpponentZonesIncluded === true,
+      nativeGameCount: execution.nativeGameCount === undefined ? null : execution.nativeGameCount,
+      nativeStoreReceiptPresent: !!execution.nativeStoreReceipt || disposition.nativeStoreReceiptPresent === true,
+      nativeTraceDigestPresent: !!execution.nativeTraceDigest || disposition.nativeTraceDigestPresent === true
+    };
+  });
+  const curatedSubset = {
+    path: CURATED_CORPUS.path,
+    gitBlobSha1: CURATED_CORPUS.blob,
+    totalCases: curatedCases.length,
+    developmentCases: curatedCases.filter(record => record.split === 'development').length,
+    heldOutCases: curatedCases.filter(record => record.split === 'held-out').length,
+    sourceRanks: Array.from(new Set(curatedCases.map(record => record.rank))).sort((a, b) => a - b),
+    evidenceClassCounts: countBy(curatedCases, 'evidenceClass'),
+    dispositionCounts: countBy(curatedCases, 'dispositionStatus'),
+    matchedCaseReferences: curatedCases.length,
+    splitMismatches: curatedCases.filter(record => !record.splitMatches).length,
+    structurallyCompleteCases: curatedCases.filter(record => record.sourceCaseStructurallyComplete).length,
+    runtimeActorViewDigestCases: curatedCases.filter(record => record.actorViewRuntimeDigestSha256).length,
+    exactRuntimeObservationCases: curatedCases.filter(record => record.exactRuntimeObservationCaptured).length,
+    nativeStoreReceiptCases: curatedCases.filter(record => record.nativeStoreReceiptPresent).length,
+    nativeTraceDigestCases: curatedCases.filter(record => record.nativeTraceDigestPresent).length,
+    nativeGameCount: curatedCases.reduce((sum, record) => sum + (Number(record.nativeGameCount) || 0), 0),
+    allCasesBlocked: curatedCases.every(record => record.dispositionStatus === 'blocked'),
+    actorViewPayloadsCopied: false
+  };
   const indexedRanks = sourceSuites.map(source => source.rank).sort((a, b) => a - b);
   const allRanks = Array.from({ length: 32 }, (_, index) => index + 1);
   const missing = key => cases.filter(record => !record[key]).length;
@@ -308,7 +376,8 @@ function buildCorpus(rootDir) {
       evaluation: 'Same architecture on both seats; preserve development/held-out split; held-out cases never tune policy; source-natural/native-staged/synthetic evidence remain distinct.',
       suiteContentContract: 'results/methodology/2026-11/agent2-policy-challenge-suite-operational-contract-20261117.md',
       fieldPanelManifest: 'results/methodology/2026-11/agent17-aichi-policy-panel-manifest-20261117.json',
-      prototypeReadinessSynthesis: 'results/methodology/2026-11/agent35-opponent-policy-prototype-readiness-20261117.md'
+      prototypeReadinessSynthesis: 'results/methodology/2026-11/agent35-opponent-policy-prototype-readiness-20261117.md',
+      curatedStarterCorpus: CURATED_CORPUS.path
     },
     coverage: {
       indexedRanks,
@@ -369,6 +438,8 @@ function buildCorpus(rootDir) {
         stableCaseId: missing('stableCaseId')
       }
     },
+    curatedSubset,
+    curatedCases,
     sourceSuites,
     cases
   };
@@ -406,6 +477,7 @@ if (require.main === module) {
 module.exports = {
   OUTPUT_PATH,
   PANEL_MANIFEST,
+  CURATED_CORPUS,
   SOURCE_SUITES,
   buildCorpus,
   gitBlobSha1,
