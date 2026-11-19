@@ -967,3 +967,63 @@ test('the real worker decision validator rejects an unknown prompt-choice token'
     validated.actionTokens
   ), /POLICY_SELECTED_UNKNOWN_CHOICE/);
 });
+
+
+test('Rotom V Instant Charge is used for its three-card refill when Beach is not active', () => {
+  const request = rootRequest({
+    ownHand: ['Arven OBF 186', 'Nest Ball SVI 181', 'Water Energy MEE 11', 'Faba LOT 173'],
+    ownPublic: player({ active: pokemon('Snorlax PGO 55'), bench: [pokemon('Rotom V LOR 58')], deckCount: 18 }),
+    items: [
+      {
+        token: 'instant-charge', kind: 'use-ability',
+        actorPrinting: 'Rotom V LOR 58',
+        publicMetadata: { abilityName: 'Instant Charge' }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action', token: 'instant-charge'
+  });
+});
+
+test('Forest Seal Stone Star Alchemy is activated only from its own attached Tool source', () => {
+  const request = rootRequest({
+    ownPublic: player({
+      active: pokemon('Snorlax PGO 55'),
+      bench: [pokemon('Rotom V LOR 58', { tools: ['Forest Seal Stone SIT 156'] })]
+    }),
+    items: [
+      {
+        token: 'star-alchemy', kind: 'use-ability',
+        actorPrinting: 'Forest Seal Stone SIT 156',
+        publicMetadata: { abilityName: 'Star Alchemy' }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action', token: 'star-alchemy'
+  });
+});
+
+test('Mimikyu is prioritized as a defensive Basic against the candidate V and ex board', () => {
+  const request = rootRequest({
+    ownHand: ['Mimikyu PAL 97'],
+    ownPublic: player({ active: pokemon('Snorlax PGO 55') }),
+    opponentPublic: player({
+      active: pokemon('Shadow Rider Calyrex VMAX CRE 75')
+    }),
+    items: [
+      {
+        token: 'mimikyu', kind: 'play-card',
+        actorPrinting: 'Mimikyu PAL 97',
+        publicMetadata: { cardType: 'pokemon', handIndex: 0 }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action', token: 'mimikyu'
+  });
+});
