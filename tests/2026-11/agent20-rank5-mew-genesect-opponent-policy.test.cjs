@@ -249,7 +249,7 @@ function checkedDecision(request, seat = 0) {
     seat,
     policyVersion: POLICY_VERSION,
     bundleSha256: 'a'.repeat(64),
-    config
+    config: {}
   };
   protocol.validateInit(init);
   const validated = protocol.validateRequest(request, init, request.sequence, new Set());
@@ -704,6 +704,7 @@ test('Secret Box abstains when a required category is absent from the prompt', (
     },
     choices: [
       { ...cardChoice('wally', P.wally), publicMetadata: { sourceZone: 'deck', ownerSeat: 'actor', cardType: 'supporter' } },
+      { ...cardChoice('marnie', 'Marnie SSH 169'), publicMetadata: { sourceZone: 'deck', ownerSeat: 'actor', cardType: 'supporter' } },
       { ...cardChoice('ultra', P.ultraBall), publicMetadata: { sourceZone: 'deck', ownerSeat: 'actor', cardType: 'item' } },
       { ...cardChoice('path', P.path), publicMetadata: { sourceZone: 'deck', ownerSeat: 'actor', cardType: 'stadium' } }
     ]
