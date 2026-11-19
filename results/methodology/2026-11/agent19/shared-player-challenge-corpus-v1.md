@@ -51,7 +51,7 @@ Development cases are **regression-only**, not supervised strategic labels. The 
 
 1. The actual repository submodule declaration in [`.gitmodules`](../../../../.gitmodules) is `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`, pinned to `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The rank-3 suite declares the stale path `vendor/twinleafgg`; the corpus preserves that declared value separately but records `vendor/twinleaf` as the actual path. No submodule was changed.
 2. `sourceDeckCardCount` is the count in the source-list row, not proof of physical-copy inspection or paper admission. The rank-4 suite binds its exact source entry through `sourceEntryJsonSha256` and the source-list file hash, rather than supplying the same printed-60 fingerprint field used by several other suites. The corpus preserves this as an entry hash and does not relabel it as a physical deck fingerprint.
-3. Actor-view payloads are retained only from the source suites. The normalizer rejects explicit hidden-opponent-zone inclusion and does not promote fixture-descriptor hashes to runtime actor-view digests.
+3. Actor-view payloads are retained only from the source suites and remain heterogeneous; the corpus is a common outer envelope, not a normalized executable V3 worker request. Adapt each payload to the shared policy input contract only after its exact schema is validated. The normalizer rejects explicit hidden-opponent-zone inclusion and does not promote fixture-descriptor hashes to runtime actor-view digests.
 4. Source suites, policy modules and their historical test results remain authoritative for their own content. This corpus does not independently validate card rules or repair their blocked dispositions.
 
 ## Intended next use
