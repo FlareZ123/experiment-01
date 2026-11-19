@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-dependency-manifest-v2.json",
-    "manifestSha256": "707f3cb1f1027006a170265d70cffe414fe90c523c5632324db9b7f5c7fbd17f",
+    "manifestSha256": "3712d47314347a33bd36e7c31cf2eaaf85b1e349d9f9db7e888efec92e9bc696",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-common-constraints-v2.json",
     "commonConstraintsSha256": "69af3fe306c0a72c77b862fe7bf7763e67187fa9693bcbcccfa243adf3438d27",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
@@ -70,8 +70,8 @@
       "synthetic": 12
     },
     "developmentTestCount": 44,
-    "unitTestsPassed": null,
-    "unitTestsFailed": null,
+    "unitTestsPassed": 44,
+    "unitTestsFailed": 0,
     "actorRequestCount": 47,
     "decisionReceiptCount": 46,
     "promptTypeCounts": {
@@ -101,10 +101,10 @@
       "timeoutMeasured": false,
       "processSandboxVerified": false
     },
-    "ciRunId": null,
-    "ciHeadSha": null,
-    "ciConclusion": "pending",
-    "ciJobId": null,
+    "ciRunId": 44605512482,
+    "ciHeadSha": "08b66b89bf4f9ff21b4e8b88bf2d9f7f59eb93c0",
+    "ciConclusion": "success",
+    "ciJobId": 135848014196,
     "fullMatchupCoverage": {
       "rank7VsFixedCandidateGames": 0,
       "aichiTop32MatchupsWithResults": 0,
@@ -117,7 +117,7 @@
     "pass": "Only with native actor-state reachability, paper legality, strategic suitability and execution integrity plus required review.",
     "blocked": "Synthetic-only or any required evidence is missing.",
     "fail": "Illegal/unreachable action, hidden information use, or native evidence contradicts decision.",
-    "currentSuiteResult": "44 synthetic validator-backed tests defined; exact-head CI pending. Every frozen case remains blocked for native/competitive attestation."
+    "currentSuiteResult": "44/44 synthetic validator-backed tests pass on exact head 08b66b89bf4f9ff21b4e8b88bf2d9f7f59eb93c0 (run 44605512482); every frozen case remains blocked for native/competitive attestation."
   },
   "developmentCases": [
     {
@@ -2332,7 +2332,7 @@
     ]
   },
   "caseRecordCount": 16,
-  "suiteSha256": "cc4dbd0b17a8eb938aa99c9699c878a391c3664fd44a4108d4b4c3a1072f263a",
+  "suiteSha256": "b9e73287bb3117a1be3a3fd62da23805dcad5f05fa95c8960d8d3cb7cf3112f7",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
@@ -2567,6 +2567,6 @@
       "Get Lost target prompt prioritizes Night Stretcher and Acerola over ordinary discard cards",
       "Get Lost target prompt selects Acerola when Night Stretcher is absent"
     ],
-    "note": "Supplemental regression tests extend existing scenario classes; they are synthetic-only and are not additional frozen actor-view case records. Exact-head CI is pending after correcting two expected prompt result envelopes."
+    "note": "Supplemental regression tests extend existing scenario classes; they are synthetic-only and are not additional frozen actor-view case records. Exact-head Node 22 run 44605512482 passed all 44 tests."
   }
 }
