@@ -236,6 +236,31 @@ test('without KOs, damage is concentrated on the highest-priority exposed target
   assert.deepEqual(choosePhantomDiveAllocation(choices, obs), { kind: 'select-choice', token: 'mimikyu' });
 });
 
+test('Prize valuation recognizes fullName-only VMAX printings', () => {
+  const obs = observation([
+    { fullName: 'Shadow Rider Calyrex VMAX CRE 75', hp: 320, damage: 260, printed: { subtypes: [] } },
+    pokemon('Tapu Lele-GX GRI 60', 170, 110, ['Basic', 'GX'])
+  ]);
+  const choices = [
+    { token: 'vmax', kind: 'allocation', label: 'PD1|b0=60' },
+    { token: 'gx', kind: 'allocation', label: 'PD1|b1=60' }
+  ];
+  assert.deepEqual(choosePhantomDiveAllocation(choices, obs), { kind: 'select-choice', token: 'vmax' });
+  assert.equal(evaluatePhantomDiveAllocationChoice(choices[0], obs).prizes, 3);
+});
+
+test('target priority recognizes fullName-only Mimikyu printings', () => {
+  const obs = observation([
+    { fullName: 'Mimikyu GRI 58', hp: 70, damage: 0, printed: { subtypes: ['Basic'] } },
+    pokemon('Pidgeot', 61, 0, ['Basic'])
+  ]);
+  const choices = [
+    { token: 'mimikyu', kind: 'allocation', label: 'PD1|b0=60' },
+    { token: 'pidgeot', kind: 'allocation', label: 'PD1|b1=60' }
+  ];
+  assert.deepEqual(choosePhantomDiveAllocation(choices, obs), { kind: 'select-choice', token: 'mimikyu' });
+});
+
 test('selected allocation reaches the maximum Prize value available in the complete choice set', () => {
   const obs = observation([
     pokemon('Shadow Rider Calyrex VMAX CRE 75', 320, 250, ['VMAX']),
