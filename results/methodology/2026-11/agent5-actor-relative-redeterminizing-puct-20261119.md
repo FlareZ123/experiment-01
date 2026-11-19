@@ -26,7 +26,7 @@ When supplied, it replaces the one-time root sampler and is called before every 
 3. preserve the public state, active physical seat, terminality and prompt stability;
 4. avoid conditioning the sampled hidden world on other information unavailable to the acting seat.
 
-The core independently hashes the actor observation before and after sampling and fails closed if it changes. It also checks that the returned state is detached, stable, nonterminal, and still belongs to the acting seat.
+The core independently hashes the actor observation before and after sampling and fails closed if it changes. It also checks that the returned state is detached, stable, nonterminal, and still belongs to the acting seat. The adapter's observation must be perfect-recall: include the complete public history and the acting player's own prior actions/observations as well as its private knowledge ledger. The core verifies equality of the supplied observation, not that the adapter included every strategically relevant fact; incomplete observations can merge distinct information sets or produce the wrong posterior.
 
 The determinization RNG is independent of game-transition randomness and keyed only by search seed, iteration, physical acting seat, and actor-observation hash. It deliberately excludes internal search ply. The callback receives a frozen actor-observation snapshot and a narrow deadline-check capability, not the search's root-seat identity, live clock, or transition RNG.
 
