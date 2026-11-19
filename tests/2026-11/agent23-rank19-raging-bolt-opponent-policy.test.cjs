@@ -456,7 +456,7 @@ test('Sada chooses only Ancient Pokémon and prefers Raging Bolt plus Sandy Shoc
   ];
   const p = prompt(0, 'ChoosePokemonPrompt', "Professor Sada's Vitality", "Professor Sada's Vitality PAR 170",
     choices, { selectionType: 'pokemon', minimumCount: 1, maximumCount: 2,
-      allowCancel: false, targetZone: 'bench' });
+      allowCancel: false });
   const result = runDecision({ obs, promptValue: p });
   assert.deepEqual(new Set(result.decision.tokens), new Set(['bolt', 'sandy']));
 });
