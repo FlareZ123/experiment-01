@@ -258,13 +258,25 @@ function cardPriority(value, observation, source) {
     return 10;
   }
 
-  if (/hisuian heavy ball|gladion/i.test(source)) {
+  if (/gladion/i.test(source)) {
+    if (PRINT.raichu.test(text) && !boardHas(ownPlayer, PRINT.raichu)) return 260;
+    if (PRINT.electrode.test(text) && boardHas(ownPlayer, PRINT.voltorb) &&
+        !boardHas(ownPlayer, PRINT.electrode)) return 250;
+    if (PRINT.voltorb.test(text) && !boardHas(ownPlayer, PRINT.voltorb)) return 240;
+    if (PRINT.pikachu.test(text) && !boardHas(ownPlayer, PRINT.pikachu)) return 230;
+    if (PRINT.gengarMimikyu.test(text) && !boardHas(ownPlayer, PRINT.gengarMimikyu)) return 190;
+    if (PRINT.dedenne.test(text) && !boardHas(ownPlayer, PRINT.dedenne)) return 180;
+    return 10;
+  }
+
+  if (/hisuian heavy ball/i.test(source)) {
     if (PRINT.voltorb.test(text)) return 230;
     if (PRINT.pikachu.test(text)) return 220;
     if (PRINT.dedenne.test(text)) return 180;
     if (PRINT.tapuLele.test(text)) return 160;
     if (PRINT.squawk.test(text)) return 150;
     if (PRINT.crobat.test(text)) return 140;
+    if (PRINT.gengarMimikyu.test(text)) return 130;
     return 10;
   }
 
@@ -331,7 +343,8 @@ function scorePokemonPlay(value, observation) {
     return !boardHas(ownPlayer, PRINT.gengarMimikyu) ? 90 : 15;
   }
   if (matches(value, PRINT.klefki)) {
-    return !boardHas(ownPlayer, PRINT.klefki) ? 35 : 5;
+    const opposingActiveTools = list(active(opponent(observation))?.tools);
+    return !boardHas(ownPlayer, PRINT.klefki) && opposingActiveTools.length > 0 ? 80 : 0;
   }
   if (matches(value, PRINT.ditto)) {
     return !boardHas(ownPlayer, PRINT.ditto) ? 65 : 5;
@@ -407,6 +420,7 @@ function scoreAttack(item, observation) {
   if (/electro ball/i.test(name)) return 80;
   if (/venomous fang/i.test(name)) return 60;
   if (/pika ball/i.test(name)) return 35;
+  if (/joust/i.test(name)) return list(opponentActive?.tools).length > 0 ? 100 : 0;
   if (/motivate/i.test(name)) return 0;
 
   if (opponentBench.length > 0 && /spread|bench/i.test(name)) return 60;
@@ -570,6 +584,16 @@ function promptDecision(request) {
   }
 
   if (prompt?.promptType === 'ChooseCardsPrompt') {
+    if (/quick ball/i.test(context) &&
+        choices.some(choice => metadata(choice).sourceZone === 'hand')) {
+      const { minimum, maximum } = choiceBounds(prompt);
+      const discardScore = choice => scoreDiscardChoice(choice, request, minimum);
+      if (meta.selectionType === 'card-combination') {
+        return selectMany(choices, discardScore, minimum, maximum, 'NO_SAFE_DISCARD_COST');
+      }
+      return selectOne(choices, discardScore, 'NO_SAFE_DISCARD_COST');
+    }
+
     if (/ultra ball|secret box/i.test(context) &&
         meta.selectionType === 'card-combination' &&
         choices.some(choice => metadata(choice).sourceZone === 'hand')) {
