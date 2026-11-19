@@ -71,20 +71,19 @@
   },
   "testFile": {
     "path": "tests/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy.test.cjs",
-    "blobSha1": "02db0c1809be665d72c51b97af133a84aacf4072",
-    "sha256": "cb00fcdee28f5f9f2305e6123f47e6d6a5fce9ffb2a5b02dd191c97e9bbeb79e",
-    "testCount": 14,
-    "actorViewFixtureCount": 16,
+    "blobSha1": "d310be1703bb79a53ad8751774533289450e21d0",
+    "sha256": "ece8592006511c32f98b2207ea40183ffa444671816d0d0634a54cf15e756a39",
+    "testCount": 15,
+    "actorViewFixtureCount": 17,
     "localHarness": "functions.exec V8 isolate with node:test/assert shims and actual Agent49 validator source"
   },
   "commonConstraints": {
     "path": "simulation/evaluation/2026-11/agent35-rank31-common-constraints-v1.json",
-    "sha256": "a5956e2414322fe6ac3d491ee0cd2d47eeb24d8d712af72689ac47ec469f4822"
+    "sha256": "0f757176f928cf967660372011cb78744d527271a0ec14fbe6fa4274be4e6632"
   },
   "assumptionsAndGaps": [
-    "Dusclops PRE 36 Cursed Blast is card-pool-text verified; Twinleaf source mapping and native prompt receipt are untested.",
-    "Dusknoir PRE 37 Cursed Blast and Stealthy Hood interaction are documented in Agent44's pinned-source report; this policy suite does not execute the native effect.",
-    "Field Blower option labels and target prompts are synthetic; exact pinned-source labels have not been exercised.",
+    "Dusclops PRE 36 and Dusknoir PRE 37 card text and pinned Twinleaf class/prompt/effect mappings are now source-inspected; native Store receipts and runtime effect execution are untested.",
+    "Field Blower option labels and target prompts are synthetic in the policy tests; exact pinned-source labels have been inspected by Agent44 but this policy's branch has no native receipt.",
     "Sinister Hand and Painful Spoons are not used because MoveDamagePrompt is not projected by the shared host adapter.",
     "Root action priorities are heuristics and have not been calibrated against natural games."
   ],
@@ -98,5 +97,29 @@
     "matchupResults": null,
     "winRate": null,
     "attestable": false
+  },
+  "pinnedSourceInspection": {
+    "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "files": [
+      {
+        "path": "ptcg-server/src/sets/10-scarlet-and-violet/set-prismatic-evolution/alt-arts.ts",
+        "lines": "128-137",
+        "mapping": "DusclopsPRE extends Dusclops; PRE set number 36. DusknoirPRE extends Dusknoir; PRE set number 37."
+      },
+      {
+        "path": "ptcg-server/src/sets/10-scarlet-and-violet/set-shrouded-fable/dusclops.ts",
+        "lines": "27-77",
+        "prompt": "ChoosePokemonPrompt TOP_PLAYER; Bench/Active; min 1, max 1, allowCancel false.",
+        "effect": "PlaceDamageCountersEffect 50; knocksOutSelf true; self-KO follows even if counters are prevented."
+      },
+      {
+        "path": "ptcg-server/src/sets/10-scarlet-and-violet/set-shrouded-fable/dusknoir.ts",
+        "lines": "19-65",
+        "prompt": "ChoosePokemonPrompt TOP_PLAYER; Bench/Active; min 1, max 1, allowCancel false.",
+        "effect": "PlaceDamageCountersEffect 130; knocksOutSelf true; self-KO follows even if counters are prevented."
+      }
+    ],
+    "nativeStoreReceipt": false,
+    "nativeGameExecution": false
   }
 }
