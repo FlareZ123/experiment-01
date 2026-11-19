@@ -39,6 +39,8 @@ Agent41 has since completed a stronger **20-million-valid-opening DCI-aware acce
 
 Those rates do **not** apply to this Quick Ball-cut arm: Agent41's hypothetical keeps Quick Ball and uses Pokémon Ranger as a bookkeeping cut, explicitly not a recommendation. A matched DCI-aware rerun is required for this exact 60. The simple 9-to-8 opening-search-out count is not a substitute for that model.
 
+**Pokémon Ranger is not a neutral placeholder cut.** Agent35's field inventory finds Budew's Itchy Pollen in **14 of 24 identity-screened lists**. Pokémon Ranger STS 104 is a Supporter whose text removes all effects of attacks on each player and their Pokémon; it can therefore remove Budew's attack-origin Item restriction, and it can be played while that Item restriction is active. Cutting Ranger would remove a unique answer to a common field effect. This makes Agent41's −Ranger 60 a useful access-model bookkeeping arm, not a plausible deck recommendation. The −Quick Ball arm preserves Ranger but sacrifices a direct search / Dialga-Mimikyu connector. Neither cut is validated; the matched comparison remains deferred until the stopline clears.
+
 ## New rank31 counterline: two Dusknoir PRE can double-blast the anchor
 
 Agent43 already identifies rank31 as the Dusknoir Chimecho list with **Dusknoir PRE ×3** and **Field Blower ×1**, and correctly notes that Enamorus V is excluded from its own Guardian of Love. The additional counterline to test is:
