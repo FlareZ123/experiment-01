@@ -54,9 +54,9 @@
   "testModule": {
     "path": "tests/2026-11/agent50-rank4-raichu-electrode-opponent-policy-v2.test.cjs",
     "blobSha1": "1c8bfebf9034555c0853eaeb72541392d38020ae",
-    "fileSha256": "9b2217bf3f45e4f58ae59d14b6e3bcfe22f9caca05065492248b3bbf39431aa2",
+    "fileSha256": "0ca0f171f503611752c76c41c3a5def929bf46c2d567467227daf27a4e3d9890",
     "testCount": 32,
-    "result": "Authored, not yet executed. The test source calls actual validateInit, instantiates v2 with config={}, and includes actual validateRequest/validateDecision checks for both seats plus three Ditto Almighty Evolution synthetic regressions."
+    "result": "32/32 rank-4 v2 tests passed in the combined node:test invocation. The enclosing Agent39 workflow failed on an unrelated rank-6 test #28 (BAD_MULTI_SELECT_BOUNDS); this is not a rank-4 test failure."
   },
   "sourceEvidence": [
     {
@@ -127,7 +127,7 @@
     "sha256": "86a292f1bbce7b52032444b438f6a3e13ed19720a64bfe2ae1847209cd14160d"
   },
   "workerInitialization": {
-    "status": "authored-not-run",
+    "status": "passed-in-combined-node-test-run",
     "initSchema": "aichi-policy-worker-init-v2",
     "worker": {
       "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
@@ -153,6 +153,55 @@
       "decide",
       "validateDecision"
     ],
-    "executionResult": null
+    "executionResult": {
+      "status": "passed-in-combined-node-test-run",
+      "rank4TestsRegistered": 32,
+      "rank4TestsPassed": 32,
+      "rank4TestsFailed": 0,
+      "rank4TestOrdinalRange": [
+        32,
+        63
+      ],
+      "workflowRunId": 44566586371,
+      "workflowUrl": "https://github.com/FlareZ123/experiment-01/actions/runs/44566586371",
+      "workflowHeadCommit": "86484805f7fbf3072be380f501389be13bc1c284",
+      "temporaryBranch": "agent50/rank4-init-check-20261119",
+      "rank4TestEntryImportedBy": "tests/2026-11/agent39-rank6-iron-thorns-opponent-policy.test.cjs",
+      "workflowFailure": {
+        "workflow": "agent39-rank6-opponent-policy-contract.yml",
+        "workflowRunId": 44566586371,
+        "workflowConclusion": "failure",
+        "unrelatedTest": "Gladion Prize selection abstains because face-down Prize identities are unavailable",
+        "unrelatedTestNumber": 28,
+        "errorCode": "BAD_MULTI_SELECT_BOUNDS",
+        "failureLocation": "tests/2026-11/agent39-rank6-iron-thorns-opponent-policy.test.cjs:735",
+        "workerLocation": "simulation/evaluation/2026-11/agent49-policy-worker.cjs:531"
+      }
+    }
+  },
+  "executionEvidence": {
+    "status": "passed-in-combined-node-test-run",
+    "rank4TestsRegistered": 32,
+    "rank4TestsPassed": 32,
+    "rank4TestsFailed": 0,
+    "rank4TestOrdinalRange": [
+      32,
+      63
+    ],
+    "workflowRunId": 44566586371,
+    "workflowUrl": "https://github.com/FlareZ123/experiment-01/actions/runs/44566586371",
+    "workflowHeadCommit": "86484805f7fbf3072be380f501389be13bc1c284",
+    "temporaryBranch": "agent50/rank4-init-check-20261119",
+    "rank4TestEntryImportedBy": "tests/2026-11/agent39-rank6-iron-thorns-opponent-policy.test.cjs",
+    "workflowFailure": {
+      "workflow": "agent39-rank6-opponent-policy-contract.yml",
+      "workflowRunId": 44566586371,
+      "workflowConclusion": "failure",
+      "unrelatedTest": "Gladion Prize selection abstains because face-down Prize identities are unavailable",
+      "unrelatedTestNumber": 28,
+      "errorCode": "BAD_MULTI_SELECT_BOUNDS",
+      "failureLocation": "tests/2026-11/agent39-rank6-iron-thorns-opponent-policy.test.cjs:735",
+      "workerLocation": "simulation/evaluation/2026-11/agent49-policy-worker.cjs:531"
+    }
   }
 }
