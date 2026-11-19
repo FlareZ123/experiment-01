@@ -113,7 +113,7 @@ function discardHas(player, pattern) {
   return list(player?.discard).some(card => matches(card, pattern));
 }
 function basicEnergyType(value) {
-  const match = /^(?:Basic )?(Lightning|Fighting|Darkness|Water|Metal|Psychic|Grass|Fire|Fairy) Energy MEE\b/i.exec(printingValue(value));
+  const match = /^(?:Basic )?(Lightning|Fighting|Darkness|Water|Metal|Psychic|Grass|Fire|Fairy) Energy(?:\s+[A-Z0-9]+\s+\d+)?$/i.exec(printingValue(value).trim());
   return match ? match[1].toLowerCase() : null;
 }
 function isBasicEnergy(value) {
@@ -206,6 +206,9 @@ function opponentHasVisibleAbility(observation) {
   if (!active) return false;
   const abilities = list(active.abilities);
   return abilities.some(name => abilityLive(active, name));
+}
+function opponentHasAttachedEnergy(observation) {
+  return boardSlots(observation?.opponentPublic).some(pokemon => list(pokemon.energies).length > 0);
 }
 function opponentHasToolsOrStadium(observation) {
   const relevantTool = boardSlots(observation?.opponentPublic).some(pokemon =>
@@ -486,6 +489,9 @@ function bellowingEnergyDecision(prompt, request) {
   const target = opponentActive(request.observation);
   const hp = remainingHp(target);
   const damageModel = bellowingDamageModel(target);
+  if (own.publicTurnRestrictions?.gxUsed !== false || opponentHasVisibleAbility(request.observation)) {
+    return { kind: 'abstain', reasonCode: 'BELLOWING_DAMAGE_MODIFIER_STATE_UNKNOWN' };
+  }
   if (hp <= 0 || damageModel === null) return { kind: 'abstain', reasonCode: 'BELLOWING_TARGET_OR_MODIFIER_UNKNOWN' };
   const required = Math.max(1, Math.ceil((hp + damageModel.resistance) / (70 * damageModel.multiplier)));
   const availableBasic = choices.filter(choice => isBasicEnergy(choice.printing ?? choice.label));
@@ -520,7 +526,8 @@ function scoreAttack(item, request) {
       (boardHas(own, PRINT.ragingBolt) || boardHas(own, PRINT.sandyShocks) || boardHas(own, PRINT.moltres)) ? 225 : 160;
   }
   if (name === 'Bellowing Thunder') {
-    if (!matches(active, PRINT.ragingBolt) || nonActiveBasicEnergyCount(own) > 0) return 0;
+    if (!matches(active, PRINT.ragingBolt) || nonActiveBasicEnergyCount(own) > 0 ||
+        own.publicTurnRestrictions?.gxUsed !== false || opponentHasVisibleAbility(observation)) return 0;
     if (lethal) return 260;
     return attachedBasicEnergyCount(own) > 0 ? 150 : 80;
   }
@@ -618,7 +625,7 @@ function scoreAction(item, request) {
   if (PRINT.vsSeeker.test(printing)) return list(own.discard).some(card => SUPPORTER_PATTERNS.some(pattern => pattern.test(printingValue(card)))) ? 130 : 0;
   if (PRINT.nightStretcher.test(printing)) return list(own.discard).some(card =>
     PRINT.ragingBolt.test(card) || PRINT.hoOh.test(card) || isBasicEnergy(card)) ? 125 : 0;
-  if (PRINT.hammer.test(printing)) return turn === 1 ? 150 : 0;
+  if (PRINT.hammer.test(printing)) return turn === 1 && opponentHasAttachedEnergy(observation) ? 150 : 0;
   if (PRINT.fieldBlower.test(printing)) return opponentHasToolsOrStadium(request.observation) ? 135 : 0;
   if (PRINT.cherishBall.test(printing)) return !boardHas(own, PRINT.adp) || !boardHas(own, PRINT.dedenne) ? 150 : 0;
   if (PRINT.heavyBall.test(printing)) return 0; // The current prize projector hides identities; fail closed.
@@ -683,6 +690,15 @@ function promptDecision(request) {
 
   if (prompt.promptType === 'ChooseEnergyPrompt') {
     if (lower.includes('bellowing thunder')) return bellowingEnergyDecision(prompt, request);
+    if (lower.includes('wait and see hammer')) {
+      return selectMany(prompt, choice => {
+        if (metadata(choice).ownerSeat !== 'opponent') return 0;
+        const value = printingValue(choice);
+        if (PRINT.doubleDragon.test(value)) return 250;
+        if (/Special Energy/i.test(value)) return 180;
+        return isBasicEnergy(value) ? 100 : 60;
+      }, 'NO_OPPONENT_ENERGY_TARGET', 1);
+    }
     if (lower.includes('rebirth')) {
       const byType = new Set();
       const selected = rankChoices(prompt.choices, choice => {
@@ -701,12 +717,12 @@ function promptDecision(request) {
         if (!type) return 0;
         if (type === 'lightning' || type === 'fighting') return 120;
         return 80;
-      }, 'NO_SADA_BASIC_ENERGY', 1);
+      }, 'NO_SADA_BASIC_ENERGY', 2);
     }
     if (lower.includes('dance of the ancients')) {
       return selectMany(prompt, choice =>
         basicEnergyType(choice.printing ?? choice.label) === 'lightning' ? 200 : 0,
-      'NO_TAPU_KOKO_LIGHTNING', 1);
+      'NO_TAPU_KOKO_LIGHTNING', 2);
     }
     if (lower.includes('ultimate ray')) {
       const usedTypes = new Set();
