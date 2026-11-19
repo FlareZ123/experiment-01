@@ -32,6 +32,10 @@ The determinization RNG is independent of game-transition randomness and keyed o
 
 With this mode enabled and no fixed opponent callback, the same PUCT tree selects actions at both seats. Nodes remain keyed by physical seat plus actor-observation hash; action frontiers must remain identical for repeated visits to the same information set. The old root-only mode remains available and is explicitly reported as `determinizationMode: "root-only"`; the new mode reports `determinizationMode: "actor-relative"` and `opponentModel: "actor-relative-puct"`.
 
+## Action and prompt boundary
+
+The search loop requires a stable state at every decision node and after every actor-relative sample. Therefore a native adapter must expose a **complete root-plus-prompt choice as one composite legal action** (or run an inner prompt-chain search that returns a fully settled successor) and make `applyAction` return a stable state after the entire chain. Do not feed an unresolved native prompt into this PUCT loop or greedily settle a prompt outside the root search: that would either violate the stability contract or optimize the root action and its consequences in separate decisions. The composite action key must bind the root action, exact prompt source/shape, all selected tokens/targets/payments, and the final settlement receipt. This is a post-trace adapter requirement, not implemented in the current Flittle diagnostic adapter.
+
 ## Synthetic regression
 
 The extended test in `tests/2026-11/agent5-root-determinization-opponent-belief-fusion.test.cjs` runs the same hidden-card counterexample from either physical root seat:
