@@ -641,7 +641,7 @@ test('no executable action returns a protocol-valid abstention', () => {
 
 test('unrecognized root card without a pass action abstains rather than inventing a token', () => {
   const request = rootRequest({
-    items: [{ token: 'unknown', kind: 'play-card', actorPrinting: 'Palace Book SMP NAN25' }]
+    items: [{ token: 'unknown', kind: 'play-card', actorPrinting: 'Unknown Source XY 999' }]
   });
   assert.deepEqual(checkedDecision(request),
     { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ACTION' });
