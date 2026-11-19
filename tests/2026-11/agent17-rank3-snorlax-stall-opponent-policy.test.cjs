@@ -392,7 +392,7 @@ test('Plumeria pays its two-card cost with low-value cards while preserving the 
   });
 });
 
-test('Eri discards exposed Item cards but not the opponent Pokémon Tool', () => {
+test('Eri can discard Field Blower and dual-subtype Forest Seal Stone, but not tool-only Hood', () => {
   const request = promptRequest({
     promptType: 'ChooseCardsPrompt',
     source: actorChoiceSource('Eri TEF 146', 'Eri'),
@@ -717,5 +717,44 @@ test('Enhanced Hammer selects a Special Energy rather than a Basic Energy', () =
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-choice', token: 'special'
+  });
+});
+
+
+test('Eri is considered from public hand count without reading the hidden opponent hand', () => {
+  const request = rootRequest({
+    ownHand: ['Eri TEF 146'],
+    ownPublic: player({ active: pokemon('Snorlax PGO 55') }),
+    opponentPublic: player({ handCount: 5, publicHand: null }),
+    items: [
+      {
+        token: 'eri', kind: 'play-card', actorPrinting: 'Eri TEF 146',
+        publicMetadata: { cardType: 'trainer', handIndex: 0 }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action', token: 'eri'
+  });
+});
+
+test('Eri prioritizes Field Blower and Unfair Stamp among the exact candidate Item pool', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Eri TEF 146', 'Eri'),
+    choices: [
+      cardChoice('hood', 'Stealthy Hood UNB 186', 'hand', 'opponent'),
+      cardChoice('float', 'Float Stone BKT 137', 'hand', 'opponent'),
+      cardChoice('fog', 'Fog Crystal CRE 140', 'hand', 'opponent'),
+      cardChoice('treasure', 'Mysterious Treasure FLI 113', 'hand', 'opponent'),
+      cardChoice('stamp', 'Unfair Stamp TWM 165', 'hand', 'opponent'),
+      cardChoice('field', 'Field Blower GRI 125', 'hand', 'opponent'),
+      { token: 'empty', kind: 'empty-selection', label: 'Select no cards' }
+    ],
+    publicMetadata: multiMetadata(0, 2)
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['field', 'stamp']
   });
 });
