@@ -14,7 +14,7 @@
     "producerBindingStatus": "not bound into signed/hash-bound V3 plan; standalone prototype only",
     "modulePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
     "moduleBlobSha1": "f62bb071138621f218b5f849c657c8010187f4d1",
-    "moduleSha256": "79f53bfd6da85a03b4e5d5a91313c4f5b911facfa6754d14290ab8d19382157e",
+    "moduleSha256": "4c7e06173ecb922051b49222c99e776cba73248f7ce12581844dbc29cba0b033",
     "config": {
       "rank": 3,
       "sourceFingerprint": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
@@ -91,15 +91,15 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json",
-    "manifestSha256": "d076f095e5c7af3b7ccc1731b883eac305a366f62daf48595c29fea5d8b16035",
+    "manifestSha256": "bc44191abc39dda4299cd88de56bf688f8a559b2f6b723945eb03d3870e45c9e",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
-    "workerProtocolSha256": "837e6cca6f7b72feccbafaee92340fd1726093816a859df50a6cb79b21ae4972",
+    "workerProtocolSha256": "ceba49f8d31779c433a867aaa07588ce290adff7d2d820712ba044a38c8a692b",
     "testFilePath": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
     "testFileBlobSha1": "d9e5e74675f4db47824bded5c399147dae5924f0",
-    "testFileSha256": "5b1abaaeec12d60a0ca8473f14a44c8b81a70411996583a30f599a80bd036013",
+    "testFileSha256": "74029d8a38f93759a208f1a14e6a7178898746c1a439ec60caa295805a878421",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -186,7 +186,7 @@
         ]
       },
       "costLedger": {
-        "applicability": "no game action; protocol, abstention or preservation negative control"
+        "applicability": "no game action is executed; protocol validation, abstention, or lock-preservation negative control"
       },
       "promptCoverage": [],
       "executionEvidence": {
@@ -1642,7 +1642,7 @@
         ]
       },
       "costLedger": {
-        "applicability": "decision fixture only; no native game action executed"
+        "applicability": "no card played; policy abstains until the printing is represented by a research-owned hook"
       },
       "promptCoverage": [
         {
@@ -1776,7 +1776,7 @@
         ]
       },
       "costLedger": {
-        "applicability": "no game action; protocol, abstention or preservation negative control"
+        "applicability": "no game action is executed; protocol validation, abstention, or lock-preservation negative control"
       },
       "promptCoverage": [
         {
@@ -1904,7 +1904,13 @@
         ]
       },
       "costLedger": {
-        "applicability": "decision fixture only; no native game action executed"
+        "hand": [
+          "Tool Jammer BST 136"
+        ],
+        "toolSlotsUsed": 1,
+        "supporterForTurn": false,
+        "attackForTurn": false,
+        "seatInvariantReplay": true
       },
       "promptCoverage": [
         {
@@ -2076,7 +2082,11 @@
         ]
       },
       "costLedger": {
-        "applicability": "decision fixture only; no native game action executed"
+        "replayCount": 2,
+        "identicalRequest": true,
+        "identicalDecision": true,
+        "gameStateAdvanced": false,
+        "actionCost": "one hypothetical Burrow attack at most; repeated fixture does not consume an additional game turn"
       },
       "promptCoverage": [
         {
@@ -2212,7 +2222,7 @@
         ]
       },
       "costLedger": {
-        "applicability": "no game action; protocol, abstention or preservation negative control"
+        "applicability": "no game action is executed; protocol validation, abstention, or lock-preservation negative control"
       },
       "promptCoverage": [
         {
@@ -2310,7 +2320,7 @@
         ]
       },
       "costLedger": {
-        "applicability": "no game action; protocol, abstention or preservation negative control"
+        "applicability": "no game action is executed; protocol validation, abstention, or lock-preservation negative control"
       },
       "promptCoverage": [
         {
@@ -2416,7 +2426,7 @@
         ]
       },
       "costLedger": {
-        "applicability": "no game action; protocol, abstention or preservation negative control"
+        "applicability": "no game action is executed; protocol validation, abstention, or lock-preservation negative control"
       },
       "promptCoverage": [
         {
@@ -4463,7 +4473,7 @@
         ]
       },
       "costLedger": {
-        "applicability": "no game action; protocol, abstention or preservation negative control"
+        "applicability": "no game action is executed; protocol validation, abstention, or lock-preservation negative control"
       },
       "promptCoverage": [
         {
@@ -4725,7 +4735,7 @@
         ]
       },
       "costLedger": {
-        "applicability": "no game action; protocol, abstention or preservation negative control"
+        "applicability": "no game action is executed; protocol validation, abstention, or lock-preservation negative control"
       },
       "promptCoverage": [
         {
@@ -4847,7 +4857,7 @@
         ]
       },
       "costLedger": {
-        "applicability": "no game action; protocol, abstention or preservation negative control"
+        "applicability": "no game action is executed; protocol validation, abstention, or lock-preservation negative control"
       },
       "promptCoverage": [
         {
@@ -4975,7 +4985,7 @@
         ]
       },
       "costLedger": {
-        "applicability": "no game action; protocol, abstention or preservation negative control"
+        "applicability": "no game action is executed; protocol validation, abstention, or lock-preservation negative control"
       },
       "promptCoverage": [
         {
@@ -5232,7 +5242,12 @@
         ]
       },
       "costLedger": {
-        "applicability": "decision fixture only; no native game action executed"
+        "vstarPowerUsed": true,
+        "oncePerGame": true,
+        "searchOneCard": true,
+        "deckShuffle": true,
+        "supporterForTurn": false,
+        "sourceMustBe": "Forest Seal Stone SIT 156"
       },
       "promptCoverage": [
         {
@@ -6249,5 +6264,6 @@
     ]
   },
   "caseRecordCount": 44,
-  "suiteSha256": "85c0f471beb92d8aa0ea908ed26cbae0db9f6d307923f643ec1544d87dee85f3"
+  "suiteSha256": "f27bbb183fcca9e361a9e755a46cafe8f5b052b6156b013fa7691543518d0295",
+  "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8."
 }
