@@ -1,3 +1,10 @@
+## 2026-11-19T16:34Z — first-trace execution checklist persisted
+
+- Added `agents/agent6/first-trace-acceptance.md` as the concise operational checklist for the post-gate trace: exact-SHA sequence, frozen registration and expected seed32, encrypted-full key gate, frontier/selected-item/validation receipt/`policyAudit` acceptance, privacy constraints, and the diagnostic-only reporting boundary. It is a handoff aid, not authorization to bypass any stopline.
+- The checklist was committed and read back successfully. No code, workflow, fixture, deck, policy, seed, seat, or Twinleaf changes.
+
+---
+
 ## 2026-11-19T16:30Z — exact live-trace capture seam mapped
 
 - On PR #58's current `agent49-native-fixture-game.cjs`, the live `attemptRecord` is created at approximately lines 735–760 and pushed to `decisionTrace` at line 920. A local `validationReceipt` is initialized at line 790 and populated from the resolver at line 888, but the receipt is only consumed by the `stopBeforeLiveDispatch` no-game branch (approximately 942–988); it is not attached to the live natural-game record.
