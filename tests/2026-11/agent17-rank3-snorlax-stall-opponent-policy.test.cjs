@@ -1234,7 +1234,7 @@ test('Teammates search scoring respects Faba targets and avoids dead Supporters'
   });
 });
 
-test('VS Seeker recovers Faba ahead of lower-impact Supporters', () => {
+test('VS Seeker recovery gates Faba and values Lusamine by recoverable targets', () => {
   const request = promptRequest({
     promptType: 'ChooseCardsPrompt',
     source: actorChoiceSource('VS Seeker PHF 109', 'VS Seeker'),
@@ -1245,11 +1245,29 @@ test('VS Seeker recovers Faba ahead of lower-impact Supporters', () => {
     ]
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'select-choice', token: 'faba'
+    kind: 'select-choice', token: 'lillie'
   });
+  const visibleTool = observation({
+    opponentPublic: player({
+      bench: [pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+        tools: ['Stealthy Hood UNB 186']
+      })]
+    })
+  });
+  assert.deepEqual(scoreSearchCard('Faba LOT 173', observation(), 'vs-seeker'), 0);
+  assert.deepEqual(scoreSearchCard('Faba LOT 173', visibleTool, 'vs-seeker'), 220);
+  const noLusamineTargets = observation({ ownPublic: player() });
+  const oneLusamineTarget = observation({
+    ownPublic: player({ discard: ['Lusamine CIN 96'] })
+  });
+  const twoLusamineTargets = observation({
+    ownPublic: player({ discard: ['Lusamine CIN 96', 'Faba LOT 173'] })
+  });
+  assert.deepEqual(scoreSearchCard('Lusamine CIN 96', noLusamineTargets, 'vs-seeker'), 0);
+  assert.deepEqual(scoreSearchCard('Lusamine CIN 96', oneLusamineTarget, 'vs-seeker'), 100);
+  assert.deepEqual(scoreSearchCard('Lusamine CIN 96', twoLusamineTargets, 'vs-seeker'), 180);
 });
-
-test('Trainers’ Mail searches for Faba ahead of lower-priority Item and Tool options', () => {
+test('Trainers’ Mail target-gates Faba and Lusamine against live Item and Tool options', () => {
   const request = promptRequest({
     promptType: 'ChooseCardsPrompt',
     source: actorChoiceSource("Trainers' Mail ROS 92", "Trainers' Mail"),
@@ -1260,10 +1278,28 @@ test('Trainers’ Mail searches for Faba ahead of lower-priority Item and Tool o
     ]
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'select-choice', token: 'faba'
+    kind: 'select-choice', token: 'nest'
   });
+  const visibleTool = observation({
+    opponentPublic: player({
+      bench: [pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+        tools: ['Stealthy Hood UNB 186']
+      })]
+    })
+  });
+  assert.deepEqual(scoreSearchCard('Faba LOT 173', observation(), 'trainers-mail'), 0);
+  assert.deepEqual(scoreSearchCard('Faba LOT 173', visibleTool, 'trainers-mail'), 190);
+  const noLusamineTargets = observation({ ownPublic: player() });
+  const oneLusamineTarget = observation({
+    ownPublic: player({ discard: ['Faba LOT 173'] })
+  });
+  const twoLusamineTargets = observation({
+    ownPublic: player({ discard: ['Faba LOT 173', 'Plumeria BUS 120'] })
+  });
+  assert.deepEqual(scoreSearchCard('Lusamine CIN 96', noLusamineTargets, 'trainers-mail'), 0);
+  assert.deepEqual(scoreSearchCard('Lusamine CIN 96', oneLusamineTarget, 'trainers-mail'), 100);
+  assert.deepEqual(scoreSearchCard('Lusamine CIN 96', twoLusamineTargets, 'trainers-mail'), 155);
 });
-
 test('Penny picks up the most damaged legal Basic Pokémon without lifting Active Snorlax', () => {
   const request = promptRequest({
     promptType: 'ChoosePokemonPrompt',
