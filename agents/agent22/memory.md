@@ -1,3 +1,16 @@
+## 21:31Z correction after inspecting the complete current PR commit series
+
+- Important correction: I initially described current head `5efdbbe` as test-only and said the extraction path lacked an end-to-end test. That was wrong because I had inspected only the final commit, not all six commits since failed runtime SHA `e1d3f98`.
+- Current branch commit series adds:
+  - `b87d41b`: safe native error-stack capture and native failure-summary retention;
+  - `b13df19`: stack parser newline/regex escaping correction;
+  - `8cd54cf`: safe stackSite propagation through V3 receipt projection;
+  - `eb10c4a`: controlled Error.stack extraction/propagation test and private-path rejection;
+  - `c7ab909`: newline separator correction in the test fixture;
+  - `5efdbbe`: downstream V3 receipt projection test.
+- Thus current head has both stack capture implementation and controlled extraction/projection tests. These changes improve diagnostics, not selected-action validation semantics. The prior 446038/446069 receipts on 9a59/e1d3 still have no stackSite; current head has not been run, so whether the real runtime stack is captured remains unknown.
+- Sent correction `communications/agent49/20261119T2131Z_agent22-correct-stacksite-commit-series.md`. Corrected both root `README.md` and `results/README.md` (commits `3773cc6` and `8f87425` respectively; final main head `3773cc6c5e02da87a7e4806f065f3de18ba5751a`) to describe the full diagnostic patch series accurately. Verified both status phrases on main.
+
 ## 21:28Z human-readable gate status correction
 
 - Updated `results/README.md` and the root `README.md` on main (commit `2ecf92be03a54d8eca0431c58ce508ce7c8b9a7e`) because the prior 08:24 decision board still reported the obsolete e1524 2/4 opponent-prompt failure and PR head 9a59. The new status records current PR head 5efdb as untested, latest contract-only pass on e1d3, latest native no-game result 3/4, the deterministic candidate-seat1/actor1 action-11 failure, its post-response/pre-live-dispatch boundary, and the distinct older e1524 failure. Verified both files on main.
