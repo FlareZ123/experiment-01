@@ -575,3 +575,82 @@ test('a policy instance refuses a request whose role or seat differs from its bi
     kind: 'abstain', reasonCode: 'ROLE_SEAT_BINDING_MISMATCH'
   });
 });
+
+
+test('Quick Ball is withheld when the hand has no safe discard cost', () => {
+  const request = rootRequest({
+    ownHand: ['Voltorb ROS 21'],
+    items: [
+      { token: 'quick-ball', kind: 'play-card', actorPrinting: 'Quick Ball FST 237' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'pass' });
+});
+
+test('Secret Box is withheld when three safe hand discards are not available', () => {
+  const request = rootRequest({
+    globalTurn: 3,
+    ownHand: [
+      'Carmine TWM 145', 'Voltorb ROS 21',
+      'Pikachu LOR 52', 'Unit Energy LPM UPR 138'
+    ],
+    items: [
+      { token: 'secret-box', kind: 'play-card', actorPrinting: 'Secret Box TWM 163' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'pass' });
+});
+
+test('Secret Box discard cost preserves one copy of each redundant Supporter', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Secret Box TWM 163', 'Secret Box'),
+    observation: {
+      globalTurn: 3,
+      ownHand: [
+        'Carmine TWM 145', 'Carmine TWM 145', 'Carmine TWM 145',
+        "Lillie's Determination MEG 119", "Lillie's Determination MEG 119"
+      ]
+    },
+    publicMetadata: {
+      selectionType: 'card-combination', minimumCount: 3, maximumCount: 3,
+      allowCancel: false, isSecret: false
+    },
+    choices: [
+      cardChoice('carmine-1', 'Carmine TWM 145', 'hand'),
+      cardChoice('carmine-2', 'Carmine TWM 145', 'hand'),
+      cardChoice('carmine-3', 'Carmine TWM 145', 'hand'),
+      cardChoice('lillie-1', "Lillie's Determination MEG 119", 'hand'),
+      cardChoice('lillie-2', "Lillie's Determination MEG 119", 'hand')
+    ]
+  });
+  const decision = checkedDecision(request);
+  assert.deepEqual(decision, {
+    kind: 'select-choices', tokens: ['carmine-1', 'carmine-2', 'lillie-1']
+  });
+});
+
+test('Secret Box searches exactly one Item, one Tool, one Supporter and one Stadium', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Secret Box TWM 163', 'Secret Box'),
+    observation: { ownHand: ['Voltorb ROS 21'] },
+    publicMetadata: {
+      selectionType: 'card-combination', minimumCount: 4, maximumCount: 4,
+      allowCancel: false, isSecret: false
+    },
+    choices: [
+      cardChoice('quick-ball', 'Quick Ball FST 237'),
+      cardChoice('forest-seal', 'Forest Seal Stone SIT 156'),
+      cardChoice('lillie', "Lillie's Determination MEG 119"),
+      cardChoice('sky-field', 'Sky Field ROS 89'),
+      cardChoice('ultra-ball', 'Ultra Ball MEG 131')
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['quick-ball', 'forest-seal', 'lillie', 'sky-field']
+  });
+});
