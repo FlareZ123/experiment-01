@@ -145,7 +145,7 @@ test('Secret Box discard preserves itself and a live Guzma',()=>{
  const d=checked(r);assert.equal(d.kind,'select-choices');assert.equal(d.tokens.includes('secret'),false);assert.equal(d.tokens.includes('guzma'),false);
 });
 
-test('Professor's Letter searches two Basic Darkness Energy when the hand needs energy',()=>{
+test("Professor's Letter searches two Basic Darkness Energy when the hand needs energy",()=>{
  const own=player({bench:[pokemon(P.mega)]});
  const play=rootRequest({ownHand:[P.letter],ownPublic:own,items:[{token:'letter',kind:'play-card',actorPrinting:P.letter,publicMetadata:{cardType:'item'}},{token:'pass',kind:'pass'}]});
  assert.deepEqual(checked(play),{kind:'select-action',token:'letter'});
