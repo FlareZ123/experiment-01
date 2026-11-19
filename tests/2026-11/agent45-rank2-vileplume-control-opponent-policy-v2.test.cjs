@@ -67,7 +67,8 @@ function publicRestrictions() {
     stadiumPlayLocked: false,
     toolPlayLocked: false,
     energyPlayLocked: false,
-    specialEnergyPlayLocked: false
+    specialEnergyPlayLocked: false,
+    stadiumAndToolHaveNoEffectTurnsRemaining: null
   };
 }
 
@@ -98,6 +99,9 @@ function pokemon(printing, options = {}) {
       name,
       powerType: 'ABILITY',
       text: 'Once during your turn.'
+    })),
+    abilitySuppressions: abilities.map(abilityName => ({
+      abilityName, suppressed: null, reasonCode: null, sourcePrinting: null
     }))
   };
 }
