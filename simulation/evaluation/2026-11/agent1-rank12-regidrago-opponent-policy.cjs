@@ -156,13 +156,17 @@ function opponentRuleBoxCount(observation) {
   }).length;
 }
 
+function hasOpponentSpecialEnergy(observation) {
+  const opponent = observation?.opponentPublic ?? {};
+  return boardSlots(opponent).some(pokemon =>
+    list(pokemon.energies).some(energy =>
+      /Special Energy|Double Colorless|Double Dragon|Jet Energy|Speed Lightning|Capture Energy|Aurora Energy/i.test(printingValue(energy))));
+}
+
 function hasOpponentToolsOrSpecialEnergy(observation) {
   const opponent = observation?.opponentPublic ?? {};
   const hasTools = boardSlots(opponent).some(pokemon => list(pokemon.tools).length > 0);
-  const hasSpecialEnergy = boardSlots(opponent).some(pokemon =>
-    list(pokemon.energies).some(energy =>
-      /Special Energy|Double Colorless|Double Dragon|Jet Energy|Speed Lightning|Capture Energy|Aurora Energy/i.test(printingValue(energy))));
-  return hasTools || hasSpecialEnergy;
+  return hasTools || hasOpponentSpecialEnergy(observation);
 }
 
 function opponentHasStadium(observation) {
@@ -282,17 +286,6 @@ function searchPriority(choice, observation, request) {
   return 10;
 }
 
-function supporterPriority(choice, observation) {
-  const value = printingValue(choice);
-  if (PRINT.guzma.test(value)) return 210;
-  if (PRINT.raihan.test(value)) return priorOpponentTurnKO({ publicEventReceipt: observation?.publicEventReceipt }) ? 200 : 130;
-  if (PRINT.professorSycamore.test(value) || PRINT.iono.test(value) || PRINT.marnie.test(value)) {
-    return handSize(observation) <= 3 ? 180 : 70;
-  }
-  if (PRINT.crispin.test(value)) return ownEnergyCount(observation) < 3 ? 150 : 65;
-  return 20;
-}
-
 function legacyStarPriority(choice, observation) {
   const value = printingValue(choice);
   if (PRINT.doubleDragon.test(value)) return 220;
@@ -375,7 +368,7 @@ function chooseRank12ApexAttack(choices, observation) {
       return { choice, index, score: -1 };
     }
     if (name === 'Dominating Echo') {
-      const score = opponentHasStadium(observation) || hasOpponentToolsOrSpecialEnergy(observation) ? 260 : 185;
+      const score = opponentHasStadium(observation) || hasOpponentSpecialEnergy(observation) ? 260 : 185;
       return { choice, index, score };
     }
     if (name === 'Covert Flight') {
@@ -479,7 +472,7 @@ function scoreAction(item, request) {
     return list(own.discard).some(card => /Regidrago V|Regidrago VSTAR|Grass Energy|Fire Energy|Budew/i.test(printingValue(card))) ? 110 : 20;
   }
   if (matches(printing, PRINT.heavyBall)) {
-    return list(own.prizeSlots).some(slot => typeof slot.printing === 'string') ? 115 : 45;
+    return list(own.prizeSlots).some(slot => typeof slot.printing === 'string') ? 115 : 0;
   }
   return 0;
 }
