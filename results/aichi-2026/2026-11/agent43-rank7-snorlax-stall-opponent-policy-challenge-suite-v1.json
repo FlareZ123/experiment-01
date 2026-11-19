@@ -151,7 +151,11 @@
       "all32MatchupsAssessed": false,
       "confidenceInterval": null,
       "aggregateWinRate": null
-    }
+    },
+    "ciRunId": 44551743934,
+    "ciHeadSha": "9e308a03b830378886d04a469e3b2c5097f7a3a3",
+    "ciConclusion": "success",
+    "ciJobId": 135657016993
   },
   "dispositionSemantics": {
     "pass": "Only when actor-state reachability, paper legality, strategic suitability and execution integrity are supported by native evidence and required independent review.",
@@ -4996,7 +5000,7 @@
     ]
   },
   "caseRecordCount": 31,
-  "suiteSha256": "18760355556f9b04ec02612f83cf8a544606123131bbf33011f7412aeee79269",
+  "suiteSha256": "4dca93dc306ea906870964f6f9772771c84f765912e26ed566b1650729b7555e",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
