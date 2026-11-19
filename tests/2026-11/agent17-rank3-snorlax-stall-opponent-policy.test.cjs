@@ -571,3 +571,151 @@ test('the real worker decision validator rejects an unknown action token', () =>
     validated.actionTokens
   ), /POLICY_SELECTED_UNKNOWN_ACTION/);
 });
+
+
+test('Team Flare Grunt chooses only the opponent Active for its Active-only Energy discard', () => {
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Team Flare Grunt XY 129', 'Team Flare Grunt'),
+    observation: {
+      opponentPublic: player({
+        active: pokemon('Shadow Rider Calyrex V CRE 74', {
+          energies: ['Psychic Energy']
+        }),
+        bench: [
+          pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+            energies: ['Psychic Energy', 'Psychic Energy', 'Psychic Energy']
+          })
+        ]
+      })
+    },
+    choices: [
+      pokemonChoice('active', 'Shadow Rider Calyrex V CRE 74', 'opponent', 'active', 0),
+      pokemonChoice('bench', 'Shadow Rider Calyrex VMAX CRE 75', 'opponent', 'bench', 1)
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice', token: 'active'
+  });
+});
+
+test('Regirock Land Maker recovers the two useful Stadiums and excludes unsupported Player’s Ceremony', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Regirock XYP 49', 'Land Maker'),
+    choices: [
+      cardChoice('beach', 'Tropical Beach BWP 50', 'discard'),
+      cardChoice('temple', 'Temple of Sinnoh ASR 155', 'discard'),
+      cardChoice('ceremony', "Player's Ceremony SP 127", 'discard'),
+      { token: 'empty', kind: 'empty-selection', label: 'Select no cards' }
+    ],
+    publicMetadata: multiMetadata(0, 2)
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['beach', 'temple']
+  });
+});
+
+test('Quick Ball discards expendable cards before the unique Tool Jammer or Faba', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Quick Ball FST 237', 'Quick Ball'),
+    choices: [
+      cardChoice('jammer', 'Tool Jammer BST 136', 'hand'),
+      cardChoice('faba', 'Faba LOT 173', 'hand'),
+      cardChoice('nest', 'Nest Ball SVI 181', 'hand'),
+      cardChoice('water', 'Water Energy MEE 11', 'hand')
+    ],
+    publicMetadata: multiMetadata(1, 1)
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['nest']
+  });
+});
+
+test('Tropical Beach is used as a turn-ending draw only with a meaningful hand refill', () => {
+  const request = rootRequest({
+    ownHand: ['Arven OBF 186', 'Nest Ball SVI 181', 'Water Energy MEE 11', 'Faba LOT 173'],
+    ownPublic: player({ active: pokemon('Snorlax PGO 55'), deckCount: 18 }),
+    items: [
+      {
+        token: 'beach-use', kind: 'use-stadium',
+        publicMetadata: { stadiumPrinting: 'Tropical Beach BWP 50' }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action', token: 'beach-use'
+  });
+});
+
+test('Lusamine retrieves Faba and Team Rocket’s Handiwork before a low-value Stadium', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Lusamine CIN 96', 'Lusamine'),
+    choices: [
+      cardChoice('beach', 'Tropical Beach BWP 50', 'discard'),
+      cardChoice('faba', 'Faba LOT 173', 'discard'),
+      cardChoice('handiwork', "Team Rocket's Handiwork FCO 112", 'discard'),
+      cardChoice('nest', 'Nest Ball SVI 181', 'discard')
+    ],
+    publicMetadata: multiMetadata(2, 2)
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['faba', 'handiwork']
+  });
+});
+
+test('Counter Catcher targets the opponent Bench Pokémon with the greatest public Energy and retreat burden', () => {
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Counter Catcher PAR 160', 'Counter Catcher'),
+    observation: {
+      opponentPublic: player({
+        bench: [
+          pokemon('Crobat V DAA 104', { energies: ['Psychic Energy'], retreatCost: ['Colorless'] }),
+          pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+            energies: ['Psychic Energy', 'Psychic Energy'],
+            retreatCost: ['Colorless', 'Colorless']
+          })
+        ]
+      })
+    },
+    choices: [
+      pokemonChoice('crobat', 'Crobat V DAA 104', 'opponent', 'bench', 0),
+      pokemonChoice('rider', 'Shadow Rider Calyrex VMAX CRE 75', 'opponent', 'bench', 1)
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice', token: 'rider'
+  });
+});
+
+test('Night Stretcher recovers a missing core Pokémon over a basic Energy', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Night Stretcher ASC 196', 'Night Stretcher'),
+    choices: [
+      cardChoice('water', 'Water Energy MEE 11', 'discard'),
+      cardChoice('bunnelby', 'Bunnelby PRC 121', 'discard')
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice', token: 'bunnelby'
+  });
+});
+
+test('Enhanced Hammer selects a Special Energy rather than a Basic Energy', () => {
+  const request = promptRequest({
+    promptType: 'ChooseEnergyPrompt',
+    source: actorChoiceSource('Enhanced Hammer TWM 148', 'Enhanced Hammer'),
+    choices: [
+      cardChoice('basic', 'Psychic Energy', 'attached', 'opponent', 'energy'),
+      cardChoice('special', 'Double Dragon Energy ROS 97', 'attached', 'opponent', 'energy')
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice', token: 'special'
+  });
+});
