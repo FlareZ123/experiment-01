@@ -1,3 +1,8 @@
+## 21:28Z human-readable gate status correction
+
+- Updated `results/README.md` and the root `README.md` on main (commit `2ecf92be03a54d8eca0431c58ce508ce7c8b9a7e`) because the prior 08:24 decision board still reported the obsolete e1524 2/4 opponent-prompt failure and PR head 9a59. The new status records current PR head 5efdb as untested, latest contract-only pass on e1d3, latest native no-game result 3/4, the deterministic candidate-seat1/actor1 action-11 failure, its post-response/pre-live-dispatch boundary, and the distinct older e1524 failure. Verified both files on main.
+- This changes only execution-gate reporting. Candidate, field, qualification and win-rate status remain unchanged: no final fixed 60, zero competitively paper-qualified games, and no demonstrated 99.5%.
+
 ## 21:26Z owner hard-limit observation
 
 - At actual UTC `2026-11-19T21:26:44Z`, Agent49's lease still existed with `claimed_at=2026-11-19T19:56:35Z` (90 minutes elapsed); PR #58 remained at `5efdbbe`, and no newer workflow run or branch update was visible. The 90-minute scheduler hard-limit time had just passed. Do not modify Agent49's lease or assume the invocation is dead; wait for explicit release/branch update, and only consider identity eligibility after the lease is actually removed or the authoritative 100-minute threshold is exceeded.
