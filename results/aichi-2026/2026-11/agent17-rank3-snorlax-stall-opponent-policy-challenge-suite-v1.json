@@ -44,6 +44,11 @@
       ],
       "zeroRemainder": "no deck target remains in that class",
       "positiveRemainder": "may include hidden Prize cards; possibility, not certainty"
+    },
+    "vsSeekerRootAction": {
+      "candidateSet": "all source-list Supporter patterns",
+      "aggregation": "maximum scoreSearchCard(candidate, observation, 'vs-seeker')",
+      "noEligibleSupportersScore": 0
     }
   },
   "sourceBinding": {
@@ -111,15 +116,15 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json",
-    "manifestSha256": "25d1b14465d77156f161caa37f4eb05f6f01318de3cff56a3da50aa87641ec82",
+    "manifestSha256": "38ea403fe890eb54ff6fa3e2cd0291edb3cba0cbc119876b24859fb2d0b706e9",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "testFilePath": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "testFileBlobSha1": "55ea227dd0c59da6741b48249b653b0f92f2b74a",
-    "testFileSha256": "f354c8ec04dec0dfb26d3a9da3401e5d1f19a9d5f1c4e60332ad6cbd40749d04",
+    "testFileBlobSha1": "158f96736e62809578cc0f7117a21e0319ffe198",
+    "testFileSha256": "4092dcb687475757f050b99e0a1dff803382a4260f05fb7737160c2f05d17d9a",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -7869,7 +7874,7 @@
       "caseId": "r3-dev-41-vs-seeker-recovery-target-gating-and-lusamine-availability",
       "split": "development",
       "caseClass": "policy-decision",
-      "objective": "VS Seeker recovery gates Faba on a live opponent target and values Lusamine by recoverable Supporter/Stadium count",
+      "objective": "VS Seeker root scoring evaluates every recoverable Supporter and selects the best option, while search scoring gates Faba and values Lusamine targets",
       "evidenceClass": "synthetic",
       "actorView": {
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
@@ -7946,12 +7951,13 @@
           "wrong-source ability",
           "unpayable target",
           "delegated fallback",
-          "Faba recovered without an eligible opponent Tool, Special Energy or Stadium target"
+          "Faba recovered without an eligible opponent Tool, Special Energy or Stadium target",
+          "VS Seeker root score determined only by the first eligible discard Supporter"
         ],
         "acceptableOutcomeFamilies": [
           "select-choice"
         ],
-        "rationale": "The default actor-visible opponent board has no eligible Faba target, so the policy selects Lillie. Direct scoring assertions verify Faba rises only with a visible opponent Tool and Lusamine scales with 0/1/2 recoverable Supporter/Stadium cards."
+        "rationale": "The root action now takes the maximum score over every source-list Supporter in discard. Direct regressions place dead Faba before live Lillie (score 130) and test Lusamine recovery (score 180), preventing list-order dependence."
       },
       "costLedger": {
         "itemPlayed": true,
@@ -8019,10 +8025,14 @@
         },
         "timeoutStatus": "not-tested",
         "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present",
-        "searchScoringAssertions": "Faba: 0 without target, 220 with visible Stealthy Hood; Lusamine: 0/100/180 with 0/1/2 recoverable targets"
+        "searchScoringAssertions": "Faba: 0 without target, 220 with visible Stealthy Hood; Lusamine: 0/100/180 with 0/1/2 recoverable targets",
+        "rootActionBestRecovery": {
+          "deadFabaThenLiveLillie": 130,
+          "lusamineRecoveryWithTwoTargets": 180
+        }
       },
       "disposition": "blocked",
-      "blockReason": "Synthetic actor-view and search-scoring tests only; no worker IPC, native Twinleaf game, matchup outcome, strategic-strength evidence or independent review.",
+      "blockReason": "Synthetic prompt and root-score tests only; no worker IPC, native game or matchup result.",
       "reviewerStatus": "unreviewed",
       "sourceBinding": {
         "role": "opponent-policy",
@@ -8040,7 +8050,7 @@
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
         "evidenceClass": "synthetic"
       },
-      "reviewerExplanation": "Synthetic actor-view and search-scoring tests only; no worker IPC, native Twinleaf game, matchup outcome, strategic-strength evidence or independent review."
+      "reviewerExplanation": "Synthetic prompt and root-score tests only; no worker IPC, native game or matchup result."
     },
     {
       "caseId": "r3-dev-42-trainers-mail-search-target-gating",
@@ -9600,7 +9610,7 @@
     ]
   },
   "caseRecordCount": 49,
-  "suiteSha256": "c726b418728c378c4ef22bae863afefc912a709067211484bde98b45366eb610",
+  "suiteSha256": "24f74ebf9f79a65fdfd0410fe853d0214c8ef86aac8591a54cc39d8dcaf9d8b8",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
@@ -9608,8 +9618,8 @@
     "sourceRank": 3,
     "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
     "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
-    "policySha256": "00969420fc168b6f56883dedab2d99f22efbd168223a693e939142e437a7b49a",
-    "dependencyManifestSha256": "25d1b14465d77156f161caa37f4eb05f6f01318de3cff56a3da50aa87641ec82",
+    "policySha256": "e7de94ec2ca7b4cc81c7eb49c8f171dd53543006179b51c17f39ab327591aca8",
+    "dependencyManifestSha256": "38ea403fe890eb54ff6fa3e2cd0291edb3cba0cbc119876b24859fb2d0b706e9",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
@@ -9808,9 +9818,9 @@
   },
   "policyStaticAudit": {
     "sourcePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "sourceBlobSha1": "4b18a374472e8aff6f707dc1000fd2b1a5800f70",
-    "sourceSha256": "00969420fc168b6f56883dedab2d99f22efbd168223a693e939142e437a7b49a",
-    "scannedAt": "2026-11-19T17:13:58Z",
+    "sourceBlobSha1": "38475be5cd24b7afc2f2d264a0fbfd28c994d72e",
+    "sourceSha256": "e7de94ec2ca7b4cc81c7eb49c8f171dd53543006179b51c17f39ab327591aca8",
+    "scannedAt": "2026-11-19T17:16:37Z",
     "scannedTerms": [
       {
         "term": "Math.random",
