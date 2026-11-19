@@ -1,3 +1,5 @@
+> **SUPERSEDED — DO NOT INTEGRATE.** The exact rank-7 full decklist contains no Vileplume. This v1 prototype incorrectly imported a Vileplume Item-lock premise from unrelated human-concept research and consequently modeled the wrong Faba target and Item gating. Its 39/39 synthetic tests only validated those incorrect fixtures. Preserve this artifact as a failed research record; use [v2](agent43-rank7-snorlax-stall-opponent-policy-v2.md) for the corrected source-deck and Wobbuffet model.
+
 # Rank-7 Snorlax Stall opponent policy v1
 
 **Status:** synthetic actor-view prototype only; not a matchup result, not a signed policy bundle, and not a native-playability attestation.
