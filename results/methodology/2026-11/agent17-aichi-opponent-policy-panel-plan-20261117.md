@@ -8,6 +8,19 @@ The next competitive bottleneck after the canonical V3 acceptance and first rank
 
 This note converts the source-field composition into a concrete coverage plan. It does not change the candidate 60, worker policies, seed, V3 branch, or acceptance sequence. It authorizes no fixture or gameplay before the existing gates and first-trace review.
 
+## 19 November update — rank-3 prototype identified
+
+Critic's 12:35Z parallel-build direction authorized non-rank-1 opponent-policy construction. Agent17 has produced a source-bound rank-3 Snorlax Stall policy prototype:
+
+- Policy: `simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs`
+- Challenge suite: `results/aichi-2026/2026-11/agent17-rank3-snorlax-stall-opponent-policy-challenge-suite-v1.json`
+- Dependency manifest: `simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json`
+- Tests: 49/49 synthetic actor-view cases pass against the actual worker request/decision validators in a local V8 harness. This is not a Node/Actions pass, native Twinleaf execution, natural source evidence, or a matchup result.
+- The suite is not frozen and its rank-3 producer ID is not bound into the signed V3 policy-plan core. It remains blocked for competence admission; native games = 0, matchup results = none, win rate = none.
+- The original rank-3 Japanese-Extra list remains unchanged. Player's Ceremony SP 127 is absent from the bundled English card snapshot and explicitly unsupported; this is not a legality ruling.
+
+This update raises identified prototype coverage from 3/32 to 4/32. It does not raise the count of independently competent opponents.
+
 ## Benchmark and coverage facts
 
 The primary estimand is the custom cross-format challenge selected by the owner: one English-language international-Expanded-legal candidate against the **unchanged original Japanese Extra Aichi lists**. Do not normalize, substitute, or exclude the five source lists containing Japanese-only promos. Strict Expanded-vs-Expanded is a separate secondary comparison.
@@ -18,13 +31,13 @@ Current source coverage:
 - Five authenticated lists (ranks **3, 6, 7, 24 and 29**) are not international-Expanded-legal unchanged, but remain in the primary cross-format field.
 - The 24 English Expanded-normalized reconstructions are a diagnostic secondary subset, not the primary 32-rank field.
 - No original physical-source opponent is paper-admitted, no matchup game is competitively paper-qualified, and no final fixed 60 is selected.
-- The current shared status identifies only three opponent-policy prototypes: ranks **1, 2 and 10**. That is 3/32 rank coverage, not a field panel.
+- The current shared status identifies four opponent-policy prototypes: ranks **1, 2, 3 and 10**. That is 4/32 prototype coverage, not a competent field panel; rank 3 is synthetic-only and unbound.
 
 Sources: [current fixed-60 decision board](../../README.md), [24-rank diagnostic field composition](../../aichi-2026/2026-11/agent39-24-rank-diagnostic-field-composition-20261113.md), [identity-normalized diagnostic field](../../aichi-2026/2026-11/agent39-identity-normalized-expanded-diagnostic-field-20261113.md), and [Critic's 17 November field-evidence direction](../../../communications/broadcast/2026-11/20261117T170523Z_critic-stop-gate-drift-and-return-to-field-evidence.md).
 
 The same rank/source/prototype inventory is available as a [machine-readable JSON manifest](agent17-aichi-policy-panel-manifest-20261117.json). It preserves all 32 source slots, marks the 29 exact lists and missing 23/25/28 explicitly, records the 24-rank English Expanded diagnostic subset separately, and encodes the four planned strata per rank. It also carries source-bound per-rank candidate-pressure counts for Field Blower, Megaton Blower, Faba, Tool Jammer, Plumeria, Team Flare Grunt, Team Yell Grunt, Handheld Fan and Enhanced Hammer, plus derived flags for two-Hood removal, all-Tool sweep, Lost Zone removal, active-Tool suppression, Energy disruption and Stadium removal. The pressure summary is bound to the same source blob SHA and includes archetype-level two-Hood removal counts. The manifest also binds the exact Hood Shield candidate blob SHA `24ace2d6feb9ce5d9056bcf271827cfe31b7357b` and its 18 Pokémon / 31 Trainers / 11 Energy package (Hood ×2, Forest Seal Stone ×1, Float Stone ×1, Sky Field ×1, Dimension Valley ×1, Basic Psychic Energy ×11). The manifest is an input/coverage contract, not evidence that any policy or game is ready.
 
-**Prototype transfer boundary:** Agent35 independently computed every available rank's exact substitution distance to the current rank-1/2/10 prototypes. Only the Regidrago family is close to an existing prototype (rank10 to its eight other available Regidrago lists: 9–15 substitutions); rank1's nearest non-identical list is rank30 at 37, and rank2's is rank15 at 26. See [Agent35's full rank-to-prototype transfer map](agent35-prototype-transfer-distance-map-20261117.md). This confirms that 3/32 prototype coverage is not broad non-Regidrago policy coverage.
+**Prototype transfer boundary:** Agent35 independently computed substitution distances to the rank-1/2/10 prototypes before rank 3 was built. Those distances do not include rank 3 and are not a transfer claim for it. Only the Regidrago family is close to an existing prototype (rank10 to its eight other available Regidrago lists: 9–15 substitutions); rank1's nearest non-identical list is rank30 at 37, and rank2's is rank15 at 26. See [Agent35's full rank-to-prototype transfer map](agent35-prototype-transfer-distance-map-20261117.md). Current prototype coverage is 4/32, still not broad non-Regidrago policy coverage.
 
 ## Rank coverage map
 
@@ -34,7 +47,7 @@ The same rank/source/prototype inventory is available as a [machine-readable JSO
 |---|---|---|---|
 | 1 | Shadow Rider Calyrex | Exact list available | Prototype; preserve as the first post-acceptance trace opponent |
 | 2 | Vileplume Control | Exact list available | Prototype; validate independently before field use |
-| 3 | Snorlax Stall | Exact list; Japanese-Extra-incompatible | No prototype identified; preserve original promo identities and validate the lock/escape plan |
+| 3 | Snorlax Stall | Exact list; Japanese-Extra-incompatible | Agent17 prototype identified; 49/49 synthetic tests, unbound suite, zero native games; preserve original promo identities and validate lock/escape lines |
 | 4, 17 | Raichu Electrode Combo | Exact lists available | No prototype identified; share a family core only if each exact list/config is bound and tested |
 | 5 | Mew Genesect | Exact list available | No prototype identified; validate Fusion Strike setup, attack selection, and source response lines |
 | 6, 24, 29 | Iron Thorns | Exact lists; Japanese-Extra-incompatible | No prototype identified; preserve Player's Ceremony / Palace Book / Palace Belt identities and implement only research-owned compatibility hooks required by the pinned engine |
@@ -65,7 +78,7 @@ A policy panel trained or evaluated only on the 24 normalized lists entirely omi
 
 ## Prototype readiness and hard field vetoes
 
-The current count is **three identified prototypes, not three competent opponents**. Agent35's [implementation/evidence readiness matrix](agent35-opponent-policy-prototype-readiness-20261117.md) and Agent42's [post-trace readiness veto map](agent42-posttrace-opponent-policy-readiness-veto-map-20261117.md) are the authority for current readiness details:
+The current count is **four identified prototypes, not four competent opponents**. Agent35's [implementation/evidence readiness matrix](agent35-opponent-policy-prototype-readiness-20261117.md) and Agent42's [post-trace readiness veto map](agent42-posttrace-opponent-policy-readiness-veto-map-20261117.md) are the authority for current readiness details:
 
 | Rank(s) | Existing evidence | Veto that remains |
 |---|---|---|
@@ -77,7 +90,7 @@ The current count is **three identified prototypes, not three competent opponent
 | 3, 6, 7, 24, 29 | Exact original Japanese-Extra lists | Preserve all source printings. Player's Ceremony needs a research-owned hook; Palace Book and Palace Belt are already implemented in the pinned engine. |
 | 23, 25, 28 | No exact 60 | Blocked; never infer a list, create an archetype proxy, or treat a rank as a bye. |
 
-None of the three prototypes has a native complete-game result, independent competence attestation, or matchup-strength evidence. Source-list proximity does not cure these vetoes. In particular, rank 10 is only a possible Regidrago-family scaffold after its own Phantom Dive gap is fixed; rank 1 cannot stand in for rank 31; and rank 2's CI pass does not erase its five strategic-policy gaps.
+None of the four prototypes has a native complete-game result, independent competence attestation, or matchup-strength evidence. Source-list proximity does not cure these vetoes. In particular, rank 10 is only a possible Regidrago-family scaffold after its own Phantom Dive gap is fixed; rank 1 cannot stand in for rank 31; and rank 2's CI pass does not erase its five strategic-policy gaps.
 
 ## Policy architecture: shared core, rank-specific contract
 
@@ -205,7 +218,7 @@ All of these are prospective evidence budgets, not performance observations. The
 
 1. **Now:** Agent49 remains the sole PR #58 implementation/dispatch owner. Agent6 owns the first unchanged rank-1 natural-terminal trace after exact-head acceptance. Do not create a competing worker, runner, branch, workflow, or fixture.
 2. **After the first trace is reviewed:** freeze its candidate/policy/seed provenance, then begin the rank-policy panel work in parallel by archetype. The first trace is an engineering and policy-diagnostic checkpoint, not a reason to tune the deck from one outcome.
-3. **Parallel policy work:** assign shared archetype cores only where useful; keep exact rank configs, source deck hashes, and per-rank competence packets separate. Coordinate to avoid duplicating the existing rank 1/2/10 prototypes.
+3. **Parallel policy work:** assign shared archetype cores only where useful; keep exact rank configs, source deck hashes, and per-rank competence packets separate. Coordinate to avoid duplicating the existing rank 1/2/3/10 prototypes.
 4. **Field completion:** continue only targeted primary-source recovery for 23/25/28 and evidence needed for physical-print admission. No archetype-based reconstruction or closed-search repetition.
 5. **Deck decision:** compare structurally distinct fixed 60s only under the same competent rank policies and matched conditions. No candidate is selected by list similarity, a single trace, or a narrow favorable subset.
 
