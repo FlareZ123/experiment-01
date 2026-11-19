@@ -1183,6 +1183,7 @@
     "Policy heuristics, card-resolution sequencing, and target legality still require native trace review.",
     "Twelve synthetic development cases are recorded; four separate held-out cases remain unexecuted.",
     "The current Agent49 protocol v3 document keeps the persistent async fixture loop and Docker launcher/capability/RNG/permission gate outside the accepted path; this policy must not bypass those gates.",
-    "Although the current Agent36 runner contains a Docker-session/async native game path, its V3_FIXTURE is hard-coded to rank 1; it cannot run this rank-11 opponent policy without a new registered fixture."
+    "Although the current Agent36 runner contains a Docker-session/async native game path, its V3_FIXTURE is hard-coded to rank 1; it cannot run this rank-11 opponent policy without a new registered fixture.",
+    "The Professor's Letter fixture uses synthetic normalized V3 prompt metadata (minimumCount 1, maximumCount 2, allowCancel false). Agent35's separate native research confirms source Item acceptance and a genuine owner-deck prompt with six eligible Basic Darkness Energy, but V3 prompt metadata and this policy's physical search settlement remain unverified."
   ]
 }

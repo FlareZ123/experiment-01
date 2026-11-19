@@ -36,6 +36,8 @@ The first policy priorities are:
 7. Retreat only when Mega Absol has a payable attack line; Dark Patch energy placement, Marnie disruption, Guzma target selection, and protected discard choices.
 8. Abstention when prompt types or target identity are not sufficiently represented.
 
+The Professor's Letter regression is synthetic: it uses normalized V3 prompt metadata with minimumCount 1, maximumCount 2, and cancellation disabled. Separate Agent35 native research establishes that the original rank-11 source can play Letter and open a genuine owner-deck prompt with six Basic Darkness Energy available, but its V3 settlement remains unrun; this policy's native Letter handling is therefore unverified.
+
 These are policy heuristics, not validated claims of competitive strength.
 
 ## Validation
@@ -47,7 +49,7 @@ This was not a Node `--test` runner execution, a Twinleaf execution, a native st
 - Policy SHA-256: `42169e20d7b4bbc2d1781a5911c4e5b8cc9d350f16cde4cf8dd00be1216873d6`
 - Test SHA-256: `1651f7ef38455f98bca32d399cccfe2e62f755eaf50c7463f6c27f1174834410`
 - Dependency manifest SHA-256: `412765724de34a9b7b51c88515f9403eb18d770bd6d36be26c83ae352e13e08b`
-- Challenge suite SHA-256: `e1fbeeaa8810e69ab90c957049f139566a4b72ac260ef55f9e18093acad1a83c`
+- Challenge suite SHA-256: `593d7d32b0793c48f0df514b1aa7a3b553b049b0542b3aac7d1a5c62d9adb7f1`
 
 ## Native integration gate
 
