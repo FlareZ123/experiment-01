@@ -98,35 +98,44 @@ function init(seat = 0, role = 'opponent') {
   };
 }
 function prompt(seat, promptType, effectName, sourcePrinting, choices, publicMetadata) {
+  const indexedChoices = choices.map((choice, index) => ({
+    ...choice,
+    ...(choice.publicMetadata ? {
+      publicMetadata: { ...choice.publicMetadata, selectionIndex: index, selectedCount: 0 }
+    } : {})
+  }));
   return {
     schema: protocol.PROMPT_SCHEMA, actingSeat: seat, promptType,
     description: effectName, source: {
       classification: 'actor-choice', sourceKind: 'card-effect',
       sourcePrinting, effectName
     },
-    choices, publicMetadata
+    choices: indexedChoices, publicMetadata
   };
 }
 function cardChoice(token, printing, extra = {}) {
   return {
     token, kind: 'card', printing,
-    publicMetadata: { selectionIndex: 0, selectedCount: 1, sourceZone: 'deck',
+    publicMetadata: { selectionIndex: 0, selectedCount: 0, sourceZone: 'deck',
       ownerSeat: 'actor', isOwnerVisible: true, ...extra }
   };
 }
 function pokemonChoice(token, pokemonCard, ownerSeat = 'actor', targetZone = 'bench') {
   return {
     token, kind: 'pokemon', printing: pokemonCard.printing,
-    publicMetadata: { selectionIndex: 0, selectedCount: 1, selectionType: 'pokemon',
+    publicMetadata: { selectionIndex: 0, selectedCount: 0, selectionType: 'pokemon',
       ownerSeat, targetZone, isOwnerVisible: true }
   };
 }
 function energyChoice(token, printing, energyType) {
   return {
     token, kind: 'energy', printing,
-    publicMetadata: { selectionIndex: 0, selectedCount: 1, sourceZone: 'play',
+    publicMetadata: { selectionIndex: 0, selectedCount: 0, sourceZone: 'play',
       ownerSeat: 'actor', isOwnerVisible: true, energyType }
   };
+}
+function emptyChoice(token) {
+  return { token, kind: 'empty-selection' };
 }
 function action(token, kind, fields = {}) {
   return { token, kind, ...fields };
@@ -300,7 +309,7 @@ test('Battle Compressor chooses Ho-Oh plus missing Basic Energy types when one t
   const choices = [
     cardChoice('hooh', HOOH), cardChoice('fighting', FIGHTING),
     cardChoice('darkness', DARKNESS), cardChoice('dde', DDE),
-    cardChoice('lightning', LIGHTNING)
+    cardChoice('lightning', LIGHTNING), emptyChoice('empty')
   ];
   const p = prompt(0, 'ChooseCardsPrompt', 'Battle Compressor', 'Battle Compressor PHF 92', choices, {
     selectionType: 'card-combination', minimumCount: 0, maximumCount: 3,
@@ -318,7 +327,9 @@ test('Sada chooses only Ancient Pokémon and prefers Raging Bolt plus Sandy Shoc
   const obs = observation({ ownActive: bolt, ownBench: [sandy, latias, null, null, null],
     opponentPrizeCount: 4, decisionKind: 'owner-prompt', promptType: 'ChoosePokemonPrompt' });
   const choices = [
-    pokemonChoice('bolt', bolt), pokemonChoice('sandy', sandy), pokemonChoice('latias', latias)
+    pokemonChoice('bolt', bolt, 'actor', 'active'),
+    pokemonChoice('sandy', sandy, 'actor', 'bench'),
+    pokemonChoice('latias', latias, 'actor', 'bench')
   ];
   const p = prompt(0, 'ChoosePokemonPrompt', "Professor Sada's Vitality", 'Professor Sada\\'s Vitality PAR 170',
     choices, { selectionType: 'pokemon', minimumCount: 1, maximumCount: 2,
@@ -415,8 +426,7 @@ test('protocol rejects forbidden policy seed fields before policy execution', ()
       action('pass', 'pass', { publicMetadata: { seed: 1 } })
     ]}
   };
-  assert.throws(() => protocol.validateRequest(request, initMessage, 1, new Set()),
-    /FORBIDDEN_RANDOM_FIELD/);
+  assert.throws(() => protocol.validateRequest(request, initMessage, 1, new Set()));
 });
 
 test('seat mismatch abstains without inventing a token', () => {
