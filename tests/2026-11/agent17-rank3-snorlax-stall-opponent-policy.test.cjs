@@ -431,6 +431,32 @@ test('Arven selects one Item and one Tool from the exact rank-3 deck-search choi
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-choices', tokens: ['nest', 'jammer']
   });
+  const arvenAction = {
+    kind: 'play-card',
+    actorPrinting: 'Arven OBF 186',
+    publicMetadata: { cardType: 'supporter', handIndex: 0 }
+  };
+  const allToolsVisible = observation({
+    ownPublic: player({
+      discard: [
+        'Tool Jammer BST 136',
+        'Float Stone BKT 137',
+        'Stealthy Hood UNB 186',
+        'Forest Seal Stone SIT 156'
+      ]
+    })
+  });
+  assert.deepEqual(scoreAction(arvenAction, {
+    observation: allToolsVisible, publicEventReceipt: null
+  }), 0);
+  assert.deepEqual(scoreAction(arvenAction, {
+    observation: observation(), publicEventReceipt: null
+  }), 175);
+  assert.deepEqual(scoreSearchCard('Arven OBF 186', allToolsVisible, 'vs-seeker'), 0);
+  assert.deepEqual(scoreSearchCard('Arven OBF 186', allToolsVisible, 'trainers-mail'), 0);
+  assert.deepEqual(scoreSearchCard('Arven OBF 186', observation(), 'vs-seeker'), 155);
+  assert.deepEqual(scoreSearchCard('Arven OBF 186', observation(), 'trainers-mail'), 190);
+
 });
 
 test('Plumeria pays its two-card cost with low-value cards while preserving the unique lock and recovery pieces', () => {
