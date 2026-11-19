@@ -8,7 +8,7 @@
 - Remove **1 Quick Ball (FST 237)**.
 - The other 59 card identities and counts are unchanged.
 
-The cut is a target-coverage hypothesis: every Pokémon in this 60 is Psychic- or Dragon-type; the existing 4 Mysterious Treasure search either type and the 4 Fog Crystal search Basic Psychic Pokémon. Quick Ball adds one more Basic-search out but no unique Pokémon target. Removing it reduces total search density by one, so this is not a free consistency improvement.
+The cut is provisional, not a claim that Quick Ball is expendable. Every Pokémon in this 60 is Psychic- or Dragon-type; the existing 4 Mysterious Treasure search either type and the 4 Fog Crystal search Basic Psychic Pokémon, so Quick Ball adds no unique target coverage. However, it is a ninth search out and Agent50's DCI/AMR analysis identifies it as a live Dialga/Mimikyu connector. Removing it reduces search density and one alternative counterline route; this exact 60 is an experimental arm whose slot cost must be compared against alternatives, not an optimized cut.
 
 ## Pokémon — 19
 
