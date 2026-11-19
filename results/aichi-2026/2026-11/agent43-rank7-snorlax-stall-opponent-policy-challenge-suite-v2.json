@@ -72,14 +72,14 @@
     "actorRequestCount": 20,
     "decisionReceiptCount": 19,
     "promptTypeCounts": {
-      "root-action-frontier": 17,
+      "root-action-frontier": 14,
+      "SelectPrompt": 1,
       "ChoosePokemonPrompt": 3,
       "ChooseCardsPrompt": 1,
-      "SelectPrompt": 1,
       "NightWatchPhysicalPrompt": 1
     },
     "selectionTypeCounts": {
-      "none": 22,
+      "none": 19,
       "card-combination": 1
     },
     "localHarness": {
@@ -129,7 +129,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "0de2b61239373173bc77664e747146756451bc3a135168807d13499fabf92bb8",
+            "digestSha256": "3878f73e5b4852a2fca39fc8f6cddc826d4d16ce2e846895893ad9ff80cf39b9",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -306,7 +306,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "d47de20ec206a824bb05757e5f7de13a896587b91d7ec82ee57d66066d48f85e",
+            "digestSha256": "36974e8e15bab54b5ce6271f8d170284901c1e0167a90cc1419ac483a6bcbbbc",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -506,7 +506,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "b0d38097b18559bafd2c5837e840dd8add9ea0b1bc3e7e122281e5c9a8d50f9a",
+            "digestSha256": "b4d58ebe5c337bc892cafedb61a5c161fa115498c4b276811f3766084a9aea4a",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -660,7 +660,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "d58dd981d56983af1859085eebdce27e75e7956c30dc7f1e0221c8426e58edfd",
+            "digestSha256": "3bf966ce59959f9a248126afc9152fb8d0d68e52c73f998c839822cb3a1dceb3",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -836,7 +836,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "b1b0642e440e62395700891229d6dd47bf2b7e04a9baedd8d3adcfadc9393c35",
+            "digestSha256": "ae4ef8af92e30ac2a1cf93187c08f6262bb338fa896f9acb43aef978fb411bd2",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -1009,7 +1009,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "3c9add9391cd005a717edf5d40a793f432d84d5d05ecd0459c0b5f6f3ce7130a",
+            "digestSha256": "087c1b7a0331ae00cdc9a74f359ef650e8f3e6c405137b34e93139b8e65a9908",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -1181,7 +1181,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "b512f2774073b06fa703e6b735b02c4b88d158259712c4f7bd861492e69ab73b",
+            "digestSha256": "851bfc57beb015274ac0dfe7c969aafc1a8f3b074cc0ecc92790e5a997399042",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -1355,7 +1355,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "737926489aec0a91f75de2279e02204a38a00ed3e0e8ee11f087cb50bfb1f5de",
+            "digestSha256": "da860541c2c51509888d4bbc2e434a07a7c986aa0718d7c6de514dbb2ac0d184",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -1528,7 +1528,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "8e58800ee219a186dadf2e3007fa1c724a30671d8e9b4bc5aa7841f19ec3a647",
+            "digestSha256": "d7f446eb3786d62765e523844e725cdd821a1b023a47676839d6cd578b2412d0",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -1716,7 +1716,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "38b4df951180c3643aac463d958a7a00114d59c1e119dc56f878dbd994b0aa3e",
+            "digestSha256": "ba72de6b928ea6dfd1265fcc3a9d765e9244eb8ab81ed073e5d990c8eece968f",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -1896,7 +1896,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "e8298733f1005850b98996b18efe1ea74bf0b04c1b85c057f265a876aa62079c",
+            "digestSha256": "d040ad26d124ce1c626b240fa3e29504e5ce05af62b9577ebc39b7303e046c46",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -2070,7 +2070,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "54a0eb3c653282d1f913e530c4beb4ac2eb7400b46ae2d38a46edc1546d9d317",
+            "digestSha256": "b0f90ed2220d866088c216bfa88a096f0e0bd486d627230f35293eb0a0286b9a",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -2326,7 +2326,7 @@
     ]
   },
   "caseRecordCount": 16,
-  "suiteSha256": "c63d56afba52d79c703a4049ca106463028f3bf953cf4a5b31ecb641af627538",
+  "suiteSha256": "49fbdbda2bbbb05349e76cbd9784ff0ac9b9fdb0e999638ede535130ce8ba66a",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
