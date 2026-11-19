@@ -157,15 +157,16 @@ test('highest Prize value allocation wins over a lower-value spread', () => {
   assert.equal(evaluatePhantomDiveAllocationChoice(choices[1], obs).prizes, 3);
 });
 
-test('two lower-HP KOs beat one equal-Prize KO when both take the same total Prizes', () => {
+test('two one-Prize KOs beat one two-Prize KO when both take the same total Prizes', () => {
   const obs = observation([
     pokemon('Tapu Lele-GX GRI 60', 170, 150, ['Basic', 'GX']),
+    pokemon('Mimikyu GRI 58', 70, 0),
     pokemon('Budew ASC 16', 30, 0),
-    pokemon('Mimikyu GRI 58', 70, 0)
+    pokemon('Radiant Eternatus CRZ 105', 30, 0, ['Basic', 'Radiant'])
   ]);
   const choices = [
     { token: 'one', kind: 'allocation', label: 'PD1|b0=20,b1=40' },
-    { token: 'two', kind: 'allocation', label: 'PD1|b0=20,b1=30,b2=10' }
+    { token: 'two', kind: 'allocation', label: 'PD1|b2=30,b3=30' }
   ];
   const selected = choosePhantomDiveAllocation(choices, obs);
   assert.deepEqual(selected, { kind: 'select-choice', token: 'two' });
