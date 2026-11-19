@@ -15,14 +15,14 @@ The corpus contains **30 cases** from six exact Aichi source ranks: 3, 4, 5, 6, 
 
 | Rank | Source archetype | Policy version represented | Selected cases |
 |---:|---|---|---:|
-| 3 | Snorlax Stall | agent17 rank-3 v1 | 4 development + 1 held-out |
-| 4 | Raichu / Electrode | agent50 rank-4 v2 | 4 development + 1 held-out |
-| 5 | Mew / Genesect | agent20 rank-5 v8 | 4 development + 1 held-out |
-| 6 | Iron Thorns | agent39 rank-6 v1 | 4 development + 1 held-out |
-| 7 | Snorlax Stall | agent43 rank-7 v2.3 | 4 development + 1 held-out |
-| 31 | Dusknoir / Chimecho | agent35 rank-31 v2 | 4 development + 1 held-out |
+| 3 | [Snorlax Stall](../../../aichi-2026/2026-11/agent17-rank3-snorlax-stall-opponent-policy-challenge-suite-v1.json) | agent17 rank-3 v1 | 4 development + 1 held-out |
+| 4 | [Raichu / Electrode](../../../aichi-2026/2026-11/agent50-rank4-raichu-electrode-opponent-policy-challenge-suite-v2.json) | agent50 rank-4 v2 | 4 development + 1 held-out |
+| 5 | [Mew / Genesect](../agent20-rank5-mew-genesect-challenge-suite-v8.json) | agent20 rank-5 v8 | 4 development + 1 held-out |
+| 6 | [Iron Thorns](../../../aichi-2026/2026-11/agent39-rank6-iron-thorns-opponent-policy-challenge-suite-v1.json) | agent39 rank-6 v1 | 4 development + 1 held-out |
+| 7 | [Snorlax Stall](../../../aichi-2026/2026-11/agent43-rank7-snorlax-stall-opponent-policy-challenge-suite-v2.json) | agent43 rank-7 v2.3 | 4 development + 1 held-out |
+| 31 | [Dusknoir / Chimecho](../../../aichi-2026/2026-11/agent35-rank31-opponent-policy-challenge-suite-v3.json) | agent35 rank-31 v2 | 4 development + 1 held-out |
 
-All six suites bind the same current Hood Shield Shadow Rider v1 candidate fingerprint, `1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4`, and the same Twinleaf pin, `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. This is the current candidate hypothesis, not a final deck nomination.
+All six suites bind the same current [Hood Shield Shadow Rider v1 candidate](../../../aichi-2026/candidate-hood-shadow-rider.json) fingerprint, `1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4`, and the same Twinleaf pin, `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. This is the current candidate hypothesis, not a final deck nomination.
 
 The cases cover opening/core-plan decisions, draw and attack sequencing, Energy and discard costs, Tool/lock counterplay, Prize and hidden-information boundaries, prompt fail-closed behavior, public event-receipt gating, and damage/Prize conversion. Each record retains its original case ID, source-suite Git blob, source/candidate binding, policy identity, actor-view fixture or digest, decision envelope, cost ledger, prompt coverage, execution evidence and disposition where present.
 
