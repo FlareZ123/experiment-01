@@ -5,7 +5,8 @@ const assert = require('node:assert/strict');
 const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
 const {
   POLICY_VERSION,
-  createPolicy
+  createPolicy,
+  scoreAttack
 } = require('../../simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs');
 
 const config = {
@@ -461,10 +462,57 @@ test('Eri can discard Field Blower and dual-subtype Forest Seal Stone, but not t
   });
 });
 
-test('rank-3 Get Lost prompt prioritizes opponent recovery cards in the discard pile', () => {
+test('rank-3 Get Lost prioritizes recoverable candidate Supporters over spent Items', () => {
+  const recoverableSupporterDiscard = observation({
+    opponentPublic: player({ discard: ['Arven SVI 166'] })
+  });
+  assert.deepEqual(scoreAttack({ attackName: 'Get Lost' }, recoverableSupporterDiscard), 150);
+
+  const spentRecoveryItemsDiscard = observation({
+    opponentPublic: player({
+      discard: ['VS Seeker PHF 109', 'Night Stretcher ASC 196']
+    })
+  });
+  assert.deepEqual(scoreAttack({ attackName: 'Get Lost' }, spentRecoveryItemsDiscard), 65);
+
   const request = promptRequest({
+    requestId: 'agent17-get-lost-priority',
     promptType: 'ChooseCardsPrompt',
     source: actorChoiceSource('Girafarig LOT 94', 'Get Lost'),
+    observation: {
+      opponentPublic: player({
+        discard: [
+          'Arven SVI 166',
+          'Acerola BUS 112',
+          'VS Seeker PHF 109',
+          'Night Stretcher ASC 196',
+          'Switch SVI 194'
+        ]
+      })
+    },
+    choices: [
+      cardChoice('switch', 'Switch SVI 194', 'discard', 'opponent'),
+      cardChoice('seeker', 'VS Seeker PHF 109', 'discard', 'opponent'),
+      cardChoice('stretcher', 'Night Stretcher ASC 196', 'discard', 'opponent'),
+      cardChoice('arven', 'Arven SVI 166', 'discard', 'opponent'),
+      cardChoice('acerola', 'Acerola BUS 112', 'discard', 'opponent'),
+      { token: 'empty', kind: 'empty-selection', label: 'Select no cards' }
+    ],
+    publicMetadata: multiMetadata(0, 2)
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['arven', 'acerola']
+  });
+
+  const noRecoverableSupporter = promptRequest({
+    requestId: 'agent17-get-lost-no-recoverable-supporter',
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Girafarig LOT 94', 'Get Lost'),
+    observation: {
+      opponentPublic: player({
+        discard: ['VS Seeker PHF 109', 'Night Stretcher ASC 196', 'Switch SVI 194']
+      })
+    },
     choices: [
       cardChoice('switch', 'Switch SVI 194', 'discard', 'opponent'),
       cardChoice('seeker', 'VS Seeker PHF 109', 'discard', 'opponent'),
@@ -473,8 +521,8 @@ test('rank-3 Get Lost prompt prioritizes opponent recovery cards in the discard 
     ],
     publicMetadata: multiMetadata(0, 2)
   });
-  assert.deepEqual(checkedDecision(request), {
-    kind: 'select-choices', tokens: ['seeker', 'stretcher']
+  assert.deepEqual(checkedDecision(noRecoverableSupporter), {
+    kind: 'select-choice', token: 'empty'
   });
 });
 
