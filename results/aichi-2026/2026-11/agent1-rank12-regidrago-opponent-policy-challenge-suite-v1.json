@@ -1,0 +1,576 @@
+{
+  "schema": "aichi-policy-challenge-suite-v1",
+  "suiteId": "aichi-2026-rank12-regidrago-agent1-v1",
+  "suiteVersion": "1.0.0",
+  "suiteSha256": "c4738e7ccd683ff043b29b6758949a83209dc88f92b540ba03d9ad70d189e156",
+  "createdBy": "agent1",
+  "createdAt": "2026-11-19T15:02:00Z",
+  "status": "diagnostic-only-prototype",
+  "attestationStatus": "blocked",
+  "objective": "Evaluate the exact Aichi Open League 2026 rank-12 Regidrago source list as an opponent policy against the fixed 60-card Hood Shield Shadow Rider candidate; this suite does not measure game win rate.",
+  "policy": {
+    "policyId": "agent1-rank12-regidrago-opponent-v1",
+    "policyVersion": "agent1-rank12-regidrago-opponent-v1",
+    "role": "opponent",
+    "sourceRank": 12,
+    "modulePath": "simulation/evaluation/2026-11/agent1-rank12-regidrago-opponent-policy.cjs",
+    "moduleBlobSha1": "4001d5fa5dc9dd11130a419788edb4ce16e7c99d",
+    "moduleSha256": "27585d7e31241c620d5f8e59d30c2c783e29b7008d20bbfe4a3469209c52008a",
+    "config": {
+      "rank": 12,
+      "sourceFingerprint": "f176d6831f91a470ec4d3ef1e18636da8e4178b294c2978bb64cc371c37d3059",
+      "candidateFingerprint": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+    },
+    "deterministic": true,
+    "randomDraws": 0,
+    "onlyOfferedTokens": true
+  },
+  "sourceBinding": {
+    "path": "results/aichi-2026/full-decklists.json",
+    "blobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "blobSha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+    "rowRank": 12,
+    "player": "Risa Sato",
+    "archetype": "Regidrago",
+    "cardCount": 60,
+    "deckFingerprintSha256": "f176d6831f91a470ec4d3ef1e18636da8e4178b294c2978bb64cc371c37d3059",
+    "exactPrintingsBound": true
+  },
+  "candidateBinding": {
+    "path": "results/aichi-2026/candidate-hood-shadow-rider.json",
+    "blobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+    "blobSha256": "70243d3e9295962a5b227ee8b360f833df81b21aac42f3ab8abe7e37797af0c9",
+    "cardCount": 60,
+    "deckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+    "fixedAcrossOpponents": true
+  },
+  "engine": {
+    "submodulePath": "vendor/twinleaf",
+    "remote": "https://github.com/twinleafgg/twinleafgg.git",
+    "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "researchHookRevision": "none",
+    "upstreamModified": false,
+    "gameExecutionPerformed": false
+  },
+  "dependencies": {
+    "manifestPath": "simulation/evaluation/2026-11/agent1-rank12-regidrago-dependencies-v1.json",
+    "manifestBlobSha1": "cecbdda20009f14f702a8f6e7b6e26beb5033541",
+    "manifestSha256": "cd2cb2836e8088b3292d5a4287dd4bb76ad3a0d736a09f0b807122180e54f8a8",
+    "commonConstraintsPath": "simulation/evaluation/2026-11/agent1-rank12-regidrago-common-constraints-v1.json",
+    "commonConstraintsBlobSha1": "a86b90960cdea106993b9b04d7079ef1e1d26283",
+    "commonConstraintsSha256": "a9fb41677f15a6647cf202388de6f5e16a4dce770a48e85dcfbc4242dd35b13b",
+    "helperPath": "simulation/evaluation/2026-11/agent43-regidrago-apex-choice.cjs",
+    "helperBlobSha1": "65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b",
+    "helperSha256": "07a07f7214c5e2ce647dfb5405ae066f5ea214d290d5ecb4b046b3f430b95ddb",
+    "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+    "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+    "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
+    "testsPath": "tests/2026-11/agent1-rank12-regidrago-opponent-policy.test.cjs",
+    "testsBlobSha1": "5921b969f1b8e1e975839d12e5db2a46f857bb32",
+    "testsSha256": "8a8814d2e04e4ef243dc7708f188fe802b4f8847249f80b036a39259da113300"
+  },
+  "producerBinding": {
+    "opponentPolicyProducerId": "agent1",
+    "candidatePolicyProducerId": null,
+    "bundleProducerId": null,
+    "independentReviewerIds": [],
+    "producerSetComplete": false,
+    "note": "Candidate and bundle producer identities were not inferred; this intentionally blocks V3 attestation."
+  },
+  "executionSummary": {
+    "authoredTests": 20,
+    "executedTests": 0,
+    "testExecutionStatus": "not-run",
+    "sourceNaturalCases": 0,
+    "nativeStagedCases": 0,
+    "syntheticActorViewCases": 8,
+    "nativeGames": 0,
+    "fixtureRuns": 0,
+    "decisionReceipts": 0,
+    "matchupWinRate": null,
+    "competitiveCompetenceAttested": false,
+    "claims99_5Percent": false
+  },
+  "developmentCases": [
+    {
+      "caseId": "rank12-apex-dominating-echo",
+      "testName": "Apex Dragon chooses Dominating Echo when the opponent has a Stadium in play",
+      "evidenceClass": "synthetic-actor-view",
+      "executionStatus": "authored-not-run",
+      "promptType": "ChooseAttackPrompt",
+      "actorViewDigest": "79e0b32c900e8adf2418132d80a0167502ae45db226310345d2b9d370a3691f0",
+      "actorView": {
+        "digestAlgorithm": "sha256-canonical-json-v1",
+        "fixtureRef": "tests/2026-11/agent1-rank12-regidrago-opponent-policy.test.cjs::Apex Dragon chooses Dominating Echo when the opponent has a Stadium in play",
+        "visibleSummary": {
+          "seat": 0,
+          "ownActive": "Regidrago VSTAR SIT 136",
+          "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
+          "opponentStadium": [
+            "Sky Field ROS 89"
+          ],
+          "offeredAttacks": [
+            "Timeless-GX",
+            "Dominating Echo",
+            "Phantom Dive"
+          ]
+        },
+        "hiddenInformationUsed": false
+      },
+      "decisionEnvelope": {
+        "expected": {
+          "kind": "select-choice",
+          "token": "dominating"
+        },
+        "allowedChoiceTokens": [
+          "timeless",
+          "dominating",
+          "phantom"
+        ],
+        "forbiddenBehavior": [
+          "select an unoffered attack",
+          "select Phantom Dive while PutDamagePrompt allocation is unsupported"
+        ],
+        "reason": "Noivern ex Dominating Echo is the rank-specific Stadium/Special Energy denial option; the current owner prompt is authoritative for available attacks."
+      },
+      "costLedger": {
+        "status": "not-native-validated",
+        "attackCost": "Regidrago VSTAR Apex Dragon cost G,G,F; engine frontier must confirm payable state",
+        "copiedAttack": "Noivern ex PAL 153 — Dominating Echo",
+        "additionalDiscardCost": "none",
+        "resourceDeltaVerified": false
+      }
+    },
+    {
+      "caseId": "rank12-treasure-discard-dci",
+      "testName": "Mysterious Treasure discard cost sends Noivern ex to the discard as an Apex payload",
+      "evidenceClass": "synthetic-actor-view",
+      "executionStatus": "authored-not-run",
+      "promptType": "ChooseCardsPrompt",
+      "actorViewDigest": "3c4d4352dcbc32b6be68854b24b6155865a1147ff1a69e0d5383d59d979b00fb",
+      "actorView": {
+        "digestAlgorithm": "sha256-canonical-json-v1",
+        "fixtureRef": "tests/2026-11/agent1-rank12-regidrago-opponent-policy.test.cjs::Mysterious Treasure discard cost sends Noivern ex to the discard as an Apex payload",
+        "visibleSummary": {
+          "seat": 0,
+          "source": "Mysterious Treasure FLI 113",
+          "handChoices": [
+            "Noivern ex PAL 153",
+            "Double Dragon Energy ROS 97",
+            "Regidrago VSTAR SIT 136"
+          ]
+        },
+        "hiddenInformationUsed": false
+      },
+      "decisionEnvelope": {
+        "expected": {
+          "kind": "select-choices",
+          "tokens": [
+            "noivern"
+          ]
+        },
+        "allowedChoiceTokens": [
+          "noivern",
+          "dte",
+          "vstar"
+        ],
+        "forbiddenBehavior": [
+          "discard Double Dragon Energy while preserving no Apex payload",
+          "discard Regidrago VSTAR when it is the only available copy"
+        ],
+        "reason": "Noivern is a unique attack payload not yet in discard; Double Dragon Energy and the main evolution are preserved."
+      },
+      "costLedger": {
+        "status": "not-native-validated",
+        "cost": "Mysterious Treasure discards 1 card from hand before searching for a Psychic or Dragon Pokémon",
+        "selectedDiscard": "Noivern ex PAL 153",
+        "preserved": [
+          "Double Dragon Energy ROS 97",
+          "Regidrago VSTAR SIT 136"
+        ],
+        "resourceDeltaVerified": false
+      }
+    },
+    {
+      "caseId": "rank12-counter-catcher-gust",
+      "testName": "Counter Catcher selects the high-Prize Shadow Rider VMAX rather than a low-value support target",
+      "evidenceClass": "synthetic-actor-view",
+      "executionStatus": "authored-not-run",
+      "promptType": "ChoosePokemonPrompt",
+      "actorViewDigest": "a1b2d31e37b7a3744dc4a15ff6f8c313a5114797923c4c9d5040318d971533d8",
+      "actorView": {
+        "digestAlgorithm": "sha256-canonical-json-v1",
+        "fixtureRef": "tests/2026-11/agent1-rank12-regidrago-opponent-policy.test.cjs::Counter Catcher selects the high-Prize Shadow Rider VMAX rather than a low-value support target",
+        "visibleSummary": {
+          "seat": 0,
+          "opponentBench": [
+            "Shadow Rider Calyrex VMAX CRE 75",
+            "Tapu Lele-GX GRI 60",
+            "Mimikyu GRI 58"
+          ],
+          "choices": [
+            "vmax",
+            "lele",
+            "mimikyu"
+          ]
+        },
+        "hiddenInformationUsed": false
+      },
+      "decisionEnvelope": {
+        "expected": {
+          "kind": "select-choices",
+          "tokens": [
+            "vmax"
+          ]
+        },
+        "allowedChoiceTokens": [
+          "vmax",
+          "lele",
+          "mimikyu"
+        ],
+        "forbiddenBehavior": [
+          "choose a Pokémon not offered by the prompt",
+          "infer hidden hand or Prize contents"
+        ],
+        "reason": "The prompt exposes all three opponent Bench targets; prefer the visible three-Prize VMAX."
+      },
+      "costLedger": {
+        "status": "prompt-only-not-native-validated",
+        "cost": "Counter Catcher is an Item and its legality depends on the opponent having fewer Prize cards remaining; this fixture tests target choice only",
+        "eligibilityTested": false,
+        "resourceDeltaVerified": false
+      }
+    },
+    {
+      "caseId": "rank12-megaton-blower-target-gate",
+      "testName": "Megaton Blower is selected only when a visible opponent Tool, Special Energy or Stadium exists",
+      "evidenceClass": "synthetic-actor-view",
+      "executionStatus": "authored-not-run",
+      "promptType": null,
+      "actorViewDigest": "a366dc97c1b4a3eb8cce7bb7b761aca48e054b0bf69e39d9565ea70628631004",
+      "actorView": {
+        "digestAlgorithm": "sha256-canonical-json-v1",
+        "fixtureRef": "tests/2026-11/agent1-rank12-regidrago-opponent-policy.test.cjs::Megaton Blower is selected only when a visible opponent Tool, Special Energy or Stadium exists",
+        "visibleSummary": {
+          "seat": 0,
+          "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
+          "visibleOpponentTools": [
+            "Stealthy Hood UNB 186"
+          ],
+          "actionTokens": [
+            "blower",
+            "pass"
+          ]
+        },
+        "hiddenInformationUsed": false
+      },
+      "decisionEnvelope": {
+        "expected": {
+          "kind": "select-action",
+          "token": "blower"
+        },
+        "negativeControl": {
+          "visibleOpponentTools": [],
+          "opponentSpecialEnergy": [],
+          "opponentStadium": [],
+          "expected": {
+            "kind": "select-action",
+            "token": "pass"
+          }
+        },
+        "forbiddenBehavior": [
+          "spend Megaton Blower without a visible target",
+          "invent an action token"
+        ],
+        "reason": "The visible Tool is a legal target for the mass Tool/Special Energy removal effect."
+      },
+      "costLedger": {
+        "status": "not-native-validated",
+        "cost": "Item; removes opponent Pokémon Tools and Special Energy and discards a Stadium in play",
+        "visibleTargets": [
+          "Stealthy Hood UNB 186"
+        ],
+        "ownStadiumCollateralChecked": false,
+        "resourceDeltaVerified": false
+      }
+    },
+    {
+      "caseId": "rank12-path-to-peak-self-lock",
+      "testName": "Path to the Peak is withheld until the own VSTAR power is spent",
+      "evidenceClass": "synthetic-actor-view",
+      "executionStatus": "authored-not-run",
+      "promptType": null,
+      "actorViewDigest": "9ab0a371c33146b27357f9a2cb96cda11c53e9527a82d9f13da665af897b0c3d",
+      "actorView": {
+        "digestAlgorithm": "sha256-canonical-json-v1",
+        "fixtureRef": "tests/2026-11/agent1-rank12-regidrago-opponent-policy.test.cjs::Path to the Peak is withheld until the own VSTAR power is spent",
+        "visibleSummary": {
+          "seat": 0,
+          "ownActive": "Regidrago VSTAR SIT 136",
+          "ownVstarUsed": false,
+          "opponentRuleBoxBoard": [
+            "Shadow Rider Calyrex VMAX CRE 75",
+            "Lillie's Clefairy ex JTG 56"
+          ],
+          "actionTokens": [
+            "peak",
+            "pass"
+          ]
+        },
+        "hiddenInformationUsed": false
+      },
+      "decisionEnvelope": {
+        "expected": {
+          "kind": "select-action",
+          "token": "pass"
+        },
+        "positiveControl": "The paired test selects Path to the Peak only when own VSTAR and other relevant own Rule Box abilities are known spent.",
+        "forbiddenBehavior": [
+          "disable own Legacy Star before it is used",
+          "infer unobserved ability-use state"
+        ],
+        "reason": "Path to the Peak suppresses Rule Box abilities on both sides; this negative control protects the Regidrago VSTAR setup."
+      },
+      "costLedger": {
+        "status": "not-native-validated",
+        "cost": "Stadium; Rule Box abilities are suppressed while it remains in play",
+        "ownVstarUse": "not yet spent",
+        "resourceDeltaVerified": false
+      }
+    },
+    {
+      "caseId": "rank12-flip-the-script-prior-ko",
+      "testName": "Flip the Script is used only when the public event receipt records a prior-turn Knock Out",
+      "evidenceClass": "synthetic-actor-view",
+      "executionStatus": "authored-not-run",
+      "promptType": null,
+      "actorViewDigest": "8196e9ffdd8cd4b4ac0418391c29475cfdea82805d68cde45b85065a563fccdd",
+      "actorView": {
+        "digestAlgorithm": "sha256-canonical-json-v1",
+        "fixtureRef": "tests/2026-11/agent1-rank12-regidrago-opponent-policy.test.cjs::Flip the Script is used only when the public event receipt records a prior-turn Knock Out",
+        "visibleSummary": {
+          "seat": 0,
+          "ownBench": [
+            "Fezandipiti ex ASC 142"
+          ],
+          "publicEventReceipt": {
+            "priorOpponentTurnKO": {
+              "any": true,
+              "byAttack": true
+            }
+          },
+          "ownHandCount": 1,
+          "actionTokens": [
+            "flip",
+            "pass"
+          ]
+        },
+        "hiddenInformationUsed": false
+      },
+      "decisionEnvelope": {
+        "expected": {
+          "kind": "select-action",
+          "token": "flip"
+        },
+        "negativeControl": "The paired no-receipt test selects pass.",
+        "forbiddenBehavior": [
+          "activate Flip the Script without public prior-turn KO evidence",
+          "infer an opponent hidden hand"
+        ],
+        "reason": "The action is gated on the actor-visible public event receipt."
+      },
+      "costLedger": {
+        "status": "not-native-validated",
+        "cost": "Fezandipiti ex Flip the Script ability; conditional on opponent having taken a Knock Out on their previous turn",
+        "drawCount": 3,
+        "resourceDeltaVerified": false
+      }
+    },
+    {
+      "caseId": "rank12-phantom-dive-blocked",
+      "testName": "Phantom Dive PutDamagePrompt remains fail-closed until the host exposes native allocation semantics",
+      "evidenceClass": "synthetic-actor-view",
+      "executionStatus": "authored-not-run",
+      "promptType": "PutDamagePrompt",
+      "actorViewDigest": "88d5b199b34a4596d2f9a3c7467df38bf7d95be5188d6fd5c1f0cab4dcff204a",
+      "actorView": {
+        "digestAlgorithm": "sha256-canonical-json-v1",
+        "fixtureRef": "tests/2026-11/agent1-rank12-regidrago-opponent-policy.test.cjs::Phantom Dive PutDamagePrompt remains fail-closed until the host exposes native allocation semantics",
+        "visibleSummary": {
+          "seat": 0,
+          "source": "Dragapult ex TWM 130 — Phantom Dive",
+          "promptType": "PutDamagePrompt",
+          "choices": []
+        },
+        "hiddenInformationUsed": false
+      },
+      "decisionEnvelope": {
+        "expected": {
+          "kind": "abstain",
+          "reasonCode": "RANK12_PHANTOM_DIVE_HOST_PROJECTION_BLOCKED"
+        },
+        "forbiddenBehavior": [
+          "invent damage-counter distribution",
+          "select Phantom Dive without a supported allocation prompt"
+        ],
+        "reason": "No source-bound host projection or native acceptance witness exists for the damage-counter allocation."
+      },
+      "costLedger": {
+        "status": "blocked",
+        "attackCost": "Regidrago VSTAR Apex Dragon cost G,G,F",
+        "allocation": "unavailable",
+        "resourceDeltaVerified": false
+      }
+    },
+    {
+      "caseId": "rank12-heavy-ball-hidden-prize",
+      "testName": "Hisuian Heavy Ball fails closed when face-down Prize identities are not visible",
+      "evidenceClass": "synthetic-actor-view",
+      "executionStatus": "authored-not-run",
+      "promptType": "ChoosePrizePrompt",
+      "actorViewDigest": "d87b8c9130d46f43707c3ceadcdf3ac924c06db63ffbbb0094c0205a2cc37a0b",
+      "actorView": {
+        "digestAlgorithm": "sha256-canonical-json-v1",
+        "fixtureRef": "tests/2026-11/agent1-rank12-regidrago-opponent-policy.test.cjs::Hisuian Heavy Ball fails closed when face-down Prize identities are not visible",
+        "visibleSummary": {
+          "seat": 0,
+          "source": "Hisuian Heavy Ball ASR 146",
+          "prizeSlotLabels": [
+            "Prize slot 0"
+          ],
+          "identitiesVisible": false
+        },
+        "hiddenInformationUsed": false
+      },
+      "decisionEnvelope": {
+        "expected": {
+          "kind": "abstain",
+          "reasonCode": "RANK12_PRIZE_IDENTITY_NOT_VISIBLE"
+        },
+        "forbiddenBehavior": [
+          "guess Prize identities",
+          "use deck composition as a substitute for owner-visible Prize information"
+        ],
+        "reason": "The policy must not infer face-down Prize identities."
+      },
+      "costLedger": {
+        "status": "blocked",
+        "cost": "Item; Prize-card identity is concealed in this actor view",
+        "identityResolution": "not available",
+        "resourceDeltaVerified": false
+      }
+    }
+  ],
+  "heldOutCases": [
+    {
+      "caseId": "rank12-native-source-natural-apex",
+      "purpose": "Capture a source-natural Regidrago Apex Dragon turn with a real native prompt and decision receipt.",
+      "executionStatus": "blocked-not-constructed",
+      "actorViewDigest": null,
+      "usedForTuning": false,
+      "blocker": "No native fixture or game execution is authorized in this pass."
+    },
+    {
+      "caseId": "rank12-native-counter-catcher-prize-gate",
+      "purpose": "Verify Counter Catcher availability and target choice against actual Prize counts.",
+      "executionStatus": "blocked-not-constructed",
+      "actorViewDigest": null,
+      "usedForTuning": false,
+      "blocker": "No native fixture or game execution is authorized in this pass."
+    },
+    {
+      "caseId": "rank12-native-phantom-dive-allocation",
+      "purpose": "Verify Dragapult ex Phantom Dive damage-counter allocation against the pinned engine.",
+      "executionStatus": "blocked-host-projection",
+      "actorViewDigest": null,
+      "usedForTuning": false,
+      "blocker": "The worker does not expose a validated PutDamagePrompt allocation envelope."
+    },
+    {
+      "caseId": "rank12-native-hidden-prize-reveal",
+      "purpose": "Verify Hisuian Heavy Ball only after a real Prize identity becomes actor-visible.",
+      "executionStatus": "blocked-not-constructed",
+      "actorViewDigest": null,
+      "usedForTuning": false,
+      "blocker": "No source-natural reveal event or native fixture is available."
+    }
+  ],
+  "contractTestCoverage": [
+    "initialization binds opponent role, seat, exact rank-12 source and fixed candidate",
+    "same actor-visible request is deterministic for either physical seat",
+    "Megaton Blower is selected only when a visible opponent Tool, Special Energy or Stadium exists",
+    "Path to the Peak is withheld until the own VSTAR power is spent",
+    "Path to the Peak can be selected after own VSTAR ability use when the opponent has Rule Box threats",
+    "Apex Dragon chooses Dominating Echo when the opponent has a Stadium in play",
+    "Mysterious Treasure discard cost sends Noivern ex to the discard as an Apex payload",
+    "Mysterious Treasure search prioritizes the missing Regidrago VSTAR after a Regidrago V is established",
+    "Counter Catcher selects the high-Prize Shadow Rider VMAX rather than a low-value support target",
+    "Echoing Horn selects a high-Prize Basic Pokémon from the opponent discard",
+    "Flip the Script is used only when the public event receipt records a prior-turn Knock Out",
+    "Hisuian Heavy Ball fails closed when face-down Prize identities are not visible",
+    "Phantom Dive PutDamagePrompt remains fail-closed until the host exposes native allocation semantics",
+    "Crispin search chooses one Grass and one Fire Energy when both are offered",
+    "VS Seeker recovers a high-value Supporter rather than a Pokémon search target",
+    "unknown prompt families fail closed",
+    "no executable action is invented when no supported action or pass token is offered",
+    "role/seat mismatch never emits an executable action",
+    "the actual worker request validator rejects hidden opponent-hand and RNG fields",
+    "the actual worker decision validator rejects an invented action token"
+  ],
+  "coverageMatrix": {
+    "rootActionFamilies": [
+      "play-card",
+      "attack",
+      "retreat",
+      "use-ability",
+      "use-stadium",
+      "pass"
+    ],
+    "promptFamilies": [
+      "ChooseAttackPrompt",
+      "ChooseCardsPrompt",
+      "ChoosePokemonPrompt",
+      "ChoosePrizePrompt",
+      "PutDamagePrompt",
+      "UnknownRank12Prompt"
+    ],
+    "sourceSpecificBranches": [
+      "Apex Dragon",
+      "Mysterious Treasure",
+      "Counter Catcher",
+      "Guzma",
+      "Echoing Horn",
+      "Megaton Blower",
+      "Path to the Peak",
+      "Flip the Script",
+      "Hisuian Heavy Ball",
+      "Crispin",
+      "VS Seeker",
+      "Super Rod",
+      "Legacy Star"
+    ],
+    "unsupportedBranches": [
+      "Phantom Dive PutDamagePrompt",
+      "concealed Prize identity",
+      "unknown native prompt"
+    ],
+    "nativeCoverage": "none"
+  },
+  "knownLimitations": [
+    "The 20 tests are authored but have not been executed against the worker validators in this invocation.",
+    "No native games, fixtures, source-natural states, or native-staged cases were run.",
+    "The Apex Dragon helper dependency is shared with Agent43; only the wrapper's rank-12 Noivern priorities and exact-printing bindings are rank-specific.",
+    "The rank-12 source includes a Noivern ex payload that is used from discard; the policy does not attempt to evolve it onto the board.",
+    "Phantom Dive damage placement is deliberately unsupported and fails closed.",
+    "Path to the Peak is conservatively withheld while own Rule Box abilities may still be needed.",
+    "Counter Catcher prompt target choice is tested separately from its Prize-count eligibility gate.",
+    "Candidate and bundle producer IDs are intentionally null; no V3 attestation is possible.",
+    "No win-rate or competitive-strength claim is made."
+  ],
+  "nextValidation": [
+    "Run the authored Node contract tests against the exact pinned worker validators; fix any schema or syntax failures before treating the module as usable.",
+    "Obtain source-natural/native-staged rank-12 decision envelopes without running games or broad fixtures until authorized.",
+    "Resolve Phantom Dive host projection and Prize-identity visibility before expanding prompt coverage.",
+    "Obtain candidate-policy and bundle producer IDs plus independent review before V3 registration."
+  ]
+}
