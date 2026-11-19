@@ -54,8 +54,8 @@ test('case projection retains source reference and digest, never raw actor view'
   assert.equal(record.hasCostLedger, true);
   assert.equal(record.hasPromptCoverage, true);
   assert.equal(record.hasExecutionEvidence, true);
-  assert.equal(record.structurallyComplete, true);
-  assert.deepEqual(record.structuralBlockers, []);
+  assert.equal(record.passesPresenceScreen, true);
+  assert.deepEqual(record.presenceScreenBlockers, []);
   assert.equal(Object.hasOwn(record, 'actorView'), false);
 });
 
@@ -69,9 +69,9 @@ test('fallback references are index-stable and explicitly not stable case IDs', 
   const record = corpusModule.normalizeCase(suite, spec, 'developmentCases', 0);
   assert.equal(record.caseId, 'developmentCases#1');
   assert.equal(record.stableCaseId, false);
-  assert.equal(record.structurallyComplete, false);
-  assert.ok(record.structuralBlockers.includes('stableCaseId'));
-  assert.ok(record.structuralBlockers.includes('actorViewDigest'));
+  assert.equal(record.passesPresenceScreen, false);
+  assert.ok(record.presenceScreenBlockers.includes('stableCaseId'));
+  assert.ok(record.presenceScreenBlockers.includes('actorViewDigest'));
 });
 
 test('pinned source set regenerates the checked-in corpus exactly', () => {
@@ -85,11 +85,11 @@ test('pinned source set regenerates the checked-in corpus exactly', () => {
   assert.deepEqual(generated.coverage.indexedRanks, [2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 19, 31]);
   assert.equal(generated.summary.casesWithActorViewDigest, 33);
   assert.equal(generated.summary.casesMissing.actorViewDigest, 285);
-  assert.equal(generated.summary.structurallyCompleteCaseCount, 21);
+  assert.equal(generated.summary.fieldPresenceScreenPassCount, 21);
   assert.equal(generated.curatedSubset.totalCases, 30);
   assert.equal(generated.curatedSubset.matchedCaseReferences, 30);
   assert.equal(generated.curatedSubset.splitMismatches, 0);
-  assert.equal(generated.curatedSubset.structurallyCompleteCases, 0);
+  assert.equal(generated.curatedSubset.fieldPresenceScreenPasses, 0);
   assert.equal(generated.curatedSubset.runtimeActorViewDigestCases, 0);
   assert.equal(generated.curatedSubset.exactRuntimeObservationCases, 0);
   assert.equal(generated.curatedSubset.nativeGameCount, 0);
@@ -111,11 +111,11 @@ test('pinned source set regenerates the checked-in corpus exactly', () => {
   assert.equal(Object.hasOwn(generated.curatedCases[0], 'actorView'), false);
   const resolvedCurated = corpusModule.resolveCase(ROOT, generated.curatedCases[0]);
   assert.equal(resolvedCurated.caseId, generated.curatedCases[0].caseId);
-  assert.deepEqual(generated.summary.structuralCompletenessContract.recognizedEvidenceClasses, [
+  assert.deepEqual(generated.summary.fieldPresenceScreenDefinition.recognizedEvidenceClasses, [
     'synthetic', 'native-staged', 'source-natural'
   ]);
-  assert.equal(generated.cases.filter(row => row.structurallyComplete).length, 21);
-  assert.deepEqual(generated.summary.structuralBlockerCounts, {
+  assert.equal(generated.cases.filter(row => row.passesPresenceScreen).length, 21);
+  assert.deepEqual(generated.summary.presenceScreenBlockerCounts, {
     stableCaseId: 19,
     actorViewDigest: 285,
     caseSourceBinding: 140,
@@ -125,10 +125,10 @@ test('pinned source set regenerates the checked-in corpus exactly', () => {
     executionEvidence: 118,
     recognizedEvidenceClass: 107
   });
-  assert.deepEqual(generated.summary.structurallyCompleteBySplit, { development: 21 });
-  assert.deepEqual(generated.summary.structurallyCompleteDispositionCounts, { blocked: 21 });
+  assert.deepEqual(generated.summary.fieldPresenceScreenBySplit, { development: 21 });
+  assert.deepEqual(generated.summary.fieldPresenceScreenDispositionCounts, { blocked: 21 });
   assert.deepEqual(
-    generated.summary.structurallyCompleteByRank.filter(row => row.total > 0),
+    generated.summary.fieldPresenceScreenByRank.filter(row => row.total > 0),
     [
       { rank: 2, total: 15, development: 15, heldOut: 0, negativeControl: 0, blocked: 0 },
       { rank: 10, total: 6, development: 6, heldOut: 0, negativeControl: 0, blocked: 0 }
