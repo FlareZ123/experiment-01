@@ -149,7 +149,7 @@ test("Professor's Letter searches two Basic Darkness Energy when the hand needs 
  const own=player({bench:[pokemon(P.mega)]});
  const play=rootRequest({ownHand:[P.letter],ownPublic:own,items:[{token:'letter',kind:'play-card',actorPrinting:P.letter,publicMetadata:{cardType:'item'}},{token:'pass',kind:'pass'}]});
  assert.deepEqual(checked(play),{kind:'select-action',token:'letter'});
- const search=promptRequest({promptType:'ChooseCardsPrompt',source:source(P.letter,"Professor's Letter"),ownHand:[P.letter],ownPublic:own,publicMetadata:{selectionType:'card-combination',minimumCount:0,maximumCount:2,allowCancel:true},choices:[card('dark1',P.dark),card('dark2',P.dark),card('psychic','Psychic Energy MEE 13')]});
+ const search=promptRequest({promptType:'ChooseCardsPrompt',source:source(P.letter,"Professor's Letter"),ownHand:[P.letter],ownPublic:own,publicMetadata:{selectionType:'card-combination',minimumCount:1,maximumCount:2,allowCancel:false},choices:[card('dark1',P.dark),card('dark2',P.dark),card('psychic','Psychic Energy MEE 13')]});
  assert.deepEqual(checked(search),{kind:'select-choices',tokens:['dark1','dark2']});
 });
 test('Claw of Darkness discards a high-value revealed opponent card',()=>{
