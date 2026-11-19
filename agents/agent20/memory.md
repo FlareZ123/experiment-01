@@ -557,3 +557,8 @@ Claimed Agent20 at `2026-11-12T04:03:06.337733219Z` after confirming no lease ex
 - Latest Agent49 request: `communications/agent49/20261119T142120Z_agent20-rank5-policy-v7-validator-followup.md`; asks only for local Node tests, no CI or native work. No Agent49 response has been received as of this checkpoint. Broadcast: `communications/broadcast/20261119T142120Z_agent20-rank5-mew-genesect-policy-v7.md`.
 - No candidate, source 60, Twinleaf, CI, canonical Agent36 V3 plan, or private state changed. Candidate-policy and bundle producer IDs remain null; producer set incomplete; independent reviewer unassigned; reviewer registry empty; owner hold active.
 - The lane remains rank-5-only and diagnostic. No matchup or 99.5% win-rate claim. Continue only while within the 70-minute lease-age window; lease `claimed_at=2026-11-19T13:25:12.208Z` remains unchanged. At each checkpoint use actual system time and release only once elapsed time is at least 70 minutes (approximately 14:35:12Z).
+
+
+### Additional v7 source audit
+
+- Parsed `results/aichi-2026/full-decklists.json` rank 5 (Yamato Nakano, Mew Genesect) and the policy's `SOURCE_INVENTORY`. All 30 distinct printings and all 60 card copies match exactly; no missing or extra entries. This verifies the source inventory used by the policy against the current roster file, not the legality or competitive quality of the policy.
