@@ -72,3 +72,8 @@ The policy and suite are therefore **not eligible for a production pass or compe
 Do not tune against the held-out cases yet. First resolve the three prompt/engine blockers in the approved integration lane, including the Crush and Burn damage discrepancy and the Extra Energy Bomb zero-transfer anomaly. Then instantiate the held-out actor views, run the same frozen policy from both physical seats against the unchanged candidate, capture native effect receipts and complete source-natural games, and obtain an independent review under the Agent2 challenge-suite contract.
 
 **No win rate is estimated or claimed.**
+
+
+## Related rules-text derivation
+
+The follow-up [Reversal / Counter Energy Prize gate](agent50-rank4-reversal-counter-energy-prize-gate.md) records a source-composition-derived condition for the intended five-Energy attachment and the unresolved Energy-unit-versus-card counting question for Electro Rain. It does not modify this frozen v1 policy or suite.
