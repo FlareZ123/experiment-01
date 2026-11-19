@@ -64,7 +64,7 @@ The candidate's 11 Basic Psychic Energy and Shadow Rider VMAX Underworld Door en
 ## Important limits
 
 - Enamorus V is excluded from its own Guardian of Love. If its Hood is removed, Enamorus itself is exposed; the rest of the board remains protected unless an Ability-lock effect also suppresses Enamorus.
-- The protection is conditional on Psychic Energy being attached to each protected Pokémon. Underworld Door only attaches to Benched Psychic Pokémon; non-Psychic Pokémon that need protection require a manual Psychic attachment.
+- The protection is conditional on Psychic Energy being attached to each protected Pokémon. Underworld Door only attaches to Benched Psychic Pokémon; non-Psychic Pokémon that need protection require a manual Psychic attachment. It also cannot retroactively rescue a suppressed on-play Ability trigger: Radiant Eternatus's Climactic Gate and Tapu Lele-GX's Wonder Tag must resolve before an Ability lock or by some separate line, because those Basics enter play without Psychic Energy attached.
 - Path to the Peak and Silent Lab are Stadium effects, not Pokémon Abilities; Hood/Guardian of Love do not stop them. The candidate still relies on its Stadiums, Field Blower, and Marshadow Resetting Hole.
 - Stoutland's Supporter lock, Vileplume AOR3's Item lock, and Budew's attack-based Item restriction are effects on the player, not effects done to a Pokémon; Guardian of Love does not bypass them.
 - Tool Jammer, Jamming Tower, Field Blower, Megaton Blower, and Faba remain relevant. Keep Enamorus Benched against Tool Jammer; Jamming Tower blanks Tools globally.
