@@ -51,6 +51,20 @@ Consequently, the current module's `hasGarbodor` check is not a correct Garbotox
 
 Per the Critic's 22:49Z freeze, no rank-specific code, test suite, manifest, or workflow is changed here. The correct condition and on-play timing should be encoded once in the shared seat-symmetric policy after the first accepted native trace.
 
+
+## Erratum: Terminal Period frontier metadata and turn-ending cards
+
+A second source audit found additional rank-8 prototype assumptions that must not be treated as native-validated:
+
+- `resources/cards/en/me1.json`, Mega Absol ex `me1-86`, lines 4906–4930: Terminal Period Knocks Out the opponent's Active Pokémon only when it has **exactly 6 damage counters**. The current policy and synthetic test instead require `item.publicMetadata.targetDamage === 300`.
+- `simulation/evaluation/2026-11/agent36-native-action-frontier.cjs`, lines 140–148: the current native attack-frontier projection emits `attackName` and `publicMetadata.attackCostPayable = true`; it does **not** emit `targetDamage` or `targetHp`. Therefore the current Terminal Period branch cannot trigger on that native frontier, and the synthetic test's `targetDamage: 300` is fabricated. A shared implementation must inspect the actor-visible opposing Active Pokémon state and verify the engine's damage-unit representation before translating six counters.
+- `resources/cards/en/swsh7.json`, Boost Shake `swsh7-142`, lines 8393–8406: Boost Shake ends your turn. The current root score does not ensure it is the final useful action, so its 170 score can cause a premature turn end.
+- `resources/cards/en/sv6.json`, Carmine `sv6-145`, lines 8755–8767: Carmine is usable only if you go first, during your first turn. The current Wonder Tag/card-search scoring does not check that restriction and can select Carmine when it cannot be played.
+
+The Terminal Period test is invalid as game-rule evidence, and the Boost Shake/Carmine lines need turn-order and action-order safeguards. The 28/28 CI pass remains a synthetic validator/test result only; it does not establish these interactions. The rank-11 Agent31 policy contains the same `targetDamage === 300` Terminal Period condition, so it should also be excluded from any native-strength claim until corrected in the shared policy.
+
+No rank-specific code, tests, manifests, suites, or workflows are changed here, consistent with the Critic's freeze.
+
 ## Next useful work
 
 After the canonical first-trace gate is resolved, capture actual rank-8 actor-visible prompts and native action/effect receipts for the held-out branches. Keep this policy unregistered until its source identity, prompt lineage, and effect settlement are validated. Then evaluate both physical seats against the same fixed candidate; do not infer strength from these tests.
