@@ -174,7 +174,7 @@ const DARKNESS = 'Darkness Energy MEE 15';
 test('source identity and protocol dependency are explicit', () => {
   assert.equal(policyModule.SOURCE_RANK, 19);
   assert.match(policyModule.SOURCE_LIST_BLOB_SHA1, /^[a-f0-9]{40}$/);
-  assert.equal(policyModule.SOURCE_FINGERPRINT_SHA256, '17280b4f2d1c9d10f60e7e3d0dbb7e7a1f49a75b2a3f7d18f42e7e0c1c5c7a00');
+  assert.equal(policyModule.SOURCE_FINGERPRINT_SHA256, '8fc9b7cf236a50ea34cdf10746bfc01d5f226739d106e4afcf438ed5c8f491eb');
   assert.equal(policyModule.ENGINE_PIN, 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05');
   assert.equal(policyModule.basicEnergyType(LIGHTNING), 'lightning');
   assert.equal(policyModule.basicEnergyType('Lightning Energy MEG 12'), 'lightning');
