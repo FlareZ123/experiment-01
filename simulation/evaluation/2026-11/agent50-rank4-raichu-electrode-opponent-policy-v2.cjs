@@ -805,14 +805,10 @@ function promptDecision(request) {
 }
 
 function createPolicy({ role, seat, policyVersion, config }) {
-  const expectedKeys = ['candidateFingerprint', 'rank', 'sourceFingerprint'];
   if (role !== 'opponent' || (seat !== 0 && seat !== 1) ||
       policyVersion !== POLICY_VERSION || !config ||
-      Array.isArray(config) ||
-      Object.keys(config).sort().join(',') !== expectedKeys.join(',') ||
-      config.rank !== SOURCE_RANK ||
-      config.sourceFingerprint !== SOURCE_ENTRY_JSON_SHA256 ||
-      config.candidateFingerprint !== CANDIDATE_FINGERPRINT_SHA256) {
+      typeof config !== 'object' || Array.isArray(config) ||
+      Object.keys(config).length !== 0) {
     throw new Error('AGENT50_RANK4_POLICY_INIT_MISMATCH');
   }
 
