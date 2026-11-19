@@ -2,7 +2,7 @@
   "schema": "aichi-policy-challenge-suite-v1",
   "suiteId": "aichi-2026-rank12-regidrago-agent1-v2",
   "suiteVersion": "2",
-  "suiteSha256": "ddbc470255c6d8f2e1f4d9342caa9aeffbe6b060c46f71f8873d6fe69397d625",
+  "suiteSha256": "f31df18df5110813de27f45aae9c88e1a4b52accfe06044f0e1752877341a2aa",
   "createdBy": "agent1",
   "createdAt": "2026-11-19T15:21:55.287Z",
   "status": "v2-v8-shim-20-of-21-diagnostic-only",
@@ -50,11 +50,11 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent1-rank12-regidrago-dependencies-v2.json",
-    "manifestBlobSha1": "89db6e96f32ec7db5ac4672fb6fc32e0c54384de",
-    "manifestSha256": "84b890e01b6a774cdfd525c85487c4d36c3ba2d6cea8763861463e0374368957",
+    "manifestBlobSha1": "18c33380ccc2498be146b8a720f383a504597570",
+    "manifestSha256": "f7ef842eead39979b89706268fe3409c886be9446c1fd4e86e0d3be96cd490da",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent1-rank12-regidrago-common-constraints-v2.json",
-    "commonConstraintsBlobSha1": "b9be97be63e9b7a56ab80ed1b7fb3744072197dd",
-    "commonConstraintsSha256": "ee342848a3ad333f28eca50ebc2b1dec5cfed00b165898e733a8fdc7abd520b4",
+    "commonConstraintsBlobSha1": "63011d0bbcd0199040aa88411738af0eef269558",
+    "commonConstraintsSha256": "90014bc2fabf6081c61a6bfb677b7d49add2364538850ec248cd1858a086151a",
     "helperPath": "simulation/evaluation/2026-11/agent43-regidrago-apex-choice.cjs",
     "helperBlobSha1": "65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b",
     "helperSha256": "07a07f7214c5e2ce647dfb5405ae066f5ea214d290d5ecb4b046b3f430b95ddb",
@@ -102,7 +102,13 @@
       "testName": "Hisuian Heavy Ball fails closed when face-down Prize identities are not visible",
       "errorCode": "BAD_MULTI_SELECT_BOUNDS",
       "stage": "Agent49 validateRequest/multiSelectBounds before policy execution",
-      "attribution": "fixture validation failure; not attributed to zero-key init change"
+      "fixtureCause": "multiMetadata(1, 1, 'prize-slots') supplies minimumCount/maximumCount, but the worker's prize-slots branch reads requiredCount",
+      "missingField": "requiredCount",
+      "suppliedFields": [
+        "minimumCount",
+        "maximumCount"
+      ],
+      "fixHint": "For selectionType prize-slots, set publicMetadata to { selectionType: 'prize-slots', requiredCount: 1, allowCancel: false, isSecret: false }. Do not change the init-only patch; fixture correction is separate."
     }
   },
   "developmentCases": [
@@ -612,7 +618,7 @@
     "nativeCoverage": "none"
   },
   "knownLimitations": [
-    "21 test functions executed in V8 shim: 20 passed, one Heavy Ball prompt fixture failed before policy execution with BAD_MULTI_SELECT_BOUNDS; Node runner and worker IPC were not executed.",
+    "The Heavy Ball test fixture's multiMetadata helper supplies minimumCount/maximumCount for prize-slots, but Agent49 multiSelectBounds reads requiredCount; the request is rejected before policy execution. No fixture edit was made under init-only scope.",
     "No native games, fixtures, source-natural states, or native-staged cases were run.",
     "The Apex Dragon helper dependency is shared with Agent43; only the wrapper's rank-12 Noivern priorities and exact-printing bindings are rank-specific.",
     "The rank-12 source includes a Noivern ex payload that is used from discard; the policy does not attempt to evolve it onto the board.",
@@ -624,10 +630,22 @@
     "The Heavy Ball prompt fixture needs a separately authorized multi-select-bounds correction; no fixture change was made under the zero-key init scope."
   ],
   "nextValidation": [
-    "Resolve the Heavy Ball fixture's BAD_MULTI_SELECT_BOUNDS in a separately authorized test-correction task, then run the focused Node test file; do not change policy strategy under this init-only handoff.",
+    "In a separately authorized fixture-only correction, change the Heavy Ball prize-slots metadata to include requiredCount:1 (not minimumCount/maximumCount); then rerun the focused test file. Do not change policy strategy under this init-only handoff.",
     "Obtain source-natural/native-staged rank-12 decision envelopes without running games or broad fixtures until authorized.",
     "Resolve Phantom Dive host projection and Prize-identity visibility before expanding prompt coverage.",
     "Obtain candidate-policy and bundle producer IDs plus independent review before V3 registration.",
     "Run the actual worker-process/IPC acceptance only in Agent49's canonical V3 gate after the exact-head no-game prerequisites pass."
-  ]
+  ],
+  "testFailure": {
+    "testName": "Hisuian Heavy Ball fails closed when face-down Prize identities are not visible",
+    "errorCode": "BAD_MULTI_SELECT_BOUNDS",
+    "stage": "Agent49 validateRequest/multiSelectBounds before policy execution",
+    "fixtureCause": "multiMetadata(1, 1, 'prize-slots') supplies minimumCount/maximumCount, but the worker's prize-slots branch reads requiredCount",
+    "missingField": "requiredCount",
+    "suppliedFields": [
+      "minimumCount",
+      "maximumCount"
+    ],
+    "fixHint": "For selectionType prize-slots, set publicMetadata to { selectionType: 'prize-slots', requiredCount: 1, allowCancel: false, isSecret: false }. Do not change the init-only patch; fixture correction is separate."
+  }
 }
