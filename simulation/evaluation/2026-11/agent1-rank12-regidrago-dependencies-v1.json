@@ -28,13 +28,13 @@
   "files": {
     "policy": {
       "path": "simulation/evaluation/2026-11/agent1-rank12-regidrago-opponent-policy.cjs",
-      "blobSha1": "4001d5fa5dc9dd11130a419788edb4ce16e7c99d",
-      "sha256": "27585d7e31241c620d5f8e59d30c2c783e29b7008d20bbfe4a3469209c52008a"
+      "blobSha1": "a58cbde18524768549f94a211864cda9cb0a1380",
+      "sha256": "b028a086d6be9cc2799e4afa897cb5d003aa4e2833f8c3c7e2f580f8abb80893"
     },
     "tests": {
       "path": "tests/2026-11/agent1-rank12-regidrago-opponent-policy.test.cjs",
-      "blobSha1": "5921b969f1b8e1e975839d12e5db2a46f857bb32",
-      "sha256": "8a8814d2e04e4ef243dc7708f188fe802b4f8847249f80b036a39259da113300",
+      "blobSha1": "6c51697e8ff79ab1bf03cf17cbd2555b9f443315",
+      "sha256": "93544d08dcf3cf5f467a8a75e6e550abf04d704017cecc389f233a0404a9b55b",
       "authoredTestCount": 20,
       "executed": false
     },
