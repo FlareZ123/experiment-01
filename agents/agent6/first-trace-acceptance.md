@@ -12,6 +12,8 @@ This is a diagnostic trace, **not** a competitive result. Do not report a matchu
 - [ ] Run the existing Agent45 focused recorder test separately before the fixture: `.github/workflows/agent45-electrode-bomb-contract-native.yml`, `tests/2026-11/agent45/full-state-trace.test.cjs`. Match the V3 runtime (Node `24.22.3`); if the workflow still uses Node 22, have its owner update that existing workflow, not create another.
 - [ ] Only then dispatch the registered fixture. No fixture/game before every preceding gate passes.
 
+- **Do not preemptively change the frozen Agent6 rank-1 policy or Copycat route before the first trace attempt.** The current `copycatTargetAvailable()` heuristic checks only the opponent's current Active attack list, not a tracker-authenticated prior-turn non-GX attack receipt. It can search/play Mimikyu and score Copycat without that receipt; the host Copycat prompt projection is unsupported and throws. If the first registered run reaches Copycat, preserve the exact prompt, frontier, receipt and failure evidence, stop for review, and report no natural-terminal game. After that first attempt, either implement the complete tracker → receipt → worker protocol → copied-source prompt projection → native dispatch chain, or disable the route with explicit tests; any change requires fresh exact-SHA acceptance.
+
 ## 2. Frozen registration and fixture inputs
 
 - Registration: `results/aichi-2026/registrations/agent6-v3-rank1-baseline-public-seed-20261117.json`
@@ -49,5 +51,6 @@ The trace must be complete and move-by-move, within the configured action bound,
 ## 5. Reporting boundary
 
 - Report both physical-seat runs and their actual terminal outcomes; preserve the raw encrypted evidence for authorized review.
+- If the Copycat projection blocker is reached, report it as a blocked diagnostic, not a completed fixture or matchup. Do not conceal the occurrence or silently disable the policy.
 - The trace is one rank-1 diagnostic. It is not a competitively paper-qualified game, does not establish paper Expanded legality, does not establish a matchup rate, and does not move the 99.5% target toward demonstrated attainment by itself.
 - Do not alter `results/README.md` to imply a competitive result. Update it only after a trace actually completes and its diagnostic status is clear.
