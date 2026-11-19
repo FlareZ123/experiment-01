@@ -51,7 +51,7 @@
     "validatorContract": "validateInit exact-keys config={} (zero keys)",
     "protocolDocPath": "simulation/evaluation/2026-11/agent49-policy-worker-protocol-v3.md",
     "protocolDocGitBlobSha1": "4b28ad6274909de1a5a72fa0a593182d519686f1",
-    "hostIntegrationStatus": "Worker-side validators are implemented, but the persistent async fixture loop remains unintegrated and the Docker launcher/capability/RNG/permission gate remains unverified; do not register or bypass."
+    "hostIntegrationStatus": "Agent49 protocol document still marks the persistent async fixture loop and Docker launcher/capability/RNG/permission gate unverified. Agent36 runner contains a Docker-session/async game path, but it is hard-bound to rank1 and does not provide a rank11 override."
   },
   "engine": {
     "submodulePath": "vendor/twinleaf",
@@ -59,7 +59,7 @@
     "pinnedRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
     "nativeGamesExecuted": 0,
     "nativeHookRevision": null,
-    "nativeRunnerIntegrationStatus": "blocked by the Agent49 V3 host integration and launcher gate"
+    "nativeRunnerIntegrationStatus": "rank11 not wired into current V3 runner; fixed fixture is rank1; no rank11 registration or game"
   },
   "candidate": {
     "paperLegalExport": "results/decks/hood-shield-shadow-rider-v1-expanded-legal-60.md",
@@ -90,6 +90,19 @@
     "The rank-11 source is an English Expanded-legal diagnostic reconstruction; physical Japanese print verification remains unverified.",
     "The candidate is a research candidate and has not been nominated as the final fixed 60.",
     "No matchup result, win-rate estimate, or contribution to the 99.5% target is established.",
-    "Agent49 protocol v3 document explicitly says the persistent async fixture loop remains unintegrated and the Docker launcher/capability/RNG/permission gate remains unverified."
-  ]
+    "Agent49 protocol v3 document explicitly says the persistent async fixture loop remains unintegrated and the Docker launcher/capability/RNG/permission gate remains unverified.",
+    "The current Agent36 V3 fixture runner is hard-coded to rank-1 Shadow Rider and Agent6's rank-1 opponent policy; no rank-11 override is supported. A separate registered rank-11 fixture is required."
+  ],
+  "nativeRunner": {
+    "path": "simulation/evaluation/2026-11/agent36-v3-runner.cjs",
+    "gitBlobSha1": "42252eac8247a8d5bc7a1f18a806d7501ee6ff0f",
+    "workflowPath": ".github/workflows/agent36-bilateral-competence-v9.yml",
+    "workflowGitBlobSha1": "962df78f624e7d3b5733f2dadd8e6fb0a75f79fe",
+    "fixtureId": "agent36-v3-fixture-hood-rank1-worker-v1",
+    "candidatePolicyPath": "simulation/evaluation/2026-11/agent46-candidate-policy.cjs",
+    "opponentDeckRank": 1,
+    "opponentPolicyPath": "simulation/evaluation/2026-11/agent6-rank1-shadow-rider-opponent-policy.cjs",
+    "rank11OverrideSupported": false,
+    "note": "Runner has Docker sessions and an async native fixture-game call, but its fixed V3_FIXTURE is rank1; this rank11 policy is not bound or registered."
+  }
 }
