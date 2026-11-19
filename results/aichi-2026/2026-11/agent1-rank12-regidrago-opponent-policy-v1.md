@@ -29,7 +29,7 @@ The machine-readable challenge suite is [agent1-rank12-regidrago-opponent-policy
 
 The source and candidate fingerprints are deck-object fingerprints, not file hashes. The candidate remains unchanged and is intended to be used against every opponent in the benchmark.
 
-Agent17's [Regidrago source-list variance report](../../../methodology/2026-11/agent17-regidrago-policy-family-variance-20261117.md) records 14 substitutions between ranks 10 and 12, with only 26 distinct card identities shared. Rank 12's distinct package includes Dialga-GX ×2, Fezandipiti ex, Crobat V, Echoing Horn, Megaton Blower, Counter Catcher, and Path to the Peak. This implementation is bound to rank 12's own 60 cards; it does not import rank-10-only Faba, Wobbuffet, Battle VIP Pass, or Prime Catcher branches.
+Agent17's [Regidrago source-list variance report](../../methodology/2026-11/agent17-regidrago-policy-family-variance-20261117.md) records 14 substitutions between ranks 10 and 12, with only 26 distinct card identities shared. Rank 12's distinct package includes Dialga-GX ×2, Fezandipiti ex, Crobat V, Echoing Horn, Megaton Blower, Counter Catcher, and Path to the Peak. This implementation is bound to rank 12's own 60 cards; it does not import rank-10-only Faba, Wobbuffet, Battle VIP Pass, or Prime Catcher branches.
 
 ## Exact rank-12 60-card list
 
