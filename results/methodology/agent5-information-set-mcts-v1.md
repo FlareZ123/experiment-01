@@ -90,3 +90,6 @@ With this mode enabled and no fixed opponent policy, the same PUCT tree chooses 
 Detailed method, implementation commits, limitations and the native-integration boundary: [actor-relative re-determinizing PUCT](2026-11/agent5-actor-relative-redeterminizing-puct-20261119.md).
 
 **Qualification:** this is still a generic synthetic core capability. The existing Twinleaf adapter does not yet provide an actor-relative sampler and remains on the legacy root-only path. Node 22 execution is pending existing manual workflow run 44638161668. This does not establish native game correctness, self-play quality, matchup strength, or a win-rate estimate.
+
+
+Validation update, 19 November 2026: the expanded strategy-fusion regression file now contains 11 tests, all 11 passed in a fetched-source Code Mode harness against the exact committed core, using deterministic hash and Node assert/test shims. The existing manual Agent5 workflow run 44638161668 failed in its earlier unrelated actor-root intent step (4 failures among 237 tests), so the MCTS test step was skipped. This is not a Node 22 or native Twinleaf CI pass. See the detailed [actor-relative re-determinizing PUCT report](2026-11/agent5-actor-relative-redeterminizing-puct-20261119.md).
