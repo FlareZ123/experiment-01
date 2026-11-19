@@ -87,14 +87,14 @@ const TOOL_PATTERNS = [PRINT.toolJammer, PRINT.floatStone, PRINT.stealthyHood];
 // is dual-subtype Item + Pokémon Tool; Stealthy Hood and Float Stone are
 // Pokémon Tool-only and are not legal Eri discards.
 const ERI_ITEM_PATTERNS = [
-  /^Field Blower GRI 125\\b/i,
-  /^Unfair Stamp TWM 165\\b/i,
+  /^Field Blower GRI 125\b/i,
+  /^Unfair Stamp TWM 165\b/i,
   PRINT.forestSealStone,
-  /^Mysterious Treasure FLI 113\\b/i,
-  /^Fog Crystal CRE 140\\b/i,
+  /^Mysterious Treasure FLI 113\b/i,
+  /^Fog Crystal CRE 140\b/i,
   PRINT.vsSeeker,
   PRINT.nightStretcher,
-  /^Battle Compressor PHF 92\\b/i,
+  /^Battle Compressor PHF 92\b/i,
   PRINT.quickBall,
   PRINT.heavyBall
 ];
