@@ -97,7 +97,7 @@ For the setup-draw lens, the corrected joiner:
 
 If the target values or choice index cannot be established, the row remains unresolved. If the target prompt does not occur, the lens remains not-exercised. Neither case authorizes changing the runner schema or forcing a prompt.
 
-**Validation status:** 41 synthetic contract tests are committed, but execution of this revised suite is still pending. The earlier 16/16 result applied to the superseded implementation and must not be carried forward. The helper has not yet been exercised against a real accepted fixture/replay pair. No game was dispatched, and no deck or policy was changed. The real replay remains gated on the exact-SHA contract-only, compile/no-fixture and both-role/both-seat native no-game witness passes.
+**Validation status:** 44 synthetic contract tests are committed, but execution of this revised suite is still pending. The earlier 16/16 result applied to the superseded implementation and must not be carried forward. The helper has not yet been exercised against a real accepted fixture/replay pair. No game was dispatched, and no deck or policy was changed. The real replay remains gated on the exact-SHA contract-only, compile/no-fixture and both-role/both-seat native no-game witness passes.
 
 ### Opponent-side setup-prompt coverage note
 
