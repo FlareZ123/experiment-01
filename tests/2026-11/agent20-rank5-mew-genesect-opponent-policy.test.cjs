@@ -14,12 +14,6 @@ const {
   createPolicy
 } = policyModule;
 
-const config = {
-  rank: 5,
-  sourceFingerprint: SOURCE_FINGERPRINT_SHA256,
-  candidateFingerprint: CANDIDATE_FINGERPRINT_SHA256
-};
-
 const P = {
   mewV: 'Mew V FST 113',
   mewVMAX: 'Mew VMAX FST 114',
@@ -38,12 +32,12 @@ const P = {
   forestSealStone: 'Forest Seal Stone SIT 156'
 };
 
-function makePolicy(seat = 0, overrides = {}) {
+function makePolicy(seat = 0, config = {}) {
   return createPolicy({
     role: 'opponent',
     seat,
     policyVersion: POLICY_VERSION,
-    config: { ...config, ...overrides }
+    config
   });
 }
 
@@ -296,6 +290,36 @@ test('policy rejects a different rank, source, or candidate fingerprint', () => 
   assert.throws(() => makePolicy(0, { rank: 3 }), /INIT_MISMATCH/);
   assert.throws(() => makePolicy(0, { sourceFingerprint: '0'.repeat(64) }), /INIT_MISMATCH/);
   assert.throws(() => makePolicy(0, { candidateFingerprint: '1'.repeat(64) }), /INIT_MISMATCH/);
+});
+
+test('rank-5 policy initializes through the real V3 worker zero-key contract', () => {
+  const init = {
+    schema: protocol.INIT_SCHEMA,
+    type: 'init',
+    role: 'opponent',
+    seat: 1,
+    policyVersion: POLICY_VERSION,
+    bundleSha256: 'a'.repeat(64),
+    config: {}
+  };
+  assert.equal(protocol.validateInit(init), init);
+  const policy = createPolicy({
+    role: init.role,
+    seat: init.seat,
+    policyVersion: init.policyVersion,
+    config: init.config,
+    rng: () => 0.5
+  });
+  assert.equal(typeof policy.decide, 'function');
+
+  const nonEmptyInit = { ...init, config: { rank: SOURCE_RANK } };
+  assert.throws(() => protocol.validateInit(nonEmptyInit));
+  assert.throws(() => createPolicy({
+    role: init.role,
+    seat: init.seat,
+    policyVersion: init.policyVersion,
+    config: nonEmptyInit.config
+  }), /INIT_MISMATCH/);
 });
 
 test('Fusion Strike System draws only while hand is below the Fusion Strike board count', () => {

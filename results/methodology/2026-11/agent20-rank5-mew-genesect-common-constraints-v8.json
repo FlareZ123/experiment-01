@@ -1,0 +1,183 @@
+{
+  "schema": "aichi-opponent-policy-common-constraints-v1",
+  "id": "agent20-rank5-mew-genesect-common-constraints-v8",
+  "createdAtUtc": "2026-11-19T18:32:05.926Z",
+  "author": "Agent20",
+  "status": "frozen-diagnostic-constraints-not-attested",
+  "role": "opponent",
+  "sourceRank": 5,
+  "sourceDeck": {
+    "path": "results/aichi-2026/full-decklists.json",
+    "blobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "printed60Sha256": "a66f9b785b7fb36606229f1bf7a396892320803e7576a39f1552a7825bd74c05",
+    "cardCount": 60,
+    "unchangedOriginalAichiList": true,
+    "keyInventory": {
+      "mewV": 4,
+      "mewVMAX": 3,
+      "genesectV": 4,
+      "dedenneGX": 1,
+      "crobatV": 1,
+      "lilliesClefairyEx": 1,
+      "doubleColorlessEnergy": 4,
+      "basicEnergy": 0
+    },
+    "energyConstraint": "The exact 60 contains four Double Colorless Energy and zero Basic Energy. Do not infer Psychic or Metal payment from DCE."
+  },
+  "candidateBinding": {
+    "path": "results/aichi-2026/candidate-hood-shadow-rider.json",
+    "blobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+    "fingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
+    "invariantAcrossRanks": true,
+    "noDeckModification": true
+  },
+  "engine": {
+    "submodulePath": "vendor/twinleaf",
+    "remote": "https://github.com/twinleafgg/twinleafgg.git",
+    "pinnedRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "policyDoesNotModifyOrCallEngineDirectly": true
+  },
+  "workerProtocol": {
+    "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+    "blobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+    "sha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
+    "actorObservationSchema": "Agent49 V3 owner-only actor observation",
+    "requestAndDecisionValidationRequired": true
+  },
+  "informationBoundary": {
+    "permitted": [
+      "actor own hand",
+      "actor public board and attached cards",
+      "opponent public board and attached cards",
+      "public discard/lost zone/stadium",
+      "public prize/deck/hand counts",
+      "owner-authenticated prompts and legal action frontier"
+    ],
+    "forbidden": [
+      "opponent concealed hand identities",
+      "opponent deck order or identities",
+      "unknown face-down Prize identities",
+      "physical game RNG or seed",
+      "other-seat private observations",
+      "native full State",
+      "unverified public-history inference"
+    ],
+    "ownerPromptOnly": true,
+    "unknownOrUnsupportedPrompt": "abstain"
+  },
+  "policyExecution": {
+    "deterministic": true,
+    "stochasticPolicyDraws": 0,
+    "physicalSeedAccess": false,
+    "hiddenStateFallback": false,
+    "nativeFallback": false,
+    "actionSelection": "select only tokens present in the validated legal action frontier",
+    "seatInvariant": true,
+    "rolesAllowed": [
+      "opponent"
+    ],
+    "physicalSeats": [
+      0,
+      1
+    ]
+  },
+  "allowedActionKinds": [
+    "play-card",
+    "attack",
+    "retreat",
+    "use-ability",
+    "use-stadium",
+    "pass"
+  ],
+  "supportedPromptFamilies": [
+    "ChooseAttackPrompt",
+    "ChooseCardsPrompt",
+    "ChoosePokemonPrompt",
+    "ChooseEnergyPrompt",
+    "ChoosePrizePrompt",
+    "ConfirmPrompt",
+    "SelectPrompt",
+    "SelectOptionPrompt"
+  ],
+  "unsupportedPromptDisposition": "abstain",
+  "strategicConstraints": [
+    "Prefer Mew V and Genesect V board construction, then Mew VMAX evolution.",
+    "Use Wally only when a Mew V entered play this turn and the Supporter resource is available.",
+    "Use Genesect V Fusion Strike System only when hand size is below the number of Fusion Strike Pokémon in play.",
+    "Prefer Mew VMAX Cross Fusion Strike copying a Benched Genesect V Techno Blast when that attack is offered.",
+    "Rulebook C-18: Mew VMAX Cross Fusion Strike says to use the chosen Benched Fusion Strike attack 'as this attack', so pay Cross Fusion Strike's own [C][C] cost but do not separately pay the chosen attack's printed Energy unless its text explicitly adds that requirement; D-09's Ditto Copy Anything is an explicit exception.",
+    "Use copied Energy Mix only as a Cross Fusion Strike line and target DCE from the deck.",
+    "Do not assume standalone Mew V Energy Mix/Psychic Leap, Mew VMAX Max Miracle, Genesect Techno Blast, or Clefairy Full Moon Rondo are payable from the source's DCE-only energy base.",
+    "Sequence own draw abilities before Path to the Peak; Path suppresses Rule Box abilities on both sides, including Genesect Fusion Strike System and Shadow Rider VMAX Underworld Door.",
+    "Preserve the last Mew VMAX and scarce DCE during Ultra Ball/Secret Box discard selection.",
+    "Use opponent-visible prize liability and remaining HP for Guzma target selection; do not inspect hidden cards.",
+    "Estimate Techno Blast damage as 210, plus 20 only when Muscle Band is visibly attached to the active Mew VMAX; require attached DCE and a Benched Genesect V before scoring that line as a KO.",
+    "Attach Forest Seal Stone to a Pokémon V (not Mew VMAX) and use Star Alchemy once per game; sequence it after any currently useful Fusion Strike System, Dark Asset, or Dedechange draw ability.",
+    "Use Star Alchemy to search Mew VMAX when Mew V is established but Mew VMAX is absent; search DCE when an active Mew VMAX lacks it; otherwise prioritize a second Genesect V or the highest-value visible setup/disruption card.",
+    "Star Alchemy is granted to whichever actor-owned Pokémon V has Forest Seal Stone attached, not only Genesect V; do not require a specific V Pokémon as the ability actor.",
+    "When searching DCE with Star Alchemy, consider every actor-owned Mew VMAX on the board, including a Benched Mew VMAX, and prioritize DCE if any lacks it.",
+    "When multiple copies of the same Pokémon are in play, resolve action/prompt targets using public targetZone and benchIndex metadata; if the target remains ambiguous, abstain instead of scoring the first matching printing."
+  ],
+  "nonGoals": [
+    "No candidate deck changes or candidate policy construction.",
+    "No Twinleaf engine patch, CI workflow, game execution, seed generation, or native fixture dispatch.",
+    "No matchup result, policy competence attestation, paper qualification, or win-rate estimate."
+  ],
+  "admissionStatus": {
+    "policyProducerId": "agent20-rank5-mew-genesect-opponent-v8",
+    "candidatePolicyProducerId": null,
+    "bundleProducerId": null,
+    "producerSetComplete": false,
+    "independentReviewerAssigned": false,
+    "reviewerRegistryStatus": "owner hold; do not self-authorize",
+    "v3ProductionRegistration": false
+  },
+  "policyVersion": "agent20-rank5-mew-genesect-opponent-v8",
+  "paperRuleResolutions": {
+    "crossFusionStrike": {
+      "rulebook": {
+        "path": "resources/manual/EN_advanced_manual-2025-transcription-structured.md",
+        "version": "Advanced Player’s Rulebook Ver. 3.4 (01/08/2025)",
+        "sectionC18": "Use it as this attack means choosing an attack and doing all of its effects and damage. Unless specified otherwise, even if your Pokémon does not have the necessary Energy for the cost of the chosen attack, it can still do all of that attack’s effects and damage.",
+        "sectionD09": "Attack cost is the Energy required to use an attack. Ditto’s Copy Anything is an explicit exception: if it does not have the necessary Energy to use the chosen attack, that attack does nothing."
+      },
+      "repositoryCardPool": {
+        "path": "resources/cards/en/swsh8.json",
+        "mewV": {
+          "name": "Mew V",
+          "number": "113",
+          "attack": "Energy Mix",
+          "cost": [
+            "Psychic"
+          ],
+          "text": "Search your deck for an Energy card and attach it to 1 of your Fusion Strike Pokémon. Then, shuffle your deck."
+        },
+        "mewVMAX": {
+          "name": "Mew VMAX",
+          "number": "114",
+          "attack": "Cross Fusion Strike",
+          "cost": [
+            "Colorless",
+            "Colorless"
+          ],
+          "text": "Choose 1 of your Benched Fusion Strike Pokémon's attacks and use it as this attack."
+        },
+        "genesectV": {
+          "name": "Genesect V",
+          "number": "185",
+          "attack": "Techno Blast",
+          "cost": [
+            "Metal",
+            "Metal",
+            "Colorless"
+          ],
+          "damage": "210",
+          "text": "During your next turn, this Pokémon can't attack."
+        }
+      },
+      "conclusion": "Mew VMAX pays its own two-Colorless Cross Fusion Strike cost. When copying Mew V Energy Mix or Genesect V Techno Blast, the donor attack's printed Psychic or Metal/Colorless cost is not separately required because Cross Fusion Strike uses the C-18 'as this attack' wording and neither copied attack text adds an Energy-payment exception.",
+      "evidenceClass": "direct paper-rulebook text plus exact repository card text; not a simulation result",
+      "engineStatus": "Paper interpretation resolved; Twinleaf implementation of the interaction has not been tested in this invocation."
+    }
+  }
+}

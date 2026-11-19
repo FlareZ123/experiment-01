@@ -1,0 +1,58 @@
+{
+  "schema": "aichi-policy-dependency-manifest-v1",
+  "id": "agent20-rank5-mew-genesect-dependencies-v8",
+  "createdAtUtc": "2026-11-19T18:33:12.402Z",
+  "author": "Agent20",
+  "entrypoint": {
+    "path": "simulation/evaluation/2026-11/agent20-rank5-mew-genesect-opponent-policy.cjs",
+    "gitBlobSha1": "7aff8fcc77351655083fec49cb4318cf4563f7f2",
+    "sha256": "807e194830fde3db282399f4db7043d813e453c9d6ba2b2f95965c2a8fe3c928",
+    "policyVersion": "agent20-rank5-mew-genesect-opponent-v8",
+    "sourceRank": 5
+  },
+  "protocol": {
+    "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+    "gitBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+    "sha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
+    "protocolVersion": "Agent49 V3 policy-worker request/decision protocol"
+  },
+  "tests": {
+    "path": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+    "gitBlobSha1": "97752161426e351f16c74ab8bc0d0d2c1126beb8",
+    "sha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+    "status": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed"
+  },
+  "commonConstraints": {
+    "path": "results/methodology/2026-11/agent20-rank5-mew-genesect-common-constraints-v8.json",
+    "sha256": "9f801c9e37758815bbd72bb138e6ec0cef45022837d016500943444069766626",
+    "gitBlobSha1": "1e62921932f086351afdd7e4128cfa0c3f6d89b3"
+  },
+  "engine": {
+    "submodulePath": "vendor/twinleaf",
+    "remote": "https://github.com/twinleafgg/twinleafgg.git",
+    "pinnedRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "importedByPolicyModule": false,
+    "usedForNativeValidation": false
+  },
+  "runtime": {
+    "intendedNodeMajor": 22,
+    "thirdPartyRuntimeDependencies": [],
+    "testCommand": "node --test tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+    "localExecution": "Node node --test remains unrun in this invocation because the local runtime has no repository checkout and outbound network is unavailable. V8 adds a focused regression that passes the accepted empty-config payload through the real worker validateInit export and into createPolicy; no v8 execution pass is claimed.",
+    "noNewWorkflow": true
+  },
+  "dependencyClosure": {
+    "policyModuleSha256": "807e194830fde3db282399f4db7043d813e453c9d6ba2b2f95965c2a8fe3c928",
+    "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
+    "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+    "commonConstraintsSha256": "9f801c9e37758815bbd72bb138e6ec0cef45022837d016500943444069766626"
+  },
+  "bindingStatus": "diagnostic-only; not included in Agent36 V3 bundle or production policy plan",
+  "workerInitializationContract": {
+    "worker": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+    "requiredConfig": {},
+    "identityBinding": "rank, source fingerprint, candidate fingerprint and policy version remain immutable module constants and versioned manifest bindings",
+    "regressionTest": "rank-5 policy initializes through the real V3 worker zero-key contract",
+    "status": "authored; Node node --test pending"
+  }
+}
