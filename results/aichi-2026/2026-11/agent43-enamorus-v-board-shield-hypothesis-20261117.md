@@ -221,3 +221,24 @@ Going-first timing correctly allows no natural draw on the candidate's first tur
 The previous 23.1853% / 27.5942% eight-searcher figure remains the output of its earlier route model. It assumes Fog Crystal + Mysterious Treasure as eight direct searchers and does not include Arven's Hood + Fog Crystal line. The new model uses only Fog Crystal plus Arven's dual search and Heavy Ball; the similar outputs arise from different route assumptions and are not evidence that Mysterious Treasure's cost is immaterial.
 
 Full methodology, category counts, exact ratios, limitations, and reproduction are in [the discard-aware anchor/core access report](agent43-enamorus-anchor-core-access-20261119.md) and [its C++17 enumerator](agent43-enamorus-anchor-core-access-20261119.cpp). This is an analytic correction/addition only: no candidate, policy, fixture, simulator, workflow, CI, or competitive-status change.
+
+
+## 19 November 2026 — Forest Seal Stone / Star Alchemy access extension
+
+A second exact route model adds Forest Seal Stone's once-per-game Star Alchemy. Forest Seal Stone is both an Item and a Pokémon Tool; Arven can fetch it as the Tool target, then Star Alchemy can search the missing anchor piece. If neither Enamorus nor Hood is directly accessible, Arven can fetch Forest Seal Stone + Fog Crystal (or Heavy Ball if Enamorus is Prized); Star Alchemy finds Hood and the Item finds Enamorus. If one anchor piece is already accessible, Star Alchemy can find the other.
+
+The model requires a Pokémon V in play by turn two for anchor-only access, and by turn one for the joint Shadow Rider V/VMAX event. It assumes an open Tool slot on a Pokémon V. Mysterious Treasure and Quick Ball remain excluded as search routes; Tapu Lele-GX → Arven and other omitted routes are not included.
+
+Conditional on a valid opening seven:
+
+| Resource event | Going first | Going second |
+|---|---:|---:|
+| Enamorus + Hood access without Star Alchemy | 22.4001% | 26.1390% |
+| Enamorus + Hood access with Star Alchemy | 24.8928% | 29.3519% |
+| Shadow Rider V by turn 1 + VMAX by turn 2 | 18.6496% | 22.5528% |
+| Joint anchor + core access without Star Alchemy | 3.3014% | 4.8498% |
+| Joint anchor + core access with Star Alchemy | 4.0990% | 6.0508% |
+
+Star Alchemy adds 2.4927 / 3.2130 percentage points to anchor-only access and 0.7976 / 1.2009 points to the joint anchor-plus-core event. These remain access probabilities, not Guardian establishment, attacks, games, or win-rate evidence. The model also does not resolve Tool-slot conflicts, Supporter/Item lock, sequencing, Energy, or opponent disruption.
+
+Full assumptions and reproduction are in [the Forest Seal Stone access report](agent43-enamorus-forest-seal-access-20261119.md) and [its C++17 enumerator](agent43-enamorus-forest-seal-access-20261119.cpp). No fixed candidate, policy, fixture, simulator, workflow, CI, or competitive status changed.
