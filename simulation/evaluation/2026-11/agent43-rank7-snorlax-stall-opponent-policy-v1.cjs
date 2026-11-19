@@ -118,10 +118,17 @@ function supporterAvailable(view) {
     p.supporterPlayLocked !== true;
 }
 
+function itemLockCleared(view) {
+  const locks = vileplumeLocks(view);
+  return locks.length === 0 ||
+    (matches(own(view).active?.printing ?? '', P.wobbuffet) &&
+      locks.every(row => !hasTool(row.pokemon, P.hood)) && !hasAlolanMuk(view));
+}
+
 function itemAvailable(view) {
   const r = view?.ownTurnResources ?? {};
   const p = own(view).publicTurnRestrictions ?? {};
-  return r.itemPlayLocked !== true && p.itemPlayLocked !== true;
+  return r.itemPlayLocked !== true && p.itemPlayLocked !== true && itemLockCleared(view);
 }
 
 function energyAvailable(view) {
@@ -249,7 +256,7 @@ function scoreBasicPlay(printing, view) {
   const player = own(view);
   if (matches(printing, P.snorlax)) return boardHas(player, P.snorlax) ? 35 : 175;
   if (matches(printing, P.wobbuffet)) return boardHas(player, P.wobbuffet) ? 25 :
-    vileplumeLocks(view).length > 0 ? 155 : 100;
+    hasAlolanMuk(view) ? 0 : vileplumeLocks(view).length > 0 ? 155 : 100;
   if (matches(printing, P.mimikyu)) return boardHas(player, P.mimikyu) ? 25 :
     opponentHasVOrEx(view) ? 155 : 75;
   if (matches(printing, P.girafarig)) return boardHas(player, P.girafarig) ? 20 :
@@ -642,6 +649,7 @@ function scoreAction(item, request) {
   if (matches(card, P.megatonBlower)) return itemAvailable(view) && opponentHasRemovalTarget(view) ? 260 : 0;
   if (matches(card, P.fieldBlower)) return itemAvailable(view) && opponentHasRemovalTarget(view) ? 215 : 0;
   if (matches(card, P.toolJammer)) {
+    if (!itemAvailable(view)) return 0;
     const targetSlot = slots(player).find(row => row.pokemon.printing === target);
     if (!targetSlot || hasTool(targetSlot.pokemon, P.toolJammer)) return 0;
     if (matches(targetSlot.pokemon.printing, P.snorlax)) return targetSlot.zone === 'active' ? 255 : 175;
