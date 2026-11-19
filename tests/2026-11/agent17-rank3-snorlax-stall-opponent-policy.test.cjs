@@ -908,3 +908,62 @@ test('Forest Seal Stone is attached to Rotom V to enable Star Alchemy', () => {
     kind: 'select-action', token: 'seal-rotom'
   });
 });
+
+
+test('Star Alchemy cannot be invoked from an unrelated Pokémon source', () => {
+  const request = rootRequest({
+    ownPublic: player({ active: pokemon('Snorlax PGO 55') }),
+    items: [
+      {
+        token: 'wrong-source', kind: 'use-ability',
+        actorPrinting: 'Snorlax PGO 55',
+        publicMetadata: { abilityName: 'Star Alchemy' }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action', token: 'pass'
+  });
+});
+
+test('an Energy attachment to a Pokémon absent from the actor-visible board is not selected', () => {
+  const request = rootRequest({
+    ownPublic: player({ active: pokemon('Snorlax PGO 55') }),
+    ownHand: ['Water Energy MEE 11'],
+    items: [
+      {
+        token: 'unpayable-target', kind: 'play-card',
+        actorPrinting: 'Water Energy MEE 11', targetPrinting: 'Bunnelby PRC 121',
+        publicMetadata: { cardType: 'energy', handIndex: 0 }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action', token: 'pass'
+  });
+});
+
+test('the real worker decision validator rejects an unknown prompt-choice token', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Faba LOT 173', 'Faba'),
+    choices: [cardChoice('hood', 'Stealthy Hood UNB 186', 'attached', 'opponent')]
+  });
+  const init = {
+    schema: protocol.INIT_SCHEMA,
+    type: 'init',
+    role: 'opponent',
+    seat: 0,
+    policyVersion: POLICY_VERSION,
+    bundleSha256: 'a'.repeat(64),
+    config
+  };
+  const validated = protocol.validateRequest(request, init, request.sequence, new Set());
+  assert.throws(() => protocol.validateDecision(
+    { kind: 'select-choice', token: 'not-in-prompt' },
+    validated.prompt,
+    validated.actionTokens
+  ), /POLICY_SELECTED_UNKNOWN_CHOICE/);
+});
