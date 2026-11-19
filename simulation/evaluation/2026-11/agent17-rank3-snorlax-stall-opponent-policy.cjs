@@ -302,16 +302,71 @@ function scoreSearchCard(printing, observation, context = '') {
     return matches(printing, PRINT.waterEnergy) ? 60 : 0;
   }
   if (context === 'vs-seeker') {
-    if (matches(printing, PRINT.faba)) return 220;
-    if (matches(printing, PRINT.plumeria) || matches(printing, PRINT.teamFlare)) return 190;
-    if (matches(printing, PRINT.handiwork) || matches(printing, PRINT.guzma)) return 175;
-    if (matches(printing, PRINT.eri) || matches(printing, PRINT.arven)) return 155;
+    if (matches(printing, PRINT.faba)) {
+      return opponentHasAnyTool(observation) ||
+        opponentHasSpecialEnergy(observation.opponentPublic) ||
+        stadiumsInPlay(observation).length > 0 ? 220 : 0;
+    }
+    if (matches(printing, PRINT.plumeria)) {
+      return playerEnergyCount(observation.opponentPublic) > 0 &&
+        list(observation.ownHand).length >= 3 ? 190 : 0;
+    }
+    if (matches(printing, PRINT.teamFlare)) return opponentActiveEnergy(observation) > 0 ? 190 : 0;
+    if (matches(printing, PRINT.handiwork)) return opponentDeckCount(observation) <= 15 ? 175 : 95;
+    if (matches(printing, PRINT.guzma)) {
+      return slots(observation.opponentPublic).some(row => row.zone === 'bench') ? 175 : 0;
+    }
+    if (matches(printing, PRINT.eri)) {
+      const opponentHandCount = Number.isSafeInteger(observation.opponentPublic?.handCount) ?
+        observation.opponentPublic.handCount : 0;
+      return opponentHasVisibleItem(observation) ? 155 :
+        opponentHandCount >= 3 ? 135 : opponentHandCount >= 1 ? 90 : 0;
+    }
+    if (matches(printing, PRINT.lusamine)) {
+      const targets = lusamineTargetCount(observation);
+      return targets >= 2 ? 180 : targets === 1 ? 100 : 0;
+    }
+    if (matches(printing, PRINT.arven)) return !boardHasTool(own, PRINT.toolJammer) ? 155 : 95;
+    if (matches(printing, PRINT.lillie)) return list(observation.ownHand).length <= 3 ? 130 : 0;
+    if (matches(printing, PRINT.penny)) {
+      return slots(own).some(row => row.pokemon.damage > 0 &&
+        row.pokemon.printed?.stage === 'BASIC') ? 100 : 0;
+    }
+    if (matches(printing, PRINT.gladion)) return 75;
     return 0;
   }
   if (context === 'trainers-mail') {
-    if (matches(printing, PRINT.faba) || matches(printing, PRINT.arven)) return 190;
-    if (matches(printing, PRINT.plumeria) || matches(printing, PRINT.teamFlare)) return 170;
-    if (matches(printing, PRINT.handiwork) || matches(printing, PRINT.guzma)) return 155;
+    if (matches(printing, PRINT.faba)) {
+      return opponentHasAnyTool(observation) ||
+        opponentHasSpecialEnergy(observation.opponentPublic) ||
+        stadiumsInPlay(observation).length > 0 ? 190 : 0;
+    }
+    if (matches(printing, PRINT.arven)) return 190;
+    if (matches(printing, PRINT.plumeria)) {
+      return playerEnergyCount(observation.opponentPublic) > 0 &&
+        list(observation.ownHand).length >= 3 ? 170 : 0;
+    }
+    if (matches(printing, PRINT.teamFlare)) return opponentActiveEnergy(observation) > 0 ? 170 : 0;
+    if (matches(printing, PRINT.handiwork)) return opponentDeckCount(observation) <= 15 ? 155 : 95;
+    if (matches(printing, PRINT.guzma)) {
+      return slots(observation.opponentPublic).some(row => row.zone === 'bench') ? 155 : 0;
+    }
+    if (matches(printing, PRINT.lusamine)) {
+      const targets = lusamineTargetCount(observation);
+      return targets >= 2 ? 155 : targets === 1 ? 100 : 0;
+    }
+    if (matches(printing, PRINT.eri)) {
+      const opponentHandCount = Number.isSafeInteger(observation.opponentPublic?.handCount) ?
+        observation.opponentPublic.handCount : 0;
+      return opponentHasVisibleItem(observation) ? 160 :
+        opponentHandCount >= 3 ? 135 : opponentHandCount >= 1 ? 90 : 0;
+    }
+    if (matches(printing, PRINT.lillie)) return list(observation.ownHand).length <= 3 ? 120 : 0;
+    if (matches(printing, PRINT.penny)) {
+      return slots(own).some(row => row.pokemon.damage > 0 &&
+        row.pokemon.printed?.stage === 'BASIC') ? 90 : 0;
+    }
+    if (matches(printing, PRINT.gladion)) return 75;
     if (ITEM_PATTERNS.some(pattern => matches(printing, pattern))) return 125;
     if (TOOL_PATTERNS.some(pattern => matches(printing, pattern))) return 115;
     return 0;
