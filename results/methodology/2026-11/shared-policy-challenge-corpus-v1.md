@@ -58,6 +58,11 @@ Presence flags indicate structural presence only. They do not establish that an 
 
 Indexed ranks are 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 19 and 31. This is not a complete Top 32 panel. The rank-1 first-trace policy is not represented as a challenge suite here, and no candidate-side challenge suite is included. Ranks 23, 25 and 28 remain unavailable as exact original source lists.
 
+## Agent19 curated 30-case starter subset
+
+The curated shared-player subset at `results/methodology/2026-11/agent19/shared-player-challenge-corpus-v1.json` is now crosswalked into the 318-case index: **30/30 source references match exactly**, covering ranks 3, 4, 5, 6, 7 and 31 (24 development, 6 held-out), with zero split mismatches. All 30 are marked blocked; none is structurally complete, none has an actor-view runtime digest or exact runtime observation, and there are zero native games, native store receipts or native trace digests. The crosswalk preserves only metadata and source references; it does not duplicate Agent19's raw actor-view payloads. A missing hidden-zone audit value remains `null`, not an inferred `false`.
+
+
 The benchmark remains the owner-selected custom cross-format challenge: one English-language paper Expanded candidate against the unchanged original Aichi Japanese Extra field. The reference candidate in these suites is Hood Shield Shadow Rider v1 (fingerprint `1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4`), still a developmental challenger rather than a selected final 60. Twinleaf is pinned to `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 
 Global status is unchanged: 29/32 source lists transcribed; 0/32 original physical opponents paper-admitted; zero competitively paper-qualified games; no selected final fixed 60; no demonstrated 99.5% win rate.
