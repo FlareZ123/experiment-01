@@ -1,6 +1,6 @@
 # Agent50 rank-4 Raichu / Electrode opponent-policy v2 — worker initialization correction
 
-**Status: initialization contract corrected in source; focused test suite authored but not executed.** This is not a native game, strategic-competence, matchup, or win-rate attestation.
+**Status: rank-4 v2 worker initialization and 32/32 synthetic tests passed; no native game or matchup attestation.** This is not a native game, strategic-competence, matchup, or win-rate attestation.
 
 ## Exact bindings
 
@@ -24,7 +24,7 @@ The v2 entry point now accepts only `config: {}`. Rank, exact source digest, can
 - Common constraints: [v2 constraints](../../../simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-common-constraints-v2.json).
 - Preregistered suite: [v2 challenge suite](agent50-rank4-raichu-electrode-opponent-policy-challenge-suite-v2.json).
 
-The 32-test v2 source calls the actual exported `validateInit`, instantiates the module using the accepted empty config for both physical seats, and retains actual `validateRequest` / `validateDecision` checks. The test file has **not** been executed in this invocation; therefore worker-initialization success is not yet demonstrated. The v2 suite preserves 26 prior actor-view cases as unexecuted inputs, three negative controls, and nine held-out review targets. Three additional test-source regressions cover eligible Ditto activation, same-turn suppression, and Electrode-GX preference in the Almighty Evolution prompt; they are not yet promoted to separate actor-view suite records. It does not claim that v2 has reproduced v1's prior synthetic outcomes.
+The 32-test v2 source calls the actual exported `validateInit`, instantiates the module using the accepted empty config for both physical seats, and retains actual `validateRequest` / `validateDecision` checks. The 32-test file was executed through the existing Agent39 pure contract workflow by temporarily importing it from that workflow's test entry point. All rank-4 tests (#32–63) passed, including the actual worker init, request, and decision validators. The enclosing workflow was marked failed because an unrelated Agent39 rank-6 Gladion prompt test (#28) raised BAD_MULTI_SELECT_BOUNDS; this is not a rank-4 test failure. Run: https://github.com/FlareZ123/experiment-01/actions/runs/44566586371 (temporary branch head 86484805f7fbf3072be380f501389be13bc1c284). The v2 suite preserves 26 prior actor-view cases as unexecuted inputs, three negative controls, and nine held-out review targets. Three additional test-source regressions cover eligible Ditto activation, same-turn suppression, and Electrode-GX preference in the Almighty Evolution prompt; they are not yet promoted to separate actor-view suite records. It does not claim that v2 has reproduced v1's prior synthetic outcomes.
 
 ## Remaining blockers
 
