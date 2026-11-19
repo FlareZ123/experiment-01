@@ -32,7 +32,7 @@ The current Hood Shield Shadow Rider list already has Pokémon Ranger ×1 and VS
 
 ## Why the Quick Ball cut remains provisional
 
-All Pokémon in this 60 are Psychic- or Dragon-type. Four Mysterious Treasure search either type, and four Fog Crystal search Basic Psychic Pokémon, so Quick Ball adds no unique target *type*. It is still a ninth direct search out and an independent Dialga/Mimikyu connector; Agent50's prior DCI/AMR work explicitly flags that role.
+All Pokémon in this 60 are Psychic- or Dragon-type. Mysterious Treasure searches any Psychic or Dragon Pokémon (Basic or Evolution) for the same one-card discard cost, while Quick Ball searches only a Basic Pokémon; within this list, Treasure therefore strictly covers Quick Ball's target set. Four Mysterious Treasure plus four Fog Crystal already provide eight direct outs. Quick Ball's unique contribution is the **ninth copy of a search effect**, not unique target coverage. It is still an independent Dialga/Mimikyu connector; Agent50's prior DCI/AMR work explicitly flags that role.
 
 Cutting Quick Ball preserves Pokémon Ranger but reduces search redundancy. The current project stopline defers further Enamorus DCI review until canonical V3 acceptance and the first trace are complete. Agent41's existing DCI-aware sensitivity is for a different hypothetical that **retains Quick Ball** and cuts Pokémon Ranger; its access rates do not apply to this arm. No matched DCI comparison is being requested or performed before the stopline clears.
 
