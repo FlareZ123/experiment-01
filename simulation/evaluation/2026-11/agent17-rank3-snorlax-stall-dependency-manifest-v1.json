@@ -8,14 +8,16 @@
   "producerBindingStatus": "prototype only; not inserted into the signed/hash-bound V3 policy plan",
   "policyModule": {
     "path": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "gitBlobSha1": "38475be5cd24b7afc2f2d264a0fbfd28c994d72e",
-    "sha256": "e7de94ec2ca7b4cc81c7eb49c8f171dd53543006179b51c17f39ab327591aca8",
+    "gitBlobSha1": "d9120ac751251673e2b3a3b2444bdf6e5fd4fba4",
+    "sha256": "f09fb3a486e0082fe53b32b8c9743927b6ef99901b70f89241047b75efbcbe5d",
     "policyVersion": "agent17-rank3-snorlax-stall-opponent-v1",
     "config": {},
     "imports": [],
     "externalRuntimeDependencies": [],
     "arvenSearchGate": "requires at least one Item and one Tool copy not present in visible own zones; positive remainder may include hidden Prizes",
-    "vsSeekerRootAction": "score the maximum scoreSearchCard value across every source-list Supporter in the actor discard; no first-match shortcut"
+    "vsSeekerRootAction": "score the maximum scoreSearchCard value across every source-list Supporter in the actor discard; no first-match shortcut",
+    "basicSearchGate": "Nest Ball/Quick Ball require an unseen Basic Pokémon outside visible own zones; Quick Ball additionally requires a second card in hand to pay its discard cost",
+    "forestSealStoneVstarGate": "do not score attaching Forest Seal Stone after ownTurnResources.vstarUsed is true"
   },
   "sourceDeck": {
     "path": "results/aichi-2026/full-decklists.json",
@@ -135,8 +137,8 @@
   },
   "testSuite": {
     "path": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "gitBlobSha1": "158f96736e62809578cc0f7117a21e0319ffe198",
-    "sha256": "4092dcb687475757f050b99e0a1dff803382a4260f05fb7737160c2f05d17d9a",
+    "gitBlobSha1": "6c13223ac655706d8adf84a892dd0823589785dc",
+    "sha256": "a21b9359d7dd957d34f49c033e3e1518567828497678d370d5c9f1437b01c09a",
     "testFramework": "node:test source file",
     "localExecution": "V8 deterministic harness; actual validateInit, validateRequest, validateDecision and validatePublicEventReceipt plus policy/test sources evaluated; not node --test or worker IPC",
     "testCount": 49
@@ -146,10 +148,10 @@
     "sha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27"
   },
   "repositoryBindings": {
-    "policyCommit": "7e9070afd98ab85d5d31902cafae127861fdd7e6",
-    "testCommit": "2749d5ff807163069ae391fc14d352bdf50149fa",
+    "policyCommit": "9d6dea6b14d99af0291747c7162de090854c5a03",
+    "testCommit": "c85041eb0575b55dbd5c0ef4bc3140901ae6e3ba",
     "baselineMainCommitAtInitialInspection": "2a86d357bf5ae699148f0fa7ce74c497e6973d49",
-    "currentMainAtManifestUpdate": "2749d5ff807163069ae391fc14d352bdf50149fa"
+    "currentMainAtManifestUpdate": "c85041eb0575b55dbd5c0ef4bc3140901ae6e3ba"
   },
   "hashDefinitions": {
     "fileSha256": "SHA-256 of exact UTF-8 file bytes",
