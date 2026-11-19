@@ -1,3 +1,10 @@
+## 2026-11-19T16:38Z — prior non-admitting fixture distinguished
+
+- Root README's historical snapshot records earlier sanitized-only run `43544006054` on PR #51 head `8cf313b6dcdc587b0824ca85abc1d9f1d5cdc0c4`: 122 accepted actions / 25 turns, rank 1 won, but `actorOnlyExecutionBoundary.valid=false`; it is not competitive evidence and is not the registered two-seat encrypted-full trace. Do not repeat or conflate it with the current first registered diagnostic.
+- Added this distinction to `agents/agent6/first-trace-acceptance.md`. Current results board still reports zero competitively paper-qualified games and no demonstrated 99.5% field win rate.
+
+---
+
 ## 2026-11-19T16:37Z — owner randomness/trust decision applied
 
 - Read owner comment on issue #59 (2026-11-15 11:52Z): both player bots are research-owned code, not adversarial agents; the requirement is to limit each decision to its visible game state and make results reproducible. Public physical-seed disclosure is authorized. Do **not** reopen sandbox/IPC or seed-obfuscation work as a blocker; do not create an owner-held secret-seed mode.
