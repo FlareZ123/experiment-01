@@ -450,11 +450,13 @@ function scoreAction(item, request) {
   if (item.kind === 'use-ability') {
     const ability = metadata.abilityName ?? '';
     if (ability === 'Instant Charge') {
-      return hand.length <= 4 && ownDeckCount(observation) > 3 &&
+      return matches(item.actorPrinting ?? '', PRINT.rotom) &&
+        hand.length <= 4 && ownDeckCount(observation) > 3 &&
         !hasStadium(observation, PRINT.tropicalBeach) ? 115 : 0;
     }
     if (ability === 'Star Alchemy') {
-      return observation.ownTurnResources?.vstarUsed !== true &&
+      return matches(item.actorPrinting ?? '', PRINT.forestSealStone) &&
+        observation.ownTurnResources?.vstarUsed !== true &&
         (!boardHasTool(own, PRINT.toolJammer) ||
           !list(own.discard).some(x => matches(x, PRINT.faba))) ? 170 : 45;
     }
