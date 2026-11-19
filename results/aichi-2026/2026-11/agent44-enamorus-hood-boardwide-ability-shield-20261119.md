@@ -1,114 +1,68 @@
-# Enamorus V + Stealthy Hood: board-wide Ability shield hypothesis
+# Agent44 addendum: concrete Enamorus 60-card arm and rank31 double-Cursed-Blast counterline
 
-**Agent 44 · 19 November 2026 · paper-card-text analysis and candidate construction; no gameplay test**
+**Agent 44 · 19 November 2026 · supplement to Agent43's existing Enamorus research**
 
-## Decision
+## Scope and de-duplication
 
-A new, concrete challenger is worth preserving: [Hooded Guardian Shadow Rider v1](../candidate-hooded-guardian-shadow-rider.md), a legal 60-card variant of Hood Shield Shadow Rider v1. It adds one Enamorus V (SWSH11 82) and removes one Quick Ball (FST 237), leaving the other 59 cards unchanged. It is **not** nominated, tested, or claimed to be stronger. The key hypothesis is that a Hooded Enamorus V can protect the rest of the Psychic-powered board from opponent Pokémon Ability effects, replacing a two-target Tool shield with a board-wide conditional shield.
+This is **not** a second Enamorus rules investigation. Agent43 already established the main hypothesis and documented the official Enamorus Q&A, Hood/Garbotoxin/Initialization composition, access enumeration (including Forest Seal Stone), Energy coverage, Underworld Door bootstrap uncertainty, Latias / Fairy Zone / Marshadow value, Tool-removal policy, and the deferred native test matrix. Read and reuse:
 
-## Exact paper text and the protection chain
+- [Agent43: Enamorus V board-wide Ability shield hypothesis](agent43-enamorus-v-board-shield-hypothesis-20261117.md)
+- [Agent43: Forest Seal Stone / Star Alchemy access extension](agent43-enamorus-forest-seal-access-20261119.md)
+- [Agent17: two-Hood deployment rule](agent17-two-hood-deployment-rule-20261117.md)
+- [Agent50: Hood Shadow Rider DCI/AMR policy spec](agent50-hood-shadow-rider-dci-amr-policy-spec-20261113.md)
 
-The repository's primary card data in `resources/cards/en/swsh11.json` records Enamorus V SWSH11 82 as Expanded-legal and prints Guardian of Love as: “Prevent all effects of your opponent's Pokémon's Abilities done to each of your Pokémon that has any Psychic Energy attached, except any Enamorus V.” The official Pokémon card page gives the same Psychic-Energy condition: [Enamorus V official card text](https://asia.pokemon-card.com/ph/card-search/detail/2679/). Use **Psychic Energy**, not secondary database variants that omit the type qualifier.
+My contribution is limited to (a) one concrete fixed-60 slot arm, with its explicit Quick Ball cost, and (b) a rank31 double-Cursed-Blast counterline that should be added to the existing test matrix. The broad Ability-shield mechanics and matchup coverage are Agent43's prior work; do not duplicate them or rerun the already-completed Hood/Initialization test.
 
-The repository's `resources/cards/en/sm10.json` records Stealthy Hood UNB 186 as Expanded-legal. Its printed effect prevents all effects of an opponent's Abilities done to the attached Pokémon and removes such existing effects. The chain is therefore:
+## Concrete 60-card arm
 
-1. Attach Stealthy Hood to Enamorus V.
-2. Hood prevents opposing Pokémon Ability effects done to that Enamorus V, including effects that would otherwise suppress its own Ability.
-3. Guardian of Love then prevents opposing Pokémon Ability effects done to each of your other Pokémon that has Psychic Energy attached.
-4. The protected set can include Rule-Box Pokémon such as Shadow Rider Calyrex VMAX and Basic Pokémon such as Mimikyu, provided each has Psychic Energy attached. Enamorus V itself remains the explicit exception and relies on Hood.
+The attached machine-readable and human-readable lists are:
 
-This is a printed-text derivation, not yet a native Twinleaf result or an official Enamorus-plus-Hood-specific ruling.
+- [Hooded Guardian Shadow Rider v1 JSON](../candidate-hooded-guardian-shadow-rider.json)
+- [Hooded Guardian Shadow Rider v1 decklist](../candidate-hooded-guardian-shadow-rider.md)
 
-## Official ruling support
+Exact diff from Hood Shield Shadow Rider v1:
 
-The official Pokémon Asia Q&A for Enamorus V directly confirms the scope of Guardian of Love:
+- **Add:** 1 Enamorus V (SWSH11 82).
+- **Cut:** 1 Quick Ball (FST 237).
+- All other 59 card identities and counts remain unchanged.
+- New category counts: **19 Pokémon / 30 Trainers / 11 Basic Psychic Energy**; 60 total. Basic Pokémon rise from 14 to 15 because the added Enamorus is Basic and the cut is a Trainer.
 
-- An opponent may use Hatterene VMAX's Witch's Domain and choose a Psychic-Energy-attached Pokémon, but the effect on that protected Pokémon is prevented; only the source-side removal of damage counters occurs.
-- An opponent's Radiant Charjabug does not place its damage counters when the Psychic Energy attachment would trigger it against a protected Pokémon.
+This is a concrete experimental arm, **not** an endorsed or optimized slot choice, not nominated, not tested, and not evidence of a stronger deck.
 
-See the [official Enamorus Q&A](https://asia.pokemon-card.com/ph/rules/search/?keyword=Enamorus) (also captured in the current official search result). These answers establish that Guardian of Love prevents actual Ability effects on qualifying Pokémon, not merely a subset of Ability suppression effects.
+## Quick Ball is a provisional cut, not an expendable card
 
-A separate official Q&A says Mega Clefable ex's self-protection Ability remains active under an opponent's Active Iron Thorns ex, and that Dusknoir's Cursed Bomb can select a protected Mega Clefable ex but its damage-counter effect is prevented while Dusknoir is still Knocked Out. This is analogous support for the protection/effect-prevention model, not a direct Enamorus ruling: [official Pokémon Asia Q&A search](https://asia.pokemon-card.com/id/rules/search/?pageNo=120).
+The type-coverage argument for the cut is real but incomplete: every Pokémon in this list is Psychic- or Dragon-type; the existing four Mysterious Treasure search either type, and four Fog Crystal search Basic Psychic Pokémon. Quick Ball adds no unique target *type*.
 
-Agent44's existing [rank31 Dusknoir / Hood audit](agent44-rank31-dusknoir-field-prompt-and-hood-counterline-20261115.md) separately records the pinned Dusknoir PRE Cursed Blast implementation and its self-KO even when counters are prevented. The proposed Enamorus coverage of Cursed Blast is a text-based extension: a Psychic-Energy-attached target should be protected by Guardian of Love, while Enamorus V itself is excluded and remains vulnerable if its Hood is removed. Do not report this as an Enamorus/Dusknoir native test.
+However, Quick Ball is still a ninth direct Pokémon-search out and an independent connector. Agent50's DCI/AMR analysis explicitly treats Quick Ball as a live Dialga/Mimikyu connector. Removing it lowers the direct-search Item count from nine to eight and removes one alternative route to the existing Dialga/Mimikyu counterline.
 
-## Why the current candidate is a natural host
+For only these direct Pokémon-search Items, the opening-seven probability of seeing at least one is:
 
-Hood Shield Shadow Rider v1 has 11 Basic Psychic Energy, four Shadow Rider Calyrex V, four Shadow Rider Calyrex VMAX, and four Fog Crystal plus four Mysterious Treasure. Enamorus V is Basic Psychic and is searchable by either search family. The deck's Underworld Door can attach Psychic Energy from hand to a Benched Psychic Pokémon, which naturally extends Guardian of Love's protected set. Enamorus's printed Blossom Tail attack also does 100 damage and attaches up to two Basic Energy from the discard pile to Benched Pokémon in any way. This is a possible backup way to spread Psychic Energy (and add Max Geist damage) if Underworld Door is disabled, but it costs three Energy and uses the attack; it is a situational fallback, not a replacement engine. The existing Latias ex is a possible mobility partner: while Skyliner is active, Basic Enamorus has no Retreat Cost; if Latias itself has Psychic Energy attached, Guardian of Love should protect Skyliner from opponent Ability effects. This may let a gusted Enamorus retreat to the Bench against Tool Jammer alone and keep Hood out of the Active-Tool blanking window. It does **not** beat Snorlax Block by itself, because Block prevents retreat rather than imposing a cost and Enamorus is excluded from Guardian of Love. Test both cases.
+| Direct search outs | Opening 7 contains at least one |
+|---:|---:|
+| 9 (4 Mysterious Treasure, 4 Fog Crystal, 1 Quick Ball) | 70.0225% |
+| 8 (4 Mysterious Treasure, 4 Fog Crystal) | 65.3594% |
 
-There is one important bootstrap condition under an already-active Ability lock: a Shadow Rider VMAX with no Psychic Energy attached is not yet covered by Guardian of Love, so Iron Thorns/Garbotoxin can suppress Underworld Door. Whether attaching Psychic Energy after that suppression immediately restores Underworld Door is **unresolved**. Guardian of Love says it prevents effects on qualifying Pokémon but, unlike Stealthy Hood, does not expressly say to remove existing effects. The safe line is to have Psychic Energy attached before the lock; the key test is whether the continuous suppression is dynamically overridden when a target becomes Psychic-Energy-attached. If that transition works, a sequential chain may be possible: the first energized VMAX uses Underworld Door to energize a second VMAX, which then becomes a protected target and may use its own Underworld Door. This cascade is a hypothesis, not a rule fact or a tested line. Underworld Door cannot attach to non-Psychic Pokémon; any non-Psychic Pokémon whose ongoing Ability matters needs a manual Psychic attachment. The shield also cannot retroactively rescue an on-play Ability trigger already suppressed before Psychic Energy can be attached: Radiant Eternatus's Climactic Gate and Tapu Lele-GX's Wonder Tag trigger when those Basic Pokémon are played from hand, so if an Ability lock is already active at that moment, Enamorus cannot protect them (they enter without Psychic Energy attached). Their triggers must resolve before the lock or be handled by a separate line; attaching Hood after the Pokémon enters play does not retroactively restore a missed trigger.
+This is the hypergeometric calculation (1-\binom{60-n}{7}/\binom{60}{7}), with (n) direct search outs. It is a narrow consistency proxy only; it excludes Arven, Forest Seal Stone / Star Alchemy, Radiant Eternatus, Tapu Lele-GX, Prize placement, Item locks, Mysterious Treasure discard costs, and game-state setup. It is not a win-rate estimate.
 
-### Exact 60-card challenger
+**Decision:** keep this Quick Ball-cut list as one testable 60-card arm, but do not promote it. Compare it against a Quick Ball-retaining Enamorus arm or another evidence-backed cut under matched conditions. Agent43's restricted Enamorus-access calculations use eight direct searchers and exclude Quick Ball; do not treat those numbers as a matched comparison of this slot choice.
 
-The candidate list changes exactly two card identities: +1 Enamorus V SWSH11 82, −1 Quick Ball FST 237. All 19 Pokémon in the variant are Psychic- or Dragon-type; four Mysterious Treasure search either type, while four Fog Crystal search Basic Psychic Pokémon. Quick Ball therefore adds no unique target coverage, but it is still a ninth search out and an independent connector. Agent50's [DCI/AMR route-policy analysis](agent50-hood-shadow-rider-dci-amr-policy-spec-20261113.md) explicitly treats Quick Ball as a live Dialga/Mimikyu connector and warns that duplicate search items are not automatically expendable. Cutting it lowers the total search count from nine to eight and removes one alternative route to the Dialga/Mimikyu counterline. Among these direct Pokémon-search Items alone, the opening-seven probability of seeing at least one falls from **70.0225%** with nine outs to **65.3594%** with eight outs (\(1-\binom{60-n}{7}/\binom{60}{7}\)); this omits Arven, Forest Seal Stone, Radiant Eternatus and other access, so it is a narrow consistency proxy, not a deck win-rate estimate. This is a provisional slot choice for a concrete 60-card arm, not an evidence-backed cut recommendation; a matched alternative retaining Quick Ball or cutting a different card is still needed. The full list and machine-readable inventory are linked above.
+## New rank31 counterline: two Dusknoir PRE can double-blast the anchor
 
-The Pokémon count rises from 18 to 19; Trainer count falls from 31 to 30; Basic Energy remains 11. Basic Pokémon rise from 14 to 15. The exact opening-seven no-Basic probability is \(\binom{60-B}{7}/\binom{60}{7}\): it falls from **13.8591%** at \(B=14\) to **11.7501%** at \(B=15\) (hypergeometric, without replacement). This is only a structural side effect, not a strength metric. Enamorus adds a 210-HP two-Prize liability and consumes a Bench slot; these costs must be evaluated alongside the protection benefit.
+Agent43 already identifies rank31 as the Dusknoir Chimecho list with **Dusknoir PRE ×3** and **Field Blower ×1**, and correctly notes that Enamorus V is excluded from its own Guardian of Love. The additional counterline to test is:
 
-## Aichi field implications
+1. Follow Agent17's deployment rule: attach one Stealthy Hood to Enamorus and keep the second Hood in hand/deck while the one-copy Tool-removal window remains.
+2. If Field Blower removes the attached Hood, Guardian of Love should still protect the other Psychic-Energy-attached Pokémon from Cursed Blast because rank31 has no Ability suppressor. Enamorus itself is now exposed.
+3. One Cursed Blast places 130 damage on a healthy 210-HP Enamorus and self-KOs Dusknoir, leaving Enamorus at 80 HP. The candidate can potentially use Acerola on its next turn to heal/bounce Enamorus before another Cursed Blast.
+4. If **two Dusknoir PRE are already in play and both can use Cursed Blast in the same turn**, they can place 260 damage counters on Enamorus and KO the two-Prize anchor before the candidate can respond. Each Dusknoir still self-KOs: a nominal two-Prize-for-two-Prize exchange, but the board-wide shield disappears during the opponent's turn. Any remaining Dusknoir BCR / Radiant Alakazam counter-moving Abilities may then have a window to act; whether they can convert that window depends on the remaining damage-counter sources and must be tested.
 
-| Aichi ranks / source effect | Enamorus + Hood hypothesis | Boundary / counterplay |
-|---|---|---|
-| 6, 24, 29 — Iron Thorns ex Initialization | Hood protects Enamorus from the opposing Ability; Guardian of Love can protect Psychic-Energy-attached Rule-Box Pokémon such as Shadow Rider VMAX. | Requires Hood to remain effective and Psychic Energy on each target. Path/Silent Lab and Tool removal remain separate problems. First VMAX needs a manual Energy bootstrap if the lock is already active. |
-| 8, 11, 16, 22 — Garbodor Garbotoxin | Hooded Enamorus can retain Guardian of Love; Psychic-Energy-attached Pokémon should keep their Abilities despite Garbotoxin's global suppression. | Garbotoxin still applies to unenergized Pokémon. Removing/blanking Hood exposes Enamorus and can collapse the shield. |
-| 3, 7 — Snorlax PGO 55 Block | A Psychic-Energy-attached Active Pokémon should be protected from Block's Ability effect and able to retreat. | The Active needs Psychic Energy. Enamorus itself is excluded from Guardian of Love and relies on Hood. Tool Jammer can blank Hood if Enamorus is Active; keep the anchor Benched. |
-| 15 — Vileplume BUS6 Disgusting Pollen | Guardian of Love should prevent the Basic-attack restriction on a Psychic-Energy-attached Basic such as Mimikyu. | Does not bypass Vileplume AOR3 Item lock; that effect is on the player. Hood/Tools remain separately playable under Item-only lock per the existing manual analysis. |
-| 31 — Dusknoir PRE Cursed Blast, Dusknoir BCR Sinister Hand, Radiant Alakazam Painful Spoons | Guardian of Love should prevent Ability effects on Psychic-Energy-attached targets, including damage-counter placement on a protected target. This could preserve the core even after Field Blower removes attached Hoods, because Cursed Blast itself does not suppress Enamorus's Ability. | Enamorus V itself is excluded; after Hood removal it can be targeted. Cursed Blast still self-KOs Dusknoir even when its effect is prevented. MoveDamage source-side behavior needs a native test. |
-| 9, 13, 15, 32 — Silent Lab; any Path to the Peak line | No protection. | These are Stadium effects, not Pokémon Abilities; Hood/Guardian do not stop them. Use the candidate's Stadium replacement / Field Blower / Marshadow routes. |
-| Rank2/15 Stoutland Sentinel and Vileplume AOR3; Budew Itchy Pollen | No direct bypass. | Supporter lock and Item lock affect the player; Budew's restriction is attack-origin. Guardian of Love only protects Pokémon from opponent Pokémon Abilities. |
+This is a conditional rules-derived opponent line, not a demonstrated sequence. The exact timing of multiple Cursed Blasts, the ability to use BCR / Radiant Alakazam after the anchor is Knocked Out, and the candidate's Acerola / Night Stretcher recovery windows should be added to Agent43's existing rank31 test cases. Do not assume that the one-copy Field Blower alone makes the anchor safe.
 
-**Rank31-specific consequence:** rank31 has one Field Blower and three Dusknoir PRE. Follow Agent17's [two-Hood deployment rule](agent17-two-hood-deployment-rule-20261117.md): attach one Hood to Enamorus and keep the second in hand/deck while the one-copy removal window remains. Field Blower can remove the attached Hood, but cannot touch the reserve copy. Because rank31 has no Ability suppressor, Guardian of Love should still protect the other Psychic-Energy-attached Pokémon from Cursed Blast after Hood is removed; Enamorus itself remains exposed because it is excluded from its own Ability. One Cursed Blast puts 130 damage on a healthy 210-HP Enamorus and self-KOs Dusknoir, leaving an Acerola bounce/heal window on the candidate's next turn. If two Dusknoir PRE are already in play and both can use Cursed Blast in the same turn, they can instead place 260 counters on Enamorus and KO the two-Prize anchor before that response; each Dusknoir still self-KOs, trading two Prizes for two. That is a plausible opponent counterline, not a demonstrated sequence. Attaching the second Hood elsewhere exposes both Tools to Field Blower and may be inferior to holding the reserve; compare both policies after the gate.
+## Deferred validation and status
 
-The field lock inventory is already synthesized in [Agent35's Aichi lock-architecture report](agent35-lock-architecture-field-synthesis-20261117.md). The rank31 details are in the linked Agent44 report. The proposed shield is therefore aimed at a specific set of Ability-effect axes; it is not a universal lock answer.
+No new fixture, workflow, CI run, policy edit, seed edit, Twinleaf change, or competitive game was made. The current V3 acceptance / first-trace stopline remains in force; do not alter the registered candidate or dispatch a test before it clears.
 
-A 2026 official Pokémon Asia Q&A also records a circular interaction involving Enamorus V, Active Iron Thorns ex, Active Flutter Mane, and a Psychic Energy effect; in that specific scenario the latest effect is temporarily treated as not working so the game can continue. It is not the exact Hooded-anchor state proposed here and does not settle the post-lock Energy transition, but it is a warning against assuming all layered Ability-lock interactions are simple or loop-free. See the [official Enamorus / Iron Thorns / Flutter Mane Q&A](https://asia.pokemon-card.com/id/rules/search/?keyword=Meowth+V).
+Post-gate, compare this exact 60 against a Quick Ball-retaining or alternative-cut Enamorus 60 under the same policy, opponent lists, seeds, and seat balance. Add the two-Dusknoir counterline above to Agent43's existing Enamorus / rank31 test matrix. Until then:
 
-- **Provisional slot-cut risk:** Quick Ball is not merely a redundant target search. Agent50's DCI/AMR analysis treats it as a live Dialga/Mimikyu connector. This 60 preserves both Hoods by using Quick Ball as a placeholder cut, but that choice may damage the Regidrago counterline; compare a Quick Ball-retaining arm or another cut before promoting the variant.
-
-## Lock-network / minimum-cut interpretation
-
-This is a concrete instance of the lock-interaction / associativity-hypergraph framing in `human_concepts.md`, not an independent binary “Ability protection” bonus:
-
-- **Hub:** Enamorus V with Guardian of Love active.
-- **Anchor edge:** Stealthy Hood prevents opponent Ability effects done to Enamorus itself.
-- **Spokes:** each of your Pokémon with Psychic Energy attached is protected from opponent Pokémon Ability effects while the hub remains active.
-- **One Tool removal with no Ability suppressor:** removes the anchor's self-protection but does not itself turn off Guardian of Love. The other Psychic-Energy spokes remain protected; this is the important rank31 Dusknoir distinction.
-- **Tool removal plus active Iron Thorns/Garbotoxin:** once Hood is removed/blanked, the Ability lock can suppress Enamorus and collapse all spokes. This is the real minimum-cut threat in the Iron Thorns and Garbodor matchups.
-- **Path to the Peak / Silent Lab:** a Stadium can suppress the hub directly; Hood does not stop Stadium effects.
-- **Stoutland / Vileplume AOR3 / Budew:** player-level or attack-origin restrictions are outside the hub-and-spoke protection graph.
-
-The spokes are conditional on Psychic Energy and the timing of that attachment. If post-lock reactivation is not supported, only Pokémon already energized before the lock are protected; the graph does not retroactively repair the whole board.
-
-## Failure modes and access risk
-
-- **Enamorus is the anchor and the exception.** Guardian of Love does not protect any Enamorus V. Hood is essential for protecting the anchor itself from Iron Thorns, Garbotoxin, Snorlax Block, Cursed Blast, and other opposing Pokémon Ability effects.
-- **Tool removal remains a real counter.** Field Blower discards up to two Tools/Stadiums; Megaton Blower discards all opponent Pokémon Tools and Special Energy; Faba can put one attached Tool in the Lost Zone. The current Aichi source audit finds at least one named hard Tool answer in 20/29 available lists. The variant retains both Hoods: one can protect Enamorus and the second can protect another key Pokémon or serve as a reserve. A Field Blower can still remove both at once; Megaton Blower can remove all. If the Hood is removed but no Ability suppression is active, Guardian of Love can still protect the rest of the Psychic-powered board; if Iron Thorns/Garbotoxin is active, removing Hood can suppress Enamorus and collapse the shield.
-- **Enamorus is a 210-HP, two-Prize liability.** It can be attacked or gusted; it occupies a Bench slot and should normally remain Benched to avoid Tool Jammer blanking its Hood. If its Hood is removed, Enamorus itself is a legal Ability-effect target because it is excluded from its own Ability. Against rank31, a damaged Enamorus may be threatened by Cursed Blast; Acerola can be considered proactively, but consumes the Supporter for the turn and is not a guaranteed answer.
-- **Stadiums are outside the shield.** Path to the Peak and Silent Lab can suppress Enamorus's own Ability. The candidate has Sky Field, Dimension Valley, Field Blower and Marshadow Resetting Hole, but access and sequencing are not guaranteed.
-- **Energy distribution is part of the lock.** Every Pokémon intended to keep an Ability or avoid an Ability effect needs Psychic Energy attached. Underworld Door only accelerates to Benched Psychic Pokémon. Dialga-GX has no Ability; Radiant Eternatus is Dragon-type and its Climactic Gate is an on-play trigger, so Guardian of Love cannot rescue it if it is played under an already-active Ability lock without Psychic Energy attached. Tapu Lele-GX's Wonder Tag has the same on-play timing limitation. The list has 11 Basic Psychic Energy, so the shield is not literally automatic across every board state.
-- **Prize risk:** with two Hoods, the chance both copies are among six Prizes is \((6/60)(5/59)=0.8475\%\). For a one-of Enamorus plus the one-of Hisuian Heavy Ball recovery card, the chance both are Prized is the same. The union of those two hard Prize-failure events is **1.6918%** after subtracting their tiny four-card overlap \((6/60)(5/59)(4/58)(3/57)\), before access, Item-lock, or Heavy Ball reuse constraints. Heavy Ball can recover a Prized Basic Pokémon only if it is available and playable; it cannot recover both if multiple targets are Prized. These are Prize-zone calculations, not package-access or win probabilities.
-
-The repository card data marks both Enamorus V and Stealthy Hood Expanded-legal. Pokémon's July 2, 2026 paper-format update explicitly says there were no changes to the Expanded banned-card list: [official Expanded rule-change announcement](https://www.pokemon.com/uk/play-pokemon/about/mega-evolution/mega-evolution-pitch-black-rule-changes-announcement). Pokémon TCG Live temporarily banned Enamorus V and Stealthy Hood in September 2022 because of a client issue; the Live patch notes later state Enamorus V was unbanned in version 1.3.0: [temporary-ban notice](https://community.pokemon.com/en-us/discussion/699/pokemon-tcg-live-temporary-card-bans) and [1.3.0 patch notes](https://community.pokemon.com/en-us/discussion/824/version-1-3-0-patch-notes). This was a digital implementation issue, not a paper Expanded ban. Do not use TCG Live's implementation/ban history as a paper legality ruling.
-
-## Deferred native test matrix
-
-No fixture or CI was dispatched for this result. After the current canonical V3 acceptance and first-trace stopline clears, validate the following in the research-owned Twinleaf adapter, not upstream:
-
-1. Hooded Enamorus vs Active Iron Thorns: first test a Shadow Rider VMAX that already has Psychic Energy when Iron Thorns becomes Active; then test an unenergized VMAX that receives Psychic Energy after suppression. Determine whether Guardian of Love dynamically overrides the already-active suppression (and restores Underworld Door) or only prevents effects on targets that were already qualified. If post-lock reactivation works, test the proposed VMAX-to-VMAX Underworld Door cascade. Repeat the timing distinction against Garbotoxin.
-2. Hooded Enamorus vs Tool-equipped Garbodor: protected targets retain Abilities; unenergized targets do not. Remove Hood with Field Blower/Faba and verify the expected failure boundary.
-3. Dusknoir PRE Cursed Blast against (a) Psychic-Energy-attached Shadow Rider VMAX, (b) Hooded Enamorus, (c) Enamorus after Field Blower removes Hood, and (d) an unenergized Pokémon. Verify target eligibility, prevention, Dusknoir self-KO, one-blast survival/Acerola response, and whether two already-established Dusknoir can double-blast Enamorus before the candidate responds.
-4. Dusknoir BCR Sinister Hand and Radiant Alakazam Painful Spoons: test protected Pokémon as source and destination separately; determine whether source-side counter removal is prevented as well as destination placement.
-5. Snorlax Block against an Active Pokémon with Psychic Energy versus without it; verify retreat legality. Keep Enamorus Benched and separately test Tool Jammer against an Active Enamorus.
-6. Vileplume BUS6 against Psychic-Energy-attached Basic Mimikyu versus unenergized Mimikyu; separately confirm AOR3 Item lock and Budew attack restriction are not bypassed.
-7. Path to the Peak and Silent Lab with Hooded Enamorus; confirm Stadium suppression still works, then test replacement Stadium/Field Blower.
-8. Field Blower, Megaton Blower, Faba, and Jamming Tower against the Hooded Enamorus package.
-
-Do not change the registered first-trace candidate, seed, or policy to test this hypothesis. Treat the variant as a post-gate challenger; compare it against the unchanged Hood v1 under matched conditions and competent opponent policies only after the acceptance/trace sequence allows competitive evaluation.
-
-## Evidence classification
-
-- **Repository card-text facts:** Enamorus V SWSH11 82 and Stealthy Hood UNB 186 are marked Expanded-legal; their exact printed effects are in `resources/cards/en/swsh11.json` and `resources/cards/en/sm10.json`.
-- **Official paper Q&A:** Enamorus's protection prevents actual opponent Ability effects on qualifying Psychic-Energy-attached Pokémon; cited official examples include Hatterene VMAX and Radiant Charjabug. A separate official FAQ gives an analogous Dusknoir Cursed Bomb / Mega Clefable prevention result.
-- **Rules-derived hypothesis:** Hood on Enamorus should preserve Guardian of Love under opposing Pokémon Ability suppression, which should then protect the rest of the Psychic-Energy-attached board. No direct Enamorus-plus-Hood/Garbotoxin ruling was found.
-- **Mathematical derivation:** opening-seven Basic probability and Prize-only hard-failure calculations are exact hypergeometric calculations under random Prize selection.
-- **Unvalidated proposal:** the 60-card challenger is not a demonstrated deck improvement; no games, matchups, or win rates are claimed.
-- **Not established:** full-field performance, 99.5%, Enamorus access frequency under locks, exact native Enamorus/Hood behavior, or rank-specific matchup advantage.
+- The candidate is untested and not nominated.
+- No matchup result or win-rate claim is made.
+- The 99.5% Aichi Top 32 objective remains unachieved and unsupported by this work.
