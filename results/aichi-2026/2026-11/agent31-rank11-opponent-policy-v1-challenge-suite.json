@@ -36,10 +36,10 @@
   },
   "dependencies": {
     "manifestPath": "results/aichi-2026/2026-11/agent31-rank11-opponent-policy-v1-dependencies.json",
-    "manifestSha256": "833899b5be3575c1b647cc7720fcb73c032ca32ae3c7a26845a1f761c1098c5d",
+    "manifestSha256": "12ab35012727a02ac8bd89428a76bc310ab90fbe4714aba59857374b8b630714",
     "policyTestPath": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
-    "policyTestGitBlobSha1": "770d6e1203d7828a1ffbb54fb0b988245426106a",
-    "policyTestSha256": "793ad997aa00f704c3efd676c0d1fb6db3b4bbc24cf1d1153526a797396ac95b",
+    "policyTestGitBlobSha1": "4ebe9d27a793550b742574a9b30890cae23d4e2a",
+    "policyTestSha256": "659b9f402cc837a0fb40a8c266127f2fe750524bf48a039070e9a4628d2c9f35",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "engineSubmodulePath": "vendor/twinleaf",
@@ -884,11 +884,11 @@
       },
       "actorView": {
         "digestAlgorithm": "SHA-256",
-        "actorPacketDigest": "977a57a71b8dbe0a7b18beda9244912404070a9b6d219f4a3906833554f6f97e",
-        "actorViewDigest": "977a57a71b8dbe0a7b18beda9244912404070a9b6d219f4a3906833554f6f97e",
+        "actorPacketDigest": "b722a44b4ca31d2496414e2144a3952b110d0677f97fd3f8ca7a10cd76013ba4",
+        "actorViewDigest": "b722a44b4ca31d2496414e2144a3952b110d0677f97fd3f8ca7a10cd76013ba4",
         "actorPacketDigests": [
-          "93565479988457d2a4656e0a1ecca4041adedde846e56e16cc8129d92280bc54",
-          "704ee87d55b2dac63e10d38cfc9d73fc52932e879f1f3bcc2052d3dcbb94eeaa"
+          "729f6d3749b6401afbdb8a3f122053541afc6af557f3f803f9790afd59f42b17",
+          "b39d24932979c3b3a66387bbe511b1abb1eb0a574a91b2dc21b38a730e0f60e5"
         ],
         "requestCount": 2,
         "digestScope": "SHA-256(UTF-8 JSON.stringify(ordered array of full V3 decision requests))",
