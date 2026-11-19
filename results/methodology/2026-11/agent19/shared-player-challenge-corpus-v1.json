@@ -15,6 +15,7 @@
   "corpusRules": [
     "Policy input is limited to the acting player's validated observation, owner-authenticated prompt, public event receipt and legal action frontier.",
     "The same policy implementation must be seat-symmetric; seat and exact source-deck identity are immutable context, not hidden-state access.",
+    "All current records are opponent-policy cases; they do not establish candidate-role coverage or seat-symmetry.",
     "Unknown or unsupported prompts, unavailable targets and unpayable actions fail closed; never fabricate a pass or delegate to a hidden-state bot.",
     "Development cases are regression-only, not supervised strategic labels; held-out cases are not used for tuning.",
     "A synthetic case proves only its recorded synthetic behavior. It is not native reachability, source-natural frequency, strategic competence, a matchup or a win-rate observation."
@@ -317,7 +318,12 @@
     "nativeTraceDigests": 0,
     "nativeGameCount": 0,
     "sourceNaturalCases": 0,
-    "nativeStagedCases": 0
+    "nativeStagedCases": 0,
+    "roleCounts": {
+      "opponent-policy": 25,
+      "opponent": 5
+    },
+    "candidateRoleCases": 0
   },
   "cases": [
     {
