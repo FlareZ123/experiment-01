@@ -79,6 +79,19 @@ test('pinned source set regenerates the checked-in corpus exactly', () => {
   assert.equal(generated.summary.casesWithActorViewDigest, 33);
   assert.equal(generated.summary.casesMissing.actorViewDigest, 285);
   assert.equal(generated.summary.structurallyCompleteCaseCount, 21);
+  assert.equal(generated.curatedSubset.totalCases, 30);
+  assert.equal(generated.curatedSubset.matchedCaseReferences, 30);
+  assert.equal(generated.curatedSubset.splitMismatches, 0);
+  assert.equal(generated.curatedSubset.structurallyCompleteCases, 0);
+  assert.equal(generated.curatedSubset.runtimeActorViewDigestCases, 0);
+  assert.equal(generated.curatedSubset.exactRuntimeObservationCases, 0);
+  assert.equal(generated.curatedSubset.nativeGameCount, 0);
+  assert.deepEqual(generated.curatedSubset.sourceRanks, [3, 4, 5, 6, 7, 31]);
+  assert.equal(generated.curatedCases.length, 30);
+  assert.equal(generated.curatedCases[0].hiddenOpponentZonesIncluded, null);
+  assert.equal(Object.hasOwn(generated.curatedCases[0], 'actorView'), false);
+  const resolvedCurated = corpusModule.resolveCase(ROOT, generated.curatedCases[0]);
+  assert.equal(resolvedCurated.caseId, generated.curatedCases[0].caseId);
   assert.deepEqual(generated.summary.structuralCompletenessContract.recognizedEvidenceClasses, [
     'synthetic', 'native-staged', 'source-natural'
   ]);
