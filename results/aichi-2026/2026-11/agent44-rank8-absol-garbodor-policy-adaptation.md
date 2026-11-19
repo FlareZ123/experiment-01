@@ -62,6 +62,20 @@ The source inventory suggests a natural sequencing constraint that should become
 
 This is a strategy hypothesis derived from the exact rank-8 list and card text, not an established optimal sequence. Each branch needs actor-view fixtures and, where the engine has multi-prompt effects, a complete prompt-sequence test before it can be treated as policy coverage.
 
+## Energy-resource coupling hypothesis
+
+The 5 Darkness / 2 Lightning split is not interchangeable energy density. Tapu Koko ◇ needs both Lightning Energy in the discard pile to accelerate two Benched Pokémon; Dark Patch and Squawkabilly's Motivate need Darkness in discard. The two Battle Compressor copies can potentially seed a coordinated package (both Lightning plus one Darkness), while Quick Ball / Ultra Ball / Dedechange costs can also change the discard state. Crispin instead finds two different Basic Energy types, attaches one and puts the other into hand, so it competes with rather than automatically complements the Tapu Koko discard plan.
+
+A rank-8 policy state evaluator should therefore track at least:
+- Lightning Energy in discard (0/1/2), and whether Tapu Koko is still in play and usable;
+- Darkness Energy in discard and the number of live Dark Patch / Motivate recipients;
+- Mega Absol's attached Energy and whether it is Active or Benched;
+- remaining bench slots and the number of eligible Benched Pokémon for Tapu Koko;
+- own Garbotoxin state, because it disables Tapu Koko and the other own Abilities;
+- hand-cost safety, preserving the one-of Supporters and the Secret Box package.
+
+This is a resource-allocation hypothesis, not a proven optimal line. Add adversarial fixtures for 0/1/2 Lightning in discard, one versus two eligible Benched recipients, and Darkness-only acceleration before claiming the Tapu Koko branch is covered.
+
 ## Reuse and rank-8 delta
 
 | Branch | Reuse judgment |
