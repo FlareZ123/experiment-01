@@ -8,8 +8,8 @@
   "producerBindingStatus": "prototype only; not inserted into the signed/hash-bound V3 policy plan",
   "policyModule": {
     "path": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "gitBlobSha1": "d9120ac751251673e2b3a3b2444bdf6e5fd4fba4",
-    "sha256": "f09fb3a486e0082fe53b32b8c9743927b6ef99901b70f89241047b75efbcbe5d",
+    "gitBlobSha1": "c524698afdb097f07f634cf335354505db09b50d",
+    "sha256": "c3ab0ea5c22fe48583391a480106814f950949f8c0ba114de0c345436da2e902",
     "policyVersion": "agent17-rank3-snorlax-stall-opponent-v1",
     "config": {},
     "imports": [],
@@ -17,7 +17,9 @@
     "arvenSearchGate": "requires at least one Item and one Tool copy not present in visible own zones; positive remainder may include hidden Prizes",
     "vsSeekerRootAction": "score the maximum scoreSearchCard value across every source-list Supporter in the actor discard; no first-match shortcut",
     "basicSearchGate": "Nest Ball/Quick Ball require an unseen Basic Pokémon outside visible own zones; Quick Ball additionally requires a second card in hand to pay its discard cost",
-    "forestSealStoneVstarGate": "do not score attaching Forest Seal Stone after ownTurnResources.vstarUsed is true"
+    "forestSealStoneVstarGate": "do not score attaching Forest Seal Stone after ownTurnResources.vstarUsed is true",
+    "counterCatcherGate": "requires both own.prizeCount > opponent.prizeCount and an actor-visible opponent Bench target, in root play and Trainers' Mail scoring",
+    "nightStretcherTargets": "all source-list Basic Pokémon plus Basic Water Energy in actor-visible own discard; zero targets score zero; Mimikyu and other Basic targets included"
   },
   "sourceDeck": {
     "path": "results/aichi-2026/full-decklists.json",
@@ -137,8 +139,8 @@
   },
   "testSuite": {
     "path": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "gitBlobSha1": "6c13223ac655706d8adf84a892dd0823589785dc",
-    "sha256": "a21b9359d7dd957d34f49c033e3e1518567828497678d370d5c9f1437b01c09a",
+    "gitBlobSha1": "8d77da0fe5e2403a9bdd04901a51829e9f413f80",
+    "sha256": "3cbc56eb51fc457b335ae141865d503abcf7f3cf52f09e4ce0e1969681ded6d3",
     "testFramework": "node:test source file",
     "localExecution": "V8 deterministic harness; actual validateInit, validateRequest, validateDecision and validatePublicEventReceipt plus policy/test sources evaluated; not node --test or worker IPC",
     "testCount": 49
@@ -148,10 +150,10 @@
     "sha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27"
   },
   "repositoryBindings": {
-    "policyCommit": "9d6dea6b14d99af0291747c7162de090854c5a03",
-    "testCommit": "c85041eb0575b55dbd5c0ef4bc3140901ae6e3ba",
+    "policyCommit": "2ae13106ed11af0e14f56722fc90146e1412e97c",
+    "testCommit": "df1290a3771a7b9678bad04cea0944c98f8d4151",
     "baselineMainCommitAtInitialInspection": "2a86d357bf5ae699148f0fa7ce74c497e6973d49",
-    "currentMainAtManifestUpdate": "c85041eb0575b55dbd5c0ef4bc3140901ae6e3ba"
+    "currentMainAtManifestUpdate": "df1290a3771a7b9678bad04cea0944c98f8d4151"
   },
   "hashDefinitions": {
     "fileSha256": "SHA-256 of exact UTF-8 file bytes",
