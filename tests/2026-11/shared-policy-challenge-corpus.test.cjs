@@ -79,6 +79,9 @@ test('pinned source set regenerates the checked-in corpus exactly', () => {
   assert.equal(generated.summary.casesWithActorViewDigest, 33);
   assert.equal(generated.summary.casesMissing.actorViewDigest, 285);
   assert.equal(generated.summary.structurallyCompleteCaseCount, 21);
+  assert.deepEqual(generated.summary.structuralCompletenessContract.recognizedEvidenceClasses, [
+    'synthetic', 'native-staged', 'source-natural'
+  ]);
   assert.equal(generated.cases.filter(row => row.structurallyComplete).length, 21);
   assert.deepEqual(generated.summary.structuralBlockerCounts, {
     stableCaseId: 19,
@@ -88,7 +91,7 @@ test('pinned source set regenerates the checked-in corpus exactly', () => {
     costLedger: 117,
     promptCoverage: 125,
     executionEvidence: 118,
-    recognizedEvidenceClass: 68
+    recognizedEvidenceClass: 107
   });
   assert.deepEqual(generated.summary.structurallyCompleteBySplit, { development: 21 });
   assert.deepEqual(
