@@ -19,7 +19,8 @@
   "workerProtocol": {
     "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "blobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
-    "initConfigContract": "empty object; role-only bundle"
+    "initConfigContract": "empty object; role-only bundle",
+    "sha256": "6d9ef8cbe02f195fbb3c90f501355961d7b6db35fef09a3e5f11ca0402c7f31f"
   },
   "policy": {
     "path": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v1.cjs",
@@ -29,30 +30,33 @@
     "externalPackages": [],
     "localRuntimeImports": [],
     "sourceBinding": "immutable constants in policy module and this manifest",
-    "sha256": "c30e4cc580e2ab1813228c2c169e57d18a1c6f64af7f30cd980849454da13638"
+    "sha256": "0e05e03576c9c5a09dba6cbd121a60d6673493527ecb70c92d240bb06aff7b29",
+    "blobSha1": "09a9469bce412569e00419d7749574997992e808",
+    "configContract": "empty object; source/candidate fingerprints bound in module and suite"
   },
   "tests": {
     "path": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v1.test.cjs",
     "validator": "actual Agent49 validateInit, validateRequest, validateDecision",
     "fixtureClass": "synthetic actor-view requests and prompts only",
-    "sha256": "21f5110280422fd067ed4ce86bc3f53a84508f63ec9f852d4e105a92e90eabb7",
-    "latestRunId": 44550181375,
-    "latestRunHeadSha": "2a510ee2d45cf2b98a34829f3d47798f20168d4d",
-    "latestRunConclusion": "success",
-    "testCount": 37,
-    "passed": 37,
-    "failed": 0
+    "sha256": "15493d2b79e213e97538a925a501797acab38bf6545d5ef5110ab26085b4fba9",
+    "latestRunId": null,
+    "latestRunHeadSha": null,
+    "latestRunConclusion": "pending",
+    "testCount": 39,
+    "passed": null,
+    "failed": null,
+    "blobSha1": "aeda9927eb1faec283bcfc9e35c1b65faca27b58"
   },
   "supportedPromptFamilies": [
-    "SelectPrompt (Faba tool option)",
+    "SelectPrompt (Faba Tool option; Bellelba yes/no)",
     "ChoosePokemonPrompt (Faba, Guzma, Counter Catcher, Team Flare Grunt, Plumeria, Basic search)",
-    "ChooseCardsPrompt (Steven, Teammates, Field Blower, Get Lost, Plumeria, Lusamine, Bellelba, Basic search)",
+    "ChooseCardsPrompt (Steven, Teammates, Field Blower, Get Lost, Plumeria, Lusamine, Bellelba, Basic search, VS Seeker, Target Whistle, Rescue Stretcher)",
     "ChooseEnergyPrompt (Enhanced Hammer)"
   ],
   "explicitAbstentions": [
-    "Gladion Prize selection when card identities are not owner-visible",
-    "Palace Book SMP NAN25 until its exact engine/paper prompt mapping is independently verified",
-    "unknown prompt families and unsupported multi-Pokémon prompt families"
+    "Gladion Prize selection when Prize identities are not owner-visible",
+    "unknown prompt families and unsupported multi-Pokémon prompts",
+    "unsupported or ambiguous card effects without an exact prompt/target mapping"
   ],
   "status": "synthetic-only prototype; not wired into a signed V3 policy bundle or native match runner",
   "limitations": [
@@ -62,5 +66,15 @@
     "The public Faba/Jet/Wobbuffet line is gated on one unambiguous Hooded Vileplume and visible resource preconditions",
     "Palace Book effect and prompts remain deliberately unsupported",
     "No complete paper legality certification is implied"
+  ],
+  "commonConstraints": {
+    "path": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-common-constraints-v1.json",
+    "sha256": "ded0d933c59ed68de0c8a714e77dddd5e6c9e0850b87f30de0460defed636b3d"
+  },
+  "supportedCardActions": [
+    "Faba; Jet Energy; Nest Ball",
+    "Snorlax; Wobbuffet; Mimikyu; Tool Jammer",
+    "Field Blower; Megaton Blower; Enhanced Hammer; Counter Catcher; VS Seeker",
+    "Palace Book SMP NAN25: draw three and end the turn; low-priority action only"
   ]
 }
