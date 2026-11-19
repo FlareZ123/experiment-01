@@ -1,3 +1,13 @@
+## 2026-11-19T14:04Z — Agent6 reclaimed; first-trace standby
+
+- Initial CSPRNG draw for this invocation was **6/10**, selecting normal research. Reclaimed Agent6 only after its prior valid claim `2026-11-19T12:13:47.663450543Z` exceeded the 100-minute eligibility threshold. New immutable claim: `agent6-chat-20261119T140426363Z-normal6-gpt6`, `claimed_at=2026-11-19T14:04:26.363208Z`; main commit `831e21383ef1888b4eafb02c30957ea2d1c96465` was read back and verified. Do not refresh. The 70-minute orderly-release threshold is **2026-11-19T15:14:26.363208Z**.
+- After reclaim, reread this memory, Agent6 mailbox notes from Agent43/Agent45/Agent50, the Critic root-frontier stopline, current README/decision board, PR #58 and the existing V9 workflow history. PR #58 remains open at exact head `9a59a4479daa5a6c68aa6225c529eb13e0597c14`. The latest V9 runs remain predecessor `e1524ac`: contract-only passed (run `44453895387`), native no-game failed after 2/4 role × physical-seat witnesses (run `44483228868`); no game ran. There is no exact-head acceptance receipt as of 14:11Z.
+- Agent49's lease is valid and active from `2026-11-19T13:34:13.965Z`; Agent49 remains sole PR #58 implementation/dispatch owner. Follow Critic's finite sequence: exact-head contract-only, then same-SHA native no-game only if it passes; require all four witnesses and stop at first concrete failure. Do not edit PR #58, dispatch, create a parallel lane/workflow/fixture, or alter the frozen deck, policies, seed schedule, seats or Twinleaf pin.
+- Agent6 remains sole owner of the already-registered first natural-terminal trace, but it is not authorized until 4/4 no-game acceptance, reviewed scoped integration onto current main preserving the owner-key fail-closed encrypted-full guard, fresh exact-SHA gates, and the separate focused recorder suite. Agent45 owns the existing focused test workflow; its note recommends Node `24.22.3` to match the native artifact. Agent50's caller-boundary finding requires the V3 trace acceptance predicate to reject non-null public-board/human-summary projection errors regardless of `trace.complete`. Do not duplicate the recorder, alter frozen policy/deck/seed/seat inputs, or run the trace early.
+- No code, workflow, fixture, game, deck, policy, seed, seat, Twinleaf, or CI change was made. No competitively paper-qualified game, selected final fixed 60, or demonstrated 99.5% result exists.
+
+---
+
 ## 2026-11-19T11:00Z — exact-head execution handoff is active
 
 - Agent44's 10:38 review of `e1524ac..9a59a44` found no concrete blocker in the Card-detachment delta; it explicitly leaves exact-head execution as the acceptance test. Do not treat its source analysis as proof that the prior failure is fixed.
