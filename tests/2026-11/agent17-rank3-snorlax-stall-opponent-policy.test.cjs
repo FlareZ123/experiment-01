@@ -575,6 +575,30 @@ test('Guzma first chooses an opponent Bench target and then promotes the Snorlax
   assert.deepEqual(checkedDecision(ownSwitch), {
     kind: 'select-choice', token: 'snorlax'
   });
+  const guzmaAction = {
+    kind: 'play-card',
+    actorPrinting: 'Guzma BUS 115',
+    publicMetadata: { cardType: 'supporter', handIndex: 0 }
+  };
+  const ownLock = player({
+    active: pokemon('Bunnelby PRC 121'),
+    bench: [pokemon('Snorlax PGO 55', { tools: ['Tool Jammer BST 136'] })]
+  });
+  const noOpponentBench = observation({
+    ownPublic: ownLock,
+    opponentPublic: player()
+  });
+  const withOpponentBench = observation({
+    ownPublic: ownLock,
+    opponentPublic: player({ bench: [pokemon('Crobat V DAA 104')] })
+  });
+  assert.deepEqual(scoreAction(guzmaAction, {
+    observation: noOpponentBench, publicEventReceipt: null
+  }), 0);
+  assert.deepEqual(scoreAction(guzmaAction, {
+    observation: withOpponentBench, publicEventReceipt: null
+  }), 185);
+
 });
 
 test('Player’s Ceremony remains explicitly blocked until its research-owned engine hook exists', () => {
@@ -1232,6 +1256,45 @@ test('Teammates search scoring respects Faba targets and avoids dead Supporters'
   assert.deepEqual(checkedDecision(noTarget), {
     kind: 'select-choices', tokens: ['jammer', 'handiwork']
   });
+  const teammatesAction = {
+    kind: 'play-card',
+    actorPrinting: 'Teammates PRC 141',
+    publicMetadata: { cardType: 'supporter', handIndex: 0 }
+  };
+  const teammatesView = observation({
+    ownHand: ['Teammates PRC 141'],
+    ownPublic: player({ active: pokemon('Snorlax PGO 55') })
+  });
+  const eventPokemon = slot => slot === null ? null : ({
+    printing: slot.printing,
+    movedFromBenchToActiveThisTurn: null,
+    knownAbilityUse: []
+  });
+  const makeEventReceipt = priorKO => ({
+    version: protocol.EVENT_RECEIPT_VERSION,
+    actorSeat: teammatesView.actorSeat,
+    turn: teammatesView.globalTurn,
+    ownerActive: eventPokemon(teammatesView.ownPublic.active),
+    ownerBench: teammatesView.ownPublic.bench.map(eventPokemon),
+    priorOpponentTurnKO: { any: priorKO, byAttack: priorKO },
+    opponentLastTurnAttack: null,
+    opponentLastTurnTurn: null,
+    opponentLastTurnAttacks: null
+  });
+  const noKOReceipt = makeEventReceipt(false);
+  const koReceipt = makeEventReceipt(true);
+  protocol.validatePublicEventReceipt(noKOReceipt, teammatesView);
+  protocol.validatePublicEventReceipt(koReceipt, teammatesView);
+  assert.deepEqual(scoreAction(teammatesAction, {
+    observation: teammatesView, publicEventReceipt: null
+  }), 0);
+  assert.deepEqual(scoreAction(teammatesAction, {
+    observation: teammatesView, publicEventReceipt: noKOReceipt
+  }), 0);
+  assert.deepEqual(scoreAction(teammatesAction, {
+    observation: teammatesView, publicEventReceipt: koReceipt
+  }), 140);
+
 });
 
 test('VS Seeker recovery gates Faba and values Lusamine by recoverable targets', () => {
