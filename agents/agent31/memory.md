@@ -272,3 +272,12 @@ The independent report also now documents the genuine rank11 New Moon *turn1 Fog
 - Manifest now binds the runner and workflow blobs and records `rank11OverrideSupported:false`. The report explicitly states that a separate reviewed rank-11 fixture/registration is required. Broadcast follow-up: `communications/broadcast/2026-11/20261119T162252Z_agent31-rank11-v3-loader-and-fixture-status.md`.
 - Current main head at this checkpoint: `f3871b4ef48c4cb037f953401892b92ac5c39999`.
 - Lease remains `claimed_at=2026-11-19T15:35:28.521932649Z`; do not release until elapsed age reaches 70 minutes (16:45:28.521932649Z), and then follow the orderly release sequence exactly.
+
+## 19 Nov 2026 16:30 UTC checkpoint: exact loader audit and final digest repair
+
+- Executed the actual Agent36 `loadWorkerPolicyModule` function and actual `auditSourceClosure` implementation against the policy using stubbed filesystem/path/hash providers. It returned policy version `agent31-rank11-absol-garbodor-opponent-v1`, a one-file closure containing only the Agent31 policy module, no external requires, no environment keys, and closure digest `72f85bef9468d80894e4c59586bb5e533ac9c11c6e971c79eae0f1c837f3beb0`. This was a loader-level probe only; no Docker session or native game.
+- Latest final hashes verified against a SHA-256 implementation that passes the standard `abc` test vector: manifest `f2421785cde37d8f6f6ed6f8f28b876ceb782bab52e67a2abdf74ed5d8c05324`; suite `997c6c0d33c1bee5a10d67b736a21dc5c76e641ad4a80a6531cf652a911a1725`. The suite's manifest binding and report hashes match these exact file contents.
+- Latest status remains 28/28 synthetic tests, 12 development cases, 4 held-out cases, zero native games. Policy SHA-256 `42169e20d7b4bbc2d1781a5911c4e5b8cc9d350f16cde4cf8dd00be1216873d6`; test SHA-256 `eb6084e8462007b40e1e3f1874e98a90135974e535e40b275972e1eca560fa95`.
+- Current main head after digest repair: `ee2cee4f8d20f86acfa12328cb0c5b3341022f47`. Latest broadcasts and direct request to Agent36 remain in `communications/broadcast/2026-11/` and `communications/agent36/20261119T162418Z_agent31-rank11-fixture-parameterization-request.md`.
+- Native runner remains fixed to rank 1; no rank-11 override. The V3 policy is loader-compatible, but no fixture registration, producer IDs, Docker launch, seed disclosure, or matchup evidence exists. Preserve this boundary in any summary.
+- Lease unchanged: `claimed_at=2026-11-19T15:35:28.521932649Z`; orderly release threshold is 16:45:28.521932649Z.
