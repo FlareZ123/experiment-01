@@ -28,24 +28,16 @@
   "files": {
     "policy": {
       "path": "simulation/evaluation/2026-11/agent1-rank12-regidrago-opponent-policy-v2.cjs",
-      "blobSha1": "bfaee2205ea9d0c3b618948fe24ff81075d4ccda",
-      "sha256": "c10b2a5003af139b2d0f6520cc074e8a8f1638051eb4064b98350b7af9ff1d38"
+      "blobSha1": "d51b195831926174eaacfc75aa934148dae919b2",
+      "sha256": "e5ef9a880b78f50407981357cdd6212b075d17e98c8228b5608437f915fa99f6"
     },
     "tests": {
       "path": "tests/2026-11/agent1-rank12-regidrago-opponent-policy-v2.test.cjs",
-      "blobSha1": "6bbc6ae63ee7a1e19576f9bb4e338547b08663cd",
-      "sha256": "c38a5c188579d1a325a4b2fdbc41682bed3131d3e1d45d28bbebb25e6871b35a",
-      "authoredTestCount": 21,
-      "executed": true,
-      "passed": 20,
-      "failed": 1,
-      "executionHarness": "V8 isolate with node:test/assert shims; actual Agent49 validateInit/validateRequest/validateDecision source and actual rank12 v2 policy/Apex helper. Node runner and worker IPC not executed.",
-      "failure": {
-        "testName": "Hisuian Heavy Ball fails closed when face-down Prize identities are not visible",
-        "errorCode": "BAD_MULTI_SELECT_BOUNDS",
-        "stage": "Agent49 validateRequest/multiSelectBounds before policy execution",
-        "attribution": "fixture validation failure; not attributed to zero-key init change"
-      }
+      "blobSha1": "d0e8922a3a7a2a1b86b0f36064edbf5a17e449ee",
+      "sha256": "4ea7721b10cab24bf44cb4ce613b3eb6cb587bd12533d6169777a21e5cb287d7",
+      "authoredTestCount": 20,
+      "executed": false,
+      "workerInitRegressionAuthored": true
     },
     "apexAttackHelper": {
       "path": "simulation/evaluation/2026-11/agent43-regidrago-apex-choice.cjs",
@@ -63,18 +55,7 @@
         "aichi-actor-observation-v3",
         "aichi-owner-prompt-projection-v3",
         "aichi-action-frontier-v1"
-      ],
-      "validatorsExecuted": [
-        "validateInit",
-        "validateRequest",
-        "validateDecision"
-      ],
-      "workerIpcHandshake": false
-    },
-    "commonConstraints": {
-      "path": "simulation/evaluation/2026-11/agent1-rank12-regidrago-common-constraints-v2.json",
-      "blobSha1": "b9be97be63e9b7a56ab80ed1b7fb3744072197dd",
-      "sha256": "ee342848a3ad333f28eca50ebc2b1dec5cfed00b165898e733a8fdc7abd520b4"
+      ]
     }
   },
   "producerBinding": {
@@ -89,22 +70,19 @@
     "Path to the Peak is withheld until own Rule Box ability-use state is actor-visible and all relevant own abilities are spent",
     "No source-natural or native-staged scenario evidence is included"
   ],
-  "evidence": {
-    "workerInitRegression": {
-      "passed": true,
-      "executed": true,
-      "actualValidateInit": true,
-      "acceptedConfig": {},
-      "factoryAcceptedRng": true,
-      "nonEmptyConfigRejectedAtWorker": true,
-      "nonEmptyConfigRejectedAtFactory": true
-    },
-    "testSuite": {
-      "authored": 21,
-      "executed": 21,
-      "passed": 20,
-      "failed": 1,
-      "harness": "V8 shim; no Node runner or worker IPC"
-    }
+  "workerInitContract": {
+    "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+    "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+    "initSchema": "aichi-policy-worker-init-v2",
+    "acceptedConfig": {},
+    "factoryArguments": [
+      "role",
+      "seat",
+      "policyVersion",
+      "config",
+      "rng"
+    ],
+    "regressionPath": "tests/2026-11/agent1-rank12-regidrago-opponent-policy-v2.test.cjs",
+    "regressionStatus": "authored-not-executed"
   }
 }

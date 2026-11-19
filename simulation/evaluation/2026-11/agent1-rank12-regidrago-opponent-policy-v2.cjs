@@ -1,7 +1,7 @@
 'use strict';
 
 /*
- * Rank-12 Regidrago opponent policy v2.
+ * Rank-12 Regidrago opponent policy.
  *
  * This is a deterministic, actor-view-only prototype bound to the exact
  * rank-12 60-card source row and the fixed Hood Shield Shadow Rider v1
@@ -621,10 +621,11 @@ function bestAction(request) {
 }
 
 function createPolicy({ role, seat, policyVersion, config, rng }) {
+  const configKeys = config && typeof config === 'object' && !Array.isArray(config)
+    ? Object.keys(config) : null;
   if (role !== 'opponent' || (seat !== 0 && seat !== 1) ||
-      policyVersion !== POLICY_VERSION || !config ||
-      typeof config !== 'object' || Array.isArray(config) ||
-      Object.keys(config).length !== 0 || typeof rng !== 'function') {
+      policyVersion !== POLICY_VERSION || configKeys === null ||
+      configKeys.length !== 0 || typeof rng !== 'function') {
     throw new Error('AGENT1_RANK12_POLICY_INIT_MISMATCH');
   }
   return Object.freeze({

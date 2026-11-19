@@ -1,12 +1,12 @@
 {
-  "schema": "aichi-policy-challenge-suite-v1",
+  "schema": "aichi-policy-challenge-suite-v2",
   "suiteId": "aichi-2026-rank12-regidrago-agent1-v2",
-  "suiteVersion": "2",
-  "suiteSha256": "ddbc470255c6d8f2e1f4d9342caa9aeffbe6b060c46f71f8873d6fe69397d625",
-  "createdBy": "agent1",
-  "createdAt": "2026-11-19T15:21:55.287Z",
-  "status": "v2-v8-shim-20-of-21-diagnostic-only",
-  "attestationStatus": "not-attested",
+  "suiteVersion": "2.0.0",
+  "suiteSha256": "a06c63f6354e06ddc6c9fb02a58d48bb050f9c7830267f30ed2de2565bb7f46a",
+  "createdBy": "agent20-collaboration",
+  "createdAt": "2026-11-19T19:11:09.233Z",
+  "status": "diagnostic-only-prototype",
+  "attestationStatus": "blocked",
   "objective": "Evaluate the exact Aichi Open League 2026 rank-12 Regidrago source list as an opponent policy against the fixed 60-card Hood Shield Shadow Rider candidate; this suite does not measure game win rate.",
   "policy": {
     "policyId": "agent1-rank12-regidrago-opponent-v2",
@@ -14,8 +14,8 @@
     "role": "opponent",
     "sourceRank": 12,
     "modulePath": "simulation/evaluation/2026-11/agent1-rank12-regidrago-opponent-policy-v2.cjs",
-    "moduleBlobSha1": "bfaee2205ea9d0c3b618948fe24ff81075d4ccda",
-    "moduleSha256": "c10b2a5003af139b2d0f6520cc074e8a8f1638051eb4064b98350b7af9ff1d38",
+    "moduleBlobSha1": "d51b195831926174eaacfc75aa934148dae919b2",
+    "moduleSha256": "e5ef9a880b78f50407981357cdd6212b075d17e98c8228b5608437f915fa99f6",
     "config": {},
     "deterministic": true,
     "randomDraws": 0,
@@ -50,11 +50,11 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent1-rank12-regidrago-dependencies-v2.json",
-    "manifestBlobSha1": "89db6e96f32ec7db5ac4672fb6fc32e0c54384de",
-    "manifestSha256": "84b890e01b6a774cdfd525c85487c4d36c3ba2d6cea8763861463e0374368957",
+    "manifestBlobSha1": "566b4d19ad855ee0f8509742c449453026d7748b",
+    "manifestSha256": "8031876a9aed844b2a740713b19838fabe53956fb8eafdb2b6899e87686c78de",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent1-rank12-regidrago-common-constraints-v2.json",
-    "commonConstraintsBlobSha1": "b9be97be63e9b7a56ab80ed1b7fb3744072197dd",
-    "commonConstraintsSha256": "ee342848a3ad333f28eca50ebc2b1dec5cfed00b165898e733a8fdc7abd520b4",
+    "commonConstraintsBlobSha1": "6eaed59d664e5c577119ae4cb24698ef1f812d72",
+    "commonConstraintsSha256": "94375f2cbfe7ec48fd4928c00c25293b509158b7ac17f82e1f5cbd5a6d1ba6e5",
     "helperPath": "simulation/evaluation/2026-11/agent43-regidrago-apex-choice.cjs",
     "helperBlobSha1": "65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b",
     "helperSha256": "07a07f7214c5e2ce647dfb5405ae066f5ea214d290d5ecb4b046b3f430b95ddb",
@@ -62,8 +62,8 @@
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "testsPath": "tests/2026-11/agent1-rank12-regidrago-opponent-policy-v2.test.cjs",
-    "testsBlobSha1": "6bbc6ae63ee7a1e19576f9bb4e338547b08663cd",
-    "testsSha256": "c38a5c188579d1a325a4b2fdbc41682bed3131d3e1d45d28bbebb25e6871b35a"
+    "testsBlobSha1": "d0e8922a3a7a2a1b86b0f36064edbf5a17e449ee",
+    "testsSha256": "4ea7721b10cab24bf44cb4ce613b3eb6cb587bd12533d6169777a21e5cb287d7"
   },
   "producerBinding": {
     "opponentPolicyProducerId": "agent1",
@@ -74,9 +74,9 @@
     "note": "Candidate and bundle producer identities were not inferred; this intentionally blocks V3 attestation."
   },
   "executionSummary": {
-    "authoredTests": 21,
-    "executedTests": 21,
-    "testExecutionStatus": "20-pass-1-fail-v8-shim",
+    "authoredTests": 20,
+    "executedTests": 0,
+    "testExecutionStatus": "not-run",
     "sourceNaturalCases": 0,
     "nativeStagedCases": 0,
     "syntheticActorViewCases": 8,
@@ -85,32 +85,14 @@
     "decisionReceipts": 0,
     "matchupWinRate": null,
     "competitiveCompetenceAttested": false,
-    "claims99_5Percent": false,
-    "nodeTestRunnerExecuted": false,
-    "workerIpcHandshakes": 0,
-    "executionHarness": "V8 isolate with node:test/assert shims; actual Agent49 validateInit/validateRequest/validateDecision source, actual rank12 v2 policy and Agent43 Apex helper. No Node runner or worker IPC.",
-    "workerInitRegression": {
-      "executed": true,
-      "passed": true,
-      "actualValidateInit": true,
-      "acceptedConfig": {},
-      "factoryAcceptedRng": true,
-      "nonEmptyConfigRejectedAtWorker": true,
-      "nonEmptyConfigRejectedAtFactory": true
-    },
-    "testFailure": {
-      "testName": "Hisuian Heavy Ball fails closed when face-down Prize identities are not visible",
-      "errorCode": "BAD_MULTI_SELECT_BOUNDS",
-      "stage": "Agent49 validateRequest/multiSelectBounds before policy execution",
-      "attribution": "fixture validation failure; not attributed to zero-key init change"
-    }
+    "claims99_5Percent": false
   },
   "developmentCases": [
     {
       "caseId": "rank12-apex-dominating-echo",
       "testName": "Apex Dragon chooses Dominating Echo when the opponent has a Stadium in play",
       "evidenceClass": "synthetic-actor-view",
-      "executionStatus": "passed-v8-shim",
+      "executionStatus": "authored-not-run",
       "promptType": "ChooseAttackPrompt",
       "actorViewDigest": "79e54536f9169f94077033f5714e5df1174cfcb530a7737fe46fdc93bafda7a9",
       "actorView": {
@@ -153,18 +135,13 @@
         "copiedAttack": "Noivern ex PAL 153 — Dominating Echo",
         "additionalDiscardCost": "none",
         "resourceDeltaVerified": false
-      },
-      "executionEvidence": {
-        "harness": "V8 shim with actual worker validators and v2 policy",
-        "policyExecuted": true,
-        "workerValidateInitExecuted": true
       }
     },
     {
       "caseId": "rank12-treasure-discard-dci",
       "testName": "Mysterious Treasure discard cost sends Noivern ex to the discard as an Apex payload",
       "evidenceClass": "synthetic-actor-view",
-      "executionStatus": "passed-v8-shim",
+      "executionStatus": "authored-not-run",
       "promptType": "ChooseCardsPrompt",
       "actorViewDigest": "3c4d4352dcbc32b6be68854b24b6155865a1147ff1a69e0d5383d59d979b00fb",
       "actorView": {
@@ -208,18 +185,13 @@
           "Regidrago VSTAR SIT 136"
         ],
         "resourceDeltaVerified": false
-      },
-      "executionEvidence": {
-        "harness": "V8 shim with actual worker validators and v2 policy",
-        "policyExecuted": true,
-        "workerValidateInitExecuted": true
       }
     },
     {
       "caseId": "rank12-counter-catcher-gust",
       "testName": "Counter Catcher selects the high-Prize Shadow Rider VMAX rather than a low-value support target",
       "evidenceClass": "synthetic-actor-view",
-      "executionStatus": "passed-v8-shim",
+      "executionStatus": "authored-not-run",
       "promptType": "ChoosePokemonPrompt",
       "actorViewDigest": "a1b2d31e37b7a3744dc4a15ff6f8c313a5114797923c4c9d5040318d971533d8",
       "actorView": {
@@ -263,18 +235,13 @@
         "cost": "Counter Catcher is an Item and its legality depends on the opponent having fewer Prize cards remaining; this fixture tests target choice only",
         "eligibilityTested": false,
         "resourceDeltaVerified": false
-      },
-      "executionEvidence": {
-        "harness": "V8 shim with actual worker validators and v2 policy",
-        "policyExecuted": true,
-        "workerValidateInitExecuted": true
       }
     },
     {
       "caseId": "rank12-megaton-blower-target-gate",
       "testName": "Megaton Blower is selected only when a visible opponent Tool, Special Energy or Stadium exists",
       "evidenceClass": "synthetic-actor-view",
-      "executionStatus": "passed-v8-shim",
+      "executionStatus": "authored-not-run",
       "promptType": null,
       "actorViewDigest": "a366dc97c1b4a3eb8cce7bb7b761aca48e054b0bf69e39d9565ea70628631004",
       "actorView": {
@@ -321,18 +288,13 @@
         ],
         "ownStadiumCollateralChecked": false,
         "resourceDeltaVerified": false
-      },
-      "executionEvidence": {
-        "harness": "V8 shim with actual worker validators and v2 policy",
-        "policyExecuted": true,
-        "workerValidateInitExecuted": true
       }
     },
     {
       "caseId": "rank12-path-to-peak-self-lock",
       "testName": "Path to the Peak is withheld until the own VSTAR power is spent",
       "evidenceClass": "synthetic-actor-view",
-      "executionStatus": "passed-v8-shim",
+      "executionStatus": "authored-not-run",
       "promptType": null,
       "actorViewDigest": "9ab0a371c33146b27357f9a2cb96cda11c53e9527a82d9f13da665af897b0c3d",
       "actorView": {
@@ -370,18 +332,13 @@
         "cost": "Stadium; Rule Box abilities are suppressed while it remains in play",
         "ownVstarUse": "not yet spent",
         "resourceDeltaVerified": false
-      },
-      "executionEvidence": {
-        "harness": "V8 shim with actual worker validators and v2 policy",
-        "policyExecuted": true,
-        "workerValidateInitExecuted": true
       }
     },
     {
       "caseId": "rank12-flip-the-script-prior-ko",
       "testName": "Flip the Script is used only when the public event receipt records a prior-turn Knock Out",
       "evidenceClass": "synthetic-actor-view",
-      "executionStatus": "passed-v8-shim",
+      "executionStatus": "authored-not-run",
       "promptType": null,
       "actorViewDigest": "40bb9a9b27645c94cf85c69b165db64d230a302e5be67ed949e06a70ba8b671a",
       "actorView": {
@@ -423,18 +380,13 @@
         "cost": "Fezandipiti ex Flip the Script ability; conditional on opponent having taken a Knock Out on their previous turn",
         "drawCount": 3,
         "resourceDeltaVerified": false
-      },
-      "executionEvidence": {
-        "harness": "V8 shim with actual worker validators and v2 policy",
-        "policyExecuted": true,
-        "workerValidateInitExecuted": true
       }
     },
     {
       "caseId": "rank12-phantom-dive-blocked",
       "testName": "Phantom Dive PutDamagePrompt remains fail-closed until the host exposes native allocation semantics",
       "evidenceClass": "synthetic-actor-view",
-      "executionStatus": "passed-v8-shim",
+      "executionStatus": "authored-not-run",
       "promptType": "PutDamagePrompt",
       "actorViewDigest": "88d5b199b34a4596d2f9a3c7467df38bf7d95be5188d6fd5c1f0cab4dcff204a",
       "actorView": {
@@ -464,18 +416,13 @@
         "attackCost": "Regidrago VSTAR Apex Dragon cost G,G,F",
         "allocation": "unavailable",
         "resourceDeltaVerified": false
-      },
-      "executionEvidence": {
-        "harness": "V8 shim with actual worker validators and v2 policy",
-        "policyExecuted": true,
-        "workerValidateInitExecuted": true
       }
     },
     {
       "caseId": "rank12-heavy-ball-hidden-prize",
       "testName": "Hisuian Heavy Ball fails closed when face-down Prize identities are not visible",
       "evidenceClass": "synthetic-actor-view",
-      "executionStatus": "failed-before-policy-bad-multi-select-bounds",
+      "executionStatus": "authored-not-run",
       "promptType": "ChoosePrizePrompt",
       "actorViewDigest": "d87b8c9130d46f43707c3ceadcdf3ac924c06db63ffbbb0094c0205a2cc37a0b",
       "actorView": {
@@ -507,13 +454,7 @@
         "cost": "Item; Prize-card identity is concealed in this actor view",
         "identityResolution": "not available",
         "resourceDeltaVerified": false
-      },
-      "executionEvidence": {
-        "harness": "V8 shim with actual worker validators and v2 policy",
-        "policyExecuted": false,
-        "workerValidateInitExecuted": true
-      },
-      "failureCode": "BAD_MULTI_SELECT_BOUNDS"
+      }
     }
   ],
   "heldOutCases": [
@@ -551,7 +492,7 @@
     }
   ],
   "contractTestCoverage": [
-    "initialization binds opponent role, seat, exact rank-12 source and fixed candidate",
+    "initialization uses the actual Agent49 worker validateInit zero-key contract, passes the accepted init envelope plus RNG to createPolicy, and keeps rank/source/candidate identity immutable",
     "same actor-visible request is deterministic for either physical seat",
     "Megaton Blower is selected only when a visible opponent Tool, Special Energy or Stadium exists",
     "Path to the Peak is withheld until the own VSTAR power is spent",
@@ -612,7 +553,7 @@
     "nativeCoverage": "none"
   },
   "knownLimitations": [
-    "21 test functions executed in V8 shim: 20 passed, one Heavy Ball prompt fixture failed before policy execution with BAD_MULTI_SELECT_BOUNDS; Node runner and worker IPC were not executed.",
+    "The 20 v2 tests are authored but not executed; the zero-key worker-init regression has not been run in the Node test runner.",
     "No native games, fixtures, source-natural states, or native-staged cases were run.",
     "The Apex Dragon helper dependency is shared with Agent43; only the wrapper's rank-12 Noivern priorities and exact-printing bindings are rank-specific.",
     "The rank-12 source includes a Noivern ex payload that is used from discard; the policy does not attempt to evolve it onto the board.",
@@ -620,14 +561,27 @@
     "Path to the Peak is conservatively withheld while own Rule Box abilities may still be needed.",
     "Counter Catcher prompt target choice is tested separately from its Prize-count eligibility gate.",
     "Candidate and bundle producer IDs are intentionally null; no V3 attestation is possible.",
-    "No win-rate or competitive-strength claim is made.",
-    "The Heavy Ball prompt fixture needs a separately authorized multi-select-bounds correction; no fixture change was made under the zero-key init scope."
+    "No win-rate or competitive-strength claim is made."
   ],
   "nextValidation": [
-    "Resolve the Heavy Ball fixture's BAD_MULTI_SELECT_BOUNDS in a separately authorized test-correction task, then run the focused Node test file; do not change policy strategy under this init-only handoff.",
+    "Run the v2 Node contract tests against the exact pinned worker validators; fix any schema or syntax failures before treating the module as usable.",
     "Obtain source-natural/native-staged rank-12 decision envelopes without running games or broad fixtures until authorized.",
     "Resolve Phantom Dive host projection and Prize-identity visibility before expanding prompt coverage.",
-    "Obtain candidate-policy and bundle producer IDs plus independent review before V3 registration.",
-    "Run the actual worker-process/IPC acceptance only in Agent49's canonical V3 gate after the exact-head no-game prerequisites pass."
-  ]
+    "Obtain candidate-policy and bundle producer IDs plus independent review before V3 registration."
+  ],
+  "workerInitContract": {
+    "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+    "initSchema": "aichi-policy-worker-init-v2",
+    "acceptedConfig": {},
+    "factoryArguments": [
+      "role",
+      "seat",
+      "policyVersion",
+      "config",
+      "rng"
+    ],
+    "regressionPath": "tests/2026-11/agent1-rank12-regidrago-opponent-policy-v2.test.cjs",
+    "status": "authored-not-executed"
+  },
+  "hashDefinition": "SHA-256 of compact UTF-8 JSON.stringify of the suite object with suiteSha256 set to null."
 }
