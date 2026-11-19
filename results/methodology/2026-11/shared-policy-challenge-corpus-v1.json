@@ -10605,7 +10605,16 @@
     "nativeTraceDigestCases": 0,
     "nativeGameCount": 0,
     "allCasesBlocked": true,
-    "actorViewPayloadsCopied": false
+    "actorViewPayloadsCopied": false,
+    "roleCounts": {
+      "opponent": 30
+    },
+    "trainingUseCounts": {
+      "development-regression-only": 24,
+      "held-out-not-used-for-tuning": 6
+    },
+    "candidateRoleCases": 0,
+    "opponentRoleCases": 30
   },
   "curatedCases": [
     {
