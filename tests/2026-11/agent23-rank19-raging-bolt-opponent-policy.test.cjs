@@ -101,7 +101,7 @@ function prompt(seat, promptType, effectName, sourcePrinting, choices, publicMet
   const indexedChoices = choices.map((choice, index) => ({
     ...choice,
     ...(choice.publicMetadata ? {
-      publicMetadata: { ...choice.publicMetadata, selectionIndex: index, selectedCount: 0 }
+      publicMetadata: { ...choice.publicMetadata, selectionIndex: index, selectedCount: 1 }
     } : {})
   }));
   return {
@@ -116,21 +116,21 @@ function prompt(seat, promptType, effectName, sourcePrinting, choices, publicMet
 function cardChoice(token, printing, extra = {}) {
   return {
     token, kind: 'card', printing,
-    publicMetadata: { selectionIndex: 0, selectedCount: 0, sourceZone: 'deck',
+    publicMetadata: { selectionIndex: 0, selectedCount: 1, sourceZone: 'deck',
       ownerSeat: 'actor', isOwnerVisible: true, ...extra }
   };
 }
 function pokemonChoice(token, pokemonCard, ownerSeat = 'actor', targetZone = 'bench') {
   return {
     token, kind: 'pokemon', printing: pokemonCard.printing,
-    publicMetadata: { selectionIndex: 0, selectedCount: 0, selectionType: 'pokemon',
+    publicMetadata: { selectionIndex: 0, selectedCount: 1, selectionType: 'pokemon',
       ownerSeat, targetZone, isOwnerVisible: true }
   };
 }
 function energyChoice(token, printing, energyType, ownerSeat = 'actor') {
   return {
     token, kind: 'energy', printing,
-    publicMetadata: { selectionIndex: 0, selectedCount: 0, sourceZone: 'play',
+    publicMetadata: { selectionIndex: 0, selectedCount: 1, sourceZone: 'play',
       ownerSeat, isOwnerVisible: true, energyType }
   };
 }
