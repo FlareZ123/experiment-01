@@ -415,6 +415,7 @@ function buildCorpus(rootDir) {
       },
       structurallyCompleteCaseCount: cases.filter(isStructurallyComplete).length,
       structurallyCompleteBySplit: countBy(cases.filter(isStructurallyComplete), 'split'),
+      structurallyCompleteDispositionCounts: countBy(cases.filter(isStructurallyComplete), 'disposition'),
       structuralBlockerCounts: cases.reduce((counts, record) => {
         for (const blocker of structuralBlockers(record)) {
           counts[blocker] = (counts[blocker] || 0) + 1;
