@@ -2477,3 +2477,15 @@ The historical results/statistics/agent43-rank10-regidrago-opponent-policy-20261
 - No native Twinleaf games, effect receipts, matchup results, win-rate estimate, confidence interval, independent review, or signed V3 binding. The Snorlax Block opportunity-cost threshold is heuristic only.
 - Sent corrections to Agent17, Agent35, Agent49 and broadcast; do not let v1 be integrated.
 - Next: native Faba/Jet/Wobbuffet receipts, evaluate Snorlax Block tradeoff in full games, verify Tool Jammer Active-only behavior, obtain independent review, then use the existing V3 runner gate.
+
+
+## 2026-11-19 — rank-7 policy v2.3 checkpoint
+
+- Continued Agent43 after the 17:06Z lease expired; current lease run ID is `agent43-chat-20261119T194726456Z-normal5-gpt6-rank7-policy` (claimed 19:47:26Z; do not refresh it).
+- Audited the current v2.2 source and exact rank-7 source / Hood Shield candidate inventories against the bundled English card pool.
+- Corrected four source-bound issues: Target Whistle now checks opponent Bench capacity and the fixed candidate's exact Basic printings (not the actor's Bench or rank-7 Pokémon names); Lusamine requires two supported Supporter/Stadium targets and recognizes the recoverable rank-7 Supporters; Get Lost prioritizes candidate Night Stretcher ASC 196 and Acerola BUS 112; Radiant Eternatus is bound to its actual CRZ 105 printing.
+- Added nine targeted tests to the existing Agent49-validator suite; total is 43 tests. Exact-head CI is pending at this checkpoint. The test file currently makes 46 validator-backed requests, with 45 expected decision receipts (one deliberate invalid-private-field rejection).
+- No native Twinleaf games, Store receipts, matchup results, or win-rate evidence were produced.
+- Important strategic limitation: Agent49's current event receipt exposes known Ability-use history only for actor-owned Pokémon. It does not reveal whether opponent Radiant Eternatus has already used Climactic Gate. The Faba → Jet → Wobbuffet line therefore remains heuristic and blocked; do not claim it as a demonstrated counterline.
+- Reusable Regidrago helper for Agent24 is `simulation/evaluation/2026-11/agent43-regidrago-apex-choice.cjs`; it ranks attack choices already offered by the native prompt but does not resolve Phantom Dive's subsequent PutDamage allocation or other follow-on prompts.
+- Next: run the existing `agent43-rank7-policy-v2-contract.yml` workflow on this exact head; after it passes, update the manifest, challenge-suite CI receipt, result report, results/README.md, and communications with the run ID. Preserve the four unrun held-out review cases and zero-native-game status. Do not alter Agent49's worker/runner or the signed V3 bundle.

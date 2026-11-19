@@ -1,19 +1,19 @@
 {
   "schema": "aichi-policy-challenge-suite-v1",
-  "suiteId": "agent43-rank7-snorlax-stall-opponent-v2.1",
-  "suiteVersion": "1.1.0",
+  "suiteId": "agent43-rank7-snorlax-stall-opponent-v2.3",
+  "suiteVersion": "1.2.0",
   "status": "prototype-not-attestable",
   "attestationStatus": "blocked",
   "policy": {
-    "policyVersion": "agent43-rank7-snorlax-stall-opponent-v2",
+    "policyVersion": "agent43-rank7-snorlax-stall-opponent-v2.3",
     "role": "opponent-policy",
     "sourceRank": 7,
     "policyProducerId": "agent43",
     "bundleProducerId": null,
     "producerBindingStatus": "not bound into signed V3 plan",
     "modulePath": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.cjs",
-    "moduleBlobSha1": "8e7d7eed913d4f9fa3131cf7f3460c1ea0276d07",
-    "moduleSha256": "a068bc5271ec1478364cd5dd84079f924a632eb0a3c1bebe2d0d82fbb1543e76",
+    "moduleBlobSha1": "5c5f8982c01018e70b4bfed81b26b5d4fe4adda6",
+    "moduleSha256": "5dfff55758fcd30d1a19a3b993279d2c192e8d6ce581cdede5adff560f32f931",
     "config": {},
     "configContract": "empty object",
     "deterministic": true,
@@ -21,9 +21,9 @@
     "matchupResults": null,
     "winRate": null,
     "winRateClaim": "none",
-    "version": "agent43-rank7-snorlax-stall-opponent-v2.1",
-    "sha256": "072bb267d3beb732a7e57bffefcca0b95a13d210dd1aa4774701312637a4b99d",
-    "blobSha1": "379ba49d8aefc37e0ab93e36a8b550bf3eac437e"
+    "version": "agent43-rank7-snorlax-stall-opponent-v2.3",
+    "sha256": "5dfff55758fcd30d1a19a3b993279d2c192e8d6ce581cdede5adff560f32f931",
+    "blobSha1": "5c5f8982c01018e70b4bfed81b26b5d4fe4adda6"
   },
   "sourceBinding": {
     "opponentDeck": {
@@ -46,15 +46,15 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-dependency-manifest-v2.json",
-    "manifestSha256": "d08b405d3bf095169489f3dd01e19008043c2720986aaa1af4ff098cfae30990",
+    "manifestSha256": "0125548f2c497008ab8852fa5d84279bc7f897cb2190105f5a0cfbedb0bf4bc3",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-common-constraints-v2.json",
-    "commonConstraintsSha256": "97d857745e078faccfe0308239dd78964a1734e8520d721cec8609d6dc27057f",
+    "commonConstraintsSha256": "69af3fe306c0a72c77b862fe7bf7763e67187fa9693bcbcccfa243adf3438d27",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "workerProtocolSha256": "d72cc1d54bcbe78fcbd1e7b5cfe7e15167aa4ecf0638341a3e9ac89cfb36ff97",
     "testFilePath": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
-    "testFileBlobSha1": "a95dca3a132927f917accbfcdfe5efaf53195c28",
-    "testFileSha256": "6ed181c5e77fa992572d31e14896e1397dbb24e933bc91e5a8332208d396eba2",
+    "testFileBlobSha1": "4d0b66ea590676b8637d741ad331f0139d789979",
+    "testFileSha256": "5ac4acd9842555e647d7c59582869d06951d6be68eebde0fe32ca66a2ed8fc6d",
     "engine": {
       "submodulePath": "vendor/twinleaf",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -69,21 +69,21 @@
       "nativeStaged": 0,
       "synthetic": 12
     },
-    "developmentTestCount": 30,
-    "unitTestsPassed": 30,
-    "unitTestsFailed": 0,
-    "actorRequestCount": 30,
-    "decisionReceiptCount": 29,
+    "developmentTestCount": 43,
+    "unitTestsPassed": null,
+    "unitTestsFailed": null,
+    "actorRequestCount": 46,
+    "decisionReceiptCount": 45,
     "promptTypeCounts": {
-      "root-action-frontier": 19,
+      "root-action-frontier": 31,
       "SelectPrompt": 4,
       "ChoosePokemonPrompt": 3,
-      "ChooseCardsPrompt": 3,
+      "ChooseCardsPrompt": 7,
       "NightWatchPhysicalPrompt": 1
     },
     "selectionTypeCounts": {
-      "none": 27,
-      "card-combination": 3
+      "none": 40,
+      "card-combination": 6
     },
     "localHarness": {
       "type": "GitHub Actions Node 22 node:test",
@@ -101,10 +101,10 @@
       "timeoutMeasured": false,
       "processSandboxVerified": false
     },
-    "ciRunId": 44576458711,
-    "ciHeadSha": "c47e173d3876c69ee05da0fb3bd278f555c89c70",
-    "ciConclusion": "success",
-    "ciJobId": 135745141306,
+    "ciRunId": null,
+    "ciHeadSha": null,
+    "ciConclusion": "pending",
+    "ciJobId": null,
     "fullMatchupCoverage": {
       "rank7VsFixedCandidateGames": 0,
       "aichiTop32MatchupsWithResults": 0,
@@ -117,7 +117,7 @@
     "pass": "Only with native actor-state reachability, paper legality, strategic suitability and execution integrity plus required review.",
     "blocked": "Synthetic-only or any required evidence is missing.",
     "fail": "Illegal/unreachable action, hidden information use, or native evidence contradicts decision.",
-    "currentSuiteResult": "24/24 synthetic validator-backed tests pass; every case remains blocked for native/competitive attestation."
+    "currentSuiteResult": "43 synthetic validator-backed tests defined; exact-head CI pending. Every frozen case remains blocked for native/competitive attestation."
   },
   "developmentCases": [
     {
@@ -147,7 +147,7 @@
               "ownDeckCount": 28,
               "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
               "opponentBench": [
-                "Radiant Eternatus SIT 105",
+                "Radiant Eternatus CRZ 105",
                 "Dialga-GX UPR 100",
                 "Tapu Lele-GX GRI 60"
               ],
@@ -286,7 +286,7 @@
         "cardPrintReferences": [
           "Faba LOT 173",
           "Stealthy Hood UNB 186",
-          "Radiant Eternatus SIT 105",
+          "Radiant Eternatus CRZ 105",
           "Jet Energy PAL 190",
           "Wobbuffet PHF 36"
         ],
@@ -324,7 +324,7 @@
               "ownDeckCount": 28,
               "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
               "opponentBench": [
-                "Radiant Eternatus SIT 105",
+                "Radiant Eternatus CRZ 105",
                 "Dialga-GX UPR 100",
                 "Tapu Lele-GX GRI 60"
               ],
@@ -352,7 +352,7 @@
                   "token": "radiant",
                   "kind": "pokemon",
                   "label": null,
-                  "printing": "Radiant Eternatus SIT 105",
+                  "printing": "Radiant Eternatus CRZ 105",
                   "ownerSeat": "opponent",
                   "sourceZone": null,
                   "targetZone": "bench"
@@ -421,7 +421,7 @@
               "token": "radiant",
               "kind": "pokemon",
               "label": null,
-              "printing": "Radiant Eternatus SIT 105",
+              "printing": "Radiant Eternatus CRZ 105",
               "ownerSeat": "opponent",
               "sourceZone": null,
               "targetZone": "bench"
@@ -485,7 +485,7 @@
         "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "cardPrintReferences": [
           "Faba LOT 173",
-          "Radiant Eternatus SIT 105",
+          "Radiant Eternatus CRZ 105",
           "Stealthy Hood UNB 186",
           "Shadow Rider Calyrex VMAX CRE 75",
           "Dialga-GX UPR 100"
@@ -678,7 +678,7 @@
               "ownDeckCount": 28,
               "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
               "opponentBench": [
-                "Radiant Eternatus SIT 105",
+                "Radiant Eternatus CRZ 105",
                 "Dialga-GX UPR 100",
                 "Tapu Lele-GX GRI 60"
               ],
@@ -817,7 +817,7 @@
         "cardPrintReferences": [
           "Jet Energy PAL 190",
           "Wobbuffet PHF 36",
-          "Radiant Eternatus SIT 105",
+          "Radiant Eternatus CRZ 105",
           "Snorlax PGO 55"
         ],
         "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
@@ -854,7 +854,7 @@
               "ownDeckCount": 28,
               "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
               "opponentBench": [
-                "Radiant Eternatus SIT 105",
+                "Radiant Eternatus CRZ 105",
                 "Dialga-GX UPR 100",
                 "Tapu Lele-GX GRI 60"
               ],
@@ -1027,7 +1027,7 @@
               "ownDeckCount": 28,
               "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
               "opponentBench": [
-                "Radiant Eternatus SIT 105",
+                "Radiant Eternatus CRZ 105",
                 "Alolan Muk SUM 58"
               ],
               "opponentDeckCount": 32,
@@ -1199,7 +1199,7 @@
               "ownDeckCount": 28,
               "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
               "opponentBench": [
-                "Radiant Eternatus SIT 105",
+                "Radiant Eternatus CRZ 105",
                 "Dialga-GX UPR 100",
                 "Tapu Lele-GX GRI 60"
               ],
@@ -1373,7 +1373,7 @@
               "ownDeckCount": 28,
               "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
               "opponentBench": [
-                "Radiant Eternatus SIT 105",
+                "Radiant Eternatus CRZ 105",
                 "Dialga-GX UPR 100",
                 "Tapu Lele-GX GRI 60"
               ],
@@ -1546,7 +1546,7 @@
               "ownDeckCount": 28,
               "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
               "opponentBench": [
-                "Radiant Eternatus SIT 105",
+                "Radiant Eternatus CRZ 105",
                 "Dialga-GX UPR 100",
                 "Tapu Lele-GX GRI 60"
               ],
@@ -1731,7 +1731,7 @@
               "ownDeckCount": 30,
               "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
               "opponentBench": [
-                "Radiant Eternatus SIT 105",
+                "Radiant Eternatus CRZ 105",
                 "Dialga-GX UPR 100",
                 "Tapu Lele-GX GRI 60"
               ],
@@ -1914,7 +1914,7 @@
               "ownDeckCount": 28,
               "opponentActive": "Shadow Rider Calyrex VMAX CRE 75",
               "opponentBench": [
-                "Radiant Eternatus SIT 105",
+                "Radiant Eternatus CRZ 105",
                 "Dialga-GX UPR 100",
                 "Tapu Lele-GX GRI 60"
               ],
@@ -2311,7 +2311,8 @@
     "Wobbuffet/ Snorlax Block tradeoff is a heuristic score, not a native strategic result.",
     "No 99.5% evidence; policy is not bound to signed V3 plan.",
     "Native validation of actor-owned Temple of Sinnoh removal via Field Blower and Stadium replacement via Chaotic Swell remains outstanding.",
-    "Faba non-Hood target families remain intentionally unsupported by this prototype."
+    "Faba non-Hood target families remain intentionally unsupported by this prototype.",
+    "Current Agent49 public event receipts expose known Ability-use history only for actor-owned Pokémon, not opponent-owned Pokémon; therefore Faba-to-Jet-to-Wobbuffet cannot distinguish a spent Radiant Eternatus CRZ 105 Climactic Gate from an unused one. Keep the line heuristic and blocked pending native evidence or a richer public receipt."
   ],
   "reviewer": {
     "status": "not reviewed",
@@ -2331,7 +2332,7 @@
     ]
   },
   "caseRecordCount": 16,
-  "suiteSha256": "3ee5f380b83e40c506707d0443ae2762a4c3b8331ad662e66f9a3a0bab7e97cd",
+  "suiteSha256": "0411626460e5586436485e56b455f3e048ddc99fe1bcd079dd2745017fa6e2ec",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
@@ -2451,15 +2452,51 @@
         "Field Blower can remove the actor-owned Temple of Sinnoh when Jet Energy is held",
         "Chaotic Swell can replace an actor-owned Stadium",
         "Nest Ball includes Electrike when the other rank-7 Basics are already established",
-        "Bellelba optional bench reduction is gated by bench state and three other cards"
+        "Bellelba optional bench reduction is gated by bench state and three other cards",
+        "Lusamine root abstains until two supported Supporter/Stadium recovery targets exist",
+        "Lusamine root is available when two supported recovery targets exist",
+        "Lusamine prompt selects two supported Supporter/Stadium cards and excludes unsupported Items",
+        "Target Whistle uses opponent Bench capacity even when the actor Bench is full",
+        "Target Whistle abstains when the opponent Bench is full even if the actor Bench has space",
+        "Target Whistle does not treat an opponent VMAX as a Basic target",
+        "Target Whistle prompt selects a candidate Basic and rejects a candidate VMAX",
+        "Get Lost prioritizes the candidate Night Stretcher as a live recovery target",
+        "Get Lost target prompt prioritizes Night Stretcher and Acerola over ordinary discard cards"
       ],
+      "status": "blocked"
+    },
+    "lusamineRecovery": {
+      "testNames": [
+        "Lusamine root abstains until two supported Supporter/Stadium recovery targets exist",
+        "Lusamine root is available when two supported recovery targets exist",
+        "Lusamine prompt selects two supported Supporter/Stadium cards and excludes unsupported Items"
+      ],
+      "evidenceClass": "synthetic-only",
+      "status": "blocked"
+    },
+    "targetWhistle": {
+      "testNames": [
+        "Target Whistle uses opponent Bench capacity even when the actor Bench is full",
+        "Target Whistle abstains when the opponent Bench is full even if the actor Bench has space",
+        "Target Whistle does not treat an opponent VMAX as a Basic target",
+        "Target Whistle prompt selects a candidate Basic and rejects a candidate VMAX"
+      ],
+      "evidenceClass": "synthetic-only",
+      "status": "blocked"
+    },
+    "getLostRecovery": {
+      "testNames": [
+        "Get Lost prioritizes the candidate Night Stretcher as a live recovery target",
+        "Get Lost target prompt prioritizes Night Stretcher and Acerola over ordinary discard cards"
+      ],
+      "evidenceClass": "synthetic-only",
       "status": "blocked"
     }
   },
   "policyStaticAudit": {
     "sourcePath": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.cjs",
-    "sourceBlobSha1": "379ba49d8aefc37e0ab93e36a8b550bf3eac437e",
-    "sourceSha256": "072bb267d3beb732a7e57bffefcca0b95a13d210dd1aa4774701312637a4b99d",
+    "sourceBlobSha1": "5c5f8982c01018e70b4bfed81b26b5d4fe4adda6",
+    "sourceSha256": "5dfff55758fcd30d1a19a3b993279d2c192e8d6ce581cdede5adff560f32f931",
     "scannedTerms": [
       {
         "term": "Math.random",
@@ -2507,7 +2544,7 @@
     "caveat": "not a process sandbox or native game validation"
   },
   "regressionAddendum": {
-    "revision": "v2.1",
+    "revision": "v2.3",
     "evidenceClass": "synthetic",
     "testFile": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
     "tests": [
@@ -2516,8 +2553,17 @@
       "Field Blower can remove the actor-owned Temple of Sinnoh when Jet Energy is held",
       "Chaotic Swell can replace an actor-owned Stadium",
       "Nest Ball includes Electrike when the other rank-7 Basics are already established",
-      "Bellelba optional bench reduction is gated by bench state and three other cards"
+      "Bellelba optional bench reduction is gated by bench state and three other cards",
+      "Lusamine root abstains until two supported Supporter/Stadium recovery targets exist",
+      "Lusamine root is available when two supported recovery targets exist",
+      "Lusamine prompt selects two supported Supporter/Stadium cards and excludes unsupported Items",
+      "Target Whistle uses opponent Bench capacity even when the actor Bench is full",
+      "Target Whistle abstains when the opponent Bench is full even if the actor Bench has space",
+      "Target Whistle does not treat an opponent VMAX as a Basic target",
+      "Target Whistle prompt selects a candidate Basic and rejects a candidate VMAX",
+      "Get Lost prioritizes the candidate Night Stretcher as a live recovery target",
+      "Get Lost target prompt prioritizes Night Stretcher and Acerola over ordinary discard cards"
     ],
-    "note": "Supplemental regression tests extend existing scenario classes; they are not additional frozen actor-view case records and remain synthetic-only."
+    "note": "Supplemental regression tests extend existing scenario classes; they are synthetic-only and are not additional frozen actor-view case records. Exact-head CI is pending."
   }
 }

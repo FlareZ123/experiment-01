@@ -38,7 +38,7 @@ const C = {
   artazon: 'Artazon PAL 171',
   capture: 'Capture Energy RCL 171',
   hood: 'Stealthy Hood UNB 186',
-  radiant: 'Radiant Eternatus SIT 105',
+  radiant: 'Radiant Eternatus CRZ 105',
   shadow: 'Shadow Rider Calyrex VMAX CRE 75',
   dialga: 'Dialga-GX UPR 100',
   tapu: 'Tapu Lele-GX GRI 60',
@@ -46,7 +46,13 @@ const C = {
   muk: 'Alolan Muk SUM 58',
   temple: 'Temple of Sinnoh ASR 155',
   vs: 'VS Seeker PHF 109',
-  lusamine: 'Lusamine CIN 96'
+  lusamine: 'Lusamine CIN 96',
+  targetWhistle: 'Target Whistle PHF 106',
+  shadowV: 'Shadow Rider Calyrex V CRE 74',
+  ranger: 'Pokémon Ranger STS 104',
+  lillie: "Lillie's Determination MEG 119",
+  nightStretcher: 'Night Stretcher ASC 196',
+  acerola: 'Acerola BUS 112'
 };
 
 function restrictions(options = {}) {
@@ -842,3 +848,144 @@ test('policy is seat-symmetric and accepts seat 1 requests', () => {
   assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'jet' });
 });
 
+
+
+// v2.3 source-bound regressions: Lusamine, Target Whistle, and Get Lost recovery.
+test('Lusamine root abstains until two supported Supporter/Stadium recovery targets exist', () => {
+  const board = rank7Board({ radiantHood: false });
+  board.ownPublic.discard = [C.faba];
+  const request = rootRequest({
+    ownHand: [C.lusamine], ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
+    items: [
+      { token: 'lusamine', kind: 'play-card', actorPrinting: C.lusamine },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'pass' });
+});
+
+test('Lusamine root is available when two supported recovery targets exist', () => {
+  const board = rank7Board({ radiantHood: false });
+  board.ownPublic.discard = [C.faba, C.ranger];
+  const request = rootRequest({
+    ownHand: [C.lusamine], ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
+    items: [
+      { token: 'lusamine', kind: 'play-card', actorPrinting: C.lusamine },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'lusamine' });
+});
+
+test('Lusamine prompt selects two supported Supporter/Stadium cards and excludes unsupported Items', () => {
+  const board = rank7Board({ radiantHood: false });
+  board.ownPublic.discard = [C.faba, C.ranger, C.palace];
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource(C.lusamine, 'Lusamine'),
+    ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
+    publicMetadata: multiMeta(2, 2),
+    choices: [
+      cardChoice('faba', C.faba, 'actor', 'discard'),
+      cardChoice('ranger', C.ranger, 'actor', 'discard'),
+      cardChoice('palace', C.palace, 'actor', 'discard')
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['faba', 'ranger']
+  });
+});
+
+test('Target Whistle uses opponent Bench capacity even when the actor Bench is full', () => {
+  const ownBench = [
+    pokemon(C.wobb, { types: ['Psychic'], abilities: ['Bide Barricade'] }),
+    pokemon(C.mimikyu, { types: ['Psychic'] }),
+    pokemon(C.regirock, { types: ['Fighting'] }),
+    pokemon(C.electrike, { types: ['Lightning'] }),
+    pokemon(C.girafarig, { types: ['Psychic'] })
+  ];
+  const board = rank7Board({ ownBench });
+  board.opponentPublic.discard = [C.shadowV];
+  const request = rootRequest({
+    ownHand: [C.targetWhistle], ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
+    items: [
+      { token: 'whistle', kind: 'play-card', actorPrinting: C.targetWhistle },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'whistle' });
+});
+
+test('Target Whistle abstains when the opponent Bench is full even if the actor Bench has space', () => {
+  const opponentBench = [
+    pokemon(C.radiant, { types: ['Dragon'], abilities: ['Climactic Gate'] }),
+    pokemon(C.dialga, { types: ['Dragon'] }),
+    pokemon(C.tapu, { types: ['Psychic'], abilities: ['Wonder Tag'] }),
+    pokemon(C.trevenant, { types: ['Psychic'] }),
+    pokemon(C.shadowV, { types: ['Psychic'] })
+  ];
+  const board = rank7Board({ opponentBench });
+  board.opponentPublic.discard = [C.shadowV];
+  const request = rootRequest({
+    ownHand: [C.targetWhistle], ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
+    items: [
+      { token: 'whistle', kind: 'play-card', actorPrinting: C.targetWhistle },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'pass' });
+});
+
+test('Target Whistle does not treat an opponent VMAX as a Basic target', () => {
+  const board = rank7Board();
+  board.opponentPublic.discard = [C.shadow];
+  const request = rootRequest({
+    ownHand: [C.targetWhistle], ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
+    items: [
+      { token: 'whistle', kind: 'play-card', actorPrinting: C.targetWhistle },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'pass' });
+});
+
+test('Target Whistle prompt selects a candidate Basic and rejects a candidate VMAX', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource(C.targetWhistle, 'Target Whistle'),
+    publicMetadata: multiMeta(1, 1),
+    choices: [
+      cardChoice('vmax', C.shadow, 'opponent', 'discard'),
+      cardChoice('basic', C.shadowV, 'opponent', 'discard')
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-choice', token: 'basic' });
+});
+
+test('Get Lost prioritizes the candidate Night Stretcher as a live recovery target', () => {
+  const board = rank7Board({ ownActive: pokemon(C.girafarig, { types: ['Psychic'] }) });
+  board.opponentPublic.discard = [C.nightStretcher];
+  const request = rootRequest({
+    ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
+    items: [
+      { token: 'get-lost', kind: 'attack', actorPrinting: C.girafarig, attackName: 'Get Lost' },
+      { token: 'psychic', kind: 'attack', actorPrinting: C.girafarig, attackName: 'Psychic Assault' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'get-lost' });
+});
+
+test('Get Lost target prompt prioritizes Night Stretcher and Acerola over ordinary discard cards', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource(C.girafarig, 'Get Lost'),
+    publicMetadata: multiMeta(1, 1),
+    choices: [
+      cardChoice('ordinary', 'Ordinary Card XY 1', 'opponent', 'discard'),
+      cardChoice('night', C.nightStretcher, 'opponent', 'discard'),
+      cardChoice('acerola', C.acerola, 'opponent', 'discard')
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-choice', token: 'night' });
+});

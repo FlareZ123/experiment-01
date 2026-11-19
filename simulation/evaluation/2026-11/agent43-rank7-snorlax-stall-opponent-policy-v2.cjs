@@ -1,14 +1,14 @@
 'use strict';
 
 /*
- * Rank-7 Hiroto Fuji Snorlax Stall opponent policy, v2.2.
+ * Rank-7 Hiroto Fuji Snorlax Stall opponent policy, v2.3.
  * Deterministic actor-view-only prototype bound to the exact rank-7 source
  * entry and Hood Shield v1. It prioritizes the public Faba -> Jet Energy ->
  * Wobbuffet -> Item-unlock line, then bounded stall/resource actions.
  * Unknown or ambiguous prompts abstain. Native Store legality is authoritative.
  */
 
-const POLICY_VERSION = 'agent43-rank7-snorlax-stall-opponent-v2.2';
+const POLICY_VERSION = 'agent43-rank7-snorlax-stall-opponent-v2.3';
 const SOURCE_RANK = 7;
 const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
 const SOURCE_FINGERPRINT_SHA256 = 'a66fa49dbeaa886c5509ff5edff727577bba5e4c9f4bbe9800b152975f8b4734';
@@ -23,7 +23,7 @@ const P = Object.freeze({
   regirock: /^Regirock XYP 49\b/i,
   electrike: /^Electrike PRC 60\b/i,
   girafarig: /^Girafarig LOT 94\b/i,
-  radiantEternatus: /^Radiant Eternatus SIT 105\b/i,
+  radiantEternatus: /^Radiant Eternatus CRZ 105\b/i,
   alolanMuk: /^Alolan Muk\b/i,
   faba: /^Faba LOT 173\b/i,
   jet: /^Jet Energy PAL 190\b/i,
@@ -47,6 +47,9 @@ const P = Object.freeze({
   n: /^N FCO 105\b/i,
   lusamine: /^Lusamine CIN 96\b/i,
   lillie: /^Lillie's Determination MEG 119\b/i,
+  acerola: /^Acerola BUS 112\b/i,
+  nightStretcher: /^Night Stretcher ASC 196\b/i,
+  ranger: /^Pokémon Ranger STS 104\b/i,
   plumeria: /^Plumeria BUS 120\b/i,
   teamFlare: /^Team Flare Grunt XY 129\b/i,
   guzma: /^Guzma BUS 115\b/i,
@@ -61,6 +64,19 @@ const P = Object.freeze({
   palaceBook: /^Palace Book SMP NAN25\b/i,
   basicEnergy: /^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal) Energy\b/i
 });
+
+const CANDIDATE_BASIC_PRINTINGS = Object.freeze([
+  /^Shadow Rider Calyrex V CRE 74\b/i,
+  /^Lillie's Clefairy ex JTG 56\b/i,
+  /^Tapu Lele-GX GRI 60\b/i,
+  /^Trevenant & Dusknoir-GX SMP 217\b/i,
+  /^Latias ex SSP 76\b/i,
+  /^Dialga-GX UPR 100\b/i,
+  /^Mimikyu GRI 58\b/i,
+  P.girafarig,
+  /^Marshadow UNB 81\b/i,
+  P.radiantEternatus
+]);
 
 const SOURCE_BASIC_COPIES = Object.freeze([
   [P.snorlax, 2], [P.wobbuffet, 3], [P.mimikyu, 3],
@@ -137,6 +153,9 @@ function deckCount(view) { return Number.isSafeInteger(own(view).deckCount) ? ow
 function opponentDeckCount(view) { return Number.isSafeInteger(opp(view).deckCount) ? opp(view).deckCount : 99; }
 function opponentHandCount(view) { return Number.isSafeInteger(opp(view).handCount) ? opp(view).handCount : 0; }
 function benchSpace(view) { return list(own(view).bench).some(slot => slot === null); }
+function opponentBenchSpace(view) { return list(opp(view).bench).some(slot => slot === null); }
+function isCandidateBasic(printing) { return CANDIDATE_BASIC_PRINTINGS.some(pattern => matches(printing, pattern)); }
+function opponentHasCandidateBasicDiscardTarget(view) { return list(opp(view).discard).some(card => isCandidateBasic(textOf(card))); }
 function ownPrizeCount(view) { return Number.isSafeInteger(own(view).prizeCount) ? own(view).prizeCount : 6; }
 function opponentPrizeCount(view) { return Number.isSafeInteger(opp(view).prizeCount) ? opp(view).prizeCount : 6; }
 
@@ -281,7 +300,7 @@ function opponentHasRemovalTarget(view) {
 
 function opponentDiscardHasRecovery(view) {
   return list(opp(view).discard).some(card =>
-    /VS Seeker|Lusamine|Faba|Rescue Stretcher|Super Rod|Ordinary Rod/i.test(textOf(card)));
+    /VS Seeker|Lusamine|Faba|Acerola|Night Stretcher|Rescue Stretcher|Super Rod|Ordinary Rod/i.test(textOf(card)));
 }
 
 function remainingHp(pokemon) {
@@ -341,6 +360,28 @@ function choiceZone(choice) {
   return meta.sourceZone ?? meta.targetZone ?? meta.zone ?? null;
 }
 
+function lusamineChoiceScore(printing, view, request) {
+  if (matches(printing, P.faba)) return 280;
+  if (matches(printing, P.teamFlare)) return 250;
+  if (matches(printing, P.guzma)) return 235;
+  if (matches(printing, P.steven)) return 220;
+  if (matches(printing, P.n)) return 210;
+  if (matches(printing, P.teammates)) return priorOpponentTurnKO(request) ? 205 : 170;
+  if (matches(printing, P.lusamine)) return 200;
+  if (matches(printing, P.plumeria)) return 190;
+  if (matches(printing, P.lillie)) return 185;
+  if (matches(printing, P.ranger)) return 180;
+  if (matches(printing, P.bellelba)) return 175;
+  if (matches(printing, P.handiwork)) return 170;
+  if (matches(printing, P.chaoticSwell)) return 180;
+  if (matches(printing, P.artazon)) return 170;
+  return 0;
+}
+
+function lusamineRecoverableCount(view, request) {
+  return list(own(view).discard).filter(card => lusamineChoiceScore(textOf(card), view, request) > 0).length;
+}
+
 function scoreCardChoice(choice, view, context, request = { observation: view, publicEventReceipt: null }) {
   const printing = textOf(choice);
   const owner = choiceOwner(choice);
@@ -379,15 +420,7 @@ function scoreCardChoice(choice, view, context, request = { observation: view, p
 
   if (context === 'lusamine') {
     if (owner !== 'actor' || zone !== 'discard') return 0;
-    if (matches(printing, P.faba)) return 280;
-    if (matches(printing, P.teamFlare)) return 250;
-    if (matches(printing, P.guzma)) return 235;
-    if (matches(printing, P.steven)) return 220;
-    if (matches(printing, P.n)) return 210;
-    if (matches(printing, P.plumeria)) return 190;
-    if (matches(printing, P.chaoticSwell)) return 180;
-    if (matches(printing, P.artazon)) return 170;
-    return 0;
+    return lusamineChoiceScore(printing, view, request);
   }
 
   if (context === 'vs-seeker') return scoreVsSeekerCandidate(choice, view, request);
@@ -409,8 +442,10 @@ function scoreCardChoice(choice, view, context, request = { observation: view, p
   if (context === 'get-lost') {
     if (owner !== 'opponent' || zone !== 'discard') return 0;
     if (matches(printing, P.vsSeeker)) return 300;
+    if (matches(printing, P.nightStretcher)) return 290;
     if (matches(printing, P.lusamine)) return 280;
     if (matches(printing, P.faba)) return 270;
+    if (matches(printing, P.acerola)) return 260;
     if (matches(printing, P.teamFlare)) return 250;
     if (matches(printing, P.guzma)) return 240;
     if (/Special Energy|Jet Energy|Capture Energy|Recycle Energy/i.test(printing)) return 200;
@@ -438,7 +473,7 @@ function scoreCardChoice(choice, view, context, request = { observation: view, p
 
   if (context === 'target-whistle') {
     if (owner !== 'opponent' || zone !== 'discard') return 0;
-    return /Pokémon|Snorlax|Wobbuffet|Mimikyu|Regirock|Girafarig|Electrike/i.test(printing) ? 80 : 0;
+    return isCandidateBasic(printing) ? 80 : 0;
   }
 
   if (context === 'rescue-stretcher') {
@@ -705,8 +740,8 @@ function scoreAction(item, request) {
   if (matches(card, P.rescueStretcher)) return itemAvailable(view) &&
     list(player.discard).some(card => [P.snorlax, P.wobbuffet, P.mimikyu, P.regirock, P.girafarig, P.electrike]
       .some(pattern => matches(card, pattern))) ? 120 : 0;
-  if (matches(card, P.targetWhistle)) return itemAvailable(view) && benchSpace(view) &&
-    list(opponent.discard).some(card => /Pokémon|Snorlax|Wobbuffet|Mimikyu|Regirock|Girafarig|Electrike/i.test(textOf(card))) ? 95 : 0;
+  if (matches(card, P.targetWhistle)) return itemAvailable(view) && opponentBenchSpace(view) &&
+    opponentHasCandidateBasicDiscardTarget(view) ? 95 : 0;
   if (matches(card, P.robo) || matches(card, P.doll)) return itemAvailable(view) && benchSpace(view) ? 65 : 0;
   if (matches(card, P.captivatingPokePuff) || matches(card, P.gladion)) return 0;
 
@@ -725,8 +760,7 @@ function scoreAction(item, request) {
     opponentHandCount(view) >= handSize + 3 && handSize <= 5 ? 170 : 0;
   if (matches(card, P.lillie)) return supporterAvailable(view) && handSize <= 3 && deckCount(view) >= 6 ? 165 : 0;
   if (matches(card, P.lusamine)) return supporterAvailable(view) &&
-    list(player.discard).some(card => [P.faba, P.teamFlare, P.guzma, P.steven, P.n, P.chaoticSwell, P.artazon]
-      .some(pattern => matches(card, pattern))) ? 185 : 0;
+    lusamineRecoverableCount(view, request) >= 2 ? 185 : 0;
   if (matches(card, P.plumeria)) return supporterAvailable(view) && handSize >= 3 && opponentHasEnergy(view) ? 150 : 0;
   if (matches(card, P.teamFlare)) return supporterAvailable(view) && list(opponent.active?.energies).length > 0 ? 155 : 0;
   if (matches(card, P.guzma)) return supporterAvailable(view) &&

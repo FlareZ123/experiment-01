@@ -1,6 +1,6 @@
 {
   "schema": "aichi-opponent-policy-dependency-manifest-v1",
-  "policyId": "agent43-rank7-snorlax-stall-opponent-v2.1",
+  "policyId": "agent43-rank7-snorlax-stall-opponent-v2.3",
   "role": "opponent-policy",
   "sourceRank": 7,
   "candidateId": "hood-shield-shadow-rider-v1",
@@ -20,9 +20,9 @@
   },
   "policy": {
     "path": "simulation/evaluation/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.cjs",
-    "blobSha1": "379ba49d8aefc37e0ab93e36a8b550bf3eac437e",
-    "sha256": "072bb267d3beb732a7e57bffefcca0b95a13d210dd1aa4774701312637a4b99d",
-    "version": "agent43-rank7-snorlax-stall-opponent-v2.1",
+    "blobSha1": "5c5f8982c01018e70b4bfed81b26b5d4fe4adda6",
+    "sha256": "5dfff55758fcd30d1a19a3b993279d2c192e8d6ce581cdede5adff560f32f931",
+    "version": "agent43-rank7-snorlax-stall-opponent-v2.3",
     "role": "opponent-policy",
     "configContract": "empty object; source/candidate fingerprints are module and suite bindings",
     "deterministic": true,
@@ -42,15 +42,15 @@
   },
   "tests": {
     "path": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v2.test.cjs",
-    "blobSha1": "a95dca3a132927f917accbfcdfe5efaf53195c28",
-    "sha256": "6ed181c5e77fa992572d31e14896e1397dbb24e933bc91e5a8332208d396eba2",
-    "testCount": 30,
-    "passed": 30,
-    "failed": 0,
-    "latestRunId": 44576458711,
-    "latestRunHeadSha": "c47e173d3876c69ee05da0fb3bd278f555c89c70",
-    "latestRunConclusion": "success",
-    "jobId": 135745141306
+    "blobSha1": "4d0b66ea590676b8637d741ad331f0139d789979",
+    "sha256": "5ac4acd9842555e647d7c59582869d06951d6be68eebde0fe32ca66a2ed8fc6d",
+    "testCount": 43,
+    "passed": null,
+    "failed": null,
+    "latestRunId": null,
+    "latestRunHeadSha": null,
+    "latestRunConclusion": "pending",
+    "jobId": null
   },
   "engine": {
     "submodulePath": "vendor/twinleaf",
@@ -71,13 +71,18 @@
     "Chaotic Swell replacement of a Stadium in either player's Stadium zone",
     "Bellelba & Brycen-Man optional Bench reduction gated by Bench state and three-card payment",
     "Faba root selection limited to the supported Hooded non-Psychic Ability target",
-    "Nest Ball missing-Basic readiness includes Electrike"
+    "Nest Ball missing-Basic readiness includes Electrike",
+    "Lusamine recovery gate and choice scoring for two supported Supporter/Stadium targets",
+    "Target Whistle selection against the fixed candidate's Basic Pokémon and opponent Bench capacity",
+    "Get Lost recovery priority for Night Stretcher and Acerola"
   ],
   "explicitAbstentions": [
     "unknown prompt families",
     "Faba Hood target unavailable or only Psychic/abilityless targets",
     "unmapped or ambiguous effects",
-    "Faba non-Hood Tool, Special Energy and Stadium target families remain unsupported"
+    "Faba non-Hood Tool, Special Energy and Stadium target families remain unsupported",
+    "Gladion recovery is excluded while Prize identity selection remains unsupported",
+    "Radiant Eternatus one-shot Climactic Gate use history is not present in the current opponent actor-view receipt"
   ],
-  "status": "synthetic-only prototype; not wired into signed V3 policy bundle or native match runner"
+  "status": "synthetic-only v2.3 prototype; not wired into signed V3 policy bundle or native match runner"
 }

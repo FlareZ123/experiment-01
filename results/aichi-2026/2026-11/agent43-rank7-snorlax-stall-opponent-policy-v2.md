@@ -1,4 +1,4 @@
-# Rank-7 Snorlax Stall opponent policy v2.1 — target and prompt corrections
+# Rank-7 Snorlax Stall opponent policy v2.3 — source-bound recovery and target corrections
 
 **Status:** synthetic actor-view prototype only; not wired into the signed V3 policy bundle. No native games, matchup results, or win-rate claims.
 
@@ -20,7 +20,7 @@
 
 ## Validation
 
-The updated Node 22 contract suite passed **30/30 tests** using the actual Agent49 init/request/decision validators. GitHub Actions run: `44576458711`; job: `135745141306`; head: `c47e173d3876c69ee05da0fb3bd278f555c89c70`. The new regressions are synthetic policy/protocol tests only.
+The updated Node 22 contract suite now contains **43 tests** using the actual Agent49 init/request/decision validators; exact-head GitHub Actions execution is pending. The new regressions are synthetic policy/protocol tests only.
 
 ## Limitations
 
@@ -29,3 +29,13 @@ The updated Node 22 contract suite passed **30/30 tests** using the actual Agent
 - The policy remains a rank-specific prototype and is not part of a signed/released V3 policy bundle.
 - Faba's non-Hood target families are intentionally unsupported.
 - The 99.5% Aichi Top 32 objective remains entirely undemonstrated.
+
+
+6. **Lusamine now requires two supported recovery targets before play.** The prompt scorer recognizes the rank-7 list's supported Supporters and Stadiums, including Pokémon Ranger, Lillie's Determination, Teammates, Bellelba & Brycen-Man and Team Rocket's Handiwork; unsupported Gladion remains excluded because its Prize-choice handler abstains.
+7. **Target Whistle is now candidate-bound.** It checks free capacity on the opponent's Bench, not the actor's, and only treats the fixed candidate's exact Basic Pokémon printings as valid targets. A VMAX in the discard pile is not a Basic target.
+8. **Get Lost recognizes the candidate's recovery cards.** Night Stretcher ASC 196 and Acerola BUS 112 are now prioritized as live recovery targets rather than ordinary discard cards.
+9. **Radiant Eternatus printing identity is corrected.** The fixed candidate uses Radiant Eternatus CRZ 105, not SIT 105; the policy, fixtures and suite now bind the actual printing.
+
+## Additional strategic limitation
+
+The Agent49 worker's current public event receipt records known Ability use for the actor's own Pokémon, not the opponent's. The policy therefore cannot tell whether an opponent Radiant Eternatus has already used its one-shot Climactic Gate. The Faba → Jet Energy → Wobbuffet line remains a heuristic when that target is already in play; it is not an established live threat or a native-validated tactic.
