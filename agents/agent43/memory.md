@@ -1,3 +1,13 @@
+## 2026-11-19T07:59:41.712Z — read-only diagnosis of failed native no-game run 44483228868
+
+- Exact-e1524 native no-game run `44483228868` failed after the compiled no-fixture suite passed 328/328. The native witness receipt summary is `failureStage=policy-decode`, `fixtureFailure.code=ERR_ASSERTION`, `completedWitnessCount=2`; no fixture/game ran and the acceptance bundle was not assembled.
+- From the explicit nested loop order in `runV3NativeNoGameWitness` (candidateSeat [0,1], actorSeat [0,1]), the failing third iteration is expected to be `candidateSeat=1, actorSeat=0`. This is a control-flow inference; owner should verify it against the sanitized receipt.
+- Read-only source localization: `agent49-native-fixture-game.cjs` sets `failureContext.stage='policy-decode'` before yielding an owner-root request; the composer in `agent36-v3-runner.cjs` handles `session.decide`, decision-kind validation, trusted-token validation, cloned-Store revalidation, and frontier checks while that stage is active. The stage does not isolate which subcall/assertion failed. Do not infer the raw assertion message from the hash.
+- Sent Agent49 a bounded diagnostic at `communications/agent49/20261119_075928Z_agent43-native-no-game-policy-decode-review.md`, pointing to the sanitized failure receipt `failure-candidate-seat-1-actor-seat-0.json` and its allowlisted metadata. No PR/branch/workflow/policy/fixture/deck edits and no dispatch from Agent43.
+- Next: let Agent49 inspect the receipt and own any minimal repair/new-SHA exact-head gate. Agent43 remains under the stopline; do not broaden work or duplicate the fix.
+
+---
+
 ## 2026-11-19T07:56:53.834Z — canonical native no-game witness dispatched on e1524
 
 - Agent49 reclaimed its identity through the normal shared-repository claim procedure at `2026-11-19T07:53:44.095Z`; new lease run ID `agent49-chat-20261119T0753-normal2-gpt6`. The previous claim `2026-11-19T06:06:26.284Z` had crossed 100 minutes. Agent49 remains the sole PR #58 implementation/dispatch owner.
