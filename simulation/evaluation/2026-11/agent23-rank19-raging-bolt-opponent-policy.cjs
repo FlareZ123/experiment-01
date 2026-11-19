@@ -161,6 +161,10 @@ function currentStadium(observation) {
 function hasAnyStadium(observation) {
   return currentStadium(observation).length > 0;
 }
+function hasHostileStadium(observation) {
+  return currentStadium(observation).some(value =>
+    /Temple of Sinnoh|Path to the Peak|Silent Lab/i.test(value));
+}
 function activePokemon(observation) {
   return observation?.ownPublic?.active ?? null;
 }
@@ -235,6 +239,7 @@ function ownSwitchPriority(pokemon, observation) {
   if (matches(pokemon, PRINT.adp)) return attachedEnergy(pokemon, PRINT.doubleDragon) > 0 ? 225 : 130;
   if (matches(pokemon, PRINT.sandyShocks)) return list(pokemon.energies).length >= 2 ? 160 : 110;
   if (matches(pokemon, PRINT.moltres)) return list(pokemon.energies).length >= 2 ? 150 : 100;
+  if (matches(pokemon, PRINT.flutterMane) && opponentHasVisibleAbility(observation)) return 215;
   if (matches(pokemon, PRINT.latias)) return 65;
   return 30 + Math.max(0, 200 - remainingHp(pokemon)) / 20;
 }
@@ -417,29 +422,30 @@ function attachTargetPriority(choice, request, context) {
   }
   return 0;
 }
-function effectiveBellowingDamagePerEnergy(target) {
+function bellowingDamageModel(target) {
   if (!target?.printed || !Array.isArray(target.printed.weakness) || !Array.isArray(target.printed.resistance)) return null;
-  let damage = 70;
+  let multiplier = 1;
+  let resistance = 0;
   const weakness = target.printed.weakness.find(row => row.type === 'Dragon');
-  const resistance = target.printed.resistance.find(row => row.type === 'Dragon');
+  const resistanceRow = target.printed.resistance.find(row => row.type === 'Dragon');
   if (weakness) {
-    if (String(weakness.value).includes('2')) damage *= 2;
+    if (String(weakness.value).includes('2')) multiplier = 2;
     else return null;
   }
-  if (resistance) {
-    const amount = Number(String(resistance.value).replace(/[^\d-]/g, ''));
+  if (resistanceRow) {
+    const amount = Number(String(resistanceRow.value).replace(/[^\d-]/g, ''));
     if (!Number.isFinite(amount)) return null;
-    damage -= Math.abs(amount);
+    resistance = Math.abs(amount);
   }
-  return damage > 0 ? damage : null;
+  return { multiplier, resistance };
 }
 function bellowingEnergyDecision(prompt, request) {
   const choices = list(prompt.choices).filter(choice => choice.kind === 'energy');
   const target = opponentActive(request.observation);
   const hp = remainingHp(target);
-  const perEnergy = effectiveBellowingDamagePerEnergy(target);
-  if (hp <= 0 || perEnergy === null) return { kind: 'abstain', reasonCode: 'BELLOWING_TARGET_OR_MODIFIER_UNKNOWN' };
-  const required = Math.max(1, Math.ceil(hp / perEnergy));
+  const damageModel = bellowingDamageModel(target);
+  if (hp <= 0 || damageModel === null) return { kind: 'abstain', reasonCode: 'BELLOWING_TARGET_OR_MODIFIER_UNKNOWN' };
+  const required = Math.max(1, Math.ceil((hp + damageModel.resistance) / (70 * damageModel.multiplier)));
   const availableBasic = choices.filter(choice => isBasicEnergy(choice.printing ?? choice.label));
   if (availableBasic.length === 0) return { kind: 'abstain', reasonCode: 'NO_BASIC_ENERGY_TO_DISCARD' };
   const bounds = promptBounds(prompt);
@@ -531,6 +537,7 @@ function scoreAction(item, request) {
   if (item.kind === 'use-ability') {
     const effect = String(meta.sourceEffect ?? meta.abilityName ?? item.label ?? '').toLowerCase();
     if (effect.includes('rebirth')) return discardEnergyTypes(own).size >= 3 && hasBenchSpace(own) ? 235 : 0;
+    if (effect.includes('star alchemy')) return own.publicTurnRestrictions?.vstarUsed === false ? 215 : 0;
     if (effect.includes('dance of the ancients')) return discardEnergyTypes(own).has('lightning') &&
       benchCount(own) >= 2 ? 220 : 0;
     if (effect.includes('direflame wings')) return discardEnergyTypes(own).has('darkness') ? 205 : 0;
@@ -538,9 +545,9 @@ function scoreAction(item, request) {
       discardEnergyTypes(own).has('fighting') ? 200 : 0;
     if (effect.includes('dedechange')) return hand <= 3 && !hasSupporterInHand(observation) ? 170 : 0;
     if (effect.includes('dark asset')) return hand <= 4 ? 180 : 0;
-    if (effect.includes('squawk and seize')) return turn === 1 && hand <= 4 ? 165 : 0;
+    if (effect.includes('squawk and seize')) return turn === 1 && hand <= 4 && !hasSupporterInHand(observation) ? 165 : 0;
     if (effect.includes('wonder tag')) return !hasSupporterInHand(observation) ? 190 : 0;
-    if (effect.includes('resetting hole')) return hasAnyStadium(observation) ? 135 : 0;
+    if (effect.includes('resetting hole')) return hasHostileStadium(observation) ? 135 : 0;
     return 0;
   }
 
@@ -572,8 +579,7 @@ function scoreAction(item, request) {
   if (PRINT.hammer.test(printing)) return turn === 1 ? 150 : 0;
   if (PRINT.fieldBlower.test(printing)) return opponentHasToolsOrStadium(request.observation) ? 135 : 0;
   if (PRINT.cherishBall.test(printing)) return !boardHas(own, PRINT.adp) || !boardHas(own, PRINT.dedenne) ? 150 : 0;
-  if (PRINT.heavyBall.test(printing)) return observation.ownerK1?.exactMembershipKnown === true &&
-    list(observation.ownerK1.knownPrintings).some(value => /Raging Bolt|Arceus & Dialga & Palkia|Tapu Koko|Ho-Oh/i.test(value.printing)) ? 135 : 0;
+  if (PRINT.heavyBall.test(printing)) return 0; // The current prize projector hides identities; fail closed.
   if (PRINT.secretBox.test(printing)) return hand >= 5 ? 130 : 0;
   if (PRINT.floatStone.test(printing)) return !ownFreeRetreat(observation) &&
     active && Number.isFinite(active.printed?.retreatCost?.length) && active.printed.retreatCost.length > 0 ? 100 : 0;
@@ -594,19 +600,22 @@ function scoreAction(item, request) {
     discardEnergyTypes(own).has('lightning') && benchCount(own) >= 2 ? 165 : 0;
   if (PRINT.latias.test(printing)) return !boardHas(own, PRINT.latias) && hasBenchSpace(own) ? 145 : 0;
   if (PRINT.flutterMane.test(printing)) return !boardHas(own, PRINT.flutterMane) &&
-    opponentHasVisibleAbility(observation) && hasBenchSpace(own) ? 120 : 0;
+    handHas(observation, PRINT.sada) && hasBenchSpace(own) ? 100 : 0;
   if (PRINT.sudowoodo.test(printing)) return !boardHas(own, PRINT.sudowoodo) &&
     benchCount(opponent) >= 5 && hasBenchSpace(own) ? 160 : 0;
   if (PRINT.marshadow.test(printing)) return !boardHas(own, PRINT.marshadow) &&
-    hasAnyStadium(observation) && hasBenchSpace(own) ? 135 : 0;
-  if (PRINT.dedenne.test(printing)) return !boardHas(own, PRINT.dedenne) && hand <= 3 && hasBenchSpace(own) ? 150 : 0;
+    hasHostileStadium(observation) && hasBenchSpace(own) ? 135 : 0;
+  if (PRINT.dedenne.test(printing)) return !boardHas(own, PRINT.dedenne) && hand <= 3 &&
+    !hasSupporterInHand(observation) && hasBenchSpace(own) ? 150 : 0;
   if (PRINT.crobat.test(printing)) return !boardHas(own, PRINT.crobat) && hand <= 4 && hasBenchSpace(own) ? 155 : 0;
-  if (PRINT.squawk.test(printing)) return !boardHas(own, PRINT.squawk) && turn === 1 && hand <= 4 && hasBenchSpace(own) ? 145 : 0;
+  if (PRINT.squawk.test(printing)) return !boardHas(own, PRINT.squawk) && turn === 1 && hand <= 4 &&
+    !hasSupporterInHand(observation) && hasBenchSpace(own) ? 145 : 0;
   if (PRINT.tapuLele.test(printing)) return !boardHas(own, PRINT.tapuLele) && !hasSupporterInHand(observation) && hasBenchSpace(own) ? 160 : 0;
 
   if (PRINT.doubleDragon.test(printing)) {
     const target = meta.targetPrinting ?? '';
-    if (PRINT.adp.test(target) && attachedEnergy(own.active, PRINT.doubleDragon) === 0) return 240;
+    const targetPokemon = boardSlots(own).find(pokemon => printingValue(pokemon) === target);
+    if (PRINT.adp.test(target) && attachedEnergy(targetPokemon, PRINT.doubleDragon) === 0) return 240;
     if (PRINT.ragingBolt.test(target)) return 170;
     return 80;
   }
@@ -668,10 +677,10 @@ function promptDecision(request) {
     if (lower.includes('battle compressor')) {
       return selectMany(prompt, choice => compressorPriority(choice, request), 'NO_COMPRESSOR_SETUP_TARGETS');
     }
-    if (lower.includes('quick ball') && /discard/i.test(lower)) {
+    if (lower.includes('quick ball') && (meta.sourceZone === 'hand' || /discard/i.test(lower))) {
       return selectOne(choices, choice => discardPriority(choice, request, lower), 'NO_SAFE_QUICK_BALL_DISCARD');
     }
-    if (lower.includes('secret box') && /discard/i.test(lower)) {
+    if (lower.includes('secret box') && (meta.sourceZone === 'hand' || /discard/i.test(lower))) {
       return selectMany(prompt, choice => discardPriority(choice, request, lower), 'NO_SAFE_SECRET_BOX_DISCARDS');
     }
     if (lower.includes('vs seeker')) {
@@ -774,5 +783,5 @@ module.exports = {
   POLICY_VERSION, SOURCE_RANK, SOURCE_LIST_BLOB_SHA1, SOURCE_FINGERPRINT_SHA256,
   ENGINE_PIN, WORKER_PROTOCOL_BLOB_SHA1, createPolicy, scoreAction, scoreAttack,
   promptDecision, bestAction, basicEnergyType, discardEnergyTypes,
-  effectiveBellowingDamagePerEnergy
+  bellowingDamageModel
 };
