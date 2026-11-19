@@ -472,6 +472,7 @@ function buildCorpus(root = ROOT) {
     corpusRules: [
       'Policy input is limited to the acting player’s validated observation, owner-authenticated prompt, public event receipt and legal action frontier.',
       'The same policy implementation must be seat-symmetric; seat and exact source-deck identity are immutable context, not hidden-state access.',
+      'All current records are opponent-policy cases; they do not establish candidate-role coverage or seat-symmetry.',
       'Unknown or unsupported prompts, unavailable targets and unpayable actions fail closed; never fabricate a pass or delegate to a hidden-state bot.',
       'Development cases are regression-only, not supervised strategic labels; held-out cases are not used for tuning.',
       'A synthetic case proves only its recorded synthetic behavior. It is not native reachability, source-natural frequency, strategic competence, a matchup or a win-rate observation.'
@@ -482,6 +483,11 @@ function buildCorpus(root = ROOT) {
       developmentCases: cases.filter(record => record.split === 'development').length,
       heldOutCases: cases.filter(record => record.split === 'held-out').length,
       sourceRanks: [...new Set(cases.map(record => record.sourceRank))],
+      roleCounts: cases.reduce((out, record) => {
+        out[record.role] = (out[record.role] || 0) + 1;
+        return out;
+      }, {}),
+      candidateRoleCases: cases.filter(record => record.role === 'candidate-policy').length,
       evidenceClassCounts: countBy('evidenceClass'),
       dispositionCounts: cases.reduce((out, record) => {
         const status = record.disposition.status;
