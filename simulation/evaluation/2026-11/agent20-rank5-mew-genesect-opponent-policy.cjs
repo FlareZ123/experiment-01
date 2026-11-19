@@ -94,6 +94,10 @@ function boardCount(player, pattern) {
   return slots(player).filter(row => matches(row.pokemon.printing, pattern)).length;
 }
 
+function benchCount(player) {
+  return list(player?.bench).filter(pokemon => pokemon && pokemon.concealed !== true).length;
+}
+
 function boardHas(player, pattern) {
   return boardCount(player, pattern) > 0;
 }
@@ -272,7 +276,7 @@ function scoreTrainerSearch(printing, observation) {
     return 170;
   }
   if (matches(printing, PRINT.vipPass)) {
-    return observation.globalTurn <= 2 && slots(observation.ownPublic).length < 5 ? 180 : 0;
+    return observation.globalTurn <= 2 && benchCount(observation.ownPublic) < 5 ? 180 : 0;
   }
   if (matches(printing, PRINT.vsSeeker)) {
     return list(observation.ownPublic.discard).some(card =>
@@ -502,6 +506,14 @@ function promptDecision(request) {
         })), minimum, maximum, 'NO_DCE_TO_RECOVER');
       }
 
+      if (/energy mix/i.test(source)) {
+        const targets = choices.filter(choice => choiceOwner(choice) === 'actor' &&
+          choiceZone(choice) === 'deck');
+        return multiSelectDecision(prompt, targets.map(choice => ({
+          choice, score: scoreSearchChoice(choice, observation, 'energy-mix')
+        })), minimum, maximum, 'NO_DCE_IN_DECK');
+      }
+
       return { kind: 'abstain', reasonCode: 'UNSUPPORTED_MULTI_SELECT_SOURCE' };
     }
 
@@ -724,7 +736,7 @@ function scoreAction(item, request) {
         !drawAbilitiesStillAvailable && hand.length >= 4 ? 220 : 0;
     }
     if (matches(stadium, PRINT.skyField)) {
-      return slots(own).length >= 5 && slots(opponent).length <= 4 &&
+      return benchCount(own) >= 5 && benchCount(opponent) <= 4 &&
         fusionStrikeCount(own) >= 5 ? 105 : 0;
     }
     return 0;
@@ -809,7 +821,7 @@ function scoreAction(item, request) {
   }
 
   if (matches(card, PRINT.vipPass)) {
-    return observation.globalTurn <= 2 && slots(own).length < 5 ? 225 : 0;
+    return observation.globalTurn <= 2 && benchCount(own) < 5 ? 225 : 0;
   }
 
   if (matches(card, PRINT.quickBall)) {
@@ -840,10 +852,6 @@ function scoreAction(item, request) {
   if (matches(card, PRINT.lostVacuum)) {
     return candidateToolOrStadiumTargets(observation).some(value =>
       matches(value, PRINT.forestSealStone) || matches(value, PRINT.floatStone)) ? 115 : 0;
-  }
-
-  if (matches(card, PRINT.specialRedCard)) {
-    return opponentPrizeCount(observation) <= 3 && opponentHandCount(observation) >= 3 ? 170 : 0;
   }
 
   if (matches(card, PRINT.secretBox)) {
