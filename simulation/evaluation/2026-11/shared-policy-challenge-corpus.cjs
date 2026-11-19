@@ -31,6 +31,9 @@ const CASE_ARRAYS = [
   'heldOutCases',
   'nativeBlockedCases'
 ];
+const VALID_EVIDENCE_CLASSES = new Set([
+  'synthetic', 'synthetic-actor-view', 'native-staged', 'source-natural'
+]);
 
 function pick(object, keys) {
   for (const key of keys) {
@@ -233,6 +236,17 @@ function countBy(records, key) {
   }, {});
 }
 
+function isStructurallyComplete(record) {
+  return record.stableCaseId &&
+    !!record.actorViewDigest &&
+    record.hasCaseSourceBinding &&
+    record.hasDecisionEnvelope &&
+    record.hasCostLedger &&
+    record.hasPromptCoverage &&
+    record.hasExecutionEvidence &&
+    VALID_EVIDENCE_CLASSES.has(record.evidenceClass);
+}
+
 function buildCorpus(rootDir) {
   const repositoryRoot = rootDir || path.resolve(__dirname, '../../..');
   const panel = readPinnedJson(repositoryRoot, PANEL_MANIFEST);
@@ -303,6 +317,29 @@ function buildCorpus(rootDir) {
       casesWithExecutionEvidence: cases.filter(record => record.hasExecutionEvidence).length,
       casesWithStableCaseId: cases.filter(record => record.stableCaseId).length,
       casesWithCaseSourceBinding: cases.filter(record => record.hasCaseSourceBinding).length,
+      structuralCompletenessContract: {
+        required: [
+          'stableCaseId', 'actorViewDigest', 'caseSourceBinding',
+          'decisionEnvelope', 'costLedger', 'promptCoverage', 'executionEvidence',
+          'recognizedEvidenceClass'
+        ],
+        recognizedEvidenceClasses: Array.from(VALID_EVIDENCE_CLASSES),
+        note: 'Structural completeness only; it does not prove actor-only privacy, strategic correctness, native execution, or competence.'
+      },
+      structurallyCompleteCaseCount: cases.filter(isStructurallyComplete).length,
+      structurallyCompleteBySplit: countBy(cases.filter(isStructurallyComplete), 'split'),
+      structurallyCompleteByRank: sourceSuites.map(source => {
+        const complete = cases.filter(record =>
+          record.rank === source.rank && isStructurallyComplete(record));
+        return {
+          rank: source.rank,
+          total: complete.length,
+          development: complete.filter(record => record.split === 'development').length,
+          heldOut: complete.filter(record => record.split === 'held-out').length,
+          negativeControl: complete.filter(record => record.split === 'negative-control').length,
+          blocked: complete.filter(record => record.split === 'blocked').length
+        };
+      }),
       casesMissing: {
         actorViewDigest: missing('actorViewDigest'),
         decisionEnvelope: missing('hasDecisionEnvelope'),
@@ -354,6 +391,7 @@ module.exports = {
   gitBlobSha1,
   normalizeCase,
   normalizeSplit,
+  isStructurallyComplete,
   readPinnedJson,
   resolveCase
 };
