@@ -577,6 +577,14 @@ function choiceOwner(choice) {
 function cardChoiceScore(choice, observation, context) {
   const printing = valueText(choice);
   if (context === 'faba') {
+    if (matches(printing, PRINT.stealthyHood)) return 250;
+    if (matches(printing, PRINT.forestSealStone)) return 225;
+    if (matches(printing, PRINT.floatStone)) return 200;
+    if (matches(printing, PRINT.temple) || /Sky Field|Dimension Valley/i.test(printing)) return 170;
+    if (/Special Energy|Double Dragon Energy|Jet Energy|Capture Energy/i.test(printing)) return 120;
+    return 10;
+  }
+  if (context === 'eri') {
     if (/Field Blower GRI 125/i.test(printing)) return 260;
     if (/Unfair Stamp TWM 165/i.test(printing)) return 250;
     if (matches(printing, PRINT.forestSealStone)) return 230;
@@ -587,19 +595,6 @@ function cardChoiceScore(choice, observation, context) {
     if (/Battle Compressor PHF 92/i.test(printing)) return 175;
     if (matches(printing, PRINT.quickBall)) return 150;
     if (matches(printing, PRINT.heavyBall)) return 140;
-    if (matches(printing, PRINT.stealthyHood) || matches(printing, PRINT.floatStone)) return 0;
-    if (matches(printing, PRINT.temple) || /Sky Field|Dimension Valley/i.test(printing)) return 170;
-    if (/Special Energy|Double Dragon Energy|Jet Energy|Capture Energy/i.test(printing)) return 120;
-    return 10;
-  }
-  if (context === 'eri') {
-    if (/Field Blower/i.test(printing)) return 240;
-    if (matches(printing, PRINT.forestSealStone)) return 200;
-    if (matches(printing, PRINT.vsSeeker)) return 190;
-    if (matches(printing, PRINT.nightStretcher)) return 170;
-    if (matches(printing, PRINT.quickBall) || matches(printing, PRINT.nestBall)) return 110;
-    if (matches(printing, PRINT.trainersMail)) return 100;
-    if (matches(printing, PRINT.enhancedHammer)) return 90;
     return 0;
   }
   if (context === 'lusamine') {
