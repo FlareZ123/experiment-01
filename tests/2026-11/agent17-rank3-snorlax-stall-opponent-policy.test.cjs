@@ -881,6 +881,27 @@ test('Counter Catcher targets the opponent Bench Pokémon with the greatest publ
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-choice', token: 'rider'
   });
+  const catchAction = {
+    kind: 'play-card', actorPrinting: 'Counter Catcher PAR 160',
+    publicMetadata: { cardType: 'item', handIndex: 0 }
+  };
+  const behindNoBench = observation({
+    ownPublic: player({ prizeCount: 6 }),
+    opponentPublic: player({ prizeCount: 5 })
+  });
+  const behindWithBench = observation({
+    ownPublic: player({ prizeCount: 6 }),
+    opponentPublic: player({ prizeCount: 5, bench: [pokemon('Crobat V DAA 104')] })
+  });
+  assert.deepEqual(scoreAction(catchAction, {
+    observation: behindNoBench, publicEventReceipt: null
+  }), 0);
+  assert.deepEqual(scoreSearchCard('Counter Catcher PAR 160', behindNoBench, 'trainers-mail'), 0);
+  assert.deepEqual(scoreAction(catchAction, {
+    observation: behindWithBench, publicEventReceipt: null
+  }), 135);
+  assert.deepEqual(scoreSearchCard('Counter Catcher PAR 160', behindWithBench, 'trainers-mail'), 135);
+
 });
 
 test('Night Stretcher recovers a missing core Pokémon over a basic Energy', () => {
@@ -895,6 +916,23 @@ test('Night Stretcher recovers a missing core Pokémon over a basic Energy', () 
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-choice', token: 'bunnelby'
   });
+  const stretcherAction = {
+    kind: 'play-card', actorPrinting: 'Night Stretcher ASC 196',
+    publicMetadata: { cardType: 'item', handIndex: 0 }
+  };
+  const onlyMimikyu = observation({
+    ownPublic: player({ discard: ['Mimikyu PAL 97'] })
+  });
+  const noRecoveryTarget = observation({ ownPublic: player() });
+  assert.deepEqual(scoreAction(stretcherAction, {
+    observation: onlyMimikyu, publicEventReceipt: null
+  }), 90);
+  assert.deepEqual(scoreAction(stretcherAction, {
+    observation: noRecoveryTarget, publicEventReceipt: null
+  }), 0);
+  assert.deepEqual(scoreSearchCard('Night Stretcher ASC 196', onlyMimikyu, 'trainers-mail'), 125);
+  assert.deepEqual(scoreSearchCard('Night Stretcher ASC 196', noRecoveryTarget, 'trainers-mail'), 0);
+
 });
 
 test('Enhanced Hammer selects a Special Energy rather than a Basic Energy', () => {
