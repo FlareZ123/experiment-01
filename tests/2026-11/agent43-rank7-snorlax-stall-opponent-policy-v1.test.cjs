@@ -576,14 +576,16 @@ test('Gladion abstains when Prize identities are not owner-visible', () => {
     { kind: 'abstain', reasonCode: 'GLADION_PRIZE_IDENTITIES_UNVERIFIED' });
 });
 
-test('Palace Book remains explicitly blocked rather than guessed from a missing English text', () => {
-  const request = promptRequest({
-    promptType: 'ChooseCardsPrompt',
-    source: actorChoiceSource('Palace Book SMP NAN25', 'Palace Book'),
-    choices: [cardChoice('x', 'Nest Ball SVI 181', 'actor', 'deck')]
+test('Palace Book draw-three end-turn is a low-priority action with a small hand', () => {
+  const request = rootRequest({
+    ownHand: ['Palace Book SMP NAN25'],
+    ownPublic: player({ deckCount: 20 }),
+    items: [
+      { token: 'palace', kind: 'play-card', actorPrinting: 'Palace Book SMP NAN25' },
+      { token: 'pass', kind: 'pass' }
+    ]
   });
-  assert.deepEqual(checkedDecision(request),
-    { kind: 'abstain', reasonCode: 'PALACE_BOOK_ENGINE_TEXT_UNVERIFIED' });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'palace' });
 });
 
 test('unknown native prompt family fails closed', () => {
@@ -720,6 +722,36 @@ test('Wobbuffet is not prioritized while Power of Alchemy suppresses its Ability
     ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
     items: [
       { token: 'wobb', kind: 'play-card', actorPrinting: 'Wobbuffet PHF 36' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'pass' });
+});
+
+test('Palace Book yields to a scored attack because it ends the turn', () => {
+  const request = rootRequest({
+    ownHand: ['Palace Book SMP NAN25'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94') }),
+    opponentPublic: player({ active: pokemon('Shadow Rider Calyrex VMAX CRE 75'),
+      discard: ['VS Seeker PHF 109'] }),
+    items: [
+      { token: 'palace', kind: 'play-card', actorPrinting: 'Palace Book SMP NAN25' },
+      { token: 'get-lost', kind: 'attack', actorPrinting: 'Girafarig LOT 94',
+        attackName: 'Get Lost' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'get-lost' });
+});
+
+test('Palace Book is blocked by public Vileplume Item lock even if the restriction projection is empty', () => {
+  const board = fabaBoard();
+  const request = rootRequest({
+    ownHand: ['Palace Book SMP NAN25'],
+    ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
+    ownTurnResources: turnResources(),
+    items: [
+      { token: 'palace', kind: 'play-card', actorPrinting: 'Palace Book SMP NAN25' },
       { token: 'pass', kind: 'pass' }
     ]
   });
