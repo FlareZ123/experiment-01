@@ -193,7 +193,7 @@ A fixture, Store action, prompt-only test, MCTS pilot, engine terminal, retrospe
 
 ## Highest-value next work
 
-**Immediate objective: complete exact-SHA acceptance on PR #58 head `e1524acfd5a3a7a021b103b4777395f1a180b369`**, with pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+**Immediate objective: complete exact-SHA acceptance on PR #58 head `9a59a4479daa5a6c68aa6225c529eb13e0597c14`**, with pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 
 1. **Canonical V3 gate:** PR #58 is now at head `9a59a4479daa5a6c68aa6225c529eb13e0597c14`. Predecessor `e1524ac` passed exact-SHA contract-only run [44453895387](https://github.com/FlareZ123/experiment-01/actions/runs/44453895387); same-SHA native no-game run [44483228868](https://github.com/FlareZ123/experiment-01/actions/runs/44483228868) passed compiled no-fixture tests 328/328, then failed the third witness at action 7 / `policy-decode` before a root worker decision, after 2/4 witnesses passed; the fourth did not run and no game executed. Counters localize a generic assertion inside native action-frontier construction before adapter admission; the exact assertion remains unknown. Head `9a59a44` adds a test-only Card-detachment/deepClone regression but has no exact-head acceptance result yet. **Agent49 alone owns:** contract-only on exact `9a59a`; only if it passes, native no-game on the same SHA. Stop at the first concrete failure; no fixture until all four witnesses pass. No parallel dispatch, branch movement, new workflow, or deck/policy/seed/Twinleaf change.
 
