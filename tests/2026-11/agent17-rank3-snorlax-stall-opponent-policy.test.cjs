@@ -5,25 +5,30 @@ const assert = require('node:assert/strict');
 const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
 const {
   POLICY_VERSION,
+  SOURCE_RANK,
+  SOURCE_FINGERPRINT_SHA256,
+  CANDIDATE_FINGERPRINT_SHA256,
   createPolicy,
   scoreAction,
   scoreAttack,
   scoreSearchCard
 } = require('../../simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs');
 
-const config = {
-  rank: 3,
-  sourceFingerprint: '0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368',
-  candidateFingerprint: '1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4'
-};
-
-function makePolicy(seat = 0) {
-  return createPolicy({
+function workerInitMessage(seat = 0) {
+  return {
+    schema: protocol.INIT_SCHEMA,
+    type: 'init',
     role: 'opponent',
     seat,
     policyVersion: POLICY_VERSION,
-    config
-  });
+    bundleSha256: '0'.repeat(64),
+    config: {}
+  };
+}
+
+function makePolicy(seat = 0) {
+  const init = protocol.validateInit(workerInitMessage(seat));
+  return createPolicy({ ...init, rng: () => 0.5 });
 }
 
 function restrictions() {
@@ -220,15 +225,7 @@ function promptRequest(options = {}) {
 }
 
 function checkedDecision(request, seat = 0) {
-  const init = {
-    schema: protocol.INIT_SCHEMA,
-    type: 'init',
-    role: 'opponent',
-    seat,
-    policyVersion: POLICY_VERSION,
-    bundleSha256: 'a'.repeat(64),
-    config
-  };
+  const init = protocol.validateInit(workerInitMessage(seat));
   const validated = protocol.validateRequest(request, init, request.sequence, new Set());
   const decision = makePolicy(seat).decide(request);
   protocol.validateDecision(decision, validated.prompt, validated.actionTokens);
@@ -272,20 +269,26 @@ function multiMetadata(minimumCount, maximumCount) {
   };
 }
 
-test('policy initialization is bound to the opponent role, rank 3 and exact source/candidate fingerprints', () => {
-  assert.throws(() => createPolicy({
-    role: 'candidate', seat: 0, policyVersion: POLICY_VERSION, config
-  }), /AGENT17_RANK3_POLICY_INIT_MISMATCH/);
-  assert.throws(() => createPolicy({
-    role: 'opponent', seat: 0, policyVersion: POLICY_VERSION,
-    config: { ...config, rank: 2 }
-  }), /AGENT17_RANK3_POLICY_INIT_MISMATCH/);
-  assert.throws(() => createPolicy({
-    role: 'opponent', seat: 0, policyVersion: POLICY_VERSION,
-    config: { ...config, candidateFingerprint: '0'.repeat(64) }
-  }), /AGENT17_RANK3_POLICY_INIT_MISMATCH/);
+test('worker initialization accepts the zero-key config and binds rank identity in module constants', () => {
+  const init = workerInitMessage(0);
+  assert.deepEqual(protocol.validateInit(init), init);
+  const policy = createPolicy({ ...init, rng: () => 0.5 });
+  assert.deepEqual(typeof policy.decide, 'function');
+  assert.deepEqual([
+    SOURCE_RANK,
+    SOURCE_FINGERPRINT_SHA256,
+    CANDIDATE_FINGERPRINT_SHA256
+  ], [
+    3,
+    '0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368',
+    '1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4'
+  ]);
+  assert.throws(() => protocol.validateInit({ ...init, config: { rank: 3 } }), /UNKNOWN_FIELD/);
+  assert.throws(() => createPolicy({ ...init, config: { rank: 3 } }), /AGENT17_RANK3_POLICY_INIT_MISMATCH/);
+  assert.throws(() => createPolicy({ ...init, role: 'candidate' }), /AGENT17_RANK3_POLICY_INIT_MISMATCH/);
+  assert.throws(() => createPolicy({ ...init, seat: 2 }), /AGENT17_RANK3_POLICY_INIT_MISMATCH/);
+  assert.throws(() => createPolicy({ ...init, policyVersion: 'wrong-version' }), /AGENT17_RANK3_POLICY_INIT_MISMATCH/);
 });
-
 test('Tool Jammer is attached to Snorlax rather than spent on an unrelated target', () => {
   const request = rootRequest({
     ownHand: ['Tool Jammer BST 136'],
@@ -639,15 +642,15 @@ test('no supported positive action falls back only to a real pass token', () => 
 test('the real worker request validator rejects a forbidden seed field', () => {
   const request = rootRequest();
   request.observation.seed = 12345;
-  const init = {
+  const init = protocol.validateInit({
     schema: protocol.INIT_SCHEMA,
     type: 'init',
     role: 'opponent',
     seat: 0,
     policyVersion: POLICY_VERSION,
     bundleSha256: 'a'.repeat(64),
-    config
-  };
+    config: {}
+  });
   assert.throws(() => protocol.validateRequest(
     request, init, request.sequence, new Set()
   ));
@@ -657,15 +660,15 @@ test('the real worker decision validator rejects an unknown action token', () =>
   const request = rootRequest({
     items: [{ token: 'pass', kind: 'pass' }]
   });
-  const init = {
+  const init = protocol.validateInit({
     schema: protocol.INIT_SCHEMA,
     type: 'init',
     role: 'opponent',
     seat: 0,
     policyVersion: POLICY_VERSION,
     bundleSha256: 'a'.repeat(64),
-    config
-  };
+    config: {}
+  });
   const validated = protocol.validateRequest(request, init, request.sequence, new Set());
   assert.throws(() => protocol.validateDecision(
     { kind: 'select-action', token: 'not-in-frontier' },
@@ -1053,15 +1056,15 @@ test('the real worker decision validator rejects an unknown prompt-choice token'
     source: actorChoiceSource('Faba LOT 173', 'Faba'),
     choices: [cardChoice('hood', 'Stealthy Hood UNB 186', 'attached', 'opponent')]
   });
-  const init = {
+  const init = protocol.validateInit({
     schema: protocol.INIT_SCHEMA,
     type: 'init',
     role: 'opponent',
     seat: 0,
     policyVersion: POLICY_VERSION,
     bundleSha256: 'a'.repeat(64),
-    config
-  };
+    config: {}
+  });
   const validated = protocol.validateRequest(request, init, request.sequence, new Set());
   assert.throws(() => protocol.validateDecision(
     { kind: 'select-choice', token: 'not-in-prompt' },
