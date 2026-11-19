@@ -1,0 +1,146 @@
+{
+  "schemaVersion": "aichi-opponent-policy-common-constraints-v2",
+  "policyId": "agent35-rank31-dusknoir-chimecho-opponent-v2",
+  "role": "opponent-policy",
+  "sourceRank": 31,
+  "sourceDeck": {
+    "path": "results/aichi-2026/full-decklists.json",
+    "blobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "fingerprintSha256": "36b077c17263471d3a2161f9cfcd352d9de7b9cfad6eeb8ad60310c32b5845c8"
+  },
+  "candidateDeck": {
+    "path": "results/aichi-2026/candidate-hood-shadow-rider.json",
+    "blobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+    "fingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+  },
+  "engine": {
+    "submodulePath": "vendor/twinleaf",
+    "remote": "https://github.com/twinleafgg/twinleafgg.git",
+    "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "researchHookRevision": "none",
+    "upstreamModified": false
+  },
+  "inputSurface": [
+    "request.role",
+    "request.seat",
+    "observation.actorSeat",
+    "observation.globalTurn",
+    "observation.phase",
+    "observation.decisionKind",
+    "observation.pendingPromptType",
+    "observation.ownHand",
+    "observation.ownPublic",
+    "observation.opponentPublic",
+    "observation.ownTurnResources",
+    "observation.ownerK1",
+    "prompt",
+    "publicEventReceipt",
+    "actionFrontier"
+  ],
+  "informationRules": {
+    "permitted": "Only actor-visible observation, prompt choices, public event receipt and legal action frontier.",
+    "forbidden": [
+      "opponent hidden hand",
+      "unrevealed Prize identities",
+      "opponent deck order",
+      "raw Twinleaf state not projected to actor",
+      "random seeds or future information"
+    ],
+    "hiddenHandRule": "Poltergeist scoring is zero unless opponentPublic.publicHand is explicitly present."
+  },
+  "roleSeatContract": {
+    "role": "opponent",
+    "seats": [
+      0,
+      1
+    ],
+    "seatBinding": "request.role, request.seat and observation.actorSeat must agree exactly."
+  },
+  "decisionContract": {
+    "rootActionKinds": [
+      "play-card",
+      "attack",
+      "retreat",
+      "use-ability",
+      "use-stadium",
+      "pass"
+    ],
+    "promptFamiliesImplemented": [
+      "ChoosePokemonPrompt",
+      "SelectOptionPrompt",
+      "ChooseCardsPrompt",
+      "ChoosePrizePrompt"
+    ],
+    "promptFamiliesFailClosed": [
+      "MoveDamagePrompt",
+      "unknown prompt families"
+    ],
+    "decisionKinds": [
+      "select-action",
+      "select-choice",
+      "select-choices",
+      "abstain"
+    ],
+    "noDelegatedFallback": true
+  },
+  "determinism": {
+    "randomness": false,
+    "clockReads": false,
+    "networkReads": false,
+    "stableTieBreakByChoiceOrder": true,
+    "repeatRequestTest": "identical actor-visible request yields identical decisions"
+  },
+  "runtimeSafety": {
+    "filesystem": false,
+    "network": false,
+    "processAccess": false,
+    "eval": false,
+    "randomness": false,
+    "unboundedSearch": false,
+    "failClosedOnUnsupportedPrompts": true
+  },
+  "evidenceBoundary": {
+    "localTests": "V1: 15 synthetic actor-view tests / 17 fixtures passed through actual Agent49 validateRequest and validateDecision functions in a V8 shim harness. V2: 16-test Node suite authored; actual validateInit coverage and zero-key factory initialization are not yet executed.",
+    "pinnedSourceInspection": true,
+    "nativeTwinleafExecution": false,
+    "nativeStoreReceipts": 0,
+    "sourceNaturalCases": 0,
+    "nativeStagedPolicyCases": 0,
+    "gamesPlayed": 0,
+    "matchupWinRate": null,
+    "strategicCompetenceDemonstrated": false
+  },
+  "pinnedSourceInspections": [
+    {
+      "path": "ptcg-server/src/sets/10-scarlet-and-violet/set-prismatic-evolution/alt-arts.ts",
+      "lines": "128-137",
+      "finding": "DusclopsPRE extends the Shrouded Fable Dusclops class and binds set PRE, number 36; DusknoirPRE extends the Dusknoir class and binds PRE 37."
+    },
+    {
+      "path": "ptcg-server/src/sets/10-scarlet-and-violet/set-shrouded-fable/dusclops.ts",
+      "lines": "27-77",
+      "finding": "Cursed Blast is an Ability with knocksOutSelf=true; opens TOP_PLAYER ChoosePokemonPrompt for Bench/Active, min 1/max 1/no cancel; applies PlaceDamageCountersEffect(50); then self-KOs even if counters were prevented (e.g. Stealthy Hood)."
+    },
+    {
+      "path": "ptcg-server/src/sets/10-scarlet-and-violet/set-shrouded-fable/dusknoir.ts",
+      "lines": "19-65",
+      "finding": "Cursed Blast is an Ability with knocksOutSelf=true; opens the same TOP_PLAYER ChoosePokemonPrompt; applies PlaceDamageCountersEffect(130); then self-KOs even if counters were prevented."
+    }
+  ],
+  "workerInitContract": {
+    "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+    "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+    "initSchema": "aichi-policy-worker-init-v2",
+    "acceptedConfig": {},
+    "factoryArguments": [
+      "role",
+      "seat",
+      "policyVersion",
+      "config",
+      "rng"
+    ],
+    "regressionPath": "tests/2026-11/agent35-rank31-dusknoir-chimecho-opponent-policy-v2.test.cjs",
+    "status": "authored-not-executed",
+    "workerIpcHandshake": false
+  }
+}
