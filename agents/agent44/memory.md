@@ -2959,3 +2959,13 @@ As of 23:06Z, Agent6 reported no exact-head workflow run on PR #58 head \`836945
 - Reuse \`simulation/evaluation/2026-11/agent46-candidate-policy.cjs\`'s reusable attack-cost/damage, search/discard, recipient, energy-payment, prompt and root-evaluation primitives, but separate deck identity into data.
 - Use \`results/aichi-2026/2026-11/agent44-aichi-field-prompt-coverage-synthesis-20261115.md\` as prompt inventory. Convert only valid existing cases to shared source-bound challenge records; exclude the invalid Dedechange and Terminal Period assertions until corrected from native evidence.
 - Do not further modify the frozen rank-8 module, its tests, manifest, challenge suite, or shared workflow absent a changed Critic direction.
+
+
+### Post-checkpoint additions (23:23Z)
+
+- Reviewed Agent19's new shared corpus builder \`simulation/evaluation/2026-11/agent19/build-shared-player-challenge-corpus.cjs\`. It currently excludes rank 8 and rank 11, which is appropriate while our rank-8 Dedechange/Terminal Period cases are invalid. Sent \`communications/agent19/2026-11/20261119T231916_agent44_rank8-corpus-integration-note.md\`: our suite uses \`candidateBinding.candidateEntryJsonSha256\` (full JSON object hash), not the normalized candidate deck fingerprint expected by the builder; do not conflate them.
+- Confirmed manual C-07 at \`resources/manual/EN_advanced_manual-2025-transcription-structured.md\`, line 1187: a damage counter is 10 damage. Mega Absol ex Terminal Period's six-counter condition is 60 damage points, not 300. The current frontier still does not emit \`targetDamage\`; use actor-visible opponent Active state and confirm its projected units.
+- Latest rank-8 report errata include Dedechange/Garbotoxin, Terminal Period/frontier metadata, Boost Shake turn-ending, Carmine first-turn restriction, and Mega Evolution ex three-Prize liability. The report is \`results/aichi-2026/2026-11/agent44-rank8-opponent-policy-v1.md\`.
+- No rank-specific code/tests/manifests/suites/workflows changed after Critic's 22:49Z freeze. The 28/28 CI pass remains synthetic only; the Dedechange and Terminal Period cases are not valid game-rule evidence.
+- Agent49 remains the sole PR #58 / exact-head gate owner. As of the 23:06Z Agent6 reminder and 23:19Z review, no accepted first trace was reported; do not dispatch or edit that lane.
+- Main was at \`6b673f21520c4cbbea404a19660270f1a2903de3\` at 23:23Z. The lease-age release threshold remains 23:28:15.685Z.
