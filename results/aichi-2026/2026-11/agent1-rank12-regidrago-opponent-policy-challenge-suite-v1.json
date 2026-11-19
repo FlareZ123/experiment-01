@@ -2,9 +2,9 @@
   "schema": "aichi-policy-challenge-suite-v1",
   "suiteId": "aichi-2026-rank12-regidrago-agent1-v1",
   "suiteVersion": "1.0.0",
-  "suiteSha256": "200eddfe930b8b35b55d17ea0c7b89be90a271fc032396e6894f0c84e9877832",
+  "suiteSha256": "2ca62fcab2ab689c0ad95b291e7042657d24aa24fadb74eaae499ac129178e50",
   "createdBy": "agent1",
-  "createdAt": "2026-11-19T15:09:18.721Z",
+  "createdAt": "2026-11-19T15:15:49.619Z",
   "status": "diagnostic-only-prototype",
   "attestationStatus": "blocked",
   "objective": "Evaluate the exact Aichi Open League 2026 rank-12 Regidrago source list as an opponent policy against the fixed 60-card Hood Shield Shadow Rider candidate; this suite does not measure game win rate.",
@@ -14,8 +14,8 @@
     "role": "opponent",
     "sourceRank": 12,
     "modulePath": "simulation/evaluation/2026-11/agent1-rank12-regidrago-opponent-policy.cjs",
-    "moduleBlobSha1": "4001d5fa5dc9dd11130a419788edb4ce16e7c99d",
-    "moduleSha256": "27585d7e31241c620d5f8e59d30c2c783e29b7008d20bbfe4a3469209c52008a",
+    "moduleBlobSha1": "a58cbde18524768549f94a211864cda9cb0a1380",
+    "moduleSha256": "b028a086d6be9cc2799e4afa897cb5d003aa4e2833f8c3c7e2f580f8abb80893",
     "config": {
       "rank": 12,
       "sourceFingerprint": "f176d6831f91a470ec4d3ef1e18636da8e4178b294c2978bb64cc371c37d3059",
@@ -54,8 +54,8 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent1-rank12-regidrago-dependencies-v1.json",
-    "manifestBlobSha1": "cecbdda20009f14f702a8f6e7b6e26beb5033541",
-    "manifestSha256": "cd2cb2836e8088b3292d5a4287dd4bb76ad3a0d736a09f0b807122180e54f8a8",
+    "manifestBlobSha1": "7f297621387cc1712f7d2819e0efa626b8108b00",
+    "manifestSha256": "dae688dec03f1cc01e3201d04c62e3e8e689f02bc5b6d450e05750b34ce403b8",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent1-rank12-regidrago-common-constraints-v1.json",
     "commonConstraintsBlobSha1": "a86b90960cdea106993b9b04d7079ef1e1d26283",
     "commonConstraintsSha256": "a9fb41677f15a6647cf202388de6f5e16a4dce770a48e85dcfbc4242dd35b13b",
@@ -66,8 +66,8 @@
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "testsPath": "tests/2026-11/agent1-rank12-regidrago-opponent-policy.test.cjs",
-    "testsBlobSha1": "5921b969f1b8e1e975839d12e5db2a46f857bb32",
-    "testsSha256": "8a8814d2e04e4ef243dc7708f188fe802b4f8847249f80b036a39259da113300"
+    "testsBlobSha1": "6c51697e8ff79ab1bf03cf17cbd2555b9f443315",
+    "testsSha256": "93544d08dcf3cf5f467a8a75e6e550abf04d704017cecc389f233a0404a9b55b"
   },
   "producerBinding": {
     "opponentPolicyProducerId": "agent1",
@@ -98,7 +98,7 @@
       "evidenceClass": "synthetic-actor-view",
       "executionStatus": "authored-not-run",
       "promptType": "ChooseAttackPrompt",
-      "actorViewDigest": "79e0b32c900e8adf2418132d80a0167502ae45db226310345d2b9d370a3691f0",
+      "actorViewDigest": "79e54536f9169f94077033f5714e5df1174cfcb530a7737fe46fdc93bafda7a9",
       "actorView": {
         "digestAlgorithm": "sha256-canonical-json-v1",
         "fixtureRef": "tests/2026-11/agent1-rank12-regidrago-opponent-policy.test.cjs::Apex Dragon chooses Dominating Echo when the opponent has a Stadium in play",
@@ -344,7 +344,7 @@
       "evidenceClass": "synthetic-actor-view",
       "executionStatus": "authored-not-run",
       "promptType": null,
-      "actorViewDigest": "8196e9ffdd8cd4b4ac0418391c29475cfdea82805d68cde45b85065a563fccdd",
+      "actorViewDigest": "40bb9a9b27645c94cf85c69b165db64d230a302e5be67ed949e06a70ba8b671a",
       "actorView": {
         "digestAlgorithm": "sha256-canonical-json-v1",
         "fixtureRef": "tests/2026-11/agent1-rank12-regidrago-opponent-policy.test.cjs::Flip the Script is used only when the public event receipt records a prior-turn Knock Out",
