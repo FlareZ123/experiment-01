@@ -713,6 +713,7 @@ test('Temple of Sinnoh blocks the Jet Energy Wobbuffet unlock line', () => {
 
 test('Wobbuffet is not prioritized while Power of Alchemy suppresses its Ability', () => {
   const board = fabaBoard({
+    ownBench: [null, null],
     opponentBench: [pokemon('Alolan Muk SUM 58', { abilities: ['Power of Alchemy'] })]
   });
   const request = rootRequest({
