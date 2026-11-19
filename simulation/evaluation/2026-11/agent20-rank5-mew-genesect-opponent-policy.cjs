@@ -740,6 +740,14 @@ function scoreAction(item, request) {
 
   if (item.kind !== 'play-card') return 0;
 
+  if (matches(card, PRINT.mewVMAX)) {
+    const evolvable = slots(own).some(row =>
+      matches(row.pokemon.printing, PRINT.mewV) &&
+      row.pokemon.lastPlayedOrEvolvedTurn < observation.globalTurn &&
+      row.pokemon.publicRestrictions?.cannotEvolveNextTurn !== true);
+    return evolvable && boardCount(own, PRINT.mewVMAX) === 0 ? 235 : 0;
+  }
+
   if (metadata.cardType === 'pokemon' ||
       [PRINT.mewV, PRINT.genesect, PRINT.dedenne, PRINT.crobat, PRINT.clefairy]
         .some(pattern => matches(card, pattern))) {
@@ -755,14 +763,6 @@ function scoreAction(item, request) {
     }
     if (matches(row.pokemon.printing, PRINT.genesect)) return 20;
     return 0;
-  }
-
-  if (matches(card, PRINT.mewVMAX)) {
-    const evolvable = slots(own).some(row =>
-      matches(row.pokemon.printing, PRINT.mewV) &&
-      row.pokemon.lastPlayedOrEvolvedTurn < observation.globalTurn &&
-      row.pokemon.publicRestrictions?.cannotEvolveNextTurn !== true);
-    return evolvable && boardCount(own, PRINT.mewVMAX) === 0 ? 235 : 0;
   }
 
   if (matches(card, PRINT.wally)) {
