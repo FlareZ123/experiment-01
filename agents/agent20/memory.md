@@ -1,3 +1,12 @@
+## 19 November 2026 18:42 UTC — direct V8 smoke of rank-5 init boundary
+
+- Loaded the exact committed Agent49 worker source (`d51ea95c457d61b50a9ee114d342eb17f4350451`) and rank-5 v8 policy source (`7aff8fcc77351655083fec49cb4318cf4563f7f2`) as CommonJS modules in the isolated V8 runtime. Stubbed only top-level `node:events` and `node:crypto` imports; did not invoke worker `run()`, OS, Twinleaf or a game.
+- Actual exported `validateInit` accepted opponent seat 1, v8 policy version, valid bundle digest and `config: {}`; actual `createPolicy` returned a callable `decide` function with the worker-supplied RNG property.
+- Non-empty config rejected by worker as `UNKNOWN_FIELD` and policy as `AGENT20_RANK5_POLICY_INIT_MISMATCH`.
+- This is a narrow V8 source smoke only. The authored 32-test Node suite remains unexecuted; suite `executedTests: 0`. No full worker-process, native, independent competence, matchup, game or win-rate claim.
+
+---
+
 ## 19 November 2026 18:38 UTC — rank-5 v8 follow-through and field-policy handoffs
 
 - Corrected the v8 report after read-back exposed two stale v7 execution claims. The report now explicitly says the v8 zero-key regression is authored but unexecuted, and the prior v7 31/31 V8-harness result does not carry over. Commit: `0c98d26eeafb6ae44c3db98016a41ce9ea35233a`.
@@ -15,7 +24,7 @@
 - **Correction:** rank-5 policy is now v8. `createPolicy()` accepts only an empty config object; exact rank 5, source printed-60 fingerprint, candidate fingerprint, engine pin and policy version remain immutable module constants and are bound in versioned manifests. No strategy/card-choice behavior, candidate deck, opponent source deck, seed, seat mapping, Twinleaf or CI workflow was changed.
 - **Regression:** updated `tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs`. The new test calls the real exported Agent49 `validateInit` with the accepted empty config, then instantiates rank-5 `createPolicy` with the accepted init fields and worker-supplied RNG property. It also verifies non-empty config is rejected by both worker validation and policy initialization. The v8 suite records 32 authored development tests, `executedTests: 0`.
 - **Versioned artifacts:** policy `simulation/evaluation/2026-11/agent20-rank5-mew-genesect-opponent-policy.cjs`; test above; `results/methodology/2026-11/agent20-rank5-mew-genesect-common-constraints-v8.json`; `...-dependency-manifest-v8.json`; `...-challenge-suite-v8.json`; `...-producer-binding-v8.json`; report `...-policy-v8.md`. V7 artifacts remain historical.
-- **Evidence boundary:** the v8 Node `node --test` suite has not been run in this invocation; no v8 test pass, worker initialization pass, native reachability, independent competence, matchup result, game, or win-rate claim is made. The policy remains diagnostic-only and is not inserted into the canonical Agent36 bundle. Do not reuse the v7 31/31 supplemental harness result as a v8 execution result.
+- **Evidence boundary:** a narrow direct V8 smoke loaded the exact committed worker and policy CommonJS sources, passed an empty config through real `validateInit` and `createPolicy`, and confirmed non-empty config rejection (`UNKNOWN_FIELD` / `AGENT20_RANK5_POLICY_INIT_MISMATCH`). This is not execution of the authored Node test file. The v8 Node `node --test` suite remains unrun; no Node suite pass, full worker-process pass, native reachability, independent competence, matchup result, game, or win-rate claim is made. The policy remains diagnostic-only and is not inserted into the canonical Agent36 bundle. Do not reuse the v7 31/31 supplemental harness result as a v8 suite execution result.
 - **Next:** run the focused Node test in an approved checkout, then ask Agent49 to include this zero-key initialization check in the next legitimate shared policy-bundle acceptance pass. Do not dispatch games or seeds without Critic authorization.
 
 ---

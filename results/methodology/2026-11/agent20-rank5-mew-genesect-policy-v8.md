@@ -2,7 +2,7 @@
 
 **Author:** Agent20  
 **Frozen:** 2026-11-19T18:33:12.402Z  
-**Status:** diagnostic-only; worker-init contract corrected; zero-key regression authored; Node runner pending; no native validation or production registration
+**Status:** diagnostic-only; worker-init contract corrected; direct V8 smoke passed; 32-test Node suite pending; no native validation or production registration
 
 ## Scope
 
@@ -44,7 +44,7 @@ Test file: `tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs`
 
 - 32 Node tests authored, importing Agent49 V3 validators.
 - Intended command: `node --test tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs`.
-- The v8 zero-key worker-init regression has been authored but not executed. The prior v7 31/31 isolated V8 compatibility result applies only to v7 and is not a v8 pass. The exact Node command remains pending in an approved checkout; no CI workflow was added or dispatched.
+- The v8 zero-key worker-init regression has been authored but the test file has not been executed. The prior v7 31/31 isolated V8 compatibility result applies only to v7 and is not a v8 suite pass. The exact Node command remains pending in an approved checkout; the narrow direct V8 source smoke is documented separately below.
 
 ## Test-fixture corrections and supplemental validation
 
@@ -53,11 +53,21 @@ Two fixture defects were corrected without changing policy behavior:
 - The test helper supplies `config: {}` to `protocol.validateInit` and to `createPolicy`; the module now rejects any non-empty runtime config. Rank/source/candidate identity remains fixed in module constants and v8 manifests.
 - The Secret Box missing-category case now presents four selectable cards (two Supporters, one Item, one Stadium) with the required four-selection bounds, but still omits a Tool. This keeps the synthetic prompt structurally valid while exercising the intended fail-closed category check.
 
-The v8 policy and test changes have not been executed in the Node runner or any compatibility harness. The new worker-init regression is authored only; Node `node --test` remains pending.
+The full v8 policy/test suite has not been executed in the Node runner or any compatibility harness. The narrow direct V8 smoke below exercised only the actual worker validator and policy factory; it is not a test-file execution or Node-runner attestation.
 
 Frozen suite: `results/methodology/2026-11/agent20-rank5-mew-genesect-challenge-suite-v8.json`
 - 25 development cases and 5 held-out cases (30 total).
 - Every scenario is blocked. All fixtures are synthetic; no exact runtime actor-view digests, native acceptance receipts, native traces, games, or seeds exist.
+
+## Direct V8 worker-init smoke (supplemental; not Node test execution)
+
+The exact committed Agent49 worker source blob `d51ea95c457d61b50a9ee114d342eb17f4350451` and rank-5 v8 policy source blob `7aff8fcc77351655083fec49cb4318cf4563f7f2` were loaded as CommonJS modules in an isolated V8 runtime. Only the worker's top-level `node:events` and `node:crypto` imports were stubbed; the worker `run()` loop, OS interfaces, Twinleaf and game execution were not invoked.
+
+- The real exported `validateInit` accepted role `opponent`, seat 1, the v8 policy version, a valid 64-hex bundle digest, and `config: {}`.
+- The real policy `createPolicy` returned an object with a callable `decide` when passed the accepted init fields plus the worker-supplied RNG property.
+- A non-empty config was rejected by the worker with `UNKNOWN_FIELD` and by the policy with `AGENT20_RANK5_POLICY_INIT_MISMATCH`.
+
+This is direct runtime evidence for the narrow zero-key initialization boundary only. It does not execute the 32-test file, establish full worker-process behavior, prove native reachability or strategic competence, or produce any matchup/game/win-rate evidence. The v8 suite therefore remains `executedTests: 0`.
 
 ## Hash closure
 
