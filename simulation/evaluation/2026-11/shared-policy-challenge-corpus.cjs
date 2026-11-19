@@ -314,7 +314,7 @@ function buildCorpus(rootDir) {
       actorViewRuntimeDigestSha256: actorView.runtimeDigestSha256 || null,
       actorViewFixtureDescriptorSha256: actorView.fixtureDescriptorSha256 || null,
       exactRuntimeObservationCaptured: actorView.exactRuntimeObservationCaptured === true,
-      hiddenOpponentZonesIncluded: actorView.hiddenOpponentZonesIncluded === true,
+      hiddenOpponentZonesIncluded: actorView.hiddenOpponentZonesIncluded === undefined ? null : actorView.hiddenOpponentZonesIncluded,
       nativeGameCount: execution.nativeGameCount === undefined ? null : execution.nativeGameCount,
       nativeStoreReceiptPresent: !!execution.nativeStoreReceipt || disposition.nativeStoreReceiptPresent === true,
       nativeTraceDigestPresent: !!execution.nativeTraceDigest || disposition.nativeTraceDigestPresent === true
