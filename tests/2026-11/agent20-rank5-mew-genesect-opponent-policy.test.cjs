@@ -302,12 +302,9 @@ test('rank-5 policy initializes through the real V3 worker zero-key contract', (
     bundleSha256: 'a'.repeat(64),
     config: {}
   };
-  assert.equal(protocol.validateInit(init), init);
+  const accepted = protocol.validateInit(init);
   const policy = createPolicy({
-    role: init.role,
-    seat: init.seat,
-    policyVersion: init.policyVersion,
-    config: init.config,
+    ...accepted,
     rng: () => 0.5
   });
   assert.equal(typeof policy.decide, 'function');
@@ -315,10 +312,9 @@ test('rank-5 policy initializes through the real V3 worker zero-key contract', (
   const nonEmptyInit = { ...init, config: { rank: SOURCE_RANK } };
   assert.throws(() => protocol.validateInit(nonEmptyInit));
   assert.throws(() => createPolicy({
-    role: init.role,
-    seat: init.seat,
-    policyVersion: init.policyVersion,
-    config: nonEmptyInit.config
+    ...accepted,
+    config: nonEmptyInit.config,
+    rng: () => 0.5
   }), /INIT_MISMATCH/);
 });
 

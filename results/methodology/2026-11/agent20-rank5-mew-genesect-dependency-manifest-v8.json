@@ -18,8 +18,8 @@
   },
   "tests": {
     "path": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
-    "gitBlobSha1": "97752161426e351f16c74ab8bc0d0d2c1126beb8",
-    "sha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+    "gitBlobSha1": "67a7e1e94437e176ad39da794f63b40807b2e88c",
+    "sha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
     "status": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed"
   },
   "commonConstraints": {
@@ -44,7 +44,7 @@
   "dependencyClosure": {
     "policyModuleSha256": "807e194830fde3db282399f4db7043d813e453c9d6ba2b2f95965c2a8fe3c928",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
-    "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+    "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
     "commonConstraintsSha256": "9f801c9e37758815bbd72bb138e6ec0cef45022837d016500943444069766626"
   },
   "bindingStatus": "diagnostic-only; not included in Agent36 V3 bundle or production policy plan",

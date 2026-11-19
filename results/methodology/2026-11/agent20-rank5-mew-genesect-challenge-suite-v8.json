@@ -35,8 +35,8 @@
   },
   "dependencyManifest": {
     "path": "results/methodology/2026-11/agent20-rank5-mew-genesect-dependency-manifest-v8.json",
-    "gitBlobSha1": "690e3961c3879fc46ceca50518b6858e97d19714",
-    "sha256": "ef31af5bcbb90aeb3dc616ca0b0dbf4cad0fcdf0d6a92dde48d31e6fd1b44b62"
+    "gitBlobSha1": "3dd7907e2a7f14610513f832a60f32916bb438d2",
+    "sha256": "eed1e3714ca3ec8cc75f72c11724ebb49014cb8f91b980c98deb4a194f354fa7"
   },
   "commonConstraints": {
     "path": "results/methodology/2026-11/agent20-rank5-mew-genesect-common-constraints-v8.json",
@@ -50,8 +50,8 @@
   },
   "testFile": {
     "path": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
-    "gitBlobSha1": "97752161426e351f16c74ab8bc0d0d2c1126beb8",
-    "sha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+    "gitBlobSha1": "67a7e1e94437e176ad39da794f63b40807b2e88c",
+    "sha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
     "status": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed"
   },
   "producerBindings": {
@@ -178,7 +178,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Fusion Strike System draws only while hand is below the Fusion Strike board count",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -262,7 +262,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Mew VMAX natural evolution is prioritized over generic Pokémon deployment",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -346,7 +346,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Wally is used only for a same-turn Mew V evolution opportunity",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -429,7 +429,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Double Colorless Energy is attached to Mew VMAX before Genesect",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -512,7 +512,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Genesect V is deployed as a second Fusion Strike System engine",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -599,7 +599,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Cross Fusion Strike selects the Genesect Techno Blast donor",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -689,7 +689,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Copied Energy Mix selects DCE and attaches it to an unpowered Mew VMAX",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -788,7 +788,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Guzma selects a vulnerable prize target",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -872,7 +872,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Special Charge recovers two DCE from discard",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -959,7 +959,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Ultra Ball discard cost preserves DCE and last Mew VMAX",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -1043,7 +1043,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Path to the Peak is sequenced after own draw abilities",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -1123,7 +1123,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Special Red Card is held until opponent has three or fewer Prizes",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -1204,7 +1204,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "DCE does not make standalone Techno Blast payable",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -1291,7 +1291,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Battle VIP Pass selects Mew V and Genesect V",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -1374,7 +1374,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Quick Ball discards a non-core Trainer instead of the only DCE",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -1450,7 +1450,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Unknown prompt family abstains",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -1539,7 +1539,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": null,
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "not-authored",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -1622,7 +1622,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": null,
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "not-authored",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -1698,7 +1698,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": null,
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "not-authored",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -1780,7 +1780,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": null,
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "not-authored",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -1862,7 +1862,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": null,
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "not-authored",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -1960,7 +1960,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Secret Box selects distinct supporter, item, tool, and stadium categories",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -2049,7 +2049,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Secret Box abstains when a required category is absent from the prompt",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -2127,7 +2127,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "the last Mew VMAX is not an Ultra Ball or Secret Box discard target",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -2228,7 +2228,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Guzma damage estimate adds 20 only for a visibly attached Muscle Band",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -2319,7 +2319,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Star Alchemy is used when it can fetch the missing Mew VMAX",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -2405,7 +2405,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Star Alchemy searches Mew VMAX before generic Trainer cards",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -2495,7 +2495,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Star Alchemy searches DCE when Mew VMAX is already in play without Energy",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -2579,7 +2579,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "Star Alchemy is not used after the VSTAR Power has been spent",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,
@@ -2674,7 +2674,7 @@
       "executionEvidence": {
         "testPath": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
         "testName": "DCE attachment uses public benchIndex when two Mew VMAX share a printing",
-        "testFileSha256": "5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8",
+        "testFileSha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
         "testStatus": "V8 worker-init regression authored; Node node --test pending; no V8 pass claimed",
         "nativeTraceDigestSha256": null,
         "nativeAcceptanceReceipt": null,

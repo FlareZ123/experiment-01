@@ -50,7 +50,7 @@ Test file: `tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs`
 
 Two fixture defects were corrected without changing policy behavior:
 
-- The test helper supplies `config: {}` to `protocol.validateInit` and to `createPolicy`; the module now rejects any non-empty runtime config. Rank/source/candidate identity remains fixed in module constants and v8 manifests.
+- The test helper now captures the return from `protocol.validateInit(init)` and spreads that accepted init envelope directly into `createPolicy({...accepted, rng})`, matching the shared worker's actual factory call. The module rejects any non-empty runtime config. Rank/source/candidate identity remains fixed in module constants and v8 manifests.
 - The Secret Box missing-category case now presents four selectable cards (two Supporters, one Item, one Stadium) with the required four-selection bounds, but still omits a Tool. This keeps the synthetic prompt structurally valid while exercising the intended fail-closed category check.
 
 The full v8 policy/test suite has not been executed in the Node runner or any compatibility harness. The narrow direct V8 smoke below exercised only the actual worker validator and policy factory; it is not a test-file execution or Node-runner attestation.
@@ -74,7 +74,7 @@ This is direct runtime evidence for the narrow zero-key initialization boundary 
 | Artifact | SHA-256 |
 |---|---|
 | Policy module | `807e194830fde3db282399f4db7043d813e453c9d6ba2b2f95965c2a8fe3c928` |
-| Test file | `5f03c81204ce0b2c8b90d3e778886022484f3cfc69ec65dcc57ed07e710ff6d8` |
+| Test file | `831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0` |
 | Agent49 worker protocol | `5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751` |
 | Common constraints v8 | `9f801c9e37758815bbd72bb138e6ec0cef45022837d016500943444069766626` |
 | Dependency manifest v8 | `ef31af5bcbb90aeb3dc616ca0b0dbf4cad0fcdf0d6a92dde48d31e6fd1b44b62` |
