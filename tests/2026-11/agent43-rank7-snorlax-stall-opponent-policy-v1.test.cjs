@@ -589,11 +589,11 @@ test('Palace Book remains explicitly blocked rather than guessed from a missing 
 test('unknown native prompt family fails closed', () => {
   const request = promptRequest({
     promptType: 'NightWatchPhysicalPrompt',
-    source: actorChoiceSource('Palace Book SMP NAN25', 'Unmapped effect'),
+    source: actorChoiceSource('Unknown Source XY 999', 'Unmapped effect'),
     choices: [{ token: 'x', kind: 'option', label: 'Unknown' }]
   });
   assert.deepEqual(checkedDecision(request),
-    { kind: 'abstain', reasonCode: 'PALACE_BOOK_ENGINE_TEXT_UNVERIFIED' });
+    { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' });
 });
 
 test('seat 1 uses the same actor-only policy without seat leakage', () => {
@@ -643,4 +643,84 @@ test('unrecognized root card without a pass action abstains rather than inventin
   });
   assert.deepEqual(checkedDecision(request),
     { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ACTION' });
+});
+
+test('Faba can remove Hood when Wobbuffet is already Active without requiring Jet Energy', () => {
+  const board = fabaBoard({
+    ownActive: pokemon('Wobbuffet PHF 36'),
+    ownBench: [pokemon('Snorlax PGO 55'), null]
+  });
+  const view = observation({
+    ownHand: ['Faba LOT 173', 'Nest Ball SVI 181'],
+    ownPublic: board.ownPublic, opponentPublic: board.opponentPublic
+  });
+  assert.ok(source7FabaJetNestReady(view));
+  const request = rootRequest({
+    ownHand: ['Faba LOT 173', 'Nest Ball SVI 181'],
+    ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
+    items: [
+      { token: 'faba', kind: 'play-card', actorPrinting: 'Faba LOT 173' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'faba' });
+});
+
+test('public Vileplume lock blocks Item actions even when restriction projection is empty', () => {
+  const board = fabaBoard();
+  const request = rootRequest({
+    ownHand: ['Megaton Blower SSP 182'],
+    ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
+    ownTurnResources: turnResources(),
+    items: [
+      { token: 'megaton', kind: 'play-card', actorPrinting: 'Megaton Blower SSP 182' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'pass' });
+});
+
+test('Tool Jammer is not played as an Item while Hooded Vileplume remains active', () => {
+  const board = fabaBoard();
+  const request = rootRequest({
+    ownPublic: player({ active: pokemon('Snorlax PGO 55') }),
+    opponentPublic: board.opponentPublic,
+    ownTurnResources: turnResources(),
+    items: [
+      { token: 'jammer', kind: 'play-card', actorPrinting: 'Tool Jammer BST 136',
+        targetPrinting: 'Snorlax PGO 55' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'pass' });
+});
+
+test('Temple of Sinnoh blocks the Jet Energy Wobbuffet unlock line', () => {
+  const board = fabaBoard({ hood: false });
+  board.ownPublic.stadium = ['Temple of Sinnoh ASR 155'];
+  const request = rootRequest({
+    ownHand: ['Jet Energy PAL 190', 'Nest Ball SVI 181'],
+    ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
+    items: [
+      { token: 'jet', kind: 'play-card', actorPrinting: 'Jet Energy PAL 190',
+        targetPrinting: 'Wobbuffet PHF 36' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.equal(source7JetWobbuffetReady(request.observation), false);
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'pass' });
+});
+
+test('Wobbuffet is not prioritized while Power of Alchemy suppresses its Ability', () => {
+  const board = fabaBoard({
+    opponentBench: [pokemon('Alolan Muk SUM 58', { abilities: ['Power of Alchemy'] })]
+  });
+  const request = rootRequest({
+    ownPublic: board.ownPublic, opponentPublic: board.opponentPublic,
+    items: [
+      { token: 'wobb', kind: 'play-card', actorPrinting: 'Wobbuffet PHF 36' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'pass' });
 });
