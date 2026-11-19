@@ -243,13 +243,18 @@ function ownSwitchPriority(pokemon, observation) {
   if (matches(pokemon, PRINT.ragingBolt)) {
     const energies = list(pokemon.energies);
     const hasDde = energies.some(value => PRINT.doubleDragon.test(printingValue(value)));
-    const hasLightning = energies.some(value => /Lightning Energy MEE\b/i.test(printingValue(value)));
-    const hasFighting = energies.some(value => /Fighting Energy MEE\b/i.test(printingValue(value)));
+    const types = energies.map(basicEnergyType).filter(Boolean);
+    const hasLightning = types.includes('lightning');
+    const hasFighting = types.includes('fighting');
     return hasDde || (hasLightning && hasFighting) ? 240 : 170;
   }
   if (matches(pokemon, PRINT.adp)) return attachedEnergy(pokemon, PRINT.doubleDragon) > 0 ? 225 : 130;
-  if (matches(pokemon, PRINT.sandyShocks)) return list(pokemon.energies).length >= 2 ? 160 : 110;
-  if (matches(pokemon, PRINT.moltres)) return list(pokemon.energies).length >= 2 ? 150 : 100;
+  if (matches(pokemon, PRINT.sandyShocks)) {
+    return list(pokemon.energies).filter(value => basicEnergyType(value) === 'fighting').length >= 2 ? 160 : 110;
+  }
+  if (matches(pokemon, PRINT.moltres)) {
+    return list(pokemon.energies).filter(value => basicEnergyType(value) === 'darkness').length >= 2 ? 150 : 100;
+  }
   if (matches(pokemon, PRINT.flutterMane) && opponentHasVisibleAbility(observation)) return 215;
   if (matches(pokemon, PRINT.latias)) return 65;
   return 30 + Math.max(0, 200 - remainingHp(pokemon)) / 20;
@@ -457,21 +462,47 @@ function attachTargetPriority(choice, request, context) {
   const own = request.observation.ownPublic;
   if (context.includes('professor sada')) {
     if (!ancientPokemon(pokemon)) return 0;
-    if (matches(pokemon, PRINT.ragingBolt)) return list(pokemon.energies).length < 2 ? 240 : 190;
-    if (matches(pokemon, PRINT.sandyShocks)) return request.observation.opponentPublic.prizeCount <= 4 ? 210 : 140;
+    if (matches(pokemon, PRINT.ragingBolt)) {
+      return list(pokemon.energies).filter(isBasicEnergy).length < 2 ? 240 : 190;
+    }
+    if (matches(pokemon, PRINT.sandyShocks)) {
+      const hasFighting = list(pokemon.energies).some(value => basicEnergyType(value) === 'fighting');
+      return request.observation.opponentPublic.prizeCount <= 4 ? (hasFighting ? 165 : 215) : 140;
+    }
     if (matches(pokemon, PRINT.flutterMane)) return 100;
   }
   if (context.includes('dance of the ancients')) {
-    if (matches(pokemon, PRINT.ragingBolt)) return 250;
-    if (matches(pokemon, PRINT.adp)) return 230;
-    if (matches(pokemon, PRINT.sandyShocks)) return 170;
+    if (matches(pokemon, PRINT.ragingBolt)) {
+      return list(pokemon.energies).some(value => basicEnergyType(value) === 'lightning') ? 190 : 250;
+    }
+    if (matches(pokemon, PRINT.adp)) {
+      return list(pokemon.energies).some(value => basicEnergyType(value) === 'lightning') ? 170 : 230;
+    }
+    if (matches(pokemon, PRINT.sandyShocks)) return 150;
   }
   if (context.includes('ultimate ray')) {
-    if (matches(pokemon, PRINT.ragingBolt)) return 250;
-    if (matches(pokemon, PRINT.sandyShocks)) return 220;
-    if (matches(pokemon, PRINT.moltres)) return 190;
+    if (matches(pokemon, PRINT.ragingBolt)) return list(pokemon.energies).filter(isBasicEnergy).length < 2 ? 250 : 180;
+    if (matches(pokemon, PRINT.sandyShocks)) {
+      return list(pokemon.energies).some(value => basicEnergyType(value) === 'fighting') ? 170 : 220;
+    }
+    if (matches(pokemon, PRINT.moltres)) {
+      return list(pokemon.energies).some(value => basicEnergyType(value) === 'darkness') ? 150 : 190;
+    }
     if (matches(pokemon, PRINT.adp)) return 100;
   }
+  return 0;
+}
+function prizeTargetPriority(choice, request) {
+  const value = typeof choice.printing === 'string' ? choice.printing :
+    (typeof metadata(choice).cardPrinting === 'string' ? metadata(choice).cardPrinting : '');
+  if (!value) return 0;
+  const own = request.observation.ownPublic;
+  if (PRINT.ragingBolt.test(value) && boardCount(own, PRINT.ragingBolt) < 2) return 250;
+  if (PRINT.adp.test(value) && !boardHas(own, PRINT.adp)) return 230;
+  if (PRINT.latias.test(value) && !boardHas(own, PRINT.latias)) return 210;
+  if (PRINT.tapuLele.test(value) && !hasSupporterInHand(request.observation)) return 185;
+  if ((PRINT.dedenne.test(value) || PRINT.crobat.test(value)) && handSize(request.observation) <= 3) return 170;
+  if (PRINT.hoOh.test(value) && discardEnergyTypes(own).size >= 3 && !boardHas(own, PRINT.hoOh)) return 160;
   return 0;
 }
 function bellowingDamageModel(target) {
@@ -855,7 +886,11 @@ function promptDecision(request) {
   }
 
   if (prompt.promptType === 'ChoosePrizePrompt') {
-    return selectMany(prompt, choice => printingValue(choice) ? 100 : 0, 'PRIZE_PRINTINGS_NOT_VISIBLE');
+    if (!lower.includes('hisuian heavy ball')) {
+      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PRIZE_PROMPT_SOURCE' };
+    }
+    return selectMany(prompt, choice => prizeTargetPriority(choice, request),
+      'NO_VISIBLE_BASIC_POKEMON_PRIZE');
   }
 
   if (prompt.promptType === 'ConfirmPrompt') {
