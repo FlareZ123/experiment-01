@@ -416,8 +416,10 @@ function opponentPokemonScore(choice, observation, context) {
   if (choiceOwner(choice) !== 'opponent') return 0;
   const zone = choiceZone(choice);
   const printing = choicePrinting(choice);
+  const slotIndex = choice?.publicMetadata?.selectionIndex ?? choice?.publicMetadata?.benchIndex;
   const row = slots(observation.opponentPublic).find(item =>
-    item.pokemon.printing === printing && item.zone === zone);
+    item.zone === zone && (Number.isSafeInteger(slotIndex) ? item.index === slotIndex :
+      item.pokemon.printing === printing));
   const pokemon = row?.pokemon;
   if (context === 'guzma' && zone !== 'bench') return 0;
   if (context === 'plumeria' && energyCount(pokemon) === 0) return 0;
@@ -433,8 +435,10 @@ function opponentPokemonScore(choice, observation, context) {
 
 function ownSwitchScore(choice, observation) {
   if (choiceOwner(choice) !== 'actor' || choiceZone(choice) !== 'bench') return 0;
+  const slotIndex = choice?.publicMetadata?.selectionIndex ?? choice?.publicMetadata?.benchIndex;
   const row = slots(observation.ownPublic).find(item =>
-    item.zone === 'bench' && item.pokemon.printing === choicePrinting(choice));
+    item.zone === 'bench' && (Number.isSafeInteger(slotIndex) ? item.index === slotIndex :
+      item.pokemon.printing === choicePrinting(choice)));
   if (!row || !matches(row.pokemon.printing, PRINT.ironThorns)) return 0;
   return 100 + energyCount(row.pokemon) * 30 - (row.pokemon.damage ?? 0);
 }
