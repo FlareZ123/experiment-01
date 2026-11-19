@@ -36,10 +36,10 @@
   },
   "dependencies": {
     "manifestPath": "results/aichi-2026/2026-11/agent31-rank11-opponent-policy-v1-dependencies.json",
-    "manifestSha256": "4fee3c65f197093da7a8170e2db0df1a9b90770513ebd4a0f24e413add6c6a6c",
+    "manifestSha256": "a442424315e30bd348937f47232a3051f75563aca60c15af5c09dabe8206c6ad",
     "policyTestPath": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
-    "policyTestGitBlobSha1": "24f075dd1f948ed8fba07bea41ca3127053fa820",
-    "policyTestSha256": "c41388400ce56b352918e4397b02ff6333e3c7e5b5acbbfeb9f214158e8b7c71",
+    "policyTestGitBlobSha1": "0e5b1264681cd35aec353f427969ab034e916dbf",
+    "policyTestSha256": "eb6084e8462007b40e1e3f1874e98a90135974e535e40b275972e1eca560fa95",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "engineSubmodulePath": "vendor/twinleaf",
@@ -1073,8 +1073,8 @@
     }
   ],
   "evidenceSummary": {
-    "syntheticUnitTests": 27,
-    "syntheticUnitTestsPassed": 27,
+    "syntheticUnitTests": 28,
+    "syntheticUnitTestsPassed": 28,
     "syntheticUnitTestsFailed": 0,
     "developmentCaseCount": 12,
     "heldOutReviewCaseCount": 4,
