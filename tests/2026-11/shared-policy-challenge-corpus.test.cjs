@@ -8,6 +8,13 @@ const test = require('node:test');
 const corpusModule = require('../../simulation/evaluation/2026-11/shared-policy-challenge-corpus.cjs');
 const ROOT = path.resolve(__dirname, '../..');
 
+test('Git blob SHA-1 uses the repository object header', () => {
+  assert.equal(
+    corpusModule.gitBlobSha1(Buffer.from('test')),
+    '30d74d258442c7c65512eafab474568dd706c430'
+  );
+});
+
 test('normalizes source split aliases without merging evidence classes', () => {
   assert.equal(corpusModule.normalizeSplit('held_out_review', 'scenarios'), 'held-out');
   assert.equal(corpusModule.normalizeSplit('negative_control', 'scenarios'), 'negative-control');
@@ -86,6 +93,15 @@ test('pinned source set regenerates the checked-in corpus exactly', () => {
   assert.equal(generated.curatedSubset.runtimeActorViewDigestCases, 0);
   assert.equal(generated.curatedSubset.exactRuntimeObservationCases, 0);
   assert.equal(generated.curatedSubset.nativeGameCount, 0);
+  assert.equal(generated.curatedSubset.nativeStoreReceiptCases, 0);
+  assert.equal(generated.curatedSubset.nativeTraceDigestCases, 0);
+  assert.equal(generated.curatedSubset.allCasesBlocked, true);
+  assert.equal(generated.curatedSubset.actorViewPayloadsCopied, false);
+  assert.deepEqual(generated.curatedSubset.dispositionCounts, { blocked: 30 });
+  assert.deepEqual(generated.curatedSubset.trainingUseCounts, {
+    'development-regression-only': 24,
+    'held-out-not-used-for-tuning': 6
+  });
   assert.deepEqual(generated.curatedSubset.sourceRanks, [3, 4, 5, 6, 7, 31]);
   assert.deepEqual(generated.curatedSubset.roleCounts, { opponent: 30 });
   assert.equal(generated.curatedSubset.candidateRoleCases, 0);
