@@ -290,22 +290,46 @@ function cardPriority(value, observation, source) {
   return 5;
 }
 
-function scoreDiscardChoice(choice, request, needed) {
+function scoreDiscardChoice(choice, request) {
   const text = printingValue(choice);
   const observation = request.observation;
   const sameInHand = hand(observation).filter(card =>
     printingValue(card) === text).length;
   if (sameInHand > 1) return 150;
-  if (PRINT.pokemonRanger.test(text) || PRINT.gladion.test(text)) return 90;
   if (PRINT.carmine.test(text) && observation.globalTurn !== 1) return 80;
-  if (PRINT.lillie.test(text) && handCount(observation) > 3) return 70;
-  if (PRINT.unitEnergy.test(text) || PRINT.reversalEnergy.test(text) ||
-      PRINT.counterEnergy.test(text)) return needed >= 3 ? 25 : 10;
-  if (PRINT.voltorb.test(text) && boardHas(own(observation), PRINT.electrode)) return 60;
-  if (PRINT.pikachu.test(text) && boardHas(own(observation), PRINT.raichu)) return 55;
-  if (PRINT.dedenne.test(text) && boardHas(own(observation), PRINT.dedenne)) return 45;
-  if (PRINT.crobat.test(text) && boardHas(own(observation), PRINT.crobat)) return 40;
+  if (PRINT.lillie.test(text) && handCount(observation) > 4 &&
+      hand(observation).some(card => printingValue(card) !== text &&
+        SUPPORTERS.some(pattern => pattern.test(printingValue(card))))) return 70;
+  if (PRINT.pokemonRanger.test(text) && hand(observation).some(card =>
+      SUPPORTERS.some(pattern => pattern.test(printingValue(card)) &&
+        !PRINT.pokemonRanger.test(printingValue(card))))) return 60;
   return 0;
+}
+
+function discardCapacity(observation) {
+  const cards = hand(observation);
+  const counts = new Map();
+  for (const card of cards) {
+    const text = printingValue(card);
+    counts.set(text, (counts.get(text) ?? 0) + 1);
+  }
+  let capacity = 0;
+  for (const [text, count] of counts) {
+    if (count > 1) {
+      capacity += count - 1;
+    } else if (PRINT.carmine.test(text) && observation.globalTurn !== 1) {
+      capacity += 1;
+    } else if (PRINT.lillie.test(text) && cards.length > 4 &&
+        cards.some(card => printingValue(card) !== text &&
+          SUPPORTERS.some(pattern => pattern.test(printingValue(card))))) {
+      capacity += 1;
+    } else if (PRINT.pokemonRanger.test(text) && cards.some(card =>
+        SUPPORTERS.some(pattern => pattern.test(printingValue(card)) &&
+          !PRINT.pokemonRanger.test(printingValue(card))))) {
+      capacity += 1;
+    }
+  }
+  return capacity;
 }
 
 function scorePokemonPlay(value, observation) {
@@ -574,7 +598,7 @@ function selectSafeDiscards(choices, request, minimum, maximum, multiSelect) {
   const ranked = list(choices).map((choice, index) => ({
     choice,
     index,
-    score: scoreDiscardChoice(choice, request, minimum)
+    score: scoreDiscardChoice(choice, request)
   })).filter(row => row.score > 0 && typeof row.choice?.token === 'string')
     .sort((a, b) => b.score - a.score || a.index - b.index);
   const selected = [];
