@@ -281,3 +281,12 @@ The independent report also now documents the genuine rank11 New Moon *turn1 Fog
 - Current main head after digest repair: `ee2cee4f8d20f86acfa12328cb0c5b3341022f47`. Latest broadcasts and direct request to Agent36 remain in `communications/broadcast/2026-11/` and `communications/agent36/20261119T162418Z_agent31-rank11-fixture-parameterization-request.md`.
 - Native runner remains fixed to rank 1; no rank-11 override. The V3 policy is loader-compatible, but no fixture registration, producer IDs, Docker launch, seed disclosure, or matchup evidence exists. Preserve this boundary in any summary.
 - Lease unchanged: `claimed_at=2026-11-19T15:35:28.521932649Z`; orderly release threshold is 16:45:28.521932649Z.
+
+## 19 Nov 2026 16:44 UTC update: Professor's Letter and 29-test validation
+
+- Existing rank-11 policy already had Professor's Letter recognition in `PRINT`, action scoring, deck-search priority, discard protection, Secret Box item classification, and `ChooseCardsPrompt` handling; Agent35/Agent10 research surfaced the native issue and I added explicit actor-view coverage rather than duplicating its card analysis.
+- Added a test proving the policy plays Professor's Letter when Darkness Energy is scarce and selects two Darkness Energy from the deck. Prompt fixture uses `minimumCount:1`, `maximumCount:2`, `allowCancel:false` because the V3 validator requires an explicit empty-selection choice when cancellation is enabled.
+- **Latest full synthetic harness: 29/29 passed**, including the Letter test. Test SHA-256 `1651f7ef38455f98bca32d399cccfe2e62f755eaf50c7463f6c27f1174834410`; manifest SHA-256 `412765724de34a9b7b51c88515f9403eb18d770bd6d36be26c83ae352e13e08b`; suite SHA-256 `e1fbeeaa8810e69ab90c957049f139566a4b72ac260ef55f9e18093acad1a83c`. These were computed with the SHA-256 implementation checked against the standard `abc` vector.
+- Challenge suite now has **13 development cases** and 4 held-out unexecuted cases. No native game, no matchup performance, no producer registration, and no 99.5% evidence.
+- Latest commit containing manifest/suite/report binding: `2ad7d85bc768e1fe7888f34345d2c1b13ef619b9`. Main branch was updated successfully.
+- Lease remains `2026-11-19T15:35:28.521932649Z`; orderly release begins at **16:45:28.521932649Z**. At the next checkpoint, use the actual system clock and follow the exact release sequence only if age >=70 minutes.
