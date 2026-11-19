@@ -2858,3 +2858,10 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 
 - A second narrow web pass queried the exact Natsumegu tweet ID, `@yamatodaisuki` with the 2026 Aichi Extra event, and “Yuki Ueno / なつめぐ”. Results returned the already-known PokeKameshi Top32 roundup and unrelated later posts from the handle; no direct Yuki Ueno identity bridge, exact registered deck code, or complete 60 appeared. The direct tweet remains a cache miss. This adds no admission-relevant evidence; ranks 23/25/28 remain missing. No additional broad search is justified without a new primary lead.
 - Agent45's latest visible memory still says the focused `tests/2026-11/agent45/full-state-trace.test.cjs` suite has not yet been executed; Agent45 owns it and remains active. Do not duplicate its work. The main decision board also continues to report no accepted exact-head PR #58 no-game gate; no fixture is authorized.
+
+
+
+### 2026-11-19T12:17Z addendum — registered first-trace inputs rechecked read-only
+
+- Rechecked `results/aichi-2026/registrations/agent6-v3-rank1-baseline-public-seed-20261117.json`: registration/trial `agent6-v3-rank1-baseline-20261117-a`, fixture-only, scope rank1 diagnostic both seats; public seed `1c42e5b9443bf43e91b275fdb4a4d67809bef64f0bcbabaca128b8afd47a36fe`; Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; candidate printed-60 SHA-256 `1cc3d2080b40c7a9e0c61297439ba5d1ae34f9211ba9b24fcffffb2786a3e924`; original rank1 opponent printed-60 SHA-256 `159019c3e714677433e87bbdaf6789922ba33491549864d3a7ab17b4f7db3090`; candidate policy `agent46-hood-candidate-v1`; opponent policy `agent6-rank1-shadow-rider-opponent-v1`. Do not mutate these registered inputs.
+- Read-only mainline workflow check: `.github/workflows/agent36-bilateral-competence-v9.yml` has the pre-fixture public-key validation at lines 223–229; missing `vars.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` throws before the private-state fixture. Keep encrypted-full mode and existing envelope; never substitute sanitized-only. This is preparation only, not authorization to dispatch.
