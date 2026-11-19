@@ -14,7 +14,7 @@
     "producerBindingStatus": "not bound into signed/hash-bound V3 plan; standalone prototype only",
     "modulePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
     "moduleBlobSha1": "18ba4a18cfe69bc6059d0d3941c9aa1dfea3ed12",
-    "moduleSha256": "9751fe1e54e76899c7846f6a78e449b97fcccdfbeee6636de56857554fe579ac",
+    "moduleSha256": "8feb6c6d28e04c73ff7d2ff75b315c955a8bf0073228451184d97a6388320509",
     "config": {
       "rank": 3,
       "sourceFingerprint": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
@@ -91,7 +91,7 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json",
-    "manifestSha256": "37840443747f693eebcb913fba5203fa6be8f9370cf6b41f0db442e78171cf1e",
+    "manifestSha256": "3741a10c7a3fc529dedb42d903eda4457803bfa2ed2725767833ce2f2b103772",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
@@ -99,7 +99,7 @@
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "testFilePath": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
     "testFileBlobSha1": "2468511c334357c0c653291f5f318071a0549a21",
-    "testFileSha256": "e95533c0530915a7c0d17768f1ec209667acec5bae97de09ebc6a85abdbc7d35",
+    "testFileSha256": "96a4ad2ad6452b6494cce0dddf9906f6e861ceb25048fe22e196278e775b398a",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -9276,7 +9276,7 @@
     ]
   },
   "caseRecordCount": 49,
-  "suiteSha256": "313cae5f5c33c5678a147b1005607efcb78fb101a6fbc7966185b5bae8529cb7",
+  "suiteSha256": "a6074864f3cc89300c7865d958a7813b825b18aed6fbe187ddf3d97599c88bc3",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
@@ -9284,8 +9284,8 @@
     "sourceRank": 3,
     "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
     "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
-    "policySha256": "9751fe1e54e76899c7846f6a78e449b97fcccdfbeee6636de56857554fe579ac",
-    "dependencyManifestSha256": "37840443747f693eebcb913fba5203fa6be8f9370cf6b41f0db442e78171cf1e",
+    "policySha256": "8feb6c6d28e04c73ff7d2ff75b315c955a8bf0073228451184d97a6388320509",
+    "dependencyManifestSha256": "3741a10c7a3fc529dedb42d903eda4457803bfa2ed2725767833ce2f2b103772",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
@@ -9485,7 +9485,7 @@
   "policyStaticAudit": {
     "sourcePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
     "sourceBlobSha1": "18ba4a18cfe69bc6059d0d3941c9aa1dfea3ed12",
-    "sourceSha256": "9751fe1e54e76899c7846f6a78e449b97fcccdfbeee6636de56857554fe579ac",
+    "sourceSha256": "8feb6c6d28e04c73ff7d2ff75b315c955a8bf0073228451184d97a6388320509",
     "scannedAt": "2026-11-19T15:14:47Z",
     "scannedTerms": [
       {
