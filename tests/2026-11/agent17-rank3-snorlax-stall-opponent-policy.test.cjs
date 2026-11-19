@@ -1027,3 +1027,102 @@ test('Mimikyu is prioritized as a defensive Basic against the candidate V and ex
     kind: 'select-action', token: 'mimikyu'
   });
 });
+
+
+test('Teammates searches for Tool Jammer and Faba when Snorlax is already active', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Teammates PRC 141', 'Teammates'),
+    observation: {
+      ownPublic: player({ active: pokemon('Snorlax PGO 55') })
+    },
+    choices: [
+      cardChoice('jammer', 'Tool Jammer BST 136'),
+      cardChoice('faba', 'Faba LOT 173'),
+      cardChoice('nest', 'Nest Ball SVI 181'),
+      cardChoice('snorlax', 'Snorlax PGO 55')
+    ],
+    publicMetadata: multiMetadata(2, 2)
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['jammer', 'faba']
+  });
+});
+
+test('VS Seeker recovers Faba ahead of lower-impact Supporters', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('VS Seeker PHF 109', 'VS Seeker'),
+    choices: [
+      cardChoice('lillie', "Lillie's Determination MEG 119", 'discard'),
+      cardChoice('plumeria', 'Plumeria BUS 120', 'discard'),
+      cardChoice('faba', 'Faba LOT 173', 'discard')
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice', token: 'faba'
+  });
+});
+
+test('Trainers’ Mail searches for Faba ahead of lower-priority Item and Tool options', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource("Trainers' Mail ROS 92", "Trainers' Mail"),
+    choices: [
+      cardChoice('nest', 'Nest Ball SVI 181'),
+      cardChoice('jammer', 'Tool Jammer BST 136'),
+      cardChoice('faba', 'Faba LOT 173')
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice', token: 'faba'
+  });
+});
+
+test('Penny picks up the most damaged legal Basic Pokémon without lifting Active Snorlax', () => {
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Penny SVI 183', 'Penny'),
+    observation: {
+      ownPublic: player({
+        active: pokemon('Snorlax PGO 55', { damage: 80 }),
+        bench: [
+          pokemon('Bunnelby PRC 121', { damage: 70 }),
+          pokemon('Rotom V LOR 58', { damage: 20 })
+        ]
+      })
+    },
+    choices: [
+      pokemonChoice('snorlax', 'Snorlax PGO 55', 'actor', 'active', 0),
+      pokemonChoice('bunnelby', 'Bunnelby PRC 121', 'actor', 'bench', 1),
+      pokemonChoice('rotom', 'Rotom V LOR 58', 'actor', 'bench', 2)
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice', token: 'bunnelby'
+  });
+});
+
+test('Scoop Up Cyclone chooses a damaged benched Pokémon and preserves Active Snorlax', () => {
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Scoop Up Cyclone TWM 162', 'Scoop Up Cyclone'),
+    observation: {
+      ownPublic: player({
+        active: pokemon('Snorlax PGO 55', { damage: 80 }),
+        bench: [
+          pokemon('Bunnelby PRC 121', { damage: 30 }),
+          pokemon('Rotom V LOR 58', { damage: 80, energies: ['Psychic Energy'] })
+        ]
+      })
+    },
+    choices: [
+      pokemonChoice('snorlax', 'Snorlax PGO 55', 'actor', 'active', 0),
+      pokemonChoice('bunnelby', 'Bunnelby PRC 121', 'actor', 'bench', 1),
+      pokemonChoice('rotom', 'Rotom V LOR 58', 'actor', 'bench', 2)
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice', token: 'rotom'
+  });
+});
