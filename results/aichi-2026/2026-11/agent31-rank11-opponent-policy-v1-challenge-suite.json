@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "manifestPath": "results/aichi-2026/2026-11/agent31-rank11-opponent-policy-v1-dependencies.json",
-    "manifestSha256": "4f0a661bb6e35343592d4c8458599df2a88865b594aa6205c5822023028133e1",
+    "manifestSha256": "6cb5d85c54e69c32a69da16ef81f80895e847bdbae0ae5a0aef1b99c152acdee",
     "policyTestPath": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
     "policyTestGitBlobSha1": "5302afe87fa83a632fd261c0dfbffb06b97cd091",
     "policyTestSha256": "6493e7a95c1b22c3f7e888d62ec0c046ff10965b188a68eeaa1f33178d9afc54",
