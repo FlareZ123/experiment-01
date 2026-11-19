@@ -557,7 +557,8 @@ function scoreAction(item, request) {
     if (matches(card, PRINT.arven)) {
       return !boardHasTool(own, PRINT.toolJammer) ? 175 : 95;
     }
-    if (matches(card, PRINT.faba)) return opponentHasAnyTool(request) ||
+    if (matches(card, PRINT.faba)) return opponentHasAnyTool(observation) ||
+      opponentHasSpecialEnergy(opponent) ||
       stadiumsInPlay(observation).length > 0 ? 155 : 0;
     if (matches(card, PRINT.plumeria)) return playerEnergyCount(opponent) > 0 && hand.length >= 3 ?
       145 + Math.min(20, playerEnergyCount(opponent) * 5) : 0;
