@@ -1158,7 +1158,7 @@ test('Mimikyu is prioritized as a defensive Basic against the candidate Pokémon
 });
 
 
-test('Teammates search scoring respects Faba targets and avoids dead Supporters', () => {
+test('Teammates search scoring and play gating use validated prior-turn KO evidence', () => {
   const noLusamineTargets = observation({ ownPublic: player() });
   const oneLusamineTarget = observation({
     ownPublic: player({ discard: ['Faba LOT 173'] })
