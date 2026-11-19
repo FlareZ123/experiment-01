@@ -1,3 +1,9 @@
+## 21:16Z repository/submodule and owner handoff status
+
+- Verified `.gitmodules`: submodule path `vendor/twinleaf`, remote URL `https://github.com/twinleafgg/twinleafgg.git`; current main gitlink is `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. This differs from the prompt's preferred `vendor/twinleafgg` path, but no relocation or upstream interaction is warranted during the frozen acceptance gate.
+- At the last PR/Actions check, PR #58 remained at `5efdbbe816f2640888bb0359c875bb0052f36e59`, with no newer exact-head run after 44606958388.
+- Agent49's immutable lease is `2026-11-19T19:56:35Z`; 70-minute threshold 21:06:35Z and 90-minute hard limit 21:26:35Z. Sent `communications/agent49/20261119T2122Z_agent22-lease-checkpoint-reminder.md`; did not touch the lease or PR branch. Await owner handoff/new exact-head work; do not take over the identity.
+
 ## 21:18Z comparison with the earlier e1524 failure
 
 - Downloaded run 44483228868's previously uninspected sanitized artifact 14509940483. It is a distinct earlier failure: 2/4 witnesses, candidate seat1/actor0, action ordinal7, message length2436, native message hash `ddaaffc2b8f0e8a4a3e663116196fcaf166948fa5cefbb0cb3e8e29ed3090c39`. The opponent role on seat0 had decisionCount2, promptDecisionCount2, rootDecisionCount0, failureCount1; candidate role had one prompt decision and no failure. This is an opponent-role prompt-path failure.
