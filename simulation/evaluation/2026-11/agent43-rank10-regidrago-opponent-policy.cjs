@@ -6,8 +6,9 @@
  * authority. This is a starting policy, not a competitive-strength claim.
  */
 
-const POLICY_VERSION = 'agent43-rank10-regidrago-opponent-v1';
+const POLICY_VERSION = 'agent43-rank10-regidrago-opponent-v2';
 const { chooseApexAttack } = require('./agent43-regidrago-apex-choice.cjs');
+const { choosePhantomDiveAllocation } = require('./agent43-phantom-dive-allocation.cjs');
 
 const PRINT = Object.freeze({
   regidragoV: /^Regidrago V SIT 135\b/i,
@@ -272,7 +273,7 @@ function targetPokemonFromChoice(choice, observation) {
   };
 }
 
-function promptDecision(request) {
+function promptDecision(request, options = {}) {
   const prompt = request.prompt;
   const choices = list(prompt?.choices);
   const metadata = prompt?.publicMetadata ?? {};
@@ -282,8 +283,21 @@ function promptDecision(request) {
   const max = Number.isSafeInteger(metadata.maximumCount) ? metadata.maximumCount :
     (Number.isSafeInteger(metadata.count) ? metadata.count : min);
 
+  if (prompt.promptType === 'PutDamagePrompt') {
+    const isPhantomDive = /phantom dive|dragapult ex twm 130/i.test(context);
+    if (!isPhantomDive) return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PUT_DAMAGE_PROMPT' };
+    if (options.allowPhantomDiveAllocation !== true) {
+      return { kind: 'abstain', reasonCode: 'PHANTOM_DIVE_ALLOCATION_DISABLED' };
+    }
+    return choosePhantomDiveAllocation(choices, request.observation);
+  }
+
   if (prompt.promptType === 'ChooseAttackPrompt' && /apex dragon/i.test(context)) {
-    return chooseApexAttack(choices, request.observation);
+    const supportedChoices = options.allowPhantomDiveAllocation === true ? choices :
+      choices.filter(choice => !/phantom dive/i.test([
+        choice?.attackName, choice?.publicMetadata?.sourceAttack, choice?.label
+      ].filter(Boolean).join(' ')));
+    return chooseApexAttack(supportedChoices, request.observation);
   }
 
   if (metadata.selectionType === 'card-combination' || metadata.selectionType === 'pokemon' ||
@@ -418,17 +432,25 @@ function bestAction(request) {
 }
 
 function createPolicy({ role, seat, policyVersion, config }) {
+  const configKeys = config && typeof config === 'object' && !Array.isArray(config)
+    ? Object.keys(config) : null;
+  const allocationMode = config?.phantomDiveAllocation ?? 'disabled';
   if (role !== 'opponent' || (seat !== 0 && seat !== 1) ||
-      policyVersion !== POLICY_VERSION || !config || Object.keys(config).length !== 0) {
+      policyVersion !== POLICY_VERSION || configKeys === null ||
+      configKeys.some(key => key !== 'phantomDiveAllocation') ||
+      !['disabled', 'complete-choice-token-v1'].includes(allocationMode)) {
     throw new Error('AGENT43_POLICY_INIT_MISMATCH');
   }
+  const allowPhantomDiveAllocation = allocationMode === 'complete-choice-token-v1';
   return Object.freeze({
     decide(request) {
       if (!request || request.role !== 'opponent' || request.seat !== seat ||
           request.observation?.actorSeat !== seat) {
         return { kind: 'abstain', reasonCode: 'ROLE_SEAT_BINDING_MISMATCH' };
       }
-      if (request.prompt && request.prompt.promptType) return promptDecision(request);
+      if (request.prompt && request.prompt.promptType) {
+        return promptDecision(request, { allowPhantomDiveAllocation });
+      }
       return bestAction(request);
     }
   });
