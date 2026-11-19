@@ -463,7 +463,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -712,7 +712,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -944,7 +944,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -1273,7 +1273,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -1575,7 +1575,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -1854,7 +1854,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -2149,7 +2149,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -2445,7 +2445,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -2778,7 +2778,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -3053,7 +3053,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -3328,7 +3328,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -3717,7 +3717,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -4227,7 +4227,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -4504,7 +4504,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -4733,7 +4733,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -5002,7 +5002,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -5273,7 +5273,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -5584,7 +5584,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -5821,7 +5821,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -6058,7 +6058,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -6295,7 +6295,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -6532,7 +6532,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -6766,7 +6766,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -7009,7 +7009,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -7348,7 +7348,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -7684,7 +7684,7 @@
         "nativeTwinleafExecution": false
       },
       "disposition": "blocked",
-      "dispositionReason": "Source-bound actor-view case retained from v1; v2 execution is pending.",
+      "dispositionReason": "Synthetic v2 regression passed in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "reviewer": {
         "reviewerId": null,
         "status": "not-reviewed"
@@ -7701,7 +7701,7 @@
       "actorView": null,
       "executionEvidence": "Passed within rank-4 v2 tests #32–63 in the combined node:test invocation.",
       "disposition": "blocked",
-      "reason": "Worker initialization compatibility is not demonstrated until the v2 test runs.",
+      "reason": "Worker initialization passed for both physical seats in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "workflowRunId": 44566586371,
       "workflowUrl": "https://github.com/FlareZ123/experiment-01/actions/runs/44566586371"
     },
@@ -7713,7 +7713,7 @@
       "actorView": null,
       "executionEvidence": "Passed within rank-4 v2 tests #32–63 in the combined node:test invocation.",
       "disposition": "blocked",
-      "reason": "V2 regression execution pending.",
+      "reason": "The actual worker request validator rejected injected hidden opponent-hand fields in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "workflowRunId": 44566586371,
       "workflowUrl": "https://github.com/FlareZ123/experiment-01/actions/runs/44566586371"
     },
@@ -7725,7 +7725,7 @@
       "actorView": null,
       "executionEvidence": "Passed within rank-4 v2 tests #32–63 in the combined node:test invocation.",
       "disposition": "blocked",
-      "reason": "V2 regression execution pending.",
+      "reason": "The policy instance rejected role/seat binding mismatch in the combined node:test invocation; native Twinleaf execution and independent review remain pending.",
       "workflowRunId": 44566586371,
       "workflowUrl": "https://github.com/FlareZ123/experiment-01/actions/runs/44566586371"
     }
@@ -8452,7 +8452,7 @@
   ],
   "caseRecordCount": 38,
   "hashAlgorithm": "SHA-256 of UTF-8 canonical JSON with suiteSha256=null; object keys sorted lexicographically, arrays preserve order",
-  "suiteSha256": "3b806511cecd9e608b87a0f6160347f7278e6ea4e4f3746014ae0a63ebd923a6",
+  "suiteSha256": "36628ace244420e42ef8047435d1a42041d039d1d6e8f6bb62326ecdedad4f7a",
   "workerInitialization": {
     "status": "passed-in-combined-node-test-run",
     "initSchema": "aichi-policy-worker-init-v2",
@@ -8498,7 +8498,7 @@
         "workerLocation": "simulation/evaluation/2026-11/agent49-policy-worker.cjs:531"
       }
     },
-    "limitation": "The test source is authored but has not been executed; no worker-initialization success is claimed."
+    "limitation": "Worker initialization passed for both physical seats in the combined node:test invocation. A standalone direct node --test invocation remains outstanding; no native Twinleaf game or matchup is established."
   },
   "limitation": "All 32 rank-4 test cases were executed and passed in a combined node:test invocation on temporary branch agent50/rank4-init-check-20261119 (run 44566586371). The enclosing Agent39 workflow failed on an unrelated rank-6 test; a standalone direct node --test invocation remains outstanding. This is synthetic worker-init/protocol evidence only: no Twinleaf game or matchup."
 }
