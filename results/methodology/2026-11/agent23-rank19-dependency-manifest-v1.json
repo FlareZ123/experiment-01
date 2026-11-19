@@ -1,0 +1,261 @@
+{
+  "schema": "aichi-opponent-policy-dependency-manifest-v1",
+  "policy": {
+    "path": "simulation/evaluation/2026-11/agent23-rank19-raging-bolt-opponent-policy.cjs",
+    "gitBlobSha1": "81c561d11c481a11f3829671c56ba6a3d6c14bbd",
+    "sha256": "cc2d44427aa401ec498ff5f481f06f032ee29c207c4afc2aa1688e99d0f0cba7",
+    "version": "aichi-rank19-raging-bolt-opponent-policy-v1",
+    "role": "opponent",
+    "sourceRank": 19,
+    "defaultConfig": {},
+    "randomness": "none"
+  },
+  "tests": {
+    "path": "tests/2026-11/agent23-rank19-raging-bolt-opponent-policy.test.cjs",
+    "gitBlobSha1": "bd7aca46452bba343b0a39b1459306d06026d860",
+    "sha256": "f5712fb0c0f1aa9822a210e68762fa9aed5074b1a84a3e9fd047a7cfbb1ec29a",
+    "testCount": 26,
+    "result": {
+      "passed": 26,
+      "failed": 0
+    },
+    "execution": "V8 code-mode harness; actual policy and agent49 validator modules loaded; node:test and node:assert/strict shimmed; node:events and node:crypto stubs used only for unused worker imports",
+    "scope": "synthetic policy/protocol unit tests only; not Node runtime, CI, Twinleaf, games, or match samples"
+  },
+  "workerProtocol": {
+    "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+    "gitBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+    "sha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
+    "schemas": {
+      "init": "aichi-policy-worker-init-v2",
+      "request": "aichi-policy-request-v2",
+      "response": "aichi-policy-response-v3",
+      "observation": "aichi-actor-observation-v3",
+      "prompt": "aichi-owner-prompt-projection-v3",
+      "eventReceipt": "agent8-public-event-receipt-v3-turn-stamped",
+      "actionFrontier": "aichi-action-frontier-v1"
+    }
+  },
+  "promptProjection": {
+    "path": "simulation/evaluation/2026-11/agent36-prompt-projection.cjs",
+    "gitBlobSha1": "0487809d4fb3e213a73a02fa1e68f8f27b45ce1a",
+    "sha256": "0fa54fbb54fc4ecfcba299a75cdba7795ffd7694947d0c328fbe6949325f5082",
+    "supportedPromptTypes": [
+      "ChooseCardsPrompt",
+      "ChoosePokemonPrompt",
+      "ChooseEnergyPrompt",
+      "ChooseAttackPrompt",
+      "ChoosePrizePrompt"
+    ],
+    "knownGaps": [
+      "AttachEnergyPrompt",
+      "DiscardEnergyPrompt",
+      "PutDamagePrompt",
+      "effect-specific energy target/count metadata"
+    ]
+  },
+  "sourceDeck": {
+    "path": "results/aichi-2026/full-decklists.json",
+    "gitBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "sha256": "1fd951bbe444f87b2c270aaa3efa1a95519828e58eaa73395a5f0a9f3f1ece1e",
+    "sourceUrl": "https://www.limitlesstcg.com/tournaments/566/decklists",
+    "retrievedAtUtc": "2026-10-15T22:37:33+00:00",
+    "event": "CL Aichi Open League, 2026-05-10",
+    "eventFormat": null,
+    "rank": 19,
+    "player": "Mark Takahashi",
+    "archetype": "Raging Bolt",
+    "cardCount": 60,
+    "distinctRows": 37,
+    "categoryCounts": {
+      "Pokémon": 16,
+      "Trainer": 31,
+      "Energy": 13
+    },
+    "fingerprintSha256": "8fc9b7cf236a50ea34cdf10746bfc01d5f226739d106e4afcf438ed5c8f491eb",
+    "fingerprintCanonicalization": "JSON.stringify({rank,player,archetype,cards}); each card is {category,count,name,printing:{set,number:String(number),language}}; sort by name|set|number|language using JavaScript code-unit lexical order",
+    "paperLegality": "not certified; event format is absent from source data and physical printings are not authenticated"
+  },
+  "opponentField": {
+    "publishedFullLists": 29,
+    "totalPlacements": 32,
+    "missingFullLists": [
+      {
+        "rank": 23,
+        "player": "Yuki Ueno",
+        "archetype": "Regidrago"
+      },
+      {
+        "rank": 25,
+        "player": "Kazuki Kumegawa",
+        "archetype": "Raichu Electrode Combo"
+      },
+      {
+        "rank": 28,
+        "player": "Jo Kato",
+        "archetype": "Regidrago"
+      }
+    ],
+    "completeTop32Evaluation": false
+  },
+  "cardPool": {
+    "indexPath": "resources/INDEX.md",
+    "indexGitBlobSha1": "75ddd2d69d4edcffefc5424b30819330df84c7a4",
+    "indexSha256": "95aa9f453dbe4fc290f3e62d30ff6a9ee5580d69259a63e2dccd894208b8f14a",
+    "setIndexPath": "resources/sets/en.json",
+    "setIndexGitBlobSha1": "69a8ef97454d072e29c09bfd3862ccd1c3019f5c",
+    "setIndexSha256": "9df2f1e4de63037925ced583afc1fa7cf807e0f1240b21f292f0eea2782a3859",
+    "setIndexCount": 176,
+    "hasMEECode": false,
+    "hasASCCode": true,
+    "hasMEGCode": true,
+    "scopeNote": "Bundled card data is an English-language snapshot and is explicitly not a complete card pool for Japanese Expanded tournaments.",
+    "sourceEnergyPrintings": "The opponent transcription uses MEE 12/14/15 Basic Energy print codes; MEE is absent from the bundled set index. Policy logic therefore recognizes Basic Energy by type, not by authenticated physical printing.",
+    "relevantSetFiles": [
+      {
+        "set": "sv5",
+        "path": "resources/cards/en/sv5.json",
+        "gitBlobSha1": "80d22e652b1f7bbff442bf352f42fcbaf8a06728"
+      },
+      {
+        "set": "sm10",
+        "path": "resources/cards/en/sm10.json",
+        "gitBlobSha1": "2293c98b7086a4137928be1fa358ccad9209d006"
+      },
+      {
+        "set": "sm12",
+        "path": "resources/cards/en/sm12.json",
+        "gitBlobSha1": "e916e382122f759e4904762acd59b0d3a69a1bd1"
+      },
+      {
+        "set": "sv4",
+        "path": "resources/cards/en/sv4.json",
+        "gitBlobSha1": "0d4d4f7fcda2b0cc0348df5d47ca67095b45ffc1"
+      },
+      {
+        "set": "swsh6",
+        "path": "resources/cards/en/swsh6.json",
+        "gitBlobSha1": "0371b6d2d209187306ff6e1a1ef9a09a2a1d8121"
+      },
+      {
+        "set": "bw6",
+        "path": "resources/cards/en/bw6.json",
+        "gitBlobSha1": "e6180c90fb43a62c04b89136133adce7a5e81a8f"
+      },
+      {
+        "set": "sm9",
+        "path": "resources/cards/en/sm9.json",
+        "gitBlobSha1": "f36aeea32bbf75861d1e3d4665e7deea4ea26d7e"
+      },
+      {
+        "set": "swsh3",
+        "path": "resources/cards/en/swsh3.json",
+        "gitBlobSha1": "347f057fe4bc8cd952fda99aa12a1d9c5fa1c550"
+      },
+      {
+        "set": "sv2",
+        "path": "resources/cards/en/sv2.json",
+        "gitBlobSha1": "2fce95cea018139f3bc10608b80cc6931af42559"
+      },
+      {
+        "set": "sm2",
+        "path": "resources/cards/en/sm2.json",
+        "gitBlobSha1": "0d2296a8c32fac6442c9b407653d30f8e9c3f0d6"
+      },
+      {
+        "set": "sv8",
+        "path": "resources/cards/en/sv8.json",
+        "gitBlobSha1": "e57086ffb443650333344e01d2bdada0143601ff"
+      },
+      {
+        "set": "sm11",
+        "path": "resources/cards/en/sm11.json",
+        "gitBlobSha1": "215307311fc5b7a4edc9d238d6bbc91ce62b3dbb"
+      },
+      {
+        "set": "xy4",
+        "path": "resources/cards/en/xy4.json",
+        "gitBlobSha1": "85ab15304b4741c1f5601ee786fc8f3a764326f9"
+      },
+      {
+        "set": "swsh8",
+        "path": "resources/cards/en/swsh8.json",
+        "gitBlobSha1": "d88289e9b1469bc1c27cf268461f9efdec00134d"
+      },
+      {
+        "set": "me2pt5",
+        "path": "resources/cards/en/me2pt5.json",
+        "gitBlobSha1": "cc04bc2c7819fb642e8473ab6953f82e16366471"
+      },
+      {
+        "set": "sm8",
+        "path": "resources/cards/en/sm8.json",
+        "gitBlobSha1": "354284780f7771d1a2530ef766e57228c06805cd"
+      },
+      {
+        "set": "xy8",
+        "path": "resources/cards/en/xy8.json",
+        "gitBlobSha1": "951db4c259e70ca2fbd4daa2705e797af19fa25c"
+      },
+      {
+        "set": "swsh12",
+        "path": "resources/cards/en/swsh12.json",
+        "gitBlobSha1": "a57779d463a4f8ddf2bc21ad4ae66e9f4c3eaac2"
+      },
+      {
+        "set": "sm3",
+        "path": "resources/cards/en/sm3.json",
+        "gitBlobSha1": "3476b25cb32b6e748c7fdd9405e6a5329a665d3d"
+      },
+      {
+        "set": "swsh7",
+        "path": "resources/cards/en/swsh7.json",
+        "gitBlobSha1": "6d9bff55310a38314eb3f627a2efc4f5d236c5f2"
+      },
+      {
+        "set": "sv6",
+        "path": "resources/cards/en/sv6.json",
+        "gitBlobSha1": "55966854905a0b111bed905278b3775bf08c83ae"
+      },
+      {
+        "set": "sv3",
+        "path": "resources/cards/en/sv3.json",
+        "gitBlobSha1": "a53eff1ec698a53053c0364fdfde8f6fae52e4a6"
+      },
+      {
+        "set": "xy6",
+        "path": "resources/cards/en/xy6.json",
+        "gitBlobSha1": "5eab0c0148a5cb52dd7005628aa61c793ec0d930"
+      },
+      {
+        "set": "swsh10",
+        "path": "resources/cards/en/swsh10.json",
+        "gitBlobSha1": "888a5253d3bf05bc4107d52742003ce42f1980f3"
+      }
+    ]
+  },
+  "rulesManual": {
+    "path": "resources/manual/EN_advanced_manual-2025-transcription-structured.md",
+    "gitBlobSha1": "1e4ea46fc717e679c70c3747fb12d17352f266bc",
+    "sha256": "45f19bebea14c7641639346d7ee30264d55fafaba336c926cb06ca940bf99c0a"
+  },
+  "twinleaf": {
+    "submodulePath": "vendor/twinleaf",
+    "remote": "https://github.com/twinleafgg/twinleafgg.git",
+    "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "modifications": 0
+  },
+  "commonConstraints": {
+    "path": "results/methodology/2026-11/agent23-rank19-common-constraints-v1.json",
+    "gitBlobSha1": "4d52594257eda0282c4a0eab7c965e7c952234df",
+    "sha256": "8899d5b312df4394d7c2f5909990ff8b9481dcaf91acbb20bc54b8fe4da8e39c"
+  },
+  "externalDependencies": [],
+  "integrationStatus": {
+    "v3PolicyPlanBinding": "not bound",
+    "registered": false,
+    "enabled": false,
+    "independentReview": "requested from Agent49; no response recorded at manifest creation",
+    "securityIsolation": "none; trusted-code-only"
+  }
+}
