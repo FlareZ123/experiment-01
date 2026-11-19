@@ -8,13 +8,14 @@
   "producerBindingStatus": "prototype only; not inserted into the signed/hash-bound V3 policy plan",
   "policyModule": {
     "path": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "gitBlobSha1": "4b18a374472e8aff6f707dc1000fd2b1a5800f70",
-    "sha256": "00969420fc168b6f56883dedab2d99f22efbd168223a693e939142e437a7b49a",
+    "gitBlobSha1": "38475be5cd24b7afc2f2d264a0fbfd28c994d72e",
+    "sha256": "e7de94ec2ca7b4cc81c7eb49c8f171dd53543006179b51c17f39ab327591aca8",
     "policyVersion": "agent17-rank3-snorlax-stall-opponent-v1",
     "config": {},
     "imports": [],
     "externalRuntimeDependencies": [],
-    "arvenSearchGate": "requires at least one Item and one Tool copy not present in visible own zones; positive remainder may include hidden Prizes"
+    "arvenSearchGate": "requires at least one Item and one Tool copy not present in visible own zones; positive remainder may include hidden Prizes",
+    "vsSeekerRootAction": "score the maximum scoreSearchCard value across every source-list Supporter in the actor discard; no first-match shortcut"
   },
   "sourceDeck": {
     "path": "results/aichi-2026/full-decklists.json",
@@ -134,8 +135,8 @@
   },
   "testSuite": {
     "path": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "gitBlobSha1": "55ea227dd0c59da6741b48249b653b0f92f2b74a",
-    "sha256": "f354c8ec04dec0dfb26d3a9da3401e5d1f19a9d5f1c4e60332ad6cbd40749d04",
+    "gitBlobSha1": "158f96736e62809578cc0f7117a21e0319ffe198",
+    "sha256": "4092dcb687475757f050b99e0a1dff803382a4260f05fb7737160c2f05d17d9a",
     "testFramework": "node:test source file",
     "localExecution": "V8 deterministic harness; actual validateInit, validateRequest, validateDecision and validatePublicEventReceipt plus policy/test sources evaluated; not node --test or worker IPC",
     "testCount": 49
@@ -145,10 +146,10 @@
     "sha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27"
   },
   "repositoryBindings": {
-    "policyCommit": "1b5aa8b5ea46b477cde92ee609821780246f3893",
-    "testCommit": "a2f9a579d7fb9f1bc907a5888d8f420e0539745e",
+    "policyCommit": "7e9070afd98ab85d5d31902cafae127861fdd7e6",
+    "testCommit": "2749d5ff807163069ae391fc14d352bdf50149fa",
     "baselineMainCommitAtInitialInspection": "2a86d357bf5ae699148f0fa7ce74c497e6973d49",
-    "currentMainAtManifestUpdate": "a2f9a579d7fb9f1bc907a5888d8f420e0539745e"
+    "currentMainAtManifestUpdate": "2749d5ff807163069ae391fc14d352bdf50149fa"
   },
   "hashDefinitions": {
     "fileSha256": "SHA-256 of exact UTF-8 file bytes",
