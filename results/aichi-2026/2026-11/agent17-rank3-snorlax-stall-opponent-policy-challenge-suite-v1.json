@@ -8920,7 +8920,7 @@
     ]
   },
   "caseRecordCount": 49,
-  "suiteSha256": "94b414818a12905fecadcdec8b4dd183c480c6b207645ec688ce6a099a6dc55c",
+  "suiteSha256": "cfffa0c092efb53844e40c7712082aba8db1ca3b2ef0ddc71533627c856a7b61",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
@@ -8964,7 +8964,9 @@
       "results/aichi-2026/candidate-hood-shadow-rider.json"
     ],
     "developmentSplit": "developmentCases",
-    "heldOutSplit": "heldOutReviewCases"
+    "heldOutSplit": "heldOutReviewCases",
+    "completeProducerIdSetUsedByPanel": null,
+    "completeProducerIdSetStatus": "not bound; full panel producer set must be assembled by the signed policy-plan owner"
   },
   "coverageMatrix": {
     "corePlan": {
