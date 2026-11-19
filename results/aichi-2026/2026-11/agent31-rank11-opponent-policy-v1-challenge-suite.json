@@ -36,10 +36,10 @@
   },
   "dependencies": {
     "manifestPath": "results/aichi-2026/2026-11/agent31-rank11-opponent-policy-v1-dependencies.json",
-    "manifestSha256": "24c50830bedd68d3b4c1fdcb49b5239bb15ae03d993ed42ccac4641f6a2a14ab",
+    "manifestSha256": "70bb50318f5862ef15ce40f42268ac5a3083db743f4c37709fabb13507bd6bba",
     "policyTestPath": "tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs",
-    "policyTestGitBlobSha1": "cd90093cee8d40ce18e9131f8f53767804216648",
-    "policyTestSha256": "9f25d2add423a01abcd1a4e2745296e83e37fceee64620b875381306e322ec24",
+    "policyTestGitBlobSha1": "24f075dd1f948ed8fba07bea41ca3127053fa820",
+    "policyTestSha256": "c41388400ce56b352918e4397b02ff6333e3c7e5b5acbbfeb9f214158e8b7c71",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "engineSubmodulePath": "vendor/twinleaf",

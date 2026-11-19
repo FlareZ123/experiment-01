@@ -44,9 +44,9 @@ These are policy heuristics, not validated claims of competitive strength.
 This was not a Node `--test` runner execution, a Twinleaf execution, a native staged action, or a game. No native receipt, full-match transcript, matchup result, win-rate estimate, or 99.5% evidence exists.
 
 - Policy SHA-256: `28939bb2c257ab444a065760fe3d10e963b37bf373e071d4e524019988cc1d80`
-- Test SHA-256: `9f25d2add423a01abcd1a4e2745296e83e37fceee64620b875381306e322ec24`
-- Dependency manifest SHA-256: `24c50830bedd68d3b4c1fdcb49b5239bb15ae03d993ed42ccac4641f6a2a14ab`
-- Challenge suite SHA-256: `f7e41324126fa9606d861444b8b56e0571794daed4e50c8848bf8beac22e76a5`
+- Test SHA-256: `c41388400ce56b352918e4397b02ff6333e3c7e5b5acbbfeb9f214158e8b7c71`
+- Dependency manifest SHA-256: `70bb50318f5862ef15ce40f42268ac5a3083db743f4c37709fabb13507bd6bba`
+- Challenge suite SHA-256: `a57dd3970a5394483d24f29e4b68ade95b1d885a55f6e4525eb9eebe6cb66cd4`
 
 ## Development and held-out coverage
 
