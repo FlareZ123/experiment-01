@@ -20,7 +20,7 @@
     "path": "tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
     "gitBlobSha1": "67a7e1e94437e176ad39da794f63b40807b2e88c",
     "sha256": "831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0",
-    "status": "32/32 passed in isolated V8 CommonJS shim (not Node node:test); Node node --test remains pending"
+    "status": "Node v22.16.0 node:test: 32/32 passed; supplemental isolated V8 shim: 32/32 passed; no worker IPC/native/game evidence"
   },
   "commonConstraints": {
     "path": "results/methodology/2026-11/agent20-rank5-mew-genesect-common-constraints-v8.json",
@@ -38,7 +38,7 @@
     "intendedNodeMajor": 22,
     "thirdPartyRuntimeDependencies": [],
     "testCommand": "node --test tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
-    "localExecution": "Node node --test remains unrun because this invocation has no repository checkout and outbound network is unavailable. The exact committed test, policy and worker-protocol blobs were additionally executed in an isolated V8 CommonJS shim: 32/32 synchronous test callbacks passed. This is not the Node test runner, worker IPC, native Twinleaf validation, or competitive evidence.",
+    "localExecution": "The exact committed test, policy and worker-protocol blobs were reconstructed in a temporary local test tree and executed with Node v22.16.0 using `node --test tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs`: 32 passed, 0 failed, 0 skipped. Their local Git blob SHA-1s match the current repository blobs. This was not a full repository or submodule checkout. The worker run loop, process I/O, worker IPC, native Store and games were not invoked. A separate isolated V8 CommonJS shim also passed 32/32.",
     "noNewWorkflow": true,
     "supplementalV8Harness": {
       "executionAtUtc": "2026-11-19T20:41:00.249Z",
@@ -53,6 +53,25 @@
       "assertions": "Object.is strict equality; recursive own-key deep equality for JSON-shaped fixtures; RegExp/error-message throws matching",
       "nodeApis": "node:test registration shim and node:assert/strict assertion shim; exact worker and policy source evaluated as CommonJS",
       "limitations": "does not establish Node node:test semantics, worker IPC, worker process isolation, native Store reachability, independent policy competence, matchup performance, or win rate"
+    },
+    "nodeTestExecution": {
+      "executionStartedAtUtc": "2026-11-19T20:52:56.041367536Z",
+      "executionEndedAtUtc": "2026-11-19T20:52:56.228297307Z",
+      "nodeVersion": "v22.16.0",
+      "command": "node --test tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs",
+      "workingTree": "/tmp/agent20-rank5-node-test; temporary isolated tree containing only the exact test, policy and worker-protocol blobs",
+      "fullRepositoryCheckout": false,
+      "submoduleCheckout": false,
+      "testFileBlobSha1": "67a7e1e94437e176ad39da794f63b40807b2e88c",
+      "policyModuleBlobSha1": "7aff8fcc77351655083fec49cb4318cf4563f7f2",
+      "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+      "tests": 32,
+      "passed": 32,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 127.52096,
+      "result": "pass",
+      "limitations": "unit tests call validateInit and policy functions directly; worker run loop, stdio protocol, IPC, native Twinleaf, independent competence, matchup, game and win-rate evidence remain untested"
     }
   },
   "dependencyClosure": {
@@ -67,6 +86,6 @@
     "requiredConfig": {},
     "identityBinding": "rank, source fingerprint, candidate fingerprint and policy version remain immutable module constants and versioned manifest bindings",
     "regressionTest": "rank-5 policy initializes through the real V3 worker zero-key contract",
-    "status": "32/32 isolated V8-shim tests pass, including real validateInit accepted-envelope initialization; Node node --test pending"
+    "status": "Node v22.16.0 unit suite: 32/32 pass, including the zero-key validateInit accepted-envelope regression and non-empty-config rejection. This does not execute the full worker run loop/IPC or native Store initialization."
   }
 }
