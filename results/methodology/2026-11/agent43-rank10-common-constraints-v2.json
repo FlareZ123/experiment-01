@@ -1,0 +1,30 @@
+{
+  "schema": "aichi-policy-common-constraints-v1",
+  "policyRole": "opponent",
+  "workerApi": "existing actor-only worker API",
+  "promptType": "PutDamagePrompt",
+  "decisionKind": "select-choice",
+  "tokenMapping": "one opaque choice token maps to one complete native placement array",
+  "choiceLimit": 512,
+  "allocation": {
+    "damage": 60,
+    "damageMultiple": 10,
+    "partialPlacement": false,
+    "targetZone": "opponent Bench only"
+  },
+  "nativeValidation": {
+    "enumeratedChoicesMustPassNativePromptValidation": true,
+    "selectedChoiceMustBeRevalidatedAtDispatch": true,
+    "zeroCapTargetsExcluded": true,
+    "positiveMaxAllowedDamageIsNotAssumedToBeAHardCap": true
+  },
+  "informationBoundary": "actor-visible observation and public prompt choices only",
+  "policyRandomization": "none",
+  "seedAsPolicyInput": false,
+  "runnerFork": false,
+  "validatorFork": false,
+  "firstTraceIntegration": false,
+  "candidateDeckMutation": false,
+  "gamesOrFixturesRun": false,
+  "status": "provisional research constraint set; not bound to signed V3 policy-plan core"
+}
