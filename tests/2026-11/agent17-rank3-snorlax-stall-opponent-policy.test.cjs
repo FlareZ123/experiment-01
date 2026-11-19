@@ -1355,6 +1355,26 @@ test('VS Seeker recovery gates Faba and values Lusamine by recoverable targets',
   assert.deepEqual(scoreSearchCard('Lusamine CIN 96', noLusamineTargets, 'vs-seeker'), 0);
   assert.deepEqual(scoreSearchCard('Lusamine CIN 96', oneLusamineTarget, 'vs-seeker'), 100);
   assert.deepEqual(scoreSearchCard('Lusamine CIN 96', twoLusamineTargets, 'vs-seeker'), 180);
+  const vsSeekerAction = {
+    kind: 'play-card',
+    actorPrinting: 'VS Seeker PHF 109',
+    publicMetadata: { cardType: 'item', handIndex: 0 }
+  };
+  const deadFabaThenLiveLillie = observation({
+    ownPublic: player({
+      discard: ['Faba LOT 173', "Lillie's Determination MEG 119"]
+    })
+  });
+  assert.deepEqual(scoreAction(vsSeekerAction, {
+    observation: deadFabaThenLiveLillie, publicEventReceipt: null
+  }), 130);
+  const lusamineRecovery = observation({
+    ownPublic: player({ discard: ['Lusamine CIN 96', 'Faba LOT 173'] })
+  });
+  assert.deepEqual(scoreAction(vsSeekerAction, {
+    observation: lusamineRecovery, publicEventReceipt: null
+  }), 180);
+
 });
 test('Trainers’ Mail target-gates Faba and Lusamine against live Item and Tool options', () => {
   const request = promptRequest({
