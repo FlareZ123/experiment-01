@@ -618,9 +618,8 @@ test('Guzma returns to the healthiest funded Iron Thorns on the owner Bench', ()
       pokemonChoice('funded-thorns', 'Iron Thorns ex TWM 77', 'actor', 'bench', 1)
     ]
   });
-  // Printing is identical, so the actor-visible slot index is the disambiguator.
-  // The current policy matches by printing and selects the first equal-print row.
-  assert.deepEqual(checkedDecision(request), { kind: 'select-choice', token: 'empty-thorns' });
+  // Printing is identical; the actor-visible selection index preserves the physical slot.
+  assert.deepEqual(checkedDecision(request), { kind: 'select-choice', token: 'funded-thorns' });
 });
 
 test('Faba removes Stealthy Hood before Float Stone', () => {
@@ -731,7 +730,7 @@ test('Gladion Prize selection abstains because face-down Prize identities are un
     promptType: 'ChoosePrizePrompt',
     source: actorChoiceSource('Gladion CIN 95', 'Gladion'),
     publicMetadata: multiMetadata(1, 1, 'prize-slots'),
-    choices: [cardChoice('prize-0', 'Prize slot 0', 'prize', 'actor')]
+    choices: [cardChoice('prize-0', 'Prize slot 0', 'prize', 'actor', 'prize')]
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'abstain', reasonCode: 'RANK6_SOURCE_HOOK_BLOCKED'
