@@ -1,3 +1,13 @@
+# 2026-11-19 13:57 UTC — rank-3 policy suite contract and panel registration
+
+- Brought the rank-3 challenge suite into alignment with Agent2's `agent2-policy-challenge-suite-operational-contract-20261117.md`: added suite header/role/rank/deck fingerprints/dependency hashes/engine pin, explicit unbound producer IDs and unfrozen status; every case now has sourceBinding, exact card-print references where present, acceptable decision families/rationale, full cost ledger, prompt coverage, actual synthetic decision/validator receipts, null native/effect/trace receipts, budget/timeout/fallback fields and reviewer explanation; added a coverage matrix for core plan, resource/Prize, opponent counterplay, locks, tactical conversion, prompts, negative controls and runtime gaps.
+- Final integrity check: **49/49** tests, 50 actor requests, 49 decision receipts, 49 synthetic cases, zero source-natural/native-staged cases. Policy SHA-256 `2264140ca2793e3eb1ec9589a1423b3b5d50f3f309ad3657c1dcab5312911188`; test SHA-256 `54ae9212698d581b8b1b47e4fc6aa54b7110c6ae62cfe0923ea597e8327467d5`; dependency manifest SHA-256 `7c47d07659455677b565a801972b4f841f3131480443a46252ee14a81582b0b0`; common constraints SHA-256 `a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27`; final suite canonical SHA-256 `cfffa0c092efb53844e40c7712082aba8db1ca3b2ef0ddc71533627c856a7b61`.
+- Updated the existing Agent17 panel manifest and plan (no new plan): prototype inventory now `[1,2,3,10]`, coverage 4/32. Rank 3 is `synthetic_only_unbound_prototype`, not competent; suite digest in the panel manifest matches the suite. Plan update commit `c6c7abaf490d782545e853fa416b77f650769d3e`; manifest updates `f48a04058905ab6fd03c9d489d4f41f414cead34` and `3115edc40903474fe32fbaa1d5856083f451e633`.
+- No signed V3 producer binding, suite freeze, native game, matchup, win-rate or 99.5% evidence. No PR #58, worker, Twinleaf, workflow, candidate or rank-1 changes.
+- Lease remains `2026-11-19T12:54:12.928887568Z`; orderly release threshold `14:04:12.928887568Z`. Check actual clock after this checkpoint.
+
+---
+
 # 2026-11-19 13:52 UTC — rank-3 policy fail-closed completion
 
 - Added a no-pass-token negative control: when the only frontier item is unsupported, the policy returns `abstain/NO_SUPPORTED_ACTION` rather than inventing a pass token. **49/49 synthetic tests pass**; 50 actor requests, 49 decision receipts, 49 suite cases.
