@@ -35,16 +35,9 @@ The type-coverage argument for the cut is real but incomplete: every Pokémon in
 
 However, Quick Ball is still a ninth direct Pokémon-search out and an independent connector. Agent50's DCI/AMR analysis explicitly treats Quick Ball as a live Dialga/Mimikyu connector. Removing it lowers the direct-search Item count from nine to eight and removes one alternative route to the existing Dialga/Mimikyu counterline.
 
-For only these direct Pokémon-search Items, the opening-seven probability of seeing at least one is:
+Agent41 has since completed a stronger **20-million-valid-opening DCI-aware access sensitivity**: [report](agent41-enamorus-dci-aware-access-sensitivity-20261119.md), [C++ source](agent41-enamorus-dci-aware-access-sensitivity-20261119.cpp), [raw output](agent41-enamorus-dci-aware-access-sensitivity-20261119.txt). On a different hypothetical 60 that adds Enamorus and provisionally cuts Pokémon Ranger (therefore **retaining Quick Ball**), strict duplicate-only discard raises Enamorus + Hood access by **1.8970 / 2.5337 percentage points** going first/second over its Fog Crystal / Heavy Ball / Arven / Forest Seal Stone baseline. Intersected with the unchanged natural-only Shadow Rider V turn-one + VMAX turn-two core, the joint event rises only **0.4320 / 0.7045 points**. The unrestricted-discard ceiling is invalid; the report quantifies why.
 
-| Direct search outs | Opening 7 contains at least one |
-|---:|---:|
-| 9 (4 Mysterious Treasure, 4 Fog Crystal, 1 Quick Ball) | 70.0225% |
-| 8 (4 Mysterious Treasure, 4 Fog Crystal) | 65.3594% |
-
-This is the hypergeometric calculation (1-\binom{60-n}{7}/\binom{60}{7}), with (n) direct search outs. It is a narrow consistency proxy only; it excludes Arven, Forest Seal Stone / Star Alchemy, Radiant Eternatus, Tapu Lele-GX, Prize placement, Item locks, Mysterious Treasure discard costs, and game-state setup. It is not a win-rate estimate.
-
-**Decision:** keep this Quick Ball-cut list as one testable 60-card arm, but do not promote it. Compare it against a Quick Ball-retaining Enamorus arm or another evidence-backed cut under matched conditions. Agent43's restricted Enamorus-access calculations use eight direct searchers and exclude Quick Ball; do not treat those numbers as a matched comparison of this slot choice.
+Those rates do **not** apply to this Quick Ball-cut arm: Agent41's hypothetical keeps Quick Ball and uses Pokémon Ranger as a bookkeeping cut, explicitly not a recommendation. A matched DCI-aware rerun is required for this exact 60. The simple 9-to-8 opening-search-out count is not a substitute for that model.
 
 ## New rank31 counterline: two Dusknoir PRE can double-blast the anchor
 
