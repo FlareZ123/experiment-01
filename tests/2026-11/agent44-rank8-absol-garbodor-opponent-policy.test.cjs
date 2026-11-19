@@ -188,6 +188,7 @@ test('Quick Ball cost protects Secret Box and live Guzma, discarding a late VIP 
   const opponent = player({ bench: [pokemon('Shadow Rider Calyrex V CRE 74', { subtypes: ['Basic', 'V'] })] });
   const request = promptRequest({ promptType: 'ChooseCardsPrompt', source: source(P.quick, 'Quick Ball'),
     globalTurn: 4, ownHand: [P.secret, P.guzma, P.vip, P.dark], opponentPublic: opponent,
+    publicMetadata: { selectionType: 'single', minimumCount: 1, maximumCount: 1, allowCancel: false },
     choices: [card('secret', P.secret, 'hand'), card('guzma', P.guzma, 'hand'),
       card('vip', P.vip, 'hand'), card('dark', P.dark, 'hand')] });
   assert.deepEqual(checked(request), { kind: 'select-choice', token: 'vip' });

@@ -584,7 +584,7 @@ function promptDecision(request) {
     const hand = choices.filter(choice => owner(choice) === 'actor' && zone(choice) === 'hand');
     const deck = choices.filter(choice => owner(choice) === 'actor' && zone(choice) === 'deck');
     const discard = choices.filter(choice => owner(choice) === 'actor' && zone(choice) === 'discard');
-    const multi = Boolean(prompt.publicMetadata?.selectionType);
+    const multi = ['card-combination', 'pokemon', 'energy-payment', 'prize-slots', 'card-order'].includes(prompt.publicMetadata?.selectionType);
     if (/claw of darkness/.test(source)) {
       return singleChoice(prompt, choices.filter(choice => owner(choice) === 'opponent' && zone(choice) === 'hand'),
         choice => opponentHandDiscardScore(choice, observation), 'NO_REVEALED_OPPONENT_HAND_CARD');

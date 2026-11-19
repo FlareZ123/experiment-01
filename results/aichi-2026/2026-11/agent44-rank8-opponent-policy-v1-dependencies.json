@@ -3,14 +3,14 @@
   "policy": {
     "version": "agent44-rank8-absol-garbodor-opponent-v1",
     "path": "simulation/evaluation/2026-11/agent44-rank8-absol-garbodor-opponent-policy.cjs",
-    "gitBlobSha1": "1de9e9558585ba843a07049342255f494b7df80d",
+    "gitBlobSha1": "675db4c97c6660c5f9b613cddf4085d2812ccc17",
     "sourceRank": 8,
     "sourceEntryJsonSha256": "965a4a0d7bea2df491d44e7b3246d1058d676347c9521f1e3b5daaf0eecf39ad",
     "candidateEntryJsonSha256": "4c18dd93ba49fd8f7d88aad573249dc6941b4cf61d52b99f80309345b5d58c59"
   },
   "test": {
     "path": "tests/2026-11/agent44-rank8-absol-garbodor-opponent-policy.test.cjs",
-    "gitBlobSha1": "145f79a59c31ebbb7fbc596684d6c0d18eed5a29",
+    "gitBlobSha1": "3fffb6457fbed5bb217eaddcfa1be36163438580",
     "declaredNodeTestCount": 23
   },
   "source": {

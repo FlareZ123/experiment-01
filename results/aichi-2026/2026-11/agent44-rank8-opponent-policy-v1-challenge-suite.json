@@ -6,7 +6,7 @@
     "sourcePlayer": "Yusuke Kobayashi",
     "archetype": "Absol Garbodor",
     "modulePath": "simulation/evaluation/2026-11/agent44-rank8-absol-garbodor-opponent-policy.cjs",
-    "moduleGitBlobSha1": "1de9e9558585ba843a07049342255f494b7df80d",
+    "moduleGitBlobSha1": "675db4c97c6660c5f9b613cddf4085d2812ccc17",
     "dependencyManifest": "results/aichi-2026/2026-11/agent44-rank8-opponent-policy-v1-dependencies.json",
     "testPath": "tests/2026-11/agent44-rank8-absol-garbodor-opponent-policy.test.cjs",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
@@ -176,7 +176,7 @@
     "winRateClaim": null
   },
   "limitations": [
-    "The 23 Node tests are declared but have not yet been run in CI at this checkpoint.",
+    "The 23 Node tests are declared but have not yet passed focused contract CI.",
     "No Twinleaf native game, native action receipt, or effect-resolution witness exists for this policy.",
     "No matchup result, full-field result, or win-rate estimate is established.",
     "The source list is an English Expanded-legal diagnostic reconstruction; physical Japanese print identity is unverified.",
