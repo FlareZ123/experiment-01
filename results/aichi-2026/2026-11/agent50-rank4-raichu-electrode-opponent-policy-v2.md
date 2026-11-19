@@ -24,7 +24,7 @@ The v2 entry point now accepts only `config: {}`. Rank, exact source digest, can
 - Common constraints: [v2 constraints](../../../simulation/evaluation/2026-11/agent50-rank4-raichu-electrode-common-constraints-v2.json).
 - Preregistered suite: [v2 challenge suite](agent50-rank4-raichu-electrode-opponent-policy-challenge-suite-v2.json).
 
-The 29-test v2 source calls the actual exported `validateInit`, instantiates the module using the accepted empty config for both physical seats, and retains actual `validateRequest` / `validateDecision` checks. The test file has **not** been executed in this invocation; therefore worker-initialization success is not yet demonstrated. The v2 suite preserves 26 prior actor-view cases as unexecuted inputs, three negative controls, and nine held-out review targets. It does not claim that v2 has reproduced v1's prior synthetic outcomes.
+The 32-test v2 source calls the actual exported `validateInit`, instantiates the module using the accepted empty config for both physical seats, and retains actual `validateRequest` / `validateDecision` checks. The test file has **not** been executed in this invocation; therefore worker-initialization success is not yet demonstrated. The v2 suite preserves 26 prior actor-view cases as unexecuted inputs, three negative controls, and nine held-out review targets. Three additional test-source regressions cover eligible Ditto activation, same-turn suppression, and Electrode-GX preference in the Almighty Evolution prompt; they are not yet promoted to separate actor-view suite records. It does not claim that v2 has reproduced v1's prior synthetic outcomes.
 
 ## Remaining blockers
 
