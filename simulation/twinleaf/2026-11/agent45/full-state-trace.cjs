@@ -135,7 +135,7 @@ function summarizeNativeStateForText(state,publicBoard=null) {
       stadium:zoneCardLabelsForText(safeDataProperty(player,'stadium')),
       supporter:zoneCardLabelsForText(safeDataProperty(player,'supporter'))
     };
-  }):[];
+  });
   const nativePrompts=safeDataProperty(state,'prompts');
   const unresolvedPrompts=safeArrayFilterMap(nativePrompts,
     prompt=>safeDataProperty(prompt,'result')===undefined,
@@ -151,7 +151,7 @@ function summarizeNativeStateForText(state,publicBoard=null) {
         cards:cardCollectionLabelsForText(promptCards),
         choices:safeArrayMap(choices,choiceLabelForText)
       };
-    }):[];
+    });
   return {
     turn:scalarLabelForText(safeDataProperty(state,'turn')),
     phase:scalarLabelForText(safeDataProperty(state,'phase')),
