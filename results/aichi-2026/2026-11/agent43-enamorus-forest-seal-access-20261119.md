@@ -92,3 +92,17 @@ The script uses integer combinatorial weights for opening hands, Prizes, and ord
 ## Next useful step
 
 If the Enamorus branch remains live after the canonical V3 first-trace gate, the next analytical extension is a DCI-aware Mysterious Treasure / Quick Ball payment model. Native Guardian / Underworld Door timing remains gated by the existing V3 stopline.
+
+
+## Additional energy precondition for a Guardian-protected FSS carrier
+
+Under the intended Guardian-of-Love protection theory, the Shadow Rider V carrying Forest Seal Stone needs Psychic Energy attached while Enamorus's Ability is active. A separate exact five-category calculation quantifies the V/Energy/VMAX availability condition, without pretending to establish the full Guardian board:
+
+| Resource event | Going first | Going second |
+|---|---:|---:|
+| Shadow Rider V + Psychic Energy available by turn 1 | 33.3801% | 39.0925% |
+| Shadow Rider V + Psychic Energy by turn 1, and VMAX by turn 2 | 12.9718% | 17.1099% |
+
+These figures are conditional on a valid opening seven. They are **not joint with Enamorus + Hood access**, and must not be multiplied by the anchor rates: the events are dependent. They also do not require Enamorus to be in play, do not prove Guardian prevents the specific suppression effect, and do not establish that the Energy is actually attached to the FSS carrier. They quantify only the additional card-availability precondition.
+
+Reproduce with the standard-library script [agent43-enamorus-fss-energy-precondition-20261119.py](agent43-enamorus-fss-energy-precondition-20261119.py).
