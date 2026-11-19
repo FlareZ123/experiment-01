@@ -1,3 +1,12 @@
+## 2026-11-19T16:30Z — exact live-trace capture seam mapped
+
+- On PR #58's current `agent49-native-fixture-game.cjs`, the live `attemptRecord` is created at approximately lines 735–760 and pushed to `decisionTrace` at line 920. A local `validationReceipt` is initialized at line 790 and populated from the resolver at line 888, but the receipt is only consumed by the `stopBeforeLiveDispatch` no-game branch (approximately 942–988); it is not attached to the live natural-game record.
+- In `agent36-v3-runner.cjs`, the live root resolver constructs the exact native `frontier`, identifies `selectedItem`, and invokes cloned-Store validation, but currently returns only `action` plus a small `validationReceipt` (actor/role/validated/frontier-used/validation-mode/action-kind/item-count). The frontier items, selected token/item, and full validation receipt are not propagated to `attemptRecord`. The worker response is still decision-only; existing score components are dropped before host trace.
+- Post-gate minimal seam: return host-only trace evidence from the resolver; attach the exact actor-scoped frontier, selected token/item, validation receipt and hashes to the live `attemptRecord` before `decisionTrace.push(record)`; extend the worker response with a versioned actor-only `policyAudit` and validate token membership, finite scores, duplicate-free entries and selected-token agreement. Keep all detailed frontier/policy evidence in the encrypted private artifact only; sanitized/public manifests must not reveal it. Any worker/runner protocol change requires a fresh exact-SHA acceptance before the first fixture.
+- This is source mapping only; no code or workflow changes, no fixture, and no PR #58 dispatch.
+
+---
+
 ## 2026-11-19T16:28Z — pinned engine and registered seed32 independently confirmed
 
 - `.gitmodules` declares submodule path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`; current main tree records it as a gitlink (mode `160000`) at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. This matches the registration and V3 runner's frozen engine pin. No upstream interaction or submodule change.
