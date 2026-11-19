@@ -786,6 +786,42 @@ test('Quick Ball discards expendable cards before the unique Tool Jammer or Faba
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-choices', tokens: ['nest']
   });
+  const nestAction = {
+    kind: 'play-card', actorPrinting: 'Nest Ball SVI 181',
+    publicMetadata: { cardType: 'item', handIndex: 0 }
+  };
+  const quickAction = {
+    kind: 'play-card', actorPrinting: 'Quick Ball FST 237',
+    publicMetadata: { cardType: 'item', handIndex: 0 }
+  };
+  const allBasicsVisible = observation({
+    ownPublic: player({
+      discard: [
+        'Snorlax PGO 55', 'Snorlax PGO 55', 'Snorlax PGO 55',
+        'Galarian Stunfisk SSH 132', 'Galarian Stunfisk SSH 132',
+        'Regirock XYP 49', 'Mimikyu PAL 97', 'Girafarig LOT 94',
+        'Bunnelby PRC 121', 'Articuno-GX CES 31', 'Rotom V LOR 58'
+      ]
+    })
+  });
+  assert.deepEqual(scoreAction(nestAction, {
+    observation: allBasicsVisible, publicEventReceipt: null
+  }), 0);
+  assert.deepEqual(scoreAction(quickAction, {
+    observation: allBasicsVisible, publicEventReceipt: null
+  }), 0);
+  assert.deepEqual(scoreAction(nestAction, {
+    observation: observation(), publicEventReceipt: null
+  }), 100);
+  assert.deepEqual(scoreAction(quickAction, {
+    observation: observation({ ownHand: ['Quick Ball FST 237'] }),
+    publicEventReceipt: null
+  }), 0);
+  assert.deepEqual(scoreAction(quickAction, {
+    observation: observation({ ownHand: ['Quick Ball FST 237', 'Water Energy MEE 11'] }),
+    publicEventReceipt: null
+  }), 100);
+
 });
 
 test('Tropical Beach is used as a turn-ending draw only with a meaningful hand refill', () => {
@@ -1062,6 +1098,28 @@ test('Forest Seal Stone is attached to Rotom V to enable Star Alchemy', () => {
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-action', token: 'seal-rotom'
   });
+  const sealAction = {
+    kind: 'play-card',
+    actorPrinting: 'Forest Seal Stone SIT 156',
+    targetPrinting: 'Rotom V LOR 58',
+    publicMetadata: { cardType: 'trainer', handIndex: 0 }
+  };
+  const rotomBoard = player({
+    active: pokemon('Snorlax PGO 55'),
+    bench: [pokemon('Rotom V LOR 58')]
+  });
+  assert.deepEqual(scoreAction(sealAction, {
+    observation: observation({ ownPublic: rotomBoard }),
+    publicEventReceipt: null
+  }), 180);
+  assert.deepEqual(scoreAction(sealAction, {
+    observation: observation({
+      ownPublic: rotomBoard,
+      ownTurnResources: { vstarUsed: true }
+    }),
+    publicEventReceipt: null
+  }), 0);
+
 });
 
 
