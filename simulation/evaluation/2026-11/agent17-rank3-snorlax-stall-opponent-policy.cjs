@@ -1,0 +1,822 @@
+'use strict';
+
+/*
+ * Rank-3 Snorlax Stall opponent-role policy, version 1.
+ *
+ * This is a deterministic actor-view-only prototype, not a competent-policy
+ * attestation. It is bound to the exact rank-3 source inventory and the
+ * current Hood Shield v1 challenger. Unsupported or ambiguous prompts abstain.
+ * Native Store legality remains authoritative.
+ */
+
+const POLICY_VERSION = 'agent17-rank3-snorlax-stall-opponent-v1';
+const SOURCE_RANK = 3;
+const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
+const SOURCE_FINGERPRINT_SHA256 = 'ac1d20123341795cec79fe93b2498c8b16c26016fad2a4902593ae527381d6d5';
+const CANDIDATE_FINGERPRINT_SHA256 = '1dd6fe4246c4b591ede71902d5ac523862a957727efcce835d286c14158af1bb';
+const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
+const WORKER_PROTOCOL_BLOB_SHA1 = 'd51ea95c457d61b50a9ee114d342eb17f4350451';
+
+const PRINT = Object.freeze({
+  snorlax: /^Snorlax PGO 55\b/i,
+  stunfisk: /^Galarian Stunfisk SSH 132\b/i,
+  regirock: /^Regirock XYP 49\b/i,
+  mimikyu: /^Mimikyu PAL 97\b/i,
+  girafarig: /^Girafarig LOT 94\b/i,
+  bunnelby: /^Bunnelby PRC 121\b/i,
+  articuno: /^Articuno-GX CES 31\b/i,
+  rotom: /^Rotom V LOR 58\b/i,
+  plumeria: /^Plumeria BUS 120\b/i,
+  arven: /^Arven OBF 186\b/i,
+  teamFlare: /^Team Flare Grunt XY 129\b/i,
+  teammates: /^Teammates PRC 141\b/i,
+  lusamine: /^Lusamine CIN 96\b/i,
+  handiwork: /^Team Rocket's Handiwork FCO 112\b/i,
+  gladion: /^Gladion CIN 95\b/i,
+  guzma: /^Guzma BUS 115\b/i,
+  faba: /^Faba LOT 173\b/i,
+  penny: /^Penny SVI 183\b/i,
+  eri: /^Eri TEF 146\b/i,
+  lillie: /^Lillie's Determination MEG 119\b/i,
+  nestBall: /^Nest Ball SVI 181\b/i,
+  vsSeeker: /^VS Seeker PHF 109\b/i,
+  enhancedHammer: /^Enhanced Hammer TWM 148\b/i,
+  trainersMail: /^Trainers' Mail ROS 92\b/i,
+  counterCatcher: /^Counter Catcher PAR 160\b/i,
+  scoopCyclone: /^Scoop Up Cyclone TWM 162\b/i,
+  quickBall: /^Quick Ball FST 237\b/i,
+  heavyBall: /^Hisuian Heavy Ball ASR 146\b/i,
+  nightStretcher: /^Night Stretcher ASC 196\b/i,
+  floatStone: /^Float Stone BKT 137\b/i,
+  stealthyHood: /^Stealthy Hood UNB 186\b/i,
+  toolJammer: /^Tool Jammer BST 136\b/i,
+  forestSealStone: /^Forest Seal Stone SIT 156\b/i,
+  tropicalBeach: /^Tropical Beach BWP 50\b/i,
+  playersCeremony: /^Player's Ceremony SP 127\b/i,
+  temple: /^Temple of Sinnoh ASR 155\b/i,
+  captureEnergy: /^Capture Energy RCL 171\b/i,
+  waterEnergy: /^Water Energy\b/i
+});
+
+const SOURCE_COPIES = Object.freeze([
+  [PRINT.snorlax, 3], [PRINT.stunfisk, 2], [PRINT.regirock, 1],
+  [PRINT.mimikyu, 1], [PRINT.girafarig, 1], [PRINT.bunnelby, 1],
+  [PRINT.articuno, 1], [PRINT.rotom, 1],
+  [PRINT.plumeria, 4], [PRINT.arven, 4], [PRINT.teamFlare, 2],
+  [PRINT.teammates, 2], [PRINT.lusamine, 2], [PRINT.handiwork, 1],
+  [PRINT.gladion, 1], [PRINT.guzma, 1], [PRINT.faba, 1], [PRINT.penny, 1],
+  [PRINT.eri, 1], [PRINT.lillie, 1], [PRINT.nestBall, 3], [PRINT.vsSeeker, 3],
+  [PRINT.enhancedHammer, 2], [PRINT.trainersMail, 2], [PRINT.counterCatcher, 2],
+  [PRINT.scoopCyclone, 1], [PRINT.quickBall, 1], [PRINT.heavyBall, 1],
+  [PRINT.nightStretcher, 1], [PRINT.floatStone, 1], [PRINT.stealthyHood, 1],
+  [PRINT.toolJammer, 1], [PRINT.forestSealStone, 1], [PRINT.tropicalBeach, 1],
+  [PRINT.playersCeremony, 1], [PRINT.temple, 1], [PRINT.captureEnergy, 3],
+  [PRINT.waterEnergy, 2]
+]);
+
+const EXECUTABLE = new Set([
+  'play-card', 'attack', 'retreat', 'use-ability', 'use-stadium', 'pass'
+]);
+const ITEM_PATTERNS = [
+  PRINT.nestBall, PRINT.vsSeeker, PRINT.enhancedHammer, PRINT.trainersMail,
+  PRINT.counterCatcher, PRINT.scoopCyclone, PRINT.quickBall, PRINT.heavyBall,
+  PRINT.nightStretcher, PRINT.forestSealStone
+];
+const TOOL_PATTERNS = [PRINT.toolJammer, PRINT.floatStone, PRINT.stealthyHood];
+
+function list(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function valueText(value) {
+  if (typeof value === 'string') return value;
+  if (typeof value?.printing === 'string') return value.printing;
+  if (typeof value?.fullName === 'string') return value.fullName;
+  if (typeof value?.label === 'string') return value.label;
+  return '';
+}
+
+function matches(value, pattern) {
+  return pattern.test(valueText(value));
+}
+
+function slots(player) {
+  return [
+    { zone: 'active', index: 0, pokemon: player?.active ?? null },
+    ...list(player?.bench).map((pokemon, index) => ({ zone: 'bench', index, pokemon }))
+  ].filter(row => row.pokemon && row.pokemon.concealed !== true);
+}
+
+function boardHas(player, pattern) {
+  return slots(player).some(row => matches(row.pokemon.printing, pattern));
+}
+
+function boardCount(player, pattern) {
+  return slots(player).filter(row => matches(row.pokemon.printing, pattern)).length;
+}
+
+function hasTool(pokemon, pattern) {
+  return list(pokemon?.tools).some(tool => matches(tool, pattern));
+}
+
+function boardHasTool(player, pattern) {
+  return slots(player).some(row => hasTool(row.pokemon, pattern));
+}
+
+function energyCount(pokemon) {
+  return list(pokemon?.energies).length;
+}
+
+function playerEnergyCount(player) {
+  return slots(player).reduce((total, row) => total + energyCount(row.pokemon), 0);
+}
+
+function opponentHasSpecialEnergy(player) {
+  return slots(player).some(row => list(row.pokemon.energies).some(energy =>
+    /Energy/i.test(valueText(energy)) &&
+    !/^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal) Energy\b/i.test(valueText(energy))
+  ));
+}
+
+function opponentPublicHand(observation) {
+  return list(observation?.opponentPublic?.publicHand);
+}
+
+function opponentHasVisibleItem(observation) {
+  return opponentPublicHand(observation).some(card =>
+    ITEM_PATTERNS.some(pattern => matches(card, pattern)) ||
+    /Field Blower/i.test(valueText(card))
+  );
+}
+
+function opponentHasTool(observation, pattern) {
+  return slots(observation?.opponentPublic).some(row => hasTool(row.pokemon, pattern));
+}
+
+function opponentHasAnyTool(observation) {
+  return TOOL_PATTERNS.some(pattern => opponentHasTool(observation, pattern));
+}
+
+function stadiumsInPlay(observation) {
+  return [
+    ...list(observation?.ownPublic?.stadium),
+    ...list(observation?.opponentPublic?.stadium)
+  ];
+}
+
+function hasStadium(observation, pattern) {
+  return stadiumsInPlay(observation).some(card => matches(card, pattern));
+}
+
+function ownActive(observation) {
+  return observation?.ownPublic?.active ?? null;
+}
+
+function opponentActive(observation) {
+  return observation?.opponentPublic?.active ?? null;
+}
+
+function ownDeckCount(observation) {
+  return Number.isSafeInteger(observation?.ownPublic?.deckCount) ?
+    observation.ownPublic.deckCount : 99;
+}
+
+function opponentDeckCount(observation) {
+  return Number.isSafeInteger(observation?.opponentPublic?.deckCount) ?
+    observation.opponentPublic.deckCount : 99;
+}
+
+function remainingHp(pokemon) {
+  if (!pokemon || !Number.isFinite(pokemon.hp) || !Number.isFinite(pokemon.damage)) return -1;
+  return pokemon.hp - pokemon.damage;
+}
+
+function supporterAvailable(observation) {
+  const resources = observation?.ownTurnResources ?? {};
+  return resources.supporterPlayedTurn === 0 &&
+    resources.supporterPlayLocked !== true &&
+    observation?.ownPublic?.publicTurnRestrictions?.supporterPlayLocked !== true;
+}
+
+function itemLocked(observation) {
+  return observation?.ownTurnResources?.itemPlayLocked === true ||
+    observation?.ownPublic?.publicTurnRestrictions?.itemPlayLocked === true;
+}
+
+function gxUsed(observation) {
+  return observation?.ownTurnResources?.gxUsed === true ||
+    observation?.ownPublic?.publicTurnRestrictions?.gxUsed === true;
+}
+
+function visibleOwnCards(observation) {
+  const own = observation?.ownPublic ?? {};
+  const visible = [
+    ...list(observation?.ownHand),
+    ...list(own.discard),
+    ...list(own.lostZone),
+    ...list(own.resolvingSupporter),
+    ...list(own.stadium)
+  ];
+  for (const row of slots(own)) {
+    const pokemon = row.pokemon;
+    visible.push(pokemon.printing, ...list(pokemon.evolutionPrintings),
+      ...list(pokemon.tools), ...list(pokemon.energies));
+  }
+  return visible;
+}
+
+function sourceCopiesRemaining(observation, pattern) {
+  const entry = SOURCE_COPIES.find(([candidate]) => candidate === pattern);
+  if (!entry) return 0;
+  const seen = visibleOwnCards(observation).filter(card => matches(card, pattern)).length;
+  return Math.max(0, entry[1] - seen);
+}
+
+function hasBasicBenchSpace(observation) {
+  return list(observation?.ownPublic?.bench).some(slot => slot === null);
+}
+
+function opponentActiveEnergy(observation) {
+  return energyCount(opponentActive(observation));
+}
+
+function opponentDiscardHasRecovery(observation) {
+  return list(observation?.opponentPublic?.discard).some(card =>
+    /VS Seeker|Night Stretcher|Lusamine|Acerola|Super Rod|Ordinary Rod/i.test(valueText(card))
+  );
+}
+
+function opponentSpecialEnergyCount(observation) {
+  return slots(observation?.opponentPublic).reduce((total, row) =>
+    total + list(row.pokemon.energies).filter(energy =>
+      /Energy/i.test(valueText(energy)) &&
+      !/^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal) Energy\b/i.test(valueText(energy))
+    ).length, 0);
+}
+
+function scoreSearchCard(printing, observation, context = '') {
+  const own = observation.ownPublic;
+  if (matches(printing, PRINT.toolJammer)) {
+    return !boardHasTool(own, PRINT.toolJammer) ? 230 : 45;
+  }
+  if (matches(printing, PRINT.snorlax)) {
+    return !boardHas(own, PRINT.snorlax) ? 205 : 70;
+  }
+  if (matches(printing, PRINT.bunnelby)) {
+    return !boardHas(own, PRINT.bunnelby) ? 180 : 55;
+  }
+  if (matches(printing, PRINT.girafarig)) {
+    return !boardHas(own, PRINT.girafarig) ? 165 : 40;
+  }
+  if (matches(printing, PRINT.mimikyu)) {
+    return !boardHas(own, PRINT.mimikyu) ? 150 : 35;
+  }
+  if (matches(printing, PRINT.rotom)) {
+    return !boardHas(own, PRINT.rotom) && list(observation.ownHand).length <= 5 ? 135 : 35;
+  }
+  if (matches(printing, PRINT.faba)) {
+    return opponentHasAnyTool(observation) || stadiumsInPlay(observation).length > 0 ? 190 : 75;
+  }
+  if (matches(printing, PRINT.plumeria)) {
+    return playerEnergyCount(observation.opponentPublic) > 0 &&
+      list(observation.ownHand).length >= 3 ? 170 : 60;
+  }
+  if (matches(printing, PRINT.teamFlare)) {
+    return opponentActiveEnergy(observation) > 0 ? 155 : 55;
+  }
+  if (matches(printing, PRINT.handiwork)) {
+    return opponentDeckCount(observation) <= 15 ? 160 : 95;
+  }
+  if (matches(printing, PRINT.guzma)) {
+    return !matches(own.active?.printing ?? '', PRINT.snorlax) &&
+      boardHas(own, PRINT.snorlax) ? 185 : 85;
+  }
+  if (matches(printing, PRINT.vsSeeker)) {
+    return list(own.discard).some(card =>
+      [PRINT.faba, PRINT.plumeria, PRINT.teamFlare, PRINT.handiwork, PRINT.guzma, PRINT.eri]
+        .some(pattern => matches(card, pattern))) ? 150 : 55;
+  }
+  if (matches(printing, PRINT.tropicalBeach)) {
+    return !hasStadium(observation, PRINT.tropicalBeach) &&
+      list(observation.ownHand).length <= 6 ? 145 : 45;
+  }
+  if (matches(printing, PRINT.floatStone)) {
+    return !boardHasTool(own, PRINT.floatStone) ? 125 : 30;
+  }
+  if (matches(printing, PRINT.trainersMail)) return 105;
+  if (matches(printing, PRINT.nestBall) || matches(printing, PRINT.quickBall)) {
+    return hasBasicBenchSpace(observation) ? 95 : 20;
+  }
+  if (matches(printing, PRINT.nightStretcher)) {
+    return list(own.discard).some(card =>
+      [PRINT.snorlax, PRINT.bunnelby, PRINT.girafarig, PRINT.articuno, PRINT.rotom, PRINT.waterEnergy]
+        .some(pattern => matches(card, pattern))) ? 115 : 35;
+  }
+  if (matches(printing, PRINT.enhancedHammer)) {
+    return opponentSpecialEnergyCount(observation) > 0 ? 130 : 0;
+  }
+  if (matches(printing, PRINT.temple)) {
+    return opponentHasSpecialEnergy(observation.opponentPublic) ? 140 : 0;
+  }
+  if (matches(printing, PRINT.eri)) {
+    return opponentHasVisibleItem(observation) ? 155 : 45;
+  }
+  if (matches(printing, PRINT.lillie)) {
+    return list(observation.ownHand).length <= 3 ? 120 : 30;
+  }
+  if (matches(printing, PRINT.playersCeremony)) return 0;
+  return context ? 10 : 0;
+}
+
+function scoreBasicPlay(printing, observation) {
+  const own = observation.ownPublic;
+  if (matches(printing, PRINT.snorlax)) {
+    return matches(own.active?.printing ?? '', PRINT.snorlax) ? 20 :
+      boardHas(own, PRINT.snorlax) ? 65 : 160;
+  }
+  if (matches(printing, PRINT.bunnelby)) return boardHas(own, PRINT.bunnelby) ? 55 : 120;
+  if (matches(printing, PRINT.girafarig)) return boardHas(own, PRINT.girafarig) ? 35 : 110;
+  if (matches(printing, PRINT.mimikyu)) {
+    const opponentHasV = slots(observation.opponentPublic).some(row =>
+      /(?:Pokémon )?(?:V|VMAX|VSTAR|ex)\b/i.test(row.pokemon.printing));
+    return !boardHas(own, PRINT.mimikyu) && opponentHasV ? 135 : 55;
+  }
+  if (matches(printing, PRINT.rotom)) return boardHas(own, PRINT.rotom) ? 25 : 100;
+  if (matches(printing, PRINT.articuno)) return boardHas(own, PRINT.articuno) ? 25 : 85;
+  if (matches(printing, PRINT.stunfisk)) return boardHas(own, PRINT.stunfisk) ? 25 : 75;
+  if (matches(printing, PRINT.regirock)) return boardHas(own, PRINT.regirock) ? 10 : 45;
+  return 0;
+}
+
+function scoreAttack(item, observation) {
+  const name = item.attackName ?? '';
+  const own = observation.ownPublic;
+  const opponent = observation.opponentPublic;
+  const activeHp = remainingHp(opponent.active);
+
+  if (name === 'Burrow') {
+    return opponentDeckCount(observation) <= 10 ? 165 :
+      opponentDeckCount(observation) <= 20 ? 135 : 105;
+  }
+  if (name === 'Get Lost') {
+    if (opponentDiscardHasRecovery(observation)) return 150;
+    return list(opponent.discard).length > 0 ? 65 : 10;
+  }
+  if (name === 'Rototiller') {
+    const recoverable = list(own.discard).some(card =>
+      [PRINT.faba, PRINT.handiwork, PRINT.plumeria, PRINT.teamFlare, PRINT.tropicalBeach, PRINT.toolJammer]
+        .some(pattern => matches(card, pattern)));
+    return ownDeckCount(observation) <= 8 && recoverable ? 110 : recoverable ? 45 : 5;
+  }
+  if (name === 'Cold Crush-GX') {
+    return !gxUsed(observation) && opponentActiveEnergy(observation) >= 2 &&
+      energyCount(own.active) <= 1 ? 185 : 0;
+  }
+  if (name === 'Collapse') return activeHp > 0 && activeHp <= 150 ? 175 : 85;
+  if (name === 'Ice Wing') return activeHp > 0 && activeHp <= 130 ? 155 : 90;
+  if (name === 'Damage Rush') return 70;
+  if (name === 'Ghost Eye') return activeHp > 0 && activeHp <= 70 ? 155 : 65;
+  if (name === 'Land Maker') {
+    return list(own.discard).some(card => matches(card, PRINT.tropicalBeach) || matches(card, PRINT.temple)) ? 100 : 40;
+  }
+  if (name === 'Stone Edge') return activeHp > 0 && activeHp <= 80 ? 100 : 55;
+  if (name === 'Mind Shock') return 60;
+  if (name === 'Tail Trickery') return 45;
+  if (name === 'Scrap Short') return 45;
+  return 0;
+}
+
+function scoreAction(item, request) {
+  const observation = request.observation;
+  const own = observation.ownPublic;
+  const opponent = observation.opponentPublic;
+  const metadata = item.publicMetadata ?? {};
+  const card = item.actorPrinting ?? '';
+  const target = item.targetPrinting ?? '';
+  const hand = list(observation.ownHand);
+
+  if (!EXECUTABLE.has(item.kind)) return -1;
+  if (item.kind === 'pass') return 0;
+  if (item.kind === 'attack') return scoreAttack(item, observation);
+
+  if (item.kind === 'use-ability') {
+    const ability = metadata.abilityName ?? '';
+    if (ability === 'Instant Charge') {
+      return hand.length <= 4 && ownDeckCount(observation) > 3 &&
+        !hasStadium(observation, PRINT.tropicalBeach) ? 115 : 0;
+    }
+    if (ability === 'Star Alchemy') {
+      return observation.ownTurnResources?.vstarUsed !== true &&
+        (!boardHasTool(own, PRINT.toolJammer) ||
+          !list(own.discard).some(x => matches(x, PRINT.faba))) ? 170 : 45;
+    }
+    return 0;
+  }
+
+  if (item.kind === 'use-stadium') {
+    const stadium = card || metadata.stadiumPrinting || '';
+    if (matches(stadium, PRINT.tropicalBeach)) {
+      return hand.length <= 5 && ownDeckCount(observation) > 5 ? 110 : 0;
+    }
+    if (matches(stadium, PRINT.temple)) {
+      return opponentHasSpecialEnergy(opponent) ? 100 : 0;
+    }
+    if (matches(stadium, PRINT.playersCeremony)) return 0;
+    return 0;
+  }
+
+  if (item.kind === 'retreat') {
+    if (matches(target, PRINT.snorlax)) {
+      return boardHasTool(own, PRINT.toolJammer) ? 180 :
+        opponentHasAnyTool(request) ? 140 : 110;
+    }
+    if (matches(own.active?.printing ?? '', PRINT.snorlax)) {
+      return (own.active.damage ?? 0) >= 100 ? 75 : 5;
+    }
+    return 15;
+  }
+
+  if (item.kind !== 'play-card') return 0;
+
+  if (metadata.cardType === 'pokemon' ||
+      [PRINT.snorlax, PRINT.stunfisk, PRINT.regirock, PRINT.mimikyu,
+        PRINT.girafarig, PRINT.bunnelby, PRINT.articuno, PRINT.rotom]
+        .some(pattern => matches(card, pattern))) {
+    return scoreBasicPlay(card, observation);
+  }
+
+  if (matches(card, PRINT.toolJammer)) {
+    return matches(target, PRINT.snorlax) || matches(own.active?.printing ?? '', PRINT.snorlax) ?
+      220 : 105;
+  }
+  if (matches(card, PRINT.floatStone)) return matches(target, PRINT.snorlax) ? 10 : 95;
+  if (matches(card, PRINT.stealthyHood)) return 45;
+  if (matches(card, PRINT.tropicalBeach)) {
+    return !hasStadium(observation, PRINT.tropicalBeach) && hand.length <= 6 &&
+      ownDeckCount(observation) > 7 ? 130 : 15;
+  }
+  if (matches(card, PRINT.playersCeremony)) return 0;
+  if (matches(card, PRINT.temple)) return opponentHasSpecialEnergy(opponent) ? 115 : 0;
+
+  if ([PRINT.arven, PRINT.plumeria, PRINT.teamFlare, PRINT.teammates, PRINT.lusamine,
+    PRINT.handiwork, PRINT.gladion, PRINT.guzma, PRINT.faba, PRINT.penny, PRINT.eri,
+    PRINT.lillie].some(pattern => matches(card, pattern))) {
+    if (!supporterAvailable(observation)) return 0;
+    if (matches(card, PRINT.arven)) {
+      return !boardHasTool(own, PRINT.toolJammer) ? 175 : 95;
+    }
+    if (matches(card, PRINT.faba)) return opponentHasAnyTool(request) ||
+      stadiumsInPlay(observation).length > 0 ? 155 : 0;
+    if (matches(card, PRINT.plumeria)) return playerEnergyCount(opponent) > 0 && hand.length >= 3 ?
+      145 + Math.min(20, playerEnergyCount(opponent) * 5) : 0;
+    if (matches(card, PRINT.teamFlare)) return opponentActiveEnergy(observation) > 0 ? 135 : 0;
+    if (matches(card, PRINT.guzma)) {
+      return !matches(own.active?.printing ?? '', PRINT.snorlax) && boardHas(own, PRINT.snorlax) ?
+        185 : opponentActiveEnergy(observation) > 0 ? 115 : 35;
+    }
+    if (matches(card, PRINT.teammates)) return 140;
+    if (matches(card, PRINT.eri)) return opponentHasVisibleItem(observation) ? 150 : 0;
+    if (matches(card, PRINT.handiwork)) return opponentDeckCount(observation) <= 15 ? 130 : 65;
+    if (matches(card, PRINT.lusamine)) {
+      return list(own.discard).some(x =>
+        [PRINT.faba, PRINT.plumeria, PRINT.teamFlare, PRINT.handiwork, PRINT.guzma, PRINT.tropicalBeach]
+          .some(pattern => matches(x, pattern))) ? 120 : 0;
+    }
+    if (matches(card, PRINT.lillie)) return hand.length <= 3 ? 110 : 0;
+    if (matches(card, PRINT.gladion)) return 75;
+    if (matches(card, PRINT.penny)) {
+      return slots(own).some(row => row.pokemon.damage > 0 && row.pokemon.printed?.stage === 'BASIC') ? 90 : 0;
+    }
+  }
+
+  if (itemLocked(observation)) return 0;
+  if (matches(card, PRINT.enhancedHammer)) return opponentSpecialEnergyCount(observation) > 0 ? 130 : 0;
+  if (matches(card, PRINT.vsSeeker)) return scoreSearchCard(
+    list(own.discard).find(x => [PRINT.faba, PRINT.plumeria, PRINT.teamFlare, PRINT.handiwork, PRINT.guzma, PRINT.eri]
+      .some(pattern => matches(x, pattern))) ?? '', observation, 'vs-seeker');
+  if (matches(card, PRINT.trainersMail)) return hand.length <= 5 ? 90 : 45;
+  if (matches(card, PRINT.nestBall) || matches(card, PRINT.quickBall)) {
+    return hasBasicBenchSpace(observation) &&
+      (!boardHas(own, PRINT.snorlax) || !boardHas(own, PRINT.bunnelby) || !boardHas(own, PRINT.girafarig)) ? 100 : 25;
+  }
+  if (matches(card, PRINT.nightStretcher)) {
+    return list(own.discard).some(x =>
+      [PRINT.snorlax, PRINT.bunnelby, PRINT.girafarig, PRINT.articuno, PRINT.rotom, PRINT.waterEnergy]
+        .some(pattern => matches(x, pattern))) ? 90 : 0;
+  }
+  if (matches(card, PRINT.counterCatcher)) {
+    return own.prizeCount > opponent.prizeCount ? 135 : 0;
+  }
+  if (matches(card, PRINT.scoopCyclone)) {
+    return slots(own).some(row => row.pokemon.damage >= 80 &&
+      !(row.zone === 'active' && matches(row.pokemon.printing, PRINT.snorlax))) ? 105 : 0;
+  }
+  if (matches(card, PRINT.heavyBall)) return 35;
+  return 0;
+}
+
+function choiceZone(choice) {
+  const meta = choice?.publicMetadata ?? {};
+  return meta.sourceZone ?? meta.targetZone ?? meta.zone ?? null;
+}
+
+function choiceOwner(choice) {
+  return choice?.publicMetadata?.ownerSeat ?? null;
+}
+
+function cardChoiceScore(choice, observation, context) {
+  const printing = valueText(choice);
+  if (context === 'faba') {
+    if ([PRINT.stealthyHood, PRINT.floatStone, PRINT.forestSealStone].some(p => matches(printing, p))) return 220;
+    if (matches(printing, PRINT.temple) || /Sky Field|Dimension Valley/i.test(printing)) return 170;
+    if (/Special Energy|Double Dragon Energy|Jet Energy|Capture Energy/i.test(printing)) return 120;
+    return 10;
+  }
+  if (context === 'eri') {
+    if (/Field Blower/i.test(printing)) return 240;
+    if (matches(printing, PRINT.forestSealStone)) return 200;
+    if (matches(printing, PRINT.vsSeeker)) return 190;
+    if (matches(printing, PRINT.nightStretcher)) return 170;
+    if (matches(printing, PRINT.quickBall) || matches(printing, PRINT.nestBall)) return 110;
+    if (matches(printing, PRINT.trainersMail)) return 100;
+    if (matches(printing, PRINT.enhancedHammer)) return 90;
+    return 0;
+  }
+  if (context === 'lusamine') {
+    if (matches(printing, PRINT.faba)) return 230;
+    if (matches(printing, PRINT.handiwork)) return 210;
+    if (matches(printing, PRINT.plumeria)) return 190;
+    if (matches(printing, PRINT.teamFlare)) return 175;
+    if (matches(printing, PRINT.guzma)) return 160;
+    if (matches(printing, PRINT.tropicalBeach) || matches(printing, PRINT.temple)) return 145;
+    return 0;
+  }
+  if (context === 'plumeria-cost') {
+    if (matches(printing, PRINT.toolJammer) || matches(printing, PRINT.faba) ||
+        matches(printing, PRINT.guzma) || matches(printing, PRINT.handiwork) ||
+        matches(printing, PRINT.arven) || matches(printing, PRINT.lusamine) ||
+        matches(printing, PRINT.eri) || matches(printing, PRINT.teammates)) return 5;
+    if (matches(printing, PRINT.waterEnergy) || matches(printing, PRINT.captureEnergy)) return 35;
+    if (matches(printing, PRINT.nestBall) || matches(printing, PRINT.quickBall) ||
+        matches(printing, PRINT.trainersMail)) return 100;
+    return 60;
+  }
+  return scoreSearchCard(printing, observation, context);
+}
+
+function multiSelectDecision(prompt, rankedChoices, minimum, maximum) {
+  const ranked = rankedChoices.slice().sort((a, b) => b.score - a.score);
+  const selected = ranked.slice(0, maximum).map(row => row.choice);
+  if (selected.length < minimum) {
+    const empty = prompt.choices.find(choice => choice.kind === 'empty-selection');
+    if (minimum === 0 && empty) return { kind: 'select-choice', token: empty.token };
+    return { kind: 'abstain', reasonCode: 'MULTI_SELECT_TARGETS_UNAVAILABLE' };
+  }
+  if (selected.length === 0) {
+    const empty = prompt.choices.find(choice => choice.kind === 'empty-selection');
+    return empty ? { kind: 'select-choice', token: empty.token } :
+      { kind: 'abstain', reasonCode: 'EMPTY_MULTI_SELECT_UNAVAILABLE' };
+  }
+  return { kind: 'select-choices', tokens: selected.map(choice => choice.token) };
+}
+
+function singleChoice(prompt, choices, scoreFn, reasonCode) {
+  if (!choices.length) return { kind: 'abstain', reasonCode };
+  const ranked = choices.map(choice => ({ choice, score: scoreFn(choice) }))
+    .sort((a, b) => b.score - a.score);
+  if (ranked[0].score <= 0) return { kind: 'abstain', reasonCode };
+  return { kind: 'select-choice', token: ranked[0].choice.token };
+}
+
+function opponentPokemonScore(choice, observation) {
+  if (choiceOwner(choice) !== 'opponent' ||
+      !['bench', 'active'].includes(choiceZone(choice))) return 0;
+  const printing = valueText(choice);
+  const row = slots(observation.opponentPublic).find(item => item.pokemon.printing === printing);
+  const pokemon = row?.pokemon;
+  if (!pokemon) return 10;
+  return 40 + energyCount(pokemon) * 30 +
+    (pokemon.printed?.retreatCost?.length ?? 0) * 8 +
+    (pokemon.printed?.stage === 'BASIC' ? 5 : 15);
+}
+
+function ownPickupScore(choice, observation) {
+  if (choiceOwner(choice) !== 'actor') return 0;
+  const printing = valueText(choice);
+  const row = slots(observation.ownPublic).find(item => item.pokemon.printing === printing);
+  if (!row) return 0;
+  if (row.zone === 'active' && matches(row.pokemon.printing, PRINT.snorlax)) return 0;
+  return (row.pokemon.damage ?? 0) * 2 + energyCount(row.pokemon) * 10 +
+    (matches(row.pokemon.printing, PRINT.rotom) || matches(row.pokemon.printing, PRINT.articuno) ? 20 : 0);
+}
+
+function promptDecision(request) {
+  const prompt = request.prompt;
+  const observation = request.observation;
+  const choices = list(prompt?.choices);
+  const source = [
+    prompt?.source?.sourcePrinting ?? '',
+    prompt?.source?.effectName ?? '',
+    prompt?.description ?? ''
+  ].join(' ').toLowerCase();
+  const sourcePrinting = prompt?.source?.sourcePrinting ?? '';
+  const metadata = prompt?.publicMetadata ?? {};
+  const selectionType = metadata.selectionType ?? null;
+
+  if (/player's ceremony/i.test(sourcePrinting + ' ' + source)) {
+    return { kind: 'abstain', reasonCode: 'PLAYERS_CEREMONY_ENGINE_HOOK_BLOCKED' };
+  }
+
+  if (prompt.promptType === 'ChooseCardsPrompt') {
+    if (selectionType) {
+      const min = Number.isSafeInteger(metadata.minimumCount) ? metadata.minimumCount : 1;
+      const max = Number.isSafeInteger(metadata.maximumCount) ? metadata.maximumCount : min;
+      if (source.includes('arven')) {
+        const item = choices.filter(choice => choiceOwner(choice) === 'actor' &&
+          choiceZone(choice) === 'deck' && ITEM_PATTERNS.some(pattern => matches(choice, pattern)))
+          .sort((a, b) => cardChoiceScore(b, observation, 'arven') - cardChoiceScore(a, observation, 'arven'))[0];
+        const tool = choices.filter(choice => choiceOwner(choice) === 'actor' &&
+          choiceZone(choice) === 'deck' && TOOL_PATTERNS.some(pattern => matches(choice, pattern)))
+          .sort((a, b) => cardChoiceScore(b, observation, 'arven') - cardChoiceScore(a, observation, 'arven'))[0];
+        if (!item || !tool || min > 2 || max < 2) {
+          return { kind: 'abstain', reasonCode: 'ARVEN_ITEM_TOOL_PAIR_UNAVAILABLE' };
+        }
+        return { kind: 'select-choices', tokens: [item.token, tool.token] };
+      }
+      if (source.includes('plumeria')) {
+        const handChoices = choices.filter(choice => choiceOwner(choice) === 'actor' &&
+          choiceZone(choice) === 'hand');
+        return multiSelectDecision(prompt, handChoices.map(choice => ({
+          choice, score: cardChoiceScore(choice, observation, 'plumeria-cost')
+        })), min, max);
+      }
+      if (source.includes('eri')) {
+        const itemChoices = choices.filter(choice => choiceOwner(choice) === 'opponent' &&
+          choiceZone(choice) === 'hand' &&
+          (ITEM_PATTERNS.some(pattern => matches(choice, pattern)) || /Field Blower/i.test(valueText(choice))));
+        return multiSelectDecision(prompt, itemChoices.map(choice => ({
+          choice, score: cardChoiceScore(choice, observation, 'eri')
+        })).filter(row => row.score > 0), min, max);
+      }
+      if (source.includes('lusamine')) {
+        const discardChoices = choices.filter(choice => choiceOwner(choice) === 'actor' &&
+          choiceZone(choice) === 'discard');
+        return multiSelectDecision(prompt, discardChoices.map(choice => ({
+          choice, score: cardChoiceScore(choice, observation, 'lusamine')
+        })).filter(row => row.score > 0), min, max);
+      }
+      if (source.includes('teammates')) {
+        const deckChoices = choices.filter(choice => choiceOwner(choice) === 'actor' &&
+          choiceZone(choice) === 'deck');
+        return multiSelectDecision(prompt, deckChoices.map(choice => ({
+          choice, score: cardChoiceScore(choice, observation, 'teammates')
+        })), min, max);
+      }
+      if (selectionType === 'energy-payment' && /legendary ascent/i.test(source)) {
+        const water = choices.filter(choice => choiceOwner(choice) === 'actor' &&
+          matches(choice, PRINT.waterEnergy));
+        return multiSelectDecision(prompt, water.map(choice => ({ choice, score: 100 })), min, max);
+      }
+      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_MULTI_SELECT_SOURCE' };
+    }
+
+    if (source.includes('faba')) {
+      return singleChoice(prompt, choices.filter(choice => choiceOwner(choice) === 'opponent'),
+        choice => cardChoiceScore(choice, observation, 'faba'), 'NO_FABA_TARGET');
+    }
+    if (source.includes('enhanced hammer')) {
+      return singleChoice(prompt, choices.filter(choice => choiceOwner(choice) === 'opponent'),
+        choice => /Special Energy|Double Dragon Energy|Jet Energy|Capture Energy/i.test(valueText(choice)) ? 100 : 0,
+        'NO_SPECIAL_ENERGY_TARGET');
+    }
+    if (source.includes('trainers')) {
+      return singleChoice(prompt, choices, choice => cardChoiceScore(choice, observation, 'trainers-mail'),
+        'NO_TRAINER_MAIL_TARGET');
+    }
+    if (/nest ball|quick ball|capture energy/i.test(source)) {
+      return singleChoice(prompt, choices, choice => cardChoiceScore(choice, observation, 'basic-search'),
+        'NO_BASIC_SEARCH_TARGET');
+    }
+    if (source.includes('vs seeker')) {
+      return singleChoice(prompt, choices.filter(choice => choiceOwner(choice) === 'actor' &&
+        choiceZone(choice) === 'discard'),
+        choice => cardChoiceScore(choice, observation, 'vs-seeker'), 'NO_SUPPORTER_RECOVERY_TARGET');
+    }
+    if (source.includes('night stretcher')) {
+      return singleChoice(prompt, choices.filter(choice => choiceOwner(choice) === 'actor' &&
+        choiceZone(choice) === 'discard'),
+        choice => cardChoiceScore(choice, observation, 'night-stretcher'), 'NO_NIGHT_STRETCHER_TARGET');
+    }
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_SINGLE_CARD_PROMPT' };
+  }
+
+  if (prompt.promptType === 'ChoosePokemonPrompt') {
+    if (/guzma|counter catcher/i.test(source)) {
+      return singleChoice(prompt, choices,
+        choice => opponentPokemonScore(choice, observation), 'NO_OPPONENT_BENCH_TARGET');
+    }
+    if (/penny|scoop up cyclone/i.test(source)) {
+      return singleChoice(prompt, choices,
+        choice => ownPickupScore(choice, observation), 'NO_SAFE_PICKUP_TARGET');
+    }
+    if (/nest ball|quick ball|capture energy/i.test(source)) {
+      return singleChoice(prompt, choices,
+        choice => cardChoiceScore(choice, observation, 'basic-search'), 'NO_BASIC_SEARCH_TARGET');
+    }
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_POKEMON_PROMPT' };
+  }
+
+  if (prompt.promptType === 'ChooseEnergyPrompt') {
+    const owner = choices.filter(choice => choiceOwner(choice) === 'opponent');
+    if (owner.length) {
+      return singleChoice(prompt, owner, choice =>
+        /Special Energy|Double Dragon Energy|Jet Energy|Capture Energy/i.test(valueText(choice)) ? 120 : 60,
+      'NO_OPPONENT_ENERGY_TARGET');
+    }
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_ENERGY_PROMPT' };
+  }
+
+  if (prompt.promptType === 'ChoosePrizePrompt') {
+    return singleChoice(prompt, choices, choice => {
+      if (matches(choice, PRINT.snorlax) || matches(choice, PRINT.bunnelby) ||
+          matches(choice, PRINT.girafarig) || matches(choice, PRINT.toolJammer) ||
+          matches(choice, PRINT.faba)) return 150;
+      return choice.printing ? 20 : 0;
+    }, 'PRIZE_IDENTITY_UNAVAILABLE');
+  }
+
+  if (prompt.promptType === 'ConfirmPrompt' ||
+      prompt.promptType === 'SelectPrompt' ||
+      prompt.promptType === 'SelectOptionPrompt') {
+    const yes = choices.find(choice => /^(yes|true|confirm)$/i.test(choice.label ?? ''));
+    const no = choices.find(choice => /^(no|false|decline|cancel)$/i.test(choice.label ?? ''));
+    const shouldAccept =
+      (/instant charge/i.test(source) && list(observation.ownHand).length <= 4 &&
+        ownDeckCount(observation) > 3) ||
+      (/tropical beach/i.test(source) && list(observation.ownHand).length < 7 &&
+        ownDeckCount(observation) > 0) ||
+      (/cold crush/i.test(source) && opponentActiveEnergy(observation) >= 2 &&
+        energyCount(ownActive(observation)) <= 1 && !gxUsed(observation));
+    if (shouldAccept && yes) return { kind: 'select-choice', token: yes.token };
+    if (no) return { kind: 'select-choice', token: no.token };
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_OPTIONAL_PROMPT' };
+  }
+
+  return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
+}
+
+function bestAction(request) {
+  const items = list(request.actionFrontier?.items).filter(item => EXECUTABLE.has(item.kind));
+  if (!items.length) return { kind: 'abstain', reasonCode: 'NO_EXECUTABLE_ACTION' };
+  let best = null;
+  let bestScore = 0;
+  for (const item of items) {
+    const score = scoreAction(item, request);
+    if (score > bestScore) {
+      best = item;
+      bestScore = score;
+    }
+  }
+  if (best) return { kind: 'select-action', token: best.token };
+  const pass = items.find(item => item.kind === 'pass');
+  return pass ? { kind: 'select-action', token: pass.token } :
+    { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ACTION' };
+}
+
+function createPolicy({ role, seat, policyVersion, config }) {
+  const expectedKeys = ['candidateFingerprint', 'rank', 'sourceFingerprint'];
+  if (role !== 'opponent' || (seat !== 0 && seat !== 1) ||
+      policyVersion !== POLICY_VERSION || !config ||
+      Object.keys(config).sort().join(',') !== expectedKeys.join(',') ||
+      config.rank !== SOURCE_RANK ||
+      config.sourceFingerprint !== SOURCE_FINGERPRINT_SHA256 ||
+      config.candidateFingerprint !== CANDIDATE_FINGERPRINT_SHA256) {
+    throw new Error('AGENT17_RANK3_POLICY_INIT_MISMATCH');
+  }
+
+  return Object.freeze({
+    decide(request) {
+      if (!request || request.role !== 'opponent' || request.seat !== seat ||
+          request.observation?.actorSeat !== seat) {
+        return { kind: 'abstain', reasonCode: 'ROLE_SEAT_BINDING_MISMATCH' };
+      }
+      if (request.prompt !== null) return promptDecision(request);
+      return bestAction(request);
+    }
+  });
+}
+
+module.exports = {
+  POLICY_VERSION,
+  SOURCE_RANK,
+  SOURCE_LIST_BLOB_SHA1,
+  SOURCE_FINGERPRINT_SHA256,
+  CANDIDATE_FINGERPRINT_SHA256,
+  ENGINE_PIN,
+  WORKER_PROTOCOL_BLOB_SHA1,
+  createPolicy,
+  scoreAction,
+  scoreAttack,
+  promptDecision,
+  scoreSearchCard
+};
