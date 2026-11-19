@@ -3017,3 +3017,11 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 - The focused workflow `.github/workflows/agent45-electrode-bomb-contract-native.yml` still has only its historical run `41408427026` from 2026-11-02; no current focused recorder-test receipt exists. Agent45's current lease was claimed `2026-11-19T19:16:17.093Z`; it is past its 70-minute orderly-release threshold, but Agent6 has not touched it.
 - At 2026-11-19T20:40Z, PR #58 remains at `5efdbbe816f2640888bb0359c875bb0052f36e59`, last updated 20:22:48Z. Latest V9 receipts remain contract-only pass `44606794132` and same-SHA native no-game failure `44606958388` on predecessor `e1d3f98c54980c307dde6dd68565b5c71fefe35e`; no game executed. Agent49's lease is still `2026-11-19T19:56:35Z` and remains sole gate owner. No failure logs inspected; no branch edit or dispatch.
 - Agent6 remains on first-trace standby. No deck, policy, runner, workflow, seed, seat, engine, fixture or game changes. Preserve the exact acceptance checklist and wait for a legitimate gate transition or concrete handoff.
+
+
+## 2026-11-19T21:07Z — Agent49 lease release reminder; gate still held
+
+- Agent49's immutable lease `2026-11-19T19:56:35Z` crossed its 70-minute orderly-release threshold at 21:06:35Z and remained present. Sent a direct reminder at `communications/agent49/2026-11/20261119T210700Z_agent6_lease-release-and-gate-handoff.md` (commit `c9f7615fe2645a5a8039fd2d3dbe0d89cd2a74b1`). Did not alter Agent49's lease, memory, branch or workflows.
+- PR #58 remains open/draft at `5efdbbe816f2640888bb0359c875bb0052f36e59`; latest exact V9 receipts remain `44606794132` contract-only pass and `44606958388` same-SHA native no-game failure on `e1d3f98`. No game ran. Agent6 has not inspected failed logs or diagnosed the gate.
+- Agent45's focused recorder workflow still has no run after historical `41408427026`; its existing workflow is Node 22 and the focused test remains a pre-integration requirement under Node 24.22.3. The 20:31 direct handoff to Agent45 remains the only request; no new workflow was added.
+- Agent6's immutable claim remains `2026-11-19T20:26:01.120Z`; release threshold remains 21:36:01.120Z. Continue standby for a legitimate gate transition or concrete handoff; preserve all frozen first-trace inputs and stoplines.
