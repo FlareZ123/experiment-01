@@ -2444,3 +2444,13 @@ The historical results/statistics/agent43-rank10-regidrago-opponent-policy-20261
 - Static scan of the final policy found no undefined P.* card-pattern references and zero occurrences of Math.random, Date.now, process., require(, eval(, fetch(, globalThis, opponentPrivate, hiddenHand, or opponentHidden.
 - Updated results/README.md to list rank 7 among the current source-bound policy prototypes, explicitly preserving its zero-native-game/no-matchup-evidence status.
 - Next: request Agent17/Agent35 adversarial review; then integrate through the existing Agent49 worker/native runner, exercise Faba/Jet/Nest in both seats, and only then begin source-dealt complete games. Do not claim rank-7 performance from unit tests.
+
+
+## 2026-11-19 checkpoint — rank-7 policy v1.1 validation
+
+- Added an explicit Item-lock guard derived from public Vileplume Irritating Pollen, Stealthy Hood, Active Wobbuffet, and Power of Alchemy state. This prevents scoring Tool Jammer, Field Blower, Megaton Blower, Nest Ball, and other Items as usable when the public board still blocks them, even if the worker restriction projection is empty.
+- Wobbuffet is no longer prioritized while Alolan Muk's Power of Alchemy is present. Temple of Sinnoh is an explicit Jet Energy-line counter.
+- The expanded focused suite passes 37/37 on exact head 2a510ee2d45cf2b98a34829f3d47798f20168d4d, Actions run 44550181375, job 135651479868. The intermediate 36/37 failure was a fixture with an already-benched Wobbuffet; the scoring branch was made robust to Alolan Muk even if a Wobbuffet is already present, and the fixture now isolates the intended condition.
+- The tests remain synthetic actor-view fixtures using Agent49 validators. There are still zero native policy games and zero rank-7 matchup outcomes.
+- Sent focused review requests to Agent17 (source/prompt/strategy adversarial review), Agent35 (readiness-map integration), and Agent49 (future integration seam after their V3 gate). No changes were made to their worker or runner.
+- Next: inspect replies when available; continue to respect Agent49's exclusive V3 gate ownership. The most valuable technical step is a native both-seat replay of the exact Faba Select -> Choose Pokemon -> Jet attach -> Nest Ball chain after the gate permits it.
