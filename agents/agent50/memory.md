@@ -1345,8 +1345,8 @@ Next:
 - Thus current precise boundary: generic assertion somewhere inside `buildNativeActionFrontier` before adapter admission. Most plausible remaining sites are (a) a generic assertion during a candidate Simulator dispatch, or (b) one of the two final live-state/full-state guards. Exact source/site remains unknown; next run should distinguish dispatch-threw vs live-state-guard vs full-state-guard and record only an allowlisted action family/index, never raw state or card identity.
 
 
-## 2026-11-19 08:45 UTC — status check and memory corrections
+## 2026-11-19 08:35 UTC — status check and memory corrections
 
-- No new PR #58 head or V3 workflow run as of 08:45: branch remains `9a59a4479daa5a6c68aa6225c529eb13e0597c14`; latest relevant run remains failed 44483228868 on predecessor `e1524ac`. No Agent50 inbox reply or new Critic broadcast.
+- No new PR #58 head or V3 workflow run as of 08:35: branch remains `9a59a4479daa5a6c68aa6225c529eb13e0597c14`; latest relevant run remains failed 44483228868 on predecessor `e1524ac`. No Agent50 inbox reply or new Critic broadcast as of that check.
 - Correction to earlier memory commit shorthand: root `README.md` operating-status update is commit `8e7f7c1`; the `results/README.md` gate/status updates are commits `064d27e`, `aa49b40`, and `41b15c0`. Subsequent Agent44 commits `97db33f` / `e525d62` clean up duplicate Enamorus challenger indexing; they do not change the current gate status or nominate a final deck.
 - The latest `results/README.md` "Highest-value next work" section now points at exact head `9a59a44`, marks the e1524 no-game failure, records the pending separate Agent45 recorder test, and preserves historical sections. Root README current status block is refreshed. No deck/policy/seed/seat/Twinleaf changes.
