@@ -640,3 +640,61 @@ test('actor-relative re-determinization fails closed when it changes the acting 
     terminal: false
   }, 0), /changed the acting player's information set/);
 });
+
+
+test('actor-relative re-determinization also prepares a nonterminal horizon leaf for its acting seat', () => {
+  const callsBySeat = [0, 0];
+  let evaluatedLeaf = null;
+  const search = createInformationSetMcts({
+    iterations: 1,
+    maxPlies: 1,
+    seed: 19,
+    observe: (state, seat) => seat === 0 ? {
+      seat,
+      privateCard: state.privateCard,
+      public: state.public
+    } : {
+      seat,
+      public: state.public
+    },
+    activeSeat: state => state.seat,
+    enumerateActions: () => [{name: 'advance'}],
+    actionKey: action => action.name,
+    redeterminize: (state, seat, random, actorObservation, deadline) => {
+      callsBySeat[seat] += 1;
+      assert.equal(Object.isFrozen(actorObservation), true);
+      assert.deepEqual(Object.keys(deadline), ['checkDeadline']);
+      deadline.checkDeadline('synthetic-leaf-redeterminization');
+      const privateCard = seat === 0 ? state.privateCard :
+        (random() < 0.2 ? 'threat' : 'bluff');
+      return {...state, privateCard};
+    },
+    applyAction: state => ({
+      ...state,
+      seat: 1,
+      terminal: false,
+      public: {turn: 1}
+    }),
+    isTerminal: state => state.terminal === true,
+    terminalValue: (state, seat) => state.winner === seat ? 1 : -1,
+    evaluateObservation: (observation, seat) => {
+      evaluatedLeaf = {observation, seat};
+      return 0;
+    }
+  });
+
+  const result = search.search({
+    seat: 0,
+    privateCard: 'threat',
+    public: {turn: 0},
+    terminal: false
+  }, 0);
+
+  assert.deepEqual(callsBySeat, [1, 1]);
+  assert.deepEqual(result.audit.actorRelativeDeterminizationCallsBySeat, [1, 1]);
+  assert.equal(result.audit.actorObservationPreservationChecks, 2);
+  assert.equal(result.audit.heuristicLeaves, 1);
+  assert.equal(evaluatedLeaf.seat, 1);
+  assert.equal(Object.hasOwn(evaluatedLeaf.observation, 'privateCard'), false);
+  assert.equal(evaluatedLeaf.observation.public.turn, 1);
+});
