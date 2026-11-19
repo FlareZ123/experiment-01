@@ -13,7 +13,7 @@
   },
   "candidateDeck": {
     "path": "results/aichi-2026/candidate-hood-shadow-rider.json",
-    "blobSha1": "24ace2d6a4d3a6a5b9c9b45ef5b8c2d8e3c6d7a0",
+    "blobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
     "fingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
   },
   "engine": {
@@ -36,7 +36,7 @@
   },
   "promptProjection": {
     "path": "simulation/evaluation/2026-11/agent36-prompt-projection.cjs",
-    "blobSha1": "0487809d7c19c2e6e0a2b2c1a2f6f4c8d1b8c5a3",
+    "blobSha1": "0487809d4fb3e213a73a02fa1e68f8f27b45ce1a",
     "supportedFamiliesObserved": [
       "ChoosePokemonPrompt",
       "SelectOptionPrompt",
@@ -49,7 +49,7 @@
   },
   "cardPoolSnapshot": {
     "path": "resources/cards/en/sv8pt5.json",
-    "blobSha1": "5acd25e8a7a4f30a8e0a6a5d5e8f6f4a7d6b5c4a",
+    "blobSha1": "5acd25a6deebb8818ffc96a3b6574753ddde20d2",
     "verifiedCardText": [
       {
         "printing": "Dusclops PRE 36",
@@ -79,7 +79,7 @@
   },
   "commonConstraints": {
     "path": "simulation/evaluation/2026-11/agent35-rank31-common-constraints-v1.json",
-    "sha256": "42f162f1f15954c182d4af180a633f85b7cdc2fbb8713bedc7e098874cfcb738"
+    "sha256": "a5956e2414322fe6ac3d491ee0cd2d47eeb24d8d712af72689ac47ec469f4822"
   },
   "assumptionsAndGaps": [
     "Dusclops PRE 36 Cursed Blast is card-pool-text verified; Twinleaf source mapping and native prompt receipt are untested.",
