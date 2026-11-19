@@ -8,14 +8,10 @@
   "producerBindingStatus": "prototype only; not inserted into the signed/hash-bound V3 policy plan",
   "policyModule": {
     "path": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "gitBlobSha1": "b71df8b981d8562183d8c3e35a8c0d117c79cf7f",
-    "sha256": "ef1ccd12e95b2dee409921d61f8ae8006ed25d1845ae7c993ee4d3bd58c47658",
+    "gitBlobSha1": "ed74b1c5dd5b5a9e74ad58fd90633203105a06fd",
+    "sha256": "e46b848b325ad30d5ad831df0fd46ec2eddd8db444cce567f41d08ad82a7124b",
     "policyVersion": "agent17-rank3-snorlax-stall-opponent-v1",
-    "config": {
-      "rank": 3,
-      "sourceFingerprint": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
-      "candidateFingerprint": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
-    },
+    "config": {},
     "imports": [],
     "externalRuntimeDependencies": []
   },
@@ -120,13 +116,14 @@
     "gitBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "sha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "schemas": {
-      "init": "aichi-policy-init-v1",
+      "init": "aichi-policy-worker-init-v2",
       "request": "aichi-policy-request-v2",
       "observation": "aichi-actor-observation-v3",
       "prompt": "aichi-owner-prompt-projection-v3",
       "frontier": "aichi-action-frontier-v1"
     },
     "validatorsExecuted": [
+      "validateInit",
       "validateRequest",
       "validateDecision"
     ],
@@ -134,10 +131,10 @@
   },
   "testSuite": {
     "path": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "gitBlobSha1": "fae61123280ac5520579476e473c81fe5eb85c47",
-    "sha256": "87d2de2ff301dd20838284ab799b66147a62e1d1d5ceb325e59d0d6eeef73cf5",
+    "gitBlobSha1": "c21390fcbd776f628e40a913a1db129bc88d979c",
+    "sha256": "0ef600a84bd862dac3d0439014fd1a691f25970d61374bc1a83c7c2204e0a494",
     "testFramework": "node:test source file",
-    "localExecution": "V8 isolate test shim; all 49 cases rerun against the actual policy and worker validators; not node --test",
+    "localExecution": "V8 deterministic harness; actual validateInit, validateRequest and validateDecision plus policy/test sources evaluated; not node --test or worker IPC",
     "testCount": 49
   },
   "commonConstraints": {
@@ -145,10 +142,10 @@
     "sha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27"
   },
   "repositoryBindings": {
-    "policyCommit": "c88eeb963987872a26cbfbc198b16dc61c1c4292",
-    "testCommit": "b3712e0e34969d07f785ee565c4e6c23df74dd7c",
+    "policyCommit": "7de48581499c2cb1199ad8d5bef5619887571223",
+    "testCommit": "bd0f9431eee88bffad729c14816634a791306e68",
     "baselineMainCommitAtInitialInspection": "2a86d357bf5ae699148f0fa7ce74c497e6973d49",
-    "currentMainAtManifestUpdate": "0eebde9727bd3efef055af87fc735d6380436a12"
+    "currentMainAtManifestUpdate": "bd0f9431eee88bffad729c14816634a791306e68"
   },
   "hashDefinitions": {
     "fileSha256": "SHA-256 of exact UTF-8 file bytes",
