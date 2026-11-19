@@ -1129,12 +1129,21 @@ test('Mimikyu is prioritized as a defensive Basic against the candidate Pokémon
 });
 
 
-test('Teammates searches for Tool Jammer and Faba when Snorlax is already active', () => {
-  const request = promptRequest({
+test('Teammates search scoring respects Faba targets and avoids dead Supporters', () => {
+  const positive = promptRequest({
+    requestId: 'agent17-teammates-visible-tool',
     promptType: 'ChooseCardsPrompt',
     source: actorChoiceSource('Teammates PRC 141', 'Teammates'),
     observation: {
-      ownPublic: player({ active: pokemon('Snorlax PGO 55') })
+      ownPublic: player({ active: pokemon('Snorlax PGO 55') }),
+      opponentPublic: player({
+        active: pokemon('Shadow Rider Calyrex VMAX CRE 075', {
+          hp: 320,
+          stage: 'VMAX',
+          subtypes: ['Pokémon VMAX'],
+          tools: ['Stealthy Hood UNB 186']
+        })
+      })
     },
     choices: [
       cardChoice('jammer', 'Tool Jammer BST 136'),
@@ -1144,8 +1153,48 @@ test('Teammates searches for Tool Jammer and Faba when Snorlax is already active
     ],
     publicMetadata: multiMetadata(2, 2)
   });
-  assert.deepEqual(checkedDecision(request), {
+  assert.deepEqual(checkedDecision(positive), {
     kind: 'select-choices', tokens: ['jammer', 'faba']
+  });
+
+  const noTarget = promptRequest({
+    requestId: 'agent17-teammates-no-faba-target',
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Teammates PRC 141', 'Teammates'),
+    observation: {
+      ownHand: ['Plumeria BUS 120', 'Capture Energy RCL 171', 'Faba LOT 173'],
+      ownPublic: player({
+        active: pokemon('Snorlax PGO 55'),
+        bench: [
+          pokemon('Bunnelby PRC 121'),
+          pokemon('Girafarig LOT 94'),
+          pokemon('Mimikyu PAL 97'),
+          pokemon('Rotom V LOR 58', {
+            tools: ['Forest Seal Stone SIT 156']
+          })
+        ]
+      }),
+      opponentPublic: player({
+        active: pokemon('Shadow Rider Calyrex VMAX CRE 075', {
+          hp: 320,
+          stage: 'VMAX',
+          subtypes: ['Pokémon VMAX']
+        })
+      })
+    },
+    choices: [
+      cardChoice('jammer', 'Tool Jammer BST 136'),
+      cardChoice('faba', 'Faba LOT 173'),
+      cardChoice('plumeria', 'Plumeria BUS 120'),
+      cardChoice('team-flare', 'Team Flare Grunt FLF 73'),
+      cardChoice('handiwork', 'Handiwork GRI 124'),
+      cardChoice('guzma', 'Guzma BUS 115'),
+      cardChoice('eri', 'Eri TEF 146')
+    ],
+    publicMetadata: multiMetadata(2, 2)
+  });
+  assert.deepEqual(checkedDecision(noTarget), {
+    kind: 'select-choices', tokens: ['jammer', 'handiwork']
   });
 });
 
