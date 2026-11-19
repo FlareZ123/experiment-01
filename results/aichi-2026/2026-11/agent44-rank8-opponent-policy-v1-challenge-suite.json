@@ -113,31 +113,31 @@
       "caseId": "r8-quick-ball-search",
       "objective": "Resolve Quick Ball's single-choice Basic search",
       "evidenceClass": "synthetic-actor-view",
-      "status": "pending-ci"
+      "status": "passed-focused-contract-ci"
     },
     {
       "caseId": "r8-ultra-ball-search",
       "objective": "Resolve Ultra Ball's single-choice Pokémon search after its two-card cost",
       "evidenceClass": "synthetic-actor-view",
-      "status": "pending-ci"
+      "status": "passed-focused-contract-ci"
     },
     {
       "caseId": "r8-vs-seeker-recovery",
       "objective": "Recover the best live Supporter from discard",
       "evidenceClass": "synthetic-actor-view",
-      "status": "pending-ci"
+      "status": "passed-focused-contract-ci"
     },
     {
       "caseId": "r8-wonder-tag-supporter",
       "objective": "Resolve Tapu Lele-GX Wonder Tag to a live Supporter",
       "evidenceClass": "synthetic-actor-view",
-      "status": "pending-ci"
+      "status": "passed-focused-contract-ci"
     },
     {
       "caseId": "r8-unvalidated-items-fail-closed",
       "objective": "Do not initiate unvalidated Secret Box, Night Stretcher, Super Rod, Field Blower or Adventure Bag lines",
       "evidenceClass": "synthetic-actor-view",
-      "status": "pending-ci"
+      "status": "passed-focused-contract-ci"
     }
   ],
   "heldOutReviewCases": [
@@ -195,8 +195,8 @@
   "evidenceSummary": {
     "evidenceClass": "synthetic-only",
     "declaredNodeTestCount": 28,
-    "syntheticUnitTestsPassed": null,
-    "syntheticUnitTestsFailed": null,
+    "syntheticUnitTestsPassed": 28,
+    "syntheticUnitTestsFailed": 0,
     "developmentCaseCount": 18,
     "heldOutReviewCaseCount": 10,
     "nativeStagedCases": 0,
@@ -204,13 +204,13 @@
     "matchupResult": null,
     "fullFieldResult": null,
     "winRateClaim": null,
-    "combinedRank7AndRank8NodeTestsPassed": 67,
+    "combinedRank7AndRank8NodeTestsPassed": 72,
     "combinedNodeTestsFailed": 0,
-    "contractWorkflowRunId": null,
-    "contractWorkflowRunUrl": null
+    "contractWorkflowRunId": 44631949020,
+    "contractWorkflowRunUrl": "https://github.com/FlareZ123/experiment-01/actions/runs/44631949020"
   },
   "limitations": [
-    "The expanded rank-8 Node tests are pending focused contract CI.",
+    "The 28 rank-8 Node tests passed in focused contract CI; 72/72 combined rank-7 and rank-8 tests passed.",
     "No Twinleaf native game, native action receipt, or effect-resolution witness exists for this policy.",
     "No matchup result, full-field result, or win-rate estimate is established.",
     "The source list is an English Expanded-legal diagnostic reconstruction; physical Japanese print identity is unverified.",

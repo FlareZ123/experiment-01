@@ -18,18 +18,18 @@
 - Challenge suite: `agent44-rank8-opponent-policy-v1-challenge-suite.json`.
 - Worker protocol: `simulation/evaluation/2026-11/agent49-policy-worker.cjs`, blob SHA-1 `d51ea95c457d61b50a9ee114d342eb17f4350451`.
 - The module is deterministic, actor-view-only, one-file compatible, and obeys the worker's empty `config: {}` initialization contract.
-- Covered synthetic decision branches include VIP Pass basic priority; Quick Ball and Ultra Ball costs and searches; VS Seeker and Wonder Tag Supporter selection; Boost Shake into Garbodor; Dark Patch recipient selection; Dedechange before/after own Garbotoxin; Squawkabilly Motivate sequencing; Terminal Period's exact 300-damage threshold; Claw of Darkness revealed-hand selection; and Forest Seal Stone's Crobat V target. Unvalidated recovery/multi-target items are explicitly not initiated from root.
+- The 18 development cases cover VIP Pass basic priority; Quick Ball and Ultra Ball costs and searches; VS Seeker and Wonder Tag Supporter selection; Boost Shake into Garbodor; Dark Patch recipient selection; Dedechange before/after own Garbotoxin; Squawkabilly Motivate sequencing; Terminal Period's exact 300-damage threshold; Claw of Darkness revealed-hand selection; Forest Seal Stone's Crobat V target; and fail-closed handling for unvalidated recovery/multi-target items.
 - Rank-11-only Trubbish Call for Family behavior is explicitly not inherited by rank 8.
 
 ## Validation
 
 The existing rank-7 policy contract workflow was extended to run the rank-8 suite as well; no new workflow or native runner was added.
 
-- Latest run: [44630953492](https://github.com/FlareZ123/experiment-01/actions/runs/44630953492).
-- Commit: `c25e0127130bf49eb30dcaf1accf71ae6ef6808a`.
-- Result: **Expanded rank-8 tests pending rerun after prompt-coverage hardening**.
+- Latest run: [44631949020](https://github.com/FlareZ123/experiment-01/actions/runs/44631949020).
+- Commit: `33e3c391d8730c5e532725f555a5f30815a577cc`.
+- Result: **28/28 rank-8 tests passed; 72/72 combined rank-7 and rank-8 tests passed**.
 - The tests invoke the actual worker `validateInit`, `validateRequest`, and `validateDecision` functions, not a reimplementation.
-- The first attempt exposed a fixture error: a single Quick Ball choice was incorrectly marked as multi-select. The policy now recognizes only the worker's declared multi-select types; the corrected single-choice fixture passed.
+- The first attempt exposed a fixture error: a single Quick Ball choice was incorrectly marked as multi-select. The policy now recognizes only the worker's declared multi-select types; the corrected single-choice fixture and the expanded search/recovery tests passed.
 
 ## Explicit limitations
 
