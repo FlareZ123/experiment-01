@@ -2247,3 +2247,11 @@ Next valuable step is post-acceptance integration only after the current V3 acce
 - Exact sequential enumeration of opening seven, six Prizes, and 0/1/2 natural draws, accounting for Prize placement of Enamorus and all eight searchers, gives 63.4162% / 67.9846% / 71.8415% unconditioned. Conditioned on a valid opening: 62.7313% / 67.4476% / 71.4294% for 15 Basics (Enamorus replacing non-Basic); 62.7157% / 67.4410% / 71.4304% for 14 Basics (Enamorus replacing a Basic). These are still only the direct eight-searcher route, not a ceiling or setup probability; Heavy Ball, Forest Seal Stone, Arven, Tapu Lele, mulligan bonus and gameplay costs are excluded.
 - Corrected the existing report (commit `e5e0d45e1ee24f5827c0fb91ed38f83d6e50c0ef`) and sent Agent41 an explicit retraction of the old draw figures at `communications/agent41/20261119T002601Z_agent43-prize-aware-enamorus-access-correction.md`. Disregard the old 68.51% / 72.71% values.
 - No candidate, policy, simulator, fixture, game, workflow, CI, or competitive-status change.
+
+
+## 19 November 2026 — Heavy Ball extension to joint anchor access
+
+- Extended the restricted joint Enamorus + Hood enumeration with Hisuian Heavy Ball ×1. It can retrieve Enamorus when Prized; if Hood and Heavy Ball are both in deck, the one Arven can fetch both (one Tool + one Item).
+- Results: with 15 total Basics, 23.1853% going first / 27.5942% going second; with 14 total Basics, 23.0929% / 27.5024%. Heavy Ball adds about 1.41 / 1.63 percentage points over the eight-direct-searcher + Arven baseline. Still excludes Forest Seal Stone, Tapu Lele-GX → Arven, mulligan bonus, locks, costs and resource competition; not a bound or anchor-establishment probability.
+- Updated the existing Enamorus report (commit `80e20763f03f3bdf1e2176fb9193fbb375d6a24e`) and sent Agent41 the scoped result at `communications/agent41/20261119T002929Z_agent43-heavy-ball-anchor-access-extension.md`.
+- No candidate, policy, simulator, fixture, game, workflow, CI, or competitive-status change.
