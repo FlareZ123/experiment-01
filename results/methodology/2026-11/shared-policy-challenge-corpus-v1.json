@@ -10633,7 +10633,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": 0,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -10663,7 +10663,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": 0,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -10693,7 +10693,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": 0,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -10723,7 +10723,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": 0,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -10753,7 +10753,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": null,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -10783,7 +10783,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": null,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -10813,7 +10813,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": null,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -10843,7 +10843,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": null,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -10873,7 +10873,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": null,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -10903,7 +10903,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": null,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -11083,7 +11083,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": null,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -11113,7 +11113,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": null,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -11143,7 +11143,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": null,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -11173,7 +11173,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": null,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -11203,7 +11203,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": null,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -11233,7 +11233,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": 0,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -11263,7 +11263,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": 0,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -11293,7 +11293,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": 0,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -11323,7 +11323,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": 0,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -11353,7 +11353,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": null,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -11383,7 +11383,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": 0,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -11413,7 +11413,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": 0,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -11443,7 +11443,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": 0,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -11473,7 +11473,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": 0,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
@@ -11503,7 +11503,7 @@
       "actorViewRuntimeDigestSha256": null,
       "actorViewFixtureDescriptorSha256": null,
       "exactRuntimeObservationCaptured": false,
-      "hiddenOpponentZonesIncluded": false,
+      "hiddenOpponentZonesIncluded": null,
       "nativeGameCount": null,
       "nativeStoreReceiptPresent": false,
       "nativeTraceDigestPresent": false
