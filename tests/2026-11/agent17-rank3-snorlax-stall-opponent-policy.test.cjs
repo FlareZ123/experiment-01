@@ -343,8 +343,60 @@ test('Cold Crush-GX is reserved unless the opponent Active has substantial Energ
   });
 });
 
-test('Faba removes a visible opponent Stealthy Hood before lower-value tool targets', () => {
+test('Faba is played for a visible opponent Tool without a Stadium and removes the highest-value target', () => {
+  const positiveRoot = rootRequest({
+    requestId: 'agent17-faba-root-positive',
+    ownHand: ['Faba LOT 173'],
+    ownPublic: player({ active: pokemon('Snorlax PGO 55') }),
+    opponentPublic: player({
+      active: pokemon('Shadow Rider Calyrex VMAX CRE 075', {
+        hp: 320,
+        stage: 'VMAX',
+        subtypes: ['Pokémon VMAX'],
+        tools: ['Stealthy Hood UNB 186']
+      })
+    }),
+    items: [
+      {
+        token: 'faba',
+        kind: 'play-card',
+        actorPrinting: 'Faba LOT 173',
+        publicMetadata: { cardType: 'supporter', handIndex: 0 }
+      },
+      { token: 'pass', kind: 'pass', label: 'Pass turn' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(positiveRoot), {
+    kind: 'select-action', token: 'faba'
+  });
+
+  const noTargetRoot = rootRequest({
+    requestId: 'agent17-faba-root-no-target',
+    ownHand: ['Faba LOT 173'],
+    ownPublic: player({ active: pokemon('Snorlax PGO 55') }),
+    opponentPublic: player({
+      active: pokemon('Shadow Rider Calyrex VMAX CRE 075', {
+        hp: 320,
+        stage: 'VMAX',
+        subtypes: ['Pokémon VMAX']
+      })
+    }),
+    items: [
+      {
+        token: 'faba',
+        kind: 'play-card',
+        actorPrinting: 'Faba LOT 173',
+        publicMetadata: { cardType: 'supporter', handIndex: 0 }
+      },
+      { token: 'pass', kind: 'pass', label: 'Pass turn' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(noTargetRoot), {
+    kind: 'select-action', token: 'pass'
+  });
+
   const request = promptRequest({
+    requestId: 'agent17-faba-prompt-target',
     promptType: 'ChooseCardsPrompt',
     source: actorChoiceSource('Faba LOT 173', 'Faba'),
     choices: [
