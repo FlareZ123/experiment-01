@@ -245,6 +245,9 @@
       "costLedger": 117,
       "promptCoverage": 125,
       "recognizedEvidenceClass": 107
+    },
+    "structurallyCompleteDispositionCounts": {
+      "blocked": 21
     }
   },
   "sourceSuites": [
