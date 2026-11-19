@@ -42,11 +42,27 @@
     "pinnedRevision": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05"
   },
   "evidenceClass": "synthetic-only",
-  "status": "awaiting-focused-contract-ci",
+  "status": "passed-focused-contract-ci",
   "limitations": [
-    "No Twinleaf native game or native action receipt was produced.",
+    "Focused Node contract CI passed 23/23 rank-8 tests (67/67 combined rank-7 and rank-8); this is synthetic policy/validator evidence only.",
     "No matchup result, full-field result, or win-rate estimate is established.",
     "The source list is an English Expanded-legal diagnostic reconstruction; physical Japanese print identity remains unverified.",
-    "Tapu Koko two-recipient settlement, Crispin linked energy choices, Battle Compressor, Pokémon Communication, Wally, Karen, and prize-dependent or multi-step prompts remain held out."
-  ]
+    "Tapu Koko two-recipient settlement, Crispin linked energy choices, Battle Compressor, Pokémon Communication, Wally, Karen, and prize-dependent or multi-step prompts remain held out.",
+    "The policy has not been registered or executed in a native Twinleaf game."
+  ],
+  "testResult": {
+    "workflow": ".github/workflows/agent43-rank7-policy-v2-contract.yml",
+    "runId": 44630953492,
+    "runUrl": "https://github.com/FlareZ123/experiment-01/actions/runs/44630953492",
+    "headCommit": "c25e0127130bf49eb30dcaf1accf71ae6ef6808a",
+    "rank8NodeTestsPassed": 23,
+    "rank8NodeTestsFailed": 0,
+    "combinedRank7AndRank8NodeTestsPassed": 67,
+    "combinedNodeTestsFailed": 0,
+    "actualWorkerValidators": [
+      "validateInit",
+      "validateRequest",
+      "validateDecision"
+    ]
+  }
 }

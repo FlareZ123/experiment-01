@@ -35,79 +35,79 @@
       "caseId": "r8-vip-pass-basic-priority",
       "objective": "Search Trubbish and Mega Absol ahead of lower-priority basics",
       "evidenceClass": "synthetic-actor-view",
-      "status": "pending-ci"
+      "status": "passed-focused-contract-ci"
     },
     {
       "caseId": "r8-boost-shake-garbodor",
       "objective": "Evolve a live Trubbish into Garbodor and abstain when the line is already closed",
       "evidenceClass": "synthetic-actor-view",
-      "status": "pending-ci"
+      "status": "passed-focused-contract-ci"
     },
     {
       "caseId": "r8-quick-ball-discard-protection",
       "objective": "Protect Secret Box and a live Guzma while paying Quick Ball",
       "evidenceClass": "synthetic-actor-view",
-      "status": "pending-ci"
+      "status": "passed-focused-contract-ci"
     },
     {
       "caseId": "r8-ultra-ball-two-card-cost",
       "objective": "Choose two expendable hand cards while preserving one-of resources",
       "evidenceClass": "synthetic-actor-view",
-      "status": "pending-ci"
+      "status": "passed-focused-contract-ci"
     },
     {
       "caseId": "r8-dark-patch-mega-recipient",
       "objective": "Target a benched Mega Absol that still needs Energy",
       "evidenceClass": "synthetic-actor-view",
-      "status": "pending-ci"
+      "status": "passed-focused-contract-ci"
     },
     {
       "caseId": "r8-dedechange-pre-lock",
       "objective": "Use Dedechange before own Garbotoxin is established",
       "evidenceClass": "synthetic-actor-view",
-      "status": "pending-ci"
+      "status": "passed-focused-contract-ci"
     },
     {
       "caseId": "r8-dedechange-post-lock",
       "objective": "Do not attempt Dedechange after own Garbotoxin is active",
       "evidenceClass": "synthetic-actor-view",
-      "status": "pending-ci"
+      "status": "passed-focused-contract-ci"
     },
     {
       "caseId": "r8-dedechange-confirm",
       "objective": "Accept Dedechange only before own Garbotoxin",
       "evidenceClass": "synthetic-actor-view",
-      "status": "pending-ci"
+      "status": "passed-focused-contract-ci"
     },
     {
       "caseId": "r8-squawk-motivate-sequence",
       "objective": "Attack with Motivate, select Mega Absol, then choose Darkness Energy from discard",
       "evidenceClass": "synthetic-actor-view",
-      "status": "pending-ci"
+      "status": "passed-focused-contract-ci"
     },
     {
       "caseId": "r8-terminal-period-threshold",
       "objective": "Select Terminal Period at exactly six damage counters and reject 290 damage",
       "evidenceClass": "synthetic-actor-view",
-      "status": "pending-ci"
+      "status": "passed-focused-contract-ci"
     },
     {
       "caseId": "r8-claw-of-darkness-discard",
       "objective": "Prioritize a high-value revealed opponent-hand card",
       "evidenceClass": "synthetic-actor-view",
-      "status": "pending-ci"
+      "status": "passed-focused-contract-ci"
     },
     {
       "caseId": "r8-forest-seal-stone-recipient",
       "objective": "Attach Forest Seal Stone to Crobat V rather than Tapu Lele-GX",
       "evidenceClass": "synthetic-actor-view",
-      "status": "pending-ci"
+      "status": "passed-focused-contract-ci"
     },
     {
       "caseId": "r8-trubbish-no-call-for-family",
       "objective": "Do not import rank-11 Trubbish Call for Family behavior into rank 8",
       "evidenceClass": "synthetic-actor-view",
-      "status": "pending-ci"
+      "status": "passed-focused-contract-ci"
     }
   ],
   "heldOutReviewCases": [
@@ -165,18 +165,22 @@
   "evidenceSummary": {
     "evidenceClass": "synthetic-only",
     "declaredNodeTestCount": 23,
-    "syntheticUnitTestsPassed": null,
-    "syntheticUnitTestsFailed": null,
+    "syntheticUnitTestsPassed": 23,
+    "syntheticUnitTestsFailed": 0,
     "developmentCaseCount": 13,
     "heldOutReviewCaseCount": 10,
     "nativeStagedCases": 0,
     "nativeGames": 0,
     "matchupResult": null,
     "fullFieldResult": null,
-    "winRateClaim": null
+    "winRateClaim": null,
+    "combinedRank7AndRank8NodeTestsPassed": 67,
+    "combinedNodeTestsFailed": 0,
+    "contractWorkflowRunId": 44630953492,
+    "contractWorkflowRunUrl": "https://github.com/FlareZ123/experiment-01/actions/runs/44630953492"
   },
   "limitations": [
-    "The 23 Node tests are declared but have not yet passed focused contract CI.",
+    "The 23 rank-8 Node tests passed in focused contract CI; 67/67 combined rank-7 and rank-8 tests passed.",
     "No Twinleaf native game, native action receipt, or effect-resolution witness exists for this policy.",
     "No matchup result, full-field result, or win-rate estimate is established.",
     "The source list is an English Expanded-legal diagnostic reconstruction; physical Japanese print identity is unverified.",
