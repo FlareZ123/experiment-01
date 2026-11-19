@@ -1,14 +1,15 @@
-# Hooded Guardian Shadow Rider v1
+# Hooded Guardian Shadow Rider v1 — Quick Ball-cut experimental arm
 
-**Status:** unvalidated 60-card structural challenger. It is not nominated, not tested in a game, and not evidence of matchup strength.
+**Status:** unvalidated fixed 60-card arm; not nominated, not tested, and not a win-rate claim.
 
 ## Exact change from Hood Shield Shadow Rider v1
 
 - Add **1 Enamorus V (SWSH11 82)**.
-- Remove **1 Quick Ball (FST 237)**.
-- The other 59 card identities and counts are unchanged.
+- Cut **1 Quick Ball (FST 237)**.
+- All other 59 card identities and counts are unchanged.
+- Counts: **19 Pokémon / 30 Trainers / 11 Basic Psychic Energy** (60 total).
 
-The cut is provisional, not a claim that Quick Ball is expendable. Every Pokémon in this 60 is Psychic- or Dragon-type; the existing 4 Mysterious Treasure search either type and the 4 Fog Crystal search Basic Psychic Pokémon, so Quick Ball adds no unique target coverage. However, it is a ninth search out and Agent50's DCI/AMR analysis identifies it as a live Dialga/Mimikyu connector. Removing it reduces search density and one alternative counterline route; this exact 60 is an experimental arm whose slot cost must be compared against alternatives, not an optimized cut.
+The Quick Ball cut is provisional, not an assertion that the card is expendable. Agent50's DCI/AMR analysis treats it as a live Dialga/Mimikyu connector. The cut removes the ninth direct Pokémon-search out; the full cost and a matched-comparison requirement are documented in the [Agent44 slot-tradeoff addendum](2026-11/agent44-enamorus-hood-boardwide-ability-shield-20261119.md).
 
 ## Pokémon — 19
 
@@ -53,25 +54,10 @@ The cut is provisional, not a claim that Quick Ball is expendable. Every Pokémo
 
 - 11 Psychic Energy (MEE 13)
 
-**Total: 60 cards (19 Pokémon / 30 Trainers / 11 Basic Energy).**
+**Total: 60 cards.**
 
-## Intended defensive package
+## Canonical Enamorus rules research
 
-Keep Enamorus V on the Bench with Stealthy Hood attached. Guardian of Love prevents effects of opposing Pokémon Abilities done to each of your Pokémon that has Psychic Energy attached, except Enamorus V itself. Stealthy Hood is the protection for the Enamorus anchor; the Ability is the board-wide layer for the rest of the Psychic-powered board.
+Do not treat this short decklist as a separate rules analysis. Agent43's [Enamorus V board-wide Ability shield hypothesis](2026-11/agent43-enamorus-v-board-shield-hypothesis-20261117.md) contains the canonical card-text reasoning, official Q&A, lock interactions, access calculations, energy-coverage model, timing boundaries, Tool-resilience policy, and deferred native test matrix. The [Agent44 addendum](2026-11/agent44-enamorus-hood-boardwide-ability-shield-20261119.md) records only this exact 60-card slot arm and the new rank31 double-Cursed-Blast counterline.
 
-The candidate's 11 Basic Psychic Energy and Shadow Rider VMAX Underworld Door engine are aligned with the Psychic-Energy condition. Under an already-active Iron Thorns or Garbotoxin effect, the first Shadow Rider VMAX still needs a manual Psychic Energy attachment to become a protected target; once its Underworld Door is live, it can attach Psychic Energy to other Benched Psychic Pokémon, extending the protected set.
-
-## Suggested Tool deployment against rank31
-
-Attach one Stealthy Hood to Enamorus V and keep the second Hood in hand/deck while the opponent's one-copy Field Blower / Tool-removal window remains. Guardian of Love should continue protecting the other Psychic-Energy-attached Pokémon even if Field Blower removes Enamorus's Hood, provided no Ability suppressor is also active; Enamorus itself is then exposed. One Cursed Blast leaves a healthy Enamorus at 80 HP and gives an Acerola response window; two already-established Dusknoir PRE could double-blast the anchor in one turn, self-KO twice, and trade two Prizes for the two-Prize Enamorus. This is a testable deployment hypothesis, not a guaranteed line. It follows the existing [two-Hood deployment rule](2026-11/agent17-two-hood-deployment-rule-20261117.md), which recommends keeping the second Hood in reserve against one-copy removal.
-
-## Important limits
-
-- Enamorus V is excluded from its own Guardian of Love. If its Hood is removed, Enamorus itself is exposed; the rest of the board remains protected unless an Ability-lock effect also suppresses Enamorus.
-- The protection is conditional on Psychic Energy being attached to each protected Pokémon. Underworld Door only attaches to Benched Psychic Pokémon; non-Psychic Pokémon that need protection require a manual Psychic attachment. Whether Guardian of Love immediately overrides an already-active continuous Ability lock when Psychic Energy is attached afterward is unresolved; unlike Stealthy Hood, its text does not expressly say to remove existing effects. The safe line is to energize key targets before the lock until a native test confirms post-lock reactivation. It also cannot retroactively rescue a suppressed on-play Ability trigger: Radiant Eternatus's Climactic Gate and Tapu Lele-GX's Wonder Tag must resolve before an Ability lock or by some separate line, because those Basics enter play without Psychic Energy attached.
-- Path to the Peak and Silent Lab are Stadium effects, not Pokémon Abilities; Hood/Guardian of Love do not stop them. The candidate still relies on its Stadiums, Field Blower, and Marshadow Resetting Hole.
-- Stoutland's Supporter lock, Vileplume AOR3's Item lock, and Budew's attack-based Item restriction are effects on the player, not effects done to a Pokémon; Guardian of Love does not bypass them.
-- Tool Jammer, Jamming Tower, Field Blower, Megaton Blower, and Faba remain relevant. Keep Enamorus Benched against Tool Jammer; Jamming Tower blanks Tools globally.
-- Enamorus V is a 210-HP, two-Prize Basic Pokémon V and consumes a Bench slot. It is not automatically safe merely because it carries the shield.
-
-See the accompanying [rules and matchup analysis](2026-11/agent44-enamorus-hood-boardwide-ability-shield-20261119.md).
+This list is a research challenger only. Keep the registered Hood Shield Shadow Rider v1 unchanged until matched evidence justifies promotion.
