@@ -842,7 +842,7 @@ function scoreAction(item, request) {
       opponentPokemonScore({
         printing: row.pokemon.printing,
         publicMetadata: { ownerSeat: 'opponent', targetZone: 'bench' }
-      }, observation, 230)));
+      }, observation, expectedMewDamage(observation))));
     return supporterAvailable(observation) && best > 0 ? 210 : 0;
   }
 
