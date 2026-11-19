@@ -166,6 +166,8 @@ test('Mega Absol retreat requires a payable attack line',()=>{
  const two=player({active:pokemon(P.oranguru),bench:[pokemon(P.mega,{energies:[P.dark,P.dark]})]});
  const noLine=rootRequest({ownPublic:two,items:[{token:'retreat',kind:'retreat',targetPrinting:P.mega},{token:'pass',kind:'pass'}]});
  assert.deepEqual(checked(noLine),{kind:'select-action',token:'pass'});
+ const terminalLine=rootRequest({ownPublic:two,opponentPublic:player({active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{hp:320,damage:300,subtypes:['VMAX']})}),items:[{token:'retreat',kind:'retreat',targetPrinting:P.mega},{token:'pass',kind:'pass'}]});
+ assert.deepEqual(checked(terminalLine),{kind:'select-action',token:'retreat'});
  const three=player({active:pokemon(P.oranguru),bench:[pokemon(P.mega,{energies:[P.dark,P.dark,P.dark]})]});
  const line=rootRequest({ownPublic:three,items:[{token:'retreat',kind:'retreat',targetPrinting:P.mega},{token:'pass',kind:'pass'}]});
  assert.deepEqual(checked(line),{kind:'select-action',token:'retreat'});
