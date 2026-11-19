@@ -8,8 +8,8 @@
   "producerBindingStatus": "prototype only; not inserted into the signed/hash-bound V3 policy plan",
   "policyModule": {
     "path": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "gitBlobSha1": "36616df3e1db0d750756f01922edac7973ab6c1f",
-    "sha256": "30570e00c389d19097cc1bd4252647b63e11c11d18d007c38f2653d920556589",
+    "gitBlobSha1": "18ba4a18cfe69bc6059d0d3941c9aa1dfea3ed12",
+    "sha256": "8feb6c6d28e04c73ff7d2ff75b315c955a8bf0073228451184d97a6388320509",
     "policyVersion": "agent17-rank3-snorlax-stall-opponent-v1",
     "config": {
       "rank": 3,
@@ -134,8 +134,8 @@
   },
   "testSuite": {
     "path": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "gitBlobSha1": "7dda7c178867522f03d803721fbc34f63ccdbf84",
-    "sha256": "5fd8a97e1623ecafed8f1580afcf9a8eda2e39d4ac65b716b8f030e1ffcc93ae",
+    "gitBlobSha1": "2468511c334357c0c653291f5f318071a0549a21",
+    "sha256": "96a4ad2ad6452b6494cce0dddf9906f6e861ceb25048fe22e196278e775b398a",
     "testFramework": "node:test source file",
     "localExecution": "V8 isolate test shim; all 49 cases rerun against the actual policy and worker validators; not node --test",
     "testCount": 49
@@ -145,10 +145,10 @@
     "sha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27"
   },
   "repositoryBindings": {
-    "policyCommit": "62f15de5053b5aef8ffc4f7163e924b05ede5326",
-    "testCommit": "99795014b5d42a8a98f6fe455051026c7eaa45fc",
+    "policyCommit": "c73245b6a4ea48e03db08ebdaed1aeeb600b63eb",
+    "testCommit": "47170237ed7a6dc3463c11bae74d0aa6a27be9a6",
     "baselineMainCommitAtInitialInspection": "2a86d357bf5ae699148f0fa7ce74c497e6973d49",
-    "currentMainAtManifestUpdate": "dca3ab3693669d4218d343a656cf3f9271bc5e19"
+    "currentMainAtManifestUpdate": "c12ad8754181462ddf95cf70016bb1bea3c12cb2"
   },
   "hashDefinitions": {
     "fileSha256": "SHA-256 of exact UTF-8 file bytes",
