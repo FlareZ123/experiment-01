@@ -49,6 +49,17 @@
       "candidateSet": "all source-list Supporter patterns",
       "aggregation": "maximum scoreSearchCard(candidate, observation, 'vs-seeker')",
       "noEligibleSupportersScore": 0
+    },
+    "basicSearchGate": {
+      "patterns": "exact rank-3 Basic Pokémon source copies",
+      "zeroRemainder": "no Basic target remains in deck",
+      "positiveRemainder": "may include hidden Prizes",
+      "quickBallCost": "requires hand.length >= 2 before scoring as playable"
+    },
+    "forestSealStoneVstarGate": {
+      "source": "observation.ownTurnResources.vstarUsed",
+      "whenTrue": "score 0",
+      "whenFalse": "retain Rotom V attachment score"
     }
   },
   "sourceBinding": {
@@ -116,15 +127,15 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json",
-    "manifestSha256": "38ea403fe890eb54ff6fa3e2cd0291edb3cba0cbc119876b24859fb2d0b706e9",
+    "manifestSha256": "3991d6c3fef8e9d418de7f6e89f8d51edd4a60d6d22e25a2c530b0dbdb8b6ffe",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "testFilePath": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "testFileBlobSha1": "158f96736e62809578cc0f7117a21e0319ffe198",
-    "testFileSha256": "4092dcb687475757f050b99e0a1dff803382a4260f05fb7737160c2f05d17d9a",
+    "testFileBlobSha1": "6c13223ac655706d8adf84a892dd0823589785dc",
+    "testFileSha256": "a21b9359d7dd957d34f49c033e3e1518567828497678d370d5c9f1437b01c09a",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -3923,7 +3934,7 @@
       "caseId": "r3-dev-20-quick-ball-discards-expendable-cards-before-the-unique-tool-",
       "split": "development",
       "caseClass": "policy-decision",
-      "objective": "Quick Ball discards expendable cards before the unique Tool Jammer or Faba",
+      "objective": "Nest Ball and Quick Ball root scores require an unseen Basic target; Quick Ball additionally requires a discardable second hand card",
       "evidenceClass": "synthetic",
       "actorView": {
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
@@ -4001,12 +4012,14 @@
           "hidden opponent hand or unrevealed Prize identity",
           "wrong-source ability",
           "unpayable target",
-          "delegated fallback"
+          "delegated fallback",
+          "Nest Ball or Quick Ball scored as useful when all Basic copies are visible",
+          "Quick Ball scored playable with only itself in hand"
         ],
         "acceptableOutcomeFamilies": [
           "select-choices"
         ],
-        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
+        "rationale": "The policy subtracts actor-visible own cards from exact source Basic counts. Zero remainder means no Basic can remain in deck. Quick Ball also requires at least two cards in hand, including itself, to pay its discard cost."
       },
       "costLedger": {
         "itemPlayed": true,
@@ -4077,10 +4090,21 @@
           "measured": false
         },
         "timeoutStatus": "not-tested",
-        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present",
+        "basicSearchScores": {
+          "allBasicsVisible": {
+            "nestBall": 0,
+            "quickBall": 0
+          },
+          "defaultUnseenBasics": {
+            "nestBall": 100
+          },
+          "quickBallHandOnlyItself": 0,
+          "quickBallWithSecondCard": 100
+        }
       },
       "disposition": "blocked",
-      "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
+      "blockReason": "Synthetic visibility/count and action-score tests only; positive unseen Basic counts may include hidden Prizes.",
       "reviewerStatus": "unreviewed",
       "sourceBinding": {
         "role": "opponent-policy",
@@ -4098,7 +4122,7 @@
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
         "evidenceClass": "synthetic"
       },
-      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
+      "reviewerExplanation": "Synthetic visibility/count and action-score tests only; positive unseen Basic counts may include hidden Prizes."
     },
     {
       "caseId": "r3-dev-21-tropical-beach-is-used-as-a-turn-ending-draw-only-with-a-mea",
@@ -6231,7 +6255,7 @@
       "caseId": "r3-dev-33-forest-seal-stone-is-attached-to-rotom-v-to-enable-star-alch",
       "split": "development",
       "caseClass": "policy-decision",
-      "objective": "Forest Seal Stone is attached to Rotom V to enable Star Alchemy",
+      "objective": "Forest Seal Stone is only scored as a Rotom V attachment while the once-per-game VSTAR Power remains unused",
       "evidenceClass": "synthetic",
       "actorView": {
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
@@ -6309,12 +6333,13 @@
           "hidden opponent hand or unrevealed Prize identity",
           "wrong-source ability",
           "unpayable target",
-          "delegated fallback"
+          "delegated fallback",
+          "Forest Seal Stone prioritized for Star Alchemy after vstarUsed is true"
         ],
         "acceptableOutcomeFamilies": [
           "select-action"
         ],
-        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
+        "rationale": "Root scoring now returns zero when the actor-visible ownTurnResources.vstarUsed flag is true; the unused Rotom V attachment retains its 180 score."
       },
       "costLedger": {
         "toolAttached": "Forest Seal Stone SIT 156",
@@ -6383,10 +6408,14 @@
           "measured": false
         },
         "timeoutStatus": "not-tested",
-        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
+        "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present",
+        "forestSealStoneRootScores": {
+          "rotomAndUnusedVstar": 180,
+          "rotomAndVstarAlreadyUsed": 0
+        }
       },
       "disposition": "blocked",
-      "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
+      "blockReason": "Synthetic resource-state and action-score tests only; no native game or VSTAR ability resolution.",
       "reviewerStatus": "unreviewed",
       "sourceBinding": {
         "role": "opponent-policy",
@@ -6406,7 +6435,7 @@
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
         "evidenceClass": "synthetic"
       },
-      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
+      "reviewerExplanation": "Synthetic resource-state and action-score tests only; no native game or VSTAR ability resolution."
     },
     {
       "caseId": "r3-dev-34-star-alchemy-cannot-be-invoked-from-an-unrelated-pok-mon-sou",
@@ -9610,7 +9639,7 @@
     ]
   },
   "caseRecordCount": 49,
-  "suiteSha256": "24f74ebf9f79a65fdfd0410fe853d0214c8ef86aac8591a54cc39d8dcaf9d8b8",
+  "suiteSha256": "e395739b89a5a870f25d15668418fa9dbea4b287c25840fd601fdbf210107b6a",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
@@ -9618,8 +9647,8 @@
     "sourceRank": 3,
     "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
     "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
-    "policySha256": "e7de94ec2ca7b4cc81c7eb49c8f171dd53543006179b51c17f39ab327591aca8",
-    "dependencyManifestSha256": "38ea403fe890eb54ff6fa3e2cd0291edb3cba0cbc119876b24859fb2d0b706e9",
+    "policySha256": "f09fb3a486e0082fe53b32b8c9743927b6ef99901b70f89241047b75efbcbe5d",
+    "dependencyManifestSha256": "3991d6c3fef8e9d418de7f6e89f8d51edd4a60d6d22e25a2c530b0dbdb8b6ffe",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
@@ -9818,9 +9847,9 @@
   },
   "policyStaticAudit": {
     "sourcePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "sourceBlobSha1": "38475be5cd24b7afc2f2d264a0fbfd28c994d72e",
-    "sourceSha256": "e7de94ec2ca7b4cc81c7eb49c8f171dd53543006179b51c17f39ab327591aca8",
-    "scannedAt": "2026-11-19T17:16:37Z",
+    "sourceBlobSha1": "d9120ac751251673e2b3a3b2444bdf6e5fd4fba4",
+    "sourceSha256": "f09fb3a486e0082fe53b32b8c9743927b6ef99901b70f89241047b75efbcbe5d",
+    "scannedAt": "2026-11-19T17:19:47Z",
     "scannedTerms": [
       {
         "term": "Math.random",
