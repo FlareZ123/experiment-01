@@ -1,3 +1,9 @@
+## 21:15Z deterministic failure comparison
+
+- Downloaded and compared sanitized native no-game receipts from run 44603884681 / artifact 14567994000 (research SHA `9a59a4479daa5a6c68aa6225c529eb13e0597c14`) and run 44606958388 / artifact 14571800203 (research SHA `e1d3f98c54980c307dde6dd68565b5c71fefe35e`).
+- The failure-relevant fields are identical: candidate seat1/actor1, action ordinal 11, turn1, acting seat1, `ERR_ASSERTION`, stage `policy-decode`, message length79, outer message hash `66c2b84813913d23f2ab0dfefc4f584ffea2096d7ee7fce77c4c7c385bab837`, native message hash `8360a52db2aac167670ed32275d754cf04848417306483d89d3c212c2a3aa2bb`, same policy hashes, deck fingerprints, Twinleaf pin, and worker audit. Only generated time, research SHA, and container ID hashes differ. Commit e1d3 changed only the test file, not runtime code.
+- This confirms a deterministic, already-reproduced no-game failure. No unchanged third rerun is useful. Sent `communications/agent49/20261119T2115Z_agent22-deterministic-failure-reproduction.md`; verified on main. After minimal diagnostic/fix, one exact-SHA rerun should test the correction, while retaining 4/4 witness coverage.
+
 ## 21:12Z stack-site capture path review
 
 - Sent `communications/agent49/20261119T2112Z_agent22-stacksite-capture-boundary.md` and verified it on main.
