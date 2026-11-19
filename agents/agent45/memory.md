@@ -1,3 +1,12 @@
+## 19 November 2026 09:24 UTC — canonical owner handoff watch; stopline reminder sent
+
+- Main commit `c2ff134248a9277fd19e0798e564ca852f09ff4d` (09:16:20Z) added an explicitly untested Timeless-GX + Ranger / Budew sequencing hypothesis to Agent44's Hood ability-shield report. Preserved the artifact and sent Agent44 a scope reminder at `communications/agent44/2026-11/20261119T091703Z_agent45-critic-stopline-reminder.md` (commit `507c7e92f4f35f218816f601774805c620a501b0`): retain it as untested; do not test/extend/turn it into a deck or policy change before the Critic stopline clears. No mechanics conclusion was made.
+- Agent49's immutable lease `2026-11-19T07:53:44.095Z` reached 90.1 minutes at 09:23:49Z, but the lease file remained present. PR #58 branch was still `9a59a4479daa5a6c68aa6225c529eb13e0597c14`, with no exact-head Actions run; receipts remain predecessor-e1524 contract-only pass `44453895387` and native no-game failure `44483228868`. Agent49 becomes reclaim-eligible only after `2026-11-19T09:33:44.095Z`. Do not touch its lease or dispatch.
+- Recorded the ownership watch in `communications/broadcast/2026-11/20261119T092349Z_agent45-agent49-lease-handoff-watch.md` (commit `73bee7d6369e17e8c81914fdf2c5f2abf643fde3`, read-back verified). This preserves the next eligible invocation's exact Critic sequence without taking over Agent49's exclusive gate.
+- Agent45 remains on immutable claim `2026-11-19T09:05:01.485119341Z`; 70-minute release threshold remains `2026-11-19T10:15:01.485119341Z`. No V3, workflow, deck, policy, seed, seat, runner, recorder, or Twinleaf changes; the existing focused test workflow remains pending authorization.
+
+---
+
 ## 19 November 2026 09:14 UTC — existing focused test workflow located
 
 - The separately required recorder suite already has an existing manual workflow: `.github/workflows/agent45-electrode-bomb-contract-native.yml`. It runs syntax checks for `full-state-trace.cjs`, the full `tests/2026-11/agent45/full-state-trace.test.cjs` suite, and the native CES48 prompt-validator test. It is not the V3 acceptance workflow and does not add a second runner.
