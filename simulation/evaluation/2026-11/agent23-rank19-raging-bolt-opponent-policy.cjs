@@ -142,6 +142,11 @@ function attachedBasicEnergyCount(player) {
   }
   return count;
 }
+function nonActiveBasicEnergyCount(player) {
+  const active = player?.active;
+  return boardSlots(player).filter(pokemon => pokemon !== active)
+    .reduce((sum, pokemon) => sum + list(pokemon.energies).filter(isBasicEnergy).length, 0);
+}
 function ancientPokemon(pokemon) {
   return matches(pokemon, PRINT.ragingBolt) ||
     matches(pokemon, PRINT.sandyShocks) ||
@@ -475,9 +480,7 @@ function bellowingEnergyDecision(prompt, request) {
   if (!matches(active, PRINT.ragingBolt)) {
     return { kind: 'abstain', reasonCode: 'BELLOWING_ACTIVE_NOT_RAGING_BOLT' };
   }
-  const nonActiveBasic = boardSlots(own).filter(pokemon => pokemon !== active)
-    .reduce((sum, pokemon) => sum + list(pokemon.energies).filter(isBasicEnergy).length, 0);
-  if (nonActiveBasic > 0) {
+  if (nonActiveBasicEnergyCount(own) > 0) {
     return { kind: 'abstain', reasonCode: 'BELLOWING_ENERGY_OWNER_UNATTRIBUTED' };
   }
   const target = opponentActive(request.observation);
@@ -517,7 +520,7 @@ function scoreAttack(item, request) {
       (boardHas(own, PRINT.ragingBolt) || boardHas(own, PRINT.sandyShocks) || boardHas(own, PRINT.moltres)) ? 225 : 160;
   }
   if (name === 'Bellowing Thunder') {
-    if (!matches(active, PRINT.ragingBolt)) return 0;
+    if (!matches(active, PRINT.ragingBolt) || nonActiveBasicEnergyCount(own) > 0) return 0;
     if (lethal) return 260;
     return attachedBasicEnergyCount(own) > 0 ? 150 : 80;
   }
