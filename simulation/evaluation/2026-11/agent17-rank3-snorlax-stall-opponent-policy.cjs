@@ -643,7 +643,11 @@ function scoreAction(item, request) {
     if (matches(card, PRINT.plumeria)) return playerEnergyCount(opponent) > 0 && hand.length >= 3 ?
       145 + Math.min(20, playerEnergyCount(opponent) * 5) : 0;
     if (matches(card, PRINT.teamFlare)) return opponentActiveEnergy(observation) > 0 ? 135 : 0;
+    if (matches(card, PRINT.teammates)) {
+      return request.publicEventReceipt?.priorOpponentTurnKO?.any === true ? 140 : 0;
+    }
     if (matches(card, PRINT.guzma)) {
+      if (!slots(opponent).some(row => row.zone === 'bench')) return 0;
       const activeIsSnorlax = matches(own.active?.printing ?? '', PRINT.snorlax);
       const damagedSnorlaxCanRotate = activeIsSnorlax && (own.active.damage ?? 0) >= 100 &&
         slots(own).some(row => row.zone === 'bench' &&
