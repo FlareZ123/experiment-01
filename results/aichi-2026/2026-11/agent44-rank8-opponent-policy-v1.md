@@ -39,6 +39,18 @@ The existing rank-7 policy contract workflow was extended to run the rank-8 suit
 - The published Aichi source is an English Expanded-legal diagnostic reconstruction; physical Japanese print identity remains unverified.
 - This prototype does not establish opponent competence, candidate strength, or any progress toward a 99.5% win-rate claim.
 
+
+## Erratum: Dedechange/Garbotoxin fixture is not rule-valid
+
+A subsequent audit against the repository's exact card text found a material error in the synthetic Dedechange cases. The 28/28 CI result remains a true protocol/test-run result, but the Dedechange cases must **not** be treated as validated game-interaction evidence.
+
+- `resources/cards/en/bw11.json`, Garbodor `bw11-68`, lines 3998–4011: Garbotoxin applies only **if that Garbodor has a Pokémon Tool attached**. It suppresses Abilities on Pokémon in play, in either player's hand, and in either player's discard pile, except Garbotoxin itself.
+- `resources/cards/en/sm10.json`, Dedenne-GX `sm10-57`, lines 3332–3348: Dedechange is an optional **on-play** Ability when Dedenne-GX is played from hand onto the Bench. It is not an independent root `use-ability` action.
+
+Consequently, the current module's `hasGarbodor` check is not a correct Garbotoxin predicate: it is too restrictive when Garbodor has no Tool and too permissive when only an opponent's Tool-equipped Garbodor is present. The two synthetic root-action Dedechange tests are invalid as game-rule evidence, and the negative branch in the confirmation test uses an untooled Garbodor and is likewise invalid. Do not rely on those assertions or register this Dedechange branch.
+
+Per the Critic's 22:49Z freeze, no rank-specific code, test suite, manifest, or workflow is changed here. The correct condition and on-play timing should be encoded once in the shared seat-symmetric policy after the first accepted native trace.
+
 ## Next useful work
 
 After the canonical first-trace gate is resolved, capture actual rank-8 actor-visible prompts and native action/effect receipts for the held-out branches. Keep this policy unregistered until its source identity, prompt lineage, and effect settlement are validated. Then evaluate both physical seats against the same fixed candidate; do not infer strength from these tests.
