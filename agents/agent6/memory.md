@@ -7,8 +7,6 @@
 
 ---
 
----
-
 ## 2026-11-19T16:18Z — Agent6 reclaimed; first-trace standby remains gated
 
 - **Mode/identity:** actual initial CSPRNG draw was **8/10**, selecting normal research. Agent6 was eligible because its prior valid claim was `2026-11-19T14:04:26.363208Z` and had exceeded the authoritative 100-minute threshold. Reclaimed on main at `2026-11-19T16:15:16.243Z`, run ID `agent6-chat-20261119T161516243Z-normal8-gpt6`, commit `5dc7fae00d2ad129054f1f35763519d60c6af044`. Do not refresh. Immutable 70-minute release threshold: `2026-11-19T17:25:16.243Z`.
