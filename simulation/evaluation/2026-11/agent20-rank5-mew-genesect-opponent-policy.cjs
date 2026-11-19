@@ -262,8 +262,14 @@ function scoreSearchPokemon(printing, observation, context = '') {
   const protectedCard = list(observation.ownHand).some(card =>
     matches(card, PRINT.dce) || matches(card, PRINT.mewVMAX) ||
     matches(card, PRINT.wally) || matches(card, PRINT.secretBox));
-  if (matches(printing, PRINT.dedenne)) return handCount(observation) <= 2 && !protectedCard ? 130 : 20;
-  if (matches(printing, PRINT.crobat)) return handCount(observation) <= 4 ? 125 : 35;
+  if (matches(printing, PRINT.dedenne)) {
+    return handCount(observation) <= 2 && !protectedCard &&
+      !list(own.stadium).some(value => matches(value, PRINT.pathToPeak)) ? 130 : 20;
+  }
+  if (matches(printing, PRINT.crobat)) {
+    return handCount(observation) <= 4 &&
+      !list(own.stadium).some(value => matches(value, PRINT.pathToPeak)) ? 125 : 35;
+  }
   if (matches(printing, PRINT.clefairy)) return candidateHasDragon(observation) ? 95 : 5;
   return 0;
 }
@@ -308,13 +314,14 @@ function scoreDiscardCard(choice, observation) {
   const hand = list(observation.ownHand);
   const dceInHand = hand.filter(card => matches(card, PRINT.dce)).length;
   const mewVMAXInHand = hand.some(card => matches(card, PRINT.mewVMAX));
+  const mewVMAXCountInHand = hand.filter(card => matches(card, PRINT.mewVMAX)).length;
   const freshMew = slots(own).some(row =>
     matches(row.pokemon.printing, PRINT.mewV) &&
     row.pokemon.lastPlayedOrEvolvedTurn === observation.globalTurn);
 
   if (matches(printing, PRINT.dce)) return dceInHand > 2 ? 55 : 0;
   if (matches(printing, PRINT.mewVMAX) && boardCount(own, PRINT.mewV) > 0 &&
-      boardCount(own, PRINT.mewVMAX) === 0 && !mewVMAXInHand) return 0;
+      boardCount(own, PRINT.mewVMAX) === 0 && mewVMAXCountInHand <= 1) return 0;
   if (matches(printing, PRINT.wally) && freshMew &&
       boardCount(own, PRINT.mewVMAX) === 0 && !mewVMAXInHand) return 0;
   if (matches(printing, PRINT.mewV) && boardCount(own, PRINT.mewV) === 0) return 0;
