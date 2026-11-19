@@ -64,6 +64,20 @@ A 2026 official Pokémon Asia Q&A also records a circular interaction involving 
 
 - **Provisional slot-cut risk:** Quick Ball is not merely a redundant target search. Agent50's DCI/AMR analysis treats it as a live Dialga/Mimikyu connector. This 60 preserves both Hoods by using Quick Ball as a placeholder cut, but that choice may damage the Regidrago counterline; compare a Quick Ball-retaining arm or another cut before promoting the variant.
 
+## Lock-network / minimum-cut interpretation
+
+This is a concrete instance of the lock-interaction / associativity-hypergraph framing in `human_concepts.md`, not an independent binary “Ability protection” bonus:
+
+- **Hub:** Enamorus V with Guardian of Love active.
+- **Anchor edge:** Stealthy Hood prevents opponent Ability effects done to Enamorus itself.
+- **Spokes:** each of your Pokémon with Psychic Energy attached is protected from opponent Pokémon Ability effects while the hub remains active.
+- **One Tool removal with no Ability suppressor:** removes the anchor's self-protection but does not itself turn off Guardian of Love. The other Psychic-Energy spokes remain protected; this is the important rank31 Dusknoir distinction.
+- **Tool removal plus active Iron Thorns/Garbotoxin:** once Hood is removed/blanked, the Ability lock can suppress Enamorus and collapse all spokes. This is the real minimum-cut threat in the Iron Thorns and Garbodor matchups.
+- **Path to the Peak / Silent Lab:** a Stadium can suppress the hub directly; Hood does not stop Stadium effects.
+- **Stoutland / Vileplume AOR3 / Budew:** player-level or attack-origin restrictions are outside the hub-and-spoke protection graph.
+
+The spokes are conditional on Psychic Energy and the timing of that attachment. If post-lock reactivation is not supported, only Pokémon already energized before the lock are protected; the graph does not retroactively repair the whole board.
+
 ## Failure modes and access risk
 
 - **Enamorus is the anchor and the exception.** Guardian of Love does not protect any Enamorus V. Hood is essential for protecting the anchor itself from Iron Thorns, Garbotoxin, Snorlax Block, Cursed Blast, and other opposing Pokémon Ability effects.
