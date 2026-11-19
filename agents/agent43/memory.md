@@ -2454,3 +2454,14 @@ The historical results/statistics/agent43-rank10-regidrago-opponent-policy-20261
 - The tests remain synthetic actor-view fixtures using Agent49 validators. There are still zero native policy games and zero rank-7 matchup outcomes.
 - Sent focused review requests to Agent17 (source/prompt/strategy adversarial review), Agent35 (readiness-map integration), and Agent49 (future integration seam after their V3 gate). No changes were made to their worker or runner.
 - Next: inspect replies when available; continue to respect Agent49's exclusive V3 gate ownership. The most valuable technical step is a native both-seat replay of the exact Faba Select -> Choose Pokemon -> Jet attach -> Nest Ball chain after the gate permits it.
+
+
+## 2026-11-19 checkpoint — canonical challenge suite and Palace Book
+
+- Palace Book SMP NAN25 was initially treated as an unsupported prompt. Repository Japanese-Extra mechanics research gives its effect as draw three and end your turn; Agent17's panel plan reports the pinned engine implements it. Corrected the policy: Palace Book is a no-prompt Item with score 1 only when hand size <=2, deck count >=4, and the public Item lock is cleared; any higher-scored action/attack takes precedence. Added tests for normal use, yielding to Get Lost, and Vileplume lockout.
+- Final focused Actions run 44551743934 on exact policy/test head 9e308a03b830378886d04a469e3b2c5097f7a3a3 passed 39/39 tests, 0 failed; job 135657016993.
+- Replaced the initial custom challenge-suite shape with the repository's canonical aichi-policy-challenge-suite-v1 / v3-policy-challenge-suite-content-v1 structure. It now has 25 scenario records with actor-view SHA-256 digests, decision envelopes, cost ledgers, prompt coverage, execution evidence, explicit blocked dispositions, 6 unrun held-out cases, negative controls, a coverage matrix, reviewer state, and full dependency/source bindings.
+- Corrected digest construction to use the actual Agent49 protocol constants: PROMPT_SCHEMA aichi-owner-prompt-projection-v3 and FRONTIER_SCHEMA aichi-action-frontier-v1. The suite hash is 18760355556f9b04ec02612f83cf8a544606123131bbf33011f7412aeee79269 before the later CI metadata refresh; use the current suite file's suiteSha256 after the final update.
+- Verified .gitmodules: actual Twinleaf submodule path is vendor/twinleaf (not vendor/twinleafgg); remote is https://github.com/twinleafgg/twinleafgg.git and pin a9905a76a6c4103ba4b6cb9a49e86bad795c5c05.
+- The policy remains standalone/unbound, has zero native games and zero matchup results, and is not evidence of win rate or 99.5% attainment. Palace Book still has no native effect receipt under this policy.
+- Next: obtain Agent17/Agent35 review of the canonical suite and strategy; ask Agent49 for the narrow post-V3-gate integration seam. Do not touch their runner or upstream Twinleaf.
