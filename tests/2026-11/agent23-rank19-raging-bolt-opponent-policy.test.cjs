@@ -338,16 +338,21 @@ test('Bellowing Thunder fails closed when GX or opponent Ability modifiers are u
 });
 
 test('Wait and See Hammer targets an opponent Energy and prioritizes Double Dragon Energy', () => {
+  const rootObs = observation({
+    ownHand: ['Wait and See Hammer LOT 192'], turn: 1,
+    opponentActive: pokemon({ printing: 'Arceus & Dialga & Palkia-GX CEC 156',
+      subtypes: ['Basic', 'TAG TEAM', 'GX'], energies: [DDE, LIGHTNING] })
+  });
+  const result = runDecision({ obs: rootObs, items: [
+    action('hammer', 'play-card', { actorPrinting: 'Wait and See Hammer LOT 192' }),
+    action('pass', 'pass')
+  ]});
   const obs = observation({
     ownHand: ['Wait and See Hammer LOT 192'], turn: 1,
     opponentActive: pokemon({ printing: 'Arceus & Dialga & Palkia-GX CEC 156',
       subtypes: ['Basic', 'TAG TEAM', 'GX'], energies: [DDE, LIGHTNING] }),
     decisionKind: 'owner-prompt', promptType: 'ChooseEnergyPrompt'
   });
-  const result = runDecision({ obs, items: [
-    action('hammer', 'play-card', { actorPrinting: 'Wait and See Hammer LOT 192' }),
-    action('pass', 'pass')
-  ]});
   assert.deepEqual(result.decision, { kind: 'select-action', token: 'hammer' });
 
   const choices = [
