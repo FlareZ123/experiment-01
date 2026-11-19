@@ -29,18 +29,18 @@
     "externalPackages": [],
     "localRuntimeImports": [],
     "sourceBinding": "immutable constants in policy module and this manifest",
-    "sha256": "6a129f76c997221962eac79840997ece629c61fb6acf35c386fb80f38b29fece"
+    "sha256": "c30e4cc580e2ab1813228c2c169e57d18a1c6f64af7f30cd980849454da13638"
   },
   "tests": {
     "path": "tests/2026-11/agent43-rank7-snorlax-stall-opponent-policy-v1.test.cjs",
     "validator": "actual Agent49 validateInit, validateRequest, validateDecision",
     "fixtureClass": "synthetic actor-view requests and prompts only",
-    "sha256": "f11c6b78eb2915ae91c2ac34c7ebb0473045473ac978a6d5c041aee4c09c1c0d",
-    "latestRunId": 44549090143,
-    "latestRunHeadSha": "ec1f6afaa21e7fedd5b9028b66c62d26b5438841",
+    "sha256": "21f5110280422fd067ed4ce86bc3f53a84508f63ec9f852d4e105a92e90eabb7",
+    "latestRunId": 44550181375,
+    "latestRunHeadSha": "2a510ee2d45cf2b98a34829f3d47798f20168d4d",
     "latestRunConclusion": "success",
-    "testCount": 32,
-    "passed": 32,
+    "testCount": 37,
+    "passed": 37,
     "failed": 0
   },
   "supportedPromptFamilies": [
