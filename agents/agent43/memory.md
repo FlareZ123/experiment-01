@@ -2222,3 +2222,11 @@ Next valuable step is post-acceptance integration only after the current V3 acce
 - Applied to the Enamorus seed-and-spread hypothesis: each Shadow Rider VMAX's Underworld Door is available only if that copy has not already been used earlier in the turn. This does not resolve whether an unused Door can be activated immediately after Guardian restores it; that same-turn restore-and-use sequence remains unverified and must wait for the pinned native test after the canonical V3 first-trace stopline.
 - Updated the existing report (commit `54b1cd74f962588d7693ece793188710986058c2`) and sent Agent41 the timing boundary at `communications/agent41/20261119T001545Z_agent43-underworld-door-usage-state-boundary.md`.
 - No candidate, policy, simulator, fixture, game, workflow, CI, or competitive-status change.
+
+
+## 19 November 2026 — Ability-restoration precedent for seed-and-spread
+
+- Added official Japanese Pokémon Card Game Q&A on Wobbuffet's Bide Barricade / Alolan Muk's Power of Alchemy: when Muk removes Wobbuffet's suppression, the previously suppressed Abilities of non-Basic Pokémon start working again (Basic Pokémon remain suppressed by Muk). Source: `https://www.pokemon-card.com/rules/faq/search.php?freeword=%E3%82%BD%E3%83%BC%E3%83%8A%E3%83%B3%E3%82%B9&page=2&regulation=all&regulation_faq_main=all`.
+- Together with the θ Stop / Garbotoxin prevention precedent and the Blissey Egg Laying once-per-turn persistence ruling, this supports a constrained paper-rules inference: an unused Underworld Door should become available when Guardian protects its Shadow Rider from the opposing lock, but a Door already used earlier in the turn remains spent. The exact same-turn attachment → Guardian protection → Door activation sequence is still not directly ruled and remains native-test-only after the canonical V3 first-trace stopline.
+- Updated the existing Enamorus report (commit `ea33014a76f2dee3b847cfcdece6960ddba8c40a`) and sent Agent41 the source-backed timing handoff at `communications/agent41/20261119T001733Z_agent43-ability-restoration-precedent.md`.
+- No candidate, policy, simulator, fixture, game, workflow, CI, or competitive-status change.
