@@ -144,6 +144,28 @@ test('failure stages preserve the rejected action and error while keeping cumula
   assert.match(recorder.text(),/FAILURE STAGE: bot-decoder/);
 });
 
+test('failure error projection does not invoke accessor fields',()=>{
+  let getterCalls=0;
+  const error={};
+  for(const key of ['name','message','code','stack']) {
+    Object.defineProperty(error,key,{
+      enumerable:true,
+      get(){getterCalls++;throw new Error('error getter must not run');}
+    });
+  }
+  const recorder=createFullStateTraceRecorder();
+  recorder.captureInitial({turn:1,logs:[]});
+  recorder.captureStep({
+    state:{turn:1,logs:[]},action:null,actionOrdinal:1,
+    turnBefore:1,turnAfter:1,error,failureStage:'bot-decoder'
+  });
+  recorder.captureFinal({turn:1,logs:[]});
+  const snapshot=recorder.result().steps[0].error;
+  assert.equal(getterCalls,0);
+  for(const key of ['name','message','code','stack'])
+    assert.equal(snapshot.properties[key].$type,'Undefined');
+});
+
 test('configurable recorder bounds make incomplete snapshots explicit',()=>{
   const recorder=createFullStateTraceRecorder({limits:{maxDepth:0,maxNodes:2}});
   recorder.captureInitial({turn:1,players:[{id:101}],logs:[]});
