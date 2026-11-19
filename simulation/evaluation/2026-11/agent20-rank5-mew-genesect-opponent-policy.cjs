@@ -399,11 +399,13 @@ function scoreForestSealSearch(choice, observation) {
   const own = observation.ownPublic;
   const hand = list(observation.ownHand);
   const mewVMAXOnBoard = slots(own).some(row => matches(row.pokemon.printing, PRINT.mewVMAX));
+  const unpoweredMewVMAXOnBoard = slots(own).some(row =>
+    matches(row.pokemon.printing, PRINT.mewVMAX) && !hasDce(row.pokemon));
   const activeMewVMAX = matches(own.active?.printing ?? '', PRINT.mewVMAX) ? own.active : null;
 
   if (matches(printing, PRINT.mewVMAX) && boardCount(own, PRINT.mewV) > 0 &&
       boardCount(own, PRINT.mewVMAX) === 0) return 300;
-  if (matches(printing, PRINT.dce) && activeMewVMAX && !hasDce(activeMewVMAX)) return 290;
+  if (matches(printing, PRINT.dce) && unpoweredMewVMAXOnBoard) return 290;
   if (matches(printing, PRINT.genesect) && boardCount(own, PRINT.genesect) < 2) return 250;
   if (matches(printing, PRINT.mewV) && boardCount(own, PRINT.mewV) < 2) return 240;
   if (matches(printing, PRINT.vipPass) && observation.globalTurn <= 2 &&
@@ -842,7 +844,7 @@ function scoreAction(item, request) {
     if (ability === 'Dark Asset' && matches(card, PRINT.crobat)) {
       return hand.length < 6 && ownDeckCount(observation) > 0 ? 175 : 0;
     }
-    if (ability === 'Star Alchemy' && matches(card, PRINT.genesect)) {
+    if (ability === 'Star Alchemy') {
       const vstarUsed = request.observation.ownTurnResources?.vstarUsed === true ||
         own.publicTurnRestrictions?.vstarUsed === true;
       if (vstarUsed || ownDeckCount(observation) <= 0) return 0;
