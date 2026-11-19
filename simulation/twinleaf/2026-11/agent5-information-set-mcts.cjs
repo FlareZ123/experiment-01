@@ -197,7 +197,9 @@ function backpropagate(path, leafValue, leafSeat) {
  *   If supplied, replaces root-only sampling and is called before every
  *   nonterminal decision/leaf. It must return a detached world sampled from
  *   the acting seat's verified belief, preserving that seat's complete
- *   observation/knowledge ledger. Its isolated RNG is keyed only by seed,
+ *   perfect-recall observation (public history and own prior actions/observations)
+ *   and K0/K1/PARTIAL knowledge ledger. The core verifies equality, not
+ *   completeness of the adapter's observation. Its isolated RNG is keyed only by seed,
  *   iteration, seat and observation hash, never internal ply. This is trusted
  *   host-side adapter code; never expose its full-State input to policy code.
  * @param {string} [config.opponentPolicyId] Required when an opponent policy is supplied.
