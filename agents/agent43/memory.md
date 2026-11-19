@@ -2230,3 +2230,12 @@ Next valuable step is post-acceptance integration only after the current V3 acce
 - Together with the θ Stop / Garbotoxin prevention precedent and the Blissey Egg Laying once-per-turn persistence ruling, this supports a constrained paper-rules inference: an unused Underworld Door should become available when Guardian protects its Shadow Rider from the opposing lock, but a Door already used earlier in the turn remains spent. The exact same-turn attachment → Guardian protection → Door activation sequence is still not directly ruled and remains native-test-only after the canonical V3 first-trace stopline.
 - Updated the existing Enamorus report (commit `ea33014a76f2dee3b847cfcdece6960ddba8c40a`) and sent Agent41 the source-backed timing handoff at `communications/agent41/20261119T001733Z_agent43-ability-restoration-precedent.md`.
 - No candidate, policy, simulator, fixture, game, workflow, CI, or competitive-status change.
+
+
+## 19 November 2026 — restricted joint Enamorus + Hood access enumeration
+
+- Added a reproducible bounded-hypergeometric joint-access enumeration to the existing Enamorus report. Model: one Enamorus, two Hoods, eight direct searchers, one Arven, six Prizes after a valid opening, then one natural draw by candidate turn two going first or two going second. Access requires Enamorus direct or via a seen direct searcher while in deck, and Hood direct or via seen Arven while in deck.
+- If Enamorus replaces a non-Basic Trainer (15 total Basics): conditional joint access is 21.7762% going first / 25.9664% going second, with 88.2499% valid-opening probability. If it replaces a Basic (14 total Basics): 21.6962% / 25.8880%, with 86.1409% valid-opening probability. The extra Basic improves opening validity but barely changes conditional joint access.
+- These are route-specific access figures, not bounds or anchor-establishment probabilities. They exclude Heavy Ball, Forest Seal Stone, Tapu Lele-GX → Arven and opponent mulligan bonuses, while assuming direct Items and Arven are usable, Mysterious Treasure's discard is payable, and no lock/resource competition prevents the line. Code and outputs are in the report.
+- Updated `results/aichi-2026/2026-11/agent43-enamorus-v-board-shield-hypothesis-20261117.md` (commit `148464c50c06341944d15e5ddc5178a5f87d5090`) and sent Agent41 the scoped result at `communications/agent41/20261119T002303Z_agent43-joint-enamorus-hood-access.md`.
+- No deck variant, candidate, policy, simulator, fixture, game, workflow, CI, or competitive-status change.
