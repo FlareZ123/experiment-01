@@ -40,8 +40,8 @@
   },
   "commonConstraints": {
     "path": "results/methodology/2026-11/agent20-rank5-mew-genesect-common-constraints-v7.json",
-    "gitBlobSha1": "bdd1b388c8bf6e4302191449d6efed88da974d09",
-    "sha256": "94af8564d2de9029633983d214d34ff8ba9c86194e9eadb38123d873e51a3190"
+    "gitBlobSha1": "b85bc479488737acf7ec5035d67aa9694c502769",
+    "sha256": "71323a96a6e088fe5ad0271b873eae3fd369c7e911a913ba75a4b9d0f3f5f588"
   },
   "workerProtocol": {
     "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
@@ -158,8 +158,8 @@
       },
       "costLedger": {
         "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
-        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
-        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "crossFusionStrike": "Mew VMAX pays its own 2 Colorless; one attached DCE can satisfy this. Rulebook C-18 means the copied attack's printed Energy is not separately required unless its text explicitly says so.",
+        "donorAttack": "Rulebook C-18 in resources/manual/EN_advanced_manual-2025-transcription-structured.md: when a chosen attack is used 'as this attack', its effects/damage apply without separately paying its printed Energy unless its text explicitly says otherwise; D-09's Ditto Copy Anything is the explicit exception. Pay Cross Fusion Strike's own [C][C].",
         "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
         "nativePaymentReceipt": null
       },
@@ -242,8 +242,8 @@
       },
       "costLedger": {
         "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
-        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
-        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "crossFusionStrike": "Mew VMAX pays its own 2 Colorless; one attached DCE can satisfy this. Rulebook C-18 means the copied attack's printed Energy is not separately required unless its text explicitly says so.",
+        "donorAttack": "Rulebook C-18 in resources/manual/EN_advanced_manual-2025-transcription-structured.md: when a chosen attack is used 'as this attack', its effects/damage apply without separately paying its printed Energy unless its text explicitly says otherwise; D-09's Ditto Copy Anything is the explicit exception. Pay Cross Fusion Strike's own [C][C].",
         "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
         "nativePaymentReceipt": null
       },
@@ -325,8 +325,8 @@
       },
       "costLedger": {
         "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
-        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
-        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "crossFusionStrike": "Mew VMAX pays its own 2 Colorless; one attached DCE can satisfy this. Rulebook C-18 means the copied attack's printed Energy is not separately required unless its text explicitly says so.",
+        "donorAttack": "Rulebook C-18 in resources/manual/EN_advanced_manual-2025-transcription-structured.md: when a chosen attack is used 'as this attack', its effects/damage apply without separately paying its printed Energy unless its text explicitly says otherwise; D-09's Ditto Copy Anything is the explicit exception. Pay Cross Fusion Strike's own [C][C].",
         "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
         "nativePaymentReceipt": null
       },
@@ -409,8 +409,8 @@
       },
       "costLedger": {
         "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
-        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
-        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "crossFusionStrike": "Mew VMAX pays its own 2 Colorless; one attached DCE can satisfy this. Rulebook C-18 means the copied attack's printed Energy is not separately required unless its text explicitly says so.",
+        "donorAttack": "Rulebook C-18 in resources/manual/EN_advanced_manual-2025-transcription-structured.md: when a chosen attack is used 'as this attack', its effects/damage apply without separately paying its printed Energy unless its text explicitly says otherwise; D-09's Ditto Copy Anything is the explicit exception. Pay Cross Fusion Strike's own [C][C].",
         "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
         "nativePaymentReceipt": null
       },
@@ -492,8 +492,8 @@
       },
       "costLedger": {
         "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
-        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
-        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "crossFusionStrike": "Mew VMAX pays its own 2 Colorless; one attached DCE can satisfy this. Rulebook C-18 means the copied attack's printed Energy is not separately required unless its text explicitly says so.",
+        "donorAttack": "Rulebook C-18 in resources/manual/EN_advanced_manual-2025-transcription-structured.md: when a chosen attack is used 'as this attack', its effects/damage apply without separately paying its printed Energy unless its text explicitly says otherwise; D-09's Ditto Copy Anything is the explicit exception. Pay Cross Fusion Strike's own [C][C].",
         "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
         "nativePaymentReceipt": null
       },
@@ -579,8 +579,8 @@
       },
       "costLedger": {
         "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
-        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
-        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "crossFusionStrike": "Mew VMAX pays its own 2 Colorless; one attached DCE can satisfy this. Rulebook C-18 means the copied attack's printed Energy is not separately required unless its text explicitly says so.",
+        "donorAttack": "Rulebook C-18 in resources/manual/EN_advanced_manual-2025-transcription-structured.md: when a chosen attack is used 'as this attack', its effects/damage apply without separately paying its printed Energy unless its text explicitly says otherwise; D-09's Ditto Copy Anything is the explicit exception. Pay Cross Fusion Strike's own [C][C].",
         "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
         "nativePaymentReceipt": null
       },
@@ -668,8 +668,8 @@
       },
       "costLedger": {
         "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
-        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
-        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "crossFusionStrike": "Mew VMAX pays its own 2 Colorless; one attached DCE can satisfy this. Rulebook C-18 means the copied attack's printed Energy is not separately required unless its text explicitly says so.",
+        "donorAttack": "Rulebook C-18 in resources/manual/EN_advanced_manual-2025-transcription-structured.md: when a chosen attack is used 'as this attack', its effects/damage apply without separately paying its printed Energy unless its text explicitly says otherwise; D-09's Ditto Copy Anything is the explicit exception. Pay Cross Fusion Strike's own [C][C].",
         "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
         "nativePaymentReceipt": null
       },
@@ -768,7 +768,7 @@
       },
       "costLedger": {
         "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy; active Mew VMAX has one attached DCE; Benched Genesect V provides the Techno Blast donor.",
-        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
+        "crossFusionStrike": "Mew VMAX pays its own 2 Colorless; one attached DCE can satisfy this. Rulebook C-18 means the copied attack's printed Energy is not separately required unless its text explicitly says so.",
         "donorAttack": "Techno Blast base damage 210; add 20 only when Muscle Band is visibly attached to active Mew VMAX.",
         "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
         "nativePaymentReceipt": null
@@ -852,8 +852,8 @@
       },
       "costLedger": {
         "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
-        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
-        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "crossFusionStrike": "Mew VMAX pays its own 2 Colorless; one attached DCE can satisfy this. Rulebook C-18 means the copied attack's printed Energy is not separately required unless its text explicitly says so.",
+        "donorAttack": "Rulebook C-18 in resources/manual/EN_advanced_manual-2025-transcription-structured.md: when a chosen attack is used 'as this attack', its effects/damage apply without separately paying its printed Energy unless its text explicitly says otherwise; D-09's Ditto Copy Anything is the explicit exception. Pay Cross Fusion Strike's own [C][C].",
         "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
         "nativePaymentReceipt": null
       },
@@ -939,8 +939,8 @@
       },
       "costLedger": {
         "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
-        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
-        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "crossFusionStrike": "Mew VMAX pays its own 2 Colorless; one attached DCE can satisfy this. Rulebook C-18 means the copied attack's printed Energy is not separately required unless its text explicitly says so.",
+        "donorAttack": "Rulebook C-18 in resources/manual/EN_advanced_manual-2025-transcription-structured.md: when a chosen attack is used 'as this attack', its effects/damage apply without separately paying its printed Energy unless its text explicitly says otherwise; D-09's Ditto Copy Anything is the explicit exception. Pay Cross Fusion Strike's own [C][C].",
         "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
         "nativePaymentReceipt": null
       },
@@ -1023,8 +1023,8 @@
       },
       "costLedger": {
         "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
-        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
-        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "crossFusionStrike": "Mew VMAX pays its own 2 Colorless; one attached DCE can satisfy this. Rulebook C-18 means the copied attack's printed Energy is not separately required unless its text explicitly says so.",
+        "donorAttack": "Rulebook C-18 in resources/manual/EN_advanced_manual-2025-transcription-structured.md: when a chosen attack is used 'as this attack', its effects/damage apply without separately paying its printed Energy unless its text explicitly says otherwise; D-09's Ditto Copy Anything is the explicit exception. Pay Cross Fusion Strike's own [C][C].",
         "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
         "nativePaymentReceipt": null
       },
@@ -1103,8 +1103,8 @@
       },
       "costLedger": {
         "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
-        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
-        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "crossFusionStrike": "Mew VMAX pays its own 2 Colorless; one attached DCE can satisfy this. Rulebook C-18 means the copied attack's printed Energy is not separately required unless its text explicitly says so.",
+        "donorAttack": "Rulebook C-18 in resources/manual/EN_advanced_manual-2025-transcription-structured.md: when a chosen attack is used 'as this attack', its effects/damage apply without separately paying its printed Energy unless its text explicitly says otherwise; D-09's Ditto Copy Anything is the explicit exception. Pay Cross Fusion Strike's own [C][C].",
         "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
         "nativePaymentReceipt": null
       },
@@ -1184,8 +1184,8 @@
       },
       "costLedger": {
         "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
-        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
-        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "crossFusionStrike": "Mew VMAX pays its own 2 Colorless; one attached DCE can satisfy this. Rulebook C-18 means the copied attack's printed Energy is not separately required unless its text explicitly says so.",
+        "donorAttack": "Rulebook C-18 in resources/manual/EN_advanced_manual-2025-transcription-structured.md: when a chosen attack is used 'as this attack', its effects/damage apply without separately paying its printed Energy unless its text explicitly says otherwise; D-09's Ditto Copy Anything is the explicit exception. Pay Cross Fusion Strike's own [C][C].",
         "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
         "nativePaymentReceipt": null
       },
@@ -1271,8 +1271,8 @@
       },
       "costLedger": {
         "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
-        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
-        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "crossFusionStrike": "Mew VMAX pays its own 2 Colorless; one attached DCE can satisfy this. Rulebook C-18 means the copied attack's printed Energy is not separately required unless its text explicitly says so.",
+        "donorAttack": "Rulebook C-18 in resources/manual/EN_advanced_manual-2025-transcription-structured.md: when a chosen attack is used 'as this attack', its effects/damage apply without separately paying its printed Energy unless its text explicitly says otherwise; D-09's Ditto Copy Anything is the explicit exception. Pay Cross Fusion Strike's own [C][C].",
         "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
         "nativePaymentReceipt": null
       },
@@ -1354,8 +1354,8 @@
       },
       "costLedger": {
         "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
-        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
-        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "crossFusionStrike": "Mew VMAX pays its own 2 Colorless; one attached DCE can satisfy this. Rulebook C-18 means the copied attack's printed Energy is not separately required unless its text explicitly says so.",
+        "donorAttack": "Rulebook C-18 in resources/manual/EN_advanced_manual-2025-transcription-structured.md: when a chosen attack is used 'as this attack', its effects/damage apply without separately paying its printed Energy unless its text explicitly says otherwise; D-09's Ditto Copy Anything is the explicit exception. Pay Cross Fusion Strike's own [C][C].",
         "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
         "nativePaymentReceipt": null
       },
@@ -1430,8 +1430,8 @@
       },
       "costLedger": {
         "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
-        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
-        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "crossFusionStrike": "Mew VMAX pays its own 2 Colorless; one attached DCE can satisfy this. Rulebook C-18 means the copied attack's printed Energy is not separately required unless its text explicitly says so.",
+        "donorAttack": "Rulebook C-18 in resources/manual/EN_advanced_manual-2025-transcription-structured.md: when a chosen attack is used 'as this attack', its effects/damage apply without separately paying its printed Energy unless its text explicitly says otherwise; D-09's Ditto Copy Anything is the explicit exception. Pay Cross Fusion Strike's own [C][C].",
         "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
         "nativePaymentReceipt": null
       },
@@ -1519,8 +1519,8 @@
       },
       "costLedger": {
         "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
-        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
-        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "crossFusionStrike": "Mew VMAX pays its own 2 Colorless; one attached DCE can satisfy this. Rulebook C-18 means the copied attack's printed Energy is not separately required unless its text explicitly says so.",
+        "donorAttack": "Rulebook C-18 in resources/manual/EN_advanced_manual-2025-transcription-structured.md: when a chosen attack is used 'as this attack', its effects/damage apply without separately paying its printed Energy unless its text explicitly says otherwise; D-09's Ditto Copy Anything is the explicit exception. Pay Cross Fusion Strike's own [C][C].",
         "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
         "nativePaymentReceipt": null
       },
@@ -1602,8 +1602,8 @@
       },
       "costLedger": {
         "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
-        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
-        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "crossFusionStrike": "Mew VMAX pays its own 2 Colorless; one attached DCE can satisfy this. Rulebook C-18 means the copied attack's printed Energy is not separately required unless its text explicitly says so.",
+        "donorAttack": "Rulebook C-18 in resources/manual/EN_advanced_manual-2025-transcription-structured.md: when a chosen attack is used 'as this attack', its effects/damage apply without separately paying its printed Energy unless its text explicitly says otherwise; D-09's Ditto Copy Anything is the explicit exception. Pay Cross Fusion Strike's own [C][C].",
         "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
         "nativePaymentReceipt": null
       },
@@ -1678,8 +1678,8 @@
       },
       "costLedger": {
         "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
-        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
-        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "crossFusionStrike": "Mew VMAX pays its own 2 Colorless; one attached DCE can satisfy this. Rulebook C-18 means the copied attack's printed Energy is not separately required unless its text explicitly says so.",
+        "donorAttack": "Rulebook C-18 in resources/manual/EN_advanced_manual-2025-transcription-structured.md: when a chosen attack is used 'as this attack', its effects/damage apply without separately paying its printed Energy unless its text explicitly says otherwise; D-09's Ditto Copy Anything is the explicit exception. Pay Cross Fusion Strike's own [C][C].",
         "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
         "nativePaymentReceipt": null
       },
@@ -1760,8 +1760,8 @@
       },
       "costLedger": {
         "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
-        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
-        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "crossFusionStrike": "Mew VMAX pays its own 2 Colorless; one attached DCE can satisfy this. Rulebook C-18 means the copied attack's printed Energy is not separately required unless its text explicitly says so.",
+        "donorAttack": "Rulebook C-18 in resources/manual/EN_advanced_manual-2025-transcription-structured.md: when a chosen attack is used 'as this attack', its effects/damage apply without separately paying its printed Energy unless its text explicitly says otherwise; D-09's Ditto Copy Anything is the explicit exception. Pay Cross Fusion Strike's own [C][C].",
         "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
         "nativePaymentReceipt": null
       },
@@ -1841,8 +1841,8 @@
       },
       "costLedger": {
         "sourceEnergy": "4 Double Colorless Energy; 0 Basic Energy",
-        "crossFusionStrike": "2 Colorless units; one DCE card can satisfy this if attached and no cost modifier prevents it",
-        "donorAttack": "copied attack printed cost is not separately charged by the policy assumption; requires native/paper verification",
+        "crossFusionStrike": "Mew VMAX pays its own 2 Colorless; one attached DCE can satisfy this. Rulebook C-18 means the copied attack's printed Energy is not separately required unless its text explicitly says so.",
+        "donorAttack": "Rulebook C-18 in resources/manual/EN_advanced_manual-2025-transcription-structured.md: when a chosen attack is used 'as this attack', its effects/damage apply without separately paying its printed Energy unless its text explicitly says otherwise; D-09's Ditto Copy Anything is the explicit exception. Pay Cross Fusion Strike's own [C][C].",
         "trainerCosts": "Supporter once per turn; Quick Ball discard 1; Ultra Ball discard 2; Special Charge recover 2 Special Energy; Secret Box discard 3 other cards and search four categories",
         "nativePaymentReceipt": null
       },
