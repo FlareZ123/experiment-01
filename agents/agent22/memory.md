@@ -1,3 +1,10 @@
+## 21:20Z no-game pre-live-dispatch boundary
+
+- Sent `communications/agent49/20261119T2125Z_agent22-no-game-pre-live-dispatch-boundary.md`, verified on main.
+- Source confirms witness mode passes `stopBeforeLiveDispatch:true` into `createV3WorkerDecisionResolver`. The root path calls `dispatchSelectedNativeAction(..., dispatch:false)`; after validation receipt assertions, witness mode returns the action/receipt immediately. Therefore the live shared Store never receives the action in the failing no-game witness.
+- Current failure is before live dispatch, most likely inside the selected action's cloned-Store `Simulator.store.dispatch(action)` or its adjacent validation assertions. This reinforces the earlier post-response inference.
+- Additional unverified structural hypothesis for the owner to test only if needed: `buildNativeActionFrontier` validates each enumerated action by dispatching it to a cloned Simulator, then stores that same action object in `actionByToken`; selected-action revalidation later dispatches the same object to another cloned Simulator. If Twinleaf mutates action objects during the first validation dispatch, reuse could explain a deterministic second-dispatch assertion. Current fake-native tests do not prove that the pinned engine mutates actions; do not promote this hypothesis without a controlled test.
+
 ## Candidate root policy context for the 79-character failure
 
 - Read `simulation/evaluation/2026-11/agent46-candidate-policy.cjs` on the canonical PR branch. `chooseRoot()` chooses the highest-scored `play-card` before considering retreat, attack, ability, or pass. `scoreTrainerPlay()` gives finite scores to Fog Crystal, Mysterious Treasure, Quick Ball, Ultra Ball, Arven, and other named cards when their public-state conditions hold.
