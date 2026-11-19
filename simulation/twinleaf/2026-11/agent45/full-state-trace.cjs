@@ -211,9 +211,9 @@ function summarizePolicyConfiguration(optionsBySeat) {
 function constructorNameOf(value) {
   const prototype=Object.getPrototypeOf(value);
   const descriptor=prototype?Object.getOwnPropertyDescriptor(prototype,'constructor'):null;
-  return descriptor && Object.prototype.hasOwnProperty.call(descriptor,'value') &&
-    typeof descriptor.value==='function' && descriptor.value.name ?
-      safeFunctionName(descriptor.value) || 'Object' : 'Object';
+  const constructor=descriptor &&
+    Object.prototype.hasOwnProperty.call(descriptor,'value') ? descriptor.value : null;
+  return safeFunctionName(constructor) || 'Object';
 }
 
 /**
@@ -322,8 +322,8 @@ function snapshotFullState(value, options = {}) {
       } else {
         properties[name] = {
           $type:'Accessor',
-          get:descriptor.get?.name || null,
-          set:descriptor.set?.name || null
+          get:safeFunctionName(descriptor.get) || null,
+          set:safeFunctionName(descriptor.set) || null
         };
       }
     }
