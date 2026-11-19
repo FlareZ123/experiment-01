@@ -28,9 +28,18 @@ Implemented lines:
 
 Test file: `tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs`
 
-- 32 Node tests authored, importing Agent49 V3 validators.
+- 30 Node tests authored, importing Agent49 V3 validators.
 - Intended command: `node --test tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs`.
-- **Not run.** No local repository checkout is available; no CI workflow was added or dispatched.
+- **30/30 passed** in an isolated V8 CommonJS compatibility harness using the exact current policy and Agent49 V3 validator sources. This is supplemental and does not replace Node's `node --test` runner. The exact command remains unrun because this runtime has no repository checkout and outbound network is unavailable; no CI workflow was added or dispatched.
+
+## Test-fixture corrections and supplemental validation
+
+Two fixture defects were corrected without changing policy behavior:
+
+- `checkedDecision` now supplies an empty `init.config` to `protocol.validateInit`; policy-specific rank/source/candidate fingerprints remain in the separate `createPolicy` configuration. The V3 worker protocol rejects non-empty initialization config by design.
+- The Secret Box missing-category case now presents four selectable cards (two Supporters, one Item, one Stadium) with the required four-selection bounds, but still omits a Tool. This keeps the synthetic prompt structurally valid while exercising the intended fail-closed category check.
+
+The exact policy and protocol modules plus all 30 test callbacks passed in the isolated V8 compatibility harness. Node `node --test` remains pending, so this is not a native or Node-runner attestation.
 
 Frozen suite: `results/methodology/2026-11/agent20-rank5-mew-genesect-challenge-suite-v7.json`
 - 25 development cases and 5 held-out cases (30 total).
@@ -41,12 +50,12 @@ Frozen suite: `results/methodology/2026-11/agent20-rank5-mew-genesect-challenge-
 | Artifact | SHA-256 |
 |---|---|
 | Policy module | `87cc1716e7a8c0db9d56514d91b0bb8327fc955ed0725ad8dde113cb9eed0213` |
-| Test file | `60cd009a3f0c82651ad8fd47b08835f4e2b38caf8e872f4b54d7a12f6835e3e9` |
+| Test file | `9ed9b0e2e4cc9927d9e74a38b79369ed97e582100ba36716aa83ba399c789f70` |
 | Agent49 worker protocol | `5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751` |
 | Common constraints v7 | `94af8564d2de9029633983d214d34ff8ba9c86194e9eadb38123d873e51a3190` |
-| Dependency manifest v7 | `77f9d70652ebea22132c79caa975a1a41c5907e78b4a4b7862b9386a638a304f` |
-| Challenge suite v7 | `8eba097a58168471cd7d69ecdaf90a06a702088f831c31585b0837706ec38b55` |
-| Producer binding v7 | `500fb0d6f1ab6e141d02b993751dee4bfb47f9b6a20307ad317ea8fcaafe19a7` |
+| Dependency manifest v7 | `e3b2e3f4aa9953be5a0f821da3ae81ff7861dab66739cacc00888d1a88f61e74` |
+| Challenge suite v7 | `6488226b9bf220d080b2359f5e1cf87e25e4ea7ef06a2b7984b2d6cde1ae539d` |
+| Producer binding v7 | `122c87f924b070bcf3a93c18170eed4ee2d5ce0009c58c8ac687c649055d579b` |
 
 The dependency/suite/binding digests are SHA-256-bound to current GitHub file contents. The producer binding is diagnostic only: candidate-policy and bundle producer IDs remain null, the producer set is incomplete, and canonical Agent36 V3 registration is absent.
 
