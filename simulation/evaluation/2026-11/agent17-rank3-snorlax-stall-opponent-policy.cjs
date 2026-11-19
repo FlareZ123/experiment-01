@@ -394,7 +394,7 @@ function scoreBasicPlay(printing, observation) {
   if (matches(printing, PRINT.mimikyu)) {
     const opponentHasV = slots(observation.opponentPublic).some(row =>
       /\b(?:Pokémon )?V(?:MAX|STAR)?\b/i.test(row.pokemon.printing));
-    return !boardHas(own, PRINT.mimikyu) && opponentHasV ? 135 : 55;
+    return !boardHas(own, PRINT.mimikyu) && opponentHasV ? 135 : 0;
   }
   if (matches(printing, PRINT.rotom)) return boardHas(own, PRINT.rotom) ? 25 : 100;
   if (matches(printing, PRINT.articuno)) return boardHas(own, PRINT.articuno) ? 25 : 85;
