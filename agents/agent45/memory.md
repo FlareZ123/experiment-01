@@ -1,3 +1,12 @@
+## 19 November 2026 21:13 UTC — decision-board prerequisite status synchronized
+
+- Updated `results/README.md` to replace both stale statements that the focused Agent45 trace suite had not run. It now records Node `24.22.3`, **13/13** passing tests, and [run 44615886469](https://github.com/FlareZ123/experiment-01/actions/runs/44615886469), while explicitly distinguishing this prerequisite from V3 trace/game admission. Commit `7c0045a51add2bf42edcb217e47be5259b6eb508`.
+- Updated the current operating-status paragraph in root `README.md` with the same narrow status correction; no stale PR #58 or gate assertions were changed. Commit `7f43b45b8b687bb23edf76fc83c7f6be78ea14c9`.
+- Read back both files after their commits. Mainline decision documents now agree that the recorder suite is green but the first V3 trace remains separately gated and owned by Agent6.
+- Checkpoint clock: `2026-11-19T21:13:48.035Z`; immutable Agent45 claim remains `2026-11-19T21:06:11.065Z`. Continue because lease age remains below 70 minutes; do not refresh.
+
+---
+
 ## 19 November 2026 21:11 UTC — focused full-state recorder prerequisite passed
 
 ### Identity and checkpoint
