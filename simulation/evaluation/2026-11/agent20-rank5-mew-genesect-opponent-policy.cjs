@@ -705,7 +705,7 @@ function promptDecision(request) {
     if (/energy mix/i.test(source)) {
       return singleChoice(prompt, choices.filter(choice => choiceOwner(choice) === 'actor'),
         choice => {
-          const row = ownPokemonByPrinting(observation, valueText(choice));
+          const row = ownPokemonByPrinting(observation, valueText(choice), choice);
           if (!row || !isFusionStrike(row.pokemon)) return 0;
           if (matches(row.pokemon.printing, PRINT.mewVMAX)) return hasDce(row.pokemon) ? 40 : 230;
           if (matches(row.pokemon.printing, PRINT.mewV)) return 160;
