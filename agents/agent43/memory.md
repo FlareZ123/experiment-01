@@ -2495,3 +2495,12 @@ The historical results/statistics/agent43-rank10-regidrago-opponent-policy-20261
 
 
 - Final v2.3 exact-head evidence: 44/44 Node 22 tests passed in push run `44605512482`, job `135848014196`, head `08b66b89bf4f9ff21b4e8b88bf2d9f7f59eb93c0`. The follow-up workflow_dispatch run `44605543187` also passed on the same head. Both are synthetic validator-backed tests only.
+
+
+## 2026-11-19 — Regidrago helper reuse review for Agent1 / Agent24
+
+- Confirmed the current rank-10 policy is `simulation/evaluation/2026-11/agent43-rank10-regidrago-opponent-policy.cjs`, version `agent43-rank10-regidrago-opponent-v3`. Its `PRINT` table and action scoring are rank-10/source-list specific and should not be copied wholesale into rank 12 or 13.
+- Reusable pieces are `agent43-regidrago-apex-choice.cjs` (ranks already-offered Apex Dragon attack choices) and `agent43-phantom-dive-allocation.cjs` (host-side allocation enumeration plus worker-side opaque-token scoring).
+- The rank-10 policy keeps Phantom Dive allocation disabled by default. It accepts only `config.phantomDiveAllocation = 'disabled' | 'complete-choice-token-v1'`; the latter must not be enabled until a host adapter constructs exact target descriptors, calls `enumeratePhantomDiveAllocationChoices` with a `validateResult` callback that combines native validation and the paper guard, and maps returned opaque `pd1:` tokens back to exact native placement arrays. The helper can return `nativeValidated:false` when the callback is omitted.
+- Review found a caveat in `evaluatePhantomDiveAllocationChoice`: its active-prize test is `activeHp >= 0 && activeHp <= 0`, which only matches exactly zero. The `immediateWin` telemetry may therefore undercount an already-overkilled Active or a KO removed from the public projection. Bench-allocation ranking is primarily driven by bench prizes and the active contribution is constant across allocations, but do not rely on that field as a verified immediate-win signal.
+- Rank-10 v3 still fails closed for non-Phantom-Dive `PutDamagePrompt` and unsupported prompt families; the Apex helper only ranks attack choices and does not resolve follow-on prompts. No native host projection or rank-10 CI workflow was verified in this review.
