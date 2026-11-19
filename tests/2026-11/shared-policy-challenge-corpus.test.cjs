@@ -72,6 +72,15 @@ test('pinned source set regenerates the checked-in corpus exactly', () => {
   assert.deepEqual(generated.coverage.indexedRanks, [2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 19, 31]);
   assert.equal(generated.summary.casesWithActorViewDigest, 33);
   assert.equal(generated.summary.casesMissing.actorViewDigest, 285);
+  assert.equal(generated.summary.structurallyCompleteCaseCount, 21);
+  assert.deepEqual(generated.summary.structurallyCompleteBySplit, { development: 21 });
+  assert.deepEqual(
+    generated.summary.structurallyCompleteByRank.filter(row => row.total > 0),
+    [
+      { rank: 2, total: 15, development: 15, heldOut: 0, negativeControl: 0, blocked: 0 },
+      { rank: 10, total: 6, development: 6, heldOut: 0, negativeControl: 0, blocked: 0 }
+    ]
+  );
 });
 
 test('case resolver rejects references outside the pinned source set', () => {
