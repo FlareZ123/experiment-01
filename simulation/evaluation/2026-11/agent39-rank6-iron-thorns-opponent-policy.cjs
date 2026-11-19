@@ -35,7 +35,7 @@ const PRINT = Object.freeze({
   enhancedHammer: /^Enhanced Hammer\b/i,
   megatonBlower: /^Megaton Blower\b/i,
   faba: /^Faba\b/i,
-  guzma: /^Guzma\b/i,
+  guzma: /^Guzma(?!\s*&\s*Hala)\b/i,
   guzmaHala: /^Guzma & Hala\b/i,
   tagCall: /^Tag Call\b/i,
   lusamine: /^Lusamine\b/i,
@@ -46,7 +46,7 @@ const PRINT = Object.freeze({
   sidney: /^Sidney\b/i,
   teamSkull: /^Team Skull Grunt\b/i,
   gladion: /^Gladion\b/i,
-  trainersMail: /^Trainer'?s Mail\b/i,
+  trainersMail: /^Trainers'? Mail\b/i,
   campingGear: /^Camping Gear\b/i,
   captivatingPuff: /^Captivating Pok[eé] Puff\b/i,
   echoingHorn: /^Echoing Horn\b/i,
@@ -368,8 +368,8 @@ function cardChoiceScore(choice, observation, context) {
     return 0;
   }
   if (context === 'captivating-puff' || context === 'echoing-horn') {
-    if (!/Basic/i.test(printing) && !/Pok[eé]mon/i.test(printing)) return 0;
-    return 100;
+    if (choice?.kind === 'pokemon' || /Pok[eé]mon/i.test(printing)) return 100;
+    return 0;
   }
   if (context === 'megaton-blower') {
     if (/Pok[eé]mon Tool|Tool\b/i.test(printing) || isSpecialEnergy(printing)) return 200;
@@ -550,6 +550,14 @@ function promptDecision(request) {
         minimum, maximum);
       }
 
+      if (source.includes('echoing horn')) {
+        const targets = choices.filter(choice =>
+          choiceOwner(choice) === 'opponent' && choiceZone(choice) === 'discard');
+        return multiSelectDecision(prompt, rankedChoices(targets,
+          choice => cardChoiceScore(choice, observation, 'echoing-horn'), maximum),
+        minimum, maximum);
+      }
+
       return { kind: 'abstain', reasonCode: 'UNSUPPORTED_RANK6_MULTI_SELECT_SOURCE' };
     }
 
@@ -605,6 +613,18 @@ function promptDecision(request) {
         choiceOwner(choice) === 'opponent' && choiceZone(choice) === 'active'),
       choice => opponentPokemonScore(choice, observation, 'team-flare'),
       'NO_OPPONENT_ACTIVE_TARGET');
+    }
+    if (source.includes('captivating pok')) {
+      return singleChoice(choices.filter(choice =>
+        choiceOwner(choice) === 'opponent' && choiceZone(choice) === 'hand'),
+      choice => cardChoiceScore(choice, observation, 'captivating-puff'),
+      'NO_CAPTIVATING_POKE_PUFF_TARGET');
+    }
+    if (source.includes('echoing horn')) {
+      return singleChoice(choices.filter(choice =>
+        choiceOwner(choice) === 'opponent' && choiceZone(choice) === 'discard'),
+      choice => cardChoiceScore(choice, observation, 'echoing-horn'),
+      'NO_ECHOING_HORN_TARGET');
     }
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_RANK6_POKEMON_PROMPT' };
   }
@@ -698,7 +718,8 @@ function scorePlayCard(item, request) {
       matches(card, PRINT.palaceBook) || matches(card, PRINT.handheldFan)) return 0;
 
   if (matches(card, PRINT.speedLightning)) {
-    return energyAvailable(observation) && matches(target || own.active?.printing, PRINT.ironThorns) &&
+    return energyAvailable(observation) && !specialEnergyLocked(observation) &&
+      matches(target || own.active?.printing, PRINT.ironThorns) &&
       !hasStadium(observation, /Temple of Sinnoh/i) &&
       !list(own.active?.energies).some(energy => matches(energy, PRINT.speedLightning)) ?
       155 : 0;
