@@ -32,7 +32,7 @@ const CASE_ARRAYS = [
   'nativeBlockedCases'
 ];
 const VALID_EVIDENCE_CLASSES = new Set([
-  'synthetic', 'synthetic-actor-view', 'native-staged', 'source-natural'
+  'synthetic', 'native-staged', 'source-natural'
 ]);
 
 function pick(object, keys) {
