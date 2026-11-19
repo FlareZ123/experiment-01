@@ -642,8 +642,9 @@ test('actor-relative re-determinization fails closed when it changes the acting 
 });
 
 
-test('actor-relative re-determinization also prepares a nonterminal horizon leaf for its acting seat', () => {
+test('actor-relative re-determinization also prepares a nonterminal horizon leaf and preserves its private hand', () => {
   const callsBySeat = [0, 0];
+  let sampledOpponentPrivateCard = null;
   let evaluatedLeaf = null;
   const search = createInformationSetMcts({
     iterations: 1,
@@ -655,6 +656,7 @@ test('actor-relative re-determinization also prepares a nonterminal horizon leaf
       public: state.public
     } : {
       seat,
+      privateCard: state.opponentPrivateCard,
       public: state.public
     },
     activeSeat: state => state.seat,
@@ -665,9 +667,19 @@ test('actor-relative re-determinization also prepares a nonterminal horizon leaf
       assert.equal(Object.isFrozen(actorObservation), true);
       assert.deepEqual(Object.keys(deadline), ['checkDeadline']);
       deadline.checkDeadline('synthetic-leaf-redeterminization');
-      const privateCard = seat === 0 ? state.privateCard :
-        (random() < 0.2 ? 'threat' : 'bluff');
-      return {...state, privateCard};
+      if (seat === 0) {
+        assert.equal(Object.hasOwn(actorObservation, 'privateCard'), true);
+        assert.equal(Object.hasOwn(actorObservation, 'opponentPrivateCard'), false);
+        sampledOpponentPrivateCard = random() < 0.5 ? 'guard' : 'none';
+        return {...state, opponentPrivateCard: sampledOpponentPrivateCard};
+      }
+      assert.equal(actorObservation.privateCard, sampledOpponentPrivateCard,
+        'The opponent must retain its own sampled private card');
+      return {
+        ...state,
+        privateCard: random() < 0.2 ? 'threat' : 'bluff',
+        opponentPrivateCard: actorObservation.privateCard
+      };
     },
     applyAction: state => ({
       ...state,
@@ -686,6 +698,7 @@ test('actor-relative re-determinization also prepares a nonterminal horizon leaf
   const result = search.search({
     seat: 0,
     privateCard: 'threat',
+    opponentPrivateCard: 'actual-secret-not-known-to-root',
     public: {turn: 0},
     terminal: false
   }, 0);
@@ -695,6 +708,6 @@ test('actor-relative re-determinization also prepares a nonterminal horizon leaf
   assert.equal(result.audit.actorObservationPreservationChecks, 2);
   assert.equal(result.audit.heuristicLeaves, 1);
   assert.equal(evaluatedLeaf.seat, 1);
-  assert.equal(Object.hasOwn(evaluatedLeaf.observation, 'privateCard'), false);
+  assert.equal(evaluatedLeaf.observation.privateCard, sampledOpponentPrivateCard);
   assert.equal(evaluatedLeaf.observation.public.turn, 1);
 });
