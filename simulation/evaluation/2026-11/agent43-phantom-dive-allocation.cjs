@@ -113,7 +113,8 @@ function enumeratePhantomDiveAllocationChoices({
   damageMultiple,
   allowPlacePartialDamage,
   targets,
-  maxChoices = MAX_PHANTOM_DIVE_CHOICES
+  maxChoices = MAX_PHANTOM_DIVE_CHOICES,
+  validateResult = null
 } = {}) {
   if (damage !== PHANTOM_DIVE_DAMAGE || damageMultiple !== DAMAGE_MULTIPLE ||
       allowPlacePartialDamage === true) {
@@ -153,6 +154,7 @@ function enumeratePhantomDiveAllocationChoices({
   }
   const choices = [];
   const choiceByToken = new Map();
+  let nativeValidationCount = 0;
   for (const units of allocations) {
     const label = allocationLabel(eligible, units);
     const token = 'pd1:' + label.slice(ALLOCATION_LABEL_PREFIX.length);
@@ -162,10 +164,25 @@ function enumeratePhantomDiveAllocationChoices({
     if (parsePhantomDiveAllocationLabel(label) === null || choiceByToken.has(token)) {
       return { ok: false, reasonCode: 'PHANTOM_DIVE_ALLOCATION_ENCODING_FAILURE', choices: [], choiceByToken: new Map() };
     }
+    if (validateResult !== null) {
+      if (typeof validateResult !== 'function') {
+        return { ok: false, reasonCode: 'INVALID_NATIVE_VALIDATOR_CALLBACK', choices: [], choiceByToken: new Map() };
+      }
+      let validation;
+      try { validation = validateResult(placements); }
+      catch { validation = false; }
+      nativeValidationCount += 1;
+      if (validation !== true && validation?.valid !== true) continue;
+    }
     choices.push({ token, kind: 'allocation', label });
     choiceByToken.set(token, placements);
   }
-  return { ok: true, reasonCode: null, choices, choiceByToken };
+  if (choices.length === 0) {
+    return { ok: false, reasonCode: validateResult ? 'NO_NATIVE_VALID_ALLOCATION' : 'NO_LEGAL_PHANTOM_DIVE_TARGETS',
+      choices: [], choiceByToken: new Map(), nativeValidationCount };
+  }
+  return { ok: true, reasonCode: null, choices, choiceByToken,
+    nativeValidated: typeof validateResult === 'function', nativeValidationCount };
 }
 
 function evaluatePhantomDiveAllocationChoice(choice, observation) {
