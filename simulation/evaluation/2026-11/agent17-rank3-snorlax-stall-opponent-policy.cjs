@@ -83,6 +83,10 @@ const ITEM_PATTERNS = [
   PRINT.nightStretcher, PRINT.forestSealStone
 ];
 const TOOL_PATTERNS = [PRINT.toolJammer, PRINT.floatStone, PRINT.stealthyHood, PRINT.forestSealStone];
+const BASIC_SEARCH_PATTERNS = Object.freeze([
+  PRINT.snorlax, PRINT.stunfisk, PRINT.regirock, PRINT.mimikyu,
+  PRINT.girafarig, PRINT.bunnelby, PRINT.articuno, PRINT.rotom
+]);
 
 // The fixed candidate's VS Seeker can recover Supporters from discard. It cannot
 // recover spent Items such as VS Seeker or Night Stretcher themselves.
@@ -277,6 +281,11 @@ function hasUnseenArvenSearchTargets(observation) {
   const itemPossible = ITEM_PATTERNS.some(pattern => sourceCopiesRemaining(observation, pattern) > 0);
   const toolPossible = TOOL_PATTERNS.some(pattern => sourceCopiesRemaining(observation, pattern) > 0);
   return itemPossible && toolPossible;
+}
+
+function hasUnseenBasicSearchTargets(observation) {
+  // A zero remainder proves no Basic Pokémon can remain in the deck.
+  return BASIC_SEARCH_PATTERNS.some(pattern => sourceCopiesRemaining(observation, pattern) > 0);
 }
 
 function hasBasicBenchSpace(observation) {
@@ -630,6 +639,7 @@ function scoreAction(item, request) {
     return 45;
   }
   if (matches(card, PRINT.forestSealStone)) {
+    if (observation.ownTurnResources?.vstarUsed === true) return 0;
     return matches(target, PRINT.rotom) && !boardHasTool(own, PRINT.forestSealStone) ? 180 : 40;
   }
   if (matches(card, PRINT.toolJammer)) {
@@ -671,7 +681,6 @@ function scoreAction(item, request) {
       return !activeIsSnorlax && boardHas(own, PRINT.snorlax) ? 185 :
         damagedSnorlaxCanRotate ? 150 : 0;
     }
-    if (matches(card, PRINT.teammates)) return 140;
     if (matches(card, PRINT.eri)) {
       const opponentHandCount = Number.isSafeInteger(opponent.handCount) ? opponent.handCount : 0;
       return opponentHasVisibleItem(observation) ? 160 :
@@ -700,8 +709,10 @@ function scoreAction(item, request) {
   }
   if (matches(card, PRINT.trainersMail)) return hand.length <= 5 ? 90 : 45;
   if (matches(card, PRINT.nestBall) || matches(card, PRINT.quickBall)) {
-    return hasBasicBenchSpace(observation) &&
-      (!boardHas(own, PRINT.snorlax) || !boardHas(own, PRINT.bunnelby) || !boardHas(own, PRINT.girafarig)) ? 100 : 25;
+    if (!hasBasicBenchSpace(observation) || !hasUnseenBasicSearchTargets(observation)) return 0;
+    if (matches(card, PRINT.quickBall) && hand.length < 2) return 0;
+    return (!boardHas(own, PRINT.snorlax) || !boardHas(own, PRINT.bunnelby) ||
+      !boardHas(own, PRINT.girafarig)) ? 100 : 25;
   }
   if (matches(card, PRINT.nightStretcher)) {
     return list(own.discard).some(x =>
