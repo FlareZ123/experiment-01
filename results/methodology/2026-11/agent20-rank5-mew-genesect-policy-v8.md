@@ -2,7 +2,7 @@
 
 **Author:** Agent20  
 **Frozen:** 2026-11-19T18:33:12.402Z  
-**Status:** diagnostic-only; worker-init contract corrected; direct V8 smoke passed; 32-test Node suite pending; no native validation or production registration
+**Status:** diagnostic-only; worker-init contract corrected; 32/32 isolated V8-shim tests pass; Node `node --test` pending; no native validation or production registration
 
 ## Scope
 
@@ -44,7 +44,7 @@ Test file: `tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs`
 
 - 32 Node tests authored, importing Agent49 V3 validators.
 - Intended command: `node --test tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs`.
-- The v8 zero-key worker-init regression has been authored but the test file has not been executed. The prior v7 31/31 isolated V8 compatibility result applies only to v7 and is not a v8 suite pass. The exact Node command remains pending in an approved checkout; the narrow direct V8 source smoke is documented separately below.
+- The exact v8 test file was executed in an isolated V8 CommonJS shim on 2026-11-19: **32/32 callbacks passed** against the exact committed test, policy and worker blobs. This is supplemental V8 evidence, not Node `node:test`; the exact Node command remains pending in an approved checkout.
 
 ## Test-fixture corrections and supplemental validation
 
@@ -53,7 +53,7 @@ Two fixture defects were corrected without changing policy behavior:
 - The test helper now captures the return from `protocol.validateInit(init)` and spreads that accepted init envelope directly into `createPolicy({...accepted, rng})`, matching the shared worker's actual factory call. The module rejects any non-empty runtime config. Rank/source/candidate identity remains fixed in module constants and v8 manifests.
 - The Secret Box missing-category case now presents four selectable cards (two Supporters, one Item, one Stadium) with the required four-selection bounds, but still omits a Tool. This keeps the synthetic prompt structurally valid while exercising the intended fail-closed category check.
 
-The full v8 policy/test suite has not been executed in the Node runner or any compatibility harness. The narrow direct V8 smoke below exercised only the actual worker validator and policy factory; it is not a test-file execution or Node-runner attestation.
+The full v8 policy/test suite has not been executed under Node's test runner. A separate isolated V8 CommonJS shim executed all 32 test callbacks; this is documented below and is not Node-runner or worker-IPC evidence.
 
 Frozen suite: `results/methodology/2026-11/agent20-rank5-mew-genesect-challenge-suite-v8.json`
 - 25 development cases and 5 held-out cases (30 total).
@@ -67,7 +67,17 @@ The exact committed Agent49 worker source blob `d51ea95c457d61b50a9ee114d342eb17
 - The real policy `createPolicy` returned an object with a callable `decide` when passed the accepted init fields plus the worker-supplied RNG property.
 - A non-empty config was rejected by the worker with `UNKNOWN_FIELD` and by the policy with `AGENT20_RANK5_POLICY_INIT_MISMATCH`.
 
-This is direct runtime evidence for the narrow zero-key initialization boundary only. It does not execute the 32-test file, establish full worker-process behavior, prove native reachability or strategic competence, or produce any matchup/game/win-rate evidence. The v8 suite therefore remains `executedTests: 0`.
+This smoke provides direct runtime evidence for the narrow zero-key initialization boundary only. A later isolated V8 shim executed the 32 unit-test callbacks; see the supplemental execution section below. Neither establishes full worker-process behavior, native reachability, strategic competence, or matchup/game/win-rate evidence. The frozen challenge scenarios remain unexecuted.
+
+## Supplemental V8 test-file execution (not Node)
+
+At **2026-11-19T20:41:00.249Z**, the exact current blobs were loaded as CommonJS modules in the isolated V8 runtime and all **32/32** synchronous test callbacks passed with zero failures:
+
+- Test file blob: `67a7e1e94437e176ad39da794f63b40807b2e88c`
+- Policy module blob: `7aff8fcc77351655083fec49cb4318cf4563f7f2`
+- Agent49 worker protocol blob: `d51ea95c457d61b50a9ee114d342eb17f4350451`
+
+The harness supplied a minimal `node:test` registration shim and the three assertion methods actually used by this file (`equal`, `deepEqual`, and `throws`); the worker and policy source themselves were evaluated unchanged. All tests are synchronous. The worker's `run()` loop, process I/O, worker IPC, OS interfaces, Twinleaf, and game execution were not invoked. This result is therefore **not** a Node `node --test` pass, a worker-process/IPC attestation, a native Store result, or competitive evidence. The Node command remains the next validation gate.
 
 ## Hash closure
 
@@ -77,9 +87,9 @@ This is direct runtime evidence for the narrow zero-key initialization boundary 
 | Test file | `831610d6d12865a823a423ee229f8909dfa351cedfa4a733bb6d53468687dcd0` |
 | Agent49 worker protocol | `5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751` |
 | Common constraints v8 | `9f801c9e37758815bbd72bb138e6ec0cef45022837d016500943444069766626` |
-| Dependency manifest v8 | `ef31af5bcbb90aeb3dc616ca0b0dbf4cad0fcdf0d6a92dde48d31e6fd1b44b62` |
-| Challenge suite v8 | `e63d7cb46df062fb9eddbca4d1aa967239194d9419c7bf12ae391516b6aa7bd6` |
-| Producer binding v8 | `671349563435ee421c7bec715aa12c24e27d829d7ccdf068919b8cc79f525a77` |
+| Dependency manifest v8 | `4ad7c50c2bd5b497932c60f6453beb5ece85ff1d2d339c8d23c3d5594482933b` |
+| Challenge suite v8 | `c20383d3a7baf6842de1b4f8eacbdf45baf1a2604686f45e2e6e2a9f410f0b96` |
+| Producer binding v8 | `fab174c901b1d25958bc72807650a33abda4690f1360f8b01328b078e21d4570` |
 
 The dependency/suite/binding digests are SHA-256-bound to current GitHub file contents. The producer binding is diagnostic only: candidate-policy and bundle producer IDs remain null, the producer set is incomplete, and canonical Agent36 V3 registration is absent.
 
@@ -96,4 +106,4 @@ The shared Agent49 V3 worker calls `validateInit()` and requires `config: {}`; p
 
 V8 removes that runtime config dialect. `createPolicy` now accepts only an empty config object, while rank 5, the exact source fingerprint, the candidate fingerprint, engine pin and policy version remain immutable module constants and are bound by the v8 dependency/challenge/producer manifests. The focused regression passes an empty init payload through the actual exported `validateInit`, then instantiates the module with the accepted fields and worker-supplied RNG property; it also asserts that non-empty config is rejected by both boundaries.
 
-The v8 regression has not been executed under Node in this invocation. No worker-initialization pass, native reachability, independent competence, matchup result, game count, or win-rate claim is made. The policy remains diagnostic-only and is not inserted into the canonical Agent36 bundle.
+The v8 regression has not been executed under Node in this invocation. The isolated V8 shim passes the 32 unit tests but does not invoke the actual worker run loop; no full worker-process initialization pass, native reachability, independent competence, matchup result, game count, or win-rate claim is made. The policy remains diagnostic-only and is not inserted into the canonical Agent36 bundle.
