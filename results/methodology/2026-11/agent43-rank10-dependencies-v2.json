@@ -6,47 +6,56 @@
     {
       "path": "simulation/evaluation/2026-11/agent43-rank10-regidrago-opponent-policy.cjs",
       "gitBlobSha1": "0b87330ee844c334f32aa9511ea2b21c4d0643e9",
-      "role": "rank-10 opponent policy"
+      "role": "rank-10 opponent policy",
+      "sha256": "7b722a080c52061f84d7fc494f983d2506d5b09468c1e833682d63cdac1578ea"
     },
     {
       "path": "simulation/evaluation/2026-11/agent43-regidrago-apex-choice.cjs",
       "gitBlobSha1": "65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b",
-      "role": "Apex Dragon attack-choice scoring"
+      "role": "Apex Dragon attack-choice scoring",
+      "sha256": "07a07f7214c5e2ce647dfb5405ae066f5ea214d290d5ecb4b046b3f430b95ddb"
     },
     {
       "path": "simulation/evaluation/2026-11/agent43-phantom-dive-allocation.cjs",
       "gitBlobSha1": "d1badc4cdab6e9248667e54a2a5b6c2a14054fff",
-      "role": "complete allocation enumeration, token mapping, and policy scoring"
+      "role": "complete allocation enumeration, token mapping, and policy scoring",
+      "sha256": "b1e09b9a7d17a8818fc7ba38585ada37c8e0ed24f3c92e15d9426e5a586818ea"
     },
     {
       "path": "simulation/evaluation/2026-11/agent36-prompt-projection.cjs",
       "gitBlobSha1": "0487809d4fb3e213a73a02fa1e68f8f27b45ce1a",
-      "role": "host projection dependency; PutDamagePrompt unsupported at this revision"
+      "role": "host projection dependency; PutDamagePrompt unsupported at this revision",
+      "sha256": "0fa54fbb54fc4ecfcba299a75cdba7795ffd7694947d0c328fbe6949325f5082"
     },
     {
       "path": "simulation/twinleaf/apex-phantom-dive.cjs",
       "gitBlobSha1": "1978abbd3a557c42e4c03d04ab2d7ffc1de87f14",
-      "role": "pinned-engine Phantom Dive native effect harness; not executed in this invocation"
+      "role": "pinned-engine Phantom Dive native effect harness; not executed in this invocation",
+      "sha256": "da71f529943017c5bed52cc5d6a402ed175296d2b3695acabecb9fedfac22ac6"
     },
     {
       "path": "simulation/twinleaf/put-damage-zero-cap-paper-hook.cjs",
       "gitBlobSha1": "93932da9cf7df8e9aad081c12c9b71a53f215417",
-      "role": "paper PutDamagePrompt zero-cap and packet-size guard"
+      "role": "paper PutDamagePrompt zero-cap and packet-size guard",
+      "sha256": "ffc50d041a4b6d3a9aa24592fd7aa9ea0e091b8c21de30aa6ddcef2b3df2cbbf"
     },
     {
       "path": "tests/2026-11/agent43-phantom-dive-allocation.test.cjs",
       "gitBlobSha1": "b8ece0d15fd9d5377213d45198be4ac4ba0c7c8a",
-      "role": "synthetic allocation and token-mapping tests"
+      "role": "synthetic allocation and token-mapping tests",
+      "sha256": "78b20efd80d64b50da77fadac02c98c85aed7f505275bb25047576736b3d6fbf"
     },
     {
       "path": "tests/2026-11/agent43-rank10-phantom-dive-policy-v2.test.cjs",
       "gitBlobSha1": "1b25e576c331c4cad323cefc9812234ad07e9b7e",
-      "role": "policy v2 prompt gating and opt-in tests; authored, not run"
+      "role": "policy v2 prompt gating and opt-in tests; authored, not run",
+      "sha256": "306b995ee40997a4e560543659d9929d6065bdcc4aff511a640802eb06edcf75"
     },
     {
       "path": "results/methodology/2026-11/agent43-rank10-common-constraints-v2.json",
       "gitBlobSha1": "0e779ccb87b529e656e8ad93c5c4eb5425c6e9aa",
-      "role": "provisional common policy constraints; not bound to signed V3 policy plan"
+      "role": "provisional common policy constraints; not bound to signed V3 policy plan",
+      "sha256": "78845ab7aa19d36918f68f5b4e51dcf6c2d3a03fc5333111aad966adc6c71817"
     }
   ],
   "sourceData": {
@@ -55,7 +64,9 @@
     "rank": 10,
     "sourceCardCount": 60,
     "sourcePrintAuthentication": "not independently authenticated",
-    "paperAdmission": "not admitted"
+    "paperAdmission": "not admitted",
+    "sha256": null,
+    "sha256Status": "not calculated; Git blob SHA1 and rank selector retained"
   },
   "benchmarkManifest": {
     "path": "results/methodology/2026-11/agent17-aichi-policy-panel-manifest-20261117.json",
