@@ -8,8 +8,8 @@
   "producerBindingStatus": "prototype only; not inserted into the signed/hash-bound V3 policy plan",
   "policyModule": {
     "path": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "gitBlobSha1": "f62bb071138621f218b5f849c657c8010187f4d1",
-    "sha256": "197dd2956c12dd89af7c341d99b13a71e861fd2dada3837437ce00e1d8214e15",
+    "gitBlobSha1": "42308b4f593c95448d78f639c9f8733144469a0a",
+    "sha256": "d6d7d0a63aa850dd183056a8e0ce8a93553cb74fceb45abbb92dfb656858d31d",
     "policyVersion": "agent17-rank3-snorlax-stall-opponent-v1",
     "config": {
       "rank": 3,
@@ -134,21 +134,21 @@
   },
   "testSuite": {
     "path": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "gitBlobSha1": "d9e5e74675f4db47824bded5c399147dae5924f0",
-    "sha256": "d686a13bdeb0e46a4b7a12a14af29d810a3185d01b39c37f70cfd4a02487b070",
+    "gitBlobSha1": "051c51e390b3573482e1774aef592a15e718e707",
+    "sha256": "c6fd8f1e984dfceca499eaade6494125f406b3bf4fd2966df67d7151e25629b6",
     "testFramework": "node:test source file",
     "localExecution": "V8 isolate test shim; not node --test",
-    "testCount": 44
+    "testCount": 47
   },
   "commonConstraints": {
     "path": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
     "sha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27"
   },
   "repositoryBindings": {
-    "policyCommit": "474947d0902c907570fc7bc1eb4858e9b9964209",
-    "testCommit": "92c58cb3842ba76f55c9e060b6ae68f48a0ac1f4",
+    "policyCommit": "33f3bf28955bacde773ab40631881176b1a32127",
+    "testCommit": "4a0372e9ae02de78ee4879326a1f8cb24e506222",
     "baselineMainCommitAtInitialInspection": "2a86d357bf5ae699148f0fa7ce74c497e6973d49",
-    "currentMainAtManifestUpdate": "80e04d9dbd1d338d70ef5c8a9bc28ce22e03bf76"
+    "currentMainAtManifestUpdate": "8d5ffddd66af96294646d676cd89bf32ea41900e"
   },
   "hashDefinitions": {
     "fileSha256": "SHA-256 of exact UTF-8 file bytes",
@@ -300,6 +300,16 @@
         "Float Stone"
       ],
       "confidence": "heuristic only; not game-tested"
+    },
+    "legendaryAscent": {
+      "promptType": "ChooseCardsPrompt with selectionType energy-payment",
+      "selection": "select every actor-owned Water Energy up to metadata.energyCount/count",
+      "exclusions": [
+        "Capture Energy",
+        "opponent-owned Water Energy"
+      ],
+      "testCoverage": "synthetic two-Water selection; no native Twinleaf prompt/action receipt",
+      "confidence": "rules-shaped policy heuristic; native engine behavior unverified"
     }
   }
 }
