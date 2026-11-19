@@ -42,7 +42,20 @@ The official Pokémon Asia [Enamorus V Q&A](https://asia.pokemon-card.com/ph/rul
 The official Japanese [Stealthy Hood Q&A](https://www.pokemon-card.com/rules/faq/search.php?freeword=%E9%9A%A0%E5%AF%86%E3%83%95%E3%83%BC%E3%83%89) separately confirms that Quick Shooter cannot place damage counters on a Hooded Pokémon. Its Garbotoxin example also shows the boundary: a Hood attached to your Garbodor does not protect an opposing Slaking from Garbotoxin. The proposed architecture is different—the Hood protects Enamorus itself, and Enamorus's own Guardian of Love would protect the other Psychic-Energy-attached Pokémon. No direct official Hood-on-Enamorus / Garbotoxin ruling was found.
 
 
-The wording and official Q&A strongly motivate the proposed test, but the continuous-effect / prevention interaction with Garbotoxin has **not** been confirmed here by a specific paper ruling or a validated Twinleaf test. Do not treat the combo as established until it is tested. In particular, do not assume Guardian of Love protects itself; the card explicitly excludes Enamorus V.
+### Rules-based resolution: strong compositional support, not a direct Enamorus FAQ
+
+The official Japanese Pokémon Card Game Q&A for **θ Stop versus Garbotoxin** asks whether Golurk's Double Type Ability works while an opposing Garbodor's Garbotoxin is active. The official answer is yes: θ Stop prevents Golurk from receiving Garbotoxin's effect. See the [official θ Stop Q&A search](https://www.pokemon-card.com/rules/faq/search.php?freeword=%CE%B8%E3%82%B9%E3%83%88%E3%83%83%E3%83%97&page=3&regulation=all). This establishes an important paper-rules precedent: Garbotoxin's global Ability-suppression effect can be prevented on an individual Pokémon by a qualifying prevention effect.
+
+The [official Stealthy Hood card text](https://www.pokemon-card.com/card-search/details.php/card/36191/regu/all) says the attached Pokémon does not receive effects of the opponent's Pokémon's Abilities. This is the same relevant prevention class as the θ Stop precedent. Stealthy Hood is a Pokémon Tool effect, not a Pokémon Ability, so Garbotoxin / Initialization does not itself switch off the Hood effect. The proposed two-layer composition is therefore strongly supported by printed text and the official analogy:
+
+1. Stealthy Hood prevents Garbotoxin / Initialization from affecting Enamorus V itself, preserving Guardian of Love.
+2. Guardian of Love then prevents those opposing Ability effects from affecting each other one of your Pokémon with any Psychic Energy attached. Its exclusion of Enamorus V means the anchor still needs Hood; **Enamorus itself does not need Psychic Energy**, while every other protected Pokémon does.
+
+This is also a strong paper-text inference for Iron Thorns ex's Initialization: Hood protects the Enamorus Rule Box Pokémon, and Guardian protects the other Psychic-Energy-attached Rule Box Pokémon. The existing Hood / Initialization native test on Shadow Rider validates only the first prevention mechanism on Shadow Rider; it does not validate this Enamorus composition.
+
+**Evidence-status update:** classify Hooded Enamorus preserving Guardian through Garbotoxin / Initialization, and Guardian protecting other energized Pokémon from those locks, as a **strongly supported paper-rules inference**, not as an unresolved interaction from first principles. No direct Enamorus-versus-Garbotoxin official Q&A was located, so do not describe this as a direct ruling. Keep the pinned Twinleaf test behind the canonical V3 first-trace stopline. The remaining novel dynamic uncertainty is whether a newly energized VMAX regains Underworld Door soon enough for the same-turn seed-and-spread cascade.
+
+The [official Enamorus V Q&A](https://asia.pokemon-card.com/ph/rules/search/?keyword=Enamorus) remains useful corroboration for Guardian of Love's broad prevention scope, but does not mention Garbotoxin specifically.
 
 ## Boundaries and costs
 
