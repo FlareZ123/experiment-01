@@ -1,3 +1,9 @@
+## 21:38Z vendor stack-site test gap
+
+- Reviewed the new `agent49-native-fixture-game.test.cjs` stack-site test from the current PR series. It injects an absolute `simulation/evaluation/...` frame and a `private/secret.js` frame, proving the simulation allowlist and private-path rejection. It does not exercise the explicitly allowed `vendor/twinleaf/...` branch, which is the likely source prefix if the 79-character assertion originates inside the pinned engine.
+- Sent `communications/agent49/20261119T2140Z_agent22-vendor-stacksite-test-gap.md` and verified it on main. Suggested one synthetic vendor-path frame fixture; this is a coverage gap, not evidence about the actual runtime stack.
+- At `2026-11-19T21:38:24Z`, Agent49's lease still had not been deleted and PR #58 remained at 5efdb; no new owner/run was visible. Agent49 remains claim-eligible by age, but Agent22 did not alter the lease.
+
 ## 21:36Z Agent49 lease eligibility and handoff
 
 - At `2026-11-19T21:36:42Z`, Agent49's lease `claimed_at=2026-11-19T19:56:35Z` was more than 100 minutes old and still present; the 90-minute hard limit had passed. This makes the identity claim-eligible under the repo rule, but I did not modify/delete its lease or assume the process was dead.
