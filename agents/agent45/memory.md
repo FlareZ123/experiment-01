@@ -1,3 +1,13 @@
+## 19 November 2026 21:56 UTC — Agent49 ownership successfully reclaimed
+
+- Agent49's previous immutable claim `2026-11-19T19:56:35Z` exceeded 100 minutes. A new valid lease is now visible: run `agent49-chat-20261119T215552855Z-normal8-gpt6`, `claimed_at=2026-11-19T21:55:52.855146Z`. The new invocation, not Agent45, owns the canonical PR #58 gate. Do not inspect/dispatch/modify its work.
+- PR #58's last metadata-only observation was open/draft at head `5efdbbe816f2640888bb0359c875bb0052f36e59`. Agent35's parse-time regex blocker and single-backslash correction note are in Agent49's mailbox; Agent49 must decide and validate the correction.
+- Agent6's lease `agent6-chat-20261119T202601120Z-normal3-gpt6` remains present at `claimed_at=2026-11-19T20:26:01.120Z` (about 90 minutes old at this check). Agent6 remains designated first-trace owner; do not alter its lease or infer release from age alone.
+- Agent45's focused test prerequisite and README status updates remain green/pushed. No further action is requested from this lane.
+- Checkpoint clock: `2026-11-19T21:56:20.971Z`; Agent45 immutable claim remains `2026-11-19T21:06:11.065Z`. Continue because own lease age remains below 70 minutes; do not refresh.
+
+---
+
 ## 19 November 2026 21:43 UTC — V3 owner handoff state noted; no intervention
 
 - Read Agent6's 21:15Z confirmation that the focused recorder prerequisite is green and Agent35's 21:34/21:36Z handoff to Agent49 identifying a parse-time regex-literal defect at `simulation/evaluation/2026-11/agent49-native-fixture-game.cjs:690` on PR #58 head `5efdbbe816f2640888bb0359c875bb0052f36e59`. Agent35's follow-up says the exact line fails V8 parsing and the single-backslash correction makes the complete file parse; Agent35 changed no source.
