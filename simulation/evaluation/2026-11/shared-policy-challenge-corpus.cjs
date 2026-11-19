@@ -123,10 +123,13 @@ function normalizeSuite(rootDir, spec, cases) {
   const sourceDeck = suite.sourceDeck ||
     (suite.sourceBinding && suite.sourceBinding.opponentDeck) ||
     (suite.sourceBinding && suite.sourceBinding.sourceDeck) ||
-    (suite.sourceBinding && suite.sourceBinding.sourceList) || {};
+    (suite.sourceBinding && suite.sourceBinding.sourceList) ||
+    suite.sourceBinding || {};
   const candidateDeck = suite.candidateDeck || suite.candidateBinding ||
-    (suite.sourceBinding && suite.sourceBinding.fixedCandidate) || {};
-  const engine = suite.engine || (suite.dependencies && suite.dependencies.engine) || {};
+    (suite.sourceBinding && suite.sourceBinding.fixedCandidate) ||
+    suite.sourceBinding || {};
+  const engine = suite.engine || suite.engineBinding ||
+    (suite.dependencies && suite.dependencies.engine) || {};
   const rank = pick(suite, ['sourceRank']) ||
     pick(policy, ['sourceRank']) ||
     pick(suite.sourceBinding, ['sourceRank']) ||
@@ -158,12 +161,31 @@ function normalizeSuite(rootDir, spec, cases) {
       'sourceDeckFingerprintSha256', 'sourceEntryFingerprintSha256',
       'sourceEntryJsonSha256', 'sourceFingerprintSha256'
     ]);
+  const sourceListBlobSha1 =
+    pick(sourceDeck, [
+      'sourceListBlobSha1', 'sourceListGitBlobSha1', 'sourceDeckDatasetGitBlobSha1',
+      'gitBlobSha1', 'blobSha1'
+    ]) ||
+    pick(suite.sourceBinding, [
+      'sourceListBlobSha1', 'sourceListGitBlobSha1', 'sourceDeckDatasetGitBlobSha1'
+    ]);
   const candidateFingerprint =
-    pick(candidateDeck, ['fingerprintSha256', 'fixedCandidateFingerprintSha256', 'deckFingerprintSha256']) ||
+    pick(candidateDeck, [
+      'fingerprintSha256', 'fixedCandidateFingerprintSha256',
+      'candidateEntryJsonSha256', 'deckFingerprintSha256'
+    ]) ||
     pick(suite.suiteHeader, ['candidateDeckFingerprintSha256']) ||
     pick(suite.sourceBinding && suite.sourceBinding.fixedCandidate, [
-      'fingerprintSha256', 'fixedCandidateFingerprintSha256'
+      'fingerprintSha256', 'fixedCandidateFingerprintSha256', 'candidateEntryJsonSha256'
     ]);
+  const candidateDeckBlobSha1 =
+    pick(candidateDeck, ['gitBlobSha1', 'candidateGitBlobSha1', 'blobSha1']) ||
+    pick(suite.sourceBinding, ['fixedCandidateBlobSha1']);
+  const candidateFingerprintKind =
+    pick(candidateDeck, ['fingerprintKind', 'hashMethod', 'sourceHashMethod']) ||
+    (pick(candidateDeck, ['candidateEntryJsonSha256']) ? 'candidate-entry-json-sha256' :
+      (pick(candidateDeck, ['fixedCandidateFingerprintSha256']) ? 'fixed-candidate-fingerprint-sha256' :
+        (pick(candidateDeck, ['fingerprintSha256']) ? 'deck-fingerprint-sha256' : null));
 
   return {
     rank,
@@ -179,12 +201,19 @@ function normalizeSuite(rootDir, spec, cases) {
     policyVersion: pick(policy, ['version', 'policyVersion']),
     policyGitBlobSha1: pick(policy, ['blobSha1', 'moduleBlobSha1', 'gitBlobSha1', 'moduleGitBlobSha1']),
     policySha256: pick(policy, ['sha256', 'moduleSha256', 'fileSha256']),
-    sourceDeckPath: pick(sourceDeck, ['path', 'sourceListPath', 'sourceDeckPath']) ||
-      pick(suite.sourceBinding, ['sourceListPath', 'sourceDeckPath']),
+    sourceDeckPath: pick(sourceDeck, [
+      'path', 'sourceListPath', 'sourceDeckPath', 'sourceDeckDatasetPath'
+    ]) || pick(suite.sourceBinding, [
+      'sourceListPath', 'sourceDeckPath', 'sourceDeckDatasetPath'
+    ]),
+    sourceListBlobSha1: sourceListBlobSha1 || null,
     sourceDeckFingerprintSha256: sourceFingerprint,
-    candidateDeckPath: pick(candidateDeck, ['path', 'candidatePath']),
+    candidateDeckPath: pick(candidateDeck, ['path', 'candidatePath', 'fixedCandidatePath']),
+    candidateDeckBlobSha1: candidateDeckBlobSha1 || null,
     candidateDeckFingerprintSha256: candidateFingerprint,
-    enginePinnedCommit: pick(engine, ['pinnedCommit', 'pinnedRevision']),
+    candidateDeckFingerprintKind: candidateFingerprintKind,
+    enginePinnedCommit: pick(engine, ['pinnedCommit', 'pinnedRevision']) ||
+      pick(suite.sourceBinding, ['enginePinnedCommit']),
     caseArrayCounts,
     caseCount: Object.values(caseArrayCounts).reduce((sum, count) => sum + count, 0),
     unresolvedCoverageCount: Array.isArray(suite.unresolvedCoverage) ? suite.unresolvedCoverage.length : 0,
