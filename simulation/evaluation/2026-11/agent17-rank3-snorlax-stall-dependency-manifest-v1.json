@@ -9,7 +9,7 @@
   "policyModule": {
     "path": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
     "gitBlobSha1": "f62bb071138621f218b5f849c657c8010187f4d1",
-    "sha256": "79f53bfd6da85a03b4e5d5a91313c4f5b911facfa6754d14290ab8d19382157e",
+    "sha256": "4c7e06173ecb922051b49222c99e776cba73248f7ce12581844dbc29cba0b033",
     "policyVersion": "agent17-rank3-snorlax-stall-opponent-v1",
     "config": {
       "rank": 3,
@@ -118,7 +118,7 @@
   "protocolContract": {
     "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "gitBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
-    "sha256": "837e6cca6f7b72feccbafaee92340fd1726093816a859df50a6cb79b21ae4972",
+    "sha256": "ceba49f8d31779c433a867aaa07588ce290adff7d2d820712ba044a38c8a692b",
     "schemas": {
       "init": "aichi-policy-init-v1",
       "request": "aichi-policy-request-v2",
@@ -135,9 +135,10 @@
   "testSuite": {
     "path": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
     "gitBlobSha1": "d9e5e74675f4db47824bded5c399147dae5924f0",
-    "sha256": "5b1abaaeec12d60a0ca8473f14a44c8b81a70411996583a30f599a80bd036013",
+    "sha256": "74029d8a38f93759a208f1a14e6a7178898746c1a439ec60caa295805a878421",
     "testFramework": "node:test source file",
-    "localExecution": "V8 isolate test shim; not node --test"
+    "localExecution": "V8 isolate test shim; not node --test",
+    "testCount": 44
   },
   "commonConstraints": {
     "path": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
@@ -147,7 +148,7 @@
     "policyCommit": "474947d0902c907570fc7bc1eb4858e9b9964209",
     "testCommit": "92c58cb3842ba76f55c9e060b6ae68f48a0ac1f4",
     "baselineMainCommitAtInitialInspection": "2a86d357bf5ae699148f0fa7ce74c497e6973d49",
-    "currentMainAtManifestUpdate": "ec90be1df2f8a7f1b96e19aafd5e8a61228926eb"
+    "currentMainAtManifestUpdate": "6d7175c2ed81509b15d576edd183bce90b12d963"
   },
   "hashDefinitions": {
     "fileSha256": "SHA-256 of exact UTF-8 file bytes",
