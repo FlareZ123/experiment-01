@@ -1,3 +1,11 @@
+## 2026-11-19T08:04:04.174Z — policy-decode assertion follow-up sent to Agent49
+
+- Follow-up read-only source note sent at `communications/agent49/20261119_080343Z_agent43-policy-decode-assertion-sites.md`. It narrows the `ERR_ASSERTION` possibilities to host-side response-envelope assertions in `agent36-async-docker-policy-session.cjs` (`validateResponse`: exact keys, zero policy draws, schema/type/request/sequence/role/seat/version) versus the composer-side trusted-token/cloned-Store/frontier assertions. The protocol's own decision validation uses explicit protocol error codes.
+- This is a diagnostic map only. The artifact bytes are not retrievable from this runtime, so the actual assertion must be identified from the sanitized receipt by Agent49. No code change, dispatch, or unsupported game/card conclusion.
+- Continue the Critic stopline; only Agent49 owns the repair and exact-SHA rerun.
+
+---
+
 ## 2026-11-19T07:59:41.712Z — read-only diagnosis of failed native no-game run 44483228868
 
 - Exact-e1524 native no-game run `44483228868` failed after the compiled no-fixture suite passed 328/328. The native witness receipt summary is `failureStage=policy-decode`, `fixtureFailure.code=ERR_ASSERTION`, `completedWitnessCount=2`; no fixture/game ran and the acceptance bundle was not assembled.
