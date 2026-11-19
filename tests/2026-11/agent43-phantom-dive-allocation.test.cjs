@@ -8,6 +8,7 @@ const {
   evaluatePhantomDiveAllocationChoice,
   parsePhantomDiveAllocationLabel
 } = require('../../simulation/evaluation/2026-11/agent43-phantom-dive-allocation.cjs');
+const { paperPutDamageRejectReason } = require('../../simulation/twinleaf/put-damage-zero-cap-paper-hook.cjs');
 
 function target(index, maxAllowedDamage = 60) {
   return {
@@ -126,6 +127,44 @@ test('all native-rejected allocations produce no partial choice menu', () => {
   assert.equal(result.reasonCode, 'NO_NATIVE_VALID_ALLOCATION');
   assert.equal(result.choices.length, 0);
   assert.equal(result.nativeValidationCount, 1);
+});
+
+test('generated allocations pass the existing paper PutDamage guard before token exposure', () => {
+  const nativeTargets = [target(0, 0), target(1, 10), target(2, 60)];
+  const prompt = {
+    damage: 60,
+    options: { damageMultiple: 10, allowPlacePartialDamage: false },
+    maxAllowedDamage: nativeTargets.map(row => ({ target: row.target, damage: row.maxAllowedDamage })),
+    validate(answer) {
+      return Array.isArray(answer) && answer.reduce((sum, row) => sum + row.damage, 0) === 60 &&
+        answer.every(row => this.maxAllowedDamage.some(cap =>
+          cap.target.player === row.target.player && cap.target.slot === row.target.slot &&
+          cap.target.index === row.target.index && cap.damage > 0));
+    }
+  };
+  const result = enumeratePhantomDiveAllocationChoices({
+    damage: 60, damageMultiple: 10, allowPlacePartialDamage: false,
+    targets: nativeTargets.map(row => ({ ...row, ownerSeat: 'opponent', zone: 'bench' })),
+    validateResult: placements => paperPutDamageRejectReason(prompt, placements, {}) === null
+  });
+  assert.equal(result.ok, true);
+  assert.equal(result.nativeValidated, true);
+  assert.equal(result.choices.length, 7);
+  for (const choice of result.choices) {
+    assert.equal(paperPutDamageRejectReason(prompt, result.choiceByToken.get(choice.token), {}), null);
+  }
+});
+
+test('paper guard rejects a zero-cap target even when the prompt validator accepts it', () => {
+  const zero = target(0, 0);
+  const prompt = {
+    damage: 60,
+    options: { damageMultiple: 10, allowPlacePartialDamage: false },
+    maxAllowedDamage: [{ target: zero.target, damage: 0 }],
+    validate: () => true
+  };
+  assert.equal(paperPutDamageRejectReason(prompt, [{ target: zero.target, damage: 60 }], {}),
+    'PRINTED_TARGET_ZERO_CAP');
 });
 
 test('allocation labels reject wrong totals, duplicates, and non-packet damage', () => {
