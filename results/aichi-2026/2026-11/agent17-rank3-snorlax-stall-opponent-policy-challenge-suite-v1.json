@@ -91,15 +91,15 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json",
-    "manifestSha256": "40d5f4202726a0902ace81777da7abfa3201f957cb390ef231f12e5bc7a92a30",
+    "manifestSha256": "7c47d07659455677b565a801972b4f841f3131480443a46252ee14a81582b0b0",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "testFilePath": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "testFileBlobSha1": "65a3b93b2ddd9cc49c21de1e9d35daa35e93bc39",
-    "testFileSha256": "b52cb170355fdaa707703f9fa4e152bcf1664b8b3875ca65a91fea8f7abee522",
+    "testFileBlobSha1": "516e95b4f135dda2650a84451e3f37fbaf02c64c",
+    "testFileSha256": "54ae9212698d581b8b1b47e4fc6aa54b7110c6ae62cfe0923ea597e8327467d5",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -112,15 +112,15 @@
     "evidenceClassCounts": {
       "sourceNatural": 0,
       "nativeStaged": 0,
-      "synthetic": 48
+      "synthetic": 49
     },
-    "developmentTestCount": 48,
-    "unitTestsPassed": 48,
+    "developmentTestCount": 49,
+    "unitTestsPassed": 49,
     "unitTestsFailed": 0,
-    "actorRequestCount": 49,
-    "decisionReceiptCount": 48,
+    "actorRequestCount": 50,
+    "decisionReceiptCount": 49,
     "promptTypeCounts": {
-      "root-action-frontier": 21,
+      "root-action-frontier": 22,
       "ChooseCardsPrompt": 18,
       "ChoosePokemonPrompt": 6,
       "UnknownNativePrompt": 1,
@@ -128,7 +128,7 @@
       "ChoosePrizePrompt": 2
     },
     "selectionTypeCounts": {
-      "none": 38,
+      "none": 39,
       "card-combination": 10,
       "energy-payment": 1
     },
@@ -160,7 +160,7 @@
     "pass": "Only when actor-state reachability, paper legality, strategic suitability and execution integrity are supported by native evidence and required independent review.",
     "blocked": "Any required evidence is missing, the prompt is unsupported, or the case is synthetic-only.",
     "fail": "A legal supported action is rejected, an illegal/unreachable action is selected, hidden information is used, or native evidence contradicts the decision.",
-    "currentSuiteResult": "All 48/48 local unit cases pass; every scenario remains blocked for native or competitive attestation."
+    "currentSuiteResult": "All 49/49 local unit cases pass; every scenario remains blocked for native or competitive attestation."
   },
   "developmentCases": [
     {
@@ -6671,6 +6671,110 @@
       "disposition": "blocked",
       "blockReason": "Synthetic negative control only; native Safeguard effect not exercised.",
       "reviewerStatus": "unreviewed"
+    },
+    {
+      "caseId": "r3-dev-49-no-pass-token-abstention",
+      "split": "development",
+      "caseClass": "negative-control",
+      "objective": "the policy abstains rather than inventing a pass token when no supported action exists",
+      "evidenceClass": "synthetic",
+      "actorView": {
+        "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
+        "testName": "the policy abstains rather than inventing a pass token when no supported action exists",
+        "requestDigests": [
+          {
+            "requestIndex": 0,
+            "digestSha256": "888bd13ae0a85e428e516f84c20d0c3fc0e6afd4a7c57060181c0b0f91884f30",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "role": "opponent",
+              "seat": 0,
+              "actorSeat": 0,
+              "ownHandCount": 1,
+              "ownActive": "Snorlax PGO 55",
+              "ownBench": [],
+              "opponentHandCount": 0,
+              "opponentHandRevealed": false,
+              "opponentActive": null,
+              "opponentBench": [],
+              "ownDeckCount": 30,
+              "opponentDeckCount": 30,
+              "ownPrizeCount": 6,
+              "opponentPrizeCount": 6
+            },
+            "promptCoverage": {
+              "promptType": null,
+              "frontier": [
+                {
+                  "kind": "play-card",
+                  "actorPrinting": "Unknown Item XYZ 1",
+                  "targetPrinting": null,
+                  "attackName": null,
+                  "abilityName": null
+                }
+              ]
+            }
+          }
+        ],
+        "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
+      },
+      "decisionEnvelope": {
+        "policyDecisions": [
+          {
+            "decisionIndex": 0,
+            "decision": {
+              "kind": "abstain",
+              "reasonCode": "NO_SUPPORTED_ACTION"
+            },
+            "validatorResult": "accepted",
+            "validationError": null
+          }
+        ],
+        "expectedOutcomeAssertedByTest": true,
+        "forbiddenOutcomes": [
+          "invent a pass token",
+          "select unsupported card action"
+        ]
+      },
+      "costLedger": {
+        "applicability": "no card or turn resource consumed; abstain because no supported action and no real pass token"
+      },
+      "promptCoverage": [
+        {
+          "promptType": null,
+          "frontier": [
+            {
+              "kind": "play-card",
+              "actorPrinting": "Unknown Item XYZ 1",
+              "targetPrinting": null,
+              "attackName": null,
+              "abilityName": null
+            }
+          ]
+        }
+      ],
+      "executionEvidence": {
+        "unitHarness": "local V8 deterministic harness",
+        "unitTestResult": "pass",
+        "requestValidation": [
+          "accepted"
+        ],
+        "decisionValidation": [
+          "accepted"
+        ],
+        "nativeTwinleafExecution": false,
+        "nativeStoreReceipt": null,
+        "nativeGameId": null,
+        "nativeGameCount": 0,
+        "workerIpcHandshake": false,
+        "nodeTestRunnerExecuted": false,
+        "timeoutMeasured": false,
+        "processSandboxVerified": false
+      },
+      "disposition": "blocked",
+      "blockReason": "Synthetic fail-closed negative control only; no native game.",
+      "reviewerStatus": "unreviewed"
     }
   ],
   "negativeControls": [
@@ -6722,6 +6826,11 @@
     {
       "test": "Mimikyu is not prioritized against Pokémon ex because Safeguard protects only from Pokémon V",
       "expected": "do not prioritize Mimikyu against Pokémon ex",
+      "unitResult": "pass"
+    },
+    {
+      "test": "the policy abstains rather than inventing a pass token when no supported action exists",
+      "expected": "abstain rather than invent a pass token",
       "unitResult": "pass"
     }
   ],
@@ -6836,7 +6945,7 @@
       "Twinleaf completeness for every effect"
     ]
   },
-  "caseRecordCount": 48,
-  "suiteSha256": "29cd10e3af3d2c1b6ca6336813081c9d7634ad9e1cbf887cabf6e766173c5efc",
+  "caseRecordCount": 49,
+  "suiteSha256": "0aed10381dae2d04ec7b051d4a2b7c1c533d566188a55c23200ec44825258bfc",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8."
 }
