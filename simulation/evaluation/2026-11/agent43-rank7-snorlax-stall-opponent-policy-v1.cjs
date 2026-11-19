@@ -478,12 +478,8 @@ function promptDecision(request) {
   const view = request.observation;
   const choices = list(prompt?.choices);
   const source = sourceText(prompt);
-  const sourcePrinting = prompt?.source?.sourcePrinting ?? '';
   const bounds = multiBounds(prompt);
 
-  if (matches(sourcePrinting, P.palaceBook) || /palace book/i.test(source)) {
-    return { kind: 'abstain', reasonCode: 'PALACE_BOOK_ENGINE_TEXT_UNVERIFIED' };
-  }
   if (prompt.promptType === 'ChoosePrizePrompt' && source.includes('gladion')) {
     return { kind: 'abstain', reasonCode: 'GLADION_PRIZE_IDENTITIES_UNVERIFIED' };
   }
@@ -646,6 +642,9 @@ function scoreAction(item, request) {
     return itemAvailable(view) && benchSpace(view) && deckCount(view) > 0 &&
       missing && vileplumeLocks(view).length === 0 ? 155 : 0;
   }
+  if (matches(card, P.palaceBook)) {
+    return itemAvailable(view) && handSize <= 2 && deckCount(view) >= 4 ? 1 : 0;
+  }
   if (matches(card, P.megatonBlower)) return itemAvailable(view) && opponentHasRemovalTarget(view) ? 260 : 0;
   if (matches(card, P.fieldBlower)) return itemAvailable(view) && opponentHasRemovalTarget(view) ? 215 : 0;
   if (matches(card, P.toolJammer)) {
@@ -667,8 +666,7 @@ function scoreAction(item, request) {
   if (matches(card, P.targetWhistle)) return itemAvailable(view) && benchSpace(view) &&
     list(opponent.discard).some(card => /Pokémon|Snorlax|Wobbuffet|Mimikyu|Regirock|Girafarig|Electrike/i.test(textOf(card))) ? 95 : 0;
   if (matches(card, P.robo) || matches(card, P.doll)) return itemAvailable(view) && benchSpace(view) ? 65 : 0;
-  if (matches(card, P.captivatingPokePuff) || matches(card, P.palaceBook) ||
-      matches(card, P.gladion)) return 0;
+  if (matches(card, P.captivatingPokePuff) || matches(card, P.gladion)) return 0;
 
   if (matches(card, P.artazon)) return !allStadiums(view).some(value => matches(value, P.artazon)) &&
     benchSpace(view) && deckCount(view) > 0 ? 165 : 0;
