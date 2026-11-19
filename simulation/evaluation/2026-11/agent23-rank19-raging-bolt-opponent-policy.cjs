@@ -203,8 +203,11 @@ function opponentHasVisibleAbility(observation) {
   return abilities.some(name => abilityLive(active, name));
 }
 function opponentHasToolsOrStadium(observation) {
-  return boardSlots(observation?.opponentPublic).some(pokemon => list(pokemon.tools).length > 0) ||
-    stadiums(observation?.opponentPublic).length > 0;
+  const relevantTool = boardSlots(observation?.opponentPublic).some(pokemon =>
+    list(pokemon.tools).some(tool => /Stealthy Hood|Forest Seal Stone|Float Stone/i.test(printingValue(tool))));
+  const relevantStadium = currentStadium(observation).some(value =>
+    /Temple of Sinnoh|Path to the Peak|Silent Lab/i.test(value));
+  return relevantTool || relevantStadium;
 }
 function targetPrizeCount(pokemon) {
   const subtypes = list(pokemon?.printed?.subtypes);
@@ -331,6 +334,22 @@ function searchTargetPriority(choice, request, context) {
     return 0;
   }
   if (context.includes('wonder tag')) return supporterPriority(choice, request);
+  if (context.includes('arven')) {
+    if (PRINT.forestSealStone.test(value) && observation.ownPublic.publicTurnRestrictions?.vstarUsed === false &&
+        boardSlots(own).some(pokemon => matches(pokemon, PRINT.crobat) || matches(pokemon, PRINT.moltres))) return 240;
+    if (PRINT.floatStone.test(value) && !ownFreeRetreat(observation)) return 220;
+    if (PRINT.quickBall.test(value) || PRINT.compressor.test(value) || PRINT.fieldBlower.test(value)) return 120;
+    return 0;
+  }
+  if (context.includes('secret box')) {
+    if (PRINT.sada.test(value)) return supporterPriority(choice, request);
+    if (PRINT.skyField.test(value)) return currentStadium(observation).some(stadium => /Temple of Sinnoh/i.test(stadium)) ? 230 : 140;
+    if (PRINT.forestSealStone.test(value) && observation.ownPublic.publicTurnRestrictions?.vstarUsed === false) return 210;
+    if (PRINT.floatStone.test(value) && !ownFreeRetreat(observation)) return 190;
+    if (PRINT.quickBall.test(value) || PRINT.compressor.test(value) || PRINT.vsSeeker.test(value) ||
+        PRINT.nightStretcher.test(value) || PRINT.fieldBlower.test(value)) return 150;
+    return 20;
+  }
   if (context.includes('raihan')) {
     if (PRINT.doubleDragon.test(value) && inPlay(PRINT.adp) && !hasDdeOnAdp(observation)) return 250;
     if (PRINT.ragingBolt.test(value) && !inPlay(PRINT.ragingBolt)) return 230;
@@ -346,7 +365,8 @@ function searchTargetPriority(choice, request, context) {
   }
   if (context.includes('night stretcher')) {
     if (PRINT.ragingBolt.test(value) && !inPlay(PRINT.ragingBolt)) return 230;
-    if (PRINT.hoOh.test(value) && discardEnergyTypes(own).size >= 3) return 220;
+    if (PRINT.hoOh.test(value) && discardEnergyTypes(own).size >= 3) return 0;
+    if (PRINT.hoOh.test(value) && discardEnergyTypes(own).size < 3) return 90;
     if (isBasicEnergy(value) && discardEnergyTypes(own).size === 0) return 120;
     return 20;
   }
@@ -375,8 +395,11 @@ function discardPriority(choice, request, context) {
   const own = observation.ownPublic;
   const energyType = basicEnergyType(value);
   if (PRINT.doubleDragon.test(value)) return 0;
+  if (PRINT.hoOh.test(value)) {
+    return discardEnergyTypes(own).size >= 3 && !boardHas(own, PRINT.hoOh) ? 155 : 0;
+  }
   if (PRINT.adp.test(value) || PRINT.ragingBolt.test(value) || PRINT.tapuKoko.test(value) ||
-      PRINT.hoOh.test(value) || PRINT.sandyShocks.test(value) || PRINT.moltres.test(value)) return 0;
+      PRINT.sandyShocks.test(value) || PRINT.moltres.test(value)) return 0;
   if (SUPPORTER_PATTERNS.some(pattern => pattern.test(value))) {
     const copiesInHand = list(observation.ownHand).filter(card => printingValue(card) === value).length;
     return copiesInHand > 1 ? 90 : 0;
@@ -395,7 +418,7 @@ function compressorPriority(choice, request) {
   const types = discardEnergyTypes(request.observation.ownPublic);
   const type = basicEnergyType(value);
   if (PRINT.doubleDragon.test(value)) return 0;
-  if (PRINT.hoOh.test(value) && !discardHas(request.observation.ownPublic, PRINT.hoOh) &&
+  if (PRINT.hoOh.test(value) && types.size >= 1 && !discardHas(request.observation.ownPublic, PRINT.hoOh) &&
       !boardHas(request.observation.ownPublic, PRINT.hoOh)) return 230;
   if (type && !types.has(type)) {
     const bonus = type === 'darkness' && !boardHas(request.observation.ownPublic, PRINT.moltres) ? 20 : 0;
@@ -600,8 +623,7 @@ function scoreAction(item, request) {
     opponentPrizes <= 4 && hasBenchSpace(own) ? 155 : 0;
   if (PRINT.moltres.test(printing)) return !boardHas(own, PRINT.moltres) &&
     discardEnergyTypes(own).has('darkness') && hasBenchSpace(own) ? 150 : 0;
-  if (PRINT.hoOh.test(printing)) return !boardHas(own, PRINT.hoOh) &&
-    discardEnergyTypes(own).size >= 3 && hasBenchSpace(own) ? 180 : 0;
+  if (PRINT.hoOh.test(printing)) return 0; // Rebirth requires Ho-Oh in the discard, not played from hand.
   if (PRINT.tapuKoko.test(printing)) return !boardHas(own, PRINT.tapuKoko) &&
     discardEnergyTypes(own).has('lightning') && benchCount(own) >= 2 ? 165 : 0;
   if (PRINT.latias.test(printing)) return !boardHas(own, PRINT.latias) && hasBenchSpace(own) ? 145 : 0;
@@ -646,8 +668,38 @@ function promptDecision(request) {
   const observation = request.observation;
   const own = observation.ownPublic;
 
-  if (prompt.promptType === 'ChooseEnergyPrompt' && lower.includes('bellowing thunder')) {
-    return bellowingEnergyDecision(prompt, request);
+  if (prompt.promptType === 'ChooseEnergyPrompt') {
+    if (lower.includes('bellowing thunder')) return bellowingEnergyDecision(prompt, request);
+    if (lower.includes('rebirth')) {
+      const byType = new Set();
+      const selected = rankChoices(prompt.choices, choice => {
+        const type = basicEnergyType(choice.printing ?? choice.label);
+        if (!type || byType.has(type)) return 0;
+        byType.add(type);
+        return 100;
+      }, 3).map(row => row.choice.token);
+      return selected.length === 3
+        ? { kind: 'select-choices', tokens: selected }
+        : { kind: 'abstain', reasonCode: 'REBIRTH_NEEDS_THREE_DISTINCT_BASIC_TYPES' };
+    }
+    if (lower.includes('professor sada')) {
+      return selectMany(prompt, choice => {
+        const type = basicEnergyType(choice.printing ?? choice.label);
+        if (!type) return 0;
+        if (type === 'lightning' || type === 'fighting') return 120;
+        return 80;
+      }, 'NO_SADA_BASIC_ENERGY', 1);
+    }
+    if (lower.includes('dance of the ancients')) {
+      return selectMany(prompt, choice =>
+        basicEnergyType(choice.printing ?? choice.label) === 'lightning' ? 200 : 0,
+      'NO_TAPU_KOKO_LIGHTNING', 1);
+    }
+    if (lower.includes('ultimate ray')) {
+      return selectMany(prompt, choice => basicEnergyType(choice.printing ?? choice.label) ? 100 : 0,
+        'NO_ULTIMATE_RAY_BASIC_ENERGY', 3);
+    }
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_ENERGY_PAYMENT_CONTEXT' };
   }
 
   if (prompt.promptType === 'ChoosePokemonPrompt') {
@@ -699,8 +751,11 @@ function promptDecision(request) {
       return selectMany(prompt, choice => searchTargetPriority(choice, request, lower), 'NO_KNOWN_HEAVY_BALL_TARGET', 1);
     }
     if (lower.includes('cherish ball') || lower.includes('wonder tag') ||
-        lower.includes('star alchemy') || lower.includes('raihan')) {
+        lower.includes('star alchemy') || lower.includes('raihan') || lower.includes('arven')) {
       return selectMany(prompt, choice => searchTargetPriority(choice, request, lower), 'NO_SEARCH_TARGET', 1);
+    }
+    if (lower.includes('secret box') && meta.sourceZone === 'deck') {
+      return selectMany(prompt, choice => searchTargetPriority(choice, request, lower), 'NO_SECRET_BOX_SEARCH_TARGET', 1);
     }
     if (lower.includes('quick ball') || lower.includes('battle vip pass') ||
         lower.includes('search')) {
