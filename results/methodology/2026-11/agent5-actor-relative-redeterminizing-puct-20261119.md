@@ -44,7 +44,7 @@ The extended test in `tests/2026-11/agent5-root-determinization-opponent-belief-
 
 Across 400 iterations and two action plies, the test requires identical opponent action distributions across the two root-private worlds, a Pass preference under the 20% prior, exactly 400 actor-relative samples per seat, and 800 observation-preservation checks. It repeats the test with either physical seat as root. A separate negative test confirms that changing the actor's observation during re-determinization aborts search.
 
-The regression is committed; Node 22 execution is pending the existing manual Agent5 workflow run [44638161668](https://github.com/FlareZ123/experiment-01/actions/runs/44638161668). No new workflow was created.
+The regression is committed. All 11 tests in the regression file passed in a fetched-source Code Mode harness against the exact committed core, using deterministic hash and Node assert/test shims. The existing manual Agent5 workflow run [44638161668](https://github.com/FlareZ123/experiment-01/actions/runs/44638161668) failed earlier in its unrelated actor-root intent step (4 failures among 237 tests), so its MCTS test step was skipped. The harness is not Node 22 or native Twinleaf CI. No new workflow was created.
 
 ## Evidence and limitations
 
