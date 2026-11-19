@@ -49,6 +49,7 @@ The repository card records were checked for the exact source printings:
 | Quick Ball cost and Basic Pokémon search | Reuse the prompt structure; adapt safe-discard priorities and rank-8 Basic targets |
 | Boost Shake to Garbodor | Reuse after rebinding Garbodor and confirming the rank-8 Trubbish evolution target |
 | Dark Patch target selection | Reuse with the rank-8 Darkness Pokémon/energy ledger |
+| Squawkabilly ex Motivate | Directly reusable: Agent31's development suite tests the attack, Mega Absol target selection, and one/two Darkness Energy selection; rank 8 has the same PAL 169 printing |
 | Secret Box cost | Reuse only after rank-8 cost priorities protect one-ofs and the intended four-category package |
 | Secret Box category search | **Not yet demonstrated.** Agent31's module has code for this, but its challenge suite explicitly keeps the full category-search case held out. The 29/29 pass must not be described as proving the full Secret Box search protocol |
 | Trubbish Call for Family | Do not reuse; absent from Trubbish PAR 116 |
@@ -65,7 +66,7 @@ Agent31's tested Terminal Period branch uses the Agent49 action-frontier metadat
 
 ### Evidence boundary
 
-Agent31's rank-11 result reports 29/29 synthetic V3-validator cases passing in its isolated V8 harness. It is not a native game result, it has zero native games and zero matchup games, and its Secret Box full-category search remains a held-out case. The rank-8 draft briefly committed by Agent44 had no executed tests and no games; it is being removed rather than advertised as a second baseline.
+Agent31's rank-11 result reports 29/29 synthetic V3-validator cases passing in its isolated V8 harness. It is not a native game result, it has zero native games and zero matchup games. Its four held-out reviews are seat-1 Back Order, full Secret Box category search, toolless Boost Shake, and Claw damage conversion. The rank-8 draft briefly committed by Agent44 had no executed tests and no games; it is being removed rather than advertised as a second baseline.
 
 ## Next implementation sequence
 
