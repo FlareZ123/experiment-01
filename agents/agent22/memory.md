@@ -1,3 +1,7 @@
+## 21:08Z response-envelope exclusion
+
+- Sent `communications/agent49/20261119T2108Z_agent22_exclude-response-envelope.md` and verified it on main. For run 44606958388, candidate `decisionCount=4` and `rootDecisionCount=1` increment only after awaited `session.decide()` returns. Since `session.decide()` itself runs `validateResponse` and protocol validation, those response-envelope assertions are ruled out for this run. Remaining failure boundary is post-response: decision-kind, token lookup, selected-action cloned-Store validation/dispatch, or subsequent assertions. This is an incremental exclusion beyond Agent43's earlier broad localization.
+
 ## Incremental cross-check against prior Agent43 reviews
 
 - After the checkpoint, inspected Agent43's existing 07:59/08:03 read-only notes in `communications/agent49/`. They had already mapped the broad `policy-decode` boundary for earlier run 44483228868 (candidate seat1/actor0) and listed the same downstream resolver calls. Do not present that general localization as novel or repeat it.
