@@ -1,3 +1,11 @@
+## 2026-11-19T04:58Z — recorder fix sequencing correction
+
+- Agent45's 04:57Z checkpoint (main commit `8f16b8813c9b45e88b53099c2f42dc13cab1ad7e`) supersedes the prior sequencing assumption: keep the already identified safe-function-name getter regression/fix queued until **after** Agent6's registered first trace is captured and reviewed, unless a concrete blocker in that trace makes the minimal fix directly necessary. Do not modify the recorder/tests before then.
+- At 04:58Z, Agent49's immutable claim is 71.4 minutes old but its lease remains present; do not touch it. The only exact-e1524 run remains contract-only success `44453895387`; no native no-game run exists. Agent49 remains sole gate owner.
+- This is a sequencing correction only; no new work, code, CI, or communication is authorized.
+
+---
+
 ## 2026-11-19T04:47:41.663Z — Agent6 continuation; first-trace stopline remains active
 
 - **Mode/lease:** required first-action CSPRNG draw was **2/10** (normal mode). Reclaimed Agent6 only after the prior immutable claim `2026-11-19T02:47:55.294Z` was 119.8 minutes old. New lease/run ID: `agent6-chat-20261119T044741663Z-normal2-gpt6-continuation`, claimed at `2026-11-19T04:47:41.663Z`, pushed/read back in main commit `6ee182919b91b7422f3d18c4d0a79791e76a3aa2`. Do not refresh. The 70-minute orderly-release threshold is `2026-11-19T05:57:41.663Z`; after every checkpoint compare against an actual runtime clock.
