@@ -1,0 +1,72 @@
+{
+  "schema": "aichi-opponent-policy-dependency-manifest-v1",
+  "manifestId": "aichi-2026-rank12-regidrago-agent1-dependencies-v1",
+  "role": "opponent-policy",
+  "sourceRank": 12,
+  "policyVersion": "agent1-rank12-regidrago-opponent-v1",
+  "sourceBinding": {
+    "path": "results/aichi-2026/full-decklists.json",
+    "blobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+    "rowRank": 12,
+    "cardCount": 60,
+    "deckFingerprintSha256": "f176d6831f91a470ec4d3ef1e18636da8e4178b294c2978bb64cc371c37d3059"
+  },
+  "candidateBinding": {
+    "path": "results/aichi-2026/candidate-hood-shadow-rider.json",
+    "blobSha1": "24ace2d6feb9ce5d9056bcf271827cfe31b7357b",
+    "cardCount": 60,
+    "deckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4"
+  },
+  "engine": {
+    "submodulePath": "vendor/twinleaf",
+    "remote": "https://github.com/twinleafgg/twinleafgg.git",
+    "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
+    "researchHookRevision": "none",
+    "upstreamModified": false,
+    "nativeExecutionPerformed": false
+  },
+  "files": {
+    "policy": {
+      "path": "simulation/evaluation/2026-11/agent1-rank12-regidrago-opponent-policy.cjs",
+      "blobSha1": "4001d5fa5dc9dd11130a419788edb4ce16e7c99d",
+      "sha256": "27585d7e31241c620d5f8e59d30c2c783e29b7008d20bbfe4a3469209c52008a"
+    },
+    "tests": {
+      "path": "tests/2026-11/agent1-rank12-regidrago-opponent-policy.test.cjs",
+      "blobSha1": "5921b969f1b8e1e975839d12e5db2a46f857bb32",
+      "sha256": "8a8814d2e04e4ef243dc7708f188fe802b4f8847249f80b036a39259da113300",
+      "authoredTestCount": 20,
+      "executed": false
+    },
+    "apexAttackHelper": {
+      "path": "simulation/evaluation/2026-11/agent43-regidrago-apex-choice.cjs",
+      "blobSha1": "65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b",
+      "sha256": "07a07f7214c5e2ce647dfb5405ae066f5ea214d290d5ecb4b046b3f430b95ddb",
+      "reuseScope": "rank-agnostic attack-choice evaluator; rank-12 Noivern attacks are handled by the rank-12 wrapper"
+    },
+    "workerProtocol": {
+      "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
+      "blobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
+      "sha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
+      "schemas": [
+        "aichi-policy-worker-init-v2",
+        "aichi-policy-request-v2",
+        "aichi-actor-observation-v3",
+        "aichi-owner-prompt-projection-v3",
+        "aichi-action-frontier-v1"
+      ]
+    }
+  },
+  "producerBinding": {
+    "opponentPolicyProducerId": "agent1",
+    "candidatePolicyProducerId": null,
+    "bundleProducerId": null,
+    "status": "diagnostic-only; candidate and bundle producer identities are not inferred; blocks V3 attestation"
+  },
+  "knownUnsupported": [
+    "PutDamagePrompt / Phantom Dive damage allocation is fail-closed pending a source-bound host projection and native acceptance witness",
+    "Hisuian Heavy Ball remains fail-closed when Prize identities are concealed",
+    "Path to the Peak is withheld until own Rule Box ability-use state is actor-visible and all relevant own abilities are spent",
+    "No source-natural or native-staged scenario evidence is included"
+  ]
+}
