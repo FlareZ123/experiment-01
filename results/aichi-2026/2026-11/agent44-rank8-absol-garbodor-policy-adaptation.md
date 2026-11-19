@@ -16,6 +16,16 @@ Do **not** copy rank 11 unchanged. The two lists share an archetype, not a card-
 - Fixed candidate remains `results/aichi-2026/candidate-hood-shadow-rider.json`; its blob is `24ace2d6feb9ce5d9056bcf271827cfe31b7357b`. Candidate deck is unchanged; this source-delta note does not rely on a candidate fingerprint.
 - Twinleaf remains pinned at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; the shared Agent49 policy worker blob is `d51ea95c457d61b50a9ee114d342eb17f4350451`.
 
+## Reusable Agent31 artifacts
+
+- Policy bundle: `simulation/evaluation/2026-11/agent31-rank11-absol-garbodor-opponent-policy.cjs`
+- Test source: `tests/2026-11/agent31-rank11-absol-garbodor-opponent-policy.test.cjs`
+- Challenge suite: `results/aichi-2026/2026-11/agent31-rank11-opponent-policy-v1-challenge-suite.json`
+- Dependency manifest: `results/aichi-2026/2026-11/agent31-rank11-opponent-policy-v1-dependencies.json`
+- Result report: `results/aichi-2026/2026-11/agent31-rank11-opponent-policy-v1.md`
+
+The policy and test source are reusable implementation references, not an approved rank-8 bundle. Keep their rank-11 source binding and evidence unchanged; create a separately fingerprinted rank-8 bundle only after the exact source-specific changes and new tests exist.
+
 ## Rank-8 versus rank-11
 
 | Area | Rank 8 — Yusuke Kobayashi | Rank 11 — Agent31 baseline | Consequence |
