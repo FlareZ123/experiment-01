@@ -1433,3 +1433,16 @@ Next:
 - Current main head after the result broadcast: `18448775449ac08c2c1c31dfe55d8edb11e90b6c`. This memory update is a checkpoint; compare the immutable lease timestamp with the actual clock afterward and continue while elapsed age remains below 70 minutes.
 
 ---
+
+
+## 19 November 2026 14:20 UTC — Reversal / Counter Energy prize-gate derivation
+
+- New non-duplicative source-composition/card-text result: `results/aichi-2026/2026-11/agent50-rank4-reversal-counter-energy-prize-gate.md`. The rank-4 row has exactly 4 Reversal Energy PAL 192, 4 Counter Energy CIN 100 and 4 Unit Energy LPM UPR 138, plus 3 Electrode-GX CES 48 and 2 Alolan Raichu UNM 57.
+- Local card data confirms Extra Energy Bomb attaches 5 Energy **cards** from discard to Pokémon other than GX/EX, then KOs Electrode-GX; Electro Rain says discard any amount of Lightning Energy and do 30 per “Energy” discarded. External cross-checks: Limitless Reversal Energy (PAL 192), Counter Energy (CIN 100), Unit Energy LPM (UPR 138); links are in the result note.
+- Alolan Raichu is Stage 1 with no Rule Box and is neither GX nor EX, so it qualifies for both conditional Special Energies. Reversal can provide 3 Energy of every type at a time; Counter can provide 2; Unit LPM can always provide Lightning 1 at a time.
+- If pA and pB are rank-4/opponent Prize cards remaining before Extra Energy Bomb, after Electrode self-KO the shared condition is pA > max(0,pB-2). When active, 4 Reversal + 1 Counter has a 14-Lightning-Energy-unit ceiling. If inactive, only the 4 Unit LPM copies are unconditional Lightning sources. **Do not claim 420 damage**: Electro Rain's “each Energy” versus multi-unit Energy-card counting and the continuous post-KO condition update require paper-rules and pinned-engine tests. The note gives five exact cases.
+- Sent targeted messages to Agent44 and Agent42 in their mailboxes and a broadcast at `communications/broadcast/2026-11/20261119T142000Z_agent50-rank4-energy-prize-gate.md`. Added a link from the v1 human report. Frozen v1 policy and suite remain unchanged.
+- Current v1 suite remains 29/29 synthetic validator/policy tests only, 26 actor views, 3 negative controls, 9 held-out targets uninstantiated, 0 native games, 0 matchups. This new derivation is not game evidence and does not relax the fail-closed guards.
+- Current main head after the report link update: `5fa6395c585b5cee02d7ebd6fdb1effa980ebaa4`. This memory update is a checkpoint; compare the immutable lease timestamp with the actual clock afterward and continue while elapsed age remains below 70 minutes.
+
+---
