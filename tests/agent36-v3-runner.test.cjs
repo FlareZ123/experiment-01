@@ -28,6 +28,7 @@ const {
 }=require('../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 const roleIdentity=require('../simulation/evaluation/2026-11/agent42-role-policy-identity.cjs');
 const {cleanupPolicyBundle}=require('../simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs');
+const {buildSetupPromptAudit}=require('../simulation/evaluation/2026-11/agent19-setup-prompt-audit.cjs');
 const {
   preparePreDealPolicyRegistration,
   revalidatePreDealPolicyRegistration
@@ -1586,3 +1587,127 @@ test('V3 outer runner cleanup receipt preserves primary and cleanup summaries wi
   assert.match(failure.message,/Native V3 fixture runner failed during runner-hook-restore/);
 });
 
+
+
+function makeSetupPromptAuditFixture(){
+  const {evidenceBundleSha256}=require('../simulation/evaluation/canonical-evidence-json.cjs');
+  const receipts=[
+    {seat:0,turn:0,kind:'starting-basics',promptId:'setup-basic-0',
+      selectedHandIndices:[1],selectedPrintings:['Pikachu TEU 66'],
+      nativeDispatch:'dispatch-returned'},
+    {seat:0,turn:0,kind:'go-first',promptId:'setup-first-0',
+      result:false,nativeDefaultEquivalent:true,nativeDispatch:'dispatch-returned'},
+    {seat:1,turn:0,kind:'starting-basics',promptId:'setup-basic-1',
+      selectedHandIndices:[2],selectedPrintings:['Eevee SUM 101'],
+      nativeDispatch:'dispatch-returned'}
+  ];
+  const specs=[
+    {actionOrdinal:0,seat:0,promptId:'setup-basic-0',promptType:'ChooseCardsPrompt'},
+    {actionOrdinal:1,seat:0,promptId:'setup-first-0',promptType:'ConfirmPrompt'},
+    {actionOrdinal:2,seat:1,promptId:'setup-basic-1',promptType:'ChooseCardsPrompt'}
+  ];
+  const decisionTrace=specs.map(spec=>{
+    const actionPayload={actionName:'ResolvePromptAction',fields:{
+      promptId:spec.promptId,result:spec.actionOrdinal===1?false:[{handIndex:spec.actionOrdinal}]
+    }};
+    return {
+      actionOrdinal:spec.actionOrdinal,
+      actingSeat:spec.seat,
+      turnBefore:0,
+      pendingPromptId:spec.promptId,
+      pendingPromptType:spec.promptType,
+      actionName:'ResolvePromptAction',
+      actionPayload,
+      actionPayloadSha256:evidenceBundleSha256(actionPayload),
+      dispatchStatus:'succeeded'
+    };
+  });
+  const rootActionLedger=decisionTrace.map(row=>({
+    actionOrdinal:row.actionOrdinal,
+    actorSeat:row.actingSeat,
+    turnBefore:row.turnBefore,
+    pendingPrompt:row.pendingPromptType,
+    action:'ResolvePromptAction',
+    actionPayloadSha256:row.actionPayloadSha256,
+    dispatchStatus:'succeeded'
+  }));
+  const candidateAudit={
+    policyOwnerSeat:0,
+    setupStartingBasicPromptsHandled:1,
+    setupStartingBasicPromptsBySeat:[1,0],
+    setupGoFirstPromptsHandled:1,
+    setupGoFirstPromptsBySeat:[1,0],
+    setupPromptActionsSubmitted:2,
+    setupPromptActionsRejected:0,
+    setupPromptDecisions:receipts.slice(0,2)
+  };
+  const opponentAudit={
+    policyOwnerSeat:1,
+    setupStartingBasicPromptsHandled:1,
+    setupStartingBasicPromptsBySeat:[0,1],
+    setupGoFirstPromptsHandled:0,
+    setupGoFirstPromptsBySeat:[0,0],
+    setupPromptActionsSubmitted:1,
+    setupPromptActionsRejected:0,
+    setupPromptDecisions:receipts.slice(2)
+  };
+  return {candidateAudit,opponentAudit,candidateSeat:0,opponentSeat:1,
+    decisionTrace,rootActionLedger};
+}
+
+test('Agent19 setup-prompt audit joins both role receipts to exact native dispatches and reconciles counters',()=>{
+  const fixture=makeSetupPromptAuditFixture();
+  const audit=buildSetupPromptAudit(fixture);
+  assert.equal(audit.schema,'agent19-agent34-encrypted-setup-prompt-audit-v1');
+  assert.equal(audit.visibility,'encrypted-full-only');
+  assert.equal(audit.complete,true,audit.failures.join(','));
+  assert.equal(audit.accepted,true,audit.failures.join(','));
+  assert.equal(audit.receiptCount,3);
+  assert.equal(audit.rejectedDispatchCount,0);
+  assert.deepEqual(audit.roles.candidate.receipts.map(row=>row.actionOrdinal),[0,1]);
+  assert.deepEqual(audit.roles.opponent.receipts.map(row=>row.actionOrdinal),[2]);
+  assert.ok([...audit.roles.candidate.receipts,...audit.roles.opponent.receipts]
+    .every(row=>row.joined&&row.payloadDigestVerified&&row.ledgerJoinVerified));
+});
+
+test('Agent19 setup-prompt audit fails closed on missing, ambiguous, tampered, or unreconciled receipts',()=>{
+  const missing=makeSetupPromptAuditFixture();
+  delete missing.candidateAudit.setupPromptDecisions;
+  const missingAudit=buildSetupPromptAudit(missing);
+  assert.equal(missingAudit.accepted,false);
+  assert.ok(missingAudit.failures.some(value=>value.includes('setup-prompt-decisions-missing-or-invalid')));
+
+  const ambiguous=makeSetupPromptAuditFixture();
+  ambiguous.decisionTrace.push({...ambiguous.decisionTrace[0]});
+  const ambiguousAudit=buildSetupPromptAudit(ambiguous);
+  assert.equal(ambiguousAudit.accepted,false);
+  assert.ok(ambiguousAudit.failures.some(value=>value.includes('native-driver-attempt-ambiguous')));
+
+  const tampered=makeSetupPromptAuditFixture();
+  tampered.rootActionLedger[0].actionPayloadSha256='0'.repeat(64);
+  const tamperedAudit=buildSetupPromptAudit(tampered);
+  assert.equal(tamperedAudit.accepted,false);
+  assert.ok(tamperedAudit.failures.some(value=>value.includes('native-ledger-identity-or-dispatch-mismatch')));
+
+  const unreconciled=makeSetupPromptAuditFixture();
+  unreconciled.candidateAudit.setupPromptActionsSubmitted++;
+  const unreconciledAudit=buildSetupPromptAudit(unreconciled);
+  assert.equal(unreconciledAudit.accepted,false);
+  assert.ok(unreconciledAudit.failures.some(value=>value.includes('submitted-action-count-mismatch')));
+});
+
+test('V3 runner persists private setup-prompt receipts only in the existing encrypted-full trace',()=>{
+  const source=fs.readFileSync(path.resolve(__dirname,
+    '../simulation/evaluation/2026-11/agent36-v3-runner.cjs'),'utf8');
+  const witnessStart=source.indexOf('const witnessReceipt={');
+  const witnessEnd=source.indexOf('writeJsonAtomic(witnessPath,witnessReceipt)',witnessStart);
+  const setupAuditStart=source.indexOf('const setupPromptAudit=fullStateTraceRecorder?');
+  assert.ok(witnessStart>=0&&witnessEnd>witnessStart&&setupAuditStart>witnessEnd,
+    'no-game witness must return before setup receipts are projected');
+  assert.doesNotMatch(source.slice(witnessStart,witnessEnd),/setupPromptAudit/);
+  assert.match(source,/diagnosticMode==='encrypted-full'&&!witnessOnly/);
+  assert.match(source,/setupPromptAuditAcceptance\\.accepted/);
+  assert.match(source,/SETUP_PROMPT_AUDIT_INCOMPLETE/);
+  assert.match(source,/setupPromptAudit,\\s*setupPromptAuditAcceptance/);
+  assert.match(source,/=== ENCRYPTED ACTOR-OWNED SETUP PROMPT AUDIT ===/);
+});
