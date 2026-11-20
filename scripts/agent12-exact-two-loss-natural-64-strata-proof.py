@@ -46,15 +46,18 @@ A2_min_B = (1 - sB)**2
 lower_B = -(N - 1) * sB + A2_min_B * TloB
 assert lower_B > 0
 
-# Region C: s >= 103/1000. P1>=0. The function
-# h(s,t)=-A*b+9*b**2+t*A is convex in t (h_tt=78).
-# Its endpoint values are:
-# h(s,0)=s*(10*s-1)
-# h(s,s**2/4)=s*(s-2)**2*(39*s-4)/16.
-# Both are nonnegative for s>=103/1000 (>1/10 and >4/39).
-assert sB >= F(1, 10)
+# Region C: s >= 103/1000. P1>=0. For
+# h(s,t)=-A*b+9*b**2+t*A, h_t=3*A-37*b+t.
+# Since A<=1, b>=s-s**2/2 and t<=s**2/4,
+# h_t <= 3-37*s+(75/4)*s**2. This upper bound decreases
+# on [103/1000, 8/25] and is already negative at the left endpoint.
+# Therefore h decreases in t and is minimized at t=s**2/4, where
+# h=s*(s-2)**2*(39*s-4)/16 >= 0.
+h_t_upper_at_left = F(3) - 37*sB + F(75, 4)*sB**2
+h_t_upper_derivative_at_right = -37 + F(75, 2)*Q
+assert h_t_upper_at_left < 0
+assert h_t_upper_derivative_at_right < 0
 assert sB > F(4, 39)
-assert F(78) > 0
 
 # Exact binomial lower tails under the equal-stratum null point.
 failure = F(1, 200)
