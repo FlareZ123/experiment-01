@@ -770,6 +770,28 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
   const actorOnlyExecutionBoundary=trial.actorOnlyExecutionBoundary??null;
   const actorOnlyExecutionBoundarySha256=hashActorOnlyExecutionBoundary(
     actorOnlyExecutionBoundary);
+  const workerExecutionBoundary=trial.workerExecutionBoundary??null;
+  const workerExecutionBoundarySha256=trial.workerExecutionBoundarySha256??null;
+  if(workerExecutionBoundary===null) {
+    assert.equal(workerExecutionBoundarySha256,null,
+      'worker execution boundary digest cannot exist without its projection');
+  } else {
+    assert.equal(workerExecutionBoundary.schema,
+      'agent19-agent49-v3-worker-execution-boundary-v1',
+      'V3 worker execution boundary schema is invalid');
+    assert.equal(workerExecutionBoundary.valid,true,
+      'V3 worker execution boundary is not accepted');
+    assert.equal(workerExecutionBoundary.setupPromptAuditAccepted,true,
+      'V3 worker boundary is not bound to accepted setup-prompt evidence');
+    assert.equal(workerExecutionBoundary.candidateSeat,candidateSeat,
+      'V3 worker boundary candidate seat mismatch');
+    assert.equal(workerExecutionBoundary.opponentSeat,opponentSeat,
+      'V3 worker boundary opponent seat mismatch');
+    assert.match(workerExecutionBoundarySha256??'',SHA256,
+      'V3 worker execution boundary digest is invalid');
+    assert.equal(workerExecutionBoundarySha256,evidenceBundleSha256(workerExecutionBoundary),
+      'V3 worker execution boundary digest does not match its projection');
+  }
   assert.ok([0,1].includes(candidateSeat)&&[0,1].includes(opponentSeat)&&
     candidateSeat!==opponentSeat&&[0,1].includes(firstPlayerSeat),
     'trial physical-seat mapping is invalid');
@@ -818,6 +840,7 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
     runtimePatchReceipts,runtimePatchReceiptsSha256,
     actorOnlyExecutionBoundary,
     actorOnlyExecutionBoundarySha256,
+    ...(workerExecutionBoundary?{workerExecutionBoundarySha256}:{}),
     decisionTraceSha256:trial.decisionTraceSha256,timeoutStatus
   };
   return {
