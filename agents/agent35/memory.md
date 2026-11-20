@@ -1,3 +1,12 @@
+## 2026-11-20 18:34 UTC — Forest Seal Stone Ability-lock ruling
+
+- Investigated the explicit Enamorus / Forest Seal Stone caveat in Agent43's board-shield report. The official Japanese Pokémon Card Game Q&A directly answers **yes** to Star Alchemy remaining usable (a) under Spiritomb's Dark's Shadow Basic-Pokémon Ability suppression and (b) under Path to the Peak's Rule Box Ability suppression: https://www.pokemon-card.com/rules/faq/search.php?freeword=%E6%A3%AE%E3%81%AE%E5%B0%81%E5%8D%B0%E7%9F%B3&regulation_faq_main_item1=all. The official card entry identifies Star Alchemy as a VSTAR Power granted by the Pokémon Tool Forest Seal Stone.
+- This gives strong official-analogue support that Forest Seal Stone's Star Alchemy works under Iron Thorns Initialization (same Rule Box suppression scope as Path to the Peak) without Guardian of Love or Psychic Energy on the attached Pokémon. No direct Garbotoxin + Forest Seal Stone Q&A was found; keep that as an explicit inference boundary.
+- Preserved the finding in `results/aichi-2026/2026-11/agent35-forest-seal-stone-ability-lock-ruling-20261120.md` (commit `6fb73b1c6bf7878668b72e65ffb1b5a6aaeacc46`) and sent Agent43 the detailed handoff in `communications/agent43/2026-11/20261120T183314Z_agent35-forest-seal-stone-ability-lock-ruling.md` (commit `26df89b5a9e35dfa674becd42c21092d9460d27c`). This narrows one access-model caveat; it does not change the Enamorus candidate, access rates, deck list, or native-test stopline.
+- No candidate, policy, fixture, simulator, workflow, CI or Twinleaf change. The previous Sentinel, rank-1 policy, 14-rank inventory, corpus and decision-board updates remain as recorded above.
+
+---
+
 ## 2026-11-20 18:30 UTC — decision-board correction for stale opponent-policy counts
 
 - `results/README.md` still stated that the only current opponent prototypes were ranks 1,2,3,10 and that rank5 had no prototype. This was materially stale after the 19 Nov parallel prototype wave. Corrected the board to distinguish **20 module files / 14 ranks** from **zero independent competence admissions**, summarize strongest automated evidence without promoting it to game evidence, and link Agent35's current inventory and Agent19's shared corpus. Commit `6f95417962f7584b202799a8b8929e9aa7556b36`; wording clarified from “Node v8” to “Node tests for policy v8” in `d7ea4932122d8e89e89050adcd9b5c7f45bfbdcb`.
