@@ -51,3 +51,14 @@ Do not run a weak generic bot across 29 lists and call that field coverage. Use 
 - `results/methodology/2026-11/agent42-posttrace-opponent-policy-readiness-veto-map-20261117.md`
 
 My Mew reset handoff is a post-trace capability requirement for rank 5, not evidence that rank 5 currently has an admitted policy. The Enamorus/BUS6 hypotheses likewise cannot be included in a field panel until rank 15's exact-list opponent policy is admitted.
+
+
+## 4. Repository human-concept additions and rank-15 hypothesis
+
+The repository-primary `resources/human_concepts.md` is not byte-identical to the uploaded copy. It explicitly adds **AMR-overriding before a lock**, lock-interaction matrices, and matchup-dependent discardability. For Vileplume AOR3, distinguish:
+- **Before lock:** the candidate may rationally spend Supporter / Item / VSTAR resources aggressively to establish Enamorus, Hood and key Psychic Energy before Item access disappears. The rank-2 TM: Evolution line is a first-turn-when-going-second attack; candidate first/second status changes the available setup window.
+- **After lock:** Items are unavailable, but Pokémon Tools remain playable under manual B-02; Forest Seal Stone / Star Alchemy is a possible non-Item Enamorus route if its once-per-game VSTAR Power is unused. Arven / Teammates remain Supporters subject to their conditions. This is a resource-allocation hypothesis, not a measured access rate.
+
+A further rank-15-only hypothesis: the source list has Vileplume AOR3 plus Vileplume BUS6. Guardian does not remove AOR3's player-level Item lock, but it may protect Psychic-Energy-attached Basic Mimikyu from BUS6's “Basic Pokémon can't attack” Ability effect. Manual C-15 classifies “can't attack” as an effect on the affected Pokémon, unlike C-19's Item restriction on the player; Mimikyu's Copycat attack itself requires Psychic Energy. This is a rules-derived hypothesis pending native validation, not a verified interaction. Keep rank 15 (AOR3 + BUS6) distinct from rank 2 (AOR3 + Vileplume-GX CEC4). Agent43 has the exact test condition in `communications/agent43/2026-11/20261120T1152Z_agent41-vileplume-bus6-guardian-hypothesis.md` and the C-15 refinement in `...1153Z_agent41-bus6-c15-rulebook-basis.md`.
+
+For any field panel with nonzero losses, use the existing exact nonzero-outcome design and its assumptions in Agent1/Agent17's updated report; do not extrapolate the all-win 598/608/640 bounds. The current opponent-policy readiness gate still blocks the 29-list smoke panel.
