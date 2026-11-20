@@ -51,11 +51,11 @@ For field evaluation, use one frozen candidate-policy/search configuration acros
 
 ## 3. DCI as a counterfactual continuation value
 
-For one legal search/payment action, hold the non-discard effect fixed and compare complete legal physical discard sets. Under the same source information state, opponent policy, continuation-policy class and search budget:
+For one legal search/payment action, hold the non-discard effect fixed and compare complete legal physical discard sets. Let `T(s,a,D)` be the successor after applying the same action `a` with discard set `D`, and let `V_g^μ(s' | I_p, π_o)` be expected utility from `s'` under the same non-anticipative continuation policy `μ`, actor information `I_p`, and fixed opponent policy `π_o`. Then:
 
-`DCI(D1 versus D2 | s,a) = Q(s_after_D1) - Q(s_after_D2)`
+`DCI(D1 versus D2 | s,a,g,μ) = V_g^μ(T(s,a,D1) | I_p, π_o) - V_g^μ(T(s,a,D2) | I_p, π_o)`
 
-where `Q` is the expected downstream game utility under that declared continuation contract.
+For a best-play comparison, maximize over the same declared policy class and search budget for both successor states; for a controlled causal comparison, use the same continuation policy `μ` after both choices. Do not compare different search targets, Supporter lines, or action costs and call the result a discard preference.
 
 Consequences:
 
@@ -77,7 +77,7 @@ The deadline may be the opponent's next lock/attack, a turn boundary, a Prize-ra
 
 PUCT rollouts can estimate the execution probability and conditional outcome components, but the runner should record them explicitly. Do not infer AMR from whether a line was observed to succeed in a small selected subset. Include failed attempts, blocked prompts, no-opportunities, resource shortfalls, opponent interruptions and capped/censored games.
 
-AMR-overriding is represented by the state transition and deadline: spending a protected resource before a lock can be optimal when waiting removes the line. Do not hard-code a permanent discardability or preservation label.
+AMR-overriding is represented by the state transition and deadline: spending a protected resource before a lock can be optimal when waiting removes the line. Do not hard-code a permanent discardability or preservation label. If a scalar is required for search, use the full expected-value form from the linked state-conditioned model: `AMR* = P(E) × E[ΔU | E] + (1 - P(E)) × E[ΔU | not E] - C_opportunity`, and subtract opportunity cost only if it is not already included in `ΔU`. Prefer retaining the tuple and resource-cost vector until scalarization is justified.
 
 ## 5. Human concepts become native state constraints
 
