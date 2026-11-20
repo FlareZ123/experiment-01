@@ -1384,11 +1384,32 @@ test('V3 worker-launching modes preflight and preserve a digest-pinned runtime r
     assert.ok(preserveBlock.includes(text),'runtime receipt preservation is missing '+text);
 });
 
-test('V3 wrong-actor no-game failure receipt preserves expected and actual physical seats',()=>{
+test('V3 wrong-actor no-game failure receipt preserves seats and redacts raw-preimage hashes',()=>{
   const error=new Error('wrong-actor private diagnostic text');
   error.code='NO_GAME_WITNESS_WRONG_ACTOR';
   error.expectedActorSeat=0;
   error.actualActorSeat=1;
+  error.messageSha256='d'.repeat(64);
+  error.actionPayloadSha256='e'.repeat(64);
+  error.nativeFixtureFailure={
+    stage:'policy-decode',code:'ERR_ASSERTION',actionOrdinal:11,actingSeat:0,
+    actionPayloadSha256:'f'.repeat(64),messageSha256:'g'.repeat(64)
+  };
+  error.primaryFailure={
+    stage:'primary-failure',code:'PRIMARY_NATIVE_FAILURE',messageSha256:'h'.repeat(64),
+    nativeFixtureFailure:{actionPayloadSha256:'i'.repeat(64),messageSha256:'j'.repeat(64)}
+  };
+  error.cleanupFailures=[{
+    stage:'cleanup',code:'RUNNER_HOOK_RESTORE_FAILURE',messageSha256:'k'.repeat(64),
+    nativeFixtureFailure:{actionPayloadSha256:'l'.repeat(64),messageSha256:'m'.repeat(64)}
+  }];
+  error.workerAudit={
+    nativeStateDisclosedToWorker:false,
+    opponentPrivateZonesDisclosedToWorker:false,
+    physicalSeedDisclosedToWorker:false,
+    policySeedDisclosedToWorker:false,
+    workerInputScope:'actor-observation-v3+actor-prompt-projection+public-event-receipt-v3+typed-action-frontier-v1'
+  };
   const receipt=buildNoGameWitnessFailureReceipt({
     error,candidateSeat:0,opponentSeat:1,actorSeat:0,
     runnerRevision:'a'.repeat(40),enginePin:V3_FIXTURE.engineCommit,
@@ -1398,11 +1419,36 @@ test('V3 wrong-actor no-game failure receipt preserves expected and actual physi
   assert.equal(receipt.actualActorSeat,1);
   assert.equal(receipt.fixtureFailure.expectedActorSeat,0);
   assert.equal(receipt.fixtureFailure.actualActorSeat,1);
+  assert.equal(receipt.workerAudit.nativeStateDisclosedToWorker,false);
+  assert.equal(receipt.workerAudit.opponentPrivateZonesDisclosedToWorker,false);
+  assert.equal(receipt.workerAudit.physicalSeedDisclosedToWorker,false);
+  assert.equal(receipt.workerAudit.policySeedDisclosedToWorker,false);
+  assert.equal(receipt.workerAudit.workerInputScope,
+    'actor-observation-v3+actor-prompt-projection+public-event-receipt-v3+typed-action-frontier-v1');
   const failed=receipt.coverage.at(-1);
   assert.equal(failed.expectedActorSeat,0);
   assert.equal(failed.actualActorSeat,1);
   assert.equal(failed.actorSeat,0);
-  assert.equal(JSON.stringify(receipt).includes('wrong-actor private diagnostic text'),false);
+  const serialized=JSON.stringify(receipt);
+  for(const secret of [
+    'wrong-actor private diagnostic text',
+    'a'.repeat(64),'d'.repeat(64),'e'.repeat(64),'f'.repeat(64),
+    'g'.repeat(64),'h'.repeat(64),'i'.repeat(64),'j'.repeat(64),
+    'k'.repeat(64),'l'.repeat(64),'m'.repeat(64),
+    'messageSha256','actionPayloadSha256'
+  ]) assert.equal(serialized.includes(secret),false,'public no-game failure receipt leaked '+secret);
+
+  const unknownBoundaryReceipt=buildNoGameWitnessFailureReceipt({
+    error:{code:'NO_GAME_WITNESS_WRONG_ACTOR',workerAudit:{
+      nativeStateDisclosedToWorker:'false',
+      opponentPrivateZonesDisclosedToWorker:0,
+      workerInputScope:'noncanonical-worker-scope'
+    }},
+    candidateSeat:0,opponentSeat:1,actorSeat:0
+  });
+  assert.equal(unknownBoundaryReceipt.workerAudit.nativeStateDisclosedToWorker,null);
+  assert.equal(unknownBoundaryReceipt.workerAudit.opponentPrivateZonesDisclosedToWorker,null);
+  assert.equal(unknownBoundaryReceipt.workerAudit.workerInputScope,null);
 });
 
 test('native failure projection preserves only a safe repository assertion site',()=>{
@@ -1413,15 +1459,20 @@ test('native failure projection preserves only a safe repository assertion site'
   const nativeFailure={
     stage:'policy-decode',code:'ERR_ASSERTION',actionOrdinal:11,
     actingSeat:1,turnBefore:1,name:'AssertionError',
-    messageSha256:'a'.repeat(64),messageLength:79,
+    actionPayloadSha256:'c'.repeat(64),messageSha256:'a'.repeat(64),messageLength:79,
     stackSite:{...site,absolutePath:'/home/runner/work/experiment-01/experiment-01/private/secret.js'}
   };
   const projectedNative=projectNativeFixtureFailureForReceipt(nativeFailure);
   assert.deepEqual(projectedNative.stackSite,site);
+  assert.equal(projectedNative.actionPayloadSha256,undefined);
+  assert.equal(projectedNative.messageSha256,undefined);
+  assert.equal(JSON.stringify(projectedNative).includes('a'.repeat(64)),false);
+  assert.equal(JSON.stringify(projectedNative).includes('c'.repeat(64)),false);
   assert.equal(JSON.stringify(projectedNative).includes('/home/runner/'),false);
   assert.equal(JSON.stringify(projectedNative).includes('private/secret.js'),false);
 
   const projectedFixture=projectV3FixtureFailureForReceipt({
+    message:'private raw error text',
     fixtureFailure:{
       stage:'policy-decode',code:'ERR_ASSERTION',name:'AssertionError',
       messageSha256:'b'.repeat(64),messageLength:79,
@@ -1429,6 +1480,10 @@ test('native failure projection preserves only a safe repository assertion site'
     }
   });
   assert.deepEqual(projectedFixture.nativeFixtureFailure.stackSite,site);
+  const projectedFixtureJson=JSON.stringify(projectedFixture);
+  for(const secret of ['a'.repeat(64),'b'.repeat(64),'c'.repeat(64),
+    'messageSha256','actionPayloadSha256','private raw error text'])
+    assert.equal(projectedFixtureJson.includes(secret),false,'public fixture failure leaked '+secret);
   const rejected=projectNativeFixtureFailureForReceipt({
     ...nativeFailure,stackSite:{file:'private/secret.js',line:2,column:3}
   });
