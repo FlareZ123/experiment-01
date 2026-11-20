@@ -915,7 +915,7 @@ test('cloned prompt validation requires the cloned Store to settle the exact pen
   };
   const resolvingNative={
     ...native,
-    Simulator:class Simulator(clonedState){
+    Simulator:class Simulator{
       constructor(state){
         this.store={
           state,
@@ -947,7 +947,7 @@ test('cloned prompt validation requires the cloned Store to settle the exact pen
   const unresolved=makeFixture();
   const noOpNative={
     ...native,
-    Simulator:class Simulator(clonedState){
+    Simulator:class Simulator{
       constructor(state){
         this.store={state,dispatch(){}};
       }
