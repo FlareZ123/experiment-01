@@ -7,7 +7,7 @@ The returned result contains fullStateTrace (complete machine-readable native sn
 ## Contents
 
 - One initial native Store-state snapshot after both decks have been registered.
-- One detached post-dispatch native state for every root Store action, including prompt resolutions and non-attack actions.
+- One detached post-dispatch native state for every accepted root or prompt Store action, including non-attack actions.
 - A concise public-board summary of Active/Bench Pokémon, damage, attached Energy/Tools, Stadium, and printed attack names/costs.
 - The action object/type, acting player ID and seat, pending prompt, turn and phase transitions, and a reference to the immediately preceding state snapshot.
 - Per-seat tactic order, prompt-resolver order, score keys and values, and arbiter modes, captured once for reproducibility.
@@ -52,8 +52,9 @@ projection (owner-root/owner-prompt); never include host physical prompt rows,
 raw actionPayloads, or promptResolverContext (which serializes pending prompt
 objects), because these can disclose deck permutations or prompt internals. The recorder's optional `policyConfiguration` is intentionally omitted: Twinleaf bot options are engine setup, not the candidate/opponent worker policy identities, which remain in the top-level V3 artifact with their policy-plan hashes. The V3 runner captures final logs only after natural
 terminal, requires an initial snapshot, a final snapshot, an untruncated
-complete recorder result, exact equality between recorder steps and accepted
-native dispatches, exact one-based recorder-step/zero-based native-ledger
+complete recorder result with successful public-board and human-summary
+projections (both error fields null), exact equality between recorder steps and
+accepted native dispatches, exact one-based recorder-step/zero-based native-ledger
 ordinal joins, matching decision-trace/ledger aggregate and row digests, and
 exact actor-input object/digest binding for each worker root or prompt decision. Every worker root or
 prompt decision must also carry the versioned Agent6 decision trace, actor-only
