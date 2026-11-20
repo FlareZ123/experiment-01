@@ -412,48 +412,48 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
     phaseBefore=null,phaseAfter=null,publicBoard=null,humanSummary=null,pendingPrompt=null,error=null,failureStage=null} = {}) {
     try {
       if (initialState === null) captureInitial(state,publicBoard,humanSummary);
-    if (steps.length >= maxSteps) {
-      stepLimitExceeded=true;
-      throw new Error('Full-state trace maxSteps exceeded ('+maxSteps+').');
-    }
-    if (!Number.isSafeInteger(actionOrdinal) || actionOrdinal < 1)
-      throw new TypeError('Full-state trace actionOrdinal must be a positive integer.');
-    if (actionOrdinal !== steps.length+1)
-      throw new Error('Full-state trace action ordinals must be contiguous.');
-    const previous = steps.length ? steps[steps.length-1].actionOrdinal : 0;
-    const currentLogs=safeDataProperty(state,'logs');
-    let nativeLogDelta=null;
-    if(Array.isArray(currentLogs)) {
-      const countBefore=lastLogCount;
-      const reset=Number.isInteger(countBefore) && currentLogs.length<countBefore;
-      const start=reset?0:(Number.isInteger(countBefore)?countBefore:0);
-      nativeLogDelta={countBefore,countAfter:currentLogs.length,reset,
-        entries:snapshotFullState(currentLogs.slice(start),limits)};
-      lastLogCount=currentLogs.length;
-    }
-    steps.push({
-      actionOrdinal,
-      playerSlot:Number.isInteger(playerSlot)?playerSlot:null,
-      playerId:Number.isInteger(playerId)?playerId:null,
-      actionType:typeof actionType==='string'?actionType:null,
-      turnBefore:Number.isFinite(turnBefore)?turnBefore:null,
-      turnAfter:Number.isFinite(turnAfter)?turnAfter:null,
-      phaseBefore:phaseBefore??null,
-      phaseAfter:phaseAfter??null,
-      beforeState:{kind:previous===0?'initial':'previous-step',actionOrdinal:previous},
-      action:snapshotFullState(action,limits),
-      publicBoard:publicBoard===null?null:snapshotFullState(publicBoard,snapshotLimits),
-      humanSummary,
-      nativeLogDelta,
-      pendingPrompt:pendingPrompt===null?null:snapshotFullState(pendingPrompt,limits),
-      afterState:snapshotFullState(state,stateLimits),
-      ...(error?{error:snapshotFullState({
-        name:safeDataProperty(error,'name'),
-        message:safeDataProperty(error,'message'),
-        code:safeDataProperty(error,'code'),
-        stack:safeDataProperty(error,'stack')
-      },limits)}:{}),
-      ...(failureStage?{failureStage}: {})
+      if (steps.length >= maxSteps) {
+        stepLimitExceeded=true;
+        throw new Error('Full-state trace maxSteps exceeded ('+maxSteps+').');
+      }
+      if (!Number.isSafeInteger(actionOrdinal) || actionOrdinal < 1)
+        throw new TypeError('Full-state trace actionOrdinal must be a positive integer.');
+      if (actionOrdinal !== steps.length+1)
+        throw new Error('Full-state trace action ordinals must be contiguous.');
+      const previous = steps.length ? steps[steps.length-1].actionOrdinal : 0;
+      const currentLogs=safeDataProperty(state,'logs');
+      let nativeLogDelta=null;
+      if(Array.isArray(currentLogs)) {
+        const countBefore=lastLogCount;
+        const reset=Number.isInteger(countBefore) && currentLogs.length<countBefore;
+        const start=reset?0:(Number.isInteger(countBefore)?countBefore:0);
+        nativeLogDelta={countBefore,countAfter:currentLogs.length,reset,
+          entries:snapshotFullState(currentLogs.slice(start),limits)};
+        lastLogCount=currentLogs.length;
+      }
+      steps.push({
+        actionOrdinal,
+        playerSlot:Number.isInteger(playerSlot)?playerSlot:null,
+        playerId:Number.isInteger(playerId)?playerId:null,
+        actionType:typeof actionType==='string'?actionType:null,
+        turnBefore:Number.isFinite(turnBefore)?turnBefore:null,
+        turnAfter:Number.isFinite(turnAfter)?turnAfter:null,
+        phaseBefore:phaseBefore??null,
+        phaseAfter:phaseAfter??null,
+        beforeState:{kind:previous===0?'initial':'previous-step',actionOrdinal:previous},
+        action:snapshotFullState(action,limits),
+        publicBoard:publicBoard===null?null:snapshotFullState(publicBoard,snapshotLimits),
+        humanSummary,
+        nativeLogDelta,
+        pendingPrompt:pendingPrompt===null?null:snapshotFullState(pendingPrompt,limits),
+        afterState:snapshotFullState(state,stateLimits),
+        ...(error?{error:snapshotFullState({
+          name:safeDataProperty(error,'name'),
+          message:safeDataProperty(error,'message'),
+          code:safeDataProperty(error,'code'),
+          stack:safeDataProperty(error,'stack')
+        },limits)}:{}),
+        ...(failureStage?{failureStage}: {})
       });
     } catch(error) {
       recordCaptureError(error);
