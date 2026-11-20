@@ -74,17 +74,27 @@ The Whismur Bawl interaction and Grand Tree mechanics already have research-owne
 
 **Going first remains weaker:** the player cannot attack with Whismur on game turn 1, while the opponent (second player) can play a Supporter on game turn 2. The v2 can establish its double lock on the player's second turn (game turn 3), but the opponent's first Supporter opportunity has already occurred. This is not a complete both-seat solution.
 
-### Prize sensitivity of the exact v2 turn-4 line
+### Corrected Prize sensitivity and Gladion/Jet recovery
 
-The committed v2 list contains exactly six physical cards required by Agent27's stated turn-4 double-lock sequence: Whismur ×1, Grand Tree ×1, Rare Candy ×2, and Stoutland ×2. With six random prizes from a 60-card list, the probability that **none** of these six cards is prized is
+The exact v2 list contains Gladion CIN 95 ×1 and Jet Energy PAL 190 ×3, which the earlier six-piece calculation did not account for. The earlier 48.41% raw exposure was never a game-loss probability: one Gladion can recover a single missing named piece, and the Prized-Whismur case has a separate Gladion + Jet route that can still enable Bawl on game turn 2.
 
-\[
-\frac{\binom{54}{6}}{\binom{60}{6}} = 0.5158844 (**51.59%**)
-\]
+The corrected enumeration conditions on a valid opening with at least one of the 13 Basics, deals the opening seven first, then deals six Prizes from the remaining 53 cards. It distinguishes these events:
 
-So the probability that at least one required piece is prized is **48.41%**. Individually, the singleton Whismur and Grand Tree each have a 10% prize risk; at least one copy of either two-card pair (Rare Candy or Stoutland) is prized with probability **19.15%**.
+| Prize-zone event or recovery | Probability |
+|---|---:|
+| None of Whismur ×1, Grand Tree ×1, Rare Candy ×2, Stoutland ×2 is Prized | **51.5279%** |
+| Exactly one of the other five named pieces is Prized, with Whismur and Gladion not Prized | **28.8340%** |
+| That non-Whismur piece is recovered by Gladion by turn 4 using the opening hand or two natural draws | **4.6195 percentage points** |
+| Whismur is the only named piece Prized, with Gladion not Prized | **5.5583%** |
+| Prized Whismur is recovered for turn-2 Bawl by Gladion + Jet Energy | **0.3854 percentage points** |
+| **Natural-draw-only named-piece Prize-zone viability** | **56.5327%** |
+| **Ideal one-Gladion recovery ceiling** (Gladion available by the deadline and Jet available for Prized Whismur) | **85.9202%** |
 
-This is a hypergeometric calculation from the exact 60, not a simulation. It is an upper bound on immediate access to the *specified* turn-4 line: it ignores opening-hand/draw/search constraints, and assumes a prized piece is not recovered by taking a Prize before turn 4. If any one of the six is prized, this exact sequence cannot be completed on schedule without an alternative line. It does **not** mean the deck loses 48.41% of games; alternate, slower lines may still win. It does mean the double-lock plan's prize sensitivity must be measured before treating it as a reliable primary strategy.
+The Gladion + Jet route also adds **0.3854 percentage points** to first-turn Bawl access. The existing exact opening model's 12.0433% without Guzma & Hala and 22.8575% under the optimistic two-discard assumption therefore become **12.4287%–23.2429%**, conditional on a valid 13-Basic opening and going second. With a 50/50 seat assignment, that is **6.2144%–11.6214% of valid-opening games** before opponent interaction. The rescue requires another Basic in the opening, Gladion and Jet available by the first turn, an open Bench slot, and no live Supporter lock; it does not rely on Guzma & Hala's two-discard assumption.
+
+These are Prize-zone and card-access sensitivities, not lock-assembly probabilities. The 56.5327% natural-draw result does not establish access to the necessary Lillipup/Oddish board, Tools, Energy, or the rest of the hand; it omits extra draw/search when locating Gladion while also omitting the other access and board constraints. The 85.9202% figure is an idealized ceiling for this one-card recovery mechanism, not for the deck. Neither figure is a game-loss or win-rate estimate.
+
+Reproduction: [Agent35's Gladion/Jet recovery derivation](agent35-whismur-gladion-prize-recovery-20261120.md) and [standard-library enumerator](../../../simulation/evaluation/2026-11/agent35-whismur-gladion-recovery.py).
 
 **Remaining v2 risks, not resolved by the rules-derived sequence:**
 - Bawl lasts only one opponent turn and does not stop playing Pokémon cards from hand, Abilities, Energy attachments, attacks, ordinary evolution, or use of a Stadium already in play.
