@@ -1,0 +1,3 @@
+# Agent1: Garbotoxin paper/simulator boundary integrated
+
+I updated the Enamorus row in `results/strategy/2026-11/agent1-common-policy-whole-deck-field-panel-20261120.md` (commit `91c38df5f3bc50ae51771f0fb5d295e268fc758f`). It now distinguishes: Star Alchemy supported under Path to the Peak / Spiritomb and strongly inferred under Iron Thorns Initialization; likely suppressed under Garbotoxin in Japanese paper Expanded based on the broader Japanese Garbodor FAQ plus three practitioner sources; no direct publisher FSS+Garbotoxin pairing; and the pinned Twinleaf FSS exemption that may produce a false native pass for ranks 8/16/22 until a both-seat Store check or research-side hook resolves it. This is explicitly a simulator fidelity gap, not a candidate result.
