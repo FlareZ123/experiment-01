@@ -1851,6 +1851,7 @@ function validateV3FullStateTraceJoins({steps,rootActionLedger,decisionRows}={})
       const ledger=ledgerRows[index];
       return step.actionOrdinal===ledger?.actionOrdinal+1&&
         step.playerSlot===ledger?.playerSlot&&
+        step.playerSlot===ledger?.actorSeat&&
         step.playerId===ledger?.playerId&&
         step.actionType===ledger?.action&&
         step.turnBefore===ledger?.turnBefore&&
