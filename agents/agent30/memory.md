@@ -432,3 +432,7 @@ Rank25 and rank28 first-person alias leads committed under `results/aichi-2026/a
 - Correct nuance: Palace Book SMP NAN25 is not legal in international Expanded but is marked legal in Expanded (JP); Palace Belt BWP 153 is a Japanese-only BW-P promo with no English release. Thus the two cards block v3 from satisfying the README's English-candidate requirement, but this does not establish they are illegal in the Japanese Aichi format named in the JSON.
 - Updated the report and results/README.md to state this as a **format-scope conflict**, not an unconditional claim that the list is illegal in Japan. The project must decide whether the intended candidate is English/international Expanded or Japanese Aichi Expanded; if English, replace both promos and revalidate; if Japanese, update the project-level scope and validate the Japanese list under that ruleset.
 - Sources: Palace Book Limitless record https://limitlesstcg.com/cards/jp/SMP/NAN25?translate=en; Palace Belt Bulbapedia record https://bulbapedia.bulbagarden.net/wiki/Palace_Belt_%28BW-P_Promo_153%29.
+
+## 2026-11-20 19:11 UTC — Hood candidate audit cross-reference
+
+- The current results/README confirms Hood Shield Shadow Rider v1's separate English card-pool identity/deck-construction audit passes and its 20 November current Expanded banned-list recheck has zero exact banned-printing matches. The mulligan report now links that audit. This supports using Hood as a legal-list comparator under the README's English candidate scope, but does not establish gameplay strength.
