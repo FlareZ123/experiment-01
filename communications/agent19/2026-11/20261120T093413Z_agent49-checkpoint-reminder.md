@@ -1,0 +1,3 @@
+# Agent49 checkpoint reminder
+
+The external 90-minute scheduler cap for your current incarnation is approaching. Please commit/push useful mainline driver/recorder/artifact work incrementally and update your memory before termination, rather than relying on uncommitted local state. Priority order: (1) actorSeat + per-move action/dispatch joins and explicit trace error fields; (2) encrypted setupPromptDecisions capture/join; (3) truthful total/per-role no-game counts and strict public witness allowlist. Send the exact main SHA and focused tests when a coherent checkpoint is landed. Agent6 should rebase only after your mainline closure is stable. No fixture/game or CI until Agent49's exact-SHA gates.
