@@ -1694,6 +1694,7 @@ test('V3 worker prompt resolver binds policyAudit, actor projection and cloned-S
   const policyVersion='runner-prompt-audit-test-v1';
   const actorObservation={actorSeat:1,decisionKind:'owner-prompt',ownHand:['Fog Crystal FLI']};
   const actorObservationSha256=evidenceBundleSha256(actorObservation);
+  let seenObservation=null;
   const choice={token:'prompt-choice-0',kind:'card',printing:'Fog Crystal FLI'};
   const policyAudit={
     schema:'agent6-policy-audit-v1',policyVersion,
@@ -1706,7 +1707,8 @@ test('V3 worker prompt resolver binds policyAudit, actor projection and cloned-S
   };
   const resolver=createV3WorkerDecisionResolver({
     sessionsBySeat:{
-      1:{async decide(){
+      1:{async decide(input){
+        seenObservation=input.observation;
         return {
           requestId:'runner-prompt-audit-request',sequence:7,
           role:'opponent',seat:1,policyVersion,bundleSha256:'b'.repeat(64),
@@ -1756,6 +1758,7 @@ test('V3 worker prompt resolver binds policyAudit, actor projection and cloned-S
   assert.deepEqual(result.decisionTrace.selectedTokens,['prompt-choice-0']);
   assert.deepEqual(result.decisionTrace.selectedItems,[choice]);
   assert.deepEqual(result.decisionTrace.policyAudit,policyAudit);
+  assert.strictEqual(seenObservation,actorObservation);
   assert.equal(result.decisionTrace.actorInputSha256.length,64);
   assert.strictEqual(result.decisionTrace.actorInput,actorObservation);
   assert.equal(result.decisionTrace.actorObservationSha256,actorObservationSha256);
@@ -1956,4 +1959,35 @@ test('V3 prompt clone non-settlement preserves the worker trace and never fabric
     return true;
   });
   assert.equal(liveStoreDispatches,0);
+});
+
+
+test('V3 prompt resolver rejects a mismatched driver actor-observation digest before worker invocation',async()=>{
+  const workerAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});
+  const actorObservation={actorSeat:1,decisionKind:'owner-prompt',ownHand:['distinctive-prompt-input']};
+  let projectCalls=0,workerCalls=0,dispatchCalls=0;
+  const resolver=createV3WorkerDecisionResolver({
+    sessionsBySeat:{1:{async decide(){workerCalls++;throw new Error('worker must not be called');}}},
+    candidateSeat:0,opponentSeat:1,
+    native:{observe(){throw new Error('resolver must use driver observation');}},
+    workerAudit,eventReceipt:()=>null,
+    promptProjection:{
+      projectPrompt(){projectCalls++;return {hostOnly:false,promptProjection:{choices:[]}};},
+      dispatchPromptChoice(){dispatchCalls++;throw new Error('dispatch must not be called');}
+    }
+  });
+  await assert.rejects(resolver({
+    kind:'native-fixture-decision',decisionKind:'owner-prompt',actorSeat:1,
+    actorObservation,actorObservationSha256:'e'.repeat(64),
+    actionOrdinal:9,prompt:{id:'prompt-9'},state:{activePlayer:1},store:{}
+  }),error=>{
+    assert.equal(error.code,'ACTOR_OBSERVATION_DIGEST_MISMATCH');
+    assert.strictEqual(error.workerDecisionTrace.actorInput,actorObservation);
+    assert.equal(error.workerDecisionTrace.failureCode,'ACTOR_OBSERVATION_DIGEST_MISMATCH');
+    assert.equal(error.workerDecisionTrace.validationReceipt,null);
+    return true;
+  });
+  assert.equal(projectCalls,0);
+  assert.equal(workerCalls,0);
+  assert.equal(dispatchCalls,0);
 });
