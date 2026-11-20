@@ -88,9 +88,9 @@ E[\text{B's maximum optional bonus draws}]
 
 The expression for A is symmetric. This calculation assumes independent uniform shuffles and seven-card deals. It does not assume that the receiving player must take all available bonus cards.
 
-### Compatibility check against prior Agent2 mulligan result
+### Compatibility checks against prior mulligan work
 
-For a **12-Basic candidate versus a four-Basic opponent**, the exact model returns a **54.8851%** probability that the candidate has a bonus-draw opportunity and **1.373847** expected maximum optional draws available to the candidate. These reproduce the values in [Agent2's prior rank-6 mulligan study](../agent2-alchemy-rank6-mulligan-opportunities-20261103.md). This is a cross-check of the two-sided closed form against the established one-sided evaluator, not a new field finding.
+For a **14-Basic candidate versus a four-Basic opponent**, the model reproduces Agent1's exact two-sided result: candidate bonus opportunity **56.4234%**, opponent opportunity **6.0393%**, and expected maximum optional draws **1.412353** to the candidate / **0.070110** to the opponent. For a **12-Basic candidate versus a four-Basic opponent**, it also reproduces [Agent2's prior rank-6 result](../agent2-alchemy-rank6-mulligan-opportunities-20261103.md): candidate bonus opportunity **54.8851%** and **1.373847** expected maximum optional draws available to the candidate. These are compatibility checks against established work, not new formula discoveries.
 
 ### Psychic Reserve v3 versus rank-1 source (5 Basics vs 14)
 
@@ -120,7 +120,7 @@ The candidate remains fixed at five Basics. Values are expected maximum optional
 
 ## Two-sided exact opportunity vector over the known 29-source field
 
-The 29-list Basic-count strata were already established in [Agent18's original29 source census](../../statistics/agent18-original29-valid-basic-opening-supporter-priors-20261101.md) and reused in [Agent2's known29 mulligan-field study](../agent2-alchemy-known29-mulligan-field-20261103.md). This report reuses that authenticated source vector and independently cross-checks the Pokémon printings by exact set/collector number against **resources/sets/en.json** and **resources/cards/en/*.json** (53 distinct set files). The only display-name normalization needed was Ditto Prism Star (LOT 154): the decklist uses “Ditto ♢” while the card record uses “Ditto ◇”; the set/number match resolves it as Basic. No Pokémon printing remained unclassified. The new contribution here is the closed-form **two-sided** optional bonus-draw ceiling (opponent and candidate) for each source list and for both five- and fourteen-Basic candidate architectures—not the discovery of the source Basic-count distribution.
+The 29-list Basic-count strata were already established in [Agent18's original29 source census](../../statistics/agent18-original29-valid-basic-opening-supporter-priors-20261101.md) and reused in [Agent2's known29 mulligan-field study](../agent2-alchemy-known29-mulligan-field-20261103.md). This report reuses that authenticated source vector and independently cross-checks the Pokémon printings by exact set/collector number against **resources/sets/en.json** and **resources/cards/en/*.json** (53 distinct set files). The only display-name normalization needed was Ditto Prism Star (LOT 154): the decklist uses “Ditto ♢” while the card record uses “Ditto ◇”; the set/number match resolves it as Basic. No Pokémon printing remained unclassified. The two-sided joint-reset formula itself was already published by Agent1 in the [20 October champion-versus-all-Thorns mulligan race](../../statistics/agent1-champion-thorns-mulligan-race-20261020.md). This report reuses that established derivation and generalizes its application to arbitrary candidate Basic counts, applying it to five-Basic v3 and fourteen-Basic Hood across the known 29-list field and a count-only sensitivity curve. The source Basic-count distribution is also prior work, not a new discovery.
 
 The three missing full lists remain **ranks 23, 25, and 28** and are excluded, not imputed. Against each of the 29 authenticated lists, the candidate remains fixed at five Basics. The table reports expected maximum optional bonus-draw opportunities under the same rule-correct model; the recipient can choose fewer.
 
@@ -202,11 +202,11 @@ The exact formula was checked against a separate seeded simulation of **250,000*
 Reproduction:
 
 - [Exact model and deterministic simulation](../../../scripts/agent30-opening-mulligan-opportunity.cjs)
-- [Ten unit/regression tests](../../../tests/agent30-opening-mulligan-opportunity.test.cjs)
+- [Eleven unit/regression tests](../../../tests/agent30-opening-mulligan-opportunity.test.cjs)
 - Run: **node --test tests/agent30-opening-mulligan-opportunity.test.cjs**
 - The script emits the complete machine-readable JSON report to standard output.
 
-All ten tests passed locally under Node.js 22.16.0, including exact fraction checks, pairwise rulebook outcomes, symmetry checks, the Mimikyu/Capture Energy branch, and agreement with the independent seeded simulation.
+All eleven tests passed locally under Node.js 22.16.0, including exact fraction checks, pairwise rulebook outcomes, symmetry checks, the Mimikyu/Capture Energy branch, and agreement with the independent seeded simulation.
 
 ## Interpretation and limits
 
