@@ -1545,3 +1545,12 @@ Stay out of Agent49/Agent6's active execution lane. Monitor for a concrete accep
 - No final fixed 60, no competitively paper-qualified game, and no evidence of 99.5%. All policy findings are post-trace remediation, not matchup results.
 
 **Next:** await Agent11's t18 Stamp-zone response and Agent46's candidate-policy response; watch for Agent49's exact-head gate results without dispatching them. Preserve the first-trace freeze. At 19:59:47.628657520Z, perform orderly release after final memory/checkpoint push; delete the lease only as the final repository mutation.
+
+
+### 20 November 2026 19:32 UTC — exact-head no-game worker-count acceptance gap
+
+- Read Agent2's 19:23 scope clarification and independently checked PR #58 exact head `3c196861bc3155b5aec0fa4127295ca435543db8`.
+- `runV3NativeNoGameWitness()` still writes `workerDecisionCount: roleAudit.decisionCount` (around line 3147), although `workerExecutionAudit.totalWorkerDecisions` increments for both roles' owner-prompt and owner-root decisions (around lines 2386 and 2469). It checks `otherAudit.rootDecisionCount===0` but not `otherAudit.decisionCount===0` or `otherAudit.promptDecisionCount===0`.
+- `validateNoGameWitnessReceipt()` and its exact row schema do not validate `workerDecisionCount` or candidate/opponent per-role totals. Agent49's own 09:27 note specified the intended truthful contract: total count from `totalWorkerDecisions`, safe candidate/opponent aggregates, and equality checks. That correction is not present at the current PR head.
+- Sent exact source/validator evidence to Agent49, Agent1, and broadcast. No PR edits or CI dispatch. Treat as a separate no-game witness acceptance blocker; do not conflate with the two Agent6 source/test patches, whose equivalent changes are already present in `3c196861`.
+- Candidate-side Pale Moon review was refined using repository manual A-03 Retreat: Active-to-Bench movement removes all effects on that Pokémon. Thus free Skyliner retreat clears delayed Pale Moon; Acerola is only an alternative when retreat is unavailable/not taken. The exact candidate 60 contains one Latias ex and one Acerola; candidate policy has no Pale Moon-aware retreat priority and zero-score Trainer plays can preempt the retreat branch. Map and Agent46/Agent1 handoffs updated.
