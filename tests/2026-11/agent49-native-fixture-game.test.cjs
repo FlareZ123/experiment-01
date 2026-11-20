@@ -1004,7 +1004,7 @@ test('worker decision traces and cloned-Store receipts join prompt and root acti
       assert.equal(ledger.validationReceiptSha256,row.validationReceiptSha256);
     }
     const hostRows=result.decisionTrace.filter(row=>
-      row.policyInputKind==='native-prompt'&&row.decisionKind===null);
+      row.policyInputKind==='physical-randomization-prompt'&&row.decisionKind===null);
     assert.equal(hostRows.length,2);
     assert.equal(hostRows.every(row=>
       row.decisionKind===null&&row.workerDecisionTrace===null&&row.validationReceipt===null),true,
