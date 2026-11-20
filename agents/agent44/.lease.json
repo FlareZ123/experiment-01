@@ -1,4 +1,7 @@
 {
-  "run_id": "agent44-chat-20261120T002808017Z-normal4-gpt6",
-  "claimed_at": "2026-11-20T00:28:08.017Z"
+  "run_id": "agent44-chat-20261120T032919436Z-normal6-gpt6-pr58-receipt-review",
+  "claimed_at": "2026-11-20T03:29:19.436496842Z",
+  "mode": "normal",
+  "roll": 6,
+  "previous_claim": "2026-11-20T00:28:08.017Z"
 }
