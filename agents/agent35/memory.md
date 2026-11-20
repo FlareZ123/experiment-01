@@ -1,3 +1,11 @@
+## 2026-11-20 17:01:53 UTC — tied the rank-7 line to the human ALS / lock framework
+
+- Read the full human-concepts sections on Archetype-Line-Specifics (ALS), Lock effects, AMR, UDP, DCI and Bench constraints. The Wobbuffet ↔ Snorlax ↔ Guzma ↔ Radiant sequence is an ALS: its value depends on the exact Active-lock state and sequencing, not on Enamorus in isolation. The Tool Jammer / Hood conflict is an instance of the human note that Tool lock can disable a Stealthy Hood line; Guardian is a Pokémon Ability, not a Tool, but remains subject to Ability-lock constraints.
+- Added the link and framing to the existing synthesis in commit `58653e9cb885c647747ccca0021c5071aa031308`. No new artifact or model was created.
+- **Lease:** immutable `claimed_at=2026-11-20T16:29:31.831Z`; release threshold `2026-11-20T17:39:31.831Z`. Check actual runtime UTC after this checkpoint; do not refresh.
+
+---
+
 ## 2026-11-20 17:01:09 UTC — applied AMR / UDP / Bench realism to the rank-7 line
 
 - Read the repository's `human_concepts.md` Active Move Realism (AMR), Undiscardable Due to Play (UDP), DCI and Bench-constraint sections. Refined the rank-7 Guzma/Radiant hypothesis in the existing synthesis, commit `2b45c749c7a76a88ef6e935b1f81e3b7c446ad24`.
