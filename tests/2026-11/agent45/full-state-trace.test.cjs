@@ -92,6 +92,9 @@ test('trace records initial state, every contiguous action, prompt, final logs a
   recorder.captureFinal(after);
   const trace=recorder.result();
   assert.equal(trace.complete,true);
+  assert.equal(trace.captureError,null);
+  assert.equal(trace.publicBoardError,null);
+  assert.equal(trace.humanSummaryError,null);
   assert.equal(trace.stepCount,1);
   assert.match(JSON.stringify(trace.policyConfiguration),/AttackTactic/);
   assert.equal(trace.steps[0].beforeState.kind,'initial');
@@ -144,6 +147,48 @@ test('failure stages preserve the rejected action and error while keeping cumula
   assert.match(recorder.text(),/FAILURE STAGE: bot-decoder/);
 });
 
+test('recorder result exposes explicit nullable errors and rejects each injected capture or projection failure',()=>{
+  const makeCompleteRecorder=()=>{
+    const recorder=createFullStateTraceRecorder();
+    recorder.captureInitial({turn:1,logs:[]});
+    recorder.captureStep({
+      state:{turn:1,logs:[]},action:{kind:'PassAction'},actionOrdinal:1,
+      turnBefore:1,turnAfter:1
+    });
+    recorder.captureFinal({turn:1,logs:[]});
+    return recorder;
+  };
+
+  const success=makeCompleteRecorder().result();
+  assert.equal(success.captureError,null);
+  assert.equal(success.publicBoardError,null);
+  assert.equal(success.humanSummaryError,null);
+  assert.equal(success.complete,true);
+
+  for(const [method,field,message] of [
+    ['recordPublicBoardError','publicBoardError','injected public-board projection failure'],
+    ['recordHumanSummaryError','humanSummaryError','injected human-summary projection failure']
+  ]){
+    const recorder=makeCompleteRecorder();
+    recorder[method](new Error(message));
+    const trace=recorder.result();
+    assert.equal(trace[field].name,'Error');
+    assert.equal(trace[field].message,message);
+    assert.equal(trace.complete,false);
+    assert.match(formatFullStateTrace(trace),new RegExp(message));
+  }
+
+  const captureRecorder=createFullStateTraceRecorder();
+  const hostileState=new Proxy({},{
+    ownKeys(){throw new Error('injected native snapshot failure');}
+  });
+  assert.throws(()=>captureRecorder.captureInitial(hostileState),/injected native snapshot failure/);
+  const captureTrace=captureRecorder.result();
+  assert.equal(captureTrace.captureError.name,'Error');
+  assert.equal(captureTrace.captureError.message,'injected native snapshot failure');
+  assert.equal(captureTrace.complete,false);
+});
+
 test('failure error projection does not invoke accessor fields',()=>{
   let getterCalls=0;
   const error={};
@@ -160,7 +205,11 @@ test('failure error projection does not invoke accessor fields',()=>{
     turnBefore:1,turnAfter:1,error,failureStage:'bot-decoder'
   });
   recorder.captureFinal({turn:1,logs:[]});
-  const snapshot=recorder.result().steps[0].error;
+  recorder.recordCaptureError(error);
+  const result=recorder.result();
+  const snapshot=result.steps[0].error;
+  assert.equal(result.captureError.name,'Error');
+  assert.equal(result.captureError.message,'Error details unavailable');
   assert.equal(getterCalls,0);
   for(const key of ['name','message','code','stack'])
     assert.equal(snapshot.snapshot.properties[key].$type,'Undefined');
