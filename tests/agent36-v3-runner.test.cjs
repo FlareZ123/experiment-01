@@ -1913,9 +1913,65 @@ function makeV3SetupPromptAuditFixture(){
       promptResolverContext,
       dispatchStatus:'succeeded'
     });
+    const pendingPromptSnapshot={
+      schema:'twinleaf-native-state-snapshot-v1',
+      nodeCount:spec.minimumCount===undefined?1:2,
+      truncated:false,
+      limits:{maxDepth:64,maxNodes:50000},
+      snapshot:{
+        $id:1,$type:spec.promptType,
+        properties:{
+          id:spec.promptId,
+          playerId:'player-'+spec.seat,
+          message:spec.message,
+          ...(spec.minimumCount===undefined?{}:{
+            options:{$id:2,$type:'Object',properties:{min:spec.minimumCount}}
+          })
+        }
+      }
+    };
     fullStateTraceSteps.push({
       actionOrdinal:spec.actionOrdinal+1,
-      publicBoard:publicPlayers
+      publicBoard:publicPlayers,
+      pendingPrompt:pendingPromptSnapshot
+    });
+  }
+  const rootRows=[
+    {actionOrdinal:4,seat:0},
+    {actionOrdinal:5,seat:1}
+  ];
+  for(const spec of rootRows){
+    decisionTrace.push({
+      actionOrdinal:spec.actionOrdinal,
+      actingSeat:spec.seat,
+      actingPlayerId:'player-'+spec.seat,
+      phaseBefore:2,
+      turnBefore:1,
+      decisionKind:'owner-root',
+      isRootDecision:true
+    });
+    rootActionLedger.push({
+      actionOrdinal:spec.actionOrdinal,
+      actorSeat:spec.seat,
+      playerId:'player-'+spec.seat,
+      turnBefore:1,
+      action:'AttackAction',
+      actionPayloadSha256:'c'.repeat(64),
+      pendingPrompt:null,
+      isRootDecision:true,
+      policyInputKind:'native-owner-root',
+      decisionKind:'owner-root',
+      workerDecisionTraceSha256:'d'.repeat(64),
+      validationReceiptSha256:'e'.repeat(64),
+      dispatchStatus:'succeeded'
+    });
+    fullStateTraceSteps.push({
+      actionOrdinal:spec.actionOrdinal+1,
+      publicBoard:[
+        {id:'player-0',prizes:6,active:true},
+        {id:'player-1',prizes:6,active:true}
+      ],
+      pendingPrompt:null
     });
   }
   const workerExecutionAudit={
@@ -1926,7 +1982,7 @@ function makeV3SetupPromptAuditFixture(){
     nativeStateDisclosedToWorker:false,
     opponentPrivateZonesDisclosedToWorker:false,
     workerInputScope:'actor-observation-v3+actor-prompt-projection+public-event-receipt-v3+typed-action-frontier-v1',
-    totalWorkerDecisions:4,totalHostOnlyPrompts:0,totalAbstentions:0,totalFailures:0,
+    totalWorkerDecisions:6,totalHostOnlyPrompts:0,totalAbstentions:0,totalFailures:0,
     policyRngViolations:0,replayableEvidence:true,cleanupVerified:true,
     cleanupFailureCount:0,
     cleanupReceipts:[
@@ -1937,7 +1993,7 @@ function makeV3SetupPromptAuditFixture(){
       candidate:{
         role:'candidate',seat:0,policyVersion:'candidate-policy-v1',
         bundleSha256:'c'.repeat(64),policySha256:'d'.repeat(64),
-        decisionCount:3,rootDecisionCount:0,promptDecisionCount:3,hostOnlyPromptCount:0,
+        decisionCount:4,rootDecisionCount:1,promptDecisionCount:3,hostOnlyPromptCount:0,
         abstentionCount:0,failureCount:0,timeoutCount:0,
         workerProcessClosed:true,containerRemoved:true,policyBundleRemoved:true,
         policyRngReplayable:true,policyDrawViolationCount:0,actionFrontierAdmissionFailureCount:0
@@ -1945,7 +2001,7 @@ function makeV3SetupPromptAuditFixture(){
       opponent:{
         role:'opponent',seat:1,policyVersion:'opponent-policy-v1',
         bundleSha256:'e'.repeat(64),policySha256:'f'.repeat(64),
-        decisionCount:1,rootDecisionCount:0,promptDecisionCount:1,hostOnlyPromptCount:0,
+        decisionCount:2,rootDecisionCount:1,promptDecisionCount:1,hostOnlyPromptCount:0,
         abstentionCount:0,failureCount:0,timeoutCount:0,
         workerProcessClosed:true,containerRemoved:true,policyBundleRemoved:true,
         policyRngReplayable:true,policyDrawViolationCount:0,actionFrontierAdmissionFailureCount:0
@@ -2017,6 +2073,26 @@ test('Agent19 V3-native setup audit fails closed on missing rows, digest/ledger 
   assert.equal(duplicateAudit.accepted,false);
   assert.ok(duplicateAudit.roles.candidate.failures.some(value=>
     value.includes('required-starting-basic-prompt-count-not-one')));
+
+  const duplicateGoFirst=makeV3SetupPromptAuditFixture();
+  duplicateGoFirst.decisionTrace.push({...duplicateGoFirst.decisionTrace[1]});
+  const duplicateGoFirstAudit=buildSetupPromptAudit(duplicateGoFirst);
+  assert.equal(duplicateGoFirstAudit.accepted,false);
+  assert.ok(duplicateGoFirstAudit.failures.includes('required-go-first-prompt-count-not-one'));
+
+  const missingRecorderPrompt=makeV3SetupPromptAuditFixture();
+  delete missingRecorderPrompt.fullStateTraceSteps[0].pendingPrompt;
+  const missingRecorderPromptAudit=buildSetupPromptAudit(missingRecorderPrompt);
+  assert.equal(missingRecorderPromptAudit.accepted,false);
+  assert.ok(missingRecorderPromptAudit.roles.candidate.failures.some(value=>
+    value.includes('recorder-prompt-snapshot-missing')));
+
+  const recorderMinimumMismatch=makeV3SetupPromptAuditFixture();
+  recorderMinimumMismatch.fullStateTraceSteps[0].pendingPrompt.snapshot.properties.options.properties.min=0;
+  const recorderMinimumMismatchAudit=buildSetupPromptAudit(recorderMinimumMismatch);
+  assert.equal(recorderMinimumMismatchAudit.accepted,false);
+  assert.ok(recorderMinimumMismatchAudit.roles.candidate.failures.some(value=>
+    value.includes('recorder-prompt-minimum-count-mismatch')));
 });
 
 test('V3 runner uses native setup receipts and keeps their projections behind the encrypted-full boundary',()=>{
@@ -2115,6 +2191,19 @@ test('V3 worker execution boundary binds replayability, cleanup, disclosure limi
   });
   assert.equal(invalid.valid,false);
   assert.ok(invalid.failures.some(value=>value.includes('physicalSeedDisclosedToWorker-must-be-false')));
+
+  const noCandidateRoot=JSON.parse(JSON.stringify(fixture.workerExecutionAudit));
+  noCandidateRoot.roles.candidate.rootDecisionCount=0;
+  noCandidateRoot.roles.candidate.decisionCount=3;
+  noCandidateRoot.totalWorkerDecisions=5;
+  const rootMissing=projectV3WorkerExecutionBoundaryToTrial(noCandidateRoot,{
+    candidateSeat:fixture.candidateSeat,
+    opponentSeat:fixture.opponentSeat,
+    setupPromptAudit
+  });
+  assert.equal(rootMissing.valid,false);
+  assert.ok(rootMissing.failures.some(value=>
+    value.includes('candidate:worker-role-has-no-owner-root-decisions')));
 });
 
 
