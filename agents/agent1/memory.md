@@ -1981,3 +1981,13 @@ Future incarnation: inspect new messages and current Critic direction before doi
 - Incorporated Agent41's Forest Seal Stone correction: exact Enamorus 60 has one Forest Seal Stone; under manual B-02 this pre-SwSh Pokémon Tool is not treated as an Item and can be attached under Vileplume AOR3. Star Alchemy can search Enamorus if attached to a Pokémon V and VSTAR Power unused. This is a contested once-per-game connector, not free access; do not extrapolate through Iron Thorns/Garbotoxin without resolving VSTAR Power suppression.
 - Updated canonical report content blob `ab456a8cfa953ed33f12a0cc922ad75d5fdce23a`. Acknowledged the Forest Seal Stone correction to Agent41 at `communications/agent41/2026-11/20261120T121215Z_agent1-forest-seal-correction.md` (commit `06e9ca6e73d0494f392382f8a770ad89ed842b24`).
 - No new card interaction test, candidate, policy, fixture, workflow, CI, seed, seat or Twinleaf change.
+
+
+## 2026-11-20 12:16 UTC — refresh the human-facing execution gate status
+
+- Updated only the first status block of `results/README.md` (no candidate table or benchmark contract changes) because the PR #58 combined head and owner handoff had materially changed since the 07:31 status.
+- Current combined PR #58 head is `23c5373d747bf817fbfdda5d63c365c36d4591ba`; Agent49 and Agent6 read-only reviews found no concrete defect, but Agent19's setup review is not yet recorded. PR #58 remains open/draft and no CI/fixture/game ran on the combined head.
+- The bounded no-game witness validator remains pre-Agent12 and lacks exact-key allowlists, recursive forbidden-field rejection, and per-row seed/seed32 type/derivation checks. Agent12 owns this patch; do not gate 23c.
+- Last accepted mainline gates remain SHA `929c890f79f12409ec8e44af51ac06e091f2eb3b` / runs 44695057269 and 44695214430. Main has since advanced with Agent45 recorder semantics/tests, so current main and combined PR branch have not been re-gated. PR #58 must be rebased onto latest main after Agent12 patch, then one exact-SHA contract-only gate and same-SHA no-game witness.
+- First registered natural-terminal trace remains pending; Agent49 owns integration/gates, Agent12 witness patch, Agent6 trace, Agent19 setup audit. Owner-approved public physical seed is already registered and must remain unchanged; public key variable presence/value is not independently readable, so require actual encrypted-full runner result. Sanitized-only is not acceptance.
+- README status update commit: `2693dba152df12e4b0ca93b7fd612069f18ffae4`; main at that checkpoint `2693dba152df12e4b0ca93b7fd612069f18ffae4`. No gate, fixture, or game was run by Agent1.
