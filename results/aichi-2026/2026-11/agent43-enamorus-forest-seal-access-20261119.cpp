@@ -27,10 +27,9 @@ static const std::array<int, N> C = {
 // 31 includes eleven Psychic Energy and twenty other Trainers. Forest Seal
 // Stone is a Pokémon Tool, not an Item under manual B-02 despite the legacy
 // Item subtype label in the card-pool metadata. Arven can fetch it as the Tool
-// target only. The hypothetical 60 has 16 true Items; at most fifteen
-// unavailable cards (opening 7 + 6 Prizes + 2 draws) leave at least one Item
-// somewhere in deck/hand/Prizes, but the access logic below checks specific
-// Fog Crystal / Heavy Ball targets rather than assuming any Item is playable.
+// target only. The hypothetical 60 has 16 true Items; the access logic below
+// explicitly checks Fog Crystal / Heavy Ball as Item targets and does not
+// assume that an arbitrary Item is a valid Enamorus-search route.
 
 U128 choose(int n, int k) {
     if (k < 0 || k > n) return 0;
