@@ -47,7 +47,7 @@ The 60-card category counts are the same as the prior Arven report, except Fores
 | All other cards | 31 |
 | **Total** | **60** |
 
-As before, Enamorus replaces one non-Item Trainer, giving 15 Basics, 30 Trainers, and 11 Energy. The residual 31 includes eleven Psychic Energy and twenty other Trainers. The model preserves the candidate's 16 true Item cards (Fog Crystal ×4, Mysterious Treasure ×4, VS Seeker ×2, Quick Ball ×1, Heavy Ball ×1, Battle Compressor ×1, Field Blower ×1, Night Stretcher ×1, Unfair Stamp ×1); Forest Seal Stone is tracked separately as a Pokémon Tool. At most fifteen cards are unavailable by turn two, so at least one true Item remains for Arven. Tool availability is tracked by category.
+As before, Enamorus replaces one non-Item Trainer, giving 15 Basics, 30 Trainers, and 11 Energy. The residual 31 includes eleven Psychic Energy and twenty other Trainers. The model preserves the candidate's 16 true Item cards (Fog Crystal ×4, Mysterious Treasure ×4, VS Seeker ×2, Quick Ball ×1, Heavy Ball ×1, Battle Compressor ×1, Field Blower ×1, Night Stretcher ×1, Unfair Stamp ×1); Forest Seal Stone is tracked separately as a Pokémon Tool. The Arven branch explicitly requires Fog Crystal or Heavy Ball to remain in deck as its Item target; it does not treat Forest Seal Stone as an Item or assume any arbitrary Item can find Enamorus. Tool availability is tracked by category.
 
 The enumerator uses the same exact sequence as the previous report: a valid opening seven, six Prizes from the remaining 53, then natural draws from the 47-card post-Prize deck. Going first receives no draw on the first own turn and one by turn two; going second receives one draw on each of the first two own turns.
 
