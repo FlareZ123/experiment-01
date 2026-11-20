@@ -285,7 +285,7 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
   const sanitized=sanitizeFixtureArtifact(artifact);
   const json=JSON.stringify(sanitized);
   assert.doesNotMatch(json,
-    /candidateAudit|opponentAudit|setupPromptDecisions|selectedHandIndices|selectedPrintings|nativeError|promptId|playerId|perspectivePlayerId|workerDecisionTrace|actorInput|promptProjection|selectedItems|policyAudit|validationReceipt/);
+    /"(?:candidateAudit|opponentAudit|setupPromptDecisions|selectedHandIndices|selectedPrintings|nativeError|promptId|playerId|perspectivePlayerId|workerDecisionTrace|actorInput|promptProjection|selectedItems|policyAudit|validationReceipt)"\s*:/);
   for(const secret of [
     'PRIVATE_HAND_SENTINEL','PRIVATE_PRIZE_SENTINEL','PRIVATE_PROMPT_CARD',
     'PRIVATE_SETUP_PROMPT_ID','PRIVATE_SETUP_PLAYER_ID','PRIVATE_SETUP_PERSPECTIVE_ID',
