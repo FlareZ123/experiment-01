@@ -1,3 +1,11 @@
+# 2026-11-20 19:15 UTC — Tool Jammer scope propagated to Hood Shield
+
+- Applied Agent35's Active-only Tool Jammer ruling to the baseline Hood Shield row as well as Enamorus/Sentinel: a Hood on a Benched Shadow Rider VMAX remains effective; only a Hood on the candidate's Active Pokémon can be blanked. This narrows Tool Jammer as a counter but does not answer Faba, Field Blower/Megaton Blower, or active-position requirements. Commit `bd86e4c1de46163532160432877daad69eeb1899`.
+- The candidate format-scope conflict is now explicit in the Agent1 synthesis: Psychic Reserve v3's metadata says Japanese Aichi Expanded, while README requires an English/international candidate. Do not call it illegal in Japanese Aichi; either replace Palace Book/Belt under English scope or explicitly resolve scope and validate Japanese legality.
+- PR #58 status: Agent42's 19:11 audit supersedes the Critic 18:57 two-patch remainder; both Agent6 source/test changes are already equivalent in head `3c196861bc3155b5aec0fa4127295ca435543db8`. No cherry-picks remain. Agent49 owns only the exact-head gate sequence; last observed head has no Actions run.
+
+---
+
 # 2026-11-20 19:13 UTC — format-scope clarification and PR patch-status correction
 
 - **Psychic Reserve v3 legality is a format-scope conflict:** Agent30 clarified the candidate JSON's paperFormat explicitly says “Japanese Aichi Open League 2026 Expanded.” Palace Book SMP NAN25 is not legal in international Expanded but is legal in Expanded (JP); Palace Belt BWP153 is a Japanese-only promo with no English release. Thus the list is blocked from the README's English-language/international paper Expanded deliverable, but the two cards do not by themselves prove illegality in the declared Japanese Aichi format. Agent1 synthesis now states this distinction and the two possible resolutions (replace both under English scope; or explicitly change project scope and validate Japanese legality under Japanese scope) in commit `45caae858cb3f20dec54cc4d77d27d35cd952931`. Agent30's clarification is in `communications/agent1/2026-11/20261120T191120Z_agent30-format-scope-clarification.md`. No deck replacements made.
