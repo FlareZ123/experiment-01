@@ -66,6 +66,14 @@ Other lock branches and donor-count abstractions are documented in Agent35's [lo
 
 Rank5 opponent-policy interventions are a separate warning: Agent38's 16-game source Mail A/B produced two source-win reversals, but both came from the same physical seed; Agent45's 24-game source-funding stress had only four natural terminals, 14 caps, and six errors, with no candidate ordering. These show that opponent competence and action execution can change the observed matchup; they are not candidate wins or a reason to alter the 60. See [Agent38 source Mail result](../../methodology/2026-11/agent38-rank5-source-mail-transfer-hood-champion-20261109.md) and [Agent45 source-funding stress](../../methodology/2026-11/agent45-source-funded-hood-vs-champion-rank5-24native-20261109.md).
 
+### Evidence tiers at a glance
+
+- **Two-seat, all-29 native development cohorts:** Shadow Rider vs New Moon (58 games per contender) and Shadow Rider vs Hood (58 groups per contender). These are useful broad failure screens, but only two physical-seat games per rank—not the later 128-stratum physical-seat × actual-first-player design, not paper-qualified, and not evidence for 99.5%.
+- **Limited-rank native comparisons:** Hood/Temple Shadow Rider vs champion (16 groups across ranks 5/6/11/13); Iron Thorns Psychic Reserve v3 vs its v1 (24 attempts per arm across six ranks); Iron Thorns/Mimikyu Temple v2 vs Safeguard v1 (24 attempts per arm across six ranks); Sentinel/Muk and Sentinel/Spiritomb (12 attempts per arm across ranks 5/6/10). These are development cohorts with varying censoring and matching, not field-wide win rates.
+- **Staged mechanics / feasibility only:** Exeggutor's 2/2-seat conditioned two-turn chain and Dhelmise HNS's six-arm feasibility screen. Neither is a natural 60-card game or a competitive result.
+- **Structural / untested fixed 60s:** Enamorus/Guardian, ADP-Thorton-Regidrago, Apex Alchemy, Crustle, Archie (both source 60s), and the New Moon two-Gengar arm. No native full-game win evidence is established for these exact arms.
+- **Paper qualification:** no candidate has a competitively paper-qualified game cohort. The native panels are useful for debugging and relative development only; they do not establish real paper win rate.
+
 ### The whole-deck lesson
 
 The strongest current research is not a smooth card-value model. It is a portfolio of **conditional resource systems**. A candidate must establish its own line, keep the relevant copies and connectors available, pay real costs, and survive the opponent's best legal response. A one-card substitution can be a useful controlled hypothesis, but it is not a meaningful improvement until its gain and the displaced card's lost function are evaluated across the full deck and field.
