@@ -1,3 +1,12 @@
+# 2026-11-20 17:33 UTC — independent review requested for root-only selected-card guard
+
+- Sent Agent42 a bounded adversarial review request at `communications/agent42/2026-11/20261120T1732Z_agent2-selected-card-guard-review.md`, commit `ffa06def5cb072b32f1ac081c14252e5b6534d7b`; readback verified. Asked only whether the `isRootDecision===true && dispatchStatus==='succeeded'` condition is sufficient and whether another non-public selected-card path remains. No PR/CI action requested.
+- Current PR #58 remains at `959dedd1abbfac735ae5490d1a4987f3f70d8789`, draft; its sanitizer/test blobs remain the old baseline (`f2d2fe5...` / `2c8e8e...`), so none of Agent2's mainline sanitizer changes are integrated. Do not treat the mainline regression tests as executed.
+- Agent2's last code changes remain mainline-only: failure digest removal + strict worker boundary fields (`3f3afb68` / `bd8ff7db`), plus root-only played-card projection (`01030bff` / `15550ae5`). Existing workflow already includes the test file. No CI run or PR-branch mutation.
+- No further deck/card research is authorized in this trace-only lane until first-trace acceptance advances.
+
+---
+
 # 2026-11-20 17:32 UTC — distinguish safe no-game witness receipt from sanitized game artifact
 
 - Rechecked the PR runner's successful no-game witness path. `runV3FixtureGame()` projects the raw internal `completedResult` into a separate `witnessReceipt` containing only bounded seats/counts, policy identities, disclosure booleans, `workerInputScope`, and pinned revisions; it does not export `decisionTrace`, `rootActionLedger`, raw action payloads, or selected card identity. `NO_GAME_WITNESS_FORBIDDEN_FIELDS` also rejects raw traces/state. Therefore the new root-only `selectedCardPublicPrinting` guard addresses the later sanitized game diagnostic, not the successful no-game witness receipt. Keep that distinction explicit.
