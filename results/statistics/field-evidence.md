@@ -132,7 +132,7 @@ For a **predeclared family of \(K\)** configurations, choose the smallest \(n\ge
 
 ### Adaptive sequential confirmatory cohorts
 
-If the number of confirmatory configurations cannot be fixed in advance, a simple valid option is to give the \(j\)-th sequential candidate its **own fresh independent holdout** and allocate \(\alpha_j=0.05/2^j\), \(j=1,2,\ldots\). Since \(\sum_j\alpha_j=0.05\), the probability of any false 99.5% certification across the sequence is at most 5%, even when later configurations are chosen using earlier results. Freeze each configuration before generating its own cohort; never reuse an earlier candidate's holdout for the next candidate.
+If the number of confirmatory configurations cannot be fixed in advance, a simple valid option is to give the \(j\)-th sequential candidate its **own fresh independent holdout** and allocate \(\alpha_j=0.05/2^j\), \(j=1,2,\ldots\). Since \(\sum_j\alpha_j=0.05\), the probability of any false 99.5% certification across the sequence is at most 5%, even when later configurations are chosen using earlier results. Conditional on all prior campaigns, candidate \(j\) is fixed before its fresh holdout, so its false-pass probability is at most \(\alpha_j\); summing these conditional error bounds gives the family-wise guarantee. Freeze each configuration before generating its own cohort; never reuse an earlier candidate's holdout for the next candidate.
 
 | Sequential confirmatory candidate \(j\) | Allocated \(\alpha_j\) | All-win games/stratum | All-win total | At-most-one-nonwin games/stratum | At-most-one-nonwin total |
 |---:|---:|---:|---:|---:|---:|
