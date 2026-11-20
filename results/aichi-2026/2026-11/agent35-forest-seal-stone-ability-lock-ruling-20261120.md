@@ -11,7 +11,7 @@ The official Japanese Pokémon Card Game Q&A directly confirms that a Pokémon V
 1. While Spiritomb's *Dark's Shadow* Ability is active, a Basic Pokémon V with Forest Seal Stone may still use Star Alchemy.
 2. While the Stadium *Path to the Peak* is in play, Unown V with Forest Seal Stone may still use Star Alchemy.
 
-Both answers are explicitly “yes” in the official [Forest Seal Stone Q&A search](https://www.pokemon-card.com/rules/faq/search.php?freeword=%E6%A3%AE%E3%81%AE%E5%B0%81%E5%8D%B0%E7%9F%B3&regulation_faq_main_item1=all), in the entries associated with Spiritomb and Path to the Peak. The [official Forest Seal Stone card entry](https://www.pokemon-card.com/card-search/details.php/card/42184/regu/DP) identifies Star Alchemy as the VSTAR Power granted by the Pokémon Tool.
+Both answers are explicitly “yes” in the official [Forest Seal Stone Q&A search](https://www.pokemon-card.com/rules/faq/search.php?freeword=%E6%A3%AE%E3%81%AE%E5%B0%81%E5%8D%B0%E7%9F%B3&regulation_faq_main_item1=all), in the entries associated with Spiritomb and Path to the Peak. The [official Forest Seal Stone card entry](https://www.pokemon-card.com/card-search/details.php/card/42184/regu/DP) identifies Star Alchemy as the VSTAR Power granted by the Pokémon Tool. The local advanced manual's B-02 also states that Sword & Shield-era and earlier Pokémon Tools with “Item” printed on the card are **not treated as Items**. The local card-pool JSON retains a legacy `Item` subtype label for Forest Seal Stone, but under the manual it is a Pokémon Tool only: Arven can fetch it as the Tool target, not as the Item target.
 
 ## Consequence for the Enamorus / Shadow Rider hypothesis
 
