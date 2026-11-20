@@ -152,7 +152,7 @@ Expected games are computed by a direct stopping-time recursion over active prob
 | 99.9% | 86.18% | 1,207.5 |
 | 99.95% | 97.28% | 1,235.6 |
 
-These are homogeneous-alternative planning values, not a uniform power guarantee over heterogeneous matchup probabilities.
+These are homogeneous-alternative planning values, not a uniform power guarantee over heterogeneous matchup probabilities. For comparison, the existing natural-protocol one-nonwin two-look schedule (14/16 rounds: early all-win after 896 games, final at-most-one after 1,024) has homogeneous power 39.75% / 73.00% / 90.74% at the same three rates, with expected games 718.1 / 862.0 / 907.5. The 19/20 two-nonwin rule therefore buys materially higher power at the cost of a larger expected sample; neither is uniformly preferable, and the choice must be predeclared.
 
 ## Reproduction
 
