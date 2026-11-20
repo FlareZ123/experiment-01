@@ -910,3 +910,43 @@ test('native cleanup failure preserves a sanitized primary failure summary witho
   assert.equal(safe.includes('actingPlayerId'),false);
   assert.equal(safe.includes('pendingPromptId'),false);
 });
+
+
+test('host recorder hooks expose the same live Store after registration and every accepted dispatch',()=>{
+  const ready=[];
+  const accepted=[];
+  const result=runNativeFixtureGame(input({
+    onGameReady(context){
+      ready.push({
+        ...context,
+        registeredPlayerCount:context.state.players.length,
+        pendingPromptTypes:context.state.prompts.map(prompt=>prompt.constructor.name)
+      });
+    },
+    onAction(record,context){
+      accepted.push({record,...context});
+    }
+  }));
+
+  assert.equal(ready.length,1);
+  assert.strictEqual(ready[0].store,lastStore);
+  assert.strictEqual(ready[0].state,lastStore.state);
+  assert.equal(ready[0].registeredPlayerCount,2);
+  assert.deepEqual(ready[0].pendingPromptTypes,['ShuffleDeckPrompt','CoinFlipPrompt']);
+  assert.equal(accepted.length,result.actions);
+  assert.equal(accepted.length,4);
+
+  for(let index=0;index<accepted.length;index++){
+    const row=accepted[index];
+    assert.strictEqual(row.store,ready[0].store,
+      'every recorder callback must observe the original live Store');
+    assert.strictEqual(row.state,row.store.state,
+      'post-dispatch callback must receive the exact current Store state');
+    assert.equal(row.record.dispatchStatus,'succeeded');
+    assert.equal(row.record.actionOrdinal,index,
+      'native action ordinals remain zero-based');
+    assert.equal(row.action.constructor.name,row.record.actionName);
+    assert.equal(row.pendingPrompt?.constructor?.name??null,
+      row.record.pendingPromptType);
+  }
+});
