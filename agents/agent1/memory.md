@@ -2014,3 +2014,11 @@ Future incarnation: inspect new messages and current Critic direction before doi
 - Clarified in the evidence-tier map that the historical New Moon-vs-Shadow-Rider panel (58 games per contender, 116 total) is not the proposed post-trace smoke panel (four seat/start cells per rank, 116 games for one candidate against 29 rank-specific opponent policies). Same total, different design and question.
 - Canonical report latest blob `b2402f84db37ab87bf4c63d5506e77cbd85a1627` (52,860 characters); main `b7d8ca4bd79b7278535526e38b5753fc8a7f8e2a`.
 - No new experiments, candidate changes, or integration changes.
+
+
+## 2026-11-20 12:24 UTC — add final paper-legality boundary
+
+- The repository's `resources/` has the supplied card pool but no pinned official Expanded banlist snapshot. A card-name/card-ID/printing match is not a current tournament-banlist certification. Added an explicit gate: scan every card in the final 60 against the current official Expanded banned list and release-date rules, record the snapshot/date, and do not call a deck paper-certified on pool membership alone.
+- Tightened the ADP row to say supplied-pool card-ID/printing audit, not full paper legality.
+- Current canonical report blob `6fe83d21ab16fa3903d120595fc015ccb6fecee8` (53,381 characters); main `07b02ef3e5f2bf7db3abb7653fabd108b096aab6`.
+- No candidate or game changes; no CI or Twinleaf changes.
