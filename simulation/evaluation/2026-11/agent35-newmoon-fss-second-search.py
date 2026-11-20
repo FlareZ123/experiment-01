@@ -283,7 +283,8 @@ def main():
             "Access upper bound only. The sequenced route plays Field Blower before attaching/using Forest Seal Stone, "
             "so it does not require Star Alchemy to function while Garbotoxin is live. It still assumes Star Alchemy "
             "functions under Iron Thorns, supported by but not directly ruled by the located Path/Spiritomb FAQ. "
-            "Secret Box/Adventure Bag costs, Articuno search/board placement, and all other hand/board constraints are unmodeled."
+            "Secret Box/Adventure Bag costs, Articuno search/board placement, and all other hand/board constraints are unmodeled. "
+            "The Item routes assume no AOR3/Budew Item lock; those effects prevent Secret Box, Adventure Bag and Field Blower from being played."
         ),
     }
 
