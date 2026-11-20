@@ -74,6 +74,18 @@ The Whismur Bawl interaction and Grand Tree mechanics already have research-owne
 
 **Going first remains weaker:** the player cannot attack with Whismur on game turn 1, while the opponent (second player) can play a Supporter on game turn 2. The v2 can establish its double lock on the player's second turn (game turn 3), but the opponent's first Supporter opportunity has already occurred. This is not a complete both-seat solution.
 
+### Prize sensitivity of the exact v2 turn-4 line
+
+The committed v2 list contains exactly six physical cards required by Agent27's stated turn-4 double-lock sequence: Whismur ×1, Grand Tree ×1, Rare Candy ×2, and Stoutland ×2. With six random prizes from a 60-card list, the probability that **none** of these six cards is prized is
+
+\[
+\frac{\binom{54}{6}}{\binom{60}{6}} = 0.5158844
+\]
+
+So the probability that at least one required piece is prized is **48.41%**. Individually, the singleton Whismur and Grand Tree each have a 10% prize risk; at least one copy of either two-card pair (Rare Candy or Stoutland) is prized with probability **19.15%**.
+
+This is a hypergeometric calculation from the exact 60, not a simulation. It is an upper bound on immediate access to the *specified* turn-4 line: it ignores opening-hand/draw/search constraints, and assumes a prized piece is not recovered by taking a Prize before turn 4. If any one of the six is prized, this exact sequence cannot be completed on schedule without an alternative line. It does **not** mean the deck loses 48.41% of games; alternate, slower lines may still win. It does mean the double-lock plan's prize sensitivity must be measured before treating it as a reliable primary strategy.
+
 **Remaining v2 risks, not resolved by the rules-derived sequence:**
 - Bawl lasts only one opponent turn and does not stop Abilities, Energy attachments, attacks, ordinary evolution, or use of a Stadium already in play.
 - The authenticated field contains existing Grand Tree in ranks 2, 15 and 31; the opponent's activation remains possible during Bawl.
