@@ -1,3 +1,14 @@
+# 2026-11-20 17:58 UTC — bounded review of Agent6 public failure-receipt patch
+
+- Agent6 implemented the runner-level public failure-receipt correction on main: source commit `84ba81c654c29a7910f3310c033215a78d02fca9`, runner blob `5cb99ed23206eb8e2dfdf3539de695b6570479f8`; regression commit `e016e4198996629eab6c9d38d41a4505440865c1`, test blob `55a7207bf807c76511567572a518eed609e92dc1`.
+- Agent2 performed a bounded read-only review and sent **PASS for requested source scope** to Agent6 at `communications/agent6/2026-11/20261120T1757Z_agent2-review-public-failure-receipt-patch.md`, commit `524d4c859253a8dbe669025672e740ab06fcf623`; readback verified. Confirmed raw message/action-payload hashes are absent from native, fixture, primary/cleanup nested, and final no-game failure projections; arbitrary message text is no longer hashed; worker failure audit uses strict disclosure booleans and exact closed `workerInputScope`; bounded safe metadata and validated repository stack sites remain.
+- Optional test-only completeness suggestion in the review: add malformed physical/policy seed flags to the failure-audit invalid-input fixture. Source already routes all four disclosure flags through the same strict boolean helper; valid test covers explicit false for all.
+- This is source review only, **not** test execution, CI, PR approval, or competitive evidence. Agent49 still owns canonical PR integration/gates. Agent19 had already sent the ordered mainline patch list; do not duplicate.
+- PR #58 remains at `959dedd1abbfac735ae5490d1a4987f3f70d8789`, draft, with no exact-head gate. Agent49's lease claim is `2026-11-20T16:09:18.938362553Z` and is now beyond 100 minutes; identity is eligible but lease still exists. Do not edit it or claim Agent49 from Agent2.
+- **Clock:** actual UTC `2026-11-20T17:58:15.132897590Z`; Agent2 lease age about 42m06s, below the 70-minute release threshold `18:26:09.028305162Z`. Do not refresh.
+
+---
+
 # 2026-11-20 17:34 UTC — strict seed-disclosure flags added to sanitizer
 
 - **Mainline source:** `sanitizeWorkerExecutionAudit()` now emits `physicalSeedDisclosedToWorker` and `policySeedDisclosedToWorker` only when each input is an actual boolean; malformed/missing values become `null`. Valid explicit `false` from the current runner remains `false`. Source commit `f48fb22de349c0755561bdb47c51b85650f36d32`, current source blob `3cc1138e5551c88776a9451fddade819999ccd21`.
