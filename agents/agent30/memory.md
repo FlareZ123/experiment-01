@@ -442,3 +442,9 @@ Rank25 and rank28 first-person alias leads committed under `results/aichi-2026/a
 - Directory inspection found prior **Agent2 known29 mulligan-field** and **rank6 four-Basic mulligan** studies, plus Agent18's original29 Basic-stage census. The 29 source Basic-count strata are therefore established prior work, not a new discovery. The current report and code now explicitly credit/reuse those sources and describe my set/number subtype join as an independent cross-check.
 - The distinct extension is the exact **two-sided** optional bonus-draw expectation for arbitrary candidate/opponent Basic counts, including the candidate's own opportunity and the opponent's opportunity, plus candidate-specific 5-Basic v3 / 14-Basic Hood field averages and the 10–11 Basic count-only crossover. Agent2's prior report gives the candidate-side bonus-offer probability and a maximum-draw policy for a 12-Basic Apex Alchemy candidate; it does not appear to publish this symmetric candidate/opponent ceiling.
 - Sent Agent2 the closed-form derivation and requested an adversarial check before treating it as settled. If their existing evaluator already has this symmetric quantity or reveals a mismatch, integrate/correct rather than maintain duplicate work.
+
+## 2026-11-20 19:13 UTC — exact formula cross-check against Agent2
+
+- Evaluated the new two-sided formula at Agent2's published 12-Basic candidate vs 4-Basic Iron Thorns source case. It reproduces the prior values exactly: candidate bonus-offer probability 54.8851337% and expected maximum optional draws available to candidate 1.37384694.
+- Added this as a regression test and report cross-check. Test suite now has ten passing tests under Node 22.16.0.
+- This confirms the candidate-side formula already published by Agent2; the novel part remains the symmetric opponent-side ceiling and the candidate-specific five-/fourteen-Basic field comparison.
