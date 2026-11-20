@@ -218,6 +218,7 @@ test('async fixture generator delegates strategic prompts and roots without poli
     const result=await runNativeFixtureGameAsync(args,async request=>{
       requests.push({
         decisionKind:request.decisionKind,
+        actionOrdinal:request.actionOrdinal,
         actorSeat:request.actorSeat,
         hasPrompt:Boolean(request.prompt),
         hasLegacyRandomSource:Object.hasOwn(request,'legacyRandomSource'),
@@ -234,6 +235,8 @@ test('async fixture generator delegates strategic prompts and roots without poli
     assert.equal(decodeCalls,0,'async worker path must never call SimpleTacticsAi.decodeNextAction');
     assert.deepEqual(requests.map(row=>row.decisionKind),
       ['owner-prompt','owner-root','owner-root']);
+    assert.deepEqual(requests.map(row=>row.actionOrdinal),[2,3,4],
+      'worker requests must carry the exact zero-based native dispatch ordinal');
     assert.equal(requests.every(row=>!row.hasLegacyRandomSource&&!row.hasLegacyBot),true,
       'async worker requests must not receive legacy bots or policy RNG sources');
     const physicalPromptRows=result.decisionTrace.filter(row=>
@@ -949,4 +952,114 @@ test('host recorder hooks expose the same live Store after registration and ever
     assert.equal(row.pendingPrompt?.constructor?.name??null,
       row.record.pendingPromptType);
   }
+});
+
+
+test('worker decision traces and cloned-Store receipts join prompt and root actions by zero-based ordinal',async()=>{
+  insertTestPrompt=true;
+  try{
+    const result=await runNativeFixtureGameAsync(input(),async request=>{
+      const validationReceipt={
+        schema:request.decisionKind==='owner-prompt'?
+          'agent6-cloned-store-prompt-validation-v1':
+          'agent6-cloned-store-root-validation-v1',
+        selectedActionValidated:true,
+        actionOrdinal:request.actionOrdinal
+      };
+      const decisionTrace={
+        schema:'agent6-worker-decision-trace-v1',
+        actionOrdinal:request.actionOrdinal,
+        decisionKind:request.decisionKind,
+        validationReceipt
+      };
+      const action=request.decisionKind==='owner-prompt'?
+        new ResolvePromptAction(request.prompt.id,'A card 0'):
+        request.actorSeat===0?
+          new PlayCardAction(101,0,{slot:'worker'}):
+          new RootAction(1);
+      return {
+        __nativeFixtureDecisionResolution:true,
+        action,decisionTrace,validationReceipt,
+        promptResolution:{kind:'worker-test',decisionKind:request.decisionKind}
+      };
+    });
+
+    const workerRows=result.decisionTrace.filter(row=>row.workerDecisionTrace!==null);
+    assert.deepEqual(workerRows.map(row=>row.actionOrdinal),[2,3,4]);
+    assert.deepEqual(workerRows.map(row=>row.workerDecisionTrace.actionOrdinal),[2,3,4]);
+    assert.deepEqual(workerRows.map(row=>row.workerDecisionTrace.decisionKind),
+      ['owner-prompt','owner-root','owner-root']);
+    assert.equal(workerRows.length,3);
+    for(const row of workerRows){
+      assert.strictEqual(row.workerDecisionTrace.validationReceipt,row.validationReceipt);
+      assert.equal(row.validationReceipt.selectedActionValidated,true);
+      assert.match(row.workerDecisionTraceSha256,/^[a-f0-9]{64}$/);
+      assert.match(row.validationReceiptSha256,/^[a-f0-9]{64}$/);
+      const ledger=result.rootActionLedger.find(item=>item.actionOrdinal===row.actionOrdinal);
+      assert.ok(ledger);
+      assert.equal(ledger.workerDecisionTraceSha256,row.workerDecisionTraceSha256);
+      assert.equal(ledger.validationReceiptSha256,row.validationReceiptSha256);
+    }
+    const hostRows=result.decisionTrace.filter(row=>
+      row.policyInputKind==='physical-randomization-prompt');
+    assert.equal(hostRows.length,2);
+    assert.equal(hostRows.every(row=>
+      row.workerDecisionTrace===null&&row.validationReceipt===null),true,
+      'host-owned shuffle/coin prompts must not acquire worker policy audits');
+    assert.equal(result.actions,5);
+  }finally{
+    insertTestPrompt=false;
+  }
+});
+
+test('failed worker decision trace survives in an explicit non-dispatched failure receipt',async()=>{
+  insertTestPrompt=true;
+  try{
+    await assert.rejects(runNativeFixtureGameAsync(input(),async request=>{
+      const error=new Error('worker policy abstained');
+      error.code='POLICY_ABSTAINED';
+      error.workerDecisionTrace={
+        schema:'agent6-worker-decision-trace-v1',
+        actionOrdinal:request.actionOrdinal,
+        decisionKind:request.decisionKind,
+        validationReceipt:null
+      };
+      throw error;
+    }),error=>{
+      const partial=error.fixtureGamePartial;
+      assert.ok(partial);
+      assert.equal(partial.failure.code,'POLICY_ABSTAINED');
+      assert.equal(partial.acceptedActions,2,
+        'only the two host-owned setup prompt dispatches were accepted');
+      assert.equal(partial.failedWorkerDecision.actionOrdinal,2);
+      assert.equal(partial.failedWorkerDecision.workerDecisionTrace.actionOrdinal,2);
+      assert.match(partial.failedWorkerDecision.workerDecisionTraceSha256,/^[a-f0-9]{64}$/);
+      assert.equal(partial.failedWorkerDecision.validationReceipt,null);
+      assert.equal(partial.failedWorkerDecision.validationReceiptSha256,null);
+      const failed=partial.decisionTrace.find(row=>row.actionOrdinal===2);
+      assert.ok(failed);
+      assert.equal(failed.dispatchStatus,'not-dispatched');
+      assert.equal(failed.actionName,null,
+        'an abstention must not fabricate a native action');
+      assert.ok(failed.workerDecisionTrace);
+      const ledger=partial.rootActionLedger.find(row=>row.actionOrdinal===2);
+      assert.ok(ledger);
+      assert.equal(ledger.dispatchStatus,'not-dispatched');
+      assert.equal(ledger.workerDecisionTraceSha256,failed.workerDecisionTraceSha256);
+      assert.equal(partial.failedAction,null);
+      return true;
+    });
+  }finally{
+    insertTestPrompt=false;
+  }
+});
+
+test('onGameReady recorder callback exceptions become a pre-dispatch failure receipt',()=>{
+  const error=assert.throws(()=>runNativeFixtureGame(input({
+    onGameReady(){throw new Error('initial recorder capture failed');}
+  })));
+  assert.ok(error.fixtureGamePartial);
+  assert.equal(error.fixtureGamePartial.failure.stage,'on-game-ready-callback');
+  assert.equal(error.fixtureGamePartial.failure.code,'NATIVE_FIXTURE_FAILURE');
+  assert.equal(error.fixtureGamePartial.acceptedActions,0);
 });
