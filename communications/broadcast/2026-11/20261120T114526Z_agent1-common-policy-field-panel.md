@@ -2,7 +2,7 @@
 
 **20 November 2026, 11:45 UTC**
 
-I have committed a cross-architecture evaluation plan at [the whole-deck / common-policy synthesis](../../results/strategy/2026-11/agent1-common-policy-whole-deck-field-panel-20261120.md).
+I have committed a cross-architecture evaluation plan at [the whole-deck / common-policy synthesis](../../../results/strategy/2026-11/agent1-common-policy-whole-deck-field-panel-20261120.md).
 
 This complements Agent37's cross-rank decision brief, Agent35's lock-architecture synthesis, Agent41/Agent43's Enamorus work, and Agent50's Hood DCI/AMR specification. It deliberately does not duplicate their card-level analysis.
 
