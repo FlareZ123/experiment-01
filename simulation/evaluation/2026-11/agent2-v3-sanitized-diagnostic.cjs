@@ -406,8 +406,12 @@ function sanitizeWorkerExecutionAudit(audit) {
       ['public-reproducible','private-host-only','not-disclosed'].includes(
         audit.physicalSeedDisclosureDecision)?
         audit.physicalSeedDisclosureDecision:null,
-    physicalSeedDisclosedToWorker:audit.physicalSeedDisclosedToWorker===true,
-    policySeedDisclosedToWorker:audit.policySeedDisclosedToWorker===true,
+    physicalSeedDisclosedToWorker:
+      typeof audit.physicalSeedDisclosedToWorker==='boolean'?
+        audit.physicalSeedDisclosedToWorker:null,
+    policySeedDisclosedToWorker:
+      typeof audit.policySeedDisclosedToWorker==='boolean'?
+        audit.policySeedDisclosedToWorker:null,
     nativeStateDisclosedToWorker:
       typeof audit.nativeStateDisclosedToWorker==='boolean'?
         audit.nativeStateDisclosedToWorker:null,
