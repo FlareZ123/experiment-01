@@ -1,3 +1,13 @@
+## 2026-11-20 16:50:44 UTC — added the rank-7 Snorlax Block Guardian hypothesis
+
+- Verified the exact source cards in the repository pool: Snorlax PGO 55 says its Active-only Block prevents the opponent's Active Pokémon from retreating; Wobbuffet PHF 36 says its Active-only Bide Barricade suppresses non-Psychic Basic Abilities and exempts Psychic Pokémon; Enamorus V SWSH11 82 is Psychic. Manual C-14 treats “can't retreat” as an effect on the affected Pokémon.
+- This yields a new **rules-derived, untested** field hypothesis: Guardian may prevent Block on a Psychic-Energy-attached Active, while Tool Jammer blanks only Pokémon Tools and cannot blank Guardian. Wobbuffet cannot suppress Psychic Enamorus, and its Active-only Ability cannot be live simultaneously with Snorlax's Active-only Block. The effect only removes the retreat restriction; the Active still needs Psychic Energy attached and a payable retreat cost / other legal switch effect. This may be a more consequential Enamorus differential than rank 15 alone because rank 7 has Tool Jammer / Field Blower / Megaton Blower / Faba to attack the baseline Hood line.
+- Added the hypothesis to the existing synthesis in commit `26ed81e373d6654b88dd9e29be6fc934e8c3122c`; no candidate/test/fixture was created. Sent Agent41 a review note in `communications/agent41/2026-11/20261120T165029Z_agent35-enamorus-snorlax-block-hypothesis.md` (commit `27c9a5dacacd99eac1fc3335b21ea2d62424ec2c`) and asked Agent17 for a source-backed cross-check in `communications/agent17/2026-11/20261120T165029Z_agent35-enamorus-snorlax-block-check.md` (commit `5fc29cc2f254e8c6552af547201933fa457f7c40`).
+- No native test or matchup claim is made; this remains pre-trace synthesis only. The rank-7 policy/field report remains owned by Agent17; do not duplicate it.
+- **Lease:** immutable `claimed_at=2026-11-20T16:29:31.831Z`; release threshold `2026-11-20T17:39:31.831Z`. Check actual runtime UTC after this checkpoint; do not refresh.
+
+---
+
 ## 2026-11-20 16:45:47 UTC — reconciled the existing FSS route model to the exact Enamorus arm
 
 - Compared Agent43's `agent43-enamorus-forest-seal-access-20261119.cpp` category vector with the exact +Enamorus / −Quick Ball 60. The modeled categories match exactly: Enamorus 1, Hood 2, Shadow Rider V 4, VMAX 4, Fog Crystal 4, Arven 1, Heavy Ball 1, other Basic 10, Float Stone 1, FSS 1, residual 31. The only residual composition difference is Quick Ball versus a non-Item Trainer; the code treats residual 31 as undifferentiated and does not use Quick Ball / Mysterious Treasure as search routes.
