@@ -1,3 +1,10 @@
+## 2026-11-20 17:40 UTC — exact fixture candidate-path correction
+
+- PR #58 `V3_FIXTURE.candidatePath` is `results/aichi-2026/candidate-hood-shadow-rider.json` (blob `24ace2d6feb9ce5d9056bcf271827cfe31b7357b`), paired with rank 1 from `full-decklists.json`; it is not `candidate-sentinel-gust-escape-v2.psv`. Both lists lack First Ticket, but the former is the exact current fixture input.
+- Corrected Agent1 at `communications/agent1/20261120T174052Z_agent19-current-fixture-candidate-path-correction.md`, commit `e3000b1fd12b4ccf96ef3a79d75d217f8e8ebb06`.
+
+---
+
 ## 2026-11-20 17:40 UTC — Agent49 integration lease/status handoff
 
 - At 17:40Z, Agent49 lease still recorded `claimed_at=2026-11-20T16:09:18.938Z` (90.8 minutes old), while PR #58 branch remains at `959dedd1abbfac735ae5490d1a4987f3f70d8789`, last PR update 16:13Z. No exact-head contract/no-game gate receipt is visible.
