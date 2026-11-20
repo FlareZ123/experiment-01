@@ -103,6 +103,48 @@ The candidate remains fixed at five Basics. Values are expected maximum optional
 | 16 | 1.0522 | 0.0551 | 0.9971 |
 | 18 | 1.0691 | 0.0370 | 1.0321 |
 
+## Full published-field mulligan vector (29 of 32)
+
+I classified every Pokémon printing in the 29 published Aichi decklists by exact set and collector number against the repository card-pool subtype records. The join used 53 distinct set files: set codes were resolved through **resources/sets/en.json** and card subtypes through **resources/cards/en/*.json**. The one display-name normalization needed was Ditto Prism Star (LOT 154): the decklist uses “Ditto ♢” while the card record uses “Ditto ◇”; the set/number match resolves it as Basic. No Pokémon printing remained unclassified.
+
+The three missing full lists remain **ranks 23, 25, and 28** and are excluded, not imputed. Against each of the 29 authenticated lists, the candidate remains fixed at five Basics. The table reports expected maximum optional bonus-draw opportunities under the same rule-correct model; the recipient can choose fewer.
+
+| Rank | Archetype | Opponent Basics | Available to opponent | Available to v3 | Difference for opponent |
+|---:|---|---:|---:|---:|---:|
+| 1 | Shadow Rider Calyrex | 14 | 1.029 | 0.082 | +0.946 |
+| 2 | Vileplume Control | 14 | 1.029 | 0.082 | +0.946 |
+| 3 | Snorlax Stall | 11 | 0.975 | 0.154 | +0.821 |
+| 4 | Raichu Electrode Combo | 13 | 1.014 | 0.101 | +0.913 |
+| 5 | Mew Genesect | 11 | 0.975 | 0.154 | +0.821 |
+| 6 | Iron Thorns | 4 | 0.646 | 1.042 | −0.396 |
+| 7 | Snorlax Stall | 12 | 0.996 | 0.124 | +0.872 |
+| 8 | Absol Garbodor | 10 | 0.950 | 0.192 | +0.758 |
+| 9 | Absol Electrode | 11 | 0.975 | 0.154 | +0.821 |
+| 10 | Regidrago | 15 | 1.041 | 0.067 | +0.974 |
+| 11 | Absol Garbodor | 11 | 0.975 | 0.154 | +0.821 |
+| 12 | Regidrago | 15 | 1.041 | 0.067 | +0.974 |
+| 13 | Regidrago | 11 | 0.975 | 0.154 | +0.821 |
+| 14 | Regidrago | 14 | 1.029 | 0.082 | +0.946 |
+| 15 | Lopunny Vileplume | 14 | 1.029 | 0.082 | +0.946 |
+| 16 | Absol Garbodor | 11 | 0.975 | 0.154 | +0.821 |
+| 17 | Raichu Electrode Combo | 13 | 1.014 | 0.101 | +0.913 |
+| 18 | Regidrago | 16 | 1.052 | 0.055 | +0.997 |
+| 19 | Raging Bolt | 16 | 1.052 | 0.055 | +0.997 |
+| 20 | Regidrago | 14 | 1.029 | 0.082 | +0.946 |
+| 21 | Regidrago | 14 | 1.029 | 0.082 | +0.946 |
+| 22 | Absol Garbodor | 12 | 0.996 | 0.124 | +0.872 |
+| 24 | Iron Thorns | 4 | 0.646 | 1.042 | −0.396 |
+| 26 | Meloetta Donk | 12 | 0.996 | 0.124 | +0.872 |
+| 27 | Regidrago | 15 | 1.041 | 0.067 | +0.974 |
+| 29 | Iron Thorns | 4 | 0.646 | 1.042 | −0.396 |
+| 30 | Lillie's Clefairy | 16 | 1.052 | 0.055 | +0.997 |
+| 31 | Dusknoir Chimecho | 15 | 1.041 | 0.067 | +0.974 |
+| 32 | Regidrago | 13 | 1.014 | 0.101 | +0.913 |
+
+Across these 29 lists, opponent Basic counts range from **4 to 16** (mean **12.241**). The equal-weighted mean maximum optional bonus-draw ceiling is **0.975** to the opponent and **0.202** to v3, a mean difference of **0.773** for the opponent. On average, the opponent has some bonus-draw opportunity in **46.25%** of setups, versus **11.99%** for v3. **26 of 29** published lists have a higher opponent ceiling; the only three exceptions are the 4-Basic Iron Thorns lists at ranks 6, 24, and 29, where v3 instead has a 0.396-card opportunity advantage.
+
+This is a descriptive, equal-weighted setup metric across the 29 available lists—not a tournament-weighted estimate, a claim about actual bonus cards drawn, or a proxy for matchup win rate. It does, however, show that the five-Basic v3 architecture carries a broad setup tax across most of the authenticated field rather than only against rank 1.
+
 ## Independent validation and reproduction
 
 The exact formula was checked against a separate seeded simulation of **250,000** two-player setup sequences (seed = **0x30a1c0de**, decimal 815907038). The simulation explicitly restarts both players without incrementing either mulligan count when both lack a Basic in the same deal, then counts step-5.d executions only for one-sided failures.
@@ -118,11 +160,11 @@ The exact formula was checked against a separate seeded simulation of **250,000*
 Reproduction:
 
 - [Exact model and deterministic simulation](../../../scripts/agent30-opening-mulligan-opportunity.cjs)
-- [Six unit/regression tests](../../../tests/agent30-opening-mulligan-opportunity.test.cjs)
+- [Seven unit/regression tests](../../../tests/agent30-opening-mulligan-opportunity.test.cjs)
 - Run: **node --test tests/agent30-opening-mulligan-opportunity.test.cjs**
 - The script emits the complete machine-readable JSON report to standard output.
 
-All six tests passed locally under Node.js 22.16.0, including exact fraction checks, pairwise rulebook outcomes, symmetry checks, the Mimikyu/Capture Energy branch, and agreement with the independent seeded simulation.
+All seven tests passed locally under Node.js 22.16.0, including exact fraction checks, pairwise rulebook outcomes, symmetry checks, the Mimikyu/Capture Energy branch, and agreement with the independent seeded simulation.
 
 ## Interpretation and limits
 
