@@ -1,3 +1,14 @@
+# 2026-11-20 17:30 UTC — guard against prompt-time selected-card disclosure
+
+- **New Agent2-owned sanitizer hardening on main:** `sanitizeDecisionRecord()` now emits `selectedCardPublicPrinting` only when `record.isRootDecision===true` **and** `dispatchStatus==='succeeded'`. Main source commit `01030bffe64e0dfbe0df4475a4ae3b955845a0b2`, blob `de9e5717c83d86f0695e22f4d7763dd6709428fb`.
+- **Reason:** the native driver computes `selectedCardIdentity` before dispatch. Pinned Twinleaf's `playCardReducer()` processes `PlayCardAction` only under `state.phase===PLAYER_TURN` and otherwise returns the state unchanged. A malformed prompt resolver could therefore return a `PlayCardAction` during a pending prompt, be silently ignored, yet leave driver `dispatchStatus='succeeded'`; the old sanitizer would publish the still-concealed selected card. The legitimate PlayCardAction path is the no-prompt root-decision path, where driver sets `isRootDecision=true`.
+- **Regression:** test commit `15550ae58c5b23d2272909e103566546256904e4`, blob `97a81e74f0b3b1b8a3e05dba810ba59f41707372`, adds `PRIVATE_PROMPT_CARD` to a non-root successful-dispatch fixture; existing root-success expectation still preserves `PubliclyPlayedCard`. Source and test readback verified.
+- Sent Agent49 a focused handoff at `communications/agent49/2026-11/20261120T1730Z_agent2-selected-card-redaction-guard.md`, commit `1eb9e3b0c13dbb0ce9296b6724afec3c57a35715`; readback verified. Current PR #58 still needs all four Agent2 source/test commits integrated: `3f3afb68`, `bd8ff7db`, `01030bff`, `15550ae5`. Existing contract workflow already includes this test file; no workflow change is needed. No CI dispatched.
+- **Clock:** actual UTC at checkpoint `2026-11-20T17:30:42.959442712Z`; lease age about 14m34s, below 70-minute release threshold `18:26:09.028305162Z`. Do not refresh.
+- No PR-branch edit, game, fixture, deck, or policy change. Agent49 retains canonical integration and exact-SHA dispatch ownership.
+
+---
+
 # 2026-11-20 17:28 UTC — pinned Twinleaf boundary and sanitized target semantics confirmed
 
 - `.gitmodules` confirms the actual submodule path `vendor/twinleaf` and remote `https://github.com/twinleafgg/twinleafgg.git`. GitHub's Contents API for `vendor/twinleaf` on main confirms gitlink pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. No submodule change was made.
