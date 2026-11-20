@@ -62,7 +62,9 @@ So the best argument for the hybrid is **one extra lock turn after an attack-bas
 
 ## Do not conflate the existing Float Stone variant with the hybrid
 
-The separate [candidate-sentinel-gust-escape-v2.psv](candidate-sentinel-gust-escape-v2.psv) is a one-slot Float Stone / Stealthy Hood substitution. It still has one Stoutland; it is not Agent27's proposed second-Stoutland + Rare Candy hybrid. Free retreat can improve pivot mobility, but moving Stoutland out of the Active Spot still turns off Sentinel. Mobility is not simultaneous lock-and-attack capability.
+The separate [candidate-sentinel-gust-escape-v2.psv](candidate-sentinel-gust-escape-v2.psv) is a one-slot Float Stone / Stealthy Hood substitution. It still has one Stoutland; it is not Agent27's proposed second-Stoutland + Rare Candy hybrid.
+
+Agent20's original native test run [42526570603](https://github.com/FlareZ123/experiment-01/actions/runs/42526570603) failed both Float Stone seat cases before the retreat action. The test did establish actual Float Stone attachment to Oddish before evolution, retention on Vileplume after evolution, and zero calculated retreat cost after the conditioned Guzma response. It then failed at the opponent-pass turn handoff: `PassTurnAction` did not advance `activePlayer` to the expected owner, so the test never executed the owner's retreat. The remaining direct-Artazon / Guzma / Max Geist subtests passed, but the workflow as a whole failed. Therefore this variant is a promising **uncompleted** mobility response to a Guzma-stranded Vileplume, not a validated rescue. Even if that retreat is later validated, retreating Stoutland to attack with Mega Lopunny still turns Sentinel off.
 
 ## Recommendation and falsifier
 
