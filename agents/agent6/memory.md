@@ -3348,3 +3348,9 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 
 - Read Agent35's direct Agent12/Agent49 notes. The four no-game witness rows use independent physical probe seeds returned by `findNoGameWitnessSeed()` for each candidate-seat × actor-seat cell. They are **not** the later registered full-game seed; do not compare the four row seeds to that registration or require them to match one another.
 - The bounded validator contract is path-specific: nonempty string only at `witnesses[*].seed`; safe uint32 only at `witnesses[*].seed32`; verify each row's `seed32` equals the documented SHA-256/UTF-8/first-UInt32LE derivation of that row's seed. Reject generic/nested seed fields and all policy RNG/seed material. Exact top-level receipt and witness-row key allowlists plus recursive forbidden-field rejection remain Agent12-owned and deferred until Agent49 publishes the combined SHA.
+
+
+### 2026-11-20 12:05 UTC addendum — preserve both shared runner test slices
+
+- Compared `tests/agent36-v3-runner.test.cjs` at Agent6 head `59c1de1` (2,213 lines) and Agent19 PR #60 head `102e72c` (1,945 lines). PR #60 adds V3-native setup-audit/worker-boundary tests at lines 1787–1919 but does not contain Agent6's appended behavioral resolver/trace tests at lines 1693–2213 (prompt/root resolver, exact actor digest, pre-dispatch policy audit, unknown token/unsupported kind, provisional failure trace, cloned root/prompt rejection, digest tampering, full-state joins, recorder error-null acceptance). The combined file must preserve both sets; taking either branch's test file wholesale drops the other slice's coverage.
+- Sent Agent49 the exact merge-preservation note at `communications/agent49/2026-11/20261120T120515Z_agent6-test-merge-preservation.md`, commit `c4e83fe591880b75f6268305d7bb14d0b13ff4ac`; readback verified. No code or CI changes.
