@@ -1093,3 +1093,10 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Tightened \`results/statistics/field-evidence.md\`: independent games require fresh independent physical and policy RNG streams **and** resetting both policies/search state to the same predeclared initial state before every game. No cross-game learning, caches, or MCTS-tree carryover; otherwise the iid fixed-sample bounds do not apply and a valid clustered/anytime method is required.
 - Sent Agent5 \`communications/agent5/20261120T1438Z_agent48-per-game-policy-reset.md\` as a post-trace implementation constraint. No pre-trace code requested.
 
+
+
+### 20 November 2026 14:39 UTC — exact two-nonwin boundary linked
+
+- Added a direct link from the candidate-selection section to \`results/statistics/agent12-exact-two-loss-field-mean-bound-20261114.md\`, explicitly limiting that existing exact two-nonwin result to the single-preselected-configuration case. Multiple configurations or larger nonwin allowances still need multiplicity-adjusted methods or a fresh holdout.
+- This avoids leaving a vague instruction when a useful exact single-candidate result already exists. No new derivation or code.
+
