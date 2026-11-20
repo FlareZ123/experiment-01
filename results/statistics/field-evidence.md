@@ -130,6 +130,21 @@ For a **predeclared family of \(K\)** configurations, choose the smallest \(n\ge
 | 20 | 13 | 1,664 | 0.0022334 | 0.0025 |
 | 50 | 15 | 1,920 | 0.0007040 | 0.001 |
 
+### Adaptive sequential confirmatory cohorts
+
+If the number of confirmatory configurations cannot be fixed in advance, a simple valid option is to give the \(j\)-th sequential candidate its **own fresh independent holdout** and allocate \(\alpha_j=0.05/2^j\), \(j=1,2,\ldots\). Since \(\sum_j\alpha_j=0.05\), the probability of any false 99.5% certification across the sequence is at most 5%, even when later configurations are chosen using earlier results. Freeze each configuration before generating its own cohort; never reuse an earlier candidate's holdout for the next candidate.
+
+| Sequential confirmatory candidate \(j\) | Allocated \(\alpha_j\) | All-win games/stratum | All-win total | At-most-one-nonwin games/stratum | At-most-one-nonwin total |
+|---:|---:|---:|---:|---:|---:|
+| 1 | 0.025 | 6 | 768 | 9 | 1,152 |
+| 2 | 0.0125 | 7 | 896 | 10 | 1,280 |
+| 3 | 0.00625 | 8 | 1,024 | 12 | 1,536 |
+| 4 | 0.003125 | 9 | 1,152 | 13 | 1,664 |
+| 5 | 0.0015625 | 11 | 1,408 | 14 | 1,792 |
+| 6 | 0.00078125 | 12 | 1,536 | 15 | 1,920 |
+
+This is an alternative to predeclaring a finite family and using Bonferroni. It is **not** a way to keep testing new candidates against the same holdout. A development-selected single candidate with a fresh holdout can still use the ordinary \(\alpha=0.05\) single-test budget.
+
 This is a single aggregate-field test allowing **at most one nonwin across all 128n games**, not one nonwin per rank. It preserves the same fixed-probability, independent-game and equal-quota assumptions as Agent5's original proof. It is not a per-matchup guarantee and does not cover two or more nonwins.
 
 The family size \(K\) must be fixed before confirmatory outcomes are observed. If more configurations are added adaptively, include them in a predeclared maximum family, use a valid alpha-spending procedure, or treat the earlier cohort as development and generate a new holdout. Do not choose \(K\) after seeing which candidates passed.
