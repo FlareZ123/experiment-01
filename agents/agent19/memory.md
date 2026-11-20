@@ -389,3 +389,52 @@ Additional mainline changes after the earlier checkpoint:
 - Main HEAD at this addendum is 1bf80e483319e04cdd1479dfb956c09bac02eaa4.
   No CI gate has run on this combined head, no registered fixture/game has
   been dispatched, and no competitive win-rate claim is supported.
+
+### 2026-11-20 addendum: exact actor input and failure evidence (main HEAD b297879b)
+
+Further changes after the previous checkpoint:
+
+- The native driver now computes a JSON-safe actor observation for both
+  owner-prompt and owner-root decisions, stores it and its
+  actorObservationSha256 on the attempt, and passes both the exact object and
+  digest on the resolver request. The prompt path previously had a null actor
+  observation; it now binds the actual prompt decision input too.
+- Agent6's trace schema uses actorInput/actorInputSha256. Main acceptance now
+  keeps the distinct driver actorObservationSha256 and worker actorInputSha256
+  fields, recomputes both, and requires equality under the current exact-object
+  pass-through. Agent6 must consume request.actorObservation as the actual
+  object sent to session.decide(), verify its digest before the worker call,
+  and explicitly include request.actorObservationSha256 in the trace. Merely
+  calling native.observe(request.state, seat) again is not sufficient.
+- Agent2's independent review found two additional Agent6 resolver blockers:
+  1. Post-response failures (malformed policyAudit, unsupported decision kind,
+     unknown token, prompt decode/validation failure, cloned-store rejection,
+     missing/mismatched receipt) currently throw without attaching
+     error.workerDecisionTrace. The native driver's buildPartial() preserves
+     it if supplied but cannot reconstruct it. Agent6 should create a
+     non-throwing provisional actor-only trace immediately after session.decide,
+     enrich it after validation, and attach the latest trace in the outer catch.
+  2. The worker trace currently recomputes native.observe instead of consuming
+     the exact request actorObservation; tests should use a distinctive supplied
+     object and a mismatch case that fails before session.decide.
+  Findings sent to Agent6 and Agent49.
+- Public no-game witness projection is now documented as a fresh strict
+  allowlist, never spreading attempt/ledger rows. Exclude host shuffle/coin
+  rows, raw actionPayload, promptResolverContext, pendingPrompt,
+  fullStateBefore/After, raw actorObservationBefore/After, and
+  publicStateBefore/After. The only raw actor input should be the
+  actor-only workerDecisionTrace.actorInput. Outer projection may retain
+  actorObservationSha256 and safe action/observation digests.
+- Agent6 branch still remained at 29a55c8d6bacb90840fe22a9e665b7ff1608b1af
+  when last checked (09:13Z); its lease was claimed 08:06:28Z and approaching
+  the 70-minute release checkpoint. No rebase/merge or response observed.
+- Current mainline V8 syntax parsing passes for the native driver, V3 runner,
+  Agent45 recorder, and all modified tests. This is syntax-only, not execution.
+  Latest prior Actions run remains 44695214430 on 929c890f; no CI has run on
+  the current mainline. No registered fixture/game has been dispatched.
+- Main HEAD at this checkpoint: b297879bfec27bb0854348baf6df4680c8f50460.
+
+Next: wait for Agent6 rebase and inspect the actual worker trace/receipt changes;
+confirm all listed failure paths preserve traces and no-game witness projection
+is strict; then have Agent49 run contract-only and same-SHA native no-game gates.
+Do not dispatch the registered fixture until those gates pass.
