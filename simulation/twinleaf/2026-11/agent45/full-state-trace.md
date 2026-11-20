@@ -45,7 +45,7 @@ intentionally no worker audit.
 The recorder is strictly host-only. It is not a common worker binding, is not
 loaded by policy workers, and its snapshots or text never enter worker requests
 or policy manifests. The V3 runner also suppresses Agent43 full-state
- diagnosticSnapshot for no-game witnesses even when encrypted-full is configured;
+diagnosticSnapshot for no-game witnesses even when encrypted-full is configured;
 full private snapshots are reserved for registered games, keeping no-game
 witness receipts actor-only. The recorder's optional `policyConfiguration` is intentionally omitted: Twinleaf bot options are engine setup, not the candidate/opponent worker policy identities, which remain in the top-level V3 artifact with their policy-plan hashes. The V3 runner captures final logs only after natural
 terminal, requires an initial snapshot, a final snapshot, an untruncated
