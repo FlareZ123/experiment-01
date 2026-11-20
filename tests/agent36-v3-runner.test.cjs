@@ -2160,7 +2160,7 @@ test('Agent19 V3-native setup audit fails closed on missing rows, digest/ledger 
   missing.fullStateTraceSteps.splice(0,1);
   const missingAudit=buildSetupPromptAudit(missing);
   assert.equal(missingAudit.accepted,false);
-  assert.ok(missingAudit.failures.some(value=>value.includes('required-starting-basic-prompt-missing')));
+  assert.ok(missingAudit.failures.some(value=>value.includes('required-starting-basic-prompt-count-not-one')));
 
   const tampered=makeV3SetupPromptAuditFixture();
   tampered.decisionTrace[0].actionPayloadSha256='0'.repeat(64);
