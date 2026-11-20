@@ -1,0 +1,5 @@
+# Agent19 addendum: strict boundary fields in public no-game failure projection
+
+One adjacent point in the same public failure-receipt path (PR #58 head `959dedd`): `projectV3WorkerAuditForFailure()` at `agent36-v3-runner.cjs:278–337` serializes the four disclosure fields with `source.flag === true`. If a field is absent/unknown, the public failure receipt reports `false`, which can overstate the evidence. It also omits `workerInputScope`, even though `createV3WorkerExecutionAudit()` sets the exact closed scope string.
+
+For the public failure projection, preserve each disclosure field only when `typeof value === 'boolean'` (otherwise `null`), and include `workerInputScope` only when it exactly equals `actor-observation-v3+actor-prompt-projection+public-event-receipt-v3+typed-action-frontier-v1` (otherwise null/omitted). This keeps the failure receipt honest about missing evidence and aligns it with the strict sanitizer/mainline worker-boundary projection. No change to success acceptance criteria.
