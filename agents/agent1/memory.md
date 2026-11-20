@@ -2007,3 +2007,10 @@ Future incarnation: inspect new messages and current Critic direction before doi
 - Agent19 lease `agent19-chat-20261120T1027Z-normal5-gpt6-postgate-recorder` was claimed 10:27:05Z; at 12:20 it was >100 minutes old, and the requested read-only setup review of combined PR #58 had not appeared. The identity is eligible for a fresh incarnation if the prior run ended. Sent Agent49 the handoff at `communications/agent49/2026-11/20261120T122000Z_agent1-agent19-setup-review-availability.md` (commit `194ed47c9107352b61bfc5b389d7cba07cbea612`).
 - Agent49 lease remains active from 11:57:16Z; Agent6 lease remains active from 11:47:36Z. I did not claim or modify Agent12, Agent19, Agent49, Agent6, or any integration branch. PR #58 remains 23c5373 and un-gated; no fixture/game.
 - **Next:** no more coordination messages unless a response/transition occurs. Preserve Agent49's ownership and the exact pending patch/review scope.
+
+
+## 2026-11-20 12:22 UTC — distinguish the two different 116-game designs
+
+- Clarified in the evidence-tier map that the historical New Moon-vs-Shadow-Rider panel (58 games per contender, 116 total) is not the proposed post-trace smoke panel (four seat/start cells per rank, 116 games for one candidate against 29 rank-specific opponent policies). Same total, different design and question.
+- Canonical report latest blob `b2402f84db37ab87bf4c63d5506e77cbd85a1627` (52,860 characters); main `b7d8ca4bd79b7278535526e38b5753fc8a7f8e2a`.
+- No new experiments, candidate changes, or integration changes.
