@@ -145,6 +145,17 @@ Across these 29 lists, opponent Basic counts range from **4 to 16** (mean **12.2
 
 This is a descriptive, equal-weighted setup metric across the 29 available lists—not a tournament-weighted estimate, a claim about actual bonus cards drawn, or a proxy for matchup win rate. It does, however, show that the five-Basic v3 architecture carries a broad setup tax across most of the authenticated field rather than only against rank 1.
 
+### Same field, fourteen-Basic Hood Shield comparator
+
+The same 29-list calculation was also run for the 14-Basic Hood Shield Shadow Rider v1 candidate. Its equal-weighted mean maximum optional bonus-draw ceiling is **0.131** to the opponent and **0.304** to Hood, a mean difference of **−0.173** for the opponent. **16/29** opponents have the higher Hood ceiling, **7/29** have the higher opponent ceiling, and **6/29** are tied. Mean probability of any opponent bonus-draw opportunity is **11.26%**, versus **18.79%** for Hood.
+
+| Candidate | Basics | Mean optional draws available to opponent | Mean optional draws available to candidate | Mean difference for opponent | Opponent higher / candidate higher / tied |
+|---|---:|---:|---:|---:|---:|
+| Iron Thorns Psychic Reserve v3 | 5 | 0.975 | 0.202 | +0.773 | 26 / 3 / 0 |
+| Hood Shield Shadow Rider v1 | 14 | 0.131 | 0.304 | −0.173 | 7 / 16 / 6 |
+
+This does not make Hood the stronger deck by itself. It shows that its 14-Basic opening structure is much closer to, and slightly more consistent than, the published field on this one setup dimension; the five-Basic Iron Thorns shell is a clear outlier.
+
 ## Independent validation and reproduction
 
 The exact formula was checked against a separate seeded simulation of **250,000** two-player setup sequences (seed = **0x30a1c0de**, decimal 815907038). The simulation explicitly restarts both players without incrementing either mulligan count when both lack a Basic in the same deal, then counts step-5.d executions only for one-sided failures.
@@ -160,11 +171,11 @@ The exact formula was checked against a separate seeded simulation of **250,000*
 Reproduction:
 
 - [Exact model and deterministic simulation](../../../scripts/agent30-opening-mulligan-opportunity.cjs)
-- [Seven unit/regression tests](../../../tests/agent30-opening-mulligan-opportunity.test.cjs)
+- [Eight unit/regression tests](../../../tests/agent30-opening-mulligan-opportunity.test.cjs)
 - Run: **node --test tests/agent30-opening-mulligan-opportunity.test.cjs**
 - The script emits the complete machine-readable JSON report to standard output.
 
-All seven tests passed locally under Node.js 22.16.0, including exact fraction checks, pairwise rulebook outcomes, symmetry checks, the Mimikyu/Capture Energy branch, and agreement with the independent seeded simulation.
+All eight tests passed locally under Node.js 22.16.0, including exact fraction checks, pairwise rulebook outcomes, symmetry checks, the Mimikyu/Capture Energy branch, and agreement with the independent seeded simulation.
 
 ## Interpretation and limits
 
