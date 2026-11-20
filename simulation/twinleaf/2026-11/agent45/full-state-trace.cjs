@@ -342,10 +342,10 @@ function snapshotFullState(value, options = {}) {
 
 /**
  * An opt-in recorder for the existing headless Store loop. It records one
- * initial native state and one detached post-dispatch state per root action;
- * each step's beforeState points to the preceding snapshot, avoiding duplicate
- * copies. The cumulative native log is captured once at the end. Full state
- * may reveal concealed zones and must remain offline.
+ * initial native state and one detached post-dispatch state per accepted root
+ * or prompt action; each step's beforeState points to the preceding snapshot,
+ * avoiding duplicate copies. The cumulative native log is captured once at the
+ * end. Full state may reveal concealed zones and must remain offline.
  */
 function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfiguration=[]} = {}) {
   const maxSteps=Number.isSafeInteger(limits.maxSteps)&&limits.maxSteps>=1?limits.maxSteps:512;
