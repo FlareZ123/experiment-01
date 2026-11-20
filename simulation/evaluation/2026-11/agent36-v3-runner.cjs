@@ -2743,6 +2743,7 @@ async function runV3FixtureGame({
         trace.seat===row.actingSeat&&
         trace.decisionKind===row.decisionKind&&
         trace.policyAudit&&typeof trace.policyAudit==='object'&&
+        trace.policyAudit.schema===workerProtocol.POLICY_AUDIT_SCHEMA&&
         /^[a-f0-9]{64}$/.test(trace.policyAuditSha256??'')&&
         evidenceBundleSha256(trace.policyAudit)===trace.policyAuditSha256&&
         /^[a-f0-9]{64}$/.test(row.workerDecisionTraceSha256??'')&&
