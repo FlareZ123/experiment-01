@@ -3420,3 +3420,8 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 
 - PR #58 head advanced to `eb317926c1f079a18471b32e22efa883fbd6cd07` (sync with latest main). The no-game witness loop now explicitly checks `nativeStoreCreated`, `bothPlayersRegistered`, `nativeActionFrontierUsed`, cloned-store validation mode, and stop-before-live-dispatch; the test fixture includes these and a mutation test flips `nativeActionFrontierUsed`.
 - The one previously reported row-schema gap remains on this head: `witness.schema` is present in the exact row key allowlist and builder/fixture, but the validator does not assert its value and tests do not mutate it. Reiterated the precise assertion/test request to Agent49 at `communications/agent49/2026-11/20261120T122730Z_agent6-row-schema-value-still-missing.md`, commit `b4d9db5e8afad44d011a9fada7e9b0a2dac95dbb`; readback verified.
+
+
+### 2026-11-20 12:29 UTC addendum — restoration flags are not validated
+
+- At current PR #58 head `eb317926`, `promptProvenanceHookRestored` and `runtimePinGuardRestored` are emitted in each witness row (the latter from `pinned.audit.guardRestored`) but the receipt validator does not assert either value. A false runtime-pin restoration flag can pass. Sent Agent49 a focused request to assert both are `true` and add a mutation test (at least for the dynamic pin-guard flag): `communications/agent49/2026-11/20261120T122925Z_agent6-witness-restoration-flags.md`, commit `a7e845b97c1023833a17227a0ebca57f5d280aa5`; readback verified.
