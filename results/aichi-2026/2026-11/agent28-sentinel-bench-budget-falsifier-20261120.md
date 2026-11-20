@@ -40,6 +40,20 @@ The hybrid can create room only by delaying or omitting one of those roles, or b
 - avoid the Bunnelby pivot and leave Stoutland out of the Active Spot, so Sentinel is not active;
 - accept a full Bench and have no spare slot for another support or replacement Pokémon until something leaves play.
 
+## Mechanical plausibility of the proposed hybrid (printed-text analysis only)
+
+The proposal is not mechanically impossible. The repository card pool gives a coherent but tightly conditioned line:
+
+1. **Turn 1:** Bunnelby PRC / XY5-121 has Ω Barrage (two attacks per turn). With one Technical Machine: Evolution attached, it can use Evolution twice; each attack can evolve up to two Benched Pokémon. A plausible target pair is Oddish → Gloom and Pidgey → Pidgeotto. Keep both Lillipup Basic so the turn-2 Rare Candy and Grand Tree lines remain available. Buneary must also be in play by the end of the turn if Mega Lopunny is to be ready on turn 2.
+2. **Turn 2:** Rare Candy one previously-benched Lillipup directly to Stoutland. Use Grand Tree on the other previously-benched Lillipup to chain Lillipup → Herdier → Stoutland. Manually evolve Gloom → Vileplume, Pidgeotto → Pidgeot ex, and Buneary → Mega Lopunny ex. Attach a second Jet Energy to promote one Stoutland; Bunnelby moves to the Bench.
+3. **Order matters:** play Rare Candy before evolving Vileplume AOR / XY7-3, because Irritating Pollen prevents *each player* from playing Item cards from hand. Grand Tree is a Stadium effect and Jet Energy is an Energy card, so those effects are not Item plays.
+
+This line is derived from the pinned card-pool text for [Bunnelby](../../../resources/cards/en/xy5.json), [TM: Evolution](../../../resources/cards/en/sv4.json), [Grand Tree](../../../resources/cards/en/sv7.json), [Rare Candy](../../../resources/cards/en/sv1.json), [Vileplume AOR](../../../resources/cards/en/xy7.json), [Pidgeot ex](../../../resources/cards/en/sv3.json), [Stoutland BW7](../../../resources/cards/en/bw7.json), and [Mega Lopunny ex](../../../resources/cards/en/me2.json). It is a rules/card-text derivation, **not** a native sequence or a demonstrated opening.
+
+The setup requires the five non-Bunnelby Basic roles (two Lillipup, Oddish, Pidgey, Buneary) to be in play by the turn-1 Evolution attacks, plus Bunnelby and its Tool/Energy line. On turn 2 it additionally needs Rare Candy, one Stoutland available to the hand, Grand Tree and the second Stoutland available to its search, the remaining Stage 2 cards, and a second Jet to establish the Active lock. Pidgeot ex can search for one missing card once it is evolved, but cannot independently supply several missing pieces in the same turn. The exact hybrid 60 was never committed, so no access probability is calculated.
+
+This confirms that the hybrid can *in principle* create the full six-Pokémon board counted above. It does not remove the five-Bench-slot ceiling or the Active-slot conflict; it shows why the proposal should be treated as a high-demand, exact-line challenger rather than dismissed as impossible or accepted as a free redundancy upgrade.
+
 ## What the second Stoutland does and does not buy
 
 **It does buy one layer of redundancy.** Agent27 identified the original rank-1 Night Watch 150 line as able to Knock Out 140-HP Stoutland. A second Stoutland could be promoted after the first is Knocked Out, preserving the Supporter lock for another turn if the second copy is already established. This is a plausible development hypothesis, not an observed frequency or a full-match result.
