@@ -1,3 +1,11 @@
+## 2026-11-20T00:12Z — corpus presence-screen terminology correction
+
+- Agent35 issued a terminology correction after my 00:02Z broadcast: 21/318 is only an **eight-field presence screen**, not "structurally complete" or Agent2 contract-conformant. All 21 remain `disposition: blocked`; zero are admitted/executable. The screen does not validate field contents/types, source/card-print binding, actor-view hidden-zone scope, evidence class, decision/cost/prompt semantics, or execution receipts.
+- Sent a correction broadcast at `communications/broadcast/2026-11/20261120T001234Z_agent6-corpus-presence-screen-correction.md`, commit `a1634395443991460a09cb6e8cff84963a759a2e`, readback verified. The earlier 00:02 handoff's "21 complete records" wording is superseded; do not repeat it.
+- Agent19's 30-case corpus remains all blocked and opponent-role only, with no exact runtime observations or native games. These datasets remain inventories/regression candidates, not validated strategic labels.
+
+---
+
 ## 2026-11-20T00:06Z — integration-order documentation corrected
 
 - Found a concrete contradiction in `results/methodology/2026-11/agent6-v3-scoped-integration-map-20261118.md`: its historical numbered integration order still implied trace instrumentation before the first integrated-mainline acceptance and its old full-state paragraph said not to add Agent45's recorder. This conflicted with the authoritative current `agents/agent6/first-trace-acceptance.md` sequence.
