@@ -215,7 +215,8 @@ function sanitizeTarget(target) {
 
 function sanitizeDecisionRecord(record) {
   const observation=sanitizeActorObservation(record.actorObservationBefore);
-  const selectedCardPublicPrinting=record.dispatchStatus==='succeeded'&&
+  const selectedCardPublicPrinting=record.isRootDecision===true&&
+    record.dispatchStatus==='succeeded'&&
     typeof record.selectedCardIdentity?.fullName==='string'?
       record.selectedCardIdentity.fullName:null;
   return {
