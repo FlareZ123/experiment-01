@@ -25,6 +25,34 @@ The primary benchmark is the owner's custom cross-format challenge: one English-
 
 The [rank-1 champion list](../benchmark-shadow-rider.md) remains a reference baseline, not a proven strongest deck. Existing restricted opening probabilities, source-list audits and staged Store interactions should be treated as explanatory constraints on these hypotheses, not as a ranking of the candidates.
 
+## New comparative constraints from 20 November
+
+These findings update the hypothesis matrix without changing any frozen 60, promoting a challenger, or authorizing a pre-trace game/policy change.
+
+### Iron Thorns Psychic Reserve v3: fieldwide setup tax and primary-format mismatch
+
+Agent30's exact setup model finds that the five-Basic v3 has only **47.4562% valid opening-seven probability**. Conditional on a valid opening, **20.9139%** contain at least two Basics, **15.8172%** are Mimikyu-only, and the Mimikyu-only + Capture Energy line occurs in **3.2913%** of valid openings.
+
+The two-player mulligan model extends to all **29 available** original lists. Their Basic counts range from 4 to 16 (mean 12.241). The equal-weighted mean maximum optional bonus-draw ceiling is **0.975** for the opponent versus **0.202** for v3; **26/29** opponents have the higher ceiling. This is an opportunity ceiling, not actual bonus cards drawn or a win-rate estimate. The same model gives the 14-Basic Hood Shield v1 a much closer comparison: **0.131** mean opponent ceiling versus **0.304** for Hood, with 16/29 opponents higher, 7/29 Hood higher and 6 ties. A count-only sensitivity crosses field-neutral between 10 and 11 candidate Basics; it is not a recommendation to add Basics because it ignores the roles and costs of the cards displaced.
+
+There is also a primary-scope gate, not a Japanese-format illegality finding: the v3 candidate JSON declares Japanese Aichi Expanded and contains Palace Book SMP NAN25 and Palace Belt BWP 153, Japanese-only promo printings. It therefore does not satisfy the owner's primary requirement for an **English-language paper Expanded candidate** as submitted. These printings do not, by themselves, prove the list illegal in the Japanese Aichi format it declares. Keep v3 as a research hypothesis until the scope is reconciled or the list is rebuilt and printing-checked for the primary contract.
+
+Source and reproducible model: [Agent30's 29-list opening/mulligan report](agent30-iron-thorns-psychic-reserve-opening-mulligan-screen-20261120.md), [script](../../../scripts/agent30-opening-mulligan-opportunity.cjs), and [tests](../../../tests/agent30-opening-mulligan-opportunity.test.cjs). The report's seeded 250,000-setup cross-check validates the setup arithmetic, not game strength. Ranks 23, 25 and 28 remain absent and are not imputed.
+
+### Sentinel: distinguish the three branches and price the Whismur schedule
+
+Agent28 and Agent35 have now separated the existing Bunnelby/TM: Evolution v1, an uncommitted Bunnelby + second-Stoutland proposal, and the committed Whismur double-lock v2. Do not merge these into one "Sentinel hybrid." The Bunnelby proposal does not close the opponent's first Supporter window across both starts and consumes the fifth Bench slot if all intended roles are retained.
+
+For Whismur v2, the modeled Bawl-access envelope is **12.0433% without Guzma & Hala** and **22.8575% only under the optimistic two-discardable-card assumption**; both figures are conditional on a valid opening and going second, and stop before the turn-4 double lock. Its 13 Basics also raise the initial-seven no-Basic event to **16.2844%**, versus **13.8591%** for v1. The specified turn-4 sequence needs six physical cards (Whismur, Grand Tree, two Rare Candy and two Stoutland); at least one is in the six Prizes **48.41%** of the time. That blocks the exact schedule unless recovered or replaced, but is not a 48.41% game-loss estimate. These are structural access and prize constraints, not played-matchup results.
+
+The controlling detail and evidence limits are in [Agent35's lock-architecture synthesis](agent35-lock-architecture-field-synthesis-20261117.md) and [Agent28's Bench/timing/Prize falsifier](agent28-sentinel-bench-budget-falsifier-20261120.md). Keep every branch unpromoted pending the existing first-trace and policy-competence stopline; reuse existing native tests rather than creating another pre-trace fixture or workflow.
+
+### Hood Shield: exact-list candidate-policy challenge to retain for post-trace evaluation
+
+The exact Hood 60 contains one Latias ex and one Acerola. Agent42's source review of the frozen Agent46 candidate policy finds that its generic Skyliner retreat helper does not evaluate a prior Pale Moon-GX delayed Knock Out, `scoreTrainerPlay()` has no Acerola branch, and zero-score Trainer plays can be returned before the retreat branch is considered. This establishes an unqualified decision path, not that Acerola is never played or that a particular game is lost. It is a candidate-side issue and must not be misattributed to the rank-1 opponent policy.
+
+Keep the candidate policy and 60 frozen before the first accepted trace. After that trace, exercise the actual native Acerola / Retreat / Pass frontier with and without the prior Pale Moon receipt, then record the selected action and whether the delayed effect is cleared. See [Agent42's exact-list post-trace policy veto map](../../methodology/2026-11/agent42-posttrace-opponent-policy-readiness-veto-map-20261117.md) and [the exact-list handoff](../../../communications/agent1/2026-11/20261120T1925Z_agent42-candidate-pale-moon-escape-gap.md).
+
 ## Translate the human concepts into observable variables
 
 The human concepts are useful because they identify failure modes that simple card counts and search graphs miss. Use them as a shared vocabulary, but measure them at the level of actual game decisions and whole turns.
