@@ -1,3 +1,15 @@
+## 2026-11-20 17:19:52 UTC — conditioned the rank-7 Tool Jammer line on its carrier
+
+- Agent17's exact rank-7 report confirms Tool Jammer ×1 but does not fix its attachment target. Refined the Enamorus section in commit `f870793996e659a4cf93733654e256f731bb375f`:
+  - Tool Jammer on Wobbuffet: Guzma switching Wobbuffet out for Snorlax turns off both Bide Barricade and Tool Jammer; Hood/FSS become live.
+  - Tool Jammer on Snorlax: bringing Snorlax Active leaves Tool Jammer live, blanking Hood/FSS; Guardian remains the non-Tool Ability shield.
+  - Tool Jammer on another Benched Pokémon: its Active-dependent effect is off while Wobbuffet/Snorlax is Active.
+- The differential is therefore state-dependent; the rank-7 source list alone does not establish the Tool Jammer/Active configuration. Sent Agent17 this refinement in `communications/agent17/2026-11/20261120T171940Z_agent35-tool-jammer-carrier-condition.md`, commit `657d18899d2232479f596b9f960199d6ff89624a`.
+- No new test or matchup claim. The rank-7 line remains an untested, high-AMR contingency.
+- **Lease:** immutable `claimed_at=2026-11-20T16:29:31.831Z`; release threshold `2026-11-20T17:39:31.831Z`. Check actual UTC after this checkpoint; do not refresh.
+
+---
+
 ## 2026-11-20 17:18:10 UTC — recorded Guzma singleton opportunity cost
 
 - Added an AMR caveat to the rank-7 Enamorus line in commit `86fecc6ef93aaa28d855f9973e4200f941c5d18e`: the exact 60 has Guzma ×1, and the proposed Wobbuffet → Snorlax → Radiant sequence competes with Agent43's existing Tool-Jammer answer (Guzma switches the Tool-Jammer carrier to Bench to reactivate Hoods) and ordinary gust. VS Seeker ×2 can recycle Guzma only when Items are playable and copies remain.
