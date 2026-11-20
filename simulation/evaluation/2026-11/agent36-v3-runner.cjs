@@ -1427,8 +1427,10 @@ const NO_GAME_WITNESS_ROW_KEYS=Object.freeze([
   'candidateSeat','opponentSeat','actorSeat','role','seed','seed32',
   'actualFirstPlayerSeat','actorObservationUsed','selectedActionValidated',
   'validationActionKind','actionFrontierItemCount','fullOriginalStoreStateUnchanged',
-  'liveActionDispatched','acceptedRootActions','rootDecisionCount','workerDecisionCount',
-  'policySha256','policyVersion','workerCleanupVerified','allWorkerSessionsClosed',
+  'liveActionDispatched','acceptedRootActions','rootDecisionCount','promptDecisionCount',
+  'workerDecisionCount','candidateRootDecisionCount','candidatePromptDecisionCount',
+  'candidateWorkerDecisionCount','opponentRootDecisionCount','opponentPromptDecisionCount',
+  'opponentWorkerDecisionCount','policySha256','policyVersion','workerCleanupVerified','allWorkerSessionsClosed',
   'actorOnlyWorkerInput','nativeStateDisclosedToWorker',
   'opponentPrivateZonesDisclosedToWorker','physicalSeedDisclosedToWorker',
   'policySeedDisclosedToWorker','workerInputScope','workerFailureCount',
@@ -1558,6 +1560,47 @@ function validateNoGameWitnessReceipt(receipt,expected={}) {
     assert.equal(witness.workerFailureCount,0);
     assert.equal(witness.policyRngReplayable,true);
     assert.equal(witness.actualFirstPlayerSeat,witness.actorSeat);
+    const decisionCountFields=[
+      'rootDecisionCount','promptDecisionCount','workerDecisionCount',
+      'candidateRootDecisionCount','candidatePromptDecisionCount','candidateWorkerDecisionCount',
+      'opponentRootDecisionCount','opponentPromptDecisionCount','opponentWorkerDecisionCount'
+    ];
+    for(const field of decisionCountFields){
+      assert.ok(Number.isSafeInteger(witness[field])&&witness[field]>=0,
+        'no-game witness '+field+' must be a non-negative safe integer');
+    }
+    assert.equal(witness.candidateWorkerDecisionCount,
+      witness.candidateRootDecisionCount+witness.candidatePromptDecisionCount,
+      'candidate worker decision total must equal root plus prompt decisions');
+    assert.equal(witness.opponentWorkerDecisionCount,
+      witness.opponentRootDecisionCount+witness.opponentPromptDecisionCount,
+      'opponent worker decision total must equal root plus prompt decisions');
+    assert.equal(witness.workerDecisionCount,
+      witness.candidateWorkerDecisionCount+witness.opponentWorkerDecisionCount,
+      'global worker decision count must equal candidate and opponent totals');
+    const activeRootDecisionCount=role==='candidate'?
+      witness.candidateRootDecisionCount:witness.opponentRootDecisionCount;
+    const activePromptDecisionCount=role==='candidate'?
+      witness.candidatePromptDecisionCount:witness.opponentPromptDecisionCount;
+    const inactiveRootDecisionCount=role==='candidate'?
+      witness.opponentRootDecisionCount:witness.candidateRootDecisionCount;
+    const inactivePromptDecisionCount=role==='candidate'?
+      witness.opponentPromptDecisionCount:witness.candidatePromptDecisionCount;
+    const inactiveWorkerDecisionCount=role==='candidate'?
+      witness.opponentWorkerDecisionCount:witness.candidateWorkerDecisionCount;
+    assert.equal(witness.rootDecisionCount,activeRootDecisionCount,
+      'acting-role root decision count must match its role aggregate');
+    assert.equal(witness.promptDecisionCount,activePromptDecisionCount,
+      'acting-role prompt decision count must match its role aggregate');
+    assert.equal(witness.workerDecisionCount,
+      witness.rootDecisionCount+witness.promptDecisionCount,
+      'global worker decision count must match the acting role total');
+    assert.equal(inactiveRootDecisionCount,0,
+      'inactive role must have zero root decisions');
+    assert.equal(inactivePromptDecisionCount,0,
+      'inactive role must have zero prompt decisions');
+    assert.equal(inactiveWorkerDecisionCount,0,
+      'inactive role must have zero total decisions');
     assert.equal(witness.rootDecisionCount,1);
     assert.ok(Number.isInteger(witness.actionFrontierItemCount)&&witness.actionFrontierItemCount>0);
     assert.equal(witness.opponentSeat,1-witness.candidateSeat);
@@ -3105,9 +3148,22 @@ async function runV3FixtureGame({
     const roleAudit=workerExecutionAudit.roles[role];
     const otherRole=role==='candidate'?'opponent':'candidate';
     const otherAudit=workerExecutionAudit.roles[otherRole];
+    const candidateAudit=workerExecutionAudit.roles.candidate;
+    const opponentAudit=workerExecutionAudit.roles.opponent;
+    for(const [roleName,audit] of Object.entries({
+      candidate:candidateAudit,opponent:opponentAudit
+    })){
+      assert.equal(audit.decisionCount,audit.rootDecisionCount+audit.promptDecisionCount,
+        roleName+' worker decision total must equal root plus prompt decisions');
+    }
+    assert.equal(workerExecutionAudit.totalWorkerDecisions,
+      candidateAudit.decisionCount+opponentAudit.decisionCount,
+      'global worker decision count must equal candidate and opponent totals');
     assert.equal(roleAudit.seat,expectedActorSeat);
     assert.equal(roleAudit.rootDecisionCount,1);
     assert.equal(otherAudit.rootDecisionCount,0);
+    assert.equal(otherAudit.promptDecisionCount,0);
+    assert.equal(otherAudit.decisionCount,0);
     assert.equal(roleAudit.actionFrontierAdmissionFailureCount,0);
     assert.equal(roleAudit.policyRngReplayable,true);
     const allWorkerSessionsClosed=Object.values(workerExecutionAudit.roles).every(row=>
@@ -3144,7 +3200,14 @@ async function runV3FixtureGame({
       liveActionDispatched:gameResult.liveActionDispatched,
       acceptedRootActions:gameResult.acceptedRootActions,
       rootDecisionCount:roleAudit.rootDecisionCount,
-      workerDecisionCount:roleAudit.decisionCount,
+      promptDecisionCount:roleAudit.promptDecisionCount,
+      workerDecisionCount:workerExecutionAudit.totalWorkerDecisions,
+      candidateRootDecisionCount:candidateAudit.rootDecisionCount,
+      candidatePromptDecisionCount:candidateAudit.promptDecisionCount,
+      candidateWorkerDecisionCount:candidateAudit.decisionCount,
+      opponentRootDecisionCount:opponentAudit.rootDecisionCount,
+      opponentPromptDecisionCount:opponentAudit.promptDecisionCount,
+      opponentWorkerDecisionCount:opponentAudit.decisionCount,
       policySha256:roleAudit.policySha256,
       policyVersion:roleAudit.policyVersion,
       workerCleanupVerified:workerExecutionAudit.cleanupVerified,
