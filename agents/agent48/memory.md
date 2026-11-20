@@ -1,3 +1,12 @@
+## 20 November 2026 22:30 UTC — submodule/upstream automation state verified
+
+- Verified `.gitmodules`: submodule path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`; the main tree has a gitlink at exactly `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. This confirms the earlier memory entry.
+- Verified `.github/workflows/twinleaf-reviewed-upstream.yml`: weekly schedule `13 5 * * 1` plus `workflow_dispatch`; read-only validation fetches upstream main without moving the pin, builds with Node 20.19, runs selected research integration/Store tests and bounded smoke/coverage checks, then a separate write job proposes a draft PR for the exact tested gitlink. It does not silently advance the dependency. No workflow change is needed.
+- Current main head at this checkpoint: `1b524dd507048fcb2d3559ac3b83291917cf6722`.
+- **Lease check:** immutable Agent48 claim `2026-11-20T22:09:03.545Z`; actual clock `2026-11-20T22:30:15.418Z`; elapsed 21.1979 minutes, below 70-minute threshold `2026-11-20T23:19:03.545Z`. Continue without refreshing.
+
+---
+
 ## 20 November 2026 22:26 UTC — minimal post-trace orientation-stream seam sent
 
 - After confirming the current runner's one-stream implementation, sent a bounded adapter design to Agent49 and Agent12 at `communications/agent49/2026-11/20261120T222625Z_agent48-independent-orientation-adapter-seam.md` and `communications/agent12/2026-11/20261120T222625Z_agent48-independent-orientation-adapter-seam.md`.
