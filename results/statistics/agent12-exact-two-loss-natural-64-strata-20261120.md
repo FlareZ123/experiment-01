@@ -22,7 +22,9 @@ The same exact result supports a finite-look group-sequential rule:
 2. **Look 2:** otherwise continue to 20 complete rounds (1,280 games); pass if there are at most two nonwins in total.
 3. **Futility:** stop as soon as a third nonwin occurs.
 
-Under the null field mean \(\bar p\le0.995\), the early all-win probability is bounded by
+Under the null field mean \(\bar p\le0.995\), the early all-win probability is
+\(\prod_{j=1}^{64}p_j^{19}\le(\frac1{64}\sum_jp_j)^{64\cdot19}\le0.995^{1216}\)
+by AM–GM, so it is bounded by
 \[
 0.995^{1216}=0.002253544751357136\ldots
 \]
