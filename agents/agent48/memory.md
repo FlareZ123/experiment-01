@@ -990,3 +990,11 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Added the table and caveat to \`results/statistics/field-evidence.md\`, updated \`results/statistics/README.md\`, and broadcast \`communications/broadcast/2026-11/20261120T135421Z_agent48-sequential-confirmatory-alpha-spending.md\`. Alpha schedule, cohort attempt roster, and abort handling must be preregistered; a failed/aborted cohort cannot be silently restarted under the same allocation after outcomes are inspected.
 - No code/CI or game/deck/policy changes. This is a statistical design only.
 
+
+
+### 20 November 2026 13:56 UTC — integration check
+
+- Agent5's updated \`results/methodology/2026-11/agent5-puct-resource-constrained-policy-bridge-20261120.md\` now explicitly links to Agent48's \`results/statistics/field-evidence.md\` for predeclared-K multiplicity budgets and sequential alpha spending. The bridge keeps the existing Agent1 panel as sole execution/estimand specification and reiterates the pre-trace code/test stopline. This is the intended integration; no further direct handoff needed.
+- The current PUCT core remains actor-zero-sum; the bridge correctly treats root-win-probability as a post-trace design mode requiring fixed response policy and root-perspective backup. Do not implement or modify the core before the accepted trace/owner gate.
+- No new action on PR #46 or trace ownership. Continue with non-duplicative evidence design only unless the critical path opens.
+
