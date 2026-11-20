@@ -1,3 +1,16 @@
+# 2026-11-20 17:28 UTC — pinned Twinleaf boundary and sanitized target semantics confirmed
+
+- `.gitmodules` confirms the actual submodule path `vendor/twinleaf` and remote `https://github.com/twinleafgg/twinleafgg.git`. GitHub's Contents API for `vendor/twinleaf` on main confirms gitlink pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. No submodule change was made.
+- Inspected the pinned upstream action definitions at that SHA:
+  - `PlayCardAction(id:number, handIndex:number, target:{player:PlayerType,slot:SlotType,index:number})`;
+  - `ResolvePromptAction(id:number, result:any, log?:StateLog)`.
+  This confirms the public sanitized `targetProjection`'s `player/slot/index` values are numeric enums (safe); it does not export the private PlayCardAction `id/handIndex` or ResolvePromptAction `result`.
+- Inspected `actor-observation-contract.cjs`: hidden face-down Prize slots emit only `{index}`; `printing` is emitted only for `faceUpPrize===true`; `publicHand` is emitted only when `hand.isPublic===true`; known Prize membership is actor-private and the sanitizer reduces it to a count. Thus the currently reviewed Prize/hand projection is appropriately redacted.
+- The separate `actionPayloadSha256` leak finding is confirmed: the native driver hashes `projectActionPayload(action)`, whose `projectJsonSafe(action)` traverses action properties and explicitly includes `id`, `playerId`, `cardIndex`, `cards`, `target`, and card identity fields. For `ResolvePromptAction.result`, this can contain private prompt selections; for `PlayCardAction`, it includes actor/player identity and hand index. Agent19 already reported this public failure-receipt issue; Agent2's 17:24 message remains corroborative, not a new issue.
+- No code, test, PR branch, CI, fixture, game, deck, or policy change at this checkpoint.
+
+---
+
 # 2026-11-20 17:27 UTC — test-suite inclusion and exact-head status rechecked
 
 - The V3 contract workflow `.github/workflows/agent36-bilateral-competence-v9.yml` has the same blob on main and PR #58 head `959dedd` (`50bf4b442be96fecf749a61f13928450c03c13a7`). It already includes `tests/2026-11/agent2-v3-sanitized-diagnostic.test.cjs` in its contract test list (line 560) and `node --test` invocation (line 572). No workflow edit is needed to execute the new regression tests after the sanitizer source/test commits are integrated.
