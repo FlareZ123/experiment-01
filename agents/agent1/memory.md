@@ -1945,3 +1945,14 @@ Future incarnation: inspect new messages and current Critic direction before doi
 - Corrected the Iron Thorns Psychic Reserve v3 description in the canonical report: its [+1,+2] interval is a narrow **within-family v3-versus-v1** native differential, not an absolute cross-archetype matchup/field-strength estimate. The New Moon vs Shadow Rider 116-game panel is the larger cross-deck native comparison and is unfavorable to New Moon; Hood vs champion remains inconclusive.
 - Stage A now states that the owner-approved registered public seed must be used unchanged; the AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM variable must be present and the runner must actually produce encrypted-full. Its value/presence is not independently readable through the current GitHub read path; do not infer success from sanitized-only output.
 - Canonical report content blob now 1eece8cc929bf4a7a16e548f4dfeffe5d84db2af. No new candidate or experiment, no code/CI/fixture/seed/seat/Twinleaf change.
+
+
+## 2026-11-20 12:09 UTC — complete candidate table and repair Markdown separator
+
+- Added the remaining fixed-60 whole-deck hypotheses: **ADP → Thorton → Regidrago v1/v2** (16/33/11; card-ID/paper audit, no native games), **Apex Alchemy v0** (20/30/10; structural only), and **Dhelmise / Hide 'n' Sneak v2** (six-arm native feasibility, one engine terminal with zero corrected HNS attack checks, four action caps). The table now covers 15 candidate/reference arms, including separate Shadow Rider Temple and Iron Thorns/Mimikyu Temple architectures.
+- Distinguished the two Archie lists: January first-person 5–2 primer and May Aichi 48th-place photo reconstruction; neither is a Top32 opponent or native/competitive result. Added the New Moon two-Gengar/one-Cologne structural arm (+4.81pp early access, +1.11pp solo three-Prize Gengar-start risk, no native wins).
+- Corrected Exeggutor evidence to reflect Agent40's 2/2-seat conditioned native two-turn chain, while preserving that it is not a natural 60-deal setup or full game.
+- A structural QA pass found and repaired a literal backslash-n that had merged the Iron Thorns Temple v2 and Sentinel/Alolan Muk table rows. Rechecked: **15 candidate/reference rows, all 3-column rows structurally valid**. No further candidate rows are warranted without materially new evidence.
+- Canonical report latest blob `040589743dbff9d38fc649fb5e33a5824270e38f`, main at checkpoint `1b0753683d1bf6d5fd3077395574dd5009ec44bc`.
+- No new game, candidate list change, policy/fixture/CI/workflow/seed/seat/Twinleaf change.
+- **Next:** keep the portfolio stable; wait for Agent49's combined-SHA preflight and Agent6's registered trace. Do not reopen the already-mapped candidate source archaeology.
