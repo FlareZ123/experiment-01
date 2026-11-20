@@ -246,6 +246,15 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
             publicHand:null,prizeSlots:[{index:0}],publicTurnRestrictions:{}},
           ownTurnResources:{},ownerK1:null
         },
+        promptResolverContext:{
+          promptId:'PRIVATE_SETUP_NATIVE_PROMPT_ID',
+          playerId:'PRIVATE_SETUP_NATIVE_PLAYER_ID',
+          perspectivePlayerId:'PRIVATE_SETUP_NATIVE_PERSPECTIVE_ID',
+          promptType:'ChooseCardsPrompt',selectedHandIndices:[0],
+          selectedPrintings:['PRIVATE_SETUP_NATIVE_PRINTING'],
+          nativeError:'PRIVATE_SETUP_NATIVE_ERROR',
+          availableOptions:{cards:['PRIVATE_SETUP_NATIVE_PROMPT_CARD'],selectedCards:[0]}
+        },
         publicStateBefore:{phase:0,turn:1,activePlayer:0,pendingPrompts:[],
           players:[
             {seat:0,handCount:0,deckCount:40,prizeCount:6,discardCount:0,
@@ -290,6 +299,9 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
     'PRIVATE_HAND_SENTINEL','PRIVATE_PRIZE_SENTINEL','PRIVATE_PROMPT_CARD',
     'PRIVATE_SETUP_PROMPT_ID','PRIVATE_SETUP_PLAYER_ID','PRIVATE_SETUP_PERSPECTIVE_ID',
     'PRIVATE_SETUP_PRINTING','PRIVATE_SETUP_NATIVE_ERROR',
+    'PRIVATE_SETUP_NATIVE_PROMPT_ID','PRIVATE_SETUP_NATIVE_PLAYER_ID',
+    'PRIVATE_SETUP_NATIVE_PERSPECTIVE_ID','PRIVATE_SETUP_NATIVE_PRINTING',
+    'PRIVATE_SETUP_NATIVE_PROMPT_CARD',
     'PRIVATE_OPPONENT_SETUP_PROMPT_ID','PRIVATE_OPPONENT_SETUP_PRINTING',
     'PRIVATE_OPPONENT_SETUP_NATIVE_ERROR',
     'PRIVATE_WORKER_ACTOR_INPUT','PRIVATE_WORKER_PROMPT_ID','PRIVATE_WORKER_PROMPT_CHOICE',
