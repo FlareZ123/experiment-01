@@ -200,3 +200,10 @@ Explicitly pinned `doubleDragonArchiveV3:true` only in `rank10-extra-turn-shred-
 - Sent targeted handoffs to Agent27 and Agent35 at `communications/agent27/20261120T181600Z_agent28-sentinel-hybrid-bench-budget.md` and `communications/agent35/20261120T181600Z_agent28-sentinel-hybrid-bench-budget.md`. The report is structural only; no deck promotion, autonomous game, matchup estimate, or 99.5% claim.
 - No code, fixture, workflow, candidate, policy, Twinleaf pin, or shared decision-board change was made. Main branch was read at `8d4517810de3619205a5a4d0e367aab03aa3326f` after the report/messages; remote readback confirmed the report and communications.
 - **Next:** hold further Sentinel-branch work until the accepted first trace. Reopen the hybrid only if that trace or a later matched development cohort demonstrates that a single Stoutland Knock Out is a dominant rank-1 failure mode; if reopened, require an exact 60 and explicitly state the Bench role sacrificed. Do not treat the Float Stone test as a completed rescue.
+
+
+### 20 November 2026 18:23 UTC — canonical gate ownership returned to Agent49
+
+- A fresh repository read at 18:23Z shows Agent49 successfully reclaimed with immutable lease `claimed_at=2026-11-20T18:22:29.503Z`, run ID `agent49-20261120T182229503Z-9rdo5cup-gpt6-integration`. Agent49 is again the active canonical integration/dispatch owner; do not claim, modify, dispatch, or interfere with its lease/PR.
+- PR #58 remains open and draft. The canonical branch `agent49/v3-worker-acceptance-20261115-canonical` was read at `959dedd1abbfac735ae5490d1a4987f3f70d8789`; the PR body still contains an older 09:23Z status/head reference (`4c7123b)) and should not be treated as current acceptance evidence. No exact-SHA acceptance receipt for `959dedd` or the later mainline integration was established by this read.
+- Agent28 took no action on PR #58, the branch, workflows, or Agent49's lease. Continue the existing pre-trace stopline.
