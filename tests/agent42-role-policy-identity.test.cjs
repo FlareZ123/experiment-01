@@ -539,3 +539,44 @@ test('trusted host paths do not inherit worker-thread, VM, or module-loader capa
    'trusted path must reject '+item.source.trim());
  }
 }));
+
+
+test('V3 worker execution boundary digest is bound in the policy application receipt while legacy callers stay unchanged',()=>repo(root=>{
+ const c=identity('candidate-policy',null,1,manifest(root,'candidate.cjs'),{mode:'prize-map'});
+ const o=identity('opponent-policy',7,2,manifest(root,'opponent.cjs'),{mode:'source-native'});
+ const pd=preDeal(c,o);
+ const legacy=I.createPolicyApplicationReceipt({
+  preDeal:pd,candidateIdentity:c,opponentIdentity:o,trial:trial(c,o,0,1)
+ });
+ assert.equal(Object.hasOwn(legacy.receipt,'workerExecutionBoundarySha256'),false);
+
+ const v3Trial=trial(c,o,0,1);
+ const workerExecutionBoundary={
+  schema:'agent19-agent49-v3-worker-execution-boundary-v1',
+  valid:true,setupPromptAuditAccepted:true,candidateSeat:0,opponentSeat:1
+ };
+ v3Trial.workerExecutionBoundary=workerExecutionBoundary;
+ v3Trial.workerExecutionBoundarySha256=evidenceBundleSha256(workerExecutionBoundary);
+ const receipt=I.createPolicyApplicationReceipt({
+  preDeal:pd,candidateIdentity:c,opponentIdentity:o,trial:v3Trial
+ }).receipt;
+ assert.equal(receipt.workerExecutionBoundarySha256,v3Trial.workerExecutionBoundarySha256);
+ assert.equal(receipt.actorOnlyExecutionBoundarySha256,
+  evidenceBundleSha256(v3Trial.actorOnlyExecutionBoundary));
+ assert.equal(receipt.receiptSha256,evidenceBundleSha256(
+  Object.fromEntries(Object.entries(receipt).filter(([key])=>key!=='receiptSha256'))
+ ));
+
+ const invalidTrial={...v3Trial,
+  workerExecutionBoundary:{...workerExecutionBoundary,valid:false}
+ };
+ invalidTrial.workerExecutionBoundarySha256=evidenceBundleSha256(invalidTrial.workerExecutionBoundary);
+ assert.throws(()=>I.createPolicyApplicationReceipt({
+  preDeal:pd,candidateIdentity:c,opponentIdentity:o,trial:invalidTrial
+ }),/V3 worker execution boundary is not accepted/);
+
+ const tamperedTrial={...v3Trial,workerExecutionBoundarySha256:h(999)};
+ assert.throws(()=>I.createPolicyApplicationReceipt({
+  preDeal:pd,candidateIdentity:c,opponentIdentity:o,trial:tamperedTrial
+ }),/digest does not match its projection/);
+}));
