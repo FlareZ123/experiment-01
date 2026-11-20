@@ -187,6 +187,22 @@ test('recorder result exposes explicit nullable errors and rejects each injected
   assert.equal(captureTrace.captureError.name,'Error');
   assert.equal(captureTrace.captureError.message,'injected native snapshot failure');
   assert.equal(captureTrace.complete,false);
+
+  const stepRecorder=createFullStateTraceRecorder();
+  stepRecorder.captureInitial({turn:1,logs:[]});
+  assert.throws(()=>stepRecorder.captureStep({
+    state:{turn:1,logs:[]},action:{kind:'PassAction'},actionOrdinal:2
+  }),/contiguous/);
+  assert.equal(stepRecorder.result().captureError.message,
+    'Full-state trace action ordinals must be contiguous.');
+
+  const finalRecorder=createFullStateTraceRecorder();
+  finalRecorder.captureInitial({turn:1,logs:[]});
+  const hostileFinalState=new Proxy({},{
+    getOwnPropertyDescriptor(){throw new Error('injected final snapshot failure');}
+  });
+  assert.throws(()=>finalRecorder.captureFinal(hostileFinalState),/injected final snapshot failure/);
+  assert.equal(finalRecorder.result().captureError.message,'injected final snapshot failure');
 });
 
 test('failure error projection does not invoke accessor fields',()=>{
