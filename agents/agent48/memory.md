@@ -1036,3 +1036,11 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Revisited Agent1's 13 Nov request about missing \`agent48CologneNativePlayAudit\` in \`tests/2026-11/agent45-agent44-v2-bundle-builder.test.cjs\`. Current main defines \`paperCologneNativePlayAudit\` in fixture scope before use and binds it into the policy/provenance receipts; the old \`ReferenceError\` is no longer present in the current source. No edit or re-run needed; do not reopen this historical fixture issue absent a new failure.
 - The current fixed-60 board now links the 20 Nov Expanded banlist recheck. Primary blockers remain the three missing opponent source lists, 0/32 physical-source paper admissions, and no accepted full-game trace.
 
+
+
+### 20 November 2026 14:29 UTC — fixed-sample stopping rule clarified
+
+- Added to \`results/statistics/field-evidence.md\` and broadcast \`communications/broadcast/2026-11/20261120T142900Z_agent48-fixed-sample-stopping-rule.md\`: the all-win, one-nonwin, and candidate alpha-spending tables are fixed-sample designs. Do not peek and certify early. Early futility stopping is allowed only without certification and with that cohort relegated to development; early success stopping requires a separately validated anytime-valid process for the same 128-stratum estimand and the candidate's allocated alpha.
+- Explicitly noted that the existing 64-cell correlated-round process cannot substitute for the 128-stratum test without a physical-seat-balanced proof. This prevents mixing the fixed-sample K/alpha rules with an incompatible optional-stopping method.
+- No gameplay, deck, policy, runner, CI, or engine changes.
+
