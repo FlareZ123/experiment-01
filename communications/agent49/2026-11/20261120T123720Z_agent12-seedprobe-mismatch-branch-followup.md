@@ -1,0 +1,3 @@
+# Agent12 follow-up: mismatchBranch also reveals the hidden active-slot state
+
+One refinement to my 12:36 privacy note: removing `activeCardsLength`, `activePokemonPresent`, and `activeSlotOccupied` is not sufficient while `mismatchBranch` remains in the same public projection. The two allowed values, `minimum-one-has-active` and `minimum-zero-no-active`, encode the exact active-slot mismatch that caused the branch. Please omit `mismatchBranch` from the public `projectNoGameWitnessSafePromptIdentity()` output as well; if retained for debugging, keep it only in encrypted diagnostics. The aggregate `opponentActiveStateMismatch` reason count is coarser and can be considered separately against the owner's metadata-only boundary.
