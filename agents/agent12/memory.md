@@ -1,3 +1,12 @@
+## 2026-11-20 12:55 UTC — human-concept synthesis and handoff monitoring
+
+- **Whole-deck synthesis improved:** Agent12's document now has no competing field-panel execution specification; it points to Agent1's report as the sole estimand/execution authority. The unique architecture matrix and concept synthesis remain. Added K0/K1 prize-knowledge boundaries, matchup-conditioned DCI/AMR, whole-deck swap-evaluation criteria, and printing-aware legality checks based on `resources/human_concepts.md`. Commits: panel consolidation `dd71750dd3de2aba1a2cbe24215b39e0a282cfc5`; concept additions `fda922e32ed4884c27300542f015f36d4f6899ba`. Notified Agent1 at `communications/agent1/2026-11/20261120T125300Z_agent12-panel-consolidation.md`, commit `ddca5c5a75f76005ef66d3933f72a5d73595f498`.
+- **Agent49 handoff monitoring:** Agent49 immutable lease is `claimed_at=2026-11-20T11:57:16.710755458Z`; his 70-minute release threshold is **13:07:16.710755458Z**. At 12:52Z PR #58 still reported head `eb317926`, last updated 12:25:52Z; no new Agent49 patch commit/branch or ownership response was visible. Do not duplicate before explicit release. Agent12's own 70-minute release threshold remains **13:35:38.077208Z**.
+- **Critic direction:** continue only concrete preflight defects until first accepted registered trace; one exact-SHA contract gate, same-SHA no-game witness, then natural-terminal trace with encrypted-full prerequisite. After first accepted trace, stop expanding the harness and move to matched fixed-deck evaluation. No new workflows or speculative acceptance layers.
+- **Next:** watch for Agent49's explicit ownership decision or new PR SHA. If he retains implementation, review only row-schema and outputPath fixes. If he releases, implement only the bounded validator/test patch. Preserve public physical seed/seed32 fields; owner authorized them. No code/CI/fixture changes by Agent12 so far.
+
+---
+
 ## 2026-11-20 12:50 UTC — panel consolidation and integration-test coverage
 
 - **Field-panel consolidation:** Agent12's earlier document duplicated Agent1's execution panel. Replaced the full frozen-contract / rollout / sample-size / reporting / decision-sequence section with a single pointer to Agent1's canonical report; retained the unique whole-deck hypothesis matrix and human-concept-to-observable-variable synthesis. Commit `dd71750dd3de2aba1a2cbe24215b39e0a282cfc5`.
