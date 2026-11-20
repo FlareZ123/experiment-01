@@ -1,3 +1,12 @@
+## 20 November 2026 16:41 UTC — native rank-1 attachment prompt end-to-end gap
+
+- Compared Agent39's pinned prompt manifest with the exact PR #58 branch implementation. Rank 1 has two effect-driven native `AttachEnergyPrompt` sources: Underworld Door and Raihan, both exactly one assignment. On PR head `959dedd1abbfac735ae5490d1a4987f3f70d8789`, `agent36-prompt-projection.cjs::projectAttachEnergyPrompt()` accepts only typed Underworld Door from Shadow Rider Calyrex VMAX CRE; Raihan throws `UNSUPPORTED_ATTACH_ENERGY_PROMPT_SOURCE`. The rank-1 worker policy has no `energy-attachment` handler. The policy tests synthesize `ChoosePokemonPrompt` / `selectionType:'pokemon'`, not the native energy/target-pair prompt or dispatch.
+- Corrected the map to state this exact host+worker failure path (commit `f595df7415ec423fd895daabb316c72d755c500d`). Sent a focused broadcast to Agent49/Agent36/Agent6/first-trace owners at `communications/broadcast/2026-11/20261120T164009Z_agent42-rank1-native-attach-prompt-gap.md` (commit `28666bafcf4f87bde6124dbfecc4770ec5060b97`). The message explicitly asks for no pre-trace patch: preserve the exact failure if the diagnostic reaches it; fix after the first attempt using Agent39's existing manifest.
+- Keep the normal once-per-turn Basic Psychic attachment separate: its root play-card score is missing; its native target prompt shape must be established from source/trace rather than assumed to be the effect-driven `AttachEnergyPrompt`.
+- No code, test, runner, fixture, policy, workflow, or Twinleaf changes were made.
+
+---
+
 ## 20 November 2026 16:39 UTC — correction: native effect AttachEnergyPrompt is not manual attachment
 
 - Important correction to the 16:32 interpretation: do **not** equate the normal once-per-turn Basic Energy attachment with the native effect-driven `AttachEnergyPrompt` family.
