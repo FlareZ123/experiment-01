@@ -41,6 +41,8 @@ The digest is recomputed as SHA-256 of canonical JSON (object keys sorted lexico
 
 An independent canonical-JSON SHA-256 pass over the actual source payloads matched **51/51** source-declared digests (19 rank 2 + 26 rank 4 + 6 rank 10). The repository integration test exercises all 51 through the resolver. The rank-10 `rank10-pd-07-native-putdamage-prompt` blocked case has no actor view and remains unresolved. This helper does not fill that gap.
 
+The remaining inspected rank-3/5/7/11/12/19/31 `actorView` fields are fixture/request descriptors or digest metadata without the raw policy-view object; rank 6/8 had no actor-view payload in the indexed case arrays. They remain unresolved. In particular, `fixtureRef`, `visibleSummary`, `actorPacketDigest`, and `requestDigests` are not substitutes for an actor observation. The corpus's current coarse `hasActorView` flag can therefore mean “descriptor present,” not “raw payload resolvable.”
+
 A corpus-indexing gap remains: rank 4 stores its digest as `actorView.digestSha256`, which the current corpus `normalizeCase()` does not lift into the index's `actorViewDigest` field. The resolver reads and verifies the source wrapper directly; the corpus generator should eventually preserve this digest field too.
 
 ## Evidence and limitations
