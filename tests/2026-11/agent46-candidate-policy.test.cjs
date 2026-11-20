@@ -874,3 +874,70 @@ test('Quick Ball deck-search prompt selects a needed candidate Basic from actor-
   assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-2'] },
     'Shadow Rider V is preferred to the candidate Dialga-GX and Mimikyu basics for this public board');
 });
+
+
+test('candidate decideWithAudit preserves root decisions and covers every native frontier token', () => {
+  const req = request(0, observation(0), {
+    actions: [
+      { token: 'pass', kind: 'pass' },
+      { token: 'unscored-stadium', kind: 'use-stadium' }
+    ]
+  });
+  const policy = candidate.createPolicy({
+    role: 'candidate', seat: 0, policyVersion: POLICY_VERSION, config: {}
+  });
+  const plain = policy.decide(req);
+  const audited = policy.decideWithAudit(req);
+  assert.deepEqual(audited.decision, plain);
+  assert.equal(audited.policyAudit.schema, 'agent6-policy-audit-v1');
+  assert.equal(audited.policyAudit.selectionRuleCode, 'ROOT_PASS_FALLBACK');
+  assert.deepEqual(audited.policyAudit.selectedTokens, ['pass']);
+  assert.deepEqual(audited.policyAudit.evaluations.map(row => row.token), ['pass', 'unscored-stadium']);
+  assert.equal(audited.policyAudit.evaluations[0].status, 'rule-selected');
+  assert.equal(audited.policyAudit.evaluations[0].score, null);
+  assert.equal(audited.policyAudit.evaluations[0].reasonCode, 'PASS_FALLBACK');
+  assert.equal(audited.policyAudit.evaluations[1].status, 'not-evaluated');
+  protocol.validatePolicyAudit(audited.policyAudit, req, plain, POLICY_VERSION);
+});
+
+test('candidate decideWithAudit records actual prompt scores from the decision pass', () => {
+  const req = cardPrompt(0, observation(0), {
+    printings: ['Shadow Rider Calyrex V CRE', 'Psychic Energy SVE']
+  });
+  const policy = candidate.createPolicy({
+    role: 'candidate', seat: 0, policyVersion: POLICY_VERSION, config: {}
+  });
+  const plain = policy.decide(req);
+  const audited = policy.decideWithAudit(req);
+  assert.deepEqual(audited.decision, plain);
+  assert.deepEqual(plain, { kind: 'select-choices', tokens: ['card-0'] });
+  assert.equal(audited.policyAudit.selectionRuleCode, 'CARD_COMBINATION_SEARCH_SCORE');
+  assert.equal(audited.policyAudit.evaluations.length, 2);
+  assert.equal(audited.policyAudit.evaluations[0].status, 'scored');
+  assert.equal(audited.policyAudit.evaluations[0].score, 100);
+  assert.equal(audited.policyAudit.evaluations[1].status, 'scored');
+  assert.equal(audited.policyAudit.evaluations[1].score, 45);
+  protocol.validatePolicyAudit(audited.policyAudit, req, plain, POLICY_VERSION);
+});
+
+test('candidate rule-selected setup choices carry no fabricated numeric score', () => {
+  const req = engineSetupRequest(0, {
+    promptType: 'ConfirmPrompt',
+    description: 'GO_FIRST',
+    choices: [
+      { token: 'yes', kind: 'confirm', label: 'Yes' },
+      { token: 'no', kind: 'confirm', label: 'No' }
+    ],
+    publicMetadata: { selectionType: 'confirm' }
+  });
+  const policy = candidate.createPolicy({
+    role: 'candidate', seat: 0, policyVersion: POLICY_VERSION, config: {}
+  });
+  const audited = policy.decideWithAudit(req);
+  assert.deepEqual(audited.decision, { kind: 'select-choice', token: 'yes' });
+  const selected = audited.policyAudit.evaluations.find(row => row.token === 'yes');
+  assert.equal(selected.status, 'rule-selected');
+  assert.equal(selected.score, null);
+  assert.equal(selected.reasonCode, 'SELECTED_BY_POLICY_RULE');
+  protocol.validatePolicyAudit(audited.policyAudit, req, audited.decision, POLICY_VERSION);
+});
