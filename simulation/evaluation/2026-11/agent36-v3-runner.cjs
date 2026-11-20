@@ -13,7 +13,7 @@ const {withCandidateOpponentPolicyRoles,candidateOpponentRoleSeats}=require('../
 const roleIdentity=require('./agent42-role-policy-identity.cjs');
 const {withPinnedResearchModuleLoads}=require('../agent36-runtime-module-pin.cjs');
 const {auditSourceClosure}=require('../agent36-source-closure-audit.cjs');
-const {runNativeFixtureGame,runNativeFixtureGameAsync,acquireNativeFixtureProcessLock,releaseNativeFixtureProcessLock}=require('./agent49-native-fixture-game.cjs');
+const {runNativeFixtureGame,runNativeFixtureGameAsync,publicStateSnapshot,acquireNativeFixtureProcessLock,releaseNativeFixtureProcessLock}=require('./agent49-native-fixture-game.cjs');
 const nativeActionFrontier=require('./agent36-native-action-frontier.cjs');
 const knownCapFreeActionEnumerator=require('./agent3-known-cap-free-action-enumerator.cjs');
 const nativePromptProjection=require('./agent36-prompt-projection.cjs');
@@ -1049,6 +1049,7 @@ const V3_FIXTURE_TEST_PATHS = [
   'tests/2026-11/agent44-v3-game-bundle-builder.test.cjs',
   'tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs',
   'tests/2026-11/agent43-full-state-diagnostic.test.cjs',
+  'tests/2026-11/agent45/full-state-trace.test.cjs',
   'tests/2026-11/agent36-v3-fixture-game.test.cjs',
   'tests/2026-11/agent46-candidate-policy.test.cjs',
   'tests/2026-11/agent36-native-action-frontier.test.cjs',
@@ -1295,6 +1296,7 @@ function buildFixtureRoleEntryManifest({
     'simulation/evaluation/2026-11/agent49-native-fixture-game.cjs',
     'simulation/evaluation/2026-11/agent49-fixture-scoped-runtime-pin.cjs',
     'simulation/twinleaf/2026-11/agent43-full-state-diagnostic.cjs',
+    'simulation/twinleaf/2026-11/agent45/full-state-trace.cjs',
     'simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs',
     'simulation/evaluation/2026-11/agent1-private-diagnostic-envelope.cjs',
     ...V3_FIXTURE_TEST_PATHS,
@@ -2243,6 +2245,22 @@ async function runV3FixtureGame({
   // Capture its function reference before the fixture pin and pass only that callback
   // to the native helper; the pin may evict the module from require.cache.
   const diagnostic = require('../../twinleaf/2026-11/agent43-full-state-diagnostic.cjs');
+  // Capture the host-only recorder module and function references before the
+  // fixture-scoped role pin evicts non-role research modules from require.cache.
+  // The recorder observes the live Store only in encrypted-full mode; it is
+  // never added to either worker's common bindings or request protocol.
+  const fullStateTraceModule=diagnosticMode==='encrypted-full'&&!witnessOnly?
+    require('../../twinleaf/2026-11/agent45/full-state-trace.cjs'):null;
+  const fullStateTraceRecorder=fullStateTraceModule?
+    fullStateTraceModule.createFullStateTraceRecorder({
+      label:trialId,
+      seed:fixtureSeed,
+      limits:{maxSteps:2048,maxDepth:64,maxNodes:50000},
+      policyConfiguration:native.botOptionsBySeat
+    }):null;
+  let fullStateTraceLiveStore=null;
+  let fullStateTraceInitialCaptured=false;
+  let fullStateTraceFinalCaptured=false;
 
   const preGameTrial = {
     trialId: trialId,
@@ -2387,6 +2405,50 @@ async function runV3FixtureGame({
               provenanceContext.current=hook;
               return hook;
             },
+            onGameReady:fullStateTraceRecorder?({store,state})=>{
+              assert.equal(fullStateTraceInitialCaptured,false,
+                'Agent45 recorder initial Store snapshot must be captured exactly once');
+              assert.strictEqual(state,store.state,
+                'Agent45 recorder must receive the live Store state');
+              fullStateTraceLiveStore=store;
+              const publicBoard=publicStateSnapshot(state).players;
+              fullStateTraceRecorder.captureInitial(state,publicBoard,
+                fullStateTraceModule.summarizeNativeStateForText(state,publicBoard));
+              fullStateTraceInitialCaptured=true;
+            }:undefined,
+            onAction:fullStateTraceRecorder?(record,{store,state,action,pendingPrompt})=>{
+              assert.equal(fullStateTraceInitialCaptured,true,
+                'Agent45 recorder must start after both players register');
+              assert.strictEqual(store,fullStateTraceLiveStore,
+                'Agent45 recorder must remain attached to the original live Store');
+              assert.strictEqual(state,store.state,
+                'Agent45 recorder must receive the exact post-dispatch Store state');
+              assert.equal(record.dispatchStatus,'succeeded',
+                'Agent45 recorder may capture only accepted live dispatches');
+              assert.ok(Number.isSafeInteger(record.actionOrdinal)&&record.actionOrdinal>=0,
+                'native dispatch ordinal must be a zero-based integer');
+              const publicBoard=publicStateSnapshot(state).players;
+              fullStateTraceRecorder.captureStep({
+                state,action,
+                actionOrdinal:record.actionOrdinal+1,
+                playerSlot:record.actingSeat,
+                playerId:record.actingPlayerId,
+                actionType:record.actionName??record.actionType??null,
+                turnBefore:record.turnBefore,
+                turnAfter:state.turn,
+                phaseBefore:record.phaseBefore,
+                phaseAfter:state.phase,
+                publicBoard,
+                humanSummary:fullStateTraceModule.summarizeNativeStateForText(state,publicBoard),
+                pendingPrompt
+              });
+              if(state.phase===native.GamePhase.FINISHED){
+                assert.equal(fullStateTraceFinalCaptured,false,
+                  'Agent45 recorder final Store snapshot must be captured exactly once');
+                fullStateTraceRecorder.captureFinal(state);
+                fullStateTraceFinalCaptured=true;
+              }
+            }:undefined,
           },createV3WorkerDecisionResolver({
             sessionsBySeat,
             candidateSeat:candidateSeat,
@@ -2626,6 +2688,37 @@ async function runV3FixtureGame({
       fixtureGamePartial: gameResult,
     };
   }
+  const fullStateTraceResult=fullStateTraceRecorder?.result()??null;
+  const fullStateTraceText=fullStateTraceRecorder?.text()??null;
+  const fullStateTraceAcceptedActionCount=gameResult?.actions??
+    gameResult?.acceptedActions??failureEnvelope?.fixtureGamePartial?.acceptedActions??null;
+  const fullStateTraceStepCountMatches=Number.isSafeInteger(fullStateTraceAcceptedActionCount)&&
+    fullStateTraceResult?.stepCount===fullStateTraceAcceptedActionCount;
+  const fullStateTraceAcceptance=fullStateTraceRecorder?{
+    schema:'agent19-agent45-v3-full-state-trace-acceptance-v1',
+    initialCaptured:fullStateTraceInitialCaptured,
+    finalCaptured:fullStateTraceFinalCaptured,
+    complete:fullStateTraceResult?.complete===true,
+    stepCount:fullStateTraceResult?.stepCount??null,
+    acceptedActionCount:fullStateTraceAcceptedActionCount,
+    stepCountMatches:fullStateTraceStepCountMatches,
+    naturalTerminal:gameResult?.finished===true&&gameResult?.endReason==='engine-game-end',
+    accepted:fullStateTraceInitialCaptured&&fullStateTraceFinalCaptured&&
+      fullStateTraceResult?.complete===true&&fullStateTraceStepCountMatches&&
+      gameResult?.finished===true&&gameResult?.endReason==='engine-game-end'
+  }:null;
+  if(!failureEnvelope&&fullStateTraceRecorder&&!fullStateTraceAcceptance.accepted){
+    failureEnvelope={
+      fixtureFailure:{
+        name:'FullStateTraceIncomplete',
+        code:'FULL_STATE_TRACE_INCOMPLETE',
+        stage:'full-state-trace-acceptance',
+        messageSha256:createHash('sha256').update(JSON.stringify(fullStateTraceAcceptance)).digest('hex'),
+        nativeFixtureFailure:null
+      },
+      fixtureGamePartial:gameResult?.finished===true?null:gameResult
+    };
+  }
   const partial = failureEnvelope?.fixtureGamePartial ?? null;
   const gameCompleted = !failureEnvelope && gameResult?.finished === true && gameResult?.endReason === 'engine-game-end';
 
@@ -2785,6 +2878,10 @@ async function runV3FixtureGame({
     runtimePinAudit: pinned.audit,
     runtimePatchReceipts: [patchReceipt],
     nativeGame: gameResult,
+    ...(fullStateTraceResult?{
+      fullStateTrace:fullStateTraceResult,
+      fullStateTraceAcceptance
+    }:{}),
     fixtureGamePartial: partial,
     fixtureFailure: failureEnvelope?.fixtureFailure ?? null,
     trial,
@@ -2871,6 +2968,11 @@ async function runV3FixtureGame({
     failure: failureEnvelope?.fixtureFailure ?? null,
     workerExecutionAudit,
   }),
+  ...(fullStateTraceText?[
+    '',
+    '=== AGENT45 HOST-ONLY OFFLINE FULL-STATE TRACE ===',
+    fullStateTraceText
+  ]:[]),
   ].join('\n');
   const sanitizedOnly=diagnosticMode==='sanitized-only';
   const persistedArtifact=sanitizedOnly?
