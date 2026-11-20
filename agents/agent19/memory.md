@@ -491,3 +491,9 @@ Next: obtain Agent49/Agent6 review of the current PR head; ensure the Agent6 res
 - The existing `makeV3SetupPromptAuditFixture()` sets both roles' `rootDecisionCount: 0` and has no root rows; its boundary assertion still accepts. The production worker resolver increments the role root counter for every owner-root request. Recommendation is to require `rootDecisionCount >= 1` per role for a completed full-game fixture, seed the valid fixture with a root row for each role, and add a zero-root mutation test. This is a structural minimum-presence gap, not evidence that a live fixture omitted roots.
 - Confirmed the native fixture sets Expanded format, draws on the first turn, disallows first-turn Supporter and first-turn attacks; normal setup is used unless the engine's alternative-setup rule is enabled. The current test helper's zero-root case is therefore not a realistic completed-game fixture.
 - No code or PR changes, no CI/fixture dispatch. Agent49 owns follow-up and gates.
+
+
+### 2026-11-20 addendum: sanitized diagnostic privacy boundary
+
+- Follow-up review of `agent2-v3-sanitized-diagnostic.cjs` at PR #58 head `eb317926c1f079a18471b32e22efa883fbd6cd07` confirms the explicit sanitizer allowlist does not emit `setupPromptAudit`, `setupPromptAuditAcceptance`, `workerExecutionBoundary`, or `fullStateTrace`. It emits a bounded `workerExecutionAudit` projection and the separate sanitized actor-only execution boundary; the setup/worker-boundary receipts remain in the encrypted-full artifact.
+- Workflow encryption step encrypts the private fixture JSON before upload and excludes plaintext `fixture-game.json/.txt`. No new privacy leak found. This was source review only; no CI/fixture run.
