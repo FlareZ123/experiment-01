@@ -228,6 +228,7 @@ function buildSetupPromptAudit({
 
       const stepMatches=steps.filter(step=>step?.actionOrdinal===ordinal+1);
       let recorderJoinVerified=false;
+      let recorderPromptSnapshotVerified=false;
       let publicBoardSha256=null;
       if(stepMatches.length!==1) {
         receiptFailures.push(stepMatches.length===0?
@@ -237,10 +238,33 @@ function buildSetupPromptAudit({
         const publicPlayers=row.publicStateAfter?.players;
         publicBoardSha256=Array.isArray(step.publicBoard)?
           evidenceBundleSha256(step.publicBoard):null;
-        recorderJoinVerified=Array.isArray(publicPlayers)&&
+        const recorderBoardJoinVerified=Array.isArray(publicPlayers)&&
           Array.isArray(step.publicBoard)&&
           evidenceBundleSha256(publicPlayers)===publicBoardSha256;
-        if(!recorderJoinVerified)receiptFailures.push('recorder-public-board-join-invalid');
+        if(!recorderBoardJoinVerified)
+          receiptFailures.push('recorder-public-board-join-invalid');
+
+        const promptSnapshot=step.pendingPrompt;
+        const promptSnapshotRoot=promptSnapshot?.snapshot;
+        const promptProperties=promptSnapshotRoot?.properties;
+        const promptOptionsProperties=promptProperties?.options?.properties;
+        if(!promptSnapshot) {
+          receiptFailures.push('recorder-prompt-snapshot-missing');
+        } else if(promptSnapshot.schema!=='twinleaf-native-state-snapshot-v1'||
+                  promptSnapshot.truncated!==false) {
+          receiptFailures.push('recorder-prompt-snapshot-incomplete');
+        } else if(promptSnapshotRoot?.$type!==row.pendingPromptType||
+                  promptProperties?.id!==row.pendingPromptId||
+                  promptProperties?.playerId!==row.actingPlayerId||
+                  promptProperties?.message!==message) {
+          receiptFailures.push('recorder-prompt-snapshot-identity-mismatch');
+        } else if(message==='CHOOSE_STARTING_POKEMONS'&&
+                  promptOptionsProperties?.min!==minimumCount) {
+          receiptFailures.push('recorder-prompt-minimum-count-mismatch');
+        } else {
+          recorderPromptSnapshotVerified=true;
+        }
+        recorderJoinVerified=recorderBoardJoinVerified&&recorderPromptSnapshotVerified;
       }
 
       const countKey=spec.kind==='starting-basics'?'startingBasics':
@@ -267,7 +291,7 @@ function buildSetupPromptAudit({
         promptProjectionSha256:trace?.promptProjectionSha256??null,
         selectedTokenCount:Array.isArray(trace?.selectedTokens)?trace.selectedTokens.length:0,
         dispatchStatus:row.dispatchStatus,
-        ledgerJoinVerified,recorderJoinVerified,publicBoardSha256,
+        ledgerJoinVerified,recorderJoinVerified,recorderPromptSnapshotVerified,publicBoardSha256,
         accepted:receiptFailures.length===0,failures:receiptFailures
       });
       for(const failure of receiptFailures)
@@ -291,7 +315,7 @@ function buildSetupPromptAudit({
     for(const failure of roleFailures)failures.push(role+':'+failure);
   }
 
-  if(totalGoFirst===0)failures.push('required-go-first-prompt-missing');
+  if(totalGoFirst!==1)failures.push('required-go-first-prompt-count-not-one');
   const complete=failures.length===0&&
     roleResults.candidate?.complete===true&&roleResults.opponent?.complete===true;
   const totalSetupPromptDecisions=setupRows.length;
@@ -377,6 +401,8 @@ function projectV3WorkerExecutionBoundaryToTrial(workerExecutionAudit,{
       roleFailures.push('worker-decision-counts-do-not-reconcile');
     if(row?.promptDecisionCount<1)
       roleFailures.push('worker-role-has-no-owner-prompt-decisions');
+    if(row?.rootDecisionCount<1)
+      roleFailures.push('worker-role-has-no-owner-root-decisions');
     if(row?.abstentionCount!==0||row?.failureCount!==0||row?.timeoutCount!==0)
       roleFailures.push('worker-role-has-failure-or-abstention');
     if(row?.policyDrawViolationCount!==0||row?.policyRngReplayable!==true)
