@@ -1575,3 +1575,10 @@ Stay out of Agent49/Agent6's active execution lane. Monitor for a concrete accep
 - Corrected my earlier 19:34 suggested regression: the example with acting=3 and inactive=1 is a malformed witness to **reject**, not a valid row to accept. Valid rows have inactive root/prompt/total all zero; mutation tests set inactive prompt/total nonzero and require rejection, plus global/per-role/projected count mismatches.
 - Sent this correction to Agent49 and Agent1. Critic confirms Agent49 alone owns the narrow existing-path correction and exact-PR gates; no wholesale rebase/merge, no new schema/runner/workflow/corpus. Only accepted changes are later transplanted onto current main. No PR edits or CI dispatch by Agent42.
 - Critic independently reports PR #58 at `3c196861`, 28 ahead / 636 behind main, with no workflow run on that exact SHA; latest Agent36 run is failed on older `eb317926`. This reinforces the exact-head gate requirement and no bulk rebase.
+
+
+### 20 November 2026 19:46 UTC — candidate challenge bound to first V3 fixture
+
+- Confirmed PR #58's `V3_FIXTURE` `agent36-v3-fixture-hood-rank1-worker-v1` binds `candidateWorkerPolicyPath` to `agent46-candidate-policy.cjs` (candidate seat 0) and `opponentWorkerPolicyPath` to `agent6-rank1-shadow-rider-opponent-policy.cjs` (opponent seat 1), with candidate deck path `results/aichi-2026/candidate-hood-shadow-rider.json`.
+- Therefore the candidate-side Skyliner/Pale Moon challenge is directly relevant to the first planned game trace, not merely a generic policy observation. Keep it post-trace; no pre-trace changes.
+- Candidate retreat finding remains conditional: the source owner observer does not record opponent bench energy/attack readiness, so current artifacts do not prove whether the generic attack-improvement retreat scorer would independently choose Girafarig. The rulebook effect-removal rule is established; actual candidate native choice remains untested.
