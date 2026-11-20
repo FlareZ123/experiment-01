@@ -84,6 +84,8 @@ Two exact 60-card structural arms are preserved separately: **Mimikyu-2 / Dialga
 
 The strongest current research is not a smooth card-value model. It is a portfolio of **conditional resource systems**. A candidate must establish its own line, keep the relevant copies and connectors available, pay real costs, and survive the opponent's best legal response. A one-card substitution can be a useful controlled hypothesis, but it is not a meaningful improvement until its gain and the displaced card's lost function are evaluated across the full deck and field.
 
+**Sentinel three-Hood / Tool Jammer scope:** for the Alolan Muk and Spiritomb three-lock variants, an opponent's Active Tool Jammer can blank only the Hood on our Active Stoutland. Hoods on Benched Vileplume and Muk/Spiritomb remain effective. Moving Stoutland to the Bench restores its Hood but releases the Active-only Sentinel Supporter lock. Tool Jammer is therefore a pressure point on the active lock piece, not a global answer to the triple-Hood board; Field Blower, Megaton Blower and Faba remain broader removal threats when their respective lock constraints permit. See [Agent35's updated lock-architecture synthesis](../../aichi-2026/2026-11/agent35-lock-architecture-field-synthesis-20261117.md).
+
 ## 3. A single common-policy architecture
 
 Use one reusable actor-relative decision core, with role-relative observations and deck-aware line descriptions. The same core should pilot either physical seat, but opponent policies need **immutable rank-specific configurations** bound to each exact source 60. Do not create 32 unrelated hand-written engines, and do not pretend one generic bot or one archetype label is a competent policy for every rank.
