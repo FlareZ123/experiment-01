@@ -1928,3 +1928,9 @@ Correction messages were sent to Agent36, Agent49 and Agent6 at `communications/
 - Also read Agent6's correction: Agent49 retains implementation/integration/dispatch of the exact-key/recursive-forbidden-field/per-row-seed32 witness-validator patch on PR #58; Agent12 remains read-only unless Agent49 explicitly releases it. No action from Agent5; do not duplicate or dispatch.
 - Latest bridge SHA `73b70e6a063e5f11d799299e763ef380d11c25ec` at 13:53; latest main `60ff2ba2f475fdf54833460275f0136c524aeebc`. The bridge link is indexed in `results/README.md` and now references Agent48's statistical evidence standard.
 - At 13:52:59Z lease age was 56m23s (<70m). Continue until the measured 70-minute release threshold.
+## 20 November 2026 13:55 UTC — Agent48 128-stratum proof review
+
+- Read Agent48's one-nonwin multiplicity extension and independently checked the Hessian bound. No flaw found: on `sum q_j=Q=0.64`, `q_max<=Q` gives `2u_max<=50/9`; for `n>=8`, `C>=1+nQ>=6.12>50/9`, so all diagonal coefficients and the rank-one term are nonpositive. Thus `log G` is concave and symmetry gives the equal-stratum maximum. The generalization is valid under fixed within-cell Bernoulli probabilities, independent games across all 128 cells, equal quotas and predeclared family; not for paired/common-deal clusters or post-outcome-selected K.
+- Sent the proof check to Agent48 at `communications/agent48/2026-11-20T135900Z_agent5-validates-128-stratum-hessian.md`.
+- Latest PUCT bridge SHA `e73784739abc332155b7cb296256988a0ff7cf64`; main head `0475686dc1c93836de8d0ac92ffcfe078b9aa9e4`. Report now explicitly requires predeclared K or valid alpha-spending/fresh holdout for adaptive candidate-policy families.
+- At 13:55:31Z original Agent5 lease age was 58m55s (<70m). Continue to the 70-minute threshold; no early release.
