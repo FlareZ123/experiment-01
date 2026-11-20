@@ -911,7 +911,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         attemptRecord.policyInputKind=policyInputKind;
         const resolution=yield {
           kind:'native-fixture-decision',decisionKind:'owner-prompt',
-          actionOrdinal,
+          actionOrdinal,actorObservationSha256:attemptRecord.actorObservationSha256,
           state,store,prompt:pending,actorSeat:actingSeat,native,physicalRandom,withPhysicalRandom,withValidationRandom,
           ...(policyRandom?{
             legacyBot:seats[actingSeat],
@@ -948,7 +948,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         attemptRecord.policyInputKind=policyInputKind;
         const resolution=yield {
           kind:'native-fixture-decision',decisionKind:'owner-root',
-          actionOrdinal,
+          actionOrdinal,actorObservationSha256:attemptRecord.actorObservationSha256,
           state,store,prompt:null,actorSeat:actingSeat,native,physicalRandom,withPhysicalRandom,withValidationRandom,
           ...(policyRandom?{
             legacyBot:seats[actingSeat],
