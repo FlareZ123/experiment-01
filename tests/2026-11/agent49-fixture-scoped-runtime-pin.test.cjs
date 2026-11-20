@@ -26,12 +26,12 @@ function withTempRepo(run,{includeRecorder=false}={}){
     "const recorder=require('./simulation/twinleaf/2026-11/agent45/full-state-trace.cjs');",
     "module.exports={run:()=>a()+b(),loadLate:()=>require('./late.cjs'),createRecorder:()=>recorder.createFullStateTraceRecorder()};",
     ""
-  ].join('\\n'):[
+  ].join('\n'):[
     "const a=require('./role-a.cjs');",
     "const b=require('./role-b.cjs');",
     "module.exports={run:()=>a()+b(),loadLate:()=>require('./late.cjs')};",
     ""
-  ].join('\\n');
+  ].join('\n');
   const cleanup=()=>{
     for(const filename of Object.keys(require.cache)){
       const relative=path.relative(root,path.resolve(filename));
