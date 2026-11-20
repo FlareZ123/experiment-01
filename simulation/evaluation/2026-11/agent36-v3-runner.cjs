@@ -2700,8 +2700,12 @@ async function runV3FixtureGame({
   const fullStateTraceStepCountMatches=Number.isSafeInteger(fullStateTraceAcceptedActionCount)&&
     fullStateTraceResult?.stepCount===fullStateTraceAcceptedActionCount;
   const fullStateTraceSteps=Array.isArray(fullStateTraceResult?.steps)?fullStateTraceResult.steps:[];
+  const fullStateTraceStepArrayMatches=fullStateTraceSteps.length===fullStateTraceAcceptedActionCount;
   const fullStateTraceRootLedger=Array.isArray(gameResult?.rootActionLedger)?gameResult.rootActionLedger:[];
   const fullStateTraceDecisionRows=Array.isArray(gameResult?.decisionTrace)?gameResult.decisionTrace:[];
+  const fullStateTraceAggregateHashMatches=
+    evidenceBundleSha256(fullStateTraceDecisionRows)===gameResult?.decisionTraceSha256&&
+    evidenceBundleSha256(fullStateTraceRootLedger)===gameResult?.rootActionLedgerSha256;
   const fullStateTraceOrdinalJoinMatches=fullStateTraceSteps.length===fullStateTraceRootLedger.length&&
     fullStateTraceSteps.every((step,index)=>
       step.actionOrdinal===fullStateTraceRootLedger[index]?.actionOrdinal+1);
@@ -2754,6 +2758,8 @@ async function runV3FixtureGame({
     stepCount:fullStateTraceResult?.stepCount??null,
     acceptedActionCount:fullStateTraceAcceptedActionCount,
     stepCountMatches:fullStateTraceStepCountMatches,
+    stepArrayMatches:fullStateTraceStepArrayMatches,
+    aggregateHashMatches:fullStateTraceAggregateHashMatches,
     rootLedgerCount:fullStateTraceRootLedger.length,
     ordinalJoinMatches:fullStateTraceOrdinalJoinMatches,
     decisionTraceJoinMatches:fullStateTraceDecisionJoinMatches,
@@ -2763,6 +2769,7 @@ async function runV3FixtureGame({
     naturalTerminal:gameResult?.finished===true&&gameResult?.endReason==='engine-game-end',
     accepted:fullStateTraceInitialCaptured&&fullStateTraceFinalCaptured&&
       fullStateTraceResult?.complete===true&&fullStateTraceStepCountMatches&&
+      fullStateTraceStepArrayMatches&&fullStateTraceAggregateHashMatches&&
       fullStateTraceOrdinalJoinMatches&&fullStateTraceDecisionJoinMatches&&
       fullStateTraceWorkerAuditComplete&&fullStateTraceWorkerDecisionCountMatches&&
       gameResult?.finished===true&&gameResult?.endReason==='engine-game-end'
