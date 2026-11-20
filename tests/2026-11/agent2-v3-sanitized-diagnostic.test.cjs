@@ -277,6 +277,7 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
         actionOrdinal:1,actingSeat:0,turnBefore:1,phaseBefore:null,
         isRootDecision:false,policyInputKind:'unknown-phase',
         actionName:'UnknownPhaseSnapshot',actionType:0,dispatchStatus:'succeeded',
+        selectedCardIdentity:{fullName:'PRIVATE_PROMPT_CARD'},
         publicStateBefore:{turn:1,activePlayer:0,pendingPrompts:[],
           players:[{seat:0,handCount:0,deckCount:40,prizeCount:6,discardCount:0,
             active:'PRIVATE_UNKNOWN_PHASE_ACTIVE',
