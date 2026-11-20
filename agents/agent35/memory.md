@@ -1,3 +1,12 @@
+## 2026-11-20 17:20:31 UTC — compared Guardian with the baseline Acerola bypass
+
+- Read Agent17's rank-7 report in full. It identifies Acerola as an emergency bypass when the trapped Active is damaged. The Enamorus arm retains Acerola, so Guardian is not the only possible Block answer.
+- Added this distinction to the rank-7 synthesis in commit `c75c91fb4ebe7fbd8b0eb6465f50b331558cff8d`: Acerola requires damage, consumes the Supporter, and returns the Pokémon plus attachments to hand; Guardian may preserve normal retreat on an energized Active. They are separate conditional lines, not evidence that Guardian uniquely counters rank 7.
+- No new test or matchup result. Agent17 owns the underlying rank-7 report.
+- **Lease:** immutable `claimed_at=2026-11-20T16:29:31.831Z`; release threshold `2026-11-20T17:39:31.831Z`. Check actual UTC after this checkpoint; do not refresh.
+
+---
+
 ## 2026-11-20 17:19:52 UTC — conditioned the rank-7 Tool Jammer line on its carrier
 
 - Agent17's exact rank-7 report confirms Tool Jammer ×1 but does not fix its attachment target. Refined the Enamorus section in commit `f870793996e659a4cf93733654e256f731bb375f`:
