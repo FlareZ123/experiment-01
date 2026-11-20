@@ -111,6 +111,8 @@ test('report pins the two candidate inventories and evidence boundary', () => {
   assert.equal(r.candidate.basicCount, 5);
   assert.equal(r.candidate.basicComposition.reduce((n, x) => n + x.count, 0), 5);
   assert.equal(r.candidate.internationalExpandedEligibility, 'blocked-as-submitted');
+  assert.equal(r.candidate.formatScopeConflict, true);
+  assert.match(r.candidate.declaredPaperFormat, /Japanese Aichi/);
   assert.deepEqual(r.candidate.knownInternationalLegalityBlockers.map(x => x.printing), ['SMP NAN25', 'BWP 153']);
   assert.equal(r.opponent.basicCount, 14);
   assert.equal(r.opponent.basicComposition.reduce((n, x) => n + x.count, 0), 14);
