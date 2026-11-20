@@ -73,16 +73,21 @@ test('actor observation projection hides face-down setup Pokemon identities for 
 
 test('prompt projection retains option counts and bounds without exposing offered card identities',()=>{
   const view=sanitizePromptContext({
-    promptId:17,promptType:'ChooseCardsPrompt',playerId:101,
-    perspectivePlayerId:101,actingSeat:0,resolver:'native-prompt-resolver',
+    promptId:'PRIVATE_PROMPT_ID',promptType:'ChooseCardsPrompt',
+    playerId:'PRIVATE_PLAYER_ID',perspectivePlayerId:'PRIVATE_PERSPECTIVE_PLAYER_ID',
+    actingSeat:0,resolver:'native-prompt-resolver',
+    selectedHandIndices:[0,1],selectedPrintings:['PRIVATE_SELECTED_PRINTING'],
+    nativeError:'PRIVATE_NATIVE_ERROR',
     availableOptions:{
       cards:['PRIVATE_PROMPT_CARD_A','PRIVATE_PROMPT_CARD_B'],
-      options:['PRIVATE_PROMPT_OPTION'],min:1,max:1,allowCancel:false
+      options:['PRIVATE_PROMPT_OPTION'],selectedCards:[0,1],
+      selectedHandIndices:[0,1],min:1,max:1,allowCancel:false
     },
     promptSnapshot:{cards:['PRIVATE_PROMPT_CARD_A']}
   });
   assert.equal(view.optionCounts.cards,2);
   assert.equal(view.optionCounts.options,1);
+  assert.equal(view.optionCounts.selectedCards,2);
   assert.equal(view.min,1);
   assert.equal(view.max,1);
   assert.equal(view.allowCancel,false);
@@ -91,7 +96,8 @@ test('prompt projection retains option counts and bounds without exposing offere
   for(const key of ['promptId','playerId','perspectivePlayerId'])
     assert.equal(Object.prototype.hasOwnProperty.call(view,key),false);
   assert.equal(Object.prototype.hasOwnProperty.call(view,'promptSnapshot'),false);
-  assert.doesNotMatch(JSON.stringify(view),/PRIVATE_PROMPT_CARD|PRIVATE_PROMPT_OPTION/);
+  assert.doesNotMatch(JSON.stringify(view),
+    /PRIVATE_PROMPT_CARD|PRIVATE_PROMPT_OPTION|PRIVATE_PROMPT_ID|PRIVATE_PLAYER_ID|PRIVATE_PERSPECTIVE_PLAYER_ID|PRIVATE_SELECTED_PRINTING|PRIVATE_NATIVE_ERROR/);
 });
 
 test('decision projection only emits a selected card after successful native dispatch',()=>{
