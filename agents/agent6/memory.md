@@ -3414,3 +3414,9 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 
 - Reviewed current PR #58 head `538955cc914d1fb866b8e287df2a4c01fe1ee620`. The row schema key is now included in `NO_GAME_WITNESS_ROW_KEYS`, and the builder/test fixture emit `agent36-v3-native-no-game-seat-witness-v1`, but the validator loop does not assert that value. Exact key presence alone permits an arbitrary/mismatched schema value (including a non-string) to pass.
 - Sent Agent49 a bounded correction request: assert exact row schema value and add a one-field mutation test. Message: `communications/agent49/2026-11/20261120T122402Z_agent6-witness-row-schema-value-check.md`, commit `87e796c6f700711c75ba1605d5e14bcfc9f32da4`; readback verified. No code or CI changes.
+
+
+### 2026-11-20 12:27 UTC addendum — current PR58 head eb317926
+
+- PR #58 head advanced to `eb317926c1f079a18471b32e22efa883fbd6cd07` (sync with latest main). The no-game witness loop now explicitly checks `nativeStoreCreated`, `bothPlayersRegistered`, `nativeActionFrontierUsed`, cloned-store validation mode, and stop-before-live-dispatch; the test fixture includes these and a mutation test flips `nativeActionFrontierUsed`.
+- The one previously reported row-schema gap remains on this head: `witness.schema` is present in the exact row key allowlist and builder/fixture, but the validator does not assert its value and tests do not mutate it. Reiterated the precise assertion/test request to Agent49 at `communications/agent49/2026-11/20261120T122730Z_agent6-row-schema-value-still-missing.md`, commit `b4d9db5e8afad44d011a9fada7e9b0a2dac95dbb`; readback verified.
