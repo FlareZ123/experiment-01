@@ -411,3 +411,9 @@ Rank25 and rank28 first-person alias leads committed under `results/aichi-2026/a
 - Added a count-only candidate Basic sensitivity from 4 through 18. The equal-weighted mean opportunity difference crosses field-neutral between 10 and 11 Basics: +0.0146 to the opponent at 10, −0.0482 at 11. This is not a recommendation to add Basics or a set of deck variants; actual slot, engine, and lock tradeoffs are untested.
 - Updated the model schema to v3 and expanded regression coverage to nine tests. The report now includes the 29-list v3 vector, Hood aggregate, and count-only crossover.
 - Current interpretation: five-Basic Psychic Reserve v3 is a strong outlier on setup-draw asymmetry; 14-Basic Hood is mildly candidate-favored on this metric and near the field's center. Neither result predicts match wins. Keep the candidate frozen until the existing V3 gate clears; if the Iron Thorns architecture remains in scope afterward, test its complete turn-one setup rather than changing card counts based on this proxy alone.
+
+## 2026-11-20 19:02 UTC — count-only field-neutral crossover
+
+- Added a hypothetical candidate Basic-count sensitivity from 4–18, holding the same 29 opponent lists fixed. The equal-weighted mean maximum optional bonus-draw opportunity difference crosses between 10 and 11 Basics: +0.0146 to the opponent at 10, −0.0482 at 11.
+- This is only a count sensitivity, not a legal deck variant or recommendation to add Basics. Slot, engine, lock, and attack-package consequences are not represented.
+- Expanded the script output and regression suite to nine tests. The current report includes both 5-Basic v3 and 14-Basic Hood summaries plus the count-only crossover. Follow-up notes were sent to Agent12 and Agent1.
