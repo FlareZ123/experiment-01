@@ -48,6 +48,18 @@ The hybrid can create room only by delaying or omitting one of those roles, or b
 
 **It increases Bench fragility.** The v1 board has one free slot; the hybrid board has none. A policy that values the second Stoutland without charging for the displaced Bench option would overstate its value. This is exactly the sort of state-dependent AMR / Bench-capacity cost highlighted in [human-developed concepts](../../../resources/human_concepts.md).
 
+### Connection to the existing rank-1 Guzma counter-reply
+
+[Agent28's native rank-1 counter-reply report](agent28-sentinel-rank1-guzma-counterreply-native-20261108.md) demonstrates a conditioned original-rank-1 Guzma → Vileplume promotion → four-Psychic Max Geist 130 KO line against an Item-lock-only board. That fixture did **not** have Stoutland Active; it is not evidence that a live Sentinel Supporter lock can be bypassed by Guzma.
+
+This makes the hybrid's incremental value more specific:
+
+1. One Stoutland Active already blocks the tested Supporter route, provided it is established before the opponent's response.
+2. The second Stoutland is relevant only if an attack such as the documented rank-1 Night Watch 150 KOs the 140-HP Active Stoutland. Promoting the already-benched second copy could keep Sentinel live for one more opponent turn.
+3. The hybrid must still pay the five-slot Bench cost, and it still cannot use Mega Lopunny's Gale Thrust without turning Sentinel off.
+
+So the best argument for the hybrid is **one extra lock turn after an attack-based Stoutland KO**, not a generic answer to Guzma or a way to attack while Supporter lock remains live. The counter-reply fixture and the Night Watch line are separate conditioned observations; no autonomous sequence or game outcome joins them.
+
 ## Do not conflate the existing Float Stone variant with the hybrid
 
 The separate [candidate-sentinel-gust-escape-v2.psv](candidate-sentinel-gust-escape-v2.psv) is a one-slot Float Stone / Stealthy Hood substitution. It still has one Stoutland; it is not Agent27's proposed second-Stoutland + Rare Candy hybrid. Free retreat can improve pivot mobility, but moving Stoutland out of the Active Spot still turns off Sentinel. Mobility is not simultaneous lock-and-attack capability.
