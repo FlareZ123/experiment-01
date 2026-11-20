@@ -210,6 +210,24 @@ function buildReport() {
     opponentsWithPositiveDifference: fieldVector.filter(row => row.expectedMaximumOptionalBonusDrawOpportunityDifferenceForOpponent > 0).length,
     opponentsWithNegativeDifference: fieldVector.filter(row => row.expectedMaximumOptionalBonusDrawOpportunityDifferenceForOpponent < 0).length
   };
+  const fieldVectorHood = AICHI_FIELD.map(row => ({
+    ...row,
+    ...pairedBonusStats(hoodShieldV1.basicCount, row.basicCount)
+  }));
+  const averageHood = key => fieldVectorHood.reduce((sum, row) => sum + row[key], 0) / fieldVectorHood.length;
+  const fieldSummaryHood = {
+    publishedDecks: fieldVectorHood.length,
+    missingRanks: [23, 25, 28],
+    meanOpponentBasicCount: averageHood('basicCount'),
+    meanProbabilityOpponentHasBonusDrawOpportunity: averageHood('probabilityOpponentHasAnyBonusDrawOpportunity'),
+    meanProbabilityCandidateHasBonusDrawOpportunity: averageHood('probabilityCandidateHasAnyBonusDrawOpportunity'),
+    meanMaximumOptionalBonusDrawsAvailableToOpponent: averageHood('expectedMaximumOptionalBonusDrawsAvailableToOpponent'),
+    meanMaximumOptionalBonusDrawsAvailableToCandidate: averageHood('expectedMaximumOptionalBonusDrawsAvailableToCandidate'),
+    meanMaximumOptionalBonusDrawOpportunityDifferenceForOpponent: averageHood('expectedMaximumOptionalBonusDrawOpportunityDifferenceForOpponent'),
+    opponentsWithPositiveDifference: fieldVectorHood.filter(row => row.expectedMaximumOptionalBonusDrawOpportunityDifferenceForOpponent > 0).length,
+    opponentsWithNegativeDifference: fieldVectorHood.filter(row => row.expectedMaximumOptionalBonusDrawOpportunityDifferenceForOpponent < 0).length,
+    opponentsWithEqualDifference: fieldVectorHood.filter(row => row.expectedMaximumOptionalBonusDrawOpportunityDifferenceForOpponent === 0).length
+  };
   return {
     schema: 'agent30-opening-mulligan-opportunity-v2',
     assumptions: {
@@ -227,7 +245,7 @@ function buildReport() {
     probabilityMimikyuOnlyWithCaptureEnergyGivenValid: mimikyuOnlyWithCapture,
     probabilityMimikyuOnlyWithoutCaptureEnergyGivenValid: mimikyuOnly - mimikyuOnlyWithCapture,
     probabilityThornsPresentGivenValid: 1 - mimikyuOnly,
-    sensitivity: [5, 8, 10, 12, 14, 16, 18].map(n => pairedBonusStats(5, n)),\n    fieldVector, fieldSummary
+    sensitivity: [5, 8, 10, 12, 14, 16, 18].map(n => pairedBonusStats(5, n)),\n    fieldVector, fieldSummary, fieldVectorHood, fieldSummaryHood
   };
 }
 
