@@ -1767,6 +1767,7 @@ test('V3 worker prompt resolver binds policyAudit, actor projection and cloned-S
   assert.equal(result.validationReceipt.selectedItemsSha256,result.decisionTrace.selectedItemsSha256);
   const promptTraceRow={
     actionOrdinal:3,actingSeat:1,decisionKind:'owner-prompt',
+    pendingPromptId:'prompt-1',pendingPromptType:'ChooseCardsPrompt',
     actorObservationSha256,
     workerDecisionTrace:result.decisionTrace,
     workerDecisionTraceSha256:evidenceBundleSha256(result.decisionTrace),
@@ -2019,6 +2020,7 @@ test('V3 full trace acceptance recomputes component digests and rejects broken b
     actionOrdinal:trace.actionOrdinal,
     actingSeat:trace.seat,
     decisionKind:trace.decisionKind,
+    pendingPromptId:null,pendingPromptType:null,
     actorObservationSha256:trace.actorObservationSha256,
     workerDecisionTrace:trace,
     workerDecisionTraceSha256:evidenceBundleSha256(trace),
@@ -2074,24 +2076,35 @@ test('V3 full trace acceptance recomputes component digests and rejects broken b
 });
 
 
-test('V3 full-state trace joins bind recorder seat, player, action, turns and decision identity',()=>{
+test('V3 full-state trace joins bind action payload, dispatch, turns and public state',()=>{
+  const publicPlayers=[{playerId:'candidate-player',handCount:5}];
   const steps=[{
     actionOrdinal:1,playerSlot:0,playerId:'candidate-player',
-    actionType:'AttackAction',turnBefore:3,turnAfter:3
+    actionType:'AttackAction',turnBefore:3,turnAfter:3,publicBoard:publicPlayers
   }];
   const rootActionLedger=[{
     actionOrdinal:0,playerSlot:0,actorSeat:0,playerId:'candidate-player',
-    action:'AttackAction',turnBefore:3,turnAfter:3,
+    action:'AttackAction',actionPayloadSha256:'c'.repeat(64),
+    dispatchStatus:'succeeded',turnBefore:3,turnAfter:3,
+    pendingPrompt:null,isRootDecision:true,policyInputKind:'actor-observation',
+    actorObservationSha256:'d'.repeat(64),promptResolution:null,
+    selectedCardIdentity:null,targetProjection:null,
     decisionKind:'owner-root',workerDecisionTraceSha256:'a'.repeat(64),
     validationReceiptSha256:'b'.repeat(64)
   }];
   const decisionRows=[{
     actionOrdinal:0,actingSeat:0,actingPlayerId:'candidate-player',
+    actionName:'AttackAction',actionPayloadSha256:'c'.repeat(64),
+    dispatchStatus:'succeeded',turnBefore:3,turnAfter:3,
+    pendingPromptType:null,isRootDecision:true,policyInputKind:'actor-observation',
+    actorObservationSha256:'d'.repeat(64),promptResolution:null,
+    selectedCardIdentity:null,targetProjection:null,
+    publicStateAfter:{players:publicPlayers},
     decisionKind:'owner-root',workerDecisionTraceSha256:'a'.repeat(64),
     validationReceiptSha256:'b'.repeat(64)
   }];
   assert.deepEqual(validateV3FullStateTraceJoins({steps,rootActionLedger,decisionRows}),{
-    ordinalJoinMatches:true,decisionJoinMatches:true
+    ordinalJoinMatches:true,decisionJoinMatches:true,publicStateJoinMatches:true
   });
   const stepMutations=[
     ['physical seat',step=>{step.playerSlot=1;}],
@@ -2112,10 +2125,23 @@ test('V3 full-state trace joins bind recorder seat, player, action, turns and de
   assert.equal(validateV3FullStateTraceJoins({
     steps,rootActionLedger:actorSeatMismatch,decisionRows
   }).ordinalJoinMatches,false,'recorder player slot must match canonical ledger actorSeat');
+
   const decisionMutations=[
     ['physical seat',row=>{row.actingSeat=1;}],
     ['player ID',row=>{row.actingPlayerId='other-player';}],
     ['action ordinal',row=>{row.actionOrdinal=1;}],
+    ['action name',row=>{row.actionName='RetreatAction';}],
+    ['action payload digest',row=>{row.actionPayloadSha256='e'.repeat(64);}],
+    ['dispatch status',row=>{row.dispatchStatus='not-dispatched';}],
+    ['turn before',row=>{row.turnBefore=4;}],
+    ['turn after',row=>{row.turnAfter=4;}],
+    ['pending prompt type',row=>{row.pendingPromptType='ChooseCardsPrompt';}],
+    ['root decision marker',row=>{row.isRootDecision=false;}],
+    ['policy input kind',row=>{row.policyInputKind='legacy';}],
+    ['actor observation digest',row=>{row.actorObservationSha256='e'.repeat(64);}],
+    ['prompt resolution',row=>{row.promptResolution={kind:'worker-choice'};}],
+    ['selected card identity',row=>{row.selectedCardIdentity={printing:'other'};}],
+    ['target projection',row=>{row.targetProjection={target:'other'};}],
     ['worker trace digest',row=>{row.workerDecisionTraceSha256='c'.repeat(64);}],
     ['validation receipt digest',row=>{row.validationReceiptSha256='d'.repeat(64);}]
   ];
@@ -2126,4 +2152,9 @@ test('V3 full-state trace joins bind recorder seat, player, action, turns and de
       steps,rootActionLedger,decisionRows:candidate
     }).decisionJoinMatches,false,name);
   }
+  const publicStateMismatch=JSON.parse(JSON.stringify(decisionRows));
+  publicStateMismatch[0].publicStateAfter.players[0].handCount=6;
+  assert.equal(validateV3FullStateTraceJoins({
+    steps,rootActionLedger,decisionRows:publicStateMismatch
+  }).publicStateJoinMatches,false,'recorder publicBoard must equal decisionTrace publicStateAfter.players');
 });
