@@ -124,7 +124,7 @@ Conditioning on the same valid opening and six Prizes from the remaining 53, the
 | **Ideal one-Gladion/Jet-available recovery ceiling for the nine-card package** | **73.9029%** |
 | **Residual outside that ideal recovery model** | **26.0971%** |
 
-In isolation, none of the three Hoods is Prized in **72.3057%** of valid openings. The nine-card ceiling assumes Gladion is always accessible by turn 4 whenever it is not Prized and Jet is accessible if Whismur is the single missing package card. It allows one recovery only; it does not model the Lillipup/Oddish copies, other setup cards, hand access, board/energy requirements, or opponent actions. This is a stricter Prize-only bound for the fully protected core, not full lock assembly or a win estimate.
+In isolation, none of the three Hoods is Prized in **72.3057%** of valid openings. The nine-card ceiling assumes Gladion is accessible by the required deadline whenever it is not Prized: turn 2 if Whismur is the single missing package card, or turn 4 for any other single missing package card; it also assumes Jet is accessible for the Prized-Whismur rescue. It allows one recovery only; it does not model the Lillipup/Oddish copies, other setup cards, hand access, board/energy requirements, or opponent actions. This is a stricter Prize-only bound for the fully protected core, not full lock assembly or a win estimate.
 
 For reproducibility, split the 41-card residual in the preceding opening enumeration into three Hood copies and 38 other cards. Let \(h\) be Hoods in the opening and \(r=7-w-o-k-h-g\); replace the opening multiplicity with
 
