@@ -124,12 +124,15 @@ The derivative bracket is positive in three regions.
    =5.292421452947837\ldots>0.
    \]
 
-3. **Region C: \(103/1000\le s\le8/25\).** Again \(P_1>0\). The function \(h(s,t)=-Ab+9b^2+tA\) is convex in \(t\), with \(h_{tt}=78>0\). Its endpoint values are
+3. **Region C: \(103/1000\le s\le8/25\).** Again \(P_1>0\). For \(h(s,t)=-Ab+9b^2+tA\),
    \[
-   h(s,0)=s(10s-1),\qquad
-   h(s,s^2/4)=\frac{s(s-2)^2(39s-4)}{16}.
+   h_t=3A-37b+t\le3-37s+\frac{75}{4}s^2<0.
    \]
-   Both are nonnegative for \(s\ge103/1000\), since \(103/1000>1/10\) and \(103/1000>4/39\). Convexity places the minimum on the interval at an endpoint, so \(P_0\ge0\). Thus the full bracket is nonnegative.
+   The upper bound is decreasing on this interval (its derivative is \(-37+\frac{75}{2}s<0\)) and is already negative at \(s=103/1000\). Thus \(h\) decreases in \(t\), so its minimum occurs at \(t=s^2/4\), where
+   \[
+   h(s,s^2/4)=\frac{s(s-2)^2(39s-4)}{16}\ge0
+   \]
+   because \(103/1000>4/39\). Hence \(P_0\ge0\), and the full bracket is nonnegative.
 
 Consequently pairwise equalization cannot decrease \(P_q(X\le2)\). Repeated equalization shows that the maximum occurs at \(q_j=0.005\) for every stratum. At that point \(X\sim\operatorname{Binomial}(1280,0.005)\), giving the exact p-value above.
 
