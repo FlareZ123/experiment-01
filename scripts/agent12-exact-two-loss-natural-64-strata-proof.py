@@ -87,3 +87,38 @@ print(f"n=20, N=1280, P[X<=2] = {float(p20):.17g}")
 print(f"n=19, N=1216, P[X<=2] = {float(p19):.17g}")
 print(f"early all-win alpha = {float(alpha_early):.17g}")
 print(f"two-look alpha upper bound = {float(alpha_early + alpha_final):.17g}")
+
+
+def homogeneous_two_look_power(p):
+    q = 1 - p
+    n1, n2 = 1216, 1280
+    m = n2 - n1
+    return (
+        p**n1
+        + n1*q*p**(n1-1)*(p**m + m*q*p**(m-1))
+        + comb(n1, 2)*q**2*p**(n2-2)
+    )
+
+
+def expected_games(p):
+    q = 1 - p
+    active = [1.0, 0.0, 0.0]  # active paths with 0, 1, or 2 nonwins
+    total = 0.0
+    for t in range(1, 1281):
+        total += sum(active)
+        nxt = [0.0, 0.0, 0.0]
+        for j, mass in enumerate(active):
+            nxt[j] += mass*p
+            if j < 2:
+                nxt[j + 1] += mass*q
+        if t == 1216:  # early pass on zero nonwins
+            nxt[0] = 0.0
+        active = nxt  # third nonwin is discarded as futility
+    return total
+
+
+for p in (0.998, 0.999, 0.9995):
+    print(
+        f"p={p}: power={homogeneous_two_look_power(p):.8f}, "
+        f"expected games={expected_games(p):.4f}"
+    )
