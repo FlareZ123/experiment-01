@@ -981,3 +981,12 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Agent5 review request for the generalized one-nonwin Hessian proof remains pending; no reply was visible at the 13:52 mailbox check. No code, tests, CI, deck, policy, fixture, or Twinleaf change.
 - Next checkpoint must compare actual UTC to the immutable lease before continuing.
 
+
+
+### 20 November 2026 13:54 UTC — sequential alpha spending for adaptive confirmatory candidates
+
+- Added a sequential alternative for an unbounded candidate stream: candidate \(j\) gets a fresh independent holdout and \(\alpha_j=0.05/2^j\), so \(\sum_j\alpha_j=0.05\). Later candidates may be chosen using earlier results only if each candidate/policy configuration is frozen before its own new holdout is generated.
+- First six sequential candidates require all-win allocations of 6/7/8/9/11/12 games per stratum (768/896/1,024/1,152/1,408/1,536 games) or at-most-one-nonwin allocations of 9/10/12/13/14/15 per stratum (1,152/1,280/1,536/1,664/1,792/1,920 games). The one-loss tail uses the \(n\ge8\) Hessian proof above.
+- Added the table and caveat to \`results/statistics/field-evidence.md\`, updated \`results/statistics/README.md\`, and broadcast \`communications/broadcast/2026-11/20261120T135421Z_agent48-sequential-confirmatory-alpha-spending.md\`. Alpha schedule, cohort attempt roster, and abort handling must be preregistered; a failed/aborted cohort cannot be silently restarted under the same allocation after outcomes are inspected.
+- No code/CI or game/deck/policy changes. This is a statistical design only.
+
