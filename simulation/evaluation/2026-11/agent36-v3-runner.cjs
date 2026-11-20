@@ -1845,6 +1845,7 @@ function createV3WorkerDecisionResolver({
   opponentSeat=V3_FIXTURE.opponentSeat,native,workerAudit,
   expectedActorSeat=null,stopBeforeLiveDispatch=false,
   actionFrontier=nativeActionFrontier,
+  actionEnumerator=knownCapFreeActionEnumerator,
   promptProjection=nativePromptProjection,
   eventReceipt=publicEventReceipt,
   provenanceHook=null,
@@ -1857,9 +1858,17 @@ function createV3WorkerDecisionResolver({
   const roleForSeat=seat=>seat===roleSeatMap.candidate?'candidate':
     seat===roleSeatMap.opponent?'opponent':null;
   const emptyFrontier={schema:workerProtocol.FRONTIER_SCHEMA,items:[]};
+  const digest=value=>evidenceBundleSha256(value);
+  const assertActorOnlyJson=value=>{
+    workerProtocol.assertBoundedJson(value);
+    workerProtocol.assertNoForbiddenFields(value);
+    return value;
+  };
+  const safeCode=error=>typeof error?.code==='string'&&/^[A-Z0-9_]{1,64}$/.test(error.code)?
+    error.code:'WORKER_DECISION_FAILURE';
   const recordFailure=(roleAudit,error,session)=>{
-    const code=typeof error?.code==='string'&&/^[A-Z0-9_]{1,64}$/.test(error.code)?
-      error.code:'WORKER_DECISION_FAILURE';
+    if(!roleAudit)return;
+    const code=safeCode(error);
     if(code.startsWith('NATIVE_ACTION_FRONTIER_')||
         code.startsWith('NATIVE_ACTION_ENUMERATOR_ADAPTER_')){
       roleAudit.actionFrontierAdmissionFailureCount++;
@@ -1890,60 +1899,146 @@ function createV3WorkerDecisionResolver({
     }
     roleAudit.lastFailureCode=code;
   };
-  const selectedTokensOf=decision=>decision.kind==='select-action'||
-    decision.kind==='select-choice'?[decision.token]:
-    decision.kind==='select-choices'?decision.tokens.slice():[];
-  const buildDecisionTrace=({
-    request,observation,receipt,promptProjection:promptBinding,
-    actionFrontier:frontierBinding,response,validationReceipt
-  })=>{
-    const selectedTokens=selectedTokensOf(response.decision);
-    const source=promptBinding?.choices??frontierBinding?.items??[];
-    const selectedItems=selectedTokens.map(token=>{
-      const item=source.find(row=>row.token===token);
-      assert.ok(item,'worker-selected token is absent from the host-bound actor frontier');
-      return item;
-    });
-    const inputBinding={
-      observation,
-      publicEventReceipt:receipt,
-      promptProjection:promptBinding??null,
-      actionFrontier:frontierBinding??null
-    };
-    return {
-      schema:'agent6-worker-decision-trace-v1',
-      requestId:response.requestId,
-      sequence:response.sequence,
-      role:response.role,
-      seat:response.seat,
-      policyVersion:response.policyVersion,
-      bundleSha256:response.bundleSha256,
-      actionOrdinal:Number.isSafeInteger(request.actionOrdinal)?request.actionOrdinal:null,
-      decisionKind:observation.decisionKind,
-      decision:response.decision,
-      actorInput:observation,
-      actorInputSha256:sha256Json(observation),
-      publicEventReceipt:receipt,
-      publicEventReceiptSha256:receipt?sha256Json(receipt):null,
-      promptProjection:promptBinding??null,
-      promptProjectionSha256:promptBinding?sha256Json(promptBinding):null,
-      actionFrontier:frontierBinding??null,
-      actionFrontierSha256:frontierBinding?sha256Json(frontierBinding):null,
-      inputBindingSha256:sha256Json(inputBinding),
-      selectedTokens,
-      selectedItems,
-      selectedItemsSha256:sha256Json(selectedItems),
-      policyAudit:response.policyAudit,
-      policyAuditSha256:sha256Json(response.policyAudit),
-      validationReceipt,
-      validationReceiptSha256:validationReceipt?sha256Json(validationReceipt):null
-    };
+  const selectedTokensOf=decision=>{
+    if(!decision||typeof decision!=='object')return {tokens:[],status:'missing-decision'};
+    if(decision.kind==='select-action'||decision.kind==='select-choice'){
+      return typeof decision.token==='string'?
+        {tokens:[decision.token],status:'valid'}:
+        {tokens:[],status:'invalid-token'};
+    }
+    if(decision.kind==='select-choices'){
+      if(!Array.isArray(decision.tokens)||!decision.tokens.every(token=>typeof token==='string'))
+        return {tokens:[],status:'invalid-token-list'};
+      return {tokens:decision.tokens.slice(),status:decision.tokens.length?'valid':'empty-selection'};
+    }
+    if(decision.kind==='abstain')return {tokens:[],status:'abstained'};
+    return {tokens:[],status:'unsupported-decision-kind'};
   };
-  const requirePolicyAudit=(response,request)=>{
-    assert.ok(response?.policyAudit&&response.policyAudit.schema===workerProtocol.POLICY_AUDIT_SCHEMA,
+  const bindTraceInputs=(trace,receipt,promptBinding,frontierBinding)=>{
+    const publicReceipt=receipt??null;
+    const promptValue=promptBinding??null;
+    const frontierValue=frontierBinding??null;
+    if(publicReceipt!==null)assertActorOnlyJson(publicReceipt);
+    if(promptValue!==null)assertActorOnlyJson(promptValue);
+    if(frontierValue!==null)assertActorOnlyJson(frontierValue);
+    trace.publicEventReceipt=publicReceipt;
+    trace.publicEventReceiptSha256=publicReceipt===null?null:digest(publicReceipt);
+    trace.promptProjection=promptValue;
+    trace.promptProjectionSha256=promptValue===null?null:digest(promptValue);
+    trace.actionFrontier=frontierValue;
+    trace.actionFrontierSha256=frontierValue===null?null:digest(frontierValue);
+    trace.inputBindingSha256=digest({
+      observation:trace.actorInput,
+      publicEventReceipt:publicReceipt,
+      promptProjection:promptValue,
+      actionFrontier:frontierValue
+    });
+  };
+  const createRequestTrace=(request,role,actorSeat,observation)=>{
+    assert.ok(observation&&typeof observation==='object'&&!Array.isArray(observation),
+      'driver-supplied actor observation must be a JSON object');
+    assertActorOnlyJson(observation);
+    const actorInputSha256=digest(observation);
+    const suppliedDigest=typeof request.actorObservationSha256==='string'?
+      request.actorObservationSha256:null;
+    const trace={
+      schema:'agent6-worker-decision-trace-v1',
+      traceStatus:'request-prepared',
+      failureCode:null,
+      requestId:null,sequence:null,role,seat:actorSeat,
+      policyVersion:null,bundleSha256:null,
+      actionOrdinal:Number.isSafeInteger(request.actionOrdinal)?request.actionOrdinal:null,
+      decisionKind:request.decisionKind??observation.decisionKind??null,
+      decision:null,
+      actorInput:observation,
+      actorInputSha256,
+      actorObservationSha256:suppliedDigest,
+      publicEventReceipt:null,publicEventReceiptSha256:null,
+      promptProjection:null,promptProjectionSha256:null,
+      actionFrontier:null,actionFrontierSha256:null,inputBindingSha256:null,
+      selectedTokens:[],selectedItems:[],selectedItemsSha256:digest([]),
+      unmatchedSelectedTokens:[],selectionStatus:'not-returned',
+      policyAudit:null,policyAuditSha256:null,
+      validationReceipt:null,validationReceiptSha256:null
+    };
+    bindTraceInputs(trace,null,null,emptyFrontier);
+    return trace;
+  };
+  const enrichTrace=(trace,response,promptBinding,frontierBinding)=>{
+    const decision=response?.decision??null;
+    trace.requestId=typeof response?.requestId==='string'?response.requestId:null;
+    trace.sequence=Number.isSafeInteger(response?.sequence)?response.sequence:null;
+    trace.role=typeof response?.role==='string'?response.role:trace.role;
+    trace.seat=Number.isSafeInteger(response?.seat)?response.seat:trace.seat;
+    trace.policyVersion=typeof response?.policyVersion==='string'?response.policyVersion:null;
+    trace.bundleSha256=typeof response?.bundleSha256==='string'?response.bundleSha256:null;
+    if(decision!==null){
+      try{assertActorOnlyJson(decision);trace.decision=decision;}catch{}
+    }
+    const tokenInfo=selectedTokensOf(decision);
+    trace.selectedTokens=tokenInfo.tokens;
+    const source=promptBinding?.choices??frontierBinding?.items??[];
+    const selectedItems=[];
+    const unmatched=[];
+    for(const token of tokenInfo.tokens){
+      const item=Array.isArray(source)?source.find(row=>row&&row.token===token):null;
+      if(item)selectedItems.push(item);
+      else unmatched.push(token);
+    }
+    trace.selectedItems=selectedItems;
+    trace.unmatchedSelectedTokens=unmatched;
+    trace.selectedItemsSha256=digest(selectedItems);
+    trace.selectionStatus=tokenInfo.status==='valid'?
+      (unmatched.length===0?'resolved':'unresolved-token'):
+      tokenInfo.status;
+    if(response?.policyAudit!==undefined&&response?.policyAudit!==null){
+      try{
+        assertActorOnlyJson(response.policyAudit);
+        trace.policyAudit=response.policyAudit;
+        trace.policyAuditSha256=digest(response.policyAudit);
+      }catch{
+        trace.policyAudit=null;
+        trace.policyAuditSha256=null;
+      }
+    }
+    bindTraceInputs(trace,trace.publicEventReceipt,promptBinding,frontierBinding);
+    trace.traceStatus='response-received';
+  };
+  const setValidationReceipt=(trace,receipt)=>{
+    assertActorOnlyJson(receipt);
+    trace.validationReceipt=receipt;
+    trace.validationReceiptSha256=digest(receipt);
+    trace.traceStatus='validated';
+    trace.failureCode=null;
+  };
+  const attachTrace=(error,trace)=>{
+    if(!trace)return error;
+    if(error&&typeof error==='object'&&error.workerDecisionTrace)return error;
+    let target=error&&typeof error==='object'?error:
+      new Error(String(error??'worker decision failed'));
+    try{
+      Object.defineProperty(target,'workerDecisionTrace',{
+        value:trace,enumerable:true,configurable:true
+      });
+      return target;
+    }catch{
+      const wrapped=new Error(String(error?.message??error??'worker decision failed'));
+      wrapped.name=error?.name??'Error';
+      if(typeof error?.code==='string')wrapped.code=error.code;
+      wrapped.cause=error;
+      wrapped.workerDecisionTrace=trace;
+      return wrapped;
+    }
+  };
+  const requirePolicyAudit=(response,requestShape)=>{
+    assert.ok(response?.policyAudit&&
+      response.policyAudit.schema===workerProtocol.POLICY_AUDIT_SCHEMA,
       'registered candidate/opponent policy must return a validated per-decision policyAudit');
+    workerProtocol.validatePolicyAudit(
+      response.policyAudit,requestShape,response.decision,response.policyVersion
+    );
     assert.equal(response.policyAudit.policyVersion,response.policyVersion);
-    assert.equal(response.policyAudit.decisionKind,request.observation.decisionKind);
+    assert.equal(response.policyAudit.decisionKind,requestShape.observation.decisionKind);
   };
   return async request=>{
     assert.equal(request?.kind,'native-fixture-decision',
@@ -1960,12 +2055,32 @@ function createV3WorkerDecisionResolver({
     }
     const roleAudit=workerAudit.roles[role];
     const session=sessionsBySeat[actorSeat];
-    assert.ok(session&&typeof session.decide==='function',
-      'persistent role worker is unavailable for the acting seat');
+    let decisionTrace=null;
     try{
-      const observation=native.observe(request.state,actorSeat);
+      assert.ok(session&&typeof session.decide==='function',
+        'persistent role worker is unavailable for the acting seat');
+      const observation=request.actorObservation;
+      decisionTrace=createRequestTrace(request,role,actorSeat,observation);
+      const actorDigest=request.actorObservationSha256;
+      if(!Number.isSafeInteger(request.actionOrdinal)||request.actionOrdinal<0){
+        const error=new Error('native worker request requires a zero-based action ordinal');
+        error.code='WORKER_ACTION_ORDINAL_INVALID';
+        throw error;
+      }
+      if(!SHA256.test(actorDigest??'')||decisionTrace.actorInputSha256!==actorDigest){
+        const error=new Error('driver actor-observation digest does not match the exact worker input');
+        error.code='ACTOR_OBSERVATION_DIGEST_MISMATCH';
+        throw error;
+      }
+      assert.equal(observation.actorSeat,actorSeat,
+        'driver actor observation belongs to a different physical seat');
+      assert.equal(observation.decisionKind,request.decisionKind,
+        'driver actor observation decision kind does not match the native request');
+      assert.ok(request.decisionKind==='owner-root'||request.decisionKind==='owner-prompt',
+        'native worker request has an unsupported decision kind');
       const receipt=request.state.activePlayer===actorSeat?
         eventReceipt(request.state,actorSeat,null,null):null;
+      bindTraceInputs(decisionTrace,receipt,null,emptyFrontier);
       if(request.prompt){
         const activeProvenanceHook=provenanceContext?.current??provenanceHook;
         const projected=promptProjection.projectPrompt({
@@ -1988,8 +2103,13 @@ function createV3WorkerDecisionResolver({
             }
           };
         }
+        const promptBinding=projected.promptProjection;
+        bindTraceInputs(decisionTrace,receipt,promptBinding,emptyFrontier);
+        const requestShape={
+          observation,prompt:promptBinding,actionFrontier:emptyFrontier
+        };
         const response=await session.decide({
-          observation,prompt:projected.promptProjection,
+          observation,prompt:promptBinding,
           publicEventReceipt:receipt,actionFrontier:emptyFrontier
         });
         roleAudit.decisionCount++;
@@ -1997,38 +2117,39 @@ function createV3WorkerDecisionResolver({
         roleAudit.policyDrawCounts.push(response.policyDrawCount);
         roleAudit.promptDecisionCount++;
         workerAudit.totalWorkerDecisions++;
-        requirePolicyAudit(response,{observation});
+        enrichTrace(decisionTrace,response,promptBinding,emptyFrontier);
+        assert.equal(response.role,role,'worker response role changed across its request');
+        assert.equal(response.seat,actorSeat,'worker response physical seat changed across its request');
+        requirePolicyAudit(response,requestShape);
         if(response.decision?.kind==='abstain'){
           roleAudit.lastAbstentionReasonCode=response.decision.reasonCode;
-          const decisionTrace=buildDecisionTrace({
-            request,observation,receipt,promptProjection:projected.promptProjection,
-            actionFrontier:emptyFrontier,response,validationReceipt:null
-          });
           const error=new Error('role worker abstained on an owner prompt');
           error.code='POLICY_ABSTAINED';
-          error.workerDecisionTrace=decisionTrace;
           throw error;
         }
-        assert.ok(['select-choice','select-choices'].includes(response.decision?.kind),
-          'worker returned an unsupported prompt decision kind');
+        if(!['select-choice','select-choices'].includes(response.decision?.kind)){
+          const error=new Error('worker returned an unsupported prompt decision kind');
+          error.code='UNSUPPORTED_WORKER_PROMPT_DECISION';
+          throw error;
+        }
         const prepared=promptProjection.dispatchPromptChoice({
           store:request.store,prompt:request.prompt,state:request.state,actorSeat,
           projection:projected,decision:response.decision,native,dispatch:false,
           withValidationRandom:request.withValidationRandom
         });
         assert.ok(prepared.validationReceipt?.nativeValidationStoreMode==='cloned-store'&&
-          prepared.validationReceipt?.fullOriginalStoreStateUnchanged===true,
-          'worker-selected prompt choice requires a cloned-Store validation receipt');
+          prepared.validationReceipt?.fullOriginalStoreStateUnchanged===true&&
+          prepared.validationReceipt?.clonedPromptResolved===true,
+          'worker-selected prompt choice requires observed cloned-Store settlement');
         const validationReceipt={
           ...prepared.validationReceipt,
-          selectedItemsSha256:sha256Json(response.decision.kind==='select-choice'?
-            [projected.promptProjection.choices.find(row=>row.token===response.decision.token)]:
-            response.decision.tokens.map(token=>projected.promptProjection.choices.find(row=>row.token===token)))
+          selectedItemsSha256:decisionTrace.selectedItemsSha256,
+          promptProjectionSha256:decisionTrace.promptProjectionSha256,
+          actionFrontierSha256:decisionTrace.actionFrontierSha256
         };
-        const decisionTrace=buildDecisionTrace({
-          request,observation,receipt,promptProjection:projected.promptProjection,
-          actionFrontier:emptyFrontier,response,validationReceipt
-        });
+        assert.deepEqual(validationReceipt.selectedTokens,decisionTrace.selectedTokens,
+          'cloned prompt receipt must bind the exact worker-selected tokens');
+        setValidationReceipt(decisionTrace,validationReceipt);
         return {
           __nativeFixtureDecisionResolution:true,
           action:prepared.action,
@@ -2052,13 +2173,13 @@ function createV3WorkerDecisionResolver({
         throw error;
       }
       const {frontier,admission}=request.withValidationRandom(()=>{
-        const enumerator=knownCapFreeActionEnumerator.createKnownCapFreeActionEnumerator({
+        const enumerator=actionEnumerator.createKnownCapFreeActionEnumerator({
           native,enginePin:V3_FIXTURE.engineCommit
         });
         const frontier=actionFrontier.buildNativeActionFrontier({
           state:request.state,actorSeat,native,enumerator
         });
-        const admission=knownCapFreeActionEnumerator.assertKnownCapFreeAdapterAdmissionClear({
+        const admission=actionEnumerator.assertKnownCapFreeAdapterAdmissionClear({
           enumerator,enginePin:V3_FIXTURE.engineCommit,
           frontierDiagnostics:frontier.diagnostics
         });
@@ -2066,6 +2187,10 @@ function createV3WorkerDecisionResolver({
       });
       roleAudit.rootActionFrontierAdmissionCount++;
       roleAudit.rootActionFrontierAdmissionReceipts.push(admission);
+      bindTraceInputs(decisionTrace,receipt,null,frontier.actionFrontier);
+      const requestShape={
+        observation,prompt:null,actionFrontier:frontier.actionFrontier
+      };
       const response=await session.decide({
         observation,prompt:null,publicEventReceipt:receipt,
         actionFrontier:frontier.actionFrontier
@@ -2075,20 +2200,27 @@ function createV3WorkerDecisionResolver({
       roleAudit.policyDrawCounts.push(response.policyDrawCount);
       roleAudit.rootDecisionCount++;
       workerAudit.totalWorkerDecisions++;
-      requirePolicyAudit(response,{observation});
+      enrichTrace(decisionTrace,response,null,frontier.actionFrontier);
+      assert.equal(response.role,role,'worker response role changed across its request');
+      assert.equal(response.seat,actorSeat,'worker response physical seat changed across its request');
+      requirePolicyAudit(response,requestShape);
       if(response.decision?.kind==='abstain'){
-        const decisionTrace=buildDecisionTrace({
-          request,observation,receipt,promptProjection:null,
-          actionFrontier:frontier.actionFrontier,response,validationReceipt:null
-        });
         const error=new Error('role worker abstained on an owner root decision');
         error.code='POLICY_ABSTAINED';
-        error.workerDecisionTrace=decisionTrace;
         throw error;
       }
-      assert.equal(response.decision?.kind,'select-action',
-        'worker returned a non-action decision for an owner root');
-      const selectedItem=assertTrustedActionSelection(frontier,response.decision.token);
+      if(response.decision?.kind!=='select-action'){
+        const error=new Error('worker returned a non-action decision for an owner root');
+        error.code='UNSUPPORTED_WORKER_ROOT_DECISION';
+        throw error;
+      }
+      let selectedItem;
+      try{
+        selectedItem=assertTrustedActionSelection(frontier,response.decision.token);
+      }catch(error){
+        if(!error.code)error.code='WORKER_SELECTED_TOKEN_UNTRUSTED';
+        throw error;
+      }
       const validationEvidence={};
       const action=actionFrontier.dispatchSelectedNativeAction({
         store:request.store,frontier,token:response.decision.token,
@@ -2111,13 +2243,10 @@ function createV3WorkerDecisionResolver({
         selectedActionValidated:true,
         actorSeat,
         selectedToken:response.decision.token,
-        selectedItemSha256:sha256Json(selectedItem),
-        frontierSha256:sha256Json(frontier.actionFrontier)
+        selectedItemSha256:digest(selectedItem),
+        frontierSha256:decisionTrace.actionFrontierSha256
       };
-      const decisionTrace=buildDecisionTrace({
-        request,observation,receipt,promptProjection:null,
-        actionFrontier:frontier.actionFrontier,response,validationReceipt
-      });
+      setValidationReceipt(decisionTrace,validationReceipt);
       return {
         __nativeFixtureDecisionResolution:true,
         action,
@@ -2128,12 +2257,16 @@ function createV3WorkerDecisionResolver({
         }
       };
     }catch(error){
+      if(decisionTrace){
+        decisionTrace.traceStatus='failed';
+        decisionTrace.failureCode=safeCode(error);
+        error=attachTrace(error,decisionTrace);
+      }
       recordFailure(roleAudit,error,session);
       throw error;
     }
   };
 }
-
 function buildV3RunnerFailureError({
   runnerFailure=null,nestedRoleFailure=null,runnerCleanupFailures=[],runnerStage='native-v3-runner',
   workerAudit=null
