@@ -194,8 +194,8 @@ function projectNativeFixtureFailureForReceipt(failure,{includePrimary=true}={})
   if(!failure||typeof failure!=='object')return null;
   const summary={};
   for(const key of ['stage','code','actionOrdinal','actingSeat','phaseBefore',
-    'turnBefore','pendingPromptType','actionName','actionPayloadSha256',
-    'name','messageSha256','messageLength','stackSite']){
+    'turnBefore','pendingPromptType','actionName',
+    'name','messageLength','stackSite']){
     const value=failure[key];
     if(value===undefined||value===null)continue;
     if(key==='stage'&&typeof value==='string'&&/^[a-z0-9-]{1,64}$/.test(value))summary[key]=value;
@@ -205,8 +205,6 @@ function projectNativeFixtureFailureForReceipt(failure,{includePrimary=true}={})
     else if(key==='actingSeat'&&(value===0||value===1))summary[key]=value;
     else if(['phaseBefore','pendingPromptType','actionName'].includes(key)&&
       typeof value==='string'&&/^[A-Za-z0-9_.:-]{1,128}$/.test(value))summary[key]=value;
-    else if(['actionPayloadSha256','messageSha256'].includes(key)&&
-      typeof value==='string'&&/^[0-9a-f]{64}$/i.test(value))summary[key]=value;
     else if(key==='name'&&typeof value==='string'&&/^[A-Za-z0-9_.-]{1,64}$/.test(value))summary[key]=value;
     else if(key==='stackSite'&&value&&typeof value==='object'&&
       typeof value.file==='string'&&
@@ -231,10 +229,6 @@ function projectV3FixtureFailureForReceipt(source,{
   const nativeFailure=projectNativeFixtureFailureForReceipt(
     failure?.nativeFixtureFailure??source?.nativeFixtureFailure
   );
-  const message=String(source?.message??failure?.message??'native V3 witness failure');
-  const messageSha256=typeof failure?.messageSha256==='string'&&
-    /^[0-9a-f]{64}$/i.test(failure.messageSha256)?
-      failure.messageSha256:createHash('sha256').update(message).digest('hex');
   const result={
     name:typeof failure?.name==='string'&&/^[A-Za-z0-9_.-]{1,64}$/.test(failure.name)?
       failure.name:'Error',
@@ -243,8 +237,7 @@ function projectV3FixtureFailureForReceipt(source,{
         (failure?.code??source?.code):fallbackCode,
     stage:typeof (failure?.stage??nativeFailure?.stage??stage)==='string'&&
       /^[a-z0-9-]{1,64}$/.test(failure?.stage??nativeFailure?.stage??stage)?
-        (failure?.stage??nativeFailure?.stage??stage):stage,
-    messageSha256
+        (failure?.stage??nativeFailure?.stage??stage):stage
   };
   const messageLength=failure?.messageLength??nativeFailure?.messageLength;
   if(Number.isSafeInteger(messageLength)&&messageLength>=0)result.messageLength=messageLength;
@@ -338,7 +331,10 @@ function projectV3WorkerAuditForFailure(audit) {
     physicalSeedDisclosedToWorker:bool(audit.physicalSeedDisclosedToWorker),
     policySeedDisclosedToWorker:bool(audit.policySeedDisclosedToWorker),
     nativeStateDisclosedToWorker:bool(audit.nativeStateDisclosedToWorker),
-    opponentPrivateZonesDisclosedToWorker:bool(audit.opponentPrivateZonesDisclosedToWorker)
+    opponentPrivateZonesDisclosedToWorker:bool(audit.opponentPrivateZonesDisclosedToWorker),
+    workerInputScope:audit.workerInputScope===
+      'actor-observation-v3+actor-prompt-projection+public-event-receipt-v3+typed-action-frontier-v1'?
+        'actor-observation-v3+actor-prompt-projection+public-event-receipt-v3+typed-action-frontier-v1':null
   };
 }
 
