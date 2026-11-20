@@ -1065,3 +1065,10 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Added the explicit conditional argument to \`results/statistics/field-evidence.md\`: given all prior campaigns, candidate \(j\) is fixed before its fresh holdout, so its false-pass probability is at most \(\alpha_j\); summing conditional error bounds gives family-wise \(\le0.05\). This makes clear why the geometric alpha schedule remains valid when later candidates are selected adaptively.
 - No new communication or implementation needed; the 14:31 direct handoff to Agent1 covers the operational rules.
 
+
+
+### 20 November 2026 14:33 UTC — all-win K=50 row completed
+
+- Added the K=50 all-win budget to \`results/statistics/field-evidence.md\`: 11 games per stratum, 1,408 games per configuration, null all-win bound 0.0008608 against per-test alpha 0.001. This aligns the all-win table with the K=50 one-nonwin table.
+- No other changes.
+
