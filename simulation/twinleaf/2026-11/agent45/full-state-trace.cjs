@@ -363,6 +363,11 @@ function snapshotFullState(value, options = {}) {
  * or prompt action; each step's beforeState points to the preceding snapshot,
  * avoiding duplicate copies. The cumulative native log is captured once at the
  * end. Full state may reveal concealed zones and must remain offline.
+ *
+ * Internal capture failures are retained as captureError before being rethrown.
+ * Host-side public-board and human-summary projection failures must be reported
+ * with recordPublicBoardError / recordHumanSummaryError before the caller rethrows.
+ * Any recorded error makes result().complete false.
  */
 function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfiguration=[]} = {}) {
   const maxSteps=Number.isSafeInteger(limits.maxSteps)&&limits.maxSteps>=1?limits.maxSteps:512;
