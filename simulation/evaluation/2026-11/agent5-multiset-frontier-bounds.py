@@ -129,6 +129,9 @@ def remainder_bounds(counts: list[int], remaining: int) -> dict[str, object]:
         raise ValueError("no feasible remainder profile")
 
     total_ways = sum(row[5] for row in rows)
+    expected_total_ways = comb(sum(counts), sum(counts) - remaining)
+    if total_ways != expected_total_ways:
+        raise AssertionError(f"profile weights {total_ways} != physical remainder count {expected_total_ways}")
     expected_exact = sum(row[0] * row[5] for row in rows) / total_ways
     expected_upto = sum(row[1] * row[5] for row in rows) / total_ways
 
