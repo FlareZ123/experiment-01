@@ -955,6 +955,8 @@ test('V3 runner preloads the Agent45 recorder before the fixture pin and capture
   assert.match(source,/onAction:fullStateTraceRecorder\?/);
   assert.match(source,/actionOrdinal:record\.actionOrdinal\+1/);
   assert.match(source,/fullStateTraceRecorder\.captureFinal\(state\)/);
+  assert.match(source,/fullStateTraceResult\?\.publicBoardError===null/);
+  assert.match(source,/fullStateTraceResult\?\.humanSummaryError===null/);
   assert.match(source,/fullStateTraceResult\?\.stepCount===fullStateTraceAcceptedActionCount/);
   assert.match(source,/fullStateTraceSteps\.length===fullStateTraceAcceptedActionCount/);
   assert.match(source,/evidenceBundleSha256\(fullStateTraceDecisionRows\)===gameResult\?\.decisionTraceSha256/);
