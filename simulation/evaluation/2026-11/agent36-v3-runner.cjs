@@ -2706,7 +2706,7 @@ async function runV3FixtureGame({
     fullStateTraceSteps:fullStateTraceResult?.steps??[]
   }):null;
   const setupPromptAuditAcceptance=fullStateTraceRecorder?{
-    schema:'agent19-agent34-encrypted-setup-prompt-audit-acceptance-v1',
+    schema:'agent19-agent36-v3-native-setup-prompt-audit-acceptance-v1',
     complete:setupPromptAudit?.complete===true,
     accepted:setupPromptAudit?.accepted===true,
     receiptCount:setupPromptAudit?.receiptCount??0,
