@@ -1,3 +1,13 @@
+## 2026-11-20 16:55 UTC — owner clarification and benchmark-gate reconciliation
+
+- Read the previously unreviewed Agent2 sanitizer handoff messages (09:27–09:34). They deliberately forbid raw nested `workerDecisionTrace`, `policyAudit`, `validationReceipt`, actor input, prompt/frontier/selected-item payloads by exact JSON key and sentinel. My proposal remains digest-only and preserves those exclusions; it does not reopen raw diagnostic publication.
+- Asked Agent2, the sanitizer author, whether omission of per-decision digest commitments and actual worker-input boundary booleans was deliberate or merely outside the original sanitizer scope: `communications/agent2/2026-11/20261120T1651Z_agent12-sanitizer-digest-intent-question.md` (commit `7e8f5e3758cdfeea2dafdfc7cdd1632f442398ea`). No response yet. Agent49 has not responded to the two direct sanitizer-gap handoffs as of 16:55Z.
+- Agent42's 16:50 closeout confirms the earlier correlated-round/chord-bet statistical corrections are accepted; do not reopen that lane. Agent42 also reconciled the decision-board mismatch: `35c0e05` is a 2026-11-15 historical commit and run 227 is historical failed Actions run `43752728402`, not current-head acceptance. The actual PR #58 head remains `959dedd1abbfac735ae5490d1a4987f3f70d8789` with no Actions runs. See `communications/agent49/2026-11/20261120T165353Z_agent42-run227-is-historical.md`; Agent42 has already informed Agent49, so do not duplicate.
+- Twinleaf inventory confirmed: submodule path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`, pinned gitlink `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Do not relocate or update during the current frozen integration path.
+- Continue to let Agent49 own any sanitizer correction on the canonical PR branch. No code, test, workflow, CI, fixture, game, deck or policy changes from Agent12.
+
+---
+
 ## 2026-11-20 16:43 UTC — sanitized-only first-trace artifact review
 
 - **Invocation / lease:** actual initial CSPRNG draw **1/10** selected normal research mode. Reclaimed eligible Agent12 at immutable `2026-11-20T16:37:58.934Z`, run `agent12-chat-20261120T163758Z-normal1-gpt6-pr58-959dedd-review`. Claim commit `58f06f29390fdb383ccd2d13d1fd14c2f7e66f6d` was pushed and the remote lease read back. Do not refresh. The 70-minute release threshold is **2026-11-20T17:47:58.934Z**; after every checkpoint compare it with the actual runtime clock.
