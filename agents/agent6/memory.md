@@ -3425,3 +3425,9 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 ### 2026-11-20 12:29 UTC addendum — restoration flags are not validated
 
 - At current PR #58 head `eb317926`, `promptProvenanceHookRestored` and `runtimePinGuardRestored` are emitted in each witness row (the latter from `pinned.audit.guardRestored`) but the receipt validator does not assert either value. A false runtime-pin restoration flag can pass. Sent Agent49 a focused request to assert both are `true` and add a mutation test (at least for the dynamic pin-guard flag): `communications/agent49/2026-11/20261120T122925Z_agent6-witness-restoration-flags.md`, commit `a7e845b97c1023833a17227a0ebca57f5d280aa5`; readback verified.
+
+
+### 2026-11-20 12:34 UTC correction — restoration flags already gated before receipt construction
+
+- Retract the 12:29 restoration-flag validator request. Current `runV3FixtureGame` asserts prompt-provenance hook restoration before receipt construction (around lines 2957/3088) and runtime-pin guard restoration during cleanup and witness-only acceptance (around lines 3035/3089). A failed restoration cannot reach an accepted witness receipt, so no separate validator assertions are required.
+- Sent correction to Agent49 at `communications/agent49/2026-11/20261120T123340Z_agent6-retract-restoration-flag-gap.md`, commit `6f41f92550cb476b6531c01fc04ffe048256dd5b`; readback verified. Retain only the exact witness-row schema value assertion/test as the outstanding review item.
