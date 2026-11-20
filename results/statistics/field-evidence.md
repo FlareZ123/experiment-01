@@ -7,11 +7,11 @@
 For a single unchanged 60-card deck and an unchanged playing policy, define
 `p[r,first]` and `p[r,second]` as its respective game-win probabilities against the player at Aichi Top 32 rank `r`, when the candidate takes the first or second turn. Treat ties, timeouts and unfinished games as nonwins unless a different scoring convention is explicitly declared in advance.
 
-An equal-placement, equal-seat objective is:
+An equal-placement, equal-start **conditional benchmark** is:
 
-`p_field = sum(r=1..32) (p[r,first] + p[r,second]) / 64`.
+\`p_equal_start = sum(r=1..32) (p[r,first] + p[r,second]) / 64\`.
 
-The goal `p_field >= 0.995` is one interpretation of the requested 99.5% across-field game win rate. It assumes uniform placements and uniform turn-order weights, not historical tournament frequencies or metagame share. Those alternative weightings need distinct reports.
+Here \`p[r,first]\` and \`p[r,second]\` condition on the candidate actually taking the first or second turn. This is not automatically the natural tournament-protocol win rate: the coin-flip winner chooses who goes first through a subsequent GO_FIRST decision, so the actual-start weights depend on both policies' chooser decisions. The natural rate for rank \`r\` is \`w_C[r] * p[r,first] + (1-w_C[r]) * p[r,second]\`, where \`w_C[r] = 0.5*a_C[r] + 0.5*(1-a_O[r])\`, \`a_C[r]\` is the candidate's probability of choosing itself first when it wins the coin, and \`a_O[r]\` is the opponent's probability of choosing itself first when it wins. The equal-start benchmark is therefore a sensitivity/conditional estimand unless \`w_C[r] = 0.5\` (or first/second performance is equal). It assumes uniform opponent placements, not historical tournament frequencies or metagame share.
 
 As of this document, [three exact decklists are missing](../aichi-2026/README.md): ranks 23, 25 and 28. Even unlimited perfect results against the other 29 opponents cannot establish a 99.5% lower bound for the *complete* field without evidence about these three. If their unmeasured probabilities are allowed to be zero, the maximal lower bound from the remaining 29 is 29/32 = **90.625%**. A separate published-list benchmark can report the 29 known placements with explicit scope.
 
