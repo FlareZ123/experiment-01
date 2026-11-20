@@ -966,6 +966,7 @@ test('V3 runner preloads the Agent45 recorder before the fixture pin and capture
   assert.match(source,/fullStateTraceWorkerAuditComplete/);
   assert.match(source,/evidenceBundleSha256\(trace\.policyAudit\)===trace\.policyAuditSha256/);
   assert.match(source,/evidenceBundleSha256\(trace\)===row\.workerDecisionTraceSha256/);
+  assert.match(source,/evidenceBundleSha256\(trace\.validationReceipt\)===row\.validationReceiptSha256/);
   assert.match(source,/evidenceBundleSha256\(row\.validationReceipt\)===row\.validationReceiptSha256/);
   assert.match(source,/receipt\.clonedPromptResolved===true/);
   assert.match(source,/receipt\.selectedActionValidated===true/);
