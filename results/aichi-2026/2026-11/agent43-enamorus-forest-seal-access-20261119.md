@@ -6,7 +6,7 @@
 
 ## Question
 
-The discard-aware model in the [Arven dual-search report](agent43-enamorus-anchor-core-access-20261119.md) deliberately excluded Forest Seal Stone's Star Alchemy. That exclusion is material: Forest Seal Stone is both an Item and a Pokémon Tool, and its VSTAR Power searches the deck for any card. Shadow Rider Calyrex V is a Pokémon V and can use that power after Forest Seal Stone is attached.
+The discard-aware model in the [Arven dual-search report](agent43-enamorus-anchor-core-access-20261119.md) deliberately excluded Forest Seal Stone's Star Alchemy. That exclusion is material: Forest Seal Stone is a Pokémon Tool whose VSTAR Power searches the deck for any card. Although the card-pool metadata carries a legacy `Item` subtype label, manual B-02 explicitly says Sword & Shield-era and earlier Pokémon Tools with “Item” printed on them are not treated as Items. Arven can fetch FSS as its Tool target, not its Item target. Shadow Rider Calyrex V is a Pokémon V and can use that power after FSS is attached.
 
 ## Modeled routes
 
@@ -24,7 +24,7 @@ Card-text sources in the bundled database:
 - Arven: resources/cards/en/sv1.json
 - Fog Crystal: resources/cards/en/swsh6.json
 - Hisuian Heavy Ball: resources/cards/en/swsh10.json
-- Forest Seal Stone (Item + Pokémon Tool; Star Alchemy): resources/cards/en/swsh12.json
+- Forest Seal Stone (Pokémon Tool only under manual B-02; legacy Item label is not treated as Item; Star Alchemy): resources/cards/en/swsh12.json
 - Stealthy Hood: resources/cards/en/sm10.json
 - Float Stone: resources/cards/en/xy8.json
 
@@ -47,7 +47,7 @@ The 60-card category counts are the same as the prior Arven report, except Fores
 | All other cards | 31 |
 | **Total** | **60** |
 
-As before, Enamorus replaces one non-Item Trainer, giving 15 Basics, 30 Trainers, and 11 Energy. The residual 31 includes eleven Psychic Energy and twenty other Trainers. The model preserves the candidate's 17 Item cards (Fog Crystal ×4, Mysterious Treasure ×4, VS Seeker ×2, Quick Ball ×1, Heavy Ball ×1, Battle Compressor ×1, Field Blower ×1, Night Stretcher ×1, Unfair Stamp ×1, and Forest Seal Stone ×1). At most fifteen cards are unavailable by turn two, so an Item target remains for Arven. Tool availability is tracked by category.
+As before, Enamorus replaces one non-Item Trainer, giving 15 Basics, 30 Trainers, and 11 Energy. The residual 31 includes eleven Psychic Energy and twenty other Trainers. The model preserves the candidate's 16 true Item cards (Fog Crystal ×4, Mysterious Treasure ×4, VS Seeker ×2, Quick Ball ×1, Heavy Ball ×1, Battle Compressor ×1, Field Blower ×1, Night Stretcher ×1, Unfair Stamp ×1); Forest Seal Stone is tracked separately as a Pokémon Tool. At most fifteen cards are unavailable by turn two, so at least one true Item remains for Arven. Tool availability is tracked by category.
 
 The enumerator uses the same exact sequence as the previous report: a valid opening seven, six Prizes from the remaining 53, then natural draws from the 47-card post-Prize deck. Going first receives no draw on the first own turn and one by turn two; going second receives one draw on each of the first two own turns.
 
@@ -72,7 +72,7 @@ Forest Seal Stone adds **2.4927 / 3.2130 percentage points** to anchor-only acce
 
 1. Forest Seal Stone is a real additional access route, not merely a Tool slot: with a Shadow Rider V available, its once-per-game VSTAR Power can search any missing anchor piece.
 2. The joint 4.0990% / 6.0508% values remain piece-access probabilities, not probabilities of establishing Guardian of Love, attaching enough Energy, attacking, or winning.
-3. The model assumes an open Pokémon Tool slot on a Pokémon V for Forest Seal Stone. In the ability-lock matchups motivating Enamorus (notably Iron Thorns Initialization / Garbotoxin), the model does not prove that Star Alchemy remains usable. Under the intended Guardian-of-Love protection theory, the Pokémon V carrying Forest Seal Stone would need Psychic Energy attached while Enamorus's Ability is active; whether Guardian prevents the specific continuous suppression effect from disabling a Tool-granted VSTAR Power remains an unvalidated native interaction. Enamorus is excluded from its own protection and may itself need Hood. Stadium-based suppression such as Silent Lab / Path to the Peak is not prevented by Guardian of Love or Hood. The model also does not resolve competing Tool attachments, whether the player has already used a VSTAR Power, Supporter/Item lock, sequencing, opponent disruption, Bench pressure, or attack-energy requirements.
+3. The model assumes an open Pokémon Tool slot on a Pokémon V for Forest Seal Stone. Official ruling boundary: official Japanese Q&A confirms Star Alchemy remains usable under Path to the Peak and Spiritomb's Basic-Pokémon Ability suppression. Iron Thorns Initialization has the same Rule Box suppression scope as Path to the Peak, so the strong paper-rules inference is that Star Alchemy remains usable under Initialization without Guardian or Psychic Energy on the attached Pokémon. No direct Garbotoxin + Forest Seal Stone Q&A was found; keep that claim inferential. This does not mean Guardian itself is active under Initialization: Enamorus still may need Hood. Stadium suppression of Guardian is not prevented by Hood or Guardian, but Star Alchemy is a separate Tool-granted VSTAR Power. See [Agent35's official-ruling note](agent35-forest-seal-stone-ability-lock-ruling-20261120.md). The model also does not resolve competing Tool attachments, whether the player has already used a VSTAR Power, Supporter/Item lock, sequencing, opponent disruption, Bench pressure, or attack-energy requirements.
 4. Mysterious Treasure and Quick Ball remain excluded as search routes; no discard-payment assumption is made. Tapu Lele-GX → Arven and mulligan bonuses are also excluded.
 5. This is not a lower or upper bound on real gameplay. It is a constrained route model. No fixed candidate, policy, fixture, simulator, workflow, CI, or competitive status changed.
 
