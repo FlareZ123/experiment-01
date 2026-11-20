@@ -1780,6 +1780,18 @@ test('V3 worker prompt resolver binds policyAudit, actor projection and cloned-S
   mutatedPromptTrace.workerDecisionTraceSha256=
     evidenceBundleSha256(mutatedPromptTrace.workerDecisionTrace);
   assert.equal(validateV3WorkerDecisionTrace(mutatedPromptTrace),false);
+  const promptIdMismatch=JSON.parse(JSON.stringify(promptTraceRow));
+  promptIdMismatch.workerDecisionTrace.validationReceipt.promptId='other-prompt';
+  promptIdMismatch.workerDecisionTrace.validationReceiptSha256=
+    evidenceBundleSha256(promptIdMismatch.workerDecisionTrace.validationReceipt);
+  promptIdMismatch.validationReceipt=promptIdMismatch.workerDecisionTrace.validationReceipt;
+  promptIdMismatch.validationReceiptSha256=
+    promptIdMismatch.workerDecisionTrace.validationReceiptSha256;
+  promptIdMismatch.workerDecisionTraceSha256=
+    evidenceBundleSha256(promptIdMismatch.workerDecisionTrace);
+  assert.equal(validateV3WorkerDecisionTrace(promptIdMismatch),false,
+    'prompt receipt ID must match the exact pending prompt ID');
+
 
   assert.equal(result.decisionTrace.promptProjectionSha256.length,64);
   assert.equal(result.decisionTrace.policyAuditSha256.length,64);
