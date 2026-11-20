@@ -14,7 +14,7 @@ const {
   revalidatePreDealPersistenceReceipt,revalidateDealGenerationReceipt,
   bindFixtureFormatToApplicationReceipt,buildFixtureRoleIdentities,
   resolveFixtureSeatAssignment,candidateOpponentRoleSeats,loadWorkerPolicyModule,
-  assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,runV3FixtureGame,normalizeV3FixtureRoleResult,
+  assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,validateV3DiagnosticMode,runV3FixtureGame,normalizeV3FixtureRoleResult,
   V3_FIXTURE,V3_FIXTURE_TEST_PATHS,V3_FIXTURE_COMMON_BINDINGS,
   V3_FIXTURE_WORKER_COMMON_BINDINGS,V3_FIXTURE_WORKER_PROMPT_CHAIN,
   buildFixtureRoleEntryManifest,buildRoleWorkerBundle,preloadRoleHostModules,
@@ -1033,8 +1033,9 @@ test('V3 runner preloads the Agent45 recorder before the fixture pin and capture
     'the host must capture recorder function references before the fixture role pin');
   assert.match(source,/diagnosticMode==='encrypted-full'&&!witnessOnly/,
     'the full-state recorder must be disabled for sanitized-only and no-game witness runs');
-  assert.match(source,/assert\.ok\(witnessOnly\|\|diagnosticMode==='encrypted-full'/,
-    'registered fixtures must fail before live dispatch unless encrypted-full is enabled');
+  assert.doesNotMatch(source,/assert\.ok\(witnessOnly\|\|diagnosticMode==='encrypted-full'/,
+    'registered diagnostics may use the owner-authorized sanitized-only projection');
+  assert.match(source,/validateV3DiagnosticMode\(\s*env\.AGENT36_V3_DIAGNOSTIC_MODE\?\?'sanitized-only'\)/);
   assert.match(source,/diagnosticSnapshot:diagnosticMode==='encrypted-full'&&!witnessOnly\?/,
     'no-game witnesses must not receive full private-state snapshots even when encrypted-full is configured');
   assert.match(source,/requireFullStateDiagnostics:diagnosticMode==='encrypted-full'&&!witnessOnly/);
@@ -1073,6 +1074,33 @@ test('V3 runner preloads the Agent45 recorder before the fixture pin and capture
   assert.equal(source.includes('policyConfiguration:native.botOptionsBySeat'),false,
     'Twinleaf engine bot options must not be mislabeled as worker policy identity');
 });
+
+
+test('registered V3 diagnostics accept sanitized-only with the existing artifact allowlist',()=>{
+  assert.equal(validateV3DiagnosticMode('sanitized-only'),'sanitized-only');
+  assert.equal(validateV3DiagnosticMode('encrypted-full'),'encrypted-full');
+  assert.throws(()=>validateV3DiagnosticMode('unsupported-mode'),
+    /V3 fixture diagnostic mode must be encrypted-full or sanitized-only/);
+
+  const source=fs.readFileSync(path.resolve(__dirname,
+    '../simulation/evaluation/2026-11/agent36-v3-runner.cjs'),'utf8');
+  assert.match(source,/validateV3DiagnosticMode\(\s*env\.AGENT36_V3_DIAGNOSTIC_MODE\?\?'sanitized-only'\)/,
+    'registered fixture execution must use the tested mode validator');
+  assert.match(source,/const fullStateTraceRecorder=diagnosticMode==='encrypted-full'&&!witnessOnly\?/,
+    'the live Store recorder remains opt-in to encrypted-full mode');
+  assert.match(source,/diagnosticSnapshot:diagnosticMode==='encrypted-full'&&!witnessOnly\?/,
+    'sanitized-only execution must not capture full private-state snapshots');
+  assert.match(source,/requireFullStateDiagnostics:diagnosticMode==='encrypted-full'&&!witnessOnly/,
+    'full-state acceptance remains conditional on encrypted-full');
+  assert.match(source,/const sanitizedOnly=diagnosticMode==='sanitized-only'/);
+  assert.match(source,/sanitizeFixtureArtifact\(artifact\)/);
+  assert.match(source,/fixture-game\.sanitized\.json/);
+  assert.match(source,/fixture-game\.sanitized\.txt/);
+  assert.ok(V3_FIXTURE_TEST_PATHS.includes(
+    'tests/2026-11/agent2-v3-sanitized-diagnostic.test.cjs'),
+    'the existing sanitizer allowlist/redaction tests must run in the V3 contract suite');
+});
+
 
 test('host and worker common binding arrays have unique names and path/export identities',()=>{
   for(const [label,bindings] of [
