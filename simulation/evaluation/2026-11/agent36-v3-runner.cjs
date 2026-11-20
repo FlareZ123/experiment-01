@@ -1592,15 +1592,15 @@ function validateNoGameWitnessReceipt(receipt,expected={}) {
       'acting-role root decision count must match its role aggregate');
     assert.equal(witness.promptDecisionCount,activePromptDecisionCount,
       'acting-role prompt decision count must match its role aggregate');
-    assert.equal(witness.workerDecisionCount,
-      witness.rootDecisionCount+witness.promptDecisionCount,
-      'global worker decision count must match the acting role total');
     assert.equal(inactiveRootDecisionCount,0,
       'inactive role must have zero root decisions');
     assert.equal(inactivePromptDecisionCount,0,
       'inactive role must have zero prompt decisions');
     assert.equal(inactiveWorkerDecisionCount,0,
       'inactive role must have zero total decisions');
+    assert.equal(witness.workerDecisionCount,
+      witness.rootDecisionCount+witness.promptDecisionCount,
+      'global worker decision count must match the acting role total');
     assert.equal(witness.rootDecisionCount,1);
     assert.ok(Number.isInteger(witness.actionFrontierItemCount)&&witness.actionFrontierItemCount>0);
     assert.equal(witness.opponentSeat,1-witness.candidateSeat);
