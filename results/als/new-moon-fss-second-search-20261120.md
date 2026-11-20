@@ -68,6 +68,7 @@ The extra 0.4494 pp in the 11.6399% conditional figure comes from the opposite s
 
 - The model requires Articuno V to be among the observed cards so it can be played to the Bench; it does not credit Fog Crystal, Mysterious Treasure, Battle VIP Pass, or Heavy Ball as ways to find Articuno.
 - It assumes Secret Box and Adventure Bag are payable/playable. Secret Box's three-card discard cost and the opportunity cost of using its Tool slot for Forest Seal Stone rather than Powerglass are not modeled.
+- The Item-based routes also assume no active AOR3/Budew Item lock. Such a lock prevents Secret Box, Adventure Bag and Field Blower from being played, so the joint dual-counter route is unavailable until that lock clears. The single-counter Cologne estimate is relevant only to Iron Thorns lists without a separate Item lock.
 - It does not model Bench space, the rest of the Mewtwo & Mew attack plan, opponent turn order, or actual game outcomes.
 - The optional mulligan-bonus scenario assumes every available bonus card is accepted; it is an intentionally optimistic comparison.
 - This is the English mechanics proxy, not a paper-legality qualification for the final Expanded deck.
