@@ -43,6 +43,8 @@ An independent canonical-JSON SHA-256 pass over the actual source payloads match
 
 The remaining inspected rank-3/5/7/11/12/19/31 `actorView` fields are fixture/request descriptors or digest metadata without the raw policy-view object; rank 6/8 had no actor-view payload in the indexed case arrays. They remain unresolved. In particular, `fixtureRef`, `visibleSummary`, `actorPacketDigest`, and `requestDigests` are not substitutes for an actor observation. The corpus's current coarse `hasActorView` flag can therefore mean “descriptor present,” not “raw payload resolvable.”
 
+A related index-semantic mismatch is confirmed in rank 12: its top-level `actorViewDigest` accompanies only a descriptor (`fixtureRef`, `visibleSummary`, `hiddenInformationUsed`), not a raw view. The corpus summary's 33 `actorViewDigest` values therefore include eight descriptor-level hashes, while it omits rank 4's 26 nested raw-view digests. Do not interpret the corpus-wide digest count as the number of exact raw actor views; the independently verified resolvable payload count is 51.
+
 A corpus-indexing gap remains: rank 4 stores its digest as `actorView.digestSha256`, which the current corpus `normalizeCase()` does not lift into the index's `actorViewDigest` field. The resolver reads and verifies the source wrapper directly; the corpus generator should eventually preserve this digest field too.
 
 ## Evidence and limitations
