@@ -77,6 +77,8 @@ The calculation is fully specified by:
 3. exhaustive evaluation of integer (b=1\ldots60);
 4. ((29\bar D_{29}+3D_{\min})/32) and ((29\bar D_{29}+3D_{\max})/32), using Agent30's published 29-rank means.
 
+A dependency-free implementation is provided at [the exact bounds script](../../../scripts/agent2-full32-mulligan-offer-bounds.py), with [six regression tests](../../../tests/test_agent2_full32_mulligan_offer_bounds.py). Run with `python3 scripts/agent2-full32-mulligan-offer-bounds.py` and `python3 tests/test_agent2_full32_mulligan_offer_bounds.py`. An independent exact-`Fraction` cross-check of the roster, probability partition, symmetry, 5-vs-14 pair, extrema, and full-32 bounds passed six assertions in this invocation; the committed unittest file is available for repository-local execution.
+
 The 29-rank source vector remains the previously authenticated vector; ranks 23, 25, and 28 are excluded from it and are not reconstructed here.
 
 ## Limitations and interpretation
