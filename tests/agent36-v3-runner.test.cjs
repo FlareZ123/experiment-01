@@ -1365,7 +1365,14 @@ test('V3 fixture no-game witness receipt requires all four role-seat pairs and e
         nativeActionFrontierUsed:true,nativeValidationStoreMode:'cloned-store',
         hostStoppedBeforeLiveDispatch:true,validationActionKind:'GO_FIRST',
         fullOriginalStoreStateUnchanged:true,liveActionDispatched:false,
-        acceptedRootActions:0,rootDecisionCount:1,workerDecisionCount:1,actionFrontierItemCount:2,
+        acceptedRootActions:0,rootDecisionCount:1,promptDecisionCount:0,workerDecisionCount:1,
+        candidateRootDecisionCount:role==='candidate'?1:0,
+        candidatePromptDecisionCount:0,
+        candidateWorkerDecisionCount:role==='candidate'?1:0,
+        opponentRootDecisionCount:role==='opponent'?1:0,
+        opponentPromptDecisionCount:0,
+        opponentWorkerDecisionCount:role==='opponent'?1:0,
+        actionFrontierItemCount:2,
         workerCleanupVerified:true,allWorkerSessionsClosed:true,
         actorOnlyWorkerInput:true,nativeStateDisclosedToWorker:false,
         opponentPrivateZonesDisclosedToWorker:false,
@@ -1404,6 +1411,30 @@ test('V3 fixture no-game witness receipt requires all four role-seat pairs and e
     coverage:['0:0','0:1','1:0','1:1'],witnesses
   };
   assert.equal(validateNoGameWitnessReceipt(receipt,expected),receipt);
+
+  const wrongGlobalWorkerCount=JSON.parse(JSON.stringify(receipt));
+  wrongGlobalWorkerCount.witnesses[0].workerDecisionCount=2;
+  assert.throws(()=>validateNoGameWitnessReceipt(wrongGlobalWorkerCount,expected),
+    /global worker decision count must equal candidate and opponent totals/);
+
+  const wrongCandidateWorkerCount=JSON.parse(JSON.stringify(receipt));
+  wrongCandidateWorkerCount.witnesses[0].candidateWorkerDecisionCount=2;
+  assert.throws(()=>validateNoGameWitnessReceipt(wrongCandidateWorkerCount,expected),
+    /candidate worker decision total must equal root plus prompt decisions/);
+
+  const inactivePromptDecision=JSON.parse(JSON.stringify(receipt));
+  inactivePromptDecision.witnesses[0].opponentPromptDecisionCount=1;
+  inactivePromptDecision.witnesses[0].opponentWorkerDecisionCount=1;
+  inactivePromptDecision.witnesses[0].workerDecisionCount=2;
+  assert.throws(()=>validateNoGameWitnessReceipt(inactivePromptDecision,expected),
+    /inactive role must have zero prompt decisions/);
+
+  const inactiveRootDecision=JSON.parse(JSON.stringify(receipt));
+  inactiveRootDecision.witnesses[0].opponentRootDecisionCount=1;
+  inactiveRootDecision.witnesses[0].opponentWorkerDecisionCount=1;
+  inactiveRootDecision.witnesses[0].workerDecisionCount=2;
+  assert.throws(()=>validateNoGameWitnessReceipt(inactiveRootDecision,expected),
+    /inactive role must have zero root decisions/);
 
   const witnessWithArtifactPath={
     ...receipt.witnesses[0],
