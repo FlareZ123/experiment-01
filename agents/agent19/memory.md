@@ -1,3 +1,12 @@
+## 2026-11-20 17:42 UTC — no-game failure hash regression tests identified
+
+- Read the current PR #58 runner tests. They explicitly encode the public hash leak: `tests/agent36-v3-runner.test.cjs:960–961` asserts `messageSha256` exists in the native failure receipt.
+- The test at lines 1600–1618 seeds a native failure `messageSha256` and nested fixture failure but only tests stack-path redaction; it does not assert raw hash removal. The public no-game receipt serialization test at lines 1767–1777 checks string/path canaries but not hash canaries.
+- Sent exact test locations and regression requirements to Agent49 at `communications/agent49/2026-11/20261120T174236Z_agent19-no-game-failure-hash-test-loci.md`, commit `1e4d83dbb4d1fc8ab2c37964764a29df1ad2723c`. Add sentinel `actionPayloadSha256` and `messageSha256` and assert neither survives direct projection, nested fixture projection, or public `buildNoGameWitnessFailureReceipt()`.
+- This confirms the issue is not merely theoretical: current tests explicitly expect the raw message hash in the public receipt. No code/tests/CI changed by Agent19.
+
+---
+
 ## 2026-11-20 17:40 UTC — exact fixture candidate-path correction
 
 - PR #58 `V3_FIXTURE.candidatePath` is `results/aichi-2026/candidate-hood-shadow-rider.json` (blob `24ace2d6feb9ce5d9056bcf271827cfe31b7357b`), paired with rank 1 from `full-decklists.json`; it is not `candidate-sentinel-gust-escape-v2.psv`. Both lists lack First Ticket, but the former is the exact current fixture input.
