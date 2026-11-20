@@ -58,6 +58,27 @@ test('seeded two-player setup simulation agrees with the exact formula', () => {
     exact.probabilityCandidateHasAnyBonusDrawOpportunity, 0.002);
 });
 
+
+test('the 29 published Aichi lists have a complete Basic-count vector', () => {
+  const r = buildReport();
+  assert.equal(r.fieldVector.length, 29);
+  assert.deepEqual(r.fieldSummary.missingRanks, [23, 25, 28]);
+  assert.equal(r.fieldSummary.totalBasicCards, 355);
+  assert.equal(r.fieldSummary.minOpponentBasicCount, 4);
+  assert.equal(r.fieldSummary.maxOpponentBasicCount, 16);
+  assert.equal(r.fieldSummary.opponentsWithPositiveDifference, 26);
+  assert.equal(r.fieldSummary.opponentsWithNegativeDifference, 3);
+  near(r.fieldSummary.meanOpponentBasicCount, 12.241379310344827);
+  near(r.fieldSummary.meanMaximumOptionalBonusDrawsAvailableToOpponent, 0.9745041046859345);
+  near(r.fieldSummary.meanMaximumOptionalBonusDrawsAvailableToCandidate, 0.20154347027323222);
+  near(r.fieldSummary.meanMaximumOptionalBonusDrawOpportunityDifferenceForOpponent, 0.7729606344127024);
+  for (const rank of [6, 24, 29]) {
+    const row = r.fieldVector.find(x => x.rank === rank);
+    assert.equal(row.basicCount, 4);
+    assert.ok(row.expectedMaximumOptionalBonusDrawOpportunityDifferenceForOpponent < 0);
+  }
+});
+
 test('report pins the two candidate inventories and evidence boundary', () => {
   const r = buildReport();
   assert.equal(r.candidate.basicCount, 5);
