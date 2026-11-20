@@ -1,0 +1,94 @@
+name,primary_event_type,printing_count,printings,exact_prior_turn_text
+Accelgor,ko_cause_source,1,PLB 8,"If an Escavalier you had in play was Knocked Out by damage from an opponent's attack during his or her last turn, put all Energy attached to the Defending Pokémon into your opponent's hand."
+Alolan Marowak,ko_cause_source,1,JTG 57,"If any of your Pokémon were Knocked Out by damage from an attack during your opponent's last turn, this attack does 90 more damage."
+Araquanid,attack_attack_source,1,FLI 33,"If 1 of your Pokémon used Bubble during your last turn, this attack does 80 more damage."
+Arbok,attack_attack_source,1,UNB 63,"If this Pokémon used Wrap during your last turn, this attack does 120 more damage."
+Bisharp,ko_cause_source,1,STS 64,"If any of your Pokémon were Knocked Out by damage from an opponent's attack during his or her last turn, this attack does 60 more damage."
+Bouffalant,ko_cause_source,2,BLW 91; LTR 107,"If any of your Pokémon were Knocked Out by damage from an opponent's attack during his or her last turn, this attack does 70 more damage."
+Breloom,attack_attack_source,1,BRS 4,You can use this attack only if this Pokémon used Spore Ball during your last turn.
+Breloom V,damage_recipient,1,FST 6,"If this Pokémon was damaged by an attack during your opponent's last turn, this attack does that much more damage."
+Bruno,ko_cause_source,3,BST 121; BST 158; BST 172,"If any of your Pokémon were Knocked Out during your opponent's last turn, draw 7 cards instead."
+Chi-Yu,ko_cause_source,2,PAR 29; PR-SV 57,"If any of your Pokémon were Knocked Out by damage from an attack during your opponent's last turn, this attack does 90 more damage."
+Cinderace VMAX,damage_recipient,3,RCL 194; RCL 36; SHF 19,"If this Pokémon was damaged by an attack during your opponent's last turn, this attack does that much more damage."
+Conkeldurr V,damage_recipient,3,PGO 40; PGO 73; PGO 74,"If this Pokémon was damaged by an attack during your opponent's last turn, this attack does that much more damage."
+Cynthia's Ambition,ko_cause_source,4,CRZ GG60; BRS 138; BRS 169; BRS 178,"If any of your Pokémon were Knocked Out during your opponent's last turn, draw cards until you have 8 cards in your hand instead."
+Dedenne,attack_attack_source,1,SIT 85,You can use this attack only if 1 of your Togedemaru used Toge Dash during your last turn.
+Dhelmise V,ko_cause_source,3,SSH 187; SSH 9; SHF 9,"If any of your Grass Pokémon were Knocked Out by damage from an opponent's attack during their last turn, this attack does 90 more damage."
+Diantha,ko_cause_source,2,FLI 105; FLI 130,You can play this card only if 1 of your Fairy Pokémon was Knocked Out during your opponent's last turn.
+Druddigon,ko_cause_source,2,SIT TG09; BRS 113,"If any of your Pokémon were Knocked Out by damage from an attack from your opponent's Pokémon during their last turn, this attack does 120 more damage."
+Druddigon,ko_cause_source,1,FLF 70,"If any of your Pokémon were Knocked Out by damage from an opponent's attack during his or her last turn, this attack does 70 more damage."
+Entei,ko_cause_source,2,CEC 28; PR-SM SM219,"If any of your Pokémon were Knocked Out by damage from an opponent's attack during their last turn, this attack does 90 more damage."
+Ethan's Pinsir,ko_cause_source,1,DRI 1,"If any of your Ethan's Pokémon were Knocked Out by damage from an attack during your opponent's last turn, this attack does 100 more damage."
+Falinks,attack_attack_source,1,SCR 88,"If this Pokémon used Form Ranks during your last turn, this attack does 90 more damage."
+Fezandipiti ex,ko_cause_source,5,ASC 142; ASC 288; SFA 38; SFA 84; SFA 92,"Once during your turn, if any of your Pokémon were Knocked Out during your opponent's last turn, you may draw 3 cards."
+Grapploct,attack_attack_source,1,VIV 101,"If this Pokémon used Full Nelson during your last turn, this attack does 120 more damage."
+Gumshoos,movement_promotion,1,CRZ 118,"If your opponent's Active Pokémon moved from the Bench to the Active Spot during your opponent's last turn, this attack does 120 more damage."
+Gym Trainer,ko_cause_source,4,SIT 158; SIT 191; SHF 59; SHF 68,"If any of your Pokémon were Knocked Out during your opponent's last turn, draw 2 more cards."
+Hassel,ko_cause_source,2,TWM 151; TWM 205,You can use this card only if any of your Pokémon were Knocked Out during your opponent's last turn.
+Heracross,attack_attack_source,1,UNM 107,"If 1 of your opponent's Pokémon used a GX attack during their last turn, your opponent shuffles their Active Pokémon and all cards attached to it into their deck."
+Hisuian Basculegion,ko_cause_source,2,ASR 44; PR-SW SWSH205,"If any of your Pokémon were Knocked Out by damage from an attack from your opponent's Pokémon during their last turn, this attack does 90 more damage, and your opponent's Active Pokémon is now Confused."
+Hitmonlee,attack_attack_source,1,TEU 73,You can use this attack only if your Hitmonchan used Hit and Run during your last turn.
+Hitmontop,attack_attack_source,1,UNB 101,You can use this attack only if your Hitmonlee used Special Combo during your last turn.
+Hop's Trevenant,ko_cause_source,2,ASC 237; ASC 96,"If any of your Hop's Pokémon were Knocked Out by damage from an attack during your opponent's last turn, this attack does 100 more damage."
+Hydreigon,prize_count_award,1,EVS 115,This attack does 100 more damage for each Prize card your opponent took during their last turn.
+Iron Leaves,ko_cause_source,1,TWM 19,"If any of your Pokémon were Knocked Out by damage from an attack during your opponent's last turn, this attack does 60 more damage."
+Jellicent,damage_recipient,1,NXD 35,"If this Pokémon was damaged by an attack during your opponent's last turn, this attack does the same amount of damage done to the Defending Pokémon."
+Kangaskhan,ko_cause_source,2,DAA 133; PR-SW SWSH038,"If any of your Pokémon were Knocked Out by damage from an attack from your opponent's Pokémon during their last turn, this attack does 90 more damage."
+Koraidon,attack_attack_source,1,SSP 116,"If 1 of your other Ancient Pokémon used an attack during your last turn, this attack does 150 more damage."
+Koraidon ex,ko_cause_source,1,ASC 121,"If any of your Pokémon were Knocked Out by damage from an attack during your opponent's last turn, this attack does 120 more damage."
+Krookodile,ko_cause_source,1,PFL 66,"If any of your Pokémon were Knocked Out by damage from an attack during your opponent's last turn, this attack does 160 more damage."
+Lance ◇,ko_cause_source,1,DRM 61,You can play this card only if 1 of your Pokémon was Knocked Out during your opponent's last turn.
+Lapras,ko_cause_source,2,CRZ GG05; BRS 31,"If any of your Pokémon were Knocked Out by damage from an attack from your opponent's Pokémon during their last turn, your opponent's Active Pokémon is now Paralyzed."
+Letter of Encouragement,ko_cause_source,1,OBF 189,You can use this card only if any of your Pokémon were Knocked Out during your opponent's last turn.
+Lucario,ko_cause_source,2,SVI 114; PAF 174,"If any of your Fighting Pokémon were Knocked Out by damage from an attack during your opponent's last turn, this attack does 120 more damage."
+Machamp,prize_count_award,1,GRI 65,This attack does 80 more damage for each Prize card your opponent took on their last turn.
+Marshadow & Machamp-GX,ko_cause_source,4,UNB 198; UNB 199; UNB 221; UNB 82,"If any of your Pokémon were Knocked Out by damage from an opponent's attack during their last turn, this attack does 90 more damage."
+Medicham V,attack_attack_source,3,EVS 185; EVS 186; EVS 83,"(Skip Pokémon Checkup.) If 1 of your Pokémon used Yoga Loop during your last turn, this attack can't be used."
+Mega Heracross ex,damage_recipient,2,PFL 108; PFL 4,"If this Pokémon was damaged by an attack during your opponent's last turn, this attack does that much more damage."
+Mela,ko_cause_source,3,PAR 167; PAR 236; PAR 254,You can use this card only if any of your Pokémon were Knocked Out during your opponent's last turn.
+Mela,ko_cause_source,1,PRE 140,You can use this card only if any of your Pokémon were Knocked Out during your opponent's last turn.
+Mewtwo,attack_attack_source,1,EVO 51,"If 1 of your Pokémon used Barrier during your last turn, this attack can't be used."
+Miltank,attack_attack_source,1,PRE 81,You can use this attack only if this Pokémon used Rollout during your last turn.
+Mimikyu,attack_attack_source,3,GRI 58; TEU 112; PR-SM SM99,"If your opponent's Pokémon used an attack that isn't a GX attack during their last turn, use it as this attack."
+Morpeko,attack_attack_source,1,SIT 116,You can use this attack only if 1 of your Dedenne used Dede-Short during your last turn.
+Morty,ko_cause_source,2,LOT 186; LOT 212,You can play this card only if 1 of your Psychic Pokémon was Knocked Out during your opponent's last turn.
+Okidogi,prize_count_award,1,ASC 122,This attack does 60 more damage for each Prize card your opponent took during their last turn.
+Oricorio-GX,ko_cause_source,3,CEC 217; CEC 255; CEC 95,"Once during your turn (before your attack), if any of your Pokémon were Knocked Out during your opponent's last turn, you may draw 3 cards."
+Persian-GX,ko_cause_source,3,UNB 149; UNB 207; UNB 227,"Once during your turn (before your attack), if 1 of your Pokémon-GX or Pokémon-EX was Knocked Out during your opponent's last turn, you may search your deck for up to 2 cards and put them into your hand."
+Pidgeot-EX,damage_recipient,2,EVO 104; EVO 64,"If this Pokémon was damaged by an attack during your opponent's last turn, this attack does the same amount of damage to your opponent's Active Pokémon."
+Pikachu,attack_attack_source,1,SIT 49,"If 1 of your Dedenne used Dede-Short during your last turn, this attack does 180 more damage."
+Pincurchin,attack_attack_source,1,PAL 73,You can use this attack only if this Pokémon used Stun Needle during your last turn.
+Plusle,attack_attack_source,1,FST 89,"If 1 of your Minun used an attack during your last turn, this attack does 100 more damage."
+Raihan,ko_cause_source,6,CRZ 140; CRZ GG65; SIT TG27; EVS 152; EVS 202; EVS 224,You can play this card only if any of your Pokémon were Knocked Out during your opponent's last turn.
+Revavroom,ko_cause_source,1,TWM 125,"If any of your Pokémon were Knocked Out by damage from an attack during your opponent's last turn, this attack does 90 more damage."
+Rosa,ko_cause_source,2,CEC 204; CEC 236,You can play this card only if 1 of your Pokémon was Knocked Out during your opponent's last turn.
+Rust Syndicate Grunt,ko_cause_source,2,PBL 112; PBL 81,You can use this card only if any of your Pokémon were Knocked Out during your opponent's last turn.
+Shaymin,ko_cause_source,1,SLG 7,"If any of your Pokémon were Knocked Out by damage from an opponent's attack during their last turn, this attack does 90 more damage."
+Silvally,prize_count_award,1,UNM 184,This attack does 50 more damage for each Prize card your opponent took on their last turn.
+Skuntank V,movement_promotion,3,SIT 108; SIT 180; SIT 181,"If that Pokémon retreated from the Active Spot during your opponent's last turn, this attack does 120 damage instead."
+Stunfisk,ko_cause_source,1,BKT 56,"If any of your Pokémon were Knocked Out by damage from an opponent's attack during his or her last turn, this attack does 80 more damage."
+Sudowoodo,damage_recipient,1,LOT 110,"If this Pokémon was damaged by an attack during your opponent's last turn while it was your Active Pokémon, this attack does 80 more damage."
+Sudowoodo,attack_attack_source,1,BKP 67,"If your opponent's Pokémon used an attack during his or her last turn, use it as this attack."
+Swellow,attack_attack_source,1,GRI 104,"If this Pokémon used Agility during your last turn, this attack does 80 more damage."
+Sylveon ex,attack_attack_source,2,PRE 156; PRE 41,"If 1 of your Pokémon used Angelite during your last turn, this attack can't be used."
+Sylveon ex,attack_attack_source,1,SSP 86,"If 1 of your Pokémon used Angelite during your last turn, this attack can't be used."
+Tapu Koko ex,ko_cause_source,3,PAR 222; PAR 247; PAR 68,"If any of your Pokémon were Knocked Out by damage from an attack during your opponent's last turn, this attack does 90 more damage, and your opponent's Active Pokémon is now Paralyzed."
+Team Rocket's Archer,ko_cause_source,3,ASC 201; DRI 170; DRI 223,You can use this card only if any of your Team Rocket's Pokémon were Knocked Out during your opponent's last turn.
+Teammates,ko_cause_source,2,PRC 141; PRC 160,You can play this card only if 1 of your Pokémon was Knocked Out during your opponent's last turn.
+Terrakion,attack_attack_source,1,SIT 97,"If 1 of your Pokémon used Cavern Tackle during your last turn, this attack can't be used."
+Terrakion,ko_cause_source,2,WHT 135; WHT 54,"If any of your Pokémon were Knocked Out by damage from an attack during your opponent's last turn, this attack does 80 more damage."
+Terrakion,ko_cause_source,4,LTR 84; NVI 73; NVI 99; BCR 151,"If any of your Pokémon were Knocked Out by damage from an opponent's attack during his or her last turn, this attack does 60 more damage."
+Togedemaru ex,attack_attack_source,1,ASC 149,"If this Pokémon used Spiky Rolling during your last turn, this attack does 80 more damage."
+Toxicroak,ko_cause_source,2,LTR 63; BCR 66,"If any of your Pokémon were Knocked Out by damage from an opponent's attack during his or her last turn, this attack does 70 more damage."
+Toxicroak,ko_cause_source,1,UPR 57,"If any of your Fighting Pokémon were Knocked Out by damage from an opponent's attack during their last turn, this attack does 70 more damage."
+Toxicroak,ko_cause_source,1,FLI 64,"If any of your Psychic Pokémon were Knocked Out by damage from an opponent's attack during their last turn, this attack does 70 more damage."
+Tropius,ko_cause_source,1,EVS 6,"If any of your Pokémon were Knocked Out by damage from an attack from your opponent's Pokémon during their last turn, this attack does 90 more damage."
+Umbreon,ko_cause_source,1,LOT 120,"If any of your Pokémon were Knocked Out by damage from an opponent's attack during their last turn, this attack does 90 more damage."
+Unfair Stamp,ko_cause_source,1,TWM 165,You can use this card only if any of your Pokémon were Knocked Out during your opponent's last turn.
+Volbeat,attack_attack_source,1,CES 17,"If your Illumise used Pheromone Signals during your last turn, this attack does 100 more damage."
+Walrein,attack_attack_source,1,CEC 52,"If 1 of your Pokémon used Cold Snap during your last turn, this attack can't be used."
+Weezing,attack_attack_source,1,JTG 92,"If this Pokémon used Pervasive Gas during your last turn, this attack does 120 more damage."
+Zamazenta,ko_cause_source,1,CRZ 97,"If any of your Pokémon were Knocked Out during your opponent's last turn, this attack does 120 more damage."
+Zebstrika,attack_attack_source,1,CRE 51,"If 1 of your other Rapid Strike Pokémon used an attack during your last turn, this attack does 90 more damage."
+Zeraora V,attack_attack_source,4,SIT TG16; CRE 165; CRE 166; CRE 53,"If 1 of your other Rapid Strike Pokémon used an attack during your last turn, this attack also does 160 damage to 1 of your opponent's Benched Pokémon."
+Zinnia,ko_cause_source,2,DRM 64; DRM 70,You can play this card only if 1 of your Pokémon was Knocked Out during your opponent's last turn.
