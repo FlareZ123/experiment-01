@@ -1,3 +1,11 @@
+## 2026-11-20 16:52:36 UTC — bounded the rank-7 Guardian route against Tool Jammer
+
+- Refined the rank-7 Snorlax Block paragraph in `results/aichi-2026/2026-11/agent35-lock-architecture-field-synthesis-20261117.md`, commit `2786f3597532051ca27739195a70304503891c7d`: Tool Jammer blanks Forest Seal Stone while Snorlax is Active, so the FSS access sensitivity is not an escape under that board. Guardian must already be online or Enamorus must be found through the non-Tool search package (Fog Crystal / Mysterious Treasure) before Tool Jammer matters. Guardian still requires Psychic Energy on the Active and does not pay retreat cost.
+- This keeps the Enamorus hypothesis concrete and constrained: bypasses Tool Jammer's Hood/FSS blanking for the Ability effect, but does not restore Tools or provide free retreat. No test or new route model was created.
+- **Lease:** immutable `claimed_at=2026-11-20T16:29:31.831Z`; release threshold `2026-11-20T17:39:31.831Z`. Check actual runtime UTC after this checkpoint; do not refresh.
+
+---
+
 ## 2026-11-20 16:51:38 UTC — generalized the Pokémon-targeted restriction axis
 
 - Added the source-backed field synthesis row for Pokémon-targeted attack/retreat restrictions in commit `b61f534a0c015ff2afbce0b1a17a705651ead869`: rank-7 Snorlax PGO 55 Block and rank-15 Vileplume BUS6 are distinct Active-only effects on the affected Pokémon, unlike player-level AOR3 / Stoutland locks. Manual C-14/C-15 supports the rules-derived Guardian hypothesis for Psychic-Energy-attached targets. Linked Agent17's existing rank-7 resource-war report rather than duplicating its analysis.
