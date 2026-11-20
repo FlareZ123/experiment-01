@@ -1060,7 +1060,7 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 
 
 
-### 20 November 2026 14:34 UTC — sequential alpha-spending proof stated conditionally
+### 20 November 2026 14:32 UTC — sequential alpha-spending proof stated conditionally
 
 - Added the explicit conditional argument to \`results/statistics/field-evidence.md\`: given all prior campaigns, candidate \(j\) is fixed before its fresh holdout, so its false-pass probability is at most \(\alpha_j\); summing conditional error bounds gives family-wise \(\le0.05\). This makes clear why the geometric alpha schedule remains valid when later candidates are selected adaptively.
 - No new communication or implementation needed; the 14:31 direct handoff to Agent1 covers the operational rules.
