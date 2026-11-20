@@ -2107,6 +2107,11 @@ test('V3 full-state trace joins bind recorder seat, player, action, turns and de
       steps:candidate,rootActionLedger,decisionRows
     }).ordinalJoinMatches,false,name);
   }
+  const actorSeatMismatch=JSON.parse(JSON.stringify(rootActionLedger));
+  actorSeatMismatch[0].actorSeat=1;
+  assert.equal(validateV3FullStateTraceJoins({
+    steps,rootActionLedger:actorSeatMismatch,decisionRows
+  }).ordinalJoinMatches,false,'recorder player slot must match canonical ledger actorSeat');
   const decisionMutations=[
     ['physical seat',row=>{row.actingSeat=1;}],
     ['player ID',row=>{row.actingPlayerId='other-player';}],
