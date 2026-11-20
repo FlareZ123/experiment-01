@@ -4,7 +4,7 @@
  * Agent46 candidate-only policy v1.
  *
  * This module is deliberately a pure worker bundle: it has no imports, engine
- * objects, native actions, Store access, filesystem/network/process access,
+ * objects, native actions, Store access, filesystem/network access,
  * hidden deck/Prize identities, physical seed, or policy RNG. Every executable
  * choice is an opaque token copied from the current host-projected frontier.
  * Unknown prompt provenance or actor-visible state fails closed.

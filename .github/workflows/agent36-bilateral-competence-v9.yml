@@ -103,18 +103,18 @@ on:
         required: false
         type: boolean
         default: false
-      agent36_v3_predeal_preflight:
-        description: 'Verify a frozen V3 pre-deal artifact against the current Actions run and committed blob; does not generate a deal or play a game'
+      agent36_v3_native_no_game_witness:
+        description: 'Compile the V3 no-fixture contract suite and verify the native no-game witness after a successful same-SHA contract-only gate; no fixture game'
         required: false
         type: boolean
         default: false
       agent36_v3_predeal_artifact_ref:
-        description: 'Repository-relative committed V3 pre-deal artifact path (required when pre-deal preflight is enabled)'
+        description: 'Repository-relative committed V3 public-seed registration JSON for fixture mode, or committed pre-deal artifact for pre-deal preflight mode'
         required: false
         type: string
         default: ''
       agent36_v3_fixture_game:
-        description: "Run the same fixed candidate/opponent decks in both physical seat assignments; requires repository variable AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION=public-reproducible; fixture-only, not competitive evidence."
+        description: "Run the same fixed candidate/opponent decks in both physical seat assignments only after an exact-head native no-game witness and fresh public seed registration; requires public-reproducible seed authorization; fixture-only, not competitive evidence."
         type: boolean
         required: false
         default: false
@@ -124,7 +124,7 @@ on:
         required: false
         default: false
       contract_only:
-        description: 'Run Agent34/Agent41, Agent49 policy protocol, and Agent36 Docker policy-worker contracts without compiling Twinleaf or executing a game'
+        description: 'Run policy, prompt, action-frontier, and Node24 Docker worker contracts without compiling Twinleaf or executing a game'
         required: false
         type: boolean
         default: false
@@ -146,27 +146,28 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Check out the pinned Twinleaf submodule
-        if: ${{ !inputs.contract_only && !inputs.agent36_v3_predeal_preflight }}
+        id: twinleaf_checkout
+        if: ${{ !inputs.contract_only && (inputs.agent36_v3_predeal_artifact_ref == '' || inputs.agent36_v3_fixture_game || inputs.agent36_v3_native_no_game_witness) }}
         run: git submodule update --init --depth=1 vendor/twinleaf
 
       - name: Record exact pinned Twinleaf revision for V3 runner
-        if: ${{ !inputs.contract_only && !inputs.agent36_v3_predeal_preflight }}
+        if: ${{ !inputs.contract_only && (inputs.agent36_v3_predeal_artifact_ref == '' || inputs.agent36_v3_fixture_game || inputs.agent36_v3_native_no_game_witness) }}
         run: echo "AGENT36_TWINLEAF_COMMIT_SHA=$(git -C vendor/twinleaf rev-parse HEAD)" >> "$GITHUB_ENV"
 
       - name: Set up Node runtime for contract-only tests
-        if: ${{ inputs.agent36_v3_predeal_preflight || (inputs.contract_only && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native) }}
+        if: ${{ (!inputs.contract_only && !inputs.agent36_v3_fixture_game && !inputs.agent36_v3_native_no_game_witness && inputs.agent36_v3_predeal_artifact_ref != '') || (inputs.contract_only && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native) }}
         uses: actions/setup-node@v4
         with:
           node-version: '24.22.3'
 
       - name: Enforce isolated V3 pre-deal preflight mode
-        if: ${{ inputs.agent36_v3_predeal_preflight }}
+        if: ${{ !inputs.contract_only && !inputs.agent36_v3_fixture_game && !inputs.agent36_v3_native_no_game_witness && inputs.agent36_v3_predeal_artifact_ref != '' }}
         env:
           INPUTS_JSON: ${{ toJSON(inputs) }}
         run: |
           node - <<'NODE'
           const inputs = JSON.parse(process.env.INPUTS_JSON);
-          const allowed = new Set(['agent36_v3_predeal_preflight', 'agent36_v3_predeal_artifact_ref']);
+          const allowed = new Set(['agent36_v3_predeal_artifact_ref']);
           const conflicts = Object.entries(inputs)
             .filter(([key, value]) => !allowed.has(key) && value === true)
             .map(([key]) => key);
@@ -175,10 +176,25 @@ jobs:
           NODE
 
       - name: Enforce isolated V3 fixture-game mode
-        if: ${{ inputs.agent36_v3_fixture_game && (inputs.agent24_v8_perfection_260root || inputs.agent24_perfection_energy_frontier || inputs.agent24_v8_bilateral_perfection || inputs.agent7_known_dead_off_control || inputs.agent7_bilateral_lillie_after_pass || inputs.agent43_box_fog_oneprize_after_pass || inputs.agent36_v9_vip_aba || inputs.agent36_v10b_paired_fresh_aba || inputs.agent3_owner_information_fallback_diagnostic || inputs.agent36_v8_snap_trap_vertical_slice || inputs.agent36_v8_snap_trap_vertical_slice_v2 || inputs.agent43_v8_snaptrap_owner_root_diagnostic || inputs.agent2_rank11_quickball_attack_priority || inputs.agent2_crispin_vs_seeker_treasure_native || inputs.agent36_v10_fresh_aba || inputs.agent20_box_fog_ace_trainer_aba || inputs.agent2_retreat_funding_native || inputs.agent2_retreat_funding_original_source || inputs.agent36_fresh_rank5_native || inputs.agent36_paper_root_native || inputs.agent36_v3_predeal_preflight || inputs.contract_only || inputs.agent36_v3_predeal_artifact_ref != '' || inputs.agent42_flittle_mcts_native_smoke) }}
+        if: ${{ inputs.agent36_v3_fixture_game && (inputs.agent24_v8_perfection_260root || inputs.agent24_perfection_energy_frontier || inputs.agent24_v8_bilateral_perfection || inputs.agent7_known_dead_off_control || inputs.agent7_bilateral_lillie_after_pass || inputs.agent43_box_fog_oneprize_after_pass || inputs.agent36_v9_vip_aba || inputs.agent36_v10b_paired_fresh_aba || inputs.agent3_owner_information_fallback_diagnostic || inputs.agent36_v8_snap_trap_vertical_slice || inputs.agent36_v8_snap_trap_vertical_slice_v2 || inputs.agent43_v8_snaptrap_owner_root_diagnostic || inputs.agent2_rank11_quickball_attack_priority || inputs.agent2_crispin_vs_seeker_treasure_native || inputs.agent36_v10_fresh_aba || inputs.agent20_box_fog_ace_trainer_aba || inputs.agent2_retreat_funding_native || inputs.agent2_retreat_funding_original_source || inputs.agent36_fresh_rank5_native || inputs.agent36_paper_root_native || inputs.agent36_v3_native_no_game_witness || inputs.contract_only || inputs.agent42_flittle_mcts_native_smoke) }}
         run: |
           echo "agent36_v3_fixture_game must be the only selected workflow mode." >&2
           exit 1
+      - name: Enforce isolated V3 native no-game witness mode
+        if: ${{ inputs.agent36_v3_native_no_game_witness }}
+        env:
+          INPUTS_JSON: ${{ toJSON(inputs) }}
+        run: |
+          node - <<'NODE'
+          const inputs = JSON.parse(process.env.INPUTS_JSON || '{}');
+          const allowed = new Set(['agent36_v3_native_no_game_witness']);
+          const conflicts = Object.entries(inputs)
+            .filter(([key, value]) => !allowed.has(key) &&
+              (value === true || (key === 'agent36_v3_predeal_artifact_ref' && value !== '')))
+            .map(([key]) => key);
+          if (conflicts.length) throw new Error('V3 native no-game witness is exclusive; conflicting mode inputs: ' + conflicts.join(', '));
+          NODE
+
       - name: Require explicit owner authorization for public physical-seed disclosure
         if: ${{ inputs.agent36_v3_fixture_game }}
         env:
@@ -192,12 +208,112 @@ jobs:
           NODE
 
       - name: Set up pinned Node runtime with native dependency cache
-        if: ${{ !inputs.contract_only && !inputs.agent36_v3_predeal_preflight }}
+        if: ${{ !inputs.contract_only && (inputs.agent36_v3_predeal_artifact_ref == '' || inputs.agent36_v3_fixture_game || inputs.agent36_v3_native_no_game_witness) }}
         uses: actions/setup-node@v4
         with:
           node-version: '24.22.3'
           cache: npm
           cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+
+      - name: Find exact-SHA prior successful contract-only gate
+        id: prior_contract_only
+        if: ${{ inputs.agent36_v3_native_no_game_witness }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node - <<'NODE'
+          async function main() {
+          const fs = require('node:fs');
+          const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+          const sha = process.env.GITHUB_SHA;
+          const artifactName = 'agent36-v3-contract-only-' + sha;
+          const headers = {
+            Authorization: 'Bearer ' + process.env.GH_TOKEN,
+            Accept: 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2022-11-28'
+          };
+          async function api(path) {
+            const response = await fetch('https://api.github.com' + path, { headers });
+            if (!response.ok) throw new Error('GitHub API ' + response.status + ' while locating prior contract-only gate');
+            return response.json();
+          }
+          const expectedWorkflowId = 409927243;
+          const currentRunId = Number(process.env.GITHUB_RUN_ID);
+          if (!Number.isSafeInteger(currentRunId)) {
+            throw new Error('GITHUB_RUN_ID is invalid; refusing to consume prior acceptance evidence.');
+          }
+          const currentRun = await api('/repos/' + owner + '/' + repo + '/actions/runs/' + currentRunId);
+          const currentRunCreatedAt = Date.parse(currentRun.created_at);
+          if (currentRun.id !== currentRunId || currentRun.head_sha !== sha ||
+              Number(currentRun.workflow_id) !== expectedWorkflowId ||
+              currentRun.event !== 'workflow_dispatch' ||
+              !Number.isFinite(currentRunCreatedAt)) {
+            throw new Error('Current workflow run metadata is invalid for the prior-evidence gate.');
+          }
+          const runs = await api('/repos/' + owner + '/' + repo + '/actions/runs?head_sha=' + sha + '&status=completed&per_page=100');
+          const candidates = (runs.workflow_runs || []).filter(run => {
+            const createdAt = Date.parse(run.created_at);
+            const completedAt = Date.parse(run.updated_at);
+            return run.id !== currentRunId && run.head_sha === sha &&
+              Number(run.workflow_id) === expectedWorkflowId &&
+              run.event === 'workflow_dispatch' && run.status === 'completed' &&
+              run.conclusion === 'success' &&
+              Number.isFinite(createdAt) && Number.isFinite(completedAt) &&
+              createdAt < currentRunCreatedAt && completedAt >= createdAt &&
+              completedAt < currentRunCreatedAt;
+          }).sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at));
+          let found = null;
+          for (const run of candidates) {
+            const result = await api('/repos/' + owner + '/' + repo + '/actions/runs/' + run.id + '/artifacts?per_page=100');
+            if ((result.artifacts || []).some(artifact => artifact.name === artifactName && artifact.expired !== true && artifact.size_in_bytes > 0)) {
+              found = run;
+              break;
+            }
+          }
+          if (!found) throw new Error('No successful same-SHA contract-only acceptance artifact exists; compile is blocked.');
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, 'run_id=' + found.id + '\n');
+          process.stdout.write('Found same-SHA contract-only acceptance run ' + found.id + '\n');
+          }
+          main().catch(error => {
+            console.error(error);
+            process.exitCode = 1;
+          });
+          NODE
+
+      - name: Download exact-SHA contract-only acceptance receipt
+        if: ${{ inputs.agent36_v3_native_no_game_witness }}
+        uses: actions/download-artifact@v4
+        with:
+          name: agent36-v3-contract-only-${{ github.sha }}
+          run-id: ${{ steps.prior_contract_only.outputs.run_id }}
+          github-token: ${{ github.token }}
+          path: artifacts/prior-contract-only
+
+      - name: Verify exact-SHA contract-only acceptance receipt
+        id: verify_prior_contract_only
+        if: ${{ inputs.agent36_v3_native_no_game_witness }}
+        env:
+          PRIOR_CONTRACT_ONLY_RUN_ID: ${{ steps.prior_contract_only.outputs.run_id }}
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const assert = require('node:assert/strict');
+          const receipt = JSON.parse(fs.readFileSync('artifacts/prior-contract-only/contract-only-acceptance.json', 'utf8'));
+          assert.equal(receipt.schema, 'agent36-v3-contract-only-acceptance-v1');
+          assert.equal(receipt.researchRevisionSha, process.env.GITHUB_SHA, 'contract-only receipt must bind this exact research SHA');
+          assert.equal(receipt.workflowRunId, Number(process.env.PRIOR_CONTRACT_ONLY_RUN_ID));
+          for (const key of ['contractSuitePassed','dockerLauncherContractPassed','dockerPreflightPassed','dockerCanaryPassed'])
+            assert.equal(receipt[key], true, 'contract-only acceptance receipt missing ' + key);
+          assert.equal(receipt.fixtureExecuted, false);
+          NODE
+
+      - name: Validate fresh public V3 seed registration
+        if: ${{ inputs.agent36_v3_fixture_game }}
+        env:
+          AGENT36_V3_PREDEAL_ARTIFACT_REF: ${{ inputs.agent36_v3_predeal_artifact_ref }}
+        run: |
+          test -n "$AGENT36_V3_PREDEAL_ARTIFACT_REF"
+          node simulation/evaluation/2026-11/agent36-v3-runner.cjs validate-seed-registration "$AGENT36_V3_PREDEAL_ARTIFACT_REF"
 
       - name: Enforce isolated Flittle MCTS native Store smoke mode
         if: ${{ inputs.agent42_flittle_mcts_native_smoke }}
@@ -217,16 +333,24 @@ jobs:
           }
           NODE
 
-      - name: Validate owner-controlled V3 diagnostic recipient key before native fixture
+      - name: Select encrypted or sanitized-only V3 diagnostic mode
+        id: diagnostic_recipient
         if: ${{ inputs.agent36_v3_fixture_game }}
         env:
           AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: ${{ vars.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM }}
         run: |
           node - <<'NODE'
           const crypto = require('node:crypto');
+          const fs = require('node:fs');
+          const output = process.env.GITHUB_OUTPUT;
+          if (typeof output !== 'string' || output.length === 0) {
+            throw new Error('GitHub Actions output path is unavailable.');
+          }
           const pem = process.env.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM;
           if (typeof pem !== 'string' || pem.trim().length === 0) {
-            throw new Error('Set repository variable AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM before running the private-state fixture.');
+            fs.appendFileSync(output, 'mode=sanitized-only\n');
+            console.log('No owner recipient key is configured; fixture emits only allowlisted actor-observation diagnostics and captures no full state.');
+            process.exit(0);
           }
           const key = crypto.createPublicKey(pem);
           const bits = key.asymmetricKeyDetails?.modulusLength;
@@ -236,16 +360,26 @@ jobs:
           const fingerprint = crypto.createHash('sha256')
             .update(key.export({ type: 'spki', format: 'der' }))
             .digest('hex');
+          fs.appendFileSync(output, 'mode=encrypted-full\n');
           console.log('V3 diagnostic recipient key validated; SHA-256 fingerprint: ' + fingerprint);
           NODE
 
       - name: Install and compile the pinned native server
         id: compile
-        if: ${{ !inputs.contract_only && !inputs.agent36_v3_predeal_preflight }}
+        if: ${{ !inputs.contract_only && (inputs.agent36_v3_predeal_artifact_ref == '' || inputs.agent36_v3_fixture_game || inputs.agent36_v3_native_no_game_witness) }}
         working-directory: vendor/twinleaf/ptcg-server
         run: |
           npm ci --no-audit --no-fund
           npm run compile
+
+      - name: Preflight digest-pinned Docker policy-worker runtime for worker-launching modes
+        id: worker_runtime_preflight
+        if: ${{ !inputs.contract_only && (inputs.agent36_v3_native_no_game_witness || inputs.agent36_v3_fixture_game) && steps.compile.outcome == 'success' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/agent36-policy-sandbox
+          node simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs preflight | tee artifacts/agent36-policy-sandbox/runtime.json
 
       - name: Check research adapter and runner syntax
         run: |
@@ -320,6 +454,8 @@ jobs:
           node --check simulation/evaluation/2026-11/agent44-first-release-independent-bundle.cjs
           node --check tests/2026-11/agent45-agent44-v2-bundle-builder.test.cjs
           node --check simulation/evaluation/2026-11/agent36-v3-runner.cjs
+          node --check simulation/evaluation/2026-11/agent3-known-cap-free-action-enumerator.cjs
+          node --check tests/2026-11/agent3-known-cap-free-action-enumerator-native.test.cjs
           node --check simulation/evaluation/2026-11/agent49-native-fixture-game.cjs
           node --check simulation/twinleaf/2026-11/agent5-twinleaf-mcts-adapter.cjs
           node --check simulation/twinleaf/2026-11/agent36-flittle-mcts-root-provider.cjs
@@ -328,8 +464,8 @@ jobs:
           node --check tests/2026-11/agent36-flittle-store-decklist-binding.test.cjs
           node --check tests/2026-11/agent42-flittle-mcts-native-store-smoke.test.cjs
 
-      - name: Verify frozen registration, observer, owner evidence and bilateral gate controls
-        if: ${{ !inputs.contract_only && !inputs.agent42_flittle_mcts_native_smoke && !inputs.agent2_retreat_funding_native && !inputs.agent2_retreat_funding_original_source && !inputs.agent36_v3_predeal_preflight && !inputs.agent36_v3_fixture_game && github.event_name != 'push' }}
+      - name: Verify frozen registration, observer, owner evidence and compiled cap-free action frontier
+        if: ${{ !inputs.contract_only && steps.compile.outcome == 'success' && !inputs.agent42_flittle_mcts_native_smoke && !inputs.agent2_retreat_funding_native && !inputs.agent2_retreat_funding_original_source && inputs.agent36_v3_predeal_artifact_ref == '' && !inputs.agent36_v3_native_no_game_witness && !inputs.agent36_v3_fixture_game && github.event_name != 'push' }}
         run: |
           node --test \
             tests/agent36-funded-perfection-pass-observer.test.cjs \
@@ -381,7 +517,8 @@ jobs:
             tests/2026-11/agent49-early-regidrago-compressor.test.cjs \
             tests/2026-11/agent49-first-turn-item-native-witness.test.cjs \
             tests/2026-11/agent2-retreat-funding-two-action.native.test.cjs \
-            tests/2026-11/agent36-v8-snap-trap-vertical-slice-v2.test.cjs tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs
+            tests/2026-11/agent36-v8-snap-trap-vertical-slice-v2.test.cjs tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs \
+            tests/2026-11/agent3-known-cap-free-action-enumerator-native.test.cjs
 
       - name: Verify Agent2 native two-action retreat funding in both physical seats
         if: ${{ !inputs.contract_only && inputs.agent2_retreat_funding_native }}
@@ -397,6 +534,8 @@ jobs:
         if: ${{ inputs.agent36_v3_fixture_game && steps.compile.outcome == 'success' }}
         run: |
           node --check simulation/evaluation/2026-11/agent36-v3-runner.cjs
+          node --check simulation/evaluation/2026-11/agent3-known-cap-free-action-enumerator.cjs
+          node --check tests/2026-11/agent3-known-cap-free-action-enumerator-native.test.cjs
           node --check simulation/evaluation/2026-11/agent49-native-fixture-game.cjs
           node --check simulation/evaluation/2026-11/agent49-fixture-scoped-runtime-pin.cjs
           node --check simulation/twinleaf/agent34-actor-only-root-policy.cjs
@@ -416,17 +555,19 @@ jobs:
             tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs \
             tests/2026-11/agent43-full-state-diagnostic.test.cjs \
             tests/2026-11/agent1-private-diagnostic-envelope.test.cjs \
+            tests/2026-11/agent2-v3-sanitized-diagnostic.test.cjs \
             tests/2026-11/agent36-v3-fixture-game.test.cjs
       - name: Verify prospective V3 pre-deal registration and GitHub persistence receipt
-        if: ${{ inputs.agent36_v3_predeal_preflight }}
+        if: ${{ !inputs.contract_only && !inputs.agent36_v3_fixture_game && !inputs.agent36_v3_native_no_game_witness && inputs.agent36_v3_predeal_artifact_ref != '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           AGENT36_V3_PREDEAL_ARTIFACT_REF: ${{ inputs.agent36_v3_predeal_artifact_ref }}
         run: node simulation/evaluation/2026-11/agent36-v3-runner.cjs predeal "$AGENT36_V3_PREDEAL_ARTIFACT_REF"
 
-      - name: Verify pure Agent34/Agent41 policy, observer, and v2 prompt-gate contracts
+      - name: Verify pure policy, prompt, worker, and action-frontier contracts
+        id: contract_suite
         if: ${{ inputs.contract_only }}
-        run: node --test tests/agent24-early-perfection-recipient.test.cjs tests/agent30-known-perfection-options.test.cjs tests/agent24-v8-bilateral-perfection-root-native.test.cjs tests/agent24-v8-perfection-paired-native.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-natural-evolution-root-options.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs tests/agent41-newmoon-blower-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent10-owner-prompt-metadata-observer.test.cjs tests/agent10-owner-prompt-zone-audit.test.cjs tests/2026-11/agent41-v2-unknown-prompt-falsepass-repro.test.cjs tests/2026-11/agent36-v8-snap-trap-vertical-slice-v2.test.cjs tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs tests/2026-11/agent36-v8-snap-trap-vertical-slice-v1.test.cjs tests/agent10-owner-prompt-zone-audit-v2.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v3.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v6.test.cjs tests/agent49-actor-potential-knockout.test.cjs tests/agent45-bilateral-competence-gate.test.cjs tests/2026-11/agent45-independent-competitive-admission.test.cjs tests/2026-11/agent43-independent-outcome-competence-v2.test.cjs tests/native-accepted-target-store-observer.test.cjs tests/agent45-rank14-source-pass-opportunity.test.cjs tests/2026-11/agent15-owner-cursed-blast-after-pass.test.cjs tests/2026-11/agent36-live-paper-root-receipts.test.cjs tests/2026-11/agent2-retreat-funding-bridge.test.cjs tests/2026-11/agent2-retreat-funding-actor-integration.test.cjs tests/2026-11/agent36-v8-native-paper-root-capture.test.cjs tests/2026-11/agent36-fresh-rank5-native-paper-packet.test.cjs tests/2026-11/agent36-perfection-prize-receipts.test.cjs tests/2026-11/agent36-rank5-candidate-seat-summary.test.cjs tests/2026-11/agent45-agent44-v2-bundle-builder.test.cjs tests/agent36-v3-runner.test.cjs tests/2026-11/agent49-owner-quick-ball-prompt-continuation.test.cjs tests/2026-11/agent49-native-fixture-game.test.cjs tests/2026-11/agent49-policy-worker.test.cjs tests/2026-11/agent36-actor-view-boundary.test.cjs tests/2026-11/agent36-native-action-frontier.test.cjs tests/2026-11/agent36-docker-policy-bundle-integrity.test.cjs tests/2026-11/agent36-prompt-provenance.test.cjs tests/2026-11/agent36-prompt-projection.test.cjs
+        run: node --test tests/agent24-early-perfection-recipient.test.cjs tests/agent30-known-perfection-options.test.cjs tests/agent24-v8-bilateral-perfection-root-native.test.cjs tests/agent24-v8-perfection-paired-native.test.cjs tests/agent34-actor-only-root-policy.test.cjs tests/agent41-natural-evolution-root-options.test.cjs tests/agent41-live-garbotoxin-ability-window.test.cjs tests/agent41-newmoon-blower-opportunity.test.cjs tests/agent41-bilateral-v2-development.test.cjs tests/agent10-owner-prompt-metadata-observer.test.cjs tests/agent10-owner-prompt-zone-audit.test.cjs tests/2026-11/agent41-v2-unknown-prompt-falsepass-repro.test.cjs tests/2026-11/agent36-v8-snap-trap-vertical-slice-v2.test.cjs tests/2026-11/agent36-snap-trap-owner-prompt-evidence-v1.test.cjs tests/2026-11/agent36-v8-snap-trap-vertical-slice-v1.test.cjs tests/agent10-owner-prompt-zone-audit-v2.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v3.test.cjs tests/agent36-issue25-public-prompt-zone-audit-v6.test.cjs tests/agent49-actor-potential-knockout.test.cjs tests/agent45-bilateral-competence-gate.test.cjs tests/2026-11/agent45-independent-competitive-admission.test.cjs tests/2026-11/agent43-independent-outcome-competence-v2.test.cjs tests/native-accepted-target-store-observer.test.cjs tests/agent45-rank14-source-pass-opportunity.test.cjs tests/2026-11/agent15-owner-cursed-blast-after-pass.test.cjs tests/2026-11/agent36-live-paper-root-receipts.test.cjs tests/2026-11/agent2-retreat-funding-bridge.test.cjs tests/2026-11/agent2-retreat-funding-actor-integration.test.cjs tests/2026-11/agent36-v8-native-paper-root-capture.test.cjs tests/2026-11/agent36-fresh-rank5-native-paper-packet.test.cjs tests/2026-11/agent36-perfection-prize-receipts.test.cjs tests/2026-11/agent36-rank5-candidate-seat-summary.test.cjs tests/2026-11/agent45-agent44-v2-bundle-builder.test.cjs tests/agent36-v3-runner.test.cjs tests/2026-11/agent49-owner-quick-ball-prompt-continuation.test.cjs tests/2026-11/agent49-native-fixture-game.test.cjs tests/2026-11/agent49-policy-worker.test.cjs tests/2026-11/agent36-actor-view-boundary.test.cjs tests/2026-11/agent36-native-action-frontier.test.cjs tests/2026-11/agent36-docker-policy-bundle-integrity.test.cjs tests/2026-11/agent36-prompt-provenance.test.cjs tests/2026-11/agent36-prompt-projection.test.cjs tests/2026-11/agent3-known-cap-free-action-enumerator.test.cjs tests/2026-11/agent46-candidate-policy.test.cjs tests/2026-11/agent6-rank1-shadow-rider-opponent-policy.test.cjs tests/2026-11/agent2-v3-sanitized-diagnostic.test.cjs tests/2026-11/agent1-private-diagnostic-envelope.test.cjs
 
       - name: Verify Docker launcher contract without a daemon
         id: docker_launcher_contract
@@ -457,6 +598,35 @@ jobs:
           path: artifacts/agent36-policy-sandbox/
           if-no-files-found: ignore
 
+      - name: Write exact-SHA contract-only acceptance receipt
+        id: write_contract_only_receipt
+        if: ${{ always() && inputs.contract_only && steps.contract_suite.outcome == 'success' && steps.docker_launcher_contract.outcome == 'success' && steps.docker_preflight.outcome == 'success' && steps.docker_canary.outcome == 'success' }}
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          fs.mkdirSync('artifacts/agent36-v3-acceptance', { recursive: true });
+          const receipt = {
+            schema: 'agent36-v3-contract-only-acceptance-v1',
+            researchRevisionSha: process.env.GITHUB_SHA,
+            workflowRunId: Number(process.env.GITHUB_RUN_ID),
+            contractSuitePassed: true,
+            dockerLauncherContractPassed: true,
+            dockerPreflightPassed: true,
+            dockerCanaryPassed: true,
+            fixtureExecuted: false
+          };
+          fs.writeFileSync('artifacts/agent36-v3-acceptance/contract-only-acceptance.json', JSON.stringify(receipt, null, 2) + '\n');
+          NODE
+
+      - name: Preserve exact-SHA contract-only acceptance receipt
+        if: ${{ always() && inputs.contract_only && steps.write_contract_only_receipt.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent36-v3-contract-only-${{ github.sha }}
+          path: artifacts/agent36-v3-acceptance/contract-only-acceptance.json
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Execute bounded Flittle MCTS root intents through the pinned native Store
         if: ${{ inputs.agent42_flittle_mcts_native_smoke && steps.compile.outcome == 'success' }}
         run: |
@@ -465,13 +635,199 @@ jobs:
             tests/2026-11/agent36-flittle-store-decklist-binding.test.cjs \
             tests/2026-11/agent42-flittle-mcts-native-store-smoke.test.cjs
 
+      - name: Verify V3 compiled no-fixture worker, prompt, privacy, and fixture contracts
+        id: compiled_no_fixture
+        if: ${{ inputs.agent36_v3_native_no_game_witness && steps.compile.outcome == 'success' && steps.worker_runtime_preflight.outcome == 'success' }}
+        run: |
+          node --test \
+            tests/agent34-actor-only-root-policy.test.cjs \
+            tests/agent36-v3-runner.test.cjs \
+            tests/agent42-role-policy-identity.test.cjs \
+            tests/2026-11/agent46-candidate-policy.test.cjs \
+            tests/2026-11/agent49-native-fixture-game.test.cjs \
+            tests/2026-11/agent49-policy-worker.test.cjs \
+            tests/2026-11/agent49-fixture-scoped-runtime-pin.test.cjs \
+            tests/2026-11/agent36-native-action-frontier.test.cjs \
+            tests/2026-11/agent36-prompt-projection.test.cjs \
+            tests/2026-11/agent36-prompt-provenance.test.cjs \
+            tests/2026-11/agent36-docker-policy-bundle-integrity.test.cjs \
+            tests/2026-11/agent35-docker-policy-worker-launcher-contract.test.cjs \
+            tests/2026-11/agent2-v3-sanitized-diagnostic.test.cjs \
+            tests/2026-11/agent1-private-diagnostic-envelope.test.cjs \
+            tests/2026-11/agent44-v3-game-bundle-builder.test.cjs \
+            tests/2026-11/agent50-v3-actor-only-boundary.test.cjs \
+            tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs \
+            tests/2026-11/agent43-full-state-diagnostic.test.cjs \
+            tests/2026-11/agent36-v3-fixture-game.test.cjs
+
+      - name: Verify exact-head V3 native no-game witness for both roles and physical seats
+        id: native_no_game_witness
+        if: ${{ inputs.agent36_v3_native_no_game_witness && steps.compiled_no_fixture.outcome == 'success' && steps.worker_runtime_preflight.outcome == 'success' }}
+        run: |
+          node --check simulation/evaluation/2026-11/agent36-v3-runner.cjs
+          node --check simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs
+          node simulation/evaluation/2026-11/agent36-v3-runner.cjs native-no-game-witness
+
+      - name: Assemble exact-SHA V3 acceptance bundle
+        id: assemble_v3_acceptance_bundle
+        if: ${{ always() && inputs.agent36_v3_native_no_game_witness && steps.native_no_game_witness.outcome == 'success' && steps.verify_prior_contract_only.outcome == 'success' }}
+        run: |
+          mkdir -p artifacts/agent36-v3-acceptance-bundle
+          cp artifacts/prior-contract-only/contract-only-acceptance.json artifacts/agent36-v3-acceptance-bundle/contract-only-acceptance.json
+          cp artifacts/agent36-v3-fixture/native-no-game-witness.json artifacts/agent36-v3-acceptance-bundle/native-no-game-witness.json
+          cp artifacts/agent36-policy-sandbox/runtime.json artifacts/agent36-v3-acceptance-bundle/docker-policy-runtime.json
+
+      - name: Preserve exact-SHA V3 native no-game witness acceptance bundle
+        if: ${{ always() && inputs.agent36_v3_native_no_game_witness && steps.assemble_v3_acceptance_bundle.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent36-v3-native-no-game-witness-${{ github.sha }}
+          path: artifacts/agent36-v3-acceptance-bundle/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Find exact-SHA prior successful native no-game witness run
+        id: prior_no_game_witness
+        if: ${{ inputs.agent36_v3_fixture_game }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node - <<'NODE'
+          async function main() {
+          const fs = require('node:fs');
+          const [owner, repo] = process.env.GITHUB_REPOSITORY.split('/');
+          const sha = process.env.GITHUB_SHA;
+          const artifactName = 'agent36-v3-native-no-game-witness-' + sha;
+          const headers = {
+            Authorization: 'Bearer ' + process.env.GH_TOKEN,
+            Accept: 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2022-11-28'
+          };
+          async function api(path) {
+            const response = await fetch('https://api.github.com' + path, { headers });
+            if (!response.ok) throw new Error('GitHub API ' + response.status + ' while locating prior native no-game witness');
+            return response.json();
+          }
+          const expectedWorkflowId = 409927243;
+          const currentRunId = Number(process.env.GITHUB_RUN_ID);
+          if (!Number.isSafeInteger(currentRunId)) {
+            throw new Error('GITHUB_RUN_ID is invalid; refusing to consume prior acceptance evidence.');
+          }
+          const currentRun = await api('/repos/' + owner + '/' + repo + '/actions/runs/' + currentRunId);
+          const currentRunCreatedAt = Date.parse(currentRun.created_at);
+          if (currentRun.id !== currentRunId || currentRun.head_sha !== sha ||
+              Number(currentRun.workflow_id) !== expectedWorkflowId ||
+              currentRun.event !== 'workflow_dispatch' ||
+              !Number.isFinite(currentRunCreatedAt)) {
+            throw new Error('Current workflow run metadata is invalid for the prior-evidence gate.');
+          }
+          const runs = await api('/repos/' + owner + '/' + repo + '/actions/runs?head_sha=' + sha + '&status=completed&per_page=100');
+          const candidates = (runs.workflow_runs || []).filter(run => {
+            const createdAt = Date.parse(run.created_at);
+            const completedAt = Date.parse(run.updated_at);
+            return run.id !== currentRunId && run.head_sha === sha &&
+              Number(run.workflow_id) === expectedWorkflowId &&
+              run.event === 'workflow_dispatch' && run.status === 'completed' &&
+              run.conclusion === 'success' &&
+              Number.isFinite(createdAt) && Number.isFinite(completedAt) &&
+              createdAt < currentRunCreatedAt && completedAt >= createdAt &&
+              completedAt < currentRunCreatedAt;
+          }).sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at));
+          let found = null;
+          for (const run of candidates) {
+            const result = await api('/repos/' + owner + '/' + repo + '/actions/runs/' + run.id + '/artifacts?per_page=100');
+            if ((result.artifacts || []).some(artifact => artifact.name === artifactName && artifact.expired !== true && artifact.size_in_bytes > 0)) {
+              found = run;
+              break;
+            }
+          }
+          if (!found) throw new Error('No successful same-SHA native no-game witness acceptance bundle exists; fixture dispatch is blocked.');
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, 'run_id=' + found.id + '\n');
+          process.stdout.write('Found same-SHA native no-game witness run ' + found.id + '\n');
+          }
+          main().catch(error => {
+            console.error(error);
+            process.exitCode = 1;
+          });
+          NODE
+
+      - name: Download exact-SHA prior V3 acceptance bundle
+        id: download_prior_no_game_witness
+        if: ${{ inputs.agent36_v3_fixture_game }}
+        uses: actions/download-artifact@v4
+        with:
+          name: agent36-v3-native-no-game-witness-${{ github.sha }}
+          run-id: ${{ steps.prior_no_game_witness.outputs.run_id }}
+          github-token: ${{ github.token }}
+          path: artifacts/prior-v3-acceptance
+
+      - name: Verify exact-head no-game witness receipt before fixture dispatch
+        id: verify_prior_no_game_witness
+        if: ${{ inputs.agent36_v3_fixture_game && steps.download_prior_no_game_witness.outcome == 'success' && steps.worker_runtime_preflight.outcome == 'success' }}
+        env:
+          AGENT36_V3_NO_GAME_WITNESS_RECEIPT: artifacts/prior-v3-acceptance/native-no-game-witness.json
+          PRIOR_V3_ACCEPTANCE_DIR: artifacts/prior-v3-acceptance
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const assert = require('node:assert/strict');
+          const directory = process.env.PRIOR_V3_ACCEPTANCE_DIR;
+          const contract = JSON.parse(fs.readFileSync(directory + '/contract-only-acceptance.json', 'utf8'));
+          const witness = JSON.parse(fs.readFileSync(process.env.AGENT36_V3_NO_GAME_WITNESS_RECEIPT, 'utf8'));
+          const workerRuntimeContract = require('./simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs');
+          function verifyRuntimeReceipt(filename) {
+            const runtime = JSON.parse(fs.readFileSync(filename, 'utf8'));
+            assert.equal(runtime.schema, 'agent36-docker-policy-runtime-v2');
+            assert.equal(runtime.imageRef, workerRuntimeContract.IMAGE_REF);
+            assert.equal(runtime.imageDigest, workerRuntimeContract.IMAGE_DIGEST);
+            assert.equal(runtime.platform, workerRuntimeContract.PLATFORM);
+            assert.equal(runtime.nodeVersion, workerRuntimeContract.NODE_VERSION);
+            assert.equal(runtime.dockerContext, 'default');
+            assert.ok(String(runtime.dockerEndpoint).startsWith('unix://'));
+            assert.ok(String(runtime.imageId).startsWith('sha256:'));
+            assert.ok(Array.isArray(runtime.repoDigests) &&
+              runtime.repoDigests.some(value => String(value).endsWith('@' + workerRuntimeContract.IMAGE_DIGEST)));
+          }
+          verifyRuntimeReceipt(directory + '/docker-policy-runtime.json');
+          verifyRuntimeReceipt('artifacts/agent36-policy-sandbox/runtime.json');
+          assert.equal(contract.schema, 'agent36-v3-contract-only-acceptance-v1');
+          assert.equal(contract.researchRevisionSha, process.env.GITHUB_SHA);
+          assert.ok(Number.isSafeInteger(contract.workflowRunId));
+          for (const key of ['contractSuitePassed','dockerLauncherContractPassed','dockerPreflightPassed','dockerCanaryPassed'])
+            assert.equal(contract[key], true, 'acceptance bundle is missing prior contract gate ' + key);
+          assert.equal(contract.fixtureExecuted, false);
+          assert.equal(witness.schema, 'agent36-v3-native-no-game-witness-v1');
+          assert.equal(witness.researchRevisionSha, process.env.GITHUB_SHA);
+          assert.equal(witness.gameExecuted, false);
+          assert.equal(witness.liveActionsDispatched, false);
+          assert.equal(witness.allStoreStatesUnchanged, true);
+          assert.equal(witness.allSelectedActionsValidated, true);
+          assert.equal(witness.allActorObservationsUsed, true);
+          assert.equal(witness.allWorkersClosed, true);
+          assert.equal(witness.allWorkerPoliciesActorOnly, true);
+          NODE
+          node simulation/evaluation/2026-11/agent36-v3-runner.cjs verify-no-game-witness "$AGENT36_V3_NO_GAME_WITNESS_RECEIPT"
+
       - name: Execute paired V3 physical-seat fixture games
-        if: ${{ inputs.agent36_v3_fixture_game && steps.compile.outcome == 'success' }}
+        if: ${{ inputs.agent36_v3_fixture_game && steps.verify_prior_no_game_witness.outcome == 'success' && steps.worker_runtime_preflight.outcome == 'success' }}
         env:
           AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION: ${{ vars.AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION }}
+          AGENT36_V3_DIAGNOSTIC_MODE: ${{ steps.diagnostic_recipient.outputs.mode }}
+          AGENT36_V3_PREDEAL_ARTIFACT_REF: ${{ inputs.agent36_v3_predeal_artifact_ref }}
+          AGENT36_V3_NO_GAME_WITNESS_RECEIPT: artifacts/prior-v3-acceptance/native-no-game-witness.json
         run: node simulation/evaluation/2026-11/agent36-v3-runner.cjs fixture-game
+
+      - name: Preserve per-run digest-pinned Docker policy-worker runtime receipt
+        if: ${{ always() && (inputs.agent36_v3_native_no_game_witness || inputs.agent36_v3_fixture_game) && steps.worker_runtime_preflight.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent36-v3-policy-worker-runtime-${{ github.sha }}-${{ github.run_id }}
+          path: artifacts/agent36-policy-sandbox/runtime.json
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Execute registered rank11/New Moon developmental source-family replay
-        if: ${{ !inputs.contract_only && !inputs.agent42_flittle_mcts_native_smoke && !inputs.agent36_paper_root_native && !inputs.agent36_fresh_rank5_native && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native && !inputs.agent43_v8_snaptrap_owner_root_diagnostic && !inputs.agent24_v8_bilateral_perfection && !inputs.agent24_v8_perfection_260root && !inputs.agent24_perfection_energy_frontier && !inputs.agent2_retreat_funding_native && !inputs.agent2_retreat_funding_original_source && !inputs.agent36_v3_predeal_preflight && !inputs.agent36_v3_fixture_game }}
+        if: ${{ !inputs.contract_only && !inputs.agent42_flittle_mcts_native_smoke && !inputs.agent36_paper_root_native && !inputs.agent36_fresh_rank5_native && !inputs.agent7_known_dead_off_control && !inputs.agent7_bilateral_lillie_after_pass && !inputs.agent43_box_fog_oneprize_after_pass && !inputs.agent36_v9_vip_aba && !inputs.agent20_box_fog_ace_trainer_aba && !inputs.agent36_v10b_paired_fresh_aba && !inputs.agent36_v10_fresh_aba && !inputs.agent3_owner_information_fallback_diagnostic && !inputs.agent36_v8_snap_trap_vertical_slice && !inputs.agent36_v8_snap_trap_vertical_slice_v2 && !inputs.agent2_crispin_vs_seeker_treasure_native && !inputs.agent43_v8_snaptrap_owner_root_diagnostic && !inputs.agent24_v8_bilateral_perfection && !inputs.agent24_v8_perfection_260root && !inputs.agent24_perfection_energy_frontier && !inputs.agent2_retreat_funding_native && !inputs.agent2_retreat_funding_original_source && inputs.agent36_v3_predeal_artifact_ref == '' && !inputs.agent36_v3_native_no_game_witness && !inputs.agent36_v3_fixture_game }}
         run: node simulation/evaluation/agent36-issue25-common-v9-bilateral-competence.cjs
 
       - name: Execute original v8 eight-arm paired paid Perfection control and treatment
@@ -576,10 +932,12 @@ jobs:
           node simulation/evaluation/agent36-fresh-rank5-native-paper-packet.cjs
 
       - name: Encrypt private V3 fixture diagnostics before artifact upload
-        if: ${{ always() && inputs.agent36_v3_fixture_game }}
+        if: ${{ always() && inputs.agent36_v3_fixture_game && steps.diagnostic_recipient.outputs.mode == 'encrypted-full' }}
         env:
           AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: ${{ vars.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM }}
-        run: node simulation/evaluation/2026-11/agent1-private-diagnostic-envelope.cjs encrypt-fixture-artifacts artifacts/agent36-v3-fixture
+        run: |
+          node simulation/evaluation/2026-11/agent1-private-diagnostic-envelope.cjs encrypt-fixture-artifacts artifacts/agent36-v3-fixture/candidate-seat-0
+          node simulation/evaluation/2026-11/agent1-private-diagnostic-envelope.cjs encrypt-fixture-artifacts artifacts/agent36-v3-fixture/candidate-seat-1
 
       - name: Preserve the complete v9 root ledger and owner-only aftergame evidence
         if: ${{ always() && !inputs.contract_only }}
@@ -588,10 +946,22 @@ jobs:
           name: agent36-common-v9-bilateral-competence-${{ github.run_id }}
           path: |
             artifacts/agent36-v3/
-            artifacts/agent36-v3-fixture/fixture-game.private.enc.json
-            artifacts/agent36-v3-fixture/fixture-game.public-manifest.json
-            !artifacts/agent36-v3-fixture/fixture-game.json
-            !artifacts/agent36-v3-fixture/fixture-game.txt
+            artifacts/agent36-v3-fixture/native-no-game-witness.json
+            artifacts/agent36-v3-fixture/native-no-game-witness/
+            artifacts/prior-v3-acceptance/
+            artifacts/agent36-v3-acceptance-bundle/
+            artifacts/agent36-v3-fixture/candidate-seat-0/fixture-game.private.enc.json
+            artifacts/agent36-v3-fixture/candidate-seat-0/fixture-game.public-manifest.json
+            artifacts/agent36-v3-fixture/candidate-seat-0/fixture-game.sanitized.json
+            artifacts/agent36-v3-fixture/candidate-seat-0/fixture-game.sanitized.txt
+            !artifacts/agent36-v3-fixture/candidate-seat-0/fixture-game.json
+            !artifacts/agent36-v3-fixture/candidate-seat-0/fixture-game.txt
+            artifacts/agent36-v3-fixture/candidate-seat-1/fixture-game.private.enc.json
+            artifacts/agent36-v3-fixture/candidate-seat-1/fixture-game.public-manifest.json
+            artifacts/agent36-v3-fixture/candidate-seat-1/fixture-game.sanitized.json
+            artifacts/agent36-v3-fixture/candidate-seat-1/fixture-game.sanitized.txt
+            !artifacts/agent36-v3-fixture/candidate-seat-1/fixture-game.json
+            !artifacts/agent36-v3-fixture/candidate-seat-1/fixture-game.txt
             artifacts/agent36-bilateral-competence-v9/
             artifacts/agent24-v8-bilateral-perfection/
             artifacts/agent24-v8-perfection-260root/
@@ -613,3 +983,7 @@ jobs:
             artifacts/agent36-v3/
           retention-days: 21
           if-no-files-found: warn
+
+      - name: Deinitialize pinned Twinleaf before checkout post-job cleanup
+        if: ${{ always() && steps.twinleaf_checkout.outcome == 'success' }}
+        run: git submodule deinit -f -- vendor/twinleaf

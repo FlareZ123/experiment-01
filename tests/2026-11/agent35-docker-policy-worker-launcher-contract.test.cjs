@@ -12,8 +12,8 @@ const {
   sha256,createPolicyBundle,verifyPolicyBundle,spawnDockerPolicyWorker,
   cleanupPolicyBundle,preflightDockerPolicySandbox,verifyDockerPolicyWorkerClosed
 }=require('../../simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs');
-const {AsyncJsonLineChannel}=require('../../simulation/evaluation/2026-11/agent36-async-docker-policy-session.cjs');
-const {LIMITS}=require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
+const {AsyncJsonLineChannel,withAbsoluteDeadline}=require('../../simulation/evaluation/2026-11/agent36-async-docker-policy-session.cjs');
+const {LIMITS}=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 
 const EXPECTED_IMAGE_REF=
   'node:24.22.3-bookworm-slim@sha256:dc26ae92c9fb15cf6b1d63e20f0944b2efe0f115b20e00be48fb23fceb061c54';
@@ -94,6 +94,39 @@ test('launcher exports and uses a finite nonzero default worker deadline',()=>{
   assert.match(spawnDockerPolicyWorker.toString(),
     /timeoutMs\s*=\s*DEFAULT_WORKER_TIMEOUT_MS/,
     'spawnDockerPolicyWorker must use the exported finite default');
+});
+
+test('absolute session deadline remains armed after a response arrives before stdin drain',async()=>{
+  const response=Promise.resolve({type:'response'});
+  const blockedWrite=new Promise(()=>{});
+  const deadlineAt=Date.now()+30;
+  await assert.rejects(
+    withAbsoluteDeadline(Promise.all([blockedWrite,response]),deadlineAt,
+      'POLICY_WORKER_REQUEST_TIMEOUT','Docker policy worker request'),
+    error=>error?.code==='POLICY_WORKER_REQUEST_TIMEOUT'
+  );
+});
+
+test('Docker cleanup verification uses the fixed local CLI after worker exit',async()=>{
+  await withFakeDocker(async capture=>{
+    const containerId='a'.repeat(64);
+    const child={
+      exitCode:0,signalCode:null,
+      __agent36PolicyWorkerMetadata:{containerId}
+    };
+    const receipt=await verifyDockerPolicyWorkerClosed(child);
+    assert.equal(receipt.containerRemoved,true);
+    assert.equal(receipt.containerId,containerId);
+    assert.deepEqual(readCaptures(capture).map(row=>row.args),[['inspect',containerId]]);
+  });
+});
+
+test('Docker selection uses literal environment bindings rather than computed key reads',()=>{
+  const source=fs.readFileSync(require.resolve('../../simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs'),'utf8');
+  assert.match(source,/process\.env\.DOCKER_HOST/);
+  assert.match(source,/process\.env\.DOCKER_CONTEXT/);
+  assert.doesNotMatch(source,/process\.env\[key\]/);
+  assert.doesNotMatch(source,/spawnSync\(dockerBinary\(\)/);
 });
 
 test('async worker channel rejects an oversized unterminated stdout line before buffering',async()=>{

@@ -809,3 +809,68 @@ test('starting-Pokémon setup rejects non-native bounds and malformed choices', 
     assert.equal(evaluate(wrongOwner).kind, 'abstain');
   }
 });
+
+test('Quick Ball hand-cost prompt selects a candidate-present expendable card with bound source provenance', () => {
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT', name: 'Regidrago VSTAR',
+    hp: 280, types: ['Dragon'], subtypes: ['VSTAR']
+  });
+  const candidateHand = [
+    'Mysterious Treasure FLI 113',
+    'Mysterious Treasure FLI 113',
+    'Psychic Energy MEE 13',
+    'Dialga-GX UPR 100',
+    'Mimikyu GRI 58'
+  ];
+  const view = observation(0, {
+    opponentActive: regidrago,
+    ownHand: candidateHand,
+    globalTurn: 3
+  });
+  const req = cardPrompt(0, view, {
+    sourcePrinting: 'Quick Ball FST 237', effectName: 'Quick Ball',
+    sourceZone: 'hand',
+    printings: candidateHand,
+    minimumCount: 1, maximumCount: 1
+  });
+  assert.equal(req.prompt.source.sourcePrinting, 'Quick Ball FST 237');
+  assert.equal(req.prompt.source.effectName, 'Quick Ball');
+  assert.equal(req.prompt.source.classification, 'actor-choice');
+  assert.equal(req.prompt.source.sourceKind, 'card-effect');
+  assert.equal(req.prompt.publicMetadata.sourceZone, 'hand');
+  assert.equal(req.observation.opponentPublic.publicHand, null);
+  assert.equal(Object.hasOwn(req.observation, 'opponentHand'), false);
+  assert.deepEqual(req.prompt.choices.map(choice => choice.printing), candidateHand);
+  assert.ok(req.prompt.choices.every(choice =>
+    choice.publicMetadata.ownerSeat === 'actor' && choice.publicMetadata.isOwnerVisible === true));
+  assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-0'] },
+    'one duplicate Mysterious Treasure is preferred to Psychic Energy and the Regidrago core pieces');
+});
+
+test('Quick Ball deck-search prompt selects a needed candidate Basic from actor-visible deck choices', () => {
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT', name: 'Regidrago VSTAR',
+    hp: 280, types: ['Dragon'], subtypes: ['VSTAR']
+  });
+  const candidateBasics = [
+    'Dialga-GX UPR 100',
+    'Mimikyu GRI 58',
+    'Shadow Rider Calyrex V CRE 74'
+  ];
+  const view = observation(0, { opponentActive: regidrago, ownHand: [] });
+  const req = cardPrompt(0, view, {
+    sourcePrinting: 'Quick Ball FST 237', effectName: 'Quick Ball',
+    sourceZone: 'deck',
+    printings: candidateBasics,
+    minimumCount: 1, maximumCount: 1
+  });
+  assert.equal(req.prompt.source.sourcePrinting, 'Quick Ball FST 237');
+  assert.equal(req.prompt.source.effectName, 'Quick Ball');
+  assert.equal(req.prompt.publicMetadata.sourceZone, 'deck');
+  assert.equal(req.observation.opponentPublic.publicHand, null);
+  assert.deepEqual(req.prompt.choices.map(choice => choice.printing), candidateBasics);
+  assert.ok(req.prompt.choices.every(choice =>
+    choice.publicMetadata.ownerSeat === 'actor' && choice.publicMetadata.isOwnerVisible === true));
+  assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-2'] },
+    'Shadow Rider V is preferred to the candidate Dialga-GX and Mimikyu basics for this public board');
+});

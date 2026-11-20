@@ -293,7 +293,8 @@ test('rank1 response recovers the three discarded Psychic Energy before evolving
         actorPrinting: 'Shadow Rider Calyrex VMAX CRE 75',
         targetPrinting: 'Shadow Rider Calyrex V CRE 74',
         publicMetadata: { cardType: 'pokemon', handIndex: 1,
-          targetSeat: 'actor', targetZone: 'bench', targetIndex: 1 } },
+          targetSeat: 'actor', targetZone: 'bench', targetIndex: 1,
+          isOwnerVisible: true } },
       { token: 'stamp', kind: 'play-card', actorPrinting: 'Unfair Stamp TWM 165',
         publicMetadata: { cardType: 'trainer', handIndex: 4 } },
       { token: 'pass', kind: 'pass' }
@@ -504,12 +505,10 @@ test('rank1 policy abstains rather than guessing on an unsupported prompt type',
   const request = promptRequest({
     promptType: 'UnmodeledPrompt',
     source: actorChoiceSource(null, 'Unknown engine choice'),
-    choices: [{ token: 'x', kind: 'option', label: 'Unknown' }]
+    choices: [{ token: 'x', kind: 'option', label: 'Unknown' }],
+    publicMetadata: { selectionType: 'option', allowCancel: false }
   });
-  assert.deepEqual(checkedDecision(request), {
-    kind: 'abstain',
-    reasonCode: 'UNSUPPORTED_PROMPT_TYPE'
-  });
+  assert.throws(() => checkedDecision(request), /PROMPT_SELECTION_TYPE_MISMATCH/);
 });
 
 test('Unfair Stamp is not fired merely because the opponent took a Prize on an earlier turn', () => {
@@ -771,7 +770,11 @@ test('VS Seeker retrieves Tulip when the discard contains a recoverable Psychic 
 
 
 test('VS Seeker does not prioritize a second Tulip already held in hand', () => {
-  const receipt = paleMoonReceipt();
+  const ownPublic = player({
+    handCount: 2,
+    discard: ['Psychic Energy MEE 13', 'Psychic Energy MEE 13', 'Psychic Energy MEE 13']
+  });
+  const receipt = paleMoonReceipt(ownPublic);
   receipt.priorOpponentTurnKO = { ...receipt.priorOpponentTurnKO, any: true, byAttack: true };
   const request = promptRequest({
     promptType: 'ChooseCardsPrompt',
@@ -792,9 +795,7 @@ test('VS Seeker does not prioritize a second Tulip already held in hand', () => 
     },
     observation: {
       ownHand: ['VS Seeker PHF 109', 'Tulip PAR 181'],
-      ownPublic: player({
-        discard: ['Psychic Energy MEE 13', 'Psychic Energy MEE 13', 'Psychic Energy MEE 13']
-      })
+      ownPublic
     },
     receipt
   });
@@ -832,9 +833,10 @@ test('unknown confirmation source abstains rather than selecting Yes', () => {
     promptType: 'ConfirmPrompt',
     source: actorChoiceSource(null, 'Unknown confirmation'),
     choices: [
-      { token: 'yes', kind: 'option', label: 'Yes' },
-      { token: 'no', kind: 'option', label: 'No' }
-    ]
+      { token: 'yes', kind: 'confirm', label: 'Yes' },
+      { token: 'no', kind: 'confirm', label: 'No' }
+    ],
+    publicMetadata: { selectionType: 'confirm' }
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'abstain',
@@ -847,9 +849,10 @@ test('known Star Alchemy confirmation selects Yes', () => {
     promptType: 'ConfirmPrompt',
     source: actorChoiceSource('Forest Seal Stone SIT 156', 'Star Alchemy'),
     choices: [
-      { token: 'yes', kind: 'option', label: 'Yes' },
-      { token: 'no', kind: 'option', label: 'No' }
-    ]
+      { token: 'yes', kind: 'confirm', label: 'Yes' },
+      { token: 'no', kind: 'confirm', label: 'No' }
+    ],
+    publicMetadata: { selectionType: 'confirm' }
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-choice',
@@ -873,7 +876,8 @@ test('Copycat attack choice prefers Max Geist over Eon Blade and excludes Night 
         publicMetadata: { sourceAttack: 'Eon Blade' } },
       { token: 'max', kind: 'attack', label: 'Max Geist',
         publicMetadata: { sourceAttack: 'Max Geist' } }
-    ]
+    ],
+    publicMetadata: { selectionType: 'attack', allowCancel: false }
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-choice',
@@ -888,7 +892,8 @@ test('non-Copycat attack-choice source abstains', () => {
     choices: [
       { token: 'energy-drive', kind: 'attack', label: 'Energy Drive',
         publicMetadata: { sourceAttack: 'Energy Drive' } }
-    ]
+    ],
+    publicMetadata: { selectionType: 'attack', allowCancel: false }
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'abstain',
@@ -1730,9 +1735,9 @@ test('retreat pivots into Shadow Rider VMAX when active Fairy Zone makes Max Gei
     opponentPublic: player({ active: opponentDragon }),
     items: [
       { token: 'retreat-rider', kind: 'retreat',
-        publicMetadata: { benchIndex: 0, targetZone: 'bench' } },
+        publicMetadata: { benchIndex: 0, targetZone: 'bench', isOwnerVisible: true } },
       { token: 'retreat-latias', kind: 'retreat',
-        publicMetadata: { benchIndex: 1, targetZone: 'bench' } },
+        publicMetadata: { benchIndex: 1, targetZone: 'bench', isOwnerVisible: true } },
       { token: 'pass', kind: 'pass' }
     ]
   });

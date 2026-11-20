@@ -8,7 +8,7 @@ const net = require('node:net');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
-const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
+const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const {
   IMAGE_REF,
   IMAGE_DIGEST,
@@ -22,7 +22,11 @@ const {
 const { createDockerPolicySession } = require('../../simulation/evaluation/2026-11/agent36-async-docker-policy-session.cjs');
 
 const WORKER_SOURCE = path.resolve(__dirname,
+  '../../simulation/evaluation/2026-11/agent49-docker-canary-worker.cjs');
+const PRODUCTION_WORKER_SOURCE = path.resolve(__dirname,
   '../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
+const PROTOCOL_SOURCE = path.resolve(__dirname,
+  '../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const POLICY_VERSION = 'agent36-agent49-hosted-canary-v2';
 const NAMESPACE_NAMES = ['pid', 'ipc', 'uts', 'net', 'mnt'];
 
@@ -125,13 +129,14 @@ function workerThreadScript() {
   ].join('\n');
 }
 
-function policySource({ markerPaths, networkProbeHost, networkProbePort, referenceNamespaceInodes, hostPid, hostProcessMarker }) {
+function policySource({ markerPaths, networkProbeHost, networkProbePort, hostNamespaceInodes, hostPid, hostProcessMarker }) {
   const childCode = JSON.stringify(namespaceScript());
   const workerCode = JSON.stringify(workerThreadScript());
   return [
     "'use strict';",
     "const fs=require('node:fs');",
     "const net=require('node:net');",
+    "const os=require('node:os');",
     "const {spawnSync}=require('node:child_process');",
     "const {Worker}=require('node:worker_threads');",
     "const POLICY_VERSION=" + JSON.stringify(POLICY_VERSION) + ";",
@@ -141,7 +146,7 @@ function policySource({ markerPaths, networkProbeHost, networkProbePort, referen
     "const NETWORK_PROBE_PORT=" + Number(networkProbePort) + ";",
     "const HOST_PID=" + Number(hostPid) + ";",
     "const HOST_PROCESS_MARKER=" + JSON.stringify(hostProcessMarker) + ";",
-    "const REFERENCE_NAMESPACE_INODES=" + JSON.stringify(referenceNamespaceInodes) + ";",
+    "const REFERENCE_NAMESPACE_INODES=" + JSON.stringify(hostNamespaceInodes) + ";",
     "const CHILD_CODE=" + childCode + ";",
     "const WORKER_CODE=" + workerCode + ";",
     "function namespaceInodes(){const out={};for(const name of NAMESPACE_NAMES){try{out[name]=fs.readlinkSync('/proc/self/ns/'+name);}catch(error){out[name]=null;}}return out;}",
@@ -152,12 +157,18 @@ function policySource({ markerPaths, networkProbeHost, networkProbePort, referen
     "async function childProcessProbe(){try{const child=spawnSync(process.execPath,['-e',CHILD_CODE,JSON.stringify(MARKER_PATHS)],{encoding:'utf8',timeout:3000});if(child.error)return {blocked:true,code:child.error.code||child.error.name};if(child.status!==0)return {blocked:true,code:'EXIT_'+child.status};return JSON.parse(child.stdout);}catch(error){return {blocked:true,code:error.code||error.name};}}",
     "async function workerThreadProbe(){let worker;try{worker=new Worker(WORKER_CODE,{eval:true,workerData:MARKER_PATHS});const report=await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(Object.assign(new Error('thread probe timeout'),{code:'THREAD_TIMEOUT'})),3000);worker.once('message',value=>{clearTimeout(timer);resolve(value);});worker.once('error',error=>{clearTimeout(timer);reject(error);});});return report;}catch(error){return {blocked:true,code:error.code||error.name};}finally{if(worker)await worker.terminate().catch(()=>{});}}",
     "async function createPolicy(context){",
-    "  const referenceNamespaceInodes=REFERENCE_NAMESPACE_INODES;",
+    "  const hostNamespaceInodes=REFERENCE_NAMESPACE_INODES;",
     "  const workerNamespaceInodes=namespaceInodes();",
     "  const markerReads=readMany(MARKER_PATHS);",
     "  const childProcess=await childProcessProbe();",
     "  const workerThreads=await workerThreadProbe();",
-    "  const network=await networkProbe();",
+    "  const networkProbeResult=await networkProbe();",
+    "  const nonLoopbackInterfaces=Object.entries(os.networkInterfaces()).flatMap(([name,rows])=>(rows||[]).filter(row=>!row.internal).map(row=>({name,address:row.address,family:row.family})));",
+    "  const network={...networkProbeResult,nonLoopbackInterfaces};",
+    "  function readText(file){try{return fs.readFileSync(file,'utf8').trim();}catch{return null;}}",
+    "  function statusValue(name){const text=readText('/proc/self/status')||'';const match=new RegExp('^'+name+':\\\\s*(.+)$','m').exec(text);return match?match[1].trim():null;}",
+    "  function effectiveIsolation(){let shmBytes=null;try{const stat=fs.statfsSync('/dev/shm');shmBytes=Number(stat.bsize||stat.frsize)*Number(stat.blocks);}catch{}const noNewPrivs=statusValue('NoNewPrivs');const seccomp=statusValue('Seccomp');return {uid:typeof process.getuid==='function'?process.getuid():null,gid:typeof process.getgid==='function'?process.getgid():null,euid:typeof process.geteuid==='function'?process.geteuid():null,egid:typeof process.getegid==='function'?process.getegid():null,capEff:statusValue('CapEff'),noNewPrivs:noNewPrivs===null?null:Number(noNewPrivs),seccomp:seccomp===null?null:Number(seccomp),memoryMax:readText('/sys/fs/cgroup/memory.max'),pidsMax:readText('/sys/fs/cgroup/pids.max'),cpuMax:readText('/sys/fs/cgroup/cpu.max'),shmBytes};}",
+    "  const effectiveIsolationReport=effectiveIsolation();",
     "  let workerPid1Probe;",
     "  try{workerPid1Probe={ok:true,length:fs.readFileSync('/proc/1/cmdline').length};}catch(error){workerPid1Probe={ok:false,code:error.code||error.name};}",
     "  const rootWrite=writeProbe('/root/agent36-root-write-probe');",
@@ -170,7 +181,7 @@ function policySource({ markerPaths, networkProbeHost, networkProbePort, referen
     "  const argv=process.argv.slice();",
     "  const childNamespaceIsolation=!childProcess.blocked&&sameNamespaces(childProcess.namespaceInodes,workerNamespaceInodes);",
     "  const threadNamespaceIsolation=!workerThreads.blocked&&sameNamespaces(workerThreads.namespaceInodes,workerNamespaceInodes);",
-    "  const report={role:context.role,seat:context.seat,workerPid:process.pid,namespaceNames:NAMESPACE_NAMES,referenceNamespaceInodes:referenceNamespaceInodes,workerNamespaceInodes:workerNamespaceInodes,hostProcessMarkerVisible:hostProcessMarkerVisible,namespaceIsolation:NAMESPACE_NAMES.every(name=>referenceNamespaceInodes[name]&&workerNamespaceInodes[name]&&referenceNamespaceInodes[name]!==workerNamespaceInodes[name]),markerReads:markerReads,childProcess:childProcess,workerThreads:workerThreads,childNamespaceIsolation:childNamespaceIsolation,threadNamespaceIsolation:threadNamespaceIsolation,network:network,workerPid1Probe:workerPid1Probe,rootWrite:rootWrite,policyWrite:policyWrite,tmpWrite:tmpWrite,shmWrite:shmWrite,envKeys:envKeys,forbiddenEnvKeys:forbiddenEnvKeys,argv:argv};",
+    "  const report={role:context.role,seat:context.seat,workerPid:process.pid,namespaceNames:NAMESPACE_NAMES,hostNamespaceInodes:hostNamespaceInodes,workerNamespaceInodes:workerNamespaceInodes,hostProcessMarkerVisible:hostProcessMarkerVisible,namespaceIsolation:NAMESPACE_NAMES.every(name=>hostNamespaceInodes[name]&&workerNamespaceInodes[name]&&hostNamespaceInodes[name]!==workerNamespaceInodes[name]),markerReads:markerReads,childProcess:childProcess,workerThreads:workerThreads,childNamespaceIsolation:childNamespaceIsolation,threadNamespaceIsolation:threadNamespaceIsolation,network:network,effectiveIsolation:effectiveIsolationReport,workerPid1Probe:workerPid1Probe,rootWrite:rootWrite,policyWrite:policyWrite,tmpWrite:tmpWrite,shmWrite:shmWrite,envKeys:envKeys,forbiddenEnvKeys:forbiddenEnvKeys,argv:argv};",
     "  process.stderr.write('AGENT36_CANARY_RESULT '+JSON.stringify(report)+'\\n');",
     "  return {async decide(request){const action=request.actionFrontier.items[0];return action?{kind:'select-action',token:action.token}:{kind:'abstain',reasonCode:'NO_CANARY_ACTION'};}};",
     "}",
@@ -178,21 +189,44 @@ function policySource({ markerPaths, networkProbeHost, networkProbePort, referen
   ].join('\n');
 }
 
-function makeBundle(markerPaths, networkProbeHost, networkProbePort, referenceNamespaceInodes, hostPid, hostProcessMarker) {
+function makeBundle(markerPaths, networkProbeHost, networkProbePort, hostNamespaceInodes, hostPid, hostProcessMarker) {
   const sourceRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'agent36-policy-canary-source-'));
   const workerPath = path.join(sourceRoot, 'worker.cjs');
+  const protocolPath = path.join(sourceRoot, 'agent49-policy-protocol.cjs');
   const policyPath = path.join(sourceRoot, 'policy.cjs');
   fs.copyFileSync(WORKER_SOURCE, workerPath);
-  fs.writeFileSync(policyPath, policySource({ markerPaths, networkProbeHost, networkProbePort, referenceNamespaceInodes, hostPid, hostProcessMarker }), { mode: 0o444 });
+  fs.copyFileSync(PROTOCOL_SOURCE, protocolPath);
+  fs.writeFileSync(policyPath, policySource({ markerPaths, networkProbeHost, networkProbePort, hostNamespaceInodes, hostPid, hostProcessMarker }), { mode: 0o444 });
   fs.chmodSync(policyPath, 0o444);
   const bundle = createPolicyBundle({
     sourceRoot,
     policyFiles: [
       { sourcePath: workerPath, relativePath: 'worker.cjs', sha256: sha256(fs.readFileSync(workerPath)) },
+      { sourcePath: protocolPath, relativePath: 'agent49-policy-protocol.cjs', sha256: sha256(fs.readFileSync(protocolPath)) },
       { sourcePath: policyPath, relativePath: 'policy.cjs', sha256: sha256(fs.readFileSync(policyPath)) }
     ]
   });
   return { sourceRoot, bundle };
+}
+
+function makeProductionBundle(policySourceText) {
+  const sourceRoot=fs.mkdtempSync(path.join(os.tmpdir(),'agent49-production-worker-timeout-'));
+  const workerPath=path.join(sourceRoot,'worker.cjs');
+  const protocolPath=path.join(sourceRoot,'agent49-policy-protocol.cjs');
+  const policyPath=path.join(sourceRoot,'policy.cjs');
+  fs.copyFileSync(PRODUCTION_WORKER_SOURCE,workerPath);
+  fs.copyFileSync(PROTOCOL_SOURCE,protocolPath);
+  fs.writeFileSync(policyPath,policySourceText,{mode:0o444});
+  fs.chmodSync(policyPath,0o444);
+  const bundle=createPolicyBundle({
+    sourceRoot,
+    policyFiles:[
+      {sourcePath:workerPath,relativePath:'worker.cjs',sha256:sha256(fs.readFileSync(workerPath))},
+      {sourcePath:protocolPath,relativePath:'agent49-policy-protocol.cjs',sha256:sha256(fs.readFileSync(protocolPath))},
+      {sourcePath:policyPath,relativePath:'policy.cjs',sha256:sha256(fs.readFileSync(policyPath))}
+    ]
+  });
+  return {sourceRoot,bundle};
 }
 
 async function runCanaryWorker({ bundle, role, seat, permissionModel }) {
@@ -232,6 +266,8 @@ async function runCanaryWorker({ bundle, role, seat, permissionModel }) {
     for (const result of [first, second]) {
       assert.equal(result.role, role);
       assert.equal(result.seat, seat);
+      assert.equal(result.policyDrawCount,0,
+        'worker policy RNG draw count must be preserved as numeric zero');
       assert.deepEqual(result.decision, { kind: 'select-action',
         token: result.sequence === 1 ? 'canary-pass' : 'canary-pass-2' });
       assert.doesNotMatch(JSON.stringify(result), /seed|rng|random|physical/i);
@@ -241,8 +277,16 @@ async function runCanaryWorker({ bundle, role, seat, permissionModel }) {
     assert.notEqual(first.requestId, second.requestId);
     assert.equal(session.launcherPid, launcherPid,
       'two sequential requests must use one persistent Docker worker session');
+    const workerMetadata=session.child?.__agent36PolicyWorkerMetadata;
+    assert.ok(workerMetadata?.cidfile,'worker launcher must expose its temporary container-ID file');
+    const containerId=fs.readFileSync(workerMetadata.cidfile,'utf8').trim();
+    assert.match(containerId,/^[a-f0-9]{64}$/i,'worker container ID must be captured before cleanup');
+    const inspect=JSON.parse(dockerCli(['inspect','--format','{{json .}}',containerId]));
+    const hostConfig=inspect.HostConfig;
+    const networkMode=hostConfig.NetworkMode;
     await session.close();
-    return { responses: [first, second], launcherPid, stderr: session.stderr };
+    return { responses: [first, second], launcherPid, stderr: session.stderr,
+      networkMode, hostConfig, containerUser:inspect.Config?.User??null, mounts:inspect.Mounts??[] };
   } catch (error) {
     await session.abort().catch(() => {});
     throw error;
@@ -279,48 +323,30 @@ function dockerCli(args, timeoutMs = 10000) {
 }
 
 function createNetworkProbe() {
-  const networkName = 'agent36-policy-network-' + crypto.randomUUID().replace(/-/g, '');
-  const serverName = 'agent36-policy-network-server-' + crypto.randomUUID().replace(/-/g, '');
-  let networkCreated = false;
-  let serverCreated = false;
+  const networkName='bridge';
+  const serverName='agent36-policy-network-server-'+crypto.randomUUID().replace(/-/g,'');
+  let serverCreated=false;
   try {
-    dockerCli(['network', 'create', networkName], 10000);
-    networkCreated = true;
-    const serverScript = "require('node:http').createServer((request,response)=>response.end('POLICY_NETWORK_POSITIVE_CONTROL')).listen(8080,'0.0.0.0');";
+    const serverScript="require('node:http').createServer((request,response)=>response.end('POLICY_NETWORK_POSITIVE_CONTROL')).listen(8080,'0.0.0.0');";
     dockerCli([
-      'run', '-d', '--pull=never', '--platform=' + PLATFORM,
-      '--name=' + serverName, '--network=' + networkName,
-      '--entrypoint=/usr/local/bin/node', IMAGE_REF, '-e', serverScript
-    ], 10000);
-    serverCreated = true;
-    const host = dockerCli([
-      'inspect', '-f', '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}', serverName
-    ], 5000);
-    assert.match(host, /^(?:\d{1,3}\.){3}\d{1,3}$/,
-      'network probe server did not receive a private IPv4 address');
-    const namespaceScript = "const fs=require('node:fs');const names=['pid','ipc','uts','net','mnt'];const out={};for(const name of names)out[name]=fs.readlinkSync('/proc/self/ns/'+name);process.stdout.write(JSON.stringify(out));";
-    const referenceNamespaceInodes = JSON.parse(dockerCli([
-      'exec', serverName, '/usr/local/bin/node', '-e', namespaceScript
-    ], 5000));
-    assert.ok(NAMESPACE_NAMES.every(name => typeof referenceNamespaceInodes[name] === 'string'));
+      'run','-d','--pull=never','--platform='+PLATFORM,
+      '--name='+serverName,'--network='+networkName,
+      '--entrypoint=/usr/local/bin/node',IMAGE_REF,'-e',serverScript
+    ],10000);
+    serverCreated=true;
+    const host=dockerCli([
+      'inspect','-f','{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}',serverName
+    ],5000);
+    assert.match(host,/^(?:\d{1,3}\.){3}\d{1,3}$/,
+      'default-bridge network probe server did not receive a private IPv4 address');
+    const serverNetwork=dockerCli(['inspect','--format','{{.HostConfig.NetworkMode}}',serverName]);
+    assert.equal(serverNetwork,'bridge','network probe server must use Docker default bridge');
     return {
-      networkName, serverName, host, port: 8080, referenceNamespaceInodes,
-      cleanup() {
-        if (serverCreated) {
-          try { dockerCli(['rm', '-f', serverName], 5000); } catch {}
-        }
-        if (networkCreated) {
-          try { dockerCli(['network', 'rm', networkName], 5000); } catch {}
-        }
-      }
+      networkName,serverName,host,port:8080,serverNetwork,
+      cleanup(){if(serverCreated){try{dockerCli(['rm','-f',serverName],5000);}catch{}}}
     };
-  } catch (error) {
-    if (serverCreated) {
-      try { dockerCli(['rm', '-f', serverName], 5000); } catch {}
-    }
-    if (networkCreated) {
-      try { dockerCli(['network', 'rm', networkName], 5000); } catch {}
-    }
+  } catch(error) {
+    if(serverCreated){try{dockerCli(['rm','-f',serverName],5000);}catch{}}
     throw error;
   }
 }
@@ -344,7 +370,7 @@ function runNetworkPositiveControl(networkProbe) {
   };
 }
 
-test('actual Agent49 policy worker is isolated from host capabilities in both seats', {
+test('Docker OS canary worker is isolated from host capabilities in both seats', {
   timeout: 180000
 }, async () => {
   const runtime = preflightDockerPolicySandbox({ pull: false });
@@ -358,6 +384,10 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
   let hostPhysicalRandomCalls = 0;
   const hostPhysicalRandom = () => { hostPhysicalRandomCalls += 1; return 0.5; };
   assert.equal(typeof hostPhysicalRandom, 'function');
+  const hostNamespaceInodes=Object.fromEntries(NAMESPACE_NAMES.map(name=>[
+    name,fs.readlinkSync('/proc/self/ns/'+name)
+  ]));
+  assert.ok(NAMESPACE_NAMES.every(name=>typeof hostNamespaceInodes[name]==='string'));
   const hostRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'agent36-host-markers-'));
   const markerValues = {
     repository: 'HOST_REPOSITORY_SENTINEL_' + crypto.randomUUID(),
@@ -388,7 +418,7 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
 
     ({ sourceRoot, bundle } = makeBundle(
       markerPaths, networkProbe.host, networkProbe.port,
-      networkProbe.referenceNamespaceInodes, process.pid, hostProcessMarker
+      hostNamespaceInodes, process.pid, hostProcessMarker
     ));
     const combinations = [
       { role: 'candidate', seat: 0, permissionModel: true },
@@ -397,7 +427,15 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
       { role: 'opponent', seat: 1, permissionModel: true }
     ];
     for (const combination of combinations) {
-      const { responses, launcherPid, stderr } = await runCanaryWorker({ bundle, ...combination });
+      const previousMathRandom = Math.random;
+      let workerResult;
+      try {
+        Math.random = hostPhysicalRandom;
+        workerResult = await runCanaryWorker({ bundle, ...combination });
+      } finally {
+        Math.random = previousMathRandom;
+      }
+      const { responses, launcherPid, stderr, networkMode, hostConfig, containerUser, mounts } = workerResult;
       const report = parseCanaryReport(stderr);
       assert.ok(Number.isSafeInteger(report.workerPid) && report.workerPid > 0);
       assert.ok(Number.isSafeInteger(launcherPid) && launcherPid > 0);
@@ -405,8 +443,9 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
       assert.equal(report.seat, combination.seat);
       assert.equal(report.namespaceIsolation, true,
         'worker must have distinct pid/ipc/uts/net/mount namespace inodes');
+      assert.deepEqual(report.hostNamespaceInodes,hostNamespaceInodes);
       assert.ok(NAMESPACE_NAMES.every(name =>
-        report.referenceNamespaceInodes[name] !== report.workerNamespaceInodes[name]));
+        report.hostNamespaceInodes[name] !== report.workerNamespaceInodes[name]));
       assert.ok(Object.values(report.markerReads).length >= 6);
       assert.ok(Object.values(report.markerReads).every(value => value.ok === false),
         'worker read a host repository/deck/input/hidden-zone marker');
@@ -422,8 +461,45 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
         assert.ok(Object.values(report.childProcess.markerReads).every(value => value.ok === false));
         assert.ok(Object.values(report.workerThreads.markerReads).every(value => value.ok === false));
       }
-      assert.equal(report.network.connected, false,
-        'network=none worker reached the networked positive-control peer');
+      assert.equal(networkMode,'none',
+        'effective Docker HostConfig.NetworkMode must be none');
+      assert.equal(hostConfig.ReadonlyRootfs,true,
+        'effective root filesystem must be read-only');
+      assert.equal(containerUser,'65532:65532',
+        'container Config.User must be the reviewed non-root uid/gid');
+      assert.deepEqual(hostConfig.CapDrop,['ALL'],
+        'effective Docker capabilities must all be dropped');
+      assert.ok(hostConfig.SecurityOpt?.some(value=>String(value).startsWith('no-new-privileges')),
+        'effective Docker security options must enable no-new-privileges');
+      assert.equal(hostConfig.PidsLimit,64);
+      assert.equal(hostConfig.Memory,512*1024*1024);
+      assert.equal(hostConfig.NanoCpus,1000000000);
+      assert.equal(hostConfig.ShmSize,16*1024*1024);
+      const tmpfsOptions=String(hostConfig.Tmpfs?.['/tmp']??'');
+      assert.ok(['nosuid','nodev','noexec'].every(flag=>tmpfsOptions.includes(flag)),
+        'effective /tmp tmpfs must be nosuid,nodev,noexec');
+      assert.ok(mounts.some(mount=>mount.Destination==='/policy'&&mount.RW===false),
+        'effective /policy bundle mount must be read-only');
+      assert.ok(hostConfig.Ulimits?.some(row=>row.Name==='nofile'&&row.Soft===64&&row.Hard===64));
+      assert.ok(hostConfig.Ulimits?.some(row=>row.Name==='core'&&row.Soft===0&&row.Hard===0));
+      assert.equal(report.effectiveIsolation.uid,65532);
+      assert.equal(report.effectiveIsolation.gid,65532);
+      assert.equal(report.effectiveIsolation.euid,65532);
+      assert.equal(report.effectiveIsolation.egid,65532);
+      if(!combination.permissionModel){
+        assert.match(report.effectiveIsolation.capEff,/^0+$/,
+          'effective CapEff must be zero after dropping all capabilities');
+        assert.equal(report.effectiveIsolation.noNewPrivs,1);
+        assert.equal(report.effectiveIsolation.seccomp,2);
+        assert.equal(report.effectiveIsolation.memoryMax,String(512*1024*1024));
+        assert.equal(report.effectiveIsolation.pidsMax,'64');
+        assert.equal(report.effectiveIsolation.cpuMax,'100000 100000');
+        assert.equal(report.effectiveIsolation.shmBytes,16*1024*1024);
+      }
+      assert.equal(report.network.connected,false,
+        'network=none worker reached the default-bridge positive-control peer');
+      assert.deepEqual(report.network.nonLoopbackInterfaces,[],
+        'network=none worker must expose loopback-only network interfaces');
       assert.equal(report.workerPid1Probe.ok, !combination.permissionModel,
         'worker-local /proc/1 probe must reflect the Node permission-model gate');
       assert.equal(report.rootWrite.ok, false);
@@ -448,15 +524,27 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
         responses,
         launcherPid,
         workerPid: report.workerPid,
+        effectiveHostConfig: {
+          networkMode, readonlyRootfs:hostConfig.ReadonlyRootfs,
+          user:containerUser, capDrop:hostConfig.CapDrop,
+          securityOpt:hostConfig.SecurityOpt, pidsLimit:hostConfig.PidsLimit,
+          memory:hostConfig.Memory, nanoCpus:hostConfig.NanoCpus,
+          shmSize:hostConfig.ShmSize, tmpfs:hostConfig.Tmpfs,
+          policyMountReadOnly:mounts.some(mount=>mount.Destination==='/policy'&&mount.RW===false),
+          ulimits:hostConfig.Ulimits
+        },
         report
       });
     }
-    assert.equal(networkPositiveControl.connected, true);
+    assert.equal(networkProbe.networkName,'bridge');
+    assert.equal(networkProbe.serverNetwork,'bridge');
+    assert.equal(networkPositiveControl.connected,true);
+    assert.equal(networkPositiveControl.network,'bridge');
     assert.equal(hostPhysicalRandomCalls, 0,
       'worker boundary unexpectedly invoked the host-only physical random source');
 
     const report = {
-      schema: 'agent36-agent49-docker-policy-canary-report-v4',
+      schema: 'agent36-agent49-docker-policy-canary-report-v6',
       runtime,
       bundle: bundle.manifest,
       networkPositiveControl,
@@ -464,6 +552,8 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
         imageDigest: IMAGE_DIGEST,
         platform: PLATFORM,
         network: 'none',
+        effectiveNetworkMode:'none',
+        networkInterfaces:'loopback-only',
         pid: 'private-default',
         ipc: 'private-default',
         uts: 'private-default',
@@ -483,7 +573,9 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
         host: networkProbe.host,
         port: networkProbe.port,
         serverContainer: networkProbe.serverName,
-        referenceNamespaceInodes: networkProbe.referenceNamespaceInodes
+        networkName:networkProbe.networkName,
+        serverNetwork:networkProbe.serverNetwork,
+        hostNamespaceInodes
       },
       hostPhysicalRandomCalls,
       results
@@ -502,5 +594,160 @@ test('actual Agent49 policy worker is isolated from host capabilities in both se
     if (originalHostProcessMarker === undefined) delete process.env.AGENT36_HOST_PROCESS_MARKER;
     else process.env.AGENT36_HOST_PROCESS_MARKER = originalHostProcessMarker;
     fs.rmSync(hostRoot, { recursive: true, force: true });
+  }
+});
+
+
+test('production VM worker completes READY and two ordered decisions for every role/seat on pinned Node24', {
+  timeout: 180000
+}, async () => {
+  const runtime = preflightDockerPolicySandbox({ pull: false });
+  assert.equal(runtime.imageDigest, IMAGE_DIGEST);
+  assert.equal(runtime.nodeVersion, NODE_VERSION);
+
+  const bundles = new Map();
+  const sessions = [];
+  const results = [];
+  const combinations = [
+    { role: 'candidate', seat: 0 },
+    { role: 'candidate', seat: 1 },
+    { role: 'opponent', seat: 0 },
+    { role: 'opponent', seat: 1 }
+  ];
+
+  try {
+    for (const role of ['candidate', 'opponent']) {
+      const policyVersion = 'agent49-production-' + role + '-matrix-v1';
+      const policySourceText = [
+        "'use strict';",
+        'const POLICY_VERSION=' + JSON.stringify(policyVersion) + ';',
+        'const EXPECTED_ROLE=' + JSON.stringify(role) + ';',
+        "async function createPolicy(context){",
+        "  if(context.role!==EXPECTED_ROLE||context.policyVersion!==POLICY_VERSION||!Number.isInteger(context.seat)||context.seat<0||context.seat>1) throw new Error('POLICY_CONTEXT_MISMATCH');",
+        "  return {async decide(request){",
+        "    if(request.observation.actorSeat!==context.seat) throw new Error('ACTOR_SEAT_MISMATCH');",
+        "    const action=request.actionFrontier.items[0];",
+        "    return action?{kind:'select-action',token:action.token}:{kind:'abstain',reasonCode:'NO_ACTION'};",
+        "  }};",
+        "}",
+        'module.exports={POLICY_VERSION,createPolicy};'
+      ].join('\n');
+      bundles.set(role, {
+        policyVersion,
+        ...makeProductionBundle(policySourceText)
+      });
+    }
+
+    for (const { role, seat } of combinations) {
+      const built = bundles.get(role);
+      const session = await createDockerPolicySession({
+        bundle: built.bundle,
+        role,
+        seat,
+        policyVersion: built.policyVersion,
+        permissionModel: true,
+        workerTimeoutMs: 30000,
+        requestTimeoutMs: 5000
+      });
+      sessions.push(session);
+
+      assert.equal(session.ready.schema, protocol.READY_SCHEMA);
+      assert.equal(session.ready.type, 'ready');
+      assert.equal(session.ready.role, role);
+      assert.equal(session.ready.seat, seat);
+      assert.equal(session.ready.policyVersion, built.policyVersion);
+      assert.equal(session.ready.bundleSha256, built.bundle.bundleSha256);
+      assert.equal(session.ready.policyStreamProtocol, 'worker-local-independent-crypto-stream-v1');
+      assert.equal(session.ready.policyDrawCount, 0);
+      assert.equal(session.init.role, role);
+      assert.equal(session.init.seat, seat);
+      assert.doesNotMatch(JSON.stringify(session.init), /seed|rng|random|physical/i);
+
+      const launcherPid = session.launcherPid;
+      assert.ok(Number.isSafeInteger(launcherPid) && launcherPid > 0);
+      const responses = [];
+      for (let sequence = 1; sequence <= 2; sequence += 1) {
+        const token = 'production-' + role + '-seat-' + seat + '-pass-' + sequence;
+        const input = {
+          observation: actorObservation(seat),
+          actionFrontier: {
+            schema: protocol.FRONTIER_SCHEMA,
+            items: [{ token, kind: 'pass' }]
+          }
+        };
+        assert.doesNotMatch(JSON.stringify(input), /seed|rng|random|physical/i);
+        const response = await session.decide(input);
+        assert.equal(response.role, role);
+        assert.equal(response.seat, seat);
+        assert.equal(response.policyVersion, built.policyVersion);
+        assert.equal(response.bundleSha256, built.bundle.bundleSha256);
+        assert.equal(response.sequence, sequence);
+        assert.equal(response.policyDrawCount, 0);
+        assert.deepEqual(response.decision, { kind: 'select-action', token });
+        assert.doesNotMatch(JSON.stringify(response), /seed|rng|random|physical/i);
+        assert.equal(session.launcherPid, launcherPid,
+          'two ordered decisions must use one persistent production worker');
+        responses.push(response);
+      }
+
+      assert.notEqual(responses[0].requestId, responses[1].requestId);
+      const receipt = await session.close();
+      assert.equal(receipt.closed, true);
+      assert.equal(receipt.processClosed, true);
+      assert.equal(receipt.containerRemoved, true);
+      results.push({ role, seat, policyVersion: built.policyVersion,
+        bundleSha256: built.bundle.bundleSha256, launcherPid, receipt, responses });
+    }
+
+    assert.equal(results.length, 4);
+    assert.deepEqual(results.map(({ role, seat }) => role + ':' + seat), [
+      'candidate:0', 'candidate:1', 'opponent:0', 'opponent:1'
+    ]);
+    assert.equal(new Set(results.map(row => row.bundleSha256)).size, 2,
+      'candidate and opponent must use distinct role-specific policy bundles');
+    assert.ok(results.every(row => row.receipt.processClosed && row.receipt.containerRemoved));
+  } finally {
+    for (const session of sessions) await session.abort().catch(() => {});
+    for (const built of bundles.values()) {
+      assert.equal(cleanupPolicyBundle(built.bundle), true);
+      assert.equal(fs.existsSync(built.bundle.root), false);
+      fs.rmSync(built.sourceRoot, { recursive: true, force: true });
+    }
+  }
+});
+
+test('production VM worker terminates a non-settling async policy at the per-decision deadline',{
+  timeout:30000
+},async()=>{
+  const runtime=preflightDockerPolicySandbox({pull:false});
+  assert.equal(runtime.imageDigest,IMAGE_DIGEST);
+  const policySourceText=[
+    "'use strict';",
+    "const POLICY_VERSION='agent49-async-timeout-probe-v1';",
+    'async function createPolicy(){return {async decide(){await Promise.resolve();while(true){}}};}',
+    'module.exports={POLICY_VERSION,createPolicy};'
+  ].join('\n');
+  const built=makeProductionBundle(policySourceText);
+  let session=null;
+  try{
+    session=await createDockerPolicySession({
+      bundle:built.bundle,role:'candidate',seat:0,
+      policyVersion:'agent49-async-timeout-probe-v1',
+      permissionModel:true,workerTimeoutMs:30000,requestTimeoutMs:1000
+    });
+    await assert.rejects(session.decide({
+      observation:actorObservation(0),
+      actionFrontier:{schema:protocol.FRONTIER_SCHEMA,items:[{token:'timeout-pass',kind:'pass'}]}
+    }),error=>String(error?.code??'').includes('TIMEOUT'));
+    const receipt=await session.abort();
+    assert.equal(receipt.containerRemoved,true,
+      'per-decision timeout must terminate and remove the stuck worker container');
+    assert.equal(receipt.processClosed,true,
+      'per-decision timeout must verify worker process closure');
+  }finally{
+    if(session)await session.abort().catch(()=>{});
+    assert.equal(cleanupPolicyBundle(built.bundle),true);
+    assert.equal(fs.existsSync(built.bundle.root),false);
+    fs.rmSync(built.sourceRoot,{recursive:true,force:true});
   }
 });

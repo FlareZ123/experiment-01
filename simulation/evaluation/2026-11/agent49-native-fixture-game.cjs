@@ -7,6 +7,77 @@ const {evidenceBundleSha256}=require('../agent45-independent-competitive-admissi
 const PLAYER_IDS=Object.freeze([101,202]);
 const SCHEMA='aichi-native-fixture-game-v1';
 
+/**
+ * Capture every own property and object identity in the live Store state without
+ * invoking getters or serializing private card data to an artifact. IDs persist
+ * across snapshots, so replacement of an otherwise equal nested object is also
+ * detected. Unsupported weak collections fail closed.
+ */
+function createStoreStateSnapshotter(){
+  const objectIds=new WeakMap();
+  const symbolIds=new Map();
+  let nextObjectId=1;
+  let nextSymbolId=1;
+  const objectId=value=>{
+    let id=objectIds.get(value);
+    if(id===undefined){id=nextObjectId++;objectIds.set(value,id);}
+    return id;
+  };
+  const symbolId=value=>{
+    let id=symbolIds.get(value);
+    if(id===undefined){id=nextSymbolId++;symbolIds.set(value,id);}
+    return id;
+  };
+  function snapshot(value,seen=new WeakSet()){
+    const type=typeof value;
+    if(value===null)return ['null'];
+    if(type==='undefined')return ['undefined'];
+    if(type==='symbol')return ['symbol',symbolId(value),Symbol.keyFor(value)??value.description??null];
+    if(type==='bigint')return ['bigint',value.toString()];
+    if(type==='number'){
+      if(Number.isNaN(value))return ['number','NaN'];
+      if(Object.is(value,-0))return ['number','-0'];
+      if(!Number.isFinite(value))return ['number',String(value)];
+      return ['number',value];
+    }
+    if(type==='string'||type==='boolean')return [type,value];
+    if(type!=='object'&&type!=='function')return [type,String(value)];
+    const id=objectId(value);
+    if(seen.has(value))return ['reference',id];
+    seen.add(value);
+    if(type==='function')return ['function',id,value.name,value.length];
+    if(value instanceof WeakMap||value instanceof WeakSet)
+      throw new Error('full Store-state equality cannot inspect a weak collection');
+    let special=null;
+    if(Buffer.isBuffer(value))special=['buffer',value.toString('hex')];
+    else if(ArrayBuffer.isView(value))
+      special=[value.constructor?.name??'typed-array',
+        Buffer.from(value.buffer,value.byteOffset,value.byteLength).toString('hex')];
+    else if(value instanceof ArrayBuffer)
+      special=['array-buffer',Buffer.from(value).toString('hex')];
+    else if(value instanceof Date)special=['date',value.getTime()];
+    else if(value instanceof RegExp)special=['regexp',value.source,value.flags,value.lastIndex];
+    else if(value instanceof Map)
+      special=['map',[...value.entries()].map(([key,item])=>[snapshot(key,seen),snapshot(item,seen)])];
+    else if(value instanceof Set)
+      special=['set',[...value.values()].map(item=>snapshot(item,seen))];
+    const prototype=Object.getPrototypeOf(value);
+    const properties=Reflect.ownKeys(value).map(key=>{
+      const descriptor=Object.getOwnPropertyDescriptor(value,key);
+      const keySnapshot=typeof key==='symbol'?
+        ['symbol-key',symbolId(key),Symbol.keyFor(key)??key.description??null]:
+        ['string-key',key];
+      const valueSnapshot=Object.hasOwn(descriptor,'value')?
+        ['data',descriptor.writable,snapshot(descriptor.value,seen)]:
+        ['accessor',descriptor.get?objectId(descriptor.get):null,
+          descriptor.set?objectId(descriptor.set):null];
+      return [keySnapshot,descriptor.enumerable,descriptor.configurable,valueSnapshot];
+    }).sort((a,b)=>JSON.stringify(a[0]).localeCompare(JSON.stringify(b[0])));
+    return ['object',id,prototype?objectId(prototype):null,special,properties];
+  }
+  return value=>snapshot(value);
+}
+
 let activeNativeFixtureProcessLock=null;
 function acquireNativeFixtureProcessLock(owner='native-fixture') {
   assert.ok(typeof owner==='string'&&owner.length>0);
@@ -65,6 +136,31 @@ function seededRandom(seed) {
     state^=state>>>17;
     state^=state<<5;
     return (state>>>0)/0x100000000;
+  };
+}
+
+function createValidationRandomScope({ambientRandom,physicalRandom,seed=0x6d2b79f5}={}) {
+  assert.equal(typeof ambientRandom,'function',
+    'validation random scope requires the original ambient Math.random');
+  assert.equal(typeof physicalRandom,'function',
+    'validation random scope requires the independent physical RNG closure');
+  const validationSeed=normalizeSeed32(seed);
+  return function withValidationRandom(callback) {
+    assert.equal(typeof callback,'function');
+    assert.strictEqual(Math.random,ambientRandom,
+      'validation random scope must begin with ambient Math.random restored');
+    const validationRandom=seededRandom(validationSeed);
+    assert.notStrictEqual(validationRandom,physicalRandom,
+      'validation random stream must be independent of physical shuffle RNG');
+    Math.random=validationRandom;
+    try {
+      const value=callback();
+      assert.ok(!value||typeof value.then!=='function',
+        'validation random scope must contain synchronous simulator probes only');
+      return value;
+    } finally {
+      Math.random=ambientRandom;
+    }
   };
 }
 
@@ -277,8 +373,14 @@ function validateInputs(input,{requirePolicySeeds=true}={}) {
   assert.equal(input.originalSourceSeat,1-input.candidateSeat,
     'candidate and original-source seats must be opposite');
   const maxActions=input.maxActions===undefined?3000:input.maxActions;
-  assert.ok(Number.isInteger(maxActions)&&maxActions>0,
-    'maxActions must be a positive integer');
+  assert.ok(maxActions===null || (Number.isInteger(maxActions)&&maxActions>0),
+    'maxActions must be null or a positive integer');
+  if(input.stopBeforeLiveDispatch===true){
+    assert.ok(input.expectedActorSeat===0||input.expectedActorSeat===1,
+      'no-game witness requires an expected physical actor seat');
+    assert.equal(maxActions,null,
+      'no-game witness must not use a game-action cap');
+  }
   return {native,maxActions,seed32,policySeedBySeat};
 }
 
@@ -313,25 +415,54 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
       Math.random=previousRandom;
     }
   };
+  const withValidationRandom=createValidationRandomScope({
+    ambientRandom:previousRandom,physicalRandom
+  });
   const policyRandom=policySeedBySeat?.map(seed=>seededRandom(seed))??null;
   const decisionTrace=[];
   const rootActionLedger=[];
   const actionCountsBySeat=[0,0];
   let actions=0;
   let actualFirstPlayerSeat=null;
+  let nativeStoreCreated=false;
+  let bothPlayersRegistered=false;
   let store;
   let seats;
   let storeHook=null;
   let storeHookRestored=false;
   let completedResult=null;
   let failureContext=null;
+  let primaryFailureSummary=null;
+  const snapshotStoreState=input.stopBeforeLiveDispatch===true?
+    createStoreStateSnapshotter():null;
 
+  const projectSafeStackSite=error=>{
+    const stack=typeof error?.stack==='string'?error.stack:'';
+    for(const frame of stack.split('\n').slice(1)){
+      const match=frame.match(/\(([^()\n]+):(\d+):(\d+)\)$/)||
+        frame.match(/^\s*at ([^()\s]+):(\d+):(\d+)$/);
+      if(!match)continue;
+      const rawPath=match[1].trim().replace(/\\/g,'/');
+      const marker='/experiment-01/';
+      const markerIndex=rawPath.lastIndexOf(marker);
+      const file=markerIndex>=0?rawPath.slice(markerIndex+marker.length):rawPath;
+      if(!/^(?:simulation|vendor\/twinleaf)\/[A-Za-z0-9_.\/-]{1,240}$/.test(file)||
+          file.split('/').includes('..'))continue;
+      const line=Number(match[2]),column=Number(match[3]);
+      if(!Number.isSafeInteger(line)||line<1||
+          !Number.isSafeInteger(column)||column<1)continue;
+      return {file,line,column};
+    }
+    return null;
+  };
   const redactError=error=>{
     const message=String(error?.message??error??'native fixture failure');
+    const stackSite=projectSafeStackSite(error);
     return {
       name:error?.name??'Error',
       messageSha256:sha256Json({message}),
-      messageLength:message.length
+      messageLength:message.length,
+      ...(stackSite?{stackSite}:{})
     };
   };
   const captureDiagnostic=(state,context)=>{
@@ -472,6 +603,8 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
 
     const failure={
       stage:context?.stage??'game-loop',
+      code:typeof cause?.code==='string'&&/^[A-Z0-9_]{1,64}$/.test(cause.code)?
+        cause.code:'NATIVE_FIXTURE_FAILURE',
       actionOrdinal:failedRecord?.actionOrdinal??actions,
       actingSeat:failedRecord?.actingSeat??null,
       actingPlayerId:failedRecord?.actingPlayerId??null,
@@ -522,10 +655,49 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
     const partial=buildPartial(error,context);
     const wrapped=new Error(String(error?.message??error??'native fixture failure'));
     wrapped.name=error?.name??'Error';
+    wrapped.code=partial.failure.code;
+    const seedProbeReason=error?.seedProbeReason;
+    if([
+      'mulliganPromptShape','startingPokemonPromptShape','startingPokemonBounds',
+      'startingPokemonInsufficientChoices','opponentActiveStateMismatch',
+      'startingPokemonMinimumUnmet','unsupportedOwnerPrompt','otherSetupIncompatible'
+    ].includes(seedProbeReason))wrapped.seedProbeReason=seedProbeReason;
     wrapped.cause=error;
     wrapped.fixtureGamePartial=partial;
     wrapped.nativeFixtureFailure=partial.failure;
     return wrapped;
+  };
+  const projectFailureSummary=(failure,includePrimary=true)=>{
+    if(!failure||typeof failure!=='object')return null;
+    const summary={};
+    for(const key of ['stage','code','actionOrdinal','actingSeat','phaseBefore',
+      'turnBefore','pendingPromptType','actionName','actionPayloadSha256',
+      'name','messageSha256','messageLength','stackSite']){
+      const value=failure[key];
+      if(value===undefined||value===null)continue;
+      if(key==='stage'&&typeof value==='string'&&/^[a-z0-9-]{1,64}$/.test(value))summary[key]=value;
+      else if(key==='code'&&typeof value==='string'&&/^[A-Z0-9_]{1,64}$/.test(value))summary[key]=value;
+      else if(['actionOrdinal','turnBefore','messageLength'].includes(key)&&
+        Number.isSafeInteger(value)&&value>=0)summary[key]=value;
+      else if(key==='actingSeat'&&(value===0||value===1))summary[key]=value;
+      else if(['phaseBefore','pendingPromptType','actionName'].includes(key)&&
+        typeof value==='string'&&/^[A-Za-z0-9_.:-]{1,128}$/.test(value))summary[key]=value;
+      else if(['actionPayloadSha256','messageSha256'].includes(key)&&
+        typeof value==='string'&&/^[0-9a-f]{64}$/i.test(value))summary[key]=value;
+      else if(key==='name'&&typeof value==='string'&&/^[A-Za-z0-9_.-]{1,64}$/.test(value))summary[key]=value;
+      else if(key==='stackSite'&&value&&typeof value==='object'&&
+        typeof value.file==='string'&&
+        /^(?:simulation|vendor\/twinleaf)\/[A-Za-z0-9_.\/-]{1,240}$/.test(value.file)&&
+        !value.file.split('/').includes('..')&&
+        Number.isSafeInteger(value.line)&&value.line>0&&
+        Number.isSafeInteger(value.column)&&value.column>0)
+        summary.stackSite={file:value.file,line:value.line,column:value.column};
+    }
+    if(includePrimary&&failure.primaryFailure){
+      const primary=projectFailureSummary(failure.primaryFailure,false);
+      if(primary)summary.primaryFailure=primary;
+    }
+    return summary;
   };
 
   const ownsProcessLock=input.processLockToken===undefined;
@@ -544,6 +716,10 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
     settings.rules.attackFirstTurn=false;
 
     store=withPhysicalRandom(()=>new Store({onStateChange:()=>{}}));
+    nativeStoreCreated=store instanceof Store&&typeof store.dispatch==='function'&&
+      store.state!==null&&typeof store.state==='object';
+    assert.equal(nativeStoreCreated,true,
+      'native no-game witness requires an actually constructed Twinleaf Store');
     if(typeof input.onStoreCreated==='function') {
       storeHook=input.onStoreCreated(store);
       assert.ok(storeHook&&typeof storeHook.restore==='function',
@@ -566,8 +742,14 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
       input.playerNames?.[1]??'fixture-seat-1',input.deckB)));
     if(store.state.phase===GamePhase.FINISHED)
       throw new Error('Twinleaf rejected fixture deck B during player registration');
+    const registeredPlayers=store.state.players;
+    bothPlayersRegistered=Array.isArray(registeredPlayers)&&registeredPlayers.length===2&&
+      registeredPlayers[0]?.id===PLAYER_IDS[0]&&registeredPlayers[1]?.id===PLAYER_IDS[1];
+    assert.equal(bothPlayersRegistered,true,
+      'native no-game witness requires both physical players registered in the original Store');
 
-    while(store.state.phase!==GamePhase.FINISHED && actions<maxActions) {
+    while(store.state.phase!==GamePhase.FINISHED &&
+        (maxActions===null || actions<maxActions)) {
       const state=store.state;
       assert.ok(Array.isArray(state.prompts),'Twinleaf state.prompts is not an array');
       const pending=state.prompts.find(prompt=>prompt.result===undefined)??null;
@@ -632,6 +814,8 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
       let actorObservationBefore=null;
       let promptResolverContext=null;
       let policyInputKind='native-prompt';
+      let originalStoreStateBeforeDecision=null;
+      let validationReceipt=null;
       if(pending instanceof ShuffleDeckPrompt) {
         failureContext.stage='physical-prompt-resolution';
         policyInputKind='physical-randomization-prompt';
@@ -690,7 +874,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         attemptRecord.policyInputKind=policyInputKind;
         const resolution=yield {
           kind:'native-fixture-decision',decisionKind:'owner-prompt',
-          state,store,prompt:pending,actorSeat:actingSeat,native,physicalRandom,withPhysicalRandom,
+          state,store,prompt:pending,actorSeat:actingSeat,native,physicalRandom,withPhysicalRandom,withValidationRandom,
           ...(policyRandom?{
             legacyBot:seats[actingSeat],
             legacyRandomSource:policyRandom[actingSeat]
@@ -710,6 +894,8 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         attemptRecord.actingSeat=actingSeat;
         attemptRecord.actingPlayerId=PLAYER_IDS[actingSeat];
         attemptRecord.isRootDecision=true;
+        originalStoreStateBeforeDecision=snapshotStoreState?
+          snapshotStoreState(store.state):null;
         failureContext.stage='actor-observation';
         if(typeof native.observe==='function')
           actorObservationBefore=projectJsonSafe(native.observe(state,actingSeat));
@@ -721,12 +907,13 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         attemptRecord.policyInputKind=policyInputKind;
         const resolution=yield {
           kind:'native-fixture-decision',decisionKind:'owner-root',
-          state,store,prompt:null,actorSeat:actingSeat,native,physicalRandom,withPhysicalRandom,
+          state,store,prompt:null,actorSeat:actingSeat,native,physicalRandom,withPhysicalRandom,withValidationRandom,
           ...(policyRandom?{
             legacyBot:seats[actingSeat],
             legacyRandomSource:policyRandom[actingSeat]
           }:{})
         };
+        validationReceipt=resolution?.validationReceipt??null;
         action=resolution?.__nativeFixtureDecisionResolution===true?
           resolution.action:resolution;
         if(resolution?.__nativeFixtureDecisionResolution===true&&
@@ -779,6 +966,55 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
       };
       rootActionLedger.push(ledgerRecord);
       failureContext=null;
+
+      if(input.stopBeforeLiveDispatch===true&&isRootDecision){
+        assert.equal(isRootDecision,true,
+          'no-game witness may stop only after a native root decision');
+        assert.equal(actingSeat,input.expectedActorSeat,
+          'no-game witness reached the wrong physical actor seat');
+        assert.ok(validationReceipt&&validationReceipt.selectedActionValidated===true,
+          'no-game witness requires a worker-selected native action validated on a cloned Store');
+        assert.equal(nativeStoreCreated,true,
+          'no-game witness requires an observed native Store construction');
+        assert.equal(bothPlayersRegistered,true,
+          'no-game witness requires both players registered before the first root');
+        assert.equal(validationReceipt.nativeActionFrontierUsed,true,
+          'no-game witness requires the worker decision to use the native action frontier');
+        assert.equal(validationReceipt.nativeValidationStoreMode,'cloned-store',
+          'no-game witness requires selected-action validation on a cloned native Store');
+        assert.equal(validationReceipt.actorSeat,actingSeat,
+          'native validation receipt belongs to a different physical seat');
+        const originalStoreStateAfterDecision=snapshotStoreState(store.state);
+        assert.deepStrictEqual(originalStoreStateAfterDecision,originalStoreStateBeforeDecision,
+          'full original-Store state changed during observation, frontier construction, worker decision, or cloned native validation');
+        record.dispatchStatus='not-dispatched';
+        ledgerRecord.dispatchStatus='not-dispatched';
+        completedResult={
+          schema:'agent49-native-no-game-witness-v1',
+          fixtureOnly:true,
+          gameExecuted:false,
+          candidateSeat:input.candidateSeat,
+          opponentSeat:input.originalSourceSeat,
+          actorSeat:actingSeat,
+          actualFirstPlayerSeat,
+          seed:input.seed,
+          seed32,
+          actorObservationUsed:actorObservationBefore!==null,
+          selectedActionValidated:true,
+          nativeStoreCreated,
+          bothPlayersRegistered,
+          nativeActionFrontierUsed:validationReceipt.nativeActionFrontierUsed,
+          nativeValidationStoreMode:validationReceipt.nativeValidationStoreMode,
+          hostStoppedBeforeLiveDispatch:true,
+          validationActionKind:validationReceipt.actionKind??null,
+          actionFrontierItemCount:validationReceipt.frontierItemCount,
+          fullOriginalStoreStateUnchanged:true,
+          liveActionDispatched:false,
+          acceptedRootActions:0,
+          rootDecisionCount:1
+        };
+        return completedResult;
+      }
 
       try {
         withPhysicalRandom(()=>store.dispatch(action));
@@ -843,6 +1079,8 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
     }
 
     if(store.state.phase!==GamePhase.FINISHED) {
+      assert.ok(maxActions!==null && actions>=maxActions,
+        'native fixture loop stopped before a natural terminal state without reaching a finite cap');
       const failure=new Error('Native fixture game exceeded maxActions without a natural terminal state');
       failureContext={stage:'action-cap',record:null};
       throw failure;
@@ -895,8 +1133,12 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
     completedResult=result;
     return result;
   } catch(error) {
-    if(error?.fixtureGamePartial) throw error;
-    throw wrapFailure(error,failureContext??{stage:'game-loop',record:null});
+    const wrapped=error?.fixtureGamePartial?error:
+      wrapFailure(error,failureContext??{stage:'game-loop',record:null});
+    primaryFailureSummary=projectFailureSummary(
+      wrapped.nativeFixtureFailure??wrapped.fixtureGamePartial?.failure
+    );
+    throw wrapped;
   } finally {
     let cleanupError=null;
     try {
@@ -923,7 +1165,19 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
       try { releaseNativeFixtureProcessLock(processLockToken); }
       catch(error) { cleanupError??=error; }
     }
-    if(cleanupError) throw cleanupError;
+    if(cleanupError) {
+      const wrapped=wrapFailure(cleanupError,{stage:'cleanup',record:null});
+      const cleanupFailure={
+        ...(projectFailureSummary(wrapped.nativeFixtureFailure,false)??{}),
+        stage:'cleanup',
+        code:'NATIVE_FIXTURE_CLEANUP_FAILURE'
+      };
+      if(primaryFailureSummary)cleanupFailure.primaryFailure=primaryFailureSummary;
+      wrapped.code=cleanupFailure.code;
+      wrapped.nativeFixtureFailure=cleanupFailure;
+      wrapped.fixtureGamePartial.failure=cleanupFailure;
+      throw wrapped;
+    }
   }
 }
 
@@ -985,6 +1239,7 @@ async function runNativeFixtureGameAsync(input,resolveDecision) {
 module.exports={
   SCHEMA,
   seededRandom,
+  createValidationRandomScope,
   deckPermutation,
   publicStateSnapshot,
   projectActionPayload,
@@ -992,6 +1247,7 @@ module.exports={
   runNativeFixtureGame,
   runNativeFixtureGameAsync,
   normalizeSeed32,
+  createStoreStateSnapshotter,
   normalizePolicySeedBySeat,
   acquireNativeFixtureProcessLock,
   releaseNativeFixtureProcessLock,

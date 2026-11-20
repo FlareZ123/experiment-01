@@ -10,24 +10,34 @@ const actionsReceipts=require('./agent44-actions-metadata-receipts.cjs');
 const {preparePreDealPolicyRegistration,revalidatePreDealPolicyRegistration,
   buildV3GameBundle}=require('./agent44-v3-game-bundle-builder.cjs');
 const {withCandidateOpponentPolicyRoles,candidateOpponentRoleSeats}=require('../../twinleaf/agent44-role-scoped-policy-composition.cjs');
-const {withOwnerQuickBallPromptContinuation}=require('../../twinleaf/2026-11/agent49-owner-quick-ball-prompt-continuation.cjs');
 const roleIdentity=require('./agent42-role-policy-identity.cjs');
 const {withPinnedResearchModuleLoads}=require('../agent36-runtime-module-pin.cjs');
 const {auditSourceClosure}=require('../agent36-source-closure-audit.cjs');
 const {runNativeFixtureGame,runNativeFixtureGameAsync,acquireNativeFixtureProcessLock,releaseNativeFixtureProcessLock}=require('./agent49-native-fixture-game.cjs');
 const nativeActionFrontier=require('./agent36-native-action-frontier.cjs');
+const knownCapFreeActionEnumerator=require('./agent3-known-cap-free-action-enumerator.cjs');
 const nativePromptProjection=require('./agent36-prompt-projection.cjs');
 const {installPromptProvenanceHook}=require('./agent36-prompt-provenance.cjs');
-const workerProtocol=require('./agent49-policy-worker.cjs');
+const workerProtocol=require('./agent49-policy-protocol.cjs');
 const workerLauncher=require('./agent36-docker-policy-worker.cjs');
 const {createDockerPolicySession}=require('./agent36-async-docker-policy-session.cjs');
 const {publicEventReceipt}=require('../../twinleaf/agent8-public-event-receipt.cjs');
 const fixtureRuntimePin=require('./agent49-fixture-scoped-runtime-pin.cjs');
+const sanitizedDiagnostic=require('./agent2-v3-sanitized-diagnostic.cjs');
 
 const ROOT=path.resolve(__dirname,'../../..');
 const GIT_SHA=/^[0-9a-f]{40}$/;
 const SHA256=/^[0-9a-f]{64}$/;
 const RUN_ID=/^[1-9]\d*$/;
+/** Host-only environment transport must never be allowlisted into role workers. */
+function policyEnvironmentAllowlist(keys) {
+  return [...new Set((keys || []).filter(key =>
+    typeof key === 'string' && !key.startsWith('GITHUB_') &&
+    !key.startsWith('RUNNER_') &&
+    key !== 'AGENT36_POLICY_ENV_SNAPSHOT_JSON'
+  ))].sort();
+}
+
 const PREDEAL_FIELDS=[
   'ready','status','fixtureOnly','producerId','trialId','gameRegistration',
   'policyPlanCore','policyPlanSha256','policyAttestationBundle',
@@ -86,13 +96,17 @@ function loadNativeRoleDependencies({enginePin}={}){
   // Literal vendor imports are tied to the submodule gitlink, not research code.
   const {SimpleTacticsAi}=require('../../../vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai');
   const {Store}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/store');
-  const {GamePhase}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/state/state');
+  const {State,GamePhase}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/state/state');
+  const {Player}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/state/player');
+  const {PokemonCardList}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/state/pokemon-card-list');
+  const {CardList}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/state/card-list');
   const cardActions=require('../../../vendor/twinleaf/ptcg-server/output/game/store/actions/play-card-action');
   const gameActions=require('../../../vendor/twinleaf/ptcg-server/output/game/store/actions/game-actions');
   const {ActionEnumerator}=require('../../../vendor/twinleaf/ptcg-server/output/advanced-bot/action-enumerator');
   const {Simulator}=require('../../../vendor/twinleaf/ptcg-server/output/game/bots/simulator');
   const promptActions=require('../../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
   const {CardManager}=require('../../../vendor/twinleaf/ptcg-server/output/game/cards/card-manager');
+  const {deepClone}=require('../../../vendor/twinleaf/ptcg-server/output/utils/utils');
   const sets=require('../../../vendor/twinleaf/ptcg-server/output/sets');
   const {GameSettings}=require('../../../vendor/twinleaf/ptcg-server/output/game/core/game-settings');
   const {AddPlayerAction}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/actions/add-player-action');
@@ -104,8 +118,10 @@ function loadNativeRoleDependencies({enginePin}={}){
   const {PokemonCard}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/pokemon-card');
   const {EnergyCard}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/energy-card');
   const {TrainerCard}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/trainer-card');
-  const {Stage,EnergyType,CardType,TrainerType,SpecialCondition,Format}=
+  const {GameError}=require('../../../vendor/twinleaf/ptcg-server/output/game/game-error');
+  const {Stage,EnergyType,CardType,TrainerType,SpecialCondition,Format,SuperType}=
     require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/card-types');
+  const {CheckPokemonTypeEffect}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/effects/check-effects');
   const {PowerType}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/pokemon-types');
   const cardPoolInitialization=initializeNativeCardPool({CardManager,sets,enginePin});
   const {buildActorCardCatalog}=require('../../twinleaf/agent34-actor-only-root-policy.cjs');
@@ -130,13 +146,15 @@ function loadNativeRoleDependencies({enginePin}={}){
   const botOptionsBySeat = [makeBotOptions(), makeBotOptions()];
   assert.notEqual(botOptionsBySeat[0], botOptionsBySeat[1]);
   assert.notEqual(botOptionsBySeat[0].arbiter, botOptionsBySeat[1].arbiter);
-  return {SimpleTacticsAi,Store,GamePhase,cardActions,gameActions,
+  return {SimpleTacticsAi,Store,State,Player,PokemonCardList,CardList,GamePhase,cardActions,gameActions,
     ActionEnumerator,Simulator,PlayerType:cardActions.PlayerType,SlotType:cardActions.SlotType,
+    PokemonCard,EnergyCard,TrainerCard,GameError,Stage,TrainerType,SpecialCondition,
+    EnergyType,CardType,SuperType,CheckPokemonTypeEffect,
     getCatalog,getNativeTrainerCatalog,observe:actorObservation,promptActions,
     GameSettings,Format,AddPlayerAction,
     ResolvePromptAction:promptActions.ResolvePromptAction,
     ShuffleDeckPrompt,CoinFlipPrompt,WaitPrompt,botOptionsBySeat,CardManager,sets,
-    cardPoolInitialization};
+    deepClone,cardPoolInitialization};
 }
 
 /**
@@ -145,6 +163,13 @@ function loadNativeRoleDependencies({enginePin}={}){
  * {fixtureFailure, fixtureGamePartial} envelope is nested under roleResult.result.
  * A wrapper/runtime failure may instead return the envelope directly.
  */
+// The role composer emits actorOnlyBoundary; the downstream trial/receipt schema
+// deliberately uses actorOnlyExecutionBoundary. Keep this name translation at
+// the single composer-to-trial boundary so the receipt cannot silently hash null.
+function projectActorOnlyBoundaryToTrial(roleResult){
+  return roleResult?.actorOnlyBoundary ?? null;
+}
+
 function normalizeV3FixtureRoleResult(returnedResult){
   const isObject=returnedResult!==null&&typeof returnedResult==='object';
   const roleResult=isObject&&Object.prototype.hasOwnProperty.call(returnedResult,'result')?
@@ -163,6 +188,314 @@ function normalizeV3FixtureRoleResult(returnedResult){
       roleExecutionResult;
   return {roleResult,failureEnvelope,gameResult,
     workerExecutionAudit:roleResult?.workerAudit??directFailureEnvelope?.workerAudit??null};
+}
+
+function projectNativeFixtureFailureForReceipt(failure,{includePrimary=true}={}) {
+  if(!failure||typeof failure!=='object')return null;
+  const summary={};
+  for(const key of ['stage','code','actionOrdinal','actingSeat','phaseBefore',
+    'turnBefore','pendingPromptType','actionName','actionPayloadSha256',
+    'name','messageSha256','messageLength','stackSite']){
+    const value=failure[key];
+    if(value===undefined||value===null)continue;
+    if(key==='stage'&&typeof value==='string'&&/^[a-z0-9-]{1,64}$/.test(value))summary[key]=value;
+    else if(key==='code'&&typeof value==='string'&&/^[A-Z0-9_]{1,64}$/.test(value))summary[key]=value;
+    else if(['actionOrdinal','turnBefore','messageLength'].includes(key)&&
+      Number.isSafeInteger(value)&&value>=0)summary[key]=value;
+    else if(key==='actingSeat'&&(value===0||value===1))summary[key]=value;
+    else if(['phaseBefore','pendingPromptType','actionName'].includes(key)&&
+      typeof value==='string'&&/^[A-Za-z0-9_.:-]{1,128}$/.test(value))summary[key]=value;
+    else if(['actionPayloadSha256','messageSha256'].includes(key)&&
+      typeof value==='string'&&/^[0-9a-f]{64}$/i.test(value))summary[key]=value;
+    else if(key==='name'&&typeof value==='string'&&/^[A-Za-z0-9_.-]{1,64}$/.test(value))summary[key]=value;
+    else if(key==='stackSite'&&value&&typeof value==='object'&&
+      typeof value.file==='string'&&
+      /^(?:simulation|vendor\/twinleaf)\/[A-Za-z0-9_.\/-]{1,240}$/.test(value.file)&&
+      !value.file.split('/').includes('..')&&
+      Number.isSafeInteger(value.line)&&value.line>0&&
+      Number.isSafeInteger(value.column)&&value.column>0)
+      summary.stackSite={file:value.file,line:value.line,column:value.column};
+  }
+  if(includePrimary&&failure.primaryFailure){
+    const primary=projectNativeFixtureFailureForReceipt(failure.primaryFailure,{includePrimary:false});
+    if(primary)summary.primaryFailure=primary;
+  }
+  return Object.keys(summary).length?summary:null;
+}
+
+function projectV3FixtureFailureForReceipt(source,{
+  stage='native-no-game-witness',fallbackCode='WORKER_FIXTURE_FAILURE',includeNested=true
+}={}) {
+  const failure=source?.fixtureFailure&&typeof source.fixtureFailure==='object'?
+    source.fixtureFailure:source;
+  const nativeFailure=projectNativeFixtureFailureForReceipt(
+    failure?.nativeFixtureFailure??source?.nativeFixtureFailure
+  );
+  const message=String(source?.message??failure?.message??'native V3 witness failure');
+  const messageSha256=typeof failure?.messageSha256==='string'&&
+    /^[0-9a-f]{64}$/i.test(failure.messageSha256)?
+      failure.messageSha256:createHash('sha256').update(message).digest('hex');
+  const result={
+    name:typeof failure?.name==='string'&&/^[A-Za-z0-9_.-]{1,64}$/.test(failure.name)?
+      failure.name:'Error',
+    code:typeof (failure?.code??source?.code)==='string'&&
+      /^[A-Z0-9_]{1,64}$/.test(failure?.code??source?.code)?
+        (failure?.code??source?.code):fallbackCode,
+    stage:typeof (failure?.stage??nativeFailure?.stage??stage)==='string'&&
+      /^[a-z0-9-]{1,64}$/.test(failure?.stage??nativeFailure?.stage??stage)?
+        (failure?.stage??nativeFailure?.stage??stage):stage,
+    messageSha256
+  };
+  const messageLength=failure?.messageLength??nativeFailure?.messageLength;
+  if(Number.isSafeInteger(messageLength)&&messageLength>=0)result.messageLength=messageLength;
+  for(const key of ['expectedActorSeat','actualActorSeat']){
+    const seat=failure?.[key]??source?.[key];
+    if(seat===0||seat===1)result[key]=seat;
+  }
+  if(nativeFailure)result.nativeFixtureFailure=nativeFailure;
+  if(includeNested&&failure?.primaryFailure){
+    result.primaryFailure=projectV3FixtureFailureForReceipt(failure.primaryFailure,{
+      stage:'primary-failure',fallbackCode:'NATIVE_FIXTURE_FAILURE',includeNested:false
+    });
+  }
+  if(includeNested&&Array.isArray(failure?.cleanupFailures)){
+    result.cleanupFailures=failure.cleanupFailures.slice(0,4).map(item=>
+      projectV3FixtureFailureForReceipt(item,{
+        stage:'cleanup',fallbackCode:'V3_RUNNER_CLEANUP_FAILURE',includeNested:false
+      })
+    );
+  }
+  return result;
+}
+
+function projectV3RoleFailureForReceipt(error) {
+  return projectV3FixtureFailureForReceipt(error,{
+    stage:'worker-execution',fallbackCode:'WORKER_FIXTURE_FAILURE'
+  });
+}
+
+function projectV3WorkerAuditForFailure(audit) {
+  if(!audit||typeof audit!=='object')return null;
+  const count=value=>Number.isSafeInteger(value)&&value>=0?value:null;
+  const bool=value=>typeof value==='boolean'?value:null;
+  const safeText=value=>typeof value==='string'&&
+    /^[A-Za-z0-9_.:+/-]{1,160}$/.test(value)?value:null;
+  const hash=value=>typeof value==='string'&&/^[0-9a-f]{64}$/i.test(value)?value:null;
+  const roleProjection=(row,roleName)=>{
+    if(!row||typeof row!=='object')return null;
+    const result={
+      role:row.role===roleName?roleName:roleName,
+      seat:row.seat===0||row.seat===1?row.seat:null,
+      policyVersion:safeText(row.policyVersion),
+      bundleSha256:hash(row.bundleSha256),
+      policySha256:hash(row.policySha256),
+      decisionCount:count(row.decisionCount),
+      rootDecisionCount:count(row.rootDecisionCount),
+      promptDecisionCount:count(row.promptDecisionCount),
+      rootActionFrontierAdmissionCount:count(row.rootActionFrontierAdmissionCount),
+      actionFrontierAdmissionFailureCount:count(row.actionFrontierAdmissionFailureCount),
+      hostOnlyPromptCount:count(row.hostOnlyPromptCount),
+      abstentionCount:count(row.abstentionCount),
+      failureCount:count(row.failureCount),
+      timeoutCount:count(row.timeoutCount),
+      lastFailureCode:typeof row.lastFailureCode==='string'&&
+        /^[A-Z0-9_]{1,64}$/.test(row.lastFailureCode)?row.lastFailureCode:null,
+      lastAbstentionReasonCode:typeof row.lastAbstentionReasonCode==='string'&&
+        row.lastAbstentionReasonCode.length>0?workerProtocol.PUBLIC_ABSTENTION_REASON_CODE:null,
+      workerProcessClosed:bool(row.workerProcessClosed),
+      containerRemoved:bool(row.containerRemoved),
+      policyBundleRemoved:bool(row.policyBundleRemoved),
+      containerIdSha256:hash(row.containerIdSha256),
+      policyStreamProtocol:safeText(row.policyStreamProtocol),
+      policyDrawCount:row.policyDrawCount===null?null:count(row.policyDrawCount),
+      policyDrawCounts:Array.isArray(row.policyDrawCounts)?
+        row.policyDrawCounts.slice(0,64).map(count).filter(value=>value!==null):[],
+      policyDrawViolationCount:count(row.policyDrawViolationCount),
+      policyRngReplayable:bool(row.policyRngReplayable)
+    };
+    return result;
+  };
+  return {
+    schema:'agent49-v3-worker-execution-audit-failure-projection-v1',
+    roles:{
+      candidate:roleProjection(audit.roles?.candidate,'candidate'),
+      opponent:roleProjection(audit.roles?.opponent,'opponent')
+    },
+    totalWorkerDecisions:count(audit.totalWorkerDecisions),
+    totalHostOnlyPrompts:count(audit.totalHostOnlyPrompts),
+    totalAbstentions:count(audit.totalAbstentions),
+    totalFailures:count(audit.totalFailures),
+    policyRngViolations:count(audit.policyRngViolations),
+    replayableEvidence:bool(audit.replayableEvidence),
+    cleanupVerified:bool(audit.cleanupVerified),
+    cleanupFailureCount:count(audit.cleanupFailureCount),
+    cleanupReceipts:Array.isArray(audit.cleanupReceipts)?
+      audit.cleanupReceipts.slice(0,8).map(row=>({
+        role:row?.role==='candidate'||row?.role==='opponent'?row.role:null,
+        processClosed:row?.processClosed===true,
+        containerRemoved:row?.containerRemoved===true
+      })):[],
+    physicalSeedDisclosedToWorker:bool(audit.physicalSeedDisclosedToWorker),
+    policySeedDisclosedToWorker:bool(audit.policySeedDisclosedToWorker),
+    nativeStateDisclosedToWorker:bool(audit.nativeStateDisclosedToWorker),
+    opponentPrivateZonesDisclosedToWorker:bool(audit.opponentPrivateZonesDisclosedToWorker)
+  };
+}
+
+const NO_GAME_WITNESS_SEED_PROBE_REASON_KEYS=Object.freeze([
+  'mulliganPromptShape', 'mulliganPromptOwnerMismatch', 'startingPokemonPromptShape', 'startingPokemonBounds',
+  'startingPokemonInsufficientChoices', 'opponentActiveStateMismatch',
+  'startingPokemonMinimumUnmet', 'unsupportedOwnerPrompt', 'otherSetupIncompatible'
+]);
+
+const NO_GAME_WITNESS_SAFE_PROMPT_CLASS_NAMES=Object.freeze([
+  'ConfirmPrompt','SelectPrompt','ChooseCardsPrompt','CoinFlipPrompt',
+  'ShuffleDeckPrompt','WaitPrompt','ShowMulliganPrompt'
+]);
+const NO_GAME_WITNESS_SAFE_PROMPT_MESSAGES=Object.freeze([
+  'GO_FIRST','WANT_TO_DRAW_CARDS','CHOOSE_STARTING_POKEMONS',
+  'SETUP_PLAYER_NO_BASIC','SETUP_OPPONENT_NO_BASIC'
+]);
+function projectNoGameWitnessSafePromptIdentity(identity) {
+  if(!identity||typeof identity!=='object'||Array.isArray(identity))return null;
+  const bounded=(value,maximum)=>Number.isSafeInteger(value)&&value>=0&&value<=maximum?value:null;
+  const seat=value=>value===0||value===1?value:null;
+  const attemptIndex=bounded(identity.attemptIndex,63);
+  if(attemptIndex===null)return null;
+  return {
+    schema:'agent49-v3-safe-prompt-identity-v1',
+    attemptIndex,
+    promptClass:NO_GAME_WITNESS_SAFE_PROMPT_CLASS_NAMES.includes(identity.promptClass)?
+      identity.promptClass:'OTHER',
+    message:NO_GAME_WITNESS_SAFE_PROMPT_MESSAGES.includes(identity.message)?
+      identity.message:'OTHER',
+    phase:bounded(identity.phase,255),
+    actorSeat:seat(identity.actorSeat),
+    activePlayerSeat:seat(identity.activePlayerSeat),
+    min:bounded(identity.min,60),
+    max:bounded(identity.max,60),
+    allowCancel:typeof identity.allowCancel==='boolean'?identity.allowCancel:null,
+    ...(seat(identity.opponentSeat)!==null?{opponentSeat:seat(identity.opponentSeat)}:{}),
+    ...(seat(identity.promptOwnerSeat)!==null?{promptOwnerSeat:seat(identity.promptOwnerSeat)}:{}),
+    ...(typeof identity.ownerSeatMatchesActor==='boolean'?{ownerSeatMatchesActor:identity.ownerSeatMatchesActor}:{}),
+    ...(Number.isSafeInteger(identity.activeCardsLength)&&identity.activeCardsLength>=0&&identity.activeCardsLength<=60
+      ?{activeCardsLength:identity.activeCardsLength}:{}),
+    ...(typeof identity.hasGetPokemonCard==='boolean'?{hasGetPokemonCard:identity.hasGetPokemonCard}:{}),
+    ...(typeof identity.activePokemonPresent==='boolean'?{activePokemonPresent:identity.activePokemonPresent}:{}),
+    ...(typeof identity.activeSlotOccupied==='boolean'?{activeSlotOccupied:identity.activeSlotOccupied}:{}),
+    ...(['minimum-one-has-active','minimum-zero-no-active'].includes(identity.mismatchBranch)
+      ?{mismatchBranch:identity.mismatchBranch}:{}),
+    instanceof:{
+      coinFlipPrompt:identity.instanceof?.coinFlipPrompt===true,
+      shuffleDeckPrompt:identity.instanceof?.shuffleDeckPrompt===true,
+      waitPrompt:identity.instanceof?.waitPrompt===true
+    }
+  };
+}
+function captureNoGameWitnessSafePromptIdentity(request,attemptIndex,extra={}) {
+  const prompt=request.prompt;
+  const isInstanceOf=name=>{
+    const Constructor=request.native?.[name];
+    try{return typeof Constructor==='function'&&prompt instanceof Constructor;}
+    catch{return false;}
+  };
+  return projectNoGameWitnessSafePromptIdentity({
+    attemptIndex,
+    promptClass:prompt.constructor?.name,
+    message:prompt.message,
+    phase:request.state?.phase,
+    actorSeat:request.actorSeat,
+    activePlayerSeat:request.state?.activePlayer,
+    min:prompt.options?.min,
+    max:prompt.options?.max,
+    allowCancel:prompt.options?.allowCancel,
+    opponentSeat:extra.opponentSeat,
+    promptOwnerSeat:extra.promptOwnerSeat,
+    ownerSeatMatchesActor:extra.ownerSeatMatchesActor,
+    activeCardsLength:extra.activeCardsLength,
+    hasGetPokemonCard:extra.hasGetPokemonCard,
+    activePokemonPresent:extra.activePokemonPresent,
+    activeSlotOccupied:extra.activeSlotOccupied,
+    mismatchBranch:extra.mismatchBranch,
+    instanceof:{
+      coinFlipPrompt:isInstanceOf('CoinFlipPrompt'),
+      shuffleDeckPrompt:isInstanceOf('ShuffleDeckPrompt'),
+      waitPrompt:isInstanceOf('WaitPrompt')
+    }
+  });
+}
+
+// Project only bounded retry categories and counts; never expose seeds, prompts, cards, or state.
+function projectNoGameWitnessSeedProbeSummary(summary) {
+  if(!summary||typeof summary!=='object'||Array.isArray(summary))return null;
+  const count=value=>Number.isSafeInteger(value)&&value>=0?Math.min(64,value):0;
+  const seat=value=>value===0||value===1?value:null;
+  const candidateSeat=seat(summary.candidateSeat);
+  const targetActorSeat=seat(summary.targetActorSeat);
+  if(candidateSeat===null||targetActorSeat===null)return null;
+  const source=summary.setupIncompatibleByReason&&typeof summary.setupIncompatibleByReason==='object'&&!Array.isArray(summary.setupIncompatibleByReason)?summary.setupIncompatibleByReason:{};
+  const setupIncompatibleByReason=Object.fromEntries(NO_GAME_WITNESS_SEED_PROBE_REASON_KEYS.map(key=>[key,count(source[key])]));
+  const wrong=summary.wrongSeatRootCounts&&typeof summary.wrongSeatRootCounts==='object'&&!Array.isArray(summary.wrongSeatRootCounts)?summary.wrongSeatRootCounts:{};
+  const wrongSeatRootCounts={seat0:count(wrong.seat0),seat1:count(wrong.seat1),unknown:count(wrong.unknown)};
+  const firstUnsupportedPrompt=projectNoGameWitnessSafePromptIdentity(summary.firstUnsupportedPrompt);
+  const attempt4UnsupportedPrompt=projectNoGameWitnessSafePromptIdentity(summary.attempt4UnsupportedPrompt);
+  return {
+    schema:'agent49-v3-no-game-seed-probe-summary-v2',candidateSeat,targetActorSeat,
+    attempts:count(summary.attempts),setupIncompatibleByReason,
+    setupIncompatibleCount:Math.min(64,Object.values(setupIncompatibleByReason).reduce((sum,value)=>sum+value,0)),
+    wrongSeatRootCounts,
+    wrongSeatRootCount:Math.min(64,Object.values(wrongSeatRootCounts).reduce((sum,value)=>sum+value,0)),
+    ...(firstUnsupportedPrompt?{firstUnsupportedPrompt}:{}),
+    ...(attempt4UnsupportedPrompt?{attempt4UnsupportedPrompt}:{})
+  };
+}
+function buildNoGameWitnessFailureReceipt({
+  error,candidateSeat,opponentSeat,actorSeat,stage='native-no-game-witness',
+  runnerRevision=null,enginePin=null,candidatePolicy=null,opponentPolicy=null,
+  completedWitnesses=[]
+}={}) {
+  const fixtureFailure=projectV3FixtureFailureForReceipt(
+    error?.fixtureFailure??error,{stage,fallbackCode:'NATIVE_NO_GAME_WITNESS_FAILURE'}
+  );
+  const completed=Array.isArray(completedWitnesses)?completedWitnesses.slice(0,4).map(witness=>({
+    candidateSeat:witness.candidateSeat,
+    opponentSeat:witness.opponentSeat,
+    actorSeat:witness.actorSeat,
+    status:'passed'
+  })): [];
+  const expectedActorSeat=fixtureFailure?.expectedActorSeat??actorSeat;
+  const actualActorSeat=fixtureFailure?.actualActorSeat??null;
+  const seedProbeSummary=projectNoGameWitnessSeedProbeSummary(error?.seedProbeSummary);
+  const failed={
+    candidateSeat,opponentSeat,actorSeat:expectedActorSeat,
+    expectedActorSeat,actualActorSeat,status:'failed'
+  };
+  return {
+    schema:'agent36-v3-native-no-game-witness-failure-v1',
+    fixtureOnly:true,
+    gameExecuted:false,
+    admissionEligible:false,
+    competitiveGameQualified:false,
+    coverageComplete:false,
+    expectedWitnessCount:4,
+    completedWitnessCount:completed.length,
+    completedWitnesses:completed,
+    coverage:[...completed,failed],
+    generatedAt:new Date().toISOString(),
+    researchRevisionSha:runnerRevision,
+    twinleafCommitSha:enginePin,
+    candidatePrinted60Sha256:V3_FIXTURE.candidateDeckSha256,
+    opponentPrinted60Sha256:V3_FIXTURE.opponentDeckSha256,
+    candidatePolicySha256:candidatePolicy?.policySha256??null,
+    opponentPolicySha256:opponentPolicy?.policySha256??null,
+    candidatePolicyVersion:candidatePolicy?.POLICY_VERSION??null,
+    opponentPolicyVersion:opponentPolicy?.POLICY_VERSION??null,
+    candidateSeat,opponentSeat,expectedActorSeat,actualActorSeat,
+    failureStage:fixtureFailure.stage,
+    fixtureFailure,
+    workerAudit:projectV3WorkerAuditForFailure(error?.workerAudit??error?.safeWorkerAudit),
+    ...(seedProbeSummary?{seedProbeSummary}:{})
+  };
 }
 
 /** Compose frozen role policies around one synchronous native game. */
@@ -199,8 +532,99 @@ function runCandidateOpponentPolicyRoles(run,options={}){
   return result;
 }
 
+function assertWorkerOnlyPolicyPathsAbsentFromHostClosure(expectedByPath,workerOnlyPaths=[]) {
+  assert.ok(expectedByPath&&typeof expectedByPath==='object'&&!Array.isArray(expectedByPath),
+    'role manifest expectedByPath must be an object');
+  assert.ok(Array.isArray(workerOnlyPaths),'workerOnlyPaths must be an array');
+  const workerOnly=[...new Set(workerOnlyPaths)].sort();
+  assert.equal(workerOnly.length,2,
+    'candidate and opponent policy sources must be separately pinned worker-only assets');
+  for(const relative of workerOnly){
+    assert.equal(typeof relative,'string');
+    assert.equal(Object.hasOwn(expectedByPath,relative),false,
+      'worker-only policy source must not appear in the host role source closure: '+relative);
+  }
+  return expectedByPath;
+}
+
+function preloadRoleHostModules({repositoryRoot=ROOT,expectedByPath,workerOnlyPaths=[],
+  workerOnlyHashes={}}={}) {
+  const root=fs.realpathSync(repositoryRoot);
+  assert.ok(workerOnlyHashes&&typeof workerOnlyHashes==='object'&&!Array.isArray(workerOnlyHashes),
+    'worker-only policy hashes must be supplied separately from host expectedByPath');
+  const workerOnly=[...new Set(workerOnlyPaths)].sort();
+  const workerOnlyHashKeys=Object.keys(workerOnlyHashes).sort();
+  assert.deepEqual(workerOnlyHashKeys,workerOnly,
+    'every worker-only policy path must have exactly one separately verified source hash');
+  function resolveInsideRepository(relative,label){
+    assert.equal(typeof relative,'string');
+    const filename=path.resolve(root,relative);
+    const relativeCheck=path.relative(root,filename);
+    assert.ok(relativeCheck&&relativeCheck!=='.'&&relativeCheck!=='..'&&
+      !relativeCheck.startsWith('..'+path.sep)&&!path.isAbsolute(relativeCheck),
+      label+' path must remain inside the repository: '+relative);
+    return filename;
+  }
+  for(const relative of workerOnly){
+    assert.equal(Object.hasOwn(expectedByPath,relative),false,
+      'worker-only policy source cannot be part of host expectedByPath: '+relative);
+    assert.match(workerOnlyHashes[relative]??'',SHA256,
+      'worker-only policy source hash is invalid: '+relative);
+    const filename=resolveInsideRepository(relative,'worker-only policy');
+    const bytes=fs.readFileSync(filename);
+    const actualSha256=createHash('sha256').update(bytes).digest('hex');
+    assert.equal(actualSha256,workerOnlyHashes[relative],
+      'worker-only policy source changed before Docker bundle creation: '+relative);
+    assert.equal(require.cache[filename],undefined,
+      'worker-only policy entrypoint must not be evaluated in the host process before preload: '+relative);
+  }
+  const hostExpectedByPath=Object.fromEntries(Object.entries(expectedByPath).sort(([a],[b])=>a.localeCompare(b)));
+  const loadedPaths=[];
+  const workerOnlyByFilename=new Map(workerOnly.map(relative=>[
+    resolveInsideRepository(relative,'worker-only policy'),relative
+  ]));
+  const blockedWorkerOnlyImports=[];
+  const originalModuleLoad=Module._load;
+  try{
+    Module._load=function guardedHostPreload(request,parent,isMain){
+      let resolved;
+      try{resolved=Module._resolveFilename(request,parent,isMain);}
+      catch{return originalModuleLoad.apply(this,arguments);}
+      const workerOnlyPath=workerOnlyByFilename.get(resolved);
+      if(workerOnlyPath){
+        blockedWorkerOnlyImports.push(workerOnlyPath);
+        const error=new Error('host dependency attempted to load worker-only policy source: '+workerOnlyPath);
+        error.code='WORKER_ONLY_POLICY_HOST_IMPORT_BLOCKED';
+        throw error;
+      }
+      return originalModuleLoad.apply(this,arguments);
+    };
+    for(const [relative,expectedSha256] of Object.entries(hostExpectedByPath)){
+      const filename=resolveInsideRepository(relative,'host runtime');
+      const bytes=fs.readFileSync(filename);
+      const actualSha256=createHash('sha256').update(bytes).digest('hex');
+      assert.equal(actualSha256,expectedSha256,'role source changed before host preload: '+relative);
+      Module._load(filename,module,false);
+      loadedPaths.push(relative);
+    }
+  }finally{
+    Module._load=originalModuleLoad;
+  }
+  assert.deepEqual(blockedWorkerOnlyImports,[],
+    'host source closure attempted to import worker-only policy code');
+  // Recheck after all host dependencies have loaded: a transitive require of a
+  // worker-only policy source is just as disqualifying as a direct preload.
+  for(const relative of workerOnly){
+    const filename=resolveInsideRepository(relative,'worker-only policy');
+    assert.equal(require.cache[filename],undefined,
+      'host dependency transitively evaluated a worker-only policy source: '+relative);
+  }
+  return {hostExpectedByPath,workerOnlyPaths:workerOnly,workerOnlyHashes:{...workerOnlyHashes},loadedPaths};
+}
+
 function prepareV3RoleRuntimeEvidence({repositoryRoot=ROOT,candidateManifest,
-  opponentManifest,cardPoolInitialization,identityHelper=roleIdentity,cacheEntries}){
+  opponentManifest,cardPoolInitialization,identityHelper=roleIdentity,cacheEntries,
+  workerOnlyPaths=[],workerOnlyHashes={},hostExpectedByPath:providedHostExpectedByPath}){
   assert.equal(cardPoolInitialization?.schema,
     'agent36-twinleaf-card-pool-initialization-v1',
     'pinned native card-pool initialization receipt is required');
@@ -221,20 +645,51 @@ function prepareV3RoleRuntimeEvidence({repositoryRoot=ROOT,candidateManifest,
     'candidate entry manifest engine pin differs from card-pool initialization');
   assert.equal(opponentManifest?.manifest?.enginePin,cardPoolInitialization.enginePin,
     'opponent entry manifest engine pin differs from card-pool initialization');
-  const combined=identityHelper.combineRolePolicyEntryManifests(
-    candidateManifest,opponentManifest);
+  assert.equal(candidateManifest?.manifest?.entrypoint,V3_FIXTURE.hostRoleEntrypointPath,
+    'candidate role manifest must identify the host-owned orchestration adapter');
+  assert.equal(opponentManifest?.manifest?.entrypoint,V3_FIXTURE.hostRoleEntrypointPath,
+    'opponent role manifest must identify the host-owned orchestration adapter');
+  const combined=identityHelper.combineRolePolicyEntryManifests(candidateManifest,opponentManifest);
+  const hostExpectedByPath=assertWorkerOnlyPolicyPathsAbsentFromHostClosure(
+    combined.expectedByPath,workerOnlyPaths
+  );
+  assert.deepEqual(Object.keys(workerOnlyHashes).sort(),
+    [...new Set(workerOnlyPaths)].sort(),
+    'worker-only policy hash map must exactly match the two role policy data assets');
+  if(providedHostExpectedByPath!==undefined)
+    assert.deepEqual(providedHostExpectedByPath,hostExpectedByPath,
+      'host preload map must equal the complete host role source closure');
+  const manifestDataAssets=[
+    ...(candidateManifest.manifest.dataAssets??[]),
+    ...(opponentManifest.manifest.dataAssets??[])
+  ];
+  for(const relative of workerOnlyPaths){
+    const assets=manifestDataAssets.filter(asset=>asset.path===relative);
+    assert.equal(assets.length,1,
+      'worker-only policy source must appear exactly once as a role-manifest data asset: '+relative);
+    assert.match(workerOnlyHashes[relative]??'',SHA256,
+      'worker-only policy source hash is invalid: '+relative);
+    assert.equal(assets[0].sha256,workerOnlyHashes[relative],
+      'role-manifest data-asset hash differs from the statically audited policy source: '+relative);
+  }
+  assert.equal(Object.hasOwn(hostExpectedByPath,V3_FIXTURE.workerPath),false,
+    'Docker worker executable must not appear in host source closure');
+  assert.equal(Object.hasOwn(hostExpectedByPath,V3_FIXTURE.dockerCanaryWorkerPath),false,
+    'Docker canary executable must not appear in host source closure');
   const loaded=identityHelper.assertLoadedResearchModulesCovered(
-    repositoryRoot,combined.expectedByPath,cacheEntries);
-  const expectedPaths=Object.keys(combined.expectedByPath).sort();
+    repositoryRoot,hostExpectedByPath,cacheEntries);
+  const expectedPaths=Object.keys(hostExpectedByPath).sort();
   const loadedPaths=loaded.files.map(file=>file.path).sort();
   assert.deepEqual(loadedPaths,expectedPaths,
-    'every role-closure module must be preloaded before the runtime pin is installed');
+    'every host runtime dependency must be preloaded; worker-only policies must remain unevaluated');
   const cardPoolInitializationSha256=evidenceBundleSha256(cardPoolInitialization);
   const runtimePinEvidence={schema:'aichi-runtime-pin-evidence-v1',
     unionSha256:combined.unionSha256,
     loadedProcessClosureSha256:loaded.sha256,
     cardPoolInitializationSha256};
-  return {expectedByPath:combined.expectedByPath,runtimePinEvidence,
+  return {expectedByPath:hostExpectedByPath,roleExpectedByPath:combined.expectedByPath,
+    workerOnlyPolicyPaths:[...new Set(workerOnlyPaths)].sort(),
+    workerOnlyPolicyHashes:{...workerOnlyHashes},runtimePinEvidence,
     runtimePinUnionSha256:combined.unionSha256,
     loadedProcessClosureSha256:loaded.sha256,cardPoolInitializationSha256,
     loadedProcessClosure:loaded};
@@ -256,9 +711,11 @@ function runPinnedV3RoleRuntime({repositoryRoot=ROOT,preparedRuntime,run,
 
 function combineAndPinV3RoleRuntime({repositoryRoot=ROOT,candidateManifest,
   opponentManifest,cardPoolInitialization,run,identityHelper=roleIdentity,
-  pin=withPinnedResearchModuleLoads,cacheEntries}){
+  pin=withPinnedResearchModuleLoads,cacheEntries,workerOnlyPaths,workerOnlyHashes,
+  hostExpectedByPath}){
   const preparedRuntime=prepareV3RoleRuntimeEvidence({repositoryRoot,
-    candidateManifest,opponentManifest,cardPoolInitialization,identityHelper,cacheEntries});
+    candidateManifest,opponentManifest,cardPoolInitialization,identityHelper,cacheEntries,
+    workerOnlyPaths,workerOnlyHashes,hostExpectedByPath});
   return runPinnedV3RoleRuntime({repositoryRoot,preparedRuntime,run,pin});
 }
 
@@ -559,13 +1016,15 @@ const V3_FIXTURE = Object.freeze({
   candidateGitBlobSha: '24ace2d6feb9ce5d9056bcf271827cfe31b7357b',
   fieldGitBlobSha: 'ae773f6201d7aa69d31914dbfee66f3fba692200',
   engineCommit: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
-  seed: 'agent36-v3-fixture-hood-rank1-20261112-01',
   policySeedBySeat: Object.freeze([0x243f6a88,0x85a308d3]),
-  maxActions: 6000,
+  maxActions: null,
   trialId: 'agent36-v3-fixture-hood-rank1-worker-v1',
   candidateWorkerPolicyPath: 'simulation/evaluation/2026-11/agent46-candidate-policy.cjs',
   opponentWorkerPolicyPath: 'simulation/evaluation/2026-11/agent6-rank1-shadow-rider-opponent-policy.cjs',
+  hostRoleEntrypointPath: 'simulation/twinleaf/agent44-role-scoped-policy-composition.cjs',
   workerPath: 'simulation/evaluation/2026-11/agent49-policy-worker.cjs',
+  dockerCanaryWorkerPath: 'simulation/evaluation/2026-11/agent49-docker-canary-worker.cjs',
+  protocolPath: 'simulation/evaluation/2026-11/agent49-policy-protocol.cjs',
   candidateSeat: 0,
   opponentSeat: 1,
   policyVersion: 'agent34-actor-only-root-slice-v17-agent49-quick-ball-source-bound-v1',
@@ -583,7 +1042,6 @@ const V3_FIXTURE_OPPONENT_POLICY_OPTIONS = Object.freeze({});
 
 const V3_FIXTURE_TEST_PATHS = [
   'tests/agent34-actor-only-root-policy.test.cjs',
-  'tests/2026-11/agent49-owner-quick-ball-prompt-continuation.test.cjs',
   'tests/agent36-v3-runner.test.cjs',
   'tests/agent42-role-policy-identity.test.cjs',
   'tests/2026-11/agent49-native-fixture-game.test.cjs',
@@ -592,10 +1050,15 @@ const V3_FIXTURE_TEST_PATHS = [
   'tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs',
   'tests/2026-11/agent43-full-state-diagnostic.test.cjs',
   'tests/2026-11/agent36-v3-fixture-game.test.cjs',
+  'tests/2026-11/agent46-candidate-policy.test.cjs',
   'tests/2026-11/agent36-native-action-frontier.test.cjs',
   'tests/2026-11/agent36-prompt-projection.test.cjs',
   'tests/2026-11/agent36-prompt-provenance.test.cjs',
   'tests/2026-11/agent49-policy-worker.test.cjs',
+  'tests/2026-11/agent36-docker-policy-worker.test.cjs',
+  'tests/2026-11/agent35-docker-policy-worker-launcher-contract.test.cjs',
+  'tests/2026-11/agent2-v3-sanitized-diagnostic.test.cjs',
+  'tests/2026-11/agent1-private-diagnostic-envelope.test.cjs',
   'tests/agent36-runtime-module-pin.test.cjs',
 ];
 
@@ -603,7 +1066,6 @@ const V3_FIXTURE_COMMON_BINDINGS = [
   { name: 'observe', path: 'simulation/twinleaf/actor-observation-contract.cjs', exportName: 'actorObservation' },
   { name: 'promptActions', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action.js', exportName: 'ResolvePromptAction' },
   { name: 'roleComposer', path: 'simulation/twinleaf/agent44-role-scoped-policy-composition.cjs', exportName: 'withCandidateOpponentPolicyRoles' },
-  { name: 'quickBallPromptContinuation', path: 'simulation/twinleaf/2026-11/agent49-owner-quick-ball-prompt-continuation.cjs', exportName: 'withOwnerQuickBallPromptContinuation' },
   { name: 'moduleLoadGuard', path: 'simulation/evaluation/agent36-runtime-module-pin.cjs', exportName: 'withPinnedResearchModuleLoads' },
   { name: 'sourceClosureAudit', path: 'simulation/evaluation/agent36-source-closure-audit.cjs', exportName: 'auditSourceClosure' },
   { name: 'roleIdentityHelper', path: 'simulation/evaluation/2026-11/agent42-role-policy-identity.cjs', exportName: 'buildRolePolicyIdentity' },
@@ -611,11 +1073,15 @@ const V3_FIXTURE_COMMON_BINDINGS = [
   { name: 'cardPoolStartup', path: 'vendor/twinleaf/ptcg-server/start.js' },
   { name: 'nativeStore', path: 'vendor/twinleaf/ptcg-server/output/game/store/store.js', exportName: 'Store' },
   { name: 'nativeGameSettings', path: 'vendor/twinleaf/ptcg-server/output/game/core/game-settings.js', exportName: 'GameSettings' },
+  { name: 'nativeState', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/state.js', exportName: 'State' },
+  { name: 'nativeGamePhase', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/state.js', exportName: 'GamePhase' },
+  { name: 'nativePlayer', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/player.js', exportName: 'Player' },
+  { name: 'nativePokemonCardList', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/pokemon-card-list.js', exportName: 'PokemonCardList' },
+  { name: 'nativeCardList', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/card-list.js', exportName: 'CardList' },
   { name: 'nativeAddPlayerAction', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/add-player-action.js', exportName: 'AddPlayerAction' },
   { name: 'nativeShuffleDeckPrompt', path: 'vendor/twinleaf/ptcg-server/output/game/store/prompts/shuffle-prompt.js', exportName: 'ShuffleDeckPrompt' },
   { name: 'nativeWaitPrompt', path: 'vendor/twinleaf/ptcg-server/output/game/store/prompts/wait-prompt.js', exportName: 'WaitPrompt' },
   { name: 'nativeCoinFlipPrompt', path: 'vendor/twinleaf/ptcg-server/output/game/store/prompts/coin-flip-prompt.js', exportName: 'CoinFlipPrompt' },
-  { name: 'nativeGamePhase', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/state.js', exportName: 'GamePhase' },
   { name: 'nativeCardManager', path: 'vendor/twinleaf/ptcg-server/output/game/cards/card-manager.js', exportName: 'CardManager' },
   { name: 'nativeSets', path: 'vendor/twinleaf/ptcg-server/output/sets/index.js' },
   { name: 'nativeSimpleTacticsAi', path: 'vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai.js', exportName: 'SimpleTacticsAi' },
@@ -627,15 +1093,17 @@ const V3_FIXTURE_COMMON_BINDINGS = [
   { name: 'nativeEnergyCard', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/energy-card.js', exportName: 'EnergyCard' },
   { name: 'nativeTrainerCard', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/trainer-card.js', exportName: 'TrainerCard' },
   { name: 'nativeCardTypes', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/card-types.js', exportName: 'Format' },
+  { name: 'nativeSuperType', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/card-types.js', exportName: 'SuperType' },
+  { name: 'nativeCheckPokemonTypeEffect', path: 'vendor/twinleaf/ptcg-server/output/game/store/effects/check-effects.js', exportName: 'CheckPokemonTypeEffect' },
+  { name: 'nativeStage', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/card-types.js', exportName: 'Stage' },
+  { name: 'nativeTrainerType', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/card-types.js', exportName: 'TrainerType' },
   { name: 'nativePokemonTypes', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/pokemon-types.js', exportName: 'PowerType' },
+  { name: 'nativeSpecialCondition', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/card-types.js', exportName: 'SpecialCondition' },
 ];
 
 const V3_FIXTURE_PROMPT_CHAIN = [
   { name: 'candidate-opponent-role-composition', path: 'simulation/twinleaf/agent44-role-scoped-policy-composition.cjs' },
   { name: 'actor-only-root-policy', path: V3_FIXTURE.entrypoint },
-  // Installed last inside the role-composer callback: the candidate-only
-  // Quick Ball continuation resolves exact owner payment/search prompts.
-  { name: 'owner-quick-ball-prompt-continuation', path: 'simulation/twinleaf/2026-11/agent49-owner-quick-ball-prompt-continuation.cjs' },
   { name: 'native-prompt-resolution', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action.js' },
 ];
 
@@ -646,10 +1114,11 @@ const V3_FIXTURE_WORKER_COMMON_BINDINGS = [
   { name: 'roleComposer', path: 'simulation/twinleaf/agent44-role-scoped-policy-composition.cjs', exportName: 'withCandidateOpponentPolicyRoles' },
   { name: 'roleSeatMap', path: 'simulation/twinleaf/agent44-role-scoped-policy-composition.cjs', exportName: 'candidateOpponentRoleSeats' },
   { name: 'publicEventReceipt', path: 'simulation/twinleaf/agent8-public-event-receipt.cjs', exportName: 'publicEventReceipt' },
-  { name: 'workerProtocol', path: 'simulation/evaluation/2026-11/agent49-policy-worker.cjs', exportName: 'validateRequest' },
+  { name: 'workerProtocol', path: 'simulation/evaluation/2026-11/agent49-policy-protocol.cjs', exportName: 'validateRequest' },
   { name: 'workerLauncher', path: 'simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs', exportName: 'createPolicyBundle' },
   { name: 'workerSession', path: 'simulation/evaluation/2026-11/agent36-async-docker-policy-session.cjs', exportName: 'createDockerPolicySession' },
   { name: 'nativeActionFrontier', path: 'simulation/evaluation/2026-11/agent36-native-action-frontier.cjs', exportName: 'buildNativeActionFrontier' },
+  { name: 'knownCapFreeActionEnumerator', path: 'simulation/evaluation/2026-11/agent3-known-cap-free-action-enumerator.cjs', exportName: 'createKnownCapFreeActionEnumerator' },
   { name: 'promptProvenance', path: 'simulation/evaluation/2026-11/agent36-prompt-provenance.cjs', exportName: 'installPromptProvenanceHook' },
   { name: 'nativeActionEnumerator', path: 'vendor/twinleaf/ptcg-server/output/advanced-bot/action-enumerator.js', exportName: 'ActionEnumerator' },
   { name: 'nativeSimulator', path: 'vendor/twinleaf/ptcg-server/output/game/bots/simulator.js', exportName: 'Simulator' },
@@ -665,11 +1134,15 @@ const V3_FIXTURE_WORKER_COMMON_BINDINGS = [
   { name: 'cardPoolStartup', path: 'vendor/twinleaf/ptcg-server/start.js' },
   { name: 'nativeStore', path: 'vendor/twinleaf/ptcg-server/output/game/store/store.js', exportName: 'Store' },
   { name: 'nativeGameSettings', path: 'vendor/twinleaf/ptcg-server/output/game/core/game-settings.js', exportName: 'GameSettings' },
+  { name: 'nativeState', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/state.js', exportName: 'State' },
+  { name: 'nativeGamePhase', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/state.js', exportName: 'GamePhase' },
+  { name: 'nativePlayer', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/player.js', exportName: 'Player' },
+  { name: 'nativePokemonCardList', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/pokemon-card-list.js', exportName: 'PokemonCardList' },
+  { name: 'nativeCardList', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/card-list.js', exportName: 'CardList' },
   { name: 'nativeAddPlayerAction', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/add-player-action.js', exportName: 'AddPlayerAction' },
   { name: 'nativeShuffleDeckPrompt', path: 'vendor/twinleaf/ptcg-server/output/game/store/prompts/shuffle-prompt.js', exportName: 'ShuffleDeckPrompt' },
   { name: 'nativeWaitPrompt', path: 'vendor/twinleaf/ptcg-server/output/game/store/prompts/wait-prompt.js', exportName: 'WaitPrompt' },
   { name: 'nativeCoinFlipPrompt', path: 'vendor/twinleaf/ptcg-server/output/game/store/prompts/coin-flip-prompt.js', exportName: 'CoinFlipPrompt' },
-  { name: 'nativeGamePhase', path: 'vendor/twinleaf/ptcg-server/output/game/store/state/state.js', exportName: 'GamePhase' },
   { name: 'nativeCardManager', path: 'vendor/twinleaf/ptcg-server/output/game/cards/card-manager.js', exportName: 'CardManager' },
   { name: 'nativeSets', path: 'vendor/twinleaf/ptcg-server/output/sets/index.js' },
   { name: 'nativeSimpleTacticsAi', path: 'vendor/twinleaf/ptcg-server/output/simple-bot/simple-tactics-ai.js', exportName: 'SimpleTacticsAi' },
@@ -681,7 +1154,10 @@ const V3_FIXTURE_WORKER_COMMON_BINDINGS = [
   { name: 'nativeEnergyCard', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/energy-card.js', exportName: 'EnergyCard' },
   { name: 'nativeTrainerCard', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/trainer-card.js', exportName: 'TrainerCard' },
   { name: 'nativeCardTypes', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/card-types.js', exportName: 'Format' },
+  { name: 'nativeStage', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/card-types.js', exportName: 'Stage' },
+  { name: 'nativeTrainerType', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/card-types.js', exportName: 'TrainerType' },
   { name: 'nativePokemonTypes', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/pokemon-types.js', exportName: 'PowerType' },
+  { name: 'nativeSpecialCondition', path: 'vendor/twinleaf/ptcg-server/output/game/store/card/card-types.js', exportName: 'SpecialCondition' },
 ];
 
 const V3_FIXTURE_WORKER_PROMPT_CHAIN = [
@@ -690,7 +1166,7 @@ const V3_FIXTURE_WORKER_PROMPT_CHAIN = [
   { name: 'host-native-action-frontier', path: 'simulation/evaluation/2026-11/agent36-native-action-frontier.cjs' },
   { name: 'active-effect-prompt-provenance', path: 'simulation/evaluation/2026-11/agent36-prompt-provenance.cjs' },
   { name: 'typed-owner-prompt-projection', path: 'simulation/evaluation/2026-11/agent36-prompt-projection.cjs' },
-  { name: 'role-scoped-worker-protocol', path: 'simulation/evaluation/2026-11/agent49-policy-worker.cjs' },
+  { name: 'role-scoped-worker-protocol', path: 'simulation/evaluation/2026-11/agent49-policy-protocol.cjs' },
   { name: 'native-prompt-resolution', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action.js' },
 ];
 
@@ -786,13 +1262,25 @@ function buildFixtureRoleEntryManifest({
   repositoryRoot = ROOT,
   enginePin,
   runnerRevision,
-  entrypoint = V3_FIXTURE.entrypoint,
+  entrypoint = V3_FIXTURE.hostRoleEntrypointPath,
   commonRuntimeBindings = V3_FIXTURE_COMMON_BINDINGS,
   orderedPromptChain = V3_FIXTURE_PROMPT_CHAIN,
   additionalDataAssetPaths = [],
 } = {}) {
   assert.match(enginePin || '', /^[0-9a-f]{40}$/i, 'fixture engine pin must be a full Git SHA');
   assert.match(runnerRevision || '', /^[0-9a-f]{40}$/i, 'fixture runner revision must be a full Git SHA');
+  assert.equal(entrypoint,V3_FIXTURE.hostRoleEntrypointPath,
+    'V3 role manifest entrypoint must be the host-owned orchestration adapter');
+  assert.notEqual(entrypoint,V3_FIXTURE.workerPath,
+    'Docker worker executable is a data asset, never a host role-policy entrypoint');
+  assert.notEqual(entrypoint,V3_FIXTURE.dockerCanaryWorkerPath,
+    'Docker canary executable is a test data asset, never a host role-policy entrypoint');
+  assert.equal(commonRuntimeBindings.some(binding=>binding.path===V3_FIXTURE.workerPath||
+    binding.path===V3_FIXTURE.dockerCanaryWorkerPath),false,
+    'Docker worker executables must not be host common-runtime bindings');
+  assert.equal(orderedPromptChain.some(item=>item.path===V3_FIXTURE.workerPath||
+    item.path===V3_FIXTURE.dockerCanaryWorkerPath),false,
+    'Docker worker executables must not be host prompt-chain modules');
   commonRuntimeBindings = commonRuntimeBindings.map((binding) => ({ ...binding }));
   orderedPromptChain = orderedPromptChain.map((item) => ({ ...item }));
   const sharedEnginePatches = [{ name: V3_FIXTURE.hookId, path: V3_FIXTURE.hookPath }];
@@ -800,12 +1288,15 @@ function buildFixtureRoleEntryManifest({
     V3_FIXTURE.candidatePath,
     V3_FIXTURE.fieldPath,
     V3_FIXTURE.workerPath,
+    V3_FIXTURE.dockerCanaryWorkerPath,
     V3_FIXTURE.officialRank1Path,
     V3_FIXTURE.originalAdmissionPath,
     'simulation/evaluation/2026-11/agent36-v3-runner.cjs',
     'simulation/evaluation/2026-11/agent49-native-fixture-game.cjs',
     'simulation/evaluation/2026-11/agent49-fixture-scoped-runtime-pin.cjs',
     'simulation/twinleaf/2026-11/agent43-full-state-diagnostic.cjs',
+    'simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs',
+    'simulation/evaluation/2026-11/agent1-private-diagnostic-envelope.cjs',
     ...V3_FIXTURE_TEST_PATHS,
     ...additionalDataAssetPaths,
   ];
@@ -817,7 +1308,7 @@ function buildFixtureRoleEntryManifest({
     ...sharedEnginePatches.map((item) => item.path),
   ].filter((item) => !item.startsWith('vendor/twinleaf/'));
   const sourceClosure = auditSourceClosure(repositoryRoot, researchEntries, { vendorPrefixes: ['vendor/twinleaf/'] });
-  const environmentAllowlist = [...new Set((sourceClosure.keys || []).filter((key) => !key.startsWith('GITHUB_') && !key.startsWith('RUNNER_')))].sort();
+  const environmentAllowlist = policyEnvironmentAllowlist(sourceClosure.keys || []);
   const built = roleIdentity.createPolicyEntryManifest({
     repositoryRoot,
     entrypoint,
@@ -852,7 +1343,180 @@ function validatePhysicalSeedDisclosureDecision(decision) {
   return decision;
 }
 
-function buildFixturePolicyConstraints({ patchDescriptor, botOptionsProfile, workerPolicyVersions = null, seedDisclosureDecision }) {
+const PUBLIC_SEED_REGISTRATION_SCHEMA='agent36-v3-public-seed-registration-v1';
+const PUBLIC_SEED_REGISTRATION_SCOPE='aichi-top32-rank1-diagnostic-both-seats';
+const RETIRED_FIXTURE_SEED_SHA256='96ac4bf2fd4e969f114e56334b0ccf1818ed2069789649fb1efb832cd7510803';
+
+function validatePublicSeedRegistration(registration,{
+  enginePin,candidatePolicyVersion,opponentPolicyVersion,
+  nowMs=Date.now()
+}={}) {
+  assert.ok(registration&&typeof registration==='object'&&!Array.isArray(registration),
+    'public seed registration must be a JSON object');
+  assert.equal(registration.schema,PUBLIC_SEED_REGISTRATION_SCHEMA,
+    'public seed registration schema is not recognized');
+  assert.equal(registration.fixtureOnly,true,
+    'public seed registration must remain fixture-only');
+  assert.equal(registration.scope,PUBLIC_SEED_REGISTRATION_SCOPE,
+    'public seed registration must be scoped to the Aichi rank-1 two-seat diagnostic');
+  assert.match(registration.registrationId??'',/^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/,
+    'public seed registration requires a stable unique registrationId');
+  assert.match(registration.trialId??'',/^[A-Za-z0-9][A-Za-z0-9._-]{0,95}$/,
+    'public seed registration requires a stable trialId');
+  assert.ok(typeof registration.registeredBy==='string'&&registration.registeredBy.trim().length>0,
+    'public seed registration requires an accountable registeredBy value');
+  const registeredAt=Date.parse(registration.registeredAt);
+  assert.ok(Number.isFinite(registeredAt)&&
+    registeredAt>=Date.parse('2026-11-13T00:00:00.000Z')&&
+    registeredAt<=nowMs+300000,
+    'public seed registration must be fresh, dated, and not future-dated');
+  assert.ok(typeof registration.seed==='string'&&registration.seed.trim().length>0&&
+    registration.seed.length<=128,
+    'public seed registration requires a non-empty public seed string of at most 128 characters');
+  const seedSha256=createHash('sha256').update(registration.seed,'utf8').digest('hex');
+  assert.notEqual(seedSha256,RETIRED_FIXTURE_SEED_SHA256,
+    'retired diagnostic seed cannot be reused for a new fixture');
+  assert.equal(registration.seedDisclosureDecision,'public-reproducible',
+    'public seed registration must explicitly authorize public reproducibility');
+  assert.equal(registration.twinleafCommitSha,enginePin,
+    'public seed registration must bind the exact pinned Twinleaf revision');
+  assert.equal(registration.candidatePrinted60Sha256,V3_FIXTURE.candidateDeckSha256,
+    'public seed registration must bind the frozen candidate printed 60');
+  assert.equal(registration.opponentPrinted60Sha256,V3_FIXTURE.opponentDeckSha256,
+    'public seed registration must bind the frozen Aichi rank-1 printed 60');
+  assert.equal(registration.candidatePolicyVersion,candidatePolicyVersion,
+    'public seed registration must bind the frozen candidate worker policy version');
+  assert.equal(registration.opponentPolicyVersion,opponentPolicyVersion,
+    'public seed registration must bind the frozen opponent worker policy version');
+  return registration;
+}
+
+function readPublicSeedRegistration({
+  repositoryRoot=ROOT,artifactRef,enginePin,
+  candidatePolicyVersion,opponentPolicyVersion
+}={}) {
+  const normalizedRef=validateArtifactRef(artifactRef);
+  assert.equal(normalizedRef.startsWith('private/'),false,
+    'public seed registration cannot be stored in private/');
+  const filename=resolveInsideRoot(repositoryRoot,normalizedRef);
+  const bytes=fs.readFileSync(filename);
+  const registration=JSON.parse(bytes.toString('utf8'));
+  validatePublicSeedRegistration(registration,{
+    enginePin,candidatePolicyVersion,opponentPolicyVersion
+  });
+  return {
+    artifactRef:normalizedRef,
+    registration,
+    registrationSha256:evidenceBundleSha256(registration),
+    registrationGitBlobSha:gitBlobSha(bytes)
+  };
+}
+
+function validateNoGameWitnessReceipt(receipt,expected={}) {
+  assert.ok(receipt&&typeof receipt==='object'&&!Array.isArray(receipt),
+    'native no-game witness receipt must be a JSON object');
+  assert.equal(receipt.schema,'agent36-v3-native-no-game-witness-v1');
+  assert.equal(receipt.fixtureOnly,true);
+  assert.equal(receipt.gameExecuted,false);
+  assert.equal(receipt.liveActionsDispatched,false);
+  assert.equal(receipt.allStoreStatesUnchanged,true);
+  assert.equal(receipt.allSelectedActionsValidated,true);
+  assert.equal(receipt.allActorObservationsUsed,true);
+  assert.equal(receipt.allWorkersClosed,true);
+  assert.equal(receipt.allWorkerPoliciesActorOnly,true);
+  assert.equal(receipt.researchRevisionSha,expected.researchRevisionSha,
+    'no-game witness must bind the exact checked-out research SHA');
+  assert.equal(receipt.twinleafCommitSha,expected.twinleafCommitSha,
+    'no-game witness must bind the exact pinned Twinleaf SHA');
+  assert.equal(receipt.candidatePrinted60Sha256,expected.candidatePrinted60Sha256);
+  assert.equal(receipt.opponentPrinted60Sha256,expected.opponentPrinted60Sha256);
+  assert.equal(receipt.candidatePolicySha256,expected.candidatePolicySha256);
+  assert.equal(receipt.opponentPolicySha256,expected.opponentPolicySha256);
+  assert.equal(receipt.candidatePolicyVersion,expected.candidatePolicyVersion);
+  assert.equal(receipt.opponentPolicyVersion,expected.opponentPolicyVersion);
+  assert.ok(Array.isArray(receipt.witnesses)&&receipt.witnesses.length===4,
+    'no-game witness must cover both roles in both physical seat assignments');
+  const seen=new Set();
+  for(const witness of receipt.witnesses){
+    assert.equal(witness.fixtureOnly,true);
+    assert.equal(witness.gameExecuted,false);
+    assert.equal(witness.liveActionDispatched,false);
+    assert.equal(witness.fullOriginalStoreStateUnchanged,true);
+    assert.equal(witness.selectedActionValidated,true);
+    assert.equal(witness.actorObservationUsed,true);
+    assert.equal(witness.workerCleanupVerified,true);
+    assert.equal(witness.allWorkerSessionsClosed,true);
+    assert.equal(witness.nativeStoreCreated,true);
+    assert.equal(witness.bothPlayersRegistered,true);
+    assert.equal(witness.nativeActionFrontierUsed,true);
+    assert.equal(witness.nativeValidationStoreMode,'cloned-store');
+    assert.equal(witness.hostStoppedBeforeLiveDispatch,true);
+    assert.equal(witness.actorOnlyWorkerInput,true);
+    assert.equal(witness.workerInputScope,
+      'actor-observation-v3+actor-prompt-projection+public-event-receipt-v3+typed-action-frontier-v1');
+    assert.equal(witness.nativeStateDisclosedToWorker,false);
+    assert.equal(witness.opponentPrivateZonesDisclosedToWorker,false);
+    assert.equal(witness.physicalSeedDisclosedToWorker,false);
+    assert.equal(witness.policySeedDisclosedToWorker,false);
+    assert.equal(witness.researchRevisionSha,expected.researchRevisionSha);
+    assert.equal(witness.twinleafCommitSha,expected.twinleafCommitSha);
+    assert.equal(witness.candidatePrinted60Sha256,expected.candidatePrinted60Sha256);
+    assert.equal(witness.opponentPrinted60Sha256,expected.opponentPrinted60Sha256);
+    assert.equal(witness.candidatePolicySha256,expected.candidatePolicySha256);
+    assert.equal(witness.opponentPolicySha256,expected.opponentPolicySha256);
+    assert.equal(witness.candidatePolicyVersion,expected.candidatePolicyVersion);
+    assert.equal(witness.opponentPolicyVersion,expected.opponentPolicyVersion);
+    assert.ok(witness.candidateSeat===0||witness.candidateSeat===1);
+    assert.ok(witness.actorSeat===0||witness.actorSeat===1);
+    const role=witness.actorSeat===witness.candidateSeat?'candidate':'opponent';
+    assert.equal(witness.policyVersion,role==='candidate'?
+      expected.candidatePolicyVersion:expected.opponentPolicyVersion);
+    assert.equal(witness.acceptedRootActions,0);
+    assert.equal(witness.workerFailureCount,0);
+    assert.equal(witness.policyRngReplayable,true);
+    assert.equal(witness.actualFirstPlayerSeat,witness.actorSeat);
+    assert.equal(witness.rootDecisionCount,1);
+    assert.ok(Number.isInteger(witness.actionFrontierItemCount)&&witness.actionFrontierItemCount>0);
+    assert.equal(witness.opponentSeat,1-witness.candidateSeat);
+    assert.equal(witness.role,role);
+    assert.equal(witness.policySha256,role==='candidate'?
+      expected.candidatePolicySha256:expected.opponentPolicySha256);
+    const key=witness.candidateSeat+':'+witness.actorSeat;
+    assert.equal(seen.has(key),false,'no-game witness repeats a role-seat assignment');
+    seen.add(key);
+    for(const forbidden of ['state','store','observation','actionPayload','decisionTrace',
+      'rootActionLedger','fullStateBefore','fullStateAfter'])
+      assert.equal(Object.hasOwn(witness,forbidden),false,
+        'no-game witness receipt must not publish hidden state: '+forbidden);
+  }
+  assert.deepEqual([...seen].sort(),['0:0','0:1','1:0','1:1']);
+  return receipt;
+}
+
+function verifyNoGameWitnessReceipt({
+  receiptPath,env=process.env,repositoryRoot=ROOT
+}={}) {
+  assert.ok(typeof receiptPath==='string'&&receiptPath.trim().length>0,
+    'fixture mode requires an exact-head native no-game witness receipt path');
+  const normalizedRef=validateArtifactRef(receiptPath);
+  const receipt=readJsonFile(repositoryRoot,normalizedRef);
+  const candidatePolicy=loadWorkerPolicyModule(repositoryRoot,
+    V3_FIXTURE.candidateWorkerPolicyPath,'candidate');
+  const opponentPolicy=loadWorkerPolicyModule(repositoryRoot,
+    V3_FIXTURE.opponentWorkerPolicyPath,'opponent');
+  return validateNoGameWitnessReceipt(receipt,{
+    researchRevisionSha:env.GITHUB_SHA,
+    twinleafCommitSha:env.AGENT36_TWINLEAF_COMMIT_SHA,
+    candidatePrinted60Sha256:V3_FIXTURE.candidateDeckSha256,
+    opponentPrinted60Sha256:V3_FIXTURE.opponentDeckSha256,
+    candidatePolicySha256:candidatePolicy.policySha256,
+    opponentPolicySha256:opponentPolicy.policySha256,
+    candidatePolicyVersion:candidatePolicy.POLICY_VERSION,
+    opponentPolicyVersion:opponentPolicy.POLICY_VERSION
+  });
+}
+
+function buildFixturePolicyConstraints({ patchDescriptor, botOptionsProfile, workerPolicyVersions = null, seedDisclosureDecision, seed, seedRegistration=null }) {
   const workerProfile=workerPolicyVersions!==null;
   return {
     fixtureOnly: true,
@@ -875,7 +1539,11 @@ function buildFixturePolicyConstraints({ patchDescriptor, botOptionsProfile, wor
     decisionBudget: { maxActions: V3_FIXTURE.maxActions },
     randomizationProtocol: {
       algorithm: workerProfile ? 'xorshift32-physical-host-only-v1' : 'xorshift32-physical-and-seat-policy-streams-v1',
-      seed: V3_FIXTURE.seed,
+      seed,
+      ...(seedRegistration?{
+        seedRegistrationId:seedRegistration.registrationId,
+        seedRegistrationSha256:evidenceBundleSha256(seedRegistration)
+      }:{}),
       seedDisclosureDecision,
       seedDisclosure:'public-reproducible-owner-authorized',
       seedDerivation: 'sha256-first-u32le for string seed; identity for uint32 seed',
@@ -940,7 +1608,7 @@ function buildFixtureRoleIdentities({
   return { candidateIdentity, opponentIdentity };
 }
 
-function buildFixturePolicyPlan({ candidateIdentity, opponentIdentity, constraints, runtimePinEvidence, trialId = V3_FIXTURE.trialId } = {}) {
+function buildFixturePolicyPlan({ candidateIdentity, opponentIdentity, constraints, runtimePinEvidence, trialId = V3_FIXTURE.trialId, seedRegistration=null } = {}) {
   const candidate = {
     deckSha256: candidateIdentity.deckSha256,
     policySha256: candidateIdentity.policySha256,
@@ -976,9 +1644,15 @@ function buildFixturePolicyPlan({ candidateIdentity, opponentIdentity, constrain
     runtimePinEvidence,
   };
   const policyPlanSha256 = evidenceBundleSha256(policyPlanCore);
+  const seedRegistrationSha256=seedRegistration?evidenceBundleSha256(seedRegistration):null;
   const policyRegistration = {
     schema: 'aichi-policy-registration-v1',
     trialId,
+    seed:constraints.randomizationProtocol.seed,
+    ...(seedRegistration?{
+      seedRegistrationId:seedRegistration.registrationId,
+      seedRegistrationSha256
+    }:{}),
     policyPlanSha256,
     fixtureOnly: true,
     candidateFormat: constraints.candidateFormat,
@@ -999,6 +1673,8 @@ function buildFixturePolicyPlan({ candidateIdentity, opponentIdentity, constrain
   const preDeal = {
     ready: true,
     fixtureOnly: true,
+    seed:constraints.randomizationProtocol.seed,
+    ...(seedRegistration?{seedRegistration,seedRegistrationSha256}:{}),
     candidateFormat: constraints.candidateFormat,
     gameRuleset: constraints.gameRuleset,
     opponentSourceEventFormat: constraints.opponentSourceEventFormat,
@@ -1013,7 +1689,7 @@ function buildFixturePolicyPlan({ candidateIdentity, opponentIdentity, constrain
     policyAttestationBundle,
     policyAttestationBundleSha256: evidenceBundleSha256(policyAttestationBundle),
   };
-  return { policyPlanCore, policyPlanSha256, policyRegistration, policyAttestationBundle, preDeal };
+  return { policyPlanCore, policyPlanSha256, policyRegistration, policyAttestationBundle, preDeal, seedRegistrationSha256 };
 }
 
 function sha256Function(fn) {
@@ -1081,19 +1757,22 @@ function loadWorkerPolicyModule(repositoryRoot,relativePath,role) {
 
 function buildRoleWorkerBundle({repositoryRoot=ROOT,policyModulePath}={}) {
   const workerFilename=path.resolve(repositoryRoot,V3_FIXTURE.workerPath);
+  const protocolFilename=path.resolve(repositoryRoot,V3_FIXTURE.protocolPath);
   const policyFilename=path.resolve(repositoryRoot,policyModulePath);
-  assert.ok(workerFilename.startsWith(repositoryRoot+path.sep));
-  assert.ok(policyFilename.startsWith(repositoryRoot+path.sep));
+  for(const filename of [workerFilename,protocolFilename,policyFilename])
+    assert.ok(filename.startsWith(repositoryRoot+path.sep));
   const workerSha256=createHash('sha256').update(fs.readFileSync(workerFilename)).digest('hex');
   const policySha256=createHash('sha256').update(fs.readFileSync(policyFilename)).digest('hex');
+  const protocolSha256=createHash('sha256').update(fs.readFileSync(protocolFilename)).digest('hex');
   const bundle=workerLauncher.createPolicyBundle({
     sourceRoot:repositoryRoot,
     policyFiles:[
       {sourcePath:workerFilename,relativePath:'worker.cjs',sha256:workerSha256},
+      {sourcePath:protocolFilename,relativePath:'agent49-policy-protocol.cjs',sha256:protocolSha256},
       {sourcePath:policyFilename,relativePath:'policy.cjs',sha256:policySha256},
     ],
   });
-  return {bundle,workerSha256,policySha256};
+  return {bundle,workerSha256,policySha256,protocolSha256};
 }
 
 function assertTrustedActionSelection(frontier,token) {
@@ -1130,10 +1809,13 @@ function createV3WorkerExecutionAudit({
   const role=(name,seat,policyVersion)=>({
     role:name,seat,policyVersion,bundleSha256:null,policySha256:null,
     decisionCount:0,rootDecisionCount:0,promptDecisionCount:0,
+    rootActionFrontierAdmissionCount:0,rootActionFrontierAdmissionReceipts:[],
+    actionFrontierAdmissionFailureCount:0,
     hostOnlyPromptCount:0,abstentionCount:0,failureCount:0,
-    timeoutCount:0,lastFailureCode:null,
+    timeoutCount:0,lastFailureCode:null,lastAbstentionReasonCode:null,
     workerProcessClosed:false,containerRemoved:false,policyBundleRemoved:false,
     containerIdSha256:null,policyStreamProtocol:null,policyDrawCount:null,
+    policyDrawCounts:[],policyDrawViolationCount:0,policyRngReplayable:true,
   });
   return {
     schema:'agent49-v3-worker-execution-audit-v1',
@@ -1141,11 +1823,17 @@ function createV3WorkerExecutionAudit({
     physicalSeedDisclosureDecision:seedDisclosureDecision,
     physicalSeedDisclosedToWorker:false,
     policySeedDisclosedToWorker:false,
+    nativeStateDisclosedToWorker:false,
+    opponentPrivateZonesDisclosedToWorker:false,
+    workerInputScope:'actor-observation-v3+actor-prompt-projection+public-event-receipt-v3+typed-action-frontier-v1',
     roles:{
       candidate:role('candidate',candidateSeat,candidatePolicyVersion),
       opponent:role('opponent',opponentSeat,opponentPolicyVersion),
     },
     totalWorkerDecisions:0,totalHostOnlyPrompts:0,totalAbstentions:0,totalFailures:0,
+    policyRngViolations:0,replayableEvidence:true,
+    actionFrontierAdapterSchema:knownCapFreeActionEnumerator.SCHEMA,
+    actionFrontierAdapterEnginePin:V3_FIXTURE.engineCommit,
     cleanupVerified:false,cleanupFailureCount:0,cleanupReceipts:[],promptProvenanceHook:null,
   };
 }
@@ -1153,6 +1841,7 @@ function createV3WorkerExecutionAudit({
 function createV3WorkerDecisionResolver({
   sessionsBySeat,candidateSeat=V3_FIXTURE.candidateSeat,
   opponentSeat=V3_FIXTURE.opponentSeat,native,workerAudit,
+  expectedActorSeat=null,stopBeforeLiveDispatch=false,
   actionFrontier=nativeActionFrontier,
   promptProjection=nativePromptProjection,
   eventReceipt=publicEventReceipt,
@@ -1169,6 +1858,10 @@ function createV3WorkerDecisionResolver({
   const recordFailure=(roleAudit,error,session)=>{
     const code=typeof error?.code==='string'&&/^[A-Z0-9_]{1,64}$/.test(error.code)?
       error.code:'WORKER_DECISION_FAILURE';
+    if(code.startsWith('NATIVE_ACTION_FRONTIER_')||
+        code.startsWith('NATIVE_ACTION_ENUMERATOR_ADAPTER_')){
+      roleAudit.actionFrontierAdmissionFailureCount++;
+    }
     if(code==='POLICY_ABSTAINED'){
       roleAudit.abstentionCount++;
       workerAudit.totalAbstentions++;
@@ -1177,8 +1870,22 @@ function createV3WorkerDecisionResolver({
       workerAudit.totalFailures++;
       if(code.includes('TIMEOUT'))roleAudit.timeoutCount++;
     }
-    if(String(session?.channel?.stderr??'').includes('POLICY_RANDOM_DRAWS_UNREPLAYABLE'))
+    const stderr=String(error?.stderrTail??session?.stderr??session?.channel?.stderr??'');
+    const drawMatch=/POLICY_RANDOM_DRAWS_UNREPLAYABLE policyDrawCount=(\d+)/.exec(stderr);
+    if(drawMatch){
+      roleAudit.policyDrawCount=Number(drawMatch[1]);
+      roleAudit.policyDrawCounts.push(Number(drawMatch[1]));
+      roleAudit.policyDrawViolationCount++;
+      roleAudit.policyRngReplayable=false;
+      workerAudit.policyRngViolations++;
+      workerAudit.replayableEvidence=false;
+    }else if(stderr.includes('POLICY_RANDOM_DRAWS_UNREPLAYABLE')){
       roleAudit.policyDrawCount=null;
+      roleAudit.policyDrawViolationCount++;
+      roleAudit.policyRngReplayable=false;
+      workerAudit.policyRngViolations++;
+      workerAudit.replayableEvidence=false;
+    }
     roleAudit.lastFailureCode=code;
   };
   return async request=>{
@@ -1187,6 +1894,13 @@ function createV3WorkerDecisionResolver({
     const actorSeat=request.actorSeat;
     const role=roleForSeat(actorSeat);
     assert.ok(role,'decision actor is not assigned to either frozen policy role');
+    if(stopBeforeLiveDispatch===true&&request.prompt===null&&actorSeat!==expectedActorSeat){
+      const error=new Error('native no-game witness reached a different first-player seat than the requested role-seat pair');
+      error.code='NO_GAME_WITNESS_WRONG_ACTOR';
+      error.expectedActorSeat=expectedActorSeat;
+      error.actualActorSeat=actorSeat;
+      throw error;
+    }
     const roleAudit=workerAudit.roles[role];
     const session=sessionsBySeat[actorSeat];
     assert.ok(session&&typeof session.decide==='function',
@@ -1198,7 +1912,7 @@ function createV3WorkerDecisionResolver({
       if(request.prompt){
         const activeProvenanceHook=provenanceContext?.current??provenanceHook;
         const projected=promptProjection.projectPrompt({
-          prompt:request.prompt,state:request.state,actorSeat,native,
+          prompt:request.prompt,state:request.state,actorSeat,native,store:request.store,
           provenanceHook:activeProvenanceHook
         });
         if(projected.hostOnly){
@@ -1222,9 +1936,12 @@ function createV3WorkerDecisionResolver({
           publicEventReceipt:receipt,actionFrontier:emptyFrontier
         });
         roleAudit.decisionCount++;
+        roleAudit.policyDrawCount=response.policyDrawCount;
+        roleAudit.policyDrawCounts.push(response.policyDrawCount);
         roleAudit.promptDecisionCount++;
         workerAudit.totalWorkerDecisions++;
         if(response.decision?.kind==='abstain'){
+          roleAudit.lastAbstentionReasonCode=response.decision.reasonCode;
           const error=new Error('role worker abstained on an owner prompt');
           error.code='POLICY_ABSTAINED';
           throw error;
@@ -1250,16 +1967,33 @@ function createV3WorkerDecisionResolver({
         error.code='NATIVE_ACTION_FRONTIER_BINDINGS_MISSING';
         throw error;
       }
-      const frontier=request.withPhysicalRandom?
-        request.withPhysicalRandom(()=>actionFrontier.buildNativeActionFrontier({
-          state:request.state,actorSeat,native
-        })):
-        actionFrontier.buildNativeActionFrontier({state:request.state,actorSeat,native});
+      if(typeof request.withValidationRandom!=='function'){
+        const error=new Error('native action frontier requires an isolated deterministic validation RNG scope');
+        error.code='VALIDATION_RANDOM_SCOPE_MISSING';
+        throw error;
+      }
+      const {frontier,admission}=request.withValidationRandom(()=>{
+        const enumerator=knownCapFreeActionEnumerator.createKnownCapFreeActionEnumerator({
+          native,enginePin:V3_FIXTURE.engineCommit
+        });
+        const frontier=actionFrontier.buildNativeActionFrontier({
+          state:request.state,actorSeat,native,enumerator
+        });
+        const admission=knownCapFreeActionEnumerator.assertKnownCapFreeAdapterAdmissionClear({
+          enumerator,enginePin:V3_FIXTURE.engineCommit,
+          frontierDiagnostics:frontier.diagnostics
+        });
+        return {frontier,admission};
+      });
+      roleAudit.rootActionFrontierAdmissionCount++;
+      roleAudit.rootActionFrontierAdmissionReceipts.push(admission);
       const response=await session.decide({
         observation,prompt:null,publicEventReceipt:receipt,
         actionFrontier:frontier.actionFrontier
       });
       roleAudit.decisionCount++;
+      roleAudit.policyDrawCount=response.policyDrawCount;
+      roleAudit.policyDrawCounts.push(response.policyDrawCount);
       roleAudit.rootDecisionCount++;
       workerAudit.totalWorkerDecisions++;
       if(response.decision?.kind==='abstain'){
@@ -1269,11 +2003,34 @@ function createV3WorkerDecisionResolver({
       }
       assert.equal(response.decision?.kind,'select-action',
         'worker returned a non-action decision for an owner root');
-      assertTrustedActionSelection(frontier,response.decision.token);
-      return actionFrontier.dispatchSelectedNativeAction({
+      const selectedItem=assertTrustedActionSelection(frontier,response.decision.token);
+      const validationEvidence={};
+      const action=actionFrontier.dispatchSelectedNativeAction({
         store:request.store,frontier,token:response.decision.token,
-        state:request.state,actorSeat,native,dispatch:false
+        state:request.state,actorSeat,native,
+        withValidationRandom:request.withValidationRandom,dispatch:false,
+        validationEvidence
       });
+      const nativeActionFrontierUsed=frontier.actionFrontier.items.some(item=>
+        item.token===response.decision.token)&&frontier.actionByToken.has(response.decision.token);
+      assert.equal(nativeActionFrontierUsed,true,
+        'selected worker action must be a member of the native action frontier');
+      assert.equal(validationEvidence.nativeValidationStoreMode,'cloned-store',
+        'selected worker action must be revalidated on a cloned native Store');
+      if(stopBeforeLiveDispatch===true){
+        return {
+          __nativeFixtureDecisionResolution:true,
+          action,
+          validationReceipt:{
+            actorSeat,role,selectedActionValidated:true,
+            nativeActionFrontierUsed,
+            nativeValidationStoreMode:validationEvidence.nativeValidationStoreMode,
+            actionKind:selectedItem.kind,
+            frontierItemCount:frontier.actionFrontier.items.length
+          }
+        };
+      }
+      return action;
     }catch(error){
       recordFailure(roleAudit,error,session);
       throw error;
@@ -1281,23 +2038,80 @@ function createV3WorkerDecisionResolver({
   };
 }
 
+function buildV3RunnerFailureError({
+  runnerFailure=null,nestedRoleFailure=null,runnerCleanupFailures=[],runnerStage='native-v3-runner',
+  workerAudit=null
+}={}) {
+  const primaryRunnerFailure=runnerFailure?
+    projectV3FixtureFailureForReceipt(runnerFailure,{
+      stage:runnerStage,fallbackCode:'V3_RUNNER_FAILURE'
+    }):nestedRoleFailure?
+      projectV3FixtureFailureForReceipt(nestedRoleFailure,{
+        stage:'worker-execution',fallbackCode:'WORKER_FIXTURE_FAILURE'
+      }):null;
+  const cleanupFailureSummaries=runnerCleanupFailures.map(({stage,error})=>
+    projectV3FixtureFailureForReceipt(error,{
+      stage,fallbackCode:'V3_RUNNER_CLEANUP_FAILURE'
+    })
+  );
+  if(!runnerFailure&&!cleanupFailureSummaries.length)return null;
+  let fixtureFailure=cleanupFailureSummaries[0]??primaryRunnerFailure??{
+    name:'Error',code:'V3_RUNNER_FAILURE',stage:runnerStage,
+    messageSha256:createHash('sha256').update('native V3 runner failure').digest('hex')
+  };
+  if(cleanupFailureSummaries.length) {
+    fixtureFailure={
+      ...fixtureFailure,
+      code:'V3_RUNNER_CLEANUP_FAILURE',
+      primaryFailure:primaryRunnerFailure??undefined,
+      cleanupFailures:cleanupFailureSummaries
+    };
+  }
+  const error=new Error('Native V3 fixture runner failed during '+fixtureFailure.stage+'.');
+  error.code=fixtureFailure.code;
+  error.fixtureFailure=fixtureFailure;
+  error.workerAudit=projectV3WorkerAuditForFailure(workerAudit);
+  return error;
+}
+
 async function runV3FixtureGame({
   env=process.env,outputDir=null,
-  candidateSeat=V3_FIXTURE.candidateSeat,opponentSeat=1-candidateSeat
+  candidateSeat=V3_FIXTURE.candidateSeat,opponentSeat=1-candidateSeat,
+  witnessOnly=false,expectedActorSeat=null,seed=null,seedRegistrationInput=null
 }={}) {
-  const seedDisclosureDecision=validatePhysicalSeedDisclosureDecision(
-    env.AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION
-  );
+  const seedDisclosureDecision=witnessOnly?'public-reproducible':
+    validatePhysicalSeedDisclosureDecision(env.AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION);
+  const diagnosticMode=env.AGENT36_V3_DIAGNOSTIC_MODE??'sanitized-only';
+  assert.ok(['encrypted-full','sanitized-only'].includes(diagnosticMode),
+    'V3 fixture diagnostic mode must be encrypted-full or sanitized-only');
   candidateOpponentRoleSeats({candidateSeat,opponentSeat});
-  const trialId=V3_FIXTURE.trialId+'-candidate-seat-'+candidateSeat;
-  const runOutputDir=outputDir??path.join(ROOT,V3_FIXTURE.outputDir,'candidate-seat-'+candidateSeat);
-  const repositoryRoot = ROOT;
-  const enginePin = env.AGENT36_TWINLEAF_COMMIT_SHA;
-  const runnerRevision = env.GITHUB_SHA;
-  assert.equal(enginePin, V3_FIXTURE.engineCommit, 'fixture must use the reviewed pinned Twinleaf commit');
-  assert.match(runnerRevision || '', /^[0-9a-f]{40}$/i, 'fixture requires the exact research revision');
+  if(witnessOnly)assert.ok(expectedActorSeat===0||expectedActorSeat===1,
+    'native no-game witness requires an expected physical actor seat');
+  const repositoryRoot=ROOT;
+  const enginePin=env.AGENT36_TWINLEAF_COMMIT_SHA;
+  const runnerRevision=env.GITHUB_SHA;
+  assert.equal(enginePin,V3_FIXTURE.engineCommit,'fixture must use the reviewed pinned Twinleaf commit');
+  assert.match(runnerRevision||'',/^[0-9a-f]{40}$/i,'fixture requires the exact research revision');
   const candidatePolicy=loadWorkerPolicyModule(repositoryRoot,V3_FIXTURE.candidateWorkerPolicyPath,'candidate');
   const opponentPolicy=loadWorkerPolicyModule(repositoryRoot,V3_FIXTURE.opponentWorkerPolicyPath,'opponent');
+  const registeredSeed=witnessOnly?null:(seedRegistrationInput??readPublicSeedRegistration({
+    repositoryRoot,artifactRef:env.AGENT36_V3_PREDEAL_ARTIFACT_REF,enginePin,
+    candidatePolicyVersion:candidatePolicy.POLICY_VERSION,
+    opponentPolicyVersion:opponentPolicy.POLICY_VERSION
+  }));
+  const seedRegistration=registeredSeed?.registration??null;
+  const fixtureSeed=witnessOnly?seed:seedRegistration?.seed;
+  assert.ok(typeof fixtureSeed==='string'&&fixtureSeed.trim().length>0,
+    'fixture execution requires a freshly registered public seed; no hard-coded seed fallback exists');
+  const trialId=witnessOnly?
+    V3_FIXTURE.trialId+'-no-game-witness-candidate-seat-'+candidateSeat+'-actor-seat-'+expectedActorSeat:
+    seedRegistration.trialId+'-candidate-seat-'+candidateSeat;
+  const runOutputDir=outputDir??path.join(ROOT,V3_FIXTURE.outputDir,
+    witnessOnly?'no-game-witness/candidate-seat-'+candidateSeat+'-actor-seat-'+expectedActorSeat:
+      'candidate-seat-'+candidateSeat);
+  if(!witnessOnly)verifyNoGameWitnessReceipt({
+    receiptPath:env.AGENT36_V3_NO_GAME_WITNESS_RECEIPT,env,repositoryRoot
+  });
 
   const candidateBytes = fs.readFileSync(path.join(repositoryRoot, V3_FIXTURE.candidatePath));
   const fieldBytes = fs.readFileSync(path.join(repositoryRoot, V3_FIXTURE.fieldPath));
@@ -1352,18 +2166,20 @@ async function runV3FixtureGame({
       opponent:opponentPolicy.POLICY_VERSION
     },
     seedDisclosureDecision,
+    seed:fixtureSeed,
+    seedRegistration,
   });
   const policyConstraintsSha256 = evidenceBundleSha256(constraints);
   const candidateManifestResult = buildFixtureRoleEntryManifest({
     repositoryRoot,enginePin,runnerRevision,
-    entrypoint:V3_FIXTURE.workerPath,
+    entrypoint:V3_FIXTURE.hostRoleEntrypointPath,
     commonRuntimeBindings:V3_FIXTURE_WORKER_COMMON_BINDINGS,
     orderedPromptChain:V3_FIXTURE_WORKER_PROMPT_CHAIN,
     additionalDataAssetPaths:[V3_FIXTURE.candidateWorkerPolicyPath],
   });
   const opponentManifestResult = buildFixtureRoleEntryManifest({
     repositoryRoot,enginePin,runnerRevision,
-    entrypoint:V3_FIXTURE.workerPath,
+    entrypoint:V3_FIXTURE.hostRoleEntrypointPath,
     commonRuntimeBindings:V3_FIXTURE_WORKER_COMMON_BINDINGS,
     orderedPromptChain:V3_FIXTURE_WORKER_PROMPT_CHAIN,
     additionalDataAssetPaths:[V3_FIXTURE.opponentWorkerPolicyPath],
@@ -1374,16 +2190,21 @@ async function runV3FixtureGame({
   const challengeSuiteSha256 = fixtureChallengeSuiteSha256(candidateManifestResult.manifest);
   const combined = manifestResult;
 
-  // Preload only the manifest-owned research closure. The fixture pin helper scopes the
-  // cache for the native callback, while the V1 evidence builder remains unchanged.
-  for (const [relative, expectedSha256] of Object.entries(combined.expectedByPath).sort((a, b) => a[0].localeCompare(b[0]))) {
-    const filename = path.resolve(repositoryRoot, relative);
-    const bytes = fs.readFileSync(filename);
-    const actualSha256 = createHash('sha256').update(bytes).digest('hex');
-    assert.equal(actualSha256, expectedSha256, 'role source changed before preload: ' + relative);
-    Module._load(filename, module, false);
-  }
-  const cacheEntries = fixtureRuntimePin.fixtureRolePolicyCacheEntries(repositoryRoot, combined.expectedByPath);
+  // Hash-check role policy entrypoints but never evaluate them in the host. Only the
+  // Docker VM loads candidate/opponent policy source; ordinary host dependencies are
+  // preloaded and pinned through the existing CommonJS guard.
+  const workerOnlyPolicyPaths=[candidatePolicy.sourcePath,opponentPolicy.sourcePath];
+  const workerOnlyPolicyHashes={
+    [candidatePolicy.sourcePath]:candidatePolicy.policySha256,
+    [opponentPolicy.sourcePath]:opponentPolicy.policySha256
+  };
+  const hostPreload=preloadRoleHostModules({
+    repositoryRoot,expectedByPath:combined.expectedByPath,
+    workerOnlyPaths:workerOnlyPolicyPaths,workerOnlyHashes:workerOnlyPolicyHashes
+  });
+  const cacheEntries = fixtureRuntimePin.fixtureRolePolicyCacheEntries(
+    repositoryRoot,hostPreload.hostExpectedByPath
+  );
   const preparedRuntime = prepareV3RoleRuntimeEvidence({
     repositoryRoot,
     candidateManifest: candidateManifestResult,
@@ -1391,6 +2212,9 @@ async function runV3FixtureGame({
     cardPoolInitialization: native.cardPoolInitialization,
     identityHelper: roleIdentity,
     cacheEntries,
+    workerOnlyPaths:workerOnlyPolicyPaths,
+    workerOnlyHashes:workerOnlyPolicyHashes,
+    hostExpectedByPath:hostPreload.hostExpectedByPath
   });
   const runtimePinEvidence = fixtureRuntimePin.createFixtureRuntimePinEvidence(preparedRuntime);
   const identities = buildFixtureRoleIdentities({
@@ -1413,6 +2237,7 @@ async function runV3FixtureGame({
     constraints,
     runtimePinEvidence,
     trialId,
+    seedRegistration,
   });
   // The serializer is a hashed data asset, not part of either role-policy closure.
   // Capture its function reference before the fixture pin and pass only that callback
@@ -1433,15 +2258,24 @@ async function runV3FixtureGame({
     originalSourceSeat: opponentSeat,
     vendorCommitSha: enginePin,
     researchRevisionSha: runnerRevision,
+    seed:fixtureSeed,
+    seedRegistrationId:seedRegistration?.registrationId??null,
+    seedRegistrationSha256:registeredSeed?.registrationSha256??null,
+    seedRegistrationGitBlobSha:registeredSeed?.registrationGitBlobSha??null,
   };
 
   const processLockToken=acquireNativeFixtureProcessLock('agent36-v3-fixture-runner');
   let restoreHook=null;
   let pinned;
+  let workerAuditForFailure=null;
+  let runnerStage='runner-hook-install';
+  let runnerFailure=null;
+  const runnerCleanupFailures=[];
   try {
     restoreHook=hookModule.installUnderworldDoorPsychicRecipientHook();
     assert.equal(restoreHook.isInstalled,true,
       'Underworld compatibility hook must install before role wrappers');
+    runnerStage='fixture-pin';
     pinned = await runPinnedV3RoleRuntime({
       repositoryRoot,
       preparedRuntime,
@@ -1454,6 +2288,7 @@ async function runV3FixtureGame({
           opponentPolicyVersion:opponentPolicy.POLICY_VERSION,
           seedDisclosureDecision,
         });
+        workerAuditForFailure=workerAudit;
         const bundles=[];
         const sessions=[];
         const lifecycleFailure=(role,error)=>{
@@ -1463,6 +2298,22 @@ async function runV3FixtureGame({
           row.failureCount++;
           row.lastFailureCode=code;
           if(code.includes('TIMEOUT'))row.timeoutCount++;
+          const stderr=String(error?.stderrTail??'');
+          const drawMatch=/POLICY_RANDOM_DRAWS_UNREPLAYABLE policyDrawCount=(\d+)/.exec(stderr);
+          if(drawMatch){
+            row.policyDrawCount=Number(drawMatch[1]);
+            row.policyDrawCounts.push(Number(drawMatch[1]));
+            row.policyDrawViolationCount++;
+            row.policyRngReplayable=false;
+            workerAudit.policyRngViolations++;
+            workerAudit.replayableEvidence=false;
+          }else if(stderr.includes('POLICY_RANDOM_DRAWS_UNREPLAYABLE')){
+            row.policyDrawCount=null;
+            row.policyDrawViolationCount++;
+            row.policyRngReplayable=false;
+            workerAudit.policyRngViolations++;
+            workerAudit.replayableEvidence=false;
+          }
           workerAudit.totalFailures++;
         };
         try {
@@ -1474,6 +2325,10 @@ async function runV3FixtureGame({
             repositoryRoot,policyModulePath:V3_FIXTURE.opponentWorkerPolicyPath
           });
           bundles.push({role:'opponent',bundle:opponentBundle.bundle});
+          assert.equal(candidateBundle.policySha256,candidatePolicy.policySha256,
+            'candidate policy source changed after role-manifest static audit');
+          assert.equal(opponentBundle.policySha256,opponentPolicy.policySha256,
+            'opponent policy source changed after role-manifest static audit');
           workerAudit.roles.candidate.bundleSha256=candidateBundle.bundle.bundleSha256;
           workerAudit.roles.candidate.policySha256=candidateBundle.policySha256;
           workerAudit.roles.opponent.bundleSha256=opponentBundle.bundle.bundleSha256;
@@ -1517,12 +2372,15 @@ async function runV3FixtureGame({
             playerNames:seatAssignment.playerNames,
             candidateSeat:candidateSeat,
             originalSourceSeat:opponentSeat,
-            seed:V3_FIXTURE.seed,
+            seed:fixtureSeed,
             native,
             botOptionsBySeat:native.botOptionsBySeat,
             maxActions:V3_FIXTURE.maxActions,
-            diagnosticSnapshot:diagnostic.snapshotFullGameState,
-            requireFullStateDiagnostics:true,
+            stopBeforeLiveDispatch:witnessOnly,
+            expectedActorSeat:witnessOnly?expectedActorSeat:null,
+            diagnosticSnapshot:diagnosticMode==='encrypted-full'?
+              diagnostic.snapshotFullGameState:undefined,
+            requireFullStateDiagnostics:diagnosticMode==='encrypted-full',
             processLockToken,
             onStoreCreated(store){
               const hook=installPromptProvenanceHook(store);
@@ -1536,6 +2394,8 @@ async function runV3FixtureGame({
             native,
             workerAudit,
             provenanceContext,
+            expectedActorSeat,
+            stopBeforeLiveDispatch:witnessOnly,
           }));
           workerAudit.promptProvenanceHook=gameResult.promptProvenanceHook??null;
           assert.equal(gameResult.promptProvenanceHook?.installed,true,
@@ -1549,15 +2409,8 @@ async function runV3FixtureGame({
           workerAudit.actionCount=gameResult.actions??gameResult.acceptedActions??0;
           return {result:gameResult,workerAudit};
         } catch(error) {
-          const code=typeof error?.code==='string'&&/^[A-Z0-9_]{1,64}$/.test(error.code)?
-            error.code:'WORKER_FIXTURE_FAILURE';
           return {
-            fixtureFailure:{
-              name:error?.name??'Error',
-              code,
-              messageSha256:createHash('sha256').update(String(error?.message??error)).digest('hex'),
-              nativeFixtureFailure:error?.nativeFixtureFailure??null,
-            },
+            fixtureFailure:projectV3RoleFailureForReceipt(error),
             fixtureGamePartial:error?.fixtureGamePartial??null,
             workerAudit,
           };
@@ -1609,15 +2462,36 @@ async function runV3FixtureGame({
         }
       },
     });
+  } catch(error) {
+    runnerFailure=error;
   } finally {
-    try {
-      if(restoreHook) restoreHook();
-    } finally {
-      releaseNativeFixtureProcessLock(processLockToken);
+    if(restoreHook) {
+      try { restoreHook(); }
+      catch(error) { runnerCleanupFailures.push({stage:'runner-hook-restore',error}); }
     }
+    try { releaseNativeFixtureProcessLock(processLockToken); }
+    catch(error) { runnerCleanupFailures.push({stage:'runner-lock-release',error}); }
   }
-  assert.ok(restoreHook?.isRestored, 'Underworld compatibility hook must restore in outer finally');
-  assert.ok(pinned && pinned.audit && pinned.audit.guardRestored === true, 'fixture-scoped runtime guard must restore');
+  if(restoreHook&&restoreHook.isRestored!==true) {
+    runnerCleanupFailures.push({
+      stage:'runner-hook-restore-verification',
+      error:new Error('Underworld compatibility hook restoration was not verified')
+    });
+  }
+  if(pinned&&pinned.audit?.guardRestored!==true) {
+    runnerCleanupFailures.push({
+      stage:'fixture-pin-restore-verification',
+      error:new Error('fixture-scoped runtime guard restoration was not verified')
+    });
+  }
+  const normalizedOuterResult=pinned?
+    normalizeV3FixtureRoleResult(pinned.result):null;
+  const nestedRoleFailure=normalizedOuterResult?.failureEnvelope?.fixtureFailure??null;
+  const runnerFailureError=buildV3RunnerFailureError({
+    runnerFailure,nestedRoleFailure,runnerCleanupFailures,runnerStage,
+    workerAudit:workerAuditForFailure??normalizedOuterResult?.workerExecutionAudit
+  });
+  if(runnerFailureError)throw runnerFailureError;
   const normalizedResult = normalizeV3FixtureRoleResult(pinned.result);
   const { roleResult, gameResult, workerExecutionAudit } = normalizedResult;
   let failureEnvelope = normalizedResult.failureEnvelope;
@@ -1630,6 +2504,110 @@ async function runV3FixtureGame({
         })).digest('hex'),nativeFixtureFailure:null},
       fixtureGamePartial:gameResult
     };
+  }
+
+  if(witnessOnly){
+    if(failureEnvelope){
+      const error=new Error('Native V3 no-game witness failed: '+(failureEnvelope.fixtureFailure?.code??'UNKNOWN'));
+      error.code=failureEnvelope.fixtureFailure?.code??'NO_GAME_WITNESS_FAILED';
+      error.fixtureFailure=projectV3FixtureFailureForReceipt(
+        failureEnvelope.fixtureFailure,{stage:'worker-execution'}
+      );
+      error.workerAudit=projectV3WorkerAuditForFailure(workerExecutionAudit);
+      throw error;
+    }
+    assert.equal(gameResult?.schema,'agent49-native-no-game-witness-v1');
+    assert.equal(gameResult.gameExecuted,false);
+    assert.equal(gameResult.nativeStoreCreated,true);
+    assert.equal(gameResult.bothPlayersRegistered,true);
+    assert.equal(gameResult.nativeActionFrontierUsed,true);
+    assert.equal(gameResult.nativeValidationStoreMode,'cloned-store');
+    assert.equal(gameResult.hostStoppedBeforeLiveDispatch,true);
+    assert.equal(gameResult.actorSeat,expectedActorSeat);
+    assert.equal(gameResult.actualFirstPlayerSeat,expectedActorSeat);
+    assert.equal(gameResult.actorObservationUsed,true);
+    assert.equal(gameResult.selectedActionValidated,true);
+    assert.equal(gameResult.fullOriginalStoreStateUnchanged,true);
+    assert.equal(gameResult.liveActionDispatched,false);
+    assert.equal(gameResult.acceptedRootActions,0);
+    assert.equal(gameResult.promptProvenanceHook?.installed,true);
+    assert.equal(gameResult.promptProvenanceHook?.restored,true);
+    assert.equal(pinned.audit?.guardRestored,true);
+    assert.equal(workerExecutionAudit?.cleanupVerified,true);
+    assert.equal(workerExecutionAudit?.totalFailures,0);
+    assert.equal(workerExecutionAudit?.cleanupFailureCount,0);
+    assert.equal(workerExecutionAudit?.replayableEvidence,true);
+    const role=expectedActorSeat===candidateSeat?'candidate':'opponent';
+    const roleAudit=workerExecutionAudit.roles[role];
+    const otherRole=role==='candidate'?'opponent':'candidate';
+    const otherAudit=workerExecutionAudit.roles[otherRole];
+    assert.equal(roleAudit.seat,expectedActorSeat);
+    assert.equal(roleAudit.rootDecisionCount,1);
+    assert.equal(otherAudit.rootDecisionCount,0);
+    assert.equal(roleAudit.actionFrontierAdmissionFailureCount,0);
+    assert.equal(roleAudit.policyRngReplayable,true);
+    const allWorkerSessionsClosed=Object.values(workerExecutionAudit.roles).every(row=>
+      row.workerProcessClosed===true&&row.containerRemoved===true&&row.policyBundleRemoved===true);
+    assert.equal(allWorkerSessionsClosed,true);
+    assert.equal(workerExecutionAudit.workerProcessPerRole,true);
+    assert.equal(workerExecutionAudit.physicalSeedDisclosedToWorker,false);
+    assert.equal(workerExecutionAudit.policySeedDisclosedToWorker,false);
+    assert.equal(workerExecutionAudit.nativeStateDisclosedToWorker,false);
+    assert.equal(workerExecutionAudit.opponentPrivateZonesDisclosedToWorker,false);
+    const actorOnlyWorkerInput=workerExecutionAudit.workerProcessPerRole===true&&
+      workerExecutionAudit.physicalSeedDisclosedToWorker===false&&
+      workerExecutionAudit.policySeedDisclosedToWorker===false&&
+      workerExecutionAudit.nativeStateDisclosedToWorker===false&&
+      workerExecutionAudit.opponentPrivateZonesDisclosedToWorker===false;
+    assert.equal(actorOnlyWorkerInput,true);
+    const witnessReceipt={
+      schema:'agent36-v3-native-no-game-seat-witness-v1',
+      fixtureOnly:true,
+      gameExecuted:false,
+      nativeStoreCreated:gameResult.nativeStoreCreated,
+      bothPlayersRegistered:gameResult.bothPlayersRegistered,
+      nativeActionFrontierUsed:gameResult.nativeActionFrontierUsed,
+      nativeValidationStoreMode:gameResult.nativeValidationStoreMode,
+      hostStoppedBeforeLiveDispatch:gameResult.hostStoppedBeforeLiveDispatch,
+      candidateSeat,opponentSeat,actorSeat:expectedActorSeat,
+      role,seed:fixtureSeed,seed32:gameResult.seed32,
+      actualFirstPlayerSeat:gameResult.actualFirstPlayerSeat,
+      actorObservationUsed:gameResult.actorObservationUsed,
+      selectedActionValidated:gameResult.selectedActionValidated,
+      validationActionKind:gameResult.validationActionKind,
+      actionFrontierItemCount:gameResult.actionFrontierItemCount,
+      fullOriginalStoreStateUnchanged:gameResult.fullOriginalStoreStateUnchanged,
+      liveActionDispatched:gameResult.liveActionDispatched,
+      acceptedRootActions:gameResult.acceptedRootActions,
+      rootDecisionCount:roleAudit.rootDecisionCount,
+      workerDecisionCount:roleAudit.decisionCount,
+      policySha256:roleAudit.policySha256,
+      policyVersion:roleAudit.policyVersion,
+      workerCleanupVerified:workerExecutionAudit.cleanupVerified,
+      allWorkerSessionsClosed,
+      actorOnlyWorkerInput,
+      nativeStateDisclosedToWorker:workerExecutionAudit.nativeStateDisclosedToWorker,
+      opponentPrivateZonesDisclosedToWorker:workerExecutionAudit.opponentPrivateZonesDisclosedToWorker,
+      physicalSeedDisclosedToWorker:workerExecutionAudit.physicalSeedDisclosedToWorker,
+      policySeedDisclosedToWorker:workerExecutionAudit.policySeedDisclosedToWorker,
+      workerInputScope:workerExecutionAudit.workerInputScope,
+      workerFailureCount:workerExecutionAudit.totalFailures,
+      policyRngReplayable:workerExecutionAudit.replayableEvidence,
+      candidatePolicySha256:workerExecutionAudit.roles.candidate.policySha256,
+      opponentPolicySha256:workerExecutionAudit.roles.opponent.policySha256,
+      candidatePolicyVersion:candidatePolicy.POLICY_VERSION,
+      opponentPolicyVersion:opponentPolicy.POLICY_VERSION,
+      researchRevisionSha:runnerRevision,
+      twinleafCommitSha:enginePin,
+      candidatePrinted60Sha256:V3_FIXTURE.candidateDeckSha256,
+      opponentPrinted60Sha256:V3_FIXTURE.opponentDeckSha256,
+      promptProvenanceHookRestored:true,
+      runtimePinGuardRestored:pinned.audit.guardRestored
+    };
+    fs.mkdirSync(runOutputDir,{recursive:true});
+    const witnessPath=path.join(runOutputDir,'native-no-game-seat-witness.json');
+    writeJsonAtomic(witnessPath,witnessReceipt);
+    return {...witnessReceipt,outputPath:path.relative(repositoryRoot,witnessPath).split(path.sep).join('/')};
   }
   if (!failureEnvelope && (!gameResult || gameResult.finished !== true || gameResult.endReason !== 'engine-game-end')) {
     const terminalState = {
@@ -1675,9 +2653,14 @@ async function runV3FixtureGame({
     decisionTraceSha256: gameResult?.decisionTraceSha256 ?? partial?.decisionTraceSha256 ?? null,
     cardPoolInitializationReceipt: native.cardPoolInitialization,
     runtimePatchReceipts: [patchReceipt],
-    seed: V3_FIXTURE.seed,
+    seed: fixtureSeed,
     seed32: gameResult?.seed32 ?? partial?.seed32 ?? null,
-    actorOnlyExecutionBoundary: null,
+    seedRegistration:seedRegistration??null,
+    seedRegistrationId:seedRegistration?.registrationId??null,
+    seedRegistrationSha256:registeredSeed?.registrationSha256??null,
+    seedRegistrationGitBlobSha:registeredSeed?.registrationGitBlobSha??null,
+    seedRegistrationRef:registeredSeed?.artifactRef??null,
+    actorOnlyExecutionBoundary: projectActorOnlyBoundaryToTrial(roleResult),
     workerExecutionAuditSha256:workerExecutionAudit?evidenceBundleSha256(workerExecutionAudit):null,
     candidatePolicyVersion:candidatePolicy.POLICY_VERSION,
     opponentPolicyVersion:opponentPolicy.POLICY_VERSION,
@@ -1691,7 +2674,7 @@ async function runV3FixtureGame({
     assert.equal(trial[key], policyPlan.preDeal[key],
       'trial ' + key + ' differs from the pre-deal fixture envelope');
   }
-  if (gameResult?.seed !== undefined) assert.equal(gameResult.seed, V3_FIXTURE.seed, 'native game must preserve the frozen seed label');
+  if (gameResult?.seed !== undefined) assert.equal(gameResult.seed, fixtureSeed, 'native game must preserve the registered public seed label');
   if (gameResult?.seedDerivation !== undefined) assert.equal(gameResult.seedDerivation, 'sha256-first-u32le', 'native game must use the declared stable string-seed mapping');
   assert.equal(trial.seed, policyPlan.policyPlanCore.constraints.randomizationProtocol.seed, 'trial seed must match the registered policy-plan seed');
   if (gameResult?.seed32 !== undefined) assert.equal(trial.seed32, gameResult.seed32, 'trial must record the actual uint32 stream seed');
@@ -1705,6 +2688,7 @@ async function runV3FixtureGame({
   const application = bindFixtureFormatToApplicationReceipt(applicationBase,trial);
   const artifact = {
     fixtureOnly: true,
+    diagnosticMode,
     competitiveGameQualified: false,
     admissionEligible: false,
     benchmark: 'Aichi Open League 2026 Top 32',
@@ -1776,12 +2760,17 @@ async function runV3FixtureGame({
       challengeSuiteScope: 'mechanical source/runtime contract tests only; not policy competence evidence',
     },
     policyPlanCore: policyPlan.policyPlanCore,
+    seedRegistration:seedRegistration??null,
+    seedRegistrationSha256:registeredSeed?.registrationSha256??null,
+    seedRegistrationGitBlobSha:registeredSeed?.registrationGitBlobSha??null,
     preDealFixtureEnvelope: {
       fixtureOnly: true,
       ready: true,
       policyPlanSha256: policyPlan.policyPlanSha256,
       policyRegistration: policyPlan.policyRegistration,
       policyAttestationBundle: policyPlan.policyAttestationBundle,
+      seedRegistration:seedRegistration??null,
+      seedRegistrationSha256:registeredSeed?.registrationSha256??null,
       attestationStatus: 'unsigned fixture-only envelope; no independent reviewers; not admission evidence',
     },
     candidatePolicyIdentity: identities.candidateIdentity,
@@ -1840,6 +2829,7 @@ async function runV3FixtureGame({
     `eventDate=${trial.eventDate ?? 'not-applicable'}`,
     `formatReviewStatus=${trial.formatReviewStatus}`,
     `actorOnlyExecutionBoundaryValid=${trial.actorOnlyExecutionBoundary?.valid === true}`,
+    `actorOnlyExecutionBoundarySha256=${application?.receipt?.actorOnlyExecutionBoundarySha256 ?? 'unavailable'}`,
     `workerExecutionAuditSha256=${trial.workerExecutionAuditSha256 ?? 'unavailable'}`,
     diagnostic.formatFixtureGameTraceText({
     fixtureOnly: true,
@@ -1882,12 +2872,19 @@ async function runV3FixtureGame({
     workerExecutionAudit,
   }),
   ].join('\n');
+  const sanitizedOnly=diagnosticMode==='sanitized-only';
+  const persistedArtifact=sanitizedOnly?
+    sanitizedDiagnostic.sanitizeFixtureArtifact(artifact):artifact;
   fs.mkdirSync(runOutputDir,{recursive:true});
-  const outputPath = path.join(runOutputDir, 'fixture-game.json');
-  writeJsonAtomic(outputPath, artifact);
-  const traceTextPath = path.join(runOutputDir, 'fixture-game.txt');
-  fs.writeFileSync(traceTextPath, traceText, 'utf8');
-  process.stdout.write((failureEnvelope ? 'Native V3 fixture game failed; partial artifacts preserved: ' : 'Native V3 fixture game completed: ') + outputPath + '\n');
+  const outputPath = path.join(runOutputDir,sanitizedOnly?
+    'fixture-game.sanitized.json':'fixture-game.json');
+  writeJsonAtomic(outputPath,persistedArtifact);
+  const persistedTraceText=sanitizedOnly?
+    sanitizedDiagnostic.formatSanitizedTraceText(persistedArtifact):traceText;
+  const traceTextPath = path.join(runOutputDir,sanitizedOnly?
+    'fixture-game.sanitized.txt':'fixture-game.txt');
+  fs.writeFileSync(traceTextPath,persistedTraceText,'utf8');
+  process.stdout.write((failureEnvelope ? 'Native V3 fixture game failed; partial diagnostics preserved: ' : 'Native V3 fixture game completed: ') + outputPath + ' mode='+diagnosticMode+'\n');
   if (failureEnvelope) {
     const error = new Error('Native V3 fixture game failed after preserving its partial JSON and text artifacts.');
     error.name = failureEnvelope.fixtureFailure?.name ?? 'NativeFixtureFailure';
@@ -1902,20 +2899,450 @@ async function runV3FixtureGame({
     winnerSeat: gameResult.winnerSeat,
     endReason: gameResult.endReason,
     actionCount: gameResult.actions,
-    decisionTraceSha256: gameResult.decisionTraceSha256,
-    roleApplicationReceiptSha256: application?.receipt?.receiptSha256??null,
+    decisionTraceSha256: sanitizedOnly?
+      persistedArtifact.game.actorDecisionsSha256:gameResult.decisionTraceSha256,
+    roleApplicationReceiptSha256: sanitizedOnly?null:application?.receipt?.receiptSha256??null,
+    diagnosticMode,
     fixtureOnly: true,
     competitiveGameQualified: false,
   };
 }
 
+function resolveNoGameWitnessSeedPrompt(request,{candidateSeat,opponentSeat,attemptIndex=null}={}) {
+  assert.ok(request&&typeof request==='object',
+    'no-game seed probe prompt request is required');
+  const prompt=request.prompt;
+  assert.ok(prompt&&typeof prompt==='object',
+    'no-game seed probe owner prompt is required');
+  assert.equal(typeof request.native?.ResolvePromptAction,'function',
+    'native ResolvePromptAction is required for deterministic setup probe decisions');
+  const name=prompt.constructor?.name??'';
+  if(name==='ConfirmPrompt'&&prompt.message==='GO_FIRST'){
+    return new request.native.ResolvePromptAction(prompt.id,true);
+  }
+  if(name==='ShowMulliganPrompt'&&
+      (prompt.message==='SETUP_PLAYER_NO_BASIC'||prompt.message==='SETUP_OPPONENT_NO_BASIC')&&
+      request.state?.phase===1&&prompt.options?.allowCancel===false){
+    const ownerId=prompt.getPerspectivePlayerId?.()??prompt.playerId;
+    const ownerSeat=Array.isArray(request.state?.players)
+      ?request.state.players.findIndex(player=>player?.id===ownerId):-1;
+    if((request.actorSeat!==0&&request.actorSeat!==1)||ownerSeat!==request.actorSeat){
+      const error=new Error('seed probe encountered a mulligan history prompt not owned by the physical actor seat');
+      error.code='NO_GAME_WITNESS_SETUP_INCOMPATIBLE';
+      error.seedProbeReason='mulliganPromptOwnerMismatch';
+      error.safePromptIdentity=captureNoGameWitnessSafePromptIdentity(
+        request,attemptIndex,{promptOwnerSeat:ownerSeat,ownerSeatMatchesActor:false}
+      );
+      throw error;
+    }
+    // Mirror the native UI's null acknowledgement. Never read concealed prompt.hands.
+    return new request.native.ResolvePromptAction(prompt.id,null);
+  }
+  if(name==='SelectPrompt'&&prompt.message==='WANT_TO_DRAW_CARDS'){
+    const values=Array.isArray(prompt.values)?prompt.values:[];
+    const allowCancel=prompt.options?.allowCancel===true;
+    if(values.length===0||allowCancel||values.some((value,index)=>
+      value!==`Draw ${values.length-1-index} card(s)`)){
+      const error=new Error('seed probe encountered a mulligan prompt outside the frozen worker setup contract');
+      error.code='NO_GAME_WITNESS_SETUP_INCOMPATIBLE';
+      error.seedProbeReason='mulliganPromptShape';
+      throw error;
+    }
+    return new request.native.ResolvePromptAction(prompt.id,0);
+  }
+  if(name==='ChooseCardsPrompt'&&prompt.message==='CHOOSE_STARTING_POKEMONS'){
+    if(request.state?.phase!==1||prompt.options?.allowCancel===true||
+        prompt.options?.isSecret===true){
+      const error=new Error('seed probe encountered an incompatible starting-Pokémon prompt shape');
+      error.code='NO_GAME_WITNESS_SETUP_INCOMPATIBLE';
+      error.seedProbeReason='startingPokemonPromptShape';
+      throw error;
+    }
+    const minimum=prompt.options?.min;
+    const maximum=prompt.options?.max;
+    if(!Number.isSafeInteger(minimum)||!Number.isSafeInteger(maximum)||
+        (minimum!==0&&minimum!==1)||maximum<minimum){
+      const error=new Error('seed probe encountered invalid starting-Pokémon selection bounds');
+      error.code='NO_GAME_WITNESS_SETUP_INCOMPATIBLE';
+      error.seedProbeReason='startingPokemonBounds';
+      throw error;
+    }
+    const cards=Array.isArray(prompt.cards?.cards)?prompt.cards.cards:[];
+    const blocked=new Set(Array.isArray(prompt.options?.blocked)?prompt.options.blocked:[]);
+    const visibleIndices=cards.map((_,index)=>index).filter(index=>!blocked.has(index));
+    if(visibleIndices.length<minimum){
+      const error=new Error('seed probe found too few legal starting-Pokémon choices');
+      error.code='NO_GAME_WITNESS_SETUP_INCOMPATIBLE';
+      error.seedProbeReason='startingPokemonInsufficientChoices';
+      throw error;
+    }
+    if(request.actorSeat===opponentSeat){
+      const active=request.state.players?.[request.actorSeat]?.active;
+      const hasGetPokemonCard=typeof active?.getPokemonCard==='function';
+      const activePokemonPresent=hasGetPokemonCard?Boolean(active.getPokemonCard()):null;
+      const activeCardsLength=Array.isArray(active?.cards)?active.cards.length:null;
+      const activeSlotOccupied=activeCardsLength===null?null:activeCardsLength>0;
+      const hasActive=hasGetPokemonCard?activePokemonPresent===true:activeSlotOccupied===true;
+      if((minimum===1&&hasActive)||(minimum===0&&!hasActive)){
+        const error=new Error('seed probe found a starting-Pokémon state outside the frozen opponent worker contract');
+        error.code='NO_GAME_WITNESS_SETUP_INCOMPATIBLE';
+        error.seedProbeReason='opponentActiveStateMismatch';
+        const promptOwnerSeat=Array.isArray(request.state?.players)
+          ?request.state.players.findIndex(player=>player?.id===prompt.playerId):-1;
+        const mismatchBranch=minimum===1?'minimum-one-has-active':'minimum-zero-no-active';
+        error.safePromptIdentity=captureNoGameWitnessSafePromptIdentity(
+          request,attemptIndex,{
+            opponentSeat,promptOwnerSeat,
+            ownerSeatMatchesActor:promptOwnerSeat===request.actorSeat,
+            activeCardsLength,hasGetPokemonCard,activePokemonPresent,
+            activeSlotOccupied,mismatchBranch
+          }
+        );
+        throw error;
+      }
+    }
+    const selected=visibleIndices.slice(0,maximum);
+    if(selected.length<minimum){
+      const error=new Error('seed probe could not satisfy the starting-Pokémon minimum');
+      error.code='NO_GAME_WITNESS_SETUP_INCOMPATIBLE';
+      error.seedProbeReason='startingPokemonMinimumUnmet';
+      throw error;
+    }
+    const validation=nativePromptProjection.validateRawPromptResult(
+      prompt,selected,request.state
+    );
+    assert.equal(validation.valid,true,
+      'seed-probe starting-Pokémon result failed native decode/validation');
+    return new request.native.ResolvePromptAction(prompt.id,validation.decoded);
+  }
+  const error=new Error('seed probe encountered an owner prompt outside the frozen setup contract');
+  error.code='NO_GAME_WITNESS_SETUP_INCOMPATIBLE';
+  error.seedProbeReason='unsupportedOwnerPrompt';
+  error.safePromptIdentity=captureNoGameWitnessSafePromptIdentity(request,attemptIndex);
+  throw error;
+}
+
+function classifyNoGameWitnessSeedProbeFailure({
+  error,observedActorSeat,targetActorSeat,seed
+}={}) {
+  if(error?.code==='NO_GAME_WITNESS_SETUP_INCOMPATIBLE'){
+    const setupReason=NO_GAME_WITNESS_SEED_PROBE_REASON_KEYS.includes(error.seedProbeReason)
+      ? error.seedProbeReason : 'otherSetupIncompatible';
+    const safePromptIdentity=[
+      'unsupportedOwnerPrompt','opponentActiveStateMismatch','mulliganPromptOwnerMismatch'
+    ].includes(setupReason)?
+      projectNoGameWitnessSafePromptIdentity(
+        error?.safePromptIdentity??error?.cause?.safePromptIdentity
+      ):null;
+    return {
+      kind:'retry',reason:'setup-incompatible',setupReason,
+      ...(safePromptIdentity?{safePromptIdentity}:{})
+    };
+  }
+  if(error?.code!=='NO_GAME_WITNESS_SEED_PROBE_STOP')throw error;
+  if(observedActorSeat===targetActorSeat)return {kind:'found',seed};
+  if(observedActorSeat!==null){
+    return {kind:'retry',reason:'wrong-seat-root',observedActorSeat};
+  }
+  throw error;
+}
+
+async function findNoGameWitnessSeed({
+  native,deckA,deckB,playerNames,candidateSeat,opponentSeat,targetActorSeat
+}={}) {
+  const setupIncompatibleByReason=Object.fromEntries(NO_GAME_WITNESS_SEED_PROBE_REASON_KEYS.map(key=>[key,0]));
+  const wrongSeatRootCounts={seat0:0,seat1:0,unknown:0};
+  let attempts=0;
+  let firstUnsupportedPrompt=null;
+  let attempt4UnsupportedPrompt=null;
+  for(let attempt=0;attempt<64;attempt++){
+    attempts++;
+    const seed='agent49-v3-no-game-witness-'+candidateSeat+'-'+targetActorSeat+'-probe-'+attempt;
+    let observedActorSeat=null;
+    try{
+      await runNativeFixtureGameAsync({
+        native,deckA,deckB,playerNames,candidateSeat,
+        originalSourceSeat:opponentSeat,seed,
+        botOptionsBySeat:native.botOptionsBySeat,
+        policySeedBySeat:[0x243f6a88,0x85a308d3],
+        maxActions:null
+      },request=>{
+        if(request.decisionKind==='owner-root'){
+          observedActorSeat=request.actorSeat;
+          const error=new Error('seed probe intentionally stops before the first strategic root action');
+          error.code='NO_GAME_WITNESS_SEED_PROBE_STOP';
+          throw error;
+        }
+        if(request.decisionKind==='owner-prompt')
+          return resolveNoGameWitnessSeedPrompt(request,{candidateSeat,opponentSeat,attemptIndex:attempt});
+        throw new Error('seed probe encountered an unsupported native decision request');
+      });
+    }catch(error){
+      const disposition=classifyNoGameWitnessSeedProbeFailure({
+        error,observedActorSeat,targetActorSeat,seed
+      });
+      if(disposition.kind==='found')return disposition.seed;
+      if(disposition.kind==='retry'){
+        if(disposition.safePromptIdentity){
+          if(firstUnsupportedPrompt===null)firstUnsupportedPrompt=disposition.safePromptIdentity;
+          if(disposition.safePromptIdentity.attemptIndex===4)
+            attempt4UnsupportedPrompt=disposition.safePromptIdentity;
+        }
+        if(disposition.reason==='setup-incompatible'){
+          const key=NO_GAME_WITNESS_SEED_PROBE_REASON_KEYS.includes(disposition.setupReason)?disposition.setupReason:'otherSetupIncompatible';
+          setupIncompatibleByReason[key]++;
+        }else if(disposition.reason==='wrong-seat-root'){
+          const key=disposition.observedActorSeat===0?'seat0':disposition.observedActorSeat===1?'seat1':'unknown';
+          wrongSeatRootCounts[key]++;
+        }
+        continue;
+      }
+    }
+  }
+  const error=new Error('could not find a deterministic public setup seed for physical actor seat '+targetActorSeat);
+  error.seedProbeSummary=projectNoGameWitnessSeedProbeSummary({
+    candidateSeat,targetActorSeat,attempts,setupIncompatibleByReason,wrongSeatRootCounts,
+    firstUnsupportedPrompt,attempt4UnsupportedPrompt
+  });
+  throw error;
+}
+
+async function runV3NativeNoGameWitness({
+  env=process.env,
+  outputPath=path.join(ROOT,'artifacts/agent36-v3-fixture/native-no-game-witness.json')
+}={}) {
+  const enginePin=env.AGENT36_TWINLEAF_COMMIT_SHA;
+  const runnerRevision=env.GITHUB_SHA;
+  assert.equal(enginePin,V3_FIXTURE.engineCommit,
+    'native no-game witness must use the reviewed pinned Twinleaf commit');
+  assert.match(runnerRevision??'',GIT_SHA,
+    'native no-game witness requires the exact research revision');
+  const candidateBytes=fs.readFileSync(path.join(ROOT,V3_FIXTURE.candidatePath));
+  const fieldBytes=fs.readFileSync(path.join(ROOT,V3_FIXTURE.fieldPath));
+  const admissionBytes=fs.readFileSync(path.join(ROOT,V3_FIXTURE.originalAdmissionPath));
+  const candidateDeck=JSON.parse(candidateBytes.toString('utf8'));
+  const field=JSON.parse(fieldBytes.toString('utf8'));
+  const opponentDeck=field.decks.find(deck=>deck.rank===1);
+  const admission=JSON.parse(admissionBytes.toString('utf8'));
+  const rank1Admission=admission.rows.find(row=>row.rank===1);
+  assert.equal(gitBlobSha(candidateBytes),V3_FIXTURE.candidateGitBlobSha);
+  assert.equal(gitBlobSha(fieldBytes),V3_FIXTURE.fieldGitBlobSha);
+  assert.equal(admission.sourceGitBlobSha,V3_FIXTURE.fieldGitBlobSha);
+  assert.equal(rank1Admission?.rosterGitBlobSha,V3_FIXTURE.fieldGitBlobSha);
+  assert.equal(rank1Admission?.competitivelyQualified,false);
+  assert.equal(printed60Fingerprint(candidateDeck),V3_FIXTURE.candidateDeckSha256);
+  assert.equal(printed60Fingerprint(opponentDeck),V3_FIXTURE.opponentDeckSha256);
+  const candidatePolicy=loadWorkerPolicyModule(ROOT,V3_FIXTURE.candidateWorkerPolicyPath,'candidate');
+  const opponentPolicy=loadWorkerPolicyModule(ROOT,V3_FIXTURE.opponentWorkerPolicyPath,'opponent');
+  const native=loadNativeRoleDependencies({enginePin});
+  const allCards=native.CardManager.getInstance().getAllCards();
+  const candidateResolved=resolvePrintedDeck(candidateDeck,allCards,
+    {label:'native no-game witness candidate deck'});
+  const opponentResolved=resolvePrintedDeck(opponentDeck,allCards,
+    {label:'native no-game witness Aichi rank-1 opponent deck'});
+  assert.equal(candidateResolved.total,60);
+  assert.equal(opponentResolved.total,60);
+  assert.equal(typeof native.ActionEnumerator,'function');
+  assert.equal(typeof native.Simulator,'function');
+  const witnesses=[];
+  for(const candidateSeat of [0,1]){
+    const opponentSeat=1-candidateSeat;
+    const assignment=resolveFixtureSeatAssignment({
+      candidateSeat,opponentSeat,
+      candidateDeck:candidateResolved.fullNames,
+      opponentDeck:opponentResolved.fullNames
+    });
+    for(const actorSeat of [0,1]){
+      let seed=null;
+      try {
+        seed=await findNoGameWitnessSeed({
+          native,deckA:assignment.deckA,deckB:assignment.deckB,
+          playerNames:assignment.playerNames,candidateSeat,opponentSeat,
+          targetActorSeat:actorSeat
+        });
+        const witness=await runV3FixtureGame({
+          env,candidateSeat,opponentSeat,seed,witnessOnly:true,
+          expectedActorSeat:actorSeat,
+          outputDir:path.join(ROOT,V3_FIXTURE.outputDir,'native-no-game-witness',
+            'candidate-seat-'+candidateSeat+'-actor-seat-'+actorSeat)
+        });
+        witnesses.push(witness);
+      } catch(error) {
+        const failureReceipt=buildNoGameWitnessFailureReceipt({
+          error,candidateSeat,opponentSeat,actorSeat,
+          stage:seed===null?'seed-probe':'native-no-game-witness',
+          runnerRevision,enginePin,candidatePolicy,opponentPolicy,
+          completedWitnesses:witnesses
+        });
+        const failurePath=path.join(ROOT,V3_FIXTURE.outputDir,'native-no-game-witness',
+          'failure-candidate-seat-'+candidateSeat+'-actor-seat-'+actorSeat+'.json');
+        writeJsonAtomic(failurePath,failureReceipt);
+        process.stderr.write(JSON.stringify({
+          status:'NATIVE_NO_GAME_WITNESS_FAILED',
+          failureStage:failureReceipt.failureStage,
+          completedWitnessCount:failureReceipt.completedWitnessCount,
+          fixtureFailure:{
+            code:failureReceipt.fixtureFailure?.code??null,
+            stage:failureReceipt.fixtureFailure?.stage??null
+          },
+          seedProbeSummary:failureReceipt.seedProbeSummary??null
+        },null,2)+'\n');
+        const failureError=new Error(
+          'Native V3 no-game witness failed; privacy-safe failure receipt preserved.'
+        );
+        failureError.code=failureReceipt.fixtureFailure.code;
+        failureError.failureReceiptPath=path.relative(ROOT,failurePath).split(path.sep).join('/');
+        throw failureError;
+      }
+    }
+  }
+  const receipt={
+    schema:'agent36-v3-native-no-game-witness-v1',
+    fixtureOnly:true,
+    gameExecuted:false,
+    liveActionsDispatched:witnesses.some(witness=>witness.liveActionDispatched===true),
+    allStoreStatesUnchanged:witnesses.every(witness=>witness.fullOriginalStoreStateUnchanged===true),
+    allSelectedActionsValidated:witnesses.every(witness=>witness.selectedActionValidated===true),
+    allActorObservationsUsed:witnesses.every(witness=>witness.actorObservationUsed===true),
+    allWorkersClosed:witnesses.every(witness=>witness.allWorkerSessionsClosed===true),
+    allWorkerPoliciesActorOnly:witnesses.every(witness=>witness.actorOnlyWorkerInput===true),
+    generatedAt:new Date().toISOString(),
+    researchRevisionSha:runnerRevision,
+    twinleafCommitSha:enginePin,
+    candidatePrinted60Sha256:V3_FIXTURE.candidateDeckSha256,
+    opponentPrinted60Sha256:V3_FIXTURE.opponentDeckSha256,
+    candidatePolicySha256:candidatePolicy.policySha256,
+    opponentPolicySha256:opponentPolicy.policySha256,
+    candidatePolicyVersion:candidatePolicy.POLICY_VERSION,
+    opponentPolicyVersion:opponentPolicy.POLICY_VERSION,
+    coverage:['0:0','0:1','1:0','1:1'],
+    witnesses
+  };
+  validateNoGameWitnessReceipt(receipt,{
+    researchRevisionSha:runnerRevision,twinleafCommitSha:enginePin,
+    candidatePrinted60Sha256:V3_FIXTURE.candidateDeckSha256,
+    opponentPrinted60Sha256:V3_FIXTURE.opponentDeckSha256,
+    candidatePolicySha256:candidatePolicy.policySha256,
+    opponentPolicySha256:opponentPolicy.policySha256,
+    candidatePolicyVersion:candidatePolicy.POLICY_VERSION,
+    opponentPolicyVersion:opponentPolicy.POLICY_VERSION
+  });
+  writeJsonAtomic(outputPath,receipt);
+  process.stdout.write(JSON.stringify({
+    status:'NATIVE_NO_GAME_WITNESS_VERIFIED',
+    researchRevisionSha:runnerRevision,twinleafCommitSha:enginePin,
+    coverage:receipt.coverage,outputPath:path.relative(ROOT,outputPath).split(path.sep).join('/')
+  },null,2)+'\n');
+  return {...receipt,outputPath:path.relative(ROOT,outputPath).split(path.sep).join('/')};
+}
+
+function runV3CompiledSeatWitness({
+  env=process.env,
+  outputPath=path.join(ROOT,'artifacts/agent36-v3-fixture/compiled-seat-witness.json')
+}={}) {
+  const enginePin=env.AGENT36_TWINLEAF_COMMIT_SHA;
+  const runnerRevision=env.GITHUB_SHA;
+  assert.equal(enginePin,V3_FIXTURE.engineCommit,
+    'compiled seat witness must use the reviewed pinned Twinleaf commit');
+  assert.match(runnerRevision??'',GIT_SHA,
+    'compiled seat witness requires the exact research revision');
+  const candidateBytes=fs.readFileSync(path.join(ROOT,V3_FIXTURE.candidatePath));
+  const fieldBytes=fs.readFileSync(path.join(ROOT,V3_FIXTURE.fieldPath));
+  const admissionBytes=fs.readFileSync(path.join(ROOT,V3_FIXTURE.originalAdmissionPath));
+  const candidateDeck=JSON.parse(candidateBytes.toString('utf8'));
+  const field=JSON.parse(fieldBytes.toString('utf8'));
+  const opponentDeck=field.decks.find(deck=>deck.rank===1);
+  const admission=JSON.parse(admissionBytes.toString('utf8'));
+  const rank1Admission=admission.rows.find(row=>row.rank===1);
+  assert.equal(gitBlobSha(candidateBytes),V3_FIXTURE.candidateGitBlobSha,
+    'compiled seat witness candidate source blob changed');
+  assert.equal(gitBlobSha(fieldBytes),V3_FIXTURE.fieldGitBlobSha,
+    'compiled seat witness Aichi field source blob changed');
+  assert.equal(admission.sourceGitBlobSha,V3_FIXTURE.fieldGitBlobSha,
+    'compiled seat witness admission ledger does not bind the frozen field');
+  assert.equal(rank1Admission?.rosterGitBlobSha,V3_FIXTURE.fieldGitBlobSha,
+    'compiled seat witness rank-1 admission does not bind the frozen field');
+  assert.equal(rank1Admission?.competitivelyQualified,false,
+    'compiled seat witness must preserve the unqualified admission status');
+  assert.equal(printed60Fingerprint(candidateDeck),V3_FIXTURE.candidateDeckSha256,
+    'compiled seat witness candidate printed-60 fingerprint changed');
+  assert.equal(printed60Fingerprint(opponentDeck),V3_FIXTURE.opponentDeckSha256,
+    'compiled seat witness opponent printed-60 fingerprint changed');
+  const native=loadNativeRoleDependencies({enginePin});
+  const allCards=native.CardManager.getInstance().getAllCards();
+  const candidateResolved=resolvePrintedDeck(candidateDeck,allCards,
+    {label:'compiled V3 candidate deck'});
+  const opponentResolved=resolvePrintedDeck(opponentDeck,allCards,
+    {label:'compiled V3 rank-1 opponent deck'});
+  assert.equal(candidateResolved.total,60);
+  assert.equal(opponentResolved.total,60);
+  assert.equal(typeof native.ActionEnumerator,'function',
+    'compiled Twinleaf ActionEnumerator is unavailable');
+  assert.equal(typeof native.Simulator,'function',
+    'compiled Twinleaf Simulator is unavailable');
+  const seatWitnesses=[0,1].map(candidateSeat=>{
+    const opponentSeat=1-candidateSeat;
+    const assignment=resolveFixtureSeatAssignment({
+      candidateSeat,opponentSeat,
+      candidateDeck:candidateResolved.fullNames,
+      opponentDeck:opponentResolved.fullNames
+    });
+    assert.deepEqual(assignment.roleSeatMap,{candidate:candidateSeat,opponent:opponentSeat});
+    const expectedDeckA=candidateSeat===0?
+      candidateResolved.fullNames:opponentResolved.fullNames;
+    const expectedDeckB=candidateSeat===1?
+      candidateResolved.fullNames:opponentResolved.fullNames;
+    assert.deepEqual(assignment.deckA,expectedDeckA,
+      'physical seat A does not receive the correct role deck');
+    assert.deepEqual(assignment.deckB,expectedDeckB,
+      'physical seat B does not receive the correct role deck');
+    return {
+      candidateSeat,opponentSeat,
+      candidatePhysicalDeck:candidateSeat===0?'A':'B',
+      opponentPhysicalDeck:opponentSeat===0?'A':'B',
+      candidateCardCount:candidateResolved.total,
+      opponentCardCount:opponentResolved.total,
+      candidateEngineDeckSha256:evidenceBundleSha256(candidateResolved.fullNames),
+      opponentEngineDeckSha256:evidenceBundleSha256(opponentResolved.fullNames)
+    };
+  });
+  const witness={
+    schema:'agent36-v3-compiled-seat-witness-v1',
+    fixtureOnly:true,
+    gameExecuted:false,
+    twinleafCommitSha:enginePin,
+    researchRevisionSha:runnerRevision,
+    cardPoolInitializationSha256:evidenceBundleSha256(native.cardPoolInitialization),
+    cardPoolCount:allCards.length,
+    actionEnumeratorAvailable:true,
+    simulatorAvailable:true,
+    candidatePrinted60Sha256:V3_FIXTURE.candidateDeckSha256,
+    opponentPrinted60Sha256:V3_FIXTURE.opponentDeckSha256,
+    seatWitnesses
+  };
+  writeJsonAtomic(outputPath,witness);
+  process.stdout.write(JSON.stringify(witness,null,2)+'\\n');
+  return {...witness,outputPath:path.relative(ROOT,outputPath).split(path.sep).join('/')};
+}
 
 async function runV3FixtureGameBothSeats({env=process.env,outputDirRoot=path.join(ROOT,V3_FIXTURE.outputDir)}={}) {
   const results=[];
+  const candidatePolicy=loadWorkerPolicyModule(ROOT,V3_FIXTURE.candidateWorkerPolicyPath,'candidate');
+  const opponentPolicy=loadWorkerPolicyModule(ROOT,V3_FIXTURE.opponentWorkerPolicyPath,'opponent');
+  const seedRegistration=readPublicSeedRegistration({
+    repositoryRoot:ROOT,artifactRef:env.AGENT36_V3_PREDEAL_ARTIFACT_REF,
+    enginePin:env.AGENT36_TWINLEAF_COMMIT_SHA,
+    candidatePolicyVersion:candidatePolicy.POLICY_VERSION,
+    opponentPolicyVersion:opponentPolicy.POLICY_VERSION
+  });
+  verifyNoGameWitnessReceipt({
+    receiptPath:env.AGENT36_V3_NO_GAME_WITNESS_RECEIPT,env,repositoryRoot:ROOT
+  });
   for(const candidateSeat of [0,1]) {
     try {
       results.push(await runV3FixtureGame({
         env,candidateSeat,opponentSeat:1-candidateSeat,
+        seedRegistrationInput:seedRegistration,
         outputDir:path.join(outputDirRoot,'candidate-seat-'+candidateSeat)
       }));
     } catch(error) {
@@ -1938,10 +3365,47 @@ async function runV3FixtureGameBothSeats({env=process.env,outputDirRoot=path.joi
 
 async function main(argv=process.argv.slice(2),env=process.env){
   const [command,...args]=argv;
+  if(command==='native-no-game-witness'){
+    return runV3NativeNoGameWitness({env});
+  }
+  if(command==='verify-no-game-witness'){
+    const receiptPath=args[0]||env.AGENT36_V3_NO_GAME_WITNESS_RECEIPT;
+    const receipt=verifyNoGameWitnessReceipt({receiptPath,env});
+    process.stdout.write(JSON.stringify({status:'NO_GAME_WITNESS_VERIFIED',
+      researchRevisionSha:receipt.researchRevisionSha,
+      twinleafCommitSha:receipt.twinleafCommitSha,
+      coverage:receipt.coverage
+    },null,2)+'\n');
+    return receipt;
+  }
+  if(command==='validate-seed-registration'){
+    const candidatePolicy=loadWorkerPolicyModule(ROOT,V3_FIXTURE.candidateWorkerPolicyPath,'candidate');
+    const opponentPolicy=loadWorkerPolicyModule(ROOT,V3_FIXTURE.opponentWorkerPolicyPath,'opponent');
+    const registration=readPublicSeedRegistration({
+      repositoryRoot:ROOT,
+      artifactRef:args[0]||env.AGENT36_V3_PREDEAL_ARTIFACT_REF,
+      enginePin:env.AGENT36_TWINLEAF_COMMIT_SHA,
+      candidatePolicyVersion:candidatePolicy.POLICY_VERSION,
+      opponentPolicyVersion:opponentPolicy.POLICY_VERSION
+    });
+    process.stdout.write(JSON.stringify({
+      status:'PUBLIC_SEED_REGISTRATION_VALIDATED',
+      registrationId:registration.registration.registrationId,
+      trialId:registration.registration.trialId,
+      seedSha256:createHash('sha256').update(registration.registration.seed,'utf8').digest('hex'),
+      registrationSha256:registration.registrationSha256,
+      registrationGitBlobSha:registration.registrationGitBlobSha,
+      artifactRef:registration.artifactRef
+    },null,2)+'\n');
+    return registration;
+  }
   if(command==='fixture-game'){
     const result=await runV3FixtureGameBothSeats({env});
     process.stdout.write(JSON.stringify(result,null,2)+'\n');
     return result;
+  }
+  if(command==='compiled-seat-witness'){
+    return runV3CompiledSeatWitness({env});
   }
   const repositoryRoot=ROOT;
   const common={
@@ -2054,7 +3518,7 @@ async function main(argv=process.argv.slice(2),env=process.env){
     },null,2)+'\n');
     return result;
   }
-  throw new Error('Usage: node agent36-v3-runner.cjs fixture-game | predeal <committed-predeal-ref> | postgame <predeal-ref> <trial-ref> <persistence-receipt-ref> [application-receipt-ref evidence-map-ref [reviews-ref] [policy-panel-receipts-ref]] | build-bundle <predeal-ref> <trial-ref> <persistence-receipt-ref> <deal-receipt-ref> <application-receipt-ref> <evidence-map-ref> [reviews-ref] [policy-panel-receipts-ref]');
+  throw new Error('Usage: node agent36-v3-runner.cjs fixture-game | native-no-game-witness | verify-no-game-witness <receipt-ref> | validate-seed-registration <registration-ref> | compiled-seat-witness | predeal <committed-predeal-ref> | postgame <predeal-ref> <trial-ref> <persistence-receipt-ref> [application-receipt-ref evidence-map-ref [reviews-ref] [policy-panel-receipts-ref]] | build-bundle <predeal-ref> <trial-ref> <persistence-receipt-ref> <deal-receipt-ref> <application-receipt-ref> <evidence-map-ref> [reviews-ref] [policy-panel-receipts-ref]');
 }
 
 if(require.main===module){
@@ -2064,7 +3528,7 @@ if(require.main===module){
   });
 }
 
-module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,V3_FIXTURE,V3_FIXTURE_TEST_PATHS,
+module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,V3_FIXTURE,V3_FIXTURE_TEST_PATHS,policyEnvironmentAllowlist,
   V3_FIXTURE_COMMON_BINDINGS,V3_FIXTURE_PROMPT_CHAIN,
   V3_FIXTURE_WORKER_COMMON_BINDINGS,V3_FIXTURE_WORKER_PROMPT_CHAIN,
   V3_FIXTURE_CANDIDATE_POLICY_OPTIONS,V3_FIXTURE_OPPONENT_POLICY_OPTIONS,validateRepositoryName,
@@ -2076,18 +3540,26 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,V3_FIXTURE,V3_FIXTURE_TEST_PATHS,
   prepareV3RoleRuntimeEvidence,runPinnedV3RoleRuntime,
   combineAndPinV3RoleRuntime,createV3PolicyApplicationReceipt,
   readJsonFile,bindFixtureFormatToApplicationReceipt,buildV3BundleFromArtifacts,
+  projectActorOnlyBoundaryToTrial,
   revalidatePreDealPersistenceReceipt,
   revalidateDealGenerationReceipt,writeJsonAtomic,main,
   printed60Fingerprint,
   resolvePrintedDeck,resolveFixtureSeatAssignment,candidateOpponentRoleSeats,assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,
   buildFixtureRoleEntryManifest,
   fixtureChallengeSuiteSha256,
-  loadWorkerPolicyModule,buildRoleWorkerBundle,
+  loadWorkerPolicyModule,buildRoleWorkerBundle,loadNativeRoleDependencies,V3_FIXTURE,
+  assertWorkerOnlyPolicyPathsAbsentFromHostClosure,preloadRoleHostModules,
   createV3WorkerExecutionAudit,createV3WorkerDecisionResolver,
   buildFixturePolicyConstraints,
   buildFixtureRoleIdentities,
   buildFixturePolicyPlan,
   createUnderworldRuntimePatchReceipt,
   normalizeV3FixtureRoleResult,
-  runV3FixtureGame,runV3FixtureGameBothSeats
+  runV3FixtureGame,runV3FixtureGameBothSeats,runV3CompiledSeatWitness,
+  validatePublicSeedRegistration,readPublicSeedRegistration,
+  validateNoGameWitnessReceipt,verifyNoGameWitnessReceipt,
+  projectNativeFixtureFailureForReceipt,projectV3FixtureFailureForReceipt,
+  projectV3RoleFailureForReceipt,projectV3WorkerAuditForFailure,buildNoGameWitnessFailureReceipt,buildV3RunnerFailureError,
+  resolveNoGameWitnessSeedPrompt,classifyNoGameWitnessSeedProbeFailure,
+  findNoGameWitnessSeed,runV3NativeNoGameWitness
 };

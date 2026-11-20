@@ -130,24 +130,48 @@ test('public Actions artifact path exposes only encrypted or sanitized fixture d
   const uploadIndex = workflow.indexOf('Preserve the complete v9 root ledger and owner-only aftergame evidence');
   assert.ok(encryptionIndex >= 0 && uploadIndex > encryptionIndex,
     'private diagnostic encryption must run before artifact upload');
+  const compiledIndex = workflow.indexOf('Verify V3 compiled no-fixture worker, prompt, privacy, and fixture contracts');
+  const witnessIndex = workflow.indexOf('Verify exact-head V3 native no-game witness for both roles and physical seats');
+  assert.ok(compiledIndex >= 0 && witnessIndex > compiledIndex,
+    'the compiled no-fixture suite must pass before the native no-game witness');
+  assert.match(workflow,/agent36_v3_native_no_game_witness:/);
+  assert.match(workflow,/Find exact-SHA prior successful contract-only gate/);
+  assert.match(workflow,/Find exact-SHA prior successful native no-game witness run/);
+  assert.ok(workflow.includes('uses: actions/download-artifact@v4'));
+  assert.ok(workflow.includes('name: agent36-v3-contract-only-${{ github.sha }}'));
+  assert.ok(workflow.includes('name: agent36-v3-native-no-game-witness-${{ github.sha }}'));
+  const acceptanceBundleIndex = workflow.indexOf('Preserve exact-SHA V3 native no-game witness acceptance bundle');
+  assert.ok(acceptanceBundleIndex >= 0 && acceptanceBundleIndex < encryptionIndex,
+    'only the non-game acceptance receipt bundle may be uploaded before fixture diagnostic encryption');
   const encryptionBlock = workflow.slice(encryptionIndex, uploadIndex);
-  assert.match(encryptionBlock, /if:\s*\$\{\{\s*always\(\)\s*&&\s*inputs\.agent36_v3_fixture_game(?:\s*&&\s*steps\.diagnostic_recipient\.outputs\.mode\s*==\s*'encrypted-full')?\s*\}\}/);
+  assert.match(encryptionBlock, /if:\s*\$\{\{\s*always\(\)\s*&&\s*inputs\.agent36_v3_fixture_game\s*&&\s*steps\.diagnostic_recipient\.outputs\.mode\s*==\s*'encrypted-full'\s*\}\}/);
   assert.doesNotMatch(encryptionBlock, /if:\s*\$\{\{\s*always\(\)\s*&&\s*!inputs\.contract_only\s*\}\}/);
   assert.match(workflow, /AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:\s*\$\{\{\s*vars\.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM\s*\}\}/);
-  assert.match(workflow, /run: node simulation\/evaluation\/2026-11\/agent1-private-diagnostic-envelope\.cjs encrypt-fixture-artifacts artifacts\/agent36-v3-fixture/);
+  assert.match(workflow,/mode=sanitized-only/);
+  assert.match(workflow,/mode=encrypted-full/);
+  assert.match(workflow,/Verify exact-head V3 native no-game witness for both roles and physical seats/);
+  assert.match(workflow,/native-no-game-witness\.json/);
+  assert.match(workflow, /encrypt-fixture-artifacts artifacts\/agent36-v3-fixture\/candidate-seat-0/);
+  assert.match(workflow, /encrypt-fixture-artifacts artifacts\/agent36-v3-fixture\/candidate-seat-1/);
   const uploadBlock = workflow.slice(uploadIndex, workflow.indexOf('\n      - name:', uploadIndex + 1) < 0
     ? workflow.length
     : workflow.indexOf('\n      - name:', uploadIndex + 1));
   assert.match(uploadBlock, /if:\s*\$\{\{\s*always\(\)\s*&&\s*!inputs\.contract_only\s*\}\}/);
   const fixturePaths = uploadBlock.split('\n').map(line => line.trim())
     .filter(line => line.includes('artifacts/agent36-v3-fixture/'));
-  assert.ok(fixturePaths.includes('artifacts/agent36-v3-fixture/fixture-game.private.enc.json'));
-  assert.ok(fixturePaths.includes('artifacts/agent36-v3-fixture/fixture-game.public-manifest.json'));
-  assert.ok(fixturePaths.includes('!artifacts/agent36-v3-fixture/fixture-game.json'));
-  assert.ok(fixturePaths.includes('!artifacts/agent36-v3-fixture/fixture-game.txt'));
+  for (const seat of ['candidate-seat-0','candidate-seat-1']) {
+    assert.ok(fixturePaths.includes('artifacts/agent36-v3-fixture/'+seat+'/fixture-game.private.enc.json'));
+    assert.ok(fixturePaths.includes('artifacts/agent36-v3-fixture/'+seat+'/fixture-game.public-manifest.json'));
+    assert.ok(fixturePaths.includes('artifacts/agent36-v3-fixture/'+seat+'/fixture-game.sanitized.json'));
+    assert.ok(fixturePaths.includes('artifacts/agent36-v3-fixture/'+seat+'/fixture-game.sanitized.txt'));
+    assert.ok(fixturePaths.includes('!artifacts/agent36-v3-fixture/'+seat+'/fixture-game.json'));
+    assert.ok(fixturePaths.includes('!artifacts/agent36-v3-fixture/'+seat+'/fixture-game.txt'));
+    assert.ok(!fixturePaths.includes('artifacts/agent36-v3-fixture/'+seat+'/fixture-game.json'));
+    assert.ok(!fixturePaths.includes('artifacts/agent36-v3-fixture/'+seat+'/fixture-game.txt'));
+  }
+  assert.ok(fixturePaths.includes('artifacts/agent36-v3-fixture/native-no-game-witness.json'));
+  assert.ok(uploadBlock.includes('artifacts/prior-v3-acceptance/'));
   assert.ok(!fixturePaths.includes('artifacts/agent36-v3-fixture/'));
-  assert.ok(!fixturePaths.includes('artifacts/agent36-v3-fixture/fixture-game.json'));
-  assert.ok(!fixturePaths.includes('artifacts/agent36-v3-fixture/fixture-game.txt'));
 });
 test('workflow CLI encrypt mode writes ciphertext and deletes plaintext for upload', () => {
   const keys = keyPair();

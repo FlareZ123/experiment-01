@@ -28,6 +28,16 @@ function makeBundle() {
   return { sourceRoot, bundle };
 }
 
+function withOwnerWritePermission(target, callback) {
+  const originalMode = fs.statSync(target).mode & 0o777;
+  fs.chmodSync(target, originalMode | 0o200);
+  try {
+    return callback();
+  } finally {
+    fs.chmodSync(target, originalMode);
+  }
+}
+
 function cleanupFixture({ sourceRoot, bundle }) {
   if (bundle) cleanupPolicyBundle(bundle);
   if (sourceRoot) fs.rmSync(sourceRoot, { recursive: true, force: true });
@@ -39,9 +49,11 @@ test('bundle verification rejects on-disk manifest and in-memory receipt mutatio
     const { bundle } = fixture;
     const manifestPath = path.join(bundle.root, 'bundle-manifest.json');
     const originalBytes = fs.readFileSync(manifestPath);
-    fs.writeFileSync(manifestPath, Buffer.concat([originalBytes, Buffer.from(' ')]));
-    assert.throws(() => verifyPolicyBundle(bundle), /manifest digest/);
-    fs.writeFileSync(manifestPath, originalBytes);
+    withOwnerWritePermission(manifestPath, () => {
+      fs.writeFileSync(manifestPath, Buffer.concat([originalBytes, Buffer.from(' ')]));
+      assert.throws(() => verifyPolicyBundle(bundle), /manifest digest/);
+      fs.writeFileSync(manifestPath, originalBytes);
+    });
     verifyPolicyBundle(bundle);
 
     const originalManifestSha = bundle.manifestSha256;
@@ -74,15 +86,22 @@ test('bundle verification rejects file-byte tampering and unmanifested extra fil
   try {
     const workerPath = path.join(fixture.bundle.root, 'worker.cjs');
     const original = fs.readFileSync(workerPath);
-    fs.writeFileSync(workerPath, Buffer.from('tampered worker bytes'));
-    assert.throws(() => verifyPolicyBundle(fixture.bundle), /materialized policy bundle/);
-    fs.writeFileSync(workerPath, original);
+    withOwnerWritePermission(workerPath, () => {
+      fs.writeFileSync(workerPath, Buffer.from('tampered worker bytes'));
+      assert.throws(() => verifyPolicyBundle(fixture.bundle), /materialized policy bundle/);
+      fs.writeFileSync(workerPath, original);
+    });
     verifyPolicyBundle(fixture.bundle);
 
     const extraPath = path.join(fixture.bundle.root, 'unexpected.cjs');
-    fs.writeFileSync(extraPath, 'unexpected');
-    assert.throws(() => verifyPolicyBundle(fixture.bundle), /materialized policy bundle/);
-    fs.rmSync(extraPath);
+    withOwnerWritePermission(fixture.bundle.root, () => {
+      try {
+        fs.writeFileSync(extraPath, 'unexpected');
+        assert.throws(() => verifyPolicyBundle(fixture.bundle), /materialized policy bundle/);
+      } finally {
+        fs.rmSync(extraPath, { force: true });
+      }
+    });
     verifyPolicyBundle(fixture.bundle);
   } finally {
     cleanupFixture(fixture);
@@ -95,9 +114,11 @@ test('bundle verification rejects symlinks, source symlinks and special files', 
   try {
     const { sourceRoot, bundle } = fixture;
     const linkPath = path.join(bundle.root, 'worker-link.cjs');
-    fs.symlinkSync('worker.cjs', linkPath);
-    assert.throws(() => verifyPolicyBundle(bundle), /symlinks/);
-    fs.rmSync(linkPath);
+    withOwnerWritePermission(bundle.root, () => {
+      fs.symlinkSync('worker.cjs', linkPath);
+      assert.throws(() => verifyPolicyBundle(bundle), /symlinks/);
+      fs.rmSync(linkPath);
+    });
     verifyPolicyBundle(bundle);
 
     const sourceLink = path.join(sourceRoot, 'worker-link.cjs');
@@ -109,16 +130,26 @@ test('bundle verification rejects symlinks, source symlinks and special files', 
         relativePath: 'worker-link.cjs',
         sha256: sha256(fs.readFileSync(sourceLink))
       }]
-    }), /must not be symlinks/);
+    }), /regular non-symlink file/);
     fs.rmSync(sourceLink);
 
     const socketPath = path.join(bundle.root, 'unexpected.sock');
     socketServer = net.createServer();
-    await new Promise((resolve, reject) => {
-      socketServer.once('error', reject);
-      socketServer.listen(socketPath, resolve);
-    });
-    assert.throws(() => verifyPolicyBundle(bundle), /special files/);
+    const rootMode = fs.statSync(bundle.root).mode & 0o777;
+    fs.chmodSync(bundle.root, rootMode | 0o200);
+    try {
+      await new Promise((resolve, reject) => {
+        socketServer.once('error', reject);
+        socketServer.listen(socketPath, resolve);
+      });
+      assert.throws(() => verifyPolicyBundle(bundle), /special files/);
+    } finally {
+      if (socketServer?.listening) {
+        await new Promise(resolve => socketServer.close(resolve));
+      }
+      socketServer = null;
+      fs.chmodSync(bundle.root, rootMode);
+    }
   } finally {
     if (socketServer) {
       await new Promise(resolve => socketServer.close(resolve));

@@ -7,6 +7,9 @@ const path=require('node:path');
 const {evidenceBundleSha256}=require('../simulation/evaluation/agent45-independent-competitive-admission.cjs');
 const {withPinnedResearchModuleLoads}=require('../simulation/evaluation/agent36-runtime-module-pin.cjs');
 const I=require('../simulation/evaluation/2026-11/agent42-role-policy-identity.cjs');
+const {projectActorOnlyBoundaryToTrial,normalizeV3FixtureRoleResult}=require('../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
+const {inspectActorOnlyExecutionBoundary}=require('../simulation/twinleaf/agent44-role-scoped-policy-composition.cjs');
+const {sanitizeFixtureArtifact}=require('../simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs');
 const h=n=>n.toString(16).padStart(64,'0'),g=n=>n.toString(16).padStart(40,'0');
 const constraints={decisionBudget:{maxNodes:128,deadlineMs:250},hiddenInformationBoundary:{forbidOpponentPrivateHand:true,forbidDeckOrder:true},sharedEngineCompatibilityPatches:[]};
 const constraintsSha=evidenceBundleSha256(constraints);
@@ -197,8 +200,42 @@ test('dynamic require, ESM, external packages, file reads and unseeded randomnes
  assert.throws(()=>manifest(root),/module-loader capture/);
  fs.writeFileSync(path.join(root,'candidate.cjs'),"const fs=require('node:fs'); module.exports=fs.readFileSync('./other.cjs','utf8');\n");
  assert.throws(()=>manifest(root),/unreviewed file loading/);
+ fs.writeFileSync(path.join(root,'candidate.cjs'),
+   "const {spawnSync}=require('node:child_process'); module.exports=spawnSync;\n");
+ assert.throws(()=>manifest(root),/process-or-worker/);
+
  fs.writeFileSync(path.join(root,'candidate.cjs'),'module.exports=Math.random();\n');
  assert.throws(()=>manifest(root),/unseeded-random/);
+}));
+
+test('exact host Docker process and clock file reads are trusted without widening policy source',()=>repo(root=>{
+ const launcher='simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs';
+ const clock='simulation/evaluation/agent45-aichi-clock-receipt.cjs';
+ const untrusted='simulation/evaluation/2026-11/unreviewed-spawn.cjs';
+ for(const name of [launcher,clock,untrusted]){
+  fs.mkdirSync(path.dirname(path.join(root,name)),{recursive:true});
+ }
+ fs.writeFileSync(path.join(root,launcher),
+  "const fs=require('node:fs'); const {spawnSync}=require('node:child_process');"+
+  " module.exports={read:()=>fs.readFileSync('public'),spawn:spawnSync};\n");
+ fs.writeFileSync(path.join(root,clock),
+  "const fs=require('node:fs'); module.exports={read:()=>fs.readFileSync('public')};\n");
+ const safe=manifest(root,'candidate.cjs',{commonRuntimeBindings:[
+  ...bindings,{name:'hostDockerLauncher',path:launcher},
+  {name:'hostPublicClock',path:clock}
+ ]});
+ assert.ok(safe.manifest.files.some(file=>file.path===launcher));
+ assert.ok(safe.manifest.files.some(file=>file.path===clock));
+ fs.writeFileSync(path.join(root,untrusted),
+  "const {spawnSync}=require('node:child_process'); module.exports=spawnSync;\n");
+ assert.throws(()=>manifest(root,'candidate.cjs',{commonRuntimeBindings:[
+  ...bindings,{name:'unreviewedSpawn',path:untrusted}
+ ]}),/process-or-worker/);
+ fs.writeFileSync(path.join(root,untrusted),
+  "const fs=require('node:fs'); module.exports=()=>fs.readFileSync('public');\n");
+ assert.throws(()=>manifest(root,'candidate.cjs',{commonRuntimeBindings:[
+  ...bindings,{name:'unreviewedReader',path:untrusted}
+ ]}),/unreviewed file loading/);
 }));
 
 test('data changes alter entry identity and symlink escapes are rejected',()=>repo(root=>{
@@ -365,6 +402,90 @@ test('application receipt binds the exact composer actor-only boundary and all f
  assert.equal(missingApplied.receipt.actorOnlyExecutionBoundarySha256,null);
 }));
 
+test('composer actorOnlyBoundary reaches the V3 trial, application receipt, and sanitized artifact',()=>repo(root=>{
+ const cm=manifest(root,'candidate.cjs'),om=manifest(root,'opponent.cjs');
+ const candidate=identity('candidate-policy',null,1,cm);
+ const opponent=identity('opponent-policy',7,2,om);
+ const pd=preDeal(candidate,opponent);
+ const roleAudit=(policyOwnerSeat,peerRoleDispatchEnabled,ownerDecisionCalls,peerRoleDelegations)=>({
+  policyOwnerSeat,
+  version:'agent34-actor-only-root-policy-v1',
+  origin:'detached-actor-observation',
+  observationSchema:'agent2-public-native-dispatch-diff-v1',
+  nativeOwnerTrainerFallback:null,
+  unsupportedPromptFallbacks:0,
+  nonLiveSpeculativeFallbacks:0,
+  nonOwnerNativeDelegations:0,
+  nonTurnPhaseFallbacks:0,
+  nonOwnerSeatBypassCalls:0,
+  peerRoleDispatchEnabled,
+  ownerDecisionCalls,
+  peerRoleDelegations
+ });
+ const composerBoundary=inspectActorOnlyExecutionBoundary({
+  candidateAudit:roleAudit(0,true,2,1),
+  opponentAudit:roleAudit(1,false,1,0),
+  candidateSeat:0,opponentSeat:1
+ });
+ assert.equal(composerBoundary.valid,true,
+  'the production composer audit projection should produce the valid boundary fixture');
+ composerBoundary.privateField='PRIVATE_BOUNDARY_SENTINEL';
+ composerBoundary.candidate.privateField='PRIVATE_ROLE_SENTINEL';
+
+ const composerReturn={
+  actorOnlyBoundary:composerBoundary,
+  result:{winnerSeat:0,turnCount:1},
+  candidateAudit:roleAudit(0,true,2,1),
+  opponentAudit:roleAudit(1,false,1,0),
+  roleSeatMap:{candidate:0,opponent:1}
+ };
+ const normalized=normalizeV3FixtureRoleResult(composerReturn);
+ assert.strictEqual(normalized.roleResult,composerReturn,
+  'the production normalizer must preserve the composer return object');
+ assert.strictEqual(normalized.gameResult,composerReturn.result,
+  'the production normalizer must preserve the native match result');
+ const projected=projectActorOnlyBoundaryToTrial(normalized.roleResult);
+ assert.strictEqual(projected,composerBoundary,
+  'the composer field actorOnlyBoundary must be copied, not looked up under the receipt name');
+ assert.equal(projectActorOnlyBoundaryToTrial({
+  actorOnlyExecutionBoundary:composerBoundary
+ }),null,'the composer does not emit actorOnlyExecutionBoundary');
+
+ const t={...trial(candidate,opponent,0,1),
+  actorOnlyExecutionBoundary:projected};
+ assert.deepEqual(t.actorOnlyExecutionBoundary,composerBoundary,
+  'composer result must reach the trial before receipt construction');
+ const applied=I.createPolicyApplicationReceipt({
+  preDeal:pd,candidateIdentity:candidate,opponentIdentity:opponent,trial:t
+ });
+ assert.deepEqual(applied.receipt.actorOnlyExecutionBoundary,composerBoundary,
+  'application receipt must bind the exact composer boundary');
+ assert.equal(applied.receipt.actorOnlyExecutionBoundarySha256,
+  evidenceBundleSha256(composerBoundary),
+  'application receipt boundary digest must bind the propagated boundary');
+ assert.equal(applied.receipt.receiptSha256,evidenceBundleSha256(
+  Object.fromEntries(Object.entries(applied.receipt).filter(([key])=>key!=='receiptSha256'))));
+
+ const sanitized=sanitizeFixtureArtifact({
+  fixtureOnly:true,
+  actorOnlyExecutionBoundary:applied.receipt.actorOnlyExecutionBoundary,
+  trial:t,
+  nativeGame:{decisionTrace:[]}
+ });
+ const boundary=sanitized.actorOnlyExecutionBoundary;
+ assert.equal(boundary.valid,true);
+ assert.equal(boundary.schema,'aichi-actor-only-execution-boundary-v2');
+ assert.deepEqual(boundary.failures,[]);
+ assert.equal(boundary.candidate.role,'candidate');
+ assert.equal(boundary.candidate.unsupportedPromptFallbacks,0);
+ assert.equal(boundary.candidate.ownerDecisionCalls,2);
+ assert.equal(boundary.opponent.role,'opponent');
+ assert.equal(boundary.opponent.unsupportedPromptFallbacks,0);
+ assert.equal(boundary.opponent.ownerDecisionCalls,1);
+ assert.doesNotMatch(JSON.stringify(sanitized),/PRIVATE_BOUNDARY_SENTINEL|PRIVATE_ROLE_SENTINEL/,
+  'sanitization must retain role summaries while dropping unallowlisted fields');
+}));
+
 test('candidate and opponent may have different role-local engine patch dependencies',()=>repo(root=>{
  const cm=manifest(root,'candidate.cjs'),om=manifest(root,'opponent.cjs');
  const c=identity('candidate-policy',null,1,cm),o=identity('opponent-policy',7,2,om);
@@ -381,3 +502,40 @@ test('candidate and opponent may have different role-local engine patch dependen
  assert.equal(applied.receipt.opponentPolicySha256,roleSpecificOpponent.policySha256);
 }));
 
+test('trusted host paths do not inherit worker-thread, VM, or module-loader capabilities',()=>repo(root=>{
+ const launcher='simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs';
+ const clock='simulation/evaluation/agent45-aichi-clock-receipt.cjs';
+ const trusted=[
+  {name:'hostDockerLauncher',path:launcher},
+  {name:'hostPublicClock',path:clock}
+ ];
+ for(const item of trusted)fs.mkdirSync(path.dirname(path.join(root,item.path)),{recursive:true});
+ const commonRuntimeBindings=[...bindings,...trusted];
+ fs.writeFileSync(path.join(root,launcher),
+  "const fs=require('node:fs'); const {spawnSync}=require('node:child_process');"+
+  " module.exports={read:()=>fs.readFileSync('public'),spawn:spawnSync};\n");
+ fs.writeFileSync(path.join(root,clock),
+  "const fs=require('node:fs'); module.exports={read:()=>fs.readFileSync('public')};\n");
+ assert.doesNotThrow(()=>manifest(root,'candidate.cjs',{commonRuntimeBindings}),
+  "ordinary reads and the launcher's exact child_process dependency remain allowed");
+
+ const cases=[
+  {path:launcher,source:"require('node:worker_threads');\n"},
+  {path:launcher,source:"require('node:vm');\n"},
+  {path:launcher,source:"process.dlopen(module,'native');\n"},
+  {path:launcher,source:"process.binding('fs');\n"},
+  {path:launcher,source:"require.extensions['.js']=function(){};\n"},
+  {path:clock,source:"require('node:child_process');\n"},
+  {path:clock,source:"require('node:worker_threads');\n"},
+  {path:clock,source:"require('node:vm');\n"},
+  {path:clock,source:"process.dlopen(module,'native');\n"},
+  {path:clock,source:"process.binding('fs');\n"},
+  {path:clock,source:"require.extensions['.js']=function(){};\n"}
+ ];
+ for(const item of cases){
+  fs.writeFileSync(path.join(root,item.path),item.source);
+  assert.throws(()=>manifest(root,'candidate.cjs',{commonRuntimeBindings}),
+   error=>/Role policy closure contains/.test(String(error)),
+   'trusted path must reject '+item.source.trim());
+ }
+}));

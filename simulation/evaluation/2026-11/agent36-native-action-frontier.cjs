@@ -1,7 +1,8 @@
 'use strict';
 
 const assert = require('node:assert/strict');
-const protocol = require('./agent49-policy-worker.cjs');
+const protocol = require('./agent49-policy-protocol.cjs');
+const { createStoreStateSnapshotter } = require('./agent49-native-fixture-game.cjs');
 
 const MAX_ACTION_FRONTIER_ITEMS = 256;
 
@@ -19,6 +20,14 @@ function cardPrinting(card) {
 
 function slotPokemon(slot) {
   return slot?.getPokemonCard?.() ?? null;
+}
+
+function stadiumEffectIsLive(state) {
+  if (!Array.isArray(state?.players) || state.players.length !== 2) return false;
+  return state.players.every(player =>
+    Number.isSafeInteger(player?.stadiumAndToolHaveNoEffectTurnsRemaining) &&
+    player.stadiumAndToolHaveNoEffectTurnsRemaining === 0
+  );
 }
 
 function targetProjection(target, state, actorSeat, native) {
@@ -138,14 +147,31 @@ function projectNativeAction(action, state, actorSeat, native, token) {
       break;
     }
     case 'ATTACK_ACTION': {
-      actorCard = slotPokemon(player.active);
-      if (!actorCard || typeof action.name !== 'string') return null;
+      const source = action.__agent3AttackSource;
+      const expectedSlot = {
+        'active-pokemon': 'ACTIVE',
+        'bench-pokemon': 'BENCH',
+        'active-tool': 'ACTIVE_TOOL'
+      }[source?.sourceKind];
+      if (!source || !expectedSlot || source.sourceSlot !== expectedSlot ||
+          !Number.isSafeInteger(source.sourceIndex) || source.sourceIndex < 0 ||
+          typeof source.sourceCardName !== 'string' || source.sourceCardName.length === 0 ||
+          typeof source.sourceCardFullName !== 'string' || source.sourceCardFullName.length === 0 ||
+          typeof source.attackName !== 'string' || source.attackName.length === 0 ||
+          action.name !== source.attackName) return null;
       item.kind = 'attack';
-      item.label = 'Attack ' + action.name;
-      const printing = cardPrinting(actorCard);
-      if (printing) item.actorPrinting = printing;
-      item.attackName = action.name;
+      item.label = 'Attack ' + source.attackName;
+      item.actorPrinting = source.sourceCardFullName;
+      item.attackName = source.attackName;
       metadata.attackCostPayable = true;
+      metadata.attackSource = {
+        sourceKind: source.sourceKind,
+        sourceSlot: source.sourceSlot,
+        sourceIndex: source.sourceIndex,
+        sourceCardName: source.sourceCardName,
+        sourceCardFullName: source.sourceCardFullName,
+        attackName: source.attackName
+      };
       break;
     }
     case 'RETREAT_ACTION': {
@@ -162,27 +188,32 @@ function projectNativeAction(action, state, actorSeat, native, token) {
       metadata.targetSeat = 'actor';
       metadata.targetZone = 'bench';
       metadata.targetIndex = action.benchIndex;
+      metadata.isOwnerVisible = true;
       break;
     }
-    case 'USE_ABILITY_ACTION': {
-      target = targetProjection(action.target, state, actorSeat, native);
-      if (!target || typeof action.name !== 'string') return null;
+    case 'USE_ABILITY_ACTION':
+    case 'USE_TRAINER_ABILITY_ACTION':
+    case 'USE_ENERGY_ABILITY_ACTION': {
+      const sourceProjection = targetProjection(action.target, state, actorSeat, native);
+      if (!sourceProjection || typeof action.name !== 'string') return null;
       item.kind = 'use-ability';
       item.label = 'Use ability ' + action.name;
-      if (target.targetPrinting) item.actorPrinting = target.targetPrinting;
+      if (sourceProjection.targetPrinting) item.actorPrinting = sourceProjection.targetPrinting;
       metadata.abilityName = action.name;
-      metadata.sourceZone = target.targetZone;
-      metadata.sourceSeat = target.targetSeat;
-      if (target.targetIndex !== undefined) metadata.sourceIndex = target.targetIndex;
+      metadata.sourceZone = sourceProjection.targetZone;
+      metadata.sourceSeat = sourceProjection.targetSeat;
+      if (sourceProjection.targetIndex !== undefined) metadata.sourceIndex = sourceProjection.targetIndex;
       break;
     }
     case 'USE_STADIUM_ACTION': {
+      if (!stadiumEffectIsLive(state)) return null;
       const stadium = native.StateUtils?.getStadiumCard?.(state) ??
         player.stadium.cards[0] ?? state.players[1 - actorSeat]?.stadium?.cards?.[0];
       if (!stadium) return null;
       item.kind = 'use-stadium';
       item.label = 'Use stadium effect';
       item.actorPrinting = cardPrinting(stadium);
+      metadata.stadiumEffectLive = true;
       break;
     }
     case 'PASS_TURN': {
@@ -198,6 +229,7 @@ function projectNativeAction(action, state, actorSeat, native, token) {
     if (target.targetSeat !== undefined) metadata.targetSeat = target.targetSeat;
     if (target.targetZone !== undefined) metadata.targetZone = target.targetZone;
     if (target.targetIndex !== undefined) metadata.targetIndex = target.targetIndex;
+    if (target.ownerVisible !== undefined) metadata.isOwnerVisible = target.ownerVisible;
     if (target.targetPrinting) item.targetPrinting = target.targetPrinting;
   }
   if (Object.keys(metadata).length) item.publicMetadata = metadata;
@@ -214,10 +246,198 @@ function stateGuard(state) {
   };
 }
 
+function playCardRejectionFamily(action,state,actorSeat,native){
+  if(action?.type!=='PLAY_CARD_ACTION')return null;
+  const card=state.players[actorSeat]?.hand?.cards?.[action.handIndex];
+  if(native.PokemonCard&&card instanceof native.PokemonCard)return 'POKEMON';
+  if(native.EnergyCard&&card instanceof native.EnergyCard)return 'ENERGY';
+  if(native.TrainerCard&&card instanceof native.TrainerCard){
+    const trainerTypes=native.TrainerType??{};
+    for(const family of ['SUPPORTER','STADIUM','ITEM','TOOL']){
+      if(trainerTypes[family]!==undefined&&card.trainerType===trainerTypes[family])return family;
+    }
+  }
+  return null;
+}
+
+const ITEM_CAN_PLAY_PREFLIGHT_PRINTS=Object.freeze({
+  'Battle VIP Pass':Object.freeze({number:'225',setAliases:Object.freeze(['fst','swsh8','fusion strike'])}),
+  'VS Seeker':Object.freeze({number:'109',setAliases:Object.freeze(['phf','xy4','phantom forces'])})
+});
+
+function isScopedItemCanPlayPreflightPrinting(card){
+  const specification=ITEM_CAN_PLAY_PREFLIGHT_PRINTS[card?.name];
+  if(!specification)return false;
+  const numbers=[card.number,card.setNumber].filter(value=>value!==undefined&&value!==null)
+    .map(value=>String(value));
+  if(!numbers.includes(specification.number))return false;
+  const setValues=[];
+  if(typeof card.set==='string')setValues.push(card.set);
+  else if(card.set&&typeof card.set==='object')
+    setValues.push(card.set.code,card.set.id,card.set.name);
+  setValues.push(card.fullName);
+  const normalized=setValues.filter(value=>typeof value==='string'&&value.trim().length>0)
+    .map(value=>value.toLowerCase().replace(/[^a-z0-9]+/g,' ').trim());
+  return specification.setAliases.some(alias=>normalized.some(value=>
+    value===alias||value.split(' ').includes(alias)||value.includes(alias)));
+}
+
+function itemCanPlayInValidationStore(action,simulator,actorSeat,native){
+  if(action?.type!=='PLAY_CARD_ACTION')return true;
+  const validationState=simulator.store.state;
+  const validationPlayer=validationState.players[actorSeat];
+  const card=validationPlayer?.hand?.cards?.[action.handIndex];
+  if(!(native.TrainerCard&&card instanceof native.TrainerCard)||
+      card.trainerType!==native.TrainerType.ITEM||
+      typeof card.canPlay!=='function'||
+      !isScopedItemCanPlayPreflightPrinting(card))return true;
+  const canPlay=card.canPlay(simulator.store,validationState,validationPlayer);
+  // Twinleaf's predicate is tri-state: only explicit false proves that the
+  // Item is unplayable. true and undefined must both reach cloned-Store native
+  // dispatch, which remains the authoritative legality check.
+  return canPlay!==false;
+}
+
+const EXPECTED_REJECTIONS=Object.freeze({
+  ATTACK_ACTION:new Set([
+    'CANNOT_ATTACK_ON_FIRST_TURN','BLOCKED_BY_SPECIAL_CONDITION',
+    'BLOCKED_BY_EFFECT','CANNOT_USE_ATTACK','LEEK_SLAP_CANNOT_BE_USED_AGAIN',
+    'NOT_ENOUGH_ENERGY','LABEL_GX_USED'
+  ]),
+  RETREAT_ACTION:new Set([
+    'BLOCKED_BY_EFFECT','BLOCKED_BY_SPECIAL_CONDITION','NOT_ENOUGH_ENERGY'
+  ]),
+  USE_ABILITY_ACTION:new Set(['CANNOT_USE_POWER','BLOCKED_BY_EFFECT','POWER_ALREADY_USED','LABEL_VSTAR_USED']),
+  USE_TRAINER_ABILITY_ACTION:new Set(['CANNOT_USE_POWER','BLOCKED_BY_EFFECT']),
+  USE_ENERGY_ABILITY_ACTION:new Set(['CANNOT_USE_POWER','BLOCKED_BY_EFFECT']),
+  USE_STADIUM_ACTION:new Set(['STADIUM_ALREADY_USED','BLOCKED_BY_EFFECT'])
+});
+
+const EXPECTED_PLAY_CARD_REJECTIONS=Object.freeze({
+  ITEM:new Set(['BLOCKED_BY_EFFECT']),
+  SUPPORTER:new Set(['CANNOT_PLAY_THIS_CARD','SUPPORTER_ALREADY_PLAYED','BLOCKED_BY_EFFECT']),
+  STADIUM:new Set(['STADIUM_ALREADY_PLAYED','SAME_STADIUM_ALREADY_IN_PLAY','BLOCKED_BY_EFFECT']),
+  ENERGY:new Set(['ENERGY_ALREADY_ATTACHED','BLOCKED_BY_EFFECT']),
+  TOOL:new Set(['BLOCKED_BY_EFFECT','POKEMON_TOOL_ALREADY_ATTACHED']),
+  POKEMON:new Set(['BLOCKED_BY_EFFECT','CANNOT_EVOLVE_ON_YOUR_FIRST_TURN','POKEMON_CANT_EVOLVE_THIS_TURN'])
+});
+
+function isExpectedActionRejection(action,state,actorSeat,native,error){
+  if(!native?.GameError || !(error instanceof native.GameError) ||
+      typeof error.message!=='string')return false;
+  if(action?.type==='PLAY_CARD_ACTION'){
+    const family=playCardRejectionFamily(action,state,actorSeat,native);
+    return EXPECTED_PLAY_CARD_REJECTIONS[family]?.has(error.message)===true;
+  }
+  return EXPECTED_REJECTIONS[action?.type]?.has(error.message)===true;
+}
+
+function copyNativeValidationProperties(source,target,seen,skipKeys=new Set()){
+  for(const key of Reflect.ownKeys(source)){
+    if(skipKeys.has(key))continue;
+    const descriptor=Object.getOwnPropertyDescriptor(source,key);
+    if(!descriptor)continue;
+    if(Object.hasOwn(descriptor,'value'))
+      descriptor.value=cloneNativeValidationGraph(descriptor.value,seen);
+    Object.defineProperty(target,key,descriptor);
+  }
+}
+
+/**
+ * Twinleaf's deepClone uses Object.create(source), and Simulator preserves Card
+ * instances by reference. That combination can leave a validation Card inheriting
+ * mutable properties from the live Card. Clone the graph here with each object's
+ * actual class prototype and all own string/symbol properties before Simulator's
+ * Card-preserving clone. This is a research-owned adapter, not an upstream patch.
+ */
+function cloneNativeValidationGraph(value,seen=new Map()){
+  if(value===null||typeof value!=='object')return value;
+  if(seen.has(value))return seen.get(value);
+  if(value instanceof WeakMap||value instanceof WeakSet)
+    throw new TypeError('validation state cannot contain weak collections');
+  if(typeof SharedArrayBuffer==='function'&&value instanceof SharedArrayBuffer)
+    throw new TypeError('validation state cannot contain shared array buffers');
+  if(value instanceof Promise)
+    throw new TypeError('validation state cannot contain promises');
+
+  if(Buffer.isBuffer(value)){
+    const copy=Buffer.from(value);
+    seen.set(value,copy);
+    return copy;
+  }
+  if(value instanceof ArrayBuffer){
+    const copy=value.slice(0);
+    seen.set(value,copy);
+    return copy;
+  }
+  if(ArrayBuffer.isView(value)){
+    const buffer=cloneNativeValidationGraph(value.buffer,seen);
+    const copy=value instanceof DataView?
+      new DataView(buffer,value.byteOffset,value.byteLength):
+      new value.constructor(buffer,value.byteOffset,value.length);
+    seen.set(value,copy);
+    const numericKeys=new Set(Reflect.ownKeys(value).filter(key=>
+      typeof key==='string'&&/^(0|[1-9]\d*)$/.test(key)));
+    copyNativeValidationProperties(value,copy,seen,numericKeys);
+    return copy;
+  }
+  if(value instanceof Date){
+    const copy=new Date(value.getTime());
+    seen.set(value,copy);
+    copyNativeValidationProperties(value,copy,seen);
+    return copy;
+  }
+  if(value instanceof RegExp){
+    const copy=new RegExp(value.source,value.flags);
+    copy.lastIndex=value.lastIndex;
+    seen.set(value,copy);
+    copyNativeValidationProperties(value,copy,seen,new Set(['lastIndex']));
+    return copy;
+  }
+  if(value instanceof Map){
+    const copy=new Map();
+    seen.set(value,copy);
+    for(const [key,item] of value)
+      copy.set(cloneNativeValidationGraph(key,seen),cloneNativeValidationGraph(item,seen));
+    copyNativeValidationProperties(value,copy,seen);
+    return copy;
+  }
+  if(value instanceof Set){
+    const copy=new Set();
+    seen.set(value,copy);
+    for(const item of value)copy.add(cloneNativeValidationGraph(item,seen));
+    copyNativeValidationProperties(value,copy,seen);
+    return copy;
+  }
+
+  const copy=Array.isArray(value)?new Array(value.length):
+    Object.create(Object.getPrototypeOf(value));
+  seen.set(value,copy);
+  copyNativeValidationProperties(value,copy,seen,new Set(Array.isArray(value)?['length']:[]));
+  return copy;
+}
+
+function createIsolatedValidationSimulator(state,native){
+  const detachedState=cloneNativeValidationGraph(state);
+  assert.notEqual(detachedState,state,
+    'validation seed state must be detached from the live Store state');
+  assert.notEqual(detachedState.players,state.players,
+    'validation seed player array must be detached from the live Store state');
+  const simulator=new native.Simulator(detachedState);
+  assert.ok(simulator.store&&typeof simulator.store.dispatch==='function',
+    'native Simulator did not expose a validation Store');
+  assert.notEqual(simulator.store.state,state,
+    'native Simulator must create a distinct cloned validation state');
+  assert.notEqual(simulator.store.state.players,state.players,
+    'native Simulator must clone the physical player array for validation');
+  return simulator;
+}
+
 function buildNativeActionFrontier({
   state,
   actorSeat,
   native,
+  enumerator: suppliedEnumerator = null,
   maxItems = MAX_ACTION_FRONTIER_ITEMS
 } = {}) {
   assert.ok(state && Array.isArray(state.players) && state.players.length === 2);
@@ -233,8 +453,12 @@ function buildNativeActionFrontier({
     'root action frontier cannot be built while a prompt is pending');
 
   const before = stateGuard(state);
+  const snapshotStoreState = createStoreStateSnapshotter();
+  const fullStateBefore = snapshotStoreState(state);
   const player = state.players[actorSeat];
-  const enumerator = new native.ActionEnumerator();
+  const enumerator = suppliedEnumerator ?? new native.ActionEnumerator();
+  assert.ok(enumerator && typeof enumerator.enumerate === 'function',
+    'a pinned or explicitly supplied native ActionEnumerator is required');
   const candidates = enumerator.enumerate(state, player, player.id);
   assert.ok(Array.isArray(candidates), 'ActionEnumerator did not return an array');
 
@@ -242,6 +466,7 @@ function buildNativeActionFrontier({
   const actionByToken = new Map();
   const seen = new Set();
   let rejectedCount = 0;
+  let preflightRejectedCount = 0;
   let unsupportedCount = 0;
   let processedCount = 0;
   for (const action of candidates) {
@@ -250,18 +475,21 @@ function buildNativeActionFrontier({
     const signature = actionSignature(action);
     if (seen.has(signature)) continue;
     seen.add(signature);
-    let legal = false;
+    // Construct the deep-cloned Simulator outside the expected-rejection
+    // catch: constructor instability is an engine failure, never an illegal move.
+    const simulator = createIsolatedValidationSimulator(state,native);
+    if(!itemCanPlayInValidationStore(action,simulator,actorSeat,native)){
+      rejectedCount += 1;
+      preflightRejectedCount += 1;
+      continue;
+    }
     try {
-      // Simulator deep-clones the native State. Dispatching to its Store is a
-      // legality check only; it does not resolve prompts or mutate the live Store.
-      const simulator = new native.Simulator(state);
       simulator.store.dispatch(action);
-      legal = true;
-    } catch {
+    } catch(error) {
+      if(!isExpectedActionRejection(action,state,actorSeat,native,error))throw error;
       rejectedCount += 1;
       continue;
     }
-    if (!legal) continue;
     const token = 'act-' + items.length.toString(36);
     const item = projectNativeAction(action, state, actorSeat, native, token);
     if (!item) {
@@ -273,6 +501,8 @@ function buildNativeActionFrontier({
   }
   assert.deepEqual(stateGuard(state), before,
     'ActionEnumerator or Simulator validation mutated the live Store state');
+  assert.deepEqual(snapshotStoreState(state), fullStateBefore,
+    'ActionEnumerator or Simulator validation mutated the full live Store state graph');
   assert.ok(items.length > 0, 'No supported legal native actions were enumerated');
   const frontier = Object.freeze({
     schema: protocol.FRONTIER_SCHEMA,
@@ -292,6 +522,7 @@ function buildNativeActionFrontier({
       deduplicatedCount: seen.size,
       validatedCount: items.length,
       rejectedCount,
+      preflightRejectedCount,
       unsupportedCount,
       truncated: processedCount < candidates.length,
       omittedCount: Math.max(0, candidates.length - processedCount)
@@ -308,17 +539,47 @@ function selectedNativeAction(frontier, token) {
   return action;
 }
 
-function dispatchSelectedNativeAction({ store, frontier, token, state, actorSeat, native, dispatch=true } = {}) {
-  assert.ok(store && typeof store.dispatch === 'function');
-  assert.ok(actorSeat === 0 || actorSeat === 1);
-  const action = selectedNativeAction(frontier, token);
-  assert.equal(action.clientId, state.players[actorSeat].id,
+function dispatchSelectedNativeAction({
+  store,frontier,token,state,actorSeat,native,withValidationRandom,dispatch=true,
+  validationEvidence=null
+}={}){
+  assert.ok(store&&typeof store.dispatch==='function');
+  assert.ok(actorSeat===0||actorSeat===1);
+  assert.equal(typeof withValidationRandom,'function',
+    'selected-action revalidation requires an isolated deterministic RNG scope');
+  const action=selectedNativeAction(frontier,token);
+  // Twinleaf's PlayCardAction stores the owning player ID as `id`; the other
+  // enumerated action classes expose it as `clientId`.
+  const actionOwnerId=action?.type==='PLAY_CARD_ACTION'?action.id:action?.clientId;
+  assert.equal(actionOwnerId,state.players[actorSeat].id,
     'worker-selected action belongs to a different physical seat');
-  assert.equal(store.state, state,
+  assert.equal(store.state,state,
     'native Store state changed while the worker decision was pending');
-  // Revalidate the chosen token on a fresh clone immediately before dispatch.
-  const simulator = new native.Simulator(state);
-  simulator.store.dispatch(action);
+  const snapshotStoreState=createStoreStateSnapshotter();
+  const fullStateBefore=snapshotStoreState(state);
+  // Only clone validation uses the deterministic stream. Real gameplay dispatch
+  // runs after the scope restores the physical RNG.
+  withValidationRandom(()=>{
+    try {
+      const simulator=createIsolatedValidationSimulator(state,native);
+      assert.ok(simulator.store&&typeof simulator.store.dispatch==='function',
+        'native Simulator did not expose a validation Store');
+      assert.notEqual(simulator.store,store,
+        'selected-action validation must use a distinct native Store');
+      assert.notEqual(simulator.store.state,state,
+        'selected-action validation must use a cloned native Store state');
+      assert.notEqual(simulator.store.state.players,state.players,
+        'selected-action validation must use cloned physical player state');
+      assert.equal(simulator.store.state.players?.[actorSeat]?.id,state.players[actorSeat]?.id,
+        'cloned validation Store must preserve the acting physical player');
+      simulator.store.dispatch(action);
+      if(validationEvidence&&typeof validationEvidence==='object')
+        validationEvidence.nativeValidationStoreMode='cloned-store';
+    } finally {
+      assert.deepEqual(snapshotStoreState(state),fullStateBefore,
+        'selected-action validation mutated the full live Store state graph');
+    }
+  });
   return dispatch?store.dispatch(action):action;
 }
 

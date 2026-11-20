@@ -12,12 +12,12 @@ const view=()=>({
   decisionKind:'owner-root',globalTurn:2,ownHand:[],
   ownTurnResources:{energyPlayedTurn:2,energyPlayLocked:false,
     pokemonPlayLocked:false},
-  ownPublic:{active:{energies:['Psychic Energy MEE'],
-    specialConditions:[],publicRestrictions:{},
+  ownPublic:{stadium:[],active:{energies:['Psychic Energy MEE'],
+    specialConditions:[],publicRestrictions:{attackCostIncreaseNextTurn:0,attackCostIncreaseWhileActive:0},
     attacks:[attack('Setup',20),attack('Finish',60)]},
     bench:[null,null,null,null,null],
-    publicTurnRestrictions:{attackLockTurnsRemaining:0}},
-  opponentPublic:{active:{hp:100,damage:50}}
+    publicTurnRestrictions:{attackLockTurnsRemaining:0,attackMaxEnergy:null,attackMaxEnergyTurnsRemaining:0}},
+  opponentPublic:{stadium:[],active:{hp:100,damage:50}}
 });
 const catalog={basics:new Set(),abilityBasics:new Set(),
   basicEnergies:new Set(['Psychic Energy MEE']),

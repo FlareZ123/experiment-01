@@ -49,7 +49,17 @@ const TRUSTED_FILE_READERS = new Set([
   'simulation/evaluation/agent36-source-closure-audit.cjs',
   'simulation/evaluation/agent36-runtime-module-pin.cjs',
   'simulation/evaluation/2026-11/agent42-role-policy-identity.cjs',
-  'simulation/evaluation/2026-11/agent36-v3-runner.cjs'
+  'simulation/evaluation/2026-11/agent36-v3-runner.cjs',
+  // Host-only Docker bundle/metadata reader; never a worker policy source.
+  'simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs',
+  // Host-only public Aichi clock source-fingerprint reader.
+  'simulation/evaluation/agent45-aichi-clock-receipt.cjs'
+]);
+// Only the host Docker launcher may spawn child processes.
+// worker_threads and vm remain forbidden in every role-closure file.
+// Keep this exception separate from file-read trust.
+const TRUSTED_HOST_PROCESS_MODULES = new Set([
+  'simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs'
 ]);
 // This reader only accesses the public English print catalog. Bind the exact
 // set index and every enumerated card file whenever a policy can call it.
@@ -151,23 +161,30 @@ function assertNoUnsupportedRuntimeLoading(root,files) {
         /\bFunction\s*\(/.test(line)||/\beval\s*\(/.test(line)||
         /\bvm\s*\.\s*(?:runIn|compileFunction|Script)/.test(line)||
         /\b(?:Module|module)\s*\.\s*_compile\b/.test(line);
-      const usesProcessOrWorker=/\brequire\s*\(\s*['"](?:node:)?(?:child_process|worker_threads|vm)(?:\/[^'"]*)?['"]\s*\)/.test(line);
-      const usesFileReader=/\b(?:readFileSync|readFile|createReadStream|readSync|openSync)\s*\(/.test(line)||
-        /\b(?:process\s*\.\s*dlopen|process\s*\.\s*binding|require\s*\.\s*extensions)\b/.test(line);
+      const usesChildProcess=/\brequire\s*\(\s*['"](?:node:)?child_process(?:\/[^'"]*)?['"]\s*\)/.test(line);
+      const untrustedChildProcess=usesChildProcess&&
+        !TRUSTED_HOST_PROCESS_MODULES.has(file.path);
+      const usesForbiddenWorkerRuntime=/\brequire\s*\(\s*['"](?:node:)?(?:worker_threads|vm)(?:\/[^'"]*)?['"]\s*\)/.test(line);
+      const usesForbiddenLoaderApi=/\b(?:process\s*\.\s*(?:dlopen|binding)\b|process\s*\[\s*['"](?:dlopen|binding)['"]\s*\]|require\s*\.\s*extensions\b|require\s*\[\s*['"]extensions['"]\s*\])/.test(line);
+      const usesFileReader=/\b(?:readFileSync|readFile|createReadStream|readSync|openSync)\s*\(/.test(line);
       const usesNetwork=/\bfetch\s*\(/.test(line)||
         /\b(?:http|https|net|tls)\s*\.\s*(?:request|get|connect)\s*\(/.test(line)||
         /\bnew\s+WebSocket\s*\(/.test(line);
       const usesUnseededRandom=/\bMath\s*\.\s*random\s*\(/.test(line)||
         /\b(?:randomBytes|randomUUID|randomInt|randomFill|randomFillSync|getRandomValues)\s*\(/.test(line);
-      if(usesDynamicCode||usesProcessOrWorker||usesNetwork||usesUnseededRandom||
+      if(usesDynamicCode||untrustedChildProcess||usesForbiddenWorkerRuntime||
+        usesForbiddenLoaderApi||usesNetwork||usesUnseededRandom||
         (usesFileReader&&!TRUSTED_FILE_READERS.has(file.path)&&file.path!==PRINT_CATALOG_READER))
         unsupported.push({file:file.path,line:i+1,kind:usesDynamicCode?'dynamic-code':
-          usesProcessOrWorker?'process-or-worker':usesNetwork?'network':
+          untrustedChildProcess?'process-or-worker':
+          usesForbiddenWorkerRuntime?'process-or-worker':
+          usesForbiddenLoaderApi?'forbidden-module-loader-api':
+          usesNetwork?'network':
           usesUnseededRandom?'unseeded-random':'unreviewed-file-read'});
     }
   }
   assert.deepEqual(unsupported,[],
-    'Role policy closure contains ESM, module-loader capture, dynamic code, process/worker or unreviewed file loading');
+    'Role policy closure contains ESM, module-loader capture/API, dynamic code, process/worker or unreviewed file loading');
 }
 
 function environmentManifest(keys,allowlist,env) {

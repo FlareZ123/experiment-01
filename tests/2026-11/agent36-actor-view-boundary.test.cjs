@@ -185,7 +185,7 @@ test('actor observation excludes concealed hand, deck, face-down Prize and setup
     for (const marker of Object.values(state.sentinels))
       assert.equal(serialized.includes(marker), false,
         'concealed identity crossed the actor-view boundary: ' + marker);
-    assert.ok(view.ownHand.includes('VISIBLE_ACTOR_' + seat + '_HAND_CARD'),
+    assert.ok(view.ownHand.includes(seat === 0 ? 'VISIBLE_ACTOR_ZERO_HAND_CARD' : 'VISIBLE_ACTOR_ONE_HAND_CARD'),
       'the actor must retain access to its own hand');
     assert.equal(view.opponentPublic.handCount, 1);
     assert.equal(view.opponentPublic.deckCount, 1);

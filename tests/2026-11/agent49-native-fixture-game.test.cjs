@@ -4,7 +4,8 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const {
   seededRandom,deckPermutation,projectActionPayload,selectedCardIdentity,
-  publicStateSnapshot,runNativeFixtureGame,runNativeFixtureGameAsync,normalizeSeed32
+  publicStateSnapshot,runNativeFixtureGame,runNativeFixtureGameAsync,normalizeSeed32,
+  createStoreStateSnapshotter
 }=require('../../simulation/evaluation/2026-11/agent49-native-fixture-game.cjs');
 
 const GamePhase=Object.freeze({
@@ -46,6 +47,8 @@ let lastStore=null;
 let failNextPlayCardDispatch=false;
 let failNextDecode=false;
 let failNextPromptDecode=false;
+let insertTestPrompt=false;
+let finishAfterRootActions=2;
 let insertWaitPrompt=false;
 let mutateBeforeDecodeFailure=false;
 let policyRandomDraws=[];
@@ -54,6 +57,7 @@ class Store {
   constructor(options){
     this.options=options;
     this.rootActions=0;
+    this.promptResolutions=0;
     this.state={
       phase:GamePhase.SETUP,turn:0,activePlayer:null,
       players:[],prompts:[],winner:null
@@ -78,6 +82,7 @@ class Store {
       return;
     }
     if(action instanceof ResolvePromptAction){
+      this.promptResolutions++;
       const prompt=this.state.prompts.find(item=>item.id===action.id);
       assert.ok(prompt,'resolved prompt must exist');
       prompt.result=action.result;
@@ -85,8 +90,10 @@ class Store {
         this.state.phase=GamePhase.PLAYER_TURN;
         this.state.activePlayer=0;
         this.state.turn=1;
-        if(failNextPromptDecode)
+        if(insertTestPrompt) {
+          insertTestPrompt=false;
           this.state.prompts.push(new TestPrompt(3,101,'Choose a card',['A card 0','A card 1']));
+        }
       }
       return;
     }
@@ -100,23 +107,23 @@ class Store {
       const card=owner.hand.cards.splice(action.handIndex,1)[0];
       assert.ok(card,'PlayCardAction must remove its selected physical card');
       this.rootActions++;
-      if(this.rootActions===1){
-        this.state.activePlayer=1;
-        this.state.turn=2;
-      }else{
+      if(this.rootActions>=finishAfterRootActions){
         this.state.phase=GamePhase.FINISHED;
         this.state.winner=101;
+      }else{
+        this.state.activePlayer=1-this.state.activePlayer;
+        this.state.turn++;
       }
       return;
     }
     if(action instanceof RootAction){
       this.rootActions++;
-      if(this.rootActions===1){
-        this.state.activePlayer=1;
-        this.state.turn=2;
-      }else{
+      if(this.rootActions>=finishAfterRootActions){
         this.state.phase=GamePhase.FINISHED;
         this.state.winner=101;
+      }else{
+        this.state.activePlayer=1-this.state.activePlayer;
+        this.state.turn++;
       }
       return;
     }
@@ -202,6 +209,7 @@ function fixtureDiagnosticSnapshot(state,context){
 
 test('async fixture generator delegates strategic prompts and roots without policy seeds or SimpleTacticsAi fallback', async () => {
   failNextPromptDecode=true;
+  insertTestPrompt=true;
   decodeCalls=0;
   const args=input();
   delete args.policySeedBySeat;
@@ -228,9 +236,14 @@ test('async fixture generator delegates strategic prompts and roots without poli
       ['owner-prompt','owner-root','owner-root']);
     assert.equal(requests.every(row=>!row.hasLegacyRandomSource&&!row.hasLegacyBot),true,
       'async worker requests must not receive legacy bots or policy RNG sources');
-    assert.equal(result.decisionTrace.length,3);
+    const physicalPromptRows=result.decisionTrace.filter(row=>
+      row.policyInputKind==='physical-randomization-prompt');
+    assert.deepEqual(physicalPromptRows.map(row=>row.pendingPromptType).sort(),
+      ['CoinFlipPrompt','ShuffleDeckPrompt']);
+    assert.equal(result.decisionTrace.length,requests.length+physicalPromptRows.length);
   } finally {
     failNextPromptDecode=false;
+    insertTestPrompt=false;
     decodeCalls=0;
   }
 });
@@ -482,6 +495,22 @@ test('native fixture loop rejects incomplete decks and restores Math.random on f
   assert.equal(Math.random,originalRandom);
 });
 
+test('explicit null action cap runs past 3000 actions until the native game naturally finishes',async()=>{
+  const originalRandom=Math.random;
+  finishAfterRootActions=3001;
+  try {
+    const args=input({maxActions:null});
+    const result=await runNativeFixtureGameAsync(args,request=>
+      new RootAction(request.actorSeat));
+    assert.equal(result.finished,true);
+    assert.equal(result.endReason,'engine-game-end');
+    assert.ok(result.actions>3000);
+  } finally {
+    finishAfterRootActions=2;
+    assert.strictEqual(Math.random,originalRandom);
+  }
+});
+
 test('native fixture loop refuses to treat an action cap as a natural game end and preserves the prefix',()=>{
   const originalRandom=Math.random;
   let failure;
@@ -632,8 +661,59 @@ test('native fixture policy-decode failure retains the attempted decision, pre-s
     failed.actorObservationSha256);
 });
 
+test('native async failure preserves only allowlisted seed-probe reason through wrapper',async()=>{
+  const runWithReason=async (reason,stackCase={
+    framePath:'/home/runner/work/experiment-01/experiment-01/simulation/evaluation/2026-11/agent36-native-action-frontier.cjs',
+    expectedFile:'simulation/evaluation/2026-11/agent36-native-action-frontier.cjs',
+    line:499,column:7
+  })=>{
+    insertTestPrompt=true;
+    const resolverError=new Error('private seed-probe prompt canary');
+    resolverError.code='NO_GAME_WITNESS_SETUP_INCOMPATIBLE';
+    resolverError.seedProbeReason=reason;
+    resolverError.privatePromptPayload='private prompt payload canary';
+    resolverError.stack=[
+      'Error: private seed-probe prompt canary',
+      `    at resolver (${stackCase.framePath}:${stackCase.line}:${stackCase.column})`,
+      '    at private (/home/runner/work/experiment-01/experiment-01/private/secret.js:2:3)'
+    ].join('\n');
+    let failure;
+    try {
+      await runNativeFixtureGameAsync(input({maxActions:10}),request=>{
+        if(request.decisionKind==='owner-prompt')throw resolverError;
+        return new RootAction(request.actorSeat);
+      });
+    } catch(error) { failure=error; }
+    finally { insertTestPrompt=false; }
+    assert.ok(failure);
+    assert.equal(failure.code,'NO_GAME_WITNESS_SETUP_INCOMPATIBLE');
+    assert.equal(failure.cause,resolverError);
+    assert.equal(failure.privatePromptPayload,undefined);
+    assert.deepEqual(failure.nativeFixtureFailure.stackSite,{
+      file:stackCase.expectedFile,
+      line:stackCase.line,column:stackCase.column
+    });
+    assert.equal(JSON.stringify(failure.nativeFixtureFailure).includes('private prompt payload canary'),false);
+    assert.equal(JSON.stringify(failure.nativeFixtureFailure).includes('/home/runner/'),false);
+    assert.equal(JSON.stringify(failure.nativeFixtureFailure).includes('private/secret.js'),false);
+    return failure;
+  };
+
+  const allowed=await runWithReason('unsupportedOwnerPrompt');
+  assert.equal(allowed.seedProbeReason,'unsupportedOwnerPrompt');
+  const rejected=await runWithReason('privatePromptCanary');
+  assert.equal(rejected.seedProbeReason,undefined);
+  const vendor=await runWithReason('unsupportedOwnerPrompt',{
+    framePath:'/home/runner/work/experiment-01/experiment-01/vendor/twinleaf/ptcg-server/output/game/store/example.js',
+    expectedFile:'vendor/twinleaf/ptcg-server/output/game/store/example.js',
+    line:123,column:45
+  });
+  assert.equal(vendor.seedProbeReason,'unsupportedOwnerPrompt');
+});
+
 test('native owner-prompt decode failure preserves prompt options before decode',()=>{
   failNextPromptDecode=true;
+  insertTestPrompt=true;
   let failure;
   try {
     runNativeFixtureGame(input({
@@ -642,7 +722,7 @@ test('native owner-prompt decode failure preserves prompt options before decode'
     }));
   }
   catch(error) { failure=error; }
-  finally { failNextPromptDecode=false; }
+  finally { failNextPromptDecode=false; insertTestPrompt=false; }
 
   assert.ok(failure);
   assert.match(failure.message,/simulated owner-prompt decode failure/);
@@ -732,4 +812,101 @@ test('async resolver never inherits physical Math.random scope and native fixtur
   assert.ok(dispatches>=3,'store hook must be installed before player registration dispatches');
   assert.strictEqual(Math.random,originalRandom,
     'ambient Math.random must be restored after fixture completion');
+});
+
+
+test('full Store-state snapshot detects nested mutation and object replacement while preserving function-valued state',()=>{
+  const snapshot=createStoreStateSnapshotter();
+  const state={observe:()=>({}),nested:{value:1}};
+  const before=snapshot(state);
+  state.nested.value=2;
+  assert.notDeepEqual(snapshot(state),before);
+  const beforeReplacement=snapshot(state);
+  state.observe=()=>({replacement:true});
+  assert.notDeepEqual(snapshot(state),beforeReplacement);
+});
+
+test('native no-game witness validates a root action and stops before live dispatch',async()=>{
+  const originalRandom=Math.random;
+  const args=input({stopBeforeLiveDispatch:true,expectedActorSeat:0,maxActions:null});
+  try{
+    const result=await runNativeFixtureGameAsync(args,request=>{
+      assert.equal(request.decisionKind,'owner-root');
+      return {
+        __nativeFixtureDecisionResolution:true,
+        action:new RootAction(request.actorSeat),
+        validationReceipt:{
+          actorSeat:request.actorSeat,
+          selectedActionValidated:true,
+          nativeActionFrontierUsed:true,
+          nativeValidationStoreMode:'cloned-store',
+          actionKind:'pass',
+          frontierItemCount:1
+        }
+      };
+    });
+    assert.equal(result.schema,'agent49-native-no-game-witness-v1');
+    assert.equal(result.gameExecuted,false);
+    assert.equal(result.nativeStoreCreated,true);
+    assert.equal(result.bothPlayersRegistered,true);
+    assert.equal(result.nativeActionFrontierUsed,true);
+    assert.equal(result.nativeValidationStoreMode,'cloned-store');
+    assert.equal(result.hostStoppedBeforeLiveDispatch,true);
+    assert.equal(lastStore.promptResolutions,2,
+      'host physical setup prompts must resolve before the first strategic root');
+    assert.equal(result.actorSeat,0);
+    assert.equal(result.actualFirstPlayerSeat,0);
+    assert.equal(result.actorObservationUsed,true);
+    assert.equal(result.selectedActionValidated,true);
+    assert.equal(result.fullOriginalStoreStateUnchanged,true);
+    assert.equal(result.liveActionDispatched,false);
+    assert.equal(result.acceptedRootActions,0);
+    assert.equal(lastStore.rootActions,0);
+  }finally{
+    assert.strictEqual(Math.random,originalRandom);
+  }
+});
+
+test('native no-game witness fails closed without a selected-action validation receipt',async()=>{
+  const args=input({stopBeforeLiveDispatch:true,expectedActorSeat:0,maxActions:null});
+  await assert.rejects(runNativeFixtureGameAsync(args,request=>
+    new RootAction(request.actorSeat)),
+  /worker-selected native action validated on a cloned Store/);
+  assert.equal(lastStore.rootActions,0);
+});
+
+test('native cleanup failure preserves a sanitized primary failure summary without replacing its stage', () => {
+  const args=input({
+    onStoreCreated:()=>({
+      activeEffectDepth:0,
+      restored:false,
+      restore(){throw new Error('cleanup hidden-zone canary');}
+    }),
+    onAction(record){
+      if(record.isRootDecision){
+        const error=new Error('primary hidden-zone canary');
+        error.code='TEST_PRIMARY_FAILURE';
+        throw error;
+      }
+    }
+  });
+  let failure;
+  try {
+    runNativeFixtureGame(args);
+  } catch(error) {
+    failure=error;
+  }
+  assert.ok(failure,'primary and cleanup failures must fail closed');
+  assert.equal(failure.code,'NATIVE_FIXTURE_CLEANUP_FAILURE');
+  assert.equal(failure.nativeFixtureFailure.stage,'cleanup');
+  assert.equal(failure.nativeFixtureFailure.code,'NATIVE_FIXTURE_CLEANUP_FAILURE');
+  assert.equal(failure.nativeFixtureFailure.primaryFailure.stage,'on-action-callback');
+  assert.equal(failure.nativeFixtureFailure.primaryFailure.code,'TEST_PRIMARY_FAILURE');
+  assert.match(failure.nativeFixtureFailure.primaryFailure.messageSha256,/^[0-9a-f]{64}$/);
+  assert.match(failure.nativeFixtureFailure.messageSha256,/^[0-9a-f]{64}$/);
+  const safe=JSON.stringify(failure.nativeFixtureFailure);
+  assert.equal(safe.includes('primary hidden-zone canary'),false);
+  assert.equal(safe.includes('cleanup hidden-zone canary'),false);
+  assert.equal(safe.includes('actingPlayerId'),false);
+  assert.equal(safe.includes('pendingPromptId'),false);
 });

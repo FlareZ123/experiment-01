@@ -5,6 +5,7 @@ const {chooseActorRootIntent,publicDispatchState,withActorOnlyRootPolicy,
   invokeActorRootIntentProvider,actorNativeActionReceipt,bindActorNativeStoreOrdinal}=
   require('../simulation/twinleaf/agent34-actor-only-root-policy.cjs');
 const {withCandidateOpponentPolicyRoles}=require('../simulation/twinleaf/agent44-role-scoped-policy-composition.cjs');
+const {stadiumEffectsSuppressedForOwnPokemon}=require('../simulation/twinleaf/public-stadium-effect-status.cjs');
 let pinnedStateUtils=null,pinnedPlayerType=null,pinnedSlotType=null;
 try {
   ({StateUtils:pinnedStateUtils}=require('../vendor/twinleaf/ptcg-server/output/game/store/state-utils'));
@@ -373,6 +374,12 @@ test('Energy then printed-cost attack follows the same actor-only view',()=>{
   assert.equal(energy.handIndex,0);
   view.ownHand=[];
   view.ownPublic.active.energies=['Psychic Energy MEE'];
+  view.ownPublic.active.publicRestrictions={
+    attackCostIncreaseNextTurn:0,attackCostIncreaseWhileActive:0
+  };
+  Object.assign(view.ownPublic.publicTurnRestrictions,{
+    attackMaxEnergy:null,attackMaxEnergyTurnsRemaining:0
+  });
   view.ownTurnResources.energyPlayedTurn=2;
   assert.deepEqual(chooseActorRootIntent(view,catalog),{
     kind:'attack',attackName:'Shadow Mist'});
@@ -475,6 +482,12 @@ test('pending native prompt fallback counted and never qualified',()=>{
 test('numeric native colored and colorless attacks use numeric energy costs',()=>{
   for(const cost of [[5],[9],[5,9]]){
     const view=base();
+    view.ownPublic.active.publicRestrictions={
+      attackCostIncreaseNextTurn:0,attackCostIncreaseWhileActive:0
+    };
+    Object.assign(view.ownPublic.publicTurnRestrictions,{
+      attackMaxEnergy:null,attackMaxEnergyTurnsRemaining:0
+    });
     view.ownHand=[];
     view.ownPublic.bench=[{},null,null,null,null];
     view.ownPublic.active.energies=cost.length===2?['Psychic Energy MEE','Psychic Energy MEE']:['Psychic Energy MEE'];
@@ -487,6 +500,12 @@ test('numeric native colored and colorless attacks use numeric energy costs',()=
 test('numeric native Asleep and Paralyzed prevent a payable attack',()=>{
   for(const status of [catalog.specialConditions.ASLEEP,catalog.specialConditions.PARALYZED]){
     const view=base();
+    view.ownPublic.active.publicRestrictions={
+      attackCostIncreaseNextTurn:0,attackCostIncreaseWhileActive:0
+    };
+    Object.assign(view.ownPublic.publicTurnRestrictions,{
+      attackMaxEnergy:null,attackMaxEnergyTurnsRemaining:0
+    });
     view.ownHand=[];
     view.ownPublic.bench=[{},null,null,null,null];
     view.ownPublic.active.energies=['Psychic Energy MEE'];
@@ -718,16 +737,16 @@ test('generic Float Stone opt-in reaches the native actor root, not only the aud
         printed:{stage:0,types:[7],retreatCost:[9,9]},
         energies:[darkness],tools:[],
         attacks:[{name:'Claw of Darkness',damage:200,cost:[7,7,9]}],
-        publicRestrictions:{},specialConditions:[]
+        publicRestrictions:{attackCostIncreaseNextTurn:0,attackCostIncreaseWhileActive:0},specialConditions:[]
       },
       bench:[{
         printing:'Mega Absol ex M1L',
         printed:{stage:0,types:[7],retreatCost:[9,9]},
         energies:[darkness,darkness,darkness],tools:[],
         attacks:[{name:'Claw of Darkness',damage:200,cost:[7,7,9]}],
-        publicRestrictions:{},specialConditions:[]
+        publicRestrictions:{attackCostIncreaseNextTurn:0,attackCostIncreaseWhileActive:0},specialConditions:[]
       }],
-      stadium:[],publicTurnRestrictions:{}
+      stadium:[],publicTurnRestrictions:{attackMaxEnergy:null,attackMaxEnergyTurnsRemaining:0}
     },
     opponentPublic:{
       active:{printing:'Iron Thorns ex TWM',tools:[]},
@@ -1344,14 +1363,16 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     ruleboxPokemonPrintings:new Set([
       'Arceus & Dialga & Palkia GX CEC','Latias ex SSP',
       'Synthetic Radiant','Synthetic Prism Star','Synthetic BREAK',
-      'Synthetic Radiant Crossover','Synthetic Psychic-weak VMAX'
+      'Synthetic Radiant Crossover','Synthetic Psychic-weak VMAX',
+      'Synthetic non-Dragon VMAX'
     ]),
     onePrizeRuleboxPokemonPrintings:new Set([
       'Synthetic Radiant','Synthetic Prism Star','Synthetic BREAK',
       'Synthetic Radiant Crossover'
     ]),
     threePrizePokemonPrintings:new Set([
-      'Arceus & Dialga & Palkia GX CEC','Synthetic Psychic-weak VMAX'
+      'Arceus & Dialga & Palkia GX CEC','Synthetic Psychic-weak VMAX',
+      'Synthetic non-Dragon VMAX'
     ]),
     dragonPokemonPrintings:new Set(['Dratini SIT 129',
       'Arceus & Dialga & Palkia GX CEC','Synthetic Psychic-weak VMAX'])};
@@ -1610,7 +1631,7 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     'a proven-suppressed Skyliner cannot establish the extra-turn line');
 
   const fairyZoneTarget={
-    printing:'Synthetic Psychic-weak VMAX',hp:221,damage:0,
+    printing:'Synthetic Psychic-weak VMAX',hp:410,damage:0,
     energies:[],attacks:[],abilities:[],abilityDetails:[],tools:[],
     publicRestrictions:{},specialConditions:[],
     printed:{stage:'VMAX',types:[11],weakness:[],resistance:[]}
@@ -2106,11 +2127,11 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
         stadiumAndToolHaveNoEffectTurnsRemaining:1
       }}
   };
-  const ownerEpochIntent=choosePostTimelessMaxGeistRetreat(
-    ownerEpochPositiveOpponentUnknown,postTimelessCatalog,{ownerSeat:0});
-  assert.ok(ownerEpochIntent);
-  assert.equal(ownerEpochIntent.stadiumEffectsSuppressedForOwnPokemon,true,
-    'the directly reproduced own-positive epoch dominates an unknown opponent epoch');
+  assert.equal(stadiumEffectsSuppressedForOwnPokemon(ownerEpochPositiveOpponentUnknown),true,
+    'a positive actor epoch proves Stadium suppression even when the opponent epoch is unknown');
+  assert.equal(choosePostTimelessMaxGeistRetreat(
+    ownerEpochPositiveOpponentUnknown,postTimelessCatalog,{ownerSeat:0}),null,
+    'suppressed Headquarters makes the terminal Copycat Power Beam competitor payable and vetoes Max Geist');
 
   const suppressedValley={
     ...twoEnergyWithoutDiscount,
@@ -2191,24 +2212,32 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
   assert.equal(suppressedNewMoonIntent.stadiumEffectsSuppressedForOwnPokemon,false,
     'an explicitly suppressed New Moon ability does not block the Stadium discount');
 
-  const targetHighHp={...target,hp:250};
+  const sevenEnergyVmax={...vmax,energies:[...vmax.energies,psychic,psychic]};
+  const targetHighHp={
+    ...target,printing:'Synthetic non-Dragon VMAX',hp:210,
+    printed:{...target.printed,types:['Psychic'],weakness:[],resistance:[]}
+  };
   const liveNewMoonHeadquarters={
     ...hqTwoEnergyView,
     ownPublic:{...hqTwoEnergyView.ownPublic,
-      bench:[latias,clefairy,vmax,liveNewMoonLunatone,newMoonSolrock]},
+      bench:[latias,clefairy,sevenEnergyVmax,liveNewMoonLunatone,newMoonSolrock]},
     opponentPublic:{...hqTwoEnergyView.opponentPublic,active:targetHighHp}
   };
   const liveNewMoonHqIntent=choosePostTimelessMaxGeistRetreat(
     liveNewMoonHeadquarters,postTimelessCatalog,{ownerSeat:0});
   assert.ok(liveNewMoonHqIntent);
   assert.equal(liveNewMoonHqIntent.stadiumEffectsSuppressedForOwnPokemon,true);
+  assert.equal(liveNewMoonHqIntent.projectedPrintedDamage,220,
+    'seven Psychic Energy produce 220 Max Geist damage against a non-Dragon target');
   assert.equal(liveNewMoonHqIntent.competingPowerBeamAvailable,true,
     'live New Moon suppresses Headquarters surcharge, making Copycat payable');
   assert.equal(liveNewMoonHqIntent.competingPowerBeamWouldKo,false,
-    'the 200-damage Power Beam is not terminal against the 250-HP target');
+    'the 200-damage Power Beam is not terminal against the 210-HP non-Dragon three-prize target');
 
   const opponentNewMoonView={
     ...twoEnergyWithoutDiscount,
+    ownPublic:{...twoEnergyWithoutDiscount.ownPublic,
+      stadium:['Dimension Valley PHF 93']},
     opponentPublic:{...twoEnergyWithoutDiscount.opponentPublic,
       bench:[liveNewMoonLunatone,newMoonSolrock]}
   };
@@ -2216,6 +2245,12 @@ test('candidate-only post-Timeless Max Geist root uses public extra-turn and Ape
     opponentNewMoonView,postTimelessCatalog,{ownerSeat:0});
   assert.ok(opponentNewMoonIntent,
     'opponent-side New Moon does not suppress Stadium effects on the acting player');
+  assert.equal(opponentNewMoonIntent.stadiumEffectsSuppressedForOwnPokemon,false,
+    'opponent-side New Moon leaves the actor-side Dimension Valley effect active');
+  assert.equal(opponentNewMoonIntent.projectedPrintedDamage,160,
+    'actor-side Dimension Valley discounts Max Geist with two Psychic Energy');
+  assert.equal(opponentNewMoonIntent.projectedDamage,320,
+    'actor-side Dimension Valley preserves the Fairy Zone doubled-damage route');
 });
 
 

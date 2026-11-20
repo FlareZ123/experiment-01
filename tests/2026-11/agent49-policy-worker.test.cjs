@@ -7,7 +7,10 @@ const os = require('node:os');
 const path = require('node:path');
 const readline = require('node:readline');
 const { spawn } = require('node:child_process');
-const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
+const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
+const {createWorkerLocalPolicyStream}=require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
+const PROTOCOL_SOURCE = path.resolve(__dirname,
+  '../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const { attachPreviousOpponentTurnReceipt } = require('../../simulation/twinleaf/agent7-copycat-history-root.cjs');
 const { actorObservation } = require('../../simulation/twinleaf/actor-observation-contract.cjs');
 
@@ -23,10 +26,38 @@ function policySource(version = POLICY_VERSION) {
     "if(request.requestId==='force-unknown') return {kind:'select-action',token:'not-in-frontier'};",
     "if(request.requestId==='force-action-on-prompt') return {kind:'select-action',token:'action-1'};",
     "if(request.requestId==='force-choice-on-root') return {kind:'select-choice',token:'choice-1'};",
-    "if(request.requestId==='force-rng'){context.rng();return {kind:'abstain',reasonCode:'TEST_RNG'};}",
+    "if(request.requestId==='force-rng'){context.rng();return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}",
+    "if(request.requestId==='force-deferred-toJSON-rng'){return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE',toJSON(){Promise.resolve().then(()=>Promise.resolve().then(()=>Promise.resolve().then(()=>context.rng())));return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}};}",
+    "if(request.requestId==='probe-ambient'){const keys=['process','require','crypto','Date','Intl','Temporal','performance','setTimeout','clearTimeout','setInterval','clearInterval','setImmediate','clearImmediate','queueMicrotask','Buffer','SharedArrayBuffer','Atomics','WebAssembly','fetch','WebSocket','EventSource','XMLHttpRequest','URL','URLSearchParams','navigator','atob','btoa','structuredClone','eval','Function','WeakRef','FinalizationRegistry','__agent49HostDraw'];const absent=keys.every(key=>typeof globalThis[key]==='undefined');const moduleHidden=typeof globalThis.module==='undefined'&&typeof globalThis.exports==='undefined'&&module.constructor===undefined;const mathDescriptor=Object.getOwnPropertyDescriptor(globalThis,'Math');const mathLocked=mathDescriptor?.writable===false&&mathDescriptor?.configurable===false;const randomDescriptor=Object.getOwnPropertyDescriptor(Math,'random');const randomLocked=randomDescriptor?.writable===false&&randomDescriptor?.configurable===false;const globalDescriptor=Object.getOwnPropertyDescriptor(globalThis,'globalThis');const globalLocked=globalDescriptor?.writable===false&&globalDescriptor?.configurable===false&&globalDescriptor?.enumerable===false;const objectDescriptor=Object.getOwnPropertyDescriptor(globalThis,'Object');const objectLocked=objectDescriptor?.writable===false&&objectDescriptor?.configurable===false;const dateDescriptor=Object.getOwnPropertyDescriptor(globalThis,'Date');const weakRefDescriptor=Object.getOwnPropertyDescriptor(globalThis,'WeakRef');const disabledLocked=dateDescriptor?.value===undefined&&dateDescriptor?.writable===false&&dateDescriptor?.configurable===false&&weakRefDescriptor?.value===undefined&&weakRefDescriptor?.writable===false&&weakRefDescriptor?.configurable===false;return {kind:'abstain',reasonCode:absent&&moduleHidden&&mathLocked&&randomLocked&&globalLocked&&objectLocked&&disabledLocked?'UNSUPPORTED_PROMPT_TYPE':'UNTRUSTED_PROMPT'};}",
+    "if(request.requestId==='force-math-random'){Math['random']();return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}",
+    "if(request.requestId==='force-global-function-escape'){globalThis.constructor.constructor('return process')();return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}",
+    "if(request.requestId==='force-global-proto-function-escape'){globalThis.__proto__.constructor.constructor('return process')();return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}",
+    "if(request.requestId==='force-global-prototype-function-escape'){Object.getPrototypeOf(globalThis).constructor.constructor('return process')();return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}",
+    "if(request.requestId==='force-function-prototype-escape'){(function(){}).constructor('return process')();return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}",
+    "if(request.requestId==='force-async-function-prototype-escape'){(async function(){}).constructor('return process')();return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}",
+    "if(request.requestId==='force-generator-function-prototype-escape'){(function*(){}).constructor('return process')();return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}",
+    "if(request.requestId==='force-async-generator-function-prototype-escape'){(async function*(){}).constructor('return process')();return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}",
+    "if(request.requestId==='force-module-loader-escape'){module.constructor._load('node:crypto');return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}",
+    "if(request.requestId==='force-module-exports-escape'){module.exports.constructor.constructor('return process')();return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}",
+    "if(request.requestId==='force-date'){Date.now();return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}",
+    "if(request.requestId==='force-intl'){new Intl.DateTimeFormat().format();return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}",
+    "if(request.requestId==='force-crypto'){crypto.getRandomValues(new Uint8Array(1));return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}",
+    "if(request.requestId==='force-math-binding-escape'){globalThis.Math={random:()=>0.5};return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}",
+    "if(request.requestId==='force-globalThis-binding-escape'){globalThis={Math:{random:()=>0.5}};return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}",
+    "if(request.requestId==='force-this-globalThis-binding-escape'){(function(){this.globalThis={Math:{random:()=>0.5}};}).call(globalThis);return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}",
+    "if(request.requestId==='force-delete-disabled-global'){const before=Object.getOwnPropertyDescriptor(globalThis,'Date');const changed=delete globalThis.Date;const after=Object.getOwnPropertyDescriptor(globalThis,'Date');const same=!!after&&before.value===after.value&&before.writable===after.writable&&before.configurable===after.configurable&&before.enumerable===after.enumerable;return {kind:'abstain',reasonCode:!changed&&same?'UNSUPPORTED_PROMPT_TYPE':'UNTRUSTED_PROMPT'};}",
+    "if(request.requestId==='force-object-binding-escape'){Object={defineProperty:()=>{}};return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}",
+    "if(request.requestId==='force-object-define-globalThis'){const before=Object.getOwnPropertyDescriptor(globalThis,'globalThis');try{Object.defineProperty(globalThis,'globalThis',{value:{}});}catch{}const after=Object.getOwnPropertyDescriptor(globalThis,'globalThis');const same=!!after&&before.value===after.value&&before.writable===after.writable&&before.configurable===after.configurable&&before.enumerable===after.enumerable;return {kind:'abstain',reasonCode:same?'UNSUPPORTED_PROMPT_TYPE':'UNTRUSTED_PROMPT'};}",
+    "if(request.requestId==='force-object-define-Math'){const before=Object.getOwnPropertyDescriptor(globalThis,'Math');try{Object.defineProperty(globalThis,'Math',{value:{random:()=>0.5}});}catch{}const after=Object.getOwnPropertyDescriptor(globalThis,'Math');const same=!!after&&before.value===after.value&&before.writable===after.writable&&before.configurable===after.configurable&&before.enumerable===after.enumerable;return {kind:'abstain',reasonCode:same?'UNSUPPORTED_PROMPT_TYPE':'UNTRUSTED_PROMPT'};}",
+    "if(request.requestId==='force-object-define-Math-random'){const before=Object.getOwnPropertyDescriptor(Math,'random');try{Object.defineProperty(Math,'random',{value:()=>0.5});}catch{}const after=Object.getOwnPropertyDescriptor(Math,'random');const same=!!after&&before.value===after.value&&before.writable===after.writable&&before.configurable===after.configurable&&before.enumerable===after.enumerable;return {kind:'abstain',reasonCode:same?'UNSUPPORTED_PROMPT_TYPE':'UNTRUSTED_PROMPT'};}",
+    "if(request.requestId==='force-reflect-define-globalThis'){const before=Object.getOwnPropertyDescriptor(globalThis,'globalThis');const changed=Reflect.defineProperty(globalThis,'globalThis',{value:{}});const after=Object.getOwnPropertyDescriptor(globalThis,'globalThis');const same=!!after&&before.value===after.value&&before.writable===after.writable&&before.configurable===after.configurable&&before.enumerable===after.enumerable;return {kind:'abstain',reasonCode:!changed&&same?'UNSUPPORTED_PROMPT_TYPE':'UNTRUSTED_PROMPT'};}",
+    "if(request.requestId==='force-reflect-define-Math'){const before=Object.getOwnPropertyDescriptor(globalThis,'Math');const changed=Reflect.defineProperty(globalThis,'Math',{value:{random:()=>0.5}});const after=Object.getOwnPropertyDescriptor(globalThis,'Math');const same=!!after&&before.value===after.value&&before.writable===after.writable&&before.configurable===after.configurable&&before.enumerable===after.enumerable;return {kind:'abstain',reasonCode:!changed&&same?'UNSUPPORTED_PROMPT_TYPE':'UNTRUSTED_PROMPT'};}",
+    "if(request.requestId==='force-reflect-define-Math-random'){const before=Object.getOwnPropertyDescriptor(Math,'random');const changed=Reflect.defineProperty(Math,'random',{value:()=>0.5});const after=Object.getOwnPropertyDescriptor(Math,'random');const same=!!after&&before.value===after.value&&before.writable===after.writable&&before.configurable===after.configurable&&before.enumerable===after.enumerable;return {kind:'abstain',reasonCode:!changed&&same?'UNSUPPORTED_PROMPT_TYPE':'UNTRUSTED_PROMPT'};}",
+    "if(request.requestId==='force-weak-ref'){new WeakRef({});return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}",
+    "if(request.requestId==='force-finalization-registry'){new FinalizationRegistry(()=>Math.random());return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}",
     "if(request.requestId==='multi-select') return {kind:'select-choices',tokens:['multi-1','multi-0']};",
-    "if(request.prompt){const choice=request.prompt.choices[0];return choice?{kind:'select-choice',token:choice.token}:{kind:'abstain',reasonCode:'NO_VISIBLE_CHOICE'};}",
-    "const action=request.actionFrontier.items[0];return action?{kind:'select-action',token:action.token}:{kind:'abstain',reasonCode:'NO_LEGAL_ACTION'};",
+    "if(request.prompt){const choice=request.prompt.choices[0];return choice?{kind:'select-choice',token:choice.token}:{kind:'abstain',reasonCode:'NO_SUPPORTED_CARD_SELECTION'};}",
+    "const action=request.actionFrontier.items[0];return action?{kind:'select-action',token:action.token}:{kind:'abstain',reasonCode:'NO_SUPPORTED_ROOT_ACTION'};",
     '}};}',
     'module.exports={POLICY_VERSION,createPolicy};'
   ].join('\n');
@@ -170,10 +201,11 @@ function request(sequence, role = 'candidate', seat = 0, overrides = {}) {
 }
 function writeLine(stream, value) { stream.write(JSON.stringify(value) + '\n'); }
 
-function startWorker(init = initFor()) {
+function startWorker(init = initFor(), sourceText = policySource(init.policyVersion)) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'agent49-worker-test-'));
   fs.copyFileSync(WORKER_SOURCE, path.join(dir, 'worker.cjs'));
-  fs.writeFileSync(path.join(dir, 'policy.cjs'), policySource(init.policyVersion));
+  fs.copyFileSync(PROTOCOL_SOURCE, path.join(dir, 'agent49-policy-protocol.cjs'));
+  fs.writeFileSync(path.join(dir, 'policy.cjs'), sourceText);
   const child = spawn(process.execPath, [path.join(dir, 'worker.cjs')], {
     stdio: ['pipe', 'pipe', 'pipe'], env: { PATH: process.env.PATH || '/usr/bin:/bin' }
   });
@@ -206,8 +238,8 @@ async function dispose(worker) {
   worker.rl.close();
   fs.rmSync(worker.dir, { recursive: true, force: true });
 }
-async function expectFailure(message, code, init = initFor()) {
-  const worker = startWorker(init);
+async function expectFailure(message, code, init = initFor(), sourceText = policySource(init.policyVersion)) {
+  const worker = startWorker(init, sourceText);
   try {
     writeLine(worker.child.stdin, init);
     await waitForCount(worker, 1);
@@ -216,11 +248,96 @@ async function expectFailure(message, code, init = initFor()) {
     await waitForClose(worker);
     assert.notEqual(worker.child.exitCode, 0);
     assert.match(worker.stderr, new RegExp(code));
+    return worker.stderr;
   } finally {
     worker.rl.close();
     fs.rmSync(worker.dir, { recursive: true, force: true });
   }
 }
+
+async function expectStartupFailure(sourceText) {
+  const worker = startWorker(initFor(), sourceText);
+  try {
+    try {
+      writeLine(worker.child.stdin, worker.init);
+      worker.child.stdin.end();
+    } catch {}
+    await waitForClose(worker);
+    assert.notEqual(worker.child.exitCode, 0);
+    assert.match(worker.stderr, /POLICY_RANDOM_DRAWS_UNREPLAYABLE/);
+    assert.equal(worker.lines.length, 0, 'worker must not emit READY after deferred bootstrap draws');
+  } finally {
+    worker.rl.close();
+    fs.rmSync(worker.dir, { recursive: true, force: true });
+  }
+}
+
+async function expectInitFailure(sourceText, policyVersion) {
+  const init = initFor('candidate',0,'a',policyVersion);
+  const worker = startWorker(init, sourceText);
+  try {
+    writeLine(worker.child.stdin, init);
+    worker.child.stdin.end();
+    await waitForClose(worker);
+    assert.notEqual(worker.child.exitCode, 0);
+    assert.match(worker.stderr, /POLICY_RANDOM_DRAWS_UNREPLAYABLE/);
+    assert.equal(worker.lines.length, 0, 'worker must not emit READY after deferred initialization draws');
+  } finally {
+    worker.rl.close();
+    fs.rmSync(worker.dir, { recursive: true, force: true });
+  }
+}
+
+test('sandbox drains deferred policy bootstrap and export-getter microtasks before READY', async () => {
+  const topLevel = [
+    "'use strict';",
+    "const POLICY_VERSION='agent49-deferred-bootstrap-v1';",
+    "Promise.resolve().then(()=>Promise.resolve().then(()=>Math.random()));",
+    "async function createPolicy(){return {async decide(){return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}};}",
+    "module.exports={POLICY_VERSION,createPolicy};"
+  ].join('\n');
+  await expectStartupFailure(topLevel);
+
+  const getter = [
+    "'use strict';",
+    "const VERSION='agent49-deferred-export-getter-v1';",
+    "Object.defineProperty(module.exports,'POLICY_VERSION',{get(){Promise.resolve().then(()=>Promise.resolve().then(()=>Math.random()));return VERSION;}});",
+    "Object.defineProperty(module.exports,'createPolicy',{get(){Promise.resolve().then(()=>Promise.resolve().then(()=>Math.random()));return async function(){return {async decide(){return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}};};}});"
+  ].join('\n');
+  await expectStartupFailure(getter);
+});
+
+test('sandbox drains deferred policy initialization microtasks before READY', async () => {
+  const source = [
+    "'use strict';",
+    "const POLICY_VERSION='agent49-deferred-init-v1';",
+    "async function createPolicy(context){",
+    "  Promise.resolve().then(()=>Promise.resolve().then(()=>context.rng()));",
+    "  return {async decide(){return {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'};}};",
+    "}",
+    "module.exports={POLICY_VERSION,createPolicy};"
+  ].join('\n');
+  await expectInitFailure(source,'agent49-deferred-init-v1');
+});
+
+test('sandbox drains deferred decision serialization microtasks before emitting a response', async () => {
+  const worker = startWorker();
+  try {
+    writeLine(worker.child.stdin, worker.init);
+    await waitForCount(worker, 1);
+    writeLine(worker.child.stdin, request(1, 'candidate', 0, {
+      requestId: 'force-deferred-toJSON-rng'
+    }));
+    worker.child.stdin.end();
+    await waitForClose(worker);
+    assert.notEqual(worker.child.exitCode, 0);
+    assert.match(worker.stderr, /POLICY_RANDOM_DRAWS_UNREPLAYABLE/);
+    assert.equal(worker.lines.length, 1, 'only READY may be emitted before the deferred draw is rejected');
+  } finally {
+    worker.rl.close();
+    fs.rmSync(worker.dir, { recursive: true, force: true });
+  }
+});
 
 test('persistent worker accepts ordered decisions without RNG seed IPC', async () => {
   const worker = startWorker();
@@ -236,6 +353,8 @@ test('persistent worker accepts ordered decisions without RNG seed IPC', async (
     writeLine(worker.child.stdin, request(2)); await waitForCount(worker, 3);
     assert.deepEqual(worker.lines[1].decision, { kind: 'select-action', token: 'action-1' });
     assert.deepEqual(worker.lines[2].decision, { kind: 'select-action', token: 'action-2' });
+    assert.equal(worker.lines[1].policyDrawCount,0);
+    assert.equal(worker.lines[2].policyDrawCount,0);
     assert.equal(worker.lines[1].requestId, 'req-1');
     assert.equal(worker.lines[2].sequence, 2);
     assert.doesNotMatch(JSON.stringify(worker.lines), /policySeed|physicalSeed|rngState/i);
@@ -307,10 +426,11 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
   assert.throws(() => protocol.validateInit({ ...initFor(), config: { opponentDecklist: [] } }), /UNKNOWN_FIELD/);
   assert.throws(() => protocol.validateInit({ ...initFor(), config: { policySeed: 123 } }), /UNKNOWN_FIELD/);
   const badPrompt = request(1, 'candidate', 0, {
-    observation: observation(0, 'owner-prompt', 'ChooseCardsPrompt'),
-    prompt: { schema: protocol.PROMPT_SCHEMA, actingSeat: 0, promptType: 'ChooseCardsPrompt',
+    observation: observation(0, 'owner-prompt', 'ChooseAttackPrompt'),
+    prompt: { schema: protocol.PROMPT_SCHEMA, actingSeat: 0, promptType: 'ChooseAttackPrompt',
       description: 'test', source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Quick Ball FST', effectName: 'Quick Ball' },
-      choices: [{ token: 'c1', kind: 'payment', publicMetadata: { opponentHand: [] } }] }
+      choices: [{ token: 'c1', kind: 'attack', publicMetadata: { opponentHand: [] } }],
+      publicMetadata: { selectionType: 'attack', allowCancel: false } }
   });
   assert.throws(() => protocol.validateRequest(badPrompt, initFor(), 1, new Set()), /UNKNOWN_FIELD/);
   const badFrontier = request(1, 'candidate', 0, {
@@ -331,10 +451,10 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
   const badSuppressionView = observation(0);
   badSuppressionView.ownPublic.active = { ...visiblePokemon(), abilitySuppressions: [{ abilityName: 'Underworld Door', suppressed: true, reasonCode: 'PATH_TO_THE_PEAK', sourcePrinting: 'Path to the Peak CES', opponentHand: [] }] };
   assert.throws(() => protocol.validateActorObservation(badSuppressionView, 0), /UNKNOWN_FIELD/);
-  const eventRow = { turn: 0, sourcePrinting: 'Trevenant & Dusknoir-GX',
+  const eventRow = { turn: 0, sourcePrinting: 'Trevenant & Dusknoir-GX SMP',
     attackName: 'Night Watch', gxAttack: false, copycatAttack: false };
   const reorderedCopycatRow = { copycatAttack: false, attackName: 'Night Watch', turn: 0,
-    sourcePrinting: 'Trevenant & Dusknoir-GX', gxAttack: false };
+    sourcePrinting: 'Trevenant & Dusknoir-GX SMP', gxAttack: false };
   const copycatView = observation(0);
   copycatView.ownPublic.active = mimikyuPokemon();
   const receipt = {
@@ -346,6 +466,17 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
     mimikyuCopycatCompatible: true
   };
   protocol.validatePublicEventReceipt(receipt, copycatView);
+  const laterUnpairedRow = { ...eventRow, sourcePrinting: 'Other Attacker', attackName: 'Later Attack' };
+  assert.throws(() => protocol.validatePublicEventReceipt({
+    ...receipt,
+    opponentLastTurnAttacks: [eventRow, laterUnpairedRow],
+    opponentCopycatChoices: [eventRow]
+  }, copycatView), /STALE_SINGLE_COPYCAT_CHOICE/);
+  protocol.validatePublicEventReceipt({
+    ...receipt,
+    opponentLastTurnAttacks: [eventRow, laterUnpairedRow],
+    opponentCopycatChoices: [laterUnpairedRow]
+  }, copycatView);
   const baseReceipt = { ...receipt };
   delete baseReceipt.opponentCopycatChoices;
   delete baseReceipt.mimikyuCopycatCompatible;
@@ -379,14 +510,27 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
     opponentCopycatChoices: [barrageFirst, barrageSecond]
   }, copycatView);
   const independentSecond = { ...eventRow, turn: 0, sourcePrinting: 'Other Attacker', attackName: 'Other Attack' };
-  protocol.validatePublicEventReceipt({ ...receipt,
+  assert.throws(() => protocol.validatePublicEventReceipt({ ...receipt,
     opponentLastTurnAttacks: [eventRow, independentSecond],
     opponentCopycatChoices: [eventRow, independentSecond]
-  }, copycatView);
+  }, copycatView), /BAD_COPYCAT_BARRAGE_PAIR/);
+  assert.throws(() => protocol.validatePublicEventReceipt({ ...receipt,
+    opponentCopycatChoices: [eventRow, reorderedCopycatRow]
+  }, copycatView), /DUPLICATE_COPYCAT_CHOICE/);
   assert.throws(() => protocol.validatePublicEventReceipt({ ...receipt,
     opponentLastTurnAttacks: [{ ...eventRow, barragePairIndex: 0 }],
     opponentCopycatChoices: [{ ...eventRow, barragePairIndex: 0 }]
   }, copycatView), /INCOMPLETE_BARRAGE_PAIR/);
+  assert.throws(() => protocol.validatePublicEventReceipt({ ...receipt,
+    opponentLastTurnAttacks: [barrageFirst, barrageSecond],
+    opponentCopycatChoices: [barrageSecond, barrageFirst]
+  }, copycatView), /BAD_COPYCAT_BARRAGE_PAIR/);
+  const latestBarrageFirst = { ...barrageFirst, barragePairIndex: 1 };
+  const latestBarrageSecond = { ...barrageSecond, barragePairIndex: 1 };
+  assert.throws(() => protocol.validatePublicEventReceipt({ ...receipt,
+    opponentLastTurnAttacks: [barrageFirst, barrageSecond, latestBarrageFirst, latestBarrageSecond],
+    opponentCopycatChoices: [barrageFirst, barrageSecond]
+  }, copycatView), /BAD_COPYCAT_BARRAGE_PAIR/);
 });
 
 test('production actorObservation projection matches the closed worker schema and visibility gates', () => {
@@ -454,7 +598,7 @@ test('actual Agent7/Agent8 public event receipt passes the worker schema', () =>
   const opponent = { id: 1 };
   const state = { activePlayer: 0, turn: 1, players: [owner, opponent] };
   const previousAttack = {
-    turn: 0, playerId: 1, sourceCardFullName: 'Trevenant & Dusknoir-GX',
+    turn: 0, playerId: 1, sourceCardFullName: 'Trevenant & Dusknoir-GX SMP',
     attackName: 'Night Watch', gxAttack: false, copycatAttack: false
   };
   const tracker = {
@@ -474,13 +618,14 @@ test('actual Agent7/Agent8 public event receipt passes the worker schema', () =>
 });
 
 test('prompt/root decision mismatch and untrusted policy choices fail closed', async () => {
-  const promptView = observation(0, 'owner-prompt', 'ChooseCardsPrompt');
+  const promptView = observation(0, 'owner-prompt', 'ChooseAttackPrompt');
   const prompt = {
-    schema: protocol.PROMPT_SCHEMA, actingSeat: 0, promptType: 'ChooseCardsPrompt',
-    description: 'Select an owner-visible card',
+    schema: protocol.PROMPT_SCHEMA, actingSeat: 0, promptType: 'ChooseAttackPrompt',
+    description: 'Select an owner-visible attack',
     source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Quick Ball FST', effectName: 'Quick Ball' },
-    choices: [{ token: 'choice-1', kind: 'payment', printing: 'Psychic Energy SVE',
-      publicMetadata: { sourceZone: 'hand', isOwnerVisible: true } }]
+    choices: [{ token: 'choice-1', kind: 'attack', printing: 'Psychic Attack',
+      publicMetadata: { sourceZone: 'hand', isOwnerVisible: true } }],
+    publicMetadata: { selectionType: 'attack', allowCancel: false }
   };
   const promptReq = request(1, 'candidate', 0, {
     observation: promptView, prompt,
@@ -493,14 +638,14 @@ test('prompt/root decision mismatch and untrusted policy choices fail closed', a
     assert.deepEqual(worker.lines[1].decision, { kind: 'select-choice', token: 'choice-1' });
   } finally { await dispose(worker); }
 
-  const rootWithPending = { ...observation(0), pendingPromptType: 'ChooseCardsPrompt' };
+  const rootWithPending = { ...observation(0), pendingPromptType: 'ChooseAttackPrompt' };
   assert.throws(() => protocol.validateActorObservation(rootWithPending, 0), /ROOT_HAS_PENDING_PROMPT/);
   await expectFailure({ ...promptReq, requestId: 'force-action-on-prompt' }, 'ACTION_DURING_PROMPT');
   await expectFailure({ ...request(1), requestId: 'force-choice-on-root' }, 'CHOICE_DURING_ROOT');
   await expectFailure({ ...request(1), requestId: 'force-unknown' }, 'POLICY_SELECTED_UNKNOWN_ACTION');
-  const physicalRandomPrompt = { ...promptReq, requestId: 'night-watch', prompt: { ...prompt, source: { classification: 'physical-random', sourceKind: 'card-effect', sourcePrinting: 'Trevenant & Dusknoir-GX', effectName: 'Night Watch' } } };
+  const physicalRandomPrompt = { ...promptReq, requestId: 'night-watch', prompt: { ...prompt, source: { classification: 'physical-random', sourceKind: 'card-effect', sourcePrinting: 'Trevenant & Dusknoir-GX SMP', effectName: 'Night Watch' } } };
   assert.throws(() => protocol.validateRequest(physicalRandomPrompt, initFor(), 1, new Set()), /NON_ACTOR_PROMPT_CLASS/);
-  const misclassifiedNightWatch = { ...promptReq, requestId: 'misclassified-night-watch', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Trevenant & Dusknoir-GX', effectName: 'Night Watch' } } };
+  const misclassifiedNightWatch = { ...promptReq, requestId: 'misclassified-night-watch', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Trevenant & Dusknoir-GX SMP', effectName: 'Night Watch' } } };
   assert.throws(() => protocol.validateRequest(misclassifiedNightWatch, initFor(), 1, new Set()), /HOST_ONLY_PHYSICAL_PROMPT/);
   const unknownSourcePrompt = { ...promptReq, prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: null, effectName: 'Quick Ball' } } };
   assert.throws(() => protocol.validateRequest(unknownSourcePrompt, initFor(), 1, new Set()), /UNKNOWN_PROMPT_SOURCE/);
@@ -508,15 +653,15 @@ test('prompt/root decision mismatch and untrusted policy choices fail closed', a
   protocol.validateRequest(engineSetupPrompt, initFor(), 1, new Set());
   const misattributedEnginePrompt = { ...promptReq, requestId: 'bad-engine-source', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'engine', sourcePrinting: 'Quick Ball FST', effectName: 'ChooseStartingPokemonPrompt' } } };
   assert.throws(() => protocol.validateRequest(misattributedEnginePrompt, initFor(), 1, new Set()), /BAD_ENGINE_PROMPT_SOURCE/);
-  const engineWithCopiedSource = { ...promptReq, requestId: 'engine-copy-source', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'engine', sourcePrinting: null, effectName: 'ChooseStartingPokemonPrompt', copiedSourcePrinting: 'Trevenant & Dusknoir-GX', copiedAttackName: 'Pale Moon-GX' } } };
+  const engineWithCopiedSource = { ...promptReq, requestId: 'engine-copy-source', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'engine', sourcePrinting: null, effectName: 'ChooseStartingPokemonPrompt', copiedSourcePrinting: 'Trevenant & Dusknoir-GX SMP', copiedAttackName: 'Pale Moon-GX' } } };
   assert.throws(() => protocol.validateRequest(engineWithCopiedSource, initFor(), 1, new Set()), /BAD_ENGINE_PROMPT_SOURCE/);
-  const copiedNightWatch = { ...promptReq, requestId: 'copied-night-watch', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat', copiedSourcePrinting: 'Trevenant & Dusknoir-GX', copiedAttackName: 'Night Watch' } } };
+  const copiedNightWatch = { ...promptReq, requestId: 'copied-night-watch', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat', copiedSourcePrinting: 'Trevenant & Dusknoir-GX SMP', copiedAttackName: 'Night Watch' } } };
   assert.throws(() => protocol.validateRequest(copiedNightWatch, initFor(), 1, new Set()), /HOST_ONLY_PHYSICAL_PROMPT/);
-  const copiedPaleMoon = { ...promptReq, requestId: 'copied-pale-moon', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat', copiedSourcePrinting: 'Trevenant & Dusknoir-GX', copiedAttackName: 'Pale Moon-GX' } } };
+  const copiedPaleMoon = { ...promptReq, requestId: 'copied-pale-moon', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat', copiedSourcePrinting: 'Trevenant & Dusknoir-GX SMP', copiedAttackName: 'Pale Moon-GX' } } };
   protocol.validateRequest(copiedPaleMoon, initFor(), 1, new Set());
   const incompleteCopycat = { ...promptReq, requestId: 'incomplete-copycat', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat' } } };
   assert.throws(() => protocol.validateRequest(incompleteCopycat, initFor(), 1, new Set()), /COPYCAT_SOURCE_MISSING/);
-  const partialCopiedSource = { ...promptReq, requestId: 'partial-copycat', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Quick Ball FST', effectName: 'Quick Ball', copiedSourcePrinting: 'Trevenant & Dusknoir-GX', copiedAttackName: null } } };
+  const partialCopiedSource = { ...promptReq, requestId: 'partial-copycat', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Quick Ball FST', effectName: 'Quick Ball', copiedSourcePrinting: 'Trevenant & Dusknoir-GX SMP', copiedAttackName: null } } };
   assert.throws(() => protocol.validateRequest(partialCopiedSource, initFor(), 1, new Set()), /INCOMPLETE_COPIED_PROMPT_SOURCE/);
   assert.throws(() => protocol.validateRequest({ ...request(1), policyRngSeed: 123 }, initFor(), 1, new Set()), /UNKNOWN_FIELD/);
 });
@@ -608,13 +753,16 @@ test('public prompt and frontier validators enforce actor-relative metadata cont
     choices: [{ ...prompt.choices[0], publicMetadata: { ownerSeat: 'seat-1' } }]
   }, 0), /BAD_PROMPT_METADATA/);
   assert.doesNotThrow(() => protocol.validatePrompt({
-    ...prompt, publicMetadata: { count: protocol.LIMITS.maxArrayItems }
+    ...prompt, publicMetadata: { count: protocol.LIMITS.maxArrayItems,
+      selectionType: 'card-combination', minimumCount: 1, maximumCount: 1, allowCancel: true }
   }, 0));
   assert.throws(() => protocol.validatePrompt({
-    ...prompt, publicMetadata: { count: protocol.LIMITS.maxArrayItems + 1 }
+    ...prompt, publicMetadata: { count: protocol.LIMITS.maxArrayItems + 1,
+      selectionType: 'card-combination', minimumCount: 1, maximumCount: 1, allowCancel: true }
   }, 0), /BAD_PROMPT_METADATA/);
   assert.throws(() => protocol.validatePrompt({
-    ...prompt, publicMetadata: { selectionIndex: protocol.LIMITS.maxArrayItems }
+    ...prompt, publicMetadata: { selectionIndex: protocol.LIMITS.maxArrayItems,
+      selectionType: 'card-combination', minimumCount: 1, maximumCount: 1, allowCancel: true }
   }, 0), /BAD_PROMPT_METADATA/);
 
   const frontier = {
@@ -623,11 +771,11 @@ test('public prompt and frontier validators enforce actor-relative metadata cont
       token: 'act-0',
       kind: 'use-ability',
       publicMetadata: {
-        ownerSeat: 'actor',
         targetSeat: 'opponent',
         sourceSeat: 'actor',
         targetIndex: 1,
-        sourceIndex: 0
+        sourceIndex: 0,
+        isOwnerVisible: true
       }
     }]
   };
@@ -652,6 +800,60 @@ test('public prompt and frontier validators enforce actor-relative metadata cont
     ...frontier,
     items: [{ ...frontier.items[0], publicMetadata: { ...frontier.items[0].publicMetadata, sourceIndex: undefined } }]
   }), /BAD_ACTION_METADATA/);
+  assert.throws(() => protocol.validateFrontier({
+    ...frontier,
+    items: [{ ...frontier.items[0], publicMetadata: { ...frontier.items[0].publicMetadata, isOwnerVisible: 'false' } }]
+  }), /BAD_ACTION_METADATA_TYPE/);
+  assert.throws(() => protocol.validateFrontier({
+    ...frontier,
+    items: [{ ...frontier.items[0], publicMetadata: { targetSeat: 'opponent', targetZone: 'hand' } }]
+  }), /BAD_ACTION_METADATA_TYPE/);
+  assert.throws(() => protocol.validateFrontier({
+    ...frontier,
+    items: [{ ...frontier.items[0], publicMetadata: { ...frontier.items[0].publicMetadata, isPublic: 0 } }]
+  }), /BAD_ACTION_METADATA_TYPE/);
+  assert.throws(() => protocol.validateFrontier({
+    ...frontier,
+    items: [{ ...frontier.items[0], publicMetadata: { ...frontier.items[0].publicMetadata, damage: '20' } }]
+  }), /BAD_ACTION_METADATA_TYPE/);
+  assert.throws(() => protocol.validateFrontier({
+    ...frontier,
+    items: [{ ...frontier.items[0], publicMetadata: { ...frontier.items[0].publicMetadata, targetZone: 2 } }]
+  }), /BAD_ACTION_METADATA_TYPE/);
+  assert.throws(() => protocol.validateFrontier({
+    ...frontier,
+    items: [{ ...frontier.items[0], publicMetadata: { ...frontier.items[0].publicMetadata, ownerSeat: 'actor' } }]
+  }), /UNKNOWN_FIELD/);
+
+  const attackSource = {
+    sourceKind: 'bench-pokemon',
+    sourceSlot: 'BENCH',
+    sourceIndex: 2,
+    sourceCardName: 'Noivern',
+    sourceCardFullName: 'Noivern BREAKthrough',
+    attackName: 'Boomburst'
+  };
+  const attackFrontier = {
+    schema: protocol.FRONTIER_SCHEMA,
+    items: [{
+      token: 'attack-source-0',
+      kind: 'attack',
+      actorPrinting: attackSource.sourceCardFullName,
+      attackName: attackSource.attackName,
+      publicMetadata: { attackCostPayable: true, attackSource }
+    }]
+  };
+  assert.equal(protocol.validateFrontier(attackFrontier).has('attack-source-0'), true);
+  assert.throws(() => protocol.validateFrontier({
+    ...attackFrontier,
+    items: [{
+      ...attackFrontier.items[0],
+      publicMetadata: {
+        attackCostPayable: true,
+        attackSource: { ...attackSource, sourceSlot: 'ACTIVE' }
+      }
+    }]
+  }), /BAD_ATTACK_SOURCE_METADATA/);
 });
 
 test('analysis-only projected attack rows cannot be selected as native actions', () => {
@@ -659,7 +861,7 @@ test('analysis-only projected attack rows cannot be selected as native actions',
     schema: protocol.FRONTIER_SCHEMA,
     items: [
       { token: 'native-0', kind: 'attack', attackName: 'Max Geist' },
-      { token: 'projection-0', kind: 'projected-attack', attackName: 'Projected Max Geist', publicMetadata: { ownerSeat: 'opponent', targetSeat: 'opponent', sourceSeat: 'actor', targetIndex: 0, sourceIndex: 0, isOwnerVisible: true } }
+      { token: 'projection-0', kind: 'projected-attack', attackName: 'Projected Max Geist', publicMetadata: { targetSeat: 'opponent', sourceSeat: 'actor', targetIndex: 0, sourceIndex: 0, isOwnerVisible: true } }
     ]
   };
   const actionTokens = protocol.validateFrontier(frontier);
@@ -675,22 +877,80 @@ test('analysis-only projected attack rows cannot be selected as native actions',
 });
 
 test('typed multi-select decisions enforce unique item tokens, bounds, cancel and order semantics', () => {
-  assert.equal(protocol.RESPONSE_SCHEMA, 'aichi-policy-response-v3');
+  assert.equal(protocol.RESPONSE_SCHEMA, 'aichi-policy-response-v4');
   const source = {
     classification: 'actor-choice',
     sourceKind: 'card-effect',
     sourcePrinting: 'Quick Ball FST',
     effectName: 'Quick Ball'
   };
-  const makePrompt = (selectionType, publicMetadata, choices) => ({
+  const makePrompt = (selectionType, publicMetadata, choices, promptType = 'ChooseCardsPrompt') => ({
     schema: protocol.PROMPT_SCHEMA,
     actingSeat: 0,
-    promptType: 'ChooseCardsPrompt',
+    promptType,
     description: 'Choose visible items',
     source,
     choices,
     publicMetadata: { selectionType, ...publicMetadata }
   });
+
+  const missingSelectionType = makePrompt('card-combination', {
+    minimumCount: 1, maximumCount: 1, allowCancel: false
+  }, [{ token: 'missing-selection-card', kind: 'card' }]);
+  delete missingSelectionType.publicMetadata.selectionType;
+  assert.throws(() => protocol.validatePrompt(missingSelectionType, 0), /BAD_PROMPT_SELECTION_TYPE/);
+  const numericSelectionType = makePrompt(7, {
+    minimumCount: 1, maximumCount: 1, allowCancel: false
+  }, [{ token: 'numeric-selection-card', kind: 'card' }]);
+  assert.throws(() => protocol.validatePrompt(numericSelectionType, 0), /BAD_PROMPT_SELECTION_TYPE/);
+  const unknownSelectionType = makePrompt('free-form-selection', {
+    minimumCount: 1, maximumCount: 1, allowCancel: false
+  }, [{ token: 'unknown-selection-card', kind: 'card' }]);
+  assert.throws(() => protocol.validatePrompt(unknownSelectionType, 0), /BAD_PROMPT_SELECTION_TYPE/);
+  const mismatchedSelectionType = makePrompt('card-combination', {
+    minimumCount: 1, maximumCount: 1, allowCancel: false
+  }, [{ token: 'mismatch-card', kind: 'card' }], 'ChooseEnergyPrompt');
+  assert.throws(() => protocol.validatePrompt(mismatchedSelectionType, 0), /PROMPT_SELECTION_TYPE_MISMATCH/);
+
+  const attackPrompt = makePrompt('attack', { allowCancel: false },
+    [{ token: 'attack-0', kind: 'attack' }], 'ChooseAttackPrompt');
+  protocol.validatePrompt(attackPrompt, 0);
+  assert.deepEqual(protocol.validateDecision({ kind: 'select-choice', token: 'attack-0' },
+    attackPrompt, new Set()), { kind: 'select-choice', token: 'attack-0' });
+  assert.throws(() => protocol.validatePrompt({ ...attackPrompt,
+    choices: [{ token: 'attack-empty', kind: 'empty-selection' }]
+  }, 0), /BAD_SINGLE_SELECT_EMPTY_CHOICE/);
+  assert.throws(() => protocol.validatePrompt({ ...attackPrompt,
+    choices: [{ token: 'attack-wrong-kind', kind: 'card' }]
+  }, 0), /BAD_SINGLE_SELECT_ITEM_KIND/);
+  assert.throws(() => protocol.validatePrompt({ ...attackPrompt,
+    choices: [...attackPrompt.choices, { token: 'attack-cancel', kind: 'cancel' }]
+  }, 0), /BAD_SINGLE_SELECT_CANCEL_CHOICE/);
+
+  const confirmPrompt = makePrompt('confirm', {}, [
+    { token: 'confirm-yes', kind: 'confirm' },
+    { token: 'confirm-no', kind: 'confirm' }
+  ], 'ConfirmPrompt');
+  protocol.validatePrompt(confirmPrompt, 0);
+  const optionPrompt = makePrompt('option', { allowCancel: true }, [
+    { token: 'option-0', kind: 'option' },
+    { token: 'option-cancel', kind: 'cancel' }
+  ], 'SelectPrompt');
+  protocol.validatePrompt(optionPrompt, 0);
+  assert.deepEqual(protocol.validateDecision({ kind: 'select-choice', token: 'option-cancel' },
+    optionPrompt, new Set()), { kind: 'select-choice', token: 'option-cancel' });
+  assert.throws(() => protocol.validatePrompt({ ...optionPrompt,
+    choices: [{ token: 'option-0', kind: 'option' }]
+  }, 0), /BAD_SINGLE_SELECT_CANCEL_CHOICE/);
+
+  const energyAttachmentPrompt = makePrompt('energy-attachment', {
+    count: 1, minimumCount: 1, maximumCount: 1, allowCancel: false
+  }, [{ token: 'energy-attach-0', kind: 'energy' }], 'AttachEnergyPrompt');
+  protocol.validatePrompt(energyAttachmentPrompt, 0);
+  assert.deepEqual(protocol.validateDecision({ kind: 'select-choice', token: 'energy-attach-0' },
+    energyAttachmentPrompt, new Set()), { kind: 'select-choice', token: 'energy-attach-0' });
+  assert.throws(() => protocol.validateDecision({ kind: 'select-choices', tokens: ['energy-attach-0'] },
+    energyAttachmentPrompt, new Set()), /MULTI_SELECT_NOT_SUPPORTED/);
 
   const cardPrompt = makePrompt('card-combination', {
     minimumCount: 1, maximumCount: 2, allowCancel: true
@@ -789,7 +1049,7 @@ test('typed multi-select decisions enforce unique item tokens, bounds, cancel an
     { token: 'order-0', kind: 'card-order-item' },
     { token: 'order-1', kind: 'card-order-item' },
     { token: 'order-2', kind: 'card-order-item' }
-  ]);
+  ], 'OrderCardsPrompt');
   protocol.validatePrompt(orderPrompt, 0);
   assert.deepEqual(protocol.validateDecision({
     kind: 'select-choices', tokens: ['order-2', 'order-0', 'order-1']
@@ -803,7 +1063,7 @@ test('typed multi-select decisions enforce unique item tokens, bounds, cancel an
     { token: 'pokemon-0', kind: 'pokemon' },
     { token: 'pokemon-1', kind: 'pokemon' },
     { token: 'pokemon-2', kind: 'pokemon' }
-  ]);
+  ], 'ChoosePokemonPrompt');
   protocol.validatePrompt(pokemonPrompt, 0);
   assert.deepEqual(protocol.validateDecision({
     kind: 'select-choices', tokens: ['pokemon-2', 'pokemon-1']
@@ -817,7 +1077,7 @@ test('typed multi-select decisions enforce unique item tokens, bounds, cancel an
     { token: 'energy-0', kind: 'energy' },
     { token: 'energy-1', kind: 'energy' },
     { token: 'energy-2', kind: 'energy' }
-  ]);
+  ], 'ChooseEnergyPrompt');
   protocol.validatePrompt(energyPrompt, 0);
   assert.deepEqual(protocol.validateDecision({
     kind: 'select-choices', tokens: ['energy-1']
@@ -829,14 +1089,14 @@ test('typed multi-select decisions enforce unique item tokens, bounds, cancel an
     { token: 'prize-0', kind: 'prize' },
     { token: 'prize-1', kind: 'prize' },
     { token: 'prize-2', kind: 'prize' }
-  ]);
+  ], 'ChoosePrizePrompt');
   protocol.validatePrompt(prizePrompt, 0);
   assert.throws(() => protocol.validateDecision({
     kind: 'select-choices', tokens: ['prize-0']
   }, prizePrompt, new Set()), /BAD_MULTI_SELECT_COUNT/);
 });
 
-test('persistent worker emits response-v3 ordered multi-select decisions', async () => {
+test('persistent worker emits response-v4 ordered multi-select decisions', async () => {
   const worker = startWorker();
   try {
     writeLine(worker.child.stdin, worker.init);
@@ -871,7 +1131,7 @@ test('persistent worker emits response-v3 ordered multi-select decisions', async
     });
     writeLine(worker.child.stdin, message);
     await waitForCount(worker, 2);
-    assert.equal(worker.lines[1].schema, 'aichi-policy-response-v3');
+    assert.equal(worker.lines[1].schema, 'aichi-policy-response-v4');
     assert.equal(worker.lines[1].type, 'response');
     assert.deepEqual(worker.lines[1].decision, {
       kind: 'select-choices', tokens: ['multi-1', 'multi-0']
@@ -881,9 +1141,72 @@ test('persistent worker emits response-v3 ordered multi-select decisions', async
 
 
 
+test('restricted VM denies ambient capabilities and serializes policy failures',async()=>{
+  const worker=startWorker();
+  try {
+    writeLine(worker.child.stdin,worker.init);
+    await waitForCount(worker,1);
+    writeLine(worker.child.stdin,request(1,'candidate',0,{requestId:'probe-ambient'}));
+    await waitForCount(worker,2);
+    assert.deepEqual(worker.lines[1].decision,{kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'});
+    assert.equal(worker.lines[0].policyDrawCount,0);
+    assert.equal(worker.lines[1].policyDrawCount,0);
+  } finally { await dispose(worker); }
+
+  const rngFailure=await expectFailure(request(1,'candidate',0,{requestId:'force-math-random'}),
+    'POLICY_RANDOM_DRAWS_UNREPLAYABLE');
+  assert.match(rngFailure,/policyDrawCount=1/);
+  const deferredToJsonFailure=await expectFailure(
+    request(1,'candidate',0,{requestId:'force-deferred-toJSON-rng'}),
+    'POLICY_RANDOM_DRAWS_UNREPLAYABLE');
+  assert.match(deferredToJsonFailure,/policyDrawCount=1/,
+    'nested toJSON Promise microtasks must settle before the worker accepts the response');
+  for(const requestId of [
+    'force-global-function-escape','force-global-proto-function-escape',
+    'force-global-prototype-function-escape','force-function-prototype-escape',
+    'force-async-function-prototype-escape','force-generator-function-prototype-escape',
+    'force-async-generator-function-prototype-escape','force-module-loader-escape',
+    'force-module-exports-escape','force-date','force-intl','force-crypto',
+    'force-math-binding-escape','force-globalThis-binding-escape',
+    'force-this-globalThis-binding-escape','force-object-binding-escape',
+    'force-weak-ref','force-finalization-registry'
+  ]) {
+    try { await expectFailure(request(1,'candidate',0,{requestId}),'POLICY_EXECUTION_FAILURE'); }
+    catch(error) { error.message += ' requestId=' + requestId; throw error; }
+  }
+  for(const requestId of [
+    'force-delete-disabled-global',
+    'force-object-define-globalThis','force-object-define-Math','force-object-define-Math-random',
+    'force-reflect-define-globalThis','force-reflect-define-Math',
+    'force-reflect-define-Math-random'
+  ]) {
+    const reflectiveWorker=startWorker();
+    try {
+      writeLine(reflectiveWorker.child.stdin,reflectiveWorker.init);
+      await waitForCount(reflectiveWorker,1);
+      writeLine(reflectiveWorker.child.stdin,request(1,'candidate',0,{requestId}));
+      await waitForCount(reflectiveWorker,2);
+      assert.deepEqual(reflectiveWorker.lines[1].decision,
+        {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'},
+        requestId+' must preserve its locked target');
+      assert.equal(reflectiveWorker.lines[1].policyDrawCount,0);
+    } finally { await dispose(reflectiveWorker); }
+  }
+});
+
+test('production worker loads role policy source only inside its restricted VM',()=>{
+  const source=fs.readFileSync(WORKER_SOURCE,'utf8');
+  assert.match(source,/vm\.createContext/);
+  assert.match(source,/codeGeneration:\{strings:false,wasm:false\}/);
+  assert.match(source,/fs\.readFileSync\(path\.join\(__dirname, 'policy\.cjs'\), 'utf8'\)/);
+  assert.match(source,/require\('\.\/agent49-policy-protocol\.cjs'\)/);
+  assert.doesNotMatch(source,/require\('\.\/policy\.cjs'\)/);
+  assert.doesNotMatch(source,/Module\._load\([^)]*policy\.cjs/);
+});
+
 test('worker-local policy RNG is independent, reported, and rejects unapproved draws',async()=>{
-  const first=protocol.createWorkerLocalPolicyStream();
-  const second=protocol.createWorkerLocalPolicyStream();
+  const first=createWorkerLocalPolicyStream();
+  const second=createWorkerLocalPolicyStream();
   assert.equal(first.protocol,'worker-local-independent-crypto-stream-v1');
   assert.equal(first.drawCount,0);
   assert.equal(second.drawCount,0);
@@ -908,4 +1231,34 @@ test('worker-local policy RNG is independent, reported, and rejects unapproved d
     worker.rl.close();
     fs.rmSync(worker.dir,{recursive:true,force:true});
   }
+});
+
+
+test('V3 abstention codebook v1 is finite and covers every selected role-policy literal', () => {
+  assert.equal(protocol.ABSTENTION_REASON_CODEBOOK_VERSION,
+    'agent49-v3-abstention-reasons-v1');
+  assert.equal(protocol.ABSTENTION_REASON_CODES.length, 71);
+  assert.equal(Object.isFrozen(protocol.ABSTENTION_REASON_CODES), true);
+  const policyPaths = [
+    path.resolve(__dirname, '../../simulation/evaluation/2026-11/agent46-candidate-policy.cjs'),
+    path.resolve(__dirname, '../../simulation/evaluation/2026-11/agent6-rank1-shadow-rider-opponent-policy.cjs')
+  ];
+  const emitted = new Set();
+  for (const policyPath of policyPaths) {
+    const source = fs.readFileSync(policyPath, 'utf8');
+    for (const match of source.matchAll(
+      /(?:abstain\s*\(\s*|reasonCode\s*:\s*)['"]([A-Z][A-Z0-9_]*)['"]/g
+    )) emitted.add(match[1]);
+  }
+  assert.deepEqual([...emitted].sort(), [...protocol.ABSTENTION_REASON_CODES]);
+  assert.equal(protocol.isAbstentionReasonCode('INVALID_STARTING_POKEMON_PROMPT'), true);
+  assert.equal(protocol.isAbstentionReasonCode('PRIVATE_ACTOR_HAND_HAS_UNIQUE_CARD'), false);
+  assert.deepEqual(protocol.validateDecision({
+    kind: 'abstain', reasonCode: 'INVALID_STARTING_POKEMON_PROMPT'
+  }, null, new Set()), {
+    kind: 'abstain', reasonCode: 'INVALID_STARTING_POKEMON_PROMPT'
+  });
+  assert.throws(() => protocol.validateDecision({
+    kind: 'abstain', reasonCode: 'PRIVATE_ACTOR_HAND_HAS_UNIQUE_CARD'
+  }, null, new Set()), /BAD_ABSTENTION_CODE/);
 });

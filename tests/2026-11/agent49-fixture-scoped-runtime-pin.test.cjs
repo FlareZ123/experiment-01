@@ -29,15 +29,15 @@ function withTempRepo(run){
   };
   try{
     const files={
-      'role-a.cjs':"module.exports=()=> 'A';\\n",
-      'role-b.cjs':"module.exports=()=> 'B';\\n",
+      'role-a.cjs':"module.exports=()=> 'A';\n",
+      'role-b.cjs':"module.exports=()=> 'B';\n",
       'orchestrator.cjs':[
         "const a=require('./role-a.cjs');",
         "const b=require('./role-b.cjs');",
         "module.exports={run:()=>a()+b(),loadLate:()=>require('./late.cjs')};",
         ""
-      ].join('\\n'),
-      'late.cjs':"module.exports='late';\\n"
+      ].join('\n'),
+      'late.cjs':"module.exports='late';\n"
     };
     for(const [name,source] of Object.entries(files)){
       fs.writeFileSync(path.join(root,name),source);

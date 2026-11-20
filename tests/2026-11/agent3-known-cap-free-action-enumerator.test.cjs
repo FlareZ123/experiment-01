@@ -3,9 +3,9 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createKnownCapFreeActionEnumerator, assertKnownCapFreeAdapterAdmissionClear, EXPECTED_ENGINE_PIN } = require('../../simulation/evaluation/2026-11/agent3-known-cap-free-action-enumerator.cjs');
 
-class PokemonCard { constructor({name='P',stage='BASIC',evolvesFrom=null,powers=[]}={}) { this.name=name;this.stage=stage;this.evolvesFrom=evolvesFrom;this.powers=powers; } }
-class TrainerCard { constructor(trainerType){this.trainerType=trainerType;} }
-class EnergyCard { constructor(fullName){this.fullName=fullName;} }
+class PokemonCard { constructor({name='P',stage='BASIC',evolvesFrom=null,powers=[],attacks=[]}={}) { this.name=name;this.stage=stage;this.evolvesFrom=evolvesFrom;this.powers=powers;this.attacks=attacks; } }
+class TrainerCard { constructor(trainerType){this.trainerType=trainerType;this.powers=[];this.attacks=[];} }
+class EnergyCard { constructor(fullName){this.fullName=fullName;this.powers=[];this.attacks=[];} }
 class PlayCardAction { constructor(clientId,handIndex,target){this.type='PLAY_CARD_ACTION';this.clientId=clientId;this.handIndex=handIndex;this.target=target;} }
 class UseAbilityAction { constructor(clientId,name,target){this.type='USE_ABILITY_ACTION';this.clientId=clientId;this.name=name;this.target=target;} }
 class UseTrainerAbilityAction { constructor(clientId,name,target){this.type='USE_TRAINER_ABILITY_ACTION';this.clientId=clientId;this.name=name;this.target=target;} }
@@ -215,7 +215,11 @@ test('adapter-path admission requires the pinned marker and a locally untruncate
   const admitted=assertKnownCapFreeAdapterAdmissionClear({enumerator,enginePin:EXPECTED_ENGINE_PIN,frontierDiagnostics:diagnostics});
   assert.equal(admitted.adapter.enginePin,EXPECTED_ENGINE_PIN);
   assert.throws(()=>assertKnownCapFreeAdapterAdmissionClear({enumerator:{},enginePin:EXPECTED_ENGINE_PIN,frontierDiagnostics:diagnostics}),error=>error.code==='NATIVE_ACTION_ENUMERATOR_ADAPTER_MISSING');
-  const incomplete={__agent3UncappedAdapter:{...enumerator.__agent3UncappedAdapter,includesHandAbilities:false}};
+  const incomplete={};
+  Object.defineProperty(incomplete,'__agent3UncappedAdapter',{
+    value:Object.freeze({...enumerator.__agent3UncappedAdapter,includesHandAbilities:false}),
+    writable:false,configurable:false,enumerable:false
+  });
   assert.throws(()=>assertKnownCapFreeAdapterAdmissionClear({enumerator:incomplete,enginePin:EXPECTED_ENGINE_PIN,frontierDiagnostics:diagnostics}),error=>error.code==='NATIVE_ACTION_ENUMERATOR_ADAPTER_INCOMPLETE');
   assert.throws(()=>assertKnownCapFreeAdapterAdmissionClear({enumerator,enginePin:'0'.repeat(40),frontierDiagnostics:diagnostics}),error=>error.code==='NATIVE_ACTION_ENUMERATOR_ADAPTER_PIN_MISMATCH');
   assert.throws(()=>assertKnownCapFreeAdapterAdmissionClear({enumerator,enginePin:EXPECTED_ENGINE_PIN,frontierDiagnostics:{truncated:true,omittedCount:1,unsupportedCount:0}}),error=>error.code==='NATIVE_ACTION_FRONTIER_LOCAL_CAP');

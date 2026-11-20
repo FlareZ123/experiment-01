@@ -7,8 +7,8 @@ const SEATS = [0, 1];
 const FIRST_PLAYER_SEATS = [0, 1];
 const SHA256 = /^[a-f0-9]{64}$/i;
 const GIT_SHA = /^[a-f0-9]{40}$/i;
-const {sha256: canonicalSha256} =
-  require('../simulation/evaluation/2026-11/agent36-4410-policy-provenance.cjs');
+const {evidenceBundleSha256: canonicalSha256} =
+  require('../simulation/evaluation/canonical-evidence-json.cjs');
 const FIELD_SAMPLING_REGISTRATION_SCHEMA = 'aichi-field-sampling-registration-v1';
 const POLICY_PLAN_SCHEMA = 'aichi-policy-plan-core-v1';
 const OPPONENT_BUNDLE_SCHEMA = 'aichi-opponent-policy-bundle-v1';
