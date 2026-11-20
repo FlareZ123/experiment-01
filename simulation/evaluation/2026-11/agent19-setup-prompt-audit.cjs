@@ -317,6 +317,23 @@ function buildSetupPromptAudit({
   }
 
   if(totalGoFirst!==1)failures.push('required-go-first-prompt-count-not-one');
+  const drawChoiceRows=setupRows.filter(item=>item.spec.kind==='want-to-draw-cards');
+  const optionalBenchRows=setupRows.filter(item=>item.spec.kind==='optional-extra-bench-placement');
+  if(drawChoiceRows.length>1)
+    failures.push('want-to-draw-cards-prompt-count-exceeds-one');
+  if(optionalBenchRows.length>1)
+    failures.push('optional-extra-bench-prompt-count-exceeds-one');
+  if(optionalBenchRows.length===1) {
+    if(drawChoiceRows.length!==1) {
+      failures.push('optional-extra-bench-requires-one-draw-choice');
+    } else {
+      const drawChoice=drawChoiceRows[0].row;
+      const optionalBench=optionalBenchRows[0].row;
+      if(drawChoice.actingSeat!==optionalBench.actingSeat||
+         drawChoice.actionOrdinal>=optionalBench.actionOrdinal)
+        failures.push('optional-extra-bench-must-follow-same-actor-draw-choice');
+    }
+  }
   const complete=failures.length===0&&
     roleResults.candidate?.complete===true&&roleResults.opponent?.complete===true;
   const totalSetupPromptDecisions=setupRows.length;
