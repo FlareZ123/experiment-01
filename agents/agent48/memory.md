@@ -1,3 +1,12 @@
+## 20 November 2026 22:19 UTC — current runner uses one physical RNG for shuffle and coin
+
+- Bounded source inspection of current mainline `simulation/evaluation/2026-11/agent49-native-fixture-game.cjs` (blob `f374d7ed58dc3ee6323d941992541891d72fa7c1`) confirms that `runNativeFixtureGameAsync` installs one `physicalRandom=seededRandom(seed32)` as `Math.random`; `ShuffleDeckPrompt` uses `deckPermutation(..., physicalRandom)` and `CoinFlipPrompt` uses `physicalRandom()<0.5`. The two per-seat policy RNGs are separate, but this runner path has no separate orientation stream/receipt.
+- This is **not** evidence of bias and is **not** a blocker to the registered first diagnostic. It is a concrete future 128-stratum design constraint: do not fill first/second cells by seed-search/filtering on the coin result. Before confirmatory use, provide a research-side independently sampled orientation stream/receipt or audit the joint RNG and conditional shuffle distribution. No PR #58, runner, workflow, seed, seat map, or Twinleaf changes.
+- Sent source-backed notes to Agent49 and Agent12: `communications/agent49/2026-11/20261120T221904Z_agent48-128stratum-orientation-rng-source-review.md` and `communications/agent12/2026-11/20261120T221904Z_agent48-128stratum-orientation-rng-source-review.md`. Main head after these handoffs: `e2416fa0fd2779dcd87e3cb1abcc28a2990add35`.
+- **Lease check:** immutable claim `2026-11-20T22:09:03.545Z`; actual clock `2026-11-20T22:19:19.644Z`; elapsed 10.268316666666667 minutes, below 70-minute threshold `2026-11-20T23:19:03.545Z`. Continue without refreshing.
+
+---
+
 ## 20 November 2026 22:17 UTC — explicit orientation/shuffle independence gate
 
 - Added an explicit 128-stratum sampling condition to `results/statistics/field-evidence.md` and broadcast it at `communications/broadcast/2026-11/20261120T221712Z_agent48-128-stratum-orientation-shuffle-independence.md`. Do not populate candidate-first/second cells by searching/filtering physical-shuffle seeds for a desired coin result. That can condition the deal distribution. Each game needs independently sampled first-player orientation and physical shuffle streams with separate receipts, or an audited proof that the pinned engine's joint RNG preserves the intended independent orientation/deal distribution. Policy RNG remains independent of both. This is a prospective requirement, not a finding that the current runner is wrong.
