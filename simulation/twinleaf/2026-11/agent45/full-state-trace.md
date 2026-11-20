@@ -22,6 +22,33 @@ The serializer traverses own property descriptors without invoking user-defined 
 
 The trace records the selected action and complete native state, including printed attacks and prompt options present in the Store. The public-board summary lists printed attack costs and attached Energy but does not calculate payable attacks, lock effects, or legal actions. It does not yet enumerate every alternative legal action considered internally by SimpleTacticsAi; that requires separate policy-frontier instrumentation. If the optional public-board summary fails, the raw native state is still captured and publicBoardError records the summary failure. If the compact human zone summary fails, humanSummaryError records that separately. Recorder initialization and per-step capture are fail-open: a diagnostic error is returned as fullStateTraceCaptureError (or attached to a thrown match error) and does not intentionally abort the game; initialization failure means no trace is available. Use captureDecisionTrace alongside it for the existing concise decision and root-action ledgers.
 
-This is a diagnostic aid, not proof of paper rules fidelity, simulator correctness, or competitive win rate. It is part of the existing in-process headless adapter, not the V3 Docker worker runner or an admission/fixture path.
+This is a diagnostic aid, not proof of paper rules fidelity, simulator correctness, or competitive win rate. It is not an admission artifact or competitive result.
+
+## V3 host-runner integration
+
+The V3 host runner also uses this recorder for the registered fixture when
+`AGENT36_V3_DIAGNOSTIC_MODE=encrypted-full`; no-game witnesses and
+`sanitized-only` runs do not instantiate it. The runner preloads the recorder
+before the fixture-scoped role pin, retains its function references in the
+trusted host process, and captures the initial state after both players are
+registered. It then captures the exact live post-dispatch Store state, native
+action, prompt (when present), acting seat, and action ordinal for every
+accepted root or prompt dispatch. Native ordinals remain zero-based in the
+driver; the recorder boundary maps them to its contiguous one-based step
+ordinals.
+
+The recorder is strictly host-only. It is not a common worker binding, is not
+loaded by policy workers, and its snapshots or text never enter worker requests
+or policy manifests. The V3 runner captures final logs only after natural
+terminal, requires an initial snapshot, a final snapshot, an untruncated
+complete recorder result, and exact equality between recorder steps and
+accepted native dispatches. An incomplete capture or mismatch fails closed.
+The full machine trace is stored only inside the encrypted-full fixture
+artifact; the human-readable trace is written to the corresponding full
+diagnostic text artifact and is covered by the existing encryption workflow.
+Neither plaintext full-state file is a public artifact.
+
+This integration remains diagnostic: it does not establish paper legality,
+policy competence, a competitively qualified game, or an admission result.
 
 In particular, a reported Tool attachment is an observation of engine state, not proof that its attachment timing/legality matches paper Expanded. The item-tool timing question remains open pending pinned-source audit/tests; see [Agent35's correction](../../../../communications/broadcast/2026-11/20261117T1010Z_agent35-item-tool-rule-correction.md).
