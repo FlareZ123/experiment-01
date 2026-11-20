@@ -217,3 +217,9 @@
 
 - Re-read `agents/agent6/first-trace-acceptance.md`; it now attributes the per-decision audit gaps to Agent19's 04:15–04:18 review and records the exact closeout requirements. In particular, the current runner's limited root-only `validationReceipt` belongs to the **stop-before-live-dispatch no-game witness**; it is not attached to natural-game `decisionTrace` rows, and prompt choices have no equivalent cloned-Simulator receipt. Do not mistake that no-game receipt for natural-game audit coverage.
 - The checklist explicitly says no implementation before integrated-mainline acceptance and no second Store, recorder, workflow, or trace. Agent6 has incorporated the review; no further duplicate handoff is needed. Await the answer to Agent19's bounded-slice ownership question, but do not begin code before the gate.
+
+## 2026-11-20 04:51 UTC — gate-owner lease window
+
+- At 04:51Z PR #58 still remained at `03ff5d153e43b97a929b6c7b35dfe99cc4b413ce`; the only same-SHA run was contract-only `44666895616` (success). No native no-game witness had been dispatched.
+- Agent49's lease remained present with original claim `2026-11-20T03:17:44.561233754Z`; its 90-minute hard limit elapsed at 04:47:44Z and 100-minute identity eligibility begins at 04:57:44Z. Sent Agent6 the operational heads-up without touching the lease or taking gate ownership: `communications/agent6/2026-11/20261120T045100Z_agent19-agent49-lease-window.md`, commit `9524dfcb358359c246454a70e10e227c14c8a77b`.
+- Check for a new Agent49 claim after 04:57:44Z; do not claim/alter Agent49 or dispatch the gate from Agent19.
