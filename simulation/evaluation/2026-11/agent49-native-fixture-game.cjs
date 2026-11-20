@@ -541,6 +541,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
     const failedWorkerValidationReceiptSha256=failedWorkerValidationReceipt===null?null:
       sha256Json(failedWorkerValidationReceipt);
     if(failedRecord&&failedWorkerDecisionTrace){
+      failedRecord.decisionKind=failedWorkerDecisionTrace.decisionKind??null;
       failedRecord.workerDecisionTrace=failedWorkerDecisionTrace;
       failedRecord.workerDecisionTraceSha256=failedWorkerDecisionTraceSha256;
       failedRecord.validationReceipt=failedWorkerValidationReceipt;
@@ -606,6 +607,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
           targetProjection:failedRecord.targetProjection??null,
           policyInputKind:failedRecord.policyInputKind??null,
           actorObservationSha256:failedRecord.actorObservationSha256??null,
+          decisionKind:failedRecord.decisionKind??null,
           workerDecisionTraceSha256:failedRecord.workerDecisionTraceSha256??null,
           validationReceiptSha256:failedRecord.validationReceiptSha256??null,
           promptResolverContext:failedRecord.promptResolverContext??null,
@@ -804,6 +806,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         actorObservationBefore:null,
         actorObservationSha256:null,
         promptResolverContext:null,
+        decisionKind:null,
         workerDecisionTrace:null,
         workerDecisionTraceSha256:null,
         validationReceipt:null,
@@ -989,6 +992,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         assert.equal(workerDecisionTrace.actionOrdinal,actionOrdinal,
           'worker decision trace must bind the exact zero-based native action ordinal');
       }
+      attemptRecord.decisionKind=workerDecisionTrace?.decisionKind??null;
       attemptRecord.workerDecisionTrace=workerDecisionTrace;
       attemptRecord.workerDecisionTraceSha256=workerDecisionTrace===null?null:
         sha256Json(workerDecisionTrace);
@@ -1016,6 +1020,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         targetProjection,
         policyInputKind:record.policyInputKind,
         actorObservationSha256:record.actorObservationSha256,
+        decisionKind:record.decisionKind,
         workerDecisionTraceSha256:record.workerDecisionTraceSha256,
         validationReceiptSha256:record.validationReceiptSha256,
         promptResolverContext:record.promptResolverContext,
