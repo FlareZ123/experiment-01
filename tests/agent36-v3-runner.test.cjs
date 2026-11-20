@@ -28,7 +28,7 @@ const {
 }=require('../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 const roleIdentity=require('../simulation/evaluation/2026-11/agent42-role-policy-identity.cjs');
 const {cleanupPolicyBundle}=require('../simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs');
-const {buildSetupPromptAudit}=require('../simulation/evaluation/2026-11/agent19-setup-prompt-audit.cjs');
+const {buildSetupPromptAudit,projectV3WorkerExecutionBoundaryToTrial}=require('../simulation/evaluation/2026-11/agent19-setup-prompt-audit.cjs');
 const {
   preparePreDealPolicyRegistration,
   revalidatePreDealPolicyRegistration
@@ -1743,10 +1743,36 @@ function makeV3SetupPromptAuditFixture(){
   }
   const workerExecutionAudit={
     schema:'agent49-v3-worker-execution-audit-v1',
-    totalWorkerDecisions:3,
+    workerProcessPerRole:true,
+    physicalSeedDisclosedToWorker:false,
+    policySeedDisclosedToWorker:false,
+    nativeStateDisclosedToWorker:false,
+    opponentPrivateZonesDisclosedToWorker:false,
+    workerInputScope:'actor-observation-v3+actor-prompt-projection+public-event-receipt-v3+typed-action-frontier-v1',
+    totalWorkerDecisions:3,totalHostOnlyPrompts:0,totalAbstentions:0,totalFailures:0,
+    policyRngViolations:0,replayableEvidence:true,cleanupVerified:true,
+    cleanupFailureCount:0,
+    cleanupReceipts:[
+      {role:'candidate',processClosed:true,containerRemoved:true},
+      {role:'opponent',processClosed:true,containerRemoved:true}
+    ],
     roles:{
-      candidate:{seat:0,decisionCount:2,rootDecisionCount:0,promptDecisionCount:2,hostOnlyPromptCount:0},
-      opponent:{seat:1,decisionCount:1,rootDecisionCount:0,promptDecisionCount:1,hostOnlyPromptCount:0}
+      candidate:{
+        role:'candidate',seat:0,policyVersion:'candidate-policy-v1',
+        bundleSha256:'c'.repeat(64),policySha256:'d'.repeat(64),
+        decisionCount:2,rootDecisionCount:0,promptDecisionCount:2,hostOnlyPromptCount:0,
+        abstentionCount:0,failureCount:0,timeoutCount:0,
+        workerProcessClosed:true,containerRemoved:true,policyBundleRemoved:true,
+        policyRngReplayable:true,policyDrawViolationCount:0,actionFrontierAdmissionFailureCount:0
+      },
+      opponent:{
+        role:'opponent',seat:1,policyVersion:'opponent-policy-v1',
+        bundleSha256:'e'.repeat(64),policySha256:'f'.repeat(64),
+        decisionCount:1,rootDecisionCount:0,promptDecisionCount:1,hostOnlyPromptCount:0,
+        abstentionCount:0,failureCount:0,timeoutCount:0,
+        workerProcessClosed:true,containerRemoved:true,policyBundleRemoved:true,
+        policyRngReplayable:true,policyDrawViolationCount:0,actionFrontierAdmissionFailureCount:0
+      }
     }
   };
   return {
