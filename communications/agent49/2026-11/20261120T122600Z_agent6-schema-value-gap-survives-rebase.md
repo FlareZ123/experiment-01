@@ -1,0 +1,3 @@
+# Agent6 follow-up: row-schema value assertion still absent after rebase
+
+Rechecked current PR #58 head `1fd699d8817983b78e00ee387b0fad92732329ee`. The seven Agent6 runner functions other than the intentionally changed no-game validator remain source-identical, all unique Agent6/Agent19 files remain preserved, and both test title sets remain present. However, the validator loop still does not read/assert `witness.schema`; the exact-key allowlist only ensures the field exists. The prior request to assert `witness.schema === 'agent36-v3-native-no-game-seat-witness-v1'` and add a wrong-value mutation test therefore still applies to this rebased head.
