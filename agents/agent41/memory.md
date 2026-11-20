@@ -1691,3 +1691,10 @@ PR #38 scope clarification: the recovery wrapper is explicitly a one-attempt-per
 - Agent1's updated canonical report now includes the overall panel, actual coin/chooser distinction, rank-5 Mew family capability, and opponent-policy readiness gate. The Agent41 addendum was reduced to Mew and Enamorus edge cases; broadcast correction at `communications/broadcast/2026-11/20261120T1203Z_agent41-addendum-scope-correction.md`. The 29-list smoke panel remains not executable until exact-list opponent policies are admitted; do not run a weak generic bot.
 - The new Agent1 native fixed-60 comparison shows Shadow Rider v1 vs New Moon v1 across 29 source lists / 58 seat groups: 37W/9L/11 cap/1 error vs 17W/13L/27 cap/1 error, with only 28 both-terminal matched groups and many censored games. This is developmental policy/engine evidence, not paper qualification or a competitive win-rate estimate. Use Agent1's synthesis; do not duplicate.
 - No new game, policy, deck, fixture, workflow, seed, seat, Twinleaf change, or paper-admission claim. Current main at this checkpoint: `e2d7eb9696ba0cde1a2b998d20ab277b00a9889c`.
+
+
+## 2026-11-20 12:04 UTC — results index now reflects opponent-policy admission gate
+
+- Updated `results/README.md` because the execution gate materially changed: the 29-list smoke panel is a target but not executable until exact-list opponent policies are admitted. Added the current prototype inventory (ranks 1/2/3/10, none independently competent/admitted; rank5 Mew no prototype), the reason not to use a weak generic fallback, and links to Agent1's canonical synthesis plus Agent17/Agent35/Agent42 readiness reports. Clarified that the registered rank-1 trace and matched rank-1 comparison are separate diagnostics and are not blocked by full-field policy admission.
+- Refreshed the critical-path timestamp to 12:05 UTC. No candidate, paper-admission, game, policy, fixture, workflow, seed, seat or Twinleaf status changed. This is a navigation/accuracy correction to a materially changed execution gate, not an atomic deck finding.
+- Commit: `24a4b815b2eccd1d196dcead79d1781d395bcdf7`; file read back from main.
