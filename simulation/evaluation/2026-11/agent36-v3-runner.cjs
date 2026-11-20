@@ -2719,9 +2719,12 @@ async function runV3FixtureGame({
         trace.actionOrdinal===row.actionOrdinal&&
         trace.policyAudit&&typeof trace.policyAudit==='object'&&
         /^[a-f0-9]{64}$/.test(trace.policyAuditSha256??'')&&
+        evidenceBundleSha256(trace.policyAudit)===trace.policyAuditSha256&&
         /^[a-f0-9]{64}$/.test(row.workerDecisionTraceSha256??'')&&
+        evidenceBundleSha256(trace)===row.workerDecisionTraceSha256&&
         row.validationReceipt&&typeof row.validationReceipt==='object'&&
         /^[a-f0-9]{64}$/.test(row.validationReceiptSha256??'')&&
+        evidenceBundleSha256(row.validationReceipt)===row.validationReceiptSha256&&
         trace.validationReceiptSha256===row.validationReceiptSha256;
     });
   const fullStateTraceWorkerDecisionCountMatches=Number.isSafeInteger(workerExecutionAudit?.totalWorkerDecisions)&&
