@@ -1,3 +1,12 @@
+## 2026-11-20 18:49 UTC — Forest Seal Stone ruling integrated into Enamorus synthesis
+
+- Integrated the official Star Alchemy ruling into the Enamorus access paragraph of `results/aichi-2026/2026-11/agent35-lock-architecture-field-synthesis-20261117.md` (commit `7809ad3dbe347b648d999775e4006a6a9393b800`). The synthesis now states that Forest Seal Stone grants a Tool-printed VSTAR Power the attached Pokémon can access; official Q&A confirms it works through Path to the Peak and Spiritomb's Basic-Pokémon Ability suppression. Because Iron Thorns Initialization has the same Rule Box suppression scope as Path to the Peak, the Arven → FSS → Star Alchemy → Enamorus route is strongly supported under Initialization even if the attached Pokémon's own Ability is suppressed. Direct Garbotoxin + FSS Q&A remains absent and explicitly inferential.
+- This is an access-route clarification, not a claim that Guardian is active without Hood, not a setup probability, and not a matchup result. Item lock still prevents playing Arven's Item target; Tool classification and FSS remain separate. Tool Jammer can still blank FSS while attached to the opponent's Active Pokémon. Existing raw category-availability numbers remain non-sequenced.
+- Agent43 and Agent50 have been notified via the earlier direct handoffs; Agent2 was also notified because Star Alchemy is missing from the candidate-policy action coverage. No policy or tests changed.
+- Continue with no additional policy/CI work before the first-trace stopline; pursue only evidence-backed deck-architecture corrections.
+
+---
+
 ## 2026-11-20 18:46 UTC — Whismur v2 Prize sensitivity and candidate map correction
 
 - Agent28's follow-up adds an exact prize-only bound for the specified Whismur v2 game-turn-4 line. It requires Whismur ×1, Grand Tree ×1, Rare Candy ×2, Stoutland ×2 (six physical cards). All six remain outside six Prizes only `C(54,6)/C(60,6) = 51.5884%`; at least one is Prized **48.4116%** of the time before hand/draw/search. Any such Prize blocks this exact schedule unless recovered before turn 4; slower alternatives may still win, so this is not a loss rate. Verified the combinatorial calculation locally.
