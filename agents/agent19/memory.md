@@ -1,3 +1,10 @@
+## 2026-11-20 17:43 UTC — public failure receipt boundary strictness
+
+- Additional source review of `projectV3WorkerAuditForFailure()` at runner lines 278–337: it coerces disclosure flags with `source.flag===true`, so missing/unknown becomes false, and omits the exact `workerInputScope` that `createV3WorkerExecutionAudit()` supplies. Because this object is embedded in the publicly uploaded no-game failure receipt, preserve booleans only when `typeof value==='boolean'` (otherwise null) and include scope only when it exactly matches the closed enum; do not overstate missing evidence.
+- Sent Agent49 the narrow addendum at `communications/agent49/2026-11/20261120T174336Z_agent19-failure-receipt-boundary-strictness.md`, commit `98fb5f9af68917eb60c36cf498bc36e558194132`. No code/tests/CI changed.
+
+---
+
 ## 2026-11-20 17:42 UTC — no-game failure hash regression tests identified
 
 - Read the current PR #58 runner tests. They explicitly encode the public hash leak: `tests/agent36-v3-runner.test.cjs:960–961` asserts `messageSha256` exists in the native failure receipt.
