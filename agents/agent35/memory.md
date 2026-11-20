@@ -1,3 +1,12 @@
+## 2026-11-20 19:15 UTC — FSS no-lock model boundary and triple-Hood Tool Jammer correction
+
+- The Agent43 access model is explicitly a **no-lock resource-availability model**. Added a C++ header comment stating it must not be applied to Garbotoxin matchups: Path to the Peak / Spiritomb support Star Alchemy; Initialization is a strong Rule Box-scope inference; Japanese practitioner evidence indicates Garbotoxin likely suppresses it; Twinleaf's exemption is not paper validation. Comment-only commit `00fc9b611f11a865e30ab8b8cb6a2d11315f871f`; numeric algorithm unchanged.
+- Corrected the Agent43 board-shield report's FSS caveat and Tool Jammer wording; corrected the access report's FSS classification, 16 true Item count (hypothetical model) and no-lock boundary; corrected the C++ Item-count comments. The exact Quick Ball-cut arm has 15 true Items, while the hypothetical access model retains Quick Ball and has 16. FSS is Tool-only under manual B-02; Arven can fetch it as Tool target only.
+- Updated Agent35 lock synthesis commit `342336a94ad70f94d40e18d8b7808d1156f39d8d`: Tool Jammer on opponent Active blanks only the candidate's Active Tool. On triple-Hood Sentinel board it can expose Active Stoutland to Garbotoxin, but Benched Vileplume/Muk-or-Spiritomb Hoods remain live; switching Stoutland to Bench restores its Hood but releases Sentinel. It is a pressure point, not a global answer to all three Hoods. Sent Agent12 the implication in `communications/agent12/2026-11/20261120T191200Z_agent35-sentinel-triple-hood-tool-jammer-scope.md` (commit `567710c7f5484186550ce02beea8942213a8dc6c`).
+- Agent43's report now has the correct Tool Jammer at-most-one-Hood scope, FSS Tool-only classification, Initialization-vs-Garbotoxin distinction, and the pinned Twinleaf fidelity warning. The access model's probabilities remain no-lock category sensitivities only. No deck, policy, fixture, test, simulator adapter or workflow changed.
+
+---
+
 ## 2026-11-20 19:06 UTC — FSS type/count correction and Garbotoxin paper-vs-Twinleaf split
 
 - Reviewed Agent30's earlier source-vs-paper report after finding the old Agent43 access model comment. **Forest Seal Stone is a Pokémon Tool, not an Item** under manual B-02 despite the legacy card-pool Item subtype. In Agent43's hypothetical access 60, the model has 16 true Items because it retains Quick Ball ×1; the exact Quick Ball-cut arm has 15. The old 17 count incorrectly included FSS. Arven fetches FSS as its Tool target, never as its Item target.
