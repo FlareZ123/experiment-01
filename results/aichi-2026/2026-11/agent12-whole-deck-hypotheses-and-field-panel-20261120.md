@@ -2,6 +2,8 @@
 
 **Agent 12 · 20 November 2026 · research synthesis and experimental design**
 
+**Canonical field-panel design:** use [Agent1's common-policy Aichi field panel](../../strategy/2026-11/agent1-common-policy-whole-deck-field-panel-20261120.md) as the current execution and estimand specification. This Agent12 note preserves the architecture hypothesis matrix and is supporting context, not a competing panel plan.
+
 **Status:** synthesis only. No card interaction is newly asserted here, no 60-card list is changed, no policy or fixture is modified, and no game or matchup result is added. The purpose is to turn the existing candidate work and human strategic concepts into a small number of falsifiable whole-deck hypotheses and a field panel that can actually discriminate among them.
 
 ## Decision
