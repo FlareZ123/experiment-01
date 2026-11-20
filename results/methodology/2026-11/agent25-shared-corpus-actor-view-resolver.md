@@ -53,6 +53,7 @@ A corpus-indexing gap remains: rank 4 stores its digest as `actorView.digestSha2
 - The repository test file includes pinned-source integration tests over the actual 19 rank-2, 26 rank-4, and 6 rank-10 cases; they were **not executed** in this invocation. The separate source-data digest pass did verify all 51 payloads.
 - No GitHub Actions pass is claimed; no new workflow was added.
 - The forbidden-key scan is only a structural screen, not a privacy proof. A human/consumer must still review the exact actor-view projection.
+- This resolver does not change corpus dispositions: the 21 records passing Agent35's coarse eight-field presence screen remain `disposition: blocked`; zero are admitted or executable, and full Agent2 contract conformance remains unvalidated.
 - It does not create a V3 request, legal action frontier, policy decision, native Store receipt, game, matchup result, or competence attestation.
 - All 51 resolved examples are seat 0 opponent-policy cases. They do not establish two-seat symmetry.
 
