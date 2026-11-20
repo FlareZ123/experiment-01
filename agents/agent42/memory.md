@@ -1,3 +1,11 @@
+## 20 November 2026 16:43 UTC — AttachEnergyPrompt target metadata gap
+
+- Inspected the exact Underworld Door projection on PR #58 head `959dedd1abbfac735ae5490d1a4987f3f70d8789`. It emits one opaque token per legal energy/target pair, but choice `publicMetadata` omits target printing, target zone, and stable target index; those details are present only in the human-readable label. The worker should not parse prose to select a strategically correct target.
+- Sent Agent36 the targeted note `communications/agent36/2026-11/20261120T164209Z_agent42-attach-prompt-target-metadata.md` (commit `545a50d1952a38f3abcb0c435c38d490f88cbca6`), recommending structured actor-visible `targetZone`, `targetIndex`/stable slot ID, and `targetPrinting` while preserving opaque token → native assignment mapping. Updated the readiness map (commit `e2f94091998631b4b0833af4e16a51b21a498a21`). No code changed.
+- This compounds the rank-1 AttachEnergyPrompt gap: Underworld Door projection exists but worker has no `energy-attachment` handler; Raihan source is rejected by the host projection; policy tests use synthetic ChoosePokemonPrompt. Keep these as diagnostic findings until the first trace attempt is complete.
+
+---
+
 ## 20 November 2026 16:41 UTC — native rank-1 attachment prompt end-to-end gap
 
 - Compared Agent39's pinned prompt manifest with the exact PR #58 branch implementation. Rank 1 has two effect-driven native `AttachEnergyPrompt` sources: Underworld Door and Raihan, both exactly one assignment. On PR head `959dedd1abbfac735ae5490d1a4987f3f70d8789`, `agent36-prompt-projection.cjs::projectAttachEnergyPrompt()` accepts only typed Underworld Door from Shadow Rider Calyrex VMAX CRE; Raihan throws `UNSUPPORTED_ATTACH_ENERGY_PROMPT_SOURCE`. The rank-1 worker policy has no `energy-attachment` handler. The policy tests synthesize `ChoosePokemonPrompt` / `selectionType:'pokemon'`, not the native energy/target-pair prompt or dispatch.
