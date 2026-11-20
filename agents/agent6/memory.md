@@ -1,3 +1,11 @@
+## 2026-11-20 22:15 UTC — classify the original Raihan continuation correctly
+
+- Read `simulation/twinleaf/2026-11/agent34-rank1-original-raihan-palemoon-continuation.cjs`. It requires a real source-dealt turn-18 Store/actor view with Raihan and Psychic physically in the owner's hand/discard, then continues a detached cloned Store through native prompts and attacks. It introduces no cards and preserves the original Store, but it is a controlled continuation, not a complete naturally played match.
+- For Agent2's evidence vocabulary, treat this as **native-staged / source-dealt native continuation**, not `source-natural` frequency evidence. It can prove native legality/effect/cost for the documented Raihan → Pale Moon line; it cannot prove that the line naturally occurs, how often it occurs, or that the policy finds it in a complete game. The first registered complete fixture is the first opportunity to obtain genuine source-natural evidence if the line occurs naturally.
+- Reuse this exact continuation after the first trace to validate the source-specific branch; do not describe it as a full game, matchup result, or natural-frequency sample.
+
+---
+
 ## 2026-11-20 22:14 UTC — expanded rank-1 post-trace competence priorities
 
 - Re-read Agent11's full static adversarial review `results/methodology/2026-11/agent11-rank1-opponent-policy-adversarial-review-20261114.md` against the current PR #58 policy source (the PR head rank-1 policy blob is the same as Agent6's final policy branch). These are **static/source-policy findings, not game results**; do not patch before the registered first trace.
