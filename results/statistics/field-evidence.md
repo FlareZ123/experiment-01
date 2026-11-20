@@ -97,6 +97,41 @@ k=\left\lceil\frac{\ln(0.05/K)}{128\ln(0.995)}\right\rceil.
 | 10 | 9 | 1,152 | 0.0031059 | 0.005 |
 | 20 | 10 | 1,280 | 0.0016351 | 0.0025 |
 
+### One-nonwin extension when testing multiple configurations
+
+The exact heterogeneous one-nonwin result in [Agent5's proof](agent5-exact-field-mean-one-loss-bound-20261113.md) also extends to every equal per-stratum sample size \(n\ge8\), so its sample budget can be adjusted for \(K\) confirmatory configurations rather than reverting immediately to the all-win rule.
+
+On the boundary \(\sum_j q_j=Q=0.64\), the probability of at most one nonwin is
+
+\[
+G(q)=\prod_{j=1}^{128}(1-q_j)^n
+\left(1+n\sum_{j=1}^{128}\frac{q_j}{1-q_j}\right).
+\]
+
+Writing \(C=1+n\sum_j q_j/(1-q_j)\) and \(u_j=1/(1-q_j)\), the quadratic form of the Hessian of \(\log G\) is
+
+\[
+v^\mathsf{T}\nabla^2\log G\,v
+=n\sum_j v_j^2\left(-u_j^2+\frac{2u_j^3}{C}\right)
+-\frac{n^2}{C^2}\left(\sum_jv_ju_j^2\right)^2.
+\]
+
+Because \(q_{\max}\le Q=0.64\), \(2u_{\max}\le2/(1-Q)=50/9\). Also \(C\ge1+nQ\), which is at least \(6.12\) for \(n\ge8\). Thus \(C\ge2u_{\max}\), every diagonal term in the first sum is nonpositive, and the final square term is nonpositive. Hence \(\log G\) is concave on the simplex; by symmetry, the maximum is at \(q_j=0.005\) for every stratum. The exact worst-case null tail is therefore \(\Pr\{\operatorname{Binomial}(128n,0.005)\le1\}\).
+
+For \(K\) configurations, choose the smallest \(n\ge8\) for which that exact tail is at most \(0.05/K\):
+
+| Confirmatory configurations \(K\) | Games per stratum \(n\) | Total games per configuration | Worst-case null tail | Per-test \(\alpha/K\) |
+|---:|---:|---:|---:|---:|
+| 1 | 8 | 1,024 | 0.0362584 | 0.05 |
+| 2 | 9 | 1,152 | 0.0210859 | 0.025 |
+| 3 | 10 | 1,280 | 0.0121523 | 0.016667 |
+| 5 | 11 | 1,408 | 0.0069512 | 0.01 |
+| 10 | 12 | 1,536 | 0.0039509 | 0.005 |
+| 20 | 13 | 1,664 | 0.0022334 | 0.0025 |
+| 50 | 15 | 1,920 | 0.0007040 | 0.001 |
+
+This is a single aggregate-field test allowing **at most one nonwin across all 128n games**, not one nonwin per rank. It preserves the same fixed-probability, independent-game and equal-quota assumptions as Agent5's original proof. It is not a per-matchup guarantee and does not cover two or more nonwins.
+
 Bonferroni does not require independence **between candidate tests**; it does require the stated independent, fixed-probability games within each candidate's 128 strata. The table is an all-win design only. Any nonwin, tie, timeout, or other outcome handled as a nonwin invalidates this shortcut; use a separately preregistered multi-nonwin method with multiplicity control or a new holdout. Do not drop unfavorable or censored attempts to restore an all-win sample.
 
 A candidate configuration includes its playing policy, not only its 60 cards. Trying multiple candidate-policy versions against the same confirmatory outcomes and selecting the best is also multiple testing. Conversely, if exactly one configuration is chosen using development data **before** an independent holdout is generated, the holdout's test remains a single predeclared test; no penalty for the number of development candidates is needed.
