@@ -12,6 +12,101 @@
 
 const POLICY_VERSION = 'agent6-rank1-shadow-rider-opponent-v1';
 
+let activePolicyAudit = null;
+
+function createPolicyAuditContext(request) {
+  const source = request?.prompt ? request.prompt.choices : request?.actionFrontier?.items;
+  const evaluations = Array.isArray(source) ? source.map(item => ({
+    token: item.token,
+    status: 'not-evaluated',
+    score: null,
+    reasonCode: 'NOT_EVALUATED_BY_SELECTED_BRANCH'
+  })) : [];
+  return {
+    policyVersion: POLICY_VERSION,
+    decisionKind: request?.observation?.decisionKind ?? 'unknown',
+    selectionRuleCode: 'POLICY_BRANCH_NOT_SET',
+    tieBreakCode: 'NONE',
+    evaluations,
+    byToken: new Map(evaluations.map(row => [row.token, row]))
+  };
+}
+
+function setPolicyAuditRule(selectionRuleCode, tieBreakCode = 'NONE') {
+  if (!activePolicyAudit) return;
+  activePolicyAudit.selectionRuleCode = selectionRuleCode;
+  activePolicyAudit.tieBreakCode = tieBreakCode;
+}
+
+function recordPolicyAuditScore(token, score, reasonCode = 'NO_SCORING_BRANCH', components = null) {
+  if (!activePolicyAudit) return;
+  const row = activePolicyAudit.byToken.get(token);
+  if (!row) return;
+  if (Number.isFinite(score)) {
+    row.status = 'scored';
+    row.score = score;
+    row.reasonCode = null;
+  } else {
+    row.status = 'not-evaluated';
+    row.score = null;
+    row.reasonCode = reasonCode;
+  }
+  if (Array.isArray(components)) {
+    row.componentScores = components.map(component => ({
+      name: component.name,
+      score: Number.isFinite(component.score) ? component.score : null,
+      reasonCode: Number.isFinite(component.score) ? null : 'NO_MATCHING_SCORE_BRANCH'
+    }));
+  }
+}
+
+function recordPolicyAuditRule(token, reasonCode = 'RULE_SELECTED') {
+  if (!activePolicyAudit) return;
+  const row = activePolicyAudit.byToken.get(token);
+  if (!row || row.status === 'scored') return;
+  row.status = 'rule-selected';
+  row.score = null;
+  row.reasonCode = reasonCode;
+}
+
+function finishPolicyAudit(decision) {
+  const selectedTokens = decision.kind === 'select-action' || decision.kind === 'select-choice'
+    ? [decision.token]
+    : decision.kind === 'select-choices' ? decision.tokens.slice() : [];
+  if (decision.kind === 'abstain') {
+    activePolicyAudit.selectionRuleCode = 'ABSTAIN_POLICY_DECISION';
+    activePolicyAudit.tieBreakCode = 'NONE';
+  } else if (activePolicyAudit.selectionRuleCode === 'POLICY_BRANCH_NOT_SET') {
+    activePolicyAudit.selectionRuleCode = 'POLICY_SELECTED_BY_BRANCH';
+  }
+  for (const token of selectedTokens) {
+    const row = activePolicyAudit.byToken.get(token);
+    if (row && row.status === 'not-evaluated') {
+      row.status = 'rule-selected';
+      row.score = null;
+      if (row.reasonCode === 'NOT_EVALUATED_BY_SELECTED_BRANCH') {
+        row.reasonCode = 'SELECTED_BY_POLICY_RULE';
+      }
+    }
+  }
+  return {
+    schema: 'agent6-policy-audit-v1',
+    policyVersion: activePolicyAudit.policyVersion,
+    decisionKind: activePolicyAudit.decisionKind,
+    decisionType: decision.kind,
+    selectionRuleCode: activePolicyAudit.selectionRuleCode,
+    tieBreakCode: activePolicyAudit.tieBreakCode,
+    selectedTokens,
+    evaluations: activePolicyAudit.evaluations.map(row => ({
+      token: row.token,
+      status: row.status,
+      score: row.score,
+      reasonCode: row.reasonCode,
+      ...(row.componentScores ? { componentScores: row.componentScores } : {})
+    }))
+  };
+}
+
 const PRINT = Object.freeze({
   psychic: /^Psychic Energy\b/i,
   shadowRiderV: /^Shadow Rider Calyrex V CRE\b/i,
@@ -406,15 +501,23 @@ function bestAction(request) {
   let bestScore = -1;
   for (const item of items) {
     const score = scoreAction(item, request);
+    recordPolicyAuditScore(item.token, score, 'NO_ROOT_ACTION_SCORE');
     if (score > bestScore) {
       best = item;
       bestScore = score;
     }
   }
-  if (best && bestScore > 0) return { kind: 'select-action', token: best.token };
+  if (best && bestScore > 0) {
+    setPolicyAuditRule('ROOT_MAX_ACTION_SCORE', 'STRICT_GREATER_THAN_FIRST_NATIVE_FRONTIER_ORDER');
+    return { kind: 'select-action', token: best.token };
+  }
   const pass = items.find(item => item.kind === 'pass');
-  return pass ? { kind: 'select-action', token: pass.token } :
-    { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ACTION' };
+  if (pass) {
+    setPolicyAuditRule('ROOT_PASS_FALLBACK', 'FIRST_NATIVE_FRONTIER_ORDER');
+    recordPolicyAuditRule(pass.token, 'PASS_FALLBACK');
+    return { kind: 'select-action', token: pass.token };
+  }
+  return { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ACTION' };
 }
 
 function choicePrinting(choice) {
@@ -477,9 +580,11 @@ function scorePokemonChoice(choice, observation, mode) {
 }
 
 function sortedChoiceTokens(choices, score) {
-  return list(choices).map((choice, index) => ({
-    choice, index, score: score(choice)
-  })).filter(row => row.score >= 0)
+  return list(choices).map((choice, index) => {
+    const value = score(choice);
+    recordPolicyAuditScore(choice.token, value, 'NO_PROMPT_SCORE');
+    return { choice, index, score: value };
+  }).filter(row => row.score >= 0)
     .sort((a, b) => b.score - a.score || a.index - b.index)
     .map(row => row.choice.token);
 }
@@ -626,6 +731,7 @@ function engineSetupPromptDecision(prompt, observation, choices, metadata) {
 
   if (prompt.promptType === 'ChooseCardsPrompt' &&
       prompt.description === 'CHOOSE_STARTING_POKEMONS') {
+    setPolicyAuditRule('ENGINE_STARTING_BASICS_ORDER', 'SHADOW_RIDER_V_FIRST_THEN_NATIVE_ORDER');
     const min = metadata.minimumCount;
     const max = metadata.maximumCount;
     const validPrompt = metadata.selectionType === 'card-combination' &&
@@ -693,6 +799,7 @@ function engineSetupPromptDecision(prompt, observation, choices, metadata) {
 
   if (prompt.promptType === 'ConfirmPrompt' &&
       prompt.description === 'GO_FIRST') {
+    setPolicyAuditRule('ENGINE_GO_FIRST_AFFIRMATIVE', 'YES_CHOICE');
     if (metadata.selectionType !== 'confirm') {
       return { kind: 'abstain', reasonCode: 'INVALID_GO_FIRST_CONFIRMATION' };
     }
@@ -710,6 +817,7 @@ function engineSetupPromptDecision(prompt, observation, choices, metadata) {
 
   if (prompt.promptType === 'SelectPrompt' &&
       prompt.description === 'WANT_TO_DRAW_CARDS') {
+    setPolicyAuditRule('ENGINE_MAX_MULLIGAN_DRAW', 'DRAW_COUNT_DESC_CHOICE_INDEX_ASC');
     const count = metadata.count;
     if (metadata.selectionType !== 'option' ||
         !Number.isSafeInteger(count) || count < 1) {
@@ -730,6 +838,7 @@ function engineSetupPromptDecision(prompt, observation, choices, metadata) {
       }
       seen.add(choiceIndex);
       const expectedDrawCount = count - 1 - choiceIndex;
+      recordPolicyAuditScore(choice.token, expectedDrawCount, 'MULLIGAN_DRAW_COUNT');
       const labelMatch = String(choice.label ?? '').match(/^Draw (\d+) card\(s\)$/i);
       if (!labelMatch || Number(labelMatch[1]) !== expectedDrawCount) {
         return { kind: 'abstain', reasonCode: 'MULLIGAN_DRAW_LABEL_INDEX_MISMATCH' };
@@ -776,11 +885,13 @@ function promptDecision(request) {
     else if (includes(effect, 'Guzma')) {
       const candidates = choices.filter(choice =>
         choice.kind === 'pokemon' && choiceOwner(choice) === 'opponent');
+      setPolicyAuditRule('GUZMA_OPPONENT_TARGET_SCORE', 'SCORE_DESC_CHOICE_INDEX_ASC');
       const scored = candidates.map((choice, index) => {
         const slot = findVisibleSlot(observation.opponentPublic,
           choiceZone(choice), choice.printing);
         const score = slot ? (500 - Math.max(0, remainingHp(slot)) +
           prizeLiability(slot) * 40) : -1;
+        recordPolicyAuditScore(choice.token, score, 'NO_VISIBLE_TARGET_SCORE');
         return { choice, index, score };
       }).filter(row => row.score >= 0)
         .sort((a, b) => b.score - a.score || a.index - b.index);
@@ -794,6 +905,7 @@ function promptDecision(request) {
     }
 
     if (mode === 'evolution') {
+      setPolicyAuditRule('EVOLUTION_TARGET_FIRST_MATCH', 'NATIVE_CHOICE_ORDER');
       const tokens = choices.filter(choice =>
         choice.kind === 'pokemon' && matches(choice.printing, PRINT.shadowRiderVmax))
         .slice(0, Math.min(max, choices.length)).map(choice => choice.token);
@@ -806,6 +918,7 @@ function promptDecision(request) {
       }
     }
     if (mode && mode !== 'evolution') {
+      setPolicyAuditRule('POKEMON_TARGET_SCORE_DESC', 'SCORE_DESC_CHOICE_INDEX_ASC');
       const tokens = sortedChoiceTokens(choices.filter(choice => choice.kind === 'pokemon'),
         choice => scorePokemonChoice(choice, observation, mode)).slice(0, Math.max(1, max));
       if (tokens.length >= min && tokens.length > 0) {
@@ -822,6 +935,7 @@ function promptDecision(request) {
       selectionType === 'energy-payment' || selectionType === 'prize-slots' ||
       selectionType === 'card-order') {
     if (selectionType === 'card-combination') {
+      setPolicyAuditRule('CARD_SEARCH_SCORE_DESC', 'SCORE_DESC_CHOICE_INDEX_ASC');
       const knownSearchEffect = [
         'Tulip', 'Mysterious Treasure', 'Raihan', 'Fog Crystal',
         'Night Stretcher', 'Battle Compressor', 'Teammates', 'VS Seeker',
@@ -869,6 +983,7 @@ function promptDecision(request) {
     }
 
     if (selectionType === 'energy-payment') {
+      setPolicyAuditRule('ENERGY_PAYMENT_FIRST_ELIGIBLE', 'NATIVE_CHOICE_ORDER');
       const required = typeof metadata.energyType === 'string' ?
         Math.max(min, metadata.energyType.split(',').filter(Boolean).length) : min;
       if (required > max) return { kind: 'abstain', reasonCode: 'ENERGY_COST_EXCEEDS_VISIBLE_CHOICES' };
@@ -882,6 +997,7 @@ function promptDecision(request) {
     }
 
     if (selectionType === 'prize-slots') {
+      setPolicyAuditRule('PRIZE_SLOTS_FIRST_NATIVE_ORDER', 'NATIVE_CHOICE_ORDER');
       const prizeChoices = choices.filter(choice => choice.kind === 'prize');
       const tokens = prizeChoices
         .slice(0, Math.max(min, metadata.requiredCount ?? min))
@@ -897,6 +1013,7 @@ function promptDecision(request) {
     }
 
     if (selectionType === 'card-order') {
+      setPolicyAuditRule('CARD_ORDER_SEARCH_SCORE_DESC', 'SCORE_DESC_CHOICE_INDEX_ASC');
       const orderChoices = choices.filter(choice => choice.kind === 'card-order-item');
       const tokens = sortedChoiceTokens(orderChoices, choice =>
         cardSearchScore(choicePrinting(choice), request, effect))
@@ -913,6 +1030,7 @@ function promptDecision(request) {
   }
 
   if (prompt.promptType === 'ChoosePrizePrompt') {
+    setPolicyAuditRule('CHOOSE_PRIZE_LOWEST_CHOICE_INDEX', 'CHOICE_INDEX_ASC');
     const choice = choices.filter(row => row.kind === 'prize')
       .sort((a, b) =>
         (a.publicMetadata?.choiceIndex ?? 0) - (b.publicMetadata?.choiceIndex ?? 0))[0];
@@ -924,15 +1042,15 @@ function promptDecision(request) {
     if (!includes(effect, 'Copycat')) {
       return { kind: 'abstain', reasonCode: 'UNSUPPORTED_ATTACK_CHOICE_SOURCE' };
     }
-    const choice = choices.slice().sort((a, b) => {
-      const aName = a.publicMetadata?.sourceAttack ?? a.label ?? '';
-      const bName = b.publicMetadata?.sourceAttack ?? b.label ?? '';
-      const aScore = aName === 'Night Watch' ? -100 :
-        aName === 'Max Geist' ? 100 : aName === 'Eon Blade' ? 90 : 50;
-      const bScore = bName === 'Night Watch' ? -100 :
-        bName === 'Max Geist' ? 100 : bName === 'Eon Blade' ? 90 : 50;
-      return bScore - aScore;
-    })[0];
+    setPolicyAuditRule('COPYCAT_ATTACK_SCORE_DESC', 'SCORE_DESC_NATIVE_CHOICE_ORDER');
+    const ranked = choices.map((choice, index) => {
+      const name = choice.publicMetadata?.sourceAttack ?? choice.label ?? '';
+      const score = name === 'Night Watch' ? -100 :
+        name === 'Max Geist' ? 100 : name === 'Eon Blade' ? 90 : 50;
+      recordPolicyAuditScore(choice.token, score, 'COPYCAT_ATTACK_SCORE');
+      return { choice, index, score };
+    }).sort((a, b) => b.score - a.score || a.index - b.index);
+    const choice = ranked[0]?.choice ?? null;
     return choice ? { kind: 'select-choice', token: choice.token } :
       { kind: 'abstain', reasonCode: 'NO_COPY_ATTACK_CHOICE' };
   }
@@ -940,6 +1058,7 @@ function promptDecision(request) {
   if (prompt.promptType === 'ConfirmPrompt' ||
       prompt.promptType === 'SelectPrompt' ||
       prompt.promptType === 'SelectOptionPrompt') {
+    setPolicyAuditRule('CONFIRM_YES_THEN_FIRST_SAFE', 'YES_FIRST_THEN_NATIVE_ORDER');
     const confirmable = [
       'Climactic Gate', 'Underworld Door', 'Star Alchemy', 'Forest Seal Stone',
       'Wonder Tag', 'Skyliner', 'Pale Moon-GX'
@@ -965,14 +1084,28 @@ function createPolicy({ role, seat, policyVersion, config }) {
     throw new Error('AGENT6_POLICY_INIT_MISMATCH');
   }
 
+  function evaluateRequest(request) {
+    if (!request || request.role !== 'opponent' || request.seat !== seat ||
+        request.observation?.actorSeat !== seat) {
+      return { kind: 'abstain', reasonCode: 'ROLE_SEAT_BINDING_MISMATCH' };
+    }
+    if (request.prompt !== null) return promptDecision(request);
+    return bestAction(request);
+  }
+
   return Object.freeze({
     decide(request) {
-      if (!request || request.role !== 'opponent' || request.seat !== seat ||
-          request.observation?.actorSeat !== seat) {
-        return { kind: 'abstain', reasonCode: 'ROLE_SEAT_BINDING_MISMATCH' };
+      return evaluateRequest(request);
+    },
+    decideWithAudit(request) {
+      if (activePolicyAudit !== null) throw new Error('POLICY_AUDIT_REENTRANT');
+      activePolicyAudit = createPolicyAuditContext(request);
+      try {
+        const decision = evaluateRequest(request);
+        return { decision, policyAudit: finishPolicyAudit(decision) };
+      } finally {
+        activePolicyAudit = null;
       }
-      if (request.prompt !== null) return promptDecision(request);
-      return bestAction(request);
     }
   });
 }

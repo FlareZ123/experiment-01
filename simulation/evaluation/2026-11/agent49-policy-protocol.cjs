@@ -3,7 +3,8 @@
 const INIT_SCHEMA = 'aichi-policy-worker-init-v2';
 const READY_SCHEMA = 'aichi-policy-worker-ready-v3';
 const REQUEST_SCHEMA = 'aichi-policy-request-v2';
-const RESPONSE_SCHEMA = 'aichi-policy-response-v4';
+const RESPONSE_SCHEMA = 'aichi-policy-response-v5';
+const POLICY_AUDIT_SCHEMA = 'agent6-policy-audit-v1';
 const OBSERVATION_SCHEMA = 'aichi-actor-observation-v3';
 const PROMPT_SCHEMA = 'aichi-owner-prompt-projection-v3';
 const EVENT_RECEIPT_VERSION = 'agent8-public-event-receipt-v3-turn-stamped';
@@ -977,6 +978,72 @@ function validateDecision(decision, prompt, actionTokens) {
   fail('UNKNOWN_DECISION_KIND');
 }
 
+
+function validatePolicyAudit(policyAudit, request, decision, expectedPolicyVersion) {
+  if (policyAudit === null) return null;
+  exactKeys(policyAudit, [
+    'schema', 'policyVersion', 'decisionKind', 'decisionType',
+    'selectionRuleCode', 'tieBreakCode', 'selectedTokens', 'evaluations'
+  ]);
+  if (policyAudit.schema !== POLICY_AUDIT_SCHEMA) fail('BAD_POLICY_AUDIT_SCHEMA');
+  if (policyAudit.policyVersion !== expectedPolicyVersion) fail('POLICY_AUDIT_VERSION_MISMATCH');
+  if (policyAudit.decisionKind !== request.observation.decisionKind) fail('POLICY_AUDIT_DECISION_KIND_MISMATCH');
+  if (policyAudit.decisionType !== decision.kind) fail('POLICY_AUDIT_DECISION_TYPE_MISMATCH');
+  if (!boundedString(policyAudit.selectionRuleCode, /^[A-Z0-9_]{1,64}$/, 64)) fail('BAD_POLICY_AUDIT_SELECTION_RULE');
+  if (!boundedString(policyAudit.tieBreakCode, /^[A-Z0-9_]{1,64}$/, 64)) fail('BAD_POLICY_AUDIT_TIE_BREAK');
+  if (!Array.isArray(policyAudit.selectedTokens) || policyAudit.selectedTokens.length > 512) fail('BAD_POLICY_AUDIT_SELECTED_TOKENS');
+  const expectedSelected = decision.kind === 'select-action' || decision.kind === 'select-choice'
+    ? [decision.token]
+    : decision.kind === 'select-choices' ? decision.tokens : [];
+  if (JSON.stringify(policyAudit.selectedTokens) !== JSON.stringify(expectedSelected)) fail('POLICY_AUDIT_SELECTED_TOKEN_MISMATCH');
+  const source = request.prompt ? request.prompt.choices : request.actionFrontier.items;
+  if (!Array.isArray(policyAudit.evaluations) || policyAudit.evaluations.length !== source.length) {
+    fail('POLICY_AUDIT_FRONTIER_COVERAGE_MISMATCH');
+  }
+  const expectedTokens = new Set(source.map(item => item.token));
+  const seen = new Set();
+  for (const row of policyAudit.evaluations) {
+    exactKeys(row, ['token', 'status', 'score', 'reasonCode'], ['componentScores']);
+    assertToken(row.token);
+    if (!expectedTokens.has(row.token) || seen.has(row.token)) fail('POLICY_AUDIT_TOKEN_COVERAGE_MISMATCH');
+    seen.add(row.token);
+    if (!['scored', 'rule-selected', 'not-evaluated'].includes(row.status)) fail('BAD_POLICY_AUDIT_STATUS');
+    if (row.status === 'scored') {
+      if (typeof row.score !== 'number' || !Number.isFinite(row.score) || row.reasonCode !== null) {
+        fail('BAD_POLICY_AUDIT_SCORED_ROW');
+      }
+    } else {
+      if (row.score !== null || !boundedString(row.reasonCode, /^[A-Z0-9_]{1,64}$/, 64)) {
+        fail('BAD_POLICY_AUDIT_UNSCORED_ROW');
+      }
+    }
+    if (row.componentScores !== undefined) {
+      if (!Array.isArray(row.componentScores) || row.componentScores.length > 8) fail('BAD_POLICY_AUDIT_COMPONENTS');
+      const componentNames = new Set();
+      for (const component of row.componentScores) {
+        exactKeys(component, ['name', 'score', 'reasonCode']);
+        if (!boundedString(component.name, /^[a-z][a-z0-9-]{0,31}$/, 32) ||
+            componentNames.has(component.name)) fail('BAD_POLICY_AUDIT_COMPONENT_NAME');
+        componentNames.add(component.name);
+        if (component.score === null) {
+          if (!boundedString(component.reasonCode, /^[A-Z0-9_]{1,64}$/, 64)) fail('BAD_POLICY_AUDIT_COMPONENT_REASON');
+        } else if (typeof component.score !== 'number' || !Number.isFinite(component.score) ||
+            component.reasonCode !== null) {
+          fail('BAD_POLICY_AUDIT_COMPONENT_SCORE');
+        }
+      }
+    }
+  }
+  if (seen.size !== expectedTokens.size) fail('POLICY_AUDIT_FRONTIER_COVERAGE_MISMATCH');
+  for (const token of expectedSelected) {
+    const row = policyAudit.evaluations.find(item => item.token === token);
+    if (!row || !['scored', 'rule-selected'].includes(row.status)) fail('POLICY_AUDIT_SELECTED_ITEM_UNEXPLAINED');
+  }
+  assertBoundedJson(policyAudit);
+  assertNoForbiddenFields(policyAudit);
+  return policyAudit;
+}
+
 function deepFreeze(value) {
   if (value && typeof value === 'object' && !Object.isFrozen(value)) {
     for (const child of Object.values(value)) deepFreeze(child);
@@ -991,6 +1058,7 @@ module.exports = {
   READY_SCHEMA,
   REQUEST_SCHEMA,
   RESPONSE_SCHEMA,
+  POLICY_AUDIT_SCHEMA,
   OBSERVATION_SCHEMA,
   PROMPT_SCHEMA,
   EVENT_RECEIPT_VERSION,
@@ -1042,5 +1110,6 @@ module.exports = {
   validateFrontier,
   validateRequest,
   validateDecision,
+  validatePolicyAudit,
   deepFreeze
 };

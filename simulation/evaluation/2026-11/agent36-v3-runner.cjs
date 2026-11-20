@@ -1890,6 +1890,61 @@ function createV3WorkerDecisionResolver({
     }
     roleAudit.lastFailureCode=code;
   };
+  const selectedTokensOf=decision=>decision.kind==='select-action'||
+    decision.kind==='select-choice'?[decision.token]:
+    decision.kind==='select-choices'?decision.tokens.slice():[];
+  const buildDecisionTrace=({
+    request,observation,receipt,promptProjection:promptBinding,
+    actionFrontier:frontierBinding,response,validationReceipt
+  })=>{
+    const selectedTokens=selectedTokensOf(response.decision);
+    const source=promptBinding?.choices??frontierBinding?.items??[];
+    const selectedItems=selectedTokens.map(token=>{
+      const item=source.find(row=>row.token===token);
+      assert.ok(item,'worker-selected token is absent from the host-bound actor frontier');
+      return item;
+    });
+    const inputBinding={
+      observation,
+      publicEventReceipt:receipt,
+      promptProjection:promptBinding??null,
+      actionFrontier:frontierBinding??null
+    };
+    return {
+      schema:'agent6-worker-decision-trace-v1',
+      requestId:response.requestId,
+      sequence:response.sequence,
+      role:response.role,
+      seat:response.seat,
+      policyVersion:response.policyVersion,
+      bundleSha256:response.bundleSha256,
+      actionOrdinal:Number.isSafeInteger(request.actionOrdinal)?request.actionOrdinal:null,
+      decisionKind:observation.decisionKind,
+      decision:response.decision,
+      actorInput:observation,
+      actorInputSha256:sha256Json(observation),
+      publicEventReceipt:receipt,
+      publicEventReceiptSha256:receipt?sha256Json(receipt):null,
+      promptProjection:promptBinding??null,
+      promptProjectionSha256:promptBinding?sha256Json(promptBinding):null,
+      actionFrontier:frontierBinding??null,
+      actionFrontierSha256:frontierBinding?sha256Json(frontierBinding):null,
+      inputBindingSha256:sha256Json(inputBinding),
+      selectedTokens,
+      selectedItems,
+      selectedItemsSha256:sha256Json(selectedItems),
+      policyAudit:response.policyAudit,
+      policyAuditSha256:sha256Json(response.policyAudit),
+      validationReceipt,
+      validationReceiptSha256:validationReceipt?sha256Json(validationReceipt):null
+    };
+  };
+  const requirePolicyAudit=(response,request)=>{
+    assert.ok(response?.policyAudit&&response.policyAudit.schema===workerProtocol.POLICY_AUDIT_SCHEMA,
+      'registered candidate/opponent policy must return a validated per-decision policyAudit');
+    assert.equal(response.policyAudit.policyVersion,response.policyVersion);
+    assert.equal(response.policyAudit.decisionKind,request.observation.decisionKind);
+  };
   return async request=>{
     assert.equal(request?.kind,'native-fixture-decision',
       'unexpected native fixture yield');
@@ -1942,21 +1997,43 @@ function createV3WorkerDecisionResolver({
         roleAudit.policyDrawCounts.push(response.policyDrawCount);
         roleAudit.promptDecisionCount++;
         workerAudit.totalWorkerDecisions++;
+        requirePolicyAudit(response,{observation});
         if(response.decision?.kind==='abstain'){
           roleAudit.lastAbstentionReasonCode=response.decision.reasonCode;
+          const decisionTrace=buildDecisionTrace({
+            request,observation,receipt,promptProjection:projected.promptProjection,
+            actionFrontier:emptyFrontier,response,validationReceipt:null
+          });
           const error=new Error('role worker abstained on an owner prompt');
           error.code='POLICY_ABSTAINED';
+          error.workerDecisionTrace=decisionTrace;
           throw error;
         }
         assert.ok(['select-choice','select-choices'].includes(response.decision?.kind),
           'worker returned an unsupported prompt decision kind');
         const prepared=promptProjection.dispatchPromptChoice({
           store:request.store,prompt:request.prompt,state:request.state,actorSeat,
-          projection:projected,decision:response.decision,native,dispatch:false
+          projection:projected,decision:response.decision,native,dispatch:false,
+          withValidationRandom:request.withValidationRandom
+        });
+        assert.ok(prepared.validationReceipt?.nativeValidationStoreMode==='cloned-store'&&
+          prepared.validationReceipt?.fullOriginalStoreStateUnchanged===true,
+          'worker-selected prompt choice requires a cloned-Store validation receipt');
+        const validationReceipt={
+          ...prepared.validationReceipt,
+          selectedItemsSha256:sha256Json(response.decision.kind==='select-choice'?
+            [projected.promptProjection.choices.find(row=>row.token===response.decision.token)]:
+            response.decision.tokens.map(token=>projected.promptProjection.choices.find(row=>row.token===token)))
+        };
+        const decisionTrace=buildDecisionTrace({
+          request,observation,receipt,promptProjection:projected.promptProjection,
+          actionFrontier:emptyFrontier,response,validationReceipt
         });
         return {
           __nativeFixtureDecisionResolution:true,
           action:prepared.action,
+          validationReceipt,
+          decisionTrace,
           promptResolution:{
             kind:'worker-choice',decisionKind:response.decision.kind,
             selectedCount:Array.isArray(prepared.rawResult)?prepared.rawResult.length:1
@@ -1998,9 +2075,15 @@ function createV3WorkerDecisionResolver({
       roleAudit.policyDrawCounts.push(response.policyDrawCount);
       roleAudit.rootDecisionCount++;
       workerAudit.totalWorkerDecisions++;
+      requirePolicyAudit(response,{observation});
       if(response.decision?.kind==='abstain'){
+        const decisionTrace=buildDecisionTrace({
+          request,observation,receipt,promptProjection:null,
+          actionFrontier:frontier.actionFrontier,response,validationReceipt:null
+        });
         const error=new Error('role worker abstained on an owner root decision');
         error.code='POLICY_ABSTAINED';
+        error.workerDecisionTrace=decisionTrace;
         throw error;
       }
       assert.equal(response.decision?.kind,'select-action',
@@ -2019,20 +2102,31 @@ function createV3WorkerDecisionResolver({
         'selected worker action must be a member of the native action frontier');
       assert.equal(validationEvidence.nativeValidationStoreMode,'cloned-store',
         'selected worker action must be revalidated on a cloned native Store');
-      if(stopBeforeLiveDispatch===true){
-        return {
-          __nativeFixtureDecisionResolution:true,
-          action,
-          validationReceipt:{
-            actorSeat,role,selectedActionValidated:true,
-            nativeActionFrontierUsed,
-            nativeValidationStoreMode:validationEvidence.nativeValidationStoreMode,
-            actionKind:selectedItem.kind,
-            frontierItemCount:frontier.actionFrontier.items.length
-          }
-        };
-      }
-      return action;
+      assert.equal(validationEvidence.fullOriginalStoreStateUnchanged,true,
+        'cloned action validation must preserve the full original Store state graph');
+      const validationReceipt={
+        schema:'agent6-cloned-store-root-validation-v1',
+        ...validationEvidence,
+        nativeActionFrontierUsed,
+        selectedActionValidated:true,
+        actorSeat,
+        selectedToken:response.decision.token,
+        selectedItemSha256:sha256Json(selectedItem),
+        frontierSha256:sha256Json(frontier.actionFrontier)
+      };
+      const decisionTrace=buildDecisionTrace({
+        request,observation,receipt,promptProjection:null,
+        actionFrontier:frontier.actionFrontier,response,validationReceipt
+      });
+      return {
+        __nativeFixtureDecisionResolution:true,
+        action,
+        validationReceipt,
+        decisionTrace,
+        promptResolution:{
+          kind:'worker-root',decisionKind:response.decision.kind,selectedCount:1
+        }
+      };
     }catch(error){
       recordFailure(roleAudit,error,session);
       throw error;

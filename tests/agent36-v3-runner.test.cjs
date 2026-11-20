@@ -1486,21 +1486,30 @@ test('V3 no-game failure receipt coarsens worker prompt abstention reasons to a 
   const resolver=createV3WorkerDecisionResolver({
     sessionsBySeat:{
       1:{async decide(){
+        const policyVersion='runner-test-policy-v1';
         return {
+          requestId:'runner-test-request-1',sequence:1,role:'opponent',seat:1,
+          policyVersion,bundleSha256:'a'.repeat(64),
           decision:{kind:'abstain',reasonCode:'INVALID_STARTING_POKEMON_PROMPT'},
+          policyAudit:{
+            schema:'agent6-policy-audit-v1',policyVersion,
+            decisionKind:'owner-prompt',decisionType:'abstain',
+            selectionRuleCode:'ABSTAIN_POLICY_DECISION',tieBreakCode:'NONE',
+            selectedTokens:[],evaluations:[]
+          },
           policyDrawCount:0
         };
       }}
     },
     candidateSeat:0,
     opponentSeat:1,
-    native:{observe(){return {};}},
+    native:{observe(){return {actorSeat:1,decisionKind:'owner-prompt'};}},
     workerAudit,
     eventReceipt:()=>null,
     promptProjection:{
       projectPrompt(){return {
         hostOnly:false,
-        promptProjection:{promptType:'ChooseCardsPrompt'}
+        promptProjection:{promptType:'ChooseCardsPrompt',choices:[]}
       };}
     }
   });
@@ -1586,3 +1595,74 @@ test('V3 outer runner cleanup receipt preserves primary and cleanup summaries wi
   assert.match(failure.message,/Native V3 fixture runner failed during runner-hook-restore/);
 });
 
+
+
+test('V3 worker prompt resolver binds policyAudit, actor projection and cloned-Store receipt', async () => {
+  const workerAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});
+  const policyVersion='runner-prompt-audit-test-v1';
+  const choice={token:'prompt-choice-0',kind:'card',printing:'Fog Crystal FLI'};
+  const policyAudit={
+    schema:'agent6-policy-audit-v1',policyVersion,
+    decisionKind:'owner-prompt',decisionType:'select-choice',
+    selectionRuleCode:'PROMPT_SCORE_DESC',tieBreakCode:'SCORE_DESC_NATIVE_ORDER',
+    selectedTokens:['prompt-choice-0'],
+    evaluations:[{
+      token:'prompt-choice-0',status:'scored',score:12,reasonCode:null
+    }]
+  };
+  const resolver=createV3WorkerDecisionResolver({
+    sessionsBySeat:{
+      1:{async decide(){
+        return {
+          requestId:'runner-prompt-audit-request',sequence:7,
+          role:'opponent',seat:1,policyVersion,bundleSha256:'b'.repeat(64),
+          decision:{kind:'select-choice',token:'prompt-choice-0'},
+          policyAudit,policyDrawCount:0
+        };
+      }}
+    },
+    candidateSeat:0,opponentSeat:1,
+    native:{observe(){return {actorSeat:1,decisionKind:'owner-prompt',ownHand:['Fog Crystal FLI']};}},
+    workerAudit,eventReceipt:()=>null,
+    promptProjection:{
+      projectPrompt(){return {
+        hostOnly:false,
+        promptProjection:{schema:'test-prompt-v1',promptType:'ChooseCardsPrompt',choices:[choice]}
+      };},
+      dispatchPromptChoice(args){
+        assert.equal(typeof args.withValidationRandom,'function');
+        return {
+          action:{kind:'validated-prompt-action'},
+          rawResult:0,
+          validationReceipt:{
+            schema:'agent6-cloned-store-prompt-validation-v1',
+            actorSeat:1,promptId:'prompt-1',selectedTokens:['prompt-choice-0'],
+            selectedCount:1,nativeValidationStoreMode:'cloned-store',
+            promptDecodeValidated:true,clonedPromptResolved:true,
+            fullOriginalStoreStateUnchanged:true
+          }
+        };
+      }
+    }
+  });
+  const result=await resolver({
+    kind:'native-fixture-decision',actorSeat:1,
+    prompt:{id:'prompt-1'},state:{activePlayer:1},store:{},
+    actionOrdinal:3,withValidationRandom:fn=>fn()
+  });
+  assert.equal(result.__nativeFixtureDecisionResolution,true);
+  assert.deepEqual(result.action,{kind:'validated-prompt-action'});
+  assert.equal(result.validationReceipt.nativeValidationStoreMode,'cloned-store');
+  assert.equal(result.decisionTrace.actionOrdinal,3);
+  assert.equal(result.decisionTrace.requestId,'runner-prompt-audit-request');
+  assert.equal(result.decisionTrace.sequence,7);
+  assert.equal(result.decisionTrace.role,'opponent');
+  assert.equal(result.decisionTrace.seat,1);
+  assert.deepEqual(result.decisionTrace.selectedTokens,['prompt-choice-0']);
+  assert.deepEqual(result.decisionTrace.selectedItems,[choice]);
+  assert.deepEqual(result.decisionTrace.policyAudit,policyAudit);
+  assert.equal(result.decisionTrace.actorInputSha256.length,64);
+  assert.equal(result.decisionTrace.promptProjectionSha256.length,64);
+  assert.equal(result.decisionTrace.policyAuditSha256.length,64);
+  assert.equal(result.decisionTrace.validationReceiptSha256.length,64);
+});
