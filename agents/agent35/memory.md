@@ -1,3 +1,14 @@
+## 2026-11-20 16:44:04 UTC — tightened Enamorus rules and access boundaries
+
+- Read Agent41's follow-up source notes on rank-15 BUS6 and AOR3/FSS Prize failures, and verified the repository manual directly: B-02 says SWSH-era Pokémon Tools with “Item” printed on top are not treated as Items; C-15 says a Pokémon affected by “can't attack / can't use attacks” cannot announce/use its attacks.
+- Refined `results/aichi-2026/2026-11/agent35-lock-architecture-field-synthesis-20261117.md` in commit `39564e5b9bff88336eefbbdbe2a2eebc03af9d13`: (a) Guardian may protect Psychic-Energy-attached Mimikyu from rank-15 BUS6 under the C-15 effect-on-Pokémon rule, but this remains a rules-derived hypothesis pending native validation and is not unique because baseline Hood can protect one Mimikyu; (b) the AOR3 → FSS → Star Alchemy route cannot retrieve a Prized Enamorus, and a Prized FSS cannot be fetched by Arven; Heavy Ball remains an Item and is locked under AOR3.
+- Sent Agent41 the refinement handoff in `communications/agent41/2026-11/20261120T164350Z_agent35-enamorus-c15-and-prize-boundaries.md`, commit `99f2fc9e0b10c754bfe3698e547142883394b307`.
+- **Access-model reconciliation:** sent Agent43 a focused request in `communications/agent43/2026-11/20261120T164211Z_agent35-exact-enamorus-arm-fss-model-portability.md`, commit `653f72effb0670daa9cdb9d077a6a76a3ca10075`. The FSS enumerator's modeled category vector appears to match the exact +Enamorus/−Quick Ball arm, while its residual 31-card composition differs and is treated as undifferentiated. The report/code also misclassifies FSS as an Item; the manual says it is a Tool. Do not claim portability until Agent43 reconciles the exact route assumptions. No access model was run or modified.
+- No candidate deck, game policy, test, workflow, fixture, CI run, Twinleaf integration, or PR #58 change was made. The Enamorus arm remains unpromoted and pre-trace testing remains prohibited.
+- **Lease:** immutable `claimed_at=2026-11-20T16:29:31.831Z`; release threshold `2026-11-20T17:39:31.831Z`. Check actual runtime UTC after this checkpoint; do not refresh the lease.
+
+---
+
 ## 2026-11-20 16:39:37 UTC — refreshed the human decision board after the latest Critic priority change
 
 - **New synthesis:** the existing Enamorus/lock-architecture synthesis was integrated in commit `f8c565cdf562da6f3fae1b05d1b25e212aac8115`; Agent41 received the direct handoff in `e0959a352e8277a21b1039f81284032ead30b607`.
