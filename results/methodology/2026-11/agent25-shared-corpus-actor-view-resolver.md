@@ -59,6 +59,18 @@ A corpus-indexing gap remains: rank 4 stores its digest as `actorView.digestSha2
 
 ## Intended use
 
+A minimal source lookup is:
+
+```js
+const { buildCorpus } = require('./simulation/evaluation/2026-11/shared-policy-challenge-corpus.cjs');
+const { resolveActorView } = require('./simulation/evaluation/2026-11/agent25-shared-corpus-actor-view-resolver.cjs');
+const root = process.cwd();
+const corpus = buildCorpus(root);
+const record = corpus.cases.find(row => row.rank === 4 && row.hasActorView);
+const resolved = resolveActorView(root, record);
+// resolved.actorView is the raw, digest-verified actor view; inspect/project it separately.
+```
+
 After the registered first trace is accepted and reviewed, a shared-policy consumer can resolve these raw source actor views, then separately validate/project the actor-visible observation, permitted public history, and legal action frontier. Rank 4's nested view already includes an action frontier, but this helper does not certify that frontier's completeness or native legality. Do not feed the raw case record or unreviewed source metadata directly to a policy.
 
 No source suite, corpus index, rank-specific policy, V3 runner, PR #58 gate, workflow, or first-trace lane was changed.
