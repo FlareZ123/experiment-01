@@ -1,3 +1,10 @@
+## 2026-11-20 02:11 UTC — setup audit count invariants added
+
+- Added role-local reconciliation invariants to the first-trace checklist: `setupPromptDecisions.length = setupStartingBasicPromptsHandled + setupGoFirstPromptsHandled`; each per-seat count array sums to its total; `setupPromptActionsSubmitted + setupPromptActionsRejected` equals the decision-receipt count; and status counts match `dispatch-returned` / `dispatch-threw`. These follow the adapter's actual push/increment/dispatch paths.
+- Checklist commit `1f761bd80f51472863edd01582ab2a0690b85a5b`, content SHA `f09d2073d360100add9a24eeb90868b862c5736c`; readback verified. No code/tests/workflow changed; the focused serializer/privacy tests remain a post-gate implementation requirement.
+
+---
+
 ## 2026-11-20 02:10 UTC — setup receipt privacy-test requirement added
 
 - The first-trace checklist now requires focused regression coverage after the authorized post-gate capture is implemented: both role audit arrays must survive into the encrypted artifact; settled dispatch statuses and counts must reconcile; sanitized artifacts must exclude `selectedHandIndices`, `selectedPrintings`, prompt IDs/payloads, and `nativeError`. This is a future integration requirement, not a test added now.
