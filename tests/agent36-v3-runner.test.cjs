@@ -18,7 +18,7 @@ const {
   V3_FIXTURE,V3_FIXTURE_TEST_PATHS,V3_FIXTURE_COMMON_BINDINGS,
   V3_FIXTURE_WORKER_COMMON_BINDINGS,V3_FIXTURE_WORKER_PROMPT_CHAIN,
   buildFixtureRoleEntryManifest,buildRoleWorkerBundle,preloadRoleHostModules,
-  validatePublicSeedRegistration,validateNoGameWitnessReceipt,
+  validatePublicSeedRegistration,validateNoGameWitnessReceipt,validateV3WorkerDecisionTrace,
   buildNoGameWitnessFailureReceipt,buildV3RunnerFailureError,
   createV3WorkerExecutionAudit,createV3WorkerDecisionResolver,
   projectNativeFixtureFailureForReceipt,projectV3FixtureFailureForReceipt,
@@ -43,7 +43,8 @@ test('host environment snapshot transport is never allowlisted into role workers
 const STEP='Generate physical deal';
 
 function rootResolverFixture({
-  actorObservation=null,actorObservationSha256=null,responsePatch={},dispatchError=null
+  actorObservation=null,actorObservationSha256=null,responsePatch={},dispatchError=null,
+  publicEventReceipt=null
 }={}) {
   const workerAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});
   const policyVersion='runner-root-audit-test-v1';
@@ -108,7 +109,7 @@ function rootResolverFixture({
       ActionEnumerator:class ActionEnumerator {},
       Simulator:class Simulator {}
     },
-    workerAudit,eventReceipt:()=>null,
+    workerAudit,eventReceipt:()=>publicEventReceipt,
     actionEnumerator,actionFrontier
   });
   const request={
