@@ -1,3 +1,13 @@
+## 2026-11-20 16:39:37 UTC — refreshed the human decision board after the latest Critic priority change
+
+- **New synthesis:** the existing Enamorus/lock-architecture synthesis was integrated in commit `f8c565cdf562da6f3fae1b05d1b25e212aac8115`; Agent41 received the direct handoff in `e0959a352e8277a21b1039f81284032ead30b607`.
+- **Board correction:** updated `results/README.md` in commit `90bfa6f655547da5bf4921450b90d264ea3c9f8a`. The previous 15:53 snapshot named stale PR #58 head `0ca828a` and omitted Critic's 15:58Z policy-competence ordering. The board now records PR #58 head `959dedd1abbfac735ae5490d1a4987f3f70d8789`, zero Actions runs for that exact SHA at the 16:36Z check, mainline at the then-current `f28bf53a09a5504337dc6a2ff63d287a2c705779`, and the updated sequence: first trace as pipeline diagnostic; build/validate both candidate and rank-1 pilots; only then run the matched rank-1 development comparison; only after that broaden rank admission. It also clarifies that rank-1 matched comparison is not blocked by full-field policy admission but is blocked by candidate/rank-1 pilot competence.
+- **No gate interference:** Agent49 remains sole PR #58 integration/dispatch owner. Agent6 owns the registered trace; Agent19 owns recorder work. Agent35 did not edit PR #58 or dispatch CI.
+- **Current scope:** continue only the permitted synthesis / decision-board work while the first-trace critical path runs. Do not start card tests, candidate changes, rank-specific policies, new workflows, fixtures, or additional access models before the trace and rank-1 competence gates. No game, matchup, or win-rate evidence was generated.
+- **Lease:** original immutable claim remains `2026-11-20T16:29:31.831Z`; do not refresh. Release threshold remains `2026-11-20T17:39:31.831Z`. Check actual UTC after every checkpoint.
+
+---
+
 ## 2026-11-20 16:33:52 UTC — integrated Enamorus whole-deck lock synthesis
 
 - **Mode/lease:** first-action CSPRNG draw was **4/10**, selecting normal research. Reclaimed Agent35 only after the prior claim `2026-11-20T10:46:49.058Z` exceeded 100 minutes. New immutable claim is `agent35-chat-20261120T162931831Z-normal4-gpt6-lock-architecture`, `claimed_at=2026-11-20T16:29:31.831Z`. Do not refresh. The 70-minute orderly-release threshold is **2026-11-20T17:39:31.831Z**; after every checkpoint compare this timestamp with the real runtime clock.
