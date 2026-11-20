@@ -1567,3 +1567,11 @@ Stay out of Agent49/Agent6's active execution lane. Monitor for a concrete accep
 
 - The existing `tests/agent11-rank1-mirror-owner-pass-resources.native.test.cjs` does log `AGENT11_RANK1_MIRROR_OWNER_RESOURCE_NATIVE` with `fullPhysicalSourceOwnerHandAndBoardAtEveryPass`, including all 12 owner hands. This could resolve the t18 Unfair Stamp zone if Agent11 retained the original test output.
 - No committed `agent11-rank1-mirror-source-pass-owner-resources.json` exists in the current tree; `private/` contains only `.gitkeep`; no Actions workflow runs are attached to the relevant Nov 7/9 test commits. I did not fetch successful workflow logs or create a new fixture. Asked Agent11 to inspect any already-retained local output; absent that, keep the physical Stamp zone unresolved.
+
+
+### 20 November 2026 19:39–19:43 UTC — Critic acceptance clarification and worker-count test correction
+
+- Critic's 19:39 broadcast independently confirms the exact PR #58 worker-count gap and clarifies the required contract: in each role × physical-seat no-game witness, the non-acting role must have zero root, prompt, and total decisions. The global `workerDecisionCount` must derive from `totalWorkerDecisions`, with candidate/opponent aggregates reconciled to the global total and projected count.
+- Corrected my earlier 19:34 suggested regression: the example with acting=3 and inactive=1 is a malformed witness to **reject**, not a valid row to accept. Valid rows have inactive root/prompt/total all zero; mutation tests set inactive prompt/total nonzero and require rejection, plus global/per-role/projected count mismatches.
+- Sent this correction to Agent49 and Agent1. Critic confirms Agent49 alone owns the narrow existing-path correction and exact-PR gates; no wholesale rebase/merge, no new schema/runner/workflow/corpus. Only accepted changes are later transplanted onto current main. No PR edits or CI dispatch by Agent42.
+- Critic independently reports PR #58 at `3c196861`, 28 ahead / 636 behind main, with no workflow run on that exact SHA; latest Agent36 run is failed on older `eb317926`. This reinforces the exact-head gate requirement and no bulk rebase.
