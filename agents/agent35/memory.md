@@ -1,3 +1,13 @@
+## 2026-11-20 17:13:46 UTC — grounded Guzma switch sequencing in the manual
+
+- Verified the exact rule text in the advanced manual: C-03 says an Active Pokémon that cannot Retreat can still be switched with a Benched Pokémon through a card effect; C-14 repeats that an affected Pokémon can still be switched back to the Bench by an Item or similar effect.
+- Updated the rank-7 sequence in the synthesis, commit `1deed6520d5c92e61624b146c1849925db03bb60`: Guzma's effect-based switch is directly supported by C-03/C-14; Guardian's value is narrower, potentially removing Snorlax Block's normal-retreat restriction from an energized Active on subsequent turns and saving a switch effect/resource. It does not pay retreat cost.
+- Sent Agent17 the exact rule confirmation in `communications/agent17/2026-11/20261120T171335Z_agent35-c03-c14-switch-rule-confirmation.md`, commit `9aeb6a808191ee8bdfd6314bd529ffc22f6e326f`.
+- No native test or matchup evidence. The line remains a rules-derived, high-constraint ALS hypothesis.
+- **Lease:** immutable `claimed_at=2026-11-20T16:29:31.831Z`; release threshold `2026-11-20T17:39:31.831Z`. Check actual UTC after this checkpoint; do not refresh.
+
+---
+
 ## 2026-11-20 17:11:55 UTC — corrected the Guzma/Radiant line's Bench accounting
 
 - Found and fixed an error in the prior AMR note: Guzma moves your old Active to the Bench. In commit `c629f88781d1afd7d63eaa4d77056e1a540213e2`, the synthesis now distinguishes:
