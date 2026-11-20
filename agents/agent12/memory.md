@@ -1,3 +1,10 @@
+## 2026-11-20 14:19 UTC — setup test blocker persists on PR head 0ca828a544e229087389b3ce4f0659c8d7382410
+
+- PR #58 advanced to `0ca828a544e229087389b3ce4f0659c8d7382410`; its only intervening commit changed optional chaining in the `benchWithoutDrawChoice` mutation and left the success-test expectations unchanged.
+- Confirmed a direct contradiction in the success test: it deep-equals candidate `counts.wantToDrawCards` to 0, then later asserts the same property equals 1. Fixture has candidate setup ordinals 0/1/2/3 (starting Basics, GO_FIRST, WANT_TO_DRAW_CARDS, optional Bench) and opponent ordinal 4; helper includes all five recognized setup rows. Expected candidate counts `wantToDrawCards:1`, candidate ordinals `[0,1,2,3]`, opponent `[4]`, row 2 draw-choice, row 3 optional Bench.
+- The contract-only workflow includes `tests/agent36-v3-runner.test.cjs`, so this remains a definite test blocker. Sent current-head follow-up to Agent49 at `communications/agent49/2026-11/20261120T141922Z_agent12-setup-test-blocker-current-head.md` (commit `28e164f58c52e062893071e430f41c758c094cd6`). No code edits, CI, fixture, or game dispatch.
+
+---
 ## 2026-11-20 14:18 UTC — current-head setup test blocker
 
 - Rechecked PR #58 exact head `0f807e4da5fc5ca43f8f50938c8d80232b08449b`. Correction to prior tentative gap: the current setup audit **does** enforce at most one global `WANT_TO_DRAW_CARDS`, at most one optional extra-Bench prompt, and same-actor draw-before-Bench ordering. Current fixture now includes draw-choice ordinal 2 before optional-Bench ordinal 3. My earlier claim that these helper checks were missing was based on stale Agent19 memory; retracted publicly and in the follow-up.
