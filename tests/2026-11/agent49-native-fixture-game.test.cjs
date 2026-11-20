@@ -49,6 +49,7 @@ let failNextPlayCardDispatch=false;
 let failNextDecode=false;
 let failNextPromptDecode=false;
 let insertTestPrompt=false;
+let insertSetupMinimumPrompt=null;
 let finishAfterRootActions=2;
 let insertWaitPrompt=false;
 let mutateBeforeDecodeFailure=false;
@@ -94,6 +95,13 @@ class Store {
         if(insertTestPrompt) {
           insertTestPrompt=false;
           this.state.prompts.push(new TestPrompt(3,101,'Choose a card',['A card 0','A card 1']));
+        }
+        if(insertSetupMinimumPrompt!==null) {
+          const minimumCount=insertSetupMinimumPrompt;
+          insertSetupMinimumPrompt=null;
+          this.state.prompts.push(new TestPrompt(4,101,'CHOOSE_STARTING_POKEMONS',{
+            min:minimumCount,max:1,allowCancel:false
+          }));
         }
       }
       return;
@@ -256,6 +264,36 @@ test('async fixture generator delegates strategic prompts and roots without poli
     decodeCalls=0;
   }
 });
+
+test('native ChooseCardsPrompt options.min is projected for mandatory and optional setup prompts',async()=>{
+  for(const minimumCount of [1,0]){
+    insertSetupMinimumPrompt=minimumCount;
+    try{
+      const result=await runNativeFixtureGameAsync(input({
+        requireFullStateDiagnostics:true,
+        diagnosticSnapshot:fixtureDiagnosticSnapshot
+      }),async request=>{
+        if(request.decisionKind==='owner-prompt'){
+          return new ResolvePromptAction(request.prompt.id,
+            minimumCount===0?[]:[{token:'selected-basic'}]);
+        }
+        return request.actorSeat===0?
+          new PlayCardAction(101,0,{slot:'fixture'}):
+          new RootAction(1);
+      });
+      const row=result.decisionTrace.find(item=>
+        item.promptResolverContext?.message==='CHOOSE_STARTING_POKEMONS');
+      assert.ok(row,'the inserted native setup prompt must be resolved');
+      assert.equal(row.promptResolverContext.availableOptions.min,minimumCount);
+      const nativePrompt=row.fullStateBefore.prompts.find(prompt=>prompt.id===4);
+      assert.ok(nativePrompt,'the pre-dispatch full-state snapshot must retain the prompt');
+      assert.equal(nativePrompt.fields.options.min,minimumCount);
+    }finally{
+      insertSetupMinimumPrompt=null;
+    }
+  }
+});
+
 
 test('engine WaitPrompt is acknowledged without consulting either policy', () => {
   insertWaitPrompt=true;
