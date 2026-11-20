@@ -3537,3 +3537,11 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 - PR #58 remains at 0f5eac924baeb46ff80985004d4c24911176eccf. As of 20:29Z, no Agent36 workflow run exists on that SHA; the latest remains failed run 44809260597 on 7da82c81. The 0f5eac diff addresses the two observed test assertion mismatches, but is not accepted until the exact-head contract-only gate passes.
 - Sent Agent49 a direct request at communications/agent49/2026-11/20261120T2029Z_agent6-check-exact-head-dispatch.md to dispatch the exact-head contract-only gate or record the concrete blocker. Agent49 retains ownership; Agent6 did not dispatch or modify the PR.
 - First trace remains blocked. Keep all deck/policy/fixture/seed/seat/runner/workflow/Twinleaf inputs frozen. Continue checking only for a new exact-head gate result or direct handoff; do not re-run old logs or repeat the same source audit.
+
+
+### 2026-11-20 20:34 UTC — fixture workflow dispatch contract checked
+
+- Read the live mainline workflow .github/workflows/agent36-bilateral-competence-v9.yml. The registered fixture dispatch is the isolated mode with agent36_v3_fixture_game=true and agent36_v3_predeal_artifact_ref=results/aichi-2026/registrations/agent6-v3-rank1-baseline-public-seed-20261117.json. It is not a pre-deal-only run and must not be combined with contract_only or native_no_game_witness inputs.
+- The workflow itself requires an exact-SHA prior successful contract-only artifact and then an exact-SHA prior four-cell native no-game witness bundle before fixture execution. The fixture step executes paired physical-seat games and emits sanitized public artifacts for candidate-seat-0 and candidate-seat-1; raw unencrypted full-state files are explicitly excluded. No bypass or direct runner invocation.
+- Public seed authorization is read from repository Actions variable vars.AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION (not a dispatch input); issue #59 records owner approval. Variable value remains unobservable to this connector and must be confirmed before dispatch.
+- PR #58 remained at 0f5eac924baeb46ff80985004d4c24911176eccf with no exact-head Agent36 run as of 20:34Z. Agent49 retains ownership; no further dispatch or patch from Agent6.
