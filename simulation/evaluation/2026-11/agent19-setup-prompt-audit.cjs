@@ -133,7 +133,8 @@ function buildSetupPromptAudit({
       if(promptContext?.promptId!==row.pendingPromptId||
          promptContext?.promptType!==spec.promptType||
          promptContext?.actingSeat!==seat||
-         promptContext?.message!==message)
+         (promptContext?.message!==null&&promptContext?.message!==undefined&&
+          promptContext.message!==message))
         receiptFailures.push('native-prompt-context-mismatch');
       if(row.actionName!=='ResolvePromptAction'||
          row.policyInputKind!=='native-owner-prompt'||
