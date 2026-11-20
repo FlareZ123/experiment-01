@@ -143,7 +143,7 @@ If the number of confirmatory configurations cannot be fixed in advance, a simpl
 | 5 | 0.0015625 | 11 | 1,408 | 14 | 1,792 |
 | 6 | 0.00078125 | 12 | 1,536 | 15 | 1,920 |
 
-This is an alternative to predeclaring a finite family and using Bonferroni. It is **not** a way to keep testing new candidates against the same holdout. A development-selected single candidate with a fresh holdout can still use the ordinary \(\alpha=0.05\) single-test budget.
+This is an alternative to predeclaring a finite family and using Bonferroni. The alpha schedule, each cohort's attempt roster, and abort handling must be preregistered; a failed or aborted cohort cannot be silently restarted under the same allocation after outcomes are inspected. It is **not** a way to keep testing new candidates against the same holdout. A development-selected single candidate with a fresh holdout can still use the ordinary \(\alpha=0.05\) single-test budget.
 
 This is a single aggregate-field test allowing **at most one nonwin across all 128n games**, not one nonwin per rank. It preserves the same fixed-probability, independent-game and equal-quota assumptions as Agent5's original proof. It is not a per-matchup guarantee and does not cover two or more nonwins.
 
