@@ -43,6 +43,21 @@ The two-target effect is guaranteed to have two legal Basic Psychic targets rema
 
 This is a deterministic pigeonhole bound, not a probabilistic estimate. It means the first-turn access event is also an access event for the full two-Pokémon search, before considering Bench space or later opponent effects.
 
+### Specific high-value line: Mewtwo → Gengar → Horror House-GX
+
+The broad Energy engine has a concrete attack target. If Mewtwo & Mew-GX is in the opening seven, attach Telepathic Psychic Energy to it; the attachment supplies the one Psychic Energy needed for Horror House-GX, while the search can bench Gengar & Mimikyu-GX for Mewtwo's Perfection Ability to copy. If Gengar is already in hand, bench it; if it remains in deck, search it. The second Basic Psychic target is chosen from the current line (for example Duskull, Solrock/Lunatone or Klefki). This can be executed without an Item or Supporter, so it remains available through Budew / Vileplume Item lock and Stoutland Supporter lock, provided Perfection is live.
+
+Exact availability in the frozen 60, including six Prizes and the condition that the singleton Gengar & Mimikyu-GX is not Prized:
+
+| TPE-enabled Mewtwo / Gengar line | Going first: setup for turn two | Going second: first-turn Horror House-GX |
+|---|---:|---:|
+| Conditional on a legal opening seven | **6.09921743%** | **6.98082550%** |
+| Unconditional over all opening deals | 5.59031438% | 6.39836334% |
+
+The going-second event requires Mewtwo & Mew-GX in the opening seven, TPE in the opening seven or mandatory draw, and Gengar & Mimikyu-GX not in the six Prizes. Mewtwo can be selected Active; TPE attaches to it and either finds Gengar in deck or uses the copy already in hand. The attack then prevents the opponent from playing cards from hand during their next turn. The going-first event requires both Mewtwo and TPE in the opening seven; it sets up the same line for the next turn.
+
+These figures are **line availability, not win rates**. They are a subset of the 29.2160% / 33.3978% general TPE access events and omit other routes to the same attack. They assume Perfection is usable and do not model Path to the Peak, Garbotoxin, Iron Thorns, Bench congestion, disruption or the opponent's response. Item lock and Supporter lock do not themselves suppress Perfection; Pokémon Ability lock or an active Path to the Peak can, unless the deck's own Stadium-protection line is established. The existing [Perfection source-line analysis](new-moon-perfection-aichi-2026.md) documents the attack sequence; the enumerator now calculates this TPE-enabled subset exactly.
+
 ### Copy-count sensitivity
 
 The same exact access calculation, holding the 17 Basic Pokémon and 15 Psychic targets fixed, gives:
