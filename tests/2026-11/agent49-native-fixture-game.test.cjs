@@ -221,6 +221,7 @@ test('async fixture generator delegates strategic prompts and roots without poli
         decisionKind:request.decisionKind,
         actionOrdinal:request.actionOrdinal,
         actorSeat:request.actorSeat,
+        actorObservationSha256:request.actorObservationSha256,
         hasPrompt:Boolean(request.prompt),
         hasLegacyRandomSource:Object.hasOwn(request,'legacyRandomSource'),
         hasLegacyBot:Object.hasOwn(request,'legacyBot')
@@ -238,6 +239,9 @@ test('async fixture generator delegates strategic prompts and roots without poli
       ['owner-prompt','owner-root','owner-root']);
     assert.deepEqual(requests.map(row=>row.actionOrdinal),[2,3,4],
       'worker requests must carry the exact zero-based native dispatch ordinal');
+    assert.equal(requests[0].actorObservationSha256,null);
+    assert.match(requests[1].actorObservationSha256,/^[a-f0-9]{64}$/);
+    assert.match(requests[2].actorObservationSha256,/^[a-f0-9]{64}$/);
     assert.equal(requests.every(row=>!row.hasLegacyRandomSource&&!row.hasLegacyBot),true,
       'async worker requests must not receive legacy bots or policy RNG sources');
     const physicalPromptRows=result.decisionTrace.filter(row=>
@@ -967,11 +971,17 @@ test('worker decision traces and cloned-Store receipts join prompt and root acti
         selectedActionValidated:true,
         actionOrdinal:request.actionOrdinal
       };
+      const policyAudit={schema:'agent6-policy-audit-v1'};
       const decisionTrace={
         schema:'agent6-worker-decision-trace-v1',
         actionOrdinal:request.actionOrdinal,
+        actorObservationSha256:request.actorObservationSha256,
         decisionKind:request.decisionKind,
-        validationReceipt
+        seat:request.actorSeat,
+        policyAudit,
+        policyAuditSha256:evidenceBundleSha256(policyAudit),
+        validationReceipt,
+        validationReceiptSha256:evidenceBundleSha256(validationReceipt)
       };
       const action=request.decisionKind==='owner-prompt'?
         new ResolvePromptAction(request.prompt.id,'A card 0'):
@@ -1025,7 +1035,9 @@ test('failed worker decision trace survives in an explicit non-dispatched failur
       error.workerDecisionTrace={
         schema:'agent6-worker-decision-trace-v1',
         actionOrdinal:request.actionOrdinal,
+        actorObservationSha256:request.actorObservationSha256,
         decisionKind:request.decisionKind,
+        seat:request.actorSeat,
         validationReceipt:null
       };
       throw error;
@@ -1076,7 +1088,9 @@ test('no-game witness preserves worker trace and ledger digests without live dis
     physicalRandom:()=>0
   }),async request=>{
     const validationReceipt={
+      schema:'agent6-cloned-store-root-validation-v1',
       selectedActionValidated:true,
+      fullOriginalStoreStateUnchanged:true,
       nativeActionFrontierUsed:true,
       nativeValidationStoreMode:'cloned-store',
       actorSeat:request.actorSeat,
@@ -1087,7 +1101,9 @@ test('no-game witness preserves worker trace and ledger digests without live dis
     const decisionTrace={
       schema:'agent6-worker-decision-trace-v1',
       actionOrdinal:request.actionOrdinal,
+      actorObservationSha256:request.actorObservationSha256,
       decisionKind:request.decisionKind,
+      seat:request.actorSeat,
       policyAudit,
       policyAuditSha256:evidenceBundleSha256(policyAudit),
       validationReceipt,
@@ -1115,6 +1131,7 @@ test('no-game witness preserves worker trace and ledger digests without live dis
   assert.equal(ledgerRow.decisionKind,'owner-root');
   assert.equal(ledgerRow.dispatchStatus,'not-dispatched');
   assert.equal(workerRow.workerDecisionTrace.actionOrdinal,2);
+  assert.equal(workerRow.workerDecisionTrace.actorObservationSha256,workerRow.actorObservationSha256);
   assert.deepEqual(workerRow.workerDecisionTrace.validationReceipt,workerRow.validationReceipt);
   assert.equal(workerRow.workerDecisionTrace.validationReceiptSha256,workerRow.validationReceiptSha256);
   assert.match(workerRow.workerDecisionTraceSha256,/^[a-f0-9]{64}$/);
