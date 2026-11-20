@@ -60,3 +60,45 @@ No actual Aichi matchup results were generated for this study. The provided pape
 ## Independent complete-block e-process audit (19 October, Agent 9)
 
 [The independent proof, Python reference and six local tests](balanced-field-anytime-evidence.md) give the AM-GM justification for an aggregate-mean e-process across heterogeneous but independent 64-cell blocks, with optional stopping at complete-block boundaries. Ten all-win blocks, 640 games, cross the 95% threshold with a preselected `q=1` likelihood factor. This **complements rather than replaces** the existing [JavaScript anytime field validator](../../scripts/aichi-anytime-field-evidence.cjs), which already implements a balanced aggregate mixture and has stronger provenance guards. The alternative [correlation-robust round-level process](../../scripts/aichi-correlated-round-evidence.cjs) requires materially more data but supports a weaker dependence assumption. These are conditional statistical tools; exact 32-list coverage, complete rules, competitive policy qualification and a fixed 60 remain unavailable.
+
+
+## Candidate selection and confirmatory holdout (20 November 2026, Agent 48)
+
+The current confirmatory estimand is the equal-weight **128-stratum** field mean: 32 original ranks × candidate physical seat × candidate actual first/second. Do not apply this section to the older 64-cell estimand above or to a 29-rank diagnostic panel.
+
+Candidate search is adaptive by nature. Opening profiles, development games, matched candidate comparisons, self-play, and policy tuning may be used to choose a deck. Their best observed result is **development evidence**, not a final 99.5% confidence claim. The simplest valid selection procedure is:
+
+1. Use development data to compare any number of whole-60 candidates and policy variants. These data may be reused for iteration but are never counted in the final confirmatory sample.
+2. Select one complete candidate configuration and freeze its exact 60-card identity, candidate policy, all 32 opponent lists and policies, Twinleaf/research revisions, rules hooks, outcome/adjudication protocol, field weights, and 128-cell sampling plan.
+3. Only after that freeze, register and generate a fresh independent confirmatory cohort. Keep its outcomes out of all subsequent tuning. A change to any frozen component after seeing outcomes consumes that cohort; a changed configuration needs a new untouched holdout.
+4. If the confirmatory result is used to choose among several candidate configurations, it is no longer a one-candidate test. Either reserve a new holdout for the selected configuration or control family-wise error across all tested configurations.
+
+For the all-win special case, let (p_j) be the fixed win probability in each of the 128 equally weighted strata and allocate (k) independent games to every stratum. Under the null field mean (ar p le 0.995),
+
+[
+\Pr(\text{all }128k\text{ games win})
+=\prod_{j=1}^{128}p_j^k
+\le\left(\frac{1}{128}\sum_{j=1}^{128}p_j\right)^{128k}
+\le0.995^{128k},
+]
+
+by AM–GM. For (K) candidate configurations all tested on the confirmatory data, a Bonferroni family-wise 95% test assigns (alpha/K) to each candidate. The minimum equal allocation for the all-win rule is
+
+[
+k=\left\lceil\frac{\ln(0.05/K)}{128\ln(0.995)}\right\rceil.
+]
+
+| Confirmatory configurations (K) | Games per stratum (k) | Total games per configuration | Null all-win bound | Per-test (alpha/K) |
+|---:|---:|---:|---:|---:|
+| 1 | 5 | 640 | 0.0404363 | 0.05 |
+| 2 | 6 | 768 | 0.0212876 | 0.025 |
+| 3 | 7 | 896 | 0.0112068 | 0.016667 |
+| 5 | 8 | 1,024 | 0.0058998 | 0.01 |
+| 10 | 9 | 1,152 | 0.0031059 | 0.005 |
+| 20 | 10 | 1,280 | 0.0016351 | 0.0025 |
+
+Bonferroni does not require independence **between candidate tests**; it does require the stated independent, fixed-probability games within each candidate's 128 strata. The table is an all-win design only. Any nonwin, tie, timeout, or other outcome handled as a nonwin invalidates this shortcut; use a separately preregistered multi-nonwin method with multiplicity control or a new holdout. Do not drop unfavorable or censored attempts to restore an all-win sample.
+
+A candidate configuration includes its playing policy, not only its 60 cards. Trying multiple candidate-policy versions against the same confirmatory outcomes and selecting the best is also multiple testing. Conversely, if exactly one configuration is chosen using development data **before** an independent holdout is generated, the holdout's test remains a single predeclared test; no penalty for the number of development candidates is needed.
+
+These are future evidence budgets, not currently executable claims: the Aichi source field remains 29/32, ranks 23/25/28 are unavailable, and no original physical-source opponent is paper-admitted.
