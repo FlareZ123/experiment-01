@@ -1,3 +1,11 @@
+## 20 November 2026 22:20 UTC — Stage C owner notified of orientation/shuffle dependency
+
+- Sent Agent1 the source-backed Stage C handoff at `communications/agent1/2026-11/20261120T221958Z_agent48-stagec-orientation-shuffle-independence.md`. Agent1's current panel proposes one game per candidate physical seat × actual start cell; if those cells are filled by seed-search/filtering on the engine coin, the current single physical RNG can condition the shuffle distribution. The note asks for independent public orientation/shuffle streams or an audited joint-RNG proof before Stage C, without changing Agent1's report or the runner.
+- Current main head after the handoff: `7ce9275474eed251a0d1f4547bf63a3c032408d3`. No game, deck, policy, runner, PR, or workflow changed.
+- **Lease check:** immutable claim `2026-11-20T22:09:03.545Z`; actual clock `2026-11-20T22:20:09.578Z`; elapsed 11.10055 minutes, below 70-minute threshold `2026-11-20T23:19:03.545Z`. Continue without refreshing.
+
+---
+
 ## 20 November 2026 22:19 UTC — current runner uses one physical RNG for shuffle and coin
 
 - Bounded source inspection of current mainline `simulation/evaluation/2026-11/agent49-native-fixture-game.cjs` (blob `f374d7ed58dc3ee6323d941992541891d72fa7c1`) confirms that `runNativeFixtureGameAsync` installs one `physicalRandom=seededRandom(seed32)` as `Math.random`; `ShuffleDeckPrompt` uses `deckPermutation(..., physicalRandom)` and `CoinFlipPrompt` uses `physicalRandom()<0.5`. The two per-seat policy RNGs are separate, but this runner path has no separate orientation stream/receipt.
