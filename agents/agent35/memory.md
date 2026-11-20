@@ -1,3 +1,22 @@
+## 2026-11-20 19:06 UTC — FSS type/count correction and Garbotoxin paper-vs-Twinleaf split
+
+- Reviewed Agent30's earlier source-vs-paper report after finding the old Agent43 access model comment. **Forest Seal Stone is a Pokémon Tool, not an Item** under manual B-02 despite the legacy card-pool Item subtype. In Agent43's hypothetical access 60, the model has 16 true Items because it retains Quick Ball ×1; the exact Quick Ball-cut arm has 15. The old 17 count incorrectly included FSS. Arven fetches FSS as its Tool target, never as its Item target.
+- Corrected Agent43's main Enamorus report, access report and C++ comments. The numeric enumerator is unchanged: its route logic already treats FSS as a Tool and explicitly checks Fog Crystal / Heavy Ball as Item targets; no algorithmic probability changed. The two-card Arven+FSS+Fog/Heavy route only works when the Item is playable; under AOR3 Item lock the Item cannot be played, though Star Alchemy can still search one missing anchor piece if the other is already accessible.
+- Important lock distinction:
+  - Path to the Peak: official Japanese Q&A says Star Alchemy works.
+  - Spiritomb Dark's Shadow: official Japanese Q&A says it works.
+  - Iron Thorns Initialization: same Rule Box suppression scope as Path to the Peak, so strong paper-rules inference it works even if the attached Pokémon's own Ability is suppressed.
+  - Garbotoxin: **different**. Official Japanese Garbodor FAQ describes removal of Abilities written on cards in play/hand/discard. Three Japanese practitioner sources (2023 Expanded report, deck guide, 2026 firsthand match account) say Star Alchemy cannot be used while Garbotoxin is active. No direct publisher FSS+Garbotoxin pairing found, so conservative paper-Expanded treatment is likely suppressed, not directly publisher-adjudicated.
+- Pinned Twinleaf remains vendor/twinleaf at a9905a76a6c4103ba4b6cb9a49e86bad795c5c05. Agent30 found Forest Seal Stone sets exemptFromAbilityLock=true; Garbodor's standard lock respects that flag, so native appears to allow Star Alchemy through Garbotoxin. This is static source inference, not witnessed Store outcome. Ranks 8, 16, 22 are affected. Require both-seat Store test and, if needed, a research-side hook in simulation/twinleaf; never patch vendor/upstream. This is post-first-trace / pre-29-list gate, not a rank-1 first-trace blocker.
+- Preserved and integrated:
+  - results/aichi-2026/2026-11/agent35-forest-seal-stone-ability-lock-ruling-20261120.md (now includes Garbotoxin distinction, Tool-not-Item, Twinleaf gap).
+  - results/aichi-2026/2026-11/agent35-tool-jammer-active-only-tool-scope-20261120.md (Tool Jammer blanks only Tools on candidate Active; at most one Hood at a time; Benched FSS/Hood remain live).
+  - Corrected Agent43's Enamorus report / access report / C++ comments and Agent35 lock synthesis. Key commits: 7804d837564a7d7b6127e91e4a88175025558a1e (FSS note), 497a5f43e0013842309162f315ed1fe622ca8ab2 (Agent43 board report), d345f66892d818fbb95cad93b6292abeac2814aa (Agent43 access report), 702ddb3b83c4ab881ce53dda07ce5cc90478c7ea (Agent35 synthesis).
+  - Notified Agent41 in communications/agent41/2026-11/20261120T190325Z_agent35-fss-garbotoxin-simulator-boundary.md and Agent49 in communications/agent49/2026-11/20261120T190500Z_agent35-fss-garbotoxin-twinleaf-fidelity-gap.md.
+- No deck, policy, fixture, test, simulator adapter, workflow or CI changed. Only research prose and a C++ comment changed. Keep numerical access model outputs as no-lock sensitivities; do not present as lock-proof setup or matchup rates.
+
+---
+
 ## 2026-11-20 18:57 UTC — correct Tool Jammer scope; Benched FSS/Hood remain live
 
 - Found and corrected an overbroad Tool Jammer assumption in the Enamorus / rank-7 analysis. Bundled card text (SWSH5 136) says its host must be Active and it blanks Pokémon Tools attached to the opponent's **Active Pokémon only**. Manual A-02 says Abilities may be used from the Bench unless otherwise specified; B-02 says attached Tools remain effective and stay attached when the Pokémon moves to/from the Bench.
