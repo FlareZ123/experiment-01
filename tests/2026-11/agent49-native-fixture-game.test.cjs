@@ -2,6 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
+const {evidenceBundleSha256}=require('../../simulation/evaluation/2026-11/agent45-independent-competitive-admission.cjs');
 const {
   seededRandom,deckPermutation,projectActionPayload,selectedCardIdentity,
   publicStateSnapshot,runNativeFixtureGame,runNativeFixtureGameAsync,normalizeSeed32,
@@ -1082,13 +1083,15 @@ test('no-game witness preserves worker trace and ledger digests without live dis
       actionKind:'select-action',
       frontierItemCount:1
     };
+    const policyAudit={schema:'agent6-policy-audit-v1'};
     const decisionTrace={
       schema:'agent6-worker-decision-trace-v1',
       actionOrdinal:request.actionOrdinal,
       decisionKind:request.decisionKind,
-      policyAudit:{schema:'agent6-policy-audit-v1'},
-      policyAuditSha256:'a'.repeat(64),
-      validationReceipt
+      policyAudit,
+      policyAuditSha256:evidenceBundleSha256(policyAudit),
+      validationReceipt,
+      validationReceiptSha256:evidenceBundleSha256(validationReceipt)
     };
     return {
       __nativeFixtureDecisionResolution:true,
