@@ -18,6 +18,7 @@ const FORBIDDEN_EXACT_KEYS = new Set([
 const FORBIDDEN_OPPONENT_ZONE_KEY = /^(?:opponent|enemy)(?:.*)(?:hand|deck|prize)(?:cards|identities|contents|faces|private|hidden|concealed)?$/i;
 const FORBIDDEN_CONCEALED_ZONE_KEY = /(?:hidden|private|concealed).*(?:hand|deck|prize|card)|(?:hand|deck|prize|card).*(?:hidden|private|concealed)/i;
 const FORBIDDEN_HIDDEN_DECK_PRIZE_KEY = /(?:hidden|private|concealed).*(?:deck|prize)|(?:deck|prize).*(?:hidden|private|concealed)/i;
+const FORBIDDEN_OPPONENT_RAW_ZONE_KEY = /^(?:hand|deck|prizes?|handCards|deckCards|prizeCards)$/i;
 
 function assertActorOnlyView(value, path = '$', isRoot = true) {
   if (!value || typeof value !== 'object') {
@@ -37,6 +38,8 @@ function assertActorOnlyView(value, path = '$', isRoot = true) {
     assert.equal(FORBIDDEN_HIDDEN_DECK_PRIZE_KEY.test(key), false,
       'Actor view contains concealed deck/prize field at ' + path + '.' + key);
     if (underOpponent) {
+      assert.equal(FORBIDDEN_OPPONENT_RAW_ZONE_KEY.test(key), false,
+        'Actor view contains raw opponent hand/deck/prize zone at ' + path + '.' + key);
       assert.equal(FORBIDDEN_CONCEALED_ZONE_KEY.test(key), false,
         'Actor view contains opponent concealed-zone field at ' + path + '.' + key);
     }
