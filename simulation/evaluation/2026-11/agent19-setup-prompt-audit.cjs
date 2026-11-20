@@ -164,10 +164,18 @@ function buildSetupPromptAudit({
          receipt.nativeValidationStoreMode!=='cloned-store'||
          receipt.fullOriginalStoreStateUnchanged!==true||
          receipt.promptProjectionSha256!==trace?.promptProjectionSha256||
+         receipt.actionFrontierSha256!==trace?.actionFrontierSha256||
          !Array.isArray(receipt.selectedTokens)||
          JSON.stringify(receipt.selectedTokens)!==JSON.stringify(trace?.selectedTokens)||
          receipt.selectedItemsSha256!==trace?.selectedItemsSha256)
         receiptFailures.push('cloned-prompt-validation-receipt-invalid');
+      if(!Array.isArray(trace?.actionFrontier?.items)||
+         trace.actionFrontier.items.length!==0||
+         !digestMatches(trace.actionFrontier,trace.actionFrontierSha256))
+        receiptFailures.push('owner-prompt-action-frontier-invalid');
+      if(!digestMatches(trace?.validationReceipt,trace?.validationReceiptSha256)||
+         !sameDigest(trace?.validationReceipt,receipt))
+        receiptFailures.push('worker-trace-validation-receipt-mismatch');
 
       if(!digestMatches(receipt,trace?.validationReceiptSha256)||
          trace?.validationReceiptSha256!==row.validationReceiptSha256||
