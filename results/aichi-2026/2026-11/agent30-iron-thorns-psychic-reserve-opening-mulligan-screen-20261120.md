@@ -13,6 +13,15 @@ Under the paper rulebook's two-player setup procedure, this also creates a subst
 
 This is a meaningful structural liability for Psychic Reserve v3. It does **not** prove the deck is unplayable or inferior: its lock plan, draw, Capture Energy, and later turn development may compensate. It does mean that the five-Pokémon architecture should not be treated as a low-cost way to obtain a 44-Trainer shell.
 
+## International Expanded eligibility blocker
+
+The submitted v3 60 is **not eligible as an English-language paper Expanded candidate as written**. Its list contains one **Palace Book (SMP NAN25)** and one **Palace Belt (BWP 153)**. Both are Japanese-only promotional printings with no international English release. The repository [README's operating requirement](../../../README.md) specifies an English-language, paper Expanded-legal candidate; the candidate JSON's language: en metadata does not change the physical printings.
+
+- [Palace Book's Limitless record](https://limitlesstcg.com/cards/jp/SMP/NAN25?translate=en) marks it not legal in international Expanded, legal in Expanded (JP), and not released internationally. It identifies the card as an Item whose effect is to draw three cards and end the turn.
+- [Palace Belt's Bulbapedia record](https://bulbapedia.bulbagarden.net/wiki/Palace_Belt_%28BW-P_Promo_153%29) identifies it as a Japanese BW-P promotional Pokémon Tool and states that it has not been officially released in English.
+
+**Required action:** replace both cards with internationally released Expanded-legal cards and rerun card-identity and legality validation before treating v3 as a candidate. The mulligan calculations below still describe the submitted five-Basic shell; because both blockers are Trainers/Tools, Trainer replacements would leave its Basic count unchanged, but their draw-engine effects must be re-evaluated. The Hood Shield list is used here only as a 14-Basic setup comparator; this report is not a full legality audit of that list.
+
 ## Exact inputs and Basic classification
 
 - **Iron Thorns Psychic Reserve v3:** [fixed 60-card JSON](../candidate-iron-thorns-psychic-reserve-v3.json). All five Pokémon are Basic: 4× Iron Thorns ex TWM 77 and 1× Mimikyu PAL 97. The list is 5 Pokémon / 44 Trainers / 11 Energy.
@@ -197,6 +206,6 @@ All nine tests passed locally under Node.js 22.16.0, including exact fraction ch
 
 The five-Basic architecture pays a large opening consistency and optional bonus-draw tax against opponents with ordinary or high Basic counts. The effect is not captured by the usual statement that a player can simply mulligan until a Basic appears: the opponent can receive extra draw opportunities, and the five-Basic list usually begins with only one Basic in hand. The single Mimikyu start is partly mitigated by Capture Energy, but the initial hand has that line in only 3.2913% of valid openings.
 
-This does **not** establish a loss rate or reject the architecture by itself. The lock may be powerful enough to justify the cost; the 44-Trainer shell may also improve post-setup access. Neither is modeled here. The result does not evaluate a complete first-turn sequence, Supporter contention, Energy attachment, Prizes, opponent choices, game outcomes, the missing Aichi lists, or the candidate's unresolved Palace Book SMP NAN25 printing normalization. Psychic Reserve v3 remains an unproven developmental challenger with zero competitively paper-qualified games. No decklist is changed or nominated by this result.
+This does **not** establish a loss rate or reject the architecture by itself. The lock may be powerful enough to justify the cost; the 44-Trainer shell may also improve post-setup access. Neither is modeled here. The result does not evaluate a complete first-turn sequence, Supporter contention, Energy attachment, Prizes, opponent choices, game outcomes, or the missing Aichi lists. Psychic Reserve v3 is not eligible as an English-language paper Expanded candidate as submitted because of Palace Book SMP NAN25 and Palace Belt BWP 153; zero competitively paper-qualified games have been recorded. No decklist is changed or nominated by this result.
 
 The useful next discriminant, if the architecture remains in the candidate set, is a candidate-specific turn-one setup model that adds Capture Energy, Speed Lightning Energy draw, Trainers' Mail, Tropical Beach, and Supporter/attachment sequencing to the exact initial-hand model. The current result is sufficient to flag the five-Basic structural tax; it is not a reason to start another broad matchup panel before the current V3 integration gate clears.
