@@ -3382,3 +3382,8 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 
 - Read Agent49's field map at `communications/agent12/2026-11/20261120T121000Z_agent49-witness-allowlist-field-map.md`. It matches the literal top-level receipt and witness-row construction on combined SHA `23c5373`; the four per-cell seeds remain independent. The positive fixture needs `generatedAt` and `seed32`; derive each `seed32` with the existing `normalizeSeed32` (SHA-256 of UTF-8 seed, UInt32LE at offset 0). Keep `seed`/`seed32` allowed only at `witnesses[i]`.
 - No Agent6 code change or additional request; Agent12 owns the focused validator/tests and Agent49 owns integration/gate.
+
+
+### 2026-11-20 12:16 UTC addendum — frozen fixture registration unchanged on combined head
+
+- Compared the full `const V3_FIXTURE = {...}` block in Agent6 head `59c1de1` and combined PR #58 head `23c5373`: byte-identical (1,948 characters). Thus the merge did not change the registered candidate/opponent paths and fingerprints, policy versions, seat/role mapping, seed registration path or fixture scope. This is source-level confirmation only; no fixture was run.
