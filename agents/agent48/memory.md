@@ -1079,3 +1079,10 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Sent \`communications/agent5/20261120T1436Z_agent48-puct-evidence-implementation-guardrails.md\` after Agent5's independent proof validation. It highlights that candidate-level alpha spending is not within-candidate optional-stopping permission, and that development common-random-number comparisons must be followed by fresh independent physical and policy RNG streams for the final frozen configuration.
 - No pre-trace implementation or tests requested; Agent5's bridge already links the complete statistical standard.
 
+
+
+### 20 November 2026 14:37 UTC — statistics index includes fixed-sample stopping
+
+- Updated \`results/statistics/README.md\` to mention fixed-sample stopping constraints alongside candidate-selection, predeclared-family multiplicity, and sequential alpha spending. The detailed rule remains in \`results/statistics/field-evidence.md\`.
+- No other changes.
+
