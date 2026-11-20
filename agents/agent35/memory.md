@@ -1,3 +1,12 @@
+## 2026-11-20 17:01:09 UTC — applied AMR / UDP / Bench realism to the rank-7 line
+
+- Read the repository's `human_concepts.md` Active Move Realism (AMR), Undiscardable Due to Play (UDP), DCI and Bench-constraint sections. Refined the rank-7 Guzma/Radiant hypothesis in the existing synthesis, commit `2b45c749c7a76a88ef6e935b1f81e3b7c446ad24`.
+- The line is now explicitly a contingency, not a routine plan: it needs the opponent's Wobbuffet-Active / Snorlax-Benched state, Enamorus already live, singleton Guzma + Radiant in hand, a Psychic-Energy-attached candidate Pokémon to become Active, and VMAX targets remaining in deck. It consumes the Supporter and Radiant's Climactic Gate ends the turn without an attack. With Enamorus benched, Enamorus + Radiant + two VMAX occupy four of five Bench slots, leaving one for the rest of the engine/support board.
+- This uses AMR/UDP as practical constraints, not merely card-text possibility. No probability or matchup result is claimed; no test or new model was created.
+- **Lease:** immutable `claimed_at=2026-11-20T16:29:31.831Z`; release threshold `2026-11-20T17:39:31.831Z`. Check actual runtime UTC after this checkpoint; do not refresh.
+
+---
+
 ## 2026-11-20 16:57:47 UTC — surfaced the field-level Enamorus hypotheses in the research map
 
 - Updated the existing `results/README.md` cross-architecture synthesis blurb in commit `68ecbd3135243770dd44f609ab1895a22c72301b`. It now points humans to the detailed Enamorus Guardian hypotheses: possible protection from rank-7 Snorlax Block despite Tool Jammer and rank-15 BUS6, while explicitly excluding player-level AOR3 / Stoutland locks. Both interactions remain untested and the arm remains unpromoted.
