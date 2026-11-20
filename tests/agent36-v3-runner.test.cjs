@@ -954,6 +954,8 @@ test('V3 runner preloads the Agent45 recorder before the fixture pin and capture
   assert.match(source,/fullStateTraceRecorder\.captureFinal\(state\)/);
   assert.match(source,/fullStateTraceResult\?\.stepCount===fullStateTraceAcceptedActionCount/);
   assert.match(source,/fullStateTraceAcceptance\.accepted/);
+  assert.equal(source.includes('policyConfiguration:native.botOptionsBySeat'),false,
+    'Twinleaf engine bot options must not be mislabeled as worker policy identity');
 });
 
 test('host and worker common binding arrays have unique names and path/export identities',()=>{
