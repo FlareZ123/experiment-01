@@ -109,6 +109,37 @@ After that opening, the remaining named-piece count is \(K=6-w-k\) and the remai
 
 Weighting by \(N\) and normalizing over valid openings gives the two residual probabilities above. This explicitly accounts for named pieces already present in the opening and for the fact that Gladion itself can be Prized.
 
+#### Three-Hood protection package: stricter Prize-only ceiling
+
+The v2 setup plan attaches Stealthy Hood ×3 to two Lillipup and one Oddish before Vileplume enters play. These are additional to the six evolution/bridge pieces above and are required for the fully Hood-protected two-Stoutland + Vileplume board. Therefore the **85.9202%** six-piece ceiling is not the ceiling for the fully protected core.
+
+Conditioning on the same valid opening and six Prizes from the remaining 53, the nine-card named package (the six pieces plus all three Hoods) has:
+
+| Prize-zone event | Probability |
+|---|---:|
+| None of the nine package cards is Prized | **35.8289%** |
+| Exactly one package card is Prized and Gladion is not Prized | **38.0739%** |
+| Exactly one package card and Gladion are both Prized | **4.1739%** |
+| At least two of the nine package cards are Prized | **21.9232%** |
+| **Ideal one-Gladion/Jet-available recovery ceiling for the nine-card package** | **73.9029%** |
+| **Residual outside that ideal recovery model** | **26.0971%** |
+
+In isolation, none of the three Hoods is Prized in **72.3057%** of valid openings. The nine-card ceiling assumes Gladion is always accessible by turn 4 whenever it is not Prized and Jet is accessible if Whismur is the single missing package card. It allows one recovery only; it does not model the Lillipup/Oddish copies, other setup cards, hand access, board/energy requirements, or opponent actions. This is a stricter Prize-only bound for the fully protected core, not full lock assembly or a win estimate.
+
+For reproducibility, split the 41-card residual in the preceding opening enumeration into three Hood copies and 38 other cards. Let \(h\) be Hoods in the opening and \(r=7-w-o-k-h-g\); replace the opening multiplicity with
+
+\[
+N_9(w,o,k,h,g)=\binom{1}{w}\binom{12}{o}\binom{5}{k}\binom{3}{h}\binom{1}{g}\binom{38}{r}.
+\]
+
+The remaining nine-card package count is \(P=9-w-k-h\), and the remaining Gladion count is \(G=1-g\). For six Prizes, the conditional probability of \(m\) package cards and \(j\) Gladion being Prized is
+
+\[
+\frac{\binom{P}{m}\binom{G}{j}\binom{53-P-G}{6-m-j}}{\binom{53}{6}}.
+\]
+
+Normalize the weighted sum over valid openings (\(w+o\ge1\)). The ideal ceiling is \(P(m=0)+P(m=1,j=0)\); its complement is \(P(m\ge2)+P(m=1,j=1)\).
+
 The Gladion + Jet route also adds **0.3854 percentage points** to first-turn Bawl access. The existing exact opening model's 12.0433% without Guzma & Hala and 22.8575% under the optimistic two-discard assumption therefore become **12.4287%–23.2429%**, conditional on a valid 13-Basic opening and going second. With a 50/50 seat assignment, that is **6.2144%–11.6214% of valid-opening games** before opponent interaction. The rescue requires another Basic in the opening, Gladion and Jet available by the first turn, an open Bench slot, and no live Supporter lock; it does not rely on Guzma & Hala's two-discard assumption.
 
 These are Prize-zone and card-access sensitivities, not lock-assembly probabilities. The 56.5327% natural-draw result does not establish access to the necessary Lillipup/Oddish board, Tools, Energy, or the rest of the hand; it omits extra draw/search when locating Gladion while also omitting the other access and board constraints. The 85.9202% figure is an idealized ceiling for this one-card recovery mechanism, not for the deck. Neither figure is a game-loss or win-rate estimate.
