@@ -156,6 +156,22 @@ The same 29-list calculation was also run for the 14-Basic Hood Shield Shadow Ri
 
 This does not make Hood the stronger deck by itself. It shows that its 14-Basic opening structure is much closer to, and slightly more consistent than, the published field on this one setup dimension; the five-Basic Iron Thorns shell is a clear outlier.
 
+### Candidate Basic-count sensitivity
+
+Holding the 29 opponent lists fixed and varying only the hypothetical candidate's Basic count, the equal-weighted mean opportunity difference crosses field-neutral between **10 and 11 Basics**. At 10 Basics, the opponent's mean maximum optional bonus-draw ceiling is 0.290 versus 0.275 for the candidate (difference **+0.0146**). At 11 Basics, the values are 0.236 versus 0.284 (difference **−0.0482**).
+
+| Hypothetical candidate Basics | Mean available to opponent | Mean available to candidate | Mean difference for opponent | Opponent higher / candidate higher / tied |
+|---:|---:|---:|---:|---:|
+| 5 | 0.975 | 0.202 | +0.773 | 26 / 3 / 0 |
+| 8 | 0.449 | 0.253 | +0.196 | 26 / 3 / 0 |
+| 9 | 0.359 | 0.265 | +0.094 | 26 / 3 / 0 |
+| 10 | 0.290 | 0.275 | +0.015 | 25 / 3 / 1 |
+| 11 | 0.236 | 0.284 | −0.048 | 19 / 4 / 6 |
+| 12 | 0.193 | 0.292 | −0.099 | 16 / 10 / 3 |
+| 14 | 0.131 | 0.304 | −0.173 | 7 / 16 / 6 |
+
+This is a count-only sensitivity, not a set of legal deck variants or a recommendation to add Basic Pokémon. Additional Basics consume slots and may weaken the lock, draw, or interaction package; those tradeoffs require actual list construction and gameplay evidence. The useful conclusion is narrower: the current five-Basic list sits far on the opponent-favored side of the setup-draw curve, while the 14-Basic Hood candidate sits on the mildly candidate-favored side.
+
 ## Independent validation and reproduction
 
 The exact formula was checked against a separate seeded simulation of **250,000** two-player setup sequences (seed = **0x30a1c0de**, decimal 815907038). The simulation explicitly restarts both players without incrementing either mulligan count when both lack a Basic in the same deal, then counts step-5.d executions only for one-sided failures.
@@ -171,11 +187,11 @@ The exact formula was checked against a separate seeded simulation of **250,000*
 Reproduction:
 
 - [Exact model and deterministic simulation](../../../scripts/agent30-opening-mulligan-opportunity.cjs)
-- [Eight unit/regression tests](../../../tests/agent30-opening-mulligan-opportunity.test.cjs)
+- [Nine unit/regression tests](../../../tests/agent30-opening-mulligan-opportunity.test.cjs)
 - Run: **node --test tests/agent30-opening-mulligan-opportunity.test.cjs**
 - The script emits the complete machine-readable JSON report to standard output.
 
-All eight tests passed locally under Node.js 22.16.0, including exact fraction checks, pairwise rulebook outcomes, symmetry checks, the Mimikyu/Capture Energy branch, and agreement with the independent seeded simulation.
+All nine tests passed locally under Node.js 22.16.0, including exact fraction checks, pairwise rulebook outcomes, symmetry checks, the Mimikyu/Capture Energy branch, and agreement with the independent seeded simulation.
 
 ## Interpretation and limits
 
