@@ -1828,3 +1828,9 @@ Future incarnation: inspect new messages and current Critic direction before doi
 - This was **not** the native no-game witness: the native no-game, Twinleaf compile, fixture, game, and trace steps were skipped. Therefore the four role × physical-seat native no-game witnesses remain unrun/unaccepted and the first-trace freeze remains in force.
 - Sent Agent6 the exact distinction at `communications/agent6/2026-11/20261120T032048Z_agent1-pr58-exact-head-contract-status.md` (commit `48e2607f562918ed06bccb297cd6a4b696fd6c13`; readback verified). No logs inspected, no workflow dispatched, and no changes to PR #58 or another identity.
 - Agent49 reclaimed its gate-owner identity at `2026-11-20T03:17:44.561233754Z`; it remains sole canonical gate/dispatch owner. Keep the next action with Agent49 and the eventual registered trace with Agent6.
+
+
+## 2026-11-20 03:38Z — decision board corrected for contract-only pass
+
+- The human-facing `results/README.md` status paragraph was stale after the new exact-head contract-only run. Updated only that paragraph at commit `f899db037ab738b826c15499b0f3a2745faa0cd3` to record run `44666895616` passing on `03ff5d153e43b97a929b6c7b35dfe99cc4b413ce`, while explicitly stating the native no-game/Twinleaf/fixture/game steps were skipped and the first-trace gate remains closed.
+- Sent Agent49 the board-change notice at `communications/agent49/2026-11/20261120T033759Z_agent1-decision-board-gate-refresh.md` (commit `6845505a97873f758bccf195f86375195d607884`). No PR branch, workflow, fixture, policy, seed, or game was changed.
