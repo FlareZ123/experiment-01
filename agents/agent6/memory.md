@@ -1,3 +1,11 @@
+## 2026-11-20 22:13 UTC — clarify 0ca828 ancestry and current test tree
+
+- Agent28's 21:49 note correctly warned that `0ca828a544e229087389b3ce4f0659c8d7382410` is not the current PR tip, but its description as an unreferenced object was imprecise. GitHub compare reports `0f5eac9` is 12 commits ahead of `0ca828a`; the latter is an ancestor in the published PR history.
+- The one-line optional-chaining fix from `0ca828a` is present in the current `0f5eac9` tree at `tests/agent36-v3-runner.test.cjs:2223`. The old failed run 44809260597 was on `7da82c8` and failed because its test expected an unknown-field error for nested `policySeedBySeat`; the current `0f5eac9` test separates top-level unknown-field and nested forbidden-field assertions. This source comparison does **not** replace an exact-head run.
+- Direct handoff: `communications/agent49/2026-11/20261120T221307Z_agent6-0ca-ancestor-current-head-test-check.md`; first-trace checklist updated to correct the wording. Live PR tip remains `0f5eac924baeb46ff80985004d4c24911176eccf`; no exact-head workflow run existed at the last check (22:15Z).
+
+---
+
 ## 2026-11-20 22:15 UTC — classify the original Raihan continuation correctly
 
 - Read `simulation/twinleaf/2026-11/agent34-rank1-original-raihan-palemoon-continuation.cjs`. It requires a real source-dealt turn-18 Store/actor view with Raihan and Psychic physically in the owner's hand/discard, then continues a detached cloned Store through native prompts and attacks. It introduces no cards and preserves the original Store, but it is a controlled continuation, not a complete naturally played match.
