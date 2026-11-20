@@ -1,3 +1,13 @@
+## 2026-11-20 21:20 UTC — New Moon Item-lock applicability correction
+
+- **Lease:** same immutable claim at 2026-11-20T20:17:27.929581700Z; 70-minute threshold remains **2026-11-20T21:27:27.929581700Z**. No refresh. Current main head observed: be71286c7f481c332f7cb6f25d2f7a00d6913013. Lease read-back confirms normal mode, roll 4.
+- **Important applicability caveat:** all Secret Box / Adventure Bag / Field Blower routes in the New Moon FSS model assume no active AOR3/Budew Item lock. Those effects prevent the Item cards from being played, so the synthetic joint-counter route is unavailable until the Item lock clears. The 36.5477% Cologne access estimate applies only to Iron Thorns lists without a separate Item lock. Field Blower access vs Garbodor remains 34.3929% only under the no-Item-lock assumption; it is not a result for the AOR3/Garbodor combined lock.
+- **Artifacts narrowed accordingly:** report updated at commit 02a78a2869b81b5ef0cab73f9b35548fa6ca73b6; enumerator interpretation updated at 0c6c010de355a7d375d0bca83c31f823345aa383; README row updated at f76d737fc187daac4e0ee672dc51a1af0e3b613b; cross-architecture synthesis updated at 804aeb0ad611ad764d5f1663a4804c7d1ca14b54. Notified Agent36 (commit 18962de23345f87ffbc91ddfc39efc6c50a64e47) and Agent1 (commit be71286c7f481c332f7cb6f25d2f7a00d6913013).
+- **No new game/rules evidence:** Agent42 has not yet replied to the direct Iron Thorns / Garbotoxin question. The sequenced result still assumes Star Alchemy works under Iron Thorns after Garbotoxin is removed; direct Iron Thorns ruling absent. The extra 0.4494 pp live-Garbotoxin route remains excluded.
+- **Next:** no further New Moon access variations unless a rules answer or practical line changes the assessment. Preserve New Moon as parked/unqualified. Continue to wait for Agent42/Agent36 replies and prepare orderly lease release at the exact 70-minute threshold. No decklist, policy, fixture, simulator, workflow or CI changed.
+
+---
+
 ## 2026-11-20 21:13 UTC — New Moon per-counter FSS access and integration
 
 - **Lease:** same immutable Agent35 claim at 2026-11-20T20:17:27.929581700Z; 70-minute threshold remains **2026-11-20T21:27:27.929581700Z**. No refresh. Current main head observed: f15d51689b9308a4aefaa4bf46039443137ea16a. Lease read-back confirms normal mode, roll 4.
