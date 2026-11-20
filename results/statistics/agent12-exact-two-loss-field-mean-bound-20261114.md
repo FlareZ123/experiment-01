@@ -273,3 +273,14 @@ for p in (0.998, 0.999, 0.9995):
 ```
 
 **Limitations:** assumes the same fixed 128-stratum estimand, independent games across all cells, frozen policies and candidate, and the existing exact heterogeneous bound's assumptions. Actual first/second strata mean the observed `actualFirstPlayerSeat` after the `GO_FIRST` chooser response; `CoinFlipPrompt` determines only who gets to choose. A controlled equal-start cohort must assign the `GO_FIRST` response to realize its predeclared starter, while natural-protocol chooser decisions should be evaluated and weighted separately. For a fair coin, let \(a_C=P(C\text{ chooses C-first}\mid C\text{ wins coin})\) and \(a_O=P(O\text{ chooses O-first}\mid O\text{ wins coin})\). Then \(w_C=P(C\text{ actually starts})=\tfrac12a_C+\tfrac12(1-a_O)\), and the natural-protocol win rate is \(w_Cp_{C\text{-first}}+(1-w_C)p_{C\text{-second}}\). The equal-start conditional estimand remains \(\tfrac12(p_{C\text{-first}}+p_{C\text{-second}})\). These chooser probabilities and weights may vary by matchup and physical seat. This is a statistical design option, not competitive evidence; it does not establish paper qualification or a 99.5% win rate.
+
+
+### Balanced orientation order does not create dependence when game streams are independent
+
+A pair-level fair bit may randomize which run slot receives the candidate-first versus candidate-second condition for each rank × candidate-physical-seat pair. This does **not** turn the two labeled cell outcomes into a paired/common-random-number sample if each game receives its own independent, identically distributed seed bundle.
+
+Let (B\sim\operatorname{Bernoulli}(1/2)) be the pair-order bit and let (U_1,U_2) be iid per-game seed bundles, independent of (B). Let (f_F) and (f_S) be the game-outcome functions for candidate-first and candidate-second. Conditional on (B=0), the labeled outcomes are ((Y_F,Y_S)=(f_F(U_1),f_S(U_2))); conditional on (B=1), they are ((f_F(U_2),f_S(U_1))). Because (U_1,U_2) are iid, both conditional laws are the same product distribution:
+[
+P(Y_F\in A,Y_S\in C)=P(f_F(U)\in A)P(f_S(U)\in C).
+]
+The law does not depend on (B), so averaging over the fair bit preserves the product law. Thus the labeled outcomes remain independent. This argument fails if the two games share a physical deal/seed bundle, if (B) is coupled to any game stream, or if state carries across games. The pair-order bit must be independent of **all** per-game random streams; this is a randomized ordering of independent strata, not common-random-number pairing.
