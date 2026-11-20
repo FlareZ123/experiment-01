@@ -291,4 +291,161 @@ function buildSetupPromptAudit({
   };
 }
 
-module.exports={buildSetupPromptAudit};
+function projectV3WorkerExecutionBoundaryToTrial(workerExecutionAudit,{
+  candidateSeat,opponentSeat,setupPromptAudit
+}={}) {
+  const failures=[];
+  const roles={};
+  const expectedSeats={candidate:candidateSeat,opponent:opponentSeat};
+  const expectedScope='actor-observation-v3+actor-prompt-projection+public-event-receipt-v3+typed-action-frontier-v1';
+  if(workerExecutionAudit?.schema!=='agent49-v3-worker-execution-audit-v1')
+    failures.push('worker-execution-audit-schema-invalid');
+  if(workerExecutionAudit?.workerProcessPerRole!==true)
+    failures.push('worker-process-per-role-not-verified');
+  if(workerExecutionAudit?.workerInputScope!==expectedScope)
+    failures.push('worker-input-scope-mismatch');
+  for(const field of [
+    'physicalSeedDisclosedToWorker','policySeedDisclosedToWorker',
+    'nativeStateDisclosedToWorker','opponentPrivateZonesDisclosedToWorker'
+  ]) {
+    if(workerExecutionAudit?.[field]!==false)
+      failures.push(field+'-must-be-false');
+  }
+  if(workerExecutionAudit?.cleanupVerified!==true)
+    failures.push('worker-cleanup-not-verified');
+  if(workerExecutionAudit?.cleanupFailureCount!==0)
+    failures.push('worker-cleanup-failure-count-nonzero');
+  if(workerExecutionAudit?.replayableEvidence!==true)
+    failures.push('worker-evidence-not-replayable');
+  if(workerExecutionAudit?.policyRngViolations!==0)
+    failures.push('policy-rng-violations-nonzero');
+  if(workerExecutionAudit?.totalFailures!==0)
+    failures.push('worker-failures-nonzero');
+  if(workerExecutionAudit?.totalAbstentions!==0)
+    failures.push('worker-abstentions-nonzero');
+  if(!nonNegativeInteger(workerExecutionAudit?.totalWorkerDecisions)||
+     workerExecutionAudit.totalWorkerDecisions===0)
+    failures.push('worker-decision-total-missing-or-zero');
+  if(setupPromptAudit?.accepted!==true)
+    failures.push('setup-prompt-audit-not-accepted');
+
+  let roleDecisionTotal=0;
+  let roleHostOnlyPromptTotal=0;
+  let roleAbstentionTotal=0;
+  let roleFailureTotal=0;
+  let roleRngViolationTotal=0;
+  for(const role of ROLE_NAMES) {
+    const seat=expectedSeats[role];
+    const row=workerExecutionAudit?.roles?.[role];
+    const roleFailures=[];
+    if(!(seat===0||seat===1))roleFailures.push('physical-seat-invalid');
+    if(row?.role!==role||row?.seat!==seat)
+      roleFailures.push('worker-role-seat-map-mismatch');
+    if(typeof row?.policyVersion!=='string'||row.policyVersion.length===0)
+      roleFailures.push('policy-version-missing');
+    if(typeof row?.bundleSha256!=='string'||!SHA256.test(row.bundleSha256))
+      roleFailures.push('worker-bundle-digest-invalid');
+    if(typeof row?.policySha256!=='string'||!SHA256.test(row.policySha256))
+      roleFailures.push('policy-digest-invalid');
+    for(const field of ['decisionCount','rootDecisionCount','promptDecisionCount',
+      'hostOnlyPromptCount','abstentionCount','failureCount','timeoutCount',
+      'policyDrawViolationCount','actionFrontierAdmissionFailureCount']) {
+      if(!nonNegativeInteger(row?.[field]))roleFailures.push(field+'-missing-or-invalid');
+    }
+    if(row?.decisionCount!==row?.rootDecisionCount+row?.promptDecisionCount)
+      roleFailures.push('worker-decision-counts-do-not-reconcile');
+    if(row?.promptDecisionCount<1)
+      roleFailures.push('worker-role-has-no-owner-prompt-decisions');
+    if(row?.abstentionCount!==0||row?.failureCount!==0||row?.timeoutCount!==0)
+      roleFailures.push('worker-role-has-failure-or-abstention');
+    if(row?.policyDrawViolationCount!==0||row?.policyRngReplayable!==true)
+      roleFailures.push('worker-role-policy-rng-not-replayable');
+    if(row?.actionFrontierAdmissionFailureCount!==0)
+      roleFailures.push('worker-role-frontier-admission-failed');
+    if(row?.workerProcessClosed!==true||row?.containerRemoved!==true||
+       row?.policyBundleRemoved!==true)
+      roleFailures.push('worker-role-process-or-bundle-cleanup-unverified');
+
+    roleDecisionTotal+=nonNegativeInteger(row?.decisionCount)?row.decisionCount:0;
+    roleHostOnlyPromptTotal+=nonNegativeInteger(row?.hostOnlyPromptCount)?row.hostOnlyPromptCount:0;
+    roleAbstentionTotal+=nonNegativeInteger(row?.abstentionCount)?row.abstentionCount:0;
+    roleFailureTotal+=nonNegativeInteger(row?.failureCount)?row.failureCount:0;
+    roleRngViolationTotal+=nonNegativeInteger(row?.policyDrawViolationCount)?
+      row.policyDrawViolationCount:0;
+    roles[role]={
+      role,seat,
+      policyVersion:row?.policyVersion??null,
+      bundleSha256:row?.bundleSha256??null,
+      policySha256:row?.policySha256??null,
+      decisionCount:row?.decisionCount??null,
+      rootDecisionCount:row?.rootDecisionCount??null,
+      promptDecisionCount:row?.promptDecisionCount??null,
+      hostOnlyPromptCount:row?.hostOnlyPromptCount??null,
+      workerProcessClosed:row?.workerProcessClosed===true,
+      containerRemoved:row?.containerRemoved===true,
+      policyBundleRemoved:row?.policyBundleRemoved===true,
+      policyRngReplayable:row?.policyRngReplayable===true,
+      policyDrawViolationCount:row?.policyDrawViolationCount??null,
+      valid:roleFailures.length===0,
+      failures:roleFailures
+    };
+    for(const failure of roleFailures)failures.push(role+':'+failure);
+  }
+
+  if(workerExecutionAudit?.totalWorkerDecisions!==roleDecisionTotal)
+    failures.push('worker-decision-total-does-not-match-role-sum');
+  if(workerExecutionAudit?.totalHostOnlyPrompts!==roleHostOnlyPromptTotal)
+    failures.push('host-only-prompt-total-does-not-match-role-sum');
+  if(workerExecutionAudit?.totalAbstentions!==roleAbstentionTotal)
+    failures.push('worker-abstention-total-does-not-match-role-sum');
+  if(workerExecutionAudit?.totalFailures!==roleFailureTotal)
+    failures.push('worker-failure-total-does-not-match-role-sum');
+  if(workerExecutionAudit?.policyRngViolations!==roleRngViolationTotal)
+    failures.push('policy-rng-violation-total-does-not-match-role-sum');
+
+  const cleanupReceipts=Array.isArray(workerExecutionAudit?.cleanupReceipts)?
+    workerExecutionAudit.cleanupReceipts:[];
+  if(cleanupReceipts.length!==2||
+     !ROLE_NAMES.every(role=>cleanupReceipts.some(receipt=>
+       receipt?.role===role&&receipt.processClosed===true&&receipt.containerRemoved===true)))
+    failures.push('per-role-cleanup-receipts-incomplete');
+
+  let workerExecutionAuditSha256=null;
+  let setupPromptAuditSha256=null;
+  try {
+    if(workerExecutionAudit)workerExecutionAuditSha256=evidenceBundleSha256(workerExecutionAudit);
+    if(setupPromptAudit)setupPromptAuditSha256=evidenceBundleSha256(setupPromptAudit);
+  } catch {
+    failures.push('worker-boundary-source-digest-failed');
+  }
+  return {
+    schema:'agent19-agent49-v3-worker-execution-boundary-v1',
+    visibility:'encrypted-full-only',
+    candidateSeat,opponentSeat,
+    workerExecutionAuditSha256,
+    setupPromptAuditSha256,
+    setupPromptAuditAccepted:setupPromptAudit?.accepted===true,
+    workerProcessPerRole:workerExecutionAudit?.workerProcessPerRole===true,
+    workerInputScope:workerExecutionAudit?.workerInputScope??null,
+    physicalSeedDisclosedToWorker:workerExecutionAudit?.physicalSeedDisclosedToWorker??null,
+    policySeedDisclosedToWorker:workerExecutionAudit?.policySeedDisclosedToWorker??null,
+    nativeStateDisclosedToWorker:workerExecutionAudit?.nativeStateDisclosedToWorker??null,
+    opponentPrivateZonesDisclosedToWorker:workerExecutionAudit?.opponentPrivateZonesDisclosedToWorker??null,
+    roles,
+    totalWorkerDecisions:workerExecutionAudit?.totalWorkerDecisions??null,
+    totalHostOnlyPrompts:workerExecutionAudit?.totalHostOnlyPrompts??null,
+    totalAbstentions:workerExecutionAudit?.totalAbstentions??null,
+    totalFailures:workerExecutionAudit?.totalFailures??null,
+    policyRngViolations:workerExecutionAudit?.policyRngViolations??null,
+    replayableEvidence:workerExecutionAudit?.replayableEvidence===true,
+    cleanupVerified:workerExecutionAudit?.cleanupVerified===true,
+    cleanupFailureCount:workerExecutionAudit?.cleanupFailureCount??null,
+    valid:failures.length===0,
+    failures
+  };
+}
+
+module.exports={
+  buildSetupPromptAudit,
+  projectV3WorkerExecutionBoundaryToTrial
+};
