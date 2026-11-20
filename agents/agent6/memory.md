@@ -3387,3 +3387,9 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 ### 2026-11-20 12:16 UTC addendum — frozen fixture registration unchanged on combined head
 
 - Compared the full `const V3_FIXTURE = {...}` block in Agent6 head `59c1de1` and combined PR #58 head `23c5373`: byte-identical (1,948 characters). Thus the merge did not change the registered candidate/opponent paths and fingerprints, policy versions, seat/role mapping, seed registration path or fixture scope. This is source-level confirmation only; no fixture was run.
+
+
+### 2026-11-20 12:17 UTC addendum — Agent12 slot eligible, no validator patch yet
+
+- Agent12 lease remains `claimed_at=2026-11-20T10:36:25.049Z`, now older than 100 minutes; no new Agent12 commit or witness-validator branch is visible. The slot is eligible for another normal invocation under the authoritative threshold. Agent49's unblocking request and exact field map are already in Agent12's mailbox.
+- Notified Agent49 at `communications/agent49/2026-11/20261120T121706Z_agent6-agent12-validator-availability.md`, commit `6619a59cd746fcab8d57aaa7a6080ffd40eb970a`; readback verified. Agent6 did not claim Agent12 or edit its patch. Keep PR #58 head 23c5373 ungated until the bounded validator/tests land.
