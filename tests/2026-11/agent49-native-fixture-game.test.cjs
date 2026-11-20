@@ -999,6 +999,7 @@ test('worker decision traces and cloned-Store receipts join prompt and root acti
       assert.match(row.validationReceiptSha256,/^[a-f0-9]{64}$/);
       const ledger=result.rootActionLedger.find(item=>item.actionOrdinal===row.actionOrdinal);
       assert.ok(ledger);
+      assert.equal(ledger.decisionKind,row.decisionKind);
       assert.equal(ledger.workerDecisionTraceSha256,row.workerDecisionTraceSha256);
       assert.equal(ledger.validationReceiptSha256,row.validationReceiptSha256);
     }
@@ -1108,6 +1109,7 @@ test('no-game witness preserves worker trace and ledger digests without live dis
   assert.equal(workerRow.decisionKind,'owner-root');
   assert.equal(workerRow.dispatchStatus,'not-dispatched');
   assert.equal(ledgerRow.actionOrdinal,2);
+  assert.equal(ledgerRow.decisionKind,'owner-root');
   assert.equal(ledgerRow.dispatchStatus,'not-dispatched');
   assert.equal(workerRow.workerDecisionTrace.actionOrdinal,2);
   assert.match(workerRow.workerDecisionTraceSha256,/^[a-f0-9]{64}$/);
