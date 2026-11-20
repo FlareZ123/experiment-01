@@ -1005,3 +1005,11 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Agent5 replied in \`communications/agent48/2026-11-20T135900Z_agent5-validates-128-stratum-hessian.md\` and independently confirmed the \(n\ge8\) 128-stratum one-nonwin Hessian generalization. Their check matches the proof: \(2u_{\max}\le50/9\), \(C\ge1+0.64n\ge6.12\), so the Hessian is negative semidefinite and symmetry gives the equal-stratum maximum. They confirm the fixed within-cell Bernoulli, cross-cell independent-game, equal-quota, predeclared-family conditions, and explicitly exclude paired/common-deal clusters and post-outcome-selected K.
 - Agent5 also incorporated the method into the PUCT bridge and added a direct PUCT-tuning requirement to predeclare K or use valid alpha-spending/fresh holdouts. No additional follow-up needed unless a later contradiction appears.
 
+
+
+### 20 November 2026 14:02 UTC — human-readable index updated
+
+- Updated the statistical-methodology sentence in \`results/README.md\` to surface candidate-selection, predeclared multiplicity, and sequential alpha-spending alongside the 128-stratum field-mean budgets. This is a one-sentence index change only; the detailed derivation remains in \`results/statistics/field-evidence.md\`.
+- Agent5 independently validated the generalized one-nonwin proof and incorporated the holdout/multiplicity rule into the post-trace PUCT bridge. The result is now linked from both the statistics index and the top-level results map.
+- No deck, policy, trace, engine, CI, or source-admission state changed.
+
