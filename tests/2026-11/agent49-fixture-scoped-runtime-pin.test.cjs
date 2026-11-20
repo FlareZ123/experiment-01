@@ -17,8 +17,21 @@ function sha256(bytes){
   return crypto.createHash('sha256').update(bytes).digest('hex');
 }
 
-function withTempRepo(run){
+function withTempRepo(run,{includeRecorder=false}={}){
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'agent49-fixture-pin-'));
+  const recorderPath='simulation/twinleaf/2026-11/agent45/full-state-trace.cjs';
+  const orchestratorSource=includeRecorder?[
+    "const a=require('./role-a.cjs');",
+    "const b=require('./role-b.cjs');",
+    "const recorder=require('./simulation/twinleaf/2026-11/agent45/full-state-trace.cjs');",
+    "module.exports={run:()=>a()+b(),loadLate:()=>require('./late.cjs'),createRecorder:()=>recorder.createFullStateTraceRecorder()};",
+    ""
+  ].join('\\n'):[
+    "const a=require('./role-a.cjs');",
+    "const b=require('./role-b.cjs');",
+    "module.exports={run:()=>a()+b(),loadLate:()=>require('./late.cjs')};",
+    ""
+  ].join('\\n');
   const cleanup=()=>{
     for(const filename of Object.keys(require.cache)){
       const relative=path.relative(root,path.resolve(filename));
@@ -31,14 +44,13 @@ function withTempRepo(run){
     const files={
       'role-a.cjs':"module.exports=()=> 'A';\n",
       'role-b.cjs':"module.exports=()=> 'B';\n",
-      'orchestrator.cjs':[
-        "const a=require('./role-a.cjs');",
-        "const b=require('./role-b.cjs');",
-        "module.exports={run:()=>a()+b(),loadLate:()=>require('./late.cjs')};",
-        ""
-      ].join('\n'),
+      'orchestrator.cjs':orchestratorSource,
       'late.cjs':"module.exports='late';\n"
     };
+    if(includeRecorder){
+      files[recorderPath]=fs.readFileSync(path.resolve(__dirname,
+        '../../simulation/twinleaf/2026-11/agent45/full-state-trace.cjs'),'utf8');
+    }
     for(const [name,source] of Object.entries(files)){
       fs.writeFileSync(path.join(root,name),source);
     }
@@ -159,4 +171,36 @@ test('fixture pin rejects a late unregistered research module and restores both 
     assert.strictEqual(Module._load,originalModuleLoad);
     assert.strictEqual(require.cache[orchestratorPath],orchestratorModule);
   });
+});
+
+
+test('fixture pin keeps a captured Agent45 recorder callable while its module cache entry is excluded',()=>{
+  withTempRepo(({root,expected})=>{
+    const orchestratorPath=path.join(root,'orchestrator.cjs');
+    const orchestrator=require(orchestratorPath);
+    const recorderPath=path.join(root,'simulation/twinleaf/2026-11/agent45/full-state-trace.cjs');
+    const recorderModule=require.cache[recorderPath];
+    assert.ok(recorderModule,'host runner must preload the recorder before pinning');
+    const originalModuleLoad=Module._load;
+
+    const result=withFixtureScopedRolePin(root,expected,()=>{
+      assert.equal(require.cache[recorderPath],undefined,
+        'the host-only recorder must not remain in the fixture role cache');
+      const recorder=orchestrator.createRecorder();
+      recorder.captureInitial({turn:1,logs:[]});
+      const state={turn:1,logs:[{message:'accepted live dispatch'}]};
+      recorder.captureStep({
+        state,action:{kind:'PassAction'},actionOrdinal:1,
+        turnBefore:1,turnAfter:1
+      });
+      recorder.captureFinal(state);
+      return recorder.result();
+    });
+
+    assert.equal(result.result.complete,true);
+    assert.equal(result.result.stepCount,1);
+    assert.strictEqual(require.cache[recorderPath],recorderModule,
+      'fixture pin must restore the preloaded recorder cache entry');
+    assert.strictEqual(Module._load,originalModuleLoad);
+  },{includeRecorder:true});
 });
