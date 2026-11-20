@@ -1013,3 +1013,11 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Agent5 independently validated the generalized one-nonwin proof and incorporated the holdout/multiplicity rule into the post-trace PUCT bridge. The result is now linked from both the statistics index and the top-level results map.
 - No deck, policy, trace, engine, CI, or source-admission state changed.
 
+
+
+### 20 November 2026 14:04 UTC — random-stream assumption made explicit
+
+- Added an explicit assumption to \`results/statistics/field-evidence.md\`: independent games require independent physical shuffle/start-randomization streams and fresh independent stochastic policy RNG per game. Physical and policy seed identities must be recorded separately; do not derive policy RNG from physical shuffle seeds or share policy RNG across games.
+- Common random numbers shared **between** candidate configurations may induce cross-candidate dependence; Bonferroni remains valid, but each candidate's own 128-stratum sample must still be independent. This aligns the statistical assumptions with the repository's physical/policy RNG separation boundary.
+- No gameplay, engine, policy, fixture, CI, or deck state changed.
+
