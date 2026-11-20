@@ -18,7 +18,7 @@ const {
   V3_FIXTURE,V3_FIXTURE_TEST_PATHS,V3_FIXTURE_COMMON_BINDINGS,
   V3_FIXTURE_WORKER_COMMON_BINDINGS,V3_FIXTURE_WORKER_PROMPT_CHAIN,
   buildFixtureRoleEntryManifest,buildRoleWorkerBundle,preloadRoleHostModules,
-  validatePublicSeedRegistration,validateNoGameWitnessReceipt,validateV3WorkerDecisionTrace,
+  validatePublicSeedRegistration,validateNoGameWitnessReceipt,validateV3WorkerDecisionTrace,validateV3FullStateTraceJoins,
   buildNoGameWitnessFailureReceipt,buildV3RunnerFailureError,
   createV3WorkerExecutionAudit,createV3WorkerDecisionResolver,
   projectNativeFixtureFailureForReceipt,projectV3FixtureFailureForReceipt,
@@ -2071,4 +2071,54 @@ test('V3 full trace acceptance recomputes component digests and rejects broken b
     evidenceBundleSha256(semanticMismatch.workerDecisionTrace);
   assert.equal(validateV3WorkerDecisionTrace(semanticMismatch),false,
     'a self-consistent receipt digest must still match the exact action frontier');
+});
+
+
+test('V3 full-state trace joins bind recorder seat, player, action, turns and decision identity',()=>{
+  const steps=[{
+    actionOrdinal:1,playerSlot:0,playerId:'candidate-player',
+    actionType:'AttackAction',turnBefore:3,turnAfter:3
+  }];
+  const rootActionLedger=[{
+    actionOrdinal:0,playerSlot:0,actorSeat:0,playerId:'candidate-player',
+    action:'AttackAction',turnBefore:3,turnAfter:3,
+    decisionKind:'owner-root',workerDecisionTraceSha256:'a'.repeat(64),
+    validationReceiptSha256:'b'.repeat(64)
+  }];
+  const decisionRows=[{
+    actionOrdinal:0,actingSeat:0,actingPlayerId:'candidate-player',
+    decisionKind:'owner-root',workerDecisionTraceSha256:'a'.repeat(64),
+    validationReceiptSha256:'b'.repeat(64)
+  }];
+  assert.deepEqual(validateV3FullStateTraceJoins({steps,rootActionLedger,decisionRows}),{
+    ordinalJoinMatches:true,decisionJoinMatches:true
+  });
+  const stepMutations=[
+    ['physical seat',step=>{step.playerSlot=1;}],
+    ['player ID',step=>{step.playerId='other-player';}],
+    ['action type',step=>{step.actionType='RetreatAction';}],
+    ['turn before',step=>{step.turnBefore=4;}],
+    ['turn after',step=>{step.turnAfter=4;}]
+  ];
+  for(const [name,mutate] of stepMutations){
+    const candidate=JSON.parse(JSON.stringify(steps));
+    mutate(candidate[0]);
+    assert.equal(validateV3FullStateTraceJoins({
+      steps:candidate,rootActionLedger,decisionRows
+    }).ordinalJoinMatches,false,name);
+  }
+  const decisionMutations=[
+    ['physical seat',row=>{row.actingSeat=1;}],
+    ['player ID',row=>{row.actingPlayerId='other-player';}],
+    ['action ordinal',row=>{row.actionOrdinal=1;}],
+    ['worker trace digest',row=>{row.workerDecisionTraceSha256='c'.repeat(64);}],
+    ['validation receipt digest',row=>{row.validationReceiptSha256='d'.repeat(64);}]
+  ];
+  for(const [name,mutate] of decisionMutations){
+    const candidate=JSON.parse(JSON.stringify(decisionRows));
+    mutate(candidate[0]);
+    assert.equal(validateV3FullStateTraceJoins({
+      steps,rootActionLedger,decisionRows:candidate
+    }).decisionJoinMatches,false,name);
+  }
 });
