@@ -1,3 +1,11 @@
+## 2026-11-20 16:57:00 UTC — extended the Snorlax Block axis to both stall lists
+
+- Updated the field-axis table in `results/aichi-2026/2026-11/agent35-lock-architecture-field-synthesis-20261117.md`, commit `c9ed36c2c489fe5fcc5973a24b1a07cd503520c1`: Snorlax PGO 55 Block is present in ranks 3 and 7; the detailed Tool Jammer / Wobbuffet / Guzma sequence remains rank-7-specific. Rank 3's existing source-dealt setup report records PGO Snorlax in its list.
+- No new test, policy, deck, or field source was created. This is static field-synthesis only.
+- **Lease:** immutable `claimed_at=2026-11-20T16:29:31.831Z`; release threshold `2026-11-20T17:39:31.831Z`. Check actual runtime UTC after this checkpoint; do not refresh.
+
+---
+
 ## 2026-11-20 16:56:04 UTC — made the rank-7 Guzma/Radiant timing condition explicit
 
 - Refined the Enamorus synthesis in commit `22dddd234c7db283d6ff9652348dd6e803e9df33`: Guardian does **not** directly rescue Radiant Eternatus's on-play Climactic Gate under Active Wobbuffet. Radiant is Basic Dragon, and its Ability resolves on entry before Psychic Energy can be attached; Underworld Door cannot target it. If played while Bide Barricade is live, the Ability does not trigger retroactively when Wobbuffet leaves. The candidate must use Guzma first to switch Wobbuffet out / Snorlax in, then play Radiant; Guardian must already protect the candidate's Psychic-Energy-attached Active from Block.
