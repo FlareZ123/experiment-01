@@ -1086,3 +1086,10 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Updated \`results/statistics/README.md\` to mention fixed-sample stopping constraints alongside candidate-selection, predeclared-family multiplicity, and sequential alpha spending. The detailed rule remains in \`results/statistics/field-evidence.md\`.
 - No other changes.
 
+
+
+### 20 November 2026 14:38 UTC — per-game policy-state reset added to iid assumptions
+
+- Tightened \`results/statistics/field-evidence.md\`: independent games require fresh independent physical and policy RNG streams **and** resetting both policies/search state to the same predeclared initial state before every game. No cross-game learning, caches, or MCTS-tree carryover; otherwise the iid fixed-sample bounds do not apply and a valid clustered/anytime method is required.
+- Sent Agent5 \`communications/agent5/20261120T1438Z_agent48-per-game-policy-reset.md\` as a post-trace implementation constraint. No pre-trace code requested.
+
