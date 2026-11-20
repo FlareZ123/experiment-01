@@ -1770,9 +1770,11 @@ function makeV3SetupPromptAuditFixture(){
       promptType:'ChooseCardsPrompt',message:'CHOOSE_STARTING_POKEMONS',minimumCount:1},
     {actionOrdinal:1,seat:0,role:'candidate',promptId:'setup-first-0',
       promptType:'ConfirmPrompt',message:'GO_FIRST'},
-    {actionOrdinal:2,seat:0,role:'candidate',promptId:'setup-extra-bench-0',
+    {actionOrdinal:2,seat:0,role:'candidate',promptId:'setup-draw-0',
+      promptType:'SelectPrompt',message:'WANT_TO_DRAW_CARDS'},
+    {actionOrdinal:3,seat:0,role:'candidate',promptId:'setup-extra-bench-0',
       promptType:'ChooseCardsPrompt',message:'CHOOSE_STARTING_POKEMONS',minimumCount:0},
-    {actionOrdinal:3,seat:1,role:'opponent',promptId:'setup-basic-1',
+    {actionOrdinal:4,seat:1,role:'opponent',promptId:'setup-basic-1',
       promptType:'ChooseCardsPrompt',message:'CHOOSE_STARTING_POKEMONS',minimumCount:1}
   ];
   const decisionTrace=[];
@@ -1937,8 +1939,8 @@ function makeV3SetupPromptAuditFixture(){
     });
   }
   const rootRows=[
-    {actionOrdinal:4,seat:0},
-    {actionOrdinal:5,seat:1}
+    {actionOrdinal:5,seat:0},
+    {actionOrdinal:6,seat:1}
   ];
   for(const spec of rootRows){
     decisionTrace.push({
@@ -1982,7 +1984,7 @@ function makeV3SetupPromptAuditFixture(){
     nativeStateDisclosedToWorker:false,
     opponentPrivateZonesDisclosedToWorker:false,
     workerInputScope:'actor-observation-v3+actor-prompt-projection+public-event-receipt-v3+typed-action-frontier-v1',
-    totalWorkerDecisions:6,totalHostOnlyPrompts:0,totalAbstentions:0,totalFailures:0,
+    totalWorkerDecisions:7,totalHostOnlyPrompts:0,totalAbstentions:0,totalFailures:0,
     policyRngViolations:0,replayableEvidence:true,cleanupVerified:true,
     cleanupFailureCount:0,
     cleanupReceipts:[
@@ -1993,7 +1995,7 @@ function makeV3SetupPromptAuditFixture(){
       candidate:{
         role:'candidate',seat:0,policyVersion:'candidate-policy-v1',
         bundleSha256:'c'.repeat(64),policySha256:'d'.repeat(64),
-        decisionCount:4,rootDecisionCount:1,promptDecisionCount:3,hostOnlyPromptCount:0,
+        decisionCount:5,rootDecisionCount:1,promptDecisionCount:4,hostOnlyPromptCount:0,
         abstentionCount:0,failureCount:0,timeoutCount:0,
         workerProcessClosed:true,containerRemoved:true,policyBundleRemoved:true,
         policyRngReplayable:true,policyDrawViolationCount:0,actionFrontierAdmissionFailureCount:0
@@ -2021,7 +2023,7 @@ test('Agent19 V3-native setup audit joins starting-Basic and GO_FIRST worker rec
   assert.equal(audit.visibility,'encrypted-full-only');
   assert.equal(audit.complete,true,audit.failures.join(','));
   assert.equal(audit.accepted,true,audit.failures.join(','));
-  assert.equal(audit.setupPromptDecisions,4);
+  assert.equal(audit.setupPromptDecisions,5);
   assert.deepEqual(audit.roles.candidate.counts,
     {startingBasics:1,optionalExtraBenchPlacements:1,goFirst:1,wantToDrawCards:0});
   assert.deepEqual(audit.roles.opponent.counts,
@@ -2029,8 +2031,10 @@ test('Agent19 V3-native setup audit joins starting-Basic and GO_FIRST worker rec
   assert.deepEqual(audit.roles.candidate.setupPromptRows.map(row=>row.actionOrdinal),[0,1,2]);
   assert.deepEqual(audit.roles.opponent.setupPromptRows.map(row=>row.actionOrdinal),[3]);
   assert.equal(audit.roles.candidate.setupPromptRows[2].kind,'optional-extra-bench-placement');
-  assert.equal(audit.roles.candidate.setupPromptRows[2].minimumCount,0);
-  assert.equal(audit.roles.candidate.setupPromptRows[2].recorderPromptSnapshotVerified,true);
+  assert.equal(audit.roles.candidate.setupPromptRows[3].minimumCount,0);
+  assert.equal(audit.roles.candidate.setupPromptRows[3].recorderPromptSnapshotVerified,true);
+  assert.equal(audit.roles.candidate.counts.wantToDrawCards,1);
+  assert.equal(audit.roles.candidate.counts.optionalExtraBenchPlacements,1);
   assert.ok([...audit.roles.candidate.setupPromptRows,...audit.roles.opponent.setupPromptRows]
     .every(row=>row.accepted&&row.ledgerJoinVerified&&row.recorderJoinVerified));
 });
@@ -2069,11 +2073,58 @@ test('Agent19 V3-native setup audit fails closed on missing rows, digest/ledger 
   assert.ok(minimumAudit.failures.some(value=>value.includes('starting-pokemon-minimum-count-invalid')));
 
   const duplicateMandatory=makeV3SetupPromptAuditFixture();
-  duplicateMandatory.decisionTrace[2].workerDecisionTrace.promptProjection.publicMetadata.minimumCount=1;
+  duplicateMandatory.decisionTrace[3].workerDecisionTrace.promptProjection.publicMetadata.minimumCount=1;
   const duplicateAudit=buildSetupPromptAudit(duplicateMandatory);
   assert.equal(duplicateAudit.accepted,false);
   assert.ok(duplicateAudit.roles.candidate.failures.some(value=>
     value.includes('required-starting-basic-prompt-count-not-one')));
+
+  const duplicateDrawChoice=makeV3SetupPromptAuditFixture();
+  const drawChoiceRow=duplicateDrawChoice.decisionTrace.find(row=>
+    row.promptResolverContext.message==='WANT_TO_DRAW_CARDS');
+  duplicateDrawChoice.decisionTrace.push({
+    ...drawChoiceRow,
+    actionOrdinal:7,
+    pendingPromptId:'setup-draw-duplicate'
+  });
+  const duplicateDrawAudit=buildSetupPromptAudit(duplicateDrawChoice);
+  assert.ok(duplicateDrawAudit.failures.includes('want-to-draw-cards-prompt-count-exceeds-one'));
+
+  const duplicateOptionalBench=makeV3SetupPromptAuditFixture();
+  const benchRow=duplicateOptionalBench.decisionTrace.find(row=>
+    row.promptResolverContext.message==='CHOOSE_STARTING_POKEMONS'&&
+    row.workerDecisionTrace.promptProjection.publicMetadata.minimumCount===0);
+  duplicateOptionalBench.decisionTrace.push({
+    ...benchRow,
+    actionOrdinal:8,
+    pendingPromptId:'setup-extra-bench-duplicate'
+  });
+  const duplicateBenchAudit=buildSetupPromptAudit(duplicateOptionalBench);
+  assert.ok(duplicateBenchAudit.failures.includes('optional-extra-bench-prompt-count-exceeds-one'));
+
+  const benchWithoutDrawChoice=makeV3SetupPromptAuditFixture();
+  benchWithoutDrawChoice.decisionTrace=benchWithoutDrawChoice.decisionTrace.filter(row=>
+    row.promptResolverContext.message!=='WANT_TO_DRAW_CARDS');
+  benchWithoutDrawChoice.rootActionLedger=benchWithoutDrawChoice.rootActionLedger.filter(row=>
+    row.actionOrdinal!==2);
+  benchWithoutDrawChoice.fullStateTraceSteps=benchWithoutDrawChoice.fullStateTraceSteps.filter(step=>
+    step.actionOrdinal!==3);
+  benchWithoutDrawChoice.workerExecutionAudit.totalWorkerDecisions=6;
+  benchWithoutDrawChoice.workerExecutionAudit.roles.candidate.decisionCount=4;
+  benchWithoutDrawChoice.workerExecutionAudit.roles.candidate.promptDecisionCount=3;
+  const benchWithoutDrawAudit=buildSetupPromptAudit(benchWithoutDrawChoice);
+  assert.ok(benchWithoutDrawAudit.failures.includes('optional-extra-bench-requires-one-draw-choice'));
+
+  const benchBeforeDraw=makeV3SetupPromptAuditFixture();
+  const drawRow=benchBeforeDraw.decisionTrace.find(row=>
+    row.promptResolverContext.message==='WANT_TO_DRAW_CARDS');
+  const optionalBenchRow=benchBeforeDraw.decisionTrace.find(row=>
+    row.promptResolverContext.message==='CHOOSE_STARTING_POKEMONS'&&
+    row.workerDecisionTrace.promptProjection.publicMetadata.minimumCount===0);
+  [drawRow.actionOrdinal,optionalBenchRow.actionOrdinal]=
+    [optionalBenchRow.actionOrdinal,drawRow.actionOrdinal];
+  const benchBeforeDrawAudit=buildSetupPromptAudit(benchBeforeDraw);
+  assert.ok(benchBeforeDrawAudit.failures.includes('optional-extra-bench-must-follow-same-actor-draw-choice'));
 
   const duplicateGoFirst=makeV3SetupPromptAuditFixture();
   duplicateGoFirst.decisionTrace.push({...duplicateGoFirst.decisionTrace[1]});
@@ -2195,8 +2246,8 @@ test('V3 worker execution boundary binds replayability, cleanup, disclosure limi
 
   const noCandidateRoot=JSON.parse(JSON.stringify(fixture.workerExecutionAudit));
   noCandidateRoot.roles.candidate.rootDecisionCount=0;
-  noCandidateRoot.roles.candidate.decisionCount=3;
-  noCandidateRoot.totalWorkerDecisions=5;
+  noCandidateRoot.roles.candidate.decisionCount=4;
+  noCandidateRoot.totalWorkerDecisions=6;
   const rootMissing=projectV3WorkerExecutionBoundaryToTrial(noCandidateRoot,{
     candidateSeat:fixture.candidateSeat,
     opponentSeat:fixture.opponentSeat,
