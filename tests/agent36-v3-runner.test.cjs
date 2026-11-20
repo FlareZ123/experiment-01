@@ -18,7 +18,7 @@ const {
   V3_FIXTURE,V3_FIXTURE_TEST_PATHS,V3_FIXTURE_COMMON_BINDINGS,
   V3_FIXTURE_WORKER_COMMON_BINDINGS,V3_FIXTURE_WORKER_PROMPT_CHAIN,
   buildFixtureRoleEntryManifest,buildRoleWorkerBundle,preloadRoleHostModules,
-  validatePublicSeedRegistration,validateNoGameWitnessReceipt,
+  validatePublicSeedRegistration,validateNoGameWitnessReceipt,validateV3WorkerDecisionTrace,validateV3FullStateTraceJoins,
   buildNoGameWitnessFailureReceipt,buildV3RunnerFailureError,
   createV3WorkerExecutionAudit,createV3WorkerDecisionResolver,
   projectNativeFixtureFailureForReceipt,projectV3FixtureFailureForReceipt,
@@ -41,6 +41,92 @@ test('host environment snapshot transport is never allowlisted into role workers
 });
 
 const STEP='Generate physical deal';
+
+function rootResolverFixture({
+  actorObservation=null,actorObservationSha256=null,responsePatch={},dispatchError=null,
+  publicEventReceipt=null
+}={}) {
+  const workerAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});
+  const policyVersion='runner-root-audit-test-v1';
+  const observation=actorObservation??Object.freeze({
+    actorSeat:1,decisionKind:'owner-root',phase:'PLAYER_TURN',
+    globalTurn:3,ownHand:['distinctive-root-actor-input']
+  });
+  const item={
+    token:'root-action-0',kind:'attack',attackName:'Max Geist',
+    publicMetadata:{damage:250,stadiumEffectLive:true}
+  };
+  const frontierBinding={schema:require('../simulation/evaluation/2026-11/agent49-policy-protocol.cjs').FRONTIER_SCHEMA,items:[item]};
+  const policyAudit={
+    schema:'agent6-policy-audit-v1',policyVersion,
+    decisionKind:'owner-root',decisionType:'select-action',
+    selectionRuleCode:'ROOT_SCORE_DESC',tieBreakCode:'FIRST_NATIVE_ORDER',
+    selectedTokens:[item.token],
+    evaluations:[{token:item.token,status:'scored',score:12,reasonCode:null}]
+  };
+  const response={
+    requestId:'runner-root-audit-request',sequence:1,role:'opponent',seat:1,
+    policyVersion,bundleSha256:'c'.repeat(64),
+    decision:{kind:'select-action',token:item.token},
+    policyAudit,policyDrawCount:0,
+    ...responsePatch
+  };
+  const calls={worker:0,seenObservation:null,cloneValidation:0,liveStoreDispatch:0};
+  const actionEnumerator={
+    createKnownCapFreeActionEnumerator(){return {schema:'test-known-cap-free-enumerator-v1'};},
+    assertKnownCapFreeAdapterAdmissionClear(){return {schema:'test-frontier-admission-v1',accepted:true};}
+  };
+  const actionFrontier={
+    buildNativeActionFrontier(){
+      return {
+        actionFrontier:frontierBinding,
+        actionByToken:new Map([[item.token,{kind:'native-action'}]]),
+        diagnostics:{}
+      };
+    },
+    dispatchSelectedNativeAction(args){
+      calls.cloneValidation++;
+      if(dispatchError)throw dispatchError;
+      Object.assign(args.validationEvidence,{
+        nativeValidationStoreMode:'cloned-store',
+        fullOriginalStoreStateUnchanged:true,
+        actorSeat:1
+      });
+      return {kind:'native-action'};
+    }
+  };
+  const resolver=createV3WorkerDecisionResolver({
+    sessionsBySeat:{
+      1:{async decide(input){
+        calls.worker++;
+        calls.seenObservation=input.observation;
+        return response;
+      }}
+    },
+    candidateSeat:0,opponentSeat:1,
+    native:{
+      observe(){throw new Error('resolver must consume the exact driver-supplied actor observation');},
+      ActionEnumerator:class ActionEnumerator {},
+      Simulator:class Simulator {}
+    },
+    workerAudit,eventReceipt:()=>publicEventReceipt,
+    actionEnumerator,actionFrontier
+  });
+  const request={
+    kind:'native-fixture-decision',decisionKind:'owner-root',
+    actorSeat:1,actionOrdinal:5,
+    actorObservation:observation,
+    actorObservationSha256:actorObservationSha256??evidenceBundleSha256(observation),
+    state:{activePlayer:1},prompt:null,
+    store:{state:{},dispatch(){calls.liveStoreDispatch++;}},
+    withValidationRandom:fn=>fn()
+  };
+  return {
+    resolver,request,workerAudit,calls,actorObservation:observation,
+    item,frontierBinding,policyAudit,response
+  };
+}
+
 
 test('V3 no-game seed probe resolves GO_FIRST affirmatively without invoking the neutral bot',()=>{
   class ConfirmPrompt {
@@ -1483,30 +1569,43 @@ test('V3 wrong-actor resolver failure survives callback projection and final wit
 
 test('V3 no-game failure receipt coarsens worker prompt abstention reasons to a public generic code',async()=>{
   const workerAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});
+  const actorObservation={actorSeat:1,decisionKind:'owner-prompt'};
+  const actorObservationSha256=evidenceBundleSha256(actorObservation);
   const resolver=createV3WorkerDecisionResolver({
     sessionsBySeat:{
       1:{async decide(){
+        const policyVersion='runner-test-policy-v1';
         return {
+          requestId:'runner-test-request-1',sequence:1,role:'opponent',seat:1,
+          policyVersion,bundleSha256:'a'.repeat(64),
           decision:{kind:'abstain',reasonCode:'INVALID_STARTING_POKEMON_PROMPT'},
+          policyAudit:{
+            schema:'agent6-policy-audit-v1',policyVersion,
+            decisionKind:'owner-prompt',decisionType:'abstain',
+            selectionRuleCode:'ABSTAIN_POLICY_DECISION',tieBreakCode:'NONE',
+            selectedTokens:[],evaluations:[]
+          },
           policyDrawCount:0
         };
       }}
     },
     candidateSeat:0,
     opponentSeat:1,
-    native:{observe(){return {};}},
+    native:{observe(){return {actorSeat:1,decisionKind:'owner-prompt'};}},
     workerAudit,
     eventReceipt:()=>null,
     promptProjection:{
       projectPrompt(){return {
         hostOnly:false,
-        promptProjection:{promptType:'ChooseCardsPrompt'}
+        promptProjection:{promptType:'ChooseCardsPrompt',choices:[]}
       };}
     }
   });
   let resolverFailure=null;
   await assert.rejects(resolver({
     kind:'native-fixture-decision',
+    decisionKind:'owner-prompt',actionOrdinal:1,
+    actorObservation,actorObservationSha256,
     actorSeat:1,
     prompt:{},
     state:{activePlayer:1},
@@ -1518,6 +1617,9 @@ test('V3 no-game failure receipt coarsens worker prompt abstention reasons to a 
   });
   assert.equal(workerAudit.roles.opponent.lastAbstentionReasonCode,
     'INVALID_STARTING_POKEMON_PROMPT');
+  assert.equal(resolverFailure.workerDecisionTrace.actorInputSha256,actorObservationSha256);
+  assert.equal(resolverFailure.workerDecisionTrace.validationReceipt,null);
+  assert.equal(resolverFailure.workerDecisionTrace.failureCode,'POLICY_ABSTAINED');
   workerAudit.roles.candidate.lastAbstentionReasonCode='PRIVATE_ACTOR_HAND_HAS_UNIQUE_CARD';
   const receipt=buildNoGameWitnessFailureReceipt({
     error:{code:resolverFailure.code,workerAudit},
@@ -1586,3 +1688,442 @@ test('V3 outer runner cleanup receipt preserves primary and cleanup summaries wi
   assert.match(failure.message,/Native V3 fixture runner failed during runner-hook-restore/);
 });
 
+
+
+test('V3 worker prompt resolver binds policyAudit, actor projection and cloned-Store receipt', async () => {
+  const workerAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});
+  const policyVersion='runner-prompt-audit-test-v1';
+  const actorObservation={actorSeat:1,decisionKind:'owner-prompt',ownHand:['Fog Crystal FLI']};
+  const actorObservationSha256=evidenceBundleSha256(actorObservation);
+  let seenObservation=null;
+  const choice={token:'prompt-choice-0',kind:'card',printing:'Fog Crystal FLI'};
+  const policyAudit={
+    schema:'agent6-policy-audit-v1',policyVersion,
+    decisionKind:'owner-prompt',decisionType:'select-choice',
+    selectionRuleCode:'PROMPT_SCORE_DESC',tieBreakCode:'SCORE_DESC_NATIVE_ORDER',
+    selectedTokens:['prompt-choice-0'],
+    evaluations:[{
+      token:'prompt-choice-0',status:'scored',score:12,reasonCode:null
+    }]
+  };
+  const resolver=createV3WorkerDecisionResolver({
+    sessionsBySeat:{
+      1:{async decide(input){
+        seenObservation=input.observation;
+        return {
+          requestId:'runner-prompt-audit-request',sequence:7,
+          role:'opponent',seat:1,policyVersion,bundleSha256:'b'.repeat(64),
+          decision:{kind:'select-choice',token:'prompt-choice-0'},
+          policyAudit,policyDrawCount:0
+        };
+      }}
+    },
+    candidateSeat:0,opponentSeat:1,
+    native:{observe(){return {actorSeat:1,decisionKind:'owner-prompt',ownHand:['Fog Crystal FLI']};}},
+    workerAudit,eventReceipt:()=>null,
+    promptProjection:{
+      projectPrompt(){return {
+        hostOnly:false,
+        promptProjection:{schema:'test-prompt-v1',promptType:'ChooseCardsPrompt',choices:[choice]}
+      };},
+      dispatchPromptChoice(args){
+        assert.equal(typeof args.withValidationRandom,'function');
+        return {
+          action:{kind:'validated-prompt-action'},
+          rawResult:0,
+          validationReceipt:{
+            schema:'agent6-cloned-store-prompt-validation-v1',
+            actorSeat:1,promptId:'prompt-1',selectedTokens:['prompt-choice-0'],
+            selectedCount:1,nativeValidationStoreMode:'cloned-store',
+            promptDecodeValidated:true,clonedPromptResolved:true,
+            fullOriginalStoreStateUnchanged:true
+          }
+        };
+      }
+    }
+  });
+  const result=await resolver({
+    kind:'native-fixture-decision',decisionKind:'owner-prompt',actorSeat:1,
+    actorObservation,actorObservationSha256,
+    prompt:{id:'prompt-1'},state:{activePlayer:1},store:{},
+    actionOrdinal:3,withValidationRandom:fn=>fn()
+  });
+  assert.equal(result.__nativeFixtureDecisionResolution,true);
+  assert.deepEqual(result.action,{kind:'validated-prompt-action'});
+  assert.equal(result.validationReceipt.nativeValidationStoreMode,'cloned-store');
+  assert.equal(result.decisionTrace.actionOrdinal,3);
+  assert.equal(result.decisionTrace.requestId,'runner-prompt-audit-request');
+  assert.equal(result.decisionTrace.sequence,7);
+  assert.equal(result.decisionTrace.role,'opponent');
+  assert.equal(result.decisionTrace.seat,1);
+  assert.deepEqual(result.decisionTrace.selectedTokens,['prompt-choice-0']);
+  assert.deepEqual(result.decisionTrace.selectedItems,[choice]);
+  assert.deepEqual(result.decisionTrace.policyAudit,policyAudit);
+  assert.strictEqual(seenObservation,actorObservation);
+  assert.equal(result.decisionTrace.actorInputSha256.length,64);
+  assert.strictEqual(result.decisionTrace.actorInput,actorObservation);
+  assert.equal(result.decisionTrace.actorObservationSha256,actorObservationSha256);
+  assert.equal(result.decisionTrace.traceStatus,'validated');
+  assert.equal(result.validationReceipt.selectedItemsSha256,result.decisionTrace.selectedItemsSha256);
+  const promptTraceRow={
+    actionOrdinal:3,actingSeat:1,decisionKind:'owner-prompt',
+    actorObservationSha256,
+    workerDecisionTrace:result.decisionTrace,
+    workerDecisionTraceSha256:evidenceBundleSha256(result.decisionTrace),
+    validationReceipt:result.validationReceipt,
+    validationReceiptSha256:evidenceBundleSha256(result.validationReceipt)
+  };
+  assert.equal(validateV3WorkerDecisionTrace(promptTraceRow),true);
+  const mutatedPromptTrace=JSON.parse(JSON.stringify(promptTraceRow));
+  mutatedPromptTrace.workerDecisionTrace.promptProjection.choices[0].printing='mutated prompt choice';
+  mutatedPromptTrace.workerDecisionTraceSha256=
+    evidenceBundleSha256(mutatedPromptTrace.workerDecisionTrace);
+  assert.equal(validateV3WorkerDecisionTrace(mutatedPromptTrace),false);
+
+  assert.equal(result.decisionTrace.promptProjectionSha256.length,64);
+  assert.equal(result.decisionTrace.policyAuditSha256.length,64);
+  assert.equal(result.decisionTrace.validationReceiptSha256.length,64);
+});
+
+
+test('V3 root resolver consumes the exact driver actor input and binds all component digests',async()=>{
+  const fixture=rootResolverFixture();
+  const result=await fixture.resolver(fixture.request);
+  const trace=result.decisionTrace;
+  assert.strictEqual(fixture.calls.seenObservation,fixture.actorObservation);
+  assert.strictEqual(trace.actorInput,fixture.actorObservation);
+  assert.equal(trace.actorInputSha256,trace.actorObservationSha256);
+  assert.equal(trace.actorInputSha256,evidenceBundleSha256(fixture.actorObservation));
+  assert.equal(trace.publicEventReceiptSha256,null);
+  assert.equal(trace.promptProjectionSha256,null);
+  assert.equal(trace.actionFrontierSha256,evidenceBundleSha256(fixture.frontierBinding));
+  assert.equal(trace.inputBindingSha256,evidenceBundleSha256({
+    observation:fixture.actorObservation,
+    publicEventReceipt:null,
+    promptProjection:null,
+    actionFrontier:fixture.frontierBinding
+  }));
+  assert.equal(trace.selectedItemsSha256,evidenceBundleSha256([fixture.item]));
+  assert.equal(trace.policyAuditSha256,evidenceBundleSha256(fixture.policyAudit));
+  assert.equal(result.validationReceipt.frontierSha256,trace.actionFrontierSha256);
+  assert.equal(result.validationReceipt.selectedItemSha256,evidenceBundleSha256(fixture.item));
+  assert.equal(trace.validationReceiptSha256,evidenceBundleSha256(result.validationReceipt));
+  assert.equal(trace.traceStatus,'validated');
+  assert.equal(fixture.calls.worker,1);
+  assert.equal(fixture.calls.cloneValidation,1);
+  assert.equal(fixture.calls.liveStoreDispatch,0);
+});
+
+test('V3 resolver rejects a mismatched driver actor-observation digest before worker invocation',async()=>{
+  const fixture=rootResolverFixture({actorObservationSha256:'f'.repeat(64)});
+  await assert.rejects(fixture.resolver(fixture.request),error=>{
+    assert.equal(error.code,'ACTOR_OBSERVATION_DIGEST_MISMATCH');
+    assert.strictEqual(error.workerDecisionTrace.actorInput,fixture.actorObservation);
+    assert.equal(error.workerDecisionTrace.actorInputSha256,evidenceBundleSha256(fixture.actorObservation));
+    assert.equal(error.workerDecisionTrace.actorObservationSha256,'f'.repeat(64));
+    assert.equal(error.workerDecisionTrace.failureCode,'ACTOR_OBSERVATION_DIGEST_MISMATCH');
+    assert.equal(error.workerDecisionTrace.validationReceipt,null);
+    return true;
+  });
+  assert.equal(fixture.calls.worker,0);
+  assert.equal(fixture.calls.cloneValidation,0);
+  assert.equal(fixture.calls.liveStoreDispatch,0);
+});
+
+test('V3 resolver host-validates the complete policy audit before any cloned or live dispatch',async()=>{
+  const template=rootResolverFixture();
+  const row=template.policyAudit.evaluations[0];
+  const cases=[
+    {name:'incomplete',patch:{evaluations:[]}},
+    {name:'duplicate',patch:{evaluations:[row,row]}},
+    {name:'out-of-frontier',patch:{evaluations:[{...row,token:'foreign-action'}]}},
+    {name:'non-finite',patch:{evaluations:[{...row,score:Number.POSITIVE_INFINITY}]}},
+    {name:'selected-token-mismatch',patch:{selectedTokens:[]}}
+  ];
+  for(const item of cases){
+    const fixture=rootResolverFixture({
+      responsePatch:{policyAudit:{...template.policyAudit,...item.patch}}
+    });
+    await assert.rejects(fixture.resolver(fixture.request),error=>{
+      assert.ok(error.workerDecisionTrace,item.name+' failure must retain its provisional trace');
+      assert.equal(error.workerDecisionTrace.traceStatus,'failed');
+      assert.equal(error.workerDecisionTrace.validationReceipt,null);
+      assert.equal(error.workerDecisionTrace.failureCode,error.code);
+      return true;
+    },item.name);
+    assert.equal(fixture.calls.cloneValidation,0,item.name+' reached cloned validation');
+    assert.equal(fixture.calls.liveStoreDispatch,0,item.name+' reached live Store dispatch');
+  }
+});
+
+test('V3 resolver retains unknown-token and unsupported-kind responses in provisional traces',async()=>{
+  const template=rootResolverFixture();
+  const unknown=rootResolverFixture({
+    responsePatch:{
+      decision:{kind:'select-action',token:'foreign-action'},
+      policyAudit:{...template.policyAudit,selectedTokens:['foreign-action']}
+    }
+  });
+  await assert.rejects(unknown.resolver(unknown.request),error=>{
+    assert.ok(error.workerDecisionTrace);
+    assert.deepEqual(error.workerDecisionTrace.selectedTokens,['foreign-action']);
+    assert.deepEqual(error.workerDecisionTrace.unmatchedSelectedTokens,['foreign-action']);
+    assert.equal(error.workerDecisionTrace.selectionStatus,'unresolved-token');
+    assert.equal(error.workerDecisionTrace.validationReceipt,null);
+    return true;
+  });
+  assert.equal(unknown.calls.cloneValidation,0);
+
+  const unsupportedAudit={
+    ...template.policyAudit,
+    decisionType:'future-decision-kind',
+    selectedTokens:[],
+    evaluations:[{
+      token:template.item.token,status:'not-evaluated',score:null,
+      reasonCode:'NOT_EVALUATED_BY_TEST'
+    }]
+  };
+  const unsupported=rootResolverFixture({
+    responsePatch:{
+      decision:{kind:'future-decision-kind'},
+      policyAudit:unsupportedAudit
+    }
+  });
+  await assert.rejects(unsupported.resolver(unsupported.request),error=>{
+    assert.equal(error.code,'UNSUPPORTED_WORKER_ROOT_DECISION');
+    assert.ok(error.workerDecisionTrace);
+    assert.deepEqual(error.workerDecisionTrace.decision,{kind:'future-decision-kind'});
+    assert.equal(error.workerDecisionTrace.selectionStatus,'unsupported-decision-kind');
+    assert.equal(error.workerDecisionTrace.policyAuditSha256,evidenceBundleSha256(unsupportedAudit));
+    assert.equal(error.workerDecisionTrace.validationReceipt,null);
+    return true;
+  });
+  assert.equal(unsupported.calls.cloneValidation,0);
+});
+
+test('V3 cloned-root rejection attaches the response trace without touching the live Store',async()=>{
+  const cloneFailure=Object.assign(new Error('cloned action validation rejected'),{
+    code:'CLONED_ACTION_VALIDATION_REJECTED'
+  });
+  const fixture=rootResolverFixture({dispatchError:cloneFailure});
+  await assert.rejects(fixture.resolver(fixture.request),error=>{
+    assert.equal(error.code,'CLONED_ACTION_VALIDATION_REJECTED');
+    assert.ok(error.workerDecisionTrace);
+    assert.equal(error.workerDecisionTrace.traceStatus,'failed');
+    assert.equal(error.workerDecisionTrace.failureCode,'CLONED_ACTION_VALIDATION_REJECTED');
+    assert.deepEqual(error.workerDecisionTrace.selectedTokens,['root-action-0']);
+    assert.deepEqual(error.workerDecisionTrace.selectedItems,[fixture.item]);
+    assert.equal(error.workerDecisionTrace.policyAuditSha256,evidenceBundleSha256(fixture.policyAudit));
+    assert.equal(error.workerDecisionTrace.validationReceipt,null);
+    return true;
+  });
+  assert.equal(fixture.calls.cloneValidation,1);
+  assert.equal(fixture.calls.liveStoreDispatch,0);
+});
+
+test('V3 prompt clone non-settlement preserves the worker trace and never fabricates a receipt',async()=>{
+  const workerAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});
+  const actorObservation={actorSeat:1,decisionKind:'owner-prompt',ownHand:['distinctive-prompt-input']};
+  const actorObservationSha256=evidenceBundleSha256(actorObservation);
+  const policyVersion='runner-prompt-clone-failure-v1';
+  const choice={token:'prompt-choice-0',kind:'card',printing:'Fog Crystal FLI'};
+  const policyAudit={
+    schema:'agent6-policy-audit-v1',policyVersion,
+    decisionKind:'owner-prompt',decisionType:'select-choice',
+    selectionRuleCode:'PROMPT_SCORE_DESC',tieBreakCode:'SCORE_DESC_NATIVE_ORDER',
+    selectedTokens:[choice.token],
+    evaluations:[{token:choice.token,status:'scored',score:12,reasonCode:null}]
+  };
+  let liveStoreDispatches=0;
+  const resolver=createV3WorkerDecisionResolver({
+    sessionsBySeat:{
+      1:{async decide(){return {
+        requestId:'prompt-clone-failure-request',sequence:2,
+        role:'opponent',seat:1,policyVersion,bundleSha256:'d'.repeat(64),
+        decision:{kind:'select-choice',token:choice.token},policyAudit,policyDrawCount:0
+      };}}
+    },
+    candidateSeat:0,opponentSeat:1,
+    native:{observe(){throw new Error('must use driver observation');}},
+    workerAudit,eventReceipt:()=>null,
+    promptProjection:{
+      projectPrompt(){return {
+        hostOnly:false,
+        promptProjection:{schema:'test-prompt-v1',promptType:'ChooseCardsPrompt',choices:[choice]}
+      };},
+      dispatchPromptChoice(){throw Object.assign(new Error('cloned prompt remained pending'),{
+        code:'CLONED_PROMPT_NOT_RESOLVED'
+      });}
+    }
+  });
+  await assert.rejects(resolver({
+    kind:'native-fixture-decision',decisionKind:'owner-prompt',actorSeat:1,
+    actorObservation,actorObservationSha256,
+    actionOrdinal:8,prompt:{id:'prompt-8'},state:{activePlayer:1},
+    store:{dispatch(){liveStoreDispatches++;}},
+    withValidationRandom:fn=>fn()
+  }),error=>{
+    assert.equal(error.code,'CLONED_PROMPT_NOT_RESOLVED');
+    assert.ok(error.workerDecisionTrace);
+    assert.equal(error.workerDecisionTrace.actionOrdinal,8);
+    assert.equal(error.workerDecisionTrace.seat,1);
+    assert.deepEqual(error.workerDecisionTrace.selectedTokens,[choice.token]);
+    assert.deepEqual(error.workerDecisionTrace.selectedItems,[choice]);
+    assert.equal(error.workerDecisionTrace.policyAuditSha256,evidenceBundleSha256(policyAudit));
+    assert.equal(error.workerDecisionTrace.validationReceipt,null);
+    assert.equal(error.workerDecisionTrace.failureCode,'CLONED_PROMPT_NOT_RESOLVED');
+    return true;
+  });
+  assert.equal(liveStoreDispatches,0);
+});
+
+
+test('V3 prompt resolver rejects a mismatched driver actor-observation digest before worker invocation',async()=>{
+  const workerAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});
+  const actorObservation={actorSeat:1,decisionKind:'owner-prompt',ownHand:['distinctive-prompt-input']};
+  let projectCalls=0,workerCalls=0,dispatchCalls=0;
+  const resolver=createV3WorkerDecisionResolver({
+    sessionsBySeat:{1:{async decide(){workerCalls++;throw new Error('worker must not be called');}}},
+    candidateSeat:0,opponentSeat:1,
+    native:{observe(){throw new Error('resolver must use driver observation');}},
+    workerAudit,eventReceipt:()=>null,
+    promptProjection:{
+      projectPrompt(){projectCalls++;return {hostOnly:false,promptProjection:{choices:[]}};},
+      dispatchPromptChoice(){dispatchCalls++;throw new Error('dispatch must not be called');}
+    }
+  });
+  await assert.rejects(resolver({
+    kind:'native-fixture-decision',decisionKind:'owner-prompt',actorSeat:1,
+    actorObservation,actorObservationSha256:'e'.repeat(64),
+    actionOrdinal:9,prompt:{id:'prompt-9'},state:{activePlayer:1},store:{}
+  }),error=>{
+    assert.equal(error.code,'ACTOR_OBSERVATION_DIGEST_MISMATCH');
+    assert.strictEqual(error.workerDecisionTrace.actorInput,actorObservation);
+    assert.equal(error.workerDecisionTrace.failureCode,'ACTOR_OBSERVATION_DIGEST_MISMATCH');
+    assert.equal(error.workerDecisionTrace.validationReceipt,null);
+    return true;
+  });
+  assert.equal(projectCalls,0);
+  assert.equal(workerCalls,0);
+  assert.equal(dispatchCalls,0);
+});
+
+
+test('V3 full trace acceptance recomputes component digests and rejects broken bindings',async()=>{
+  const fixture=rootResolverFixture({
+    publicEventReceipt:{schema:'test-public-event-receipt-v1',actorSeat:1,publicEventCount:2}
+  });
+  const result=await fixture.resolver(fixture.request);
+  const trace=result.decisionTrace;
+  const row={
+    actionOrdinal:trace.actionOrdinal,
+    actingSeat:trace.seat,
+    decisionKind:trace.decisionKind,
+    actorObservationSha256:trace.actorObservationSha256,
+    workerDecisionTrace:trace,
+    workerDecisionTraceSha256:evidenceBundleSha256(trace),
+    validationReceipt:trace.validationReceipt,
+    validationReceiptSha256:evidenceBundleSha256(trace.validationReceipt)
+  };
+  assert.equal(validateV3WorkerDecisionTrace(row),true);
+
+  const mutations=[
+    ['actor input',t=>{t.actorInput.ownHand[0]='mutated';}],
+    ['actor input digest',t=>{t.actorInputSha256='0'.repeat(64);}],
+    ['driver actor digest',t=>{t.actorObservationSha256='0'.repeat(64);}],
+    ['public event receipt',t=>{t.publicEventReceipt.publicEventCount++;}],
+    ['public receipt digest',t=>{t.publicEventReceiptSha256='0'.repeat(64);}],
+    ['action frontier',t=>{t.actionFrontier.items[0].publicMetadata.damage++;}],
+    ['frontier digest',t=>{t.actionFrontierSha256='0'.repeat(64);}],
+    ['input binding digest',t=>{t.inputBindingSha256='0'.repeat(64);}],
+    ['selected item',t=>{t.selectedItems[0].attackName='mutated';}],
+    ['selected item digest',t=>{t.selectedItemsSha256='0'.repeat(64);}],
+    ['policy audit',t=>{t.policyAudit.selectionRuleCode='MUTATED_RULE';}],
+    ['policy audit digest',t=>{t.policyAuditSha256='0'.repeat(64);}],
+    ['validation receipt',t=>{t.validationReceipt.selectedToken='foreign-action';}],
+    ['validation receipt digest',t=>{t.validationReceiptSha256='0'.repeat(64);}],
+    ['selected token association',t=>{
+      t.selectedItems[0].token='foreign-action';
+      t.selectedItemsSha256=evidenceBundleSha256(t.selectedItems);
+    }],
+    ['policy evaluation order',t=>{
+      t.policyAudit.evaluations[0].token='foreign-action';
+      t.policyAuditSha256=evidenceBundleSha256(t.policyAudit);
+    }]
+  ];
+  for(const [name,mutate] of mutations){
+    const candidate=JSON.parse(JSON.stringify(row));
+    mutate(candidate.workerDecisionTrace);
+    candidate.workerDecisionTraceSha256=evidenceBundleSha256(candidate.workerDecisionTrace);
+    candidate.validationReceipt=candidate.workerDecisionTrace.validationReceipt;
+    candidate.validationReceiptSha256=evidenceBundleSha256(candidate.validationReceipt);
+    assert.equal(validateV3WorkerDecisionTrace(candidate),false,name);
+  }
+
+  const semanticMismatch=JSON.parse(JSON.stringify(row));
+  semanticMismatch.workerDecisionTrace.validationReceipt.frontierSha256='0'.repeat(64);
+  semanticMismatch.workerDecisionTrace.validationReceiptSha256=
+    evidenceBundleSha256(semanticMismatch.workerDecisionTrace.validationReceipt);
+  semanticMismatch.validationReceipt=semanticMismatch.workerDecisionTrace.validationReceipt;
+  semanticMismatch.validationReceiptSha256=
+    semanticMismatch.workerDecisionTrace.validationReceiptSha256;
+  semanticMismatch.workerDecisionTraceSha256=
+    evidenceBundleSha256(semanticMismatch.workerDecisionTrace);
+  assert.equal(validateV3WorkerDecisionTrace(semanticMismatch),false,
+    'a self-consistent receipt digest must still match the exact action frontier');
+});
+
+
+test('V3 full-state trace joins bind recorder seat, player, action, turns and decision identity',()=>{
+  const steps=[{
+    actionOrdinal:1,playerSlot:0,playerId:'candidate-player',
+    actionType:'AttackAction',turnBefore:3,turnAfter:3
+  }];
+  const rootActionLedger=[{
+    actionOrdinal:0,playerSlot:0,actorSeat:0,playerId:'candidate-player',
+    action:'AttackAction',turnBefore:3,turnAfter:3,
+    decisionKind:'owner-root',workerDecisionTraceSha256:'a'.repeat(64),
+    validationReceiptSha256:'b'.repeat(64)
+  }];
+  const decisionRows=[{
+    actionOrdinal:0,actingSeat:0,actingPlayerId:'candidate-player',
+    decisionKind:'owner-root',workerDecisionTraceSha256:'a'.repeat(64),
+    validationReceiptSha256:'b'.repeat(64)
+  }];
+  assert.deepEqual(validateV3FullStateTraceJoins({steps,rootActionLedger,decisionRows}),{
+    ordinalJoinMatches:true,decisionJoinMatches:true
+  });
+  const stepMutations=[
+    ['physical seat',step=>{step.playerSlot=1;}],
+    ['player ID',step=>{step.playerId='other-player';}],
+    ['action type',step=>{step.actionType='RetreatAction';}],
+    ['turn before',step=>{step.turnBefore=4;}],
+    ['turn after',step=>{step.turnAfter=4;}]
+  ];
+  for(const [name,mutate] of stepMutations){
+    const candidate=JSON.parse(JSON.stringify(steps));
+    mutate(candidate[0]);
+    assert.equal(validateV3FullStateTraceJoins({
+      steps:candidate,rootActionLedger,decisionRows
+    }).ordinalJoinMatches,false,name);
+  }
+  const actorSeatMismatch=JSON.parse(JSON.stringify(rootActionLedger));
+  actorSeatMismatch[0].actorSeat=1;
+  assert.equal(validateV3FullStateTraceJoins({
+    steps,rootActionLedger:actorSeatMismatch,decisionRows
+  }).ordinalJoinMatches,false,'recorder player slot must match canonical ledger actorSeat');
+  const decisionMutations=[
+    ['physical seat',row=>{row.actingSeat=1;}],
+    ['player ID',row=>{row.actingPlayerId='other-player';}],
+    ['action ordinal',row=>{row.actionOrdinal=1;}],
+    ['worker trace digest',row=>{row.workerDecisionTraceSha256='c'.repeat(64);}],
+    ['validation receipt digest',row=>{row.validationReceiptSha256='d'.repeat(64);}]
+  ];
+  for(const [name,mutate] of decisionMutations){
+    const candidate=JSON.parse(JSON.stringify(decisionRows));
+    mutate(candidate[0]);
+    assert.equal(validateV3FullStateTraceJoins({
+      steps,rootActionLedger,decisionRows:candidate
+    }).decisionJoinMatches,false,name);
+  }
+});

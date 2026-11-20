@@ -1840,11 +1840,151 @@ function createV3WorkerExecutionAudit({
   };
 }
 
+
+
+function validateV3FullStateTraceJoins({steps,rootActionLedger,decisionRows}={}){
+  const stepRows=Array.isArray(steps)?steps:[];
+  const ledgerRows=Array.isArray(rootActionLedger)?rootActionLedger:[];
+  const decisionTraceRows=Array.isArray(decisionRows)?decisionRows:[];
+  const ordinalJoinMatches=stepRows.length===ledgerRows.length&&
+    stepRows.every((step,index)=>{
+      const ledger=ledgerRows[index];
+      return step.actionOrdinal===ledger?.actionOrdinal+1&&
+        step.playerSlot===ledger?.playerSlot&&
+        step.playerSlot===ledger?.actorSeat&&
+        step.playerId===ledger?.playerId&&
+        step.actionType===ledger?.action&&
+        step.turnBefore===ledger?.turnBefore&&
+        step.turnAfter===ledger?.turnAfter;
+    });
+  const decisionJoinMatches=decisionTraceRows.length===ledgerRows.length&&
+    decisionTraceRows.every((row,index)=>{
+      const ledger=ledgerRows[index];
+      return row.actionOrdinal===ledger?.actionOrdinal&&
+        row.actingSeat===ledger?.actorSeat&&
+        row.actingPlayerId===ledger?.playerId&&
+        row.decisionKind===ledger?.decisionKind&&
+        row.workerDecisionTraceSha256===ledger?.workerDecisionTraceSha256&&
+        row.validationReceiptSha256===ledger?.validationReceiptSha256;
+    });
+  return {ordinalJoinMatches,decisionJoinMatches};
+}
+
+function validateV3WorkerDecisionTrace(row){
+  try{
+    const trace=row?.workerDecisionTrace;
+    const receipt=row?.validationReceipt;
+    if(!trace||!receipt||trace.schema!=='agent6-worker-decision-trace-v1')return false;
+    const actorInput=trace.actorInput;
+    const publicReceipt=trace.publicEventReceipt??null;
+    const promptBinding=trace.promptProjection??null;
+    const frontierBinding=trace.actionFrontier??null;
+    const selectedTokens=Array.isArray(trace.selectedTokens)?trace.selectedTokens:[];
+    const selectedItems=Array.isArray(trace.selectedItems)?trace.selectedItems:[];
+    const decision=trace.decision;
+    const expectedTokens=decision?.kind==='select-action'||decision?.kind==='select-choice'?
+      [decision.token]:
+      decision?.kind==='select-choices'&&Array.isArray(decision.tokens)?
+        decision.tokens.slice():[];
+    const source=promptBinding?.choices??frontierBinding?.items??[];
+    const inputBinding={
+      observation:actorInput,
+      publicEventReceipt:publicReceipt,
+      promptProjection:promptBinding,
+      actionFrontier:frontierBinding
+    };
+    const selectedItemsMatch=Array.isArray(source)&&
+      selectedItems.length===expectedTokens.length&&
+      selectedItems.every((item,index)=>{
+        const expected=source.find(candidate=>candidate?.token===expectedTokens[index]);
+        return Boolean(expected)&&item?.token===expectedTokens[index]&&
+          evidenceBundleSha256(item)===evidenceBundleSha256(expected);
+      });
+    const policyAuditValid=Boolean(trace.policyAudit)&&
+      workerProtocol.validatePolicyAudit(trace.policyAudit,{
+        observation:actorInput,prompt:promptBinding,actionFrontier:frontierBinding
+      },decision,trace.policyVersion)===trace.policyAudit;
+    const componentDigestsValid=
+      actorInput&&typeof actorInput==='object'&&
+      SHA256.test(trace.actorInputSha256??'')&&
+      trace.actorInputSha256===evidenceBundleSha256(actorInput)&&
+      SHA256.test(trace.actorObservationSha256??'')&&
+      trace.actorObservationSha256===row.actorObservationSha256&&
+      trace.actorInputSha256===trace.actorObservationSha256&&
+      (publicReceipt===null?
+        trace.publicEventReceiptSha256===null:
+        SHA256.test(trace.publicEventReceiptSha256??'')&&
+          evidenceBundleSha256(publicReceipt)===trace.publicEventReceiptSha256)&&
+      (promptBinding===null?
+        trace.promptProjectionSha256===null:
+        SHA256.test(trace.promptProjectionSha256??'')&&
+          evidenceBundleSha256(promptBinding)===trace.promptProjectionSha256)&&
+      (frontierBinding===null?
+        trace.actionFrontierSha256===null:
+        SHA256.test(trace.actionFrontierSha256??'')&&
+          evidenceBundleSha256(frontierBinding)===trace.actionFrontierSha256)&&
+      SHA256.test(trace.inputBindingSha256??'')&&
+      evidenceBundleSha256(inputBinding)===trace.inputBindingSha256&&
+      SHA256.test(trace.selectedItemsSha256??'')&&
+      evidenceBundleSha256(selectedItems)===trace.selectedItemsSha256&&
+      SHA256.test(trace.policyAuditSha256??'')&&
+      evidenceBundleSha256(trace.policyAudit)===trace.policyAuditSha256&&
+      SHA256.test(trace.validationReceiptSha256??'')&&
+      evidenceBundleSha256(trace.validationReceipt)===trace.validationReceiptSha256;
+    const receiptSemanticsValid=row.decisionKind==='owner-root'?
+      receipt.schema==='agent6-cloned-store-root-validation-v1'&&
+        receipt.selectedActionValidated===true&&
+        receipt.actorSeat===row.actingSeat&&
+        receipt.nativeActionFrontierUsed===true&&
+        receipt.nativeValidationStoreMode==='cloned-store'&&
+        receipt.fullOriginalStoreStateUnchanged===true&&
+        receipt.selectedToken===expectedTokens[0]&&
+        receipt.frontierSha256===trace.actionFrontierSha256&&
+        selectedItems.length===1&&
+        receipt.selectedItemSha256===evidenceBundleSha256(selectedItems[0]):
+      row.decisionKind==='owner-prompt'?
+        receipt.schema==='agent6-cloned-store-prompt-validation-v1'&&
+        receipt.promptDecodeValidated===true&&
+        receipt.actorSeat===row.actingSeat&&
+        receipt.clonedPromptResolved===true&&
+        receipt.nativeValidationStoreMode==='cloned-store'&&
+        receipt.fullOriginalStoreStateUnchanged===true&&
+        JSON.stringify(receipt.selectedTokens)===JSON.stringify(expectedTokens)&&
+        receipt.selectedItemsSha256===trace.selectedItemsSha256&&
+        receipt.promptProjectionSha256===trace.promptProjectionSha256&&
+        receipt.actionFrontierSha256===trace.actionFrontierSha256:false;
+    return trace.traceStatus==='validated'&&trace.failureCode===null&&
+      Number.isSafeInteger(trace.sequence)&&trace.sequence>0&&
+      typeof trace.requestId==='string'&&trace.requestId.length>0&&
+      typeof trace.policyVersion==='string'&&trace.policyVersion.length>0&&
+      SHA256.test(trace.bundleSha256??'')&&
+      trace.actionOrdinal===row.actionOrdinal&&
+      trace.seat===row.actingSeat&&
+      trace.decisionKind===row.decisionKind&&
+      trace.selectionStatus==='resolved'&&
+      Array.isArray(trace.unmatchedSelectedTokens)&&trace.unmatchedSelectedTokens.length===0&&
+      JSON.stringify(selectedTokens)===JSON.stringify(expectedTokens)&&
+      selectedItemsMatch&&
+      trace.policyAudit.decisionKind===row.decisionKind&&
+      trace.policyAudit.decisionType===decision?.kind&&
+      trace.policyAudit.policyVersion===trace.policyVersion&&
+      JSON.stringify(trace.policyAudit.selectedTokens)===JSON.stringify(expectedTokens)&&
+      policyAuditValid&&componentDigestsValid&&receiptSemanticsValid&&
+      SHA256.test(row.workerDecisionTraceSha256??'')&&
+      evidenceBundleSha256(trace)===row.workerDecisionTraceSha256&&
+      SHA256.test(row.validationReceiptSha256??'')&&
+      evidenceBundleSha256(receipt)===row.validationReceiptSha256&&
+      evidenceBundleSha256(trace.validationReceipt)===row.validationReceiptSha256&&
+      trace.validationReceiptSha256===row.validationReceiptSha256;
+  }catch{return false;}
+}
+
 function createV3WorkerDecisionResolver({
   sessionsBySeat,candidateSeat=V3_FIXTURE.candidateSeat,
   opponentSeat=V3_FIXTURE.opponentSeat,native,workerAudit,
   expectedActorSeat=null,stopBeforeLiveDispatch=false,
   actionFrontier=nativeActionFrontier,
+  actionEnumerator=knownCapFreeActionEnumerator,
   promptProjection=nativePromptProjection,
   eventReceipt=publicEventReceipt,
   provenanceHook=null,
@@ -1857,9 +1997,17 @@ function createV3WorkerDecisionResolver({
   const roleForSeat=seat=>seat===roleSeatMap.candidate?'candidate':
     seat===roleSeatMap.opponent?'opponent':null;
   const emptyFrontier={schema:workerProtocol.FRONTIER_SCHEMA,items:[]};
+  const digest=value=>evidenceBundleSha256(value);
+  const assertActorOnlyJson=value=>{
+    workerProtocol.assertBoundedJson(value);
+    workerProtocol.assertNoForbiddenFields(value);
+    return value;
+  };
+  const safeCode=error=>typeof error?.code==='string'&&/^[A-Z0-9_]{1,64}$/.test(error.code)?
+    error.code:'WORKER_DECISION_FAILURE';
   const recordFailure=(roleAudit,error,session)=>{
-    const code=typeof error?.code==='string'&&/^[A-Z0-9_]{1,64}$/.test(error.code)?
-      error.code:'WORKER_DECISION_FAILURE';
+    if(!roleAudit)return;
+    const code=safeCode(error);
     if(code.startsWith('NATIVE_ACTION_FRONTIER_')||
         code.startsWith('NATIVE_ACTION_ENUMERATOR_ADAPTER_')){
       roleAudit.actionFrontierAdmissionFailureCount++;
@@ -1890,6 +2038,147 @@ function createV3WorkerDecisionResolver({
     }
     roleAudit.lastFailureCode=code;
   };
+  const selectedTokensOf=decision=>{
+    if(!decision||typeof decision!=='object')return {tokens:[],status:'missing-decision'};
+    if(decision.kind==='select-action'||decision.kind==='select-choice'){
+      return typeof decision.token==='string'?
+        {tokens:[decision.token],status:'valid'}:
+        {tokens:[],status:'invalid-token'};
+    }
+    if(decision.kind==='select-choices'){
+      if(!Array.isArray(decision.tokens)||!decision.tokens.every(token=>typeof token==='string'))
+        return {tokens:[],status:'invalid-token-list'};
+      return {tokens:decision.tokens.slice(),status:decision.tokens.length?'valid':'empty-selection'};
+    }
+    if(decision.kind==='abstain')return {tokens:[],status:'abstained'};
+    return {tokens:[],status:'unsupported-decision-kind'};
+  };
+  const bindTraceInputs=(trace,receipt,promptBinding,frontierBinding)=>{
+    const publicReceipt=receipt??null;
+    const promptValue=promptBinding??null;
+    const frontierValue=frontierBinding??null;
+    if(publicReceipt!==null)assertActorOnlyJson(publicReceipt);
+    if(promptValue!==null)assertActorOnlyJson(promptValue);
+    if(frontierValue!==null)assertActorOnlyJson(frontierValue);
+    trace.publicEventReceipt=publicReceipt;
+    trace.publicEventReceiptSha256=publicReceipt===null?null:digest(publicReceipt);
+    trace.promptProjection=promptValue;
+    trace.promptProjectionSha256=promptValue===null?null:digest(promptValue);
+    trace.actionFrontier=frontierValue;
+    trace.actionFrontierSha256=frontierValue===null?null:digest(frontierValue);
+    trace.inputBindingSha256=digest({
+      observation:trace.actorInput,
+      publicEventReceipt:publicReceipt,
+      promptProjection:promptValue,
+      actionFrontier:frontierValue
+    });
+  };
+  const createRequestTrace=(request,role,actorSeat,observation)=>{
+    assert.ok(observation&&typeof observation==='object'&&!Array.isArray(observation),
+      'driver-supplied actor observation must be a JSON object');
+    assertActorOnlyJson(observation);
+    const actorInputSha256=digest(observation);
+    const suppliedDigest=typeof request.actorObservationSha256==='string'?
+      request.actorObservationSha256:null;
+    const trace={
+      schema:'agent6-worker-decision-trace-v1',
+      traceStatus:'request-prepared',
+      failureCode:null,
+      requestId:null,sequence:null,role,seat:actorSeat,
+      policyVersion:null,bundleSha256:null,
+      actionOrdinal:Number.isSafeInteger(request.actionOrdinal)?request.actionOrdinal:null,
+      decisionKind:request.decisionKind??observation.decisionKind??null,
+      decision:null,
+      actorInput:observation,
+      actorInputSha256,
+      actorObservationSha256:suppliedDigest,
+      publicEventReceipt:null,publicEventReceiptSha256:null,
+      promptProjection:null,promptProjectionSha256:null,
+      actionFrontier:null,actionFrontierSha256:null,inputBindingSha256:null,
+      selectedTokens:[],selectedItems:[],selectedItemsSha256:digest([]),
+      unmatchedSelectedTokens:[],selectionStatus:'not-returned',
+      policyAudit:null,policyAuditSha256:null,
+      validationReceipt:null,validationReceiptSha256:null
+    };
+    bindTraceInputs(trace,null,null,emptyFrontier);
+    return trace;
+  };
+  const enrichTrace=(trace,response,promptBinding,frontierBinding)=>{
+    const decision=response?.decision??null;
+    trace.requestId=typeof response?.requestId==='string'?response.requestId:null;
+    trace.sequence=Number.isSafeInteger(response?.sequence)?response.sequence:null;
+    trace.role=typeof response?.role==='string'?response.role:trace.role;
+    trace.seat=Number.isSafeInteger(response?.seat)?response.seat:trace.seat;
+    trace.policyVersion=typeof response?.policyVersion==='string'?response.policyVersion:null;
+    trace.bundleSha256=typeof response?.bundleSha256==='string'?response.bundleSha256:null;
+    if(decision!==null){
+      try{assertActorOnlyJson(decision);trace.decision=decision;}catch{}
+    }
+    const tokenInfo=selectedTokensOf(decision);
+    trace.selectedTokens=tokenInfo.tokens;
+    const source=promptBinding?.choices??frontierBinding?.items??[];
+    const selectedItems=[];
+    const unmatched=[];
+    for(const token of tokenInfo.tokens){
+      const item=Array.isArray(source)?source.find(row=>row&&row.token===token):null;
+      if(item)selectedItems.push(item);
+      else unmatched.push(token);
+    }
+    trace.selectedItems=selectedItems;
+    trace.unmatchedSelectedTokens=unmatched;
+    trace.selectedItemsSha256=digest(selectedItems);
+    trace.selectionStatus=tokenInfo.status==='valid'?
+      (unmatched.length===0?'resolved':'unresolved-token'):
+      tokenInfo.status;
+    if(response?.policyAudit!==undefined&&response?.policyAudit!==null){
+      try{
+        assertActorOnlyJson(response.policyAudit);
+        trace.policyAudit=response.policyAudit;
+        trace.policyAuditSha256=digest(response.policyAudit);
+      }catch{
+        trace.policyAudit=null;
+        trace.policyAuditSha256=null;
+      }
+    }
+    bindTraceInputs(trace,trace.publicEventReceipt,promptBinding,frontierBinding);
+    trace.traceStatus='response-received';
+  };
+  const setValidationReceipt=(trace,receipt)=>{
+    assertActorOnlyJson(receipt);
+    trace.validationReceipt=receipt;
+    trace.validationReceiptSha256=digest(receipt);
+    trace.traceStatus='validated';
+    trace.failureCode=null;
+  };
+  const attachTrace=(error,trace)=>{
+    if(!trace)return error;
+    if(error&&typeof error==='object'&&error.workerDecisionTrace)return error;
+    let target=error&&typeof error==='object'?error:
+      new Error(String(error??'worker decision failed'));
+    try{
+      Object.defineProperty(target,'workerDecisionTrace',{
+        value:trace,enumerable:true,configurable:true
+      });
+      return target;
+    }catch{
+      const wrapped=new Error(String(error?.message??error??'worker decision failed'));
+      wrapped.name=error?.name??'Error';
+      if(typeof error?.code==='string')wrapped.code=error.code;
+      wrapped.cause=error;
+      wrapped.workerDecisionTrace=trace;
+      return wrapped;
+    }
+  };
+  const requirePolicyAudit=(response,requestShape)=>{
+    assert.ok(response?.policyAudit&&
+      response.policyAudit.schema===workerProtocol.POLICY_AUDIT_SCHEMA,
+      'registered candidate/opponent policy must return a validated per-decision policyAudit');
+    workerProtocol.validatePolicyAudit(
+      response.policyAudit,requestShape,response.decision,response.policyVersion
+    );
+    assert.equal(response.policyAudit.policyVersion,response.policyVersion);
+    assert.equal(response.policyAudit.decisionKind,requestShape.observation.decisionKind);
+  };
   return async request=>{
     assert.equal(request?.kind,'native-fixture-decision',
       'unexpected native fixture yield');
@@ -1905,12 +2194,32 @@ function createV3WorkerDecisionResolver({
     }
     const roleAudit=workerAudit.roles[role];
     const session=sessionsBySeat[actorSeat];
-    assert.ok(session&&typeof session.decide==='function',
-      'persistent role worker is unavailable for the acting seat');
+    let decisionTrace=null;
     try{
-      const observation=native.observe(request.state,actorSeat);
+      assert.ok(session&&typeof session.decide==='function',
+        'persistent role worker is unavailable for the acting seat');
+      const observation=request.actorObservation;
+      decisionTrace=createRequestTrace(request,role,actorSeat,observation);
+      const actorDigest=request.actorObservationSha256;
+      if(!Number.isSafeInteger(request.actionOrdinal)||request.actionOrdinal<0){
+        const error=new Error('native worker request requires a zero-based action ordinal');
+        error.code='WORKER_ACTION_ORDINAL_INVALID';
+        throw error;
+      }
+      if(!SHA256.test(actorDigest??'')||decisionTrace.actorInputSha256!==actorDigest){
+        const error=new Error('driver actor-observation digest does not match the exact worker input');
+        error.code='ACTOR_OBSERVATION_DIGEST_MISMATCH';
+        throw error;
+      }
+      assert.equal(observation.actorSeat,actorSeat,
+        'driver actor observation belongs to a different physical seat');
+      assert.equal(observation.decisionKind,request.decisionKind,
+        'driver actor observation decision kind does not match the native request');
+      assert.ok(request.decisionKind==='owner-root'||request.decisionKind==='owner-prompt',
+        'native worker request has an unsupported decision kind');
       const receipt=request.state.activePlayer===actorSeat?
         eventReceipt(request.state,actorSeat,null,null):null;
+      bindTraceInputs(decisionTrace,receipt,null,emptyFrontier);
       if(request.prompt){
         const activeProvenanceHook=provenanceContext?.current??provenanceHook;
         const projected=promptProjection.projectPrompt({
@@ -1933,8 +2242,13 @@ function createV3WorkerDecisionResolver({
             }
           };
         }
+        const promptBinding=projected.promptProjection;
+        bindTraceInputs(decisionTrace,receipt,promptBinding,emptyFrontier);
+        const requestShape={
+          observation,prompt:promptBinding,actionFrontier:emptyFrontier
+        };
         const response=await session.decide({
-          observation,prompt:projected.promptProjection,
+          observation,prompt:promptBinding,
           publicEventReceipt:receipt,actionFrontier:emptyFrontier
         });
         roleAudit.decisionCount++;
@@ -1942,21 +2256,44 @@ function createV3WorkerDecisionResolver({
         roleAudit.policyDrawCounts.push(response.policyDrawCount);
         roleAudit.promptDecisionCount++;
         workerAudit.totalWorkerDecisions++;
+        enrichTrace(decisionTrace,response,promptBinding,emptyFrontier);
+        assert.equal(response.role,role,'worker response role changed across its request');
+        assert.equal(response.seat,actorSeat,'worker response physical seat changed across its request');
+        requirePolicyAudit(response,requestShape);
         if(response.decision?.kind==='abstain'){
           roleAudit.lastAbstentionReasonCode=response.decision.reasonCode;
           const error=new Error('role worker abstained on an owner prompt');
           error.code='POLICY_ABSTAINED';
           throw error;
         }
-        assert.ok(['select-choice','select-choices'].includes(response.decision?.kind),
-          'worker returned an unsupported prompt decision kind');
+        if(!['select-choice','select-choices'].includes(response.decision?.kind)){
+          const error=new Error('worker returned an unsupported prompt decision kind');
+          error.code='UNSUPPORTED_WORKER_PROMPT_DECISION';
+          throw error;
+        }
         const prepared=promptProjection.dispatchPromptChoice({
           store:request.store,prompt:request.prompt,state:request.state,actorSeat,
-          projection:projected,decision:response.decision,native,dispatch:false
+          projection:projected,decision:response.decision,native,dispatch:false,
+          withValidationRandom:request.withValidationRandom
         });
+        assert.ok(prepared.validationReceipt?.nativeValidationStoreMode==='cloned-store'&&
+          prepared.validationReceipt?.fullOriginalStoreStateUnchanged===true&&
+          prepared.validationReceipt?.clonedPromptResolved===true,
+          'worker-selected prompt choice requires observed cloned-Store settlement');
+        const validationReceipt={
+          ...prepared.validationReceipt,
+          selectedItemsSha256:decisionTrace.selectedItemsSha256,
+          promptProjectionSha256:decisionTrace.promptProjectionSha256,
+          actionFrontierSha256:decisionTrace.actionFrontierSha256
+        };
+        assert.deepEqual(validationReceipt.selectedTokens,decisionTrace.selectedTokens,
+          'cloned prompt receipt must bind the exact worker-selected tokens');
+        setValidationReceipt(decisionTrace,validationReceipt);
         return {
           __nativeFixtureDecisionResolution:true,
           action:prepared.action,
+          validationReceipt,
+          decisionTrace,
           promptResolution:{
             kind:'worker-choice',decisionKind:response.decision.kind,
             selectedCount:Array.isArray(prepared.rawResult)?prepared.rawResult.length:1
@@ -1975,13 +2312,14 @@ function createV3WorkerDecisionResolver({
         throw error;
       }
       const {frontier,admission}=request.withValidationRandom(()=>{
-        const enumerator=knownCapFreeActionEnumerator.createKnownCapFreeActionEnumerator({
+        const enumerator=actionEnumerator.createKnownCapFreeActionEnumerator({
           native,enginePin:V3_FIXTURE.engineCommit
         });
         const frontier=actionFrontier.buildNativeActionFrontier({
           state:request.state,actorSeat,native,enumerator
         });
-        const admission=knownCapFreeActionEnumerator.assertKnownCapFreeAdapterAdmissionClear({
+        bindTraceInputs(decisionTrace,receipt,null,frontier.actionFrontier);
+        const admission=actionEnumerator.assertKnownCapFreeAdapterAdmissionClear({
           enumerator,enginePin:V3_FIXTURE.engineCommit,
           frontierDiagnostics:frontier.diagnostics
         });
@@ -1989,6 +2327,9 @@ function createV3WorkerDecisionResolver({
       });
       roleAudit.rootActionFrontierAdmissionCount++;
       roleAudit.rootActionFrontierAdmissionReceipts.push(admission);
+      const requestShape={
+        observation,prompt:null,actionFrontier:frontier.actionFrontier
+      };
       const response=await session.decide({
         observation,prompt:null,publicEventReceipt:receipt,
         actionFrontier:frontier.actionFrontier
@@ -1998,14 +2339,27 @@ function createV3WorkerDecisionResolver({
       roleAudit.policyDrawCounts.push(response.policyDrawCount);
       roleAudit.rootDecisionCount++;
       workerAudit.totalWorkerDecisions++;
+      enrichTrace(decisionTrace,response,null,frontier.actionFrontier);
+      assert.equal(response.role,role,'worker response role changed across its request');
+      assert.equal(response.seat,actorSeat,'worker response physical seat changed across its request');
+      requirePolicyAudit(response,requestShape);
       if(response.decision?.kind==='abstain'){
         const error=new Error('role worker abstained on an owner root decision');
         error.code='POLICY_ABSTAINED';
         throw error;
       }
-      assert.equal(response.decision?.kind,'select-action',
-        'worker returned a non-action decision for an owner root');
-      const selectedItem=assertTrustedActionSelection(frontier,response.decision.token);
+      if(response.decision?.kind!=='select-action'){
+        const error=new Error('worker returned a non-action decision for an owner root');
+        error.code='UNSUPPORTED_WORKER_ROOT_DECISION';
+        throw error;
+      }
+      let selectedItem;
+      try{
+        selectedItem=assertTrustedActionSelection(frontier,response.decision.token);
+      }catch(error){
+        if(!error.code)error.code='WORKER_SELECTED_TOKEN_UNTRUSTED';
+        throw error;
+      }
       const validationEvidence={};
       const action=actionFrontier.dispatchSelectedNativeAction({
         store:request.store,frontier,token:response.decision.token,
@@ -2019,27 +2373,39 @@ function createV3WorkerDecisionResolver({
         'selected worker action must be a member of the native action frontier');
       assert.equal(validationEvidence.nativeValidationStoreMode,'cloned-store',
         'selected worker action must be revalidated on a cloned native Store');
-      if(stopBeforeLiveDispatch===true){
-        return {
-          __nativeFixtureDecisionResolution:true,
-          action,
-          validationReceipt:{
-            actorSeat,role,selectedActionValidated:true,
-            nativeActionFrontierUsed,
-            nativeValidationStoreMode:validationEvidence.nativeValidationStoreMode,
-            actionKind:selectedItem.kind,
-            frontierItemCount:frontier.actionFrontier.items.length
-          }
-        };
-      }
-      return action;
+      assert.equal(validationEvidence.fullOriginalStoreStateUnchanged,true,
+        'cloned action validation must preserve the full original Store state graph');
+      const validationReceipt={
+        schema:'agent6-cloned-store-root-validation-v1',
+        ...validationEvidence,
+        nativeActionFrontierUsed,
+        selectedActionValidated:true,
+        actorSeat,
+        selectedToken:response.decision.token,
+        selectedItemSha256:digest(selectedItem),
+        frontierSha256:decisionTrace.actionFrontierSha256
+      };
+      setValidationReceipt(decisionTrace,validationReceipt);
+      return {
+        __nativeFixtureDecisionResolution:true,
+        action,
+        validationReceipt,
+        decisionTrace,
+        promptResolution:{
+          kind:'worker-root',decisionKind:response.decision.kind,selectedCount:1
+        }
+      };
     }catch(error){
+      if(decisionTrace){
+        decisionTrace.traceStatus='failed';
+        decisionTrace.failureCode=safeCode(error);
+        error=attachTrace(error,decisionTrace);
+      }
       recordFailure(roleAudit,error,session);
       throw error;
     }
   };
 }
-
 function buildV3RunnerFailureError({
   runnerFailure=null,nestedRoleFailure=null,runnerCleanupFailures=[],runnerStage='native-v3-runner',
   workerAudit=null
@@ -2706,60 +3072,17 @@ async function runV3FixtureGame({
   const fullStateTraceAggregateHashMatches=
     evidenceBundleSha256(fullStateTraceDecisionRows)===gameResult?.decisionTraceSha256&&
     evidenceBundleSha256(fullStateTraceRootLedger)===gameResult?.rootActionLedgerSha256;
-  const fullStateTraceOrdinalJoinMatches=fullStateTraceSteps.length===fullStateTraceRootLedger.length&&
-    fullStateTraceSteps.every((step,index)=>
-      step.actionOrdinal===fullStateTraceRootLedger[index]?.actionOrdinal+1);
-  const fullStateTraceDecisionJoinMatches=fullStateTraceDecisionRows.length===fullStateTraceRootLedger.length&&
-    fullStateTraceDecisionRows.every((row,index)=>{
-      const ledger=fullStateTraceRootLedger[index];
-      return row.actionOrdinal===ledger?.actionOrdinal&&
-        row.actingSeat===ledger?.actorSeat&&
-        row.decisionKind===ledger?.decisionKind&&
-        row.workerDecisionTraceSha256===ledger?.workerDecisionTraceSha256&&
-        row.validationReceiptSha256===ledger?.validationReceiptSha256;
-    });
+  const fullStateTraceJoins=validateV3FullStateTraceJoins({
+    steps:fullStateTraceSteps,
+    rootActionLedger:fullStateTraceRootLedger,
+    decisionRows:fullStateTraceDecisionRows
+  });
+  const fullStateTraceOrdinalJoinMatches=fullStateTraceJoins.ordinalJoinMatches;
+  const fullStateTraceDecisionJoinMatches=fullStateTraceJoins.decisionJoinMatches;
   const fullStateTraceWorkerDecisionRows=fullStateTraceDecisionRows.filter(row=>
     row.decisionKind==='owner-root'||row.decisionKind==='owner-prompt');
   const fullStateTraceWorkerAuditComplete=fullStateTraceWorkerDecisionRows.length>0&&
-    fullStateTraceWorkerDecisionRows.every(row=>{
-      const trace=row.workerDecisionTrace;
-      const receipt=row.validationReceipt;
-      const receiptSemanticsValid=row.decisionKind==='owner-root'?
-        receipt?.schema==='agent6-cloned-store-root-validation-v1'&&
-          receipt.selectedActionValidated===true&&
-          receipt.actorSeat===row.actingSeat&&
-          receipt.nativeActionFrontierUsed===true&&
-          receipt.nativeValidationStoreMode==='cloned-store'&&
-          receipt.fullOriginalStoreStateUnchanged===true:
-        row.decisionKind==='owner-prompt'?
-          receipt?.schema==='agent6-cloned-store-prompt-validation-v1'&&
-          receipt.promptDecodeValidated===true&&
-          receipt.actorSeat===row.actingSeat&&
-          receipt.clonedPromptResolved===true&&
-          receipt.nativeValidationStoreMode==='cloned-store'&&
-          receipt.fullOriginalStoreStateUnchanged===true:false;
-      return trace?.schema==='agent6-worker-decision-trace-v1'&&
-        trace.actionOrdinal===row.actionOrdinal&&
-        trace.actorInput&&typeof trace.actorInput==='object'&&
-        trace.actorObservationSha256===row.actorObservationSha256&&
-        trace.actorInputSha256===evidenceBundleSha256(trace.actorInput)&&
-        trace.actorInputSha256===trace.actorObservationSha256&&
-        trace.seat===row.actingSeat&&
-        trace.decisionKind===row.decisionKind&&
-        trace.policyAudit&&typeof trace.policyAudit==='object'&&
-        trace.policyAudit.schema===workerProtocol.POLICY_AUDIT_SCHEMA&&
-        /^[a-f0-9]{64}$/.test(trace.policyAuditSha256??'')&&
-        evidenceBundleSha256(trace.policyAudit)===trace.policyAuditSha256&&
-        /^[a-f0-9]{64}$/.test(row.workerDecisionTraceSha256??'')&&
-        evidenceBundleSha256(trace)===row.workerDecisionTraceSha256&&
-        receipt&&typeof receipt==='object'&&
-        trace.validationReceipt&&typeof trace.validationReceipt==='object'&&
-        evidenceBundleSha256(trace.validationReceipt)===row.validationReceiptSha256&&
-        receiptSemanticsValid&&
-        /^[a-f0-9]{64}$/.test(row.validationReceiptSha256??'')&&
-        evidenceBundleSha256(receipt)===row.validationReceiptSha256&&
-        trace.validationReceiptSha256===row.validationReceiptSha256;
-    });
+    fullStateTraceWorkerDecisionRows.every(validateV3WorkerDecisionTrace);
   const fullStateTraceWorkerDecisionCountMatches=Number.isSafeInteger(workerExecutionAudit?.totalWorkerDecisions)&&
     fullStateTraceWorkerDecisionRows.length===workerExecutionAudit.totalWorkerDecisions;
   const fullStateTraceAcceptance=fullStateTraceRecorder?{
@@ -3739,7 +4062,7 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,V3_FIXTURE,V3_FIXTURE_TEST_PATHS,p
   fixtureChallengeSuiteSha256,
   loadWorkerPolicyModule,buildRoleWorkerBundle,loadNativeRoleDependencies,V3_FIXTURE,
   assertWorkerOnlyPolicyPathsAbsentFromHostClosure,preloadRoleHostModules,
-  createV3WorkerExecutionAudit,createV3WorkerDecisionResolver,
+  createV3WorkerExecutionAudit,createV3WorkerDecisionResolver,validateV3WorkerDecisionTrace,validateV3FullStateTraceJoins,
   buildFixturePolicyConstraints,
   buildFixtureRoleIdentities,
   buildFixturePolicyPlan,
