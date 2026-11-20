@@ -164,6 +164,16 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
       pendingBenchPlacementsAtEnd:0,rejectedNativeReplies:0,
       privateField:'PRIVATE_AUDIT_SENTINEL'
     }},
+    candidateAudit:{setupPromptDecisions:[{
+      promptId:'PRIVATE_SETUP_PROMPT_ID',selectedHandIndices:[0],
+      selectedPrintings:['PRIVATE_SETUP_PRINTING'],
+      nativeError:'PRIVATE_SETUP_NATIVE_ERROR'
+    }]},
+    opponentAudit:{setupPromptDecisions:[{
+      promptId:'PRIVATE_OPPONENT_SETUP_PROMPT_ID',selectedHandIndices:[1],
+      selectedPrintings:['PRIVATE_OPPONENT_SETUP_PRINTING'],
+      nativeError:'PRIVATE_OPPONENT_SETUP_NATIVE_ERROR'
+    }]},
     trial:{trialId:'fixture-1',candidateSeat:0,originalSourceSeat:1,
       actualFirstPlayerSeat:1,seed:'fixed-seed',seed32:123,
       vendorCommitSha:'e'.repeat(40),researchRevisionSha:'f'.repeat(40),
@@ -196,8 +206,14 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
         },
         selectedCardIdentity:{fullName:'PubliclyPlayedCard',handIndex:0},
         promptResolverContext:{
+          promptId:'PRIVATE_SETUP_PROMPT_ID',
+          playerId:'PRIVATE_SETUP_PLAYER_ID',
+          perspectivePlayerId:'PRIVATE_SETUP_PERSPECTIVE_ID',
           promptType:'ChooseCardsPrompt',
-          availableOptions:{cards:['PRIVATE_PROMPT_CARD']}
+          selectedHandIndices:[0],
+          selectedPrintings:['PRIVATE_SETUP_PRINTING'],
+          nativeError:'PRIVATE_SETUP_NATIVE_ERROR',
+          availableOptions:{cards:['PRIVATE_PROMPT_CARD'],selectedCards:[0]}
         }
       },{
         actionOrdinal:0,actingSeat:0,turnBefore:1,phaseBefore:0,
@@ -257,6 +273,10 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
   const json=JSON.stringify(sanitized);
   for(const secret of [
     'PRIVATE_HAND_SENTINEL','PRIVATE_PRIZE_SENTINEL','PRIVATE_PROMPT_CARD',
+    'PRIVATE_SETUP_PROMPT_ID','PRIVATE_SETUP_PLAYER_ID','PRIVATE_SETUP_PERSPECTIVE_ID',
+    'PRIVATE_SETUP_PRINTING','PRIVATE_SETUP_NATIVE_ERROR',
+    'PRIVATE_OPPONENT_SETUP_PROMPT_ID','PRIVATE_OPPONENT_SETUP_PRINTING',
+    'PRIVATE_OPPONENT_SETUP_NATIVE_ERROR',
     'PRIVATE_BOUNDARY_SENTINEL','PRIVATE_AUDIT_SENTINEL',
     'PRIVATE_SUMMARY_SENTINEL','FULL_STATE_SENTINEL',
     'PARTIAL_FULL_STATE_SENTINEL','PRIVATE_SETUP_OWN_ACTIVE_0',
