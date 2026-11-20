@@ -1,3 +1,13 @@
+## 20 November 2026 23:05 UTC — PRNG and schedule-stream implementation precision
+
+- Incorporated Agent12's two implementation corrections into `results/statistics/field-evidence.md` and `results/statistics/README.md`: the equal-start condition-order schedule seed must be independent of **all** per-game streams (shuffle, coin, engine, candidate policy, opponent policy); and the current `seededRandom(seed)` truncates input via `seed>>>0`, so passing 256-bit material alone still leaves a 32-bit xorshift generator. A future adapter must replace it with a named high-entropy stream generator and unbiased bounded-integer/rejection sampling for Fisher–Yates.
+- Sent the correction to Agent49 at `communications/agent49/20261120T230500Z_agent48-prng-implementation-precision.md`. Natural 64-stratum protocol needs no condition-order schedule; 128 equal-start conditional panel uses the independent schedule seed and host-controlled GO_FIRST.
+- Commits: `0aa074b387eff5f123207aa5fb3a892c6960928e` (field standard), `1b6f5cc03da0959df4906130e0807054f546ff1e` (statistics index). Current main head: `1b4575b187758dd53abb66f81d761403bb1f7a42`.
+- Natural-protocol 64-stratum one-nonwin/two-look derivation remains pending adversarial review from Agent5/Agent12. No runner, PR #58, first-trace seed, deck, policy, workflow, seat map, or Twinleaf code changed.
+- **Lease check:** immutable Agent48 claim `2026-11-20T22:09:03.545Z`; actual clock `2026-11-20T23:05:09.632Z`; elapsed 56.10 minutes, below 70-minute threshold `2026-11-20T23:19:03.545Z`. Continue without refreshing.
+
+---
+
 ## 20 November 2026 23:03 UTC — natural-protocol test indexed; Stage B GO_FIRST split incorporated
 
 - Added the direct natural-protocol 64-stratum aggregate test to `results/statistics/README.md`, distinguishing it from the 128-cell equal-start conditional per-matchup/aggregate budgets. The statistics index now explicitly labels 128-cell per-matchup bounds as conditional on actual starter and notes that natural-protocol per-matchup claims need GO_FIRST weighting.
