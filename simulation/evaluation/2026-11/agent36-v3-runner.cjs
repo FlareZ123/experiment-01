@@ -164,9 +164,9 @@ function loadNativeRoleDependencies({enginePin}={}){
  * {fixtureFailure, fixtureGamePartial} envelope is nested under roleResult.result.
  * A wrapper/runtime failure may instead return the envelope directly.
  */
-// The role composer emits actorOnlyBoundary; the downstream trial/receipt schema
-// deliberately uses actorOnlyExecutionBoundary. Keep this name translation at
-// the single composer-to-trial boundary so the receipt cannot silently hash null.
+// Legacy composer-only projection. The current V3 worker path does not invoke
+// the SimpleTacticsAi role composer, so this intentionally returns null there.
+// V3 acceptance uses projectV3WorkerExecutionBoundaryToTrial instead.
 function projectActorOnlyBoundaryToTrial(roleResult){
   return roleResult?.actorOnlyBoundary ?? null;
 }
