@@ -104,11 +104,14 @@ test('rejects opponent concealed-zone, engine-state, and RNG fields recursively'
   for (const actorView of [
     { actorSeat: 0, opponentHandCards: ['secret'] },
     { actorSeat: 0, opponentPublic: { hiddenDeckIdentities: ['secret'] } },
+    { actorSeat: 0, opponentPublic: { hand: ['secret'] } },
+    { actorSeat: 0, opponentPublic: { deck: ['secret'] } },
+    { actorSeat: 0, opponentPublic: { prizes: ['secret'] } },
     { actorSeat: 0, prompt: { nativeState: {} } },
     { actorSeat: 0, publicEventReceipt: { randomSeed: 123 } }
   ]) {
     assert.throws(() => assertActorOnlyView(actorView),
-      /forbidden|concealed-zone|concealed deck\/prize/);
+      /forbidden|concealed-zone|concealed deck\/prize|raw opponent/);
   }
 });
 
