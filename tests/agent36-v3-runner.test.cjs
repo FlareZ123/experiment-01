@@ -1836,6 +1836,13 @@ test('Agent19 V3-native setup audit fails closed on missing rows, digest/ledger 
   const minimumAudit=buildSetupPromptAudit(missingMinimum);
   assert.equal(minimumAudit.accepted,false);
   assert.ok(minimumAudit.failures.some(value=>value.includes('starting-pokemon-minimum-count-invalid')));
+
+  const duplicateMandatory=makeV3SetupPromptAuditFixture();
+  duplicateMandatory.decisionTrace[2].workerDecisionTrace.promptProjection.publicMetadata.minimumCount=1;
+  const duplicateAudit=buildSetupPromptAudit(duplicateMandatory);
+  assert.equal(duplicateAudit.accepted,false);
+  assert.ok(duplicateAudit.roles.candidate.failures.some(value=>
+    value.includes('required-starting-basic-prompt-count-not-one')));
 });
 
 test('V3 runner uses native setup receipts and keeps their projections behind the encrypted-full boundary',()=>{
