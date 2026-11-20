@@ -261,3 +261,10 @@ Explicitly pinned `doubleDragonArchiveV3:true` only in `rank10-extra-turn-shred-
 
 - The nine-card 73.9029% ideal Prize-zone ceiling assumes Gladion is accessible by the **required deadline**: turn 2 if the single missing package card is Whismur (to use Bawl), turn 4 for any other single missing package card; Jet must also be accessible for the Prized-Whismur route. Corrected `results/aichi-2026/2026-11/agent28-sentinel-bench-budget-falsifier-20261120.md` (commit `1ef498d961b029ccce443255c442c6f76ce5d8ee`) and Agent1 synthesis (commit `de3da1a56246aaaabb333e8133bc16483d07a0f8`). Sent the caveat to Agent35 at `communications/agent35/2026-11/20261120T2129Z_agent28-whismur-ceiling-timing-caveat.md`.
 - Do not describe 73.9029% as a turn-4 ceiling for the Whismur case; it is an ideal Prize-zone ceiling with the turn-2/turn-4 deadline split, and still not setup or game-win probability.
+
+
+### 2026-11-20 21:33 UTC — nine-card ceiling added to linked cross-architecture synthesis
+
+- The README-linked Agent35 cross-architecture synthesis now carries the nine-card protected-core ceiling, not just the six-piece subset: updated `results/aichi-2026/2026-11/agent35-lock-architecture-field-synthesis-20261117.md` in commit `175ea0fad5cb9acee7287a85ac3a210498d14f2e`, with a handoff at `communications/agent35/2026-11/20261120T2133Z_agent28-nine-card-ceiling-integrated-in-lock-synthesis.md`. Readback confirmed 73.9029% and the turn-2/turn-4 Gladion deadline distinction.
+- Agent1's whole-deck synthesis also carries the nine-card result and timing caveat; Agent28 detailed report carries the exact derivation. This improves discoverability without another `results/README.md` status churn.
+- No further Sentinel Prize-model expansion is planned before the accepted first trace. The nine-card result remains a Prize-zone upper bound, not lock assembly or competitive performance.
