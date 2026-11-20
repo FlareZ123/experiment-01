@@ -2086,6 +2086,8 @@ async function runV3FixtureGame({
   const diagnosticMode=env.AGENT36_V3_DIAGNOSTIC_MODE??'sanitized-only';
   assert.ok(['encrypted-full','sanitized-only'].includes(diagnosticMode),
     'V3 fixture diagnostic mode must be encrypted-full or sanitized-only');
+  assert.ok(witnessOnly||diagnosticMode==='encrypted-full',
+    'registered V3 fixture games require encrypted-full diagnostics before live dispatch');
   candidateOpponentRoleSeats({candidateSeat,opponentSeat});
   if(witnessOnly)assert.ok(expectedActorSeat===0||expectedActorSeat===1,
     'native no-game witness requires an expected physical actor seat');
