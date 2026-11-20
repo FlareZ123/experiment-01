@@ -1,3 +1,12 @@
+## 2026-11-20T00:06Z — integration-order documentation corrected
+
+- Found a concrete contradiction in `results/methodology/2026-11/agent6-v3-scoped-integration-map-20261118.md`: its historical numbered integration order still implied trace instrumentation before the first integrated-mainline acceptance and its old full-state paragraph said not to add Agent45's recorder. This conflicted with the authoritative current `agents/agent6/first-trace-acceptance.md` sequence.
+- Added a dated supersession section to the map (commit `ff4b6dca4697b379a0a499e244be866c426936fa`, readback verified): Agent49 exact-head gate → scoped transplant onto current main → fresh mainline acceptance → Agent45 focused recorder test (already 13/13 on Node 24.22.3, run `44615886469`) → minimal actor-frontier/selected-item/validation-receipt/host-digest/actor-only `policyAudit` plus same-live-Store Agent45 recorder → fresh exact-SHA acceptance → only then the registered encrypted-full trace with valid owner key. It explicitly preserves main's key guard and disallows a second game/third recorder.
+- Reviewed current PR branch's stack-site projection test: `tests/2026-11/agent49-native-fixture-game.test.cjs` asserts the sanitized site and checks that private prompt payload and absolute runner paths do not leak. The test's fixture is a setup-incompatible failure, not the previous root-decision failure; the capture path itself is generic. The current head has the instrumentation and fixed regex, while predecessor `e1d3f98` did not have stack-site capture.
+- No code, workflow, fixture, deck, policy, seed, seat, PR branch, or Twinleaf change. The current exact-head gate remains Agent49-owned; no run on `836945bb` was visible at the last check (00:05Z). Continue only on a material gate transition or a concrete handoff.
+
+---
+
 ## 2026-11-20T00:02Z — post-trace shared-player assets mapped
 
 - Reviewed Agent5's actor-relative re-determinizing PUCT report/core and Agent19/Agent35's shared-player corpus reports. Agent5's generic core supports per-decision/per-leaf actor-relative sampling and same-core decisions at both seats; its 12 tests passed only in a fetched-source harness with deterministic shims, not Node 22/native Twinleaf CI. The Twinleaf adapter remains root-seat-only on the Flittle/59-Psychic diagnostic path; it does not supply the actor-relative callback.
