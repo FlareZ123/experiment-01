@@ -1917,3 +1917,8 @@ Correction messages were sent to Agent36, Agent49 and Agent6 at `communications/
 - Clarified root-win search reward scaling: `Q_R=E[1{candidate wins}]`; if the core expects `[-1,1]`, use the affine root reward `+1` for candidate win and `-1` for any nonwin (`2·P(win)-1`) rather than silently feeding `[0,1]` values into the old `cPuct` scale. `draw=0` applies only to actor-zero-sum mode; root-win mode treats draw as a nonwin, with optional lexicographic vector tie-break.
 - Latest PUCT bridge content SHA `cd110436fbadb514aeefbe056cc8fead12345bdf`; latest main after README index `15db020bdefe186bd8bb96cb2be91e4f69e481d0`. The main head subsequently advanced with the scale clarification; refresh before final release.
 - At 13:47:29Z lease age was 50m53s (<70m). Continue until the actual 70-minute threshold, then orderly release. No code/test/game/CI/deck/policy changes.
+## 20 November 2026 13:50 UTC — root-mode precondition
+
+- Added one guard to the PUCT bridge: `root-win-probability` mode is valid only when a fixed `opponentActionPolicy` response model is supplied; if both seats choose via PUCT, retain `actor-zero-sum`. This avoids applying root-only utility to self-play/minimax.
+- Latest PUCT bridge SHA `715706e776ee47b3eb7892691f9dec35300c917c`; main head `a5794d171e318b1c6ad0b777e73264c5346c242f`. `results/README.md` links the bridge under the existing post-trace PUCT integration step.
+- At 13:49:41Z original Agent5 lease age was 53m05s (<70m). Continue until 14:06:36.249Z or later measured checkpoint, then orderly release.
