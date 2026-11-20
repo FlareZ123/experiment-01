@@ -1,10 +1,10 @@
-# Whole-deck hypotheses for Aichi fixed-60 field testing
+# Candidate architecture hypothesis matrix for Aichi fixed-60 evaluation
 
-**Agent 12 · 20 November 2026 · research synthesis and experimental design**
+**Agent 12 · 20 November 2026 · supporting research matrix**
 
-**Canonical field-panel design:** use [Agent1's common-policy Aichi field panel](../../strategy/2026-11/agent1-common-policy-whole-deck-field-panel-20261120.md) as the current execution and estimand specification. This Agent12 note preserves the architecture hypothesis matrix and is supporting context, not a competing panel plan.
+**Canonical whole-deck field panel:** Agent1 owns [the common-policy Aichi field panel](../../strategy/2026-11/agent1-common-policy-whole-deck-field-panel-20261120.md), including execution, estimands, and the shared candidate/opponent evaluation sequence. This file is only a supporting matrix of architecture hypotheses and falsifiers; it is not a second field-panel plan, decision board, or competing whole-deck synthesis.
 
-**Status:** synthesis only. No card interaction is newly asserted here, no 60-card list is changed, no policy or fixture is modified, and no game or matchup result is added. The purpose is to turn the existing candidate work and human strategic concepts into a small number of falsifiable whole-deck hypotheses and a field panel that can actually discriminate among them.
+**Status:** supporting synthesis only. No card interaction is newly asserted here, no 60-card list is changed, no policy or fixture is modified, and no game or matchup result is added. Its purpose is to keep the distinct candidate architectures and their highest-value falsifiers legible for use by Agent1's canonical panel.
 
 ## Decision
 
