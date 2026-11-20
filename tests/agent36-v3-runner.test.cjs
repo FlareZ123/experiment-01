@@ -1589,119 +1589,227 @@ test('V3 outer runner cleanup receipt preserves primary and cleanup summaries wi
 
 
 
-function makeSetupPromptAuditFixture(){
+function makeV3SetupPromptAuditFixture(){
   const {evidenceBundleSha256}=require('../simulation/evaluation/canonical-evidence-json.cjs');
-  const receipts=[
-    {seat:0,turn:0,kind:'starting-basics',promptId:'setup-basic-0',
-      selectedHandIndices:[1],selectedPrintings:['Pikachu TEU 66'],
-      nativeDispatch:'dispatch-returned'},
-    {seat:0,turn:0,kind:'go-first',promptId:'setup-first-0',
-      result:false,nativeDefaultEquivalent:true,nativeDispatch:'dispatch-returned'},
-    {seat:1,turn:0,kind:'starting-basics',promptId:'setup-basic-1',
-      selectedHandIndices:[2],selectedPrintings:['Eevee SUM 101'],
-      nativeDispatch:'dispatch-returned'}
-  ];
   const specs=[
-    {actionOrdinal:0,seat:0,promptId:'setup-basic-0',promptType:'ChooseCardsPrompt'},
-    {actionOrdinal:1,seat:0,promptId:'setup-first-0',promptType:'ConfirmPrompt'},
-    {actionOrdinal:2,seat:1,promptId:'setup-basic-1',promptType:'ChooseCardsPrompt'}
+    {actionOrdinal:0,seat:0,role:'candidate',promptId:'setup-basic-0',
+      promptType:'ChooseCardsPrompt',message:'CHOOSE_STARTING_POKEMONS'},
+    {actionOrdinal:1,seat:0,role:'candidate',promptId:'setup-first-0',
+      promptType:'ConfirmPrompt',message:'GO_FIRST'},
+    {actionOrdinal:2,seat:1,role:'opponent',promptId:'setup-basic-1',
+      promptType:'ChooseCardsPrompt',message:'CHOOSE_STARTING_POKEMONS'}
   ];
-  const decisionTrace=specs.map(spec=>{
-    const actionPayload={actionName:'ResolvePromptAction',fields:{
-      promptId:spec.promptId,result:spec.actionOrdinal===1?false:[{handIndex:spec.actionOrdinal}]
-    }};
-    return {
+  const decisionTrace=[];
+  const rootActionLedger=[];
+  const fullStateTraceSteps=[];
+  for(const spec of specs){
+    const token='token-'+spec.actionOrdinal;
+    const choice={token,label:'engine choice '+spec.actionOrdinal};
+    const selectedTokens=[token];
+    const selectedItems=[choice];
+    const selectedItemsSha256=evidenceBundleSha256(selectedItems);
+    const promptProjection={
+      schema:'agent49-native-prompt-projection-v1',
+      actingSeat:spec.seat,
+      promptType:spec.promptType,
+      description:spec.message,
+      source:{sourceKind:'engine',sourcePrinting:null,effectName:spec.message},
+      choices:[choice]
+    };
+    const promptProjectionSha256=evidenceBundleSha256(promptProjection);
+    const actionFrontier={schema:'agent6-native-action-frontier-v1',items:[]};
+    const actionFrontierSha256=evidenceBundleSha256(actionFrontier);
+    const validationReceipt={
+      schema:'agent6-cloned-store-prompt-validation-v1',
+      promptId:spec.promptId,
+      actorSeat:spec.seat,
+      promptDecodeValidated:true,
+      clonedPromptResolved:true,
+      nativeValidationStoreMode:'cloned-store',
+      fullOriginalStoreStateUnchanged:true,
+      selectedTokens,
+      selectedItemsSha256,
+      promptProjectionSha256,
+      actionFrontierSha256
+    };
+    const validationReceiptSha256=evidenceBundleSha256(validationReceipt);
+    const actorInput={schema:'agent6-actor-observation-v3',actorSeat:spec.seat,
+      decisionKind:'owner-prompt',turn:0};
+    const actorInputSha256=evidenceBundleSha256(actorInput);
+    const workerDecisionTrace={
+      schema:'agent6-worker-decision-trace-v1',
+      traceStatus:'validated',
+      failureCode:null,
+      sequence:spec.actionOrdinal+1,
+      requestId:'request-'+spec.actionOrdinal,
+      policyVersion:spec.role+'-policy-v1',
+      bundleSha256:'a'.repeat(64),
+      actionOrdinal:spec.actionOrdinal,
+      seat:spec.seat,
+      role:spec.role,
+      decisionKind:'owner-prompt',
+      actorInput,
+      actorInputSha256,
+      actorObservationSha256:actorInputSha256,
+      publicEventReceipt:null,
+      publicEventReceiptSha256:null,
+      promptProjection,
+      promptProjectionSha256,
+      actionFrontier,
+      actionFrontierSha256,
+      inputBindingSha256:evidenceBundleSha256({
+        observation:actorInput,publicEventReceipt:null,promptProjection,actionFrontier
+      }),
+      selectedTokens,
+      selectedItems,
+      selectedItemsSha256,
+      unmatchedSelectedTokens:[],
+      selectionStatus:'resolved',
+      decision:{kind:'select-choice',token},
+      policyAudit:{decisionKind:'owner-prompt',decisionType:'select-choice',
+        policyVersion:spec.role+'-policy-v1',selectedTokens},
+      policyAuditSha256:'b'.repeat(64),
+      validationReceipt,
+      validationReceiptSha256
+    };
+    const workerDecisionTraceSha256=evidenceBundleSha256(workerDecisionTrace);
+    const actionPayload={
+      actionName:'ResolvePromptAction',
+      fields:{promptId:spec.promptId,result:spec.message==='GO_FIRST'?false:[{token}]}
+    };
+    const actionPayloadSha256=evidenceBundleSha256(actionPayload);
+    const promptResolverContext={
+      promptId:spec.promptId,
+      promptType:spec.promptType,
+      playerId:'player-'+spec.seat,
+      perspectivePlayerId:'player-'+spec.seat,
+      actingSeat:spec.seat,
+      resolver:'native-prompt-resolver',
+      message:spec.message,
+      availableOptions:{}
+    };
+    const promptResolution={
+      kind:'worker-choice',decisionKind:'select-choice',selectedCount:1
+    };
+    const publicPlayers=[
+      {id:'player-0',prizes:6,active:true},
+      {id:'player-1',prizes:6,active:true}
+    ];
+    const row={
       actionOrdinal:spec.actionOrdinal,
       actingSeat:spec.seat,
+      actingPlayerId:'player-'+spec.seat,
+      phaseBefore:1,
       turnBefore:0,
-      pendingPromptId:spec.promptId,
       pendingPromptType:spec.promptType,
+      pendingPromptId:spec.promptId,
+      promptResolution,
+      isRootDecision:false,
+      policyInputKind:'native-owner-prompt',
+      promptResolverContext,
+      decisionKind:'owner-prompt',
+      workerDecisionTrace,
+      workerDecisionTraceSha256,
+      validationReceipt,
+      validationReceiptSha256,
       actionName:'ResolvePromptAction',
       actionPayload,
-      actionPayloadSha256:evidenceBundleSha256(actionPayload),
-      dispatchStatus:'succeeded'
+      actionPayloadSha256,
+      dispatchStatus:'succeeded',
+      publicStateAfter:{players:publicPlayers}
     };
-  });
-  const rootActionLedger=decisionTrace.map(row=>({
-    actionOrdinal:row.actionOrdinal,
-    actorSeat:row.actingSeat,
-    turnBefore:row.turnBefore,
-    pendingPrompt:row.pendingPromptType,
-    action:'ResolvePromptAction',
-    actionPayloadSha256:row.actionPayloadSha256,
-    dispatchStatus:'succeeded'
-  }));
-  const candidateAudit={
-    policyOwnerSeat:0,
-    setupStartingBasicPromptsHandled:1,
-    setupStartingBasicPromptsBySeat:[1,0],
-    setupGoFirstPromptsHandled:1,
-    setupGoFirstPromptsBySeat:[1,0],
-    setupPromptActionsSubmitted:2,
-    setupPromptActionsRejected:0,
-    setupPromptDecisions:receipts.slice(0,2)
+    decisionTrace.push(row);
+    rootActionLedger.push({
+      actionOrdinal:spec.actionOrdinal,
+      actorSeat:spec.seat,
+      playerId:'player-'+spec.seat,
+      turnBefore:0,
+      action:'ResolvePromptAction',
+      actionPayloadSha256,
+      pendingPrompt:spec.promptType,
+      isRootDecision:false,
+      promptResolution,
+      policyInputKind:'native-owner-prompt',
+      decisionKind:'owner-prompt',
+      workerDecisionTraceSha256,
+      validationReceiptSha256,
+      promptResolverContext,
+      dispatchStatus:'succeeded'
+    });
+    fullStateTraceSteps.push({
+      actionOrdinal:spec.actionOrdinal+1,
+      publicBoard:publicPlayers
+    });
+  }
+  const workerExecutionAudit={
+    schema:'agent49-v3-worker-execution-audit-v1',
+    totalWorkerDecisions:3,
+    roles:{
+      candidate:{seat:0,decisionCount:2,rootDecisionCount:0,promptDecisionCount:2,hostOnlyPromptCount:0},
+      opponent:{seat:1,decisionCount:1,rootDecisionCount:0,promptDecisionCount:1,hostOnlyPromptCount:0}
+    }
   };
-  const opponentAudit={
-    policyOwnerSeat:1,
-    setupStartingBasicPromptsHandled:1,
-    setupStartingBasicPromptsBySeat:[0,1],
-    setupGoFirstPromptsHandled:0,
-    setupGoFirstPromptsBySeat:[0,0],
-    setupPromptActionsSubmitted:1,
-    setupPromptActionsRejected:0,
-    setupPromptDecisions:receipts.slice(2)
+  return {
+    candidateSeat:0,opponentSeat:1,decisionTrace,rootActionLedger,
+    workerExecutionAudit,fullStateTraceSteps
   };
-  return {candidateAudit,opponentAudit,candidateSeat:0,opponentSeat:1,
-    decisionTrace,rootActionLedger};
 }
 
-test('Agent19 setup-prompt audit joins both role receipts to exact native dispatches and reconciles counters',()=>{
-  const fixture=makeSetupPromptAuditFixture();
+test('Agent19 V3-native setup audit joins starting-Basic and GO_FIRST worker receipts to driver, ledger, and recorder',()=>{
+  const fixture=makeV3SetupPromptAuditFixture();
   const audit=buildSetupPromptAudit(fixture);
-  assert.equal(audit.schema,'agent19-agent34-encrypted-setup-prompt-audit-v1');
+  assert.equal(audit.schema,'agent19-agent36-v3-native-setup-prompt-audit-v1');
   assert.equal(audit.visibility,'encrypted-full-only');
   assert.equal(audit.complete,true,audit.failures.join(','));
   assert.equal(audit.accepted,true,audit.failures.join(','));
-  assert.equal(audit.receiptCount,3);
-  assert.equal(audit.rejectedDispatchCount,0);
-  assert.deepEqual(audit.roles.candidate.receipts.map(row=>row.actionOrdinal),[0,1]);
-  assert.deepEqual(audit.roles.opponent.receipts.map(row=>row.actionOrdinal),[2]);
-  assert.ok([...audit.roles.candidate.receipts,...audit.roles.opponent.receipts]
-    .every(row=>row.joined&&row.payloadDigestVerified&&row.ledgerJoinVerified));
+  assert.equal(audit.setupPromptDecisions,3);
+  assert.deepEqual(audit.roles.candidate.counts,
+    {startingBasics:1,goFirst:1,wantToDrawCards:0});
+  assert.deepEqual(audit.roles.opponent.counts,
+    {startingBasics:1,goFirst:0,wantToDrawCards:0});
+  assert.deepEqual(audit.roles.candidate.setupPromptRows.map(row=>row.actionOrdinal),[0,1]);
+  assert.deepEqual(audit.roles.opponent.setupPromptRows.map(row=>row.actionOrdinal),[2]);
+  assert.ok([...audit.roles.candidate.setupPromptRows,...audit.roles.opponent.setupPromptRows]
+    .every(row=>row.accepted&&row.ledgerJoinVerified&&row.recorderJoinVerified));
 });
 
-test('Agent19 setup-prompt audit fails closed on missing, ambiguous, tampered, or unreconciled receipts',()=>{
-  const missing=makeSetupPromptAuditFixture();
-  delete missing.candidateAudit.setupPromptDecisions;
+test('Agent19 V3-native setup audit fails closed on missing rows, digest/ledger tampering, or recorder mismatch',()=>{
+  const missing=makeV3SetupPromptAuditFixture();
+  missing.decisionTrace.splice(0,1);
+  missing.rootActionLedger.splice(0,1);
+  missing.fullStateTraceSteps.splice(0,1);
   const missingAudit=buildSetupPromptAudit(missing);
   assert.equal(missingAudit.accepted,false);
-  assert.ok(missingAudit.failures.some(value=>value.includes('setup-prompt-decisions-missing-or-invalid')));
+  assert.ok(missingAudit.failures.some(value=>value.includes('required-starting-basic-prompt-missing')));
 
-  const ambiguous=makeSetupPromptAuditFixture();
-  ambiguous.decisionTrace.push({...ambiguous.decisionTrace[0]});
-  const ambiguousAudit=buildSetupPromptAudit(ambiguous);
-  assert.equal(ambiguousAudit.accepted,false);
-  assert.ok(ambiguousAudit.failures.some(value=>value.includes('native-driver-attempt-ambiguous')));
-
-  const tampered=makeSetupPromptAuditFixture();
-  tampered.rootActionLedger[0].actionPayloadSha256='0'.repeat(64);
+  const tampered=makeV3SetupPromptAuditFixture();
+  tampered.decisionTrace[0].actionPayloadSha256='0'.repeat(64);
   const tamperedAudit=buildSetupPromptAudit(tampered);
   assert.equal(tamperedAudit.accepted,false);
-  assert.ok(tamperedAudit.failures.some(value=>value.includes('native-ledger-identity-or-dispatch-mismatch')));
+  assert.ok(tamperedAudit.roles.candidate.failures.some(value=>value.includes('worker-or-action-payload-digest-invalid')));
 
-  const unreconciled=makeSetupPromptAuditFixture();
-  unreconciled.candidateAudit.setupPromptActionsSubmitted++;
-  const unreconciledAudit=buildSetupPromptAudit(unreconciled);
-  assert.equal(unreconciledAudit.accepted,false);
-  assert.ok(unreconciledAudit.failures.some(value=>value.includes('submitted-action-count-mismatch')));
+  const recorderMismatch=makeV3SetupPromptAuditFixture();
+  recorderMismatch.fullStateTraceSteps[0].publicBoard=[{id:'wrong-public-state'}];
+  const recorderAudit=buildSetupPromptAudit(recorderMismatch);
+  assert.equal(recorderAudit.accepted,false);
+  assert.ok(recorderAudit.roles.candidate.failures.some(value=>value.includes('recorder-public-board-join-invalid')));
+
+  const countMismatch=makeV3SetupPromptAuditFixture();
+  countMismatch.workerExecutionAudit.roles.candidate.promptDecisionCount++;
+  const countAudit=buildSetupPromptAudit(countMismatch);
+  assert.equal(countAudit.accepted,false);
+  assert.ok(countAudit.failures.some(value=>value.includes('promptDecisionCount-does-not-reconcile-to-native-trace')));
 });
 
-test('V3 runner persists private setup-prompt receipts only in the existing encrypted-full trace',()=>{
+test('V3 runner uses native setup receipts and keeps their projections behind the encrypted-full boundary',()=>{
   const source=fs.readFileSync(path.resolve(__dirname,
     '../simulation/evaluation/2026-11/agent36-v3-runner.cjs'),'utf8');
+  const helper=fs.readFileSync(path.resolve(__dirname,
+    '../simulation/evaluation/2026-11/agent19-setup-prompt-audit.cjs'),'utf8');
   const witnessStart=source.indexOf('const witnessReceipt={');
   const witnessEnd=source.indexOf('writeJsonAtomic(witnessPath,witnessReceipt)',witnessStart);
   const setupAuditStart=source.indexOf('const setupPromptAudit=fullStateTraceRecorder?');
+  const setupAuditEnd=source.indexOf('const setupPromptAuditAcceptance=',setupAuditStart);
   assert.ok(witnessStart>=0&&witnessEnd>witnessStart&&setupAuditStart>witnessEnd,
     'no-game witness must return before setup receipts are projected');
   assert.doesNotMatch(source.slice(witnessStart,witnessEnd),/setupPromptAudit/);
@@ -1710,4 +1818,11 @@ test('V3 runner persists private setup-prompt receipts only in the existing encr
   assert.match(source,/SETUP_PROMPT_AUDIT_INCOMPLETE/);
   assert.match(source,/setupPromptAudit,\s*setupPromptAuditAcceptance/);
   assert.match(source,/=== ENCRYPTED ACTOR-OWNED SETUP PROMPT AUDIT ===/);
+  assert.match(source.slice(setupAuditStart,setupAuditEnd),/workerExecutionAudit/);
+  assert.match(source.slice(setupAuditStart,setupAuditEnd),/fullStateTraceSteps/);
+  assert.doesNotMatch(source.slice(setupAuditStart,setupAuditEnd),/candidateAudit|opponentAudit/);
+  assert.doesNotMatch(helper,/candidateAudit|opponentAudit|runCandidateOpponentPolicyRoles/);
+  assert.match(helper,/promptResolverContext/);
+  assert.match(helper,/workerDecisionTrace/);
+  assert.match(helper,/fullStateTraceSteps/);
 });
