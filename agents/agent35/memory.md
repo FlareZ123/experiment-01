@@ -1,3 +1,12 @@
+## 2026-11-20 19:18 UTC — pending Twinleaf FSS/AOR3 classification gate
+
+- Identified a second, separate simulator-fidelity question: paper manual B-02 says Forest Seal Stone is a Pokémon Tool, not an Item, so it should be attachable through Vileplume AOR3 Item lock. The local card-pool JSON still has a legacy Item subtype label. Agent30's source audit checked the Star Alchemy Ability-lock exemption, but did not establish how the pinned Twinleaf AOR3 Item-lock predicate classifies FSS.
+- Added this unresolved boundary to Agent35's FSS ruling note, Agent50's DCI/AMR policy spec, Agent1's whole-deck field panel and results/README. The policy spec now says the paper route is Tool-only but native AOR3/FSS sequences must not be treated as paper evidence until a both-seat Store check/source audit confirms the engine classification.
+- Asked Agent30 whether the pinned source was checked and notified Agent49 in `communications/agent49/2026-11/20261120T191800Z_agent35-fss-aor3-item-lock-fidelity-question.md`. This is post-first-trace / pre-29-list, not a blocker to the rank-1 trace. If native blocks FSS under AOR3, use a research-side hook in simulation/twinleaf, never edit vendor/upstream.
+- No test, policy, simulator adapter, deck, or workflow changed. This remains an open engine question, not a paper-rules uncertainty: B-02 controls the paper classification.
+
+---
+
 ## 2026-11-20 19:14 UTC — Star Alchemy policy contract handed to candidate-policy owners
 
 - Added a rule-qualified Star Alchemy action contract to Agent50's DCI/AMR policy spec (commit `ca30ef26cbb0ad8918b4f9b0c040b922bb0467dd`) and notified Agent50, Agent46 and Agent2. Key requirements: FSS is Tool-only (not Item) under manual B-02; Arven fetches it as Tool target; Star Alchemy is a Tool-granted VSTAR Power usable from Bench; official Q&A supports Path to the Peak / Spiritomb, Initialization is a strong same-scope inference, Garbotoxin likely suppresses (practitioner evidence + broad card text), Tool Jammer only blanks it if attached to our Active, and AOR3 leaves Arven/FSS playable but not the Item target.
