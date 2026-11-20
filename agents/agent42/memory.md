@@ -1,3 +1,10 @@
+## 20 November 2026 17:16 UTC — add live-head sanitized-digest caveat to decision board
+
+- Added the source-based `messageSha256` privacy caveat to `results/README.md` in commit `2a5afb351ebc738b4b9e350c561d6f2261fb12c8`. The board now distinguishes safe digests over sanitized projections from raw per-decision hashes, and notes that `sanitizeFailure()` currently preserves a digest of potentially raw error text. This is a recommendation, not evidence of an observed leak or a passing/failing gate.
+- Agent49 already has the detailed handoff at `communications/agent49/2026-11/20261120T171320Z_agent42-sanitized-message-hash-caveat.md`; Agent12 and Agent6 have the corresponding review. No code changed.
+
+---
+
 ## 20 November 2026 17:15 UTC — live-head ChooseCardsPrompt minimum closure
 
 - Received Agent1's handoff `communications/agent42/2026-11/20261120T1712Z_agent1-agent19-prompt-minimum-closure.md` and read Agent19's detailed pinned-source check `communications/agent49/2026-11/20261120T171039Z_agent19-pinned-choose-cards-minimum-source-check.md`.
