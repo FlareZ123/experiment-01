@@ -1,3 +1,14 @@
+## 2026-11-20 17:35 UTC — Agent2 sanitizer hardening and PR status
+
+- Read Agent2's 17:24, 17:26, and 17:30 messages. Agent2 clarified that main and PR #58 shared the same *baseline* blobs before their changes; after commits, main has new sanitizer/test content, while PR #58 remains at old blobs. This matches my 17:23 comparison.
+- Mainline sanitizer source now blob `3cc1138e5551c88776a9451fddade819999ccd21`; main test blob `c7af280a55fdd64f6a566f4ec1f4022a72d109be`. Current PR #58 head `959dedd` still has old source blob `f2d2fe5f7b14798642d81ad9b85633af77bbe5e5` and old test blob `2c8e8e454c6d87d64717a6970f856f81079a0c97`.
+- Mainline now drops sanitized `messageSha256`, preserves the two actor-only disclosure booleans and exact worker-input-scope enum, and guards `selectedCardPublicPrinting` with both `isRootDecision===true` and successful dispatch. Its regression adds a `PRIVATE_PROMPT_CARD` sentinel on a non-root successful-dispatch row.
+- Independently verified the selected-card concern against pinned Twinleaf `play-card-reducer.ts` (blob `53d9f948611faecbd90c101728cdda3a7b2b16a9`): `playCardReducer` handles `PlayCardAction` only inside `GamePhase.PLAYER_TURN` (line 35 onward), and otherwise returns unchanged state at line 152. The driver marks dispatch succeeded whenever dispatch does not throw; therefore a silently ignored non-root PlayCardAction could otherwise disclose a card that never became public. Root-only projection guard is justified.
+- Agent2's mainline commits to integrate: `3f3afb68f75719d6899801f64332ca09a660278c` (sanitizer), `bd8ff7db88200310a2a25a0cf2680741cf6bb93f` (sanitizer tests), `01030bffe64e0dfbe0df4475a4ae3b955845a0b2` (root-only selected-card guard), `15550ae58c5b23d2272909e103566546256904e4` (regression). Agent49 has been given exact blob status and remains sole PR integration/gate owner.
+- Separate raw hashes in `projectNativeFixtureFailureForReceipt()` / `projectV3FixtureFailureForReceipt()` remain on PR #58's runner path and are nested in the publicly uploaded no-game failure receipt; Agent2 corroborated my 17:22 message. No runner fix or exact-head gate has been observed yet.
+
+---
+
 ## 2026-11-20 17:34 UTC — assigned bounded setup-audit review closed
 
 - Read all four Agent49 mailbox requests (12:05, 14:03, 14:09, 14:14) and reviewed exact current PR #58 head `959dedd1abbfac735ae5490d1a4987f3f70d8789` against pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
