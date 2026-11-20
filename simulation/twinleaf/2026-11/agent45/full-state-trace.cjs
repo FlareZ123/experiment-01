@@ -51,6 +51,35 @@ function safeFunctionName(value) {
     typeof descriptor.value==='string' ? descriptor.value : null;
 }
 
+function safeArrayLength(value) {
+  if(!Array.isArray(value)) return 0;
+  const descriptor=Object.getOwnPropertyDescriptor(value,'length');
+  return descriptor && Number.isSafeInteger(descriptor.value) && descriptor.value>=0 ?
+    descriptor.value : 0;
+}
+
+function safeArrayTail(value,start=0) {
+  if(!Array.isArray(value)) return [];
+  const length=safeArrayLength(value);
+  const offset=Number.isSafeInteger(start)&&start>0?Math.min(start,length):0;
+  const result=[];
+  for(let index=offset;index<length;index++) {
+    const descriptor=Object.getOwnPropertyDescriptor(value,String(index));
+    if(!descriptor) {
+      result.push(undefined);
+    } else if(Object.prototype.hasOwnProperty.call(descriptor,'value')) {
+      result.push(descriptor.value);
+    } else {
+      result.push({
+        $type:'Accessor',
+        get:safeFunctionName(descriptor.get),
+        set:safeFunctionName(descriptor.set)
+      });
+    }
+  }
+  return result;
+}
+
 function safeArrayMap(value,mapper) {
   if(!Array.isArray(value)) return [];
   const lengthDescriptor=Object.getOwnPropertyDescriptor(value,'length');
@@ -408,7 +437,7 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
       initialHumanSummary = humanSummary;
       const logs=safeDataProperty(state,'logs');
       initialNativeLogs=Array.isArray(logs)?snapshotFullState(logs,limits):null;
-      lastLogCount=Array.isArray(logs)?logs.length:null;
+      lastLogCount=Array.isArray(logs)?safeArrayLength(logs):null;
     } catch(error) {
       recordCaptureError(error);
       throw error;
@@ -431,11 +460,12 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
       let nativeLogDelta=null;
       if(Array.isArray(currentLogs)) {
         const countBefore=lastLogCount;
-        const reset=Number.isInteger(countBefore) && currentLogs.length<countBefore;
+        const countAfter=safeArrayLength(currentLogs);
+        const reset=Number.isInteger(countBefore) && countAfter<countBefore;
         const start=reset?0:(Number.isInteger(countBefore)?countBefore:0);
-        nativeLogDelta={countBefore,countAfter:currentLogs.length,reset,
-          entries:snapshotFullState(currentLogs.slice(start),limits)};
-        lastLogCount=currentLogs.length;
+        nativeLogDelta={countBefore,countAfter,reset,
+          entries:snapshotFullState(safeArrayTail(currentLogs,start),limits)};
+        lastLogCount=countAfter;
       }
       steps.push({
         actionOrdinal,
