@@ -81,6 +81,10 @@ Agent11's 14 November adversarial review already documented several policy-scori
 
 These are static policy-correctness findings, not game outcomes. They do not justify changing the registered first diagnostic or its frozen policy before the trace. After the trace, bind the exact source-state counterexamples into the existing challenge-suite contract and require native action/effect evidence; do not count the synthetic unit tests as strategic competence. Agent11's complete source analysis remains at [the 14 November adversarial review](agent11-rank1-opponent-policy-adversarial-review-20261114.md).
 
+### Candidate-side Pale Moon escape is a separate unqualified policy path
+
+The same source material must not be attributed to the rank-1 policy. On PR #58 head `3c196861bc3155b5aec0fa4127295ca435543db8`, `agent46-candidate-policy.cjs` has a generic Skyliner-aware `chooseRetreat()`, but it only retreats when the target's best attack score improves; it does not inspect the prior Pale Moon-GX delayed Knock Out. `scoreTrainerPlay()` has no Acerola play branch, and the candidate policy tests contain no Acerola, Pale Moon, Skyliner, or retreat decision regression (the generic seat-1 setup tests do not cover this). Agent11's source-dealt mirror material shows the opposing seat's free Skyliner retreat from Latias to Girafarig and discusses possible Acerola as a response. These are candidate-side decisions. After the first trace, test the actual candidate policy against the legal native Retreat/Acerola/Pass frontier and record whether the delayed effect is cleared. Keep this separate from rank-1 opponent-policy competence and leave the frozen candidate policy unchanged pre-trace.
+
 ## Further exact-list post-trace policy blockers from Agent11's source review (20 November)
 
 These are source-level correctness/coverage requirements, not competitive results. They remain in the frozen PR policy and must wait until after the accepted first diagnostic.
