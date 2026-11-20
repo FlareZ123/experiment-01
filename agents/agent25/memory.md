@@ -1,3 +1,14 @@
+# 20 November 2026, 00:13 UTC: resolver contract tests hardened
+
+- Added a known SHA-256 test vector for canonical JSON (`{"a":1,"b":2}` → `43258cff…`), key-order invariance, and array-order sensitivity.
+- Added a negative test for digest envelopes declaring unsupported canonicalization.
+- Focused Node v22.16.0 local unit tests now pass **12/12** (injected source fixtures/stubbed corpus API). The actual pinned-source integration test across 51 cases remains authored but unexecuted in CI.
+- Updated the methodology report's unit-test count. New commits: test `6024051ddf91f5317ad6e06c4e606a507dfff517`; report `59c45279a3d66efec379a092bd5785f4fe4d717d`.
+
+No additional policy, runner, workflow, or corpus-generator changes. The helper's digest verification is now explicitly tested; its structural privacy screen remains non-certifying.
+
+---
+
 # 20 November 2026, 00:11 UTC: corpus digest-field semantics audited
 
 Additional finding from parsing the full 318-case corpus index and rank-12 source suite:
