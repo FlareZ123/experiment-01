@@ -1765,3 +1765,195 @@ test('V3 worker prompt resolver binds policyAudit, actor projection and cloned-S
   assert.equal(result.decisionTrace.policyAuditSha256.length,64);
   assert.equal(result.decisionTrace.validationReceiptSha256.length,64);
 });
+
+
+test('V3 root resolver consumes the exact driver actor input and binds all component digests',async()=>{
+  const fixture=rootResolverFixture();
+  const result=await fixture.resolver(fixture.request);
+  const trace=result.decisionTrace;
+  assert.strictEqual(fixture.calls.seenObservation,fixture.actorObservation);
+  assert.strictEqual(trace.actorInput,fixture.actorObservation);
+  assert.equal(trace.actorInputSha256,trace.actorObservationSha256);
+  assert.equal(trace.actorInputSha256,evidenceBundleSha256(fixture.actorObservation));
+  assert.equal(trace.publicEventReceiptSha256,null);
+  assert.equal(trace.promptProjectionSha256,null);
+  assert.equal(trace.actionFrontierSha256,evidenceBundleSha256(fixture.frontierBinding));
+  assert.equal(trace.inputBindingSha256,evidenceBundleSha256({
+    observation:fixture.actorObservation,
+    publicEventReceipt:null,
+    promptProjection:null,
+    actionFrontier:fixture.frontierBinding
+  }));
+  assert.equal(trace.selectedItemsSha256,evidenceBundleSha256([fixture.item]));
+  assert.equal(trace.policyAuditSha256,evidenceBundleSha256(fixture.policyAudit));
+  assert.equal(result.validationReceipt.frontierSha256,trace.actionFrontierSha256);
+  assert.equal(result.validationReceipt.selectedItemSha256,evidenceBundleSha256(fixture.item));
+  assert.equal(trace.validationReceiptSha256,evidenceBundleSha256(result.validationReceipt));
+  assert.equal(trace.traceStatus,'validated');
+  assert.equal(fixture.calls.worker,1);
+  assert.equal(fixture.calls.cloneValidation,1);
+  assert.equal(fixture.calls.liveStoreDispatch,0);
+});
+
+test('V3 resolver rejects a mismatched driver actor-observation digest before worker invocation',async()=>{
+  const fixture=rootResolverFixture({actorObservationSha256:'f'.repeat(64)});
+  await assert.rejects(fixture.resolver(fixture.request),error=>{
+    assert.equal(error.code,'ACTOR_OBSERVATION_DIGEST_MISMATCH');
+    assert.strictEqual(error.workerDecisionTrace.actorInput,fixture.actorObservation);
+    assert.equal(error.workerDecisionTrace.actorInputSha256,evidenceBundleSha256(fixture.actorObservation));
+    assert.equal(error.workerDecisionTrace.actorObservationSha256,'f'.repeat(64));
+    assert.equal(error.workerDecisionTrace.failureCode,'ACTOR_OBSERVATION_DIGEST_MISMATCH');
+    assert.equal(error.workerDecisionTrace.validationReceipt,null);
+    return true;
+  });
+  assert.equal(fixture.calls.worker,0);
+  assert.equal(fixture.calls.cloneValidation,0);
+  assert.equal(fixture.calls.liveStoreDispatch,0);
+});
+
+test('V3 resolver host-validates the complete policy audit before any cloned or live dispatch',async()=>{
+  const template=rootResolverFixture();
+  const row=template.policyAudit.evaluations[0];
+  const cases=[
+    {name:'incomplete',patch:{evaluations:[]}},
+    {name:'duplicate',patch:{evaluations:[row,row]}},
+    {name:'out-of-frontier',patch:{evaluations:[{...row,token:'foreign-action'}]}},
+    {name:'non-finite',patch:{evaluations:[{...row,score:Number.POSITIVE_INFINITY}]}},
+    {name:'selected-token-mismatch',patch:{selectedTokens:[]}}
+  ];
+  for(const item of cases){
+    const fixture=rootResolverFixture({
+      responsePatch:{policyAudit:{...template.policyAudit,...item.patch}}
+    });
+    await assert.rejects(fixture.resolver(fixture.request),error=>{
+      assert.ok(error.workerDecisionTrace,item.name+' failure must retain its provisional trace');
+      assert.equal(error.workerDecisionTrace.traceStatus,'failed');
+      assert.equal(error.workerDecisionTrace.validationReceipt,null);
+      assert.equal(error.workerDecisionTrace.failureCode,error.code);
+      return true;
+    },item.name);
+    assert.equal(fixture.calls.cloneValidation,0,item.name+' reached cloned validation');
+    assert.equal(fixture.calls.liveStoreDispatch,0,item.name+' reached live Store dispatch');
+  }
+});
+
+test('V3 resolver retains unknown-token and unsupported-kind responses in provisional traces',async()=>{
+  const template=rootResolverFixture();
+  const unknown=rootResolverFixture({
+    responsePatch:{
+      decision:{kind:'select-action',token:'foreign-action'},
+      policyAudit:{...template.policyAudit,selectedTokens:['foreign-action']}
+    }
+  });
+  await assert.rejects(unknown.resolver(unknown.request),error=>{
+    assert.ok(error.workerDecisionTrace);
+    assert.deepEqual(error.workerDecisionTrace.selectedTokens,['foreign-action']);
+    assert.deepEqual(error.workerDecisionTrace.unmatchedSelectedTokens,['foreign-action']);
+    assert.equal(error.workerDecisionTrace.selectionStatus,'unresolved-token');
+    assert.equal(error.workerDecisionTrace.validationReceipt,null);
+    return true;
+  });
+  assert.equal(unknown.calls.cloneValidation,0);
+
+  const unsupportedAudit={
+    ...template.policyAudit,
+    decisionType:'future-decision-kind',
+    selectedTokens:[],
+    evaluations:[{
+      token:template.item.token,status:'not-evaluated',score:null,
+      reasonCode:'NOT_EVALUATED_BY_TEST'
+    }]
+  };
+  const unsupported=rootResolverFixture({
+    responsePatch:{
+      decision:{kind:'future-decision-kind'},
+      policyAudit:unsupportedAudit
+    }
+  });
+  await assert.rejects(unsupported.resolver(unsupported.request),error=>{
+    assert.equal(error.code,'UNSUPPORTED_WORKER_ROOT_DECISION');
+    assert.ok(error.workerDecisionTrace);
+    assert.deepEqual(error.workerDecisionTrace.decision,{kind:'future-decision-kind'});
+    assert.equal(error.workerDecisionTrace.selectionStatus,'unsupported-decision-kind');
+    assert.equal(error.workerDecisionTrace.policyAuditSha256,evidenceBundleSha256(unsupportedAudit));
+    assert.equal(error.workerDecisionTrace.validationReceipt,null);
+    return true;
+  });
+  assert.equal(unsupported.calls.cloneValidation,0);
+});
+
+test('V3 cloned-root rejection attaches the response trace without touching the live Store',async()=>{
+  const cloneFailure=Object.assign(new Error('cloned action validation rejected'),{
+    code:'CLONED_ACTION_VALIDATION_REJECTED'
+  });
+  const fixture=rootResolverFixture({dispatchError:cloneFailure});
+  await assert.rejects(fixture.resolver(fixture.request),error=>{
+    assert.equal(error.code,'CLONED_ACTION_VALIDATION_REJECTED');
+    assert.ok(error.workerDecisionTrace);
+    assert.equal(error.workerDecisionTrace.traceStatus,'failed');
+    assert.equal(error.workerDecisionTrace.failureCode,'CLONED_ACTION_VALIDATION_REJECTED');
+    assert.deepEqual(error.workerDecisionTrace.selectedTokens,['root-action-0']);
+    assert.deepEqual(error.workerDecisionTrace.selectedItems,[fixture.item]);
+    assert.equal(error.workerDecisionTrace.policyAuditSha256,evidenceBundleSha256(fixture.policyAudit));
+    assert.equal(error.workerDecisionTrace.validationReceipt,null);
+    return true;
+  });
+  assert.equal(fixture.calls.cloneValidation,1);
+  assert.equal(fixture.calls.liveStoreDispatch,0);
+});
+
+test('V3 prompt clone non-settlement preserves the worker trace and never fabricates a receipt',async()=>{
+  const workerAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});
+  const actorObservation={actorSeat:1,decisionKind:'owner-prompt',ownHand:['distinctive-prompt-input']};
+  const actorObservationSha256=evidenceBundleSha256(actorObservation);
+  const policyVersion='runner-prompt-clone-failure-v1';
+  const choice={token:'prompt-choice-0',kind:'card',printing:'Fog Crystal FLI'};
+  const policyAudit={
+    schema:'agent6-policy-audit-v1',policyVersion,
+    decisionKind:'owner-prompt',decisionType:'select-choice',
+    selectionRuleCode:'PROMPT_SCORE_DESC',tieBreakCode:'SCORE_DESC_NATIVE_ORDER',
+    selectedTokens:[choice.token],
+    evaluations:[{token:choice.token,status:'scored',score:12,reasonCode:null}]
+  };
+  let liveStoreDispatches=0;
+  const resolver=createV3WorkerDecisionResolver({
+    sessionsBySeat:{
+      1:{async decide(){return {
+        requestId:'prompt-clone-failure-request',sequence:2,
+        role:'opponent',seat:1,policyVersion,bundleSha256:'d'.repeat(64),
+        decision:{kind:'select-choice',token:choice.token},policyAudit,policyDrawCount:0
+      };}}
+    },
+    candidateSeat:0,opponentSeat:1,
+    native:{observe(){throw new Error('must use driver observation');}},
+    workerAudit,eventReceipt:()=>null,
+    promptProjection:{
+      projectPrompt(){return {
+        hostOnly:false,
+        promptProjection:{schema:'test-prompt-v1',promptType:'ChooseCardsPrompt',choices:[choice]}
+      };},
+      dispatchPromptChoice(){throw Object.assign(new Error('cloned prompt remained pending'),{
+        code:'CLONED_PROMPT_NOT_RESOLVED'
+      });}
+    }
+  });
+  await assert.rejects(resolver({
+    kind:'native-fixture-decision',decisionKind:'owner-prompt',actorSeat:1,
+    actorObservation,actorObservationSha256,
+    actionOrdinal:8,prompt:{id:'prompt-8'},state:{activePlayer:1},
+    store:{dispatch(){liveStoreDispatches++;}},
+    withValidationRandom:fn=>fn()
+  }),error=>{
+    assert.equal(error.code,'CLONED_PROMPT_NOT_RESOLVED');
+    assert.ok(error.workerDecisionTrace);
+    assert.equal(error.workerDecisionTrace.actionOrdinal,8);
+    assert.equal(error.workerDecisionTrace.seat,1);
+    assert.deepEqual(error.workerDecisionTrace.selectedTokens,[choice.token]);
+    assert.deepEqual(error.workerDecisionTrace.selectedItems,[choice]);
+    assert.equal(error.workerDecisionTrace.policyAuditSha256,evidenceBundleSha256(policyAudit));
+    assert.equal(error.workerDecisionTrace.validationReceipt,null);
+    assert.equal(error.workerDecisionTrace.failureCode,'CLONED_PROMPT_NOT_RESOLVED');
+    return true;
+  });
+  assert.equal(liveStoreDispatches,0);
+});
