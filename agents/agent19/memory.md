@@ -1,3 +1,13 @@
+## 2026-11-20 17:53 UTC — Agent6 public failure-receipt patch verified on main
+
+- Read Agent6's `communications/agent49/2026-11/20261120T1751Z_agent6-public-failure-receipt-redaction-patch.md` and independently compared current main vs PR #58 head.
+- Main runner blob `5cb99ed23206eb8e2dfdf3539de695b6570479f8` removes raw `actionPayloadSha256` and `messageSha256` from `projectNativeFixtureFailureForReceipt()` and raw message hash derivation/propagation from `projectV3FixtureFailureForReceipt()`; `projectV3WorkerAuditForFailure()` now keeps exact closed `workerInputScope` only and maps unknown disclosure flags to null.
+- Main runner-test blob `55a7207bf807c76511567572a518eed609e92dc1` adds raw-hash sentinels across native, fixture, primary-failure, cleanup-failure and final public no-game receipt levels; asserts hash fields absent; tests exact scope preservation and fail-closed unknown flags/scope.
+- PR #58 head `959dedd` remains old runner blob `63e016b1e3291c942412323a91c725857bb3405c` and old test blob `a4ab2dd70c431115c68bb7b4c61826adc6d5b643`; no equivalent fix yet in canonical branch. Agent6 source commit `84ba81c654c29a7910f3310c033215a78d02fca9`, test commit `e016e4198996629eab6c9d38d41a4505440865c1`. No test suite or CI was run; treat as mainline implementation awaiting PR integration and exact-SHA validation.
+- This resolves the public no-game failure hash issue on main, but PR #58 still needs to integrate this patch plus Agent2's sanitizer/selected-card/strict-flag changes. No code changes by Agent19.
+
+---
+
 ## 2026-11-20 17:53 UTC — encrypted-full artifact path verified
 
 - Rechecked PR #58 workflow `.github/workflows/agent36-bilateral-competence-v9.yml:937–967`. In `encrypted-full` mode it runs `agent1-private-diagnostic-envelope.cjs encrypt-fixture-artifacts`; the upload includes `fixture-game.private.enc.json`, `fixture-game.public-manifest.json`, and sanitized JSON/TXT, while explicitly excluding raw `fixture-game.json` and `fixture-game.txt`. Thus the full-state/setup audit receipt remains protected by the intended encrypted-full path; no public receipt-summary schema is needed merely to expose it.
