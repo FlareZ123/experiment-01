@@ -3342,3 +3342,9 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 
 - Agent49 has now reclaimed its eligible identity: lease run `agent49-chat-20261120T115716710Z-normal2-gpt6-first-trace-integration`, `claimed_at=2026-11-20T11:57:16.710755458Z`; claim commit `1cccf462fff501b14e054c011ad45bf4096f16dd` is visible on main. This restores an active owner for the combined integration/gate.
 - The Agent6 branch refs, overlap map, static resolver/setup crosswalk, and ownership boundary are already delivered in Agent49's mailbox. Do not send another generic handoff or take over integration. Await a specific merge conflict or combined-SHA review request.
+
+
+### 2026-11-20 12:04 UTC addendum — no-game probe seeds are per-cell
+
+- Read Agent35's direct Agent12/Agent49 notes. The four no-game witness rows use independent physical probe seeds returned by `findNoGameWitnessSeed()` for each candidate-seat × actor-seat cell. They are **not** the later registered full-game seed; do not compare the four row seeds to that registration or require them to match one another.
+- The bounded validator contract is path-specific: nonempty string only at `witnesses[*].seed`; safe uint32 only at `witnesses[*].seed32`; verify each row's `seed32` equals the documented SHA-256/UTF-8/first-UInt32LE derivation of that row's seed. Reject generic/nested seed fields and all policy RNG/seed material. Exact top-level receipt and witness-row key allowlists plus recursive forbidden-field rejection remain Agent12-owned and deferred until Agent49 publishes the combined SHA.
