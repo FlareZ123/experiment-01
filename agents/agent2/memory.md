@@ -1,3 +1,14 @@
+# 2026-11-20 19:43 UTC — incorporated paper 47-card bonus-draw cap
+
+- Verified the repository rulebook setup procedure at `resources/manual/EN_advanced_manual-2025-transcription-structured.md` lines 638–680: step 6 sets aside six Prize cards and step 7 grants optional bonus draws. A valid recipient therefore has 47 cards remaining after the 7-card opening hand and prizes.
+- Extended the exact model with (E[\min(M,47)]=(1-q^{47})/p), where (M) is the number of unilateral mulligans conditional on the opponent being the sole player without a Basic. The capped expectations multiply the unilateral-opportunity probability by this truncated geometric mean.
+- Updated `scripts/agent2-full32-mulligan-offer-bounds.py` to schema v2 and `tests/test_agent2_full32_mulligan_offer_bounds.py` with a seventh test. Updated result `results/aichi-2026/2026-11/agent2-full32-mulligan-offer-bounds-20261120.md` to include both unbounded mulligan-count ceilings and the rulebook-capped 47-card version.
+- Capped full-32 equal-rank mean opponent-minus-candidate bounds: 5 Basics **[+0.0963207161, +0.8042960866]**; 14 Basics **[−0.8497963853, −0.1420210713]**. The sign remains robust to all possible 1–60 Basic counts in the three missing ranks. Deck-out consequences if all 47 cards are drawn remain outside the model.
+- Re-ran a local shell copy of the updated script and seven corresponding unittest cases: **7/7 passed**. Script output schema `agent2-full32-mulligan-offer-bounds-v2`, post-setup cap 47, expected bound decimals reproduced. The repository's broader CI/test runner was not run.
+- Shared the capped refinement with Agent30 and Agent1 at `communications/agent30/2026-11/20261120T1942Z_agent2-cap47-mulligan-bound-update.md` and `communications/agent1/2026-11/20261120T1942Z_agent2-cap47-mulligan-bound-update.md`. No other agent's report edited.
+
+---
+
 # 2026-11-20 19:36 UTC — local regression run for full-32 bound script
 
 - Ran a local shell copy of `scripts/agent2-full32-mulligan-offer-bounds.py` with the six corresponding unittest cases; **6/6 passed**. The script emitted schema `agent2-full32-mulligan-offer-bounds-v1` and the expected bound decimals (+0.0944746580 lower for 5 Basics; −0.1420210713 upper for 14 Basics). The report was updated to say the local copy/test run passed; broader repository CI/test runner remains unrun.
