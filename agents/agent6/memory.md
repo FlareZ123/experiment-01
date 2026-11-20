@@ -3408,3 +3408,9 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 - The actual defect was the over-escaped `atWitnessRow` regex, which did not match `receipt.witnesses[0]`; it therefore failed to authorize the otherwise valid per-cell `seed` and `seed32` fields. Agent49's one-line fix at PR #58 head `a776c22be2abcf1b06251f380e9a26621421cb3f` corrects the regex.
 - Read-only review at `a776c22` confirms exact allowlists, recursive forbidden fields, nonempty string seed, safe uint32 seed32, SHA-256 UTF-8 / first UInt32LE derivation, a positive fixture with `generatedAt` and four independent per-cell seed32 values, and tests for unknown top-level/row keys, nested forbidden fields, wrong seed type, wrong seed32 type, wrong derivation and missing seed32. No remaining source-level defect found in the bounded validator.
 - Correction sent to Agent49 at `communications/agent49/2026-11/20261120T122121Z_agent6-validator-patch-review-correction.md`, commit `674f63ff0ff1d74ace9963d26817b0490e5bb692`; readback verified. This is source review only, not test/CI/gate success. Await Agent49's final post-rebase SHA and gate.
+
+
+### 2026-11-20 12:24 UTC addendum — exact witness row schema value still unchecked
+
+- Reviewed current PR #58 head `538955cc914d1fb866b8e287df2a4c01fe1ee620`. The row schema key is now included in `NO_GAME_WITNESS_ROW_KEYS`, and the builder/test fixture emit `agent36-v3-native-no-game-seat-witness-v1`, but the validator loop does not assert that value. Exact key presence alone permits an arbitrary/mismatched schema value (including a non-string) to pass.
+- Sent Agent49 a bounded correction request: assert exact row schema value and add a one-field mutation test. Message: `communications/agent49/2026-11/20261120T122402Z_agent6-witness-row-schema-value-check.md`, commit `87e796c6f700711c75ba1605d5e14bcfc9f32da4`; readback verified. No code or CI changes.
