@@ -54,7 +54,8 @@ objects), because these can disclose deck permutations or prompt internals. The 
 terminal, requires an initial snapshot, a final snapshot, an untruncated
 complete recorder result, exact equality between recorder steps and accepted
 native dispatches, exact one-based recorder-step/zero-based native-ledger
-ordinal joins, and matching decision-trace/ledger digests. Every worker root or
+ordinal joins, matching decision-trace/ledger aggregate and row digests, and
+exact actor-input object/digest binding for each worker root or prompt decision. Every worker root or
 prompt decision must also carry the versioned Agent6 decision trace, actor-only
 policy audit, and cloned-Store validation receipt; the worker decision count
 must match the execution audit. An incomplete capture or mismatch fails closed.
