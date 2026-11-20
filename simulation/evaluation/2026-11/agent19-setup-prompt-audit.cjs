@@ -3,272 +3,282 @@
 const {evidenceBundleSha256}=require('../canonical-evidence-json.cjs');
 
 const SHA256=/^[a-f0-9]{64}$/;
+const SETUP_PROMPTS={
+  CHOOSE_STARTING_POKEMONS:{kind:'starting-basics',promptType:'ChooseCardsPrompt'},
+  GO_FIRST:{kind:'go-first',promptType:'ConfirmPrompt'},
+  WANT_TO_DRAW_CARDS:{kind:'want-to-draw-cards',promptType:'SelectPrompt'}
+};
 const ROLE_NAMES=['candidate','opponent'];
-
-function plainObject(value) {
-  return value!==null&&typeof value==='object'&&!Array.isArray(value)&&
-    (Object.getPrototypeOf(value)===Object.prototype||Object.getPrototypeOf(value)===null);
-}
 
 function nonNegativeInteger(value) {
   return Number.isSafeInteger(value)&&value>=0;
 }
 
-function validPromptId(value) {
-  return (typeof value==='string'&&value.length>0)||
-    (Number.isSafeInteger(value)&&value>=0);
+function digestMatches(value,digest) {
+  if(typeof digest!=='string'||!SHA256.test(digest))return false;
+  try{return evidenceBundleSha256(value)===digest;}
+  catch{return false;}
 }
 
-function cloneReceipt(value) {
-  try {
-    return JSON.parse(JSON.stringify(value));
-  } catch {
-    return {unserializableReceipt:true};
-  }
+function sameDigest(left,right) {
+  try{return evidenceBundleSha256(left)===evidenceBundleSha256(right);}
+  catch{return false;}
 }
 
 /**
- * Project actor-owned setup prompt receipts into the encrypted-full trace and
- * join them to the exact native driver dispatch/ledger row. The raw receipts
- * contain private hand selections and must never be sent to public witnesses
- * or policy workers.
+ * Project the V3 worker/native setup-prompt decisions into the encrypted-full
+ * artifact. This deliberately uses the production V3 decisionTrace, worker
+ * validation receipt, native action ledger, and recorder public-board step;
+ * it does not depend on the legacy SimpleTacticsAi role composer.
  */
 function buildSetupPromptAudit({
-  candidateAudit,opponentAudit,candidateSeat,opponentSeat,
-  decisionTrace,rootActionLedger
+  candidateSeat,opponentSeat,decisionTrace,rootActionLedger,
+  workerExecutionAudit,fullStateTraceSteps
 }={}) {
-  const globalFailures=[];
-  const roleAudits={candidate:candidateAudit,opponent:opponentAudit};
-  const expectedSeats={candidate:candidateSeat,opponent:opponentSeat};
+  const failures=[];
   const decisionRows=Array.isArray(decisionTrace)?decisionTrace:[];
   const ledgerRows=Array.isArray(rootActionLedger)?rootActionLedger:[];
+  const steps=Array.isArray(fullStateTraceSteps)?fullStateTraceSteps:[];
+  const expectedSeats={candidate:candidateSeat,opponent:opponentSeat};
+  const roleResults={};
+  const setupRows=[];
   const usedOrdinals=new Set();
-  const roles={};
-  let totalReceipts=0;
-  let totalRejected=0;
 
   if(!(candidateSeat===0||candidateSeat===1)||
      !(opponentSeat===0||opponentSeat===1)||candidateSeat===opponentSeat)
-    globalFailures.push('role-seat-map-invalid');
-  if(!Array.isArray(decisionTrace))globalFailures.push('native-decision-trace-missing');
-  if(!Array.isArray(rootActionLedger))globalFailures.push('native-root-action-ledger-missing');
+    failures.push('role-seat-map-invalid');
+  if(!Array.isArray(decisionTrace))failures.push('native-decision-trace-missing');
+  if(!Array.isArray(rootActionLedger))failures.push('native-root-action-ledger-missing');
+  if(!Array.isArray(fullStateTraceSteps))failures.push('full-state-trace-steps-missing');
+  if(!workerExecutionAudit||typeof workerExecutionAudit!=='object'||
+     !workerExecutionAudit.roles)
+    failures.push('worker-execution-audit-missing');
 
-  for(const role of ROLE_NAMES) {
-    const audit=roleAudits[role];
-    const expectedSeat=expectedSeats[role];
-    const failures=[];
-    if(!plainObject(audit))failures.push('role-audit-missing-or-invalid');
-    if(audit?.policyOwnerSeat!==expectedSeat)failures.push('policy-owner-seat-mismatch');
-
-    const receipts=Array.isArray(audit?.setupPromptDecisions)?
-      audit.setupPromptDecisions:null;
-    if(receipts===null)failures.push('setup-prompt-decisions-missing-or-invalid');
-
-    const counts={
-      setupStartingBasicPromptsHandled:audit?.setupStartingBasicPromptsHandled??null,
-      setupStartingBasicPromptsBySeat:audit?.setupStartingBasicPromptsBySeat??null,
-      setupGoFirstPromptsHandled:audit?.setupGoFirstPromptsHandled??null,
-      setupGoFirstPromptsBySeat:audit?.setupGoFirstPromptsBySeat??null,
-      setupPromptActionsSubmitted:audit?.setupPromptActionsSubmitted??null,
-      setupPromptActionsRejected:audit?.setupPromptActionsRejected??null
-    };
-    for(const key of [
-      'setupStartingBasicPromptsHandled','setupGoFirstPromptsHandled',
-      'setupPromptActionsSubmitted','setupPromptActionsRejected'
-    ]) {
-      if(!nonNegativeInteger(counts[key]))failures.push(key+'-missing-or-invalid');
+  for(const row of decisionRows) {
+    if(row?.turnBefore!==0||row?.phaseBefore!==1)continue;
+    const trace=row?.workerDecisionTrace;
+    const projection=trace?.promptProjection;
+    const message=row?.promptResolverContext?.message??
+      projection?.description??projection?.source?.effectName??null;
+    const spec=typeof message==='string'?SETUP_PROMPTS[message]:null;
+    const promptClassIsSetup=['ChooseCardsPrompt','ConfirmPrompt','SelectPrompt']
+      .includes(row?.pendingPromptType);
+    if(spec) {
+      setupRows.push({row,spec,message});
+      if(row.decisionKind!=='owner-prompt')
+        failures.push('setup-prompt-not-worker-owned:'+String(row.pendingPromptId));
+      if(row.pendingPromptType!==spec.promptType)
+        failures.push('setup-prompt-type-message-mismatch:'+String(row.pendingPromptId));
+    } else if(row?.decisionKind==='owner-prompt'&&promptClassIsSetup) {
+      failures.push('unclassified-setup-owner-prompt:'+String(row.pendingPromptId));
     }
-    for(const key of [
-      'setupStartingBasicPromptsBySeat','setupGoFirstPromptsBySeat'
-    ]) {
-      const value=counts[key];
-      if(!Array.isArray(value)||value.length!==2||!value.every(nonNegativeInteger))
-        failures.push(key+'-missing-or-invalid');
-    }
-
-    const startingBySeat=[0,0];
-    const goFirstBySeat=[0,0];
-    let submitted=0;
-    let rejected=0;
-    let unknownKind=0;
-    const joinedReceipts=[];
-
-    for(const [index,receipt] of (receipts??[]).entries()) {
-      const receiptFailures=[];
-      if(!plainObject(receipt)) {
-        receiptFailures.push('receipt-not-plain-object');
-      }
-      const seat=receipt?.seat;
-      const turn=receipt?.turn;
-      const promptId=receipt?.promptId;
-      const kind=receipt?.kind;
-      const expectedPromptType=kind==='starting-basics'?'ChooseCardsPrompt':
-        kind==='go-first'?'ConfirmPrompt':null;
-
-      if(seat!==expectedSeat)receiptFailures.push('receipt-seat-mismatch');
-      if(!nonNegativeInteger(turn))receiptFailures.push('receipt-turn-invalid');
-      if(!validPromptId(promptId))receiptFailures.push('receipt-prompt-id-invalid');
-      if(!expectedPromptType) {
-        receiptFailures.push('receipt-kind-unsupported');
-        unknownKind++;
-      } else if(kind==='starting-basics') {
-        if(seat===0||seat===1)startingBySeat[seat]++;
-        const indices=receipt?.selectedHandIndices;
-        const printings=receipt?.selectedPrintings;
-        if(!Array.isArray(indices)||indices.length===0||
-           !indices.every(nonNegativeInteger)||
-           new Set(indices).size!==indices.length)
-          receiptFailures.push('starting-basic-hand-indices-invalid');
-        if(!Array.isArray(printings)||!Array.isArray(indices)||
-           printings.length!==indices.length||
-           !printings.every(value=>typeof value==='string'&&value.length>0))
-          receiptFailures.push('starting-basic-printings-invalid');
-      } else if(kind==='go-first') {
-        if(seat===0||seat===1)goFirstBySeat[seat]++;
-        if(receipt?.result!==false||receipt?.nativeDefaultEquivalent!==true)
-          receiptFailures.push('go-first-default-decision-invalid');
-      }
-
-      if(receipt?.nativeDispatch==='dispatch-returned')submitted++;
-      else if(receipt?.nativeDispatch==='dispatch-threw')rejected++;
-      else receiptFailures.push('receipt-dispatch-not-settled');
-
-      let driverRecord=null;
-      let ledgerRecord=null;
-      let actionOrdinal=null;
-      let actionPayloadSha256=null;
-      let payloadDigestVerified=false;
-      let ledgerJoinVerified=false;
-      const identityMatches=decisionRows.filter(row=>
-        row?.pendingPromptId===promptId&&
-        row?.actingSeat===seat&&
-        row?.turnBefore===turn
-      );
-      if(identityMatches.length!==1) {
-        receiptFailures.push(identityMatches.length===0?
-          'native-driver-attempt-not-found':'native-driver-attempt-ambiguous');
-      } else {
-        driverRecord=identityMatches[0];
-        if(driverRecord.actionName!=='ResolvePromptAction')
-          receiptFailures.push('native-action-identity-mismatch');
-        if(driverRecord.pendingPromptType!==expectedPromptType)
-          receiptFailures.push('native-prompt-type-mismatch');
-        actionOrdinal=driverRecord.actionOrdinal;
-        actionPayloadSha256=driverRecord.actionPayloadSha256??null;
-        if(!nonNegativeInteger(actionOrdinal))
-          receiptFailures.push('native-action-ordinal-invalid');
-        else if(usedOrdinals.has(actionOrdinal))
-          receiptFailures.push('native-action-ordinal-reused');
-        else usedOrdinals.add(actionOrdinal);
-
-        if(typeof actionPayloadSha256!=='string'||!SHA256.test(actionPayloadSha256)) {
-          receiptFailures.push('native-action-payload-digest-invalid');
-        } else {
-          try {
-            payloadDigestVerified=evidenceBundleSha256(driverRecord.actionPayload)===
-              actionPayloadSha256;
-          } catch {
-            payloadDigestVerified=false;
-          }
-          if(!payloadDigestVerified)
-            receiptFailures.push('native-action-payload-digest-mismatch');
-        }
-
-        const ledgerMatches=ledgerRows.filter(row=>row?.actionOrdinal===actionOrdinal);
-        if(ledgerMatches.length!==1) {
-          receiptFailures.push(ledgerMatches.length===0?
-            'native-ledger-row-not-found':'native-ledger-row-ambiguous');
-        } else {
-          ledgerRecord=ledgerMatches[0];
-          const expectedDispatch=receipt?.nativeDispatch==='dispatch-returned'?
-            'succeeded':receipt?.nativeDispatch==='dispatch-threw'?'failed':null;
-          ledgerJoinVerified=
-            ledgerRecord.actorSeat===seat&&
-            ledgerRecord.turnBefore===turn&&
-            ledgerRecord.pendingPrompt===driverRecord.pendingPromptType&&
-            ledgerRecord.action==='ResolvePromptAction'&&
-            ledgerRecord.actionPayloadSha256===actionPayloadSha256&&
-            ledgerRecord.dispatchStatus===driverRecord.dispatchStatus&&
-            driverRecord.dispatchStatus===expectedDispatch;
-          if(!ledgerJoinVerified)
-            receiptFailures.push('native-ledger-identity-or-dispatch-mismatch');
-        }
-        const expectedDriverDispatch=receipt?.nativeDispatch==='dispatch-returned'?
-          'succeeded':receipt?.nativeDispatch==='dispatch-threw'?'failed':null;
-        if(driverRecord.dispatchStatus!==expectedDriverDispatch)
-          receiptFailures.push('native-driver-dispatch-mismatch');
-      }
-
-      const joined=receiptFailures.length===0;
-      joinedReceipts.push({
-        ...cloneReceipt(receipt),
-        actionOrdinal,
-        nativeActionName:driverRecord?.actionName??null,
-        nativePendingPromptType:driverRecord?.pendingPromptType??null,
-        actionPayloadSha256,
-        driverDispatchStatus:driverRecord?.dispatchStatus??null,
-        ledgerDispatchStatus:ledgerRecord?.dispatchStatus??null,
-        payloadDigestVerified,
-        ledgerJoinVerified,
-        joined,
-        joinFailures:receiptFailures
-      });
-      for(const failure of receiptFailures)
-        failures.push('receipt-'+index+':'+failure);
-    }
-
-    totalReceipts+=receipts?.length??0;
-    totalRejected+=rejected;
-
-    if(receipts!==null) {
-      if(unknownKind!==0)failures.push('unsupported-receipt-kind-present');
-      if(counts.setupStartingBasicPromptsHandled!==startingBySeat[0]+startingBySeat[1])
-        failures.push('starting-basic-total-count-mismatch');
-      if(counts.setupGoFirstPromptsHandled!==goFirstBySeat[0]+goFirstBySeat[1])
-        failures.push('go-first-total-count-mismatch');
-      if(Array.isArray(counts.setupStartingBasicPromptsBySeat)&&
-         (counts.setupStartingBasicPromptsBySeat[0]!==startingBySeat[0]||
-          counts.setupStartingBasicPromptsBySeat[1]!==startingBySeat[1]))
-        failures.push('starting-basic-seat-count-mismatch');
-      if(Array.isArray(counts.setupGoFirstPromptsBySeat)&&
-         (counts.setupGoFirstPromptsBySeat[0]!==goFirstBySeat[0]||
-          counts.setupGoFirstPromptsBySeat[1]!==goFirstBySeat[1]))
-        failures.push('go-first-seat-count-mismatch');
-      if(counts.setupPromptActionsSubmitted!==submitted)
-        failures.push('submitted-action-count-mismatch');
-      if(counts.setupPromptActionsRejected!==rejected)
-        failures.push('rejected-action-count-mismatch');
-      if(submitted+rejected!==receipts.length)
-        failures.push('dispatch-total-does-not-match-receipts');
-      if(startingBySeat[expectedSeat]===0)
-        failures.push('required-starting-basic-receipt-missing');
-    }
-
-    roles[role]={
-      role,
-      policyOwnerSeat:expectedSeat,
-      counts,
-      receiptCount:receipts?.length??null,
-      receipts:joinedReceipts,
-      complete:failures.length===0,
-      failures
-    };
-    for(const failure of failures)globalFailures.push(role+':'+failure);
   }
 
-  const complete=globalFailures.length===0&&
-    roles.candidate.complete===true&&roles.opponent.complete===true;
+  const allWorkerRows=decisionRows.filter(row=>
+    row?.decisionKind==='owner-root'||row?.decisionKind==='owner-prompt');
+  if(!nonNegativeInteger(workerExecutionAudit?.totalWorkerDecisions)||
+     workerExecutionAudit.totalWorkerDecisions!==allWorkerRows.length)
+    failures.push('total-worker-decision-count-mismatch');
+
+  const setupCountsBySeat=[
+    {seat:0,startingBasics:0,goFirst:0,wantToDrawCards:0},
+    {seat:1,startingBasics:0,goFirst:0,wantToDrawCards:0}
+  ];
+  let totalGoFirst=0;
+
+  for(const role of ROLE_NAMES) {
+    const seat=expectedSeats[role];
+    const roleFailures=[];
+    const roleAudit=workerExecutionAudit?.roles?.[role];
+    if(!roleAudit||typeof roleAudit!=='object')
+      roleFailures.push('worker-role-audit-missing');
+    if(roleAudit?.seat!==seat)roleFailures.push('worker-role-seat-mismatch');
+
+    const roleRows=decisionRows.filter(row=>
+      row?.actingSeat===seat&&
+      (row?.decisionKind==='owner-root'||row?.decisionKind==='owner-prompt'));
+    const ownerRootRows=roleRows.filter(row=>row.decisionKind==='owner-root');
+    const ownerPromptRows=roleRows.filter(row=>row.decisionKind==='owner-prompt');
+    for(const [field,expected] of [
+      ['decisionCount',roleRows.length],
+      ['rootDecisionCount',ownerRootRows.length],
+      ['promptDecisionCount',ownerPromptRows.length]
+    ]) {
+      if(!nonNegativeInteger(roleAudit?.[field])||roleAudit[field]!==expected)
+        roleFailures.push(field+'-does-not-reconcile-to-native-trace');
+    }
+
+    const roleSetupRows=setupRows.filter(item=>item.row.actingSeat===seat);
+    const counts={startingBasics:0,goFirst:0,wantToDrawCards:0};
+    const projectedRows=[];
+    for(const item of roleSetupRows) {
+      const {row,spec,message}=item;
+      const trace=row.workerDecisionTrace;
+      const receipt=row.validationReceipt;
+      const projection=trace?.promptProjection;
+      const promptContext=row.promptResolverContext;
+      const ordinal=row.actionOrdinal;
+      const receiptFailures=[];
+
+      if(!nonNegativeInteger(ordinal))receiptFailures.push('action-ordinal-invalid');
+      else if(usedOrdinals.has(ordinal))receiptFailures.push('action-ordinal-reused');
+      else usedOrdinals.add(ordinal);
+      if(row.turnBefore!==0||row.phaseBefore!==1)
+        receiptFailures.push('not-a-turn-zero-setup-prompt');
+      if(row.actingSeat!==seat||row.actingPlayerId===null||
+         row.actingPlayerId===undefined)
+        receiptFailures.push('physical-actor-identity-invalid');
+      if(row.pendingPromptId===null||row.pendingPromptId===undefined)
+        receiptFailures.push('pending-prompt-id-missing');
+      if(promptContext?.promptId!==row.pendingPromptId||
+         promptContext?.promptType!==spec.promptType||
+         promptContext?.actingSeat!==seat||
+         promptContext?.message!==message)
+        receiptFailures.push('native-prompt-context-mismatch');
+      if(row.actionName!=='ResolvePromptAction'||
+         row.policyInputKind!=='native-owner-prompt'||
+         row.isRootDecision!==false||
+         row.promptResolution?.kind!=='worker-choice'||
+         row.dispatchStatus!=='succeeded')
+        receiptFailures.push('native-prompt-dispatch-not-accepted');
+
+      if(trace?.schema!=='agent6-worker-decision-trace-v1'||
+         trace?.traceStatus!=='validated'||trace?.failureCode!==null||
+         trace?.decisionKind!=='owner-prompt'||
+         trace?.actionOrdinal!==ordinal||trace?.seat!==seat||
+         trace?.role!==role)
+        receiptFailures.push('worker-decision-trace-identity-invalid');
+      if(projection?.promptType!==spec.promptType||
+         projection?.description!==message||
+         projection?.actingSeat!==seat||
+         projection?.source?.sourceKind!=='engine'||
+         projection?.source?.effectName!==message||
+         !digestMatches(projection,trace?.promptProjectionSha256))
+        receiptFailures.push('worker-prompt-projection-invalid');
+
+      if(!receipt||receipt.schema!=='agent6-cloned-store-prompt-validation-v1'||
+         receipt.promptDecodeValidated!==true||
+         receipt.promptId!==row.pendingPromptId||
+         receipt.actorSeat!==seat||
+         receipt.clonedPromptResolved!==true||
+         receipt.nativeValidationStoreMode!=='cloned-store'||
+         receipt.fullOriginalStoreStateUnchanged!==true||
+         receipt.promptProjectionSha256!==trace?.promptProjectionSha256||
+         !Array.isArray(receipt.selectedTokens)||
+         JSON.stringify(receipt.selectedTokens)!==JSON.stringify(trace?.selectedTokens)||
+         receipt.selectedItemsSha256!==trace?.selectedItemsSha256)
+        receiptFailures.push('cloned-prompt-validation-receipt-invalid');
+
+      if(!digestMatches(receipt,trace?.validationReceiptSha256)||
+         trace?.validationReceiptSha256!==row.validationReceiptSha256||
+         !digestMatches(receipt,row.validationReceiptSha256)||
+         !digestMatches(trace,row.workerDecisionTraceSha256)||
+         !digestMatches(row.actionPayload,row.actionPayloadSha256))
+        receiptFailures.push('worker-or-action-payload-digest-invalid');
+      if(!Array.isArray(trace?.selectedItems)||
+         !digestMatches(trace.selectedItems,trace.selectedItemsSha256))
+        receiptFailures.push('worker-selected-items-digest-invalid');
+
+      const ledgerMatches=ledgerRows.filter(item=>item?.actionOrdinal===ordinal);
+      let ledger=null;
+      let ledgerJoinVerified=false;
+      if(ledgerMatches.length!==1) {
+        receiptFailures.push(ledgerMatches.length===0?
+          'native-ledger-row-missing':'native-ledger-row-ambiguous');
+      } else {
+        ledger=ledgerMatches[0];
+        ledgerJoinVerified=
+          ledger.actorSeat===seat&&
+          ledger.playerId===row.actingPlayerId&&
+          ledger.turnBefore===row.turnBefore&&
+          ledger.action==='ResolvePromptAction'&&
+          ledger.pendingPrompt===spec.promptType&&
+          ledger.actionPayloadSha256===row.actionPayloadSha256&&
+          ledger.isRootDecision===false&&
+          ledger.policyInputKind==='native-owner-prompt'&&
+          ledger.decisionKind==='owner-prompt'&&
+          ledger.workerDecisionTraceSha256===row.workerDecisionTraceSha256&&
+          ledger.validationReceiptSha256===row.validationReceiptSha256&&
+          ledger.dispatchStatus==='succeeded'&&
+          sameDigest(ledger.promptResolverContext,row.promptResolverContext)&&
+          sameDigest(ledger.promptResolution,row.promptResolution);
+        if(!ledgerJoinVerified)receiptFailures.push('native-ledger-join-invalid');
+      }
+
+      const stepMatches=steps.filter(step=>step?.actionOrdinal===ordinal+1);
+      let recorderJoinVerified=false;
+      let publicBoardSha256=null;
+      if(stepMatches.length!==1) {
+        receiptFailures.push(stepMatches.length===0?
+          'recorder-step-missing':'recorder-step-ambiguous');
+      } else {
+        const step=stepMatches[0];
+        const publicPlayers=row.publicStateAfter?.players;
+        publicBoardSha256=Array.isArray(step.publicBoard)?
+          evidenceBundleSha256(step.publicBoard):null;
+        recorderJoinVerified=Array.isArray(publicPlayers)&&
+          Array.isArray(step.publicBoard)&&
+          evidenceBundleSha256(publicPlayers)===publicBoardSha256;
+        if(!recorderJoinVerified)receiptFailures.push('recorder-public-board-join-invalid');
+      }
+
+      counts[spec.kind==='starting-basics'?'startingBasics':
+        spec.kind==='go-first'?'goFirst':'wantToDrawCards']++;
+      setupCountsBySeat[seat][spec.kind==='starting-basics'?'startingBasics':
+        spec.kind==='go-first'?'goFirst':'wantToDrawCards']++;
+      if(spec.kind==='go-first')totalGoFirst++;
+
+      projectedRows.push({
+        role,kind:spec.kind,seat,playerId:row.actingPlayerId,
+        turn:row.turnBefore,promptId:row.pendingPromptId,
+        promptType:spec.promptType,promptMessage:message,
+        actionOrdinal:ordinal,recorderStepOrdinal:nonNegativeInteger(ordinal)?ordinal+1:null,
+        actionName:row.actionName,actionPayloadSha256:row.actionPayloadSha256??null,
+        workerDecisionTraceSha256:row.workerDecisionTraceSha256??null,
+        validationReceiptSha256:row.validationReceiptSha256??null,
+        promptProjectionSha256:trace?.promptProjectionSha256??null,
+        selectedTokenCount:Array.isArray(trace?.selectedTokens)?trace.selectedTokens.length:0,
+        dispatchStatus:row.dispatchStatus,
+        ledgerJoinVerified,recorderJoinVerified,publicBoardSha256,
+        accepted:receiptFailures.length===0,failures:receiptFailures
+      });
+      for(const failure of receiptFailures)
+        roleFailures.push('prompt-'+String(row.pendingPromptId)+':'+failure);
+    }
+
+    if(counts.startingBasics===0)
+      roleFailures.push('required-starting-basic-prompt-missing');
+    roleResults[role]={
+      role,seat,
+      workerDecisionCount:roleAudit?.decisionCount??null,
+      workerRootDecisionCount:roleAudit?.rootDecisionCount??null,
+      workerPromptDecisionCount:roleAudit?.promptDecisionCount??null,
+      hostOnlyPromptCount:roleAudit?.hostOnlyPromptCount??null,
+      setupPromptDecisionCount:projectedRows.length,
+      counts,
+      setupPromptRows:projectedRows,
+      complete:roleFailures.length===0,
+      failures:roleFailures
+    };
+    for(const failure of roleFailures)failures.push(role+':'+failure);
+  }
+
+  if(totalGoFirst===0)failures.push('required-go-first-prompt-missing');
+  const complete=failures.length===0&&
+    roleResults.candidate?.complete===true&&roleResults.opponent?.complete===true;
+  const totalSetupPromptDecisions=setupRows.length;
   return {
-    schema:'agent19-agent34-encrypted-setup-prompt-audit-v1',
+    schema:'agent19-agent36-v3-native-setup-prompt-audit-v1',
     visibility:'encrypted-full-only',
-    candidateSeat,
-    opponentSeat,
-    roles,
-    receiptCount:totalReceipts,
-    rejectedDispatchCount:totalRejected,
+    candidateSeat,opponentSeat,
+    setupPromptTypes:Object.fromEntries(Object.entries(SETUP_PROMPTS)
+      .map(([message,spec])=>[spec.kind,{promptType:spec.promptType,message}])),
+    roles:roleResults,
+    setupPromptDecisions:totalSetupPromptDecisions,
+    setupCountsBySeat,
     complete,
-    accepted:complete&&totalRejected===0,
-    failures:globalFailures
+    accepted:complete,
+    failures
   };
 }
 
