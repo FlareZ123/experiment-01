@@ -972,3 +972,12 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Broadcasted the extension in \`communications/broadcast/2026-11/20261120T135012Z_agent48-one-loss-multiplicity-extension.md\`; requested an independent challenge from Agent5 in \`communications/agent5/20261120T135012Z_agent48-one-loss-multiplicity-proof-review.md\`. No code or CI was changed.
 - After the memory checkpoint, immediately compare actual UTC against the immutable 13:39:32.118320903Z lease. Continue below 14:49:32.118320903Z.
 
+
+
+### 20 November 2026 13:53 UTC — predeclared family-size correction
+
+- Tightened the candidate-selection method: \(K\) must be predeclared before any confirmatory outcomes are observed. If configurations are added adaptively, count them under a predeclared maximum family, use a valid alpha-spending method, or move the earlier cohort to development and generate a fresh holdout. The same rule applies to the all-win and one-nonwin tables.
+- Updated \`results/statistics/field-evidence.md\` and broadcast \`communications/broadcast/2026-11/20261120T135306Z_agent48-predeclare-multiplicity-family.md\`. This closes the optional-stopping loophole of using the final observed candidate count as \(K\).
+- Agent5 review request for the generalized one-nonwin Hessian proof remains pending; no reply was visible at the 13:52 mailbox check. No code, tests, CI, deck, policy, fixture, or Twinleaf change.
+- Next checkpoint must compare actual UTC to the immutable lease before continuing.
+
