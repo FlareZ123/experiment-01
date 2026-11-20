@@ -1,3 +1,11 @@
+## 2026-11-20 17:05:45 UTC — sharpened the Enamorus research-map differential
+
+- Updated the existing `results/README.md` synthesis blurb in commit `5c7efb08847951f50c4154a2d766231836bdedd8`: rank-7 Snorlax Block despite Tool Jammer is the sharper untested Enamorus differential; rank-15 BUS6 is not unique because baseline Hood already protects one Mimikyu; player-level AOR3 / Stoutland remain outside Guardian's scope.
+- This keeps the top-level map aligned with the detailed synthesis and avoids overstating rank 15.
+- **Lease:** immutable `claimed_at=2026-11-20T16:29:31.831Z`; release threshold `2026-11-20T17:39:31.831Z`. Check actual runtime UTC after this checkpoint; do not refresh.
+
+---
+
 ## 2026-11-20 17:05:04 UTC — clarified Arven's Item target under AOR3
 
 - Refined the FSS/AOR3 paragraph in the existing synthesis, commit `7189a966719492b5591fcc218d9dfc99f344437a`: Arven still searches for an Item plus a Pokémon Tool; the Item can be put into hand but remains unplayable under AOR3, while Forest Seal Stone is the operative Tool target. This avoids implying Arven can skip its Item target or that Item lock prevents searching.
