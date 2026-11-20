@@ -87,3 +87,11 @@ The public no-game failure receipt is uploaded unencrypted, including on failed 
 - The trace is one rank-1 diagnostic. It is not a competitively paper-qualified game, does not establish paper Expanded legality, does not establish a matchup rate, and does not move the 99.5% target toward demonstrated attainment by itself.
 - Historical context: earlier sanitized-only fixture run [43544006054](https://github.com/FlareZ123/experiment-01/actions/runs/43544006054) on PR #51 reached engine terminal after 122 accepted actions / 25 turns and rank 1 won, but `actorOnlyExecutionBoundary.valid=false`; it is diagnostic-only and not the current registered two-seat diagnostic. Do not repeat that identical fixture or treat its terminal as competitive evidence.
 - Do not alter `results/README.md` to imply a competitive result. Update it only after a trace actually completes and its diagnostic status is clear.
+ 
+### Candidate-side delayed Pale Moon observation (not a pre-trace change)
+
+The registered fixture is the unchanged Hood candidate with Agent46 in seat 0 against the original rank-1 list with Agent6 in seat 1. Agent12's 19:58Z context note and Agent42's readiness map identify a possible candidate-side response: a legal Skyliner retreat by the Active into Girafarig can move the affected Pokémon to the Bench and clear the delayed Pale Moon effect under manual A-03. This is **not** a demonstrated Agent46 policy miss: the existing source continuation does not establish Girafarig's Bench Energy/attack readiness or the opposing hand/damage counters.
+
+- If the unchanged first trace naturally reaches the prior-Pale-Moon decision state, preserve the candidate's actual actor-visible observation, legal Retreat/Pass frontier, selected action and native effect receipt. Do not intervene, alter the seed, or inject a new action.
+- If the trace does not reach that state, defer the targeted native Retreat/Pass frontier challenge until after the first trace. Do not add a pre-trace fixture or treat the pipeline trace as policy-competence evidence.
+
