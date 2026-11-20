@@ -139,7 +139,7 @@ A two-look version is also available: after 14 rounds (896 games), certify if al
 =0.0474651194<0.05.
 \]
 
-This uses a union bound; independence between looks is unnecessary. Under homogeneous per-game win probability 0.999 / 0.9995, expected stopping counts are approximately 862.0 / 907.5 games; heterogeneity affects expected sample size, not the stated type-I bound. The direct 640-game all-win test above remains a simpler lower-cost alternative that permits zero nonwins only.
+This uses a union bound; independence between looks is unnecessary. Under a homogeneous per-game win probability \(p\), pass probability is \(p^{896}+896(1-p)p^{1023}\): approximately 39.75% / 73.00% / 90.74% at \(p=0.998/0.999/0.9995\). Expected stopping counts are approximately 862.0 / 907.5 games at \(p=0.999/0.9995\). These are homogeneous-alternative planning values, not a uniform power guarantee under heterogeneous matchup/seat rates; heterogeneity affects expected sample size and power, not the stated type-I bound. The direct 640-game all-win test above remains a simpler lower-cost alternative that permits zero nonwins only.
 
 These one-nonwin and 14/16 two-look numerical bounds spend up to the full 0.05 error budget for one preselected candidate. If multiple candidates share a confirmatory family, each schedule must fit within its allocated \(\alpha_j\); do not reuse the 16-per-stratum or 14/16 schedule unchanged when \(\alpha_j<0.0474651194\).
 
