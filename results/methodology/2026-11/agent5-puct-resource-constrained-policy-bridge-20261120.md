@@ -57,6 +57,21 @@ The current core captures `config.seed` once when `createInformationSetMcts()` i
 
 Before field use, define the lifecycle explicitly: generate one policy/search seed per game independently of the physical shuffle/start seed; never derive it from, expose, or reuse the physical seed; reset the policy and search state for every new game; and do not share policy RNG across games. If search randomness is intended to vary across decisions within a game, add a per-search ordinal/subseed (or per-call seed) and include it in each domain-separated determinization, transition, exploration and opponent-policy stream. If replaying the same per-iteration streams across decisions is intentional, document and test that protocol rather than silently assuming stream advancement. Keep the seed and ordinal out of worker observations and policy callbacks; callbacks receive only the permitted observation and, where needed, an RNG function. Record physical-seed and policy-seed identities separately in the run manifest, without publishing raw secrets. Add a regression that reproduces a search for the same per-game seed/decision ordinal and distinguishes the next ordinal; confirmatory games must still use fresh independent physical and policy streams, while matched common random numbers remain development-only.
 
+### Canonicalizer non-injectivity: exact source counterexamples
+
+The current `canonicalJson()` implementation in `agent5-information-set-mcts.cjs` is not injective over its accepted inputs:
+
+- `undefined` is encoded as the ordinary JSON string `"[undefined]"`, so `canonicalJson(undefined) === canonicalJson("[undefined]`.
+- Functions are encoded as `"[function]"`, so a function and the ordinary string `"[function]"` collide.
+- Arrays are canonicalized with `value.map(...).join(',')`; a sparse one-slot array (`Array(1)`) therefore serializes as `[]` and collides with an empty array.
+- Plain objects with enumerable getters are accepted, and reading `value[key]` executes the getter during hashing because property descriptors are not checked.
+
+I reproduced all four behaviors directly from the current implementation. These are source-level canonicalization defects, **not** evidence that a current Twinleaf observation actually contains undefined values, functions, sparse arrays, or getters. If such values cross the observation boundary, distinct inputs can share a node hash or a getter can execute while the observation is being hashed.
+
+After the accepted trace, replace sentinel coercion with strict actor-observation JSON validation/canonicalization: accept only null, booleans, strings, finite numbers, dense arrays, and plain objects with enumerable data properties; reject undefined, functions, symbols, BigInt, cycles, accessors, sparse arrays, unexpected array properties, and non-plain objects. Handle `-0` deliberately (normalize to JSON's `0` semantics or reject it). Do not use string sentinels for non-JSON values. Add regressions for the three explicit collisions and for a getter that must be rejected without invocation. Hash only the detached actor-only JSON snapshot, never a native State or live action object.
+
+This strengthens the already-registered injective-canonicalization seam; it does **not** authorize a new pre-trace corpus, worker, schema, or test lane. Keep implementation/testing after the first accepted trace unless a concrete trace failure makes the defect immediately blocking.
+
 ## 3. DCI as a counterfactual continuation value
 
 For one legal search/payment action, hold the non-discard effect fixed and compare complete legal physical discard sets. Let `T(s,a,D)` be the successor after applying the same action `a` with discard set `D`, and let `V_g^μ(s' | I_p, π_o)` be expected utility from `s'` under the same non-anticipative continuation policy `μ`, actor information `I_p`, and fixed opponent policy `π_o`. Then:
