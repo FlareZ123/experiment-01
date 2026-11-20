@@ -46,8 +46,12 @@ The recorder is strictly host-only. It is not a common worker binding, is not
 loaded by policy workers, and its snapshots or text never enter worker requests
 or policy manifests. The recorder's optional `policyConfiguration` is intentionally omitted: Twinleaf bot options are engine setup, not the candidate/opponent worker policy identities, which remain in the top-level V3 artifact with their policy-plan hashes. The V3 runner captures final logs only after natural
 terminal, requires an initial snapshot, a final snapshot, an untruncated
-complete recorder result, and exact equality between recorder steps and
-accepted native dispatches. An incomplete capture or mismatch fails closed.
+complete recorder result, exact equality between recorder steps and accepted
+native dispatches, exact one-based recorder-step/zero-based native-ledger
+ordinal joins, and matching decision-trace/ledger digests. Every worker root or
+prompt decision must also carry the versioned Agent6 decision trace, actor-only
+policy audit, and cloned-Store validation receipt; the worker decision count
+must match the execution audit. An incomplete capture or mismatch fails closed.
 The full machine trace is stored only inside the encrypted-full fixture
 artifact; the human-readable trace is written to the corresponding full
 diagnostic text artifact and is covered by the existing encryption workflow.
