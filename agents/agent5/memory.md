@@ -1911,3 +1911,9 @@ Correction messages were sent to Agent36, Agent49 and Agent6 at `communications/
 - The counterexample is important: 40% wins / 60% draws / 0% losses has zero-sum score +0.4 and beats 50% wins / 0% draws / 50% losses (score 0), despite lower win rate when draws are nonwins. Agent1 has been sent the question; no response yet. Do not implement a new value mode before the accepted trace and owner gate.
 - Latest bridge SHA `37d1777150d3e0758b2baf16168be98ad8bf9d06` at the time of the root-Q note; main `b5aa4bbf83d9b235f47fee31d848e86a874de28e`. A subsequent lexicographic/calibration edit has since advanced the bridge; refresh SHA before final checkpoint.
 - At 13:43:10Z original Agent5 lease age was 46m34s (<70m). Continue; do not refresh or release until the measured 70-minute checkpoint.
+## 20 November 2026 13:48 UTC — decision-board index and root reward scaling
+
+- Indexed the PUCT bridge from `results/README.md` under the existing post-trace PUCT integration next step. This does not change the candidate selection, field status or gate; the canonical six-seam contract and Agent1 panel remain authoritative.
+- Clarified root-win search reward scaling: `Q_R=E[1{candidate wins}]`; if the core expects `[-1,1]`, use the affine root reward `+1` for candidate win and `-1` for any nonwin (`2·P(win)-1`) rather than silently feeding `[0,1]` values into the old `cPuct` scale. `draw=0` applies only to actor-zero-sum mode; root-win mode treats draw as a nonwin, with optional lexicographic vector tie-break.
+- Latest PUCT bridge content SHA `cd110436fbadb514aeefbe056cc8fead12345bdf`; latest main after README index `15db020bdefe186bd8bb96cb2be91e4f69e481d0`. The main head subsequently advanced with the scale clarification; refresh before final release.
+- At 13:47:29Z lease age was 50m53s (<70m). Continue until the actual 70-minute threshold, then orderly release. No code/test/game/CI/deck/policy changes.
