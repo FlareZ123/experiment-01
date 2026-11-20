@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 const protocol = require('./agent49-policy-protocol.cjs');
-const { enumName } = require('./agent36-native-action-frontier.cjs');
+const { enumName, cloneNativeValidationGraph, createIsolatedValidationSimulator } = require('./agent36-native-action-frontier.cjs');
 
 const MAX_PROMPT_CHOICES = 512;
 
@@ -861,7 +861,8 @@ function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook
 }
 
 function dispatchPromptChoice({
-  store, prompt, state, actorSeat, projection, decision, token, native, dispatch=true
+  store, prompt, state, actorSeat, projection, decision, token, native, dispatch=true,
+  withValidationRandom=null
 } = {}) {
   assert.ok(store && typeof store.dispatch === 'function');
   assert.ok(projection?.choiceByToken instanceof Map);
@@ -905,11 +906,52 @@ function dispatchPromptChoice({
     });
   }
 
+  let validationReceipt = null;
+  if (typeof withValidationRandom === 'function' &&
+      typeof native?.Simulator === 'function' &&
+      typeof native?.ResolvePromptAction === 'function') {
+    const originalStateBefore = cloneNativeValidationGraph(state);
+    validationReceipt = withValidationRandom(() => {
+      const simulator = createIsolatedValidationSimulator(state, native);
+      const clonedState = simulator.store.state;
+      const clonedPrompt = clonedState.prompts?.find(item =>
+        item.id === prompt.id && item.result === undefined);
+      assert.ok(clonedPrompt, 'cloned native Store is missing the pending owner prompt');
+      assert.equal(clonedPrompt.playerId, clonedState.players[actorSeat].id,
+        'cloned owner prompt belongs to a different physical seat');
+      const clonedValidation = validateRawPromptResult(clonedPrompt, rawResult, clonedState);
+      assert.equal(clonedValidation.valid, true,
+        'worker-selected prompt choice failed cloned native decode/validation');
+      const clonedAction = new native.ResolvePromptAction(
+        clonedPrompt.id, clonedValidation.decoded
+      );
+      simulator.store.dispatch(clonedAction);
+      const remainingPrompt = Array.isArray(simulator.store.state.prompts)
+        ? simulator.store.state.prompts.find(item => item.id === prompt.id)
+        : null;
+      const clonedPromptResolved = !remainingPrompt || remainingPrompt.result !== undefined;
+      assert.equal(clonedPromptResolved, true,
+        'cloned native Store did not resolve the same pending owner prompt');
+      return {
+        schema: 'agent6-cloned-store-prompt-validation-v1',
+        actorSeat,
+        promptId: prompt.id,
+        selectedTokens: selected.kind === 'select-choice' ? [selected.token] : selected.tokens.slice(),
+        selectedCount: selected.kind === 'select-choice' ? 1 : selected.tokens.length,
+        nativeValidationStoreMode: 'cloned-store',
+        promptDecodeValidated: true,
+        clonedPromptResolved
+      };
+    });
+    assert.deepStrictEqual(state, originalStateBefore,
+      'cloned prompt validation mutated the full live Store state graph');
+    validationReceipt.fullOriginalStoreStateUnchanged = true;
+  }
   const validation = validateRawPromptResult(prompt, rawResult, state);
   assert.equal(validation.valid, true, 'worker-selected prompt choice failed native decode/validation');
   const action = new native.ResolvePromptAction(prompt.id, validation.decoded);
   const result = dispatch?store.dispatch(action):undefined;
-  return { result, action, rawResult, decoded: validation.decoded };
+  return { result, action, rawResult, decoded: validation.decoded, validationReceipt };
 }
 
 module.exports = {
