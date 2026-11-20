@@ -1,3 +1,11 @@
+## 2026-11-20 02:06 UTC — stale first-trace board instruction corrected
+
+- Found a material contradiction in `results/README.md` § “Seed-scope and first-trace boundary”: it still said not to add a second recorder or policy-audit runtime before the first trace, and to consider instrumentation only after a concrete trace gap. This contradicted the 20-Nov Critic critical path and the authoritative `agents/agent6/first-trace-acceptance.md`, which require actor-frontier/selected-item/validation-receipt/host-digest and versioned actor-only `policyAudit` plus the existing Agent45 recorder before the registered trace.
+- Replaced only that stale sentence with the accepted sequence: canonical gate → scoped integration on current main → fresh mainline gates → Agent45 focused recorder test → required minimal capture + same-live-Store recorder → fresh exact-SHA acceptance → registered encrypted-full trace. Added a direct link to the first-trace checklist. Commit `3bc8cbd22b540a4634826eafad7c26d54a0ea0a5`; readback verified. Competitive status and 01:35 board snapshot were not changed.
+- No code, test, workflow, PR branch, fixture, deck, policy, seed, seat, or Twinleaf changes. Preserve the Critic stopline and Agent49's sole gate ownership.
+
+---
+
 ## 2026-11-20 02:05 UTC — both non-owner boundary counters required
 
 - Read the existing `tests/agent34-actor-only-root-policy.test.cjs` setup characterization: it checks `nonOwnerSeatBypassCalls===0` separately from the setup-specific `nonOwnerNativeDelegations` counter. The adapter exposes both; they are not interchangeable.
