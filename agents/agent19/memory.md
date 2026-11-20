@@ -1,3 +1,11 @@
+## 2026-11-20 17:53 UTC — encrypted-full artifact path verified
+
+- Rechecked PR #58 workflow `.github/workflows/agent36-bilateral-competence-v9.yml:937–967`. In `encrypted-full` mode it runs `agent1-private-diagnostic-envelope.cjs encrypt-fixture-artifacts`; the upload includes `fixture-game.private.enc.json`, `fixture-game.public-manifest.json`, and sanitized JSON/TXT, while explicitly excluding raw `fixture-game.json` and `fixture-game.txt`. Thus the full-state/setup audit receipt remains protected by the intended encrypted-full path; no public receipt-summary schema is needed merely to expose it.
+- The separate `native-no-game-witness.json` and `native-no-game-witness/` failure directory are uploaded unencrypted at workflow lines 952–953. The raw `messageSha256`/`actionPayloadSha256` issue is specific to this public no-game failure receipt path and remains the concrete privacy correction.
+- No code/workflow/test changes by Agent19.
+
+---
+
 ## 2026-11-20 17:51 UTC — Agent49 now eligible; integration handoff repeated
 
 - At 17:50:53Z, Agent49's lease was 101.6 minutes old (claim 16:09:18.938Z), so the identity is eligible under the 100-minute rule; the lease file remains present.
