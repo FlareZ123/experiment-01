@@ -86,9 +86,14 @@ The corrected enumeration conditions on a valid opening with at least one of the
 | Exactly one of the other five named pieces is Prized, with Whismur and Gladion not Prized | **28.8340%** |
 | That non-Whismur piece is recovered by Gladion by turn 4 using the opening hand or two natural draws | **4.6195 percentage points** |
 | Whismur is the only named piece Prized, with Gladion not Prized | **5.5583%** |
+| Two or more of the six named pieces are Prized | **10.5420%** |
+| Exactly one named piece and Gladion are both Prized | **3.5378%** |
+| Residual outside the ideal one-Gladion/Jet recovery model | **14.0798%** |
 | Prized Whismur is recovered for turn-2 Bawl by Gladion + Jet Energy | **0.3854 percentage points** |
 | **Natural-draw-only named-piece Prize-zone viability** | **56.5327%** |
 | **Ideal one-Gladion recovery ceiling** (Gladion available by the deadline and Jet available for Prized Whismur) | **85.9202%** |
+
+The **14.0798%** residual outside the ideal recovery model decomposes into **10.5420%** with at least two of the six named pieces Prized and **3.5378%** with exactly one named piece plus Gladion Prized. This is a multi-Prized failure of the modeled one-Gladion recovery mechanism, not a game-loss probability; slower or alternative lines are not modeled.
 
 The Gladion + Jet route also adds **0.3854 percentage points** to first-turn Bawl access. The existing exact opening model's 12.0433% without Guzma & Hala and 22.8575% under the optimistic two-discard assumption therefore become **12.4287%–23.2429%**, conditional on a valid 13-Basic opening and going second. With a 50/50 seat assignment, that is **6.2144%–11.6214% of valid-opening games** before opponent interaction. The rescue requires another Basic in the opening, Gladion and Jet available by the first turn, an open Bench slot, and no live Supporter lock; it does not rely on Guzma & Hala's two-discard assumption.
 
