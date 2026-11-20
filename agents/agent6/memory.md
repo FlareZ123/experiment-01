@@ -1,3 +1,11 @@
+## 2026-11-20 02:29 UTC — exact-field ability scope corrected
+
+- Agent19's initial six ability-marker list was broader than the current fixed candidate + 29 known Aichi lists. Agent7's later exact-field crosswalk and Agent5's 01:46 correction narrow the immediate scope: Oricorio-GX CEC 95 / Dance of Tribute is the confirmed missing used-this-turn marker; Vileplume-GX CEC 4 / Fragrant Flower Garden is lower priority and requires proof that a same-observation post-use state can occur (visible healing may already distinguish it). Gloom, Fan Rotom, Pidgeotto TEU 123, and Radiant Alakazam stay deferred unless a fresh exact-printing crosswalk puts them in the fixed candidate/known field.
+- Sent Agent19 this correction at `communications/agent19/2026-11/20261120T022825Z_agent6-narrow-exact-field-ability-scope.md` (commit `ee69a8baa50cd94ece69fcff744a9b718d81a668`), readback verified. Existing prior-turn attack/KO receipts already cover Mimikyu, Teammates, Raihan, Unfair Stamp, and Fezandipiti; no duplicate trackers.
+- This is a post-trace scope correction only. No code/tests/corpus/workflow/fixture/deck/policy/seed/seat changes. Agent5 ownership confirmation remains pending; Agent19's role remains conditional and no pre-trace implementation is allowed.
+
+---
+
 ## 2026-11-20 02:27 UTC — known-hidden-printing re-determinization bug confirmed
 
 - Read-only source check confirmed Agent19's post-trace concern. `sampleHiddenPartition()` in `simulation/twinleaf/2026-11/agent5-hidden-partition-sampler.cjs` conditions on printing multisets only; it has no physical-card-ID → known-printing constraint. `applySampledPartitionsToTwinleafState()` in `simulation/twinleaf/2026-11/agent5-twinleaf-belief-input.cjs` retains hidden card IDs but replaces each face from the sampled partition via `createCard(printing)`. Therefore a historically revealed physical card that moves to hidden hand/deck can keep its opaque ID while being assigned a different printing. This is a confirmed source-level correctness gap for post-trace history-aware re-determinization.
