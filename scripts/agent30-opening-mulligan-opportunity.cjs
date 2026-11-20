@@ -127,6 +127,11 @@ const ironThornsV3 = {
   basicComposition: [
     { name: 'Iron Thorns ex', printing: 'TWM 77', count: 4 },
     { name: 'Mimikyu', printing: 'PAL 97', count: 1 }
+  ],
+  internationalExpandedEligibility: 'blocked-as-submitted',
+  knownInternationalLegalityBlockers: [
+    { name: 'Palace Book', printing: 'SMP NAN25', count: 1, reason: 'Japanese-only promo; no international printing' },
+    { name: 'Palace Belt', printing: 'BWP 153', count: 1, reason: 'Japanese-only promo; no international printing' }
   ]
 };
 const rank1Source = {
@@ -242,7 +247,7 @@ function buildReport() {
     };
   });
   return {
-    schema: 'agent30-opening-mulligan-opportunity-v3',
+    schema: 'agent30-opening-mulligan-opportunity-v4',
     assumptions: {
       deckSize: 60, openingHandSize: 7,
       candidateAndRank1BasicCountsClassifiedFromCardPoolSubtypes: true,\n      fieldBasicCountsPrecomputedFrom29SourceDecksAndCardPoolSubtypes: true,
