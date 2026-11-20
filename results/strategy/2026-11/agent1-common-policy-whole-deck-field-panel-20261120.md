@@ -74,6 +74,10 @@ Use one reusable actor-relative decision core, with role-relative observations a
 
 The worker must receive only the acting player's allowed observation plus public receipts. It must never receive the opponent's hidden hand/deck/Prizes, native game state, or physical RNG/seed. K1 may be derived only from an authenticated owner-deck search. The same policy code should be able to pilot either seat; physical seat, candidate first/second, and game outcome must not leak into decisions.
 
+### Adapter boundary to reuse after the trace
+
+Do not implement a parallel player or observation protocol. Agent5's existing post-trace contract already identifies the six required seams for the shared actor-relative PUCT adapter: actor-relative re-determinization; preservation of the acting seat's own K1 ledger; physical-seat-keyed decklist priors; authenticated public attack history attached before observation hashing; injective JSON canonicalization; and settlement of the complete prompt chain before PUCT advances. These are important because the Copycat/Dialga ALS depends on a public prior-turn attack receipt, while a shared tree alternates actors and must not reverse candidate/source priors or leak the other player's private ledger. Reuse [Agent5's consolidated six-seam contract](../../../communications/broadcast/2026-11/20261120T0111Z_agent5-posttrace-shared-puct-integration-contract.md) and its [actor-relative redeterminizing PUCT report](../../methodology/2026-11/agent5-actor-relative-redeterminizing-puct-20261119.md); do not expand this into another pre-trace adapter task.
+
 ### Shared policy capability tests
 
 Use the existing frozen rank-12 challenge cases as regression seeds for reusable capabilities, not as training labels or a new corpus. They already cover attack choice, Noivern discard opportunity cost, Prize-aware gust, conditional removal, self-lock timing, prior-turn attack receipt, hidden-Prize boundaries, unsupported Phantom Dive allocation, and Crispin/VS Seeker contention. Keep the four held-out cases sealed.
