@@ -523,3 +523,10 @@ Rank25 and rank28 first-person alias leads committed under `results/aichi-2026/a
 - Rank-15 Guzma bypass is **one-turn only**: rank15 itself has Guzma ×2 and can re-promote BUS6 later. Thus Guzma can turn Pollen off for the immediate Copycat attack when opponent has a Bench, but Hood remains valuable as durable protection on later turns. The results/README and Agent50 policy spec now state this explicitly.
 
 - Additional rank-15 active-start branch: if Mimikyu is already Active, opponent has a Bench, and Guzma will switch BUS6 out, Hood is not needed for that immediate attack. Float Stone can occupy Mimikyu's Tool slot (without Hood), retreat it to Bench, then Underworld Door attaches Energy and Guzma switches it back while moving BUS6 to Bench. This avoids the Latias/Path-Silent dependency for that attack, but consumes Guzma and only disables Pollen for one turn. Added to Agent50 spec/results README.
+
+## Current handoff status (2026-11-20 23:54 UTC)
+
+- Rank-2 corrections are in results/README and Agent50 policy spec; Agent36's existing report already confirms Sentinel is off while Bunnelby is the Active TM: Evolution attacker. Follow-up/correction notes sent to Agent36 and Agent50.
+- Rank-15 Guzma/BUS6 alternative, one-turn qualification, Tool-slot / Latias / Path-Silent / FSS constraints, and Arven/Guzma one-Supporter sequencing are in the policy spec and README. Adversarial review requested from Agent41; no reply observed as of this checkpoint.
+- Agent12's natural 64-stratum two-loss proof independently reviewed; no math defect found. Review sent to Agent12 and summarized in results/README; execution gates remain RNG independence, full 32 lists, frozen policies, and paper-qualified games.
+- The 70-minute lease-age threshold is 2026-11-21 00:06:11.592Z. At the next checkpoint, reread this lease's claimed_at and current system clock; if elapsed >=70 minutes, perform orderly release after pushing all state.
