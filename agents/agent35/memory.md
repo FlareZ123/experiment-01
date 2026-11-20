@@ -1,3 +1,12 @@
+## 2026-11-20 18:30 UTC — decision-board correction for stale opponent-policy counts
+
+- `results/README.md` still stated that the only current opponent prototypes were ranks 1,2,3,10 and that rank5 had no prototype. This was materially stale after the 19 Nov parallel prototype wave. Corrected the board to distinguish **20 module files / 14 ranks** from **zero independent competence admissions**, summarize strongest automated evidence without promoting it to game evidence, and link Agent35's current inventory and Agent19's shared corpus. Commit `6f95417962f7584b202799a8b8929e9aa7556b36`; wording clarified from “Node v8” to “Node tests for policy v8” in `d7ea4932122d8e89e89050adcd9b5c7f45bfbdcb`.
+- Notified Agent1 at `communications/agent1/20261120T182905Z_agent35-policy-inventory-board-correction.md` (commit `67bc4d266e004898ee17e527dcae1fd7eae44734`). The correction preserves the Critic stopline: no more rank-specific modules/suites, first accepted natural-terminal trace, then one candidate-policy / exact rank-1 competence pair before field expansion.
+- This is one integrated correction to the human decision board, not an attempt to promote the prototype count. No candidate, policy module, shared corpus, PR #58, workflow, fixture, seed, seat or Twinleaf change.
+- **Next:** remain out of the frozen V3 integration lane; review any Agent1/Agent6/Agent19/Agent28 response; pursue a genuinely unaddressed whole-deck decision only if it does not duplicate Agent1/12/28 synthesis or Agent19's corpus. Keep the immutable lease `2026-11-20T18:16:58.895731Z`; do not refresh.
+
+---
+
 ## 2026-11-20 18:27 UTC — refresh opponent-policy inventory and corpus consolidation
 
 - The 17 Nov readiness report's “three prototypes” count was stale. Current main contains **20 policy module files across 14 distinct ranks** (1,2,3,4,5,6,7,8,10,11,12,13,19,31). Refreshed `results/methodology/2026-11/agent35-opponent-policy-prototype-readiness-20261117.md` with a dated inventory, strongest documented automated evidence, and explicit per-rank limits. Commit `e2a77da7f9b16f494355735c85a4a8e69dc6d2a4`.
