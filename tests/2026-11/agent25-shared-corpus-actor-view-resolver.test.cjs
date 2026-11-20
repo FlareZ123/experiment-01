@@ -8,10 +8,11 @@ const {
   resolveActorViewPayload,
   resolveActorView,
   assertActorOnlyView,
-  actorSeatFromView
+  actorSeatFromView,
+  computeActorViewSha256
 } = require('../../simulation/evaluation/2026-11/agent25-shared-corpus-actor-view-resolver.cjs');
 
-const DIGEST = 'a'.repeat(64);
+const digestOf = value => computeActorViewSha256(value);
 
 test('resolves an inline actor-view object without rewriting its payload', () => {
   const actorView = {
@@ -20,10 +21,12 @@ test('resolves an inline actor-view object without rewriting its payload', () =>
     observation: { actorSeat: 0, ownPublic: { prizeCount: 6 }, opponentPublic: { handCount: 4 } },
     prompt: null
   };
-  const resolved = resolveActorViewPayload({ actorView, actorViewDigest: 'sha256:' + DIGEST }, {});
+  const digest = digestOf(actorView);
+  const resolved = resolveActorViewPayload({ actorView, actorViewDigest: 'sha256:' + digest }, {});
   assert.equal(resolved.resolutionKind, 'inline-object');
   assert.equal(resolved.actorSeat, 0);
-  assert.equal(resolved.actorViewDigest, 'sha256:' + DIGEST);
+  assert.equal(resolved.actorViewDigest, 'sha256:' + digest);
+  assert.equal(resolved.computedActorViewSha256, digest);
   assert.deepEqual(resolved.actorView, actorView);
   assert.equal(Object.isFrozen(resolved.actorView), true);
   assert.equal(Object.isFrozen(resolved.actorView.observation), true);
@@ -32,7 +35,7 @@ test('resolves an inline actor-view object without rewriting its payload', () =>
 test('resolves an actorViewRef only through the pinned suite actorViews map', () => {
   const actorView = { actorSeat: 1, ownHand: ['known'], opponentPublic: { handCount: 3 } };
   const resolved = resolveActorViewPayload({
-    actorViewRef: 'case-1', actorViewSha256: DIGEST
+    actorViewRef: 'case-1', actorViewSha256: digestOf(actorView)
   }, { actorViews: { 'case-1': actorView } });
   assert.equal(resolved.resolutionKind, 'suite-actorViews-key');
   assert.equal(resolved.actorSeat, 1);
@@ -40,20 +43,22 @@ test('resolves an actorViewRef only through the pinned suite actorViews map', ()
 });
 
 test('fails closed for missing refs, unsupported external refs, and absent payloads', () => {
-  assert.throws(() => resolveActorViewPayload({ actorViewRef: 'missing', actorViewSha256: DIGEST },
+  const missingDigestView = { actorSeat: 0 };
+  const missingDigest = digestOf(missingDigestView);
+  assert.throws(() => resolveActorViewPayload({ actorViewRef: 'missing', actorViewSha256: missingDigest },
     { actorViews: {} }), /absent from the pinned suite/);
-  assert.throws(() => resolveActorViewPayload({ actorViewRef: 'file.json', actorViewSha256: DIGEST },
+  assert.throws(() => resolveActorViewPayload({ actorViewRef: 'file.json', actorViewSha256: missingDigest },
     {}), /requires a suite.actorViews object map/);
-  assert.throws(() => resolveActorViewPayload({ actorViewSha256: DIGEST }, {}),
+  assert.throws(() => resolveActorViewPayload({ actorViewSha256: missingDigest }, {}),
     /ACTOR_VIEW_NOT_RESOLVABLE/);
-  assert.throws(() => resolveActorViewPayload({ actorView: DIGEST, actorViewSha256: DIGEST }, {}),
+  assert.throws(() => resolveActorViewPayload({ actorView: missingDigest, actorViewSha256: missingDigest }, {}),
     /Inline actorView must be an object/);
 });
 
 test('requires explicit digest and one consistent physical seat', () => {
-  assert.throws(() => resolveActorViewPayload({
-    actorView: { actorSeat: 0 }
-  }, {}), /explicit 64-hex SHA-256 digest/);
+  const view = { actorSeat: 0 };
+  assert.throws(() => resolveActorViewPayload({ actorView: view }, {}),
+    /explicit 64-hex SHA-256 digest/);
   assert.throws(() => actorSeatFromView({ actorSeat: 0, seat: 1 }), /conflicting physical-seat/);
   assert.throws(() => actorSeatFromView({ actorSeat: 2 }), /must be 0 or 1/);
 });
@@ -80,14 +85,15 @@ test('permits public opponent counts and owner-private information', () => {
   assert.equal(assertActorOnlyView(actorView), actorView);
 });
 
-test('resolves only source-bound corpus records and keeps digest/privacy limits explicit', () => {
+test('resolves only source-bound corpus records and verifies digest/privacy limits explicitly', () => {
   const spec = { path: 'suite.json', blob: '1'.repeat(40) };
   const actorView = { actorSeat: 0, ownHand: ['visible'], opponentPublic: { handCount: 2 } };
-  const sourceCase = { actorView, actorViewDigest: DIGEST, caseId: 'case-1' };
+  const digest = digestOf(actorView);
+  const sourceCase = { actorView, actorViewDigest: digest, caseId: 'case-1' };
   const record = {
     sourceSuitePath: spec.path,
     sourceSuiteGitBlobSha1: spec.blob,
-    actorViewDigest: DIGEST,
+    actorViewDigest: digest,
     caseId: 'case-1'
   };
   const resolved = resolveActorView('/fixture', record, {
@@ -97,17 +103,18 @@ test('resolves only source-bound corpus records and keeps digest/privacy limits 
   });
   assert.equal(resolved.sourceSuiteBlobVerified, false,
     'Injected fixture resolvers do not claim the real Git blob was checked');
-  assert.equal(resolved.digestVerification,
-    'not-recomputed; actor view is bound by the pinned suite blob');
+  assert.equal(resolved.digestVerification, 'canonical-json-sha256-verified');
   assert.equal(resolved.privacyReview,
     'structural-key-screen-only; not a privacy certification');
   assert.equal(resolved.actorSeat, 0);
+  assert.equal(resolved.computedActorViewSha256, digest);
   assert.equal(Object.isFrozen(resolved.actorView), true);
 });
 
 test('rejects mismatched corpus digest and unpinned source suite', () => {
   const spec = { path: 'suite.json', blob: '2'.repeat(40) };
-  const sourceCase = { actorView: { actorSeat: 1 }, actorViewDigest: DIGEST };
+  const actorView = { actorSeat: 1 };
+  const sourceCase = { actorView, actorViewDigest: digestOf(actorView) };
   const deps = {
     sourceSuites: [spec],
     readPinnedJson: () => ({}),
@@ -133,10 +140,11 @@ test('pinned rank-2 suite actorViewRef and rank-10 inline actorView layouts reso
     const resolved = resolveActorView(root, record);
     assert.equal(resolved.actorSeat, 0);
     assert.equal(resolved.actorViewDigest, record.actorViewDigest);
+    assert.equal(resolved.computedActorViewSha256,
+      record.actorViewDigest.replace(/^sha256:/, '').toLowerCase());
     assert.equal(resolved.sourceSuiteBlobVerified, true,
       'Default pinned reader and case resolver verify the source suite blob');
-    assert.equal(resolved.digestVerification,
-      'not-recomputed; actor view is bound by the pinned suite blob');
+    assert.equal(resolved.digestVerification, 'canonical-json-sha256-verified');
     assert.equal(resolved.privacyReview,
       'structural-key-screen-only; not a privacy certification');
   }
@@ -154,9 +162,11 @@ test('rank-10 native-blocked prompt with no actor view remains unresolved', () =
 });
 
 test('rejects an inline payload that disagrees with its suite-level reference', () => {
+  const actorView = { actorSeat: 0 };
   assert.throws(() => resolveActorViewPayload({
-    actorView: { actorSeat: 0 },
+    actorView,
     actorViewRef: 'case-1',
-    actorViewSha256: DIGEST
-  }, { actorViews: { 'case-1': { actorSeat: 1 } } }), /conflicts with its suite actorViewRef/);
+    actorViewSha256: digestOf(actorView)
+  }, { actorViews: { 'case-1': { actorSeat: 1 } } }),
+  /conflicts with its suite actorViewRef/);
 });
