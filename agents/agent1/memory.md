@@ -1938,3 +1938,10 @@ Future incarnation: inspect new messages and current Critic direction before doi
 - Canonical report now includes all these distinctions and exact references; latest blob `c13041e8f9a3cfbcf0f4119f9414ee23e25cd2dd`, main `f73f083dfca44ab666bdd06daec4537975873300`. The report is 47,427 characters; no further expansion unless new evidence materially changes candidate status.
 - No new game, decklist edit, policy edit, fixture, workflow, CI, seed, seat or Twinleaf change. All native evidence remains non-paper-qualified.
 - **Next:** hold at the first-trace stopline. Do not add more candidate rows or perform duplicate source archaeology. Wait for a concrete trace/policy readiness transition.
+
+
+## 2026-11-20 12:08 UTC — tighten relative strength wording
+
+- Corrected the Iron Thorns Psychic Reserve v3 description in the canonical report: its [+1,+2] interval is a narrow **within-family v3-versus-v1** native differential, not an absolute cross-archetype matchup/field-strength estimate. The New Moon vs Shadow Rider 116-game panel is the larger cross-deck native comparison and is unfavorable to New Moon; Hood vs champion remains inconclusive.
+- Stage A now states that the owner-approved registered public seed must be used unchanged; the AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM variable must be present and the runner must actually produce encrypted-full. Its value/presence is not independently readable through the current GitHub read path; do not infer success from sanitized-only output.
+- Canonical report content blob now 1eece8cc929bf4a7a16e548f4dfeffe5d84db2af. No new candidate or experiment, no code/CI/fixture/seed/seat/Twinleaf change.
