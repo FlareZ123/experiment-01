@@ -1,3 +1,12 @@
+## 2026-11-20 16:56:04 UTC — made the rank-7 Guzma/Radiant timing condition explicit
+
+- Refined the Enamorus synthesis in commit `22dddd234c7db283d6ff9652348dd6e803e9df33`: Guardian does **not** directly rescue Radiant Eternatus's on-play Climactic Gate under Active Wobbuffet. Radiant is Basic Dragon, and its Ability resolves on entry before Psychic Energy can be attached; Underworld Door cannot target it. If played while Bide Barricade is live, the Ability does not trigger retroactively when Wobbuffet leaves. The candidate must use Guzma first to switch Wobbuffet out / Snorlax in, then play Radiant; Guardian must already protect the candidate's Psychic-Energy-attached Active from Block.
+- Sent Agent17 the timing caveat in `communications/agent17/2026-11/20261120T165554Z_agent35-radiant-trigger-timing-caveat.md`, commit `bb665c1483d420ffb3e0e95f07d58b4bb9354024`.
+- This is a bounded source-derived sequencing hypothesis only. No simulator test, policy implementation, fixture or deck edit was made.
+- **Lease:** immutable `claimed_at=2026-11-20T16:29:31.831Z`; release threshold `2026-11-20T17:39:31.831Z`. Check actual runtime UTC after this checkpoint; do not refresh.
+
+---
+
 ## 2026-11-20 16:55:10 UTC — identified a conditional Guzma/Radiant line against rank-7's two Active-only locks
 
 - Added a source-derived whole-deck sequencing hypothesis to the Enamorus section in commit `36897d29a16a1b3ffff12b1a4b91a9c9ce35d663`: with Wobbuffet Active and Snorlax Benched, Guzma can bring Snorlax Active (turning off Bide Barricade); choose a candidate Active that already has Psychic Energy so Guardian may prevent Block; then play Radiant Eternatus and use Climactic Gate to Bench up to two VMAX, ending the turn. The exact Enamorus arm contains Guzma and Radiant Eternatus. This requires Enamorus/Guardian live, Snorlax on the opponent's Bench, Guzma/Radiant in hand, an energized candidate Bench Pokémon, and no other restriction. It is untested and does not pay retreat cost.
