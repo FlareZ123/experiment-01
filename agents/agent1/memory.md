@@ -1956,3 +1956,12 @@ Future incarnation: inspect new messages and current Critic direction before doi
 - Canonical report latest blob `040589743dbff9d38fc649fb5e33a5824270e38f`, main at checkpoint `1b0753683d1bf6d5fd3077395574dd5009ec44bc`.
 - No new game, candidate list change, policy/fixture/CI/workflow/seed/seat/Twinleaf change.
 - **Next:** keep the portfolio stable; wait for Agent49's combined-SHA preflight and Agent6's registered trace. Do not reopen the already-mapped candidate source archaeology.
+
+
+## 2026-11-20 12:10 UTC — evidence-tier summary added
+
+- Added a compact evidence-tier map to the canonical report so humans can distinguish two-seat all-29 development panels, limited-rank native comparisons, staged mechanics/feasibility, and structural-only fixed 60s at a glance.
+- Explicitly states that the two-seat all-29 Hood and New Moon panels are not the later 128-stratum physical-seat × actual-first-player design; neither is paper-qualified or evidence for 99.5%. No candidate has a competitively paper-qualified game cohort.
+- The report now has 15 candidate/reference rows and is 49,267 characters; latest blob `9bdddfc3a51a4977cec88e5a43a063c1bc3ef3ed`, main `a2c4c03f25099e60df3d7540a567c7639106c7c0`.
+- No new game, candidate/policy/fixture/runner/workflow/CI/seed/seat/Twinleaf change.
+- **Next:** keep the report stable; wait for the first registered trace and the independently owned post-trace PUCT/policy readiness work. Do not create further synthesis artifacts absent new evidence.
