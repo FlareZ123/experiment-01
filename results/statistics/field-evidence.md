@@ -144,7 +144,25 @@ If the number of confirmatory configurations cannot be fixed in advance, a simpl
 | 5 | 0.0015625 | 11 | 1,408 | 14 | 1,792 |
 | 6 | 0.00078125 | 12 | 1,536 | 15 | 1,920 |
 
-This is an alternative to predeclaring a finite family and using Bonferroni. The alpha schedule, each cohort's attempt roster, and abort handling must be preregistered; a failed or aborted cohort cannot be silently restarted under the same allocation after outcomes are inspected. These tables are **fixed-sample** designs: do not stop early for success after peeking. An early futility stop may be used only without certification, with that cohort relegated to development; early success stopping requires a separately validated anytime-valid process for this same 128-stratum estimand and the candidate's allocated \(\alpha_j\). The existing 64-cell correlated-round process is not a substitute without a physical-seat-balanced 128-stratum proof. This is **not** a way to keep testing new candidates against the same holdout. A development-selected single candidate with a fresh holdout can still use the ordinary \(\alpha=0.05\) single-test budget.
+This is an alternative to predeclaring a finite family and using Bonferroni. The alpha schedule, each cohort's attempt roster, and abort handling must be preregistered; a failed or aborted cohort cannot be silently restarted under the same allocation after outcomes are inspected. These tables are **fixed-sample** designs: do not stop early for success after peeking. An early futility stop may be used only without certification, with that cohort relegated to development. Early success stopping requires either a separately validated anytime-valid process for this same 128-stratum estimand and the candidate's allocated \(\alpha_j\), or a predeclared finite-look group-sequential design that spends alpha across every allowed look. The existing 64-cell correlated-round process is not a substitute without a physical-seat-balanced 128-stratum proof.
+
+### Two-look group-sequential confirmation for one frozen candidate
+
+A predeclared two-look design permits an early success decision without treating repeated peeking as a fixed-sample test. It is an aggregate-field test for **one configuration already selected on development data**, with a fresh independent confirmatory cohort. Each complete round contains exactly one independent game in each of the 128 rank × candidate-physical-seat × actual-start strata.
+
+- **Look 1:** after \(k_1\) complete rounds, certify only if all \(128k_1\) games are wins. Under the null field mean \(\bar p\le0.995\), its false-pass probability is at most \(0.995^{128k_1}\) by AM–GM.
+- **Look 2:** after \(k_2>k_1\) complete rounds, certify only if there has been at most one nonwin across all \(128k_2\) games. For \(k_2\ge8\), Agent5's heterogeneous one-nonwin bound gives false-pass probability at most \(\Pr\{\operatorname{Binomial}(128k_2,0.005)\le1\}\).
+- Require the sum of those two null bounds to be at most 0.05. The union bound controls false certification across both looks; no independence between the looks is needed. If a second nonwin occurs at any time, stop for futility because neither success rule can then be met. Otherwise, make success decisions only at the two predeclared looks.
+
+| Look 1 rounds \(k_1\) | Look 1 games | All-win null bound | Final rounds \(k_2\) | Final games | At-most-one-nonwin null bound | Combined bound |
+|---:|---:|---:|---:|---:|---:|---:|
+| 5 | 640 | 0.0404363 | 11 | 1,408 | 0.0069512 | 0.0473875 |
+| 6 | 768 | 0.0212876 | 9 | 1,152 | 0.0210859 | 0.0423734 |
+| 7 | 896 | 0.0112068 | 8 | 1,024 | 0.0362584 | 0.0474651 |
+
+The first schedule gives the earliest possible all-win look (640 games) but the largest maximum sample; the last caps the sample at 1,024 games but delays the first look to 896. As a planning illustration only, with homogeneous independent game win probability 0.999 / 0.9995 and immediate futility stopping on the second nonwin, their expected game counts are respectively about 789 / 779, 830 / 844, and 862 / 908. These expectations are not guarantees under heterogeneous matchups; the type-I bounds above are.
+
+This is **not** a per-matchup guarantee, does not repair missing Aichi lists, and does not permit tuning after either look. Count ties, timeouts and unfinished games according to the frozen nonwin rule; never omit an attempt to restore the threshold. If several configurations are tested on confirmatory data, the alpha budget across looks must fit inside that candidate's preallocated multiplicity-adjusted alpha. Current source coverage and paper-admission blockers still prevent execution. This is **not** a way to keep testing new candidates against the same holdout. A development-selected single candidate with a fresh holdout can still use the ordinary \(\alpha=0.05\) single-test budget.
 
 This is a single aggregate-field test allowing **at most one nonwin across all 128n games**, not one nonwin per rank. It preserves the same fixed-probability, independent-game and equal-quota assumptions as Agent5's original proof. It is not a per-matchup guarantee and does not cover two or more nonwins.
 
