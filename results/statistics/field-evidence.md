@@ -80,6 +80,22 @@ The two-look and fixed-sample 128-stratum bounds below certify only the **equal-
 
 
 
+### Direct natural-protocol all-win confirmation
+
+For the primary natural-protocol field mean, use **64 strata = 32 ranks × candidate physical seat A/B**. In every game, leave the fair CoinFlipPrompt and the chooser's GO_FIRST decision to the frozen policies. The resulting stratum probability \(p_i\) includes the natural chooser/start behavior; record coin winner, chooser, GO_FIRST response, actual starter, and candidate physical seat.
+
+Play \(n=10\) independent natural-protocol games in each stratum (640 total). If all 640 are wins, under \(H_0:\bar p\le0.995\),
+
+\[
+P(\text{all wins})=\prod_{i=1}^{64}p_i^{10}
+\le \left(\frac{1}{64}\sum_{i=1}^{64}p_i\right)^{640}
+\le 0.995^{640}=0.0404363.
+\]
+
+Thus **all 640 wins** is a valid one-sided test at level 0.04044 for the equal-weight natural-protocol mean, by AM-GM; it does not assume identical matchup/seat win probabilities. It requires fixed policies, independent games, fresh independent per-game randomization, and the complete predeclared 640-game cohort. Any nonwin fails this simple certificate (failure to certify is not proof that the true rate is below 99.5%). There is no optional peeking. If confirmatory candidates share a multiplicity family, replace 0.05 by that candidate's allocated \(\alpha_j\) and choose \(n=\lceil\log(\alpha_j)/(64\log(0.995))\rceil\).
+
+This direct test evaluates the actual game protocol, including each policy's GO_FIRST behavior. The 128-stratum equal-start two-look design below remains useful for conditional first/second sensitivity, but it is not a substitute for this natural-protocol certificate.
+
 Candidate search is adaptive by nature. Opening profiles, development games, matched candidate comparisons, self-play, and policy tuning may be used to choose a deck. Their best observed result is **development evidence**, not a final 99.5% confidence claim. The simplest valid selection procedure is:
 
 1. Use development data to compare any number of whole-60 candidates and policy variants. These data may be reused for iteration but are never counted in the final confirmatory sample.
