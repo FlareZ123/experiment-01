@@ -906,12 +906,19 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         attemptRecord.actingPlayerId=PLAYER_IDS[actingSeat];
         promptResolverContext=buildPromptResolverContext(pending,fullStateBefore,actingSeat);
         attemptRecord.promptResolverContext=promptResolverContext;
+        failureContext.stage='actor-observation';
+        if(typeof native.observe==='function')
+          actorObservationBefore=projectJsonSafe(native.observe(state,actingSeat));
+        attemptRecord.actorObservationBefore=actorObservationBefore;
+        attemptRecord.actorObservationSha256=actorObservationBefore===null?
+          null:sha256Json(actorObservationBefore);
         failureContext.stage='prompt-resolver-decode';
         policyInputKind='native-owner-prompt';
         attemptRecord.policyInputKind=policyInputKind;
         const resolution=yield {
           kind:'native-fixture-decision',decisionKind:'owner-prompt',
-          actionOrdinal,actorObservationSha256:attemptRecord.actorObservationSha256,
+          actionOrdinal,actorObservation:actorObservationBefore,
+          actorObservationSha256:attemptRecord.actorObservationSha256,
           state,store,prompt:pending,actorSeat:actingSeat,native,physicalRandom,withPhysicalRandom,withValidationRandom,
           ...(policyRandom?{
             legacyBot:seats[actingSeat],
@@ -948,7 +955,8 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         attemptRecord.policyInputKind=policyInputKind;
         const resolution=yield {
           kind:'native-fixture-decision',decisionKind:'owner-root',
-          actionOrdinal,actorObservationSha256:attemptRecord.actorObservationSha256,
+          actionOrdinal,actorObservation:actorObservationBefore,
+          actorObservationSha256:attemptRecord.actorObservationSha256,
           state,store,prompt:null,actorSeat:actingSeat,native,physicalRandom,withPhysicalRandom,withValidationRandom,
           ...(policyRandom?{
             legacyBot:seats[actingSeat],
