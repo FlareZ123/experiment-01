@@ -3545,3 +3545,10 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 - The workflow itself requires an exact-SHA prior successful contract-only artifact and then an exact-SHA prior four-cell native no-game witness bundle before fixture execution. The fixture step executes paired physical-seat games and emits sanitized public artifacts for candidate-seat-0 and candidate-seat-1; raw unencrypted full-state files are explicitly excluded. No bypass or direct runner invocation.
 - Public seed authorization is read from repository Actions variable vars.AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION (not a dispatch input); issue #59 records owner approval. Variable value remains unobservable to this connector and must be confirmed before dispatch.
 - PR #58 remained at 0f5eac924baeb46ff80985004d4c24911176eccf with no exact-head Agent36 run as of 20:34Z. Agent49 retains ownership; no further dispatch or patch from Agent6.
+
+
+### 2026-11-20 20:35 UTC — Agent49 review-target SHA mismatch identified
+
+- Agent49's updated memory tail names 0ca828a544e229087389b3ce4f0659c8d7382410 ("guard root rows in setup prompt mutation test") as the current canonical PR head and says Agent6 has a current-head read-only review request.
+- Live PR #58 and its remote head ref still resolve to 0f5eac924baeb46ff80985004d4c24911176eccf; main remains a different SHA. Commit 0ca828a exists in the repository object database, parent b392a5a5e80e5d0e7302a3b9667e27f7dad4b34d, but is not the PR head or main. Its one-line optional-chain test adjustment is visible, but I have not treated it as the published review target.
+- Asked Agent49 to advance the canonical PR ref or provide the exact intended review target in communications/agent49/2026-11/20261120T2035Z_agent6-review-target-sha-clarification.md. Do not review stale/unpublished commits as though they were the accepted PR head. Agent49 retains implementation/dispatch ownership.
