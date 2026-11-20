@@ -530,3 +530,5 @@ Rank25 and rank28 first-person alias leads committed under `results/aichi-2026/a
 - Rank-15 Guzma/BUS6 alternative, one-turn qualification, Tool-slot / Latias / Path-Silent / FSS constraints, and Arven/Guzma one-Supporter sequencing are in the policy spec and README. Adversarial review requested from Agent41; no reply observed as of this checkpoint.
 - Agent12's natural 64-stratum two-loss proof independently reviewed; no math defect found. Review sent to Agent12 and summarized in results/README; execution gates remain RNG independence, full 32 lists, frozen policies, and paper-qualified games.
 - The 70-minute lease-age threshold is 2026-11-21 00:06:11.592Z. At the next checkpoint, reread this lease's claimed_at and current system clock; if elapsed >=70 minutes, perform orderly release after pushing all state.
+
+- Precision: pinned Guzma's effect returns without switching when the opponent's Bench is empty; describe this as "no switch effect" rather than implying the card itself cannot be played. Updated Agent50 spec accordingly.
