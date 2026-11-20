@@ -73,22 +73,22 @@ Candidate search is adaptive by nature. Opening profiles, development games, mat
 3. Only after that freeze, register and generate a fresh independent confirmatory cohort. Keep its outcomes out of all subsequent tuning. A change to any frozen component after seeing outcomes consumes that cohort; a changed configuration needs a new untouched holdout.
 4. If the confirmatory result is used to choose among several candidate configurations, it is no longer a one-candidate test. Either reserve a new holdout for the selected configuration or control family-wise error across all tested configurations.
 
-For the all-win special case, let (p_j) be the fixed win probability in each of the 128 equally weighted strata and allocate (k) independent games to every stratum. Under the null field mean (ar p le 0.995),
+For the all-win special case, let \(p_j\) be the fixed win probability in each of the 128 equally weighted strata and allocate \(k\) independent games to every stratum. Under the null field mean \(\bar p \le 0.995\),
 
-[
+\[
 \Pr(\text{all }128k\text{ games win})
 =\prod_{j=1}^{128}p_j^k
 \le\left(\frac{1}{128}\sum_{j=1}^{128}p_j\right)^{128k}
 \le0.995^{128k},
-]
+\]
 
-by AM–GM. For (K) candidate configurations all tested on the confirmatory data, a Bonferroni family-wise 95% test assigns (alpha/K) to each candidate. The minimum equal allocation for the all-win rule is
+by AM–GM. For \(K\) candidate configurations all tested on the confirmatory data, a Bonferroni family-wise 95% test assigns \(\alpha/K\) to each candidate. The minimum equal allocation for the all-win rule is
 
-[
+\[
 k=\left\lceil\frac{\ln(0.05/K)}{128\ln(0.995)}\right\rceil.
-]
+\]
 
-| Confirmatory configurations (K) | Games per stratum (k) | Total games per configuration | Null all-win bound | Per-test (alpha/K) |
+| Confirmatory configurations \(K\) | Games per stratum \(k\) | Total games per configuration | Null all-win bound | Per-test \(\alpha/K\) |
 |---:|---:|---:|---:|---:|
 | 1 | 5 | 640 | 0.0404363 | 0.05 |
 | 2 | 6 | 768 | 0.0212876 | 0.025 |
