@@ -2399,9 +2399,11 @@ async function runV3FixtureGame({
             maxActions:V3_FIXTURE.maxActions,
             stopBeforeLiveDispatch:witnessOnly,
             expectedActorSeat:witnessOnly?expectedActorSeat:null,
-            diagnosticSnapshot:diagnosticMode==='encrypted-full'?
+            // No-game witnesses remain actor-only even if an owner key is
+            // configured; full private snapshots are reserved for registered games.
+            diagnosticSnapshot:diagnosticMode==='encrypted-full'&&!witnessOnly?
               diagnostic.snapshotFullGameState:undefined,
-            requireFullStateDiagnostics:diagnosticMode==='encrypted-full',
+            requireFullStateDiagnostics:diagnosticMode==='encrypted-full'&&!witnessOnly,
             processLockToken,
             onStoreCreated(store){
               const hook=installPromptProvenanceHook(store);
