@@ -986,6 +986,8 @@ test('worker decision traces and cloned-Store receipts join prompt and root acti
 
     const workerRows=result.decisionTrace.filter(row=>row.workerDecisionTrace!==null);
     assert.deepEqual(workerRows.map(row=>row.actionOrdinal),[2,3,4]);
+    assert.deepEqual(workerRows.map(row=>row.decisionKind),
+      ['owner-prompt','owner-root','owner-root']);
     assert.deepEqual(workerRows.map(row=>row.workerDecisionTrace.actionOrdinal),[2,3,4]);
     assert.deepEqual(workerRows.map(row=>row.workerDecisionTrace.decisionKind),
       ['owner-prompt','owner-root','owner-root']);
@@ -1004,7 +1006,7 @@ test('worker decision traces and cloned-Store receipts join prompt and root acti
       row.policyInputKind==='physical-randomization-prompt');
     assert.equal(hostRows.length,2);
     assert.equal(hostRows.every(row=>
-      row.workerDecisionTrace===null&&row.validationReceipt===null),true,
+      row.decisionKind===null&&row.workerDecisionTrace===null&&row.validationReceipt===null),true,
       'host-owned shuffle/coin prompts must not acquire worker policy audits');
     assert.equal(result.actions,5);
   }finally{
@@ -1103,6 +1105,7 @@ test('no-game witness preserves worker trace and ledger digests without live dis
   const workerRow=result.decisionTrace[2];
   const ledgerRow=result.rootActionLedger[2];
   assert.equal(workerRow.actionOrdinal,2);
+  assert.equal(workerRow.decisionKind,'owner-root');
   assert.equal(workerRow.dispatchStatus,'not-dispatched');
   assert.equal(ledgerRow.actionOrdinal,2);
   assert.equal(ledgerRow.dispatchStatus,'not-dispatched');
