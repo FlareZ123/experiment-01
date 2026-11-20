@@ -1706,8 +1706,8 @@ test('V3 runner persists private setup-prompt receipts only in the existing encr
     'no-game witness must return before setup receipts are projected');
   assert.doesNotMatch(source.slice(witnessStart,witnessEnd),/setupPromptAudit/);
   assert.match(source,/diagnosticMode==='encrypted-full'&&!witnessOnly/);
-  assert.match(source,/setupPromptAuditAcceptance\\.accepted/);
+  assert.match(source,/setupPromptAuditAcceptance\.accepted/);
   assert.match(source,/SETUP_PROMPT_AUDIT_INCOMPLETE/);
-  assert.match(source,/setupPromptAudit,\\s*setupPromptAuditAcceptance/);
+  assert.match(source,/setupPromptAudit,\s*setupPromptAuditAcceptance/);
   assert.match(source,/=== ENCRYPTED ACTOR-OWNED SETUP PROMPT AUDIT ===/);
 });
