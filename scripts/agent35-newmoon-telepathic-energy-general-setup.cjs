@@ -56,7 +56,9 @@ for (const [id, count] of counts.entries()) {
   if (id === "swsh12pt5-156") basicPsychicEnergy += count;
 }
 if (total !== 60) throw new Error("Candidate count is " + total + ", expected 60.");
-if (basicPokemon !== 17 || psychicBasic !== 15 || telepathicEnergy !== 3 || basicPsychicEnergy !== 3) {
+const mewtwoCopies = counts.get("sm11-71") || 0;
+const gengarCopies = counts.get("sm9-53") || 0;
+if (basicPokemon !== 17 || psychicBasic !== 15 || telepathicEnergy !== 3 || basicPsychicEnergy !== 3 || mewtwoCopies !== 2 || gengarCopies !== 1) {
   throw new Error("Unexpected frozen-list counts: " + JSON.stringify({
     basicPokemon, psychicBasic, telepathicEnergy, basicPsychicEnergy
   }));
@@ -142,6 +144,81 @@ function scenario(tpeCopies) {
 }
 
 
+
+function perfectionHorrorHouseLine() {
+  // Exact source-line availability: Mewtwo & Mew is in the opening seven,
+  // TPE is in hand (going first) or hand/first draw (going second), and the
+  // singleton Gengar & Mimikyu is not among the six Prizes. TPE attaches to
+  // Mewtwo, searches Gengar if it is in deck, and supplies the Psychic Energy
+  // for Perfection to copy Horror House-GX.
+  const M = mewtwoCopies;
+  const T = telepathicEnergy;
+  const G = gengarCopies;
+  const O = N - M - T - G;
+  const prizes = 6;
+  const drawCards = N - 7 - prizes;
+  const firstTotal = choose(N, 7) * choose(N - 7, prizes);
+  const secondTotal = firstTotal * BigInt(drawCards);
+  let firstEvent = 0n;
+  let secondEvent = 0n;
+
+  for (let m = 1; m <= Math.min(M, 7); m++) {
+    for (let t = 1; t <= Math.min(T, 7 - m); t++) {
+      for (let g = 0; g <= Math.min(G, 7 - m - t); g++) {
+        const o = 7 - m - t - g;
+        if (o < 0 || o > O) continue;
+        const handWays = choose(M, m) * choose(T, t) * choose(G, g) * choose(O, o);
+        const gengarRemaining = G - g;
+        firstEvent += handWays * choose(N - 7 - gengarRemaining, prizes);
+      }
+    }
+  }
+
+  for (let m = 1; m <= Math.min(M, 7); m++) {
+    for (let tInHand = 0; tInHand <= Math.min(T, 7 - m); tInHand++) {
+      for (let g = 0; g <= Math.min(G, 7 - m - tInHand); g++) {
+        const o = 7 - m - tInHand - g;
+        if (o < 0 || o > O) continue;
+        const handWays = choose(M, m) * choose(T, tInHand) * choose(G, g) * choose(O, o);
+        const gengarRemaining = G - g;
+        let prizeAndDrawWays = 0n;
+        if (tInHand >= 1) {
+          prizeAndDrawWays = choose(N - 7 - gengarRemaining, prizes) * BigInt(drawCards);
+        } else {
+          for (let tInPrizes = 0; tInPrizes <= Math.min(prizes, T); tInPrizes++) {
+            const prizeWays =
+              choose(T, tInPrizes) *
+              choose(N - 7 - T - gengarRemaining, prizes - tInPrizes);
+            prizeAndDrawWays += prizeWays * BigInt(T - tInPrizes);
+          }
+        }
+        secondEvent += handWays * prizeAndDrawWays;
+      }
+    }
+  }
+
+  return {
+    condition: "Mewtwo & Mew-GX in opening seven; TPE in hand (first) or hand/first draw (second); Gengar & Mimikyu-GX not Prized",
+    goingFirst: {
+      unconditional: percent(firstEvent, firstTotal),
+      conditionalOnLegalOpening: percent(firstEvent, validHandNumerator * choose(N - 7, prizes)),
+      exactConditional: fraction(firstEvent, validHandNumerator * choose(N - 7, prizes))
+    },
+    goingSecond: {
+      unconditional: percent(secondEvent, secondTotal),
+      conditionalOnLegalOpening: percent(
+        secondEvent,
+        validHandNumerator * choose(N - 7, prizes) * BigInt(drawCards)
+      ),
+      exactConditional: fraction(
+        secondEvent,
+        validHandNumerator * choose(N - 7, prizes) * BigInt(drawCards)
+      )
+    },
+    caveat: "This is raw setup availability only. It assumes Perfection is live and does not model Path to the Peak, Ability lock, Bench congestion, opponent disruption or the decision to spend the GX attack."
+  };
+}
+
 function allBasicEnergyPrizedGivenLegalOpening(copies) {
   // Opening hand is dealt first. Condition on a legal seven, then deal six Prizes
   // from the remaining 53. All copies must be absent from hand and present in Prizes.
@@ -166,6 +243,64 @@ const output = {
     basicPsychicPokemon: psychicBasic,
     telepathicPsychicEnergy: telepathicEnergy,
     basicPsychicEnergy: basicPsychicEnergy,
+    mewtwoMewGX: mewtwoCopies,
+    gengarMimikyuGX: gengarCopies,
+    psychicBasicTargets: psychicTargets.sort((a, b) => a.id.localeCompare(b.id))
+  },
+  validOpening: {
+    unconditional: percent(validHandNumerator, validHandDenominator),
+    exact: fraction(validHandNumerator, validHandDenominator)
+  },
+  accessSensitivity: [2, 3, 4].map(scenario),
+  basicEnergyPrizeSensitivity: [2, 3].map(allBasicEnergyPrizedGivenLegalOpening),
+  perfectionHorrorHouseLine: perfectionHorrorHouseLine(),
+  twoTargetGuarantee: {
+    goingFirstMinimumBasicPsychicRemaining: P - (7 + 6 - 1),
+    goingSecondMinimumBasicPsychicRemaining: P - (7 + 6 + 1 - 1),
+    explanation: "With at least one TPE among the 13 or 14 cards seen/prized, at most 12 or 13 of the 15 Psychic Basics can be outside the deck."
+  },
+  assumptions: [
+    "The first seven are a legal opening hand with at least one Basic Pokémon.",
+    "Going first sees seven cards before the first attachment; going second sees the opening seven plus one mandatory draw.",
+    "A Psychic Basic in hand can be benched or selected Active, allowing the TPE to be attached to a Psychic Pokémon.",
+    "Prize cards are six cards removed from the deck after the opening hand; the two-target guarantee is a deterministic pigeonhole bound.",
+    "The 2-copy and 4-copy rows are access sensitivities only; no specific card cut or replacement deck is asserted."
+  ],
+  notModeled: [
+    "Opponent mulligan bonus draws.",
+    "Bench occupancy created by other effects or the order in which the player fills the Bench.",
+    "Which two Psychic Basics are strategically best to search in a particular state.",
+    "Search effects, optional draw, disruption, attack access, lock removal, or match outcomes."
+  ]
+};
+
+console.log(JSON.stringify(output, null, 2));
+
+  // Opening hand is dealt first. Condition on a legal seven, then deal six Prizes
+  // from the remaining 53. All copies must be absent from hand and present in Prizes.
+  const legalHandsWithoutEnergy =
+    choose(N - copies, 7) - choose(N - copies - B, 7);
+  const prizeWaysWithAllCopies = choose(N - 7 - copies, 6 - copies);
+  const numerator = legalHandsWithoutEnergy * prizeWaysWithAllCopies;
+  const denominator = validHandNumerator * choose(N - 7, 6);
+  return {
+    basicEnergyCopies: copies,
+    allCopiesInPrizesGivenLegalOpening: percent(numerator, denominator),
+    exactConditional: fraction(numerator, denominator)
+  };
+}
+
+const output = {
+  candidate: "New Moon Lockbreaker v1",
+  candidatePath: "results/als/new-moon-lockbreak-english-proxy-60.json",
+  counts: {
+    totalCards: total,
+    basicPokemon: basicPokemon,
+    basicPsychicPokemon: psychicBasic,
+    telepathicPsychicEnergy: telepathicEnergy,
+    basicPsychicEnergy: basicPsychicEnergy,
+    mewtwoMewGX: mewtwoCopies,
+    gengarMimikyuGX: gengarCopies,
     psychicBasicTargets: psychicTargets.sort((a, b) => a.id.localeCompare(b.id))
   },
   validOpening: {
