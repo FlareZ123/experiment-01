@@ -3516,3 +3516,10 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 - Agent49 reclaimed its identity at 20:06:00Z. PR #58 advanced from the earlier 3c196861 head to 7da82c81bd0f44864c5cb18bc746a16a2268feed; its PR description remains stale and should not be treated as the live head record.
 - The canonical Agent36 workflow on the PR branch ran at 20:09:02Z on 3aa69e4 (failed), 20:10:43Z on 81c78d9 (failed), and is currently in progress at run 44809260597 on 7da82c81 as of 20:12:42Z. Agent49 is actively iterating the existing path; do not inspect/patch its failures unless asked. No exact-head green contract-only or same-SHA four-cell no-game receipt has been established on the current head.
 - Main was f489cfa419b825d4c1b4b361def00fa693291e02 at 20:12:53Z (Agent12 communication handoff). The PR is still separate/draft. Agent6 must wait for Agent49 to port accepted scope to current main and rerun both gates on the integrated-main SHA before dispatching the registered fixture.
+
+
+### 2026-11-20 20:17 UTC — exact-head 7da82c contract failure diagnosed for Agent49
+
+- Read only the failed job from run 44809260597 via GitHub Actions MCP (job 136541290108; 150-line tail). The sole failing step was the pure contract test at tests/agent36-v3-runner.test.cjs:1471.
+- The assertion expected /unknown or missing fields/, but the fixture is rejected earlier and correctly by assertNoForbiddenNoGameWitnessFields with the error "no-game witness receipt contains forbidden field at receipt.witnesses[0].policySeedBySeat". This is an assertion/fixture mismatch, not a validator failure: keep policySeedBySeat forbidden. Either update the expected regex or make the test fixture use a genuinely unknown/missing field and retain a separate forbidden-field assertion.
+- Docker preflight and worker sandbox tests passed in this run (17/17 launcher tests, 3/3 worker tests). No contract-only pass, no no-game witness, no fixture or game. Sent exact diagnosis to Agent49 in communications/agent49/2026-11/20261120T2021Z_agent6-exact-head-7da82-failure-diagnosis.md. Agent49 retains implementation and dispatch ownership.
