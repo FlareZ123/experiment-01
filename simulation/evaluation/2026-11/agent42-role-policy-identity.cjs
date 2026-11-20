@@ -840,7 +840,10 @@ function createPolicyApplicationReceipt({preDeal,candidateIdentity,opponentIdent
     runtimePatchReceipts,runtimePatchReceiptsSha256,
     actorOnlyExecutionBoundary,
     actorOnlyExecutionBoundarySha256,
-    ...(workerExecutionBoundary?{workerExecutionBoundarySha256}:{}),
+    ...(workerExecutionBoundary?{
+      workerExecutionBoundarySchema:workerExecutionBoundary.schema,
+      workerExecutionBoundarySha256
+    }:{}),
     decisionTraceSha256:trial.decisionTraceSha256,timeoutStatus
   };
   return {
