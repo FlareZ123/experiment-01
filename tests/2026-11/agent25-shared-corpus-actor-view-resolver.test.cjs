@@ -42,6 +42,26 @@ test('resolves an actorViewRef only through the pinned suite actorViews map', ()
   assert.deepEqual(resolved.actorView, actorView);
 });
 
+test('unwraps the explicit rank-4 digest envelope and preserves its request metadata', () => {
+  const view = {
+    role: 'opponent', seat: 0,
+    observation: { actorSeat: 0, ownPublic: {}, opponentPublic: {} },
+    prompt: null, publicEventReceipt: null,
+    actionFrontier: { schema: 'aichi-action-frontier-v1', items: [{ token: 'pass', kind: 'pass' }] }
+  };
+  const digestAlgorithm = 'SHA-256 of UTF-8 canonical JSON {role,seat,observation,prompt,publicEventReceipt,actionFrontier}; object keys sorted lexicographically, arrays preserve order';
+  const descriptor = {
+    digestAlgorithm, digestSha256: digestOf(view), requestId: 'fixture-request-1', sequence: 7, view
+  };
+  const resolved = resolveActorViewPayload({ actorView: descriptor }, {});
+  assert.equal(resolved.resolutionKind, 'inline-object-digest-wrapper-view');
+  assert.deepEqual(resolved.actorView, view);
+  assert.deepEqual(resolved.actorViewEnvelope, {
+    requestId: 'fixture-request-1', sequence: 7, digestAlgorithm
+  });
+  assert.equal(resolved.computedActorViewSha256, descriptor.digestSha256);
+});
+
 test('fails closed for missing refs, unsupported external refs, and absent payloads', () => {
   const missingDigestView = { actorSeat: 0 };
   const missingDigest = digestOf(missingDigestView);
@@ -129,19 +149,21 @@ test('rejects mismatched corpus digest and unpinned source suite', () => {
   }, deps), /not part of the pinned source set/);
 });
 
-test('pinned rank-2 suite actorViewRef and rank-10 inline actorView layouts resolve', () => {
+test('pinned rank-2, rank-4, and rank-10 actor-view layouts resolve with verified digests', () => {
   const root = path.resolve(__dirname, '../..');
   const corpus = buildCorpus(root);
   const rank2 = corpus.cases.filter(record => record.rank === 2 && record.actorViewRef);
+  const rank4 = corpus.cases.filter(record => record.rank === 4 && record.hasActorView);
   const rank10 = corpus.cases.filter(record => record.rank === 10 && record.actorViewDigest);
   assert.equal(rank2.length, 19);
+  assert.equal(rank4.length, 26);
   assert.equal(rank10.length, 6);
-  for (const record of [...rank2, ...rank10]) {
+  for (const record of [...rank2, ...rank4, ...rank10]) {
     const resolved = resolveActorView(root, record);
     assert.equal(resolved.actorSeat, 0);
-    assert.equal(resolved.actorViewDigest, record.actorViewDigest);
+    if (record.actorViewDigest) assert.equal(resolved.actorViewDigest, record.actorViewDigest);
     assert.equal(resolved.computedActorViewSha256,
-      record.actorViewDigest.replace(/^sha256:/, '').toLowerCase());
+      resolved.actorViewDigest.replace(/^sha256:/i, '').toLowerCase());
     assert.equal(resolved.sourceSuiteBlobVerified, true,
       'Default pinned reader and case resolver verify the source suite blob');
     assert.equal(resolved.digestVerification, 'canonical-json-sha256-verified');
@@ -149,6 +171,8 @@ test('pinned rank-2 suite actorViewRef and rank-10 inline actorView layouts reso
       'structural-key-screen-only; not a privacy certification');
   }
   assert.equal(resolveActorView(root, rank2[0]).resolutionKind, 'suite-actorViews-key');
+  assert.equal(resolveActorView(root, rank4[0]).resolutionKind, 'inline-object-digest-wrapper-view');
+  assert.equal(resolveActorView(root, rank4[0]).actorViewEnvelope.requestId, 'agent50-root-1');
   assert.equal(resolveActorView(root, rank10[0]).resolutionKind, 'inline-object');
 });
 
