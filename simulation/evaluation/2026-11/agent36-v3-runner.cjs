@@ -1842,6 +1842,14 @@ function createV3WorkerExecutionAudit({
 
 
 
+
+function validateV3FullStateTraceRecorderResult(result){
+  return Boolean(result&&result.complete===true&&
+    result.captureError===null&&
+    result.publicBoardError===null&&
+    result.humanSummaryError===null);
+}
+
 function validateV3FullStateTraceJoins({steps,rootActionLedger,decisionRows}={}){
   const stepRows=Array.isArray(steps)?steps:[];
   const ledgerRows=Array.isArray(rootActionLedger)?rootActionLedger:[];
@@ -3123,6 +3131,7 @@ async function runV3FixtureGame({
     initialCaptured:fullStateTraceInitialCaptured,
     finalCaptured:fullStateTraceFinalCaptured,
     complete:fullStateTraceResult?.complete===true,
+    captureErrorClear:fullStateTraceResult?.captureError===null,
     publicBoardError:fullStateTraceResult?.publicBoardError??null,
     humanSummaryError:fullStateTraceResult?.humanSummaryError??null,
     publicBoardProjectionComplete:fullStateTraceResult?.publicBoardError===null,
@@ -3141,7 +3150,7 @@ async function runV3FixtureGame({
     workerDecisionCountMatches:fullStateTraceWorkerDecisionCountMatches,
     naturalTerminal:gameResult?.finished===true&&gameResult?.endReason==='engine-game-end',
     accepted:fullStateTraceInitialCaptured&&fullStateTraceFinalCaptured&&
-      fullStateTraceResult?.complete===true&&
+      validateV3FullStateTraceRecorderResult(fullStateTraceResult)&&
       fullStateTraceResult?.publicBoardError===null&&
       fullStateTraceResult?.humanSummaryError===null&&
       typeof fullStateTraceText==='string'&&fullStateTraceText.length>0&&
@@ -4095,7 +4104,7 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,V3_FIXTURE,V3_FIXTURE_TEST_PATHS,p
   fixtureChallengeSuiteSha256,
   loadWorkerPolicyModule,buildRoleWorkerBundle,loadNativeRoleDependencies,V3_FIXTURE,
   assertWorkerOnlyPolicyPathsAbsentFromHostClosure,preloadRoleHostModules,
-  createV3WorkerExecutionAudit,createV3WorkerDecisionResolver,validateV3WorkerDecisionTrace,validateV3FullStateTraceJoins,
+  createV3WorkerExecutionAudit,createV3WorkerDecisionResolver,validateV3WorkerDecisionTrace,validateV3FullStateTraceJoins,validateV3FullStateTraceRecorderResult,
   buildFixturePolicyConstraints,
   buildFixtureRoleIdentities,
   buildFixturePolicyPlan,
