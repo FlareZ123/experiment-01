@@ -898,3 +898,74 @@ test('InvitePlayerPrompt is not misclassified as a host-only two-player game pro
   }),error=>error.code==='UNSUPPORTED_NATIVE_PROMPT');
 });
 
+
+
+test('cloned prompt validation requires the cloned Store to settle the exact pending prompt',()=>{
+  const makeFixture=()=>{
+    const state=makeState();
+    const prompt=basePrompt(ChooseCardsPrompt,state,{
+      cards:state.players[0].deck,
+      options:{min:1,max:1,allowCancel:false,blocked:[]}
+    });
+    const projection=projectPrompt({
+      prompt,state,actorSeat:0,native,
+      provenanceHook:provenance(prompt.sourceCard,'Quick Ball')
+    });
+    return {state,prompt,projection};
+  };
+  const resolvingNative={
+    ...native,
+    Simulator:class Simulator{
+      constructor(state){
+        this.store={
+          state,
+          dispatch(action){
+            const pending=this.state.prompts.find(item=>item.id===action.promptId);
+            if(pending)pending.result=action.result;
+          }
+        };
+      }
+    }
+  };
+  const success=makeFixture();
+  let successfulLiveDispatches=0;
+  const successStore={
+    state:success.state,
+    dispatch(action){successfulLiveDispatches++;return action;}
+  };
+  const prepared=dispatchPromptChoice({
+    store:successStore,prompt:success.prompt,state:success.state,actorSeat:0,
+    projection:success.projection,
+    decision:{kind:'select-choices',tokens:['prompt-0']},
+    native:resolvingNative,dispatch:false,withValidationRandom:fn=>fn()
+  });
+  assert.equal(prepared.validationReceipt.clonedPromptResolved,true);
+  assert.equal(prepared.validationReceipt.nativeValidationStoreMode,'cloned-store');
+  assert.equal(prepared.validationReceipt.fullOriginalStoreStateUnchanged,true);
+  assert.equal(successfulLiveDispatches,0);
+
+  const unresolved=makeFixture();
+  const noOpNative={
+    ...native,
+    Simulator:class Simulator{
+      constructor(state){
+        this.store={state,dispatch(){}};
+      }
+    }
+  };
+  let rejectedLiveDispatches=0;
+  const unresolvedStore={
+    state:unresolved.state,
+    dispatch(action){rejectedLiveDispatches++;return action;}
+  };
+  assert.throws(()=>dispatchPromptChoice({
+    store:unresolvedStore,prompt:unresolved.prompt,state:unresolved.state,actorSeat:0,
+    projection:unresolved.projection,
+    decision:{kind:'select-choices',tokens:['prompt-0']},
+    native:noOpNative,dispatch:false,withValidationRandom:fn=>fn()
+  }),/cloned native Store did not resolve the same pending owner prompt/);
+  assert.equal(rejectedLiveDispatches,0,
+    'a cloned Store that leaves the prompt pending must not produce a live dispatch');
+  assert.equal(unresolved.prompt.result,undefined,
+    'failed cloned validation must leave the original prompt untouched');
+});
