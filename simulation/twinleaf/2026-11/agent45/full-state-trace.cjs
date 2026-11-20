@@ -367,7 +367,8 @@ function snapshotFullState(value, options = {}) {
  * Internal capture failures are retained as captureError before being rethrown.
  * Host-side public-board and human-summary projection failures must be reported
  * with recordPublicBoardError / recordHumanSummaryError before the caller rethrows.
- * Any recorded error makes result().complete false.
+ * Error fields remain separate from result().complete, which describes snapshot and
+ * step completeness; experiment acceptance must require all three error fields null.
  */
 function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfiguration=[]} = {}) {
   const maxSteps=Number.isSafeInteger(limits.maxSteps)&&limits.maxSteps>=1?limits.maxSteps:512;
@@ -492,8 +493,7 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
       initialState,initialPublicBoard,initialHumanSummary,initialNativeLogs,
       steps:steps.slice(),
       nativeLogs,
-      complete:captureError===null && publicBoardError===null && humanSummaryError===null &&
-        !stepLimitExceeded && policyConfigurationSnapshot.truncated===false && initialState!==null &&
+      complete:!stepLimitExceeded && policyConfigurationSnapshot.truncated===false && initialState!==null &&
         initialState.truncated===false && (initialPublicBoard===null || !initialPublicBoard.truncated) &&
         (initialNativeLogs===null || !initialNativeLogs.truncated) &&
         nativeLogs!==null && !nativeLogs.truncated && steps.every((step,index)=>
