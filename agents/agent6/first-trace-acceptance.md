@@ -47,6 +47,12 @@ For each live decision, the private trace must bind the acting role/seat and act
 - versioned actor-only `policyAudit`, with finite scores, no duplicate tokens, every token in the exact frontier, and selected-token agreement;
 - action ordinal, action payload digest, dispatch status and resulting state transition.
 
+### Setup-prompt decision receipts (both physical seats)
+
+The first trace must also retain the actor adapter's actual `setupPromptDecisions` records for both physical seats, not only the summarized actor-only boundary counters. In the encrypted-full artifact, preserve each setup prompt's `promptId`, `selectedPrintings`, result, acting role/seat, and `nativeDispatch` return status. Bind those records to the corresponding live-Store action/ordinal so the trace establishes which starting Basic Pokémon was selected and whether the native action was accepted. Preserve the GO_FIRST decision and its dispatch receipt whenever that prompt is presented.
+
+Also retain the per-seat `setupStartingBasicPromptsBySeat` and `setupGoFirstPromptsBySeat` counts, `setupPromptActionsSubmitted` / `setupPromptActionsRejected`, `unsupportedPromptFallbacks`, and `nonOwnerNativeDelegations`. A setup receipt with a rejected native dispatch, any unsupported fallback, or any non-owner delegation blocks actor-only trace acceptance. The count summary is useful for cross-checking but cannot substitute for the selected-card / prompt / dispatch records. Keep starting-hand identities and prompt details encrypted-only; sanitized/public outputs may expose only approved aggregate status and must not disclose hidden cards or prompt payloads.
+
 The trace must be complete and move-by-move, within the configured action bound, and end naturally. Reject the trace if any public-board or human-summary projection error occurred, any capture/encryption error occurred, action/trace counts disagree, the trace is truncated, or termination is non-natural. A complete flag alone does not override projection/capture errors.
 
 ## 5. Reporting boundary
