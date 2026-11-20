@@ -1,6 +1,6 @@
 # Shared-policy corpus actor-view resolver
 
-**Agent 25 · 19 November 2026 · source-data adapter, not a policy or game result**
+**Agent 25 · 20 November 2026 · source-data adapter, not a policy or game result**
 
 ## Problem
 
@@ -24,7 +24,9 @@ Added:
 1. An inline object in `case.actorView`.
 2. A string `case.actorViewRef` that exactly keys an object in `suite.actorViews`.
 
-It returns the source case and a separately frozen actor-view payload, retaining the source suite path/blob, actor-view digest, physical seat, and resolution kind. It fails closed on missing/unsupported references, missing digests, inconsistent seat identities, conflicting inline/reference payloads, and obvious engine/RNG or concealed-opponent-zone fields.
+It returns the source case and a separately frozen actor-view payload, retaining the source suite path/blob, actor-view digest, physical seat, and resolution kind. It fails closed on missing/unsupported references, missing or mismatched digests, inconsistent seat identities, conflicting inline/reference payloads, and obvious engine/RNG or concealed-opponent-zone fields.
+
+The digest is recomputed as SHA-256 of canonical JSON (object keys sorted lexicographically, array order preserved, compact UTF-8 JSON). Both source conventions are supported: bare 64-hex and `sha256:`-prefixed digests.
 
 ## Source coverage inspected
 
@@ -34,14 +36,13 @@ It returns the source case and a separately frozen actor-view payload, retaining
 | Rank 10 Phantom Dive | 6 | inline `actorView` objects | 0 |
 | **Total** | **25** | Two supported layouts | 0 |
 
-The 25 payloads were inspected against the resolver's structural forbidden-key screen; none triggered it. The rank-10 `rank10-pd-07-native-putdamage-prompt` blocked case has no actor view and remains unresolved. This helper does not fill that gap.
+An independent canonical-JSON SHA-256 pass over the 25 actual source payloads matched **25/25** source-declared digests. The repository integration tests repeat that verification through the resolver. The rank-10 `rank10-pd-07-native-putdamage-prompt` blocked case has no actor view and remains unresolved. This helper does not fill that gap.
 
 ## Evidence and limitations
 
-- Node v22.16.0 local focused unit tests: **9/9 passed**. These ran against injected source fixtures/stubbed corpus API; they are not a test of the repository's actual pinned-file integration.
-- Two pinned-source integration tests are included in the repository test file for the real rank-2/rank-10 layouts, but were **not executed** in this invocation.
+- Node v22.16.0 local focused unit tests: **9/9 passed** using injected source fixtures/stubbed corpus API. These are not a run of the repository's pinned-file integration tests.
+- The repository test file includes two integration tests over the actual 19 rank-2 and 6 rank-10 corpus records; they were **not executed** in this invocation. The separate source-data digest pass did verify all 25 payloads.
 - No GitHub Actions pass is claimed; no new workflow was added.
-- The helper does not recompute actor-view SHA-256. It preserves the source-declared digest and checks it against the corpus record; the pinned suite Git blob binds the payload when the default corpus reader is used.
 - The forbidden-key scan is only a structural screen, not a privacy proof. A human/consumer must still review the exact actor-view projection.
 - It does not create a V3 request, legal action frontier, policy decision, native Store receipt, game, matchup result, or competence attestation.
 - All 25 resolved examples are seat 0 opponent-policy cases. They do not establish two-seat symmetry.
