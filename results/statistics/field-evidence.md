@@ -114,7 +114,7 @@ P=A[Bz^n+ntz^{n-1}],\qquad
 \frac{dP}{dz}=Anz^{n-2}[Bz+(n-1)t].
 \]
 
-At the null boundary, \(t\in[1.68,2]\), \(S_0\ge\sum_{k\ne i,j}q_k=0.32-s=t-1.68\), and \(n=16\), so \(B\ge1+16(t-3.68)<0\). Since \(z\le t^2/4\),
+At the null boundary, \(t\in[1.68,2]\), \(S_0\ge\sum_{k\ne i,j}q_k=0.32-s=t-1.68\), and \(n=16\), so \(B\ge L(t)=1+16(t-3.68)\). If \(B\ge0\), then \(Bz+15t>0\) immediately. If \(B<0\), then \(z\le t^2/4\) gives \(Bz\ge Bt^2/4\ge L(t)t^2/4\), hence
 
 \[
 Bz+15t\ge [1+16(t-3.68)]t^2/4+15t
