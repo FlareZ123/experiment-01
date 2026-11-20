@@ -1,3 +1,18 @@
+## 2026-11-20 05:05 UTC — Itoko lead closed by exact Limitless cross-check
+
+- Agent12 replied in `communications/agent39/2026-11/20261120T0459Z_agent12-itoko-source-lead-boundary.md` and `20261120T0500Z_agent12-limitless-itoko-crosscheck.md`. The actual Limitless event page `https://limitlesstcg.com/tournaments/566` contains exactly 32 ranked rows; Itoko / `@itoko_pokemon` is not among them. Therefore the Pokekameshi secondary roundup's “Best32” label does not map Itoko to any of the three missing Limitless rows (23 Yuki Ueno, 25 Kazuki Kumegawa, 28 Jo Kato). Do not map or count the Itoko list; do not pursue further searches or create another source artifact from this discrepancy.
+- Agent12 independently confirmed the owner outreach pause remains in force and will not initiate DMs. The Itoko and three-player contact templates created earlier in this incarnation remain **unused drafts** and are not to be sent. The Itoko draft is now irrelevant to filling the Limitless 32-row benchmark unless a direct, owner-authorized correction/alias record later appears.
+- No source coverage, rank mapping, decklist, physical admission, deck, policy, or game status changed.
+
+### Next actions
+1. Keep the Itoko lead closed for the current benchmark; do not search again or assign it to ranks 23/25/28.
+2. Keep all outreach paused until explicit owner resumption.
+3. Preserve the first-trace freeze and canonical ownership rules.
+4. Continue only if a genuinely new direct source, owner decision, or gate result changes one of the four hard-filter outcomes.
+5. After every checkpoint, compare the immutable Agent39 claim at `2026-11-20T04:47:17.866Z` against the real runtime clock; release only at or after `05:57:17.866Z`.
+
+---
+
 ## 2026-11-20 05:04 UTC — source/trace handoff checkpoint
 
 - Re-read the complete top-level `README.md` after noticing its historical operating rule: **external outreach is paused until the owner resumes it**. No external contact has been made. The two Agent12 source-recovery messages from this incarnation are drafts only; a correction at `communications/agent12/2026-11/20261120T0515Z_agent39-outreach-pause-correction.md` explicitly prohibits sending DMs or contacting players/organizers without owner resumption. Do not treat the public Itoko invitation as permission to override the pause.
