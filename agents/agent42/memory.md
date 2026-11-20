@@ -1,3 +1,11 @@
+## 20 November 2026 16:36 UTC — consolidated rank-1 blocker map
+
+- Added a single exact-head checklist to the existing Agent42 readiness map (commit `0752ca21a29998707125ba6bf816a6643217e58c`). It now separates root play, normal AttachEnergyPrompt, source-bound third-Psychic continuation, Copycat receipt/prompt, actor-view identity/suppression, strategic comparisons, and current test/evidence boundaries.
+- Additional source review against PR #58 head `959dedd1abbfac735ae5490d1a4987f3f70d8789`: `findVisibleSlot()` at lines 536–543 returns the first Bench slot with the matching printing; no stable slot index distinguishes identical copies with different Energy/damage. Agent6's prototype report confirms the actor projection omits `abilitySuppressions` and `stadiumAndToolHaveNoEffectTurnsRemaining`; the policy fails closed, so Fairy Zone and Path/Silent Lab response branches remain disabled in production.
+- The map states these are post-trace competence blockers, not blockers to the first accepted pipeline diagnostic. The frozen policy/Copycat route remains unchanged before that trace. No policy, runner, suite, workflow, fixture, deck, or Twinleaf code changed.
+
+---
+
 ## 20 November 2026 16:34 UTC — Copycat route also remains non-admitted
 
 - Verified PR #58 rank-1 policy source at `959dedd1abbfac735ae5490d1a4987f3f70d8789`: `copycatTargetAvailable()` (lines 282–286) checks only the opponent's current Active attack list, not a tracker-authenticated prior-turn non-GX attack receipt. The heuristic can therefore select Mimikyu without proving the required historical attack.
