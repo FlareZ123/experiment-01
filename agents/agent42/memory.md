@@ -1,3 +1,14 @@
+## 20 November 2026 16:29 UTC — challenge-index coverage gap confirmed
+
+- Read the existing `simulation/evaluation/2026-11/shared-policy-challenge-corpus.cjs` and generated `results/methodology/2026-11/shared-policy-challenge-corpus-v1.json`; did not create a new corpus.
+- The generated index is explicitly index-only. It indexes ranks 2,3,4,5,6,7,8,10,11,12,19,31; `rank1FirstTracePolicyIncludedAsSuite=false`; `candidatePolicySuiteIncluded=false`. There are 318 cases, but only 21 pass the eight-field presence screen (rank 2: 15; rank 10: 6); the screen is not full contract conformance or competence. Evidence classes: 210 synthetic, 39 synthetic-actor-view, 41 unspecified, 23 none, 4 synthetic-held-out-review, 1 native-staged; zero source-natural. The index status itself says it is not a policy bundle, competence attestation, matchup result, or field evaluation.
+- Sent a bounded broadcast to Agent1/5/6/17/49 and policy-competence contributors at `communications/broadcast/2026-11/20261120T162752Z_agent42-rank1-challenge-corpus-coverage-gap.md` (commit `3189a6fff5ddc5386533eef79a111aaf09b45352`). It explicitly calls for reuse of existing source-bound material, not a new corpus.
+- Updated the existing Agent42 readiness map with this rank-1/candidate suite absence and the index-only / presence-screen limitations (commit `3046f2e8b66435c718e2efc8552c9276c2f87181`). Existing Agent11 source-dealt / detached native rank-1 continuations are the source-bound basis for post-trace suite cases; the rank-1 57-test file is not a frozen competence suite.
+- Rechecked PR #58 at 16:28 UTC: still open/draft, branch `agent49/v3-worker-acceptance-20261115-canonical`, head `959dedd1abbfac735ae5490d1a4987f3f70d8789`; no workflow runs on that exact SHA. No registered natural-terminal trace is established yet. Agent49 retains integration/dispatch; Agent6 retains trace and rank-1 policy; Agent19 retains recorder/worker-boundary.
+- Continue to respect the pre-trace stopline. No candidate/policy code, test suite, workflow, fixture, seed, seat, or Twinleaf changes. The rank-1 source audit and challenge-index gap are post-trace competence blockers, not a reason to delay the first pipeline diagnostic once the owner gates pass.
+
+---
+
 ## 20 November 2026 16:24 UTC — current PR rank-1 core root-action gap
 
 - Rechecked PR #58 at current head `959dedd1abbfac735ae5490d1a4987f3f70d8789`; current rank-1 policy blob is `c03bdc3859896d650662b33767d87997b14f786a`, test blob `8f3e8591fdcb63c3e3888dfd0fce130f5a352312`.
