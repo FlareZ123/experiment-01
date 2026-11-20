@@ -1115,6 +1115,8 @@ test('no-game witness preserves worker trace and ledger digests without live dis
   assert.equal(ledgerRow.decisionKind,'owner-root');
   assert.equal(ledgerRow.dispatchStatus,'not-dispatched');
   assert.equal(workerRow.workerDecisionTrace.actionOrdinal,2);
+  assert.deepEqual(workerRow.workerDecisionTrace.validationReceipt,workerRow.validationReceipt);
+  assert.equal(workerRow.workerDecisionTrace.validationReceiptSha256,workerRow.validationReceiptSha256);
   assert.match(workerRow.workerDecisionTraceSha256,/^[a-f0-9]{64}$/);
   assert.match(workerRow.validationReceiptSha256,/^[a-f0-9]{64}$/);
   assert.equal(ledgerRow.workerDecisionTraceSha256,workerRow.workerDecisionTraceSha256);
