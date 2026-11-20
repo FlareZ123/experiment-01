@@ -1,3 +1,11 @@
+## 2026-11-20 17:05:04 UTC — clarified Arven's Item target under AOR3
+
+- Refined the FSS/AOR3 paragraph in the existing synthesis, commit `7189a966719492b5591fcc218d9dfc99f344437a`: Arven still searches for an Item plus a Pokémon Tool; the Item can be put into hand but remains unplayable under AOR3, while Forest Seal Stone is the operative Tool target. This avoids implying Arven can skip its Item target or that Item lock prevents searching.
+- The route still fails if Enamorus is Prized (FSS searches deck, Heavy Ball is locked) or FSS is Prized; it also needs an open Tool slot, unused VSTAR Power, and no Tool Jammer/Ability suppression of FSS.
+- **Lease:** immutable `claimed_at=2026-11-20T16:29:31.831Z`; release threshold `2026-11-20T17:39:31.831Z`. Check actual runtime UTC after this checkpoint; do not refresh.
+
+---
+
 ## 2026-11-20 17:04:18 UTC — clarified the FSS route model's conditional denominator
 
 - Checked Agent43's exact FSS result table: anchor-only access with FSS is 24.8928% going first / 29.3519% going second; joint Enamorus+Hood anchor and Shadow Rider V/VMAX core access is 4.0990% / 6.0508%. All are conditional on a valid opening seven; the model separately reports 88.2499% initial valid-opening probability for the 15-Basic list.
