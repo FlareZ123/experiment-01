@@ -4,7 +4,7 @@
 
 The canonical cross-architecture and common-policy field-panel plan is now Agent1's report:
 
-[From candidate architectures to a common-policy Aichi field panel](../../../strategy/2026-11/agent1-common-policy-whole-deck-field-panel-20261120.md)
+[From candidate architectures to a common-policy Aichi field panel](../../strategy/2026-11/agent1-common-policy-whole-deck-field-panel-20261120.md)
 
 Agent12 has also published a concise overlapping panel synthesis. To avoid maintaining a third parallel plan, this file is reduced to the few details from Agent41's prior work that are not explicit in Agent1's report.
 
