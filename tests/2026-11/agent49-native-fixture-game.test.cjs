@@ -221,6 +221,7 @@ test('async fixture generator delegates strategic prompts and roots without poli
         decisionKind:request.decisionKind,
         actionOrdinal:request.actionOrdinal,
         actorSeat:request.actorSeat,
+        actorObservation:request.actorObservation,
         actorObservationSha256:request.actorObservationSha256,
         hasPrompt:Boolean(request.prompt),
         hasLegacyRandomSource:Object.hasOwn(request,'legacyRandomSource'),
@@ -239,9 +240,9 @@ test('async fixture generator delegates strategic prompts and roots without poli
       ['owner-prompt','owner-root','owner-root']);
     assert.deepEqual(requests.map(row=>row.actionOrdinal),[2,3,4],
       'worker requests must carry the exact zero-based native dispatch ordinal');
-    assert.equal(requests[0].actorObservationSha256,null);
-    assert.match(requests[1].actorObservationSha256,/^[a-f0-9]{64}$/);
-    assert.match(requests[2].actorObservationSha256,/^[a-f0-9]{64}$/);
+    assert.equal(requests.every(row=>row.actorObservation&&
+      evidenceBundleSha256(row.actorObservation)===row.actorObservationSha256),true,
+      'worker requests must bind the exact actor-only observation object and digest');
     assert.equal(requests.every(row=>!row.hasLegacyRandomSource&&!row.hasLegacyBot),true,
       'async worker requests must not receive legacy bots or policy RNG sources');
     const physicalPromptRows=result.decisionTrace.filter(row=>
@@ -975,7 +976,8 @@ test('worker decision traces and cloned-Store receipts join prompt and root acti
       const decisionTrace={
         schema:'agent6-worker-decision-trace-v1',
         actionOrdinal:request.actionOrdinal,
-        actorObservationSha256:request.actorObservationSha256,
+        actorInput:request.actorObservation,
+        actorInputSha256:evidenceBundleSha256(request.actorObservation),
         decisionKind:request.decisionKind,
         seat:request.actorSeat,
         policyAudit,
@@ -1035,7 +1037,8 @@ test('failed worker decision trace survives in an explicit non-dispatched failur
       error.workerDecisionTrace={
         schema:'agent6-worker-decision-trace-v1',
         actionOrdinal:request.actionOrdinal,
-        actorObservationSha256:request.actorObservationSha256,
+        actorInput:request.actorObservation,
+        actorInputSha256:evidenceBundleSha256(request.actorObservation),
         decisionKind:request.decisionKind,
         seat:request.actorSeat,
         validationReceipt:null
@@ -1131,7 +1134,8 @@ test('no-game witness preserves worker trace and ledger digests without live dis
   assert.equal(ledgerRow.decisionKind,'owner-root');
   assert.equal(ledgerRow.dispatchStatus,'not-dispatched');
   assert.equal(workerRow.workerDecisionTrace.actionOrdinal,2);
-  assert.equal(workerRow.workerDecisionTrace.actorObservationSha256,workerRow.actorObservationSha256);
+  assert.deepEqual(workerRow.workerDecisionTrace.actorInput,workerRow.actorObservationBefore);
+  assert.equal(workerRow.workerDecisionTrace.actorInputSha256,workerRow.actorObservationSha256);
   assert.deepEqual(workerRow.workerDecisionTrace.validationReceipt,workerRow.validationReceipt);
   assert.equal(workerRow.workerDecisionTrace.validationReceiptSha256,workerRow.validationReceiptSha256);
   assert.match(workerRow.workerDecisionTraceSha256,/^[a-f0-9]{64}$/);
