@@ -90,9 +90,10 @@ function deepFreeze(value, seen = new WeakSet()) {
 }
 
 /**
- * Resolve only two explicitly supported source layouts:
+ * Resolve only explicitly supported source layouts:
  * 1. an inline object in case.actorView;
- * 2. a key in suite.actorViews referenced by case.actorViewRef.
+ * 2. a key in suite.actorViews referenced by case.actorViewRef;
+ * 3. an inline digest envelope whose actorView.view is the payload.
  *
  * This returns source data; it does not construct a V3 request, certify legal
  * action-frontier completeness, or establish strategic/native competence.
@@ -102,13 +103,13 @@ function resolveActorViewPayload(sourceCase, suite) {
   assert.ok(suite && typeof suite === 'object');
   const inline = sourceCase.actorView;
   const ref = sourceCase.actorViewRef;
-  let actorView = null;
+  let descriptor = null;
   let resolutionKind = null;
 
   if (inline !== undefined && inline !== null) {
     assert.ok(inline && typeof inline === 'object' && !Array.isArray(inline),
       'Inline actorView must be an object; digest strings are not payloads');
-    actorView = inline;
+    descriptor = inline;
     resolutionKind = 'inline-object';
   } else if (typeof ref === 'string' && ref.length > 0) {
     assert.ok(suite.actorViews && typeof suite.actorViews === 'object' &&
@@ -116,9 +117,9 @@ function resolveActorViewPayload(sourceCase, suite) {
     'Referenced actor view requires a suite.actorViews object map');
     assert.equal(Object.hasOwn(suite.actorViews, ref), true,
       'Actor-view reference is absent from the pinned suite.actorViews map');
-    actorView = suite.actorViews[ref];
+    descriptor = suite.actorViews[ref];
     resolutionKind = 'suite-actorViews-key';
-    assert.ok(actorView && typeof actorView === 'object' && !Array.isArray(actorView),
+    assert.ok(descriptor && typeof descriptor === 'object' && !Array.isArray(descriptor),
       'Resolved suite actor view must be an object');
   } else {
     throw new Error('ACTOR_VIEW_NOT_RESOLVABLE: case has no supported inline object or suite actorViewRef');
@@ -130,20 +131,46 @@ function resolveActorViewPayload(sourceCase, suite) {
       'Inline actor view conflicts with its suite actorViewRef');
   }
 
-  const digest = sourceCase.actorViewDigest ?? sourceCase.actorViewSha256 ??
-    actorView.digest ?? actorView.sha256 ?? null;
+  let actorView = descriptor;
+  let digest = sourceCase.actorViewDigest ?? sourceCase.actorViewSha256 ??
+    descriptor.digest ?? descriptor.sha256 ?? null;
+  let actorViewEnvelope = null;
+  if (descriptor.view !== undefined) {
+    assert.ok(descriptor.view && typeof descriptor.view === 'object' && !Array.isArray(descriptor.view),
+      'Digest-wrapped actorView.view must be an object');
+    assert.ok(typeof descriptor.digestSha256 === 'string' && DIGEST_RE.test(descriptor.digestSha256),
+      'Digest-wrapped actor view requires digestSha256');
+    assert.ok(typeof descriptor.digestAlgorithm === 'string' &&
+      /^SHA-256 of UTF-8 canonical JSON .+; object keys sorted lexicographically, arrays preserve order$/i.test(descriptor.digestAlgorithm),
+    'Digest-wrapped actor view declares an unsupported digest algorithm');
+    if (digest !== null) {
+      const normalized = digest.replace(/^sha256:/i, '').toLowerCase();
+      assert.equal(normalized, descriptor.digestSha256.toLowerCase(),
+        'Case-level actor-view digest conflicts with digest-wrapped payload');
+    }
+    actorView = descriptor.view;
+    digest = descriptor.digestSha256;
+    actorViewEnvelope = deepFreeze({
+      requestId: descriptor.requestId ?? null,
+      sequence: descriptor.sequence ?? null,
+      digestAlgorithm: descriptor.digestAlgorithm
+    });
+    resolutionKind += '-digest-wrapper-view';
+  }
+
   assert.ok(typeof digest === 'string' && DIGEST_RE.test(digest),
     'Actor-view payload requires an explicit 64-hex SHA-256 digest');
   assertActorOnlyView(actorView);
   const actorSeat = actorSeatFromView(actorView);
   const computedActorViewSha256 = computeActorViewSha256(actorView);
-  const declaredDigest = digest.startsWith('sha256:') ? digest.slice(7) : digest;
+  const declaredDigest = digest.replace(/^sha256:/i, '');
   assert.equal(computedActorViewSha256, declaredDigest.toLowerCase(),
     'Actor-view payload SHA-256 does not match its source-declared digest');
   return {
     actorView: deepFreeze(actorView),
     actorViewDigest: digest,
     computedActorViewSha256,
+    actorViewEnvelope,
     actorSeat,
     resolutionKind
   };
@@ -174,6 +201,7 @@ function resolveActorView(rootDir, corpusRecord, dependencies = {}) {
     actorView: resolved.actorView,
     actorViewDigest: resolved.actorViewDigest,
     computedActorViewSha256: resolved.computedActorViewSha256,
+    actorViewEnvelope: resolved.actorViewEnvelope,
     actorSeat: resolved.actorSeat,
     resolutionKind: resolved.resolutionKind,
     sourceSuitePath: spec.path,
