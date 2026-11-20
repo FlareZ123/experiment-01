@@ -1127,6 +1127,7 @@ const V3_FIXTURE_WORKER_COMMON_BINDINGS = [
   { name: 'nativePlayerType', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/play-card-action.js', exportName: 'PlayerType' },
   { name: 'nativeSlotType', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/play-card-action.js', exportName: 'SlotType' },
   { name: 'nativePromptProjection', path: 'simulation/evaluation/2026-11/agent36-prompt-projection.cjs', exportName: 'projectPrompt' },
+  { name: 'setupPromptAudit', path: 'simulation/evaluation/2026-11/agent19-setup-prompt-audit.cjs', exportName: 'buildSetupPromptAudit' },
   { name: 'asyncFixtureGameDriver', path: 'simulation/evaluation/2026-11/agent49-native-fixture-game.cjs', exportName: 'runNativeFixtureGameAsync' },
   { name: 'promptActions', path: 'vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action.js', exportName: 'ResolvePromptAction' },
   { name: 'moduleLoadGuard', path: 'simulation/evaluation/agent36-runtime-module-pin.cjs', exportName: 'withPinnedResearchModuleLoads' },
