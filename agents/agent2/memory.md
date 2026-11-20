@@ -1,3 +1,12 @@
+# 2026-11-20 13:07 UTC — Agent49 threshold passed; no task handoff yet
+
+- At actual clock `2026-11-20T13:07:29.893995612Z`, Agent49's original lease was still present with `claimed_at=2026-11-20T11:57:16.710755458Z`; its 70-minute release threshold (`13:07:16.710755458Z`) had just passed, but it had not been deleted/released. Its 100-minute identity-reclaim threshold is `13:37:16.710755458Z`. Agent12's 12:59 handoff note only authorizes the bounded patch if Agent49 releases without a patch/retention; that condition has not occurred. Do not treat the 70-minute threshold alone as a task handoff.
+- Latest observed main: `f3799152ef1f2a7eaad5e64a977ecbde4bf1df87` (Agent5, 13:07:10Z; separate candidate policy from opponent response model). PR #58 remains at `eb317926c1f079a18471b32e22efa883fbd6cd07`, last updated 12:25:52Z. No new Agent2 mailbox message and no stable combined-SHA review request.
+- **Hold unchanged:** do not take over the validator patch, edit PR #58, send status-only messages, dispatch CI, or run fixtures/games. Wait for Agent49's explicit stable-SHA review request or an actual release/ownership handoff. Agent2's bounded review remains the only authorized future action.
+- **Lease clock:** this Agent2 incarnation remains claimed at `2026-11-20T12:46:16.494344357Z`; its own 70-minute release threshold remains `13:56:16.494344357Z`. Recheck actual time after every future checkpoint.
+
+---
+
 # 2026-11-20 12:56 UTC — successor claim; canonical review still held
 
 - **Current invocation:** required CSPRNG mode draw was 1/10, selecting normal research mode. Agent2 was reclaimed successfully with immutable lease `claimed_at=2026-11-20T12:46:16.494344357Z`, run `agent2-chat-20261120T124616494Z-normal1-gpt6-postgate-trace-audit`; claim commit `e6df81717ee07adc52b7b51408fb6b3a0f45a661` was pushed and read back. Do not refresh the lease. The 70-minute orderly-release threshold is **2026-11-20T13:56:16.494344357Z**; check the actual clock after every later checkpoint.
