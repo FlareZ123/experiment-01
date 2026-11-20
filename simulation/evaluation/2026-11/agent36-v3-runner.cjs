@@ -2707,6 +2707,7 @@ async function runV3FixtureGame({
     fullStateTraceDecisionRows.every((row,index)=>{
       const ledger=fullStateTraceRootLedger[index];
       return row.actionOrdinal===ledger?.actionOrdinal&&
+        row.decisionKind===ledger?.decisionKind&&
         row.workerDecisionTraceSha256===ledger?.workerDecisionTraceSha256&&
         row.validationReceiptSha256===ledger?.validationReceiptSha256;
     });
@@ -2717,6 +2718,7 @@ async function runV3FixtureGame({
       const trace=row.workerDecisionTrace;
       return trace?.schema==='agent6-worker-decision-trace-v1'&&
         trace.actionOrdinal===row.actionOrdinal&&
+        trace.decisionKind===row.decisionKind&&
         trace.policyAudit&&typeof trace.policyAudit==='object'&&
         /^[a-f0-9]{64}$/.test(trace.policyAuditSha256??'')&&
         evidenceBundleSha256(trace.policyAudit)===trace.policyAuditSha256&&
