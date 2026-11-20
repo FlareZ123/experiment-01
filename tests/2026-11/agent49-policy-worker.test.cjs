@@ -1098,7 +1098,7 @@ test('typed multi-select decisions enforce unique item tokens, bounds, cancel an
   }, prizePrompt, new Set()), /BAD_MULTI_SELECT_COUNT/);
 });
 
-test('persistent worker emits response-v4 ordered multi-select decisions', async () => {
+test('persistent worker emits response-v5 ordered multi-select decisions', async () => {
   const worker = startWorker();
   try {
     writeLine(worker.child.stdin, worker.init);
@@ -1133,7 +1133,8 @@ test('persistent worker emits response-v4 ordered multi-select decisions', async
     });
     writeLine(worker.child.stdin, message);
     await waitForCount(worker, 2);
-    assert.equal(worker.lines[1].schema, 'aichi-policy-response-v4');
+    assert.equal(protocol.RESPONSE_SCHEMA, 'aichi-policy-response-v5');
+    assert.equal(worker.lines[1].schema, protocol.RESPONSE_SCHEMA);
     assert.equal(worker.lines[1].type, 'response');
     assert.deepEqual(worker.lines[1].decision, {
       kind: 'select-choices', tokens: ['multi-1', 'multi-0']
@@ -1249,12 +1250,16 @@ test('V3 abstention codebook v1 is finite and covers every selected role-policy 
   for (const policyPath of policyPaths) {
     const source = fs.readFileSync(policyPath, 'utf8');
     for (const match of source.matchAll(
-      /(?:abstain\s*\(\s*|reasonCode\s*:\s*)['"]([A-Z][A-Z0-9_]*)['"]/g
+      /abstain\s*\(\s*['"]([A-Z][A-Z0-9_]*)['"]/g
+    )) emitted.add(match[1]);
+    for (const match of source.matchAll(
+      /\{\s*kind:\s*['"]abstain['"],\s*reasonCode:\s*['"]([A-Z][A-Z0-9_]*)['"]/g
     )) emitted.add(match[1]);
   }
   assert.deepEqual([...emitted].sort(), [...protocol.ABSTENTION_REASON_CODES]);
   assert.equal(protocol.isAbstentionReasonCode('INVALID_STARTING_POKEMON_PROMPT'), true);
   assert.equal(protocol.isAbstentionReasonCode('PRIVATE_ACTOR_HAND_HAS_UNIQUE_CARD'), false);
+  assert.equal(protocol.isAbstentionReasonCode('NOT_EVALUATED_BY_SELECTED_BRANCH'), false);
   assert.deepEqual(protocol.validateDecision({
     kind: 'abstain', reasonCode: 'INVALID_STARTING_POKEMON_PROMPT'
   }, null, new Set()), {

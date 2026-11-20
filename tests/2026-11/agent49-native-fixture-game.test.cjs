@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {evidenceBundleSha256}=require('../../simulation/evaluation/2026-11/agent45-independent-competitive-admission.cjs');
+const {evidenceBundleSha256}=require('../../simulation/evaluation/agent45-independent-competitive-admission.cjs');
 const {
   seededRandom,deckPermutation,projectActionPayload,selectedCardIdentity,
   publicStateSnapshot,runNativeFixtureGame,runNativeFixtureGameAsync,normalizeSeed32,

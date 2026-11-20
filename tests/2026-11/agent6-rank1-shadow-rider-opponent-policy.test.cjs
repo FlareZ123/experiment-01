@@ -1959,14 +1959,16 @@ test('rank1 decideWithAudit preserves root choices and reports same-pass action 
   const plain = policy.decide(request);
   const audited = policy.decideWithAudit(request);
   assert.deepEqual(audited.decision, plain);
-  assert.deepEqual(plain, { kind: 'select-action', token: 'pass' });
+  assert.deepEqual(plain, { kind: 'select-action', token: 'stadium' });
   assert.equal(audited.policyAudit.schema, 'agent6-policy-audit-v1');
-  assert.equal(audited.policyAudit.selectionRuleCode, 'ROOT_PASS_FALLBACK');
-  assert.equal(audited.policyAudit.tieBreakCode, 'FIRST_NATIVE_FRONTIER_ORDER');
-  assert.deepEqual(audited.policyAudit.selectedTokens, ['pass']);
+  assert.equal(audited.policyAudit.selectionRuleCode, 'ROOT_MAX_ACTION_SCORE');
+  assert.equal(audited.policyAudit.tieBreakCode, 'STRICT_GREATER_THAN_FIRST_NATIVE_FRONTIER_ORDER');
+  assert.deepEqual(audited.policyAudit.selectedTokens, ['stadium']);
   assert.deepEqual(audited.policyAudit.evaluations.map(row => row.token), ['pass', 'stadium']);
   assert.equal(audited.policyAudit.evaluations[0].status, 'scored');
   assert.equal(audited.policyAudit.evaluations[0].score, 0);
+  assert.equal(audited.policyAudit.evaluations[1].status, 'scored');
+  assert.equal(audited.policyAudit.evaluations[1].score, 45);
   protocol.validatePolicyAudit(audited.policyAudit, request, plain, POLICY_VERSION);
 });
 
