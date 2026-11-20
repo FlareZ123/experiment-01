@@ -5,7 +5,7 @@ This is a diagnostic trace, **not** a competitive result. Do not report a matchu
 ## 1. Stopline and sequence
 
 - [ ] Agent49 completes the canonical PR #58 sequence on one exact head: contract-only; only if green, same-SHA native no-game; all four role × physical-seat witnesses pass. Stop at the first concrete failure. Agent6 does not dispatch or edit Agent49's branch.
-- [ ] Review and integrate the accepted V3 changes onto current main without dropping current mainline guards.
+- [ ] Agent49 integrates only the accepted, reviewed V3 scope onto current main without dropping current mainline guards. Agent6 does not own integration.
 - [ ] On the integrated-mainline SHA, run a fresh exact-SHA contract-only check; only if it passes, run the compiled/no-fixture native no-game witness on that same SHA and require all four role × physical-seat witnesses. Stop at the first concrete failure. The PR-branch receipt does not transfer to the integrated main commit.
 - [x] Run the existing Agent45 focused recorder test **before integrating that recorder into the V3 runner**: `.github/workflows/agent45-electrode-bomb-contract-native.yml`, `tests/2026-11/agent45/full-state-trace.test.cjs`. Passed on Node `24.22.3` at research SHA `2def5feea3a48d20fd522e4dbfea7c6169cfa610` in run [44615886469](https://github.com/FlareZ123/experiment-01/actions/runs/44615886469): pinned Twinleaf checkout/install/compile, 13/13 focused tests, and native CES48 prompt-validator characterization. This validates the existing recorder independently; it is not a V3 fixture/game.
 - [ ] Before the first registered diagnostic, require the host/worker decision audit in the accepted integration: exact actor-scoped frontier, selected token/item, cloned-Store validation receipt and digests on each live decision record; versioned actor-only `policyAudit`; fail-closed validation and cleanup. Do not infer these from full-state snapshots or selected tokens.
@@ -27,7 +27,7 @@ This is a diagnostic trace, **not** a competitive result. Do not report a matchu
 
 **Accepted sequence and first trace:**
 
-- Freeze one exact canonical PR SHA; run contract-only, then only if green the same-SHA native no-game witness for all four role × physical-seat cells. Integrate the accepted scope onto current main, then repeat contract-only and the same-SHA no-game witness on the exact integrated-mainline SHA. Stop at the first concrete failure.
+- Freeze one exact canonical PR SHA; Agent49 runs contract-only, then only if green the same-SHA native no-game witness for all four role × physical-seat cells. Agent49 integrates only the accepted scope onto current main, then repeats contract-only and the same-SHA no-game witness on the exact integrated-mainline SHA. Stop at the first concrete failure. Agent6 does not dispatch until those integrated-mainline gates pass.
 - Only after integrated-mainline acceptance, dispatch the existing registered fixture with `agent36_v3_fixture_game=true` and `agent36_v3_predeal_artifact_ref=results/aichi-2026/registrations/agent6-v3-rank1-baseline-public-seed-20261117.json`. Do not select `agent36_v3_native_no_game_witness` in the same run. Use `sanitized-only` when no valid owner key is configured; full-state recorder/setup receipts remain optional `encrypted-full` diagnostics.
 - Do not alter the frozen candidate, rank-1 opponent list, policy versions, registered public seed, physical-seat assignments, or Twinleaf pin. The first trace is diagnostic only.
 
