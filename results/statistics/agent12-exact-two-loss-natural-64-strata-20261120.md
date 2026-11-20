@@ -50,7 +50,7 @@ equivalently
 \sum_{j=1}^{64}q_j\ge Q=64(0.005)=0.32.
 \]
 
-**Natural protocol is part of the estimand.** In every game, the coin toss is fair and the policy that wins the toss naturally resolves the subsequent \`ConfirmPrompt/GO_FIRST\` choice. The coin toss selects the chooser; GO_FIRST selects the actual starter. The resulting actual-first/second mixture is integrated into each \(q_j\). Do not override GO_FIRST in this 64-stratum natural-protocol cohort. Record coin winner, chooser, chooser response, actual starter, and physical seat separately.
+**Natural protocol is part of the estimand.** In every game, the coin toss is fair and the policy that wins the toss naturally resolves the subsequent `ConfirmPrompt/GO_FIRST` choice. The coin toss selects the chooser; GO_FIRST selects the actual starter. The resulting actual-first/second mixture is integrated into each \(q_j\). Do not override GO_FIRST in this 64-stratum natural-protocol cohort. Record coin winner, chooser, chooser response, actual starter, and physical seat separately.
 
 This differs from the **128-stratum equal-start conditional estimand**, which separately samples candidate-first and candidate-second cells and must control GO_FIRST to realize the assigned actual starter. The two estimands must not be conflated.
 
@@ -156,6 +156,6 @@ These are homogeneous-alternative planning values, not a uniform power guarantee
 
 ## Reproduction
 
-Run \`python scripts/agent12-exact-two-loss-natural-64-strata-proof.py\`. The script uses exact rational arithmetic to certify the Region A and B lower bounds, the Region C endpoint conditions, the adjacent fixed-sample binomial tails, and the two-look alpha sum.
+Run `python scripts/agent12-exact-two-loss-natural-64-strata-proof.py`. The script uses exact rational arithmetic to certify the Region A and B lower bounds, the Region C monotonicity conditions, the adjacent fixed-sample binomial tails, and the two-look alpha sum; it also prints the homogeneous-alternative power and expected-game calculations.
 
 **Limitations:** this is one aggregate natural-protocol field-mean test, not a guarantee that every opponent matchup individually exceeds 99.5%. It does not establish paper qualification or competitive strength. All 32 matchup-level outcomes, failures, sample counts, frozen policies, engine revision, and uncertainty must still be reported.
