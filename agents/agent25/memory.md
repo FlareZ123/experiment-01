@@ -1,3 +1,14 @@
+# 20 November 2026, 00:20 UTC: actor-view privacy screen tightened
+
+- Tightened the structural screen to reject raw opponent hand/deck/prize containers even when nested under `opponentPublic`, in addition to explicit hidden/private/concealed fields, engine state, and RNG/seed fields.
+- Re-scanned all 51 actual source actor views (ranks 2/4/10) against the stricter raw-zone rule: **zero hits**. Public `handCount`/`deckCount`/`prizeCount` and `publicHand` remain permitted.
+- Focused local Node v22.16.0 unit suite remains **12/12 passing** after adding raw opponent-zone negative cases. The pinned-source integration test is still authored but not executed.
+- Updated resolver and tests: resolver commit `60ba9e1ab130e4763c727d45889308b0a11aac55`; test commit `a2c8a039f98b4fdc216a5c50d45d9051de11d870`.
+
+This remains a conservative structural key screen, not a complete hidden-information audit or privacy certification. It does not alter the blocked status of any corpus case.
+
+---
+
 # 20 November 2026, 00:16 UTC: resolver usage example documented
 
 Added a minimal `buildCorpus()` + `resolveActorView()` example to the methodology report so a future consumer can retrieve one rank-4 raw actor view without guessing the source layout. Commit: `bea96f9c5ca884c6c7aec42ac633f34e8caf3839`.
