@@ -2697,17 +2697,54 @@ async function runV3FixtureGame({
     gameResult?.acceptedActions??failureEnvelope?.fixtureGamePartial?.acceptedActions??null;
   const fullStateTraceStepCountMatches=Number.isSafeInteger(fullStateTraceAcceptedActionCount)&&
     fullStateTraceResult?.stepCount===fullStateTraceAcceptedActionCount;
+  const fullStateTraceSteps=Array.isArray(fullStateTraceResult?.steps)?fullStateTraceResult.steps:[];
+  const fullStateTraceRootLedger=Array.isArray(gameResult?.rootActionLedger)?gameResult.rootActionLedger:[];
+  const fullStateTraceDecisionRows=Array.isArray(gameResult?.decisionTrace)?gameResult.decisionTrace:[];
+  const fullStateTraceOrdinalJoinMatches=fullStateTraceSteps.length===fullStateTraceRootLedger.length&&
+    fullStateTraceSteps.every((step,index)=>
+      step.actionOrdinal===fullStateTraceRootLedger[index]?.actionOrdinal+1);
+  const fullStateTraceDecisionJoinMatches=fullStateTraceDecisionRows.length===fullStateTraceRootLedger.length&&
+    fullStateTraceDecisionRows.every((row,index)=>{
+      const ledger=fullStateTraceRootLedger[index];
+      return row.actionOrdinal===ledger?.actionOrdinal&&
+        row.workerDecisionTraceSha256===ledger?.workerDecisionTraceSha256&&
+        row.validationReceiptSha256===ledger?.validationReceiptSha256;
+    });
+  const fullStateTraceWorkerDecisionRows=fullStateTraceDecisionRows.filter(row=>
+    row.decisionKind==='owner-root'||row.decisionKind==='owner-prompt');
+  const fullStateTraceWorkerAuditComplete=fullStateTraceWorkerDecisionRows.length>0&&
+    fullStateTraceWorkerDecisionRows.every(row=>{
+      const trace=row.workerDecisionTrace;
+      return trace?.schema==='agent6-worker-decision-trace-v1'&&
+        trace.actionOrdinal===row.actionOrdinal&&
+        trace.policyAudit&&typeof trace.policyAudit==='object'&&
+        /^[a-f0-9]{64}$/.test(trace.policyAuditSha256??'')&&
+        /^[a-f0-9]{64}$/.test(row.workerDecisionTraceSha256??'')&&
+        row.validationReceipt&&typeof row.validationReceipt==='object'&&
+        /^[a-f0-9]{64}$/.test(row.validationReceiptSha256??'')&&
+        trace.validationReceiptSha256===row.validationReceiptSha256;
+    });
+  const fullStateTraceWorkerDecisionCountMatches=Number.isSafeInteger(workerExecutionAudit?.totalWorkerDecisions)&&
+    fullStateTraceWorkerDecisionRows.length===workerExecutionAudit.totalWorkerDecisions;
   const fullStateTraceAcceptance=fullStateTraceRecorder?{
-    schema:'agent19-agent45-v3-full-state-trace-acceptance-v1',
+    schema:'agent19-agent45-v3-full-state-trace-acceptance-v2',
     initialCaptured:fullStateTraceInitialCaptured,
     finalCaptured:fullStateTraceFinalCaptured,
     complete:fullStateTraceResult?.complete===true,
     stepCount:fullStateTraceResult?.stepCount??null,
     acceptedActionCount:fullStateTraceAcceptedActionCount,
     stepCountMatches:fullStateTraceStepCountMatches,
+    rootLedgerCount:fullStateTraceRootLedger.length,
+    ordinalJoinMatches:fullStateTraceOrdinalJoinMatches,
+    decisionTraceJoinMatches:fullStateTraceDecisionJoinMatches,
+    workerDecisionCount:fullStateTraceWorkerDecisionRows.length,
+    workerDecisionAuditComplete:fullStateTraceWorkerAuditComplete,
+    workerDecisionCountMatches:fullStateTraceWorkerDecisionCountMatches,
     naturalTerminal:gameResult?.finished===true&&gameResult?.endReason==='engine-game-end',
     accepted:fullStateTraceInitialCaptured&&fullStateTraceFinalCaptured&&
       fullStateTraceResult?.complete===true&&fullStateTraceStepCountMatches&&
+      fullStateTraceOrdinalJoinMatches&&fullStateTraceDecisionJoinMatches&&
+      fullStateTraceWorkerAuditComplete&&fullStateTraceWorkerDecisionCountMatches&&
       gameResult?.finished===true&&gameResult?.endReason==='engine-game-end'
   }:null;
   if(!failureEnvelope&&fullStateTraceRecorder&&!fullStateTraceAcceptance.accepted){
