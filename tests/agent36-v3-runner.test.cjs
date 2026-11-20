@@ -18,7 +18,7 @@ const {
   V3_FIXTURE,V3_FIXTURE_TEST_PATHS,V3_FIXTURE_COMMON_BINDINGS,
   V3_FIXTURE_WORKER_COMMON_BINDINGS,V3_FIXTURE_WORKER_PROMPT_CHAIN,
   buildFixtureRoleEntryManifest,buildRoleWorkerBundle,preloadRoleHostModules,
-  validatePublicSeedRegistration,validateNoGameWitnessReceipt,validateV3WorkerDecisionTrace,validateV3FullStateTraceJoins,
+  validatePublicSeedRegistration,validateNoGameWitnessReceipt,validateV3WorkerDecisionTrace,validateV3FullStateTraceJoins,validateV3FullStateTraceRecorderResult,
   buildNoGameWitnessFailureReceipt,buildV3RunnerFailureError,
   createV3WorkerExecutionAudit,createV3WorkerDecisionResolver,
   projectNativeFixtureFailureForReceipt,projectV3FixtureFailureForReceipt,
@@ -2191,4 +2191,22 @@ test('V3 full-state trace joins bind action payload, dispatch, turns and public 
   assert.equal(validateV3FullStateTraceJoins({
     steps,rootActionLedger,decisionRows:publicStateMismatch
   }).publicStateJoinMatches,false,'recorder publicBoard must equal decisionTrace publicStateAfter.players');
+});
+
+
+test('V3 full-state recorder acceptance requires capture, public-board and summary errors all null',()=>{
+  const complete={
+    complete:true,captureError:null,publicBoardError:null,humanSummaryError:null
+  };
+  assert.equal(validateV3FullStateTraceRecorderResult(complete),true);
+  for(const field of ['captureError','publicBoardError','humanSummaryError']){
+    const broken={...complete,[field]:{code:'RECORDER_CAPTURE_FAILED'}};
+    assert.equal(validateV3FullStateTraceRecorderResult(broken),false,field);
+  }
+  assert.equal(validateV3FullStateTraceRecorderResult({
+    complete:true,publicBoardError:null,humanSummaryError:null
+  }),false,'missing captureError must fail closed');
+  assert.equal(validateV3FullStateTraceRecorderResult({
+    complete:false,captureError:null,publicBoardError:null,humanSummaryError:null
+  }),false,'incomplete recorder must fail');
 });
