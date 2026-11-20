@@ -306,6 +306,34 @@ test('per-action log delta marks a native log-array reset',()=>{
   assert.match(JSON.stringify(delta.entries),/new log epoch/);
 });
 
+test('per-action log delta never invokes slice or indexed accessors',()=>{
+  let getterCalls=0;
+  const logs=[];
+  Object.defineProperty(logs,'0',{
+    enumerable:true,configurable:true,
+    get(){getterCalls++;throw new Error('log entry getter must not run');}
+  });
+  Object.defineProperty(logs,'slice',{
+    enumerable:false,configurable:true,
+    get(){getterCalls++;throw new Error('log slice getter must not run');}
+  });
+
+  const recorder=createFullStateTraceRecorder();
+  recorder.captureInitial({turn:1,logs:[]});
+  recorder.captureStep({
+    state:{turn:2,logs},action:{kind:'PassAction'},actionOrdinal:1,
+    turnBefore:1,turnAfter:2
+  });
+  recorder.captureFinal({turn:2,logs});
+  const trace=recorder.result();
+  const delta=trace.steps[0].nativeLogDelta;
+  assert.equal(getterCalls,0);
+  assert.equal(delta.countBefore,0);
+  assert.equal(delta.countAfter,1);
+  assert.match(JSON.stringify(delta.entries),/Accessor/);
+  assert.equal(trace.complete,true);
+});
+
 test('headless trace integration is opt-in, guarded and fail-open',()=>{
   const headless=fs.readFileSync(path.join(__dirname,'../../../simulation/twinleaf/headless.cjs'),'utf8');
   assert.match(headless,/request\.captureFullStateTrace === true/);
