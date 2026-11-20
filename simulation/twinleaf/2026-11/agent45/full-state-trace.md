@@ -35,7 +35,12 @@ registered. It then captures the exact live post-dispatch Store state, native
 action, prompt (when present), acting seat, and action ordinal for every
 accepted root or prompt dispatch. Native ordinals remain zero-based in the
 driver; the recorder boundary maps them to its contiguous one-based step
-ordinals.
+ordinals. The native attempt record and `rootActionLedger` retain the zero-based
+ordinal plus `workerDecisionTraceSha256` and `validationReceiptSha256`; joining a
+recorder step to the worker audit/validation receipt is the exact mapping
+`step.actionOrdinal === ledger.actionOrdinal + 1`, never a prompt-ID or turn
+reconstruction. Host-owned physical/engine prompts have recorder steps but
+intentionally no worker audit.
 
 The recorder is strictly host-only. It is not a common worker binding, is not
 loaded by policy workers, and its snapshots or text never enter worker requests
