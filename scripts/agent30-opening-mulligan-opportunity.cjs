@@ -157,7 +157,7 @@ const hoodShieldV1 = {
   basicCount: 14
 };
 
-// Precomputed by joining all 29 published decklist Pokémon printings to set IDs and Basic subtypes in resources/sets/en.json and resources/cards/en/*.json. Ranks 23, 25, and 28 have no published 60; Ditto Prism Star is resolved by set/number despite its glyph variant.
+// Reuses the established Agent18/Agent2 29-source Basic-count census, independently cross-checked by joining Pokémon printings to set IDs and Basic subtypes in resources/sets/en.json and resources/cards/en/*.json. Ranks 23, 25, and 28 have no published 60; Ditto Prism Star is resolved by set/number despite its glyph variant.
 const AICHI_FIELD = [
   { rank: 1, archetype: 'Shadow Rider Calyrex', basicCount: 14 },
   { rank: 2, archetype: 'Vileplume Control', basicCount: 14 },
