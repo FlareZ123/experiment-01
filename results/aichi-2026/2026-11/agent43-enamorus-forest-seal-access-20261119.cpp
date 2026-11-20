@@ -30,6 +30,11 @@ static const std::array<int, N> C = {
 // target only. The hypothetical 60 has 16 true Items; the access logic below
 // explicitly checks Fog Crystal / Heavy Ball as Item targets and does not
 // assume that an arbitrary Item is a valid Enamorus-search route.
+// No opponent lock is modeled. Star Alchemy is officially supported under
+// Path to the Peak / Spiritomb suppression and strongly inferred under Iron
+// Thorns Initialization, but Japanese practitioner evidence indicates it is
+// likely suppressed by Garbotoxin. The pinned Twinleaf exemption is not paper
+// validation; do not apply this no-lock access model to Garbotoxin matchups.
 
 U128 choose(int n, int k) {
     if (k < 0 || k > n) return 0;
