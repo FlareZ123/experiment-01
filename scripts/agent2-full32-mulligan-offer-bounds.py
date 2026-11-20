@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Exact full-32 bounds for the two-sided Aichi mulligan bonus-offer metric.
 
-This is a setup-only mathematical bound. It does not reconstruct missing lists
-or estimate accepted bonus draws, games, matchups, or win rates.
+The report includes both the unbounded mulligan-offer count and the paper
+post-setup draw cap of 47 cards (7 opening cards + 6 prizes already removed).
+This is setup-only; it does not estimate accepted draws, games, or win rates.
 """
 from __future__ import annotations
 
@@ -19,6 +20,7 @@ BASICS_BY_RANK = {
 }
 MISSING_RANKS = (23, 25, 28)
 CANDIDATE_BASICS = (5, 14)
+POST_SETUP_DRAW_CAP = 47
 
 
 def choose(n: int, k: int) -> int:
@@ -42,6 +44,12 @@ def paired_bonus_stats(candidate_basics: int, opponent_basics: int) -> dict[str,
     neither = p_a * p_b / z
     opponent_max_offers = opponent_opportunity / p_a
     candidate_max_offers = candidate_opportunity / p_b
+
+    # After step 6, each player has 47 cards left (60 - 7 opening - 6 prizes).
+    # Conditional on a unilateral mulligan, the number of failed hands M has
+    # P(M >= k) = q**(k-1), so E[min(M, cap)] = (1-q**cap)/p.
+    opponent_capped_offers = opponent_opportunity * (1 - q_a ** POST_SETUP_DRAW_CAP) / p_a
+    candidate_capped_offers = candidate_opportunity * (1 - q_b ** POST_SETUP_DRAW_CAP) / p_b
     return {
         "opponent_opportunity": opponent_opportunity,
         "candidate_opportunity": candidate_opportunity,
@@ -49,6 +57,9 @@ def paired_bonus_stats(candidate_basics: int, opponent_basics: int) -> dict[str,
         "opponent_max_offers": opponent_max_offers,
         "candidate_max_offers": candidate_max_offers,
         "difference": opponent_max_offers - candidate_max_offers,
+        "opponent_max_available_cards_cap47": opponent_capped_offers,
+        "candidate_max_available_cards_cap47": candidate_capped_offers,
+        "difference_cap47": opponent_capped_offers - candidate_capped_offers,
     }
 
 
@@ -59,31 +70,44 @@ def build_report() -> dict:
         raise AssertionError("the known-source Basic-count vector is not exactly 29/32")
     if sum(BASICS_BY_RANK.values()) != 355:
         raise AssertionError("known-source Basic-count total changed")
-
     strata = Counter(BASICS_BY_RANK.values())
     if strata != Counter({4: 3, 10: 1, 11: 6, 12: 3, 13: 3, 14: 6, 15: 4, 16: 3}):
         raise AssertionError("known-source Basic-count strata changed")
 
     results = {}
     for candidate_basics in CANDIDATE_BASICS:
-        known_differences = [
-            paired_bonus_stats(candidate_basics, opponent_basics)["difference"]
+        known = [
+            paired_bonus_stats(candidate_basics, opponent_basics)
             for opponent_basics in BASICS_BY_RANK.values()
         ]
-        known_mean = sum(known_differences, Fraction(0)) / len(known_differences)
-        unknown_differences = [
-            paired_bonus_stats(candidate_basics, opponent_basics)["difference"]
+        known_mean = sum((row["difference"] for row in known), Fraction(0)) / len(known)
+        unknown = [
+            paired_bonus_stats(candidate_basics, opponent_basics)
             for opponent_basics in range(1, 61)
         ]
-        minimum, maximum = min(unknown_differences), max(unknown_differences)
+        minimum = min(row["difference"] for row in unknown)
+        maximum = max(row["difference"] for row in unknown)
         min_basic_counts = [
-            basics for basics in range(1, 61)
-            if paired_bonus_stats(candidate_basics, basics)["difference"] == minimum
+            basics for basics, row in zip(range(1, 61), unknown)
+            if row["difference"] == minimum
         ]
         max_basic_counts = [
-            basics for basics in range(1, 61)
-            if paired_bonus_stats(candidate_basics, basics)["difference"] == maximum
+            basics for basics, row in zip(range(1, 61), unknown)
+            if row["difference"] == maximum
         ]
+
+        known_cap_mean = sum((row["difference_cap47"] for row in known), Fraction(0)) / len(known)
+        unknown_cap = [row["difference_cap47"] for row in unknown]
+        cap_minimum, cap_maximum = min(unknown_cap), max(unknown_cap)
+        cap_min_basic_counts = [
+            basics for basics, value in zip(range(1, 61), unknown_cap)
+            if value == cap_minimum
+        ]
+        cap_max_basic_counts = [
+            basics for basics, value in zip(range(1, 61), unknown_cap)
+            if value == cap_maximum
+        ]
+
         results[str(candidate_basics)] = {
             "known29_mean_difference": known_mean,
             "per_missing_rank_minimum": minimum,
@@ -92,15 +116,24 @@ def build_report() -> dict:
             "per_missing_rank_maximum_at_basics": max_basic_counts,
             "full32_mean_lower_bound": (29 * known_mean + 3 * minimum) / 32,
             "full32_mean_upper_bound": (29 * known_mean + 3 * maximum) / 32,
+            "known29_mean_difference_cap47": known_cap_mean,
+            "per_missing_rank_minimum_cap47": cap_minimum,
+            "per_missing_rank_minimum_at_basics_cap47": cap_min_basic_counts,
+            "per_missing_rank_maximum_cap47": cap_maximum,
+            "per_missing_rank_maximum_at_basics_cap47": cap_max_basic_counts,
+            "full32_mean_lower_bound_cap47": (29 * known_cap_mean + 3 * cap_minimum) / 32,
+            "full32_mean_upper_bound_cap47": (29 * known_cap_mean + 3 * cap_maximum) / 32,
         }
 
     def encode(value: Fraction) -> dict[str, str | float]:
         return {"fraction": str(value), "decimal": float(value)}
 
     return {
-        "schema": "agent2-full32-mulligan-offer-bounds-v1",
+        "schema": "agent2-full32-mulligan-offer-bounds-v2",
         "deck_size": 60,
         "opening_hand_size": 7,
+        "prize_cards": 6,
+        "post_setup_draw_cap": POST_SETUP_DRAW_CAP,
         "known_source_ranks": 29,
         "missing_ranks": list(MISSING_RANKS),
         "known_source_basics_by_rank": BASICS_BY_RANK,
@@ -113,10 +146,11 @@ def build_report() -> dict:
             for key, row in results.items()
         },
         "limitations": [
-            "maximum optional offers, not accepted or actual draws",
+            "maximum optional offers/cards available, not accepted or actual draws",
             "setup-only independent-shuffle model with simultaneous joint resets",
             "equal-rank 32-list mean bounds, not matchup or win-rate evidence",
             "missing source lists are not reconstructed or imputed",
+            "does not model deck-out consequences if all 47 post-setup cards are drawn",
         ],
     }
 
