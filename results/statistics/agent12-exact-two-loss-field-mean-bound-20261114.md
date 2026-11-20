@@ -175,3 +175,101 @@ Regression coverage in `tests/agent12-balanced-kl-field-bound.test.cjs` now cove
 This is a fixed-sample prospective method, not an anytime-valid or optional-stopping procedure. Do not inspect interim results and then choose among the 5-, 8-, or 10-games-per-cell designs without a separately preregistered alpha-spending or anytime-valid procedure. It is an aggregate field-mean test only; it does not guarantee that each of the 32 opponent matchups exceeds 99.5%. Use the separate simultaneous per-opponent methodology if that stronger claim is required.
 
 The repository still has missing original opponent lists, unresolved paper admission, no selected final 60, and zero competitively qualified games. This method does not authenticate the source field, physical deals, RNG independence, policy competence, game adjudication, or paper qualification. It changes no deck or policy and establishes no 99.5% result.
+
+
+---
+
+## 2026-11-20 extension: predeclared two-look rule using the exact two-nonwin bound
+
+The exact heterogeneous two-nonwin result above applies at **10 games per stratum** (128 strata, 1,280 games). It can be combined with a predeclared early all-win look without extending the heterogeneous proof to any larger per-stratum sample.
+
+### Rule
+
+- **Look 1:** after 9 complete rounds (1,152 games), pass early only if all 1,152 games are wins.
+- **Look 2:** otherwise continue to 10 complete rounds (1,280 games); pass if there are at most two nonwins in total.
+- **Futility:** stop as soon as a third nonwin occurs.
+
+Under the null field mean \\(\bar p\le0.995\\), the early-look false-pass probability is bounded by AM–GM:
+\\[
+P(\text{all 1,152 wins})=\prod_{j=1}^{128}p_j^9
+\le \left(\frac{1}{128}\sum_jp_j\right)^{1152}
+\le 0.995^{1152}
+=0.0031059110875\ldots
+\\]
+The final-look false-pass probability is bounded by the existing exact heterogeneous result at exactly 10 games per stratum:
+\\[
+P(\text{at most 2 nonwins in 1,280 games})
+\le P(\operatorname{Binomial}(1280,0.005)\le2)
+=0.0459500437857\ldots
+\\]
+Therefore the union bound gives
+\\[
+\alpha_{\mathrm{total}}
+\le 0.0031059110875+0.0459500437857
+=0.0490559548731\ldots <0.05.
+\\]
+No independence between the two looks is needed. This is a fixed, predeclared two-look group-sequential rule; the exact two-nonwin heterogeneous bound is used only at its proven (n=10) point. It remains a **single preselected candidate** design; candidate multiplicity needs separate allocation.
+
+### Homogeneous-alternative operating characteristics
+
+For a common per-game win probability (p), let (q=1-p), (n_1=1152), (n_2=1280), and (m=128). The pass probability is
+\\[
+\pi(p)=p^{n_1}
++n_1q p^{n_1-1}\left(p^m+mq p^{m-1}\right)
++\binom{n_1}{2}q^2p^{n_2-2}.
+\\]
+The three terms correspond to: zero nonwins by the early look (early pass); exactly one nonwin by the early look and at most one in the final 128 games; exactly two nonwins by the early look and zero in the final 128 games. These are planning values under a homogeneous alternative, not a uniform power guarantee over heterogeneous alternatives.
+
+| True homogeneous win rate | Pass probability | Expected games |
+|---:|---:|---:|
+| 99.8% | 52.86% | 1,047.1 |
+| 99.9% | 86.19% | 1,186.1 |
+| 99.95% | 97.28% | 1,198.5 |
+
+Expected games are computed by a direct stopping-time recursion over the active probabilities of 0, 1, or 2 nonwins; probability mass is removed on the early all-win look and on the third nonwin. The maximum is 1,280 games. This alternative has materially higher power than the one-nonwin two-look schedules at 99.9%–99.95%, at the cost of a much larger expected sample. It is not uniformly preferable; choose the schedule before examining confirmatory outcomes.
+
+### Reproduction snippet
+
+```python
+from fractions import Fraction
+from math import comb
+
+# Exact alpha-spending check.
+p0, q0 = Fraction(199, 200), Fraction(1, 200)
+alpha1 = p0 ** 1152
+alpha2 = sum(
+    comb(1280, j) * q0**j * p0**(1280-j)
+    for j in range(3)
+)
+assert alpha1 + alpha2 < Fraction(1, 20)
+
+def expected_games(n1, n2, p, max_nonwins):
+    q = 1 - p
+    active = [1.0] + [0.0] * max_nonwins
+    total = 0.0
+    for t in range(1, n2 + 1):
+        total += sum(active)
+        nxt = [0.0] * (max_nonwins + 1)
+        for j, mass in enumerate(active):
+            nxt[j] += mass * p
+            if j < max_nonwins:
+                nxt[j + 1] += mass * q
+        if t == n1:  # early pass on zero nonwins
+            nxt[0] = 0.0
+        active = nxt  # third nonwin is discarded automatically
+    return total
+
+def power(p):
+    q, n1, n2 = 1-p, 1152, 1280
+    m = n2 - n1
+    return (
+        p**n1
+        + n1*q*p**(n1-1)*(p**m + m*q*p**(m-1))
+        + comb(n1, 2)*q**2*p**(n2-2)
+    )
+
+for p in (0.998, 0.999, 0.9995):
+    print(p, power(p), expected_games(1152, 1280, p, 2))
+```
+
+**Limitations:** assumes the same fixed 128-stratum estimand, independent games across all cells, frozen policies and candidate, and the existing exact heterogeneous bound's assumptions. This is a statistical design option, not competitive evidence; it does not establish paper qualification or a 99.5% win rate.
