@@ -38,6 +38,14 @@ test('paired setup respects simultaneous no-Basic resets and optional bonus draw
     r.probabilityCandidateHasAnyBonusDrawOpportunity + r.probabilityNeitherHasBonusDrawOpportunity, 1);
 });
 
+test('exact model reproduces Agent 1 champion-versus-Thorns two-sided result', () => {
+  const r = pairedBonusStats(14, 4);
+  near(r.probabilityCandidateHasAnyBonusDrawOpportunity, 0.5642343175423022);
+  near(r.probabilityOpponentHasAnyBonusDrawOpportunity, 0.060393062632150364);
+  near(r.expectedMaximumOptionalBonusDrawsAvailableToCandidate, 1.4123525560019536);
+  near(r.expectedMaximumOptionalBonusDrawsAvailableToOpponent, 0.07010959980469617);
+});
+
 test('exact model reproduces Agent 2 published 12-Basic versus four-Basic offer result', () => {
   const r = pairedBonusStats(12, 4);
   near(r.probabilityCandidateHasAnyBonusDrawOpportunity, 0.5488513367202532);
