@@ -27,6 +27,23 @@ function safeDataProperty(value,key) {
   return undefined;
 }
 
+function safeErrorSummary(error) {
+  const name=safeDataProperty(error,'name');
+  const message=safeDataProperty(error,'message');
+  const code=safeDataProperty(error,'code');
+  return {
+    name:typeof name==='string'&&name?name:'Error',
+    message:typeof message==='string'?message:
+      (typeof error==='string'?error:'Error details unavailable'),
+    code:typeof code==='string'?code:null
+  };
+}
+
+function formatTraceError(error) {
+  if(error===null||error===undefined)return '';
+  return typeof error==='string'?error:JSON.stringify(error);
+}
+
 function safeFunctionName(value) {
   if(typeof value!=='function') return null;
   const descriptor=Object.getOwnPropertyDescriptor(value,'name');
@@ -360,18 +377,41 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
   let nativeLogs = null;
   const steps = [];
   const stateLimits = {...snapshotLimits,omitKeys:['logs']};
+  let captureError=null;
+  let publicBoardError=null;
+  let humanSummaryError=null;
+  function rememberError(current,error) {
+    if(error===null||error===undefined)
+      throw new TypeError('Trace error recorder requires a non-null error.');
+    return current===null?safeErrorSummary(error):current;
+  }
+  function recordCaptureError(error) {
+    captureError=rememberError(captureError,error);
+  }
+  function recordPublicBoardError(error) {
+    publicBoardError=rememberError(publicBoardError,error);
+  }
+  function recordHumanSummaryError(error) {
+    humanSummaryError=rememberError(humanSummaryError,error);
+  }
   function captureInitial(state,publicBoard=null,humanSummary=null) {
-    if (initialState !== null) throw new Error('Initial full-state snapshot already captured.');
-    initialState = snapshotFullState(state,stateLimits);
-    initialPublicBoard = publicBoard===null?null:snapshotFullState(publicBoard,snapshotLimits);
-    initialHumanSummary = humanSummary;
-    const logs=safeDataProperty(state,'logs');
-    initialNativeLogs=Array.isArray(logs)?snapshotFullState(logs,limits):null;
-    lastLogCount=Array.isArray(logs)?logs.length:null;
+    try {
+      if (initialState !== null) throw new Error('Initial full-state snapshot already captured.');
+      initialState = snapshotFullState(state,stateLimits);
+      initialPublicBoard = publicBoard===null?null:snapshotFullState(publicBoard,snapshotLimits);
+      initialHumanSummary = humanSummary;
+      const logs=safeDataProperty(state,'logs');
+      initialNativeLogs=Array.isArray(logs)?snapshotFullState(logs,limits):null;
+      lastLogCount=Array.isArray(logs)?logs.length:null;
+    } catch(error) {
+      recordCaptureError(error);
+      throw error;
+    }
   }
   function captureStep({state,action,actionOrdinal,playerSlot,playerId=null,actionType=null,turnBefore,turnAfter,
     phaseBefore=null,phaseAfter=null,publicBoard=null,humanSummary=null,pendingPrompt=null,error=null,failureStage=null} = {}) {
-    if (initialState === null) captureInitial(state,publicBoard,humanSummary);
+    try {
+      if (initialState === null) captureInitial(state,publicBoard,humanSummary);
     if (steps.length >= maxSteps) {
       stepLimitExceeded=true;
       throw new Error('Full-state trace maxSteps exceeded ('+maxSteps+').');
@@ -414,11 +454,20 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
         stack:safeDataProperty(error,'stack')
       },limits)}:{}),
       ...(failureStage?{failureStage}: {})
-    });
+      });
+    } catch(error) {
+      recordCaptureError(error);
+      throw error;
+    }
   }
   function captureFinal(state) {
-    const logs=safeDataProperty(state,'logs');
-    nativeLogs=snapshotFullState(Array.isArray(logs)?logs:[],limits);
+    try {
+      const logs=safeDataProperty(state,'logs');
+      nativeLogs=snapshotFullState(Array.isArray(logs)?logs:[],limits);
+    } catch(error) {
+      recordCaptureError(error);
+      throw error;
+    }
   }
   function canCaptureStep() {
     if (stepLimitExceeded) return false;
@@ -434,10 +483,12 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
       stateVisibility:'FULL_PRIVATE_NATIVE_STATE_OFFLINE_ONLY',
       policyConfiguration:policyConfigurationSnapshot,
       maxSteps,stepLimitExceeded,
+      captureError,publicBoardError,humanSummaryError,
       initialState,initialPublicBoard,initialHumanSummary,initialNativeLogs,
       steps:steps.slice(),
       nativeLogs,
-      complete:!stepLimitExceeded && policyConfigurationSnapshot.truncated===false && initialState!==null &&
+      complete:captureError===null && publicBoardError===null && humanSummaryError===null &&
+        !stepLimitExceeded && policyConfigurationSnapshot.truncated===false && initialState!==null &&
         initialState.truncated===false && (initialPublicBoard===null || !initialPublicBoard.truncated) &&
         (initialNativeLogs===null || !initialNativeLogs.truncated) &&
         nativeLogs!==null && !nativeLogs.truncated && steps.every((step,index)=>
@@ -449,13 +500,24 @@ function createFullStateTraceRecorder({label='',seed=null,limits={},policyConfig
       stepCount:steps.length
     };
   }
+  function text() {
+    try {
+      return formatFullStateTrace(result());
+    } catch(error) {
+      recordCaptureError(error);
+      throw error;
+    }
+  }
   return {
     captureInitial,
     captureStep,
     captureFinal,
     canCaptureStep,
+    recordCaptureError,
+    recordPublicBoardError,
+    recordHumanSummaryError,
     result,
-    text:()=>formatFullStateTrace(result())
+    text
   };
 }
 
@@ -471,9 +533,9 @@ function formatFullStateTrace(trace) {
     'complete: '+(trace.complete === true),
     'max steps: '+(trace.maxSteps ?? ''),
     'step limit exceeded: '+(trace.stepLimitExceeded === true),
-    'capture error: '+(trace.captureError || ''),
-    'public board summary error: '+(trace.publicBoardError || ''),
-    'human summary error: '+(trace.humanSummaryError || ''),
+    'capture error: '+formatTraceError(trace.captureError),
+    'public board summary error: '+formatTraceError(trace.publicBoardError),
+    'human summary error: '+formatTraceError(trace.humanSummaryError),
     'steps: '+(trace.stepCount ?? trace.steps?.length ?? 0),
     '',
     '=== INITIAL HUMAN-READABLE GAME STATE ===',
