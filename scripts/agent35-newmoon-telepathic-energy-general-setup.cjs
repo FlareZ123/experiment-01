@@ -11,7 +11,7 @@ const root = path.resolve(__dirname, "..");
 const deckPath = path.join(root, "results/als/new-moon-lockbreak-english-proxy-60.json");
 const cardsDir = path.join(root, "resources/cards/en");
 const deck = JSON.parse(fs.readFileSync(deckPath, "utf8"));
-const rows = deck.cards || deck.card_list || deck.cards_list;
+const rows = deck.entries || deck.cards || deck.card_list || deck.cards_list;
 if (!Array.isArray(rows)) throw new Error("Expected the frozen candidate JSON to contain a cards array.");
 
 const cardById = new Map();
