@@ -541,6 +541,7 @@ jobs:
           node --check simulation/twinleaf/agent34-actor-only-root-policy.cjs
           node --check simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs
           node --check simulation/evaluation/2026-11/agent1-private-diagnostic-envelope.cjs
+          node --check simulation/twinleaf/2026-11/agent45/full-state-trace.cjs
       - name: Verify V3 fixture game, role composition, and source contracts
         if: ${{ inputs.agent36_v3_fixture_game && steps.compile.outcome == 'success' }}
         run: |
@@ -554,6 +555,7 @@ jobs:
             tests/2026-11/agent50-v3-actor-only-boundary.test.cjs \
             tests/2026-11/agent43-independent-outcome-competence-v3.test.cjs \
             tests/2026-11/agent43-full-state-diagnostic.test.cjs \
+            tests/2026-11/agent45/full-state-trace.test.cjs \
             tests/2026-11/agent1-private-diagnostic-envelope.test.cjs \
             tests/2026-11/agent2-v3-sanitized-diagnostic.test.cjs \
             tests/2026-11/agent36-v3-fixture-game.test.cjs
