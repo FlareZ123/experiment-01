@@ -326,6 +326,8 @@ function projectV3WorkerExecutionBoundaryToTrial(workerExecutionAudit,{
   if(!nonNegativeInteger(workerExecutionAudit?.totalWorkerDecisions)||
      workerExecutionAudit.totalWorkerDecisions===0)
     failures.push('worker-decision-total-missing-or-zero');
+  if(setupPromptAudit?.schema!=='agent19-agent36-v3-native-setup-prompt-audit-v1')
+    failures.push('setup-prompt-audit-schema-invalid');
   if(setupPromptAudit?.accepted!==true)
     failures.push('setup-prompt-audit-not-accepted');
 
