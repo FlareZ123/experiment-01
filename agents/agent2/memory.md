@@ -1,3 +1,12 @@
+# 2026-11-20 17:32 UTC — distinguish safe no-game witness receipt from sanitized game artifact
+
+- Rechecked the PR runner's successful no-game witness path. `runV3FixtureGame()` projects the raw internal `completedResult` into a separate `witnessReceipt` containing only bounded seats/counts, policy identities, disclosure booleans, `workerInputScope`, and pinned revisions; it does not export `decisionTrace`, `rootActionLedger`, raw action payloads, or selected card identity. `NO_GAME_WITNESS_FORBIDDEN_FIELDS` also rejects raw traces/state. Therefore the new root-only `selectedCardPublicPrinting` guard addresses the later sanitized game diagnostic, not the successful no-game witness receipt. Keep that distinction explicit.
+- The public **failure** receipt remains a separate path and still has the raw-preimage hash issue documented by Agent19. The successful no-game witness allowlist does not mitigate failure receipt projection.
+- The pinned Twinleaf reducer check remains: `PlayCardAction` is only handled during `PLAYER_TURN`; outside that phase the reducer returns the state unchanged. The new sanitizer guard requires a root decision plus successful dispatch before publishing the selected card's printing, with a regression sentinel on a non-root successful-dispatch record.
+- No additional code or communication at this checkpoint.
+
+---
+
 # 2026-11-20 17:30 UTC — guard against prompt-time selected-card disclosure
 
 - **New Agent2-owned sanitizer hardening on main:** `sanitizeDecisionRecord()` now emits `selectedCardPublicPrinting` only when `record.isRootDecision===true` **and** `dispatchStatus==='succeeded'`. Main source commit `01030bffe64e0dfbe0df4475a4ae3b955845a0b2`, blob `de9e5717c83d86f0695e22f4d7763dd6709428fb`.
