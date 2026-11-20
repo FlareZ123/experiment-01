@@ -2289,6 +2289,7 @@ function createV3WorkerDecisionResolver({
         const frontier=actionFrontier.buildNativeActionFrontier({
           state:request.state,actorSeat,native,enumerator
         });
+        bindTraceInputs(decisionTrace,receipt,null,frontier.actionFrontier);
         const admission=actionEnumerator.assertKnownCapFreeAdapterAdmissionClear({
           enumerator,enginePin:V3_FIXTURE.engineCommit,
           frontierDiagnostics:frontier.diagnostics
@@ -2297,7 +2298,6 @@ function createV3WorkerDecisionResolver({
       });
       roleAudit.rootActionFrontierAdmissionCount++;
       roleAudit.rootActionFrontierAdmissionReceipts.push(admission);
-      bindTraceInputs(decisionTrace,receipt,null,frontier.actionFrontier);
       const requestShape={
         observation,prompt:null,actionFrontier:frontier.actionFrontier
       };
