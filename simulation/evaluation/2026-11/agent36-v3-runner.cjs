@@ -2743,7 +2743,9 @@ async function runV3FixtureGame({
         evidenceBundleSha256(trace.policyAudit)===trace.policyAuditSha256&&
         /^[a-f0-9]{64}$/.test(row.workerDecisionTraceSha256??'')&&
         evidenceBundleSha256(trace)===row.workerDecisionTraceSha256&&
-        receipt&&typeof receipt==='object'&&receiptSemanticsValid&&
+        receipt&&typeof receipt==='object'&&
+        evidenceBundleSha256(trace.validationReceipt)===row.validationReceiptSha256&&
+        receiptSemanticsValid&&
         /^[a-f0-9]{64}$/.test(row.validationReceiptSha256??'')&&
         evidenceBundleSha256(receipt)===row.validationReceiptSha256&&
         trace.validationReceiptSha256===row.validationReceiptSha256;
