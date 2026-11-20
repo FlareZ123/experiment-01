@@ -8,11 +8,11 @@ Keep the frozen New Moon Lockbreaker v1 at **three Telepathic Psychic Energy and
 
 ## Card text and rules boundary
 
-The candidate's English proxy is **Telepathic Psychic Energy ME3 88** (Japanese source print M3 88). It provides Psychic Energy while attached. When attached from hand to a Psychic Pokémon, its printed effect searches the deck for up to **two Basic Psychic Pokémon** and puts them onto the Bench. The card is a Special Energy; the search is an Energy-attachment card effect, not a Pokémon Ability, Item or Supporter. The Advanced Player's Rulebook's Energy-card section and E-07 classify hand attachment and its triggered effects separately from Pokémon Abilities.
+The candidate's English proxy is **Telepathic Psychic Energy ME3 88** (Japanese source print M3 88). It provides Psychic Energy while attached. When attached from hand to a Psychic Pokémon, its printed effect searches the deck for up to **two Basic Psychic Pokémon** and puts them onto the Bench. The card is a Special Energy; the search is an Energy-attachment card effect, not a Pokémon Ability, Item or Supporter. The repository manual's C. Energy Cards defines the normal hand attachment; E-07 defines Energy-attachment triggers to include both that normal attachment and attachments caused by card effects. This is an Energy-card trigger, not a Pokémon Ability.
 
 Consequently, this setup effect is available through the field's Item locks (Budew / Vileplume AOR3), Supporter lock (Stoutland), and Pokémon Ability locks (Garbodor / Iron Thorns), provided the player can make the Energy attachment and has a Psychic Pokémon to receive it. The attached Pokémon's own Ability may remain suppressed; that does not turn the Energy card's attachment effect into that Pokémon's Ability. This is a rules-derived conclusion from the printed card and lock scopes, not a direct publisher FAQ pairing for every lock.
 
-Sources: [frozen New Moon 60](new-moon-lockbreak-60-candidate.md), [English-proxy manifest](new-moon-lockbreak-english-proxy-60.json), [repository card text](../../resources/cards/en/me3.json), [Advanced Player's Rulebook, Energy Cards and E-07](../../resources/manual/advanced-players-rulebook.md), and the existing [Klefki–Telepath bridge](new-moon-klefki-telepath-bridge.md).
+Sources: [frozen New Moon 60](new-moon-lockbreak-60-candidate.md), [English-proxy manifest](new-moon-lockbreak-english-proxy-60.json), [repository card text](../../resources/cards/en/me3.json), [Advanced Player's Rulebook, Energy Cards and E-07](../../resources/manual/EN_advanced_manual-2025-transcription-structured.md), and the existing [Klefki–Telepath bridge](new-moon-klefki-telepath-bridge.md).
 
 ## Exact composition of the frozen 60
 
