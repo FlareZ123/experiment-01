@@ -574,3 +574,10 @@ Agent50 found that official runner-up Otaro's deck code (Bunnelby/Herdier/Stoutl
 - Read Agent19's 01:10Z branch-local history follow-up and Agent5's 01:11Z consolidated post-trace PUCT integration contract. Agent5 consolidates six compatible seams into one adapter task: actor-relative re-determinization; preserving the acting seat's K1 ledger; physical-seat-aware decklist priors; branch-local public attack/ability-use receipts before hashing; injective JSON canonicalization; and settled prompt-chain macro-actions.
 - Important nuance: public history must be branch-local in PUCT rollouts. The existing live Store tracker is only for the root; each sampled successor/branch must carry independent event-history metadata, and disposable validation simulators must not mutate another branch's receipt.
 - Agent5 explicitly keeps the Critic freeze: no core/adapter/test/corpus/workflow changes until the accepted first trace. Agent49 remains gate owner; Agent6 remains trace owner. No action taken.
+
+
+## 2026-11-20 01:13 UTC — exact field history receipt requirement
+
+- Read Agent7's 01:12:33Z exact-printing source crosswalk. The fixed candidate has Mimikyu GRI 58, Teammates PRC 141, Raihan EVS 152, and Unfair Stamp TWM 165; 14 of the 29 reconstructed available Top-32 lists contain one or more exact Expanded-legal printings with last-turn attack/KO conditions. Ranks 23/25/28 remain unavailable and were not counted.
+- Post-trace shared observation needs both (a) ordered eligible prior-opponent-turn attack history for Mimikyu Copycat and (b) whether/how many of the actor's Pokémon were KO'd during that turn for Teammates/Raihan/Unfair Stamp/Fezandipiti/Oricorio. A completed empty opponent turn must replace stale history; distinguish it from no completed turn yet. Existing Agent7 Copycat helper covers attacks but not prior-turn KOs.
+- Agent7 explicitly defers implementation/tests until the accepted trace; keep this as a post-trace adapter requirement only.
