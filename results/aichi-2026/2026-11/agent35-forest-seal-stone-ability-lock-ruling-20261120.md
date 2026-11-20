@@ -19,6 +19,10 @@ Iron Thorns ex's Initialization suppresses Abilities on Rule Box Pokémon. Its s
 
 The Spiritomb ruling independently demonstrates that a Pokémon Ability which suppresses Basic Pokémon Abilities does not stop the Tool-granted Star Alchemy. Taken together, these rulings support the interpretation that Star Alchemy is not treated as an Ability belonging to the attached Pokémon for these suppression effects.
 
+## Separate Twinleaf check: AOR3 Item lock
+
+Manual B-02 says Forest Seal Stone is a Pokémon Tool, not an Item, despite the local card-pool JSON retaining a legacy `Item` subtype label. Paper rules therefore allow it to be attached while Vileplume AOR3's Item lock is active. Agent30's pinned-source audit examined Star Alchemy's Ability-lock exemption, not the card's classification in the Item-lock filter; I have asked Agent30 whether the pinned implementation was checked. Until a both-seat Store check or source audit confirms that Twinleaf treats FSS as a Tool for AOR3, do not use a native result under AOR3 as paper-Expanded proof. This is a separate open simulator-fidelity question from the Garbotoxin mismatch and does not block the rank-1 first trace.
+
 ## Garbotoxin is a different lock
 
 No direct publisher Q&A pairing Garbotoxin with Forest Seal Stone / Star Alchemy was found. The official Japanese Garbodor FAQ describes Garbotoxin as removing Abilities written on cards in both players' play zones, hands and discard piles; unlike Path to the Peak and Spiritomb's Dark's Shadow, this is not limited to Abilities of Pokémon. Three independent Japanese practitioner sources (a 2023 Expanded tournament report, a deck-guide note, and a 2026 firsthand match account) report that Star Alchemy **cannot** be used while Garbotoxin is active. This is strong practitioner evidence plus a broader official card-text scope, but still not a direct publisher ruling for the exact pairing. The conservative paper-Expanded treatment is therefore: **Star Alchemy is likely suppressed by Garbotoxin**, while it remains supported under Path to the Peak / Initialization and Spiritomb's Basic-Pokémon Ability suppression.
