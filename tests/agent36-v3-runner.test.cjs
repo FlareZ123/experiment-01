@@ -1593,11 +1593,13 @@ function makeV3SetupPromptAuditFixture(){
   const {evidenceBundleSha256}=require('../simulation/evaluation/canonical-evidence-json.cjs');
   const specs=[
     {actionOrdinal:0,seat:0,role:'candidate',promptId:'setup-basic-0',
-      promptType:'ChooseCardsPrompt',message:'CHOOSE_STARTING_POKEMONS'},
+      promptType:'ChooseCardsPrompt',message:'CHOOSE_STARTING_POKEMONS',minimumCount:1},
     {actionOrdinal:1,seat:0,role:'candidate',promptId:'setup-first-0',
       promptType:'ConfirmPrompt',message:'GO_FIRST'},
-    {actionOrdinal:2,seat:1,role:'opponent',promptId:'setup-basic-1',
-      promptType:'ChooseCardsPrompt',message:'CHOOSE_STARTING_POKEMONS'}
+    {actionOrdinal:2,seat:0,role:'candidate',promptId:'setup-extra-bench-0',
+      promptType:'ChooseCardsPrompt',message:'CHOOSE_STARTING_POKEMONS',minimumCount:0},
+    {actionOrdinal:3,seat:1,role:'opponent',promptId:'setup-basic-1',
+      promptType:'ChooseCardsPrompt',message:'CHOOSE_STARTING_POKEMONS',minimumCount:1}
   ];
   const decisionTrace=[];
   const rootActionLedger=[];
@@ -1614,6 +1616,7 @@ function makeV3SetupPromptAuditFixture(){
       promptType:spec.promptType,
       description:spec.message,
       source:{sourceKind:'engine',sourcePrinting:null,effectName:spec.message},
+      publicMetadata:{minimumCount:spec.minimumCount??null},
       choices:[choice]
     };
     const promptProjectionSha256=evidenceBundleSha256(promptProjection);
@@ -1686,7 +1689,7 @@ function makeV3SetupPromptAuditFixture(){
       actingSeat:spec.seat,
       resolver:'native-prompt-resolver',
       message:spec.message,
-      availableOptions:{}
+      availableOptions:{min:spec.minimumCount===0?1:spec.minimumCount??null}
     };
     const promptResolution={
       kind:'worker-choice',decisionKind:'select-choice',selectedCount:1
@@ -1749,7 +1752,7 @@ function makeV3SetupPromptAuditFixture(){
     nativeStateDisclosedToWorker:false,
     opponentPrivateZonesDisclosedToWorker:false,
     workerInputScope:'actor-observation-v3+actor-prompt-projection+public-event-receipt-v3+typed-action-frontier-v1',
-    totalWorkerDecisions:3,totalHostOnlyPrompts:0,totalAbstentions:0,totalFailures:0,
+    totalWorkerDecisions:4,totalHostOnlyPrompts:0,totalAbstentions:0,totalFailures:0,
     policyRngViolations:0,replayableEvidence:true,cleanupVerified:true,
     cleanupFailureCount:0,
     cleanupReceipts:[
@@ -1760,7 +1763,7 @@ function makeV3SetupPromptAuditFixture(){
       candidate:{
         role:'candidate',seat:0,policyVersion:'candidate-policy-v1',
         bundleSha256:'c'.repeat(64),policySha256:'d'.repeat(64),
-        decisionCount:2,rootDecisionCount:0,promptDecisionCount:2,hostOnlyPromptCount:0,
+        decisionCount:3,rootDecisionCount:0,promptDecisionCount:3,hostOnlyPromptCount:0,
         abstentionCount:0,failureCount:0,timeoutCount:0,
         workerProcessClosed:true,containerRemoved:true,policyBundleRemoved:true,
         policyRngReplayable:true,policyDrawViolationCount:0,actionFrontierAdmissionFailureCount:0
@@ -1788,13 +1791,15 @@ test('Agent19 V3-native setup audit joins starting-Basic and GO_FIRST worker rec
   assert.equal(audit.visibility,'encrypted-full-only');
   assert.equal(audit.complete,true,audit.failures.join(','));
   assert.equal(audit.accepted,true,audit.failures.join(','));
-  assert.equal(audit.setupPromptDecisions,3);
+  assert.equal(audit.setupPromptDecisions,4);
   assert.deepEqual(audit.roles.candidate.counts,
-    {startingBasics:1,goFirst:1,wantToDrawCards:0});
+    {startingBasics:1,optionalExtraBenchPlacements:1,goFirst:1,wantToDrawCards:0});
   assert.deepEqual(audit.roles.opponent.counts,
-    {startingBasics:1,goFirst:0,wantToDrawCards:0});
-  assert.deepEqual(audit.roles.candidate.setupPromptRows.map(row=>row.actionOrdinal),[0,1]);
-  assert.deepEqual(audit.roles.opponent.setupPromptRows.map(row=>row.actionOrdinal),[2]);
+    {startingBasics:1,optionalExtraBenchPlacements:0,goFirst:0,wantToDrawCards:0});
+  assert.deepEqual(audit.roles.candidate.setupPromptRows.map(row=>row.actionOrdinal),[0,1,2]);
+  assert.deepEqual(audit.roles.opponent.setupPromptRows.map(row=>row.actionOrdinal),[3]);
+  assert.equal(audit.roles.candidate.setupPromptRows[2].kind,'optional-extra-bench-placement');
+  assert.equal(audit.roles.candidate.setupPromptRows[2].minimumCount,0);
   assert.ok([...audit.roles.candidate.setupPromptRows,...audit.roles.opponent.setupPromptRows]
     .every(row=>row.accepted&&row.ledgerJoinVerified&&row.recorderJoinVerified));
 });
