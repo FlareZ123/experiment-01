@@ -1863,6 +1863,7 @@ test('V3 runner uses native setup receipts and keeps their projections behind th
   assert.match(source,/setupPromptAudit,\s*setupPromptAuditAcceptance/);
   assert.match(source,/=== ENCRYPTED ACTOR-OWNED SETUP PROMPT AUDIT ===/);
   assert.match(source,/projectV3WorkerExecutionBoundaryToTrial/);
+  assert.match(source,/name: 'setupPromptAudit', path: 'simulation\/evaluation\/2026-11\/agent19-setup-prompt-audit\.cjs', exportName: 'buildSetupPromptAudit'/);
   assert.match(source,/V3_WORKER_EXECUTION_BOUNDARY_INCOMPLETE/);
   assert.match(source,/workerExecutionBoundaryValid/);
   assert.match(source,/actorOnlyExecutionBoundaryApplicable:false/);
