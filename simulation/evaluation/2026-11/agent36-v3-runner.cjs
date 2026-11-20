@@ -24,6 +24,7 @@ const {createDockerPolicySession}=require('./agent36-async-docker-policy-session
 const {publicEventReceipt}=require('../../twinleaf/agent8-public-event-receipt.cjs');
 const fixtureRuntimePin=require('./agent49-fixture-scoped-runtime-pin.cjs');
 const sanitizedDiagnostic=require('./agent2-v3-sanitized-diagnostic.cjs');
+const {buildSetupPromptAudit}=require('./agent19-setup-prompt-audit.cjs');
 
 const ROOT=path.resolve(__dirname,'../../..');
 const GIT_SHA=/^[0-9a-f]{40}$/;
@@ -2695,6 +2696,25 @@ async function runV3FixtureGame({
   }
   const fullStateTraceResult=fullStateTraceRecorder?.result()??null;
   const fullStateTraceText=fullStateTraceRecorder?.text()??null;
+  // Actor-owned setup receipts contain private hand indices/printings. Preserve
+  // them only in the existing encrypted-full artifact, joined to native dispatch.
+  const setupPromptAudit=fullStateTraceRecorder?buildSetupPromptAudit({
+    candidateAudit:roleResult?.candidateAudit,
+    opponentAudit:roleResult?.opponentAudit,
+    candidateSeat,opponentSeat,
+    decisionTrace:gameResult?.decisionTrace??[],
+    rootActionLedger:gameResult?.rootActionLedger??[]
+  }):null;
+  const setupPromptAuditAcceptance=fullStateTraceRecorder?{
+    schema:'agent19-agent34-encrypted-setup-prompt-audit-acceptance-v1',
+    complete:setupPromptAudit?.complete===true,
+    accepted:setupPromptAudit?.accepted===true,
+    receiptCount:setupPromptAudit?.receiptCount??0,
+    rejectedDispatchCount:setupPromptAudit?.rejectedDispatchCount??0,
+    setupPromptAuditSha256:setupPromptAudit?
+      evidenceBundleSha256(setupPromptAudit):null,
+    failures:setupPromptAudit?.failures??['setup-prompt-audit-missing']
+  }:null;
   const fullStateTraceAcceptedActionCount=gameResult?.actions??
     gameResult?.acceptedActions??failureEnvelope?.fixtureGamePartial?.acceptedActions??null;
   const fullStateTraceStepCountMatches=Number.isSafeInteger(fullStateTraceAcceptedActionCount)&&
@@ -2802,6 +2822,18 @@ async function runV3FixtureGame({
         code:'FULL_STATE_TRACE_INCOMPLETE',
         stage:'full-state-trace-acceptance',
         messageSha256:createHash('sha256').update(JSON.stringify(fullStateTraceAcceptance)).digest('hex'),
+        nativeFixtureFailure:null
+      },
+      fixtureGamePartial:gameResult?.finished===true?null:gameResult
+    };
+  }
+  if(!failureEnvelope&&fullStateTraceRecorder&&!setupPromptAuditAcceptance.accepted){
+    failureEnvelope={
+      fixtureFailure:{
+        name:'SetupPromptAuditIncomplete',
+        code:'SETUP_PROMPT_AUDIT_INCOMPLETE',
+        stage:'setup-prompt-audit',
+        messageSha256:evidenceBundleSha256(setupPromptAuditAcceptance),
         nativeFixtureFailure:null
       },
       fixtureGamePartial:gameResult?.finished===true?null:gameResult
@@ -2968,7 +3000,9 @@ async function runV3FixtureGame({
     nativeGame: gameResult,
     ...(fullStateTraceResult?{
       fullStateTrace:fullStateTraceResult,
-      fullStateTraceAcceptance
+      fullStateTraceAcceptance,
+      setupPromptAudit,
+      setupPromptAuditAcceptance
     }:{}),
     fixtureGamePartial: partial,
     fixtureFailure: failureEnvelope?.fixtureFailure ?? null,
@@ -2994,6 +3028,9 @@ async function runV3FixtureGame({
       candidateWorkerDecisionCount:workerExecutionAudit?.roles?.candidate?.decisionCount??0,
       opponentWorkerDecisionCount:workerExecutionAudit?.roles?.opponent?.decisionCount??0,
       workerCleanupFailureCount:workerExecutionAudit?.cleanupFailureCount??0,
+      setupPromptAuditAccepted:setupPromptAuditAcceptance?.accepted===true,
+      setupPromptReceiptCount:setupPromptAudit?.receiptCount??0,
+      setupPromptAuditSha256:setupPromptAuditAcceptance?.setupPromptAuditSha256??null,
       candidateFormat: trial.candidateFormat,
       gameRuleset: trial.gameRuleset,
       opponentSourceEventFormat: trial.opponentSourceEventFormat,
@@ -3056,6 +3093,11 @@ async function runV3FixtureGame({
     failure: failureEnvelope?.fixtureFailure ?? null,
     workerExecutionAudit,
   }),
+  ...(setupPromptAudit?[
+    '',
+    '=== ENCRYPTED ACTOR-OWNED SETUP PROMPT AUDIT ===',
+    JSON.stringify({setupPromptAudit,setupPromptAuditAcceptance},null,2)
+  ]:[]),
   ...(fullStateTraceText?[
     '',
     '=== AGENT45 HOST-ONLY OFFLINE FULL-STATE TRACE ===',
