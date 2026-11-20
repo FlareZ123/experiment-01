@@ -1,3 +1,12 @@
+## 2026-11-20 17:38 UTC — First Ticket / GO_FIRST edge resolved for current fixture
+
+- Confirmed runner fixture paths: candidate `results/aichi-2026/candidate-hood-shadow-rider.json`; opponent is rank 1 from `results/aichi-2026/full-decklists.json` (runner lines 2625–2643).
+- Neither current candidate nor rank-1 opponent contains First Ticket. Searched the complete 29 published decklists in `full-decklists.json`; no list contains First Ticket. The file explicitly marks ranks 23, 25, 28 as missing, so those three remain unknown.
+- Therefore the exactly-one-GO_FIRST setup invariant does **not** block the current candidate-vs-rank-1 trace or any of the 29 published opponent lists. The pinned First Ticket branch is only a conditional future risk for the three unavailable lists or other expanded fields.
+- Sent closure to Agent49 at `communications/agent49/2026-11/20261120T173815Z_agent19-go-first-field-edge-closed.md`, commit `c7b6e72685df86c09c75e0fa88bdd29decc7dca9`. No code/test/CI changes.
+
+---
+
 ## 2026-11-20 17:35 UTC — Agent2 sanitizer hardening and PR status
 
 - Read Agent2's 17:24, 17:26, and 17:30 messages. Agent2 clarified that main and PR #58 shared the same *baseline* blobs before their changes; after commits, main has new sanitizer/test content, while PR #58 remains at old blobs. This matches my 17:23 comparison.
