@@ -905,6 +905,7 @@ function makeWorkerManifestFixture(extraDataAssets=[]){
     'simulation/evaluation/2026-11/agent49-native-fixture-game.cjs',
     'simulation/evaluation/2026-11/agent49-fixture-scoped-runtime-pin.cjs',
     'simulation/twinleaf/2026-11/agent43-full-state-diagnostic.cjs',
+    'simulation/twinleaf/2026-11/agent45/full-state-trace.cjs',
     ...V3_FIXTURE_TEST_PATHS,...extraDataAssets
   ];
   const sourcePaths=[
@@ -926,6 +927,30 @@ function makeWorkerManifestFixture(extraDataAssets=[]){
   return {root,commonRuntimeBindings,orderedPromptChain,
     dispose(){fs.rmSync(root,{recursive:true,force:true});}};
 }
+
+
+test('Agent45 full-state recorder stays outside host and worker role bindings',()=>{
+  const recorderPath='simulation/twinleaf/2026-11/agent45/full-state-trace.cjs';
+  assert.equal(V3_FIXTURE_COMMON_BINDINGS.some(binding=>binding.path===recorderPath),false);
+  assert.equal(V3_FIXTURE_WORKER_COMMON_BINDINGS.some(binding=>binding.path===recorderPath),false);
+  assert.ok(V3_FIXTURE_TEST_PATHS.includes('tests/2026-11/agent45/full-state-trace.test.cjs'));
+});
+
+test('V3 runner preloads the Agent45 recorder before the fixture pin and captures same-store actions',()=>{
+  const source=fs.readFileSync(path.resolve(__dirname,
+    '../simulation/evaluation/2026-11/agent36-v3-runner.cjs'),'utf8');
+  const recorderRequire=source.indexOf(
+    "require('../../twinleaf/2026-11/agent45/full-state-trace.cjs')");
+  const fixturePin=source.indexOf('pinned = await runPinnedV3RoleRuntime',recorderRequire);
+  assert.ok(recorderRequire>=0&&fixturePin>recorderRequire,
+    'the host must capture recorder function references before the fixture role pin');
+  assert.match(source,/onGameReady:fullStateTraceRecorder\?/);
+  assert.match(source,/onAction:fullStateTraceRecorder\?/);
+  assert.match(source,/actionOrdinal:record\.actionOrdinal\+1/);
+  assert.match(source,/fullStateTraceRecorder\.captureFinal\(state\)/);
+  assert.match(source,/fullStateTraceResult\?\.stepCount===fullStateTraceAcceptedActionCount/);
+  assert.match(source,/fullStateTraceAcceptance\.accepted/);
+});
 
 test('host and worker common binding arrays have unique names and path/export identities',()=>{
   for(const [label,bindings] of [
@@ -977,6 +1002,11 @@ test('pure worker role manifest contract keeps policies and worker executables i
       assert.ok(result.manifest.dataAssets.some(asset=>asset.path===V3_FIXTURE.dockerCanaryWorkerPath));
       assert.ok(result.manifest.dataAssets.some(asset=>
         asset.path==='simulation/evaluation/2026-11/agent2-v3-sanitized-diagnostic.cjs'));
+      const fullStateRecorderPath='simulation/twinleaf/2026-11/agent45/full-state-trace.cjs';
+      assert.ok(result.manifest.dataAssets.some(asset=>asset.path===fullStateRecorderPath),
+        'host-only full-state recorder source must be revision-pinned as a data asset');
+      assert.equal(result.manifest.files.some(file=>file.path===fullStateRecorderPath),false,
+        'host-only full-state recorder must not become worker-executable code');
       assert.deepEqual(result.manifest.sourceAuditLimitations.missingRelativeImports,[]);
       assert.ok(Object.hasOwn(result.expectedByPath,V3_FIXTURE.protocolPath));
       assert.equal(Object.hasOwn(result.expectedByPath,policyPath),false);
