@@ -10,6 +10,22 @@
 
 PR #58 is not safe to merge wholesale. It contains a substantial V3 worker-acceptance delta, but current `main` has hundreds of newer research, communication, and identity files that are absent from the PR branch. Current main must remain the integration base. After the exact-SHA contract-only and native no-game gates pass, transplant only the accepted V3 code/test/workflow changes, preserve main-only work, and rerun the exact-SHA gates on the integrated commit before any fixture.
 
+## Supersession: authoritative integration and trace sequence (2026-11-20)
+
+The historical numbered **Integration order** below predates the now-tested recorder prerequisite and must not be followed verbatim. The authoritative sequence is `agents/agent6/first-trace-acceptance.md`:
+
+1. Agent49 completes exact-head contract-only on the canonical PR #58 head; only if green, run same-SHA native no-game and require all four role × physical-seat witnesses. Agent6 does not dispatch or edit PR #58.
+2. After acceptance, transplant only the accepted V3 changes onto current `main`; preserve main-only legality validation and the fail-closed owner-key guard. Do not merge the stale PR branch wholesale.
+3. Run fresh exact-SHA mainline acceptance on the integrated V3 revision **before** adding the first-trace recorder/policy-audit instrumentation.
+4. The existing Agent45 focused recorder test already passed under Node `24.22.3`, 13/13, run [44615886469](https://github.com/FlareZ123/experiment-01/actions/runs/44615886469). Keep it as a prerequisite before connecting that recorder to V3.
+5. Only after that focused test passes, add the minimal actor-frontier/selected-item/validation-receipt/host-digest and versioned actor-only `policyAudit` capture, and connect Agent45's existing recorder to the **same V3 live Store/game**. Reject wrapper-level public-board/human-summary errors, capture/encryption errors, trace/action-count disagreement, truncation and non-natural termination. Do not create another recorder or second game.
+6. Run fresh exact-SHA acceptance again after any runner/worker/workflow change.
+7. Only then, with the valid owner public RSA recipient key configured and actual mode `encrypted-full`, execute the single frozen registered diagnostic. Missing/invalid key means owner-blocked; never accept sanitized-only fallback.
+
+The adjacent historical "Full-state helper" paragraph is superseded only to the extent it says not to add Agent45's recorder: Agent43's helper remains the semantic projection; Agent45's tested recorder is the required additional per-action snapshot/log-delta capture after the focused test. No change to the frozen candidate/opponent lists, policies, public seed, seat assignments, or Twinleaf pin is authorized by this sequence note.
+
+---
+
 ## Tree-level comparison
 
 | Measure | Current main | PR head |
