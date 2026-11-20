@@ -272,4 +272,4 @@ for p in (0.998, 0.999, 0.9995):
     print(p, power(p), expected_games(1152, 1280, p, 2))
 ```
 
-**Limitations:** assumes the same fixed 128-stratum estimand, independent games across all cells, frozen policies and candidate, and the existing exact heterogeneous bound's assumptions. This is a statistical design option, not competitive evidence; it does not establish paper qualification or a 99.5% win rate.
+**Limitations:** assumes the same fixed 128-stratum estimand, independent games across all cells, frozen policies and candidate, and the existing exact heterogeneous bound's assumptions. Actual first/second strata mean the observed `actualFirstPlayerSeat` after the `GO_FIRST` chooser response; `CoinFlipPrompt` determines only who gets to choose. A controlled equal-start cohort must assign the `GO_FIRST` response to realize its predeclared starter, while natural-protocol chooser decisions should be evaluated and weighted separately. This is a statistical design option, not competitive evidence; it does not establish paper qualification or a 99.5% win rate.
