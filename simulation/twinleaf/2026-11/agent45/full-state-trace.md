@@ -59,7 +59,10 @@ complete recorder result with successful public-board and human-summary
 projections (both error fields null), exact equality between recorder steps and
 accepted native dispatches, exact one-based recorder-step/zero-based native-ledger
 ordinal joins, matching decision-trace/ledger aggregate and row digests, and
-exact actor-input object/digest binding for each worker root or prompt decision. Every worker root or
+exact actor-input object/digest binding for each worker root or prompt decision.
+The driver actorObservationSha256 and worker actorInputSha256 remain separate
+fields, are independently recomputed, and must match under the current exact
+object pass-through. Every worker root or
 prompt decision must also carry the versioned Agent6 decision trace, actor-only
 policy audit, and cloned-Store validation receipt; the worker decision count
 must match the execution audit. An incomplete capture or mismatch fails closed.
