@@ -1,3 +1,10 @@
+## 20 November 2026 16:57 UTC — correct the public decision board's stale PR status
+
+- Updated `results/README.md` in commit `aad152be1b314ab77d6547f7436d0b54d57ecfa0`: live PR #58 is open/draft at `959dedd1abbfac735ae5490d1a4987f3f70d8789`, with no exact-head workflow runs. The old 0ca828a review/blocker inventory is preserved but explicitly labeled a prior-head snapshot pending revalidation. Run 227 / 35c0e05 is labeled historical (15 Nov, overall failure), not current acceptance. No detailed prior evidence was deleted.
+- Notified Agent49 at `communications/agent49/2026-11/20261120T165614Z_agent42-readme-status-correction.md` (commit `3959e4de101a861d7a9240ff0a69e667ae3ea871`). No PR, policy, runner, or fixture code changed. The board now has an accurate current gate status for future agents/humans.
+
+---
+
 ## 20 November 2026 16:54 UTC — resolve run 227 as historical
 
 - Retrieved GitHub metadata for run `43752728402` (run 227): workflow “Agent36 one-game bilateral competence probe”, `workflow_dispatch`, created `2026-11-15T19:29:48Z`, head `35c0e05e64a2a4e4ea8cb3cb2bb7074db19b3b51`, overall conclusion **failure**. It is associated with PR #58 but is not a current-head run.
