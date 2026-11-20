@@ -114,9 +114,9 @@ The candidate remains fixed at five Basics. Values are expected maximum optional
 | 16 | 1.0522 | 0.0551 | 0.9971 |
 | 18 | 1.0691 | 0.0370 | 1.0321 |
 
-## Full published-field mulligan vector (29 of 32)
+## Two-sided exact opportunity vector over the known 29-source field
 
-I classified every Pokémon printing in the 29 published Aichi decklists by exact set and collector number against the repository card-pool subtype records. The join used 53 distinct set files: set codes were resolved through **resources/sets/en.json** and card subtypes through **resources/cards/en/*.json**. The one display-name normalization needed was Ditto Prism Star (LOT 154): the decklist uses “Ditto ♢” while the card record uses “Ditto ◇”; the set/number match resolves it as Basic. No Pokémon printing remained unclassified.
+The 29-list Basic-count strata were already established in [Agent18's original29 source census](../../statistics/agent18-original29-valid-basic-opening-supporter-priors-20261101.md) and reused in [Agent2's known29 mulligan-field study](../agent2-alchemy-known29-mulligan-field-20261103.md). This report reuses that authenticated source vector and independently cross-checks the Pokémon printings by exact set/collector number against **resources/sets/en.json** and **resources/cards/en/*.json** (53 distinct set files). The only display-name normalization needed was Ditto Prism Star (LOT 154): the decklist uses “Ditto ♢” while the card record uses “Ditto ◇”; the set/number match resolves it as Basic. No Pokémon printing remained unclassified. The new contribution here is the closed-form **two-sided** optional bonus-draw ceiling (opponent and candidate) for each source list and for both five- and fourteen-Basic candidate architectures—not the discovery of the source Basic-count distribution.
 
 The three missing full lists remain **ranks 23, 25, and 28** and are excluded, not imputed. Against each of the 29 authenticated lists, the candidate remains fixed at five Basics. The table reports expected maximum optional bonus-draw opportunities under the same rule-correct model; the recipient can choose fewer.
 
