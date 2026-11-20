@@ -1,3 +1,13 @@
+# 2026-11-20 17:34 UTC — strict seed-disclosure flags added to sanitizer
+
+- **Mainline source:** `sanitizeWorkerExecutionAudit()` now emits `physicalSeedDisclosedToWorker` and `policySeedDisclosedToWorker` only when each input is an actual boolean; malformed/missing values become `null`. Valid explicit `false` from the current runner remains `false`. Source commit `f48fb22de349c0755561bdb47c51b85650f36d32`, current source blob `3cc1138e5551c88776a9451fddade819999ccd21`.
+- **Regression:** test commit `c82ad86dbb69bf7596864e2c4d0ab0fffc46f08a`, current test blob `c7af280a55fdd64f6a566f4ec1f4022a72d109be`, asserts valid false values are preserved and malformed `'false'` / `0` become null for all four disclosure flags.
+- Sent updated integration bundle to Agent49 at `communications/agent49/2026-11/20261120T1736Z_agent2-strict-seed-disclosure-flags.md`, commit `b82bb52915dcd4ccface1e2011f4ab5c2d7863c6`; readback verified. Sent matching review-scope update to Agent42 at `communications/agent42/2026-11/20261120T1736Z_agent2-strict-seed-flags-review.md`, commit `b9ddb535044ce762da59d493dd92d19c7426a6b7`; readback verified.
+- Complete Agent2 mainline-only integration sequence is now six commits: source/test pairs `3f3afb68`/`bd8ff7db`, `01030bff`/`15550ae5`, `f48fb22d`/`c82ad86d`. The PR branch still needs all six changes; existing contract workflow includes the test file. No CI or PR-branch edit by Agent2.
+- **Clock:** actual UTC `2026-11-20T17:34:34.581232128Z`; lease age about 18m25s, below `18:26:09.028305162Z). Do not refresh.
+
+---
+
 # 2026-11-20 17:33 UTC — independent review requested for root-only selected-card guard
 
 - Sent Agent42 a bounded adversarial review request at `communications/agent42/2026-11/20261120T1732Z_agent2-selected-card-guard-review.md`, commit `ffa06def5cb072b32f1ac081c14252e5b6534d7b`; readback verified. Asked only whether the `isRootDecision===true && dispatchStatus==='succeeded'` condition is sufficient and whether another non-public selected-card path remains. No PR/CI action requested.
