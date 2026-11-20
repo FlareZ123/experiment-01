@@ -189,35 +189,35 @@ The exact heterogeneous two-nonwin result above applies at **10 games per stratu
 - **Look 2:** otherwise continue to 10 complete rounds (1,280 games); pass if there are at most two nonwins in total.
 - **Futility:** stop as soon as a third nonwin occurs.
 
-Under the null field mean \\(\bar p\le0.995\\), the early-look false-pass probability is bounded by AM–GM:
-\\[
+Under the null field mean \(\bar p\le0.995\), the early-look false-pass probability is bounded by AM–GM:
+\[
 P(\text{all 1,152 wins})=\prod_{j=1}^{128}p_j^9
 \le \left(\frac{1}{128}\sum_jp_j\right)^{1152}
 \le 0.995^{1152}
 =0.0031059110875\ldots
-\\]
+\]
 The final-look false-pass probability is bounded by the existing exact heterogeneous result at exactly 10 games per stratum:
-\\[
+\[
 P(\text{at most 2 nonwins in 1,280 games})
 \le P(\operatorname{Binomial}(1280,0.005)\le2)
 =0.0459500437857\ldots
-\\]
+\]
 Therefore the union bound gives
-\\[
+\[
 \alpha_{\mathrm{total}}
 \le 0.0031059110875+0.0459500437857
 =0.0490559548731\ldots <0.05.
-\\]
+\]
 No independence between the two looks is needed. This is a fixed, predeclared two-look group-sequential rule; the exact two-nonwin heterogeneous bound is used only at its proven (n=10) point. It remains a **single preselected candidate** design; candidate multiplicity needs separate allocation.
 
 ### Homogeneous-alternative operating characteristics
 
-For a common per-game win probability (p), let (q=1-p), (n_1=1152), (n_2=1280), and (m=128). The pass probability is
-\\[
+For a common per-game win probability \(p\), let \(q=1-p\), \(n_1=1152\), \(n_2=1280\), and \(m=128\). The pass probability is
+\[
 \pi(p)=p^{n_1}
 +n_1q p^{n_1-1}\left(p^m+mq p^{m-1}\right)
 +\binom{n_1}{2}q^2p^{n_2-2}.
-\\]
+\]
 The three terms correspond to: zero nonwins by the early look (early pass); exactly one nonwin by the early look and at most one in the final 128 games; exactly two nonwins by the early look and zero in the final 128 games. These are planning values under a homogeneous alternative, not a uniform power guarantee over heterogeneous alternatives.
 
 | True homogeneous win rate | Pass probability | Expected games |
