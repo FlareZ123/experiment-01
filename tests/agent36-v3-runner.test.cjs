@@ -1086,8 +1086,10 @@ test('registered V3 diagnostics accept sanitized-only with the existing artifact
     '../simulation/evaluation/2026-11/agent36-v3-runner.cjs'),'utf8');
   assert.match(source,/validateV3DiagnosticMode\(\s*env\.AGENT36_V3_DIAGNOSTIC_MODE\?\?'sanitized-only'\)/,
     'registered fixture execution must use the tested mode validator');
-  assert.match(source,/const fullStateTraceRecorder=diagnosticMode==='encrypted-full'&&!witnessOnly\?/,
-    'the live Store recorder remains opt-in to encrypted-full mode');
+  assert.match(source,/const fullStateTraceModule=diagnosticMode==='encrypted-full'&&!witnessOnly\?/,
+    'the live Store recorder module remains opt-in to encrypted-full mode');
+  assert.match(source,/const fullStateTraceRecorder=fullStateTraceModule\?/,
+    'the live Store recorder is constructed only when its encrypted-full module is available');
   assert.match(source,/diagnosticSnapshot:diagnosticMode==='encrypted-full'&&!witnessOnly\?/,
     'sanitized-only execution must not capture full private-state snapshots');
   assert.match(source,/requireFullStateDiagnostics:diagnosticMode==='encrypted-full'&&!witnessOnly/,
@@ -1471,7 +1473,7 @@ test('V3 fixture no-game witness receipt requires all four role-seat pairs and e
   assert.throws(()=>validateNoGameWitnessReceipt({
     ...receipt,witnesses:receipt.witnesses.map((row,index)=>index===0?
       {...row,policySeedBySeat:[1,2]}:row)
-  },expected),/unknown or missing fields/);
+  },expected),/forbidden field.*policySeedBySeat/);
 
   const nestedPrompt=JSON.parse(JSON.stringify(receipt));
   nestedPrompt.witnesses[0].seed={promptResolverContext:{promptId:'private-prompt'}};
