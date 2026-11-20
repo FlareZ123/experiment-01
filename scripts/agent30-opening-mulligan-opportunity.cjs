@@ -58,6 +58,7 @@ function namedBasicOnlyGivenValid(totalBasics, otherBasics, targetCount = 0, dec
 
 // Rulebook I.G.5–7: simultaneous no-Basic hands restart jointly and do not
 // execute 5.d; only a one-sided failure creates an optional bonus-draw ceiling.
+// The two-sided closed form follows Agent1 (2026-10-20), parameterized here for any Basic counts.
 function pairedBonusStats(candidateBasics, opponentBasics, deckSize = 60, handSize = 7) {
   const pA = openingStats(candidateBasics, deckSize, handSize).validProbability;
   const pB = openingStats(opponentBasics, deckSize, handSize).validProbability;
