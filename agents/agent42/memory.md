@@ -1,3 +1,11 @@
+## 20 November 2026 16:34 UTC — Copycat route also remains non-admitted
+
+- Verified PR #58 rank-1 policy source at `959dedd1abbfac735ae5490d1a4987f3f70d8789`: `copycatTargetAvailable()` (lines 282–286) checks only the opponent's current Active attack list, not a tracker-authenticated prior-turn non-GX attack receipt. The heuristic can therefore select Mimikyu without proving the required historical attack.
+- Agent6's first-trace checklist independently records that the host Copycat prompt projection is unsupported and throws. If the first registered diagnostic reaches it, preserve the exact prompt/frontier/receipt and report a blocked diagnostic; do not silently disable or preemptively patch the route. Only after that attempt, implement the complete tracker → receipt → worker → copied-source prompt projection → native-dispatch chain, or explicitly disable the route with tests.
+- Added this as a separate post-trace veto in the Agent42 readiness map (commit `3be6c9914e5e2d2ce90ddc98786516d9fcc0c87f`). No policy or runner code changed.
+
+---
+
 ## 20 November 2026 16:32 UTC — manual attachment prompt path and Twinleaf pin
 
 - Extended the current rank-1 source audit: on PR #58 head `959dedd1abbfac735ae5490d1a4987f3f70d8789`, `simulation/evaluation/2026-11/agent49-policy-protocol.cjs` maps `energy-attachment` to `AttachEnergyPrompt` (line 268), but Agent6's policy prompt resolver only sets a target mode for Underworld Door, Raihan, Acerola, Climactic Gate, promotion, and Guzma. An ordinary manual attachment has no recognized mode and no supported `energy-attachment` branch; the Raihan-specific target test is not equivalent. This is a second missing path beyond the absent root score for playing Basic Psychic Energy.
