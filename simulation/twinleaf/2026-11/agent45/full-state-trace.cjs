@@ -15,6 +15,14 @@ const REGEXP_FLAG_GETTERS = [
   {flag:'v',get:Object.getOwnPropertyDescriptor(RegExp.prototype,'unicodeSets')?.get},
   {flag:'y',get:Object.getOwnPropertyDescriptor(RegExp.prototype,'sticky')?.get}
 ];
+const TYPED_ARRAY_PROTOTYPE=Object.getPrototypeOf(Uint8Array.prototype);
+const TYPED_ARRAY_BUFFER_GETTER=Object.getOwnPropertyDescriptor(TYPED_ARRAY_PROTOTYPE,'buffer')?.get;
+const TYPED_ARRAY_BYTE_OFFSET_GETTER=Object.getOwnPropertyDescriptor(TYPED_ARRAY_PROTOTYPE,'byteOffset')?.get;
+const TYPED_ARRAY_BYTE_LENGTH_GETTER=Object.getOwnPropertyDescriptor(TYPED_ARRAY_PROTOTYPE,'byteLength')?.get;
+const TYPED_ARRAY_LENGTH_GETTER=Object.getOwnPropertyDescriptor(TYPED_ARRAY_PROTOTYPE,'length')?.get;
+const DATA_VIEW_BUFFER_GETTER=Object.getOwnPropertyDescriptor(DataView.prototype,'buffer')?.get;
+const DATA_VIEW_BYTE_OFFSET_GETTER=Object.getOwnPropertyDescriptor(DataView.prototype,'byteOffset')?.get;
+const DATA_VIEW_BYTE_LENGTH_GETTER=Object.getOwnPropertyDescriptor(DataView.prototype,'byteLength')?.get;
 
 function safeDataProperty(value,key) {
   let current=value;
@@ -310,8 +318,10 @@ function snapshotFullState(value, options = {}) {
 
     if (Buffer.isBuffer(input))
       return {$id:id,$type:'Buffer',encoding:'base64',value:Buffer.prototype.toString.call(input,'base64')};
-    if (input instanceof Date)
-      return {$id:id,$type:'Date',value:Number.isNaN(input.getTime())?null:Date.prototype.toISOString.call(input)};
+    if (input instanceof Date) {
+      const timestamp=Date.prototype.getTime.call(input);
+      return {$id:id,$type:'Date',value:Number.isNaN(timestamp)?null:Date.prototype.toISOString.call(input)};
+    }
     if (input instanceof RegExp) {
       const source=REGEXP_SOURCE_GETTER ? REGEXP_SOURCE_GETTER.call(input) : '';
       let flags='';
@@ -335,8 +345,15 @@ function snapshotFullState(value, options = {}) {
     if (input instanceof ArrayBuffer)
       return {$id:id,$type:'ArrayBuffer',bytes:[...new Uint8Array(input)]};
     if (ArrayBuffer.isView(input)) {
-      const bytes = new Uint8Array(input.buffer,input.byteOffset,input.byteLength);
-      return {$id:id,$type:constructorNameOf(input),bytes:[...bytes],length:input.length ?? null};
+      const dataView=input instanceof DataView;
+      const buffer=dataView?DATA_VIEW_BUFFER_GETTER.call(input):TYPED_ARRAY_BUFFER_GETTER.call(input);
+      const byteOffset=dataView?DATA_VIEW_BYTE_OFFSET_GETTER.call(input):TYPED_ARRAY_BYTE_OFFSET_GETTER.call(input);
+      const byteLength=dataView?DATA_VIEW_BYTE_LENGTH_GETTER.call(input):TYPED_ARRAY_BYTE_LENGTH_GETTER.call(input);
+      const length=dataView?null:TYPED_ARRAY_LENGTH_GETTER.call(input);
+      const view=new Uint8Array(buffer,byteOffset,byteLength);
+      const bytes=[];
+      for(let index=0;index<byteLength;index++) bytes.push(view[index]);
+      return {$id:id,$type:constructorNameOf(input),bytes,length};
     }
     if (Array.isArray(input)) {
       const lengthDescriptor=Object.getOwnPropertyDescriptor(input,'length');
@@ -362,7 +379,7 @@ function snapshotFullState(value, options = {}) {
       const name = typeof key === 'symbol' ? '['+String(key)+']' : key;
       if (typeof name === 'string' && omitKeys.has(name) &&
           Object.prototype.hasOwnProperty.call(descriptor,'value')) {
-        properties[name] = {$type:'OmittedForTrace',itemCount:Array.isArray(descriptor.value)?descriptor.value.length:null};
+        properties[name] = {$type:'OmittedForTrace',itemCount:Array.isArray(descriptor.value)?safeArrayLength(descriptor.value):null};
       } else if (Object.prototype.hasOwnProperty.call(descriptor,'value')) {
         properties[name] = visit(descriptor.value,depth+1);
       } else {
