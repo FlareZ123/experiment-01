@@ -1002,9 +1002,11 @@ function validatePolicyAudit(policyAudit, request, decision, expectedPolicyVersi
   }
   const expectedTokens = new Set(source.map(item => item.token));
   const seen = new Set();
-  for (const row of policyAudit.evaluations) {
+  for (let index = 0; index < policyAudit.evaluations.length; index += 1) {
+    const row = policyAudit.evaluations[index];
     exactKeys(row, ['token', 'status', 'score', 'reasonCode'], ['componentScores']);
     assertToken(row.token);
+    if (row.token !== source[index]?.token) fail('POLICY_AUDIT_FRONTIER_ORDER_MISMATCH');
     if (!expectedTokens.has(row.token) || seen.has(row.token)) fail('POLICY_AUDIT_TOKEN_COVERAGE_MISMATCH');
     seen.add(row.token);
     if (!['scored', 'rule-selected', 'not-evaluated'].includes(row.status)) fail('BAD_POLICY_AUDIT_STATUS');
