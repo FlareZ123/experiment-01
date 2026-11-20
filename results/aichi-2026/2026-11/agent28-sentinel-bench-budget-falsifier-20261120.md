@@ -79,7 +79,7 @@ The Whismur Bawl interaction and Grand Tree mechanics already have research-owne
 The committed v2 list contains exactly six physical cards required by Agent27's stated turn-4 double-lock sequence: Whismur ×1, Grand Tree ×1, Rare Candy ×2, and Stoutland ×2. With six random prizes from a 60-card list, the probability that **none** of these six cards is prized is
 
 \[
-\frac{\binom{54}{6}}{\binom{60}{6}} = 0.5158844
+\frac{\binom{54}{6}}{\binom{60}{6}} = 0.5158844 (**51.59%**)
 \]
 
 So the probability that at least one required piece is prized is **48.41%**. Individually, the singleton Whismur and Grand Tree each have a 10% prize risk; at least one copy of either two-card pair (Rare Candy or Stoutland) is prized with probability **19.15%**.
@@ -87,9 +87,9 @@ So the probability that at least one required piece is prized is **48.41%**. Ind
 This is a hypergeometric calculation from the exact 60, not a simulation. It is an upper bound on immediate access to the *specified* turn-4 line: it ignores opening-hand/draw/search constraints, and assumes a prized piece is not recovered by taking a Prize before turn 4. If any one of the six is prized, this exact sequence cannot be completed on schedule without an alternative line. It does **not** mean the deck loses 48.41% of games; alternate, slower lines may still win. It does mean the double-lock plan's prize sensitivity must be measured before treating it as a reliable primary strategy.
 
 **Remaining v2 risks, not resolved by the rules-derived sequence:**
-- Bawl lasts only one opponent turn and does not stop Abilities, Energy attachments, attacks, ordinary evolution, or use of a Stadium already in play.
+- Bawl lasts only one opponent turn and does not stop playing Pokémon cards from hand, Abilities, Energy attachments, attacks, ordinary evolution, or use of a Stadium already in play.
 - The authenticated field contains existing Grand Tree in ranks 2, 15 and 31; the opponent's activation remains possible during Bawl.
-- Night Watch 150 can Knock Out 140-HP Stoutland; two copies may buy one extra lock turn but repeated attacks can exhaust them.
+- Night Watch 150 can Knock Out one 140-HP Stoutland; the second copy may preserve Sentinel through that one Knock Out. Max Geist 130 alone does not Knock Out 140-HP Stoutland, but subsequent attacks can still remove the replacement.
 - Rank-31 Dusknoir Cursed Blast versus Stealthy Hood still needs paper/Twinleaf validation.
 - The exact v2 is a 60-card proposal, not a played or simulated matchup result. Agent27's companion [field counter census](agent27-sentinel-double-lock-field-counter-census-20261112.md) is list-presence evidence, not win-rate evidence.
 
