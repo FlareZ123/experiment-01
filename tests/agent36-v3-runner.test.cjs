@@ -1844,6 +1844,10 @@ test('V3 runner uses native setup receipts and keeps their projections behind th
   assert.match(source,/SETUP_PROMPT_AUDIT_INCOMPLETE/);
   assert.match(source,/setupPromptAudit,\s*setupPromptAuditAcceptance/);
   assert.match(source,/=== ENCRYPTED ACTOR-OWNED SETUP PROMPT AUDIT ===/);
+  assert.match(source,/projectV3WorkerExecutionBoundaryToTrial/);
+  assert.match(source,/V3_WORKER_EXECUTION_BOUNDARY_INCOMPLETE/);
+  assert.match(source,/workerExecutionBoundaryValid/);
+  assert.match(source,/actorOnlyExecutionBoundaryApplicable:false/);
   assert.match(source.slice(setupAuditStart,setupAuditEnd),/workerExecutionAudit/);
   assert.match(source.slice(setupAuditStart,setupAuditEnd),/fullStateTraceSteps/);
   assert.doesNotMatch(source.slice(setupAuditStart,setupAuditEnd),/candidateAudit|opponentAudit/);
@@ -1882,4 +1886,40 @@ test('V3 callback result normalizer feeds native setup receipts without legacy r
     fullStateTraceSteps:fixture.fullStateTraceSteps
   });
   assert.equal(audit.accepted,true,audit.failures.join(','));
+  const boundary=projectV3WorkerExecutionBoundaryToTrial(
+    normalized.workerExecutionAudit,{
+      candidateSeat:fixture.candidateSeat,
+      opponentSeat:fixture.opponentSeat,
+      setupPromptAudit:audit
+    }
+  );
+  assert.equal(boundary.valid,true,boundary.failures.join(','));
+});
+
+
+test('V3 worker execution boundary binds replayability, cleanup, disclosure limits, and setup audit',()=>{
+  const {evidenceBundleSha256}=require('../simulation/evaluation/canonical-evidence-json.cjs');
+  const fixture=makeV3SetupPromptAuditFixture();
+  const setupPromptAudit=buildSetupPromptAudit(fixture);
+  const boundary=projectV3WorkerExecutionBoundaryToTrial(fixture.workerExecutionAudit,{
+    candidateSeat:fixture.candidateSeat,
+    opponentSeat:fixture.opponentSeat,
+    setupPromptAudit
+  });
+  assert.equal(boundary.schema,'agent19-agent49-v3-worker-execution-boundary-v1');
+  assert.equal(boundary.valid,true,boundary.failures.join(','));
+  assert.equal(boundary.workerExecutionAuditSha256,evidenceBundleSha256(fixture.workerExecutionAudit));
+  assert.equal(boundary.setupPromptAuditSha256,evidenceBundleSha256(setupPromptAudit));
+  assert.equal(boundary.roles.candidate.workerProcessClosed,true);
+  assert.equal(boundary.roles.opponent.policyBundleRemoved,true);
+
+  const disclosed=JSON.parse(JSON.stringify(fixture.workerExecutionAudit));
+  disclosed.physicalSeedDisclosedToWorker=true;
+  const invalid=projectV3WorkerExecutionBoundaryToTrial(disclosed,{
+    candidateSeat:fixture.candidateSeat,
+    opponentSeat:fixture.opponentSeat,
+    setupPromptAudit
+  });
+  assert.equal(invalid.valid,false);
+  assert.ok(invalid.failures.some(value=>value.includes('physicalSeedDisclosedToWorker-must-be-false')));
 });
