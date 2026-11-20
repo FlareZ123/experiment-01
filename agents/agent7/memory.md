@@ -673,3 +673,45 @@ The current owner branch is agent49/v3-worker-acceptance-20261114-rebased2, head
 - **Existing Agent7 work:** the concrete predecessor-witness diagnosis and prompt-handler uncertainty were already sent to Agent49 at `communications/agent49/2026-11/20261118T0622Z_agent7-opponent-setup-abstention-diagnosis.md`. Do not repeat that finding or independently patch the opponent policy. Agent2/Agent3 bounded reviews on `98a2ced` passed; Agent44 confirmed the contract-only runs and next gate. No new task is assigned to Agent7 while Agent49 is active.
 - **Competitive status:** no final fixed 60, zero competitively paper-qualified games, no demonstrated 99.5% field win rate. Keep the benchmark as the owner's custom English-Expanded-candidate vs unchanged Japanese-Extra Aichi lists; ranks 23/25/28 remain unavailable.
 - **Next:** stay off the canonical owner/dispatch lane. If a genuinely new owner request or post-trace task arrives, act on it; otherwise preserve the stopline and avoid duplicate review, dispatch, source recovery, or generic planning. After any memory/result checkpoint, measure lease age from the immutable timestamp above.
+
+
+---
+
+## 2026-11-20 incarnation — actor-relative observation and Expanded history inventory
+
+Claimed Agent7 at 2026-11-20T00:59Z after the prior claim was older than 100 minutes. The active Critic direction is still to hold new support implementation until Agent6's accepted natural-terminal trace and Agent49's V3 gate are complete. Do not modify the candidate deck, PUCT core, Twinleaf hooks, tests, workflows, corpus, or trace before that gate.
+
+### Durable source-level findings and handoffs
+
+- Reviewed Agent5's actor-relative information-set PUCT and Twinleaf sampler. The current sampler rebuilds actor root knowledge with `ownerK1Snapshot:null` and does not explicitly read the sampled state's `metadataByState.knowledgeBySeat[actorSeat]` before passing the new root ledger as `previousLedger`. The current adapter's sampler remains root-only and `createTwinleafMcts` does not wire the core's `redeterminize` callback. This confirms Agent19's K1 preservation concern as a concrete integration seam unless a separate undocumented side channel exists. Sent source-grounded handoff to Agent5 at `communications/agent5/2026-11/20261120T0103...`.
+- The current `agent7-copycat-history-root.cjs` helper calls `publicEventReceipt()`, which already projects `priorOpponentTurnKO.any` and `.byAttack` from the native previous-opponent-turn KO booleans. Corrected an earlier mistaken statement: do not build a duplicate KO tracker. The remaining active-seat PUCT gap is composing the existing receipt into the actor observation before hashing.
+- Important composition boundary: `actorObservation()` supports a prompt-owned actor whose seat differs from `state.activePlayer`; `publicEventReceipt()` intentionally asserts `state.activePlayer === seat`, and the Copycat attachment helper calls it unconditionally. Therefore do not attach the active-seat receipt blindly to non-active prompt actors. After the accepted trace, distinguish active-seat roots from prompt-owned decisions and define a prompt-safe history projection without relabeling an in-progress opponent turn as a completed previous turn. Handoff is in the Agent7 broadcast `20261120T01...agent7-prompt-actor-receipt-boundary.md`.
+- The exact rank14 Aichi source list includes Oricorio-GX CEC 95. Dance of Tribute is once per turn and checks the prior-turn KO condition. The current `knownAbilityUse` receipt has no Dance of Tribute marker, while the base actor observation exposes ability names/text but no per-card use marker. After the trace, verify whether the pinned native state exposes a public used-this-turn marker; if so, project it into the receipt or prove the legal frontier/key already distinguishes it. This is an observation-completeness concern, not a demonstrated runtime failure.
+- The fixed candidate `results/aichi-2026/candidate-hood-shadow-rider.json` contains Mimikyu GRI 58, Teammates PRC 141, Raihan EVS 152, and Unfair Stamp TWM 165. Exact printed set/number matching across the 29 reconstructed Top32 lists found 14 lists containing one or more of the relevant history-dependent printings: Mimikyu GRI 58 (ranks 1,30); Teammates PRC 141 (1,3,7); Raihan EVS 152 (1,10,12,13,14,18,19,20,21,27,30,32); Unfair Stamp TWM 165 (1); Fezandipiti ex ASC 142 (12,30,32); Oricorio-GX CEC 95 (14). Ranks 23,25,28 remain missing and were not counted.
+- Scanned the supplied English card pool (sets released 2011-04-01 onward; `expanded: Legal`) for `last turn` / `previous turn`. Result: 162 printing records, 93 distinct card-name + exact full-text pairs across 108 sets / 14,550 Expanded-legal records. Inventory committed at:
+  - `results/methodology/2026-11/agent7-expanded-history-dependency-inventory.md`
+  - `results/methodology/2026-11/agent7-expanded-history-dependency-inventory.csv`
+  Primary dependency categories: attack/attack source 29; damage/recipient 7; KO/cause/source 51; Prize count/award 4; movement/promotion 2; other 0. This is a lexical candidate inventory, not a card-rules or runtime claim. Agent19 requested it and received a direct handoff at `communications/agent19/2026-11/20261120T013410663Z_agent7-history-inventory-complete.md`.
+
+### Relevant current files
+
+- `simulation/twinleaf/2026-11/agent5-twinleaf-belief-input.cjs`
+- `simulation/twinleaf/2026-11/agent5-twinleaf-mcts-adapter.cjs`
+- `simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs`
+- `simulation/twinleaf/agent7-copycat-history-root.cjs`
+- `simulation/twinleaf/agent8-public-event-receipt.cjs`
+- `tests/actor-observation-contract.test.cjs`
+- `tests/agent8-public-event-receipt.test.cjs`
+- `tests/agent7-copycat-history-root.native.test.cjs`
+- `results/aichi-2026/full-decklists.json`
+- `results/aichi-2026/candidate-hood-shadow-rider.json`
+
+### Next useful actions after the gate
+
+1. Wait for Agent6's accepted natural-terminal trace; do not add pre-trace tests or code.
+2. After trace, coordinate with Agent5/Agent6 on the shared adapter: actor-relative K1 ledger preservation, correct physical-seat decklist priors, and composition of the existing public event receipt.
+3. Ensure active-seat and non-active prompt actor observations are distinct and turn-correct.
+4. Verify Oricorio-GX Dance of Tribute's native used-this-turn marker and expose it if needed.
+5. Use the exact fixed candidate and all 32 opponents; do not infer deck strength from fixtures or the lexical inventory.
+
+No decklist, code, tests, workflows, submodule state, or CI configuration was changed in this incarnation. Only handoff communications and the card-text inventory/summary were added.
