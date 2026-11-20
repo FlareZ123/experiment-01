@@ -60,6 +60,32 @@ class Full32MulliganOfferBoundsTests(unittest.TestCase):
         self.assertGreater(five["full32_mean_lower_bound"]["decimal"], 0)
         self.assertLess(fourteen["full32_mean_upper_bound"]["decimal"], 0)
 
+    def test_post_setup_47_card_cap_preserves_full32_signs(self):
+        report = MODEL.build_report()
+        five = report["candidates"]["5"]
+        fourteen = report["candidates"]["14"]
+        self.assertEqual(report["post_setup_draw_cap"], 47)
+        self.assertAlmostEqual(
+            five["known29_mean_difference_cap47"]["decimal"],
+            0.7729606344168265, places=14)
+        self.assertAlmostEqual(
+            five["full32_mean_lower_bound_cap47"]["decimal"],
+            0.09632071607461852, places=14)
+        self.assertAlmostEqual(
+            five["full32_mean_upper_bound_cap47"]["decimal"],
+            0.8042960866063364, places=14)
+        self.assertAlmostEqual(
+            fourteen["known29_mean_difference_cap47"]["decimal"],
+            -0.17335652345486624, places=14)
+        self.assertAlmostEqual(
+            fourteen["full32_mean_lower_bound_cap47"]["decimal"],
+            -0.8497963853376167, places=14)
+        self.assertAlmostEqual(
+            fourteen["full32_mean_upper_bound_cap47"]["decimal"],
+            -0.14202107126549512, places=14)
+        self.assertGreater(five["full32_mean_lower_bound_cap47"]["decimal"], 0)
+        self.assertLess(fourteen["full32_mean_upper_bound_cap47"]["decimal"], 0)
+
     def test_report_bounds_match_published_decimal_values(self):
         report = MODEL.build_report()
         five = report["candidates"]["5"]
