@@ -1791,6 +1791,28 @@ test('V3 worker prompt resolver binds policyAudit, actor projection and cloned-S
     evidenceBundleSha256(promptIdMismatch.workerDecisionTrace);
   assert.equal(validateV3WorkerDecisionTrace(promptIdMismatch),false,
     'prompt receipt ID must match the exact pending prompt ID');
+  const promptTypeMismatch=JSON.parse(JSON.stringify(promptTraceRow));
+  const promptTypeTrace=promptTypeMismatch.workerDecisionTrace;
+  promptTypeTrace.promptProjection.promptType='OtherPromptType';
+  promptTypeTrace.promptProjectionSha256=
+    evidenceBundleSha256(promptTypeTrace.promptProjection);
+  promptTypeTrace.inputBindingSha256=evidenceBundleSha256({
+    observation:promptTypeTrace.actorInput,
+    publicEventReceipt:promptTypeTrace.publicEventReceipt,
+    promptProjection:promptTypeTrace.promptProjection,
+    actionFrontier:promptTypeTrace.actionFrontier
+  });
+  promptTypeTrace.validationReceipt.promptProjectionSha256=
+    promptTypeTrace.promptProjectionSha256;
+  promptTypeTrace.validationReceiptSha256=
+    evidenceBundleSha256(promptTypeTrace.validationReceipt);
+  promptTypeMismatch.validationReceipt=promptTypeTrace.validationReceipt;
+  promptTypeMismatch.validationReceiptSha256=promptTypeTrace.validationReceiptSha256;
+  promptTypeMismatch.workerDecisionTraceSha256=
+    evidenceBundleSha256(promptTypeTrace);
+  assert.equal(validateV3WorkerDecisionTrace(promptTypeMismatch),false,
+    'prompt projection type must match the exact pending prompt type');
+
 
 
   assert.equal(result.decisionTrace.promptProjectionSha256.length,64);
