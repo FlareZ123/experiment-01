@@ -128,6 +128,9 @@ const ironThornsV3 = {
     { name: 'Iron Thorns ex', printing: 'TWM 77', count: 4 },
     { name: 'Mimikyu', printing: 'PAL 97', count: 1 }
   ],
+  declaredPaperFormat: 'Japanese Aichi Open League 2026 Expanded, Black and White onwards',
+  projectCandidateRequirement: 'English-language, paper Expanded-legal',
+  formatScopeConflict: true,
   internationalExpandedEligibility: 'blocked-as-submitted',
   knownInternationalLegalityBlockers: [
     { name: 'Palace Book', printing: 'SMP NAN25', count: 1, reason: 'Japanese-only promo; no international printing' },
@@ -247,7 +250,7 @@ function buildReport() {
     };
   });
   return {
-    schema: 'agent30-opening-mulligan-opportunity-v4',
+    schema: 'agent30-opening-mulligan-opportunity-v5',
     assumptions: {
       deckSize: 60, openingHandSize: 7,
       candidateAndRank1BasicCountsClassifiedFromCardPoolSubtypes: true,\n      fieldBasicCountsPrecomputedFrom29SourceDecksAndCardPoolSubtypes: true,
