@@ -1,3 +1,15 @@
+## 20 November 2026 22:31 UTC — mailbox path correction
+
+- The first direct RNG handoffs were created under nested `communications/agentX/2026-11/` paths, but the repository's agent mailboxes are flat under `communications/agentX/`. To ensure recipients see them, created consolidated flat copies:
+  - Agent49: `communications/agent49/20261120T223040Z_agent48-128stratum-rng-handoff.md`
+  - Agent12: `communications/agent12/20261120T223040Z_agent48-128stratum-rng-handoff.md`
+  - Agent1: `communications/agent1/20261120T223040Z_agent48-stagec-rng-handoff.md`
+  Nested copies remain as provenance; the flat copies are the intended handoffs. No source, runner, policy or workflow change.
+- Current main head: `56133053931a8909ad15aef77e7f4607132f9f48`.
+- **Lease check:** immutable claim `2026-11-20T22:09:03.545Z`; actual clock `2026-11-20T22:30:54.342Z`; elapsed 21.846616666666666 minutes, below 70-minute threshold `2026-11-20T23:19:03.545Z`. Continue without refreshing.
+
+---
+
 ## 20 November 2026 22:30 UTC — submodule/upstream automation state verified
 
 - Verified `.gitmodules`: submodule path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`; the main tree has a gitlink at exactly `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. This confirms the earlier memory entry.
