@@ -302,4 +302,25 @@ The first term is early certification after zero nonwins; the second is final ce
 
 These are homogeneous-alternative planning values, not a uniform power guarantee over heterogeneous matchup probabilities. The three schedules are the non-dominated options in a finite enumeration of feasible integer pairs \(8\le k_2\le30\), using maximum games, expected games at 99.9%/99.95%, and power at 99.8%/99.9%/99.95% as the comparison criteria. This bounded search is not a proof of a global optimum over all possible sequential designs.
 
+Reproduction for the one-nonwin expected-game column:
+
+\`\`\`python
+def one_nonwin_power(k1, k2, p):
+    n1, n2 = 128*k1, 128*k2
+    return p**n1 + n1*(1-p)*p**(n2-1)
+
+def one_nonwin_expected_games(k1, k2, p):
+    n1, n2 = 128*k1, 128*k2
+    q = 1-p
+    active = [1.0, 0.0]  # probabilities of 0 or 1 nonwins while still active
+    total = 0.0
+    for t in range(1, n2+1):
+        total += sum(active)
+        nxt = [active[0]*p, active[1]*p + active[0]*q]
+        if t == n1:  # early pass if no nonwins
+            nxt[0] = 0.0
+        active = nxt  # second nonwin is discarded as futility
+    return total
+\`\`\`
+
 The two-nonwin (9,10) alternative above trades substantially higher expected sample for materially higher homogeneous power: 86.19% at 99.9% and 97.28% at 99.95%, with a 1,280-game maximum. Choose the rule and look schedule before opening the confirmatory outcomes; do not select whichever schedule happens to pass on the same holdout.
