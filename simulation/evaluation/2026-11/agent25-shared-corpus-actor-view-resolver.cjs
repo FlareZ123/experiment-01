@@ -1,6 +1,7 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const { createHash } = require('node:crypto');
 const {
   SOURCE_SUITES,
   readPinnedJson,
@@ -60,6 +61,27 @@ function actorSeatFromView(actorView) {
   return candidates[0];
 }
 
+function stableJson(value) {
+  if (value === null || typeof value === 'string' || typeof value === 'boolean') {
+    return JSON.stringify(value);
+  }
+  if (typeof value === 'number') {
+    assert.ok(Number.isFinite(value), 'Actor view contains a non-finite number');
+    return JSON.stringify(value);
+  }
+  assert.ok(value && typeof value === 'object',
+    'Actor view digest input must contain JSON values only');
+  if (Array.isArray(value)) {
+    return '[' + value.map(stableJson).join(',') + ']';
+  }
+  const keys = Object.keys(value).sort();
+  return '{' + keys.map(key => JSON.stringify(key) + ':' + stableJson(value[key])).join(',') + '}';
+}
+
+function computeActorViewSha256(actorView) {
+  return createHash('sha256').update(stableJson(actorView), 'utf8').digest('hex');
+}
+
 function deepFreeze(value, seen = new WeakSet()) {
   if (!value || typeof value !== 'object' || seen.has(value)) return value;
   seen.add(value);
@@ -114,9 +136,14 @@ function resolveActorViewPayload(sourceCase, suite) {
     'Actor-view payload requires an explicit 64-hex SHA-256 digest');
   assertActorOnlyView(actorView);
   const actorSeat = actorSeatFromView(actorView);
+  const computedActorViewSha256 = computeActorViewSha256(actorView);
+  const declaredDigest = digest.startsWith('sha256:') ? digest.slice(7) : digest;
+  assert.equal(computedActorViewSha256, declaredDigest.toLowerCase(),
+    'Actor-view payload SHA-256 does not match its source-declared digest');
   return {
     actorView: deepFreeze(actorView),
     actorViewDigest: digest,
+    computedActorViewSha256,
     actorSeat,
     resolutionKind
   };
@@ -146,18 +173,21 @@ function resolveActorView(rootDir, corpusRecord, dependencies = {}) {
     caseRecord: sourceCase,
     actorView: resolved.actorView,
     actorViewDigest: resolved.actorViewDigest,
+    computedActorViewSha256: resolved.computedActorViewSha256,
     actorSeat: resolved.actorSeat,
     resolutionKind: resolved.resolutionKind,
     sourceSuitePath: spec.path,
     sourceSuiteGitBlobSha1: spec.blob,
     sourceSuiteBlobVerified,
-    digestVerification: 'not-recomputed; actor view is bound by the pinned suite blob',
+    digestVerification: 'canonical-json-sha256-verified',
     privacyReview: 'structural-key-screen-only; not a privacy certification'
   });
 }
 
 module.exports = {
   DIGEST_RE,
+  stableJson,
+  computeActorViewSha256,
   assertActorOnlyView,
   actorSeatFromView,
   resolveActorViewPayload,
