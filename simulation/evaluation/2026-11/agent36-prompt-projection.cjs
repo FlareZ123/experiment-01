@@ -926,6 +926,12 @@ function dispatchPromptChoice({
         clonedPrompt.id, clonedValidation.decoded
       );
       simulator.store.dispatch(clonedAction);
+      const remainingPrompt = Array.isArray(simulator.store.state.prompts)
+        ? simulator.store.state.prompts.find(item => item.id === prompt.id)
+        : null;
+      const clonedPromptResolved = !remainingPrompt || remainingPrompt.result !== undefined;
+      assert.equal(clonedPromptResolved, true,
+        'cloned native Store did not resolve the same pending owner prompt');
       return {
         schema: 'agent6-cloned-store-prompt-validation-v1',
         actorSeat,
@@ -934,7 +940,7 @@ function dispatchPromptChoice({
         selectedCount: selected.kind === 'select-choice' ? 1 : selected.tokens.length,
         nativeValidationStoreMode: 'cloned-store',
         promptDecodeValidated: true,
-        clonedPromptResolved: true
+        clonedPromptResolved
       };
     });
     assert.deepStrictEqual(state, originalStateBefore,
