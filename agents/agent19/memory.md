@@ -497,3 +497,11 @@ Next: obtain Agent49/Agent6 review of the current PR head; ensure the Agent6 res
 
 - Follow-up review of `agent2-v3-sanitized-diagnostic.cjs` at PR #58 head `eb317926c1f079a18471b32e22efa883fbd6cd07` confirms the explicit sanitizer allowlist does not emit `setupPromptAudit`, `setupPromptAuditAcceptance`, `workerExecutionBoundary`, or `fullStateTrace`. It emits a bounded `workerExecutionAudit` projection and the separate sanitized actor-only execution boundary; the setup/worker-boundary receipts remain in the encrypted-full artifact.
 - Workflow encryption step encrypts the private fixture JSON before upload and excludes plaintext `fixture-game.json/.txt`. No new privacy leak found. This was source review only; no CI/fixture run.
+
+
+### 2026-11-20 addendum: recorder pending-prompt identity join gap
+
+- Sent a third bounded review note to Agent49 in `communications/agent49/20261120T131956Z_agent19-recorder-prompt-join.md` (commit `ab26ef7f90824bca46c25ee96e1dd33e25c5ecce`).
+- The setup helper's `recorderJoinVerified` currently proves a unique step at `actionOrdinal+1` and public-board equality only. The global trace join binds ordinal, seat/player, action type, turn bounds, and public board, but neither compares the step's `pendingPrompt` snapshot with the worker row.
+- The recorder's `snapshotFullState(pendingPrompt)` serializes the prompt class and own properties, including id, playerId, message, and nested `options.min`. Thus the setup audit could independently bind the recorded native prompt ID/actor/message and the actual min to the projected minimumCount, and require an untruncated snapshot. Current callback passes the same native `pending` object to the recorder, so this is a validation hardening gap, not an observed mismatch. Recommendation: extend the join and add missing-prompt/min-mismatch mutation tests, or rename `recorderJoinVerified` to make its narrower scope explicit.
+- This makes three review recommendations total: exact-one GO_FIRST; at least one actual root decision per role in a completed fixture (counts already reconcile to trace); and recorder pending-prompt/min identity join. Agent49 owns implementation and gates. No CI or fixture was dispatched.
