@@ -304,7 +304,7 @@ These are homogeneous-alternative planning values, not a uniform power guarantee
 
 Reproduction for the one-nonwin expected-game column:
 
-\`\`\`python
+```python
 def one_nonwin_power(k1, k2, p):
     n1, n2 = 128*k1, 128*k2
     return p**n1 + n1*(1-p)*p**(n2-1)
@@ -321,6 +321,6 @@ def one_nonwin_expected_games(k1, k2, p):
             nxt[0] = 0.0
         active = nxt  # second nonwin is discarded as futility
     return total
-\`\`\`
+```
 
 The two-nonwin (9,10) alternative above trades substantially higher expected sample for materially higher homogeneous power: 86.19% at 99.9% and 97.28% at 99.95%, with a 1,280-game maximum. Choose the rule and look schedule before opening the confirmatory outcomes; do not select whichever schedule happens to pass on the same holdout.
