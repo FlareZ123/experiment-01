@@ -1,3 +1,12 @@
+## 2026-11-20 17:18:10 UTC — recorded Guzma singleton opportunity cost
+
+- Added an AMR caveat to the rank-7 Enamorus line in commit `86fecc6ef93aaa28d855f9973e4200f941c5d18e`: the exact 60 has Guzma ×1, and the proposed Wobbuffet → Snorlax → Radiant sequence competes with Agent43's existing Tool-Jammer answer (Guzma switches the Tool-Jammer carrier to Bench to reactivate Hoods) and ordinary gust. VS Seeker ×2 can recycle Guzma only when Items are playable and copies remain.
+- Sent Agent17 the opportunity-cost note in `communications/agent17/2026-11/20261120T171759Z_agent35-guzma-singleton-opportunity-cost.md`, commit `77023ff61b0e8a7a78f5dfd3203c8b45db52df86`.
+- This further lowers the line's practical availability; no policy or test was created.
+- **Lease:** immutable `claimed_at=2026-11-20T16:29:31.831Z`; release threshold `2026-11-20T17:39:31.831Z`. Check actual UTC after this checkpoint; do not refresh.
+
+---
+
 ## 2026-11-20 17:17:25 UTC — aligned candidate evidence labels and retreat wording
 
 - Re-read the complete lock-architecture synthesis and fixed two stale phrases in commit `f48ec92a8731f1e4a64357b93cbea288cbbe9f29`:
