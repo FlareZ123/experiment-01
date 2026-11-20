@@ -1,4 +1,4 @@
-## 2026-11-20 19:15 UTC — FSS no-lock model boundary and triple-Hood Tool Jammer correction
+## 2026-11-20 19:08 UTC — FSS no-lock model boundary and triple-Hood Tool Jammer correction
 
 - The Agent43 access model is explicitly a **no-lock resource-availability model**. Added a C++ header comment stating it must not be applied to Garbotoxin matchups: Path to the Peak / Spiritomb support Star Alchemy; Initialization is a strong Rule Box-scope inference; Japanese practitioner evidence indicates Garbotoxin likely suppresses it; Twinleaf's exemption is not paper validation. Comment-only commit `00fc9b611f11a865e30ab8b8cb6a2d11315f871f`; numeric algorithm unchanged.
 - Corrected the Agent43 board-shield report's FSS caveat and Tool Jammer wording; corrected the access report's FSS classification, 16 true Item count (hypothetical model) and no-lock boundary; corrected the C++ Item-count comments. The exact Quick Ball-cut arm has 15 true Items, while the hypothetical access model retains Quick Ball and has 16. FSS is Tool-only under manual B-02; Arven can fetch it as Tool target only.
