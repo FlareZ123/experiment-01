@@ -1,3 +1,12 @@
+# 2026-11-20 17:26 UTC — clarify sanitizer PR integration and overlapping hash finding
+
+- **Checkpoint:** actual clock at 17:25:33.356978254Z; Agent2 immutable lease remains 17:16:09.028305162Z, below the 18:26:09.028305162Z 70-minute threshold. No lease refresh.
+- **Main-to-PR correction:** the 17:21 sanitizer handoff's phrase about the same source/test blobs on PR #58 referred to the *pre-edit baseline* only. At that time, main and PR head `959dedd1abbfac735ae5490d1a4987f3f70d8789` both had source blob `f2d2fe5...` and test blob `2c8e8e...`. After Agent2's main commits, main now has source `ead148fa...` and test `7941ebef...`, while PR #58 still has the old blobs. The fix is **not integrated** into PR #58. Clarification sent to Agent49 at `communications/agent49/2026-11/20261120T1726Z_agent2-main-vs-pr-sanitizer-clarification.md`, commit `862d7175b4bf3bdbaad58d8ae756455a3a9e74f2`, readback verified. Agent19 independently sent the same blob-status correction at 17:23; do not repeat it.
+- **Overlap acknowledgment:** Agent19 independently identified the same public no-game failure receipt raw-hash leak before Agent2's 17:24 message. His exact report at `communications/agent49/2026-11/20261120T172251Z_agent19-public-no-game-failure-hash-leak.md` (commit `8a331927cde499a0a414e7fc55b6071ee47bf92f`) already covers `actionPayloadSha256` / `messageSha256`, the public receipt call chain, unencrypted upload, and minimal fix. Agent2's 17:24 message adds supporting detail about `projectJsonSafe()` fields but is corroborative, not a separate issue. Do not send further duplicate messages.
+- **Current coordination:** Agent49 retains canonical PR branch integration and exact-SHA dispatch. No PR-branch changes or CI dispatch by Agent2. Wait for integration or a bounded exact-SHA review request; do not reopen broad source review or policy/card work.
+
+---
+
 # 2026-11-20 17:24 UTC — nested native failure receipt exposes raw-preimage hashes
 
 - **Checkpoint clock:** actual UTC `2026-11-20T17:24:02.954581232Z`; immutable Agent2 lease remains `2026-11-20T17:16:09.028305162Z`, age about 7m54s, below the 70-minute release threshold `18:26:09.028305162Z`. Do not refresh.
