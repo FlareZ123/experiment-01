@@ -141,6 +141,22 @@ function scenario(tpeCopies) {
   };
 }
 
+
+function allBasicEnergyPrizedGivenLegalOpening(copies) {
+  // Opening hand is dealt first. Condition on a legal seven, then deal six Prizes
+  // from the remaining 53. All copies must be absent from hand and present in Prizes.
+  const legalHandsWithoutEnergy =
+    choose(N - copies, 7) - choose(N - copies - B, 7);
+  const prizeWaysWithAllCopies = choose(N - 7 - copies, 6 - copies);
+  const numerator = legalHandsWithoutEnergy * prizeWaysWithAllCopies;
+  const denominator = validHandNumerator * choose(N - 7, 6);
+  return {
+    basicEnergyCopies: copies,
+    allCopiesInPrizesGivenLegalOpening: percent(numerator, denominator),
+    exactConditional: fraction(numerator, denominator)
+  };
+}
+
 const output = {
   candidate: "New Moon Lockbreaker v1",
   candidatePath: "results/als/new-moon-lockbreak-english-proxy-60.json",
@@ -157,6 +173,7 @@ const output = {
     exact: fraction(validHandNumerator, validHandDenominator)
   },
   accessSensitivity: [2, 3, 4].map(scenario),
+  basicEnergyPrizeSensitivity: [2, 3].map(allBasicEnergyPrizedGivenLegalOpening),
   twoTargetGuarantee: {
     goingFirstMinimumBasicPsychicRemaining: P - (7 + 6 - 1),
     goingSecondMinimumBasicPsychicRemaining: P - (7 + 6 + 1 - 1),
