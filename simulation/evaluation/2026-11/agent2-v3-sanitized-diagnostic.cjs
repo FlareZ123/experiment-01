@@ -205,7 +205,7 @@ function sanitizePromptResolution(resolution) {
 
 function sanitizeFailure(failure) {
   if(!failure||typeof failure!=='object')return null;
-  return pick(failure,['name','code','messageSha256','messageLength','stage']);
+  return pick(failure,['name','code','messageLength','stage']);
 }
 
 function sanitizeTarget(target) {
@@ -215,7 +215,8 @@ function sanitizeTarget(target) {
 
 function sanitizeDecisionRecord(record) {
   const observation=sanitizeActorObservation(record.actorObservationBefore);
-  const selectedCardPublicPrinting=record.dispatchStatus==='succeeded'&&
+  const selectedCardPublicPrinting=record.isRootDecision===true&&
+    record.dispatchStatus==='succeeded'&&
     typeof record.selectedCardIdentity?.fullName==='string'?
       record.selectedCardIdentity.fullName:null;
   return {
@@ -405,8 +406,22 @@ function sanitizeWorkerExecutionAudit(audit) {
       ['public-reproducible','private-host-only','not-disclosed'].includes(
         audit.physicalSeedDisclosureDecision)?
         audit.physicalSeedDisclosureDecision:null,
-    physicalSeedDisclosedToWorker:audit.physicalSeedDisclosedToWorker===true,
-    policySeedDisclosedToWorker:audit.policySeedDisclosedToWorker===true,
+    physicalSeedDisclosedToWorker:
+      typeof audit.physicalSeedDisclosedToWorker==='boolean'?
+        audit.physicalSeedDisclosedToWorker:null,
+    policySeedDisclosedToWorker:
+      typeof audit.policySeedDisclosedToWorker==='boolean'?
+        audit.policySeedDisclosedToWorker:null,
+    nativeStateDisclosedToWorker:
+      typeof audit.nativeStateDisclosedToWorker==='boolean'?
+        audit.nativeStateDisclosedToWorker:null,
+    opponentPrivateZonesDisclosedToWorker:
+      typeof audit.opponentPrivateZonesDisclosedToWorker==='boolean'?
+        audit.opponentPrivateZonesDisclosedToWorker:null,
+    workerInputScope:
+      audit.workerInputScope===
+        'actor-observation-v3+actor-prompt-projection+public-event-receipt-v3+typed-action-frontier-v1'?
+        audit.workerInputScope:null,
     roles,
     totalWorkerDecisions:safeCount(audit.totalWorkerDecisions),
     totalHostOnlyPrompts:safeCount(audit.totalHostOnlyPrompts),
