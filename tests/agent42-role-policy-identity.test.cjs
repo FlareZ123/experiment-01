@@ -560,6 +560,7 @@ test('V3 worker execution boundary digest is bound in the policy application rec
  const receipt=I.createPolicyApplicationReceipt({
   preDeal:pd,candidateIdentity:c,opponentIdentity:o,trial:v3Trial
  }).receipt;
+ assert.equal(receipt.workerExecutionBoundarySchema,workerExecutionBoundary.schema);
  assert.equal(receipt.workerExecutionBoundarySha256,v3Trial.workerExecutionBoundarySha256);
  assert.equal(receipt.actorOnlyExecutionBoundarySha256,
   evidenceBundleSha256(v3Trial.actorOnlyExecutionBoundary));
