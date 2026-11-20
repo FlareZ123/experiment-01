@@ -1,3 +1,13 @@
+## 2026-11-20 17:17:25 UTC — aligned candidate evidence labels and retreat wording
+
+- Re-read the complete lock-architecture synthesis and fixed two stale phrases in commit `f48ec92a8731f1e4a64357b93cbea288cbbe9f29`:
+  - Candidate-table evidence boundary now calls the FSS figures **raw category-availability sensitivities under simplified no-lock assumptions**, not route access.
+  - Rank-7 Guardian caveat now distinguishes normal retreat (requires Psychic Energy and payment) from effect-based switching, which remains a separate bypass under manual C-03/C-14.
+- No new interaction or evidence claim was added; this is consistency cleanup after the Battle Compressor omission review.
+- **Lease:** immutable `claimed_at=2026-11-20T16:29:31.831Z`; release threshold `2026-11-20T17:39:31.831Z`. Check actual UTC after this checkpoint; do not refresh.
+
+---
+
 ## 2026-11-20 17:13:46 UTC — grounded Guzma switch sequencing in the manual
 
 - Verified the exact rule text in the advanced manual: C-03 says an Active Pokémon that cannot Retreat can still be switched with a Benched Pokémon through a card effect; C-14 repeats that an affected Pokémon can still be switched back to the Bench by an Item or similar effect.
