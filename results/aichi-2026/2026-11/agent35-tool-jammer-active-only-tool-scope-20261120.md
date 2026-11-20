@@ -19,7 +19,7 @@ Forest Seal Stone (SWSH12 156) grants the attached Pokémon V access to Star Alc
 
 ## Correct interaction
 
-If the opponent has Tool Jammer attached to Active Snorlax:
+Since only one of the candidate's Pokémon can be Active, Tool Jammer can blank at most **one** of the candidate's Hoods at a time; any Hood on a Benched Pokémon remains effective. If the opponent has Tool Jammer attached to Active Snorlax:
 - Tool Jammer blanks Pokémon Tools attached to **our Active Pokémon only**.
 - Forest Seal Stone attached to a **Benched** Pokémon V remains effective, and Star Alchemy can be used from the Bench.
 - Stealthy Hood attached to a **Benched Enamorus V** remains effective, so it can continue protecting Enamorus's Guardian of Love Ability.
