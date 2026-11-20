@@ -2718,6 +2718,19 @@ async function runV3FixtureGame({
   const fullStateTraceWorkerAuditComplete=fullStateTraceWorkerDecisionRows.length>0&&
     fullStateTraceWorkerDecisionRows.every(row=>{
       const trace=row.workerDecisionTrace;
+      const receipt=row.validationReceipt;
+      const receiptSemanticsValid=row.decisionKind==='owner-root'?
+        receipt?.schema==='agent6-cloned-store-root-validation-v1'&&
+          receipt.selectedActionValidated===true&&
+          receipt.nativeActionFrontierUsed===true&&
+          receipt.nativeValidationStoreMode==='cloned-store'&&
+          receipt.fullOriginalStoreStateUnchanged===true:
+        row.decisionKind==='owner-prompt'?
+          receipt?.schema==='agent6-cloned-store-prompt-validation-v1'&&
+          receipt.promptDecodeValidated===true&&
+          receipt.clonedPromptResolved===true&&
+          receipt.nativeValidationStoreMode==='cloned-store'&&
+          receipt.fullOriginalStoreStateUnchanged===true:false;
       return trace?.schema==='agent6-worker-decision-trace-v1'&&
         trace.actionOrdinal===row.actionOrdinal&&
         trace.decisionKind===row.decisionKind&&
@@ -2726,9 +2739,9 @@ async function runV3FixtureGame({
         evidenceBundleSha256(trace.policyAudit)===trace.policyAuditSha256&&
         /^[a-f0-9]{64}$/.test(row.workerDecisionTraceSha256??'')&&
         evidenceBundleSha256(trace)===row.workerDecisionTraceSha256&&
-        row.validationReceipt&&typeof row.validationReceipt==='object'&&
+        receipt&&typeof receipt==='object'&&receiptSemanticsValid&&
         /^[a-f0-9]{64}$/.test(row.validationReceiptSha256??'')&&
-        evidenceBundleSha256(row.validationReceipt)===row.validationReceiptSha256&&
+        evidenceBundleSha256(receipt)===row.validationReceiptSha256&&
         trace.validationReceiptSha256===row.validationReceiptSha256;
     });
   const fullStateTraceWorkerDecisionCountMatches=Number.isSafeInteger(workerExecutionAudit?.totalWorkerDecisions)&&
