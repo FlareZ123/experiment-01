@@ -1,90 +1,103 @@
-# Sentinel Lopunny branch: the second-Stoutland hybrid spends all Bench slack
+# Sentinel branch: Bunnelby hybrid timing, Bench budget, and the Whismur alternative
 
-**Agent 28 · 20 November 2026 · structural derivation only.** This is not a new decklist, card-interaction test, or matchup result.
+**Agent 28 · 20 November 2026 · structural synthesis only.** No new decklist, fixture, game, or matchup result is created here.
 
 ## Decision
 
-The proposed two-Stoutland hybrid is not a drop-in upgrade to Sentinel Lopunny Vileplume v1. If it retains the Bunnelby/TM: Evolution setup, Pidgeot ex, and Mega Lopunny attack line, the second Stoutland consumes the only free Bench slot. The hybrid therefore trades Bench flexibility for one additional Stoutland lock body, without solving the more fundamental Active-position conflict:
+There are three distinct Sentinel branches; do not conflate them:
 
-- Stoutland's Sentinel Supporter lock requires Stoutland to be Active.
-- Mega Lopunny ex's Gale Thrust pressure requires Mega Lopunny ex to be Active.
-- Only one Pokémon can be Active, so the deck cannot apply the Sentinel lock and make the 230-damage Gale Thrust attack in the same turn.
+1. **V1 Bunnelby/TM: Evolution** is the existing exact 60 with a native conditioned opener.
+2. **The proposed Bunnelby + second-Stoutland hybrid** is an uncommitted two-slot idea. It does not close the opponent's first Supporter window when Sentinel goes second, and it fills all five Bench slots when all intended roles are retained. Its possible benefit is later Stoutland redundancy after one Knock Out.
+3. **Whismur double-lock v2** is a separate, already committed exact 60. Its Bawl attack is the structural way to cover the turn-3 Trainer window when going second, then use Rare Candy + Grand Tree to establish Stoutland and Vileplume together. It remains untested as a deck and does not cover the opponent's first Supporter window when going first.
 
-The extra Stoutland can preserve the Supporter lock through one Stoutland Knock Out if the other is promoted. It cannot keep the lock active while Mega Lopunny attacks.
+None is promoted as the best deck. The Critic pre-trace stopline remains in force: do not create another fixture, workflow, policy, or field panel before the accepted first trace.
 
 ## Inputs and scope
 
-The exact v1 list is [candidate-sentinel-lopunny-vileplume-v1.psv](../candidate-sentinel-lopunny-vileplume-v1.psv). Its relevant roles are one Stoutland, Vileplume, Pidgeot ex, Bunnelby with two TM: Evolution, and Mega Lopunny ex. The direct Artazon → Bunnelby line is documented in [Agent28's exact opening analysis](../agent28-sentinel-artazon-direct-opening-exact-20261106.md); the conditioned native Store fixture established the Bunnelby search, Jet attachment, two Evolution attacks, Vileplume evolution and an opponent Item rejection. It did not run a complete game or establish autonomous selection.
+- V1: [candidate-sentinel-lopunny-vileplume-v1.psv](../candidate-sentinel-lopunny-vileplume-v1.psv).
+- Exact Whismur challenger: [candidate-sentinel-lopunny-vileplume-v2-whismur-doublelock.psv](../candidate-sentinel-lopunny-vileplume-v2-whismur-doublelock.psv), 6 Energy / 26 Pokémon / 28 Trainers.
+- The two-Stoutland Bunnelby hybrid was proposed in [Agent27's message](../../../communications/agent28/20261112T164410635Z_agent27-hybrid-priority-after-existing-tm-evidence.md), with Budew and Counter Gain as possible cuts; it was never committed as a complete 60.
+- The direct Artazon → Bunnelby line is documented in [Agent28's exact opening analysis](../agent28-sentinel-artazon-direct-opening-exact-20261106.md). Its conditioned native Store fixture established the Bunnelby search, Jet attachment, two Evolution attacks, Vileplume evolution and an opponent Item rejection. It was not a complete game or an autonomous-player result.
+- The Whismur / Grand Tree line and its exact 60 are documented in [Agent27's challenger proposal](../../../communications/agent28/20261112T162541331Z_agent27_whismur-grandtree-rarecandy-sentinel-challenger.md) and [exact-list handoff](../../../communications/agent28/20261112T163517916Z_agent27-sentinel-v2-exact-list-and-field-census.md).
 
-The proposed hybrid came from [Agent27's 12 November message](../../../communications/agent28/20261112T164410635Z_agent27-hybrid-priority-after-existing-tm-evidence.md): preserve Bunnelby ×2, TM: Evolution ×2 and Grand Tree; add one Rare Candy and a second Stoutland; cut Budew and Counter Gain as possible two-slot substitutions. Agent27 explicitly left those cuts uncommitted. This analysis treats the hybrid as a proposal, not as an authenticated fixed 60.
+## Why the Bunnelby hybrid does not close the early Supporter window
 
-## Bench budget
+Use game-turn numbers explicitly. The player's first turn is game turn 1 if going first, or game turn 2 if going second.
 
-Assume the deck has completed the Bunnelby/TM setup, evolved the intended Stage 2 lines, and uses Jet or Guzma to promote Stoutland. When Stoutland becomes Active, the Bunnelby that performed the attacks moves to the Bench.
+**Going second:**
+- On game turn 2, Bunnelby/TM: Evolution can use its special attack line; the existing native witness establishes the Vileplume side of the setup.
+- Rare Candy and Grand Tree cannot evolve a Basic Pokémon during the player's first turn. The proposed Rare Candy + Grand Tree double-Stoutland setup is therefore not available on game turn 2.
+- The opponent gets game turn 3 before Stoutland can be established by that proposed route, and may play Guzma or another Supporter. This is the exact timing window exposed by the existing rank-1 counter-reply.
+- If Vileplume was already established on game turn 2, its symmetrical Irritating Pollen also prevents the player from using Rare Candy from hand on a later turn. The hybrid must either delay Vileplume until after Rare Candy, or use a different Stoutland line; delaying Vileplume leaves the turn-3 window open. No alternative exact line is established here.
 
-| Board role while Supporter lock is live | v1 Bench slots | Two-Stoutland hybrid Bench slots |
+**Going first:**
+- The player cannot attack on game turn 1, so the Bunnelby/TM line is unavailable then.
+- The opponent, as second player, has game turn 2 and can play a Supporter before the Sentinel player gets a second turn.
+- Rare Candy + Grand Tree can be used on the Sentinel player's second turn if the Basic Pokémon were already in play, but that is after the opponent's first Supporter opportunity.
+
+Thus the Bunnelby hybrid's second Stoutland is a potential later redundancy layer, not an answer to the first Supporter window across both starts. Agent27's [first-turn correction](../../../communications/agent28/20261112T164636955Z_agent27-correction-hybrid-firstturn-evolution-limits.md) is controlling for this timing point.
+
+## Bench budget and Active-slot cost
+
+Assume the intended lock/engine/attacker roles are all maintained and Jet or another switch promotes Stoutland. When Stoutland becomes Active, the Bunnelby that performed the attacks moves to the Bench.
+
+| Board role while Supporter lock is live | V1 Bench slots | Two-Stoutland Bunnelby hybrid |
 |---|---:|---:|
 | Vileplume | 1 | 1 |
 | Pidgeot ex | 1 | 1 |
-| Bunnelby after pivoting Stoutland Active | 1 | 1 |
+| Bunnelby after Stoutland pivot | 1 | 1 |
 | Mega Lopunny ex attacker | 1 | 1 |
 | Second Stoutland | — | 1 |
 | **Bench used** | **4 / 5** | **5 / 5** |
 | **Bench remaining** | **1** | **0** |
 
-This is a role-count lower bound for the intended simultaneous board, not a claim that every listed piece can be assembled from a random opening. The v1 line retains one spare Bench slot. The hybrid's stated package fills all five Bench spaces before accounting for any additional pivot, replacement Basic, second Vileplume, or second attacker.
+This is a role-count derivation, not a claim that the board is consistently assembled from an opening hand. V1 retains one spare Bench slot; the hybrid consumes it before accounting for another pivot, replacement Basic, second Vileplume, or second attacker.
 
-The hybrid can create room only by delaying or omitting one of those roles, or by changing the Bunnelby setup/pivot plan. Each is a real strategic trade:
-- omit/delay Pidgeot ex and lose its Quick Search engine;
-- omit/delay Mega Lopunny and lose the intended 230-damage pressure line;
-- avoid the Bunnelby pivot and leave Stoutland out of the Active Spot, so Sentinel is not active;
-- accept a full Bench and have no spare slot for another support or replacement Pokémon until something leaves play.
+The hybrid can create room only by delaying or omitting one role, or changing the Bunnelby setup. Omitting/delaying Pidgeot ex gives up Quick Search; omitting/delaying Mega Lopunny gives up the intended 230-damage pressure line; omitting the Bunnelby pivot leaves Stoutland out of the Active Spot and Sentinel inactive.
 
-## Mechanical plausibility of the proposed hybrid (printed-text analysis only)
+There is also an unavoidable Active-slot conflict:
+- Stoutland's Sentinel Supporter lock requires Stoutland to be Active.
+- Mega Lopunny ex's Gale Thrust requires Mega Lopunny ex to be Active.
+- Only one Pokémon can be Active. The second Stoutland may preserve the lock after one Stoutland Knock Out, but cannot keep Sentinel live while Mega Lopunny attacks.
 
-The proposal is not mechanically impossible. The repository card pool gives a coherent but tightly conditioned line:
+## The separate Whismur double-lock v2
 
-1. **Turn 1:** Bunnelby PRC / XY5-121 has Ω Barrage (two attacks per turn). With one Technical Machine: Evolution attached, it can use Evolution twice; each attack can evolve up to two Benched Pokémon. A plausible target pair is Oddish → Gloom and Pidgey → Pidgeotto. Keep both Lillipup Basic so the turn-2 Rare Candy and Grand Tree lines remain available. Buneary must also be in play by the end of the turn if Mega Lopunny is to be ready on turn 2.
-2. **Turn 2:** Rare Candy one previously-benched Lillipup directly to Stoutland. Use Grand Tree on the other previously-benched Lillipup to chain Lillipup → Herdier → Stoutland. Manually evolve Gloom → Vileplume, Pidgeotto → Pidgeot ex, and Buneary → Mega Lopunny ex. Attach a second Jet Energy to promote one Stoutland; Bunnelby moves to the Bench.
-3. **Order matters:** play Rare Candy before evolving Vileplume AOR / XY7-3, because Irritating Pollen prevents *each player* from playing Item cards from hand. Grand Tree is a Stadium effect and Jet Energy is an Energy card, so those effects are not Item plays.
+The exact v2 list is not the Bunnelby hybrid and not the Float Stone variant. Agent27's committed 60 removes Budew ×1, Bunnelby ×2 and TM: Evolution ×2; it adds Whismur CES 116 ×1, Rare Candy ×2, a second Stoutland BCR 122 and a third Lillipup CEC 174.
 
-This line is derived from the pinned card-pool text for [Bunnelby](../../../resources/cards/en/xy5.json), [TM: Evolution](../../../resources/cards/en/sv4.json), [Grand Tree](../../../resources/cards/en/sv7.json), [Rare Candy](../../../resources/cards/en/sv1.json), [Vileplume AOR](../../../resources/cards/en/xy7.json), [Pidgeot ex](../../../resources/cards/en/sv3.json), [Stoutland BW7](../../../resources/cards/en/bw7.json), and [Mega Lopunny ex](../../../resources/cards/en/me2.json). It is a rules/card-text derivation, **not** a native sequence or a demonstrated opening.
+**Going second, the intended sequence is:**
+1. On the player's first turn (game turn 2), use Whismur's Bawl. It prevents the opponent from playing Trainer cards from hand during game turn 3. This covers the turn that the Bunnelby hybrid leaves open.
+2. Do not rely on Bawl to stop Abilities or effects of Stadiums already in play. In particular, an opponent's existing Grand Tree can still be used during game turn 3; the Trainer lock stops playing a new Stadium from hand, not activating the Stadium already in play.
+3. On the player's next turn (game turn 4), attach Stealthy Hood to the two Lillipup and one Oddish before Vileplume enters play. Use Rare Candy on Lillipup #1 → Stoutland #1; use Rare Candy on Oddish → Vileplume; then use Grand Tree on Lillipup #2 → Herdier → Stoutland #2. Jet Energy promotes one Stoutland Active, leaving the second as a replacement.
+4. Vileplume's Item lock is symmetrical, so both Rare Candy plays and the Tool attachments must happen before Vileplume is evolved. Grand Tree is a Stadium effect and Jet is Energy, not an Item.
 
-The setup requires the five non-Bunnelby Basic roles (two Lillipup, Oddish, Pidgey, Buneary) to be in play by the turn-1 Evolution attacks, plus Bunnelby and its Tool/Energy line. On turn 2 it additionally needs Rare Candy, one Stoutland available to the hand, Grand Tree and the second Stoutland available to its search, the remaining Stage 2 cards, and a second Jet to establish the Active lock. Pidgeot ex can search for one missing card once it is evolved, but cannot independently supply several missing pieces in the same turn. The exact hybrid 60 was never committed, so no access probability is calculated.
+The Whismur Bawl interaction and Grand Tree mechanics already have research-owned native tests; Agent27 explicitly recommends reusing them rather than creating duplicates. See [the evidence reuse handoff](../../../communications/agent28/20261112T165003594Z_agent27-v2-reuse-existing-native-evidence.md).
 
-This confirms that the hybrid can *in principle* create the full six-Pokémon board counted above. It does not remove the five-Bench-slot ceiling or the Active-slot conflict; it shows why the proposal should be treated as a high-demand, exact-line challenger rather than dismissed as impossible or accepted as a free redundancy upgrade.
+**Going first remains weaker:** the player cannot attack with Whismur on game turn 1, while the opponent (second player) can play a Supporter on game turn 2. The v2 can establish its double lock on the player's second turn (game turn 3), but the opponent's first Supporter opportunity has already occurred. This is not a complete both-seat solution.
 
-## What the second Stoutland does and does not buy
+**Remaining v2 risks, not resolved by the rules-derived sequence:**
+- Bawl lasts only one opponent turn and does not stop Abilities, Energy attachments, attacks, ordinary evolution, or use of a Stadium already in play.
+- The authenticated field contains existing Grand Tree in ranks 2, 15 and 31; the opponent's activation remains possible during Bawl.
+- Night Watch 150 can Knock Out 140-HP Stoutland; two copies may buy one extra lock turn but repeated attacks can exhaust them.
+- Rank-31 Dusknoir Cursed Blast versus Stealthy Hood still needs paper/Twinleaf validation.
+- The exact v2 is a 60-card proposal, not a played or simulated matchup result. Agent27's companion [field counter census](agent27-sentinel-double-lock-field-counter-census-20261112.md) is list-presence evidence, not win-rate evidence.
 
-**It does buy one layer of redundancy.** Agent27 identified the original rank-1 Night Watch 150 line as able to Knock Out 140-HP Stoutland. A second Stoutland could be promoted after the first is Knocked Out, preserving the Supporter lock for another turn if the second copy is already established. This is a plausible development hypothesis, not an observed frequency or a full-match result.
+## Rank-1 counter-reply and what it proves
 
-**It does not solve the Active-slot conflict.** If Mega Lopunny becomes Active to use Gale Thrust, both Stoutlands are on the Bench and Sentinel's Supporter lock is off. Having two copies changes the probability of retaining a Stoutland after one Knock Out; it does not create a second Active Spot.
+[Agent28's native rank-1 counter-reply report](agent28-sentinel-rank1-guzma-counterreply-native-20261108.md) demonstrates a conditioned Guzma → Vileplume promotion → four-Psychic Max Geist 130 KO against an Item-lock-only board. It did not have Stoutland Active. It is consistent with the timing failure above: when going second, the opponent's game-turn-3 Supporter window exists before the Bunnelby hybrid can establish Stoutland through Rare Candy + Grand Tree.
 
-**It increases Bench fragility.** The v1 board has one free slot; the hybrid board has none. A policy that values the second Stoutland without charging for the displaced Bench option would overstate its value. This is exactly the sort of state-dependent AMR / Bench-capacity cost highlighted in [human-developed concepts](../../../resources/human_concepts.md).
+This fixture does not show Guzma bypassing a live Sentinel lock. Conversely, the Whismur Bawl proposal is a rules-derived way to deny Trainer cards from hand during that one turn, but no full-game v2 result establishes that it wins the exchange.
 
-### Connection to the existing rank-1 Guzma counter-reply
+## Do not conflate the Float Stone variant with either hybrid
 
-[Agent28's native rank-1 counter-reply report](agent28-sentinel-rank1-guzma-counterreply-native-20261108.md) demonstrates a conditioned original-rank-1 Guzma → Vileplume promotion → four-Psychic Max Geist 130 KO line against an Item-lock-only board. That fixture did **not** have Stoutland Active; it is not evidence that a live Sentinel Supporter lock can be bypassed by Guzma.
+The separate [candidate-sentinel-gust-escape-v2.psv](candidate-sentinel-gust-escape-v2.psv) is a one-slot Float Stone / Stealthy Hood substitution. It still has one Stoutland; it is neither the Bunnelby second-Stoutland proposal nor the Whismur double-lock v2.
 
-This makes the hybrid's incremental value more specific:
+Agent20's native run [42526570603](https://github.com/FlareZ123/experiment-01/actions/runs/42526570603) failed both Float Stone seat cases at the PassTurnAction activePlayer handoff before RetreatAction. The test did establish Float Stone attachment to Oddish before evolution, retention on Vileplume after evolution, and zero calculated retreat cost after the conditioned Guzma response. It did not execute the owner's retreat, so no rescue was demonstrated.
 
-1. One Stoutland Active already blocks the tested Supporter route, provided it is established before the opponent's response.
-2. The second Stoutland is relevant only if an attack such as the documented rank-1 Night Watch 150 KOs the 140-HP Active Stoutland. Promoting the already-benched second copy could keep Sentinel live for one more opponent turn.
-3. The hybrid must still pay the five-slot Bench cost, and it still cannot use Mega Lopunny's Gale Thrust without turning Sentinel off.
+## Recommendation and next evidence gate
 
-So the best argument for the hybrid is **one extra lock turn after an attack-based Stoutland KO**, not a generic answer to Guzma or a way to attack while Supporter lock remains live. The counter-reply fixture and the Night Watch line are separate conditioned observations; no autonomous sequence or game outcome joins them.
+1. Keep V1 and Whismur v2 as separate, unpromoted exact-list candidates; keep the Bunnelby second-Stoutland idea as an uncommitted proposal. Do not silently merge their packages.
+2. Do not add a new test, fixture, workflow, policy or field panel before the accepted first-trace stopline clears.
+3. After the trace, establish one competent, reproducible candidate-policy / exact rank-1 opponent-policy pair first. If that pair identifies the turn-3 Supporter window as a dominant loss when going second, compare V1 against the exact Whismur v2 under the same policy and source list, both starts, and the paper-faithful Night Watch selector. Reuse the existing Whismur and Grand Tree native tests; do not duplicate them.
+4. Record separately whether the opponent has a pre-existing Grand Tree, whether Bawl prevents hand-played Trainers, whether both locks establish on turn 4, whether one or both Stoutland survive, and what happens on the first unrestricted turn when going first.
 
-## Do not conflate the existing Float Stone variant with the hybrid
-
-The separate [candidate-sentinel-gust-escape-v2.psv](candidate-sentinel-gust-escape-v2.psv) is a one-slot Float Stone / Stealthy Hood substitution. It still has one Stoutland; it is not Agent27's proposed second-Stoutland + Rare Candy hybrid.
-
-Agent20's original native test run [42526570603](https://github.com/FlareZ123/experiment-01/actions/runs/42526570603) failed both Float Stone seat cases before the retreat action. The test did establish actual Float Stone attachment to Oddish before evolution, retention on Vileplume after evolution, and zero calculated retreat cost after the conditioned Guzma response. It then failed at the opponent-pass turn handoff: `PassTurnAction` did not advance `activePlayer` to the expected owner, so the test never executed the owner's retreat. The remaining direct-Artazon / Guzma / Max Geist subtests passed, but the workflow as a whole failed. Therefore this variant is a promising **uncompleted** mobility response to a Guzma-stranded Vileplume, not a validated rescue. Even if that retreat is later validated, retreating Stoutland to attack with Mega Lopunny still turns Sentinel off.
-
-## Recommendation and falsifier
-
-1. Keep the exact v1 list and all existing Sentinel variants unpromoted. Do not create or dispatch a new hybrid fixture before the accepted first-trace stopline clears.
-2. Do not spend a slot on the second Stoutland unless the first trace or later matched development games show that a single Stoutland Knock Out is a dominant failure mode against the fixed rank-1 opponent.
-3. If that failure mode is observed, define the hybrid as an exact 60 before testing it. State explicitly which role is delayed or sacrificed to recover a Bench slot; do not assume the six-role board fits.
-4. Compare it only in a bounded, both-seat development cohort under the same candidate policy, exact rank-1 source list and engine revision. Record whether the second Stoutland actually survives to be promoted, whether the Supporter lock remains live, whether Mega Lopunny is available, and the opponent's next reply. Keep this separate from the unchanged primary fixed-60 evaluation.
-
-The broader [lock-architecture field synthesis](agent35-lock-architecture-field-synthesis-20261117.md) remains controlling: Sentinel is an unqualified architecture, not a candidate for promotion. This note adds one specific structural reason not to advance the proposed hybrid without a trace-grounded failure mode.
+The broader [lock-architecture field synthesis](agent35-lock-architecture-field-synthesis-20261117.md) remains controlling. No 99.5% claim, candidate promotion, or full-field performance claim follows from these structural results.
