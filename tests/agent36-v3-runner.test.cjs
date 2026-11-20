@@ -1915,7 +1915,7 @@ function makeV3SetupPromptAuditFixture(){
     });
     const pendingPromptSnapshot={
       schema:'twinleaf-native-state-snapshot-v1',
-      nodeCount:spec.minimumCount===undefined?1:2,
+      nodeCount:promptResolverContext.availableOptions.min===null?1:2,
       truncated:false,
       limits:{maxDepth:64,maxNodes:50000},
       snapshot:{
@@ -1925,7 +1925,7 @@ function makeV3SetupPromptAuditFixture(){
           playerId:'player-'+spec.seat,
           message:spec.message,
           ...(spec.minimumCount===undefined?{}:{
-            options:{$id:2,$type:'Object',properties:{min:spec.minimumCount}}
+            options:{$id:2,$type:'Object',properties:{min:promptResolverContext.availableOptions.min}}
           })
         }
       }
@@ -2030,6 +2030,7 @@ test('Agent19 V3-native setup audit joins starting-Basic and GO_FIRST worker rec
   assert.deepEqual(audit.roles.opponent.setupPromptRows.map(row=>row.actionOrdinal),[3]);
   assert.equal(audit.roles.candidate.setupPromptRows[2].kind,'optional-extra-bench-placement');
   assert.equal(audit.roles.candidate.setupPromptRows[2].minimumCount,0);
+  assert.equal(audit.roles.candidate.setupPromptRows[2].recorderPromptSnapshotVerified,true);
   assert.ok([...audit.roles.candidate.setupPromptRows,...audit.roles.opponent.setupPromptRows]
     .every(row=>row.accepted&&row.ledgerJoinVerified&&row.recorderJoinVerified));
 });
