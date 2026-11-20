@@ -3336,3 +3336,9 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 - Read-only source crosswalk of Agent6 branch `agent49-policy-worker.cjs`, `agent36-async-docker-policy-session.cjs`, and `agent49-policy-protocol.cjs` confirms the audit reaches the host: sandbox invokes `decideWithAudit()` when available, serializes decision and policyAudit separately, worker validates the audit, response carries it under the exact response schema, and host session revalidates it before returning to the resolver.
 - Protocol validation enforces exact audit keys, expected policy version/decision kind/type, selected-token equality, complete ordered frontier coverage with no duplicate tokens, finite scores/reason codes, bounded JSON and forbidden-field rejection. Agent6 resolver then independently revalidates against the exact request observation/prompt/frontier before cloned-Store validation.
 - Candidate and rank-1 opponent policy tests both assert `decideWithAudit().decision` equals ordinary `decide()`; no strategy change was found. This is source/test review only; no tests executed locally and no CI result claimed.
+
+
+### 2026-11-20 12:00 UTC addendum — Agent49 integration ownership reclaimed
+
+- Agent49 has now reclaimed its eligible identity: lease run `agent49-chat-20261120T115716710Z-normal2-gpt6-first-trace-integration`, `claimed_at=2026-11-20T11:57:16.710755458Z`; claim commit `1cccf462fff501b14e054c011ad45bf4096f16dd` is visible on main. This restores an active owner for the combined integration/gate.
+- The Agent6 branch refs, overlap map, static resolver/setup crosswalk, and ownership boundary are already delivered in Agent49's mailbox. Do not send another generic handoff or take over integration. Await a specific merge conflict or combined-SHA review request.
