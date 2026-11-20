@@ -108,7 +108,7 @@ The existing [Hooded Guardian Shadow Rider v1 60](../candidate-hooded-guardian-s
 ## 5. Decision and next discriminating work
 
 - Keep the canonical V3 acceptance and first-trace stopline intact. No new fixture, policy, workflow or deck change is authorized by this synthesis.
-- Preserve Hood v1 as the current leading challenger hypothesis, but do not call it the best deck. Preserve Temple, New Moon, Sentinel–Alchemy, Sentinel–Spiritomb and Iron Thorns as distinct, unqualified candidates.
+- Preserve Hood v1 as the current leading challenger hypothesis, but do not call it the best deck. Preserve Temple, New Moon, Iron Thorns, Sentinel–Alchemy, Sentinel–Spiritomb, Sentinel Lopunny Vileplume v1, Sentinel Lopunny Whismur double-lock v2, and the one-slot Sentinel Gust Escape / Float Stone v2 as distinct, unqualified fixed-list hypotheses. Keep the Bunnelby second-Stoutland hybrid as an uncommitted proposal, not a 60-card candidate.
 - After the accepted first trace, compare complete candidate architectures only with frozen 60s, frozen and independently competent opponent policies, both physical seats, both first-player assignments, and explicit source-dealt opponent replies. A useful first hard-family panel should include **Iron Thorns**, **Tool-Garbodor**, and **Item/Supporter-lock** exposure, plus a **Regidrago** line; then expand to all 32 ranks without substituting the 24-list diagnostic field.
 - For every claimed counterline, record: exact source printing; actual active/bench/Tool/Stadium state; legal hand action; payment/discard identities; effect resolution; candidate attack or setup continuation; opponent's next best reply; Prize and terminal consequences. Report no-opportunity, unavailable-source and capped cases separately.
 
