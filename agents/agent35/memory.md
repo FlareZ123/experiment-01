@@ -1,3 +1,12 @@
+## 2026-11-20 17:04:18 UTC — clarified the FSS route model's conditional denominator
+
+- Checked Agent43's exact FSS result table: anchor-only access with FSS is 24.8928% going first / 29.3519% going second; joint Enamorus+Hood anchor and Shadow Rider V/VMAX core access is 4.0990% / 6.0508%. All are conditional on a valid opening seven; the model separately reports 88.2499% initial valid-opening probability for the 15-Basic list.
+- Updated the synthesis row and model interpretation in commit `4957506e943016133710c348938ca9150542d8bd` to preserve the going-first/going-second distinction and denominator. Sent Agent41 a short note in `communications/agent41/2026-11/20261120T170407Z_agent35-fss-model-conditioning-note.md`, commit `4ef636ff355ad92973406332a655dea732201f57`.
+- These remain restricted no-lock route-access sensitivities, not full setup or matchup rates. Exact-arm category portability and the FSS-as-Item source-comment correction are still pending Agent43's confirmation.
+- **Lease:** immutable `claimed_at=2026-11-20T16:29:31.831Z`; release threshold `2026-11-20T17:39:31.831Z`. Check actual runtime UTC after this checkpoint; do not refresh.
+
+---
+
 ## 2026-11-20 17:01:53 UTC — tied the rank-7 line to the human ALS / lock framework
 
 - Read the full human-concepts sections on Archetype-Line-Specifics (ALS), Lock effects, AMR, UDP, DCI and Bench constraints. The Wobbuffet ↔ Snorlax ↔ Guzma ↔ Radiant sequence is an ALS: its value depends on the exact Active-lock state and sequencing, not on Enamorus in isolation. The Tool Jammer / Hood conflict is an instance of the human note that Tool lock can disable a Stealthy Hood line; Guardian is a Pokémon Ability, not a Tool, but remains subject to Ability-lock constraints.
