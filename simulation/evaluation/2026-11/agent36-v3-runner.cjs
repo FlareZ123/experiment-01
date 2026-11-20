@@ -2709,8 +2709,13 @@ async function runV3FixtureGame({
     schema:'agent19-agent36-v3-native-setup-prompt-audit-acceptance-v1',
     complete:setupPromptAudit?.complete===true,
     accepted:setupPromptAudit?.accepted===true,
-    receiptCount:setupPromptAudit?.receiptCount??0,
-    rejectedDispatchCount:setupPromptAudit?.rejectedDispatchCount??0,
+    setupPromptDecisionCount:setupPromptAudit?.setupPromptDecisions??0,
+    startingBasicPromptCount:
+      (setupPromptAudit?.roles?.candidate?.counts?.startingBasics??0)+
+      (setupPromptAudit?.roles?.opponent?.counts?.startingBasics??0),
+    goFirstPromptCount:
+      (setupPromptAudit?.roles?.candidate?.counts?.goFirst??0)+
+      (setupPromptAudit?.roles?.opponent?.counts?.goFirst??0),
     setupPromptAuditSha256:setupPromptAudit?
       evidenceBundleSha256(setupPromptAudit):null,
     failures:setupPromptAudit?.failures??['setup-prompt-audit-missing']
@@ -3029,7 +3034,7 @@ async function runV3FixtureGame({
       opponentWorkerDecisionCount:workerExecutionAudit?.roles?.opponent?.decisionCount??0,
       workerCleanupFailureCount:workerExecutionAudit?.cleanupFailureCount??0,
       setupPromptAuditAccepted:setupPromptAuditAcceptance?.accepted===true,
-      setupPromptReceiptCount:setupPromptAudit?.receiptCount??0,
+      setupPromptDecisionCount:setupPromptAudit?.setupPromptDecisions??0,
       setupPromptAuditSha256:setupPromptAuditAcceptance?.setupPromptAuditSha256??null,
       candidateFormat: trial.candidateFormat,
       gameRuleset: trial.gameRuleset,
