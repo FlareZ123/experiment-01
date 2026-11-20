@@ -124,7 +124,7 @@ function buildSetupPromptAudit({
     const counts={startingBasics:0,optionalExtraBenchPlacements:0,goFirst:0,wantToDrawCards:0};
     const projectedRows=[];
     for(const item of roleSetupRows) {
-      const {row,spec,message}=item;
+      const {row,spec,message,minimumCount}=item;
       const trace=row.workerDecisionTrace;
       const receipt=row.validationReceipt;
       const projection=trace?.promptProjection;
@@ -274,8 +274,8 @@ function buildSetupPromptAudit({
         roleFailures.push('prompt-'+String(row.pendingPromptId)+':'+failure);
     }
 
-    if(counts.startingBasics===0)
-      roleFailures.push('required-starting-basic-prompt-missing');
+    if(counts.startingBasics!==1)
+      roleFailures.push('required-starting-basic-prompt-count-not-one');
     roleResults[role]={
       role,seat,
       workerDecisionCount:roleAudit?.decisionCount??null,
