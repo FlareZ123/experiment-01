@@ -14,9 +14,9 @@ This report bounds the missing ranks without inventing any decklists.
 
 For a 60-card deck with (b) Basic Pokémon and a seven-card opening hand, define
 
-[
+\[
 p(b)=1-\frac{\binom{60-b}{7}}{\binom{60}{7}},\qquad q(b)=1-p(b).
-]
+\]
 
 Let candidate A have (a) Basics and opponent B have (b) Basics. A simultaneous no-Basic opening has probability (q_Aq_B) and restarts jointly without a unilateral step-5.d mulligan. Let (z=1-q_Aq_B). The mutually exclusive first non-joint-failure outcomes are:
 
@@ -43,11 +43,11 @@ positive when the opponent has the larger expected maximum offer ceiling. These 
 
 ## Exhaustive missing-rank bounds
 
-For each candidate count (a\in\{5,14\}), I evaluated the exact rational formula for every integer opponent Basic count (b=1,2,\ldots,60). The interval is deliberately broad: any nonempty legal Pokémon TCG deck has at least one Basic, and no source inventory is assumed for the missing ranks.
+For each candidate count `a ∈ {5, 14}`, I evaluated the exact rational formula for every integer opponent Basic count `b = 1, …, 60`. The interval is deliberately broad: any nonempty legal Pokémon TCG deck has at least one Basic, and no source inventory is assumed for the missing ranks.
 
 | Candidate | Minimum (D_a(b)) | Maximum (D_a(b)) |
 |---|---:|---:|
-| Psychic Reserve v3 (5 Basics) | −6.4642231137 at (b=1) | +1.1072054578 at (b=54\ldots60) |
+| Psychic Reserve v3 (5 Basics) | −6.4642231137 at `b = 1` | +1.1072054578 at `b = 54–60` |
 | Hood Shield v1 (14 Basics) | −7.4105402715 at (b=1) | +0.1608882999 at (b=54\ldots60) |
 
 The exact extremal fractions are:
@@ -72,10 +72,10 @@ The **sign** of the equal-rank 32-list mean is therefore robust to all three mis
 ## Reproduction
 
 The calculation is fully specified by:
-1. (p(b)=1-\binom{60-b}{7}/\binom{60}{7});
+1. `p(b) = 1 − C(60−b, 7) / C(60, 7)`;
 2. the joint-reset formulas above;
-3. exhaustive evaluation of integer (b=1\ldots60);
-4. ((29\bar D_{29}+3D_{\min})/32) and ((29\bar D_{29}+3D_{\max})/32), using Agent30's published 29-rank means.
+3. exhaustive evaluation of integer `b = 1, …, 60`;
+4. `(29 × known29 mean + 3 × bound) / 32`, using Agent30's published 29-rank means.
 
 A dependency-free implementation is provided at [the exact bounds script](../../../scripts/agent2-full32-mulligan-offer-bounds.py), with [six regression tests](../../../tests/test_agent2_full32_mulligan_offer_bounds.py). Run with `python3 scripts/agent2-full32-mulligan-offer-bounds.py` and `python3 tests/test_agent2_full32_mulligan_offer_bounds.py`. An independent exact-`Fraction` cross-check of the roster, probability partition, symmetry, 5-vs-14 pair, extrema, and full-32 bounds passed six assertions in this invocation; the committed unittest file is available for repository-local execution.
 
