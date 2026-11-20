@@ -1,0 +1,70 @@
+'use strict';
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const {
+  openingStats, namedBasicOnlyGivenValid, pairedBonusStats, simulatePairedBonuses, buildReport
+} = require('../scripts/agent30-opening-mulligan-opportunity.cjs');
+const near = (a, b, e = 1e-12) =>
+  assert.ok(Math.abs(a - b) <= e, String(a) + ' not within ' + String(e) + ' of ' + String(b));
+
+test('five-Basic Iron Thorns opening is much less consistent than fourteen-Basic Shadow Rider', () => {
+  const a = openingStats(5), b = openingStats(14);
+  assert.equal(a.validProbabilityFraction, '370261/780216');
+  assert.equal(b.validProbabilityFraction, '252032/292581');
+  near(a.validProbability, 0.4745621725265824);
+  near(b.validProbability, 0.8614093191287199);
+  near(a.probabilityAtLeastTwoBasicsGivenValid, 0.2091389587345143);
+  near(b.probabilityAtLeastTwoBasicsGivenValid, 0.6058236652488573);
+  near(a.expectedSoloMulligans, 1.10720545777168);
+  near(b.expectedSoloMulligans, 0.1608882998984256);
+});
+
+test('Mimikyu-only opening and Capture Energy recovery line are counted separately', () => {
+  near(namedBasicOnlyGivenValid(5, 4), 0.15817220825309714);
+  near(namedBasicOnlyGivenValid(5, 4, 2), 0.032912600909230316);
+  const r = buildReport();
+  near(r.probabilityMimikyuOnlyWithoutCaptureEnergyGivenValid, 0.12525960734386682);
+});
+
+test('paired setup respects simultaneous no-Basic resets and optional bonus draws', () => {
+  const r = pairedBonusStats(5, 14);
+  near(r.probabilityOpponentHasAnyBonusDrawOpportunity, 0.4881656474858669);
+  near(r.probabilityCandidateHasAnyBonusDrawOpportunity, 0.0709354714082445);
+  near(r.probabilityNeitherHasBonusDrawOpportunity, 0.4408988811058886);
+  near(r.expectedMaximumOptionalBonusDrawsAvailableToOpponent, 1.0286653166788646);
+  near(r.expectedMaximumOptionalBonusDrawsAvailableToCandidate, 0.08234815880561033);
+  near(r.expectedMaximumOptionalBonusDrawOpportunityDifferenceForOpponent, 0.9463171578732544);
+  near(r.probabilityOpponentHasAnyBonusDrawOpportunity +
+    r.probabilityCandidateHasAnyBonusDrawOpportunity + r.probabilityNeitherHasBonusDrawOpportunity, 1);
+});
+
+test('equal Basic counts produce symmetric bonus-draw opportunities', () => {
+  const r = pairedBonusStats(14, 14);
+  near(r.expectedMaximumOptionalBonusDrawsAvailableToOpponent,
+    r.expectedMaximumOptionalBonusDrawsAvailableToCandidate);
+  near(r.expectedMaximumOptionalBonusDrawOpportunityDifferenceForOpponent, 0);
+});
+
+test('seeded two-player setup simulation agrees with the exact formula', () => {
+  const exact = pairedBonusStats(5, 14);
+  const sim = simulatePairedBonuses(5, 14, 250000, 0x30a1c0de);
+  near(sim.meanMaximumOptionalBonusDrawsAvailableToOpponent,
+    exact.expectedMaximumOptionalBonusDrawsAvailableToOpponent, 0.012);
+  near(sim.meanMaximumOptionalBonusDrawsAvailableToCandidate,
+    exact.expectedMaximumOptionalBonusDrawsAvailableToCandidate, 0.006);
+  near(sim.probabilityOpponentHasAnyBonusDrawOpportunity,
+    exact.probabilityOpponentHasAnyBonusDrawOpportunity, 0.004);
+  near(sim.probabilityCandidateHasAnyBonusDrawOpportunity,
+    exact.probabilityCandidateHasAnyBonusDrawOpportunity, 0.002);
+});
+
+test('report pins the two candidate inventories and evidence boundary', () => {
+  const r = buildReport();
+  assert.equal(r.candidate.basicCount, 5);
+  assert.equal(r.candidate.basicComposition.reduce((n, x) => n + x.count, 0), 5);
+  assert.equal(r.opponent.basicCount, 14);
+  assert.equal(r.opponent.basicComposition.reduce((n, x) => n + x.count, 0), 14);
+  assert.equal(r.sameBasicCountAlternative.basicCount, 14);
+  assert.equal(r.assumptions.mutualNoBasicResetDoesNotExecuteRulebookStep5d, true);
+  assert.equal(r.assumptions.laterDrawsAndSearchNotModeled, true);
+});
