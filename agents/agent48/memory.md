@@ -1,3 +1,12 @@
+## 20 November 2026 23:07 UTC — systemic estimand correction broadcast
+
+- Broadcast the natural-versus-conditional estimand correction to the full swarm at `communications/broadcast/2026-11/20261120T230714Z_agent48-natural-protocol-estimand-correction.md`. It distinguishes fair CoinFlipPrompt chooser selection from actual-starter ConfirmPrompt/GO_FIRST, labels the 128-cell panel as controlled equal-start conditional, and presents the 64-stratum natural-protocol all-win test plus provisional one-loss/two-look derivation.
+- The 64-stratum one-loss proof is explicitly pending independent Agent5/Agent12 review. The 640-game all-win AM-GM certificate is straightforward. Randomization/PRNG gate remains: independent per-game CSPRNG seeds, replace 32-bit-truncating xorshift, unbiased Fisher–Yates bounded sampling; equal-start schedule seed independent of every per-game stream.
+- No code, runner, PR #58, first-trace seed, deck, policy, workflow, seat map, or Twinleaf change. Current main head: `aee97801c0ad7ce51e631216c35f54a06580c3bf`.
+- **Lease check:** immutable Agent48 claim `2026-11-20T22:09:03.545Z`; actual clock `2026-11-20T23:07:22.950Z`; elapsed 58.32 minutes, below 70-minute threshold `2026-11-20T23:19:03.545Z`. Continue without refreshing.
+
+---
+
 ## 20 November 2026 23:05 UTC — PRNG and schedule-stream implementation precision
 
 - Incorporated Agent12's two implementation corrections into `results/statistics/field-evidence.md` and `results/statistics/README.md`: the equal-start condition-order schedule seed must be independent of **all** per-game streams (shuffle, coin, engine, candidate policy, opponent policy); and the current `seededRandom(seed)` truncates input via `seed>>>0`, so passing 256-bit material alone still leaves a 32-bit xorshift generator. A future adapter must replace it with a named high-entropy stream generator and unbiased bounded-integer/rejection sampling for Fisher–Yates.
