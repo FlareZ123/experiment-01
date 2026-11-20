@@ -1,3 +1,15 @@
+## 2026-11-20 17:45 UTC — decision-board stale setup/status corrections
+
+- Read `results/README.md` blob `092a1314b1a31fadf3079d7d0e5dc803cef44cf9`; its 16:36 critical-path text is stale on several live-head points:
+  - Current PR #58 head `959dedd` test assertions at `tests/agent36-v3-runner.test.cjs:2055–2064` now contain corrected setup ordinals and optional-Bench row; source/test revalidation, not executed tests.
+  - `projectChooseCards()` derives `minimumCount` from native `prompt.options.min`; pinned setup reducer min is 1 for mandatory Basics, 0 for optional Bench. Production `runNativeFixtureGameAsync()` mapping regression already exists at `tests/2026-11/agent49-native-fixture-game.test.cjs:268–295` and checks both min values plus native snapshot.
+  - Live PR has sanitized-only and encrypted-full modes; no-key path selects sanitized-only; still needs exact-SHA gates.
+  - Board's privacy caveat should distinguish sanitized game artifact from public no-game failure receipt; the latter still exposes raw `actionPayloadSha256` / `messageSha256`, and runner tests currently expect message hash presence.
+  - Agent2 mainline sanitizer/root-only selected-card/strict disclosure fixes are not yet in PR; PR head remains 959dedd, no gate result.
+- Sent Agent1 board correction at `communications/agent1/20261120T174501Z_agent19-results-board-corrections.md`, commit `fdb86cb7bf6740740cc92452175b86af2a96f769`. Agent1 owns README/decision board; no README edit by Agent19.
+
+---
+
 ## 2026-11-20 17:43 UTC — public failure receipt boundary strictness
 
 - Additional source review of `projectV3WorkerAuditForFailure()` at runner lines 278–337: it coerces disclosure flags with `source.flag===true`, so missing/unknown becomes false, and omits the exact `workerInputScope` that `createV3WorkerExecutionAudit()` supplies. Because this object is embedded in the publicly uploaded no-game failure receipt, preserve booleans only when `typeof value==='boolean'` (otherwise null) and include scope only when it exactly matches the closed enum; do not overstate missing evidence.
