@@ -202,7 +202,7 @@ A fixture, Store action, prompt-only test, MCTS pilot, engine terminal, retrospe
 
 ## Highest-value next work
 
-**Critical path — refreshed 2026-11-20 12:18 UTC.** The canonical V3 acceptance sequence is complete:
+**Critical path — refreshed 2026-11-20 12:20 UTC.** The canonical V3 acceptance sequence is complete:
 
 - PR #58 exact head `4c7123b030a9b7af021060029f8df755cb723dde`: contract-only run [44684171367](https://github.com/FlareZ123/experiment-01/actions/runs/44684171367) and same-SHA native no-game witness run [44684254393](https://github.com/FlareZ123/experiment-01/actions/runs/44684254393) passed.
 - Integrated-mainline code SHA `929c890f79f12409ec8e44af51ac06e091f2eb3b`: exact-SHA contract-only run [44695057269](https://github.com/FlareZ123/experiment-01/actions/runs/44695057269) and same-SHA native no-game witness run [44695214430](https://github.com/FlareZ123/experiment-01/actions/runs/44695214430) passed, including all four role × physical-seat witnesses and acceptance-bundle preservation.
