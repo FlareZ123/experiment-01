@@ -321,6 +321,9 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
   assert.equal(sanitized.fixtureOnly,true);
   assert.equal(sanitized.competitiveGameQualified,false);
   assert.equal(sanitized.privacyBoundary.fullStateCaptured,false);
+  assert.equal(sanitized.fixtureFailure.messageSha256,undefined);
+  assert.equal(sanitized.fixtureFailure.messageLength,10);
+  assert.doesNotMatch(json,/f{64}/);
   assert.equal(sanitized.game.actorDecisions[0].actorObservation.ownHandCount,1);
   assert.equal(sanitized.game.actorDecisions[0].selectedCardPublicPrinting,'PubliclyPlayedCard');
   assert.equal(sanitized.game.finalPublicState.players[0].active,'Public Active');
@@ -473,6 +476,9 @@ test('worker execution audit preserves allowlisted counters and hashes while red
       physicalSeedDisclosureDecision:'public-reproducible',
       physicalSeedDisclosedToWorker:false,
       policySeedDisclosedToWorker:false,
+      nativeStateDisclosedToWorker:false,
+      opponentPrivateZonesDisclosedToWorker:false,
+      workerInputScope:'actor-observation-v3+actor-prompt-projection+public-event-receipt-v3+typed-action-frontier-v1',
       roles:{
         candidate:{
           role:'candidate',seat:0,policyVersion:'candidate-v1',
@@ -524,6 +530,10 @@ test('worker execution audit preserves allowlisted counters and hashes while red
   assert.equal(audit.roles.candidate.rootActionFrontierAdmissionCount,4);
   assert.equal(audit.roles.candidate.containerIdSha256,'c'.repeat(64));
   assert.equal(audit.roles.candidate.policyDrawViolationCount,0);
+  assert.equal(audit.nativeStateDisclosedToWorker,false);
+  assert.equal(audit.opponentPrivateZonesDisclosedToWorker,false);
+  assert.equal(audit.workerInputScope,
+    'actor-observation-v3+actor-prompt-projection+public-event-receipt-v3+typed-action-frontier-v1');
   assert.equal(audit.roles.candidate.rootActionFrontierAdmissionReceipts,undefined);
   assert.equal(audit.cleanupReceipts[0].containerId,undefined);
   assert.equal(audit.promptProvenanceHook.activeEffectDepth,0);
@@ -534,3 +544,19 @@ test('worker execution audit preserves allowlisted counters and hashes while red
   assert.match(formatSanitizedTraceText(sanitized),/workerDecisionCount=9/);
 });
 
+test('worker execution audit fails closed on unknown boundary flags and noncanonical scope',()=>{
+  const sanitized=sanitizeFixtureArtifact({
+    fixtureOnly:true,
+    trial:{},
+    nativeGame:{finished:false,endReason:'unknown',decisionTrace:[]},
+    workerExecutionAudit:{
+      schema:'agent49-v3-worker-execution-audit-v1',
+      nativeStateDisclosedToWorker:'false',
+      opponentPrivateZonesDisclosedToWorker:0,
+      workerInputScope:'actor-observation-v3+untrusted-extension'
+    }
+  });
+  assert.equal(sanitized.workerExecutionAudit.nativeStateDisclosedToWorker,null);
+  assert.equal(sanitized.workerExecutionAudit.opponentPrivateZonesDisclosedToWorker,null);
+  assert.equal(sanitized.workerExecutionAudit.workerInputScope,null);
+});
