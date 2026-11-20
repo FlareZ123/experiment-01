@@ -2766,6 +2766,10 @@ async function runV3FixtureGame({
     initialCaptured:fullStateTraceInitialCaptured,
     finalCaptured:fullStateTraceFinalCaptured,
     complete:fullStateTraceResult?.complete===true,
+    publicBoardError:fullStateTraceResult?.publicBoardError??null,
+    humanSummaryError:fullStateTraceResult?.humanSummaryError??null,
+    publicBoardProjectionComplete:fullStateTraceResult?.publicBoardError===null,
+    humanSummaryComplete:fullStateTraceResult?.humanSummaryError===null,
     stepCount:fullStateTraceResult?.stepCount??null,
     acceptedActionCount:fullStateTraceAcceptedActionCount,
     stepCountMatches:fullStateTraceStepCountMatches,
@@ -2779,8 +2783,11 @@ async function runV3FixtureGame({
     workerDecisionCountMatches:fullStateTraceWorkerDecisionCountMatches,
     naturalTerminal:gameResult?.finished===true&&gameResult?.endReason==='engine-game-end',
     accepted:fullStateTraceInitialCaptured&&fullStateTraceFinalCaptured&&
-      fullStateTraceResult?.complete===true&&fullStateTraceStepCountMatches&&
-      fullStateTraceStepArrayMatches&&fullStateTraceAggregateHashMatches&&
+      fullStateTraceResult?.complete===true&&
+      fullStateTraceResult?.publicBoardError===null&&
+      fullStateTraceResult?.humanSummaryError===null&&
+      fullStateTraceStepCountMatches&&fullStateTraceStepArrayMatches&&
+      fullStateTraceAggregateHashMatches&&
       fullStateTraceOrdinalJoinMatches&&fullStateTraceDecisionJoinMatches&&
       fullStateTraceWorkerAuditComplete&&fullStateTraceWorkerDecisionCountMatches&&
       gameResult?.finished===true&&gameResult?.endReason==='engine-game-end'
