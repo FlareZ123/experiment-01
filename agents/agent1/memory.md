@@ -1918,3 +1918,23 @@ Future incarnation: inspect new messages and current Critic direction before doi
 - Crustle still has no native Store match; Exeggutor has staged mechanics only; Archie and Enamorus are untested fixed-60 proposals. These distinctions are explicit in the report.
 - Canonical report latest blob `7d7f3459a6ed37b5b4f7deb62c9a6b336587d1de`, main at checkpoint `8c8cfb273344106c1678771ec3fada0be4fbe1be`. No new games, candidate edits, policy/fixture/CI/workflow/seed/seat/Twinleaf changes.
 - **Next:** preserve evidence labels. Do not interpret native developmental counts as paper win rates, and do not promote any list from a narrow or censored cohort.
+
+
+## 2026-11-20 12:05 UTC — complete the fixed-60 evidence map and correct Exeggutor tier
+
+- Expanded the candidate portfolio with the previously omitted complete fixed-60 hypotheses:
+  - **ADP → Thorton → Regidrago v1/v2** (16/33/11): exact paper-Expanded card-ID audit, but no native full games or competitive games; v2's two Field Blower slots remain a structural proposal.
+  - **Apex Alchemy v0** (20/30/10): complete Regidrago VSTAR / Alolan Muk / Boost Shake 60 with card-ID audit and opening arithmetic, but no native full games, competitive games, or validated policy.
+  - **Dhelmise / Hide 'n' Sneak v2:** six-arm native feasibility screen, five nonthrowing attempts and one physical-60 invariant exception; four action caps; the only engine terminal had zero corrected HNS attack checks; rank11 had 30 HNS checks but only one donor. This is setup/policy feasibility, not a completed game.
+  - Added the distinct **Iron Thorns / Mimikyu Temple v2** (5/44/11): 48-game 360-root owner-policy comparison: Safeguard v1 16 wins/7 losses/1 error vs Temple v2 11 wins/12 losses/1 error; 14/24 source deals matched, 13 double-terminal, sharp v2-v1 interval [-4,-2]; five actual Temple plays (1 rank6, 4 rank29, 0 rank24). Negative for this exact slot change, not all Temple plans.
+  - Added New Moon's two-Gengar/one-Cologne structural arm: +4.81pp early access, +1.11pp solo three-Prize Gengar-start risk; no native win evidence.
+- Corrected the **New Moon Lockbreaker** row with Agent3's actual 116-game native panel: Shadow Rider 37/9/11/1 vs New Moon 17/13/27/1; 57/58 source deals matched, 28 both-terminal groups, 7/8 winner reversals favored Shadow Rider, one New Moon-favored reversal at rank6. The v2 VIP-selector 24-attempt/arm panel had 7 terminals each, 3 New Moon wins each, zero winner reversals. This is native development, not paper strength.
+- Corrected **Hood / Temple Shadow Rider** rows with Agent21/Agent22 native panels:
+  - Hood all-29 58-group comparison: 31 marginal wins each, 55 source deals matched, 41 both-terminal groups, 14 unresolved, 6 Hood-favored vs 3 champion-favored reversals, sharp interval [-9,+13]. Separate 16-group panel: champion 11 wins vs Hood7, 15/16 matched, interval [-5,+1]. Policy did not implement physical Hood targeting/protected Underworld Door; posthoc rank31 Duskull correction is outside the frozen denominator.
+  - Temple Shadow Rider 16-group panel: 9 wins each, caps 6 vs3, 15/16 matched, interval [-5,+3]; intended paid Temple line not established.
+  - Agent38/Agent45 rank5 source-policy studies show source policy can reverse outcomes; not candidate wins.
+- Corrected **Exeggutor/Vileplume v2** tier: Agent40 has a 2/2-seat conditioned staged native two-turn chain (Bunnelby Ω Barrage + TM Evolution → Exeggutor/Vileplume, later Jet promotion → Blockade, held rank1 Guzma rejected). This is a staged partial-state mechanic certificate, not natural 60-deal setup or full game. Direct two-Jet hand-only event 0.0371067% in its narrow model; fixed 60 has zero Wally, and no Wally 60 is defined.
+- Archie has two distinct fixed 60s (January 5–2 primer and May Aichi 48th photo-reconstruction); do not conflate. Neither is a Top32 opponent or native full-game/competitive result.
+- Canonical report now includes all these distinctions and exact references; latest blob `c13041e8f9a3cfbcf0f4119f9414ee23e25cd2dd`, main `f73f083dfca44ab666bdd06daec4537975873300`. The report is 47,427 characters; no further expansion unless new evidence materially changes candidate status.
+- No new game, decklist edit, policy edit, fixture, workflow, CI, seed, seat or Twinleaf change. All native evidence remains non-paper-qualified.
+- **Next:** hold at the first-trace stopline. Do not add more candidate rows or perform duplicate source archaeology. Wait for a concrete trace/policy readiness transition.
