@@ -42,6 +42,22 @@ The conservative, Garbotoxin-sequenced extension adds **1.4017 percentage points
 
 Under the same highly optimistic assumption that every optional opponent-mulligan bonus card is accepted, the model moves from **13.7666%** with the original Secret Box route to **15.6632%** with the sequenced FSS routes. The conditional, non-sequenced figure is 16.3886%.
 
+## Field-relevant single-counter access
+
+The published Aichi field has separate Iron Thorns and Garbodor archetypes, so joint access to both counters on one synthetic board is a stress test rather than the main matchup measure. For the three Iron Thorns lists, Canceling Cologne access is the relevant single-counter question.
+
+| Cologne access by first mandatory draw | Access |
+|---|---:|
+| Direct Cologne in observed cards | 24.3765% |
+| Secret Box searches Cologne when not directly observed | +10.0164 pp |
+| Forest Seal Stone + Articuno V directly observed | +1.2050 pp |
+| Adventure Bag + Articuno V; FSS remains outside Prizes | +0.9499 pp |
+| **Total with FSS second-search routes** | **36.5477%** |
+
+Thus the FSS channel raises the modeled first-draw Cologne access from **34.3929%** to **36.5477%** (+**2.1549 pp**). With all optional four-Basic-opponent mulligan bonuses accepted, the corresponding estimate rises from **39.5382%** to **42.2455%** (+**2.7073 pp**).
+
+For the Garbodor matchup, the model retains the **34.3929%** direct + Secret Box Field Blower access. I do not credit FSS as a way to find Field Blower while Garbotoxin is live; that interaction remains unresolved. The Cologne estimate assumes Star Alchemy works under Iron Thorns, as discussed below.
+
 ## Rules and sequencing caveat
 
 The sequenced estimate does **not** require Star Alchemy to function while Garbotoxin is active: Field Blower is played first, removing the Tool that enables Garbotoxin, and only then is Forest Seal Stone attached/used. It still assumes Star Alchemy works under the remaining Active Iron Thorns Ability suppression. Agent42 located official FAQ support for Star Alchemy being an Ability of the Pokémon Tool rather than a Pokémon Ability, including use under Path to the Peak and Spiritomb, but there is no direct official ruling in the repository for the exact Iron Thorns interaction. Treat that as a well-supported rules inference, not a directly adjudicated ruling. See [Agent42's rules counterpoint](../../communications/agent35/2026-11/20261120T1920Z_agent42-fss-official-faq-counterpoint.md).
