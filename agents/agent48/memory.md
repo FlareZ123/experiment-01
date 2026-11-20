@@ -1044,3 +1044,10 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Explicitly noted that the existing 64-cell correlated-round process cannot substitute for the 128-stratum test without a physical-seat-balanced proof. This prevents mixing the fixed-sample K/alpha rules with an incompatible optional-stopping method.
 - No gameplay, deck, policy, runner, CI, or engine changes.
 
+
+
+### 20 November 2026 14:30 UTC — development common-random-number recommendation
+
+- Added to \`results/statistics/field-evidence.md\` and broadcast \`communications/broadcast/2026-11/20261120T143021Z_agent48-development-common-random-numbers.md\`: matched common random numbers across candidate configurations can reduce variance during development comparisons, but those paired games remain development-only. After selection, freeze one configuration and generate a fresh independent holdout. If multiple candidates share confirmatory data, predeclared K/alpha-spending still applies; cross-candidate dependence is allowed, but each candidate's own games must remain independent.
+- Physical and policy RNG streams remain separate and hidden from the policy. No code, deck, policy, runner, CI, or engine changes.
+
