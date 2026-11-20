@@ -96,6 +96,7 @@ k=\left\lceil\frac{\ln(0.05/K)}{128\ln(0.995)}\right\rceil.
 | 5 | 8 | 1,024 | 0.0058998 | 0.01 |
 | 10 | 9 | 1,152 | 0.0031059 | 0.005 |
 | 20 | 10 | 1,280 | 0.0016351 | 0.0025 |
+| 50 | 11 | 1,408 | 0.0008608 | 0.001 |
 
 ### One-nonwin extension when testing multiple configurations
 
