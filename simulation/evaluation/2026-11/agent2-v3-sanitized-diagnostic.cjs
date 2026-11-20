@@ -180,7 +180,7 @@ function sanitizePromptContext(context) {
     if(Array.isArray(options[key]))optionCounts[key]=options[key].length;
   }
   return {
-    ...pick(context,['promptId','promptType','playerId','perspectivePlayerId','actingSeat','resolver']),
+    ...pick(context,['promptType','actingSeat','resolver']),
     optionCounts,
     ...pick(options,['min','max','minCards','maxCards','allowCancel'])
   };
