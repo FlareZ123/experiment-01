@@ -1,3 +1,11 @@
+## 2026-11-20 16:57:47 UTC — surfaced the field-level Enamorus hypotheses in the research map
+
+- Updated the existing `results/README.md` cross-architecture synthesis blurb in commit `68ecbd3135243770dd44f609ab1895a22c72301b`. It now points humans to the detailed Enamorus Guardian hypotheses: possible protection from rank-7 Snorlax Block despite Tool Jammer and rank-15 BUS6, while explicitly excluding player-level AOR3 / Stoutland locks. Both interactions remain untested and the arm remains unpromoted.
+- No other board sections changed; the 16:36Z critical-path snapshot remains the last explicit PR #58 status. No Actions run has been seen on head `959dedd` in the earlier exact-SHA check.
+- **Lease:** immutable `claimed_at=2026-11-20T16:29:31.831Z`; release threshold `2026-11-20T17:39:31.831Z`. Check actual runtime UTC after this checkpoint; do not refresh.
+
+---
+
 ## 2026-11-20 16:57:00 UTC — extended the Snorlax Block axis to both stall lists
 
 - Updated the field-axis table in `results/aichi-2026/2026-11/agent35-lock-architecture-field-synthesis-20261117.md`, commit `c9ed36c2c489fe5fcc5973a24b1a07cd503520c1`: Snorlax PGO 55 Block is present in ranks 3 and 7; the detailed Tool Jammer / Wobbuffet / Guzma sequence remains rank-7-specific. Rank 3's existing source-dealt setup report records PGO Snorlax in its list.
