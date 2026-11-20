@@ -152,16 +152,68 @@ const hoodShieldV1 = {
   basicCount: 14
 };
 
+const AICHI_FIELD = [
+  { rank: 1, archetype: 'Shadow Rider Calyrex', basicCount: 14 },
+  { rank: 2, archetype: 'Vileplume Control', basicCount: 14 },
+  { rank: 3, archetype: 'Snorlax Stall', basicCount: 11 },
+  { rank: 4, archetype: 'Raichu Electrode Combo', basicCount: 13 },
+  { rank: 5, archetype: 'Mew Genesect', basicCount: 11 },
+  { rank: 6, archetype: 'Iron Thorns', basicCount: 4 },
+  { rank: 7, archetype: 'Snorlax Stall', basicCount: 12 },
+  { rank: 8, archetype: 'Absol Garbodor', basicCount: 10 },
+  { rank: 9, archetype: 'Absol Electrode', basicCount: 11 },
+  { rank: 10, archetype: 'Regidrago', basicCount: 15 },
+  { rank: 11, archetype: 'Absol Garbodor', basicCount: 11 },
+  { rank: 12, archetype: 'Regidrago', basicCount: 15 },
+  { rank: 13, archetype: 'Regidrago', basicCount: 11 },
+  { rank: 14, archetype: 'Regidrago', basicCount: 14 },
+  { rank: 15, archetype: 'Lopunny Vileplume', basicCount: 14 },
+  { rank: 16, archetype: 'Absol Garbodor', basicCount: 11 },
+  { rank: 17, archetype: 'Raichu Electrode Combo', basicCount: 13 },
+  { rank: 18, archetype: 'Regidrago', basicCount: 16 },
+  { rank: 19, archetype: 'Raging Bolt', basicCount: 16 },
+  { rank: 20, archetype: 'Regidrago', basicCount: 14 },
+  { rank: 21, archetype: 'Regidrago', basicCount: 14 },
+  { rank: 22, archetype: 'Absol Garbodor', basicCount: 12 },
+  { rank: 24, archetype: 'Iron Thorns', basicCount: 4 },
+  { rank: 26, archetype: 'Meloetta Donk', basicCount: 12 },
+  { rank: 27, archetype: 'Regidrago', basicCount: 15 },
+  { rank: 29, archetype: 'Iron Thorns', basicCount: 4 },
+  { rank: 30, archetype: "Lillie's Clefairy", basicCount: 16 },
+  { rank: 31, archetype: 'Dusknoir Chimecho', basicCount: 15 },
+  { rank: 32, archetype: 'Regidrago', basicCount: 13 }
+];
+
 function buildReport() {
   const a = openingStats(ironThornsV3.basicCount);
   const b = openingStats(rank1Source.basicCount);
   const mimikyuOnly = namedBasicOnlyGivenValid(5, 4);
   const mimikyuOnlyWithCapture = namedBasicOnlyGivenValid(5, 4, 2);
+  const fieldVector = AICHI_FIELD.map(row => ({
+    ...row,
+    ...pairedBonusStats(ironThornsV3.basicCount, row.basicCount)
+  }));
+  const average = key => fieldVector.reduce((sum, row) => sum + row[key], 0) / fieldVector.length;
+  const fieldSummary = {
+    publishedDecks: fieldVector.length,
+    missingRanks: [23, 25, 28],
+    totalBasicCards: fieldVector.reduce((sum, row) => sum + row.basicCount, 0),
+    minOpponentBasicCount: Math.min(...fieldVector.map(row => row.basicCount)),
+    maxOpponentBasicCount: Math.max(...fieldVector.map(row => row.basicCount)),
+    meanOpponentBasicCount: average('basicCount'),
+    meanProbabilityOpponentHasBonusDrawOpportunity: average('probabilityOpponentHasAnyBonusDrawOpportunity'),
+    meanProbabilityCandidateHasBonusDrawOpportunity: average('probabilityCandidateHasAnyBonusDrawOpportunity'),
+    meanMaximumOptionalBonusDrawsAvailableToOpponent: average('expectedMaximumOptionalBonusDrawsAvailableToOpponent'),
+    meanMaximumOptionalBonusDrawsAvailableToCandidate: average('expectedMaximumOptionalBonusDrawsAvailableToCandidate'),
+    meanMaximumOptionalBonusDrawOpportunityDifferenceForOpponent: average('expectedMaximumOptionalBonusDrawOpportunityDifferenceForOpponent'),
+    opponentsWithPositiveDifference: fieldVector.filter(row => row.expectedMaximumOptionalBonusDrawOpportunityDifferenceForOpponent > 0).length,
+    opponentsWithNegativeDifference: fieldVector.filter(row => row.expectedMaximumOptionalBonusDrawOpportunityDifferenceForOpponent < 0).length
+  };
   return {
-    schema: 'agent30-opening-mulligan-opportunity-v1',
+    schema: 'agent30-opening-mulligan-opportunity-v2',
     assumptions: {
       deckSize: 60, openingHandSize: 7,
-      'all Pokémon in these lists are Basic except four Shadow Rider Calyrex VMAX': true,
+      candidateAndRank1BasicCountsClassifiedFromCardPoolSubtypes: true,\n      fieldBasicCountsPrecomputedFrom29SourceDecksAndCardPoolSubtypes: true,
       mutualNoBasicResetDoesNotExecuteRulebookStep5d: true,
       opponentMayDrawAnyNumberUpToMulliganCount: true,
       bonusDrawExpectationsAssumeReceiverTakesMaximum: true,
@@ -174,9 +226,9 @@ function buildReport() {
     probabilityMimikyuOnlyWithCaptureEnergyGivenValid: mimikyuOnlyWithCapture,
     probabilityMimikyuOnlyWithoutCaptureEnergyGivenValid: mimikyuOnly - mimikyuOnlyWithCapture,
     probabilityThornsPresentGivenValid: 1 - mimikyuOnly,
-    sensitivity: [5, 8, 10, 12, 14, 16, 18].map(n => pairedBonusStats(5, n))
+    sensitivity: [5, 8, 10, 12, 14, 16, 18].map(n => pairedBonusStats(5, n)),\n    fieldVector, fieldSummary
   };
 }
 
 if (require.main === module) process.stdout.write(JSON.stringify(buildReport(), null, 2) + '\n');
-module.exports = { choose, openingStats, namedBasicOnlyGivenValid, pairedBonusStats, simulatePairedBonuses, buildReport };
+module.exports = { choose, openingStats, namedBasicOnlyGivenValid, pairedBonusStats, simulatePairedBonuses, AICHI_FIELD, buildReport };
