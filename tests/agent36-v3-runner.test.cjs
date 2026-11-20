@@ -1992,3 +1992,68 @@ test('V3 prompt resolver rejects a mismatched driver actor-observation digest be
   assert.equal(workerCalls,0);
   assert.equal(dispatchCalls,0);
 });
+
+
+test('V3 full trace acceptance recomputes component digests and rejects broken bindings',async()=>{
+  const fixture=rootResolverFixture({
+    publicEventReceipt:{schema:'test-public-event-receipt-v1',actorSeat:1,publicEventCount:2}
+  });
+  const result=await fixture.resolver(fixture.request);
+  const trace=result.decisionTrace;
+  const row={
+    actionOrdinal:trace.actionOrdinal,
+    actingSeat:trace.seat,
+    decisionKind:trace.decisionKind,
+    actorObservationSha256:trace.actorObservationSha256,
+    workerDecisionTrace:trace,
+    workerDecisionTraceSha256:evidenceBundleSha256(trace),
+    validationReceipt:trace.validationReceipt,
+    validationReceiptSha256:evidenceBundleSha256(trace.validationReceipt)
+  };
+  assert.equal(validateV3WorkerDecisionTrace(row),true);
+
+  const mutations=[
+    ['actor input',t=>{t.actorInput.ownHand[0]='mutated';}],
+    ['actor input digest',t=>{t.actorInputSha256='0'.repeat(64);}],
+    ['driver actor digest',t=>{t.actorObservationSha256='0'.repeat(64);}],
+    ['public event receipt',t=>{t.publicEventReceipt.publicEventCount++;}],
+    ['public receipt digest',t=>{t.publicEventReceiptSha256='0'.repeat(64);}],
+    ['action frontier',t=>{t.actionFrontier.items[0].publicMetadata.damage++;}],
+    ['frontier digest',t=>{t.actionFrontierSha256='0'.repeat(64);}],
+    ['input binding digest',t=>{t.inputBindingSha256='0'.repeat(64);}],
+    ['selected item',t=>{t.selectedItems[0].attackName='mutated';}],
+    ['selected item digest',t=>{t.selectedItemsSha256='0'.repeat(64);}],
+    ['policy audit',t=>{t.policyAudit.selectionRuleCode='MUTATED_RULE';}],
+    ['policy audit digest',t=>{t.policyAuditSha256='0'.repeat(64);}],
+    ['validation receipt',t=>{t.validationReceipt.selectedToken='foreign-action';}],
+    ['validation receipt digest',t=>{t.validationReceiptSha256='0'.repeat(64);}],
+    ['selected token association',t=>{
+      t.selectedItems[0].token='foreign-action';
+      t.selectedItemsSha256=evidenceBundleSha256(t.selectedItems);
+    }],
+    ['policy evaluation order',t=>{
+      t.policyAudit.evaluations.reverse();
+      t.policyAuditSha256=evidenceBundleSha256(t.policyAudit);
+    }]
+  ];
+  for(const [name,mutate] of mutations){
+    const candidate=JSON.parse(JSON.stringify(row));
+    mutate(candidate.workerDecisionTrace);
+    candidate.workerDecisionTraceSha256=evidenceBundleSha256(candidate.workerDecisionTrace);
+    candidate.validationReceipt=candidate.workerDecisionTrace.validationReceipt;
+    candidate.validationReceiptSha256=evidenceBundleSha256(candidate.validationReceipt);
+    assert.equal(validateV3WorkerDecisionTrace(candidate),false,name);
+  }
+
+  const semanticMismatch=JSON.parse(JSON.stringify(row));
+  semanticMismatch.workerDecisionTrace.validationReceipt.frontierSha256='0'.repeat(64);
+  semanticMismatch.workerDecisionTrace.validationReceiptSha256=
+    evidenceBundleSha256(semanticMismatch.workerDecisionTrace.validationReceipt);
+  semanticMismatch.validationReceipt=semanticMismatch.workerDecisionTrace.validationReceipt;
+  semanticMismatch.validationReceiptSha256=
+    semanticMismatch.workerDecisionTrace.validationReceiptSha256;
+  semanticMismatch.workerDecisionTraceSha256=
+    evidenceBundleSha256(semanticMismatch.workerDecisionTrace);
+  assert.equal(validateV3WorkerDecisionTrace(semanticMismatch),false,
+    'a self-consistent receipt digest must still match the exact action frontier');
+});
