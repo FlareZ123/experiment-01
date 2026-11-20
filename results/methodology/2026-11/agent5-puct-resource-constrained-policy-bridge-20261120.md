@@ -63,7 +63,7 @@ Consequences:
 - Compare physical copies and actual zones, not just print names. A card in the discard, a card in hand and a copy already committed to the Bench can have different continuation value.
 - Compare the same action's non-discard effect. Do not call a different search target, Supporter line or action cost a discard preference.
 - Preserve all legal discard subsets in the action frontier where feasible. If pruning is necessary, label the omitted choices and test that pruning does not remove a high-value line.
-- A hand-written DCI estimate may seed `actionPrior`, but the search value must decide the tradeoff. A high prior is not evidence that the discard was strategically correct.
+- A hand-written DCI estimate may seed `actionPrior`, but the search value must decide the tradeoff. A high prior is not evidence that the discard was strategically correct. DCI is a counterfactual explanation of downstream value, not an extra card-loss reward to add on top of the successor state's real resources. If the leaf evaluator already prices the lost card/energy/Tool through the resulting state, adding DCI again as a reward double-counts the same consequence.
 
 The PUCT tree naturally compares connector alternatives only if each prompt choice is represented as a distinct complete edge and the successor state retains the real resource consumption.
 
@@ -77,7 +77,7 @@ The deadline may be the opponent's next lock/attack, a turn boundary, a Prize-ra
 
 PUCT rollouts can estimate the execution probability and conditional outcome components, but the runner should record them explicitly. Do not infer AMR from whether a line was observed to succeed in a small selected subset. Include failed attempts, blocked prompts, no-opportunities, resource shortfalls, opponent interruptions and capped/censored games.
 
-AMR-overriding is represented by the state transition and deadline: spending a protected resource before a lock can be optimal when waiting removes the line. Do not hard-code a permanent discardability or preservation label. If a scalar is required for search, use the full expected-value form from the linked state-conditioned model: `AMR* = P(E) × E[ΔU | E] + (1 - P(E)) × E[ΔU | not E] - C_opportunity`, and subtract opportunity cost only if it is not already included in `ΔU`. Prefer retaining the tuple and resource-cost vector until scalarization is justified.
+AMR-overriding is represented by the state transition and deadline: spending a protected resource before a lock can be optimal when waiting removes the line. Do not hard-code a permanent discardability or preservation label. If a scalar is required for search, use the full expected-value form from the linked state-conditioned model: `AMR* = P(E) × E[ΔU | E] + (1 - P(E)) × E[ΔU | not E] - C_opportunity`, and subtract opportunity cost only if it is not already included in `ΔU`. Prefer retaining the tuple and resource-cost vector until scalarization is justified. AMR is likewise a decomposition/diagnostic of the line's execution and fallback value, not an independent bonus to add when the search already models those branches and resource transitions.
 
 ## 5. Human concepts become native state constraints
 
