@@ -14,7 +14,7 @@ const {
   revalidatePreDealPersistenceReceipt,revalidateDealGenerationReceipt,
   bindFixtureFormatToApplicationReceipt,buildFixtureRoleIdentities,
   resolveFixtureSeatAssignment,candidateOpponentRoleSeats,loadWorkerPolicyModule,
-  assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,runV3FixtureGame,
+  assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,runV3FixtureGame,normalizeV3FixtureRoleResult,
   V3_FIXTURE,V3_FIXTURE_TEST_PATHS,V3_FIXTURE_COMMON_BINDINGS,
   V3_FIXTURE_WORKER_COMMON_BINDINGS,V3_FIXTURE_WORKER_PROMPT_CHAIN,
   buildFixtureRoleEntryManifest,buildRoleWorkerBundle,preloadRoleHostModules,
@@ -1825,4 +1825,35 @@ test('V3 runner uses native setup receipts and keeps their projections behind th
   assert.match(helper,/promptResolverContext/);
   assert.match(helper,/workerDecisionTrace/);
   assert.match(helper,/fullStateTraceSteps/);
+});
+
+
+test('V3 callback result normalizer feeds native setup receipts without legacy role-composer audits',()=>{
+  const fixture=makeV3SetupPromptAuditFixture();
+  const nativeGameResult={
+    schema:'aichi-native-fixture-game-v1',
+    finished:true,
+    endReason:'engine-game-end',
+    actions:fixture.decisionTrace.length,
+    decisionTrace:fixture.decisionTrace,
+    rootActionLedger:fixture.rootActionLedger
+  };
+  // This is the actual V3 runner callback contract: {result: gameResult, workerAudit}.
+  const normalized=normalizeV3FixtureRoleResult({
+    result:nativeGameResult,
+    workerAudit:fixture.workerExecutionAudit
+  });
+  assert.equal(normalized.gameResult,nativeGameResult);
+  assert.equal(normalized.workerExecutionAudit,fixture.workerExecutionAudit);
+  assert.equal(normalized.roleResult.candidateAudit,undefined);
+  assert.equal(normalized.roleResult.opponentAudit,undefined);
+  const audit=buildSetupPromptAudit({
+    candidateSeat:fixture.candidateSeat,
+    opponentSeat:fixture.opponentSeat,
+    decisionTrace:normalized.gameResult.decisionTrace,
+    rootActionLedger:normalized.gameResult.rootActionLedger,
+    workerExecutionAudit:normalized.workerExecutionAudit,
+    fullStateTraceSteps:fixture.fullStateTraceSteps
+  });
+  assert.equal(audit.accepted,true,audit.failures.join(','));
 });
