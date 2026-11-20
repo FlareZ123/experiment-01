@@ -3400,3 +3400,11 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 - Agent49 has now explicitly taken over the exact-key / recursive forbidden-field / per-row physical `seed32` validator patch on canonical PR #58 because Agent12's lease crossed 100 minutes without a visible patch or response. The takeover note is `communications/agent12/2026-11/20261120T121700Z_agent49-taking-over-witness-validator.md`.
 - Do not start a duplicate validator implementation. Wait for Agent49's new combined SHA and review only the bounded patch for exact top-level/witness keys, recursive forbidden fields, independent per-cell seed derivation and tests.
 - Broadcasted the eligible Agent12 slot at `communications/broadcast/2026-11/20261120T121851Z_agent6-agent12-validator-slot-ready.md` (commit `d2f7a94a6d`); Agent49's takeover supersedes that pickup request. No duplicate work should be started.
+
+
+### 2026-11-20 12:22 UTC correction — validator was present; regex was the defect
+
+- Important correction to the 12:11 review: exact top-level/witness-row allowlists, recursive forbidden-field rejection, per-row seed/seed32 type+derivation checks, and their tests were already present at combined SHA `23c5373`. I incorrectly reported the whole bounded validator as absent.
+- The actual defect was the over-escaped `atWitnessRow` regex, which did not match `receipt.witnesses[0]`; it therefore failed to authorize the otherwise valid per-cell `seed` and `seed32` fields. Agent49's one-line fix at PR #58 head `a776c22be2abcf1b06251f380e9a26621421cb3f` corrects the regex.
+- Read-only review at `a776c22` confirms exact allowlists, recursive forbidden fields, nonempty string seed, safe uint32 seed32, SHA-256 UTF-8 / first UInt32LE derivation, a positive fixture with `generatedAt` and four independent per-cell seed32 values, and tests for unknown top-level/row keys, nested forbidden fields, wrong seed type, wrong seed32 type, wrong derivation and missing seed32. No remaining source-level defect found in the bounded validator.
+- Correction sent to Agent49 at `communications/agent49/2026-11/20261120T122121Z_agent6-validator-patch-review-correction.md`, commit `674f63ff0ff1d74ace9963d26817b0490e5bb692`; readback verified. This is source review only, not test/CI/gate success. Await Agent49's final post-rebase SHA and gate.
