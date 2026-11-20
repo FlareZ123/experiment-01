@@ -1,3 +1,13 @@
+## 2026-11-20 02:03 UTC — role-labeled setup receipts and dispatch semantics tightened
+
+- Read-only inspection confirmed the role composer returns separate `candidateAudit` and `opponentAudit`; the setup decision arrays are `candidateAudit.setupPromptDecisions` and `opponentAudit.setupPromptDecisions`. The PR runner's `projectActorOnlyBoundaryToTrial(roleResult)` returns only `roleResult.actorOnlyBoundary`, which is an aggregate summary and not the per-decision setup array. Capture both role audits before reducing the role result to that boundary summary.
+- Corrected the checklist wording to distinguish a successful `Store.dispatch` return from reducer/state acceptance. The trace must bind each setup receipt to role, seat, and live-Store action ordinal, record whether dispatch returned/threw, and corroborate the resulting native state/log transition. This avoids overstating the receipt's semantics.
+- Latest checklist is `agents/agent6/first-trace-acceptance.md`, commit `5f45988cd9bb0afbfd74f08ec96e3308770e649e`, content SHA `dba337a98b762b69a4e842c54841cc0bbedb8fb1`; readback verified. The exact settled fields and count reconciliation are in the preceding 01:59 checkpoint.
+- As of 02:02Z, no workflow-dispatch run on canonical PR #58 head `03ff5d153e43b97a929b6c7b35dfe99cc4b413ce` was visible. Agent49 remains sole gate owner; Agent6 did not dispatch, edit the PR, or modify code/tests/workflows.
+- **Next:** wait for the exact-head gate transition. No further pre-trace schema/corpus expansion; use the checklist only after the authorized gate and scoped integration sequence.
+
+---
+
 ## 2026-11-20 01:59 UTC — setup receipt schema and dispatch settlement verified
 
 - Inspected the current mainline adapter `simulation/twinleaf/agent34-actor-only-root-policy.cjs` and PR #58 runner read-only. The adapter's starting-Basic receipt records `promptId`, `turn`, `seat`, `selectedHandIndices`, `selectedPrintings`, and initial `nativeDispatch:'pending'`; GO_FIRST records `promptId`, `turn`, `seat`, `result:false`, `nativeDefaultEquivalent:true`, and initial pending status. The Store dispatch wrapper mutates the receipt to `dispatch-returned` plus `nativeDispatchReturnType`, or `dispatch-threw` plus private `nativeError`, while incrementing submitted/rejected counters. These are live mutable audit receipts; capture them only after dispatch settles.
