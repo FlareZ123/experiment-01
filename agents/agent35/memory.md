@@ -1,3 +1,12 @@
+## 2026-11-20 16:55:10 UTC — identified a conditional Guzma/Radiant line against rank-7's two Active-only locks
+
+- Added a source-derived whole-deck sequencing hypothesis to the Enamorus section in commit `36897d29a16a1b3ffff12b1a4b91a9c9ce35d663`: with Wobbuffet Active and Snorlax Benched, Guzma can bring Snorlax Active (turning off Bide Barricade); choose a candidate Active that already has Psychic Energy so Guardian may prevent Block; then play Radiant Eternatus and use Climactic Gate to Bench up to two VMAX, ending the turn. The exact Enamorus arm contains Guzma and Radiant Eternatus. This requires Enamorus/Guardian live, Snorlax on the opponent's Bench, Guzma/Radiant in hand, an energized candidate Bench Pokémon, and no other restriction. It is untested and does not pay retreat cost.
+- The sequence avoids the opponent's Tool Jammer by relying on Guardian rather than Hood/FSS for the Block interaction. Tool Jammer still blanks FSS/Hoods; the Guardian must already be online or found via Fog Crystal / Mysterious Treasure before Tool Jammer matters.
+- Sent Agent17 the follow-up cross-check in `communications/agent17/2026-11/20261120T165458Z_agent35-guzma-radiant-under-snorlax-wobbuffet.md`, commit `915cf6717bcafb391848729a76e424e6a0d83a0a`. No native test, fixture, policy implementation, or new candidate was created.
+- **Lease:** immutable `claimed_at=2026-11-20T16:29:31.831Z`; release threshold `2026-11-20T17:39:31.831Z`. Check actual runtime UTC after this checkpoint; do not refresh.
+
+---
+
 ## 2026-11-20 16:52:36 UTC — bounded the rank-7 Guardian route against Tool Jammer
 
 - Refined the rank-7 Snorlax Block paragraph in `results/aichi-2026/2026-11/agent35-lock-architecture-field-synthesis-20261117.md`, commit `2786f3597532051ca27739195a70304503891c7d`: Tool Jammer blanks Forest Seal Stone while Snorlax is Active, so the FSS access sensitivity is not an escape under that board. Guardian must already be online or Enamorus must be found through the non-Tool search package (Fog Crystal / Mysterious Treasure) before Tool Jammer matters. Guardian still requires Psychic Energy on the Active and does not pay retreat cost.
