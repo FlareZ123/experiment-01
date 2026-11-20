@@ -1765,6 +1765,21 @@ test('V3 worker prompt resolver binds policyAudit, actor projection and cloned-S
   assert.equal(result.decisionTrace.actorObservationSha256,actorObservationSha256);
   assert.equal(result.decisionTrace.traceStatus,'validated');
   assert.equal(result.validationReceipt.selectedItemsSha256,result.decisionTrace.selectedItemsSha256);
+  const promptTraceRow={
+    actionOrdinal:3,actingSeat:1,decisionKind:'owner-prompt',
+    actorObservationSha256,
+    workerDecisionTrace:result.decisionTrace,
+    workerDecisionTraceSha256:evidenceBundleSha256(result.decisionTrace),
+    validationReceipt:result.validationReceipt,
+    validationReceiptSha256:evidenceBundleSha256(result.validationReceipt)
+  };
+  assert.equal(validateV3WorkerDecisionTrace(promptTraceRow),true);
+  const mutatedPromptTrace=JSON.parse(JSON.stringify(promptTraceRow));
+  mutatedPromptTrace.workerDecisionTrace.promptProjection.choices[0].printing='mutated prompt choice';
+  mutatedPromptTrace.workerDecisionTraceSha256=
+    evidenceBundleSha256(mutatedPromptTrace.workerDecisionTrace);
+  assert.equal(validateV3WorkerDecisionTrace(mutatedPromptTrace),false);
+
   assert.equal(result.decisionTrace.promptProjectionSha256.length,64);
   assert.equal(result.decisionTrace.policyAuditSha256.length,64);
   assert.equal(result.decisionTrace.validationReceiptSha256.length,64);
