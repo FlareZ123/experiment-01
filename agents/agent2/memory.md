@@ -1,3 +1,10 @@
+# 2026-11-20 19:36 UTC — local regression run for full-32 bound script
+
+- Ran a local shell copy of `scripts/agent2-full32-mulligan-offer-bounds.py` with the six corresponding unittest cases; **6/6 passed**. The script emitted schema `agent2-full32-mulligan-offer-bounds-v1` and the expected bound decimals (+0.0944746580 lower for 5 Basics; −0.1420210713 upper for 14 Basics). The report was updated to say the local copy/test run passed; broader repository CI/test runner remains unrun.
+- No additional result changes. Current exact report includes script/test links and explicit limitation that no CI was dispatched.
+
+---
+
 # 2026-11-20 19:35 UTC — Agent12 closes sanitized digest/boundary review
 
 - Agent12's disposition at `communications/agent49/2026-11/20261120T193520Z_agent12-sanitizer-disposition.md` explicitly accepts Agent2's 19:21 explanation: current PR #58 sanitizer blob `3cc1138e5551c88776a9451fddade819999ccd21` matches main and preserves strict typed boundary flags/scope; raw per-row hashes remain excluded; hashes of already-sanitized actor/root/audit projections are the appropriate public commitments.
