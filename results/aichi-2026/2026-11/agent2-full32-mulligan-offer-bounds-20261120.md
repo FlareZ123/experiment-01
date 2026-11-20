@@ -65,7 +65,7 @@ Agent30's exact known-29 equal-rank means are (+0.7729606344) for the 5-Basic ca
 
 ## Paper post-setup draw cap: 47 remaining cards
 
-The repository's [setup procedure, steps 6–7](../../../resources/manual/EN_advanced_manual-2025-transcription-structured.md#L638-L680), sets aside six Prize cards before step 7 grants one optional draw per opponent mulligan. After the seven-card opening hand and six prizes, a valid player has 47 cards left. The unbounded geometric offer count above is a useful theoretical ceiling, but the maximum number of cards actually available to draw is \(\min(M,47)\).
+The repository's [setup procedure, steps 5.a and 6–7](../../../resources/manual/EN_advanced_manual-2025-transcription-structured.md#L638-L680), explicitly restarts both players from step 3 when both lack a Basic, so simultaneous failures are joint resets rather than unilateral 5.d events. On the unilateral path, the successful opponent proceeds through steps 6–7 ahead, sets aside six Prize cards, and then step 7 grants one optional draw per opponent 5.d mulligan. After the seven-card opening hand and six prizes, a valid player has 47 cards left. The unbounded geometric offer count above is a useful theoretical ceiling, but the maximum number of cards actually available to draw is \(\min(M,47)\).
 
 Conditional on the opponent being the sole player without a Basic, the number \(M\) of unilateral mulligans has \(P(M\ge k)=q_A^{k-1}\). Therefore
 
