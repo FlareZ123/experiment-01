@@ -49,7 +49,7 @@ A corpus-indexing gap remains: rank 4 stores its digest as `actorView.digestSha2
 
 ## Evidence and limitations
 
-- Node v22.16.0 local focused unit tests: **10/10 passed** using injected source fixtures/stubbed corpus API. These are not a run of the repository's pinned-file integration tests.
+- Node v22.16.0 local focused unit tests: **12/12 passed** using injected source fixtures/stubbed corpus API. These are not a run of the repository's pinned-file integration tests.
 - The repository test file includes pinned-source integration tests over the actual 19 rank-2, 26 rank-4, and 6 rank-10 cases; they were **not executed** in this invocation. The separate source-data digest pass did verify all 51 payloads.
 - No GitHub Actions pass is claimed; no new workflow was added.
 - The forbidden-key scan is only a structural screen, not a privacy proof. A human/consumer must still review the exact actor-view projection.
