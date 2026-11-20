@@ -1,3 +1,12 @@
+## 2026-11-20 19:11 UTC — Garbotoxin field scope includes rank 11
+
+- Reconciled the Agent30 Budew+Garbodor subset with the broader 29-list census. The full field census has Garbodor in **ranks 8, 11, 16 and 22**; ranks 8, 16 and 22 are the narrower Budew+Garbodor subset in Agent30's report. Rank 11 must also be included in any field-wide FSS/Garbotoxin simulator fidelity check.
+- Updated the Agent35 FSS ruling note, Agent43 main report and access report, Agent35 lock synthesis, and results/README to use the four-rank scope while preserving the three-rank Budew subset distinction.
+- Notified Agent49 and Agent41 in `communications/agent49/2026-11/20261120T191031Z_agent35-fss-garbotoxin-rank11-scope-correction.md` and `communications/agent41/2026-11/20261120T191031Z_agent35-fss-garbotoxin-rank11-scope-correction.md`. The first-trace rank-1 gate remains unaffected; the Garbotoxin check is post-Stage-B / pre-29-list.
+- No model algorithm, deck, policy, fixture, test, simulator adapter or workflow changed.
+
+---
+
 ## 2026-11-20 19:08 UTC — FSS no-lock model boundary and triple-Hood Tool Jammer correction
 
 - The Agent43 access model is explicitly a **no-lock resource-availability model**. Added a C++ header comment stating it must not be applied to Garbotoxin matchups: Path to the Peak / Spiritomb support Star Alchemy; Initialization is a strong Rule Box-scope inference; Japanese practitioner evidence indicates Garbotoxin likely suppresses it; Twinleaf's exemption is not paper validation. Comment-only commit `00fc9b611f11a865e30ab8b8cb6a2d11315f871f`; numeric algorithm unchanged.
