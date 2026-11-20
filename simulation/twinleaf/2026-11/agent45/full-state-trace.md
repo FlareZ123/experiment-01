@@ -48,8 +48,9 @@ or policy manifests. The V3 runner also suppresses Agent43 full-state
 diagnosticSnapshot for no-game witnesses even when encrypted-full is configured;
 full private snapshots are reserved for registered games, keeping no-game
 witness receipts actor-only. Public witness exports must be a worker-only
-projection (owner-root/owner-prompt); never include host physical prompt rows
-or raw actionPayloads, which can disclose deck permutations. The recorder's optional `policyConfiguration` is intentionally omitted: Twinleaf bot options are engine setup, not the candidate/opponent worker policy identities, which remain in the top-level V3 artifact with their policy-plan hashes. The V3 runner captures final logs only after natural
+projection (owner-root/owner-prompt); never include host physical prompt rows,
+raw actionPayloads, or promptResolverContext (which serializes pending prompt
+objects), because these can disclose deck permutations or prompt internals. The recorder's optional `policyConfiguration` is intentionally omitted: Twinleaf bot options are engine setup, not the candidate/opponent worker policy identities, which remain in the top-level V3 artifact with their policy-plan hashes. The V3 runner captures final logs only after natural
 terminal, requires an initial snapshot, a final snapshot, an untruncated
 complete recorder result, exact equality between recorder steps and accepted
 native dispatches, exact one-based recorder-step/zero-based native-ledger
