@@ -573,11 +573,20 @@ function dispatchSelectedNativeAction({
       assert.equal(simulator.store.state.players?.[actorSeat]?.id,state.players[actorSeat]?.id,
         'cloned validation Store must preserve the acting physical player');
       simulator.store.dispatch(action);
-      if(validationEvidence&&typeof validationEvidence==='object')
+      if(validationEvidence&&typeof validationEvidence==='object') {
+        const selectedItem=frontier.actionFrontier.items.find(item=>item.token===token);
         validationEvidence.nativeValidationStoreMode='cloned-store';
+        validationEvidence.selectedActionValidated=true;
+        validationEvidence.actorSeat=actorSeat;
+        validationEvidence.selectedToken=token;
+        validationEvidence.actionKind=selectedItem?.kind??null;
+        validationEvidence.frontierItemCount=frontier.actionFrontier.items.length;
+      }
     } finally {
       assert.deepEqual(snapshotStoreState(state),fullStateBefore,
         'selected-action validation mutated the full live Store state graph');
+      if(validationEvidence&&typeof validationEvidence==='object')
+        validationEvidence.fullOriginalStoreStateUnchanged=true;
     }
   });
   return dispatch?store.dispatch(action):action;
@@ -591,6 +600,8 @@ module.exports = {
   actionSignature,
   projectNativeAction,
   buildNativeActionFrontier,
+  cloneNativeValidationGraph,
+  createIsolatedValidationSimulator,
   selectedNativeAction,
   dispatchSelectedNativeAction
 };
