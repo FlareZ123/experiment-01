@@ -14,20 +14,21 @@ const {
   revalidatePreDealPersistenceReceipt,revalidateDealGenerationReceipt,
   bindFixtureFormatToApplicationReceipt,buildFixtureRoleIdentities,
   resolveFixtureSeatAssignment,candidateOpponentRoleSeats,loadWorkerPolicyModule,
-  assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,runV3FixtureGame,
+  assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,runV3FixtureGame,normalizeV3FixtureRoleResult,
   V3_FIXTURE,V3_FIXTURE_TEST_PATHS,V3_FIXTURE_COMMON_BINDINGS,
   V3_FIXTURE_WORKER_COMMON_BINDINGS,V3_FIXTURE_WORKER_PROMPT_CHAIN,
   buildFixtureRoleEntryManifest,buildRoleWorkerBundle,preloadRoleHostModules,
-  validatePublicSeedRegistration,validateNoGameWitnessReceipt,
+  validatePublicSeedRegistration,validateNoGameWitnessReceipt,validateV3WorkerDecisionTrace,validateV3FullStateTraceJoins,validateV3FullStateTraceRecorderResult,
   buildNoGameWitnessFailureReceipt,buildV3RunnerFailureError,
   createV3WorkerExecutionAudit,createV3WorkerDecisionResolver,
   projectNativeFixtureFailureForReceipt,projectV3FixtureFailureForReceipt,
   projectV3RoleFailureForReceipt,
   resolveNoGameWitnessSeedPrompt,classifyNoGameWitnessSeedProbeFailure,
-  runV3NativeNoGameWitness,runV3CompiledSeatWitness,policyEnvironmentAllowlist
+  runV3NativeNoGameWitness,runV3CompiledSeatWitness,stripNoGameWitnessArtifactPath,policyEnvironmentAllowlist
 }=require('../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 const roleIdentity=require('../simulation/evaluation/2026-11/agent42-role-policy-identity.cjs');
 const {cleanupPolicyBundle}=require('../simulation/evaluation/2026-11/agent36-docker-policy-worker.cjs');
+const {buildSetupPromptAudit,projectV3WorkerExecutionBoundaryToTrial}=require('../simulation/evaluation/2026-11/agent19-setup-prompt-audit.cjs');
 const {
   preparePreDealPolicyRegistration,
   revalidatePreDealPolicyRegistration
@@ -41,6 +42,92 @@ test('host environment snapshot transport is never allowlisted into role workers
 });
 
 const STEP='Generate physical deal';
+
+function rootResolverFixture({
+  actorObservation=null,actorObservationSha256=null,responsePatch={},dispatchError=null,
+  publicEventReceipt=null
+}={}) {
+  const workerAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});
+  const policyVersion='runner-root-audit-test-v1';
+  const observation=actorObservation??Object.freeze({
+    actorSeat:1,decisionKind:'owner-root',phase:'PLAYER_TURN',
+    globalTurn:3,ownHand:['distinctive-root-actor-input']
+  });
+  const item={
+    token:'root-action-0',kind:'attack',attackName:'Max Geist',
+    publicMetadata:{damage:250,stadiumEffectLive:true}
+  };
+  const frontierBinding={schema:require('../simulation/evaluation/2026-11/agent49-policy-protocol.cjs').FRONTIER_SCHEMA,items:[item]};
+  const policyAudit={
+    schema:'agent6-policy-audit-v1',policyVersion,
+    decisionKind:'owner-root',decisionType:'select-action',
+    selectionRuleCode:'ROOT_SCORE_DESC',tieBreakCode:'FIRST_NATIVE_ORDER',
+    selectedTokens:[item.token],
+    evaluations:[{token:item.token,status:'scored',score:12,reasonCode:null}]
+  };
+  const response={
+    requestId:'runner-root-audit-request',sequence:1,role:'opponent',seat:1,
+    policyVersion,bundleSha256:'c'.repeat(64),
+    decision:{kind:'select-action',token:item.token},
+    policyAudit,policyDrawCount:0,
+    ...responsePatch
+  };
+  const calls={worker:0,seenObservation:null,cloneValidation:0,liveStoreDispatch:0};
+  const actionEnumerator={
+    createKnownCapFreeActionEnumerator(){return {schema:'test-known-cap-free-enumerator-v1'};},
+    assertKnownCapFreeAdapterAdmissionClear(){return {schema:'test-frontier-admission-v1',accepted:true};}
+  };
+  const actionFrontier={
+    buildNativeActionFrontier(){
+      return {
+        actionFrontier:frontierBinding,
+        actionByToken:new Map([[item.token,{kind:'native-action'}]]),
+        diagnostics:{}
+      };
+    },
+    dispatchSelectedNativeAction(args){
+      calls.cloneValidation++;
+      if(dispatchError)throw dispatchError;
+      Object.assign(args.validationEvidence,{
+        nativeValidationStoreMode:'cloned-store',
+        fullOriginalStoreStateUnchanged:true,
+        actorSeat:1
+      });
+      return {kind:'native-action'};
+    }
+  };
+  const resolver=createV3WorkerDecisionResolver({
+    sessionsBySeat:{
+      1:{async decide(input){
+        calls.worker++;
+        calls.seenObservation=input.observation;
+        return response;
+      }}
+    },
+    candidateSeat:0,opponentSeat:1,
+    native:{
+      observe(){throw new Error('resolver must consume the exact driver-supplied actor observation');},
+      ActionEnumerator:class ActionEnumerator {},
+      Simulator:class Simulator {}
+    },
+    workerAudit,eventReceipt:()=>publicEventReceipt,
+    actionEnumerator,actionFrontier
+  });
+  const request={
+    kind:'native-fixture-decision',decisionKind:'owner-root',
+    actorSeat:1,actionOrdinal:5,
+    actorObservation:observation,
+    actorObservationSha256:actorObservationSha256??evidenceBundleSha256(observation),
+    state:{activePlayer:1},prompt:null,
+    store:{state:{},dispatch(){calls.liveStoreDispatch++;}},
+    withValidationRandom:fn=>fn()
+  };
+  return {
+    resolver,request,workerAudit,calls,actorObservation:observation,
+    item,frontierBinding,policyAudit,response
+  };
+}
+
 
 test('V3 no-game seed probe resolves GO_FIRST affirmatively without invoking the neutral bot',()=>{
   class ConfirmPrompt {
@@ -1238,22 +1325,26 @@ test('V3 fixture no-game witness receipt requires all four role-seat pairs and e
   for(const candidateSeat of [0,1]){
     for(const actorSeat of [0,1]){
       const role=actorSeat===candidateSeat?'candidate':'opponent';
+      const seed='public-witness-seed-'+candidateSeat+'-'+actorSeat;
       witnesses.push({
+        schema:'agent36-v3-native-no-game-seat-witness-v1',
         fixtureOnly:true,gameExecuted:false,candidateSeat,
         opponentSeat:1-candidateSeat,actorSeat,role,
-        actualFirstPlayerSeat:actorSeat,seed:'public-witness-seed',
+        actualFirstPlayerSeat:actorSeat,seed,
+        seed32:createHash('sha256').update(seed,'utf8').digest().readUInt32LE(0),
         actorObservationUsed:true,selectedActionValidated:true,
         nativeStoreCreated:true,bothPlayersRegistered:true,
         nativeActionFrontierUsed:true,nativeValidationStoreMode:'cloned-store',
-        hostStoppedBeforeLiveDispatch:true,
+        hostStoppedBeforeLiveDispatch:true,validationActionKind:'GO_FIRST',
         fullOriginalStoreStateUnchanged:true,liveActionDispatched:false,
-        acceptedRootActions:0,rootDecisionCount:1,actionFrontierItemCount:2,
+        acceptedRootActions:0,rootDecisionCount:1,workerDecisionCount:1,actionFrontierItemCount:2,
         workerCleanupVerified:true,allWorkerSessionsClosed:true,
         actorOnlyWorkerInput:true,nativeStateDisclosedToWorker:false,
         opponentPrivateZonesDisclosedToWorker:false,
         physicalSeedDisclosedToWorker:false,policySeedDisclosedToWorker:false,
         workerInputScope:'actor-observation-v3+actor-prompt-projection+public-event-receipt-v3+typed-action-frontier-v1',
         workerFailureCount:0,policyRngReplayable:true,
+        promptProvenanceHookRestored:true,runtimePinGuardRestored:true,
         policySha256:role==='candidate'?expected.candidatePolicySha256:expected.opponentPolicySha256,
         policyVersion:role==='candidate'?expected.candidatePolicyVersion:expected.opponentPolicyVersion,
         candidatePolicySha256:expected.candidatePolicySha256,
@@ -1273,6 +1364,7 @@ test('V3 fixture no-game witness receipt requires all four role-seat pairs and e
     allStoreStatesUnchanged:true,allSelectedActionsValidated:true,
     allActorObservationsUsed:true,allWorkersClosed:true,
     allWorkerPoliciesActorOnly:true,
+    generatedAt:'2026-11-20T12:00:00.000Z',
     researchRevisionSha:expected.researchRevisionSha,
     twinleafCommitSha:expected.twinleafCommitSha,
     candidatePrinted60Sha256:expected.candidatePrinted60Sha256,
@@ -1284,6 +1376,26 @@ test('V3 fixture no-game witness receipt requires all four role-seat pairs and e
     coverage:['0:0','0:1','1:0','1:1'],witnesses
   };
   assert.equal(validateNoGameWitnessReceipt(receipt,expected),receipt);
+
+  const witnessWithArtifactPath={
+    ...receipt.witnesses[0],
+    outputPath:'artifacts/agent36-v3-fixture/native-no-game-witness/candidate-seat-0-actor-seat-0/native-no-game-seat-witness.json'
+  };
+  const projectedWitness=stripNoGameWitnessArtifactPath(witnessWithArtifactPath);
+  assert.deepEqual(projectedWitness,receipt.witnesses[0]);
+  assert.equal(Object.hasOwn(projectedWitness,'outputPath'),false);
+  const projectedReceipt={
+    ...receipt,
+    witnesses:receipt.witnesses.map((row,index)=>index===0?
+      stripNoGameWitnessArtifactPath({...row,outputPath:'artifacts/witness.json'}):row)
+  };
+  assert.equal(validateNoGameWitnessReceipt(projectedReceipt,expected),projectedReceipt);
+
+  const wrongRowSchema=JSON.parse(JSON.stringify(receipt));
+  wrongRowSchema.witnesses[0].schema='agent36-v3-native-no-game-seat-witness-v2';
+  assert.throws(()=>validateNoGameWitnessReceipt(wrongRowSchema,expected),
+    /native no-game witness row must use the expected schema/);
+
   assert.throws(()=>validateNoGameWitnessReceipt({
     ...receipt,witnesses:receipt.witnesses.map((row,index)=>index===0?{...row,nativeActionFrontierUsed:false}:row)
   },expected));
@@ -1293,6 +1405,53 @@ test('V3 fixture no-game witness receipt requires all four role-seat pairs and e
   assert.throws(()=>validateNoGameWitnessReceipt({
     ...receipt,researchRevisionSha:'d'.repeat(40)
   },expected),/exact checked-out research SHA/);
+
+  assert.throws(()=>validateNoGameWitnessReceipt({
+    ...receipt,unexpectedPublicField:true
+  },expected),/unknown or missing fields/);
+  assert.throws(()=>validateNoGameWitnessReceipt({
+    ...receipt,witnesses:receipt.witnesses.map((row,index)=>index===0?
+      {...row,policySeedBySeat:[1,2]}:row)
+  },expected),/unknown or missing fields/);
+
+  const nestedPrompt=JSON.parse(JSON.stringify(receipt));
+  nestedPrompt.witnesses[0].seed={promptResolverContext:{promptId:'private-prompt'}};
+  assert.throws(()=>validateNoGameWitnessReceipt(nestedPrompt,expected),
+    /forbidden field.*promptResolverContext/);
+  const nestedPolicySeed=JSON.parse(JSON.stringify(receipt));
+  nestedPolicySeed.coverage=[{policySeedBySeat:[1,2]},'0:1','1:0','1:1'];
+  assert.throws(()=>validateNoGameWitnessReceipt(nestedPolicySeed,expected),
+    /forbidden field.*policySeedBySeat/);
+  for(const forbiddenField of [
+    'actorInput','promptId','actionPayload','validationReceipt',
+    'opponentPrivateZones','policyRng','policySeed','nativeContext'
+  ]){
+    const nested=JSON.parse(JSON.stringify(receipt));
+    nested.witnesses[0].seed={[forbiddenField]:'private'};
+    assert.throws(()=>validateNoGameWitnessReceipt(nested,expected),
+      new RegExp('forbidden field.*'+forbiddenField));
+  }
+
+  const wrongSeedType=JSON.parse(JSON.stringify(receipt));
+  wrongSeedType.witnesses[0].seed=42;
+  assert.throws(()=>validateNoGameWitnessReceipt(wrongSeedType,expected),
+    /physical seed must be a non-empty string/);
+  const wrongSeed32Type=JSON.parse(JSON.stringify(receipt));
+  wrongSeed32Type.witnesses[0].seed32='not-a-number';
+  assert.throws(()=>validateNoGameWitnessReceipt(wrongSeed32Type,expected),
+    /seed32 must be an unsigned 32-bit integer/);
+  const wrongSeed32=JSON.parse(JSON.stringify(receipt));
+  wrongSeed32.witnesses[0].seed32=(wrongSeed32.witnesses[0].seed32+1)>>>0;
+  assert.throws(()=>validateNoGameWitnessReceipt(wrongSeed32,expected),
+    /seed32 must equal SHA-256 first UInt32LE/);
+  const missingSeed32=JSON.parse(JSON.stringify(receipt));
+  delete missingSeed32.witnesses[0].seed32;
+  assert.throws(()=>validateNoGameWitnessReceipt(missingSeed32,expected),
+    /unknown or missing fields/);
+  const outOfRangeSeed32=JSON.parse(JSON.stringify(receipt));
+  outOfRangeSeed32.witnesses[0].seed32=0x100000000;
+  assert.throws(()=>validateNoGameWitnessReceipt(outOfRangeSeed32,expected),
+    /seed32 must be an unsigned 32-bit integer/);
 });
 
 test('V3 prior-evidence gates require completed same-workflow runs strictly before the consumer',()=>{
@@ -1483,30 +1642,43 @@ test('V3 wrong-actor resolver failure survives callback projection and final wit
 
 test('V3 no-game failure receipt coarsens worker prompt abstention reasons to a public generic code',async()=>{
   const workerAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});
+  const actorObservation={actorSeat:1,decisionKind:'owner-prompt'};
+  const actorObservationSha256=evidenceBundleSha256(actorObservation);
   const resolver=createV3WorkerDecisionResolver({
     sessionsBySeat:{
       1:{async decide(){
+        const policyVersion='runner-test-policy-v1';
         return {
+          requestId:'runner-test-request-1',sequence:1,role:'opponent',seat:1,
+          policyVersion,bundleSha256:'a'.repeat(64),
           decision:{kind:'abstain',reasonCode:'INVALID_STARTING_POKEMON_PROMPT'},
+          policyAudit:{
+            schema:'agent6-policy-audit-v1',policyVersion,
+            decisionKind:'owner-prompt',decisionType:'abstain',
+            selectionRuleCode:'ABSTAIN_POLICY_DECISION',tieBreakCode:'NONE',
+            selectedTokens:[],evaluations:[]
+          },
           policyDrawCount:0
         };
       }}
     },
     candidateSeat:0,
     opponentSeat:1,
-    native:{observe(){return {};}},
+    native:{observe(){return {actorSeat:1,decisionKind:'owner-prompt'};}},
     workerAudit,
     eventReceipt:()=>null,
     promptProjection:{
       projectPrompt(){return {
         hostOnly:false,
-        promptProjection:{promptType:'ChooseCardsPrompt'}
+        promptProjection:{promptType:'ChooseCardsPrompt',choices:[]}
       };}
     }
   });
   let resolverFailure=null;
   await assert.rejects(resolver({
     kind:'native-fixture-decision',
+    decisionKind:'owner-prompt',actionOrdinal:1,
+    actorObservation,actorObservationSha256,
     actorSeat:1,
     prompt:{},
     state:{activePlayer:1},
@@ -1518,6 +1690,9 @@ test('V3 no-game failure receipt coarsens worker prompt abstention reasons to a 
   });
   assert.equal(workerAudit.roles.opponent.lastAbstentionReasonCode,
     'INVALID_STARTING_POKEMON_PROMPT');
+  assert.equal(resolverFailure.workerDecisionTrace.actorInputSha256,actorObservationSha256);
+  assert.equal(resolverFailure.workerDecisionTrace.validationReceipt,null);
+  assert.equal(resolverFailure.workerDecisionTrace.failureCode,'POLICY_ABSTAINED');
   workerAudit.roles.candidate.lastAbstentionReasonCode='PRIVATE_ACTOR_HAND_HAS_UNIQUE_CARD';
   const receipt=buildNoGameWitnessFailureReceipt({
     error:{code:resolverFailure.code,workerAudit},
@@ -1586,3 +1761,880 @@ test('V3 outer runner cleanup receipt preserves primary and cleanup summaries wi
   assert.match(failure.message,/Native V3 fixture runner failed during runner-hook-restore/);
 });
 
+
+
+function makeV3SetupPromptAuditFixture(){
+  const {evidenceBundleSha256}=require('../simulation/evaluation/canonical-evidence-json.cjs');
+  const specs=[
+    {actionOrdinal:0,seat:0,role:'candidate',promptId:'setup-basic-0',
+      promptType:'ChooseCardsPrompt',message:'CHOOSE_STARTING_POKEMONS',minimumCount:1},
+    {actionOrdinal:1,seat:0,role:'candidate',promptId:'setup-first-0',
+      promptType:'ConfirmPrompt',message:'GO_FIRST'},
+    {actionOrdinal:2,seat:0,role:'candidate',promptId:'setup-extra-bench-0',
+      promptType:'ChooseCardsPrompt',message:'CHOOSE_STARTING_POKEMONS',minimumCount:0},
+    {actionOrdinal:3,seat:1,role:'opponent',promptId:'setup-basic-1',
+      promptType:'ChooseCardsPrompt',message:'CHOOSE_STARTING_POKEMONS',minimumCount:1}
+  ];
+  const decisionTrace=[];
+  const rootActionLedger=[];
+  const fullStateTraceSteps=[];
+  for(const spec of specs){
+    const token='token-'+spec.actionOrdinal;
+    const choice={token,label:'engine choice '+spec.actionOrdinal};
+    const selectedTokens=[token];
+    const selectedItems=[choice];
+    const selectedItemsSha256=evidenceBundleSha256(selectedItems);
+    const promptProjection={
+      schema:'agent49-native-prompt-projection-v1',
+      actingSeat:spec.seat,
+      promptType:spec.promptType,
+      description:spec.message,
+      source:{sourceKind:'engine',sourcePrinting:null,effectName:spec.message},
+      publicMetadata:{minimumCount:spec.minimumCount??null},
+      choices:[choice]
+    };
+    const promptProjectionSha256=evidenceBundleSha256(promptProjection);
+    const actionFrontier={schema:'agent6-native-action-frontier-v1',items:[]};
+    const actionFrontierSha256=evidenceBundleSha256(actionFrontier);
+    const validationReceipt={
+      schema:'agent6-cloned-store-prompt-validation-v1',
+      promptId:spec.promptId,
+      actorSeat:spec.seat,
+      promptDecodeValidated:true,
+      clonedPromptResolved:true,
+      nativeValidationStoreMode:'cloned-store',
+      fullOriginalStoreStateUnchanged:true,
+      selectedTokens,
+      selectedItemsSha256,
+      promptProjectionSha256,
+      actionFrontierSha256
+    };
+    const validationReceiptSha256=evidenceBundleSha256(validationReceipt);
+    const actorInput={schema:'agent6-actor-observation-v3',actorSeat:spec.seat,
+      decisionKind:'owner-prompt',turn:0};
+    const actorInputSha256=evidenceBundleSha256(actorInput);
+    const workerDecisionTrace={
+      schema:'agent6-worker-decision-trace-v1',
+      traceStatus:'validated',
+      failureCode:null,
+      sequence:spec.actionOrdinal+1,
+      requestId:'request-'+spec.actionOrdinal,
+      policyVersion:spec.role+'-policy-v1',
+      bundleSha256:'a'.repeat(64),
+      actionOrdinal:spec.actionOrdinal,
+      seat:spec.seat,
+      role:spec.role,
+      decisionKind:'owner-prompt',
+      actorInput,
+      actorInputSha256,
+      actorObservationSha256:actorInputSha256,
+      publicEventReceipt:null,
+      publicEventReceiptSha256:null,
+      promptProjection,
+      promptProjectionSha256,
+      actionFrontier,
+      actionFrontierSha256,
+      inputBindingSha256:evidenceBundleSha256({
+        observation:actorInput,publicEventReceipt:null,promptProjection,actionFrontier
+      }),
+      selectedTokens,
+      selectedItems,
+      selectedItemsSha256,
+      unmatchedSelectedTokens:[],
+      selectionStatus:'resolved',
+      decision:{kind:'select-choice',token},
+      policyAudit:{decisionKind:'owner-prompt',decisionType:'select-choice',
+        policyVersion:spec.role+'-policy-v1',selectedTokens},
+      policyAuditSha256:'b'.repeat(64),
+      validationReceipt,
+      validationReceiptSha256
+    };
+    const workerDecisionTraceSha256=evidenceBundleSha256(workerDecisionTrace);
+    const actionPayload={
+      actionName:'ResolvePromptAction',
+      fields:{promptId:spec.promptId,result:spec.message==='GO_FIRST'?false:[{token}]}
+    };
+    const actionPayloadSha256=evidenceBundleSha256(actionPayload);
+    const promptResolverContext={
+      promptId:spec.promptId,
+      promptType:spec.promptType,
+      playerId:'player-'+spec.seat,
+      perspectivePlayerId:'player-'+spec.seat,
+      actingSeat:spec.seat,
+      resolver:'native-prompt-resolver',
+      message:spec.message,
+      availableOptions:{min:spec.minimumCount===0?1:spec.minimumCount??null}
+    };
+    const promptResolution={
+      kind:'worker-choice',decisionKind:'select-choice',selectedCount:1
+    };
+    const publicPlayers=[
+      {id:'player-0',prizes:6,active:true},
+      {id:'player-1',prizes:6,active:true}
+    ];
+    const row={
+      actionOrdinal:spec.actionOrdinal,
+      actingSeat:spec.seat,
+      actingPlayerId:'player-'+spec.seat,
+      phaseBefore:1,
+      turnBefore:0,
+      pendingPromptType:spec.promptType,
+      pendingPromptId:spec.promptId,
+      promptResolution,
+      isRootDecision:false,
+      policyInputKind:'native-owner-prompt',
+      promptResolverContext,
+      decisionKind:'owner-prompt',
+      workerDecisionTrace,
+      workerDecisionTraceSha256,
+      validationReceipt,
+      validationReceiptSha256,
+      actionName:'ResolvePromptAction',
+      actionPayload,
+      actionPayloadSha256,
+      dispatchStatus:'succeeded',
+      publicStateAfter:{players:publicPlayers}
+    };
+    decisionTrace.push(row);
+    rootActionLedger.push({
+      actionOrdinal:spec.actionOrdinal,
+      actorSeat:spec.seat,
+      playerId:'player-'+spec.seat,
+      turnBefore:0,
+      action:'ResolvePromptAction',
+      actionPayloadSha256,
+      pendingPrompt:spec.promptType,
+      isRootDecision:false,
+      promptResolution,
+      policyInputKind:'native-owner-prompt',
+      decisionKind:'owner-prompt',
+      workerDecisionTraceSha256,
+      validationReceiptSha256,
+      promptResolverContext,
+      dispatchStatus:'succeeded'
+    });
+    fullStateTraceSteps.push({
+      actionOrdinal:spec.actionOrdinal+1,
+      publicBoard:publicPlayers
+    });
+  }
+  const workerExecutionAudit={
+    schema:'agent49-v3-worker-execution-audit-v1',
+    workerProcessPerRole:true,
+    physicalSeedDisclosedToWorker:false,
+    policySeedDisclosedToWorker:false,
+    nativeStateDisclosedToWorker:false,
+    opponentPrivateZonesDisclosedToWorker:false,
+    workerInputScope:'actor-observation-v3+actor-prompt-projection+public-event-receipt-v3+typed-action-frontier-v1',
+    totalWorkerDecisions:4,totalHostOnlyPrompts:0,totalAbstentions:0,totalFailures:0,
+    policyRngViolations:0,replayableEvidence:true,cleanupVerified:true,
+    cleanupFailureCount:0,
+    cleanupReceipts:[
+      {role:'candidate',processClosed:true,containerRemoved:true},
+      {role:'opponent',processClosed:true,containerRemoved:true}
+    ],
+    roles:{
+      candidate:{
+        role:'candidate',seat:0,policyVersion:'candidate-policy-v1',
+        bundleSha256:'c'.repeat(64),policySha256:'d'.repeat(64),
+        decisionCount:3,rootDecisionCount:0,promptDecisionCount:3,hostOnlyPromptCount:0,
+        abstentionCount:0,failureCount:0,timeoutCount:0,
+        workerProcessClosed:true,containerRemoved:true,policyBundleRemoved:true,
+        policyRngReplayable:true,policyDrawViolationCount:0,actionFrontierAdmissionFailureCount:0
+      },
+      opponent:{
+        role:'opponent',seat:1,policyVersion:'opponent-policy-v1',
+        bundleSha256:'e'.repeat(64),policySha256:'f'.repeat(64),
+        decisionCount:1,rootDecisionCount:0,promptDecisionCount:1,hostOnlyPromptCount:0,
+        abstentionCount:0,failureCount:0,timeoutCount:0,
+        workerProcessClosed:true,containerRemoved:true,policyBundleRemoved:true,
+        policyRngReplayable:true,policyDrawViolationCount:0,actionFrontierAdmissionFailureCount:0
+      }
+    }
+  };
+  return {
+    candidateSeat:0,opponentSeat:1,decisionTrace,rootActionLedger,
+    workerExecutionAudit,fullStateTraceSteps
+  };
+}
+
+test('Agent19 V3-native setup audit joins starting-Basic and GO_FIRST worker receipts to driver, ledger, and recorder',()=>{
+  const fixture=makeV3SetupPromptAuditFixture();
+  const audit=buildSetupPromptAudit(fixture);
+  assert.equal(audit.schema,'agent19-agent36-v3-native-setup-prompt-audit-v1');
+  assert.equal(audit.visibility,'encrypted-full-only');
+  assert.equal(audit.complete,true,audit.failures.join(','));
+  assert.equal(audit.accepted,true,audit.failures.join(','));
+  assert.equal(audit.setupPromptDecisions,4);
+  assert.deepEqual(audit.roles.candidate.counts,
+    {startingBasics:1,optionalExtraBenchPlacements:1,goFirst:1,wantToDrawCards:0});
+  assert.deepEqual(audit.roles.opponent.counts,
+    {startingBasics:1,optionalExtraBenchPlacements:0,goFirst:0,wantToDrawCards:0});
+  assert.deepEqual(audit.roles.candidate.setupPromptRows.map(row=>row.actionOrdinal),[0,1,2]);
+  assert.deepEqual(audit.roles.opponent.setupPromptRows.map(row=>row.actionOrdinal),[3]);
+  assert.equal(audit.roles.candidate.setupPromptRows[2].kind,'optional-extra-bench-placement');
+  assert.equal(audit.roles.candidate.setupPromptRows[2].minimumCount,0);
+  assert.ok([...audit.roles.candidate.setupPromptRows,...audit.roles.opponent.setupPromptRows]
+    .every(row=>row.accepted&&row.ledgerJoinVerified&&row.recorderJoinVerified));
+});
+
+test('Agent19 V3-native setup audit fails closed on missing rows, digest/ledger tampering, or recorder mismatch',()=>{
+  const missing=makeV3SetupPromptAuditFixture();
+  missing.decisionTrace.splice(0,1);
+  missing.rootActionLedger.splice(0,1);
+  missing.fullStateTraceSteps.splice(0,1);
+  const missingAudit=buildSetupPromptAudit(missing);
+  assert.equal(missingAudit.accepted,false);
+  assert.ok(missingAudit.failures.some(value=>value.includes('required-starting-basic-prompt-missing')));
+
+  const tampered=makeV3SetupPromptAuditFixture();
+  tampered.decisionTrace[0].actionPayloadSha256='0'.repeat(64);
+  const tamperedAudit=buildSetupPromptAudit(tampered);
+  assert.equal(tamperedAudit.accepted,false);
+  assert.ok(tamperedAudit.roles.candidate.failures.some(value=>value.includes('worker-or-action-payload-digest-invalid')));
+
+  const recorderMismatch=makeV3SetupPromptAuditFixture();
+  recorderMismatch.fullStateTraceSteps[0].publicBoard=[{id:'wrong-public-state'}];
+  const recorderAudit=buildSetupPromptAudit(recorderMismatch);
+  assert.equal(recorderAudit.accepted,false);
+  assert.ok(recorderAudit.roles.candidate.failures.some(value=>value.includes('recorder-public-board-join-invalid')));
+
+  const countMismatch=makeV3SetupPromptAuditFixture();
+  countMismatch.workerExecutionAudit.roles.candidate.promptDecisionCount++;
+  const countAudit=buildSetupPromptAudit(countMismatch);
+  assert.equal(countAudit.accepted,false);
+  assert.ok(countAudit.failures.some(value=>value.includes('promptDecisionCount-does-not-reconcile-to-native-trace')));
+
+  const missingMinimum=makeV3SetupPromptAuditFixture();
+  delete missingMinimum.decisionTrace[0].workerDecisionTrace.promptProjection.publicMetadata.minimumCount;
+  const minimumAudit=buildSetupPromptAudit(missingMinimum);
+  assert.equal(minimumAudit.accepted,false);
+  assert.ok(minimumAudit.failures.some(value=>value.includes('starting-pokemon-minimum-count-invalid')));
+
+  const duplicateMandatory=makeV3SetupPromptAuditFixture();
+  duplicateMandatory.decisionTrace[2].workerDecisionTrace.promptProjection.publicMetadata.minimumCount=1;
+  const duplicateAudit=buildSetupPromptAudit(duplicateMandatory);
+  assert.equal(duplicateAudit.accepted,false);
+  assert.ok(duplicateAudit.roles.candidate.failures.some(value=>
+    value.includes('required-starting-basic-prompt-count-not-one')));
+});
+
+test('V3 runner uses native setup receipts and keeps their projections behind the encrypted-full boundary',()=>{
+  const source=fs.readFileSync(path.resolve(__dirname,
+    '../simulation/evaluation/2026-11/agent36-v3-runner.cjs'),'utf8');
+  const helper=fs.readFileSync(path.resolve(__dirname,
+    '../simulation/evaluation/2026-11/agent19-setup-prompt-audit.cjs'),'utf8');
+  const witnessStart=source.indexOf('const witnessReceipt={');
+  const witnessEnd=source.indexOf('writeJsonAtomic(witnessPath,witnessReceipt)',witnessStart);
+  const setupAuditStart=source.indexOf('const setupPromptAudit=fullStateTraceRecorder?');
+  const setupAuditEnd=source.indexOf('const setupPromptAuditAcceptance=',setupAuditStart);
+  assert.ok(witnessStart>=0&&witnessEnd>witnessStart&&setupAuditStart>witnessEnd,
+    'no-game witness must return before setup receipts are projected');
+  assert.doesNotMatch(source.slice(witnessStart,witnessEnd),/setupPromptAudit/);
+  assert.match(source,/diagnosticMode==='encrypted-full'&&!witnessOnly/);
+  assert.match(source,/setupPromptAuditAcceptance\.accepted/);
+  assert.match(source,/SETUP_PROMPT_AUDIT_INCOMPLETE/);
+  assert.match(source,/setupPromptAudit,\s*setupPromptAuditAcceptance/);
+  assert.match(source,/=== ENCRYPTED ACTOR-OWNED SETUP PROMPT AUDIT ===/);
+  assert.match(source,/projectV3WorkerExecutionBoundaryToTrial/);
+  assert.match(source,/name: 'setupPromptAudit', path: 'simulation\/evaluation\/2026-11\/agent19-setup-prompt-audit\.cjs', exportName: 'buildSetupPromptAudit'/);
+  assert.match(source,/V3_WORKER_EXECUTION_BOUNDARY_INCOMPLETE/);
+  assert.match(source,/workerExecutionBoundaryValid/);
+  assert.match(source,/actorOnlyExecutionBoundaryApplicable:false/);
+  assert.match(source.slice(setupAuditStart,setupAuditEnd),/workerExecutionAudit/);
+  assert.match(source.slice(setupAuditStart,setupAuditEnd),/fullStateTraceSteps/);
+  assert.doesNotMatch(source.slice(setupAuditStart,setupAuditEnd),/candidateAudit|opponentAudit/);
+  assert.doesNotMatch(helper,/candidateAudit|opponentAudit|runCandidateOpponentPolicyRoles/);
+  assert.match(helper,/promptResolverContext/);
+  assert.match(helper,/workerDecisionTrace/);
+  assert.match(helper,/fullStateTraceSteps/);
+});
+
+
+test('V3 callback result normalizer feeds native setup receipts without legacy role-composer audits',()=>{
+  const fixture=makeV3SetupPromptAuditFixture();
+  const nativeGameResult={
+    schema:'aichi-native-fixture-game-v1',
+    finished:true,
+    endReason:'engine-game-end',
+    actions:fixture.decisionTrace.length,
+    decisionTrace:fixture.decisionTrace,
+    rootActionLedger:fixture.rootActionLedger
+  };
+  // This is the actual V3 runner callback contract: {result: gameResult, workerAudit}.
+  const normalized=normalizeV3FixtureRoleResult({
+    result:nativeGameResult,
+    workerAudit:fixture.workerExecutionAudit
+  });
+  assert.equal(normalized.gameResult,nativeGameResult);
+  assert.equal(normalized.workerExecutionAudit,fixture.workerExecutionAudit);
+  assert.equal(normalized.roleResult.candidateAudit,undefined);
+  assert.equal(normalized.roleResult.opponentAudit,undefined);
+  const audit=buildSetupPromptAudit({
+    candidateSeat:fixture.candidateSeat,
+    opponentSeat:fixture.opponentSeat,
+    decisionTrace:normalized.gameResult.decisionTrace,
+    rootActionLedger:normalized.gameResult.rootActionLedger,
+    workerExecutionAudit:normalized.workerExecutionAudit,
+    fullStateTraceSteps:fixture.fullStateTraceSteps
+  });
+  assert.equal(audit.accepted,true,audit.failures.join(','));
+  const boundary=projectV3WorkerExecutionBoundaryToTrial(
+    normalized.workerExecutionAudit,{
+      candidateSeat:fixture.candidateSeat,
+      opponentSeat:fixture.opponentSeat,
+      setupPromptAudit:audit
+    }
+  );
+  assert.equal(boundary.valid,true,boundary.failures.join(','));
+});
+
+
+test('V3 worker execution boundary binds replayability, cleanup, disclosure limits, and setup audit',()=>{
+  const {evidenceBundleSha256}=require('../simulation/evaluation/canonical-evidence-json.cjs');
+  const fixture=makeV3SetupPromptAuditFixture();
+  const setupPromptAudit=buildSetupPromptAudit(fixture);
+  const boundary=projectV3WorkerExecutionBoundaryToTrial(fixture.workerExecutionAudit,{
+    candidateSeat:fixture.candidateSeat,
+    opponentSeat:fixture.opponentSeat,
+    setupPromptAudit
+  });
+  assert.equal(boundary.schema,'agent19-agent49-v3-worker-execution-boundary-v1');
+  assert.equal(boundary.valid,true,boundary.failures.join(','));
+  assert.equal(boundary.workerExecutionAuditSha256,evidenceBundleSha256(fixture.workerExecutionAudit));
+  assert.equal(boundary.setupPromptAuditSha256,evidenceBundleSha256(setupPromptAudit));
+  assert.equal(boundary.roles.candidate.workerProcessClosed,true);
+  assert.equal(boundary.roles.opponent.policyBundleRemoved,true);
+
+  const disclosed=JSON.parse(JSON.stringify(fixture.workerExecutionAudit));
+  disclosed.physicalSeedDisclosedToWorker=true;
+  const invalid=projectV3WorkerExecutionBoundaryToTrial(disclosed,{
+    candidateSeat:fixture.candidateSeat,
+    opponentSeat:fixture.opponentSeat,
+    setupPromptAudit
+  });
+  assert.equal(invalid.valid,false);
+  assert.ok(invalid.failures.some(value=>value.includes('physicalSeedDisclosedToWorker-must-be-false')));
+});
+
+
+test('V3 worker prompt resolver binds policyAudit, actor projection and cloned-Store receipt', async () => {
+  const workerAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});
+  const policyVersion='runner-prompt-audit-test-v1';
+  const actorObservation={actorSeat:1,decisionKind:'owner-prompt',ownHand:['Fog Crystal FLI']};
+  const actorObservationSha256=evidenceBundleSha256(actorObservation);
+  let seenObservation=null;
+  const choice={token:'prompt-choice-0',kind:'card',printing:'Fog Crystal FLI'};
+  const policyAudit={
+    schema:'agent6-policy-audit-v1',policyVersion,
+    decisionKind:'owner-prompt',decisionType:'select-choice',
+    selectionRuleCode:'PROMPT_SCORE_DESC',tieBreakCode:'SCORE_DESC_NATIVE_ORDER',
+    selectedTokens:['prompt-choice-0'],
+    evaluations:[{
+      token:'prompt-choice-0',status:'scored',score:12,reasonCode:null
+    }]
+  };
+  const resolver=createV3WorkerDecisionResolver({
+    sessionsBySeat:{
+      1:{async decide(input){
+        seenObservation=input.observation;
+        return {
+          requestId:'runner-prompt-audit-request',sequence:7,
+          role:'opponent',seat:1,policyVersion,bundleSha256:'b'.repeat(64),
+          decision:{kind:'select-choice',token:'prompt-choice-0'},
+          policyAudit,policyDrawCount:0
+        };
+      }}
+    },
+    candidateSeat:0,opponentSeat:1,
+    native:{observe(){return {actorSeat:1,decisionKind:'owner-prompt',ownHand:['Fog Crystal FLI']};}},
+    workerAudit,eventReceipt:()=>null,
+    promptProjection:{
+      projectPrompt(){return {
+        hostOnly:false,
+        promptProjection:{schema:'test-prompt-v1',promptType:'ChooseCardsPrompt',choices:[choice]}
+      };},
+      dispatchPromptChoice(args){
+        assert.equal(typeof args.withValidationRandom,'function');
+        return {
+          action:{kind:'validated-prompt-action'},
+          rawResult:0,
+          validationReceipt:{
+            schema:'agent6-cloned-store-prompt-validation-v1',
+            actorSeat:1,promptId:'prompt-1',selectedTokens:['prompt-choice-0'],
+            selectedCount:1,nativeValidationStoreMode:'cloned-store',
+            promptDecodeValidated:true,clonedPromptResolved:true,
+            fullOriginalStoreStateUnchanged:true
+          }
+        };
+      }
+    }
+  });
+  const result=await resolver({
+    kind:'native-fixture-decision',decisionKind:'owner-prompt',actorSeat:1,
+    actorObservation,actorObservationSha256,
+    prompt:{id:'prompt-1'},state:{activePlayer:1},store:{},
+    actionOrdinal:3,withValidationRandom:fn=>fn()
+  });
+  assert.equal(result.__nativeFixtureDecisionResolution,true);
+  assert.deepEqual(result.action,{kind:'validated-prompt-action'});
+  assert.equal(result.validationReceipt.nativeValidationStoreMode,'cloned-store');
+  assert.equal(result.decisionTrace.actionOrdinal,3);
+  assert.equal(result.decisionTrace.requestId,'runner-prompt-audit-request');
+  assert.equal(result.decisionTrace.sequence,7);
+  assert.equal(result.decisionTrace.role,'opponent');
+  assert.equal(result.decisionTrace.seat,1);
+  assert.deepEqual(result.decisionTrace.selectedTokens,['prompt-choice-0']);
+  assert.deepEqual(result.decisionTrace.selectedItems,[choice]);
+  assert.deepEqual(result.decisionTrace.policyAudit,policyAudit);
+  assert.strictEqual(seenObservation,actorObservation);
+  assert.equal(result.decisionTrace.actorInputSha256.length,64);
+  assert.strictEqual(result.decisionTrace.actorInput,actorObservation);
+  assert.equal(result.decisionTrace.actorObservationSha256,actorObservationSha256);
+  assert.equal(result.decisionTrace.traceStatus,'validated');
+  assert.equal(result.validationReceipt.selectedItemsSha256,result.decisionTrace.selectedItemsSha256);
+  const promptTraceRow={
+    actionOrdinal:3,actingSeat:1,decisionKind:'owner-prompt',
+    pendingPromptId:'prompt-1',pendingPromptType:'ChooseCardsPrompt',
+    actorObservationSha256,
+    workerDecisionTrace:result.decisionTrace,
+    workerDecisionTraceSha256:evidenceBundleSha256(result.decisionTrace),
+    validationReceipt:result.validationReceipt,
+    validationReceiptSha256:evidenceBundleSha256(result.validationReceipt)
+  };
+  assert.equal(validateV3WorkerDecisionTrace(promptTraceRow),true);
+  const mutatedPromptTrace=JSON.parse(JSON.stringify(promptTraceRow));
+  mutatedPromptTrace.workerDecisionTrace.promptProjection.choices[0].printing='mutated prompt choice';
+  mutatedPromptTrace.workerDecisionTraceSha256=
+    evidenceBundleSha256(mutatedPromptTrace.workerDecisionTrace);
+  assert.equal(validateV3WorkerDecisionTrace(mutatedPromptTrace),false);
+  const promptIdMismatch=JSON.parse(JSON.stringify(promptTraceRow));
+  promptIdMismatch.workerDecisionTrace.validationReceipt.promptId='other-prompt';
+  promptIdMismatch.workerDecisionTrace.validationReceiptSha256=
+    evidenceBundleSha256(promptIdMismatch.workerDecisionTrace.validationReceipt);
+  promptIdMismatch.validationReceipt=promptIdMismatch.workerDecisionTrace.validationReceipt;
+  promptIdMismatch.validationReceiptSha256=
+    promptIdMismatch.workerDecisionTrace.validationReceiptSha256;
+  promptIdMismatch.workerDecisionTraceSha256=
+    evidenceBundleSha256(promptIdMismatch.workerDecisionTrace);
+  assert.equal(validateV3WorkerDecisionTrace(promptIdMismatch),false,
+    'prompt receipt ID must match the exact pending prompt ID');
+  const promptTypeMismatch=JSON.parse(JSON.stringify(promptTraceRow));
+  const promptTypeTrace=promptTypeMismatch.workerDecisionTrace;
+  promptTypeTrace.promptProjection.promptType='OtherPromptType';
+  promptTypeTrace.promptProjectionSha256=
+    evidenceBundleSha256(promptTypeTrace.promptProjection);
+  promptTypeTrace.inputBindingSha256=evidenceBundleSha256({
+    observation:promptTypeTrace.actorInput,
+    publicEventReceipt:promptTypeTrace.publicEventReceipt,
+    promptProjection:promptTypeTrace.promptProjection,
+    actionFrontier:promptTypeTrace.actionFrontier
+  });
+  promptTypeTrace.validationReceipt.promptProjectionSha256=
+    promptTypeTrace.promptProjectionSha256;
+  promptTypeTrace.validationReceiptSha256=
+    evidenceBundleSha256(promptTypeTrace.validationReceipt);
+  promptTypeMismatch.validationReceipt=promptTypeTrace.validationReceipt;
+  promptTypeMismatch.validationReceiptSha256=promptTypeTrace.validationReceiptSha256;
+  promptTypeMismatch.workerDecisionTraceSha256=
+    evidenceBundleSha256(promptTypeTrace);
+  assert.equal(validateV3WorkerDecisionTrace(promptTypeMismatch),false,
+    'prompt projection type must match the exact pending prompt type');
+
+
+
+  assert.equal(result.decisionTrace.promptProjectionSha256.length,64);
+  assert.equal(result.decisionTrace.policyAuditSha256.length,64);
+  assert.equal(result.decisionTrace.validationReceiptSha256.length,64);
+});
+
+
+test('V3 root resolver consumes the exact driver actor input and binds all component digests',async()=>{
+  const fixture=rootResolverFixture();
+  const result=await fixture.resolver(fixture.request);
+  const trace=result.decisionTrace;
+  assert.strictEqual(fixture.calls.seenObservation,fixture.actorObservation);
+  assert.strictEqual(trace.actorInput,fixture.actorObservation);
+  assert.equal(trace.actorInputSha256,trace.actorObservationSha256);
+  assert.equal(trace.actorInputSha256,evidenceBundleSha256(fixture.actorObservation));
+  assert.equal(trace.publicEventReceiptSha256,null);
+  assert.equal(trace.promptProjectionSha256,null);
+  assert.equal(trace.actionFrontierSha256,evidenceBundleSha256(fixture.frontierBinding));
+  assert.equal(trace.inputBindingSha256,evidenceBundleSha256({
+    observation:fixture.actorObservation,
+    publicEventReceipt:null,
+    promptProjection:null,
+    actionFrontier:fixture.frontierBinding
+  }));
+  assert.equal(trace.selectedItemsSha256,evidenceBundleSha256([fixture.item]));
+  assert.equal(trace.policyAuditSha256,evidenceBundleSha256(fixture.policyAudit));
+  assert.equal(result.validationReceipt.frontierSha256,trace.actionFrontierSha256);
+  assert.equal(result.validationReceipt.selectedItemSha256,evidenceBundleSha256(fixture.item));
+  assert.equal(trace.validationReceiptSha256,evidenceBundleSha256(result.validationReceipt));
+  assert.equal(trace.traceStatus,'validated');
+  assert.equal(fixture.calls.worker,1);
+  assert.equal(fixture.calls.cloneValidation,1);
+  assert.equal(fixture.calls.liveStoreDispatch,0);
+});
+
+test('V3 resolver rejects a mismatched driver actor-observation digest before worker invocation',async()=>{
+  const fixture=rootResolverFixture({actorObservationSha256:'f'.repeat(64)});
+  await assert.rejects(fixture.resolver(fixture.request),error=>{
+    assert.equal(error.code,'ACTOR_OBSERVATION_DIGEST_MISMATCH');
+    assert.strictEqual(error.workerDecisionTrace.actorInput,fixture.actorObservation);
+    assert.equal(error.workerDecisionTrace.actorInputSha256,evidenceBundleSha256(fixture.actorObservation));
+    assert.equal(error.workerDecisionTrace.actorObservationSha256,'f'.repeat(64));
+    assert.equal(error.workerDecisionTrace.failureCode,'ACTOR_OBSERVATION_DIGEST_MISMATCH');
+    assert.equal(error.workerDecisionTrace.validationReceipt,null);
+    return true;
+  });
+  assert.equal(fixture.calls.worker,0);
+  assert.equal(fixture.calls.cloneValidation,0);
+  assert.equal(fixture.calls.liveStoreDispatch,0);
+});
+
+test('V3 resolver host-validates the complete policy audit before any cloned or live dispatch',async()=>{
+  const template=rootResolverFixture();
+  const row=template.policyAudit.evaluations[0];
+  const cases=[
+    {name:'incomplete',patch:{evaluations:[]}},
+    {name:'duplicate',patch:{evaluations:[row,row]}},
+    {name:'out-of-frontier',patch:{evaluations:[{...row,token:'foreign-action'}]}},
+    {name:'non-finite',patch:{evaluations:[{...row,score:Number.POSITIVE_INFINITY}]}},
+    {name:'selected-token-mismatch',patch:{selectedTokens:[]}}
+  ];
+  for(const item of cases){
+    const fixture=rootResolverFixture({
+      responsePatch:{policyAudit:{...template.policyAudit,...item.patch}}
+    });
+    await assert.rejects(fixture.resolver(fixture.request),error=>{
+      assert.ok(error.workerDecisionTrace,item.name+' failure must retain its provisional trace');
+      assert.equal(error.workerDecisionTrace.traceStatus,'failed');
+      assert.equal(error.workerDecisionTrace.validationReceipt,null);
+      assert.equal(error.workerDecisionTrace.failureCode,error.code);
+      return true;
+    },item.name);
+    assert.equal(fixture.calls.cloneValidation,0,item.name+' reached cloned validation');
+    assert.equal(fixture.calls.liveStoreDispatch,0,item.name+' reached live Store dispatch');
+  }
+});
+
+test('V3 resolver retains unknown-token and unsupported-kind responses in provisional traces',async()=>{
+  const template=rootResolverFixture();
+  const unknown=rootResolverFixture({
+    responsePatch:{
+      decision:{kind:'select-action',token:'foreign-action'},
+      policyAudit:{...template.policyAudit,selectedTokens:['foreign-action']}
+    }
+  });
+  await assert.rejects(unknown.resolver(unknown.request),error=>{
+    assert.ok(error.workerDecisionTrace);
+    assert.deepEqual(error.workerDecisionTrace.selectedTokens,['foreign-action']);
+    assert.deepEqual(error.workerDecisionTrace.unmatchedSelectedTokens,['foreign-action']);
+    assert.equal(error.workerDecisionTrace.selectionStatus,'unresolved-token');
+    assert.equal(error.workerDecisionTrace.validationReceipt,null);
+    return true;
+  });
+  assert.equal(unknown.calls.cloneValidation,0);
+
+  const unsupportedAudit={
+    ...template.policyAudit,
+    decisionType:'future-decision-kind',
+    selectedTokens:[],
+    evaluations:[{
+      token:template.item.token,status:'not-evaluated',score:null,
+      reasonCode:'NOT_EVALUATED_BY_TEST'
+    }]
+  };
+  const unsupported=rootResolverFixture({
+    responsePatch:{
+      decision:{kind:'future-decision-kind'},
+      policyAudit:unsupportedAudit
+    }
+  });
+  await assert.rejects(unsupported.resolver(unsupported.request),error=>{
+    assert.equal(error.code,'UNSUPPORTED_WORKER_ROOT_DECISION');
+    assert.ok(error.workerDecisionTrace);
+    assert.deepEqual(error.workerDecisionTrace.decision,{kind:'future-decision-kind'});
+    assert.equal(error.workerDecisionTrace.selectionStatus,'unsupported-decision-kind');
+    assert.equal(error.workerDecisionTrace.policyAuditSha256,evidenceBundleSha256(unsupportedAudit));
+    assert.equal(error.workerDecisionTrace.validationReceipt,null);
+    return true;
+  });
+  assert.equal(unsupported.calls.cloneValidation,0);
+});
+
+test('V3 cloned-root rejection attaches the response trace without touching the live Store',async()=>{
+  const cloneFailure=Object.assign(new Error('cloned action validation rejected'),{
+    code:'CLONED_ACTION_VALIDATION_REJECTED'
+  });
+  const fixture=rootResolverFixture({dispatchError:cloneFailure});
+  await assert.rejects(fixture.resolver(fixture.request),error=>{
+    assert.equal(error.code,'CLONED_ACTION_VALIDATION_REJECTED');
+    assert.ok(error.workerDecisionTrace);
+    assert.equal(error.workerDecisionTrace.traceStatus,'failed');
+    assert.equal(error.workerDecisionTrace.failureCode,'CLONED_ACTION_VALIDATION_REJECTED');
+    assert.deepEqual(error.workerDecisionTrace.selectedTokens,['root-action-0']);
+    assert.deepEqual(error.workerDecisionTrace.selectedItems,[fixture.item]);
+    assert.equal(error.workerDecisionTrace.policyAuditSha256,evidenceBundleSha256(fixture.policyAudit));
+    assert.equal(error.workerDecisionTrace.validationReceipt,null);
+    return true;
+  });
+  assert.equal(fixture.calls.cloneValidation,1);
+  assert.equal(fixture.calls.liveStoreDispatch,0);
+});
+
+test('V3 prompt clone non-settlement preserves the worker trace and never fabricates a receipt',async()=>{
+  const workerAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});
+  const actorObservation={actorSeat:1,decisionKind:'owner-prompt',ownHand:['distinctive-prompt-input']};
+  const actorObservationSha256=evidenceBundleSha256(actorObservation);
+  const policyVersion='runner-prompt-clone-failure-v1';
+  const choice={token:'prompt-choice-0',kind:'card',printing:'Fog Crystal FLI'};
+  const policyAudit={
+    schema:'agent6-policy-audit-v1',policyVersion,
+    decisionKind:'owner-prompt',decisionType:'select-choice',
+    selectionRuleCode:'PROMPT_SCORE_DESC',tieBreakCode:'SCORE_DESC_NATIVE_ORDER',
+    selectedTokens:[choice.token],
+    evaluations:[{token:choice.token,status:'scored',score:12,reasonCode:null}]
+  };
+  let liveStoreDispatches=0;
+  const resolver=createV3WorkerDecisionResolver({
+    sessionsBySeat:{
+      1:{async decide(){return {
+        requestId:'prompt-clone-failure-request',sequence:2,
+        role:'opponent',seat:1,policyVersion,bundleSha256:'d'.repeat(64),
+        decision:{kind:'select-choice',token:choice.token},policyAudit,policyDrawCount:0
+      };}}
+    },
+    candidateSeat:0,opponentSeat:1,
+    native:{observe(){throw new Error('must use driver observation');}},
+    workerAudit,eventReceipt:()=>null,
+    promptProjection:{
+      projectPrompt(){return {
+        hostOnly:false,
+        promptProjection:{schema:'test-prompt-v1',promptType:'ChooseCardsPrompt',choices:[choice]}
+      };},
+      dispatchPromptChoice(){throw Object.assign(new Error('cloned prompt remained pending'),{
+        code:'CLONED_PROMPT_NOT_RESOLVED'
+      });}
+    }
+  });
+  await assert.rejects(resolver({
+    kind:'native-fixture-decision',decisionKind:'owner-prompt',actorSeat:1,
+    actorObservation,actorObservationSha256,
+    actionOrdinal:8,prompt:{id:'prompt-8'},state:{activePlayer:1},
+    store:{dispatch(){liveStoreDispatches++;}},
+    withValidationRandom:fn=>fn()
+  }),error=>{
+    assert.equal(error.code,'CLONED_PROMPT_NOT_RESOLVED');
+    assert.ok(error.workerDecisionTrace);
+    assert.equal(error.workerDecisionTrace.actionOrdinal,8);
+    assert.equal(error.workerDecisionTrace.seat,1);
+    assert.deepEqual(error.workerDecisionTrace.selectedTokens,[choice.token]);
+    assert.deepEqual(error.workerDecisionTrace.selectedItems,[choice]);
+    assert.equal(error.workerDecisionTrace.policyAuditSha256,evidenceBundleSha256(policyAudit));
+    assert.equal(error.workerDecisionTrace.validationReceipt,null);
+    assert.equal(error.workerDecisionTrace.failureCode,'CLONED_PROMPT_NOT_RESOLVED');
+    return true;
+  });
+  assert.equal(liveStoreDispatches,0);
+});
+
+
+test('V3 prompt resolver rejects a mismatched driver actor-observation digest before worker invocation',async()=>{
+  const workerAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});
+  const actorObservation={actorSeat:1,decisionKind:'owner-prompt',ownHand:['distinctive-prompt-input']};
+  let projectCalls=0,workerCalls=0,dispatchCalls=0;
+  const resolver=createV3WorkerDecisionResolver({
+    sessionsBySeat:{1:{async decide(){workerCalls++;throw new Error('worker must not be called');}}},
+    candidateSeat:0,opponentSeat:1,
+    native:{observe(){throw new Error('resolver must use driver observation');}},
+    workerAudit,eventReceipt:()=>null,
+    promptProjection:{
+      projectPrompt(){projectCalls++;return {hostOnly:false,promptProjection:{choices:[]}};},
+      dispatchPromptChoice(){dispatchCalls++;throw new Error('dispatch must not be called');}
+    }
+  });
+  await assert.rejects(resolver({
+    kind:'native-fixture-decision',decisionKind:'owner-prompt',actorSeat:1,
+    actorObservation,actorObservationSha256:'e'.repeat(64),
+    actionOrdinal:9,prompt:{id:'prompt-9'},state:{activePlayer:1},store:{}
+  }),error=>{
+    assert.equal(error.code,'ACTOR_OBSERVATION_DIGEST_MISMATCH');
+    assert.strictEqual(error.workerDecisionTrace.actorInput,actorObservation);
+    assert.equal(error.workerDecisionTrace.failureCode,'ACTOR_OBSERVATION_DIGEST_MISMATCH');
+    assert.equal(error.workerDecisionTrace.validationReceipt,null);
+    return true;
+  });
+  assert.equal(projectCalls,0);
+  assert.equal(workerCalls,0);
+  assert.equal(dispatchCalls,0);
+});
+
+
+test('V3 full trace acceptance recomputes component digests and rejects broken bindings',async()=>{
+  const fixture=rootResolverFixture({
+    publicEventReceipt:{schema:'test-public-event-receipt-v1',actorSeat:1,publicEventCount:2}
+  });
+  const result=await fixture.resolver(fixture.request);
+  const trace=result.decisionTrace;
+  const row={
+    actionOrdinal:trace.actionOrdinal,
+    actingSeat:trace.seat,
+    decisionKind:trace.decisionKind,
+    pendingPromptId:null,pendingPromptType:null,
+    actorObservationSha256:trace.actorObservationSha256,
+    workerDecisionTrace:trace,
+    workerDecisionTraceSha256:evidenceBundleSha256(trace),
+    validationReceipt:trace.validationReceipt,
+    validationReceiptSha256:evidenceBundleSha256(trace.validationReceipt)
+  };
+  assert.equal(validateV3WorkerDecisionTrace(row),true);
+
+  const mutations=[
+    ['actor input',t=>{t.actorInput.ownHand[0]='mutated';}],
+    ['actor input digest',t=>{t.actorInputSha256='0'.repeat(64);}],
+    ['driver actor digest',t=>{t.actorObservationSha256='0'.repeat(64);}],
+    ['public event receipt',t=>{t.publicEventReceipt.publicEventCount++;}],
+    ['public receipt digest',t=>{t.publicEventReceiptSha256='0'.repeat(64);}],
+    ['action frontier',t=>{t.actionFrontier.items[0].publicMetadata.damage++;}],
+    ['frontier digest',t=>{t.actionFrontierSha256='0'.repeat(64);}],
+    ['input binding digest',t=>{t.inputBindingSha256='0'.repeat(64);}],
+    ['selected item',t=>{t.selectedItems[0].attackName='mutated';}],
+    ['selected item digest',t=>{t.selectedItemsSha256='0'.repeat(64);}],
+    ['policy audit',t=>{t.policyAudit.selectionRuleCode='MUTATED_RULE';}],
+    ['policy audit digest',t=>{t.policyAuditSha256='0'.repeat(64);}],
+    ['validation receipt',t=>{t.validationReceipt.selectedToken='foreign-action';}],
+    ['validation receipt digest',t=>{t.validationReceiptSha256='0'.repeat(64);}],
+    ['selected token association',t=>{
+      t.selectedItems[0].token='foreign-action';
+      t.selectedItemsSha256=evidenceBundleSha256(t.selectedItems);
+    }],
+    ['policy evaluation order',t=>{
+      t.policyAudit.evaluations[0].token='foreign-action';
+      t.policyAuditSha256=evidenceBundleSha256(t.policyAudit);
+    }]
+  ];
+  for(const [name,mutate] of mutations){
+    const candidate=JSON.parse(JSON.stringify(row));
+    mutate(candidate.workerDecisionTrace);
+    candidate.workerDecisionTraceSha256=evidenceBundleSha256(candidate.workerDecisionTrace);
+    candidate.validationReceipt=candidate.workerDecisionTrace.validationReceipt;
+    candidate.validationReceiptSha256=evidenceBundleSha256(candidate.validationReceipt);
+    assert.equal(validateV3WorkerDecisionTrace(candidate),false,name);
+  }
+
+  const semanticMismatch=JSON.parse(JSON.stringify(row));
+  semanticMismatch.workerDecisionTrace.validationReceipt.frontierSha256='0'.repeat(64);
+  semanticMismatch.workerDecisionTrace.validationReceiptSha256=
+    evidenceBundleSha256(semanticMismatch.workerDecisionTrace.validationReceipt);
+  semanticMismatch.validationReceipt=semanticMismatch.workerDecisionTrace.validationReceipt;
+  semanticMismatch.validationReceiptSha256=
+    semanticMismatch.workerDecisionTrace.validationReceiptSha256;
+  semanticMismatch.workerDecisionTraceSha256=
+    evidenceBundleSha256(semanticMismatch.workerDecisionTrace);
+  assert.equal(validateV3WorkerDecisionTrace(semanticMismatch),false,
+    'a self-consistent receipt digest must still match the exact action frontier');
+});
+
+
+test('V3 full-state trace joins bind action payload, dispatch, turns and public state',()=>{
+  const publicPlayers=[{playerId:'candidate-player',handCount:5}];
+  const steps=[{
+    actionOrdinal:1,playerSlot:0,playerId:'candidate-player',
+    actionType:'AttackAction',turnBefore:3,turnAfter:3,publicBoard:publicPlayers
+  }];
+  const rootActionLedger=[{
+    actionOrdinal:0,playerSlot:0,actorSeat:0,playerId:'candidate-player',
+    action:'AttackAction',actionPayloadSha256:'c'.repeat(64),
+    dispatchStatus:'succeeded',turnBefore:3,turnAfter:3,
+    pendingPrompt:null,isRootDecision:true,policyInputKind:'actor-observation',
+    actorObservationSha256:'d'.repeat(64),promptResolution:null,
+    selectedCardIdentity:null,targetProjection:null,
+    decisionKind:'owner-root',workerDecisionTraceSha256:'a'.repeat(64),
+    validationReceiptSha256:'b'.repeat(64)
+  }];
+  const decisionRows=[{
+    actionOrdinal:0,actingSeat:0,actingPlayerId:'candidate-player',
+    actionName:'AttackAction',actionPayloadSha256:'c'.repeat(64),
+    dispatchStatus:'succeeded',turnBefore:3,turnAfter:3,
+    pendingPromptType:null,isRootDecision:true,policyInputKind:'actor-observation',
+    actorObservationSha256:'d'.repeat(64),promptResolution:null,
+    selectedCardIdentity:null,targetProjection:null,
+    publicStateAfter:{players:publicPlayers},
+    decisionKind:'owner-root',workerDecisionTraceSha256:'a'.repeat(64),
+    validationReceiptSha256:'b'.repeat(64)
+  }];
+  assert.deepEqual(validateV3FullStateTraceJoins({steps,rootActionLedger,decisionRows}),{
+    ordinalJoinMatches:true,decisionJoinMatches:true,publicStateJoinMatches:true
+  });
+  const stepMutations=[
+    ['physical seat',step=>{step.playerSlot=1;}],
+    ['player ID',step=>{step.playerId='other-player';}],
+    ['action type',step=>{step.actionType='RetreatAction';}],
+    ['turn before',step=>{step.turnBefore=4;}],
+    ['turn after',step=>{step.turnAfter=4;}]
+  ];
+  for(const [name,mutate] of stepMutations){
+    const candidate=JSON.parse(JSON.stringify(steps));
+    mutate(candidate[0]);
+    assert.equal(validateV3FullStateTraceJoins({
+      steps:candidate,rootActionLedger,decisionRows
+    }).ordinalJoinMatches,false,name);
+  }
+  const actorSeatMismatch=JSON.parse(JSON.stringify(rootActionLedger));
+  actorSeatMismatch[0].actorSeat=1;
+  assert.equal(validateV3FullStateTraceJoins({
+    steps,rootActionLedger:actorSeatMismatch,decisionRows
+  }).ordinalJoinMatches,false,'recorder player slot must match canonical ledger actorSeat');
+
+  const decisionMutations=[
+    ['physical seat',row=>{row.actingSeat=1;}],
+    ['player ID',row=>{row.actingPlayerId='other-player';}],
+    ['action ordinal',row=>{row.actionOrdinal=1;}],
+    ['action name',row=>{row.actionName='RetreatAction';}],
+    ['action payload digest',row=>{row.actionPayloadSha256='e'.repeat(64);}],
+    ['dispatch status',row=>{row.dispatchStatus='not-dispatched';}],
+    ['turn before',row=>{row.turnBefore=4;}],
+    ['turn after',row=>{row.turnAfter=4;}],
+    ['pending prompt type',row=>{row.pendingPromptType='ChooseCardsPrompt';}],
+    ['root decision marker',row=>{row.isRootDecision=false;}],
+    ['policy input kind',row=>{row.policyInputKind='legacy';}],
+    ['actor observation digest',row=>{row.actorObservationSha256='e'.repeat(64);}],
+    ['prompt resolution',row=>{row.promptResolution={kind:'worker-choice'};}],
+    ['selected card identity',row=>{row.selectedCardIdentity={printing:'other'};}],
+    ['target projection',row=>{row.targetProjection={target:'other'};}],
+    ['worker trace digest',row=>{row.workerDecisionTraceSha256='c'.repeat(64);}],
+    ['validation receipt digest',row=>{row.validationReceiptSha256='d'.repeat(64);}]
+  ];
+  for(const [name,mutate] of decisionMutations){
+    const candidate=JSON.parse(JSON.stringify(decisionRows));
+    mutate(candidate[0]);
+    assert.equal(validateV3FullStateTraceJoins({
+      steps,rootActionLedger,decisionRows:candidate
+    }).decisionJoinMatches,false,name);
+  }
+  const publicStateMismatch=JSON.parse(JSON.stringify(decisionRows));
+  publicStateMismatch[0].publicStateAfter.players[0].handCount=6;
+  assert.equal(validateV3FullStateTraceJoins({
+    steps,rootActionLedger,decisionRows:publicStateMismatch
+  }).publicStateJoinMatches,false,'recorder publicBoard must equal decisionTrace publicStateAfter.players');
+});
+
+
+test('V3 full-state recorder acceptance requires capture, public-board and summary errors all null',()=>{
+  const complete={
+    complete:true,captureError:null,publicBoardError:null,humanSummaryError:null
+  };
+  assert.equal(validateV3FullStateTraceRecorderResult(complete),true);
+  for(const field of ['captureError','publicBoardError','humanSummaryError']){
+    const broken={...complete,[field]:{code:'RECORDER_CAPTURE_FAILED'}};
+    assert.equal(validateV3FullStateTraceRecorderResult(broken),false,field);
+  }
+  assert.equal(validateV3FullStateTraceRecorderResult({
+    complete:true,publicBoardError:null,humanSummaryError:null
+  }),false,'missing captureError must fail closed');
+  assert.equal(validateV3FullStateTraceRecorderResult({
+    complete:false,captureError:null,publicBoardError:null,humanSummaryError:null
+  }),false,'incomplete recorder must fail');
+});
