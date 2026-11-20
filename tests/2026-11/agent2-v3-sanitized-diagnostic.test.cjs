@@ -93,9 +93,11 @@ test('prompt projection retains option counts and bounds without exposing offere
   assert.equal(view.allowCancel,false);
   assert.equal(view.promptType,'ChooseCardsPrompt');
   assert.equal(view.actingSeat,0);
-  for(const key of ['promptId','playerId','perspectivePlayerId'])
+  for(const key of [
+    'promptId','playerId','perspectivePlayerId','selectedHandIndices',
+    'selectedPrintings','nativeError','availableOptions','promptSnapshot'
+  ])
     assert.equal(Object.prototype.hasOwnProperty.call(view,key),false);
-  assert.equal(Object.prototype.hasOwnProperty.call(view,'promptSnapshot'),false);
   assert.doesNotMatch(JSON.stringify(view),
     /PRIVATE_PROMPT_CARD|PRIVATE_PROMPT_OPTION|PRIVATE_PROMPT_ID|PRIVATE_PLAYER_ID|PRIVATE_PERSPECTIVE_PLAYER_ID|PRIVATE_SELECTED_PRINTING|PRIVATE_NATIVE_ERROR/);
 });
@@ -271,6 +273,8 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
   };
   const sanitized=sanitizeFixtureArtifact(artifact);
   const json=JSON.stringify(sanitized);
+  assert.doesNotMatch(json,
+    /candidateAudit|opponentAudit|setupPromptDecisions|selectedHandIndices|selectedPrintings|nativeError|promptId|playerId|perspectivePlayerId/);
   for(const secret of [
     'PRIVATE_HAND_SENTINEL','PRIVATE_PRIZE_SENTINEL','PRIVATE_PROMPT_CARD',
     'PRIVATE_SETUP_PROMPT_ID','PRIVATE_SETUP_PLAYER_ID','PRIVATE_SETUP_PERSPECTIVE_ID',
