@@ -82,7 +82,7 @@ For the all-win special case, let \(p_j\) be the fixed win probability in each o
 \le0.995^{128k},
 \]
 
-by AM–GM. For \(K\) candidate configurations all tested on the confirmatory data, a Bonferroni family-wise 95% test assigns \(\alpha/K\) to each candidate. The minimum equal allocation for the all-win rule is
+by AM–GM. For a **predeclared family of \(K\)** candidate configurations all tested on the confirmatory data, a Bonferroni family-wise 95% test assigns \(\alpha/K\) to each candidate. The minimum equal allocation for the all-win rule is
 
 \[
 k=\left\lceil\frac{\ln(0.05/K)}{128\ln(0.995)}\right\rceil.
@@ -118,7 +118,7 @@ v^\mathsf{T}\nabla^2\log G\,v
 
 Because \(q_{\max}\le Q=0.64\), \(2u_{\max}\le2/(1-Q)=50/9\). Also \(C\ge1+nQ\), which is at least \(6.12\) for \(n\ge8\). Thus \(C\ge2u_{\max}\), every diagonal term in the first sum is nonpositive, and the final square term is nonpositive. Hence \(\log G\) is concave on the simplex; by symmetry, the maximum is at \(q_j=0.005\) for every stratum. The exact worst-case null tail is therefore \(\Pr\{\operatorname{Binomial}(128n,0.005)\le1\}\).
 
-For \(K\) configurations, choose the smallest \(n\ge8\) for which that exact tail is at most \(0.05/K\):
+For a **predeclared family of \(K\)** configurations, choose the smallest \(n\ge8\) for which that exact tail is at most \(0.05/K\):
 
 | Confirmatory configurations \(K\) | Games per stratum \(n\) | Total games per configuration | Worst-case null tail | Per-test \(\alpha/K\) |
 |---:|---:|---:|---:|---:|
@@ -131,6 +131,8 @@ For \(K\) configurations, choose the smallest \(n\ge8\) for which that exact tai
 | 50 | 15 | 1,920 | 0.0007040 | 0.001 |
 
 This is a single aggregate-field test allowing **at most one nonwin across all 128n games**, not one nonwin per rank. It preserves the same fixed-probability, independent-game and equal-quota assumptions as Agent5's original proof. It is not a per-matchup guarantee and does not cover two or more nonwins.
+
+The family size \(K\) must be fixed before confirmatory outcomes are observed. If more configurations are added adaptively, include them in a predeclared maximum family, use a valid alpha-spending procedure, or treat the earlier cohort as development and generate a new holdout. Do not choose \(K\) after seeing which candidates passed.
 
 Bonferroni does not require independence **between candidate tests**; it does require the stated independent, fixed-probability games within each candidate's 128 strata. The first table is an all-win design only. If one nonwin is allowed, use the one-nonwin extension above; if two or more are allowed, use a separately preregistered multi-nonwin method with multiplicity control or a new holdout. Do not drop unfavorable or censored attempts to restore an all-win sample.
 
