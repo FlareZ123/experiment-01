@@ -2257,8 +2257,9 @@ async function runV3FixtureGame({
     fullStateTraceModule.createFullStateTraceRecorder({
       label:trialId,
       seed:fixtureSeed,
-      limits:{maxSteps:2048,maxDepth:64,maxNodes:50000},
-      policyConfiguration:native.botOptionsBySeat
+      limits:{maxSteps:2048,maxDepth:64,maxNodes:50000}
+      // Agent45's optional policyConfiguration is omitted: Twinleaf botOptions
+      // are engine setup, not the candidate/opponent worker policy identities.
     }):null;
   let fullStateTraceLiveStore=null;
   let fullStateTraceInitialCaptured=false;
