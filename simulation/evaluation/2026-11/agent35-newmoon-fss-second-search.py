@@ -122,6 +122,43 @@ def joint_access_by_draws(draws, mode="baseline"):
     return {k: Fraction(v, denominator) for k, v in totals.items()}
 
 
+
+def single_cologne_by_draws(draws, include_fss=True):
+    # Articuno, FSS, Adventure Bag, Secret Box, Cologne, other Basics, other non-Basics.
+    capacity = [1, 1, 1, 1, 2, 16, 38]
+    observed = 7 + draws
+    valid_openings = comb(60, 7) - comb(43, 7)
+    denominator = valid_openings * comb(53, 6) * comb(47, draws)
+    totals = {}
+    composition_total = 0
+    for hand in compositions(capacity, observed):
+        ways = choose_product(capacity, hand)
+        if not ways:
+            continue
+        basics = hand[0] + hand[5]
+        valid_initial_subsets = comb(observed, 7) - choose0(observed - basics, 7)
+        if valid_initial_subsets == 0:
+            continue
+        weight = ways * valid_initial_subsets
+        remaining = [n - k for n, k in zip(capacity, hand)]
+        prize_sets = comb(60 - observed, 6)
+        composition_total += weight * prize_sets
+        articuno, fss, adventure_bag, secret_box, cologne = hand[:5]
+        if cologne > 0:
+            required, route = [], "direct"
+        elif secret_box > 0:
+            required, route = [4], "secret_box"
+        elif include_fss and articuno > 0 and fss > 0:
+            required, route = [4], "fss_direct"
+        elif include_fss and articuno > 0 and adventure_bag > 0 and fss == 0:
+            required, route = [4, 1], "adventure_bag_fss"
+        else:
+            continue
+        good_prizes = prize_sets_avoiding_all_copies(remaining, required)
+        totals[route] = totals.get(route, 0) + weight * good_prizes
+    assert composition_total == denominator, (composition_total, denominator)
+    return {k: Fraction(v, denominator) for k, v in totals.items()}
+
 def bonus_distribution(opponent_basics=4, candidate_basics=17):
     p_opponent = Fraction(comb(60 - opponent_basics, 7), comb(60, 7))
     p_candidate = Fraction(comb(60 - candidate_basics, 7), comb(60, 7))
@@ -147,6 +184,16 @@ def average_mulligan_access(mode):
     average += tail * sum(joint_access_by_draws(47, mode).values(), Fraction(0))
     return average
 
+
+
+def average_single_cologne_access(include_fss=True):
+    weights, tail = bonus_distribution()
+    average = Fraction(0)
+    for k, weight in weights:
+        access = sum(single_cologne_by_draws(min(k + 1, 47), include_fss).values(), Fraction(0))
+        average += weight * access
+    average += tail * sum(single_cologne_by_draws(47, include_fss).values(), Fraction(0))
+    return average
 
 def display(value):
     return {
@@ -188,6 +235,17 @@ def main():
     assert abs(float(sequenced_all) - 0.1566315576021516) < 1e-12
     assert abs(float(conditional_all) - 0.1638864630836383) < 1e-12
 
+    cologne_baseline = single_cologne_by_draws(1, include_fss=False)
+    cologne_extended = single_cologne_by_draws(1, include_fss=True)
+    cologne_baseline_total = sum(cologne_baseline.values(), Fraction(0))
+    cologne_extended_total = sum(cologne_extended.values(), Fraction(0))
+    cologne_baseline_all = average_single_cologne_access(include_fss=False)
+    cologne_extended_all = average_single_cologne_access(include_fss=True)
+    assert cologne_baseline_total == Fraction(169801946, 493712861)
+    assert cologne_extended_total == Fraction(891378184669, 2438941533340)
+    assert abs(float(cologne_baseline_all) - 0.3953819465998576) < 1e-12
+    assert abs(float(cologne_extended_all) - 0.4224545561530402) < 1e-12
+
     return {
         "candidate": {
             "canonical_id_count_sha256": variant["canonical_id_count_sha256"],
@@ -206,6 +264,14 @@ def main():
             "sequenced_fss_total": display(sequenced_total),
             "sequenced_increment": display(sequenced_total - baseline_secret),
             "conditional_garbotoxin_total": display(conditional_total),
+        },
+        "single_counter_cologne_access_vs_iron_thorns": {
+            "baseline_direct_plus_secret_box": display(cologne_baseline_total),
+            "sequenced_fss_routes": {k: display(v) for k, v in cologne_extended.items()},
+            "sequenced_total": display(cologne_extended_total),
+            "sequenced_increment": display(cologne_extended_total - cologne_baseline_total),
+            "all_optional_mulligan_bonus_baseline": display(cologne_baseline_all),
+            "all_optional_mulligan_bonus_with_fss": display(cologne_extended_all),
         },
         "all_optional_four_basic_opponent_mulligan_bonuses": {
             "baseline_secret_box_upper_bound": display(baseline_all),
