@@ -957,6 +957,7 @@ test('V3 runner preloads the Agent45 recorder before the fixture pin and capture
   assert.match(source,/fullStateTraceDecisionJoinMatches/);
   assert.match(source,/fullStateTraceWorkerAuditComplete/);
   assert.match(source,/fullStateTraceWorkerDecisionCountMatches/);
+  assert.match(source,/agent19-agent45-v3-full-state-trace-acceptance-v2/);
   assert.match(source,/fullStateTraceAcceptance\.accepted/);
   assert.equal(source.includes('policyConfiguration:native.botOptionsBySeat'),false,
     'Twinleaf engine bot options must not be mislabeled as worker policy identity');
