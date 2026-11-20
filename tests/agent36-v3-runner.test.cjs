@@ -948,6 +948,9 @@ test('V3 runner preloads the Agent45 recorder before the fixture pin and capture
     'the full-state recorder must be disabled for sanitized-only and no-game witness runs');
   assert.match(source,/assert\.ok\(witnessOnly\|\|diagnosticMode==='encrypted-full'/,
     'registered fixtures must fail before live dispatch unless encrypted-full is enabled');
+  assert.match(source,/diagnosticSnapshot:diagnosticMode==='encrypted-full'&&!witnessOnly\?/,
+    'no-game witnesses must not receive full private-state snapshots even when encrypted-full is configured');
+  assert.match(source,/requireFullStateDiagnostics:diagnosticMode==='encrypted-full'&&!witnessOnly/);
   assert.match(source,/onGameReady:fullStateTraceRecorder\?/);
   assert.match(source,/onAction:fullStateTraceRecorder\?/);
   assert.match(source,/actionOrdinal:record\.actionOrdinal\+1/);
