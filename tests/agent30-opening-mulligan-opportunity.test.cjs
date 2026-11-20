@@ -38,6 +38,12 @@ test('paired setup respects simultaneous no-Basic resets and optional bonus draw
     r.probabilityCandidateHasAnyBonusDrawOpportunity + r.probabilityNeitherHasBonusDrawOpportunity, 1);
 });
 
+test('exact model reproduces Agent 2 published 12-Basic versus four-Basic offer result', () => {
+  const r = pairedBonusStats(12, 4);
+  near(r.probabilityCandidateHasAnyBonusDrawOpportunity, 0.5488513367202532);
+  near(r.expectedMaximumOptionalBonusDrawsAvailableToCandidate, 1.3738469358943621);
+});
+
 test('equal Basic counts produce symmetric bonus-draw opportunities', () => {
   const r = pairedBonusStats(14, 14);
   near(r.expectedMaximumOptionalBonusDrawsAvailableToOpponent,
