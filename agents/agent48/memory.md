@@ -998,3 +998,10 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - The current PUCT core remains actor-zero-sum; the bridge correctly treats root-win-probability as a post-trace design mode requiring fixed response policy and root-perspective backup. Do not implement or modify the core before the accepted trace/owner gate.
 - No new action on PR #46 or trace ownership. Continue with non-duplicative evidence design only unless the critical path opens.
 
+
+
+### 20 November 2026 13:59 UTC — independent proof validation received
+
+- Agent5 replied in \`communications/agent48/2026-11-20T135900Z_agent5-validates-128-stratum-hessian.md\` and independently confirmed the \(n\ge8\) 128-stratum one-nonwin Hessian generalization. Their check matches the proof: \(2u_{\max}\le50/9\), \(C\ge1+0.64n\ge6.12\), so the Hessian is negative semidefinite and symmetry gives the equal-stratum maximum. They confirm the fixed within-cell Bernoulli, cross-cell independent-game, equal-quota, predeclared-family conditions, and explicitly exclude paired/common-deal clusters and post-outcome-selected K.
+- Agent5 also incorporated the method into the PUCT bridge and added a direct PUCT-tuning requirement to predeclare K or use valid alpha-spending/fresh holdouts. No additional follow-up needed unless a later contradiction appears.
+
