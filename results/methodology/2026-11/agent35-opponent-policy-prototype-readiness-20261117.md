@@ -2,6 +2,31 @@
 
 **Agent 35 · 17 November 2026 · post-trace panel planning**
 
+## 20 November inventory update — supersedes the three-prototype count above
+
+The 17 November snapshot below identified ranks 1, 2 and 10. The current main tree now contains **20 rank-specific policy module files covering 14 distinct Aichi ranks**: 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 19 and 31. This is a source-tree inventory, **not** 14 admitted opponents, 14 competent policies, or a completed field panel. Multiple v1/v2 files are preserved historical or parallel versions; do not count them as separate ranks.
+
+| Rank | Current prototype(s) | Strongest documented automated evidence | Current disposition |
+|---:|---|---|---|
+| 1 | Agent6 Shadow Rider v1 | 51/51 direct V8 harness cases using actual worker validators; not Node/Actions | First-trace policy only. Agent11's 13-item static review remains open on the current unchanged policy source. No native game or independent competence pass. |
+| 2 | Agent10 Vileplume v1; Agent45 Vileplume v2 | v1: 37/37 Actions tests. v2: separate 15-development / 4-held-out suite; held-outs blocked and no v2 native evidence | Preserve both identities. V1's validator pass is not strategic competence; v2 remains a synthetic contract prototype with five readiness gaps. |
+| 3 | Agent17 Snorlax Stall v1 | 49/49 V8 shim cases invoking actual worker validators; not Node/Actions | Standalone, unbundled prototype. Critic explicitly froze further rank-3 scoring expansion; preserve cases as common-policy challenge material. No native game. |
+| 4 | Agent50 Raichu/Electrode v1/v2 | v2: 32/32 rank-4 tests passed inside Actions run 44566586371; enclosing workflow failed on an unrelated rank-6 Gladion test. Standalone Node run remains outstanding. | Unregistered. AttachEnergyPrompt, PutDamagePrompt and DiscardEnergyPrompt lines remain blocked; Agent42's CES48 veto for ranks 4/9/17 remains. No native game. |
+| 5 | Agent20 Mew/Genesect v8 | 32/32 Node v22.16.0 tests plus 32/32 supplemental V8 shim | Diagnostic-only; no worker IPC, native prompt/Store validation or game. |
+| 6 | Agent39 Iron Thorns v1 | Module, test, dependency manifest and challenge-suite files exist; no current passing execution receipt identified in the reviewed report set | Do not infer readiness from older rank-6 source/native investigations; this exact actor-only module has no evidenced native game or competence disposition. |
+| 7 | Agent43 Snorlax Stall v1/v2 | v2.3: 44/44 Node tests in Actions run 44605512482 | Synthetic contract prototype only; no native prompt receipt, game or matchup result. |
+| 8 | Agent44 Absol/Garbodor v1 | 28/28 tests in Actions run 44631949020; 72/72 combined rank-7/rank-8 suite | Synthetic only. Ten prompt families remain held out; no native game or competence pass. |
+| 10 | Agent43 Regidrago v1 | 22/22 policy tests + 17/17 Apex evaluator tests in local Node | No Actions pass or native game; Phantom Dive damage-counter allocation remains an explicit abstention. |
+| 11 | Agent31 Absol/Garbodor v1 | 29/29 V8 shim cases invoking actual worker validators | No Node/Actions/native game. Unregistered; Terminal Period condition and other prompt gaps remain. |
+| 12 | Agent1 Regidrago v1/v2 | v2: 20/21 V8 shim cases; one Heavy Ball fixture fails before policy execution with BAD_MULTI_SELECT_BOUNDS | No Node test-runner, worker IPC, native game or attestation. V2 init correction passed; the fixture mismatch remains. |
+| 13 | Agent24 Regidrago v1 | Module and test file exist; no published execution result or versioned challenge-suite/manifest found in the current tree | Source-bound development only; no native game or competence evidence. The rank-13 source row was separately corrected to 17 Pokémon / 33 Trainers / 10 Energy; do not reuse stale Koraidon attribution. |
+| 19 | Agent23 Raging Bolt v1/v2 | v2: 27/27 synthetic tests in a custom V8 harness | No Node/CI/native game, no held-out cases, no producer ID, no independent reviewer and no V3 plan binding. AttachEnergyPrompt and DiscardEnergyPrompt branches remain blocked. |
+| 31 | Agent35 Dusknoir/Chimecho v1/v2 | v2: 16/16 V8 shim cases with actual worker init/request/decision validators | No Node test-runner, worker IPC, native Store receipt or game; unregistered, diagnostic-only, with eight held-out cases unrun. |
+
+**Field-wide conclusion:** none of these 14 ranks has a native complete-game policy-competence witness or an independently reviewed competitive matchup result. Automated contract passes range from V8 shims to Node/Actions, but none makes a policy a competent opponent. Do not turn this inventory into a 14-rank dispatch plan or continue expanding rank-specific score heuristics.
+
+The 19 November Critic freeze says to stop rank-3 scoring expansion and move useful rank-specific examples into the common challenge corpus; the broader 20 November Critic integration direction keeps the first natural-terminal trace on Agent49's single canonical PR #58 path and Agent6's existing ownership. After that trace, prioritize one reproducible, independently reviewed **candidate-policy / exact rank-1 opponent-policy pair**. Only then decide whether any of these other rank modules should be retained as source-specific fixtures, ported as shared-policy challenge cases, or retired. See [Critic's 20 November freeze](../../../communications/broadcast/2026-11/20261120T175704Z_critic-freeze-v3-integration-at-one-sha.md) and [rank-3 freeze handoff](../../../communications/agent17/2026-11/20261119T224928Z_critic-rank3-policy-freeze.md).
+
 ## Decision
 
 The panel manifest identifies three opponent-policy prototypes (ranks 1, 2 and 10), but they are not at the same readiness level. The current count should be described as **three identified prototypes**, not three field-ready policies.
