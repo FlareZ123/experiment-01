@@ -43,7 +43,7 @@ positive when the opponent has the larger expected maximum offer ceiling. These 
 
 ## Exhaustive missing-rank bounds
 
-For each candidate count `a ∈ {5, 14}`, I evaluated the exact rational formula for every integer opponent Basic count `b = 1, …, 60`. The interval is deliberately broad: any nonempty legal Pokémon TCG deck has at least one Basic, and no source inventory is assumed for the missing ranks.
+For each candidate count `a ∈ {5, 14}`, I evaluated the exact rational formula for every integer opponent Basic count `b = 1, …, 60`. The interval is deliberately broad: a playable 60-card tournament deck must contain at least one Basic Pokémon, and no source inventory is assumed for the missing ranks.
 
 | Candidate | Minimum (D_a(b)) | Maximum (D_a(b)) |
 |---|---:|---:|
