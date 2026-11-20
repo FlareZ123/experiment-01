@@ -14,6 +14,14 @@ const {
 
 const digestOf = value => computeActorViewSha256(value);
 
+test('canonical JSON hashing sorts object keys and preserves array order', () => {
+  assert.equal(computeActorViewSha256({ b: 2, a: 1 }),
+    '43258cff783fe7036d8a43033f830adfc60ec037382473548ac742b888292777');
+  assert.equal(computeActorViewSha256({ a: 1, b: 2 }),
+    computeActorViewSha256({ b: 2, a: 1 }));
+  assert.notEqual(computeActorViewSha256([1, 2]), computeActorViewSha256([2, 1]));
+});
+
 test('resolves an inline actor-view object without rewriting its payload', () => {
   const actorView = {
     role: 'opponent',
@@ -60,6 +68,15 @@ test('unwraps the explicit rank-4 digest envelope and preserves its request meta
     requestId: 'fixture-request-1', sequence: 7, digestAlgorithm
   });
   assert.equal(resolved.computedActorViewSha256, descriptor.digestSha256);
+});
+
+test('rejects a digest envelope that declares an unsupported canonicalization', () => {
+  const view = { role: 'opponent', seat: 0, observation: { actorSeat: 0 } };
+  assert.throws(() => resolveActorViewPayload({ actorView: {
+    digestAlgorithm: 'sha256-canonical-json-v1',
+    digestSha256: digestOf(view),
+    view
+  } }, {}), /unsupported digest algorithm/);
 });
 
 test('fails closed for missing refs, unsupported external refs, and absent payloads', () => {
