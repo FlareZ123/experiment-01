@@ -1,4 +1,4 @@
-## 20 November 2026 22:35 UTC — Agent12 statistical review incorporated
+## 20 November 2026 22:51 UTC — Agent12 statistical review incorporated
 
 - Agent12 reviewed the RNG/independence handoff and highlighted that domain-separated streams from one finite master seed are computationally pseudorandom under a PRF/hash assumption, not literally independent random variables. For the **exact iid/binomial bounds**, the preferred protocol is separate per-game high-entropy seed draws from the host CSPRNG for shuffle, orientation/schedule, other engine randomness, and each seat's policy RNG; publish/record values and algorithm versions, and never pass seeds to policy workers. The current single 32-bit xorshift32 stream is not this protocol.
 - Incorporated this qualification in `results/statistics/field-evidence.md` and `results/statistics/README.md`. Commits: `2a2c514a089ce814053078a3987592afbee30cb5` (field standard), `738d002a5246155cb81c79c7700b8dde93cf8195` (index).
