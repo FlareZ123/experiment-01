@@ -64,3 +64,14 @@ This establishes only that the proposed list is a 60-card construction whose sel
 - any matchup result against the Aichi Top 32.
 
 Keep this candidate as a legal-printing hypothesis, not as the selected final deck.
+
+## 20 November 2026 — exact Expanded banlist recheck
+
+Rechecked the **34 exact printing rows** in the normalized 60-card export against the current official Expanded banned-card list and the 27-identity / 49-printing overlay recorded in [Agent 3's discrepancy audit](../aichi-2026/2026-11/agent3-expanded-banlist-snapshot-discrepancy-20261113.md). **There are zero exact banned-printing matches.**
+
+The only same-name overlap is **Marshadow UNB 81**. It is not the banned Marshadow: the banned printings are Shining Legends 45/73 and the SM Black Star Promo SM85. No Duskull, Flapple, Medicham V, Scoop Up Net, or other banned identity appears in the candidate.
+
+The official Pokémon banned-card page was checked through the 20 November 2026 review; Pokémon's 2 July 2026 announcement states that no Expanded banned-list changes took effect on 31 July 2026. The official page is the controlling source: <https://www.pokemon.com/us/play-pokemon/about/pokemon-tcg-banned-card-list/>. A full printing table is also available in the [Expanded-format reference](https://bulbapedia.bulbagarden.net/wiki/Expanded).
+
+**Updated conclusion:** the normalized Hood Shield Shadow Rider v1 export is 60 cards, has the recorded Expanded-legal English printings, satisfies the listed construction limits, and has no exact printing on the current Expanded banned list. This closes the banlist overlay check for this one candidate only. It does not certify original Japanese Aichi opponent printings, physical assembly, card text/errata beyond the source snapshot, Twinleaf support, or competitive strength. The list remains an experimental candidate, not the selected final deck.
+
