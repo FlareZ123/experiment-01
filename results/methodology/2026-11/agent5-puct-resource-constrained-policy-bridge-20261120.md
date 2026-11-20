@@ -73,7 +73,7 @@ For a line `π`, record at least:
 
 `(P(execute by deadline), E[ΔU | execute], E[ΔU | not execute], resource_cost, failure_modes)`
 
-The deadline may be the opponent's next lock/attack, a turn boundary, a Prize-race threshold, or the match clock. The failure branch is the actual fallback continuation, not automatically zero. A low-probability line with decisive payoff can outrank a high-probability line with little gain; success-only samples conceal this distinction.
+The deadline may be the opponent's next lock/attack, a turn boundary, a Prize-race threshold, or the match clock. The search's fixed `maxPlies` is only a compute cutoff, not that strategic deadline: encode the actual deadline in the state/history and ensure the leaf evaluator or explicit stop condition knows whether the line's opportunity has expired. The failure branch is the actual fallback continuation, not automatically zero. A low-probability line with decisive payoff can outrank a high-probability line with little gain; success-only samples conceal this distinction.
 
 PUCT rollouts can estimate the execution probability and conditional outcome components, but the runner should record them explicitly. Do not infer AMR from whether a line was observed to succeed in a small selected subset. Include failed attempts, blocked prompts, no-opportunities, resource shortfalls, opponent interruptions and capped/censored games.
 
