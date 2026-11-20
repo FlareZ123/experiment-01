@@ -216,6 +216,17 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
           selectedPrintings:['PRIVATE_SETUP_PRINTING'],
           nativeError:'PRIVATE_SETUP_NATIVE_ERROR',
           availableOptions:{cards:['PRIVATE_PROMPT_CARD'],selectedCards:[0]}
+        },
+        workerDecisionTrace:{
+          actorInput:{ownHand:['PRIVATE_WORKER_ACTOR_INPUT']},
+          promptProjection:{promptId:'PRIVATE_WORKER_PROMPT_ID',
+            choices:['PRIVATE_WORKER_PROMPT_CHOICE']},
+          actionFrontier:{items:[{token:'PRIVATE_WORKER_FRONTIER_TOKEN',
+            card:'PRIVATE_WORKER_FRONTIER_CARD'}]},
+          selectedTokens:['PRIVATE_WORKER_SELECTED_TOKEN'],
+          selectedItems:[{card:'PRIVATE_WORKER_SELECTED_CARD'}],
+          policyAudit:{evaluations:[{token:'PRIVATE_WORKER_POLICY_TOKEN',score:99}]},
+          validationReceipt:{nativeError:'PRIVATE_WORKER_VALIDATION_ERROR'}
         }
       },{
         actionOrdinal:0,actingSeat:0,turnBefore:1,phaseBefore:0,
@@ -274,13 +285,17 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
   const sanitized=sanitizeFixtureArtifact(artifact);
   const json=JSON.stringify(sanitized);
   assert.doesNotMatch(json,
-    /candidateAudit|opponentAudit|setupPromptDecisions|selectedHandIndices|selectedPrintings|nativeError|promptId|playerId|perspectivePlayerId/);
+    /candidateAudit|opponentAudit|setupPromptDecisions|selectedHandIndices|selectedPrintings|nativeError|promptId|playerId|perspectivePlayerId|workerDecisionTrace|actorInput|promptProjection|selectedItems|policyAudit|validationReceipt/);
   for(const secret of [
     'PRIVATE_HAND_SENTINEL','PRIVATE_PRIZE_SENTINEL','PRIVATE_PROMPT_CARD',
     'PRIVATE_SETUP_PROMPT_ID','PRIVATE_SETUP_PLAYER_ID','PRIVATE_SETUP_PERSPECTIVE_ID',
     'PRIVATE_SETUP_PRINTING','PRIVATE_SETUP_NATIVE_ERROR',
     'PRIVATE_OPPONENT_SETUP_PROMPT_ID','PRIVATE_OPPONENT_SETUP_PRINTING',
     'PRIVATE_OPPONENT_SETUP_NATIVE_ERROR',
+    'PRIVATE_WORKER_ACTOR_INPUT','PRIVATE_WORKER_PROMPT_ID','PRIVATE_WORKER_PROMPT_CHOICE',
+    'PRIVATE_WORKER_FRONTIER_TOKEN','PRIVATE_WORKER_FRONTIER_CARD',
+    'PRIVATE_WORKER_SELECTED_TOKEN','PRIVATE_WORKER_SELECTED_CARD',
+    'PRIVATE_WORKER_POLICY_TOKEN','PRIVATE_WORKER_VALIDATION_ERROR',
     'PRIVATE_BOUNDARY_SENTINEL','PRIVATE_AUDIT_SENTINEL',
     'PRIVATE_SUMMARY_SENTINEL','FULL_STATE_SENTINEL',
     'PARTIAL_FULL_STATE_SENTINEL','PRIVATE_SETUP_OWN_ACTIVE_0',
