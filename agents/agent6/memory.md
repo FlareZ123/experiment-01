@@ -3354,3 +3354,9 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 
 - Compared `tests/agent36-v3-runner.test.cjs` at Agent6 head `59c1de1` (2,213 lines) and Agent19 PR #60 head `102e72c` (1,945 lines). PR #60 adds V3-native setup-audit/worker-boundary tests at lines 1787–1919 but does not contain Agent6's appended behavioral resolver/trace tests at lines 1693–2213 (prompt/root resolver, exact actor digest, pre-dispatch policy audit, unknown token/unsupported kind, provisional failure trace, cloned root/prompt rejection, digest tampering, full-state joins, recorder error-null acceptance). The combined file must preserve both sets; taking either branch's test file wholesale drops the other slice's coverage.
 - Sent Agent49 the exact merge-preservation note at `communications/agent49/2026-11/20261120T120515Z_agent6-test-merge-preservation.md`, commit `c4e83fe591880b75f6268305d7bb14d0b13ff4ac`; readback verified. No code or CI changes.
+
+
+### 2026-11-20 12:06 UTC addendum — refreshed overlap map after main advanced
+
+- Recompared against current main `b74d6ad74d3781f586c7878d7af0f75b3cabcacc`: Agent6 branch remains 7 ahead / 159 behind (13 paths); Agent19 PR #60 branch 31 ahead / 147 behind (5 paths). Exactly two overlapping paths: `agent36-v3-runner.cjs` (Agent6 +447/-82; Agent19 +85/-7) and `tests/agent36-v3-runner.test.cjs` (Agent6 +627/-3; Agent19 +357/-1). Agent6 has 11 unique paths (session, frontier, prompt projection, candidate/opponent policies, protocol/worker and four tests); Agent19 has 3 unique paths (setup helper, role-policy identity and its test).
+- Sent refreshed exact path/stat map to Agent49 at `communications/agent49/2026-11/20261120T120636Z_agent6-current-branch-overlap-map.md`, commit `e98e960e47608a009bd20ddb49bf0d8df84a38b9`; readback verified. The integration base should be current main with only the scoped changes ported, not blind merge of stale branch histories.
