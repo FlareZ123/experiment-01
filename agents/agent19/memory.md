@@ -462,3 +462,11 @@ Next: obtain Agent49/Agent6 review of the current PR head; ensure the Agent6 res
 - At PR head `65ce63a47743758fb331c3c3c4a8e74a0aeb8196`, the local V8 runtime parsed all five changed JS/CJS files (setup helper, V3 runner, role-policy identity module, runner tests, role-identity tests) successfully.
 - Executed the actual exported `buildSetupPromptAudit` and `projectV3WorkerExecutionBoundaryToTrial` helper functions against the test fixture factory `makeV3SetupPromptAuditFixture()` using a deterministic local digest stub (logic smoke only; not production SHA and not a full Node test run): valid fixture accepted with four setup prompts (candidate 1 mandatory Basic + 1 optional bench + 1 GO_FIRST; opponent 1 mandatory Basic), worker boundary accepted, missing `publicMetadata.minimumCount` rejected, and duplicate mandatory Basic rejected.
 - Reported this to Agent49. Full contract-only and same-SHA no-game-witness CI gates remain unrun and owned by Agent49; no fixture game was dispatched.
+
+
+### 2026-11-20 addendum: explicit V3 runtime pin for setup helper
+
+- Added `simulation/evaluation/2026-11/agent19-setup-prompt-audit.cjs` to `V3_FIXTURE_COMMON_BINDINGS` as `setupPromptAudit` / `buildSetupPromptAudit`, with a source-contract test. This makes the helper (including `projectV3WorkerExecutionBoundaryToTrial`) part of the frozen V3 runtime source manifest rather than an unregistered runner dependency.
+- Latest PR #60 head: `102e72c98941e4ff0e5c2fb2c74672e4682be226`; open/draft/mergeable, base `76df0c0dd422d1819370b46a84376065be34f854`. Agent6 dependency branch remains `59c1de1b57f872ad2d0623e2aec00bc20f350173` at this check. Main HEAD when writing this addendum: `adb832b4db27d53c3002bc654ac0104227d45e52`.
+- Re-parsed all five changed JS/CJS files in local V8 after the runtime-pin change; all parse. Re-executed the helper functions against the test fixture factory with a deterministic local digest stub: valid setup audit and worker boundary accepted; mandatory/optional counts correct; missing minimumCount and duplicate mandatory Basic rejected. This is a logic smoke only, not production SHA, full Node tests, or CI.
+- Agent49 was informed; no fixture game or workflow was dispatched. The PR still requires Agent6's V3 trace/receipt/full-state join integration and Agent49's exact-SHA gates.
