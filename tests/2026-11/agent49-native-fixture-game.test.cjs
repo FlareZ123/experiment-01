@@ -478,9 +478,11 @@ test('native fixture loop resolves setup prompts, records exact owner views and 
   assert.equal(result.decisionTrace[1].publicStateAfter.phase,GamePhase.PLAYER_TURN);
   assert.equal(result.rootActionLedger[0].playerSlot,0);
   assert.equal(result.rootActionLedger[0].actorSeat,0);
+  assert.equal(result.rootActionLedger[0].playerId,101);
   assert.equal(result.rootActionLedger[0].pendingPrompt,'ShuffleDeckPrompt');
   assert.equal(result.rootActionLedger[1].playerSlot,1);
   assert.equal(result.rootActionLedger[1].actorSeat,1);
+  assert.equal(result.rootActionLedger[1].playerId,202);
   assert.equal(result.rootActionLedger[1].pendingPrompt,'CoinFlipPrompt');
   assert.equal(result.rootActionLedger[2].isRootDecision,true);
   assert.equal(result.rootActionLedger[3].isRootDecision,true);
@@ -608,6 +610,7 @@ test('native fixture preserves accepted prefix and failed attempted action with 
   assert.equal(failed.fullStateAfter.visibility,'private-offline-diagnostic-only');
   assert.equal(partial.rootActionLedger[2].dispatchStatus,'failed');
   assert.equal(partial.rootActionLedger[2].actorSeat,0);
+  assert.equal(partial.rootActionLedger[2].playerId,101);
   assert.equal(partial.failure.stage,'dispatch');
   assert.equal(partial.failure.actionOrdinal,2);
   assert.equal(partial.failure.actionPayloadSha256,failed.actionPayloadSha256);
@@ -669,6 +672,7 @@ test('native fixture policy-decode failure retains the attempted decision, pre-s
   assert.equal(partial.failedAction,null);
   assert.equal(partial.rootActionLedger[2].dispatchStatus,'not-dispatched');
   assert.equal(partial.rootActionLedger[2].actorSeat,0);
+  assert.equal(partial.rootActionLedger[2].playerId,101);
   assert.equal(partial.rootActionLedger[2].action,null);
   assert.equal(partial.rootActionLedger[2].actorObservationSha256,
     failed.actorObservationSha256);
@@ -1160,6 +1164,7 @@ test('no-game witness preserves worker trace and ledger digests without live dis
   assert.equal(ledgerRow.actionOrdinal,2);
   assert.equal(ledgerRow.decisionKind,'owner-root');
   assert.equal(ledgerRow.actorSeat,workerRow.actingSeat);
+  assert.equal(ledgerRow.playerId,workerRow.actingPlayerId);
   assert.equal(ledgerRow.dispatchStatus,'not-dispatched');
   assert.equal(workerRow.workerDecisionTrace.actionOrdinal,2);
   assert.deepEqual(workerRow.workerDecisionTrace.actorInput,workerRow.actorObservationBefore);
