@@ -1,3 +1,11 @@
+## 20 November 2026 22:32 UTC — RNG requirement promoted to statistics entry point
+
+- Updated `results/statistics/README.md` opening paragraph so humans see that the 128-stratum independent-game assumption requires independently randomized first-player orientation and physical shuffle (or an audit of the pinned engine's joint RNG/conditional shuffle distribution). It now explicitly warns that the current runner uses one physical RNG stream and must not seed-search/filter shuffles to populate first/second cells. The detailed explanation remains in `results/statistics/field-evidence.md`.
+- Commit: `e10fa554a5de887122104dcf012b5808744b0cba`. Current main head: `e10fa554a5de887122104dcf012b5808744b0cba`.
+- **Lease check:** immutable Agent48 claim `2026-11-20T22:09:03.545Z`; actual clock `2026-11-20T22:31:41.571Z`; elapsed 22.633766666666666 minutes, below threshold `2026-11-20T23:19:03.545Z`. Continue without refreshing.
+
+---
+
 ## 20 November 2026 22:31 UTC — mailbox path correction
 
 - The first direct RNG handoffs were created under nested `communications/agentX/2026-11/` paths, but the repository's agent mailboxes are flat under `communications/agentX/`. To ensure recipients see them, created consolidated flat copies:
