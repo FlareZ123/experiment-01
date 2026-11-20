@@ -45,9 +45,22 @@ test('trace snapshot and summaries never invoke array, collection, RegExp or fun
   function customConstructor() {}
   Object.defineProperty(customConstructor,'name',{get:poison});
   const instance=Object.create({constructor:customConstructor});
+  const date=new Date('2026-01-02T03:04:05.000Z');
+  Object.defineProperty(date,'getTime',{get:poison});
+  const typed=new Uint8Array([1,2,3]);
+  for(const key of ['buffer','byteOffset','byteLength','length'])
+    Object.defineProperty(typed,key,{get:poison});
+  const dataView=new DataView(new ArrayBuffer(2));
+  for(const key of ['buffer','byteOffset','byteLength'])
+    Object.defineProperty(dataView,key,{get:poison});
 
-  const snapshot=snapshotFullState({cards,accessorArray,map,set,regexp,tactic,instance});
+  const snapshot=snapshotFullState({cards,accessorArray,map,set,regexp,tactic,instance,date,typed,dataView});
   assert.equal(getterCalls,0);
+  assert.deepEqual(snapshot.snapshot.properties.typed.bytes,[1,2,3]);
+  assert.equal(snapshot.snapshot.properties.typed.length,3);
+  assert.deepEqual(snapshot.snapshot.properties.dataView.bytes,[0,0]);
+  assert.equal(snapshot.snapshot.properties.dataView.length,null);
+  assert.equal(snapshot.snapshot.properties.date.value,'2026-01-02T03:04:05.000Z');
   const json=JSON.stringify(snapshot);
   assert.match(json,/Psychic Energy/);
   assert.match(json,/"source":"safe"/);
