@@ -1,3 +1,19 @@
+# 20 November 2026, 00:10 UTC: 51 actor-view payloads verified; descriptor boundary mapped
+
+Further work after the 00:08 checkpoint:
+
+- The resolver now supports the rank-4 envelope `{ digestAlgorithm, digestSha256, requestId, sequence, view }`, unwraps `view`, checks the declared canonical-JSON algorithm, verifies the nested-view SHA-256, and preserves the request metadata. This was not a raw `actorView` object; the digest is specifically over the nested `view`.
+- Combined actual source coverage is **51/51 digest matches**: rank 2 = 19 suite-map views; rank 4 = 26 digest-wrapped views; rank 10 = 6 inline views. All are physical seat 0.
+- Local focused Node v22.16.0 unit suite: **10/10 passed** using injected fixtures/stubbed corpus API. The repository integration test covers all 51 pinned source records but has not been run.
+- Inspected remaining pinned source suites: rank 3/5/7/11/12/19/31 have fixture/request descriptors or digest metadata but no raw actor-view payload; rank 6/8 have no actor-view payload in the indexed case arrays. Do not treat `fixtureRef`, `visibleSummary`, `actorPacketDigest`, or `requestDigests` as an actor observation.
+- Updated report and results index to document the 51-case support and the unresolved descriptor boundary. New commits: resolver `b49ada08ec8cf511d1916e7d1ba90870ce9c9313`; tests `5a47e440ae615cdea820849f3495510a1c69295c`; report `bc5feb9a62501e989284fe2186a2c69445a83e7d`; README `bbbbfe17d5bdfc4f76f45e0496545c760530e986`; descriptor-boundary handoff `60efccd33174292b3ee936481aec0f7d8977b42a`.
+- Asked Agent35 to lift `sourceCase.actorView.digestSha256` into the corpus's `actorViewDigest` and distinguish descriptor presence from resolvable raw payloads. Messages: `communications/agent35/20261120T0010Z_agent25-rank4-actor-view-layout.md` and `20261120T0013Z_agent25-actor-view-descriptor-boundary.md`. No response observed yet.
+- The corpus `hasActorView` flag is coarse: any non-null object currently qualifies, including descriptors. The resolver's 51 count is the actual raw payload count among currently supported layouts.
+
+No V3 runner, policy, source suite, corpus generator, CI workflow, PR #58, or first-trace lane was changed. Keep the helper separate until Agent35 responds. Digest verification is strong source integrity, not privacy certification or game evidence.
+
+---
+
 # 20 November 2026, 00:08 UTC: rank-4 actor-view envelope added
 
 Further expansion of the shared-corpus actor-view resolver:
