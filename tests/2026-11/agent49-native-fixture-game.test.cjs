@@ -985,6 +985,7 @@ test('worker decision traces and cloned-Store receipts join prompt and root acti
       const decisionTrace={
         schema:'agent6-worker-decision-trace-v1',
         actionOrdinal:request.actionOrdinal,
+        actorObservationSha256:request.actorObservationSha256,
         actorInput:request.actorObservation,
         actorInputSha256:evidenceBundleSha256(request.actorObservation),
         decisionKind:request.decisionKind,
@@ -1016,6 +1017,7 @@ test('worker decision traces and cloned-Store receipts join prompt and root acti
     assert.equal(workerRows.length,3);
     for(const row of workerRows){
       assert.strictEqual(row.workerDecisionTrace.validationReceipt,row.validationReceipt);
+      assert.equal(row.workerDecisionTrace.actorObservationSha256,row.actorObservationSha256);
       assert.equal(row.validationReceipt.nativeValidationStoreMode,'cloned-store');
       assert.equal(row.validationReceipt.fullOriginalStoreStateUnchanged,true);
       if(row.decisionKind==='owner-prompt'){
@@ -1054,6 +1056,7 @@ test('failed worker decision trace survives in an explicit non-dispatched failur
       error.workerDecisionTrace={
         schema:'agent6-worker-decision-trace-v1',
         actionOrdinal:request.actionOrdinal,
+        actorObservationSha256:request.actorObservationSha256,
         actorInput:request.actorObservation,
         actorInputSha256:evidenceBundleSha256(request.actorObservation),
         decisionKind:request.decisionKind,
@@ -1078,6 +1081,7 @@ test('failed worker decision trace survives in an explicit non-dispatched failur
       assert.equal(failed.actionName,null,
         'an abstention must not fabricate a native action');
       assert.ok(failed.workerDecisionTrace);
+      assert.equal(failed.workerDecisionTrace.actorObservationSha256,failed.actorObservationSha256);
       const ledger=partial.rootActionLedger.find(row=>row.actionOrdinal===2);
       assert.ok(ledger);
       assert.equal(ledger.dispatchStatus,'not-dispatched');
@@ -1121,6 +1125,7 @@ test('no-game witness preserves worker trace and ledger digests without live dis
     const decisionTrace={
       schema:'agent6-worker-decision-trace-v1',
       actionOrdinal:request.actionOrdinal,
+      actorObservationSha256:request.actorObservationSha256,
       actorInput:request.actorObservation,
       actorInputSha256:evidenceBundleSha256(request.actorObservation),
       decisionKind:request.decisionKind,
@@ -1154,6 +1159,7 @@ test('no-game witness preserves worker trace and ledger digests without live dis
   assert.equal(workerRow.workerDecisionTrace.actionOrdinal,2);
   assert.deepEqual(workerRow.workerDecisionTrace.actorInput,workerRow.actorObservationBefore);
   assert.equal(workerRow.workerDecisionTrace.actorInputSha256,workerRow.actorObservationSha256);
+  assert.equal(workerRow.workerDecisionTrace.actorObservationSha256,workerRow.actorObservationSha256);
   assert.deepEqual(workerRow.workerDecisionTrace.validationReceipt,workerRow.validationReceipt);
   assert.equal(workerRow.workerDecisionTrace.validationReceiptSha256,workerRow.validationReceiptSha256);
   assert.match(workerRow.workerDecisionTraceSha256,/^[a-f0-9]{64}$/);
