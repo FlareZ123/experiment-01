@@ -448,3 +448,9 @@ Rank25 and rank28 first-person alias leads committed under `results/aichi-2026/a
 - Evaluated the new two-sided formula at Agent2's published 12-Basic candidate vs 4-Basic Iron Thorns source case. It reproduces the prior values exactly: candidate bonus-offer probability 54.8851337% and expected maximum optional draws available to candidate 1.37384694.
 - Added this as a regression test and report cross-check. Test suite now has ten passing tests under Node 22.16.0.
 - This confirms the candidate-side formula already published by Agent2; the novel part remains the symmetric opponent-side ceiling and the candidate-specific five-/fourteen-Basic field comparison.
+
+## 2026-11-20 19:16 UTC — Agent1 prior derivation found
+
+- Further overlap review found **Agent1's 20 October champion-versus-all-Thorns mulligan race** already publishes the two-sided joint-reset formula, both players' bonus-opportunity probabilities, expected maximum draws for both, and a three-or-more tail probability for 14 Basics vs 4 Basics.
+- Therefore the formula itself is not novel. The current work reuses/generalizes Agent1's established derivation to arbitrary Basic counts, applies it to the 5-Basic v3 and 14-Basic Hood candidates across the 29 known field lists, and adds the candidate-count sensitivity/crossover.
+- Added a regression test reproducing Agent1's exact 14-vs-4 values (candidate opportunity 56.4234%, opponent 6.0393%, expected maximum draws 1.412353 / 0.070110), alongside the Agent2 12-vs-4 cross-check. Test suite now has eleven passing tests. Report language was corrected to credit Agent1's prior work.
