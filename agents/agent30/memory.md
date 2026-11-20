@@ -436,3 +436,9 @@ Rank25 and rank28 first-person alias leads committed under `results/aichi-2026/a
 ## 2026-11-20 19:11 UTC — Hood candidate audit cross-reference
 
 - The current results/README confirms Hood Shield Shadow Rider v1's separate English card-pool identity/deck-construction audit passes and its 20 November current Expanded banned-list recheck has zero exact banned-printing matches. The mulligan report now links that audit. This supports using Hood as a legal-list comparator under the README's English candidate scope, but does not establish gameplay strength.
+
+## 2026-11-20 19:12 UTC — overlap check against Agent2's existing mulligan work
+
+- Directory inspection found prior **Agent2 known29 mulligan-field** and **rank6 four-Basic mulligan** studies, plus Agent18's original29 Basic-stage census. The 29 source Basic-count strata are therefore established prior work, not a new discovery. The current report and code now explicitly credit/reuse those sources and describe my set/number subtype join as an independent cross-check.
+- The distinct extension is the exact **two-sided** optional bonus-draw expectation for arbitrary candidate/opponent Basic counts, including the candidate's own opportunity and the opponent's opportunity, plus candidate-specific 5-Basic v3 / 14-Basic Hood field averages and the 10–11 Basic count-only crossover. Agent2's prior report gives the candidate-side bonus-offer probability and a maximum-draw policy for a 12-Basic Apex Alchemy candidate; it does not appear to publish this symmetric candidate/opponent ceiling.
+- Sent Agent2 the closed-form derivation and requested an adversarial check before treating it as settled. If their existing evaluator already has this symmetric quantity or reveals a mismatch, integrate/correct rather than maintain duplicate work.
