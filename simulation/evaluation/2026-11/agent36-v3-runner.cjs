@@ -2998,7 +2998,7 @@ async function runV3FixtureGame({
     runtimePinAudit: pinned.audit,
     runtimePatchReceipts: [patchReceipt],
     nativeGame: gameResult,
-    ...(fullStateTraceResult?{
+    ...(fullStateTraceRecorder?{
       fullStateTrace:fullStateTraceResult,
       fullStateTraceAcceptance,
       setupPromptAudit,
