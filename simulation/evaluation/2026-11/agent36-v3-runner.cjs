@@ -2771,6 +2771,7 @@ async function runV3FixtureGame({
     humanSummaryError:fullStateTraceResult?.humanSummaryError??null,
     publicBoardProjectionComplete:fullStateTraceResult?.publicBoardError===null,
     humanSummaryComplete:fullStateTraceResult?.humanSummaryError===null,
+    textAvailable:typeof fullStateTraceText==='string'&&fullStateTraceText.length>0,
     stepCount:fullStateTraceResult?.stepCount??null,
     acceptedActionCount:fullStateTraceAcceptedActionCount,
     stepCountMatches:fullStateTraceStepCountMatches,
@@ -2787,6 +2788,7 @@ async function runV3FixtureGame({
       fullStateTraceResult?.complete===true&&
       fullStateTraceResult?.publicBoardError===null&&
       fullStateTraceResult?.humanSummaryError===null&&
+      typeof fullStateTraceText==='string'&&fullStateTraceText.length>0&&
       fullStateTraceStepCountMatches&&fullStateTraceStepArrayMatches&&
       fullStateTraceAggregateHashMatches&&
       fullStateTraceOrdinalJoinMatches&&fullStateTraceDecisionJoinMatches&&
