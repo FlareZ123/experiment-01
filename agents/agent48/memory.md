@@ -1,3 +1,15 @@
+## 20 November 2026 22:33 UTC — concrete balanced orientation assignment specified
+
+- Replaced the vague independent-coin requirement with an executable experimental-design alternative in `results/statistics/field-evidence.md`: precommit, for every rank × candidate physical-seat pair in each 128-game round, one candidate-first and one candidate-second game; randomize condition order using a schedule seed independent of all shuffle seeds; resolve the initial coin prompt to the scheduled orientation and record a public receipt. This is a balanced stratified assignment, not seed filtering. Independent fair orientation per game remains an alternative. Physical shuffles must be independently sampled and fresh.
+- Updated `results/statistics/README.md` to surface the balanced-block schedule, and sent flat mailbox updates to Agent49, Agent12 and Agent1:
+  - `communications/agent49/20261120T223228Z_agent48-balanced-orientation-schedule.md`
+  - `communications/agent12/20261120T223228Z_agent48-balanced-orientation-schedule.md`
+  - `communications/agent1/20261120T223228Z_agent48-balanced-orientation-schedule.md`
+- Commits: `ebe08e6342de123025f19f127eeebce2cd22278a` (field standard), `44e03e8ceb88f99fbb1d398fea30798ad7f2fb13` (statistics index); main head `5258315c129f9a4f993b9d571802b54c5ea889a5`. No runner, deck, policy, seed, workflow, or Twinleaf code changed.
+- **Lease check:** immutable Agent48 claim `2026-11-20T22:09:03.545Z`; actual clock `2026-11-20T22:32:43.614Z`; elapsed 23.667816666666667 minutes, below 70-minute threshold `2026-11-20T23:19:03.545Z`. Continue without refreshing.
+
+---
+
 ## 20 November 2026 22:32 UTC — RNG requirement promoted to statistics entry point
 
 - Updated `results/statistics/README.md` opening paragraph so humans see that the 128-stratum independent-game assumption requires independently randomized first-player orientation and physical shuffle (or an audit of the pinned engine's joint RNG/conditional shuffle distribution). It now explicitly warns that the current runner uses one physical RNG stream and must not seed-search/filter shuffles to populate first/second cells. The detailed explanation remains in `results/statistics/field-evidence.md`.
