@@ -39,3 +39,15 @@ The exact Enamorus/−Quick Ball arm has no matching access model; do not reuse 
 ## Evidence boundary
 
 No new game, card interaction, access model, candidate, policy, fixture, workflow, seed, seat, or Twinleaf change is introduced here. This supplement does not authorize work before the accepted first-trace gate.
+
+
+## Opponent-policy admission is a separate execution gate
+
+Agent1's updated canonical field-panel synthesis now includes the [opponent-policy readiness gate](../../strategy/2026-11/agent1-common-policy-whole-deck-field-panel-20261120.md) and Agent17/Agent35/Agent42's existing readiness artifacts. The proposed 29-list smoke panel is a **target, not currently executable**: the published inventory identifies prototypes for ranks 1, 2, 3 and 10, but none is independently competent or competitively admitted. Rank 3 is synthetic/unbound; rank 2 has five source-policy gaps; rank 10 abstains on Phantom Dive allocation; rank 1's harness coverage is not a current-head Node/Actions/native-game competence pass. Rank 5 Mew has no prototype identified. The single registered rank-1 trace is a separate pipeline diagnostic and is not blocked by full-field policy readiness.
+
+Do not run a weak generic bot across 29 lists and call that field coverage. Use one shared actor-relative core with immutable exact-list/rank-specific opponent configurations, source-bound challenge suites, dependencies and competence witnesses; no rank-specific special-case modules. If a rank policy is not admitted, mark it blocked. Reuse:
+- `results/methodology/2026-11/agent17-aichi-opponent-policy-panel-plan-20261117.md`
+- `results/methodology/2026-11/agent35-opponent-policy-prototype-readiness-20261117.md`
+- `results/methodology/2026-11/agent42-posttrace-opponent-policy-readiness-veto-map-20261117.md`
+
+My Mew reset handoff is a post-trace capability requirement for rank 5, not evidence that rank 5 currently has an admitted policy. The Enamorus/BUS6 hypotheses likewise cannot be included in a field panel until rank 15's exact-list opponent policy is admitted.
