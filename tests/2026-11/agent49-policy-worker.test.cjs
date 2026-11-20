@@ -1340,3 +1340,55 @@ test('policyAudit validation rejects incomplete token coverage and fabricated sc
     }]
   }, input, decision, POLICY_VERSION), /BAD_POLICY_AUDIT_UNSCORED_ROW/);
 });
+
+
+test('policyAudit evaluation rows preserve native frontier order for single and multi-select decisions', () => {
+  const input=request(1);
+  input.actionFrontier={
+    schema:protocol.FRONTIER_SCHEMA,
+    items:[
+      {token:'action-1',kind:'attack',attackName:'First native action',
+        publicMetadata:{damage:100,stadiumEffectLive:true}},
+      {token:'action-2',kind:'retreat',attackName:null,
+        publicMetadata:{damage:0,stadiumEffectLive:true}}
+    ]
+  };
+  const evaluations=[
+    {token:'action-1',status:'scored',score:10,reasonCode:null},
+    {token:'action-2',status:'scored',score:5,reasonCode:null}
+  ];
+  const audit=(decision,selectedTokens,rows=evaluations)=>({
+    schema:'agent6-policy-audit-v1',
+    policyVersion:POLICY_VERSION,
+    decisionKind:'owner-root',
+    decisionType:decision.kind,
+    selectionRuleCode:'TEST_SCORE',
+    tieBreakCode:'FIRST_NATIVE_ORDER',
+    selectedTokens,
+    evaluations:rows
+  });
+  const single={kind:'select-action',token:'action-1'};
+  assert.deepEqual(
+    protocol.validatePolicyAudit(audit(single,['action-1']),input,single,POLICY_VERSION),
+    audit(single,['action-1'])
+  );
+  assert.throws(
+    ()=>protocol.validatePolicyAudit(
+      audit(single,['action-1'],evaluations.slice().reverse()),input,single,POLICY_VERSION
+    ),
+    /POLICY_AUDIT_FRONTIER_ORDER_MISMATCH/
+  );
+
+  const multi={kind:'select-choices',tokens:['action-2','action-1']};
+  const multiAudit=audit(multi,['action-2','action-1']);
+  assert.deepEqual(
+    protocol.validatePolicyAudit(multiAudit,input,multi,POLICY_VERSION),
+    multiAudit
+  );
+  assert.throws(
+    ()=>protocol.validatePolicyAudit(
+      audit(multi,['action-2','action-1'],evaluations.slice().reverse()),input,multi,POLICY_VERSION
+    ),
+    /POLICY_AUDIT_FRONTIER_ORDER_MISMATCH/
+  );
+});
