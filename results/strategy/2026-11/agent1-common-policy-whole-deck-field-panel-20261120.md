@@ -96,13 +96,13 @@ The first trace is **pipeline acceptance**, not evidence that its winner or deck
 
 ### Stage B — registered reference comparison
 
-After the trace is accepted and reviewed, use the already described matched comparison: the unchanged Hood Shield Shadow Rider v1 against the exact rank-1 source list, under one frozen common policy and frozen opponent policy. Preserve the registered source deals and policy/engine hashes; sample both physical seats and both actual first-player assignments; record all attempted, failed, capped, unfinished, and completed games. Do not call this a field panel or a strength result.
+After the trace is accepted and reviewed, use the already described matched comparison: the unchanged Hood Shield Shadow Rider v1 against the exact rank-1 source list, under the **same frozen registered candidate/opponent policy bundle** used for the diagnostic. Preserve the registered source deals and policy/engine hashes; sample both physical seats and both actual first-player assignments; record all attempted, failed, capped, unfinished, and completed games. Do not replace this bundle with the future PUCT policy mid-comparison. Do not call this a field panel or a strength result.
 
 This step establishes whether the end-to-end runner can produce comparable whole-game outcomes under a fixed policy. It does not validate every candidate architecture.
 
 ### Stage C — first cross-archetype diagnostic panel
 
-Only after Stage B is reviewed, run a small, prospectively frozen panel spanning **different failure mechanisms**, not just the easiest or most common matchup:
+Only after Stage B is reviewed **and** Agent5's post-trace shared actor-relative PUCT adapter has been integrated and passed its bounded regressions, run a small, prospectively frozen panel under that single frozen policy spanning **different failure mechanisms**, not just the easiest or most common matchup:
 
 - **Rank 6 Iron Thorns:** Active Rule-Box Ability suppression and the source's Special-Energy/Stadium pressure.
 - **Rank 11 Absol/Garbodor:** Tool-conditioned global Ability suppression, Tool targeting/removal, and the candidate's Hood/Arven response.
