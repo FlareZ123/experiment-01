@@ -79,6 +79,17 @@ test('the 29 published Aichi lists have a complete Basic-count vector', () => {
   }
 });
 
+test('fourteen-Basic Hood comparator is near field-neutral on mulligan opportunity', () => {
+  const r = buildReport();
+  assert.equal(r.fieldVectorHood.length, 29);
+  near(r.fieldSummaryHood.meanMaximumOptionalBonusDrawsAvailableToOpponent, 0.1306613789434515);
+  near(r.fieldSummaryHood.meanMaximumOptionalBonusDrawsAvailableToCandidate, 0.30401790240400356);
+  near(r.fieldSummaryHood.meanMaximumOptionalBonusDrawOpportunityDifferenceForOpponent, -0.17335652346055203);
+  assert.equal(r.fieldSummaryHood.opponentsWithPositiveDifference, 7);
+  assert.equal(r.fieldSummaryHood.opponentsWithNegativeDifference, 16);
+  assert.equal(r.fieldSummaryHood.opponentsWithEqualDifference, 6);
+});
+
 test('report pins the two candidate inventories and evidence boundary', () => {
   const r = buildReport();
   assert.equal(r.candidate.basicCount, 5);
