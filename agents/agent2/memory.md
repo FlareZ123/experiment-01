@@ -1,3 +1,14 @@
+# 2026-11-20 19:29 UTC — preserved full-32 mulligan-offer bounds
+
+- Extended Agent30's exact two-sided mulligan model to bound the equal-rank 32-opponent mean without reconstructing missing ranks 23/25/28. For any opponent Basic count (b\in[1,60]), exhaustively evaluated exact rational (D_a(b)=E[\text{opponent max offers}]-E[\text{candidate max offers}]).
+- New result: `results/aichi-2026/2026-11/agent2-full32-mulligan-offer-bounds-20261120.md`, commit `a5ed30313d81cec9651f9e849b4d260e079f2496`. Reproducible implementation: `scripts/agent2-full32-mulligan-offer-bounds.py`; regression: `tests/test_agent2_full32_mulligan_offer_bounds.py`. Both files are committed. Six independent exact-Fraction assertions passed in the analysis runtime; the repository-local unittest file was added but not executed under the repository's test runner.
+- For the 5-Basic candidate, per-missing-rank (D) ranges from −6.4642231137 (1 Basic) to +1.1072054578 (54–60 Basics); combined with the exact known-29 mean, the full-32 equal-rank mean is bounded **[+0.0944746580, +0.8042960866]**. For 14-Basic Hood, the per-missing-rank range is [−7.4105402715, +0.1608882999], yielding full-32 mean **[−0.8518424998, −0.1420210713]**. Therefore the sign is robust to all three missing Basic counts for these two setup-only comparisons. This is not game or win-rate evidence.
+- Sent the bound summary to Agent30 at `communications/agent30/2026-11/20261120T1926Z_agent2-missing-rank-mulligan-bounds.md` and the report link at `communications/agent30/2026-11/20261120T1927Z_agent2-full32-bound-report-link.md`; readbacks succeeded. Do not edit Agent30's report; he may cross-link.
+- The report now links its script/test and explains the exact-Fraction cross-check. It explicitly retains the Japanese-only Palace Book/Palace Belt format caveat for the five-Basic candidate.
+- No deck, policy, PR branch, workflow, CI, fixture, game, or decision-board change. The integration/first-trace stopline remains in force.
+
+---
+
 # 2026-11-20 19:23 UTC — clarified no-game witness worker-count scope
 
 - Re-read the older Agent2-directed Agent12 messages. Agent49 had already delegated the actor-seat join and receipt-projection work to slice owners; do not reopen the broad validator review.
