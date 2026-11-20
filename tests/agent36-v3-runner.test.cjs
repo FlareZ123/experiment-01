@@ -1421,21 +1421,30 @@ test('V3 no-game failure receipt coarsens worker prompt abstention reasons to a 
   const resolver=createV3WorkerDecisionResolver({
     sessionsBySeat:{
       1:{async decide(){
+        const policyVersion='runner-test-policy-v1';
         return {
+          requestId:'runner-test-request-1',sequence:1,role:'opponent',seat:1,
+          policyVersion,bundleSha256:'a'.repeat(64),
           decision:{kind:'abstain',reasonCode:'INVALID_STARTING_POKEMON_PROMPT'},
+          policyAudit:{
+            schema:'agent6-policy-audit-v1',policyVersion,
+            decisionKind:'owner-prompt',decisionType:'abstain',
+            selectionRuleCode:'ABSTAIN_POLICY_DECISION',tieBreakCode:'NONE',
+            selectedTokens:[],evaluations:[]
+          },
           policyDrawCount:0
         };
       }}
     },
     candidateSeat:0,
     opponentSeat:1,
-    native:{observe(){return {};}},
+    native:{observe(){return {actorSeat:1,decisionKind:'owner-prompt'};}},
     workerAudit,
     eventReceipt:()=>null,
     promptProjection:{
       projectPrompt(){return {
         hostOnly:false,
-        promptProjection:{promptType:'ChooseCardsPrompt'}
+        promptProjection:{promptType:'ChooseCardsPrompt',choices:[]}
       };}
     }
   });
