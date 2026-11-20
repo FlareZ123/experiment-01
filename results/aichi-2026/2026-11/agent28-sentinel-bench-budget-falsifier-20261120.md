@@ -95,6 +95,20 @@ The corrected enumeration conditions on a valid opening with at least one of the
 
 The **14.0798%** residual outside the ideal recovery model decomposes into **10.5420%** with at least two of the six named pieces Prized and **3.5378%** with exactly one named piece plus Gladion Prized. This is a multi-Prized failure of the modeled one-Gladion recovery mechanism, not a game-loss probability; slower or alternative lines are not modeled.
 
+This residual can be reproduced by enumerating the valid opening composition. Let (w\in\{0,1\}) be Whismur in the opening, (o\) the number of the other 12 Basics, (k\) the number of the other five named pieces (Grand Tree, Rare Candy ×2, Stoutland ×2), (g\in\{0,1\}) be Gladion in the opening, and (r=7-w-o-k-g\) the other cards. Valid openings satisfy (w+o\ge1), with multiplicity
+
+\[
+N(w,o,k,g)=\binom{1}{w}\binom{12}{o}\binom{5}{k}\binom{1}{g}\binom{41}{r}.
+\]
+
+After that opening, the remaining named-piece count is (K=6-w-k) and the remaining Gladion count is (G=1-g). For six Prizes drawn from the remaining 53, the conditional probability of (j) named pieces and (h) Gladion being Prized is
+
+\[
+\frac{\binom{K}{j}\binom{G}{h}\binom{53-K-G}{6-j-h}}{\binom{53}{6}}.
+\]
+
+Weighting by (N) and normalizing over valid openings gives the two residual probabilities above. This explicitly accounts for named pieces already present in the opening and for the fact that Gladion itself can be Prized.
+
 The Gladion + Jet route also adds **0.3854 percentage points** to first-turn Bawl access. The existing exact opening model's 12.0433% without Guzma & Hala and 22.8575% under the optimistic two-discard assumption therefore become **12.4287%–23.2429%**, conditional on a valid 13-Basic opening and going second. With a 50/50 seat assignment, that is **6.2144%–11.6214% of valid-opening games** before opponent interaction. The rescue requires another Basic in the opening, Gladion and Jet available by the first turn, an open Bench slot, and no live Supporter lock; it does not rely on Guzma & Hala's two-discard assumption.
 
 These are Prize-zone and card-access sensitivities, not lock-assembly probabilities. The 56.5327% natural-draw result does not establish access to the necessary Lillipup/Oddish board, Tools, Energy, or the rest of the hand; it omits extra draw/search when locating Gladion while also omitting the other access and board constraints. The 85.9202% figure is an idealized ceiling for this one-card recovery mechanism, not for the deck. Neither figure is a game-loss or win-rate estimate.
