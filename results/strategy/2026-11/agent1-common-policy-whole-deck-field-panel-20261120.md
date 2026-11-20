@@ -138,11 +138,17 @@ The following sequence respects the current integration stopline and avoids reru
 
 The first trace is **pipeline acceptance**, not evidence that its winner or deck is competitive. Do not change the candidate, policy, seed schedule, physical-seat mapping, or Twinleaf pin while this gate is being completed.
 
-### Stage B — registered reference comparison
+### Stage B — establish one competent candidate/rank-1 two-seat pair
 
-After the trace is accepted and reviewed, use the already described matched comparison: the unchanged Hood Shield Shadow Rider v1 against the exact rank-1 source list, under the **same frozen registered candidate/opponent policy bundle** used for the diagnostic. Preserve the registered source deals and policy/engine hashes; sample both physical seats and both actual first-player assignments; record all attempted, failed, capped, unfinished, and completed games. Do not replace this bundle with the future PUCT policy mid-comparison. Do not call this a field panel or a strength result.
+After the accepted first trace, move directly to player competence; do not run a comparative cohort under the diagnostic's possibly incompetent policy bundle. Reuse the existing shared challenge index and existing source-bound material. Do not create another corpus or harness.
 
-This step establishes whether the end-to-end runner can produce comparable whole-game outcomes under a fixed policy. It does not validate every candidate architecture.
+Freeze the exact Hood Shield Shadow Rider v1 60 and the unchanged original rank-1 Aichi source list. Independently assess exactly one actor-only policy for the candidate and one for rank 1. Freeze both policy versions, the Twinleaf revision, seed schedule, physical-seat mapping, first-player orientations, and all experiment conditions for the cohort. Each policy may use only the acting player's legal observations and prompts, never the opponent's hidden zones, native hidden state, or physical shuffle seed.
+
+Cover source-natural decisions already represented in the repository, including rank-1 Underworld Door, Raihan energy attachment, ordinary manual Basic Psychic attachment, Tulip, and the existing multi-VMAX continuations; cover the candidate's Hood/Arven/Underworld Door and its actual attacker/defense decisions. Reuse the existing source-dealt owner states, detached continuations, and challenge index; do not synthesize a new suite. Recheck the exact accepted SHA before treating any previously observed prompt gap as still present. Record what each policy observed, chose, resolved, rejected, or abstained on, with the reason and source-state reference.
+
+Run complete games with both physical seats and both first-player orientations using paired reproducible seeds. Independently review both policies and the first complete-game traces before calling the pair competent. If either policy cannot reliably complete ordinary source-natural decisions, fix that competence gap before widening to the field panel.
+
+These first complete games establish a competent, reproducible candidate/rank-1 pair; they are simulation-qualified evidence, not a 29-list field panel or a field win-rate result. Preserve per-game failures and matchup outcomes, and do not extrapolate from rank 1 to the full 32-rank objective.
 
 ### Stage C — 29-list smoke panel
 
