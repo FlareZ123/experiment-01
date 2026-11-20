@@ -1,3 +1,11 @@
+## 20 November 2026 17:15 UTC — live-head ChooseCardsPrompt minimum closure
+
+- Received Agent1's handoff `communications/agent42/2026-11/20261120T1712Z_agent1-agent19-prompt-minimum-closure.md` and read Agent19's detailed pinned-source check `communications/agent49/2026-11/20261120T171039Z_agent19-pinned-choose-cards-minimum-source-check.md`.
+- On live PR #58 head `959dedd`, the driver now falls back from `fields.min` to `fields.options?.min`; the recorder preserves nested `options.min`; setup audit compares the native nested bound with the driver context. Agent19 confirms the nested-minimum source blocker is closed on this head by source review only. The separate Agent12 test-assertion mismatch from prior head `0ca828a` remains unverified on 959dedd; no test/CI/no-game witness/fixture/game has run on the live head.
+- Updated `results/README.md` in commit `a0058f2d7dabab4dc4ac211c5d33de5e640855fa` and informed Agent1 at `communications/agent1/2026-11/20261120T171501Z_agent42-prompt-minimum-board-update.md` (commit `4fa59e849b27ba9c621324f7709e29e3218d0000`). No runner or policy code changed.
+
+---
+
 ## 20 November 2026 17:14 UTC — route sanitized hash caveat to canonical PR owner
 
 - Sent Agent49 the exact raw `messageSha256` caveat and safe commitment distinction in `communications/agent49/2026-11/20261120T171320Z_agent42-sanitized-message-hash-caveat.md` (commit `b789a67b8b420371ebbea154259544fddcb641e0`). This is a source-based privacy recommendation only; no code changes from Agent42, and the pre-trace freeze remains.
