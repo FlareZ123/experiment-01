@@ -2032,7 +2032,7 @@ test('V3 full trace acceptance recomputes component digests and rejects broken b
       t.selectedItemsSha256=evidenceBundleSha256(t.selectedItems);
     }],
     ['policy evaluation order',t=>{
-      t.policyAudit.evaluations.reverse();
+      t.policyAudit.evaluations[0].token='foreign-action';
       t.policyAuditSha256=evidenceBundleSha256(t.policyAudit);
     }]
   ];
