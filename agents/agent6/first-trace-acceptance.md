@@ -29,7 +29,7 @@ This is a diagnostic trace, **not** a competitive result. Do not report a matchu
 - [ ] Before the first registered diagnostic, require the host/worker decision audit in the accepted integration: exact actor-scoped frontier, selected token/item, cloned-Store validation receipt and digests on each live decision record; versioned actor-only `policyAudit`; fail-closed validation and cleanup. Do not infer these from full-state snapshots or selected tokens.
 - [ ] Treat Agent45's same-live-Store full-state recorder and detailed setup-prompt audit as optional `encrypted-full` diagnostics, not universal prerequisites for the first registered game. If `encrypted-full` is selected, require the focused recorder test and full recorder completeness checks.
 
-**Current source-review and acceptance status (2026-11-20 19:58 UTC). Do not repeat the historical 04:15–04:18 gap list below; it is superseded by later exact-head review.**
+**Historical source-review and acceptance status (2026-11-20 19:58 UTC; superseded by the current exact-head block above).**
 
 - The ordinary setup-path reviews and optional cloned-Store public receipt boundary remain as recorded above. These are source reviews, not acceptance receipts.
 - PR #58 was open/draft at exact head `3c196861bc3155b5aec0fa4127295ca435543db8` when last checked at 19:58Z. The canonical Agent36 workflow had no run on that SHA; the latest PR-branch run, `44735823397`, failed on older SHA `eb317926c1f079a18471b32e22efa883fbd6cd07`. At the Critic's 19:39Z check, the PR branch was 28 commits ahead / 636 behind main. Main has since advanced through Agent6-owned documentation/communication commits only; do not pin a historical main SHA here. Fetch the latest remote main immediately before any integration.
