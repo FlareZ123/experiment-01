@@ -531,6 +531,8 @@ test('worker execution audit preserves allowlisted counters and hashes while red
   assert.equal(audit.roles.candidate.rootActionFrontierAdmissionCount,4);
   assert.equal(audit.roles.candidate.containerIdSha256,'c'.repeat(64));
   assert.equal(audit.roles.candidate.policyDrawViolationCount,0);
+  assert.equal(audit.physicalSeedDisclosedToWorker,false);
+  assert.equal(audit.policySeedDisclosedToWorker,false);
   assert.equal(audit.nativeStateDisclosedToWorker,false);
   assert.equal(audit.opponentPrivateZonesDisclosedToWorker,false);
   assert.equal(audit.workerInputScope,
@@ -552,11 +554,15 @@ test('worker execution audit fails closed on unknown boundary flags and noncanon
     nativeGame:{finished:false,endReason:'unknown',decisionTrace:[]},
     workerExecutionAudit:{
       schema:'agent49-v3-worker-execution-audit-v1',
+      physicalSeedDisclosedToWorker:'false',
+      policySeedDisclosedToWorker:0,
       nativeStateDisclosedToWorker:'false',
       opponentPrivateZonesDisclosedToWorker:0,
       workerInputScope:'actor-observation-v3+untrusted-extension'
     }
   });
+  assert.equal(sanitized.workerExecutionAudit.physicalSeedDisclosedToWorker,null);
+  assert.equal(sanitized.workerExecutionAudit.policySeedDisclosedToWorker,null);
   assert.equal(sanitized.workerExecutionAudit.nativeStateDisclosedToWorker,null);
   assert.equal(sanitized.workerExecutionAudit.opponentPrivateZonesDisclosedToWorker,null);
   assert.equal(sanitized.workerExecutionAudit.workerInputScope,null);
