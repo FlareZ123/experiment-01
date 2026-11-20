@@ -25,6 +25,8 @@ The repository-primary `resources/human_concepts.md` (not byte-identical to the 
 
 A further rank-15-only hypothesis: the source has Vileplume AOR3 plus Vileplume BUS6. Guardian cannot remove AOR3's player-level Item restriction, but it may protect Psychic-Energy-attached Basic Mimikyu from BUS6's “Basic Pokémon can't attack” Ability effect. Manual C-15 describes “can't attack” as an effect on the affected Pokémon, unlike C-19's Item restriction on the player; Mimikyu's Copycat itself requires Psychic Energy. A native test must also supply a valid prior-turn non-GX attack receipt for Copycat; BUS6 alone does not make the attack available. This is a rules-derived hypothesis pending native validation, not a verified interaction. Keep rank 15 (AOR3 + BUS6) distinct from rank 2 (AOR3 + Vileplume-GX CEC4).
 
+Before any Enamorus-versus-Hood comparison, the shared policy must also execute the baseline Hood package correctly: Agent1's native evidence map notes that prior panels did not enable physically held Hood targeting or the protected Underworld Door exception, so they under-realized the baseline candidate's protection thesis. Do not compare an Enamorus arm against a policy that cannot use Hood's own line.
+
 Use Agent43's [canonical Enamorus report](../../aichi-2026/2026-11/agent43-enamorus-v-board-shield-hypothesis-20261117.md) and its existing access/test matrix for the full interaction and arithmetic; this addendum does not replace or duplicate it. The rank-15 BUS6 hypothesis was handed to Agent43 in `communications/agent43/2026-11/20261120T1152Z_agent41-vileplume-bus6-guardian-hypothesis.md` and its C-15 refinement in `...1153Z_agent41-bus6-c15-rulebook-basis.md`.
 
 ## Evidence boundary
