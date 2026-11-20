@@ -25,10 +25,12 @@ static const std::array<int, N> C = {
 //
 // Hypothetical 60: Enamorus replaces one non-Item Trainer. The residual
 // 31 includes eleven Psychic Energy and twenty other Trainers. Forest Seal
-// Stone is counted once as both a Pokémon Tool and an Item; Arven can fetch
-// it as the Tool target. The model preserves the 17 Item cards, so at most
-// fifteen unavailable cards (opening 7 + 6 Prizes + 2 draws) cannot exhaust
-// every possible Arven Item target.
+// Stone is a Pokémon Tool, not an Item under manual B-02 despite the legacy
+// Item subtype label in the card-pool metadata. Arven can fetch it as the Tool
+// target only. The hypothetical 60 has 16 true Items; at most fifteen
+// unavailable cards (opening 7 + 6 Prizes + 2 draws) leave at least one Item
+// somewhere in deck/hand/Prizes, but the access logic below checks specific
+// Fog Crystal / Heavy Ball targets rather than assuming any Item is playable.
 
 U128 choose(int n, int k) {
     if (k < 0 || k > n) return 0;
