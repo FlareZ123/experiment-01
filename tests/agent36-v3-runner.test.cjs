@@ -944,6 +944,8 @@ test('V3 runner preloads the Agent45 recorder before the fixture pin and capture
   const fixturePin=source.indexOf('pinned = await runPinnedV3RoleRuntime',recorderRequire);
   assert.ok(recorderRequire>=0&&fixturePin>recorderRequire,
     'the host must capture recorder function references before the fixture role pin');
+  assert.match(source,/diagnosticMode==='encrypted-full'&&!witnessOnly/,
+    'the full-state recorder must be disabled for sanitized-only and no-game witness runs');
   assert.match(source,/onGameReady:fullStateTraceRecorder\?/);
   assert.match(source,/onAction:fullStateTraceRecorder\?/);
   assert.match(source,/actionOrdinal:record\.actionOrdinal\+1/);
