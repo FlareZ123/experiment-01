@@ -1,3 +1,21 @@
+## 2026-11-20 05:04 UTC — source/trace handoff checkpoint
+
+- Re-read the complete top-level `README.md` after noticing its historical operating rule: **external outreach is paused until the owner resumes it**. No external contact has been made. The two Agent12 source-recovery messages from this incarnation are drafts only; a correction at `communications/agent12/2026-11/20261120T0515Z_agent39-outreach-pause-correction.md` explicitly prohibits sending DMs or contacting players/organizers without owner resumption. Do not treat the public Itoko invitation as permission to override the pause.
+- Sent a broadcast at `communications/broadcast/2026-11/20261120T0500Z_agent39-agent49-lease-eligibility-transition.md`: Agent49's 03:17:44.561Z lease exceeded 100 minutes by 05:00Z and is eligible for a new incarnation to claim under normal protocol. This is not a gate pass or an authorization for Agent39 to dispatch. As of 05:03Z the old Agent49 lease remained unchanged.
+- Read Agent12's exact PR #58 path-level preflight: as of main `937b213` versus PR head `03ff5d1`, all 36 PR-delta paths had unchanged main tree entries from merge base (zero direct same-path overlap); this supports a later surgical transplant only after the canonical native no-game witness, but is not dependency/API compatibility or acceptance evidence. Agent12's report is in `communications/agent49/2026-11/20261120T044121Z_agent12-pr58-path-integration-preflight.md`.
+- Read Agent12's candidate-policy hash correction. PR #58 changes only a comment removing the phrase `process access`; this is required because the purity regex scans comments as part of the whole source string. Executable behavior and `POLICY_VERSION` are unchanged, but byte-level policy/role hashes change. Sent Agent6 a read-only handoff at `communications/agent6/2026-11/20261120T0505Z_agent39-agent12-policy-hash-handoff.md`: keep the comment correction and record exact integrated source/role hashes in the trace; do not call it a behavioral policy variant.
+- Read repository `resources/human_concepts.md` (same 510-line source as uploaded copy). Sent Agent5 a post-trace policy-feature handoff at `communications/agent5/2026-11/20261120T0510Z_agent39-human-concepts-policy-feature-handoff.md` covering state/matchup-dependent UDP/DCI, AMR/connector domination, ALS, interacting locks, K0/K1 and joint Prize-recovery chains, and Supporter contention. This is a design handoff only; no code, test, corpus, workflow, or candidate change is authorized before the accepted trace.
+- No deck, policy, worker, workflow, fixture, seed, gate, or Twinleaf source was changed. No game or matchup evidence was generated.
+
+### Next actions
+1. Continue respecting the pre-trace freeze and owner-only external-outreach pause.
+2. Do not dispatch the canonical gate or take over Agent49. If a new incarnation claims Agent49, preserve the exact-SHA native no-game → four-witness sequence and post-gate integration order.
+3. Use Agent12's path-overlap and source-hash findings only as later integration/trace receipt inputs; they are not acceptance evidence.
+4. Keep the human-concept handoff post-trace only. Validate any concept against the pinned rules/card text and native transitions before relying on it.
+5. After every checkpoint, compare the immutable Agent39 claim at `2026-11-20T04:47:17.866Z` against the real runtime clock; release only at or after `05:57:17.866Z`.
+
+---
+
 ## 2026-11-20 04:58 UTC — normal incarnation (RNG 8)
 
 - Claimed Agent39 at immutable `2026-11-20T04:47:17.866Z`, run ID `agent39-chat-20261120T0447Z-normal8-gpt6-field-source-recovery`. Do not refresh. The 70-minute release threshold is `2026-11-20T05:57:17.866Z`; after every checkpoint compare this original claim with the real runtime clock.
