@@ -1865,7 +1865,7 @@ function makeV3SetupPromptAuditFixture(){
       actingSeat:spec.seat,
       resolver:'native-prompt-resolver',
       message:spec.message,
-      availableOptions:{min:spec.minimumCount===0?1:spec.minimumCount??null}
+      availableOptions:{min:spec.minimumCount??null}
     };
     const promptResolution={
       kind:'worker-choice',decisionKind:'select-choice',selectedCount:1
@@ -2025,15 +2025,15 @@ test('Agent19 V3-native setup audit joins starting-Basic and GO_FIRST worker rec
   assert.equal(audit.accepted,true,audit.failures.join(','));
   assert.equal(audit.setupPromptDecisions,5);
   assert.deepEqual(audit.roles.candidate.counts,
-    {startingBasics:1,optionalExtraBenchPlacements:1,goFirst:1,wantToDrawCards:0});
+    {startingBasics:1,optionalExtraBenchPlacements:1,goFirst:1,wantToDrawCards:1});
   assert.deepEqual(audit.roles.opponent.counts,
     {startingBasics:1,optionalExtraBenchPlacements:0,goFirst:0,wantToDrawCards:0});
-  assert.deepEqual(audit.roles.candidate.setupPromptRows.map(row=>row.actionOrdinal),[0,1,2]);
-  assert.deepEqual(audit.roles.opponent.setupPromptRows.map(row=>row.actionOrdinal),[3]);
-  assert.equal(audit.roles.candidate.setupPromptRows[2].kind,'optional-extra-bench-placement');
+  assert.deepEqual(audit.roles.candidate.setupPromptRows.map(row=>row.actionOrdinal),[0,1,2,3]);
+  assert.deepEqual(audit.roles.opponent.setupPromptRows.map(row=>row.actionOrdinal),[4]);
+  assert.equal(audit.roles.candidate.setupPromptRows[2].kind,'want-to-draw-cards');
+  assert.equal(audit.roles.candidate.setupPromptRows[3].kind,'optional-extra-bench-placement');
   assert.equal(audit.roles.candidate.setupPromptRows[3].minimumCount,0);
   assert.equal(audit.roles.candidate.setupPromptRows[3].recorderPromptSnapshotVerified,true);
-  assert.equal(audit.roles.candidate.counts.wantToDrawCards,1);
   assert.equal(audit.roles.candidate.counts.optionalExtraBenchPlacements,1);
   assert.ok([...audit.roles.candidate.setupPromptRows,...audit.roles.opponent.setupPromptRows]
     .every(row=>row.accepted&&row.ledgerJoinVerified&&row.recorderJoinVerified));
