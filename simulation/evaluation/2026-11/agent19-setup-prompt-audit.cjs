@@ -259,7 +259,8 @@ function buildSetupPromptAudit({
                   promptProperties?.message!==message) {
           receiptFailures.push('recorder-prompt-snapshot-identity-mismatch');
         } else if(message==='CHOOSE_STARTING_POKEMONS'&&
-                  promptOptionsProperties?.min!==minimumCount) {
+                  (!nonNegativeInteger(promptContext?.availableOptions?.min)||
+                   promptOptionsProperties?.min!==promptContext.availableOptions.min)) {
           receiptFailures.push('recorder-prompt-minimum-count-mismatch');
         } else {
           recorderPromptSnapshotVerified=true;
