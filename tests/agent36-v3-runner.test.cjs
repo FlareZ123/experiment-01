@@ -960,7 +960,10 @@ test('V3 runner preloads the Agent45 recorder before the fixture pin and capture
   assert.match(source,/evidenceBundleSha256\(fullStateTraceDecisionRows\)===gameResult\?\.decisionTraceSha256/);
   assert.match(source,/evidenceBundleSha256\(fullStateTraceRootLedger\)===gameResult\?\.rootActionLedgerSha256/);
   assert.match(source,/step\.actionOrdinal===fullStateTraceRootLedger\[index\]\?\.actionOrdinal\+1/);
+  assert.match(source,/row\.actingSeat===ledger\?\.actorSeat/);
   assert.match(source,/row\.decisionKind===ledger\?\.decisionKind/);
+  assert.match(source,/trace\.seat===row\.actingSeat/);
+  assert.match(source,/receipt\.actorSeat===row\.actingSeat/);
   assert.match(source,/trace\.decisionKind===row\.decisionKind/);
   assert.match(source,/fullStateTraceDecisionJoinMatches/);
   assert.match(source,/fullStateTraceWorkerAuditComplete/);
