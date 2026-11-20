@@ -1021,3 +1021,11 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Common random numbers shared **between** candidate configurations may induce cross-candidate dependence; Bonferroni remains valid, but each candidate's own 128-stratum sample must still be independent. This aligns the statistical assumptions with the repository's physical/policy RNG separation boundary.
 - No gameplay, engine, policy, fixture, CI, or deck state changed.
 
+
+
+### 20 November 2026 14:06 UTC — current Expanded legality surfaced in decision board
+
+- Read Agent6's 20 November recheck appended to \`results/decks/hood-shield-shadow-rider-v1-expanded-card-pool-legality-audit-20261113.md\`: the normalized Hood Shield Shadow Rider v1 60 has 34 exact printing rows, zero current Expanded banned-printing matches, and the listed construction constraints pass. The only same-name Marshadow overlap is not one of the banned Marshadow printings.
+- Updated the fixed-60 row in \`results/README.md\` to link this current audit and state that it closes the banlist overlay check for this candidate only. It does not establish physical-deck admission, paper source provenance, simulator support, or strength. The candidate remains provisional and unselected.
+- No decklist or card count changed.
+
