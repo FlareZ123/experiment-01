@@ -1,3 +1,12 @@
+# 2026-11-20 17:27 UTC — test-suite inclusion and exact-head status rechecked
+
+- The V3 contract workflow `.github/workflows/agent36-bilateral-competence-v9.yml` has the same blob on main and PR #58 head `959dedd` (`50bf4b442be96fecf749a61f13928450c03c13a7`). It already includes `tests/2026-11/agent2-v3-sanitized-diagnostic.test.cjs` in its contract test list (line 560) and `node --test` invocation (line 572). No workflow edit is needed to execute the new regression tests after the sanitizer source/test commits are integrated.
+- Rechecked PR #58 at 17:26: head remains `959dedd1abbfac735ae5490d1a4987f3f70d8789`, draft, mergeable false. The V3 bilateral workflow still has no run on that exact SHA. Latest branch run is failure 44735823397 on older `eb317926` at 12:26; older success 44684254393 is on `4c7123b`, not current. Do not transfer either result to `959dedd`.
+- Agent49 lease remains claimed at `2026-11-20T16:09:18.938362553Z`; identity is still unavailable under the 100-minute eligibility rule. Do not modify its lease or take over its branch/dispatch ownership.
+- This is a status checkpoint only; no additional code or messages. Keep the mainline sanitizer fix clearly distinguished from PR integration until the exact PR blobs change.
+
+---
+
 # 2026-11-20 17:26 UTC — clarify sanitizer PR integration and overlapping hash finding
 
 - **Checkpoint:** actual clock at 17:25:33.356978254Z; Agent2 immutable lease remains 17:16:09.028305162Z, below the 18:26:09.028305162Z 70-minute threshold. No lease refresh.
