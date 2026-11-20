@@ -42,6 +42,91 @@ test('host environment snapshot transport is never allowlisted into role workers
 
 const STEP='Generate physical deal';
 
+function rootResolverFixture({
+  actorObservation=null,actorObservationSha256=null,responsePatch={},dispatchError=null
+}={}) {
+  const workerAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});
+  const policyVersion='runner-root-audit-test-v1';
+  const observation=actorObservation??Object.freeze({
+    actorSeat:1,decisionKind:'owner-root',phase:'PLAYER_TURN',
+    globalTurn:3,ownHand:['distinctive-root-actor-input']
+  });
+  const item={
+    token:'root-action-0',kind:'attack',attackName:'Max Geist',
+    publicMetadata:{damage:250,stadiumEffectLive:true}
+  };
+  const frontierBinding={schema:require('../simulation/evaluation/2026-11/agent49-policy-protocol.cjs').FRONTIER_SCHEMA,items:[item]};
+  const policyAudit={
+    schema:'agent6-policy-audit-v1',policyVersion,
+    decisionKind:'owner-root',decisionType:'select-action',
+    selectionRuleCode:'ROOT_SCORE_DESC',tieBreakCode:'FIRST_NATIVE_ORDER',
+    selectedTokens:[item.token],
+    evaluations:[{token:item.token,status:'scored',score:12,reasonCode:null}]
+  };
+  const response={
+    requestId:'runner-root-audit-request',sequence:1,role:'opponent',seat:1,
+    policyVersion,bundleSha256:'c'.repeat(64),
+    decision:{kind:'select-action',token:item.token},
+    policyAudit,policyDrawCount:0,
+    ...responsePatch
+  };
+  const calls={worker:0,seenObservation:null,cloneValidation:0,liveStoreDispatch:0};
+  const actionEnumerator={
+    createKnownCapFreeActionEnumerator(){return {schema:'test-known-cap-free-enumerator-v1'};},
+    assertKnownCapFreeAdapterAdmissionClear(){return {schema:'test-frontier-admission-v1',accepted:true};}
+  };
+  const actionFrontier={
+    buildNativeActionFrontier(){
+      return {
+        actionFrontier:frontierBinding,
+        actionByToken:new Map([[item.token,{kind:'native-action'}]]),
+        diagnostics:{}
+      };
+    },
+    dispatchSelectedNativeAction(args){
+      calls.cloneValidation++;
+      if(dispatchError)throw dispatchError;
+      Object.assign(args.validationEvidence,{
+        nativeValidationStoreMode:'cloned-store',
+        fullOriginalStoreStateUnchanged:true,
+        actorSeat:1
+      });
+      return {kind:'native-action'};
+    }
+  };
+  const resolver=createV3WorkerDecisionResolver({
+    sessionsBySeat:{
+      1:{async decide(input){
+        calls.worker++;
+        calls.seenObservation=input.observation;
+        return response;
+      }}
+    },
+    candidateSeat:0,opponentSeat:1,
+    native:{
+      observe(){throw new Error('resolver must consume the exact driver-supplied actor observation');},
+      ActionEnumerator:class ActionEnumerator {},
+      Simulator:class Simulator {}
+    },
+    workerAudit,eventReceipt:()=>null,
+    actionEnumerator,actionFrontier
+  });
+  const request={
+    kind:'native-fixture-decision',decisionKind:'owner-root',
+    actorSeat:1,actionOrdinal:5,
+    actorObservation:observation,
+    actorObservationSha256:actorObservationSha256??evidenceBundleSha256(observation),
+    state:{activePlayer:1},prompt:null,
+    store:{state:{},dispatch(){calls.liveStoreDispatch++;}},
+    withValidationRandom:fn=>fn()
+  };
+  return {
+    resolver,request,workerAudit,calls,actorObservation:observation,
+    item,frontierBinding,policyAudit,response
+  };
+}
+
+
 test('V3 no-game seed probe resolves GO_FIRST affirmatively without invoking the neutral bot',()=>{
   class ConfirmPrompt {
     constructor(id,message){this.id=id;this.message=message;}
@@ -1483,6 +1568,8 @@ test('V3 wrong-actor resolver failure survives callback projection and final wit
 
 test('V3 no-game failure receipt coarsens worker prompt abstention reasons to a public generic code',async()=>{
   const workerAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});
+  const actorObservation={actorSeat:1,decisionKind:'owner-prompt'};
+  const actorObservationSha256=evidenceBundleSha256(actorObservation);
   const resolver=createV3WorkerDecisionResolver({
     sessionsBySeat:{
       1:{async decide(){
@@ -1516,6 +1603,8 @@ test('V3 no-game failure receipt coarsens worker prompt abstention reasons to a 
   let resolverFailure=null;
   await assert.rejects(resolver({
     kind:'native-fixture-decision',
+    decisionKind:'owner-prompt',actionOrdinal:1,
+    actorObservation,actorObservationSha256,
     actorSeat:1,
     prompt:{},
     state:{activePlayer:1},
@@ -1527,6 +1616,9 @@ test('V3 no-game failure receipt coarsens worker prompt abstention reasons to a 
   });
   assert.equal(workerAudit.roles.opponent.lastAbstentionReasonCode,
     'INVALID_STARTING_POKEMON_PROMPT');
+  assert.equal(resolverFailure.workerDecisionTrace.actorInputSha256,actorObservationSha256);
+  assert.equal(resolverFailure.workerDecisionTrace.validationReceipt,null);
+  assert.equal(resolverFailure.workerDecisionTrace.failureCode,'POLICY_ABSTAINED');
   workerAudit.roles.candidate.lastAbstentionReasonCode='PRIVATE_ACTOR_HAND_HAS_UNIQUE_CARD';
   const receipt=buildNoGameWitnessFailureReceipt({
     error:{code:resolverFailure.code,workerAudit},
@@ -1600,6 +1692,8 @@ test('V3 outer runner cleanup receipt preserves primary and cleanup summaries wi
 test('V3 worker prompt resolver binds policyAudit, actor projection and cloned-Store receipt', async () => {
   const workerAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});
   const policyVersion='runner-prompt-audit-test-v1';
+  const actorObservation={actorSeat:1,decisionKind:'owner-prompt',ownHand:['Fog Crystal FLI']};
+  const actorObservationSha256=evidenceBundleSha256(actorObservation);
   const choice={token:'prompt-choice-0',kind:'card',printing:'Fog Crystal FLI'};
   const policyAudit={
     schema:'agent6-policy-audit-v1',policyVersion,
@@ -1646,7 +1740,8 @@ test('V3 worker prompt resolver binds policyAudit, actor projection and cloned-S
     }
   });
   const result=await resolver({
-    kind:'native-fixture-decision',actorSeat:1,
+    kind:'native-fixture-decision',decisionKind:'owner-prompt',actorSeat:1,
+    actorObservation,actorObservationSha256,
     prompt:{id:'prompt-1'},state:{activePlayer:1},store:{},
     actionOrdinal:3,withValidationRandom:fn=>fn()
   });
@@ -1662,6 +1757,10 @@ test('V3 worker prompt resolver binds policyAudit, actor projection and cloned-S
   assert.deepEqual(result.decisionTrace.selectedItems,[choice]);
   assert.deepEqual(result.decisionTrace.policyAudit,policyAudit);
   assert.equal(result.decisionTrace.actorInputSha256.length,64);
+  assert.strictEqual(result.decisionTrace.actorInput,actorObservation);
+  assert.equal(result.decisionTrace.actorObservationSha256,actorObservationSha256);
+  assert.equal(result.decisionTrace.traceStatus,'validated');
+  assert.equal(result.validationReceipt.selectedItemsSha256,result.decisionTrace.selectedItemsSha256);
   assert.equal(result.decisionTrace.promptProjectionSha256.length,64);
   assert.equal(result.decisionTrace.policyAuditSha256.length,64);
   assert.equal(result.decisionTrace.validationReceiptSha256.length,64);
