@@ -284,3 +284,22 @@ Let \(B\sim\operatorname{Bernoulli}(1/2)\) be the pair-order bit and let \(U_1,U
 P(Y_F\in A,Y_S\in C)=P(f_F(U)\in A)P(f_S(U)\in C).
 \]
 The law does not depend on \(B\), so averaging over the fair bit preserves the product law. Thus the labeled outcomes remain independent. This argument fails if the two games share a physical deal/seed bundle, if \(B\) is coupled to any game stream, or if state carries across games. The pair-order bit must be independent of **all** per-game random streams; this is a randomized ordering of independent strata, not common-random-number pairing.
+
+
+### Comparison with the one-nonwin two-look schedules
+
+For the one-nonwin rule, with early all-win look \(n_1=128k_1\) and final at-most-one-nonwin look \(n_2=128k_2\), the homogeneous-alternative pass probability is
+\[
+\pi_1(p)=p^{n_1}+n_1(1-p)p^{n_2-1}.
+\]
+The first term is early certification after zero nonwins; the second is final certification after exactly one nonwin by the first look and no further nonwins. The three schedules currently compared in the field-evidence report have these operating characteristics:
+
+| \((k_1,k_2)\) | Maximum games | Power at 99.8% | Power at 99.9% | Power at 99.95% | Expected games at 99.9% | Expected games at 99.95% |
+|---|---:|---:|---:|---:|---:|---:|
+| (5,11) | 1,408 | 35.42% | 68.37% | 88.44% | 789.1 | 779.0 |
+| (6,9) | 1,152 | 36.82% | 70.66% | 89.70% | 829.7 | 843.9 |
+| (7,8) | 1,024 | 39.75% | 73.00% | 90.74% | 862.0 | 907.5 |
+
+These are homogeneous-alternative planning values, not a uniform power guarantee over heterogeneous matchup probabilities. The three schedules are the non-dominated options in a finite enumeration of feasible integer pairs \(8\le k_2\le30\), using maximum games, expected games at 99.9%/99.95%, and power at 99.8%/99.9%/99.95% as the comparison criteria. This bounded search is not a proof of a global optimum over all possible sequential designs.
+
+The two-nonwin (9,10) alternative above trades substantially higher expected sample for materially higher homogeneous power: 86.19% at 99.9% and 97.28% at 99.95%, with a 1,280-game maximum. Choose the rule and look schedule before opening the confirmatory outcomes; do not select whichever schedule happens to pass on the same holdout.
