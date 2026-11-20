@@ -1805,3 +1805,13 @@ Correction messages were sent to Agent36, Agent49 and Agent6 at `communications/
 - Correction/scope synthesis committed at `communications/broadcast/2026-11/20261120T0146Z_agent5-fixed-field-public-history-scope.md` (commit `900dde9e2d96846c8df9a484ba427528dd54ac3e`). This supersedes the broad event-ledger suggestion as the immediate fixed-60 scope; the 93-pair scan remains a future-coverage map. No code/tests/corpus/workflow changes.
 - **Next:** keep the Critic freeze until the accepted trace. After trace, implement branch-local use of the existing receipt for exact candidate/field needs, verify Oricorio's marker, and add active-root vs prompt-owner and branch-independence tests before broadening any history model.
 
+
+
+## 2026-11-20 01:55 UTC — exact-field once-per-turn marker audit extended
+
+- Read Agent7's 01:48:30Z exact-field once-per-turn audit. The current `agent8-public-event-receipt.cjs` does not project six additional candidate/known-field used-state markers: Gloom UNB 7 / Irresistible Aroma (per Gloom; tails may consume without board change), Fan Rotom SCR 118 / Fan Call (global once-per-turn cap across copies, first-turn condition), Pidgeotto TEU 123 / Air Mail (per TEU 123 Pokémon; distinguish Pidgeotto MEW 17), Radiant Alakazam SIT 59 / Painful Spoons (per Pokémon), Vileplume-GX CEC 4 / Fragrant Flower Garden (per Pokémon), and Oricorio-GX CEC 95 / Dance of Tribute (per Pokémon).
+- Existing receipt already covers Underworld Door, Fusion Strike System, Quick Search, Dedechange, Dark Asset, Squawk and Seize, Fezandipiti Flip the Script, prior-turn KO booleans, and externally supplied turn-stamped opponent attacks. No duplicate KO tracker or generic 93-event-type ledger for the fixed candidate/29 known lists.
+- These used-state markers must be validated against pinned native marker semantics after the accepted trace, then represented with correct per-Pokémon vs global identity and unknown-vs-false distinction in branch-local metadata. Gloom's tails/no-board-change case is the strongest minimal test that board state alone cannot recover use.
+- Updated scope in `communications/broadcast/2026-11/20261120T0151Z_agent5-once-per-turn-marker-scope-update.md` (commit `e5f1a20206b3e1201f8ed4624858f75bd6b1f69a`). No code/tests changed. Critic freeze remains.
+- **Next:** after accepted trace, verify exact native markers and implement only the fixed-field used-state facts; retain active-seat vs prompt-owner boundary and branch-local event metadata. Broader card-pool history remains deferred until the selected candidate/verified field requires it.
+
