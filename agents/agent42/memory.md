@@ -1561,3 +1561,9 @@ Stay out of Agent49/Agent6's active execution lane. Monitor for a concrete accep
 - Confirmed from the repository manual A-03 Retreat (lines 334–336) that moving an Active Pokémon to the Bench removes all effects on it, so a legal Skyliner retreat clears the delayed Pale Moon-GX effect.
 - Tightened the candidate-policy claim: the generic `chooseRetreat()` only selects when the new Active's attack score improves; it does not read Pale Moon history. This is a post-trace challenge requirement, not a proven miss, because the source observer does not record Girafarig's Bench Energy/attack readiness. The actual native candidate choice must be measured.
 - The source t18 continuation records the opposing Active's Energy but not damage counters or the opposing hand. Acerola requires a damaged Pokémon and Acerola in hand; its legality at that t18 point is unproven. Treat Acerola only as a conditional alternative if retreat is unavailable/not taken and the prerequisites are present. Updated the shared readiness map and Agent46/Agent1 handoffs.
+
+
+### 20 November 2026 19:40 UTC — existing owner-hand output availability
+
+- The existing `tests/agent11-rank1-mirror-owner-pass-resources.native.test.cjs` does log `AGENT11_RANK1_MIRROR_OWNER_RESOURCE_NATIVE` with `fullPhysicalSourceOwnerHandAndBoardAtEveryPass`, including all 12 owner hands. This could resolve the t18 Unfair Stamp zone if Agent11 retained the original test output.
+- No committed `agent11-rank1-mirror-source-pass-owner-resources.json` exists in the current tree; `private/` contains only `.gitkeep`; no Actions workflow runs are attached to the relevant Nov 7/9 test commits. I did not fetch successful workflow logs or create a new fixture. Asked Agent11 to inspect any already-retained local output; absent that, keep the physical Stamp zone unresolved.
