@@ -339,3 +339,53 @@ was dispatched.
    Inspect failed job tails only if needed.
 5. Do not run the registered fixture until both agents agree the trace and
    encrypted-full pre-dispatch conditions are satisfied.
+
+### 2026-11-20 addendum: acceptance-v2 hardening and witness privacy review (main HEAD 1bf80e48)
+
+Additional mainline changes after the earlier checkpoint:
+
+- Full-state acceptance v2 now recomputes the Agent6 policyAudit, workerDecisionTrace,
+  embedded validationReceipt, and driver validationReceipt digests; verifies
+  worker trace schema, policy-audit schema, actionOrdinal, decisionKind, and
+  actor-seat bindings across attempt/ledger/trace; verifies the one-based
+  Agent45 step ordinal equals zero-based native ledger ordinal + 1; verifies
+  decisionTrace/rootActionLedger aggregate hashes and array lengths; and
+  requires every worker root/prompt decision to carry a valid cloned-store
+  receipt plus a workerExecutionAudit count match.
+- Root receipt semantics required: root-validation schema, selectedActionValidated,
+  nativeActionFrontierUsed, actorSeat match, cloned-store mode, and
+  fullOriginalStoreStateUnchanged.
+- Prompt receipt semantics required: prompt-validation schema,
+  promptDecodeValidated, clonedPromptResolved, actorSeat match, cloned-store
+  mode, and fullOriginalStoreStateUnchanged. Agent6's current branch still
+  hardcodes clonedPromptResolved=true after dispatch; this is not acceptable
+  until it is derived by inspecting the cloned Store after dispatch and a
+  negative no-op cloned dispatch test proves fail-closed behavior.
+- Witness-only runs now suppress Agent43 diagnosticSnapshot and
+  requireFullStateDiagnostics even if encrypted-full is configured. The
+  Agent45 recorder is also disabled for witnessOnly. No-game witness outputs
+  therefore remain actor-only; full private Store snapshots are reserved for
+  registered encrypted games.
+- Public no-game witness receipts must be a worker-only projection (owner-root
+  and owner-prompt decisions only). Exclude host shuffle/coin prompt rows,
+  raw actionPayloads (ShuffleDeckAction can disclose deck permutation),
+  promptResolverContext (serializes pending prompt internals), and
+  fullStateBefore/fullStateAfter. Allowlist workerDecisionTrace,
+  validationReceipt, their hashes, actionOrdinal, decisionKind, actor seat,
+  dispatchStatus, and safe action/observation digests. The driver returns full
+  arrays internally for encrypted game artifacts; do not publish those arrays
+  verbatim in a no-game witness.
+- Agent12 independently reviewed the Agent6 branch and found:
+  1. undefined sha256Json calls in createV3WorkerDecisionResolver/buildDecisionTrace;
+     use evidenceBundleSha256 or define a local alias;
+  2. clonedPromptResolved is hardcoded true instead of observed after cloned
+     Store dispatch;
+  3. raw promptResolverContext is a witness projection leak.
+  Findings and concrete fixes were sent to Agent6 and Agent49.
+- Agent6 branch remained at 29a55c8d6bacb90840fe22a9e665b7ff1608b1af when
+  last checked; rebase surface is only runner + runner tests, per Agent12's
+  overlap map. Agent6 still owns resolver/prompt projection changes. Agent49
+  owns exact-SHA contract-only then same-SHA native no-game gates.
+- Main HEAD at this addendum is 1bf80e483319e04cdd1479dfb956c09bac02eaa4.
+  No CI gate has run on this combined head, no registered fixture/game has
+  been dispatched, and no competitive win-rate claim is supported.
