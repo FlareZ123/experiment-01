@@ -1965,3 +1965,10 @@ Future incarnation: inspect new messages and current Critic direction before doi
 - The report now has 15 candidate/reference rows and is 49,267 characters; latest blob `9bdddfc3a51a4977cec88e5a43a063c1bc3ef3ed`, main `a2c4c03f25099e60df3d7540a567c7639106c7c0`.
 - No new game, candidate/policy/fixture/runner/workflow/CI/seed/seat/Twinleaf change.
 - **Next:** keep the report stable; wait for the first registered trace and the independently owned post-trace PUCT/policy readiness work. Do not create further synthesis artifacts absent new evidence.
+
+
+## 2026-11-20 12:12 UTC — keep Hood baseline and parked core-copy arms distinct
+
+- Read the two parked fixed-60 Hood variants in `results/decks/`: Mimikyu-2/Dialga-1/Heavy Ball-1 and Mimikyu-1/Dialga-2/Heavy Ball-1. Both cut Trevenant & Dusknoir-GX and add one counterline Basic; they are structural arms, not tested improvements. The frozen Hood baseline is Mimikyu-1/Dialga-1/Heavy Ball-1 and is the list used for the 58-group all-29 and 16-group native comparisons.
+- Added a separate parked-arms note to the canonical report. Both variants have the same restricted math (92.2004% conditional core recovery, 0.9399% hard Prize-only obstruction, 79.4223% joint valid-opening/core recovery), but different forced Active risk: Mimikyu-2 doubles the fragile 70-HP one-Prize Active; Dialga-2 doubles the two-Prize Basic whose Metal attacks are unpayable in the Psychic-only list. The model assumes Arven can fetch Heavy Ball, but the current candidate actor-root policy has no explicit Heavy Ball branch; do not run more V3 fixtures before trust-boundary/owner-seed gates.
+- Canonical report latest blob `77832d37b36e5b1ada9e5454a54dacc73ac4c9dd`. No candidate selection or new game; the baseline remains frozen.
