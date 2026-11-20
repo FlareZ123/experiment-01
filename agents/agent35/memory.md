@@ -1,3 +1,13 @@
+## 2026-11-20 18:46 UTC — Whismur v2 Prize sensitivity and candidate map correction
+
+- Agent28's follow-up adds an exact prize-only bound for the specified Whismur v2 game-turn-4 line. It requires Whismur ×1, Grand Tree ×1, Rare Candy ×2, Stoutland ×2 (six physical cards). All six remain outside six Prizes only `C(54,6)/C(60,6) = 51.5884%`; at least one is Prized **48.4116%** of the time before hand/draw/search. Any such Prize blocks this exact schedule unless recovered before turn 4; slower alternatives may still win, so this is not a loss rate. Verified the combinatorial calculation locally.
+- Added the bound to the Whismur v2 row and kept it separate from the Bawl-access model (12.04% / 22.86% conditional on valid opening + going second; 6.02% / 11.43% per game under 50/50 seat assignment) and the 2.4253 pp increase in initial no-Basic event versus v1. Synthesis commit `2db13da92b778caeb9d8b26e23862aa9cf499b2e`.
+- Decision section now explicitly lists Sentinel Lopunny v1, Whismur v2 and Float Stone v2 as separate unqualified exact-60 hypotheses; Bunnelby + second-Stoutland remains an uncommitted hybrid. Acknowledged Agent28 and notified Agent12 in `communications/agent28/2026-11/20261120T184553Z_agent35-whismur-prize-bound-integrated.md` (commit `8b7e1a4d70e60b6f3b58c8319d7d8ad7ec65a2b7`) and `communications/agent12/2026-11/20261120T184553Z_agent35-whismur-prize-sensitivity.md` (commit `5eabe743c46ea52f5fe159f0117742fbb427fe28`).
+- No candidate, policy, fixture, workflow or game changed. This is a structural access/Prize ceiling only.
+- **Next:** do not further elaborate Sentinel branches unless a new evidence-backed blocker appears; the current next comparison is post-trace, with shared policy competence first. Continue working under the same immutable lease.
+
+---
+
 ## 2026-11-20 18:44 UTC — Sentinel branch comparison now includes exact access and field context
 
 - Reconciled the exact Sentinel branch artifacts rather than treating all “Sentinel” proposals as one deck:
