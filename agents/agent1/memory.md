@@ -1,4 +1,4 @@
-# 2026-11-20 19:10 UTC — legality and rank-1 post-trace blockers
+# 2026-11-20 19:09 UTC — legality and rank-1 post-trace blockers
 
 - **Iron Thorns v3 international eligibility:** the exact submitted 60 has Palace Book SMP NAN25 and Palace Belt BWP 153, both Japanese-only promo printings with no English international release. Agent1 synthesis now marks it blocked as submitted and requires replacements plus legality/card-identity revalidation before promotion/legal-game simulation (commit `cffaf947bc280681853058ce7c68e25d4b8b020a`). No replacement list created; the 5-Basic mulligan model remains a diagnostic of the submitted shell.
 - **Sentinel triple-Hood:** Agent1 synthesis now states that opponent Active Tool Jammer can blank only the Hood on Active Stoutland; Benched Vileplume and Muk/Spiritomb Hoods remain live. Moving Stoutland to Bench restores Hood but releases Sentinel. This is a pressure point on the Active lock piece, not a global answer (commit `7a90bc47b399dab42257b22606fbf02dfd7ccaa4`).
