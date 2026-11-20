@@ -24,7 +24,7 @@ const {createDockerPolicySession}=require('./agent36-async-docker-policy-session
 const {publicEventReceipt}=require('../../twinleaf/agent8-public-event-receipt.cjs');
 const fixtureRuntimePin=require('./agent49-fixture-scoped-runtime-pin.cjs');
 const sanitizedDiagnostic=require('./agent2-v3-sanitized-diagnostic.cjs');
-const {buildSetupPromptAudit}=require('./agent19-setup-prompt-audit.cjs');
+const {buildSetupPromptAudit,projectV3WorkerExecutionBoundaryToTrial}=require('./agent19-setup-prompt-audit.cjs');
 
 const ROOT=path.resolve(__dirname,'../../..');
 const GIT_SHA=/^[0-9a-f]{40}$/;
@@ -2720,6 +2720,12 @@ async function runV3FixtureGame({
       evidenceBundleSha256(setupPromptAudit):null,
     failures:setupPromptAudit?.failures??['setup-prompt-audit-missing']
   }:null;
+  const workerExecutionBoundary=fullStateTraceRecorder?
+    projectV3WorkerExecutionBoundaryToTrial(workerExecutionAudit,{
+      candidateSeat,opponentSeat,setupPromptAudit
+    }):null;
+  const workerExecutionBoundarySha256=workerExecutionBoundary?
+    evidenceBundleSha256(workerExecutionBoundary):null;
   const fullStateTraceAcceptedActionCount=gameResult?.actions??
     gameResult?.acceptedActions??failureEnvelope?.fixtureGamePartial?.acceptedActions??null;
   const fullStateTraceStepCountMatches=Number.isSafeInteger(fullStateTraceAcceptedActionCount)&&
@@ -2844,6 +2850,18 @@ async function runV3FixtureGame({
       fixtureGamePartial:gameResult?.finished===true?null:gameResult
     };
   }
+  if(!failureEnvelope&&fullStateTraceRecorder&&!workerExecutionBoundary?.valid){
+    failureEnvelope={
+      fixtureFailure:{
+        name:'V3WorkerExecutionBoundaryIncomplete',
+        code:'V3_WORKER_EXECUTION_BOUNDARY_INCOMPLETE',
+        stage:'v3-worker-execution-boundary',
+        messageSha256:evidenceBundleSha256(workerExecutionBoundary),
+        nativeFixtureFailure:null
+      },
+      fixtureGamePartial:gameResult?.finished===true?null:gameResult
+    };
+  }
   const partial = failureEnvelope?.fixtureGamePartial ?? null;
   const gameCompleted = !failureEnvelope && gameResult?.finished === true && gameResult?.endReason === 'engine-game-end';
 
@@ -2879,6 +2897,8 @@ async function runV3FixtureGame({
     seedRegistrationGitBlobSha:registeredSeed?.registrationGitBlobSha??null,
     seedRegistrationRef:registeredSeed?.artifactRef??null,
     actorOnlyExecutionBoundary: projectActorOnlyBoundaryToTrial(roleResult),
+    workerExecutionBoundary,
+    workerExecutionBoundarySha256,
     workerExecutionAuditSha256:workerExecutionAudit?evidenceBundleSha256(workerExecutionAudit):null,
     candidatePolicyVersion:candidatePolicy.POLICY_VERSION,
     opponentPolicyVersion:opponentPolicy.POLICY_VERSION,
@@ -2999,6 +3019,8 @@ async function runV3FixtureGame({
     workerExecutionAudit,
     workerExecutionAuditSha256:trial.workerExecutionAuditSha256,
     actorOnlyExecutionBoundary: trial.actorOnlyExecutionBoundary,
+    workerExecutionBoundary:trial.workerExecutionBoundary,
+    workerExecutionBoundarySha256:trial.workerExecutionBoundarySha256,
     runtimePinEvidence,
     runtimePinAudit: pinned.audit,
     runtimePatchReceipts: [patchReceipt],
@@ -3025,7 +3047,10 @@ async function runV3FixtureGame({
       rootActionLedgerSha256: gameResult?.rootActionLedgerSha256 ?? partial?.rootActionLedgerSha256 ?? null,
       roleApplicationReceiptSha256: application?.receipt?.receiptSha256 ?? null,
       actorOnlyExecutionBoundarySha256: application?.receipt?.actorOnlyExecutionBoundarySha256 ?? null,
+      actorOnlyExecutionBoundaryApplicable:false,
       actorOnlyExecutionBoundaryValid: trial.actorOnlyExecutionBoundary?.valid === true,
+      workerExecutionBoundaryValid:trial.workerExecutionBoundary?.valid===true,
+      workerExecutionBoundarySha256:trial.workerExecutionBoundarySha256??null,
       workerDecisionCount:workerExecutionAudit?.totalWorkerDecisions??0,
       workerHostOnlyPromptCount:workerExecutionAudit?.totalHostOnlyPrompts??0,
       workerAbstentionCount:workerExecutionAudit?.totalAbstentions??0,
@@ -3055,8 +3080,10 @@ async function runV3FixtureGame({
     `expandedLegalityAsOf=${trial.expandedLegalityAsOf ?? 'unverified'}`,
     `eventDate=${trial.eventDate ?? 'not-applicable'}`,
     `formatReviewStatus=${trial.formatReviewStatus}`,
-    `actorOnlyExecutionBoundaryValid=${trial.actorOnlyExecutionBoundary?.valid === true}`,
+    `actorOnlyExecutionBoundaryApplicable=false`,
     `actorOnlyExecutionBoundarySha256=${application?.receipt?.actorOnlyExecutionBoundarySha256 ?? 'unavailable'}`,
+    `workerExecutionBoundaryValid=${trial.workerExecutionBoundary?.valid===true}`,
+    `workerExecutionBoundarySha256=${trial.workerExecutionBoundarySha256??'unavailable'}`,
     `workerExecutionAuditSha256=${trial.workerExecutionAuditSha256 ?? 'unavailable'}`,
     diagnostic.formatFixtureGameTraceText({
     fixtureOnly: true,
