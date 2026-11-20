@@ -1841,6 +1841,34 @@ function createV3WorkerExecutionAudit({
 }
 
 
+
+function validateV3FullStateTraceJoins({steps,rootActionLedger,decisionRows}={}){
+  const stepRows=Array.isArray(steps)?steps:[];
+  const ledgerRows=Array.isArray(rootActionLedger)?rootActionLedger:[];
+  const decisionTraceRows=Array.isArray(decisionRows)?decisionRows:[];
+  const ordinalJoinMatches=stepRows.length===ledgerRows.length&&
+    stepRows.every((step,index)=>{
+      const ledger=ledgerRows[index];
+      return step.actionOrdinal===ledger?.actionOrdinal+1&&
+        step.playerSlot===ledger?.playerSlot&&
+        step.playerId===ledger?.playerId&&
+        step.actionType===ledger?.action&&
+        step.turnBefore===ledger?.turnBefore&&
+        step.turnAfter===ledger?.turnAfter;
+    });
+  const decisionJoinMatches=decisionTraceRows.length===ledgerRows.length&&
+    decisionTraceRows.every((row,index)=>{
+      const ledger=ledgerRows[index];
+      return row.actionOrdinal===ledger?.actionOrdinal&&
+        row.actingSeat===ledger?.actorSeat&&
+        row.actingPlayerId===ledger?.playerId&&
+        row.decisionKind===ledger?.decisionKind&&
+        row.workerDecisionTraceSha256===ledger?.workerDecisionTraceSha256&&
+        row.validationReceiptSha256===ledger?.validationReceiptSha256;
+    });
+  return {ordinalJoinMatches,decisionJoinMatches};
+}
+
 function validateV3WorkerDecisionTrace(row){
   try{
     const trace=row?.workerDecisionTrace;
@@ -3043,18 +3071,13 @@ async function runV3FixtureGame({
   const fullStateTraceAggregateHashMatches=
     evidenceBundleSha256(fullStateTraceDecisionRows)===gameResult?.decisionTraceSha256&&
     evidenceBundleSha256(fullStateTraceRootLedger)===gameResult?.rootActionLedgerSha256;
-  const fullStateTraceOrdinalJoinMatches=fullStateTraceSteps.length===fullStateTraceRootLedger.length&&
-    fullStateTraceSteps.every((step,index)=>
-      step.actionOrdinal===fullStateTraceRootLedger[index]?.actionOrdinal+1);
-  const fullStateTraceDecisionJoinMatches=fullStateTraceDecisionRows.length===fullStateTraceRootLedger.length&&
-    fullStateTraceDecisionRows.every((row,index)=>{
-      const ledger=fullStateTraceRootLedger[index];
-      return row.actionOrdinal===ledger?.actionOrdinal&&
-        row.actingSeat===ledger?.actorSeat&&
-        row.decisionKind===ledger?.decisionKind&&
-        row.workerDecisionTraceSha256===ledger?.workerDecisionTraceSha256&&
-        row.validationReceiptSha256===ledger?.validationReceiptSha256;
-    });
+  const fullStateTraceJoins=validateV3FullStateTraceJoins({
+    steps:fullStateTraceSteps,
+    rootActionLedger:fullStateTraceRootLedger,
+    decisionRows:fullStateTraceDecisionRows
+  });
+  const fullStateTraceOrdinalJoinMatches=fullStateTraceJoins.ordinalJoinMatches;
+  const fullStateTraceDecisionJoinMatches=fullStateTraceJoins.decisionJoinMatches;
   const fullStateTraceWorkerDecisionRows=fullStateTraceDecisionRows.filter(row=>
     row.decisionKind==='owner-root'||row.decisionKind==='owner-prompt');
   const fullStateTraceWorkerAuditComplete=fullStateTraceWorkerDecisionRows.length>0&&
@@ -4038,7 +4061,7 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,V3_FIXTURE,V3_FIXTURE_TEST_PATHS,p
   fixtureChallengeSuiteSha256,
   loadWorkerPolicyModule,buildRoleWorkerBundle,loadNativeRoleDependencies,V3_FIXTURE,
   assertWorkerOnlyPolicyPathsAbsentFromHostClosure,preloadRoleHostModules,
-  createV3WorkerExecutionAudit,createV3WorkerDecisionResolver,validateV3WorkerDecisionTrace,
+  createV3WorkerExecutionAudit,createV3WorkerDecisionResolver,validateV3WorkerDecisionTrace,validateV3FullStateTraceJoins,
   buildFixturePolicyConstraints,
   buildFixtureRoleIdentities,
   buildFixturePolicyPlan,
