@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Bound exact-printing multiset actions for a fixed-cardinality deck remainder.
 
-This is a combinatorial upper/lower-bound tool, not a legal-action generator.
+This is a combinatorial bound/expectation tool, not a legal-action generator.
 Copies are grouped only by exact printing identity. If K0/K1/PARTIAL knowledge,
 public history, or another observable distinction separates copies, split that
 printing into separate input groups before using the model.
 """
 from __future__ import annotations
 
+from collections import defaultdict
 from math import comb
 
 
@@ -69,67 +70,95 @@ def multiset_action_counts(m1: int, m2: int, m3: int) -> tuple[int, int]:
     return exact_three, 1 + m1 + exact_two + exact_three
 
 
+def weighted_remainder_profiles(
+    counts: list[int], remaining: int
+) -> dict[tuple[int, int, int], int]:
+    """Map (m1,m2,m3) to physical-removal multiplicity for this remainder size."""
+    removed_target = sum(counts) - remaining
+    # State = (cards removed, groups with >=1/2/3 copies remaining) -> ways.
+    states = {(0, 0, 0, 0): 1}
+    for capacity in counts:
+        next_states: dict[tuple[int, int, int, int], int] = defaultdict(int)
+        for (removed, m1, m2, m3), ways in states.items():
+            for removed_here in range(min(capacity, removed_target - removed) + 1):
+                kept = capacity - removed_here
+                key = (
+                    removed + removed_here,
+                    m1 + int(kept >= 1),
+                    m2 + int(kept >= 2),
+                    m3 + int(kept >= 3),
+                )
+                next_states[key] += ways * comb(capacity, removed_here)
+        states = dict(next_states)
+
+    return {
+        (m1, m2, m3): ways
+        for (removed, m1, m2, m3), ways in states.items()
+        if removed == removed_target
+    }
+
+
+def weighted_quantile(values: list[tuple[int, int]], q: float) -> int:
+    """Return the first integer value whose cumulative weight reaches q."""
+    if not 0 <= q <= 1:
+        raise ValueError("q must be between zero and one")
+    total = sum(weight for _, weight in values)
+    target = q * total
+    cumulative = 0
+    for value, weight in sorted(values):
+        cumulative += weight
+        if cumulative >= target:
+            return value
+    return max(value for value, _ in values)
+
+
 def remainder_bounds(counts: list[int], remaining: int) -> dict[str, object]:
-    """Enumerate all feasible remaining-count profiles and bound multiset actions."""
+    """Bound and average count-vector choices over all physical remainders."""
     if any(not isinstance(count, int) or count < 0 for count in counts):
         raise ValueError("card counts must be nonnegative integers")
     if not isinstance(remaining, int) or remaining < 0 or remaining > sum(counts):
         raise ValueError("remaining must be between zero and the full deck size")
 
-    # State = (cards retained, groups with >=1, groups with >=2, groups with >=3).
-    states = {(0, 0, 0, 0)}
-    for capacity in counts:
-        next_states = set()
-        for total, m1, m2, m3 in states:
-            for kept in range(min(capacity, remaining - total) + 1):
-                next_states.add((
-                    total + kept,
-                    m1 + int(kept >= 1),
-                    m2 + int(kept >= 2),
-                    m3 + int(kept >= 3),
-                ))
-        states = next_states
-
-    profiles = []
-    for total, m1, m2, m3 in states:
-        if total != remaining:
-            continue
+    profile_weights = weighted_remainder_profiles(counts, remaining)
+    rows = []
+    for (m1, m2, m3), ways in profile_weights.items():
         exact_three, zero_to_three = multiset_action_counts(m1, m2, m3)
-        profiles.append((exact_three, zero_to_three, m1, m2, m3))
+        rows.append((exact_three, zero_to_three, m1, m2, m3, ways))
 
-    if not profiles:
+    if not rows:
         raise ValueError("no feasible remainder profile")
 
-    min_exact = min(profiles)
-    max_exact = max(profiles, key=lambda row: row[0])
-    min_upto = min(profiles, key=lambda row: row[1])
-    max_upto = max(profiles, key=lambda row: row[1])
+    total_ways = sum(row[5] for row in rows)
+    expected_exact = sum(row[0] * row[5] for row in rows) / total_ways
+    expected_upto = sum(row[1] * row[5] for row in rows) / total_ways
+
+    min_exact = min(rows, key=lambda row: row[0])
+    max_exact = max(rows, key=lambda row: row[0])
+    min_upto = min(rows, key=lambda row: row[1])
+    max_upto = max(rows, key=lambda row: row[1])
 
     return {
         "remaining": remaining,
         "identity_groups_full": len(counts),
         "groups_with_multiplicity_ge_2_full": sum(count >= 2 for count in counts),
         "groups_with_multiplicity_ge_3_full": sum(count >= 3 for count in counts),
-        "feasible_profiles": len(profiles),
+        "feasible_profiles": len(profile_weights),
+        "physical_remainders": total_ways,
         "physical_exact_three": comb(remaining, 3) if remaining >= 3 else 0,
         "physical_zero_to_three": sum(
             comb(remaining, k) for k in range(min(3, remaining) + 1)
         ),
-        "multiset_exact_three_min": {
-            "count": min_exact[0], "m1": min_exact[2],
-            "m2": min_exact[3], "m3": min_exact[4],
+        "multiset_exact_three": {
+            "min": min_exact[0], "max": max_exact[0],
+            "expected_uniform_remainder": round(expected_exact, 3),
+            "m1_m2_m3_at_min": min_exact[2:5],
+            "m1_m2_m3_at_max": max_exact[2:5],
         },
-        "multiset_exact_three_max": {
-            "count": max_exact[0], "m1": max_exact[2],
-            "m2": max_exact[3], "m3": max_exact[4],
-        },
-        "multiset_zero_to_three_min": {
-            "count": min_upto[1], "m1": min_upto[2],
-            "m2": min_upto[3], "m3": min_upto[4],
-        },
-        "multiset_zero_to_three_max": {
-            "count": max_upto[1], "m1": max_upto[2],
-            "m2": max_upto[3], "m3": max_upto[4],
+        "multiset_zero_to_three": {
+            "min": min_upto[1], "max": max_upto[1],
+            "expected_uniform_remainder": round(expected_upto, 3),
+            "m1_m2_m3_at_min": min_upto[2:5],
+            "m1_m2_m3_at_max": max_upto[2:5],
         },
     }
 
@@ -138,8 +167,10 @@ def main() -> None:
     counts = HOOD_SHADOW_RIDER_V1_COUNTS
     assert len(counts) == 34
     assert sum(counts) == 60
-    result = remainder_bounds(counts, remaining=47)
-    print(result)
+    # 47: after initial 7-card hand + 6 prizes, before the turn draw.
+    # 46: after the first turn draw, assuming no mulligan or earlier effects.
+    for remaining in (47, 46):
+        print(remainder_bounds(counts, remaining))
 
 
 if __name__ == "__main__":
