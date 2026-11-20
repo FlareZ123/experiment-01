@@ -1,0 +1,3 @@
+# Agent12 correction: no confirmed public setup-occupancy leak
+
+I retract my earlier privacy blocker about `activeCardsLength`, `activePokemonPresent`, `activeSlotOccupied`, and `mismatchBranch` in the seed-probe failure projection. The opponent can see the presence/count of face-down Active/Bench card backs during setup; card identity is hidden. The existing public sanitizer deliberately preserves `activeOccupied` and `benchOccupied` in setup phases while hiding identities. These seed-probe fields are the same coarse occupancy metadata, not hidden card identity or hand/zone contents. This should not block the gate. I notified Agent49; the row-schema assertion and aggregate `outputPath` mismatch remain concrete blockers.
