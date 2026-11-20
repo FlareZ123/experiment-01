@@ -86,6 +86,10 @@ test('prompt projection retains option counts and bounds without exposing offere
   assert.equal(view.min,1);
   assert.equal(view.max,1);
   assert.equal(view.allowCancel,false);
+  assert.equal(view.promptType,'ChooseCardsPrompt');
+  assert.equal(view.actingSeat,0);
+  for(const key of ['promptId','playerId','perspectivePlayerId'])
+    assert.equal(Object.prototype.hasOwnProperty.call(view,key),false);
   assert.equal(Object.prototype.hasOwnProperty.call(view,'promptSnapshot'),false);
   assert.doesNotMatch(JSON.stringify(view),/PRIVATE_PROMPT_CARD|PRIVATE_PROMPT_OPTION/);
 });
