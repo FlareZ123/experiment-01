@@ -63,6 +63,32 @@ Agent30's exact known-29 equal-rank means are (+0.7729606344) for the 5-Basic ca
 | Psychic Reserve v3 (5 Basics) | +0.7729606344 | **+0.0944746580** | +0.8042960866 |
 | Hood Shield v1 (14 Basics) | −0.1733565235 | −0.8518424998 | **−0.1420210713** |
 
+## Paper post-setup draw cap: 47 remaining cards
+
+The repository's [setup procedure, steps 6–7](../../../resources/manual/EN_advanced_manual-2025-transcription-structured.md#L638-L680), sets aside six Prize cards before step 7 grants one optional draw per opponent mulligan. After the seven-card opening hand and six prizes, a valid player has 47 cards left. The unbounded geometric offer count above is a useful theoretical ceiling, but the maximum number of cards actually available to draw is \(\min(M,47)\).
+
+Conditional on the opponent being the sole player without a Basic, the number \(M\) of unilateral mulligans has \(P(M\ge k)=q_A^{k-1}\). Therefore
+
+\[
+E[\min(M,47)]=\sum_{k=1}^{47}q_A^{k-1}=\frac{1-q_A^{47}}{p_A}.
+\]
+
+The paper-cap expected maximum available cards are consequently
+
+\[
+E_B^{47}=\frac{q_Ap_B}{z}\frac{1-q_A^{47}}{p_A},\qquad
+E_A^{47}=\frac{p_Aq_B}{z}\frac{1-q_B^{47}}{p_B}.
+\]
+
+Re-evaluating all 60 possible Basic counts for each missing rank gives:
+
+| Candidate | Known-29 mean \(D^{47}\) | Per-missing-rank minimum | Per-missing-rank maximum | Full-32 mean lower bound | Full-32 mean upper bound |
+|---|---:|---:|---:|---:|---:|
+| Psychic Reserve v3 (5 Basics) | +0.7729606344 | −6.4445318279 (1 Basic) | +1.1072054578 (54–60 Basics) | **+0.0963207161** | +0.8042960866 |
+| Hood Shield v1 (14 Basics) | −0.1733565235 | −7.3887150502 (1 Basic) | +0.1608882999 (54–60 Basics) | −0.8497963853 | **−0.1420210713** |
+
+The 47-card cap slightly narrows the extreme candidate-favored tail when a missing opponent has one Basic. It does **not** change the sign conclusion: the five-Basic candidate remains opponent-favored on mean maximum available bonus cards under every missing-rank Basic count, and fourteen-Basic Hood remains candidate-favored. The script and regression suite now compute both unbounded mulligan offers and this paper-cap version.
+
 Thus, within this setup-only metric:
 - Even if all three missing lists each had exactly one Basic, the 5-Basic candidate's full-field mean opponent-minus-candidate offer difference remains positive (at least +0.0945).
 - Even if all three missing lists each had 54 or more Basics, Hood's full-field mean remains negative (at most −0.1420).
