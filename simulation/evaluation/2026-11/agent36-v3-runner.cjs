@@ -2740,6 +2740,7 @@ async function runV3FixtureGame({
           receipt.fullOriginalStoreStateUnchanged===true:false;
       return trace?.schema==='agent6-worker-decision-trace-v1'&&
         trace.actionOrdinal===row.actionOrdinal&&
+        trace.actorObservationSha256===row.actorObservationSha256&&
         trace.seat===row.actingSeat&&
         trace.decisionKind===row.decisionKind&&
         trace.policyAudit&&typeof trace.policyAudit==='object'&&
