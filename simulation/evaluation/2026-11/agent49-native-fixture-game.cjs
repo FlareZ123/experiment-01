@@ -534,6 +534,18 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
     const state=store?.state??null;
     const failedRecord=context?.record??null;
     const cause=error?.cause??error;
+    const failedWorkerDecisionTrace=error?.workerDecisionTrace??cause?.workerDecisionTrace??null;
+    const failedWorkerDecisionTraceSha256=failedWorkerDecisionTrace===null?null:
+      sha256Json(failedWorkerDecisionTrace);
+    const failedWorkerValidationReceipt=failedWorkerDecisionTrace?.validationReceipt??null;
+    const failedWorkerValidationReceiptSha256=failedWorkerValidationReceipt===null?null:
+      sha256Json(failedWorkerValidationReceipt);
+    if(failedRecord&&failedWorkerDecisionTrace){
+      failedRecord.workerDecisionTrace=failedWorkerDecisionTrace;
+      failedRecord.workerDecisionTraceSha256=failedWorkerDecisionTraceSha256;
+      failedRecord.validationReceipt=failedWorkerValidationReceipt;
+      failedRecord.validationReceiptSha256=failedWorkerValidationReceiptSha256;
+    }
     const finalPublicState=safePublicSnapshot(state);
     let finalFullState=null;
     let finalDiagnosticFailure=null;
@@ -594,6 +606,8 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
           targetProjection:failedRecord.targetProjection??null,
           policyInputKind:failedRecord.policyInputKind??null,
           actorObservationSha256:failedRecord.actorObservationSha256??null,
+          workerDecisionTraceSha256:failedRecord.workerDecisionTraceSha256??null,
+          validationReceiptSha256:failedRecord.validationReceiptSha256??null,
           promptResolverContext:failedRecord.promptResolverContext??null,
           dispatchStatus:failedRecord.dispatchStatus??'not-dispatched',
           failure:failedRecord.failure??failureSummary
@@ -640,6 +654,13 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
       rootActionLedger,
       decisionTraceSha256:sha256Json(decisionTrace),
       rootActionLedgerSha256:sha256Json(rootActionLedger),
+      failedWorkerDecision:failedWorkerDecisionTrace===null?null:{
+        actionOrdinal:failedWorkerDecisionTrace.actionOrdinal??failedRecord?.actionOrdinal??null,
+        workerDecisionTrace:failedWorkerDecisionTrace,
+        workerDecisionTraceSha256:failedWorkerDecisionTraceSha256,
+        validationReceipt:failedWorkerValidationReceipt,
+        validationReceiptSha256:failedWorkerValidationReceiptSha256
+      },
       failedAction:failedRecord&&failedRecord.dispatchStatus!=='succeeded'&&
         failedRecord.actionName?failedRecord:null,
       finalPublicState,
@@ -783,6 +804,10 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         actorObservationBefore:null,
         actorObservationSha256:null,
         promptResolverContext:null,
+        workerDecisionTrace:null,
+        workerDecisionTraceSha256:null,
+        validationReceipt:null,
+        validationReceiptSha256:null,
         actionName:null,
         actionType:null,
         actionPayload:null,
@@ -823,6 +848,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
       let promptResolverContext=null;
       let policyInputKind='native-prompt';
       let originalStoreStateBeforeDecision=null;
+      let workerDecisionTrace=null;
       let validationReceipt=null;
       if(pending instanceof ShuffleDeckPrompt) {
         failureContext.stage='physical-prompt-resolution';
@@ -882,6 +908,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         attemptRecord.policyInputKind=policyInputKind;
         const resolution=yield {
           kind:'native-fixture-decision',decisionKind:'owner-prompt',
+          actionOrdinal,
           state,store,prompt:pending,actorSeat:actingSeat,native,physicalRandom,withPhysicalRandom,withValidationRandom,
           ...(policyRandom?{
             legacyBot:seats[actingSeat],
@@ -890,8 +917,11 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         };
         action=resolution?.__nativeFixtureDecisionResolution===true?
           resolution.action:resolution;
-        if(resolution?.__nativeFixtureDecisionResolution===true&&
-            resolution.promptResolution) promptResolution=resolution.promptResolution;
+        if(resolution?.__nativeFixtureDecisionResolution===true){
+          workerDecisionTrace=resolution.decisionTrace??null;
+          validationReceipt=resolution.validationReceipt??null;
+          if(resolution.promptResolution)promptResolution=resolution.promptResolution;
+        }
       } else {
         if(state.phase!==GamePhase.PLAYER_TURN)
           throw new Error('Unhandled Twinleaf game phase: '+state.phase);
@@ -915,6 +945,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         attemptRecord.policyInputKind=policyInputKind;
         const resolution=yield {
           kind:'native-fixture-decision',decisionKind:'owner-root',
+          actionOrdinal,
           state,store,prompt:null,actorSeat:actingSeat,native,physicalRandom,withPhysicalRandom,withValidationRandom,
           ...(policyRandom?{
             legacyBot:seats[actingSeat],
@@ -922,6 +953,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
           }:{})
         };
         validationReceipt=resolution?.validationReceipt??null;
+        workerDecisionTrace=resolution?.decisionTrace??null;
         action=resolution?.__nativeFixtureDecisionResolution===true?
           resolution.action:resolution;
         if(resolution?.__nativeFixtureDecisionResolution===true&&
@@ -951,6 +983,22 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
       attemptRecord.actorObservationSha256=actorObservationBefore===null?
         null:sha256Json(actorObservationBefore);
       attemptRecord.promptResolverContext=promptResolverContext;
+      if(workerDecisionTrace!==null){
+        assert.equal(workerDecisionTrace.schema,'agent6-worker-decision-trace-v1',
+          'worker decision trace must use the versioned Agent6 schema');
+        assert.equal(workerDecisionTrace.actionOrdinal,actionOrdinal,
+          'worker decision trace must bind the exact zero-based native action ordinal');
+      }
+      attemptRecord.workerDecisionTrace=workerDecisionTrace;
+      attemptRecord.workerDecisionTraceSha256=workerDecisionTrace===null?null:
+        sha256Json(workerDecisionTrace);
+      attemptRecord.validationReceipt=validationReceipt;
+      attemptRecord.validationReceiptSha256=validationReceipt===null?null:
+        sha256Json(validationReceipt);
+      if(workerDecisionTrace&&Object.hasOwn(workerDecisionTrace,'validationReceiptSha256'))
+        assert.equal(workerDecisionTrace.validationReceiptSha256,
+          attemptRecord.validationReceiptSha256,
+          'worker decision trace and driver validation receipt digests must agree');
       attemptRecord.dispatchStatus='pending';
       const record=attemptRecord;
       decisionTrace.push(record);
@@ -968,6 +1016,8 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         targetProjection,
         policyInputKind:record.policyInputKind,
         actorObservationSha256:record.actorObservationSha256,
+        workerDecisionTraceSha256:record.workerDecisionTraceSha256,
+        validationReceiptSha256:record.validationReceiptSha256,
         promptResolverContext:record.promptResolverContext,
         dispatchStatus:'pending',
         failure:null
@@ -1019,7 +1069,11 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
           fullOriginalStoreStateUnchanged:true,
           liveActionDispatched:false,
           acceptedRootActions:0,
-          rootDecisionCount:1
+          rootDecisionCount:1,
+          decisionTrace:decisionTrace.slice(),
+          rootActionLedger:rootActionLedger.slice(),
+          decisionTraceSha256:sha256Json(decisionTrace),
+          rootActionLedgerSha256:sha256Json(rootActionLedger)
         };
         return completedResult;
       }
