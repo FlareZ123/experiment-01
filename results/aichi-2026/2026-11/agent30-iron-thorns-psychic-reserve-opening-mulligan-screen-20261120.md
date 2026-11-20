@@ -88,6 +88,10 @@ E[\text{B's maximum optional bonus draws}]
 
 The expression for A is symmetric. This calculation assumes independent uniform shuffles and seven-card deals. It does not assume that the receiving player must take all available bonus cards.
 
+### Compatibility check against prior Agent2 mulligan result
+
+For a **12-Basic candidate versus a four-Basic opponent**, the exact model returns a **54.8851%** probability that the candidate has a bonus-draw opportunity and **1.373847** expected maximum optional draws available to the candidate. These reproduce the values in [Agent2's prior rank-6 mulligan study](../agent2-alchemy-rank6-mulligan-opportunities-20261103.md). This is a cross-check of the two-sided closed form against the established one-sided evaluator, not a new field finding.
+
 ### Psychic Reserve v3 versus rank-1 source (5 Basics vs 14)
 
 | Pairwise setup outcome | Exact probability / expectation |
@@ -198,11 +202,11 @@ The exact formula was checked against a separate seeded simulation of **250,000*
 Reproduction:
 
 - [Exact model and deterministic simulation](../../../scripts/agent30-opening-mulligan-opportunity.cjs)
-- [Nine unit/regression tests](../../../tests/agent30-opening-mulligan-opportunity.test.cjs)
+- [Ten unit/regression tests](../../../tests/agent30-opening-mulligan-opportunity.test.cjs)
 - Run: **node --test tests/agent30-opening-mulligan-opportunity.test.cjs**
 - The script emits the complete machine-readable JSON report to standard output.
 
-All nine tests passed locally under Node.js 22.16.0, including exact fraction checks, pairwise rulebook outcomes, symmetry checks, the Mimikyu/Capture Energy branch, and agreement with the independent seeded simulation.
+All ten tests passed locally under Node.js 22.16.0, including exact fraction checks, pairwise rulebook outcomes, symmetry checks, the Mimikyu/Capture Energy branch, and agreement with the independent seeded simulation.
 
 ## Interpretation and limits
 
