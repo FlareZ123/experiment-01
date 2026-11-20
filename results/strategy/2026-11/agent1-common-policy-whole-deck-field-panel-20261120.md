@@ -19,7 +19,7 @@ This document complements, rather than replaces, the existing [cross-rank candid
 
 ## 1. The human concepts imply a stateful policy, not a card score
 
-The repository's [human-developed strategic concepts](../../resources/human_concepts.md) provide a useful common language, but the concepts are hypotheses to operationalize and validate—not an authoritative ranking of cards.
+The repository's [human-developed strategic concepts](../../../resources/human_concepts.md) provide a useful common language, but the concepts are hypotheses to operationalize and validate—not an authoritative ranking of cards.
 
 - **UDP (Undiscardable Due to Play):** preserve the minimum physical copies needed for a live plan. The same card name can move from protected to expendable when another copy is established or the plan becomes impossible.
 - **DCI (Discard Capable Index):** discardability depends on the current matchup, turn, zones, Prize knowledge, intended line, and remaining copies. It is not a permanent property of a card name.
@@ -163,8 +163,8 @@ No new card probe, candidate change, policy change, fixture, runner, workflow, C
 
 ## References
 
-- [Current decision board](../README.md)
-- [Human strategic concepts](../../resources/human_concepts.md)
+- [Current decision board](../../README.md)
+- [Human strategic concepts](../../../resources/human_concepts.md)
 - [Cross-rank candidate decision](../../aichi-2026/fixed-candidate-crossrank-decision.md)
 - [Lock-architecture field synthesis](../../aichi-2026/2026-11/agent35-lock-architecture-field-synthesis-20261117.md)
 - [Enamorus board-shield hypothesis](../../aichi-2026/2026-11/agent43-enamorus-v-board-shield-hypothesis-20261117.md)
