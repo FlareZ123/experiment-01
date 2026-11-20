@@ -1,4 +1,4 @@
-# Whole-deck hypotheses and first common-policy Aichi panel
+# Whole-deck hypotheses for Aichi fixed-60 field testing
 
 **Agent 12 · 20 November 2026 · research synthesis and experimental design**
 
@@ -40,39 +40,9 @@ The human concepts are useful because they identify failure modes that simple ca
 
 Primary reference: [human-developed concepts](../../../resources/human_concepts.md). The [field lock synthesis](agent35-lock-architecture-field-synthesis-20261117.md) already maps the source-list lock axes; this report's contribution is to convert those axes into whole-deck hypotheses and a common evaluation protocol.
 
-## First common-policy field panel
+## Field-panel execution
 
-### Frozen panel contract
-
-1. **Candidate:** Hood Shield Shadow Rider v1, unchanged 60. Keep its exact card identities, counts and printing-aware inventory frozen. No per-opponent deck changes. Candidate policy version and hash remain fixed across every opponent and every stratum.
-2. **Opponent field:** use each authenticated original Aichi source list unchanged for the primary cross-format challenge. The 29 available source rows are the largest current primary diagnostic panel; ranks 23, 25 and 28 remain unavailable and cannot be replaced. The five Japanese-only promo-containing lists (ranks 3, 6, 7, 24 and 29) remain unchanged in the primary panel under the owner's explicit contract. The 24 international-Expanded-legal diagnostic reconstructions form a separate secondary comparison, never a substitute for the primary field.
-3. **Opponent policies:** one independently assessed policy per rank, frozen across that rank's seat / first-player strata. Do not use one weak generic bot as a universal opponent or optimize candidate policy against a subset while leaving other opponents unchallenged. Apply common information, runtime and decision-compute constraints to both sides.
-4. **Execution:** pin Twinleaf, research revision, shared hooks, deck hashes, candidate policy hash, each opponent policy hash, runtime manifest and rules assumptions. A rank with an unsupported mechanic or unresolved engine hook is reported as blocked / diagnostic, not silently counted as a normal matchup. Policy workers receive only their own actor-visible observations and approved public receipts, never native state, opponent hidden zones or physical RNG / seed as decision inputs.
-5. **Seeds and pairing:** publish the physical seeds and a reproducible seed registry as authorized by the owner. Use a unique independent seed for each game counted as an independent Bernoulli observation. A deliberately reused seed across mirrored seats or candidate-variant A/B comparisons is a paired block; analyze it with a paired / clustered method and do not count the games as independent for the simple zero-loss bound. The policy worker must never receive the physical seed.
-6. **Outcomes:** count only complete natural-terminal games that pass paper/source admission, engine-mechanics, actor-only execution and policy-validity gates. Fixtures, no-game witnesses, action-capped games, prompt mocks, retrospective seed selection and incomplete traces are not matchup outcomes. Publish per-rank wins, losses, draws / non-decisions, censored games, first decisive failure, sample size and uncertainty.
-
-### Staged rollout
-
-| Stage | Cohort | Purpose | What it can claim |
-|---|---|---|---|
-| **0 — registered trace** | Complete the already registered rank-1 natural-terminal trace after the combined exact-SHA contract-only and same-SHA no-game gates, with the encrypted-full prerequisite satisfied. | Validate the live Store trace, actor-only policy boundary, recorder completeness and artifact custody. | Pipeline diagnostic only; zero competitive wins and zero matchup evidence until all qualification gates are independently met. |
-| **1 — field smoke panel** | For each of the 29 currently available source ranks, run four natural-terminal games: one in each cell of candidate physical seat 0/1 × candidate first/non-first. Use independent public seeds for these games. | Verify that the same candidate policy and rank-specific opponent policy can complete games in every stratum; expose unsupported mechanics, policy failures and gross matchup asymmetries. | Diagnostic field coverage only. Four games per rank are not a credible win-rate estimate and do not repair the three missing ranks or paper-admission gaps. |
-| **2 — balanced confirmatory panel** | Once the smoke panel is clean and the field is fully authenticated/admitted, run 20 independent games per rank: five games in each of the four seat × first-player cells. | Balanced estimate of the equal-weighted field mean with matchup-level reporting. | For a complete 32-rank field, 640 independent games with zero losses are sufficient for a one-sided 95% lower bound above 99.5% (approximately 99.533%). Any losses require a predeclared stratified interval / conservative per-rank bounds; do not reuse the zero-loss shortcut. |
-
-With only the current 29 source rows, Stage 1 is 116 games and Stage 2 would be 580 games, but neither is the complete Top 32. The strict 24-rank Expanded secondary panel is a different estimand (96 smoke games / 480 confirmatory games at the same allocation). Keep both denominators explicit. The existing [99.5% confidence-bound derivation](../../2026-11/field-winrate-995-confidence-bound.md) shows that 19 independent zero-loss games per rank (608 total) suffice for the equal-weighted 32-rank mean; 20 per rank is the operational choice because it divides evenly across the four seat / first-player cells.
-
-**Dependence warning:** common-random-number pairing is useful for candidate-variant comparisons, but repeated seeds and mirrored replays are not automatically independent. The independent confirmatory count is based on unique game seeds, not the number of artifact rows. If seed reuse is needed for a paired comparison, preserve the pairing and use a paired / cluster-aware analysis rather than inflating N.
-
-### Predeclared reporting
-
-For every rank, preserve: source-list identity and hash; format / print-admission status; opponent policy identity and hash; candidate policy hash; Twinleaf and research revisions; seed and physical-seat / first-player assignment; natural-terminal status; wins / losses / draws; invalid / censored / unsupported outcomes; and a short failure taxonomy. Publish the 32-row rank matrix even while three rows remain unavailable. Report the equal-weighted field mean separately from each matchup. Never present the 29-rank available-source result as a full Top 32 result, and never let a strong aggregate conceal a catastrophic matchup.
-
-## Decision sequence after the first accepted trace
-
-1. Freeze and evaluate Hood Shield v1 as the baseline; first complete the rank-1 four-cell matched comparison because it is a near-mirror and its Field Blower / two-Hood interaction is a high-value stress test. This is a test priority, not a reason to promote the deck.
-2. Expand to all 29 available exact source lists with the same fixed candidate and policy. Report the missing ranks explicitly and keep the strict 24-rank secondary results separate.
-3. Only after a reproduced loss mechanism justifies a challenger, run a separate whole-deck panel for the corresponding architecture (for example, Enamorus only if an Ability-lock loss is causal; Temple only if Special-Energy / Active-Ability denial is causal; New Moon only if the Perfection hand-lock plan survives its Item-lock and access constraints). Use a frozen 60 and its own policy hash for that panel; do not splice opponent-specific cards into the baseline.
-4. Start the confirmatory full-field cohort only after the exact 32 opponent lists, policy panel, paper/source admission and engine support are complete. If any of those remain incomplete, the honest status is an available-rank diagnostic, not a 99.5% Top 32 claim.
+Use [Agent1's common-policy Aichi field panel](../../strategy/2026-11/agent1-common-policy-whole-deck-field-panel-20261120.md) as the **sole current execution and estimand specification**. It owns the frozen candidate / opponent / policy contract, seed and pairing rules, staged rollout, sample-size and confidence-bound interpretation, per-rank reporting, and post-trace decision sequence. This note deliberately does not restate or compete with those rules. The architecture hypotheses above are the candidate questions to feed into that panel, not alternate execution instructions.
 
 ## Evidence boundary
 
