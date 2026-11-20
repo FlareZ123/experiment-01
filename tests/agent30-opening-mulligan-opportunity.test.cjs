@@ -90,6 +90,16 @@ test('fourteen-Basic Hood comparator is near field-neutral on mulligan opportuni
   assert.equal(r.fieldSummaryHood.opponentsWithEqualDifference, 6);
 });
 
+test('candidate Basic-count sensitivity crosses field-neutral between ten and eleven Basics', () => {
+  const r = buildReport();
+  const ten = r.candidateBasicSensitivity.find(x => x.candidateBasics === 10);
+  const eleven = r.candidateBasicSensitivity.find(x => x.candidateBasics === 11);
+  near(ten.meanMaximumOptionalBonusDrawOpportunityDifferenceForOpponent, 0.014607931918532506);
+  near(eleven.meanMaximumOptionalBonusDrawOpportunityDifferenceForOpponent, -0.048201627786840257);
+  assert.ok(ten.meanMaximumOptionalBonusDrawOpportunityDifferenceForOpponent > 0);
+  assert.ok(eleven.meanMaximumOptionalBonusDrawOpportunityDifferenceForOpponent < 0);
+});
+
 test('report pins the two candidate inventories and evidence boundary', () => {
   const r = buildReport();
   assert.equal(r.candidate.basicCount, 5);
