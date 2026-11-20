@@ -2104,7 +2104,7 @@ test('Agent19 V3-native setup audit fails closed on missing rows, digest/ledger 
 
   const benchWithoutDrawChoice=makeV3SetupPromptAuditFixture();
   benchWithoutDrawChoice.decisionTrace=benchWithoutDrawChoice.decisionTrace.filter(row=>
-    row.promptResolverContext.message!=='WANT_TO_DRAW_CARDS');
+    row.promptResolverContext?.message!=='WANT_TO_DRAW_CARDS');
   benchWithoutDrawChoice.rootActionLedger=benchWithoutDrawChoice.rootActionLedger.filter(row=>
     row.actionOrdinal!==2);
   benchWithoutDrawChoice.fullStateTraceSteps=benchWithoutDrawChoice.fullStateTraceSteps.filter(step=>
