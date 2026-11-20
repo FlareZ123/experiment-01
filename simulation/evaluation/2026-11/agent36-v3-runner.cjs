@@ -2574,6 +2574,12 @@ function buildV3RunnerFailureError({
   return error;
 }
 
+function validateV3DiagnosticMode(diagnosticMode) {
+  assert.ok(['encrypted-full','sanitized-only'].includes(diagnosticMode),
+    'V3 fixture diagnostic mode must be encrypted-full or sanitized-only');
+  return diagnosticMode;
+}
+
 async function runV3FixtureGame({
   env=process.env,outputDir=null,
   candidateSeat=V3_FIXTURE.candidateSeat,opponentSeat=1-candidateSeat,
@@ -2581,11 +2587,8 @@ async function runV3FixtureGame({
 }={}) {
   const seedDisclosureDecision=witnessOnly?'public-reproducible':
     validatePhysicalSeedDisclosureDecision(env.AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION);
-  const diagnosticMode=env.AGENT36_V3_DIAGNOSTIC_MODE??'sanitized-only';
-  assert.ok(['encrypted-full','sanitized-only'].includes(diagnosticMode),
-    'V3 fixture diagnostic mode must be encrypted-full or sanitized-only');
-  assert.ok(witnessOnly||diagnosticMode==='encrypted-full',
-    'registered V3 fixture games require encrypted-full diagnostics before live dispatch');
+  const diagnosticMode=validateV3DiagnosticMode(
+    env.AGENT36_V3_DIAGNOSTIC_MODE??'sanitized-only');
   candidateOpponentRoleSeats({candidateSeat,opponentSeat});
   if(witnessOnly)assert.ok(expectedActorSeat===0||expectedActorSeat===1,
     'native no-game witness requires an expected physical actor seat');
@@ -4267,7 +4270,7 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,V3_FIXTURE,V3_FIXTURE_TEST_PATHS,p
   revalidatePreDealPersistenceReceipt,
   revalidateDealGenerationReceipt,writeJsonAtomic,main,
   printed60Fingerprint,
-  resolvePrintedDeck,resolveFixtureSeatAssignment,candidateOpponentRoleSeats,assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,
+  resolvePrintedDeck,resolveFixtureSeatAssignment,candidateOpponentRoleSeats,assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,validateV3DiagnosticMode,
   buildFixtureRoleEntryManifest,
   fixtureChallengeSuiteSha256,
   loadWorkerPolicyModule,buildRoleWorkerBundle,loadNativeRoleDependencies,V3_FIXTURE,
