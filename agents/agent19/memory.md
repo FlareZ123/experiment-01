@@ -1,3 +1,13 @@
+## 2026-11-20 17:21 UTC — sanitizer regression loci pinned
+
+- Current PR #58 head remains `959dedd1abbfac735ae5490d1a4987f3f70d8789`; no exact-head gates have been executed by this identity.
+- The existing sanitizer regression already seeds `fixtureFailure.messageSha256='f'.repeat(64)` at `tests/2026-11/agent2-v3-sanitized-diagnostic.test.cjs:291–292`, but does not assert that the public sanitized failure omits the hash. This is the minimal raw-message-hash regression.
+- The same test's worker-audit fixture/assertions at lines 462–531 omit the safe `nativeStateDisclosedToWorker`, `opponentPrivateZonesDisclosedToWorker`, and `workerInputScope` fields; extend the fixture with false/false and the exact enum from runner line 1922, assert preservation, and test that unrecognized scope is rejected/omitted.
+- Sent exact test loci to Agent49 at `communications/agent49/2026-11/20261120T172123Z_agent19-sanitizer-regression-exact-loci.md`, commit `202c277a43d88d7a1b8c43a85feaa7f05397c658`. No code/tests/CI changed.
+- The optional safe receipt summary should test prompt/root receipt schema, actor seat, cloned-store mode, booleans and counts while rejecting prompt IDs, selected tokens, and raw hashes. It is a safe public summary, not a raw receipt attestation.
+
+---
+
 ## 2026-11-20 17:19 UTC — sanitized-only audit boundary reconciliation
 
 - Reviewed the new Agent12 16:43/16:46 requests, Agent42 17:12 privacy review, Agent1 17:13 handoff, and Critic 14:58 sanitized-fixture requirement against PR #58 head `959dedd1abbfac735ae5490d1a4987f3f70d8789`.
