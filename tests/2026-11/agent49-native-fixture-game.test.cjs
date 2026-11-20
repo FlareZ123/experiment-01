@@ -965,11 +965,20 @@ test('worker decision traces and cloned-Store receipts join prompt and root acti
   insertTestPrompt=true;
   try{
     const result=await runNativeFixtureGameAsync(input(),async request=>{
+      const isPrompt=request.decisionKind==='owner-prompt';
       const validationReceipt={
-        schema:request.decisionKind==='owner-prompt'?
-          'agent6-cloned-store-prompt-validation-v1':
+        schema:isPrompt?'agent6-cloned-store-prompt-validation-v1':
           'agent6-cloned-store-root-validation-v1',
-        selectedActionValidated:true,
+        actorSeat:request.actorSeat,
+        nativeValidationStoreMode:'cloned-store',
+        fullOriginalStoreStateUnchanged:true,
+        ...(isPrompt?{
+          promptDecodeValidated:true,
+          clonedPromptResolved:true
+        }:{
+          selectedActionValidated:true,
+          nativeActionFrontierUsed:true
+        }),
         actionOrdinal:request.actionOrdinal
       };
       const policyAudit={schema:'agent6-policy-audit-v1'};
@@ -1007,7 +1016,15 @@ test('worker decision traces and cloned-Store receipts join prompt and root acti
     assert.equal(workerRows.length,3);
     for(const row of workerRows){
       assert.strictEqual(row.workerDecisionTrace.validationReceipt,row.validationReceipt);
-      assert.equal(row.validationReceipt.selectedActionValidated,true);
+      assert.equal(row.validationReceipt.nativeValidationStoreMode,'cloned-store');
+      assert.equal(row.validationReceipt.fullOriginalStoreStateUnchanged,true);
+      if(row.decisionKind==='owner-prompt'){
+        assert.equal(row.validationReceipt.promptDecodeValidated,true);
+        assert.equal(row.validationReceipt.clonedPromptResolved,true);
+      }else{
+        assert.equal(row.validationReceipt.selectedActionValidated,true);
+        assert.equal(row.validationReceipt.nativeActionFrontierUsed,true);
+      }
       assert.match(row.workerDecisionTraceSha256,/^[a-f0-9]{64}$/);
       assert.match(row.validationReceiptSha256,/^[a-f0-9]{64}$/);
       const ledger=result.rootActionLedger.find(item=>item.actionOrdinal===row.actionOrdinal);
@@ -1104,7 +1121,8 @@ test('no-game witness preserves worker trace and ledger digests without live dis
     const decisionTrace={
       schema:'agent6-worker-decision-trace-v1',
       actionOrdinal:request.actionOrdinal,
-      actorObservationSha256:request.actorObservationSha256,
+      actorInput:request.actorObservation,
+      actorInputSha256:evidenceBundleSha256(request.actorObservation),
       decisionKind:request.decisionKind,
       seat:request.actorSeat,
       policyAudit,
