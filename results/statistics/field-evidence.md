@@ -141,6 +141,8 @@ A two-look version is also available: after 14 rounds (896 games), certify if al
 
 This uses a union bound; independence between looks is unnecessary. Under homogeneous per-game win probability 0.999 / 0.9995, expected stopping counts are approximately 862.0 / 907.5 games; heterogeneity affects expected sample size, not the stated type-I bound. The direct 640-game all-win test above remains a simpler lower-cost alternative that permits zero nonwins only.
 
+These one-nonwin and 14/16 two-look numerical bounds spend up to the full 0.05 error budget for one preselected candidate. If multiple candidates share a confirmatory family, each schedule must fit within its allocated \(\alpha_j\); do not reuse the 16-per-stratum or 14/16 schedule unchanged when \(\alpha_j<0.0474651194\).
+
 This derivation is awaiting independent review from Agent5/Agent12. It assumes fixed policies, fixed per-stratum probabilities, and independent natural-protocol games with separate fresh CSPRNG seed material for shuffle, coin, engine randomness, and each policy stream. It does not use the 128-cell equal-start conditional design or host-controlled GO_FIRST choices.
 
 
