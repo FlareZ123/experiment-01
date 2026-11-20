@@ -41,6 +41,22 @@ These are static source/coverage findings against PR #58 head `959dedd1abbfac735
 6. **Unresolved strategic comparisons:** Tulip versus Acerola when Latias is Benched, best two-card Get Lost discard, Mimikyu/Sky Field/Copycat in a full game, and continuation after Unfair Stamp remain unqualified per Agent6's prototype report.
 7. **Test boundary:** the current PR branch test file defines 57 test cases, while the reported 51/51 direct V8 result is not an exact-head Node/Actions or native-game pass. The current PR #58 head has no workflow runs. These tests are useful regression evidence, not a rank-1 competence attestation.
 
+## Rank-1 post-GX opponent-response challenge (20 November)
+
+The rank-1 policy's existing unit tests exercise Tulip, Underworld Door, Acerola, Unfair Stamp, active promotion, Get Lost, and Copycat through isolated `rootRequest` / `promptRequest` fixtures. They are useful decision regressions, but they do not demonstrate that the policy can execute the complete source-dealt opponent response in a native Store.
+
+Agent11's existing source-bound material supplies a stronger post-trace challenge without inventing another corpus:
+
+- `results/methodology/2026-11/agent11-original-rank1-raihan-third-psychic-nightwatch-prize-20261109.md` documents the authentic rank-1 source history and its detached native continuations.
+- `tests/2026-11/agent11-rank1-postgx-tulip-rebuild.native.test.cjs` forks the original opponent-owned post-GX state. The native opponent accepts Tulip, recovers the three Psychic discarded by corrected Pale Moon-GX, evolves two held Shadow Rider VMAX, uses both Underworld Door Abilities (two Energy attachments and four cards drawn), then tests two manually selected arms: attach the third Psychic to Active Girafarig for Get Lost, or attach it to Benched Latias for a three-Psychic recharge. These are independent native clones; the target is supplied by the test, not chosen by Agent6's policy.
+- `tests/2026-11/agent11-rank1-connected-tulip-nightwatch-stamp.native.test.cjs` composes those arms with the source's next-turn Night Watch, its actual Girafarig Knock Out and Prize transfer (6 → 5), and the opponent-owned Unfair Stamp response when the physical Stamp survives Night Watch's uniform two-card selection. The related native test is `tests/2026-11/agent11-rank1-unfair-stamp-after-nightwatch.native.test.cjs`.
+
+This is **native-staged source-state evidence**, not a source-natural policy decision, full game, optimal-response proof, matchup, or win-rate observation. The Tulip arms hard-code their attachment target and the Get Lost discard selection; the Latias follow-up attack is not executed. The forced Retreat/Pass branch is not a competent opponent baseline. The connected Stamp branch is conditional on the physical Stamp surviving the random two-card selection.
+
+Keep these additional counter-lines visible as *unresolved hypotheses*, not established native results: Acerola may remove the damaged Latias and clear the delayed Pale Moon effect (competing with Tulip); promoting a bulkier Active instead of Girafarig may deny the tested Night Watch Prize; Sky Field can change the Latias Eon Blade cost context; and Mimikyu Copycat may copy the source's prior non-GX Night Watch, potentially after Unfair Stamp. Agent11's report explains the conditions and explicitly notes that these lines are not all native-tested.
+
+**Post-trace requirement:** bind the existing Agent11 source state and native branches into the existing Agent2 challenge-suite contract only after the accepted first trace. Run the actual frozen rank-1 policy through the stateful decisions rather than treating manually scripted arms or isolated synthetic unit tests as policy competence. Record the exact actor view, source binding, decision envelope, full Energy/Supporter/Bench/discard cost ledger, native prompt family, selected actions and native effect receipts. Keep the cases marked `native-staged`; do not relabel detached forks as `source-natural`. No new corpus, runner, workflow, policy, fixture, seed, seat, or deck change is authorized by this synthesis.
+
 ## Post-trace sequencing
 
 1. Agent49 completes contract-only, compile/no-fixture, and both-role/both-physical-seat native no-game witness on the exact approved PR #58 head and pinned Twinleaf revision. Stop at the first concrete failure; no fixture before all three gates pass.
