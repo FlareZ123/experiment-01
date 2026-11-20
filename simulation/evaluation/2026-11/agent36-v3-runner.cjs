@@ -2713,6 +2713,7 @@ async function runV3FixtureGame({
     fullStateTraceDecisionRows.every((row,index)=>{
       const ledger=fullStateTraceRootLedger[index];
       return row.actionOrdinal===ledger?.actionOrdinal&&
+        row.actingSeat===ledger?.actorSeat&&
         row.decisionKind===ledger?.decisionKind&&
         row.workerDecisionTraceSha256===ledger?.workerDecisionTraceSha256&&
         row.validationReceiptSha256===ledger?.validationReceiptSha256;
@@ -2726,17 +2727,20 @@ async function runV3FixtureGame({
       const receiptSemanticsValid=row.decisionKind==='owner-root'?
         receipt?.schema==='agent6-cloned-store-root-validation-v1'&&
           receipt.selectedActionValidated===true&&
+          receipt.actorSeat===row.actingSeat&&
           receipt.nativeActionFrontierUsed===true&&
           receipt.nativeValidationStoreMode==='cloned-store'&&
           receipt.fullOriginalStoreStateUnchanged===true:
         row.decisionKind==='owner-prompt'?
           receipt?.schema==='agent6-cloned-store-prompt-validation-v1'&&
           receipt.promptDecodeValidated===true&&
+          receipt.actorSeat===row.actingSeat&&
           receipt.clonedPromptResolved===true&&
           receipt.nativeValidationStoreMode==='cloned-store'&&
           receipt.fullOriginalStoreStateUnchanged===true:false;
       return trace?.schema==='agent6-worker-decision-trace-v1'&&
         trace.actionOrdinal===row.actionOrdinal&&
+        trace.seat===row.actingSeat&&
         trace.decisionKind===row.decisionKind&&
         trace.policyAudit&&typeof trace.policyAudit==='object'&&
         /^[a-f0-9]{64}$/.test(trace.policyAuditSha256??'')&&
