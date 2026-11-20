@@ -147,7 +147,7 @@ test('failure stages preserve the rejected action and error while keeping cumula
   assert.match(recorder.text(),/FAILURE STAGE: bot-decoder/);
 });
 
-test('recorder result exposes explicit nullable errors and rejects each injected capture or projection failure',()=>{
+test('recorder result separates explicit errors from snapshot completeness',()=>{
   const makeCompleteRecorder=()=>{
     const recorder=createFullStateTraceRecorder();
     recorder.captureInitial({turn:1,logs:[]});
@@ -174,7 +174,7 @@ test('recorder result exposes explicit nullable errors and rejects each injected
     const trace=recorder.result();
     assert.equal(trace[field].name,'Error');
     assert.equal(trace[field].message,message);
-    assert.equal(trace.complete,false);
+    assert.equal(trace.complete,true);
     assert.match(formatFullStateTrace(trace),new RegExp(message));
   }
 
