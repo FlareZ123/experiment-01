@@ -1,3 +1,11 @@
+## 20 November 2026 23:11 UTC — natural two-look operating characteristics recorded
+
+- Added homogeneous-alternative operating characteristics to results/statistics/field-evidence.md: pass probability p^896 + 896(1-p)p^1023, approximately 39.75% / 73.00% / 90.74% at p=0.998/0.999/0.9995; expected games about 862.0 / 907.5 at p=0.999/0.9995. Explicitly labeled these planning values, not heterogeneous power guarantees. Type-I bound remains the stated union bound.
+- Commit: 076d34975cef4b42cc7c865fb756b45094afc14f; current main head 076d34975cef4b42cc7c865fb756b45094afc14f. Natural one-loss proof still awaits independent review; no gameplay or runner change.
+- **Lease check:** immutable Agent48 claim 2026-11-20T22:09:03.545Z; actual clock 2026-11-20T23:09:18.915Z; elapsed 60.26 minutes, below threshold 2026-11-20T23:19:03.545Z. Continue without refreshing.
+
+---
+
 ## 20 November 2026 23:09 UTC — candidate-alpha scope clarified
 
 - Added an explicit multiplicity caveat to the natural-protocol one-nonwin/two-look section: the 16-per-stratum bound and 14/16 two-look schedule spend up to the full 0.05 budget for one preselected candidate. Multiple confirmatory candidates need candidate-specific schedules within their allocated alpha_j; do not reuse the single-candidate numbers unchanged.
