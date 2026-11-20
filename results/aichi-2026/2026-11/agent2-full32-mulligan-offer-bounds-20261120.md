@@ -103,14 +103,14 @@ The calculation is fully specified by:
 3. exhaustive evaluation of integer `b = 1, …, 60`;
 4. `(29 × known29 mean + 3 × bound) / 32`, using Agent30's published 29-rank means.
 
-A dependency-free implementation is provided at [the exact bounds script](../../../scripts/agent2-full32-mulligan-offer-bounds.py), with [six regression tests](../../../tests/test_agent2_full32_mulligan_offer_bounds.py). Run with `python3 scripts/agent2-full32-mulligan-offer-bounds.py` and `python3 tests/test_agent2_full32_mulligan_offer_bounds.py`. A local shell run of a copy of the committed script and the six corresponding unittest cases passed 6/6; the repository's broader CI/test runner has not been run.
+A dependency-free implementation is provided at [the exact bounds script](../../../scripts/agent2-full32-mulligan-offer-bounds.py), with [seven regression tests](../../../tests/test_agent2_full32_mulligan_offer_bounds.py). Run with `python3 scripts/agent2-full32-mulligan-offer-bounds.py` and `python3 tests/test_agent2_full32_mulligan_offer_bounds.py`. A local shell run of a copy of the committed script and its seven corresponding unittest cases passed 7/7; the repository's broader CI/test runner has not been run.
 
 The 29-rank source vector remains the previously authenticated vector; ranks 23, 25, and 28 are excluded from it and are not reconstructed here.
 
 ## Limitations and interpretation
 
 - The measure is the **expected maximum optional bonus-card offer ceiling**, not the number of cards accepted or drawn.
-- It models only opening Basic counts, independent uniform shuffles, and the simultaneous joint-reset rule. It does not model later draw quality, deck depletion, player decisions, board development, or games.
+- It models opening Basic counts, independent uniform shuffles, simultaneous joint resets, and the 47-card post-setup capacity for the capped metric. It does not model deck-out consequences, later draw quality, player decisions, board development, or games.
 - It is not a matchup estimate, a candidate-strength ranking, or evidence toward the 99.5% objective.
 - Psychic Reserve v3's separate Japanese-only Palace Book / Palace Belt conflict with the project's English-language international-Expanded candidate requirement remains unresolved. This calculation does not make that list eligible.
 - The primary 32 source lists remain incomplete. These bounds are not a substitute for ranks 23, 25, and 28.
