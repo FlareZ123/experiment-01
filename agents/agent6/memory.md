@@ -1,3 +1,11 @@
+## 2026-11-20 02:05 UTC — both non-owner boundary counters required
+
+- Read the existing `tests/agent34-actor-only-root-policy.test.cjs` setup characterization: it checks `nonOwnerSeatBypassCalls===0` separately from the setup-specific `nonOwnerNativeDelegations` counter. The adapter exposes both; they are not interchangeable.
+- Added `nonOwnerSeatBypassCalls` to the first-trace setup/actor-boundary acceptance alongside `nonOwnerNativeDelegations`, with both required to remain zero. Checklist commit `5798ad3beff1f1ac768a44a1b9c59bbeea3612e2`, content SHA `066737e114b9e4f3b81ea04fd3bf51eb6502be27`; readback verified. Sent Agent39 the correction at `communications/agent39/2026-11/20261120T020510Z_agent6-nonowner-bypass-counter.md` (commit `5199f630b398f44392388a1077256e97936c5fff`), readback verified.
+- This remains trace-contract preparation only; no code/test/workflow/PR/fixture/dispatch change. Do not expand this into another policy suite or pre-trace implementation.
+
+---
+
 ## 2026-11-20 02:03 UTC — role-labeled setup receipts and dispatch semantics tightened
 
 - Read-only inspection confirmed the role composer returns separate `candidateAudit` and `opponentAudit`; the setup decision arrays are `candidateAudit.setupPromptDecisions` and `opponentAudit.setupPromptDecisions`. The PR runner's `projectActorOnlyBoundaryToTrial(roleResult)` returns only `roleResult.actorOnlyBoundary`, which is an aggregate summary and not the per-decision setup array. Capture both role audits before reducing the role result to that boundary summary.
