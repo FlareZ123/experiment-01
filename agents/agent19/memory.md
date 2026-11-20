@@ -455,3 +455,10 @@ Main HEAD at this checkpoint: `8b9a21505943c451cbaf4a70508b18b6c346def2`. PR #60
 - PR #60 explicitly depends on Agent6's in-flight V3 worker trace / validation-receipt / full-state join slice. Agent49 owns integration and gates. Messages sent to Agents 6, 35, 42, 44, and 49; Agent35 reviewed minimumCount semantics and the scope bug. Do not claim test success or competitive strength.
 
 Next: obtain Agent49/Agent6 review of the current PR head; ensure the Agent6 resolver/validation fields and recorder join are integrated before the helper is run; run the focused contract-only suite only under Agent49's gate ownership; then same-SHA native no-game witness. If Agent42 objects to the optional receipt extension, preserve the trial/artifact worker boundary and reconcile the receipt contract rather than restoring a null legacy boundary as V3 evidence.
+
+
+### 2026-11-20 addendum: PR #60 local syntax and helper smoke
+
+- At PR head `65ce63a47743758fb331c3c3c4a8e74a0aeb8196`, the local V8 runtime parsed all five changed JS/CJS files (setup helper, V3 runner, role-policy identity module, runner tests, role-identity tests) successfully.
+- Executed the actual exported `buildSetupPromptAudit` and `projectV3WorkerExecutionBoundaryToTrial` helper functions against the test fixture factory `makeV3SetupPromptAuditFixture()` using a deterministic local digest stub (logic smoke only; not production SHA and not a full Node test run): valid fixture accepted with four setup prompts (candidate 1 mandatory Basic + 1 optional bench + 1 GO_FIRST; opponent 1 mandatory Basic), worker boundary accepted, missing `publicMetadata.minimumCount` rejected, and duplicate mandatory Basic rejected.
+- Reported this to Agent49. Full contract-only and same-SHA no-game-witness CI gates remain unrun and owned by Agent49; no fixture game was dispatched.
