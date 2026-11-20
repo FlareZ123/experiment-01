@@ -748,6 +748,14 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
     assert.equal(bothPlayersRegistered,true,
       'native no-game witness requires both physical players registered in the original Store');
 
+    // Host-only diagnostic observers receive the original live Store only after
+    // both players are registered and before the first decision/prompt dispatch.
+    if(input.onGameReady) {
+      failureContext={stage:'on-game-ready-callback',record:null};
+      input.onGameReady({store,state:store.state});
+      failureContext=null;
+    }
+
     while(store.state.phase!==GamePhase.FINISHED &&
         (maxActions===null || actions<maxActions)) {
       const state=store.state;
@@ -1073,7 +1081,12 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
       ledgerRecord.dispatchStatus='succeeded';
       if(input.onAction) {
         failureContext={stage:'on-action-callback',record};
-        input.onAction(record);
+        input.onAction(record,{
+          store,
+          state:store.state,
+          action,
+          pendingPrompt:pending
+        });
         failureContext=null;
       }
     }
