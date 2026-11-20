@@ -4,7 +4,7 @@ const {evidenceBundleSha256}=require('../canonical-evidence-json.cjs');
 
 const SHA256=/^[a-f0-9]{64}$/;
 const SETUP_PROMPTS={
-  CHOOSE_STARTING_POKEMONS:{kind:'starting-basics',promptType:'ChooseCardsPrompt'},
+  CHOOSE_STARTING_POKEMONS:{kind:'starting-pokemon-choice',promptType:'ChooseCardsPrompt'},
   GO_FIRST:{kind:'go-first',promptType:'ConfirmPrompt'},
   WANT_TO_DRAW_CARDS:{kind:'want-to-draw-cards',promptType:'SelectPrompt'}
 };
@@ -64,7 +64,19 @@ function buildSetupPromptAudit({
     const promptClassIsSetup=['ChooseCardsPrompt','ConfirmPrompt','SelectPrompt']
       .includes(row?.pendingPromptType);
     if(spec) {
-      setupRows.push({row,spec,message});
+      let classifiedSpec=spec;
+      let minimumCount=null;
+      if(message==='CHOOSE_STARTING_POKEMONS') {
+        minimumCount=projection?.publicMetadata?.minimumCount;
+        if(!nonNegativeInteger(minimumCount)) {
+          failures.push('starting-pokemon-minimum-count-invalid:'+String(row.pendingPromptId));
+          classifiedSpec={...spec,kind:'unclassified-starting-pokemon-choice'};
+        } else {
+          classifiedSpec={...spec,kind:minimumCount>=1?
+            'starting-basics':'optional-extra-bench-placement'};
+        }
+      }
+      setupRows.push({row,spec:classifiedSpec,message,minimumCount});
       if(row.decisionKind!=='owner-prompt')
         failures.push('setup-prompt-not-worker-owned:'+String(row.pendingPromptId));
       if(row.pendingPromptType!==spec.promptType)
@@ -81,8 +93,8 @@ function buildSetupPromptAudit({
     failures.push('total-worker-decision-count-mismatch');
 
   const setupCountsBySeat=[
-    {seat:0,startingBasics:0,goFirst:0,wantToDrawCards:0},
-    {seat:1,startingBasics:0,goFirst:0,wantToDrawCards:0}
+    {seat:0,startingBasics:0,optionalExtraBenchPlacements:0,goFirst:0,wantToDrawCards:0},
+    {seat:1,startingBasics:0,optionalExtraBenchPlacements:0,goFirst:0,wantToDrawCards:0}
   ];
   let totalGoFirst=0;
 
@@ -109,7 +121,7 @@ function buildSetupPromptAudit({
     }
 
     const roleSetupRows=setupRows.filter(item=>item.row.actingSeat===seat);
-    const counts={startingBasics:0,goFirst:0,wantToDrawCards:0};
+    const counts={startingBasics:0,optionalExtraBenchPlacements:0,goFirst:0,wantToDrawCards:0};
     const projectedRows=[];
     for(const item of roleSetupRows) {
       const {row,spec,message}=item;
@@ -231,16 +243,23 @@ function buildSetupPromptAudit({
         if(!recorderJoinVerified)receiptFailures.push('recorder-public-board-join-invalid');
       }
 
-      counts[spec.kind==='starting-basics'?'startingBasics':
-        spec.kind==='go-first'?'goFirst':'wantToDrawCards']++;
-      setupCountsBySeat[seat][spec.kind==='starting-basics'?'startingBasics':
-        spec.kind==='go-first'?'goFirst':'wantToDrawCards']++;
+      const countKey=spec.kind==='starting-basics'?'startingBasics':
+        spec.kind==='optional-extra-bench-placement'?'optionalExtraBenchPlacements':
+        spec.kind==='go-first'?'goFirst':
+        spec.kind==='want-to-draw-cards'?'wantToDrawCards':null;
+      if(countKey) {
+        counts[countKey]++;
+        setupCountsBySeat[seat][countKey]++;
+      } else {
+        receiptFailures.push('setup-prompt-kind-unclassified');
+      }
       if(spec.kind==='go-first')totalGoFirst++;
 
       projectedRows.push({
         role,kind:spec.kind,seat,playerId:row.actingPlayerId,
         turn:row.turnBefore,promptId:row.pendingPromptId,
         promptType:spec.promptType,promptMessage:message,
+        minimumCount,
         actionOrdinal:ordinal,recorderStepOrdinal:nonNegativeInteger(ordinal)?ordinal+1:null,
         actionName:row.actionName,actionPayloadSha256:row.actionPayloadSha256??null,
         workerDecisionTraceSha256:row.workerDecisionTraceSha256??null,
