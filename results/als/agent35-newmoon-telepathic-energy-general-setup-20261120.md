@@ -4,7 +4,7 @@
 
 ## Decision
 
-Keep the frozen New Moon Lockbreaker v1 at **three Telepathic Psychic Energy and three Basic Psychic Energy**. Treat Telepathic Psychic Energy as a general, lock-resilient two-Basic setup engine, not merely the narrow Klefki retreat bridge. Do not cut the third copy on the basis of the current Item-access models. This does not justify adding a fourth copy or changing the 60.
+Preserve the frozen New Moon Lockbreaker v1's **three Telepathic Psychic Energy / three Basic Psychic Energy** as the current baseline. Treat Telepathic Psychic Energy as a general, lock-resilient two-Basic setup engine, not merely the narrow Klefki retreat bridge. The access evidence argues against cutting below three TPE. It does **not** prove that three Basic Energy is the minimum; a single 4-TPE / 2-Basic-Energy slot hypothesis is quantified below but is not a deck change or recommendation before a competent whole-sequence test.
 
 ## Card text and rules boundary
 
@@ -53,7 +53,22 @@ The same exact access calculation, holding the 17 Basic Pokémon and 15 Psychic 
 | **3 (frozen list)** | **29.21604955%** | **33.39775566%** |
 | 4 | 37.11814183% | 42.06753149% |
 
-These are copy-count sensitivities, not proposed alternative decklists. Cutting from three to two loses **8.77 / 9.82 percentage points** of this first-turn engine access. A fourth copy would add access, but the model does not price the card it would displace and therefore does not recommend a fourth.
+These are copy-count sensitivities, not proposed alternative decklists. Cutting from three to two loses **8.77 / 9.82 percentage points** of this first-turn engine access. A fourth copy adds **7.90 / 8.67 percentage points**, but the model does not price the card it would displace.
+
+## The single 4-TPE / 2-Basic-Energy slot question
+
+The access gain has one plausible fixed-60 trade worth preserving as a future experiment: replace one Basic Psychic Energy with a fourth Telepathic Psychic Energy. The exact conditional Prize exposure for the Basic-Energy role is:
+
+| Energy split | TPE access, going first | TPE access, going second | Probability all Basic Psychic Energy copies are in the six Prizes, given a legal opening seven |
+|---|---:|---:|---:|
+| **3 TPE / 3 Basic (current)** | **29.2160%** | **33.3978%** | **0.05926927%** |
+| 4 TPE / 2 Basic (hypothesis only) | 37.1181% | 42.0675% | 0.85546992% |
+
+The all-Prized calculation deals the opening seven first, conditions on at least one Basic Pokémon, then deals six Prizes from the remaining 53. It captures only whether every Basic Energy copy is Prized. It does not model whether a Basic Energy can be moved into the discard pile in time, whether the deck can sustain a second Powerglass trigger, or the cost of the displaced card.
+
+The published Horror House → Powerglass line requires a **Basic Energy in the discard pile** for Powerglass. The Psychic Energy attached from hand before Horror House and the third Psychic Energy attached next turn can be Basic or Special; Telepathic Energy can therefore supply one of those attachments but cannot supply Powerglass's Basic-Energy target. Two Basic copies may be sufficient for one execution if the required discard/attachment sequence is achieved, while repeated Powerglass use may need more. The existing [Powerglass energy gate](new-moon-powerglass-energy-gate.md) establishes the Basic-Energy role, not that exactly three copies are mandatory.
+
+**Decision:** retain 3/3 as the only current fixed list. Treat 4/2 as one future, decision-linked slot test after the existing first-trace/common-policy gate: compare actual first-turn TPE target value and the full Powerglass/attack sequence, not just access or Prize percentages. No 4/2 deck variant is created here.
 
 ## Whole-deck and sequencing implications
 
