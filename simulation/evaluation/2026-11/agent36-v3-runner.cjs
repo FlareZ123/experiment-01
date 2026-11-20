@@ -1840,6 +1840,116 @@ function createV3WorkerExecutionAudit({
   };
 }
 
+
+function validateV3WorkerDecisionTrace(row){
+  try{
+    const trace=row?.workerDecisionTrace;
+    const receipt=row?.validationReceipt;
+    if(!trace||!receipt||trace.schema!=='agent6-worker-decision-trace-v1')return false;
+    const actorInput=trace.actorInput;
+    const publicReceipt=trace.publicEventReceipt??null;
+    const promptBinding=trace.promptProjection??null;
+    const frontierBinding=trace.actionFrontier??null;
+    const selectedTokens=Array.isArray(trace.selectedTokens)?trace.selectedTokens:[];
+    const selectedItems=Array.isArray(trace.selectedItems)?trace.selectedItems:[];
+    const decision=trace.decision;
+    const expectedTokens=decision?.kind==='select-action'||decision?.kind==='select-choice'?
+      [decision.token]:
+      decision?.kind==='select-choices'&&Array.isArray(decision.tokens)?
+        decision.tokens.slice():[];
+    const source=promptBinding?.choices??frontierBinding?.items??[];
+    const inputBinding={
+      observation:actorInput,
+      publicEventReceipt:publicReceipt,
+      promptProjection:promptBinding,
+      actionFrontier:frontierBinding
+    };
+    const selectedItemsMatch=Array.isArray(source)&&
+      selectedItems.length===expectedTokens.length&&
+      selectedItems.every((item,index)=>{
+        const expected=source.find(candidate=>candidate?.token===expectedTokens[index]);
+        return Boolean(expected)&&item?.token===expectedTokens[index]&&
+          evidenceBundleSha256(item)===evidenceBundleSha256(expected);
+      });
+    const policyAuditValid=Boolean(trace.policyAudit)&&
+      workerProtocol.validatePolicyAudit(trace.policyAudit,{
+        observation:actorInput,prompt:promptBinding,actionFrontier:frontierBinding
+      },decision,trace.policyVersion)===trace.policyAudit;
+    const componentDigestsValid=
+      actorInput&&typeof actorInput==='object'&&
+      SHA256.test(trace.actorInputSha256??'')&&
+      trace.actorInputSha256===evidenceBundleSha256(actorInput)&&
+      SHA256.test(trace.actorObservationSha256??'')&&
+      trace.actorObservationSha256===row.actorObservationSha256&&
+      trace.actorInputSha256===trace.actorObservationSha256&&
+      (publicReceipt===null?
+        trace.publicEventReceiptSha256===null:
+        SHA256.test(trace.publicEventReceiptSha256??'')&&
+          evidenceBundleSha256(publicReceipt)===trace.publicEventReceiptSha256)&&
+      (promptBinding===null?
+        trace.promptProjectionSha256===null:
+        SHA256.test(trace.promptProjectionSha256??'')&&
+          evidenceBundleSha256(promptBinding)===trace.promptProjectionSha256)&&
+      (frontierBinding===null?
+        trace.actionFrontierSha256===null:
+        SHA256.test(trace.actionFrontierSha256??'')&&
+          evidenceBundleSha256(frontierBinding)===trace.actionFrontierSha256)&&
+      SHA256.test(trace.inputBindingSha256??'')&&
+      evidenceBundleSha256(inputBinding)===trace.inputBindingSha256&&
+      SHA256.test(trace.selectedItemsSha256??'')&&
+      evidenceBundleSha256(selectedItems)===trace.selectedItemsSha256&&
+      SHA256.test(trace.policyAuditSha256??'')&&
+      evidenceBundleSha256(trace.policyAudit)===trace.policyAuditSha256&&
+      SHA256.test(trace.validationReceiptSha256??'')&&
+      evidenceBundleSha256(trace.validationReceipt)===trace.validationReceiptSha256;
+    const receiptSemanticsValid=row.decisionKind==='owner-root'?
+      receipt.schema==='agent6-cloned-store-root-validation-v1'&&
+        receipt.selectedActionValidated===true&&
+        receipt.actorSeat===row.actingSeat&&
+        receipt.nativeActionFrontierUsed===true&&
+        receipt.nativeValidationStoreMode==='cloned-store'&&
+        receipt.fullOriginalStoreStateUnchanged===true&&
+        receipt.selectedToken===expectedTokens[0]&&
+        receipt.frontierSha256===trace.actionFrontierSha256&&
+        selectedItems.length===1&&
+        receipt.selectedItemSha256===evidenceBundleSha256(selectedItems[0]):
+      row.decisionKind==='owner-prompt'?
+        receipt.schema==='agent6-cloned-store-prompt-validation-v1'&&
+        receipt.promptDecodeValidated===true&&
+        receipt.actorSeat===row.actingSeat&&
+        receipt.clonedPromptResolved===true&&
+        receipt.nativeValidationStoreMode==='cloned-store'&&
+        receipt.fullOriginalStoreStateUnchanged===true&&
+        JSON.stringify(receipt.selectedTokens)===JSON.stringify(expectedTokens)&&
+        receipt.selectedItemsSha256===trace.selectedItemsSha256&&
+        receipt.promptProjectionSha256===trace.promptProjectionSha256&&
+        receipt.actionFrontierSha256===trace.actionFrontierSha256:false;
+    return trace.traceStatus==='validated'&&trace.failureCode===null&&
+      Number.isSafeInteger(trace.sequence)&&trace.sequence>0&&
+      typeof trace.requestId==='string'&&trace.requestId.length>0&&
+      typeof trace.policyVersion==='string'&&trace.policyVersion.length>0&&
+      SHA256.test(trace.bundleSha256??'')&&
+      trace.actionOrdinal===row.actionOrdinal&&
+      trace.seat===row.actingSeat&&
+      trace.decisionKind===row.decisionKind&&
+      trace.selectionStatus==='resolved'&&
+      Array.isArray(trace.unmatchedSelectedTokens)&&trace.unmatchedSelectedTokens.length===0&&
+      JSON.stringify(selectedTokens)===JSON.stringify(expectedTokens)&&
+      selectedItemsMatch&&
+      trace.policyAudit.decisionKind===row.decisionKind&&
+      trace.policyAudit.decisionType===decision?.kind&&
+      trace.policyAudit.policyVersion===trace.policyVersion&&
+      JSON.stringify(trace.policyAudit.selectedTokens)===JSON.stringify(expectedTokens)&&
+      policyAuditValid&&componentDigestsValid&&receiptSemanticsValid&&
+      SHA256.test(row.workerDecisionTraceSha256??'')&&
+      evidenceBundleSha256(trace)===row.workerDecisionTraceSha256&&
+      SHA256.test(row.validationReceiptSha256??'')&&
+      evidenceBundleSha256(receipt)===row.validationReceiptSha256&&
+      evidenceBundleSha256(trace.validationReceipt)===row.validationReceiptSha256&&
+      trace.validationReceiptSha256===row.validationReceiptSha256;
+  }catch{return false;}
+}
+
 function createV3WorkerDecisionResolver({
   sessionsBySeat,candidateSeat=V3_FIXTURE.candidateSeat,
   opponentSeat=V3_FIXTURE.opponentSeat,native,workerAudit,
@@ -2948,113 +3058,7 @@ async function runV3FixtureGame({
   const fullStateTraceWorkerDecisionRows=fullStateTraceDecisionRows.filter(row=>
     row.decisionKind==='owner-root'||row.decisionKind==='owner-prompt');
   const fullStateTraceWorkerAuditComplete=fullStateTraceWorkerDecisionRows.length>0&&
-    fullStateTraceWorkerDecisionRows.every(row=>{
-      try{
-        const trace=row.workerDecisionTrace;
-        const receipt=row.validationReceipt;
-        if(!trace||!receipt||trace.schema!=='agent6-worker-decision-trace-v1')return false;
-        const actorInput=trace.actorInput;
-        const publicReceipt=trace.publicEventReceipt??null;
-        const promptBinding=trace.promptProjection??null;
-        const frontierBinding=trace.actionFrontier??null;
-        const selectedTokens=Array.isArray(trace.selectedTokens)?trace.selectedTokens:[];
-        const selectedItems=Array.isArray(trace.selectedItems)?trace.selectedItems:[];
-        const decision=trace.decision;
-        const expectedTokens=decision?.kind==='select-action'||decision?.kind==='select-choice'?
-          [decision.token]:
-          decision?.kind==='select-choices'&&Array.isArray(decision.tokens)?
-            decision.tokens.slice():[];
-        const source=promptBinding?.choices??frontierBinding?.items??[];
-        const inputBinding={
-          observation:actorInput,
-          publicEventReceipt:publicReceipt,
-          promptProjection:promptBinding,
-          actionFrontier:frontierBinding
-        };
-        const selectedItemsMatch=Array.isArray(source)&&
-          selectedItems.length===expectedTokens.length&&
-          selectedItems.every((item,index)=>{
-            const expected=source.find(candidate=>candidate?.token===expectedTokens[index]);
-            return Boolean(expected)&&item?.token===expectedTokens[index]&&
-              evidenceBundleSha256(item)===evidenceBundleSha256(expected);
-          });
-        const policyAuditValid=Boolean(trace.policyAudit)&&
-          workerProtocol.validatePolicyAudit(trace.policyAudit,{
-            observation:actorInput,prompt:promptBinding,actionFrontier:frontierBinding
-          },decision,trace.policyVersion)===trace.policyAudit;
-        const componentDigestsValid=
-          actorInput&&typeof actorInput==='object'&&
-          SHA256.test(trace.actorInputSha256??'')&&
-          trace.actorInputSha256===evidenceBundleSha256(actorInput)&&
-          SHA256.test(trace.actorObservationSha256??'')&&
-          trace.actorObservationSha256===row.actorObservationSha256&&
-          trace.actorInputSha256===trace.actorObservationSha256&&
-          (publicReceipt===null?
-            trace.publicEventReceiptSha256===null:
-            SHA256.test(trace.publicEventReceiptSha256??'')&&
-              evidenceBundleSha256(publicReceipt)===trace.publicEventReceiptSha256)&&
-          (promptBinding===null?
-            trace.promptProjectionSha256===null:
-            SHA256.test(trace.promptProjectionSha256??'')&&
-              evidenceBundleSha256(promptBinding)===trace.promptProjectionSha256)&&
-          (frontierBinding===null?
-            trace.actionFrontierSha256===null:
-            SHA256.test(trace.actionFrontierSha256??'')&&
-              evidenceBundleSha256(frontierBinding)===trace.actionFrontierSha256)&&
-          SHA256.test(trace.inputBindingSha256??'')&&
-          evidenceBundleSha256(inputBinding)===trace.inputBindingSha256&&
-          SHA256.test(trace.selectedItemsSha256??'')&&
-          evidenceBundleSha256(selectedItems)===trace.selectedItemsSha256&&
-          SHA256.test(trace.policyAuditSha256??'')&&
-          evidenceBundleSha256(trace.policyAudit)===trace.policyAuditSha256&&
-          SHA256.test(trace.validationReceiptSha256??'')&&
-          evidenceBundleSha256(trace.validationReceipt)===trace.validationReceiptSha256;
-        const receiptSemanticsValid=row.decisionKind==='owner-root'?
-          receipt.schema==='agent6-cloned-store-root-validation-v1'&&
-            receipt.selectedActionValidated===true&&
-            receipt.actorSeat===row.actingSeat&&
-            receipt.nativeActionFrontierUsed===true&&
-            receipt.nativeValidationStoreMode==='cloned-store'&&
-            receipt.fullOriginalStoreStateUnchanged===true&&
-            receipt.selectedToken===expectedTokens[0]&&
-            receipt.frontierSha256===trace.actionFrontierSha256&&
-            selectedItems.length===1&&
-            receipt.selectedItemSha256===evidenceBundleSha256(selectedItems[0]):
-          row.decisionKind==='owner-prompt'?
-            receipt.schema==='agent6-cloned-store-prompt-validation-v1'&&
-            receipt.promptDecodeValidated===true&&
-            receipt.actorSeat===row.actingSeat&&
-            receipt.clonedPromptResolved===true&&
-            receipt.nativeValidationStoreMode==='cloned-store'&&
-            receipt.fullOriginalStoreStateUnchanged===true&&
-            JSON.stringify(receipt.selectedTokens)===JSON.stringify(expectedTokens)&&
-            receipt.selectedItemsSha256===trace.selectedItemsSha256&&
-            receipt.promptProjectionSha256===trace.promptProjectionSha256&&
-            receipt.actionFrontierSha256===trace.actionFrontierSha256:false;
-        return trace.traceStatus==='validated'&&trace.failureCode===null&&
-          Number.isSafeInteger(trace.sequence)&&trace.sequence>0&&
-          typeof trace.requestId==='string'&&trace.requestId.length>0&&
-          typeof trace.policyVersion==='string'&&trace.policyVersion.length>0&&
-          SHA256.test(trace.bundleSha256??'')&&
-          trace.actionOrdinal===row.actionOrdinal&&
-          trace.seat===row.actingSeat&&
-          trace.decisionKind===row.decisionKind&&
-          trace.selectionStatus==='resolved'&&
-          Array.isArray(trace.unmatchedSelectedTokens)&&trace.unmatchedSelectedTokens.length===0&&
-          JSON.stringify(selectedTokens)===JSON.stringify(expectedTokens)&&
-          selectedItemsMatch&&
-          trace.policyAudit.decisionKind===row.decisionKind&&
-          trace.policyAudit.decisionType===decision?.kind&&
-          trace.policyAudit.policyVersion===trace.policyVersion&&
-          JSON.stringify(trace.policyAudit.selectedTokens)===JSON.stringify(expectedTokens)&&
-          policyAuditValid&&componentDigestsValid&&receiptSemanticsValid&&
-          SHA256.test(row.workerDecisionTraceSha256??'')&&
-          evidenceBundleSha256(trace)===row.workerDecisionTraceSha256&&
-          SHA256.test(row.validationReceiptSha256??'')&&
-          evidenceBundleSha256(receipt)===row.validationReceiptSha256&&
-          trace.validationReceiptSha256===row.validationReceiptSha256;
-      }catch{return false;}
-    });
+    fullStateTraceWorkerDecisionRows.every(validateV3WorkerDecisionTrace);
   const fullStateTraceWorkerDecisionCountMatches=Number.isSafeInteger(workerExecutionAudit?.totalWorkerDecisions)&&
     fullStateTraceWorkerDecisionRows.length===workerExecutionAudit.totalWorkerDecisions;
   const fullStateTraceAcceptance=fullStateTraceRecorder?{
@@ -4034,7 +4038,7 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,V3_FIXTURE,V3_FIXTURE_TEST_PATHS,p
   fixtureChallengeSuiteSha256,
   loadWorkerPolicyModule,buildRoleWorkerBundle,loadNativeRoleDependencies,V3_FIXTURE,
   assertWorkerOnlyPolicyPathsAbsentFromHostClosure,preloadRoleHostModules,
-  createV3WorkerExecutionAudit,createV3WorkerDecisionResolver,
+  createV3WorkerExecutionAudit,createV3WorkerDecisionResolver,validateV3WorkerDecisionTrace,
   buildFixturePolicyConstraints,
   buildFixtureRoleIdentities,
   buildFixturePolicyPlan,
