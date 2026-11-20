@@ -96,6 +96,54 @@ Thus **all 640 wins** is a valid one-sided test at level 0.04044 for the equal-w
 
 This direct test evaluates the actual game protocol, including each policy's GO_FIRST behavior. The 128-stratum equal-start two-look design below remains useful for conditional first/second sensitivity, but it is not a substitute for this natural-protocol certificate.
 
+### Direct natural-protocol one-nonwin and two-look design (Agent48 derivation; independent review requested)
+
+The 64 natural-protocol strata are rank × candidate physical seat A/B. Every game leaves the fair CoinFlipPrompt and the chooser's GO_FIRST decision to the frozen policies. Let \(q_i\) be the fixed per-game nonwin probability in stratum \(i\). Under the natural field null, \(\bar q=(1/64)\sum_i q_i\ge0.005\).
+
+For \(n=16\) independent games per stratum (\(N=1024\)), the probability of at most one nonwin is
+
+\[
+P(X\le1)=\prod_{i=1}^{64}(1-q_i)^n
+\left[1+n\sum_{i=1}^{64}\frac{q_i}{1-q_i}\right].
+\]
+
+The following pairwise equalization argument shows that, subject to \(\sum_iq_i=0.32\), this expression is maximized when all \(q_i=0.005\). Fix \(q_i+q_j=s\) and all other \(q\)'s; put \(t=2-s\), \(z=(1-q_i)(1-q_j)\), \(S_0=\sum_{k\ne i,j}q_k/(1-q_k)\), \(A=\prod_{k\ne i,j}(1-q_k)^n\), and \(B=1+n(S_0-2)\). Then
+
+\[
+P=A[Bz^n+ntz^{n-1}],\qquad
+\frac{dP}{dz}=Anz^{n-2}[Bz+(n-1)t].
+\]
+
+At the null boundary, \(t\in[1.68,2]\), \(S_0\ge\sum_{k\ne i,j}q_k=0.32-s=t-1.68\), and \(n=16\), so \(B\ge1+16(t-3.68)<0\). Since \(z\le t^2/4\),
+
+\[
+Bz+15t\ge [1+16(t-3.68)]t^2/4+15t
+=\frac{t(400t^2-1447t+1500)}{100}
+\ge\frac{2079}{625}>0.
+\]
+
+The final lower bound is increasing on \([1.68,2]\). Thus \(P\) increases when \(z\) increases, i.e. when any pair \(q_i,q_j\) is equalized. Repeated pairwise equalization gives the maximum at \(q_i=0.005\) for every stratum. If \(\sum_iq_i>0.32\), monotonicity in each \(q_i\) only decreases \(P\). Therefore
+
+\[
+P(X\le1)\le
+P(\operatorname{Binomial}(1024,0.005)\le1)
+=0.0362583523.
+\]
+
+This gives a fixed natural-protocol test: 16 games per rank × candidate physical-seat stratum (1,024 total), certify only if at most one game is a nonwin.
+
+A two-look version is also available: after 14 rounds (896 games), certify if all games are wins; otherwise continue only while there is at most one nonwin, stopping for futility at the second. At 16 rounds (1,024 games), certify if total nonwins are at most one. The familywise false-certification bound across the two looks is
+
+\[
+0.995^{896}+0.0362583523
+=0.0474651194<0.05.
+\]
+
+This uses a union bound; independence between looks is unnecessary. Under homogeneous per-game win probability 0.999 / 0.9995, expected stopping counts are approximately 862.0 / 907.5 games; heterogeneity affects expected sample size, not the stated type-I bound. The direct 640-game all-win test above remains a simpler lower-cost alternative that permits zero nonwins only.
+
+This derivation is awaiting independent review from Agent5/Agent12. It assumes fixed policies, fixed per-stratum probabilities, and independent natural-protocol games with separate fresh CSPRNG seed material for shuffle, coin, engine randomness, and each policy stream. It does not use the 128-cell equal-start conditional design or host-controlled GO_FIRST choices.
+
+
 Candidate search is adaptive by nature. Opening profiles, development games, matched candidate comparisons, self-play, and policy tuning may be used to choose a deck. Their best observed result is **development evidence**, not a final 99.5% confidence claim. The simplest valid selection procedure is:
 
 1. Use development data to compare any number of whole-60 candidates and policy variants. These data may be reused for iteration but are never counted in the final confirmatory sample.
