@@ -1063,3 +1063,54 @@ test('onGameReady recorder callback exceptions become a pre-dispatch failure rec
   assert.equal(error.fixtureGamePartial.failure.code,'NATIVE_FIXTURE_FAILURE');
   assert.equal(error.fixtureGamePartial.acceptedActions,0);
 });
+
+
+test('no-game witness preserves worker trace and ledger digests without live dispatch',async()=>{
+  const result=await runNativeFixtureGameAsync(input({
+    stopBeforeLiveDispatch:true,
+    expectedActorSeat:0,
+    physicalRandom:()=>0
+  }),async request=>{
+    const validationReceipt={
+      selectedActionValidated:true,
+      nativeActionFrontierUsed:true,
+      nativeValidationStoreMode:'cloned-store',
+      actorSeat:request.actorSeat,
+      actionKind:'select-action',
+      frontierItemCount:1
+    };
+    const decisionTrace={
+      schema:'agent6-worker-decision-trace-v1',
+      actionOrdinal:request.actionOrdinal,
+      decisionKind:request.decisionKind,
+      policyAudit:{schema:'agent6-policy-audit-v1'},
+      policyAuditSha256:'a'.repeat(64),
+      validationReceipt
+    };
+    return {
+      __nativeFixtureDecisionResolution:true,
+      action:new PlayCardAction(101,0,{slot:'worker'}),
+      decisionTrace,validationReceipt
+    };
+  });
+
+  assert.equal(result.gameExecuted,false);
+  assert.equal(result.liveActionDispatched,false);
+  assert.equal(result.acceptedRootActions,0);
+  assert.equal(result.rootDecisionCount,1);
+  assert.equal(result.decisionTrace.length,3);
+  assert.equal(result.rootActionLedger.length,3);
+  const workerRow=result.decisionTrace[2];
+  const ledgerRow=result.rootActionLedger[2];
+  assert.equal(workerRow.actionOrdinal,2);
+  assert.equal(workerRow.dispatchStatus,'not-dispatched');
+  assert.equal(ledgerRow.actionOrdinal,2);
+  assert.equal(ledgerRow.dispatchStatus,'not-dispatched');
+  assert.equal(workerRow.workerDecisionTrace.actionOrdinal,2);
+  assert.match(workerRow.workerDecisionTraceSha256,/^[a-f0-9]{64}$/);
+  assert.match(workerRow.validationReceiptSha256,/^[a-f0-9]{64}$/);
+  assert.equal(ledgerRow.workerDecisionTraceSha256,workerRow.workerDecisionTraceSha256);
+  assert.equal(ledgerRow.validationReceiptSha256,workerRow.validationReceiptSha256);
+  assert.match(result.decisionTraceSha256,/^[a-f0-9]{64}$/);
+  assert.match(result.rootActionLedgerSha256,/^[a-f0-9]{64}$/);
+});
