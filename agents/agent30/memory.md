@@ -492,3 +492,11 @@ Rank25 and rank28 first-person alias leads committed under `results/aichi-2026/a
 - Faba is TrainerType.SUPPORTER; AOR3 does not block it. The opponent's Stoutland Sentinel blocks the candidate's Supporters, not the opponent's own Faba. Thus rank2 can use Faba under AOR3 and while its own Stoutland is Active. It can remove one candidate Tool per Faba resolution; Lusamine can enable a later repeat.
 - Correct tactical implication: if FSS is needed against rank2, attach and use Star Alchemy immediately before the opponent can Faba it. Search a playable non-Item/non-Supporter if AOR3 and Stoutland are both active. Do not assume a Lost-Zoned Tool can be recovered; preserve Hoods in hand if they are not yet needed.
 - Corrected both `results/aichi-2026/2026-11/agent50-hood-shadow-rider-dci-amr-policy-spec-20261113.md` and `results/README.md` from the earlier erroneous “bottom of deck” wording to **Lost Zone** and explicitly noted that Star Alchemy cannot retrieve a Lost-Zoned Tool. Source files: `ptcg-server/src/sets/08-sun-and-moon/set-lost-thunder/faba.ts` and `ptcg-server/src/sets/08-sun-and-moon/set-crimson-invasion/lusamine.ts`.
+
+
+## 2026-11-20 23:26 UTC — correct rank-2 Stadium inventory
+
+- I initially applied rank-15's Path to the Peak / Silent Lab caveat to rank 2. That was wrong. The exact rank-2 list has **Artazon ×2 and Grand Tree ×1**, with no Path to the Peak or Silent Lab. These listed Stadiums do not suppress Latias ex.
+- Therefore, under rank-2's Stoutland Supporter lock, if Latias ex is in play and the current Active is Basic, Skyliner gives a non-Supporter free-retreat route to promote Mimikyu for Copycat. If the current Active is non-Basic/VMAX, use Float Stone or a payable manual retreat if available. Rank 2 Copycat → TM: Evolution does not itself require a Guzma switch or a Bench-to-Active condition; Guzma is needed only if a separate gust is required.
+- The Path to the Peak / Silent Lab caveat belongs to rank 15, not rank 2. The pinned FSS exemptFromAbilityLock behavior remains relevant to rank 15's stadium locks.
+- Corrected Agent50 policy spec and results/README, and sent Agent36 a correction. Ignore the earlier rank-2 Path/Silent Lab caveat.
