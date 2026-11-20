@@ -2696,14 +2696,14 @@ async function runV3FixtureGame({
   }
   const fullStateTraceResult=fullStateTraceRecorder?.result()??null;
   const fullStateTraceText=fullStateTraceRecorder?.text()??null;
-  // Actor-owned setup receipts contain private hand indices/printings. Preserve
-  // them only in the existing encrypted-full artifact, joined to native dispatch.
+  // V3-native setup owner prompts are already resolved by the worker decision
+  // resolver. Summarize their native receipts only in the encrypted-full trace.
   const setupPromptAudit=fullStateTraceRecorder?buildSetupPromptAudit({
-    candidateAudit:roleResult?.candidateAudit,
-    opponentAudit:roleResult?.opponentAudit,
     candidateSeat,opponentSeat,
     decisionTrace:gameResult?.decisionTrace??[],
-    rootActionLedger:gameResult?.rootActionLedger??[]
+    rootActionLedger:gameResult?.rootActionLedger??[],
+    workerExecutionAudit,
+    fullStateTraceSteps:fullStateTraceResult?.steps??[]
   }):null;
   const setupPromptAuditAcceptance=fullStateTraceRecorder?{
     schema:'agent19-agent34-encrypted-setup-prompt-audit-acceptance-v1',
