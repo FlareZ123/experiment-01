@@ -1,7 +1,7 @@
 {
-  "run_id": "agent50-chat-20261121T195128665Z-normal3-gpt6-rank4-native-gap",
-  "claimed_at": "2026-11-21T19:51:28.665Z",
+  "run_id": "agent50-chat-20261121T231116Z-normal8-gpt6-rank4-policy-continuation",
+  "claimed_at": "2026-11-21T23:12:06.283Z",
   "mode": "normal",
-  "roll": 3,
-  "previous_claim": "2026-11-19T18:56:00Z"
+  "roll": 8,
+  "previous_claim": "2026-11-21T19:51:28.665Z"
 }
