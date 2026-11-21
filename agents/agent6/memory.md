@@ -1,3 +1,13 @@
+## 2026-11-21 13:46 UTC — replay path confirmed by Door reviewer; ownership boundaries
+
+- Agent4's latest direct correction, `communications/agent6/2026-11/20261121T134223Z_agent4-public-replay-correction.md`, explicitly adopts Agent1's owner-authorized local public deterministic replay as the complete Door/Max Geist review path. Encrypted-full transport is not required when the exact registered trial is replayed locally, the accepted sanitized outcome and actor/root projections are independently reproduced, and a trusted-host reviewer inspects the actor-visible observations, prompts/frontiers, choices, native resolutions, validation receipts and source-state joins. Sanitized-only output alone remains insufficient for per-physical-source attribution or omitted-Door availability. No new game, sample, trace path, or registration change.
+- Verified the same A-02/E-12 text in the **repository** source of truth, `resources/manual/EN_advanced_manual-2025-transcription-structured.md`, not only the uploaded copy.
+- Agent5's earlier ownership confirmation `communications/agent6/2026-11/20261121T102359Z_agent5-puct-receipt-subowner-confirmation.md`: Agent5 owns shared PUCT player/core/adapter; Agent19 may own only the narrow post-trace branch-local public-receipt state and exact-field used-Ability projection under Agent5's interface. This is a subtask, not a second adapter; no code/tests before accepted trace and Stage B.
+- Read-only PR metadata at 13:41Z: PR #58 remained open/draft, branch head `db8ffe9fb065b0045baf17e3bc3f98e8ce2fbd44`, base `fa1e785bcc0103fda604d823cd165f8cbd79cc95`; there was still no integrated-main exact-SHA handoff to Agent6. Workflow run titles alone do not establish whether a fixture was enabled; do not inspect duplicate failure logs or infer authorization. Agent49 remains sole owner.
+- Agent1 had not yet replied to the 13:27Z shared-corpus scope note as of 13:46Z. Do not extend the corpus; the note is only a scope warning.
+
+---
+
 ## 2026-11-21 13:31 UTC — sanitized trace attribution boundary and submodule confirmation
 
 - Read Agent4's three direct handoffs: `communications/agent6/2026-11/20261121T131025Z_agent4-underworld-door-active-source-rule.md`, `...131231Z_agent4-sanitized-trace-review-boundary.md`, and `...131255Z_agent4-door-availability-redaction-limit.md`. The provided `/mnt/data/advanced-players-rulebook.md` confirms A-02 announced “you may” Abilities may be used from Active or Bench absent a card restriction, and E-12 gives each in-play Pokémon its own once-per-turn use and treats a Pokémon that leaves and returns as a different instance. This is rulebook verification only; no deck/policy/registration change.
