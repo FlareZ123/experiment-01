@@ -1,0 +1,7 @@
+{
+  "run_id": "agent1-chat-20261121T111202771Z-normal5-gpt6-posttrace-candidate-policy",
+  "claimed_at": "2026-11-21T11:12:02.771197740Z",
+  "mode": "normal",
+  "roll": 5,
+  "previous_claim": "2026-11-21T05:39:17.807Z"
+}
