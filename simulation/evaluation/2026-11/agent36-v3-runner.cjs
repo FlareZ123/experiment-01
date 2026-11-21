@@ -242,6 +242,9 @@ function projectV3FixtureFailureForReceipt(source,{
   };
   const messageLength=failure?.messageLength??nativeFailure?.messageLength;
   if(Number.isSafeInteger(messageLength)&&messageLength>=0)result.messageLength=messageLength;
+  const assertionId=failure?.assertionId??source?.assertionId;
+  if(typeof assertionId==='string'&&/^[a-z0-9-]{1,64}$/.test(assertionId))
+    result.assertionId=assertionId;
   for(const key of ['expectedActorSeat','actualActorSeat']){
     const seat=failure?.[key]??source?.[key];
     if(seat===0||seat===1)result[key]=seat;
@@ -3123,63 +3126,72 @@ async function runV3FixtureGame({
       error.workerAudit=projectV3WorkerAuditForFailure(workerExecutionAudit);
       throw error;
     }
-    assert.equal(gameResult?.schema,'agent49-native-no-game-witness-v1');
-    assert.equal(gameResult.gameExecuted,false);
-    assert.equal(gameResult.nativeStoreCreated,true);
-    assert.equal(gameResult.bothPlayersRegistered,true);
-    assert.equal(gameResult.nativeActionFrontierUsed,true);
-    assert.equal(gameResult.nativeValidationStoreMode,'cloned-store');
-    assert.equal(gameResult.hostStoppedBeforeLiveDispatch,true);
-    assert.equal(gameResult.actorSeat,expectedActorSeat);
-    assert.equal(gameResult.actualFirstPlayerSeat,expectedActorSeat);
-    assert.equal(gameResult.actorObservationUsed,true);
-    assert.equal(gameResult.selectedActionValidated,true);
-    assert.equal(gameResult.fullOriginalStoreStateUnchanged,true);
-    assert.equal(gameResult.liveActionDispatched,false);
-    assert.equal(gameResult.acceptedRootActions,0);
-    assert.equal(gameResult.promptProvenanceHook?.installed,true);
-    assert.equal(gameResult.promptProvenanceHook?.restored,true);
-    assert.equal(pinned.audit?.guardRestored,true);
-    assert.equal(workerExecutionAudit?.cleanupVerified,true);
-    assert.equal(workerExecutionAudit?.totalFailures,0);
-    assert.equal(workerExecutionAudit?.cleanupFailureCount,0);
-    assert.equal(workerExecutionAudit?.replayableEvidence,true);
+    const assertWitnessField=(assertionId,actual,expected)=>{
+      try {
+        assert.equal(actual,expected);
+      } catch(error) {
+        error.code='NATIVE_NO_GAME_WITNESS_ASSERTION';
+        error.stage='native-no-game-witness-postflight';
+        error.assertionId=assertionId;
+        throw error;
+      }
+    };
+    assertWitnessField('game-result-schema',gameResult?.schema,'agent49-native-no-game-witness-v1');
+    assertWitnessField('game-not-executed',gameResult?.gameExecuted,false);
+    assertWitnessField('native-store-created',gameResult?.nativeStoreCreated,true);
+    assertWitnessField('both-players-registered',gameResult?.bothPlayersRegistered,true);
+    assertWitnessField('native-action-frontier-used',gameResult?.nativeActionFrontierUsed,true);
+    assertWitnessField('native-validation-store-mode',gameResult?.nativeValidationStoreMode,'cloned-store');
+    assertWitnessField('host-stopped-before-live-dispatch',gameResult?.hostStoppedBeforeLiveDispatch,true);
+    assertWitnessField('actor-seat',gameResult?.actorSeat,expectedActorSeat);
+    assertWitnessField('actual-first-player-seat',gameResult?.actualFirstPlayerSeat,expectedActorSeat);
+    assertWitnessField('actor-observation-used',gameResult?.actorObservationUsed,true);
+    assertWitnessField('selected-action-validated',gameResult?.selectedActionValidated,true);
+    assertWitnessField('full-original-store-state-unchanged',gameResult?.fullOriginalStoreStateUnchanged,true);
+    assertWitnessField('live-action-not-dispatched',gameResult?.liveActionDispatched,false);
+    assertWitnessField('accepted-root-actions-zero',gameResult?.acceptedRootActions,0);
+    assertWitnessField('prompt-provenance-hook-installed',gameResult?.promptProvenanceHook?.installed,true);
+    assertWitnessField('prompt-provenance-hook-restored',gameResult?.promptProvenanceHook?.restored,true);
+    assertWitnessField('runtime-pin-guard-restored',pinned.audit?.guardRestored,true);
+    assertWitnessField('worker-cleanup-verified',workerExecutionAudit?.cleanupVerified,true);
+    assertWitnessField('worker-total-failures-zero',workerExecutionAudit?.totalFailures,0);
+    assertWitnessField('worker-cleanup-failures-zero',workerExecutionAudit?.cleanupFailureCount,0);
+    assertWitnessField('worker-replayable-evidence',workerExecutionAudit?.replayableEvidence,true);
     const role=expectedActorSeat===candidateSeat?'candidate':'opponent';
-    const roleAudit=workerExecutionAudit.roles[role];
+    const roleAudit=workerExecutionAudit?.roles?.[role]??null;
     const otherRole=role==='candidate'?'opponent':'candidate';
-    const otherAudit=workerExecutionAudit.roles[otherRole];
-    const candidateAudit=workerExecutionAudit.roles.candidate;
-    const opponentAudit=workerExecutionAudit.roles.opponent;
+    const otherAudit=workerExecutionAudit?.roles?.[otherRole]??null;
+    const candidateAudit=workerExecutionAudit?.roles?.candidate??null;
+    const opponentAudit=workerExecutionAudit?.roles?.opponent??null;
     for(const [roleName,audit] of Object.entries({
       candidate:candidateAudit,opponent:opponentAudit
     })){
-      assert.equal(audit.decisionCount,audit.rootDecisionCount+audit.promptDecisionCount,
-        roleName+' worker decision total must equal root plus prompt decisions');
+      assertWitnessField('worker-decision-total-'+roleName,audit?.decisionCount,
+        (audit?.rootDecisionCount??0)+(audit?.promptDecisionCount??0));
     }
-    assert.equal(workerExecutionAudit.totalWorkerDecisions,
-      candidateAudit.decisionCount+opponentAudit.decisionCount,
-      'global worker decision count must equal candidate and opponent totals');
-    assert.equal(roleAudit.seat,expectedActorSeat);
-    assert.equal(roleAudit.rootDecisionCount,1);
-    assert.equal(otherAudit.rootDecisionCount,0);
-    assert.equal(otherAudit.promptDecisionCount,0);
-    assert.equal(otherAudit.decisionCount,0);
-    assert.equal(roleAudit.actionFrontierAdmissionFailureCount,0);
-    assert.equal(roleAudit.policyRngReplayable,true);
-    const allWorkerSessionsClosed=Object.values(workerExecutionAudit.roles).every(row=>
+    assertWitnessField('global-worker-decision-count',workerExecutionAudit?.totalWorkerDecisions,
+      (candidateAudit?.decisionCount??0)+(opponentAudit?.decisionCount??0));
+    assertWitnessField('role-seat',roleAudit?.seat,expectedActorSeat);
+    assertWitnessField('role-root-decision-count-one',roleAudit?.rootDecisionCount,1);
+    assertWitnessField('other-role-root-decision-count-zero',otherAudit?.rootDecisionCount,0);
+    assertWitnessField('other-role-prompt-decision-count-zero',otherAudit?.promptDecisionCount,0);
+    assertWitnessField('other-role-decision-count-zero',otherAudit?.decisionCount,0);
+    assertWitnessField('role-frontier-admission-failures-zero',roleAudit?.actionFrontierAdmissionFailureCount,0);
+    assertWitnessField('role-policy-rng-replayable',roleAudit?.policyRngReplayable,true);
+    const allWorkerSessionsClosed=Object.values(workerExecutionAudit?.roles??{}).every(row=>
       row.workerProcessClosed===true&&row.containerRemoved===true&&row.policyBundleRemoved===true);
-    assert.equal(allWorkerSessionsClosed,true);
-    assert.equal(workerExecutionAudit.workerProcessPerRole,true);
-    assert.equal(workerExecutionAudit.physicalSeedDisclosedToWorker,false);
-    assert.equal(workerExecutionAudit.policySeedDisclosedToWorker,false);
-    assert.equal(workerExecutionAudit.nativeStateDisclosedToWorker,false);
-    assert.equal(workerExecutionAudit.opponentPrivateZonesDisclosedToWorker,false);
-    const actorOnlyWorkerInput=workerExecutionAudit.workerProcessPerRole===true&&
-      workerExecutionAudit.physicalSeedDisclosedToWorker===false&&
-      workerExecutionAudit.policySeedDisclosedToWorker===false&&
-      workerExecutionAudit.nativeStateDisclosedToWorker===false&&
-      workerExecutionAudit.opponentPrivateZonesDisclosedToWorker===false;
-    assert.equal(actorOnlyWorkerInput,true);
+    assertWitnessField('all-worker-sessions-closed',allWorkerSessionsClosed,true);
+    assertWitnessField('worker-process-per-role',workerExecutionAudit?.workerProcessPerRole,true);
+    assertWitnessField('physical-seed-not-disclosed',workerExecutionAudit?.physicalSeedDisclosedToWorker,false);
+    assertWitnessField('policy-seed-not-disclosed',workerExecutionAudit?.policySeedDisclosedToWorker,false);
+    assertWitnessField('native-state-not-disclosed',workerExecutionAudit?.nativeStateDisclosedToWorker,false);
+    assertWitnessField('opponent-private-zones-not-disclosed',workerExecutionAudit?.opponentPrivateZonesDisclosedToWorker,false);
+    const actorOnlyWorkerInput=workerExecutionAudit?.workerProcessPerRole===true&&
+      workerExecutionAudit?.physicalSeedDisclosedToWorker===false&&
+      workerExecutionAudit?.policySeedDisclosedToWorker===false&&
+      workerExecutionAudit?.nativeStateDisclosedToWorker===false&&
+      workerExecutionAudit?.opponentPrivateZonesDisclosedToWorker===false;
+    assertWitnessField('actor-only-worker-input',actorOnlyWorkerInput,true);
     const witnessReceipt={
       schema:'agent36-v3-native-no-game-seat-witness-v1',
       fixtureOnly:true,
@@ -3968,7 +3980,8 @@ async function runV3NativeNoGameWitness({
           completedWitnessCount:failureReceipt.completedWitnessCount,
           fixtureFailure:{
             code:failureReceipt.fixtureFailure?.code??null,
-            stage:failureReceipt.fixtureFailure?.stage??null
+            stage:failureReceipt.fixtureFailure?.stage??null,
+            assertionId:failureReceipt.fixtureFailure?.assertionId??null
           },
           seedProbeSummary:failureReceipt.seedProbeSummary??null
         },null,2)+'\n');
