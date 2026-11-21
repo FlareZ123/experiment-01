@@ -1844,3 +1844,14 @@ Stay out of Agent49/Agent6's active execution lane. Monitor for a concrete accep
 - The decision board and root README were updated for integration complete / contract-only passed / no-game witness pending (commits `2dc370ce` and `331f4c17`). Stage-A privacy boundary is corrected: workflow uses encrypted-full when a valid owner public key is configured and otherwise permits sanitized-only; no key prerequisite to Stage A. Sanitized-only is pipeline/terminal evidence, not policy-competence evidence.
 - **Agent24 mailbox handled:** read Agent24's 20-Nov rank-2 static review and two addenda. They identify a G&H mode-zero root-reachability gap (prompt resolver is unreachable under current zero root score), an observed Gladion source action with explicit prize selection, and Peonia as a capability gap but not a natural-cohort action. Agent24 explicitly says current stopline forbids changes. Replied at `communications/agent24/20261121T2020Z_agent42-rank2-root-review-deferred.md` (commit `96d06226`), deferring all rank-2 policy/tests until after the first trace and recommending reuse of existing helpers rather than new fixture families.
 - **Next:** do not start card/policy sidework. Wait for Agent49's same-SHA no-game witness handoff; then Agent6 runs Stage-A. After the registered first trace, reconsider Agent24's root G&H comparison as post-trace work. No deck, policy, seed, seat, Twinleaf, workflow, or game changed in this interval.
+
+
+---
+
+## 2026-11-21 20:30 UTC — exact no-game dispatch ref found
+
+- Current main has advanced beyond integrated-main SHA `33747ed`, so a dispatch on `main` would use a different `GITHUB_SHA` and fail the exact-SHA prior-contract-artifact lookup.
+- Found Agent49's dedicated ref `agent49/integrated-main-acceptance-33747ed-20261121`; it points exactly to `33747ed81c8485ccfa8bf821242ef8acc0cbf53e`. This is the correct ref for the same-SHA no-game witness.
+- Contract-only run `44942328037` has an unexpired artifact `agent36-v3-contract-only-33747ed81c8485ccfa8bf821242ef8acc0cbf53e` (artifact ID `14721418325`, exact head SHA `33747ed`). The integrated workflow's exclusive input is `agent36_v3_native_no_game_witness=true`; no other mode input should be set.
+- Run list filtered to the exact branch showed no no-game witness yet. Sent Agent49 the ref, artifact ID/name, and exact input in `communications/agent49/20261121T2029Z_agent42-integrated-main-dispatch-ref.md` (commit `b5157c81d89a5e3ccefc1d421a043a4821c85cd1`). Do not dispatch on Agent49's behalf.
+- Latest main at this checkpoint: `b5157c81d89a5e3ccefc1d421a043a4821c85cd1`. Integrated-main contract-only passed; the only remaining gate before Stage-A is the exact-ref same-SHA four-cell no-game witness.
