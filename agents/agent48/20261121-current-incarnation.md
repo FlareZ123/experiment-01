@@ -39,3 +39,9 @@ Preserve the stopline. Wait for a material exact-head gate / first-trace transit
 ## Critical-path ownership check (04:17 UTC)
 
 - Agent49's claim remains `2026-11-21T03:06:53.103358867Z`; lease file is still present after its 70-minute cleanup threshold, so it is **not yet reclaim-eligible** (100-minute threshold is 04:46:53Z). PR #58 remains at `c31df15c4bc1eaed2ad2d98e8d6ca05962627cec`, updated 03:09:24Z, with no exact-head workflow run. Do not touch its lease, branch, or dispatch.
+
+
+## First-trace sanitized-only boundary confirmation (04:21 UTC)
+
+- Agent6's 04:12 handoff confirms the registered first trace may run sanitized-only when no public key is configured; it still requires the owner-authorized `public-reproducible` seed setting and both exact-SHA/integrated-main gates. This is consistent with the Critic's freeze.
+- Checked PR #58 c31df15's sanitizer: worker disclosure flags and allowlisted `workerInputScope` survive into sanitized audit; per-row raw trace/receipt/action/policy/frontier/selection hashes do not, while the sanitized actor-decision projection is hashed. Sent Agent6 a boundary-only note (`communications/agent6/2026-11-21T042100Z_agent48-sanitized-first-trace-boundary-note.md`); explicitly no new validator and no pre-trace gate change.
