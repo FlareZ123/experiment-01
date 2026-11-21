@@ -2,7 +2,7 @@
 
 const assert = require('node:assert/strict');
 const protocol = require('./agent49-policy-protocol.cjs');
-const { enumName, cloneNativeValidationGraph, createIsolatedValidationSimulator } = require('./agent36-native-action-frontier.cjs');
+const { enumName, cloneNativeValidationGraph } = require('./agent36-native-action-frontier.cjs');
 
 const MAX_PROMPT_CHOICES = 512;
 
@@ -860,6 +860,75 @@ function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook
   };
 }
 
+
+function createIsolatedValidationPromptStore({ store, state, prompt, native } = {}) {
+  assert.ok(typeof native?.Store === 'function',
+    'pinned Twinleaf Store is required for cloned prompt validation');
+  assert.ok(Array.isArray(store?.promptItems),
+    'live Twinleaf Store prompt continuation queue is unavailable');
+
+  const liveGroups = store.promptItems.map(item => {
+    assert.ok(Array.isArray(item?.ids) && item.ids.length > 0,
+      'live Twinleaf Store contains an invalid prompt continuation group');
+    const ids = item.ids.slice();
+    assert.ok(ids.every(Number.isSafeInteger),
+      'live Twinleaf Store prompt continuation IDs must be integers');
+    assert.equal(new Set(ids).size, ids.length,
+      'live Twinleaf Store prompt continuation group contains duplicate IDs');
+    return ids;
+  });
+  const allGroupIds = liveGroups.flat();
+  assert.equal(new Set(allGroupIds).size, allGroupIds.length,
+    'live Twinleaf Store prompt continuation groups overlap');
+
+  const targetGroupIndex = liveGroups.findIndex(ids => ids.includes(prompt.id));
+  assert.notEqual(targetGroupIndex, -1,
+    'live Twinleaf Store has no continuation registered for the pending owner prompt');
+  const targetPromptIndex = liveGroups[targetGroupIndex].indexOf(prompt.id);
+
+  const detachedState = cloneNativeValidationGraph(state);
+  assert.notEqual(detachedState, state,
+    'prompt validation seed state must be detached from the live Store');
+  assert.notEqual(detachedState.prompts, state.prompts,
+    'prompt validation queue must be detached from the live Store');
+
+  const clonedGroups = liveGroups.map(ids => ids.map(id =>
+    detachedState.prompts.find(item => item.id === id)));
+  assert.ok(clonedGroups.every(group => group.every(item => item)),
+    'cloned native state is missing a prompt from a registered continuation group');
+  const clonedPrompt = clonedGroups[targetGroupIndex][targetPromptIndex];
+  assert.ok(clonedPrompt && clonedPrompt.result === undefined,
+    'cloned native Store is missing the unresolved owner prompt');
+
+  const groupedIds = new Set(allGroupIds);
+  const promptsBeforeRegistration = detachedState.prompts.length;
+  detachedState.prompts = detachedState.prompts.filter(item => !groupedIds.has(item.id));
+  assert.equal(promptsBeforeRegistration - detachedState.prompts.length, allGroupIds.length,
+    'cloned native state did not contain each registered prompt exactly once');
+
+  const validationStore = new native.Store({ onStateChange() {} });
+  validationStore.state = detachedState;
+  for (const group of clonedGroups) {
+    // The original continuation closes over live game state and must never run
+    // during isolated validation. Preserve the native prompt grouping with a
+    // no-op continuation instead.
+    validationStore.prompt(detachedState, group, () => {});
+  }
+  assert.equal(validationStore.state, detachedState,
+    'prompt-aware validation Store did not retain the detached state');
+  assert.ok(Array.isArray(validationStore.promptItems),
+    'prompt-aware validation Store did not register native continuations');
+
+  const registeredTargetGroup = validationStore.promptItems.find(item =>
+    Array.isArray(item?.ids) && item.ids.includes(clonedPrompt.id));
+  assert.ok(registeredTargetGroup,
+    'prompt-aware validation Store did not register the target prompt continuation');
+  assert.deepEqual(registeredTargetGroup.ids, clonedGroups[targetGroupIndex].map(item => item.id),
+    'prompt-aware validation Store changed native prompt-group membership');
+
+  return { store: validationStore, state: detachedState, prompt: clonedPrompt };
+}
+
 function dispatchPromptChoice({
   store, prompt, state, actorSeat, projection, decision, token, native, dispatch=true,
   withValidationRandom=null
@@ -908,15 +977,16 @@ function dispatchPromptChoice({
 
   let validationReceipt = null;
   if (typeof withValidationRandom === 'function' &&
-      typeof native?.Simulator === 'function' &&
       typeof native?.ResolvePromptAction === 'function') {
+    assert.ok(typeof native?.Store === 'function',
+      'pinned Twinleaf Store is required for cloned prompt validation');
     const originalStateBefore = cloneNativeValidationGraph(state);
+    const originalPromptContinuationGroups = store.promptItems?.map(item =>
+      Array.isArray(item?.ids) ? item.ids.slice() : null);
     validationReceipt = withValidationRandom(() => {
-      const simulator = createIsolatedValidationSimulator(state, native);
-      const clonedState = simulator.store.state;
-      const clonedPrompt = clonedState.prompts?.find(item =>
-        item.id === prompt.id && item.result === undefined);
-      assert.ok(clonedPrompt, 'cloned native Store is missing the pending owner prompt');
+      const validation = createIsolatedValidationPromptStore({ store, state, prompt, native });
+      const clonedState = validation.state;
+      const clonedPrompt = validation.prompt;
       assert.equal(clonedPrompt.playerId, clonedState.players[actorSeat].id,
         'cloned owner prompt belongs to a different physical seat');
       const clonedValidation = validateRawPromptResult(clonedPrompt, rawResult, clonedState);
@@ -925,11 +995,10 @@ function dispatchPromptChoice({
       const clonedAction = new native.ResolvePromptAction(
         clonedPrompt.id, clonedValidation.decoded
       );
-      simulator.store.dispatch(clonedAction);
-      const remainingPrompt = Array.isArray(simulator.store.state.prompts)
-        ? simulator.store.state.prompts.find(item => item.id === prompt.id)
-        : null;
-      const clonedPromptResolved = !remainingPrompt || remainingPrompt.result !== undefined;
+      validation.store.dispatch(clonedAction);
+      const settledPrompt = validation.store.state.prompts?.find(item =>
+        item.id === clonedPrompt.id);
+      const clonedPromptResolved = Boolean(settledPrompt && settledPrompt.result !== undefined);
       assert.equal(clonedPromptResolved, true,
         'cloned native Store did not resolve the same pending owner prompt');
       return {
@@ -945,6 +1014,9 @@ function dispatchPromptChoice({
     });
     assert.deepStrictEqual(state, originalStateBefore,
       'cloned prompt validation mutated the full live Store state graph');
+    assert.deepStrictEqual(store.promptItems?.map(item =>
+      Array.isArray(item?.ids) ? item.ids : null), originalPromptContinuationGroups,
+    'cloned prompt validation mutated the live Store prompt continuation queue');
     validationReceipt.fullOriginalStoreStateUnchanged = true;
   }
   const validation = validateRawPromptResult(prompt, rawResult, state);
