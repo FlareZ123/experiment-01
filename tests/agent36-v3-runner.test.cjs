@@ -1434,7 +1434,7 @@ test('V3 fixture no-game witness receipt requires all four role-seat pairs and e
   inactiveSetupPromptDecision.witnesses[0].opponentPromptDecisionCount=1;
   inactiveSetupPromptDecision.witnesses[0].opponentWorkerDecisionCount=1;
   inactiveSetupPromptDecision.witnesses[0].opponentSetupPromptCounts={
-    'ShowMulliganPrompt:SETUP_OPPONENT_NO_BASIC':1
+    'SelectPrompt:WANT_TO_DRAW_CARDS':1
   };
   inactiveSetupPromptDecision.witnesses[0].workerDecisionCount=2;
   assert.equal(validateNoGameWitnessReceipt(inactiveSetupPromptDecision,expected),
@@ -1663,7 +1663,7 @@ test('V3 wrong-actor no-game failure receipt preserves seats and redacts raw-pre
   assert.equal(receipt.expectedActorSeat,0);
   assert.equal(receipt.actualActorSeat,1);
   assert.equal(receipt.workerAudit.roles.opponent.promptDecisionCount,1);
-  assert.equal(receipt.workerAudit.roles.opponent.setupPromptCounts['ShowMulliganPrompt:SETUP_OPPONENT_NO_BASIC'],1);
+  assert.equal(receipt.workerAudit.roles.opponent.setupPromptCounts.other,1);
   assert.equal(receipt.fixtureFailure.expectedActorSeat,0);
   assert.equal(receipt.fixtureFailure.actualActorSeat,1);
   assert.equal(receipt.fixtureFailure.assertionId,'native-no-game-witness-postflight-actor-seat');
@@ -1786,6 +1786,7 @@ test('V3 wrong-actor resolver failure survives callback projection and final wit
     runnerRevision:'a'.repeat(40),enginePin:V3_FIXTURE.engineCommit
   });
   assert.equal(receipt.fixtureFailure.code,'NO_GAME_WITNESS_WRONG_ACTOR');
+  assert.equal(receipt.workerAudit.roles.opponent.setupPromptCounts.other,1);
   assert.equal(receipt.fixtureFailure.expectedActorSeat,0);
   assert.equal(receipt.fixtureFailure.actualActorSeat,1);
   assert.equal(receipt.expectedActorSeat,0);
@@ -1802,7 +1803,7 @@ test('no-game witness accepts only the frozen setup prompt types and projects th
     promptDecisionCount:3,
     setupPromptCounts:{
       'ConfirmPrompt:GO_FIRST':1,
-      'ShowMulliganPrompt:SETUP_OPPONENT_NO_BASIC':1,
+      'SelectPrompt:WANT_TO_DRAW_CARDS':1,
       'ChooseCardsPrompt:CHOOSE_STARTING_POKEMONS':1
     }
   };
@@ -1814,6 +1815,10 @@ test('no-game witness accepts only the frozen setup prompt types and projects th
     promptDecisionCount:1,
     setupPromptCounts:{'AttachEnergyPrompt:ATTACH_ENERGY':1}
   }),false,'non-setup prompt types must not satisfy the no-game witness');
+  assert.equal(isNoGameWitnessSetupPromptAudit({
+    promptDecisionCount:1,
+    setupPromptCounts:{'ShowMulliganPrompt:SETUP_OPPONENT_NO_BASIC':1}
+  }),false,'host-only mulligan prompts must not satisfy the worker setup audit');
 
   const workerAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});
   workerAudit.roles.opponent.promptDecisionCount=3;
@@ -1826,10 +1831,13 @@ test('no-game witness accepts only the frozen setup prompt types and projects th
   const projected=projectV3WorkerAuditForFailure(workerAudit);
   assert.deepEqual(projected.roles.opponent.setupPromptCounts,{
     'ConfirmPrompt:GO_FIRST':1,
-    'ShowMulliganPrompt:SETUP_OPPONENT_NO_BASIC':1,
     'ChooseCardsPrompt:CHOOSE_STARTING_POKEMONS':1,
-    other:1
+    other:2
   });
+  assert.equal(isNoGameWitnessSetupPromptAudit({
+    promptDecisionCount:3,
+    setupPromptCounts:projected.roles.opponent.setupPromptCounts
+  }),false,'host-only and unknown prompt types must fail the worker setup audit');
   assert.equal(JSON.stringify(projected).includes('private actor card'),false,
     'failure projection must not publish unknown prompt message text');
 });

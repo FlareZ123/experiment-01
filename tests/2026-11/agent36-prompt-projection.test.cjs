@@ -156,6 +156,7 @@ class ChooseAttackPrompt {
 }
 
 class ConfirmPrompt {}
+class ShowMulliganPrompt {}
 class SelectPrompt {}
 class SelectOptionPrompt {}
 class OrderCardsPrompt {
@@ -453,6 +454,17 @@ test('host-only Night Watch and Copycat prompts fail closed rather than leaking 
   }), error => error.code === 'UNSUPPORTED_COPYCAT_PROMPT');
 });
 
+
+test('ShowMulligan setup prompts are host-only and excluded from worker decisions', () => {
+  const state=makeState({phase:1});
+  const prompt=basePrompt(ShowMulliganPrompt,state,{
+    message:'SETUP_OPPONENT_NO_BASIC',
+    options:{allowCancel:false}
+  });
+  const projection=projectPrompt({prompt,state,actorSeat:0,native});
+  assert.equal(projection.hostOnly,true);
+  assert.equal(projection.reason,'ShowMulliganPrompt');
+});
 
 test('Night Watch classification requires the exact typed card-effect source, never prompt text alone', () => {
   const state=makeState();

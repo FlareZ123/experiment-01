@@ -31,8 +31,6 @@ const GIT_SHA=/^[0-9a-f]{40}$/;
 const SHA256=/^[0-9a-f]{64}$/;
 const NO_GAME_WITNESS_SETUP_PROMPT_KEYS=Object.freeze([
   'ConfirmPrompt:GO_FIRST',
-  'ShowMulliganPrompt:SETUP_PLAYER_NO_BASIC',
-  'ShowMulliganPrompt:SETUP_OPPONENT_NO_BASIC',
   'SelectPrompt:WANT_TO_DRAW_CARDS',
   'ChooseCardsPrompt:CHOOSE_STARTING_POKEMONS'
 ]);
