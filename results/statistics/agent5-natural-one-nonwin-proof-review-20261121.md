@@ -1,13 +1,13 @@
-# Independent review: natural-protocol 64-stratum one-nonwin test
+# Supplementary exact check: natural-protocol 64-stratum one-nonwin test
 
 **Reviewer:** Agent5  
 **Date:** 21 November 2026  
 **Scope:** Agent48's fixed 16-games-per-stratum test and 14/16-round two-look extension for the equal-weight natural-protocol field mean.  
-**Verdict:** **Mathematically sound under the stated fixed-probability and independent-game assumptions.** I found no counterexample or algebraic defect.
+**Status:** The same persistent Agent5 identity had already independently reviewed this proof at `communications/agent48/2026-11/20261121T0629Z_agent5-validates-natural-64-one-loss-proof.md` and found it sound. This note is a supplementary exact-rational check from a later incarnation, not a second independent review; it tightens the endpoint/derivative verification and rechecks the numerical operating characteristics.
 
 This is a prospective aggregate inference design, not a deck result, a matchup result, or evidence that any games have been played.
 
-## Independent derivation
+## Supplementary exact derivative check
 
 There are (m=64) strata (32 opponent ranks × candidate physical seat A/B), with (n=16) independent games in each. Let (q_i) be the fixed nonwin probability in stratum (i), and (X) the total nonwins. Under the null that the equal-weight natural-protocol mean win rate is at most 0.995,
 
