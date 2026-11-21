@@ -148,6 +148,8 @@ Cover source-natural decisions already represented in the repository, including 
 
 Run complete games with both physical seats and both first-player orientations using paired reproducible seeds for development comparison only; matched seed pairs are not independent confirmatory games and must not be carried into the 128-stratum certification cohort. Independently review both policies and the first complete-game traces before calling the pair competent. If either policy cannot reliably complete ordinary source-natural decisions, fix that competence gap before widening to the field panel.
 
+**Stage-B evidence source and privacy gate:** the independent review must be able to bind each policy's actor-visible private observation to its choice, native resolution/rejection/abstention, and source-state reference. Obtain this evidence only through the existing owner-controlled encrypted-full/host-only boundary or another evidence source explicitly authorized by the owner and reviewed for equivalent privacy and integrity. The sanitized-only Stage-A artifact establishes pipeline acceptance only; it cannot substitute for Stage-B private actor-choice evidence, establish policy competence, or bind the PUCT adapter. If authorized Stage-B evidence is unavailable, keep Stage B blocked rather than infer private decisions from sanitized output or create another trace/runner path.
+
 These first complete games establish a competent, reproducible candidate/rank-1 pair; they are simulation-qualified evidence, not a 29-list field panel or a field win-rate result. Preserve per-game failures and matchup outcomes, and do not extrapolate from rank 1 to the full 32-rank objective.
 
 ### Stage C — 29-list smoke panel
