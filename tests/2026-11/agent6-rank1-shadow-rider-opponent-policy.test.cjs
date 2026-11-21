@@ -1947,3 +1947,55 @@ test('Field Blower is not prioritized when a visible stadium has unknown effect 
     token: 'pass'
   });
 });
+
+
+test('rank1 decideWithAudit preserves root choices and reports same-pass action scores', () => {
+  const request = rootRequest({
+    items: [
+      { token: 'pass', kind: 'pass' },
+      { token: 'stadium', kind: 'use-stadium' }
+    ]
+  });
+  const plain = policy.decide(request);
+  const audited = policy.decideWithAudit(request);
+  assert.deepEqual(audited.decision, plain);
+  assert.deepEqual(plain, { kind: 'select-action', token: 'stadium' });
+  assert.equal(audited.policyAudit.schema, 'agent6-policy-audit-v1');
+  assert.equal(audited.policyAudit.selectionRuleCode, 'ROOT_MAX_ACTION_SCORE');
+  assert.equal(audited.policyAudit.tieBreakCode, 'STRICT_GREATER_THAN_FIRST_NATIVE_FRONTIER_ORDER');
+  assert.deepEqual(audited.policyAudit.selectedTokens, ['stadium']);
+  assert.deepEqual(audited.policyAudit.evaluations.map(row => row.token), ['pass', 'stadium']);
+  assert.equal(audited.policyAudit.evaluations[0].status, 'scored');
+  assert.equal(audited.policyAudit.evaluations[0].score, 0);
+  assert.equal(audited.policyAudit.evaluations[1].status, 'scored');
+  assert.equal(audited.policyAudit.evaluations[1].score, 45);
+  protocol.validatePolicyAudit(audited.policyAudit, request, plain, POLICY_VERSION);
+});
+
+test('rank1 deterministic energy-payment prompt is marked rule-selected without a fabricated score', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Energy Search FLI', 'Energy Payment'),
+    choices: [
+      { token: 'energy-0', kind: 'energy', printing: 'Psychic Energy SVE', label: 'Psychic Energy' },
+      { token: 'energy-1', kind: 'energy', printing: 'Psychic Energy SVE', label: 'Psychic Energy' }
+    ],
+    publicMetadata: {
+      selectionType: 'energy-payment',
+      minimumCount: 1,
+      maximumCount: 1,
+      energyCount: 1,
+      energyType: 'Psychic'
+    }
+  });
+  const plain = policy.decide(request);
+  const audited = policy.decideWithAudit(request);
+  assert.deepEqual(audited.decision, plain);
+  assert.deepEqual(plain, { kind: 'select-choices', tokens: ['energy-0'] });
+  assert.equal(audited.policyAudit.selectionRuleCode, 'ENERGY_PAYMENT_FIRST_ELIGIBLE');
+  const selected = audited.policyAudit.evaluations.find(row => row.token === 'energy-0');
+  assert.equal(selected.status, 'rule-selected');
+  assert.equal(selected.score, null);
+  assert.equal(selected.reasonCode, 'SELECTED_BY_POLICY_RULE');
+  protocol.validatePolicyAudit(audited.policyAudit, request, plain, POLICY_VERSION);
+});

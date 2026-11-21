@@ -75,7 +75,8 @@ async function run(){
     const response={
       schema:RESPONSE_SCHEMA,type:'response',requestId:message.requestId,
       sequence:message.sequence,role:init.role,seat:init.seat,
-      policyVersion:init.policyVersion,policyDrawCount:policyStream.drawCount,decision
+      policyVersion:init.policyVersion,policyDrawCount:policyStream.drawCount,
+      policyAudit:null,decision
     };
     assertNoForbiddenFields(response);
     await writeLine(response);

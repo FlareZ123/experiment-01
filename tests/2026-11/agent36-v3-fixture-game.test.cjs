@@ -274,7 +274,7 @@ test('fixture policy registration distinguishes Expanded game rules from Japanes
     /for \(const key of \['candidateFormat', 'gameRuleset', 'opponentSourceEventFormat',\s*'expandedLegalityAsOf', 'eventDate', 'formatReviewStatus'\]\)/);
   assert.match(runnerSource, /candidateFormat=\$\{trial\.candidateFormat\}/);
   assert.match(runnerSource, /workerExecutionAuditSha256=\$\{trial\.workerExecutionAuditSha256/);
-  assert.match(runnerSource, /actorOnlyExecutionBoundaryValid=\$\{trial\.actorOnlyExecutionBoundary\?\.valid === true\}/);
+  assert.match(runnerSource, /actorOnlyExecutionBoundaryValid:trial\.actorOnlyExecutionBoundaryApplicable===true\?/);
 });
 
 test('string trial seed maps deterministically to a recorded uint32 stream seed', () => {
@@ -504,9 +504,9 @@ test('fixture runner unwraps direct and role-composed failure envelopes without 
 test('fixture runner injects offline full-state diagnostics and persists partial failures before rethrow', () => {
   const runnerSource = fs.readFileSync(path.join(ROOT, 'simulation/evaluation/2026-11/agent36-v3-runner.cjs'), 'utf8');
   assert.match(runnerSource,
-    /diagnosticSnapshot:\s*diagnosticMode\s*===\s*'encrypted-full'\s*\?\s*diagnostic\.snapshotFullGameState\s*:\s*undefined/);
+    /diagnosticSnapshot:\s*diagnosticMode\s*===\s*'encrypted-full'\s*&&\s*!witnessOnly\s*\?\s*diagnostic\.snapshotFullGameState\s*:\s*undefined/);
   assert.match(runnerSource,
-    /requireFullStateDiagnostics:\s*diagnosticMode\s*===\s*'encrypted-full'/);
+    /requireFullStateDiagnostics:\s*diagnosticMode\s*===\s*'encrypted-full'\s*&&\s*!witnessOnly/);
   const diagnosticRequire = runnerSource.indexOf("const diagnostic = require('../../twinleaf/2026-11/agent43-full-state-diagnostic.cjs')");
   const pinInstall = runnerSource.indexOf('runPinnedV3RoleRuntime({', diagnosticRequire);
   assert.ok(diagnosticRequire >= 0 && pinInstall > diagnosticRequire, 'diagnostic function reference must be captured before the fixture pin');
@@ -556,7 +556,8 @@ test('V3 fixture pins candidate Quick Ball policy and routes owner prompts to ro
     workerPromptAt > typedPromptAt,
   'V3 owner prompts must be typed and dispatched to the acting role worker');
   assert.match(runnerSource, /if\(projected\.hostOnly\)\{/);
-  assert.match(runnerSource, /prompt:projected\.promptProjection/);
+  assert.match(runnerSource, /const promptBinding=projected\.promptProjection;/);
+  assert.match(runnerSource, /prompt:promptBinding/);
   assert.ok(!runnerSource.includes('withOwnerQuickBallPromptContinuation'),
   'V3 worker path must not import or claim the legacy synchronous Quick Ball wrapper');
   const candidateWorkerSource = fs.readFileSync(

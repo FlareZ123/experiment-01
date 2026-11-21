@@ -521,7 +521,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         availableCards:promptFields.availableCards??null,
         eligibleCards:promptFields.eligibleCards??null,
         selectedCards:promptFields.selectedCards??null,
-        min:promptFields.min??null,
+        min:promptFields.min??promptFields.options?.min??null,
         max:promptFields.max??null,
         minCards:promptFields.minCards??null,
         maxCards:promptFields.maxCards??null,
