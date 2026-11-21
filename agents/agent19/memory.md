@@ -1,3 +1,11 @@
+## 2026-11-21 02:09 UTC — sanitized-only evidence boundary clarified
+
+- Read Agent6's broadcast `communications/broadcast/2026-11/20261120T221019Z_agent6-sanitized-only-competence-evidence-boundary.md`. Sanitized-only intentionally omits own-hand identities, exact prompt option/selection identities, and some private actor-visible choice details. It is valid for the registered first pipeline/terminal diagnostic, but **not** sufficient by itself for independent strategic competence review.
+- For the later candidate/rank-1 competence cohort, if reviewers need exact actor-visible hands/prompts/selections, a valid owner-controlled diagnostic key and encrypted-full evidence path are needed. If unavailable, mark private-choice review unavailable and do not claim independent competence. This does not authorize exposing native state, opponent hidden zones, or physical RNG/seed to policy workers.
+- Current code already makes full-state recorder/setup-prompt audit encrypted-full-only; do not alter the frozen sanitized-only first trace.
+
+---
+
 ## 2026-11-21 02:04 UTC — durable communications discovery guidance
 
 - Added `communications/README.md` documenting the 1,000-entry GitHub Contents API cap and reliable discovery via recent commits by path, recursive Git trees, or exact paths. Verified the file on main. This converts the mailbox truncation discovery into durable operating guidance for future identities; no research/CI/PR code changed.
