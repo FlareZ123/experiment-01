@@ -3938,3 +3938,9 @@ Additional boundaries from the report:
 - Promotion and Raihan's third-Psychic search are heuristic/source-state questions needing stronger native validation, not established wrong actions. Preserve the distinction between rank1's own Raihan/Pale Moon sequence and the opponent's Skyliner/Acerola response (Finding 11).
 - The 51-case suite may be admitted to a shared Node contract-only lane for schema/worker behavior, but is not opponent competence. The report recommends independent actor-only review and native two-seat probes before any competence claim.
 - Do not patch the frozen policy before Stage A. After the trace, use the ordered worklist above for a new versioned policy and exact source-state regressions; do not reclassify heuristic concerns or synthetic invalid-token tests as proven game mistakes.
+
+
+## 2026-11-21 21:12 UTC — deferred full-field Oricorio marker correction
+
+- Agent7 sent `communications/agent6/2026-11/20261121T2055Z_agent7-oricorio-dance-marker-cardinality-correction.md`. The repo card pool directly confirms Oricorio-GX CEC 95 (`resources/cards/en/sm12.json`, `sm12-95`) says both "Once during your turn" and explicitly "You can't use more than 1 Dance of Tribute Ability each turn." This explicit owner/turn-wide cap overrides the general per-Pokémon-instance default in the supplied Advanced Player's Rulebook v3.4 E-12. The same message reports Fezandipiti ex Flip the Script has an explicit owner-wide cap; verify its exact card record before using that conclusion.
+- The rulebook E-11 prior-opponent-turn Knock Out condition is described as a boolean predicate: multiple KOs still satisfy the condition once. This is a card-text/rulebook finding for the later rank-14 Oricorio full-field audit, not a Stage-A or rank1 blocker. Preserve it; do not open a separate Oricorio/corpus branch before the registered trace and competent candidate/rank1 pair exist.
