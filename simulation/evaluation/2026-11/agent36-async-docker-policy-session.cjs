@@ -152,7 +152,7 @@ class AsyncJsonLineChannel {
 function validateResponse(response, expected) {
   assert.ok(response && typeof response === 'object' && !Array.isArray(response));
   assert.deepStrictEqual(Object.keys(response).sort(), [
-    'decision', 'policyDrawCount', 'policyVersion', 'requestId', 'role',
+    'decision', 'policyAudit', 'policyDrawCount', 'policyVersion', 'requestId', 'role',
     'schema', 'seat', 'sequence', 'type'
   ].sort(), 'Worker response contains missing or unknown fields');
   assert.ok(Number.isSafeInteger(response.policyDrawCount)&&response.policyDrawCount===0,
@@ -357,10 +357,14 @@ class AsyncDockerPolicySession {
       const decision = protocol.validateDecision(
         response.decision, validated.prompt, validated.actionTokens
       );
+      const policyAudit = protocol.validatePolicyAudit(
+        response.policyAudit, request, decision, this.policyVersion
+      );
       this.channel.assertDrained();
       this.sequence = sequence;
       return {
         decision,
+        policyAudit,
         requestId,
         sequence,
         role: this.role,

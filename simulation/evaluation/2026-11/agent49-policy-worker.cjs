@@ -9,7 +9,7 @@ const protocol = require('./agent49-policy-protocol.cjs');
 const {
   INIT_SCHEMA, READY_SCHEMA, REQUEST_SCHEMA, RESPONSE_SCHEMA,
   LIMITS, ProtocolError, fail, assertBoundedJson, assertNoForbiddenFields,
-  validateInit, validateRequest, validateDecision
+  validateInit, validateRequest, validateDecision, validatePolicyAudit
 } = protocol;
 
 async function writeLine(value) {
@@ -167,10 +167,13 @@ async function createRestrictedPolicyRuntime(policySource,policyStream) {
     "    if(policyInstance===null)return I.stringify({ok:false,code:'POLICY_NOT_INITIALIZED'});",
     '    try {',
     '      const request=deepFreeze(I.parse(requestJson));',
-    '      const decision=await policyInstance.decide(request);',
-    '      const decisionJson=I.stringify(decision);',
-    "      if(typeof decisionJson!=='string')return I.stringify({ok:false,code:'POLICY_RETURNED_NON_JSON'});",
-    '      return I.stringify({ok:true,decisionJson});',
+    '      const result=typeof policyInstance.decideWithAudit===\'function\' ?',
+    '        await policyInstance.decideWithAudit(request) :',
+    '        {decision:await policyInstance.decide(request),policyAudit:null};',
+    '      const decisionJson=I.stringify(result?.decision);',
+    '      const policyAuditJson=I.stringify(result?.policyAudit??null);',
+    "      if(typeof decisionJson!=='string'||typeof policyAuditJson!=='string')return I.stringify({ok:false,code:'POLICY_RETURNED_NON_JSON'});",
+    '      return I.stringify({ok:true,decisionJson,policyAuditJson});',
     '    } catch (_) {',
     "      return I.stringify({ok:false,code:'POLICY_EXECUTION_FAILURE'});",
     '    }',
@@ -218,8 +221,13 @@ async function createRestrictedPolicyRuntime(policySource,policyStream) {
       if(policyStream.drawCount!==0)fail('POLICY_RANDOM_DRAWS_UNREPLAYABLE');
       const envelope=parseEnvelope(rawEnvelope);
       if(!envelope.ok)fail(envelope.code??'POLICY_EXECUTION_FAILURE');
-      if(typeof envelope.decisionJson!=='string')fail('POLICY_RETURNED_NON_JSON');
-      try{return JSON.parse(envelope.decisionJson);}catch{fail('POLICY_RETURNED_NON_JSON');}
+      if(typeof envelope.decisionJson!=='string'||typeof envelope.policyAuditJson!=='string')fail('POLICY_RETURNED_NON_JSON');
+      try {
+        return {
+          decision:JSON.parse(envelope.decisionJson),
+          policyAudit:JSON.parse(envelope.policyAuditJson)
+        };
+      } catch { fail('POLICY_RETURNED_NON_JSON'); }
     }
   };
 }
@@ -284,9 +292,12 @@ async function run() {
     }
 
     const validated = validateRequest(message, init, expectedSequence, seenRequestIds);
-    const rawDecision = await policyRuntime.decide(message);
+    const policyResult = await policyRuntime.decide(message);
     if(policyStream.drawCount!==0)fail('POLICY_RANDOM_DRAWS_UNREPLAYABLE');
-    const decision = validateDecision(rawDecision, validated.prompt, validated.actionTokens);
+    const decision = validateDecision(policyResult.decision, validated.prompt, validated.actionTokens);
+    const policyAudit = validatePolicyAudit(
+      policyResult.policyAudit, message, decision, init.policyVersion
+    );
     const response = {
       schema: RESPONSE_SCHEMA,
       type: 'response',
@@ -296,7 +307,8 @@ async function run() {
       seat: init.seat,
       policyVersion: init.policyVersion,
       policyDrawCount:policyStream.drawCount,
-      decision
+      decision,
+      policyAudit
     };
     assertNoForbiddenFields(response);
     await writeLine(response);

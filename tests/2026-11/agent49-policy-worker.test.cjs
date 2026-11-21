@@ -355,6 +355,8 @@ test('persistent worker accepts ordered decisions without RNG seed IPC', async (
     assert.deepEqual(worker.lines[2].decision, { kind: 'select-action', token: 'action-2' });
     assert.equal(worker.lines[1].policyDrawCount,0);
     assert.equal(worker.lines[2].policyDrawCount,0);
+    assert.equal(worker.lines[1].policyAudit,null);
+    assert.equal(worker.lines[2].policyAudit,null);
     assert.equal(worker.lines[1].requestId, 'req-1');
     assert.equal(worker.lines[2].sequence, 2);
     assert.doesNotMatch(JSON.stringify(worker.lines), /policySeed|physicalSeed|rngState/i);
@@ -877,7 +879,7 @@ test('analysis-only projected attack rows cannot be selected as native actions',
 });
 
 test('typed multi-select decisions enforce unique item tokens, bounds, cancel and order semantics', () => {
-  assert.equal(protocol.RESPONSE_SCHEMA, 'aichi-policy-response-v4');
+  assert.equal(protocol.RESPONSE_SCHEMA, 'aichi-policy-response-v5');
   const source = {
     classification: 'actor-choice',
     sourceKind: 'card-effect',
@@ -1096,7 +1098,7 @@ test('typed multi-select decisions enforce unique item tokens, bounds, cancel an
   }, prizePrompt, new Set()), /BAD_MULTI_SELECT_COUNT/);
 });
 
-test('persistent worker emits response-v4 ordered multi-select decisions', async () => {
+test('persistent worker emits response-v5 ordered multi-select decisions', async () => {
   const worker = startWorker();
   try {
     writeLine(worker.child.stdin, worker.init);
@@ -1131,7 +1133,8 @@ test('persistent worker emits response-v4 ordered multi-select decisions', async
     });
     writeLine(worker.child.stdin, message);
     await waitForCount(worker, 2);
-    assert.equal(worker.lines[1].schema, 'aichi-policy-response-v4');
+    assert.equal(protocol.RESPONSE_SCHEMA, 'aichi-policy-response-v5');
+    assert.equal(worker.lines[1].schema, protocol.RESPONSE_SCHEMA);
     assert.equal(worker.lines[1].type, 'response');
     assert.deepEqual(worker.lines[1].decision, {
       kind: 'select-choices', tokens: ['multi-1', 'multi-0']
@@ -1247,12 +1250,16 @@ test('V3 abstention codebook v1 is finite and covers every selected role-policy 
   for (const policyPath of policyPaths) {
     const source = fs.readFileSync(policyPath, 'utf8');
     for (const match of source.matchAll(
-      /(?:abstain\s*\(\s*|reasonCode\s*:\s*)['"]([A-Z][A-Z0-9_]*)['"]/g
+      /abstain\s*\(\s*['"]([A-Z][A-Z0-9_]*)['"]/g
+    )) emitted.add(match[1]);
+    for (const match of source.matchAll(
+      /\{\s*kind:\s*['"]abstain['"],\s*reasonCode:\s*['"]([A-Z][A-Z0-9_]*)['"]/g
     )) emitted.add(match[1]);
   }
   assert.deepEqual([...emitted].sort(), [...protocol.ABSTENTION_REASON_CODES]);
   assert.equal(protocol.isAbstentionReasonCode('INVALID_STARTING_POKEMON_PROMPT'), true);
   assert.equal(protocol.isAbstentionReasonCode('PRIVATE_ACTOR_HAND_HAS_UNIQUE_CARD'), false);
+  assert.equal(protocol.isAbstentionReasonCode('NOT_EVALUATED_BY_SELECTED_BRANCH'), false);
   assert.deepEqual(protocol.validateDecision({
     kind: 'abstain', reasonCode: 'INVALID_STARTING_POKEMON_PROMPT'
   }, null, new Set()), {
@@ -1261,4 +1268,132 @@ test('V3 abstention codebook v1 is finite and covers every selected role-policy 
   assert.throws(() => protocol.validateDecision({
     kind: 'abstain', reasonCode: 'PRIVATE_ACTOR_HAND_HAS_UNIQUE_CARD'
   }, null, new Set()), /BAD_ABSTENTION_CODE/);
+});
+
+
+test('isolated worker transports and validates a same-pass policyAudit receipt', async () => {
+  const version = 'agent49-policy-audit-test-v1';
+  const source = [
+    "'use strict';",
+    "const POLICY_VERSION=" + JSON.stringify(version) + ";",
+    "async function createPolicy(){",
+    "  const decide=request=>{const item=request.actionFrontier.items[0];return item?{kind:'select-action',token:item.token}:{kind:'abstain',reasonCode:'NO_SUPPORTED_ACTION'};};",
+    "  return {",
+    "    decide(request){return decide(request);},",
+    "    decideWithAudit(request){",
+    "      const decision=decide(request);",
+    "      const selectedTokens=decision.kind==='select-action'?[decision.token]:[];",
+    "      const evaluations=request.actionFrontier.items.map((item,index)=>({",
+    "        token:item.token,status:index===0?'scored':'not-evaluated',",
+    "        score:index===0?10:null,reasonCode:index===0?null:'NOT_EVALUATED_BY_TEST'",
+    "      }));",
+    "      return {decision,policyAudit:{schema:'agent6-policy-audit-v1',policyVersion:POLICY_VERSION,",
+    "        decisionKind:request.observation.decisionKind,decisionType:decision.kind,",
+    "        selectionRuleCode:'TEST_SCORE',tieBreakCode:'FIRST_NATIVE_ORDER',",
+    "        selectedTokens,evaluations}};",
+    "    }",
+    "  };",
+    "}",
+    "module.exports={POLICY_VERSION,createPolicy};"
+  ].join('\n');
+  const init = initFor('candidate', 0, 'a', version);
+  const worker = startWorker(init, source);
+  const input = request(1, 'candidate', 0, { requestId: 'audit-transport-1' });
+  try {
+    writeLine(worker.child.stdin, init);
+    await waitForCount(worker, 1);
+    writeLine(worker.child.stdin, input);
+    await waitForCount(worker, 2);
+    assert.deepEqual(worker.lines[1].decision, { kind: 'select-action', token: 'action-1' });
+    assert.equal(worker.lines[1].policyAudit.schema, 'agent6-policy-audit-v1');
+    assert.equal(worker.lines[1].policyAudit.evaluations.length, 1);
+    assert.equal(worker.lines[1].policyAudit.evaluations[0].score, 10);
+    protocol.validatePolicyAudit(
+      worker.lines[1].policyAudit, input, worker.lines[1].decision, version
+    );
+  } finally {
+    await dispose(worker);
+  }
+});
+
+test('policyAudit validation rejects incomplete token coverage and fabricated scores', () => {
+  const input = request(1);
+  const decision = { kind: 'select-action', token: 'action-1' };
+  const valid = {
+    schema: 'agent6-policy-audit-v1',
+    policyVersion: POLICY_VERSION,
+    decisionKind: 'owner-root',
+    decisionType: 'select-action',
+    selectionRuleCode: 'TEST_SCORE',
+    tieBreakCode: 'FIRST_NATIVE_ORDER',
+    selectedTokens: ['action-1'],
+    evaluations: [{
+      token: 'action-1', status: 'scored', score: 5, reasonCode: null
+    }]
+  };
+  assert.deepEqual(
+    protocol.validatePolicyAudit(valid, input, decision, POLICY_VERSION),
+    valid
+  );
+  assert.throws(() => protocol.validatePolicyAudit({
+    ...valid, evaluations: []
+  }, input, decision, POLICY_VERSION), /POLICY_AUDIT_FRONTIER_COVERAGE_MISMATCH/);
+  assert.throws(() => protocol.validatePolicyAudit({
+    ...valid,
+    evaluations: [{
+      token: 'action-1', status: 'rule-selected', score: 5, reasonCode: 'RULE_SELECTED'
+    }]
+  }, input, decision, POLICY_VERSION), /BAD_POLICY_AUDIT_UNSCORED_ROW/);
+});
+
+
+test('policyAudit evaluation rows preserve native frontier order for single and multi-select decisions', () => {
+  const input=request(1);
+  input.actionFrontier={
+    schema:protocol.FRONTIER_SCHEMA,
+    items:[
+      {token:'action-1',kind:'attack',attackName:'First native action',
+        publicMetadata:{damage:100,stadiumEffectLive:true}},
+      {token:'action-2',kind:'retreat',attackName:null,
+        publicMetadata:{damage:0,stadiumEffectLive:true}}
+    ]
+  };
+  const evaluations=[
+    {token:'action-1',status:'scored',score:10,reasonCode:null},
+    {token:'action-2',status:'scored',score:5,reasonCode:null}
+  ];
+  const audit=(decision,selectedTokens,rows=evaluations)=>({
+    schema:'agent6-policy-audit-v1',
+    policyVersion:POLICY_VERSION,
+    decisionKind:'owner-root',
+    decisionType:decision.kind,
+    selectionRuleCode:'TEST_SCORE',
+    tieBreakCode:'FIRST_NATIVE_ORDER',
+    selectedTokens,
+    evaluations:rows
+  });
+  const single={kind:'select-action',token:'action-1'};
+  assert.deepEqual(
+    protocol.validatePolicyAudit(audit(single,['action-1']),input,single,POLICY_VERSION),
+    audit(single,['action-1'])
+  );
+  assert.throws(
+    ()=>protocol.validatePolicyAudit(
+      audit(single,['action-1'],evaluations.slice().reverse()),input,single,POLICY_VERSION
+    ),
+    /POLICY_AUDIT_FRONTIER_ORDER_MISMATCH/
+  );
+
+  const multi={kind:'select-choices',tokens:['action-2','action-1']};
+  const multiAudit=audit(multi,['action-2','action-1']);
+  assert.deepEqual(
+    protocol.validatePolicyAudit(multiAudit,input,multi,POLICY_VERSION),
+    multiAudit
+  );
+  assert.throws(
+    ()=>protocol.validatePolicyAudit(
+      audit(multi,['action-2','action-1'],evaluations.slice().reverse()),input,multi,POLICY_VERSION
+    ),
+    /POLICY_AUDIT_FRONTIER_ORDER_MISMATCH/
+  );
 });

@@ -198,7 +198,7 @@ const native = {
   PlayerType,
   SlotType,
   ResolvePromptAction: class ResolvePromptAction {
-    constructor(promptId, result) { this.promptId = promptId; this.result = result; }
+    constructor(promptId, result) { this.id = promptId; this.promptId = promptId; this.result = result; }
   }
 };
 
@@ -898,3 +898,108 @@ test('InvitePlayerPrompt is not misclassified as a host-only two-player game pro
   }),error=>error.code==='UNSUPPORTED_NATIVE_PROMPT');
 });
 
+
+
+test('cloned prompt validation requires the cloned Store to settle the exact pending prompt',()=>{
+  const makeFixture=(groupSize=1)=>{
+    const state=makeState();
+    const prompt=basePrompt(ChooseCardsPrompt,state,{
+      cards:state.players[0].deck,
+      options:{min:1,max:1,allowCancel:false,blocked:[]}
+    });
+    const group=[prompt];
+    if(groupSize===2){
+      const sibling=new ChooseCardsPrompt();
+      Object.assign(sibling,{
+        id:8,playerId:'p1',result:undefined,cards:state.players[1].deck,
+        options:{min:1,max:1,allowCancel:false,blocked:[]}
+      });
+      state.prompts.push(sibling);
+      group.push(sibling);
+    }
+    const projection=projectPrompt({
+      prompt,state,actorSeat:0,native,
+      provenanceHook:provenance(prompt.sourceCard,'Quick Ball')
+    });
+    const store={
+      state,
+      promptItems:[{ids:group.map(item=>item.id),then(){}}],
+      dispatch(){throw new Error('live prompt dispatch must remain disabled');}
+    };
+    return {state,prompt,projection,store,group};
+  };
+  const makeValidationNative=({settle=true}={})=>{
+    const promptGroupSizes=[];
+    class ValidationStore{
+      constructor(handler){
+        this.handler=handler;
+        this.state=null;
+        this.promptItems=[];
+      }
+      prompt(state,prompts,then){
+        const group=Array.isArray(prompts)?prompts:[prompts];
+        promptGroupSizes.push(group.length);
+        let nextId=Math.max(0,...state.prompts.map(item=>item.id))+1;
+        for(const item of group){
+          item.id=nextId++;
+          state.prompts.push(item);
+        }
+        this.promptItems.push({ids:group.map(item=>item.id),then});
+        return state;
+      }
+      dispatch(action){
+        const pending=this.state.prompts.find(item=>item.id===action.id);
+        const continuation=this.promptItems.find(item=>item.ids.includes(action.id));
+        if(settle&&pending&&continuation){
+          pending.result=action.result;
+          const results=continuation.ids.map(id=>
+            this.state.prompts.find(item=>item.id===id)?.result);
+          if(results.every(result=>result!==undefined)){
+            continuation.then(results.length===1?results[0]:results);
+            this.promptItems.splice(this.promptItems.indexOf(continuation),1);
+          }
+        }
+        this.handler.onStateChange(this.state);
+        return this.state;
+      }
+    }
+    return {...native,Store:ValidationStore,promptGroupSizes};
+  };
+
+  const success=makeFixture(2);
+  const successNative=makeValidationNative();
+  let successfulLiveDispatches=0;
+  success.store.dispatch=()=>{successfulLiveDispatches++;};
+  const originalGroupIds=success.store.promptItems.map(item=>item.ids.slice());
+  const prepared=dispatchPromptChoice({
+    store:success.store,prompt:success.prompt,state:success.state,actorSeat:0,
+    projection:success.projection,
+    decision:{kind:'select-choices',tokens:['prompt-0']},
+    native:successNative,dispatch:false,withValidationRandom:fn=>fn()
+  });
+  assert.equal(prepared.validationReceipt.clonedPromptResolved,true);
+  assert.equal(prepared.validationReceipt.nativeValidationStoreMode,'cloned-store');
+  assert.equal(prepared.validationReceipt.fullOriginalStoreStateUnchanged,true);
+  assert.deepEqual(successNative.promptGroupSizes,[2],
+    'the isolated Store must preserve the live native prompt-group membership');
+  assert.deepEqual(success.store.promptItems.map(item=>item.ids),originalGroupIds,
+    'cloned validation must not mutate the live continuation queue');
+  assert.equal(successfulLiveDispatches,0);
+  assert.equal(success.prompt.result,undefined,
+    'cloned validation must not resolve the live prompt');
+
+  const unresolved=makeFixture();
+  const noOpNative=makeValidationNative({settle:false});
+  let rejectedLiveDispatches=0;
+  unresolved.store.dispatch=()=>{rejectedLiveDispatches++;};
+  assert.throws(()=>dispatchPromptChoice({
+    store:unresolved.store,prompt:unresolved.prompt,state:unresolved.state,actorSeat:0,
+    projection:unresolved.projection,
+    decision:{kind:'select-choices',tokens:['prompt-0']},
+    native:noOpNative,dispatch:false,withValidationRandom:fn=>fn()
+  }),/cloned native Store did not resolve the same pending owner prompt/);
+  assert.equal(rejectedLiveDispatches,0,
+    'a cloned Store that leaves the prompt pending must not produce a live dispatch');
+  assert.equal(unresolved.prompt.result,undefined,
+    'failed cloned validation must leave the original prompt untouched');
+});

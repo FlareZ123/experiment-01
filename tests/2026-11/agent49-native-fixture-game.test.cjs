@@ -2,7 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {evidenceBundleSha256}=require('../../simulation/evaluation/2026-11/agent45-independent-competitive-admission.cjs');
+const {evidenceBundleSha256}=require('../../simulation/evaluation/agent45-independent-competitive-admission.cjs');
 const {
   seededRandom,deckPermutation,projectActionPayload,selectedCardIdentity,
   publicStateSnapshot,runNativeFixtureGame,runNativeFixtureGameAsync,normalizeSeed32,
@@ -49,6 +49,7 @@ let failNextPlayCardDispatch=false;
 let failNextDecode=false;
 let failNextPromptDecode=false;
 let insertTestPrompt=false;
+let insertSetupMinimumPrompt=null;
 let finishAfterRootActions=2;
 let insertWaitPrompt=false;
 let mutateBeforeDecodeFailure=false;
@@ -94,6 +95,13 @@ class Store {
         if(insertTestPrompt) {
           insertTestPrompt=false;
           this.state.prompts.push(new TestPrompt(3,101,'Choose a card',['A card 0','A card 1']));
+        }
+        if(insertSetupMinimumPrompt!==null) {
+          const minimumCount=insertSetupMinimumPrompt;
+          insertSetupMinimumPrompt=null;
+          this.state.prompts.push(new TestPrompt(4,101,'CHOOSE_STARTING_POKEMONS',{
+            min:minimumCount,max:1,allowCancel:false
+          }));
         }
       }
       return;
@@ -256,6 +264,36 @@ test('async fixture generator delegates strategic prompts and roots without poli
     decodeCalls=0;
   }
 });
+
+test('native ChooseCardsPrompt options.min is projected for mandatory and optional setup prompts',async()=>{
+  for(const minimumCount of [1,0]){
+    insertSetupMinimumPrompt=minimumCount;
+    try{
+      const result=await runNativeFixtureGameAsync(input({
+        requireFullStateDiagnostics:true,
+        diagnosticSnapshot:fixtureDiagnosticSnapshot
+      }),async request=>{
+        if(request.decisionKind==='owner-prompt'){
+          return new ResolvePromptAction(request.prompt.id,
+            minimumCount===0?[]:[{token:'selected-basic'}]);
+        }
+        return request.actorSeat===0?
+          new PlayCardAction(101,0,{slot:'fixture'}):
+          new RootAction(1);
+      });
+      const row=result.decisionTrace.find(item=>
+        item.promptResolverContext?.message==='CHOOSE_STARTING_POKEMONS');
+      assert.ok(row,'the inserted native setup prompt must be resolved');
+      assert.equal(row.promptResolverContext.availableOptions.min,minimumCount);
+      const nativePrompt=row.fullStateBefore.prompts.find(prompt=>prompt.id===4);
+      assert.ok(nativePrompt,'the pre-dispatch full-state snapshot must retain the prompt');
+      assert.equal(nativePrompt.fields.options.min,minimumCount);
+    }finally{
+      insertSetupMinimumPrompt=null;
+    }
+  }
+});
+
 
 test('engine WaitPrompt is acknowledged without consulting either policy', () => {
   insertWaitPrompt=true;
@@ -501,6 +539,35 @@ test('native fixture loop resolves setup prompts, records exact owner views and 
   assert.equal(typeof lastStore.state.prompts[1].result,'boolean');
 });
 
+test('native fixture forwards actor observations without diagnostic type decoration',async()=>{
+  const args=input();
+  const observations=new Map();
+  args.native.observe=(state,seat)=>{
+    const observation=Object.freeze({
+      actorSeat:seat,
+      decisionKind:'owner-root',
+      ownPublic:Object.freeze({active:null,bench:Object.freeze([])}),
+      ownHand:Object.freeze(state.players[seat].hand.cards.map(card=>card.fullName))
+    });
+    observations.set(seat,observation);
+    return observation;
+  };
+  const result=await runNativeFixtureGameAsync(args,request=>{
+    const expected=observations.get(request.actorSeat);
+    assert.strictEqual(request.actorObservation,expected,
+      'worker input must preserve the exact detached observation object');
+    assert.equal(Object.hasOwn(request.actorObservation,'type'),false);
+    assert.equal(Object.hasOwn(request.actorObservation.ownPublic,'type'),false);
+    assert.equal(request.actorObservationSha256,evidenceBundleSha256(expected));
+    return request.actorSeat===0?
+      new PlayCardAction(101,0,{slot:'fixture'}):new RootAction(1);
+  });
+  assert.equal(result.finished,true);
+  assert.deepEqual(result.decisionTrace[2].actorObservationBefore,observations.get(0));
+  assert.deepEqual(result.decisionTrace[3].actorObservationBefore,observations.get(1));
+  assert.equal(Object.hasOwn(result.decisionTrace[2].actorObservationBefore,'type'),false);
+  assert.equal(Object.hasOwn(result.decisionTrace[2].actorObservationBefore.ownPublic,'type'),false);
+});
 test('native fixture loop rejects incomplete decks and restores Math.random on failure',()=>{
   const originalRandom=Math.random;
   assert.throws(()=>runNativeFixtureGame(input({deckA:deck('A').slice(1)})),
@@ -1103,10 +1170,14 @@ test('failed worker decision trace survives in an explicit non-dispatched failur
 });
 
 test('onGameReady recorder callback exceptions become a pre-dispatch failure receipt',()=>{
-  const error=assert.throws(()=>runNativeFixtureGame(input({
+  let error;
+  assert.throws(()=>runNativeFixtureGame(input({
     onGameReady(){throw new Error('initial recorder capture failed');}
-  })));
-  assert.ok(error.fixtureGamePartial);
+  })),caught=>{
+    error=caught;
+    return true;
+  });
+  assert.ok(error?.fixtureGamePartial);
   assert.equal(error.fixtureGamePartial.failure.stage,'on-game-ready-callback');
   assert.equal(error.fixtureGamePartial.failure.code,'NATIVE_FIXTURE_FAILURE');
   assert.equal(error.fixtureGamePartial.acceptedActions,0);
@@ -1117,6 +1188,7 @@ test('no-game witness preserves worker trace and ledger digests without live dis
   const result=await runNativeFixtureGameAsync(input({
     stopBeforeLiveDispatch:true,
     expectedActorSeat:0,
+    maxActions:null,
     physicalRandom:()=>0
   }),async request=>{
     const validationReceipt={
