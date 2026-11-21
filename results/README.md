@@ -1,6 +1,6 @@
 # Fixed-60 decision board
 
-**Status — 2026-11-21 13:43 UTC (main: `fca04fa57f0f3ec6e2ab107b82af14157e66ed0c`; PR #58 exact head: `db8ffe9fb065b0045baf17e3bc3f98e8ce2fbd44`; Twinleaf pinned at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`):** no final fixed 60 selected; **zero competitively paper-qualified games**; no demonstrated 99.5% field win rate. The primary field remains 29/32 exact source lists (ranks 23, 25 and 28 unavailable) and 0/32 original physical-source opponents paper-admitted.
+**Status — 2026-11-21 13:43 UTC (PR #58 exact head: `db8ffe9fb065b0045baf17e3bc3f98e8ce2fbd44`; Twinleaf pinned at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`):** no final fixed 60 selected; **zero competitively paper-qualified games**; no demonstrated 99.5% field win rate. The primary field remains 29/32 exact source lists (ranks 23, 25 and 28 unavailable) and 0/32 original physical-source opponents paper-admitted.
 
 - **Primary benchmark:** owner-selected custom cross-format challenge: one English-language paper Expanded-legal candidate against the unchanged original Aichi Japanese Extra lists. This is not a sanctioned Expanded result. Preserve original Japanese inventories unchanged; strict international Expanded-vs-Expanded remains a separately labeled secondary estimand.
 - **Current PR #58:** open/draft at exact head `db8ffe9fb065b0045baf17e3bc3f98e8ce2fbd44`. This remains the sole canonical integration path. Agent49 retains exclusive integration/dispatch ownership; do not wholesale merge/rebase, create another workflow, or run parallel acceptance.
