@@ -22,6 +22,7 @@ const {
   buildNoGameWitnessFailureReceipt,buildV3RunnerFailureError,
   createV3WorkerExecutionAudit,createV3WorkerDecisionResolver,
   projectNativeFixtureFailureForReceipt,projectV3FixtureFailureForReceipt,
+  projectV3WorkerAuditForFailure,
   projectV3RoleFailureForReceipt,
   resolveNoGameWitnessSeedPrompt,classifyNoGameWitnessSeedProbeFailure,
   runV3NativeNoGameWitness,runV3CompiledSeatWitness,stripNoGameWitnessArtifactPath,policyEnvironmentAllowlist
@@ -1835,6 +1836,68 @@ test('V3 no-game failure receipt coarsens worker prompt abstention reasons to a 
   const publicReceipt=JSON.stringify(receipt);
   assert.equal(publicReceipt.includes('INVALID_STARTING_POKEMON_PROMPT'),false);
   assert.equal(publicReceipt.includes('PRIVATE_ACTOR_HAND_HAS_UNIQUE_CARD'),false);
+});
+
+test('no-game witness host-resolves non-target setup prompts without spending the other worker',async()=>{
+  const workerAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});
+  class ResolvePromptAction{
+    constructor(id,result){this.id=id;this.result=result;}
+  }
+  const prompt={
+    id:17,playerId:'opponent-player',message:'GO_FIRST',
+    constructor:{name:'ConfirmPrompt'},
+    getPerspectivePlayerId(){return this.playerId;}
+  };
+  const state={
+    phase:1,
+    players:[{id:'candidate-player'},{id:'opponent-player'}]
+  };
+  const native={
+    observe(){return null;},
+    ResolvePromptAction
+  };
+  const resolver=createV3WorkerDecisionResolver({
+    sessionsBySeat:{},
+    candidateSeat:0,opponentSeat:1,native,workerAudit,
+    expectedActorSeat:0,stopBeforeLiveDispatch:true,
+    promptProjection:{
+      projectPrompt(){return {hostOnly:false,promptProjection:{promptType:'ConfirmPrompt'}};},
+      resolveHostOnlyPrompt(){throw new Error('non-host-only setup prompt must not use the host-only resolver');}
+    }
+  });
+  const result=await resolver({
+    kind:'native-fixture-decision',decisionKind:'owner-prompt',
+    actorSeat:1,prompt,state,store:{},native
+  });
+  assert.equal(result.action instanceof ResolvePromptAction,true);
+  assert.equal(result.action.id,17);
+  assert.equal(result.action.result,true);
+  assert.equal(result.promptResolution.kind,'host-setup');
+  assert.equal(workerAudit.roles.opponent.decisionCount,0);
+  assert.equal(workerAudit.roles.opponent.promptDecisionCount,0);
+  assert.equal(workerAudit.roles.opponent.hostSetupPromptCount,1);
+  assert.equal(workerAudit.totalWorkerDecisions,0);
+  assert.equal(workerAudit.totalHostSetupPrompts,1);
+  const projectedAudit=projectV3WorkerAuditForFailure(workerAudit);
+  assert.equal(projectedAudit.roles.opponent.hostSetupPromptCount,1);
+  assert.equal(projectedAudit.totalHostSetupPrompts,1);
+
+  const mismatchedPrompt={...prompt,playerId:'candidate-player'};
+  const rejectedAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});
+  const rejectedResolver=createV3WorkerDecisionResolver({
+    sessionsBySeat:{},
+    candidateSeat:0,opponentSeat:1,native,workerAudit:rejectedAudit,
+    expectedActorSeat:0,stopBeforeLiveDispatch:true,
+    promptProjection:{
+      projectPrompt(){return {hostOnly:false,promptProjection:{promptType:'ConfirmPrompt'}};},
+      resolveHostOnlyPrompt(){throw new Error('not expected');}
+    }
+  });
+  await assert.rejects(rejectedResolver({
+    kind:'native-fixture-decision',decisionKind:'owner-prompt',
+    actorSeat:1,prompt:mismatchedPrompt,state,store:{},native
+  }),error=>error.code==='NO_GAME_WITNESS_SETUP_PROMPT_OWNER_MISMATCH');
+  assert.equal(rejectedAudit.totalHostSetupPrompts,0);
 });
 
 test('V3 outer runner cleanup receipt preserves primary and cleanup summaries without raw failure state',()=>{
