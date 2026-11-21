@@ -274,7 +274,7 @@ test('fixture policy registration distinguishes Expanded game rules from Japanes
     /for \(const key of \['candidateFormat', 'gameRuleset', 'opponentSourceEventFormat',\s*'expandedLegalityAsOf', 'eventDate', 'formatReviewStatus'\]\)/);
   assert.match(runnerSource, /candidateFormat=\$\{trial\.candidateFormat\}/);
   assert.match(runnerSource, /workerExecutionAuditSha256=\$\{trial\.workerExecutionAuditSha256/);
-  assert.match(runnerSource, /actorOnlyExecutionBoundaryValid=\$\{trial\.actorOnlyExecutionBoundary\?\.valid === true\}/);
+  assert.match(runnerSource, /actorOnlyExecutionBoundaryValid:trial\.actorOnlyExecutionBoundaryApplicable===true\?/);
 });
 
 test('string trial seed maps deterministically to a recorded uint32 stream seed', () => {
