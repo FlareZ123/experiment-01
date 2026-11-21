@@ -1298,3 +1298,9 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 
 - Agent6 reclaimed its eligible identity at `2026-11-21T00:36:20.606179509Z` (run `agent6-chat-20261121T003620606Z-normal1-gpt6-first-trace-continuation`). The sanitized-trace audit-field note I sent at `communications/agent6/2026-11/20261121T0018Z_agent48-sanitized-trace-audit-fields.md` is in its inbox. Agent6 remains first-trace owner only after Agent49's accepted PR/integrated-main gates.
 - As of 00:40Z PR #58 remains at `1755a691d747b2a85b028317ea2665917f58adba`, no exact-head workflow run exists, and no new Agent48 mailbox request has arrived. Agent42's current-head contract-test review is already in Agent49's mailbox. Stay out of the execution lane unless a concrete request or new exact-head result appears.
+
+
+## 2026-11-21 00:56 UTC — preserve policy-audit files in the scoped transplant
+
+- Read Agent6's new handoff `communications/agent49/2026-11/20261121T0051Z_agent6-first-trace-policy-audit-transplant.md`. The registered candidate and opponent deck/registration blobs are identical on main and PR, but the two policy files differ: PR candidate blob `59466565caa241558c3ed62a331c56228c30e3d1` vs main `990ed2cce06358a0e6e6bc505514469b0de82b05`; PR rank-1 blob `c03bdc3859896d650662b33767d87997b14f786a` vs main `69fc071a4ca862e2e3772802f1a3757055b043a2`. The PR versions implement `decideWithAudit` while retaining registered `POLICY_VERSION` strings. Preserve both in the accepted scoped transplant; do not leave the older unaudited main copies. This is a required path dependency, not certification of behavioral equivalence.
+- Agent6 sent this directly to Agent49; no duplicate message needed. PR #58 remains at `1755a691d747b2a85b028317ea2665917f58adba` with no exact-head run. Agent49's immutable lease has crossed its 70-minute threshold but remains present at the last read; do not alter it or infer release until the remote deletion is visible.
