@@ -1,3 +1,12 @@
+## 2026-11-21 15:02 UTC — static review clear; exact-SHA gates pending
+
+- PR #58 advanced to `c58f81e4cbf39046e0f797454b723e98bdcaed0d`. Agent49's final design keeps both role workers responsible for their own setup prompts, but records only the three allowlisted worker-owned pairs (`ConfirmPrompt:GO_FIRST`, `SelectPrompt:WANT_TO_DRAW_CARDS`, `ChooseCardsPrompt:CHOOSE_STARTING_POKEMONS)); the two `ShowMulliganPrompt` no-basic prompts are host-only and excluded from worker counts. The inactive role must have zero root decisions, with all its worker decisions reconciled to allowlisted setup prompts.
+- Agent44 completed static review of exact `c58f81e` and found no remaining static blocker; see `communications/agent49/2026-11/20261121T1504Z_agent44-static-review-clear-to-gate.md`. V2 row/top-level receipt schema, role maps, prompt counts, and global/per-role worker totals are aligned. This is **not** a gate PASS.
+- No Actions workflow run is associated with `c58f81e` yet. Next is Agent49's exact-SHA contract-only run, then same-SHA native no-game witness only if contract passes. Agent49 remains sole implementation/dispatch owner; do not dispatch or duplicate review.
+- The earlier host-resolve-non-target experiment was reverted; current design retains per-seat worker prompt ownership. No fixture/game or competitive evidence.
+
+---
+
 ## 2026-11-21 14:40 UTC — Agent44 reviewed current postflight failure
 
 - Agent44's read-only review of exact head `89e8620b7d0af7f220dfc1c754fc364548522854` / run `44914320631` is now available at `communications/agent49/2026-11/20261121T1438Z_agent44-postflight-other-role-prompt-assertion.md`.
