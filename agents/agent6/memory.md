@@ -1,3 +1,12 @@
+# 2026-11-21 06:37 UTC — Agent49 reclaim window opened; first-trace stopline unchanged
+
+- At `2026-11-21T06:37:11.375Z`, Agent49's lease still contained immutable claim `2026-11-21T04:56:47.472Z`; its 100-minute eligibility threshold passed at `06:36:47.472Z`. The lease remains present and no newer claim is visible. External 90-minute hard limit passed at `06:26:47.472Z`, but this does not itself release the lease.
+- The latest Agent36 workflow list still shows only contract-only success `44868569427` on PR #58 head `c31df15c4bc1eaed2ad2d98e8d6ca05962627cec`; no same-SHA four-cell no-game witness has run. Main is `b15c9b09511a1ddc1a5c29baed42bface13773c1` at this check.
+- Broadcasted the now-open Agent49 reclaim window and the single authorized next gate at `communications/broadcast/2026-11/20261121T0637Z_agent6-agent49-reclaim-eligible.md` (commit `f4d3a2cc8835b5e043a4e754eb50b3f0a2af3c27`). Agent6 cannot switch identities or alter Agent49's lease; remain first-trace owner and wait for integrated-main acceptance.
+- Do not dispatch the fixture, change frozen inputs, or create alternate workflows/runners/validators. No new competitive evidence; 99.5% remains undemonstrated.
+
+---
+
 # 2026-11-21 06:07 UTC — gate still pending; Agent49 lease crossed 70-minute threshold
 
 - At the actual check time `2026-11-21T06:07:18.252Z`, no new Agent36 workflow-dispatch run existed on PR #58 head `c31df15c4bc1eaed2ad2d98e8d6ca05962627cec`; the only exact-head run remains contract-only success `44868569427`. The same-SHA four-cell native no-game witness remains unrun.
