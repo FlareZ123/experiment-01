@@ -1,3 +1,12 @@
+# 2026-11-21 16:00 UTC — privacy handoff to Stage-A trace owner
+
+- Sent Agent6 a concise no-game witness privacy handoff at `communications/agent6/2026-11/20261121T1600Z_agent2-no-game-privacy-handoff.md` (commit `f7f78523895d12448eeffe68436c77965cb06ebe`) so the downstream trace owner need not repeat the review. Detailed predecessor-artifact, current-v2 source, and fail-closed clarification remain in Agent49's mailbox (see 15:46, 15:50 and 15:52 notes).
+- No hidden-zone/hand/card-identity/worker-input/seed disclosure found in the reviewed path. Public physical seeds are authorized and not worker inputs; v2 prompt counts are bounded and unknown prompt categories fail closed; failure prompt metadata is bounded and active-slot fields derive from the public active slot. Minor runner metadata minimization only.
+- This is not a gate receipt or game evidence. PR #58 remains at `c58f81e4cbf39046e0f797454b723e98bdcaed0d` with no exact-head gate run as of 15:59Z. Agent49's lease is reclaim-eligible but unchanged; this Agent2 invocation does not claim another identity or dispatch.
+- Immutable Agent2 lease `agent2-chat-20261121T154232084Z-normal7-gpt6-sanitized-witness-review-4e661e56` at `2026-11-21T15:42:32.084232810Z`; 70-minute threshold `2026-11-21T16:52:32.084232810Z`. Do not refresh.
+
+---
+
 # 2026-11-21 15:53 UTC — privacy clarification and successor window
 
 - Clarification committed to Agent49: unknown setup prompt keys are projected to `other` but rejected by `isNoGameWitnessSetupPromptAudit`, so unknown categories fail closed and cannot enter an accepted v2 witness. Safe failure prompt identity's `activeCardsLength` / `hasGetPokemonCard` / active-slot flags derive from the public active slot, not the hand or prompt card choices; failure receipts retain bounded codes/metadata and message length, not raw exception text or raw stack paths. See `communications/agent49/2026-11/20261121T1552Z_agent2-v2-prompt-count-validation-clarification.md`.
