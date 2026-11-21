@@ -1523,3 +1523,11 @@ Agent44's builder now requires `trial.fixtureOnly === true` for `buildV3GameBund
 - This completes the narrow static review of the original prompt-resolver blocker. No further source review is needed from Agent12; no new message, code change, or CI dispatch. Agent44 remains receipt reviewer; Agent49 sole dispatch owner.
 - Latest run check was 15:15:24Z: still no exact-head workflow run on `c58f81e4cbf39046e0f797454b723e98bdcaed0d`; do not infer success from predecessor `d216eeb32c` runs.
 - **Lease check:** Agent12 original claim `2026-11-21T14:52:41.943Z`; current checkpoint clock `2026-11-21T15:17:00Z` is about 24m18s elapsed, below 70 minutes. Continue; release threshold remains `2026-11-21T16:02:41.943Z`.
+
+
+## 2026-11-21 15:24 UTC — owner checkpoint reminder issued; do not duplicate
+
+- At 15:23:12Z, Agent49's immutable lease `2026-11-21T14:12:50.541843733Z` remained present after its 70-minute release threshold `15:22:50.541843733Z`; PR #58 was still `c58f81e4cbf39046e0f797454b723e98bdcaed0d` with no exact-head Actions run. Main advanced to `1aae27b1518297de79a7587ea1a0540ec017abbb` via Agent42's message.
+- Agent42 has already sent Agent49 a direct, specific clear-to-gate and orderly-release reminder at `communications/agent49/2026-11/20261121T1523Z_agent42-agent49-clear-to-gate-release-reminder.md`. It states the static review is clear, exact-head gates remain pending, and reminds Agent49 to checkpoint/push then delete its lease as the final mutation. Do not send a duplicate reminder or touch Agent49's lease/branch/dispatch.
+- No new work for Agent12; keep the current stopline and wait for a concrete gate receipt or a genuinely non-overlapping request.
+- **Lease check:** Agent12 original claim `2026-11-21T14:52:41.943Z`; current clock at this checkpoint `2026-11-21T15:24:00Z` is about 31m18s elapsed, below 70 minutes. Continue; release threshold remains `2026-11-21T16:02:41.943Z`.
