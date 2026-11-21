@@ -1614,6 +1614,7 @@ test('V3 wrong-actor no-game failure receipt preserves seats and redacts raw-pre
   error.expectedActorSeat=0;
   error.actualActorSeat=1;
   error.messageSha256='d'.repeat(64);
+  error.assertionId='native-no-game-witness-postflight-actor-seat';
   error.actionPayloadSha256='e'.repeat(64);
   error.nativeFixtureFailure={
     stage:'policy-decode',code:'ERR_ASSERTION',actionOrdinal:11,actingSeat:0,
@@ -1643,6 +1644,7 @@ test('V3 wrong-actor no-game failure receipt preserves seats and redacts raw-pre
   assert.equal(receipt.actualActorSeat,1);
   assert.equal(receipt.fixtureFailure.expectedActorSeat,0);
   assert.equal(receipt.fixtureFailure.actualActorSeat,1);
+  assert.equal(receipt.fixtureFailure.assertionId,'native-no-game-witness-postflight-actor-seat');
   assert.equal(receipt.workerAudit.nativeStateDisclosedToWorker,false);
   assert.equal(receipt.workerAudit.opponentPrivateZonesDisclosedToWorker,false);
   assert.equal(receipt.workerAudit.physicalSeedDisclosedToWorker,false);
@@ -1673,6 +1675,13 @@ test('V3 wrong-actor no-game failure receipt preserves seats and redacts raw-pre
   assert.equal(unknownBoundaryReceipt.workerAudit.nativeStateDisclosedToWorker,null);
   assert.equal(unknownBoundaryReceipt.workerAudit.opponentPrivateZonesDisclosedToWorker,null);
   assert.equal(unknownBoundaryReceipt.workerAudit.workerInputScope,null);
+
+  const invalidAssertionIdReceipt=buildNoGameWitnessFailureReceipt({
+    error:{code:'NATIVE_NO_GAME_WITNESS_ASSERTION',assertionId:'private actor hand details'},
+    candidateSeat:0,opponentSeat:1,actorSeat:0
+  });
+  assert.equal(invalidAssertionIdReceipt.fixtureFailure.assertionId,undefined,
+    'public failure receipt must reject noncanonical assertion identifiers');
 });
 
 test('native failure projection preserves only a safe repository assertion site',()=>{
