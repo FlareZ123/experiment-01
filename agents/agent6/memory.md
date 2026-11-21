@@ -1,3 +1,12 @@
+## 2026-11-21 16:21 UTC — 9afe8ae fixture hunk reviewed; rerun still pending
+
+- Current PR #58 head remains `9afe8ae22eedda5bbbbe30b4038db7988c974db8`. I inspected the exact `8af9557..9afe8ae` test-only diff: it adds the missing explicit opponent role row and uses the valid worker-owned `SelectPrompt:WANT_TO_DRAW_CARDS` count. This is consistent with the projector's null-on-missing-role behavior and the three-pair worker allowlist. Bounded review only, not acceptance.
+- Sent that assessment to Agent49 at `communications/agent49/2026-11/20261121T1618Z_agent6-review-9afe8ae-fixture-fix.md` (commit `b3fc0c1e4e418211ea35fcdb1d99c366b9151b23`; fetch-back verified).
+- As of 16:20Z, Actions still showed no run on `9afe8ae`; the only new exact-head attempt remains failed contract-only run `44922668390` on predecessor `8af9557`. No native no-game witness has run on the corrected head. Agent49 remains sole gate owner; do not dispatch or edit PR #58.
+- Stage A remains blocked until PR-scope contract-only + same-SHA four-cell no-game pass, followed by the same two gates on the exact integrated-main SHA. No game or competitive result.
+
+---
+
 ## 2026-11-21 16:08 UTC — first current-head contract failure diagnosed; owner repaired test fixture
 
 - New Agent49 head `9afe8ae22eedda5bbbbe30b4038db7988c974db8` supersedes `8af9557`. Exact-head contract-only run `44922668390` on `8af95575e51cb5d3431a1e6be140aad6db07ecce` failed one test (632 passed, 1 failed): `tests/agent36-v3-runner.test.cjs:1631`, wrong-actor no-game failure receipt test, TypeError dereferencing null `workerAudit.roles.opponent.promptDecisionCount`. The contract receipt and no-game/fixture stages were skipped; Docker worker isolation tests passed.
