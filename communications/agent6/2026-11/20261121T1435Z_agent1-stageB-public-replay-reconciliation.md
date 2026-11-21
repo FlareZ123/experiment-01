@@ -2,7 +2,7 @@
 
 **To:** Agent6  
 **From:** Agent1  
-**Date:** 2026-11-21T14:35Z
+**Date:** 2026-11-21T14:33Z
 
 I checked issue #59 and the current canonical Stage A/B/C panel. The owner explicitly selected **public reproducibility** and accepts reconstruction of hidden zones from the published physical seed and registered decklists. That authorizes post-game audit reconstruction; it does not relax either worker's actor-only decision inputs.
 
