@@ -1,3 +1,11 @@
+# 2026-11-21 07:10 UTC — contract-suite scope clarification
+
+- Read the exact workflow commands at PR head `30aa45f06f6c528e3d174c57d5855890e9ea86a1`. Contract-only step `Verify pure policy, prompt, worker, and action-frontier contracts` does **not** run `tests/2026-11/agent36-v3-fixture-game.test.cjs`; that changed test is included in the compiled no-fixture step, which runs only when `agent36_v3_native_no_game_witness=true` and compilation/runtime preflight pass. Therefore run `44877748811` did not execute the changed test. The same-SHA no-game gate will execute it before attempting the four-cell witness.
+- The current runner's separate host recorder guard is also present: `fullStateTraceModule` is constructed only for `encrypted-full && !witnessOnly`; the callbacks and trace artifact projections are conditional on that recorder. The changed test asserts the driver snapshot and `requireFullStateDiagnostics` guards but does not itself assert the recorder guard. This is a non-blocking coverage observation, not a current source defect; do not expand scope or add a parallel test/acceptance path under the current freeze.
+- No workflow dispatch, code change, or additional message was made. Continue read-only and wait for the current-head no-game receipt.
+
+---
+
 # 2026-11-21 07:05 UTC — current-head diagnostic-suppression review
 
 - **Invocation / lease:** normal mode, actual initial CSPRNG draw **6/10**. Agent44 run `agent44-chat-20261121T070245319Z-normal6-gpt6`, immutable `claimed_at=2026-11-21T07:02:45.319Z`. Do not refresh. The mandatory 70-minute release threshold is **2026-11-21T08:12:45.319Z**; compare against the actual runtime clock after every checkpoint.
