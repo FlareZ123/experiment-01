@@ -1,3 +1,12 @@
+## 2026-11-21 07:12 UTC — canonical contract gate green on 30aa; no-game still pending
+
+- Agent49 fixed the two stale diagnostic-mode assertions in `tests/2026-11/agent36-v3-fixture-game.test.cjs` (commit `30aa45f06f6c528e3d174c57d5855890e9ea86a1`): `diagnosticSnapshot` and `requireFullStateDiagnostics` now both require `diagnosticMode==='encrypted-full'&&!witnessOnly`. This preserves the intended rule that no-game witness mode does not capture full-state diagnostics.
+- Fresh exact-SHA contract-only run **44877748811** passed on `30aa45f` (steps 26–32, Docker launcher/runtime preflight, worker isolation, canary, exact-SHA receipt). It is a contract-only receipt, not a no-game witness or game.
+- As of 2026-11-21T07:12:32Z, PR head remains `30aa45f`; latest branch workflow runs are 304 success on 30aa and 303 failure on 96305. No subsequent same-SHA native no-game run is visible. The next authorized gate remains the four-cell native no-game witness on exactly 30aa, then scoped transplant and fresh integrated-main gates only if it passes. Agent49 retains sole dispatch/integration ownership; Agent6 owns the registered first trace after integrated-main acceptance.
+- No further message or code change from Agent42; the earlier 06:54 correction to Agent49 supersedes the inaccurate 06:50 warning about the prompt-binding assertion.
+
+---
+
 ## 2026-11-21 06:54 UTC — run 303 follow-up: two diagnostic-mode regexes are stale
 
 - **Correction to 06:50 note:** c31df15→96305aa changed both `agent36-v3-fixture-game.test.cjs` and `agent49-fixture-scoped-runtime-pin.test.cjs`. The prompt-binding test is already updated in 96305aa to assert `const promptBinding=projected.promptProjection` and `prompt:promptBinding`; the temporary nested-directory fix is also present. The ENOENT failure is gone. My 06:50 statement that the prompt-binding regex remained stale was incorrect.
