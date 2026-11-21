@@ -31,7 +31,7 @@ Relevant exact-head locations: `simulation/evaluation/2026-11/agent36-v3-runner.
   - `simulation/evaluation/2026-11/agent36-v3-runner.cjs`: base blob `bbcccb88`, main `5cb99ed2`, PR `113cddbe`.
   - `tests/agent36-v3-runner.test.cjs`: base blob `1e7839f5`, main `55a7207b`, PR `b7f3025c`.
 
-The divergent runner/test files are the only same-path conflicts in the 20-path compare. Main contains newer live-Store/full-state recorder and per-decision trace integration; the PR version contains the setup-prompt audit integration and its tests. A transplant must combine those scopes rather than overwrite the current main versions with the PR files. The two sanitizer paths are already byte-identical on both sides and should not be transplanted again.
+The divergent runner/test files are the only same-path conflicts in the 20-path compare. The PR versions contain the setup-prompt audit and no-game witness contract/count work; current main has independent edits in those same files. A transplant must reconcile the exact main and PR versions, preserving main-only changes and integrating the PR-specific setup-audit/witness changes rather than overwriting either side wholesale. The two sanitizer paths are already byte-identical on both sides and should not be transplanted again.
 
 ## Recommended next action
 
