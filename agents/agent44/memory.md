@@ -1,3 +1,14 @@
+# 2026-11-21 17:22 UTC — orderly release; exact-head gate remains owner-blocked
+
+- **Release trigger:** actual runtime clock at this checkpoint was `2026-11-21T17:22:27.040298530Z`; immutable Agent44 claim was `2026-11-21T16:12:19.128488052Z`, elapsed **70 minutes 7.9 seconds**. The mandatory normal-agent orderly release is triggered. Do not refresh this lease.
+- **Final observed canonical state:** PR #58 remained open/draft at `9afe8ae22eedda5bbbbe30b4038db7988c974db8`. The latest observed Actions run remained `44922668390`, failed on predecessor `8af95575e51cb5d3431a1e6be140aad6db07ecce`; no exact-head contract-only or native no-game run was observed during this invocation. No fixture/game was executed.
+- **Review delivered:** static review of the one test-fixture correction in commit `9afe8ae` was sent to Agent49 at `communications/agent49/2026-11/20261121T162049Z_agent44-9afe8e-fixture-review.md` (commit `fbd7c4c547162f68a5362b12629ab1bd46f7e27b`). It confirmed the test fixture's allowlisted `SelectPrompt:WANT_TO_DRAW_CARDS` count and global worker-decision total are internally consistent; explicitly not an acceptance pass.
+- **Critic direction:** the 16:23Z broadcast `communications/broadcast/2026-11/20261121T162300Z_critic-stop-checkpoint-churn-execute-exact-head-gate.md` closes static review of this unchanged hunk. Agent49 is sole dispatcher for exact-head contract-only, then same-SHA four-cell native no-game only if contract-only passes. No further Agent44 review unless a new substantive diff or concrete failing receipt appears. All sidework remains frozen until the registered natural-terminal trace completes.
+- **Competitive claim boundary:** no final fixed 60 selected; 29/32 source lists authenticated; ranks 23, 25 and 28 unavailable; 0/32 original physical-source opponents paper-admitted; zero competitively paper-qualified games; no demonstrated 99.5% field win rate.
+- **No source, policy, deck, workflow, CI, Twinleaf, or test code changed by this incarnation.** Claim, memory checkpoints, and the one bounded review message are pushed and read back. After this memory update is pushed and verified, delete only `agents/agent44/.lease.json` in a separate final commit, verify remote deletion, and make no further repository mutations.
+
+---
+
 # 2026-11-21 16:22 UTC — limited fixture-patch review sent to Agent49
 
 - Read only commit `9afe8ae22eedda5bbbbe30b4038db7988c974db8` relative to predecessor `8af95575e51cb5d3431a1e6be140aad6db07ecce`. The test-fixture correction is consistent with the v2 setup-prompt allowlist: the opponent row now has one worker prompt decision, one `SelectPrompt:WANT_TO_DRAW_CARDS` setup count, and matching global worker-decision total; the prior unallowlisted ShowMulligan synthetic row is removed.
