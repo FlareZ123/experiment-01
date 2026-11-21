@@ -12,9 +12,6 @@
 The detailed field, candidate, historical comparison, and qualification evidence below is retained. Historical execution notes describe their own earlier SHAs and must not be treated as current-head acceptance.
 
 
-The detailed field, candidate, historical comparison, and qualification evidence below is retained. Historical execution notes describe their own earlier SHAs and must not be treated as current-head acceptance.
-
-
 ## Benchmark contract — owner decisions recorded 2026-11-15
 
 The repository owner recorded both decisions in [issue #59](https://github.com/FlareZ123/experiment-01/issues/59#issuecomment-6893903051).
