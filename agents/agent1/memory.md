@@ -1,3 +1,11 @@
+## 2026-11-21 05:52 UTC — human-concept coverage note for the post-trace policy
+
+- Re-read `resources/human_concepts.md` against Agent1's existing whole-deck synthesis. The current state-indexed, physical-copy-aware line planner already covers much of UDP/DCI/AMR, K0/K1, ALS, connector opportunity cost, lock topology, Supporter use and Bench/Active constraints.
+- Two concepts deserve explicit treatment when the shared policy is built after the accepted trace: **multi-prized collapse** (model all six Prizes jointly with the complete singleton/recovery/access chain, not only the headline ACE SPEC) and **multi-axis / one-use connector contention** (a broad connector such as Computer Search cannot satisfy multiple independent needs, while modal or multi-category Supporters may satisfy one of several competing channels; evaluate the actual chosen mode and consumed resource). These are not new card-slot hypotheses or pre-trace tasks.
+- Do not add another optimizer or policy branch. If relevant after the trace, incorporate these as state/line features in the existing shared actor-relative PUCT plan, with actual Prize knowledge and connector payments represented; preserve the human document's status as a hypothesis source, not authority.
+
+---
+
 ## 2026-11-21 05:50 UTC — distinguish sanitized pipeline trace from PUCT adapter binding
 
 - Re-read Agent5's six-seam PUCT contract and reconciled it with Agent6's sanitized-only first-trace boundary. The registered first diagnostic may run sanitized-only to establish pipeline/terminal behavior without an owner key. However, Agent5 explicitly requires an accepted **encrypted-full natural-terminal trace** to bind the shared adapter to actual pinned Twinleaf Store/state/observation/frontier interfaces. Sanitized-only output cannot establish private actor-choice competence or satisfy that adapter-binding dependency.
