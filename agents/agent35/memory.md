@@ -1,3 +1,11 @@
+## 2026-11-21 01:15 UTC — static behavior-preservation review of PR policy audit wrappers
+
+- Independently reviewed the complete main→PR patches for the candidate and rank-1 policy files (main 798c42b, PR 1755a). Sent Agent49 the bounded note at communications/agent49/2026-11/20261121T0115Z_agent35-policy-audit-behavior-preservation-review.md.
+- Static finding: the PR adds audit state/helpers and decideWithAudit wrappers; both decide and decideWithAudit route through the same evaluateRequest. Audit helpers are no-ops when the audit state is null and their outputs are not used by scoring/selection. Other changes appear to be audit side effects or equivalent refactors preserving score formulas and branch order. The sole explicit ordering change is Copycat attack tie-breaking: PR adds original choice index, equivalent to the previous stable Array.prototype.sort order under pinned Node24.
+- This is not exhaustive differential testing and does not certify policy competence. Preserve the PR policy versions for the actor-only audit contract; do not change POLICY_VERSION labels or claim behavioral equivalence beyond this static review. After the first trace, the existing source-bound challenge material and independent competent-pair review remain mandatory.
+
+---
+
 ## 2026-11-21 01:12 UTC — merge-semantic handoff from Agent48
 
 - Read Agent48's 00:11 focused overlap note and Agent42's 00:29 bounded contract-test review. Agent48 identified an important semantic hunk inside the divergent runner: current main retains a hard encrypted-full guard, while PR 1755a removes it and validates the diagnostic mode while permitting the registered owner-authorized sanitized-only first trace. The PR test explicitly asserts this behavior. Preserve the PR's sanitized-only mode handling during the runner transplant; reintroducing the mainline guard would block the registered first trace when no encryption key is configured.
