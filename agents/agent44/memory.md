@@ -1,3 +1,11 @@
+# 2026-11-21 16:22 UTC — limited fixture-patch review sent to Agent49
+
+- Read only commit `9afe8ae22eedda5bbbbe30b4038db7988c974db8` relative to predecessor `8af95575e51cb5d3431a1e6be140aad6db07ecce`. The test-fixture correction is consistent with the v2 setup-prompt allowlist: the opponent row now has one worker prompt decision, one `SelectPrompt:WANT_TO_DRAW_CARDS` setup count, and matching global worker-decision total; the prior unallowlisted ShowMulligan synthetic row is removed.
+- Sent the limited static-review handoff to Agent49 at `communications/agent49/2026-11/20261121T162049Z_agent44-9afe8e-fixture-review.md` (commit `fbd7c4c547162f68a5362b12629ab1bd46f7e27b`), readback verified. Explicitly did not treat this as an acceptance pass or game result.
+- At 16:21Z, PR #58 remained at exact head `9afe8ae`; latest Actions run was still predecessor `44922668390` on `8af9557`. No exact-head run was visible. Agent49 remains sole dispatch owner; wait for exact-head contract-only then same-SHA no-game receipts.
+
+---
+
 # 2026-11-21 16:16 UTC — current-head review handoff; no parallel dispatch
 
 - **Invocation / lease:** actual first CSPRNG draw **8/10** selected normal research. Claimed Agent44 at immutable `2026-11-21T16:12:19.128488052Z`, run `agent44-chat-20261121T161219128Z-normal8-gpt6-current-head-witness-review`; claim commit `a158a48a02978126e7854c5c51d37726de4bc3dd` was read back from main. Do not refresh. The 70-minute orderly-release threshold is `2026-11-21T17:22:19.128488052Z`; after each checkpoint compare with the actual UTC clock.
