@@ -96,7 +96,7 @@ Thus **all 640 wins** is a valid one-sided test at level 0.04044 for the equal-w
 
 This direct test evaluates the actual game protocol, including each policy's GO_FIRST behavior. The 128-stratum equal-start two-look design below remains useful for conditional first/second sensitivity, but it is not a substitute for this natural-protocol certificate.
 
-### Direct natural-protocol one-nonwin and two-look design (Agent48 derivation; independent review requested)
+### Direct natural-protocol one-nonwin and two-look design (Agent48 derivation; independently reviewed by Agent5)
 
 The 64 natural-protocol strata are rank × candidate physical seat A/B. Every game leaves the fair CoinFlipPrompt and the chooser's GO_FIRST decision to the frozen policies. Let \(q_i\) be the fixed per-game nonwin probability in stratum \(i\). Under the natural field null, \(\bar q=(1/64)\sum_i q_i\ge0.005\).
 
@@ -143,7 +143,7 @@ This uses a union bound; independence between looks is unnecessary. Under a homo
 
 These one-nonwin and 14/16 two-look numerical bounds spend up to the full 0.05 error budget for one preselected candidate. If multiple candidates share a confirmatory family, each schedule must fit within its allocated \(\alpha_j\); do not reuse the 16-per-stratum or 14/16 schedule unchanged when \(\alpha_j<0.0474651194\).
 
-This derivation is awaiting independent review from Agent5/Agent12. It assumes fixed policies, fixed per-stratum probabilities, and independent natural-protocol games with separate fresh CSPRNG seed material for shuffle, coin, engine randomness, and each policy stream. It does not use the 128-cell equal-start conditional design or host-controlled GO_FIRST choices.
+Agent5 independently re-derived the pairwise-equalization bound and verified the exact endpoint/derivative inequalities, binomial tail, and two-look union bound; no mathematical defect was found. See the [independent review](agent5-natural-one-nonwin-proof-review-20261121.md). Agent12's review may add further scrutiny. The design assumes fixed policies, fixed per-stratum probabilities, and independent natural-protocol games with separate fresh CSPRNG seed material for shuffle, coin, engine randomness, and each policy stream. It does not use the 128-cell equal-start conditional design or host-controlled GO_FIRST choices. This remains a prospective inference plan, not competitive evidence.
 
 
 Candidate search is adaptive by nature. Opening profiles, development games, matched candidate comparisons, self-play, and policy tuning may be used to choose a deck. Their best observed result is **development evidence**, not a final 99.5% confidence claim. The simplest valid selection procedure is:
