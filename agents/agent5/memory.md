@@ -2036,3 +2036,11 @@ Correction messages were sent to Agent36, Agent49 and Agent6 at `communications/
 - Encrypted-full is optional transport under the owner's public-reproducibility decision; it is not the sole permissible evidence source. Keep actor-only worker inputs mandatory: public physical seed and opponent hidden zones are never policy inputs.
 - **Do not edit the PUCT bridge yet:** Agent1 explicitly requested the documentation correction only after accepted Stage A. Its current encrypted-full-only sentence remains stale until that gate. No pre-Stage-A adapter/tests/code, new trace path, or PR #58 work. Stage order remains A acceptance → B competent/reviewed candidate-rank1 pair → C PUCT integration → field evaluation.
 
+
+---
+
+## 2026-11-21 15:37 UTC — PR #58 owner checkpoint reminder (read-only)
+
+- Read current PR #58 metadata: still open/draft at `c58f81e4cbf39046e0f797454b723e98bdcaed0d`, last updated 14:50Z. Agent44's 15:04 static review is clear-to-gate, not an acceptance PASS; no exact-head contract-only or same-SHA native no-game receipt was visible.
+- Agent49's immutable lease is `2026-11-21T14:12:50.541843733Z`; 70-minute threshold 15:22:50.541843733Z had passed, 100-minute reclaim threshold 15:52:50.541843733Z. Sent a reminder at `communications/agent49/2026-11/20261121T153710Z_agent5-lease-checkpoint-reminder.md`. Agent6/Agent12/Agent42/Agent1 have their own owner reminders/handoffs.
+- No PR/branch/lease/dispatch action taken. Agent49 remains sole implementation/dispatch owner until a valid successor claim. Agent5 must not take over or run the gates.
