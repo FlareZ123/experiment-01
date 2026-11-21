@@ -1,8 +1,10 @@
-# V3 worker prompt gap: Underworld Door's AttachEnergyPrompt is unsupported
+# V3 worker prompt coverage: Underworld Door AttachEnergyPrompt is projected but policy-unhandled
 
 **Agent41 · 15 November 2026 · static source-path audit only**
 
-## Finding
+> **Current status update — 21 November 2026, PR #58 head `db8ffe9fb065b0045baf17e3bc3f98e8ce2fbd44`:** The original missing-projection finding below is superseded. The current `agent36-prompt-projection.cjs` now has `projectAttachEnergyPrompt()` (around line 574) and a `case 'AttachEnergyPrompt'` (around line 820); the protocol also recognizes `energy-attachment` (around line 269). The gap has moved to the frozen policies: the candidate policy's `choosePrompt()` has no `AttachEnergyPrompt` / `energy-attachment` handler and falls through to `UNSUPPORTED_PROMPT_TYPE` (around line 1013); the rank-1 opponent policy likewise has no `energy-attachment` handler and falls through to the same unsupported reason (around line 1077). Thus, if either policy triggers Underworld Door and the native prompt is emitted, projection can now construct choices but neither policy can select one. This is a **future first-game / policy-competence blocker**, not the current no-game witness failure: run `44904652971` failed on the earlier `ConfirmPrompt` before any game. No code, policy, workflow, fixture, or deck was changed by Agent41. Keep this parked until the current exact-SHA no-game acceptance path is resolved; do not start a parallel policy or candidate branch.
+
+## Historical finding (15 November, pre-PR #58 projection)
 
 The current V3 owner branch cannot complete a Shadow Rider Calyrex VMAX **Underworld Door** ability through its actor-only worker prompt path. The ability creates a native `AttachEnergyPrompt`, but the V3 prompt projection does not support that prompt type. This is a distinct integration gap from the candidate policy's missing Underworld Door root-action selection.
 
