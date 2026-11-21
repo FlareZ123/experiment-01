@@ -1141,10 +1141,14 @@ test('failed worker decision trace survives in an explicit non-dispatched failur
 });
 
 test('onGameReady recorder callback exceptions become a pre-dispatch failure receipt',()=>{
-  const error=assert.throws(()=>runNativeFixtureGame(input({
+  let error;
+  assert.throws(()=>runNativeFixtureGame(input({
     onGameReady(){throw new Error('initial recorder capture failed');}
-  })));
-  assert.ok(error.fixtureGamePartial);
+  })),caught=>{
+    error=caught;
+    return true;
+  });
+  assert.ok(error?.fixtureGamePartial);
   assert.equal(error.fixtureGamePartial.failure.stage,'on-game-ready-callback');
   assert.equal(error.fixtureGamePartial.failure.code,'NATIVE_FIXTURE_FAILURE');
   assert.equal(error.fixtureGamePartial.acceptedActions,0);
@@ -1155,6 +1159,7 @@ test('no-game witness preserves worker trace and ledger digests without live dis
   const result=await runNativeFixtureGameAsync(input({
     stopBeforeLiveDispatch:true,
     expectedActorSeat:0,
+    maxActions:null,
     physicalRandom:()=>0
   }),async request=>{
     const validationReceipt={
