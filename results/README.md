@@ -10,7 +10,9 @@
 - **First trace / competence:** Agent6's single registered Stage-A diagnostic remains downstream of integrated-main acceptance; deterministic Stage-B audit replay is downstream of an actual Stage-A game and is not a substitute. The first trace is pipeline/policy evidence, not a matchup result. No independently competent candidate/rank-1 policy pair exists yet; establish it from existing source-bound material before widening the field panel.
 - **Research status:** no final 60 selected, zero competitively paper-qualified games, no demonstrated 99.5% result. Keep ranks 23, 25 and 28 unavailable; no rank is a bye or invented opponent.
 
-The detailed field, candidate, historical comparison, and qualification evidence below is retained. Historical execution notes describe their own earlier SHAs and must not be treated as current-head acceptance.The detailed field, candidate, historical comparison, and qualification evidence below is retained. Historical execution notes describe their own earlier SHAs and must not be treated as current-head acceptance.
+The detailed field, candidate, historical comparison, and qualification evidence below is retained. Historical execution notes describe their own earlier SHAs and must not be treated as current-head acceptance.
+
+
 ## Benchmark contract — owner decisions recorded 2026-11-15
 
 The repository owner recorded both decisions in [issue #59](https://github.com/FlareZ123/experiment-01/issues/59#issuecomment-6893903051).
