@@ -1464,7 +1464,8 @@ const NO_GAME_WITNESS_ROW_KEYS=Object.freeze([
   'validationActionKind','actionFrontierItemCount','fullOriginalStoreStateUnchanged',
   'liveActionDispatched','acceptedRootActions','rootDecisionCount','promptDecisionCount',
   'workerDecisionCount','candidateRootDecisionCount','candidatePromptDecisionCount',
-  'candidateWorkerDecisionCount','opponentRootDecisionCount','opponentPromptDecisionCount',
+  'candidateWorkerDecisionCount','candidateSetupPromptCounts','opponentRootDecisionCount','opponentPromptDecisionCount',
+  'opponentSetupPromptCounts',
   'opponentWorkerDecisionCount','policySha256','policyVersion','workerCleanupVerified','allWorkerSessionsClosed',
   'actorOnlyWorkerInput','nativeStateDisclosedToWorker',
   'opponentPrivateZonesDisclosedToWorker','physicalSeedDisclosedToWorker',
@@ -1521,7 +1522,7 @@ function validateNoGameWitnessReceipt(receipt,expected={}) {
     'native no-game witness receipt must be a JSON object');
   assertExactNoGameWitnessKeys(receipt,NO_GAME_WITNESS_RECEIPT_KEYS,'native no-game witness receipt');
   assertNoForbiddenNoGameWitnessFields(receipt);
-  assert.equal(receipt.schema,'agent36-v3-native-no-game-witness-v1');
+  assert.equal(receipt.schema,'agent36-v3-native-no-game-witness-v2');
   assert.ok(typeof receipt.generatedAt==='string'&&Number.isFinite(Date.parse(receipt.generatedAt)),
     'native no-game witness receipt must include a valid generatedAt timestamp');
   assert.deepEqual(receipt.coverage,['0:0','0:1','1:0','1:1'],
@@ -1549,7 +1550,7 @@ function validateNoGameWitnessReceipt(receipt,expected={}) {
   const seen=new Set();
   for(const [witnessIndex,witness] of receipt.witnesses.entries()){
     assertExactNoGameWitnessKeys(witness,NO_GAME_WITNESS_ROW_KEYS,'native no-game witness row '+witnessIndex);
-    assert.equal(witness.schema,'agent36-v3-native-no-game-seat-witness-v1',
+    assert.equal(witness.schema,'agent36-v3-native-no-game-seat-witness-v2',
       'native no-game witness row must use the expected schema');
     assert.ok(typeof witness.seed==='string'&&witness.seed.trim().length>0,
       'no-game witness physical seed must be a non-empty string');
@@ -1629,13 +1630,19 @@ function validateNoGameWitnessReceipt(receipt,expected={}) {
       'acting-role prompt decision count must match its role aggregate');
     assert.equal(inactiveRootDecisionCount,0,
       'inactive role must have zero root decisions');
-    assert.equal(inactivePromptDecisionCount,0,
-      'inactive role must have zero prompt decisions');
-    assert.equal(inactiveWorkerDecisionCount,0,
-      'inactive role must have zero total decisions');
+    assert.equal(isNoGameWitnessSetupPromptAudit({
+      promptDecisionCount:witness.candidatePromptDecisionCount,
+      setupPromptCounts:witness.candidateSetupPromptCounts
+    }),true,'candidate prompt decisions must be limited to the frozen setup prompt allowlist');
+    assert.equal(isNoGameWitnessSetupPromptAudit({
+      promptDecisionCount:witness.opponentPromptDecisionCount,
+      setupPromptCounts:witness.opponentSetupPromptCounts
+    }),true,'opponent prompt decisions must be limited to the frozen setup prompt allowlist');
+    assert.equal(inactiveWorkerDecisionCount,inactivePromptDecisionCount,
+      'inactive role may make only setup prompt decisions and no root decisions');
     assert.equal(witness.workerDecisionCount,
-      witness.rootDecisionCount+witness.promptDecisionCount,
-      'global worker decision count must match the acting role total');
+      witness.rootDecisionCount+witness.promptDecisionCount+inactivePromptDecisionCount,
+      'global worker decision count must include acting-role and inactive setup prompt decisions');
     assert.equal(witness.rootDecisionCount,1);
     assert.ok(Number.isInteger(witness.actionFrontierItemCount)&&witness.actionFrontierItemCount>0);
     assert.equal(witness.opponentSeat,1-witness.candidateSeat);
@@ -3237,7 +3244,7 @@ async function runV3FixtureGame({
       workerExecutionAudit?.opponentPrivateZonesDisclosedToWorker===false;
     assertWitnessField('actor-only-worker-input',actorOnlyWorkerInput,true);
     const witnessReceipt={
-      schema:'agent36-v3-native-no-game-seat-witness-v1',
+      schema:'agent36-v3-native-no-game-seat-witness-v2',
       fixtureOnly:true,
       gameExecuted:false,
       nativeStoreCreated:gameResult.nativeStoreCreated,
@@ -4044,7 +4051,7 @@ async function runV3NativeNoGameWitness({
     }
   }
   const receipt={
-    schema:'agent36-v3-native-no-game-witness-v1',
+    schema:'agent36-v3-native-no-game-witness-v2',
     fixtureOnly:true,
     gameExecuted:false,
     liveActionsDispatched:witnesses.some(witness=>witness.liveActionDispatched===true),
