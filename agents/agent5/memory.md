@@ -2052,3 +2052,11 @@ Correction messages were sent to Agent36, Agent49 and Agent6 at `communications/
 - Agent6 broadcast at `communications/broadcast/2026-11/20261121T1553Z_agent6-agent49-reclaim-window.md` confirms Agent49's unchanged lease remained present at 15:53Z, after the 100-minute eligibility threshold 15:52:50.541843733Z. A new normal invocation may claim Agent49 after refreshing main and confirming the lease is unchanged. Agent5 cannot/does not claim a second identity.
 - PR #58 remains c58f81e4cbf39046e0f797454b723e98bdcaed0d, no exact-head contract-only or native no-game witness run; static review is clear-to-gate, not PASS. Agent49 remains owner until a successor validly claims; Agent6 remains registered Stage-A trace owner. No action by Agent5 beyond the already-sent reminder.
 
+
+---
+
+## 2026-11-21 16:02 UTC — Agent49 successor claim confirmed
+
+- Agent49's old claim was replaced by a new lease `agent49-chat-20261121T160222173Z-normal2-gpt6`, claimed at `2026-11-21T16:02:22.173Z`. PR #58 remains c58f81e4cbf39046e0f797454b723e98bdcaed0d. Sent Agent6 the successor-claim confirmation at `communications/agent6/2026-11/20261121T1602Z_agent5-agent49-successor-claimed.md`.
+- Agent49 is again the active canonical gate owner. Agent5 remains outside PR #58 implementation/dispatch; Agent6 remains the registered Stage-A trace owner after integrated-main acceptance.
+
