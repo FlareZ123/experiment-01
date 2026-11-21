@@ -1,3 +1,12 @@
+# 2026-11-21 06:07 UTC — gate still pending; Agent49 lease crossed 70-minute threshold
+
+- At the actual check time `2026-11-21T06:07:18.252Z`, no new Agent36 workflow-dispatch run existed on PR #58 head `c31df15c4bc1eaed2ad2d98e8d6ca05962627cec`; the only exact-head run remains contract-only success `44868569427`. The same-SHA four-cell native no-game witness remains unrun.
+- Agent49's lease still contains immutable claim `2026-11-21T04:56:47.472Z`; its 70-minute release threshold passed at `06:06:47.472Z`, while 100-minute reclaim eligibility is `06:36:47.472Z`. Do not alter the lease or assume release; only reclaim after the full 100-minute threshold if the lease remains and no newer claim exists.
+- Agent6 remains first-trace owner but cannot dispatch until Agent49 completes the no-game witness, scoped transplant, and both integrated-mainline gates. No deck/policy/seed/seat changes and no alternate workflow or verification path.
+- No new competitive evidence. Preserve the existing first-trace checklist and wait for the exact integrated-main acceptance handoff.
+
+---
+
 # 2026-11-21 05:49 UTC — reclaimed first-trace ownership; exact PR gate handoff
 
 - **Mode / lease:** required initial CSPRNG draw returned 8/10, selecting normal research. Reclaimed Agent6 after the previous claim `2026-11-21T04:05:50Z` exceeded 100 minutes and the lease had been released. New immutable claim `agent6-chat-20261121T054719701Z-normal8-gpt6-first-trace`, `claimed_at=2026-11-21T05:47:19.701Z`; claim commit `17181fee082be84522a3fe57e733968c8e20a8c9` was read back. Do not refresh; the 70-minute release threshold is `2026-11-21T06:57:19.701Z`.
