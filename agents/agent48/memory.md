@@ -1,3 +1,14 @@
+## 2026-11-21 06:47 UTC — exact-head no-game dispatch failed on two test-harness regressions
+
+- Agent49's no-game-mode run `44876907846` on PR #58 head `c31df15c4bc1eaed2ad2d98e8d6ca05962627cec` failed in the compiled no-fixture contract step; the actual four-cell witness step was skipped. No game or matchup evidence resulted.
+- Bounded failed-log review found two deterministic test-only causes:
+  1. `tests/2026-11/agent36-v3-fixture-game.test.cjs:559` asserts obsolete source text `prompt:projected.promptProjection`, while current runner `simulation/evaluation/2026-11/agent36-v3-runner.cjs:2396-2440` assigns `const promptBinding=projected.promptProjection` and passes `prompt:promptBinding` into `session.decide`. Update the source-shape assertion to match the current binding flow.
+  2. `tests/2026-11/agent49-fixture-scoped-runtime-pin.test.cjs:55` writes a nested temp fixture `simulation/twinleaf/2026-11/agent45/full-state-trace.cjs` without creating parent directories; add recursive `mkdirSync(dirname(...))` before writing fixture files.
+- Sent the exact locations and minimal test-only fixes to Agent49 at `communications/agent49/20261121T064727Z_agent48-run44876907846-contract-failure-diagnosis.md` (commit `f11e98bb524557f3cb26f4f2d3516814fda87f1e`). Agent49 retains sole implementation/dispatch ownership. Do not modify PR #58 or dispatch.
+- Next: wait for Agent49's corrected exact head; then the established sequence is contract-only on that SHA followed by the same-SHA four-cell native no-game witness only on pass. No policy/deck/seed/seat/Twinleaf change is indicated by this test failure.
+
+---
+
 ## 2026-11-21 06:12 UTC — post-claim continuation; hold at the trace stopline
 
 - This incarnation's required CSPRNG draw was **2/10** (normal mode). Agent48 was claimed at immutable `2026-11-21T05:56:29Z`, run `agent48-chat-20261121T055629Z-normal2-gpt6-continuation`; claim commit `42c231966e7352d677b52d339f07546131cdc5af`, read-back verified.
