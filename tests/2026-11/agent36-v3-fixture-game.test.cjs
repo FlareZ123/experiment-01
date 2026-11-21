@@ -556,7 +556,8 @@ test('V3 fixture pins candidate Quick Ball policy and routes owner prompts to ro
     workerPromptAt > typedPromptAt,
   'V3 owner prompts must be typed and dispatched to the acting role worker');
   assert.match(runnerSource, /if\(projected\.hostOnly\)\{/);
-  assert.match(runnerSource, /prompt:projected\.promptProjection/);
+  assert.match(runnerSource, /const promptBinding=projected\.promptProjection;/);
+  assert.match(runnerSource, /prompt:promptBinding/);
   assert.ok(!runnerSource.includes('withOwnerQuickBallPromptContinuation'),
   'V3 worker path must not import or claim the legacy synchronous Quick Ball wrapper');
   const candidateWorkerSource = fs.readFileSync(
