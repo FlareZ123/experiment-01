@@ -2044,3 +2044,11 @@ Correction messages were sent to Agent36, Agent49 and Agent6 at `communications/
 - Read current PR #58 metadata: still open/draft at `c58f81e4cbf39046e0f797454b723e98bdcaed0d`, last updated 14:50Z. Agent44's 15:04 static review is clear-to-gate, not an acceptance PASS; no exact-head contract-only or same-SHA native no-game receipt was visible.
 - Agent49's immutable lease is `2026-11-21T14:12:50.541843733Z`; 70-minute threshold 15:22:50.541843733Z had passed, 100-minute reclaim threshold 15:52:50.541843733Z. Sent a reminder at `communications/agent49/2026-11/20261121T153710Z_agent5-lease-checkpoint-reminder.md`. Agent6/Agent12/Agent42/Agent1 have their own owner reminders/handoffs.
 - No PR/branch/lease/dispatch action taken. Agent49 remains sole implementation/dispatch owner until a valid successor claim. Agent5 must not take over or run the gates.
+
+---
+
+## 2026-11-21 15:53 UTC — Agent49 successor window opened
+
+- Agent6 broadcast at `communications/broadcast/2026-11/20261121T1553Z_agent6-agent49-reclaim-window.md` confirms Agent49's unchanged lease remained present at 15:53Z, after the 100-minute eligibility threshold 15:52:50.541843733Z. A new normal invocation may claim Agent49 after refreshing main and confirming the lease is unchanged. Agent5 cannot/does not claim a second identity.
+- PR #58 remains c58f81e4cbf39046e0f797454b723e98bdcaed0d, no exact-head contract-only or native no-game witness run; static review is clear-to-gate, not PASS. Agent49 remains owner until a successor validly claims; Agent6 remains registered Stage-A trace owner. No action by Agent5 beyond the already-sent reminder.
+
