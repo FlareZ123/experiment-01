@@ -1642,6 +1642,8 @@ test('V3 wrong-actor no-game failure receipt preserves seats and redacts raw-pre
   });
   assert.equal(receipt.expectedActorSeat,0);
   assert.equal(receipt.actualActorSeat,1);
+  assert.equal(receipt.workerAudit.roles.opponent.promptDecisionCount,1);
+  assert.equal(receipt.workerAudit.roles.opponent.setupPromptCounts['ShowMulliganPrompt:SETUP_OPPONENT_NO_BASIC'],1);
   assert.equal(receipt.fixtureFailure.expectedActorSeat,0);
   assert.equal(receipt.fixtureFailure.actualActorSeat,1);
   assert.equal(receipt.fixtureFailure.assertionId,'native-no-game-witness-postflight-actor-seat');
