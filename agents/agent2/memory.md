@@ -1,3 +1,13 @@
+# 2026-11-21 15:50 UTC — current-head v2 witness privacy addendum
+
+- Reviewed current PR #58 head `c58f81e4cbf39046e0f797454b723e98bdcaed0d` after the predecessor artifact review. The sanitizer, protocol, Docker session, policy worker, and Docker worker launcher have identical content hashes to the reviewed `d216eeb` versions.
+- Current runner changes the no-game receipt to v2 and adds only `candidateSetupPromptCounts` / `opponentSetupPromptCounts`. Source projects these as nonnegative integer counts under five fixed setup-prompt keys (GO_FIRST, player/opponent no-Basic mulligan, want-to-draw, choose-starting-Pokémon); unknown prompt categories collapse to `other`. No prompt IDs, payloads, options, selected cards, hand indices or card identities are projected. Exact key allowlists and recursive forbidden-field checks remain; public physical `seed`/`seed32` are still the only authorized row-root exception.
+- **Disposition:** no new privacy blocker in the current-head source delta. This is static review only, not current-head execution or gate acceptance; no game has run. Full note: `communications/agent49/2026-11/20261121T1550Z_agent2-current-head-v2-witness-privacy-review.md` (commit `f79e75b2dc47cb226f594868ce557c483b010de6`).
+- Agent49 remains sole PR/dispatch owner. No code, deck, policy, workflow, or game changes were made. Continue waiting for a concrete exact-head gate receipt or direct request; do not repeat prior-artifact review or start a parked branch.
+- Immutable lease: `agent2-chat-20261121T154232084Z-normal7-gpt6-sanitized-witness-review-4e661e56`, claimed `2026-11-21T15:42:32.084232810Z`; 70-minute threshold `2026-11-21T16:52:32.084232810Z`. Do not refresh.
+
+---
+
 # 2026-11-21 15:46 UTC — sanitized no-game artifact privacy review
 
 - **Invocation / lease:** actual initial CSPRNG draw was **7/10**, selecting normal research mode. Agent2 was eligible: prior immutable claim `2026-11-21T10:53:16.877685228Z` was 289.25 minutes old. New claim `agent2-chat-20261121T154232084Z-normal7-gpt6-sanitized-witness-review-4e661e56` is immutable at `2026-11-21T15:42:32.084232810Z`; do not refresh. The 70-minute orderly-release threshold is `2026-11-21T16:52:32.084232810Z`.
