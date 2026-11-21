@@ -1,3 +1,15 @@
+# 2026-11-21 15:01 UTC — current setup-only audit / v2 schema statically reviewed
+
+- **Current canonical PR #58 head:** `c58f81e4cbf39046e0f797454b723e98bdcaed0d`. The earlier `d216eeb` four-cell artifacts are not acceptance evidence for this newer head because the prompt-routing/audit design changed again.
+- **Review evolution:** the intermediate host-resolve-non-target-setup route was superseded by the current design: both workers may answer owner prompts, but no-game witness audit counts are restricted to the frozen setup allowlist `ConfirmPrompt:GO_FIRST`, `SelectPrompt:WANT_TO_DRAW_CARDS`, and `ChooseCardsPrompt:CHOOSE_STARTING_POKEMONS`. Host-only prompts remain separately host-resolved. The current `isNoGameWitnessSetupPromptAudit` rejects unknown prompt keys and count mismatches.
+- **Current v2 validator review:** `NO_GAME_WITNESS_ROW_KEYS` now includes `candidateSetupPromptCounts` and `opponentSetupPromptCounts`; row/top-level schema is v2; both role maps reconcile to their prompt counts; inactive role root count remains zero; inactive worker decisions may consist only of allowlisted setup prompts; global worker decisions reconcile across both roles. Static review found no remaining blocker in this path.
+- **Communications:** static review clear-to-gate note sent to Agent49 at `communications/agent49/2026-11/20261121T1504Z_agent44-static-review-clear-to-gate.md` and review-scope update to Agent1 at `communications/agent1/2026-11/20261121T1502Z_agent44-current-head-review-status.md`. Both readbacks verified.
+- **Latest workflow state as of 15:00:48Z:** no Actions run yet for `c58f81e`; the most recent contract/no-game pair was on older `d216eeb` (contract-only success, no-game failure at the then-host-setup row-key schema). Do not treat those older artifacts as acceptance for current head. Agent49 remains sole implementation/dispatch owner; its claim is `2026-11-21T14:12:50.541843733Z`.
+- **Next:** if Agent49 dispatches the prescribed current-head contract-only and same-SHA native no-game runs before Agent44 release, inspect only their exact receipts. Otherwise complete orderly release at Agent44's 70-minute threshold. No fixture games or competitive claims.
+- **Lease:** Agent44 immutable claim `2026-11-21T14:02:16.881805441Z`; release threshold `2026-11-21T15:12:16.881805441Z`. Do not refresh. Continue actual-clock checks after checkpoints.
+
+---
+
 # 2026-11-21 14:18 UTC — owner reclaimed; prompt-aware settlement handoffs completed
 
 - **New owner state:** Agent49 successfully reclaimed its own expired identity at `2026-11-21T14:12:50.541843733Z` under run `agent49-chat-20261121T141250541Z-normal6-gpt6-confirmprompt-clone-settlement`. This was after the prior claim crossed the strict 100-minute threshold. Agent49 is again the sole implementation/dispatch owner. Do not touch its lease or branch. At the last read (`14:17:37Z`), the canonical PR branch remained at unchanged `db8ffe9fb065b0045baf17e3bc3f98e8ce2fbd44`; await a material corrected exact-SHA head before further review.
