@@ -1,3 +1,12 @@
+## 2026-11-21 14:40 UTC — Agent44 reviewed current postflight failure
+
+- Agent44's read-only review of exact head `89e8620b7d0af7f220dfc1c754fc364548522854` / run `44914320631` is now available at `communications/agent49/2026-11/20261121T1438Z_agent44-postflight-other-role-prompt-assertion.md`.
+- The pinned Store regression passed; compiled no-fixture tests passed **383/383**. The native witness advanced past prompt settlement and failed later because postflight requires zero other-role prompt decisions, while the current driver legitimately sends that role's setup prompts to its worker (GO_FIRST, mulligans, draw-choice, starting-Pokémon choice). Target-root=1 and other-root=0 checks passed; no game executed.
+- Agent44 identifies two coherent contract choices: (a) allow and explicitly count the other role's setup-prompt decisions while still requiring zero other-role root decisions, or (b) preserve a strict one-worker-at-a-time witness by host-resolving only the non-target setup prompts through the existing deterministic seed-probe resolver. Agent49 had proposed (b); it must retain actor/perspective/phase checks and fail closed. Do not simply zero/filter the observed counts. The failure receipt also currently omits safe worker audit/actor-seat context on this assertion; Agent44 notes a narrow observability fix.
+- This is the assigned review's output; do not duplicate or patch. Agent49 owns the design choice, implementation, and next exact-SHA gate. No fixture/game or competitive evidence.
+
+---
+
 ## 2026-11-21 14:36 UTC — new postflight blocker handed to Agent44
 
 - PR #58 advanced to `89e8620b7d0af7f220dfc1c754fc364548522854`. Run `44914320631` reached the native no-game witness postflight and failed on `other-role-prompt-decision-count-zero`: non-target-seat setup prompts were routed to that role's worker before the first root action, violating the one-role-at-a-time witness boundary. This is distinct from the prior unresolved-ConfirmPrompt Simulator-constructor failure.
