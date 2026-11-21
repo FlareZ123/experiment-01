@@ -521,7 +521,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         availableCards:promptFields.availableCards??null,
         eligibleCards:promptFields.eligibleCards??null,
         selectedCards:promptFields.selectedCards??null,
-        min:promptFields.min??null,
+        min:promptFields.min??promptFields.options?.min??null,
         max:promptFields.max??null,
         minCards:promptFields.minCards??null,
         maxCards:promptFields.maxCards??null,
@@ -909,8 +909,11 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         promptResolverContext=buildPromptResolverContext(pending,fullStateBefore,actingSeat);
         attemptRecord.promptResolverContext=promptResolverContext;
         failureContext.stage='actor-observation';
-        if(typeof native.observe==='function')
-          actorObservationBefore=projectJsonSafe(native.observe(state,actingSeat));
+        // The actor-observation contract is already detached, frozen JSON. Keep
+// its exact schema: projectJsonSafe decorates every object with a `type`
+// key and breaks the closed worker protocol.
+if(typeof native.observe==='function')
+          actorObservationBefore=native.observe(state,actingSeat);
         attemptRecord.actorObservationBefore=actorObservationBefore;
         attemptRecord.actorObservationSha256=actorObservationBefore===null?
           null:sha256Json(actorObservationBefore);
@@ -947,8 +950,11 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         originalStoreStateBeforeDecision=snapshotStoreState?
           snapshotStoreState(store.state):null;
         failureContext.stage='actor-observation';
-        if(typeof native.observe==='function')
-          actorObservationBefore=projectJsonSafe(native.observe(state,actingSeat));
+        // The actor-observation contract is already detached, frozen JSON. Keep
+// its exact schema: projectJsonSafe decorates every object with a `type`
+// key and breaks the closed worker protocol.
+if(typeof native.observe==='function')
+          actorObservationBefore=native.observe(state,actingSeat);
         attemptRecord.actorObservationBefore=actorObservationBefore;
         attemptRecord.actorObservationSha256=actorObservationBefore===null?
           null:sha256Json(actorObservationBefore);
