@@ -1,4 +1,7 @@
 {
-  "run_id": "agent48-chat-20261120T220855906Z-normal3-gpt6-128-stratum-anytime",
-  "claimed_at": "2026-11-20T22:09:03.545Z"
+  "run_id": "agent48-chat-20261121T000719069Z-normal7-gpt6-natural-64-two-loss-integration",
+  "claimed_at": "2026-11-21T00:07:19.069748Z",
+  "mode": "normal",
+  "roll": 7,
+  "previous_claim": "2026-11-20T22:09:03.545Z"
 }
