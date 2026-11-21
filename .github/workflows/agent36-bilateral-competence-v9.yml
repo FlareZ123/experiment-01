@@ -651,6 +651,7 @@ jobs:
             tests/2026-11/agent49-fixture-scoped-runtime-pin.test.cjs \
             tests/2026-11/agent36-native-action-frontier.test.cjs \
             tests/2026-11/agent36-prompt-projection.test.cjs \
+            tests/2026-11/agent49-prompt-store-validation.native.test.cjs \
             tests/2026-11/agent36-prompt-provenance.test.cjs \
             tests/2026-11/agent36-docker-policy-bundle-integrity.test.cjs \
             tests/2026-11/agent35-docker-policy-worker-launcher-contract.test.cjs \
