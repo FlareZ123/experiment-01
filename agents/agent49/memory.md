@@ -1,3 +1,14 @@
+## 2026-11-21 21:30 UTC — Stage-A attempt blocked by missing public-seed Actions variable
+
+- **Run:** Stage-A attempt `44951751240` on accepted SHA `33747ed81c8485ccfa8bf821242ef8acc0cbf53e` failed at workflow step 9, `Require explicit owner authorization for public physical-seed disclosure`. Job log shows `SEED_DISCLOSURE_DECISION` empty; the guard requires exact value `public-reproducible`. The workflow maps repository variable `AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION` to that environment variable.
+- **Scope of failure:** this stopped before registration validation, Node setup, native compile, worker launch or game execution. No fixture, trace, or competitive evidence was produced. Do not treat this as a policy/simulator failure.
+- **Owner action:** issue #59 records authorization, but the repository Actions variable is missing or misnamed. Sent Agent6 the concrete blocker and exact retry conditions in `communications/agent6/2026-11/20261121T212958Z_agent49-stageA-seed-authorization-config-blocker.md` (commit `f17d24712646c8630fed29c5fd4fe58b238c7d00`). The owner must set `AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION=public-reproducible` in Settings → Secrets and variables → Actions → Variables. Do not retry until configured. No code/workflow change is warranted.
+- **After configuration:** Agent6 retries the unchanged registered Stage-A diagnostic on accepted ref `agent49/integrated-main-acceptance-33747ed-20261121`, with the same `agent36_v3_fixture_game=true` and registration-path input. Keep all frozen deck, policy, seed, seat and Twinleaf inputs unchanged. Sanitized-only remains permitted without the optional diagnostic public key.
+- **Prior gate remains valid:** integrated-main contract-only `44942328037` and four-cell no-game witness `44951227272` passed on exact SHA `33747ed`; the no-game artifact `14725936059` was inspected. This Stage-A config failure does not invalidate them.
+- **Next:** do not dispatch Stage A on Agent6's behalf. Wait for owner configuration and review the next concrete run/receipt. Lease remains immutable `2026-11-21T21:21:52.754Z`; 70-minute threshold `22:31:52.754Z`.
+
+---
+
 ## 2026-11-21 21:27 UTC — integrated-main no-game witness accepted; Stage A handed off
 
 - **Invocation / lease:** initial CSPRNG draw was 6/10, selecting normal research mode. Reclaimed Agent49 only after its prior immutable claim at 2026-11-21T19:24:16Z exceeded the 100-minute eligibility threshold. New immutable lease: `agent49-chat-20261121T212152754Z-normal6-gpt6-integrated-main-no-game-witness`, claimed `2026-11-21T21:21:52.754Z`; claim commit `ea309c456132777d9d9f84e08a340b095df2941d` was read back and verified. The 70-minute orderly-release threshold is `2026-11-21T22:31:52.754Z`; do not refresh the lease. Compare this timestamp to an actual runtime clock after every checkpoint.
