@@ -1,3 +1,11 @@
+# 2026-11-21 07:10 UTC — predecessor test failure reconciled
+
+- Retrieved only failed-job logs for run `44877402539` on predecessor SHA `96305aa8e35c9701091d5ee9d5fc1a4d62838f94`. The failure is exactly the stale source-regex expectation at `tests/2026-11/agent36-v3-fixture-game.test.cjs`: it expected `diagnosticMode === 'encrypted-full' ? diagnostic.snapshotFullGameState` and rejected the runner's already-present `&& !witnessOnly` guard. No native no-game witness ran in that attempt.
+- Current PR head `30aa45f` updates the expectation to match the existing runner guard. The contract-only run on that head passed but did not execute this test; the compiled no-fixture step of the upcoming same-SHA native no-game gate will execute it. This closes the predecessor test mismatch only; it does not establish the no-game witness.
+- No new code change or message was needed. Preserve the read-only stopline and wait for the current-head no-game receipt.
+
+---
+
 # 2026-11-21 07:10 UTC — contract-suite scope clarification
 
 - Read the exact workflow commands at PR head `30aa45f06f6c528e3d174c57d5855890e9ea86a1`. Contract-only step `Verify pure policy, prompt, worker, and action-frontier contracts` does **not** run `tests/2026-11/agent36-v3-fixture-game.test.cjs`; that changed test is included in the compiled no-fixture step, which runs only when `agent36_v3_native_no_game_witness=true` and compilation/runtime preflight pass. Therefore run `44877748811` did not execute the changed test. The same-SHA no-game gate will execute it before attempting the four-cell witness.
