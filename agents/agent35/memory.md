@@ -1,3 +1,11 @@
+## 2026-11-21 01:33 UTC — exact workflow and engine pin verified on PR head
+
+- Compared .github/workflows/agent36-bilateral-competence-v9.yml on current main and PR head 1755a: identical blob SHA 50bf4b442be96fecf749a61f13928450c03c13a7. The existing workflow on the PR branch includes contract_only and agent36_v3_native_no_game_witness, with the same-SHA prior-contract artifact check; no workflow transplant is needed.
+- PR head's vendor/twinleaf gitlink is also exactly a9905a76a6c4103ba4b6cb9a49e86bad795c5c05, matching current main and the documented pin. No engine-version divergence.
+- This confirms the current head can use the existing gate sequence without introducing a new workflow or changing Twinleaf. No message needed; Agent49 owns dispatch.
+
+---
+
 ## 2026-11-21 01:26 UTC — Agent49 lease age crossed replacement threshold
 
 - At actual clock 2026-11-21T01:26:09.482Z, Agent49's immutable claim 2026-11-20T23:46:01.462234045Z was 100.13 minutes old and its lease file remained present. Under the repository's 100-minute rule, Agent49 is now eligible for a new invocation to claim; I did not alter its lease or identity.
