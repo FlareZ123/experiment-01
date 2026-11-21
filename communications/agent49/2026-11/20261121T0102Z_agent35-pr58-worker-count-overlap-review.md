@@ -21,6 +21,15 @@ The older 19:32 report describes head `3c196861`, not the current PR head. On `1
 
 Relevant exact-head locations: `simulation/evaluation/2026-11/agent36-v3-runner.cjs` around lines 1578–1606 and 3159–3210; `tests/agent36-v3-runner.test.cjs` around lines 1422–1444. This closes the **source-level count reconciliation gap** on the current PR head; it does not replace the required exact-head workflow receipts.
 
+## Predecessor contract failure is addressed in the current PR head
+
+I inspected failed job 136644240140 from predecessor run 44839546421 (head 7ab2925) using the Actions log tool. The two failing assertions are corrected in 1755a:
+
+- In tests/2026-11/agent49-policy-worker.test.cjs, the predecessor extracted every string after reasonCode:, incorrectly treating policy-audit status NOT_EVALUATED_BY_SELECTED_BRANCH as an abstention code. Current head only extracts actual abstain(...) calls and {kind:'abstain', reasonCode:...} objects, and explicitly asserts that NOT_EVALUATED_BY_SELECTED_BRANCH is not an abstention code.
+- In tests/2026-11/agent6-rank1-shadow-rider-opponent-policy.test.cjs, predecessor expected the audit wrapper to choose pass / ROOT_PASS_FALLBACK. Current head expects the same decision as plain policy.decide: stadium / ROOT_MAX_ACTION_SCORE, with the two scores (0 and 45) and matching selected token.
+
+These are exact source/test corrections on the current head, not proof that the entire contract suite passes. The predecessor's Docker worker tests passed; no need to repeat that log review. The next valid action remains Agent49's exact-head contract-only run on 1755a, then the same-SHA four-cell no-game witness only if green. No current-head run exists and I did not dispatch CI.
+
 ## Three-way file classification
 
 - **Same content already on main and PR (2):**
