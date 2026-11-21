@@ -539,6 +539,35 @@ test('native fixture loop resolves setup prompts, records exact owner views and 
   assert.equal(typeof lastStore.state.prompts[1].result,'boolean');
 });
 
+test('native fixture forwards actor observations without diagnostic type decoration',async()=>{
+  const args=input();
+  const observations=new Map();
+  args.native.observe=(state,seat)=>{
+    const observation=Object.freeze({
+      actorSeat:seat,
+      decisionKind:'owner-root',
+      ownPublic:Object.freeze({active:null,bench:Object.freeze([])}),
+      ownHand:Object.freeze(state.players[seat].hand.cards.map(card=>card.fullName))
+    });
+    observations.set(seat,observation);
+    return observation;
+  };
+  const result=await runNativeFixtureGameAsync(args,request=>{
+    const expected=observations.get(request.actorSeat);
+    assert.strictEqual(request.actorObservation,expected,
+      'worker input must preserve the exact detached observation object');
+    assert.equal(Object.hasOwn(request.actorObservation,'type'),false);
+    assert.equal(Object.hasOwn(request.actorObservation.ownPublic,'type'),false);
+    assert.equal(request.actorObservationSha256,evidenceBundleSha256(expected));
+    return request.actorSeat===0?
+      new PlayCardAction(101,0,{slot:'fixture'}):new RootAction(1);
+  });
+  assert.equal(result.finished,true);
+  assert.deepEqual(result.decisionTrace[2].actorObservationBefore,observations.get(0));
+  assert.deepEqual(result.decisionTrace[3].actorObservationBefore,observations.get(1));
+  assert.equal(Object.hasOwn(result.decisionTrace[2].actorObservationBefore,'type'),false);
+  assert.equal(Object.hasOwn(result.decisionTrace[2].actorObservationBefore.ownPublic,'type'),false);
+});
 test('native fixture loop rejects incomplete decks and restores Math.random on failure',()=>{
   const originalRandom=Math.random;
   assert.throws(()=>runNativeFixtureGame(input({deckA:deck('A').slice(1)})),
