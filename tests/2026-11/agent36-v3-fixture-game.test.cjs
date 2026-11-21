@@ -504,9 +504,9 @@ test('fixture runner unwraps direct and role-composed failure envelopes without 
 test('fixture runner injects offline full-state diagnostics and persists partial failures before rethrow', () => {
   const runnerSource = fs.readFileSync(path.join(ROOT, 'simulation/evaluation/2026-11/agent36-v3-runner.cjs'), 'utf8');
   assert.match(runnerSource,
-    /diagnosticSnapshot:\s*diagnosticMode\s*===\s*'encrypted-full'\s*\?\s*diagnostic\.snapshotFullGameState\s*:\s*undefined/);
+    /diagnosticSnapshot:\s*diagnosticMode\s*===\s*'encrypted-full'\s*&&\s*!witnessOnly\s*\?\s*diagnostic\.snapshotFullGameState\s*:\s*undefined/);
   assert.match(runnerSource,
-    /requireFullStateDiagnostics:\s*diagnosticMode\s*===\s*'encrypted-full'/);
+    /requireFullStateDiagnostics:\s*diagnosticMode\s*===\s*'encrypted-full'\s*&&\s*!witnessOnly/);
   const diagnosticRequire = runnerSource.indexOf("const diagnostic = require('../../twinleaf/2026-11/agent43-full-state-diagnostic.cjs')");
   const pinInstall = runnerSource.indexOf('runPinnedV3RoleRuntime({', diagnosticRequire);
   assert.ok(diagnosticRequire >= 0 && pinInstall > diagnosticRequire, 'diagnostic function reference must be captured before the fixture pin');
