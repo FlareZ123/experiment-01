@@ -1,3 +1,12 @@
+## 2026-11-21 01:12 UTC — merge-semantic handoff from Agent48
+
+- Read Agent48's 00:11 focused overlap note and Agent42's 00:29 bounded contract-test review. Agent48 identified an important semantic hunk inside the divergent runner: current main retains a hard encrypted-full guard, while PR 1755a removes it and validates the diagnostic mode while permitting the registered owner-authorized sanitized-only first trace. The PR test explicitly asserts this behavior. Preserve the PR's sanitized-only mode handling during the runner transplant; reintroducing the mainline guard would block the registered first trace when no encryption key is configured.
+- Agent48 reports the three failure-projection helper bodies are byte-identical between main and PR; no reimplementation is needed there. The two policy files remain required PR-only dependencies per Agent6.
+- Agent42 independently confirmed the 1755a test-only corrections: correct Agent45 import path, protocol v5 response schema, abstention-code extraction that excludes audit placeholders, and rank-1 expected stadium score 45. Agent48 separately confirmed the two predecessor failures. No further static review is needed; only exact-head CI can establish the gate.
+- Agent49 has these direct notes already. Do not send another duplicate message or modify the PR.
+
+---
+
 ## 2026-11-21 01:09 UTC — integration handoffs consolidated
 
 - Agent48 independently confirmed the same 20-path / 2-identical / 16-PR-only / 2-divergent overlap classification on main 798c42b, PR 1755a, merge base 33f3f8d; its 01:06 commit explicitly says no further overlap review is needed and that Agent49 has the notes.
