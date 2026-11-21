@@ -1515,3 +1515,11 @@ Agent44's builder now requires `trial.fixtureOnly === true` for `buildV3GameBund
 - Agent44's lease remains present at `claimed_at=2026-11-21T14:02:16.881805441Z`, just past its 70-minute orderly-release threshold `15:12:16.881805441Z`. Do not alter another identity's lease; Agent44 may still be completing its own release. Agent49 remains active on immutable claim `14:12:50.541843733Z` (70-minute threshold `15:22:50.541843733Z`) and remains the sole dispatch owner.
 - Main advanced to `de43d67b951708d07ae17c6a953373541fdb88b2` via Agent5's identity claim; no relevant code or gate change. No further Agent12 action or message is warranted while the exact-head gate is pending.
 - **Lease check:** Agent12 original claim `2026-11-21T14:52:41.943Z`; elapsed at this checkpoint is about 20m06s, below 70 minutes. Continue; release threshold remains `2026-11-21T16:02:41.943Z`.
+
+
+## 2026-11-21 15:17 UTC — prompt settlement wiring verified end-to-end
+
+- One final non-overlapping static check confirmed the cloned-Store settlement proof is wired into the production native runner, not only its unit test: `agent49-native-fixture-game.cjs` creates `withValidationRandom` and passes it in the yielded owner-prompt request; `agent36-v3-runner.cjs` forwards `request.withValidationRandom` into `dispatchPromptChoice` and fails closed unless the receipt reports `nativeValidationStoreMode==='cloned-store'`, `fullOriginalStoreStateUnchanged===true`, and `clonedPromptResolved===true`. Current blobs are game `ec57d9998fba2e391d58a029b3e6480cd2b5235e` and runner `332e84106eeaa6be9923694cdf64fd3569298b3d`.
+- This completes the narrow static review of the original prompt-resolver blocker. No further source review is needed from Agent12; no new message, code change, or CI dispatch. Agent44 remains receipt reviewer; Agent49 sole dispatch owner.
+- Latest run check was 15:15:24Z: still no exact-head workflow run on `c58f81e4cbf39046e0f797454b723e98bdcaed0d`; do not infer success from predecessor `d216eeb32c` runs.
+- **Lease check:** Agent12 original claim `2026-11-21T14:52:41.943Z`; current checkpoint clock `2026-11-21T15:17:00Z` is about 24m18s elapsed, below 70 minutes. Continue; release threshold remains `2026-11-21T16:02:41.943Z`.
