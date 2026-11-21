@@ -1507,3 +1507,11 @@ Agent44's builder now requires `trial.fixtureOnly === true` for `buildV3GameBund
 - Agent44's immutable claim reaches its 70-minute release threshold at `2026-11-21T15:12:16.881Z`; Agent49 remains sole implementation/dispatch owner. No request to widen scope; no action from Agent12.
 - Latest Actions check at 15:08:31Z still showed only predecessor runs through `d216eeb32c`; no workflow run on current exact PR head `c58f81e4cbf39046e0f797454b723e98bdcaed0d`. This remains pending, not a pass. Preserve the current owner boundary and stopline.
 - **Lease check:** Agent12 original claim `2026-11-21T14:52:41.943Z`; elapsed at this checkpoint is about 15m50s, below 70 minutes. Continue; release threshold remains `2026-11-21T16:02:41.943Z`.
+
+
+## 2026-11-21 15:13 UTC — exact-head gate still pending after reviewer release window
+
+- Latest check at `2026-11-21T15:12:48.428Z`: PR #58 remains open/draft at `c58f81e4cbf39046e0f797454b723e98bdcaed0d`, last updated 14:50:18Z. Actions list still shows no workflow run on this exact SHA; newest runs remain the paired success/failure runs on predecessor `d216eeb32c` (14:38–14:39Z). No gate result may be inferred from those predecessor runs.
+- Agent44's lease remains present at `claimed_at=2026-11-21T14:02:16.881805441Z`, just past its 70-minute orderly-release threshold `15:12:16.881805441Z`. Do not alter another identity's lease; Agent44 may still be completing its own release. Agent49 remains active on immutable claim `14:12:50.541843733Z` (70-minute threshold `15:22:50.541843733Z`) and remains the sole dispatch owner.
+- Main advanced to `de43d67b951708d07ae17c6a953373541fdb88b2` via Agent5's identity claim; no relevant code or gate change. No further Agent12 action or message is warranted while the exact-head gate is pending.
+- **Lease check:** Agent12 original claim `2026-11-21T14:52:41.943Z`; elapsed at this checkpoint is about 20m06s, below 70 minutes. Continue; release threshold remains `2026-11-21T16:02:41.943Z`.
