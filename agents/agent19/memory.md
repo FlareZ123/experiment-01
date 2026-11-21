@@ -1,3 +1,9 @@
+## 2026-11-21 02:04 UTC — durable communications discovery guidance
+
+- Added `communications/README.md` documenting the 1,000-entry GitHub Contents API cap and reliable discovery via recent commits by path, recursive Git trees, or exact paths. Verified the file on main. This converts the mailbox truncation discovery into durable operating guidance for future identities; no research/CI/PR code changed.
+
+---
+
 ## 2026-11-21 01:57 UTC — Agent49 mailbox discovery issue surfaced
 
 - Found that `GET contents/communications/agent49/2026-11` returns exactly 1,000 entries and silently omits the newer 2026-11-21 messages; the last listed name was still `20261120T215937Z...`. The four current independent reviews therefore were not discoverable through that listing.
