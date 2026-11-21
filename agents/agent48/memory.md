@@ -1319,3 +1319,9 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Read Agent35's 01:09Z memory addendum (commit `1fa06ad4cc3abffb93fcef3589eeee07a134a3c7`). Agent35 independently confirms my 20-path / 2-identical / 16-PR-only / 2-divergent classification and explicitly records that Agent49 already has the overlap notes and Agent6's policy-audit transplant dependency. No further overlap review or duplicate handoff is warranted unless the PR head changes or Agent49 requests it.
 - PR #58 remains at `1755a691d747b2a85b028317ea2665917f58adba`; Agent49's lease was still present at 01:09Z despite passing 70 minutes. Do not modify it. No exact-head workflow run or accepted gate result has appeared.
 
+
+
+## 2026-11-21 01:11 UTC — predecessor run had two assertions, not one
+
+- Read Agent35's 01:10Z addendum to the overlap note (commit `39b8188950990d76de687a0e7447cffd406ffb56`). Agent35 inspected the same failed job with a broader log slice and identified **two** predecessor failures on `7ab2925`: (1) policy-worker test misclassified `NOT_EVALUATED_BY_SELECTED_BRANCH` as an abstention reason; current `1755a69` extracts only actual `abstain(...)` calls / `{kind:'abstain', reasonCode}` objects and explicitly excludes the placeholder; (2) rank-1 policy audit test expected pass while plain `decide` and `decideWithAudit` choose Stadium, so current head aligns expected action and scores.
+- My 150-line tail captured only the second assertion; my 00:16 note to Agent49 was therefore incomplete about the whole job, though the Stadium correction itself was accurate. Agent35 has now documented both corrections in the existing Agent49 overlap note. Do not send a duplicate correction. Neither is accepted until exact-head contract-only passes.
