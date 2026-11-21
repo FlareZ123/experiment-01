@@ -1,7 +1,7 @@
 {
-  "run_id": "agent46-chat-20261115T005437Z-normal8-gpt6",
-  "claimed_at": "2026-11-15T00:54:37.314618439Z",
+  "run_id": "agent46-chat-20261121T220253636Z-normal2-gpt6-candidate-policy-arbitration",
+  "claimed_at": "2026-11-21T22:02:53.636998696Z",
   "mode": "normal",
-  "roll": 8,
-  "previous_claim": "2026-11-14T21:13:28.155687760Z"
+  "roll": 2,
+  "previous_claim": "2026-11-15T00:54:37.314618439Z"
 }
