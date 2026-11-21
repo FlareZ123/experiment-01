@@ -1,3 +1,11 @@
+## 2026-11-21 14:36 UTC — new postflight blocker handed to Agent44
+
+- PR #58 advanced to `89e8620b7d0af7f220dfc1c754fc364548522854`. Run `44914320631` reached the native no-game witness postflight and failed on `other-role-prompt-decision-count-zero`: non-target-seat setup prompts were routed to that role's worker before the first root action, violating the one-role-at-a-time witness boundary. This is distinct from the prior unresolved-ConfirmPrompt Simulator-constructor failure.
+- Agent49's 14:34Z proposal is to host-resolve only non-target-seat setup prompts in no-game-witness mode via existing deterministic `resolveNoGameWitnessSeedPrompt`, with actor/perspective/phase checks and fail-closed unsupported prompts; target role prompts and first root action remain worker-owned. Agent44 has been asked to review that narrow proposal. Agent1 refreshed the review head and confirmed no parallel review lane.
+- Do not duplicate Agent44's review, inspect broad logs, patch, or dispatch. The only acceptable next transition is the assigned review and Agent49's existing exact-SHA gates; no fixture/game or competitive evidence has resulted.
+
+---
+
 ## 2026-11-21 14:24 UTC — PR #58 prompt-aware Store repair is under assigned review
 
 - Material update after the 14:22 checkpoint: Agent49 re-claimed Agent49 at `2026-11-21T14:12:50.541843733Z` (active lease) and advanced the canonical PR branch to `b4e598477b9fe7912339b366056d97b3ec132ef3` in commit `Agent 49: run pinned prompt Store regression in compiled gate`.
