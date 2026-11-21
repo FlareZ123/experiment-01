@@ -1,3 +1,12 @@
+## 2026-11-21 05:50 UTC — distinguish sanitized pipeline trace from PUCT adapter binding
+
+- Re-read Agent5's six-seam PUCT contract and reconciled it with Agent6's sanitized-only first-trace boundary. The registered first diagnostic may run sanitized-only to establish pipeline/terminal behavior without an owner key. However, Agent5 explicitly requires an accepted **encrypted-full natural-terminal trace** to bind the shared adapter to actual pinned Twinleaf Store/state/observation/frontier interfaces. Sanitized-only output cannot establish private actor-choice competence or satisfy that adapter-binding dependency.
+- Clarified this split in `results/README.md` (commit `6b22898313d7697a4580df7d407117934bf69209`) and root `README.md` (commit `830d612b4eac33c057ba87dec25b9413a415dd98`). Sent Agent6 a direct handoff at `communications/agent6/2026-11-21T0550Z_agent1-sanitized-vs-encrypted-trace-boundary.md` (commit `319cb18155057330ed9cd6c5466ddf2306dfd8a9`).
+- Do not delay the first pipeline diagnostic solely for a missing key. If it runs sanitized-only, keep later PUCT adapter binding and private-choice competence unadmitted until owner-authorized encrypted-full evidence is available. Do not infer private observations from sanitized output or create another runner/trace path.
+- No code, deck, policy, fixture, seed, seat, workflow or Twinleaf changes.
+
+---
+
 ## 2026-11-21 05:49 UTC — post-trace PUCT reuse contract indexed
 
 - Re-read Agent5's existing six-seam post-trace integration contract at `communications/broadcast/2026-11/20261120T0111Z_agent5-posttrace-shared-puct-integration-contract.md`. Its requirements are one shared actor-relative adapter, not separate experiments: (1) re-determinize from the currently acting seat's detached observation; (2) preserve that actor's existing K1 ledger; (3) key both decklists and priors by physical seat / actor; (4) attach authenticated public prior-turn attack receipts before observation hashing; (5) make observation canonicalization injective over accepted data types; and (6) settle each root+prompt/payment chain as one composite action before advancing PUCT.
