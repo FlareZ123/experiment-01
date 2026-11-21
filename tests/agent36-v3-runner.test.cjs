@@ -1361,7 +1361,7 @@ test('V3 fixture no-game witness receipt requires all four role-seat pairs and e
       const role=actorSeat===candidateSeat?'candidate':'opponent';
       const seed='public-witness-seed-'+candidateSeat+'-'+actorSeat;
       witnesses.push({
-        schema:'agent36-v3-native-no-game-seat-witness-v1',
+        schema:'agent36-v3-native-no-game-seat-witness-v2',
         fixtureOnly:true,gameExecuted:false,candidateSeat,
         opponentSeat:1-candidateSeat,actorSeat,role,
         actualFirstPlayerSeat:actorSeat,seed,
@@ -1374,9 +1374,11 @@ test('V3 fixture no-game witness receipt requires all four role-seat pairs and e
         acceptedRootActions:0,rootDecisionCount:1,promptDecisionCount:0,workerDecisionCount:1,
         candidateRootDecisionCount:role==='candidate'?1:0,
         candidatePromptDecisionCount:0,
+         candidateSetupPromptCounts:{},
         candidateWorkerDecisionCount:role==='candidate'?1:0,
         opponentRootDecisionCount:role==='opponent'?1:0,
         opponentPromptDecisionCount:0,
+         opponentSetupPromptCounts:{},
         opponentWorkerDecisionCount:role==='opponent'?1:0,
         actionFrontierItemCount:2,
         workerCleanupVerified:true,allWorkerSessionsClosed:true,
@@ -1400,7 +1402,7 @@ test('V3 fixture no-game witness receipt requires all four role-seat pairs and e
     }
   }
   const receipt={
-    schema:'agent36-v3-native-no-game-witness-v1',fixtureOnly:true,
+    schema:'agent36-v3-native-no-game-witness-v2',fixtureOnly:true,
     gameExecuted:false,liveActionsDispatched:false,
     allStoreStatesUnchanged:true,allSelectedActionsValidated:true,
     allActorObservationsUsed:true,allWorkersClosed:true,
@@ -1428,12 +1430,30 @@ test('V3 fixture no-game witness receipt requires all four role-seat pairs and e
   assert.throws(()=>validateNoGameWitnessReceipt(wrongCandidateWorkerCount,expected),
     /candidate worker decision total must equal root plus prompt decisions/);
 
-  const inactivePromptDecision=JSON.parse(JSON.stringify(receipt));
-  inactivePromptDecision.witnesses[0].opponentPromptDecisionCount=1;
-  inactivePromptDecision.witnesses[0].opponentWorkerDecisionCount=1;
-  inactivePromptDecision.witnesses[0].workerDecisionCount=2;
-  assert.throws(()=>validateNoGameWitnessReceipt(inactivePromptDecision,expected),
-    /inactive role must have zero prompt decisions/);
+  const inactiveSetupPromptDecision=JSON.parse(JSON.stringify(receipt));
+  inactiveSetupPromptDecision.witnesses[0].opponentPromptDecisionCount=1;
+  inactiveSetupPromptDecision.witnesses[0].opponentWorkerDecisionCount=1;
+  inactiveSetupPromptDecision.witnesses[0].opponentSetupPromptCounts={
+    'ShowMulliganPrompt:SETUP_OPPONENT_NO_BASIC':1
+  };
+  inactiveSetupPromptDecision.witnesses[0].workerDecisionCount=2;
+  assert.equal(validateNoGameWitnessReceipt(inactiveSetupPromptDecision,expected),
+    inactiveSetupPromptDecision,
+    'the non-acting role may make a bounded, explicitly typed setup-prompt decision');
+
+  const inactiveNonSetupPrompt=JSON.parse(JSON.stringify(inactiveSetupPromptDecision));
+  inactiveNonSetupPrompt.witnesses[0].opponentSetupPromptCounts={
+    'AttachEnergyPrompt:ATTACH_ENERGY':1
+  };
+  assert.throws(()=>validateNoGameWitnessReceipt(inactiveNonSetupPrompt,expected),
+    /opponent prompt decisions must be limited to the frozen setup prompt allowlist/);
+
+  const inactiveSetupPromptCountMismatch=JSON.parse(JSON.stringify(inactiveSetupPromptDecision));
+  inactiveSetupPromptCountMismatch.witnesses[0].opponentPromptDecisionCount=2;
+  inactiveSetupPromptCountMismatch.witnesses[0].opponentWorkerDecisionCount=2;
+  inactiveSetupPromptCountMismatch.witnesses[0].workerDecisionCount=3;
+  assert.throws(()=>validateNoGameWitnessReceipt(inactiveSetupPromptCountMismatch,expected),
+    /opponent prompt decisions must be limited to the frozen setup prompt allowlist/);
 
   const inactiveRootDecision=JSON.parse(JSON.stringify(receipt));
   inactiveRootDecision.witnesses[0].opponentRootDecisionCount=1;
@@ -1457,7 +1477,7 @@ test('V3 fixture no-game witness receipt requires all four role-seat pairs and e
   assert.equal(validateNoGameWitnessReceipt(projectedReceipt,expected),projectedReceipt);
 
   const wrongRowSchema=JSON.parse(JSON.stringify(receipt));
-  wrongRowSchema.witnesses[0].schema='agent36-v3-native-no-game-seat-witness-v2';
+  wrongRowSchema.witnesses[0].schema='agent36-v3-native-no-game-seat-witness-v1';
   assert.throws(()=>validateNoGameWitnessReceipt(wrongRowSchema,expected),
     /native no-game witness row must use the expected schema/);
 
