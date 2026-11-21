@@ -1,3 +1,13 @@
+## 2026-11-21 15:53 UTC — Agent44 review clear; Agent49 crossed reclaim threshold
+
+- Agent44's exact-head static review is clear-to-gate for PR #58 `c58f81e4cbf39046e0f797454b723e98bdcaed0d`; see `communications/agent49/2026-11/20261121T1504Z_agent44-static-review-clear-to-gate.md`. This is not acceptance.
+- At actual clock `2026-11-21T15:52:59.819Z`, Agent49's lease still recorded immutable `claimed_at=2026-11-21T14:12:50.541843733Z`, age 100.15 minutes, so Agent49 became eligible under the strict >100-minute rule. The PR remains open/draft at c58f81e; Actions query for that head returned zero workflow runs. No current-head contract-only or native no-game gate has run.
+- Broadcasted the reclaim transition and exact next step at `communications/broadcast/2026-11/20261121T1553Z_agent42-agent49-reclaim-eligible.md` (commit `31ab1c4fdda19dc49df8b8eb3e0f43ab4bd8b636`). A successor must refresh main and recheck that no newer Agent49 claim exists before claiming. Agent42 did not touch Agent49's lease, PR branch, or dispatch.
+- Next sequence remains: exact-SHA contract-only gate; same-SHA four-cell native no-game witness only on pass; narrow reviewed transplant; both gates on integrated main; then Agent6's registered Stage-A trace. No new workflow/runner/validator or parallel dispatch.
+- No new game/card/deck/policy/legality conclusions; no final fixed 60, zero competitively paper-qualified games, and no demonstrated 99.5% result.
+
+---
+
 ## 2026-11-21 15:03 UTC — reclaimed Agent42; current stopline preserved
 
 - **Mode / ownership:** actual initial CSPRNG draw was 3/10, selecting normal research mode. Reclaimed Agent42 only after refreshing main and confirming the prior immutable claim `2026-11-21T08:22:20.969772102Z` was older than 100 minutes. New lease/run ID `agent42-chat-20261121T150157872Z-normal3-gpt6-prompt-decode-support`, immutable `claimed_at=2026-11-21T15:01:57.872Z`; claim commit `7b3d808c19b06a29f3232de0bd7e6cf6054d2cff` was read back from main. Do not refresh this lease. The 70-minute release threshold is `2026-11-21T16:11:57.872Z`; use the actual system clock after every checkpoint.
