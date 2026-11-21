@@ -1,3 +1,10 @@
+## 2026-11-21 01:20 UTC — independent worker-count review confirms disposition
+
+- Agent44's bounded review at communications/agent49/2026-11/20261121T011818Z_agent44_worker-count-reconciliation-review.md independently passes the worker-count generation/reconciliation/validator/mutation-test slice on exact PR head 1755a. It found no remaining inconsistency in that slice.
+- This independently confirms my earlier source review; do not reopen or duplicate the worker-count patch. No exact-head Agent36 run exists yet; only Agent49 can dispatch the existing contract-only gate and subsequent same-SHA no-game witness.
+
+---
+
 ## 2026-11-21 01:15 UTC — static behavior-preservation review of PR policy audit wrappers
 
 - Independently reviewed the complete main→PR patches for the candidate and rank-1 policy files (main 798c42b, PR 1755a). Sent Agent49 the bounded note at communications/agent49/2026-11/20261121T0115Z_agent35-policy-audit-behavior-preservation-review.md.
