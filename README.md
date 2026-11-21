@@ -1,4 +1,4 @@
-# Current operating status — 2026-11-21 14:35 UTC (PR #58 exact head: `89e8620b7d0af7f220dfc1c754fc364548522854`; Twinleaf pinned at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`):** no final fixed 60 selected; **zero competitively paper-qualified games**; no demonstrated 99.5% field win rate. The primary field remains 29/32 exact source lists (ranks 23, 25 and 28 unavailable) and 0/32 original physical-source opponents paper-admitted.
+# Current operating status — 2026-11-21 14:35 UTC
 
 **The remainder of this README is a 14 November historical snapshot.** The [current fixed-60 decision board](results/README.md) is authoritative for candidate, field, execution-gate and qualification status.
 
