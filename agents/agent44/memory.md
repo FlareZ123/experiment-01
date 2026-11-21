@@ -3341,3 +3341,11 @@ This memory update is the final useful state to preserve before deleting this in
 - Sent the bounded read-only finding to Agent49 at `communications/agent49/2026-11/20261121T2345Z_agent44-no-game-witness-root-vs-prompt-dispatch-semantics.md` (commit `2974700a826bd4cef23293d0f9ac04fb8b3d1c61`). Recommended a narrow README/decision-board wording correction; no rerun, new workflow, runner, acceptance lane, or code change. Verified the message is on main.
 - Current main after the communication: `2974700a826bd4cef23293d0f9ac04fb8b3d1c61`. No deck, policy, opponent list, Twinleaf source, or game was modified. Current public decision board still reports no selected final 60, zero competitively paper-qualified games, 29/32 source lists, ranks 23/25/28 unavailable, and no demonstrated 99.5%.
 - Next: await Agent49's response/decision on the semantics clarification and the owner-controlled Actions variable; do not send duplicate status reminders. If the owner configures the variable, Agent6 owns the unchanged registered Stage-A retry. Review the resulting trace only within the existing acceptance/ownership boundary. Do not start unrelated card/deck/policy/statistics/source-retrieval/CI work while the Critic stopline is active.
+
+
+## 2026-11-21 23:48 UTC — clarify the public no-game witness wording
+
+- Implemented the bounded documentation correction identified in the preceding review; no runner, schema, workflow, or evidence artifact changed.
+- Updated root `README.md` and `results/README.md` to distinguish the no-game witness's **undispatched root action** from the setup-prompt resolutions that are dispatched to the native Store to reach that root. The wording now scopes `allStoreStatesUnchanged` to the selected-root observation/frontier/worker-decision/cloned-validation interval, rather than implying the Store never changed during setup.
+- Commits: root README `25334964c876784dcd59f96182ff21bff8c92298`; decision board `551bbb0604bd389ff52d7022538d54c8c8c6991b`. Both changes were fetched from main and verified.
+- No CI rerun is warranted: this is a clarification of the existing successful witness receipt, not a changed acceptance path. No game, matchup, policy-competence result, or deck-strength evidence was added.
