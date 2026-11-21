@@ -292,6 +292,7 @@ function projectV3WorkerAuditForFailure(audit) {
       rootActionFrontierAdmissionCount:count(row.rootActionFrontierAdmissionCount),
       actionFrontierAdmissionFailureCount:count(row.actionFrontierAdmissionFailureCount),
       hostOnlyPromptCount:count(row.hostOnlyPromptCount),
+      hostSetupPromptCount:count(row.hostSetupPromptCount),
       abstentionCount:count(row.abstentionCount),
       failureCount:count(row.failureCount),
       timeoutCount:count(row.timeoutCount),
@@ -320,6 +321,7 @@ function projectV3WorkerAuditForFailure(audit) {
     },
     totalWorkerDecisions:count(audit.totalWorkerDecisions),
     totalHostOnlyPrompts:count(audit.totalHostOnlyPrompts),
+    totalHostSetupPrompts:count(audit.totalHostSetupPrompts),
     totalAbstentions:count(audit.totalAbstentions),
     totalFailures:count(audit.totalFailures),
     policyRngViolations:count(audit.policyRngViolations),
@@ -1947,7 +1949,7 @@ function createV3WorkerExecutionAudit({
     decisionCount:0,rootDecisionCount:0,promptDecisionCount:0,
     rootActionFrontierAdmissionCount:0,rootActionFrontierAdmissionReceipts:[],
     actionFrontierAdmissionFailureCount:0,
-    hostOnlyPromptCount:0,abstentionCount:0,failureCount:0,
+    hostOnlyPromptCount:0,hostSetupPromptCount:0,abstentionCount:0,failureCount:0,
     timeoutCount:0,lastFailureCode:null,lastAbstentionReasonCode:null,
     workerProcessClosed:false,containerRemoved:false,policyBundleRemoved:false,
     containerIdSha256:null,policyStreamProtocol:null,policyDrawCount:null,
@@ -1966,7 +1968,7 @@ function createV3WorkerExecutionAudit({
       candidate:role('candidate',candidateSeat,candidatePolicyVersion),
       opponent:role('opponent',opponentSeat,opponentPolicyVersion),
     },
-    totalWorkerDecisions:0,totalHostOnlyPrompts:0,totalAbstentions:0,totalFailures:0,
+    totalWorkerDecisions:0,totalHostOnlyPrompts:0,totalHostSetupPrompts:0,totalAbstentions:0,totalFailures:0,
     policyRngViolations:0,replayableEvidence:true,
     actionFrontierAdapterSchema:knownCapFreeActionEnumerator.SCHEMA,
     actionFrontierAdapterEnginePin:V3_FIXTURE.engineCommit,
@@ -2367,6 +2369,51 @@ function createV3WorkerDecisionResolver({
       throw error;
     }
     const roleAudit=workerAudit.roles[role];
+    if(stopBeforeLiveDispatch===true&&request.prompt&&actorSeat!==expectedActorSeat){
+      const activeProvenanceHook=provenanceContext?.current??provenanceHook;
+      const projected=promptProjection.projectPrompt({
+        prompt:request.prompt,state:request.state,actorSeat,native,store:request.store,
+        provenanceHook:activeProvenanceHook
+      });
+      if(projected.hostOnly){
+        const resolved=promptProjection.resolveHostOnlyPrompt({
+          prompt:request.prompt,state:request.state,store:request.store,native,
+          physicalRandom:request.physicalRandom,provenanceHook:activeProvenanceHook,dispatch:false
+        });
+        roleAudit.hostOnlyPromptCount++;
+        workerAudit.totalHostOnlyPrompts++;
+        return {
+          __nativeFixtureDecisionResolution:true,
+          action:resolved.action,
+          promptResolution:{
+            kind:resolved.summary?.kind??'host-only',
+            selectedCount:resolved.summary?.selectedCount??null
+          }
+        };
+      }
+      if(request.state?.phase!==1){
+        const error=new Error('non-target no-game witness prompts may be host-resolved only during setup');
+        error.code='NO_GAME_WITNESS_NON_TARGET_PROMPT_OUTSIDE_SETUP';
+        throw error;
+      }
+      const ownerId=request.prompt.getPerspectivePlayerId?.()??request.prompt.playerId;
+      const ownerSeat=Array.isArray(request.state?.players)?
+        request.state.players.findIndex(player=>player?.id===ownerId):-1;
+      if(ownerSeat!==actorSeat){
+        const error=new Error('non-target setup prompt perspective does not match its physical actor seat');
+        error.code='NO_GAME_WITNESS_SETUP_PROMPT_OWNER_MISMATCH';
+        throw error;
+      }
+      const hostRequest=request.native?request:{...request,native};
+      const action=resolveNoGameWitnessSeedPrompt(hostRequest,{candidateSeat,opponentSeat});
+      roleAudit.hostSetupPromptCount++;
+      workerAudit.totalHostSetupPrompts++;
+      return {
+        __nativeFixtureDecisionResolution:true,
+        action,
+        promptResolution:{kind:'host-setup',selectedCount:1}
+      };
+    }
     const session=sessionsBySeat[actorSeat];
     let decisionTrace=null;
     try{
@@ -3171,6 +3218,8 @@ async function runV3FixtureGame({
     }
     assertWitnessField('global-worker-decision-count',workerExecutionAudit?.totalWorkerDecisions,
       (candidateAudit?.decisionCount??0)+(opponentAudit?.decisionCount??0));
+    assertWitnessField('host-setup-prompt-total',workerExecutionAudit?.totalHostSetupPrompts,
+      (candidateAudit?.hostSetupPromptCount??0)+(opponentAudit?.hostSetupPromptCount??0));
     assertWitnessField('role-seat',roleAudit?.seat,expectedActorSeat);
     assertWitnessField('role-root-decision-count-one',roleAudit?.rootDecisionCount,1);
     assertWitnessField('other-role-root-decision-count-zero',otherAudit?.rootDecisionCount,0);
@@ -3216,9 +3265,12 @@ async function runV3FixtureGame({
       workerDecisionCount:workerExecutionAudit.totalWorkerDecisions,
       candidateRootDecisionCount:candidateAudit.rootDecisionCount,
       candidatePromptDecisionCount:candidateAudit.promptDecisionCount,
+       candidateHostSetupPromptCount:candidateAudit.hostSetupPromptCount,
       candidateWorkerDecisionCount:candidateAudit.decisionCount,
       opponentRootDecisionCount:opponentAudit.rootDecisionCount,
       opponentPromptDecisionCount:opponentAudit.promptDecisionCount,
+       opponentHostSetupPromptCount:opponentAudit.hostSetupPromptCount,
+       totalHostSetupPrompts:workerExecutionAudit.totalHostSetupPrompts,
       opponentWorkerDecisionCount:opponentAudit.decisionCount,
       policySha256:roleAudit.policySha256,
       policyVersion:roleAudit.policyVersion,
