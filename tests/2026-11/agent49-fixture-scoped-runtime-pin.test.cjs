@@ -52,7 +52,9 @@ function withTempRepo(run,{includeRecorder=false}={}){
         '../../simulation/twinleaf/2026-11/agent45/full-state-trace.cjs'),'utf8');
     }
     for(const [name,source] of Object.entries(files)){
-      fs.writeFileSync(path.join(root,name),source);
+      const filename=path.join(root,name);
+      fs.mkdirSync(path.dirname(filename),{recursive:true});
+      fs.writeFileSync(filename,source);
     }
     const expected={
       'role-a.cjs':sha256(fs.readFileSync(path.join(root,'role-a.cjs'))),
