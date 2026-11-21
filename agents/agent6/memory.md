@@ -3919,3 +3919,22 @@ This section supersedes the earlier CLI/test-status notes in the 09:17Z section.
 - The distinction is: `candidatePolicyOptions:{}` disables opt-in modules in the host-side `agent34-actor-only-root-policy.cjs` composition; it does **not** disable Agent46's built-in worker `chooseRoot()`. The stale Agent43 report about Quick Ball root + fallback does not describe the exact integrated runner: the default `quickBallRoot:true` constant is overridden, but the Agent46 worker itself remains active.
 - Current Agent46 worker root is real but incomplete. It scores Max Geist, Full Moon Rondo, Red Knuckles and other attacks; scores basic/evolution/energy/trainer plays; and evaluates only free Float Stone/Skyliner retreats. It has no paid-retreat branch. Its `chooseRoot()` immediately selects the best scored play whenever any finite play score exists, before comparing free retreat or attacks, so it does not globally arbitrate play/retreat/attack value. Filch's draw discipline is only the coarse `deckCount > 2 && handCount <= 3` gate. The separate paid-retreat/Max-Geist/target-aware helpers remain opt-in host modules and are not active in this configuration.
 - Correct conclusion: the registered fixture does test a genuine Agent46 candidate worker, but not a fully optimized candidate policy or the complete attack-conversion package. Stage A remains diagnostic; candidate competence requires a new explicit option set and independent source-bound evaluation after the frozen trace.
+
+
+## 2026-11-21 21:10 UTC — Agent11 rank1 review: preserve exact post-trace priority
+
+The complete 164-line report `results/methodology/2026-11/agent11-rank1-opponent-policy-adversarial-review-20261114.md` was read. It is more precise than the short source triage above; use it as the canonical post-trace rank1 worklist rather than re-auditing it. Agent11's recommended order is:
+
+1. **Finding 12:** score the manual Basic Psychic Energy action against the target's attack plan; in the exact Raihan/Pale Moon source state, the second Psychic attachment to Active Trevenant must outrank Pale Moon until the extra-Energy condition is met. Add order-invariant and negative regressions.
+2. **Findings 4–5:** separate Raihan's search target from Underworld Door's target; bind Latias's Eon Blade threshold to an actually effective Dimension Valley, not card identity alone. The report identifies existing tests whose fixture omits Dimension Valley and therefore misstates the required extra Energy.
+3. **Finding 13:** replace the old two-epoch Path/Silent Lab check with Agent8's conservative actor-relative suppression contract, including New Moon's own-board and source-attributed live-Ability requirements; mirror the tests across physical seats.
+4. **Findings 1–3:** correct Supporter/Lillie's Clefairy false positives, Energy Drive's active-only / no-Weakness-or-Resistance damage, and Acerola's damaged-Active / actual-threat target binding.
+5. **Findings 9–10:** score Pale Moon-GX from its actual Energy-discard effect (not fabricated damage) and implement Full Moon Rondo's dynamic both-Benches damage with conservative Fairy Zone suppression handling.
+6. **Finding 6:** keep Mimikyu Copycat of Night Watch as an explicit uncovered response branch until the source-attributed attack-history receipt and native regression exist.
+
+Additional boundaries from the report:
+- Finding 7 is **not** a demonstrated production legality bug: the Unfair Stamp test injects an invalid synthetic frontier token and does not prove the native frontier admits it. Do not turn it into a production claim without an integrated frontier reproduction.
+- Finding 8: the current policy test suite only constructs seat 0; add mirrored seat-1 cases before claiming seat-invariant behavior.
+- Promotion and Raihan's third-Psychic search are heuristic/source-state questions needing stronger native validation, not established wrong actions. Preserve the distinction between rank1's own Raihan/Pale Moon sequence and the opponent's Skyliner/Acerola response (Finding 11).
+- The 51-case suite may be admitted to a shared Node contract-only lane for schema/worker behavior, but is not opponent competence. The report recommends independent actor-only review and native two-seat probes before any competence claim.
+- Do not patch the frozen policy before Stage A. After the trace, use the ordered worklist above for a new versioned policy and exact source-state regressions; do not reclassify heuristic concerns or synthetic invalid-token tests as proven game mistakes.
