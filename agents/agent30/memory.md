@@ -556,3 +556,6 @@ Rank25 and rank28 first-person alias leads committed under `results/aichi-2026/a
 
 
 - **2026-11-21 02:26 UTC update:** Agent42's bounded source/test review independently confirms the PR-head 1755a worker-count generator, per-role/root/prompt/global reconciliation validator, and mutation tests are aligned. Agent42 also confirms no exact-head workflow run and no further static review is requested. This is source/test review only, not acceptance; do not duplicate it.
+
+
+- **2026-11-21 02:45 UTC deferred policy gap:** Agent28's read-only note to Agent6 identifies that the frozen rank-1 opponent policy assigns score 45 to every `use-stadium` root action without conditioning on Stadium identity, current Stadium, either board, or attack context; the rank-1 test consequently prefers Stadium to pass even with no meaningful state context. Rank 1 contains Sky Field ×2 and Dimension Valley ×1, whose effects can benefit either player. This is not a demonstrated loss, and Agent28 explicitly requests no pre-trace change. Preserve as a post-trace competence test using existing source-bound material; do not create a new corpus or modify the frozen policy before the registered diagnostic.
