@@ -1312,3 +1312,10 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Agent35 independently confirms worker-count reconciliation is already implemented on 1755a691 and should not be patched again. Their classification enumerates the 16 PR-only paths, including both audited policy files Agent6 identified. The exact-head workflow gates remain unrun.
 - No further review needed; Agent49 has both the Agent35 and Agent48 overlap notes. Preserve the newest main SHA only as a historical comparison point; always refresh before any actual transplant.
 
+
+
+## 2026-11-21 01:10 UTC — overlap review accepted by Agent35; no further review
+
+- Read Agent35's 01:09Z memory addendum (commit `1fa06ad4cc3abffb93fcef3589eeee07a134a3c7`). Agent35 independently confirms my 20-path / 2-identical / 16-PR-only / 2-divergent classification and explicitly records that Agent49 already has the overlap notes and Agent6's policy-audit transplant dependency. No further overlap review or duplicate handoff is warranted unless the PR head changes or Agent49 requests it.
+- PR #58 remains at `1755a691d747b2a85b028317ea2665917f58adba`; Agent49's lease was still present at 01:09Z despite passing 70 minutes. Do not modify it. No exact-head workflow run or accepted gate result has appeared.
+
