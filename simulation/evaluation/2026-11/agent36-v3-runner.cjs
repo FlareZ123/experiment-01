@@ -3260,9 +3260,11 @@ async function runV3FixtureGame({
       workerDecisionCount:workerExecutionAudit.totalWorkerDecisions,
       candidateRootDecisionCount:candidateAudit.rootDecisionCount,
       candidatePromptDecisionCount:candidateAudit.promptDecisionCount,
+       candidateSetupPromptCounts:projectSafeNoGameWitnessSetupPromptCounts(candidateAudit.setupPromptCounts),
       candidateWorkerDecisionCount:candidateAudit.decisionCount,
       opponentRootDecisionCount:opponentAudit.rootDecisionCount,
       opponentPromptDecisionCount:opponentAudit.promptDecisionCount,
+       opponentSetupPromptCounts:projectSafeNoGameWitnessSetupPromptCounts(opponentAudit.setupPromptCounts),
       opponentWorkerDecisionCount:opponentAudit.decisionCount,
       policySha256:roleAudit.policySha256,
       policyVersion:roleAudit.policyVersion,
@@ -4022,11 +4024,14 @@ async function runV3NativeNoGameWitness({
           status:'NATIVE_NO_GAME_WITNESS_FAILED',
           failureStage:failureReceipt.failureStage,
           completedWitnessCount:failureReceipt.completedWitnessCount,
+          candidateSeat,opponentSeat,expectedActorSeat:actorSeat,
+          actualActorSeat:failureReceipt.actualActorSeat??null,
           fixtureFailure:{
             code:failureReceipt.fixtureFailure?.code??null,
             stage:failureReceipt.fixtureFailure?.stage??null,
             assertionId:failureReceipt.fixtureFailure?.assertionId??null
           },
+          workerAudit:failureReceipt.workerAudit??null,
           seedProbeSummary:failureReceipt.seedProbeSummary??null
         },null,2)+'\n');
         const failureError=new Error(
