@@ -197,7 +197,7 @@ v^\mathsf{T}\nabla^2\log G\,v
 -\frac{n^2}{C^2}\left(\sum_jv_ju_j^2\right)^2.
 \]
 
-Because \(q_{\max}\le Q=0.64\), \(2u_{\max}\le2/(1-Q)=50/9\). Also \(C\ge1+nQ\), which is at least \(6.12\) for \(n\ge8\). Thus \(C\ge2u_{\max}\), every diagonal term in the first sum is nonpositive, and the final square term is nonpositive. Hence \(\log G\) is concave on the simplex; by symmetry, the maximum is at \(q_j=0.005\) for every stratum. The exact worst-case null tail is therefore \(\Pr\{\operatorname{Binomial}(128n,0.005)\le1\}\).
+Because \(q_{\max}\le Q=0.64\), \(2u_{\max}\le2/(1-Q)=50/9\). Also \(C\ge1+nQ\), which is at least \(6.12\) for \(n\ge8\). Thus \(C\ge2u_{\max}\), every diagonal term in the first sum is nonpositive, and the final square term is nonpositive. Hence \(\log G\) is concave on the simplex; by symmetry, the maximum is at \(q_j=0.005\) for every stratum. Agent5 independently checked this sufficient bound and the multiplicity-table thresholds; no defect was found (see the [review](agent5-review-agent48-one-loss-multiplicity-20261121.md)). The exact worst-case null tail is therefore \(\Pr\{\operatorname{Binomial}(128n,0.005)\le1\}\).
 
 For a **predeclared family of \(K\)** configurations, choose the smallest \(n\ge8\) for which that exact tail is at most \(0.05/K\):
 
