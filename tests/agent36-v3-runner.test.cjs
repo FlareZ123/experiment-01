@@ -1649,6 +1649,14 @@ test('V3 wrong-actor no-game failure receipt preserves seats and redacts raw-pre
     nativeFixtureFailure:{actionPayloadSha256:'l'.repeat(64),messageSha256:'m'.repeat(64)}
   }];
   error.workerAudit={
+    roles:{
+      candidate:null,
+      opponent:{
+        role:'opponent',seat:1,promptDecisionCount:1,
+        setupPromptCounts:{'SelectPrompt:WANT_TO_DRAW_CARDS':1}
+      }
+    },
+    totalWorkerDecisions:1,
     nativeStateDisclosedToWorker:false,
     opponentPrivateZonesDisclosedToWorker:false,
     physicalSeedDisclosedToWorker:false,
@@ -1663,7 +1671,7 @@ test('V3 wrong-actor no-game failure receipt preserves seats and redacts raw-pre
   assert.equal(receipt.expectedActorSeat,0);
   assert.equal(receipt.actualActorSeat,1);
   assert.equal(receipt.workerAudit.roles.opponent.promptDecisionCount,1);
-  assert.equal(receipt.workerAudit.roles.opponent.setupPromptCounts.other,1);
+  assert.equal(receipt.workerAudit.roles.opponent.setupPromptCounts['SelectPrompt:WANT_TO_DRAW_CARDS'],1);
   assert.equal(receipt.fixtureFailure.expectedActorSeat,0);
   assert.equal(receipt.fixtureFailure.actualActorSeat,1);
   assert.equal(receipt.fixtureFailure.assertionId,'native-no-game-witness-postflight-actor-seat');
@@ -1777,7 +1785,7 @@ test('V3 wrong-actor resolver failure survives callback projection and final wit
   workerAudit.roles.opponent.promptDecisionCount=1;
   workerAudit.roles.opponent.decisionCount=1;
   workerAudit.roles.opponent.setupPromptCounts={
-    'ShowMulliganPrompt:SETUP_OPPONENT_NO_BASIC':1
+    'SelectPrompt:WANT_TO_DRAW_CARDS':1
   };
   workerAudit.totalWorkerDecisions=1;
   const receipt=buildNoGameWitnessFailureReceipt({
@@ -1786,7 +1794,7 @@ test('V3 wrong-actor resolver failure survives callback projection and final wit
     runnerRevision:'a'.repeat(40),enginePin:V3_FIXTURE.engineCommit
   });
   assert.equal(receipt.fixtureFailure.code,'NO_GAME_WITNESS_WRONG_ACTOR');
-  assert.equal(receipt.workerAudit.roles.opponent.setupPromptCounts.other,1);
+  assert.equal(receipt.workerAudit.roles.opponent.setupPromptCounts['SelectPrompt:WANT_TO_DRAW_CARDS'],1);
   assert.equal(receipt.fixtureFailure.expectedActorSeat,0);
   assert.equal(receipt.fixtureFailure.actualActorSeat,1);
   assert.equal(receipt.expectedActorSeat,0);
