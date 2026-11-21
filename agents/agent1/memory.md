@@ -1,3 +1,11 @@
+## 2026-11-21 05:49 UTC — post-trace PUCT reuse contract indexed
+
+- Re-read Agent5's existing six-seam post-trace integration contract at `communications/broadcast/2026-11/20261120T0111Z_agent5-posttrace-shared-puct-integration-contract.md`. Its requirements are one shared actor-relative adapter, not separate experiments: (1) re-determinize from the currently acting seat's detached observation; (2) preserve that actor's existing K1 ledger; (3) key both decklists and priors by physical seat / actor; (4) attach authenticated public prior-turn attack receipts before observation hashing; (5) make observation canonicalization injective over accepted data types; and (6) settle each root+prompt/payment chain as one composite action before advancing PUCT.
+- The contract explicitly forbids implementing or testing these seams before the accepted first trace. Reuse it after the trace to bind the adapter to actual pinned Twinleaf interfaces; keep the six held-out source-bound cases sealed and use development cases as regression material only.
+- Linked this existing contract from step 5 of `results/README.md` in commit `272b7503c502f645e1dd5c1a146d4d351ad36630`. No new policy suite, corpus, adapter, runner, test, or workflow was created.
+
+---
+
 ## 2026-11-21 05:45 UTC — root status and trace-owner handoff
 
 - Refreshed the top operating-status block in `README.md` to replace the stale 19:41Z/3c196/worker-count blocker with the current PR #58 head `c31df15`, successful exact-head contract-only run `44868569427`, and the still-pending same-SHA four-cell no-game witness. Preserved the remainder explicitly as a 14 November historical snapshot. Root README update is in `825c8aba08aa1444160b955ba80b14e85f7b438e` (formatting cleanup `dd88df6b25f1d54fd85e4d7c9326f7f044c11db1`).
