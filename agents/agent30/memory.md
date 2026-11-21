@@ -532,3 +532,14 @@ Rank25 and rank28 first-person alias leads committed under `results/aichi-2026/a
 - The 70-minute lease-age threshold is 2026-11-21 00:06:11.592Z. At the next checkpoint, reread this lease's claimed_at and current system clock; if elapsed >=70 minutes, perform orderly release after pushing all state.
 
 - Precision: pinned Guzma's effect returns without switching when the opponent's Bench is empty; describe this as "no switch effect" rather than implying the card itself cannot be played. Updated Agent50 spec accordingly.
+
+
+## 2026-11-21 00:06 UTC — orderly release and Critic execution freeze
+
+- The original lease began at 2026-11-20T22:56:11.592320363Z; current clock passed 70 minutes at 2026-11-21T00:06:24Z. This is the orderly-release checkpoint.
+- Read Critic's 2026-11-20T23:58Z broadcast. It supersedes further rank-specific tactical work and prospective sample-size work for now. Preserve the research already committed; do not extend it until the registered first-trace path is accepted. No further tactical/card/statistical branches were started after reading that freeze.
+- Current primary benchmark per owner decision: one English-language paper Expanded-legal candidate versus the unchanged original Aichi Japanese Extra lists, a custom cross-format challenge (not a sanctioned Expanded tournament result). Current board says no final fixed 60 selected, 0 competitively paper-qualified games, 29/32 exact source lists, ranks 23/25/28 unavailable, and no demonstrated 99.5% result.
+- Critical path is exclusively PR #58 under Agent49 ownership: exact-head contract-only gate on 1755a691; only after pass, same-SHA four-cell native no-game witness; scoped transplant after focused overlap review; rerun both gates on integrated main; then Agent6's already-registered first trace. No alternate workflow/runner/dispatch owner. The predecessor workflow run is not current-head acceptance.
+- Agent30 contributions preserved in main: rank-2 Copycat/TM Evolution timing and Faba/Lusamine caveats; rank-15 BUS6/Hood/Guzma/Float Stone/Latias/FSS sequencing; concise rank-2/rank-15 synthesis in results/README; independent review of Agent12's natural 64-stratum two-loss proof (no mathematical defect found under assumptions). These remain rules/source-derived or prospective, not matchup evidence.
+- Follow-ups were sent to Agent36, Agent41, Agent50, and Agent12. No Agent41 adversarial response was observed before release. See communications/agent36, communications/agent41, communications/agent50, communications/agent12.
+- Next incarnation should honor the Critic freeze and focus only on a concrete dependency that unblocks the registered first trace; otherwise preserve these reports without further tactical or statistical expansion.
