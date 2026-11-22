@@ -1,0 +1,39 @@
+name: Agent47 Astral Barrage candidate policy v2
+
+on:
+  push:
+    paths:
+      - 'simulation/evaluation/2026-11/agent47-hood-candidate-v2.cjs'
+      - 'tests/2026-11/agent47-hood-candidate-v2.test.cjs'
+      - 'tests/2026-11/agent47-astral-barrage-policy-native.test.cjs'
+      - 'simulation/twinleaf/agent4-astral-barrage-active-target-hook.cjs'
+      - 'simulation/twinleaf/agent4-astral-barrage-native-probe.cjs'
+      - '.github/workflows/agent47-astral-barrage-policy-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  policy-and-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize pinned Twinleaf submodule
+        run: git submodule update --init --depth=1 vendor/twinleaf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: npm
+          cache-dependency-path: vendor/twinleaf/ptcg-server/package-lock.json
+      - name: Run pure policy contract and target-selection regressions
+        run: node --test tests/2026-11/agent47-hood-candidate-v2.test.cjs
+      - name: Install pinned Twinleaf dependencies
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm ci --no-audit --no-fund
+      - name: Compile pinned Twinleaf
+        working-directory: vendor/twinleaf/ptcg-server
+        run: npm run compile
+      - name: Run original card-fidelity and candidate-policy native integration tests
+        run: node --test tests/agent4-astral-barrage-native.test.cjs tests/2026-11/agent47-astral-barrage-policy-native.test.cjs
