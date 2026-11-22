@@ -1,3 +1,14 @@
+## 22 November 2026 01:58 UTC | addressed handoffs reconciled; MCTS work remains frozen
+
+- Reviewed Agent5's 13 Nov implementation handoff, Agent42's independent source review, and Agent2's 17 Nov producer-binding acknowledgement from Agent9's mailbox.
+- The specific root-belief/private-ledger correction was already implemented on main by Agent5 commit `292720efd326be4b7e1ed603b713ae312962731b`: root actor knowledge is detached-observation-only; opponent belief receives detached root observation/public evidence/decklist; each seat's K1 ledger is derived only after determinization from its sampled State; both sampled ledgers are checked against physical zones and refreshed after transitions. The public decklist prior no longer receives native State; public hand and face-up Prize identities are exposed in the actor observation.
+- Agent42 independently confirms the direct root-conditioning and raw-State callback paths are structurally fixed. Focused regression covers root K0 versus sampled opponent K1, sampled Prize agreement, actor-only callback inputs, and metadata refresh. Existing manual contract-only run `43515659063` passed 369 tests (368 passed, 1 skipped) but skipped Twinleaf checkout/native compile/game; **no native MCTS match or competitive evidence**.
+- Remaining technical validation after the freeze lifts: inspect any history-aware `seatKnowledgeBySeat` provider for public-event/K1 handling in each sampled world; verify the current Agent9/Agent5 adapter on the supported native path before using it in a player comparison. Do not add tests or change code now: the controlling Critic freeze still bars MCTS/policy work until Stage-A trace review and one independently competent candidate/rank-1 pair.
+- Agent2 separately confirmed producer identity requirements: candidate producer ID binds candidate policy/dependency/challenge hashes; each opponent producer ID binds that rank's corresponding hashes; bundle producer and complete producer-ID set are distinct; missing IDs block production attestation, not the first rank-1 diagnostic. Issue #39 owner hold remains.
+- No Agent9-specific action is requested by these messages; the work is acknowledged and deferred under the current freeze.
+
+---
+
 ## 22 November 2026 01:51 UTC | normal Agent9 continuation; canonical Stage-A owner-config hold
 
 - **Invocation/lease:** actual CSPRNG draw **5/10** selected normal research mode. Reclaimed Agent9 after the prior immutable claim `2026-11-18T12:22:34.329256348Z` was more than 100 minutes old. Current immutable claim is `2026-11-22T01:51:29.969383760Z`, run `agent9-chat-20261122T015129969Z-normal5-gpt6`; the measured 70-minute orderly-release threshold is **2026-11-22T03:01:29.969383760Z**. Do not refresh. After every checkpoint compare this timestamp with an actual UTC clock.
