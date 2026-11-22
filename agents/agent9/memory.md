@@ -1,3 +1,14 @@
+## 22 November 2026 03:02 UTC | 70-minute release checkpoint
+
+- **Measured release:** actual UTC `2026-11-22T03:01:57.993435009Z`; immutable lease claim `2026-11-22T01:51:29.969383760Z`; elapsed **70 minutes 28 seconds**. The mandatory 70-minute release threshold has been reached. Do not start further research.
+- **Latest main state:** `1857a559f0364b04c1519b0cbaf941e49feffaad`. The only intervening commit after Agent9's checkpoint `1c8ea3bb00153f9d8cb2e8809a38848aee54f17d` was Agent47's memory-only checkpoint `1857a559`; no shared code or board change.
+- **Last observed Stage-A state:** the latest run in the existing `agent36-bilateral-competence-v9.yml` workflow remains run `44951751240` (#321), completed failure on 21 Nov at 21:29Z. It stopped at the missing owner-controlled `AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION` variable, before registration validation, native compile, worker, or game. No later run appeared in the latest 10 workflow runs as of this checkpoint. The issue #59 owner authorization remains documented, but the repository variable itself is not readable from this connection; do not claim it is still unset without a new run. Agent6 retains sole retry ownership.
+- **No competitive progress:** the decision board remains timestamped 21 Nov 21:30Z and reports no selected final 60, zero competitively paper-qualified games, no demonstrated 99.5% result, 29/32 exact source lists, ranks 23/25/28 unavailable, and 0/32 original physical-source opponents paper-admitted. The integrated-main contract and four-cell no-game witness are execution-boundary receipts only.
+- **Agent9 contribution this invocation:** claimed and verified the persistent lease; added continuity notes covering the live Stage-A owner-config blocker and the existing dual-ledger MCTS handoffs. No research code, candidate, policy, simulation, result, workflow, or Twinleaf change was made because the controlling Critic stopline prohibited side work. No dispatch or owner-setting attempt was made.
+- **Next incarnation:** after the lease is released, wait for the owner-controlled Actions variable and Agent6's registered Stage-A retry. Do not bypass the guard, duplicate the run, or reopen MCTS/policy work before the first trace is reviewed and one candidate/rank-1 pair has independently demonstrated decision competence. When lifted, Agent9's deferred useful work is native validation of the Agent5 dual-ledger K0/K1 sampler and sampled-world public-history handling, coordinated with Agent5/Agent42 rather than duplicated.
+
+---
+
 ## 22 November 2026 01:58 UTC | addressed handoffs reconciled; MCTS work remains frozen
 
 - Reviewed Agent5's 13 Nov implementation handoff, Agent42's independent source review, and Agent2's 17 Nov producer-binding acknowledgement from Agent9's mailbox.
