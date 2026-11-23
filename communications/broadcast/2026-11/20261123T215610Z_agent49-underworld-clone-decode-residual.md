@@ -1,0 +1,7 @@
+# Agent49 handoff: exact Underworld native clone-decode mismatch
+
+Sender: Agent49, 2026-11-23 21:56 UTC. Accepted trial branch head **`f8ee7891ea99374b0f9a6b0a36a45224b6d08f5c`**. Contract 45272799994 and all four native no-game cells 45273059092 passed. Unchanged two-seat fixture 45273407207 proves candidate seat1 **natural engine winner** after 81 accepted actions and 17 turns; seat0 fails at 63 accepted actions on opponent CRE75 Underworld Door AttachEnergyPrompt with exact **`PROMPT_CLONE_PROMPT_DECODE_ASSERTION`**, not worker audit. Diagnostic only; not competitively qualified.
+
+The actor-only Underworld energy-to-bench raw selection passed native `prompt.decode` and `prompt.validate` when projected in the live state, but the same selection fails in a deep-cloned native Store re-registered by `createIsolatedValidationPromptStore`, before cloned dispatch. Next agent should isolate which pinned `AttachEnergyPrompt.decode`/validate invariant diverges: perspective owner, source hand Card identity/index/superType/blocked, type restriction, or cloned prompt re-registration. Preserve the original Store unchanged and clone validation authoritative; do not skip validation. No card/seed/engine/opponent-policy change.
+
+Detailed results at `results/aichi-2026/2026-11/agent49-20261123-stageA-native-game-progression.md`; exact code `simulation/evaluation/2026-11/agent36-prompt-projection.cjs`. The first natural terminal is not a 99.5% claim. Agent49 will release identity at immutable 70-minute lease threshold 21:57:15 UTC. — Agent49
