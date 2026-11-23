@@ -3,6 +3,14 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
+const path = require('node:path');
+const { stage } = require('../../simulation/twinleaf/agent5-attack-special-arbitration-native.cjs');
+const { initializeCards } = require('../../simulation/twinleaf/headless.cjs');
+const { installUnderworldDoorPsychicRecipientHook } =
+  require('../../simulation/twinleaf/underworld-door-psychic-recipient-hook.cjs');
+const loadNative = name => require(path.resolve(__dirname,
+  '../../vendor/twinleaf/ptcg-server/output', name));
+
 const { Store } = require('../../vendor/twinleaf/ptcg-server/output/game/store/store');
 const { State, GamePhase } = require('../../vendor/twinleaf/ptcg-server/output/game/store/state/state');
 const { Player } = require('../../vendor/twinleaf/ptcg-server/output/game/store/state/player');
@@ -120,3 +128,110 @@ for (const groupSize of [1, 2]) {
       'prompt validation must not execute the live game continuation');
   });
 }
+
+test('Underworld Door AttachEnergyPrompt clone validation uses the cloned prompt/card graph', () => {
+  const x = stage(0);
+  const manager = initializeCards();
+  let id = 87000;
+  const card = name => {
+    const result = manager.getCardByName(name);
+    assert.ok(result, name);
+    result.id = id++;
+    return result;
+  };
+
+  const psychic = x.owner.bench[0];
+  const offType = x.owner.bench[1];
+  psychic.cards.length = 0;
+  psychic.cards.push(card('Shadow Rider Calyrex V CRE'),
+    card('Shadow Rider Calyrex VMAX CRE'));
+  offType.cards.length = 0;
+  offType.cards.push(card('Dialga-GX UPR'));
+  x.owner.hand.cards.length = 0;
+  const energy = card('Psychic Energy SVE');
+  x.owner.hand.cards.push(energy);
+  x.owner.deck.cards.length = 0;
+  for (let i = 0; i < 4; i++) x.owner.deck.cards.push(card('Psychic Energy SVE'));
+
+  const { UseAbilityAction } = loadNative('game/store/actions/game-actions');
+  const { PlayerType, SlotType } = loadNative('game/store/actions/play-card-action');
+  const { CheckPokemonTypeEffect } = loadNative('game/store/effects/check-effects');
+  const { EnergyCard } = loadNative('game/store/card/energy-card');
+  const { CardType, EnergyType, SuperType } = loadNative('game/store/card/card-types');
+  const { AttachEnergyPrompt } = loadNative('game/store/prompts/attach-energy-prompt');
+  const originalPromptValidate = AttachEnergyPrompt.prototype.validate;
+  const restore = installUnderworldDoorPsychicRecipientHook();
+
+  try {
+    x.store.dispatch(new UseAbilityAction(x.owner.id, 'Underworld Door', {
+      player: PlayerType.BOTTOM_PLAYER, slot: SlotType.BENCH, index: 0
+    }));
+    let pending = x.state.prompts.find(prompt => prompt.result === undefined);
+    assert.equal(pending?.constructor.name, 'WaitPrompt');
+    x.store.dispatch(new ResolvePromptAction(pending.id, null));
+    pending = x.state.prompts.find(prompt => prompt.result === undefined);
+    assert.equal(pending?.constructor.name, 'AttachEnergyPrompt');
+
+    const sourceCard = psychic.cards.find(item =>
+      item.fullName === 'Shadow Rider Calyrex VMAX CRE');
+    const nativeBindings = {
+      Store, ResolvePromptAction, PlayerType, SlotType,
+      CheckPokemonTypeEffect, EnergyCard, CardType, EnergyType, SuperType
+    };
+    const provenanceHook = {
+      getPromptProvenance: () => ({
+        sourceKind: 'card-effect', sourceCard, effectName: 'Underworld Door'
+      })
+    };
+    const projection = projectPrompt({
+      prompt: pending, state: x.state, actorSeat: 0,
+      native: nativeBindings, store: x.store, provenanceHook
+    });
+    const energyChoice = projection.promptProjection.choices.find(choice =>
+      choice.kind === 'energy');
+    assert.ok(energyChoice, 'the owner-visible prompt must expose the physical Basic Psychic Energy');
+    assert.deepEqual(pending.underworldDoorAllowedBenchIndices, [0]);
+    assert.equal(pending.validate([{
+      to: { player: PlayerType.BOTTOM_PLAYER, slot: SlotType.BENCH, index: 1 },
+      index: 0,
+      card: energy
+    }]), false, 'a non-Psychic Bench target must remain rejected');
+
+    const originalState = cloneNativeValidationGraph(x.state);
+    const prepared = dispatchPromptChoice({
+      store: x.store, prompt: pending, state: x.state, actorSeat: 0,
+      projection,
+      decision: { kind: 'select-choice', token: energyChoice.token },
+      native: nativeBindings,
+      dispatch: false,
+      withValidationRandom: callback => callback()
+    });
+
+    assert.equal(prepared.validationReceipt?.schema,
+      'agent6-cloned-store-prompt-validation-v1');
+    assert.equal(prepared.validationReceipt?.promptDecodeValidated, true);
+    assert.equal(prepared.validationReceipt?.clonedPromptResolved, true);
+    assert.equal(prepared.validationReceipt?.nativeValidationStoreMode, 'cloned-store');
+    assert.equal(prepared.validationReceipt?.fullOriginalStoreStateUnchanged, true);
+    assert.deepEqual(x.state, originalState,
+      'clone validation must not mutate the live Underworld Door state');
+    assert.equal(pending.result, undefined,
+      'clone validation must leave the live AttachEnergyPrompt unresolved');
+    assert.equal(x.owner.hand.cards.includes(energy), true);
+    assert.equal(psychic.energies.cards.includes(energy), false);
+
+    x.store.dispatch(prepared.action);
+    assert.equal(psychic.energies.cards.includes(energy), true);
+    assert.equal(offType.energies.cards.includes(energy), false);
+    assert.equal(x.owner.deck.cards.length, 2);
+    assert.equal(x.owner.hand.cards.length, 2);
+    assert.equal(x.state.prompts.filter(prompt => prompt.result === undefined).length, 0);
+    assert.equal(restore.isRestored, false,
+      'the hook remains installed through live native prompt settlement');
+  } finally {
+    restore();
+    assert.equal(restore.isRestored, true);
+    assert.strictEqual(AttachEnergyPrompt.prototype.validate, originalPromptValidate);
+  }
+});
+
