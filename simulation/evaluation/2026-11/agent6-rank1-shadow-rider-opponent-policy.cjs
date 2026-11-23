@@ -533,16 +533,11 @@ function choiceOwner(choice) {
   return choice?.publicMetadata?.ownerSeat ?? '';
 }
 
-function findVisibleSlot(player, zone, printing, targetIndex = null) {
+function findVisibleSlot(player, zone, printing) {
   if (!player || typeof printing !== 'string') return null;
   if (zone === 'active' && player.active?.printing === printing) return player.active;
   if (zone === 'bench') {
-    const bench = list(player.bench);
-    if (targetIndex !== null && targetIndex !== undefined) {
-      if (!Number.isSafeInteger(targetIndex) || targetIndex < 0 || targetIndex >= bench.length) return null;
-      return bench[targetIndex]?.printing === printing ? bench[targetIndex] : null;
-    }
-    return bench.find(slot => slot?.printing === printing) ?? null;
+    return list(player.bench).find(slot => slot?.printing === printing) ?? null;
   }
   return null;
 }
@@ -550,7 +545,7 @@ function findVisibleSlot(player, zone, printing, targetIndex = null) {
 function scorePokemonChoice(choice, observation, mode) {
   const meta = choice.publicMetadata ?? {};
   if (meta.ownerSeat !== 'actor') return -1;
-  const slot = findVisibleSlot(observation.ownPublic, meta.targetZone, choice.printing, meta.targetIndex);
+  const slot = findVisibleSlot(observation.ownPublic, meta.targetZone, choice.printing);
   if (!slot) return -1;
 
   if (mode === 'underworld' || mode === 'raihan') {
@@ -918,41 +913,6 @@ function promptDecision(request) {
     });
     return ranked.length > 0 ? { kind: 'select-choice', token: ranked[0] } :
       { kind: 'abstain', reasonCode: 'NO_VISIBLE_ENERGY_CHOICE' };
-  }
-
-  if (prompt.promptType === 'AttachEnergyPrompt' || selectionType === 'energy-attachment') {
-    const exactUnderworld = prompt.promptType === 'AttachEnergyPrompt' &&
-      selectionType === 'energy-attachment' &&
-      prompt.source.sourceKind === 'card-effect' &&
-      effectName === 'Underworld Door' &&
-      matches(sourcePrinting, PRINT.shadowRiderVmax) &&
-      metadata.minimumCount === 1 && metadata.maximumCount === 1 &&
-      metadata.sourceZone === 'hand' && metadata.zone === 'bench' &&
-      metadata.ownerSeat === 'actor' && metadata.energyType === 'BASIC';
-    if (!exactUnderworld) {
-      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
-    }
-    setPolicyAuditRule('UNDERWORLD_ENERGY_ATTACH_TARGET_SCORE', 'SCORE_DESC_CHOICE_INDEX_ASC');
-    const ranked = choices.map((choice, index) => {
-      const meta = choice.publicMetadata ?? {};
-      const valid = choice.kind === 'energy' &&
-        /^Psychic Energy(?:\b|$)/i.test(choice.printing ?? '') &&
-        meta.sourceZone === 'hand' && meta.ownerSeat === 'actor' &&
-        meta.isOwnerVisible === true && meta.zone === 'bench' &&
-        meta.energyType === 'BASIC' &&
-        Number.isSafeInteger(meta.targetIndex) && meta.targetIndex >= 0;
-      const slot = valid ? list(observation.ownPublic.bench)[meta.targetIndex] : null;
-      const score = slot ? scorePokemonChoice({
-        printing: slot.printing,
-        publicMetadata: { ownerSeat: 'actor', targetZone: 'bench', targetIndex: meta.targetIndex }
-      }, observation, 'underworld') : -1;
-      recordPolicyAuditScore(choice.token, score, 'NO_VISIBLE_TARGET_SCORE');
-      return { choice, index, score };
-    }).filter(row => row.score >= 0)
-      .sort((a, b) => b.score - a.score || a.index - b.index);
-    return ranked.length > 0
-      ? { kind: 'select-choice', token: ranked[0].choice.token }
-      : { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ENERGY_PAYMENT' };
   }
 
   if (prompt.promptType === 'ChoosePokemonPrompt' || selectionType === 'pokemon') {
