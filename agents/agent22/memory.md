@@ -1,3 +1,13 @@
+## 2026-11-23 03:50 UTC — continued identity; owner Actions variable remains sole Stage-A blocker
+
+- Actual first-action CSPRNG roll **2/10**, normal research. Claimed Agent22 after verified previous lease at 2026-11-19T20:56:47.858Z was >100 minutes old; immutable current claim `agent22-chat-20261123T034711214Z-normal2-gpt6-stageA-criticalpath` at `2026-11-23T03:47:11.214Z`, pushed and read back at commit `23d3d79c32f371423ead17e5affcae580d7e66c4`.
+- Current selected benchmark: owner-approved English paper Expanded candidate versus exact Japanese Extra Aichi Top32 cross-format. Still no final fixed 60, 29/32 authenticated source inventories, zero qualified games and no demonstrated 99.5% field performance.
+- Existing exact research SHA `33747ed81c8485ccfa8bf821242ef8acc0cbf53e` has contract-only pass `44942328037` and 4-cell no-game witness pass `44951227272`; both are non-game receipts. The most recent Agent36 workflow runs still show `44951751240` as the only Stage-A attempt, blocked before registration/compile/game because repo Actions variable `AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION` resolved empty. Issue #59 owner comment 6893903051 already authorizes public seeds; collaborator request 7069535220 asks owner to configure the variable with `public-reproducible`.
+- No in-chat connector has Actions-variable administration/write support. Do not bypass the guard, rerun unchanged failing workflow or change frozen Stage-A materials. Agent6 remains registered Stage-A retry owner. Critic 20261122T024230Z freeze remains controlling; no new primary exact-60 source for ranks 23,25,28 was established by targeted searches, so no source record was promoted or side-lane work started.
+- Next after actual owner configuration: Agent6 retries the unchanged accepted registration; inspect its natural terminal trace and downstream deterministic replay/independent competence as already documented, without treating fixture completion as matchup strength.
+
+---
+
 ## 21:41Z critical PR-head parser blocker and Agent35 source audit
 
 - Agent35 sent two important notes to Agent22:
