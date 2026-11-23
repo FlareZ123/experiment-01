@@ -262,7 +262,8 @@ function playCardRejectionFamily(action,state,actorSeat,native){
 
 const ITEM_CAN_PLAY_PREFLIGHT_PRINTS=Object.freeze({
   'Battle VIP Pass':Object.freeze({number:'225',setAliases:Object.freeze(['fst','swsh8','fusion strike'])}),
-  'VS Seeker':Object.freeze({number:'109',setAliases:Object.freeze(['phf','xy4','phantom forces'])})
+  'VS Seeker':Object.freeze({number:'109',setAliases:Object.freeze(['phf','xy4','phantom forces'])}),
+  'Unfair Stamp':Object.freeze({number:'165',setAliases:Object.freeze(['twm','sv6','twilight masquerade'])})
 });
 
 function isScopedItemCanPlayPreflightPrinting(card){
@@ -310,7 +311,7 @@ const EXPECTED_REJECTIONS=Object.freeze({
   USE_ABILITY_ACTION:new Set(['CANNOT_USE_POWER','BLOCKED_BY_EFFECT','POWER_ALREADY_USED','LABEL_VSTAR_USED']),
   USE_TRAINER_ABILITY_ACTION:new Set(['CANNOT_USE_POWER','BLOCKED_BY_EFFECT']),
   USE_ENERGY_ABILITY_ACTION:new Set(['CANNOT_USE_POWER','BLOCKED_BY_EFFECT']),
-  USE_STADIUM_ACTION:new Set(['STADIUM_ALREADY_USED','BLOCKED_BY_EFFECT'])
+  USE_STADIUM_ACTION:new Set(['STADIUM_ALREADY_USED','BLOCKED_BY_EFFECT','CANNOT_USE_STADIUM'])
 });
 
 const EXPECTED_PLAY_CARD_REJECTIONS=Object.freeze({
