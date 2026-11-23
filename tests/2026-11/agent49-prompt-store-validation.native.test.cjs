@@ -279,14 +279,54 @@ test('Underworld hook preserves native Blaziken Firestarter AttachEnergyPrompt v
     assert.equal(Object.prototype.hasOwnProperty.call(pending, 'validate'), false,
       'a non-Underworld prompt must retain the native inherited validator');
 
-    const validFirestarterChoice = [{
+    const originalState = cloneNativeValidationGraph(x.state);
+    const originalPromptGroups = x.store.promptItems.map(item => item.ids.slice());
+    const rawFirestarterChoice = [{
+      to: { player: PlayerType.BOTTOM_PLAYER, slot: SlotType.BENCH, index: 1 },
+      index: 0
+    }];
+    const projection = {
+      promptProjection: {
+        choices: [
+          { token: 'prompt-0', kind: 'energy', label: 'Fire Energy SVE' },
+          { token: 'prompt-1', kind: 'cancel', label: 'Cancel selection' }
+        ],
+        publicMetadata: { selectionType: 'energy-payment', allowCancel: true }
+      },
+      choiceByToken: new Map([
+        ['prompt-0', rawFirestarterChoice],
+        ['prompt-1', null]
+      ])
+    };
+    const prepared = dispatchPromptChoice({
+      store: x.store, prompt: pending, state: x.state, actorSeat: 0,
+      projection,
+      decision: { kind: 'select-choice', token: 'prompt-0' },
+      native: { Store, ResolvePromptAction },
+      dispatch: false,
+      withValidationRandom: callback => callback()
+    });
+
+    assert.equal(prepared.validationReceipt?.schema,
+      'agent6-cloned-store-prompt-validation-v1');
+    assert.equal(prepared.validationReceipt?.promptDecodeValidated, true);
+    assert.equal(prepared.validationReceipt?.clonedPromptResolved, true);
+    assert.equal(prepared.validationReceipt?.nativeValidationStoreMode, 'cloned-store');
+    assert.equal(prepared.validationReceipt?.fullOriginalStoreStateUnchanged, true);
+    assert.deepEqual(x.state, originalState,
+      'non-Underworld cloned prompt validation must not mutate the live Store state');
+    assert.deepEqual(x.store.promptItems.map(item => item.ids), originalPromptGroups,
+      'non-Underworld cloned prompt validation must preserve the live continuation queue');
+    assert.equal(pending.result, undefined,
+      'non-Underworld cloned prompt validation must leave the live prompt unresolved');
+    assert.equal(x.owner.discard.cards.includes(fireEnergy), true);
+    assert.equal(x.owner.bench[1].energies.cards.includes(fireEnergy), false);
+    assert.equal(pending.validate([{
       to: { player: PlayerType.BOTTOM_PLAYER, slot: SlotType.BENCH, index: 1 },
       card: fireEnergy
-    }];
-    assert.equal(pending.validate(validFirestarterChoice), true,
-      'a native-valid non-Underworld Firestarter selection must remain valid');
+    }]), true, 'a native-valid non-Underworld Firestarter selection must remain valid');
 
-    x.store.dispatch(new ResolvePromptAction(pending.id, validFirestarterChoice));
+    x.store.dispatch(prepared.action);
     assert.equal(x.owner.bench[1].energies.cards.includes(fireEnergy), true);
     assert.equal(x.owner.discard.cards.includes(fireEnergy), false);
     assert.equal(x.store.state.prompts.filter(prompt => prompt.result === undefined).length, 0);
