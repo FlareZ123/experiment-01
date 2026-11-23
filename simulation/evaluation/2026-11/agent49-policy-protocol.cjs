@@ -608,9 +608,11 @@ function isMimikyuCopycatAttack(row) {
 }
 
 function isMimikyuCopycatEligibleAttack(row) {
-  // Paper Copycat excludes GX attacks and Mimikyu's own Copycat. The engine's
-  // generic copycatAttack flag also marks other copied attacks that official
-  // rulings allow; runtime support for those remains a separate adapter gate.
+  // GX attacks are excluded by the printed Copycat text. The self-Copycat
+  // exclusion is a conservative current guard pending an authoritative ruling
+  // on copying Copycat itself; do not treat it as a proven general paper rule.
+  // Other copycatAttack flags include attacks such as Apex Dragon, which may be
+  // paper-eligible while runtime support remains a separate adapter gate.
   return row?.gxAttack === false && !isMimikyuCopycatAttack(row);
 }
 
