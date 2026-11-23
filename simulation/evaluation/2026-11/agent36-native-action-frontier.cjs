@@ -263,7 +263,9 @@ function playCardRejectionFamily(action,state,actorSeat,native){
 const ITEM_CAN_PLAY_PREFLIGHT_PRINTS=Object.freeze({
   'Battle VIP Pass':Object.freeze({number:'225',setAliases:Object.freeze(['fst','swsh8','fusion strike'])}),
   'VS Seeker':Object.freeze({number:'109',setAliases:Object.freeze(['phf','xy4','phantom forces'])}),
-  'Unfair Stamp':Object.freeze({number:'165',setAliases:Object.freeze(['twm','sv6','twilight masquerade'])})
+  'Unfair Stamp':Object.freeze({number:'165',setAliases:Object.freeze(['twm','sv6','twilight masquerade'])}),
+  'Field Blower':Object.freeze({number:'125',setAliases:Object.freeze(['gri','sm2','guardians rising'])}),
+  'Night Stretcher':Object.freeze({number:'61',setAliases:Object.freeze(['sfa','sv6a','shrouded fable'])})
 });
 
 function isScopedItemCanPlayPreflightPrinting(card){
