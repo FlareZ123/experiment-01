@@ -954,3 +954,38 @@ Field exact known **29/32**, missing ranks **23/25/28**, and zero independently 
 - My 18:19Z claim that the candidate policy can reach the Night Stretcher empty-selection branch in the frozen V3 fixture was too strong. Agent15's 18:23Z correction and Agent43's 18:25Z denominator audit are correct: the current frozen candidate policy does **not** choose/play Night Stretcher at the root. The `chooseCardCombination()` min:0 empty-selection branch is real only if a Night Stretcher prompt is presented; the current root action policy never presents it. The current V3 fixture therefore has no demonstrated Night Stretcher no-op failure. The Special-Energy-only `canPlay` false-positive is also unreachable in the rank1 fixture, which has no Special Energy.
 - Correct disposition: retain the native min:0 vs printed mandatory-one mismatch as a latent Twinleaf fidelity issue; do not count it as a current fixture failure or block current canary. Revisit only if a future deck/policy actually plays Night Stretcher, then add exact mandatory-one behavior with native both-seat regression. No code/test/hook change.
 - I superseded the overstrong broadcast and direct handoffs with corrections at `communications/broadcast/2026-11/20261114T1827Z_agent11-night-stretcher-reachability-correction.md`, `communications/agent46/20261114T1827Z_agent11-night-stretcher-reachability-correction.md`, and `communications/agent49/20261114T1827Z_agent11-night-stretcher-reachability-correction.md`. User-facing correction delivered.
+
+
+## 2026-11-23: Mimikyu Copycat history gate and V3 receipt integration
+
+### Work preserved
+
+Two separate branches preserve the work:
+
+- `agent11/copycat-eligibility-and-prompt-v1-20261123` — initial policy/protocol/prompt fix, contract-only run 45276878443 passed at tested head `8593fd1beeab48d052ddaf9e62f19aeb7bd7ebaf`.
+- `agent11/copycat-v3-history-integration-v1-20261123` — companion branch based on the first, adds V3 runner tracker wiring, setup-transition protection, and regression tests. Contract-only run 45279769272 passed at head `2dfa873a`.
+
+Research note: `results/aichi-2026/2026-11/agent11-copycat-eligibility-and-projection.md` (on the second branch).
+
+### Durable technical findings
+
+- Mimikyu GRI 58 Copycat eligibility is based on a non-GX attack used during the opponent's last turn, not the opponent's current Active's printed attack list.
+- `agent6-rank1-shadow-rider-opponent-policy.cjs` now requires a current, tracker-certified `publicEventReceipt.opponentCopycatChoices` set. It accepts the opponent's last turn even when it is not the immediately preceding global turn (extra-turn-safe), but filters GX attacks, Mimikyu's own Copycat, unsupported copied-payload attacks, and exact Trevenant & Dusknoir-GX Night Watch.
+- `agent49-policy-protocol.cjs` validates the history rows and Copycat source/choice metadata. The generic `copycatAttack` marker is not itself a paper-rule prohibition for every card; Mimikyu's own Copycat and GX attacks are excluded. Runtime support for other copied payloads remains a separate gate.
+- `agent36-prompt-projection.cjs` only projects exact Mimikyu GRI Copycat prompts from actor-visible opponent-owned cards, with explicit GX/copied-payload flags; it filters unsupported choices and fails closed if none remain.
+- `agent36-v3-runner.cjs` now installs `installCopycatMultiAttackHistory(store)` after the provenance hook, restores both wrappers in order, and supplies `attachPreviousOpponentTurnReceipt(view,state,seat,tracker)` to the worker receipt provider.
+- A no-game witness on the integration branch first exposed a setup-transition edge case: the tracker treated an `activePlayer` change with unchanged `state.turn` as a completed turn, producing snapshotTurn 0 at state.turn 0. The integration branch fixes this by recording history only when the global turn counter advances and by having `agent7-copycat-history-root.cjs` ignore snapshots that are invalid or not older than the acting state. Regression tests cover both cases.
+
+### Validation and limitations
+
+- Contract-only run 45279769272 passed on the integration branch at `2dfa873a`, including runner receipt-provider argument coverage and tracker/setup tests.
+- No-game witness 45278905121 failed before the setup-snapshot fix. A rerun, 45279930384, was started after the fix and is pending/was in progress at the last checkpoint. Do not dispatch another V3 workflow from this branch: Agent 6's 22:21 stopline asks that non-registered-branch V3 runs pause until the registered Stage-A trace is resolved. The available Actions connector exposed no cancellation operation for the in-progress rerun.
+- No registered fixture game was run from this branch. No Copycat native game, matchup sample, deck result, or win-rate claim has been demonstrated.
+- The Stage-A registered branch is owned by Agent 6/Agent 49. Do not modify it, its seed, seats, candidate/opponent assignments, or fixture artifacts. The latest Critic direction is to avoid parallel fixture ownership and wait for the registered trace/root-cause separation.
+
+### Next actions
+
+1. Let the already-running no-game witness finish; do not start another workflow on the non-registered branch.
+2. Inspect its result once. If it passes, record only startup/cleanup evidence; if it fails, preserve the exact failure artifact and avoid unrelated fixes.
+3. After Agent 6's registered Stage-A trace and Critic stopline are resolved, hand the second branch to Agent 49/Agent 6 for review. The key integration dependency is now wired, but a native game exercising an opponent's prior-turn non-GX attack followed by Mimikyu Copycat is still required before enabling or claiming competitive performance.
+4. Keep unsupported cloned payloads and Night Watch fail-closed until their actual runtime paths are implemented and tested.
