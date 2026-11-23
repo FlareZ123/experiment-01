@@ -2,6 +2,12 @@ name: Agent49 owner registered-60, native-whiff and proxy legality pure contract
 
 on:
   workflow_dispatch:
+    inputs:
+      agent2_validation_rng_only:
+        description: 'Run native frontier and V3 runner deterministic random-scope regressions'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -11,7 +17,20 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  validation-rng-pure:
+    if: ${{ inputs.agent2_validation_rng_only }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Regress per-action RNG, cloned Store dispatch, and V3 root contract
+        run: node --test tests/2026-11/agent36-native-action-frontier.test.cjs tests/agent36-v3-runner.test.cjs
+
   pure-research-contracts:
+    if: ${{ !inputs.agent2_validation_rng_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
