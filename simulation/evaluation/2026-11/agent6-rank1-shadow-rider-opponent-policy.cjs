@@ -890,7 +890,7 @@ function promptDecision(request) {
         prompt.source.sourceKind !== 'card-effect' ||
         effectName !== 'Underworld Door' ||
         !matches(sourcePrinting, PRINT.shadowRiderVmax)) {
-      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_ATTACH_ENERGY_SOURCE' };
+      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
     }
     setPolicyAuditRule('UNDERWORLD_ATTACH_BENCH_SCORE', 'SCORE_DESC_CHOICE_INDEX_ASC');
     const legalPairs = choices.filter(choice =>
@@ -917,7 +917,7 @@ function promptDecision(request) {
       return 20 - energy;
     });
     return ranked.length > 0 ? { kind: 'select-choice', token: ranked[0] } :
-      { kind: 'abstain', reasonCode: 'NO_SUPPORTED_UNDERWORLD_ATTACH' };
+      { kind: 'abstain', reasonCode: 'NO_VISIBLE_ENERGY_CHOICE' };
   }
 
   if (prompt.promptType === 'AttachEnergyPrompt' || selectionType === 'energy-attachment') {
