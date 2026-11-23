@@ -45,3 +45,7 @@ The recorded sequence also permits a narrow arithmetic counterfactual. Holding t
 | 5 (3 Active + 2 Bench; observed) | 160 | 380 | 60 damage beyond KO |
 
 Thus one Benched Psychic Energy is the marginal breakpoint for this exact two-hit line; the second Bench Energy adds 60 damage margin across the two attacks but does not change the KO outcome under the recorded conditions. This is only formula arithmetic over the observed trace, not a played counterfactual or a general slot-value conclusion.
+
+## Opponent board at the terminal
+
+At the successful seat's turn-15 and turn-17 attack observations, the Rank-1 opponent's Active Shadow Rider Calyrex VMAX had **zero attached Energy and no Benched Pokémon**; the candidate's Active VMAX had zero damage. This is a public-state observation, not a diagnosis of why the opponent failed to develop. It further limits the terminal's value as a competitive-strength signal: the candidate converted a damaged, undefended target, not a live attacking board.
