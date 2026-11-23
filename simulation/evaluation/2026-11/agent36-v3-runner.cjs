@@ -24,8 +24,7 @@ const {createDockerPolicySession}=require('./agent36-async-docker-policy-session
 const {publicEventReceipt}=require('../../twinleaf/agent8-public-event-receipt.cjs');
 const {attachPreviousOpponentTurnReceipt}=
   require('../../twinleaf/agent7-copycat-history-root.cjs');
-const {installCopycatMultiAttackHistory}=
-  require('../../twinleaf/copycat-multiattack-history.cjs');
+
 const fixtureRuntimePin=require('./agent49-fixture-scoped-runtime-pin.cjs');
 const sanitizedDiagnostic=require('./agent2-v3-sanitized-diagnostic.cjs');
 const {buildSetupPromptAudit,projectV3WorkerExecutionBoundaryToTrial}=require('./agent19-setup-prompt-audit.cjs');
@@ -2837,6 +2836,10 @@ async function runV3FixtureGame({
   // Capture its function reference before the fixture pin and pass only that callback
   // to the native helper; the pin may evict the module from require.cache.
   const diagnostic = require('../../twinleaf/2026-11/agent43-full-state-diagnostic.cjs');
+  // Load the native-action tracker only after the pinned Twinleaf output has
+  // been initialized; runner unit tests can import this module without a build.
+  const {installCopycatMultiAttackHistory}=
+    require('../../twinleaf/copycat-multiattack-history.cjs');
   // Capture the host-only recorder module and function references before the
   // fixture-scoped role pin evicts non-role research modules from require.cache.
   // The recorder observes the live Store only in encrypted-full mode; it is
