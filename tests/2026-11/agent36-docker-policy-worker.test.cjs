@@ -751,3 +751,88 @@ test('production VM worker terminates a non-settling async policy at the per-dec
     fs.rmSync(built.sourceRoot,{recursive:true,force:true});
   }
 });
+
+
+test('real CRE Underworld Door owner prompt carries a complete audit through the Docker VM worker in both seats',{
+  timeout:60000
+},async()=>{
+  const policyPath=path.resolve(__dirname,
+    '../../simulation/evaluation/2026-11/agent6-rank1-shadow-rider-opponent-policy.cjs');
+  const built=makeProductionBundle(fs.readFileSync(policyPath,'utf8'));
+  const sessions=[];
+  try{
+    for(const seat of [0,1]){
+      const session=await createDockerPolicySession({
+        bundle:built.bundle,role:'opponent',seat,
+        policyVersion:'agent6-rank1-shadow-rider-opponent-v1',
+        permissionModel:true,workerTimeoutMs:30000,requestTimeoutMs:10000
+      });
+      sessions.push(session);
+      const obs=actorObservation(seat);
+      obs.decisionKind='owner-prompt';
+      obs.pendingPromptType='AttachEnergyPrompt';
+      obs.ownHand=['Psychic Energy SVE'];
+      obs.ownPublic.bench[0]={
+        printing:'Shadow Rider Calyrex V CRE',name:'Shadow Rider Calyrex V',
+        hp:210,damage:0,lastPlayedOrEvolvedTurn:1,
+        printed:{
+          stage:'BASIC',subtypes:['Basic'],types:['Psychic'],retreatCost:[],
+          weakness:[],resistance:[]
+        },
+        specialConditions:[],
+        publicRestrictions:{
+          cannotAttackNextTurn:false,cannotUseAttacksNextTurn:[],
+          blockedAttackNameNextTurn:null,blockedAttackNameUntilLeavesActive:null,
+          onlyAllowedAttackNameNextTurn:null,
+          attackCostIncreaseNextTurn:0,attackCostIncreaseWhileActive:0,
+          cannotRetreat:false,cannotRetreatNextTurn:false,
+          cannotRetreatWhileActive:false,cannotEvolveNextTurn:false
+        },
+        evolutionPrintings:['Shadow Rider Calyrex V CRE'],
+        energies:[],tools:[],attacks:[],abilities:[],abilityDetails:[],
+        abilitySuppressions:[]
+      };
+      const prompt={
+        schema:protocol.PROMPT_SCHEMA,actingSeat:seat,
+        promptType:'AttachEnergyPrompt',description:'ATTACH_ENERGY_TO_BENCH',
+        source:{
+          classification:'actor-choice',sourceKind:'card-effect',
+          sourcePrinting:'Shadow Rider Calyrex VMAX CRE',effectName:'Underworld Door'
+        },
+        choices:[
+          {
+            token:'attach-psychic',kind:'energy',printing:'Psychic Energy SVE',
+            label:'Attach Psychic Energy SVE to Bench 1: Shadow Rider Calyrex V CRE',
+            publicMetadata:{
+              sourceZone:'hand',ownerSeat:'actor',isOwnerVisible:true,
+              energyType:'BASIC',zone:'bench',benchIndex:0,
+              choiceIndex:0,selectedCount:1
+            }
+          },
+          {token:'cancel',kind:'cancel',label:'Cancel selection'}
+        ],
+        publicMetadata:{
+          selectionType:'energy-attachment',count:1,minimumCount:1,maximumCount:1,
+          allowCancel:true,sourceZone:'hand',ownerSeat:'actor',isOwnerVisible:true,
+          energyType:'BASIC',zone:'bench'
+        }
+      };
+      const result=await session.decide({
+        observation:obs,prompt,
+        actionFrontier:{schema:protocol.FRONTIER_SCHEMA,items:[]}
+      });
+      assert.deepEqual(result.decision,{kind:'select-choice',token:'attach-psychic'});
+      assert.equal(result.policyAudit?.schema,protocol.POLICY_AUDIT_SCHEMA);
+      assert.equal(result.policyAudit.decisionType,'select-choice');
+      assert.equal(result.policyAudit.selectionRuleCode,'UNDERWORLD_ATTACH_BENCH_SCORE');
+      assert.deepEqual(result.policyAudit.selectedTokens,['attach-psychic']);
+      assert.equal(result.policyDrawCount,0);
+      const closed=await session.close();
+      assert.equal(closed.containerRemoved,true);
+    }
+  }finally{
+    for(const session of sessions)await session.abort().catch(()=>{});
+    assert.equal(cleanupPolicyBundle(built.bundle),true);
+    fs.rmSync(built.sourceRoot,{recursive:true,force:true});
+  }
+});
