@@ -804,7 +804,7 @@ jobs:
           for (const key of ['contractSuitePassed','dockerLauncherContractPassed','dockerPreflightPassed','dockerCanaryPassed'])
             assert.equal(contract[key], true, 'acceptance bundle is missing prior contract gate ' + key);
           assert.equal(contract.fixtureExecuted, false);
-          assert.equal(witness.schema, 'agent36-v3-native-no-game-witness-v1');
+          assert.equal(witness.schema, 'agent36-v3-native-no-game-witness-v2');
           assert.equal(witness.researchRevisionSha, process.env.GITHUB_SHA);
           assert.equal(witness.gameExecuted, false);
           assert.equal(witness.liveActionsDispatched, false);
