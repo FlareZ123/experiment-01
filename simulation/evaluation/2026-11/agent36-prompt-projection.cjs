@@ -643,8 +643,7 @@ function projectAttachEnergyPrompt({
           ': '+(printing(target.pokemon)??target.pokemon.name??'Psychic Pokemon'),
         publicMetadata:{
           sourceZone:'hand',ownerSeat:'actor',isOwnerVisible:true,
-          energyType:'BASIC',zone:'bench',targetIndex:target.index,
-          choiceIndex:choices.length,selectedCount:1
+          energyType:'BASIC',zone:'bench',choiceIndex:choices.length,selectedCount:1
         }
       },prompt,state);
     }
