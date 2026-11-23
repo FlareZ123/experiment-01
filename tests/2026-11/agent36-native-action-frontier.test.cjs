@@ -813,3 +813,37 @@ test('generic Item canPlay predicates are not promoted into a broad preflight',(
   assert.equal(built.diagnostics.preflightRejectedCount,0);
   assert.deepEqual(built.actionFrontier.items.map(row=>row.kind),['play-card','pass']);
 });
+
+
+test('pinned Underworld Door spent per-Pokemon marker excludes deferred repeated activation',()=>{
+  for(const used of [false,true]){
+    const state=fixtureState();
+    const vmax=new PokemonCard('Shadow Rider Calyrex VMAX CRE');
+    vmax.UNDERWORLD_DOOR_MARKER='UNDERWORLD_DOOR_MARKER';
+    const psychic=new EnergyCard('Psychic Energy SVE');
+    psychic.energyType=1;psychic.provides=[5];
+    state.players[0].active=slot(vmax);
+    state.players[0].hand.cards=[psychic];
+    let markerChecks=0;
+    state.players[0].marker={hasMarker(marker,source){
+      markerChecks++;
+      assert.equal(marker,'UNDERWORLD_DOOR_MARKER');
+      assert.equal(source.fullName,'Shadow Rider Calyrex VMAX CRE');
+      return used;
+    }};
+    const native=fakeNative({
+      actions:[
+        {type:'USE_ABILITY_ACTION',clientId:'p0',name:'Underworld Door',
+          target:{player:1,slot:1,index:0}},
+        {type:'PASS_TURN',clientId:'p0'}
+      ],rejectActionTypes:[]
+    });
+    native.EnergyType={BASIC:1};
+    native.CardType={PSYCHIC:5};
+    const result=buildNativeActionFrontier({state,actorSeat:0,native});
+    assert.equal(markerChecks,1);
+    assert.equal(result.diagnostics.preflightRejectedCount,used?1:0);
+    assert.deepEqual(result.actionFrontier.items.map(x=>x.kind),
+      used?['pass']:['use-ability','pass']);
+  }
+});
