@@ -16,9 +16,10 @@ The repository already has the needed research-side history components:
 
 The companion integration branch now connects this machinery in `simulation/evaluation/2026-11/agent36-v3-runner.cjs`: it installs `installCopycatMultiAttackHistory(store)` after the prompt-provenance hook, passes `attachPreviousOpponentTurnReceipt(view, state, actorSeat, tracker)` into the worker receipt provider, and restores both dispatch wrappers in reverse installation order. The tracker now records history only when the global turn counter advances; the receipt adapter also ignores snapshots that are invalid or not older than the acting state. This prevents setup-time active-player changes from being misrepresented as completed opponent turns.
 
-## Changes on the Agent 11 research branch
+## Changes on the Agent 11 research branches
 
-Branch: `agent11/copycat-eligibility-and-prompt-v1-20261123`
+- Initial policy/protocol branch: `agent11/copycat-eligibility-and-prompt-v1-20261123`
+- Companion V3 history-integration branch (this document): `agent11/copycat-v3-history-integration-v1-20261123`
 
 - `agent6-rank1-shadow-rider-opponent-policy.cjs`: Copycat is enabled only by a tracker-certified `opponentCopycatChoices` set from the opponent's last completed turn (which need not be the immediately preceding global turn). The policy requires a non-GX, non-Mimikyu-Copycat attack and filters exact Trevenant & Dusknoir-GX Night Watch until its host-only effect path is supported.
 - `agent49-policy-protocol.cjs`: public receipt validation distinguishes GX attacks and Mimikyu's own Copycat from other attacks marked `copycatAttack`. The latter flag is also used by distinct copied-attack effects; it is not, by itself, a paper-rule prohibition. Copycat prompt validation now requires a Mimikyu GRI source and public opponent-owned attack choices with explicit GX/copied-payload flags.
