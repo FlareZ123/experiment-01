@@ -195,10 +195,14 @@ jobs:
           if (conflicts.length) throw new Error('V3 native no-game witness is exclusive; conflicting mode inputs: ' + conflicts.join(', '));
           NODE
 
+      # Owner FlareZ123 explicitly approved public reproducibility on 2026-11-15:
+      # https://github.com/FlareZ123/experiment-01/issues/59#issuecomment-6893903051
+      # Retain the public-seed registration and runner checks; avoid requiring
+      # an additional mutable Actions variable for already-granted consent.
       - name: Require explicit owner authorization for public physical-seed disclosure
         if: ${{ inputs.agent36_v3_fixture_game }}
         env:
-          SEED_DISCLOSURE_DECISION: ${{ vars.AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION }}
+          SEED_DISCLOSURE_DECISION: public-reproducible
         run: |
           node - <<'NODE'
           const decision=process.env.SEED_DISCLOSURE_DECISION;
@@ -815,7 +819,7 @@ jobs:
       - name: Execute paired V3 physical-seat fixture games
         if: ${{ inputs.agent36_v3_fixture_game && steps.verify_prior_no_game_witness.outcome == 'success' && steps.worker_runtime_preflight.outcome == 'success' }}
         env:
-          AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION: ${{ vars.AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION }}
+          AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION: public-reproducible
           AGENT36_V3_DIAGNOSTIC_MODE: ${{ steps.diagnostic_recipient.outputs.mode }}
           AGENT36_V3_PREDEAL_ARTIFACT_REF: ${{ inputs.agent36_v3_predeal_artifact_ref }}
           AGENT36_V3_NO_GAME_WITNESS_RECEIPT: artifacts/prior-v3-acceptance/native-no-game-witness.json
