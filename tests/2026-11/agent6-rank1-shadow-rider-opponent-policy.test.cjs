@@ -259,8 +259,9 @@ function paleMoonReceipt(ownPublic, turn = 3) {
 
 function copycatReceipt(ownPublic, options = {}) {
   const turn = options.turn ?? 3;
+  const opponentLastTurnTurn = options.opponentLastTurnTurn ?? turn - 1;
   const attack = options.attack ?? {
-    turn: turn - 1,
+    turn: opponentLastTurnTurn,
     sourcePrinting: 'Shadow Rider Calyrex VMAX CRE',
     attackName: 'Max Geist',
     gxAttack: false,
@@ -268,6 +269,7 @@ function copycatReceipt(ownPublic, options = {}) {
   };
   const choices = options.choices ?? [attack];
   const receipt = paleMoonReceipt(ownPublic, turn);
+  receipt.opponentLastTurnTurn = opponentLastTurnTurn;
   receipt.opponentLastTurnAttacks = [attack];
   receipt.opponentCopycatChoices = choices;
   const active = ownPublic.active;
@@ -1427,8 +1429,9 @@ test('Mimikyu is played from a tracker-certified prior-turn attack even if the o
     ownPublic,
     opponentPublic: player({ active: pokemon('Pidgeot ex OBF 164') }),
     receipt: copycatReceipt(ownPublic, {
+      opponentLastTurnTurn: 1,
       attack: {
-        turn: 2,
+        turn: 1,
         sourcePrinting: 'Latias ex SSP',
         attackName: 'Eon Blade',
         gxAttack: false,
