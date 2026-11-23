@@ -604,7 +604,7 @@ function eventAttackSignature(row) {
 
 function isMimikyuCopycatAttack(row) {
   const sourcePrinting = typeof row?.sourcePrinting === 'string' ? row.sourcePrinting : '';
-  return /^Mimikyu GRI(?:\\s|$)/.test(sourcePrinting) && row?.attackName === 'Copycat';
+  return /^Mimikyu GRI(?:\s|$)/.test(sourcePrinting) && row?.attackName === 'Copycat';
 }
 
 function isMimikyuCopycatEligibleAttack(row) {
@@ -877,7 +877,7 @@ function validatePrompt(prompt, seat) {
     const attackChoices = prompt.choices.filter(choice => choice.kind === 'attack');
     if (attackChoices.length === 0 || attackChoices.some(choice => {
       const metadata = choice.publicMetadata;
-      const nightWatch = /^Trevenant & Dusknoir-GX SMP(?:\\s|$)/.test(choice.printing ?? '') &&
+      const nightWatch = /^Trevenant & Dusknoir-GX SMP(?:\s|$)/.test(choice.printing ?? '') &&
         metadata?.sourceAttack === 'Night Watch';
       return !choice.printing || !metadata ||
         typeof metadata.sourceAttack !== 'string' || metadata.sourceAttack.length === 0 ||
