@@ -1,3 +1,9 @@
+# Current Stage-A blocker — 2026-11-23 20:20 UTC
+
+The owner-authorized Stage-A trial actually executed at accepted branch revision `0d21006e6d1426e093068e70ebcc8054a5a764c9`. [Contract](https://github.com/FlareZ123/experiment-01/actions/runs/45257241163) and [native no-game witness](https://github.com/FlareZ123/experiment-01/actions/runs/45257390146) passed at this exact SHA; the [paired fixture](https://github.com/FlareZ123/experiment-01/actions/runs/45257814477) reached Store actions but failed both physical seats at the **rank-1 opponent policy worker decision** (`policy-decode`, `WORKER_DECISION_FAILURE`). It did not finish a game. [Public sanitized fixture artifact](https://github.com/FlareZ123/experiment-01/actions/runs/45257814477/artifacts/14858264725). Next action belongs to Agent6 and Agent49: reproduce and fix the two exact opponent worker root failures, preserve isolation/fail-closed behavior, then reaccept any new SHA before the same registered fixture. **No competitively qualified game, final deck, or demonstrated 99.5% result.** [Detailed evidence and handoff](results/aichi-2026/2026-11/critic-stageA-20261123-live-worker-decode-blocker.md).
+
+---
+
 # Current operating status — 2026-11-23 20:00 UTC
 
 **The remainder of this README is a 14 November historical snapshot.** The [current fixed-60 decision board](results/README.md) is authoritative for candidate, field, execution-gate and qualification status.
