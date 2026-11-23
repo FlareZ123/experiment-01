@@ -2,6 +2,12 @@ name: Agent49 owner registered-60, native-whiff and proxy legality pure contract
 
 on:
   workflow_dispatch:
+    inputs:
+      agent2_item_preflight_only:
+        description: 'Run only the exact-printing native action-frontier pure regression'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -11,7 +17,20 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  item-frontier-pure:
+    if: ${{ inputs.agent2_item_preflight_only }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Regress exact-printing Item native frontier, preserved fail-closed handling
+        run: node --test tests/2026-11/agent36-native-action-frontier.test.cjs
+
   pure-research-contracts:
+    if: ${{ !inputs.agent2_item_preflight_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

@@ -723,7 +723,8 @@ test('pinned Battle VIP Pass, VS Seeker, and Unfair Stamp Item canPlay tri-state
   const printings=[
     {name:'Battle VIP Pass',fullName:'Battle VIP Pass FST 225',set:'FST',number:'225'},
     {name:'VS Seeker',fullName:'VS Seeker PHF 109',set:'PHF',number:'109'},
-    {name:'Unfair Stamp',fullName:'Unfair Stamp TWM 165',set:'TWM',number:'165'}
+    {name:'Unfair Stamp',fullName:'Unfair Stamp TWM 165',set:'TWM',number:'165'},
+    {name:'Field Blower',fullName:'Field Blower GRI 125',set:'GRI',number:'125'}
   ];
   for(const printing of printings){
     for(const predicateResult of [false,true,undefined]){
@@ -748,6 +749,28 @@ test('pinned Battle VIP Pass, VS Seeker, and Unfair Stamp Item canPlay tri-state
         assert.deepEqual(built.actionFrontier.items.map(item=>item.kind),['play-card','pass']);
       }
     }
+  }
+});
+
+
+test('Field Blower exact-printing preflight rejects nonmatching set or number without checking canPlay',()=>{
+  const printings=[
+    {name:'Field Blower',fullName:'Field Blower GRI 126',set:'GRI',number:'126'},
+    {name:'Field Blower',fullName:'Field Blower XYZ 125',set:'XYZ',number:'125'}
+  ];
+  for(const printing of printings){
+    const state=fixtureState();
+    const item=state.players[0].hand.cards[0];
+    Object.assign(item,printing,{setNumber:printing.number,trainerType:1});
+    let predicateCalls=0;
+    item.canPlay=()=>{predicateCalls++;return false;};
+    const itemAction={type:'PLAY_CARD_ACTION',id:'p0',handIndex:0};
+    const pass={type:'PASS_TURN',clientId:'p0'};
+    const native=fakeNative({actions:[itemAction,pass],rejectActionTypes:[]});
+    const built=buildNativeActionFrontier({state,actorSeat:0,native});
+    assert.equal(predicateCalls,0,printing.fullName+' cannot get a scoped preflight');
+    assert.equal(built.diagnostics.preflightRejectedCount,0);
+    assert.deepEqual(built.actionFrontier.items.map(row=>row.kind),['play-card','pass']);
   }
 });
 
