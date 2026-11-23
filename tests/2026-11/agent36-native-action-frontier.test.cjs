@@ -590,9 +590,17 @@ test('pinned Underworld Door excludes deferred no-Bench and no-Energy roots with
   const native=fakeNative({actions:[ability,pass],rejectActionTypes:[]});
   native.CardType={PSYCHIC:6};
   native.EnergyType={BASIC:1,SPECIAL:2};
-  function createCase({bench,energy,source}){
+  function createCase({bench,energy,source,markerUsed=false}){
     const state=fixtureState();
-    state.players[0].active=slot(new PokemonCard(source??'Shadow Rider Calyrex VMAX CRE'));
+    const sourcePokemon=new PokemonCard(source??'Shadow Rider Calyrex VMAX CRE');
+    sourcePokemon.UNDERWORLD_DOOR_MARKER='USED_UNDERWORLD_DOOR';
+    state.players[0].active=slot(sourcePokemon);
+    state.players[0].marker={
+      hasMarker(marker,pokemon){
+        return markerUsed&&marker==='USED_UNDERWORLD_DOOR'&&
+          pokemon?.fullName===sourcePokemon.fullName;
+      }
+    };
     state.players[0].bench=[slot(bench?new PokemonCard('Shadow Rider Calyrex V CRE'):null)];
     const basic=new EnergyCard('Psychic Energy SVE');
     basic.name='Psychic Energy';
@@ -621,7 +629,13 @@ test('pinned Underworld Door excludes deferred no-Bench and no-Energy roots with
     assert.deepEqual(result.actionFrontier.items.map(item=>item.kind),['pass']);
     assert.deepEqual(seen,['PASS_TURN']);
   }
-  const ready=createCase({bench:true,energy:true});
+  const alreadyUsed=createCase({bench:true,energy:true,markerUsed:true});
+  assert.equal(alreadyUsed.result.diagnostics.preflightRejectedCount,1,
+    'used CRE75 marker must prevent its second deferred ability before worker admission');
+  assert.deepEqual(alreadyUsed.result.actionFrontier.items.map(item=>item.kind),['pass']);
+  assert.deepEqual(alreadyUsed.seen,['PASS_TURN'],
+    'a rejected deferred second ability must never reach native cloned dispatch');
+  const ready=createCase({bench:true,energy:true,markerUsed:false});
   assert.equal(ready.result.diagnostics.preflightRejectedCount,0);
   assert.deepEqual(ready.result.actionFrontier.items.map(item=>item.kind),['use-ability','pass']);
   assert.deepEqual(ready.seen,['USE_ABILITY_ACTION','PASS_TURN']);
