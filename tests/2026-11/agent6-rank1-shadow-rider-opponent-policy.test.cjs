@@ -1425,7 +1425,7 @@ test('Mimikyu is played from a tracker-certified prior-turn attack even if the o
   const request = rootRequest({
     ownHand: ['Mimikyu GRI 58'],
     ownPublic,
-    opponentPublic: player({ active: pokemon('Unrelated Active') }),
+    opponentPublic: player({ active: pokemon('Pidgeot ex OBF 164') }),
     receipt: copycatReceipt(ownPublic, {
       attack: {
         turn: 2,
@@ -1451,12 +1451,20 @@ test('Mimikyu Copycat attack is selected from the tracker-certified previous-tur
   const ownPublic = player({
     active: pokemon('Mimikyu GRI 58', {
       hp: 70,
-      attacks: [{ name: 'Copycat', cost: ['Psychic', 'Colorless'], gxAttack: false }]
+      attacks: [{
+        name: 'Copycat',
+        cost: ['Psychic', 'Colorless'],
+        damage: null,
+        damageCalculation: null,
+        text: null,
+        gxAttack: false,
+        barrage: false
+      }]
     })
   });
   const request = rootRequest({
     ownPublic,
-    opponentPublic: player({ active: pokemon('Unrelated Active') }),
+    opponentPublic: player({ active: pokemon('Pidgeot ex OBF 164') }),
     receipt: copycatReceipt(ownPublic),
     items: [
       { token: 'copycat', kind: 'attack', attackName: 'Copycat' },
@@ -1501,7 +1509,7 @@ test('Mimikyu does not use the host-only Night Watch Copycat branch', () => {
   const request = rootRequest({
     ownHand: ['Mimikyu GRI 58'],
     ownPublic,
-    opponentPublic: player({ active: pokemon('Unrelated Active') }),
+    opponentPublic: player({ active: pokemon('Pidgeot ex OBF 164') }),
     receipt: copycatReceipt(ownPublic, {
       attack: {
         turn: 2,
@@ -1525,7 +1533,7 @@ test('Mimikyu does not use copied-attack payloads until the V3 compatibility hoo
   const request = rootRequest({
     ownHand: ['Mimikyu GRI 58'],
     ownPublic,
-    opponentPublic: player({ active: pokemon('Unrelated Active') }),
+    opponentPublic: player({ active: pokemon('Pidgeot ex OBF 164') }),
     receipt: copycatReceipt(ownPublic, {
       attack: {
         turn: 2,
@@ -1556,7 +1564,7 @@ test('the protocol rejects Mimikyu Copycat as its own prior-turn Copycat target'
   };
   const request = rootRequest({
     ownPublic,
-    opponentPublic: player({ active: pokemon('Unrelated Active') }),
+    opponentPublic: player({ active: pokemon('Pidgeot ex OBF 164') }),
     receipt: copycatReceipt(ownPublic, { attack }),
     items: [{ token: 'pass', kind: 'pass' }]
   });
