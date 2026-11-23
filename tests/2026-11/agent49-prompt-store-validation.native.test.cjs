@@ -647,11 +647,11 @@ function createMarshadowFixture({onBench,withStadium}){
     x.owner.bench[0].cards.length=0;
     x.owner.bench[0].cards.push(marshadow);
   }else{
-    x.owner.active.cards.length=0;
-    x.owner.active.cards.push(marshadow);
+    x.owner.active.cards[0]=marshadow;
   }
+  let stadium=null;
   if(withStadium){
-    const stadium=card('Training Court RCL');
+    stadium=card('Training Court RCL');
     x.owner.hand.cards.push(stadium);
     const handIndex=x.owner.hand.cards.indexOf(stadium);
     x.store.dispatch(new native.cardActions.PlayCardAction(x.owner.id,handIndex,{
@@ -665,7 +665,7 @@ function createMarshadowFixture({onBench,withStadium}){
       action.target?.slot===native.SlotType.BENCH);
   const candidates=enumerator.enumerate(x.state,x.owner,x.owner.id).filter(isResettingHole);
   assert.equal(candidates.length,1,'the pinned uncapped enumerator must expose Marshadow Resetting Hole');
-  return {x,native,enumerator,action:candidates[0],isResettingHole};
+  return {x,native,enumerator,action:candidates[0],isResettingHole,marshadow,stadium};
 }
 
 function assertDeferredAbilityError(x,native,action,expectedCode){
@@ -676,6 +676,7 @@ function assertDeferredAbilityError(x,native,action,expectedCode){
     const wait=simulator.store.state.prompts.find(prompt=>
       prompt instanceof native.WaitPrompt&&prompt.result===undefined);
     assert.ok(wait,'the activated ability must first create its native WaitPrompt');
+    assert.equal(wait.message,'Ability animation');
     waitResolved=true;
     simulator.store.dispatch(new native.ResolvePromptAction(wait.id,null));
   },error=>error instanceof native.GameError&&error.message===expectedCode,
@@ -690,6 +691,21 @@ test('native action frontier handles Marshadow Resetting Hole deferred CANNOT_US
   );
   assert.ok([...legalFrontier.actionByToken.values()].some(legal.isResettingHole),
     'Bench Marshadow with a Stadium must remain a legal first-use ability');
+
+  assert.ok(legal.stadium,'positive Marshadow fixture must contain a live Stadium');
+  legal.x.store.dispatch(legal.action);
+  const legalWait=legal.x.state.prompts.find(prompt=>
+    prompt instanceof legal.native.WaitPrompt&&prompt.result===undefined);
+  assert.ok(legalWait,'legal Resetting Hole must yield its native animation WaitPrompt');
+  assert.equal(legalWait.message,'Ability animation');
+  legal.x.store.dispatch(new legal.native.ResolvePromptAction(legalWait.id,null));
+  assert.equal(legal.x.owner.stadium.cards.includes(legal.stadium),false);
+  assert.equal(legal.x.owner.discard.cards.includes(legal.stadium),true,
+    'Resetting Hole must discard the live Stadium after the animation');
+  assert.equal(legal.x.owner.bench[0].cards.includes(legal.marshadow),false);
+  assert.equal(legal.x.owner.discard.cards.includes(legal.marshadow),true,
+    'Resetting Hole must discard the Benched Marshadow after the animation');
+  assert.equal(legal.x.state.prompts.some(prompt=>prompt.result===undefined),false);
 
   const noStadium=createMarshadowFixture({onBench:true,withStadium:false});
   assertDeferredAbilityError(noStadium.x,noStadium.native,noStadium.action,'CANNOT_USE_POWER');
