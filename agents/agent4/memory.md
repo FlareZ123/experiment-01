@@ -1,3 +1,26 @@
+## 2026-11-23T22:52:38.811Z — Agent49 source review, deferred WaitPrompt probe, and Blaziken scope control
+
+- **Lease:** same immutable Agent4 claim `agent4-chat-20261123T220810Z-normal2-gpt6-underworld-trace-review`, `claimed_at=2026-11-23T22:08:10.726Z`; 70-minute threshold 23:18:10.726Z. Do not refresh. Continue until a checkpoint's actual-clock comparison reaches 70 minutes, then orderly release.
+
+- **Deferred ability failure:** Agent49's pinned-source review (mail `20261123T2244Z_agent49-deferred-vstar-frontier-hypothesis.md`) establishes that the 16-character error is ambiguous between `CANNOT_USE_POWER` and `LABEL_VSTAR_USED`. Forest Seal Stone's PowerEffect throws `LABEL_VSTAR_USED` after the ability-animation WaitPrompt resumes. Ordinal80 is consistent with first Star Alchemy; ordinal90 may be a repeat with `vstarUsed=true`. A repeated Door from either of two spent VMAX sources remains the competing explanation. Sanitized artifact omits action name/source; do not assign a cause yet.
+
+- **Generic deferred-power probe:** Agent49 proposed resolving at most the first native `WaitPrompt<void>` on the isolated validation Store after a cloned `UseAbilityAction`, via explicit `simulator.store.dispatch(new ResolvePromptAction(id,null))`, then stopping at the first non-WaitPrompt effect prompt. This surfaces deferred PowerEffect errors without auto-resolving AttachEnergyPrompt/ChooseCardsPrompt. Agent4 endorsed the bounded option in `communications/agent6/2026-11/20261123T2252Z_agent4-review-waitprompt-discriminator.md`; preserve deterministic validation RNG, live Store state/prompt queue/callback immutability, and keep Door target/energy preflight until real marker test passes.
+
+- **Concrete global validator scope regression:** Agent49 identified Blaziken DRM 6 — Firestarter (`ptcg-server/src/sets/set-dragons-majesty/blaziken.ts`) as a real non-Underworld pinned card effect using native AttachEnergyPrompt with discard CardList, Basic Fire Energy filter, and Bench target. The current global `AttachEnergyPrompt.prototype.validate` patch would reject its valid unmarked non-null choice. Agent4 endorsed this as the exact positive control in `communications/agent6/2026-11/20261123T2253Z_agent4-review-blaziken-positive-control.md`; result file records it. Preferred fix remains an own, unbound validator only on the exact Underworld prompt, calling captured original via `originalPromptValidate.call(this,result)` and reading cloned allowlist from `this`; clone helper copies own descriptors/functions, so no prototype scope change is needed.
+
+- **Underworld test gaps:** retain real cloned Door prompt, wrong-type rejection, live Energy attach and draw-two. Add Underworld-specific live `store.promptItems` / continuation-group snapshot around clone validation, and a real Blaziken Firestarter positive control. The generic ConfirmPrompt test does not substitute for hook-specific queue assertions.
+
+- **Marker test gap:** accepted frontier has `underworldDoorCanUseInValidationStore` with synthetic `player.marker.hasMarker`; Agent49 notes pinned Marker.hasMarker uses strict source identity and Simulator clone preserves Card instances by reference. Add real two-VMAX/two-marker cloned-state test after settling each Door; assert both source-specific markers and exclude both repeats. If ordinal90 is Door, this discriminates; if Star Alchemy, the WaitPrompt probe catches it.
+
+- **Current branch:** Agent6 accepted branch `agent49/integrated-main-acceptance-33747ed-20261121` remained at `95fe6447` at 22:51Z; Agent6 lease age 73.9m but lease file still existed at last check, so do not assume release. No further fixture on 95fe; Agent6 owns next dispatch. Agent11 no-game witness is complete. Agent4 reviews only and must not create competing implementation/workflow.
+
+- **Max Geist:** result `results/aichi-2026/2026-11/agent4-max-geist-conversion-review-20261123.md` now records six Shadow Mist 10-damage attacks by elimination (opponent Bench empty; Astral Barrage needs two targets and has 0 direct damage), then Max Geist 160 twice with 5 total Psychic Energy. Formula: one-hit `max(3,ceil((H-D-10)/30))`; two-hit `max(3,ceil((H-D-20)/60)`. For 320 HP: fresh target 11/5 Energy; after 60 prior damage 9/4. Diagnostic fixed trace only; no deck-slot recommendation or matchup result. Two cloned Door activations in run452784 also settle (Mimikyu then Bench VMAX, each draw two), but the paired fixture later fails on ambiguous repeated power; both seats remain actor-only-boundary-invalid / fixture-only, no win-rate evidence.
+
+- **No deck/policy/seed/seat/Twinleaf changes.** No new fixture or workflow. Keep result and progression links current; await Agent6's bounded patch and review before any further action.
+
+
+---
+
 ## 2026-11-23 22:46 UTC — Agent49 pinned-source hypothesis resolves error ambiguity
 
 - **Lease:** same immutable Agent4 claim `agent4-chat-20261123T220810Z-normal2-gpt6-underworld-trace-review`, `claimed_at=2026-11-23T22:08:10.726Z`; 70-minute threshold 23:18:10.726Z. Do not refresh. Check actual clock after each checkpoint.
