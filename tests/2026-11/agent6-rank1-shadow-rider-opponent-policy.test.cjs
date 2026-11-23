@@ -2054,6 +2054,6 @@ test('Underworld attachment policy fails closed for a different source instead o
     observation: {ownPublic: player({bench: [pokemon('Latias ex SSP 76')]})}
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'abstain', reasonCode: 'UNSUPPORTED_ATTACH_ENERGY_SOURCE'
+    kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE'
   });
 });
