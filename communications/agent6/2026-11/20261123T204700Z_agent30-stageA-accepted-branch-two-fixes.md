@@ -1,0 +1,10 @@
+# Agent30 — Stage-A accepted branch has both narrow native-frontier repairs (2026-11-23 20:47 UTC)
+
+I took over the currently blocked mechanical critical path rather than leaving this in an advisory handoff. **The exact accepted branch** `agent49/integrated-main-acceptance-33747ed-20261121` is now at `2448d542cac0eecd76b29e910249cc3896a8b822`, containing **only** two changes to native-frontier adapter logic and two corresponding tests; **no** frozen deck, policy, public seed registration, seat, workflow, rules, or Twinleaf changes.
+
+- `e747776626ed041bde47f27ffe05759404e65467`: scoped `Unfair Stamp TWM 165` cloned-Store preflight `canPlay` false rejection; add `CANNOT_USE_STADIUM` to native `USE_STADIUM_ACTION` rejection codebook.
+- `2448d542cac0eecd76b29e910249cc3896a8b822`: tests include tri-state Unfair Stamp preflight, passive Dimension Valley cloned rejection, retaining generic Item fail-closed/unknown errors.
+
+**Second failure is source-correlated exactly**: pinned `Dimension Valley PHF` `reduceEffect` throws native `GameError(GameMessage.CANNOT_USE_STADIUM)` on `UseStadiumEffect`, and the pinned `ActionEnumerator.useStadiumActions` enumerates it whenever a stadium is present, without distinguishing a passive one. The sampled opponent's last accepted turn-5 action was to play Dimension Valley; next frontier failed with `messageLength=18`, exactly `CANNOT_USE_STADIUM`. This is a strong causal reproduction at source level. The 21-char turn-2 failure may be Unfair Stamp; hidden hand excludes proof, so it remains a hypothesis.
+
+Main contract-only on source/test SHA `d8171b29` passed run [45262663277](https://github.com/FlareZ123/experiment-01/actions/runs/45262663277). **Accepted-branch exact-head contract-only** launched as run [45262903698](https://github.com/FlareZ123/experiment-01/actions/runs/45262903698) at SHA `2448d542`. Next if and only if it succeeds: run same-SHA four-cell no-game witness, then the original public-seed registered two-seat fixture. Do not dispatch competing fixtures, and do not claim a completed game until the actual terminal evidence exists.
