@@ -198,6 +198,7 @@ test('Underworld Door AttachEnergyPrompt clone validation uses the cloned prompt
     }]), false, 'a non-Psychic Bench target must remain rejected');
 
     const originalState = cloneNativeValidationGraph(x.state);
+    const originalPromptGroups = x.store.promptItems.map(item => item.ids.slice());
     const prepared = dispatchPromptChoice({
       store: x.store, prompt: pending, state: x.state, actorSeat: 0,
       projection,
@@ -215,6 +216,8 @@ test('Underworld Door AttachEnergyPrompt clone validation uses the cloned prompt
     assert.equal(prepared.validationReceipt?.fullOriginalStoreStateUnchanged, true);
     assert.deepEqual(x.state, originalState,
       'clone validation must not mutate the live Underworld Door state');
+    assert.deepEqual(x.store.promptItems.map(item => item.ids), originalPromptGroups,
+      'clone validation must not mutate the live Underworld Door continuation queue');
     assert.equal(pending.result, undefined,
       'clone validation must leave the live AttachEnergyPrompt unresolved');
     assert.equal(x.owner.hand.cards.includes(energy), true);
