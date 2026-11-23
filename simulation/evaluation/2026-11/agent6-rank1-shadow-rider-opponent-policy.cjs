@@ -299,7 +299,7 @@ function copycatTargetAvailable(request) {
     attack.turn === receipt.opponentLastTurnTurn &&
     attack.gxAttack === false &&
     attack.copycatAttack === false &&
-    !( /^Trevenant & Dusknoir-GX SMP(?:\\s|$)/.test(attack.sourcePrinting ?? '') &&
+    !( /^Trevenant & Dusknoir-GX SMP(?:\s|$)/.test(attack.sourcePrinting ?? '') &&
       attack.attackName === 'Night Watch'));
 }
 
