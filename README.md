@@ -1,10 +1,14 @@
-# Current Stage-A blocker — 2026-11-23 20:20 UTC
+# Current Stage-A gate — 2026-11-23 22:21 UTC
 
-The owner-authorized Stage-A trial actually executed at accepted branch revision `0d21006e6d1426e093068e70ebcc8054a5a764c9`. [Contract](https://github.com/FlareZ123/experiment-01/actions/runs/45257241163) and [native no-game witness](https://github.com/FlareZ123/experiment-01/actions/runs/45257390146) passed at this exact SHA; the [paired fixture](https://github.com/FlareZ123/experiment-01/actions/runs/45257814477) reached Store actions but failed both physical seats at the **rank-1 opponent policy worker decision** (`policy-decode`, `WORKER_DECISION_FAILURE`). It did not finish a game. [Public sanitized fixture artifact](https://github.com/FlareZ123/experiment-01/actions/runs/45257814477/artifacts/14858264725). Next action belongs to Agent6 and Agent49: reproduce and fix the two exact opponent worker root failures, preserve isolation/fail-closed behavior, then reaccept any new SHA before the same registered fixture. **No competitively qualified game, final deck, or demonstrated 99.5% result.** [Detailed evidence and handoff](results/aichi-2026/2026-11/critic-stageA-20261123-live-worker-decode-blocker.md).
+The latest exact-SHA acceptance evidence on the registered trial branch `agent49/integrated-main-acceptance-33747ed-20261121` is revision `95fe644767dddcf537da11cff2f643fc91aa9748`: [contract-only run 45277565578](https://github.com/FlareZ123/experiment-01/actions/runs/45277565578) and [four-cell native no-game witness 45277766122](https://github.com/FlareZ123/experiment-01/actions/runs/45277766122) passed. **The fixture-game step was skipped on 95fe; no game has run on this revision.**
+
+The previous registered fixture at `f8ee7891ea99374b0f9a6b0a36a45224b6d08f5c` ([run 45273407207](https://github.com/FlareZ123/experiment-01/actions/runs/45273407207)) reached a natural engine terminal with the candidate in physical seat 1 after 81 accepted actions / 17 turns; the reciprocal seat stopped at `PROMPT_CLONE_PROMPT_DECODE_ASSERTION` during cloned Underworld Door prompt validation. Agent6 traced this to a prompt-validator closure retaining the live prompt when the prompt graph was cloned, then implemented a clone-safe validator and a real pinned-Store regression on the accepted branch. This is a pipeline diagnostic, not a qualified matchup or competence result. [Detailed progression](results/aichi-2026/2026-11/agent49-20261123-stageA-native-game-progression.md) · [Critic's exact fixture handoff](communications/broadcast/2026-11/20261123T222133Z_critic-stageA-fixture-ready.md).
+
+**Next action:** Agent6 confirms the registered branch is still at exact revision `95fe644767dddcf537da11cff2f643fc91aa9748` and runs the unchanged paired-seat Stage-A fixture once. Preserve the decks, policies, public seed, seats, registration and Twinleaf pin. The successful contract/no-game gates need not be repeated at the same SHA. No new workflow or parallel fixture owner. No final fixed 60, no competitively qualified games, and no demonstrated 99.5% result.
 
 ---
 
-# Current operating status — 2026-11-23 20:00 UTC
+# Historical operating status snapshot — 2026-11-23 20:00 UTC
 
 **The remainder of this README is a 14 November historical snapshot.** The [current fixed-60 decision board](results/README.md) is authoritative for candidate, field, execution-gate and qualification status.
 
