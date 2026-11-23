@@ -14,7 +14,7 @@ The repository already has the needed research-side history components:
 - `simulation/twinleaf/agent7-copycat-history-root.cjs` attaches the previous-turn attack history, `opponentCopycatChoices`, and `mimikyuCopycatCompatible` to a public event receipt.
 - `simulation/twinleaf/copycat-compat.cjs` contains a separate compatibility hook for copied-attack payloads that Twinleaf does not otherwise execute correctly.
 
-The current V3 runner does not yet connect this machinery: `simulation/evaluation/2026-11/agent36-v3-runner.cjs` calls the public receipt builder with null previous-turn history arguments. Until that is wired, the Rank 1 policy now fails closed and will not infer Copycat eligibility from the current board.
+The companion integration branch now connects this machinery in `simulation/evaluation/2026-11/agent36-v3-runner.cjs`: it installs `installCopycatMultiAttackHistory(store)` after the prompt-provenance hook, passes `attachPreviousOpponentTurnReceipt(view, state, actorSeat, tracker)` into the worker receipt provider, and restores both dispatch wrappers in reverse installation order. The tracker now records history only when the global turn counter advances; the receipt adapter also ignores snapshots that are invalid or not older than the acting state. This prevents setup-time active-player changes from being misrepresented as completed opponent turns.
 
 ## Changes on the Agent 11 research branch
 
@@ -27,17 +27,26 @@ Branch: `agent11/copycat-eligibility-and-prompt-v1-20261123`
 
 ## Validation
 
+Initial policy/protocol branch:
 - Contract-only workflow run: [45276878443](https://github.com/FlareZ123/experiment-01/actions/runs/45276878443)
 - Tested head: `8593fd1beeab48d052ddaf9e62f19aeb7bd7ebaf`
 - Outcome: **success**.
-- This was a contract/test run only. It did not run a native game, measure a matchup, qualify a competitive sample, or validate a win rate.
-- Agent49's accepted Stage-A branch was not modified.
+
+V3 history-integration branch:
+- Contract-only workflow run: [45279769272](https://github.com/FlareZ123/experiment-01/actions/runs/45279769272)
+- Native no-game witness: [45279930384](https://github.com/FlareZ123/experiment-01/actions/runs/45279930384)
+- Tested head for both: `2dfa873af139586e733edf8af726bc73db49fee3`
+- Outcome: **both passed**.
+- The no-game witness covered all four candidate/opponent physical-seat cells, created native stores, validated selected actions, observed no worker failures, restored the prompt-provenance hook and runtime pin guard, and left all original store states unchanged.
+- The witness explicitly reports `gameExecuted: false` and `liveActionsDispatched: false`. It validates startup, receipt plumbing, and cleanup only; it does not prove that a Copycat attack was executed or measure any matchup.
+- The first no-game witness attempt failed on a setup-transition snapshot (`snapshotTurn === state.turn`). The tracker/receipt guard described above fixed that failure; the successful rerun is the evidence for the fix.
+- Agent49's accepted Stage-A branch was not modified. No registered fixture game was run from this branch.
 
 ## Required follow-through
 
-1. After the current Stage-A exact-head fixture/clone-decode work is complete, the V3 integration owner should install `installCopycatMultiAttackHistory(store)` once per game and use `attachPreviousOpponentTurnReceipt(view, state, actorSeat, tracker)` to populate the worker's public receipt. The same history must be used for both seats.
-2. Add one native regression where an opponent uses a non-GX attack, the Active changes, and Mimikyu's prompt is resolved from the recorded previous-turn source.
-3. Keep copied-attack payloads and Night Watch disabled until their respective Twinleaf compatibility/host paths are actually installed and tested. Do not interpret those runtime filters as paper-rule restrictions.
-4. Only after that integration is validated should the policy be considered enabled in V3 match evaluation.
+1. Respect Agent 6's single-owner stopline: do not dispatch further V3 workflows or fixtures from this non-registered branch while the registered Stage-A trace is being resolved.
+2. After the registered Stage-A root cause and ownership gate are resolved, have Agent49/Agent6 review and selectively integrate this branch. Rebase/cherry-pick carefully because the branch predates the current Underworld clone-validator work.
+3. The remaining game-level test is a native sequence in which an opponent uses a non-GX attack, the Active changes, and Mimikyu's Copycat prompt is resolved from the recorded previous-opponent-turn source. Confirm the worker chooses only a receipt-certified, actor-visible prompt choice.
+4. Keep copied-attack payloads and Night Watch disabled until their respective Twinleaf compatibility/host paths are actually installed and tested. Do not interpret those runtime filters as paper-rule restrictions.
 
-No deck, opponent list, seed, seat assignment, or competitive claim changes as a result of this work.
+No deck, opponent list, registered seed, seat assignment, or competitive claim changes as a result of this work.
