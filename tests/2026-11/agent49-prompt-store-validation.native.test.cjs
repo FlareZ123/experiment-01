@@ -29,6 +29,10 @@ const {
   createValidationRandomScope,
   seededRandom
 } = require('../../simulation/evaluation/2026-11/agent49-native-fixture-game.cjs');
+const {
+  createKnownCapFreeActionEnumerator,
+  EXPECTED_ENGINE_PIN
+} = require('../../simulation/evaluation/2026-11/agent3-known-cap-free-action-enumerator.cjs');
 
 
 function makeFixture(groupSize) {
@@ -372,13 +376,13 @@ function nativeFrontierBindings(){
   };
 }
 
-function buildDeterministicNativeFrontier(x,native,seed){
+function buildDeterministicNativeFrontier(x,native,seed,enumerator){
   const withValidationRandom=createValidationRandomScope({
     ambientRandom:Math.random,
     physicalRandom:seededRandom(seed)
   });
   return withValidationRandom(()=>buildNativeActionFrontier({
-    state:x.state,actorSeat:0,native
+    state:x.state,actorSeat:0,native,enumerator
   }));
 }
 
@@ -421,8 +425,9 @@ test('native action frontier keeps first Star Alchemy use but rejects the deferr
   const native=nativeFrontierBindings();
   let id=91000;
   const card=name=>{
-    const result=manager.getCardByName(name);
-    assert.ok(result,'Pinned native printing unavailable: '+name);
+    const template=manager.getCardByName(name);
+    assert.ok(template,'Pinned native printing unavailable: '+name);
+    const result=cloneNativeValidationGraph(template);
     result.id=id++;
     return result;
   };
@@ -437,12 +442,12 @@ test('native action frontier keeps first Star Alchemy use but rejects the deferr
   const isStarAlchemy=action=>action?.type==='USE_ABILITY_ACTION'&&
     action.name==='Star Alchemy'&&action.target?.slot===native.SlotType.BENCH&&
     action.target?.index===0;
-  const enumerator=new native.ActionEnumerator();
+  const enumerator=createKnownCapFreeActionEnumerator({native,enginePin:EXPECTED_ENGINE_PIN});
   assert.ok(enumerator.enumerate(x.state,x.owner,x.owner.id).some(isStarAlchemy),
     'the native enumerator must expose the unspent Forest Seal Stone ability');
   const beforeUnspent=cloneNativeValidationGraph(x.state);
   const unspentCandidates=enumerator.enumerate(x.state,x.owner,x.owner.id).filter(isStarAlchemy);
-  const unspent=buildDeterministicNativeFrontier(x,native,0x13572468);
+  const unspent=buildDeterministicNativeFrontier(x,native,0x13572468,enumerator);
   assert.ok([...unspent.actionByToken.values()].some(isStarAlchemy),
     'the first legal Star Alchemy use must survive cloned WaitPrompt validation');
   assert.deepEqual(x.state,beforeUnspent,
@@ -477,7 +482,7 @@ test('native action frontier keeps first Star Alchemy use but rejects the deferr
   },error=>error instanceof native.GameError&&error.message==='LABEL_VSTAR_USED',
   'the second Star Alchemy use must fail specifically in the deferred native PowerEffect');
   assert.equal(spentWaitResolved,true);
-  const spent=buildDeterministicNativeFrontier(x,native,0x24681357);
+  const spent=buildDeterministicNativeFrontier(x,native,0x24681357,enumerator);
   assert.equal([...spent.actionByToken.values()].some(isStarAlchemy),false,
     'the spent Star Alchemy action must be rejected after its cloned WaitPrompt resolves');
   assert.deepEqual(x.state,beforeSpent,
@@ -490,8 +495,9 @@ test('native action frontier preserves both source-specific Underworld Door mark
   const native=nativeFrontierBindings();
   let id=92000;
   const card=name=>{
-    const result=manager.getCardByName(name);
-    assert.ok(result,'Pinned native printing unavailable: '+name);
+    const template=manager.getCardByName(name);
+    assert.ok(template,'Pinned native printing unavailable: '+name);
+    const result=cloneNativeValidationGraph(template);
     result.id=id++;
     return result;
   };
@@ -540,6 +546,8 @@ test('native action frontier preserves both source-specific Underworld Door mark
     resolveDoor(2,0);
     const sourceA=x.owner.bench[0].getPokemonCard();
     const sourceB=x.owner.bench[2].getPokemonCard();
+    assert.notStrictEqual(sourceA,sourceB,
+      'the two physical VMAX sources must be distinct card objects');
     assert.equal(typeof sourceA.UNDERWORLD_DOOR_MARKER,'string');
     assert.equal(typeof sourceB.UNDERWORLD_DOOR_MARKER,'string');
     assert.equal(x.owner.marker.hasMarker(sourceA.UNDERWORLD_DOOR_MARKER,sourceA),true,
@@ -578,11 +586,12 @@ test('native action frontier preserves both source-specific Underworld Door mark
     };
     repeatDoorInClone(0);
     repeatDoorInClone(2);
-    const rawDoors=new native.ActionEnumerator().enumerate(x.state,x.owner,x.owner.id)
+    const enumerator=createKnownCapFreeActionEnumerator({native,enginePin:EXPECTED_ENGINE_PIN});
+    const rawDoors=enumerator.enumerate(x.state,x.owner,x.owner.id)
       .filter(action=>action.type==='USE_ABILITY_ACTION'&&action.name==='Underworld Door');
     assert.deepEqual(rawDoors.map(action=>action.target.index).sort((a,b)=>a-b),[0,2],
       'the regression must exercise both source-specific native Door candidates');
-    const built=buildDeterministicNativeFrontier(x,native,0x10293847);
+    const built=buildDeterministicNativeFrontier(x,native,0x10293847,enumerator);
     const remainingDoors=[...built.actionByToken.values()].filter(action=>
       action.type==='USE_ABILITY_ACTION'&&action.name==='Underworld Door');
     assert.equal(remainingDoors.length,0,
