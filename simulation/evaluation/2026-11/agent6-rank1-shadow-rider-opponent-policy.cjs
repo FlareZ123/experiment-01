@@ -896,7 +896,7 @@ function promptDecision(request) {
     const ranked = choices.map((choice, index) => {
       const meta = choice.publicMetadata ?? {};
       const valid = choice.kind === 'energy' &&
-        /^Psychic Energy(?:\\b|$)/i.test(choice.printing ?? '') &&
+        /^Psychic Energy(?:\b|$)/i.test(choice.printing ?? '') &&
         meta.sourceZone === 'hand' && meta.ownerSeat === 'actor' &&
         meta.isOwnerVisible === true && meta.zone === 'bench' &&
         meta.energyType === 'BASIC' &&
