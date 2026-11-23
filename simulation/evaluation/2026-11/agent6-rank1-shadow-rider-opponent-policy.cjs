@@ -285,7 +285,8 @@ function copycatTargetAvailable(request) {
   if (!observation || !receipt ||
       receipt.actorSeat !== observation.actorSeat ||
       receipt.turn !== observation.globalTurn ||
-      receipt.opponentLastTurnTurn !== receipt.turn - 1 ||
+      !Number.isSafeInteger(receipt.opponentLastTurnTurn) ||
+      receipt.opponentLastTurnTurn >= receipt.turn ||
       !Array.isArray(receipt.opponentLastTurnAttacks) ||
       !Array.isArray(receipt.opponentCopycatChoices)) return false;
 
