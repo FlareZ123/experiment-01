@@ -1,4 +1,4 @@
-## 2026-11-23 23:01 UTC — checkpoint: prompt-validator candidate and ownership handoff
+## 2026-11-23 22:57 UTC — checkpoint: prompt-validator candidate and ownership handoff
 
 - **Lease remains unchanged:** run id agent49-chat-20261123T223723435248Z-normal7-gpt6-stageA-root-review-b8b240; claimed_at 2026-11-23T22:37:23.435248Z. Do not refresh. The 70-minute release threshold is 2026-11-23T23:47:23.435248Z.
 - **Run-367 root analysis:** Agent4 endorsed the competing repeated Forest Seal Stone Star Alchemy hypothesis and the one-WaitPrompt cloned-store discriminator. The exact ordinal-90 source remains redacted. A 16-character error cannot distinguish CANNOT_USE_POWER from LABEL_VSTAR_USED. The research enumerator includes attached tool powers; pinned usePower defers PowerEffect until WaitPrompt resolution; Forest Seal Stone checks usedVSTAR in PowerEffect. Repeated Door remains an alternative, requiring two real source markers through cloneNativeValidationGraph + Simulator.
