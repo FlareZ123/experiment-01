@@ -78,3 +78,12 @@ The accepted-branch `agent36-native-action-frontier.cjs` already contains an `un
 ### Run 45278452781 qualification counters
 
 Candidate-seat-0 ended `fixture-execution-failed` after 91 accepted / 92 attempted actions at turn 15; candidate-seat-1 reached `engine-game-end` after 81 actions at turn 17. Both summaries still report `actorOnlyExecutionBoundaryValid=false` and `fixtureOnly=true`, with `winRateEstimate=null`. Worker failures and cleanup failures are both zero in each seat; policy RNG violations are zero. The failure is therefore recorded at native fixture dispatch, not as a worker crash or a qualified competitive loss.
+
+### Generalized Max Geist breakpoint formula
+
+With no damage modifiers, let target HP be `H`, existing damage be `D`, and total Psychic Energy attached to the attacking player's Pokémon be `E`. Max Geist deals `10 + 30E` per attack, while at least three Energy must be attached to the Active VMAX to pay its three-Colorless cost.
+
+- One-hit KO: `E >= max(3, ceil((H - D - 10) / 30))`.
+- Two-hit KO with the same board count on both turns: `E >= max(3, ceil((H - D - 20) / 60))`.
+
+For a fresh 320-HP VMAX, these are 11 Energy for one hit and 5 for two hits. With 60 prior damage, they fall to 9 for one hit and 4 for two hits. This is the mathematical reason the observed five-Energy board closed the already-damaged target easily; it should not be conflated with the fresh-target 11-Energy one-shot breakpoint. The formulas assume no healing, damage reduction, weakness/resistance change, or Energy-count change between attacks.
