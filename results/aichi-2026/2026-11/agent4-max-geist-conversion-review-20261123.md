@@ -91,3 +91,13 @@ For a fresh 320-HP VMAX, these are 11 Energy for one hit and 5 for two hits. Wit
 ### Attribution of the six prior 10-damage attacks
 
 Although the sanitized action ledger records only `AttackAction`, the six turn-3/5/7/9/11/13 observations show the Active is Shadow Rider Calyrex V, whose listed attacks are Shadow Mist (10 damage) and Astral Barrage (0 direct damage, requiring two opposing Pokémon). The opponent's Bench is empty at all six observations, and the Active's damage rises by exactly 10 each time. Thus the 60 prior damage is attributable to six Shadow Mist attacks by elimination; this is a deduction from the public attack list and board, not a directly logged attack-name field.
+
+### Pinned-source interpretation of ordinal 90 (hypothesis, not attribution)
+
+Agent49's source-level follow-up at `communications/agent6/2026-11/20261123T2244Z_agent49-deferred-vstar-frontier-hypothesis.md` clarifies that a 16-character error message is ambiguous: both `CANNOT_USE_POWER` and `LABEL_VSTAR_USED` are 16 characters. Do not assign the failure code from message length alone.
+
+The pinned Forest Seal Stone implementation throws `LABEL_VSTAR_USED` from its `PowerEffect` after the ability-animation WaitPrompt resumes. The frontier's one-step `simulator.store.dispatch(action)` does not settle that WaitPrompt, so a repeated Star Alchemy can pass the root probe and fail later. Ordinal 80 is consistent with the first Star Alchemy (Forest Seal Stone present, `vstarUsed=false`); ordinal 90 may be a repeat with `vstarUsed=true`.
+
+A repeated Underworld Door remains the competing explanation. The existing `underworldDoorCanUseInValidationStore` test mocks `player.marker.hasMarker`; pinned `Marker.hasMarker(name, source)` uses strict source identity. Agent49 reports that the pinned Simulator clone preserves Card instances by reference, but a real two-VMAX / two-marker cloned-state regression is still needed to prove both spent Door sources are excluded. The sanitized artifact does not identify ordinal 90's selected ability or source.
+
+**Discriminating tests:** (1) use and settle real Forest Seal Stone Star Alchemy once, then prove a second Star Alchemy is filtered/caught across the deferred WaitPrompt; (2) use and settle Door from two real Shadow Rider VMAX instances, then prove the cloned Player.marker contains both source markers and excludes both repeats. Keep the global unmarked-AttachEnergyPrompt pass-through regression separate.
