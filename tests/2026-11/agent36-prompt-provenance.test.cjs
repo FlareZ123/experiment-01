@@ -212,3 +212,70 @@ test('throwing continuations unwind source stack; playability prompts cannot pro
   assert.equal(hook.getPromptProvenance(state.prompts.at(-1)), null);
   hook.restore();
 });
+
+
+test('native Store trainerPromptSources ID stamp recovers a detached Trainer continuation without trusting prompt.sourceCard',()=>{
+  const store=fakeStore();
+  store.trainerPromptSources=new Map();
+  store.resolvingTrainer=undefined;
+  const nativePrompt=store.prompt;
+  store.prompt=function(state,prompts,then){
+    const result=nativePrompt.call(this,state,prompts,then);
+    if(!this.calculatingPlayability&&this.resolvingTrainer){
+      const list=prompts instanceof Array?prompts:[prompts];
+      for(const prompt of list){
+        this.trainerPromptSources.set(prompt.id,this.resolvingTrainer);
+        prompt.sourceCard=this.resolvingTrainer.trainerCard;
+      }
+    }
+    return result;
+  };
+  const hook=installPromptProvenanceHook(store);
+  const state={prompts:[]};
+  const trainer={name:'Mysterious Treasure',fullName:'Mysterious Treasure FLI'};
+  // Simulate a native prompt from a Trainer continuation whose research JS
+  // effect/continuation stack is empty but the pinned Store's own provenance
+  // is present. This does not infer source from an earlier prompt.
+  store.resolvingTrainer={player:{id:'p0'},trainerCard:trainer};
+  const valid=new ChooseCardsPrompt('p0');
+  store.prompt(state,valid,()=>{});
+  assert.equal(hook.getPromptProvenance(valid)?.sourceCard,trainer);
+  assert.equal(hook.getPromptProvenance(valid)?.effectName,'Mysterious Treasure');
+  assert.equal(hook.getPromptProvenance(valid)?.effectType,'TrainerEffect');
+  assert.equal(hook.activeEffectDepth,0);
+  store.resolvingTrainer=undefined;
+
+  const forged=new ChooseCardsPrompt('p0');
+  forged.sourceCard=trainer;
+  store.prompt(state,forged,()=>{});
+  assert.equal(hook.getPromptProvenance(forged),null,
+    'a forged sourceCard without an ID-bound native Store stamp is not trusted');
+
+  const mismatched=new ChooseCardsPrompt('p0');
+  store.resolvingTrainer={player:{id:'p0'},trainerCard:trainer};
+  const conflicting={name:'Impostor',fullName:'Impostor XXX'};
+  const normalNativePrompt=store.prompt;
+  store.prompt=function(state,prompt,then){
+    const result=normalNativePrompt.call(this,state,prompt,then);
+    prompt.sourceCard=conflicting;
+    return result;
+  };
+  // The research wrapper captured the original native prompt dispatcher; a
+  // separate sourceCard change here cannot rewire its ID-bound trusted map.
+  store.prompt(state,mismatched,()=>{});
+  assert.equal(hook.getPromptProvenance(mismatched)?.sourceCard,trainer,
+    'native stamp is read at registration, not later spoofed field mutations');
+  store.resolvingTrainer=undefined;
+
+  const inner={name:'Nested Power',fullName:'Nested Power TEST',
+    reduceEffect(s,state){s.prompt(state,new ChooseCardsPrompt('p0'),()=>{});}};
+  store.resolvingTrainer={player:{id:'p0'},trainerCard:trainer};
+  store.callReduceEffect(inner,store,state,{
+    constructor:{name:'PowerEffect'},power:{name:'Nested Power'}
+  });
+  const nested=state.prompts.at(-1);
+  assert.strictEqual(hook.getPromptProvenance(nested)?.sourceCard,inner,
+    'actual nested card reducer outranks ambient Trainer stamp');
+  store.resolvingTrainer=undefined;
+  hook.restore();
+});
