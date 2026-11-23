@@ -43,7 +43,9 @@ function makeStore(sourceCard){
       playerLastAttack:{}
     },
     dispatch(action){
-      if(action?.kind==='end-turn'){
+      if(action?.kind==='setup-seat-switch'){
+        this.state={...this.state,activePlayer:1};
+      }else if(action?.kind==='end-turn'){
         this.state={
           ...this.state,
           activePlayer:1,
@@ -85,6 +87,21 @@ function runChoicePrompt(powers,options={}){
     history.restore();
   }
 }
+
+test('setup seat selection does not create a completed-turn history snapshot',()=>{
+  const sourceCard={name:'Fixture Pokemon',fullName:'Fixture Pokemon',
+    powers:[],attacks:[{name:'First attack',gxAttack:false,copycatAttack:false}]};
+  const store=makeStore(sourceCard);
+  store.state={...store.state,turn:0};
+  const history=installCopycatMultiAttackHistory(store);
+  try{
+    store.dispatch({kind:'setup-seat-switch'});
+    assert.equal(history.getPreviousTurnSnapshot(1),null);
+    assert.deepEqual(history.getCurrentTurnAttacks(1),[]);
+  }finally{
+    history.restore();
+  }
+});
 
 test('generic CHOOSE_ATTACK_TO_COPY prompt without Barrage is not a two-attack Copycat pair',()=>{
   const result=runChoicePrompt([]);
