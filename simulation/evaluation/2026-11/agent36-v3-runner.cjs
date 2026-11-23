@@ -2381,9 +2381,14 @@ function createV3WorkerDecisionResolver({
     }
   };
   const requirePolicyAudit=(response,requestShape)=>{
-    assert.ok(response?.policyAudit&&
-      response.policyAudit.schema===workerProtocol.POLICY_AUDIT_SCHEMA,
-      'registered candidate/opponent policy must return a validated per-decision policyAudit');
+    if(!response?.policyAudit ||
+       response.policyAudit.schema!==workerProtocol.POLICY_AUDIT_SCHEMA){
+      const error=new Error(
+        'registered candidate/opponent policy must return a validated per-decision policyAudit');
+      error.code=!response?.policyAudit?
+        'WORKER_POLICY_AUDIT_MISSING':'WORKER_POLICY_AUDIT_SCHEMA_MISMATCH';
+      throw error;
+    }
     workerProtocol.validatePolicyAudit(
       response.policyAudit,requestShape,response.decision,response.policyVersion
     );
