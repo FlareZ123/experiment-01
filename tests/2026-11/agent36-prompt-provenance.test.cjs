@@ -221,12 +221,15 @@ test('native Store trainerPromptSources ID stamp recovers a detached Trainer con
   const nativePrompt=store.prompt;
   store.prompt=function(state,prompts,then){
     const result=nativePrompt.call(this,state,prompts,then);
+    const list=prompts instanceof Array?prompts:[prompts];
     if(!this.calculatingPlayability&&this.resolvingTrainer){
-      const list=prompts instanceof Array?prompts:[prompts];
       for(const prompt of list){
         this.trainerPromptSources.set(prompt.id,this.resolvingTrainer);
         prompt.sourceCard=this.resolvingTrainer.trainerCard;
       }
+    }
+    if(this.forgeStampedSourceCard){
+      for(const prompt of list)prompt.sourceCard=this.forgeStampedSourceCard;
     }
     return result;
   };
@@ -253,18 +256,11 @@ test('native Store trainerPromptSources ID stamp recovers a detached Trainer con
 
   const mismatched=new ChooseCardsPrompt('p0');
   store.resolvingTrainer={player:{id:'p0'},trainerCard:trainer};
-  const conflicting={name:'Impostor',fullName:'Impostor XXX'};
-  const normalNativePrompt=store.prompt;
-  store.prompt=function(state,prompt,then){
-    const result=normalNativePrompt.call(this,state,prompt,then);
-    prompt.sourceCard=conflicting;
-    return result;
-  };
-  // The research wrapper captured the original native prompt dispatcher; a
-  // separate sourceCard change here cannot rewire its ID-bound trusted map.
+  store.forgeStampedSourceCard={name:'Impostor',fullName:'Impostor XXX'};
   store.prompt(state,mismatched,()=>{});
-  assert.equal(hook.getPromptProvenance(mismatched)?.sourceCard,trainer,
-    'native stamp is read at registration, not later spoofed field mutations');
+  assert.equal(hook.getPromptProvenance(mismatched),null,
+    'a different prompt.sourceCard cannot spoof the ID-bound native Trainer stamp');
+  store.forgeStampedSourceCard=null;
   store.resolvingTrainer=undefined;
 
   const inner={name:'Nested Power',fullName:'Nested Power TEST',
