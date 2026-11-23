@@ -257,6 +257,27 @@ function paleMoonReceipt(ownPublic, turn = 3) {
   };
 }
 
+function copycatReceipt(ownPublic, options = {}) {
+  const turn = options.turn ?? 3;
+  const attack = options.attack ?? {
+    turn: turn - 1,
+    sourcePrinting: 'Shadow Rider Calyrex VMAX CRE',
+    attackName: 'Max Geist',
+    gxAttack: false,
+    copycatAttack: false
+  };
+  const choices = options.choices ?? [attack];
+  const receipt = paleMoonReceipt(ownPublic, turn);
+  receipt.opponentLastTurnAttacks = [attack];
+  receipt.opponentCopycatChoices = choices;
+  const active = ownPublic.active;
+  const activeHasCopycat = active?.name === 'Mimikyu' &&
+    Array.isArray(active.attacks) &&
+    active.attacks.some(row => row?.name === 'Copycat');
+  receipt.mimikyuCopycatCompatible = activeHasCopycat && choices.length > 0;
+  return receipt;
+}
+
 test('rank1 response recovers the three discarded Psychic Energy before evolving', () => {
   const latias = pokemon('Latias ex SSP 76', { hp: 210, damage: 40, abilities: ['Skyliner'] });
   const own = player({
@@ -1273,7 +1294,7 @@ test('Star Alchemy does not prioritize a second Tulip already held in hand', () 
   });
 });
 
-test('Mysterious Treasure searches Mimikyu when the opponent Active exposes a non-GX attack to Copycat', () => {
+test('Mysterious Treasure searches Mimikyu only when the tracker certifies a prior-turn non-GX attack', () => {
   const opponentActive = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
     hp: 320,
     stage: 'VMAX',
@@ -1286,6 +1307,13 @@ test('Mysterious Treasure searches Mimikyu when the opponent Active exposes a no
       gxAttack: false,
       barrage: false
     }]
+  });
+  const ownPublic = player({
+    active: pokemon('Girafarig LOT 94', { hp: 90 }),
+    bench: [
+      pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 }),
+      pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 })
+    ]
   });
   const request = promptRequest({
     promptType: 'ChooseCardsPrompt',
@@ -1304,15 +1332,10 @@ test('Mysterious Treasure searches Mimikyu when the opponent Active exposes a no
       isSecret: false,
       selectionType: 'card-combination'
     },
+    receipt: copycatReceipt(ownPublic),
     observation: {
       ownHand: ['Mysterious Treasure FLI 113'],
-      ownPublic: player({
-        active: pokemon('Girafarig LOT 94', { hp: 90 }),
-        bench: [
-          pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 }),
-          pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 })
-        ]
-      }),
+      ownPublic,
       opponentPublic: player({ active: opponentActive })
     }
   });
@@ -1397,7 +1420,56 @@ test('Mysterious Treasure searches Marshadow to remove Path to the Peak when the
 });
 
 
-test('Mimikyu is played when the opponent Active exposes a non-GX Copycat target', () => {
+test('Mimikyu is played from a tracker-certified prior-turn attack even if the opponent Active has changed', () => {
+  const ownPublic = player({ active: pokemon('Girafarig LOT 94', { hp: 90 }) });
+  const request = rootRequest({
+    ownHand: ['Mimikyu GRI 58'],
+    ownPublic,
+    opponentPublic: player({ active: pokemon('Unrelated Active') }),
+    receipt: copycatReceipt(ownPublic, {
+      attack: {
+        turn: 2,
+        sourcePrinting: 'Latias ex SSP',
+        attackName: 'Eon Blade',
+        gxAttack: false,
+        copycatAttack: false
+      }
+    }),
+    items: [
+      { token: 'mimikyu', kind: 'play-card', actorPrinting: 'Mimikyu GRI 58',
+        publicMetadata: { cardType: 'pokemon', handIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'mimikyu'
+  });
+});
+
+test('Mimikyu Copycat attack is selected from the tracker-certified previous-turn choice set', () => {
+  const ownPublic = player({
+    active: pokemon('Mimikyu GRI 58', {
+      hp: 70,
+      attacks: [{ name: 'Copycat', cost: ['Psychic', 'Colorless'], gxAttack: false }]
+    })
+  });
+  const request = rootRequest({
+    ownPublic,
+    opponentPublic: player({ active: pokemon('Unrelated Active') }),
+    receipt: copycatReceipt(ownPublic),
+    items: [
+      { token: 'copycat', kind: 'attack', attackName: 'Copycat' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'copycat'
+  });
+});
+
+test('current opponent Active attacks do not establish Copycat eligibility without a prior-turn receipt', () => {
   const opponentActive = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
     hp: 320,
     stage: 'VMAX',
@@ -1421,58 +1493,48 @@ test('Mimikyu is played when the opponent Active exposes a non-GX Copycat target
       { token: 'pass', kind: 'pass' }
     ]
   });
-  assert.deepEqual(checkedDecision(request), {
-    kind: 'select-action',
-    token: 'mimikyu'
-  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'pass' });
 });
 
-test('Mimikyu Copycat attack is selected when a legal non-GX target is visible', () => {
-  const opponentActive = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
-    hp: 320,
-    stage: 'VMAX',
-    attacks: [{
-      name: 'Max Geist',
-      cost: ['Psychic'],
-      damage: '10+30',
-      damageCalculation: '10+30 per Psychic Energy attached to your Pokémon',
-      text: '10+30 damage.',
-      gxAttack: false,
-      barrage: false
-    }]
-  });
+test('Mimikyu does not use the host-only Night Watch Copycat branch', () => {
+  const ownPublic = player({ active: pokemon('Girafarig LOT 94', { hp: 90 }) });
   const request = rootRequest({
-    ownPublic: player({ active: pokemon('Mimikyu GRI 58', { hp: 70 }) }),
-    opponentPublic: player({ active: opponentActive }),
+    ownHand: ['Mimikyu GRI 58'],
+    ownPublic,
+    opponentPublic: player({ active: pokemon('Unrelated Active') }),
+    receipt: copycatReceipt(ownPublic, {
+      attack: {
+        turn: 2,
+        sourcePrinting: 'Trevenant & Dusknoir-GX SMP',
+        attackName: 'Night Watch',
+        gxAttack: false,
+        copycatAttack: false
+      }
+    }),
     items: [
-      { token: 'copycat', kind: 'attack', attackName: 'Copycat' },
+      { token: 'mimikyu', kind: 'play-card', actorPrinting: 'Mimikyu GRI 58',
+        publicMetadata: { cardType: 'pokemon', handIndex: 0 } },
       { token: 'pass', kind: 'pass' }
     ]
   });
-  assert.deepEqual(checkedDecision(request), {
-    kind: 'select-action',
-    token: 'copycat'
-  });
+  assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'pass' });
 });
 
-test('Mimikyu is not played for Copycat when the opponent Active has no known non-GX attack', () => {
-  const opponentActive = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
-    hp: 320,
-    stage: 'VMAX',
-    attacks: [{
-      name: 'Night Watch',
-      cost: ['Psychic', 'Psychic', 'Colorless'],
-      damage: '150',
-      damageCalculation: '150',
-      text: '150 damage.',
-      gxAttack: false,
-      barrage: false
-    }]
-  });
+test('Mimikyu does not use copied-attack payloads until the V3 compatibility hook is installed', () => {
+  const ownPublic = player({ active: pokemon('Girafarig LOT 94', { hp: 90 }) });
   const request = rootRequest({
     ownHand: ['Mimikyu GRI 58'],
-    ownPublic: player({ active: pokemon('Girafarig LOT 94', { hp: 90 }) }),
-    opponentPublic: player({ active: opponentActive }),
+    ownPublic,
+    opponentPublic: player({ active: pokemon('Unrelated Active') }),
+    receipt: copycatReceipt(ownPublic, {
+      attack: {
+        turn: 2,
+        sourcePrinting: 'Regidrago VSTAR SIT',
+        attackName: 'Apex Dragon',
+        gxAttack: false,
+        copycatAttack: true
+      }
+    }),
     items: [
       { token: 'mimikyu', kind: 'play-card', actorPrinting: 'Mimikyu GRI 58',
         publicMetadata: { cardType: 'pokemon', handIndex: 0 } },
