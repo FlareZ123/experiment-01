@@ -501,6 +501,48 @@ test('energy-payment selection pays the visible cost count, not every attached E
   assert.equal(decision.tokens.length, 2);
 });
 
+test('Underworld Door energy assignment uses actor-visible exact bench index and native choice token', () => {
+  const source = actorChoiceSource('Shadow Rider Calyrex VMAX CRE', 'Underworld Door');
+  const energyPrinting = 'Psychic Energy MEE 13';
+  const request = promptRequest({
+    promptType: 'AttachEnergyPrompt',
+    source,
+    choices: [0, 1].map(index => ({
+      token: 'attach-bench-' + index,
+      kind: 'energy',
+      printing: energyPrinting,
+      label: 'Attach ' + energyPrinting + ' to Bench ' + (index + 1) + ': Shadow Rider Calyrex V CRE',
+      publicMetadata: {
+        sourceZone: 'hand', ownerSeat: 'actor', isOwnerVisible: true,
+        energyType: 'BASIC', zone: 'bench', targetIndex: index,
+        choiceIndex: index, selectedCount: 1
+      }
+    })),
+    publicMetadata: {
+      selectionType: 'energy-attachment', count: 2, minimumCount: 1,
+      maximumCount: 1, allowCancel: false, sourceZone: 'hand',
+      ownerSeat: 'actor', isOwnerVisible: true, energyType: 'BASIC', zone: 'bench'
+    },
+    observation: {
+      ownPublic: player({
+        active: pokemon('Shadow Rider Calyrex VMAX CRE 75', { hp: 320, stage: 'VMAX' }),
+        bench: [
+          pokemon('Shadow Rider Calyrex V CRE', {
+            energies: [energyPrinting, energyPrinting]
+          }),
+          pokemon('Shadow Rider Calyrex V CRE')
+        ]
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice', token: 'attach-bench-1'
+  });
+  const audited = policy.decideWithAudit(request);
+  assert.equal(audited.policyAudit.selectionRuleCode, 'UNDERWORLD_ENERGY_ATTACH_TARGET_SCORE');
+  protocol.validatePolicyAudit(audited.policyAudit, request, audited.decision, POLICY_VERSION);
+});
+
 test('rank1 policy abstains rather than guessing on an unsupported prompt type', () => {
   const request = promptRequest({
     promptType: 'UnmodeledPrompt',
