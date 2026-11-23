@@ -45,7 +45,7 @@ const STEP='Generate physical deal';
 
 function rootResolverFixture({
   actorObservation=null,actorObservationSha256=null,responsePatch={},dispatchError=null,
-  publicEventReceipt=null
+  publicEventReceipt=null,eventReceiptHandler=null
 }={}) {
   const workerAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});
   const policyVersion='runner-root-audit-test-v1';
@@ -110,7 +110,7 @@ function rootResolverFixture({
       ActionEnumerator:class ActionEnumerator {},
       Simulator:class Simulator {}
     },
-    workerAudit,eventReceipt:()=>publicEventReceipt,
+    workerAudit,eventReceipt:eventReceiptHandler??(()=>publicEventReceipt),
     actionEnumerator,actionFrontier
   });
   const request={
@@ -128,6 +128,22 @@ function rootResolverFixture({
   };
 }
 
+
+test('V3 resolver passes the exact detached observation and live Store to the event-receipt provider',async()=>{
+  const seen=[];
+  const fixture=rootResolverFixture({
+    eventReceiptHandler:(...args)=>{
+      seen.push(args);
+      return null;
+    }
+  });
+  await fixture.resolver(fixture.request);
+  assert.equal(seen.length,1);
+  assert.strictEqual(seen[0][0],fixture.request.state);
+  assert.equal(seen[0][1],fixture.request.actorSeat);
+  assert.strictEqual(seen[0][2],fixture.actorObservation);
+  assert.strictEqual(seen[0][3],fixture.request.store);
+});
 
 test('V3 no-game seed probe resolves GO_FIRST affirmatively without invoking the neutral bot',()=>{
   class ConfirmPrompt {
