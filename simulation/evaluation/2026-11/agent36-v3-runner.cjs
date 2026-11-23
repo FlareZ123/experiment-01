@@ -22,11 +22,16 @@ const workerProtocol=require('./agent49-policy-protocol.cjs');
 const workerLauncher=require('./agent36-docker-policy-worker.cjs');
 const {createDockerPolicySession}=require('./agent36-async-docker-policy-session.cjs');
 const {publicEventReceipt}=require('../../twinleaf/agent8-public-event-receipt.cjs');
+const {attachPreviousOpponentTurnReceipt}=
+  require('../../twinleaf/agent7-copycat-history-root.cjs');
+const {installCopycatMultiAttackHistory}=
+  require('../../twinleaf/copycat-multiattack-history.cjs');
 const fixtureRuntimePin=require('./agent49-fixture-scoped-runtime-pin.cjs');
 const sanitizedDiagnostic=require('./agent2-v3-sanitized-diagnostic.cjs');
 const {buildSetupPromptAudit,projectV3WorkerExecutionBoundaryToTrial}=require('./agent19-setup-prompt-audit.cjs');
 
 const ROOT=path.resolve(__dirname,'../../..');
+const copycatHistoryByStore=new WeakMap();
 const GIT_SHA=/^[0-9a-f]{40}$/;
 const SHA256=/^[0-9a-f]{64}$/;
 const NO_GAME_WITNESS_SETUP_PROMPT_KEYS=Object.freeze([
@@ -2429,7 +2434,7 @@ function createV3WorkerDecisionResolver({
       assert.ok(request.decisionKind==='owner-root'||request.decisionKind==='owner-prompt',
         'native worker request has an unsupported decision kind');
       const receipt=request.state.activePlayer===actorSeat?
-        eventReceipt(request.state,actorSeat,null,null):null;
+        eventReceipt(request.state,actorSeat,observation,request.store):null;
       bindTraceInputs(decisionTrace,receipt,null,emptyFrontier);
       if(request.prompt){
         const activeProvenanceHook=provenanceContext?.current??provenanceHook;
@@ -2993,7 +2998,28 @@ async function runV3FixtureGame({
             onStoreCreated(store){
               const hook=installPromptProvenanceHook(store);
               provenanceContext.current=hook;
-              return hook;
+              let tracker;
+              try{
+                // Install after provenance so the tracker is the outermost
+                // dispatch wrapper and can restore back to the provenance hook.
+                tracker=installCopycatMultiAttackHistory(store);
+              }catch(error){
+                hook.restore();
+                throw error;
+              }
+              copycatHistoryByStore.set(store,tracker);
+              let trackerRestored=false;
+              return {
+                get activeEffectDepth(){return hook.activeEffectDepth;},
+                get restored(){return trackerRestored&&hook.restored;},
+                restore(){
+                  if(trackerRestored&&hook.restored)return;
+                  tracker.restore();
+                  trackerRestored=true;
+                  copycatHistoryByStore.delete(store);
+                  hook.restore();
+                }
+              };
             },
             onGameReady:fullStateTraceRecorder?({store,state})=>{
               assert.equal(fullStateTraceInitialCaptured,false,
@@ -3048,6 +3074,11 @@ async function runV3FixtureGame({
             provenanceContext,
             expectedActorSeat,
             stopBeforeLiveDispatch:witnessOnly,
+            eventReceipt:(state,seat,view,store)=>{
+              const tracker=store&&typeof store==='object'?
+                copycatHistoryByStore.get(store)??null:null;
+              return attachPreviousOpponentTurnReceipt(view,state,seat,tracker).publicEventReceipt;
+            },
           }));
           workerAudit.promptProvenanceHook=gameResult.promptProvenanceHook??null;
           assert.equal(gameResult.promptProvenanceHook?.installed,true,
