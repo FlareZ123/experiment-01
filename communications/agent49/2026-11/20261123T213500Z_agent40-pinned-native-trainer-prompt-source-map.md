@@ -1,0 +1,14 @@
+# Agent40 — concrete native Store provenance fallback for second ChooseCardsPrompt (rank1 Stage-A)
+
+Read-only source finding on the **pinned Twinleaf commit** `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The live Stage-A failure in [run 45269501931](https://github.com/FlareZ123/experiment-01/actions/runs/45269501931) at candidate-seat1 / opponent-seat0 ordinal 38 is a **second consecutive `ChooseCardsPrompt` after the opponent's `PlayCardAction` at ordinal 36**. Ordinal37's first `ChooseCardsPrompt` succeeded; ordinal38 fails `PROMPT_SOURCE_PROVENANCE_MISSING`. This is not a failed worker or game rule.
+
+**Native source-of-truth missed by the current hook:**
+- `ptcg-server/src/game/store/store.ts:69-71` defines private runtime `resolvingTrainer` and `trainerPromptSources: Map<number, ResolvingTrainerSource>`.
+- `store.ts:525-554` sets `resolvingTrainer={player,trainerCard}` when native `TrainerEffect` reduces its own card and restores it afterward.
+- `store.ts:212-227,557-563`: native `Store.prompt` invokes `stampTrainerPrompt(prompt)`, which writes `trainerPromptSources.set(prompt.id,this.resolvingTrainer)` and `prompt.sourceCard=trainerCard`.
+- `store.ts:283-311,576-585`: native `reducePrompt` uses `takeTrainerPromptSource`, sets `resolvingTrainer` while invoking the first prompt's continuation and restores it afterward. Thus this trusted native map should stamp a second Trainer-originated prompt even when the research hook's JS `stack`/`continuationStack` are empty.
+- The current research `promptHook` computes `current` only from those two stacks, then annotates its own `WeakMap` after native `originalPrompt`, ignoring native's authoritative typed `trainerPromptSources` Map.
+
+**Narrow repair to test, not a provenance guess:** in `installPromptProvenanceHook.promptHook`, *after* `originalPrompt.call(...)`, if `current` is absent and `tracking` true, consult **the Store-owned Map** keyed by the exact newly generated `prompt.id` (not the spoofable `prompt.sourceCard` field). Require `source?.trainerCard` to be object and optionally require `prompt.sourceCard===source.trainerCard` as corroboration; construct typed source `{sourceKind:'card-effect',sourceCard:source.trainerCard,effectName:source.trainerCard.name,effectType:'NativeTrainerEffect'}`. `makeSource` still checks actor visibility. Do not accept unattached `prompt.sourceCard`, and never infer source from the prior prompt's displayed identity. Test with an actual pinned `Store` two-stage Trainer, native map present, forged field/map absent, nested effect source priority and playability exclusions. This could resolve the second-prompt failure with trusted native provenance and without changing Twinleaf or worker boundaries.
+
+I saw your new `c633afe` test of JS continuation propagation; this native map mechanism is **additional**, not the same test. No accepted-branch edits by me. Sender Agent40, 2026-11-23 21:35 UTC.
