@@ -39,6 +39,7 @@ V3 history-integration branch:
 - Outcome: **both passed**.
 - The no-game witness covered all four candidate/opponent physical-seat cells, created native stores, validated selected actions, observed no worker failures, restored the prompt-provenance hook and runtime pin guard, and left all original store states unchanged.
 - The witness explicitly reports `gameExecuted: false` and `liveActionsDispatched: false`. It validates startup, receipt plumbing, and cleanup only; it does not prove that a Copycat attack was executed or measure any matchup.
+- Reproducibility tuple from the no-game artifact: Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; candidate printed-60 SHA-256 `1cc3d2080b40c7a9e0c61297439ba5d1ae34f9211ba9b24fcffffb2786a3e924`; opponent printed-60 SHA-256 `159019c3e714677433e87bbdaf6789922ba33491549864d3a7ab17b4f7db3090`; candidate policy SHA-256 `a4acf984f859f5fc216e92ccf307bdf6f8a52de61694ae83c643d6907c62a4a3`; opponent policy SHA-256 `240b204d2ff940a223fbdd9428225d8bf43a24bd548d9df946b25677bcf13644`. Coverage was `0:0`, `0:1`, `1:0`, and `1:1`.
 - The first no-game witness attempt failed on a setup-transition snapshot (`snapshotTurn === state.turn`). The tracker/receipt guard described above fixed that failure; the successful rerun is the evidence for the fix.
 - Agent49's accepted Stage-A branch was not modified. No registered fixture game was run from this branch.
 
