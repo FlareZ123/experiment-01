@@ -498,6 +498,7 @@ test('frontier only suppresses explicitly allowlisted GameError action-family re
       .map(message=>({type:'RETREAT_ACTION',message})),
     {type:'USE_STADIUM_ACTION',message:'STADIUM_ALREADY_USED'},
     {type:'USE_STADIUM_ACTION',message:'BLOCKED_BY_EFFECT'},
+    {type:'USE_STADIUM_ACTION',message:'CANNOT_USE_STADIUM'},
     {type:'PLAY_CARD_ACTION',family:'ITEM',message:'BLOCKED_BY_EFFECT'},
     {type:'PLAY_CARD_ACTION',family:'SUPPORTER',message:'CANNOT_PLAY_THIS_CARD'},
     {type:'PLAY_CARD_ACTION',family:'SUPPORTER',message:'SUPPORTER_ALREADY_PLAYED'},
@@ -563,6 +564,23 @@ test('stadium action tokens require confirmed live effect and suppressed use pre
   });
   assert.deepEqual(suppressed.actionFrontier.items.map(item=>item.kind),['pass']);
   assert.equal(suppressed.diagnostics.rejectedCount,1);
+});
+
+test('pinned passive Dimension Valley UseStadium rejection preserves other legal actions',()=>{
+  const state=fixtureState();
+  state.players[0].stadium.cards=[new TrainerCard('Dimension Valley PHF')];
+  const stadiumAction={type:'USE_STADIUM_ACTION',clientId:'p0'};
+  const pass={type:'PASS_TURN',clientId:'p0'};
+  const native=fakeNative({
+    actions:[stadiumAction,pass],rejectActionTypes:[],
+    onDispatch:action=>{
+      if(action===stadiumAction)throw new GameError('CANNOT_USE_STADIUM');
+    }
+  });
+  const built=buildNativeActionFrontier({state,actorSeat:0,native});
+  assert.equal(built.diagnostics.rejectedCount,1);
+  assert.equal(built.diagnostics.validatedCount,1);
+  assert.deepEqual(built.actionFrontier.items.map(item=>item.kind),['pass']);
 });
 
 test('frontier propagates unknown, impossible, invalid-target, non-allowlisted native GameError and arbitrary Error failures',()=>{
@@ -701,10 +719,11 @@ test('a name-spoofed Error is not accepted as a pinned native GameError rejectio
 });
 
 
-test('pinned Battle VIP Pass and VS Seeker Item canPlay tri-state rejects only false and delegates true or undefined to native validation',()=>{
+test('pinned Battle VIP Pass, VS Seeker, and Unfair Stamp Item canPlay tri-state rejects only false and delegates true or undefined to native validation',()=>{
   const printings=[
     {name:'Battle VIP Pass',fullName:'Battle VIP Pass FST 225',set:'FST',number:'225'},
-    {name:'VS Seeker',fullName:'VS Seeker PHF 109',set:'PHF',number:'109'}
+    {name:'VS Seeker',fullName:'VS Seeker PHF 109',set:'PHF',number:'109'},
+    {name:'Unfair Stamp',fullName:'Unfair Stamp TWM 165',set:'TWM',number:'165'}
   ];
   for(const printing of printings){
     for(const predicateResult of [false,true,undefined]){
