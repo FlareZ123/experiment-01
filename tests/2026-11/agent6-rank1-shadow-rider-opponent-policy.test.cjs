@@ -514,7 +514,7 @@ test('Underworld Door energy assignment uses actor-visible exact bench index and
       label: 'Attach ' + energyPrinting + ' to Bench ' + (index + 1) + ': Shadow Rider Calyrex V CRE',
       publicMetadata: {
         sourceZone: 'hand', ownerSeat: 'actor', isOwnerVisible: true,
-        energyType: 'BASIC', zone: 'bench', targetIndex: index,
+        energyType: 'BASIC', zone: 'bench', benchIndex: index,
         choiceIndex: index, selectedCount: 1
       }
     })),
@@ -539,7 +539,7 @@ test('Underworld Door energy assignment uses actor-visible exact bench index and
     kind: 'select-choice', token: 'attach-bench-1'
   });
   const audited = policy.decideWithAudit(request);
-  assert.equal(audited.policyAudit.selectionRuleCode, 'UNDERWORLD_ENERGY_ATTACH_TARGET_SCORE');
+  assert.equal(audited.policyAudit.selectionRuleCode, 'UNDERWORLD_ATTACH_BENCH_SCORE');
   protocol.validatePolicyAudit(audited.policyAudit, request, audited.decision, POLICY_VERSION);
 });
 
@@ -2053,7 +2053,7 @@ test('actual Underworld Door AttachEnergyPrompt chooses a Psychic Bench assignme
     label: 'Attach Psychic Energy MEE 13 to Bench ' + (index + 1) + ': ' + target,
     publicMetadata: {
       sourceZone: 'hand', ownerSeat: 'actor', isOwnerVisible: true,
-      energyType: 'BASIC', zone: 'bench', choiceIndex: index, selectedCount: 1
+      energyType: 'BASIC', zone: 'bench', benchIndex: index, choiceIndex: index, selectedCount: 1
     }
   });
   const request = promptRequest({
@@ -2086,7 +2086,7 @@ test('Underworld attachment policy fails closed for a different source instead o
       label: 'Attach Psychic Energy MEE 13 to Bench 1: Latias ex SSP 76',
       publicMetadata: {
         sourceZone: 'hand', ownerSeat: 'actor', isOwnerVisible: true,
-        energyType: 'BASIC', zone: 'bench', choiceIndex: 0, selectedCount: 1
+        energyType: 'BASIC', zone: 'bench', benchIndex: 0, choiceIndex: 0, selectedCount: 1
       }
     }],
     publicMetadata: {
