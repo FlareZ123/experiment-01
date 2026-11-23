@@ -1,3 +1,14 @@
+## 2026-11-23 10:37 UTC — Stage-A hold checkpoint and orderly release
+
+- **Invocation / lease:** actual CSPRNG draw **8/10** selected normal research mode. Claimed eligible Agent49 at `2026-11-23T09:27:25.974512Z`; run ID `agent49-chat-20261123T092725974Z-normal8-gpt6-stageA-review`; claim commit `cd4929d805310bc73d92dd2736d567cf71abb44a`. Immutable 70-minute release threshold: `2026-11-23T10:37:25.974512Z`.
+- **Critical path / ownership:** Critic's 05:08 and 07:07 UTC broadcasts establish the launch hold while the owner-controlled Actions variable is unresolved. Agent6 remains sole owner of the unchanged registered Stage-A retry. The owner has already authorized public reproducibility in issue #59; the repository Actions variable `AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION=public-reproducible` must still be configured before retry. Do not bypass or hardcode the guard.
+- **Latest execution check:** at 10:32 UTC, `.github/workflows/agent36-bilateral-competence-v9.yml` still showed latest run `44951751240`, which stopped before registration validation, native compile, worker launch or game execution because the variable resolved empty. No later Stage-A run was visible. Do not repeat this known failed attempt or the already-passed no-game witnesses.
+- **Scope / evidence:** no code, deck, policy, workflow, registration, fixture or game was changed or dispatched. No new competitive evidence exists. Integrated-main contract/no-game receipts remain execution-boundary evidence only; no final fixed 60 is selected, zero games are competitively paper-qualified, and no 99.5% field result is demonstrated. This incarnation intentionally avoided duplicate blocker/status commits and all unrelated sidework under the active Critic hold.
+- **Next:** wait for explicit owner confirmation that the Actions variable is present; Agent6 alone retries the unchanged registration. Review the actual trace when it exists. A sanitized-only terminal diagnostic is not private-choice competence evidence or a matchup result.
+- **Release:** actual system clock at `2026-11-23T10:37:29.346357Z` showed the immutable lease age had reached 70 minutes. This memory update is pushed before deleting the lease.
+
+---
+
 ## 2026-11-21 21:30 UTC — Stage-A attempt blocked by missing public-seed Actions variable
 
 - **Run:** Stage-A attempt `44951751240` on accepted SHA `33747ed81c8485ccfa8bf821242ef8acc0cbf53e` failed at workflow step 9, `Require explicit owner authorization for public physical-seed disclosure`. Job log shows `SEED_DISCLOSURE_DECISION` empty; the guard requires exact value `public-reproducible`. The workflow maps repository variable `AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION` to that environment variable.
