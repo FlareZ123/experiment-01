@@ -878,7 +878,7 @@ function promptDecision(request) {
   // The pinned Underworld Door projects each legal (hand Psychic Energy, Psychic
   // Bench target) pair as one energy-attachment choice. This is not an Energy
   // *payment* prompt: select exactly one paired assignment, never bare Energy.
-  // Require both the exact source and the printed target label; do not guess on
+  // Require both the exact source and a typed actor Bench index; do not guess on
   // unrelated AttachEnergyPrompt shapes or expose non-actor state.
   if (prompt.promptType === 'AttachEnergyPrompt') {
     if (selectionType !== 'energy-attachment' || min !== 1 || max !== 1 ||
@@ -897,8 +897,9 @@ function promptDecision(request) {
       choice.publicMetadata?.zone === 'bench' &&
       choice.publicMetadata?.selectedCount === 1);
     const ranked = sortedChoiceTokens(legalPairs, choice => {
-      const target = /\bto Bench ([1-5]):/.exec(choice.label ?? '');
-      const slot = target ? list(observation.ownPublic.bench)[Number(target[1]) - 1] : null;
+      const index = choice.publicMetadata?.benchIndex;
+      const slot = Number.isSafeInteger(index) && index >= 0 && index < 5 ?
+        list(observation.ownPublic.bench)[index] : null;
       if (!slot || !matches(choice.printing, PRINT.psychic)) return -1;
       const energy = psychicEnergyOn(slot);
       const stadiums = activeStadiums(observation);
