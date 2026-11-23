@@ -29,6 +29,30 @@ function installUnderworldDoorPsychicRecipientHook(){
   const {GameError}=require('../../vendor/twinleaf/ptcg-server/output/game/game-error');
   const {GameMessage}=require('../../vendor/twinleaf/ptcg-server/output/game/game-message');
   const original=ShadowRiderCalyrexVMAX.prototype.reduceEffect;
+  const originalPromptValidate=AttachEnergyPrompt.prototype.validate;
+  if(typeof originalPromptValidate!=='function')
+    throw new Error('Pinned AttachEnergyPrompt validator is unavailable');
+
+  // This method must use its dynamic receiver. The cloned-Store validator
+  // clones prompt/card objects but deliberately preserves function references;
+  // a prompt-local closure bound to the live prompt would reject cloned cards.
+  function patchedPromptValidate(result){
+    if(!originalPromptValidate.call(this,result))return false;
+    if(result===null)return true;
+    const allowed=this.underworldDoorAllowedBenchIndices;
+    if(!Array.isArray(allowed)||!Array.isArray(result)||result.length!==1)
+      return false;
+    const {to,card}=result[0]??{};
+    return card instanceof EnergyCard&&
+      this.cardList?.cards?.includes(card)&&
+      card.energyType===EnergyType.BASIC&&
+      Array.isArray(card.provides)&&
+      card.provides.includes(CardType.PSYCHIC)&&
+      to?.player===PlayerType.BOTTOM_PLAYER&&
+      to.slot===SlotType.BENCH&&
+      Number.isInteger(to.index)&&
+      allowed.includes(to.index);
+  }
 
   /** @param {object} store @param {object} state @param {object} effect */
   function corrected(store,state,effect){
@@ -41,7 +65,9 @@ function installUnderworldDoorPsychicRecipientHook(){
       store.reduceEffect(state,check);
       return check.cardTypes.includes(CardType.PSYCHIC);
     };
-    if(!owner.bench.some(isPsychicSlot))
+    const psychicBenchIndices=owner.bench.flatMap((slot,index)=>
+      isPsychicSlot(slot)?[index]:[]);
+    if(psychicBenchIndices.length===0)
       throw new GameError(GameMessage.CANNOT_USE_POWER);
     /** @param {Array<{to:object,card:object}>|null} transfers */
     function recipientsPsychic(transfers){
@@ -78,9 +104,12 @@ function installUnderworldDoorPsychicRecipientHook(){
         prompt.options?.max===1;
       if(!isUnderworldDoorPrompt)
         return before.call(store,current,prompt,then);
-      const originalValidate=prompt.validate.bind(prompt);
-      prompt.validate=result=>
-        originalValidate(result)&&recipientsPsychic(result);
+      Object.defineProperty(prompt,'underworldDoorAllowedBenchIndices',{
+        value:psychicBenchIndices.slice(),
+        enumerable:false,
+        configurable:false,
+        writable:false
+      });
       return before.call(store,current,prompt,transfers=>{
         if(!recipientsPsychic(transfers))
           throw new GameError(GameMessage.INVALID_PROMPT_RESULT);
@@ -96,7 +125,10 @@ function installUnderworldDoorPsychicRecipientHook(){
   const restore=()=>{
     if(ShadowRiderCalyrexVMAX.prototype.reduceEffect!==corrected)
       throw new Error('Underworld Door hook lost reducer ownership');
+    if(AttachEnergyPrompt.prototype.validate!==patchedPromptValidate)
+      throw new Error('Underworld Door hook lost prompt-validator ownership');
     ShadowRiderCalyrexVMAX.prototype.reduceEffect=original;
+    AttachEnergyPrompt.prototype.validate=originalPromptValidate;
     restored=true;
     uninstall=null;
   };
@@ -105,13 +137,22 @@ function installUnderworldDoorPsychicRecipientHook(){
     target:{value:UNDERWORLD_DOOR_HOOK_TARGET,enumerable:true},
     originalReducer:{value:original},
     installedReducer:{value:corrected},
-    isInstalled:{get:()=>ShadowRiderCalyrexVMAX.prototype.reduceEffect===corrected,
+    originalPromptValidate:{value:originalPromptValidate},
+    installedPromptValidate:{value:patchedPromptValidate},
+    promptValidateTarget:{value:'AttachEnergyPrompt.prototype.validate',enumerable:true},
+    isInstalled:{get:()=>ShadowRiderCalyrexVMAX.prototype.reduceEffect===corrected&&
+      AttachEnergyPrompt.prototype.validate===patchedPromptValidate,
       enumerable:true},
-    isRestored:{get:()=>restored&&ShadowRiderCalyrexVMAX.prototype.reduceEffect===original,
+    isRestored:{get:()=>restored&&
+      ShadowRiderCalyrexVMAX.prototype.reduceEffect===original&&
+      AttachEnergyPrompt.prototype.validate===originalPromptValidate,
       enumerable:true}
   });
   Object.defineProperty(corrected,'underworldDoorHookId',
     {value:UNDERWORLD_DOOR_HOOK_ID});
+  if(AttachEnergyPrompt.prototype.validate!==originalPromptValidate)
+    throw new Error('AttachEnergyPrompt validator changed before Underworld hook installation');
+  AttachEnergyPrompt.prototype.validate=patchedPromptValidate;
   ShadowRiderCalyrexVMAX.prototype.reduceEffect=corrected;
   uninstall=restore;
   return restore;
