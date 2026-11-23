@@ -330,6 +330,65 @@ test('frontier simulation draws are deterministic and cannot advance the physica
     'the next physical RNG value must be identical to a run without frontier construction');
 });
 
+
+test('per-candidate validation RNG replay prevents frontier acceptance followed by selected-action failure',()=>{
+  const state=fixtureState();
+  const first={type:'PLAY_CARD_ACTION',id:'p0',handIndex:0,
+    target:{player:1,slot:2,index:0}};
+  const second={type:'USE_ABILITY_ACTION',clientId:'p0',name:'RNG-guarded Ability',
+    target:{player:1,slot:1,index:0}};
+  const pass={type:'PASS_TURN',clientId:'p0'};
+  const rolls=[];
+  const native=fakeNative({
+    actions:[first,second,pass],rejectActionTypes:[],
+    onDispatch(action){
+      const roll=Math.random();
+      rolls.push({action,roll});
+      if(action===second&&roll<0.5)throw new GameError('CANNOT_USE_POWER');
+    }
+  });
+  const ambientRandom=Math.random;
+  const physicalSeed=0x12345678;
+  const physicalRandom=seededRandom(physicalSeed);
+  const physicalControl=seededRandom(physicalSeed);
+  const withValidationRandom=createValidationRandomScope({
+    ambientRandom,physicalRandom
+  });
+  // Historical single shared scope: first action consumes RNG draw 1, so
+  // second appears legal on draw 2, but selected revalidation restarts draw 1.
+  const oldFrontier=withValidationRandom(()=>buildNativeActionFrontier({
+    state,actorSeat:0,native
+  }));
+  const oldSelection=oldFrontier.actionFrontier.items.find(item=>
+    item.kind==='use-ability');
+  assert.ok(oldSelection,'shared stream admitted a choice that its replay rejects');
+  assert.equal(rolls[0].roll,0.25266689783893526);
+  assert.equal(rolls[1].roll,0.5698249398265034);
+  const hostStore={state,dispatch(){throw new Error('live Store must not dispatch');}};
+  assert.throws(()=>dispatchSelectedNativeAction({
+    store:hostStore,frontier:oldFrontier,token:oldSelection.token,
+    state,actorSeat:0,native,withValidationRandom,dispatch:false
+  }),error=>error instanceof GameError&&error.message==='CANNOT_USE_POWER');
+
+  // Corrected path: each cloned candidate begins at the same validation seed
+  // as a later selected-action replay, independent of prior frontier items.
+  rolls.length=0;
+  let scopes=0;
+  const scoped=callback=>{scopes++;return withValidationRandom(callback);};
+  const corrected=buildNativeActionFrontier({
+    state,actorSeat:0,native,withValidationRandom:scoped
+  });
+  assert.equal(scopes,3,'every independent candidate gets its own random scope');
+  assert.deepEqual(corrected.actionFrontier.items.map(item=>item.kind),
+    ['play-card','pass']);
+  assert.equal(corrected.diagnostics.rejectedCount,1);
+  assert.deepEqual(rolls.map(row=>row.roll),
+    [0.25266689783893526,0.25266689783893526,0.25266689783893526]);
+  assert.strictEqual(Math.random,ambientRandom);
+  assert.equal(physicalRandom(),physicalControl(),
+    'frontier and replay probes must not advance physical randomness');
+});
+
 test('selected-action clone revalidation cannot advance the physical RNG before real dispatch',()=>{
   const state=fixtureState();
   const action={type:'PASS_TURN',clientId:'p0'};

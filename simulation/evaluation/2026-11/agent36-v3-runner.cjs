@@ -2527,19 +2527,20 @@ function createV3WorkerDecisionResolver({
         error.code='VALIDATION_RANDOM_SCOPE_MISSING';
         throw error;
       }
-      const {frontier,admission}=request.withValidationRandom(()=>{
-        const enumerator=actionEnumerator.createKnownCapFreeActionEnumerator({
-          native,enginePin:V3_FIXTURE.engineCommit
-        });
-        const frontier=actionFrontier.buildNativeActionFrontier({
-          state:request.state,actorSeat,native,enumerator
-        });
-        bindTraceInputs(decisionTrace,receipt,null,frontier.actionFrontier);
-        const admission=actionEnumerator.assertKnownCapFreeAdapterAdmissionClear({
-          enumerator,enginePin:V3_FIXTURE.engineCommit,
-          frontierDiagnostics:frontier.diagnostics
-        });
-        return {frontier,admission};
+      const enumerator=actionEnumerator.createKnownCapFreeActionEnumerator({
+        native,enginePin:V3_FIXTURE.engineCommit
+      });
+      // Independent per-action validation RNG scopes replay the same stream
+      // when the worker-selected action is checked again on a cloned Store.
+      // The previous outer scope made legality depend on enumeration order.
+      const frontier=actionFrontier.buildNativeActionFrontier({
+        state:request.state,actorSeat,native,enumerator,
+        withValidationRandom:request.withValidationRandom
+      });
+      bindTraceInputs(decisionTrace,receipt,null,frontier.actionFrontier);
+      const admission=actionEnumerator.assertKnownCapFreeAdapterAdmissionClear({
+        enumerator,enginePin:V3_FIXTURE.engineCommit,
+        frontierDiagnostics:frontier.diagnostics
       });
       roleAudit.rootActionFrontierAdmissionCount++;
       roleAudit.rootActionFrontierAdmissionReceipts.push(admission);
