@@ -428,7 +428,7 @@ test('zero-minimum multi-select prompts expose one explicit empty-selection toke
   assert.deepEqual(result.rawResult, []);
 });
 
-test('host-only Night Watch and Copycat prompts fail closed rather than leaking unsupported choices', () => {
+test('Night Watch remains host-only while Mimikyu Copycat exposes supported public opponent attacks', () => {
   const state = makeState();
   const nightWatch = basePrompt(NightWatchPrompt, state, {
     cards: state.players[1].hand,
@@ -442,16 +442,44 @@ test('host-only Night Watch and Copycat prompts fail closed rather than leaking 
   assert.equal(hostOnly.hostOnly, true);
   assert.equal(hostOnly.reason, 'NightWatchPhysicalRandom');
 
+  const mimikyu = pokemon('Mimikyu GRI 58');
+  state.players[0].active = slot(mimikyu);
+  const opponentPokemon = pokemon('Trevenant & Dusknoir-GX SMP');
+  opponentPokemon.attacks = [
+    { name: 'Night Watch', gxAttack: false, copycatAttack: false },
+    { name: 'Shadow Mist', gxAttack: false, copycatAttack: false }
+  ];
+  state.players[1].active = slot(opponentPokemon);
   const copycat = basePrompt(ChooseAttackPrompt, state, {
-    cards: [state.players[1].active.getPokemonCard()],
+    sourceCard: mimikyu,
+    cards: [opponentPokemon],
     options: { blocked: [], allowCancel: false },
     decode: ChooseAttackPrompt.prototype.decode,
     validate: ChooseAttackPrompt.prototype.validate
   });
-  assert.throws(() => projectPrompt({
+  const projection = projectPrompt({
     prompt: copycat, state, actorSeat: 0, native,
-    provenanceHook: provenance(copycat.sourceCard, 'Copycat')
-  }), error => error.code === 'UNSUPPORTED_COPYCAT_PROMPT');
+    provenanceHook: provenance(mimikyu, 'Copycat')
+  });
+  protocol.validatePrompt(projection.promptProjection, 0);
+  assert.equal(projection.promptProjection.source.sourcePrinting, 'Mimikyu GRI 58');
+  assert.deepEqual(
+    projection.promptProjection.choices.map(choice => choice.publicMetadata.sourceAttack),
+    ['Shadow Mist']
+  );
+  assert.equal(projection.promptProjection.choices[0].publicMetadata.ownerSeat, 'opponent');
+  assert.equal(projection.promptProjection.choices[0].publicMetadata.isOwnerVisible, true);
+  assert.equal(projection.promptProjection.choices[0].publicMetadata.gxAttack, false);
+  assert.equal(projection.promptProjection.choices[0].publicMetadata.copycatAttack, false);
+
+  const store = { state, dispatch(action) { return action; } };
+  const selected = dispatchPromptChoice({
+    store, prompt: copycat, state, actorSeat: 0, projection,
+    decision: { kind: 'select-choice', token: projection.promptProjection.choices[0].token },
+    native
+  });
+  assert.deepEqual(selected.rawResult, { index: 0, attack: 'Shadow Mist' });
+  assert.equal(selected.decoded.name, 'Shadow Mist');
 });
 
 
