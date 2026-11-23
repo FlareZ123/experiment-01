@@ -251,7 +251,7 @@ const PROMPT_META_KEYS = [
   'sourceZone', 'targetZone', 'handIndex', 'benchIndex', 'slotIndex', 'cardType',
   'energyType', 'amount', 'count', 'selectionIndex', 'isPublic', 'isOwnerVisible',
   'sourcePrinting', 'sourceAttack', 'sourceEffect', 'eligible', 'energyCount',
-  'choiceIndex', 'selectedCount', 'minimumCount', 'maximumCount', 'requiredCount',
+  'choiceIndex', 'targetIndex', 'selectedCount', 'minimumCount', 'maximumCount', 'requiredCount',
   'sourceCardType', 'selectionType', 'zone', 'ownerSeat', 'allowCancel', 'isSecret'
 ];
 
@@ -351,6 +351,16 @@ function validatePromptMetadata(value, requireSelectionType = false) {
       fail('BAD_PROMPT_METADATA');
     }
   }
+  // The sole new native prompt use is the actor-visible Bench recipient for
+  // Underworld Door's Basic Psychic Energy attachment. Do not let arbitrary
+  // prompt types or private/opponent choices smuggle a target index through
+  // this newly admitted metadata field.
+  if(value.targetIndex!==undefined &&
+      (!Number.isSafeInteger(value.targetIndex) || value.targetIndex<0 ||
+       value.targetIndex>=LIMITS.maxArrayItems ||
+       value.zone!=='bench' || value.ownerSeat!=='actor' ||
+       value.isOwnerVisible!==true || value.energyType!=='BASIC' ||
+       value.sourceZone!=='hand')) fail('BAD_PROMPT_METADATA');
   for (const key of ['amount', 'count', 'energyCount', 'selectedCount', 'minimumCount',
     'maximumCount', 'requiredCount']) {
     if (value[key] !== undefined &&
