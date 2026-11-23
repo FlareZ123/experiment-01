@@ -934,6 +934,8 @@ function dispatchPromptChoice({
   store, prompt, state, actorSeat, projection, decision, token, native, dispatch=true,
   withValidationRandom=null
 } = {}) {
+  let validationPhase='ENTRY';
+  try {
   assert.ok(store && typeof store.dispatch === 'function');
   assert.ok(projection?.choiceByToken instanceof Map);
   assert.equal(store.state, state, 'native Store state changed while the prompt decision was pending');
@@ -941,6 +943,7 @@ function dispatchPromptChoice({
   assert.equal(prompt.result, undefined, 'native prompt has already been resolved');
   assert.equal(prompt.playerId, state.players[actorSeat].id);
 
+  validationPhase='DECISION_BIND';
   const selected = protocol.validateDecision(
     decision ?? { kind: 'select-choice', token },
     projection.promptProjection,
@@ -976,30 +979,36 @@ function dispatchPromptChoice({
     });
   }
 
+  validationPhase='RAW_CHOICE';
   let validationReceipt = null;
   if (typeof withValidationRandom === 'function' &&
       typeof native?.ResolvePromptAction === 'function') {
     assert.ok(typeof native?.Store === 'function',
       'pinned Twinleaf Store is required for cloned prompt validation');
+    validationPhase='CLONE_SEED';
     const originalStateBefore = cloneNativeValidationGraph(state);
     const originalPromptContinuationGroups = store.promptItems?.map(item =>
       Array.isArray(item?.ids) ? item.ids.slice() : null);
     validationReceipt = withValidationRandom(() => {
+      validationPhase='CLONE_STORE';
       const validation = createIsolatedValidationPromptStore({ store, state, prompt, native });
       const clonedState = validation.state;
       const clonedPrompt = validation.prompt;
       assert.equal(clonedPrompt.playerId, clonedState.players[actorSeat].id,
         'cloned owner prompt belongs to a different physical seat');
+      validationPhase='CLONE_PROMPT_DECODE';
       const clonedValidation = validateRawPromptResult(clonedPrompt, rawResult, clonedState);
       assert.equal(clonedValidation.valid, true,
         'worker-selected prompt choice failed cloned native decode/validation');
       const clonedAction = new native.ResolvePromptAction(
         clonedPrompt.id, clonedValidation.decoded
       );
+      validationPhase='CLONE_DISPATCH';
       validation.store.dispatch(clonedAction);
       const settledPrompt = validation.store.state.prompts?.find(item =>
         item.id === clonedPrompt.id);
       const clonedPromptResolved = Boolean(settledPrompt && settledPrompt.result !== undefined);
+      validationPhase='CLONE_POSTCHECK';
       assert.equal(clonedPromptResolved, true,
         'cloned native Store did not resolve the same pending owner prompt');
       return {
@@ -1013,18 +1022,27 @@ function dispatchPromptChoice({
         clonedPromptResolved
       };
     });
+    validationPhase='ORIGINAL_STATE_INTEGRITY';
     assert.deepStrictEqual(state, originalStateBefore,
       'cloned prompt validation mutated the full live Store state graph');
+    validationPhase='PROMPT_QUEUE_INTEGRITY';
     assert.deepStrictEqual(store.promptItems?.map(item =>
       Array.isArray(item?.ids) ? item.ids : null), originalPromptContinuationGroups,
     'cloned prompt validation mutated the live Store prompt continuation queue');
     validationReceipt.fullOriginalStoreStateUnchanged = true;
   }
+  validationPhase='LIVE_PROMPT_DECODE';
   const validation = validateRawPromptResult(prompt, rawResult, state);
   assert.equal(validation.valid, true, 'worker-selected prompt choice failed native decode/validation');
   const action = new native.ResolvePromptAction(prompt.id, validation.decoded);
   const result = dispatch?store.dispatch(action):undefined;
   return { result, action, rawResult, decoded: validation.decoded, validationReceipt };
+  } catch(error) {
+    // Stage-only diagnostic; preserve all native/private state within host.
+    if(error?.code==='ERR_ASSERTION')
+      error.code='PROMPT_'+validationPhase+'_ASSERTION';
+    throw error;
+  }
 }
 
 module.exports = {
