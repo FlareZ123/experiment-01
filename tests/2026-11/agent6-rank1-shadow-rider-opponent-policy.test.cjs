@@ -935,10 +935,10 @@ test('Copycat attack choice prefers Max Geist over Eon Blade and excludes Night 
       copiedAttackName: 'Max Geist'
     },
     choices: [
-      { token: 'eon', kind: 'attack', label: 'Eon Blade',
-        publicMetadata: { sourceAttack: 'Eon Blade' } },
-      { token: 'max', kind: 'attack', label: 'Max Geist',
-        publicMetadata: { sourceAttack: 'Max Geist' } }
+      { token: 'eon', kind: 'attack', printing: 'Shadow Rider Calyrex VMAX CRE 75', label: 'Eon Blade',
+        publicMetadata: { sourceAttack: 'Eon Blade', ownerSeat: 'opponent', isOwnerVisible: true, gxAttack: false, copycatAttack: false } },
+      { token: 'max', kind: 'attack', printing: 'Shadow Rider Calyrex VMAX CRE 75', label: 'Max Geist',
+        publicMetadata: { sourceAttack: 'Max Geist', ownerSeat: 'opponent', isOwnerVisible: true, gxAttack: false, copycatAttack: false } }
     ],
     publicMetadata: { selectionType: 'attack', allowCancel: false }
   });
