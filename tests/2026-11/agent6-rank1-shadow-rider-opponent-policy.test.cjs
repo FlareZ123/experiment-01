@@ -1545,6 +1545,25 @@ test('Mimikyu does not use copied-attack payloads until the V3 compatibility hoo
 });
 
 
+test('the protocol rejects Mimikyu Copycat as its own prior-turn Copycat target', () => {
+  const ownPublic = player({ active: pokemon('Girafarig LOT 94', { hp: 90 }) });
+  const attack = {
+    turn: 2,
+    sourcePrinting: 'Mimikyu GRI',
+    attackName: 'Copycat',
+    gxAttack: false,
+    copycatAttack: true
+  };
+  const request = rootRequest({
+    ownPublic,
+    opponentPublic: player({ active: pokemon('Unrelated Active') }),
+    receipt: copycatReceipt(ownPublic, { attack }),
+    items: [{ token: 'pass', kind: 'pass' }]
+  });
+  assert.throws(() => checkedDecision(request), error =>
+    error.code === 'INELIGIBLE_COPYCAT_ATTACK');
+});
+
 test('Mysterious Treasure completes the second Shadow Rider V before optional Copycat setup', () => {
   const opponentActive = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
     hp: 320,
