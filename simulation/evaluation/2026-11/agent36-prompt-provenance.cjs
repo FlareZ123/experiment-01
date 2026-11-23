@@ -29,6 +29,21 @@ function describeEffect(card, effect) {
   };
 }
 
+// The pinned Store stamps only actual TrainerEffect-originated prompts in its
+// own private runtime map. Unlike prompt.sourceCard, this map cannot be forged
+// by a standalone prompt object and is available even after a continuation
+// leaves the research hook's synchronous JS effect stack.
+function trustedNativeTrainerPromptSource(store,prompt) {
+  if(!Number.isSafeInteger(prompt?.id)||
+      !(store?.trainerPromptSources instanceof Map))return null;
+  const nativeStamp=store.trainerPromptSources.get(prompt.id);
+  const trainer=nativeStamp?.trainerCard;
+  if(!trainer||typeof trainer!=='object'||prompt.sourceCard!==trainer)return null;
+  const effectName=firstString([trainer.name]);
+  if(!effectName)return null;
+  return {sourceKind:'card-effect',sourceCard:trainer,effectName,effectType:'TrainerEffect'};
+}
+
 function installPromptProvenanceHook(store) {
   assert.ok(store && typeof store === 'object');
   assert.equal(typeof store.callReduceEffect, 'function',
@@ -82,14 +97,18 @@ function installPromptProvenanceHook(store) {
     if (!tracking) return result;
     for (const prompt of promptList) {
       if (!prompt || typeof prompt !== 'object') continue;
-      const sourceCard = current?.sourceCard ?? null;
-      const effectName = current?.effectName ?? null;
-      if (sourceCard && effectName) {
-        provenance.set(prompt, Object.freeze({
-          sourceKind: 'card-effect',
+      // Genuine reducer/continuation stacks take precedence. When Twinleaf
+      // has already stamped a Trainer prompt but a JS callback escaped our
+      // local stack, use its ID-keyed native source, never prompt.sourceCard alone.
+      const source=current??trustedNativeTrainerPromptSource(this,prompt);
+      const sourceCard=source?.sourceCard??null;
+      const effectName=source?.effectName??null;
+      if(sourceCard&&effectName){
+        provenance.set(prompt,Object.freeze({
+          sourceKind:'card-effect',
           sourceCard,
           effectName,
-          effectType: current?.effectType ?? null
+          effectType:source?.effectType??null
         }));
       }
     }
