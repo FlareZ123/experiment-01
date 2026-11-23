@@ -29,10 +29,7 @@ const {
   createValidationRandomScope,
   seededRandom
 } = require('../../simulation/evaluation/2026-11/agent49-native-fixture-game.cjs');
-const {
-  loadNativeRoleDependencies,
-  V3_FIXTURE
-} = require('../../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
+
 
 function makeFixture(groupSize) {
   const state = new State();
@@ -353,6 +350,28 @@ test('Underworld hook preserves native Blaziken Firestarter AttachEnergyPrompt v
 });
 
 
+function nativeFrontierBindings(){
+  const cardActions=loadNative('game/store/actions/play-card-action');
+  const gameActions=loadNative('game/store/actions/game-actions');
+  const promptActions=loadNative('game/store/actions/resolve-prompt-action');
+  const {ActionEnumerator}=loadNative('advanced-bot/action-enumerator');
+  const {Simulator}=loadNative('game/bots/simulator');
+  const {WaitPrompt}=loadNative('game/store/prompts/wait-prompt');
+  const {PokemonCard}=loadNative('game/store/card/pokemon-card');
+  const {EnergyCard}=loadNative('game/store/card/energy-card');
+  const {TrainerCard}=loadNative('game/store/card/trainer-card');
+  const {GameError}=loadNative('game/game-error');
+  const {Stage,EnergyType,CardType,TrainerType,SpecialCondition,SuperType}=
+    loadNative('game/store/card/card-types');
+  return {
+    cardActions,gameActions,ActionEnumerator,Simulator,
+    PlayerType:cardActions.PlayerType,SlotType:cardActions.SlotType,
+    PokemonCard,EnergyCard,TrainerCard,GameError,Stage,TrainerType,
+    SpecialCondition,EnergyType,CardType,SuperType,
+    ResolvePromptAction:promptActions.ResolvePromptAction,WaitPrompt
+  };
+}
+
 function buildDeterministicNativeFrontier(x,native,seed){
   const withValidationRandom=createValidationRandomScope({
     ambientRandom:Math.random,
@@ -399,7 +418,7 @@ function settleStarAlchemy(x,native){
 test('native action frontier keeps first Star Alchemy use but rejects the deferred spent-VSTAR use',()=>{
   const x=stage(0);
   const manager=initializeCards();
-  const native=loadNativeRoleDependencies({enginePin:V3_FIXTURE.engineCommit});
+  const native=nativeFrontierBindings();
   let id=91000;
   const card=name=>{
     const result=manager.getCardByName(name);
@@ -422,11 +441,21 @@ test('native action frontier keeps first Star Alchemy use but rejects the deferr
   assert.ok(enumerator.enumerate(x.state,x.owner,x.owner.id).some(isStarAlchemy),
     'the native enumerator must expose the unspent Forest Seal Stone ability');
   const beforeUnspent=cloneNativeValidationGraph(x.state);
+  const unspentCandidates=enumerator.enumerate(x.state,x.owner,x.owner.id).filter(isStarAlchemy);
   const unspent=buildDeterministicNativeFrontier(x,native,0x13572468);
   assert.ok([...unspent.actionByToken.values()].some(isStarAlchemy),
     'the first legal Star Alchemy use must survive cloned WaitPrompt validation');
   assert.deepEqual(x.state,beforeUnspent,
     'frontier validation must leave the live Store unchanged');
+  const unspentClone=new native.Simulator(cloneNativeValidationGraph(x.state));
+  unspentClone.store.dispatch(unspentCandidates[0]);
+  let unspentWait=unspentClone.store.state.prompts.find(prompt=>
+    prompt instanceof native.WaitPrompt&&prompt.result===undefined);
+  assert.ok(unspentWait,'first Star Alchemy use must create the native animation WaitPrompt');
+  unspentClone.store.dispatch(new native.ResolvePromptAction(unspentWait.id,null));
+  assert.ok(unspentClone.store.state.prompts.some(prompt=>
+    prompt.result===undefined&&prompt.constructor.name==='ChooseCardsPrompt'),
+    'settling one WaitPrompt must stop at the first actual Star Alchemy choice prompt');
 
   x.store.dispatch(new native.gameActions.UseAbilityAction(x.owner.id,'Star Alchemy',{
     player:native.PlayerType.BOTTOM_PLAYER,slot:native.SlotType.BENCH,index:0
@@ -436,6 +465,18 @@ test('native action frontier keeps first Star Alchemy use but rejects the deferr
   assert.ok(spentCandidates.length>0,
     'the pinned enumerator must expose the spent action so deferred Store validation is exercised');
   const beforeSpent=cloneNativeValidationGraph(x.state);
+  const spentClone=new native.Simulator(cloneNativeValidationGraph(x.state));
+  let spentWaitResolved=false;
+  assert.throws(()=>{
+    spentClone.store.dispatch(spentCandidates[0]);
+    const wait=spentClone.store.state.prompts.find(prompt=>
+      prompt instanceof native.WaitPrompt&&prompt.result===undefined);
+    assert.ok(wait,'spent Star Alchemy must first create its animation WaitPrompt');
+    spentWaitResolved=true;
+    spentClone.store.dispatch(new native.ResolvePromptAction(wait.id,null));
+  },error=>error instanceof native.GameError&&error.message==='LABEL_VSTAR_USED',
+  'the second Star Alchemy use must fail specifically in the deferred native PowerEffect');
+  assert.equal(spentWaitResolved,true);
   const spent=buildDeterministicNativeFrontier(x,native,0x24681357);
   assert.equal([...spent.actionByToken.values()].some(isStarAlchemy),false,
     'the spent Star Alchemy action must be rejected after its cloned WaitPrompt resolves');
@@ -446,7 +487,7 @@ test('native action frontier keeps first Star Alchemy use but rejects the deferr
 test('native action frontier preserves both source-specific Underworld Door markers through Simulator cloning',()=>{
   const x=stage(0);
   const manager=initializeCards();
-  const native=loadNativeRoleDependencies({enginePin:V3_FIXTURE.engineCommit});
+  const native=nativeFrontierBindings();
   let id=92000;
   const card=name=>{
     const result=manager.getCardByName(name);
@@ -464,7 +505,7 @@ test('native action frontier preserves both source-specific Underworld Door mark
   x.owner.bench[1].cards.length=0;
   x.owner.bench[1].cards.push(card('Dialga-GX UPR'));
   x.owner.hand.cards.length=0;
-  x.owner.hand.cards.push(card('Psychic Energy SVE'),card('Psychic Energy SVE'));
+  for(let i=0;i<5;i++)x.owner.hand.cards.push(card('Psychic Energy SVE'));
   x.owner.deck.cards.length=0;
   for(let i=0;i<8;i++)x.owner.deck.cards.push(card('Psychic Energy SVE'));
   const AttachEnergyPrompt=loadNative('game/store/prompts/attach-energy-prompt').AttachEnergyPrompt;
@@ -505,6 +546,38 @@ test('native action frontier preserves both source-specific Underworld Door mark
       'the first VMAX must retain its own spent Door marker');
     assert.equal(x.owner.marker.hasMarker(sourceB.UNDERWORLD_DOOR_MARKER,sourceB),true,
       'the second VMAX must retain its own spent Door marker');
+    assert.ok(x.owner.hand.cards.filter(item=>item.fullName==='Psychic Energy SVE').length>=3,
+      'repeat-source validation must retain enough Basic Psychic Energy to reach the marker guard');
+    const repeatDoorInClone=sourceIndex=>{
+      const simulator=new native.Simulator(cloneNativeValidationGraph(x.state));
+      const player=simulator.store.state.players[0];
+      const otherIndex=sourceIndex===0?2:0;
+      const source=player.bench[sourceIndex].getPokemonCard();
+      const otherSource=player.bench[otherIndex].getPokemonCard();
+      const liveSource=x.owner.bench[sourceIndex].getPokemonCard();
+      assert.equal(player.marker.hasMarker(source.UNDERWORLD_DOOR_MARKER,source),true,
+        'the cloned marker must be keyed to this cloned VMAX object');
+      assert.equal(player.marker.hasMarker(source.UNDERWORLD_DOOR_MARKER,otherSource),false,
+        'the first VMAX marker must not transfer to the other cloned VMAX');
+      assert.equal(player.marker.hasMarker(source.UNDERWORLD_DOOR_MARKER,liveSource),false,
+        'the cloned marker source must not retain the live card object identity');
+      let waitResolved=false;
+      assert.throws(()=>{
+        simulator.store.dispatch(new native.gameActions.UseAbilityAction(player.id,'Underworld Door',{
+          player:native.PlayerType.BOTTOM_PLAYER,slot:native.SlotType.BENCH,index:sourceIndex
+        }));
+        const wait=simulator.store.state.prompts.find(prompt=>
+          prompt instanceof native.WaitPrompt&&prompt.result===undefined);
+        assert.ok(wait,'a repeated source must reach the native Ability-animation WaitPrompt');
+        waitResolved=true;
+        simulator.store.dispatch(new native.ResolvePromptAction(wait.id,null));
+      },error=>error instanceof native.GameError&&error.message==='POWER_ALREADY_USED',
+      'a repeated source must fail specifically at its own deferred marker guard');
+      assert.equal(waitResolved,true,
+        'source-specific marker rejection must occur after resolving the cloned WaitPrompt');
+    };
+    repeatDoorInClone(0);
+    repeatDoorInClone(2);
     const rawDoors=new native.ActionEnumerator().enumerate(x.state,x.owner,x.owner.id)
       .filter(action=>action.type==='USE_ABILITY_ACTION'&&action.name==='Underworld Door');
     assert.deepEqual(rawDoors.map(action=>action.target.index).sort((a,b)=>a-b),[0,2],
