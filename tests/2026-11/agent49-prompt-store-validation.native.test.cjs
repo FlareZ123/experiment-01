@@ -434,11 +434,9 @@ test('native action frontier keeps first Star Alchemy use but rejects the deferr
   x.owner.bench[0].cards.length=0;
   x.owner.bench[0].cards.push(card('Shadow Rider Calyrex V CRE'));
   const stone=card('Forest Seal Stone SIT');
-  x.owner.hand.cards.push(stone);
-  const stoneHandIndex=x.owner.hand.cards.indexOf(stone);
-  x.store.dispatch(new native.cardActions.PlayCardAction(x.owner.id,stoneHandIndex,{
-    player:native.PlayerType.BOTTOM_PLAYER,slot:native.SlotType.BENCH,index:0
-  }));
+  x.owner.bench[0].tools.push(stone);
+  assert.equal(x.owner.bench[0].tools.includes(stone),true,
+    'the real Forest Seal Stone must be attached to the V Pokémon before enumerating its power');
   const isStarAlchemy=action=>action?.type==='USE_ABILITY_ACTION'&&
     action.name==='Star Alchemy'&&action.target?.slot===native.SlotType.BENCH&&
     action.target?.index===0;
@@ -543,7 +541,6 @@ test('native action frontier preserves both source-specific Underworld Door mark
   };
   try{
     resolveDoor(0,2);
-    resolveDoor(2,0);
     const sourceA=x.owner.bench[0].getPokemonCard();
     const sourceB=x.owner.bench[2].getPokemonCard();
     assert.notStrictEqual(sourceA,sourceB,
@@ -552,21 +549,29 @@ test('native action frontier preserves both source-specific Underworld Door mark
     assert.equal(typeof sourceB.UNDERWORLD_DOOR_MARKER,'string');
     assert.equal(x.owner.marker.hasMarker(sourceA.UNDERWORLD_DOOR_MARKER,sourceA),true,
       'the first VMAX must retain its own spent Door marker');
-    assert.equal(x.owner.marker.hasMarker(sourceB.UNDERWORLD_DOOR_MARKER,sourceB),true,
-      'the second VMAX must retain its own spent Door marker');
-    assert.ok(x.owner.hand.cards.filter(item=>item.fullName==='Psychic Energy SVE').length>=3,
-      'repeat-source validation must retain enough Basic Psychic Energy to reach the marker guard');
+    assert.equal(x.owner.marker.hasMarker(sourceA.UNDERWORLD_DOOR_MARKER,sourceB),false,
+      'using the first VMAX must not mark the second physical VMAX as spent');
+
+    const oneSpentClone=new native.Simulator(cloneNativeValidationGraph(x.state));
+    const clonePlayer=oneSpentClone.store.state.players[0];
+    const cloneSourceA=clonePlayer.bench[0].getPokemonCard();
+    const cloneSourceB=clonePlayer.bench[2].getPokemonCard();
+    assert.notStrictEqual(cloneSourceA,cloneSourceB,
+      'Simulator cloning must preserve distinct physical VMAX card identities');
+    assert.equal(clonePlayer.marker.hasMarker(cloneSourceA.UNDERWORLD_DOOR_MARKER,cloneSourceA),true,
+      'the first marker must point to the first cloned VMAX');
+    assert.equal(clonePlayer.marker.hasMarker(cloneSourceA.UNDERWORLD_DOOR_MARKER,cloneSourceB),false,
+      'the first marker must not falsely mark the unused second cloned VMAX');
+    assert.equal(clonePlayer.marker.hasMarker(cloneSourceA.UNDERWORLD_DOOR_MARKER,sourceA),false,
+      'the cloned marker source must not retain the live card object identity');
+
     const repeatDoorInClone=sourceIndex=>{
       const simulator=new native.Simulator(cloneNativeValidationGraph(x.state));
       const player=simulator.store.state.players[0];
-      const otherIndex=sourceIndex===0?2:0;
       const source=player.bench[sourceIndex].getPokemonCard();
-      const otherSource=player.bench[otherIndex].getPokemonCard();
       const liveSource=x.owner.bench[sourceIndex].getPokemonCard();
       assert.equal(player.marker.hasMarker(source.UNDERWORLD_DOOR_MARKER,source),true,
         'the cloned marker must be keyed to this cloned VMAX object');
-      assert.equal(player.marker.hasMarker(source.UNDERWORLD_DOOR_MARKER,otherSource),false,
-        'the first VMAX marker must not transfer to the other cloned VMAX');
       assert.equal(player.marker.hasMarker(source.UNDERWORLD_DOOR_MARKER,liveSource),false,
         'the cloned marker source must not retain the live card object identity');
       let waitResolved=false;
@@ -585,7 +590,27 @@ test('native action frontier preserves both source-specific Underworld Door mark
         'source-specific marker rejection must occur after resolving the cloned WaitPrompt');
     };
     repeatDoorInClone(0);
+
+    const secondSourceClone=new native.Simulator(cloneNativeValidationGraph(x.state));
+    const secondPlayer=secondSourceClone.store.state.players[0];
+    secondSourceClone.store.dispatch(new native.gameActions.UseAbilityAction(secondPlayer.id,'Underworld Door',{
+      player:native.PlayerType.BOTTOM_PLAYER,slot:native.SlotType.BENCH,index:2
+    }));
+    const secondWait=secondSourceClone.store.state.prompts.find(prompt=>
+      prompt instanceof native.WaitPrompt&&prompt.result===undefined);
+    assert.ok(secondWait,'the unspent second VMAX must reach its native WaitPrompt');
+    secondSourceClone.store.dispatch(new native.ResolvePromptAction(secondWait.id,null));
+    assert.ok(secondSourceClone.store.state.prompts.some(prompt=>
+      prompt.result===undefined&&prompt.constructor.name==='AttachEnergyPrompt'),
+      'the unused second VMAX must remain legal after cloning a first-source marker');
+
+    assert.ok(x.owner.hand.cards.filter(item=>item.fullName==='Psychic Energy SVE').length>=3,
+      'repeat-source validation must retain enough Basic Psychic Energy to reach the marker guard');
+    resolveDoor(2,0);
+    assert.equal(x.owner.marker.hasMarker(sourceB.UNDERWORLD_DOOR_MARKER,sourceB),true,
+      'the second VMAX must acquire its own marker when used');
     repeatDoorInClone(2);
+
     const enumerator=createKnownCapFreeActionEnumerator({native,enginePin:EXPECTED_ENGINE_PIN});
     const rawDoors=enumerator.enumerate(x.state,x.owner,x.owner.id)
       .filter(action=>action.type==='USE_ABILITY_ACTION'&&action.name==='Underworld Door');
@@ -602,4 +627,83 @@ test('native action frontier preserves both source-specific Underworld Door mark
     restore();
     assert.equal(restore.isRestored,true);
   }
+});
+
+
+function createMarshadowFixture({onBench,withStadium}){
+  const x=stage(0);
+  const manager=initializeCards();
+  const native=nativeFrontierBindings();
+  let id=93000;
+  const card=name=>{
+    const template=manager.getCardByName(name);
+    assert.ok(template,'Pinned native printing unavailable: '+name);
+    const result=cloneNativeValidationGraph(template);
+    result.id=id++;
+    return result;
+  };
+  const marshadow=card('Marshadow UNB');
+  if(onBench){
+    x.owner.bench[0].cards.length=0;
+    x.owner.bench[0].cards.push(marshadow);
+  }else{
+    x.owner.active.cards.length=0;
+    x.owner.active.cards.push(marshadow);
+  }
+  if(withStadium){
+    const stadium=card('Training Court RCL');
+    x.owner.hand.cards.push(stadium);
+    const handIndex=x.owner.hand.cards.indexOf(stadium);
+    x.store.dispatch(new native.cardActions.PlayCardAction(x.owner.id,handIndex,{
+      player:native.PlayerType.ANY,slot:native.SlotType.BOARD,index:0
+    }));
+  }
+  const enumerator=createKnownCapFreeActionEnumerator({native,enginePin:EXPECTED_ENGINE_PIN});
+  const isResettingHole=action=>action?.type==='USE_ABILITY_ACTION'&&
+    action.name==='Resetting Hole'&&
+    (action.target?.slot===native.SlotType.ACTIVE||
+      action.target?.slot===native.SlotType.BENCH);
+  const candidates=enumerator.enumerate(x.state,x.owner,x.owner.id).filter(isResettingHole);
+  assert.equal(candidates.length,1,'the pinned uncapped enumerator must expose Marshadow Resetting Hole');
+  return {x,native,enumerator,action:candidates[0],isResettingHole};
+}
+
+function assertDeferredAbilityError(x,native,action,expectedCode){
+  const simulator=new native.Simulator(cloneNativeValidationGraph(x.state));
+  let waitResolved=false;
+  assert.throws(()=>{
+    simulator.store.dispatch(action);
+    const wait=simulator.store.state.prompts.find(prompt=>
+      prompt instanceof native.WaitPrompt&&prompt.result===undefined);
+    assert.ok(wait,'the activated ability must first create its native WaitPrompt');
+    waitResolved=true;
+    simulator.store.dispatch(new native.ResolvePromptAction(wait.id,null));
+  },error=>error instanceof native.GameError&&error.message===expectedCode,
+  'the deferred native ability rejection must retain its exact GameError');
+  assert.equal(waitResolved,true,'the expected error must occur after settling one WaitPrompt');
+}
+
+test('native action frontier handles Marshadow Resetting Hole deferred CANNOT_USE_POWER in both negative states',()=>{
+  const legal=createMarshadowFixture({onBench:true,withStadium:true});
+  const legalFrontier=buildDeterministicNativeFrontier(
+    legal.x,legal.native,0x31415926,legal.enumerator
+  );
+  assert.ok([...legalFrontier.actionByToken.values()].some(legal.isResettingHole),
+    'Bench Marshadow with a Stadium must remain a legal first-use ability');
+
+  const noStadium=createMarshadowFixture({onBench:true,withStadium:false});
+  assertDeferredAbilityError(noStadium.x,noStadium.native,noStadium.action,'CANNOT_USE_POWER');
+  const noStadiumFrontier=buildDeterministicNativeFrontier(
+    noStadium.x,noStadium.native,0x27182818,noStadium.enumerator
+  );
+  assert.equal([...noStadiumFrontier.actionByToken.values()].some(noStadium.isResettingHole),false,
+    'Bench Marshadow without a Stadium must be rejected after its WaitPrompt');
+
+  const active=createMarshadowFixture({onBench:false,withStadium:true});
+  assertDeferredAbilityError(active.x,active.native,active.action,'CANNOT_USE_POWER');
+  const activeFrontier=buildDeterministicNativeFrontier(
+    active.x,active.native,0x16180339,active.enumerator
+  );
+  assert.equal([...activeFrontier.actionByToken.values()].some(active.isResettingHole),false,
+    'Active Marshadow must be rejected after its WaitPrompt even with a Stadium in play');
 });
