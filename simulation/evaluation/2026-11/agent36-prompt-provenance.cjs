@@ -39,6 +39,10 @@ function installPromptProvenanceHook(store) {
   const originalCallReduceEffect = store.callReduceEffect;
   const originalPrompt = store.prompt;
   const stack = [];
+  // Store.prompt continuation callbacks may enqueue a second owner choice
+  // after the original card reduceEffect returns (Quick Ball: discard, search).
+  // Preserve origin in a host-only lexical callback scope, not in prompt data.
+  const continuationStack = [];
   const provenance = new WeakMap();
   let restored = false;
 
@@ -54,9 +58,22 @@ function installPromptProvenanceHook(store) {
 
   function promptHook(state, prompts, then) {
     const promptList = prompts instanceof Array ? prompts : [prompts];
-    const result = originalPrompt.call(this, state, prompts, then);
+    const current = stack.length ? stack[stack.length - 1] :
+      continuationStack.length ? continuationStack[continuationStack.length - 1] : null;
+    // Only card-originated continuations inherit provenance; an engine-only
+    // callback must not acquire provenance from a forged prompt.sourceCard.
+    const wrappedThen = !this.calculatingPlayability &&
+      current?.sourceCard && current?.effectName && typeof then === 'function'
+      ? function cardEffectContinuation(...args) {
+          continuationStack.push(current);
+          try {
+            return then.apply(this, args);
+          } finally {
+            continuationStack.pop();
+          }
+        } : then;
+    const result = originalPrompt.call(this, state, prompts, wrappedThen);
     if (this.calculatingPlayability) return result;
-    const current = stack.length ? stack[stack.length - 1] : null;
     for (const prompt of promptList) {
       if (!prompt || typeof prompt !== 'object') continue;
       const sourceCard = current?.sourceCard ?? null;
