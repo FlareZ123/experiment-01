@@ -130,8 +130,8 @@ for (const groupSize of [1, 2]) {
 }
 
 test('Underworld Door AttachEnergyPrompt clone validation uses the cloned prompt/card graph', () => {
-  const x = stage(0);
   const manager = initializeCards();
+  const x = stage(0);
   let id = 87000;
   const card = name => {
     const result = manager.getCardByName(name);
