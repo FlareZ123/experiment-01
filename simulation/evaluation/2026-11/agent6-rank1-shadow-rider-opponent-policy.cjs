@@ -280,9 +280,27 @@ function pathLockActive(observation) {
 }
 
 function copycatTargetAvailable(request) {
-  const attacks = list(request?.observation?.opponentPublic?.active?.attacks);
-  return attacks.some(attack => attack && attack.name &&
-    attack.gxAttack !== true && attack.name !== 'Night Watch');
+  const observation = request?.observation;
+  const receipt = request?.publicEventReceipt;
+  if (!observation || !receipt ||
+      receipt.actorSeat !== observation.actorSeat ||
+      receipt.turn !== observation.globalTurn ||
+      receipt.opponentLastTurnTurn !== receipt.turn - 1 ||
+      !Array.isArray(receipt.opponentLastTurnAttacks) ||
+      !Array.isArray(receipt.opponentCopycatChoices)) return false;
+
+  // Copycat is conditioned on an attack used during the opponent's previous
+  // turn, not on attacks currently printed on the opponent's Active. Require
+  // the turn-stamped tracker choice set. The current V3 worker deliberately
+  // excludes cloned-attack payloads and the exact Night Watch effect until
+  // their execution hooks are installed.
+  return receipt.opponentCopycatChoices.some(attack =>
+    attack &&
+    attack.turn === receipt.opponentLastTurnTurn &&
+    attack.gxAttack === false &&
+    attack.copycatAttack === false &&
+    !( /^Trevenant & Dusknoir-GX SMP(?:\\s|$)/.test(attack.sourcePrinting ?? '') &&
+      attack.attackName === 'Night Watch'));
 }
 
 function opponentHasWeakBenchTarget(observation) {
