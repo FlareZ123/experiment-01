@@ -87,3 +87,7 @@ With no damage modifiers, let target HP be `H`, existing damage be `D`, and tota
 - Two-hit KO with the same board count on both turns: `E >= max(3, ceil((H - D - 20) / 60))`.
 
 For a fresh 320-HP VMAX, these are 11 Energy for one hit and 5 for two hits. With 60 prior damage, they fall to 9 for one hit and 4 for two hits. This is the mathematical reason the observed five-Energy board closed the already-damaged target easily; it should not be conflated with the fresh-target 11-Energy one-shot breakpoint. The formulas assume no healing, damage reduction, weakness/resistance change, or Energy-count change between attacks.
+
+### Attribution of the six prior 10-damage attacks
+
+Although the sanitized action ledger records only `AttackAction`, the six turn-3/5/7/9/11/13 observations show the Active is Shadow Rider Calyrex V, whose listed attacks are Shadow Mist (10 damage) and Astral Barrage (0 direct damage, requiring two opposing Pokémon). The opponent's Bench is empty at all six observations, and the Active's damage rises by exactly 10 each time. Thus the 60 prior damage is attributable to six Shadow Mist attacks by elimination; this is a deduction from the public attack list and board, not a directly logged attack-name field.
