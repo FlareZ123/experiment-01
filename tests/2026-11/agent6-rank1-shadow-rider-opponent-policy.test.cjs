@@ -514,7 +514,7 @@ test('Underworld Door energy assignment uses actor-visible exact bench index and
       label: 'Attach ' + energyPrinting + ' to Bench ' + (index + 1) + ': Shadow Rider Calyrex V CRE',
       publicMetadata: {
         sourceZone: 'hand', ownerSeat: 'actor', isOwnerVisible: true,
-        energyType: 'BASIC', zone: 'bench', targetIndex: index,
+        energyType: 'BASIC', zone: 'bench', benchIndex: index,
         choiceIndex: index, selectedCount: 1
       }
     })),
@@ -539,7 +539,7 @@ test('Underworld Door energy assignment uses actor-visible exact bench index and
     kind: 'select-choice', token: 'attach-bench-1'
   });
   const audited = policy.decideWithAudit(request);
-  assert.equal(audited.policyAudit.selectionRuleCode, 'UNDERWORLD_ENERGY_ATTACH_TARGET_SCORE');
+  assert.equal(audited.policyAudit.selectionRuleCode, 'UNDERWORLD_ATTACH_BENCH_SCORE');
   protocol.validatePolicyAudit(audited.policyAudit, request, audited.decision, POLICY_VERSION);
 });
 
