@@ -334,9 +334,14 @@ function resolveFirstAbilityWaitPrompt(simulator,action,native){
     'native WaitPrompt constructor is required for deferred ability validation');
   assert.equal(typeof native.ResolvePromptAction,'function',
     'native ResolvePromptAction constructor is required for deferred ability validation');
-  const pending=(simulator.store.state.prompts??[]).find(prompt=>
+  const pendingWaitPrompts=(simulator.store.state.prompts??[]).filter(prompt=>
     prompt instanceof native.WaitPrompt&&prompt.result===undefined);
-  if(!pending)return;
+  if(pendingWaitPrompts.length===0)return;
+  assert.equal(pendingWaitPrompts.length,1,
+    'a cloned UseAbilityAction must create exactly one pending animation WaitPrompt');
+  const pending=pendingWaitPrompts[0];
+  assert.equal(pending.message,'Ability animation',
+    'only the pinned Ability-animation continuation may be resolved');
   // Resolve only the first engine animation/continuation WaitPrompt. Stop at
   // the first real effect prompt; never auto-select cards or other choices.
   simulator.store.dispatch(new native.ResolvePromptAction(pending.id,null));
