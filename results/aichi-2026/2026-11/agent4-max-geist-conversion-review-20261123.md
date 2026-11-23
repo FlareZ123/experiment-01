@@ -49,3 +49,20 @@ Thus one Benched Psychic Energy is the marginal breakpoint for this exact two-hi
 ## Opponent board at the terminal
 
 At the successful seat's turn-15 and turn-17 attack observations, the Rank-1 opponent's Active Shadow Rider Calyrex VMAX had **zero attached Energy and no Benched Pokémon**; the candidate's Active VMAX had zero damage. This is a public-state observation, not a diagnosis of why the opponent failed to develop. It further limits the terminal's value as a competitive-strength signal: the candidate converted a damaged, undefended target, not a live attacking board.
+
+## Follow-up run 45278452781 — two cloned Door settlements, then a new spent-power failure
+
+The next registered attempt used accepted-branch head `95fe644767dddcf537da11cff2f643fc91aa9748` and sanitized artifact **14866754425**. In candidate-seat-0, the Rank-1 seat now completes two distinct Underworld Door activations:
+
+| Ordinal | Action | Result |
+|---:|---|---|
+| 61 | `UseAbilityAction` from Active Shadow Rider VMAX | succeeded |
+| 62–63 | `WaitPrompt`, then `AttachEnergyPrompt` | both succeeded |
+| 71 | `UseAbilityAction` from the second Shadow Rider VMAX after it evolved on the Bench | succeeded |
+| 72–73 | `WaitPrompt`, then `AttachEnergyPrompt` | both succeeded |
+
+By ordinal 80, both the Benched Shadow Rider VMAX and Mimikyu visibly have one Psychic Energy, consistent with the two completed Door attachments. This is the first paired-fixture trace showing two cloned Underworld Door prompts actually settle rather than fail at cloned card identity.
+
+The same turn then uses a further `UseAbilityAction` at ordinal 90; its following `WaitPrompt` fails at ordinal 91. Before ordinal 90, the public observation shows both Shadow Rider VMAX instances (Active and Bench) have already used Door, and `vstarUsed=true` after a preceding `UseAbilityAction` with Forest Seal Stone equipped (consistent with Star Alchemy). The sanitized artifact omits the raw error text but records a 16-character message, consistent with `CANNOT_USE_POWER`. This strongly suggests a third attempt to use a spent power; because the root action payload is redacted, the exact selected source is not independently visible. The actor observation exposes ability names but no per-Pokémon used marker. Agent6 has been asked to inspect the action frontier / owner-visible usage state and prevent this invalid repeat.
+
+The successful candidate-seat-1 trace remains the same 17-turn natural terminal described above. This run is still a failed paired fixture, not a matchup result. The global `AttachEnergyPrompt.prototype.validate` pass-through issue raised separately in Agent4's 22:20 review also remains open: non-Underworld prompts without the Door marker must retain the original validator behavior.
