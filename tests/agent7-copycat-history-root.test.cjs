@@ -135,6 +135,29 @@ test('attaches the latest stamped public snapshot and its exact Copycat choice s
   assert.equal(missingChoiceApi.publicEventReceipt.mimikyuCopycatCompatible,null);
 });
 
+test('ignores a setup-transition snapshot that is not older than the acting turn',()=>{
+  const slot=printing=>({getPokemonCard:()=>printing?{fullName:printing,id:1}:null});
+  const state={
+    players:[
+      {id:1,active:slot('Bunnelby PRC'),bench:[],marker:null,movedToActiveThisTurn:[]},
+      {id:2,active:slot('Mimikyu GRI'),bench:[],marker:null,movedToActiveThisTurn:[]}
+    ],
+    activePlayer:1,turn:0
+  };
+  const view={
+    actorSeat:1,globalTurn:0,decisionKind:'owner-root',
+    ownPublic:{active:{name:'Mimikyu',attacks:[{name:'Copycat'}]}}
+  };
+  const attached=attachPreviousOpponentTurnReceipt(view,state,1,{
+    getPreviousTurnSnapshot:()=>({turn:0,attacks:[]}),
+    getCopycatChoices:()=>assert.fail('incomplete setup snapshot must not be queried')
+  });
+  assert.equal(attached.publicEventReceipt.opponentLastTurnTurn,null);
+  assert.equal(attached.publicEventReceipt.opponentLastTurnAttacks,null);
+  assert.equal(attached.publicEventReceipt.opponentCopycatChoices,null);
+  assert.equal(attached.publicEventReceipt.mimikyuCopycatCompatible,null);
+});
+
 test('selects Copycat for one exact prior-turn Bunnelby Burrow and passes it into the actor-root chooser',()=>{
   const view=makeView([BURROW]);
   const expected={
