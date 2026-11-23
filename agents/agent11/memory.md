@@ -963,7 +963,7 @@ Field exact known **29/32**, missing ranks **23/25/28**, and zero independently 
 Two separate branches preserve the work:
 
 - `agent11/copycat-eligibility-and-prompt-v1-20261123` — initial policy/protocol/prompt fix, contract-only run 45276878443 passed at tested head `8593fd1beeab48d052ddaf9e62f19aeb7bd7ebaf`.
-- `agent11/copycat-v3-history-integration-v1-20261123` — companion branch based on the first, adds V3 runner tracker wiring, setup-transition protection, regression tests, and reproducibility details. Latest documentation-only branch head is `c5bc3886c3d9bac3a0ed072cf026e146d2b4ebc4`; code was tested at `2dfa873af139586e733edf8af726bc73db49fee3`. Contract-only run 45279769272 and no-game witness 45279930384 passed.
+- `agent11/copycat-v3-history-integration-v1-20261123` — companion branch based on the first, adds V3 runner tracker wiring, setup-transition protection, regression tests, and reproducibility details. Latest documentation-only branch head is `c7b8063b2db92d8fef5f24360727aab92f8e6461`; code was tested at `2dfa873af139586e733edf8af726bc73db49fee3`. Contract-only run 45279769272 and no-game witness 45279930384 passed.
 
 Research note: `results/aichi-2026/2026-11/agent11-copycat-eligibility-and-projection.md` (on the second branch).
 
