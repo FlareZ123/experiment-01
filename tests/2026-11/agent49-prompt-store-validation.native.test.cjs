@@ -235,3 +235,65 @@ test('Underworld Door AttachEnergyPrompt clone validation uses the cloned prompt
   }
 });
 
+
+
+test('Underworld hook preserves native Blaziken Firestarter AttachEnergyPrompt validation', () => {
+  const manager = initializeCards();
+  const x = stage(0);
+  let id = 88000;
+  const card = name => {
+    const result = manager.getCardByName(name);
+    assert.ok(result, name);
+    result.id = id++;
+    return result;
+  };
+
+  const blaziken = card('Blaziken DRM');
+  const fireEnergy = card('Fire Energy SVE');
+  x.owner.bench[0].cards.length = 0;
+  x.owner.bench[0].cards.push(blaziken);
+  x.owner.discard.cards.length = 0;
+  x.owner.discard.cards.push(fireEnergy);
+
+  const { UseAbilityAction } = loadNative('game/store/actions/game-actions');
+  const { PlayerType, SlotType } = loadNative('game/store/actions/play-card-action');
+  const { AttachEnergyPrompt } = loadNative('game/store/prompts/attach-energy-prompt');
+  const originalPromptValidate = AttachEnergyPrompt.prototype.validate;
+  const restore = installUnderworldDoorPsychicRecipientHook();
+
+  try {
+    assert.strictEqual(AttachEnergyPrompt.prototype.validate, originalPromptValidate,
+      'the Underworld hook must not replace the shared AttachEnergyPrompt prototype validator');
+
+    x.store.dispatch(new UseAbilityAction(x.owner.id, 'Firestarter', {
+      player: PlayerType.BOTTOM_PLAYER, slot: SlotType.BENCH, index: 0
+    }));
+    let pending = x.state.prompts.find(prompt => prompt.result === undefined);
+    assert.equal(pending?.constructor.name, 'WaitPrompt');
+    x.store.dispatch(new ResolvePromptAction(pending.id, null));
+
+    pending = x.state.prompts.find(prompt => prompt.result === undefined);
+    assert.ok(pending instanceof AttachEnergyPrompt);
+    assert.strictEqual(pending.cardList, x.owner.discard,
+      'Firestarter must source its Energy from discard, not the Underworld hand');
+    assert.equal(Object.prototype.hasOwnProperty.call(pending, 'validate'), false,
+      'a non-Underworld prompt must retain the native inherited validator');
+
+    const validFirestarterChoice = [{
+      to: { player: PlayerType.BOTTOM_PLAYER, slot: SlotType.BENCH, index: 1 },
+      card: fireEnergy
+    }];
+    assert.equal(pending.validate(validFirestarterChoice), true,
+      'a native-valid non-Underworld Firestarter selection must remain valid');
+
+    x.store.dispatch(new ResolvePromptAction(pending.id, validFirestarterChoice));
+    assert.equal(x.owner.bench[1].energies.cards.includes(fireEnergy), true);
+    assert.equal(x.owner.discard.cards.includes(fireEnergy), false);
+    assert.equal(x.store.state.prompts.filter(prompt => prompt.result === undefined).length, 0);
+    assert.strictEqual(AttachEnergyPrompt.prototype.validate, originalPromptValidate);
+  } finally {
+    restore();
+    assert.equal(restore.isRestored, true);
+    assert.strictEqual(AttachEnergyPrompt.prototype.validate, originalPromptValidate);
+  }
+});
