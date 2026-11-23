@@ -9,9 +9,11 @@ let uninstall=null;
  * card's blocked-target construction inspects PokemonCardList objects as
  * PokemonCard and never excludes non-Psychic recipients.
  *
- * Guard both the user-visible prompt validator and the real Store callback.
- * Store.reducePrompt does not itself call Prompt.validate, so changing only
- * that method would leave a direct ResolvePromptAction bypass.
+ * Add the extra validator only to the exact Underworld Door prompt instance,
+ * and independently guard the real Store continuation. Do not patch
+ * AttachEnergyPrompt.prototype: unrelated abilities also use this prompt type.
+ * Store.reducePrompt does not itself call Prompt.validate, so the continuation
+ * check is still required to prevent a direct ResolvePromptAction bypass.
  *
  * No vendor files are modified. This hook remains opt-in pending real native
  * paired tests and evaluation of all dynamic Pokemon typing cases.
@@ -104,8 +106,16 @@ function installUnderworldDoorPsychicRecipientHook(){
         prompt.options?.max===1;
       if(!isUnderworldDoorPrompt)
         return before.call(store,current,prompt,then);
+      if(Object.prototype.hasOwnProperty.call(prompt,'validate'))
+        throw new Error('Underworld Door prompt unexpectedly owns a validator');
       Object.defineProperty(prompt,'underworldDoorAllowedBenchIndices',{
         value:psychicBenchIndices.slice(),
+        enumerable:false,
+        configurable:false,
+        writable:false
+      });
+      Object.defineProperty(prompt,'validate',{
+        value:patchedPromptValidate,
         enumerable:false,
         configurable:false,
         writable:false
@@ -125,10 +135,7 @@ function installUnderworldDoorPsychicRecipientHook(){
   const restore=()=>{
     if(ShadowRiderCalyrexVMAX.prototype.reduceEffect!==corrected)
       throw new Error('Underworld Door hook lost reducer ownership');
-    if(AttachEnergyPrompt.prototype.validate!==patchedPromptValidate)
-      throw new Error('Underworld Door hook lost prompt-validator ownership');
     ShadowRiderCalyrexVMAX.prototype.reduceEffect=original;
-    AttachEnergyPrompt.prototype.validate=originalPromptValidate;
     restored=true;
     uninstall=null;
   };
@@ -139,20 +146,16 @@ function installUnderworldDoorPsychicRecipientHook(){
     installedReducer:{value:corrected},
     originalPromptValidate:{value:originalPromptValidate},
     installedPromptValidate:{value:patchedPromptValidate},
-    promptValidateTarget:{value:'AttachEnergyPrompt.prototype.validate',enumerable:true},
-    isInstalled:{get:()=>ShadowRiderCalyrexVMAX.prototype.reduceEffect===corrected&&
-      AttachEnergyPrompt.prototype.validate===patchedPromptValidate,
+    promptValidateTarget:{value:'Underworld Door AttachEnergyPrompt instance.validate',enumerable:true},
+    isInstalled:{get:()=>ShadowRiderCalyrexVMAX.prototype.reduceEffect===corrected,
       enumerable:true},
-    isRestored:{get:()=>restored&&
-      ShadowRiderCalyrexVMAX.prototype.reduceEffect===original&&
-      AttachEnergyPrompt.prototype.validate===originalPromptValidate,
+    isRestored:{get:()=>restored&&ShadowRiderCalyrexVMAX.prototype.reduceEffect===original,
       enumerable:true}
   });
   Object.defineProperty(corrected,'underworldDoorHookId',
     {value:UNDERWORLD_DOOR_HOOK_ID});
   if(AttachEnergyPrompt.prototype.validate!==originalPromptValidate)
-    throw new Error('AttachEnergyPrompt validator changed before Underworld hook installation');
-  AttachEnergyPrompt.prototype.validate=patchedPromptValidate;
+    throw new Error('AttachEnergyPrompt prototype validator changed before Underworld hook installation');
   ShadowRiderCalyrexVMAX.prototype.reduceEffect=corrected;
   uninstall=restore;
   return restore;
