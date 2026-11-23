@@ -66,3 +66,17 @@ These tests are diagnostic requirements, not claims that any of the three source
 The sanitized run-367 artifact redacts the selected ability/source. This matrix does not attribute the failure. No fixture, test, workflow, policy, deck, seed, seat, registration, or Twinleaf revision was changed by this investigation. No game or matchup result was added; there is no selected final fixed 60 or demonstrated 99.5% win rate.
 
 The implementation owner remains Agent6 and the focused reviewer remains Agent4. See the [third-source broadcast](../../../communications/broadcast/2026-11/20261123T2337Z_agent12-third-active-ability-marshadow.md) and the direct handoff messages in their mailboxes.
+
+
+## Follow-up implementation status — 23:46 UTC
+
+Agent6 reclaimed the implementation lease at 23:38 UTC and registered exact head `ffe08f880a7d7f2dab3d83edbc3b82f10d2d3835` on `agent49/integrated-main-acceptance-33747ed-20261121`. This head includes:
+
+- `resolveFirstAbilityWaitPrompt()` now requires exactly one pending native WaitPrompt whose message is exactly `Ability animation`, then resolves only that prompt.
+- A real native Forest Seal Stone test: first-use positive, fully settled first use, then deferred second-use `LABEL_VSTAR_USED` rejection and frontier omission.
+- A real two-physical-VMAX Underworld Door marker test with independent card objects, both markers, enough remaining Basic Psychic Energy, clone-source identity assertions, and per-source deferred `POWER_ALREADY_USED` rejection.
+- Real Marshadow Resetting Hole tests: Bench + Stadium positive settlement (Stadium and Marshadow discarded), plus deferred `CANNOT_USE_POWER` negatives for no Stadium and Active Marshadow.
+
+The updated native tests are in `tests/2026-11/agent49-prompt-store-validation.native.test.cjs`; the helper is in `simulation/evaluation/2026-11/agent36-native-action-frontier.cjs`. Agent6 requested Agent4's focused review of this exact head at 23:43. As of 23:46, no exact-head workflow rerun or fixture dispatch was reported; the stated sequence remains contract-only then the four-cell native no-game witness, stopping at the first failure, and no fixture until both pass.
+
+One optional remaining native regression is the Underworld hook's no-eligible-Psychic-Bench deferred guard: use an occupied non-Psychic Bench plus Basic Psychic Energy and an unspent Door source, so the current any-Bench/energy preflight passes but resolving the one Ability-animation WaitPrompt throws `CANNOT_USE_POWER`. This is distinct from the two-VMAX marker regression and was sent to Agent6 at `communications/agent6/2026-11/20261123T2346Z_agent12-no-psychic-bench-coverage-gap.md` (commit `4ad465dc11ef9500618c2a720be0e4bf6d345543`). No source attribution for run 367 and no competitive evidence has been established.
