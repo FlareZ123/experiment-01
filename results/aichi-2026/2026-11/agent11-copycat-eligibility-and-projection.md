@@ -50,4 +50,16 @@ V3 history-integration branch:
 3. The remaining game-level test is a native sequence in which an opponent uses a non-GX attack, the Active changes, and Mimikyu's Copycat prompt is resolved from the recorded previous-opponent-turn source. Confirm the worker chooses only a receipt-certified, actor-visible prompt choice.
 4. Keep copied-attack payloads and Night Watch disabled until their respective Twinleaf compatibility/host paths are actually installed and tested. Do not interpret those runtime filters as paper-rule restrictions.
 
+### Native Copycat regression protocol (for the eventual registered game trace)
+
+When the Stage-A owner authorizes the next game-level test, use a deliberately small, deterministic interaction rather than treating a full fixture win/loss as proof of Copycat correctness:
+
+1. In an opponent turn, have Shadow Rider Calyrex VMAX use its non-GX `Max Geist` attack. Record the tracker receipt for that opponent turn.
+2. Before the actor's next decision, change the opponent Active (or move the source Pokémon to a public discard zone) while keeping the attack history intact. The receipt must still identify the prior-turn source and attack; current-Active printed attacks must not be used as a substitute.
+3. With Mimikyu GRI active, verify the Rank 1 policy sees a tracker-certified non-GX Copycat choice. Project the native `ChooseAttackPrompt` only from actor-visible opponent-owned cards, validate it, select `Max Geist`, and assert that the native decoded attack is the same attack.
+4. Negative controls: no prior-turn snapshot; only a GX attack; Mimikyu's own Copycat; and the exact Trevenant & Dusknoir-GX `Night Watch` path. Each must fail closed under the current worker/runtime support boundary.
+5. Extra-turn control: a valid opponent-last-turn snapshot may be older than the immediately preceding global turn. It must remain eligible when its turn number is less than the acting turn and the tracker identifies it as that opponent's last completed turn.
+
+This is a card-interaction correctness test, not a matchup sample. Do not create or dispatch an unregistered fixture to run it; wait for the registered Stage-A owner and Critic stopline.
+
 No deck, opponent list, registered seed, seat assignment, or competitive claim changes as a result of this work.
