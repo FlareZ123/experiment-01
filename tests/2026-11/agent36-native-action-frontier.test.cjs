@@ -583,6 +583,53 @@ test('pinned passive Dimension Valley UseStadium rejection preserves other legal
   assert.deepEqual(built.actionFrontier.items.map(item=>item.kind),['pass']);
 });
 
+test('pinned Underworld Door excludes deferred no-Bench and no-Energy roots without weakening other abilities',()=>{
+  const ability={type:'USE_ABILITY_ACTION',clientId:'p0',name:'Underworld Door',
+    target:{player:1,slot:1,index:0}};
+  const pass={type:'PASS_TURN',clientId:'p0'};
+  const native=fakeNative({actions:[ability,pass],rejectActionTypes:[]});
+  native.CardType={PSYCHIC:6};
+  native.EnergyType={BASIC:1,SPECIAL:2};
+  function createCase({bench,energy,source}){
+    const state=fixtureState();
+    state.players[0].active=slot(new PokemonCard(source??'Shadow Rider Calyrex VMAX CRE'));
+    state.players[0].bench=[slot(bench?new PokemonCard('Shadow Rider Calyrex V CRE'):null)];
+    const basic=new EnergyCard('Psychic Energy SVE');
+    basic.name='Psychic Energy';
+    basic.energyType=native.EnergyType.BASIC;
+    basic.provides=[native.CardType.PSYCHIC];
+    state.players[0].hand.cards=energy?[basic]:[];
+    const seen=[];
+    const testNative={...native,Simulator:class extends native.Simulator{
+      constructor(seed){
+        super(seed);
+        const priorDispatch=this.store.dispatch.bind(this.store);
+        this.store.dispatch=action=>{
+          seen.push(action.type);
+          return priorDispatch(action);
+        };
+      }
+    }};
+    const before=JSON.stringify(state);
+    const result=buildNativeActionFrontier({state,actorSeat:0,native:testNative});
+    assert.equal(JSON.stringify(state),before,'live Store must remain unchanged');
+    return {result,seen};
+  }
+  for(const options of [{bench:false,energy:true},{bench:true,energy:false}]){
+    const {result,seen}=createCase(options);
+    assert.equal(result.diagnostics.preflightRejectedCount,1);
+    assert.deepEqual(result.actionFrontier.items.map(item=>item.kind),['pass']);
+    assert.deepEqual(seen,['PASS_TURN']);
+  }
+  const ready=createCase({bench:true,energy:true});
+  assert.equal(ready.result.diagnostics.preflightRejectedCount,0);
+  assert.deepEqual(ready.result.actionFrontier.items.map(item=>item.kind),['use-ability','pass']);
+  assert.deepEqual(ready.seen,['USE_ABILITY_ACTION','PASS_TURN']);
+  const unrelated=createCase({bench:false,energy:false,source:'Other Pokemon'});
+  assert.equal(unrelated.result.diagnostics.preflightRejectedCount,0);
+  assert.equal(unrelated.result.actionFrontier.items[0].kind,'use-ability');
+});
+
 test('frontier propagates unknown, impossible, invalid-target, non-allowlisted native GameError and arbitrary Error failures',()=>{
   const cases=[
     {type:'ATTACK_ACTION',message:'UNKNOWN_ATTACK',ErrorType:GameError},
