@@ -11,6 +11,10 @@ const {
 } = require('../../simulation/evaluation/2026-11/agent36-native-action-frontier.cjs');
 
 class GameError { constructor(message){this.message=message;this.name='GameError';} }
+class WaitPrompt { constructor(id){this.id=id;this.result=undefined;} }
+class ResolvePromptAction {
+  constructor(id,result){this.id=id;this.result=result;this.type='RESOLVE_PROMPT_ACTION';}
+}
 const GameCoreError = Object.freeze({
   ERROR_INVALID_STATE: 'ERROR_INVALID_STATE',
   ERROR_SIMULATOR_NOT_STABLE: 'ERROR_SIMULATOR_NOT_STABLE'
@@ -127,6 +131,8 @@ function fakeNative({onDispatch=()=>{},actions:providedActions=null,rejectAction
     deepClone:deepCloneImpl,
     Card,
     GameError,
+    WaitPrompt,
+    ResolvePromptAction,
     PokemonCard,
     TrainerCard,
     EnergyCard,
@@ -846,4 +852,57 @@ test('pinned Underworld Door spent per-Pokemon marker excludes deferred repeated
     assert.deepEqual(result.actionFrontier.items.map(x=>x.kind),
       used?['pass']:['use-ability','pass']);
   }
+});
+
+
+test('frontier resolves one deferred ability WaitPrompt and rejects a spent VSTAR use',()=>{
+  const ability={
+    type:'USE_ABILITY_ACTION',clientId:'p0',name:'Star Alchemy',
+    target:{player:1,slot:2,index:0}
+  };
+  let resolved=0;
+  const native=fakeNative({
+    actions:[ability,{type:'PASS_TURN',clientId:'p0'}],
+    rejectActionTypes:[],
+    onDispatch(action,validationState){
+      if(action.type==='USE_ABILITY_ACTION')
+        validationState.prompts.push(new WaitPrompt('spent-vstar-wait'));
+      if(action instanceof ResolvePromptAction){
+        resolved++;
+        throw new GameError('LABEL_VSTAR_USED');
+      }
+    }
+  });
+  const built=buildNativeActionFrontier({state:fixtureState(),actorSeat:0,native});
+  assert.equal(resolved,1,'the clone must settle exactly the first deferred WaitPrompt');
+  assert.equal(built.diagnostics.rejectedCount,1,
+    'the deferred native VSTAR rejection must be classified as an illegal ability action');
+  assert.equal([...built.actionByToken.values()].some(action=>action===ability),false,
+    'a spent VSTAR ability must not enter the worker frontier');
+});
+
+test('frontier preserves an unspent ability and stops after its first WaitPrompt',()=>{
+  const ability={
+    type:'USE_ABILITY_ACTION',clientId:'p0',name:'Star Alchemy',
+    target:{player:1,slot:2,index:0}
+  };
+  let resolved=0;
+  const native=fakeNative({
+    actions:[ability,{type:'PASS_TURN',clientId:'p0'}],
+    rejectActionTypes:[],
+    onDispatch(action,validationState){
+      if(action.type==='USE_ABILITY_ACTION')
+        validationState.prompts.push(new WaitPrompt('unspent-vstar-wait'));
+      if(action instanceof ResolvePromptAction){
+        resolved++;
+        const pending=validationState.prompts.find(prompt=>prompt.id===action.id);
+        pending.result=action.result;
+        validationState.prompts.push({kind:'ChooseCardsPrompt',result:undefined});
+      }
+    }
+  });
+  const built=buildNativeActionFrontier({state:fixtureState(),actorSeat:0,native});
+  assert.equal(resolved,1,'the clone must resolve one WaitPrompt and no card-choice prompt');
+  assert.equal([...built.actionByToken.values()].some(action=>action===ability),true,
+    'the first legal Star Alchemy use must remain available');
 });

@@ -328,6 +328,20 @@ function underworldDoorCanUseInValidationStore(action,simulator,actorSeat,native
     card.provides.includes(native.CardType.PSYCHIC));
 }
 
+function resolveFirstAbilityWaitPrompt(simulator,action,native){
+  if(action?.type!=='USE_ABILITY_ACTION')return;
+  assert.equal(typeof native.WaitPrompt,'function',
+    'native WaitPrompt constructor is required for deferred ability validation');
+  assert.equal(typeof native.ResolvePromptAction,'function',
+    'native ResolvePromptAction constructor is required for deferred ability validation');
+  const pending=(simulator.store.state.prompts??[]).find(prompt=>
+    prompt instanceof native.WaitPrompt&&prompt.result===undefined);
+  if(!pending)return;
+  // Resolve only the first engine animation/continuation WaitPrompt. Stop at
+  // the first real effect prompt; never auto-select cards or other choices.
+  simulator.store.dispatch(new native.ResolvePromptAction(pending.id,null));
+}
+
 const EXPECTED_REJECTIONS=Object.freeze({
   ATTACK_ACTION:new Set([
     'CANNOT_ATTACK_ON_FIRST_TURN','BLOCKED_BY_SPECIAL_CONDITION',
@@ -516,6 +530,7 @@ function buildNativeActionFrontier({
     }
     try {
       simulator.store.dispatch(action);
+      resolveFirstAbilityWaitPrompt(simulator,action,native);
     } catch(error) {
       if(!isExpectedActionRejection(action,state,actorSeat,native,error))throw error;
       rejectedCount += 1;
@@ -604,6 +619,7 @@ function dispatchSelectedNativeAction({
       assert.equal(simulator.store.state.players?.[actorSeat]?.id,state.players[actorSeat]?.id,
         'cloned validation Store must preserve the acting physical player');
       simulator.store.dispatch(action);
+      resolveFirstAbilityWaitPrompt(simulator,action,native);
       if(validationEvidence&&typeof validationEvidence==='object') {
         const selectedItem=frontier.actionFrontier.items.find(item=>item.token===token);
         validationEvidence.nativeValidationStoreMode='cloned-store';

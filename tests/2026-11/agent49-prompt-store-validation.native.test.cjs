@@ -22,8 +22,17 @@ const {
   dispatchPromptChoice
 } = require('../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
 const {
-  cloneNativeValidationGraph
+  cloneNativeValidationGraph,
+  buildNativeActionFrontier
 } = require('../../simulation/evaluation/2026-11/agent36-native-action-frontier.cjs');
+const {
+  createValidationRandomScope,
+  seededRandom
+} = require('../../simulation/evaluation/2026-11/agent49-native-fixture-game.cjs');
+const {
+  loadNativeRoleDependencies,
+  V3_FIXTURE
+} = require('../../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
 
 function makeFixture(groupSize) {
   const state = new State();
@@ -340,5 +349,175 @@ test('Underworld hook preserves native Blaziken Firestarter AttachEnergyPrompt v
     restore();
     assert.equal(restore.isRestored, true);
     assert.strictEqual(AttachEnergyPrompt.prototype.validate, originalPromptValidate);
+  }
+});
+
+
+function buildDeterministicNativeFrontier(x,native,seed){
+  const withValidationRandom=createValidationRandomScope({
+    ambientRandom:Math.random,
+    physicalRandom:seededRandom(seed)
+  });
+  return withValidationRandom(()=>buildNativeActionFrontier({
+    state:x.state,actorSeat:0,native
+  }));
+}
+
+function settleStarAlchemy(x,native){
+  for(let step=0;step<16;step++){
+    const pending=x.state.prompts.find(prompt=>prompt.result===undefined);
+    if(!pending)break;
+    let result;
+    switch(pending.constructor.name){
+      case 'WaitPrompt':
+        result=null;
+        break;
+      case 'ChooseCardsPrompt': {
+        const energy=x.owner.deck.cards.find(card=>
+          card.fullName==='Psychic Energy SVE');
+        assert.ok(energy,'Star Alchemy fixture must retain a searchable Basic Psychic Energy');
+        result=[energy];
+        break;
+      }
+      case 'ShuffleDeckPrompt':
+        result=Array.from({length:x.owner.deck.cards.length},(_,index)=>index);
+        break;
+      case 'ShowCardsPrompt':
+        result=true;
+        break;
+      default:
+        throw new Error('Unexpected Star Alchemy prompt: '+pending.constructor.name);
+    }
+    x.store.dispatch(new native.ResolvePromptAction(pending.id,result));
+  }
+  assert.equal(x.state.prompts.some(prompt=>prompt.result===undefined),false,
+    'Star Alchemy fixture must settle every real Store prompt');
+  assert.equal(x.owner.usedVSTAR,true,
+    'the first real Star Alchemy use must consume the VSTAR allowance');
+}
+
+test('native action frontier keeps first Star Alchemy use but rejects the deferred spent-VSTAR use',()=>{
+  const x=stage(0);
+  const manager=initializeCards();
+  const native=loadNativeRoleDependencies({enginePin:V3_FIXTURE.engineCommit});
+  let id=91000;
+  const card=name=>{
+    const result=manager.getCardByName(name);
+    assert.ok(result,'Pinned native printing unavailable: '+name);
+    result.id=id++;
+    return result;
+  };
+  x.owner.bench[0].cards.length=0;
+  x.owner.bench[0].cards.push(card('Shadow Rider Calyrex V CRE'));
+  const stone=card('Forest Seal Stone SIT');
+  x.owner.hand.cards.push(stone);
+  const stoneHandIndex=x.owner.hand.cards.indexOf(stone);
+  x.store.dispatch(new native.cardActions.PlayCardAction(x.owner.id,stoneHandIndex,{
+    player:native.PlayerType.BOTTOM_PLAYER,slot:native.SlotType.BENCH,index:0
+  }));
+  const isStarAlchemy=action=>action?.type==='USE_ABILITY_ACTION'&&
+    action.name==='Star Alchemy'&&action.target?.slot===native.SlotType.BENCH&&
+    action.target?.index===0;
+  const enumerator=new native.ActionEnumerator();
+  assert.ok(enumerator.enumerate(x.state,x.owner,x.owner.id).some(isStarAlchemy),
+    'the native enumerator must expose the unspent Forest Seal Stone ability');
+  const beforeUnspent=cloneNativeValidationGraph(x.state);
+  const unspent=buildDeterministicNativeFrontier(x,native,0x13572468);
+  assert.ok([...unspent.actionByToken.values()].some(isStarAlchemy),
+    'the first legal Star Alchemy use must survive cloned WaitPrompt validation');
+  assert.deepEqual(x.state,beforeUnspent,
+    'frontier validation must leave the live Store unchanged');
+
+  x.store.dispatch(new native.gameActions.UseAbilityAction(x.owner.id,'Star Alchemy',{
+    player:native.PlayerType.BOTTOM_PLAYER,slot:native.SlotType.BENCH,index:0
+  }));
+  settleStarAlchemy(x,native);
+  const spentCandidates=enumerator.enumerate(x.state,x.owner,x.owner.id).filter(isStarAlchemy);
+  assert.ok(spentCandidates.length>0,
+    'the pinned enumerator must expose the spent action so deferred Store validation is exercised');
+  const beforeSpent=cloneNativeValidationGraph(x.state);
+  const spent=buildDeterministicNativeFrontier(x,native,0x24681357);
+  assert.equal([...spent.actionByToken.values()].some(isStarAlchemy),false,
+    'the spent Star Alchemy action must be rejected after its cloned WaitPrompt resolves');
+  assert.deepEqual(x.state,beforeSpent,
+    'spent-ability clone validation must not mutate the live Store');
+});
+
+test('native action frontier preserves both source-specific Underworld Door markers through Simulator cloning',()=>{
+  const x=stage(0);
+  const manager=initializeCards();
+  const native=loadNativeRoleDependencies({enginePin:V3_FIXTURE.engineCommit});
+  let id=92000;
+  const card=name=>{
+    const result=manager.getCardByName(name);
+    assert.ok(result,'Pinned native printing unavailable: '+name);
+    result.id=id++;
+    return result;
+  };
+  for(const index of [0,2]){
+    x.owner.bench[index].cards.length=0;
+    x.owner.bench[index].cards.push(
+      card('Shadow Rider Calyrex V CRE'),
+      card('Shadow Rider Calyrex VMAX CRE')
+    );
+  }
+  x.owner.bench[1].cards.length=0;
+  x.owner.bench[1].cards.push(card('Dialga-GX UPR'));
+  x.owner.hand.cards.length=0;
+  x.owner.hand.cards.push(card('Psychic Energy SVE'),card('Psychic Energy SVE'));
+  x.owner.deck.cards.length=0;
+  for(let i=0;i<8;i++)x.owner.deck.cards.push(card('Psychic Energy SVE'));
+  const AttachEnergyPrompt=loadNative('game/store/prompts/attach-energy-prompt').AttachEnergyPrompt;
+  const restore=installUnderworldDoorPsychicRecipientHook();
+  const resolveDoor=(sourceIndex,targetIndex)=>{
+    x.store.dispatch(new native.gameActions.UseAbilityAction(x.owner.id,'Underworld Door',{
+      player:native.PlayerType.BOTTOM_PLAYER,slot:native.SlotType.BENCH,index:sourceIndex
+    }));
+    let pending=x.state.prompts.find(prompt=>prompt.result===undefined);
+    assert.ok(pending instanceof native.WaitPrompt,
+      'each Underworld Door use must begin with its real native WaitPrompt');
+    x.store.dispatch(new native.ResolvePromptAction(pending.id,null));
+    pending=x.state.prompts.find(prompt=>prompt.result===undefined);
+    assert.ok(pending instanceof AttachEnergyPrompt,
+      'each Underworld Door use must continue to its real native AttachEnergyPrompt');
+    const handIndex=x.owner.hand.cards.findIndex(item=>
+      item.fullName==='Psychic Energy SVE');
+    assert.ok(handIndex>=0,'a physical Basic Psychic Energy must remain in hand');
+    const energy=x.owner.hand.cards[handIndex];
+    const result=[{
+      to:{player:native.PlayerType.BOTTOM_PLAYER,slot:native.SlotType.BENCH,index:targetIndex},
+      index:handIndex,card:energy
+    }];
+    assert.equal(pending.validate(result),true,
+      'the source-specific Underworld Door prompt must accept its Psychic Bench target');
+    x.store.dispatch(new native.ResolvePromptAction(pending.id,result));
+    assert.equal(x.owner.bench[targetIndex].energies.cards.includes(energy),true,
+      'the physical Psychic Energy must move to the selected Bench Pokémon');
+  };
+  try{
+    resolveDoor(0,2);
+    resolveDoor(2,0);
+    const sourceA=x.owner.bench[0].getPokemonCard();
+    const sourceB=x.owner.bench[2].getPokemonCard();
+    assert.equal(typeof sourceA.UNDERWORLD_DOOR_MARKER,'string');
+    assert.equal(typeof sourceB.UNDERWORLD_DOOR_MARKER,'string');
+    assert.equal(x.owner.marker.hasMarker(sourceA.UNDERWORLD_DOOR_MARKER,sourceA),true,
+      'the first VMAX must retain its own spent Door marker');
+    assert.equal(x.owner.marker.hasMarker(sourceB.UNDERWORLD_DOOR_MARKER,sourceB),true,
+      'the second VMAX must retain its own spent Door marker');
+    const rawDoors=new native.ActionEnumerator().enumerate(x.state,x.owner,x.owner.id)
+      .filter(action=>action.type==='USE_ABILITY_ACTION'&&action.name==='Underworld Door');
+    assert.deepEqual(rawDoors.map(action=>action.target.index).sort((a,b)=>a-b),[0,2],
+      'the regression must exercise both source-specific native Door candidates');
+    const built=buildDeterministicNativeFrontier(x,native,0x10293847);
+    const remainingDoors=[...built.actionByToken.values()].filter(action=>
+      action.type==='USE_ABILITY_ACTION'&&action.name==='Underworld Door');
+    assert.equal(remainingDoors.length,0,
+      'neither spent VMAX Door action may survive cloned Store marker validation');
+    assert.ok(built.diagnostics.preflightRejectedCount>=2,
+      'both source-specific spent Door actions must be rejected by the physical marker preflight');
+  }finally{
+    restore();
+    assert.equal(restore.isRestored,true);
   }
 });
