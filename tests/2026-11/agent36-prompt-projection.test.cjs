@@ -812,6 +812,7 @@ test('Underworld Door AttachEnergyPrompt projects only actor Basic Psychic Energ
     assert.equal(projection.promptProjection.source.effectName,'Underworld Door');
     assert.equal(projection.promptProjection.publicMetadata.selectionType,'energy-attachment');
     assert.equal(projection.promptProjection.choices.length,2);
+    assert.deepEqual(projection.promptProjection.choices.map(choice=>choice.publicMetadata.targetIndex),[1,3]);
     assert.deepEqual(projection.promptProjection.choices.map(choice=>choice.label),[
       'Attach Psychic Energy SVE to Bench 2: Dynamic Psychic target',
       'Attach Psychic Energy SVE to Bench 4: Printed Psychic target'
