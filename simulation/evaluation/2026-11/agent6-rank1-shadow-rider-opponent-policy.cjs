@@ -875,6 +875,47 @@ function promptDecision(request) {
       selectionType === 'prize-slots' ? (metadata.requiredCount ?? 1) :
         selectionType === 'card-order' ? (metadata.count ?? 1) : 1;
 
+  // The pinned Underworld Door projects each legal (hand Psychic Energy, Psychic
+  // Bench target) pair as one energy-attachment choice. This is not an Energy
+  // *payment* prompt: select exactly one paired assignment, never bare Energy.
+  // Require both the exact source and a typed actor Bench index; do not guess on
+  // unrelated AttachEnergyPrompt shapes or expose non-actor state.
+  if (prompt.promptType === 'AttachEnergyPrompt') {
+    if (selectionType !== 'energy-attachment' || min !== 1 || max !== 1 ||
+        prompt.source.sourceKind !== 'card-effect' ||
+        effectName !== 'Underworld Door' ||
+        !matches(sourcePrinting, PRINT.shadowRiderVmax)) {
+      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
+    }
+    setPolicyAuditRule('UNDERWORLD_ATTACH_BENCH_SCORE', 'SCORE_DESC_CHOICE_INDEX_ASC');
+    const legalPairs = choices.filter(choice =>
+      choice.kind === 'energy' &&
+      choice.publicMetadata?.sourceZone === 'hand' &&
+      choice.publicMetadata?.ownerSeat === 'actor' &&
+      choice.publicMetadata?.isOwnerVisible === true &&
+      choice.publicMetadata?.energyType === 'BASIC' &&
+      choice.publicMetadata?.zone === 'bench' &&
+      choice.publicMetadata?.selectedCount === 1);
+    const ranked = sortedChoiceTokens(legalPairs, choice => {
+      const index = choice.publicMetadata?.benchIndex;
+      const slot = Number.isSafeInteger(index) && index >= 0 && index < 5 ?
+        list(observation.ownPublic.bench)[index] : null;
+      if (!slot || !matches(choice.printing, PRINT.psychic)) return -1;
+      const energy = psychicEnergyOn(slot);
+      const stadiums = activeStadiums(observation);
+      if (matches(slot.printing, PRINT.latias) && energy < 2) return 135 - energy * 5;
+      if (matches(slot.printing, PRINT.trevenant) && energy < 3) return 125 - energy * 5;
+      if (matches(slot.printing, PRINT.girafarig) && energy < 1 &&
+          !stadiums.some(stadium => /Dimension Valley/i.test(stadium))) return 115;
+      if (matches(slot.printing, PRINT.mimikyu) && energy < 2) return 100 - energy * 5;
+      if (matches(slot.printing, PRINT.shadowRiderVmax)) return 95 - energy;
+      if (matches(slot.printing, PRINT.shadowRiderV)) return 80 - energy;
+      return 20 - energy;
+    });
+    return ranked.length > 0 ? { kind: 'select-choice', token: ranked[0] } :
+      { kind: 'abstain', reasonCode: 'NO_VISIBLE_ENERGY_CHOICE' };
+  }
+
   if (prompt.promptType === 'ChoosePokemonPrompt' || selectionType === 'pokemon') {
     let mode = '';
     if (includes(effect, 'Underworld Door')) mode = 'underworld';
