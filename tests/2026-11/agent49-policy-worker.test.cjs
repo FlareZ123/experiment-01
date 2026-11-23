@@ -657,11 +657,24 @@ test('prompt/root decision mismatch and untrusted policy choices fail closed', a
   assert.throws(() => protocol.validateRequest(misattributedEnginePrompt, initFor(), 1, new Set()), /BAD_ENGINE_PROMPT_SOURCE/);
   const engineWithCopiedSource = { ...promptReq, requestId: 'engine-copy-source', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'engine', sourcePrinting: null, effectName: 'ChooseStartingPokemonPrompt', copiedSourcePrinting: 'Trevenant & Dusknoir-GX SMP', copiedAttackName: 'Pale Moon-GX' } } };
   assert.throws(() => protocol.validateRequest(engineWithCopiedSource, initFor(), 1, new Set()), /BAD_ENGINE_PROMPT_SOURCE/);
-  const copiedNightWatch = { ...promptReq, requestId: 'copied-night-watch', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat', copiedSourcePrinting: 'Trevenant & Dusknoir-GX SMP', copiedAttackName: 'Night Watch' } } };
+  const copiedNightWatch = { ...promptReq, requestId: 'copied-night-watch', prompt: {
+    ...prompt,
+    source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat', copiedSourcePrinting: 'Trevenant & Dusknoir-GX SMP', copiedAttackName: 'Night Watch' },
+    choices: [{ token: 'night-watch', kind: 'attack', printing: 'Trevenant & Dusknoir-GX SMP', label: 'Night Watch',
+      publicMetadata: { sourceAttack: 'Night Watch', sourceZone: 'board', ownerSeat: 'opponent', isOwnerVisible: true, gxAttack: false, copycatAttack: false } }]
+  } };
   assert.throws(() => protocol.validateRequest(copiedNightWatch, initFor(), 1, new Set()), /HOST_ONLY_PHYSICAL_PROMPT/);
-  const copiedPaleMoon = { ...promptReq, requestId: 'copied-pale-moon', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat', copiedSourcePrinting: 'Trevenant & Dusknoir-GX SMP', copiedAttackName: 'Pale Moon-GX' } } };
-  protocol.validateRequest(copiedPaleMoon, initFor(), 1, new Set());
-  const incompleteCopycat = { ...promptReq, requestId: 'incomplete-copycat', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat' } } };
+  const copiedPaleMoon = { ...promptReq, requestId: 'copied-pale-moon', prompt: {
+    ...prompt,
+    source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Mimikyu GRI', effectName: 'Copycat', copiedSourcePrinting: 'Trevenant & Dusknoir-GX SMP', copiedAttackName: 'Pale Moon-GX' },
+    choices: [{ token: 'pale-moon', kind: 'attack', printing: 'Trevenant & Dusknoir-GX SMP', label: 'Pale Moon-GX',
+      publicMetadata: { sourceAttack: 'Pale Moon-GX', sourceZone: 'board', ownerSeat: 'opponent', isOwnerVisible: true, gxAttack: true, copycatAttack: false } }]
+  } };
+  assert.throws(() => protocol.validateRequest(copiedPaleMoon, initFor(), 1, new Set()), /BAD_COPYCAT_CHOICES/);
+  const incompleteCopycat = { ...promptReq, requestId: 'incomplete-copycat', prompt: {
+    ...prompt,
+    source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Quick Ball FST', effectName: 'Copycat' }
+  } };
   assert.throws(() => protocol.validateRequest(incompleteCopycat, initFor(), 1, new Set()), /COPYCAT_SOURCE_MISSING/);
   const partialCopiedSource = { ...promptReq, requestId: 'partial-copycat', prompt: { ...prompt, source: { classification: 'actor-choice', sourceKind: 'card-effect', sourcePrinting: 'Quick Ball FST', effectName: 'Quick Ball', copiedSourcePrinting: 'Trevenant & Dusknoir-GX SMP', copiedAttackName: null } } };
   assert.throws(() => protocol.validateRequest(partialCopiedSource, initFor(), 1, new Set()), /INCOMPLETE_COPIED_PROMPT_SOURCE/);
