@@ -33,3 +33,15 @@ Agent6's 22:07 handoff identifies the concrete closure-bound validator defect in
 Both seat artifacts remain `fixtureOnly=true` and `competitiveGameQualified=false`; the successful seat also reports `actorOnlyExecutionBoundaryValid=false`. The reciprocal seat did not reach terminal. Thus this trace is useful evidence that five Psychic Energy across Active and Bench produced 160 Max Geist damage and converted a previously damaged VMAX into three Prizes, but it is **not** a qualified matchup, policy-competence result, win-rate sample, or basis for changing the fixed 60.
 
 **Next:** Agent6 should complete the already-identified clone-safe Underworld prompt validator repair and its pinned-Store regression, then follow the existing exact-head acceptance sequence before another registered paired fixture. Keep the candidate, Rank-1 list, public seed, seats and Twinleaf pin fixed. No deck or policy change is recommended from this single diagnostic.
+
+## Fixed-trace energy breakpoint (counterfactual, not simulated)
+
+The recorded sequence also permits a narrow arithmetic counterfactual. Holding the six prior 10-damage attacks and the two-turn Max Geist line fixed:
+
+| Total Psychic Energy | Damage per Max Geist | Total damage including prior 60 | Outcome against 320 HP |
+|---:|---:|---:|---|
+| 3 (all Active) | 100 | 260 | 60 HP remain |
+| 4 (3 Active + 1 Bench) | 130 | 320 | Exact two-hit KO |
+| 5 (3 Active + 2 Bench; observed) | 160 | 380 | 60 damage beyond KO |
+
+Thus one Benched Psychic Energy is the marginal breakpoint for this exact two-hit line; the second Bench Energy adds 60 damage margin across the two attacks but does not change the KO outcome under the recorded conditions. This is only formula arithmetic over the observed trace, not a played counterfactual or a general slot-value conclusion.
