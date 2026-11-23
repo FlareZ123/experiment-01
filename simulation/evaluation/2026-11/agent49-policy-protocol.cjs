@@ -251,7 +251,7 @@ const PROMPT_META_KEYS = [
   'sourceZone', 'targetZone', 'handIndex', 'benchIndex', 'slotIndex', 'cardType',
   'energyType', 'amount', 'count', 'selectionIndex', 'isPublic', 'isOwnerVisible',
   'sourcePrinting', 'sourceAttack', 'sourceEffect', 'eligible', 'energyCount',
-  'choiceIndex', 'selectedCount', 'minimumCount', 'maximumCount', 'requiredCount',
+  'gxAttack', 'copycatAttack', 'choiceIndex', 'selectedCount', 'minimumCount', 'maximumCount', 'requiredCount',
   'sourceCardType', 'selectionType', 'zone', 'ownerSeat', 'allowCancel', 'isSecret'
 ];
 
@@ -342,7 +342,7 @@ function validatePromptMetadata(value, requireSelectionType = false) {
       !['actor', 'opponent', 'mixed', 'actor,opponent'].includes(value.ownerSeat)) {
     fail('BAD_PROMPT_METADATA');
   }
-  for (const key of ['isPublic', 'isOwnerVisible', 'allowCancel', 'isSecret', 'eligible']) {
+  for (const key of ['isPublic', 'isOwnerVisible', 'allowCancel', 'isSecret', 'eligible', 'gxAttack', 'copycatAttack']) {
     if (value[key] !== undefined && typeof value[key] !== 'boolean') fail('BAD_PROMPT_METADATA');
   }
   for (const key of ['selectionIndex', 'choiceIndex']) {
@@ -602,6 +602,18 @@ function eventAttackSignature(row) {
     row.barragePairIndex ?? null, row.barragePairRole ?? null]);
 }
 
+function isMimikyuCopycatAttack(row) {
+  const sourcePrinting = typeof row?.sourcePrinting === 'string' ? row.sourcePrinting : '';
+  return /^Mimikyu GRI(?:\\s|$)/.test(sourcePrinting) && row?.attackName === 'Copycat';
+}
+
+function isMimikyuCopycatEligibleAttack(row) {
+  // Paper Copycat excludes GX attacks and Mimikyu's own Copycat. The engine's
+  // generic copycatAttack flag also marks other copied attacks that official
+  // rulings allow; runtime support for those remains a separate adapter gate.
+  return row?.gxAttack === false && !isMimikyuCopycatAttack(row);
+}
+
 function validatePublicEventReceipt(receipt, view) {
   if (receipt === null) return;
   exactKeys(receipt, [
@@ -648,7 +660,7 @@ function validatePublicEventReceipt(receipt, view) {
       const choiceSignatures = new Set();
       for (const row of choices) {
         validateEventAttack(row);
-        if (row.gxAttack || row.copycatAttack) fail('INELIGIBLE_COPYCAT_ATTACK');
+        if (!isMimikyuCopycatEligibleAttack(row)) fail('INELIGIBLE_COPYCAT_ATTACK');
         const signature = eventAttackSignature(row);
         if (choiceSignatures.has(signature)) fail('DUPLICATE_COPYCAT_CHOICE');
         choiceSignatures.add(signature);
@@ -661,8 +673,7 @@ function validatePublicEventReceipt(receipt, view) {
         const latestEligibleUnpaired = [...receipt.opponentLastTurnAttacks].reverse().find(attack =>
           attack.barragePairIndex === undefined &&
           attack.barragePairRole === undefined &&
-          !attack.gxAttack &&
-          !attack.copycatAttack
+          isMimikyuCopycatEligibleAttack(attack)
         );
         if (!latestEligibleUnpaired ||
             eventAttackSignature(latestEligibleUnpaired) !== eventAttackSignature(choices[0])) {
@@ -836,7 +847,10 @@ function validatePrompt(prompt, seat) {
   if (hasCopiedSource &&
       (!boundedString(prompt.source.copiedSourcePrinting, null, 256) ||
        !boundedString(prompt.source.copiedAttackName, null, 256))) fail('INCOMPLETE_COPIED_PROMPT_SOURCE');
-  if (prompt.source.effectName === 'Copycat' && (prompt.source.sourceKind !== 'card-effect' || !hasCopiedSource)) fail('COPYCAT_SOURCE_MISSING');
+  if (prompt.source.effectName === 'Copycat' &&
+      (prompt.source.sourceKind !== 'card-effect' ||
+       !['Mimikyu GRI', 'Mimikyu GRI 58'].includes(prompt.source.sourcePrinting) ||
+       prompt.promptType !== 'ChooseAttackPrompt')) fail('COPYCAT_SOURCE_MISSING');
   const nightWatchEffect = prompt.source.sourceKind === 'card-effect' &&
     prompt.source.sourcePrinting === 'Trevenant & Dusknoir-GX SMP' &&
     prompt.source.effectName === 'Night Watch';
@@ -857,6 +871,19 @@ function validatePrompt(prompt, seat) {
     if (choice.printing !== undefined && !boundedString(choice.printing, null, 256)) fail('BAD_CHOICE_PRINTING');
     if (choice.label !== undefined && !boundedString(choice.label, null, 256)) fail('BAD_CHOICE_LABEL');
     if (choice.publicMetadata !== undefined) validatePromptMetadata(choice.publicMetadata);
+  }
+  if (prompt.source.effectName === 'Copycat') {
+    if (prompt.publicMetadata.selectionType !== 'attack') fail('COPYCAT_PROMPT_TYPE_MISMATCH');
+    const attackChoices = prompt.choices.filter(choice => choice.kind === 'attack');
+    if (attackChoices.length === 0 || attackChoices.some(choice => {
+      const metadata = choice.publicMetadata;
+      const nightWatch = /^Trevenant & Dusknoir-GX SMP(?:\\s|$)/.test(choice.printing ?? '') &&
+        metadata?.sourceAttack === 'Night Watch';
+      return !choice.printing || !metadata ||
+        typeof metadata.sourceAttack !== 'string' || metadata.sourceAttack.length === 0 ||
+        metadata.ownerSeat !== 'opponent' || metadata.isOwnerVisible !== true ||
+        metadata.gxAttack !== false || metadata.copycatAttack !== false || nightWatch;
+    })) fail('BAD_COPYCAT_CHOICES');
   }
   multiSelectBounds(prompt);
   singleSelectContract(prompt);
