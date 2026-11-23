@@ -447,6 +447,8 @@ test('Night Watch remains host-only while Mimikyu Copycat exposes supported publ
   const opponentPokemon = pokemon('Trevenant & Dusknoir-GX SMP');
   opponentPokemon.attacks = [
     { name: 'Night Watch', gxAttack: false, copycatAttack: false },
+    { name: 'GX Attack', gxAttack: true, copycatAttack: false },
+    { name: 'Apex Dragon', gxAttack: false, copycatAttack: true },
     { name: 'Shadow Mist', gxAttack: false, copycatAttack: false }
   ];
   state.players[1].active = slot(opponentPokemon);
@@ -480,6 +482,17 @@ test('Night Watch remains host-only while Mimikyu Copycat exposes supported publ
   });
   assert.deepEqual(selected.rawResult, { index: 0, attack: 'Shadow Mist' });
   assert.equal(selected.decoded.name, 'Shadow Mist');
+
+  const spoof = basePrompt(ChooseAttackPrompt, state, {
+    cards: [opponentPokemon],
+    options: { blocked: [], allowCancel: false },
+    decode: ChooseAttackPrompt.prototype.decode,
+    validate: ChooseAttackPrompt.prototype.validate
+  });
+  assert.throws(() => projectPrompt({
+    prompt: spoof, state, actorSeat: 0, native,
+    provenanceHook: provenance(state.players[0].discard.cards[0], 'Copycat')
+  }), error => error.code === 'UNSUPPORTED_COPYCAT_PROMPT');
 });
 
 
