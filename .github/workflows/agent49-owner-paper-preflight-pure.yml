@@ -2,6 +2,12 @@ name: Agent49 owner registered-60, native-whiff and proxy legality pure contract
 
 on:
   workflow_dispatch:
+    inputs:
+      agent2_targetindex_schema_only:
+        description: 'Regress Underworld Door actor-visible recipient index and closed protocol'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -11,7 +17,20 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  targetindex-schema-pure:
+    if: ${{ inputs.agent2_targetindex_schema_only }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify prompt projection, rank-1 policy and strict targetIndex shape
+        run: node --test tests/2026-11/agent36-prompt-projection.test.cjs tests/2026-11/agent6-rank1-shadow-rider-opponent-policy.test.cjs tests/2026-11/agent2-underworld-targetindex-protocol.test.cjs
+
   pure-research-contracts:
+    if: ${{ !inputs.agent2_targetindex_schema_only }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
