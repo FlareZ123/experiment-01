@@ -1999,3 +1999,61 @@ test('rank1 deterministic energy-payment prompt is marked rule-selected without 
   assert.equal(selected.reasonCode, 'SELECTED_BY_POLICY_RULE');
   protocol.validatePolicyAudit(audited.policyAudit, request, plain, POLICY_VERSION);
 });
+
+
+test('actual Underworld Door AttachEnergyPrompt chooses a Psychic Bench assignment, not an energy-payment action', () => {
+  const latias = pokemon('Latias ex SSP 76', { hp: 210, abilities: ['Skyliner'] });
+  const rider = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+    hp: 320, stage: 'VMAX', energies: ['Psychic Energy MEE 13']
+  });
+  const energyChoice = (token, index, target) => ({
+    token, kind: 'energy', printing: 'Psychic Energy MEE 13',
+    label: 'Attach Psychic Energy MEE 13 to Bench ' + (index + 1) + ': ' + target,
+    publicMetadata: {
+      sourceZone: 'hand', ownerSeat: 'actor', isOwnerVisible: true,
+      energyType: 'BASIC', zone: 'bench', choiceIndex: index, selectedCount: 1
+    }
+  });
+  const request = promptRequest({
+    promptType: 'AttachEnergyPrompt',
+    source: actorChoiceSource('Shadow Rider Calyrex VMAX CRE 75', 'Underworld Door'),
+    choices: [energyChoice('rider', 1, rider.printing), energyChoice('latias', 0, latias.printing)],
+    publicMetadata: {
+      selectionType: 'energy-attachment', minimumCount: 1, maximumCount: 1,
+      allowCancel: false, sourceZone: 'hand', ownerSeat: 'actor',
+      isOwnerVisible: true, energyType: 'BASIC', zone: 'bench', count: 2
+    },
+    observation: {
+      ownHand: ['Psychic Energy MEE 13'],
+      ownPublic: player({ bench: [latias, rider] })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {kind: 'select-choice', token: 'latias'});
+  const result = policy.decideWithAudit(request);
+  protocol.validatePolicyAudit(result.policyAudit, request, result.decision, POLICY_VERSION);
+  assert.equal(result.policyAudit.selectionRuleCode, 'UNDERWORLD_ATTACH_BENCH_SCORE');
+  assert.deepEqual(result.policyAudit.selectedTokens, ['latias']);
+});
+
+test('Underworld attachment policy fails closed for a different source instead of selecting a plausible pair', () => {
+  const request = promptRequest({
+    promptType: 'AttachEnergyPrompt',
+    source: actorChoiceSource('Shadow Rider Calyrex VMAX CRE 75', 'Unrelated Ability'),
+    choices: [{
+      token: 'energy', kind: 'energy', printing: 'Psychic Energy MEE 13',
+      label: 'Attach Psychic Energy MEE 13 to Bench 1: Latias ex SSP 76',
+      publicMetadata: {
+        sourceZone: 'hand', ownerSeat: 'actor', isOwnerVisible: true,
+        energyType: 'BASIC', zone: 'bench', choiceIndex: 0, selectedCount: 1
+      }
+    }],
+    publicMetadata: {
+      selectionType: 'energy-attachment', minimumCount: 1, maximumCount: 1,
+      allowCancel: false
+    },
+    observation: {ownPublic: player({bench: [pokemon('Latias ex SSP 76')]})}
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'abstain', reasonCode: 'UNSUPPORTED_ATTACH_ENERGY_SOURCE'
+  });
+});
