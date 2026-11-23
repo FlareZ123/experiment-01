@@ -311,12 +311,28 @@ function underworldDoorCanUseInValidationStore(action,simulator,actorSeat,native
   if(source?.targetSeat!=='actor'||
       source.targetPrinting!=='Shadow Rider Calyrex VMAX CRE')return true;
   const player=validationState.players[actorSeat];
-  if(!player?.bench?.some(slot=>slotPokemon(slot)))return false;
-  return Array.isArray(player.hand?.cards)&&player.hand.cards.some(card=>
+  const eligibleEnergy=Array.isArray(player?.hand?.cards)&&player.hand.cards.some(card=>
     native.EnergyCard&&card instanceof native.EnergyCard&&
     native.EnergyType&&card.energyType===native.EnergyType.BASIC&&
     native.CardType&&Array.isArray(card.provides)&&
     card.provides.includes(native.CardType.PSYCHIC));
+  if(!eligibleEnergy)return false;
+  const occupiedBench=Array.isArray(player?.bench)?
+    player.bench.filter(slot=>slotPokemon(slot)):[];
+  if(occupiedBench.length===0)return false;
+  // The ability attaches only to a Benched Psychic Pokémon, not just any
+  // Benched Pokémon. Evaluate effective type exactly as the owner prompt
+  // projector does: a printed-type-only check misses type-changing effects.
+  assert.ok(typeof native.CheckPokemonTypeEffect==='function'&&
+    typeof simulator.store.reduceEffect==='function'&&native.CardType,
+    'pinned Underworld Door preflight requires native Psychic-type evaluator');
+  return occupiedBench.some(slot=>{
+    const check=new native.CheckPokemonTypeEffect(slot);
+    simulator.store.reduceEffect(validationState,check);
+    assert.ok(Array.isArray(check.cardTypes),
+      'pinned Psychic-type evaluator must return checked cardTypes');
+    return check.cardTypes.includes(native.CardType.PSYCHIC);
+  });
 }
 
 const EXPECTED_REJECTIONS=Object.freeze({
