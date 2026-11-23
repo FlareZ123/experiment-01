@@ -301,6 +301,24 @@ function itemCanPlayInValidationStore(action,simulator,actorSeat,native){
   return canPlay!==false;
 }
 
+// Twinleaf's native enumerator proposes Underworld Door even with no Bench
+// or compatible Energy.  The CRE 75 effect can defer CANNOT_USE_POWER until
+// its queued WaitPrompt is resolved; clone-dispatch alone is insufficient.
+function underworldDoorCanUseInValidationStore(action,simulator,actorSeat,native){
+  if(action?.type!=='USE_ABILITY_ACTION'||action.name!=='Underworld Door')return true;
+  const validationState=simulator.store.state;
+  const source=targetProjection(action.target,validationState,actorSeat,native);
+  if(source?.targetSeat!=='actor'||
+      source.targetPrinting!=='Shadow Rider Calyrex VMAX CRE')return true;
+  const player=validationState.players[actorSeat];
+  if(!player?.bench?.some(slot=>slotPokemon(slot)))return false;
+  return Array.isArray(player.hand?.cards)&&player.hand.cards.some(card=>
+    native.EnergyCard&&card instanceof native.EnergyCard&&
+    native.EnergyType&&card.energyType===native.EnergyType.BASIC&&
+    native.CardType&&Array.isArray(card.provides)&&
+    card.provides.includes(native.CardType.PSYCHIC));
+}
+
 const EXPECTED_REJECTIONS=Object.freeze({
   ATTACK_ACTION:new Set([
     'CANNOT_ATTACK_ON_FIRST_TURN','BLOCKED_BY_SPECIAL_CONDITION',
@@ -481,7 +499,8 @@ function buildNativeActionFrontier({
     // Construct the deep-cloned Simulator outside the expected-rejection
     // catch: constructor instability is an engine failure, never an illegal move.
     const simulator = createIsolatedValidationSimulator(state,native);
-    if(!itemCanPlayInValidationStore(action,simulator,actorSeat,native)){
+    if(!itemCanPlayInValidationStore(action,simulator,actorSeat,native)||
+        !underworldDoorCanUseInValidationStore(action,simulator,actorSeat,native)){
       rejectedCount += 1;
       preflightRejectedCount += 1;
       continue;
