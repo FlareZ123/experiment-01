@@ -281,17 +281,19 @@ test('Underworld hook preserves native Blaziken Firestarter AttachEnergyPrompt v
 
     const originalState = cloneNativeValidationGraph(x.state);
     const originalPromptGroups = x.store.promptItems.map(item => item.ids.slice());
-    const rawFirestarterChoice = [{
+    const rawFirestarterChoice = {
       to: { player: PlayerType.BOTTOM_PLAYER, slot: SlotType.BENCH, index: 1 },
       index: 0
-    }];
+    };
     const projection = {
       promptProjection: {
         choices: [
           { token: 'prompt-0', kind: 'energy', label: 'Fire Energy SVE' },
           { token: 'prompt-1', kind: 'cancel', label: 'Cancel selection' }
         ],
-        publicMetadata: { selectionType: 'energy-payment', allowCancel: true }
+        publicMetadata: {
+          selectionType: 'energy-payment', energyCount: 1, count: 1, allowCancel: true
+        }
       },
       choiceByToken: new Map([
         ['prompt-0', rawFirestarterChoice],
@@ -301,7 +303,7 @@ test('Underworld hook preserves native Blaziken Firestarter AttachEnergyPrompt v
     const prepared = dispatchPromptChoice({
       store: x.store, prompt: pending, state: x.state, actorSeat: 0,
       projection,
-      decision: { kind: 'select-choice', token: 'prompt-0' },
+      decision: { kind: 'select-choices', tokens: ['prompt-0'] },
       native: { Store, ResolvePromptAction },
       dispatch: false,
       withValidationRandom: callback => callback()
