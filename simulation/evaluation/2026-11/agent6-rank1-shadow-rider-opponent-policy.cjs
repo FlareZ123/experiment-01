@@ -897,7 +897,7 @@ function promptDecision(request) {
       choice.publicMetadata?.zone === 'bench' &&
       choice.publicMetadata?.selectedCount === 1);
     const ranked = sortedChoiceTokens(legalPairs, choice => {
-      const target = /\\bto Bench ([1-5]):/.exec(choice.label ?? '');
+      const target = /\bto Bench ([1-5]):/.exec(choice.label ?? '');
       const slot = target ? list(observation.ownPublic.bench)[Number(target[1]) - 1] : null;
       if (!slot || !matches(choice.printing, PRINT.psychic)) return -1;
       const energy = psychicEnergyOn(slot);
