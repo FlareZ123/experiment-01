@@ -74,7 +74,6 @@ function installCopycatMultiAttackHistory(store){
   function observedDispatch(action,clientRoleId){
     const before=this.state;
     const beforeActive=before.players?.[before.activePlayer];
-    const beforeActiveIndex=before.activePlayer;
     const beforeTurn=before.turn;
     let declared=null;
     let barrageFollowup=null;
@@ -152,8 +151,9 @@ function installCopycatMultiAttackHistory(store){
     if(barrageFollowup)record(barrageFollowup.playerId,barrageFollowup);
 
     const after=result??this.state;
-    if(beforeActive&&
-        (beforeActiveIndex!==after.activePlayer||beforeTurn!==after.turn)){
+    // Setup can change activePlayer without completing a turn. A history
+    // snapshot is valid only when the global turn counter actually advances.
+    if(beforeActive&&beforeTurn!==after.turn){
       const endedPlayerId=beforeActive.id;
       previous.set(endedPlayerId,{
         turn:beforeTurn,attacks:(current.get(endedPlayerId)??[]).slice()
