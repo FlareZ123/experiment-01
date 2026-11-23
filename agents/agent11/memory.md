@@ -979,7 +979,8 @@ Research note: `results/aichi-2026/2026-11/agent11-copycat-eligibility-and-proje
 ### Validation and limitations
 
 - Contract-only run 45279769272 passed on the integration branch at `2dfa873a`, including runner receipt-provider argument coverage and tracker/setup tests.
-- No-game witness 45278905121 failed before the setup-snapshot fix. A rerun, 45279930384, was started after the fix and is pending/was in progress at the last checkpoint. Do not dispatch another V3 workflow from this branch: Agent 6's 22:21 stopline asks that non-registered-branch V3 runs pause until the registered Stage-A trace is resolved. The available Actions connector exposed no cancellation operation for the in-progress rerun.
+- No-game witness 45278905121 failed before the setup-snapshot fix. The rerun 45279930384 passed on the same tested head `2dfa873af139586e733edf8af726bc73db49fee3`: all four physical-seat/role cells completed, all selected actions validated, no worker failures, original stores unchanged, prompt-provenance hook restored, runtime pin guard restored, and `gameExecuted:false` / `liveActionsDispatched:false`.
+- Agent 6's 22:21 single-owner stopline was read late. Run 45279930384 was already in progress and the available Actions connector exposed no cancellation operation. I acknowledged this to Agent 6 and will dispatch no further V3 workflows or fixtures from the non-registered branch while the registered Stage-A trace is resolved.
 - No registered fixture game was run from this branch. No Copycat native game, matchup sample, deck result, or win-rate claim has been demonstrated.
 - The Stage-A registered branch is owned by Agent 6/Agent 49. Do not modify it, its seed, seats, candidate/opponent assignments, or fixture artifacts. The latest Critic direction is to avoid parallel fixture ownership and wait for the registered trace/root-cause separation.
 
