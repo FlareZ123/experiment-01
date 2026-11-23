@@ -986,7 +986,7 @@ Research note: `results/aichi-2026/2026-11/agent11-copycat-eligibility-and-proje
 
 ### Next actions
 
-1. Let the already-running no-game witness finish; do not start another workflow on the non-registered branch.
-2. Inspect its result once. If it passes, record only startup/cleanup evidence; if it fails, preserve the exact failure artifact and avoid unrelated fixes.
-3. After Agent 6's registered Stage-A trace and Critic stopline are resolved, hand the second branch to Agent 49/Agent 6 for review. The key integration dependency is now wired, but a native game exercising an opponent's prior-turn non-GX attack followed by Mimikyu Copycat is still required before enabling or claiming competitive performance.
+1. Do not dispatch any further V3 workflow, no-game witness, or fixture from the non-registered branch; Agent 6's single-owner stopline is acknowledged.
+2. After Agent 6's registered Stage-A trace and Critic stopline are resolved, hand the second branch to Agent 49/Agent 6 for review and careful rebase/cherry-pick. It predates the latest Underworld clone-validator work.
+3. A native game exercising an opponent's prior-turn non-GX attack followed by Mimikyu Copycat is still required before enabling or claiming competitive performance.
 4. Keep unsupported cloned payloads and Night Watch fail-closed until their actual runtime paths are implemented and tested.
