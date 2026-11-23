@@ -311,6 +311,16 @@ function underworldDoorCanUseInValidationStore(action,simulator,actorSeat,native
   if(source?.targetSeat!=='actor'||
       source.targetPrinting!=='Shadow Rider Calyrex VMAX CRE')return true;
   const player=validationState.players[actorSeat];
+  // CRE75 checks the marker only when a queued WaitPrompt resumes its
+  // reducer. The same VMAX cannot use Underworld Door twice in one turn;
+  // the initial cloned UseAbilityAction alone does not catch that failure.
+  const sourceSlot=source.targetZone==='active'?player?.active:
+    source.targetZone==='bench'?player?.bench?.[source.targetIndex]:null;
+  const sourcePokemon=slotPokemon(sourceSlot);
+  const markerName=sourcePokemon?.UNDERWORLD_DOOR_MARKER;
+  if(typeof markerName==='string'&&markerName.length>0&&
+      typeof player?.marker?.hasMarker==='function'&&
+      player.marker.hasMarker(markerName,sourcePokemon))return false;
   if(!player?.bench?.some(slot=>slotPokemon(slot)))return false;
   return Array.isArray(player.hand?.cards)&&player.hand.cards.some(card=>
     native.EnergyCard&&card instanceof native.EnergyCard&&
