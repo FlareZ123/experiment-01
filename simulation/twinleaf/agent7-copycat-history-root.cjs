@@ -23,11 +23,13 @@ function attachPreviousOpponentTurnReceipt(view,state,seat,tracker){
   assert.equal(view.globalTurn,state.turn);
   assert.equal(view.publicEventReceipt,undefined);
   const opponentId=state.players[1-seat].id;
-  const snapshot=tracker?.getPreviousTurnSnapshot(opponentId)??null;
-  if(snapshot!==null){
-    assert.ok(Number.isSafeInteger(snapshot.turn)&&snapshot.turn>=0);
-    assert.ok(Array.isArray(snapshot.attacks));
-  }
+  const candidateSnapshot=tracker?.getPreviousTurnSnapshot(opponentId)??null;
+  // Store dispatch can observe setup transitions before either player has
+  // completed a turn. Such a snapshot is not "the opponent's last turn" yet.
+  const snapshot=candidateSnapshot!==null&&
+    Number.isSafeInteger(candidateSnapshot.turn)&&candidateSnapshot.turn>=0&&
+    candidateSnapshot.turn<state.turn&&Array.isArray(candidateSnapshot.attacks)?
+    candidateSnapshot:null;
   const receipt=publicEventReceipt(state,seat,
     snapshot===null?null:snapshot.attacks,
     snapshot===null?null:snapshot.turn);
