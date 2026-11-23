@@ -439,7 +439,8 @@ function buildNativeActionFrontier({
   actorSeat,
   native,
   enumerator: suppliedEnumerator = null,
-  maxItems = MAX_ACTION_FRONTIER_ITEMS
+  maxItems = MAX_ACTION_FRONTIER_ITEMS,
+  withValidationRandom = null
 } = {}) {
   assert.ok(state && Array.isArray(state.players) && state.players.length === 2);
   assert.ok(actorSeat === 0 || actorSeat === 1);
@@ -448,6 +449,9 @@ function buildNativeActionFrontier({
   'pinned ActionEnumerator and Simulator constructors are required');
   assert.ok(Number.isSafeInteger(maxItems) && maxItems > 0 &&
     maxItems <= MAX_ACTION_FRONTIER_ITEMS);
+  if(withValidationRandom!==null)
+    assert.equal(typeof withValidationRandom,'function',
+      'per-action native validation requires a deterministic random scope');
   assert.equal(state.activePlayer, actorSeat,
     'root action frontier must belong to the current active player');
   assert.equal((state.prompts ?? []).some(prompt => prompt.result === undefined), false,
@@ -476,19 +480,28 @@ function buildNativeActionFrontier({
     const signature = actionSignature(action);
     if (seen.has(signature)) continue;
     seen.add(signature);
-    // Construct the deep-cloned Simulator outside the expected-rejection
-    // catch: constructor instability is an engine failure, never an illegal move.
-    const simulator = createIsolatedValidationSimulator(state,native);
-    if(!itemCanPlayInValidationStore(action,simulator,actorSeat,native)){
+    // Each candidate must see the same deterministic validation stream that
+    // selected-action revalidation will see later. One shared stream across
+    // all candidates makes the result depend on frontier enumeration order.
+    // Constructor failure remains fatal; only explicitly known native action
+    // rejections are suppressed inside the cloned Store's dispatch catch.
+    const validateCandidate=()=>{
+      const simulator=createIsolatedValidationSimulator(state,native);
+      if(!itemCanPlayInValidationStore(action,simulator,actorSeat,native))
+        return 'preflight-rejected';
+      try {
+        simulator.store.dispatch(action);
+      } catch(error) {
+        if(!isExpectedActionRejection(action,state,actorSeat,native,error))throw error;
+        return 'native-rejected';
+      }
+      return 'validated';
+    };
+    const verdict=withValidationRandom===null?validateCandidate():
+      withValidationRandom(validateCandidate);
+    if(verdict!=='validated'){
       rejectedCount += 1;
-      preflightRejectedCount += 1;
-      continue;
-    }
-    try {
-      simulator.store.dispatch(action);
-    } catch(error) {
-      if(!isExpectedActionRejection(action,state,actorSeat,native,error))throw error;
-      rejectedCount += 1;
+      if(verdict==='preflight-rejected')preflightRejectedCount += 1;
       continue;
     }
     const token = 'act-' + items.length.toString(36);
