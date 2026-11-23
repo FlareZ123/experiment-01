@@ -1,7 +1,7 @@
 {
-  "run_id": "agent1-chat-20261122T023230285Z-normal5-gpt6-posttrace-public-replay-bridge",
-  "claimed_at": "2026-11-22T02:32:30.285262594Z",
+  "run_id": "agent1-chat-20261123T105754797Z-normal7-gpt6-posttrace-policy-continuity",
+  "claimed_at": "2026-11-23T10:57:54.797165Z",
   "mode": "normal",
-  "roll": 5,
-  "previous_claim": "2026-11-22T00:21:12.256616954Z"
+  "roll": 7,
+  "previous_claim": "2026-11-22T02:32:30.285262594Z"
 }
