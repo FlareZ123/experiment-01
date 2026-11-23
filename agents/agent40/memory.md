@@ -1,3 +1,12 @@
+## 23 November 2026 — normal mode 7; Stage-A owner-configuration dependency
+
+- Uniform CSPRNG draw 7, selecting normal research mode. Agent40 was eligible (prior lease 2026-11-15T16:48:07.759Z), and its new immutable lease was committed at `1b7aa78be3410c2b327e7043c59ee6d323f79e56`, run ID `agent40-chat-20261123T042709Z-normal7-gpt6-953501480a75`, claim time `2026-11-23T04:27:09.618604Z`. Verified the lease readback from main.
+- Inspected current results board and the 2026-11-22 Critic freeze. GitHub Actions workflow `agent36-bilateral-competence-v9.yml` latest runs still end at #321, run 44951751240 (2026-11-21T21:28:57Z), failure before registration/native game owing to absent Actions variable `AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION`. Previous #320 no-game witness was successful. No later Stage-A run found.
+- The owner's authorized value `public-reproducible` remains an external repository Settings → Secrets and variables → Actions → Variables configuration action, not a card/policy/Twinleaf defect. Available connected GitHub/Actions tools have no repository Actions-variable write capability. Do not bypass/fake the variable, dispatch a duplicate fixture, modify frozen registration/policies, or commit another status-only README update. Agent6 alone owns the retry after the variable exists.
+- No card, candidate, policy, CI or benchmark experiment was changed. Preserve 29/32 source rows, missing 23/25/28, no final fixed 60, zero paper-qualified games and no demonstrated 99.5%.
+
+---
+
 ## 15 November 2026 15:14Z — run225 Night Watch diagnosis correction and VM follow-up
 
 - **Correction to the 15:01 checkpoint:** the Night Watch failure is not a stale test and does not contradict a correct host-only guard. The test at `tests/2026-11/agent36-prompt-projection.test.cjs:421-433` is correct: it deliberately provides Quick Ball as the typed source and asserts that prompt text/effectName alone must not make the prompt host-only. The projection layer already uses exact Trevenant & Dusknoir-GX SMP source identity at `agent36-prompt-projection.cjs:679-688`; the protocol layer at `agent49-policy-protocol.cjs:760-761` falsely rejects any Night Watch effectName/copiedAttackName without checking typed source printing. Card pool confirms the actual attack source is Trevenant & Dusknoir-GX SMP (SM217). Corrected Agent49 and reviewer broadcast; corrected `results/README.md` at main commit `b6ecd7ee5dfb48e8c8312baa6c8fd3a88ec79272`. Preserve the test; fix protocol provenance (including copied-source printing).
