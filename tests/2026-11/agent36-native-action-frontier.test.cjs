@@ -719,11 +719,13 @@ test('a name-spoofed Error is not accepted as a pinned native GameError rejectio
 });
 
 
-test('pinned Battle VIP Pass, VS Seeker, and Unfair Stamp Item canPlay tri-state rejects only false and delegates true or undefined to native validation',()=>{
+test('pinned five-item exact-print canPlay tri-state rejects only false and delegates true or undefined to native validation',()=>{
   const printings=[
     {name:'Battle VIP Pass',fullName:'Battle VIP Pass FST 225',set:'FST',number:'225'},
     {name:'VS Seeker',fullName:'VS Seeker PHF 109',set:'PHF',number:'109'},
-    {name:'Unfair Stamp',fullName:'Unfair Stamp TWM 165',set:'TWM',number:'165'}
+    {name:'Unfair Stamp',fullName:'Unfair Stamp TWM 165',set:'TWM',number:'165'},
+    {name:'Field Blower',fullName:'Field Blower GRI 125',set:'GRI',number:'125'},
+    {name:'Night Stretcher',fullName:'Night Stretcher SFA 61',set:'SFA',number:'61'}
   ];
   for(const printing of printings){
     for(const predicateResult of [false,true,undefined]){
