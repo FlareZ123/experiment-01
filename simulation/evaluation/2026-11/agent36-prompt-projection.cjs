@@ -223,6 +223,7 @@ function targetChoice(target, state, actorSeat, native) {
 }
 
 function makeSource(prompt, state, actorSeat, provenance) {
+  const promptType=prompt?.constructor?.name??'';
   if(provenance?.sourceKind==='card-effect') {
     const sourceCard=provenance.sourceCard??null;
     const effectName=provenance.effectName;
@@ -244,9 +245,21 @@ function makeSource(prompt, state, actorSeat, provenance) {
       });
     }
     if(effectName==='Copycat') {
-      throw Object.assign(new Error('Copycat prompt requires copied-source and copied-attack provenance'), {
-        code:'UNSUPPORTED_COPYCAT_PROMPT'
-      });
+      const supportedMimikyu=sourcePrinting==='Mimikyu GRI' ||
+        sourcePrinting==='Mimikyu GRI 58';
+      const sourceIsActive=state.players[actorSeat].active?.getPokemonCard?.()===sourceCard;
+      const hasPrintedCopycat=Array.isArray(sourceCard.attacks) &&
+        sourceCard.attacks.some(attack=>attack?.name==='Copycat');
+      const targetCards=Array.isArray(prompt.cards)?prompt.cards:[];
+      const visibility=targetCards.length>0?
+        cardCollectionVisibility(state,actorSeat,targetCards):null;
+      if(!supportedMimikyu || promptType!=='ChooseAttackPrompt' ||
+          !sourceIsActive || !hasPrintedCopycat || targetCards.length===0 ||
+          visibility?.ownerSeat!=='opponent' || visibility?.isOwnerVisible!==true) {
+        throw Object.assign(new Error('Copycat requires an Active Mimikyu GRI source and actor-visible opponent attack choices'), {
+          code:'UNSUPPORTED_COPYCAT_PROMPT'
+        });
+      }
     }
     return {
       classification:'actor-choice',
@@ -255,7 +268,6 @@ function makeSource(prompt, state, actorSeat, provenance) {
       effectName
     };
   }
-  const promptType=prompt?.constructor?.name??'';
   const message=typeof prompt?.message==='string'?prompt.message:null;
   const engineSetupPrompt=state.phase===1&&(
     (promptType==='ChooseCardsPrompt'&&message==='CHOOSE_STARTING_POKEMONS')||
@@ -449,14 +461,23 @@ function projectChooseEnergy(prompt, state, actorSeat, choices, choiceByToken) {
   };
 }
 
-function projectChooseAttack(prompt, state, actorSeat, choices, choiceByToken) {
+function projectChooseAttack(prompt, state, actorSeat, choices, choiceByToken, source) {
   const visibility = cardCollectionVisibility(state, actorSeat, prompt.cards ?? []);
+  const copycat=source?.effectName==='Copycat';
   const blocked = new Set((prompt.options?.blocked ?? []).map(item =>
     item.index + '|' + item.attack));
   for (let index = 0; index < (prompt.cards ?? []).length; index += 1) {
     const card = prompt.cards[index];
     for (const attack of card.attacks ?? []) {
       if (blocked.has(index + '|' + attack.name)) continue;
+      const sourcePrinting=printing(card)??'';
+      const unsupportedCopycatAttack=copycat && (
+        attack.gxAttack===true ||
+        attack.copycatAttack===true ||
+        (/^Trevenant & Dusknoir-GX SMP(?:\\s|$)/.test(sourcePrinting) &&
+          attack.name==='Night Watch')
+      );
+      if(unsupportedCopycatAttack) continue;
       addChoice(choices, choiceByToken, { index, attack: attack.name }, {
         kind: 'attack',
         label: (printing(card) ?? ('Pokémon ' + (index + 1))) + ' — ' + attack.name,
@@ -466,10 +487,17 @@ function projectChooseAttack(prompt, state, actorSeat, choices, choiceByToken) {
           sourceAttack: attack.name,
           sourceZone: visibility.sourceZone,
           ownerSeat: visibility.ownerSeat,
-          isOwnerVisible: visibility.isOwnerVisible
+          isOwnerVisible: visibility.isOwnerVisible,
+          gxAttack: attack.gxAttack===true,
+          copycatAttack: attack.copycatAttack===true
         }
       }, prompt, state);
     }
+  }
+  if(copycat && !choices.some(choice=>choice.kind==='attack')) {
+    throw Object.assign(new Error('Copycat has no supported non-GX printed attack choice'), {
+      code:'UNSUPPORTED_COPYCAT_ATTACK_SET'
+    });
   }
   addCancelChoice(choices, choiceByToken, prompt, state);
   return {
@@ -813,7 +841,7 @@ function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook
       publicMetadata = projectChooseEnergy(prompt, state, actorSeat, choices, choiceByToken);
       break;
     case 'ChooseAttackPrompt':
-      publicMetadata = projectChooseAttack(prompt, state, actorSeat, choices, choiceByToken);
+      publicMetadata = projectChooseAttack(prompt, state, actorSeat, choices, choiceByToken, source);
       break;
     case 'ChoosePrizePrompt':
       publicMetadata = projectChoosePrize(prompt, state, actorSeat, choices, choiceByToken);
