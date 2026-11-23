@@ -474,7 +474,7 @@ function projectChooseAttack(prompt, state, actorSeat, choices, choiceByToken, s
       const unsupportedCopycatAttack=copycat && (
         attack.gxAttack===true ||
         attack.copycatAttack===true ||
-        (/^Trevenant & Dusknoir-GX SMP(?:\\s|$)/.test(sourcePrinting) &&
+        (/^Trevenant & Dusknoir-GX SMP(?:\s|$)/.test(sourcePrinting) &&
           attack.name==='Night Watch')
       );
       if(unsupportedCopycatAttack) continue;
