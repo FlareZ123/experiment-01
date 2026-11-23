@@ -312,6 +312,15 @@ function underworldDoorCanUseInValidationStore(action,simulator,actorSeat,native
       source.targetPrinting!=='Shadow Rider Calyrex VMAX CRE')return true;
   const player=validationState.players[actorSeat];
   if(!player?.bench?.some(slot=>slotPokemon(slot)))return false;
+  // The pinned CRE75 ability enforces this once-per-turn marker only after
+  // its asynchronous WaitPrompt. The clone must exclude a spent source now.
+  const sourceSlot=action.target?.slot===native.SlotType?.ACTIVE?player.active:
+    action.target?.slot===native.SlotType?.BENCH?player.bench?.[action.target.index]:null;
+  const sourcePokemon=slotPokemon(sourceSlot);
+  if(sourcePokemon && typeof sourcePokemon.UNDERWORLD_DOOR_MARKER==='string' &&
+      typeof player.marker?.hasMarker==='function' &&
+      player.marker.hasMarker(sourcePokemon.UNDERWORLD_DOOR_MARKER,sourcePokemon))
+    return false;
   return Array.isArray(player.hand?.cards)&&player.hand.cards.some(card=>
     native.EnergyCard&&card instanceof native.EnergyCard&&
     native.EnergyType&&card.energyType===native.EnergyType.BASIC&&
