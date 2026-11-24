@@ -127,7 +127,12 @@ class ChooseStartingPokemonPrompt extends ChooseCardsPrompt {}
 
 class ChoosePokemonPrompt {
   decode(result) { return result; }
-  validate(result) { return result === null ? this.options.allowCancel === true : result.length > 0; }
+  validate(result) {
+    if (result === null) return this.options.allowCancel === true;
+    const minimum = Number.isSafeInteger(this.options.min) ? this.options.min : 1;
+    const maximum = Number.isSafeInteger(this.options.max) ? this.options.max : 1;
+    return Array.isArray(result) && result.length >= minimum && result.length <= maximum;
+  }
 }
 
 class ChoosePrizePrompt {
@@ -345,6 +350,58 @@ test('ChoosePokemonPrompt preserves actor-relative active and bench indexes in p
     assert.throws(() => protocol.validatePromptMetadata({
       ...actorActive.publicMetadata, slotIndex: '0'
     }, true));
+  }
+});
+
+test('Field Blower ANY-side ChoosePokemonPrompt preserves blocked targets and min-zero empty selection for both seats', () => {
+  for (const actorSeat of [0, 1]) {
+    const state = makeState({ phase: 2 });
+    if (actorSeat === 1) state.players.reverse();
+    state.activePlayer = actorSeat;
+    const actor = state.players[actorSeat];
+    const opponent = state.players[1 - actorSeat];
+    actor.bench[2] = slot(pokemon('Actor Tool Target'));
+    opponent.bench[3] = slot(pokemon('Opponent Tool Target'));
+    const sourceCard = { fullName: 'Field Blower GRI 125' };
+    actor.discard.cards.push(sourceCard);
+    const prompt = basePrompt(ChoosePokemonPrompt, state, {
+      playerId: actor.id,
+      sourceCard,
+      message: 'CHOOSE_POKEMON_TO_DISCARD_CARDS',
+      playerType: PlayerType.ANY,
+      slots: [SlotType.ACTIVE, SlotType.BENCH],
+      options: {
+        min: 0, max: 1, allowCancel: false,
+        blocked: [
+          { player: PlayerType.BOTTOM_PLAYER, slot: SlotType.ACTIVE, index: 0 },
+          { player: PlayerType.BOTTOM_PLAYER, slot: SlotType.BENCH, index: 2 },
+          { player: PlayerType.TOP_PLAYER, slot: SlotType.ACTIVE, index: 0 }
+        ]
+      }
+    });
+    const projection = projectPrompt({
+      prompt, state, actorSeat, native,
+      provenanceHook: provenance(sourceCard, 'Field Blower')
+    });
+    const choices = projection.promptProjection.choices;
+    assert.equal(choices.length, 2);
+    const target = choices.find(choice => choice.kind === 'pokemon');
+    const empty = choices.find(choice => choice.kind === 'empty-selection');
+    assert.equal(target.publicMetadata.ownerSeat, 'opponent');
+    assert.equal(target.publicMetadata.targetZone, 'bench');
+    assert.equal(target.publicMetadata.benchIndex, 3);
+    assert.ok(empty);
+    assert.equal(protocol.validatePrompt(projection.promptProjection, actorSeat),
+      projection.promptProjection);
+
+    const resolved = dispatchPromptChoice({
+      store: { state, dispatch() { throw new Error('projection test must not dispatch'); } },
+      prompt, state, actorSeat, projection,
+      decision: { kind: 'select-choice', token: empty.token },
+      native, dispatch: false
+    });
+    assert.deepEqual(resolved.rawResult, []);
+    assert.deepEqual(resolved.decoded, []);
   }
 });
 
