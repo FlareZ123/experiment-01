@@ -125,6 +125,7 @@ function loadNativeRoleDependencies({enginePin}={}){
   const {EnergyCard}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/energy-card');
   const {TrainerCard}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/trainer-card');
   const {GameError}=require('../../../vendor/twinleaf/ptcg-server/output/game/game-error');
+  const {GameMessage}=require('../../../vendor/twinleaf/ptcg-server/output/game/game-message');
   const {Stage,EnergyType,CardType,TrainerType,SpecialCondition,Format,SuperType}=
     require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/card-types');
   const {CheckPokemonTypeEffect}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/effects/check-effects');
@@ -154,7 +155,7 @@ function loadNativeRoleDependencies({enginePin}={}){
   assert.notEqual(botOptionsBySeat[0].arbiter, botOptionsBySeat[1].arbiter);
   return {SimpleTacticsAi,Store,State,Player,PokemonCardList,CardList,GamePhase,cardActions,gameActions,
     ActionEnumerator,Simulator,PlayerType:cardActions.PlayerType,SlotType:cardActions.SlotType,
-    PokemonCard,EnergyCard,TrainerCard,GameError,Stage,TrainerType,SpecialCondition,
+    PokemonCard,EnergyCard,TrainerCard,GameError,GameMessage,Stage,TrainerType,SpecialCondition,
     EnergyType,CardType,SuperType,CheckPokemonTypeEffect,
     getCatalog,getNativeTrainerCatalog,observe:actorObservation,promptActions,
     GameSettings,Format,AddPlayerAction,
