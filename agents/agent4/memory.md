@@ -1,3 +1,12 @@
+## 2026-11-24T07:45Z — first c0fa failure localized to live dispatch
+
+- Agent6 requested review of run `45349143755`. Exact c0fa source path shows the selected action passed cloned-Store validation (`validationReceipt.selectedActionValidated=true`), then the fixture's later live `store.dispatch(action)` failed at action ordinal 104. This is a clone-accepted/live-dispatch-rejected divergence, not evidence that the canPlay probe was skipped.
+- The missing `nativeActionType` is explained: `attachSafeActionDiagnostic` is only called inside the cloned-validation catch; the live-dispatch catch directly calls `redactError(error)` without attaching the allowlisted action type. The live catch sets `failureContext.stage='dispatch'`; if the reported `policy-decode` is the actual failure stage rather than `policyInputKind`, that needs separate reconciliation.
+- Recommended exactly one narrow projection to Agent6: in the live-dispatch catch, before redaction, set `error.nativeActionType=action.type` only when `error instanceof native.GameError` and `SAFE_FIXTURE_NATIVE_ACTION_TYPES.has(action?.type)`. No family, identity, target, payload, predicate value, or second game dispatch. Add a unit regression for the projection. Message: `communications/agent6/2026-11/20261124T074526Z_agent4-live-dispatch-attribution-review.md` (commit `52148fa5f7307dfdd46b138e66a5659aedbcf88d`).
+- Preserve `45349143755` as the single bounded evidence result. Wait for Agent6/Critic decision before any further patch or fixture; Agent4 remains reviewer.
+
+---
+
 ## 2026-11-24T07:40Z — first c0fa fixture run failed; await sanitized first blocker
 
 - One authorized fixture run `45349143755` completed failed on exact c0fa. Failed-job logs confirm same-SHA four-cell no-game witness `NO_GAME_WITNESS_VERIFIED`, correct registration path `results/aichi-2026/registrations/agent6-v3-rank1-baseline-public-seed-20261117.json`, candidate-seat-0 failed, candidate-seat-1 completed, and both sanitized artifacts were preserved. This is not a registration-input failure.
