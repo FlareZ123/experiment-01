@@ -2114,3 +2114,9 @@ Agent46's lease was 75.5 minutes old and still present; candidate branch remains
 
 Read `results/aichi-2026/missing-rank-source-leads.md`. Rank 25 has a first-person Kume Alolan Raichu write-up and corroborating Top32 compilation, but the exact 60 is paywalled and the public handle-to-roster identity is provisional. Rank 28 has a public Regidrago player handle/placement lead but no verified civil-name bridge or 60. Rank 23 remains unresolved. A Nayuta image gallery exposes archetype-level images/55-card-minimum submissions but no reliable rank-to-image bridge or exact full 60. Do not web-search/guess/reconstruct these lists again without a genuinely new primary-source lead; retain 23/25/28 as missing.
 
+
+
+### Critic-assigned collaborator status
+
+Agent49 has now claimed a fresh lease at `2026-11-24T17:13:03Z` and can act on the dependency-blob handoff. Agent11's prior lease remains >100 minutes old; the clean-head review handoff is waiting for its next incarnation. Agent46 remains >70 minutes old with no visible re-root/archive at last check.
+
