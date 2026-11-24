@@ -715,7 +715,8 @@ test('native GameError redaction emits only exact pinned GameMessage values',()=
   ]){
     failNextNativeGameErrorMessage=message;
     failNextNativeActionContext=message===GameMessage.CANNOT_PLAY_THIS_CARD?{
-      nativeActionType:'PLAY_CARD_ACTION',nativeActionFamily:'ITEM'
+      nativeActionType:'PLAY_CARD_ACTION',nativeActionFamily:'ITEM',
+      nativeActionValidationStage:'candidate-store-dispatch'
     }:null;
     let failure;
     try {
