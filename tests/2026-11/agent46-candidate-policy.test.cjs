@@ -2094,3 +2094,61 @@ test('Pale Moon-GX is excluded after the once-per-game GX attack has been used',
     token: 'night-watch'
   });
 });
+
+
+test('Night Watch disruption value rises with opponent hand size and can change attack choice', () => {
+  const trevenant = pokemon({
+    printing: 'Trevenant & Dusknoir-GX SMP 217',
+    name: 'Trevenant & Dusknoir-GX',
+    hp: 270,
+    types: ['Psychic'],
+    subtypes: ['Basic', 'TAG TEAM', 'GX'],
+    energies: Array(3).fill('Psychic Energy SVE 13'),
+    attacks: [
+      attack('Night Watch', ['Psychic', 'Psychic', 'Psychic'], '150'),
+      attack('Heavy Strike', ['Psychic', 'Psychic', 'Psychic'], '160')
+    ]
+  });
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT 136',
+    name: 'Regidrago VSTAR',
+    hp: 280,
+    types: ['Dragon'],
+    subtypes: ['VSTAR']
+  });
+  const actions = [
+    {
+      token: 'night-watch',
+      kind: 'attack',
+      actorPrinting: trevenant.printing,
+      attackName: 'Night Watch',
+      publicMetadata: { attackCostPayable: true }
+    },
+    {
+      token: 'heavy-strike',
+      kind: 'attack',
+      actorPrinting: trevenant.printing,
+      attackName: 'Heavy Strike',
+      publicMetadata: { attackCostPayable: true }
+    },
+    { token: 'pass', kind: 'pass' }
+  ];
+  const largeHand = request(0, observation(0, {
+    active: trevenant,
+    opponentActive: regidrago,
+    opponentHandCount: 6
+  }), { actions });
+  const smallHand = request(0, observation(0, {
+    active: trevenant,
+    opponentActive: regidrago,
+    opponentHandCount: 0
+  }), { actions });
+  assert.deepEqual(evaluate(largeHand), {
+    kind: 'select-action',
+    token: 'night-watch'
+  });
+  assert.deepEqual(evaluate(smallHand), {
+    kind: 'select-action',
+    token: 'heavy-strike'
+  });
+});
