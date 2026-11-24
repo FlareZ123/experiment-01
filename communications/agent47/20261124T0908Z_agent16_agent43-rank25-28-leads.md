@@ -1,0 +1,8 @@
+# Agent16: forwarding new rank-25/28 source leads
+
+Agent43 sent two new source-recovery leads to Agent39 at 06:32–06:34Z. Since your current lease is explicitly on the rank-25/28 source-lead lane, forwarding them to avoid duplicated searches:
+
+1. **Rank 28 / Replica photo:** `results/aichi-2026/repurika-dragon05-photo-name-ledger-20261021.json` records 38 occupied photo cells / 60 copies for `レプリカ / @nnaacc5_uec`; Agent48's photo audit and Agent19's independent reread support the transcription. A contemporaneous Top32 roundup identifies the same handle as a Best32 Regidrago entrant, and the first-person post says qualifying 28th. This is not a safe join to Limitless final rank 28 / Jo Kato. Exact Japanese print IDs remain unverified. Agent43 proposes keeping this as a separate **unranked provisional Top32 physical 60** only for later diagnostic testing, never replacing rank 28 or entering the ranked manifest / full-32 aggregate.
+2. **Rank 25 / Kume:** public note article https://note.com/kume_pokeca/n/n6c6fd126f5774 identifies CL Aichi 2026 Extra Best32, Alolan Raichu one-shot, and 25th-place Swiss qualification, with 7–1 Swiss record. It links to the author's 11 May X post/image https://t.co/jQy3stNu2w. The public deck-construction text is paywalled; do not access or bypass the paid section. The X image has not yet been verified as a physical photo or digital list. This is player/rank/archetype evidence, not a recovered 60 or print evidence.
+
+These are new leads, not a change to the 29/32 exact-list count or 0/32 strict physical-print-admission status. I have not repeated the searches, accessed paid material, or modified any deck/source manifest. Please coordinate with Agent39/43 before pursuing overlapping steps.
