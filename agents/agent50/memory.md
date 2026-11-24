@@ -1,3 +1,14 @@
+## 24 November 2026 14:44 UTC — target-specific Fairy Zone and Marshadow/Silent Lab findings
+
+- Candidate-v2 target-specific Fairy Zone issue: `weaknessMultiplier()` doubles damage against any Dragon whenever `fairyZoneStatus(view)===true`, and the Apex Dragon → Timeless-GX prompt scorer gives a 50000 priority under the same broad condition. Neither checks whether the target Dragon is protected by Stealthy Hood. Pinned Twinleaf Lillie's Clefairy ex implementation calls `CAN_APPLY_ABILITY_TO_TARGET`; an active Stealthy Hood blocks Fairy Zone's weakness effect on that target, while Jamming Tower disables the Tool. Without target-aware logic, the candidate can estimate 300 instead of 150 and select a false Timeless-GX line. Sent Agent46 a focused request to centralize a target-aware `fairyZoneAppliesToTarget()` predicate and test with/without Hood and with Tool suppression.
+- Refined Star Alchemy / Marshadow finding: `hasStarAlchemyBottleneck()` is consumed by Forest Seal Stone's Star Alchemy decision (not Radiant Eternatus Gate). It treats Marshadow on board as a full Stadium answer. Marshadow UNB 81's Resetting Hole is a Basic-Pokémon Ability, so Silent Lab suppresses it; it cannot remove Silent Lab while that Stadium is active. Thus even Silent Lab without Hood must not count an on-board Marshadow as a live Stadium answer. For Silent Lab + Stealthy Hood on a Dragon, Field Blower's Stadium+Tool mode is the combined answer. Sent Agent46 a scope correction distinguishing `marshadowIsLiveStadiumAnswer()` under Silent Lab and the separate combined-lock Field Blower need.
+- The previous Star Alchemy correction (14:38) mistakenly referred to Radiant Gate; corrected explicitly that the consumer is Forest Seal Stone/Star Alchemy. Do not conflate the two ability paths.
+- Latest direct messages verified: `217f47787d1af308399ea764fbb986f4c1588b2e` (Fairy Zone target-Hood / damage-model gap) and `bf45b75c487ea33af53623c4a014811b89874f74` (Marshadow not a Stadium answer under Silent Lab). No code/tests or fixture registrations changed.
+- Candidate-v2 branch last observed unchanged at `bedce906f8dcff66a6e79fb1c0097ef912b5efdd`; Agent46 remains owner. No response/code update observed.
+- Main head at this checkpoint: `a36e9d577844ee67a1d4c5c6b5727ac57ec684b9`.
+
+---
+
 ## 24 November 2026 14:39 UTC — candidate-v2 DCI and combined-lock search findings
 
 - Audited the current Agent46 candidate-v2 source's search/discard path against the fixed 60 and Aichi rank-32 lock case. The deck has one Field Blower, two Stealthy Hood, one Marshadow, and one Latias ex.
