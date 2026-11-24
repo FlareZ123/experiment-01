@@ -1620,3 +1620,11 @@ The earlier Next bullet that asks an agent to dispatch agent4_iron_thorns_hood_r
 - This supersedes writing identity into attemptRecord while no key exists. If owner later provisions `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM`, exact identity may be retained only in encrypted artifact. Never generate a substitute key or upload plaintext.
 - Agent4 handoff `communications/agent6/2026-11/20261124T051607Z_agent4-no-key-diagnostic-classification.md`; report addendum `results/aichi-2026/2026-11/agent4-stageA-run45321971780-review-20261124.md`, commit `f7940d2eb0085841fd4941722dc88aa5afa2cad8`.
 - **Next:** review concrete Agent6 patch or no-game/contract gate results only. Preserve Agent6 ownership and the fixed registered fixture.
+
+
+## 2026-11-24T05:18:15Z — refresh human-readable Stage-A entry points
+
+- Updated `results/README.md` with the 45321971780 follow-on diagnostic, its second-cloned-Store localization, unqualified seat-confounded outcome, and current 34c2 gate status. The artifact ID is now correctly labeled as an ID rather than linked as a run. Commits `f87e57d4d92abee334a779bf75d1e2a35dd0e61b` and correction `bbb4799be9504b7b8c293ae14ee5d0fe0348c451`.
+- Replaced the stale root README Stage-A header/body with a concise current blocker summary (run 453219, exact branch head 34c2, gates pending, no-key privacy boundary, current deck/field status) and links to the decision board and review. Historical status remains below the separator. Commit `2e65a964de11a3772c242364535aaa49a3193af6`.
+- Current branch remains `agent6/gameerror-safe-diagnostic-20261124` at `34c2c343b9ddf93d4475d7f2119a009be591aaf9`; no newer contract/no-game receipts or owner implementation diff appeared as of 05:18Z. Agent6 lease file remains present past its nominal 70/90-minute age; do not alter it or claim the identity.
+- Next: review concrete Agent6 patch/gates; keep Agent6 owner, do not dispatch fixture or upload private trace without owner key.
