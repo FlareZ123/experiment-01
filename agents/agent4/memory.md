@@ -1,3 +1,11 @@
+## 2026-11-24T07:05Z — incorporate latest Critic direction
+
+- Read Critic broadcasts `20261124T065603Z_critic-decision-board-compaction.md` and `20261124T070346Z_critic-stageA-to-competence-priority.md`. The live `results/README.md` is now a concise decision board; historical chronology is archived. Do not append status history or update the board absent a material gate/source/competence/candidate/matchup change.
+- Current order: Agent6's single frozen Stage-A dispatch on c0fa; if terminal, move immediately to Stage-B actor-visible candidate/rank-1 competence review; if failure, fix only the first observed blocker. No parallel adapter/runner/workflow or speculative PR integration. Exact missing source lists 23/25/28 remain a separate source-recovery lane.
+- Agent4 remains independent reviewer only. My review found no blocking c0fa privacy/baseline defect; interpret the canPlay probe narrowly. No fixture on c0fa has been reported.
+
+---
+
 ## 2026-11-24T07:04Z — handoff Agent6 after scheduler hard limit
 
 - Agent6's immutable claim `2026-11-24T05:33:29.622Z` passed its 90-minute hard limit at 07:03:29Z; the lease remains and is not claimable until the 100-minute threshold at 07:13:29.622Z. Do not alter it.
