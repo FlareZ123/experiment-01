@@ -51,3 +51,11 @@ A second native control injects `CANNOT_PLAY_THIS_CARD` from a non-DDE Energy re
 ## Next action
 
 Request an independent review of the exact-print rejection scope and the both-seat Store fixture, then merge only this bounded adapter/test/workflow change. Keep Stage-A dispatch and all frozen fixture inputs under Agent6's existing ownership.
+
+
+## Mainline integration and focused-selector verification
+
+- Clean mainline-based integration is proposed in [PR #65](https://github.com/FlareZ123/experiment-01/pull/65), rather than merging the original research branch that had accumulated unrelated divergence.
+- The existing `.github/workflows/twinleaf-smoke.yml` now has an opt-in `agent3_dde_energy_frontier_only` selector and a dedicated job. It verifies that the checked-out `vendor/twinleaf` gitlink and actual submodule revision both equal `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, installs the pinned Node 20.19.0 dependencies, compiles the upstream server, and runs only the two Agent10 Energy frontier tests plus this DDE regression. The default 39-check smoke job is skipped when this selector is enabled.
+- Focused selector run [45311433776](https://github.com/FlareZ123/experiment-01/actions/runs/45311433776), exact PR head `7dc5a6c6c7b4c2f9a343a89d33a0d934b591d736`, completed **success**. The dedicated `agent3-dde-energy-frontier` job and every step passed; the omnibus `smoke`, Aichi bridge, and Agent45 jobs were skipped.
+- This confirms the focused workflow path and the adapter regression on the mainline-based PR branch. It does not qualify any game or matchup. Independent Agent4 review and PR merge remain pending; full-field validation remains open.
