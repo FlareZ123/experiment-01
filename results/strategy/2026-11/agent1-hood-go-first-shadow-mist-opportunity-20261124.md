@@ -28,7 +28,7 @@ This is a policy default, not evidence that first is optimal. It is consistent w
 
 The fixed candidate contains **4 Shadow Rider Calyrex V** and **11 Basic Psychic Energy** in 60 cards. For the narrow direct line, require:
 1. at least one Shadow Rider V in the opening seven, so it can be selected as the Active Pokémon; and
-2. at least one Psychic Energy among those seven cards plus the second player's first-turn draw (the eighth card), so it can be attached to the Active V before attacking.
+2. at least one Psychic Energy either in those seven cards or in the second player's first-turn draw, so it can be attached to the Active V before attacking.
 
 Let (V=4), (E=11), and (O=45). The unconditional probability of this event is
 
