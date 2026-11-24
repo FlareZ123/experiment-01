@@ -276,6 +276,14 @@ function isBasicPokemon(slot) {
   return (slot?.printed?.subtypes ?? []).includes('Basic');
 }
 
+function isFuturePokemon(slot) {
+  const labels = [
+    ...(slot?.printed?.subtypes ?? []),
+    ...(slot?.printed?.types ?? [])
+  ].map(value => String(value).toLowerCase());
+  return labels.includes('future');
+}
+
 function isRuleBoxPokemon(slot) {
   const subtypes = (slot?.printed?.subtypes ?? []).map(value =>
     String(value).toUpperCase());
@@ -292,7 +300,9 @@ function fairyZoneLockSources(view) {
         (!Array.isArray(slot.tools) || slot.tools.length === 0)) return;
     sources.push({
       seat, zone, slot, cardName, abilityName, scope,
-      status: abilityStatus(slot, abilityName)
+      status: abilityStatus(slot, abilityName),
+      activationOrder: Number.isSafeInteger(slot.abilityLockActivationOrder)
+        ? slot.abilityLockActivationOrder : null
     });
   };
 
@@ -325,7 +335,7 @@ function fairyZoneSourceTargetsHolder(view, source, holderSeat, holder) {
       return source.zone === 'active' && isBasicPokemon(holder);
     case 'active-rulebox-both':
       return source.zone === 'active' && isRuleBoxPokemon(holder) &&
-        !(holder.printed?.subtypes ?? []).includes('Future');
+        !isFuturePokemon(holder);
     case 'active-opponent-active':
       return source.zone === 'active' && !sameSide &&
         holderPlayer.active === holder;
@@ -343,40 +353,122 @@ function fairyZoneSourceTargetsHolder(view, source, holderSeat, holder) {
   }
 }
 
+function abilityLockSourceStadiumSuppression(source, view) {
+  const stadiums = [...view.ownPublic.stadium, ...view.opponentPublic.stadium];
+  const pathToPeak = stadiums.some(name => hasName(name, 'Path to the Peak'));
+  const silentLab = stadiums.some(name => hasName(name, 'Silent Lab'));
+  const affectedByPath = pathToPeak && isRuleBoxPokemon(source.slot) &&
+    !isFuturePokemon(source.slot);
+  const affectedBySilentLab = silentLab && isBasicPokemon(source.slot);
+  if (!affectedByPath && !affectedBySilentLab) return false;
+
+  const effectsLive = stadiumAndToolEffectsLive(view);
+  if (effectsLive === null) return null;
+  return effectsLive === true;
+}
+
+function orderAbilityLockSources(sources, view) {
+  if (sources.length <= 1) return sources;
+  if (sources.some(source => !Number.isSafeInteger(source.activationOrder))) return null;
+
+  const groups = new Map();
+  for (const source of sources) {
+    const group = groups.get(source.activationOrder) ?? [];
+    group.push(source);
+    groups.set(source.activationOrder, group);
+  }
+
+  const ordered = [];
+  for (const order of [...groups.keys()].sort((a, b) => a - b)) {
+    const group = groups.get(order);
+    if (group.length === 1) {
+      ordered.push(group[0]);
+      continue;
+    }
+    // Twinleaf resolves simultaneous starting Active lockers in favor of
+    // the current turn player. Same-seat or otherwise ambiguous ties fail closed.
+    if (group.length !== 2 || group[0].seat === group[1].seat ||
+        (view.turnSeat !== group[0].seat && view.turnSeat !== group[1].seat)) return null;
+    ordered.push(group.find(source => source.seat === view.turnSeat));
+    ordered.push(group.find(source => source.seat !== view.turnSeat));
+  }
+  return ordered;
+}
+
+function abilityLockSourceSuppressesTarget(source, targetSeat, target, view) {
+  if (source.slot === target) return false;
+  if (!fairyZoneSourceTargetsHolder(view, source, targetSeat, target)) return false;
+  if (source.seat !== targetSeat) {
+    const hood = hasEffectiveStealthyHood(target, view, targetSeat);
+    if (hood === true) return false;
+    if (hood === null) return null;
+  }
+  return true;
+}
+
+function resolveAbilityLockSources(view) {
+  const sources = fairyZoneLockSources(view).filter(source => source.status !== false);
+  if (sources.length === 0) return { active: [], unknown: false };
+
+  const hasUnknownStatus = sources.some(source => source.status === null);
+  if (!hasUnknownStatus) {
+    return { active: sources.filter(source => source.status === true), unknown: false };
+  }
+
+  if (sources.length === 1) {
+    const stadium = abilityLockSourceStadiumSuppression(sources[0], view);
+    if (stadium === true) return { active: [], unknown: false };
+    if (stadium === null) return { active: [], unknown: true };
+    return { active: [sources[0]], unknown: false };
+  }
+
+  const ordered = orderAbilityLockSources(sources, view);
+  if (!ordered) return { active: [], unknown: true };
+
+  const active = [];
+  for (const source of ordered) {
+    if (source.status === true) {
+      active.push(source);
+      continue;
+    }
+
+    const stadium = abilityLockSourceStadiumSuppression(source, view);
+    if (stadium === true) continue;
+    if (stadium === null) return { active, unknown: true };
+
+    let definitelySuppressed = false;
+    let uncertain = false;
+    for (const earlier of active) {
+      const suppresses = abilityLockSourceSuppressesTarget(
+        earlier, source.seat, source.slot, view);
+      if (suppresses === true) {
+        definitelySuppressed = true;
+        break;
+      }
+      if (suppresses === null) uncertain = true;
+    }
+    if (definitelySuppressed) continue;
+    if (uncertain) return { active, unknown: true };
+    active.push(source);
+  }
+  return { active, unknown: false };
+}
+
 function fairyZoneHolderStatus(view, holderSeat, holder) {
   const direct = abilityStatus(holder, 'Fairy Zone');
   if (direct !== null) return direct;
 
-  const stadiums = [...view.ownPublic.stadium, ...view.opponentPublic.stadium];
-  if (stadiums.some(name =>
-    hasAnyName(name, ['Path to the Peak', 'Silent Lab']))) {
-    const stadiumLive = stadiumAndToolEffectsLive(view);
-    if (stadiumLive === true) return false;
-    if (stadiumLive === null) return null;
-  }
+  const stadiumSuppression = abilityLockSourceStadiumSuppression({ slot: holder }, view);
+  if (stadiumSuppression === true) return false;
+  if (stadiumSuppression === null) return null;
 
-  const sources = fairyZoneLockSources(view);
-  const potential = sources.filter(source => source.status !== false);
-  const relevant = potential.filter(source =>
-    fairyZoneSourceTargetsHolder(view, source, holderSeat, holder));
-  if (relevant.length === 0) return true;
-
-  let unknown = false;
-  for (const source of relevant) {
-    if (source.seat === holderSeat) {
-      if (source.status === true || potential.length === 1) return false;
-      unknown = true;
-      continue;
-    }
-
-    const hood = hasEffectiveStealthyHood(holder, view, holderSeat);
-    if (hood === true) continue;
-    if (hood === null) {
-      unknown = true;
-      continue;
-    }
-    if (source.status === true || potential.length === 1) return false;
-    unknown = true;
+  const resolution = resolveAbilityLockSources(view);
+  let unknown = resolution.unknown;
+  for (const source of resolution.active) {
+    const suppresses = abilityLockSourceSuppressesTarget(
+      source, holderSeat, holder, view);
+    if (suppresses === true) return false;
+    if (suppresses === null) unknown = true;
   }
   return unknown ? null : true;
 }
