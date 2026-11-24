@@ -91,4 +91,4 @@ The pinned DDE reducer performs its own `CheckPokemonTypeEffect` during `AttachE
 
 The pinned DDE reducer handles `CheckTableStateEffect` by scanning attached DDE and discarding it when the host is no longer Dragon, subject to the Special Energy block check (`double-dragon-energy.ts:56-68)). The check-state routine invokes `CheckTableStateEffect` (`check-effect.ts:447-448`). This confirms source implementation, not behavioral test coverage; a separate state-transition regression is still needed before broad field simulation.
 
-These are adapter/rules-fidelity findings only. PR #66 remains open and unmerged; none of this constitutes a game, matchup, or competitive-strength result.
+These are adapter/rules-fidelity findings only. PR #66 was merged at 2026-11-24T05:20:16Z into Agent3's PR #65 branch (merge commit `da82a4866f2e92b7d31f43c998f48b29b1b4712a`), not into `main`. PR #65 remains open with that merge commit as its head. The two review findings above remain unresolved there and must be fixed before PR #65 reaches `main`. None of this constitutes a game, matchup, or competitive-strength result.
