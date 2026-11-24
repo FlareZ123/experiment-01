@@ -160,6 +160,12 @@ function opponentToolCount(observation) {
     sum + list(slot.tools).length, 0);
 }
 
+function opponentHasDragonWithStealthyHood(observation) {
+  return boardSlots(observation?.opponentPublic).some(slot =>
+    list(slot?.printed?.types).includes('Dragon') &&
+    list(slot.tools).some(tool => matches(tool, PRINT.stealthyHood)));
+}
+
 function boardHas(player, pattern) {
   return boardSlots(player).some(slot => matches(slot.printing, pattern));
 }
@@ -894,8 +900,11 @@ function scorePokemonChoice(choice, observation, mode) {
       meta.targetZone, choice.printing, meta);
     if (!slot || list(slot.tools).length === 0 ||
         toolEffectsStatus(observation) !== true) return -1;
-    const garbodor = matches(slot.printing, PRINT.garbodor);
-    return 150 + Math.min(20, list(slot.tools).length * 10) + (garbodor ? 50 : 0);
+    const garbodor = hasAbility(slot, 'Garbotoxin');
+    const dragonHood = list(slot?.printed?.types).includes('Dragon') &&
+      list(slot.tools).some(tool => matches(tool, PRINT.stealthyHood));
+    return 150 + Math.min(20, list(slot.tools).length * 10) +
+      (garbodor ? 50 : 0) + (dragonHood ? 40 : 0);
   }
 
   if (meta.ownerSeat !== 'actor') return -1;
@@ -1066,6 +1075,8 @@ function fieldBlowerChoiceScore(choice, observation) {
   if (choiceZone(choice) === 'stadium' &&
       /Path to the Peak|Silent Lab/i.test(printing)) return 180;
   if (choiceZone(choice) === 'tool') {
+    if (matches(printing, PRINT.stealthyHood) &&
+        opponentHasDragonWithStealthyHood(observation)) return 220;
     return toolEffectsStatus(observation) === true ? 110 : -1;
   }
   if (choiceZone(choice) === 'stadium') return 100;
