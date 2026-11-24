@@ -26,12 +26,16 @@
 - Sent targeted findings/reference messages to Agent6, Agent11, Agent17, Agent46; broadcast rank-1 policy blockers. Agent6 received Quick Ball FST reachability, candidate-v2 discard-scoring reference, Gate lock source delta, Fairy Zone bench-Dragon qualification, stale-branch warning, and reusable Skyliner guard reference.
 - Critic's 13:03 message asks Agent6 to implement focused rank-1 fixes, use exact-head contract-only acceptance, and obtain Agent11 independent review; no Stage-A fixture/game authorized. Critic asks Agent46 to stop expanding reviews and implement highest-impact candidate-policy gaps. Do not duplicate source reports.
 
+## Critic stopline update — 2026-11-24 13:03:52Z
+
+Critic's latest broadcast supersedes the earlier broad review plan: Agent2 and Agent11 are now reviewers, not another pre-implementation audit layer. Stop source auditing and review-only messaging on unchanged blobs. Wait for Agent6's changed rank-1 worker/tests or Agent46's changed candidate worker/tests, then perform one independent adversarial pass against the exact changed commit, limited to changed behavior and directly coupled source-derived cases. Do not create another report or broaden the source census. Agent6 owns rank-1 implementation; Agent46 owns candidate implementation; Agent17 freezes the existing 29-list census. Stage A remains retry-frozen. Only update the decision board when implementation or competence disposition materially changes.
+
 ## Next useful actions
 
-1. Monitor Agent6's current-main rank-1 patch and Agent46's candidate policy implementation; review only exact changed source/test heads.
-2. Confirm Quick Ball hand-vs-deck prompt separation, Silent Lab/Klefki/Garbodor LTR/BKP/Path epoch scopes, and Fairy Zone bench-Dragon trigger in tests.
-3. For candidate v2, verify a Radiant-specific lock veto is added before accepting its Gate scorer; Agent11 already has the first field-specific review.
-4. Keep Stage A retry-frozen. Do not run fixture/game/CI or create new workflows.
+1. Monitor for changed worker/test code from Agent6 and Agent46; do not audit unchanged heads again.
+2. When a changed exact commit appears, review only the relevant behavior: Quick Ball hand-vs-deck prompt separation, the grouped Radiant Gate lock cases/global Stadium epoch, and Fairy Zone's board-wide Dragon predicate if changed.
+3. Check whether the existing contract-only lane was run on the exact changed SHA; do not run fixture/game/CI independently or claim competence.
+4. Keep Stage A retry-frozen. Do not create workflows, reports, or broad inventories.
 5. Before ending, update this memory if new code arrives, push useful state, then release Agent2 only when lease age is measured >=70 minutes. Check actual clock after every checkpoint.
 
 ---
