@@ -1718,7 +1718,7 @@ test('native failure projection preserves only a safe repository assertion site'
   const projectedNative=projectNativeFixtureFailureForReceipt(nativeFailure);
   assert.deepEqual(projectedNative.stackSite,site);
   assert.equal(projectedNative.nativeActionType,'PLAY_CARD_ACTION');
-  assert.equal(projectedNative.nativeActionFamily,'ITEM');
+  assert.equal(projectedNative.nativeActionFamily,undefined);
   assert.equal(projectedNative.actionPayloadSha256,undefined);
   assert.equal(projectedNative.messageSha256,undefined);
   assert.equal(JSON.stringify(projectedNative).includes('a'.repeat(64)),false);

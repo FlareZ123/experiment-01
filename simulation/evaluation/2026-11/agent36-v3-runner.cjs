@@ -198,7 +198,6 @@ function normalizeV3FixtureRoleResult(returnedResult){
 }
 
 const SAFE_V3_NATIVE_ACTION_TYPES=new Set(['PLAY_CARD_ACTION','ATTACK_ACTION','USE_ABILITY_ACTION','USE_TRAINER_ABILITY_ACTION','USE_ENERGY_ABILITY_ACTION','USE_STADIUM_ACTION','RETREAT_ACTION','PASS_TURN']);
-const SAFE_V3_NATIVE_ACTION_FAMILIES=new Set(['ITEM','SUPPORTER','STADIUM','ENERGY','TOOL','POKEMON']);
 
 function projectNativeFixtureFailureForReceipt(failure,{includePrimary=true}={}) {
   if(!failure||typeof failure!=='object')return null;
@@ -206,7 +205,7 @@ function projectNativeFixtureFailureForReceipt(failure,{includePrimary=true}={})
   for(const key of ['stage','code','actionOrdinal','actingSeat','phaseBefore',
     'turnBefore','pendingPromptType','actionName',
     'name','messageLength','stackSite','nativeErrorKind','nativeGameMessage',
-    'nativeActionType','nativeActionFamily']){
+    'nativeActionType']){
     const value=failure[key];
     if(value===undefined||value===null)continue;
     if(key==='stage'&&typeof value==='string'&&/^[a-z0-9-]{1,64}$/.test(value))summary[key]=value;
@@ -220,8 +219,6 @@ function projectNativeFixtureFailureForReceipt(failure,{includePrimary=true}={})
     else if(key==='nativeErrorKind'&&value==='GameError')summary[key]=value;
     else if(key==='nativeActionType'&&failure.nativeErrorKind==='GameError'&&
       SAFE_V3_NATIVE_ACTION_TYPES.has(value))summary[key]=value;
-    else if(key==='nativeActionFamily'&&failure.nativeErrorKind==='GameError'&&
-      SAFE_V3_NATIVE_ACTION_FAMILIES.has(value))summary[key]=value;
     else if(key==='nativeGameMessage'&&typeof value==='string'&&value.length<=256)
       summary[key]=value;
     else if(key==='stackSite'&&value&&typeof value==='object'&&

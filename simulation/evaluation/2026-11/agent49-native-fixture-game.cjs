@@ -456,7 +456,6 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
     return null;
   };
   const SAFE_FIXTURE_NATIVE_ACTION_TYPES=new Set(['PLAY_CARD_ACTION','ATTACK_ACTION','USE_ABILITY_ACTION','USE_TRAINER_ABILITY_ACTION','USE_ENERGY_ABILITY_ACTION','USE_STADIUM_ACTION','RETREAT_ACTION','PASS_TURN']);
-  const SAFE_FIXTURE_NATIVE_ACTION_FAMILIES=new Set(['ITEM','SUPPORTER','STADIUM','ENERGY','TOOL','POKEMON']);
   const nativeGameMessageValues=new Set(
     native?.GameMessage&&typeof native.GameMessage==='object'?
       Object.values(native.GameMessage).filter(value=>typeof value==='string'&&value.length<=256):[]);
@@ -470,16 +469,12 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
     const nativeActionType=isNativeGameError&&
       SAFE_FIXTURE_NATIVE_ACTION_TYPES.has(error?.nativeActionType)?
         error.nativeActionType:null;
-    const nativeActionFamily=isNativeGameError&&
-      SAFE_FIXTURE_NATIVE_ACTION_FAMILIES.has(error?.nativeActionFamily)?
-        error.nativeActionFamily:null;
     const stackSite=projectSafeStackSite(error);
     return {
       name:isNativeGameError?'GameError':error?.name??'Error',
       ...(isNativeGameError?{nativeErrorKind:'GameError'}:{}),
       ...(nativeGameMessage?{nativeGameMessage}:{}),
       ...(nativeActionType?{nativeActionType}:{}),
-      ...(nativeActionFamily?{nativeActionFamily}:{}),
       messageSha256:sha256Json({message}),
       messageLength:message.length,
       ...(stackSite?{stackSite}:{})
@@ -719,7 +714,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
       failure instanceof native.GameError)||failure.nativeErrorKind==='GameError';
     for(const key of ['stage','code','actionOrdinal','actingSeat','phaseBefore',
       'turnBefore','pendingPromptType','actionName','actionPayloadSha256',
-      'name','nativeErrorKind','nativeGameMessage','nativeActionType','nativeActionFamily',
+      'name','nativeErrorKind','nativeGameMessage','nativeActionType',
       'messageSha256','messageLength','stackSite']){
       const value=failure[key];
       if(value===undefined||value===null)continue;
@@ -736,8 +731,6 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
       else if(key==='nativeErrorKind'&&value==='GameError')summary[key]=value;
       else if(key==='nativeActionType'&&isNativeGameError&&
         SAFE_FIXTURE_NATIVE_ACTION_TYPES.has(value))summary[key]=value;
-      else if(key==='nativeActionFamily'&&isNativeGameError&&
-        SAFE_FIXTURE_NATIVE_ACTION_FAMILIES.has(value))summary[key]=value;
       else if(key==='nativeGameMessage'&&typeof value==='string'&&nativeGameMessageValues.has(value))
         summary[key]=value;
       else if(key==='stackSite'&&value&&typeof value==='object'&&

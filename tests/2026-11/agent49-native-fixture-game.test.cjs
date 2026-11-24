@@ -733,7 +733,8 @@ test('native GameError redaction emits only exact pinned GameMessage values',()=
     assert.equal(nativeFailure.nativeGameMessage,expected);
     assert.equal(nativeFailure.nativeActionType,
       expected?'PLAY_CARD_ACTION':undefined);
-    assert.equal(nativeFailure.nativeActionFamily,expected?'ITEM':undefined);
+    assert.equal(nativeFailure.nativeActionFamily,undefined,
+      'sanitized-only public failure must not reveal a private card family');
     assert.equal(nativeFailure.messageLength,message.length);
     assert.equal(Object.prototype.hasOwnProperty.call(nativeFailure,'message'),false);
   }

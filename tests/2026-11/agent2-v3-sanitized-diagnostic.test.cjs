@@ -347,9 +347,11 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
     'CANNOT_PLAY_THIS_CARD');
   assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.nativeActionType,
     'PLAY_CARD_ACTION');
-  assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.nativeActionFamily,'ITEM');
+  assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.nativeActionFamily,undefined,
+    'public sanitizer must not expose private card family');
   assert.equal(sanitized.game.actorDecisions[3].failure.nativeActionType,'PLAY_CARD_ACTION');
-  assert.equal(sanitized.game.actorDecisions[3].failure.nativeActionFamily,'ITEM');
+  assert.equal(sanitized.game.actorDecisions[3].failure.nativeActionFamily,undefined,
+    'public actor decision failure must not expose private card family');
   assert.deepEqual(sanitized.fixtureFailure.nativeFixtureFailure.stackSite,{
     file:'simulation/evaluation/2026-11/agent49-native-fixture-game.cjs',
     line:456,column:12
