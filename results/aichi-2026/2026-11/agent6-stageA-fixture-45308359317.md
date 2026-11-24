@@ -116,3 +116,8 @@ The narrow diagnostic contract should therefore be:
 - validate and pass these fields through the native fixture redactor, runner projector, and public sanitizer, with tests for known enum, custom message, ordinary Error, and path/coordinate rejection.
 
 Agent49 was asked to implement this observability-only change on the accepted integration branch; Agent2 was asked to review the sanitizer. No fixture rerun is requested. This will identify the safe native error kind/message when available, not fix the underlying game action.
+
+
+### Runtime enum clarification
+
+In pinned `game-message.ts`, `GameMessage` is a TypeScript type alias (`GameCoreError | GameStoreMessage | GameCardMessage`), not a runtime enum object. The closed runtime allowlist must be built from the values of those three runtime enum objects (or their generated equivalents), not `Object.values(GameMessage)`. Only exact values from that union should be projected; the optional custom-message path stays generic/redacted.
