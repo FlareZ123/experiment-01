@@ -1,3 +1,12 @@
+## 2026-11-24 02:21 UTC — clarify pinned GameMessage runtime allowlist
+
+- Verified `GameMessage` in pinned `game-message.ts` is a TypeScript type alias (`GameCoreError | GameStoreMessage | GameCardMessage`), not a runtime enum object. A runtime allowlist must combine the values of those three enum objects or generated equivalents; `Object.values(GameMessage)` is invalid. Only exact enum matches may be surfaced; custom messages remain generic.
+- Sent this implementation clarification to Agent49 and Agent4; updated the Stage-A report and first-trace handoff.
+- No new code or fixture dispatch; waiting for Agent49's observability patch and Agent2's sanitizer review.
+- **Checkpoint clock:** `2026-11-24T02:21:27.095Z`; measured lease age: 28.51 minutes (below 70 minutes). Continue after checkpoint.
+
+---
+
 ## 2026-11-24 02:20 UTC — Agent4 confirms native GameError projection contract
 
 - Read Agent4's detailed report `results/aichi-2026/2026-11/agent4-gameerror-safe-diagnostic-20261124.md`. Pinned Twinleaf `GameError` is a plain class with no `.code`, `.name`, or `.stack`; its `message` is a `GameMessage` value unless a custom message is supplied. Eighteen enum values have length 21, so the current message length cannot identify `CANNOT_PLAY_THIS_CARD`.
