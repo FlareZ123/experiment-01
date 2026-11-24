@@ -462,8 +462,38 @@ function slotForPokemonChoice(view, choice) {
   return { slot, index, ownerSeat: metadata.ownerSeat };
 }
 
-function searchNeedScore(view, printing, effectName = '') {
+function supporterNeedScore(view, printing, receipt) {
+  const priorOpponentKO = receipt?.priorOpponentTurnKO?.any === true;
+  if (hasName(printing, 'Teammates')) return priorOpponentKO ? 100 : -5;
+  if (hasName(printing, 'Raihan')) {
+    return priorOpponentKO && discardHas(view, 'Psychic Energy') &&
+      view.ownTurnResources.energyPlayedTurn === false ? 96 : -5;
+  }
+  if (hasName(printing, 'Guzma')) return canGuzmaForAttack(view) ? 92 : -5;
+  if (hasName(printing, 'Arven')) {
+    const missingV = !hasBasicShadowRiderV(view) && hasOpenBench(view);
+    const missingHood = hasAbilityLockThreat(view) &&
+      !ownBoard(view).some(slot =>
+        slot.tools.some(tool => hasName(tool, 'Stealthy Hood')));
+    return missingV || missingHood ? 90 : 40;
+  }
+  if (hasName(printing, 'Acerola')) {
+    return ownBoard(view).some(slot => slot.damage > 0 &&
+      slotEnergyCount(slot) > 0 && slot.hp - slot.damage <= 120) ? 88 : -5;
+  }
+  if (hasName(printing, "Lillie's Determination")) {
+    return view.ownPublic.handCount <= 3 || view.ownPublic.deckCount <= 10 ? 85 : 35;
+  }
+  if (hasName(printing, 'Iono')) {
+    return view.opponentPublic.handCount >= 5 && view.ownPublic.handCount >= 4 ? 80 : 25;
+  }
+  if (hasName(printing, 'Pokémon Ranger')) return 5;
+  return -5;
+}
+
+function searchNeedScore(view, printing, effectName = '', receipt = null) {
   if (!isText(printing)) return -Infinity;
+  if (effectName === 'Wonder Tag') return supporterNeedScore(view, printing, receipt);
   const regidrago = opponentHasRegidrago(view);
   const dragon = opponentHasDragon(view);
   const board = ownBoard(view);
@@ -535,7 +565,7 @@ function searchNeedScore(view, printing, effectName = '') {
     return board.length < 3 ? 20 : 0;
   }
   if (hasName(printing, 'Unfair Stamp')) {
-    return view.publicEventReceipt?.priorOpponentTurnKO?.any === true ? 80 : 0;
+    return receipt?.priorOpponentTurnKO?.any === true ? 80 : 0;
   }
   if (effectName === 'Arven' && hasAnyName(printing, TOOL_NAMES)) return 70;
   return 0;
@@ -576,7 +606,7 @@ function isItem(printing) {
   return hasAnyName(printing, ITEM_NAMES);
 }
 
-function searchCandidates(view, prompt, choices) {
+function searchCandidates(view, prompt, choices, receipt = null) {
   const effectName = prompt.source?.effectName ?? '';
   const sourceZone = prompt.publicMetadata?.sourceZone;
   let rows;
@@ -593,7 +623,7 @@ function searchCandidates(view, prompt, choices) {
     }));
   } else {
     rows = choices.map(choice => ({
-      choice, score: searchNeedScore(view, choice.printing, effectName)
+      choice, score: searchNeedScore(view, choice.printing, effectName, receipt)
     }));
   }
   for (const row of rows) {
@@ -602,7 +632,7 @@ function searchCandidates(view, prompt, choices) {
   return rows;
 }
 
-function chooseCardCombination(view, prompt) {
+function chooseCardCombination(view, prompt, receipt = null) {
   setPolicyAuditRule('CARD_COMBINATION_SEARCH_SCORE', 'SCORE_DESC_PRINTING_ASC');
   const metadata = prompt.publicMetadata;
   if (!metadata || metadata.selectionType !== 'card-combination' ||
@@ -623,7 +653,7 @@ function chooseCardCombination(view, prompt) {
     return abstain('HIDDEN_PRIZE_IDENTITY');
   }
 
-  const ranked = searchCandidates(view, prompt, choices)
+  const ranked = searchCandidates(view, prompt, choices, receipt)
     .sort((a, b) => b.score - a.score ||
       String(a.choice.printing).localeCompare(String(b.choice.printing)));
 
@@ -1069,7 +1099,7 @@ function choosePrompt(view, prompt, receipt) {
   }
   switch (prompt.promptType) {
     case 'ChooseCardsPrompt':
-      return chooseCardCombination(view, prompt);
+      return chooseCardCombination(view, prompt, receipt);
     case 'ChoosePokemonPrompt':
       return choosePokemonRecipient(view, prompt);
     case 'ChooseEnergyPrompt':
@@ -1102,6 +1132,11 @@ function scoreBasicPlay(item, view) {
   const printing = item.actorPrinting ?? '';
   if (isBasicShadowRiderVPrinting(printing) &&
       !hasBasicShadowRiderV(view) && hasOpenBench(view)) return 1000;
+  if (hasName(printing, 'Tapu Lele-GX') &&
+      !boardHas(view, 'Tapu Lele-GX') && hasOpenBench(view) &&
+      view.ownPublic.deckCount > 0 && !hasWonderTagLock(view)) {
+    return view.ownTurnResources.supporterPlayedTurn > 0 ? 620 : 720;
+  }
   if (hasName(printing, 'Mimikyu') && opponentHasRegidrago(view) &&
       !boardHas(view, 'Mimikyu')) return 950;
   if (hasName(printing, "Lillie's Clefairy ex") && opponentHasDragon(view) &&
@@ -1170,9 +1205,21 @@ function hasAbilityLockThreat(view) {
     hasName(slot.printing, 'Snorlax PGO'));
 }
 
+function hasWonderTagLock(view) {
+  const stadiums = [...view.ownPublic.stadium, ...view.opponentPublic.stadium];
+  if (stadiums.some(name =>
+    hasName(name, 'Path to the Peak') || hasName(name, 'Silent Lab'))) return true;
+  if (view.ownTurnResources?.abilityPokemonPlayLocked === true ||
+      view.ownPublic.publicTurnRestrictions?.abilityPokemonPlayLocked === true) return true;
+  return allBoard(view).some(slot =>
+    hasName(slot.printing, 'Iron Thorns ex') ||
+    (hasName(slot.printing, 'Garbodor') && (slot.tools ?? []).length > 0));
+}
+
 function hasStadiumRemovalTarget(view) {
   return [...view.ownPublic.stadium, ...view.opponentPublic.stadium].some(name =>
     hasName(name, 'Path to the Peak') ||
+    hasName(name, 'Silent Lab') ||
     hasName(name, 'Jamming Tower') ||
     hasName(name, 'Wondrous Labyrinth'));
 }
