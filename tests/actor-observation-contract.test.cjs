@@ -67,17 +67,17 @@ test('genuine owner/public printing identities, amounts and detached shape',()=>
 test('Parallel City orientation is exposed as public actor-visible Stadium direction',()=>{
   const state=fixture();
   const parallelCity=card('Parallel City BKT');
-  parallelCity.stadiumDirection='DOWN';
+  parallelCity.stadiumDirection='down';
   state.players[0].stadium.cards=[parallelCity];
   state.players[1].stadium.cards=[];
   const ownerView=actorObservation(state,0);
   const opponentView=actorObservation(state,1);
-  assert.equal(ownerView.ownPublic.stadiumDirection,'DOWN');
+  assert.equal(ownerView.ownPublic.stadiumDirection,'down');
   assert.equal(ownerView.opponentPublic.stadiumDirection,null);
   assert.equal(opponentView.ownPublic.stadiumDirection,null);
-  assert.equal(opponentView.opponentPublic.stadiumDirection,'DOWN');
-  parallelCity.stadiumDirection='UP';
-  assert.equal(actorObservation(state,0).ownPublic.stadiumDirection,'UP');
+  assert.equal(opponentView.opponentPublic.stadiumDirection,'down');
+  parallelCity.stadiumDirection='up';
+  assert.equal(actorObservation(state,0).ownPublic.stadiumDirection,'up');
   parallelCity.stadiumDirection='UNKNOWN';
   assert.equal(actorObservation(state,0).ownPublic.stadiumDirection,null,
     'unrecognized or absent orientation must remain explicitly unknown');
