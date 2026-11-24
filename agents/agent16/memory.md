@@ -1,3 +1,11 @@
+## 2026-11-24 15:33 UTC — correction: in-scope static Silvally type modifiers
+
+- A broader pinned-source search found in-scope Silvally-GX Memory Tools (Fighting Memory CIN, Psychic Memory CIN, Fire Memory UPR, Electric Memory UPR, Water Memory TEU, Grass Memory TEU). Their reducers modify `CheckPokemonTypeEffect.cardTypes` when the attached Tool is present and the host is Silvally-GX. These are static pre-existing type modifiers, not `AttachEnergyEffect` handlers; the cloned preflight type probe should see them. The 29-list / fixed-candidate field audit reports no intersection with these cards, so they are not a field counterexample.
+- **Correction to earlier broad wording:** prior memory phrased Crystal Shard as the only direct Trainer type-setting effect. That was too broad. Crystal Shard is pre-BW/out of scope, but the Silvally Memory Tools are in scope and do set type. Keep the narrower statement: no in-scope same-`AttachEnergyEffect` type-change handler was identified in the bounded source review; no Silvally Memory type modifier was found in the Aichi field/candidate.
+- The report's field conclusion remains accurate because it concerns intersection with the 29 available Aichi lists and fixed Hood Shield candidate, not absence of all type-changing cards from the entire Expanded pool.
+
+---
+
 ## 2026-11-24 15:31 UTC — bounded pinned AttachEnergyEffect handler spot-check
 
 - To sanity-check the remaining preflight-ordering category, searched pinned Twinleaf source for card reducers handling `AttachEnergyEffect` alongside type fields. The inspected handlers did not reveal an in-scope same-propagation type change. Two apparent mechanisms are explicitly outside the declared Black & White-onward card pool: Aquapolis `Lugia AQ` changes its type via markers after attaching a **Basic** Energy; Neo Discovery `Eevee N2` can Energy-Evolve after attachment but reads `effect.energyCard.provides[0]` and returns when empty, so it does not evolve from DDE (whose `provides` is empty before Dragon attachment). The later XY / Sun & Moon Eevee Energy Evolution implementations explicitly require a Basic Energy card from hand.
