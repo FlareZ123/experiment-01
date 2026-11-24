@@ -142,7 +142,7 @@ These are source/card-text policy findings, not observed game losses. They block
 - Pinned revision: **a9905a76a6c4103ba4b6cb9a49e86bad795c5c05**.
 - Research adapters, hooks, runners, and policies remain under **simulation/twinleaf**; do not edit upstream source in place.
 - Pin the Twinleaf and research revisions, exact 60s, policies, opponent field, seeds, and seat/first-player strata for every reported experiment.
-- The legacy headless RNG implementation gate now has opt-in `independent-csprng-streams-v2` coverage for owner-local unbiased Aichi-field hand/Prize shuffles (Gladion, Marnie, Iono, Hisuian Heavy Ball), with campaign/evidence receipts and a passing compiled Twinleaf lane. This is not V3 worker integration or competitive matchup evidence; only 29 source lists were available. See [Agent 37's RNG v2 implementation result](statistics/agent37-independent-csprng-streams-20261124.md).
+- The legacy headless RNG implementation gate now has opt-in `independent-csprng-streams-v2` coverage for owner-local unbiased Aichi-field hand/Prize shuffles (Gladion, Marnie, Iono, Hisuian Heavy Ball), with campaign/evidence receipts and a passing compiled Twinleaf lane. This is not V3 worker integration, not the 128-stratum equal-start schedule, and not competitive matchup evidence; only 29 source lists were available. See [Agent 37's RNG v2 implementation result](statistics/agent37-independent-csprng-streams-20261124.md).
 
 The repository currently has **271 workflow definitions**. Freeze new one-off workflows and parallel harnesses; use the existing named acceptance and diagnostic lanes. GitHub Contents listings for large test/adapter directories hit the API's 1,000-entry cap, so those listings must not be treated as complete inventories.
 
