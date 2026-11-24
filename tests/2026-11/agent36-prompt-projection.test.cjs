@@ -796,7 +796,7 @@ test('rank1 setup projection and policy agree on actor-hand metadata for both se
   }
 });
 
-test('Underworld Door AttachEnergyPrompt projects only actor Basic Psychic Energy to dynamically Psychic Bench targets for both seats',()=>{
+test('Underworld Door AttachEnergyPrompt stubbed projection contract projects actor Basic Psychic Energy to dynamically Psychic Bench targets for both seats',()=>{
   const EnergyType={BASIC:1,SPECIAL:2};
   const CardType={PSYCHIC:5,DARKNESS:6,FIGHTING:7};
   const SuperType={ENERGY:9};
@@ -929,7 +929,7 @@ test('Underworld Door AttachEnergyPrompt projects only actor Basic Psychic Energ
   }
 });
 
-test('Underworld Door AttachEnergyPrompt fails closed when no dynamically Psychic Bench target exists',()=>{
+test('Underworld Door AttachEnergyPrompt stubbed projection fails closed when a non-cancelable prompt has no dynamically Psychic Bench target',()=>{
   const EnergyType={BASIC:1,SPECIAL:2};
   const CardType={PSYCHIC:5,FIGHTING:7};
   const SuperType={ENERGY:9};
@@ -960,6 +960,82 @@ test('Underworld Door AttachEnergyPrompt fails closed when no dynamically Psychi
   assert.throws(()=>projectPrompt({
     prompt,state,actorSeat:0,native:nativeAttach,store,provenanceHook
   }),error=>error.code==='NO_ELIGIBLE_ATTACH_ENERGY_CHOICES');
+});
+
+// This is a stubbed projection/protocol contract, not a pinned Twinleaf decoder test.
+test('Underworld Door AttachEnergyPrompt stubbed projection exposes a cancel-only choice when no Psychic Bench target exists',()=>{
+  const EnergyType={BASIC:1,SPECIAL:2};
+  const CardType={PSYCHIC:5,FIGHTING:7};
+  const SuperType={ENERGY:9};
+  class EnergyCard {
+    constructor(){
+      this.name='Psychic Energy';
+      this.fullName='Psychic Energy SVE';
+      this.energyType=EnergyType.BASIC;
+      this.provides=[CardType.PSYCHIC];
+    }
+  }
+  class CheckPokemonTypeEffect {
+    constructor(slot){this.slot=slot;this.cardTypes=[];}
+  }
+  const nativeAttach={...native,EnergyCard,EnergyType,CardType,SuperType,CheckPokemonTypeEffect};
+
+  for(const actorSeat of [0,1]){
+    const state=makeState();
+    if(actorSeat===1)state.players.reverse();
+    state.activePlayer=actorSeat;
+    const actor=state.players[actorSeat];
+    const sourceCard={
+      name:'Shadow Rider Calyrex VMAX',
+      fullName:'Shadow Rider Calyrex VMAX CRE75',
+      set:'CRE'
+    };
+    actor.active=slot(sourceCard);
+    actor.hand.cards=[new EnergyCard()];
+    actor.bench=[slot(pokemon('Fighting-only Bench',false)),slot(),slot(),slot(),slot()];
+    const prompt=basePrompt(AttachEnergyPrompt,state,{
+      id:93,playerId:actor.id,message:'ATTACH_ENERGY_TO_BENCH',
+      cardList:actor.hand,
+      playerType:PlayerType.BOTTOM_PLAYER,
+      slots:[SlotType.BENCH],
+      filter:{superType:SuperType.ENERGY,energyType:EnergyType.BASIC,name:'Psychic Energy'},
+      options:{min:1,max:1,allowCancel:true}
+    });
+    const store={
+      state,
+      reduceEffect(_state,effect){effect.cardTypes=[CardType.FIGHTING];},
+      dispatch(){throw new Error('cancel-only projection test must not dispatch');}
+    };
+    Object.assign(prompt,{
+      nativeState:state,nativeActorSeat:actorSeat,nativeEnergyCard:EnergyCard,
+      nativeEnergyType:EnergyType,nativeCardType:CardType.PSYCHIC,
+      nativeCheckPokemonTypeEffect:CheckPokemonTypeEffect,nativeStore:store
+    });
+    const provenanceHook={
+      getPromptProvenance:()=>({
+        sourceKind:'card-effect',sourceCard,effectName:'Underworld Door'
+      })
+    };
+    const projection=projectPrompt({
+      prompt,state,actorSeat,native:nativeAttach,store,provenanceHook
+    });
+    assert.equal(projection.promptProjection.publicMetadata.selectionType,'energy-attachment');
+    assert.equal(projection.promptProjection.publicMetadata.allowCancel,true);
+    assert.equal(projection.promptProjection.choices.length,1);
+    const cancel=projection.promptProjection.choices[0];
+    assert.equal(cancel.kind,'cancel');
+    assert.equal(protocol.validatePrompt(projection.promptProjection,actorSeat),
+      projection.promptProjection);
+
+    const resolved=dispatchPromptChoice({
+      store,prompt,state,actorSeat,projection,
+      decision:{kind:'select-choice',token:cancel.token},
+      native:nativeAttach,dispatch:false
+    });
+    assert.equal(resolved.rawResult,null);
+    assert.equal(resolved.decoded,null);
+    assert.equal(resolved.action.result,null);
+  }
 });
 
 test('InvitePlayerPrompt is not misclassified as a host-only two-player game prompt',()=>{
