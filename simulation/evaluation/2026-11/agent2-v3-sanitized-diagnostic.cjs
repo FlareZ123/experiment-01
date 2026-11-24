@@ -214,6 +214,9 @@ function sanitizeStackSite(site){
   return {file,line:site.line,column:site.column};
 }
 
+const SAFE_SANITIZED_NATIVE_ACTION_TYPES=new Set(['PLAY_CARD_ACTION','ATTACK_ACTION','USE_ABILITY_ACTION','USE_TRAINER_ABILITY_ACTION','USE_ENERGY_ABILITY_ACTION','USE_STADIUM_ACTION','RETREAT_ACTION','PASS_TURN']);
+const SAFE_SANITIZED_NATIVE_ACTION_FAMILIES=new Set(['ITEM','SUPPORTER','STADIUM','ENERGY','TOOL','POKEMON']);
+
 function sanitizeFailure(failure,nativeGameMessageValues=new Set()) {
   if(!failure||typeof failure!=='object')return null;
   const result=pick(failure,['name','code','messageLength','stage']);
@@ -222,6 +225,10 @@ function sanitizeFailure(failure,nativeGameMessageValues=new Set()) {
     if(typeof failure.nativeGameMessage==='string'&&
       nativeGameMessageValues.has(failure.nativeGameMessage))
       result.nativeGameMessage=failure.nativeGameMessage;
+    if(SAFE_SANITIZED_NATIVE_ACTION_TYPES.has(failure.nativeActionType))
+      result.nativeActionType=failure.nativeActionType;
+    if(SAFE_SANITIZED_NATIVE_ACTION_FAMILIES.has(failure.nativeActionFamily))
+      result.nativeActionFamily=failure.nativeActionFamily;
   }
   const stackSite=sanitizeStackSite(failure.stackSite);
   if(stackSite)result.stackSite=stackSite;

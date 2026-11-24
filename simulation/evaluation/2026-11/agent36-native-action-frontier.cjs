@@ -590,6 +590,22 @@ function selectedNativeAction(frontier, token) {
   return action;
 }
 
+const SAFE_ACTION_DIAGNOSTIC_TYPES=new Set(['PLAY_CARD_ACTION','ATTACK_ACTION','USE_ABILITY_ACTION','USE_TRAINER_ABILITY_ACTION','USE_ENERGY_ABILITY_ACTION','USE_STADIUM_ACTION','RETREAT_ACTION','PASS_TURN']);
+const SAFE_ACTION_DIAGNOSTIC_CARD_FAMILIES=new Set(['ITEM','SUPPORTER','STADIUM','ENERGY','TOOL','POKEMON']);
+
+function attachSafeActionDiagnostic(error,action,state,actorSeat,native){
+  if(!native?.GameError||!(error instanceof native.GameError)||
+      !error||typeof error!=='object')return;
+  const actionType=action?.type;
+  if(SAFE_ACTION_DIAGNOSTIC_TYPES.has(actionType))
+    error.nativeActionType=actionType;
+  if(actionType==='PLAY_CARD_ACTION'){
+    const family=playCardRejectionFamily(action,state,actorSeat,native);
+    if(SAFE_ACTION_DIAGNOSTIC_CARD_FAMILIES.has(family))
+      error.nativeActionFamily=family;
+  }
+}
+
 function dispatchSelectedNativeAction({
   store,frontier,token,state,actorSeat,native,withValidationRandom,dispatch=true,
   validationEvidence=null
@@ -623,8 +639,13 @@ function dispatchSelectedNativeAction({
         'selected-action validation must use cloned physical player state');
       assert.equal(simulator.store.state.players?.[actorSeat]?.id,state.players[actorSeat]?.id,
         'cloned validation Store must preserve the acting physical player');
-      simulator.store.dispatch(action);
-      resolveFirstAbilityWaitPrompt(simulator,action,native);
+      try{
+        simulator.store.dispatch(action);
+        resolveFirstAbilityWaitPrompt(simulator,action,native);
+      }catch(error){
+        attachSafeActionDiagnostic(error,action,state,actorSeat,native);
+        throw error;
+      }
       if(validationEvidence&&typeof validationEvidence==='object') {
         const selectedItem=frontier.actionFrontier.items.find(item=>item.token===token);
         validationEvidence.nativeValidationStoreMode='cloned-store';

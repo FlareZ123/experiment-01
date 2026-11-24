@@ -1710,12 +1710,15 @@ test('native failure projection preserves only a safe repository assertion site'
   };
   const nativeFailure={
     stage:'policy-decode',code:'ERR_ASSERTION',actionOrdinal:11,
-    actingSeat:1,turnBefore:1,name:'AssertionError',
+    actingSeat:1,turnBefore:1,name:'AssertionError',nativeErrorKind:'GameError',
+    nativeActionType:'PLAY_CARD_ACTION',nativeActionFamily:'ITEM',
     actionPayloadSha256:'c'.repeat(64),messageSha256:'a'.repeat(64),messageLength:79,
     stackSite:{...site,absolutePath:'/home/runner/work/experiment-01/experiment-01/private/secret.js'}
   };
   const projectedNative=projectNativeFixtureFailureForReceipt(nativeFailure);
   assert.deepEqual(projectedNative.stackSite,site);
+  assert.equal(projectedNative.nativeActionType,'PLAY_CARD_ACTION');
+  assert.equal(projectedNative.nativeActionFamily,'ITEM');
   assert.equal(projectedNative.actionPayloadSha256,undefined);
   assert.equal(projectedNative.messageSha256,undefined);
   assert.equal(JSON.stringify(projectedNative).includes('a'.repeat(64)),false);
@@ -1737,9 +1740,12 @@ test('native failure projection preserves only a safe repository assertion site'
     'messageSha256','actionPayloadSha256','private raw error text'])
     assert.equal(projectedFixtureJson.includes(secret),false,'public fixture failure leaked '+secret);
   const rejected=projectNativeFixtureFailureForReceipt({
-    ...nativeFailure,stackSite:{file:'private/secret.js',line:2,column:3}
+    ...nativeFailure,stackSite:{file:'private/secret.js',line:2,column:3},
+    nativeActionType:'PRIVATE_ACTION_TYPE',nativeActionFamily:'PRIVATE_FAMILY'
   });
   assert.equal(rejected.stackSite,undefined);
+  assert.equal(rejected.nativeActionType,undefined);
+  assert.equal(rejected.nativeActionFamily,undefined);
 });
 
 test('V3 wrong-actor resolver failure survives callback projection and final witness receipt',async()=>{

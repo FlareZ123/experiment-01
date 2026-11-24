@@ -282,6 +282,12 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
           players:[{seat:0,handCount:0,deckCount:40,prizeCount:6,discardCount:0,
             active:'PRIVATE_UNKNOWN_PHASE_ACTIVE',
             bench:['PRIVATE_UNKNOWN_PHASE_BENCH',null]}]}
+      },{
+        actionOrdinal:2,actingSeat:1,turnBefore:17,phaseBefore:2,
+        isRootDecision:true,policyInputKind:'actor-observation',
+        actionName:null,actionType:null,dispatchStatus:'not-dispatched',
+        failure:{name:'GameError',nativeErrorKind:'GameError',
+          nativeActionType:'PLAY_CARD_ACTION',nativeActionFamily:'ITEM'}
       }],
       finalPublicState:{phase:3,turn:3,activePlayer:0,pendingPrompts:[],
         players:[{seat:0,handCount:2,deckCount:35,prizeCount:5,discardCount:1,
@@ -295,6 +301,7 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
         name:'GameError',code:'NATIVE_FIXTURE_FAILURE',stage:'dispatch',
         messageSha256:'e'.repeat(64),messageLength:21,
         nativeErrorKind:'GameError',nativeGameMessage:'CANNOT_PLAY_THIS_CARD',
+        nativeActionType:'PLAY_CARD_ACTION',nativeActionFamily:'ITEM',
         stackSite:{
           file:'simulation/evaluation/2026-11/agent49-native-fixture-game.cjs',
           line:456,column:12
@@ -338,6 +345,11 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
   assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.nativeErrorKind,'GameError');
   assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.nativeGameMessage,
     'CANNOT_PLAY_THIS_CARD');
+  assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.nativeActionType,
+    'PLAY_CARD_ACTION');
+  assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.nativeActionFamily,'ITEM');
+  assert.equal(sanitized.game.actorDecisions[3].failure.nativeActionType,'PLAY_CARD_ACTION');
+  assert.equal(sanitized.game.actorDecisions[3].failure.nativeActionFamily,'ITEM');
   assert.deepEqual(sanitized.fixtureFailure.nativeFixtureFailure.stackSite,{
     file:'simulation/evaluation/2026-11/agent49-native-fixture-game.cjs',
     line:456,column:12
@@ -351,6 +363,15 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
     nativeGameMessageValues:['CANNOT_PLAY_THIS_CARD','Yes']
   });
   assert.equal(yesSanitized.fixtureFailure.nativeFixtureFailure.nativeGameMessage,'Yes');
+
+  const invalidActionArtifact=structuredClone(artifact);
+  invalidActionArtifact.fixtureFailure.nativeFixtureFailure.nativeActionType='PRIVATE_ACTION_TYPE';
+  invalidActionArtifact.fixtureFailure.nativeFixtureFailure.nativeActionFamily='PRIVATE_FAMILY';
+  const invalidActionSanitized=sanitizeFixtureArtifact(invalidActionArtifact,{
+    nativeGameMessageValues:['CANNOT_PLAY_THIS_CARD']
+  });
+  assert.equal(invalidActionSanitized.fixtureFailure.nativeFixtureFailure.nativeActionType,undefined);
+  assert.equal(invalidActionSanitized.fixtureFailure.nativeFixtureFailure.nativeActionFamily,undefined);
 
   for(const stackSite of [
     {file:'/tmp/private.cjs',line:1,column:1},

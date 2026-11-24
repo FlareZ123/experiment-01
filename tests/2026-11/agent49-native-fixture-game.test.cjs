@@ -55,6 +55,7 @@ const GameMessage=Object.freeze({
 let lastStore=null;
 let failNextPlayCardDispatch=false;
 let failNextNativeGameErrorMessage=null;
+let failNextNativeActionContext=null;
 let failNextDecode=false;
 let failNextPromptDecode=false;
 let insertTestPrompt=false;
@@ -119,7 +120,11 @@ class Store {
       if(failNextNativeGameErrorMessage!==null){
         const message=failNextNativeGameErrorMessage;
         failNextNativeGameErrorMessage=null;
-        throw new GameError(message);
+        const error=new GameError(message);
+        const actionContext=failNextNativeActionContext;
+        failNextNativeActionContext=null;
+        if(actionContext&&typeof actionContext==='object')Object.assign(error,actionContext);
+        throw error;
       }
       if(failNextPlayCardDispatch){
         failNextPlayCardDispatch=false;
@@ -709,6 +714,9 @@ test('native GameError redaction emits only exact pinned GameMessage values',()=
     ['PRIVATE_CUSTOM_GAME_ERROR',undefined]
   ]){
     failNextNativeGameErrorMessage=message;
+    failNextNativeActionContext=message===GameMessage.CANNOT_PLAY_THIS_CARD?{
+      nativeActionType:'PLAY_CARD_ACTION',nativeActionFamily:'ITEM'
+    }:null;
     let failure;
     try {
       runNativeFixtureGame(input());
@@ -716,12 +724,16 @@ test('native GameError redaction emits only exact pinned GameMessage values',()=
       failure=error;
     } finally {
       failNextNativeGameErrorMessage=null;
+      failNextNativeActionContext=null;
     }
     assert.ok(failure);
     const nativeFailure=failure.fixtureGamePartial.failure;
     assert.equal(nativeFailure.name,'GameError');
     assert.equal(nativeFailure.nativeErrorKind,'GameError');
     assert.equal(nativeFailure.nativeGameMessage,expected);
+    assert.equal(nativeFailure.nativeActionType,
+      expected?'PLAY_CARD_ACTION':undefined);
+    assert.equal(nativeFailure.nativeActionFamily,expected?'ITEM':undefined);
     assert.equal(nativeFailure.messageLength,message.length);
     assert.equal(Object.prototype.hasOwnProperty.call(nativeFailure,'message'),false);
   }

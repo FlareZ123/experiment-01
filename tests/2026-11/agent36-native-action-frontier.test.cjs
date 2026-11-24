@@ -490,6 +490,38 @@ test('dispatch rejects a stale Store state and a token owned by another seat', (
 });
 
 
+test('selected cloned-action GameError preserves safe action type and card family',()=>{
+  const state=fixtureState();
+  state.players[0].hand.cards[0].trainerType=1;
+  const action={
+    type:'PLAY_CARD_ACTION',id:'p0',handIndex:0,
+    target:{player:1,slot:2,index:0}
+  };
+  let validationDispatches=0;
+  const native=fakeNative({
+    actions:[action],rejectActionTypes:[],
+    onDispatch(candidate){
+      if(candidate===action){
+        validationDispatches++;
+        if(validationDispatches===2)throw new GameError('CANNOT_PLAY_THIS_CARD');
+      }
+    }
+  });
+  const built=buildNativeActionFrontier({state,actorSeat:0,native});
+  assert.equal(built.actionFrontier.items[0].kind,'play-card');
+  const store={state,dispatch(){assert.fail('live Store must not dispatch after clone validation fails');}};
+  assert.throws(()=>dispatchSelectedNativeAction({
+    store,frontier:built,token:'act-0',state,actorSeat:0,native,
+    withValidationRandom:fn=>fn(),dispatch:false
+  }),error=>{
+    assert.equal(error.message,'CANNOT_PLAY_THIS_CARD');
+    assert.equal(error.nativeActionType,'PLAY_CARD_ACTION');
+    assert.equal(error.nativeActionFamily,'ITEM');
+    return true;
+  });
+  assert.equal(validationDispatches,2);
+});
+
 test('frontier only suppresses explicitly allowlisted GameError action-family rejections',()=>{
   const cases=[
     ...['CANNOT_ATTACK_ON_FIRST_TURN','BLOCKED_BY_SPECIAL_CONDITION','BLOCKED_BY_EFFECT',
