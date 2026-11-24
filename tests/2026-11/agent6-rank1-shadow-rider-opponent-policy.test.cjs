@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
-const { POLICY_VERSION, createPolicy } =
+const { POLICY_VERSION, createPolicy, __test: policyInternals } =
   require('../../simulation/evaluation/2026-11/agent6-rank1-shadow-rider-opponent-policy.cjs');
 
 const policies = new Map();
@@ -3050,7 +3050,7 @@ test('Clefairy search and play recognize a Dragon on the opponent Bench', () => 
   });
 });
 
-test('Fairy Zone damage is source-status gated and target-aware for Stealthy Hood', () => {
+test('Fairy Zone damage resolves public locks and remains target-aware for Stealthy Hood', () => {
   const attacks = [
     { token: 'max', kind: 'attack', attackName: 'Max Geist' },
     { token: 'eon', kind: 'attack', attackName: 'Eon Blade' },
@@ -3095,7 +3095,7 @@ test('Fairy Zone damage is source-status gated and target-aware for Stealthy Hoo
     items: attacks
   });
   assert.deepEqual(checkedDecision(unknownStatus), {
-    kind: 'select-action', token: 'max'
+    kind: 'select-action', token: 'eon'
   });
 
   const hoodProtected = rootRequest({
@@ -3593,5 +3593,106 @@ test('Field Blower selects Stealthy Hood when a Dragon is protected by it', () =
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-choices', tokens: ['stealthy-hood']
+  });
+});
+
+
+test('Fairy Zone public-source resolver covers suppressors and card-specific exceptions', () => {
+  const fairy = (options = {}) => pokemon("Lillie's Clefairy ex JTG 56", {
+    abilities: ['Fairy Zone'],
+    ...options
+  });
+  const observation = (own = {}, opponent = {}) => ({
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94'),
+      bench: [fairy()],
+      ...own
+    }),
+    opponentPublic: player({
+      active: pokemon('Regidrago V SIT'),
+      ...opponent
+    })
+  });
+  const active = value => policyInternals.fairyZoneActive(value);
+
+  assert.equal(active(observation()), true);
+  assert.equal(active(observation({ stadium: ['Path to the Peak CRE 148'] })), false);
+  assert.equal(active(observation({}, { stadium: ['Silent Lab PRC 140'] })), false);
+  assert.equal(active(observation(
+    { active: pokemon('Klefki SVI 96', { abilities: ['Mischievous Lock'] }) }
+  )), false);
+  assert.equal(active(observation(
+    {}, { active: pokemon('Iron Thorns ex TWM 77', { abilities: ['Initialization'] }) }
+  )), false);
+  assert.equal(active(observation(
+    {}, { active: pokemon('Galarian Weezing RCL 113', { abilities: ['Neutralizing Gas'] }) }
+  )), false);
+  assert.equal(active(observation(
+    {}, { active: pokemon('Slaking SUM 115', { abilities: ['Lazy'] }) }
+  )), false);
+  assert.equal(active(observation(
+    { bench: [fairy(), pokemon('Alolan Muk SUM 58', { abilities: ['Power of Alchemy'] })] }
+  )), false);
+  assert.equal(active(observation(
+    {}, { bench: [pokemon('Garbodor LTR 68', {
+      abilities: ['Garbotoxin'], tools: ['Float Stone BKT 137']
+    })] }
+  )), false);
+
+  // Bide Barricade exempts Psychic Pokémon; Empoleon V exempts Rule Box Pokémon.
+  assert.equal(active(observation(
+    {}, { active: pokemon('Wobbuffet PHF 36', { abilities: ['Bide Barricade'] }) }
+  )), true);
+  assert.equal(active(observation(
+    {}, { active: pokemon('Empoleon V BST 40', { abilities: ["Emperor's Eyes"] }) }
+  )), true);
+
+  // Flutter Mane affects only the opponent's Active Pokémon.
+  assert.equal(active(observation(
+    {}, { active: pokemon('Flutter Mane TEF 78', { abilities: ['Midnight Fluttering'] }) }
+  )), true);
+  assert.equal(active(observation(
+    { active: fairy(), bench: [] },
+    { active: pokemon('Flutter Mane TEF 78', { abilities: ['Midnight Fluttering'] }) }
+  )), false);
+
+  // Either player's Stadium/Tool epoch disables Silent Lab and Path to the Peak.
+  assert.equal(active(observation(
+    { stadium: ['Path to the Peak CRE 148'] },
+    { stadiumAndToolHaveNoEffectTurnsRemaining: 1 }
+  )), true);
+});
+
+test('Climactic Gate veto includes opponent Active Slaking but not own Active Slaking', () => {
+  const radiantAction = {
+    token: 'radiant', kind: 'play-card',
+    actorPrinting: 'Radiant Eternatus CRZ 105',
+    publicMetadata: { cardType: 'pokemon', handIndex: 0,
+      targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+      isOwnerVisible: true }
+  };
+  const opponentSlaking = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94'), deckCount: 30, prizeCount: 6 }),
+    opponentPublic: player({
+      active: pokemon('Slaking SUM 115', { abilities: ['Lazy'] })
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(opponentSlaking), {
+    kind: 'select-action', token: 'pass'
+  });
+
+  const ownSlaking = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({
+      active: pokemon('Slaking SUM 115', { abilities: ['Lazy'] }),
+      deckCount: 30, prizeCount: 6
+    }),
+    opponentPublic: player({ active: pokemon('Regidrago V SIT') }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(ownSlaking), {
+    kind: 'select-action', token: 'radiant'
   });
 });
