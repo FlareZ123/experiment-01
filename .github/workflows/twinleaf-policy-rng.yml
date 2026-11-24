@@ -50,7 +50,7 @@ jobs:
       - name: Check out research repository
         uses: actions/checkout@v4
       - name: Verify policy/game stream isolation and independent RNG contract without Twinleaf
-        run: node --test tests/twinleaf-policy-rng-isolation.test.cjs tests/agent37-independent-rng-v1.test.cjs tests/aichi-paper-shuffle-rng-hook.test.cjs
+        run: node --test tests/twinleaf-policy-rng-isolation.test.cjs tests/agent37-independent-rng-v1.test.cjs tests/aichi-paper-shuffle-rng-hook.test.cjs tests/aichi-campaign-runner.test.cjs tests/aichi-evidence-envelope.test.cjs
       - name: Test normal and nested-abort root ledger reconciliation
         run: node --test tests/agent48-native-root-ledger-reconciliation.test.cjs
       - name: Test owner-scoped VS Seeker Supporter prompt and Lillie compatibility
