@@ -21,6 +21,7 @@ const compiledActionEnumerator = path.join(
 
 const DDE = 'Double Dragon Energy ROS';
 const REGIDRAGO = 'Regidrago V SIT';
+const KECLEON = 'Kecleon PLF';
 const DEDENNE = 'Dedenne GX UNB';
 const TAPU_LELE = 'Tapu Lele-GX GRI';
 
@@ -60,14 +61,22 @@ function makePlayer(native, id, activeCard, cloneCard) {
   return player;
 }
 
-function makeGameState({ native, actorSeat, energyCard, cloneCard, withValidationRandom }) {
-  const candidate = makePlayer(native, actorSeat, cloneCard(REGIDRAGO), cloneCard);
+function makeGameState({
+  native,
+  actorSeat,
+  energyCard,
+  cloneCard,
+  withValidationRandom,
+  actorActiveCard = REGIDRAGO,
+  opponentActiveCard = REGIDRAGO
+}) {
+  const candidate = makePlayer(native, actorSeat, cloneCard(actorActiveCard), cloneCard);
   candidate.bench[0] = makePokemonList(native, cloneCard(DEDENNE));
   candidate.bench[1] = makePokemonList(native, cloneCard(TAPU_LELE));
   candidate.hand.cards = [energyCard];
   candidate.playableCardIds = [energyCard.id];
 
-  const opponent = makePlayer(native, 1 - actorSeat, cloneCard(REGIDRAGO), cloneCard);
+  const opponent = makePlayer(native, 1 - actorSeat, cloneCard(opponentActiveCard), cloneCard);
   const initialState = new native.State();
   initialState.players = actorSeat === 0 ? [candidate, opponent] : [opponent, candidate];
   initialState.activePlayer = actorSeat;
@@ -177,7 +186,7 @@ test('pinned Store frontier keeps DDE-to-Dragon and rejects DDE-to-Dedenne/Tapu 
     assert.equal(frontier.diagnostics.enumeratedCount, 3);
     assert.equal(frontier.diagnostics.validatedCount, 1);
     assert.equal(frontier.diagnostics.rejectedCount, 2);
-    assert.equal(frontier.diagnostics.preflightRejectedCount, 0);
+    assert.equal(frontier.diagnostics.preflightRejectedCount, 2);
     assert.equal(frontier.diagnostics.unsupportedCount, 0);
     assert.equal(frontier.diagnostics.truncated, false);
     assert.equal(frontier.diagnostics.omittedCount, 0);
@@ -187,6 +196,131 @@ test('pinned Store frontier keeps DDE-to-Dragon and rejects DDE-to-Dedenne/Tapu 
     assert.equal(frontier.actionFrontier.items[0].publicMetadata.targetSeat, 'actor');
     assert.equal(frontier.actionFrontier.items[0].publicMetadata.targetZone, 'active');
   }
+});
+
+test('pinned dynamic type check keeps DDE-to-Active Kecleon when opponent Active is Dragon', {
+  skip: !fs.existsSync(compiledActionEnumerator),
+  timeout: 30000
+}, () => {
+  const enginePin = runner.V3_FIXTURE.engineCommit;
+  const native = runner.loadNativeRoleDependencies({ enginePin });
+  const withValidationRandom = createValidationRandomScope({
+    ambientRandom: Math.random,
+    physicalRandom: seededRandom(0xdde24003)
+  });
+  const manager = native.CardManager.getInstance();
+  let nextCardId = 940000;
+  function cloneCard(fullName) {
+    const card = manager.getCardByName(fullName);
+    assert.ok(card, 'CardManager must resolve ' + fullName);
+    card.id = nextCardId++;
+    return card;
+  }
+
+  const state = makeGameState({
+    native,
+    actorSeat: 0,
+    energyCard: cloneCard(DDE),
+    cloneCard,
+    withValidationRandom,
+    actorActiveCard: KECLEON,
+    opponentActiveCard: REGIDRAGO
+  });
+  const actor = state.players[0];
+  const enumerator = adapterModule.createKnownCapFreeActionEnumerator({
+    native,
+    enginePin
+  });
+  const candidates = enumerator.attachEnergyActions(state, actor);
+  assert.equal(candidates.length, 3);
+  const activeAction = candidates.find(action =>
+    action.target.slot === native.SlotType.ACTIVE);
+  assert.ok(activeAction, 'DDE-to-Active Kecleon action must be enumerated');
+
+  // The pinned Store itself must accept Kecleon because its Active-only Color
+  // Change Ability copies the opponent Active Regidrago's Dragon type.
+  const legalSimulator = withValidationRandom(() =>
+    frontierModule.createIsolatedValidationSimulator(state, native));
+  withValidationRandom(() => legalSimulator.store.dispatch(activeAction));
+  assert.ok(legalSimulator.store.state.players[0].active.energies.cards.some(card =>
+    card.fullName === DDE),
+  'DDE must attach to Active Kecleon when Color Change makes it Dragon');
+
+  const snapshotStoreState = createStoreStateSnapshotter();
+  const before = snapshotStoreState(state);
+  const frontier = withValidationRandom(() =>
+    frontierModule.buildNativeActionFrontier({
+      state,
+      actorSeat: 0,
+      native,
+      enumerator: { enumerate: () => candidates }
+    }));
+
+  assert.deepEqual(snapshotStoreState(state), before);
+  assert.equal(frontier.diagnostics.enumeratedCount, 3);
+  assert.equal(frontier.diagnostics.validatedCount, 1);
+  assert.equal(frontier.diagnostics.rejectedCount, 2);
+  assert.equal(frontier.diagnostics.preflightRejectedCount, 2);
+  assert.equal(frontier.diagnostics.unsupportedCount, 0);
+  assert.equal(frontier.actionFrontier.items.length, 1);
+  assert.equal(frontier.actionFrontier.items[0].targetPrinting, KECLEON);
+});
+
+test('same-message CANNOT_PLAY_THIS_CARD from DDE to a legal Dragon target remains fatal', {
+  skip: !fs.existsSync(compiledActionEnumerator),
+  timeout: 30000
+}, () => {
+  const enginePin = runner.V3_FIXTURE.engineCommit;
+  const native = runner.loadNativeRoleDependencies({ enginePin });
+  const withValidationRandom = createValidationRandomScope({
+    ambientRandom: Math.random,
+    physicalRandom: seededRandom(0xdde24004)
+  });
+  const manager = native.CardManager.getInstance();
+  let nextCardId = 950000;
+  function cloneCard(fullName) {
+    const card = manager.getCardByName(fullName);
+    assert.ok(card, 'CardManager must resolve ' + fullName);
+    card.id = nextCardId++;
+    return card;
+  }
+
+  const state = makeGameState({
+    native,
+    actorSeat: 0,
+    energyCard: cloneCard(DDE),
+    cloneCard,
+    withValidationRandom
+  });
+  const actor = state.players[0];
+  // The target is a legal Dragon. Inject the same GameError from the DDE
+  // reducer's AttachEnergyEffect path to prove it is never downgraded.
+  actor.hand.cards[0].reduceEffect = (store, validationState, effect) => {
+    if (effect?.type === 'ATTACH_ENERGY_EFFECT') {
+      throw new native.GameError('CANNOT_PLAY_THIS_CARD');
+    }
+    return validationState;
+  };
+  const enumerator = adapterModule.createKnownCapFreeActionEnumerator({
+    native,
+    enginePin
+  });
+  const candidates = enumerator.attachEnergyActions(state, actor);
+  const activeAction = candidates.find(action =>
+    action.target.slot === native.SlotType.ACTIVE);
+  assert.ok(activeAction);
+
+  assert.throws(
+    () => withValidationRandom(() =>
+      frontierModule.buildNativeActionFrontier({
+        state,
+        actorSeat: 0,
+        native,
+        enumerator: { enumerate: () => [activeAction] }
+      })),
+    error => error instanceof native.GameError &&
+      error.message === 'CANNOT_PLAY_THIS_CARD'
+  );
 });
 
 test('CANNOT_PLAY_THIS_CARD from a non-DDE Energy reducer remains a fatal frontier error', {
