@@ -374,10 +374,7 @@ function attackBaseDamage(attacker, attack, view, target) {
   }
   if (attack.name === 'Power Beam') return 200;
   if (attack.name === 'Night Watch') {
-    return 1500 + Math.min(120, view.opponentPublic.handCount * 20);
-  }
-  if (attack.name === 'Pale Moon-GX') {
-    return paleMoonScore(attacker, attack, view, target);
+    return 150 + Math.min(12, view.opponentPublic.handCount * 2);
   }
   if (attack.name === 'Shadow Mist') return 10;
   if (attack.name === 'Filch' || attack.name === 'Copycat' ||
@@ -433,6 +430,9 @@ function attackScore(attacker, attack, view, target, options = {}) {
       row.attackName === 'Apex Dragon' &&
       hasName(row.sourcePrinting, 'Regidrago VSTAR'));
     return dialgaReady && apex ? 50000 : -Infinity;
+  }
+  if (attack.name === 'Pale Moon-GX') {
+    return paleMoonScore(attacker, attack, view, target);
   }
 
   const damage = estimatedDamage(attacker, attack, view, target);
