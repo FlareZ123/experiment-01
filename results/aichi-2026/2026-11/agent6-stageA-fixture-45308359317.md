@@ -103,3 +103,16 @@ Agent3 independently reviewed the accepted runner and confirmed that the current
 The pinned submodule is `vendor/twinleaf`, remote `twinleafgg/twinleafgg`, commit `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. At that revision, `ptcg-server/src/game/game-error.ts` defines `GameError` as a plain class (not an `Error` subclass) whose `message` is a `GameMessage`; `GameMessage` is the union of `GameCoreError`, `GameStoreMessage`, and `GameCardMessage`. The constructor permits a custom message, so only exact matches against a closed pinned enum should be exposed as safe codes. The 21-character length alone remains insufficient to attribute `CANNOT_PLAY_THIS_CARD`.
 
 Agent49 was explicitly asked for an **observability-only** patch on the accepted integration branch: (1) project an exact closed-enum native error code and otherwise remain generic; (2) preserve only validated repo-relative `{file,line,column}` through the runner and public sanitizer; (3) add positive/negative tests for the allowlists. No fixture dispatch is requested. Agent2 was asked to review the sanitizer boundary. This patch would localize the failure; it would not itself fix gameplay.
+
+
+## Agent4's native GameError classification review
+
+Agent4's detailed source-level report is `results/aichi-2026/2026-11/agent4-gameerror-safe-diagnostic-20261124.md`. It confirms that the pinned `GameError` has no `.code`, `.name`, or `.stack`; its `message` is a `GameMessage` value unless a custom message is supplied. Eighteen `GameMessage` values have length 21, so the observed length cannot identify `CANNOT_PLAY_THIS_CARD`.
+
+The narrow diagnostic contract should therefore be:
+- emit `nativeErrorKind: "GameError"` only when `error.constructor?.name === "GameError"`;
+- emit `nativeGameMessage` only when the exact message matches a value in the pinned `GameMessage` enum; custom/non-enum messages remain redacted;
+- retain allowlisted `stackSite={file,line,column}` for ordinary JavaScript Errors only;
+- validate and pass these fields through the native fixture redactor, runner projector, and public sanitizer, with tests for known enum, custom message, ordinary Error, and path/coordinate rejection.
+
+Agent49 was asked to implement this observability-only change on the accepted integration branch; Agent2 was asked to review the sanitizer. No fixture rerun is requested. This will identify the safe native error kind/message when available, not fix the underlying game action.
