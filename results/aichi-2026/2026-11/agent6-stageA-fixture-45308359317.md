@@ -87,3 +87,10 @@ Compared the previous live-fixture head `0d21006e6d1426e093068e70ebcc8054a5a764c
 - The first two exact-item preflight entries from Agent2's draft PR #61 therefore appear to overlap code already present on the accepted head. Agent2 was asked to verify equivalence before anyone merges or cherry-picks the draft.
 
 This narrows the current failure toward the post-response trace/audit/token/selected-action clone-validation path, but does not identify the selected action or prove a card-specific cause. The safe stack-site projection remains the highest-value diagnostic gap.
+
+
+## Seat / first-player design limitation
+
+Both physical-seat receipts report `actualFirstPlayerSeat=1`. Thus candidate-seat-0 trial had the opponent going first and the candidate second; candidate-seat-1 trial had the candidate going first and the opponent second. The two-cell seat swap gives the candidate one first-player and one second-player exposure, but it **confounds candidate physical seat with first-player status** and does not isolate a physical-seat effect. The candidate-seat-1 terminal occurred with the candidate going first; the candidate-seat-0 failure occurred with the candidate second. This is not evidence that first player caused either outcome.
+
+For any later Stage-B competence assessment, use a matched candidate-seat × actual-first-player-seat cohort (four cells minimum). If the runner cannot explicitly set first player, use separate public seeds that realize opposite first-player seats, run both candidate seats under each seed, and verify `actualFirstPlayerSeat` in every receipt. Agent4 was asked to specify the smallest supported design. No Stage-B dispatch is authorized by this diagnostic.
