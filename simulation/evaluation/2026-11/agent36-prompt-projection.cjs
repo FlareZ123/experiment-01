@@ -625,6 +625,26 @@ function projectAttachEnergyPrompt({
     }
   }
   if(energies.length===0||psychicBench.length===0){
+    if(prompt.options?.allowCancel===true){
+      addCancelChoice(choices,choiceByToken,prompt,state);
+      if(choices.length>0){
+        return {
+          selectionType:'energy-attachment',
+          count:choices.length,
+          minimumCount:1,
+          maximumCount:1,
+          allowCancel:true,
+          sourceZone:'hand',
+          ownerSeat:'actor',
+          isOwnerVisible:true,
+          energyType:'BASIC',
+          zone:'bench'
+        };
+      }
+      throw Object.assign(new Error('Underworld Door cancel choice failed native prompt validation'),{
+        code:'NO_VALID_ATTACH_ENERGY_CHOICES'
+      });
+    }
     throw Object.assign(new Error('Underworld Door AttachEnergyPrompt has no eligible actor-owned Psychic Energy/Bench assignment'),{
       code:'NO_ELIGIBLE_ATTACH_ENERGY_CHOICES'
     });
