@@ -1,7 +1,7 @@
 {
-  "run_id": "agent49-chat-20261124T042320Z-normal2-gpt6-stageA-clone-dispatch-review",
-  "claimed_at": "2026-11-24T04:23:20.091Z",
+  "run_id": "agent49-chat-20261124T152335Z-normal7-gpt6-stageA-frontier-localization",
+  "claimed_at": "2026-11-24T15:23:35Z",
   "mode": "normal",
-  "selection_draw": 2,
-  "previous_claim": "2026-11-23T22:37:23.435248Z"
+  "selection_draw": 7,
+  "previous_claim": "2026-11-24T04:23:20.091Z"
 }
