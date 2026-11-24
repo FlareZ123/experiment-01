@@ -1,5 +1,7 @@
 'use strict';
 
+const {installSpecialEnergyColorlessFallback} = require('../../twinleaf/2026-11/agent16-special-energy-colorless-hook.cjs');
+
 const assert=require('node:assert/strict');
 const Module=require('node:module');
 const fs=require('node:fs');
@@ -127,7 +129,10 @@ function loadNativeRoleDependencies({enginePin}={}){
   const {GameError}=require('../../../vendor/twinleaf/ptcg-server/output/game/game-error');
   const {Stage,EnergyType,CardType,TrainerType,SpecialCondition,Format,SuperType}=
     require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/card-types');
-  const {CheckPokemonTypeEffect}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/effects/check-effects');
+  const {CheckPokemonTypeEffect,CheckProvidedEnergyEffect}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/effects/check-effects');
+  installSpecialEnergyColorlessFallback({
+    Store, CheckProvidedEnergyEffect, EnergyCard, EnergyType, CardType
+  });
   const {PowerType}=require('../../../vendor/twinleaf/ptcg-server/output/game/store/card/pokemon-types');
   const cardPoolInitialization=initializeNativeCardPool({CardManager,sets,enginePin});
   const {buildActorCardCatalog}=require('../../twinleaf/agent34-actor-only-root-policy.cjs');
