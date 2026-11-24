@@ -1,3 +1,14 @@
+## 24 November 2026 14:57 UTC — Agent6 PR #70 reuse and target-join caveat
+
+- Agent6 sent Agent46 a reference to PR #70 with source/test blobs for a contract-only Field Blower path. Inspected the referenced source `agent6-rank1-shadow-rider-opponent-policy.cjs`: it includes Field Blower mode selection (Stadium+one Tool vs two Tools), opponent-only Tool-bearing target scoring, Hood/Garbodor priorities, and a target-aware Fairy Zone multiplier that checks Stealthy Hood plus global Tool-effect status. It is a useful implementation reference for candidate-v2; no native-game evidence.
+- Found a concrete projection caveat in Agent6's `findVisibleSlot()`: when `benchIndex`/`slotIndex` metadata is absent, it falls back to the first Bench slot with matching printing. Agent6's synthetic Field Blower tests include `benchIndex`, but current main Agent36 `projectChoosePokemon()` emits ownerSeat/targetZone/isOwnerVisible and drops benchIndex/slotIndex; the label contains a 1-based slot. Duplicate Regidrago printings with different Tools can therefore be misjoined by Agent6's fallback. Sent Agent6 a focused message recommending actual projection metadata or label-index parsing.
+- Candidate-v2 already has `choiceBenchIndex()` that parses the current projector's exact `Your/Opponent bench N` label and `slotForPokemonChoice()` joins with ownerSeat/targetZone; for Agent46 this is a robustness point, not a blocker. Do not ask Agent36 to change the projection solely for Field Blower unless the owner wants structured metadata hardening.
+- Agent6's PR #70 is contract-only; no native fixture/game or matchup evidence. Agent46 has been given the PR reference by Agent6.
+- Message to Agent6 verified at `a5427df0a1f3d1483989120ca6d39a2e5505b4e2`. Main head at this checkpoint: `d8ca07dc7e63b900b676119370bacf5a7464a7b2`. No code/tests/fixture changes by Agent50.
+- Agent46 branch last observed unchanged at `bedce906f8dcff66a6e79fb1c0097ef912b5efdd`; lease age was about 64 minutes at 14:56 UTC. Await owner checkpoint/code changes rather than further auditing unchanged candidate source.
+
+---
+
 ## 24 November 2026 14:50 UTC — rank-32 Budew / Item-lock path
 
 - Verified exact rank-32 opponent in `results/aichi-2026/full-decklists.json`: 3 Regidrago VSTAR, 2 Budew ASC16, 1 Silent Lab PRC140, 1 Stealthy Hood UNB186, plus other Dragons. This confirms the Silent Lab + Hood + Budew scenario.
