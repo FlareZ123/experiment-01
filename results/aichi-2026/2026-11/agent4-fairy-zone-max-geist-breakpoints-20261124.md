@@ -90,3 +90,10 @@ For each exact Dragon printing, calculate:
 - `N_with = ceil((HP / 2 - 10) / 30)`
 
 Use exact HP and Weakness from the repository card JSON. The corrected 12 ranks / 91 Dragon Pokémon copies are documented in `results/aichi-2026/2026-11/agent4-fairy-zone-dragon-weakness-value-20261124.md`.
+
+
+## Current policy coverage blocker
+
+At the reviewed PR #69 head `5bcf06cb2fb244461154d8133ee42afc3b3443ed`, candidate `fairyZoneStatus()` requires an explicit unsuppressed status, while the current `actorObservation()` contract emits null `abilitySuppressions` rows and does not resolve source locks. Consequently the candidate policy fails closed and does not apply the Fairy Zone multiplier on ordinary actor observations. The 320-damage / 10-of-11 breakpoints are card-text potential, not behavior currently demonstrated by that policy.
+
+There is also an opposite target-side uncertainty hazard: PR #69's `hasEffectiveStealthyHood()` can treat unknown Tool/Stadium status as Hood ineffective, which may apply ×2 without proof that the target is unprotected. Correct damage evaluation requires both conditions to be known: (1) Fairy Zone source ability is active, including Stadium and source-on-source lock resolution; and (2) target Hood is absent or known ineffective. Unknown on either side must remain unknown / conservative rather than being silently converted to a favorable multiplier.
