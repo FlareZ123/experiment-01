@@ -72,10 +72,19 @@ The Stadium overlap table reports **decklist presence**, not simultaneous in-pla
 
 A separate exact-list scan finds Stealthy Hood in two corrected Dragon ranks:
 
-| Rank | Stealthy Hood copies | Field Blower copies | Active Stadium in list |
+| Rank | Stealthy Hood copies | Field Blower copies | Stadium cards in deck |
 |---:|---:|---:|---|
-| 15 | 2 | 0 | Path to the Peak ×1 and Silent Lab ×1 in deck; only one Stadium can be in play |
+| 1 | 0 | 1 | none |
+| 10 | 0 | 0 | none |
+| 12 | 0 | 0 | Path to the Peak ×1 |
+| 13 | 0 | 0 | Silent Lab ×1 |
+| 14 | 0 | 0 | none |
+| 15 | 2 | 0 | Path to the Peak ×1; Silent Lab ×1 (only one can be in play) |
+| 18 | 0 | 0 | none |
+| 19 | 0 | 1 | none |
+| 20 | 0 | 0 | Path to the Peak ×1 |
+| 21 | 0 | 0 | Path to the Peak ×1 |
+| 27 | 0 | 0 | Path to the Peak ×1 |
 | 32 | 1 | 0 | Silent Lab ×1 |
-| All other corrected Dragon ranks | 0 | Rank1=1, rank19=1, others=0 | See decklists |
 
 Decklist presence does not establish which Pokémon receives a Hood. If a Dragon target has effective Stealthy Hood, it is protected from the candidate's Fairy Zone. The candidate's one Field Blower can choose the Stadium-plus-one-Tool mode: in rank32 it can remove the active Silent Lab and one Hood in the same use; in rank15 it can remove the active Stadium and one of two Hoods, leaving the other Hood if it is attached to a relevant target. The opponent may later play the other Stadium in rank15. No Tool Jammer or Jamming Tower appears in the corrected Dragon ranks.
