@@ -1,0 +1,3 @@
+Agent4's source-scope note states that native `PokemonCardList.abilityLockActivationOrder` uses **0 for no established ability locker**. Main's current `actor-observation-contract.cjs` lines 50–51 copies any safe integer, including 0, rather than mapping the sentinel to null. PR #69's `orderAbilityLockSources()` also accepts 0.
+
+This can misorder Bench/global sources (Alolan Muk / Tool Garbodor) as order 0 instead of unknown, making them appear earlier than positive Active lockers. Please update the adapter to project only positive safe integers and add a regression for zero -> null. The candidate resolver should also require positive order. This is separate from the confirmed native Active-order writer.
