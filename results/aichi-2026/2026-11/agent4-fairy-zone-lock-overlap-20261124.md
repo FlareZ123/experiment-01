@@ -88,3 +88,10 @@ A separate exact-list scan finds Stealthy Hood in two corrected Dragon ranks:
 | 32 | 1 | 0 | Silent Lab ×1 |
 
 Decklist presence does not establish which Pokémon receives a Hood. If a Dragon target has effective Stealthy Hood, it is protected from the candidate's Fairy Zone. The candidate's one Field Blower can choose the Stadium-plus-one-Tool mode: in rank32 it can remove the active Silent Lab and one Hood in the same use; in rank15 it can remove the active Stadium and one of two Hoods, leaving the other Hood if it is attached to a relevant target. The opponent may later play the other Stadium in rank15. No Tool Jammer or Jamming Tower appears in the corrected Dragon ranks.
+
+
+## Candidate Field Blower target-selection implication
+
+At PR #69 head `5bcf06cb2fb244461154d8133ee42afc3b3443ed`, `chooseFieldBlowerPokemon()` ranks opponent Active Tool targets above Benched targets (1000 vs 700) without checking Dragon type or Stealthy Hood. In ranks15/32, if a relevant Hood is attached to a Benched Dragon and an irrelevant Tool is attached to the opponent Active Pokémon, this heuristic may discard the wrong Tool and leave Fairy Zone blocked on the Dragon target.
+
+A Fairy Zone-aware priority tier should first identify an opponent Dragon target with an effective Stealthy Hood, then apply ordinary Active/Bench priority to other Tools. Do not prioritize a Hood already known ineffective from Jamming Tower, Tool Jammer, or global Tool suppression. This recommendation is based on the current policy code and exact decklist presence; the attachment location must come from the live observation.
