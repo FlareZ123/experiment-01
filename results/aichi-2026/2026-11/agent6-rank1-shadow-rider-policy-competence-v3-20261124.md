@@ -3,12 +3,25 @@
 **Status:** contract-validated policy implementation; not native-game or competitive-strength evidence.
 
 **Policy version:** `agent6-rank1-shadow-rider-opponent-v3`  
-**Tested research revision:** `8e2c6fe292076cc46099f05fa9f99af8bf0dd6df`  
-**Policy blob:** `e8645a82b1658b30c39115a9905ab922483cffdc`  
-**Test blob:** `58e29f1b72af9547bae1370fff2d823c1bd255b7`  
-**Acceptance run:** [45394640791](https://github.com/FlareZ123/experiment-01/actions/runs/45394640791)
+**Exact tested revision:** `6c7dbde71a5a21de1f272f571d74e61f3e296150`  
+**Policy blob:** `11a2b633cd3fecead2df0946264d62aced86ac39`  
+**Test blob:** `42c9903b59361a8f72e457f8bbf7dd52bd0f6764`  
+**Exact-head contract run:** [45496803806](https://github.com/FlareZ123/experiment-01/actions/runs/45496803806) — **passed**
 
 This continues the earlier [rank-1 policy prototype](../../methodology/2026-11/agent6-rank1-shadow-rider-opponent-policy-prototype.md). It changes the policy and its contract fixtures, not the published rank-1 60-card list or any candidate deck.
+
+## Recent semantics hardening (exact-head patch)
+
+The current revision closes several policy/observation mismatches exposed by review and the 122-case regression run:
+
+- **Native enums:** printed Pokémon types and stages now accept Twinleaf numeric CardType and Stage values as well as named synthetic fixtures. Numeric special-condition values are also understood by a policy helper, but the current policy protocol still rejects numeric specialConditions before the policy receives an observation; that remains a host-contract issue.
+- **Energy units:** Energy Drive now counts Energy units on the two Active Pokémon, not attached Energy-card count, and ignores Benched Energy. The current adapter accounts for implemented multi-unit special-energy cases: Double Dragon, Double Colorless, Double Turbo, Twin, Triple Acceleration, Double Rainbow, Counter, Reversal, Scramble, Upper, Ignition, Boost, R, Aqua, Magma, Miracle, Rapid Strike, and Team Rocket's Energy. Unsupported special-energy printings still fall back to one unit; this is not a complete Expanded Energy rules engine.
+- **Retreat and Pale Moon-GX:** the public retreat estimator handles Asleep/Paralyzed, Boost Energy's retreat restriction, special-Energy units, Float Stone / Air Balloon / U-Turn Board while their effects may be live, and Latias ex's Skyliner when its suppression status is explicit. Unknown Skyliner or Tool status is treated as a possible escape and reduces Pale Moon's trap score; it is not silently converted into a guaranteed retreat or guaranteed lock.
+- **Tool/Stadium effects:** Field Blower does not target a Tool known to be disabled by the global epoch, Jamming Tower, or Tool Jammer on the relevant Active Pokémon. When the prompt omits the exact Tool attachment slot, a potentially effective opponent Tool remains selectable; a known-disabled Tool does not. Path to the Peak / Silent Lab are selected from explicit opponent-owned prompt choices unless the Stadium/Tool epoch is known to suppress their effects.
+- **Dimension Valley:** the cost discount is applied only when the Stadium is present and its effect is known live; a suppressed or unknown Stadium epoch does not grant the discount.
+- **Quick Ball / Get Lost:** malformed mandatory Quick Ball discard prompts abstain with the protocol-supported NO_SUPPORTED_CARD_SELECTION reason instead of falling through to generic deck-search scoring. Get Lost is not selected against an empty opponent discard, and Girafarig is considered a retreat-to attacker only when it has a legal attack cost and a non-empty discard target.
+
+The changes remain policy-side estimates over the actor observation. They do not prove native Twinleaf or paper-rule correctness for untested card interactions.
 
 ## Changes
 
@@ -50,25 +63,26 @@ The expected-fetch formulation follows the review suggestion in [Agent11's Gate 
 
 ## Evidence
 
-[Contract-only workflow 45394640791](https://github.com/FlareZ123/experiment-01/actions/runs/45394640791) passed on the exact tested revision:
+The exact current policy/test blobs listed above were checked by [contract run 45496803806](https://github.com/FlareZ123/experiment-01/actions/runs/45496803806), which completed successfully on revision 6c7dbde71a5a21de1f272f571d74e61f3e296150.
 
 | Gate | Result |
 |---|---:|
-| Pure policy, prompt, worker, and action-frontier contracts | 663 tests; 661 passed, 0 failed, 2 skipped |
-| Docker policy-worker launcher contract | 17/17 passed |
-| Docker worker isolation/canary | 3/3 passed |
-| Workflow steps | 14 successful, 58 skipped, 0 failed |
-| Native paired fixture games | Skipped |
-| Native Store/game dispatch | Not executed |
+| Node 22 syntax check of policy and regression file | Passed |
+| Rank-1 policy / prompt / worker / action-frontier regression file | 122 test cases; workflow passed |
+| Native Twinleaf fixture/game dispatch | Not run |
+| Aichi Top 32 matchup games | Not run |
 
-The workflow's contract-only receipt explicitly records `fixtureExecuted: false`. The successful run therefore validates deterministic policy/protocol contracts and the existing worker sandbox, not Twinleaf gameplay.
+The exact-head workflow is deliberately a small pure-policy contract workflow. It does not compile Twinleaf, launch a native game, or provide matchup evidence. The earlier broader contract-only run [45394640791](https://github.com/FlareZ123/experiment-01/actions/runs/45394640791) covered the prior 110-test baseline and worker/Docker checks; it is historical baseline evidence, not validation of the current source/test blobs.
 
 ## Limitations and disposition
 
-- No native game was dispatched, and no native observation/action-frontier trace was collected for the new lock cases.
-- The 0.75 expected-fetch cutoff and card/action scores remain heuristic; they have not been calibrated against decisions or game outcomes.
+- No native game was dispatched, and no native observation/action-frontier trace was collected for the new retreat, Tool, Energy, or Stadium cases.
+- The host actor-observation contract still exposes specialConditions as numeric Twinleaf enum values while the policy protocol validates them as strings. The policy helper handles numeric values, but the protocol must normalize or admit the enum values before those states can be exercised through a validated worker request.
+- The host currently emits abilitySuppressions[].suppressed as null for the relevant abilities. Fairy Zone damage therefore remains fail-closed/inactive; Latias ex Skyliner remains a possible escape rather than a proven live Ability. The adapter must provide source-attributed suppression facts and resolve source-on-source lock precedence using turnSeat and abilityLockActivationOrder.
+- The multi-unit Energy map is intentionally incomplete; unsupported special-energy printings default to one unit. The retreat estimator also omits several non-card retreat effects, unknown switch-card identities, and edge cases not represented in the public observation.
+- Discard, Field Blower, and Pale Moon-GX score values remain heuristics, not empirically calibrated.
 - No Aichi matchup was played. There are no matchup samples, win-rate estimates, confidence intervals, or evidence of a 99.5% result.
 - The fixed rank-1 reference list is unchanged: [benchmark list](../benchmark-shadow-rider.md).
 - This is not independent policy-competence acceptance and does not unblock the frozen Stage-A/Stage-B gates. The current decision board remains authoritative: [results index](../../README.md).
 
-Next useful work is independent review of the actor-view semantics for Stadium state, attached Tools, ability-suppression records, and face-up prizes, followed—only when the owner/Critic freeze permits—by an already-authorized native fixture. Do not launch a new game dispatch on the strength of this contract-only result.
+Next useful work is to repair the actor-observation/protocol mismatch for numeric special conditions and source-attributed Ability suppression, then independently review the exact current policy/test blobs. Only after the owner/Critic freeze permits should an already-authorized native fixture be run; do not launch new game dispatch on the strength of this contract-only result.
