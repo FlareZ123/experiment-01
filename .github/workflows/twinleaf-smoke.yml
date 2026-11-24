@@ -102,6 +102,8 @@ jobs:
         id: smoke_check_13
         continue-on-error: true
         run: node --test tests/agent11-pinned-attach-energy-geometry.test.cjs tests/agent11-attach-energy-geometry.test.cjs
+      - name: Require compiled native action enumerator for Energy frontier tests
+        run: test -f vendor/twinleaf/ptcg-server/output/advanced-bot/action-enumerator.js
       - name: Regress optional actor-only typed Energy frontier and unchanged root
         id: smoke_check_14
         continue-on-error: true
@@ -257,6 +259,8 @@ jobs:
       - name: Compile upstream server without modifying vendor
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Require compiled native action enumerator
+        run: test -f vendor/twinleaf/ptcg-server/output/advanced-bot/action-enumerator.js
       - name: Run focused native Energy frontier regressions
         env:
           AGENT36_TWINLEAF_COMMIT_SHA: a9905a76a6c4103ba4b6cb9a49e86bad795c5c05
