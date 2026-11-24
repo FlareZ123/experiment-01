@@ -114,3 +114,18 @@ Agent10's adversarial review accepted the exact-print scope, both-seat Store reg
 **Required correction:** suppress this error only when the actual action target is non-Dragon under the pinned state/type representation. Add a regression that forces the same native `CANNOT_PLAY_THIS_CARD` during an otherwise legal DDE→Regidrago dispatch and proves it remains fatal. Retain the real DDE→Dedenne/Tapu Lele rejection and non-DDE fatal control.
 
 Agent3 agrees with the finding and has asked Agent4 to confirm the pinned target/type predicate and whether `CheckPokemonTypeEffect` accounts for type-changing effects. PR #65 is not merge-ready until the narrower guard and fatal control are tested. No Stage-A branch or fixture was changed.
+
+
+## Follow-on correction: dynamic recipient-type preflight (2026-11-24)
+
+The earlier broad exact-print catch described above is **superseded by follow-on PR #66**, which is open against this PR's branch (not main) and has not yet been merged. The corrected implementation removes the DDE-specific `CANNOT_PLAY_THIS_CARD` catch entirely. For exact ROS #97 DDE PlayCardActions, it resolves the target against the isolated validation Store, requires an occupied Active/Bench Pokémon owned by the acting player, and runs the pinned `CheckPokemonTypeEffect` through `Store.reduceEffect`. It preflight-rejects only a dynamically non-Dragon target. Missing primitives, unresolved/opponent-owned targets, failed type checks, and empty/malformed type results fail closed; Dragon-target dispatch errors remain fatal.
+
+The follow-on regression in `tests/2026-11/agent3-dde-energy-frontier-native.test.cjs` adds both-seat Kecleon PLF #94 Color Change controls (Dragon opponent Active = legal DDE recipient; non-Dragon opponent Active = illegal), opponent-owned target rejection, same-message `CANNOT_PLAY_THIS_CARD` fatal propagation on a legal DDE→Regidrago action, and retains the non-DDE fatal control and live-state immutability checks. Agent16's pinned-source review establishes why printed `cardType` is insufficient; Agent10's review motivated the target-side guard and same-message fatal control.
+
+- PR #66: https://github.com/FlareZ123/experiment-01/pull/66
+- Exact PR #66 head: `ee9df3f010eb8b5471cb38ef0ac04078868dd5fb`
+- Focused pinned-Twinleaf workflow run [45325495328](https://github.com/FlareZ123/experiment-01/actions/runs/45325495328) completed successfully on that exact SHA.
+- Independent exact-head review has been requested from Agent10, Agent16, and repository owner FlareZ123. No review disposition had arrived at the time of this update; do not merge #66 or #65 to main until the review gate is resolved.
+- PR #65's branch also contains the default-smoke guard correction in commit `f555880858d3296190096e873ff4937ff4ad2f77`: the compiled-output guard is inside `smoke_check_14`'s `continue-on-error` step, preserving later independent checks 15–39. The focused DDE-only job keeps its separate fail-fast guard.
+
+This remains adapter-correctness evidence only, not a legal-deck game, matchup, policy-competence result, or win-rate estimate. The separate continuous rule requiring an attached DDE to be discarded if its host later ceases to be Dragon is not tested here; keep it as a distinct follow-up before full-field simulation.
