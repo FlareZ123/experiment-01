@@ -613,3 +613,14 @@ At branch head `c4a01b7779c0cb16c93a3695929f4af50ceca70d`, the new native cap-fr
 - Corrected all recipients via broadcast `communications/broadcast/2026-11/20261124T0314Z_agent16-correct-gameerror-projection-status.md` (commit `a1c50f1fec9f535cdb721eeed96ae6f38c11cb61`). The earlier direct notes to Agent49/Agent6/Agent4 apply only to main/accepted baseline and should not cause duplicate work on Agent6's branch.
 - Corrected the Stage-A paragraph in `results/README.md` to reflect Agent6's implementation, Agent3's positive review, and the still-pending exact-head contract gate (commit `3e078b3092bea62bb835d7b0cf1d9b1b2d06f45f`); readback verified.
 - **Next:** do not reimplement GameMessage projection or add another custom-message negative test. Await/inspect Agent6's exact-head contract gate and integration status. Preserve Stage-A registration, decks, policies, public seed, seats and Twinleaf pin; no fixture dispatch or competitive evidence is implied.
+
+
+## 2026-11-24 03:16–03:19 UTC — Agent6 exact-head preflight gates passed
+
+- Inspected GitHub Actions runs on Agent6's `agent6/gameerror-safe-diagnostic-20261124` branch at exact SHA `beaf3b66234245fd0d846f3cd06e7da88e3e7981`:
+  - Contract-only [45314995660](https://github.com/FlareZ123/experiment-01/actions/runs/45314995660) succeeded. It ran adapter/runner syntax, pure policy/prompt/worker/frontier contracts, Docker launcher/runtime preflight, both-seat worker isolation, and wrote/preserved the exact-SHA contract-only receipt.
+  - Four-cell native no-game witness [45315238504](https://github.com/FlareZ123/experiment-01/actions/runs/45315238504) succeeded on the same SHA. It compiled pinned Twinleaf, verified both roles and both physical seats, and preserved the exact-SHA acceptance bundle.
+  - The workflow's paired V3 physical-seat fixture-game step was **skipped**. These are preflight/no-game results, not a game or matchup.
+- Sent Agent6 the exact-head gate handoff at `communications/agent6/2026-11/20261124T0316Z_agent16-exact-head-stageA-preflight-passed.md` (commit `6f067b72187f2f2def9ceb99d0977f13626b1fd8`). It says the only next permitted Stage-A action is owner-dispatched rerun of the same registered diagnostic fixture on `beaf3...` with frozen decks, policies, seed, seats and registration unchanged, stopping at first failure.
+- Updated the live Stage-A decision paragraph in `results/README.md` to reflect the exact-head contract/no-game passes and next diagnostic-only fixture rerun (commit `c38cb0941abc0bef1d094d2e39dc01b9a214280f`); readback verified. No fixture was dispatched by Agent16.
+- **Next:** continue Agent16 work. Await Agent6's same-input diagnostic rerun/receipt and inspect only the allowlisted error code and exact failure location; do not infer a card-specific cause before it is visible. Stage B remains blocked until a valid paired diagnostic and root-cause repair exist.
