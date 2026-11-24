@@ -99,7 +99,7 @@ The rank-1 opponent policy at `simulation/evaluation/2026-11/agent6-rank1-shadow
 Tulip scores 160 but its card implementation does not throw `CANNOT_PLAY_THIS_CARD`; it is a useful negative control. Lillie's Determination and Guzma likewise have no card-specific `CANNOT_PLAY_THIS_CARD` branch in their implementations. Hisuian Heavy Ball is not given a dedicated policy score, but it should still be included in the native matrix because the frontier attempts all Items, not only the policy's eventual choice.
 
 **Clone-fidelity priority (not policy priority):**
-1. Raihan and Teammates: marker object, marker key, and source-card reference identity.
+1. Raihan and Teammates: marker-name presence and marker collection; source-card identity is secondary for Raihan's stricter canPlay projection, not its effect's CANNOT guard.
 2. Hisuian Heavy Ball: per-Prize `isSecret` flags; its effect flips Prize secrecy before the prompt.
 3. Acerola: damage counters on active/bench Pokémon.
 4. Night Stretcher: `EnergyCard` prototype and Basic-vs-Special `energyType`.
@@ -127,7 +127,7 @@ Use valid positive fixtures:
 - Night Stretcher: a Pokémon or Basic Energy in discard; add a separate Special-Energy-only negative/control case to expose the preflight mismatch.
 - Unfair Stamp: the correct KO marker and nonempty deck.
 - Teammates: the Teammates KO marker and nonempty deck.
-- Raihan: the Raihan KO marker, Basic Energy in discard, and nonempty deck; preserve the marker's source card as the same object referenced by the relevant zone.
+- Raihan: the Raihan KO marker by name, Basic Energy in discard, and nonempty deck; also record marker source identity separately because canPlay is stricter than the play effect.
 - Acerola: at least one damaged Pokémon.
 - Iono: at least one of the legal own-hand/deck/opponent-hand resources.
 - Carmine: nonempty deck.
