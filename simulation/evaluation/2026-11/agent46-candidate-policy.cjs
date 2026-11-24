@@ -762,7 +762,19 @@ function choosePokemonRecipient(view, prompt) {
   const opponentChoices = visible.filter(row => row.target.ownerSeat === 'opponent');
 
   let ranked;
-  if (effectName === 'Guzma' && actorChoices.length > 0) {
+  if (effectName === 'Acerola' && actorChoices.length > 0) {
+    ranked = actorChoices.map(row => {
+      const slot = row.target.slot;
+      if (slot.damage <= 0) return { ...row, score: -Infinity };
+      const remaining = Math.max(0, slot.hp - slot.damage);
+      return {
+        ...row,
+        score: 1000 + Math.min(600, slot.damage * 2) +
+          slotEnergyCount(slot) * 80 + (remaining <= 120 ? 400 : 0) +
+          prizeLiability(slot) * 100
+      };
+    });
+  } else if (effectName === 'Guzma' && actorChoices.length > 0) {
     const target = view.opponentPublic.active;
     ranked = actorChoices.map(row => {
       const attack = bestAttackForSlot(row.target.slot, view, target);
@@ -1366,6 +1378,15 @@ function scoreTrainerPlay(item, view, receipt) {
         hasStarAlchemyBottleneck(view, receipt)) return 550;
   }
   if (hasName(name, 'Field Blower') && hasStadiumRemovalTarget(view)) return 950;
+  if (hasName(name, 'Teammates') && !supporterUsed &&
+      receipt?.priorOpponentTurnKO?.any === true) return 900;
+  if (hasName(name, 'Raihan') && !supporterUsed &&
+      receipt?.priorOpponentTurnKO?.any === true &&
+      discardHas(view, 'Psychic Energy') &&
+      view.ownTurnResources.energyPlayedTurn === false) return 880;
+  if (hasName(name, 'Acerola') && !supporterUsed &&
+      ownBoard(view).some(slot => slot.damage > 0 &&
+        slotEnergyCount(slot) > 0 && slot.hp - slot.damage <= 120)) return 850;
   if (hasName(name, 'Battle Compressor') && opponentHasRegidrago(view) &&
       !discardHas(view, 'Dialga-GX') && !handHas(view, 'Dialga-GX') &&
       !boardHas(view, 'Dialga-GX') && (boardHas(view, 'Mimikyu') || handHas(view, 'Mimikyu'))) return 860;
@@ -1393,6 +1414,10 @@ function scoreTrainerPlay(item, view, receipt) {
        (hasAbilityLockThreat(view) && !ownBoard(view).some(slot =>
          slot.tools.some(tool => hasName(tool, 'Stealthy Hood')))))) return 760;
   if (hasName(name, 'Guzma') && !supporterUsed && canGuzmaForAttack(view)) return 750;
+  if (hasName(name, 'Iono') && !supporterUsed &&
+      view.opponentPublic.handCount >= 5 && view.ownPublic.handCount >= 4) {
+    return 740 + Math.min(40, (view.opponentPublic.handCount - 5) * 10);
+  }
   if (hasName(name, "Lillie's Determination") && !supporterUsed &&
       (view.ownPublic.handCount <= 3 || view.ownPublic.deckCount <= 10)) return 700;
   if (hasName(name, 'Sky Field') && !view.ownPublic.stadium.some(s => hasName(s, 'Sky Field')) &&
