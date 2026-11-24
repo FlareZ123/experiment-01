@@ -163,13 +163,13 @@ test('Marnie and Iono shuffle each physical hand with its own seat stream', () =
     ['sets/10-scarlet-and-violet/set-paldea-evolved/iono', 'Iono']
   ]) {
     const players = makePlayers();
-    const card = new (fakeEngine().engine(path)[className])();
+    const {engine} = fakeEngine();
+    const card = new (engine(path)[className])();
     players[1].hand.cards = [card, {id: 'b1'}, {id: 'b2'}];
     players[0].hand.cards = [{id: 'a1'}, {id: 'a2'}, {id: 'a3'}, {id: 'a4'}];
     const rootStore = makeRootStore(players);
     const zero = trackedStream();
     const one = trackedStream();
-    const {engine} = fakeEngine();
     const restore = installAichiPaperShuffleRngHook({
       engine, rootStore, randomBySeat: [zero.stream, one.stream]
     });
@@ -188,7 +188,8 @@ test('Marnie and Iono shuffle each physical hand with its own seat stream', () =
 
 test('speculative bot Store retains policy Math.random instead of consuming physical streams', () => {
   const players = makePlayers();
-  const card = new (fakeEngine().engine(
+  const {engine} = fakeEngine();
+  const card = new (engine(
     'sets/09-sword-and-shield/set-sword-and-shield/marnie').Marnie)();
   players[0].hand.cards = [card, {id: 'a1'}, {id: 'a2'}];
   players[1].hand.cards = [{id: 'b1'}, {id: 'b2'}, {id: 'b3'}];
@@ -196,7 +197,6 @@ test('speculative bot Store retains policy Math.random instead of consuming phys
   const cloneStore = makeRootStore(players);
   const zero = trackedStream();
   const one = trackedStream();
-  const {engine} = fakeEngine();
   const restore = installAichiPaperShuffleRngHook({
     engine, rootStore, randomBySeat: [zero.stream, one.stream]
   });
