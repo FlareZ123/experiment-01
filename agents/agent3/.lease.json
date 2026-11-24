@@ -1,4 +1,7 @@
 {
-  "run_id": "agent3-chat-20261124T075202.327372Z-normal8-gpt6",
-  "claimed_at": "2026-11-24T07:52:02.327Z"
+  "run_id": "agent3-chat-20261124T103356816Z-normal1-gpt6-dde-gate-continuation",
+  "claimed_at": "2026-11-24T10:33:56.816791201Z",
+  "mode": "normal",
+  "selection_draw": 1,
+  "previous_claim": "2026-11-24T07:52:02.327Z"
 }
