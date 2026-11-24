@@ -1067,13 +1067,15 @@ function discardChoiceScore(choice, observation) {
     return psychicCountInHand(observation) > 1 ||
       hasPrinting(hand, /Tulip PAR\b/i) ? 10 : -100;
   }
-  if (matches(printing, PRINT.shadowRiderVmax) &&
-      countPrinting(hand, PRINT.shadowRiderVmax) > 1) return 20;
+  if (matches(printing, PRINT.shadowRiderVmax)) {
+    return countPrinting(hand, PRINT.shadowRiderVmax) > 1 ? 20 : -120;
+  }
   if (includes(printing, 'Carmine') || includes(printing, 'Lillie')) return 30;
   if (includes(printing, 'Unfair Stamp') || includes(printing, 'Raihan') ||
       includes(printing, 'Tulip') || includes(printing, 'Acerola')) return -80;
-  if (matches(printing, PRINT.shadowRiderV) &&
-      countPrinting(hand, PRINT.shadowRiderV) > 1) return 35;
+  if (matches(printing, PRINT.shadowRiderV)) {
+    return countPrinting(hand, PRINT.shadowRiderV) > 1 ? 35 : -120;
+  }
   return 50;
 }
 
@@ -1082,10 +1084,10 @@ function quickBallDiscardChoiceScore(choice, observation) {
   const hand = list(observation.ownHand);
 
   if (matches(printing, PRINT.shadowRiderVmax)) {
-    return countPrinting(hand, PRINT.shadowRiderVmax) > 1 ? 20 : -100;
+    return countPrinting(hand, PRINT.shadowRiderVmax) > 1 ? 20 : -120;
   }
   if (matches(printing, PRINT.shadowRiderV)) {
-    return countPrinting(hand, PRINT.shadowRiderV) > 1 ? 35 : -100;
+    return countPrinting(hand, PRINT.shadowRiderV) > 1 ? 35 : -120;
   }
   if (matches(printing, PRINT.psychic)) {
     return psychicCountInHand(observation) > 1 ||
@@ -1437,7 +1439,8 @@ function promptDecision(request) {
       let tokens = scored.slice(0, Math.min(max, scored.length));
       if (tokens.length < min && includes(effect, 'Mysterious Treasure') &&
           choices.some(choice => choiceZone(choice) === 'hand')) {
-        tokens = cardChoices.slice(0, min).map(choice => choice.token);
+        tokens = rankedChoiceTokensIncludingNegative(cardChoices,
+          choice => discardChoiceScore(choice, observation)).slice(0, min);
       }
       if (tokens.length >= min && tokens.length > 0) {
         return { kind: 'select-choices', tokens };
