@@ -3,6 +3,10 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const {
+  PROTOCOL: INDEPENDENT_RNG_PROTOCOL, validateRandomMaterial,
+  createIndependentStreams, randomMaterialCommitment
+} = require('../evaluation/agent37-independent-rng-v1.cjs');
 const {observeFirstTurn, summarizeTurnOrder} = require('./turn-order-evidence.cjs');
 const {playerPlayLockVeto,visiblePlayLockGuardSeat}=
   require('./player-play-lock-veto.cjs');
@@ -143,7 +147,8 @@ function seededRandom(seed) {
 function deckPermutation(length, random) {
   const order = Array.from({ length }, (_, index) => index);
   for (let i = length - 1; i > 0; i--) {
-    const j = Math.floor(random() * (i + 1));
+    const j = typeof random.randomInt === 'function' ?
+      random.randomInt(i + 1) : Math.floor(random() * (i + 1));
     const tmp = order[i];
     order[i] = order[j];
     order[j] = tmp;
@@ -433,6 +438,20 @@ function runMatch(request) {
   if (!Number.isInteger(request.seed) || request.seed < 0 || request.seed > 0xffffffff) {
     throw new Error('seed must be an unsigned 32-bit integer.');
   }
+  const rngProtocol = request.rngProtocol ?? null;
+  if (rngProtocol !== null && rngProtocol !== INDEPENDENT_RNG_PROTOCOL) {
+    throw new Error('Unknown headless RNG protocol.');
+  }
+  if (rngProtocol === INDEPENDENT_RNG_PROTOCOL &&
+      (request.isolatePolicyRandomness !== true ||
+       request.isolatePhysicalShuffleRandomness === true ||
+       request.isolatePhysicalShuffleRandomnessAfterSetup === true)) {
+    throw new Error('Independent CSPRNG protocol owns policy and physical-shuffle streams; do not combine legacy isolation flags.');
+  }
+  if (rngProtocol === null &&
+      (request.rngMaterial !== undefined || request.rngMaterialCommitment !== undefined)) {
+    throw new Error('RNG material requires the independent CSPRNG protocol.');
+  }
   if (request.snorlaxSoloOpeningSeat !== undefined &&
       ![0,1].includes(request.snorlaxSoloOpeningSeat)) {
     throw new Error('Solo Snorlax opening policy requires source physical seat 0 or 1');
@@ -503,12 +522,21 @@ function runMatch(request) {
       request.bunnelbyGuzmaHalaMode1 !== true) {
     throw new Error('Bunnelby GH live search requires the source-aware mode1 option');
   }
-  const random = seededRandom(request.seed);
-  const policyRandomBySeat = request.isolatePolicyRandomness === true ?
-    policyRandomStreams(request.seed) : null;
-  const hasPerSeatPhysicalShuffleRng=
-    request.isolatePhysicalShuffleRandomness===true ||
-    request.isolatePhysicalShuffleRandomnessAfterSetup===true;
+  const rngMaterial = rngProtocol === INDEPENDENT_RNG_PROTOCOL ?
+    validateRandomMaterial(request.rngMaterial) : null;
+  const rngMaterialDigest = rngMaterial ? randomMaterialCommitment(rngMaterial) : null;
+  if (rngMaterial && request.rngMaterialCommitment !== rngMaterialDigest) {
+    throw new Error('RNG material commitment does not match the supplied stream seeds.');
+  }
+  const independentStreams = rngMaterial ? createIndependentStreams(rngMaterial) : null;
+  const random = independentStreams ? independentStreams.engine : seededRandom(request.seed);
+  const coinRandom = independentStreams ? independentStreams.coin : null;
+  const policyRandomBySeat = independentStreams ?
+    [independentStreams.policySeat0, independentStreams.policySeat1] :
+    request.isolatePolicyRandomness === true ? policyRandomStreams(request.seed) : null;
+  const hasPerSeatPhysicalShuffleRng = independentStreams !== null ||
+    request.isolatePhysicalShuffleRandomness === true ||
+    request.isolatePhysicalShuffleRandomnessAfterSetup === true;
   if(request.specialRedCardPaperSpeculativeShuffle===true &&
       (request.specialRedCardPaperPreselection!==true ||
        request.specialRedCardPaperCorrection!==true ||
@@ -518,7 +546,8 @@ function runMatch(request) {
   }
   const isolateShuffleAfterSetup=
     request.isolatePhysicalShuffleRandomnessAfterSetup===true;
-  const physicalShuffleRandomBySeat =
+  const physicalShuffleRandomBySeat = independentStreams ?
+    [independentStreams.shuffleSeat0, independentStreams.shuffleSeat1] :
     (request.isolatePhysicalShuffleRandomness===true ||
       isolateShuffleAfterSetup) ?
       physicalShuffleRandomStreams(request.seed) : null;
@@ -1261,7 +1290,8 @@ function runMatch(request) {
         action = new ResolvePromptAction(pending.id,
           deckPermutation(owner.deck.cards.length, shuffleRandom));
       } else if (pending instanceof CoinFlipPrompt) {
-        action = new ResolvePromptAction(pending.id, random() < 0.5);
+        action = new ResolvePromptAction(pending.id,
+          coinRandom ? coinRandom.randomInt(2) === 0 : random() < 0.5);
       } else if (pending) {
         const seat = state.players.findIndex(player => player.id === pending.playerId);
         if (seat === -1) throw new Error('Unknown prompt player: ' + pending.playerId);
@@ -2352,10 +2382,14 @@ function runMatch(request) {
       stevenPaperMinimumCorrection: request.stevenPaperMinimumCorrection === true,
       stevenPaperMinimumAudit: restoreStevenPaperMinimumHook ?
         {...restoreStevenPaperMinimumHook.audit} : null,
-      policyRandomIsolation: request.isolatePolicyRandomness === true,
-      physicalShuffleRandomIsolation:
+      policyRandomIsolation: independentStreams !== null ||
+        request.isolatePolicyRandomness === true,
+      physicalShuffleRandomIsolation: independentStreams !== null ||
         request.isolatePhysicalShuffleRandomness === true,
       physicalShuffleRandomIsolationAfterSetup: isolateShuffleAfterSetup,
+      coinRandomIsolation: independentStreams !== null,
+      engineRandomIsolation: independentStreams !== null,
+      ...(independentStreams ? { rngMaterialCommitment: rngMaterialDigest } : {}),
       ...(request.specialRedCardPaperPreselection === true ? {
         specialRedCardPaperPreselection:true,
         specialRedCardPaperPreselectionVersion:
@@ -2374,7 +2408,8 @@ function runMatch(request) {
         specialRedCardPaperSpeculativeShuffleProtocol:
           'exact-M4-opponent-hand-fisher-yates-policy-clone-prng-v1'
       } : {}),
-      randomnessProtocol: isolateShuffleAfterSetup ?
+      randomnessProtocol: independentStreams ? INDEPENDENT_RNG_PROTOCOL :
+        isolateShuffleAfterSetup ?
         (request.isolatePolicyRandomness === true ?
           'per-seat-policy-and-physical-shuffle-after-setup-prng-v1' :
           'per-seat-physical-shuffle-after-setup-prng-v1') :
