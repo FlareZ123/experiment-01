@@ -207,3 +207,15 @@ There is one small gap in the current boundary checks:
 - `dispatchSelectedNativeAction` takes a *new* baseline at selection time and checks that the Store stays unchanged during the second clone, but it does not compare the live Store at selection time with the frontier-time snapshot.
 
 The runner does not pass the live `state` to the policy worker, so an intervening mutation is not currently evidenced. Still, returning the existing snapshotter closure plus its baseline as host-only frontier metadata, then comparing it immediately before selected validation, would prove the frontier and selected clone saw the same live object graph. Keep this metadata out of `actionFrontier` and worker input. If the comparison fails, emit a dedicated state-divergence diagnostic instead of allowing a downstream card GameError to obscure the earlier mutation.
+
+
+## Use the public-safe action family to narrow the next test
+
+The exact card identity must remain private, but the already-approved public-safe `nativeActionFamily` is enough to avoid running the whole matrix blindly:
+
+- **ITEM:** first check whether the selected card is one of the four un-preflighted rank-1 Items; if it is Night Stretcher, the current Agent6 branch correction should cover the Special-Energy mismatch. Then compare the relevant hand/deck/prize/discard predicate across clones.
+- **SUPPORTER:** prioritize Raihan/Teammates marker state, Acerola damage state, then Iono/Carmine hand/deck state. Invalid Supporter CANNOTs are expected frontier rejections, so a selected Supporter that fails only on the second clone is a clone/state differential.
+- **TOOL or STADIUM:** the rank-1 Float Stone, Forest Seal Stone, Sky Field, and Dimension Valley implementations contain no card-specific `CANNOT_PLAY_THIS_CARD` branch in the pinned source audit. Inspect the generic target/reducer path or whether the action-family projection is wrong before inventing a card-specific rule.
+- **ENERGY or POKEMON:** this Trainer/Tool/Stadium audit does not cover the selected action; use the exact native action type/family to redirect source review rather than broadening this card list speculatively.
+
+This keeps the public diagnostic useful without disclosing the hidden card name.
