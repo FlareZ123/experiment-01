@@ -1970,3 +1970,36 @@ Claimed Agent 2 at `2026-11-24T16:22:40.530Z` with run id `agent2-chat-20261124T
 - Card pool used for local text checks: uploaded `/mnt/data/card-list.zip`
 - Retreat rule: uploaded `/mnt/data/advanced-players-rulebook.md`, Section I A-03.
 
+
+
+## 2026-11-24 continuation checkpoint — field scope and candidate-policy math
+
+### Authoritative project scope and state
+
+- Current `README.md` clarifies the owner-authorized primary challenge: an English-language paper Expanded-legal deck played unchanged against the original Aichi Open League 2026 Japanese Extra Top 32 lists. This is a custom cross-format challenge, not a sanctioned Expanded-vs-Expanded result.
+- Current board: 29/32 exact source lists authenticated; 0/32 physical-copy certifications; 0/32 qualified competitive matchups; no 99.5% claim; no nominated final fixed deck. The leading hypothesis is `results/aichi-2026/candidate-hood-shadow-rider.json` (60 cards), not a validated final.
+- Repository submodule checked: `.gitmodules` declares `vendor/twinleafgg` with remote `https://github.com/twinleafgg/twinleaf.git`; gitlink pinned at `84f7a31a2a3e5b45d9f6c6a80ab63a2f`. No upstream interaction or submodule modification was performed.
+- README's Stage-A stopline remains binding: the fixture failed and further fixture/game execution is frozen. No fixture, native game, or simulation was run in this invocation.
+
+### Additional candidate-policy findings sent to Agent46
+
+- **Climactic Gate capacity math:** the hypergeometric calculation and revealed-prize partition in `expectedClimacticGateTargets()` are correct for (E[min(X,2)]), assuming current prize count/slots. However, with exactly two open Bench slots before playing Radiant, only one slot remains for Gate. The current function still caps at 2 and can overstate expected placed targets. Counterexample: deck=4, hidden prizes=6, two VMAX copies remaining among 10 unknown cards gives (E[min(X,2)]=0.8), but with one available target slot (P(X\ge1)=2/3\approx0.667). Asked to cap at `maxTargets = min(2, openBench - 1)` and use (E[min(X,maxTargets)]). Threshold 0.75 remains uncalibrated. Message: `20261124T164850Z_agent2-climactic-gate-capacity-math.md`.
+- **Pale Moon-GX:** follow-up correction based on rulebook Section I A-03: delayed effect clears when Active moves to Bench, so retreat can avoid the KO. Use actual printed Retreat Cost, attached Energy, special conditions, and public cannot-retreat restrictions; do not use fixed 3-Energy cutoff. The [Psychic][Colorless] attack under Dimension Valley costs one Psychic, so two Psychic Energy leaves one extra Psychic for the Energy-discard clause. Also `targetEnergyCount * 80` should only be an energy-denial bonus when the extra-Psychic clause actually discards Energy; otherwise Energy can increase retreat feasibility. Agent4 independently confirmed all required retreat fields are already in the actor contract; no adapter change needed. Messages: `20261124T163809Z_agent2-pale-moon-gx-score-review.md`, `20261124T164126Z_agent2-pale-moon-retreat-correction.md`, `20261124T164506Z_agent2-pale-moon-energy-bonus-scope.md`.
+- **Fairy Zone:** candidate policy remains unable to apply the multiplier on live actor observations because `actorObservation.visiblePokemon()` emits `suppressed:null` and `fairyZoneStatus()` requires explicit true. Agent4 confirmed the rank-1 Agent6 branch has a reusable enumerated public-suppressor resolver; keep unknown for unmodeled sources and add an integration test using actual actorObservation output. Message: `20261124T164208Z_agent2-fairy-zone-live-status-gap.md`; Agent4 follow-up: `20261124T164543Z_agent4-fairy-zone-resolver-reuse.md`.
+- **Hood search:** Aichi rank 19 contains Flutter Mane; current `hasAbilityLockThreat()` misses opponent-Active Midnight Fluttering, which can be prevented by Hood on an untooled own Active Shadow Rider. Aichi ranks 3 and 7 contain Snorlax PGO Block; a Hood on an untooled own Active Shadow Rider can remove Block, but both lists also have Tool Jammer, which must be removed first with Field Blower (or be absent/inactive). Messages: `20261124T163958Z_agent2-flutter-mane-hood-search-gap.md`, `20261124T164415Z_agent2-snorlax-block-hood-target-gap.md`, `20261124T164951Z_agent2-snorlax-tool-jammer-qualification.md`.
+- Candidate PR #69 exact head `c2764286bde497252a701f7e566cd0bb25100f8d` still has no exact-head workflow run/status; last receipt is for `dc2ef1e...`. PR body still names stale head `607a35b...`. Messages request exact-head contract-only rerun and refreshed PR body.
+- Rank-1 PR #70 exact head `3b071e4b57c26f9db7ccecd45c9ce4f4d5f8f1f2` has the new Quick Ball fail-open finding: a Quick Ball discard prompt missing any strict metadata predicate falls through to generic search scoring, which can choose V/VMAX as discard. Message: `communications/agent6/2026-11-24/20261124T163207Z_agent2-rank1-v3-focused-review.md`. The same head's Fairy Zone report is stale and has no exact-head contract receipt.
+
+### Remaining known issues — do not duplicate
+
+- Candidate PR #69 still has previously communicated omissions: Active Klefki for Radiant Gate/Wonder Tag (Aichi ranks 4/17), Jamming Tower / Tool Jammer scope in Stealthy Hood logic, Energy Drive dynamic damage and no-Weakness/Resistance rule, and Underworld Door effective-target/cancel-choice handling. Agent4/Agent11 have active messages on the latter items; wait for owner updates rather than resending.
+- Agent4 has separately asked Agent46 to source-validate Parallel City direction mapping. Do not duplicate.
+- Avoid duplicating Agent11's Field Blower review.
+
+### Next actions
+
+1. Check for Agent6/Agent46 responses and exact branch changes; review only changed behavior.
+2. Recheck exact-head contract receipts after fixes; do not run Stage-A fixtures or games.
+3. Keep the benchmark cross-format distinction explicit and the 99.5% claim unsupported until credible matchup evidence exists.
+4. Continue until the lease-age 70-minute rule is met; do not release early.
+
