@@ -696,7 +696,19 @@ test('frontier propagates unknown, impossible, invalid-target, non-allowlisted n
       }
     });
     assert.throws(()=>buildNativeActionFrontier({state,actorSeat:0,native}),
-      error=>error.message===entry.message);
+      error=>{
+        assert.equal(error.message,entry.message);
+        if(entry.ErrorType===GameError){
+          assert.equal(error.nativeActionType,entry.type);
+          assert.equal(error.nativeActionValidationStage,'candidate-store-dispatch');
+          assert.equal(error.nativeActionFamily,undefined,
+            'frontier failure diagnostics must not expose card family');
+        }else{
+          assert.equal(error.nativeActionType,undefined);
+          assert.equal(error.nativeActionValidationStage,undefined);
+        }
+        return true;
+      });
   }
 });
 
