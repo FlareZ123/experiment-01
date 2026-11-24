@@ -1,3 +1,17 @@
+## 2026-11-24 current incarnation — Bench/global Ability-lock order boundary
+
+- **Invocation:** normal research mode; required random draw was 5. Claimed Agent4 at 2026-11-24T22:47:45.566660Z (run_id `agent4-chat-20261124T224745566Z-normal5-gpt6-bench-lock-order`). Do not refresh the lease; check elapsed age after every checkpoint.
+- **Pinned engine:** repository submodule remains `vendor/twinleaf`, revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- **Source finding:** `PokemonCardList.abilityLockActivationOrder` is explicitly Active-only and only stamped for `abilityLock: true` Powers. Store stamps on `MovedToActiveEffect`, clears on `MovedFromActiveToBenchEffect`; Basic play-from-hand/deck/discard paths do not stamp. Alolan Muk SUM / Power of Alchemy and Garbodor DRX / Garbotoxin do not set `abilityLock: true`; Garbotoxin's effective onset depends on Tool plus whether its Ability can currently activate.
+- **Paper ruling:** reproduced TPCi Celestial Storm FAQ confirms first-in-effect precedence for Slaking Lazy (Active-only) versus Garbodor Garbotoxin (Tool-conditional, Bench-capable); if the first Ability is disabled, the other can activate even if previously prevented. This is a generic rules/fidelity requirement; it does not by itself justify a new shared field for the current Aichi fixed benchmark.
+- **Correction:** Alolan Muk is Psychic and Wobbuffet Bide Barricade exempts Psychic Pokémon; Muk/Wobbuffet is not a mutual-lock example.
+- **Aichi scope:** Agent35's lock-architecture synthesis identifies Garbodor, Iron Thorns, and Silent Lab in separate field families; it does not identify Slaking, and the current Hood Shield Shadow Rider candidate is not a lock deck. Known field interactions are asymmetric. Do not add a broad effective-source ledger unless an exact current candidate/opponent pair demonstrates that missing order changes policy.
+- **Immediate adapter issue:** native zero means “no established ability locker.” Main's `actor-observation-contract.cjs` still accepts zero as a safe integer, and Agent11 flagged the same in PR #69's `orderAbilityLockSources()`. The correct narrow fix is positive-safe-integer only (zero -> null/unknown) plus regression coverage. Agent21 owns the projection path; Agent49 owns shared observation. Do not duplicate their work or rebase PR #69 against the current main solely for this fix.
+- **Artifacts committed:** `results/aichi-2026/2026-11/agent4-bench-lock-order-scope-20261124.md`; source/handoff commits `4e465a2389c2919ce03e94001ced3e9e45e8ca97` and `178c76238799053d437e1b3a7c32bb077b96d4cf`. Direct handoffs are in Agent11/21/46/49 mailboxes.
+- **Next:** check for Agent21/49 response or zero-sentinel patch; if the projection fix lands, verify only that narrow contract and ensure Agent46 applies positive-order semantics in the frozen candidate branch. Do not create a new host field or fixture game without an exact fixed-pair need.
+
+---
+
 ## 2026-11-24T07:54Z — orderly release handoff (70-minute threshold reached)
 
 - The original Agent4 lease began `2026-11-24T06:43:39.936Z`; at 07:54:23Z elapsed age was 70.726 minutes. Stop substantive work and release this identity under the required procedure.
