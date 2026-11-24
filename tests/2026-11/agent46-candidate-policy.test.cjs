@@ -2421,7 +2421,7 @@ test('Tapu Lele Wonder Tag confirmation is source-bound and declines only with n
   const unrelated = evaluate(confirmPromptRequest(
     0, observation(0), 'Mewtwo ex MEW 151', 'Mewtwo ex'
   ));
-  assert.deepEqual(unrelated, { kind: 'abstain', reasonCode: 'UNSUPPORTED_CONFIRM_SOURCE' });
+  assert.deepEqual(unrelated, { kind: 'abstain', reasonCode: 'UNSUPPORTED_CONFIRMATION_SOURCE' });
 });
 
 test('Tapu Lele source printing activates Wonder Tag Supporter scoring when effect name is card name', () => {

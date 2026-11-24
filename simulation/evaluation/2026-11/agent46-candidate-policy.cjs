@@ -1169,7 +1169,7 @@ function chooseEngineSetupPrompt(view, prompt) {
 function chooseConfirmPrompt(view, prompt) {
   if (prompt.description !== 'WANT_TO_USE_ABILITY' ||
       prompt.publicMetadata?.selectionType !== 'confirm') {
-    return abstain('UNSUPPORTED_CONFIRM_PROMPT');
+    return abstain('UNSUPPORTED_CONFIRMATION_SOURCE');
   }
 
   const sourcePrinting = prompt.source?.sourcePrinting ?? '';
@@ -1185,13 +1185,13 @@ function chooseConfirmPrompt(view, prompt) {
     rule = useAbility ? 'TAPU_LELE_WONDER_TAG_DECK_AVAILABLE'
       : 'TAPU_LELE_WONDER_TAG_EMPTY_DECK';
   } else {
-    return abstain('UNSUPPORTED_CONFIRM_SOURCE');
+    return abstain('UNSUPPORTED_CONFIRMATION_SOURCE');
   }
 
   const wantedLabel = useAbility ? 'Yes' : 'No';
   const choice = prompt.choices.find(row =>
     row.kind === 'confirm' && row.label === wantedLabel);
-  if (!choice) return abstain('CONFIRM_CHOICE_UNAVAILABLE');
+  if (!choice) return abstain('UNSUPPORTED_CONFIRMATION_SOURCE');
   setPolicyAuditRule(rule, 'SOURCE_BOUND_YES_NO');
   recordPolicyAuditRule(choice.token, rule);
   return { kind: 'select-choice', token: choice.token };
