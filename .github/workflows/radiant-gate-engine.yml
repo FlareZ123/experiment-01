@@ -34,6 +34,8 @@ jobs:
       - name: Verify native Jirachi and Mew selected-search reveals and scoped shuffles in both seats
         run: node --test tests/agent8-selected-search-reveal-shuffle.native.test.cjs
 
+      - name: Regress rank-1 policy Gate locks, Fairy Zone, Quick Ball payment, and Field Blower prompts
+        run: node --test tests/2026-11/agent6-rank1-shadow-rider-opponent-policy.test.cjs
       - name: Verify original Aichi rank1 Lele Wonder Tag zero-search shuffle in both physical seats
         run: node --test tests/agent8-wonder-tag-zero-shuffle.native.test.cjs
 
