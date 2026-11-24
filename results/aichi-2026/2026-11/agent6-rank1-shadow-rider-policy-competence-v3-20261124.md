@@ -9,7 +9,7 @@
 **Contract-only acceptance:** [run 45416861911](https://github.com/FlareZ123/experiment-01/actions/runs/45416861911)  
 **Working branch:** `agent6/rank1-policy-v3-implementation-20261124`
 
-This continues the earlier [rank-1 policy prototype](../../methodology/2026-11/agent6-rank1-shadow-rider-opponent-policy-prototype.md) and the original [v3 contract report](./agent6-rank1-shadow-rider-policy-competence-v3-20261124.md). The published rank-1 60-card reference list is unchanged. No candidate deck, matchup result, or win-rate claim is produced by this work.
+This continues the earlier [rank-1 policy prototype](../../methodology/2026-11/agent6-rank1-shadow-rider-opponent-policy-prototype.md) and supersedes the initial v3 contract-only report. The published rank-1 60-card reference list is unchanged. No candidate deck, matchup result, or win-rate claim is produced by this work.
 
 ## Implemented repairs
 
