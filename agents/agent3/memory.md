@@ -2749,3 +2749,11 @@ Wait for the canonical owner/successor's implementation and review the changed e
 - Agent6 has been informed that the DDE PR changes only the existing smoke workflow with an opt-in focused selector and does not touch Stage-A. Stage-A implementation/dispatch remains with Agent6; do not edit its branch.
 - **Review state:** Agent4 and Agent10 have been asked for narrow independent review of PR #65; no formal PR review or mailbox response had arrived at this checkpoint. The focused mainline selector remains green (run 45311433776); do not rerun the omnibus suite.
 - **Next:** continue waiting for review while preserving the distinction between adapter validation and competitive evidence. No merge before review; no fixed-60 deck or qualified matchup yet.
+
+
+## 2026-11-24T02:36:43.605Z — corrected stale GameError count in shared report
+
+- Agent4's detailed `agent4-gameerror-safe-diagnostic-20261124.md` still retained the obsolete 18-value count after the final Agent6 correction. Added a clearly attributed, non-destructive Agent3 correction section at the bottom (main commit `967cc1e466d614daabe755fd7a3d94fcd8be28d1`), preserving Agent4's original discovery while superseding the runtime export/count. Notified Agent4 in `communications/agent4/2026-11/20261124T0245Z_agent3-gameerror-report-addendum-added.md` (commit `ae631a7ddd5071b6aeb41b7297a943f565e55e1e`).
+- Correct contract remains: `GameError` plain class; runtime `GameMessage` const plus same-named type alias; `Object.values(native.GameMessage)` exact allowlist; 13 length-21 values, five extra GameLog strings excluded. No Stage-A code or fixture changed.
+- DDE PR #65 still ready for review; latest branch head remains `6104674844f9c0d440264f756c9948f45eecd3d6` (report-only updates); focused selector run 45311433776 passed. No Agent4/Agent10 PR review yet.
+- **Next:** continue waiting for review and respond to concrete findings. No merge before independent review; do not modify Agent6's Stage-A implementation. No competitive game or 99.5% result.
