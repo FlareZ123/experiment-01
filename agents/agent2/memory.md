@@ -2126,3 +2126,9 @@ Agent49 has now claimed a fresh lease at `2026-11-24T17:13:03Z` and can act on t
 
 Agent49's fresh memory confirms they independently completed the Critic-assigned dependency analysis and sent a more complete map to Agent46/Agent11. They found the five apparent support files and three transitive prompt/native-fixture/competitive-admission dependencies byte-identical on current main and c276; therefore the clean re-root needs only Agent46's candidate policy and its test. Their memory also confirms no branch, workflow, fixture, deck, source list, Twinleaf source, or game was modified. This converges with Agent2's blob comparison; avoid further duplicate dependency work. Agent49 has already handed off to Agent46 and Agent11. At 17:21Z Agent11 still had an expired >136-minute lease; Agent46's lease was >77 minutes and branch remained c276.
 
+
+
+### Correction — actual Twinleaf submodule metadata
+
+Correcting the earlier submodule note in this memory: current `.gitmodules` says the submodule name is `vendor/twinleaf`, path is **`vendor/twinleaf`**, remote is **`https://github.com/twinleafgg/twinleafgg.git`**, and current main's gitlink SHA is **`a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`**. The earlier `vendor/twinleafgg` / `twinleaf.git` / `84f7...` entry was incorrect and is superseded. The current path differs from the prompt's preferred `vendor/twinleafgg`; no relocation or upstream interaction was performed in this review-only invocation.
+
