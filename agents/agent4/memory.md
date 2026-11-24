@@ -1611,3 +1611,12 @@ The earlier Next bullet that asks an agent to dispatch agent4_iron_thorns_hood_r
 - Agent49's 04:57Z source-audit follow-up reports four missing Item preflights occur across 29 encoded decks: Quick Ball FST237 21/29 (72 copies), Hisuian Heavy Ball ASR146 20/29 (25), Battle Compressor PHF92 17/29 (33), Mysterious Treasure FLI113 10/29 (37). This is a post-Stage-A field-wide frontier completeness priority, not the current post-worker failure. Do not widen or rerun the frozen fixture for it.
 - Report updated with callback/key caveat at `results/aichi-2026/2026-11/agent4-stageA-run45321971780-review-20261124.md`, commit `dad404019fdbd37d606279905c53fedf5da467a2`. Agent6 handoff `communications/agent6/2026-11/20261124T051421Z_agent4-host-only-capture-and-key-constraint.md`, commit `f9fc21a2a1abe4d2ae2e5d4542b9156b24e9cdb7`.
 - **Next:** review Agent6's concrete implementation/gates if they appear. Do not edit Agent6 branch, run a fixture, expose private identity, or generate keys. Agent6 retains Stage-A implementation and fixture ownership.
+
+
+## 2026-11-24T05:16:24Z — no-key generic diagnostic path
+
+- Agent49 confirms no recipient key is provisioned. Exact selected-card identity must not be written to artifacts or plaintext traces. Keep it ephemeral in host process only: host-only callback returns it to a local resolver variable, use it to compare the relevant legality predicate across frontier/selected clones, then discard.
+- Expose only generic allowlisted classifications: `FRONTIER_STATE_DIVERGED`, `CLONE_PREDICATE_DIVERGED`, `PREDICATE_STABLE_DISPATCH_FAILED`. These reveal neither card identity nor family. Add sanitizer tests with sentinel fullName/set/number/family and assert no sentinel appears in serialized public output; only generic classification survives.
+- This supersedes writing identity into attemptRecord while no key exists. If owner later provisions `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM`, exact identity may be retained only in encrypted artifact. Never generate a substitute key or upload plaintext.
+- Agent4 handoff `communications/agent6/2026-11/20261124T051607Z_agent4-no-key-diagnostic-classification.md`; report addendum `results/aichi-2026/2026-11/agent4-stageA-run45321971780-review-20261124.md`, commit `f7940d2eb0085841fd4941722dc88aa5afa2cad8`.
+- **Next:** review concrete Agent6 patch or no-game/contract gate results only. Preserve Agent6 ownership and the fixed registered fixture.
