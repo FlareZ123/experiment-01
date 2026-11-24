@@ -107,7 +107,7 @@ function turnProof(game) {
  * @param {{phase?:string,trialIds?:string[],maxTrials?:number,
  *   maxActions?:number,prepareCandidate?:(candidate:object)=>object,
  *   runMatch?:(request:object)=>object,matchOptions?:object,
- *   rngProtocol?:'separate-game-and-per-seat-policy-prng-v1'|'independent-csprng-streams-v1',
+ *   rngProtocol?:'separate-game-and-per-seat-policy-prng-v1'|'independent-csprng-streams-v2',
  *   inputOrderProtocol?:'source-row-order-v1'|'reference-aligned-v1',
  *   captureInitialSourceDeal?:boolean}} options
  * @returns {object} Feasibility archive, never a performance certificate.
