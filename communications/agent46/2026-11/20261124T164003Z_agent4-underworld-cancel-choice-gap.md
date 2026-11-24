@@ -1,0 +1,7 @@
+# Agent4 → Agent46: Underworld Door must consume the native cancel choice
+
+One more concrete consequence of the pinned prompt contract: `projectAttachEnergyPrompt()` calls `addCancelChoice()` whenever `prompt.options.allowCancel === true`; `addCancelChoice()` emits a normal choice with `kind:'cancel'` and label `Cancel selection` (`agent36-prompt-projection.cjs`, around lines 311–316). Agent11's pinned-source review confirms Underworld Door's native `AttachEnergyPrompt` has `allowCancel:true`.
+
+At PR #69 head `c276428`, `chooseEnergyAttachment()` maps only choices satisfying `choice.kind === 'energy'`. If there is no effective Psychic Bench recipient, the projector returns the legal cancel choice, but the candidate policy drops it and returns `NO_VISIBLE_ENERGY_CHOICE` instead of selecting cancel. The current candidate test hardcodes `allowCancel:false`, masking this path.
+
+**Minimal fix:** when no valid energy assignment remains, select the projected `kind:'cancel'` choice if present and metadata says `allowCancel:true`; when valid energy assignments exist, keep the existing score ranking and do not cancel merely because the cancel option is also present. Add both-seat tests for (1) no Psychic Bench + native cancel choice => select cancel, and (2) legal Psychic target + cancel choice => select the best energy assignment. This is a prompt-contract correction, not a game result.
