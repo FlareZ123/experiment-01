@@ -3,12 +3,33 @@
 **Status:** contract-validated policy implementation; not native-game or competitive-strength evidence.
 
 **Policy version:** `agent6-rank1-shadow-rider-opponent-v3`  
-**Tested research revision:** `8e2c6fe292076cc46099f05fa9f99af8bf0dd6df`  
-**Policy blob:** `e8645a82b1658b30c39115a9905ab922483cffdc`  
-**Test blob:** `58e29f1b72af9547bae1370fff2d823c1bd255b7`  
-**Acceptance run:** [45394640791](https://github.com/FlareZ123/experiment-01/actions/runs/45394640791)
+**Historical baseline revision:** `8e2c6fe292076cc46099f05fa9f99af8bf0dd6df`  
+**Historical policy blob:** `e8645a82b1658b30c39115a9905ab922483cffdc`  
+**Historical test blob:** `58e29f1b72af9547bae1370fff2d823c1bd255b7`  
+**Historical baseline acceptance run:** [45394640791](https://github.com/FlareZ123/experiment-01/actions/runs/45394640791)
 
 This continues the earlier [rank-1 policy prototype](../../methodology/2026-11/agent6-rank1-shadow-rider-opponent-policy-prototype.md). It changes the policy and its contract fixtures, not the published rank-1 60-card list or any candidate deck.
+
+## Latest replacement-branch gate — 24 November 2026
+
+The unmerged replacement branch `agent6/rank1-policy-v3-review-20261124` is now at exact head `32c1557a23e3a69083498ac72b2e7e0a35969d5a`. The published rank-1 reference 60 and all candidate decklists remain unchanged.
+
+- **Policy blob:** `07d5057d2c1dd74f1b40c4eec9111eb8d0090d21`
+- **Protocol blob:** `204d0aff81d0ab2a1e46f1ad3b167ee50bcc4766`
+- **Test blob:** `5e14bbcec43570f90f723cd7fe3aa50d993b79eb`
+- **Exact-head contract-only acceptance:** [run 45510919943](https://github.com/FlareZ123/experiment-01/actions/runs/45510919943) — passed.
+- **Exact-head native no-game witness:** [run 45511057679](https://github.com/FlareZ123/experiment-01/actions/runs/45511057679) — passed on the same SHA. It compiled pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, preflighted the digest-pinned worker runtime, and verified worker, prompt, privacy, fixture-contract, both-role, and both-physical-seat boundaries. The fixture-game step was skipped; no game was dispatched.
+- **Witness artifact:** `agent36-v3-native-no-game-witness-32c1557a23e3a69083498ac72b2e7e0a35969d5a` (artifact ID `14975482609`, SHA-256 `86199c86cad668380347f2cb5352425fe81c38bc18eabfed0ffd8f16839b8c42`).
+
+### Bounded policy corrections
+
+- Pre-play Mimikyu search/deployment now requires validated `publicEventReceipt.opponentCopycatChoices`; a printed current Active attack such as Max Geist no longer implies that it was used last turn. Without the tracker-backed receipt, the pre-play heuristic fails closed. A Copycat attack already present in the native action frontier remains selectable because the frontier is the engine's legal-action evidence. The existing unsupported Night Watch exclusion is retained and tested.
+- The shared policy protocol now accepts native numeric SpecialCondition codes 0–4 as well as the known named fixture values. An actorObservation→checkedDecision regression exercises numeric PARALYZED (0) and ASLEEP (2) in both physical seats; the retreat-aware decision changes from Night Watch while awake to Pale Moon-GX while status prevents retreat.
+- The raw-source purity false positive from a comment was corrected; the no-game witness passes.
+
+**Disposition:** implementation and no-game worker-boundary gates pass. This is not policy-competence acceptance, native match evidence, an Aichi matchup, a win-rate estimate, or evidence of the 99.5% target. The V3 runner still does not attach tracker-backed Copycat choices, so Mimikyu pre-play remains unavailable in production until that receipt is integrated. Source-attributed Ability-suppression facts also remain incomplete.
+
+Fresh exact-head review requests are pending from [Agent2](../../../communications/agent2/2026-11/20261124T233914Z_agent6-rank1-v3-exact-head-review-32c1557.md) and [Agent11](../../../communications/agent11/2026-11/20261124T233914Z_agent6-rank1-v3-exact-head-review-32c1557.md). Agent2's earlier generic Expanded helper findings (Stage/V-UNION classification, Counter Energy Pokémon-EX versus Pokémon ex, and Super Boost / Neo Upper Energy) remain completeness work but do not alter this fixed pair's Basic Psychic energy calculation: both exact lists contain 11 Basic Psychic Energy. Do not generalize this bounded policy result to the entire Expanded card pool.
 
 ## Changes
 
@@ -48,7 +69,7 @@ The checks preserve the distinctions that matter: Wobbuffet and Iron Thorns are 
 
 The expected-fetch formulation follows the review suggestion in [Agent11's Gate probability note](../../../communications/agent6/2026-11/20261124T1215Z_agent11-radiant-confirm-hypergeometric-decision.md); the Aichi lock-source mapping is recorded in [Agent11's field-lock note](../../../communications/agent46/2026-11/20261124T1223Z_agent11-map-aichi-lock-sources-to-radiant-gate-policy.md).
 
-## Evidence
+## Historical baseline evidence
 
 [Contract-only workflow 45394640791](https://github.com/FlareZ123/experiment-01/actions/runs/45394640791) passed on the exact tested revision:
 
@@ -65,10 +86,12 @@ The workflow's contract-only receipt explicitly records `fixtureExecuted: false`
 
 ## Limitations and disposition
 
-- No native game was dispatched, and no native observation/action-frontier trace was collected for the new lock cases.
+- No native game was dispatched, and no native observation/action-frontier game trace was collected for the new lock cases. The exact-head native no-game witness verifies the worker boundary only.
 - The 0.75 expected-fetch cutoff and card/action scores remain heuristic; they have not been calibrated against decisions or game outcomes.
+- The V3 runner does not yet attach tracker-backed `opponentCopycatChoices`; pre-play Mimikyu search/deployment therefore remains fail-closed in production until the receipt integration exists. The native action frontier remains the authority for a Copycat attack already offered as legal.
+- Numeric SpecialCondition protocol validation is now fixed for codes 0–4 and known named fixtures, with checked-decision coverage for Asleep/Paralyzed in both seats.
 - No Aichi matchup was played. There are no matchup samples, win-rate estimates, confidence intervals, or evidence of a 99.5% result.
 - The fixed rank-1 reference list is unchanged: [benchmark list](../benchmark-shadow-rider.md).
 - This is not independent policy-competence acceptance and does not unblock the frozen Stage-A/Stage-B gates. The current decision board remains authoritative: [results index](../../README.md).
 
-Next useful work is independent review of the actor-view semantics for Stadium state, attached Tools, ability-suppression records, and face-up prizes, followed—only when the owner/Critic freeze permits—by an already-authorized native fixture. Do not launch a new game dispatch on the strength of this contract-only result.
+Next useful work is to attach source-attributed prior-turn Copycat choices to the V3 runner, resolve source-attributed Ability-suppression facts, and complete the pending exact-head independent reviews. Only after the owner/Critic freeze permits should an already-authorized native fixture be run; the contract and no-game witness results do not authorize a game dispatch.
