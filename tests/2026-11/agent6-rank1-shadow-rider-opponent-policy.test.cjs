@@ -2301,6 +2301,10 @@ test('Climactic Gate confirmation is source-bound and probability-conditioned', 
   });
   const yes = confirm(actorChoiceSource('Radiant Eternatus CRZ 105', 'Climactic Gate'),
     { deckCount: 30, prizeCount: 6 });
+  const auditedYes = policy.decideWithAudit(yes);
+  assert.deepEqual(auditedYes.decision, { kind: 'select-choice', token: 'yes' },
+    JSON.stringify(auditedYes.policyAudit));
+  assert.equal(auditedYes.policyAudit.tieBreakCode, 'EXPECTED_FETCH_1.989_MIN_0_75');
   assert.deepEqual(checkedDecision(yes), { kind: 'select-choice', token: 'yes' });
 
   const noKnownTargets = confirm(
