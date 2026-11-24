@@ -213,7 +213,7 @@ function projectNativeFixtureFailureForReceipt(failure,{includePrimary=true}={})
       typeof value==='string'&&/^[A-Za-z0-9_.:-]{1,128}$/.test(value))summary[key]=value;
     else if(key==='name'&&typeof value==='string'&&/^[A-Za-z0-9_.-]{1,64}$/.test(value))summary[key]=value;
     else if(key==='nativeErrorKind'&&value==='GameError')summary[key]=value;
-    else if(key==='nativeGameMessage'&&typeof value==='string'&&/^[A-Z0-9_]{1,128}$/.test(value))
+    else if(key==='nativeGameMessage'&&typeof value==='string'&&value.length<=256)
       summary[key]=value;
     else if(key==='stackSite'&&value&&typeof value==='object'&&
       typeof value.file==='string'&&
@@ -251,8 +251,7 @@ function projectV3FixtureFailureForReceipt(source,{
   const messageLength=failure?.messageLength??nativeFailure?.messageLength;
   if(Number.isSafeInteger(messageLength)&&messageLength>=0)result.messageLength=messageLength;
   if(failure?.nativeErrorKind==='GameError')result.nativeErrorKind='GameError';
-  if(typeof failure?.nativeGameMessage==='string'&&
-    /^[A-Z0-9_]{1,128}$/.test(failure.nativeGameMessage))
+  if(typeof failure?.nativeGameMessage==='string'&&failure.nativeGameMessage.length<=256)
     result.nativeGameMessage=failure.nativeGameMessage;
   const topStackSite=projectNativeFixtureFailureForReceipt({
     stackSite:failure?.stackSite
