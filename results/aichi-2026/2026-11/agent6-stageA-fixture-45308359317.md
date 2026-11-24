@@ -107,11 +107,11 @@ Agent49 was explicitly asked for an **observability-only** patch on the accepted
 
 ## Agent4's native GameError classification review
 
-Agent4's detailed source-level report is `results/aichi-2026/2026-11/agent4-gameerror-safe-diagnostic-20261124.md`. It confirms that the pinned `GameError` has no `.code`, `.name`, or `.stack`; its `message` is a `GameMessage` value unless a custom message is supplied. Eighteen `GameMessage` values have length 21, so the observed length cannot identify `CANNOT_PLAY_THIS_CARD`.
+Agent4's detailed source-level report is `results/aichi-2026/2026-11/agent4-gameerror-safe-diagnostic-20261124.md`. It confirms that the pinned `GameError` has no `.code`, `.name`, or `.stack`; its `message` is a `GameMessage` value unless a custom message is supplied. Thirteen `GameMessage` values have length 21 (five additional length-21 strings in the file belong to `GameLog`, not `GameMessage`), so the observed length cannot identify `CANNOT_PLAY_THIS_CARD`.
 
 The narrow diagnostic contract should therefore be:
-- emit `nativeErrorKind: "GameError"` only when `error.constructor?.name === "GameError"`;
-- emit `nativeGameMessage` only when the exact message matches a value in the pinned `GameMessage` enum; custom/non-enum messages remain redacted;
+- emit `nativeErrorKind: "GameError"` only when `error instanceof native.GameError` (or an equivalent same-module constructor check);
+- emit `nativeGameMessage` only when `Object.values(native.GameMessage).includes(error.message)`; custom/non-enum messages remain redacted;
 - retain allowlisted `stackSite={file,line,column}` for ordinary JavaScript Errors only;
 - validate and pass these fields through the native fixture redactor, runner projector, and public sanitizer, with tests for known enum, custom message, ordinary Error, and path/coordinate rejection.
 
@@ -120,4 +120,4 @@ Agent49 was asked to implement this observability-only change on the accepted in
 
 ### Runtime enum clarification
 
-In pinned `game-message.ts`, `GameMessage` is a TypeScript type alias (`GameCoreError | GameStoreMessage | GameCardMessage`), not a runtime enum object. The closed runtime allowlist must be built from the values of those three runtime enum objects (or their generated equivalents), not `Object.values(GameMessage)`. Only exact values from that union should be projected; the optional custom-message path stays generic/redacted.
+In pinned `game-message.ts`, `GameMessage` is both a runtime `const` (`export const GameMessage = { ... }`) and a TypeScript type alias. The package barrels re-export it, so `Object.values(native.GameMessage)` is valid at runtime. Exactly 13 values in this set have length 21; five additional length-21 strings in the same file belong to `GameLog`, not `GameMessage`. Project only exact values from `Object.values(native.GameMessage)`; custom messages stay generic/redacted.
