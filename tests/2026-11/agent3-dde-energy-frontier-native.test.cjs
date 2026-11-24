@@ -297,6 +297,9 @@ test('pinned dynamic type check rejects DDE-to-Active Kecleon when opponent Acti
       actorActiveCard: KECLEON,
       opponentActiveCard: TAPU_LELE
     });
+    // Preserve one legal Dragon recipient so the frontier contract still has
+    // a supported action while Kecleon and the other Bench target are rejected.
+    state.players[actorSeat].bench[0] = makePokemonList(native, cloneCard(REGIDRAGO));
     const actor = state.players[actorSeat];
     const enumerator = adapterModule.createKnownCapFreeActionEnumerator({
       native,
@@ -326,11 +329,12 @@ test('pinned dynamic type check rejects DDE-to-Active Kecleon when opponent Acti
         enumerator: { enumerate: () => candidates }
       }));
     assert.equal(frontier.diagnostics.enumeratedCount, 3);
-    assert.equal(frontier.diagnostics.validatedCount, 0);
-    assert.equal(frontier.diagnostics.rejectedCount, 3);
-    assert.equal(frontier.diagnostics.preflightRejectedCount, 3);
+    assert.equal(frontier.diagnostics.validatedCount, 1);
+    assert.equal(frontier.diagnostics.rejectedCount, 2);
+    assert.equal(frontier.diagnostics.preflightRejectedCount, 2);
     assert.equal(frontier.diagnostics.unsupportedCount, 0);
-    assert.equal(frontier.actionFrontier.items.length, 0);
+    assert.equal(frontier.actionFrontier.items.length, 1);
+    assert.equal(frontier.actionFrontier.items[0].targetPrinting, REGIDRAGO);
   }
 });
 
