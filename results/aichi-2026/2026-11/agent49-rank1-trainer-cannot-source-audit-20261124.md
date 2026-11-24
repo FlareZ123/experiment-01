@@ -247,3 +247,8 @@ These are not fringe rank-1-only cards. The four missing exact preflights affect
 
 
 The pinned `play-card-reducer.ts:70-145` also reads `action.target` through `findPokemonTarget`, then passes the resolved `PokemonCardList` plus primitive slot/index values into Pokémon/Tool effects. It does not write to the action's target descriptor. The Quick Ball regression is a no-target case, but the reducer source does not suggest a targeted PlayCardAction mutation path either.
+
+
+### Privacy regression to pair with the early capture
+
+When wiring the earlier private capture, extend `tests/2026-11/agent2-v3-sanitized-diagnostic.test.cjs` with a failed/not-dispatched attempt containing a sentinel `selectedCardIdentity.fullName` (and set/number). Assert the sanitized artifact has no `selectedCardIdentity` property and its serialized JSON does not contain the sentinel. Also assert `selectedCardPublicPrinting` remains null unless dispatch succeeded. The current sanitizer uses an allowlist and the existing test already proves family redaction; this regression will lock the new field's privacy boundary.
