@@ -40,9 +40,9 @@ The full-pool attack-text scan found type comparisons, Energy-type references, s
 
 ## Field-specific conclusion
 
-**The DDE host-ceases-to-be-Dragon discard condition appears unreachable in the current Aichi benchmark.** The DDE-owning decks have no type-changing host Ability; the known own-side global / Tool type-changing effects are absent or cannot affect the opposing host; and no attack that changes an opponent's Pokémon type was found in the card pool. The three missing lists are opponents, so their own-side type-changing Abilities or Tools cannot change a DDE host controlled by the other player.
+**The DDE host-ceases-to-be-Dragon discard condition appears unreachable in the current Aichi benchmark.** The DDE-owning decks have no type-changing host Ability; the known own-side global / Tool type-changing effects are absent or cannot affect the opposing host; and no attack that changes an opponent's Pokémon type was found in the card pool. The three missing lists are not known to be DDE-bearing or non-DDE; any could itself contain DDE. Therefore this audit supports only the 29 published lists. If a missing list contains DDE plus a type-changing own-side effect, the discard rule could be reachable in that matchup.
 
-Accordingly, the ongoing DDE discard rule should remain documented as a **generic simulator completeness gap**, with a dedicated regression retained in the backlog, but it should not be treated as a field-specific blocker to Aichi matchup simulation once the independent Stage-A / Stage-B gates are satisfied. The same distinction applies to PR #65's preflight-before-AttachEnergyEffect ordering assumption: universal equivalence remains unproven, but no reachable Aichi DDE target-type change was identified.
+Accordingly, the ongoing DDE discard rule should remain documented as a **generic simulator completeness gap**. It is non-blocking for the ten known DDE-bearing lists within the 29 published-list subset, but it remains unresolved for the full 32 until ranks 23, 25 and 28 are recovered or independently shown not to add a DDE/type-changing interaction. The same distinction applies to PR #65's preflight-before-AttachEnergyEffect ordering assumption: universal equivalence remains unproven, but no reachable target-type change was identified in the ten known DDE-bearing lists.
 
 ## Limitations
 
@@ -53,4 +53,5 @@ Accordingly, the ongoing DDE discard rule should remain documented as a **generi
 
 ## Proposed disposition
 
-Reclassify the DDE host-type-change/discard regression from a hard Aichi-field simulation gate to a documented generic-engine follow-up, subject to independent review of this reachability audit. Do not claim that Twinleaf implements the rule; do not remove the regression from the general correctness backlog.
+Reclassify the DDE host-type-change/discard regression as non-blocking for the ten known DDE-bearing lists in the 29-list subset, but retain it as a full-32 gate until ranks 23, 25 and 28 are recovered or independently ruled out as DDE/type-changing lists. Do not claim that Twinleaf implements the rule; do not remove the regression from the general correctness backlog.
+
