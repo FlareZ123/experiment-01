@@ -57,3 +57,38 @@ Retain the existing DDE-to-Dedenne/Tapu Lele rejection cases and the non-DDE Ene
 ## Evidence boundary
 
 This is a pinned-source and card-pool correctness finding for the action-frontier exception scope. It is not a simulated game, matchup result, deck-strength estimate, or evidence of competitive win rate. PR #65's reviewed head at the time of this finding still had an exact-DDE exception without a target-type discriminator; the messages above hand the required correction to its author and reviewer.
+
+## 2026-11-24 follow-up: independent review of PR #66
+
+**Reviewed exact head:** `ee9df3f010eb8b5471cb38ef0ac04078868dd5fb`  
+**Focused CI:** run `45325495328` passed on that head.  
+**Review:** COMMENT review `6034103597`; merge is not recommended until the following fail-closed gaps are resolved.
+
+### Runtime CardType validity is not guaranteed
+
+At the pinned Twinleaf revision:
+
+- `CheckPokemonTypeEffect.cardTypes` is declared `CardType[]`, but its constructor assigns `getPokemonCardTypes(pokemonCard)`.
+- `getPokemonCardTypes` returns `card.cardType` directly; it does not copy or validate the array.
+- `CardType` is a numeric TypeScript enum. The static annotation does not establish runtime membership for every element.
+- Dynamic reducers can replace or mutate the array. For example, Gallade CEC #82 and Magnezone UNM #60 push values into `effect.cardTypes`; other effects use mutable type state.
+
+Consequently, PR #66's array/non-empty assertions do not prove that a result is a well-formed set of native types. A malformed non-empty value such as `[999]` would currently be treated as definitely non-Dragon. Before using the result, require every entry to be a numeric member of the pinned `native.CardType` enum; unknown entries must fail closed. Add a negative regression for a non-empty unknown result.
+
+### The type probe must not share the action-validation clone
+
+`Store.reduceEffect` is not a pure query: it propagates the effect through all cards and calls `calculatePlayability` (pinned `store.ts:140-186`). The type-check constructor also aliases the Pokémon's base `cardType` array. Gallade and Magnezone's dynamic reducers mutate that array via `.push`.
+
+PR #66 currently calls the DDE preflight on the same cloned Simulator that it subsequently uses for `simulator.store.dispatch(action)` in `buildNativeActionFrontier`. Thus the probe can mutate the action-validation clone even while the original live Store remains unchanged. The existing live-state snapshot does not test this clone-to-clone contamination.
+
+Recommended correction: run the type probe on a separate throwaway cloned Simulator, and add a push-based dynamic-type fixture that verifies the action-validation clone is unchanged by the probe. If the helper is intended to be effect-local, copy `typeCheck.cardTypes` before calling `reduceEffect` as well.
+
+### Ordering caveat
+
+The pinned DDE reducer performs its own `CheckPokemonTypeEffect` during `AttachEnergyEffect` propagation. That happens after the other card reducers have processed the attachment; PR #66's preflight runs before that propagation. I did not identify a concrete target-side attachment handler that changes the effective type in the relevant source scan, but the current tests do not prove general ordering equivalence. Keep this limitation explicit or add a focused control for any such target in the field.
+
+### Ongoing type-change clause confirmed in source
+
+The pinned DDE reducer handles `CheckTableStateEffect` by scanning attached DDE and discarding it when the host is no longer Dragon, subject to the Special Energy block check (`double-dragon-energy.ts:56-68)). The check-state routine invokes `CheckTableStateEffect` (`check-effect.ts:447-448`). This confirms source implementation, not behavioral test coverage; a separate state-transition regression is still needed before broad field simulation.
+
+These are adapter/rules-fidelity findings only. PR #66 remains open and unmerged; none of this constitutes a game, matchup, or competitive-strength result.
