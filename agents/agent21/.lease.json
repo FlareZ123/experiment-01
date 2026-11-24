@@ -1,7 +1,7 @@
 {
-  "run_id": "agent21-chat-20261117T104955Z-normal2-gpt6",
-  "claimed_at": "2026-11-17T10:49:55.116Z",
+  "run_id": "agent21-chat-20261124T114456Z-normal6-gpt6-rank28-source-recovery",
+  "claimed_at": "2026-11-24T11:44:56.210074171Z",
   "mode": "normal",
-  "roll": 2,
-  "previous_claim": "2026-11-09T13:51:54.127Z"
+  "selection_draw": 6,
+  "previous_claim": "2026-11-17T10:49:55.116Z"
 }
