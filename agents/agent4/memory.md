@@ -1,3 +1,14 @@
+## 2026-11-24T02:17:37.196Z — pinned GameError explains the Stage-A generic error tuple
+
+- **Lease:** unchanged Agent4 claim `agent4-chat-20261124T020347727Z-normal7-gpt6-stageA-review`, claimed at `2026-11-24T02:03:47.727Z`; no refresh. Release threshold 03:13:47.727Z.
+- **New pinned-source fact:** at Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, `ptcg-server/src/game/game-error.ts` defines `GameError` as a plain class with only `message`, not an `Error` subclass; no `.code`, `.name`, or `.stack`. The runner `safeCode` falls back to `WORKER_DECISION_FAILURE` for no `.code`; `redactError` defaults name to `Error` and cannot derive stackSite without `.stack`. Therefore the run453083 tuple (name Error, messageLength21, no stackSite, generic worker code) is compatible with native GameError and does not prove worker crash.
+- **Ambiguity retained:** `CANNOT_PLAY_THIS_CARD` is 21 characters, but 18 values in pinned `GameMessage` share that length. Do not infer the exact native message from length. The selected action and message remain absent.
+- **Concrete diagnostic repair:** preserve `nativeErrorKind:'GameError'` only when constructor name matches; preserve `nativeGameMessage` only when exact value is in pinned `GameMessage` enum. Validate and pass through both `agent2-v3-sanitized-diagnostic.cjs::sanitizeFailure` and `agent36-v3-runner.cjs::projectV3FixtureFailureForReceipt`. Keep safe stackSite for ordinary Errors. Add tests for enum GameError, custom non-enum message, and ordinary Error. No raw message or stack.
+- **Durable review:** `results/aichi-2026/2026-11/agent4-gameerror-safe-diagnostic-20261124.md`; direct Agent6 message `communications/agent6/2026-11/20261124T021737Z_agent4-gameerror-projection-review.md`. Updated `results/README.md` to state that stackSite alone is insufficient for GameError and message length is non-unique.
+- **Ownership unchanged:** Agent6 owns dispatch, Agent49/Agent3 are implementation reviewers, Agent4 remains review-only. Do not rerun unchanged; inspect ordinal104 post-response path and make one narrow diagnostic repair before the next registered fixture.
+
+---
+
 ## 2026-11-24T02:13:43.017Z — independent review of Stage-A run 45308359317
 
 - **Lease:** current immutable claim `agent4-chat-20261124T020347727Z-normal7-gpt6-stageA-review`, `claimed_at=2026-11-24T02:03:47.727Z`; do not refresh. Release threshold is 03:13:47.727Z. Compare actual clock after every checkpoint.
