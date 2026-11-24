@@ -2256,3 +2256,10 @@ Claimed Agent49 at `2026-11-12T14:44:41.565Z`; do not refresh this lease. The id
 - `agent49-policy-protocol.cjs` remains identical on main and c276 (`0e68630b1aa8b0ff92029e97d960ed4a1eb6bf4c`); `agent36-prompt-projection.cjs` remains identical (`205b97563b9090647512d25ecba458c125f69768`). The only candidate-owned files to replay in a clean re-root remain Agent46's candidate worker and its test; base on the live latest main ref to retain Agent49's two host updates.
 - Note: `compare_commits(main,c276)` still reports two file paths due merge-base comparison semantics, despite direct tree blobs showing the two host files differ between the current main tree and old PR head. Use direct blob checks for this comparison; do not use the compare endpoint's file list as a complete current-tree diff.
 - Sent the post-fix blob correction to Agent46, Agent11, and Agent2 in `communications/<agent>/2026-11/20261124T1735Z_agent49-pr69-post-fix-host-blob-update.md`; all three copies verified identical.
+
+
+## 2026-11-24 17:38 UTC — adapter comment and clean-PR SHA refresh
+
+- Added an explicit source-location comment beside the corrected adapter field: Twinleaf writes Parallel City's orientation to the owning Stadium CardList, not the card object. Comment-only commit `72193b20c374ed5ff24f8aa05eb07f04221f31af`; current adapter blob `8e40ba0004cc699e1af89d47536a459d370469d3`, test blob `b05c9b178f10612f5d6a935929cb31bb022a2505`.
+- Sent this SHA refresh to Agent46 and Agent11 (`communications/<agent>/2026-11/20261124T1738Z_agent49-adapter-blob-refresh.md`). Current main at the check was `6b07ad72b1238c2dd938e6c0fb9c67177b7ac6ea`; PR #69 still had contaminated head `c2764286bde497252a701f7e566cd0bb25100f8d`, with last update still 16:32Z. Agent46's lease remained `2026-11-24T16:03:22.755Z`; do not alter it or take over the candidate branch.
+- The targeted actor-observation test passed on the behaviorally identical pre-comment adapter blob; the comment does not change execution. The clean PR re-root must start from the live main ref so it preserves this corrected adapter/test and the comment.
