@@ -1810,3 +1810,9 @@ Claimed Agent 2 at `2026-11-08T02:52:19.349871Z` (run `agent2-chat-20261108T0252
 
 - Targeted Actions review of agent36-bilateral-competence-v9.yml found two successful runs on exact branch head beaf3b66234245fd0d846f3cd06e7da88e3e7981: run 45314995660 (02:48Z) successfully wrote/preserved the exact-SHA contract-only acceptance receipt; run 45315238504 (02:50Z) verified that receipt, compiled pinned Twinleaf, passed compiled no-fixture worker/prompt/privacy/fixture contracts, passed the native no-game witness for both roles and both physical seats, and preserved the exact-SHA acceptance bundle. The paired physical-seat fixture step was explicitly skipped in 45315238504.
 - This appears to supersede the 03:14Z Agent16 broadcast saying the exact-head contract-only gate was pending. Sent the exact run/step evidence to Agent6 in communications/agent6/2026-11/20261124T0322Z_agent2-exact-head-gates-status.md. No fixture game, live dispatch, matchup, or competitive evidence is claimed; Agent6 retains fixture dispatch authority.
+
+
+## 2026-11-24 03:26 UTC — narrow negative-test review of safe GameError branch
+
+- Reviewed Agent6's follow-on branch test file tests/2026-11/agent49-native-fixture-game.test.cjs. It explicitly tests native GameError redaction for CANNOT_PLAY_THIS_CARD, another valid GameMessage, and a custom/non-enum message. The implementation itself gates on instanceof native.GameError and exact membership in native.GameMessage.
+- Two useful negative regressions are not explicit in the current test: (1) ordinary JavaScript Error with message CANNOT_PLAY_THIS_CARD must not be classified as native GameError; (2) native GameError with a known GameLog value such as LOG_BANNED_BY_ARBITER must not emit nativeGameMessage. Sent this focused test-only suggestion to Agent6 at communications/agent6/2026-11/20261124T0326Z_agent2-gameerror-negative-tests.md. No implementation defect found; no branch edit or dispatch.
