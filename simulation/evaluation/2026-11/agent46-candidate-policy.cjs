@@ -1296,16 +1296,22 @@ function scoreBasicPlay(item, view) {
 }
 
 function knownShadowRiderVmaxCount(view) {
+  const revealedPrizePrintings = Array.isArray(view.ownPublic.prizeSlots)
+    ? view.ownPublic.prizeSlots.filter(slot => isText(slot?.printing))
+      .map(slot => slot.printing)
+    : [];
   const visiblePrintings = [
     ...ownBoard(view).map(slot => slot.printing),
     ...view.ownHand,
     ...view.ownPublic.discard,
-    ...(Array.isArray(view.ownPublic.lostZone) ? view.ownPublic.lostZone : [])
+    ...(Array.isArray(view.ownPublic.lostZone) ? view.ownPublic.lostZone : []),
+    ...revealedPrizePrintings
   ];
   return visiblePrintings.filter(printing =>
     hasName(printing, 'Shadow Rider Calyrex VMAX')).length;
 }
 
+// A terminal Gate line must offer at least 0.75 expected VMAX targets.
 const MIN_EXPECTED_CLIMACTIC_GATE_TARGETS = 0.75;
 
 function binomialCoefficient(n, k) {
@@ -1324,9 +1330,13 @@ function binomialCoefficient(n, k) {
 // deck and prizes; malformed/incomplete counts fail closed.
 function expectedClimacticGateTargets(view) {
   const deck = view.ownPublic.deckCount;
-  const prizes = view.ownPublic.prizeCount;
-  if (!Number.isSafeInteger(deck) || !Number.isSafeInteger(prizes) ||
-      deck < 0 || prizes < 0) return null;
+  const prizeCount = view.ownPublic.prizeCount;
+  const revealedPrizeSlots = Array.isArray(view.ownPublic.prizeSlots)
+    ? view.ownPublic.prizeSlots.filter(slot => isText(slot?.printing))
+    : [];
+  const prizes = prizeCount - revealedPrizeSlots.length;
+  if (!Number.isSafeInteger(deck) || !Number.isSafeInteger(prizeCount) ||
+      deck < 0 || prizeCount < 0 || prizes < 0) return null;
   const remaining = 4 - knownShadowRiderVmaxCount(view);
   const hidden = deck + prizes;
   if (remaining < 0 || remaining > hidden || hidden === 0) return null;

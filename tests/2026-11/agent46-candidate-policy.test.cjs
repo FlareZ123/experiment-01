@@ -2744,3 +2744,22 @@ test('Fairy Zone respects effective Stealthy Hood and accounts for Jamming Tower
     { token: 'plain', index: 1, ownerSeat: 'opponent', printing: plain.printing }
   ])), { kind: 'select-choices', tokens: ['plain'] });
 });
+
+
+test('Radiant Gate EV counts revealed Prize VMAX as unavailable and removes revealed Prizes from the hidden pool', () => {
+  const vmax = 'Shadow Rider Calyrex VMAX CRE 75';
+  const ordinary = observation(0, { ownDiscard: [vmax, vmax] });
+  ordinary.ownPublic.deckCount = 4;
+  ordinary.ownPublic.prizeCount = 6;
+  assert.deepEqual(evaluate(confirmPromptRequest(
+    0, ordinary, 'Radiant Eternatus CRZ 105', 'Climactic Gate'
+  )), { kind: 'select-choice', token: 'yes' });
+
+  const revealed = observation(0, { ownDiscard: [vmax, vmax] });
+  revealed.ownPublic.deckCount = 4;
+  revealed.ownPublic.prizeCount = 6;
+  revealed.ownPublic.prizeSlots = [{ index: 0, printing: vmax }];
+  assert.deepEqual(evaluate(confirmPromptRequest(
+    0, revealed, 'Radiant Eternatus CRZ 105', 'Climactic Gate'
+  )), { kind: 'select-choice', token: 'no' });
+});
