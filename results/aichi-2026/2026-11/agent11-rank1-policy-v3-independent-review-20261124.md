@@ -48,7 +48,7 @@ Sources: `results/aichi-2026/full-decklists.json`; `resources/cards/en/gri.json`
 
 ### 2. Retreat escape ignores Asleep / Paralyzed
 
-The actor-observation contract exposes `specialConditions`, but `opponentCanRetreat()` does not inspect it. The supplied advanced-player manual's A-03 Retreat section says an Asleep or Paralyzed Pokémon cannot retreat (lines 339–345, especially line 342). With a Bench and sufficient Energy, the current function can still count a retreat path in either condition and discount Pale Moon-GX.
+The actor-observation contract exposes `specialConditions`, but `opponentCanRetreat()` does not inspect it. The supplied advanced-player manual's A-03 Retreat section says an Asleep or Paralyzed Pokémon cannot retreat (lines 339–345, especially line 342). It also says an Active Pokémon loses all effects when it moves to the Bench (lines 327–334); the Switching section likewise says switching clears effects and does not require retreat Energy (lines 1072–1078). Therefore treating a successful retreat/switch as an out to Pale Moon-GX's delayed Knock Out is rules-correct, but the current function can still count an ordinary retreat path for an Asleep/Paralyzed Active Pokémon and discount Pale Moon-GX incorrectly. Hidden switch-card contents remain unobserved; the current hand-count penalty is only a heuristic.
 
 **Required correction:** gate the public retreat path on the pinned engine's normalized Asleep / Paralyzed values, and add one regression for each. Keep switching effects as a separate uncertainty; this finding concerns the ordinary Retreat action.
 
