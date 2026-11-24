@@ -6,6 +6,10 @@ const { createHash } = require('node:crypto');
 const { buildCampaign, loadDefaultCampaign, parseField } =
   require('../../scripts/aichi-comparison-campaign.cjs');
 const {prepareCandidateInputOrder} = require('./aichi-candidate-input-order.cjs');
+const {
+  PROTOCOL: INDEPENDENT_RNG_PROTOCOL, createRandomMaterial,
+  randomMaterialCommitment
+} = require('./agent37-independent-rng-v1.cjs');
 
 const SOURCE_DIR = path.resolve(__dirname, '../../results/aichi-2026');
 
@@ -115,6 +119,12 @@ function executeCampaign(inputs, options = {}) {
     throw new Error('Unknown campaign phase.');
   }
   const expectedPolicyProfile = options.expectedPolicyProfile || null;
+  const rngProtocol = options.rngProtocol ||
+    'separate-game-and-per-seat-policy-prng-v1';
+  if (!['separate-game-and-per-seat-policy-prng-v1',
+    INDEPENDENT_RNG_PROTOCOL].includes(rngProtocol)) {
+    throw new Error('Unknown campaign RNG protocol.');
+  }
   const inputOrderProtocol = options.inputOrderProtocol || 'source-row-order-v1';
   if (!['source-row-order-v1','reference-aligned-v1'].includes(inputOrderProtocol)) {
     throw new Error('Unknown candidate input-order protocol.');
@@ -191,6 +201,7 @@ function executeCampaign(inputs, options = {}) {
       opponentDigest: trial.opponentDigest, seed: trial.seed,
       repeat: trial.repeat, candidateEngineSlot: trial.candidateEngineSlot,
       inputOrderProtocol,
+      rngProtocol,
       exactSourceMirror: trial.candidateDigest === trial.opponentDigest,
       potentialReplayAliasKey: trial.candidateDigest === trial.opponentDigest ?
         sha256({ phase: trial.phase, rank: trial.rank,
@@ -215,8 +226,19 @@ function executeCampaign(inputs, options = {}) {
     const deckA = candidateA ? inputOrder.engineIds : opponent.cards;
     const deckB = candidateA ? opponent.cards : inputOrder.engineIds;
     const expectedEngineDeckHashes = [sha256(deckA), sha256(deckB)];
+    const rngMaterial = rngProtocol === INDEPENDENT_RNG_PROTOCOL ?
+      createRandomMaterial() : null;
+    const rngMaterialDigest = rngMaterial ?
+      randomMaterialCommitment(rngMaterial) : null;
+    if (rngMaterial) {
+      base.rngMaterial = rngMaterial;
+      base.rngMaterialCommitment = rngMaterialDigest;
+    }
     const request = {
       deckA, deckB, seed: trial.seed,
+      ...(rngMaterial ? {
+        rngProtocol, rngMaterial, rngMaterialCommitment: rngMaterialDigest
+      } : {}),
       maxActions: options.maxActions === undefined ? 800 : options.maxActions,
       label: trial.trialId,
       ...(trial.rank === 11 ? {rank11SourceSeat: candidateA ? 1 : 0} : {}),
@@ -237,9 +259,14 @@ function executeCampaign(inputs, options = {}) {
         game.deckHashes.every((digest, i) => digest === expectedEngineDeckHashes[i]);
       const engineIdentityValid = !plan.engineRevision ||
         game.engine === 'twinleafgg/' + plan.engineRevision;
-      const protocolValid = game.randomnessProtocol ===
-          'separate-game-and-per-seat-policy-prng-v1' &&
+      const protocolValid = game.randomnessProtocol === rngProtocol &&
         game.policyRandomIsolation === true &&
+        (rngProtocol !== INDEPENDENT_RNG_PROTOCOL || (
+          game.physicalShuffleRandomIsolation === true &&
+          game.coinRandomIsolation === true &&
+          game.engineRandomIsolation === true &&
+          game.rngMaterialCommitment === rngMaterialDigest
+        )) &&
         game.promptValidationMode === 'predispatch-prompt-validate' &&
         game.rules?.format === 'EXPANDED' &&
         game.rules?.firstTurnDrawCard === true &&
@@ -308,7 +335,12 @@ function executeCampaign(inputs, options = {}) {
           postSuperAliasRepairIsolation: game.postSuperAliasRepairIsolation ?? null,
           strictPromptValidation: game.promptValidationMode ===
             'predispatch-prompt-validate',
-          isolatePolicyRandomness: game.policyRandomIsolation ?? null
+          isolatePolicyRandomness: game.policyRandomIsolation ?? null,
+          physicalShuffleRandomIsolation: game.physicalShuffleRandomIsolation ?? null,
+          coinRandomIsolation: game.coinRandomIsolation ?? null,
+          engineRandomIsolation: game.engineRandomIsolation ?? null,
+          rngProtocol,
+          rngMaterialCommitment: game.rngMaterialCommitment ?? null
         },
         resolvedEngineRevision: plan.engineRevision || null,
         observedEngine: game.engine || null,
@@ -320,6 +352,7 @@ function executeCampaign(inputs, options = {}) {
         rank26PumpPolicy: game.rank26PumpPolicy || null,
         rank26PropagationPolicy: game.rank26PropagationPolicy || null,
         observedRngProtocol: game.randomnessProtocol || null,
+        observedRngMaterialCommitment: game.rngMaterialCommitment || null,
         observedRules: game.rules || null,
         observedEngineDeckHashes: game.deckHashes || null,
         attackTrace: game.attackTrace || [],
@@ -345,6 +378,10 @@ function executeCampaign(inputs, options = {}) {
   return {
     schemaVersion: campaign.schemaVersion, planDigest: campaign.planDigest, phase,
     seedProtocol: campaign.seedProtocol || 'paired-slots-v1',
+    rngProtocol,
+    rngMaterialDisposition: rngProtocol === INDEPENDENT_RNG_PROTOCOL ?
+      'raw-independent-stream-seeds-retained-in-each-executed-trial-after-match' :
+      'legacy-seed-derived-streams',
     inputOrderProtocol,
     researchRevision: process.env.GITHUB_SHA || null,
     expectedPolicyProfile,
@@ -372,6 +409,7 @@ if (require.main === module) {
   const captureDecisionTrace = process.env.CAMPAIGN_CAPTURE_DECISIONS === 'true';
   const inputOrderProtocol = process.env.CAMPAIGN_INPUT_ORDER_PROTOCOL ||
     'source-row-order-v1';
+  const rngProtocol = process.env.CAMPAIGN_RNG_PROTOCOL || undefined;
   const profiled = profile ?
     require('../twinleaf/policy-profiles.cjs') : null;
   if (profile && !profiled.ALLOWED_PROFILES.includes(profile)) {
@@ -404,7 +442,7 @@ if (require.main === module) {
         process.env.CAMPAIGN_ATTACHED_TOOL_POWER === 'true'
     },
     captureDecisionTrace, expectedPolicyProfile: profile || null,
-    inputOrderProtocol
+    inputOrderProtocol, rngProtocol
   }), null, 2) + '\n');
 }
 
