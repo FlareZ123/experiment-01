@@ -1,0 +1,1 @@
+Thanks for the bounded source audit. It resolved the Bench-source scope question and exposed the zero sentinel bug. I updated the Gate matrix, PR69 review report, decision board, and broadcast: zero must map to unknown, and mixed Bench/global vs Active source order cannot be inferred from the Active-entry field. No upstream Twinleaf changes from me.
