@@ -475,60 +475,11 @@ function abilitySuppressionStatus(slot, abilityName) {
   return null;
 }
 
-function fairyZoneSuppressedByPublicSources(slot, observation) {
-  const own = observation?.ownPublic ?? {};
-  const opponent = observation?.opponentPublic ?? {};
-  const players = [own, opponent];
-
-  // The actor contract leaves this status unknown. Resolve the known public
-  // suppressors that can affect Lillie's Basic Psychic ex.
-  if (pathLockStatus(observation) !== false) return true;
-
-  const activeKlefki = players.some(player =>
-    hasAbility(player.active, 'Mischievous Lock') &&
-    !abilityIsSuppressed(player.active, 'Mischievous Lock'));
-  if (activeKlefki) return true;
-
-  const activeIronThorns = players.some(player =>
-    hasAbility(player.active, 'Initialization') &&
-    !abilityIsSuppressed(player.active, 'Initialization'));
-  if (activeIronThorns) return true;
-
-  const opponentNeutralizingGas = hasAbility(opponent.active, 'Neutralizing Gas') &&
-    !abilityIsSuppressed(opponent.active, 'Neutralizing Gas');
-  if (opponentNeutralizingGas) return true;
-
-  const opponentSlaking = hasAbility(opponent.active, 'Lazy') &&
-    !abilityIsSuppressed(opponent.active, 'Lazy');
-  if (opponentSlaking) return true;
-
-  const opponentActiveFlutterMane = slot === own.active &&
-    hasAbility(opponent.active, 'Midnight Fluttering') &&
-    !abilityIsSuppressed(opponent.active, 'Midnight Fluttering');
-  if (opponentActiveFlutterMane) return true;
-
-  const livePowerOfAlchemy = players.some(player =>
-    boardSlots(player).some(candidate =>
-      hasAbility(candidate, 'Power of Alchemy') &&
-      !abilityIsSuppressed(candidate, 'Power of Alchemy')));
-  if (livePowerOfAlchemy) return true;
-
-  const liveGarbotoxin = players.some(player =>
-    boardSlots(player).some(candidate =>
-      hasAbility(candidate, 'Garbotoxin') &&
-      list(candidate.tools).length > 0 &&
-      !abilityIsSuppressed(candidate, 'Garbotoxin')));
-  return liveGarbotoxin;
-}
-
 function fairyZoneActive(observation) {
   const own = observation?.ownPublic ?? {};
-  return boardSlots(own).some(slot => {
-    if (!hasAbility(slot, 'Fairy Zone')) return false;
-    const explicitStatus = abilitySuppressionStatus(slot, 'Fairy Zone');
-    if (explicitStatus !== null) return explicitStatus === false;
-    return !fairyZoneSuppressedByPublicSources(slot, observation);
-  });
+  return boardSlots(own).some(slot =>
+    hasAbility(slot, 'Fairy Zone') &&
+    abilitySuppressionStatus(slot, 'Fairy Zone') === false);
 }
 
 function opponentHasDragonInPlay(observation) {
@@ -601,6 +552,38 @@ function opponentHasWeakBenchTarget(observation) {
     slot && remainingHp(slot) > 0 && remainingHp(slot) <= 150);
 }
 
+function paleMoonHasExtraPsychicEnergy(observation) {
+  const active = observation?.ownPublic?.active;
+  if (!matches(active?.printing ?? '', PRINT.trevenant)) return false;
+  const psychic = psychicEnergyOn(active);
+  const total = list(active?.energies).length;
+  const dimensionValleyActive =
+    activeStadiums(observation).some(stadium => /Dimension Valley/i.test(stadium)) &&
+    toolEffectsStatus(observation) === true;
+  return dimensionValleyActive ? psychic >= 2 : psychic >= 2 && total >= 3;
+}
+
+function opponentCanRetreat(observation) {
+  const opponent = observation?.opponentPublic ?? {};
+  const active = opponent.active;
+  if (!active || countBench(opponent) === 0) return false;
+  const restrictions = active.publicRestrictions ?? {};
+  if (restrictions.cannotRetreat === true ||
+      restrictions.cannotRetreatNextTurn === true ||
+      restrictions.cannotRetreatWhileActive === true) return false;
+  const retreatCost = list(active.printed?.retreatCost).length;
+  return list(active.energies).length >= retreatCost;
+}
+
+function paleMoonEscapeDiscount(observation) {
+  const opponent = observation?.opponentPublic ?? {};
+  const handCount = Number.isSafeInteger(opponent.handCount) && opponent.handCount > 0 ?
+    opponent.handCount : 0;
+  // Hand size is only a weak proxy for hidden switching outs; the public retreat
+  // path is counted separately and exactly from the actor-visible board.
+  return (opponentCanRetreat(observation) ? 25 : 0) + Math.min(20, handCount * 3);
+}
+
 function scoreAttack(item, request) {
   const observation = request.observation;
   const name = item.attackName ?? '';
@@ -624,8 +607,13 @@ function scoreAttack(item, request) {
     const trapped = restrictions.cannotRetreat === true ||
       restrictions.cannotRetreatNextTurn === true ||
       restrictions.cannotRetreatWhileActive === true;
-    const damage = 10 * psychicMultiplier;
-    return 110 + (trapped ? 35 : 0) + (hp > 0 && damage >= hp ? 12 : 0);
+    const delayedKoBonus = Math.max(20, 60 - paleMoonEscapeDiscount(observation));
+    const extraPsychic = paleMoonHasExtraPsychicEnergy(observation);
+    const energyDiscardBonus = extraPsychic ?
+      Math.min(15, list(opponent?.energies).length * 5) : 0;
+    // Immediate lethal attacks retain priority; this cap keeps the delayed
+    // effect valuable without outranking a confirmed Max Geist knockout.
+    return Math.min(179, 110 + delayedKoBonus + energyDiscardBonus + (trapped ? 5 : 0));
   }
   if (name === 'Eon Blade') {
     const damage = 200 * psychicMultiplier;
@@ -638,8 +626,11 @@ function scoreAttack(item, request) {
   }
   if (name === 'Copycat') return copycatTargetAvailable(request) ? 132 : 0;
   if (name === 'Energy Drive') {
-    const damage = totalEnergyCount(observation) * 20 * psychicMultiplier;
-    return 85 + Math.min(30, totalEnergyCount(observation) * 3) +
+    const activeEnergyCount =
+      list(observation.ownPublic?.active?.energies).length +
+      list(observation.opponentPublic?.active?.energies).length;
+    const damage = activeEnergyCount * 20;
+    return 85 + Math.min(30, activeEnergyCount * 3) +
       (hp > 0 && damage >= hp ? 18 : 0);
   }
   const printedDamage = Number.parseInt(String(
@@ -1138,19 +1129,51 @@ function fieldBlowerChoiceScore(choice, observation) {
 
 function discardChoiceScore(choice, observation) {
   const printing = choicePrinting(choice);
-  const hand = observation.ownHand;
+  const hand = list(observation.ownHand);
+
+  const singletonPatterns = [
+    PRINT.trevenant, PRINT.latias, PRINT.dialga, PRINT.girafarig,
+    PRINT.mimikyu, PRINT.marshadow, PRINT.radiantEternatus,
+    /^Carmine TWM 145\\b/i, /^Iono PAL 185\\b/i,
+    /^Teammates PRC 160\\b/i, /^Raihan CRZ 140\\b/i,
+    /^Acerola BUS 112\\b/i, /^Guzma BUS 115\\b/i,
+    /^Tulip PAR 181\\b/i, PRINT.quickBall,
+    /^Hisuian Heavy Ball ASR 146\\b/i,
+    /^Battle Compressor PHF 92\\b/i, PRINT.fieldBlower,
+    /^Night Stretcher SFA 61\\b/i, /^Unfair Stamp TWM 165\\b/i,
+    /^Float Stone BKT 137\\b/i, /^Forest Seal Stone SIT 156\\b/i,
+    /^Dimension Valley PHF 93\\b/i
+  ];
+  if (singletonPatterns.some(pattern => matches(printing, pattern))) return -120;
+
   if (matches(printing, PRINT.psychic)) {
     return psychicCountInHand(observation) > 1 ||
-      hasPrinting(hand, /Tulip PAR\b/i) ? 10 : -100;
+      hasPrinting(hand, /Tulip PAR\\b/i) ? 10 : -100;
   }
   if (matches(printing, PRINT.shadowRiderVmax)) {
     return countPrinting(hand, PRINT.shadowRiderVmax) > 1 ? 20 : -120;
   }
-  if (includes(printing, 'Carmine') || includes(printing, 'Lillie')) return 30;
-  if (includes(printing, 'Unfair Stamp') || includes(printing, 'Raihan') ||
-      includes(printing, 'Tulip') || includes(printing, 'Acerola')) return -80;
   if (matches(printing, PRINT.shadowRiderV)) {
     return countPrinting(hand, PRINT.shadowRiderV) > 1 ? 35 : -120;
+  }
+  if (matches(printing, PRINT.clefairy) || matches(printing, PRINT.tapuLele)) {
+    const pattern = matches(printing, PRINT.clefairy) ? PRINT.clefairy : PRINT.tapuLele;
+    return countPrinting(hand, pattern) > 1 ? 30 : -90;
+  }
+  if (includes(printing, "Lillie's Determination")) {
+    return hand.filter(card => includes(card, "Lillie's Determination")).length > 1 ? 25 : -60;
+  }
+  if (includes(printing, 'Mysterious Treasure')) {
+    return hand.filter(card => includes(card, 'Mysterious Treasure')).length > 1 ? 25 : -60;
+  }
+  if (includes(printing, 'Fog Crystal')) {
+    return hand.filter(card => includes(card, 'Fog Crystal')).length > 1 ? 25 : -60;
+  }
+  if (includes(printing, 'VS Seeker')) {
+    return hand.filter(card => includes(card, 'VS Seeker')).length > 1 ? 25 : -70;
+  }
+  if (includes(printing, 'Sky Field')) {
+    return hand.filter(card => includes(card, 'Sky Field')).length > 1 ? 25 : -60;
   }
   return 50;
 }
@@ -1440,7 +1463,10 @@ function promptDecision(request) {
       if (matches(slot.printing, PRINT.shadowRiderV)) return 80 - energy;
       return 20 - energy;
     });
-    return ranked.length > 0 ? { kind: 'select-choice', token: ranked[0] } :
+    if (ranked.length > 0) return { kind: 'select-choice', token: ranked[0] };
+    const cancelOnly = prompt.publicMetadata?.allowCancel === true &&
+      choices.length === 1 && choices[0].kind === 'cancel';
+    return cancelOnly ? { kind: 'select-choice', token: choices[0].token } :
       { kind: 'abstain', reasonCode: 'NO_VISIBLE_ENERGY_CHOICE' };
   }
 
@@ -1663,9 +1689,12 @@ function promptDecision(request) {
     if (selectionType !== 'option' || min !== 1 || max !== 1) {
       return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
     }
-    const preferredOption = pathLockStatus(observation) !== false ||
-      toolEffectsStatus(observation) !== true ||
-      opponentToolCount(observation) < 2 ? 0 : 1;
+    const ownBeneficialStadium = list(observation?.ownPublic?.stadium)
+      .some(stadium => /Sky Field|Dimension Valley/i.test(stadium));
+    const preferredOption = pathLockStatus(observation) !== false ? 0 :
+      ownBeneficialStadium ? 1 :
+        (toolEffectsStatus(observation) !== true ||
+          opponentToolCount(observation) < 2 ? 0 : 1);
     const selected = choices.find(choice => choice.kind === 'option' &&
       choice.publicMetadata?.choiceIndex === preferredOption);
     if (selected) {

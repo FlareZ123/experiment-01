@@ -556,6 +556,147 @@ test('Underworld Door energy assignment uses actor-visible exact bench index and
   protocol.validatePolicyAudit(audited.policyAudit, request, audited.decision, POLICY_VERSION);
 });
 
+test('Underworld Door selects the native cancel-only choice with no Psychic Bench target', () => {
+  for (const seat of [0, 1]) {
+    const request = promptRequest({
+      seat,
+      promptType: 'AttachEnergyPrompt',
+      source: actorChoiceSource('Shadow Rider Calyrex VMAX CRE 75', 'Underworld Door'),
+      choices: [{ token: 'cancel', kind: 'cancel', label: 'Cancel' }],
+      publicMetadata: {
+        selectionType: 'energy-attachment', count: 1,
+        minimumCount: 1, maximumCount: 1, allowCancel: true,
+        sourceZone: 'hand', ownerSeat: 'actor', isOwnerVisible: true,
+        energyType: 'BASIC', zone: 'bench'
+      },
+      observation: {
+        ownHand: ['Psychic Energy MEE 13'],
+        ownPublic: player({
+          active: pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+            stage: 'VMAX', abilities: ['Underworld Door']
+          }),
+          bench: [pokemon('Marshadow UNB 81', { types: ['Fighting'] })]
+        })
+      }
+    });
+    assert.deepEqual(checkedDecision(request, seat), {
+      kind: 'select-choice', token: 'cancel'
+    });
+  }
+});
+
+test('Pale Moon-GX values its unconditional delayed Knock Out and conditional Energy discard', () => {
+  const paleMoonScore = request => {
+    const audited = policy.decideWithAudit(request);
+    return audited.policyAudit.evaluations.find(row => row.token === 'pale-moon')?.score;
+  };
+  const ownActive = energies => pokemon('Trevenant & Dusknoir-GX SMP 217', {
+    hp: 270, energies
+  });
+  const opponentActive = options => pokemon('Regidrago VSTAR SIT 136', {
+    hp: 280, types: ['Dragon'], ...options
+  });
+  const items = [
+    { token: 'pale-moon', kind: 'attack', attackName: 'Pale Moon-GX' },
+    { token: 'max-geist', kind: 'attack', attackName: 'Max Geist' },
+    { token: 'pass', kind: 'pass' }
+  ];
+
+  const noExtra = rootRequest({
+    ownPublic: player({ active: ownActive([
+      'Psychic Energy MEE 13', 'Psychic Energy MEE 13'
+    ]) }),
+    opponentPublic: player({
+      active: opponentActive({ energies: [
+        'Grass Energy SVE 1', 'Grass Energy SVE 1', 'Grass Energy SVE 1'
+      ] })
+    }),
+    items
+  });
+  const noExtraScore = paleMoonScore(noExtra);
+  const maxGeistScore = policy.decideWithAudit(noExtra).policyAudit.evaluations
+    .find(row => row.token === 'max-geist')?.score;
+  assert.ok(noExtraScore > maxGeistScore,
+    'the unconditional delayed Knock Out must be valued without the extra-Energy clause');
+
+  const dimensionValleyExtra = rootRequest({
+    ownPublic: player({
+      active: ownActive(['Psychic Energy MEE 13', 'Psychic Energy MEE 13']),
+      stadium: ['Dimension Valley PHF 93']
+    }),
+    opponentPublic: player({
+      active: opponentActive({ energies: [
+        'Grass Energy SVE 1', 'Grass Energy SVE 1', 'Grass Energy SVE 1'
+      ] })
+    }),
+    items
+  });
+  assert.ok(paleMoonScore(dimensionValleyExtra) > noExtraScore,
+    'Dimension Valley makes two Psychic Energy sufficient for the extra-Psychic Energy denial');
+
+  const escapeOuts = rootRequest({
+    ownPublic: player({ active: ownActive([
+      'Psychic Energy MEE 13', 'Psychic Energy MEE 13'
+    ]) }),
+    opponentPublic: player({
+      active: opponentActive({
+        energies: ['Grass Energy SVE 1'],
+        retreatCost: ['Colorless']
+      }),
+      bench: [pokemon('Dratini OBF 105')],
+      handCount: 5
+    }),
+    items
+  });
+  assert.ok(paleMoonScore(escapeOuts) < noExtraScore,
+    'a visible retreat path and larger hidden hand discount the delayed-KO estimate');
+});
+
+test('Energy Drive counts only both Active Pokémon and ignores Weakness', () => {
+  const fairy = pokemon("Lillie's Clefairy ex JTG 56", {
+    abilities: ['Fairy Zone'],
+    abilitySuppressions: [{
+      abilityName: 'Fairy Zone', suppressed: false,
+      reasonCode: null, sourcePrinting: null
+    }]
+  });
+  const request = rootRequest({
+    ownPublic: player({
+      active: pokemon('Tapu Lele-GX GRI 60', {
+        energies: ['Psychic Energy MEE 13']
+      }),
+      bench: [
+        fairy,
+        pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+          stage: 'VMAX',
+          energies: [
+            'Psychic Energy MEE 13',
+            'Psychic Energy MEE 13',
+            'Psychic Energy MEE 13'
+          ]
+        })
+      ]
+    }),
+    opponentPublic: player({
+      active: pokemon('Regidrago VSTAR SIT 136', {
+        hp: 240, types: ['Dragon'], energies: ['Grass Energy SVE 1']
+      }),
+      bench: [pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+        energies: ['Psychic Energy MEE 13', 'Psychic Energy MEE 13']
+      })]
+    }),
+    items: [
+      { token: 'energy-drive', kind: 'attack', attackName: 'Energy Drive' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  const audited = policy.decideWithAudit(request);
+  const energyDriveScore = audited.policyAudit.evaluations
+    .find(row => row.token === 'energy-drive')?.score;
+  assert.equal(energyDriveScore, 91,
+    'two Active Energy cards yield 40 damage; Benched Energy and Dragon weakness do not count');
+});
+
 test('rank1 policy abstains rather than guessing on an unsupported prompt type', () => {
   const request = promptRequest({
     promptType: 'UnmodeledPrompt',
@@ -990,6 +1131,63 @@ test('Mysterious Treasure discards a low-value card token, never a cancel or emp
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-choices',
     tokens: ['carmine']
+  });
+});
+
+test('Mysterious Treasure protects the fixed-list singleton Pokémon and Trainer cards', () => {
+  const protectedCards = [
+    'Trevenant & Dusknoir-GX SMP 217',
+    'Latias ex SSP 76',
+    'Dialga-GX UPR 100',
+    'Girafarig LOT 94',
+    'Mimikyu GRI 58',
+    'Marshadow UNB 81',
+    'Radiant Eternatus CRZ 105',
+    'Carmine TWM 145',
+    'Iono PAL 185',
+    'Teammates PRC 160',
+    'Raihan CRZ 140',
+    'Acerola BUS 112',
+    'Guzma BUS 115',
+    'Tulip PAR 181',
+    'Quick Ball FST 237',
+    'Hisuian Heavy Ball ASR 146',
+    'Battle Compressor PHF 92',
+    'Field Blower GRI 125',
+    'Night Stretcher SFA 61',
+    'Unfair Stamp TWM 165',
+    'Float Stone BKT 137',
+    'Forest Seal Stone SIT 156',
+    'Dimension Valley PHF 93'
+  ];
+  const choices = [
+    { token: 'psychic-0', kind: 'card', printing: 'Psychic Energy MEE 13',
+      label: 'Psychic Energy', publicMetadata: { sourceZone: 'hand' } },
+    { token: 'psychic-1', kind: 'card', printing: 'Psychic Energy MEE 13',
+      label: 'Psychic Energy', publicMetadata: { sourceZone: 'hand' } },
+    ...protectedCards.map((printing, index) => ({
+      token: 'protected-' + index,
+      kind: 'card',
+      printing,
+      label: printing,
+      publicMetadata: { sourceZone: 'hand' }
+    }))
+  ];
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Mysterious Treasure FLI 113', 'Mysterious Treasure'),
+    choices,
+    publicMetadata: {
+      sourceZone: 'hand', minimumCount: 1, maximumCount: 1,
+      allowCancel: false, isSecret: false, selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: ['Mysterious Treasure FLI 113', 'Psychic Energy MEE 13',
+        'Psychic Energy MEE 13', ...protectedCards]
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['psychic-0']
   });
 });
 
@@ -1945,7 +2143,7 @@ test('Lillie’s Clefairy ex is not played when Path to the Peak status is unkno
 });
 
 
-test('Fairy Zone policy resolver applies the ability when no public suppressor is present', () => {
+test('Fairy Zone remains inactive when suppression status is unknown', () => {
   const clefairy = pokemon("Lillie's Clefairy ex JTG 56", {
     hp: 190,
     abilities: ['Fairy Zone']
@@ -1978,7 +2176,7 @@ test('Fairy Zone policy resolver applies the ability when no public suppressor i
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-action',
-    token: 'max-geist'
+    token: 'night-watch'
   });
 });
 
@@ -3050,7 +3248,7 @@ test('Clefairy search and play recognize a Dragon on the opponent Bench', () => 
   });
 });
 
-test('Fairy Zone damage resolves public locks and remains target-aware for Stealthy Hood', () => {
+test('Fairy Zone requires explicit active status and remains target-aware for Stealthy Hood', () => {
   const attacks = [
     { token: 'max', kind: 'attack', attackName: 'Max Geist' },
     { token: 'eon', kind: 'attack', attackName: 'Eon Blade' },
@@ -3207,6 +3405,45 @@ test('Field Blower selects two-Tool mode when no effective lock Stadium is prese
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-choice', token: 'two-tools'
   });
+});
+
+test('Field Blower preserves our Sky Field and Dimension Valley against one opposing Tool', () => {
+  const makeRequest = (seat, stadium) => promptRequest({
+    seat,
+    promptType: 'SelectOptionPrompt',
+    source: actorChoiceSource('Field Blower GRI 125', 'Field Blower'),
+    choices: [
+      { token: 'stadium-plus-tool', kind: 'option',
+        label: 'Discard a Stadium and up to one Pokémon Tool',
+        publicMetadata: { choiceIndex: 0 } },
+      { token: 'tools-only', kind: 'option',
+        label: 'Discard up to two Pokémon Tools',
+        publicMetadata: { choiceIndex: 1 } }
+    ],
+    publicMetadata: {
+      selectionType: 'option', minimumCount: 1, maximumCount: 1,
+      allowCancel: false, isSecret: false
+    },
+    observation: {
+      ownPublic: player({ stadium: [stadium] }),
+      opponentPublic: player({
+        active: pokemon('Regidrago V SIT 135', {
+          types: ['Dragon'], tools: ['Stealthy Hood UNB 186']
+        })
+      })
+    }
+  });
+
+  for (const seat of [0, 1]) {
+    for (const stadium of ['Sky Field ROS 89', 'Dimension Valley PHF 93']) {
+      assert.deepEqual(checkedDecision(makeRequest(seat, stadium), seat), {
+        kind: 'select-choice', token: 'tools-only'
+      });
+    }
+    assert.deepEqual(checkedDecision(
+      makeRequest(seat, 'Path to the Peak CRE 148'), seat
+    ), { kind: 'select-choice', token: 'stadium-plus-tool' });
+  }
 });
 
 test('Field Blower selects visible opponent Pokémon with Tools and ignores own targets', () => {
@@ -3597,15 +3834,15 @@ test('Field Blower selects Stealthy Hood when a Dragon is protected by it', () =
 });
 
 
-test('Fairy Zone public-source resolver covers suppressors and card-specific exceptions', () => {
-  const fairy = (options = {}) => pokemon("Lillie's Clefairy ex JTG 56", {
+test('Fairy Zone never infers active status from an incomplete public-suppressor inventory', () => {
+  const fairy = (abilitySuppressions) => pokemon("Lillie's Clefairy ex JTG 56", {
     abilities: ['Fairy Zone'],
-    ...options
+    ...(abilitySuppressions ? { abilitySuppressions } : {})
   });
-  const observation = (own = {}, opponent = {}) => ({
+  const observation = (slot, own = {}, opponent = {}) => ({
     ownPublic: player({
       active: pokemon('Girafarig LOT 94'),
-      bench: [fairy()],
+      bench: [slot],
       ...own
     }),
     opponentPublic: player({
@@ -3615,65 +3852,27 @@ test('Fairy Zone public-source resolver covers suppressors and card-specific exc
   });
   const active = value => policyInternals.fairyZoneActive(value);
 
-  assert.equal(active(observation()), true);
-  assert.equal(active(observation({ stadium: ['Path to the Peak CRE 148'] })), false);
-  assert.equal(active(observation({}, { stadium: ['Silent Lab PRC 140'] })), false);
-  assert.equal(active(observation(
-    { active: pokemon('Klefki SVI 96', { abilities: ['Mischievous Lock'] }) }
-  )), false);
-  assert.equal(active(observation(
-    {}, { active: pokemon('Iron Thorns ex TWM 77', { abilities: ['Initialization'] }) }
-  )), false);
-  assert.equal(active(observation(
-    {}, { active: pokemon('Galarian Weezing RCL 113', { abilities: ['Neutralizing Gas'] }) }
-  )), false);
-  assert.equal(active(observation(
-    {}, { active: pokemon('Slaking SUM 115', { abilities: ['Lazy'] }) }
-  )), false);
-  assert.equal(active(observation(
-    { bench: [fairy(), pokemon('Alolan Muk SUM 58', { abilities: ['Power of Alchemy'] })] }
-  )), false);
-  assert.equal(active(observation(
-    {}, { bench: [pokemon('Garbodor LTR 68', {
-      abilities: ['Garbotoxin'], tools: ['Float Stone BKT 137']
-    })] }
-  )), false);
+  assert.equal(active(observation(fairy())), false);
+  assert.equal(active(observation(fairy(), { stadium: ['Path to the Peak CRE 148'] })), false);
+  assert.equal(active(observation(fairy(), {}, { stadium: ['Silent Lab PRC 140'] })), false);
+  assert.equal(active(observation(fairy(), {
+    active: pokemon('Klefki SVI 96', { abilities: ['Mischievous Lock'] })
+  })), false);
+  assert.equal(active(observation(fairy(), {}, {
+    active: pokemon('Iron Thorns ex TWM 77', { abilities: ['Initialization'] })
+  })), false);
 
-  // Bide Barricade exempts Psychic Pokémon; Empoleon V exempts Rule Box Pokémon.
-  assert.equal(active(observation(
-    {}, { active: pokemon('Wobbuffet PHF 36', { abilities: ['Bide Barricade'] }) }
-  )), true);
-  assert.equal(active(observation(
-    {}, { active: pokemon('Empoleon V BST 40', { abilities: ["Emperor's Eyes"] }) }
-  )), true);
-  assert.equal(active(observation(
-    {}, { active: pokemon('Ting-Lu ex PAL 127', { abilities: ['Cursed Land'] }) }
-  )), true);
-  assert.equal(active(observation(
-    {}, { active: pokemon('Spiritomb PAL 89', { abilities: ['Fettered in Misfortune'] }) }
-  )), true);
-  assert.equal(active(observation(
-    {}, { active: pokemon('Glaceon-GX FLI 39', { abilities: ['Freezing Gaze'] }) }
-  )), true);
-  assert.equal(active(observation(
-    {}, { active: pokemon('Mimikyu CEC 97', { abilities: ['Shadow Box'] }) }
-  )), true);
-
-  // Flutter Mane affects only the opponent's Active Pokémon.
-  assert.equal(active(observation(
-    {}, { active: pokemon('Flutter Mane TEF 78', { abilities: ['Midnight Fluttering'] }) }
-  )), true);
-  assert.equal(active(observation(
-    { active: fairy(), bench: [] },
-    { active: pokemon('Flutter Mane TEF 78', { abilities: ['Midnight Fluttering'] }) }
-  )), false);
-
-  // Either player's Stadium/Tool epoch disables Silent Lab and Path to the Peak.
-  assert.equal(active(observation(
-    { stadium: ['Path to the Peak CRE 148'] },
-    { stadiumAndToolHaveNoEffectTurnsRemaining: 1 }
-  )), true);
+  assert.equal(active(observation(fairy([{
+    abilityName: 'Fairy Zone', suppressed: false,
+    reasonCode: null, sourcePrinting: null
+  }]))), true);
+  assert.equal(active(observation(fairy([{
+    abilityName: 'Fairy Zone', suppressed: true,
+    reasonCode: 'PATH_TO_THE_PEAK',
+    sourcePrinting: 'Path to the Peak CRE 148'
+  }]))), false);
 });
+
 
 test('Climactic Gate veto includes opponent Active Slaking but not own Active Slaking', () => {
   const radiantAction = {
