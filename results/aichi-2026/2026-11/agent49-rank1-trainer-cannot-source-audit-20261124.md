@@ -231,3 +231,13 @@ The outer generator already has the needed handoff point: it assigns `failureCon
 4. Let the existing failure builder carry the attempt record into the owner-controlled private artifact. Keep the public redactor/sanitizer unchanged.
 
 The failure builder already consumes `failureContext.record` and places `failedRecord.selectedCardIdentity` into the internal root-action ledger. This makes the existing trace-only field available on the exact pre-dispatch failure path without putting card identity in the worker request or public artifact.
+
+
+### Public-sanitizer and key-provisioning check
+
+The current public sanitizer supports this separation:
+
+- `agent2-v3-sanitized-diagnostic.cjs:242-257` emits `selectedCardPublicPrinting` only when the root action's `dispatchStatus` is `succeeded`. A failed, not-dispatched attempt remains null even if its private `selectedCardIdentity` is populated.
+- The private diagnostic envelope documentation states that `private/` currently contains only `.gitkeep` and no recipient key is provisioned. Do not generate a substitute key or upload plaintext hidden-state traces. An owner must provision `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` before any full private fixture artifact can be uploaded.
+
+Therefore the safe change is to populate the existing private attempt-record field before the throwing dispatch, leave the public sanitizer unchanged, and rely on the owner-encrypted artifact only after the owner provisions the key. Until then, use only owner-controlled local debugging or the public-safe family/type/GameMessage fields.
