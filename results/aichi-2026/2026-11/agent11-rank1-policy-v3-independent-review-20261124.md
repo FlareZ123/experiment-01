@@ -64,6 +64,18 @@ A Shiftry XY11 Wicked Wind effect can suppress Stadium and Tool effects. No Shif
 
 The exact Quick Ball mandatory-discard branch requires the full source/description/zone/owner/bounds/cancel metadata. If the source and `CHOOSE_CARD_TO_DISCARD` identify Quick Ball but one metadata field is absent or mixed, execution can fall through to generic card-combination scoring, which also recognizes Quick Ball as a search effect. The pinned projector normally emits actor-hand metadata, so this review does **not** claim that this is reachable for the current native prompt. A fail-closed guard and malformed-metadata test would protect against future projection drift; this is lower priority than Energy-unit accounting.
 
+### 5. Get Lost underweights Regidrago's Dragon attack payloads, and retreat scoring excludes Girafarig
+
+Girafarig LOT 94's Get Lost attack puts two cards from the opponent's discard pile into the Lost Zone. Regidrago VSTAR SWSH12 136's Apex Dragon copies an attack from a Dragon Pokémon in its discard pile. The authenticated field has nine Regidrago lists among the ten DDE-bearing lists (ranks 10, 12, 13, 14, 18, 20, 21, 27 and 32). Their exact Pokémon pool includes Dragon attack payloads such as Dragapult ex, Hisuian Goodra VSTAR, Noivern ex, Salamence ex, Mega Dragonite ex and Kyurem.
+
+Current scoreAttack('Get Lost') counts only Energy / VS Seeker / Raihan / Tulip / Battle Compressor / Night Stretcher in the opponent's discard; if only Dragon attack payloads are present, the attack remains at its base score. The target selector getLostChoiceScore() scores generic VMAX/GX/ex at 90 and some payloads such as VSTAR / non-ex Dragon Pokémon at 30, while Special Charge / recovery / VS Seeker / DDE can score 140–150. It does not check for Regidrago VSTAR or distinguish Dragon attack payloads from generic Pokémon. This can under-prioritize Get Lost and choose generic resources over the cards Apex Dragon actually needs.
+
+The retreat action scorer compounds the issue: targetIsAttacker and activeIsAttacker omit Girafarig, even though the policy invests Energy into Girafarig and scores Get Lost at 88–112. It can therefore refuse to retreat into Girafarig when Get Lost is the best attack, or encourage retreating away from an Active Girafarig when its discard-denial value is high.
+
+**Required correction:** make Get Lost attack and target scoring state-aware. When Regidrago VSTAR is present/known and the opponent's discard contains its remaining Dragon attack payloads, rank the most strategically important payloads highly, accounting for which attacks remain and the two-card limit. Make Girafarig a viable retreat target / active attacker when Get Lost is legal and its discard-denial value clears a threshold, while retaining HP and Prize-risk checks. Add a Regidrago regression with Dragon payloads plus VS Seeker / DDE, and a non-Regidrago control with no useful payloads. This is a policy-scoring hypothesis grounded in card text and field composition, not a measured matchup result.
+
+Sources: resources/cards/en/sm8.json (Girafarig LOT 94); resources/cards/en/swsh12.json (Regidrago VSTAR Apex Dragon); results/aichi-2026/full-decklists.json; results/aichi-2026/2026-11/agent16-dde-aichi-field-type-audit-20261124.md; human_concepts.md lines 41–62 (heuristic, not authority).
+
 ## Fairy Zone: do not add a presence-only suppressor veto
 
 Agent4's ongoing source audit is the authority for Fairy Zone's directional, owner-aware, holder-Hood and target-Hood semantics. The actor-observation contract emits null Ability-suppression rows, so the current policy's explicit-false check is fail-closed and does not establish live Fairy Zone operation.
