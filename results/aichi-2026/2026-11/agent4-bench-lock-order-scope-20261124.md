@@ -55,3 +55,15 @@ The pinned-source lifecycle finding and reproduced TPCi rulings establish the Ga
 The existing [Agent35 Aichi lock-architecture synthesis](results/aichi-2026/2026-11/agent35-lock-architecture-field-synthesis-20261117.md) identifies the published field's relevant lock axes as Garbodor (ranks 8, 11, 16, 22), Iron Thorns (ranks 6, 24, 29), and Silent Lab (ranks 9, 13, 15, 32). It does not identify Slaking as an Aichi source, and the current leading Hood Shield Shadow Rider candidate is not itself an Ability-suppressor deck. The synthesis also establishes the relevant asymmetries: Garbodor is Stage 1 and is not suppressed by Iron Thorns' Rule-Box-only lock; Wobbuffet's Psychic exception prevents it from suppressing Psychic Garbodor; Alolan Muk and Spiritomb do not suppress Stage 1 Garbodor.
 
 Accordingly, the TPCi Garbotoxin/Slaking ruling is a **general rules/fidelity requirement**, but the current Aichi fixed-60 benchmark has not demonstrated a matchup in which both mutually suppressive sources are present. It does **not** currently justify expanding the shared actor-observation schema or blocking PR #69 on a new effective-source ledger. Keep the existing Active-order field's zero sentinel as unknown (the separate zero-to-null projection fix is still required), and add a broader effective-source ledger only if an exact Aichi candidate/opponent pair demonstrates that the missing order changes a current policy decision.
+
+
+## Observation-contract test discrepancy
+
+The current `tests/actor-observation-contract.test.cjs:197-227` fixture injects positive order values into:
+- Active Mewtwo & Mew-GX and Active Garbodor (neither fixture Power declares `abilityLock: true`);
+- Benched Wobbuffet (an `abilityLock: true` Pokémon, but not Active);
+- Benched Alolan Muk (not an `abilityLock: true` source).
+
+It then asserts that all four values are publicly exposed, including the Bench values. That proves only that the adapter copies an arbitrary slot integer; it does **not** validate native activation-order semantics and conflicts with the pinned source lifecycle. The field is stamped only for `abilityLock: true` Powers while Active, and the Store clears it on Active-to-Bench movement.
+
+Recommended semantic contract: expose a positive safe integer only for the current Active slot when its card has an `abilityLock: true` Power; return null for zero, non-lock Pokémon, and all Bench slots. If the adapter deliberately remains a raw slot-field serializer, the test and field documentation must say so, and the worker resolver must independently enforce Active + `abilityLock: true` + positive safe integer before using an order. The regression should cover a valid Active Slaking/Klefki/Wobbuffet order, zero -> null/unknown, non-lock Active -> unknown, and Bench source -> unknown even if a poisoned positive value is present.
