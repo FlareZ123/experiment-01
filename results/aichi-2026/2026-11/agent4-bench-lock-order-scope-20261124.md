@@ -1,39 +1,50 @@
 # Bench/global Ability-lock activation order is not covered by the v4 Active-order field
 
-**Checked:** 2026-11-24, against the repository's pinned Twinleaf submodule revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+**Checked:** 2026-11-24, against the repository's pinned Twinleaf revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 
 ## Question
 
 Does `actorObservation.visiblePokemon[].abilityLockActivationOrder` represent when a Bench/global Ability suppressor enters play or becomes effective, or only Active-lock activation order?
 
-## Conclusion
+## Pinned-source conclusion
 
-**It is Active-entry order for Pokémon whose Power is explicitly marked `abilityLock: true`. It does not represent activation order for Bench/global suppressors such as Alolan Muk's Power of Alchemy or Tool-equipped Garbodor's Garbotoxin.** The field must not be used to infer precedence for those sources. A zero/null value is missing ordering evidence, not a turn-player tie.
+**It is Active-entry order for Pokémon whose Power is explicitly marked `abilityLock: true`. It does not represent activation order for Bench/global suppressors such as Garbodor's Tool-conditional Garbotoxin or Alolan Muk's Power of Alchemy.**
 
-## Pinned-source evidence
-
+Evidence:
 - `ptcg-server/src/game/store/state/pokemon-card-list.ts:78-84` documents the slot field as the last activation of an `abilityLock` Ability **while Active**; zero means no established ability locker.
 - `ptcg-server/src/game/store/prefabs/ability-lock.ts:457-469` documents `STAMP_ABILITY_LOCK_ACTIVATION` as stamping when an `abilityLock` Pokémon becomes Active and returns unless `card.powers.some(p => p.abilityLock)`.
 - `ptcg-server/src/game/store/store.ts:140-148` stamps only on `MovedToActiveEffect` and clears on `MovedFromActiveToBenchEffect`.
-- `ptcg-server/src/game/store/effect-reducers/game-effect.ts:896-900` resets/restamps only when the evolving slot is the Active slot. `setup-reducer.ts:299,576` stamps starting Active lockers together.
+- `ptcg-server/src/game/store/effect-reducers/game-effect.ts:896-900` resets/restamps only when the evolving slot is Active. `setup-reducer.ts:299,576` stamps starting Active lockers together.
 - Basic Pokémon placement from hand, deck, and discard is handled by `play-pokemon-effect.ts:52-56`, `play-pokemon-from-deck-effect.ts:28-35`, and `play-pokemon-from-discard-effect.ts:27-35`; those paths move the Pokémon into the target slot and set `pokemonPlayedTurn`, but do not stamp activation order.
 - Alolan Muk SUM's `Power of Alchemy` is a global Basic-Pokémon suppressor that checks for Muk anywhere in play; its Power does not declare `abilityLock: true` (`set-sun-and-moon/alolan-muk.ts:22-25,72-103`).
-- Garbodor DRX's `Garbotoxin` is a global suppressor when the Pokémon has a Tool; its Power likewise does not declare `abilityLock: true` (`set-dragons-exalted/garbodor.ts:29-37,57-84`). Its effective-onset event is Tool attachment, not merely Pokémon entry.
-- By contrast, Klefki SVI and Flutter Mane TEF declare `abilityLock: true` and their text is Active-Spot scoped.
+- Garbodor DRX's `Garbotoxin` is a global suppressor when the Pokémon has a Tool; its Power likewise does not declare `abilityLock: true` (`set-dragons-exalted/garbodor.ts:29-37,57-84`). Its effective-onset condition is Tool attachment plus the ability being able to activate.
+- By contrast, Slaking CES's `Lazy` declares `abilityLock: true` and is Active-only; Klefki SVI and Flutter Mane TEF also declare `abilityLock: true` with Active-scoped text.
 
 The v4 observation adapter correctly projects the slot property (not the Pokémon card object). That fixes the Active-lock projection bug, but does not broaden what the pinned engine records.
 
+## Paper-ruling update
+
+A reproduced **TPCi Rules Team Celestial Storm FAQ** directly establishes a mixed Active/Bench+Tool source-order case: Slaking's Active-only `Lazy` versus Bench-capable Garbodor's Tool-conditional `Garbotoxin`. The answer says the result depends on which Ability activates first; when one is active, it prevents the other, and if it is disabled (Slaking leaves Active or Garbodor loses its Tool), the other can activate even if it was previously prevented. The reproduction attributes the FAQ to 2018-08-02. See the PokéBeach thread's quoted FAQ answer: https://www.pokebeach.com/forums/threads/lunatone-kecleon.150999/ (post #6, lines 190-194 in the opened page).
+
+A second reproduced TPCi ruling for Galarian Weezing's Neutralizing Gas versus Wobbuffet's Bide Barricade says whichever Ability comes into effect first takes priority: https://www.pokebeach.com/forums/threads/please-explain-to-me-this.153648/ (quoted 2022-03-31 TPCi Rules Team ruling). A related reproduction of the 2018 FAQ says that if the two Abilities activate simultaneously, the turn player's Ability activates first: https://www.reddit.com/r/ptcgo/comments/m1elss/battle_styles_rulings_questions/.
+
+**Therefore the Garbotoxin/Slaking mixed-source order is a confirmed paper interaction, not merely a hypothetical.** The current v4 field can carry Slaking's Active order, but it cannot carry Garbodor's Tool-conditioned effective activation order or its later reactivation after Slaking stops suppressing it.
+
+### Correction: Alolan Muk versus Wobbuffet is not a mutual-lock example
+
+An earlier Agent11 example described Bench Alolan Muk versus Active Wobbuffet as mutually suppressive. That example is incorrect: Alolan Muk SUM is Psychic type, while Wobbuffet PHF's Bide Barricade explicitly exempts Psychic Pokémon. Pinned card implementations confirm Alolan Muk's `cardType: [P]` and Wobbuffet's Psychic type / exemption. Do not use this pair as a source-order regression.
+
+This correction does not establish every possible Power of Alchemy interaction. Any other mixed Muk/Active-lock pair should be evaluated against its actual type and scope rather than inferred from the invalid Wobbuffet example.
+
 ## Consequence for the candidate resolver
 
-The candidate resolver's Bench/global-source cases cannot obtain a reliable activation order from this v4 field. Do not:
-- treat zero as an established order;
-- use `turnSeat` as a fallback for a Bench/global source;
-- infer first-in-effect precedence between a Bench/global source and an Active locker from the Active-only field.
+- Do not use `abilityLockActivationOrder` to order Garbodor/Alolan Muk or any other Bench/global source that is not stamped by the pinned engine.
+- Do not treat zero as an established order or use `turnSeat` as a fallback for an untracked source.
+- For the confirmed Garbotoxin/Slaking interaction, the model needs the moment Garbotoxin **actually becomes effective**, including reactivation after the competing lock is disabled. Stamping only when the Tool is attached is insufficient if Garbotoxin is itself prevented at that time.
+- Keep the mixed-source result unknown/fail-closed until the exact fixed matchup requires it and the observation layer can supply the required effective-activation history.
 
-Keep mixed-source conflicts unknown/fail-closed until the applicable paper precedence is established and the necessary event history is available.
-
-If first-in-effect precedence is confirmed for these mixed sources, the minimal research-side solution is a **separate effective-suppression-source order ledger**, not repurposing `abilityLockActivationOrder`. It would need to capture the moment each source becomes effective across all relevant play-from-hand/deck/discard paths, Tool attachment/removal for Garbotoxin, and source disable/removal/evolution transitions. Keep it in research-owned hooks/adapters; do not modify upstream Twinleaf.
+If the current Aichi fixed-pair policy needs this interaction, the research-side solution is a separate effective-suppressor activation ledger that records false-to-true transitions (including Tool attachment/removal and later reactivation). Keep it in research-owned hooks/adapters; do not overload `abilityLockActivationOrder` or modify upstream Twinleaf. Do not add a broad new host field unless the fixed matchup demonstrates that it changes the current policy decision.
 
 ## Limits
 
-This is a pinned-source lifecycle finding, **not** a paper ruling that every mixed Alolan Muk/Garbodor versus Active-lock interaction uses first-in-effect precedence. No code, test, workflow, deck, fixture, or game was changed or run.
+The pinned-source lifecycle finding and reproduced TPCi rulings establish the Garbotoxin/Slaking precedence rule, but the linked FAQ reproductions are not the original official TPCi document. The exact Aichi fixed-pair incidence still needs to be shown before expanding the shared adapter. No code, test, workflow, deck, fixture, or game was changed or run.
