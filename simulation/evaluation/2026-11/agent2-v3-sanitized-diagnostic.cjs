@@ -203,9 +203,31 @@ function sanitizePromptResolution(resolution) {
   return pick(resolution,['kind','ownerSeat']);
 }
 
-function sanitizeFailure(failure) {
+function sanitizeStackSite(site){
+  if(!site||typeof site!=='object')return null;
+  const file=site.file;
+  if(typeof file!=='string'||
+    !/^(?:simulation|vendor\/twinleaf)\/[A-Za-z0-9_.\/-]{1,240}$/.test(file)||
+    file.split('/').includes('..')||
+    !Number.isSafeInteger(site.line)||site.line<1||
+    !Number.isSafeInteger(site.column)||site.column<1)return null;
+  return {file,line:site.line,column:site.column};
+}
+
+function sanitizeFailure(failure,nativeGameMessageValues=new Set()) {
   if(!failure||typeof failure!=='object')return null;
-  return pick(failure,['name','code','messageLength','stage']);
+  const result=pick(failure,['name','code','messageLength','stage']);
+  if(failure.nativeErrorKind==='GameError'){
+    result.nativeErrorKind='GameError';
+    if(typeof failure.nativeGameMessage==='string'&&
+      nativeGameMessageValues.has(failure.nativeGameMessage))
+      result.nativeGameMessage=failure.nativeGameMessage;
+  }
+  const stackSite=sanitizeStackSite(failure.stackSite);
+  if(stackSite)result.stackSite=stackSite;
+  const nested=sanitizeFailure(failure.nativeFixtureFailure,nativeGameMessageValues);
+  if(nested)result.nativeFixtureFailure=nested;
+  return result;
 }
 
 function sanitizeTarget(target) {
@@ -446,9 +468,14 @@ function sanitizeWorkerExecutionAudit(audit) {
   return safe;
 }
 
-function sanitizeFixtureArtifact(artifact) {
+function sanitizeFixtureArtifact(artifact,{nativeGameMessageValues=[]}={}) {
   assert.ok(artifact&&artifact.fixtureOnly===true,
     'Only a fixture-only artifact may be converted to a sanitized diagnostic');
+  const allowedNativeGameMessages=new Set(
+    Array.isArray(nativeGameMessageValues)?
+      nativeGameMessageValues.filter(value=>
+        typeof value==='string'&&/^[A-Z0-9_]{1,128}$/.test(value)
+      ):[]);
   const rawGame=artifact.nativeGame??artifact.fixtureGamePartial??{};
   const rawTrace=Array.isArray(rawGame.decisionTrace)?rawGame.decisionTrace:[];
   const actorDecisions=rawTrace.map(sanitizeDecisionRecord);
@@ -573,7 +600,7 @@ function sanitizeFixtureArtifact(artifact) {
     workerExecutionAudit,
     workerExecutionAuditSha256,
     game:safeGame,
-    fixtureFailure:sanitizeFailure(artifact.fixtureFailure),
+    fixtureFailure:sanitizeFailure(artifact.fixtureFailure,allowedNativeGameMessages),
     summary:{
       winner:safeGame.winner,
       winnerSeat:safeGame.winnerSeat,
