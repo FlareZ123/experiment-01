@@ -7,7 +7,7 @@
 
 ## Disposition
 
-Keep PR #69 in draft. The exact-head contract lane passed, but it is contract-only: Twinleaf checkout/compilation, the native no-game witness, and every fixture/game step were skipped. It does not establish playing competence, any Aichi matchup, or competitive strength. The fixed candidate 60 is unchanged.
+Keep PR #69 in draft. The exact-head contract lane passed, but it is contract-only: Twinleaf checkout/compilation, the native no-game witness, and every fixture/game step were skipped. It does not establish playing competence, any Aichi matchup, or competitive strength. The PR's experimental candidate list is unchanged; this review does not nominate it as the leading deck or final 60. The current decision board still has no final fixed 60 selected.
 
 ## Confirmed policy blockers
 
