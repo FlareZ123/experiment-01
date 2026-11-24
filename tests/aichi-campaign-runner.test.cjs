@@ -683,3 +683,71 @@ test('Store-log attack declaration channel preserves copied attacks without nati
   assert.equal(unobserved.attackDeclarationTrace, null);
   assert.equal(unobserved.attackDeclarationTraceProtocol, null);
 });
+
+
+test('independent CSPRNG campaign protocol generates, echoes, archives and audits replay material', () => {
+  const {
+    PROTOCOL, randomMaterialCommitment
+  } = require('../simulation/evaluation/agent37-independent-rng-v1.cjs');
+  const { auditArchive, createEvidenceEnvelope } =
+    require('../simulation/evaluation/aichi-evidence-envelope.cjs');
+  const f = fixture();
+  const requests = [];
+  const archive = executeCampaign(f, {
+    maxTrials: 2,
+    prepareCandidate: prepare,
+    rngProtocol: PROTOCOL,
+    runMatch(request) {
+      requests.push(request);
+      return {
+        ...finished(request),
+        policy: 'TestTactics-v1',
+        randomnessProtocol: PROTOCOL,
+        rngMaterialCommitment: request.rngMaterialCommitment,
+        physicalShuffleRandomIsolation: true,
+        coinRandomIsolation: true,
+        engineRandomIsolation: true
+      };
+    }
+  });
+  assert.equal(archive.rngProtocol, PROTOCOL);
+  assert.equal(archive.rngMaterialDisposition,
+    'raw-independent-stream-seeds-retained-in-each-executed-trial-after-match');
+  assert.equal(archive.recordedTrials, 2);
+  assert.ok(archive.records.every(row => row.status === 'completed'));
+  assert.equal(requests.length, 2);
+  assert.ok(requests.every(request => request.rngProtocol === PROTOCOL));
+  assert.notEqual(requests[0].rngMaterialCommitment, requests[1].rngMaterialCommitment);
+  for (let i = 0; i < requests.length; i += 1) {
+    assert.equal(requests[i].rngMaterialCommitment,
+      randomMaterialCommitment(requests[i].rngMaterial));
+    assert.deepEqual(archive.records[i].rngMaterial, requests[i].rngMaterial);
+    assert.equal(archive.records[i].rngMaterialCommitment,
+      requests[i].rngMaterialCommitment);
+    assert.equal(archive.records[i].observedRngMaterialCommitment,
+      requests[i].rngMaterialCommitment);
+  }
+  assert.equal(auditArchive(f, archive).completed, 2);
+
+  const tamperedMaterial = structuredClone(archive);
+  tamperedMaterial.records[0].rngMaterial.streams.coin = 'f'.repeat(64);
+  assert.throws(() => auditArchive(f, tamperedMaterial), /commitment mismatch/);
+
+  const tamperedReceipt = structuredClone(archive);
+  tamperedReceipt.records[0].observedRngMaterialCommitment = '0'.repeat(64);
+  assert.throws(() => auditArchive(f, tamperedReceipt), /independent RNG receipts/);
+
+  const provenance = {
+    researchRevision: 'synthetic-research-revision',
+    engineRevision: 'tested-revision',
+    rulesetRevision: 'synthetic-ruleset',
+    candidatePolicyRevision: 'TestTactics-v1',
+    opponentPolicyRevision: 'TestTactics-v1',
+    rngProtocol: PROTOCOL,
+    effectiveMatchOptions: archive.records[0].effectiveMatchOptions
+  };
+  const envelope = createEvidenceEnvelope(f, archive, provenance);
+  assert.equal(envelope.audit.completed, 2);
+  assert.equal(envelope.provenance.rngProtocol, PROTOCOL);
+  assert.equal(envelope.competitiveWinRateCertified, false);
+});
