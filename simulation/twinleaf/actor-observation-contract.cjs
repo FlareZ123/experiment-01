@@ -97,6 +97,12 @@ function publicPlayer(player,hidePokemon=false){
     active:pokemonView(player.active),
     bench:player.bench.map(pokemonView),
     stadium:player.stadium.cards.map(printing),
+    // Parallel City is orientation-sensitive. Its direction is public state
+    // and determines which player's Bench is capped; preserve it for policy
+    // decisions rather than reducing the Stadium to its printing alone.
+    stadiumDirection:player.stadium.cards.length===1&&
+      ['UP','DOWN'].includes(player.stadium.cards[0].stadiumDirection)?
+        player.stadium.cards[0].stadiumDirection:null,
     discard:player.discard.cards.map(printing),
     lostZone:player.lostzone.cards.map(printing),
     resolvingSupporter:player.supporter.cards.map(printing),
