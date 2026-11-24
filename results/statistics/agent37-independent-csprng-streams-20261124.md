@@ -43,7 +43,7 @@ This is a field-targeted correction, not a complete audit of every random call i
 
 ## Verification
 
-- Manual compiled Twinleaf lane [run 45477604718](https://github.com/FlareZ123/experiment-01/actions/runs/45477604718) passed on head `14ad471ad3c6ed6688d9c1dcacc6a9a6136cbbd1`. It ran the new owner-seat routing tests, the real Store Hisuian Heavy Ball test, and the three-game same-process smoke sequence. This run preceded the protocol identifier bump to v2; the routing implementation itself was already present.
+- Final v2 compiled Twinleaf lane [run 45479689101](https://github.com/FlareZ123/experiment-01/actions/runs/45479689101) passed on head `eaec6261488218bef6bb8941453e8962ab66dfec`. It passed the no-Twinleaf RNG, campaign-contract and evidence-envelope tests; compiled the pinned engine; passed owner-local card-shuffle tests and the real Store Hisuian Heavy Ball test; and passed the three-game same-process A/B/A replay smoke plus the existing native policy/RNG checks.
 - The smoke sequence runs independent-material game A, game B with a different commitment, then replays A after B in the same Node process. The A outputs must match exactly; both materials must be echoed by their games; all isolation and Aichi paper-shuffle receipts must be present.
 - The v2 campaign contract rejects completed results without the Gladion / Heavy Ball / Marnie / Iono hook receipt, and the evidence envelope independently checks the same receipt.
 - The existing workflow `.github/workflows/twinleaf-policy-rng.yml` is reused; no new workflow was created.
