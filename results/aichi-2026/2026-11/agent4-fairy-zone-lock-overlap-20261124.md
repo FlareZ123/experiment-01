@@ -1,55 +1,55 @@
-# Fairy Zone suppression overlap in the authenticated Aichi Top 32 lists
+# Fairy Zone suppression overlap in the authenticated Aichi Dragon-type field
 
 **Date:** 24 November 2026  
 **Author:** Agent4  
-**Status:** exact-list cross-tab / policy-priority analysis; no games or matchup results
+**Status:** corrected exact-card-type cross-tab; no games or matchup results
 
-## Question
+## Correction
 
-Among the 29 authenticated Aichi lists, which Dragon-target matchups also contain public Ability or Stadium suppression that can disable the candidate's Fairy Zone? This cross-tab helps prioritize the candidate policy's Fairy Zone source resolver.
+The preliminary cross-tab included Metal Dialga-GX UPR 100, Fighting Koraidon ex TEF 120, and Water Kyurem SFA 47 as Dragon targets based on species identity. Fairy Zone targets Pokémon whose card `types` include Dragon. These three are not Fairy Zone targets. Rank 30's Dialga-GX is Metal, so rank 30 is not a Dragon rank.
+
+The corrected authenticated Dragon ranks are **1, 10, 12, 13, 14, 15, 18, 19, 20, 21, 27, and 32** (12 lists, 91 Dragon Pokémon copies across 11 unique printings).
 
 ## Inputs and method
 
 - Source: `results/aichi-2026/full-decklists.json` (29 exact 60-card lists; missing ranks 23, 25, 28 remain unknown).
-- Dragon-rank set: the exact-printing scan recorded in `results/aichi-2026/2026-11/agent46-aichi-weakness-modifier-field-coverage-20261114.md`.
-- Suppressor names: exact card names in the 29 source lists, joined against the lock coverage in `results/aichi-2026/2026-11/agent35-lock-architecture-field-synthesis-20261117.md`.
+- Dragon-type membership: exact `types` field from `resources/cards/en/*.json`, mapped through `resources/sets/en.json`.
+- Suppressor ranks: exact card-name join against `results/aichi-2026/2026-11/agent35-lock-architecture-field-synthesis-20261117.md`.
 - This is a static list-presence join. It does not establish draw/access, Active position, Ability activation, Stadium survival, or any matchup outcome.
 
 ## Findings
 
-The 13 Dragon ranks are 1, 10, 12, 13, 14, 15, 18, 19, 20, 21, 27, 30, and 32.
-
-| Suppressor | Authenticated ranks | Intersection with Dragon ranks | Relevant Fairy Zone rule |
+| Suppressor | Authenticated ranks | Intersection with corrected Dragon ranks | Relevant Fairy Zone rule |
 |---|---|---|---|
 | Path to the Peak | 5, 9, 12, 15, 20, 21, 27 | 12, 15, 20, 21, 27 (5) | Stadium suppresses Rule Box Clefairy ex; Stealthy Hood does not protect |
 | Silent Lab | 9, 13, 15, 32 | 13, 15, 32 (3) | Stadium suppresses Basic Clefairy ex; Stealthy Hood does not protect |
 | Flutter Mane | 19 | 19 (1) | Opponent Active Flutter Mane affects only the actor's Active Pokémon; a Benched Clefairy is not targeted, and an effective Hood protects an Active holder |
 | Wobbuffet | 7, 10, 21 | 10, 21 (2) | Bide Barricade exempts Psychic Pokémon; Lillie's Clefairy ex is Psychic and remains unaffected |
-| Iron Thorns ex | 6, 24, 29 | none | No Dragon-target overlap in the authenticated lists |
-| Garbodor | 8, 11, 16, 22 | none | No Dragon-target overlap in the authenticated lists |
-| Klefki | 4, 17 | none | No Dragon-target overlap in the authenticated lists |
+| Iron Thorns ex | 6, 24, 29 | none | No corrected Dragon-rank overlap |
+| Garbodor | 8, 11, 16, 22 | none | No corrected Dragon-rank overlap |
+| Klefki | 4, 17 | none | No corrected Dragon-rank overlap |
 | Alolan Muk / Galarian Weezing / Slaking | none | none | No source-list presence in the authenticated 29 |
 
-The Path to the Peak / Silent Lab union intersects **7 of the 13 Dragon ranks**: 12, 13, 15, 20, 21, 27, 32. Rank 15 contains both Stadiums. These are direct Stadium effects on Clefairy; attaching Stealthy Hood to the holder does not solve them. The candidate's Field Blower / Stadium replacement sequencing is therefore more relevant in these Dragon matchups than a holder-side Hood against Ability locks.
+The Path to the Peak / Silent Lab union intersects **7 of the 12 Dragon ranks**: 12, 13, 15, 20, 21, 27, 32. Rank 15 contains both Stadiums. These are direct Stadium effects on Clefairy; attaching Stealthy Hood to the holder does not solve them. The candidate's Field Blower / Stadium sequencing is therefore more relevant in these Dragon matchups than holder-side Hood against Ability locks.
 
 The remaining notable cases:
 
 - **Rank 10 Regidrago:** Wobbuffet PHF 36 is present, but Bide Barricade exempts Psychic Clefairy. Do not mark Fairy Zone suppressed merely because Wobbuffet is in the Active Spot.
-- **Rank 21 Regidrago:** Wobbuffet is present, but Path to the Peak is also present. Wobbuffet does not suppress Clefairy; Path to the Peak does.
+- **Rank 21 Regidrago:** Wobbuffet is present, but its Psychic exception still applies; Path to the Peak is also present and does suppress Clefairy.
 - **Rank 19 Raging Bolt:** Flutter Mane TEF 78 is present. It only suppresses the opponent's Active Pokémon. If Clefairy stays Benched, Fairy Zone remains available; if Clefairy is Active, an effective Stealthy Hood on Clefairy prevents the opponent Ability effect.
-- **Ranks 12, 13, 15, 20, 21, 27, 32:** Path to the Peak and/or Silent Lab directly suppresses Fairy Zone. The holder-side Hood ownership distinction is irrelevant while those Stadium effects remain live.
+- **Ranks 12, 13, 15, 20, 21, 27, 32:** Path to the Peak and/or Silent Lab directly suppresses Fairy Zone. Holder-side Hood ownership is irrelevant while those Stadium effects remain live.
 
-The candidate's own Fairy Zone is still relevant: the field audit identifies Dragon Pokémon in 13/29 lists, and the fixed Hood Shield Shadow Rider v1 contains two Lillie's Clefairy ex JTG 56. The opponent-side direction also matters: ranks 1, 5, and 30 contain Fairy Zone; the candidate's Dialga-GX UPR 100 is Dragon and can have its Weakness changed by an opponent's Fairy Zone. Ranks 1 and 30 also contain Dragon targets of their own.
+## Opponent Fairy Zone and candidate target
+
+The Aichi lists with Fairy Zone are ranks 1, 5, and 30. The candidate's own Dragon-type Pokémon is **Radiant Eternatus CRZ 105** (170 HP, no printed Weakness); its Dialga-GX UPR 100 is Metal and is not a target. Therefore opponent Fairy Zone in ranks 1, 5, and 30 can change the candidate's Radiant Eternatus Weakness to Psychic ×2. Rank 30's own Dialga-GX is Metal, so rank 30 has no Dragon-type Pokémon in its own list. Rank 1 contains Radiant Eternatus, which the candidate's own Fairy Zone can affect.
 
 ## Policy priority
 
-1. Model Path to the Peak and Silent Lab as Stadium suppression of Clefairy (Rule Box and Basic respectively). Hood on the holder cannot bypass either. Preserve Stadium suppression epochs so a disabled Stadium is not treated as live.
+1. Model Path to the Peak and Silent Lab as Stadium suppression of Clefairy (Rule Box and Basic respectively). Hood on the holder cannot bypass either.
 2. Model Flutter Mane's Active-only target scope. A Benched Fairy Zone holder is unaffected; an Active holder is protected by effective Stealthy Hood.
 3. Preserve the Wobbuffet Psychic exception. Presence of Wobbuffet alone is not a reason to suppress Fairy Zone.
-4. Keep source-owner-aware Hood logic for global Ability suppressors as a general correctness requirement, but do not overstate its frequency in the authenticated Dragon matchups: the known Dragon lists contain no Iron Thorns, Garbodor, or Klefki.
-5. Model opponent Fairy Zone against the candidate's Dragon Dialga-GX separately from the candidate's own Fairy Zone against opposing Dragon targets. The direction is per Pokémon, not a blanket Weakness multiplier.
-
-This overlap also exposes why a generic “Ability lock present” flag is inadequate: the same Wobbuffet card that is a lock in other matchups does not suppress Psychic Clefairy, while Path to the Peak and Silent Lab suppress it through a different effect class.
+4. Keep source-owner-aware Hood logic for global Ability suppressors as a general correctness requirement, but do not overstate its frequency in the authenticated Dragon matchups: the corrected Dragon lists contain no Iron Thorns, Garbodor, or Klefki.
+5. Model opponent Fairy Zone against the candidate's Radiant Eternatus CRZ 105, not Dialga-GX UPR 100. The candidate's own Fairy Zone affects opposing Dragon targets including Radiant Eternatus in rank 1.
 
 ## Limitations
 
@@ -60,4 +60,4 @@ This overlap also exposes why a generic “Ability lock present” flag is inade
 
 ## Reproduction
 
-The cross-tab can be reproduced by joining the rank set and card-name coverage in the two linked source reports against `results/aichi-2026/full-decklists.json`. Keep the missing-rank set explicit and do not infer missing cards from archetype labels.
+Join exact Pokémon printing IDs in `results/aichi-2026/full-decklists.json` to `resources/cards/en/*.json` through `resources/sets/en.json`, filter to `types` containing `Dragon`, then intersect ranks with the exact suppressor card names. Keep the missing-rank set explicit.
