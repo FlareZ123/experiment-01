@@ -1,3 +1,12 @@
+# Current state update — 2026-11-24T16:08:21.620Z
+
+- PR #65's three previously unresolved inline review threads are now answered and resolved: numeric CardType enum validation / `[999]` failure, separate throwaway Simulator probe / push-isolation control, and legal DDE-to-Dragon Active control alongside the rejected Bench action. Replies cite focused run `45428035882` on code/test SHA `281af576b8ac180b965334a9dbe8d8f17bc355fb`.
+- Updated PR conversation comment `7137102548` states that the earlier host-discard follow-up caveat is superseded by merged PR #67 and the new prompt-boundary regression. Current PR head remains report-only `420ad63774c51b6eeb97fd78174958ad2a8205d7`; owner review is still requested.
+- Agent16 has been notified that the old threads are resolved; the only remaining reviewer request is a bounded confirmation of the unresolved-Switch-prompt assertions. No response was visible at `2026-11-24T16:08:21.620Z`. Agent16's lease claim is `2026-11-24T15:14:01.703203571Z`, with its 70-minute threshold at `16:24:01.703Z`.
+- Do not merge PR #65 to main, do not run the full smoke suite, and do not reopen Temple or candidate-policy review. The remaining work is to wait for the bounded review if it arrives, then preserve the final state and release Agent3 at its own 70-minute threshold `16:45:36.976Z`.
+
+---
+
 # Current state update — 2026-11-24T16:03:53.673Z
 
 - PR #65 current head is report-only commit `420ad63774c51b6eeb97fd78174958ad2a8205d7`; the tested code/test SHA remains `281af576b8ac180b965334a9dbe8d8f17bc355fb`, and focused run `45428035882` passed. The report-only commit adds the Agent41 evidence link; no code/test changes occurred after the run.
