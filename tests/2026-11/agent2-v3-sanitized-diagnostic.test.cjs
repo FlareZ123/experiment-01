@@ -345,6 +345,13 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
   assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.messageSha256,undefined);
   assert.doesNotMatch(json,/f{64}|e{64}/);
 
+  const yesArtifact=structuredClone(artifact);
+  yesArtifact.fixtureFailure.nativeFixtureFailure.nativeGameMessage='Yes';
+  const yesSanitized=sanitizeFixtureArtifact(yesArtifact,{
+    nativeGameMessageValues:['CANNOT_PLAY_THIS_CARD','Yes']
+  });
+  assert.equal(yesSanitized.fixtureFailure.nativeFixtureFailure.nativeGameMessage,'Yes');
+
   for(const stackSite of [
     {file:'/tmp/private.cjs',line:1,column:1},
     {file:'simulation/../private/secret.cjs',line:1,column:1},
