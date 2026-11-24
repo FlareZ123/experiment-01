@@ -2981,7 +2981,7 @@ test('Underworld Door AttachEnergyPrompt traverses projection, exact protocol, c
     const validated = policyProtocol.validateRequest(
       requestMessage, initialized, 1, new Set()
     );
-    const policy = candidate.createPolicy(init);
+    const policy = candidate.createPolicy(initialized);
     const decision = policy.decide({
       role: 'candidate',
       seat: actorSeat,
