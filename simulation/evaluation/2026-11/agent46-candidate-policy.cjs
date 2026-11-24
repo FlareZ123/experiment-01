@@ -10,7 +10,7 @@
  * Unknown prompt provenance or actor-visible state fails closed.
  */
 
-const POLICY_VERSION = 'agent46-hood-candidate-v1';
+const POLICY_VERSION = 'agent46-hood-candidate-v2';
 
 let activePolicyAudit = null;
 
@@ -173,6 +173,39 @@ function allBoard(view) {
 
 function boardHas(view, name) {
   return ownBoard(view).some(slot => hasName(slot.printing, name));
+}
+
+function isBasicShadowRiderVPrinting(printing) {
+  return hasName(printing, 'Shadow Rider Calyrex V') &&
+    !hasName(printing, 'Shadow Rider Calyrex VMAX');
+}
+
+function isBasicShadowRiderV(slot) {
+  return isBasicShadowRiderVPrinting(slot?.printing) &&
+    !(slot?.printed?.subtypes ?? []).includes('VMAX');
+}
+
+function isShadowRiderVmax(slot) {
+  return hasName(slot?.printing, 'Shadow Rider Calyrex VMAX');
+}
+
+function hasBasicShadowRiderV(view) {
+  return ownBoard(view).some(isBasicShadowRiderV);
+}
+
+function hasShadowRiderVmax(view) {
+  return ownBoard(view).some(isShadowRiderVmax);
+}
+
+function hasUnevolvedShadowRiderV(view) {
+  const board = ownBoard(view);
+  return board.filter(isBasicShadowRiderV).length >
+    board.filter(isShadowRiderVmax).length;
+}
+
+function hasOpenBench(view) {
+  return Array.isArray(view.ownPublic?.bench) &&
+    view.ownPublic.bench.some(slot => !slot);
 }
 
 function handHas(view, name) {
@@ -440,8 +473,8 @@ function searchNeedScore(view, printing, effectName = '') {
   const regidrago = opponentHasRegidrago(view);
   const dragon = opponentHasDragon(view);
   const board = ownBoard(view);
-  const hasShadowV = board.some(slot => hasName(slot.printing, 'Shadow Rider Calyrex V'));
-  const hasShadowVmax = board.some(slot => hasName(slot.printing, 'Shadow Rider Calyrex VMAX'));
+  const hasShadowV = hasBasicShadowRiderV(view);
+  const hasShadowVmax = hasShadowRiderVmax(view);
   const hasMimikyu = board.some(slot => hasName(slot.printing, 'Mimikyu'));
   const hasClefairy = board.some(slot => hasName(slot.printing, "Lillie's Clefairy ex"));
   const hasLatias = board.some(slot => hasName(slot.printing, 'Latias ex'));
@@ -456,11 +489,13 @@ function searchNeedScore(view, printing, effectName = '') {
     return -5;
   }
   if (hasName(printing, 'Shadow Rider Calyrex VMAX')) {
-    if (hasShadowV && !hasShadowVmax && !handHas(view, 'Shadow Rider Calyrex VMAX')) return 94;
+    if (hasUnevolvedShadowRiderV(view) &&
+        !handHas(view, 'Shadow Rider Calyrex VMAX')) return 94;
     return -5;
   }
-  if (hasName(printing, 'Shadow Rider Calyrex V')) {
-    if (!hasShadowV && !hasShadowVmax && !handHas(view, 'Shadow Rider Calyrex V')) return 100;
+  if (isBasicShadowRiderVPrinting(printing)) {
+    if (!hasShadowV && !handHas(view, 'Shadow Rider Calyrex V') &&
+        hasOpenBench(view)) return 100;
     return -5;
   }
   if (hasName(printing, "Lillie's Clefairy ex")) {
@@ -685,11 +720,10 @@ function choosePokemonRecipient(view, prompt) {
       let score = 100 - slotEnergyCount(slot) * 5;
       if (opponentHasRegidrago(view) && hasName(slot.printing, 'Mimikyu') &&
           slotEnergyCount(slot) < 2) score += 1000;
-      if (hasName(slot.printing, 'Shadow Rider Calyrex VMAX') &&
-          psychicEnergyCount(view) < 5) score += 700;
+      if (isShadowRiderVmax(slot) && psychicEnergyCount(view) < 5) score += 700;
       if (opponentHasDragon(view) && hasName(slot.printing, "Lillie's Clefairy ex") &&
           slotEnergyCount(slot) < 2) score += 600;
-      if (hasName(slot.printing, 'Shadow Rider Calyrex V')) score += 100;
+      if (isBasicShadowRiderV(slot)) score += 100;
       return { ...row, score };
     });
   }
@@ -735,6 +769,54 @@ function chooseEnergyPayment(view, prompt) {
   const selected = ranked.slice(0, Math.min(1, maximum));
   if (selected.length < minimum) return abstain('NO_VISIBLE_ENERGY_CHOICE');
   return { kind: 'select-choices', tokens: selected.map(row => row.choice.token) };
+}
+
+function chooseEnergyAttachment(view, prompt) {
+  setPolicyAuditRule('UNDERWORLD_DOOR_ENERGY_TARGET_SCORE', 'SCORE_DESC_BENCH_INDEX_TOKEN_ASC');
+  const metadata = prompt.publicMetadata;
+  if (!metadata || metadata.selectionType !== 'energy-attachment' ||
+      metadata.minimumCount !== 1 || metadata.maximumCount !== 1 ||
+      metadata.sourceZone !== 'hand' || metadata.ownerSeat !== 'actor' ||
+      metadata.isOwnerVisible !== true || metadata.energyType !== 'BASIC' ||
+      metadata.zone !== 'bench' ||
+      prompt.source?.effectName !== 'Underworld Door' ||
+      !hasName(prompt.source?.sourcePrinting, 'Shadow Rider Calyrex VMAX')) {
+    return abstain('UNTRUSTED_UNDERWORLD_DOOR_PROMPT');
+  }
+
+  const ranked = prompt.choices.map(choice => {
+    const item = choice.publicMetadata;
+    const index = item?.benchIndex;
+    const target = Number.isSafeInteger(index)
+      ? view.ownPublic.bench[index] ?? null : null;
+    const valid = choice.kind === 'energy' &&
+      hasName(choice.printing, 'Psychic Energy') &&
+      item?.sourceZone === 'hand' && item?.ownerSeat === 'actor' &&
+      item?.isOwnerVisible === true && item?.energyType === 'BASIC' &&
+      item?.zone === 'bench' && target &&
+      target.printed?.types?.includes('Psychic');
+    if (!valid) return { choice, index: Number.MAX_SAFE_INTEGER, score: -Infinity };
+
+    const attached = slotEnergyCount(target);
+    let score = 100 - attached * 20;
+    if (opponentHasRegidrago(view) && hasName(target.printing, 'Mimikyu') &&
+        attached < 2) score += 1000;
+    if (opponentHasDragon(view) && hasName(target.printing, "Lillie's Clefairy ex") &&
+        attached < 2) score += 900;
+    if (isShadowRiderVmax(target) && psychicEnergyCount(view) < 5 &&
+        attached < 5) score += 800;
+    if (isBasicShadowRiderV(target) && hasUnevolvedShadowRiderV(view)) score += 700;
+    return { choice, index, score };
+  });
+  for (const row of ranked) {
+    recordPolicyAuditScore(row.choice.token, row.score, 'INVALID_UNDERWORLD_ASSIGNMENT');
+  }
+  ranked.sort((a, b) => b.score - a.score ||
+    a.index - b.index || a.choice.token.localeCompare(b.choice.token));
+  if (!Number.isFinite(ranked[0]?.score)) {
+    return abstain('NO_ELIGIBLE_UNDERWORLD_ASSIGNMENT');
+  }
+  return { kind: 'select-choice', token: ranked[0].choice.token };
 }
 
 function chooseAttackPrompt(view, prompt, receipt) {
@@ -994,6 +1076,8 @@ function choosePrompt(view, prompt, receipt) {
       return choosePokemonRecipient(view, prompt);
     case 'ChooseEnergyPrompt':
       return chooseEnergyPayment(view, prompt);
+    case 'AttachEnergyPrompt':
+      return chooseEnergyAttachment(view, prompt);
     case 'ChooseAttackPrompt':
       return chooseAttackPrompt(view, prompt, receipt);
     case 'ChoosePrizePrompt':
@@ -1018,9 +1102,8 @@ function scoreBasicPlay(item, view) {
   const metadata = item.publicMetadata ?? {};
   if (metadata.targetSeat !== 'actor' || metadata.targetZone !== 'bench') return -Infinity;
   const printing = item.actorPrinting ?? '';
-  if (hasName(printing, 'Shadow Rider Calyrex V') &&
-      !hasName(printing, 'VMAX') &&
-      !boardHas(view, 'Shadow Rider Calyrex V')) return 1000;
+  if (isBasicShadowRiderVPrinting(printing) &&
+      !hasBasicShadowRiderV(view) && hasOpenBench(view)) return 1000;
   if (hasName(printing, 'Mimikyu') && opponentHasRegidrago(view) &&
       !boardHas(view, 'Mimikyu')) return 950;
   if (hasName(printing, "Lillie's Clefairy ex") && opponentHasDragon(view) &&
@@ -1049,11 +1132,11 @@ function scoreEnergyPlay(item, view) {
   if (!target || (item.targetPrinting && target.printing !== item.targetPrinting)) return -Infinity;
   const count = slotEnergyCount(target);
   if (opponentHasRegidrago(view) && hasName(target.printing, 'Mimikyu') && count < 2) return 920;
-  if (hasName(target.printing, 'Shadow Rider Calyrex VMAX') &&
+  if (isShadowRiderVmax(target) &&
       psychicEnergyCount(view) < 5 && count < 5) return 880;
   if (opponentHasDragon(view) && hasName(target.printing, "Lillie's Clefairy ex") &&
       count < 2) return 840;
-  if (hasName(target.printing, 'Shadow Rider Calyrex V') && count < 3) return 600;
+  if (isBasicShadowRiderV(target) && count < 3) return 600;
   return -Infinity;
 }
 
@@ -1096,17 +1179,18 @@ function scoreTrainerPlay(item, view, receipt) {
       !discardHas(view, 'Dialga-GX') && !handHas(view, 'Dialga-GX') &&
       !boardHas(view, 'Dialga-GX') && (boardHas(view, 'Mimikyu') || handHas(view, 'Mimikyu'))) return 860;
   if (hasName(name, 'Fog Crystal') &&
-      (!boardHas(view, 'Shadow Rider Calyrex V') || psychicEnergyCount(view) < 3)) return 820;
+      ((!hasBasicShadowRiderV(view) && hasOpenBench(view)) ||
+       psychicEnergyCount(view) < 3)) return 820;
   if (hasName(name, 'Mysterious Treasure') && hasDiscardableHand(view, 1) &&
-      (opponentHasRegidrago(view) || !boardHas(view, 'Shadow Rider Calyrex V'))) return 800;
+      (opponentHasRegidrago(view) ||
+       (!hasBasicShadowRiderV(view) && hasOpenBench(view)))) return 800;
   if (hasName(name, 'Quick Ball') && hasDiscardableHand(view, 1) &&
-      (!boardHas(view, 'Shadow Rider Calyrex V') ||
+      ((!hasBasicShadowRiderV(view) && hasOpenBench(view)) ||
        (opponentHasRegidrago(view) && !boardHas(view, 'Mimikyu')))) return 790;
   if (hasName(name, 'Ultra Ball') && hasDiscardableHand(view, 2) &&
-      boardHas(view, 'Shadow Rider Calyrex V') &&
-      !boardHas(view, 'Shadow Rider Calyrex VMAX')) return 780;
+      hasUnevolvedShadowRiderV(view)) return 780;
   if (hasName(name, 'Arven') && !supporterUsed &&
-      (!boardHas(view, 'Shadow Rider Calyrex V') ||
+      ((!hasBasicShadowRiderV(view) && hasOpenBench(view)) ||
        (hasAbilityLockThreat(view) && !ownBoard(view).some(slot =>
          slot.tools.some(tool => hasName(tool, 'Stealthy Hood')))))) return 760;
   if (hasName(name, 'Guzma') && !supporterUsed && canGuzmaForAttack(view)) return 750;
@@ -1164,6 +1248,30 @@ function chooseRetreat(view, items) {
   return best && best.score > 0 ? best.item : null;
 }
 
+function abilitySourceSlot(view, item) {
+  const metadata = item.publicMetadata ?? {};
+  if (metadata.sourceSeat !== 'actor') return null;
+  if (metadata.sourceZone === 'active') return view.ownPublic.active ?? null;
+  if (metadata.sourceZone === 'bench' && Number.isSafeInteger(metadata.sourceIndex)) {
+    return view.ownPublic.bench[metadata.sourceIndex] ?? null;
+  }
+  return null;
+}
+
+function canUseUnderworldDoor(view, item) {
+  const metadata = item.publicMetadata ?? {};
+  const source = abilitySourceSlot(view, item);
+  return metadata.abilityName === 'Underworld Door' &&
+    source !== null && isShadowRiderVmax(source) &&
+    (!item.actorPrinting || item.actorPrinting === source.printing) &&
+    abilityStatus(source, 'Underworld Door') === true &&
+    view.ownTurnResources?.abilityPokemonPlayLocked !== true &&
+    view.ownPublic.publicTurnRestrictions?.abilityPokemonPlayLocked !== true &&
+    handHas(view, 'Psychic Energy') &&
+    view.ownPublic.bench.some(slot =>
+      slot && slot.printed?.types?.includes('Psychic'));
+}
+
 function chooseRoot(view, request) {
   const items = request.actionFrontier.items.filter(item =>
     ['play-card', 'attack', 'retreat', 'use-ability', 'use-stadium', 'pass'].includes(item.kind));
@@ -1196,6 +1304,27 @@ function chooseRoot(view, request) {
     return { kind: 'select-action', token: retreat.token };
   }
 
+  const abilities = items.filter(item => item.kind === 'use-ability');
+  const resettingHole = abilities.find(item =>
+    item.publicMetadata?.abilityName === 'Resetting Hole' &&
+    hasStadiumRemovalTarget(view));
+  const underworldDoor = abilities.find(item => canUseUnderworldDoor(view, item));
+  const usefulAbility = resettingHole ?? underworldDoor;
+  for (const item of abilities) {
+    if (usefulAbility && item.token === usefulAbility.token) {
+      recordPolicyAuditRule(item.token, usefulAbility === resettingHole
+        ? 'RESETTING_HOLE_STADIUM_REMOVAL'
+        : 'UNDERWORLD_DOOR_OWNER_ENERGY_SETUP');
+    } else {
+      recordPolicyAuditUnscored(item.token, 'UNSUPPORTED_ABILITY_BRANCH');
+    }
+  }
+  if (usefulAbility) {
+    setPolicyAuditRule(usefulAbility === resettingHole
+      ? 'ROOT_RESETTING_HOLE_RULE' : 'ROOT_UNDERWORLD_DOOR_RULE', 'FIRST_FRONTIER_MATCH');
+    return { kind: 'select-action', token: usefulAbility.token };
+  }
+
   const active = view.ownPublic.active;
   const target = view.opponentPublic.active;
   if (active && target) {
@@ -1213,22 +1342,6 @@ function chooseRoot(view, request) {
       setPolicyAuditRule('ROOT_ATTACK_SCORE', 'SCORE_DESC_TOKEN_ASC');
       return { kind: 'select-action', token: scoredAttacks[0].item.token };
     }
-  }
-
-  const abilities = items.filter(item => item.kind === 'use-ability');
-  const usefulAbility = abilities.find(item =>
-    item.publicMetadata?.abilityName === 'Resetting Hole' &&
-    hasStadiumRemovalTarget(view));
-  for (const item of abilities) {
-    if (usefulAbility && item.token === usefulAbility.token) {
-      recordPolicyAuditRule(item.token, 'RESETTING_HOLE_STADIUM_REMOVAL');
-    } else {
-      recordPolicyAuditUnscored(item.token, 'UNSUPPORTED_ABILITY_BRANCH');
-    }
-  }
-  if (usefulAbility) {
-    setPolicyAuditRule('ROOT_RESETTING_HOLE_RULE', 'FIRST_FRONTIER_MATCH');
-    return { kind: 'select-action', token: usefulAbility.token };
   }
 
   if (pass) {
