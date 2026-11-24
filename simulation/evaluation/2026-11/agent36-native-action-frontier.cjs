@@ -126,11 +126,9 @@ function isDdeNonDragonTargetInValidationStore(action, simulator, actorSeat, nat
   const projection = targetProjection(action.target, validationState, actorSeat, native);
   assert.ok(projection,
     'exact DDE action target must resolve to an occupied Active or Bench Pokémon');
-  const targetSeat = projection.targetSeat === 'actor' ? actorSeat :
-    projection.targetSeat === 'opponent' ? 1 - actorSeat : null;
-  assert.ok(targetSeat === 0 || targetSeat === 1,
-    'exact DDE action target must resolve to a physical player');
-  const targetPlayer = validationState.players[targetSeat];
+  assert.equal(projection.targetSeat, 'actor',
+    'exact DDE action target must belong to the acting player');
+  const targetPlayer = validationState.players[actorSeat];
   const targetList = projection.targetZone === 'active' ? targetPlayer?.active :
     projection.targetZone === 'bench' && Number.isSafeInteger(projection.targetIndex) ?
       targetPlayer?.bench?.[projection.targetIndex] : null;
