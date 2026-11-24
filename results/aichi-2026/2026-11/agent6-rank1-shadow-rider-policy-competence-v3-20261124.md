@@ -1,74 +1,93 @@
-# Rank-1 Shadow Rider opponent policy v3 — contract evidence
+# Rank-1 Shadow Rider opponent policy v3 — contract evidence and blocker repairs
 
-**Status:** contract-validated policy implementation; not native-game or competitive-strength evidence.
+**Status:** updated policy implementation; contract-validated, not independently competent and not native-game validated.
 
 **Policy version:** `agent6-rank1-shadow-rider-opponent-v3`  
-**Tested research revision:** `8e2c6fe292076cc46099f05fa9f99af8bf0dd6df`  
-**Policy blob:** `e8645a82b1658b30c39115a9905ab922483cffdc`  
-**Test blob:** `58e29f1b72af9547bae1370fff2d823c1bd255b7`  
-**Acceptance run:** [45394640791](https://github.com/FlareZ123/experiment-01/actions/runs/45394640791)
+**Tested source revision:** `2cde3b7745c7e9c73b62fb47e4237a16297e1c32`  
+**Policy blob:** `0d85d7ee527bad58ecbe2e7d3ca6d179a21063a3`  
+**Test blob:** `9af479f128042e5d56c5fd63ccab662d4808ea20`  
+**Contract-only acceptance:** [run 45467037909](https://github.com/FlareZ123/experiment-01/actions/runs/45467037909) passed on exact head `2cde3b7745c7e9c73b62fb47e4237a16297e1c32`  
+**Working branch:** `agent6/rank1-policy-v3-review-20261124`
 
-This continues the earlier [rank-1 policy prototype](../../methodology/2026-11/agent6-rank1-shadow-rider-opponent-policy-prototype.md). It changes the policy and its contract fixtures, not the published rank-1 60-card list or any candidate deck.
+This continues the earlier [rank-1 policy prototype](../../methodology/2026-11/agent6-rank1-shadow-rider-opponent-policy-prototype.md) and supersedes the initial v3 contract-only report. The published rank-1 60-card reference list is unchanged. No candidate deck, matchup result, or win-rate claim is produced by this work.
 
-## Changes
+## Implemented repairs
 
-### Reachable core actions
+### Quick Ball and Mysterious Treasure discard prompts
 
-- Play Shadow Rider Calyrex V from hand into a verified empty actor Bench slot, avoiding redundant Basic V placement once two are established.
-- Score manual Basic Psychic Energy play actions against actor-owned Active/Bench targets. The scorer checks the once-per-turn Energy resource and attachment lock, then prioritises the developed Shadow Rider VMAX line and supported attackers.
-- Add conditional Bench-play branches for Latias ex, Girafarig, and Trevenant & Dusknoir-GX. These are gated by visible board state, useful opponent discard contents, or the opponent's visible hand/retreat restriction rather than unconditional card-name bonuses.
-- Keep all root and prompt decisions actor-relative; the contract suite exercises both physical seats.
+Quick Ball FST 237 now has a source- and phase-specific mandatory-payment branch. It requires the card-effect source, `effectName === 'Quick Ball'`, `CHOOSE_CARD_TO_DISCARD`, actor-owned hand metadata, exact 1-of-1 bounds, and a non-cancelable prompt. It ranks payment choices separately from the subsequent `CHOOSE_CARD_TO_HAND` deck search; the search remains governed by retrieval scoring.
 
-### Radiant Eternatus / Climactic Gate
+The payment heuristic uses the fixed rank-1 list and visible hand multiplicities. It preserves singleton Shadow Rider V/VMAX, unique Pokémon and one-of utility cards, while preferring redundant search cards, stadiums, and duplicate Pokémon where available. If every legal payment is costly, it selects the least-bad legal card rather than abstaining from a mandatory prompt.
 
-Radiant Eternatus is treated as a terminal play, not an ordinary high-score action. `bestAction` first exhausts positive non-terminal actions, then considers the Radiant play. A fake root `use-ability: Climactic Gate` is not accepted; the ability is reached by playing Radiant Eternatus.
+The Mysterious Treasure fallback also ranks all legal hand cards, including negative-score choices, rather than taking the first native choice. It protects the fixed-list singleton Pokémon (Trevenant & Dusknoir-GX, Latias ex, Dialga-GX, Girafarig, Mimikyu, Marshadow, Radiant Eternatus) and one-of Trainers / Items (including Carmine, Iono, Teammates, Raihan, Acerola, Guzma, Tulip, Quick Ball, Hisuian Heavy Ball, Battle Compressor, Field Blower, Night Stretcher, Unfair Stamp, Float Stone, Forest Seal Stone, and Dimension Valley). It uses visible hand multiplicities for multi-copy Shadow Rider V/VMAX, Clefairy, Tapu Lele-GX, Lillie's Determination, Mysterious Treasure, Fog Crystal, VS Seeker, and Sky Field. These remain explicit heuristics, not empirically fitted discard values.
 
-The prompt path is source-bound: the source must be an actor-choice card effect named `Climactic Gate`, identify Radiant Eternatus, and have that Radiant on the actor's Bench. Confirmation is conditional; the subsequent Pokémon choice accepts only actor-owned, owner-visible VMAX cards from the deck, up to two, with the zero-target/empty-selection path represented explicitly.
+### Radiant Eternatus / Climactic Gate Ability locks
 
-The deck-value estimate uses the four Shadow Rider VMAX copies and the known cards outside the hidden deck/prize pool:
+The Gate veto now uses public board state and the pinned actor-view Stadium/Tool epoch:
 
-- (R = 4 - K), where (K) is the number of known VMAX copies in play, hand, discard, Lost Zone, resolving Supporter, and face-up prizes.
-- (D) is the remaining deck count and (P) is the number of face-down prizes.
-- (p_0 = \binom{P}{R}/\binom{D+P}{R}), the probability of finding zero VMAX in the deck.
-- (p_1 = D\binom{P}{R-1}/\binom{D+P}{R}), the probability of finding exactly one.
-- For a two-card fetch capacity, (E[\min(X,2)] = 2 - 2p_0 - p_1). The estimate is capped by the actual open Bench capacity after reserving a slot for Radiant when it has not yet been played.
+- Path to the Peak and Silent Lab are both recognized. A positive Stadium/Tool suppression epoch on either player disables both Stadium locks; absent or malformed epochs remain unknown and fail closed while either lock Stadium is present.
+- Active Klefki with Mischievous Lock, Active Wobbuffet with Bide Barricade, and Active Iron Thorns ex with Initialization are checked on either side.
+- Neutralizing Gas is checked only on the opponent's Active Pokémon, matching its opponent-only effect.
+- Power of Alchemy is checked on any face-up board slot on either side.
+- Garbotoxin is checked by Ability name on any face-up board slot and requires a Tool attached. This avoids relying on only one Garbodor printing; the Field Blower target heuristic also recognizes DRX 54, LTR 68, and BKP 57.
 
-The current terminal-turn heuristic requires expected fetch count **at least 0.75**. This is an explicit, conservative policy parameter, not a fitted or proven-optimal threshold. The audit records the expected count; the contract test checks the (D=30, P=6, R=4) case as `EXPECTED_FETCH_1.989_MIN_0_75`. A one-copy-remaining case distinguishes a deep deck from a nearly empty deck instead of assuming the last copy is in the deck.
+The suppression checks are conservative: an Ability with unknown suppression status is treated as potentially live for the Gate veto. The policy does not infer that an Ability lock is inactive merely because the actor view cannot prove its status.
 
-### Aichi field Ability locks
+### Dragon and Fairy Zone handling
 
-The Gate decision now declines when the visible state indicates a live suppression source affecting Radiant Eternatus:
+The Clefairy search/play predicate now detects Dragon Pokémon across the opponent's Active and Bench. The attack-damage multiplier is narrower: it applies only when the current Active target is Dragon, Fairy Zone is explicitly known to be active, and Stealthy Hood does not protect that target while Tool effects are active.
 
-- Path to the Peak in play, unless the actor's Stadium/Tool-effect restriction currently disables Stadium effects.
-- Wobbuffet PHF 36 in either Active Spot with an unsuppressed Bide Barricade.
-- Iron Thorns ex TWM 77 in either Active Spot with an unsuppressed Initialization.
-- Garbodor BKP 57 in play with a Tool attached and an unsuppressed Garbotoxin.
+The pinned actor-observation contract deliberately emits `abilitySuppressions[].suppressed: null` until the adapter can provide a source-attributed fact. Consequently, the live policy requires an explicit `suppressed === false` row and remains fail-closed when status is unknown; it no longer attempts to infer completeness from a hand-maintained list of public suppressors. Tests cover explicit active/inactive status, unknown status with and without visible public suppressors, and Stealthy Hood with active and disabled Tool effects. This is a remaining integration limitation, not a resolved live-game interaction.
 
-The checks preserve the distinctions that matter: Wobbuffet and Iron Thorns are Active-only; a benched copy does not lock the Gate; Garbodor requires its own attached Tool; Snorlax Block is not treated as an Ability lock; and Tapu Lele-GX's Psychic Wonder Tag remains selectable under Wobbuffet. These are policy checks against the public observation contract, not a claim that all lock interactions have been reproduced in native gameplay.
+### Field Blower
 
-The expected-fetch formulation follows the review suggestion in [Agent11's Gate probability note](../../../communications/agent6/2026-11/20261124T1215Z_agent11-radiant-confirm-hypergeometric-decision.md); the Aichi lock-source mapping is recorded in [Agent11's field-lock note](../../../communications/agent46/2026-11/20261124T1223Z_agent11-map-aichi-lock-sources-to-radiant-gate-policy.md).
+Field Blower is now considered when Underworld Door is available and either an effective lock Stadium or opponent-owned Tools with live Tool effects are present.
 
-## Evidence
+The prompt policy handles the two-mode SelectOption prompt using public target state:
+- choose Stadium plus up to one Tool when a Path to the Peak / Silent Lab lock may be active;
+- preserve our own beneficial Sky Field or Dimension Valley and choose the Tools-only mode when the opponent has a Tool, even if only one;
+- otherwise choose up to two Tools only when no effective lock Stadium is present and at least two opponent Tools have live effects.
 
-[Contract-only workflow 45394640791](https://github.com/FlareZ123/experiment-01/actions/runs/45394640791) passed on the exact tested revision:
+For the subsequent Pokémon prompt it selects only visible opponent Pokémon with Tools, never the actor's own Tool-bearing Pokémon. It prioritizes a live Garbotoxin source and a Dragon protected by Stealthy Hood over generic Tool targets. If Tool effects are disabled or no opponent target exists, it selects no target. If a later card prompt asks which attached Tool to discard, Stealthy Hood is preferred when a Dragon is protected by it.
 
-| Gate | Result |
-|---|---:|
-| Pure policy, prompt, worker, and action-frontier contracts | 663 tests; 661 passed, 0 failed, 2 skipped |
-| Docker policy-worker launcher contract | 17/17 passed |
-| Docker worker isolation/canary | 3/3 passed |
-| Workflow steps | 14 successful, 58 skipped, 0 failed |
-| Native paired fixture games | Skipped |
-| Native Store/game dispatch | Not executed |
+These decisions are prompt-contract heuristics. The current evidence does not show a complete native Field Blower game sequence.
 
-The workflow's contract-only receipt explicitly records `fixtureExecuted: false`. The successful run therefore validates deterministic policy/protocol contracts and the existing worker sandbox, not Twinleaf gameplay.
+### Underworld Door cancel-only prompt
+
+The rank-1 worker now accepts the pinned Underworld Door `AttachEnergyPrompt`'s native cancel-only choice when no Psychic Energy / Psychic Bench assignment exists and `allowCancel === true`. It still selects a scored legal assignment when one is present. A regression covers both physical actor seats; the host-side projection remains separately tested by Agent49.
+
+### Pale Moon-GX and Energy Drive scoring
+
+The rank-1 attack scorer now reflects the card-pool text for Trevenant & Dusknoir-GX: Pale Moon-GX always creates the delayed Knock Out at the end of the opponent's next turn; the extra-Psychic-Energy clause separately discards all Energy from the opponent's Active Pokémon. The extra condition recognizes Dimension Valley's Colorless-cost reduction, discounts the delayed-KO score for a visible retreat path and a weak hand-size escape-risk proxy, and keeps an immediate Night Watch knockout ahead of the delayed threat.
+
+Tapu Lele-GX's Energy Drive now counts only Energy attached to both Active Pokémon and never applies Weakness / Resistance multipliers, matching the printed card text. Regression coverage deliberately adds Energy to both Benches and an Active Dragon target to catch the former overcount and weakness multiplier.
+
+## Contract evidence
+
+The exact-head contract-only run [45467037909](https://github.com/FlareZ123/experiment-01/actions/runs/45467037909) passed on source revision `2cde3b7745c7e9c73b62fb47e4237a16297e1c32`, with policy blob `0d85d7ee527bad58ecbe2e7d3ca6d179a21063a3` and test blob `9af479f128042e5d56c5fd63ccab662d4808ea20`.
+
+- The rank-1 policy regression file contains **110 test cases** and was included in the contract suite.
+- The pure policy/prompt/worker/action-frontier contract step passed.
+- The Docker policy-worker launcher contract, pinned-runtime preflight, worker isolation on both physical seats, and canary evidence steps passed.
+- The exact-SHA contract-only acceptance receipt was written and preserved.
+- `contract_only: true` skipped Twinleaf checkout/compilation, the native no-game witness, and every fixture/game mode. No native fixture/game was dispatched.
+
+This establishes deterministic contract behavior for the tested inputs. It does not establish that the policy makes strong decisions in live Twinleaf games, nor that the observation projection supplies every field assumed by the synthetic prompt fixtures.
 
 ## Limitations and disposition
 
-- No native game was dispatched, and no native observation/action-frontier trace was collected for the new lock cases.
-- The 0.75 expected-fetch cutoff and card/action scores remain heuristic; they have not been calibrated against decisions or game outcomes.
-- No Aichi matchup was played. There are no matchup samples, win-rate estimates, confidence intervals, or evidence of a 99.5% result.
-- The fixed rank-1 reference list is unchanged: [benchmark list](../benchmark-shadow-rider.md).
-- This is not independent policy-competence acceptance and does not unblock the frozen Stage-A/Stage-B gates. The current decision board remains authoritative: [results index](../../README.md).
+- No native game, paired fixture, Aichi matchup, or competitive sample was run.
+- Fairy Zone's live Ability status remains unknown in the actor observation contract; the damage multiplier is therefore unavailable unless a future adapter can prove a source-attributed status.
+- The Field Blower, discard, Pale Moon-GX escape-risk, and attack-score values are heuristics. Their values and target priorities have not been calibrated against gameplay outcomes.
+- Underworld Door cancel-only behavior is contract-tested on synthetic prompts and still lacks a new native fixture confirmation.
+- The Radiant Gate veto is a conservative public-state model; native behavior still requires pinned-engine tests when an authorized fixture is available.
+- No matchup win rates, confidence intervals, or evidence of a 99.5% result exist.
+- The fixed rank-1 reference list remains [the published benchmark list](../benchmark-shadow-rider.md).
 
-Next useful work is independent review of the actor-view semantics for Stadium state, attached Tools, ability-suppression records, and face-up prizes, followed—only when the owner/Critic freeze permits—by an already-authorized native fixture. Do not launch a new game dispatch on the strength of this contract-only result.
+The earlier independent review is [Agent2's adversarial v3 review](agent2-rank1-v3-adversarial-review-20261124.md). Independent review of the repaired policy and its exact source/test blobs is still required. Stage A remains retry-frozen and Stage B remains blocked; do not launch another fixture or infer matchup competence from this contract-only pass.
+
+## Next work
+
+1. Have Agent2 and Agent11 independently challenge the exact tested source/test blobs above, including Mysterious Treasure singleton payments, Field Blower own-Stadium preservation, Underworld Door cancel-only handling, Pale Moon-GX, and Energy Drive.
+2. Resolve the actor-view Fairy Zone status gap with source-attributed evidence or explicitly keep the multiplier disabled.
+3. Only after a separate owner/Critic authorization, validate the relevant prompt and lock cases through an already-authorized native fixture. Do not start a new game dispatch on this report alone.
