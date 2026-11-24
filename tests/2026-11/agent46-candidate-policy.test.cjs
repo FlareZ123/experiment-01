@@ -1556,3 +1556,240 @@ test('Wonder Tag selects Arven when the Shadow Rider Basic line is missing', () 
     tokens: ['card-0']
   });
 });
+
+
+test('Star Alchemy searches the missing Basic Shadow Rider line before generic resources', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const view = observation(0, { active: vmax });
+  const req = cardPrompt(0, view, {
+    sourcePrinting: 'Forest Seal Stone SIT 156',
+    effectName: 'Star Alchemy',
+    printings: [
+      'Shadow Rider Calyrex V CRE 74',
+      'Psychic Energy SVE 13',
+      'Teammates PRC 141'
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choices',
+    tokens: ['card-0']
+  });
+});
+
+test('Forest Seal Stone is attached only for a live bottleneck and defers to Fog Crystal', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const stoneOnly = observation(0, {
+    active: vmax,
+    ownHand: ['Forest Seal Stone SIT 156']
+  });
+  const attach = request(0, stoneOnly, {
+    actions: [
+      {
+        token: 'attach-stone',
+        kind: 'play-card',
+        actorPrinting: 'Forest Seal Stone SIT 156',
+        publicMetadata: {
+          targetSeat: 'actor',
+          targetZone: 'active',
+          targetIndex: 0,
+          isOwnerVisible: true
+        }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(attach), {
+    kind: 'select-action',
+    token: 'attach-stone'
+  });
+
+  const withFogCrystal = observation(0, {
+    active: vmax,
+    ownHand: ['Forest Seal Stone SIT 156', 'Fog Crystal CRE 140']
+  });
+  const defer = request(0, withFogCrystal, {
+    actions: [
+      {
+        token: 'attach-stone',
+        kind: 'play-card',
+        actorPrinting: 'Forest Seal Stone SIT 156',
+        publicMetadata: {
+          targetSeat: 'actor',
+          targetZone: 'active',
+          targetIndex: 0,
+          isOwnerVisible: true
+        }
+      },
+      {
+        token: 'fog-crystal',
+        kind: 'play-card',
+        actorPrinting: 'Fog Crystal CRE 140'
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(defer), {
+    kind: 'select-action',
+    token: 'fog-crystal'
+  });
+});
+
+test('Star Alchemy is sequenced after Underworld Door when both are available', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    energies: ['Psychic Energy SVE 13'],
+    abilities: ['Underworld Door'],
+    suppression: false,
+    tools: ['Forest Seal Stone SIT 156']
+  });
+  const mimikyu = pokemon({
+    printing: 'Mimikyu GRI 58',
+    name: 'Mimikyu',
+    hp: 70
+  });
+  const view = observation(0, {
+    active: vmax,
+    bench: [mimikyu],
+    ownHand: ['Psychic Energy SVE 13']
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'star-alchemy',
+        kind: 'use-ability',
+        actorPrinting: vmax.printing,
+        publicMetadata: {
+          abilityName: 'Star Alchemy',
+          sourceZone: 'active',
+          sourceSeat: 'actor',
+          sourceIndex: 0
+        }
+      },
+      {
+        token: 'underworld',
+        kind: 'use-ability',
+        actorPrinting: vmax.printing,
+        publicMetadata: {
+          abilityName: 'Underworld Door',
+          sourceZone: 'active',
+          sourceSeat: 'actor',
+          sourceIndex: 0
+        }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'underworld'
+  });
+});
+
+test('Star Alchemy is used before attacking only when its VSTAR Power is attached and needed', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    energies: Array(3).fill('Psychic Energy SVE 13'),
+    tools: ['Forest Seal Stone SIT 156'],
+    attacks: [attack('Max Geist', ['Colorless', 'Colorless', 'Colorless'], '10+')]
+  });
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT 136',
+    name: 'Regidrago VSTAR',
+    hp: 280,
+    types: ['Dragon'],
+    subtypes: ['VSTAR']
+  });
+  const view = observation(0, {
+    active: vmax,
+    opponentActive: regidrago,
+    ownHand: []
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'star-alchemy',
+        kind: 'use-ability',
+        actorPrinting: vmax.printing,
+        publicMetadata: {
+          abilityName: 'Star Alchemy',
+          sourceZone: 'active',
+          sourceSeat: 'actor',
+          sourceIndex: 0
+        }
+      },
+      {
+        token: 'max-geist',
+        kind: 'attack',
+        actorPrinting: vmax.printing,
+        attackName: 'Max Geist',
+        publicMetadata: { attackCostPayable: true }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'star-alchemy'
+  });
+});
+
+test('Star Alchemy is not spent when no material bottleneck remains', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    tools: ['Forest Seal Stone SIT 156']
+  });
+  const basic = pokemon({
+    printing: 'Shadow Rider Calyrex V CRE 74',
+    name: 'Shadow Rider Calyrex V',
+    hp: 210
+  });
+  const view = observation(0, {
+    active: vmax,
+    bench: [basic],
+    ownHand: [
+      'Shadow Rider Calyrex VMAX CRE 75',
+      'N FCO 105',
+      'Professor\'s Research SVI 189',
+      'Guzma BUS 115'
+    ]
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'star-alchemy',
+        kind: 'use-ability',
+        actorPrinting: vmax.printing,
+        publicMetadata: {
+          abilityName: 'Star Alchemy',
+          sourceZone: 'active',
+          sourceSeat: 'actor',
+          sourceIndex: 0
+        }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'pass'
+  });
+});
