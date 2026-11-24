@@ -2865,7 +2865,8 @@ test('Quick Ball deck search remains search-scored after the mandatory discard p
         label: "Lillie's Clefairy ex" },
       { token: 'rider-v', kind: 'card', printing: 'Shadow Rider Calyrex V CRE 74',
         label: 'Shadow Rider Calyrex V' },
-      { token: 'empty', kind: 'empty-selection', label: 'Select none' }
+      { token: 'empty', kind: 'empty-selection', label: 'Select none' },
+      { token: 'cancel', kind: 'cancel', label: 'Cancel' }
     ],
     publicMetadata: {
       sourceZone: 'deck', ownerSeat: 'actor',
@@ -3221,7 +3222,7 @@ test('Field Blower selects visible opponent Pokémon with Tools and ignores own 
         label: 'Garbodor',
         publicMetadata: { selectionIndex: 1, ownerSeat: 'opponent',
           targetZone: 'bench', isOwnerVisible: true, benchIndex: 0 } },
-      { token: 'opponent-no-tool', kind: 'pokemon', printing: 'Dratini OBF',
+      { token: 'opponent-no-tool', kind: 'pokemon', printing: 'Dratini OBF 105',
         label: 'Dratini',
         publicMetadata: { selectionIndex: 2, ownerSeat: 'opponent',
           targetZone: 'bench', isOwnerVisible: true, benchIndex: 1 } },
