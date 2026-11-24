@@ -2965,21 +2965,21 @@ test('Underworld Door AttachEnergyPrompt traverses projection, exact protocol, c
       schema: policyProtocol.REQUEST_SCHEMA,
       type: 'decision',
       requestId: 'underworld-door-seat-' + actorSeat,
-      sequence: 0,
+      sequence: 1,
       role: 'candidate',
       seat: actorSeat,
       observationSchema: policyProtocol.OBSERVATION_SCHEMA,
       observation: candidateView,
       prompt: promptView,
       publicEventReceipt: null,
-      actionFrontier: []
+      actionFrontier: {
+        schema: policyProtocol.FRONTIER_SCHEMA,
+        items: []
+      }
     };
-    const init = {
-      role: 'candidate', seat: actorSeat,
-      policyVersion: POLICY_VERSION, config: {}
-    };
+    const initialized = init(actorSeat);
     const validated = policyProtocol.validateRequest(
-      requestMessage, init, 0, new Set()
+      requestMessage, initialized, 1, new Set()
     );
     const policy = candidate.createPolicy(init);
     const decision = policy.decide({
