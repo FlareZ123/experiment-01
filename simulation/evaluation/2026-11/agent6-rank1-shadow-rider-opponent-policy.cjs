@@ -282,14 +282,27 @@ function shouldUseClimacticGate(observation) {
     matches(slot?.printing ?? '', PRINT.radiantEternatus));
   const emptyBenchSlots = 5 - list(own.bench).filter(Boolean).length;
   const maxFetch = Math.min(2, emptyBenchSlots - (radiantAlreadyInPlay ? 0 : 1));
-  if (maxFetch <= 0 || countBoard(own, PRINT.shadowRiderVmax) >= 2 ||
-      isGateAbilitySuppressed(observation)) return false;
+  if (maxFetch <= 0) {
+    setPolicyAuditRule('CLIMACTIC_GATE_NO_BENCH_CAPACITY', 'MAX_FETCH_ZERO');
+    return false;
+  }
+  if (countBoard(own, PRINT.shadowRiderVmax) >= 2) {
+    setPolicyAuditRule('CLIMACTIC_GATE_ALREADY_TWO_VMAX', 'NO_ADDITIONAL_VMAX_REQUIRED');
+    return false;
+  }
+  if (isGateAbilitySuppressed(observation)) {
+    setPolicyAuditRule('CLIMACTIC_GATE_FIELD_LOCK', 'RADIANT_ABILITY_SUPPRESSED');
+    return false;
+  }
 
   // Expected VMAX fetched, capped by both the Ability's two-card limit and
   // the actual open Bench. The 0.75 cutoff is a conservative terminal-turn
   // heuristic, not a calibrated optimum.
   const estimate = climacticGateDeckEstimate(observation, maxFetch);
-  return estimate.expectedFetchCount >= CLIMACTIC_GATE_MIN_EXPECTED_FETCHES;
+  const useGate = estimate.expectedFetchCount >= CLIMACTIC_GATE_MIN_EXPECTED_FETCHES;
+  setPolicyAuditRule('CLIMACTIC_GATE_EXPECTED_FETCH_THRESHOLD',
+    'EXPECTED_FETCH_' + estimate.expectedFetchCount.toFixed(3) + '_MIN_0_75');
+  return useGate;
 }
 
 function isActorBenchPlacement(item, observation) {
