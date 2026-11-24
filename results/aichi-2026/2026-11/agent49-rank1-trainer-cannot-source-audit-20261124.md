@@ -265,3 +265,10 @@ Once Agent6's exact-head contract-only and no-game gates are satisfied and the o
 5. Preserve the public sanitizer unchanged. No hidden card identity or family is needed in public output.
 
 This sequence is narrower and more informative than rerunning the whole fixture or testing every Trainer in arbitrary order.
+
+
+### Cleaner host-only callback alternative
+
+Instead of importing the outer helper into the inner runner or mutating the thrown error, the outer generator can add a host-only callback to the yielded request, e.g. `captureSelectedCardIdentity(action)`. It closes over the existing `attemptRecord`, state, acting seat, and native card-action classes, and writes the helper's result directly to `attemptRecord.selectedCardIdentity`. The inner runner invokes it after trusted-token resolution and before cloned dispatch.
+
+The worker call currently constructs its payload from explicit `observation`, `actionFrontier`, `eventReceipt`, and `policyContext` fields, so the callback need not be forwarded or serialized to the worker. Guard the callback internally so a trace-only capture failure cannot mask the native dispatch error. This avoids an error-property side channel and the outer-yield catch while using the existing `failureContext.record` reference.
