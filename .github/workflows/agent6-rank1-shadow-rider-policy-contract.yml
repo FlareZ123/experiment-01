@@ -1,0 +1,31 @@
+name: Agent6 rank-1 Shadow Rider opponent policy contract
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'simulation/evaluation/2026-11/agent6-rank1-shadow-rider-opponent-policy.cjs'
+      - 'tests/2026-11/agent6-rank1-shadow-rider-opponent-policy.test.cjs'
+      - 'simulation/evaluation/2026-11/agent49-policy-protocol.cjs'
+      - '.github/workflows/agent6-rank1-shadow-rider-policy-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    name: Verify pure policy, prompt, worker, and action-frontier contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax-check policy and tests
+        run: |
+          node --check simulation/evaluation/2026-11/agent6-rank1-shadow-rider-opponent-policy.cjs
+          node --check tests/2026-11/agent6-rank1-shadow-rider-opponent-policy.test.cjs
+      - name: Run pure policy and prompt regressions
+        run: node --test tests/2026-11/agent6-rank1-shadow-rider-opponent-policy.test.cjs
