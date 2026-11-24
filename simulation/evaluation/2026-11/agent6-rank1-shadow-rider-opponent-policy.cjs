@@ -218,7 +218,8 @@ function climacticGateDeckProbability(observation) {
 
 function shouldUseClimacticGate(observation) {
   const own = observation?.ownPublic ?? {};
-  const radiantAlreadyInPlay = boardHas(own, PRINT.radiantEternatus);
+  const radiantAlreadyInPlay = list(own.bench).some(slot =>
+    matches(slot?.printing ?? '', PRINT.radiantEternatus));
   const emptyBenchSlots = 5 - list(own.bench).filter(Boolean).length;
   // Before playing Radiant, reserve one slot for it and at least one for a
   // fetched VMAX. Once Radiant is on the Bench, only one open slot is needed.
@@ -740,8 +741,8 @@ function isRadiantClimacticGatePrompt(prompt, observation) {
     prompt.source.sourceKind === 'card-effect' &&
     matches(sourcePrinting, PRINT.radiantEternatus) &&
     prompt.source.effectName === 'Climactic Gate' &&
-    boardSlots(observation?.ownPublic).some(slot =>
-      slot.printing === sourcePrinting);
+    list(observation?.ownPublic?.bench).some(slot =>
+      matches(slot?.printing ?? '', PRINT.radiantEternatus));
 }
 
 function scorePokemonChoice(choice, observation, mode) {
@@ -1165,7 +1166,7 @@ function promptDecision(request) {
           const empty = choices.find(choice => choice.kind === 'empty-selection');
           if (empty) return { kind: 'select-choice', token: empty.token };
         }
-        return { kind: 'abstain', reasonCode: 'NO_CONFIDENT_CLIMACTIC_GATE_TARGET' };
+        return { kind: 'abstain', reasonCode: 'NO_SUPPORTED_POKEMON_CHOICE' };
       }
       const tokens = choices.filter(choice =>
         choice.kind === 'pokemon' &&
@@ -1331,7 +1332,7 @@ function promptDecision(request) {
     const no = choices.find(choice =>
       choice.kind === 'confirm' && /^(no|false|decline)$/i.test(choice.label ?? ''));
     if (!yes || !no) {
-      return { kind: 'abstain', reasonCode: 'UNRECOGNIZED_CLIMACTIC_GATE_CONFIRMATION' };
+      return { kind: 'abstain', reasonCode: 'UNRECOGNIZED_SIMPLE_PROMPT' };
     }
     return {
       kind: 'select-choice',
