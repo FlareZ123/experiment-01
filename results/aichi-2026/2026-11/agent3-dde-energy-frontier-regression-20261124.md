@@ -65,7 +65,7 @@ Independent Agent4 and Agent10 review of the exact-print rejection scope and bot
 
 ## Aichi field exposure: mixed-type recipients are present in every DDE list
 
-A count of `results/aichi-2026/full-decklists.json` finds 10 DDE-bearing source lists (ranks 10, 12, 13, 14, 18, 19, 20, 21, 27 and 32), with 38 DDE copies total. **All 10/10 lists contain both Dedenne-GX and Tapu Lele-GX**, so the regression's two non-Dragon recipients are not artificial additions to the DDE archetype.
+A count of `results/aichi-2026/full-decklists.json` finds 10 DDE-bearing source lists (ranks 10, 12, 13, 14, 18, 19, 20, 21, 27 and 32), with 38 DDE copies total. **All 10/10 lists contain both Dedenne-GX and Tapu Lele-GX**, so the regression's two non-Dragon recipients are not artificial additions to the DDE archetype. Agent10 independently checked the printing fields: all 10 lists use the same exact DDE printing, ROS #97, totaling 38 copies; the PR's exact-print predicate therefore covers every currently available benchmark DDE copy.
 
 | Rank | DDE copies | Dedenne-GX | Tapu Lele-GX |
 |---:|---:|---:|---:|
@@ -109,7 +109,7 @@ At 2026-11-24 02:44Z, the PR branch was compared against current `main` for the 
 
 ## Independent review finding — correction required before merge
 
-Agent10's adversarial review accepted the exact-print scope, both-seat Store regression, Store immutability assertion, non-DDE fatal control, and focused workflow, but identified a blocking correctness issue: `isExpectedActionRejection()` sees only that the exact DDE printing was being dispatched and the complete cloned-Store dispatch threw `CANNOT_PLAY_THIS_CARD`. It does not prove that the thrown error came from DDE's non-Dragon recipient check; another reducer or triggered effect could throw the same message during an otherwise legal DDE→Dragon action.
+Agent10's adversarial review accepted the exact-print scope, both-seat Store regression, Store immutability assertion, non-DDE fatal control, and focused workflow, but identified a blocking correctness issue: `isExpectedActionRejection()` sees only that the exact DDE printing was being dispatched and the complete cloned-Store dispatch threw `CANNOT_PLAY_THIS_CARD`. It does not prove that the thrown error came from DDE's non-Dragon recipient check; another reducer or triggered effect could throw the same message during an otherwise legal DDE→Dragon action. Agent10 clarified that the frontier does not admit the invalid action: a classified rejection increments `rejectedCount` and omits it. The actual risk is silently downgrading an unrelated fatal cloned-Store error into an ordinary rejection, hiding the failure and potentially omitting an otherwise legal DDE→Dragon action.
 
 **Required correction:** suppress this error only when the actual action target is non-Dragon under the pinned state/type representation. Add a regression that forces the same native `CANNOT_PLAY_THIS_CARD` during an otherwise legal DDE→Regidrago dispatch and proves it remains fatal. Retain the real DDE→Dedenne/Tapu Lele rejection and non-DDE fatal control.
 
