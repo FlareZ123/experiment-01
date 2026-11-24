@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
-const { POLICY_VERSION, createPolicy } =
+const { POLICY_VERSION, createPolicy, __test: policyInternals } =
   require('../../simulation/evaluation/2026-11/agent6-rank1-shadow-rider-opponent-policy.cjs');
 
 const policies = new Map();
@@ -1945,7 +1945,7 @@ test('Lillie’s Clefairy ex is not played when Path to the Peak status is unkno
 });
 
 
-test('Fairy Zone does not apply when the actor projection omits ability-suppression status', () => {
+test('Fairy Zone policy resolver applies the ability when no public suppressor is present', () => {
   const clefairy = pokemon("Lillie's Clefairy ex JTG 56", {
     hp: 190,
     abilities: ['Fairy Zone']
@@ -1978,7 +1978,7 @@ test('Fairy Zone does not apply when the actor projection omits ability-suppress
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-action',
-    token: 'night-watch'
+    token: 'max-geist'
   });
 });
 
@@ -2784,5 +2784,927 @@ test('a live Wobbuffet lock declines an already-open Radiant confirmation', () =
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-choice', token: 'no'
+  });
+});
+
+
+test('Quick Ball mandatory hand discard protects singleton Shadow Rider copies', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    description: 'CHOOSE_CARD_TO_DISCARD',
+    source: actorChoiceSource('Quick Ball FST 237', 'Quick Ball'),
+    choices: [
+      { token: 'rider-v', kind: 'card', printing: 'Shadow Rider Calyrex V CRE 74',
+        label: 'Shadow Rider Calyrex V' },
+      { token: 'mail', kind: 'card', printing: "Trainers' Mail ROS 92",
+        label: "Trainers' Mail" },
+      { token: 'psychic', kind: 'card', printing: 'Psychic Energy MEE 13',
+        label: 'Psychic Energy' }
+    ],
+    publicMetadata: {
+      sourceZone: 'hand', ownerSeat: 'actor',
+      minimumCount: 1, maximumCount: 1,
+      allowCancel: false, isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: [
+        'Shadow Rider Calyrex V CRE 74',
+        "Trainers' Mail ROS 92",
+        'Psychic Energy MEE 13'
+      ]
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['mail']
+  });
+});
+
+test('Quick Ball mandatory payment chooses the least-bad legal card instead of abstaining', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    description: 'CHOOSE_CARD_TO_DISCARD',
+    source: actorChoiceSource('Quick Ball FST 237', 'Quick Ball'),
+    choices: [
+      { token: 'unfair', kind: 'card', printing: 'Unfair Stamp TWM 165',
+        label: 'Unfair Stamp' },
+      { token: 'tulip', kind: 'card', printing: 'Tulip PAR 181',
+        label: 'Tulip' },
+      { token: 'rider-v', kind: 'card', printing: 'Shadow Rider Calyrex V CRE 74',
+        label: 'Shadow Rider Calyrex V' },
+      { token: 'rider-vmax', kind: 'card', printing: 'Shadow Rider Calyrex VMAX CRE 75',
+        label: 'Shadow Rider Calyrex VMAX' }
+    ],
+    publicMetadata: {
+      sourceZone: 'hand', ownerSeat: 'actor',
+      minimumCount: 1, maximumCount: 1,
+      allowCancel: false, isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: [
+        'Unfair Stamp TWM 165',
+        'Tulip PAR 181',
+        'Shadow Rider Calyrex V CRE 74',
+        'Shadow Rider Calyrex VMAX CRE 75'
+      ]
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['unfair']
+  });
+});
+
+test('Quick Ball deck search remains search-scored after the mandatory discard phase', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    description: 'CHOOSE_CARD_TO_HAND',
+    source: actorChoiceSource('Quick Ball FST 237', 'Quick Ball'),
+    choices: [
+      { token: 'clefairy', kind: 'card', printing: "Lillie's Clefairy ex JTG 56",
+        label: "Lillie's Clefairy ex" },
+      { token: 'rider-v', kind: 'card', printing: 'Shadow Rider Calyrex V CRE 74',
+        label: 'Shadow Rider Calyrex V' },
+      { token: 'empty', kind: 'empty-selection', label: 'Select none' },
+      { token: 'cancel', kind: 'cancel', label: 'Cancel' }
+    ],
+    publicMetadata: {
+      sourceZone: 'deck', ownerSeat: 'actor',
+      minimumCount: 0, maximumCount: 1,
+      allowCancel: true, isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: ['Quick Ball FST 237'],
+      ownPublic: player(),
+      opponentPublic: player({ active: pokemon('Shadow Rider Calyrex V CRE 74') })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['rider-v']
+  });
+});
+
+test('Silent Lab suppresses Radiant Gate unless global Stadium and Tool effects are disabled', () => {
+  const radiantAction = {
+    token: 'radiant', kind: 'play-card',
+    actorPrinting: 'Radiant Eternatus CRZ 105',
+    publicMetadata: { cardType: 'pokemon', handIndex: 0,
+      targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+      isOwnerVisible: true }
+  };
+  const activeLab = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94'),
+      stadium: ['Silent Lab PRC 140'],
+      deckCount: 30, prizeCount: 6
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(activeLab), {
+    kind: 'select-action', token: 'pass'
+  });
+
+  const opponentEpochDisablesLab = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94'),
+      stadium: ['Silent Lab PRC 140'],
+      deckCount: 30, prizeCount: 6
+    }),
+    opponentPublic: player({ stadiumAndToolHaveNoEffectTurnsRemaining: 1 }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(opponentEpochDisablesLab), {
+    kind: 'select-action', token: 'radiant'
+  });
+});
+
+test('Path to the Peak uses either player global Stadium suppression epoch', () => {
+  const radiantAction = {
+    token: 'radiant', kind: 'play-card',
+    actorPrinting: 'Radiant Eternatus CRZ 105',
+    publicMetadata: { cardType: 'pokemon', handIndex: 0,
+      targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+      isOwnerVisible: true }
+  };
+  const opponentEpoch = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94'),
+      stadium: ['Path to the Peak CRE 148'],
+      deckCount: 30, prizeCount: 6
+    }),
+    opponentPublic: player({ stadiumAndToolHaveNoEffectTurnsRemaining: 1 }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(opponentEpoch), {
+    kind: 'select-action', token: 'radiant'
+  });
+});
+
+test('Active Klefki suppresses Radiant Gate while Benched Klefki does not', () => {
+  const radiantAction = {
+    token: 'radiant', kind: 'play-card',
+    actorPrinting: 'Radiant Eternatus CRZ 105',
+    publicMetadata: { cardType: 'pokemon', handIndex: 0,
+      targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+      isOwnerVisible: true }
+  };
+  const activeKlefki = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94'), deckCount: 30, prizeCount: 6 }),
+    opponentPublic: player({
+      active: pokemon('Klefki SVI 96', { abilities: ['Mischievous Lock'] })
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(activeKlefki), {
+    kind: 'select-action', token: 'pass'
+  });
+
+  const benchedKlefki = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94'), deckCount: 30, prizeCount: 6 }),
+    opponentPublic: player({
+      active: pokemon('Regidrago V SIT'),
+      bench: [pokemon('Klefki SVI 96', { abilities: ['Mischievous Lock'] })]
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(benchedKlefki), {
+    kind: 'select-action', token: 'radiant'
+  });
+});
+
+test('Garbodor LTR 68 and BKP 57 both suppress Gate only while a Tool is attached', () => {
+  const radiantAction = {
+    token: 'radiant', kind: 'play-card',
+    actorPrinting: 'Radiant Eternatus CRZ 105',
+    publicMetadata: { cardType: 'pokemon', handIndex: 0,
+      targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+      isOwnerVisible: true }
+  };
+  const ltrWithTool = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94'), deckCount: 30, prizeCount: 6 }),
+    opponentPublic: player({
+      active: pokemon('Regidrago V SIT'),
+      bench: [pokemon('Garbodor LTR 68', {
+        abilities: ['Garbotoxin'], tools: ['Float Stone BKT 137']
+      })]
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(ltrWithTool), {
+    kind: 'select-action', token: 'pass'
+  });
+
+  const ltrWithoutTool = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94'), deckCount: 30, prizeCount: 6 }),
+    opponentPublic: player({
+      active: pokemon('Regidrago V SIT'),
+      bench: [pokemon('Garbodor LTR 68', { abilities: ['Garbotoxin'] })]
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(ltrWithoutTool), {
+    kind: 'select-action', token: 'radiant'
+  });
+});
+
+test('Clefairy search and play recognize a Dragon on the opponent Bench', () => {
+  const clefairyAction = {
+    token: 'clefairy', kind: 'play-card',
+    actorPrinting: "Lillie's Clefairy ex JTG 56",
+    publicMetadata: { cardType: 'pokemon', handIndex: 0,
+      targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+      isOwnerVisible: true }
+  };
+  const benchDragon = rootRequest({
+    ownHand: ["Lillie's Clefairy ex JTG 56"],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94') }),
+    opponentPublic: player({
+      active: pokemon('Shadow Rider Calyrex V CRE 74'),
+      bench: [pokemon('Dialga-GX UPR 100', { types: ['Dragon'] })]
+    }),
+    items: [clefairyAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(benchDragon), {
+    kind: 'select-action', token: 'clefairy'
+  });
+
+  const noDragon = rootRequest({
+    ownHand: ["Lillie's Clefairy ex JTG 56"],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94') }),
+    opponentPublic: player({
+      active: pokemon('Shadow Rider Calyrex V CRE 74'),
+      bench: [pokemon('Regidrago V SIT', { types: ['Psychic'] })]
+    }),
+    items: [clefairyAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(noDragon), {
+    kind: 'select-action', token: 'pass'
+  });
+});
+
+test('Fairy Zone damage resolves public locks and remains target-aware for Stealthy Hood', () => {
+  const attacks = [
+    { token: 'max', kind: 'attack', attackName: 'Max Geist' },
+    { token: 'eon', kind: 'attack', attackName: 'Eon Blade' },
+    { token: 'pass', kind: 'pass' }
+  ];
+  const rider = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+    hp: 320,
+    stage: 'VMAX',
+    energies: [
+      'Psychic Energy MEE 13',
+      'Psychic Energy MEE 13',
+      'Psychic Energy MEE 13'
+    ]
+  });
+  const activeFairyZone = pokemon("Lillie's Clefairy ex JTG 56", {
+    abilities: ['Fairy Zone'],
+    abilitySuppressions: [{
+      abilityName: 'Fairy Zone', suppressed: false,
+      reasonCode: null, sourcePrinting: null
+    }]
+  });
+  const unknownFairyZone = pokemon("Lillie's Clefairy ex JTG 56", {
+    abilities: ['Fairy Zone']
+  });
+
+  const knownActive = rootRequest({
+    ownPublic: player({ active: rider, bench: [activeFairyZone] }),
+    opponentPublic: player({
+      active: pokemon('Dialga-GX UPR 100', { hp: 250, types: ['Dragon'] })
+    }),
+    items: attacks
+  });
+  assert.deepEqual(checkedDecision(knownActive), {
+    kind: 'select-action', token: 'eon'
+  });
+
+  const unknownStatus = rootRequest({
+    ownPublic: player({ active: rider, bench: [unknownFairyZone] }),
+    opponentPublic: player({
+      active: pokemon('Dialga-GX UPR 100', { hp: 250, types: ['Dragon'] })
+    }),
+    items: attacks
+  });
+  assert.deepEqual(checkedDecision(unknownStatus), {
+    kind: 'select-action', token: 'eon'
+  });
+
+  const hoodProtected = rootRequest({
+    ownPublic: player({ active: rider, bench: [activeFairyZone] }),
+    opponentPublic: player({
+      active: pokemon('Dialga-GX UPR 100', {
+        hp: 250, types: ['Dragon'], tools: ['Stealthy Hood UNB 186']
+      })
+    }),
+    items: attacks
+  });
+  assert.deepEqual(checkedDecision(hoodProtected), {
+    kind: 'select-action', token: 'max'
+  });
+
+  const hoodDisabled = rootRequest({
+    ownPublic: player({
+      active: rider, bench: [activeFairyZone],
+      stadiumAndToolHaveNoEffectTurnsRemaining: 1
+    }),
+    opponentPublic: player({
+      active: pokemon('Dialga-GX UPR 100', {
+        hp: 250, types: ['Dragon'], tools: ['Stealthy Hood UNB 186']
+      })
+    }),
+    items: attacks
+  });
+  assert.deepEqual(checkedDecision(hoodDisabled), {
+    kind: 'select-action', token: 'eon'
+  });
+});
+
+test('Field Blower is played for opponent Tools even without a lock Stadium', () => {
+  const request = rootRequest({
+    ownHand: ['Field Blower GRI 125'],
+    ownPublic: player({
+      active: pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+        stage: 'VMAX', abilities: ['Underworld Door']
+      })
+    }),
+    opponentPublic: player({
+      active: pokemon('Regidrago V SIT', {
+        tools: ['Stealthy Hood UNB 186']
+      })
+    }),
+    items: [
+      { token: 'blower', kind: 'play-card', actorPrinting: 'Field Blower GRI 125',
+        publicMetadata: { cardType: 'trainer', handIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action', token: 'blower'
+  });
+});
+
+test('Field Blower selects Stadium-plus-Tool mode for an effective lock Stadium', () => {
+  const request = promptRequest({
+    promptType: 'SelectOptionPrompt',
+    source: actorChoiceSource('Field Blower GRI 125', 'Field Blower'),
+    choices: [
+      { token: 'stadium-plus-tool', kind: 'option',
+        label: 'Discard a Stadium and up to one Pokémon Tool',
+        publicMetadata: { choiceIndex: 0 } },
+      { token: 'two-tools', kind: 'option',
+        label: 'Discard up to two Pokémon Tools',
+        publicMetadata: { choiceIndex: 1 } }
+    ],
+    publicMetadata: {
+      selectionType: 'option', minimumCount: 1, maximumCount: 1,
+      allowCancel: false, isSecret: false
+    },
+    observation: {
+      ownPublic: player({ stadium: ['Silent Lab PRC 140'] }),
+      opponentPublic: player({
+        active: pokemon('Garbodor LTR 68', { tools: ['Float Stone BKT 137'] })
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice', token: 'stadium-plus-tool'
+  });
+});
+
+test('Field Blower selects two-Tool mode when no effective lock Stadium is present', () => {
+  const request = promptRequest({
+    promptType: 'SelectOptionPrompt',
+    source: actorChoiceSource('Field Blower GRI 125', 'Field Blower'),
+    choices: [
+      { token: 'stadium-plus-tool', kind: 'option',
+        label: 'Discard a Stadium and up to one Pokémon Tool',
+        publicMetadata: { choiceIndex: 0 } },
+      { token: 'two-tools', kind: 'option',
+        label: 'Discard up to two Pokémon Tools',
+        publicMetadata: { choiceIndex: 1 } }
+    ],
+    publicMetadata: {
+      selectionType: 'option', minimumCount: 1, maximumCount: 1,
+      allowCancel: false, isSecret: false
+    },
+    observation: {
+      ownPublic: player({ stadium: ['Sky Field ROS 89'] }),
+      opponentPublic: player({
+        active: pokemon('Garbodor LTR 68', { tools: ['Float Stone BKT 137'] }),
+        bench: [pokemon('Regidrago V SIT', { tools: ['Stealthy Hood UNB 186'] })]
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice', token: 'two-tools'
+  });
+});
+
+test('Field Blower selects visible opponent Pokémon with Tools and ignores own targets', () => {
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Field Blower GRI 125', 'Field Blower'),
+    choices: [
+      { token: 'own-tool', kind: 'pokemon', printing: 'Shadow Rider Calyrex V CRE 74',
+        label: 'Shadow Rider Calyrex V',
+        publicMetadata: { selectionIndex: 0, ownerSeat: 'actor',
+          targetZone: 'bench', isOwnerVisible: true, benchIndex: 0 } },
+      { token: 'opponent-garbo', kind: 'pokemon', printing: 'Garbodor LTR 68',
+        label: 'Garbodor',
+        publicMetadata: { selectionIndex: 1, ownerSeat: 'opponent',
+          targetZone: 'bench', isOwnerVisible: true, benchIndex: 0 } },
+      { token: 'opponent-no-tool', kind: 'pokemon', printing: 'Dratini OBF 105',
+        label: 'Dratini',
+        publicMetadata: { selectionIndex: 2, ownerSeat: 'opponent',
+          targetZone: 'bench', isOwnerVisible: true, benchIndex: 1 } },
+      { token: 'empty', kind: 'empty-selection', label: 'Select none' }
+    ],
+    publicMetadata: {
+      selectionType: 'pokemon', minimumCount: 0, maximumCount: 2,
+      allowCancel: false, isSecret: false
+    },
+    observation: {
+      ownPublic: player({
+        active: pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+          stage: 'VMAX', abilities: ['Underworld Door']
+        }),
+        bench: [pokemon('Shadow Rider Calyrex V CRE 74', {
+          tools: ['Float Stone BKT 137']
+        })]
+      }),
+      opponentPublic: player({
+        active: pokemon('Regidrago V SIT'),
+        bench: [
+          pokemon('Garbodor LTR 68', {
+            abilities: ['Garbotoxin'], tools: ['Float Stone BKT 137']
+          }),
+          pokemon('Dratini OBF 105')
+        ]
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['opponent-garbo']
+  });
+});
+
+test('Field Blower chooses the empty selection when no opponent Pokémon has a Tool', () => {
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Field Blower GRI 125', 'Field Blower'),
+    choices: [
+      { token: 'own-tool', kind: 'pokemon', printing: 'Shadow Rider Calyrex V CRE 74',
+        label: 'Shadow Rider Calyrex V',
+        publicMetadata: { selectionIndex: 0, ownerSeat: 'actor',
+          targetZone: 'bench', isOwnerVisible: true, benchIndex: 0 } },
+      { token: 'empty', kind: 'empty-selection', label: 'Select none' }
+    ],
+    publicMetadata: {
+      selectionType: 'pokemon', minimumCount: 0, maximumCount: 2,
+      allowCancel: false, isSecret: false
+    },
+    observation: {
+      ownPublic: player({
+        active: pokemon('Girafarig LOT 94'),
+        bench: [pokemon('Shadow Rider Calyrex V CRE 74', {
+          tools: ['Float Stone BKT 137']
+        })]
+      }),
+      opponentPublic: player({ active: pokemon('Regidrago V SIT') })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice', token: 'empty'
+  });
+});
+
+
+test('Mysterious Treasure least-bad discard preserves a singleton Shadow Rider V', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Mysterious Treasure FLI 113', 'Mysterious Treasure'),
+    choices: [
+      { token: 'rider-v', kind: 'card', printing: 'Shadow Rider Calyrex V CRE 74',
+        label: 'Shadow Rider Calyrex V', publicMetadata: { sourceZone: 'hand' } },
+      { token: 'psychic', kind: 'card', printing: 'Psychic Energy MEE 13',
+        label: 'Psychic Energy', publicMetadata: { sourceZone: 'hand' } }
+    ],
+    publicMetadata: {
+      sourceZone: 'hand', minimumCount: 1, maximumCount: 1,
+      allowCancel: false, isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: [
+        'Mysterious Treasure FLI 113',
+        'Shadow Rider Calyrex V CRE 74',
+        'Psychic Energy MEE 13'
+      ]
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['psychic']
+  });
+});
+
+test('Field Blower does not spend a Tool-only turn while global Tool effects are disabled', () => {
+  const request = rootRequest({
+    ownHand: ['Field Blower GRI 125'],
+    ownPublic: player({
+      active: pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+        stage: 'VMAX', abilities: ['Underworld Door']
+      })
+    }),
+    opponentPublic: player({
+      active: pokemon('Regidrago V SIT', {
+        tools: ['Stealthy Hood UNB 186']
+      }),
+      stadiumAndToolHaveNoEffectTurnsRemaining: 1
+    }),
+    items: [
+      { token: 'blower', kind: 'play-card', actorPrinting: 'Field Blower GRI 125',
+        publicMetadata: { cardType: 'trainer', handIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action', token: 'pass'
+  });
+});
+
+test('Field Blower declines opponent Tool targets while Tool effects are disabled', () => {
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Field Blower GRI 125', 'Field Blower'),
+    choices: [
+      { token: 'opponent-tool', kind: 'pokemon', printing: 'Garbodor LTR 68',
+        label: 'Garbodor',
+        publicMetadata: { selectionIndex: 0, ownerSeat: 'opponent',
+          targetZone: 'bench', isOwnerVisible: true, benchIndex: 0 } },
+      { token: 'empty', kind: 'empty-selection', label: 'Select none' }
+    ],
+    publicMetadata: {
+      selectionType: 'pokemon', minimumCount: 0, maximumCount: 2,
+      allowCancel: false, isSecret: false
+    },
+    observation: {
+      ownPublic: player({}),
+      opponentPublic: player({
+        bench: [pokemon('Garbodor LTR 68', {
+          abilities: ['Garbotoxin'], tools: ['Float Stone BKT 137']
+        })],
+        stadiumAndToolHaveNoEffectTurnsRemaining: 1
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice', token: 'empty'
+  });
+});
+
+
+test('Neutralizing Gas suppresses Gate only from the opponent Active Spot', () => {
+  const radiantAction = {
+    token: 'radiant', kind: 'play-card',
+    actorPrinting: 'Radiant Eternatus CRZ 105',
+    publicMetadata: { cardType: 'pokemon', handIndex: 0,
+      targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+      isOwnerVisible: true }
+  };
+  const opponentActiveGas = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94'), deckCount: 30, prizeCount: 6 }),
+    opponentPublic: player({
+      active: pokemon('Galarian Weezing RCL 113', {
+        abilities: ['Neutralizing Gas']
+      })
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(opponentActiveGas), {
+    kind: 'select-action', token: 'pass'
+  });
+
+  const opponentBenchedGas = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94'), deckCount: 30, prizeCount: 6 }),
+    opponentPublic: player({
+      active: pokemon('Regidrago V SIT'),
+      bench: [pokemon('Galarian Weezing RCL 113', {
+        abilities: ['Neutralizing Gas']
+      })]
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(opponentBenchedGas), {
+    kind: 'select-action', token: 'radiant'
+  });
+
+  const ownActiveGas = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({
+      active: pokemon('Galarian Weezing RCL 113', {
+        abilities: ['Neutralizing Gas']
+      }),
+      deckCount: 30, prizeCount: 6
+    }),
+    opponentPublic: player({ active: pokemon('Regidrago V SIT') }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(ownActiveGas), {
+    kind: 'select-action', token: 'radiant'
+  });
+});
+
+test('Alolan Muk Power of Alchemy suppresses Gate from either public Bench', () => {
+  const radiantAction = {
+    token: 'radiant', kind: 'play-card',
+    actorPrinting: 'Radiant Eternatus CRZ 105',
+    publicMetadata: { cardType: 'pokemon', handIndex: 0,
+      targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+      isOwnerVisible: true }
+  };
+  const ownBenchMuk = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94'),
+      bench: [pokemon('Alolan Muk SUM 58', { abilities: ['Power of Alchemy'] })],
+      deckCount: 30, prizeCount: 6
+    }),
+    opponentPublic: player({ active: pokemon('Regidrago V SIT') }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(ownBenchMuk), {
+    kind: 'select-action', token: 'pass'
+  });
+
+  const opponentBenchMuk = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94'),
+      deckCount: 30, prizeCount: 6
+    }),
+    opponentPublic: player({
+      active: pokemon('Regidrago V SIT'),
+      bench: [pokemon('Alolan Muk SUM 58', { abilities: ['Power of Alchemy'] })]
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(opponentBenchMuk), {
+    kind: 'select-action', token: 'pass'
+  });
+});
+
+
+test('Quick Ball discards duplicate search cards before a singleton Field Blower', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    description: 'CHOOSE_CARD_TO_DISCARD',
+    source: actorChoiceSource('Quick Ball FST 237', 'Quick Ball'),
+    choices: [
+      { token: 'field-blower', kind: 'card', printing: 'Field Blower GRI 125',
+        label: 'Field Blower' },
+      { token: 'fog-crystal', kind: 'card', printing: 'Fog Crystal CRE 140',
+        label: 'Fog Crystal' }
+    ],
+    publicMetadata: {
+      sourceZone: 'hand', ownerSeat: 'actor',
+      minimumCount: 1, maximumCount: 1,
+      allowCancel: false, isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: [
+        'Field Blower GRI 125',
+        'Fog Crystal CRE 140',
+        'Fog Crystal CRE 140'
+      ]
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['fog-crystal']
+  });
+});
+
+test('Quick Ball may discard a duplicate Clefairy but protects singleton Radiant Eternatus', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    description: 'CHOOSE_CARD_TO_DISCARD',
+    source: actorChoiceSource('Quick Ball FST 237', 'Quick Ball'),
+    choices: [
+      { token: 'radiant', kind: 'card', printing: 'Radiant Eternatus CRZ 105',
+        label: 'Radiant Eternatus' },
+      { token: 'clefairy', kind: 'card', printing: "Lillie's Clefairy ex JTG 56",
+        label: "Lillie's Clefairy ex" }
+    ],
+    publicMetadata: {
+      sourceZone: 'hand', ownerSeat: 'actor',
+      minimumCount: 1, maximumCount: 1,
+      allowCancel: false, isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: [
+        'Radiant Eternatus CRZ 105',
+        "Lillie's Clefairy ex JTG 56",
+        "Lillie's Clefairy ex JTG 56"
+      ]
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['clefairy']
+  });
+});
+
+
+test('Field Blower targets Dragon Stealthy Hood before a generic opponent Tool', () => {
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Field Blower GRI 125', 'Field Blower'),
+    choices: [
+      { token: 'generic-tool', kind: 'pokemon', printing: 'Dratini OBF 105',
+        label: 'Dratini',
+        publicMetadata: { selectionIndex: 0, ownerSeat: 'opponent',
+          targetZone: 'bench', isOwnerVisible: true, benchIndex: 0 } },
+      { token: 'dragon-hood', kind: 'pokemon', printing: 'Regidrago V SIT 135',
+        label: 'Regidrago V',
+        publicMetadata: { selectionIndex: 1, ownerSeat: 'opponent',
+          targetZone: 'active', isOwnerVisible: true } },
+      { token: 'empty', kind: 'empty-selection', label: 'Select none' }
+    ],
+    publicMetadata: {
+      selectionType: 'pokemon', minimumCount: 0, maximumCount: 1,
+      allowCancel: false, isSecret: false
+    },
+    observation: {
+      ownPublic: player(),
+      opponentPublic: player({
+        active: pokemon('Regidrago V SIT 135', {
+          types: ['Dragon'], tools: ['Stealthy Hood UNB 186']
+        }),
+        bench: [pokemon('Dratini OBF 105', {
+          tools: ['Float Stone BKT 137']
+        })]
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['dragon-hood']
+  });
+});
+
+test('Field Blower selects Stealthy Hood when a Dragon is protected by it', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Field Blower GRI 125', 'Field Blower'),
+    choices: [
+      { token: 'float-stone', kind: 'card', printing: 'Float Stone BKT 137',
+        label: 'Float Stone',
+        publicMetadata: { sourceZone: 'tool', ownerSeat: 'opponent',
+          isOwnerVisible: true } },
+      { token: 'stealthy-hood', kind: 'card', printing: 'Stealthy Hood UNB 186',
+        label: 'Stealthy Hood',
+        publicMetadata: { sourceZone: 'tool', ownerSeat: 'opponent',
+          isOwnerVisible: true } }
+    ],
+    publicMetadata: {
+      sourceZone: 'tool', ownerSeat: 'opponent',
+      minimumCount: 1, maximumCount: 1,
+      allowCancel: false, isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownPublic: player(),
+      opponentPublic: player({
+        active: pokemon('Regidrago V SIT 135', {
+          types: ['Dragon'], tools: ['Stealthy Hood UNB 186']
+        })
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['stealthy-hood']
+  });
+});
+
+
+test('Fairy Zone public-source resolver covers suppressors and card-specific exceptions', () => {
+  const fairy = (options = {}) => pokemon("Lillie's Clefairy ex JTG 56", {
+    abilities: ['Fairy Zone'],
+    ...options
+  });
+  const observation = (own = {}, opponent = {}) => ({
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94'),
+      bench: [fairy()],
+      ...own
+    }),
+    opponentPublic: player({
+      active: pokemon('Regidrago V SIT'),
+      ...opponent
+    })
+  });
+  const active = value => policyInternals.fairyZoneActive(value);
+
+  assert.equal(active(observation()), true);
+  assert.equal(active(observation({ stadium: ['Path to the Peak CRE 148'] })), false);
+  assert.equal(active(observation({}, { stadium: ['Silent Lab PRC 140'] })), false);
+  assert.equal(active(observation(
+    { active: pokemon('Klefki SVI 96', { abilities: ['Mischievous Lock'] }) }
+  )), false);
+  assert.equal(active(observation(
+    {}, { active: pokemon('Iron Thorns ex TWM 77', { abilities: ['Initialization'] }) }
+  )), false);
+  assert.equal(active(observation(
+    {}, { active: pokemon('Galarian Weezing RCL 113', { abilities: ['Neutralizing Gas'] }) }
+  )), false);
+  assert.equal(active(observation(
+    {}, { active: pokemon('Slaking SUM 115', { abilities: ['Lazy'] }) }
+  )), false);
+  assert.equal(active(observation(
+    { bench: [fairy(), pokemon('Alolan Muk SUM 58', { abilities: ['Power of Alchemy'] })] }
+  )), false);
+  assert.equal(active(observation(
+    {}, { bench: [pokemon('Garbodor LTR 68', {
+      abilities: ['Garbotoxin'], tools: ['Float Stone BKT 137']
+    })] }
+  )), false);
+
+  // Bide Barricade exempts Psychic Pokémon; Empoleon V exempts Rule Box Pokémon.
+  assert.equal(active(observation(
+    {}, { active: pokemon('Wobbuffet PHF 36', { abilities: ['Bide Barricade'] }) }
+  )), true);
+  assert.equal(active(observation(
+    {}, { active: pokemon('Empoleon V BST 40', { abilities: ["Emperor's Eyes"] }) }
+  )), true);
+  assert.equal(active(observation(
+    {}, { active: pokemon('Ting-Lu ex PAL 127', { abilities: ['Cursed Land'] }) }
+  )), true);
+  assert.equal(active(observation(
+    {}, { active: pokemon('Spiritomb PAL 89', { abilities: ['Fettered in Misfortune'] }) }
+  )), true);
+  assert.equal(active(observation(
+    {}, { active: pokemon('Glaceon-GX FLI 39', { abilities: ['Freezing Gaze'] }) }
+  )), true);
+  assert.equal(active(observation(
+    {}, { active: pokemon('Mimikyu CEC 97', { abilities: ['Shadow Box'] }) }
+  )), true);
+
+  // Flutter Mane affects only the opponent's Active Pokémon.
+  assert.equal(active(observation(
+    {}, { active: pokemon('Flutter Mane TEF 78', { abilities: ['Midnight Fluttering'] }) }
+  )), true);
+  assert.equal(active(observation(
+    { active: fairy(), bench: [] },
+    { active: pokemon('Flutter Mane TEF 78', { abilities: ['Midnight Fluttering'] }) }
+  )), false);
+
+  // Either player's Stadium/Tool epoch disables Silent Lab and Path to the Peak.
+  assert.equal(active(observation(
+    { stadium: ['Path to the Peak CRE 148'] },
+    { stadiumAndToolHaveNoEffectTurnsRemaining: 1 }
+  )), true);
+});
+
+test('Climactic Gate veto includes opponent Active Slaking but not own Active Slaking', () => {
+  const radiantAction = {
+    token: 'radiant', kind: 'play-card',
+    actorPrinting: 'Radiant Eternatus CRZ 105',
+    publicMetadata: { cardType: 'pokemon', handIndex: 0,
+      targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+      isOwnerVisible: true }
+  };
+  const opponentSlaking = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94'), deckCount: 30, prizeCount: 6 }),
+    opponentPublic: player({
+      active: pokemon('Slaking SUM 115', { abilities: ['Lazy'] })
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(opponentSlaking), {
+    kind: 'select-action', token: 'pass'
+  });
+
+  const ownSlaking = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({
+      active: pokemon('Slaking SUM 115', { abilities: ['Lazy'] }),
+      deckCount: 30, prizeCount: 6
+    }),
+    opponentPublic: player({ active: pokemon('Regidrago V SIT') }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(ownSlaking), {
+    kind: 'select-action', token: 'radiant'
   });
 });
