@@ -174,13 +174,14 @@ function cardPrompt(seat, view, {
   return request(seat, requestView, { prompt, actions: [], receipt });
 }
 
-function pokemonPrompt(seat, view, choices) {
+function pokemonPrompt(seat, view, choices, effectName = 'Guzma') {
   const prompt = {
     schema: protocol.PROMPT_SCHEMA, actingSeat: seat,
     promptType: 'ChoosePokemonPrompt', description: null,
     source: {
       classification: 'actor-choice', sourceKind: 'card-effect',
-      sourcePrinting: 'Guzma BUS', effectName: 'Guzma'
+      sourcePrinting: effectName === 'Acerola' ? 'Acerola PRC 112' : 'Guzma BUS',
+      effectName
     },
     choices: choices.map((row, index) => ({
       token: row.token, kind: 'pokemon', printing: row.printing,
@@ -200,6 +201,25 @@ function pokemonPrompt(seat, view, choices) {
     pendingPromptType: 'ChoosePokemonPrompt'
   };
   return request(seat, requestView, { prompt, actions: [] });
+}
+
+function priorKoReceipt(view) {
+  const project = slot => slot === null ? null : ({
+    printing: slot.printing,
+    movedFromBenchToActiveThisTurn: null,
+    knownAbilityUse: []
+  });
+  return {
+    version: 'agent8-public-event-receipt-v3-turn-stamped',
+    actorSeat: view.actorSeat,
+    turn: view.globalTurn,
+    ownerActive: project(view.ownPublic.active),
+    ownerBench: view.ownPublic.bench.map(project),
+    priorOpponentTurnKO: { any: true, byAttack: true },
+    opponentLastTurnAttack: null,
+    opponentLastTurnTurn: null,
+    opponentLastTurnAttacks: null
+  };
 }
 
 test('candidate bundle is pure and rejects opponent-role or configurable initialization', () => {
@@ -2150,5 +2170,120 @@ test('Night Watch disruption value rises with opponent hand size and can change 
   assert.deepEqual(evaluate(smallHand), {
     kind: 'select-action',
     token: 'heavy-strike'
+  });
+});
+
+
+test('Teammates is played after a validated opponent-turn Knock Out', () => {
+  const view = observation(0, {
+    active: null,
+    bench: [],
+    ownHand: ['Teammates PRC 141']
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'teammates',
+        kind: 'play-card',
+        actorPrinting: 'Teammates PRC 141'
+      },
+      { token: 'pass', kind: 'pass' }
+    ],
+    receipt: priorKoReceipt(view)
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'teammates'
+  });
+});
+
+test('Raihan is played after a Knock Out when Psychic Energy is available in discard', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const mimikyu = pokemon({
+    printing: 'Mimikyu GRI 58',
+    name: 'Mimikyu',
+    hp: 70
+  });
+  const view = observation(0, {
+    active: vmax,
+    bench: [mimikyu],
+    ownHand: ['Raihan CRZ 140'],
+    ownDiscard: ['Psychic Energy SVE 13']
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'raihan',
+        kind: 'play-card',
+        actorPrinting: 'Raihan CRZ 140'
+      },
+      { token: 'pass', kind: 'pass' }
+    ],
+    receipt: priorKoReceipt(view)
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'raihan'
+  });
+});
+
+test('Iono is played to disrupt a large opponent hand when our hand can reload', () => {
+  const view = observation(0, {
+    ownHand: [
+      'Iono PAL 185',
+      'Psychic Energy SVE 13',
+      'N FCO 105',
+      "Professor's Research SVI 189"
+    ],
+    opponentHandCount: 6
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'iono',
+        kind: 'play-card',
+        actorPrinting: 'Iono PAL 185'
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'iono'
+  });
+});
+
+test('Acerola selects the damaged, energy-loaded VMAX nearest to being Knocked Out', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    damage: 250,
+    energies: Array(3).fill('Psychic Energy SVE 13')
+  });
+  const trevenant = pokemon({
+    printing: 'Trevenant & Dusknoir-GX SMP 217',
+    name: 'Trevenant & Dusknoir-GX',
+    hp: 270,
+    types: ['Psychic'],
+    subtypes: ['Basic', 'TAG TEAM', 'GX'],
+    damage: 100
+  });
+  const view = observation(0, {
+    bench: [vmax, trevenant]
+  });
+  const req = pokemonPrompt(0, view, [
+    { token: 'vmax', index: 0, printing: vmax.printing },
+    { token: 'trevenant', index: 1, printing: trevenant.printing }
+  ], 'Acerola');
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choices',
+    tokens: ['vmax']
   });
 });
