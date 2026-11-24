@@ -2406,10 +2406,12 @@ function runMatch(request) {
       physicalShuffleRandomIsolationAfterSetup: isolateShuffleAfterSetup,
       aichiFieldPaperShuffleRandomIsolation: independentStreams !== null,
       ...(independentStreams ? {
-        aichiFieldPaperShuffleRandomIsolationCards: [
+        aichiFieldPaperShuffleRandomIsolationHooks: [
           'Gladion CIN', 'Hisuian Heavy Ball ASR', 'Marnie SSH', 'Iono PAL'
         ]
       } : {}),
+      hisuianHeavyBallPrizeShuffleCorrection:
+        request.hisuianHeavyBallPrizeShuffleCorrection === true || independentStreams !== null,
       coinRandomIsolation: independentStreams !== null,
       engineRandomIsolation: independentStreams !== null,
       ...(independentStreams ? { rngMaterialCommitment: rngMaterialDigest } : {}),
