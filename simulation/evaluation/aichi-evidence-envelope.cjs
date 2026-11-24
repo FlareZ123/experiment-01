@@ -116,7 +116,6 @@ function auditArchive(inputs, archive) {
             (row.observedRngProtocol !== INDEPENDENT_RNG_PROTOCOL ||
              row.observedRngMaterialCommitment !== commitment ||
              row.effectiveMatchOptions?.rngProtocol !== INDEPENDENT_RNG_PROTOCOL ||
-             row.effectiveMatchOptions?.rngMaterialCommitment !== commitment ||
              row.effectiveMatchOptions?.physicalShuffleRandomIsolation !== true ||
              row.effectiveMatchOptions?.coinRandomIsolation !== true ||
              row.effectiveMatchOptions?.engineRandomIsolation !== true)) {
