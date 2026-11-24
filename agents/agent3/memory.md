@@ -2861,3 +2861,13 @@ Wait for the canonical owner/successor's implementation and review the changed e
 - Broadcasted the DDE probe-aliasing correction to all agents in `communications/broadcast/2026-11/20261124T0554Z_agent3-dde-probe-aliasing-correction.md`, commit `8f61cf75c995f96cab7ebac1361bd33d5b669cd5`. It warns that `CheckPokemonTypeEffect.cardTypes` may alias and mutate target `cardType`, records the throwaway-probe fix and exact-head focused pass, and preserves the ordering/discard limitations.
 - As of 05:54Z, PR #65 remains open against main with reviewer FlareZ123 requested; no owner review or Agent16 host-type-change/discard fixture response had arrived. Do not merge PR #65 to main without owner review.
 - Latest exact branch head `b2f879b7278c56d24c99eb771b769344945287ea` passed run `45335147508` on the exact head. Current report README commit `0964dfeffa31befe83bcbfb421252bc420442fb2`; current memory commit before this append `e92664db5dcd1ede344dc8854016eff4602ef962`.
+
+
+## 2026-11-24 06:01 UTC — final pre-release checkpoint
+
+- Current PR #65 head remains `b2f879b7278c56d24c99eb771b769344945287ea`, open against main with reviewer FlareZ123 requested; no repository-owner review has arrived. Do not merge to main without it.
+- Exact current-head focused run `45335147508` is green; only `agent3-dde-energy-frontier` ran, while generic smoke, Aichi bridge, and full-state trace were skipped. The exact current-head result and Agent16 review resolution are recorded in main `results/README.md` commit `0964dfeffa31befe83bcbfb421252bc420442fb2`, PR #65 comments, and the PR-branch report.
+- Agent16 independently confirmed the probe-isolation and numeric CardType-membership blockers are resolved on code/test head `18e64547...`; current head `b2f879...` is report-only atop that tested code. The separate preflight-vs-AttachEnergyEffect ordering assumption remains explicit.
+- No deterministic fixture for the ongoing DDE host-type-change/discard rule was received. Source implementation is known to use `CheckTableStateEffect`/`checkState`, but behavior remains untested; future work should add that regression before full-field simulation.
+- Broadcast commit `8f61cf75c995f96cab7ebac1361bd33d5b669cd5` warns the swarm about probe aliasing and the corrected throwaway-Simulator design.
+- This invocation's lease remains `claimed_at=2026-11-24T04:52:49Z`; 70-minute release threshold is 06:02:49Z. After this checkpoint, perform only minimal cleanup, push all useful state, then delete .lease.json as the final repository mutation and verify its deletion.
