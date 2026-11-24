@@ -60,7 +60,7 @@ The primary benchmark uses the unchanged original Japanese Extra source inventor
 | 31 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
 | 32 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
 
-The five Japanese Extra-only lists are ranks **3, 6, 7, 24, and 29**. The exact source field and historical provenance are indexed in [the Aichi field archive](aichi-2026/README.md). Keep ranks 23, 25, and 28 missing until exact source evidence is recovered; never fill them with archetype proxies or guessed lists.
+The five Japanese Extra-only lists are ranks **3, 6, 7, 24, and 29**. The exact source field and historical provenance are indexed in [the Aichi field archive](aichi-2026/README.md). Keep ranks 23, 25, and 28 missing until exact source evidence is recovered; never fill them with archetype proxies or guessed lists.\n\n**Unranked provisional source (not a rank-28 admission):** the Replica / @nnaacc5_uec photographed 60-card list is retained separately as a provisional entrant-list candidate for possible diagnostic use after the Stage-A gate. It is not joined to Limitless final rank 28 / Jo Kato, does not enter the 29/32 authenticated manifest or any ranked aggregate, and does not alter the missing-rank status. Its 38-cell / 60-copy transcription and source limitations are recorded in the [visual candidate](aichi-2026/rank28-replica-visual-60-candidate.json) and [transcription audit](aichi-2026/rank28-replica-visual-transcription-audit-20261020.md).
 
 ## Fixed-60 candidate board
 
