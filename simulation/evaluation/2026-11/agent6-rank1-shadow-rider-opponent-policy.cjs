@@ -217,7 +217,14 @@ function climacticGateDeckProbability(observation) {
 }
 
 function shouldUseClimacticGate(observation) {
-  return countBoard(observation?.ownPublic, PRINT.shadowRiderVmax) < 2 &&
+  const own = observation?.ownPublic ?? {};
+  const radiantAlreadyInPlay = boardHas(own, PRINT.radiantEternatus);
+  const emptyBenchSlots = 5 - list(own.bench).filter(Boolean).length;
+  // Before playing Radiant, reserve one slot for it and at least one for a
+  // fetched VMAX. Once Radiant is on the Bench, only one open slot is needed.
+  const requiredOpenBenchSlots = radiantAlreadyInPlay ? 1 : 2;
+  return emptyBenchSlots >= requiredOpenBenchSlots &&
+    countBoard(own, PRINT.shadowRiderVmax) < 2 &&
     climacticGateDeckProbability(observation) >=
       CLIMACTIC_GATE_MIN_DECK_PROBABILITY;
 }
@@ -504,7 +511,7 @@ function scoreAction(item, request) {
     if (matches(card, PRINT.latias) &&
         isActorBenchPlacement(item, observation) &&
         !boardHas(own, PRINT.latias) &&
-        boardSlots(own).some(slot => slot.printed?.stage === 'BASIC')) return 112;
+        boardSlots(own).some(slot => String(slot.printed?.stage ?? '').toUpperCase() === 'BASIC')) return 112;
 
     if (matches(card, PRINT.girafarig) &&
         isActorBenchPlacement(item, observation) &&
@@ -727,11 +734,14 @@ function findVisibleSlot(player, zone, printing) {
   return null;
 }
 
-function isRadiantClimacticGatePrompt(prompt) {
+function isRadiantClimacticGatePrompt(prompt, observation) {
+  const sourcePrinting = prompt?.source?.sourcePrinting ?? '';
   return prompt?.source?.classification === 'actor-choice' &&
     prompt.source.sourceKind === 'card-effect' &&
-    matches(prompt.source.sourcePrinting ?? '', PRINT.radiantEternatus) &&
-    prompt.source.effectName === 'Climactic Gate';
+    matches(sourcePrinting, PRINT.radiantEternatus) &&
+    prompt.source.effectName === 'Climactic Gate' &&
+    boardSlots(observation?.ownPublic).some(slot =>
+      slot.printing === sourcePrinting);
 }
 
 function scorePokemonChoice(choice, observation, mode) {
@@ -1057,7 +1067,7 @@ function promptDecision(request) {
   const sourcePrinting = prompt.source.sourcePrinting ?? '';
   const effect = effectName + ' ' + sourcePrinting;
   const metadata = prompt.publicMetadata ?? {};
-  if (effectName === 'Climactic Gate' && !isRadiantClimacticGatePrompt(prompt)) {
+  if (effectName === 'Climactic Gate' && !isRadiantClimacticGatePrompt(prompt, observation)) {
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CLIMACTIC_GATE_SOURCE' };
   }
   const selectionType = metadata.selectionType ?? '';
@@ -1118,7 +1128,7 @@ function promptDecision(request) {
     else if (includes(effect, 'Raihan')) mode = 'raihan';
     else if (includes(effect, 'Acerola')) mode = 'acerola';
     else if (effectName === 'Climactic Gate' &&
-        isRadiantClimacticGatePrompt(prompt)) mode = 'evolution';
+        isRadiantClimacticGatePrompt(prompt, observation)) mode = 'evolution';
     else if (prompt.source.sourceKind === 'engine' && observation.ownPublic.active === null) mode = 'promotion';
     else if (includes(effect, 'Guzma')) {
       const candidates = choices.filter(choice =>
@@ -1308,7 +1318,7 @@ function promptDecision(request) {
   if (prompt.promptType === 'ConfirmPrompt' && effectName === 'Climactic Gate') {
     setPolicyAuditRule('CLIMACTIC_GATE_DECK_PROBABILITY_THRESHOLD',
       'YES_IF_P_AT_LEAST_ONE_VMAX_IN_DECK_GE_0_5');
-    if (!isRadiantClimacticGatePrompt(prompt)) {
+    if (!isRadiantClimacticGatePrompt(prompt, observation)) {
       return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CLIMACTIC_GATE_SOURCE' };
     }
     const yes = choices.find(choice =>
