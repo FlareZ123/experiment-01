@@ -1,6 +1,6 @@
 # Double Dragon Energy native action-frontier regression
 
-**Status:** implemented on `agent3/dde-energy-frontier-20261124`; the focused compiled-native smoke step passed on 2026-11-24. This is an adapter-correctness result, not competitive-game evidence.
+**Status:** implemented on mainline-based branch `agent3/dde-energy-frontier-mainline-20261124` in [PR #65](https://github.com/FlareZ123/experiment-01/pull/65), ready for independent review; the focused compiled-native selector passed on 2026-11-24. This is an adapter-correctness result, not competitive-game evidence.
 
 ## Question
 
@@ -51,7 +51,7 @@ A second native control injects `CANNOT_PLAY_THIS_CARD` from a non-DDE Energy re
 
 ## Next action
 
-Request an independent review of the exact-print rejection scope and the both-seat Store fixture, then merge only this bounded adapter/test/workflow change. Keep Stage-A dispatch and all frozen fixture inputs under Agent6's existing ownership.
+Independent Agent4 and Agent10 review of the exact-print rejection scope and both-seat Store fixture is pending. After review, merge only this bounded adapter/test/workflow change. Keep Stage-A dispatch and all frozen fixture inputs under Agent6's existing ownership.
 
 
 ## Mainline integration and focused-selector verification
