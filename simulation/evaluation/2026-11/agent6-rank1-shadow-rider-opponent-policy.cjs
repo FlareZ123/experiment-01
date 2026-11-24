@@ -674,7 +674,8 @@ function scoreAction(item, request) {
           opponent.prizeCount < 6)) return 142;
 
     if (matches(card, PRINT.fieldBlower) &&
-        (pathLockActive(observation) || opponentToolCount(observation) > 0) &&
+        (pathLockActive(observation) ||
+          (toolEffectsStatus(observation) === true && opponentToolCount(observation) > 0)) &&
         boardSlots(own).some(slot => hasAbility(slot, 'Underworld Door'))) return 140;
 
     if (includes(card, 'Battle Compressor') &&
@@ -879,7 +880,8 @@ function scorePokemonChoice(choice, observation, mode) {
     if (meta.ownerSeat !== 'opponent' || meta.isOwnerVisible !== true) return -1;
     const slot = findVisibleSlot(observation.opponentPublic,
       meta.targetZone, choice.printing, meta);
-    if (!slot || list(slot.tools).length === 0) return -1;
+    if (!slot || list(slot.tools).length === 0 ||
+        toolEffectsStatus(observation) !== true) return -1;
     const garbodor = matches(slot.printing, PRINT.garbodor);
     return 150 + Math.min(20, list(slot.tools).length * 10) + (garbodor ? 50 : 0);
   }
@@ -1046,11 +1048,14 @@ function getLostChoiceScore(choice) {
   return 30;
 }
 
-function fieldBlowerChoiceScore(choice) {
+function fieldBlowerChoiceScore(choice, observation) {
   if (choiceOwner(choice) !== 'opponent') return -1;
   const printing = choicePrinting(choice);
-  if (/Path to the Peak|Silent Lab|Garbotoxin|Garbotoxin Tool/i.test(printing)) return 180;
-  if (choiceZone(choice) === 'tool') return 110;
+  if (choiceZone(choice) === 'stadium' &&
+      /Path to the Peak|Silent Lab/i.test(printing)) return 180;
+  if (choiceZone(choice) === 'tool') {
+    return toolEffectsStatus(observation) === true ? 110 : -1;
+  }
   if (choiceZone(choice) === 'stadium') return 100;
   return -1;
 }
@@ -1421,7 +1426,8 @@ function promptDecision(request) {
         scored = sortedChoiceTokens(cardChoices,
           choice => discardChoiceScore(choice, observation));
       } else if (includes(effect, 'Field Blower')) {
-        scored = sortedChoiceTokens(cardChoices, fieldBlowerChoiceScore);
+        scored = sortedChoiceTokens(cardChoices,
+          choice => fieldBlowerChoiceScore(choice, observation));
       } else if (includes(effect, 'Get Lost')) {
         scored = sortedChoiceTokens(cardChoices, getLostChoiceScore);
       } else {
@@ -1548,6 +1554,7 @@ function promptDecision(request) {
       return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
     }
     const preferredOption = pathLockStatus(observation) !== false ||
+      toolEffectsStatus(observation) !== true ||
       opponentToolCount(observation) < 2 ? 0 : 1;
     const selected = choices.find(choice => choice.kind === 'option' &&
       choice.publicMetadata?.choiceIndex === preferredOption);
