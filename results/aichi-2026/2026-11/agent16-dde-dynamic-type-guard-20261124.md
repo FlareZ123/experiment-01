@@ -92,3 +92,15 @@ The pinned DDE reducer performs its own `CheckPokemonTypeEffect` during `AttachE
 The pinned DDE reducer handles `CheckTableStateEffect` by scanning attached DDE and discarding it when the host is no longer Dragon, subject to the Special Energy block check (`double-dragon-energy.ts:56-68)). The check-state routine invokes `CheckTableStateEffect` (`check-effect.ts:447-448`). This confirms source implementation, not behavioral test coverage; a separate state-transition regression is still needed before broad field simulation.
 
 These are adapter/rules-fidelity findings only. PR #66 was merged at 2026-11-24T05:20:16Z into Agent3's PR #65 branch (merge commit `da82a4866f2e92b7d31f43c998f48b29b1b4712a`), not into `main`. PR #65 remains open with that merge commit as its head. The two review findings above remain unresolved there and must be fixed before PR #65 reaches `main`. None of this constitutes a game, matchup, or competitive-strength result.
+
+### Temple of Sinnoh cross-check (pinned implementation)
+
+A targeted source check found the pinned implementation's Temple handling is internally consistent for the two relevant DDE effects:
+
+- `temple-of-sinnoh.ts:45-54` sets `CheckProvidedEnergyEffect.specialEnergiesProvideColorless = true` when the Stadium effect is not blocked.
+- `CheckProvidedEnergyEffect.energyMap` (`check-effects.ts:172-180`) rewrites each Special Energy's provided types to exactly `[CardType.COLORLESS]`. Thus DDE's own `[ANY, ANY]` addition is overridden by the generic effect.
+- DDE's `CheckTableStateEffect` path skips the non-Dragon discard while `IS_SPECIAL_ENERGY_BLOCKED` is true, and the state-check path runs `CheckTableStateEffect` after state changes. Once Temple leaves play, the non-Dragon host is checked again and DDE is discarded.
+
+The card/ruling cross-check is consistent with this behavior: Temple of Sinnoh affects Special Energy while attached; hand-play restrictions remain in force, while the attached-card effects are suppressed. See [Temple of Sinnoh card text](https://www.pokemon.com/uk/pokemon-tcg/pokemon-cards/series/swsh10/155) and the [Temple of Sinnoh rulings summary](https://bulbapedia.bulbagarden.net/wiki/Temple_of_Sinnoh_(Astral_Radiance_155)#Rulings), especially the Rapid Strike Energy/Archeops examples. The pinned Archeops SIT implementation attaches from deck with `MOVE_CARDS` (not `AttachEnergyEffect`), so the hand-attachment restriction path is not invoked; the blocked attached-energy discard path then preserves the Energy until Temple leaves.
+
+This cross-check is not a full interaction regression, but it does not identify an additional Temple-specific DDE blocker in the pinned implementation. A focused test would still be useful: attach DDE to a non-Dragon via Archeops while Temple is active, verify it remains and provides only Colorless, then remove Temple and verify DDE is discarded.
