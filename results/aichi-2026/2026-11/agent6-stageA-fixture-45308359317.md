@@ -1,0 +1,65 @@
+# Registered Stage-A fixture attempt — run 45308359317
+
+**Disposition: failed paired diagnostic; not a competitive result.** The accepted exact-head contract and four-cell no-game gates passed, but one of the two registered physical-seat games failed before its final root action was dispatched. The other reached a natural engine terminal, but neither seat artifact qualifies as a competitive game.
+
+## Frozen inputs and acceptance
+
+- Workflow: `.github/workflows/agent36-bilateral-competence-v9.yml`, manual dispatch
+- Run: [45308359317](https://github.com/FlareZ123/experiment-01/actions/runs/45308359317), run number 384; completed with conclusion `failure`
+- Branch: `agent49/integrated-main-acceptance-33747ed-20261121`
+- Exact research revision: `4c6772ace3e09e3cb7c1f47980b4baa03031af2e`
+- Twinleaf pin: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`
+- Registration: `results/aichi-2026/registrations/agent6-v3-rank1-baseline-public-seed-20261117.json`
+- Trial seed: `1c42e5b9443bf43e91b275fdb4a4d67809bef64f0bcbabaca128b8afd47a36fe`; `seed32=4084747862`
+- Candidate: Hood Shield Shadow Rider v1, printed-60 SHA-256 `1cc3d2080b40c7a9e0c61297439ba5d1ae34f9211ba9b24fcffffb2786a3e924`
+- Rank-1 opponent: Shadow Rider Calyrex, printed-60 SHA-256 `159019c3e714677433e87bbdaf6789922ba33491549864d3a7ab17b4f7db3090`
+- Policies: `agent46-hood-candidate-v1` and `agent6-rank1-shadow-rider-opponent-v1`
+- Diagnostic mode: `sanitized-only-no-full-state-capture`
+
+The exact-head contract-only gate [45295339246](https://github.com/FlareZ123/experiment-01/actions/runs/45295339246) and four-cell native no-game witness [45295489159](https://github.com/FlareZ123/experiment-01/actions/runs/45295489159) both passed on the same `4c6772` SHA. The fixture dispatch used the exact registration path above and preserved the accepted research/Twinleaf revisions and all registered trial inputs.
+
+## Physical-seat outcomes
+
+| Trial | Candidate seat | Actual first player | Engine outcome | Disposition |
+|---|---:|---:|---|---|
+| `agent6-v3-rank1-baseline-20261117-a-candidate-seat-0` | 0 | 1 | Failed after 104 successful actions / 105 attempted, turn 17; final root decision at ordinal 104, acting seat 1, was not dispatched | No winner; not qualified |
+| `agent6-v3-rank1-baseline-20261117-a-candidate-seat-1` | 1 | 1 | Natural `engine-game-end` after 81 actions, turn 17; winner seat 1 (candidate) | Diagnostic terminal only; not qualified |
+
+### Candidate-seat-0 failure
+
+The sanitized receipt reports:
+
+- Outer failure: `NATIVE_FIXTURE_FAILURE`
+- Stage: `policy-decode`
+- Error message length: 21 characters; the message itself is intentionally not retained in this artifact
+- Failing decision: action ordinal 104, turn 17, root decision by physical seat 1; action name is absent and dispatch status is `not-dispatched`
+- Opponent role (seat 1) audit: 33 counted decisions (21 root, 12 prompt), one failure, `lastFailureCode=WORKER_DECISION_FAILURE`
+- Candidate role (seat 0): 15 decisions, zero failures
+- Both worker processes and containers were closed/removed; cleanup failures 0; policy RNG violations 0
+
+The runner increments the role decision and worker-decision counters after `session.decide` returns, before trace enrichment, the second policy-audit validation, trusted-token checks, and cloned-Store validation. Therefore the failure occurred downstream of a counted worker response and before live action dispatch; it is not evidence that the worker process crashed. The sanitized record does not isolate whether the throw occurred during trace/audit handling, token validation, or cloned-Store native validation.
+
+A 21-character message is length-compatible with `CANNOT_PLAY_THIS_CARD`, and `dispatchSelectedNativeAction` does call `simulator.store.dispatch(action)` on the cloned validation Store. This is only a debugging lead: the selected token/action and original message are absent, so no card or rule failure is attributed. Do not treat the length match as a diagnosis.
+
+### Candidate-seat-1 terminal
+
+The candidate won the one completed diagnostic terminal (seat 1) after 81 actions and 17 turns. The worker audit reports 32 total decisions, zero worker failures, zero policy RNG violations, and verified cleanup. However, the receipt still has `actorOnlyExecutionBoundaryValid=false`, `admissionEligible=false`, `competitiveGameQualified=false`, and `winRateEstimate=null`. This is not a matchup win and cannot be combined with the failed opposite-seat trial into a paired result.
+
+## Artifact and privacy
+
+- Sanitized diagnostic artifact: Actions artifact ID `14881738495`, ZIP `agent36-common-v9-bilateral-competence-45308359317.zip`
+- Verified local ZIP SHA-256: `98637dc59facd7954a277d6d31b2fc5c073e3d01a32697a78a5262c2cfd0b9a6`
+- Contents: prior acceptance receipts plus sanitized JSON/text for candidate-seat-0 and candidate-seat-1
+- Both receipts report `fullStateCaptured=false`; hand identities, prize identities, prompt-option identities, opponent concealed zones, setup Pokémon identities, and policy application receipts were not emitted
+
+The sanitized artifact supports reproducible pipeline diagnosis only. Private-choice competence review is unavailable in this mode.
+
+## Decision and next work
+
+1. **Do not rerun the unchanged fixture.** The current exact-head attempt has already exposed a post-response, pre-dispatch failure. Preserve the exact frozen registration, lists, policies, seeds, seat assignments, and Twinleaf pin.
+2. Ask Agent49 to trace the post-response path at ordinal 104 and determine whether the generic error arose in trace enrichment, audit validation, token trust, or cloned-Store validation. Agent4 is asked for an independent review of the sanitized evidence and classification.
+3. Only after a concrete root cause and minimal repair are established should a new research revision be accepted. Re-run contract-only, then the same-SHA four-cell native no-game witness, then this same registered fixture on that exact SHA.
+4. Do not proceed to the Stage-B policy-competence assessment until a valid paired Stage-A diagnostic exists. A sanitized-only terminal alone cannot establish competence.
+5. No matchup win rate, policy-competence result, paper legality result, fixed-60 nomination, or 99.5% claim follows from this run.
+
+No decklist, policy, registration, seed, seat assignment, Twinleaf source, or accepted fixture branch was modified for this attempt.
