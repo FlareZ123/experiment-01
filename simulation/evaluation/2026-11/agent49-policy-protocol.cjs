@@ -323,6 +323,17 @@ function stringArray(value) {
   if (!Array.isArray(value) || value.length > 2048 ||
       value.some(item => typeof item !== 'string' || item.length > 512)) fail('BAD_STRING_ARRAY');
 }
+const SPECIAL_CONDITION_NAMES = new Set([
+  'PARALYZED', 'CONFUSED', 'ASLEEP', 'POISONED', 'BURNED'
+]);
+function specialConditionArray(value) {
+  if (!Array.isArray(value) || value.length > 2048 ||
+      value.some(item => {
+        if (typeof item === 'string') return item.length > 32 ||
+          !SPECIAL_CONDITION_NAMES.has(item.toUpperCase());
+        return !Number.isSafeInteger(item) || item < 0 || item > 4;
+      })) fail('BAD_SPECIAL_CONDITION');
+}
 function validateFlatMetadata(value, allowedKeys, code) {
   if (value === undefined) return;
   if (!isRecord(value)) fail(code);
@@ -471,7 +482,7 @@ function validatePokemonSlot(slot, allowConcealed) {
       if (!scalarOrNull(row.type) || !scalarOrNull(row.value)) fail('BAD_PRINTED_MODIFIER');
     }
   }
-  stringArray(slot.specialConditions);
+  specialConditionArray(slot.specialConditions);
   exactKeys(slot.publicRestrictions, PUBLIC_RESTRICTION_KEYS);
   for (const key of ['cannotAttackNextTurn', 'cannotRetreat', 'cannotRetreatNextTurn', 'cannotRetreatWhileActive', 'cannotEvolveNextTurn']) {
     if (typeof slot.publicRestrictions[key] !== 'boolean') fail('BAD_POKEMON_RESTRICTION');

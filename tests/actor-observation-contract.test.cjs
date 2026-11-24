@@ -233,20 +233,20 @@ test('public Ability-lock activation order is exposed only as a detached safe in
   assert.equal(unknown.opponentPublic.bench[0].abilityLockActivationOrder,null);
 });
 
-test('numeric Twinleaf SpecialCondition enums normalize to canonical worker-protocol names',()=>{
-  const all=['PARALYZED','CONFUSED','ASLEEP','POISONED','BURNED'];
+test('native Twinleaf SpecialCondition enum values pass strict worker-protocol validation',()=>{
   for(const seat of [0,1]){
     const s=fixture();
     s.activePlayer=seat;
     s.players[0].active.specialConditions=[0,1,2,3,4];
     s.players[1].active.specialConditions=[2,0];
+    s.players[0].active.pokemonPlayedTurn=1;
+    s.players[1].active.pokemonPlayedTurn=1;
     const view=actorObservation(s,seat);
     assert.deepEqual(view.ownPublic.active.specialConditions,
-      seat===0?all:['ASLEEP','PARALYZED']);
+      seat===0?[0,1,2,3,4]:[2,0]);
     assert.deepEqual(view.opponentPublic.active.specialConditions,
-      seat===0?['ASLEEP','PARALYZED']:all);
+      seat===0?[2,0]:[0,1,2,3,4]);
 
-    // Exercise the same strict request validator used at the worker boundary.
     const init={
       schema:protocol.INIT_SCHEMA,type:'init',role:'candidate',seat,
       policyVersion:'special-condition-boundary-v1',
@@ -268,11 +268,30 @@ test('numeric Twinleaf SpecialCondition enums normalize to canonical worker-prot
   }
 });
 
-test('unknown Twinleaf SpecialCondition enum values fail closed',()=>{
+test('worker protocol rejects SpecialCondition values outside the pinned enum',()=>{
   const s=fixture();
   s.players[0].active.specialConditions=[5];
-  assert.throws(()=>actorObservation(s,0),
-    /Unsupported pinned Twinleaf SpecialCondition enum value/);
+  s.players[0].active.pokemonPlayedTurn=1;
+  const view=actorObservation(s,0);
+  const init={
+    schema:protocol.INIT_SCHEMA,type:'init',role:'candidate',seat:0,
+    policyVersion:'special-condition-boundary-v1',
+    bundleSha256:'a'.repeat(64),config:{}
+  };
+  const request={
+    schema:protocol.REQUEST_SCHEMA,type:'decision',
+    requestId:'special-condition-invalid',sequence:1,
+    role:'candidate',seat:0,
+    observationSchema:protocol.OBSERVATION_SCHEMA,
+    observation:view,prompt:null,publicEventReceipt:null,
+    actionFrontier:{
+      schema:protocol.FRONTIER_SCHEMA,
+      items:[{token:'pass',kind:'pass'}]
+    }
+  };
+  protocol.validateInit(init);
+  assert.throws(()=>protocol.validateRequest(request,init,1,new Set()),
+    /BAD_SPECIAL_CONDITION/);
 });
 
 test('a deck alias is not a deck search without a native choice prompt',()=>{

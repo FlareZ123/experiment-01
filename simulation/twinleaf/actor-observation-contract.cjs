@@ -8,25 +8,6 @@ const printing=card=>{
   return card.fullName;
 };
 
-// Canonical names for the pinned Twinleaf SpecialCondition numeric enum.
-// See vendor/twinleaf/ptcg-server/src/game/store/card/card-types.ts:
-// PARALYZED=0, CONFUSED=1, ASLEEP=2, POISONED=3, BURNED=4.
-const SPECIAL_CONDITION_NAMES=Object.freeze([
-  'PARALYZED','CONFUSED','ASLEEP','POISONED','BURNED'
-]);
-function specialConditionName(value){
-  if(typeof value==='string'){
-    const name=value.toUpperCase();
-    assert.ok(SPECIAL_CONDITION_NAMES.includes(name),
-      'Unsupported Twinleaf SpecialCondition name');
-    return name;
-  }
-  assert.ok(Number.isSafeInteger(value)&&value>=0&&
-    value<SPECIAL_CONDITION_NAMES.length,
-    'Unsupported pinned Twinleaf SpecialCondition enum value');
-  return SPECIAL_CONDITION_NAMES[value];
-}
-
 /**
  * A complete detached, exact-printing description of a face-up Pokémon.
  * Every field here is visible to both players in a paper match.
@@ -67,7 +48,7 @@ function visiblePokemon(slot){
     // Public temporary restrictions must be visible to an attack/retreat
     // planner. These represent effects, not a claim that a particular
     // action is legal: the genuine Store remains the final rules authority.
-    specialConditions:(slot.specialConditions??[]).map(specialConditionName),
+    specialConditions:[...(slot.specialConditions??[])],
     publicRestrictions:{
       cannotAttackNextTurn:slot.cannotAttackNextTurn===true,
       cannotUseAttacksNextTurn:[...(slot.cannotUseAttacksNextTurn??[])],
