@@ -1793,3 +1793,95 @@ test('Star Alchemy is not spent when no material bottleneck remains', () => {
     token: 'pass'
   });
 });
+
+
+test('a Shadow Rider VMAX in hand does not satisfy the missing Basic V search need', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const view = observation(0, {
+    active: vmax,
+    ownHand: ['Shadow Rider Calyrex VMAX CRE 75']
+  });
+  const req = cardPrompt(0, view, {
+    printings: [
+      'Shadow Rider Calyrex V CRE 74',
+      'Latias ex SSP 76',
+      'Psychic Energy SVE 13'
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choices',
+    tokens: ['card-0']
+  });
+});
+
+test('Arven search ranks Fog Crystal without conflating VMAX with a Basic V', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const ironThorns = pokemon({
+    printing: 'Iron Thorns ex TWM 77',
+    name: 'Iron Thorns ex',
+    hp: 230
+  });
+  const view = observation(0, {
+    active: vmax,
+    ownHand: ['Shadow Rider Calyrex VMAX CRE 75'],
+    opponentActive: ironThorns
+  });
+  const req = cardPrompt(0, view, {
+    sourcePrinting: 'Arven SVI 166',
+    effectName: 'Arven',
+    printings: [
+      'Fog Crystal CRE 140',
+      'Stealthy Hood UNB 186'
+    ],
+    minimumCount: 2,
+    maximumCount: 2
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choices',
+    tokens: ['card-0', 'card-1']
+  });
+});
+
+test('Forest Seal Stone is not attached under Path to the Peak Ability suppression', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const view = observation(0, {
+    active: vmax,
+    ownHand: ['Forest Seal Stone SIT 156'],
+    opponentStadium: ['Path to the Peak CRE 148']
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'attach-stone',
+        kind: 'play-card',
+        actorPrinting: 'Forest Seal Stone SIT 156',
+        publicMetadata: {
+          targetSeat: 'actor',
+          targetZone: 'active',
+          targetIndex: 0,
+          isOwnerVisible: true
+        }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'pass'
+  });
+});
