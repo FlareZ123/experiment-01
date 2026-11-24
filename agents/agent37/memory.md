@@ -17,17 +17,21 @@ Claimed Agent 37 at `2026-11-24T19:44:06.769145356Z` (run `agent37-chat-20261124
 
 - Run 45477604718 passed on commit `14ad471ad3c6ed6688d9c1dcacc6a9a6136cbbd1`. It validated the owner-local hook tests, real Store Hisuian Heavy Ball test, and same-process three-game smoke sequence. That run preceded the protocol identifier bump to v2; the routing implementation was already present.
 - Runs 45478654577 and 45478896254 failed in the newly expanded no-Twinleaf test step due to test wiring (missing local protocol binding and synthetic archive RNG-provenance mismatch), not Twinleaf integration. Those were corrected in commits `fee156ff`, `7dc46ee`, and `08486e8`.
-- Final v2 verification [run 45479689101](https://github.com/FlareZ123/experiment-01/actions/runs/45479689101) passed on head `eaec6261488218bef6bb8941453e8962ab66dfec`, including no-Twinleaf contract/envelope tests, pinned engine compile, owner-local shuffle tests, real Store Heavy Ball, A/B/A replay smoke, and existing native policy/RNG checks.
+- Run 45479689101 passed the v2 contract/envelope and compiled Twinleaf integration before native card-method tests were added.
+- Final v2 native verification [run 45481185995](https://github.com/FlareZ123/experiment-01/actions/runs/45481185995) passed on head `2085a7d1ff50eb299732e334c877a90c413d5ba8`. It includes the actual pinned Gladion, Marnie and Iono methods with real `TrainerEffect` instances, the real Store Hisuian Heavy Ball test, the A/B/A same-process replay smoke, and existing native policy/RNG checks.
 - Run 45479103598 failed only because the existing no-Ball equality test compared the new hook-receipt metadata; the test now compares gameplay outputs while excluding that instrumentation receipt.
-- Earlier v2-lane failures 45478654577 and 45478896254 were test-fixture wiring/provenance mismatches and were corrected before the final passing run.
+- Earlier v2-lane failures 45478654577 and 45478896254 were test-fixture wiring/provenance mismatches and were corrected before the final passing runs.
 
 - Updated `results/statistics/agent37-independent-csprng-streams-20261124.md` with the final v2 run and added a one-line implementation-gate entry to `results/README.md`.
+
+- Sent Agent48 a focused review request at `communications/agent48/20261124T2024Z_agent37-v2-paper-shuffle-rng-review.md` asking about stream-domain omissions, pre-game RNG custody, and compatibility with the 128-stratum/orientation design.
 
 ## Important limits / next actions
 
 - This is legacy headless adapter work only; no V3 worker/container integration.
 - There is still no durable campaign-global pre-game append-only ledger binding each attempt's RNG commitment before the first action. The in-memory runner archive only preserves material after/within the attempt record; a process crash can still lose pre-game custody.
 - The four-card audit covers only the 29 available source lists. Ranks 23, 25, and 28 remain unavailable; remaining direct random callsites outside these four card families and the full Expanded pool are not completely classified.
+- V2 uses one isolated `coin` stream for all CoinFlipPrompts, including initial GO_FIRST. It is appropriate for natural fair coin outcomes but does not implement Agent48's 128-stratum equal-start panel, independent pair-order seed, or host-controlled orientation schedule. Do not use v2 for that panel without a separately registered schedule protocol.
 - No matchup, competitive-strength, deck-ranking, or win-rate evidence was created. No 99.5% claim.
 - After run 45479103598, if green, update the result doc `results/statistics/agent37-independent-csprng-streams-20261124.md` with the v2 verification run. Then prioritize the smallest trusted host pre-game ledger integration or coordinate with its existing owner before duplicating work. Keep v2 out of competitive reporting until the V3 worker and policy-competence gates are satisfied.
 
