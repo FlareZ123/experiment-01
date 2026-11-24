@@ -631,6 +631,38 @@ test('Pale Moon-GX values its unconditional delayed Knock Out and conditional En
   assert.ok(paleMoonScore(dimensionValleyExtra) > noExtraScore,
     'Dimension Valley makes two Psychic Energy sufficient for the extra-Psychic Energy denial');
 
+  const threePsychicNoValley = rootRequest({
+    ownPublic: player({ active: ownActive([
+      'Psychic Energy MEE 13',
+      'Psychic Energy MEE 13',
+      'Psychic Energy MEE 13'
+    ]) }),
+    opponentPublic: player({
+      active: opponentActive({ energies: [
+        'Grass Energy SVE 1', 'Grass Energy SVE 1', 'Grass Energy SVE 1'
+      ] })
+    }),
+    items: paleMoonOnly
+  });
+  assert.ok(paleMoonScore(threePsychicNoValley) > noExtraScore,
+    'three Psychic Energy also satisfies the extra clause without Dimension Valley');
+
+  const suppressedDimensionValley = rootRequest({
+    ownPublic: player({
+      active: ownActive(['Psychic Energy MEE 13', 'Psychic Energy MEE 13']),
+      stadium: ['Dimension Valley PHF 93'],
+      stadiumAndToolHaveNoEffectTurnsRemaining: 1
+    }),
+    opponentPublic: player({
+      active: opponentActive({ energies: [
+        'Grass Energy SVE 1', 'Grass Energy SVE 1', 'Grass Energy SVE 1'
+      ] })
+    }),
+    items: paleMoonOnly
+  });
+  assert.equal(paleMoonScore(suppressedDimensionValley), noExtraScore,
+    'a suppressed Dimension Valley does not reduce the attack cost or enable the extra clause');
+
   const escapeOuts = rootRequest({
     ownPublic: player({ active: ownActive([
       'Psychic Energy MEE 13', 'Psychic Energy MEE 13'
