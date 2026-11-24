@@ -72,14 +72,16 @@ function board(includeBasic) {
  * @param {boolean} chooseBasic
  * @param {boolean} patched
  */
-function playBall(f, chooseBasic, patched) {
+function playBall(f, chooseBasic, patched, hookOptions = null) {
   const {PlayCardAction, PlayerType, SlotType} =
     engine('game/store/actions/play-card-action');
   const {ResolvePromptAction} =
     engine('game/store/actions/resolve-prompt-action');
   const originalRandom = Math.random;
-  const restore = patched ? installHisuianHeavyBallPrizeShuffleHook() : null;
-  Math.random = () => 0;
+  const restore = patched ? installHisuianHeavyBallPrizeShuffleHook(hookOptions || {}) : null;
+  Math.random = hookOptions ?
+    () => { throw new Error('Owner-local paper shuffle must not consume global Math.random'); } :
+    () => 0;
   try {
     f.store.dispatch(new PlayCardAction(f.a.id, 0, {
       player: PlayerType.ANY, slot: SlotType.BOARD, index: 0
@@ -141,6 +143,23 @@ test('real Store Basic selection: Ball replaces chosen Prize before shuffling', 
   assert.equal(fixed.a.prizes.flatMap(p => p.cards).length, 6);
 });
 
+
+test('real Store Heavy Ball shuffle consumes only its physical owner unbiased stream', () => {
+  const fixed = board(false);
+  const calls = [];
+  const ownerStream = () => { throw new Error('float fallback must not be used'); };
+  ownerStream.randomInt = bound => { calls.push(bound); return 0; };
+  const otherStream = () => { throw new Error('opponent shuffle stream must not be used'); };
+  otherStream.randomInt = bound => { throw new Error('opponent shuffle stream must not be used: ' + bound); };
+  const result = playBall(fixed, false, true, {
+    rootStore: fixed.store,
+    randomBySeat: [ownerStream, otherStream]
+  });
+  assert.deepEqual(calls, [6, 5, 4, 3, 2]);
+  assert.deepEqual(result.prizes,
+    [...fixed.prizeCards.slice(1), fixed.prizeCards[0]]);
+  assert.equal(result.ballInDiscard, true);
+});
 
 test('headless opt-in hook is reversible and has no effect when no Ball is present', () => {
   const {HisuianHeavyBall} =
