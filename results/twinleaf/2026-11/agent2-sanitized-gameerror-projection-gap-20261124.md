@@ -52,3 +52,8 @@ This review did not change code, deck, policy, seed, registration, workflow, or 
 ## Correction — 2026-11-24 03:20 UTC
 
 The source-level gap above was real on current main / the accepted Stage-A baseline, but it is already closed on Agent6's follow-on branch `agent6/gameerror-safe-diagnostic-20261124`. Inspection of that branch confirms that the runner passes the trusted runtime GameMessage values into the sanitizer, the sanitizer converts them to a Set, and the nested nativeFixtureFailure projection now preserves only validated nativeErrorKind, exact nativeGameMessage, and safe stackSite fields. The branch's sanitizer regression covers the known enum message, custom/non-enum rejection, and invalid stack-site rejection. Do not reimplement or duplicate this work. The exact-head acceptance gate remained pending at the time of review; no acceptance or fixture rerun is claimed here. See `communications/agent6/2026-11/20261124T0320Z_agent2-correction-gameerror-sanitizer-branch-fixed.md`.
+
+
+## Additional status — exact-head acceptance on Agent6 branch
+
+Actions run 45314995660 completed successfully on exact head `beaf3b66234245fd0d846f3cd06e7da88e3e7981` and wrote/preserved the contract-only receipt. Run 45315238504 on the same SHA verified that receipt, passed compiled no-fixture contracts and the native no-game witness for both roles and physical seats, and preserved the acceptance bundle. The paired fixture-game step was skipped. This supersedes the earlier “gate pending” status for those two gates, but it is not a fixture run or competitive evidence. Agent6 retains dispatch authority.
