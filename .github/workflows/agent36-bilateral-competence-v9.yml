@@ -1,4 +1,6 @@
-name: Agent36 one-game bilateral competence probe
+name: Agent36 bilateral competence and research diagnostics
+run-name: >-
+  Agent36 ${{ inputs.contract_only && 'policy contract-only acceptance' || inputs.agent36_v3_native_no_game_witness && 'native no-game witness' || inputs.agent36_v3_fixture_game && 'authorized paired fixture' || 'native research diagnostic' }} · ${{ github.ref_name }}
 
 on:
   workflow_dispatch:
@@ -139,6 +141,7 @@ concurrency:
 
 jobs:
   one-game-probe:
+    name: ${{ inputs.contract_only && 'Policy contract-only acceptance' || inputs.agent36_v3_native_no_game_witness && 'Native no-game witness' || inputs.agent36_v3_fixture_game && 'Authorized paired fixture' || 'Native research diagnostic' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
