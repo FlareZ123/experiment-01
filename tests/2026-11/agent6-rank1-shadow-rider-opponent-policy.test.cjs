@@ -1659,7 +1659,11 @@ test('Climactic Gate selects two VMAX Pokémon and excludes Basic Pokémon choic
       allowCancel: false,
       isSecret: false,
       selectionType: 'pokemon'
-    }
+    },
+    observation: { ownPublic: player({
+      bench: [pokemon('Radiant Eternatus CRZ 105')],
+      deckCount: 30, prizeCount: 6
+    }) }
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-choices',
