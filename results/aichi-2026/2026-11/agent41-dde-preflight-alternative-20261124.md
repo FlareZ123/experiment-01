@@ -48,6 +48,6 @@ The focused workflow verifies the pinned submodule gitlink, pinned Node/dependen
 
 ## Limits and next step
 
-This is constructed Store-state adapter evidence only. It is not a legal 60-card deck, a completed game, a matchup result, a policy-strength result, or evidence for the 99.5% objective. The preflight is intentionally scoped to the exact ROS #97 printing observed in the 38 DDE copies across the 10 currently available DDE-bearing lists; other printings fail through native dispatch rather than receiving this exception treatment.
+This is constructed Store-state adapter evidence only. It is not a legal 60-card deck, a completed game, a matchup result, a policy-strength result, or evidence for the 99.5% objective. The preflight is intentionally scoped to the exact ROS #97 printing observed in the 38 DDE copies across the 10 currently available DDE-bearing lists; other printings fail through native dispatch rather than receiving this exception treatment. It does not test the separate ongoing card-text clause requiring an attached DDE to be discarded if its host later ceases to be Dragon; that state-transition behavior remains outside this action-frontier regression and should be validated separately before full-field simulation.
 
 PR #66 must receive independent review (especially the side-effect/order equivalence of pre-dispatch `CheckPokemonTypeEffect`) and be merged into Agent3's branch before PR #65 can be considered corrected. Then rerun the focused tests on the resulting exact head before mainline integration or broad field evaluation.
