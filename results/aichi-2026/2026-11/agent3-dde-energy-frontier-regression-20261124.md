@@ -130,7 +130,7 @@ The follow-on regression in `tests/2026-11/agent3-dde-energy-frontier-native.tes
 - No new formal exact-head review disposition arrived from Agent10/Agent16/repository owner before integration; Agent3 merged #66 based on its own exact-code review plus Agent10/Agent16's prior independent design/source findings. Repository-owner review is now requested on PR #65; do not merge #65 to main until that review is resolved.
 - PR #65's branch also contains the default-smoke guard correction in commit `f555880858d3296190096e873ff4937ff4ad2f77`: the compiled-output guard is inside `smoke_check_14`'s `continue-on-error` step, preserving later independent checks 15–39. The focused DDE-only job keeps its separate fail-fast guard.
 
-This remains adapter-correctness evidence only, not a legal-deck game, matchup, policy-competence result, or win-rate estimate. The separate continuous rule requiring an attached DDE to be discarded if its host later ceases to be Dragon is not tested here; keep it as a distinct follow-up before full-field simulation.
+This remains adapter-correctness evidence only, not a legal-deck game, matchup, policy-competence result, or win-rate estimate. The separate continuous rule requiring an attached DDE to be discarded if its host later ceases to be Dragon was subsequently covered by the PR #67 native transition regression, merged into this PR branch at `745890e08d8cb5f91e97bb4cb9a9d7db27fed1f7`; see the final section below. It remains distinct from the attachment-time frontier-builder correction.
 
 
 ## PR #66 integration into PR #65 and exact merged-head verification (2026-11-24)
@@ -157,13 +157,37 @@ Source commit: `efb5b8de01c73ac0b71a4769f74e57e9169619ca`. Regression commits: `
 
 Exact latest head `c3d88a9ecc8fc0435e08fb88ad3937d166e77e55` passed [focused run 45334106539](https://github.com/FlareZ123/experiment-01/actions/runs/45334106539). The `agent3-dde-energy-frontier` job succeeded; generic smoke, Aichi bridge, and full-state trace jobs were skipped by the focused selector.
 
-Two limitations remain before broad field use: (1) the preflight type probe occurs before the native DDE `AttachEnergyEffect` propagation, whereas the DDE reducer performs its own type check during attachment. Agent16 found no concrete pinned target-side attach handler that changes the type mid-resolution, but universal order equivalence is not proven; retain this as a documented assumption. (2) The ongoing rule that discards an attached DDE if its host later ceases to be Dragon is implemented through `CheckTableStateEffect`/`checkState` but still lacks a dedicated regression. Test it before full-field simulation.
+Two limitations remain before broad field use: (1) the preflight type probe occurs before the native DDE `AttachEnergyEffect` propagation, whereas the DDE reducer performs its own type check during attachment. Agent16 found no concrete pinned target-side attach handler that changes the type mid-resolution, but universal order equivalence is not proven; retain this as a documented assumption. (2) The ongoing rule that discards an attached DDE if its host later ceases to be Dragon is implemented through `CheckTableStateEffect`/`checkState` and is now covered for one real Kecleon/Regidrago-to-Dedenne transition by merged PR #67; see the final section. This does not establish every possible type-changing interaction.
 
 
 ## Agent16 exact-head review resolution (2026-11-24)
 
 Agent16 re-reviewed exact PR #65 head `18e64547b55c212caab9bc57c7dffd7ddbf43502` at 05:41 UTC and confirmed both previously reported implementation blockers are resolved: the dynamic type probe runs on a separate throwaway Simulator, and every returned type is checked against numeric values in the native CardType enum. The push-based clone-isolation regression includes a legal DDE-to-Regidrago control, and the malformed `[999]` regression remains. Agent16 also confirmed focused run [45334706760](https://github.com/FlareZ123/experiment-01/actions/runs/45334706760) passed on that exact head.
 
-The remaining PR-level caveat is that the preflight type check runs before native DDE `AttachEnergyEffect` propagation, whereas the card's own reducer checks type during attachment. Agent16 found no concrete pinned target-side attach handler that changes type mid-resolution; universal order equivalence remains a documented assumption, not a demonstrated failure. Separately, the continuous DDE host-type-change/discard rule still lacks a dedicated regression and should be tested before full-field simulation.
+The remaining PR-level caveat is that the preflight type check runs before native DDE `AttachEnergyEffect` propagation, whereas the card's own reducer checks type during attachment. Agent16 found no concrete pinned target-side attach handler that changes type mid-resolution; universal order equivalence remains a documented assumption, not a demonstrated failure. Separately, the continuous DDE host-type-change/discard rule has since received a dedicated Kecleon/Regidrago-to-Dedenne regression in PR #67, now merged into the PR #65 branch; see the final section. The PR #65 branch remains unmerged to main pending repository-owner review.
 
 Repository-owner review of PR #65 remains requested; do not merge to main until that review is resolved.
+
+
+
+## Host type-change/discard regression integrated into PR #65 (2026-11-24)
+
+PR #67, authored by Agent41, was merged into PR #65's branch (not main) in merge commit `745890e08d8cb5f91e97bb4cb9a9d7db27fed1f7`. PR #65 remains open against main and still requires repository-owner review.
+
+The integrated regression uses the research-owned Energy action enumerator to construct a DDE-to-Active-Kecleon attachment action, then dispatches through the pinned native Store/reducers. It runs both physical seat orientations and exercises the real Switch / `ChoosePokemonPrompt` chain:
+
+1. Active Kecleon PLF 94 copies the opposing Active Regidrago's Dragon type; DDE attaches legally.
+2. The opponent plays Switch BS 95, opening the native `ChoosePokemonPrompt`.
+3. **Before the prompt resolves**, the added boundary assertions verify Regidrago is still Active, Kecleon still resolves as Dragon, DDE remains in both host card/Energy lists, and DDE has not entered its owner's discard.
+4. After the prompt resolves to Dedenne GX UNB, Kecleon resolves as Lightning and the native post-prompt state check moves DDE to its owner's discard.
+
+The boundary assertions were added after Agent16's non-blocking review suggestion in commit `281af576b8ac180b965334a9dbe8d8f17bc355fb`. The existing focused selector in `.github/workflows/twinleaf-smoke.yml` was reused; no new workflow, runner, adapter hook, or Twinleaf vendor edit was added.
+
+- Initial post-merge focused run [45427584720](https://github.com/FlareZ123/experiment-01/actions/runs/45427584720) passed on merge commit `745890e08d8cb5f91e97bb4cb9a9d7db27fed1f7`.
+- Exact boundary-assertion head [281af576b8ac180b965334a9dbe8d8f17bc355fb](https://github.com/FlareZ123/experiment-01/commit/281af576b8ac180b965334a9dbe8d8f17bc355fb) passed the same focused selector in [run 45428035882](https://github.com/FlareZ123/experiment-01/actions/runs/45428035882). The job verified the pinned Twinleaf gitlink/checkout, compiled the native server, passed the compiled-enumerator guard, and ran the focused tests successfully.
+
+Agent16's review of PR #67 head `a5a86a9a88e3dccda9f6a9e91f071b6f2feb6e63` found no blocking findings and suggested the unresolved-prompt timing assertions now included above. A bounded exact-head confirmation of the new assertions on `281af576b8ac180b965334a9dbe8d8f17bc355fb` is requested separately. The prior PR #65 frontier-correction review on `b2f879b7278c56d24c99eb771b769344945287ea` remains no-blocker.
+
+**Field-scope caveat:** Agent43's 24 November audit found no type-changing own-side/opponent-side effect among the 79 normalized identities in the ten authenticated DDE-bearing ranks, the 29 available Aichi lists, or the fixed Hood Shield candidate. Kecleon PLF 94 is not present in those 29 lists or the fixed candidate. Thus this is a useful general Expanded rules regression, not a known interaction in the currently authenticated Aichi field. The audit does not certify exact physical Japanese printings, and ranks 23/25/28 remain unavailable. See [Agent43's DDE ordering audit](agent43-japanese-extra-dde-ordering-audit-20261124.md).
+
+This regression still does **not** call `buildNativeActionFrontier()`, qualify the full frontier-builder/admission path, test every type-changing effect or Special Energy blocker, or produce a legal-deck game, matchup, policy-competence result, or competitive win-rate estimate. Keep the DDE attachment-time correction and later host-discard state check as distinct gates.
