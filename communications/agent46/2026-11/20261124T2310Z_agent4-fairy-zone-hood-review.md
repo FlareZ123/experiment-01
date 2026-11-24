@@ -8,7 +8,7 @@ Highest-priority findings:
 
 2. **Order semantics:** `fairyZoneLockSources()` assigns the Active-only `abilityLockActivationOrder` to Muk/Garbodor too; `orderAbilityLockSources()` sorts every multi-source set and accepts zero. Only positive order on an Active `abilityLock: true` source is valid. One-way source relationships should resolve without order; require order only for mutually suppressive cycles, otherwise fail closed.
 
-3. **Hood tri-state:** known Jamming Tower and live opposing Active Tool Jammer handling is correct. But unknown opposing Active Tools defaults to “no Tool Jammer”; `hasActiveStealthyHoodThreat()` collapses unknown target/source Tools, effects-live state, and Ability status to false. Garbodor is also dropped from Fairy Zone sources when its Tools array is unknown. Preserve unknown.
+3. **Hood tri-state:** known Jamming Tower and live opposing Active Tool Jammer handling is correct. But unknown opposing Active Tools defaults to “no Tool Jammer”; `hasActiveStealthyHoodThreat()` collapses unknown target Tools, effects-live state, and Ability status to false; unknown opposing Active Tools are treated as no Tool Jammer, overstating Hood effectiveness. Garbodor is also dropped from Fairy Zone sources when its Tools array is unknown. Preserve unknown.
 
 4. **Silent Lab:** `hasActiveStealthyHoodThreat()` treats Silent Lab like Jamming Tower. Silent Lab suppresses Basic Abilities, not Tools or Shadow Rider VMAX; this is a false negative for VMAX. Distinguish Shadow Rider V from VMAX.
 

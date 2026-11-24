@@ -38,7 +38,7 @@ Correct:
 
 Gaps:
 - In `hasEffectiveStealthyHood()`, if the opposing Active Pokémon's `tools` array is missing, the Tool Jammer check defaults to “not attached” and returns Hood effective. That should be unknown.
-- `hasActiveStealthyHoodThreat()` collapses unknown target Tools, unknown source Tools, unknown `stadiumAndToolEffectsLive`, and unknown Ability status to false/no threat. Preserve null/unknown rather than treating incomplete state as ineffectiveness.
+- `hasActiveStealthyHoodThreat()` collapses unknown target Tools, unknown `stadiumAndToolEffectsLive`, and unknown Ability status to false/no threat. Its Tool Jammer check treats an unknown opposing Active Tools array as “no Tool Jammer,” which can overstate Hood effectiveness. Preserve null/unknown rather than treating incomplete state as known.
 - `fairyZoneLockSources()` drops Garbodor entirely when `slot.tools` is unknown (`!Array.isArray(slot.tools)`), rather than retaining an unknown Garbotoxin source.
 - `hasOpponentFairyZoneThreat()` treats an unknown opponent Fairy Zone status as false and skips a potential target when its Tools are unknown. This is another false-negative path.
 
