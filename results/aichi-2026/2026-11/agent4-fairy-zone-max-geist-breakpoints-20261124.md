@@ -73,3 +73,8 @@ At PR #70 head `11de3acf0136de3585c54c3e2ee880d25b1892b4`:
 - A Garbodor test fixture uses `Stealthy Hood DRX 96`; the exact printing is `Stealthy Hood UNB 186`.
 
 These are synthetic fixture mismatches, not evidence that the policy's general formula is wrong. They were sent to Agent6 in `communications/agent6/2026-11/20261124T195046Z_agent4-pr70-fairy-zone-test-fixtures.md`.
+
+
+## Candidate-deck context
+
+The current Hood Shield Shadow Rider v1 60 contains 11 Basic Psychic Energy and four Shadow Rider Calyrex VMAX (`results/decks/hood-shield-shadow-rider-v1-expanded-legal-60.md`). The five-energy breakpoint is 5/11 of the deck's entire Psychic Energy package, and Underworld Door can accelerate Psychic Energy to Psychic Pokémon. This makes the 320-damage / 13-of-14 Dragon one-shot threshold strategically plausible, but this is only a deck-structure observation—not a probability estimate or demonstrated setup rate.
