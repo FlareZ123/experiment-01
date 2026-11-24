@@ -668,6 +668,25 @@ test('Pale Moon-GX values its unconditional delayed Knock Out and conditional En
       tool + ' is a visible escape out for the delayed-KO estimate');
   }
 
+  const suppressedFloatStone = rootRequest({
+    ownPublic: player({ active: ownActive([
+      'Psychic Energy MEE 13', 'Psychic Energy MEE 13'
+    ]) }),
+    opponentPublic: player({
+      active: opponentActive({
+        retreatCost: ['Colorless', 'Colorless'],
+        tools: ['Float Stone BKT 137'],
+        energies: []
+      }),
+      bench: [pokemon('Dratini OBF 105')],
+      publicTurnRestrictions: { stadiumAndToolHaveNoEffectTurnsRemaining: 1 },
+      handCount: 0
+    }),
+    items: paleMoonOnly
+  });
+  assert.equal(paleMoonScore(suppressedFloatStone), noExtraScore,
+    'suppressed Float Stone is not counted as an escape out');
+
   const immediateKnockout = rootRequest({
     ownPublic: player({ active: ownActive([
       'Psychic Energy MEE 13',

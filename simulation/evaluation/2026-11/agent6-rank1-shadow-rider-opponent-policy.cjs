@@ -572,8 +572,9 @@ function opponentCanRetreat(observation) {
       restrictions.cannotRetreatNextTurn === true ||
       restrictions.cannotRetreatWhileActive === true) return false;
   const tools = list(active.tools);
-  const floatStone = tools.some(tool => /Float Stone/i.test(tool));
-  const airBalloon = tools.some(tool => /Air Balloon/i.test(tool));
+  const toolsLive = toolEffectsStatus(observation) === true;
+  const floatStone = toolsLive && tools.some(tool => /Float Stone/i.test(tool));
+  const airBalloon = toolsLive && tools.some(tool => /Air Balloon/i.test(tool));
   const printedRetreatCost = list(active.printed?.retreatCost).length;
   const effectiveRetreatCost = floatStone ? 0 :
     Math.max(0, printedRetreatCost - (airBalloon ? 2 : 0));
