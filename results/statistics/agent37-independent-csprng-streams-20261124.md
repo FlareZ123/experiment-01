@@ -2,6 +2,12 @@
 
 **Status:** protocol v2 implemented; focused unit, campaign-contract, and compiled Twinleaf integration tests passed. This is still engine/reproducibility evidence, not competitive matchup evidence.
 
+## Revision pins
+
+- Research code used by the final native verification: `FlareZ123/experiment-01@2085a7d1ff50eb299732e334c877a90c413d5ba8`.
+- Twinleaf submodule: `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`, pinned commit `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- The four card source implementations were checked at that exact Twinleaf commit; the native tests in run 45481185995 compiled and exercised that same submodule revision.
+
 ## Why this exists
 
 The legacy headless path remains the default and retains its historical 32-bit xorshift seed handling. Its single game stream historically served both physical shuffle and coin prompts, and its Fisher–Yates index selection used `floor(randomFloat * bound)`. That is not an adequate random-input contract for a large fixed-field campaign.
