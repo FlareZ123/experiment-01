@@ -157,3 +157,8 @@ The [two real declared-attack fixture](../twinleaf/mimikyu-extra-turn-progressio
 ## Matchup-specific research synthesis
 
 - [Rank-1 Mimikyu Copycat into rank-10 Regidrago Apex Dragon](../twinleaf/mimikyu-apex-copycat-audit.md) connects the staged two-seat native mechanics, the original-60 constructed-board line, the exact-seven and Prize-location work, and the limits on natural-game access. The evidence remains developmental; it does not qualify a competitive game or nominate a fixed deck.
+
+## Top32 physical-photo identity corroboration
+
+[The Natsumegu physical-deck crosswalk](2026-11/agent43-natsumegu-top32-photo-identity-crosswalk-20261124.md) adds a Top32-roundup link to an existing 60-copy physical photo whose card-name/count multiset exactly matches the published rank-21 deck identity. This corroborates the deck identity in the Top32 field, **not** the rank-21 player's identity or the physical Japanese print IDs. Keep the strict **0/32 physical-print-admitted** count unchanged; ranks 23, 25 and 28 remain unresolved.
+
