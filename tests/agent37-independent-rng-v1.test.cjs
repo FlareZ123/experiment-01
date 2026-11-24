@@ -76,6 +76,18 @@ test('HMAC counter streams replay exactly and distinct stream keys do not alias'
     assert.ok(value >= 0 && value < 1);
   }
   assert.equal(typeof float.randomInt, 'function');
+  const sameKey = material.streams.engine;
+  const engineDomain = rng.createRandomStream(sameKey, 'engine');
+  const coinDomain = rng.createRandomStream(sameKey, 'coin');
+  assert.notDeepEqual(
+    Array.from({length:8}, () => engineDomain.nextUint32()),
+    Array.from({length:8}, () => coinDomain.nextUint32())
+  );
+  const bounded = rng.createRandomStream(sameKey, 'bounded-range');
+  for (let i = 0; i < 1000; i += 1) {
+    const value = bounded.randomInt(60);
+    assert.ok(Number.isInteger(value) && value >= 0 && value < 60);
+  }
 });
 
 test('Fisher-Yates uses unbiased bounded indices and returns a permutation', () => {
@@ -89,6 +101,9 @@ test('Fisher-Yates uses unbiased bounded indices and returns a permutation', () 
   assert.deepEqual([...permutation].sort((a,b) => a-b), [0,1,2,3,4]);
   assert.throws(() => rng.fisherYatesPermutation(3, () => 3), /out-of-range/);
   assert.throws(() => rng.fisherYatesPermutation(-1, () => 0), /length/);
+  assert.throws(() => rng.fisherYatesPermutation(0x100000000, () => 0), /length/);
+  assert.deepEqual(rng.fisherYatesPermutation(0, () => 0), []);
+  assert.deepEqual(rng.fisherYatesPermutation(1, () => 0), [0]);
 });
 
 test('headless deck shuffle consumes exact bounded integers when the source provides them', () => {
