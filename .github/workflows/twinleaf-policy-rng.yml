@@ -76,7 +76,7 @@ jobs:
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
       - name: Verify pinned Aichi paper-shuffle RNG hooks in actual Twinleaf Store
-        run: node --test tests/hisuian-heavy-ball-prize-hook.test.cjs tests/hisuian-heavy-ball-real-store.test.cjs
+        run: node --test tests/hisuian-heavy-ball-prize-hook.test.cjs tests/hisuian-heavy-ball-real-store.test.cjs tests/aichi-paper-shuffle-rng-native.test.cjs
       - name: Execute preregistered new full 120-card owner-prompt Store receipt trial
         if: inputs.agent13_first_full_paper_native
         run: |
