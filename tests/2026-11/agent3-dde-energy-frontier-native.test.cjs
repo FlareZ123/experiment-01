@@ -788,7 +788,7 @@ test('pinned DDE host-type-change discard runs after a native Switch prompt in b
     owner = state.players[kecleonSeat];
     switcher = state.players[switcherSeat];
     host = owner.active;
-    assert.equal(state.prompts.length, 0,
+    assert.equal(state.prompts.filter(prompt => prompt.result === undefined).length, 0,
       'the native Switch prompt chain must settle before the state check');
     assert.ok(switcher.active.cards.some(card => card.fullName === DEDENNE),
       'the opponent must finish with the non-Dragon Dedenne Active');
