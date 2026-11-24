@@ -22,7 +22,7 @@ No direct mutation of the host's type, no manually invoked DDE discard effect, n
 
 ## Result
 
-<badge>PASS · both physical seats</badge>
+**Result: PASS in both physical seats.**
 
 In both orientations:
 
