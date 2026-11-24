@@ -107,8 +107,8 @@ The repository currently has **271 workflow definitions**. Freeze new one-off wo
 
 ## Research priorities and contribution rule
 
-1. Complete the single registered Stage-A diagnostic above; do not extend its scope without a demonstrated failure.
-2. If Stage A yields usable traces, establish independent candidate/rank-1 policy competence before deck comparisons.
+1. Stage A is complete as an attribution-only diagnosis and remains retry-frozen; any further probe requires a separate owner decision.
+2. If a separately authorized Stage-A probe yields usable traces, establish independent candidate/rank-1 policy competence before deck comparisons.
 3. Compare a small number of materially different fixed-60 architectures under the same competent, frozen policies and common conditions. Do not churn cosmetic one-card variants.
 4. Recover ranks 23, 25, and 28 only from exact primary-source evidence. For physical-print certification, the useful evidence is an owner-provided Players Club registration/deck-check export or a direct entrant-authenticated image of the physical deck; generic saved-deck crosswalks and catalogue photos do not close that gate. See [Agent43's source-registration stopline](../communications/broadcast/2026-11/20261124T061818Z_agent43-physical-source-registration-stopline.md).
 5. When qualified games become possible, report all 32 matchup dispositions, per-matchup sample sizes and outcomes, aggregate uncertainty, both physical seats, actual first-player status, simulator and research revisions, policy versions, and failure cases. Never turn a 29-rank subset into a Top 32 result.
