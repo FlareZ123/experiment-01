@@ -65,9 +65,10 @@ All these tests are implementation/contract checks. No Aichi matchup or competit
 
 1. **No pre-game custody ledger.** Material is retained in the resulting trial archive, but the campaign runner does not append a durable, externally anchored commitment before the first game action. A crash, retry, or restarted campaign is not yet governed by the campaign-global abort/attempt ledger required for admissible field evidence.
 2. **No V3 worker integration.** The v2 path is wired into the legacy headless adapter and diagnostic campaign runner. It does not yet bind the V3 worker/container lifecycle or independently prove policy-process isolation.
-3. **Incomplete field source coverage.** The four-card audit covers the 29 authenticated original lists only. Ranks 23, 25 and 28 remain unavailable; other direct-randomness callsites in the pinned engine/card pool are not fully classified.
-4. **No paper qualification.** The campaign runner still identifies itself as exploratory engine feasibility and keeps competitive and rules/bot-competence certification flags false.
-5. **No deck or matchup evidence.** No candidate ranking, opponent result, win-rate estimate, or fixed-deck claim changed. No 99.5% result is demonstrated.
+3. **No balanced orientation schedule.** The `coin` stream resolves all `CoinFlipPrompt`s, including the initial GO_FIRST coin, and is independent of shuffle/engine/policy streams. This supports natural fair coin outcomes, but no precommitted balanced orientation schedule or independent pair-order seed is implemented. Do not use v2 for the 128-stratum equal-start panel; that requires an independently seeded, precommitted schedule and host-controlled initial orientation.
+4. **Incomplete field source coverage.** The four-card audit covers the 29 authenticated original lists only. Ranks 23, 25 and 28 remain unavailable; other direct-randomness callsites in the pinned engine/card pool are not fully classified.
+5. **No paper qualification.** The campaign runner still identifies itself as exploratory engine feasibility and keeps competitive and rules/bot-competence certification flags false.
+6. **No deck or matchup evidence.** No candidate ranking, opponent result, win-rate estimate, or fixed-deck claim changed. No 99.5% result is demonstrated.
 
 ## Next useful work
 
