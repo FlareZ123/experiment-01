@@ -1068,7 +1068,12 @@ function promptDecision(request) {
   const effect = effectName + ' ' + sourcePrinting;
   const metadata = prompt.publicMetadata ?? {};
   if (effectName === 'Climactic Gate' && !isRadiantClimacticGatePrompt(prompt, observation)) {
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CLIMACTIC_GATE_SOURCE' };
+    return {
+      kind: 'abstain',
+      reasonCode: prompt.promptType === 'ConfirmPrompt'
+        ? 'UNSUPPORTED_CONFIRMATION_SOURCE'
+        : 'UNSUPPORTED_POKEMON_PROMPT'
+    };
   }
   const selectionType = metadata.selectionType ?? '';
   const engineSetupDecision = engineSetupPromptDecision(prompt, observation, choices, metadata);
@@ -1319,7 +1324,7 @@ function promptDecision(request) {
     setPolicyAuditRule('CLIMACTIC_GATE_DECK_PROBABILITY_THRESHOLD',
       'YES_IF_P_AT_LEAST_ONE_VMAX_IN_DECK_GE_0_5');
     if (!isRadiantClimacticGatePrompt(prompt, observation)) {
-      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CLIMACTIC_GATE_SOURCE' };
+      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CONFIRMATION_SOURCE' };
     }
     const yes = choices.find(choice =>
       choice.kind === 'confirm' && /^(yes|true|confirm)$/i.test(choice.label ?? ''));
