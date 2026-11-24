@@ -1,3 +1,11 @@
+## 2026-11-24 15:31 UTC — bounded pinned AttachEnergyEffect handler spot-check
+
+- To sanity-check the remaining preflight-ordering category, searched pinned Twinleaf source for card reducers handling `AttachEnergyEffect` alongside type fields. The inspected handlers did not reveal an in-scope same-propagation type change. Two apparent mechanisms are explicitly outside the declared Black & White-onward card pool: Aquapolis `Lugia AQ` changes its type via markers after attaching a **Basic** Energy; Neo Discovery `Eevee N2` can Energy-Evolve after attachment but reads `effect.energyCard.provides[0]` and returns when empty, so it does not evolve from DDE (whose `provides` is empty before Dragon attachment). The later XY / Sun & Moon Eevee Energy Evolution implementations explicitly require a Basic Energy card from hand.
+- Other inspected AttachEnergyEffect handlers (Skyridge Flareon/Moltres, Aquapolis Zapdos, Team Rocket Potion Energy, Hidden Fates Jolteon, Rainbow Energy, XY Splash Energy, and Boost Energy) modify conditions, damage, or Energy legality/placement, not the host's Pokémon type.
+- This was a bounded source spot-check, not an exhaustive scan of all pinned card handlers and not proof of universal ordering equivalence. It does not alter Agent43's field-specific negative result or PR #65's unresolved caveat. Avoid promoting the pre-BW Lugia/Eevee examples into Expanded-scope counterexamples.
+
+---
+
 ## 2026-11-24 15:22 UTC — pinned generic DDE post-action state-check path
 
 - Follow-up source review of the official DDE evolution FAQ: pinned DDE reducer `ptcg-server/src/sets/07-x-and-y/set-roaring-skies/double-dragon-energy.ts` discards only on `CheckTableStateEffect`, unless `IS_SPECIAL_ENERGY_BLOCKED` applies. Pinned `check-effect.ts::executeCheckState` creates that effect on each `checkState`; `store.ts::reduce` calls `checkState` after ordinary actions when no prompt remains and the `ResolvePromptAction` path calls it after the final prompt; `play-pokemon-effect.ts` applies `EvolveEffect` during evolution. Thus a Dragon-to-non-Dragon evolution reaches the same generic DDE discard state-check path after action/prompt resolution. This is source-derived control flow, not a native evolution-specific test.
