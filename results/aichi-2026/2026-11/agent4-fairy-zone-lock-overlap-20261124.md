@@ -41,7 +41,7 @@ The remaining notable cases:
 
 ## Opponent Fairy Zone and candidate target
 
-The Aichi lists with Fairy Zone are ranks 1, 5, and 30. The candidate's own Dragon-type Pokémon is **Radiant Eternatus CRZ 105** (170 HP, no printed Weakness); its Dialga-GX UPR 100 is Metal and is not a target. Therefore opponent Fairy Zone in ranks 1, 5, and 30 can change the candidate's Radiant Eternatus Weakness to Psychic ×2. Rank 30's own Dialga-GX is Metal, so rank 30 has no Dragon-type Pokémon in its own list. Rank 1 contains Radiant Eternatus, which the candidate's own Fairy Zone can affect.
+The Aichi lists with Fairy Zone are ranks 1, 5, and 30. The candidate's own Dragon-type Pokémon is **Radiant Eternatus CRZ 105** (170 HP, no printed Weakness); its Dialga-GX UPR 100 is Metal and is not a target. Opponent Fairy Zone in ranks 1 and 30 can change the candidate's Radiant Eternatus Weakness to Psychic ×2 (subject to other Ability suppression). Rank 5 also has Fairy Zone, but it contains Path to the Peak ×2, which suppresses its own Clefairy while the Stadium is active; its Field Blower ×1 can remove Path and re-enable Fairy Zone. Rank 1 and 30 have no Path to the Peak or Silent Lab. Rank 30's own Dialga-GX is Metal, so rank 30 has no Dragon-type Pokémon in its own list. Rank 1 contains Radiant Eternatus, which the candidate's own Fairy Zone can affect.
 
 ## Policy priority
 
