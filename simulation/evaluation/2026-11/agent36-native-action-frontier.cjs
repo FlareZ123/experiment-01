@@ -577,6 +577,9 @@ function buildNativeActionFrontier({
   return {
     actionFrontier: frontier,
     actionByToken,
+    // Host-only baseline and sampler: neither is part of the worker frontier.
+    liveStateBaseline: fullStateBefore,
+    snapshotLiveState: () => snapshotStoreState(state),
     diagnostics: Object.freeze({
       enumeratedCount: candidates.length,
       deduplicatedCount: seen.size,
@@ -615,9 +618,45 @@ function attachSafeActionDiagnostic(error,action,state,actorSeat,native){
   }
 }
 
+function selectedCardPredicateOutcome(action,simulator,actorSeat,native,expectedIdentity){
+  if(action?.type!=='PLAY_CARD_ACTION')
+    return {applicable:false,outcome:'not-play-card'};
+  const state=simulator.store.state;
+  const player=state.players?.[actorSeat];
+  const card=player?.hand?.cards?.[action.handIndex];
+  if(!card)return {applicable:true,outcome:'selected-card-missing'};
+  if(expectedIdentity?.fullName&&card.fullName!==expectedIdentity.fullName)
+    return {applicable:true,outcome:'selected-card-identity-diverged'};
+  const snapshotStoreState=createStoreStateSnapshotter();
+  const before=snapshotStoreState(state);
+  let applicable=true;
+  let outcome;
+  try{
+    const canPlay=card.canPlay;
+    if(typeof canPlay!=='function'){
+      applicable=false;
+      outcome='no-canPlay';
+    }else{
+      const result=canPlay.call(card,simulator.store,state,player);
+      if(result===false)outcome='false';
+      else if(result===true)outcome='true';
+      else if(result===undefined)outcome='undefined';
+      else if(result===null)outcome='null';
+      else if(['string','number','boolean','bigint'].includes(typeof result))
+        outcome='value:'+String(result);
+      else outcome='other:'+typeof result;
+    }
+  }catch(error){
+    outcome='throw:'+String(error?.message??'');
+  }
+  if(JSON.stringify(snapshotStoreState(state))!==JSON.stringify(before))
+    return {applicable:true,outcome:'predicate-mutated-state'};
+  return {applicable,outcome};
+}
+
 function dispatchSelectedNativeAction({
   store,frontier,token,state,actorSeat,native,withValidationRandom,dispatch=true,
-  validationEvidence=null
+  validationEvidence=null,selectedCardIdentityForDiagnostic=null
 }={}){
   assert.ok(store&&typeof store.dispatch==='function');
   assert.ok(actorSeat===0||actorSeat===1);
@@ -631,6 +670,17 @@ function dispatchSelectedNativeAction({
     'worker-selected action belongs to a different physical seat');
   assert.equal(store.state,state,
     'native Store state changed while the worker decision was pending');
+  if(frontier?.liveStateBaseline!==undefined&&
+      typeof frontier.snapshotLiveState==='function'){
+    const currentFrontierState=frontier.snapshotLiveState();
+    if(JSON.stringify(currentFrontierState)!==JSON.stringify(frontier.liveStateBaseline)){
+      const error=new Error('frontier-time live Store state diverged before selected validation');
+      error.code='FRONTIER_STATE_DIVERGED';
+      throw error;
+    }
+    if(validationEvidence&&typeof validationEvidence==='object')
+      validationEvidence.frontierStateBaselineMatched=true;
+  }
   const snapshotStoreState=createStoreStateSnapshotter();
   const fullStateBefore=snapshotStoreState(state);
   // Only clone validation uses the deterministic stream. Real gameplay dispatch
@@ -640,6 +690,35 @@ function dispatchSelectedNativeAction({
       const simulator=createIsolatedValidationSimulator(state,native);
       assert.ok(simulator.store&&typeof simulator.store.dispatch==='function',
         'native Simulator did not expose a validation Store');
+      if(action?.type==='PLAY_CARD_ACTION'){
+        const comparisonSimulator=createIsolatedValidationSimulator(state,native);
+        assert.notEqual(simulator.store.state,comparisonSimulator.store.state,
+          'selected-card predicate comparison requires two fresh validation clones');
+        const predicateA=selectedCardPredicateOutcome(
+          action,simulator,actorSeat,native,selectedCardIdentityForDiagnostic);
+        const predicateB=selectedCardPredicateOutcome(
+          action,comparisonSimulator,actorSeat,native,selectedCardIdentityForDiagnostic);
+        const invalidPredicateOutcome=new Set([
+          'selected-card-missing','selected-card-identity-diverged','predicate-mutated-state'
+        ]);
+        if(predicateA.applicable!==predicateB.applicable||
+            predicateA.outcome!==predicateB.outcome||
+            invalidPredicateOutcome.has(predicateA.outcome)||
+            invalidPredicateOutcome.has(predicateB.outcome)){
+          const error=new Error('selected-card legality predicate diverged across fresh validation clones');
+          error.code='CLONE_PREDICATE_DIVERGED';
+          throw error;
+        }
+        if(validationEvidence&&typeof validationEvidence==='object'){
+          validationEvidence.selectedCardPredicateCompared=predicateA.applicable===true;
+          validationEvidence.selectedCardPredicateStableAcrossClones=predicateA.applicable===true;
+          validationEvidence.selectedCardPredicateApplicable=predicateA.applicable===true;
+        }
+      }else if(validationEvidence&&typeof validationEvidence==='object'){
+        validationEvidence.selectedCardPredicateCompared=false;
+        validationEvidence.selectedCardPredicateStableAcrossClones=false;
+        validationEvidence.selectedCardPredicateApplicable=false;
+      }
       assert.notEqual(simulator.store,store,
         'selected-action validation must use a distinct native Store');
       assert.notEqual(simulator.store.state,state,
@@ -652,6 +731,14 @@ function dispatchSelectedNativeAction({
         simulator.store.dispatch(action);
         resolveFirstAbilityWaitPrompt(simulator,action,native);
       }catch(error){
+        if(action?.type==='PLAY_CARD_ACTION'&&native?.GameError&&
+            error instanceof native.GameError&&
+            typeof native?.GameMessage?.CANNOT_PLAY_THIS_CARD==='string'&&
+            error?.message===native.GameMessage.CANNOT_PLAY_THIS_CARD&&
+            validationEvidence?.selectedCardPredicateCompared===true&&
+            validationEvidence?.selectedCardPredicateStableAcrossClones===true&&
+            error&&typeof error==='object')
+          error.code='PREDICATE_STABLE_DISPATCH_FAILED';
         attachSafeActionDiagnostic(error,action,state,actorSeat,native);
         throw error;
       }

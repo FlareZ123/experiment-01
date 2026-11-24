@@ -2597,13 +2597,28 @@ function createV3WorkerDecisionResolver({
         if(!error.code)error.code='WORKER_SELECTED_TOKEN_UNTRUSTED';
         throw error;
       }
+      const selectedAction=actionFrontier.selectedNativeAction(frontier,response.decision.token);
+      let selectedCardIdentityForDiagnostic=null;
+      try{
+        if(typeof request.captureSelectedCardIdentity==='function')
+          selectedCardIdentityForDiagnostic=request.captureSelectedCardIdentity(selectedAction);
+      }catch{
+        // Diagnostic capture is best-effort and must never mask native validation.
+        selectedCardIdentityForDiagnostic=null;
+      }
       const validationEvidence={};
-      const action=actionFrontier.dispatchSelectedNativeAction({
-        store:request.store,frontier,token:response.decision.token,
-        state:request.state,actorSeat,native,
-        withValidationRandom:request.withValidationRandom,dispatch:false,
-        validationEvidence
-      });
+      let action;
+      try{
+        action=actionFrontier.dispatchSelectedNativeAction({
+          store:request.store,frontier,token:response.decision.token,
+          state:request.state,actorSeat,native,
+          withValidationRandom:request.withValidationRandom,dispatch:false,
+          validationEvidence,selectedCardIdentityForDiagnostic
+        });
+      }finally{
+        // Exact hand identity is ephemeral in the host process; never retain it in a receipt.
+        selectedCardIdentityForDiagnostic=null;
+      }
       const nativeActionFrontierUsed=frontier.actionFrontier.items.some(item=>
         item.token===response.decision.token)&&frontier.actionByToken.has(response.decision.token);
       assert.equal(nativeActionFrontierUsed,true,

@@ -964,6 +964,35 @@ test('full Store-state snapshot detects nested mutation and object replacement w
   assert.notDeepEqual(snapshot(state),beforeReplacement);
 });
 
+test('root decision exposes a host-only selected-card capture callback without persisting it in a no-game witness',async()=>{
+  const args=input({stopBeforeLiveDispatch:true,expectedActorSeat:0,maxActions:null});
+  let captured=null;
+  const result=await runNativeFixtureGameAsync(args,request=>{
+    assert.equal(request.decisionKind,'owner-root');
+    assert.equal(typeof request.captureSelectedCardIdentity,'function');
+    const action=new PlayCardAction(101,0,{});
+    captured=request.captureSelectedCardIdentity(action);
+    assert.ok(captured&&typeof captured.fullName==='string');
+    return {
+      __nativeFixtureDecisionResolution:true,
+      action,
+      validationReceipt:{
+        actorSeat:request.actorSeat,
+        selectedActionValidated:true,
+        nativeActionFrontierUsed:true,
+        nativeValidationStoreMode:'cloned-store',
+        actionKind:'play-card',
+        frontierItemCount:1
+      }
+    };
+  });
+  assert.ok(captured.fullName);
+  assert.equal(result.decisionTrace[0].selectedCardIdentity,null,
+    'no-game witness must not persist a concealed selected-card identity');
+  assert.equal(result.rootActionLedger[0].selectedCardIdentity,null,
+    'no-game witness ledger must not persist a concealed selected-card identity');
+});
+
 test('native no-game witness validates a root action and stops before live dispatch',async()=>{
   const originalRandom=Math.random;
   const args=input({stopBeforeLiveDispatch:true,expectedActorSeat:0,maxActions:null});

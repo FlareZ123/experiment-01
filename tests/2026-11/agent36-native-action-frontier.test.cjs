@@ -139,7 +139,8 @@ function fakeNative({onDispatch=()=>{},actions:providedActions=null,rejectAction
     EnergyType:{BASIC:1},
     PlayerType: { BOTTOM_PLAYER: 1, TOP_PLAYER: 2, ANY: 3 },
     SlotType: { BENCH: 2, ACTIVE: 1, BOARD: 9, HAND: 3, DECK: 4, DISCARD: 5 },
-    TrainerType: { ITEM: 1, SUPPORTER: 2, STADIUM: 3, TOOL: 4 }
+    TrainerType: { ITEM: 1, SUPPORTER: 2, STADIUM: 3, TOOL: 4 },
+    GameMessage: { CANNOT_PLAY_THIS_CARD: 'CANNOT_PLAY_THIS_CARD' }
   };
 }
 
@@ -872,14 +873,81 @@ test('Night Stretcher preflight matches the effect Basic-Energy-or-Pokémon targ
     }
     assert.equal(built.diagnostics.preflightRejectedCount,0);
     assert.equal(dispatches,1);
-    const selectedState=cloneState(state);
-    const store={state:selectedState,dispatch(){assert.fail('live Store must not dispatch in cloned validation test');}};
+    const store={state,dispatch(){assert.fail('live Store must not dispatch in cloned validation test');}};
     dispatchSelectedNativeAction({
-      store,frontier:built,token:playItem.token,state:selectedState,actorSeat:0,native,
+      store,frontier:built,token:playItem.token,state,actorSeat:0,native,
       withValidationRandom:fn=>fn(),dispatch:false
     });
     assert.equal(dispatches,2,entry.name+' must survive selected cloned-Store validation');
   }
+});
+
+test('selected-action validation rejects live Store divergence from the frontier-time baseline',()=>{
+  const state=fixtureState();
+  const itemAction={type:'PLAY_CARD_ACTION',id:'p0',handIndex:0};
+  const native=fakeNative({
+    actions:[itemAction,{type:'PASS_TURN',clientId:'p0'}],
+    rejectActionTypes:[]
+  });
+  const built=buildNativeActionFrontier({state,actorSeat:0,native});
+  state.players[0].hand.cards[0].name='changed after frontier admission';
+  const store={state,dispatch(){assert.fail('diverged live Store must not be dispatched');}};
+  assert.throws(()=>dispatchSelectedNativeAction({
+    store,frontier:built,token:built.actionFrontier.items[0].token,
+    state,actorSeat:0,native,withValidationRandom:fn=>fn(),dispatch:false
+  }),error=>error.code==='FRONTIER_STATE_DIVERGED');
+});
+
+test('selected-card legality predicates are compared across fresh clones without exposing identity',()=>{
+  const state=fixtureState();
+  let predicateCalls=0;
+  state.players[0].hand.cards[0].canPlay=()=>++predicateCalls===1;
+  const itemAction={type:'PLAY_CARD_ACTION',id:'p0',handIndex:0};
+  let itemDispatches=0;
+  const native=fakeNative({
+    actions:[itemAction,{type:'PASS_TURN',clientId:'p0'}],
+    rejectActionTypes:[],
+    onDispatch(action){if(action===itemAction)itemDispatches++;}
+  });
+  const built=buildNativeActionFrontier({state,actorSeat:0,native});
+  assert.equal(predicateCalls,0,'generic Items are not promoted into a frontier preflight');
+  const store={state,dispatch(){assert.fail('live Store must not be dispatched');}};
+  assert.throws(()=>dispatchSelectedNativeAction({
+    store,frontier:built,token:built.actionFrontier.items[0].token,
+    state,actorSeat:0,native,withValidationRandom:fn=>fn(),dispatch:false,
+    selectedCardIdentityForDiagnostic:{fullName:'Test Item'}
+  }),error=>error.code==='CLONE_PREDICATE_DIVERGED');
+  assert.equal(predicateCalls,2);
+  assert.equal(itemDispatches,1,'divergent predicates must fail before cloned dispatch');
+});
+
+test('stable selected-card predicate plus native CANNOT_PLAY_THIS_CARD gets a generic classification',()=>{
+  const state=fixtureState();
+  state.players[0].hand.cards[0].canPlay=()=>true;
+  const itemAction={type:'PLAY_CARD_ACTION',id:'p0',handIndex:0};
+  let itemDispatches=0;
+  const native=fakeNative({
+    actions:[itemAction,{type:'PASS_TURN',clientId:'p0'}],
+    rejectActionTypes:[],
+    onDispatch(action){
+      if(action===itemAction){
+        itemDispatches++;
+        if(itemDispatches===2)throw new GameError('CANNOT_PLAY_THIS_CARD');
+      }
+    }
+  });
+  const built=buildNativeActionFrontier({state,actorSeat:0,native});
+  const store={state,dispatch(){assert.fail('live Store must not be dispatched');}};
+  const validationEvidence={};
+  assert.throws(()=>dispatchSelectedNativeAction({
+    store,frontier:built,token:built.actionFrontier.items[0].token,
+    state,actorSeat:0,native,withValidationRandom:fn=>fn(),dispatch:false,
+    validationEvidence
+  }),error=>error.code==='PREDICATE_STABLE_DISPATCH_FAILED');
+  assert.equal(validationEvidence.frontierStateBaselineMatched,true);
+  assert.equal(validationEvidence.selectedCardPredicateCompared,true);
+  assert.equal(validationEvidence.selectedCardPredicateStableAcrossClones,true);
+  assert.equal(itemDispatches,2);
 });
 
 test('generic Item canPlay predicates are not promoted into a broad preflight',()=>{

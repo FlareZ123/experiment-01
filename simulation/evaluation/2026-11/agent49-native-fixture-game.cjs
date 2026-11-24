@@ -989,6 +989,9 @@ if(typeof native.observe==='function')
           actionOrdinal,actorObservation:actorObservationBefore,
           actorObservationSha256:attemptRecord.actorObservationSha256,
           state,store,prompt:null,actorSeat:actingSeat,native,physicalRandom,withPhysicalRandom,withValidationRandom,
+          // Host-only callback; the V3 runner never forwards this function to a worker.
+          captureSelectedCardIdentity:action =>
+            selectedCardIdentity(action,state,actingSeat,native.cardActions),
           ...(policyRandom?{
             legacyBot:seats[actingSeat],
             legacyRandomSource:policyRandom[actingSeat]
@@ -1011,7 +1014,8 @@ if(typeof native.observe==='function')
       attemptRecord.actionType=action.type??null;
       attemptRecord.actionPayload=actionPayload;
       attemptRecord.actionPayloadSha256=actionPayloadSha256;
-      const selectedIdentity=selectedCardIdentity(action,state,actingSeat,native.cardActions);
+      const selectedIdentity=input.stopBeforeLiveDispatch===true?null:
+        selectedCardIdentity(action,state,actingSeat,native.cardActions);
       const targetProjection=action instanceof native.cardActions.PlayCardAction?
         projectJsonSafe(action.target??null):null;
       attemptRecord.selectedCardIdentity=selectedIdentity;

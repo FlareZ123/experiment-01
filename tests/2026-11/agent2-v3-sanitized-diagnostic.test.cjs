@@ -286,6 +286,7 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
         actionOrdinal:2,actingSeat:1,turnBefore:17,phaseBefore:2,
         isRootDecision:true,policyInputKind:'actor-observation',
         actionName:null,actionType:null,dispatchStatus:'not-dispatched',
+        selectedCardIdentity:{fullName:'PRIVATE_FAILED_SELECTED_CARD_SENTINEL',set:'PRIVATE_SET_SENTINEL'},
         failure:{name:'GameError',nativeErrorKind:'GameError',
           nativeActionType:'PLAY_CARD_ACTION',nativeActionFamily:'ITEM'}
       }],
@@ -298,7 +299,7 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
     fixtureFailure:{name:'Error',code:'TEST',stage:'fixture',
       messageSha256:'f'.repeat(64),messageLength:10,
       nativeFixtureFailure:{
-        name:'GameError',code:'NATIVE_FIXTURE_FAILURE',stage:'dispatch',
+        name:'GameError',code:'PREDICATE_STABLE_DISPATCH_FAILED',stage:'dispatch',
         messageSha256:'e'.repeat(64),messageLength:21,
         nativeErrorKind:'GameError',nativeGameMessage:'CANNOT_PLAY_THIS_CARD',
         nativeActionType:'PLAY_CARD_ACTION',nativeActionFamily:'ITEM',
@@ -313,9 +314,10 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
   });
   const json=JSON.stringify(sanitized);
   assert.doesNotMatch(json,
-    /"(?:candidateAudit|opponentAudit|setupPromptDecisions|selectedHandIndices|selectedPrintings|nativeError|promptId|playerId|perspectivePlayerId|workerDecisionTrace|actorInput|promptProjection|selectedItems|policyAudit|validationReceipt)"\s*:/);
+    /"(?:candidateAudit|opponentAudit|setupPromptDecisions|selectedHandIndices|selectedPrintings|selectedCardIdentity|nativeError|promptId|playerId|perspectivePlayerId|workerDecisionTrace|actorInput|promptProjection|selectedItems|policyAudit|validationReceipt)"\s*:/);
   for(const secret of [
     'PRIVATE_HAND_SENTINEL','PRIVATE_PRIZE_SENTINEL','PRIVATE_PROMPT_CARD',
+    'PRIVATE_FAILED_SELECTED_CARD_SENTINEL','PRIVATE_SET_SENTINEL',
     'PRIVATE_SETUP_PROMPT_ID','PRIVATE_SETUP_PLAYER_ID','PRIVATE_SETUP_PERSPECTIVE_ID',
     'PRIVATE_SETUP_PRINTING','PRIVATE_SETUP_NATIVE_ERROR',
     'PRIVATE_SETUP_NATIVE_PROMPT_ID','PRIVATE_SETUP_NATIVE_PLAYER_ID',
@@ -343,6 +345,9 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
   assert.equal(sanitized.fixtureFailure.messageSha256,undefined);
   assert.equal(sanitized.fixtureFailure.messageLength,10);
   assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.nativeErrorKind,'GameError');
+  assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.code,
+    'PREDICATE_STABLE_DISPATCH_FAILED',
+    'generic diagnostic classifications must survive the public sanitizer');
   assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.nativeGameMessage,
     'CANNOT_PLAY_THIS_CARD');
   assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.nativeActionType,
