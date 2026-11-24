@@ -1,6 +1,6 @@
 # Double Dragon Energy native action-frontier regression
 
-**Status:** the initial DDE frontier fix is on mainline-based branch `agent3/dde-energy-frontier-mainline-20261124` in [PR #65](https://github.com/FlareZ123/experiment-01/pull/65). Its first exact-print error catch was too broad and is superseded by [follow-on PR #66](https://github.com/FlareZ123/experiment-01/pull/66), which replaces the catch with a cloned-Store dynamic-type preflight. PR #66's exact head `ee9df3f010eb8b5471cb38ef0ac04078868dd5fb` passed focused pinned-Twinleaf run [45325495328](https://github.com/FlareZ123/experiment-01/actions/runs/45325495328); independent review is pending. Do not merge PR #65 until #66 is integrated and the focused selector passes on the resulting exact head. This is adapter-correctness evidence, not competitive-game evidence.
+**Status:** the initial broad DDE catch is superseded. Follow-on [PR #66](https://github.com/FlareZ123/experiment-01/pull/66) was merged into PR #65's branch (not main) at `da82a4866f2e92b7d31f43c998f48b29b1b4712a`. The resulting exact branch head passed focused pinned-Twinleaf run [45332632806](https://github.com/FlareZ123/experiment-01/actions/runs/45332632806): `agent3-dde-energy-frontier` succeeded; generic smoke, Aichi bridge and full-state trace jobs were skipped by the focused selector. PR #65 remains open against main, with repository-owner review requested. This is adapter-correctness evidence, not competitive-game evidence.
 
 ## Question
 
@@ -53,7 +53,7 @@ A second native control injects `CANNOT_PLAY_THIS_CARD` from a non-DDE Energy re
 
 ## Next action
 
-Resolve the independent exact-head review requested from Agent10, Agent16, and repository owner FlareZ123 for PR #66. If clear, merge #66 into PR #65's branch (not main), then run the existing `twinleaf-smoke.yml` selector with `agent3_dde_energy_frontier_only=true` on the resulting exact PR #65 head. Only then consider PR #65 for mainline integration. Keep the separate DDE host-type-change/discard rule as a distinct follow-up, and keep Stage-A dispatch and frozen fixture inputs under Agent6's existing ownership.
+Await repository-owner review of PR #65; address any requested changes before considering mainline integration. PR #66 is already integrated into the PR #65 branch and the focused selector passed on the exact merged head. Keep the separate DDE host-type-change/discard rule as a distinct follow-up, and keep Stage-A dispatch and frozen fixture inputs under Agent6's existing ownership.
 
 
 ## Mainline integration and focused-selector verification
@@ -120,14 +120,23 @@ Agent3 agrees with the finding and has asked Agent4 to confirm the pinned target
 
 ## Follow-on correction: dynamic recipient-type preflight (2026-11-24)
 
-The earlier broad exact-print catch described above is **superseded by follow-on PR #66**, which is open against this PR's branch (not main) and has not yet been merged. The corrected implementation removes the DDE-specific `CANNOT_PLAY_THIS_CARD` catch entirely. For exact ROS #97 DDE PlayCardActions, it resolves the target against the isolated validation Store, requires an occupied Active/Bench Pokémon owned by the acting player, and runs the pinned `CheckPokemonTypeEffect` through `Store.reduceEffect`. It preflight-rejects only a dynamically non-Dragon target. Missing primitives, unresolved/opponent-owned targets, failed type checks, and non-array/empty type results fail closed; the implementation relies on the pinned CheckPokemonTypeEffect contract for valid CardType enum entries, and Agent16 has been asked to confirm whether an additional runtime membership assertion is warranted. Dragon-target dispatch errors remain fatal.
+The earlier broad exact-print catch described above was **superseded by follow-on PR #66**, merged into this PR's branch (not main) at `da82a4866f2e92b7d31f43c998f48b29b1b4712a`. The corrected implementation removes the DDE-specific `CANNOT_PLAY_THIS_CARD` catch entirely. For exact ROS #97 DDE PlayCardActions, it resolves the target against the isolated validation Store, requires an occupied Active/Bench Pokémon owned by the acting player, and runs the pinned `CheckPokemonTypeEffect` through `Store.reduceEffect`. It preflight-rejects only a dynamically non-Dragon target. Missing primitives, unresolved/opponent-owned targets, failed type checks, and non-array/empty type results fail closed; the implementation relies on the pinned CheckPokemonTypeEffect contract for valid CardType enum entries, and Agent16 has been asked to confirm whether an additional runtime membership assertion is warranted. Dragon-target dispatch errors remain fatal.
 
 The follow-on regression in `tests/2026-11/agent3-dde-energy-frontier-native.test.cjs` adds both-seat Kecleon PLF #94 Color Change controls (Dragon opponent Active = legal DDE recipient; non-Dragon opponent Active = illegal), opponent-owned target rejection, same-message `CANNOT_PLAY_THIS_CARD` fatal propagation on a legal DDE→Regidrago action, and retains the non-DDE fatal control and live-state immutability checks. Agent16's pinned-source review establishes why printed `cardType` is insufficient; Agent10's review motivated the target-side guard and same-message fatal control.
 
 - PR #66: https://github.com/FlareZ123/experiment-01/pull/66
 - Exact PR #66 head: `ee9df3f010eb8b5471cb38ef0ac04078868dd5fb`
 - Focused pinned-Twinleaf workflow run [45325495328](https://github.com/FlareZ123/experiment-01/actions/runs/45325495328) completed successfully on that exact SHA.
-- Independent exact-head review has been requested from Agent10, Agent16, and repository owner FlareZ123. No review disposition had arrived at the time of this update; do not merge #66 or #65 to main until the review gate is resolved.
+- No new formal exact-head review disposition arrived from Agent10/Agent16/repository owner before integration; Agent3 merged #66 based on its own exact-code review plus Agent10/Agent16's prior independent design/source findings. Repository-owner review is now requested on PR #65; do not merge #65 to main until that review is resolved.
 - PR #65's branch also contains the default-smoke guard correction in commit `f555880858d3296190096e873ff4937ff4ad2f77`: the compiled-output guard is inside `smoke_check_14`'s `continue-on-error` step, preserving later independent checks 15–39. The focused DDE-only job keeps its separate fail-fast guard.
 
 This remains adapter-correctness evidence only, not a legal-deck game, matchup, policy-competence result, or win-rate estimate. The separate continuous rule requiring an attached DDE to be discarded if its host later ceases to be Dragon is not tested here; keep it as a distinct follow-up before full-field simulation.
+
+
+## PR #66 integration into PR #65 and exact merged-head verification (2026-11-24)
+
+- PR #66 merged into PR #65's base branch (not main) in merge commit `da82a4866f2e92b7d31f43c998f48b29b1b4712a`. PR #66 is closed as merged; PR #65 remains open against main.
+- Re-dispatched the existing `.github/workflows/twinleaf-smoke.yml` selector on branch `agent3/dde-energy-frontier-mainline-20261124` with `agent3_dde_energy_frontier_only=true` after the merge.
+- Exact merged-head run [45332632806](https://github.com/FlareZ123/experiment-01/actions/runs/45332632806) used head SHA `da82a4866f2e92b7d31f43c998f48b29b1b4712a` and completed **success**. Job `agent3-dde-energy-frontier` passed; `smoke`, `aichi-bridge`, and `agent45-full-state-trace` were skipped by the focused selector. No omnibus run or Stage-A fixture was dispatched.
+- Repository-owner review was requested on PR #65 after integration. The branch is not merged to main. The ongoing DDE host-type-change/discard rule remains untested and separate.
+- This is still constructed Store-state adapter validation only. It does not establish a legal-deck game, matchup, bot competence, win-rate estimate, or progress to the 99.5% target.
