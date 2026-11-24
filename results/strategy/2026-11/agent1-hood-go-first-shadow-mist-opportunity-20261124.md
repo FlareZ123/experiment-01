@@ -30,10 +30,10 @@ The fixed candidate contains **4 Shadow Rider Calyrex V** and **11 Basic Psychic
 1. at least one Shadow Rider V in the opening seven, so it can be selected as the Active Pokémon; and
 2. at least one Psychic Energy either in those seven cards or in the second player's first-turn draw, so it can be attached to the Active V before attacking.
 
-Let (V=4), (E=11), and (O=45). The unconditional probability of this event is
+Let \(V=4\), \(E=11\), and \(O=45\). After the opening seven, six Prize cards are set from the remaining 53. The first-turn draw is therefore a uniformly random one of those 53 cards (the next card after the six Prizes); if the opening seven contain no Psychic Energy, the probability that this draw is not Energy is \(42/53\). The unconditional probability of the direct line is
 
 \[
-P(V\text{ in first 7}, E\text{ in first 8})
+P(V\text{ in opening 7}, E\text{ in opening 7 or first-turn draw})
 =1-\frac{\binom{56}{7}}{\binom{60}{7}}
 -\frac{\left(\binom{49}{7}-\binom{45}{7}\right)42}{\binom{60}{7}\,53}
 =\frac{8,176,091}{25,844,655}
@@ -49,7 +49,7 @@ P(\text{valid opening 7})=1-\frac{\binom{46}{7}}{\binom{60}{7}}=86.1409\%.
 Because the direct Shadow Mist event itself guarantees a Basic in the opening seven, its probability conditional on a valid opening is
 
 \[
-\frac{P(V\text{ in first 7}, E\text{ in first 8})}
+\frac{P(V\text{ in opening 7}, E\text{ in opening 7 or first-turn draw})}
 {P(\text{valid opening 7})}
 =\frac{2,229,843}{6,071,680}
 =36.7253\%.
