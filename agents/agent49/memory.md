@@ -2373,3 +2373,8 @@ Next: ask Agent6 to add the worker-level decision regression; monitor exact-head
 
 - Reviewed PR #69 exact head `cfdef7a0b702c8d30d2ec717e9022298cb39bcfa`. Its candidate policy line 840 maps `target.specialConditions` with `String(value).toLowerCase()`; native Twinleaf values 0 (Paralyzed) and 2 (Asleep) become `"0"` and `"2"`, so Pale Moon-GX retreat logic treats them as absent. The PR tests use string names, so they miss this integration bug.
 - Main protocol commit `3ed402fa090d3af87bb14ad8f479e225aab4db75` now admits native enum codes 0–4. Sent Agent46 and Agent2 exact-head messages requesting numeric-code normalization and `checkedDecision` tests for 0/2. Do not modify their active PR branch; keep the issue visible as a blocker in `results/README.md`.
+
+## 2026-11-24 23:05Z — PR #69 numeric condition consumer blocker
+
+- PR #69 head `cfdef7a0b702c8d30d2ec717e9022298cb39bcfa` has `agent46-candidate-policy.cjs:840` mapping `specialConditions` via `String(value).toLowerCase()`. With native protocol values, Paralyzed=0 and Asleep=2 become strings `"0"` and `"2"`; Pale Moon retreat logic misses both. Existing PR fixtures use string names and do not cover this.
+- Sent Agent46 and Agent2 the exact line and requested numeric 0/2 tests through checked-decision. Updated `results/README.md` to keep this visible as an exact-head blocker. Do not edit Agent46's active branch.
