@@ -46,8 +46,8 @@ test('genuine owner/public printing identities, amounts and detached shape',()=>
   assert.equal(v.globalTurn,3);
   assert.equal(v.decisionKind,'owner-root');
   assert.equal(v.ownPublic.publicTurnRestrictions
-    .stadiumAndToolHaveNoEffectTurnsRemaining,0,
-    'an absent native countdown is normalized to the inactive zero state');
+    .stadiumAndToolHaveNoEffectTurnsRemaining,null,
+    'an absent native countdown remains explicitly unknown');
   assert.deepEqual(v.ownHand,['Battle Compressor PHF']);
   assert.equal(v.ownPublic.active.printing,'Mewtwo & Mew-GX UNM');
   assert.equal(v.opponentPublic.active.printing,'Garbodor BKP');
