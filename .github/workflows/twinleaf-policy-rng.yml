@@ -50,7 +50,7 @@ jobs:
       - name: Check out research repository
         uses: actions/checkout@v4
       - name: Verify policy/game stream isolation and independent RNG contract without Twinleaf
-        run: node --test tests/twinleaf-policy-rng-isolation.test.cjs tests/agent37-independent-rng-v1.test.cjs
+        run: node --test tests/twinleaf-policy-rng-isolation.test.cjs tests/agent37-independent-rng-v1.test.cjs tests/aichi-paper-shuffle-rng-hook.test.cjs
       - name: Test normal and nested-abort root ledger reconciliation
         run: node --test tests/agent48-native-root-ledger-reconciliation.test.cjs
       - name: Test owner-scoped VS Seeker Supporter prompt and Lillie compatibility
@@ -75,6 +75,8 @@ jobs:
       - name: Compile pinned server
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Verify pinned Aichi paper-shuffle RNG hooks in actual Twinleaf Store
+        run: node --test tests/hisuian-heavy-ball-prize-hook.test.cjs tests/hisuian-heavy-ball-real-store.test.cjs
       - name: Execute preregistered new full 120-card owner-prompt Store receipt trial
         if: inputs.agent13_first_full_paper_native
         run: |
