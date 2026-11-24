@@ -941,3 +941,278 @@ test('candidate rule-selected setup choices carry no fabricated numeric score', 
   assert.equal(selected.reasonCode, 'SELECTED_BY_POLICY_RULE');
   protocol.validatePolicyAudit(audited.policyAudit, req, audited.decision, POLICY_VERSION);
 });
+
+
+function underworldAttachmentRequest(seat, view, targets) {
+  const prompt = {
+    schema: protocol.PROMPT_SCHEMA,
+    actingSeat: seat,
+    promptType: 'AttachEnergyPrompt',
+    description: 'ATTACH_ENERGY_TO_BENCH',
+    source: {
+      classification: 'actor-choice',
+      sourceKind: 'card-effect',
+      sourcePrinting: 'Shadow Rider Calyrex VMAX CRE 75',
+      effectName: 'Underworld Door'
+    },
+    choices: targets.map((target, index) => ({
+      token: target.token,
+      kind: 'energy',
+      printing: 'Psychic Energy SVE 13',
+      label: 'Attach Psychic Energy to Bench ' + (target.benchIndex + 1) +
+        ': ' + target.printing,
+      publicMetadata: {
+        sourceZone: 'hand',
+        ownerSeat: 'actor',
+        isOwnerVisible: true,
+        energyType: 'BASIC',
+        zone: 'bench',
+        benchIndex: target.benchIndex,
+        choiceIndex: index,
+        selectedCount: 1
+      }
+    })),
+    publicMetadata: {
+      selectionType: 'energy-attachment',
+      count: targets.length,
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: false,
+      sourceZone: 'hand',
+      ownerSeat: 'actor',
+      isOwnerVisible: true,
+      energyType: 'BASIC',
+      zone: 'bench'
+    }
+  };
+  return request(seat, {
+    ...view,
+    decisionKind: 'owner-prompt',
+    pendingPromptType: 'AttachEnergyPrompt'
+  }, { prompt, actions: [] });
+}
+
+test('VMAX-only board still searches and benches a second unevolved Shadow Rider V', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const view = observation(0, { active: vmax });
+  const search = cardPrompt(0, view, {
+    printings: [
+      'Shadow Rider Calyrex V CRE 74',
+      'Latias ex SSP 76',
+      'Psychic Energy SVE 13'
+    ]
+  });
+  assert.deepEqual(evaluate(search), {
+    kind: 'select-choices',
+    tokens: ['card-0']
+  });
+
+  const play = request(0, {
+    ...view,
+    ownHand: ['Shadow Rider Calyrex V CRE 74']
+  }, {
+    actions: [
+      {
+        token: 'play-second-v',
+        kind: 'play-card',
+        actorPrinting: 'Shadow Rider Calyrex V CRE 74',
+        publicMetadata: { targetSeat: 'actor', targetZone: 'bench' }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(play), {
+    kind: 'select-action',
+    token: 'play-second-v'
+  });
+});
+
+test('candidate searches a VMAX for an unevolved Basic V even when another VMAX is already in play', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const basic = pokemon({
+    printing: 'Shadow Rider Calyrex V CRE 74',
+    name: 'Shadow Rider Calyrex V',
+    hp: 210
+  });
+  const view = observation(0, { active: vmax, bench: [basic] });
+  const search = cardPrompt(0, view, {
+    printings: [
+      'Shadow Rider Calyrex VMAX CRE 75',
+      'Latias ex SSP 76',
+      'Psychic Energy SVE 13'
+    ]
+  });
+  assert.deepEqual(evaluate(search), {
+    kind: 'select-choices',
+    tokens: ['card-0']
+  });
+});
+
+test('live Underworld Door is selected before a payable Max Geist attack', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    energies: Array(3).fill('Psychic Energy SVE 13'),
+    attacks: [attack('Max Geist', ['Colorless', 'Colorless', 'Colorless'], '10+')],
+    abilities: ['Underworld Door'],
+    suppression: false
+  });
+  const mimikyu = pokemon({
+    printing: 'Mimikyu GRI 58',
+    name: 'Mimikyu',
+    hp: 70,
+    attacks: [attack('Copycat', ['Psychic', 'Colorless'], null)]
+  });
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT 136',
+    name: 'Regidrago VSTAR',
+    hp: 280,
+    types: ['Dragon'],
+    subtypes: ['VSTAR']
+  });
+  const view = observation(0, {
+    active: vmax,
+    bench: [mimikyu],
+    opponentActive: regidrago,
+    ownHand: ['Psychic Energy SVE 13']
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'underworld',
+        kind: 'use-ability',
+        actorPrinting: vmax.printing,
+        publicMetadata: {
+          abilityName: 'Underworld Door',
+          sourceZone: 'active',
+          sourceSeat: 'actor',
+          sourceIndex: 0
+        }
+      },
+      {
+        token: 'max-geist',
+        kind: 'attack',
+        actorPrinting: vmax.printing,
+        attackName: 'Max Geist',
+        publicMetadata: { attackCostPayable: true }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'underworld'
+  });
+});
+
+test('Underworld Door is not selected when its source Ability is suppressed', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    energies: Array(3).fill('Psychic Energy SVE 13'),
+    attacks: [attack('Max Geist', ['Colorless', 'Colorless', 'Colorless'], '10+')],
+    abilities: ['Underworld Door'],
+    suppression: true
+  });
+  const mimikyu = pokemon({
+    printing: 'Mimikyu GRI 58',
+    name: 'Mimikyu',
+    hp: 70
+  });
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT 136',
+    name: 'Regidrago VSTAR',
+    hp: 280,
+    types: ['Dragon'],
+    subtypes: ['VSTAR']
+  });
+  const view = observation(0, {
+    active: vmax,
+    bench: [mimikyu],
+    opponentActive: regidrago,
+    ownHand: ['Psychic Energy SVE 13']
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'underworld',
+        kind: 'use-ability',
+        actorPrinting: vmax.printing,
+        publicMetadata: {
+          abilityName: 'Underworld Door',
+          sourceZone: 'active',
+          sourceSeat: 'actor',
+          sourceIndex: 0
+        }
+      },
+      {
+        token: 'max-geist',
+        kind: 'attack',
+        actorPrinting: vmax.printing,
+        attackName: 'Max Geist',
+        publicMetadata: { attackCostPayable: true }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'max-geist'
+  });
+});
+
+test('Underworld Door prompt funds Mimikyu before Max Geist against Regidrago', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    energies: Array(3).fill('Psychic Energy SVE 13')
+  });
+  const mimikyu = pokemon({
+    printing: 'Mimikyu GRI 58',
+    name: 'Mimikyu',
+    hp: 70
+  });
+  const benchVmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT 136',
+    name: 'Regidrago VSTAR',
+    hp: 280,
+    types: ['Dragon'],
+    subtypes: ['VSTAR']
+  });
+  const view = observation(0, {
+    active: vmax,
+    bench: [mimikyu, benchVmax],
+    opponentActive: regidrago,
+    ownHand: ['Psychic Energy SVE 13']
+  });
+  const req = underworldAttachmentRequest(0, view, [
+    { token: 'mimikyu-energy', benchIndex: 0, printing: mimikyu.printing },
+    { token: 'vmax-energy', benchIndex: 1, printing: benchVmax.printing }
+  ]);
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choice',
+    token: 'mimikyu-energy'
+  });
+});
