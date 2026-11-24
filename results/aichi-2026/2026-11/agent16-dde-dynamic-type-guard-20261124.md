@@ -91,7 +91,7 @@ The pinned DDE reducer performs its own `CheckPokemonTypeEffect` during `AttachE
 
 The pinned DDE reducer handles `CheckTableStateEffect` by scanning attached DDE and discarding it when the host is no longer Dragon, subject to the Special Energy block check (`double-dragon-energy.ts:56-68)). The check-state routine invokes `CheckTableStateEffect` (`check-effect.ts:447-448`). This confirms source implementation, not behavioral test coverage; a separate state-transition regression is still needed before broad field simulation.
 
-These are adapter/rules-fidelity findings only. PR #66 was merged at 2026-11-24T05:20:16Z into Agent3's PR #65 branch (merge commit `da82a4866f2e92b7d31f43c998f48b29b1b4712a`), not into `main`. PR #65 remains open with that merge commit as its head. The two review findings above remain unresolved there and must be fixed before PR #65 reaches `main`. None of this constitutes a game, matchup, or competitive-strength result.
+These are adapter/rules-fidelity findings only. PR #66 was merged at 2026-11-24T05:20:16Z into Agent3's PR #65 branch (merge commit `da82a4866f2e92b7d31f43c998f48b29b1b4712a`), not into `main`. PR #65 remains open. Agent3 subsequently addressed both review findings on head `18e64547b55c212caab9bc57c7dffd7ddbf43502`: the DDE type probe now uses a separate throwaway Simulator, and every result entry is checked against the numeric native CardType enum. The revised clone-isolation test includes a legal DDE-to-Dragon control action so the frontier remains nonempty. Focused Twinleaf smoke run `45334706760` passed on that exact head. The earlier review blockers are therefore resolved on the current PR head, subject to the residual ordering limitation described above. None of this constitutes a game, matchup, or competitive-strength result.
 
 ### Temple of Sinnoh cross-check (pinned implementation)
 
@@ -112,3 +112,12 @@ A follow-up scan of the pinned dynamic type producers found that the inspected r
 That does not make the runtime membership assertion redundant. The pinned `ptcg-server/package.json` uses TypeScript `~4.3.5`, and `tsconfig.json` has `strict: true`, but TypeScript numeric enums remain number-compatible: a plain numeric value can be assigned to a numeric enum-typed location without a runtime check. The `CardType[]` annotation therefore does not itself prove that every runtime entry is one of the declared enum values. See the [typescript-eslint explanation of numeric-enum assignment leniency](https://typescript-eslint.com/rules/no-unsafe-enum-assignment/).
 
 The review recommendation is therefore **defensive fail-closed hardening**, not a claim that the pinned card reducers currently emit malformed values. If the adapter relies exclusively on trusted compiled Twinleaf state, the current source producers appear well-formed; if it must tolerate malformed/corrupted state or future reducer regressions, validate each member against the pinned enum before classifying the target. The clone-mutation finding remains a separate concrete issue.
+
+## PR #65 follow-up verification (2026-11-24)
+
+- Current PR head: `18e64547b55c212caab9bc57c7dffd7ddbf43502` (PR remains open).
+- The preflight now constructs a separate probe Simulator for exact DDE actions, leaving the action-validation clone untouched.
+- Every `CheckPokemonTypeEffect.cardTypes` entry is checked against the pinned numeric `native.CardType` values; malformed non-empty results fail closed.
+- Regression coverage includes a synthetic push-based type reducer with a legal Dragon control action, plus a malformed `[999]` result.
+- Focused smoke run `45334706760` passed on the exact current head. The initial `0075` test run failed because the isolation fixture had only a rejected action; the fixture was corrected in `c3d88` by adding the legal Regidrago control, and the subsequent run passed.
+- Residual limitation: the probe still evaluates the target before native `AttachEnergyEffect` propagation. No concrete target-side type-changing attach handler was found in the pinned scan, but this is an ordering assumption rather than a universal proof.
