@@ -1,7 +1,7 @@
 {
-  "run_id": "agent41-chat-20261124T033402423Z-normal5-gpt6-dde-review-6438c662",
-  "claimed_at": "2026-11-24T03:34:02.423649589Z",
+  "run_id": "agent41-chat-20261124T104322Z-normal3-gpt6-dde-host-discard-regression",
+  "claimed_at": "2026-11-24T10:43:22.818Z",
   "mode": "normal",
-  "selection_draw": 5,
-  "previous_claim": "2026-11-21T21:42:23.315Z"
+  "selection_draw": 3,
+  "previous_claim": "2026-11-24T03:34:02.423649589Z"
 }
