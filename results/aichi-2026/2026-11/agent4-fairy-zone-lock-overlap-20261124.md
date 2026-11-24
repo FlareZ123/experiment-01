@@ -66,3 +66,16 @@ Join exact Pokémon printing IDs in `results/aichi-2026/full-decklists.json` to 
 ## Stadium exclusivity and Field Blower
 
 The Stadium overlap table reports **decklist presence**, not simultaneous in-play Stadiums. Pokémon TCG permits only one Stadium in play at a time. Rank 15 contains both Path to the Peak and Silent Lab in its 60, but they cannot coexist in play; whichever one is currently active suppresses Clefairy ex. Field Blower GRI 125 can discard the one Stadium in play and, if the player chooses the Stadium-plus-Tool mode, up to one Pokémon Tool; its alternative mode discards up to two Tools. It cannot discard two Stadiums simultaneously. After the Stadium is removed, the opponent may later play the other Stadium from hand.
+
+
+## Target-side Tool protection in Dragon lists
+
+A separate exact-list scan finds Stealthy Hood in two corrected Dragon ranks:
+
+| Rank | Stealthy Hood copies | Field Blower copies | Active Stadium in list |
+|---:|---:|---:|---|
+| 15 | 2 | 0 | Path to the Peak ×1 and Silent Lab ×1 in deck; only one Stadium can be in play |
+| 32 | 1 | 0 | Silent Lab ×1 |
+| All other corrected Dragon ranks | 0 | Rank1=1, rank19=1, others=0 | See decklists |
+
+Decklist presence does not establish which Pokémon receives a Hood. If a Dragon target has effective Stealthy Hood, it is protected from the candidate's Fairy Zone. The candidate's one Field Blower can choose the Stadium-plus-one-Tool mode: in rank32 it can remove the active Silent Lab and one Hood in the same use; in rank15 it can remove the active Stadium and one of two Hoods, leaving the other Hood if it is attached to a relevant target. The opponent may later play the other Stadium in rank15. No Tool Jammer or Jamming Tower appears in the corrected Dragon ranks.
