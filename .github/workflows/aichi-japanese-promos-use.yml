@@ -29,5 +29,38 @@ jobs:
       - name: Compile upstream Twinleaf
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Resolve all 29 authenticated original Aichi lists with explicit research hooks
+        run: |
+          node <<'NODE'
+          const path = require('node:path');
+          const { resolveManifestFile } = require('./simulation/twinleaf/resolve-field.cjs');
+          const report = resolveManifestFile(
+            path.resolve('results/aichi-2026/full-decklists.json'),
+            {
+              allowEquivalentBasicEnergies: true,
+              allowJapanesePromoHooks: true
+            }
+          );
+          const summary = {
+            source: report.source,
+            engineRevision: report.engineRevision,
+            publishedDecks: report.totalPublishedDecks,
+            resolvedDecks: report.resolvedDecks,
+            note: 'ID resolution and Twinleaf 60-card construction only; not paper legality, full card-effect fidelity, policy competence, or matchup evidence.',
+            ranks: report.decks.map(deck => ({
+              rank: deck.rank,
+              deckSize: deck.deckSize,
+              mappedAndStructurallyValid: deck.playableUnderEngine,
+              researchPromoCopies: deck.modifications
+                .filter(change => change.reason === 'research-only-japanese-promo-implementation')
+                .reduce((sum, change) => sum + change.count, 0),
+              unresolved: deck.unresolved
+            }))
+          };
+          console.log(JSON.stringify(summary, null, 2));
+          if (report.totalPublishedDecks !== 29 || report.resolvedDecks !== 29) {
+            process.exitCode = 1;
+          }
+          NODE
       - name: Run bounded two-slot source diagnostic
         run: node simulation/twinleaf/japanese-promos-source-probe.cjs
