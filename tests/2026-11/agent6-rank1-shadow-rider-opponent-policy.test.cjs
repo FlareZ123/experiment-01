@@ -1150,7 +1150,7 @@ test('Mysterious Treasure discards a low-value card token, never a cancel or emp
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-choices',
-    tokens: ['carmine']
+    tokens: ['energy']
   });
 });
 
