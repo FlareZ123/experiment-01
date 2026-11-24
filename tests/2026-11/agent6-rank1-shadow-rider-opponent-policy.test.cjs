@@ -6,12 +6,18 @@ const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-wor
 const { POLICY_VERSION, createPolicy } =
   require('../../simulation/evaluation/2026-11/agent6-rank1-shadow-rider-opponent-policy.cjs');
 
-const policy = createPolicy({
-  role: 'opponent',
-  seat: 0,
-  policyVersion: POLICY_VERSION,
-  config: {}
-});
+const policies = new Map();
+function policyForSeat(seat) {
+  if (!policies.has(seat)) {
+    policies.set(seat, createPolicy({
+      role: 'opponent',
+      seat,
+      policyVersion: POLICY_VERSION,
+      config: {}
+    }));
+  }
+  return policies.get(seat);
+}
 const init = {
   schema: protocol.INIT_SCHEMA,
   type: 'init',
@@ -21,6 +27,9 @@ const init = {
   bundleSha256: 'a'.repeat(64),
   config: {}
 };
+function initForSeat(seat) {
+  return { ...init, seat };
+}
 
 function restrictions() {
   return {
@@ -113,10 +122,10 @@ function player(options = {}) {
     bench,
     stadium: options.stadium ?? [],
     discard: options.discard ?? [],
-    lostZone: [],
-    resolvingSupporter: [],
+    lostZone: options.lostZone ?? [],
+    resolvingSupporter: options.resolvingSupporter ?? [],
     publicHand: null,
-    prizeSlots: [],
+    prizeSlots: options.prizeSlots ?? [],
     publicTurnRestrictions: publicRestrictions(options),
     handCount: options.handCount ?? 0,
     deckCount: options.deckCount ?? 30,
@@ -147,7 +156,7 @@ function turnResources() {
 
 function observation(options = {}) {
   return {
-    actorSeat: 0,
+    actorSeat: options.seat ?? 0,
     globalTurn: options.globalTurn ?? 3,
     phase: 2,
     decisionKind: options.prompt ? 'owner-prompt' : 'owner-root',
@@ -162,14 +171,15 @@ function observation(options = {}) {
 }
 
 function rootRequest(options = {}) {
-  const obs = observation(options);
+  const seat = options.seat ?? 0;
+  const obs = observation({ ...options, seat });
   return {
     schema: protocol.REQUEST_SCHEMA,
     type: 'decision',
     requestId: options.requestId ?? 'agent6-root-1',
     sequence: options.sequence ?? 1,
     role: 'opponent',
-    seat: 0,
+    seat,
     observationSchema: protocol.OBSERVATION_SCHEMA,
     observation: obs,
     prompt: null,
@@ -191,9 +201,10 @@ function actorChoiceSource(sourcePrinting, effectName) {
 }
 
 function promptRequest(options = {}) {
+  const seat = options.seat ?? 0;
   const prompt = {
     schema: protocol.PROMPT_SCHEMA,
-    actingSeat: 0,
+    actingSeat: seat,
     promptType: options.promptType,
     description: options.description ?? 'Choose a legal option',
     source: options.source,
@@ -202,7 +213,8 @@ function promptRequest(options = {}) {
   };
   const obs = observation({
     ...(options.observation ?? {}),
-    prompt
+    prompt,
+    seat
   });
   return {
     schema: protocol.REQUEST_SCHEMA,
@@ -210,7 +222,7 @@ function promptRequest(options = {}) {
     requestId: options.requestId ?? 'agent6-prompt-1',
     sequence: options.sequence ?? 1,
     role: 'opponent',
-    seat: 0,
+    seat,
     observationSchema: protocol.OBSERVATION_SCHEMA,
     observation: obs,
     prompt,
@@ -222,9 +234,9 @@ function promptRequest(options = {}) {
   };
 }
 
-function checkedDecision(request) {
-  const validated = protocol.validateRequest(request, init, request.sequence, new Set());
-  const decision = policy.decide(request);
+function checkedDecision(request, seat = 0) {
+  const validated = protocol.validateRequest(request, initForSeat(seat), request.sequence, new Set());
+  const decision = policyForSeat(seat).decide(request);
   protocol.validateDecision(decision, validated.prompt, validated.actionTokens);
   return decision;
 }
@@ -1600,7 +1612,7 @@ test('Mysterious Treasure searches Tapu Lele-GX when setup is complete and no Su
 });
 
 
-test('Climactic Gate is used when a Shadow Rider V is in play even if VMAX is not in hand', () => {
+test('Climactic Gate is not a root ability action; Radiant Eternatus starts the line', () => {
   const request = rootRequest({
     ownHand: ['Psychic Energy MEE 13'],
     ownPublic: player({
@@ -1616,7 +1628,7 @@ test('Climactic Gate is used when a Shadow Rider V is in play even if VMAX is no
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-action',
-    token: 'gate'
+    token: 'pass'
   });
 });
 
@@ -1642,7 +1654,7 @@ test('Climactic Gate selects two VMAX Pokémon and excludes Basic Pokémon choic
         } }
     ],
     publicMetadata: {
-      minimumCount: 2,
+      minimumCount: 0,
       maximumCount: 2,
       allowCancel: false,
       isSecret: false,
@@ -2040,4 +2052,375 @@ test('rank1 deterministic energy-payment prompt is marked rule-selected without 
   assert.equal(selected.score, null);
   assert.equal(selected.reasonCode, 'SELECTED_BY_POLICY_RULE');
   protocol.validatePolicyAudit(audited.policyAudit, request, plain, POLICY_VERSION);
+});
+
+
+test('Basic Shadow Rider V is played from hand into an empty Bench slot', () => {
+  const request = rootRequest({
+    ownHand: ['Shadow Rider Calyrex V CRE 74'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94', { hp: 90 }) }),
+    items: [
+      { token: 'bench-v', kind: 'play-card',
+        actorPrinting: 'Shadow Rider Calyrex V CRE 74',
+        publicMetadata: { cardType: 'pokemon', handIndex: 0,
+          targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+          isOwnerVisible: true } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'bench-v'
+  });
+});
+
+test('Basic Shadow Rider V is not redundantly benched after two V are established', () => {
+  const request = rootRequest({
+    ownHand: ['Shadow Rider Calyrex V CRE 74'],
+    ownPublic: player({
+      active: pokemon('Shadow Rider Calyrex V CRE 74'),
+      bench: [pokemon('Shadow Rider Calyrex V CRE 74')]
+    }),
+    items: [
+      { token: 'bench-v', kind: 'play-card',
+        actorPrinting: 'Shadow Rider Calyrex V CRE 74',
+        publicMetadata: { cardType: 'pokemon', handIndex: 0,
+          targetSeat: 'actor', targetZone: 'bench', targetIndex: 1,
+          isOwnerVisible: true } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'pass'
+  });
+});
+
+test('manual Psychic Energy attaches to the active VMAX ahead of a less-developed V', () => {
+  const vmax = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+    hp: 320, stage: 'VMAX',
+    energies: ['Psychic Energy MEE 13', 'Psychic Energy MEE 13']
+  });
+  const request = rootRequest({
+    ownHand: ['Psychic Energy MEE 13'],
+    ownPublic: player({
+      active: vmax,
+      bench: [pokemon('Shadow Rider Calyrex V CRE 74')]
+    }),
+    items: [
+      { token: 'energy-vmax', kind: 'play-card',
+        actorPrinting: 'Psychic Energy MEE 13',
+        targetPrinting: 'Shadow Rider Calyrex VMAX CRE 75',
+        publicMetadata: { cardType: 'energy', handIndex: 0,
+          targetSeat: 'actor', targetZone: 'active', isOwnerVisible: true } },
+      { token: 'energy-v', kind: 'play-card',
+        actorPrinting: 'Psychic Energy MEE 13',
+        targetPrinting: 'Shadow Rider Calyrex V CRE 74',
+        publicMetadata: { cardType: 'energy', handIndex: 0,
+          targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+          isOwnerVisible: true } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'energy-vmax'
+  });
+});
+
+test('manual Psychic Energy is not attached after the turn attachment was used', () => {
+  const request = rootRequest({
+    ownHand: ['Psychic Energy MEE 13'],
+    ownPublic: player({
+      active: pokemon('Shadow Rider Calyrex VMAX CRE 75', { stage: 'VMAX' })
+    }),
+    ownTurnResources: { ...turnResources(), energyPlayedTurn: true },
+    items: [
+      { token: 'energy', kind: 'play-card',
+        actorPrinting: 'Psychic Energy MEE 13',
+        targetPrinting: 'Shadow Rider Calyrex VMAX CRE 75',
+        publicMetadata: { cardType: 'energy', handIndex: 0,
+          targetSeat: 'actor', targetZone: 'active', isOwnerVisible: true } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'pass'
+  });
+});
+
+test('Latias, Girafarig and Trevenant have conditional positive Bench-play branches', () => {
+  const latias = rootRequest({
+    ownHand: ['Latias ex SSP 76'],
+    ownPublic: player({ active: pokemon('Shadow Rider Calyrex V CRE 74') }),
+    items: [
+      { token: 'latias', kind: 'play-card', actorPrinting: 'Latias ex SSP 76',
+        publicMetadata: { cardType: 'pokemon', handIndex: 0,
+          targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+          isOwnerVisible: true } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(latias), { kind: 'select-action', token: 'latias' });
+
+  const girafarig = rootRequest({
+    ownHand: ['Girafarig LOT 94'],
+    ownPublic: player({ active: pokemon('Shadow Rider Calyrex V CRE 74') }),
+    opponentPublic: player({ active: pokemon('Regidrago V SIT'),
+      discard: ['VS Seeker PHF 109', 'Psychic Energy SVE 5'] }),
+    items: [
+      { token: 'girafarig', kind: 'play-card', actorPrinting: 'Girafarig LOT 94',
+        publicMetadata: { cardType: 'pokemon', handIndex: 0,
+          targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+          isOwnerVisible: true } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(girafarig), {
+    kind: 'select-action', token: 'girafarig'
+  });
+
+  const trevenant = rootRequest({
+    ownHand: ['Trevenant & Dusknoir-GX SMP SM217'],
+    ownPublic: player({ active: pokemon('Shadow Rider Calyrex V CRE 74') }),
+    opponentPublic: player({ active: pokemon('Regidrago V SIT'), handCount: 5 }),
+    items: [
+      { token: 'trevenant', kind: 'play-card',
+        actorPrinting: 'Trevenant & Dusknoir-GX SMP SM217',
+        publicMetadata: { cardType: 'pokemon', handIndex: 0,
+          targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+          isOwnerVisible: true } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(trevenant), {
+    kind: 'select-action', token: 'trevenant'
+  });
+});
+
+test('Radiant Eternatus is played only when a VMAX remains plausibly in the deck', () => {
+  const radiantAction = {
+    token: 'radiant',
+    kind: 'play-card',
+    actorPrinting: 'Radiant Eternatus CRZ 105',
+    publicMetadata: { cardType: 'pokemon', handIndex: 0,
+      targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+      isOwnerVisible: true }
+  };
+  const useful = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94'), deckCount: 30, prizeCount: 6 }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(useful), {
+    kind: 'select-action', token: 'radiant'
+  });
+
+  const exhausted = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94'),
+      discard: [
+        'Shadow Rider Calyrex VMAX CRE 75',
+        'Shadow Rider Calyrex VMAX CRE 75',
+        'Shadow Rider Calyrex VMAX CRE 75',
+        'Shadow Rider Calyrex VMAX CRE 75'
+      ],
+      deckCount: 30, prizeCount: 6
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(exhausted), {
+    kind: 'select-action', token: 'pass'
+  });
+});
+
+test('Radiant Eternatus is a terminal last-use action after manual Energy and other positive actions', () => {
+  const radiantAction = {
+    token: 'radiant',
+    kind: 'play-card',
+    actorPrinting: 'Radiant Eternatus CRZ 105',
+    publicMetadata: { cardType: 'pokemon', handIndex: 0,
+      targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+      isOwnerVisible: true }
+  };
+  const energyAction = {
+    token: 'energy',
+    kind: 'play-card',
+    actorPrinting: 'Psychic Energy MEE 13',
+    targetPrinting: 'Shadow Rider Calyrex VMAX CRE 75',
+    publicMetadata: { cardType: 'energy', handIndex: 1,
+      targetSeat: 'actor', targetZone: 'active', isOwnerVisible: true }
+  };
+  const ownPublic = player({
+    active: pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+      stage: 'VMAX', energies: ['Psychic Energy MEE 13']
+    }),
+    deckCount: 30, prizeCount: 6
+  });
+  const first = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105', 'Psychic Energy MEE 13'],
+    ownPublic,
+    items: [radiantAction, energyAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(first), {
+    kind: 'select-action', token: 'energy'
+  });
+
+  const afterPreGate = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic,
+    ownTurnResources: { ...turnResources(), energyPlayedTurn: true },
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(afterPreGate), {
+    kind: 'select-action', token: 'radiant'
+  });
+});
+
+test('Climactic Gate confirmation is source-bound and probability-conditioned', () => {
+  const confirm = (source, observationOptions = {}) => promptRequest({
+    promptType: 'ConfirmPrompt',
+    source,
+    choices: [
+      { token: 'yes', kind: 'confirm', label: 'Yes' },
+      { token: 'no', kind: 'confirm', label: 'No' }
+    ],
+    publicMetadata: { selectionType: 'confirm' },
+    observation: { ownPublic: player(observationOptions) }
+  });
+  const yes = confirm(actorChoiceSource('Radiant Eternatus CRZ 105', 'Climactic Gate'),
+    { deckCount: 30, prizeCount: 6 });
+  assert.deepEqual(checkedDecision(yes), { kind: 'select-choice', token: 'yes' });
+
+  const noKnownTargets = confirm(
+    actorChoiceSource('Radiant Eternatus CRZ 105', 'Climactic Gate'),
+    {
+      deckCount: 30, prizeCount: 6,
+      discard: [
+        'Shadow Rider Calyrex VMAX CRE 75',
+        'Shadow Rider Calyrex VMAX CRE 75',
+        'Shadow Rider Calyrex VMAX CRE 75',
+        'Shadow Rider Calyrex VMAX CRE 75'
+      ]
+    });
+  assert.deepEqual(checkedDecision(noKnownTargets), {
+    kind: 'select-choice', token: 'no'
+  });
+
+  const lowProbability = confirm(
+    actorChoiceSource('Radiant Eternatus CRZ 105', 'Climactic Gate'),
+    {
+      deckCount: 1, prizeCount: 6,
+      discard: [
+        'Shadow Rider Calyrex VMAX CRE 75',
+        'Shadow Rider Calyrex VMAX CRE 75',
+        'Shadow Rider Calyrex VMAX CRE 75'
+      ]
+    });
+  assert.deepEqual(checkedDecision(lowProbability), {
+    kind: 'select-choice', token: 'no'
+  });
+
+  const wrongSource = confirm(
+    actorChoiceSource('Shadow Rider Calyrex VMAX CRE 75', 'Climactic Gate'),
+    { deckCount: 30, prizeCount: 6 });
+  assert.deepEqual(checkedDecision(wrongSource), {
+    kind: 'abstain', reasonCode: 'UNSUPPORTED_CLIMACTIC_GATE_SOURCE'
+  });
+});
+
+test('Climactic Gate accepts up to two actor-visible VMAX choices from the deck only', () => {
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Radiant Eternatus CRZ 105', 'Climactic Gate'),
+    choices: [
+      { token: 'vmax', kind: 'pokemon', printing: 'Shadow Rider Calyrex VMAX CRE 75',
+        label: 'Shadow Rider Calyrex VMAX', publicMetadata: {
+          selectionIndex: 0, selectedCount: 1, selectionType: 'pokemon',
+          ownerSeat: 'actor', targetZone: 'deck', isOwnerVisible: true
+        } },
+      { token: 'basic', kind: 'pokemon', printing: 'Shadow Rider Calyrex V CRE 74',
+        label: 'Shadow Rider Calyrex V', publicMetadata: {
+          selectionIndex: 1, selectedCount: 1, selectionType: 'pokemon',
+          ownerSeat: 'actor', targetZone: 'deck', isOwnerVisible: true
+        } },
+      { token: 'opponent-vmax', kind: 'pokemon', printing: 'Shadow Rider Calyrex VMAX CRE 75',
+        label: 'Opponent VMAX', publicMetadata: {
+          selectionIndex: 2, selectedCount: 1, selectionType: 'pokemon',
+          ownerSeat: 'opponent', targetZone: 'deck', isOwnerVisible: true
+        } }
+    ],
+    publicMetadata: {
+      minimumCount: 0,
+      maximumCount: 2,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'pokemon'
+    },
+    observation: { ownPublic: player({ deckCount: 30, prizeCount: 6 }) }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['vmax']
+  });
+});
+
+test('Climactic Gate declines a source-mismatched ChoosePokemonPrompt', () => {
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Shadow Rider Calyrex VMAX CRE 75', 'Climactic Gate'),
+    choices: [
+      { token: 'vmax', kind: 'pokemon', printing: 'Shadow Rider Calyrex VMAX CRE 75',
+        label: 'Shadow Rider Calyrex VMAX', publicMetadata: {
+          selectionIndex: 0, selectedCount: 1, selectionType: 'pokemon',
+          ownerSeat: 'actor', targetZone: 'deck', isOwnerVisible: true
+        } }
+    ],
+    publicMetadata: {
+      minimumCount: 0,
+      maximumCount: 2,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'pokemon'
+    },
+    observation: { ownPublic: player({ deckCount: 30, prizeCount: 6 }) }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'abstain', reasonCode: 'UNSUPPORTED_CLIMACTIC_GATE_SOURCE'
+  });
+});
+
+test('rank-1 core actions are actor-relative and work from physical seat one', () => {
+  const root = rootRequest({
+    seat: 1,
+    ownHand: ['Shadow Rider Calyrex V CRE 74'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94') }),
+    items: [
+      { token: 'bench-v', kind: 'play-card',
+        actorPrinting: 'Shadow Rider Calyrex V CRE 74',
+        publicMetadata: { cardType: 'pokemon', handIndex: 0,
+          targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+          isOwnerVisible: true } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(root, 1), {
+    kind: 'select-action', token: 'bench-v'
+  });
+
+  const prompt = promptRequest({
+    seat: 1,
+    promptType: 'ConfirmPrompt',
+    source: actorChoiceSource('Radiant Eternatus CRZ 105', 'Climactic Gate'),
+    choices: [
+      { token: 'yes', kind: 'confirm', label: 'Yes' },
+      { token: 'no', kind: 'confirm', label: 'No' }
+    ],
+    publicMetadata: { selectionType: 'confirm' },
+    observation: { ownPublic: player({ deckCount: 30, prizeCount: 6 }) }
+  });
+  assert.deepEqual(checkedDecision(prompt, 1), {
+    kind: 'select-choice', token: 'yes'
+  });
 });
