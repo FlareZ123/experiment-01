@@ -648,6 +648,26 @@ test('Pale Moon-GX values its unconditional delayed Knock Out and conditional En
   assert.ok(paleMoonScore(escapeOuts) < noExtraScore,
     'a visible retreat path and larger hidden hand discount the delayed-KO estimate');
 
+  for (const tool of ['Float Stone BKT 137', 'Air Balloon SSH 156']) {
+    const toolEscape = rootRequest({
+      ownPublic: player({ active: ownActive([
+        'Psychic Energy MEE 13', 'Psychic Energy MEE 13'
+      ]) }),
+      opponentPublic: player({
+        active: opponentActive({
+          retreatCost: ['Colorless', 'Colorless'],
+          tools: [tool],
+          energies: []
+        }),
+        bench: [pokemon('Dratini OBF 105')],
+        handCount: 0
+      }),
+      items: paleMoonOnly
+    });
+    assert.ok(paleMoonScore(toolEscape) < noExtraScore,
+      tool + ' is a visible escape out for the delayed-KO estimate');
+  }
+
   const immediateKnockout = rootRequest({
     ownPublic: player({ active: ownActive([
       'Psychic Energy MEE 13',

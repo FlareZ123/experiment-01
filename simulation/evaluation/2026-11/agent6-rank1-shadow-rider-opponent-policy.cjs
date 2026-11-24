@@ -571,8 +571,14 @@ function opponentCanRetreat(observation) {
   if (restrictions.cannotRetreat === true ||
       restrictions.cannotRetreatNextTurn === true ||
       restrictions.cannotRetreatWhileActive === true) return false;
-  const retreatCost = list(active.printed?.retreatCost).length;
-  return list(active.energies).length >= retreatCost;
+  const tools = list(active.tools);
+  const floatStone = tools.some(tool => /Float Stone/i.test(tool));
+  const airBalloon = tools.some(tool => /Air Balloon/i.test(tool));
+  const printedRetreatCost = list(active.printed?.retreatCost).length;
+  const effectiveRetreatCost = floatStone ? 0 :
+    Math.max(0, printedRetreatCost - (airBalloon ? 2 : 0));
+  // Count distinct attached Energy cards as a conservative payment bound.
+  return list(active.energies).length >= effectiveRetreatCost;
 }
 
 function paleMoonEscapeDiscount(observation) {
