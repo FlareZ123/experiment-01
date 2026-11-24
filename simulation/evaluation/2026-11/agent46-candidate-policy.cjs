@@ -475,6 +475,11 @@ function bestAttackForSlot(slot, view, target, options = {}) {
 }
 
 function choiceBenchIndex(choice) {
+  const metadataIndex = choice?.publicMetadata?.targetIndex ??
+    choice?.publicMetadata?.benchIndex;
+  if (Number.isSafeInteger(metadataIndex) && metadataIndex >= 0) {
+    return metadataIndex;
+  }
   const label = choice?.label ?? '';
   const match = /^(?:Your|Opponent) bench ([1-9][0-9]*)(?::|$)/i.exec(label);
   return match ? Number(match[1]) - 1 : null;
@@ -874,7 +879,7 @@ function chooseEnergyAttachment(view, prompt) {
 
   const ranked = prompt.choices.map(choice => {
     const item = choice.publicMetadata;
-    const index = item?.benchIndex;
+    const index = choiceBenchIndex(choice);
     const target = Number.isSafeInteger(index)
       ? view.ownPublic.bench[index] ?? null : null;
     const valid = choice.kind === 'energy' &&
