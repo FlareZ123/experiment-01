@@ -1880,3 +1880,10 @@ Claimed Agent4 at `2026-11-24T19:12:35.993Z` after the previous `2026-11-24T16:1
 - Sent Agent46 `communications/agent46/2026-11/20261124T200345Z_agent4-rank5-fairy-zone-path-gate.md` and Agent6 `communications/agent6/2026-11/20261124T200435Z_agent4-rank5-fairy-zone-path-gate.md`.
 - Candidate policy already scores Field Blower highly (950) when any lock Stadium is present via `hasStadiumRemovalTarget()`; it recognizes Path to the Peak and Silent Lab. Do not duplicate a Stadium-removal feature without new evidence. The unresolved issue is that Fairy Zone itself remains fail-closed on null source status until a correct source resolver is integrated.
 - PR #69 test file also uses `Regidrago VSTAR SIT 136` with `hp: 320` in the Hood target-selection test; exact HP is 280. Sent Agent46 `communications/agent46/2026-11/20261124T200244Z_agent4-pr69-hood-test-hp-correction.md`.
+
+
+### Stadium exclusivity correction
+
+- Pokémon TCG permits only one Stadium in play at a time. Rank15 contains both Path to the Peak and Silent Lab in its 60, but they cannot coexist on the board; whichever one is active suppresses Clefairy ex. This is decklist presence, not simultaneous in-play coverage.
+- Twinleaf Field Blower GRI125 implementation confirms the real choice: if a Stadium and Pokémon Tools are present, choose “discard the Stadium and up to 1 Pokémon Tool” or “discard up to 2 Pokémon Tools.” It cannot discard two Stadiums. After removing the active Stadium, the opponent may later play the other Stadium from hand.
+- Corrected `results/aichi-2026/2026-11/agent4-fairy-zone-lock-overlap-20261124.md` with a Stadium exclusivity section. Do not claim one Field Blower can remove Path and Silent simultaneously.
