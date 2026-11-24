@@ -468,15 +468,6 @@ function hasAbility(slot, name) {
     list(slot?.abilityDetails).some(ability => ability?.name === name);
 }
 
-function abilityActive(slot, name, observation) {
-  if (!hasAbility(slot, name)) return false;
-  const suppression = list(slot?.abilitySuppressions).find(item =>
-    item.abilityName === name);
-  if (!suppression || suppression.suppressed !== false) return false;
-  if (name === 'Fairy Zone' && pathLockStatus(observation) !== false) return false;
-  return true;
-}
-
 function abilitySuppressionStatus(slot, abilityName) {
   const row = list(slot?.abilitySuppressions).find(item =>
     item?.abilityName === abilityName);
@@ -1741,4 +1732,8 @@ function createPolicy({ role, seat, policyVersion, config }) {
   });
 }
 
-module.exports = { POLICY_VERSION, createPolicy };
+module.exports = {
+  POLICY_VERSION,
+  createPolicy,
+  __test: Object.freeze({ fairyZoneActive })
+};
