@@ -61,3 +61,8 @@ The Aichi lists with Fairy Zone are ranks 1, 5, and 30. The candidate's own Drag
 ## Reproduction
 
 Join exact Pokémon printing IDs in `results/aichi-2026/full-decklists.json` to `resources/cards/en/*.json` through `resources/sets/en.json`, filter to `types` containing `Dragon`, then intersect ranks with the exact suppressor card names. Keep the missing-rank set explicit.
+
+
+## Stadium exclusivity and Field Blower
+
+The Stadium overlap table reports **decklist presence**, not simultaneous in-play Stadiums. Pokémon TCG permits only one Stadium in play at a time. Rank 15 contains both Path to the Peak and Silent Lab in its 60, but they cannot coexist in play; whichever one is currently active suppresses Clefairy ex. Field Blower GRI 125 can discard the one Stadium in play and, if the player chooses the Stadium-plus-Tool mode, up to one Pokémon Tool; its alternative mode discards up to two Tools. It cannot discard two Stadiums simultaneously. After the Stadium is removed, the opponent may later play the other Stadium from hand.
