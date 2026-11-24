@@ -481,6 +481,9 @@ function searchNeedScore(view, printing, effectName = '') {
     if (regidrago && !hasMimikyu && !handHas(view, 'Mimikyu')) return 96;
     return -5;
   }
+  if (effectName === 'Climactic Gate') {
+    return hasName(printing, 'Shadow Rider Calyrex VMAX') ? 100 : -5;
+  }
   if (hasName(printing, 'Shadow Rider Calyrex VMAX')) {
     if (hasUnevolvedShadowRiderV(view) &&
         !handHas(view, 'Shadow Rider Calyrex VMAX')) return 94;
@@ -1109,6 +1112,25 @@ function scoreBasicPlay(item, view) {
   return -Infinity;
 }
 
+function knownShadowRiderVmaxCount(view) {
+  const visiblePrintings = [
+    ...ownBoard(view).map(slot => slot.printing),
+    ...view.ownHand,
+    ...view.ownPublic.discard,
+    ...(Array.isArray(view.ownPublic.lostZone) ? view.ownPublic.lostZone : [])
+  ];
+  return visiblePrintings.filter(printing =>
+    hasName(printing, 'Shadow Rider Calyrex VMAX')).length;
+}
+
+function scoreClimacticGatePlay(item, view) {
+  if (!hasName(item.actorPrinting, 'Radiant Eternatus')) return -Infinity;
+  const openBench = view.ownPublic.bench.filter(slot => !slot).length;
+  if (openBench < 2 || view.ownPublic.deckCount < 1 ||
+      knownShadowRiderVmaxCount(view) >= 4) return -Infinity;
+  return openBench >= 3 ? 120 : 60;
+}
+
 function scoreEvolutionPlay(item) {
   if (hasName(item.actorPrinting, 'Shadow Rider Calyrex VMAX') &&
       hasName(item.targetPrinting, 'Shadow Rider Calyrex V')) return 970;
@@ -1271,20 +1293,27 @@ function chooseRoot(view, request) {
   const pass = items.find(item => item.kind === 'pass');
 
   const plays = items.filter(item => item.kind === 'play-card');
+  const terminalPlays = [];
   const scoredPlays = plays.map(item => {
     const basic = scoreBasicPlay(item, view);
     const evolution = scoreEvolutionPlay(item);
     const energy = scoreEnergyPlay(item, view);
     const trainer = scoreTrainerPlay(item, view, request.publicEventReceipt);
-    const score = Math.max(basic, evolution, energy, trainer);
+    const terminal = scoreClimacticGatePlay(item, view);
+    const score = Math.max(basic, evolution, energy, trainer, terminal);
     recordPolicyAuditScore(item.token, score, 'NO_ELIGIBLE_PLAY_COMPONENT', [
       { name: 'basic-play', score: basic },
       { name: 'evolution-play', score: evolution },
       { name: 'energy-play', score: energy },
-      { name: 'trainer-play', score: trainer }
+      { name: 'trainer-play', score: trainer },
+      { name: 'terminal-climactic-gate', score: terminal }
     ]);
+    if (Number.isFinite(terminal)) {
+      terminalPlays.push({ item, score: terminal });
+      return null;
+    }
     return { item, score };
-  }).filter(row => Number.isFinite(row.score)).sort((a, b) =>
+  }).filter(row => row && Number.isFinite(row.score)).sort((a, b) =>
     b.score - a.score || a.item.token.localeCompare(b.item.token));
   if (scoredPlays.length > 0) {
     setPolicyAuditRule('ROOT_PLAY_MAX_COMPONENT_SCORE', 'SCORE_DESC_TOKEN_ASC');
@@ -1335,6 +1364,14 @@ function chooseRoot(view, request) {
       setPolicyAuditRule('ROOT_ATTACK_SCORE', 'SCORE_DESC_TOKEN_ASC');
       return { kind: 'select-action', token: scoredAttacks[0].item.token };
     }
+  }
+
+  if (terminalPlays.length > 0) {
+    terminalPlays.sort((a, b) => b.score - a.score ||
+      a.item.token.localeCompare(b.item.token));
+    setPolicyAuditRule('ROOT_CLIMACTIC_GATE_TERMINAL', 'SCORE_DESC_TOKEN_ASC');
+    recordPolicyAuditRule(terminalPlays[0].item.token, 'CLIMACTIC_GATE_ENDS_TURN');
+    return { kind: 'select-action', token: terminalPlays[0].item.token };
   }
 
   if (pass) {
