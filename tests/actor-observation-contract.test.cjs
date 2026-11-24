@@ -241,6 +241,10 @@ test('native Twinleaf SpecialCondition enum values pass strict worker-protocol v
     s.players[1].active.specialConditions=[2,0];
     s.players[0].active.pokemonPlayedTurn=1;
     s.players[1].active.pokemonPlayedTurn=1;
+    for(const player of s.players){
+      player.retreatedTurn=0;
+      player.stadiumUsedTurn=0;
+    }
     const view=actorObservation(s,seat);
     assert.deepEqual(view.ownPublic.active.specialConditions,
       seat===0?[0,1,2,3,4]:[2,0]);

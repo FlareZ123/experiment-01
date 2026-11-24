@@ -323,6 +323,8 @@ function stringArray(value) {
   if (!Array.isArray(value) || value.length > 2048 ||
       value.some(item => typeof item !== 'string' || item.length > 512)) fail('BAD_STRING_ARRAY');
 }
+// Native Twinleaf SpecialCondition values are numeric codes 0..4.
+// Retain the named form for existing worker/test fixtures, but reject other numbers.
 const SPECIAL_CONDITION_NAMES = new Set([
   'PARALYZED', 'CONFUSED', 'ASLEEP', 'POISONED', 'BURNED'
 ]);
