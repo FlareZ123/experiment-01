@@ -117,6 +117,10 @@ function auditArchive(inputs, archive) {
              row.observedRngMaterialCommitment !== commitment ||
              row.effectiveMatchOptions?.rngProtocol !== INDEPENDENT_RNG_PROTOCOL ||
              row.effectiveMatchOptions?.physicalShuffleRandomIsolation !== true ||
+             row.effectiveMatchOptions?.aichiFieldPaperShuffleRandomIsolation !== true ||
+             JSON.stringify(row.effectiveMatchOptions?.aichiFieldPaperShuffleRandomIsolationHooks) !==
+               JSON.stringify(['Gladion CIN','Hisuian Heavy Ball ASR','Marnie SSH','Iono PAL']) ||
+             row.effectiveMatchOptions?.hisuianHeavyBallPrizeShuffleCorrection !== true ||
              row.effectiveMatchOptions?.coinRandomIsolation !== true ||
              row.effectiveMatchOptions?.engineRandomIsolation !== true)) {
           throw new Error('Completed trial lacks independent RNG receipts: ' + row.trialId);
