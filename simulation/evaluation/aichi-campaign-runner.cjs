@@ -264,6 +264,11 @@ function executeCampaign(inputs, options = {}) {
         game.policyRandomIsolation === true &&
         (rngProtocol !== INDEPENDENT_RNG_PROTOCOL || (
           game.physicalShuffleRandomIsolation === true &&
+          game.aichiFieldPaperShuffleRandomIsolation === true &&
+          Array.isArray(game.aichiFieldPaperShuffleRandomIsolationHooks) &&
+          game.aichiFieldPaperShuffleRandomIsolationHooks.join('|') ===
+            'Gladion CIN|Hisuian Heavy Ball ASR|Marnie SSH|Iono PAL' &&
+          game.hisuianHeavyBallPrizeShuffleCorrection === true &&
           game.coinRandomIsolation === true &&
           game.engineRandomIsolation === true &&
           game.rngMaterialCommitment === rngMaterialDigest
@@ -338,6 +343,12 @@ function executeCampaign(inputs, options = {}) {
             'predispatch-prompt-validate',
           isolatePolicyRandomness: game.policyRandomIsolation ?? null,
           physicalShuffleRandomIsolation: game.physicalShuffleRandomIsolation ?? null,
+          aichiFieldPaperShuffleRandomIsolation:
+            game.aichiFieldPaperShuffleRandomIsolation ?? null,
+          aichiFieldPaperShuffleRandomIsolationHooks:
+            game.aichiFieldPaperShuffleRandomIsolationHooks ?? null,
+          hisuianHeavyBallPrizeShuffleCorrection:
+            game.hisuianHeavyBallPrizeShuffleCorrection ?? null,
           coinRandomIsolation: game.coinRandomIsolation ?? null,
           engineRandomIsolation: game.engineRandomIsolation ?? null,
           rngProtocol
