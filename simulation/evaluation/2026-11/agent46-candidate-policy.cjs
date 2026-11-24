@@ -506,7 +506,9 @@ function searchNeedScore(view, printing, effectName = '') {
     return psychicEnergyCount(view) < 5 ? 45 : 5;
   }
   if (hasName(printing, 'Fog Crystal')) {
-    return (!hasShadowV && !hasShadowVmax) || psychicEnergyCount(view) < 3 ? 60 : 10;
+    const missingBasicV = !hasShadowV &&
+      !handHas(view, 'Shadow Rider Calyrex V') && hasOpenBench(view);
+    return missingBasicV || psychicEnergyCount(view) < 3 ? 60 : 10;
   }
   if (hasName(printing, 'Stealthy Hood')) {
     const lock = allBoard(view).some(slot =>
