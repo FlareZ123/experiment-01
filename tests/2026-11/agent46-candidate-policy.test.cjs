@@ -1216,3 +1216,184 @@ test('Underworld Door prompt funds Mimikyu before Max Geist against Regidrago', 
     token: 'mimikyu-energy'
   });
 });
+
+
+test('Climactic Gate selects up to two Shadow Rider VMAX from its owner-visible deck prompt', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const view = observation(0, { active: vmax });
+  const req = cardPrompt(0, view, {
+    sourcePrinting: 'Radiant Eternatus PR-SW 134',
+    effectName: 'Climactic Gate',
+    printings: [
+      'Shadow Rider Calyrex VMAX CRE 75',
+      'Shadow Rider Calyrex VMAX CRE 75',
+      'Psychic Energy SVE 13'
+    ],
+    minimumCount: 0,
+    maximumCount: 2
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choices',
+    tokens: ['card-0', 'card-1']
+  });
+});
+
+test('Radiant Eternatus Climactic Gate is a terminal play after non-ending setup and abilities', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    energies: ['Psychic Energy SVE 13'],
+    abilities: ['Underworld Door'],
+    suppression: false
+  });
+  const mimikyu = pokemon({
+    printing: 'Mimikyu GRI 58',
+    name: 'Mimikyu',
+    hp: 70
+  });
+  const view = observation(0, {
+    active: vmax,
+    bench: [mimikyu],
+    ownHand: ['Radiant Eternatus PR-SW 134', 'Psychic Energy SVE 13']
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'radiant',
+        kind: 'play-card',
+        actorPrinting: 'Radiant Eternatus PR-SW 134',
+        publicMetadata: {
+          targetSeat: 'actor',
+          targetZone: 'bench',
+          isOwnerVisible: true
+        }
+      },
+      {
+        token: 'underworld',
+        kind: 'use-ability',
+        actorPrinting: vmax.printing,
+        publicMetadata: {
+          abilityName: 'Underworld Door',
+          sourceZone: 'active',
+          sourceSeat: 'actor',
+          sourceIndex: 0
+        }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'underworld'
+  });
+});
+
+test('Radiant Eternatus is deferred while a payable attack remains', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    energies: Array(3).fill('Psychic Energy SVE 13'),
+    attacks: [attack('Max Geist', ['Colorless', 'Colorless', 'Colorless'], '10+')]
+  });
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT 136',
+    name: 'Regidrago VSTAR',
+    hp: 280,
+    types: ['Dragon'],
+    subtypes: ['VSTAR']
+  });
+  const view = observation(0, {
+    active: vmax,
+    opponentActive: regidrago,
+    ownHand: ['Radiant Eternatus PR-SW 134']
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'radiant',
+        kind: 'play-card',
+        actorPrinting: 'Radiant Eternatus PR-SW 134',
+        publicMetadata: {
+          targetSeat: 'actor',
+          targetZone: 'bench',
+          isOwnerVisible: true
+        }
+      },
+      {
+        token: 'max-geist',
+        kind: 'attack',
+        actorPrinting: vmax.printing,
+        attackName: 'Max Geist',
+        publicMetadata: { attackCostPayable: true }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'max-geist'
+  });
+});
+
+test('Radiant Eternatus is selected only when the terminal Gate has Bench and deck capacity', () => {
+  const view = observation(0, {
+    ownHand: ['Radiant Eternatus PR-SW 134']
+  });
+  const available = request(0, view, {
+    actions: [
+      {
+        token: 'radiant',
+        kind: 'play-card',
+        actorPrinting: 'Radiant Eternatus PR-SW 134',
+        publicMetadata: {
+          targetSeat: 'actor',
+          targetZone: 'bench',
+          isOwnerVisible: true
+        }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(available), {
+    kind: 'select-action',
+    token: 'radiant'
+  });
+
+  const occupied = pokemon({
+    printing: 'Mimikyu GRI 58',
+    name: 'Mimikyu',
+    hp: 70
+  });
+  const fullBench = observation(0, {
+    bench: [occupied, occupied, occupied, occupied, occupied],
+    ownHand: ['Radiant Eternatus PR-SW 134']
+  });
+  const blocked = request(0, fullBench, {
+    actions: [
+      {
+        token: 'radiant',
+        kind: 'play-card',
+        actorPrinting: 'Radiant Eternatus PR-SW 134',
+        publicMetadata: {
+          targetSeat: 'actor',
+          targetZone: 'bench',
+          isOwnerVisible: true
+        }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(blocked), {
+    kind: 'select-action',
+    token: 'pass'
+  });
+});
