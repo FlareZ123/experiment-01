@@ -57,6 +57,7 @@ const {snapshotPrizeCardIdentities,invalidateAfterRootHiddenPrizeIngress,
 const {beforeGladionRootPrizeChoice,afterGladionRootPrizeChoice} =
   require('./gladion-root-prize-choice-evidence.cjs');
 const {installHisuianHeavyBallPrizeShuffleHook} = require('./hisuian-heavy-ball-prize-hook.cjs');
+const {installAichiPaperShuffleRngHook} = require('./aichi-paper-shuffle-rng-hook.cjs');
 const {installPendingEndTurnSwitchCleanup} = require('./pending-end-turn-switch-cleanup.cjs');
 const {installTerminalAttackKoBeforeEndTurnHook} =
   require('./terminal-attack-ko-before-endturn-hook.cjs');
@@ -583,6 +584,7 @@ function runMatch(request) {
   let restoreElectrodeGXEnergyHook;
   let restoreRedeemableTicketPaperOrderHook;
   let restoreHisuianHeavyBallPrizeShuffleHook;
+  let restoreAichiPaperShuffleRngHook;
   let pendingEndTurnSwitchCleanupHook;
   let terminalAttackKoBeforeEndTurnHook;
   let restoreApexPrizeWindowPolicy;
@@ -663,9 +665,6 @@ function runMatch(request) {
     initializeCards();
     if (request.redeemableTicketPaperOrderCorrection === true) {
       restoreRedeemableTicketPaperOrderHook = installRedeemableTicketPaperOrderHook();
-    }
-    if (request.hisuianHeavyBallPrizeShuffleCorrection === true) {
-      restoreHisuianHeavyBallPrizeShuffleHook = installHisuianHeavyBallPrizeShuffleHook();
     }
     if (request.mimikyuApexCopycatCompatibility === true) {
       restoreMimikyuNonGxCopycatHook = installMimikyuNonGxCopycatHook();
@@ -853,6 +852,19 @@ function runMatch(request) {
     });
     store.state.gameSettings = settings;
     store.state.rules = settings.rules;
+    if (request.hisuianHeavyBallPrizeShuffleCorrection === true || independentStreams !== null) {
+      restoreHisuianHeavyBallPrizeShuffleHook = installHisuianHeavyBallPrizeShuffleHook({
+        rootStore: store,
+        randomBySeat: independentStreams ? physicalShuffleRandomBySeat : null
+      });
+    }
+    if (independentStreams !== null) {
+      restoreAichiPaperShuffleRngHook = installAichiPaperShuffleRngHook({
+        engine,
+        rootStore: store,
+        randomBySeat: physicalShuffleRandomBySeat
+      });
+    }
     request.onRootStoreCreated?.(store);
     if (request.paperTerminalAttackKoCorrection === true) {
       const {EndTurnEffect}=engine('game/store/effects/game-phase-effects');
@@ -2392,6 +2404,12 @@ function runMatch(request) {
       physicalShuffleRandomIsolation: independentStreams !== null ||
         request.isolatePhysicalShuffleRandomness === true,
       physicalShuffleRandomIsolationAfterSetup: isolateShuffleAfterSetup,
+      aichiFieldPaperShuffleRandomIsolation: independentStreams !== null,
+      ...(independentStreams ? {
+        aichiFieldPaperShuffleRandomIsolationCards: [
+          'Gladion CIN', 'Hisuian Heavy Ball ASR', 'Marnie SSH', 'Iono PAL'
+        ]
+      } : {}),
       coinRandomIsolation: independentStreams !== null,
       engineRandomIsolation: independentStreams !== null,
       ...(independentStreams ? { rngMaterialCommitment: rngMaterialDigest } : {}),
@@ -2447,6 +2465,7 @@ function runMatch(request) {
     if (restoreSnorlaxRetreatStartHook) restoreSnorlaxRetreatStartHook();
     if (restoreElectroRainDamageHook) restoreElectroRainDamageHook();
     if (restoreElectrodeGXEnergyHook) restoreElectrodeGXEnergyHook();
+    if (restoreAichiPaperShuffleRngHook) restoreAichiPaperShuffleRngHook();
     if (restoreHisuianHeavyBallPrizeShuffleHook) restoreHisuianHeavyBallPrizeShuffleHook();
     if (terminalAttackKoBeforeEndTurnHook) terminalAttackKoBeforeEndTurnHook.restore();
     if (restoreSpentGxCopyPolicy) restoreSpentGxCopyPolicy();
