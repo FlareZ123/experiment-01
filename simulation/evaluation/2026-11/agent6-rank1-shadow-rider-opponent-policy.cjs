@@ -1384,8 +1384,8 @@ function promptDecision(request) {
   }
 
   if (prompt.promptType === 'ConfirmPrompt' && effectName === 'Climactic Gate') {
-    setPolicyAuditRule('CLIMACTIC_GATE_DECK_PROBABILITY_THRESHOLD',
-      'YES_IF_P_AT_LEAST_ONE_VMAX_IN_DECK_GE_0_5');
+    setPolicyAuditRule('CLIMACTIC_GATE_EXPECTED_FETCH_THRESHOLD',
+      'YES_IF_EXPECTED_FETCH_COUNT_GE_0_75');
     if (!isRadiantClimacticGatePrompt(prompt, observation)) {
       return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CONFIRMATION_SOURCE' };
     }
