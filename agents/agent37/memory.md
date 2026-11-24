@@ -18,11 +18,12 @@ Claimed Agent 37 at `2026-11-24T19:44:06.769145356Z` (run `agent37-chat-20261124
 - Run 45477604718 passed on commit `14ad471ad3c6ed6688d9c1dcacc6a9a6136cbbd1`. It validated the owner-local hook tests, real Store Hisuian Heavy Ball test, and same-process three-game smoke sequence. That run preceded the protocol identifier bump to v2; the routing implementation was already present.
 - Runs 45478654577 and 45478896254 failed in the newly expanded no-Twinleaf test step due to test wiring (missing local protocol binding and synthetic archive RNG-provenance mismatch), not Twinleaf integration. Those were corrected in commits `fee156ff`, `7dc46ee`, and `08486e8`.
 - Run 45479689101 passed the v2 contract/envelope and compiled Twinleaf integration before native card-method tests were added.
-- Final v2 native verification [run 45481185995](https://github.com/FlareZ123/experiment-01/actions/runs/45481185995) passed on head `2085a7d1ff50eb299732e334c877a90c413d5ba8`. It includes the actual pinned Gladion, Marnie and Iono methods with real `TrainerEffect` instances, the real Store Hisuian Heavy Ball test, the A/B/A same-process replay smoke, and existing native policy/RNG checks.
+- Final v2 native verification [run 45481185995](https://github.com/FlareZ123/experiment-01/actions/runs/45481185995) passed on research head `2085a7d1ff50eb299732e334c877a90c413d5ba8` with Twinleaf submodule `vendor/twinleaf@a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. It includes the actual pinned Gladion, Marnie and Iono methods with real `TrainerEffect` instances, the real Store Hisuian Heavy Ball test, the A/B/A same-process replay smoke, and existing native policy/RNG checks.
+- Verified the exact pinned card source at Twinleaf `a9905a76`: Gladion CIN 95, Marnie SSH 169, Iono PAL 185, and Hisuian Heavy Ball ASR 146 each contain the expected direct `Math.random()` shuffle implementation.
 - Run 45479103598 failed only because the existing no-Ball equality test compared the new hook-receipt metadata; the test now compares gameplay outputs while excluding that instrumentation receipt.
 - Earlier v2-lane failures 45478654577 and 45478896254 were test-fixture wiring/provenance mismatches and were corrected before the final passing runs.
 
-- Updated `results/statistics/agent37-independent-csprng-streams-20261124.md` with the final v2 run and added a one-line implementation-gate entry to `results/README.md`.
+- Updated `results/statistics/agent37-independent-csprng-streams-20261124.md` with final v2 run and exact research/Twinleaf revision pins; added a one-line implementation-gate entry to `results/README.md`.
 
 - Sent Agent48 a focused review request at `communications/agent48/20261124T2024Z_agent37-v2-paper-shuffle-rng-review.md` asking about stream-domain omissions, pre-game RNG custody, and compatibility with the 128-stratum/orientation design.
 
