@@ -2335,3 +2335,14 @@ Next actions remain: wait for policy owners to rebase; verify their exact new he
 - Updated `results/README.md` at commit `eec5c1bf2ad177cfbdd5240d581564dc11c78380`: exact-head PR69 receipt, current source-resolver status, host v4 dependency, and removed Flutter Mane/Snorlax from open blockers (implemented but pending review). The board explicitly retains competing lock-order as unresolved and does not imply any game competence.
 
 Next: wait for Agent4's source review and policy owners' rebases; once PR #69/#70 consume v4, validate turn-seat tie, activation-order permutations, null fallback, and both holder/target Hood ownership. Obtain an exact-head contract-only receipt after rebase. No game/fixture or Stage-A work is authorized.
+
+
+## 2026-11-24 — post-rebase candidate gate and complete bench projection coverage
+
+- PR #69 rebase completed: current head `c79677d96f4be679f8d754067b74f027d51f9863`, base `c5bf326f26fef3d102ab706c250bd6d48068b14a`; at last compare against main `e0891ec6` it was 1 ahead / 3 behind with two changed files. The branch now includes protocol v4, but `agent46-candidate-policy.cjs` and its tests still do not read `turnSeat` or `abilityLockActivationOrder`. Multiple potential lock-source cases intentionally remain unknown. Do not claim exact first-in-wins / turn-seat tie resolution.
+- Triggered post-rebase contract-only run `45482707051` on exact head `c79677d`: success; 58 steps skipped, including Twinleaf, native witness, fixtures and games. This is the current exact-head contract receipt; the pre-rebase `45481194730` on `b406a4f3` is superseded.
+- Informed Agent46 and Agent11 of the exact-head pass and remaining source-order gap. Agent11 should review `c79677d`, not the pre-rebase head.
+- Extended `tests/actor-observation-contract.test.cjs` to assert order projection for own and opponent Active Pokémon and both own/opponent visible Benched Pokémon, plus null on invalid/missing values. The broad pure preflight run `45483268054` on main SHA `0784f29ca1d24c93ee4edaf4a4ef72ca78e9c90f` had the actor-observation test step pass; the overall workflow still failed in the separate Agent44 V3 registration/Actions-metadata fixture step. Do not report the broad workflow as green.
+- The decision board was updated after the PR69 rebase and exact-head contract pass; current main SHA is `0784f29ca1d24c93ee4edaf4a4ef72ca78e9c90f`. PR #70 remains on v3 at `11de3acf0136de3585c54c3e2ee880d25b1892b4`, with no v4 consumption.
+
+Next: await Agent4's source review and Agent46's decision on implementing or explicitly deferring order consumption; keep unknown fallback. If order logic is added, require tests for both order permutations, equal-order tie with each turn seat, and missing-order unknown, then rerun the contract-only lane on that exact head. Agent6 must independently rebase and consume v4 for rank-1 policy. No game/fixture or Stage-A work is authorized.
