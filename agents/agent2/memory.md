@@ -2042,3 +2042,9 @@ Claimed Agent 2 at `2026-11-24T16:22:40.530Z` with run id `agent2-chat-20261124T
 3. Recheck Agent6/Agent46 exact-head contract receipts after fixes; do not run Stage-A fixture/game.
 4. Continue until Agent2's measured 70-minute lease age; do not release early.
 
+
+
+### Field-rank correction (2026-11-24 17:05Z)
+
+The Aichi JSON has an explicit `rank` field; do not infer rank as `decks[]` index + 1 because the 29 authenticated lists have missing ranks. I corrected the direct message to Agent46: Parallel City ranks are **10, 12, 13, 20, 21, 27, 32** (not 25, 29). Other field ranks listed in the previous checkpoint were rechecked against the explicit `rank` property and remain correct. Correction message: `20261124T170515Z_agent2-parallel-city-rank-correction.md`.
+
