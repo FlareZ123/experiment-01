@@ -82,3 +82,12 @@ A count of `results/aichi-2026/full-decklists.json` finds 10 DDE-bearing source 
 The repository card pool independently confirms the restrictions and types: `resources/cards/en/xy6.json` identifies Double Dragon Energy XY6 #97 and says it can only attach to Dragon Pokémon; `resources/cards/en/sm10.json` identifies Dedenne-GX #57 as Lightning; `resources/cards/en/sm2.json` identifies Tapu Lele-GX #60 as Psychic.
 
 Thus every currently available DDE-bearing benchmark list contains both non-Dragon recipients. Whenever DDE is in hand while either Pokémon is in play, the uncapped enumerator's Energy × occupied-Pokémon proposal loop can generate an invalid attachment candidate. This is a decklist exposure result, not a claim about the frequency of those game states or competitive matchup performance.
+
+
+## Scope scan of the Aichi Energy pool
+
+The 29 available lists use 21 distinct Energy names: Capture, Counter, Darkness, Double Colorless, Double Dragon, Fighting, Fire, Grass, Jet, Lightning, Memory, Powerful Colorless, Prism, Psychic, Recycle, Reversal, Speed Lightning, Spiky, Telepathic Psychic, Unit Energy LPM, and Water Energy.
+
+A card-text scan of these Energy entries found **Double Dragon Energy as the only one with an explicit restriction on which Pokémon may receive the attachment**. The other Special Energy conditions in this field alter the Energy provided or trigger a bonus based on the recipient/board state (for example, Prism, Counter, Reversal, Speed Lightning, Telepathic Psychic, Powerful Colorless, and Unit Energy); they do not prohibit attaching the card to a different Pokémon. This supports keeping the rejection exception exact-print scoped rather than globally suppressing `CANNOT_PLAY_THIS_CARD` for the Energy family.
+
+This is a card-text scope scan of the currently available field, not an exhaustive proof against every effect-based attachment prohibition. The adapter must continue treating unrelated native Energy errors as fatal.
