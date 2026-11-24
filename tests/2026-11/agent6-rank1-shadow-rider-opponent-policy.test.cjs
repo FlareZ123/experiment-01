@@ -598,7 +598,7 @@ test('Pale Moon-GX values its unconditional delayed Knock Out and conditional En
   });
   const items = [
     { token: 'pale-moon', kind: 'attack', attackName: 'Pale Moon-GX' },
-    { token: 'max-geist', kind: 'attack', attackName: 'Max Geist' },
+    { token: 'night-watch', kind: 'attack', attackName: 'Night Watch' },
     { token: 'pass', kind: 'pass' }
   ];
 
@@ -614,9 +614,9 @@ test('Pale Moon-GX values its unconditional delayed Knock Out and conditional En
     items
   });
   const noExtraScore = paleMoonScore(noExtra);
-  const maxGeistScore = policy.decideWithAudit(noExtra).policyAudit.evaluations
-    .find(row => row.token === 'max-geist')?.score;
-  assert.ok(noExtraScore > maxGeistScore,
+  const nightWatchScore = policy.decideWithAudit(noExtra).policyAudit.evaluations
+    .find(row => row.token === 'night-watch')?.score;
+  assert.ok(noExtraScore > nightWatchScore,
     'the unconditional delayed Knock Out must be valued without the extra-Energy clause');
 
   const dimensionValleyExtra = rootRequest({

@@ -607,13 +607,13 @@ function scoreAttack(item, request) {
     const trapped = restrictions.cannotRetreat === true ||
       restrictions.cannotRetreatNextTurn === true ||
       restrictions.cannotRetreatWhileActive === true;
-    const delayedKoBonus = Math.max(20, 60 - paleMoonEscapeDiscount(observation));
+    const delayedKoBonus = Math.max(15, 40 - paleMoonEscapeDiscount(observation));
     const extraPsychic = paleMoonHasExtraPsychicEnergy(observation);
     const energyDiscardBonus = extraPsychic ?
-      Math.min(15, list(opponent?.energies).length * 5) : 0;
-    // Immediate lethal attacks retain priority; this cap keeps the delayed
-    // effect valuable without outranking a confirmed Max Geist knockout.
-    return Math.min(179, 110 + delayedKoBonus + energyDiscardBonus + (trapped ? 5 : 0));
+      Math.min(12, list(opponent?.energies).length * 4) : 0;
+    // The unconditional delayed Knock Out is valuable, but an immediate
+    // Night Watch knockout should remain ahead of this delayed threat.
+    return Math.min(143, 90 + delayedKoBonus + energyDiscardBonus + (trapped ? 5 : 0));
   }
   if (name === 'Eon Blade') {
     const damage = 200 * psychicMultiplier;
