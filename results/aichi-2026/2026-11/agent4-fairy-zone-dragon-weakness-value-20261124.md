@@ -101,3 +101,8 @@ All three Aichi lists with Fairy Zone (ranks 1, 5, 30) also contain Field Blower
 | Aichi rank 30 Lillie's Clefairy | 3 | 0 | 0 | 3 |
 
 In rank 1, both decks have a Dragon-type Radiant Eternatus and Fairy Zone; only the candidate has Stealthy Hood. The candidate can therefore protect its own Radiant Eternatus from the opponent's Fairy Zone while its own Fairy Zone changes the opponent's unprotected Radiant Eternatus to Psychic ×2. The opponent's Field Blower can remove the candidate's Hood, so timing remains relevant. Ranks 5 and 30 have no Dragon target in their own lists but can still target the candidate's Radiant Eternatus.
+
+
+### Opponent Fairy Zone activation is Stadium-dependent in rank 5
+
+Rank 5 Mew Genesect contains two Path to the Peak and one Field Blower. While Path to the Peak is active, it suppresses its own Lillie's Clefairy ex (a Rule Box Pokémon), so rank 5's Fairy Zone is not live. Its Field Blower can remove Path to the Peak and re-enable Fairy Zone. Ranks 1 and 30 have no Path to the Peak or Silent Lab in their exact lists. Thus the candidate's Radiant Eternatus vulnerability to rank 5 Fairy Zone is conditional on Stadium state and should be evaluated dynamically, not inferred from the Clefairy printing alone.
