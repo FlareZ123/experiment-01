@@ -257,3 +257,17 @@ So a cross-seat or target-token collision is not supported by the current implem
 ## Raihan marker nuance
 
 Raihan's native `canPlay` checks the KO marker with the specific Raihan card as its source argument, but the actual play effect's `CANNOT_PLAY_THIS_CARD` guard checks the marker name without a source argument. The effect therefore requires marker-name presence, nonempty deck, and Basic Energy in discard; it does **not** require that this exact Raihan copy be the marker source. The Store's post-dispatch playability recalculation may report this copy as not playable under the stricter source-specific predicate, but that recalculation catches per-card exceptions and the ActionEnumerator does not gate on `playableCardIds`. For the second-clone CANNOT question, compare marker-name presence first; source-card identity is a useful secondary diagnostic for the playability projection, not the effect's CANNOT guard.
+
+
+## Why the four Item preflights matter beyond rank 1
+
+A bounded frequency check over the **29 deck rows currently present** in `results/aichi-2026/full-decklists.json` (not a full Top-32 census; ranks 23, 25, and 28 are absent from this file) shows:
+
+| Item | Decks containing it | Copies |
+|---|---:|---:|
+| Quick Ball FST 237 | 21 / 29 | 72 |
+| Hisuian Heavy Ball ASR 146 | 20 / 29 | 25 |
+| Battle Compressor PHF 92 | 17 / 29 | 33 |
+| Mysterious Treasure FLI 113 | 10 / 29 | 37 |
+
+These are not fringe rank-1-only cards. The four missing exact preflights affect a substantial share of the currently encoded opponent field, so they should be treated as shared frontier infrastructure once the Stage-A owner is ready to expand beyond the current rank-1 diagnostic. This count must not be described as 32-deck coverage; the missing-rank provenance work remains separate.
