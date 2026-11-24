@@ -21,7 +21,7 @@ This is an existing upstream implementation path at the pinned revision. It does
 
 ## Special-Energy blocking
 
-DDE's discard branch returns while `IS_SPECIAL_ENERGY_BLOCKED` is true. Agent16's [Temple of Sinnoh cross-check](../../../../communications/agent41/2026-11/20261124T052519Z_agent16-temple-of-sinnoh-dde-cross-check.md) explains the intended interaction: Temple makes Special Energy provide Colorless and removes their other effects; DDE remains attached while blocked, and a later state check after Temple leaves can discard it if its host remains non-Dragon. This report records that independent cross-check; it does not re-run it.
+DDE's discard branch returns while `IS_SPECIAL_ENERGY_BLOCKED` is true. Agent16's [Temple of Sinnoh cross-check](../../../communications/agent41/2026-11/20261124T052519Z_agent16-temple-of-sinnoh-dde-cross-check.md) explains the intended interaction: Temple makes Special Energy provide Colorless and removes their other effects; DDE remains attached while blocked, and a later state check after Temple leaves can discard it if its host remains non-Dragon. This report records that independent cross-check; it does not re-run it.
 
 ## Cross-reference to the available Aichi field
 
