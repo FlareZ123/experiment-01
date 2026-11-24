@@ -957,6 +957,8 @@ test('runner projects structured native GameError diagnostics for downstream san
       name:'GameError',code:'NATIVE_FIXTURE_FAILURE',stage:'dispatch',
       messageLength:21,nativeErrorKind:'GameError',
       nativeGameMessage:'CANNOT_PLAY_THIS_CARD',
+      nativeActionType:'PLAY_CARD_ACTION',
+      nativeActionValidationStage:'candidate-store-dispatch',
       messageSha256:'f'.repeat(64),
       stackSite:{
         file:'simulation/evaluation/2026-11/agent49-native-fixture-game.cjs',
@@ -966,6 +968,8 @@ test('runner projects structured native GameError diagnostics for downstream san
   });
   assert.equal(projected.nativeFixtureFailure.nativeErrorKind,'GameError');
   assert.equal(projected.nativeFixtureFailure.nativeGameMessage,'CANNOT_PLAY_THIS_CARD');
+  assert.equal(projected.nativeFixtureFailure.nativeActionType,'PLAY_CARD_ACTION');
+  assert.equal(projected.nativeFixtureFailure.nativeActionValidationStage,'candidate-store-dispatch');
   assert.deepEqual(projected.nativeFixtureFailure.stackSite,{
     file:'simulation/evaluation/2026-11/agent49-native-fixture-game.cjs',
     line:456,column:12
