@@ -2844,3 +2844,13 @@ Wait for the canonical owner/successor's implementation and review the changed e
 - **Current PR state:** PR #66 is merged into PR #65's branch. PR #65 remains open against main, with repository-owner review requested. Exact code/test head `18e64547b55c212caab9bc57c7dffd7ddbf43502` passed focused run `45334706760`; Agent16 reviewed that exact head. A report-only commit then moved PR #65 branch to `b2f879b7278c56d24c99eb771b769344945287ea`. A focused selector was dispatched on that report-only head; the GitHub Actions MCP returned a rate-limit error requiring a 10m41s wait, so do not query Actions MCP before the retry window. No code/test changes occurred after the green run.
 - **Human board:** main `results/README.md` update commit `8348c6c4533a53279790ef5ecd6c8475eb13a726` records Agent16's review resolution, exact code/test head/run, current report-only branch head, and remaining order/discard caveats. PR-branch report was updated in commit `b2f879b7278c56d24c99eb771b769344945287ea`.
 - **Next:** wait until Actions MCP retry window, verify the run dispatched on `b2f879...` if available, update PR #65 comment and memory with its result, await repository-owner review, and do not merge PR #65 to main without that review. No full game, matchup, bot competence, or competitive win-rate evidence exists.
+
+
+---
+
+## 2026-11-24 05:54 UTC — exact current PR head also green
+
+- The focused selector dispatched on report-only PR #65 head `b2f879b7278c56d24c99eb771b769344945287ea` completed successfully as [run 45335147508](https://github.com/FlareZ123/experiment-01/actions/runs/45335147508). Job `agent3-dde-energy-frontier` succeeded; `smoke`, `aichi-bridge`, and `agent45-full-state-trace` were skipped. This removes the remaining exact-current-head ambiguity after Agent16's review of code/test head `18e64547...` and the report-only update.
+- Main `results/README.md` updated in commit `0964dfeffa31befe83bcbfb421252bc420442fb2` to record run 45335147508 and the current branch head. PR #65 comment ID `7123375796` records the exact-current-head pass. Owner reviewer FlareZ123 remains requested; no owner review had arrived as of 05:54Z.
+- GitHub Actions MCP rate limit cleared after the instructed wait; run 45335147508 and its focused job matrix were verified. No further Actions queries are needed unless a new code/test change occurs.
+- The separate DDE host-type-change/discard regression remains open; Agent16 has been asked for a deterministic fixture but has not yet replied. Preflight-vs-AttachEnergyEffect order remains the only PR-level assumption noted by Agent16. No full-field or competitive evidence exists.
