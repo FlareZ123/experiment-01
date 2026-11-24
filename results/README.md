@@ -14,6 +14,7 @@ A strict international Expanded-vs-Expanded comparison is a separate secondary e
 - **Exact Aichi source lists:** 29/32 authenticated; ranks **23, 25, and 28** remain unavailable.
 - **Physical-copy certification:** 0/32 independently verified under the current provenance audit. This is a separate status, not a prerequisite for using an authenticated original list as a simulator input.
 - **Benchmark source-list inputs:** 29/32 exact original Aichi name/count sixties authenticated; ranks **23, 25, and 28** remain unavailable. Use the 29 unchanged lists for simulator research with their source and print uncertainty attached.
+- **Twinleaf source-ID resolution:** all 29 available original lists now resolve to pinned Twinleaf card IDs and pass its 60-card structural construction check under explicit research-side mapping permissions. This is not paper-legality, physical-copy, full card-effect, policy-competence, or matchup evidence; see [Agent43's Japanese-promo and source-mapping report](aichi-2026/2026-11/agent43-japanese-extra-promo-mechanics-20261114.md) and the completed mapping step in [run 45373589200](https://github.com/FlareZ123/experiment-01/actions/runs/45373589200).
 - **Qualified competitive benchmark matchups:** 0/32.
 - **Demonstrated 99.5% field win rate:** none.
 - **Current leading hypothesis:** Hood Shield Shadow Rider v1, not nominated and not proven strongest.
@@ -22,7 +23,7 @@ These are separate status dimensions: source-list identity, physical-copy proven
 
 ## Aichi field — all 32 source ranks
 
-The primary benchmark uses the unchanged original Japanese Extra source inventories. The 24 English Expanded diagnostic reconstructions are secondary artifacts and must not replace the primary source lists. Physical-copy certification remains a separate provenance audit and is not required to simulate an authenticated source list. Every available rank currently has **no qualified competitive benchmark matchup result**.
+The primary benchmark uses the unchanged original Japanese Extra source inventories. The 24 English Expanded diagnostic reconstructions are secondary artifacts and must not replace the primary source lists. All 29 available original lists now pass pinned Twinleaf ID/60-card structural resolution with explicit research-side mapping permissions; this does not certify every card effect. Physical-copy certification remains a separate provenance audit and is not required to simulate an authenticated source list. Every available rank currently has **no qualified competitive benchmark matchup result**.
 
 | Rank | Source status | Matchup outcome |
 |---:|---|---|
