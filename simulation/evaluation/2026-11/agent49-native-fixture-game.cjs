@@ -455,11 +455,23 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
     }
     return null;
   };
+  const nativeGameMessageValues=new Set(
+    native?.GameMessage&&typeof native.GameMessage==='object'?
+      Object.values(native.GameMessage).filter(value=>
+        typeof value==='string'&&/^[A-Z0-9_]{1,128}$/.test(value)
+      ):[]);
   const redactError=error=>{
     const message=String(error?.message??error??'native fixture failure');
+    const isNativeGameError=typeof native?.GameError==='function'&&
+      error instanceof native.GameError;
+    const nativeGameMessage=isNativeGameError&&
+      typeof error?.message==='string'&&nativeGameMessageValues.has(error.message)?
+        error.message:null;
     const stackSite=projectSafeStackSite(error);
     return {
-      name:error?.name??'Error',
+      name:isNativeGameError?'GameError':error?.name??'Error',
+      ...(isNativeGameError?{nativeErrorKind:'GameError'}:{}),
+      ...(nativeGameMessage?{nativeGameMessage}:{}),
       messageSha256:sha256Json({message}),
       messageLength:message.length,
       ...(stackSite?{stackSite}:{})
@@ -697,7 +709,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
     const summary={};
     for(const key of ['stage','code','actionOrdinal','actingSeat','phaseBefore',
       'turnBefore','pendingPromptType','actionName','actionPayloadSha256',
-      'name','messageSha256','messageLength','stackSite']){
+      'name','nativeErrorKind','nativeGameMessage','messageSha256','messageLength','stackSite']){
       const value=failure[key];
       if(value===undefined||value===null)continue;
       if(key==='stage'&&typeof value==='string'&&/^[a-z0-9-]{1,64}$/.test(value))summary[key]=value;
@@ -710,6 +722,9 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
       else if(['actionPayloadSha256','messageSha256'].includes(key)&&
         typeof value==='string'&&/^[0-9a-f]{64}$/i.test(value))summary[key]=value;
       else if(key==='name'&&typeof value==='string'&&/^[A-Za-z0-9_.-]{1,64}$/.test(value))summary[key]=value;
+      else if(key==='nativeErrorKind'&&value==='GameError')summary[key]=value;
+      else if(key==='nativeGameMessage'&&typeof value==='string'&&nativeGameMessageValues.has(value))
+        summary[key]=value;
       else if(key==='stackSite'&&value&&typeof value==='object'&&
         typeof value.file==='string'&&
         /^(?:simulation|vendor\/twinleaf)\/[A-Za-z0-9_.\/-]{1,240}$/.test(value.file)&&
