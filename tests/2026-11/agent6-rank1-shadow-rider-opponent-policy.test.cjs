@@ -3276,3 +3276,87 @@ test('Field Blower chooses the empty selection when no opponent Pokémon has a T
     kind: 'select-choice', token: 'empty'
   });
 });
+
+
+test('Mysterious Treasure least-bad discard preserves a singleton Shadow Rider V', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Mysterious Treasure FLI 113', 'Mysterious Treasure'),
+    choices: [
+      { token: 'rider-v', kind: 'card', printing: 'Shadow Rider Calyrex V CRE 74',
+        label: 'Shadow Rider Calyrex V', publicMetadata: { sourceZone: 'hand' } },
+      { token: 'psychic', kind: 'card', printing: 'Psychic Energy MEE 13',
+        label: 'Psychic Energy', publicMetadata: { sourceZone: 'hand' } }
+    ],
+    publicMetadata: {
+      sourceZone: 'hand', minimumCount: 1, maximumCount: 1,
+      allowCancel: false, isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: [
+        'Mysterious Treasure FLI 113',
+        'Shadow Rider Calyrex V CRE 74',
+        'Psychic Energy MEE 13'
+      ]
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['psychic']
+  });
+});
+
+test('Field Blower does not spend a Tool-only turn while global Tool effects are disabled', () => {
+  const request = rootRequest({
+    ownHand: ['Field Blower GRI 125'],
+    ownPublic: player({
+      active: pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+        stage: 'VMAX', abilities: ['Underworld Door']
+      })
+    }),
+    opponentPublic: player({
+      active: pokemon('Regidrago V SIT', {
+        tools: ['Stealthy Hood UNB 186']
+      }),
+      stadiumAndToolHaveNoEffectTurnsRemaining: 1
+    }),
+    items: [
+      { token: 'blower', kind: 'play-card', actorPrinting: 'Field Blower GRI 125',
+        publicMetadata: { cardType: 'trainer', handIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action', token: 'pass'
+  });
+});
+
+test('Field Blower declines opponent Tool targets while Tool effects are disabled', () => {
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Field Blower GRI 125', 'Field Blower'),
+    choices: [
+      { token: 'opponent-tool', kind: 'pokemon', printing: 'Garbodor LTR 68',
+        label: 'Garbodor',
+        publicMetadata: { selectionIndex: 0, ownerSeat: 'opponent',
+          targetZone: 'bench', isOwnerVisible: true, benchIndex: 0 } },
+      { token: 'empty', kind: 'empty-selection', label: 'Select none' }
+    ],
+    publicMetadata: {
+      selectionType: 'pokemon', minimumCount: 0, maximumCount: 2,
+      allowCancel: false, isSecret: false
+    },
+    observation: {
+      ownPublic: player({}),
+      opponentPublic: player({
+        bench: [pokemon('Garbodor LTR 68', {
+          abilities: ['Garbotoxin'], tools: ['Float Stone BKT 137']
+        })],
+        stadiumAndToolHaveNoEffectTurnsRemaining: 1
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice', token: 'empty'
+  });
+});
