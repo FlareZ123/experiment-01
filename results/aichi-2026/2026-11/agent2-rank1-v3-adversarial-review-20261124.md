@@ -54,6 +54,19 @@ Thus, with Path to the Peak in play, actor epoch 0, and opponent epoch 1, the en
 
 **Focused correction:** share the existing two-player `pathLockStatus()` predicate rather than maintaining a second, actor-only interpretation. Add the opponent-only epoch case; retain a conservative unknown-epoch case.
 
+## Finding 4 — Gate lock identity coverage also misses Active Klefki and Garbodor LTR 68
+
+**Confidence: high; verified from the exact card-pool texts, source identities, and current matcher.**
+
+Two additional source/code mismatches were cross-checked after the initial review:
+
+- **Klefki SVI 96:** its `Mischievous Lock` works while Klefki is Active and removes Abilities from Basic Pokémon in play on both sides, except Mischievous Lock itself. Radiant Eternatus is Basic, so an Active Klefki on the candidate side suppresses Climactic Gate. The current `isGateAbilitySuppressed()` has no Klefki identity or Active-Klefki check.
+- **Garbodor LTR 68:** its `Garbotoxin` text is identical to Garbodor BKP 57 and has the same Tool condition. The current `PRINT.garbodor` regex matches only `Garbodor BKP 57`, so it misses LTR 68 even when a Tool is attached. The exact 29-list source inventory has rank 8 with LTR 68 ×2 plus Tools, and rank 16 with LTR 68 ×2 + BKP 57 ×1 plus Tools. The Gate predicate therefore misses rank 8 entirely and misses rank 16 whenever the Tool is attached to an LTR copy.
+
+The same source inventory records Klefki SVI 96 in ranks 4 and 17. These are card-presence facts from other Aichi lists, not evidence that the rank-1 deck itself contains them or that a lock was active in a game. They establish additional legal lock identities a candidate could present to the rank-1 policy.
+
+**Focused correction:** recognize Active Klefki with its Active-only scope; recognize both Garbodor LTR 68 and BKP 57 while preserving the attached-Tool requirement. Add tests for Klefki Active versus Benched, and for Tool-attached LTR/BKP Garbodor versus no-Tool cases.
+
 ## Evidence qualification — Ability suppression status is not currently observed as resolved
 
 `simulation/twinleaf/actor-observation-contract.cjs` initializes each visible Ability suppression row as `suppressed: null`, `reasonCode: null`, `sourcePrinting: null`, explicitly marking the status unknown. The v3 runner binds this contract directly as `observe: actorObservation`. The policy's `abilityIsSuppressed()` treats only an explicit `true` as suppressed, so a visible Wobbuffet / Iron Thorns / Garbodor is conservatively presumed live when the observation's suppression status is null.
@@ -65,8 +78,9 @@ That conservative choice can be reasonable for declining a risky Gate, but the r
 1. Quick Ball discard payment and subsequent deck search are distinguished by prompt phase and source zone; mandatory payment always returns one legal token.
 2. Silent Lab in play suppresses Radiant Eternatus Gate; the same Stadium is not treated as effective when the pinned global Stadium/Tool suppression epoch is active.
 3. Path to the Peak with only the opponent epoch positive does not suppress Gate; unknown epoch remains fail-closed.
-4. Existing Active-only Wobbuffet / Iron Thorns and Tool-conditioned Garbodor cases remain intact.
-5. Re-run contract tests against the exact current policy/test blobs; do not treat the older 8e2c receipt as evidence for later blobs.
+4. Active Klefki suppresses Gate; Benched Klefki does not; Tool-attached Garbodor LTR 68 and BKP 57 suppress Gate, while no-Tool copies do not.
+5. Existing Active-only Wobbuffet / Iron Thorns cases remain intact.
+6. Re-run contract tests against the exact current policy/test blobs; do not treat the older 8e2c receipt as evidence for later blobs.
 
 **Disposition:** send these focused corrections to the policy owner before treating v3 as an independently reviewed Aichi opponent policy. No decklist change or competitive win-rate conclusion follows from this review.
 
