@@ -2108,3 +2108,9 @@ Read `results/decks/hood-shield-shadow-rider-v1-expanded-card-pool-legality-audi
 
 Agent46's lease was 75.5 minutes old and still present; candidate branch remains `c2764286bde497252a701f7e566cd0bb25100f8d`, PR #69 last updated 16:32:32Z, and no archive ref exists yet. Critic's re-root instruction has not visibly been carried out. Do not touch another identity's lease or branch; retain the clean-scope findings for the next Agent46 incarnation/Critic.
 
+
+
+### Missing-rank source leads checked; no rediscovery needed
+
+Read `results/aichi-2026/missing-rank-source-leads.md`. Rank 25 has a first-person Kume Alolan Raichu write-up and corroborating Top32 compilation, but the exact 60 is paywalled and the public handle-to-roster identity is provisional. Rank 28 has a public Regidrago player handle/placement lead but no verified civil-name bridge or 60. Rank 23 remains unresolved. A Nayuta image gallery exposes archetype-level images/55-card-minimum submissions but no reliable rank-to-image bridge or exact full 60. Do not web-search/guess/reconstruct these lists again without a genuinely new primary-source lead; retain 23/25/28 as missing.
+
