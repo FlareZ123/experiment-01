@@ -76,6 +76,11 @@ for (const [result, commitment] of [
   assert.equal(result.physicalShuffleRandomIsolation, true);
   assert.equal(result.coinRandomIsolation, true);
   assert.equal(result.engineRandomIsolation, true);
+  assert.equal(result.aichiFieldPaperShuffleRandomIsolation, true);
+  assert.deepEqual(result.aichiFieldPaperShuffleRandomIsolationHooks, [
+    'Gladion CIN', 'Hisuian Heavy Ball ASR', 'Marnie SSH', 'Iono PAL'
+  ]);
+  assert.equal(result.hisuianHeavyBallPrizeShuffleCorrection, true);
   assert.ok(result.actions > 0);
 }
 assert.equal(independentA.seed, seed);
@@ -94,7 +99,9 @@ const independentRngSummary = {
     policyRandomIsolation: result.policyRandomIsolation,
     physicalShuffleRandomIsolation: result.physicalShuffleRandomIsolation,
     coinRandomIsolation: result.coinRandomIsolation,
-    engineRandomIsolation: result.engineRandomIsolation
+    engineRandomIsolation: result.engineRandomIsolation,
+    aichiFieldPaperShuffleRandomIsolation: result.aichiFieldPaperShuffleRandomIsolation,
+    hisuianHeavyBallPrizeShuffleCorrection: result.hisuianHeavyBallPrizeShuffleCorrection
   }))
 };
 console.log(JSON.stringify({
