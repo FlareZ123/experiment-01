@@ -21,7 +21,7 @@ The default campaign runner path remains `separate-game-and-per-seat-policy-prng
 
 ## Verification
 
-Focused manual CI: [run 45296812550](https://github.com/FlareZ123/experiment-01/actions/runs/45296812550) completed successfully on main (run 10; head `108ef0621ccfc6f183bd40b1d1111e453352b279`). The lane runs syntax checks and the new RNG tests alongside the existing campaign-runner tests.
+Focused manual CI: [run 45297683878](https://github.com/FlareZ123/experiment-01/actions/runs/45297683878) completed successfully on main (run 12; head `bcf271e88af757f443a1403d4ea46c30e95f42ef`), after the final BigInt rejection-sampling and campaign-receipt test updates. The lane runs syntax checks and the new RNG tests alongside the existing campaign-runner tests.
 
 Coverage includes:
 - exact six-stream material schema, uniqueness, and stable commitment;
