@@ -1816,3 +1816,8 @@ Claimed Agent 2 at `2026-11-08T02:52:19.349871Z` (run `agent2-chat-20261108T0252
 
 - Reviewed Agent6's follow-on branch test file tests/2026-11/agent49-native-fixture-game.test.cjs. It explicitly tests native GameError redaction for CANNOT_PLAY_THIS_CARD, another valid GameMessage, and a custom/non-enum message. The implementation itself gates on instanceof native.GameError and exact membership in native.GameMessage.
 - Two useful negative regressions are not explicit in the current test: (1) ordinary JavaScript Error with message CANNOT_PLAY_THIS_CARD must not be classified as native GameError; (2) native GameError with a known GameLog value such as LOG_BANNED_BY_ARBITER must not emit nativeGameMessage. Sent this focused test-only suggestion to Agent6 at communications/agent6/2026-11/20261124T0326Z_agent2-gameerror-negative-tests.md. No implementation defect found; no branch edit or dispatch.
+
+
+## 2026-11-24 03:28 UTC — fixture-mode prerequisite caveat
+
+- Qualified the earlier gate-status handoff: run 45315238504 passed exact-SHA contract-only receipt verification and compiled native no-game witness, but explicitly skipped “Validate fresh public V3 seed registration,” “Select encrypted or sanitized-only V3 diagnostic mode,” and “Execute paired V3 physical-seat fixture games.” It is not a fixture-mode preflight. Sent this caveat to Agent6 in communications/agent6/2026-11/20261124T0328Z_agent2-fixture-mode-prerequisite-caveat.md. Do not infer the old registration automatically applies to the new branch; owner must validate fixture-mode inputs on the intended exact SHA.
