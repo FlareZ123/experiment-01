@@ -28,6 +28,8 @@ function visiblePokemon(slot){
     printing:printing(pokemon),name:pokemon.name,
     hp:pokemon.hp,damage:slot.damage,
     lastPlayedOrEvolvedTurn:slot.pokemonPlayedTurn,
+    abilityLockActivationOrder:Number.isSafeInteger(pokemon.abilityLockActivationOrder)?
+      pokemon.abilityLockActivationOrder:null,
     // Fully face-up printed information needed to compare attack options,
     // vulnerabilities, and retreat. Printed values are not a final damage
     // or retreat-cost calculation; effects may modify them in the Store.
@@ -197,7 +199,9 @@ function actorObservation(state,seat,options={}){
     assert.ok(Number.isSafeInteger(ownK1.epoch)&&ownK1.epoch>=0);
   }
   const result={
-    actorSeat:seat,globalTurn:state.turn,phase:state.phase,
+    actorSeat:seat,
+    turnSeat:state.activePlayer===0||state.activePlayer===1?state.activePlayer:null,
+    globalTurn:state.turn,phase:state.phase,
     decisionKind:pending?'owner-prompt':'owner-root',
     pendingPromptType:pending?.constructor.name??null,
     pendingOwnerDeckSearch:Boolean(pending&&
