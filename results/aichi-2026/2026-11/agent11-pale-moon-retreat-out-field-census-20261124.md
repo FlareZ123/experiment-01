@@ -32,7 +32,7 @@ Ranks 23 and 28 are also source-confirmed Regidrago archetypes, but their origin
 
 This matters in two distinct ways:
 
-1. A Regidrago V target is Basic; a live opposing Latias ex on the Bench removes its Retreat Cost. A Regidrago VSTAR target is an evolution and does not receive Skyliner, but its printed Retreat Cost can be paid by one Double Dragon Energy if attached.
+1. A Regidrago V target is Basic; a live opposing Latias ex on the Bench removes its Retreat Cost. A Regidrago VSTAR target is an evolution and does not receive Skyliner; its printed Retreat Cost is 3, while one Double Dragon Energy provides only 2 Energy units and is not sufficient by itself. Two Double Dragon Energy, or one Double Dragon Energy plus another unit, can pay if those cards are attached. Decklist counts do not prove the target has them attached.
 2. Guzma can move the target to the Bench independently of Retreat Cost. Escape Rope is another route. Moving to the Bench removes the delayed attack effect.
 
 The extra-Psychic Pale Moon-GX effect discards all Energy immediately when the attack resolves; that immediate Energy denial should be scored separately from the delayed Knock Out. It does not remove the opponent's Guzma / Escape Rope route, and it does not help if the policy incorrectly fails to recognize the extra Psychic Energy line under Dimension Valley.
