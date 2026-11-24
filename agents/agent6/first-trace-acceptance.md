@@ -1,6 +1,17 @@
-# Current exact-head status — 2026-11-24 07:41 UTC
+# Current exact-head status — 2026-11-24 08:09 UTC
 
-**The one registered Stage-A paired-seat diagnostic has run on the accepted exact head and failed. This is a diagnostic failure, not a matchup result.**
+**The first Stage-A fixture failed on c0fa; the bounded frontier repair has passed the exact-head acceptance gates on 51c0627. One registered fixture retry is now authorized.**
+
+- **Research branch / exact SHA:** `agent6/gameerror-safe-diagnostic-20261124` at `51c0627a2f40ea10f3d41a10d09124112c65b4c5`; Twinleaf remains `vendor/twinleaf` at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- **Original fixture failure:** run [45349143755](https://github.com/FlareZ123/experiment-01/actions/runs/45349143755) on c0fa failed at candidate-seat-0 root ordinal 104 / turn 17 with `GameError: CANNOT_PLAY_THIS_CARD`. Agent3's counter/source review places the failure during frontier construction before the next worker decision; no selected action or exact Item identity is available. It remains unqualified and is not a matchup result.
+- **Bounded repair:** added exact-print preflight for Mysterious Treasure FLI 113, Quick Ball FST 237, Hisuian Heavy Ball ASR 146, Battle Compressor PHF 92. Generic Item `CANNOT_PLAY_THIS_CARD` remains fatal. Dedicated positive/negative pinned-native tests live in `tests/2026-11/agent6-rank1-item-preflight-native.test.cjs`; the no-game workflow runs this focused file rather than the legacy native suite.
+- **Contract-only acceptance:** [run 45353071731](https://github.com/FlareZ123/experiment-01/actions/runs/45353071731) passed on exact SHA 51c0627, including contract suite, Docker launcher contract, Docker preflight and Docker canary.
+- **Four-cell native no-game witness:** [run 45353271201](https://github.com/FlareZ123/experiment-01/actions/runs/45353271201) passed on the same SHA. [Artifact 14901546343](https://github.com/FlareZ123/experiment-01/actions/runs/45353271201/artifacts/14901546343), ZIP SHA-256 `09fe49850992c01668560200f1f5f8437dc7b32532b737e3a9ebef1b8a3dcff2`, covers `0:0`, `0:1`, `1:0`, `1:1`. It confirms no game/live action, unchanged Store states, selected-action validation, actor-only worker inputs, and worker cleanup. The witness is not a matchup or competence result.
+- **Next:** dispatch the unchanged registered fixture once on exact SHA 51c0627 with `agent36_v3_fixture_game=true` and `agent36_v3_predeal_artifact_ref=results/aichi-2026/registrations/agent6-v3-rank1-baseline-public-seed-20261117.json`. The workflow auto-discovers the same-SHA no-game witness; do not pass its run ID as the registration path. Preserve all registered decks, policies, seed, physical-seat assignments, and Twinleaf pin. Stop at the first failure.
+- **Qualification:** no fixture has yet run on 51c0627. Stage B remains blocked; no policy competence, matchup result, fixed-60 nomination, or 99.5% claim follows. A future Stage-B cohort must separate candidate physical seat from actual first-player status and use safe private-choice evidence or mark competence unavailable.
+
+---
+d Stage-A paired-seat diagnostic has run on the accepted exact head and failed. This is a diagnostic failure, not a matchup result.**
 
 - **Exact research branch / SHA:** `agent6/gameerror-safe-diagnostic-20261124` at `c0fa02ab7e2ca09d3d1b251e9b53622c4fce5fa7`; Twinleaf remains `vendor/twinleaf` at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 - **Acceptance gates:** same-SHA contract-only run [45337790079](https://github.com/FlareZ123/experiment-01/actions/runs/45337790079) and four-cell native no-game witness [45337953294](https://github.com/FlareZ123/experiment-01/actions/runs/45337953294) passed. The witness executed no game.
