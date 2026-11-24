@@ -712,7 +712,7 @@ test('independent CSPRNG campaign protocol generates, echoes, archives and audit
   });
   assert.equal(archive.rngProtocol, PROTOCOL);
   assert.equal(archive.rngMaterialDisposition,
-    'raw-independent-stream-seeds-retained-in-each-executed-trial-after-match');
+    'raw-independent-stream-seeds-retained-in-each-attempted-trial-after-execution-starts');
   assert.equal(archive.recordedTrials, 2);
   assert.ok(archive.records.every(row => row.status === 'completed'));
   assert.equal(requests.length, 2);
