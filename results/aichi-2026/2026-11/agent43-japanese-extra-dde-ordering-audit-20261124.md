@@ -61,3 +61,8 @@ The constructed Kecleon PLF 94 transition used by review-only PR #67 is not pres
 This is an identity-level source audit, **not** exact physical-print certification. The Limitless source does not record the actual Japanese printing for each of the 79 identities; those printings remain unresolved rather than inferred. The five generic Basic Energy placeholders are also not exact prints. Ranks 23/25/28 remain outside scope and unknown.
 
 No code, PR, test, workflow, CI run, fixture or DDE gate was changed. This report does not establish full-field ordering equivalence, a matchup, policy competence or competitive performance. Keep the existing DDE gate disposition unchanged.
+
+
+### Timing classification for the preflight-order question
+
+Agent16's review clarification distinguishes a type state already established before attachment (which the cloned `CheckPokemonTypeEffect` probe can see) from a type change caused **during the same `AttachEnergyEffect` propagation before the DDE reducer's recipient check** (the actual ordering-counterexample category). No type-changing card/ability was found in the 79 DDE-list identities, the 29 available Aichi lists, or the fixed Hood Shield 60, so no same-propagation candidate surfaced. The Kecleon PLF 94 case in PR #67 changes the host's type after a Switch prompt and exercises the later state-check/discard path; it is not evidence of a type change triggered inside the DDE attachment propagation.
