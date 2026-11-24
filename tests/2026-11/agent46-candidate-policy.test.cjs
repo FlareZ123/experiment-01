@@ -48,10 +48,11 @@ function attack(name, cost, damage, extra = {}) {
 function pokemon({
   printing, name, hp = 200, types = ['Psychic'], subtypes = ['Basic'],
   energies = [], attacks = [], abilities = [], suppression = null,
-  damage = 0, tools = [], weakness = []
+  damage = 0, tools = [], weakness = [], abilityLockActivationOrder = null
 }) {
   return {
-    printing, name, hp, damage, lastPlayedOrEvolvedTurn: 0,
+    printing, name, hp, damage, abilityLockActivationOrder,
+    lastPlayedOrEvolvedTurn: 0,
     printed: {
       stage: subtypes.includes('VMAX') ? 'VMAX' : 'BASIC',
       subtypes, types, retreatCost: [], weakness, resistance: []
@@ -63,7 +64,7 @@ function pokemon({
       abilityName,
       suppressed: suppression,
       reasonCode: suppression === true ? 'TEST_SUPPRESSION' : null,
-      sourcePrinting: suppression === true ? 'Path to the Peak CES' : null
+      sourcePrinting: suppression === true ? 'Path to the Peak CRE 148' : null
     }))
   };
 }
@@ -83,6 +84,7 @@ function publicPlayer({
 }
 
 function observation(seat, {
+  turnSeat = seat,
   active = null, bench = [], opponentActive = null, opponentBench = [],
   ownHand = [], ownDiscard = [], globalTurn = 3, ownStadium = [],
   ownStadiumDirection = null, opponentStadium = [], opponentStadiumDirection = null,
@@ -90,7 +92,7 @@ function observation(seat, {
   decisionKind = 'owner-root', promptType = null
 } = {}) {
   return {
-    actorSeat: seat, globalTurn, phase: 2, decisionKind,
+    actorSeat: seat, turnSeat, globalTurn, phase: 2, decisionKind,
     pendingPromptType: promptType, pendingOwnerDeckSearch: false,
     ownHand,
     ownPublic: publicPlayer({
@@ -408,7 +410,7 @@ test('Fairy Zone inference recognizes an unsuppressed holder and live Path to th
   };
 
   const unsuppressed = score(null);
-  const pathToPeak = score('Path to the Peak CES');
+  const pathToPeak = score('Path to the Peak CRE 148');
   const silentLab = score('Silent Lab PRC');
   assert.ok(unsuppressed > pathToPeak + 5000);
   assert.ok(unsuppressed > silentLab + 5000);
@@ -541,7 +543,7 @@ test('opponent Fairy Zone drives Stealthy Hood search only when live and relevan
       bench: [dragon, sealStoneCarrier],
       opponentActive: pokemon({ printing: 'Regidrago VSTAR SIT', name: 'Regidrago VSTAR', types: ['Dragon'] }),
       opponentBench: [clefairy],
-      opponentStadium: ['Path to the Peak CES']
+      opponentStadium: ['Path to the Peak CRE 148']
     });
     assert.deepEqual(evaluate(prompt(stadiumSuppressed)), {
       kind: 'select-choices', tokens: ['card-0']
@@ -1802,7 +1804,7 @@ test('Tapu Lele-GX is benched for Wonder Tag when the Ability is live', () => {
 });
 
 test('Tapu Lele-GX is not played into Path to the Peak or Silent Lab Ability lock', () => {
-  for (const stadium of ['Path to the Peak CES 148', 'Silent Lab FCO 95']) {
+  for (const stadium of ['Path to the Peak CRE 148 148', 'Silent Lab FCO 95']) {
     const view = observation(0, {
       ownHand: ['Tapu Lele-GX GRI 60'],
       opponentStadium: [stadium]
@@ -3464,7 +3466,7 @@ test('Resetting Hole is prioritized only when a relevant Stadium is in play for 
       { token: 'pass', kind: 'pass' }
     ];
     const locked = observation(seat, {
-      opponentStadium: ['Path to the Peak CES']
+      opponentStadium: ['Path to the Peak CRE 148']
     });
     assert.deepEqual(evaluate(request(seat, locked, { actions })), {
       kind: 'select-action', token: 'resetting-hole'
@@ -3527,7 +3529,7 @@ test('Field Blower chooses only relevant lock Stadiums and preserves beneficial 
       tools: ['Float Stone BKT 137']
     });
     const stadiumView = observation(seat, {
-      opponentStadium: ['Path to the Peak CES'], opponentActive: opponentTool
+      opponentStadium: ['Path to the Peak CRE 148'], opponentActive: opponentTool
     });
     assert.deepEqual(evaluate(makeRequest(stadiumView)), {
       kind: 'select-choice', token: 'stadium-tool'
