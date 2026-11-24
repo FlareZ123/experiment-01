@@ -197,16 +197,23 @@ test('public Ability-lock activation order is exposed only as a detached safe in
   const s=fixture();
   const own=s.players[0].active.getPokemonCard();
   const opponent=s.players[1].active.getPokemonCard();
+  const ownBench=pokemon('Wobbuffet PHF');
   own.abilityLockActivationOrder=17;
   opponent.abilityLockActivationOrder=23;
+  ownBench.getPokemonCard().abilityLockActivationOrder=31;
+  s.players[0].bench[0]=ownBench;
   const view=actorObservation(s,0);
   assert.equal(view.turnSeat,0);
   assert.equal(view.ownPublic.active.abilityLockActivationOrder,17);
   assert.equal(view.opponentPublic.active.abilityLockActivationOrder,23);
+  assert.equal(view.ownPublic.bench[0].abilityLockActivationOrder,31,
+    'the public activation order is also exposed for a visible benched source');
   own.abilityLockActivationOrder=Number.MAX_SAFE_INTEGER+1;
+  ownBench.getPokemonCard().abilityLockActivationOrder=Number.MAX_SAFE_INTEGER+1;
   delete opponent.abilityLockActivationOrder;
   const unknown=actorObservation(s,0);
   assert.equal(unknown.ownPublic.active.abilityLockActivationOrder,null);
+  assert.equal(unknown.ownPublic.bench[0].abilityLockActivationOrder,null);
   assert.equal(unknown.opponentPublic.active.abilityLockActivationOrder,null);
 });
 
