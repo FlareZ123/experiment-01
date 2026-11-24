@@ -539,9 +539,13 @@ test('DDE dynamic-type probe mutates only its throwaway clone, not the candidate
     native,
     enginePin
   });
-  const benchAction = enumerator.attachEnergyActions(state, actor).find(action =>
+  const candidateActions = enumerator.attachEnergyActions(state, actor);
+  const benchAction = candidateActions.find(action =>
     action.target.slot === native.SlotType.BENCH && action.target.index === 0);
+  const activeAction = candidateActions.find(action =>
+    action.target.slot === native.SlotType.ACTIVE);
   assert.ok(benchAction, 'DDE-to-Dedenne Bench action must be enumerated');
+  assert.ok(activeAction, 'DDE-to-Dragon Active control must be enumerated');
 
   const simulators = [];
   let pushedTypeChecks = 0;
@@ -549,18 +553,24 @@ test('DDE dynamic-type probe mutates only its throwaway clone, not the candidate
   class TrackingSimulator extends BaseSimulator {
     constructor(validationState) {
       super(validationState);
+      const simulatorIndex = simulators.length;
       simulators.push(this);
-      const reduceEffect = this.store.reduceEffect.bind(this.store);
-      this.store.reduceEffect = (stateForEffect, effect) => {
-        const result = reduceEffect(stateForEffect, effect);
-        if (effect instanceof native.CheckPokemonTypeEffect) {
-          // Mimic the pinned push-based type reducers: cardTypes aliases the
-          // target PokemonCard.cardType array, so a push mutates that clone.
-          effect.cardTypes.push(native.CardType.FIGHTING);
-          pushedTypeChecks += 1;
-        }
-        return result;
-      };
+      // The first candidate's throwaway probe is Simulator #2 (index 1).
+      // Inject a push there only; its candidate-validation clone must remain
+      // untouched, and the later legal Active control uses the native reducer.
+      if (simulatorIndex === 1) {
+        const reduceEffect = this.store.reduceEffect.bind(this.store);
+        this.store.reduceEffect = (stateForEffect, effect) => {
+          const result = reduceEffect(stateForEffect, effect);
+          if (effect instanceof native.CheckPokemonTypeEffect) {
+            // Mimic the pinned push-based type reducers: cardTypes aliases the
+            // target PokemonCard.cardType array, so a push mutates that clone.
+            effect.cardTypes.push(native.CardType.FIGHTING);
+            pushedTypeChecks += 1;
+          }
+          return result;
+        };
+      }
     }
   }
   const instrumentedNative = Object.create(native);
@@ -572,11 +582,11 @@ test('DDE dynamic-type probe mutates only its throwaway clone, not the candidate
       state,
       actorSeat: 0,
       native: instrumentedNative,
-      enumerator: { enumerate: () => [benchAction] }
+      enumerator: { enumerate: () => [benchAction, activeAction] }
     }));
 
-  assert.equal(simulators.length, 2,
-    'one candidate-validation Simulator and one throwaway DDE probe Simulator are required');
+  assert.equal(simulators.length, 4,
+    'each DDE candidate needs a candidate-validation Simulator and a separate probe Simulator');
   assert.equal(pushedTypeChecks, 1,
     'the throwaway probe must execute the dynamic-type effect exactly once');
   assert.deepEqual(
@@ -591,7 +601,8 @@ test('DDE dynamic-type probe mutates only its throwaway clone, not the candidate
   assert.deepEqual(createStoreStateSnapshotter()(state), before,
     'neither clone may mutate the original live Store graph');
   assert.equal(frontier.diagnostics.preflightRejectedCount, 1);
-  assert.equal(frontier.actionFrontier.items.length, 0);
+  assert.equal(frontier.actionFrontier.items.length, 1,
+    'the legal DDE-to-Dragon Active control must remain in the frontier');
 });
 
 test('DDE dynamic-type preflight rejects unknown non-empty CardType results', {
