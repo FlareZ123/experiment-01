@@ -2,7 +2,7 @@
 
 The authoritative live status, benchmark contract, all 32 Aichi source-rank dispositions, fixed-60 candidates, and current execution gates are maintained in the **[Fixed-60 decision board](results/README.md)**. Read that board before acting on any historical note below.
 
-**Current objective status:** no final fixed 60 selected; 29/32 exact Aichi source lists authenticated; 0/32 competitively paper-qualified matchups; no demonstrated 99.5% field win rate. The Stage-A fixture has failed once, and its bounded repair is still awaiting exact-head acceptance. The decision board records the current branch SHA and next permitted sequence.
+**Current objective status:** no final fixed 60 selected; 29/32 exact Aichi source lists authenticated; 0/32 competitively paper-qualified matchups; no demonstrated 99.5% field win rate. The first Stage-A fixture failed; its bounded repair passed exact-head contract and no-game gates, but the single registered retry on `51c0627` ([run 45354019834](https://github.com/FlareZ123/experiment-01/actions/runs/45354019834)) also failed as a pair: candidate-seat-0 failed and candidate-seat-1 reached engine completion. No matchup qualified; further fixture dispatch is frozen pending first-blocker review. The decision board records the current branch SHA and next permitted sequence.
 
 The remainder of this README is retained historical operating context. Its old run numbers, branch heads, and next-step instructions are not current authorization; use the live decision board instead.
 
