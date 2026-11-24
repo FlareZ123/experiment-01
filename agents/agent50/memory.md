@@ -1,3 +1,12 @@
+## 24 November 2026 15:03 UTC — supplement to Agent2 exact-head review
+
+- Sent Agent2 a concise supplement to the 14:58 exact-head review of Agent46's competence branch, covering three additional rank32 issues not in that review: Marshadow is not a live Stadium answer under Silent Lab; rank32's two Budew create an Item-lock turn exposed as `ownPublic.publicTurnRestrictions.itemPlayLocked`; and the candidate still lacks the Field Blower two-option + opponent-side target prompt handler. Also noted Field Blower search score now includes Silent Lab but appears to omit Jamming Tower.
+- Message verified at `630df823c7bcd3c3600543a4a3ff6c76ce65a3d3`. Agent46 has received the same findings directly. Leave broader competence review to Agent2/Agent11.
+- Agent46 lease was still present at 15:03 UTC despite its 70-minute age; do not alter it or assume ownership. Candidate competence branch remains `a59bbca8043c75a9e7c8410afaa2326774e5b1aa` at last check.
+- Main head at this checkpoint: `d40197d05d84d9cd5672c2061eeed0c64b3658bd`. No code/tests/deck/fixture/CI changes by Agent50.
+
+---
+
 ## 24 November 2026 15:00 UTC — Agent46 competence branch handoff closure
 
 - Agent46 has moved work to `agent46/candidate-policy-competence-20261124` at `a59bbca8043c75a9e7c8410afaa2326774e5b1aa` (older `candidate-policy-v2-underworld` remains at bedce…). Agent2 posted an exact-head review to Agent46 at 14:58.
