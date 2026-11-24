@@ -193,6 +193,10 @@ function hasBasicShadowRiderV(view) {
   return ownBoard(view).some(isBasicShadowRiderV);
 }
 
+function handHasBasicShadowRiderV(view) {
+  return view.ownHand.some(isBasicShadowRiderVPrinting);
+}
+
 function hasUnevolvedShadowRiderV(view) {
   return ownBoard(view).some(isBasicShadowRiderV);
 }
@@ -526,7 +530,7 @@ function searchNeedScore(view, printing, effectName = '', receipt = null) {
     return -5;
   }
   if (isBasicShadowRiderVPrinting(printing)) {
-    if (!hasShadowV && !handHas(view, 'Shadow Rider Calyrex V') &&
+    if (!hasShadowV && !handHasBasicShadowRiderV(view) &&
         hasOpenBench(view)) return 100;
     return -5;
   }
@@ -1269,7 +1273,7 @@ function hasStarAlchemyLock(view, target) {
 
 function hasStarAlchemyBottleneck(view, receipt) {
   const missingBasicV = !hasBasicShadowRiderV(view) &&
-    !handHas(view, 'Shadow Rider Calyrex V') && hasOpenBench(view);
+    !handHasBasicShadowRiderV(view) && hasOpenBench(view);
   const missingVmax = hasUnevolvedShadowRiderV(view) &&
     !handHas(view, 'Shadow Rider Calyrex VMAX');
   const missingDialga = opponentHasRegidrago(view) &&
@@ -1312,22 +1316,24 @@ function scoreTrainerPlay(item, view, receipt) {
   if (hasName(name, 'Battle Compressor') && opponentHasRegidrago(view) &&
       !discardHas(view, 'Dialga-GX') && !handHas(view, 'Dialga-GX') &&
       !boardHas(view, 'Dialga-GX') && (boardHas(view, 'Mimikyu') || handHas(view, 'Mimikyu'))) return 860;
+  const missingBasicV = !hasBasicShadowRiderV(view) &&
+    !handHasBasicShadowRiderV(view) && hasOpenBench(view);
   if (hasName(name, 'Fog Crystal') &&
-      ((!hasBasicShadowRiderV(view) && hasOpenBench(view)) ||
+      (missingBasicV ||
        (opponentHasDragon(view) &&
         !boardHas(view, "Lillie's Clefairy ex") &&
         !handHas(view, "Lillie's Clefairy ex")) ||
        psychicEnergyCount(view) < 3)) return 820;
   if (hasName(name, 'Mysterious Treasure') && hasDiscardableHand(view, 1) &&
-      (opponentHasRegidrago(view) ||
-       (!hasBasicShadowRiderV(view) && hasOpenBench(view)))) return 800;
+      (opponentHasRegidrago(view) || missingBasicV)) return 800;
   if (hasName(name, 'Quick Ball') && hasDiscardableHand(view, 1) &&
-      ((!hasBasicShadowRiderV(view) && hasOpenBench(view)) ||
+      (missingBasicV ||
        (opponentHasRegidrago(view) && !boardHas(view, 'Mimikyu')))) return 790;
   if (hasName(name, 'Ultra Ball') && hasDiscardableHand(view, 2) &&
-      hasUnevolvedShadowRiderV(view)) return 780;
+      hasUnevolvedShadowRiderV(view) &&
+      !handHas(view, 'Shadow Rider Calyrex VMAX')) return 780;
   if (hasName(name, 'Arven') && !supporterUsed &&
-      ((!hasBasicShadowRiderV(view) && hasOpenBench(view)) ||
+      (missingBasicV ||
        (hasAbilityLockThreat(view) && !ownBoard(view).some(slot =>
          slot.tools.some(tool => hasName(tool, 'Stealthy Hood')))))) return 760;
   if (hasName(name, 'Guzma') && !supporterUsed && canGuzmaForAttack(view)) return 750;
