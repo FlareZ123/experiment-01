@@ -2628,14 +2628,14 @@ test('Stealthy Hood search is reserved for opponent ability locks that Hood can 
   const hoodSearch = view => cardPrompt(0, view, {
     sourcePrinting: 'Mysterious Treasure FLI 113',
     effectName: 'Mysterious Treasure',
-    printings: ['Stealthy Hood BUS 186']
+    printings: ['Stealthy Hood BUS 186', 'Psychic Energy SVE 5']
   });
   assert.deepEqual(evaluate(hoodSearch(observation(0, {
     active: vmax, opponentActive: ironThorns
   }))), { kind: 'select-choices', tokens: ['card-0'] });
   assert.deepEqual(evaluate(hoodSearch(observation(0, {
     active: vmax, opponentBench: [ironThorns]
-  }))), { kind: 'abstain', reasonCode: 'NO_SUPPORTED_CARD_SELECTION' });
+  }))), { kind: 'select-choices', tokens: ['card-1'] });
 
   const snorlax = pokemon({
     printing: 'Snorlax PGO 55', name: 'Snorlax',
@@ -2643,7 +2643,24 @@ test('Stealthy Hood search is reserved for opponent ability locks that Hood can 
   });
   assert.deepEqual(evaluate(hoodSearch(observation(0, {
     active: vmax, opponentActive: snorlax
-  }))), { kind: 'abstain', reasonCode: 'NO_SUPPORTED_CARD_SELECTION' });
+  }))), { kind: 'select-choices', tokens: ['card-1'] });
+
+  const garbodor = pokemon({
+    printing: 'Garbodor XY9 57', name: 'Garbodor',
+    subtypes: ['Stage 1'], abilities: ['Garbotoxin'],
+    tools: ['Float Stone'], suppression: false
+  });
+  const garbodorNoTool = pokemon({
+    printing: 'Garbodor XY9 57', name: 'Garbodor',
+    subtypes: ['Stage 1'], abilities: ['Garbotoxin'],
+    tools: [], suppression: false
+  });
+  assert.deepEqual(evaluate(hoodSearch(observation(0, {
+    active: vmax, opponentBench: [garbodor]
+  }))), { kind: 'select-choices', tokens: ['card-0'] });
+  assert.deepEqual(evaluate(hoodSearch(observation(0, {
+    active: vmax, opponentBench: [garbodorNoTool]
+  }))), { kind: 'select-choices', tokens: ['card-1'] });
 });
 
 test('Fairy Zone respects effective Stealthy Hood and accounts for Jamming Tower and Tool Jammer', () => {
@@ -2704,4 +2721,26 @@ test('Fairy Zone respects effective Stealthy Hood and accounts for Jamming Tower
   assert.deepEqual(evaluate(makePrompt(jammerView)), {
     kind: 'select-choices', tokens: ['hooded']
   });
+
+  const basicHooded = pokemon({
+    printing: 'Dragon Basic Hood test', name: 'Dragon Basic',
+    hp: 320, damage: 120, types: ['Dragon'], subtypes: ['Basic'],
+    tools: ['Stealthy Hood BUS 186']
+  });
+  const vWithJammer = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX', hp: 320, subtypes: ['VMAX'],
+    energies: Array(5).fill('Psychic Energy SVE 5'),
+    attacks: [attack('Max Geist', ['Colorless', 'Colorless', 'Colorless'], '10+')],
+    tools: ['Tool Jammer swsh2']
+  });
+  const jammerSuppressedByTower = observation(0, {
+    active: vWithJammer, bench: [clefairy],
+    ownStadium: ['Jamming Tower swsh9'],
+    opponentActive: active, opponentBench: [basicHooded, plain]
+  });
+  assert.deepEqual(evaluate(pokemonPrompt(0, jammerSuppressedByTower, [
+    { token: 'hooded', index: 0, ownerSeat: 'opponent', printing: basicHooded.printing },
+    { token: 'plain', index: 1, ownerSeat: 'opponent', printing: plain.printing }
+  ])), { kind: 'select-choices', tokens: ['plain'] });
 });

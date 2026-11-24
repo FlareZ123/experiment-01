@@ -283,9 +283,9 @@ function prizeLiability(slot) {
   if (subtypes.some(value => ['VMAX', 'V-UNION', 'TAG TEAM'].includes(value)) ||
       hasName(printing, 'VMAX') || hasName(printing, 'V-UNION') ||
       hasName(printing, ' & ') && hasName(printing, '-GX')) return 3;
-  if (subtypes.some(value => ['ex', 'GX', 'V'].includes(value)) ||
+  if (subtypes.some(value => ['ex', 'GX', 'V', 'VSTAR'].includes(value)) ||
       hasName(printing, '-GX') || / ex(?: |$)/.test(printing) ||
-      / V(?: |$)/.test(printing)) return 2;
+      / V(?: |$)/.test(printing) || / VSTAR(?: |$)/.test(printing)) return 2;
   return 1;
 }
 
@@ -357,11 +357,14 @@ function hasEffectiveStealthyHood(target, view) {
   if (!opponentTarget) return true;
   const effectsLive = stadiumAndToolEffectsLive(view);
   const stadiums = [...view.ownPublic.stadium, ...view.opponentPublic.stadium];
-  if (isPokemonV(target) &&
-      stadiums.some(name => hasName(name, 'Jamming Tower')) &&
-      effectsLive === true) return false;
-  if (Array.isArray(view.ownPublic.active?.tools) &&
-      view.ownPublic.active.tools.some(tool => hasName(tool, 'Tool Jammer')) &&
+  const jammingTowerActive = effectsLive === true &&
+    stadiums.some(name => hasName(name, 'Jamming Tower'));
+  if (isPokemonV(target) && jammingTowerActive) return false;
+  const toolJammerAttached = Array.isArray(view.ownPublic.active?.tools) &&
+    view.ownPublic.active.tools.some(tool => hasName(tool, 'Tool Jammer'));
+  const toolJammerDisabledByJammingTower = jammingTowerActive &&
+    isPokemonV(view.ownPublic.active);
+  if (toolJammerAttached && !toolJammerDisabledByJammingTower &&
       effectsLive === true) return false;
   return true;
 }
