@@ -358,6 +358,15 @@ function isExpectedActionRejection(action,state,actorSeat,native,error){
       typeof error.message!=='string')return false;
   if(action?.type==='PLAY_CARD_ACTION'){
     const family=playCardRejectionFamily(action,state,actorSeat,native);
+    if(family==='ENERGY'&&error.message==='CANNOT_PLAY_THIS_CARD'){
+      // The pinned Double Dragon Energy reducer throws this exact GameError
+      // only when its AttachEnergyEffect target is not a Dragon Pokémon.
+      // Keep the exception bound to the exact printing: another Energy card
+      // raising CANNOT_PLAY_THIS_CARD remains a fatal frontier failure.
+      const card=state.players[actorSeat]?.hand?.cards?.[action.handIndex];
+      if(card?.fullName==='Double Dragon Energy ROS'&&
+          card?.set==='ROS'&&String(card?.setNumber)==='97')return true;
+    }
     return EXPECTED_PLAY_CARD_REJECTIONS[family]?.has(error.message)===true;
   }
   return EXPECTED_REJECTIONS[action?.type]?.has(error.message)===true;
