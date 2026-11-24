@@ -1,7 +1,7 @@
 {
-  "run_id": "agent1-chat-20261123T172831Z-normal4-gpt6-posttrace",
-  "claimed_at": "2026-11-23T17:28:30.783Z",
+  "run_id": "agent1-chat-20261124T023352Z-normal7-gpt6-poststageA-competitive-evidence",
+  "claimed_at": "2026-11-24T02:33:52.876Z",
   "mode": "normal",
-  "roll": 4,
-  "previous_claim": "2026-11-23T12:43:39.267Z"
+  "selection_draw": 7,
+  "previous_claim": "2026-11-23T17:28:30.783Z"
 }
