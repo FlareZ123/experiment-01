@@ -751,3 +751,27 @@ test('independent CSPRNG campaign protocol generates, echoes, archives and audit
   assert.equal(envelope.provenance.rngProtocol, PROTOCOL);
   assert.equal(envelope.competitiveWinRateCertified, false);
 });
+
+
+test('independent RNG material survives a caught engine exception for replay and audit', () => {
+  const {
+    PROTOCOL, randomMaterialCommitment
+  } = require('../simulation/evaluation/agent37-independent-rng-v1.cjs');
+  const { auditArchive } =
+    require('../simulation/evaluation/aichi-evidence-envelope.cjs');
+  const f = fixture();
+  const archive = executeCampaign(f, {
+    maxTrials: 1,
+    prepareCandidate: prepare,
+    rngProtocol: PROTOCOL,
+    runMatch() {
+      throw new Error('synthetic engine exception');
+    }
+  });
+  const row = archive.records[0];
+  assert.equal(row.status, 'engine-exception');
+  assert.equal(row.rngProtocol, PROTOCOL);
+  assert.equal(row.rngMaterialCommitment,
+    randomMaterialCommitment(row.rngMaterial));
+  assert.equal(auditArchive(f, archive).completed, 0);
+});
