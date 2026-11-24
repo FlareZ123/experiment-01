@@ -2,6 +2,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {actorObservation}=require('../simulation/twinleaf/actor-observation-contract.cjs');
+const protocol=require('../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 
 /** @param {string} fullName */
 function card(fullName){
@@ -230,6 +231,48 @@ test('public Ability-lock activation order is exposed only as a detached safe in
   assert.equal(unknown.ownPublic.bench[0].abilityLockActivationOrder,null);
   assert.equal(unknown.opponentPublic.active.abilityLockActivationOrder,null);
   assert.equal(unknown.opponentPublic.bench[0].abilityLockActivationOrder,null);
+});
+
+test('numeric Twinleaf SpecialCondition enums normalize to canonical worker-protocol names',()=>{
+  const all=['PARALYZED','CONFUSED','ASLEEP','POISONED','BURNED'];
+  for(const seat of [0,1]){
+    const s=fixture();
+    s.activePlayer=seat;
+    s.players[0].active.specialConditions=[0,1,2,3,4];
+    s.players[1].active.specialConditions=[2,0];
+    const view=actorObservation(s,seat);
+    assert.deepEqual(view.ownPublic.active.specialConditions,
+      seat===0?all:['ASLEEP','PARALYZED']);
+    assert.deepEqual(view.opponentPublic.active.specialConditions,
+      seat===0?['ASLEEP','PARALYZED']:all);
+
+    // Exercise the same strict request validator used at the worker boundary.
+    const init={
+      schema:protocol.INIT_SCHEMA,type:'init',role:'candidate',seat,
+      policyVersion:'special-condition-boundary-v1',
+      bundleSha256:'a'.repeat(64),config:{}
+    };
+    const request={
+      schema:protocol.REQUEST_SCHEMA,type:'decision',
+      requestId:'special-condition-seat-'+seat,sequence:1,
+      role:'candidate',seat,
+      observationSchema:protocol.OBSERVATION_SCHEMA,
+      observation:view,prompt:null,publicEventReceipt:null,
+      actionFrontier:{
+        schema:protocol.FRONTIER_SCHEMA,
+        items:[{token:'pass-'+seat,kind:'pass'}]
+      }
+    };
+    protocol.validateInit(init);
+    protocol.validateRequest(request,init,1,new Set());
+  }
+});
+
+test('unknown Twinleaf SpecialCondition enum values fail closed',()=>{
+  const s=fixture();
+  s.players[0].active.specialConditions=[5];
+  assert.throws(()=>actorObservation(s,0),
+    /Unsupported pinned Twinleaf SpecialCondition enum value/);
 });
 
 test('a deck alias is not a deck search without a native choice prompt',()=>{
