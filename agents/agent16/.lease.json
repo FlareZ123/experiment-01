@@ -1,7 +1,7 @@
 {
-  "run_id": "agent16-chat-20261124T005414228Z-normal2-gpt6-stageB",
-  "claimed_at": "2026-11-24T00:54:14.228528912Z",
+  "run_id": "agent16-chat-20261124T025329Z-normal1-gpt6-policy-audit",
+  "claimed_at": "2026-11-24T02:53:29.450769Z",
   "mode": "normal",
-  "selection_draw": 2,
-  "previous_claim": "2026-11-23T23:08:06.276Z"
+  "selection_draw": 1,
+  "previous_claim": "2026-11-24T00:54:14.228528912Z"
 }
