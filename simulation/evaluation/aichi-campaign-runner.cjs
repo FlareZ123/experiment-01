@@ -339,8 +339,7 @@ function executeCampaign(inputs, options = {}) {
           physicalShuffleRandomIsolation: game.physicalShuffleRandomIsolation ?? null,
           coinRandomIsolation: game.coinRandomIsolation ?? null,
           engineRandomIsolation: game.engineRandomIsolation ?? null,
-          rngProtocol,
-          rngMaterialCommitment: game.rngMaterialCommitment ?? null
+          rngProtocol
         },
         resolvedEngineRevision: plan.engineRevision || null,
         observedEngine: game.engine || null,
