@@ -3463,3 +3463,64 @@ test('Alolan Muk Power of Alchemy suppresses Gate from either public Bench', () 
     kind: 'select-action', token: 'pass'
   });
 });
+
+
+test('Quick Ball discards duplicate search cards before a singleton Field Blower', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    description: 'CHOOSE_CARD_TO_DISCARD',
+    source: actorChoiceSource('Quick Ball FST 237', 'Quick Ball'),
+    choices: [
+      { token: 'field-blower', kind: 'card', printing: 'Field Blower GRI 125',
+        label: 'Field Blower' },
+      { token: 'fog-crystal', kind: 'card', printing: 'Fog Crystal CRE 140',
+        label: 'Fog Crystal' }
+    ],
+    publicMetadata: {
+      sourceZone: 'hand', ownerSeat: 'actor',
+      minimumCount: 1, maximumCount: 1,
+      allowCancel: false, isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: [
+        'Field Blower GRI 125',
+        'Fog Crystal CRE 140',
+        'Fog Crystal CRE 140'
+      ]
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['fog-crystal']
+  });
+});
+
+test('Quick Ball may discard a duplicate Clefairy but protects singleton Radiant Eternatus', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    description: 'CHOOSE_CARD_TO_DISCARD',
+    source: actorChoiceSource('Quick Ball FST 237', 'Quick Ball'),
+    choices: [
+      { token: 'radiant', kind: 'card', printing: 'Radiant Eternatus CRZ 105',
+        label: 'Radiant Eternatus' },
+      { token: 'clefairy', kind: 'card', printing: "Lillie's Clefairy ex JTG 56",
+        label: "Lillie's Clefairy ex" }
+    ],
+    publicMetadata: {
+      sourceZone: 'hand', ownerSeat: 'actor',
+      minimumCount: 1, maximumCount: 1,
+      allowCancel: false, isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownHand: [
+        'Radiant Eternatus CRZ 105',
+        "Lillie's Clefairy ex JTG 56",
+        "Lillie's Clefairy ex JTG 56"
+      ]
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['clefairy']
+  });
+});
