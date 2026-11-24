@@ -12,7 +12,7 @@ The original PR #65 approach caught the native `CANNOT_PLAY_THIS_CARD` message a
 
 Branch: `agent41/dde-preflight-alternative-20261124`  
 Base: `agent3/dde-energy-frontier-mainline-20261124` at `2a3c51368aa2f6becfa2f59e59376a607a245c45`  
-Latest head: `8b65c33d75825e8eb59cfa34de9417fb11ac67c1`  
+Latest head: `ee9df3f010eb8b5471cb38ef0ac04078868dd5fb`  
 PR: [#66](https://github.com/FlareZ123/experiment-01/pull/66)
 
 In `simulation/evaluation/2026-11/agent36-native-action-frontier.cjs`:
@@ -31,6 +31,7 @@ In `tests/2026-11/agent3-dde-energy-frontier-native.test.cjs`:
 
 - DDE-to-Regidrago remains legal; DDE-to-Dedenne-GX and Tapu Lele-GX are rejected, with both physical seats exercised. The direct pinned Store assertions confirm the native rejection; the frontier records two preflight rejections.
 - Active Kecleon PLF #94 facing an Active Regidrago is dynamically Dragon through Color Change. DDE-to-Kecleon is retained and accepted by the pinned Store in both physical seats, while the two non-Dragon Bench recipients are preflight-rejected.
+- Active Kecleon PLF #94 facing an Active Tapu Lele copies Psychic and is dynamically non-Dragon. DDE-to-Kecleon is rejected by the pinned Store and preflight in both physical seats; the fixture preserves a legal Regidrago Bench attachment so the frontier's non-empty-action invariant remains satisfied.
 - An opponent-owned target descriptor fails closed rather than being silently classified as an expected DDE rejection.
 - An injected same-message `CANNOT_PLAY_THIS_CARD` on DDE-to-legal-Regidrago remains fatal.
 - The existing non-DDE Energy same-message fatal control remains.
@@ -43,7 +44,9 @@ Pinned Twinleaf submodule: `vendor/twinleaf`, gitlink `a9905a76a6c4103ba4b6cb9a4
 
 - [Run 45323084755](https://github.com/FlareZ123/experiment-01/actions/runs/45323084755) passed after adding both-seat Kecleon dynamic-type and same-message legal-Dragon fatal controls.
 - [Run 45323659321](https://github.com/FlareZ123/experiment-01/actions/runs/45323659321) passed after adding the fail-closed opponent-owned target control.
-- [Run 45324322296](https://github.com/FlareZ123/experiment-01/actions/runs/45324322296) passed on latest head `8b65c33d75825e8eb59cfa34de9417fb11ac67c1` after requiring a non-empty dynamic type result.
+- [Run 45324322296](https://github.com/FlareZ123/experiment-01/actions/runs/45324322296) passed after requiring a non-empty dynamic type result.
+- [Run 45325495328](https://github.com/FlareZ123/experiment-01/actions/runs/45325495328) passed on latest head `ee9df3f010eb8b5471cb38ef0ac04078868dd5fb`, adding the Kecleon non-Dragon negative control in both seats.
+- Run 45325154474 failed only because the first negative fixture left no supported legal native action, violating the frontier's non-empty-action invariant. The final fixture preserves a legal Regidrago Bench recipient while testing the non-Dragon Kecleon target; the corrected run above passes.
 
 The focused workflow verifies the pinned submodule gitlink, pinned Node/dependencies, vendor compilation without modifying upstream, compiled native action-enumerator presence, and the focused native Energy frontier tests.
 
