@@ -367,6 +367,10 @@ function abilityLockSourceStadiumSuppression(source, view) {
   return effectsLive === true;
 }
 
+function abilityLockSourcePhysicalSeat(source, view) {
+  return source.seat === 'actor' ? view.actorSeat : 1 - view.actorSeat;
+}
+
 function orderAbilityLockSources(sources, view) {
   if (sources.length <= 1) return sources;
   if (sources.some(source => !Number.isSafeInteger(source.activationOrder))) return null;
@@ -385,12 +389,15 @@ function orderAbilityLockSources(sources, view) {
       ordered.push(group[0]);
       continue;
     }
+    const seats = group.map(source => abilityLockSourcePhysicalSeat(source, view));
     // Twinleaf resolves simultaneous starting Active lockers in favor of
     // the current turn player. Same-seat or otherwise ambiguous ties fail closed.
-    if (group.length !== 2 || group[0].seat === group[1].seat ||
-        (view.turnSeat !== group[0].seat && view.turnSeat !== group[1].seat)) return null;
-    ordered.push(group.find(source => source.seat === view.turnSeat));
-    ordered.push(group.find(source => source.seat !== view.turnSeat));
+    if (group.length !== 2 || seats[0] === seats[1] ||
+        (view.turnSeat !== seats[0] && view.turnSeat !== seats[1])) return null;
+    ordered.push(group.find(source =>
+      abilityLockSourcePhysicalSeat(source, view) === view.turnSeat));
+    ordered.push(group.find(source =>
+      abilityLockSourcePhysicalSeat(source, view) !== view.turnSeat));
   }
   return ordered;
 }
