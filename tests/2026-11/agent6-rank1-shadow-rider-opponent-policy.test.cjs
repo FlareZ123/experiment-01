@@ -18,6 +18,7 @@ function policyForSeat(seat) {
   }
   return policies.get(seat);
 }
+const policy = policyForSeat(0);
 const init = {
   schema: protocol.INIT_SCHEMA,
   type: 'init',
@@ -2497,5 +2498,43 @@ test('face-up VMAX prizes are excluded from the hidden prize pool in the Gate es
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-choice', token: 'no'
+  });
+});
+
+
+test('manual Psychic Energy root targeting is actor-relative from physical seat one', () => {
+  const request = rootRequest({
+    seat: 1,
+    ownHand: ['Psychic Energy MEE 13'],
+    ownPublic: player({
+      active: pokemon('Shadow Rider Calyrex VMAX CRE 75', { stage: 'VMAX' })
+    }),
+    items: [
+      { token: 'energy', kind: 'play-card',
+        actorPrinting: 'Psychic Energy MEE 13',
+        targetPrinting: 'Shadow Rider Calyrex VMAX CRE 75',
+        publicMetadata: { cardType: 'energy', handIndex: 0,
+          targetSeat: 'actor', targetZone: 'active', isOwnerVisible: true } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request, 1), {
+    kind: 'select-action', token: 'energy'
+  });
+});
+
+test('a claimed Radiant source is rejected when no Radiant is on the actor Bench', () => {
+  const request = promptRequest({
+    promptType: 'ConfirmPrompt',
+    source: actorChoiceSource('Radiant Eternatus CRZ 105', 'Climactic Gate'),
+    choices: [
+      { token: 'yes', kind: 'confirm', label: 'Yes' },
+      { token: 'no', kind: 'confirm', label: 'No' }
+    ],
+    publicMetadata: { selectionType: 'confirm' },
+    observation: { ownPublic: player({ deckCount: 30, prizeCount: 6 }) }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'abstain', reasonCode: 'UNSUPPORTED_CONFIRMATION_SOURCE'
   });
 });
