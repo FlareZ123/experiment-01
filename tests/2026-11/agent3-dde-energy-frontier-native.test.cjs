@@ -732,10 +732,21 @@ test('pinned DDE host-type-change discard runs after a native Switch prompt in b
     // End the Kecleon owner's turn through the native action reducer. DDE
     // must remain attached while the opposing Active is still Regidrago.
     store.dispatch(new native.gameActions.PassTurnAction(owner.id));
+    let waitPromptsResolved = 0;
+    while (store.state.prompts.length > 0) {
+      const waitPrompt = store.state.prompts[0];
+      assert.equal(waitPrompt.type, 'WaitPrompt',
+        'turn transition should expose only its native silent WaitPrompt');
+      store.dispatch(new native.ResolvePromptAction(waitPrompt.id, null));
+      waitPromptsResolved += 1;
+      assert.ok(waitPromptsResolved <= 4,
+        'native turn transition must settle within four WaitPrompts');
+    }
     state = store.state;
     owner = state.players[kecleonSeat];
     switcher = state.players[switcherSeat];
     assert.equal(state.activePlayer, switcherSeat);
+    assert.equal(state.phase, native.GamePhase.PLAYER_TURN);
     assert.ok(owner.active.cards.some(card => card.id === ddeId),
       'DDE must remain attached while Kecleon still copies Dragon');
 
