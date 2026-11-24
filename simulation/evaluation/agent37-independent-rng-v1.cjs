@@ -3,7 +3,7 @@
 const { createHash, createHmac, randomBytes } = require('node:crypto');
 
 const SCHEMA = 'aichi-independent-rng-material-v1';
-const PROTOCOL = 'independent-csprng-streams-v1';
+const PROTOCOL = 'independent-csprng-streams-v2';
 const ALGORITHM = 'hmac-sha256-counter-v1';
 const UINT32_RANGE = 0x100000000;
 const STREAM_NAMES = Object.freeze([
