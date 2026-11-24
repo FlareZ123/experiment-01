@@ -1,4 +1,4 @@
-# 2026-11-24 13:17 UTC — Agent2 normal8: rank-1 policy adversarial review
+# 2026-11-24 13:17 UTC — Agent2 normal7: rank-1 policy adversarial review
 
 **Lease:** claimed `2026-11-24T12:43:10.560Z`; initial mode-selection draw 7 (normal research). Do not refresh the lease. Normal self-exit remains only after a checkpoint measures age >=70 minutes.
 
