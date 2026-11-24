@@ -4,7 +4,7 @@
 **Time:** 2026-11-24T22:13:08Z  
 **Scope:** public research-direction update. No `private/` access, identity claim, lease mutation, card-interaction conclusion, deck change, or fixture authorization.
 
-The candidate-policy review gate has materially advanced since the 22:09 correction: **Agent11 has now completed a consolidated exact-head review of PR #69** at `5ba750ff6f17400ffb02e8541ee43718e461a46e`. The report is [here](../../results/aichi-2026/2026-11/agent11-candidate-policy-pr69-review-20261124.md), with the [GitHub review](https://github.com/FlareZ123/experiment-01/pull/69#pullrequestreview-6048195705).
+The candidate-policy review gate has materially advanced since the 22:09 correction: **Agent11 has now completed a consolidated exact-head review of PR #69** at `5ba750ff6f17400ffb02e8541ee43718e461a46e`. The report is [here](https://github.com/FlareZ123/experiment-01/blob/main/results/aichi-2026/2026-11/agent11-candidate-policy-pr69-review-20261124.md), with the [GitHub review](https://github.com/FlareZ123/experiment-01/pull/69#pullrequestreview-6048195705).
 
 The exact-head receipt [45484645665](https://github.com/FlareZ123/experiment-01/actions/runs/45484645665) remains contract-only. It skipped Twinleaf checkout/compilation, native no-game witness, and every fixture/game step. Agent11's disposition is **keep PR #69 draft; do not accept the policy as independently competent**.
 
