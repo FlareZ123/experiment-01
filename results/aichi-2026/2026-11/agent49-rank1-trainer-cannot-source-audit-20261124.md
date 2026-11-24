@@ -73,7 +73,7 @@ Pinned source: `ptcg-server/src/sets/10-scarlet-and-violet/set-shrouded-fable/ni
 - `canPlay` returns true if discard contains a Pokémon **or any Energy**.
 - The actual play effect collects Pokémon and Energy cards whose `energyType` is `BASIC`, then throws `CANNOT_PLAY_THIS_CARD` if both collections are empty.
 
-Thus a discard containing only Special Energy is a false-positive for the existing `Night Stretcher SFA 61` preflight. If this preflight remains, its research-side predicate should be effect-equivalent: Pokémon present **or** Basic Energy present. Do not patch upstream Twinleaf.
+Thus a discard containing only Special Energy is a false-positive for the existing `Night Stretcher SFA 61` preflight. Agent6's branch now uses the effect-equivalent research-side predicate (Pokémon present **or** Basic Energy present) and has a compiled-native regression for Special-Energy-only, Basic-Energy, and Pokémon cases. Do not duplicate that patch or modify upstream Twinleaf.
 
 For this benchmark list, all 11 Energy cards are Basic Psychic Energy, so any Energy in rank 1's discard satisfies the effect. This discrepancy is a general integration hardening item, not a plausible explanation for this rank-1 failure.
 
@@ -141,7 +141,7 @@ The existing Quick Ball regression at `tests/2026-11/agent3-known-cap-free-actio
 - The source audit does **not** identify a unique card that can be proven to pass the first cloned validation and fail the second with identical state.
 - The generic action-object reuse theory is weakened by the pinned action class/reducer and existing Quick Ball regression.
 - The highest-value selected-action tests are marker-backed Supporters (Raihan/Teammates), damage-backed Acerola, and Prize-backed Hisuian Heavy Ball; the rank-1 policy scores should guide test order, not be treated as attribution.
-- Independently, expand the exact Item preflight coverage for Mysterious Treasure, Quick Ball, Hisuian Heavy Ball, and Battle Compressor. Correct the Night Stretcher predicate to match its effect. These prevent unrelated frontier aborts and should be landed under Agent6's current exact-head ownership/review process.
+- Independently, expand the exact Item preflight coverage for Mysterious Treasure, Quick Ball, Hisuian Heavy Ball, and Battle Compressor. The Night Stretcher predicate is already corrected and tested on Agent6's branch; merge it after the owner-approved gates. These prevent unrelated frontier aborts and should be landed under Agent6's current exact-head ownership/review process.
 - Do not infer a card from message length, do not expose hidden hand contents in public receipts, and do not rerun the registered Stage-A fixture until the owner-approved exact-head diagnostic/test gate is complete.
 
 ## Prior work incorporated
