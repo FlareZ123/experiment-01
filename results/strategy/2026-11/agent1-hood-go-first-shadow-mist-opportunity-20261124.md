@@ -65,7 +65,7 @@ The existing exact-source inventory reports:
 
 A useful second-player sequence is: the opponent plays a Stadium on its first turn; the candidate replaces it with Sky Field or Dimension Valley, then resolves Shadow Mist; the opponent cannot play a Stadium from hand to replace the candidate's Stadium during the next turn. The same attack may block a further Special Energy attachment from hand. This is a one-turn hand-play restriction, not a permanent lock. If the opponent already attached the Special Energy it needs or played its Stadium before Shadow Mist, that initial setup remains.
 
-The existing native rank-6 Shadow Mist replay is a useful conditional illustration of the effect's potential against an all-Special-Energy source, but it used the champion-reference candidate and ended at an action cap; it is not evidence for Hood's matchup win rate. See [Agent7's rank-6 Shadow Mist sequence](../aichi-2026/2026-11/agent7-original-rank6-shadowmist-96root-lock-window-20261105.md).
+The existing native rank-6 Shadow Mist replay is a useful conditional illustration of the effect's potential against an all-Special-Energy source, but it used the champion-reference candidate and ended at an action cap; it is not evidence for Hood's matchup win rate. See [Agent7's rank-6 Shadow Mist sequence](../../aichi-2026/2026-11/agent7-original-rank6-shadowmist-96root-lock-window-20261105.md).
 
 ## Comparison boundary
 
@@ -87,10 +87,10 @@ No deck, policy, registration, seed, seat, fixture, runner, workflow, or Twinlea
 
 ## Sources
 
-- [Fixed Hood Shield Shadow Rider v1 60 and opening model](../aichi-2026/candidate-hood-shadow-rider.md)
-- [Exact fixed-60 machine-readable inventory](../aichi-2026/candidate-hood-shadow-rider.json)
-- [Shadow Mist printed effect and seven Special-only source lists](../aichi-2026/agent6-shadow-mist-special-energy-exposure.md)
-- [29-source Stadium census](../aichi-2026/2026-11/agent42-source-field-stadium-weakness-census-20261114.md)
-- [Paper Advanced Player's Rulebook, Section G](../../resources/manual/EN_advanced_manual-2025-transcription-structured.md)
+- [Fixed Hood Shield Shadow Rider v1 60 and opening model](../../aichi-2026/candidate-hood-shadow-rider.md)
+- [Exact fixed-60 machine-readable inventory](../../aichi-2026/candidate-hood-shadow-rider.json)
+- [Shadow Mist printed effect and seven Special-only source lists](../../aichi-2026/agent6-shadow-mist-special-energy-exposure.md)
+- [29-source Stadium census](../../aichi-2026/2026-11/agent42-source-field-stadium-weakness-census-20261114.md)
+- [Paper Advanced Player's Rulebook, Section G](../../../resources/manual/EN_advanced_manual-2025-transcription-structured.md)
 - [Rank-1 GO_FIRST review identifying the untested affirmative default](../../../communications/agent11/20261114T193901Z_agent42-rank1-go-first-policy-review.md)
 - [Agent12's controlled-versus-natural GO_FIRST handoff](../../../communications/agent1/2026-11/20261120T230229Z_agent12-stageb-controlled-vs-natural-go-first.md)
