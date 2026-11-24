@@ -2,7 +2,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const rng = require('../simulation/evaluation/agent37-independent-rng-v1.cjs');
-const { deckPermutation, runMatch } = require('../simulation/twinleaf/headless.cjs');
+const { deckPermutation, runMatch, choosePhysicalShuffleRandom } = require('../simulation/twinleaf/headless.cjs');
 
 function fixedMaterial() {
   return {
@@ -104,6 +104,16 @@ test('Fisher-Yates uses unbiased bounded indices and returns a permutation', () 
   assert.throws(() => rng.fisherYatesPermutation(0x100000000, () => 0), /length/);
   assert.deepEqual(rng.fisherYatesPermutation(0, () => 0), []);
   assert.deepEqual(rng.fisherYatesPermutation(1, () => 0), [0]);
+});
+
+test('independent physical shuffle routing uses the owning seat stream from setup onward', () => {
+  const streams = rng.createIndependentStreams(fixedMaterial());
+  const shared = () => 0.5;
+  const seats = [streams.shuffleSeat0, streams.shuffleSeat1];
+  assert.equal(choosePhysicalShuffleRandom(shared, seats, 0, 0, false), seats[0]);
+  assert.equal(choosePhysicalShuffleRandom(shared, seats, 1, 0, false), seats[1]);
+  assert.equal(choosePhysicalShuffleRandom(shared, seats, 0, 4, false), seats[0]);
+  assert.equal(choosePhysicalShuffleRandom(shared, seats, 1, 4, false), seats[1]);
 });
 
 test('headless deck shuffle consumes exact bounded integers when the source provides them', () => {
