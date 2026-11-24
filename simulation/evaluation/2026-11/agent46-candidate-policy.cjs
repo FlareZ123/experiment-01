@@ -373,7 +373,9 @@ function attackBaseDamage(attacker, attack, view, target) {
     return 10 + (isUltraBeast(target) ? 60 : 0);
   }
   if (attack.name === 'Power Beam') return 200;
-  if (attack.name === 'Night Watch') return 150;
+  if (attack.name === 'Night Watch') {
+    return 1500 + Math.min(120, view.opponentPublic.handCount * 20);
+  }
   if (attack.name === 'Shadow Mist') return 10;
   if (attack.name === 'Filch' || attack.name === 'Copycat' ||
       attack.name === 'Apex Dragon' || attack.name === 'Astral Barrage') return 0;
@@ -387,6 +389,12 @@ function estimatedDamage(attacker, attack, view, target) {
   const damage = Math.max(0, base * multiplier -
     resistancePenalty(attacker, target));
   return Number.isFinite(damage) ? damage : null;
+}
+
+function canFuelNightWatch(view) {
+  return handHas(view, 'Psychic Energy') &&
+    (view.ownTurnResources.energyPlayedTurn === false ||
+     boardAbilityStatus(view, 'Underworld Door') === true);
 }
 
 function attackScore(attacker, attack, view, target, options = {}) {
@@ -523,6 +531,12 @@ function searchNeedScore(view, printing, effectName = '', receipt = null) {
   }
   if (effectName === 'Climactic Gate') {
     return hasName(printing, 'Shadow Rider Calyrex VMAX') ? 100 : -5;
+  }
+  if (hasName(printing, 'Trevenant & Dusknoir-GX')) {
+    return view.opponentPublic.handCount >= 4 &&
+      !boardHas(view, 'Trevenant & Dusknoir-GX') &&
+      !handHas(view, 'Trevenant & Dusknoir-GX') &&
+      canFuelNightWatch(view) ? 90 : -5;
   }
   if (hasName(printing, 'Shadow Rider Calyrex VMAX')) {
     if (hasUnevolvedShadowRiderV(view) &&
@@ -761,6 +775,10 @@ function choosePokemonRecipient(view, prompt) {
       if (isShadowRiderVmax(slot) && psychicEnergyCount(view) < 5) score += 700;
       if (opponentHasDragon(view) && hasName(slot.printing, "Lillie's Clefairy ex") &&
           slotEnergyCount(slot) < 2) score += 600;
+      if (hasName(slot.printing, 'Trevenant & Dusknoir-GX') &&
+          view.opponentPublic.handCount >= 4 && slotEnergyCount(slot) < 3) {
+        score += 850 + Math.min(100, (view.opponentPublic.handCount - 4) * 20);
+      }
       if (isBasicShadowRiderV(slot)) score += 100;
       return { ...row, score };
     });
@@ -841,6 +859,10 @@ function chooseEnergyAttachment(view, prompt) {
         attached < 2) score += 1000;
     if (opponentHasDragon(view) && hasName(target.printing, "Lillie's Clefairy ex") &&
         attached < 2) score += 900;
+    if (hasName(target.printing, 'Trevenant & Dusknoir-GX') &&
+        view.opponentPublic.handCount >= 4 && attached < 3) {
+      score += 850 + Math.min(100, (view.opponentPublic.handCount - 4) * 20);
+    }
     if (isShadowRiderVmax(target) && psychicEnergyCount(view) < 5 &&
         attached < 5) score += 800;
     if (isBasicShadowRiderV(target) && hasUnevolvedShadowRiderV(view)) score += 700;
@@ -885,7 +907,9 @@ function chooseAttackPrompt(view, prompt, receipt) {
     else if (attackName === 'Max Geist') score = 10 + 30 * psychicEnergyCount(view);
     else if (attackName === 'Full Moon Rondo') {
       score = 20 + 20 * (countBench(view.ownPublic) + countBench(view.opponentPublic));
-    } else if (attackName === 'Night Watch') score = 150;
+    } else if (attackName === 'Night Watch') {
+      score = 150 + Math.min(120, view.opponentPublic.handCount * 20);
+    }
     else score = parseDamage(attackName);
     return { choice, score };
   });
@@ -1147,6 +1171,11 @@ function scoreBasicPlay(item, view) {
       view.ownPublic.deckCount > 0 && !hasWonderTagLock(view)) {
     return view.ownTurnResources.supporterPlayedTurn > 0 ? 620 : 720;
   }
+  if (hasName(printing, 'Trevenant & Dusknoir-GX') &&
+      !boardHas(view, 'Trevenant & Dusknoir-GX') && hasOpenBench(view) &&
+      view.opponentPublic.handCount >= 4 && canFuelNightWatch(view)) {
+    return 700 + Math.min(100, (view.opponentPublic.handCount - 4) * 25);
+  }
   if (hasName(printing, 'Mimikyu') && opponentHasRegidrago(view) &&
       !boardHas(view, 'Mimikyu')) return 950;
   if (hasName(printing, "Lillie's Clefairy ex") && opponentHasDragon(view) &&
@@ -1324,10 +1353,13 @@ function scoreTrainerPlay(item, view, receipt) {
         !boardHas(view, "Lillie's Clefairy ex") &&
         !handHas(view, "Lillie's Clefairy ex")) ||
        psychicEnergyCount(view) < 3)) return 820;
+  const needNightWatch = view.opponentPublic.handCount >= 4 &&
+    !boardHas(view, 'Trevenant & Dusknoir-GX') &&
+    !handHas(view, 'Trevenant & Dusknoir-GX') && canFuelNightWatch(view);
   if (hasName(name, 'Mysterious Treasure') && hasDiscardableHand(view, 1) &&
-      (opponentHasRegidrago(view) || missingBasicV)) return 800;
+      (opponentHasRegidrago(view) || missingBasicV || needNightWatch)) return 800;
   if (hasName(name, 'Quick Ball') && hasDiscardableHand(view, 1) &&
-      (missingBasicV ||
+      (missingBasicV || needNightWatch ||
        (opponentHasRegidrago(view) && !boardHas(view, 'Mimikyu')))) return 790;
   if (hasName(name, 'Ultra Ball') && hasDiscardableHand(view, 2) &&
       hasUnevolvedShadowRiderV(view) &&
