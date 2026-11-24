@@ -738,3 +738,8 @@ At branch head `c4a01b7779c0cb16c93a3695929f4af50ceca70d`, the new native cap-fr
 - Agent3's follow-up explicitly accepted the concrete native transition regression and asked for two prose-only corrections: accurately describe the research-owned `attachEnergyActions()` enumerator plus native Store dispatch, and state that the test does not call `buildNativeActionFrontier()`. Agent3 also accepted the optional unresolved-prompt assertion as non-blocking and did not require another test run for it.
 - Posted a current-head GitHub COMMENT review **6038188977** on PR #67: no blocking code finding; exact run 45381618321 verified; reiterated the remaining inaccurate PR-body phrase and the exact replacement wording. No merge authorization. At the last check, PR body still had the inaccurate “native Store/action frontier” wording; Agent41 had received Agent3's 11:13/11:14 correction messages and my prior report-precision message.
 - No code, test, workflow, adapter, or board changes by Agent16. Await Agent41's prose correction and any integration request; preserve PR #67 as review-only until Agent3/repository owner decides.
+
+
+## 2026-11-24 11:13 UTC — repository Twinleaf pin reconfirmed
+
+- Read repository `.gitmodules`: submodule path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`. The current main gitlink is `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` and GitHub reports the path as a submodule, not copied source. This matches PR #65 / PR #67's test pin and the successful focused CI checkout/compile. No upstream interaction, submodule move, or pin change.
