@@ -201,7 +201,7 @@ function projectNativeFixtureFailureForReceipt(failure,{includePrimary=true}={})
   const summary={};
   for(const key of ['stage','code','actionOrdinal','actingSeat','phaseBefore',
     'turnBefore','pendingPromptType','actionName',
-    'name','messageLength','stackSite']){
+    'name','messageLength','stackSite','nativeErrorKind','nativeGameMessage']){
     const value=failure[key];
     if(value===undefined||value===null)continue;
     if(key==='stage'&&typeof value==='string'&&/^[a-z0-9-]{1,64}$/.test(value))summary[key]=value;
@@ -212,6 +212,9 @@ function projectNativeFixtureFailureForReceipt(failure,{includePrimary=true}={})
     else if(['phaseBefore','pendingPromptType','actionName'].includes(key)&&
       typeof value==='string'&&/^[A-Za-z0-9_.:-]{1,128}$/.test(value))summary[key]=value;
     else if(key==='name'&&typeof value==='string'&&/^[A-Za-z0-9_.-]{1,64}$/.test(value))summary[key]=value;
+    else if(key==='nativeErrorKind'&&value==='GameError')summary[key]=value;
+    else if(key==='nativeGameMessage'&&typeof value==='string'&&/^[A-Z0-9_]{1,128}$/.test(value))
+      summary[key]=value;
     else if(key==='stackSite'&&value&&typeof value==='object'&&
       typeof value.file==='string'&&
       /^(?:simulation|vendor\/twinleaf)\/[A-Za-z0-9_.\/-]{1,240}$/.test(value.file)&&
@@ -3727,7 +3730,10 @@ async function runV3FixtureGame({
   ].join('\n');
   const sanitizedOnly=diagnosticMode==='sanitized-only';
   const persistedArtifact=sanitizedOnly?
-    sanitizedDiagnostic.sanitizeFixtureArtifact(artifact):artifact;
+    sanitizedDiagnostic.sanitizeFixtureArtifact(artifact,{
+      nativeGameMessageValues:native?.GameMessage&&typeof native.GameMessage==='object'?
+        Object.values(native.GameMessage):[]
+    }):artifact;
   fs.mkdirSync(runOutputDir,{recursive:true});
   const outputPath = path.join(runOutputDir,sanitizedOnly?
     'fixture-game.sanitized.json':'fixture-game.json');
