@@ -1647,6 +1647,7 @@ test('Climactic Gate selects two VMAX Pokémon and excludes Basic Pokémon choic
           selectionIndex: 1, selectedCount: 2, selectionType: 'pokemon',
           ownerSeat: 'actor', targetZone: 'deck', isOwnerVisible: true
         } },
+      { token: 'empty', kind: 'empty-selection', label: 'Select none' },
       { token: 'vmax-b', kind: 'pokemon', printing: 'Shadow Rider Calyrex VMAX CRE 75',
         label: 'Shadow Rider Calyrex VMAX', publicMetadata: {
           selectionIndex: 2, selectedCount: 2, selectionType: 'pokemon',
@@ -2334,7 +2335,7 @@ test('Climactic Gate confirmation is source-bound and probability-conditioned', 
     actorChoiceSource('Shadow Rider Calyrex VMAX CRE 75', 'Climactic Gate'),
     { deckCount: 30, prizeCount: 6 });
   assert.deepEqual(checkedDecision(wrongSource), {
-    kind: 'abstain', reasonCode: 'UNSUPPORTED_CLIMACTIC_GATE_SOURCE'
+    kind: 'abstain', reasonCode: 'UNSUPPORTED_CONFIRMATION_SOURCE'
   });
 });
 
@@ -2353,6 +2354,7 @@ test('Climactic Gate accepts up to two actor-visible VMAX choices from the deck 
           selectionIndex: 1, selectedCount: 1, selectionType: 'pokemon',
           ownerSeat: 'actor', targetZone: 'deck', isOwnerVisible: true
         } },
+      { token: 'empty', kind: 'empty-selection', label: 'Select none' },
       { token: 'opponent-vmax', kind: 'pokemon', printing: 'Shadow Rider Calyrex VMAX CRE 75',
         label: 'Opponent VMAX', publicMetadata: {
           selectionIndex: 2, selectedCount: 1, selectionType: 'pokemon',
@@ -2381,6 +2383,7 @@ test('Climactic Gate declines a source-mismatched ChoosePokemonPrompt', () => {
     promptType: 'ChoosePokemonPrompt',
     source: actorChoiceSource('Shadow Rider Calyrex VMAX CRE 75', 'Climactic Gate'),
     choices: [
+      { token: 'empty', kind: 'empty-selection', label: 'Select none' },
       { token: 'vmax', kind: 'pokemon', printing: 'Shadow Rider Calyrex VMAX CRE 75',
         label: 'Shadow Rider Calyrex VMAX', publicMetadata: {
           selectionIndex: 0, selectedCount: 1, selectionType: 'pokemon',
@@ -2400,7 +2403,7 @@ test('Climactic Gate declines a source-mismatched ChoosePokemonPrompt', () => {
     }) }
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'abstain', reasonCode: 'UNSUPPORTED_CLIMACTIC_GATE_SOURCE'
+    kind: 'abstain', reasonCode: 'UNSUPPORTED_POKEMON_PROMPT'
   });
 });
 
