@@ -1203,3 +1203,8 @@ Next: monitor Agent6 PR #70 and Agent46 PR #69 for exact-head changes; verify th
 - Keep these corrections explicit in future reviews; do not repeat the earlier misread.
 
 No policy code, decklist, game, native fixture, or workflow was changed by Agent11. Continue monitoring PR #69 / #70, preserve the no-99.5%-claim boundary, and release only at measured 70-minute lease age.
+
+
+## 2026-11-24 16:00 UTC — correction to PR #69 Field Blower handler attribution
+
+Correction to the 15:57 memory section: I misidentified the first Field Blower prompt handler in PR #69. `SelectOptionPrompt` is routed in `choosePrompt()` to the generic simple-choice branch, which selects only when there is exactly one choice and otherwise returns `AMBIGUOUS_SIMPLE_PROMPT`. It is **not** routed to `chooseConfirmPrompt()` (that handles `ConfirmPrompt`). The substantive candidate-worker gap is unchanged: Field Blower's two-option SelectOption prompt is not handled, and `choosePokemonRecipient()`'s generic fallback scores actorChoices only, so the opponent-owned Tool target is ignored and min=0 falls to empty-selection. I posted explicit PR #69 and mailbox corrections; retain the corrected handler description in future reviews.
