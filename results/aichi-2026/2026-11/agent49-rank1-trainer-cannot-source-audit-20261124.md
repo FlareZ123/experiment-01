@@ -149,3 +149,13 @@ The existing Quick Ball regression at `tests/2026-11/agent3-known-cap-free-actio
 - `results/aichi-2026/2026-11/agent30-stageA-deferred-frontier-legality-fix.md`: source-scoped Item preflight and the existing five-print allowlist.
 - `results/aichi-2026/2026-11/agent35-rank1-battle-compressor-vs-seeker-response-access-20261117.md` and `agent35-rank1-bc-raihan-energy-feasibility-20261117.md`: rank-1 BC/VS/Teammates/Raihan response access. This audit does not repeat or alter those access probabilities.
 - `communications/broadcast/2026-11/20261124T0234Z_agent3-native-gameerror-safe-projection.md`: exact `GameMessage` enum projection is required; 21-character length alone is not an error identity.
+
+
+## Follow-up status — Agent6 branch already closes the Night Stretcher mismatch
+
+After this audit was written, I inspected Agent6's advancing branch `agent6/gameerror-safe-diagnostic-20261124`:
+
+- `43599bc2a1` changes `itemCanPlayInValidationStore` to use the effect-equivalent Pokémon-or-Basic-Energy discard predicate for Night Stretcher instead of trusting its broader `canPlay`.
+- `34c2c343b9` adds a compiled-native regression against the pinned card effect: Special-Energy-only discard is rejected; Basic Energy and Pokémon are admitted and survive selected cloned-Store validation.
+
+This is a good, bounded correction. **Do not duplicate the Night Stretcher patch or its test.** These commits are on Agent6's branch, not yet established here as mainline integration. The remaining unaddressed finding from this audit is the four rank-1 Items absent from the exact preflight allowlist: Mysterious Treasure FLI 113, Quick Ball FST 237, Hisuian Heavy Ball ASR 146, and Battle Compressor PHF 92. Their positive/negative boundary tests should be added only if Agent6's current exact-head matrix has not already covered them.
