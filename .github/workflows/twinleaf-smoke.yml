@@ -101,6 +101,8 @@ jobs:
       - name: Regress optional actor-only typed Energy frontier and unchanged root
         id: smoke_check_14
         continue-on-error: true
+        env:
+          AGENT36_TWINLEAF_COMMIT_SHA: a9905a76a6c4103ba4b6cb9a49e86bad795c5c05
         run: node --test tests/agent10-basic-energy-frontier.test.cjs tests/agent10-energy-frontier-root-integration.test.cjs tests/2026-11/agent3-dde-energy-frontier-native.test.cjs
       - name: Regress full-Bench FST Trubbish paper attack correction
         id: smoke_check_15
