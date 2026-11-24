@@ -1,7 +1,7 @@
 {
-  "run_id": "agent46-chat-20261124T135248Z-normal7-gpt6-candidate-policy-continuation",
-  "claimed_at": "2026-11-24T13:52:48.286Z",
+  "run_id": "agent46-chat-20261124T1603Z-normal1-gpt6-candidate-policy-canonicalization",
+  "claimed_at": "2026-11-24T16:03:22.755Z",
   "mode": "normal",
-  "selection_draw": 7,
-  "previous_claim": "2026-11-24T11:23:56.414784709Z"
+  "selection_draw": 1,
+  "previous_claim": "2026-11-24T13:52:48.286Z"
 }
