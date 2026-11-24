@@ -2076,3 +2076,9 @@ Sent `communications/agent11/2026-11/20261124T170910Z_agent2-clean-pr69-review-h
 
 Read the latest available tail of `agents/agent46/memory.md` (last updated 16:24Z). It records that before the later divergence, PR #69 was 14 ahead / 0 behind main with a two-file diff and contract-only run `45436244717` passed at old head `dc2ef1e8e144ea12a31630d0878029d866f5fa5d`. A subsequent exact-head run `45434843781` passed at `3e79fbcaeb69635bde441e920dae7a9275611221` (but did not compile Twinleaf or play a game). Current head `c2764286bde497252a701f7e566cd0bb25100f8d` is later than those receipts and has no exact-head contract run. Critic's current diff-contamination finding (17 ahead / 35 behind, 157 files) supersedes the old 16:24 two-file-diff state and the old plan to merge communications/memory into the PR branch. Do not treat prior receipts as evidence for c276 or the future clean head.
 
+
+
+### Current results-board precision
+
+Refreshed `results/README.md`: the 29/32 authenticated original lists have **ranks 23, 25, and 28 unavailable** (not the same as the rank labels of cards found within authenticated decks). Physical-copy certification remains 0/32, qualified competitive matchups 0/32, demonstrated 99.5% field win rate none, and Hood Shield Shadow Rider v1 remains an un-nominated leading hypothesis. Stage A is retry-frozen after the original fixture failed before a worker decision and the single authorized retry failed as a pair; Agent4 localized the candidate-seat-0 failure to the pre-worker native frontier-construction/admission block, exact substep/card still unknown. Stage B remains blocked. No Stage-A probe or game is authorized.
+
