@@ -105,6 +105,47 @@ function targetProjection(target, state, actorSeat, native) {
   return result;
 }
 
+function isExactDdeEnergyCard(card) {
+  return card?.fullName === 'Double Dragon Energy ROS' &&
+    card?.set === 'ROS' && String(card?.setNumber) === '97';
+}
+
+function isDdeNonDragonTargetInValidationStore(action, simulator, actorSeat, native) {
+  if (action?.type !== 'PLAY_CARD_ACTION') return false;
+  const validationState = simulator.store.state;
+  const card = validationState.players[actorSeat]?.hand?.cards?.[action.handIndex];
+  if (!isExactDdeEnergyCard(card)) return false;
+
+  assert.ok(typeof native.CheckPokemonTypeEffect === 'function',
+    'pinned CheckPokemonTypeEffect is required for DDE target preflight');
+  assert.ok(native.CardType && native.CardType.DRAGON !== undefined,
+    'pinned Dragon CardType is required for DDE target preflight');
+  assert.ok(typeof simulator.store.reduceEffect === 'function',
+    'pinned Store.reduceEffect is required for DDE target preflight');
+
+  const projection = targetProjection(action.target, validationState, actorSeat, native);
+  assert.ok(projection,
+    'exact DDE action target must resolve to an occupied Active or Bench Pokémon');
+  assert.equal(projection.targetSeat, 'actor',
+    'exact DDE action target must belong to the acting player');
+  const targetPlayer = validationState.players[actorSeat];
+  const targetList = projection.targetZone === 'active' ? targetPlayer?.active :
+    projection.targetZone === 'bench' && Number.isSafeInteger(projection.targetIndex) ?
+      targetPlayer?.bench?.[projection.targetIndex] : null;
+  assert.ok(targetList instanceof native.PokemonCardList && slotPokemon(targetList),
+    'exact DDE action target must resolve to an occupied native PokemonCardList');
+
+  // Use the same pinned dynamic type reducer as Double Dragon Energy itself.
+  // This must run on the isolated validation Store, not printed cardType.
+  const typeCheck = new native.CheckPokemonTypeEffect(targetList);
+  simulator.store.reduceEffect(validationState, typeCheck);
+  assert.ok(Array.isArray(typeCheck.cardTypes),
+    'pinned CheckPokemonTypeEffect must produce a cardTypes array');
+  assert.ok(typeCheck.cardTypes.length > 0,
+    'pinned CheckPokemonTypeEffect must produce at least one Pokémon type');
+  return !typeCheck.cardTypes.includes(native.CardType.DRAGON);
+}
+
 function cardType(card, native) {
   if (native.PokemonCard && card instanceof native.PokemonCard) return 'pokemon';
   if (native.EnergyCard && card instanceof native.EnergyCard) return 'energy';
@@ -358,15 +399,6 @@ function isExpectedActionRejection(action,state,actorSeat,native,error){
       typeof error.message!=='string')return false;
   if(action?.type==='PLAY_CARD_ACTION'){
     const family=playCardRejectionFamily(action,state,actorSeat,native);
-    if(family==='ENERGY'&&error.message==='CANNOT_PLAY_THIS_CARD'){
-      // The pinned Double Dragon Energy reducer throws this exact GameError
-      // only when its AttachEnergyEffect target is not a Dragon Pokémon.
-      // Keep the exception bound to the exact printing: another Energy card
-      // raising CANNOT_PLAY_THIS_CARD remains a fatal frontier failure.
-      const card=state.players[actorSeat]?.hand?.cards?.[action.handIndex];
-      if(card?.fullName==='Double Dragon Energy ROS'&&
-          card?.set==='ROS'&&String(card?.setNumber)==='97')return true;
-    }
     return EXPECTED_PLAY_CARD_REJECTIONS[family]?.has(error.message)===true;
   }
   return EXPECTED_REJECTIONS[action?.type]?.has(error.message)===true;
@@ -518,7 +550,8 @@ function buildNativeActionFrontier({
     // Construct the deep-cloned Simulator outside the expected-rejection
     // catch: constructor instability is an engine failure, never an illegal move.
     const simulator = createIsolatedValidationSimulator(state,native);
-    if(!itemCanPlayInValidationStore(action,simulator,actorSeat,native)||
+    if(isDdeNonDragonTargetInValidationStore(action,simulator,actorSeat,native)||
+        !itemCanPlayInValidationStore(action,simulator,actorSeat,native)||
         !underworldDoorCanUseInValidationStore(action,simulator,actorSeat,native)){
       rejectedCount += 1;
       preflightRejectedCount += 1;
