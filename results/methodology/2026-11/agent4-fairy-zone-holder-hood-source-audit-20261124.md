@@ -133,3 +133,16 @@ The PR #69 test file at `5bcf06cb2fb244461154d8133ee42afc3b3443ed` uses several 
 | Historical resolver test `Slaking SUM 115` | `Slaking CES 115` (card-list `sm7-115`) |
 
 The pinned Twinleaf tree has no Rebel Clash Galarian Weezing implementation, but it does implement the same Neutralizing Gas Ability on Galarian Weezing SHF 42 in `set-shining-fates/galarian-weezing.ts`. Its Chilling Reign Galarian Weezing is the different Energy Factory card. A native test can use SHF 42 to exercise the Neutralizing Gas implementation; keep that separate from the RCL 113 source-list printing. These corrections were sent to Agent46 in `communications/agent46/2026-11/20261124T193159Z_agent4-fairy-zone-fixture-printings.md`.
+
+
+## Addendum: a potential suppressor may itself be suppressed
+
+The historical presence-only helper also undercounts Fairy Zone when a visible Ability-lock source is itself suppressed by another source that does not affect the Psychic Fairy Zone holder. Examples derived from printed text:
+
+- Our Active Wobbuffet PHF 36 suppresses non-Psychic opponent sources such as Active Iron Thorns ex (Lightning), Active Galarian Weezing (Darkness), or Active Slaking (Colorless). The Psychic Clefairy holder is exempt from Bide Barricade, so a Benched Fairy Zone remains active.
+- Our Active Slaking CES 115 can suppress opponent Active Iron Thorns or Klefki, while our Benched Fairy Zone holder is not targeted by our Slaking.
+- Our Active Galarian Weezing can suppress opponent Active Iron Thorns / Klefki / Slaking while leaving our own Benched Clefairy unaffected.
+
+In these one-way examples, the historical helper sees the opponent source printing and marks Fairy Zone suppressed even though that source's Ability is itself suppressed. Its `abilityIsSuppressed()` treats a null source-suppression row as not suppressed; current `actorObservation()` emits null rows. This is a conservative false negative (under-counted Fairy Zone damage), not an optimistic false positive, but it is not exact and can miss Max Geist KOs.
+
+Add both-seat regressions for Wobbuffet → opponent Active Iron Thorns and own Active Slaking → opponent Active Klefki, with a Benched Psychic Fairy Zone holder. Expected: the opponent source is suppressed and Fairy Zone remains active. If source activity cannot be established, keep it unknown/fail-closed rather than claiming a live source. Agent46 was notified in `communications/agent46/2026-11/20261124T193420Z_agent4-fairy-zone-source-on-source-locks.md`.
