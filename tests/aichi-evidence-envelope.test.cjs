@@ -32,7 +32,7 @@ function fixture(mirror = false) {
     observedWinnerIndex:0,observedFinished:true,
     observedEngine:'twinleafgg/pinned-test',
     resolvedEngineRevision:'pinned-test',
-    observedRngProtocol:'isolated-policy-rng',
+    observedRngProtocol:'separate-game-and-per-seat-policy-prng-v1',
     observedPolicy:'test-policy',
     effectiveMatchOptions:{strictPromptValidation:true,isolatePolicyRandomness:true},
     winner:t.candidateEngineSlot==='A'?'candidate':'opponent',
@@ -40,12 +40,12 @@ function fixture(mirror = false) {
     observedEngineDeckHashes:[h1,h2]
   }));
   const archive={schemaVersion:1,planDigest:campaign.planDigest,phase:'pilot',
-    rngProtocol:'isolated-policy-rng',
+    rngProtocol:'separate-game-and-per-seat-policy-prng-v1',
     recordedTrials:2,selectedTrialIds:trials.map(t=>t.trialId),
     competitiveWinRateCertified:false,rulesAndBotCompetenceCertified:false,records};
   const provenance={researchRevision:'commit-test',engineRevision:'pinned-test',
     rulesetRevision:'paper-expanded-test',candidatePolicyRevision:'test-policy',
-    opponentPolicyRevision:'test-policy',rngProtocol:'isolated-policy-rng',
+    opponentPolicyRevision:'test-policy',rngProtocol:'separate-game-and-per-seat-policy-prng-v1',
     effectiveMatchOptions:{strictPromptValidation:true,isolatePolicyRandomness:true}};
   return {inputs:{field,source,candidates,campaign},archive,provenance};
 }
@@ -117,7 +117,7 @@ test('actual reported seed and policy provenance take priority',()=>{
   archive.records[0].observedSeed--;
   archive.records[0].observedEngine='twinleafgg/pinned-test';
   archive.records[0].resolvedEngineRevision='pinned-test';
-  archive.records[0].observedRngProtocol='isolated-policy-rng';
+  archive.records[0].observedRngProtocol='separate-game-and-per-seat-policy-prng-v1';
   archive.records[0].observedPolicy='test-policy';
   archive.records[0].effectiveMatchOptions={...provenance.effectiveMatchOptions};
   assert.equal(createEvidenceEnvelope(inputs,archive,provenance).audit.completed,2);
