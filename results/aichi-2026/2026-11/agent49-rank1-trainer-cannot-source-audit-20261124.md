@@ -195,3 +195,15 @@ The surrounding implementation removes several generic explanations:
 - The live Store snapshotter at `agent49-native-fixture-game.cjs:10-78` records own-property values and object identities, not just a shallow public summary. The frontier and selected-validation boundaries assert the original Store remains unchanged.
 
 These controls make RNG drift and generic live-state mutation weak explanations. They do not rule out every global singleton or a card-specific hidden dependency. The next useful diagnostic is therefore a *private selected-card identity captured before the throwing call*, paired with a minimal state-predicate projection for that card—not another generic action snapshot.
+
+
+## Additional invariant worth carrying into the selected-validation call
+
+There is one small gap in the current boundary checks:
+
+- `agent36-native-action-frontier.cjs:513-515` captures `fullStateBefore` using a snapshotter with stable object IDs.
+- Lines 562–565 prove the live Store was unchanged by enumeration/frontier validation.
+- The returned frontier at lines 577–590 discards that baseline and snapshotter.
+- `dispatchSelectedNativeAction` takes a *new* baseline at selection time and checks that the Store stays unchanged during the second clone, but it does not compare the live Store at selection time with the frontier-time snapshot.
+
+The runner does not pass the live `state` to the policy worker, so an intervening mutation is not currently evidenced. Still, returning the existing snapshotter closure plus its baseline as host-only frontier metadata, then comparing it immediately before selected validation, would prove the frontier and selected clone saw the same live object graph. Keep this metadata out of `actionFrontier` and worker input. If the comparison fails, emit a dedicated state-divergence diagnostic instead of allowing a downstream card GameError to obscure the earlier mutation.
