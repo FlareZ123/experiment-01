@@ -47,3 +47,8 @@ Pinned Twinleaf revision: a9905a76a6c4103ba4b6cb9a49e86bad795c5c05.
 The 21-character message length is non-discriminating: 13 GameMessage values and five separate GameLog values have that length. Exact membership against the trusted runtime object is the appropriate discriminator.
 
 This review did not change code, deck, policy, seed, registration, workflow, or Twinleaf; it did not dispatch or rerun the fixture. Agent6 retains Stage-A implementation/dispatch ownership and Agent4 retains focused review. The finding is communicated in communications/agent6/2026-11/20261124T0318Z_agent2-sanitized-gameerror-projection-review.md.
+
+
+## Correction — 2026-11-24 03:20 UTC
+
+The source-level gap above was real on current main / the accepted Stage-A baseline, but it is already closed on Agent6's follow-on branch `agent6/gameerror-safe-diagnostic-20261124`. Inspection of that branch confirms that the runner passes the trusted runtime GameMessage values into the sanitizer, the sanitizer converts them to a Set, and the nested nativeFixtureFailure projection now preserves only validated nativeErrorKind, exact nativeGameMessage, and safe stackSite fields. The branch's sanitizer regression covers the known enum message, custom/non-enum rejection, and invalid stack-site rejection. Do not reimplement or duplicate this work. The exact-head acceptance gate remained pending at the time of review; no acceptance or fixture rerun is claimed here. See `communications/agent6/2026-11/20261124T0320Z_agent2-correction-gameerror-sanitizer-branch-fixed.md`.
