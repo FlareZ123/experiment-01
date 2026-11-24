@@ -3524,3 +3524,74 @@ test('Quick Ball may discard a duplicate Clefairy but protects singleton Radiant
     kind: 'select-choices', tokens: ['clefairy']
   });
 });
+
+
+test('Field Blower targets Dragon Stealthy Hood before a generic opponent Tool', () => {
+  const request = promptRequest({
+    promptType: 'ChoosePokemonPrompt',
+    source: actorChoiceSource('Field Blower GRI 125', 'Field Blower'),
+    choices: [
+      { token: 'generic-tool', kind: 'pokemon', printing: 'Dratini OBF 105',
+        label: 'Dratini',
+        publicMetadata: { selectionIndex: 0, ownerSeat: 'opponent',
+          targetZone: 'bench', isOwnerVisible: true, benchIndex: 0 } },
+      { token: 'dragon-hood', kind: 'pokemon', printing: 'Regidrago V SIT 135',
+        label: 'Regidrago V',
+        publicMetadata: { selectionIndex: 1, ownerSeat: 'opponent',
+          targetZone: 'active', isOwnerVisible: true } },
+      { token: 'empty', kind: 'empty-selection', label: 'Select none' }
+    ],
+    publicMetadata: {
+      selectionType: 'pokemon', minimumCount: 0, maximumCount: 1,
+      allowCancel: false, isSecret: false
+    },
+    observation: {
+      ownPublic: player(),
+      opponentPublic: player({
+        active: pokemon('Regidrago V SIT 135', {
+          types: ['Dragon'], tools: ['Stealthy Hood UNB 186']
+        }),
+        bench: [pokemon('Dratini OBF 105', {
+          tools: ['Float Stone BKT 137']
+        })]
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['dragon-hood']
+  });
+});
+
+test('Field Blower selects Stealthy Hood when a Dragon is protected by it', () => {
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Field Blower GRI 125', 'Field Blower'),
+    choices: [
+      { token: 'float-stone', kind: 'card', printing: 'Float Stone BKT 137',
+        label: 'Float Stone',
+        publicMetadata: { sourceZone: 'tool', ownerSeat: 'opponent',
+          isOwnerVisible: true } },
+      { token: 'stealthy-hood', kind: 'card', printing: 'Stealthy Hood UNB 186',
+        label: 'Stealthy Hood',
+        publicMetadata: { sourceZone: 'tool', ownerSeat: 'opponent',
+          isOwnerVisible: true } }
+    ],
+    publicMetadata: {
+      sourceZone: 'tool', ownerSeat: 'opponent',
+      minimumCount: 1, maximumCount: 1,
+      allowCancel: false, isSecret: false,
+      selectionType: 'card-combination'
+    },
+    observation: {
+      ownPublic: player(),
+      opponentPublic: player({
+        active: pokemon('Regidrago V SIT 135', {
+          types: ['Dragon'], tools: ['Stealthy Hood UNB 186']
+        })
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices', tokens: ['stealthy-hood']
+  });
+});
