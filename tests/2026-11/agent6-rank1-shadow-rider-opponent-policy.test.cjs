@@ -3370,3 +3370,96 @@ test('Field Blower declines opponent Tool targets while Tool effects are disable
     kind: 'select-choice', token: 'empty'
   });
 });
+
+
+test('Neutralizing Gas suppresses Gate only from the opponent Active Spot', () => {
+  const radiantAction = {
+    token: 'radiant', kind: 'play-card',
+    actorPrinting: 'Radiant Eternatus CRZ 105',
+    publicMetadata: { cardType: 'pokemon', handIndex: 0,
+      targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+      isOwnerVisible: true }
+  };
+  const opponentActiveGas = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94'), deckCount: 30, prizeCount: 6 }),
+    opponentPublic: player({
+      active: pokemon('Galarian Weezing RCL 113', {
+        abilities: ['Neutralizing Gas']
+      })
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(opponentActiveGas), {
+    kind: 'select-action', token: 'pass'
+  });
+
+  const opponentBenchedGas = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94'), deckCount: 30, prizeCount: 6 }),
+    opponentPublic: player({
+      active: pokemon('Regidrago V SIT'),
+      bench: [pokemon('Galarian Weezing RCL 113', {
+        abilities: ['Neutralizing Gas']
+      })]
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(opponentBenchedGas), {
+    kind: 'select-action', token: 'radiant'
+  });
+
+  const ownActiveGas = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({
+      active: pokemon('Galarian Weezing RCL 113', {
+        abilities: ['Neutralizing Gas']
+      }),
+      deckCount: 30, prizeCount: 6
+    }),
+    opponentPublic: player({ active: pokemon('Regidrago V SIT') }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(ownActiveGas), {
+    kind: 'select-action', token: 'radiant'
+  });
+});
+
+test('Alolan Muk Power of Alchemy suppresses Gate from either public Bench', () => {
+  const radiantAction = {
+    token: 'radiant', kind: 'play-card',
+    actorPrinting: 'Radiant Eternatus CRZ 105',
+    publicMetadata: { cardType: 'pokemon', handIndex: 0,
+      targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+      isOwnerVisible: true }
+  };
+  const ownBenchMuk = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94'),
+      bench: [pokemon('Alolan Muk SUM 58', { abilities: ['Power of Alchemy'] })],
+      deckCount: 30, prizeCount: 6
+    }),
+    opponentPublic: player({ active: pokemon('Regidrago V SIT') }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(ownBenchMuk), {
+    kind: 'select-action', token: 'pass'
+  });
+
+  const opponentBenchMuk = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94'),
+      deckCount: 30, prizeCount: 6
+    }),
+    opponentPublic: player({
+      active: pokemon('Regidrago V SIT'),
+      bench: [pokemon('Alolan Muk SUM 58', { abilities: ['Power of Alchemy'] })]
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(opponentBenchMuk), {
+    kind: 'select-action', token: 'pass'
+  });
+});
