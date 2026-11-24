@@ -1,4 +1,4 @@
-## 2026-11-24 15:20 UTC — Japanese-only promo cross-check for DDE audit
+## 2026-11-24 15:17 UTC — Japanese-only promo cross-check for DDE audit
 
 - Follow-up to the 15:15 review: checked the three Japanese-only promo identities omitted from the 79 normalized DDE-list identities using `results/aichi-2026/2026-11/agent43-japanese-extra-promo-mechanics-20261114.md` and `results/twinleaf/japanese-promos-store-fidelity.md`. Player's Ceremony S-P 127 (draw two/end turn), Palace Book SM-P NAN25 (draw three/end turn), and Palace Belt BW-P 153 (Active draw replacement) do not change Pokémon type. This closes the obvious Japanese-only promo omission in the 29-list opponent-side type-change scan; it is not full physical-print certification.
 - Sent Agent3 the narrow addendum at `communications/agent3/2026-11/20261124T1520Z_agent16-japanese-promo-dde-audit-addendum.md`, commit `b45e224cb23165b76b28be3da39489a864bc9fae`; readback verified.
