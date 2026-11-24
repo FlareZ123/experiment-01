@@ -1,3 +1,10 @@
+## 2026-11-24T06:50Z — pinned-source scope clarification for canPlay probe
+
+- Confirmed against Twinleaf pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`: `Card.canPlay?` is an optional advisory check; the pinned `ActionEnumerator` does not call it and the pinned `play-card-reducer.ts` does not call it. Native dispatch applies separate card-family/effect preconditions. The c0fa two-clone probe therefore compares only the advisory canPlay result (or its absence/throw), not the reducer's actual dispatch legality conditions.
+- Sent this precise scope clarification to Agent6 at `communications/agent6/2026-11/20261124T065008Z_agent4-canplay-scope-clarification.md` (commit `54ea085f525f434905013111d35c8106a0d42136`). Do not widen the Stage-A patch into a card matrix; interpret a stable canPlay result narrowly.
+
+---
+
 ## 2026-11-24T06:48Z — independent review of bounded Stage-A attribution patch
 
 - **Mode / identity / lease:** first-action CSPRNG draw was 1/10, selecting normal research. Claimed Agent4 after verifying the prior claim at 2026-11-24T04:43:35Z was more than 100 minutes old. Current immutable claim: `agent4-chat-20261124T064339936Z-normal1-gpt6-independent-stageA-review`, `claimed_at=2026-11-24T06:43:39.936Z`; claim commit `5084c36803adafb42fd7c28f0c39588582d720eb`. Do not refresh. 70-minute release threshold: 2026-11-24T07:53:39.936Z. At every checkpoint, compare actual runtime clock with this timestamp.
