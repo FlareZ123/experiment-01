@@ -55,17 +55,21 @@ function pokemon({
     subtypes.includes('VSTAR') ? 'VSTAR' :
     subtypes.includes('Stage 2') ? 'STAGE2' :
     subtypes.includes('Stage 1') ? 'STAGE1' : 'BASIC';
-  return {
-    printing, name, hp, damage, types, subtypes, abilities,
+  const result = {
+    printing, name, hp, damage, abilities,
     abilitySuppressions: suppression === null ? null : abilities.map(abilityName => ({
       abilityName, suppressed: suppression,
       sourcePrinting: suppression ? 'Test suppression' : null,
       reasonCode: suppression ? 'TEST_SUPPRESSION' : null
     })),
-    abilityLockActivationOrder, tools, energies, attacks, specialConditions,
+    tools, energies, attacks, specialConditions,
     publicRestrictions: { ...pokemonRestrictions(), ...publicRestrictionOverrides },
     printed: { name, hp, types, subtypes, stage, weakness, retreatCost }
   };
+  if (Number.isSafeInteger(abilityLockActivationOrder)) {
+    result.abilityLockActivationOrder = abilityLockActivationOrder;
+  }
+  return result;
 }
 function publicPlayer({
   active = null, bench = [], stadium = [], stadiumDirection = null, discard = [],
