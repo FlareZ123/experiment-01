@@ -79,7 +79,7 @@ A count of `results/aichi-2026/full-decklists.json` finds 10 DDE-bearing source 
 | 32 | 4 | 1 | 1 |
 | **Total** | **38** | **13** | **11** |
 
-The repository card pool independently confirms the restrictions and types: `resources/cards/en/xy6.json` identifies Double Dragon Energy XY6 #97 and says it can only attach to Dragon Pokémon; `resources/cards/en/sm10.json` identifies Dedenne-GX #57 as Lightning; `resources/cards/en/sm2.json` identifies Tapu Lele-GX #60 as Psychic.
+The repository card pool independently confirms the restrictions and types: `resources/cards/en/xy6.json` identifies Double Dragon Energy XY6 #97, marks it Expanded-legal, and says it can only attach to Dragon Pokémon; `resources/cards/en/sm10.json` identifies Expanded-legal Dedenne-GX #57 as Lightning; `resources/cards/en/sm2.json` identifies Expanded-legal Tapu Lele-GX #60 as Psychic.
 
 Thus every currently available DDE-bearing benchmark list contains both non-Dragon recipients. Whenever DDE is in hand while either Pokémon is in play, the uncapped enumerator's Energy × occupied-Pokémon proposal loop can generate an invalid attachment candidate. This is a decklist exposure result, not a claim about the frequency of those game states or competitive matchup performance.
 
