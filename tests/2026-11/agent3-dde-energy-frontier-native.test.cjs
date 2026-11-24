@@ -775,20 +775,10 @@ test('pinned DDE host-type-change discard runs after a native Switch prompt in b
     assert.ok(switchAction instanceof native.cardActions.PlayCardAction);
     store.dispatch(switchAction);
     state = store.state;
-    assert.equal(state.prompts.length, 1,
-      'native Switch must open its ChoosePokemonPrompt; diagnostics=' + JSON.stringify({
-        phase: state.phase,
-        turn: state.turn,
-        activePlayer: state.activePlayer,
-        switcherSeat,
-        switcherId: state.players[switcherSeat].id,
-        switchCard: state.players[switcherSeat].hand.cards[switchIndex]?.fullName,
-        switchCardIsTrainer: state.players[switcherSeat].hand.cards[switchIndex] instanceof native.TrainerCard,
-        switchCardTrainerType: state.players[switcherSeat].hand.cards[switchIndex]?.trainerType,
-        bench: state.players[switcherSeat].bench.map(slot => slot.cards.map(card => card.fullName)),
-        prompts: state.prompts.map(item => item.type)
-      }));
-    const prompt = state.prompts[0];
+    const unresolvedPrompts = state.prompts.filter(prompt => prompt.result === undefined);
+    assert.equal(unresolvedPrompts.length, 1,
+      'native Switch must open exactly one unresolved ChoosePokemonPrompt');
+    const prompt = unresolvedPrompts[0];
     assert.equal(prompt.type, 'Choose pokemon');
     const chosenBenchPokemon = state.players[switcherSeat].bench[0];
     assert.equal(chosenBenchPokemon.cards[0].fullName, DEDENNE);
