@@ -193,14 +193,8 @@ function hasBasicShadowRiderV(view) {
   return ownBoard(view).some(isBasicShadowRiderV);
 }
 
-function hasShadowRiderVmax(view) {
-  return ownBoard(view).some(isShadowRiderVmax);
-}
-
 function hasUnevolvedShadowRiderV(view) {
-  const board = ownBoard(view);
-  return board.filter(isBasicShadowRiderV).length >
-    board.filter(isShadowRiderVmax).length;
+  return ownBoard(view).some(isBasicShadowRiderV);
 }
 
 function hasOpenBench(view) {
@@ -474,7 +468,6 @@ function searchNeedScore(view, printing, effectName = '') {
   const dragon = opponentHasDragon(view);
   const board = ownBoard(view);
   const hasShadowV = hasBasicShadowRiderV(view);
-  const hasShadowVmax = hasShadowRiderVmax(view);
   const hasMimikyu = board.some(slot => hasName(slot.printing, 'Mimikyu'));
   const hasClefairy = board.some(slot => hasName(slot.printing, "Lillie's Clefairy ex"));
   const hasLatias = board.some(slot => hasName(slot.printing, 'Latias ex'));
