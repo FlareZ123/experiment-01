@@ -12,7 +12,7 @@ No. The 29 authenticated Aichi lists contain abundant public retreat/switch infr
 
 | Public escape card / mechanism | Lists containing it | Total copies | Relevant ranks / note |
 |---|---:|---:|---|
-| Guzma | 25/29 | 48 | Most of the field; 2–3 copies in each known Regidrago list |
+| Guzma | 25/29 | 48 | Most of the field; 2–3 copies in each known Regidrago list |\n| VS Seeker | 23/29 | 59 | Retrieves a discarded Guzma; all 9 authenticated Regidrago lists include 2–3 copies |\n| Battle Compressor | 17/29 | 33 | Can place Guzma in the discard pile for VS Seeker; 7/9 authenticated Regidrago lists include it |
 | Latias ex (Skyliner) | 14/29 | 14 | All 9 authenticated Regidrago lists; gives the owner's Basic Pokémon no Retreat Cost while Latias is on the Bench |
 | Float Stone | 12/29 | 24 | Ranks 1, 3, 5, 8, 9, 11, 15, 16, 19, 22, 26, 30; rank 32 has none |
 | Double Dragon Energy | 10/29 | 38 | All 9 authenticated Regidrago lists plus rank 19 Raging Bolt; 3–4 copies in each Regidrago list |\n| Double Colorless Energy | 6/29 | 11 | Ranks 5, 6, 15, 24, 26, 29; provides two Colorless Energy units for Retreat Cost when attached |
