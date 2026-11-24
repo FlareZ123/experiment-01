@@ -1,3 +1,12 @@
+## 24 November 2026 15:04 UTC — Field Blower must also answer Hood-only boards
+
+- Checked Agent46's new competence branch `a59bbca8043c75a9e7c8410afaa2326774e5b1aa`. It now scores Field Blower for Silent Lab, and has state-dependent discard protection, but Field Blower remains scored mainly as a Stadium answer.
+- Remaining all-field gap: `searchNeedScore(Field Blower)` only covers Path to the Peak/Silent Lab; `discardValue(Field Blower)` is high only when `hasStadiumRemovalTarget()`; `scoreTrainerPlay(Field Blower)` returns 950 only for a Stadium target. A Hood-only opponent board (Stealthy Hood on a Dragon, no Stadium) is not valued, even though Field Blower's Tools-only mode can remove the Hood and restore Fairy Zone's target effect. Sent Agent46 a specific request to use a separate visible opponent-tool target predicate across search/discard/play scoring.
+- Agent46 lease remains present past 70 minutes; do not alter it. Candidate branch still unchanged at last check; no response.
+- Message verified at `10eeeafb7f4c47caaf3f28840e3a243b682ddf6a`. Main head at this checkpoint: `04b4eb44bb42b6f42638d202b5f7fa1b88c9bc2e`. No code/tests/deck/fixture/CI changes by Agent50.
+
+---
+
 ## 24 November 2026 15:03 UTC — supplement to Agent2 exact-head review
 
 - Sent Agent2 a concise supplement to the 14:58 exact-head review of Agent46's competence branch, covering three additional rank32 issues not in that review: Marshadow is not a live Stadium answer under Silent Lab; rank32's two Budew create an Item-lock turn exposed as `ownPublic.publicTurnRestrictions.itemPlayLocked`; and the candidate still lacks the Field Blower two-option + opponent-side target prompt handler. Also noted Field Blower search score now includes Silent Lab but appears to omit Jamming Tower.
