@@ -89,3 +89,37 @@ The exact `CANNOT_PLAY_THIS_CARD` message is now established, unlike the earlier
 - Stage B remains blocked: the paired Stage-A diagnostic failed, and sanitized-only output cannot support private-choice competence review. A future Stage-B cohort must separate candidate seat from actual first-player status, using opposite realized first-player seats if necessary.
 
 **Confidence:** high for the run metadata, exact failure message, action/turn counts, seat outcomes, and privacy flags; intentionally no confidence claim about the hidden selected card or underlying card interaction.
+
+
+## Addendum — source-backed frontier diagnosis and bounded repair (2026-11-24 08:09 UTC)
+
+### First-blocker localization
+
+Agent3's source/counter review corrected the earlier interpretation of the missing action type. At failed root ordinal 104, the actor-decision record has no selected action name/type, worker trace, validation receipt or token. The opponent role audit contains 33 completed worker decisions (21 root, 12 prompt); the runner increments these counters only after `session.decide()` returns. The final root request therefore failed before the next worker decision.
+
+The runner builds `buildNativeActionFrontier()` before `session.decide()`; the frontier clone-dispatches every native-enumerator candidate. The pinned `EXPECTED_PLAY_CARD_REJECTIONS.ITEM` deliberately allows only `BLOCKED_BY_EFFECT`; generic Item `CANNOT_PLAY_THIS_CARD` remains fatal. The old `itemCanPlayInValidationStore()` exact-print preflight covered five Items. Agent49's pinned-source audit ([source audit](agent49-rank1-trainer-cannot-source-audit-20261124.md)) identifies four more rank-1 Item printings with native `canPlay` guards missing from that preflight. This makes an unplayable one of those Items during frontier construction the strongest supported explanation. The exact Item remains unidentified; no card-specific attribution is made.
+
+### Bounded repair
+
+On branch `agent6/gameerror-safe-diagnostic-20261124`, exact-print preflight entries were added for:
+
+- Mysterious Treasure FLI 113
+- Quick Ball FST 237
+- Hisuian Heavy Ball ASR 146
+- Battle Compressor PHF 92
+
+The generic Item `CANNOT_PLAY_THIS_CARD` rejection remains fail-closed. The existing tri-state preflight filters only explicit native `canPlay === false`; true/undefined still reach native Store dispatch. Dedicated pinned-native positive/negative boundary tests were isolated in `tests/2026-11/agent6-rank1-item-preflight-native.test.cjs`. Each negative control confirms that raw native Store dispatch throws `CANNOT_PLAY_THIS_CARD`, while the exact-print preflight filters it and preserves Pass; positive controls remain available and survive selected cloned-Store validation.
+
+An attempt to add the entire legacy native test file to the no-game gate exposed seven unrelated stale-fixture failures (including unresolved old card names and an obsolete Quick Ball SSH test). That broad suite was removed from the no-game step; only the dedicated four-print test is run there. No new workflow or runner was created.
+
+### New exact-head acceptance
+
+- Research revision: `51c0627a2f40ea10f3d41a10d09124112c65b4c5`.
+- Contract-only acceptance: [run 45353071731](https://github.com/FlareZ123/experiment-01/actions/runs/45353071731), passed. The embedded receipt confirms contract suite, Docker launcher contract, Docker preflight and Docker canary passed; no fixture executed.
+- Four-cell native no-game witness: [run 45353271201](https://github.com/FlareZ123/experiment-01/actions/runs/45353271201), passed. [Artifact 14901546343](https://github.com/FlareZ123/experiment-01/actions/runs/45353271201/artifacts/14901546343), ZIP SHA-256 `09fe49850992c01668560200f1f5f8437dc7b32532b737e3a9ebef1b8a3dcff2`.
+- The witness JSON binds the exact research SHA and Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, covers `0:0`, `0:1`, `1:0`, `1:1`, and reports `gameExecuted=false`, `liveActionsDispatched=false`, `allStoreStatesUnchanged=true`, `allSelectedActionsValidated=true`, `allActorObservationsUsed=true`, `allWorkersClosed=true`, and `allWorkerPoliciesActorOnly=true`. All four witness rows validate their selected action, preserve the original Store, close their workers, and report zero worker failures.
+- No game has yet run on `51c0627`; this witness is not a matchup or policy-competence result.
+
+### Next action
+
+One fixture retry is now authorized on exact SHA `51c0627a2f40ea10f3d41a10d09124112c65b4c5`, with `agent36_v3_fixture_game=true` and `agent36_v3_predeal_artifact_ref=results/aichi-2026/registrations/agent6-v3-rank1-baseline-public-seed-20261117.json`. The workflow auto-discovers the same-SHA no-game witness run; its run ID is not the registration-path input. Keep every registered deck, policy, seed, seat assignment and Twinleaf pin unchanged. Stage B remains blocked until the paired fixture is valid and private-choice competence evidence is independently reviewed. The original c0fa fixture remains unqualified, and no progress toward the 99.5% target is claimed.
