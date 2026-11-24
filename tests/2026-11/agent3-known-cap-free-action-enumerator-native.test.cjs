@@ -1067,8 +1067,14 @@ test('pinned Night Stretcher effect-target preflight rejects Special Energy-only
   assert.throws(()=>withValidationRandom(()=>rawSpecialStore.dispatch(specialAction)),error=>
     error instanceof native.GameError&&error.message===native.GameMessage.CANNOT_PLAY_THIS_CARD,
     'pinned effect must reject Special Energy without a Pokémon or Basic Energy target');
+  const specialEnumerator=enumeratorFor(specialState);
+  const specialPass=specialEnumerator.enumerate(
+    specialState,specialState.players[0],specialState.players[0].id
+  ).find(action=>action.type==='PASS_TURN');
+  assert.ok(specialPass,'filtered Night Stretcher must leave a legal pass fallback');
   const specialFrontier=withValidationRandom(()=>frontierModule.buildNativeActionFrontier({
-    state:specialState,actorSeat:0,native,enumerator:{enumerate:()=>[specialAction]}
+    state:specialState,actorSeat:0,native,
+    enumerator:{enumerate:()=>[specialAction,specialPass]}
   }));
   assert.equal(specialFrontier.diagnostics.preflightRejectedCount,1);
   assert.equal(specialFrontier.actionFrontier.items.some(item=>item.kind==='play-card'),false,
@@ -1209,7 +1215,7 @@ test('pinned rank-1 Item exact-print preflights filter native CANNOT boundaries 
     const action=enumerator.playItemActions(state,actor).find(candidate=>
       actor.hand.cards[candidate.handIndex]?.fullName===scenario.fullName);
     assert.ok(action,'native ActionEnumerator must propose '+scenario.fullName);
-    const pass=enumerator.passTurnActions(state,actor)[0];
+    const pass=enumerator.enumerate(state,actor,actor.id).find(candidate=>candidate.type==='PASS_TURN');
     assert.ok(pass,'native ActionEnumerator must provide a pass fallback');
     return {simulator,state,actor,enumerator,action,pass};
   }
