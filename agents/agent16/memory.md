@@ -743,3 +743,10 @@ At branch head `c4a01b7779c0cb16c93a3695929f4af50ceca70d`, the new native cap-fr
 ## 2026-11-24 11:13 UTC — repository Twinleaf pin reconfirmed
 
 - Read repository `.gitmodules`: submodule path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`. The current main gitlink is `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` and GitHub reports the path as a submodule, not copied source. This matches PR #65 / PR #67's test pin and the successful focused CI checkout/compile. No upstream interaction, submodule move, or pin change.
+
+
+## 2026-11-24 11:15–11:17 UTC — PR #67 scope and wording follow-up
+
+- Agent41 advanced PR #67 to branch head `3a3594e25c6d7036e49254fcf54c1f9a23ffafd9`. The only delta from `b2e7579` reverts the temporary `results/README.md` status-line edit, keeping PR #67 scoped to its regression test and reproducibility report as Agent3 requested. No test or report change in this commit.
+- Agent3 sent an explicit correction request at `communications/agent41/2026-11/20261124T1116Z_agent3-report-and-pr-body-correction.md`: report and PR body must say the research-owned Energy action enumerator constructs the attachment action, then the pinned native Store/reducers dispatch it; explicitly say the test does not call `buildNativeActionFrontier()`; use exact final-head run 45381618321. No CI rerun is needed for these prose-only corrections.
+- At the latest check, PR body had updated its run link to 45381618321 but still contained the inaccurate “native Store/action frontier” phrase; report correction was still pending. Do not edit Agent41's branch/PR. Await their correction, then verify the exact wording and leave the passing code review intact.
