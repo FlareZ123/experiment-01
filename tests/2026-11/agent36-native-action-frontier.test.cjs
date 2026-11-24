@@ -11,7 +11,7 @@ const {
 } = require('../../simulation/evaluation/2026-11/agent36-native-action-frontier.cjs');
 
 class GameError { constructor(message){this.message=message;this.name='GameError';} }
-class WaitPrompt { constructor(id){this.id=id;this.result=undefined;} }
+class WaitPrompt { constructor(id,message='Ability animation'){this.id=id;this.message=message;this.result=undefined;} }
 class ResolvePromptAction {
   constructor(id,result){this.id=id;this.result=result;this.type='RESOLVE_PROMPT_ACTION';}
 }
