@@ -402,11 +402,13 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
   assert.throws(() => protocol.validateActorObservation({ ...view, ownDeckOrder: ['hidden'] }, 0), /UNKNOWN_FIELD/);
   assert.throws(() => protocol.validateActorObservation({ ...view, globalTurn: -1 }, 0), /BAD_ACTOR_OBSERVATION/);
   const orderedLocks=observation(0);
+  orderedLocks.ownPublic.active=visiblePokemon();
   orderedLocks.turnSeat=1;
   orderedLocks.ownPublic.active.abilityLockActivationOrder=-1;
   assert.doesNotThrow(()=>protocol.validateActorObservation(orderedLocks,0),
     'a safe integer sentinel and the other turn seat are valid public facts');
   const legacyObservation=observation(0);
+  legacyObservation.ownPublic.active=visiblePokemon();
   delete legacyObservation.turnSeat;
   delete legacyObservation.ownPublic.active.abilityLockActivationOrder;
   assert.doesNotThrow(()=>protocol.validateActorObservation(legacyObservation,0),
@@ -415,6 +417,7 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
   badTurnSeat.turnSeat=2;
   assert.throws(()=>protocol.validateActorObservation(badTurnSeat,0),/BAD_TURN_SEAT/);
   const badLockOrder=observation(0);
+  badLockOrder.ownPublic.active=visiblePokemon();
   badLockOrder.ownPublic.active.abilityLockActivationOrder=1.5;
   assert.throws(()=>protocol.validateActorObservation(badLockOrder,0),/BAD_ABILITY_LOCK_ACTIVATION_ORDER/);
   assert.throws(() => protocol.validateActorObservation({ ...view, decisionKind: 'owner-prompt', pendingPromptType: 'UseAbilityPrompt', pendingOwnerDeckSearch: true }, 0), /BAD_OWNER_DECK_SEARCH_FLAG/);
