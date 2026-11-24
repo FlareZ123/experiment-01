@@ -123,3 +123,30 @@ An attempt to add the entire legacy native test file to the no-game gate exposed
 ### Next action
 
 One fixture retry is now authorized on exact SHA `51c0627a2f40ea10f3d41a10d09124112c65b4c5`, with `agent36_v3_fixture_game=true` and `agent36_v3_predeal_artifact_ref=results/aichi-2026/registrations/agent6-v3-rank1-baseline-public-seed-20261117.json`. The workflow auto-discovers the same-SHA no-game witness run; its run ID is not the registration-path input. Keep every registered deck, policy, seed, seat assignment and Twinleaf pin unchanged. Stage B remains blocked until the paired fixture is valid and private-choice competence evidence is independently reviewed. The original c0fa fixture remains unqualified, and no progress toward the 99.5% target is claimed.
+
+
+## Addendum — second registered retry, frontier attribution, and Critic stopline (2026-11-24 08:24 UTC)
+
+### Second fixture result
+
+The one retry authorized after the c0fa failure ran on exact research SHA `51c0627a2f40ea10f3d41a10d09124112c65b4c5` in [run 45354019834](https://github.com/FlareZ123/experiment-01/actions/runs/45354019834). It completed as a failed pair: candidate-seat-0 failed with native `CANNOT_PLAY_THIS_CARD`; candidate-seat-1 reached engine completion. The run used sanitized-only diagnostics. Neither seat produces a qualified matchup result.
+
+The failed seat's sanitized actor-decision row is root ordinal 104 / turn 17 with `actionName=null`, `actionType=null`, `dispatchStatus=not-dispatched`, and `validationReceipt=null`. The opponent role audit is `decisionCount=33`, `rootDecisionCount=21`, `rootActionFrontierAdmissionCount=21`, `failureCount=1`. The pinned runner calls `buildNativeActionFrontier()` before `session.decide()`; it increments frontier-admission count only after the frontier builder returns and increments decision count only after the worker returns. This localizes the failure to native frontier construction/admission before the next worker request. It does not identify which candidate action or card caused the error.
+
+The four exact-print Item preflights on 51c did not resolve this fixture failure. Their isolated positive/negative tests passed, but that does not establish that one of those four cards caused the registered-game error. Keep the exact candidate unknown and do not weaken generic Item `CANNOT_PLAY_THIS_CARD` handling.
+
+### Diagnostic-only branch created before stopline was read
+
+After inspecting run 45354019834, Agent6 created branch `agent6/gameerror-safe-diagnostic-20261124` at `e49c7501d6359ca6bf69708a04a1c60d48344778`. It adds a tightly allowlisted `nativeActionType` and `nativeActionValidationStage` to native GameErrors raised while constructing the frontier. The allowed stages are limited to simulator construction, the two native preflights, candidate Store dispatch, ability WaitPrompt resolution, and action projection. No card identity, card family, hidden hand contents, or action-frontier contents are exposed.
+
+The diagnostic branch passed contract-only run [45355376181](https://github.com/FlareZ123/experiment-01/actions/runs/45355376181) and four-cell native no-game witness [45355500777](https://github.com/FlareZ123/experiment-01/actions/runs/45355500777). [Artifact 14901633853](https://github.com/FlareZ123/experiment-01/actions/runs/45355500777/artifacts/14901633853), ZIP SHA-256 `3fce7b561d0ee69bdc57779b9035ab2cb2659ffd447fcb7e4bb8663545932126`, binds exact research SHA e49c and Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; covers all four role/physical-seat cells; and reports no game/live action, unchanged Store states, selected actions validated, actor-only worker inputs, and cleanup. No fixture has run on e49c.
+
+**This branch is unapproved.** It was created before Agent6 read the Critic's 08:16:33Z stopline. It is preserved for review only and will not be dispatched, merged, or extended without separate owner/Critic authorization.
+
+### Critic stopline and disposition
+
+The Critic broadcast `communications/broadcast/2026-11/20261124T081633Z_critic-stageA-second-retry-stopline.md` states that the one authorized retry is consumed; no further fixture dispatch or code patch is authorized; the next step is attribution-only review of public sanitized evidence and pinned runner ordering; and any further repair must be submitted for a separate decision.
+
+Agent6's attribution review localizes the first failure to frontier construction/admission before the next worker decision, but the exact candidate action remains unresolved. Agent3 and Agent4 have been asked to independently review the same sanitized receipt and ordering. No encrypted diagnostics or private data were accessed.
+
+**Stage A is blocked/retry-frozen.** No further fixture dispatch, merge, or code patch is authorized. The e49 branch is a diagnostic proposal only. If the owner/Critic does not separately authorize it, preserve the evidence and move to the independent benchmark-source recovery task. Stage B remains blocked; no policy-competence, matchup, fixed-60, or 99.5% claim follows.
