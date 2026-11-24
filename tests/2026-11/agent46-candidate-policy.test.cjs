@@ -48,23 +48,25 @@ function attack(name, cost, damage, extra = {}) {
 function pokemon({
   printing = 'Test Pokémon', name = 'Test Pokémon', hp = 200, damage = 0,
   types = ['Psychic'], subtypes = ['Basic'], abilities = [], suppression = false,
-  tools = [], energies = [], attacks = [], weakness = [], abilityLockActivationOrder = null,
-  retreatCost = [], specialConditions = [], publicRestrictionOverrides = {}
+  tools = [], energies = [], attacks = [], weakness = [], resistance = [],
+  abilityLockActivationOrder = null, retreatCost = [], specialConditions = [],
+  publicRestrictionOverrides = {}
 } = {}) {
   const stage = subtypes.includes('VMAX') ? 'VMAX' :
     subtypes.includes('VSTAR') ? 'VSTAR' :
     subtypes.includes('Stage 2') ? 'STAGE2' :
     subtypes.includes('Stage 1') ? 'STAGE1' : 'BASIC';
   const result = {
-    printing, name, hp, damage, abilities,
+    printing, name, hp, damage, lastPlayedOrEvolvedTurn: null,
+    printed: { stage, subtypes, types, retreatCost, weakness, resistance },
+    specialConditions,
+    publicRestrictions: { ...pokemonRestrictions(), ...publicRestrictionOverrides },
+    evolutionPrintings: [], energies, tools, attacks, abilities, abilityDetails: [],
     abilitySuppressions: suppression === null ? null : abilities.map(abilityName => ({
       abilityName, suppressed: suppression,
-      sourcePrinting: suppression ? 'Test suppression' : null,
-      reasonCode: suppression ? 'TEST_SUPPRESSION' : null
-    })),
-    tools, energies, attacks, specialConditions,
-    publicRestrictions: { ...pokemonRestrictions(), ...publicRestrictionOverrides },
-    printed: { name, hp, types, subtypes, stage, weakness, retreatCost }
+      reasonCode: suppression ? 'TEST_SUPPRESSION' : null,
+      sourcePrinting: suppression ? 'Test suppression' : null
+    }))
   };
   if (Number.isSafeInteger(abilityLockActivationOrder)) {
     result.abilityLockActivationOrder = abilityLockActivationOrder;
