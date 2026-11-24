@@ -101,8 +101,8 @@ function publicPlayer(player,hidePokemon=false){
     // and determines which player's Bench is capped; preserve it for policy
     // decisions rather than reducing the Stadium to its printing alone.
     stadiumDirection:player.stadium.cards.length===1&&
-      ['up','down'].includes(player.stadium.cards[0].stadiumDirection)?
-        player.stadium.cards[0].stadiumDirection:null,
+      ['up','down'].includes(player.stadium.stadiumDirection)?
+        player.stadium.stadiumDirection:null,
     discard:player.discard.cards.map(printing),
     lostZone:player.lostzone.cards.map(printing),
     resolvingSupporter:player.supporter.cards.map(printing),
