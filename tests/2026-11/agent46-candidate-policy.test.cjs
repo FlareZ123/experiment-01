@@ -1988,3 +1988,110 @@ test('Underworld Door funds Trevenant & Dusknoir-GX for Night Watch against a la
     token: 'trevenant-energy'
   });
 });
+
+
+test('Pale Moon-GX is prioritized for a high-prize Active with no Bench escape', () => {
+  const trevenant = pokemon({
+    printing: 'Trevenant & Dusknoir-GX SMP 217',
+    name: 'Trevenant & Dusknoir-GX',
+    hp: 270,
+    types: ['Psychic'],
+    subtypes: ['Basic', 'TAG TEAM', 'GX'],
+    energies: Array(3).fill('Psychic Energy SVE 13'),
+    attacks: [
+      attack('Night Watch', ['Psychic', 'Psychic', 'Psychic'], '150'),
+      attack('Pale Moon-GX', ['Psychic', 'Colorless'], '')
+    ]
+  });
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT 136',
+    name: 'Regidrago VSTAR',
+    hp: 280,
+    types: ['Dragon'],
+    subtypes: ['VSTAR'],
+    energies: ['Fire Energy', 'Grass Energy']
+  });
+  const view = observation(0, {
+    active: trevenant,
+    opponentActive: regidrago,
+    opponentBench: [],
+    opponentHandCount: 1
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'night-watch',
+        kind: 'attack',
+        actorPrinting: trevenant.printing,
+        attackName: 'Night Watch',
+        publicMetadata: { attackCostPayable: true }
+      },
+      {
+        token: 'pale-moon',
+        kind: 'attack',
+        actorPrinting: trevenant.printing,
+        attackName: 'Pale Moon-GX',
+        publicMetadata: { attackCostPayable: true }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'pale-moon'
+  });
+});
+
+test('Pale Moon-GX is excluded after the once-per-game GX attack has been used', () => {
+  const trevenant = pokemon({
+    printing: 'Trevenant & Dusknoir-GX SMP 217',
+    name: 'Trevenant & Dusknoir-GX',
+    hp: 270,
+    types: ['Psychic'],
+    subtypes: ['Basic', 'TAG TEAM', 'GX'],
+    energies: Array(3).fill('Psychic Energy SVE 13'),
+    attacks: [
+      attack('Night Watch', ['Psychic', 'Psychic', 'Psychic'], '150'),
+      attack('Pale Moon-GX', ['Psychic', 'Colorless'], '')
+    ]
+  });
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT 136',
+    name: 'Regidrago VSTAR',
+    hp: 280,
+    types: ['Dragon'],
+    subtypes: ['VSTAR'],
+    energies: ['Fire Energy', 'Grass Energy']
+  });
+  const view = observation(0, {
+    active: trevenant,
+    opponentActive: regidrago,
+    opponentBench: [],
+    opponentHandCount: 1
+  });
+  view.ownTurnResources.gxUsed = true;
+  view.ownPublic.publicTurnRestrictions.gxUsed = true;
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'night-watch',
+        kind: 'attack',
+        actorPrinting: trevenant.printing,
+        attackName: 'Night Watch',
+        publicMetadata: { attackCostPayable: true }
+      },
+      {
+        token: 'pale-moon',
+        kind: 'attack',
+        actorPrinting: trevenant.printing,
+        attackName: 'Pale Moon-GX',
+        publicMetadata: { attackCostPayable: true }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'night-watch'
+  });
+});
