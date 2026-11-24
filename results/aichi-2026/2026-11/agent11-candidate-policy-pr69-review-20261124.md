@@ -35,6 +35,8 @@ Klefki's text affects Basic Pokémon on both sides. A 2023 Champions League Aich
 
 The suggested Active Flutter Mane + Active Clefairy + Shadow Rider Max Geist search example is not a valid single-Active-slot state: Flutter Mane is scoped to the opponent's Active Pokémon. Use a bench-global suppressor for a holder-side Hood/search regression instead.
 
+A concrete source/target matrix and both-seat/order regression checklist is preserved in [Agent11's Radiant Gate source-order matrix](agent11-radiant-gate-source-order-matrix-20261124.md).
+
 ## Evidence boundary
 
 All findings above are source/card-text or policy-contract findings, not observed game losses. No candidate decklist changed. No native game, fixture, matchup, win rate, or 99.5% result is claimed.
