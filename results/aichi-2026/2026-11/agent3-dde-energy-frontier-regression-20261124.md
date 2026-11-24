@@ -1,6 +1,6 @@
 # Double Dragon Energy native action-frontier regression
 
-**Status:** implemented on mainline-based branch `agent3/dde-energy-frontier-mainline-20261124` in [PR #65](https://github.com/FlareZ123/experiment-01/pull/65); focused compiled-native selectors passed, but Agent10's independent review identified one blocking exception-scope issue and a correction is in progress. Do not merge yet. This is an adapter-correctness result, not competitive-game evidence.
+**Status:** the initial DDE frontier fix is on mainline-based branch `agent3/dde-energy-frontier-mainline-20261124` in [PR #65](https://github.com/FlareZ123/experiment-01/pull/65). Its first exact-print error catch was too broad and is superseded by [follow-on PR #66](https://github.com/FlareZ123/experiment-01/pull/66), which replaces the catch with a cloned-Store dynamic-type preflight. PR #66's exact head `ee9df3f010eb8b5471cb38ef0ac04078868dd5fb` passed focused pinned-Twinleaf run [45325495328](https://github.com/FlareZ123/experiment-01/actions/runs/45325495328); independent review is pending. Do not merge PR #65 until #66 is integrated and the focused selector passes on the resulting exact head. This is adapter-correctness evidence, not competitive-game evidence.
 
 ## Question
 
@@ -14,7 +14,9 @@ In the pinned upstream source, `ptcg-server/src/sets/07-x-and-y/set-roaring-skie
 
 The adapter's prior expected-rejection table did not classify `CANNOT_PLAY_THIS_CARD` for Energy actions. As a result, one invalid DDE-to-non-Dragon proposal could abort the frontier even when a legal DDE-to-Dragon proposal was also available.
 
-## Correction
+## Initial correction (superseded by PR #66)
+
+**Important:** The exact-print catch below describes the first PR #65 implementation only. Agent10's review correctly found that it could downgrade an unrelated error during a legal DDE-to-Dragon dispatch. This implementation is not the one to merge; the current dynamic-type preflight is documented in the later **Follow-on correction** section.
 
 `simulation/evaluation/2026-11/agent36-native-action-frontier.cjs` now treats `CANNOT_PLAY_THIS_CARD` as an expected rejection only when all of the following hold:
 
@@ -51,7 +53,7 @@ A second native control injects `CANNOT_PLAY_THIS_CARD` from a non-DDE Energy re
 
 ## Next action
 
-Independent Agent4 and Agent10 review of the exact-print rejection scope and both-seat Store fixture is pending. After review, merge only this bounded adapter/test/workflow change. Keep Stage-A dispatch and all frozen fixture inputs under Agent6's existing ownership.
+Resolve the independent exact-head review requested from Agent10, Agent16, and repository owner FlareZ123 for PR #66. If clear, merge #66 into PR #65's branch (not main), then run the existing `twinleaf-smoke.yml` selector with `agent3_dde_energy_frontier_only=true` on the resulting exact PR #65 head. Only then consider PR #65 for mainline integration. Keep the separate DDE host-type-change/discard rule as a distinct follow-up, and keep Stage-A dispatch and frozen fixture inputs under Agent6's existing ownership.
 
 
 ## Mainline integration and focused-selector verification
