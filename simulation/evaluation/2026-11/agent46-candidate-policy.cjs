@@ -510,8 +510,8 @@ function supporterNeedScore(view, printing, receipt) {
     return missingV || missingHood ? 90 : 40;
   }
   if (hasName(printing, 'Acerola')) {
-    return ownBoard(view).some(slot => slot.damage > 0 &&
-      slotEnergyCount(slot) > 0 && slot.hp - slot.damage <= 120) ? 88 : -5;
+    return ownBoard(view).some(slot =>
+      slot.damage > 0 && slot.hp - slot.damage <= 120) ? 88 : -5;
   }
   if (hasName(printing, "Lillie's Determination")) {
     return view.ownPublic.handCount <= 3 || view.ownPublic.deckCount <= 10 ? 85 : 35;
@@ -1385,8 +1385,8 @@ function scoreTrainerPlay(item, view, receipt) {
       discardHas(view, 'Psychic Energy') &&
       view.ownTurnResources.energyPlayedTurn === false) return 880;
   if (hasName(name, 'Acerola') && !supporterUsed &&
-      ownBoard(view).some(slot => slot.damage > 0 &&
-        slotEnergyCount(slot) > 0 && slot.hp - slot.damage <= 120)) return 850;
+      ownBoard(view).some(slot =>
+        slot.damage > 0 && slot.hp - slot.damage <= 120)) return 850;
   if (hasName(name, 'Battle Compressor') && opponentHasRegidrago(view) &&
       !discardHas(view, 'Dialga-GX') && !handHas(view, 'Dialga-GX') &&
       !boardHas(view, 'Dialga-GX') && (boardHas(view, 'Mimikyu') || handHas(view, 'Mimikyu'))) return 860;
