@@ -12,8 +12,9 @@ A strict international Expanded-vs-Expanded comparison is a separate secondary e
 
 - **Final fixed 60:** none selected.
 - **Exact Aichi source lists:** 29/32 authenticated; ranks **23, 25, and 28** remain unavailable.
-- **Original physical-print certification:** 0/32 admitted under the strict source/printing rule. An authenticated saved-deck list or card catalogue is not proof of the physical copies registered or played.
-- **Competitively paper-qualified matchups:** 0/32.
+- **Physical-copy certification:** 0/32 independently verified under the current provenance audit. This is a separate status, not a prerequisite for using an authenticated original list as a simulator input.
+- **Benchmark source-list inputs:** 29/32 exact original Aichi name/count sixties authenticated; ranks **23, 25, and 28** remain unavailable. Use the 29 unchanged lists for simulator research with their source and print uncertainty attached.
+- **Qualified competitive benchmark matchups:** 0/32.
 - **Demonstrated 99.5% field win rate:** none.
 - **Current leading hypothesis:** Hood Shield Shadow Rider v1, not nominated and not proven strongest.
 
@@ -21,42 +22,42 @@ These are separate gates: source-list identity, physical-print evidence, card-po
 
 ## Aichi field — all 32 source ranks
 
-“Diagnostic reconstruction” means the source list has been mapped to an English Expanded-legal inventory for secondary analysis; it does not certify the original Japanese physical cards. Every available rank currently has **no competitively qualified matchup result**.
+The primary benchmark uses the unchanged original Japanese Extra source inventories. The 24 English Expanded diagnostic reconstructions are secondary artifacts and must not replace the primary source lists. Physical-copy certification remains a separate provenance audit and is not required to simulate an authenticated source list. Every available rank currently has **no qualified competitive benchmark matchup result**.
 
 | Rank | Source status | Matchup outcome |
 |---:|---|---|
-| 1 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
-| 2 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
-| 3 | Authenticated; Japanese Extra-only identities retained unchanged in the primary field | No qualified result; physical print/admission unverified |
-| 4 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
-| 5 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
-| 6 | Authenticated; Japanese Extra-only identities retained unchanged in the primary field | No qualified result; physical print/admission unverified |
-| 7 | Authenticated; Japanese Extra-only identities retained unchanged in the primary field | No qualified result; physical print/admission unverified |
-| 8 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
-| 9 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
-| 10 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
-| 11 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
-| 12 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
-| 13 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
-| 14 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
-| 15 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
-| 16 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
-| 17 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
-| 18 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
-| 19 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
-| 20 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
-| 21 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
-| 22 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
+| 1 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
+| 2 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
+| 3 | Authenticated original Aichi list; Japanese Extra-only identities retained unchanged; physical copy unverified | No qualified result; physical print/admission unverified |
+| 4 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
+| 5 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
+| 6 | Authenticated original Aichi list; Japanese Extra-only identities retained unchanged; physical copy unverified | No qualified result; physical print/admission unverified |
+| 7 | Authenticated original Aichi list; Japanese Extra-only identities retained unchanged; physical copy unverified | No qualified result; physical print/admission unverified |
+| 8 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
+| 9 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
+| 10 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
+| 11 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
+| 12 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
+| 13 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
+| 14 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
+| 15 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
+| 16 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
+| 17 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
+| 18 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
+| 19 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
+| 20 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
+| 21 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
+| 22 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
 | 23 | Exact original source list unavailable | Not testable |
-| 24 | Authenticated; Japanese Extra-only identities retained unchanged in the primary field | No qualified result; physical print/admission unverified |
+| 24 | Authenticated original Aichi list; Japanese Extra-only identities retained unchanged; physical copy unverified | No qualified result; physical print/admission unverified |
 | 25 | Exact original source list unavailable | Not testable |
-| 26 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
-| 27 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
+| 26 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
+| 27 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
 | 28 | Exact original source list unavailable | Not testable |
-| 29 | Authenticated; Japanese Extra-only identities retained unchanged in the primary field | No qualified result; physical print/admission unverified |
-| 30 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
-| 31 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
-| 32 | Authenticated; English Expanded diagnostic reconstruction; physical print unverified | No qualified result |
+| 29 | Authenticated original Aichi list; Japanese Extra-only identities retained unchanged; physical copy unverified | No qualified result; physical print/admission unverified |
+| 30 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
+| 31 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
+| 32 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
 
 The five Japanese Extra-only lists are ranks **3, 6, 7, 24, and 29**. The exact source field and historical provenance are indexed in [the Aichi field archive](aichi-2026/README.md). Keep ranks 23, 25, and 28 missing until exact source evidence is recovered; never fill them with archetype proxies or guessed lists.
 
@@ -110,7 +111,7 @@ The repository currently has **271 workflow definitions**. Freeze new one-off wo
 1. Stage A is complete as an attribution-only diagnosis and remains retry-frozen; any further probe requires a separate owner decision.
 2. If a separately authorized Stage-A probe yields usable traces, establish independent candidate/rank-1 policy competence before deck comparisons.
 3. Compare a small number of materially different fixed-60 architectures under the same competent, frozen policies and common conditions. Do not churn cosmetic one-card variants.
-4. Recover ranks 23, 25, and 28 only from exact primary-source evidence. For physical-print certification, the useful evidence is an owner-provided Players Club registration/deck-check export or a direct entrant-authenticated image of the physical deck; generic saved-deck crosswalks and catalogue photos do not close that gate. See [Agent43's source-registration stopline](../communications/broadcast/2026-11/20261124T061818Z_agent43-physical-source-registration-stopline.md).
+4. Recover ranks 23, 25, and 28 only from exact primary-source evidence. For physical-copy certification, an owner-provided Players Club export or entrant-authenticated image may refine provenance, but this is a separate audit and does not block simulator use of an authenticated source list. Generic saved-deck crosswalks and catalogue photos must not be mislabeled as physical-copy proof. See [Agent43's source-registration stopline](../communications/broadcast/2026-11/20261124T061818Z_agent43-physical-source-registration-stopline.md).
 5. When qualified games become possible, report all 32 matchup dispositions, per-matchup sample sizes and outcomes, aggregate uncertainty, both physical seats, actual first-player status, simulator and research revisions, policy versions, and failure cases. Never turn a 29-rank subset into a Top 32 result.
 
 Every new task must name the decision it can change: **implementation gate, source-list admission, policy-competence disposition, or fixed-60 candidate ranking**. If it changes none, do not create another script, test, workflow, report, or status commit. Preserve useful historical code and evidence; update this live board only when one of those decisions materially changes.
