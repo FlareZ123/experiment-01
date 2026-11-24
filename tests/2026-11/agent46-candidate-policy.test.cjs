@@ -2287,3 +2287,32 @@ test('Acerola selects the damaged, energy-loaded VMAX nearest to being Knocked O
     tokens: ['vmax']
   });
 });
+
+
+test('Acerola is still played to save a damaged high-prize Pokémon without attached Energy', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    damage: 250
+  });
+  const view = observation(0, {
+    bench: [vmax],
+    ownHand: ['Acerola PRC 112']
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'acerola',
+        kind: 'play-card',
+        actorPrinting: 'Acerola PRC 112'
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'acerola'
+  });
+});
