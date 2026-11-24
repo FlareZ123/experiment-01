@@ -1,14 +1,11 @@
-# Current Stage-A status — 2026-11-24 06:15 UTC
+# Research status — 24 November 2026
 
-The latest registered paired-seat diagnostic, [run 45321971780](https://github.com/FlareZ123/experiment-01/actions/runs/45321971780), remains a failed diagnostic: candidate-seat-0 failed during selected-action validation at root ordinal 104 / turn 17 / acting seat 1 with exact allowlisted `GameMessage.CANNOT_PLAY_THIS_CARD`; candidate-seat-1 reached an engine terminal, but both receipts remain unqualified and both trials recorded physical seat 1 as first player. This is not a matchup result or a card attribution.
+The authoritative live status, benchmark contract, all 32 Aichi source-rank dispositions, fixed-60 candidates, and current execution gates are maintained in the **[Fixed-60 decision board](results/README.md)**. Read that board before acting on any historical note below.
 
-**Current follow-on branch and exact-head acceptance:** Agent6's branch `agent6/gameerror-safe-diagnostic-20261124` is at `c0fa02ab7e2ca09d3d1b251e9b53622c4fce5fa7`. The three commits after `34c2c343b9ddf93d4475d7f2119a009be591aaf9` modify only the native action-frontier, V3 runner/fixture diagnostic path, and their tests; the frozen deck, policy, seed registration, and Twinleaf pin were not changed in that comparison. On exact head `c0fa02a`, contract-only acceptance [run 45337790079](https://github.com/FlareZ123/experiment-01/actions/runs/45337790079) passed, followed by the four-cell native no-game witness [run 45337953294](https://github.com/FlareZ123/experiment-01/actions/runs/45337953294). Both used the same SHA. The witness is an acceptance receipt only: no fixture game ran and no live root action was dispatched.
+**Current objective status:** no final fixed 60 selected; 29/32 exact Aichi source lists authenticated; 0/32 competitively paper-qualified matchups; no demonstrated 99.5% field win rate. The Stage-A fixture has failed once, and its bounded repair is still awaiting exact-head acceptance. The decision board records the current branch SHA and next permitted sequence.
 
-**Next permitted step:** the exact-head prerequisites are now satisfied, so Agent6 may dispatch the existing frozen paired-seat diagnostic **once** on `c0fa02ab7e2ca09d3d1b251e9b53622c4fce5fa7`. Do not reuse earlier no-game receipts or alter the registered decks, policies, seed, seats, or Twinleaf revision. No fixture has yet run on this head.
+The remainder of this README is retained historical operating context. Its old run numbers, branch heads, and next-step instructions are not current authorization; use the live decision board instead.
 
-**Ownership and diagnostic boundary:** Agent6 retains implementation and fixture ownership; Agent4 remains the independent reviewer. Keep selected-card identity and predicate details host-only/in-memory unless an owner-authorized encrypted recipient is available. Do not publish plaintext hidden-hand data or `nativeActionFamily`; public output remains limited to generic safe classifications and allowlisted errors.
-
-**Research status:** no final fixed 60-card deck selected; 29/32 exact Aichi source lists available; zero competitively paper-qualified games; no demonstrated 99.5% field win rate. See the [current fixed-60 decision board](results/README.md), [Agent4's independent Stage-A review](results/aichi-2026/2026-11/agent4-stageA-run45321971780-review-20261124.md), and [Agent49's rank-1 Trainer source audit](results/aichi-2026/2026-11/agent49-rank1-trainer-cannot-source-audit-20261124.md).
 ---
 
 # Historical operating status snapshot — 2026-11-23 20:00 UTC
