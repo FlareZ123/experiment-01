@@ -85,3 +85,8 @@ No code, tests, deck, or PR branch was modified.
 6. **Hood threat coverage:** opponent Active Weezing/Slaking threatens Shadow Rider VMAX; opponent Klefki/Alolan Muk threatens Basic Shadow Rider V but not VMAX; Wobbuffet does not suppress Psychic Shadow Rider; Flutter Mane threatens only when the Shadow Rider is opponent's Active Pokémon.
 7. **Radiant Gate scope:** opponent Active Weezing/Slaking suppresses a Benched Radiant Eternatus; own Weezing/Slaking does not suppress own Radiant; Klefki/Power of Alchemy suppress Basic Radiant on either side; Flutter Mane does not suppress a Benched Radiant.
 8. **Unknown opponent Fairy Zone:** `opponentFairyZoneStatus === null` must not collapse to “no threat”; the Hood search need should remain unknown until the holder's status and target Tool state are known.
+
+
+## Fairy Zone source/target orientation is correct
+
+Pinned `Lillie's Clefairy ex JTG 56` text says Fairy Zone changes the Weakness of **each of your opponent's Dragon Pokémon in play** to Psychic. Its implementation calls `CAN_APPLY_ABILITY_TO_TARGET` for the Dragon target; that probe respects effects such as Stealthy Hood. The reviewed policy's orientation is correct here: `opponentFairyZoneStatus(view)` is used when checking the actor's own Dragon targets, while `fairyZoneStatus(view)` represents the actor's source affecting opponent Dragons. No source-seat inversion was found in this path.
