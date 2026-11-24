@@ -184,3 +184,14 @@ A direct diagnostic improvement is already available in the repository:
 Call the existing helper immediately after `assertTrustedActionSelection` and before `dispatchSelectedNativeAction`, using the native action from `frontier.actionByToken`, `request.state`, `actorSeat`, and `native.cardActions`. Attach the result only to the encrypted/private trace or another owner-controlled internal diagnostic. Do not add `fullName`, set, number, or any hidden-hand identity to the worker request, public decision trace, public receipt, or sanitized artifact. Keep the current public-safe action type/family and exact GameMessage projection.
 
 This is a more direct next-run attribution path than guessing among the card matrix. It does not require a second harness or a new fixture; it only moves an existing trace-only capture before the operation that can fail.
+
+
+## Why a second-only failure needs a state/identity differential
+
+The surrounding implementation removes several generic explanations:
+
+- `agent49-native-fixture-game.cjs:142-164` creates a fresh validation RNG from the same normalized seed on every `withValidationRandom` call. Frontier admission and selected-action revalidation do not simply consume different positions in one drifting validation RNG stream.
+- `agent36-native-action-frontier.cjs:402-467` uses a `seen` map, clones Card instances with their prototype, and copies own string/symbol property descriptors. The relevant pinned state fields are ordinary own properties: `CardList.isSecret`, `Marker.markers`, and `PokemonCardList.damage`. The `Marker` stores source Cards in its `markers` array and compares them by reference; the graph clone is designed to preserve those aliases.
+- The live Store snapshotter at `agent49-native-fixture-game.cjs:10-78` records own-property values and object identities, not just a shallow public summary. The frontier and selected-validation boundaries assert the original Store remains unchanged.
+
+These controls make RNG drift and generic live-state mutation weak explanations. They do not rule out every global singleton or a card-specific hidden dependency. The next useful diagnostic is therefore a *private selected-card identity captured before the throwing call*, paired with a minimal state-predicate projection for that card—not another generic action snapshot.
