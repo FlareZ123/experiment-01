@@ -1227,7 +1227,7 @@ test('pinned rank-1 Item exact-print preflights filter native CANNOT boundaries 
     assert.ok(validItem,scenario.fullName+' positive state must remain available to the policy');
     assert.doesNotThrow(()=>frontierModule.dispatchSelectedNativeAction({
       store:valid.simulator.store,frontier:validFrontier,token:validItem.token,
-      state:valid.state,actorSeat:0,native,withValidationRandom,dispatch:false
+      state:valid.state,actorSeat:0,native,withValidationRandom
     }),scenario.fullName+' positive state must survive selected cloned-Store validation');
 
     const invalid=makeScenario(scenario,false);
