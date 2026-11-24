@@ -231,6 +231,16 @@ test('public Ability-lock activation order is exposed only as a detached safe in
   assert.equal(unknown.ownPublic.bench[0].abilityLockActivationOrder,null);
   assert.equal(unknown.opponentPublic.active.abilityLockActivationOrder,null);
   assert.equal(unknown.opponentPublic.bench[0].abilityLockActivationOrder,null);
+
+  ownActiveSlot.abilityLockActivationOrder=0;
+  opponentActiveSlot.abilityLockActivationOrder=0;
+  ownBench.abilityLockActivationOrder=0;
+  opponentBench.abilityLockActivationOrder=0;
+  const zeroSentinel=actorObservation(s,0);
+  assert.equal(zeroSentinel.ownPublic.active.abilityLockActivationOrder,null);
+  assert.equal(zeroSentinel.opponentPublic.active.abilityLockActivationOrder,null);
+  assert.equal(zeroSentinel.ownPublic.bench[0].abilityLockActivationOrder,null);
+  assert.equal(zeroSentinel.opponentPublic.bench[0].abilityLockActivationOrder,null);
 });
 
 test('native Twinleaf SpecialCondition enum values pass strict worker-protocol validation',()=>{
