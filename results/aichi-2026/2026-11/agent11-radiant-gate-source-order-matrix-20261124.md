@@ -6,7 +6,7 @@
 
 At the instant Radiant Eternatus is played from hand onto the Bench, its Climactic Gate on-play Ability is the target. It is a Basic Pokémon with the Radiant Pokémon Rule, is Dragon (not Psychic), and is not a Future Pokémon. Stealthy Hood cannot protect this trigger: the Tool cannot be attached to Radiant before the on-play Ability is evaluated.
 
-A 2023 Champions League Aichi rules article by a certified judge directly answers the analogous Galarian Moltres on-play Ability under Active Klefki as **unusable**, because Mischievous Lock applies as the Basic Pokémon is placed on the Bench: https://note.com/yieupcg/n/n78128305443e (question 3.5 / explanation lines 336–338). Treat an **effective** Active Klefki as a Gate suppressor.
+A 2023 Champions League Aichi rules article by a certified judge directly answers the analogous Galarian Moltres on-play Ability under Active Klefki as **unusable**, because Mischievous Lock applies as the Basic Pokémon is placed on the Bench: https://note.com/yieupcg/n/n78128305443e (question 3.5 / explanation lines 336–338). The same article's question 3.7 gives an ordering example: Escape Rope switches both Klefki and Empoleon V from Bench to Active, and the Pokémon switched first (the opponent's Empoleon V) has its Ability take effect first. This supports using actual entry/activation order rather than an arbitrary side preference; the turn-seat tie remains a separate simultaneous-activation case. Treat an **effective** Active Klefki as a Gate suppressor.
 
 ## Direct source scopes against Radiant on the Bench
 
