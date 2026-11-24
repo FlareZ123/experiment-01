@@ -241,3 +241,14 @@ The current public sanitizer supports this separation:
 - The private diagnostic envelope documentation states that `private/` currently contains only `.gitkeep` and no recipient key is provisioned. Do not generate a substitute key or upload plaintext hidden-state traces. An owner must provision `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` before any full private fixture artifact can be uploaded.
 
 Therefore the safe change is to populate the existing private attempt-record field before the throwing dispatch, leave the public sanitizer unchanged, and rely on the owner-encrypted artifact only after the owner provisions the key. Until then, use only owner-controlled local debugging or the public-safe family/type/GameMessage fields.
+
+
+## Action-token mapping check
+
+The token path also does not reveal a likely collision for this single-actor frontier:
+
+- `actionSignature` at `agent36-native-action-frontier.cjs:115-126` includes action type, hand index, action name, bench index, and target player/slot/index.
+- For `PLAY_CARD_ACTION`, the hand index distinguishes different cards in one hand and the target tuple distinguishes target-specific variants. The omitted action ID is constant for the one actor whose frontier is being built.
+- The builder deduplicates signatures, assigns a fresh sequential `act-N` token to each admitted action, and stores the matching native action in the per-frontier `actionByToken` map (lines 524–560). Selection retrieves from that same map (593–598).
+
+So a cross-seat or target-token collision is not supported by the current implementation. The remaining high-value boundary is whether the live state graph changed after frontier admission, followed by clone/global side effects if it did not.
