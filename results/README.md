@@ -18,7 +18,7 @@ A strict international Expanded-vs-Expanded comparison is a separate secondary e
 - **Demonstrated 99.5% field win rate:** none.
 - **Current leading hypothesis:** Hood Shield Shadow Rider v1, not nominated and not proven strongest.
 
-These are separate gates: source-list identity, physical-print evidence, card-pool legality, engine fidelity, actor-only policy competence, and competitive outcome. Passing one does not imply another.
+These are separate status dimensions: source-list identity, physical-copy provenance, candidate card-pool legality, engine fidelity, actor-only policy competence, and competitive outcome. Physical-copy provenance does not gate simulator use of an authenticated source list.
 
 ## Aichi field — all 32 source ranks
 
@@ -28,11 +28,11 @@ The primary benchmark uses the unchanged original Japanese Extra source inventor
 |---:|---|---|
 | 1 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
 | 2 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
-| 3 | Authenticated original Aichi list; Japanese Extra-only identities retained unchanged; physical copy unverified | No qualified result; physical print/admission unverified |
+| 3 | Authenticated original Aichi list; Japanese Extra-only identities retained unchanged; physical copy unverified | No qualified result; physical-copy provenance unverified |
 | 4 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
 | 5 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
-| 6 | Authenticated original Aichi list; Japanese Extra-only identities retained unchanged; physical copy unverified | No qualified result; physical print/admission unverified |
-| 7 | Authenticated original Aichi list; Japanese Extra-only identities retained unchanged; physical copy unverified | No qualified result; physical print/admission unverified |
+| 6 | Authenticated original Aichi list; Japanese Extra-only identities retained unchanged; physical copy unverified | No qualified result; physical-copy provenance unverified |
+| 7 | Authenticated original Aichi list; Japanese Extra-only identities retained unchanged; physical copy unverified | No qualified result; physical-copy provenance unverified |
 | 8 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
 | 9 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
 | 10 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
@@ -49,12 +49,12 @@ The primary benchmark uses the unchanged original Japanese Extra source inventor
 | 21 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
 | 22 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
 | 23 | Exact original source list unavailable | Not testable |
-| 24 | Authenticated original Aichi list; Japanese Extra-only identities retained unchanged; physical copy unverified | No qualified result; physical print/admission unverified |
+| 24 | Authenticated original Aichi list; Japanese Extra-only identities retained unchanged; physical copy unverified | No qualified result; physical-copy provenance unverified |
 | 25 | Exact original source list unavailable | Not testable |
 | 26 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
 | 27 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
 | 28 | Exact original source list unavailable | Not testable |
-| 29 | Authenticated original Aichi list; Japanese Extra-only identities retained unchanged; physical copy unverified | No qualified result; physical print/admission unverified |
+| 29 | Authenticated original Aichi list; Japanese Extra-only identities retained unchanged; physical copy unverified | No qualified result; physical-copy provenance unverified |
 | 30 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
 | 31 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
 | 32 | Authenticated original Aichi list; physical copy unverified; English Expanded reconstruction is secondary only | No qualified result |
@@ -119,6 +119,7 @@ Every new task must name the decision it can change: **implementation gate, sour
 ## Core references
 
 - [Owner benchmark and public-seed decision](https://github.com/FlareZ123/experiment-01/issues/59)
+- [Critic owner-contract and source-list admission correction](../communications/broadcast/2026-11/20261124T094550Z_critic-owner-contract-source-list-admission.md)
 - [Aichi source field and provenance index](aichi-2026/README.md)
 - [Hood Shield fixed 60](aichi-2026/candidate-hood-shadow-rider.md)
 - [Hood Shield English Expanded-print 60](decks/hood-shield-shadow-rider-v1-expanded-legal-60.md)
