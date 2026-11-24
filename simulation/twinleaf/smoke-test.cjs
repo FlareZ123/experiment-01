@@ -40,4 +40,67 @@ assert.deepEqual(isolated1, isolated2,
 assert.equal(isolated1.policyRandomIsolation, true);
 assert.equal(isolated1.randomnessProtocol, 'separate-game-and-per-seat-policy-prng-v1');
 assert.equal(run1.policyRandomIsolation, false, 'Legacy records keep their original RNG protocol.');
-console.log(JSON.stringify({ kind: 'headless-smoke', note: 'No Aichi field matches or win-rate evidence', result: run1, isolatedResult: isolated1 }, null, 2));
+
+const {
+  PROTOCOL: independentRngProtocol,
+  createRandomMaterial,
+  randomMaterialCommitment
+} = require('../evaluation/agent37-independent-rng-v1.cjs');
+const independentMaterialA = createRandomMaterial();
+const independentMaterialB = createRandomMaterial();
+const independentCommitmentA = randomMaterialCommitment(independentMaterialA);
+const independentCommitmentB = randomMaterialCommitment(independentMaterialB);
+assert.notEqual(independentCommitmentA, independentCommitmentB,
+  'Each attempted game must receive fresh independently sampled stream material.');
+const independentRequest = material => ({
+  ...request,
+  rngProtocol: independentRngProtocol,
+  rngMaterial: material,
+  rngMaterialCommitment: randomMaterialCommitment(material),
+  isolatePolicyRandomness: true,
+  label: 'upstream Standard deck under independent CSPRNG streams, smoke only'
+});
+const independentA = runMatch(independentRequest(independentMaterialA));
+const independentB = runMatch(independentRequest(independentMaterialB));
+const independentAAfterB = runMatch(independentRequest(independentMaterialA));
+assert.deepEqual(independentA, independentAAfterB,
+  'A game must replay identically after an intervening game in the same process.');
+for (const [result, commitment] of [
+  [independentA, independentCommitmentA],
+  [independentB, independentCommitmentB],
+  [independentAAfterB, independentCommitmentA]
+]) {
+  assert.equal(result.randomnessProtocol, independentRngProtocol);
+  assert.equal(result.rngMaterialCommitment, commitment);
+  assert.equal(result.policyRandomIsolation, true);
+  assert.equal(result.physicalShuffleRandomIsolation, true);
+  assert.equal(result.coinRandomIsolation, true);
+  assert.equal(result.engineRandomIsolation, true);
+  assert.ok(result.actions > 0);
+}
+assert.equal(independentA.seed, seed);
+assert.equal(independentB.seed, seed,
+  'The schedule seed remains fixed while independent RNG material changes.');
+assert.notEqual(independentA.rngMaterialCommitment, independentB.rngMaterialCommitment);
+
+const independentRngSummary = {
+  protocol: independentRngProtocol,
+  freshMaterialPerAttempt: true,
+  sameMaterialReplayAfterInterveningGame: true,
+  games: [independentA, independentB, independentAAfterB].map(result => ({
+    commitment: result.rngMaterialCommitment,
+    actions: result.actions,
+    endReason: result.endReason,
+    policyRandomIsolation: result.policyRandomIsolation,
+    physicalShuffleRandomIsolation: result.physicalShuffleRandomIsolation,
+    coinRandomIsolation: result.coinRandomIsolation,
+    engineRandomIsolation: result.engineRandomIsolation
+  }))
+};
+console.log(JSON.stringify({
+  kind: 'headless-smoke',
+  note: 'No Aichi field matches or win-rate evidence',
+  result: run1,
+  isolatedResult: isolated1,
+  independentRngSummary
+}, null, 2));
