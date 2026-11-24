@@ -290,7 +290,7 @@ function isRuleBoxPokemon(slot) {
   const subtypes = (slot?.printed?.subtypes ?? []).map(value =>
     String(value).toUpperCase());
   return subtypes.some(value =>
-    ['EX', 'GX', 'V', 'VMAX', 'VSTAR', 'V-UNION', 'TAG TEAM'].includes(value));
+    ['EX', 'GX', 'V', 'VMAX', 'VSTAR', 'V-UNION', 'TAG TEAM', 'RADIANT'].includes(value));
 }
 
 function fairyZoneLockSources(view) {
@@ -303,8 +303,10 @@ function fairyZoneLockSources(view) {
     sources.push({
       seat, zone, slot, cardName, abilityName, scope,
       status: abilityStatus(slot, abilityName),
-      activationOrder: Number.isSafeInteger(slot.abilityLockActivationOrder)
-        ? slot.abilityLockActivationOrder : null
+      // Zero is Twinleaf's "no established Active locker" sentinel.
+      activationOrder: Number.isSafeInteger(slot.abilityLockActivationOrder) &&
+        slot.abilityLockActivationOrder > 0
+          ? slot.abilityLockActivationOrder : null
     });
   };
 
@@ -347,9 +349,9 @@ function fairyZoneSourceTargetsHolder(view, source, holderSeat, holder) {
       return source.zone === 'active' &&
         !(holder.printed?.types ?? []).includes('Psychic');
     case 'basic-all':
-      return isBasicPokemon(holder);
+      return !sameSide && isBasicPokemon(holder);
     case 'all-tool-attached':
-      return true;
+      return !isRuleBoxPokemon(holder);
     default:
       return false;
   }
@@ -374,7 +376,8 @@ function abilityLockSourcePhysicalSeat(source, view) {
 
 function orderAbilityLockSources(sources, view) {
   if (sources.length <= 1) return sources;
-  if (sources.some(source => !Number.isSafeInteger(source.activationOrder))) return null;
+  if (sources.some(source => !Number.isSafeInteger(source.activationOrder) ||
+      source.activationOrder <= 0)) return null;
 
   const groups = new Map();
   for (const source of sources) {
@@ -1091,10 +1094,7 @@ function fieldBlowerHoodBlocksFairyZone(view, target) {
   if (stadiumAndToolEffectsLive(view) !== true) return false;
   if (target.zone === 'active' &&
       view.ownPublic.active?.tools?.some(tool => hasName(tool, 'Tool Jammer'))) return false;
-  const stadiums = [...view.ownPublic.stadium, ...view.opponentPublic.stadium];
-  const jammingTower = stadiums.some(stadium => hasName(stadium, 'Jamming Tower'));
-  if (hasEffectiveStealthyHood(target.slot, view, 'opponent') === true) return true;
-  return jammingTower && hasStadiumRemovalTarget(view);
+  return hasEffectiveStealthyHood(target.slot, view, 'opponent') === true;
 }
 
 function chooseFieldBlowerPokemon(view, prompt) {
@@ -2155,11 +2155,26 @@ function hasActiveGarbotoxin(view) {
 }
 
 function hasRadiantGateLock(view) {
-  return hasActiveStadiumLock(view, 'Path to the Peak') ||
-    hasActiveStadiumLock(view, 'Silent Lab') ||
-    hasActiveIronThorns(view) ||
-    hasActiveWobbuffet(view) ||
-    hasActiveGarbotoxin(view);
+  if (hasActiveStadiumLock(view, 'Path to the Peak') ||
+      hasActiveStadiumLock(view, 'Silent Lab')) return true;
+
+  // Climactic Gate triggers as Radiant Eternatus enters the Bench. Resolve
+  // every public lock source against that Basic Rule Box target, including
+  // Active Klefki and source-order interactions; unknown mixed-zone order
+  // fails closed rather than treating a default-zero Bench source as first.
+  const radiant = {
+    printing: 'Radiant Eternatus CRZ 105',
+    name: 'Radiant Eternatus',
+    subtypes: ['Basic', 'Radiant'],
+    printed: { subtypes: ['Basic', 'Radiant'], types: ['Dragon'] },
+    types: ['Dragon'],
+    abilities: ['Climactic Gate'],
+    tools: []
+  };
+  const resolved = resolveAbilityLockSources(view);
+  if (resolved.unknown) return true;
+  return resolved.active.some(source =>
+    abilityLockSourceSuppressesTarget(source, 'actor', radiant, view) !== false);
 }
 
 function hasAbilityLockThreat(view) {
@@ -2579,7 +2594,8 @@ Object.defineProperty(module.exports, '__test', {
   enumerable: false,
   value: Object.freeze({
     abilityLockSourceSuppressesTarget, abilityLockSourceStadiumSuppression,
-    resolveAbilityLockSources, effectiveBenchCapacity, fairyZoneStatusForSeat,
+    orderAbilityLockSources, resolveAbilityLockSources, hasRadiantGateLock,
+    isRuleBoxPokemon, effectiveBenchCapacity, fairyZoneStatusForSeat,
     hasOpponentAbilityLockOnFairyZoneHolder, hasOwnFairyZoneHolderLockThreat,
     viewAfterRemovingAbilityStadiums, fieldBlowerHoodBlocksFairyZone,
     paleMoonExtraPsychicAvailable, paleMoonRetreatStatus, paleMoonScore

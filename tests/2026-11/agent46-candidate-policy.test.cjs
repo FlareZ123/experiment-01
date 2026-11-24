@@ -3886,9 +3886,9 @@ test('Ability-lock activation-order ties use the physical turn player for either
   };
   for (const actorSeat of [0, 1]) {
     for (const turnSeat of [0, 1]) {
-      assert.equal(status(actorSeat, turnSeat, 0, 0), turnSeat === actorSeat);
-      assert.equal(status(actorSeat, turnSeat, 0, 1), true);
-      assert.equal(status(actorSeat, turnSeat, 1, 0), false);
+      assert.equal(status(actorSeat, turnSeat, 1, 1), turnSeat === actorSeat);
+      assert.equal(status(actorSeat, turnSeat, 1, 2), true);
+      assert.equal(status(actorSeat, turnSeat, 2, 1), false);
     }
   }
 });
@@ -3903,9 +3903,9 @@ test('Arven searches and attaches Stealthy Hood to an opponent-lock-threatened F
     printing: 'Shadow Rider Calyrex V CRE 74', name: 'Shadow Rider Calyrex V',
     subtypes: ['Basic', 'V'], tools: ['Float Stone PLF 99']
   });
-  const garbodor = pokemon({
-    printing: 'Garbodor LTR 68', name: 'Garbodor', subtypes: ['Stage 1'],
-    abilities: ['Garbotoxin'], tools: ['Float Stone PLF 99'], suppression: false
+  const alolanMuk = pokemon({
+    printing: 'Alolan Muk SUM 58', name: 'Alolan Muk', subtypes: ['Stage 1'],
+    abilities: ['Power of Alchemy'], suppression: null
   });
   const view = observation(0, {
     active: pokemon({ printing: 'Mimikyu GRI 58', name: 'Mimikyu' }),
@@ -3915,7 +3915,7 @@ test('Arven searches and attaches Stealthy Hood to an opponent-lock-threatened F
       pokemon({ printing: 'Bench filler C' })],
     opponentActive: pokemon({ printing: 'Regidrago VSTAR SIT 136', name: 'Regidrago VSTAR',
       hp: 280, types: ['Dragon'], subtypes: ['VSTAR'] }),
-    opponentBench: [garbodor]
+    opponentBench: [alolanMuk]
   });
   assert.equal(candidate.__test.hasOwnFairyZoneHolderLockThreat(view), true);
   const wonderTag = cardPrompt(0, view, {
@@ -4120,4 +4120,150 @@ test('Copycat scores the copied Timeless-GX against target-side Stealthy Hood an
   assert.ok(unhoodedScore >= 50000);
   assert.ok(hoodedScore < 50000);
   assert.ok(unhoodedScore > hoodedScore);
+});
+
+
+test('Radiant Gate uses effective lock scope and physical source order, including Active Klefki', () => {
+  const klefki = order => pokemon({
+    printing: 'Klefki SVI 96', name: 'Klefki',
+    types: ['Metal'], subtypes: ['Basic'],
+    abilities: ['Mischievous Lock'], suppression: null,
+    abilityLockActivationOrder: order
+  });
+  for (const actorSeat of [0, 1]) {
+    assert.equal(candidate.__test.hasRadiantGateLock(
+      observation(actorSeat, { active: klefki(1) })
+    ), true, 'own Active Klefki suppresses Radiant Eternatus');
+    assert.equal(candidate.__test.hasRadiantGateLock(
+      observation(actorSeat, { opponentActive: klefki(1) })
+    ), true, 'opponent Active Klefki suppresses Radiant Eternatus');
+    assert.equal(candidate.__test.hasRadiantGateLock(
+      observation(actorSeat, { bench: [klefki(1)] })
+    ), false, 'Benched Klefki has no Active-only lock scope');
+  }
+
+  const gateLock = (actorSeat, turnSeat, flutterOrder, klefkiOrder) => {
+    const flutter = pokemon({
+      printing: 'Flutter Mane TEF 78', name: 'Flutter Mane',
+      types: ['Psychic'], subtypes: ['Basic'],
+      abilities: ['Midnight Fluttering'], suppression: null,
+      abilityLockActivationOrder: flutterOrder
+    });
+    return candidate.__test.hasRadiantGateLock(observation(actorSeat, {
+      turnSeat, active: flutter, opponentActive: klefki(klefkiOrder)
+    }));
+  };
+  for (const actorSeat of [0, 1]) {
+    assert.equal(gateLock(actorSeat, actorSeat, 1, 2), false,
+      'earlier own Flutter Mane suppresses opposing Active Klefki, not the Benched Radiant');
+    assert.equal(gateLock(actorSeat, 1 - actorSeat, 2, 1), true,
+      'earlier opposing Klefki suppresses Radiant and the later Flutter Mane');
+    assert.equal(gateLock(actorSeat, actorSeat, 1, 1), false,
+      'simultaneous Active lockers tie in favor of the physical turn player');
+    assert.equal(gateLock(actorSeat, 1 - actorSeat, 1, 1), true,
+      'opponent turn wins the simultaneous Active-lock tie');
+  }
+});
+
+test('Radiant is a Rule Box target: Garbotoxin excludes it, while opposing Alolan Muk suppresses it', () => {
+  const garbodor = pokemon({
+    printing: 'Garbodor LTR 68', name: 'Garbodor', subtypes: ['Stage 1'],
+    abilities: ['Garbotoxin'], tools: ['Float Stone PLF 99'], suppression: null,
+    abilityLockActivationOrder: 0
+  });
+  const alolanMuk = pokemon({
+    printing: 'Alolan Muk SUM 58', name: 'Alolan Muk', subtypes: ['Stage 1'],
+    abilities: ['Power of Alchemy'], suppression: null,
+    abilityLockActivationOrder: 0
+  });
+  assert.equal(candidate.__test.isRuleBoxPokemon({
+    printed: { subtypes: ['Basic', 'Radiant'] }
+  }), true);
+  assert.equal(candidate.__test.hasRadiantGateLock(
+    observation(0, { opponentBench: [garbodor] })
+  ), false, 'Garbotoxin does not suppress a Rule Box Pokémon');
+  assert.equal(candidate.__test.hasRadiantGateLock(
+    observation(0, { bench: [alolanMuk] })
+  ), false, 'Power of Alchemy affects the opponent, not its owner');
+  assert.equal(candidate.__test.hasRadiantGateLock(
+    observation(0, { opponentBench: [alolanMuk] })
+  ), true, 'opponent Alolan Muk suppresses the actor Basic Radiant');
+});
+
+test('zero activation-order sentinel and mixed Bench/Active lock order fail closed', () => {
+  const wobbuffet = pokemon({
+    printing: 'Wobbuffet PHF 36', name: 'Wobbuffet',
+    types: ['Psychic'], subtypes: ['Basic'],
+    abilities: ['Bide Barricade'], suppression: null,
+    abilityLockActivationOrder: 1
+  });
+  const garbodor = pokemon({
+    printing: 'Garbodor LTR 68', name: 'Garbodor', subtypes: ['Stage 1'],
+    abilities: ['Garbotoxin'], tools: ['Float Stone PLF 99'], suppression: null,
+    abilityLockActivationOrder: 0
+  });
+  const view = observation(0, { active: wobbuffet, opponentBench: [garbodor] });
+  assert.equal(candidate.__test.orderAbilityLockSources([
+    { activationOrder: 1 }, { activationOrder: 0 }
+  ], view), null);
+  assert.equal(candidate.__test.resolveAbilityLockSources(view).unknown, true);
+  assert.equal(candidate.__test.hasRadiantGateLock(view), true,
+    'unknown Bench/global versus Active precedence must not assume Gate is safe');
+
+  garbodor.abilityLockActivationOrder = null;
+  const nullOrder = observation(0, { active: wobbuffet, opponentBench: [garbodor] });
+  assert.equal(candidate.__test.orderAbilityLockSources([
+    { activationOrder: 1 }, { activationOrder: null }
+  ], nullOrder), null);
+  assert.equal(candidate.__test.resolveAbilityLockSources(nullOrder).unknown, true);
+});
+
+test('Stealthy Hood blocks opponent lock sources but not an own-side lock source', () => {
+  const clefairy = pokemon({
+    printing: "Lillie's Clefairy ex JTG 56", name: "Lillie's Clefairy ex",
+    types: ['Psychic'], subtypes: ['Basic', 'ex'],
+    abilities: ['Fairy Zone'], suppression: null,
+    tools: ['Stealthy Hood UNB 186']
+  });
+  const ironThorns = pokemon({
+    printing: 'Iron Thorns ex TWM 77', name: 'Iron Thorns ex',
+    types: ['Lightning'], subtypes: ['Basic', 'ex', 'Future'],
+    abilities: ['Initialization'], suppression: null
+  });
+  const view = observation(0, { bench: [clefairy], opponentActive: ironThorns });
+  const opposingSource = {
+    slot: ironThorns, seat: 'opponent', zone: 'active',
+    abilityName: 'Initialization', scope: 'active-rulebox-both'
+  };
+  assert.equal(candidate.__test.abilityLockSourceSuppressesTarget(
+    opposingSource, 'actor', clefairy, view
+  ), false, 'effective Hood blocks the opponent-owned source');
+  const ownView = observation(0, { active: ironThorns, bench: [clefairy] });
+  const ownSource = { ...opposingSource, seat: 'actor' };
+  assert.equal(candidate.__test.abilityLockSourceSuppressesTarget(
+    ownSource, 'actor', clefairy, ownView
+  ), true, 'Hood does not block an own-side Ability suppressor');
+});
+
+test('Field Blower does not prioritize a Stealthy Hood disabled by Jamming Tower', () => {
+  const clefairy = pokemon({
+    printing: "Lillie's Clefairy ex JTG 56", name: "Lillie's Clefairy ex",
+    types: ['Psychic'], subtypes: ['Basic', 'ex'],
+    abilities: ['Fairy Zone'], suppression: null
+  });
+  const activeTool = pokemon({
+    printing: 'Opponent Active Tool Holder', name: 'Opponent Active Tool Holder',
+    tools: ['Float Stone BKT 137']
+  });
+  const dragon = pokemon({
+    printing: 'Regidrago VSTAR SIT 136', name: 'Regidrago VSTAR',
+    hp: 280, types: ['Dragon'], subtypes: ['VSTAR'],
+    tools: ['Stealthy Hood UNB 186']
+  });
+  const view = observation(0, {
+    bench: [clefairy], opponentActive: activeTool, opponentBench: [dragon],
+    opponentStadium: ['Jamming Tower TWM 153']
+  });
+  const target = { ownerSeat: 'opponent', zone: 'bench', index: 0, slot: dragon };
+  assert.equal(candidate.__test.fieldBlowerHoodBlocksFairyZone(view, target), false);
 });
