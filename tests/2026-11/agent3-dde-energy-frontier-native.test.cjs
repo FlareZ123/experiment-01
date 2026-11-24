@@ -503,3 +503,146 @@ test('CANNOT_PLAY_THIS_CARD from a non-DDE Energy reducer remains a fatal fronti
       error.message === 'CANNOT_PLAY_THIS_CARD'
   );
 });
+
+
+test('DDE dynamic-type probe mutates only its throwaway clone, not the candidate-validation clone', {
+  skip: !fs.existsSync(compiledActionEnumerator),
+  timeout: 30000
+}, () => {
+  const enginePin = runner.V3_FIXTURE.engineCommit;
+  const native = runner.loadNativeRoleDependencies({ enginePin });
+  const withValidationRandom = createValidationRandomScope({
+    ambientRandom: Math.random,
+    physicalRandom: seededRandom(0xdde24007)
+  });
+  const manager = native.CardManager.getInstance();
+  let nextCardId = 990000;
+  function cloneCard(fullName) {
+    const card = manager.getCardByName(fullName);
+    assert.ok(card, 'CardManager must resolve ' + fullName);
+    card.id = nextCardId++;
+    return card;
+  }
+
+  const state = makeGameState({
+    native,
+    actorSeat: 0,
+    energyCard: cloneCard(DDE),
+    cloneCard,
+    withValidationRandom
+  });
+  const originalTypes = [...state.players[0].bench[0].cards[0].cardType];
+  assert.ok(!originalTypes.includes(native.CardType.FIGHTING),
+    'Dedenne control target must not start with Fighting type');
+  const actor = state.players[0];
+  const enumerator = adapterModule.createKnownCapFreeActionEnumerator({
+    native,
+    enginePin
+  });
+  const benchAction = enumerator.attachEnergyActions(state, actor).find(action =>
+    action.target.slot === native.SlotType.BENCH && action.target.index === 0);
+  assert.ok(benchAction, 'DDE-to-Dedenne Bench action must be enumerated');
+
+  const simulators = [];
+  let pushedTypeChecks = 0;
+  const BaseSimulator = native.Simulator;
+  class TrackingSimulator extends BaseSimulator {
+    constructor(validationState) {
+      super(validationState);
+      simulators.push(this);
+      const reduceEffect = this.store.reduceEffect.bind(this.store);
+      this.store.reduceEffect = (stateForEffect, effect) => {
+        const result = reduceEffect(stateForEffect, effect);
+        if (effect instanceof native.CheckPokemonTypeEffect) {
+          // Mimic the pinned push-based type reducers: cardTypes aliases the
+          // target PokemonCard.cardType array, so a push mutates that clone.
+          effect.cardTypes.push(native.CardType.FIGHTING);
+          pushedTypeChecks += 1;
+        }
+        return result;
+      };
+    }
+  }
+  const instrumentedNative = Object.create(native);
+  instrumentedNative.Simulator = TrackingSimulator;
+
+  const before = createStoreStateSnapshotter()(state);
+  const frontier = withValidationRandom(() =>
+    frontierModule.buildNativeActionFrontier({
+      state,
+      actorSeat: 0,
+      native: instrumentedNative,
+      enumerator: { enumerate: () => [benchAction] }
+    }));
+
+  assert.equal(simulators.length, 2,
+    'one candidate-validation Simulator and one throwaway DDE probe Simulator are required');
+  assert.equal(pushedTypeChecks, 1,
+    'the throwaway probe must execute the dynamic-type effect exactly once');
+  assert.deepEqual(
+    simulators[0].store.state.players[0].bench[0].cards[0].cardType,
+    originalTypes,
+    'the candidate-validation clone must not receive the probe reducer push'
+  );
+  assert.ok(
+    simulators[1].store.state.players[0].bench[0].cards[0].cardType.includes(native.CardType.FIGHTING),
+    'the push-based type probe must mutate only its throwaway clone'
+  );
+  assert.deepEqual(createStoreStateSnapshotter()(state), before,
+    'neither clone may mutate the original live Store graph');
+  assert.equal(frontier.diagnostics.preflightRejectedCount, 1);
+  assert.equal(frontier.actionFrontier.items.length, 0);
+});
+
+test('DDE dynamic-type preflight rejects unknown non-empty CardType results', {
+  skip: !fs.existsSync(compiledActionEnumerator),
+  timeout: 30000
+}, () => {
+  const enginePin = runner.V3_FIXTURE.engineCommit;
+  const native = runner.loadNativeRoleDependencies({ enginePin });
+  const withValidationRandom = createValidationRandomScope({
+    ambientRandom: Math.random,
+    physicalRandom: seededRandom(0xdde24008)
+  });
+  const manager = native.CardManager.getInstance();
+  let nextCardId = 1000000;
+  function cloneCard(fullName) {
+    const card = manager.getCardByName(fullName);
+    assert.ok(card, 'CardManager must resolve ' + fullName);
+    card.id = nextCardId++;
+    return card;
+  }
+
+  const state = makeGameState({
+    native,
+    actorSeat: 0,
+    energyCard: cloneCard(DDE),
+    cloneCard,
+    withValidationRandom
+  });
+  const actor = state.players[0];
+  const activeAction = adapterModule.createKnownCapFreeActionEnumerator({
+    native,
+    enginePin
+  }).attachEnergyActions(state, actor).find(action =>
+    action.target.slot === native.SlotType.ACTIVE);
+  assert.ok(activeAction, 'DDE-to-Dragon Active action must be enumerated');
+
+  const malformedNative = Object.create(native);
+  malformedNative.CheckPokemonTypeEffect = class extends native.CheckPokemonTypeEffect {
+    constructor(target) {
+      super(target);
+      this.cardTypes = [999];
+    }
+  };
+  assert.throws(
+    () => withValidationRandom(() =>
+      frontierModule.buildNativeActionFrontier({
+        state,
+        actorSeat: 0,
+        native: malformedNative,
+        enumerator: { enumerate: () => [activeAction] }
+      })),
+    /only valid numeric CardType enum values/
+  );
+});
