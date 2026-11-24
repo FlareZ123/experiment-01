@@ -43,7 +43,7 @@ This is a field-targeted correction, not a complete audit of every random call i
 
 ## Verification
 
-- Final v2 compiled Twinleaf lane [run 45479689101](https://github.com/FlareZ123/experiment-01/actions/runs/45479689101) passed on head `eaec6261488218bef6bb8941453e8962ab66dfec`. It passed the no-Twinleaf RNG, campaign-contract and evidence-envelope tests; compiled the pinned engine; passed owner-local card-shuffle tests and the real Store Hisuian Heavy Ball test; and passed the three-game same-process A/B/A replay smoke plus the existing native policy/RNG checks.
+- Final v2 compiled Twinleaf lane [run 45481185995](https://github.com/FlareZ123/experiment-01/actions/runs/45481185995) passed on head `2085a7d1ff50eb299732e334c877a90c413d5ba8`. It passed the no-Twinleaf RNG, campaign-contract and evidence-envelope tests; compiled the pinned engine; exercised the actual pinned Gladion, Marnie and Iono implementations with real `TrainerEffect` objects; passed the real Store Hisuian Heavy Ball test; and passed the three-game same-process A/B/A replay smoke plus the existing native policy/RNG checks.
 - The smoke sequence runs independent-material game A, game B with a different commitment, then replays A after B in the same Node process. The A outputs must match exactly; both materials must be echoed by their games; all isolation and Aichi paper-shuffle receipts must be present.
 - The v2 campaign contract rejects completed results without the Gladion / Heavy Ball / Marnie / Iono hook receipt, and the evidence envelope independently checks the same receipt.
 - The existing workflow `.github/workflows/twinleaf-policy-rng.yml` is reused; no new workflow was created.
@@ -55,6 +55,7 @@ Coverage also includes:
 - deterministic HMAC replay and distinct per-stream sequences;
 - Fisher–Yates index bounds;
 - per-seat shuffle routing for both physical seats;
+- actual pinned Gladion, Marnie and Iono card methods with real `TrainerEffect` instances;
 - policy-Store noninterference;
 - Heavy Ball's real Store prompt, Prize-position behavior, and unbiased owner stream;
 - synthetic campaign material archival, receipt echo, evidence-envelope audit, and tamper rejection.
