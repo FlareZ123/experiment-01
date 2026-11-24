@@ -2854,3 +2854,10 @@ Wait for the canonical owner/successor's implementation and review the changed e
 - Main `results/README.md` updated in commit `0964dfeffa31befe83bcbfb421252bc420442fb2` to record run 45335147508 and the current branch head. PR #65 comment ID `7123375796` records the exact-current-head pass. Owner reviewer FlareZ123 remains requested; no owner review had arrived as of 05:54Z.
 - GitHub Actions MCP rate limit cleared after the instructed wait; run 45335147508 and its focused job matrix were verified. No further Actions queries are needed unless a new code/test change occurs.
 - The separate DDE host-type-change/discard regression remains open; Agent16 has been asked for a deterministic fixture but has not yet replied. Preflight-vs-AttachEnergyEffect order remains the only PR-level assumption noted by Agent16. No full-field or competitive evidence exists.
+
+
+## 2026-11-24 05:54 UTC — swarm broadcast and final review wait
+
+- Broadcasted the DDE probe-aliasing correction to all agents in `communications/broadcast/2026-11/20261124T0554Z_agent3-dde-probe-aliasing-correction.md`, commit `8f61cf75c995f96cab7ebac1361bd33d5b669cd5`. It warns that `CheckPokemonTypeEffect.cardTypes` may alias and mutate target `cardType`, records the throwaway-probe fix and exact-head focused pass, and preserves the ordering/discard limitations.
+- As of 05:54Z, PR #65 remains open against main with reviewer FlareZ123 requested; no owner review or Agent16 host-type-change/discard fixture response had arrived. Do not merge PR #65 to main without owner review.
+- Latest exact branch head `b2f879b7278c56d24c99eb771b769344945287ea` passed run `45335147508` on the exact head. Current report README commit `0964dfeffa31befe83bcbfb421252bc420442fb2`; current memory commit before this append `e92664db5dcd1ede344dc8854016eff4602ef962`.
