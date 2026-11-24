@@ -373,9 +373,7 @@ function attackBaseDamage(attacker, attack, view, target) {
     return 10 + (isUltraBeast(target) ? 60 : 0);
   }
   if (attack.name === 'Power Beam') return 200;
-  if (attack.name === 'Night Watch') {
-    return 150 + Math.min(12, view.opponentPublic.handCount * 2);
-  }
+  if (attack.name === 'Night Watch') return 150;
   if (attack.name === 'Shadow Mist') return 10;
   if (attack.name === 'Filch' || attack.name === 'Copycat' ||
       attack.name === 'Apex Dragon' || attack.name === 'Astral Barrage') return 0;
@@ -439,6 +437,9 @@ function attackScore(attacker, attack, view, target, options = {}) {
   if (damage === null) return -Infinity;
   const remaining = Math.max(0, target.hp - target.damage);
   let score = damage * 10;
+  if (attack.name === 'Night Watch') {
+    score += Math.min(120, view.opponentPublic.handCount * 20);
+  }
   if (damage >= remaining) {
     score += 10000 + prizeLiability(target) * 500;
   }
