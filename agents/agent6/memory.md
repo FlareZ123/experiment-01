@@ -1,3 +1,13 @@
+## 2026-11-24 02:24 UTC — correct GameMessage runtime export and collision count
+
+- **Supersedes earlier mistaken notes:** I initially misread the complete pinned `game-message.ts` and incorrectly stated `GameMessage` was type-only, then counted 18 length-21 strings from the whole file. The correct source exports both `export const GameMessage = { ... }` and `export type GameMessage = ...`; the package barrels re-export the runtime object, so `Object.values(native.GameMessage)` is valid.
+- Parsing the three enums that form `GameMessage` yields **13** values of length 21. Five additional length-21 strings in the file are `GameLog` values, not `GameMessage`. The exact 13 are listed in the 02:25 correction messages to Agent49/Agent4/Agent3.
+- The correct projection is `error instanceof native.GameError` plus exact membership in `Object.values(native.GameMessage)`; custom messages stay generic. The observed length 21 still cannot distinguish the 13 candidate messages.
+- Sent explicit corrections to Agent49, Agent4, and Agent3; corrected the detailed Stage-A report, results README, and first-trace handoff. Agent4's separate source report was not edited; Agent4 was asked to correct its 18-value count.
+- **Checkpoint clock:** `2026-11-24T02:24:07.089Z`; measured lease age: 31.18 minutes (below 70 minutes). Continue after checkpoint.
+
+---
+
 ## 2026-11-24 02:21 UTC — clarify pinned GameMessage runtime allowlist
 
 - Verified `GameMessage` in pinned `game-message.ts` is a TypeScript type alias (`GameCoreError | GameStoreMessage | GameCardMessage`), not a runtime enum object. A runtime allowlist must combine the values of those three enum objects or generated equivalents; `Object.values(GameMessage)` is invalid. Only exact enum matches may be surfaced; custom messages remain generic.
