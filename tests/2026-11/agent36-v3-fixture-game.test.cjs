@@ -942,3 +942,34 @@ test('no-game failure receipt projects only allowlisted worker and native failur
     'rawStderr','fixtureGamePartial','finalFullState'
   ])assert.equal(serialized.includes(forbidden),false,forbidden+' must not enter the failure receipt');
 });
+
+
+test('runner projects safe native GameError kind, enum message and repo-relative stack site',()=>{
+  const projected=runner.projectV3FixtureFailureForReceipt({
+    name:'Error',code:'NATIVE_FIXTURE_FAILURE',stage:'policy-decode',messageLength:21,
+    nativeFixtureFailure:{
+      name:'GameError',code:'NATIVE_FIXTURE_FAILURE',stage:'dispatch',
+      messageLength:21,nativeErrorKind:'GameError',
+      nativeGameMessage:'CANNOT_PLAY_THIS_CARD',
+      messageSha256:'f'.repeat(64),
+      stackSite:{
+        file:'simulation/evaluation/2026-11/agent49-native-fixture-game.cjs',
+        line:456,column:12
+      }
+    }
+  });
+  assert.equal(projected.nativeFixtureFailure.nativeErrorKind,'GameError');
+  assert.equal(projected.nativeFixtureFailure.nativeGameMessage,'CANNOT_PLAY_THIS_CARD');
+  assert.deepEqual(projected.nativeFixtureFailure.stackSite,{
+    file:'simulation/evaluation/2026-11/agent49-native-fixture-game.cjs',
+    line:456,column:12
+  });
+  assert.equal(projected.nativeFixtureFailure.messageSha256,undefined);
+  const rejected=runner.projectNativeFixtureFailureForReceipt({
+    name:'GameError',code:'NATIVE_FIXTURE_FAILURE',stage:'dispatch',
+    nativeErrorKind:'GameError',nativeGameMessage:'CUSTOM_PRIVATE_MESSAGE',
+    stackSite:{file:'/tmp/private.cjs',line:1,column:1}
+  });
+  assert.equal(rejected.nativeGameMessage,'CUSTOM_PRIVATE_MESSAGE');
+  assert.equal(rejected.stackSite,undefined);
+});
