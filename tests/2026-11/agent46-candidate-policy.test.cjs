@@ -1237,6 +1237,11 @@ test('Climactic Gate selects up to two Shadow Rider VMAX from its owner-visible 
     minimumCount: 0,
     maximumCount: 2
   });
+  req.prompt.choices.push({
+    token: 'empty-selection',
+    kind: 'empty-selection',
+    label: 'Choose no cards'
+  });
   assert.deepEqual(evaluate(req), {
     kind: 'select-choices',
     tokens: ['card-0', 'card-1']
