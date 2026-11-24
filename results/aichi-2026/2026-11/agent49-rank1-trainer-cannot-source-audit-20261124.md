@@ -288,3 +288,6 @@ The same Raihan source file's `reduceEffect(KnockOutEffect)` path locates each R
 | Battle Compressor PHF 92 | Deck nonempty | Empty deck | Include positive action; skip negative action without abort |
 
 For each positive case, run the selected-action clone validation on the same state and assert the same action remains legal. For each negative case, assert the action is filtered during frontier construction and does not reach the worker. Keep these tests separate from the post-worker CANNOT regression: preflight coverage prevents invalid Items from aborting frontier construction, while the selected-clone differential diagnoses the current failure.
+
+
+A check of the shared search helpers found no hidden indirect CANNOT emitter: pinned `SEARCH_DECK_FOR_CARDS_TO_HAND` returns immediately when the deck is empty (it does not throw), and `SEARCH_DISCARD_PILE_FOR_CARDS_TO_HAND` likewise returns on an empty discard. Thus these helpers do not add unlisted CANNOT conditions to Fog Crystal or the other search Items; their card-specific guards remain the relevant source predicates.
