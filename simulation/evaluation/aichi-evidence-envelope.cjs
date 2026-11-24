@@ -4,6 +4,10 @@ const { createHash } = require('node:crypto');
 const { verifyCampaign, turnProof } = require('./aichi-campaign-runner.cjs');
 const {expandPrintings,alignToReference,auditAlignment} =
   require('../../scripts/aichi-position-coupling.cjs');
+const {
+  PROTOCOL: INDEPENDENT_RNG_PROTOCOL, validateRandomMaterial,
+  randomMaterialCommitment
+} = require('./agent37-independent-rng-v1.cjs');
 
 const STATUSES = new Set([
   'completed', 'blocked-resolution', 'engine-deck-mismatch',
@@ -29,6 +33,12 @@ function digest(value) {
  */
 function auditArchive(inputs, archive) {
   const campaign = verifyCampaign(inputs);
+  const rngProtocol = archive.rngProtocol ||
+    'separate-game-and-per-seat-policy-prng-v1';
+  if (!['separate-game-and-per-seat-policy-prng-v1',
+    INDEPENDENT_RNG_PROTOCOL].includes(rngProtocol)) {
+    throw new Error('Unknown archive RNG protocol.');
+  }
   if (archive.schemaVersion !== campaign.schemaVersion ||
       (archive.seedProtocol || 'paired-slots-v1') !==
         (campaign.seedProtocol || 'paired-slots-v1') ||
@@ -87,6 +97,32 @@ function auditArchive(inputs, archive) {
         row.candidateEngineSlot !== scheduled.candidateEngineSlot ||
         !STATUSES.has(row.status)) {
       throw new Error('Scheduled trial or status mismatch: ' + (row?.trialId || i));
+    }
+    if (row.rngProtocol !== undefined && row.rngProtocol !== rngProtocol) {
+      throw new Error('Trial RNG protocol differs from archive: ' + row.trialId);
+    }
+    if (rngProtocol === INDEPENDENT_RNG_PROTOCOL) {
+      if (row.status === 'blocked-resolution') {
+        if (row.rngMaterial !== undefined || row.rngMaterialCommitment !== undefined) {
+          throw new Error('Blocked trial must not claim executed RNG material: ' + row.trialId);
+        }
+      } else {
+        const material = validateRandomMaterial(row.rngMaterial);
+        const commitment = randomMaterialCommitment(material);
+        if (row.rngMaterialCommitment !== commitment) {
+          throw new Error('Trial RNG material commitment mismatch: ' + row.trialId);
+        }
+        if (row.status === 'completed' &&
+            (row.observedRngProtocol !== INDEPENDENT_RNG_PROTOCOL ||
+             row.observedRngMaterialCommitment !== commitment ||
+             row.effectiveMatchOptions?.rngProtocol !== INDEPENDENT_RNG_PROTOCOL ||
+             row.effectiveMatchOptions?.rngMaterialCommitment !== commitment ||
+             row.effectiveMatchOptions?.physicalShuffleRandomIsolation !== true ||
+             row.effectiveMatchOptions?.coinRandomIsolation !== true ||
+             row.effectiveMatchOptions?.engineRandomIsolation !== true)) {
+          throw new Error('Completed trial lacks independent RNG receipts: ' + row.trialId);
+        }
+      }
     }
     const exactSourceMirror = scheduled.candidateDigest === scheduled.opponentDigest;
     if (row.exactSourceMirror !== undefined &&
@@ -220,6 +256,10 @@ function createEvidenceEnvelope(inputs, archive, provenance) {
     throw new Error('Explicit engine, policy, ruleset and research provenance required.');
   }
   const audit = auditArchive(inputs, archive);
+  if ((archive.rngProtocol || 'separate-game-and-per-seat-policy-prng-v1') !==
+      provenance.rngProtocol) {
+    throw new Error('Archive/provenance RNG protocol mismatch.');
+  }
   if (archive.researchRevision && archive.researchRevision !== provenance.researchRevision) {
     throw new Error('Archive/research commit revision mismatch.');
   }
@@ -261,6 +301,8 @@ function hasMatchingResearchConditions(left, right) {
   return left.archive.planDigest === right.archive.planDigest &&
     left.archive.phase === right.archive.phase &&
     left.archive.seedProtocol === right.archive.seedProtocol &&
+    (left.archive.rngProtocol || 'separate-game-and-per-seat-policy-prng-v1') ===
+      (right.archive.rngProtocol || 'separate-game-and-per-seat-policy-prng-v1') &&
     (left.archive.inputOrderProtocol || 'source-row-order-v1') ===
       (right.archive.inputOrderProtocol || 'source-row-order-v1') &&
     keys.every(k => digest(left.provenance[k]) === digest(right.provenance[k]));
