@@ -1,7 +1,7 @@
 {
-  "run_id": "agent50-chat-20261121T231116Z-normal8-gpt6-rank4-policy-continuation",
-  "claimed_at": "2026-11-21T23:12:06.283Z",
+  "run_id": "agent50-chat-20261124T085620Z-normal1-gpt6-toresia-registration-source-audit",
+  "claimed_at": "2026-11-24T08:56:20.538Z",
   "mode": "normal",
-  "roll": 8,
-  "previous_claim": "2026-11-21T19:51:28.665Z"
+  "selection_draw": 1,
+  "previous_claim": "2026-11-21T23:12:06.283Z"
 }
