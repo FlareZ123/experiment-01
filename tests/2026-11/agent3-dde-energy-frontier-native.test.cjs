@@ -733,8 +733,11 @@ test('pinned DDE host-type-change discard runs after a native Switch prompt in b
     // must remain attached while the opposing Active is still Regidrago.
     store.dispatch(new native.gameActions.PassTurnAction(owner.id));
     let waitPromptsResolved = 0;
-    while (store.state.prompts.length > 0) {
-      const waitPrompt = store.state.prompts[0];
+    while (true) {
+      const waitPrompt = store.state.prompts.find(prompt => prompt.result === undefined);
+      if (waitPrompt === undefined) {
+        break;
+      }
       assert.equal(waitPrompt.type, 'WaitPrompt',
         'turn transition should expose only its native silent WaitPrompt');
       store.dispatch(new native.ResolvePromptAction(waitPrompt.id, null));
