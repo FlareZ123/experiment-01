@@ -93,3 +93,10 @@ The 29 available lists use 21 distinct Energy names: Capture, Counter, Darkness,
 A card-text scan of these Energy entries found **Double Dragon Energy as the only one with an explicit restriction on which Pokémon may receive the attachment**. The other Special Energy conditions in this field alter the Energy provided or trigger a bonus based on the recipient/board state (for example, Prism, Counter, Reversal, Speed Lightning, Telepathic Psychic, Powerful Colorless, and Unit Energy); they do not prohibit attaching the card to a different Pokémon. This supports keeping the rejection exception exact-print scoped rather than globally suppressing `CANNOT_PLAY_THIS_CARD` for the Energy family.
 
 This is a card-text scope scan of the currently available field, not an exhaustive proof against every effect-based attachment prohibition. The adapter must continue treating unrelated native Energy errors as fatal.
+
+
+### No-silent-skip guard verification
+
+The native test is intentionally skippable in a developer checkout when the compiled Twinleaf action enumerator is absent. To ensure CI cannot report a green result with that test silently skipped, the existing smoke step and focused job now require the exact compiled output path with `test -f vendor/twinleaf/ptcg-server/output/advanced-bot/action-enumerator.js` before invoking the test files.
+
+The updated focused selector passed in [run 45313978366](https://github.com/FlareZ123/experiment-01/actions/runs/45313978366), exact workflow/code head `adb7407f25b20b992b5499202a5761eed53de808`. The new guard and the focused job succeeded. Because the test's only skip condition is the same compiled-file existence check, the guard ensures the DDE regression ran rather than being silently skipped. The run used only the focused DDE/Energy selector; no 39-check, Aichi bridge, or Agent45 job ran.
