@@ -83,7 +83,8 @@ function publicPlayer({
 function observation(seat, {
   active = null, bench = [], opponentActive = null, opponentBench = [],
   ownHand = [], ownDiscard = [], globalTurn = 3, ownStadium = [],
-  opponentStadium = [], decisionKind = 'owner-root', promptType = null
+  opponentStadium = [], opponentHandCount = 5,
+  decisionKind = 'owner-root', promptType = null
 } = {}) {
   return {
     actorSeat: seat, globalTurn, phase: 2, decisionKind,
@@ -95,7 +96,7 @@ function observation(seat, {
     }),
     opponentPublic: publicPlayer({
       active: opponentActive, bench: opponentBench,
-      stadium: opponentStadium, handCount: 5
+      stadium: opponentStadium, handCount: opponentHandCount
     }),
     ownTurnResources: {
       supporterPlayedTurn: 0, retreatedTurn: 0, extraTurnActive: false,
@@ -1883,5 +1884,101 @@ test('Forest Seal Stone is not attached under Path to the Peak Ability suppressi
   assert.deepEqual(evaluate(req), {
     kind: 'select-action',
     token: 'pass'
+  });
+});
+
+
+test('Trevenant & Dusknoir-GX is benched as a Night Watch disruption attacker against a large hand', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    abilities: ['Underworld Door'],
+    suppression: false
+  });
+  const view = observation(0, {
+    active: vmax,
+    ownHand: ['Trevenant & Dusknoir-GX SMP 10', 'Psychic Energy SVE 13'],
+    opponentHandCount: 6
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'trevenant',
+        kind: 'play-card',
+        actorPrinting: 'Trevenant & Dusknoir-GX SMP 10',
+        publicMetadata: {
+          targetSeat: 'actor',
+          targetZone: 'bench',
+          isOwnerVisible: true
+        }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'trevenant'
+  });
+});
+
+test('search finds Trevenant & Dusknoir-GX when Night Watch can punish a large opponent hand', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    abilities: ['Underworld Door'],
+    suppression: false
+  });
+  const view = observation(0, {
+    active: vmax,
+    ownHand: ['Psychic Energy SVE 13'],
+    opponentHandCount: 6
+  });
+  const req = cardPrompt(0, view, {
+    printings: [
+      'Trevenant & Dusknoir-GX SMP 10',
+      'Latias ex SSP 76',
+      'Psychic Energy SVE 13'
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choices',
+    tokens: ['card-0']
+  });
+});
+
+test('Underworld Door funds Trevenant & Dusknoir-GX for Night Watch against a large hand', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    abilities: ['Underworld Door'],
+    suppression: false
+  });
+  const trevenant = pokemon({
+    printing: 'Trevenant & Dusknoir-GX SMP 10',
+    name: 'Trevenant & Dusknoir-GX',
+    hp: 270,
+    types: ['Psychic'],
+    subtypes: ['GX'],
+    attacks: [attack('Night Watch', ['Psychic', 'Psychic', 'Psychic'], '150')]
+  });
+  const view = observation(0, {
+    active: vmax,
+    bench: [trevenant],
+    ownHand: ['Psychic Energy SVE 13'],
+    opponentHandCount: 6
+  });
+  const req = underworldAttachmentRequest(0, view, [
+    { token: 'trevenant-energy', benchIndex: 0, printing: trevenant.printing },
+    { token: 'vmax-energy', benchIndex: 1, printing: 'Shadow Rider Calyrex VMAX CRE 75' }
+  ]);
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choice',
+    token: 'trevenant-energy'
   });
 });
