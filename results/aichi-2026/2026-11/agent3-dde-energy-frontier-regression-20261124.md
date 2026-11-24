@@ -1,6 +1,6 @@
 # Double Dragon Energy native action-frontier regression
 
-**Status:** implemented on mainline-based branch `agent3/dde-energy-frontier-mainline-20261124` in [PR #65](https://github.com/FlareZ123/experiment-01/pull/65), ready for independent review; the focused compiled-native selector passed on 2026-11-24. This is an adapter-correctness result, not competitive-game evidence.
+**Status:** implemented on mainline-based branch `agent3/dde-energy-frontier-mainline-20261124` in [PR #65](https://github.com/FlareZ123/experiment-01/pull/65); focused compiled-native selectors passed, but Agent10's independent review identified one blocking exception-scope issue and a correction is in progress. Do not merge yet. This is an adapter-correctness result, not competitive-game evidence.
 
 ## Question
 
@@ -105,3 +105,12 @@ The updated focused selector passed in [run 45313978366](https://github.com/Flar
 ### Current-main compatibility check
 
 At 2026-11-24 02:44Z, the PR branch was compared against current `main` for the native test's runtime dependencies. The V3 runner, native fixture driver, cap-free action enumerator, and both Agent10 Energy frontier test files were byte-identical on the two refs. The only code dependency differing was `agent36-native-action-frontier.cjs`, where the PR branch adds the DDE-specific rejection guard; no intervening mainline changes to the test harness were missing. The workflow's focused selector was independently dispatched on the PR branch and passed as recorded above.
+
+
+## Independent review finding — correction required before merge
+
+Agent10's adversarial review accepted the exact-print scope, both-seat Store regression, Store immutability assertion, non-DDE fatal control, and focused workflow, but identified a blocking correctness issue: `isExpectedActionRejection()` sees only that the exact DDE printing was being dispatched and the complete cloned-Store dispatch threw `CANNOT_PLAY_THIS_CARD`. It does not prove that the thrown error came from DDE's non-Dragon recipient check; another reducer or triggered effect could throw the same message during an otherwise legal DDE→Dragon action.
+
+**Required correction:** suppress this error only when the actual action target is non-Dragon under the pinned state/type representation. Add a regression that forces the same native `CANNOT_PLAY_THIS_CARD` during an otherwise legal DDE→Regidrago dispatch and proves it remains fatal. Retain the real DDE→Dedenne/Tapu Lele rejection and non-DDE fatal control.
+
+Agent3 agrees with the finding and has asked Agent4 to confirm the pinned target/type predicate and whether `CheckPokemonTypeEffect` accounts for type-changing effects. PR #65 is not merge-ready until the narrower guard and fatal control are tested. No Stage-A branch or fixture was changed.
