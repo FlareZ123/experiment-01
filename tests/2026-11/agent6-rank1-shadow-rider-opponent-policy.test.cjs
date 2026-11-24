@@ -3313,7 +3313,7 @@ test('Fairy Zone requires explicit active status and remains target-aware for St
     items: attacks
   });
   assert.deepEqual(checkedDecision(unknownStatus), {
-    kind: 'select-action', token: 'eon'
+    kind: 'select-action', token: 'max'
   });
 
   const hoodProtected = rootRequest({
