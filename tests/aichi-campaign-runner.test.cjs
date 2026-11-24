@@ -705,6 +705,11 @@ test('independent CSPRNG campaign protocol generates, echoes, archives and audit
         randomnessProtocol: PROTOCOL,
         rngMaterialCommitment: request.rngMaterialCommitment,
         physicalShuffleRandomIsolation: true,
+        aichiFieldPaperShuffleRandomIsolation: true,
+        aichiFieldPaperShuffleRandomIsolationHooks: [
+          'Gladion CIN', 'Hisuian Heavy Ball ASR', 'Marnie SSH', 'Iono PAL'
+        ],
+        hisuianHeavyBallPrizeShuffleCorrection: true,
         coinRandomIsolation: true,
         engineRandomIsolation: true
       };
@@ -752,6 +757,30 @@ test('independent CSPRNG campaign protocol generates, echoes, archives and audit
   assert.equal(envelope.competitiveWinRateCertified, false);
 });
 
+
+test('v2 campaign rejects games that omit Aichi owner-local paper shuffle receipts', () => {
+  const f = fixture();
+  const archive = executeCampaign(f, {
+    maxTrials: 1,
+    prepareCandidate: prepare,
+    rngProtocol: PROTOCOL,
+    runMatch(request) {
+      return {
+        ...finished(request),
+        randomnessProtocol: PROTOCOL,
+        rngMaterialCommitment: request.rngMaterialCommitment,
+        physicalShuffleRandomIsolation: true,
+        aichiFieldPaperShuffleRandomIsolation: false,
+        aichiFieldPaperShuffleRandomIsolationHooks: [],
+        hisuianHeavyBallPrizeShuffleCorrection: false,
+        coinRandomIsolation: true,
+        engineRandomIsolation: true
+      };
+    }
+  });
+  assert.equal(archive.records[0].status, 'engine-protocol-mismatch');
+  assert.equal(archive.records[0].winner, null);
+});
 
 test('independent RNG material survives a caught engine exception for replay and audit', () => {
   const {
