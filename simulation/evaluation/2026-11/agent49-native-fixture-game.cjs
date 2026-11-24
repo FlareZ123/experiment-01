@@ -715,6 +715,8 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
   const projectFailureSummary=(failure,includePrimary=true)=>{
     if(!failure||typeof failure!=='object')return null;
     const summary={};
+    const isNativeGameError=(typeof native?.GameError==='function'&&
+      failure instanceof native.GameError)||failure.nativeErrorKind==='GameError';
     for(const key of ['stage','code','actionOrdinal','actingSeat','phaseBefore',
       'turnBefore','pendingPromptType','actionName','actionPayloadSha256',
       'name','nativeErrorKind','nativeGameMessage','nativeActionType','nativeActionFamily',
@@ -732,9 +734,9 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
         typeof value==='string'&&/^[0-9a-f]{64}$/i.test(value))summary[key]=value;
       else if(key==='name'&&typeof value==='string'&&/^[A-Za-z0-9_.-]{1,64}$/.test(value))summary[key]=value;
       else if(key==='nativeErrorKind'&&value==='GameError')summary[key]=value;
-      else if(key==='nativeActionType'&&failure.nativeErrorKind==='GameError'&&
+      else if(key==='nativeActionType'&&isNativeGameError&&
         SAFE_FIXTURE_NATIVE_ACTION_TYPES.has(value))summary[key]=value;
-      else if(key==='nativeActionFamily'&&failure.nativeErrorKind==='GameError'&&
+      else if(key==='nativeActionFamily'&&isNativeGameError&&
         SAFE_FIXTURE_NATIVE_ACTION_FAMILIES.has(value))summary[key]=value;
       else if(key==='nativeGameMessage'&&typeof value==='string'&&nativeGameMessageValues.has(value))
         summary[key]=value;
