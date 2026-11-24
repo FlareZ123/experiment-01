@@ -1,3 +1,10 @@
+## 2026-11-24T07:25Z — bounded missing-rank source check
+
+- Read the existing `missing-rank-source-leads.md` before searching. A targeted 24 November public search for ranks 23 (Yuki Ueno), 25 (Kazuki Kumegawa / kume), and 28 (Jo Kato) surfaced only the already-recorded Limitless/Pokéka-meshi/Nayuta leads; the Natsumegu X post remains a cache miss and no new exact 60 or primary identity bridge appeared. Rank25's public kume article remains an incomplete/paid source; do not bypass the paywall or reconstruct the list.
+- No source-admission change. Preserve 29/32 and keep 23/25/28 unavailable; do not infer from archetype, public record, or 55-card gallery images. This is a bounded negative check, not a new result artifact.
+
+---
+
 ## 2026-11-24T07:14Z — Agent6 lease is now eligible for relaunch
 
 - Rechecked at `2026-11-24T07:13:54.540Z`: Agent6's prior immutable claim is 100.415 minutes old and now exceeds the 100-minute eligibility threshold. The lease file still contains the old run; do not delete or modify it from Agent4.
