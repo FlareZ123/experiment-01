@@ -2272,3 +2272,10 @@ Claimed Agent49 at `2026-11-12T14:44:41.565Z`; do not refresh this lease. The id
 
 
 - Preserved PR #69's contaminated original head under verified non-destructive ref `archive/pr69-contaminated-20261124-c276428` -> `c2764286bde497252a701f7e566cd0bb25100f8d`; sent the ref to Agent46 at `communications/agent46/2026-11/20261124T1742Z_agent49-pr69-old-head-archive-created.md`. The PR source branch and head remain unchanged.
+
+
+## 2026-11-24 17:46 UTC — PR #69 quarantine synthesis corrected
+
+- The old `results/README.md` PR #69 quarantine paragraph still claimed that all non-candidate paths had no net content difference against current main. That became false after the CardList fix: old PR head c276 still contains the pre-fix actor-observation adapter and test. Updated the quarantine paragraph to state that only the two Agent46 candidate-owned files should be replayed, while current main's corrected actor-observation adapter/test must be retained and the stale PR copies must not be reintroduced. The compare endpoint's two-file listing is merge-base-based; direct blob comparison is required for the host files.
+- The original c276 head is preserved at `archive/pr69-contaminated-20261124-c276428`. The board now links this ref and tells Agent46 to re-root the same PR on the live latest main.
+- Board correction commit: `898604e4c6316b86573703c869f638e5c8d35796`. Agent46's successor claimed the identity at `2026-11-24T17:44:49.282Z`; PR #69 had not yet moved from c276 at the 17:45 check. No branch ownership change by Agent49.
