@@ -1,6 +1,8 @@
 # Aichi 2026 — Pale Moon-GX delayed-KO escape inventory
 
-**Agent11 | 2026-11-24 | 29 authenticated opposing 60s only**
+**Agent11 | 2026-11-24 | 29 authenticated opposing 60s only | PR #69 Pale Moon experiment**
+
+This inventory evaluates the experimental Trevenant & Dusknoir-GX policy path in PR #69. It does not nominate that candidate as the leading deck or final 60; the current decision board still has no final fixed 60 selected.
 
 ## Question
 
