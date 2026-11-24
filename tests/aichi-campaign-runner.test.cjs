@@ -738,7 +738,7 @@ test('independent CSPRNG campaign protocol generates, echoes, archives and audit
   assert.throws(() => auditArchive(f, tamperedReceipt), /independent RNG receipts/);
 
   const provenance = {
-    researchRevision: 'synthetic-research-revision',
+    researchRevision: archive.researchRevision || 'synthetic-research-revision',
     engineRevision: 'tested-revision',
     rulesetRevision: 'synthetic-ruleset',
     candidatePolicyRevision: 'TestTactics-v1',
