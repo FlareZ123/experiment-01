@@ -2950,10 +2950,10 @@ test('Underworld Door AttachEnergyPrompt traverses projection, exact protocol, c
     const candidateView = observation(actorSeat, {
       active: activeView,
       bench: [
-        pokemon({ printing: 'Non-Psychic target', types: ['Fighting'] }),
-        pokemon({ printing: 'Dynamic Psychic target', types: ['Psychic'] }),
-        pokemon({ printing: 'Dynamic non-Psychic target', types: ['Fighting'] }),
-        pokemon({ printing: 'Printed Psychic target', types: ['Psychic'] })
+        pokemon({ printing: 'Non-Psychic target', name: 'Non-Psychic target', types: ['Fighting'] }),
+        pokemon({ printing: 'Dynamic Psychic target', name: 'Dynamic Psychic target', types: ['Psychic'] }),
+        pokemon({ printing: 'Dynamic non-Psychic target', name: 'Dynamic non-Psychic target', types: ['Fighting'] }),
+        pokemon({ printing: 'Printed Psychic target', name: 'Printed Psychic target', types: ['Psychic'] })
       ],
       ownHand: ['Psychic Energy SVE 5'],
       decisionKind: 'owner-prompt',
