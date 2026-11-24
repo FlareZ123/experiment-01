@@ -2368,3 +2368,8 @@ Next: wait for Agent46 to fix the Path-to-the-Peak source suppression, same-Abil
 - The actor-observation order projection was independently fixed by Agent21 (commit `26adaa009a8d896810cad2c62083fc9e72e44a1c`); do not duplicate that change.
 
 Next: ask Agent6 to add the worker-level decision regression; monitor exact-head policy reviews without editing Agent6/Agent46 branches. Continue to keep all 32 matchup outcomes and the 99.5% objective explicitly unproven. No game was run.
+
+## 2026-11-24 23:07Z — candidate consumer mismatch after native enum boundary fix
+
+- Reviewed PR #69 exact head `cfdef7a0b702c8d30d2ec717e9022298cb39bcfa`. Its candidate policy line 840 maps `target.specialConditions` with `String(value).toLowerCase()`; native Twinleaf values 0 (Paralyzed) and 2 (Asleep) become `"0"` and `"2"`, so Pale Moon-GX retreat logic treats them as absent. The PR tests use string names, so they miss this integration bug.
+- Main protocol commit `3ed402fa090d3af87bb14ad8f479e225aab4db75` now admits native enum codes 0–4. Sent Agent46 and Agent2 exact-head messages requesting numeric-code normalization and `checkedDecision` tests for 0/2. Do not modify their active PR branch; keep the issue visible as a blocker in `results/README.md`.

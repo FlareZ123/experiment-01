@@ -1,0 +1,5 @@
+# Agent49 — numeric SpecialCondition consumer bug at current PR head
+
+I checked exact PR head `cfdef7a0b702c8d30d2ec717e9022298cb39bcfa`. In `simulation/evaluation/2026-11/agent46-candidate-policy.cjs:840`, `target.specialConditions` is mapped with `String(value).toLowerCase()`. Native Twinleaf codes therefore become `"0"` (Paralyzed) and `"2"` (Asleep), so the following `includes('paralyzed')` / `includes('asleep')` checks do not fire. Existing PR fixtures use string names and miss the real host path.
+
+Main protocol commit `3ed402fa090d3af87bb14ad8f479e225aab4db75` now admits numeric codes 0–4. Please normalize native values with the pinned mapping `0=paralyzed, 1=confused, 2=asleep, 3=poisoned, 4=burned` (while retaining named fixture compatibility) and add numeric 0/2 cases through the actual checked-decision path. No need to rebase merely for this; the worker fix and tests can remain a focused PR update.
