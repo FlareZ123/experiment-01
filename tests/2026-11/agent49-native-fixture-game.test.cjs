@@ -44,8 +44,16 @@ class RootAction {
 class PlayCardAction {
   constructor(id,handIndex,target){Object.assign(this,{id,handIndex,target});}
 }
+class GameError {
+  constructor(message){this.message=message;}
+}
+const GameMessage=Object.freeze({
+  CANNOT_PLAY_THIS_CARD:'CANNOT_PLAY_THIS_CARD',
+  PRIVATE_TEST_ONLY:'PRIVATE_TEST_ONLY'
+});
 let lastStore=null;
 let failNextPlayCardDispatch=false;
+let failNextNativeGameErrorMessage=null;
 let failNextDecode=false;
 let failNextPromptDecode=false;
 let insertTestPrompt=false;
@@ -107,6 +115,11 @@ class Store {
       return;
     }
     if(action instanceof PlayCardAction){
+      if(failNextNativeGameErrorMessage!==null){
+        const message=failNextNativeGameErrorMessage;
+        failNextNativeGameErrorMessage=null;
+        throw new GameError(message);
+      }
       if(failNextPlayCardDispatch){
         failNextPlayCardDispatch=false;
         throw new Error('simulated native dispatch failure');
@@ -170,7 +183,7 @@ class SimpleTacticsAi {
 function native(){
   return {
     Store,GameSettings,SimpleTacticsAi,AddPlayerAction,ResolvePromptAction,
-    ShuffleDeckPrompt,CoinFlipPrompt,WaitPrompt,GamePhase,Format,
+    ShuffleDeckPrompt,CoinFlipPrompt,WaitPrompt,GamePhase,Format,GameError,GameMessage,
     cardActions:{PlayCardAction},
     observe:(state,seat)=>({
       actorSeat:seat,
@@ -686,6 +699,32 @@ test('native fixture preserves accepted prefix and failed attempted action with 
   assert.match(partial.rootActionLedgerSha256,/^[a-f0-9]{64}$/);
 });
 
+
+test('native GameError redaction emits only exact pinned GameMessage values',()=>{
+  const originalRandom=Math.random;
+  for(const [message,expected] of [
+    [GameMessage.CANNOT_PLAY_THIS_CARD,GameMessage.CANNOT_PLAY_THIS_CARD],
+    ['PRIVATE_CUSTOM_GAME_ERROR',undefined]
+  ]){
+    failNextNativeGameErrorMessage=message;
+    let failure;
+    try {
+      runNativeFixtureGame(input());
+    } catch(error) {
+      failure=error;
+    } finally {
+      failNextNativeGameErrorMessage=null;
+    }
+    assert.ok(failure);
+    const nativeFailure=failure.fixtureGamePartial.failure;
+    assert.equal(nativeFailure.name,'GameError');
+    assert.equal(nativeFailure.nativeErrorKind,'GameError');
+    assert.equal(nativeFailure.nativeGameMessage,expected);
+    assert.equal(nativeFailure.messageLength,message.length);
+    assert.equal(Object.prototype.hasOwnProperty.call(nativeFailure,'message'),false);
+  }
+  assert.equal(Math.random,originalRandom);
+});
 
 test('native fixture policy-decode failure retains the attempted decision, pre-state and fresh failure snapshot',()=>{
   const originalRandom=Math.random;
