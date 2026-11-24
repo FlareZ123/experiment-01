@@ -195,14 +195,22 @@ test('a prompted opponent can observe its own choice without active-turn ownersh
 
 test('public Ability-lock activation order is exposed only as a detached safe integer',()=>{
   const s=fixture();
-  const own=s.players[0].active.getPokemonCard();
-  const opponent=s.players[1].active.getPokemonCard();
+  const ownActiveSlot=s.players[0].active;
+  const opponentActiveSlot=s.players[1].active;
+  const ownCard=ownActiveSlot.getPokemonCard();
+  const opponentCard=opponentActiveSlot.getPokemonCard();
   const ownBench=pokemon('Wobbuffet PHF');
   const opponentBench=pokemon('Alolan Muk BUS');
-  own.abilityLockActivationOrder=17;
-  opponent.abilityLockActivationOrder=23;
-  ownBench.getPokemonCard().abilityLockActivationOrder=31;
-  opponentBench.getPokemonCard().abilityLockActivationOrder=41;
+  // Twinleaf stores this order on PokemonCardList, not on PokemonCard.
+  // Deliberate card-level decoys ensure the projection reads the slot.
+  ownCard.abilityLockActivationOrder=117;
+  opponentCard.abilityLockActivationOrder=123;
+  ownBench.getPokemonCard().abilityLockActivationOrder=131;
+  opponentBench.getPokemonCard().abilityLockActivationOrder=141;
+  ownActiveSlot.abilityLockActivationOrder=17;
+  opponentActiveSlot.abilityLockActivationOrder=23;
+  ownBench.abilityLockActivationOrder=31;
+  opponentBench.abilityLockActivationOrder=41;
   s.players[0].bench[0]=ownBench;
   s.players[1].bench[0]=opponentBench;
   const view=actorObservation(s,0);
@@ -213,10 +221,10 @@ test('public Ability-lock activation order is exposed only as a detached safe in
     'the public activation order is also exposed for a visible benched source');
   assert.equal(view.opponentPublic.bench[0].abilityLockActivationOrder,41,
     'opponent-side benched lock sources retain the same public order');
-  own.abilityLockActivationOrder=Number.MAX_SAFE_INTEGER+1;
-  ownBench.getPokemonCard().abilityLockActivationOrder=Number.MAX_SAFE_INTEGER+1;
-  opponentBench.getPokemonCard().abilityLockActivationOrder=Number.MAX_SAFE_INTEGER+1;
-  delete opponent.abilityLockActivationOrder;
+  ownActiveSlot.abilityLockActivationOrder=Number.MAX_SAFE_INTEGER+1;
+  ownBench.abilityLockActivationOrder=Number.MAX_SAFE_INTEGER+1;
+  opponentBench.abilityLockActivationOrder=Number.MAX_SAFE_INTEGER+1;
+  delete opponentActiveSlot.abilityLockActivationOrder;
   const unknown=actorObservation(s,0);
   assert.equal(unknown.ownPublic.active.abilityLockActivationOrder,null);
   assert.equal(unknown.ownPublic.bench[0].abilityLockActivationOrder,null);

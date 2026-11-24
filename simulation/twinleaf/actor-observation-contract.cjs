@@ -28,8 +28,8 @@ function visiblePokemon(slot){
     printing:printing(pokemon),name:pokemon.name,
     hp:pokemon.hp,damage:slot.damage,
     lastPlayedOrEvolvedTurn:slot.pokemonPlayedTurn,
-    abilityLockActivationOrder:Number.isSafeInteger(pokemon.abilityLockActivationOrder)?
-      pokemon.abilityLockActivationOrder:null,
+    abilityLockActivationOrder:Number.isSafeInteger(slot.abilityLockActivationOrder)?
+      slot.abilityLockActivationOrder:null,
     // Fully face-up printed information needed to compare attack options,
     // vulnerabilities, and retreat. Printed values are not a final damage
     // or retreat-cost calculation; effects may modify them in the Store.
