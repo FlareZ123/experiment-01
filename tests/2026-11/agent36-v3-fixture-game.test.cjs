@@ -44,6 +44,12 @@ test('fixed candidate and authenticated rank-1 source resolve as exact pinned Tw
   const native = runner.loadNativeRoleDependencies({
     enginePin: process.env.AGENT36_TWINLEAF_COMMIT_SHA,
   });
+  assert.equal(typeof native.GameError,'function');
+  assert.equal(typeof native.GameMessage,'object');
+  assert.ok(Object.values(native.GameMessage).includes('CANNOT_PLAY_THIS_CARD'));
+  assert.equal(Object.values(native.GameMessage).filter(value=>
+    typeof value==='string'&&value.length===21
+  ).length,13);
   const allCards = native.CardManager.getInstance().getAllCards();
   const candidateResolved = runner.resolvePrintedDeck(candidate, allCards, { label: 'candidate' });
   const opponentResolved = runner.resolvePrintedDeck(rank1, allCards, { label: 'rank1 opponent' });
