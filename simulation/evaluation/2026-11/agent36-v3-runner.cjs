@@ -250,6 +250,14 @@ function projectV3FixtureFailureForReceipt(source,{
   };
   const messageLength=failure?.messageLength??nativeFailure?.messageLength;
   if(Number.isSafeInteger(messageLength)&&messageLength>=0)result.messageLength=messageLength;
+  if(failure?.nativeErrorKind==='GameError')result.nativeErrorKind='GameError';
+  if(typeof failure?.nativeGameMessage==='string'&&
+    /^[A-Z0-9_]{1,128}$/.test(failure.nativeGameMessage))
+    result.nativeGameMessage=failure.nativeGameMessage;
+  const topStackSite=projectNativeFixtureFailureForReceipt({
+    stackSite:failure?.stackSite
+  })?.stackSite;
+  if(topStackSite)result.stackSite=topStackSite;
   const assertionId=failure?.assertionId??source?.assertionId;
   if(typeof assertionId==='string'&&/^[a-z0-9-]{1,64}$/.test(assertionId))
     result.assertionId=assertionId;
