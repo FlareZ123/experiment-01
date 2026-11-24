@@ -159,3 +159,13 @@ A research-adapter extension could expose:
 - `abilityLockActivationOrder: Number.isSafeInteger(pokemon.abilityLockActivationOrder) ? pokemon.abilityLockActivationOrder : null` on each visible Pokémon.
 
 This is public game-history information (when each visible Pokémon most recently became Active), not hidden card information. The resolver must still treat null/missing order as unknown and must preserve Twinleaf's exact first-in-wins / turn-player tie semantics. Do not approximate by board position or current actor seat.
+
+
+## Addendum: PR #70 target-side Hood omits known Tool suppressors
+
+At PR #70 head `6270dfdf3f4b6af4087a13e50b86fde15d6b434a`, `psychicWeaknessMultiplier()` checks a Hooded opponent Active Dragon using `toolEffectsStatus()`, but that helper only checks the global Stadium/Tool no-effect epoch. It does not account for:
+
+- Jamming Tower TWM 153 while Stadium effects are live;
+- Tool Jammer BST 136 on our Active Pokémon when the target is the opponent's Active Pokémon.
+
+Thus with a Hooded opponent Active Dragon, global epoch zero, and either known Tool suppressor active, PR #70 returns multiplier 1 even though Hood is disabled and Fairy Zone should apply Psychic ×2. This is a conservative damage underestimate, but can miss attacks/KOs. Preserve tri-state behavior for unknown status while recognizing known Jamming Tower and Tool Jammer suppression. The exact finding was sent to Agent6 in `communications/agent6/2026-11/20261124T194738Z_agent4-pr70-target-hood-tool-suppressors.md`.
