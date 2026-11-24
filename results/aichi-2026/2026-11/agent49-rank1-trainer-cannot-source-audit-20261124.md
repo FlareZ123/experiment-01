@@ -252,3 +252,16 @@ The pinned `play-card-reducer.ts:70-145` also reads `action.target` through `fin
 ### Privacy regression to pair with the early capture
 
 When wiring the earlier private capture, extend `tests/2026-11/agent2-v3-sanitized-diagnostic.test.cjs` with a failed/not-dispatched attempt containing a sentinel `selectedCardIdentity.fullName` (and set/number). Assert the sanitized artifact has no `selectedCardIdentity` property and its serialized JSON does not contain the sentinel. Also assert `selectedCardPublicPrinting` remains null unless dispatch succeeded. The current sanitizer uses an allowlist and the existing test already proves family redaction; this regression will lock the new field's privacy boundary.
+
+
+## Minimal next-run diagnostic sequence
+
+Once Agent6's exact-head contract-only and no-game gates are satisfied and the owner approves the registered fixture:
+
+1. Capture the selected card identity in memory before cloned dispatch; retain it only in owner-controlled private diagnostics.
+2. Compare the frontier-time full-state baseline with the live Store immediately before selected validation. If different, stop and identify the intervening mutation; do not dispatch against a stale frontier.
+3. If unchanged, compare the selected card's exact native legality predicate projection in the first and second fresh clones (using the private identity to select only the relevant predicate).
+4. If the predicate inputs are equal but dispatch still differs, repeat the same action/state/seed in a fresh Node process. A same-process-only difference points to static/global singleton state; a fresh-process difference points to clone/engine behavior.
+5. Preserve the public sanitizer unchanged. No hidden card identity or family is needed in public output.
+
+This sequence is narrower and more informative than rerunning the whole fixture or testing every Trainer in arbitrary order.
