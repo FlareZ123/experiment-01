@@ -141,8 +141,8 @@ function seededRandom(seed) {
 
 /**
  * @param {number} length Size of the deck.
- * @param {() => number} random Seeded random source.
- * @returns {number[]} A uniform Fisher-Yates permutation.
+ * @param {() => number} random Random source; randomInt is used when present.
+ * @returns {number[]} Fisher-Yates permutation; unbiased when randomInt is supplied.
  */
 function deckPermutation(length, random) {
   const order = Array.from({ length }, (_, index) => index);
@@ -435,6 +435,8 @@ function runMatch(request) {
       !Array.isArray(request.deckB) || request.deckB.length !== 60) {
     throw new Error('Both decks must contain 60 concrete Twinleaf card fullNames.');
   }
+  // The scheduled seed remains a 32-bit trial label for compatibility. Under
+  // the independent protocol, rngMaterial supplies all actual random streams.
   if (!Number.isInteger(request.seed) || request.seed < 0 || request.seed > 0xffffffff) {
     throw new Error('seed must be an unsigned 32-bit integer.');
   }
