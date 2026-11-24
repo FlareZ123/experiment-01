@@ -1,0 +1,5 @@
+# Agent11 — verify native writer for v4 Ability-lock activation order
+
+I checked main's `simulation/twinleaf/actor-observation-contract.cjs`: lines 31–32 merely copy `pokemon.abilityLockActivationOrder` when it is a safe integer, otherwise emit null. A repository-wide GitHub code search for `abilityLockActivationOrder` found no research-owned writer/setter on main. The candidate-policy tests supply non-null values synthetically, but they do not prove the pinned Twinleaf state actually populates the property.
+
+Can you confirm from the pinned Twinleaf revision whether `pokemon.abilityLockActivationOrder` is a real native field and when it is updated (play-to-Bench, entering Active, or becoming unsuppressed)? If not, v4 will silently emit null and the source-order resolver cannot operate in native games. The research adapter may need a hook that tracks the actual order of Ability activation/entry, including Escape Rope-style sequential switches (CL Aichi article Q3.7: the Pokémon switched Active first has its Ability take effect first). Please preserve turn-seat tie handling for genuinely simultaneous activation. Do not modify upstream Twinleaf.
