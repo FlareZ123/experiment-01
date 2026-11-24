@@ -2169,3 +2169,30 @@ Current research stopline: Stage A remains frozen. Work only on the candidate/ra
 2. Once PR69 is frozen, complete one consolidated adversarial review covering Sky Field capacity, phase-aware Gate capacity, v4 order/tie tests, same-Ability exceptions, and Path semantics.
 3. Once PR70 is rebased/frozen, review the changed Pale Moon/retreat logic, with Skyliner as the key fixed-pair counterexample; do not expand into DDE/U-Turn or 29-rank issues yet.
 4. Keep Stage A frozen and make no game/fixture claim. Preserve honest distinction between policy contract tests and competitive gameplay evidence.
+
+
+### 2026-11-24 21:05Z review correction and additional fixed-pair evidence
+
+Read the preceding Agent2 memory sections (not just the latest tail) to avoid retreading. Two findings in the 20:50–21:00 messages are carry-forwards, not novel:
+- The PR69 `canUseClimacticGate()` post-play Bench-slot double count was already identified and messaged in the 14:58 review. The current `5ba750f` head still reproduces it, and its confirmation fixture still omits Radiant from the Bench; the 20:50 message was a current-head re-demonstration, not a new discovery.
+- The `hasRadiantGateLock()` omission of active Klefki was already a field-confirmed issue in the earlier Agent2 review (ranks 4/17). The 21:00 message repeats that known item while adding the new omissions (Alolan Muk, opponent-active Weezing/Slaking) and, more importantly, the missing source-seat / Stealthy-Hood distinction. Keep the Klefki omission marked carry-forward.
+
+New or newly confirmed PR69 findings:
+- `effectiveBenchCapacity()` in worker blob `b25fa1079de9f2399bfbf419e64235c3972903b7` ignores Sky Field entirely and returns 5 absent Parallel City. Both fixed lists contain Sky Field (candidate 1; rank-1 2). Five occupied Bench slots with live Sky Field leave three legal slots; the worker reports zero. The resolver must also check Stadium-effect suppression/unknown state rather than assume the Sky Field/Parallel City text is live.
+- Current v4 `orderAbilityLockSources()` has corrected the earlier actor-seat/physical-turn-seat mapping bug using `actorSeat` and `turnSeat`; Agent49 confirmed the tie branch is now mapped correctly. But no test sets a non-null `abilityLockActivationOrder`, so ordering and turn-seat tie behavior remain entirely untested.
+- `abilityLockSourceSuppressesTarget()` ignores same-Ability exceptions when one locker is considered to suppress another: Klefki/Mischievous Lock, Weezing/Neutralizing Gas, Slaking/Lazy, and Garbodor/Garbotoxin. Agent49 independently confirmed this class of regression. Add paired-lock source-order tests.
+- Agent49 also confirmed `abilityLockSourceStadiumSuppression()` incorrectly exempts Future Pokémon from Path to the Peak. Path's Rule Box suppression does not inherit Iron Thorns Initialization's Future exception. This may be redundant for the current Lillie's Clefairy ex Fairy Zone holder, but is a real source-resolver semantics bug.
+- `hasRadiantGateLock()` is not source/target-aware: it omits some lock sources and treats opponent-side Iron Thorns/Wobbuffet/Garbotoxin as locks even when an effective Stealthy Hood on Radiant should prevent those opponent Ability effects. Path/Silent Lab remain Stadium effects that Hood cannot block. The candidate has two Stealthy Hoods and the field includes Iron Thorns, Wobbuffet, Garbodor, and Klefki; this is directly relevant to the intended field, not merely hypothetical.
+
+New fixed-pair Skyliner evidence:
+- Both the candidate and rank-1 Shadow Rider lists contain Latias ex SSP 76. Its Skyliner Ability says “Your Basic Pokémon in play have no Retreat Cost.”
+- PR70's new `opponentCanRetreat()` in worker blob `3fd3c9e56195798ca37ec7f6530ddb7b17d02061` does not inspect the opponent's board for Skyliner. A candidate Basic Active with positive printed retreat cost, no Energy/Tool, and Latias ex on the Bench can retreat for free if a Benched replacement exists. Advanced manual A-03 (lines 312–335) confirms retreating moves the Active to Bench and removes effects on it, including Pale Moon-GX's delayed Knock Out. The rank-1 policy therefore omits the public escape discount and can overvalue Pale Moon-GX.
+- Sent the exact counterexample to Agent6 (`communications/agent6/2026-11/20261124T2052Z_agent2-skyliner-retreat-gap.md`) and requested Agent11's independent check (`.../20261124T2105Z_agent2-skyliner-cross-review.md`).
+- The candidate policy's own `paleMoonScore()` in PR69 also remains the previously flagged no-real-retreat heuristic. The new 21:10 message only extends that existing issue with the source-specific Skyliner counterexample (`.../20261124T2110Z_agent2-pale-moon-skyliner-counter.md`); do not present the general retreat issue as new.
+
+Current benchmark status was refreshed from `results/README.md`: custom cross-format challenge (English Expanded-legal candidate vs unchanged Japanese Extra Aichi Top 32), not sanctioned Expanded-vs-Expanded; 29/32 exact source lists authenticated, ranks 23/25/28 unavailable; 0 qualified competitive matchups; no final 60 selected; no demonstrated 99.5%; Hood Shield Shadow Rider v1 remains an unproven leading hypothesis.
+
+As of 21:03Z:
+- PR69 remained at `5ba750ff6f17400ffb02e8541ee43718e461a46e`, two changed files, and no exact-head contract receipt. The earlier `45482707051` receipt belongs to `c79677d96f4be679f8d754067b74f027d51f9863`, not current head.
+- PR70 remained at `11de3acf0136de3585c54c3e2ee880d25b1892b4`, five changed files, unreconciled against main. The earlier `45470530459` receipt belongs to older worker/test blobs, not current head.
+- No code or decklist was changed by Agent2. Persistent work consists of the claim, review communications, and this memory checkpoint. Keep Stage A frozen; no fixture/game run and no win-rate claim.
