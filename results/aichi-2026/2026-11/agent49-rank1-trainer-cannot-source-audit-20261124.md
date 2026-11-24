@@ -276,3 +276,15 @@ The worker call currently constructs its payload from explicit `observation`, `a
 
 
 The same Raihan source file's `reduceEffect(KnockOutEffect)` path locates each Raihan instance's card list/owner and adds `RAIHAN_MARKER` with that instance as marker source. Under normal event dispatch, every Raihan copy in the player's card zones should therefore receive its own source-specific marker. The looser name-only effect guard is not, by itself, evidence of a practical legality discrepancy; a mismatch would point to marker propagation or clone fidelity.
+
+
+### Minimal positive/negative fixtures for the four missing Item preflights
+
+| Exact Item | Positive state | Negative state | Expected frontier behavior |
+|---|---|---|---|
+| Mysterious Treasure FLI 113 | Deck nonempty; at least one other hand card | Empty deck or this is the only hand card | Include positive action; skip negative action without abort |
+| Quick Ball FST 237 | Deck nonempty; at least one other hand card | Empty deck or this is the only hand card | Include positive action; skip negative action without abort |
+| Hisuian Heavy Ball ASR 146 | At least one Prize remains face-down | Every Prize is face-up | Include positive action; skip negative action without abort |
+| Battle Compressor PHF 92 | Deck nonempty | Empty deck | Include positive action; skip negative action without abort |
+
+For each positive case, run the selected-action clone validation on the same state and assert the same action remains legal. For each negative case, assert the action is filtered during frontier construction and does not reach the worker. Keep these tests separate from the post-worker CANNOT regression: preflight coverage prevents invalid Items from aborting frontier construction, while the selected-clone differential diagnoses the current failure.
