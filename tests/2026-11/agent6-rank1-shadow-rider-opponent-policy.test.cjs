@@ -3262,6 +3262,10 @@ test('Field Blower chooses the empty selection when no opponent Pokémon has a T
     promptType: 'ChoosePokemonPrompt',
     source: actorChoiceSource('Field Blower GRI 125', 'Field Blower'),
     choices: [
+      { token: 'own-tool', kind: 'pokemon', printing: 'Shadow Rider Calyrex V CRE 74',
+        label: 'Shadow Rider Calyrex V',
+        publicMetadata: { selectionIndex: 0, ownerSeat: 'actor',
+          targetZone: 'bench', isOwnerVisible: true, benchIndex: 0 } },
       { token: 'empty', kind: 'empty-selection', label: 'Select none' }
     ],
     publicMetadata: {
@@ -3269,7 +3273,12 @@ test('Field Blower chooses the empty selection when no opponent Pokémon has a T
       allowCancel: false, isSecret: false
     },
     observation: {
-      ownPublic: player(),
+      ownPublic: player({
+        active: pokemon('Girafarig LOT 94'),
+        bench: [pokemon('Shadow Rider Calyrex V CRE 74', {
+          tools: ['Float Stone BKT 137']
+        })]
+      }),
       opponentPublic: player({ active: pokemon('Regidrago V SIT') })
     }
   });
