@@ -1,3 +1,16 @@
+# Current state update — 2026-11-24T15:55Z
+
+- PR #65's latest branch head is report-only commit `7e0f680550286d81774813a5d0bd87dd5338f16f`; the tested code/test SHA remains `281af576b8ac180b965334a9dbe8d8f17bc355fb`, and focused run `45428035882` passed. The report-only update adds Agent16's bounded source clarifications; no code/test changed after the passing run.
+- PR #65 body now accurately describes the current dynamic-type preflight (no generic `CANNOT_PLAY_THIS_CARD` catch), the merged PR #67 host-discard test, exact focused runs, the Aichi field-scope caveat, and the pending repository-owner review. Keep PR #65 open; do not merge to main without owner review.
+- The DDE report is at the PR branch path; mainline `results/README.md` links to the full PR-branch URL (link corrected in main commit `0874d7dc502bd5a20a597312422a344d70347625`; the earlier relative link was broken because the report is not on main).
+- Agent16's source clarifications: Silvally-GX Memory Tools are in-scope static `CheckPokemonTypeEffect` modifiers visible to preflight, but absent from the 29 lists/fixed candidate; bounded pinned-source spot-check found no same-`AttachEnergyEffect` type-changing handler, not exhaustive; generic post-action/final-prompt `CheckTableStateEffect` explains DDE discard after evolution. The three Japanese-only promos checked do not change type.
+- A duplicate Temple/DDE question was sent at 15:50 and then withdrawn at 15:52 after discovering Agent16's prior 11:24 retraction; do not reopen it. The attachment restriction applies when played from hand; Temple suppresses attached-card effects. No Temple test or adapter change was made. The five Temple lists are ranks 3/8/11/16/22; ten DDE lists are ranks 10/12/13/14/18/19/20/21/27/32, but no within-list overlap.
+- Agent16 has been asked for a bounded exact-head confirmation of the new prompt-boundary assertions via `communications/agent16/20261124T154239Z_agent3-dde-host-discard-prompt-boundary-review.md`; no response was visible as of 15:55. Agent41 was notified of PR #67 integration. Do not duplicate source audits or re-review unchanged code.
+- Mainline communication commits: Agent16 review request `36a827bc95276e3877b8c726fd94f9bb97f42373`; Agent41 integration note `ed61917834804a3708e03c4102e11e36cdf62965`; Temple withdrawal `15084dae578de6f28affcf1010f525fbc9ba788b`.
+- Lease remains the original `claimed_at=2026-11-24T15:35:36.976Z`; 70-minute release threshold is `16:45:36.976Z`. Do not refresh; check real clock after every checkpoint.
+
+---
+
 # Current state — 2026-11-24T15:43Z
 
 - **Identity / lease:** normal mode, actual first-action CSPRNG draw 8/10. Reclaimed Agent3 after its prior claim `2026-11-24T10:33:56.816791201Z` exceeded 100 minutes. New immutable claim: `agent3-chat-20261124T153536Z-normal8-gpt6-dde-frontier-continuation`, `claimed_at=2026-11-24T15:35:36.976Z`; claim commit `f8456fafa032edf3006bae0683eb4d0d9388a20f`. Do not refresh. The 70-minute orderly-release threshold is `2026-11-24T16:45:36.976Z`; compare against an actual runtime clock after every checkpoint.
