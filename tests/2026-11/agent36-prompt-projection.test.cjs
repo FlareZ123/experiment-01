@@ -288,54 +288,64 @@ test('ChoosePokemonPrompt keeps concealed opponent setup Pokémon identities out
   assert.ok(projection.promptProjection.choices.some(choice => choice.label === 'Opponent bench 1'));
 });
 
-test('ChoosePokemonPrompt preserves actor-relative active and bench indexes in protocol metadata', () => {
-  const state = makeState({ phase: 2 });
-  state.players[0].bench[2] = slot(pokemon('Actor Bench 3'));
-  state.players[1].bench[3] = slot(pokemon('Opponent Bench 4'));
-  const prompt = basePrompt(ChoosePokemonPrompt, state, {
-    playerType: PlayerType.ANY,
-    slots: [SlotType.ACTIVE, SlotType.BENCH],
-    options: { min: 1, max: 1, allowCancel: false, blocked: [] },
-    decode(result) { return result; },
-    validate(result) { return Array.isArray(result) && result.length === 1; }
-  });
-  const projection = projectPrompt({
-    prompt, state, actorSeat: 0, native,
-    provenanceHook: provenance(prompt.sourceCard, 'Choose a Pokémon')
-  });
-  const choices = projection.promptProjection.choices.filter(choice => choice.kind === 'pokemon');
-  assert.equal(choices.length, 4);
+test('ChoosePokemonPrompt preserves actor-relative active and bench indexes in protocol metadata for both seats', () => {
+  for (const actorSeat of [0, 1]) {
+    const state = makeState({ phase: 2 });
+    state.activePlayer = actorSeat;
+    state.players[actorSeat].bench[2] = slot(pokemon('Actor Bench 3'));
+    state.players[1 - actorSeat].bench[3] = slot(pokemon('Opponent Bench 4'));
+    const sourceCard = { fullName: 'Quick Ball' };
+    state.players[actorSeat].discard.cards.push(sourceCard);
+    const prompt = basePrompt(ChoosePokemonPrompt, state, {
+      playerId: state.players[actorSeat].id,
+      sourceCard,
+      playerType: PlayerType.ANY,
+      slots: [SlotType.ACTIVE, SlotType.BENCH],
+      options: { min: 1, max: 1, allowCancel: false, blocked: [] },
+      decode(result) { return result; },
+      validate(result) { return Array.isArray(result) && result.length === 1; }
+    });
+    const projection = projectPrompt({
+      prompt, state, actorSeat, native,
+      provenanceHook: provenance(sourceCard, 'Choose a Pokémon')
+    });
+    const choices = projection.promptProjection.choices.filter(choice => choice.kind === 'pokemon');
+    assert.equal(choices.length, 4);
 
-  const find = (ownerSeat, targetZone) => choices.find(choice =>
-    choice.publicMetadata?.ownerSeat === ownerSeat &&
-    choice.publicMetadata?.targetZone === targetZone);
-  const actorActive = find('actor', 'active');
-  const actorBench = find('actor', 'bench');
-  const opponentActive = find('opponent', 'active');
-  const opponentBench = choices.find(choice =>
-    choice.publicMetadata?.ownerSeat === 'opponent' &&
-    choice.publicMetadata?.targetZone === 'bench' &&
-    choice.publicMetadata?.benchIndex === 3);
+    const find = (ownerSeat, targetZone) => choices.find(choice =>
+      choice.publicMetadata?.ownerSeat === ownerSeat &&
+      choice.publicMetadata?.targetZone === targetZone);
+    const actorActive = find('actor', 'active');
+    const actorBench = choices.find(choice =>
+      choice.publicMetadata?.ownerSeat === 'actor' &&
+      choice.publicMetadata?.targetZone === 'bench' &&
+      choice.publicMetadata?.benchIndex === 2);
+    const opponentActive = find('opponent', 'active');
+    const opponentBench = choices.find(choice =>
+      choice.publicMetadata?.ownerSeat === 'opponent' &&
+      choice.publicMetadata?.targetZone === 'bench' &&
+      choice.publicMetadata?.benchIndex === 3);
 
-  assert.equal(actorActive.publicMetadata.slotIndex, 0);
-  assert.equal(actorActive.publicMetadata.benchIndex, undefined);
-  assert.equal(actorBench.publicMetadata.benchIndex, 2);
-  assert.equal(actorBench.publicMetadata.slotIndex, undefined);
-  assert.equal(opponentActive.publicMetadata.slotIndex, 0);
-  assert.equal(opponentActive.publicMetadata.benchIndex, undefined);
-  assert.equal(opponentBench.publicMetadata.benchIndex, 3);
-  assert.equal(opponentBench.publicMetadata.slotIndex, undefined);
+    assert.equal(actorActive.publicMetadata.slotIndex, 0);
+    assert.equal(actorActive.publicMetadata.benchIndex, undefined);
+    assert.equal(actorBench.publicMetadata.benchIndex, 2);
+    assert.equal(actorBench.publicMetadata.slotIndex, undefined);
+    assert.equal(opponentActive.publicMetadata.slotIndex, 0);
+    assert.equal(opponentActive.publicMetadata.benchIndex, undefined);
+    assert.equal(opponentBench.publicMetadata.benchIndex, 3);
+    assert.equal(opponentBench.publicMetadata.slotIndex, undefined);
 
-  for (const choice of choices) {
-    assert.equal(protocol.validatePromptMetadata(choice.publicMetadata, true),
-      choice.publicMetadata);
+    for (const choice of choices) {
+      assert.equal(protocol.validatePromptMetadata(choice.publicMetadata, true),
+        choice.publicMetadata);
+    }
+    assert.throws(() => protocol.validatePromptMetadata({
+      ...actorBench.publicMetadata, benchIndex: -1
+    }, true));
+    assert.throws(() => protocol.validatePromptMetadata({
+      ...actorActive.publicMetadata, slotIndex: '0'
+    }, true));
   }
-  assert.throws(() => protocol.validatePromptMetadata({
-    ...actorBench.publicMetadata, benchIndex: -1
-  }, true));
-  assert.throws(() => protocol.validatePromptMetadata({
-    ...actorActive.publicMetadata, slotIndex: '0'
-  }, true));
 });
 
 test('host dispatch enforces multi-select cardinality before native prompt resolution', () => {
