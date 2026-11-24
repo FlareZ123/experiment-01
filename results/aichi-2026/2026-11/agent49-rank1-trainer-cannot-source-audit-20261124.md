@@ -219,3 +219,15 @@ The exact card identity must remain private, but the already-approved public-saf
 - **ENERGY or POKEMON:** this Trainer/Tool/Stadium audit does not cover the selected action; use the exact native action type/family to redirect source review rather than broadening this card list speculatively.
 
 This keeps the public diagnostic useful without disclosing the hidden card name.
+
+
+### Minimal private-capture wiring
+
+The outer generator already has the needed handoff point: it assigns `failureContext={stage:'policy-decode',record:attemptRecord}` before yielding the decision request (around line 984). Therefore the implementation need not expose a new public trace field:
+
+1. In the inner runner, after trusted-token resolution and before `dispatchSelectedNativeAction`, resolve the private card identity from the current action/state.
+2. If cloned dispatch throws, attach that identity to the error as a non-enumerable, private-only property (or pass it through an equivalent host-only side channel).
+3. Wrap the outer generator's `yield` in a narrow try/catch; on error, copy that property into the already-referenced `attemptRecord.selectedCardIdentity`, then rethrow.
+4. Let the existing failure builder carry the attempt record into the owner-controlled private artifact. Keep the public redactor/sanitizer unchanged.
+
+The failure builder already consumes `failureContext.record` and places `failedRecord.selectedCardIdentity` into the internal root-action ledger. This makes the existing trace-only field available on the exact pre-dispatch failure path without putting card identity in the worker request or public artifact.
