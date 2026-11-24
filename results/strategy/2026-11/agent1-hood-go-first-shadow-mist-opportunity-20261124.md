@@ -57,7 +57,7 @@ Because the direct Shadow Mist event itself guarantees a Basic in the opening se
 
 Applying the same calculation to the unchanged rank-1 Shadow Rider reference (3 Shadow Rider V, 11 Psychic Energy, and the same 14-Basic opening rate) gives **24.8998% unconditional** and **28.9059% conditional on a valid opening seven**. The candidate's fourth Shadow Rider V raises this narrow direct-line opportunity by **7.8194 percentage points** conditional on a valid opening. This is a candidate-vs-rank-1 access asymmetry, not a matchup-win estimate; it does not include either player's first-turn choices, search lines, or the opponent's prior setup.
 
-This is an exact **direct-line opportunity frequency**, not a setup probability or win rate. It excludes Fog Crystal, Mysterious Treasure, draw Supporters, opponent mulligans, and additional switch/retreat lines; it also does not model whether the opponent's first turn has already neutralized the restriction's most valuable targets.
+This is an exact **direct-line opportunity frequency**, not a setup probability or win rate. It excludes Fog Crystal, Mysterious Treasure, draw Supporters, opponent mulligans, and additional switch/retreat lines; it also does not model whether the opponent's first turn has already neutralized the restriction's most valuable targets. In the language of the repository's [connector-domination concept](../../../resources/human_concepts.md), access is not success: this calculation does not show that Shadow Mist is the best attack, that the opponent holds a relevant card, or that the restriction removes a strategically necessary action. The Active Spot and the turn's other resources still have competing uses.
 
 ## Why the line has field relevance — and why it is conditional
 
