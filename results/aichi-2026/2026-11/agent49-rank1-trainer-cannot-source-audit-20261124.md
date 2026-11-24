@@ -209,50 +209,23 @@ There is one small gap in the current boundary checks:
 The runner does not pass the live `state` to the policy worker, so an intervening mutation is not currently evidenced. Still, returning the existing snapshotter closure plus its baseline as host-only frontier metadata, then comparing it immediately before selected validation, would prove the frontier and selected clone saw the same live object graph. Keep this metadata out of `actionFrontier` and worker input. If the comparison fails, emit a dedicated state-divergence diagnostic instead of allowing a downstream card GameError to obscure the earlier mutation.
 
 
-## Use the public-safe action family to narrow the next test
+## Use the private action family to narrow the next test
 
-The exact card identity must remain private, but the already-approved public-safe `nativeActionFamily` is enough to avoid running the whole matrix blindly:
+The internal failure object carries `nativeActionFamily`, but it is **not public-safe**. The public sanitizer deliberately removes it:
 
-- **ITEM:** first check whether the selected card is one of the four un-preflighted rank-1 Items; if it is Night Stretcher, the current Agent6 branch correction should cover the Special-Energy mismatch. Then compare the relevant hand/deck/prize/discard predicate across clones.
+- `agent2-v3-sanitized-diagnostic.cjs:219-232` emits the exact whitelisted `nativeGameMessage` and `nativeActionType`, but not `nativeActionFamily`.
+- `tests/2026-11/agent2-v3-sanitized-diagnostic.test.cjs:348-354` explicitly asserts that `nativeActionFamily` is absent from both public fixture-failure and actor-decision-failure output.
+
+Use the family only in owner-controlled local diagnostics or the encrypted private artifact after key provisioning. Do not expose whether a concealed card is an Item, Supporter, Tool, or Stadium in public output. The public-safe `nativeActionType` and exact GameMessage alone do not narrow the card family.
+
+For an internal/private family value:
+
+- **ITEM:** first check whether the selected card is one of the four un-preflighted rank-1 Items; if it is Night Stretcher, Agent6's current branch correction should cover the Special-Energy mismatch. Then compare the relevant hand/deck/prize/discard predicate across clones.
 - **SUPPORTER:** prioritize Raihan/Teammates marker state, Acerola damage state, then Iono/Carmine hand/deck state. Invalid Supporter CANNOTs are expected frontier rejections, so a selected Supporter that fails only on the second clone is a clone/state differential.
-- **TOOL or STADIUM:** the rank-1 Float Stone, Forest Seal Stone, Sky Field, and Dimension Valley implementations contain no card-specific `CANNOT_PLAY_THIS_CARD` branch in the pinned source audit. Inspect the generic target/reducer path or whether the action-family projection is wrong before inventing a card-specific rule.
-- **ENERGY or POKEMON:** this Trainer/Tool/Stadium audit does not cover the selected action; use the exact native action type/family to redirect source review rather than broadening this card list speculatively.
+- **TOOL or STADIUM:** the rank-1 Float Stone, Forest Seal Stone, Sky Field, and Dimension Valley implementations contain no card-specific `CANNOT_PLAY_THIS_CARD` branch in the pinned source audit. Inspect the generic target/reducer path or whether the internal family classification is wrong before inventing a card-specific rule.
+- **ENERGY or POKEMON:** this Trainer/Tool/Stadium audit does not cover the selected action; use the internal action type/family to redirect source review rather than broadening this card list speculatively.
 
-This keeps the public diagnostic useful without disclosing the hidden card name.
-
-
-### Minimal private-capture wiring
-
-The outer generator already has the needed handoff point: it assigns `failureContext={stage:'policy-decode',record:attemptRecord}` before yielding the decision request (around line 984). Therefore the implementation need not expose a new public trace field:
-
-1. In the inner runner, after trusted-token resolution and before `dispatchSelectedNativeAction`, resolve the private card identity from the current action/state.
-2. If cloned dispatch throws, attach that identity to the error as a non-enumerable, private-only property (or pass it through an equivalent host-only side channel).
-3. Wrap the outer generator's `yield` in a narrow try/catch; on error, copy that property into the already-referenced `attemptRecord.selectedCardIdentity`, then rethrow.
-4. Let the existing failure builder carry the attempt record into the owner-controlled private artifact. Keep the public redactor/sanitizer unchanged.
-
-The failure builder already consumes `failureContext.record` and places `failedRecord.selectedCardIdentity` into the internal root-action ledger. This makes the existing trace-only field available on the exact pre-dispatch failure path without putting card identity in the worker request or public artifact.
-
-
-### Public-sanitizer and key-provisioning check
-
-The current public sanitizer supports this separation:
-
-- `agent2-v3-sanitized-diagnostic.cjs:242-257` emits `selectedCardPublicPrinting` only when the root action's `dispatchStatus` is `succeeded`. A failed, not-dispatched attempt remains null even if its private `selectedCardIdentity` is populated.
-- The private diagnostic envelope documentation states that `private/` currently contains only `.gitkeep` and no recipient key is provisioned. Do not generate a substitute key or upload plaintext hidden-state traces. An owner must provision `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` before any full private fixture artifact can be uploaded.
-
-Therefore the safe change is to populate the existing private attempt-record field before the throwing dispatch, leave the public sanitizer unchanged, and rely on the owner-encrypted artifact only after the owner provisions the key. Until then, use only owner-controlled local debugging or the public-safe family/type/GameMessage fields.
-
-
-## Action-token mapping check
-
-The token path also does not reveal a likely collision for this single-actor frontier:
-
-- `actionSignature` at `agent36-native-action-frontier.cjs:115-126` includes action type, hand index, action name, bench index, and target player/slot/index.
-- For `PLAY_CARD_ACTION`, the hand index distinguishes different cards in one hand and the target tuple distinguishes target-specific variants. The omitted action ID is constant for the one actor whose frontier is being built.
-- The builder deduplicates signatures, assigns a fresh sequential `act-N` token to each admitted action, and stores the matching native action in the per-frontier `actionByToken` map (lines 524–560). Selection retrieves from that same map (593–598).
-
-So a cross-seat or target-token collision is not supported by the current implementation. The remaining high-value boundary is whether the live state graph changed after frontier admission, followed by clone/global side effects if it did not.
-
+This keeps the public diagnostic useful without disclosing the hidden card name or even its Trainer family.
 
 ## Raihan marker nuance
 
