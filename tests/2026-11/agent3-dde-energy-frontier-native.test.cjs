@@ -657,3 +657,156 @@ test('DDE dynamic-type preflight rejects unknown non-empty CardType results', {
     /only valid numeric CardType enum values/
   );
 });
+
+
+test('pinned DDE host-type-change discard runs after a native Switch prompt in both physical seats', {
+  skip: !fs.existsSync(compiledActionEnumerator),
+  timeout: 30000
+}, () => {
+  const enginePin = runner.V3_FIXTURE.engineCommit;
+  const native = runner.loadNativeRoleDependencies({ enginePin });
+  const withValidationRandom = createValidationRandomScope({
+    ambientRandom: Math.random,
+    physicalRandom: seededRandom(0xdde24009)
+  });
+  const manager = native.CardManager.getInstance();
+  let nextCardId = 1010000;
+  function cloneCard(fullName) {
+    const card = manager.getCardByName(fullName);
+    assert.ok(card, 'CardManager must resolve ' + fullName);
+    card.id = nextCardId++;
+    return card;
+  }
+
+  for (const kecleonSeat of [0, 1]) {
+    const switcherSeat = 1 - kecleonSeat;
+    const initialState = makeGameState({
+      native,
+      actorSeat: kecleonSeat,
+      energyCard: cloneCard(DDE),
+      cloneCard,
+      withValidationRandom,
+      actorActiveCard: KECLEON,
+      opponentActiveCard: REGIDRAGO
+    });
+    const initialSwitcher = initialState.players[switcherSeat];
+    initialSwitcher.bench[0] = makePokemonList(native, cloneCard(DEDENNE));
+    const switchCard = cloneCard('Switch BS');
+    const switchCardId = switchCard.id;
+    initialSwitcher.hand.cards = [switchCard];
+    initialSwitcher.playableCardIds = [switchCardId];
+
+    // Keep a real Store so both the Energy attachment and the opponent's
+    // Switch/ChoosePokemonPrompt chain pass through pinned native reducers.
+    const simulator = withValidationRandom(() => new native.Simulator(initialState));
+    const store = simulator.store;
+    let state = store.state;
+    let owner = state.players[kecleonSeat];
+    let switcher = state.players[switcherSeat];
+    const ddeId = owner.hand.cards[0].id;
+    assert.equal(owner.hand.cards[0].fullName, DDE);
+    assert.equal(switcher.active.cards[0].fullName, REGIDRAGO);
+
+    const enumerator = adapterModule.createKnownCapFreeActionEnumerator({
+      native,
+      enginePin
+    });
+    const attachAction = enumerator.attachEnergyActions(state, owner).find(action =>
+      action.target.slot === native.SlotType.ACTIVE);
+    assert.ok(attachAction, 'DDE-to-Active Kecleon action must be enumerated');
+    withValidationRandom(() => store.dispatch(attachAction));
+
+    state = store.state;
+    owner = state.players[kecleonSeat];
+    switcher = state.players[switcherSeat];
+    let host = owner.active;
+    assert.ok(host.cards.some(card => card.id === ddeId),
+      'legal DDE attachment must enter the host main card list');
+    assert.ok(host.energies.cards.some(card => card.id === ddeId),
+      'legal DDE attachment must enter the host Energy list');
+    const initialType = new native.CheckPokemonTypeEffect(host);
+    store.reduceEffect(state, initialType);
+    assert.ok(initialType.cardTypes.includes(native.CardType.DRAGON),
+      'Active Kecleon must copy the opposing Regidrago Dragon type');
+
+    // End the Kecleon owner's turn through the native action reducer. DDE
+    // must remain attached while the opposing Active is still Regidrago.
+    store.dispatch(new native.gameActions.PassTurnAction(owner.id));
+    let waitPromptsResolved = 0;
+    while (true) {
+      const waitPrompt = store.state.prompts.find(prompt => prompt.result === undefined);
+      if (waitPrompt === undefined) {
+        break;
+      }
+      assert.equal(waitPrompt.type, 'WaitPrompt',
+        'turn transition should expose only its native silent WaitPrompt');
+      store.dispatch(new native.ResolvePromptAction(waitPrompt.id, null));
+      waitPromptsResolved += 1;
+      assert.ok(waitPromptsResolved <= 4,
+        'native turn transition must settle within four WaitPrompts');
+    }
+    state = store.state;
+    owner = state.players[kecleonSeat];
+    switcher = state.players[switcherSeat];
+    assert.equal(state.activePlayer, switcherSeat);
+    assert.equal(state.phase, native.GamePhase.PLAYER_TURN);
+    assert.ok(owner.active.cards.some(card => card.id === ddeId),
+      'DDE must remain attached while Kecleon still copies Dragon');
+
+    // Play the real Switch Item and resolve its native ChoosePokemonPrompt.
+    const switchIndex = switcher.hand.cards.findIndex(card => card.id === switchCardId);
+    assert.ok(switchIndex >= 0, 'Switch must remain in the opponent hand');
+    assert.ok(switcher.hand.cards[switchIndex] instanceof native.TrainerCard,
+      'Switch printing must remain a native TrainerCard after Simulator cloning');
+    assert.ok(switcher.bench[0].cards.length > 0,
+      'the Switch player must have a legal Bench target');
+    assert.equal(state.phase, native.GamePhase.PLAYER_TURN,
+      'the native PassTurnAction must leave the opponent in its Player Turn');
+    switcher.playableCardIds = [switchCardId];
+    const switchAction = new native.cardActions.PlayCardAction(
+      switcher.id,
+      switchIndex,
+      {
+        player: native.PlayerType.BOTTOM_PLAYER,
+        slot: native.SlotType.ACTIVE,
+        index: 0
+      }
+    );
+    assert.ok(switchAction instanceof native.cardActions.PlayCardAction);
+    store.dispatch(switchAction);
+    state = store.state;
+    const unresolvedPrompts = state.prompts.filter(prompt => prompt.result === undefined);
+    assert.equal(unresolvedPrompts.length, 1,
+      'native Switch must open exactly one unresolved ChoosePokemonPrompt');
+    const prompt = unresolvedPrompts[0];
+    assert.equal(prompt.type, 'Choose pokemon');
+    const chosenBenchPokemon = state.players[switcherSeat].bench[0];
+    assert.equal(chosenBenchPokemon.cards[0].fullName, DEDENNE);
+    store.dispatch(new native.ResolvePromptAction(prompt.id, [chosenBenchPokemon]));
+
+    state = store.state;
+    owner = state.players[kecleonSeat];
+    switcher = state.players[switcherSeat];
+    host = owner.active;
+    assert.equal(state.prompts.filter(prompt => prompt.result === undefined).length, 0,
+      'the native Switch prompt chain must settle before the state check');
+    assert.ok(switcher.active.cards.some(card => card.fullName === DEDENNE),
+      'the opponent must finish with the non-Dragon Dedenne Active');
+    assert.ok(switcher.bench.some(slot =>
+      slot.cards.some(card => card.fullName === REGIDRAGO)),
+    'Regidrago must have moved to the Bench');
+
+    const finalType = new native.CheckPokemonTypeEffect(host);
+    store.reduceEffect(state, finalType);
+    assert.ok(finalType.cardTypes.includes(native.CardType.LIGHTNING),
+      'Active Kecleon must now copy Dedenne Lightning type');
+    assert.ok(!finalType.cardTypes.includes(native.CardType.DRAGON),
+      'the host must no longer be Dragon after the native Active switch');
+    assert.ok(owner.discard.cards.some(card => card.id === ddeId),
+      'CheckTableStateEffect must move DDE to its owner discard');
+    assert.ok(!host.cards.some(card => card.id === ddeId),
+      'discarded DDE must leave the host main card list');
+    assert.ok(!host.energies.cards.some(card => card.id === ddeId),
+      'discarded DDE must leave the host Energy list');
+  }
+});
