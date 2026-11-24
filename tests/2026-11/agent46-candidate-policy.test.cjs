@@ -6,6 +6,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
 const candidate = require('../../simulation/evaluation/2026-11/agent46-candidate-policy.cjs');
+const policyProtocol = require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
+const nativePromptProjection = require('../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
 
 const POLICY_VERSION = candidate.POLICY_VERSION;
 const POLICY_SOURCE = fs.readFileSync(path.resolve(__dirname,
@@ -2762,4 +2764,249 @@ test('Radiant Gate EV counts revealed Prize VMAX as unavailable and removes reve
   assert.deepEqual(evaluate(confirmPromptRequest(
     0, revealed, 'Radiant Eternatus CRZ 105', 'Climactic Gate'
   )), { kind: 'select-choice', token: 'no' });
+});
+
+
+test('Underworld Door AttachEnergyPrompt traverses projection, exact protocol, candidate policy, and native decoder for both seats', () => {
+  const PlayerType = { BOTTOM_PLAYER: 1, TOP_PLAYER: 2 };
+  const SlotType = { ACTIVE: 1, BENCH: 2 };
+  const EnergyType = { BASIC: 1, SPECIAL: 2 };
+  const CardType = { PSYCHIC: 5, DARKNESS: 6, FIGHTING: 7 };
+  const SuperType = { ENERGY: 9 };
+
+  class EnergyCard {
+    constructor(name, fullName, energyType, provides) {
+      this.name = name;
+      this.fullName = fullName;
+      this.energyType = energyType;
+      this.provides = provides;
+    }
+  }
+  class CheckPokemonTypeEffect {
+    constructor(slot) {
+      this.slot = slot;
+      this.cardTypes = [];
+    }
+  }
+  class AttachEnergyPrompt {
+    decode(result) {
+      if (result === null) return null;
+      return result.map(({ to, index }) => ({ to, card: this.cardList.cards[index] }));
+    }
+    validate(transfers) {
+      if (transfers === null) return this.options.allowCancel === true;
+      if (!Array.isArray(transfers) || transfers.length !== 1) return false;
+      const { to, card } = transfers[0] ?? {};
+      if (!this.cardList.cards.includes(card) ||
+          !(card instanceof EnergyCard) ||
+          card.energyType !== EnergyType.BASIC ||
+          card.name !== 'Psychic Energy' ||
+          !Array.isArray(card.provides) ||
+          !card.provides.includes(CardType.PSYCHIC) ||
+          to?.player !== PlayerType.BOTTOM_PLAYER ||
+          to.slot !== SlotType.BENCH ||
+          !Number.isInteger(to.index)) return false;
+      const target = this.nativeState.players[this.nativeActorSeat].bench[to.index];
+      if (!target?.getPokemonCard?.()) return false;
+      const effect = new CheckPokemonTypeEffect(target);
+      this.nativeStore.reduceEffect(this.nativeState, effect);
+      return Array.isArray(effect.cardTypes) &&
+        effect.cardTypes.includes(CardType.PSYCHIC);
+    }
+  }
+  const native = {
+    PlayerType, SlotType, EnergyType, CardType, SuperType,
+    EnergyCard, CheckPokemonTypeEffect,
+    ResolvePromptAction: class ResolvePromptAction {
+      constructor(promptId, result) {
+        this.promptId = promptId;
+        this.result = result;
+      }
+    }
+  };
+  const nativeSlot = card => ({
+    cards: card ? [card] : [],
+    energies: { cards: [] },
+    tools: [],
+    getPokemonCard() { return card; }
+  });
+  const nativePlayer = id => ({
+    id,
+    hand: { isPublic: false, cards: [] },
+    deck: { cards: [] },
+    discard: { cards: [] },
+    lostzone: { cards: [] },
+    stadium: { cards: [] },
+    supporter: { cards: [] },
+    active: nativeSlot(null),
+    bench: Array.from({ length: 5 }, () => nativeSlot(null)),
+    prizes: Array.from({ length: 6 }, () => ({
+      cards: [{ fullName: 'HIDDEN_PRIZE_' + id }],
+      faceUpPrize: false
+    }))
+  });
+
+  for (const actorSeat of [0, 1]) {
+    const players = [nativePlayer('p0'), nativePlayer('p1')];
+    if (actorSeat === 1) players.reverse();
+    const state = {
+      players, activePlayer: actorSeat, phase: 2, turn: 4, prompts: []
+    };
+    const actor = state.players[actorSeat];
+    const sourceCard = {
+      name: 'Shadow Rider Calyrex VMAX',
+      fullName: 'Shadow Rider Calyrex VMAX CRE 75',
+      set: 'CRE',
+      setNumber: '75'
+    };
+    actor.active = nativeSlot(sourceCard);
+
+    const darknessEnergy = new EnergyCard(
+      'Darkness Energy', 'Darkness Energy SVE 7', EnergyType.BASIC,
+      [CardType.DARKNESS]
+    );
+    const psychicEnergy = new EnergyCard(
+      'Psychic Energy', 'Psychic Energy SVE 5', EnergyType.BASIC,
+      [CardType.PSYCHIC]
+    );
+    const specialPsychicEnergy = new EnergyCard(
+      'Psychic Energy', 'Mystical Energy FFI 103', EnergyType.SPECIAL,
+      [CardType.PSYCHIC]
+    );
+    actor.hand.cards = [darknessEnergy, psychicEnergy, specialPsychicEnergy];
+
+    const nativePokemon = (name, dynamicTypes) => ({
+      name, fullName: name, hp: 100, stage: 'BASIC',
+      subtypes: [], cardType: ['PSYCHIC'], retreat: [],
+      weakness: [], resistance: [], attacks: [], powers: [],
+      dynamicTypes
+    });
+    const nonPsychic = nativePokemon('Non-Psychic target', [CardType.FIGHTING]);
+    const dynamicPsychic = nativePokemon('Dynamic Psychic target', [CardType.PSYCHIC]);
+    const dynamicNonPsychic = nativePokemon('Dynamic non-Psychic target', [CardType.FIGHTING]);
+    const printedPsychic = nativePokemon('Printed Psychic target', [CardType.PSYCHIC]);
+    actor.bench = [
+      nativeSlot(nonPsychic),
+      nativeSlot(dynamicPsychic),
+      nativeSlot(dynamicNonPsychic),
+      nativeSlot(printedPsychic),
+      nativeSlot(null)
+    ];
+
+    const store = {
+      state,
+      dispatchCalls: 0,
+      reduceEffect(_state, effect) {
+        effect.cardTypes = effect.slot.getPokemonCard().dynamicTypes;
+      },
+      dispatch() {
+        this.dispatchCalls += 1;
+        throw new Error('dispatch disabled in projection-policy contract integration');
+      }
+    };
+    const prompt = Object.assign(new AttachEnergyPrompt(), {
+      id: 91,
+      playerId: actor.id,
+      message: 'ATTACH_ENERGY_TO_BENCH',
+      cardList: actor.hand,
+      playerType: PlayerType.BOTTOM_PLAYER,
+      slots: [SlotType.BENCH],
+      filter: {
+        superType: SuperType.ENERGY,
+        energyType: EnergyType.BASIC,
+        name: 'Psychic Energy'
+      },
+      options: { min: 1, max: 1, allowCancel: false },
+      getPerspectivePlayerId() { return this.playerId; },
+      nativeState: state,
+      nativeActorSeat: actorSeat,
+      nativeEnergyCard: EnergyCard,
+      nativeEnergyType: EnergyType,
+      nativeCardType: CardType,
+      nativeCheckPokemonTypeEffect: CheckPokemonTypeEffect,
+      nativeStore: store
+    });
+    state.prompts = [prompt];
+    const provenanceHook = {
+      getPromptProvenance: () => ({
+        sourceKind: 'card-effect', sourceCard, effectName: 'Underworld Door'
+      })
+    };
+    const projection = nativePromptProjection.projectPrompt({
+      prompt, state, actorSeat, native, store, provenanceHook
+    });
+    const promptView = projection.promptProjection;
+    assert.equal(promptView.promptType, 'AttachEnergyPrompt');
+    assert.equal(promptView.source.effectName, 'Underworld Door');
+    assert.deepEqual(promptView.choices.map(choice => choice.publicMetadata.benchIndex), [1, 3]);
+
+    const activeView = pokemon({
+      printing: 'Shadow Rider Calyrex VMAX CRE 75',
+      name: 'Shadow Rider Calyrex VMAX',
+      subtypes: ['VMAX'],
+      abilities: ['Underworld Door'],
+      suppression: false
+    });
+    const candidateView = observation(actorSeat, {
+      active: activeView,
+      bench: [
+        pokemon({ printing: 'Non-Psychic target', types: ['Fighting'] }),
+        pokemon({ printing: 'Dynamic Psychic target', types: ['Psychic'] }),
+        pokemon({ printing: 'Dynamic non-Psychic target', types: ['Fighting'] }),
+        pokemon({ printing: 'Printed Psychic target', types: ['Psychic'] })
+      ],
+      ownHand: ['Psychic Energy SVE 5'],
+      decisionKind: 'owner-prompt',
+      promptType: 'AttachEnergyPrompt'
+    });
+    candidateView.ownPublic.handCount = 1;
+
+    const requestMessage = {
+      schema: policyProtocol.REQUEST_SCHEMA,
+      type: 'decision',
+      requestId: 'underworld-door-seat-' + actorSeat,
+      sequence: 0,
+      role: 'candidate',
+      seat: actorSeat,
+      observationSchema: policyProtocol.OBSERVATION_SCHEMA,
+      observation: candidateView,
+      prompt: promptView,
+      publicEventReceipt: null,
+      actionFrontier: []
+    };
+    const init = {
+      role: 'candidate', seat: actorSeat,
+      policyVersion: POLICY_VERSION, config: {}
+    };
+    const validated = policyProtocol.validateRequest(
+      requestMessage, init, 0, new Set()
+    );
+    const policy = candidate.createPolicy(init);
+    const decision = policy.decide({
+      role: 'candidate',
+      seat: actorSeat,
+      observation: candidateView,
+      prompt: validated.prompt,
+      publicEventReceipt: null
+    });
+    const validatedDecision = policyProtocol.validateDecision(
+      decision, validated.prompt, validated.actionTokens
+    );
+    assert.equal(validatedDecision.kind, 'select-choice');
+    const selected = promptView.choices.find(choice =>
+      choice.token === validatedDecision.token);
+    assert.ok(selected);
+    assert.ok([1, 3].includes(selected.publicMetadata.benchIndex));
+
+    const prepared = nativePromptProjection.dispatchPromptChoice({
+      store, prompt, state, actorSeat, projection,
+      decision: validatedDecision, native, dispatch: false
+    });
+    assert.equal(prepared.rawResult.length, 1);
+    assert.equal(prepared.rawResult[0].to.index, selected.publicMetadata.benchIndex);
+    assert.equal(prepared.rawResult[0].index, 1);
+    assert.equal(prepared.decoded[0].card, psychicEnergy);
+    assert.equal(prepared.decoded[0].to.index, selected.publicMetadata.benchIndex);
+    assert.equal(store.dispatchCalls, 0);
+  }
 });
