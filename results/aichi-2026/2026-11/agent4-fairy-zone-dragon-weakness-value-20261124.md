@@ -71,3 +71,16 @@ Rank 30 is not a Dragon rank: its Dialga-GX UPR 100 is Metal. The candidate's ow
 - Decklist counts are not board-state counts; not every Dragon is expected to be in play simultaneously.
 - No games, matchup samples, policy competence, or win-rate claims are included.
 - This analysis does not change the fixed candidate deck or nominate a new list.
+
+
+## Rank 1 mirror: asymmetric Radiant Eternatus protection
+
+The fixed Hood Shield Shadow Rider v1 candidate has one Radiant Eternatus CRZ 105 and two Stealthy Hood UNB 186. Aichi rank 1 Shadow Rider also has one Radiant Eternatus CRZ 105 and two Lillie's Clefairy ex, but its exact 60 contains no Stealthy Hood.
+
+This creates a directional interaction in the rank 1 mirror:
+
+- Candidate Fairy Zone changes the opponent's unprotected Radiant Eternatus Weakness to Psychic ×2.
+- Opponent Fairy Zone can change the candidate's Radiant Eternatus Weakness to Psychic ×2, but an effective Stealthy Hood attached to the candidate's Radiant Eternatus prevents that opponent Ability effect.
+- At three Psychic Energy, Max Geist is 100 base / 200 with Fairy Zone. That is enough to KO an unprotected 170-HP Radiant Eternatus; an effective Hood prevents the Fairy Zone multiplier, leaving 100 base damage.
+
+The candidate's two Hoods therefore create a real defensive allocation option: in Fairy Zone matchups, one Hood can protect its only Dragon Pokémon (Radiant Eternatus), while the other remains available for a Shadow Rider VMAX or another priority target. This is a card-text interaction and damage threshold, not evidence that the policy will make the correct attachment or that the matchup is won.
