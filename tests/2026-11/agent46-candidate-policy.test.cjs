@@ -3962,7 +3962,9 @@ test('Field Blower prioritizes a Dragon Stealthy Hood that will block Fairy Zone
     bench: [clefairy], opponentActive: activeToolHolder, opponentBench: [dragon],
     opponentStadium: ['Silent Lab PRC 140']
   });
-  const pokemonPromptRequest = request(0, view, {
+  const pokemonPromptRequest = request(0, {
+    ...view, decisionKind: 'owner-prompt', pendingPromptType: 'ChoosePokemonPrompt'
+  }, {
     prompt: {
       promptType: 'ChoosePokemonPrompt',
       source: { sourcePrinting: 'Field Blower BCR 125', effectName: 'Field Blower' },
@@ -4105,20 +4107,32 @@ test('Copycat scores the copied Timeless-GX against target-side Stealthy Hood an
     types: ['Dragon', 'Metal'], subtypes: ['Basic', 'TAG TEAM', 'GX'],
     tools: ['Stealthy Hood UNB 186']
   });
-  const receipt = { opponentCopycatChoices: [{
-    attackName: 'Apex Dragon', sourcePrinting: 'Regidrago VSTAR SIT 136'
-  }] };
-  const makeRequest = target => request(0, observation(0, {
-    active: mimikyu, bench: [clefairy], ownDiscard: ['Dialga-GX UPR 100'],
-    opponentActive: target
-  }), {
+  const makeRequest = target => {
+    const view = observation(0, {
+      active: mimikyu, bench: [clefairy], ownDiscard: ['Dialga-GX UPR 100'],
+      opponentActive: target
+    });
+    const attackRow = {
+      turn: 2, sourcePrinting: 'Regidrago VSTAR SIT 136',
+      attackName: 'Apex Dragon', gxAttack: false, copycatAttack: false
+    };
+    const receipt = {
+      ...priorKoReceipt(view),
+      priorOpponentTurnKO: { any: false, byAttack: false },
+      opponentLastTurnTurn: 2,
+      opponentLastTurnAttacks: [attackRow],
+      opponentCopycatChoices: [attackRow],
+      mimikyuCopycatCompatible: true
+    };
+    return request(0, view, {
     receipt,
     actions: [
       { token: 'copycat', kind: 'attack', actorPrinting: mimikyu.printing,
         attackName: 'Copycat', publicMetadata: { attackCostPayable: true } },
       { token: 'pass', kind: 'pass' }
     ]
-  });
+    });
+  };
   const hooded = evaluateWithAudit(makeRequest(adp));
   const unhooded = evaluateWithAudit(makeRequest({ ...adp, tools: [] }));
   const hoodedScore = hooded.policyAudit.evaluations.find(row => row.token === 'copycat').score;
