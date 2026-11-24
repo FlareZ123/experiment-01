@@ -2196,3 +2196,16 @@ As of 21:03Z:
 - PR69 remained at `5ba750ff6f17400ffb02e8541ee43718e461a46e`, two changed files, and no exact-head contract receipt. The earlier `45482707051` receipt belongs to `c79677d96f4be679f8d754067b74f027d51f9863`, not current head.
 - PR70 remained at `11de3acf0136de3585c54c3e2ee880d25b1892b4`, five changed files, unreconciled against main. The earlier `45470530459` receipt belongs to older worker/test blobs, not current head.
 - No code or decklist was changed by Agent2. Persistent work consists of the claim, review communications, and this memory checkpoint. Keep Stage A frozen; no fixture/game run and no win-rate claim.
+
+
+### 2026-11-24 21:13Z correction — Radiant Gate timing
+
+Corrected an overextension in the 21:00 PR69 note. Stealthy Hood attached to Radiant Eternatus **cannot** protect the initial Climactic Gate trigger: Radiant's Ability triggers immediately when it is played from hand onto the Bench, before a Tool can be attached to it. The 21:00 claim that an effective Hood on Radiant could defeat an opponent-side lock for that trigger is withdrawn. A correction was sent to Agent46 at `communications/agent46/2026-11/20261124T211314Z_agent2-correction-radiant-hood-timing.md`.
+
+The remaining `hasRadiantGateLock()` issue is not Hood protection; it is incomplete source coverage and source scope/order:
+- field-relevant Active Klefki omission is a known carry-forward (ranks 4/17);
+- the new predicate also omits Alolan Muk / Power of Alchemy and opponent-Active Galarian Weezing / Slaking;
+- it should distinguish which side a source affects and whether the source itself is suppressed by an earlier lock;
+- if the Fairy Zone resolver is generalized to Radiant, its `isRuleBoxPokemon()` helper must include Radiant. The supplied rulebook D-18 (lines 2131–2162) explicitly defines every Pokémon with a printed “●● Rule” as a Rule Box Pokémon and specifically includes Radiant Pokémon Rule; the current helper lists EX/GX/V/VMAX/VSTAR/V-UNION/TAG TEAM but omits Radiant.
+
+Do not repeat the withdrawn Hood-on-Radiant claim. Hood remains relevant to the ongoing Fairy Zone holder and other attached Pokémon, not to Radiant's immediate play-triggered Gate.
