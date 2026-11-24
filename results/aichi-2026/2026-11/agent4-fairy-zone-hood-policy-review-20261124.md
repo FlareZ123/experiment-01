@@ -73,3 +73,15 @@ These are general coverage gaps. Agent35's current Aichi lock synthesis identifi
 5. Extend the Radiant-Gate and Hood threat helpers only for source cards present in the authenticated Aichi field; otherwise keep generic additions separate from the current benchmark gate.
 
 No code, tests, deck, or PR branch was modified.
+
+
+## Minimal regression matrix for the owner
+
+1. **One-way Muk/Wobbuffet:** use Alolan Muk SUM 58 with Psychic type. Muk suppresses Basic Wobbuffet; Wobbuffet does not suppress Psychic Muk. With no activation-order fields, resolve Muk as the surviving source and do not return unknown.
+2. **True mutual cycle:** use Neutralizing Gas versus Wobbuffet (TPCi first-in-effect precedent) or the TPCi Garbotoxin/Slaking pair. Known order selects the first source; unknown order must remain unknown, never treat zero as earliest.
+3. **Active-only versus Bench scope:** Flutter Mane suppresses only the opponent's Active; it must not suppress a Benched Fairy Zone holder or Benched Radiant Eternatus. Klefki and Iron Thorns apply their printed global in-play scopes from the Active Spot; Muk/Garbodor can source from the Bench under their own conditions.
+4. **Hood target scope:** target Active + opposing Active Tool Jammer -> Hood ineffective; target Bench + opposing Active Tool Jammer -> Hood remains effective; live Jamming Tower -> Hood ineffective; unknown target Tools or unknown opposing Active Tools -> Hood status unknown.
+5. **Silent Lab distinction:** Silent Lab suppresses Basic Shadow Rider V, and Hood cannot override that Stadium; Silent Lab does not suppress Shadow Rider VMAX and must not blanket-disable its Hood protection against other Abilities.
+6. **Hood threat coverage:** opponent Active Weezing/Slaking threatens Shadow Rider VMAX; opponent Klefki/Alolan Muk threatens Basic Shadow Rider V but not VMAX; Wobbuffet does not suppress Psychic Shadow Rider; Flutter Mane threatens only when the Shadow Rider is opponent's Active Pokémon.
+7. **Radiant Gate scope:** opponent Active Weezing/Slaking suppresses a Benched Radiant Eternatus; own Weezing/Slaking does not suppress own Radiant; Klefki/Power of Alchemy suppress Basic Radiant on either side; Flutter Mane does not suppress a Benched Radiant.
+8. **Unknown opponent Fairy Zone:** `opponentFairyZoneStatus === null` must not collapse to “no threat”; the Hood search need should remain unknown until the holder's status and target Tool state are known.
