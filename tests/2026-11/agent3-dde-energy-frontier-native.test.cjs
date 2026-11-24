@@ -268,6 +268,56 @@ test('pinned dynamic type check keeps DDE-to-Active Kecleon when opponent Active
   }
 });
 
+test('exact DDE preflight fails closed on opponent-owned target descriptors', {
+  skip: !fs.existsSync(compiledActionEnumerator),
+  timeout: 30000
+}, () => {
+  const enginePin = runner.V3_FIXTURE.engineCommit;
+  const native = runner.loadNativeRoleDependencies({ enginePin });
+  const withValidationRandom = createValidationRandomScope({
+    ambientRandom: Math.random,
+    physicalRandom: seededRandom(0xdde24005)
+  });
+  const manager = native.CardManager.getInstance();
+  let nextCardId = 960000;
+  function cloneCard(fullName) {
+    const card = manager.getCardByName(fullName);
+    assert.ok(card, 'CardManager must resolve ' + fullName);
+    card.id = nextCardId++;
+    return card;
+  }
+
+  const state = makeGameState({
+    native,
+    actorSeat: 0,
+    energyCard: cloneCard(DDE),
+    cloneCard,
+    withValidationRandom
+  });
+  const actor = state.players[0];
+  const enumerator = adapterModule.createKnownCapFreeActionEnumerator({
+    native,
+    enginePin
+  });
+  const activeAction = enumerator.attachEnergyActions(state, actor).find(action =>
+    action.target.slot === native.SlotType.ACTIVE);
+  assert.ok(activeAction);
+  const originalPlayer = activeAction.target.player;
+  activeAction.target.player = native.PlayerType.TOP_PLAYER;
+
+  assert.throws(
+    () => withValidationRandom(() =>
+      frontierModule.buildNativeActionFrontier({
+        state,
+        actorSeat: 0,
+        native,
+        enumerator: { enumerate: () => [activeAction] }
+      })),
+    /must belong to the acting player/
+  );
+  activeAction.target.player = originalPlayer;
+});
+
 test('same-message CANNOT_PLAY_THIS_CARD from DDE to a legal Dragon target remains fatal', {
   skip: !fs.existsSync(compiledActionEnumerator),
   timeout: 30000
