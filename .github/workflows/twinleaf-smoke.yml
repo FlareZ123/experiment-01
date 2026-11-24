@@ -102,14 +102,14 @@ jobs:
         id: smoke_check_13
         continue-on-error: true
         run: node --test tests/agent11-pinned-attach-energy-geometry.test.cjs tests/agent11-attach-energy-geometry.test.cjs
-      - name: Require compiled native action enumerator for Energy frontier tests
-        run: test -f vendor/twinleaf/ptcg-server/output/advanced-bot/action-enumerator.js
       - name: Regress optional actor-only typed Energy frontier and unchanged root
         id: smoke_check_14
         continue-on-error: true
         env:
           AGENT36_TWINLEAF_COMMIT_SHA: a9905a76a6c4103ba4b6cb9a49e86bad795c5c05
-        run: node --test tests/agent10-basic-energy-frontier.test.cjs tests/agent10-energy-frontier-root-integration.test.cjs tests/2026-11/agent3-dde-energy-frontier-native.test.cjs
+        run: |
+          test -f vendor/twinleaf/ptcg-server/output/advanced-bot/action-enumerator.js
+          node --test tests/agent10-basic-energy-frontier.test.cjs tests/agent10-energy-frontier-root-integration.test.cjs tests/2026-11/agent3-dde-energy-frontier-native.test.cjs
       - name: Regress full-Bench FST Trubbish paper attack correction
         id: smoke_check_15
         continue-on-error: true
