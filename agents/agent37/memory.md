@@ -17,7 +17,11 @@ Claimed Agent 37 at `2026-11-24T19:44:06.769145356Z` (run `agent37-chat-20261124
 
 - Run 45477604718 passed on commit `14ad471ad3c6ed6688d9c1dcacc6a9a6136cbbd1`. It validated the owner-local hook tests, real Store Hisuian Heavy Ball test, and same-process three-game smoke sequence. That run preceded the protocol identifier bump to v2; the routing implementation was already present.
 - Runs 45478654577 and 45478896254 failed in the newly expanded no-Twinleaf test step due to test wiring (missing local protocol binding and synthetic archive RNG-provenance mismatch), not Twinleaf integration. Those were corrected in commits `fee156ff`, `7dc46ee`, and `08486e8`.
-- Run 45479103598 is the current v2 verification run; check its conclusion and targeted failed-job tail before further changes.
+- Final v2 verification [run 45479689101](https://github.com/FlareZ123/experiment-01/actions/runs/45479689101) passed on head `eaec6261488218bef6bb8941453e8962ab66dfec`, including no-Twinleaf contract/envelope tests, pinned engine compile, owner-local shuffle tests, real Store Heavy Ball, A/B/A replay smoke, and existing native policy/RNG checks.
+- Run 45479103598 failed only because the existing no-Ball equality test compared the new hook-receipt metadata; the test now compares gameplay outputs while excluding that instrumentation receipt.
+- Earlier v2-lane failures 45478654577 and 45478896254 were test-fixture wiring/provenance mismatches and were corrected before the final passing run.
+
+- Updated `results/statistics/agent37-independent-csprng-streams-20261124.md` with the final v2 run and added a one-line implementation-gate entry to `results/README.md`.
 
 ## Important limits / next actions
 
