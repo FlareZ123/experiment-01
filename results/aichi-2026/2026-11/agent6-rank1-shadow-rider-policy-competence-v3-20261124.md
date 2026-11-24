@@ -3,10 +3,10 @@
 **Status:** updated policy implementation; contract-validated, not independently competent and not native-game validated.
 
 **Policy version:** `agent6-rank1-shadow-rider-opponent-v3`  
-**Tested source revision:** `10b6643a323b950eb11a66f664f817100d700c12`  
+**Tested source revision:** `9806cb84c692f097cad7e94d1e20ec85ab610385`  
 **Policy blob:** `021ae42b392df08d56587a10091d1c83dbed7ef3`  
-**Test blob:** `dd37d16326f40989e6441d5aa1d5fca9b3c80a7a`  
-**Contract-only acceptance:** [run 45469819354](https://github.com/FlareZ123/experiment-01/actions/runs/45469819354) passed on exact source/test revision `10b6643a323b950eb11a66f664f817100d700c12`  
+**Test blob:** `14285076f4eadcca84f5ca3ef4bac064e1f7cde0`  
+**Contract-only acceptance:** [run 45470530459](https://github.com/FlareZ123/experiment-01/actions/runs/45470530459) passed on exact source/test revision `9806cb84c692f097cad7e94d1e20ec85ab610385`  
 **Working branch:** `agent6/rank1-policy-v3-review-20261124`
 
 This continues the earlier [rank-1 policy prototype](../../methodology/2026-11/agent6-rank1-shadow-rider-opponent-policy-prototype.md) and supersedes the initial v3 contract-only report. The published rank-1 60-card reference list is unchanged. No candidate deck, matchup result, or win-rate claim is produced by this work.
@@ -58,19 +58,19 @@ The rank-1 worker now accepts the pinned Underworld Door `AttachEnergyPrompt`'s 
 
 ### Pale Moon-GX and Energy Drive scoring
 
-The rank-1 attack scorer now reflects the card-pool text for Trevenant & Dusknoir-GX: Pale Moon-GX always creates the delayed Knock Out at the end of the opponent's next turn; the extra-Psychic-Energy clause separately discards all Energy from the opponent's Active Pokémon. The extra condition recognizes Dimension Valley's Colorless-cost reduction, discounts the delayed-KO score for a visible retreat path and a weak hand-size escape-risk proxy, and keeps an immediate Night Watch knockout ahead of the delayed threat. Visible Float Stone and Air Balloon count as retreat outs only while Tool effects are live; suppressed Tools are ignored.
+The rank-1 attack scorer now reflects the card-pool text for Trevenant & Dusknoir-GX: Pale Moon-GX always creates the delayed Knock Out at the end of the opponent's next turn; the extra-Psychic-Energy clause separately discards all Energy from the opponent's Active Pokémon. The extra condition recognizes Dimension Valley's Colorless-cost reduction, discounts the delayed-KO score for a visible retreat path and a weak hand-size escape-risk proxy, and keeps an immediate Night Watch knockout ahead of the delayed threat. Visible Float Stone and Air Balloon count as retreat outs only while Tool effects are live; suppressed Tools are ignored. Tests also distinguish two Psychic Energy with active Dimension Valley from three Psychic Energy without it, and verify that a suppressed Dimension Valley does not enable the extra-Energy clause.
 
 Tapu Lele-GX's Energy Drive now counts only Energy attached to both Active Pokémon and never applies Weakness / Resistance multipliers, matching the printed card text. Regression coverage deliberately adds Energy to both Benches and an Active Dragon target to catch the former overcount and weakness multiplier.
 
 ## Contract evidence
 
-The latest exact-head contract-only run [45469819354](https://github.com/FlareZ123/experiment-01/actions/runs/45469819354) passed on source/test revision `10b6643a323b950eb11a66f664f817100d700c12`, with policy blob `021ae42b392df08d56587a10091d1c83dbed7ef3` and test blob `dd37d16326f40989e6441d5aa1d5fca9b3c80a7a`.
+The latest exact-head contract-only run [45470530459](https://github.com/FlareZ123/experiment-01/actions/runs/45470530459) passed on source/test revision `9806cb84c692f097cad7e94d1e20ec85ab610385`, with policy blob `021ae42b392df08d56587a10091d1c83dbed7ef3` and test blob `14285076f4eadcca84f5ca3ef4bac064e1f7cde0`.
 
 - The rank-1 policy regression file contains **110 test cases** and was included in the contract suite.
 - The pure policy/prompt/worker/action-frontier contract step passed.
 - The Docker policy-worker launcher contract, pinned-runtime preflight, worker isolation on both physical seats, and canary evidence steps passed.
 - The exact-SHA contract-only acceptance receipt was written and preserved.
-- `contract_only: true` skipped Twinleaf checkout/compilation, the native no-game witness, and every fixture/game mode. No native fixture/game was dispatched.
+- `contract_only: true` skipped Twinleaf checkout/compilation, the native no-game witness, and every fixture/game mode. Steps 33–69 were skipped; no native fixture/game was dispatched.
 
 This establishes deterministic contract behavior for the tested inputs. It does not establish that the policy makes strong decisions in live Twinleaf games, nor that the observation projection supplies every field assumed by the synthetic prompt fixtures.
 
