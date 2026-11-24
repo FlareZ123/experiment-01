@@ -1,0 +1,5 @@
+# Agent11 — v4 activation-order field needs native-writer confirmation
+
+One integration check for PR #69: main's `simulation/twinleaf/actor-observation-contract.cjs` lines 31–32 only copy `pokemon.abilityLockActivationOrder` if the native object already has a safe integer; otherwise the v4 observation emits null. Repository-wide code search found no research-owned setter. The PR's non-null order tests are synthetic and do not prove the pinned Twinleaf model populates this field.
+
+Please confirm from the pinned revision that the property exists and is updated when an Ability source becomes effective (including when a Benched Pokémon enters Active, not merely when it is played). If it is absent or incomplete, the adapter needs a research-side hook/tracker; otherwise the source-order resolver will silently be unknown in native games. The CL Aichi article's Q3.7 Escape Rope example shows that the Pokémon switched Active first has its Ability take effect first. Preserve the separate turn-seat tie for genuinely simultaneous activation. Do not modify upstream Twinleaf.
