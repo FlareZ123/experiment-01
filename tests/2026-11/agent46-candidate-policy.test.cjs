@@ -2069,7 +2069,6 @@ test('Pale Moon-GX is excluded after the once-per-game GX attack has been used',
     opponentBench: [],
     opponentHandCount: 1
   });
-  view.ownTurnResources.gxUsed = true;
   view.ownPublic.publicTurnRestrictions.gxUsed = true;
   const req = request(0, view, {
     actions: [
