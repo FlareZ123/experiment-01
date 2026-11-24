@@ -1967,15 +1967,21 @@ test('Underworld Door funds Trevenant & Dusknoir-GX for Night Watch against a la
     subtypes: ['GX'],
     attacks: [attack('Night Watch', ['Psychic', 'Psychic', 'Psychic'], '150')]
   });
+  const benchVmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
   const view = observation(0, {
     active: vmax,
-    bench: [trevenant],
+    bench: [trevenant, benchVmax],
     ownHand: ['Psychic Energy SVE 13'],
     opponentHandCount: 6
   });
   const req = underworldAttachmentRequest(0, view, [
     { token: 'trevenant-energy', benchIndex: 0, printing: trevenant.printing },
-    { token: 'vmax-energy', benchIndex: 1, printing: 'Shadow Rider Calyrex VMAX CRE 75' }
+    { token: 'vmax-energy', benchIndex: 1, printing: benchVmax.printing }
   ]);
   assert.deepEqual(evaluate(req), {
     kind: 'select-choice',
