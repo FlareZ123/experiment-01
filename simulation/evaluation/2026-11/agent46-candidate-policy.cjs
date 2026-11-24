@@ -774,7 +774,7 @@ function chooseEnergyAttachment(view, prompt) {
       metadata.zone !== 'bench' ||
       prompt.source?.effectName !== 'Underworld Door' ||
       !hasName(prompt.source?.sourcePrinting, 'Shadow Rider Calyrex VMAX')) {
-    return abstain('UNTRUSTED_UNDERWORLD_DOOR_PROMPT');
+    return abstain('UNTRUSTED_ENERGY_SELECTION');
   }
 
   const ranked = prompt.choices.map(choice => {
@@ -807,7 +807,7 @@ function chooseEnergyAttachment(view, prompt) {
   ranked.sort((a, b) => b.score - a.score ||
     a.index - b.index || a.choice.token.localeCompare(b.choice.token));
   if (!Number.isFinite(ranked[0]?.score)) {
-    return abstain('NO_ELIGIBLE_UNDERWORLD_ASSIGNMENT');
+    return abstain('NO_VISIBLE_ENERGY_CHOICE');
   }
   return { kind: 'select-choice', token: ranked[0].choice.token };
 }
