@@ -193,7 +193,7 @@ const ACTOR_KEYS = [
   'ownTurnResources', 'ownerK1'
 ];
 const PLAYER_KEYS = [
-  'active', 'bench', 'stadium', 'stadiumDirection', 'discard', 'lostZone', 'resolvingSupporter',
+  'active', 'bench', 'stadium', 'discard', 'lostZone', 'resolvingSupporter',
   'publicHand', 'prizeSlots', 'publicTurnRestrictions', 'handCount', 'deckCount', 'prizeCount'
 ];
 const POKEMON_KEYS = [
@@ -514,12 +514,12 @@ function validatePokemonSlot(slot, allowConcealed) {
   }
 }
 function validatePublicPlayer(player, allowConcealed) {
-  exactKeys(player, PLAYER_KEYS);
+  exactKeys(player, PLAYER_KEYS, ['stadiumDirection']);
   validatePokemonSlot(player.active, allowConcealed);
   if (!Array.isArray(player.bench) || player.bench.length > 10) fail('BAD_BENCH');
   for (const slot of player.bench) validatePokemonSlot(slot, allowConcealed);
   for (const key of ['stadium', 'discard', 'lostZone', 'resolvingSupporter']) stringArray(player[key]);
-  if (!(player.stadiumDirection === null || player.stadiumDirection === 'up' || player.stadiumDirection === 'down')) fail('BAD_STADIUM_DIRECTION');
+  if (!(player.stadiumDirection === undefined || player.stadiumDirection === null || player.stadiumDirection === 'up' || player.stadiumDirection === 'down')) fail('BAD_STADIUM_DIRECTION');
   if (player.publicHand !== null) stringArray(player.publicHand);
   if (!Array.isArray(player.prizeSlots)) fail('BAD_PRIZE_SLOTS');
   for (const slot of player.prizeSlots) {
