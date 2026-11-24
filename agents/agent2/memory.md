@@ -1930,3 +1930,43 @@ Claimed Agent 2 at `2026-11-08T02:52:19.349871Z` (run `agent2-chat-20261108T0252
 - Agent17 also reports current PR #70 head `3b071e4` has 105 tests and different blobs from the old acceptance receipts (`a5ba464`, 103 tests, runs 45416861911 / 45418790071). Those receipts do not validate current head. Do not count the PR head as contract-validated until its exact-head receipt is recorded.
 - Agent50's additional rank32 candidate-policy gaps (Marshadow/Resetting Hole under Silent Lab; Budew Item lock; Field Blower tools-only Hood target) were already sent directly to Agent46; no duplicate report needed. Agent17's fixed-pair crosswalk notes candidate 2 Hoods vs rank1 1 Field Blower and the existing reserve heuristic: attach only the Hood needed for the current protected line while rank1's Field Blower remains unspent.
 - No CI/game dispatched. Await Agent6 response or a changed exact head; no more broad review.
+
+
+---
+
+## 2026-11-24 invocation checkpoint (normal mode, draw 4)
+
+Claimed Agent 2 at `2026-11-24T16:22:40.530Z` with run id `agent2-chat-20261124T1622Z-normal4-gpt6-policy-competence-followthrough`. Do not refresh the lease. Continue until the measured 70-minute lease-age rule requires orderly release.
+
+### Current work and new findings
+
+- Reviewed rank-1 PR #70 at exact head `3b071e4b57c26f9db7ccecd45c9ce4f4d5f8f1f2`. This overlaps the previous Agent2 review of that same head; do not repeat its broad findings. New focused finding sent to Agent6: a Quick Ball `CHOOSE_CARD_TO_DISCARD` prompt that misses one strict metadata predicate can fall through to generic Quick Ball retrieval scoring, which may select Shadow Rider V/VMAX for discard. Asked for a fail-closed discard-phase guard and a mismatch regression. Also noted the current report's Fairy Zone disposition is stale after the public-source resolver, and no exact-head CI run exists for 3b071e4. Message: `communications/agent6/2026-11-24/20261124T163207Z_agent2-rank1-v3-focused-review.md`.
+- Reviewed candidate-policy PR #69 at exact head `c2764286bde497252a701f7e566cd0bb25100f8d`. New findings sent to Agent46:
+  - Pale Moon-GX uses a fixed 3-Energy retreat proxy and misses the Dimension Valley + two Psychic Energy extra-Psychic case. Correction: Rulebook A-03 says retreating clears effects on the Active; the right question is actual retreat feasibility using printed Retreat Cost, attached Energy, special conditions, and public retreat restrictions—not “Bench exists” or a fixed threshold. The delayed-KO and extra-Energy discard effects must be scored separately. Messages: `20261124T163809Z_agent2-pale-moon-gx-score-review.md` and `20261124T164126Z_agent2-pale-moon-retreat-correction.md`.
+  - Stealthy Hood search omits opponent-Active Flutter Mane (Midnight Fluttering), present in Aichi rank 19. It should be target-specific to an untooled own Active Shadow Rider. Message: `20261124T163958Z_agent2-flutter-mane-hood-search-gap.md`.
+  - Candidate Fairy Zone status remains unknown in the live actor projection: `actorObservation.visiblePokemon()` emits `suppressed:null`, while the candidate damage model requires explicit true. It therefore does not apply the Fairy Zone weakness multiplier on normal projected observations. Asked for a source-derived public-suppressor resolver or shared adapter fact. Message: `20261124T164208Z_agent2-fairy-zone-live-status-gap.md`.
+  - Stealthy Hood search also omits the target-specific rank-7 Snorlax PGO Block escape: opponent Active Snorlax, own Active Shadow Rider without a Tool. Message: `20261124T164415Z_agent2-snorlax-block-hood-target-gap.md`.
+- PR #69 exact head c276428 has no workflow run/status. Last cited contract receipt is for dc2ef1e, not current head; PR body still names stale head 607a35b. No game/fixture was run or requested by this reviewer.
+- Existing carry-forward items from earlier Agent2/Agent11 review remain: Jamming Tower disables Tools on every Pokémon (candidate helper scopes it to V targets); Tool Jammer only disables opponent Active Pokémon's Tools (candidate helper applies it too broadly); Energy Drive dynamic damage / no-Weakness-and-Resistance handling is not represented in the candidate scorer; Underworld Door still rechecks printed Psychic type after the native projector has filtered effective Psychic targets and drops the native cancel choice. Do not resend these unchanged findings; Agent4/Agent11 already communicated them.
+- Agent4 separately flagged that Parallel City direction mapping is not proved by the actor-observation pass-through test; Agent46/Agent49 should validate against the pinned local engine or keep the branch fail-closed. Do not duplicate that review.
+- Avoid duplicating Agent11's current Field Blower review.
+
+### Next useful actions
+
+1. Recheck Agent6 and Agent46 branch heads and exact-head contract receipts after they respond; review only changed behavior.
+2. For Pale Moon, verify a retreat-feasibility test matrix using the already exposed `printed.retreatCost`, `specialConditions`, `publicRestrictions.cannotRetreat*`, target Energy list, and opponent Bench occupancy.
+3. For the candidate's Fairy Zone, integrate a source-derived resolver without converting genuinely unknown suppression into active.
+4. Keep Stage-A fixture/game execution frozen under the current Critic stopline. Do not present policy contract tests as gameplay evidence.
+5. Keep the main objective honest: no final 60-card nomination or qualified matchup evidence has been established; current board baseline remains 29/32 authenticated lists and zero qualified matchups.
+
+### Important locations
+
+- Rank-1 policy: `simulation/evaluation/2026-11/agent6-rank1-shadow-rider-opponent-policy.cjs`
+- Rank-1 tests: `tests/2026-11/agent6-rank1-shadow-rider-opponent-policy.test.cjs`
+- Candidate policy: `simulation/evaluation/2026-11/agent46-candidate-policy.cjs`
+- Candidate tests: `tests/2026-11/agent46-candidate-policy.test.cjs`
+- Actor observation: `simulation/twinleaf/actor-observation-contract.cjs`
+- Aichi field: `results/aichi-2026/full-decklists.json`
+- Card pool used for local text checks: uploaded `/mnt/data/card-list.zip`
+- Retreat rule: uploaded `/mnt/data/advanced-players-rulebook.md`, Section I A-03.
+
