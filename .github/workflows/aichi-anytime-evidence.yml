@@ -17,3 +17,10 @@ jobs:
           node-version: '22'
       - name: Test aggregate and paired-seat anytime statistical evidence
         run: node --test tests/aichi-anytime-field-evidence.test.cjs tests/agent37-aichi-995-paired-seat-rejection.test.cjs tests/aichi-correlated-round-evidence.test.cjs
+      - name: Test independent CSPRNG streams, headless wiring and campaign replay audit
+        run: |
+          node --check simulation/twinleaf/headless.cjs
+          node --check simulation/evaluation/agent37-independent-rng-v1.cjs
+          node --check simulation/evaluation/aichi-campaign-runner.cjs
+          node --check simulation/evaluation/aichi-evidence-envelope.cjs
+          node --test tests/agent37-independent-rng-v1.test.cjs tests/aichi-campaign-runner.test.cjs
