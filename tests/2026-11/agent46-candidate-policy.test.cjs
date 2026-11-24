@@ -183,14 +183,18 @@ function pokemonPrompt(seat, view, choices, effectName = 'Guzma') {
       sourcePrinting: effectName === 'Acerola' ? 'Acerola PRC 112' : 'Guzma BUS',
       effectName
     },
-    choices: choices.map((row, index) => ({
-      token: row.token, kind: 'pokemon', printing: row.printing,
-      label: 'Your bench ' + (row.index + 1) + ': ' + row.printing,
-      publicMetadata: {
-        selectionIndex: index, selectedCount: 1, selectionType: 'pokemon',
-        ownerSeat: 'actor', targetZone: 'bench', isOwnerVisible: true
-      }
-    })),
+    choices: choices.map((row, index) => {
+      const ownerSeat = row.ownerSeat ?? 'actor';
+      return {
+        token: row.token, kind: 'pokemon', printing: row.printing,
+        label: (ownerSeat === 'opponent' ? 'Opponent' : 'Your') +
+          ' bench ' + (row.index + 1) + ': ' + row.printing,
+        publicMetadata: {
+          selectionIndex: index, selectedCount: 1, selectionType: 'pokemon',
+          ownerSeat, targetZone: 'bench', isOwnerVisible: true
+        }
+      };
+    }),
     publicMetadata: {
       minimumCount: 1, maximumCount: 1, allowCancel: false,
       isSecret: false, selectionType: 'pokemon', targetZone: 'bench'
@@ -2442,5 +2446,262 @@ test('Tapu Lele source printing activates Wonder Tag Supporter scoring when effe
   assert.deepEqual(evaluate(req), {
     kind: 'select-choices',
     tokens: ['card-1']
+  });
+});
+
+
+test('Radiant Gate respects active Rule Box, Basic, and non-Psychic Ability locks but ignores benched active-only locks', () => {
+  const ironThorns = pokemon({
+    printing: 'Iron Thorns ex TWM 77', name: 'Iron Thorns ex',
+    types: ['Lightning'], subtypes: ['Basic', 'ex', 'Future'],
+    abilities: ['Initialization'], suppression: false
+  });
+  const wobbuffet = pokemon({
+    printing: 'Wobbuffet PHF 36', name: 'Wobbuffet',
+    types: ['Psychic'], abilities: ['Bide Barricade'], suppression: false
+  });
+  const garbodor = pokemon({
+    printing: 'Garbodor XY9 57', name: 'Garbodor',
+    subtypes: ['Stage 1'], abilities: ['Garbotoxin'],
+    tools: ['Float Stone'], suppression: false
+  });
+
+  assert.deepEqual(evaluate(confirmPromptRequest(
+    0, observation(0, { opponentActive: ironThorns }),
+    'Radiant Eternatus CRZ 105', 'Climactic Gate'
+  )), { kind: 'select-choice', token: 'no' });
+  assert.deepEqual(evaluate(confirmPromptRequest(
+    0, observation(0, { opponentBench: [ironThorns] }),
+    'Radiant Eternatus CRZ 105', 'Climactic Gate'
+  )), { kind: 'select-choice', token: 'yes' });
+
+  assert.deepEqual(evaluate(confirmPromptRequest(
+    0, observation(0, { opponentActive: wobbuffet }),
+    'Radiant Eternatus CRZ 105', 'Climactic Gate'
+  )), { kind: 'select-choice', token: 'no' });
+  assert.deepEqual(evaluate(confirmPromptRequest(
+    0, observation(0, { opponentBench: [wobbuffet] }),
+    'Radiant Eternatus CRZ 105', 'Climactic Gate'
+  )), { kind: 'select-choice', token: 'yes' });
+
+  assert.deepEqual(evaluate(confirmPromptRequest(
+    0, observation(0, { opponentBench: [garbodor] }),
+    'Radiant Eternatus CRZ 105', 'Climactic Gate'
+  )), { kind: 'select-choice', token: 'no' });
+  const noToolGarbodor = pokemon({
+    printing: 'Garbodor XY9 57', name: 'Garbodor',
+    subtypes: ['Stage 1'], abilities: ['Garbotoxin'],
+    tools: [], suppression: false
+  });
+  assert.deepEqual(evaluate(confirmPromptRequest(
+    0, observation(0, { opponentBench: [noToolGarbodor] }),
+    'Radiant Eternatus CRZ 105', 'Climactic Gate'
+  )), { kind: 'select-choice', token: 'yes' });
+});
+
+test('Radiant Gate stadium locks respect Stadium/Tool suppression epochs', () => {
+  const path = observation(0, { ownStadium: ['Path to the Peak CRE 148'] });
+  assert.deepEqual(evaluate(confirmPromptRequest(
+    0, path, 'Radiant Eternatus CRZ 105', 'Climactic Gate'
+  )), { kind: 'select-choice', token: 'no' });
+  path.ownPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining = 1;
+  assert.deepEqual(evaluate(confirmPromptRequest(
+    0, path, 'Radiant Eternatus CRZ 105', 'Climactic Gate'
+  )), { kind: 'select-choice', token: 'yes' });
+  const silentLab = observation(0, { opponentStadium: ['Silent Lab XY5 140'] });
+  assert.deepEqual(evaluate(confirmPromptRequest(
+    0, silentLab, 'Radiant Eternatus CRZ 105', 'Climactic Gate'
+  )), { kind: 'select-choice', token: 'no' });
+});
+
+test('Tapu Lele play gate treats Iron Thorns as Active-only and Wobbuffet exempts Psychic Pokémon', () => {
+  const lele = 'Tapu Lele-GX GRI 60';
+  const ironThorns = pokemon({
+    printing: 'Iron Thorns ex TWM 77', name: 'Iron Thorns ex',
+    types: ['Lightning'], subtypes: ['Basic', 'ex', 'Future'],
+    abilities: ['Initialization'], suppression: false
+  });
+  const wobbuffet = pokemon({
+    printing: 'Wobbuffet PHF 36', name: 'Wobbuffet',
+    abilities: ['Bide Barricade'], suppression: false
+  });
+  const action = {
+    token: 'lele', kind: 'play-card', actorPrinting: lele,
+    publicMetadata: { targetSeat: 'actor', targetZone: 'bench', isOwnerVisible: true }
+  };
+  const activeLock = observation(0, { ownHand: [lele], opponentActive: ironThorns });
+  assert.deepEqual(evaluate(request(0, activeLock, {
+    actions: [action, { token: 'pass', kind: 'pass' }]
+  })), { kind: 'select-action', token: 'pass' });
+  const benchedLock = observation(0, { ownHand: [lele], opponentBench: [ironThorns] });
+  assert.deepEqual(evaluate(request(0, benchedLock, {
+    actions: [action, { token: 'pass', kind: 'pass' }]
+  })), { kind: 'select-action', token: 'lele' });
+  const psychicExempt = observation(0, { ownHand: [lele], opponentActive: wobbuffet });
+  assert.deepEqual(evaluate(request(0, psychicExempt, {
+    actions: [action, { token: 'pass', kind: 'pass' }]
+  })), { kind: 'select-action', token: 'lele' });
+});
+
+test('Ability-Pokémon play restrictions do not suppress already-in-play Underworld Door or Star Alchemy', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX', subtypes: ['VMAX'],
+    abilities: ['Underworld Door'], suppression: false
+  });
+  const psychicBench = pokemon({
+    printing: "Lillie's Clefairy ex JTG 56",
+    name: "Lillie's Clefairy ex", types: ['Psychic'],
+    subtypes: ['Basic', 'ex']
+  });
+  const doorView = observation(0, {
+    active: vmax, bench: [psychicBench], ownHand: ['Psychic Energy SVE 5']
+  });
+  doorView.ownTurnResources.abilityPokemonPlayLocked = true;
+  doorView.ownPublic.publicTurnRestrictions.abilityPokemonPlayLocked = true;
+  const door = {
+    token: 'door', kind: 'use-ability', actorPrinting: vmax.printing,
+    publicMetadata: {
+      sourceSeat: 'actor', sourceZone: 'active', abilityName: 'Underworld Door'
+    }
+  };
+  assert.deepEqual(evaluate(request(0, doorView, {
+    actions: [door, { token: 'pass', kind: 'pass' }]
+  })), { kind: 'select-action', token: 'door' });
+
+  const stoneVmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX', subtypes: ['VMAX'],
+    tools: ['Forest Seal Stone']
+  });
+  const stoneView = observation(0, { active: stoneVmax });
+  stoneView.ownTurnResources.abilityPokemonPlayLocked = true;
+  stoneView.ownPublic.publicTurnRestrictions.abilityPokemonPlayLocked = true;
+  const star = {
+    token: 'star', kind: 'use-ability', actorPrinting: stoneVmax.printing,
+    publicMetadata: {
+      sourceSeat: 'actor', sourceZone: 'active', abilityName: 'Star Alchemy'
+    }
+  };
+  assert.deepEqual(evaluate(request(0, stoneView, {
+    actions: [star, { token: 'pass', kind: 'pass' }]
+  })), { kind: 'select-action', token: 'star' });
+});
+
+test('Star Alchemy sees active Iron Thorns against both Shadow Rider V and VMAX, not a benched copy', () => {
+  const stoneVmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX', subtypes: ['VMAX'],
+    tools: ['Forest Seal Stone']
+  });
+  const ironThorns = pokemon({
+    printing: 'Iron Thorns ex TWM 77', name: 'Iron Thorns ex',
+    types: ['Lightning'], subtypes: ['Basic', 'ex', 'Future'],
+    abilities: ['Initialization'], suppression: false
+  });
+  const star = {
+    token: 'star', kind: 'use-ability', actorPrinting: stoneVmax.printing,
+    publicMetadata: {
+      sourceSeat: 'actor', sourceZone: 'active', abilityName: 'Star Alchemy'
+    }
+  };
+  const activeLock = observation(0, { active: stoneVmax, opponentActive: ironThorns });
+  assert.deepEqual(evaluate(request(0, activeLock, {
+    actions: [star, { token: 'pass', kind: 'pass' }]
+  })), { kind: 'select-action', token: 'pass' });
+  const benchLock = observation(0, { active: stoneVmax, opponentBench: [ironThorns] });
+  assert.deepEqual(evaluate(request(0, benchLock, {
+    actions: [star, { token: 'pass', kind: 'pass' }]
+  })), { kind: 'select-action', token: 'star' });
+});
+
+test('Stealthy Hood search is reserved for opponent ability locks that Hood can actually prevent', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX', subtypes: ['VMAX']
+  });
+  const ironThorns = pokemon({
+    printing: 'Iron Thorns ex TWM 77', name: 'Iron Thorns ex',
+    types: ['Lightning'], subtypes: ['Basic', 'ex', 'Future'],
+    abilities: ['Initialization'], suppression: false
+  });
+  const hoodSearch = view => cardPrompt(0, view, {
+    sourcePrinting: 'Mysterious Treasure FLI 113',
+    effectName: 'Mysterious Treasure',
+    printings: ['Stealthy Hood BUS 186']
+  });
+  assert.deepEqual(evaluate(hoodSearch(observation(0, {
+    active: vmax, opponentActive: ironThorns
+  }))), { kind: 'select-choices', tokens: ['card-0'] });
+  assert.deepEqual(evaluate(hoodSearch(observation(0, {
+    active: vmax, opponentBench: [ironThorns]
+  }))), { kind: 'abstain', reasonCode: 'NO_SUPPORTED_CARD_SELECTION' });
+
+  const snorlax = pokemon({
+    printing: 'Snorlax PGO 55', name: 'Snorlax',
+    abilities: ['Block'], suppression: false
+  });
+  assert.deepEqual(evaluate(hoodSearch(observation(0, {
+    active: vmax, opponentActive: snorlax
+  }))), { kind: 'abstain', reasonCode: 'NO_SUPPORTED_CARD_SELECTION' });
+});
+
+test('Fairy Zone respects effective Stealthy Hood and accounts for Jamming Tower and Tool Jammer', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX', hp: 320, subtypes: ['VMAX'],
+    energies: Array(5).fill('Psychic Energy SVE 5'),
+    attacks: [attack('Max Geist', ['Colorless', 'Colorless', 'Colorless'], '10+')]
+  });
+  const clefairy = pokemon({
+    printing: "Lillie's Clefairy ex JTG 56",
+    name: "Lillie's Clefairy ex", subtypes: ['Basic', 'ex'],
+    abilities: ['Fairy Zone'], suppression: false
+  });
+  const hooded = pokemon({
+    printing: 'Regidrago VSTAR SIT 136', name: 'Regidrago VSTAR',
+    hp: 320, damage: 120, types: ['Dragon'], subtypes: ['VSTAR'],
+    tools: ['Stealthy Hood BUS 186']
+  });
+  const plain = pokemon({
+    printing: 'Dragon Basic test', name: 'Dragon Basic',
+    hp: 300, types: ['Dragon'], subtypes: ['Basic']
+  });
+  const active = pokemon({
+    printing: 'Active placeholder', name: 'Active placeholder'
+  });
+  const makePrompt = (view) => pokemonPrompt(0, view, [
+    { token: 'hooded', index: 0, ownerSeat: 'opponent', printing: hooded.printing },
+    { token: 'plain', index: 1, ownerSeat: 'opponent', printing: plain.printing }
+  ]);
+  const protectedView = observation(0, {
+    active: vmax, bench: [clefairy], opponentActive: active,
+    opponentBench: [hooded, plain]
+  });
+  assert.deepEqual(evaluate(makePrompt(protectedView)), {
+    kind: 'select-choices', tokens: ['plain']
+  });
+
+  const jammingView = observation(0, {
+    active: vmax, bench: [clefairy], ownStadium: ['Jamming Tower swsh9'],
+    opponentActive: active, opponentBench: [hooded, plain]
+  });
+  assert.deepEqual(evaluate(makePrompt(jammingView)), {
+    kind: 'select-choices', tokens: ['hooded']
+  });
+
+  const jammerVmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX', hp: 320, subtypes: ['VMAX'],
+    energies: Array(5).fill('Psychic Energy SVE 5'),
+    attacks: [attack('Max Geist', ['Colorless', 'Colorless', 'Colorless'], '10+')],
+    tools: ['Tool Jammer swsh2']
+  });
+  const jammerView = observation(0, {
+    active: jammerVmax, bench: [clefairy],
+    opponentActive: active, opponentBench: [hooded, plain]
+  });
+  assert.deepEqual(evaluate(makePrompt(jammerView)), {
+    kind: 'select-choices', tokens: ['hooded']
   });
 });

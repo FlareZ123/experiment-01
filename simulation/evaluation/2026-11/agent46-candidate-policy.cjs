@@ -337,8 +337,38 @@ function canPayAttack(slot, attack, view) {
   return slotEnergyCount(slot) >= effectiveAttackCost(slot, attack, view);
 }
 
+function isPokemonV(slot) {
+  const subtypes = slot?.printed?.subtypes ?? [];
+  return subtypes.some(value => ['V', 'VMAX', 'VSTAR', 'V-UNION'].includes(value));
+}
+
+function stadiumAndToolEffectsLive(view) {
+  const own = view.ownPublic.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
+  const opponent = view.opponentPublic.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
+  if (!Number.isSafeInteger(own) || own < 0 ||
+      !Number.isSafeInteger(opponent) || opponent < 0) return null;
+  return own === 0 && opponent === 0;
+}
+
+function hasEffectiveStealthyHood(target, view) {
+  if (!Array.isArray(target?.tools) ||
+      !target.tools.some(tool => hasName(tool, 'Stealthy Hood'))) return false;
+  const opponentTarget = opponentBoard(view).includes(target);
+  if (!opponentTarget) return true;
+  const effectsLive = stadiumAndToolEffectsLive(view);
+  const stadiums = [...view.ownPublic.stadium, ...view.opponentPublic.stadium];
+  if (isPokemonV(target) &&
+      stadiums.some(name => hasName(name, 'Jamming Tower')) &&
+      effectsLive === true) return false;
+  if (Array.isArray(view.ownPublic.active?.tools) &&
+      view.ownPublic.active.tools.some(tool => hasName(tool, 'Tool Jammer')) &&
+      effectsLive === true) return false;
+  return true;
+}
+
 function weaknessMultiplier(attacker, target, view) {
-  if (isDragon(target) && fairyZoneStatus(view) === true) return 2;
+  if (isDragon(target) && fairyZoneStatus(view) === true &&
+      !hasEffectiveStealthyHood(target, view)) return 2;
   const types = attacker?.printed?.types ?? [];
   const weakness = (target?.printed?.weakness ?? []).find(row =>
     types.includes(row.type));
@@ -590,14 +620,10 @@ function searchNeedScore(view, printing, effectName = '', receipt = null) {
     return missingBasicV || psychicEnergyCount(view) < 3 ? 60 : 10;
   }
   if (hasName(printing, 'Stealthy Hood')) {
-    const lock = allBoard(view).some(slot =>
-      hasName(slot.printing, 'Iron Thorns ex') ||
-      hasName(slot.printing, 'Garbodor') ||
-      hasName(slot.printing, 'Snorlax PGO'));
     const protectedTarget = board.some(slot =>
       hasName(slot.printing, 'Shadow Rider Calyrex V') ||
       hasName(slot.printing, 'Shadow Rider Calyrex VMAX'));
-    return lock && protectedTarget ? 70 : 0;
+    return hasAbilityLockThreat(view) && protectedTarget ? 70 : 0;
   }
   if (hasName(printing, 'Field Blower')) {
     return view.opponentPublic.stadium.some(name =>
@@ -1315,12 +1341,19 @@ function canUseClimacticGate(view) {
   const openBench = view.ownPublic.bench.filter(slot => !slot).length;
   const expectedTargets = expectedClimacticGateTargets(view);
   return openBench >= 2 && expectedTargets !== null &&
-    expectedTargets >= MIN_EXPECTED_CLIMACTIC_GATE_TARGETS;
+    expectedTargets >= MIN_EXPECTED_CLIMACTIC_GATE_TARGETS &&
+    !hasRadiantGateLock(view);
+}
+
+function canPlayRadiantForGate(view) {
+  return canUseClimacticGate(view) &&
+    view.ownTurnResources?.abilityPokemonPlayLocked !== true &&
+    view.ownPublic.publicTurnRestrictions?.abilityPokemonPlayLocked !== true;
 }
 
 function scoreClimacticGatePlay(item, view) {
   if (!hasName(item.actorPrinting, 'Radiant Eternatus') ||
-      !canUseClimacticGate(view)) return -Infinity;
+      !canPlayRadiantForGate(view)) return -Infinity;
   const openBench = view.ownPublic.bench.filter(slot => !slot).length;
   return openBench >= 3 ? 120 : 60;
 }
@@ -1355,22 +1388,65 @@ function hasDiscardableHand(view, required = 1) {
   return ranked.length >= required && ranked.slice(0, required).every(value => value < 800);
 }
 
-function hasAbilityLockThreat(view) {
+function abilityMayBeActive(slot, abilityName) {
+  if (!slot) return false;
+  if (!Array.isArray(slot.abilities)) return true;
+  if (!slot.abilities.includes(abilityName)) return false;
+  return abilityStatus(slot, abilityName) !== false;
+}
+
+function hasActiveAbilityOnEitherSide(view, cardName, abilityName) {
+  return [view.ownPublic.active, view.opponentPublic.active].some(slot =>
+    hasName(slot?.printing, cardName) && abilityMayBeActive(slot, abilityName));
+}
+
+function hasActiveStadiumLock(view, stadiumName) {
+  const stadiums = [...view.ownPublic.stadium, ...view.opponentPublic.stadium];
+  if (!stadiums.some(name => hasName(name, stadiumName))) return false;
+  // Unknown suppression epochs fail closed: do not assume a lock Stadium is inert.
+  return stadiumAndToolEffectsLive(view) !== false;
+}
+
+function hasActiveIronThorns(view) {
+  return hasActiveAbilityOnEitherSide(view, 'Iron Thorns ex', 'Initialization');
+}
+
+function hasActiveWobbuffet(view) {
+  return hasActiveAbilityOnEitherSide(view, 'Wobbuffet', 'Bide Barricade');
+}
+
+function hasActiveGarbotoxin(view) {
   return allBoard(view).some(slot =>
-    hasName(slot.printing, 'Iron Thorns ex') ||
-    hasName(slot.printing, 'Garbodor') ||
-    hasName(slot.printing, 'Snorlax PGO'));
+    hasName(slot.printing, 'Garbodor') &&
+    (!Array.isArray(slot.tools) || slot.tools.length > 0) &&
+    abilityMayBeActive(slot, 'Garbotoxin'));
+}
+
+function hasRadiantGateLock(view) {
+  return hasActiveStadiumLock(view, 'Path to the Peak') ||
+    hasActiveStadiumLock(view, 'Silent Lab') ||
+    hasActiveIronThorns(view) ||
+    hasActiveWobbuffet(view) ||
+    hasActiveGarbotoxin(view);
+}
+
+function hasAbilityLockThreat(view) {
+  const opponentActive = view.opponentPublic.active;
+  const opponentIronThorns = hasName(opponentActive?.printing, 'Iron Thorns ex') &&
+    abilityMayBeActive(opponentActive, 'Initialization');
+  const opponentGarbotoxin = opponentBoard(view).some(slot =>
+    hasName(slot.printing, 'Garbodor') &&
+    (!Array.isArray(slot.tools) || slot.tools.length > 0) &&
+    abilityMayBeActive(slot, 'Garbotoxin'));
+  return opponentIronThorns || opponentGarbotoxin;
 }
 
 function hasWonderTagLock(view) {
-  const stadiums = [...view.ownPublic.stadium, ...view.opponentPublic.stadium];
-  if (stadiums.some(name =>
-    hasName(name, 'Path to the Peak') || hasName(name, 'Silent Lab'))) return true;
+  if (hasActiveStadiumLock(view, 'Path to the Peak') ||
+      hasActiveStadiumLock(view, 'Silent Lab')) return true;
   if (view.ownTurnResources?.abilityPokemonPlayLocked === true ||
       view.ownPublic.publicTurnRestrictions?.abilityPokemonPlayLocked === true) return true;
-  return allBoard(view).some(slot =>
-    hasName(slot.printing, 'Iron Thorns ex') ||
-    (hasName(slot.printing, 'Garbodor') && (slot.tools ?? []).length > 0));
+  return hasActiveIronThorns(view) || hasActiveGarbotoxin(view);
 }
 
 function hasStadiumRemovalTarget(view) {
@@ -1405,16 +1481,11 @@ function isShadowRiderVTarget(slot) {
 }
 
 function hasStarAlchemyLock(view, target) {
-  const stadiums = [...view.ownPublic.stadium, ...view.opponentPublic.stadium];
-  if (stadiums.some(name => hasName(name, 'Path to the Peak'))) return true;
-  if (view.ownTurnResources?.abilityPokemonPlayLocked === true ||
-      view.ownPublic.publicTurnRestrictions?.abilityPokemonPlayLocked === true) return true;
-  if (allBoard(view).some(slot =>
-    hasName(slot.printing, 'Garbodor') && (slot.tools ?? []).length > 0)) return true;
-  if (isBasicShadowRiderV(target)) {
-    if (stadiums.some(name => hasName(name, 'Silent Lab'))) return true;
-    if (allBoard(view).some(slot => hasName(slot.printing, 'Iron Thorns ex'))) return true;
-  }
+  if (hasActiveStadiumLock(view, 'Path to the Peak')) return true;
+  if (hasActiveGarbotoxin(view)) return true;
+  if (isShadowRiderVTarget(target) && hasActiveIronThorns(view)) return true;
+  if (isBasicShadowRiderV(target) &&
+      hasActiveStadiumLock(view, 'Silent Lab')) return true;
   return false;
 }
 
@@ -1571,8 +1642,6 @@ function canUseUnderworldDoor(view, item) {
     source !== null && isShadowRiderVmax(source) &&
     (!item.actorPrinting || item.actorPrinting === source.printing) &&
     abilityStatus(source, 'Underworld Door') === true &&
-    view.ownTurnResources?.abilityPokemonPlayLocked !== true &&
-    view.ownPublic.publicTurnRestrictions?.abilityPokemonPlayLocked !== true &&
     handHas(view, 'Psychic Energy') &&
     view.ownPublic.bench.some(slot =>
       slot && slot.printed?.types?.includes('Psychic'));
