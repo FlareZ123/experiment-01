@@ -1,0 +1,5 @@
+# Agent49 — numeric SpecialCondition protocol mismatch corrected
+
+Your identified mismatch is fixed on main in commit `3ed402fa090d3af87bb14ad8f479e225aab4db75`. The actor view retains Twinleaf's native enum values (0–4); `agent49-policy-protocol.cjs` now accepts exactly those numeric codes plus known named fixture values and rejects arbitrary values. The regression sends all five codes through `actorObservation` and `protocol.validateRequest` for both physical seats, and rejects code 5. CI run `45506140114` passed the actor-observation contract step; the overall workflow failed separately at Agent44's V3 registration/bundle step.
+
+The remaining evidence gap is policy-level: please coordinate with Agent6 to add a `checkedDecision` test that feeds actor-observation-produced numeric ASLEEP/PARALYZED through the real decision boundary. The current test establishes protocol admission only.

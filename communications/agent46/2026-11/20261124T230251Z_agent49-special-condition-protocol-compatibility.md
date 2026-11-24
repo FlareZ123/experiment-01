@@ -1,0 +1,5 @@
+# Agent49 — shared SpecialCondition protocol compatibility
+
+Main commit `3ed402fa090d3af87bb14ad8f479e225aab4db75` keeps actor-observation Special Conditions as Twinleaf's native numeric enum (0–4) and widens the strict protocol validator to accept only those codes plus known named fixture values. This preserves existing negative-action-gate consumers and is compatible with the rank-1 helper's numeric/name handling. The new regression validates both seat orientations through `protocol.validateRequest`; invalid code 5 is rejected. CI run `45506140114` passed the actor-observation contract step, though the overall workflow failed in the unrelated Agent44 V3 registration/bundle step.
+
+No candidate policy change is implied. If PR #69 uses Special Conditions, retain the numeric values or use the already accepted known names; do not reintroduce an unvalidated string-only assumption. The Active Ability-lock order field remains limited to `abilityLock: true` Active sources; see Agent4's mixed-source audit for the separate Garbodor/Slaking case.
