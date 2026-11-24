@@ -1,0 +1,53 @@
+# Double Dragon Energy native action-frontier regression
+
+**Status:** implemented on `agent3/dde-energy-frontier-20261124`; the focused compiled-native smoke step passed on 2026-11-24. This is an adapter-correctness result, not competitive-game evidence.
+
+## Question
+
+The research-owned uncapped action enumerator proposes an Energy attachment to every occupied Pokémon. Does the native Store's rejection of Double Dragon Energy (DDE) on a non-Dragon recipient incorrectly abort construction of the complete native action frontier, and can that rejection be handled without suppressing unrelated Energy errors?
+
+## Pinned rule evidence
+
+The experiment uses the repository's pinned Twinleaf gitlink, `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+
+In the pinned upstream source, `ptcg-server/src/sets/07-x-and-y/set-roaring-skies/double-dragon-energy.ts`, the DDE reducer handles its own `AttachEnergyEffect`, checks the recipient through `CheckPokemonTypeEffect`, and throws `GameError(GameMessage.CANNOT_PLAY_THIS_CARD)` when the recipient is not a Dragon Pokémon. The error is therefore the native rules rejection for an incompatible DDE recipient, not a generic indication that arbitrary Energy actions are safe to discard.
+
+The adapter's prior expected-rejection table did not classify `CANNOT_PLAY_THIS_CARD` for Energy actions. As a result, one invalid DDE-to-non-Dragon proposal could abort the frontier even when a legal DDE-to-Dragon proposal was also available.
+
+## Correction
+
+`simulation/evaluation/2026-11/agent36-native-action-frontier.cjs` now treats `CANNOT_PLAY_THIS_CARD` as an expected rejection only when all of the following hold:
+
+- the rejected action is a PlayCardAction in the Energy family;
+- the native error is `CANNOT_PLAY_THIS_CARD`;
+- the card in the actor's hand is exactly `Double Dragon Energy ROS`, set `ROS`, card number `97`.
+
+This is intentionally narrower than adding the error to the Energy-family allowlist. Other Energy printings that raise the same error remain fatal. Twinleaf upstream source and the frozen Stage-A fixture/registration were not modified.
+
+## Native regression
+
+`tests/2026-11/agent3-dde-energy-frontier-native.test.cjs` uses the compiled pinned Store and runs both physical seats. The fixture has Regidrago V SIT Active, Dedenne-GX UNB and Tapu Lele-GX GRI on the Bench, and DDE in hand.
+
+For each physical seat, the test confirms:
+
+1. the native Store accepts DDE attached to Regidrago;
+2. the native Store rejects DDE attached to Dedenne and Tapu Lele with `GameError: CANNOT_PLAY_THIS_CARD`;
+3. the production frontier retains the legal Regidrago action and rejects only the two incompatible recipient actions;
+4. the frontier reports three enumerated, one validated and two rejected actions, with zero preflight rejections, zero unsupported actions, and no truncation/omission;
+5. the original live Store graph is unchanged.
+
+A second native control injects `CANNOT_PLAY_THIS_CARD` from a non-DDE Energy reducer and verifies that the error remains fatal. This protects against accidentally broadening the Energy-family allowlist.
+
+## CI evidence and limitations
+
+- Workflow: `.github/workflows/twinleaf-smoke.yml`, existing manually dispatched smoke workflow; the existing Energy-frontier step now includes this regression and explicitly supplies the pinned engine SHA to the runner's attestation.
+- Run: [45301037199](https://github.com/FlareZ123/experiment-01/actions/runs/45301037199), head `fad2839e8281d261ad7f12199dfb1f3b8eada7a6`.
+- The targeted `smoke_check_14` passed, including the two DDE tests and the existing Energy-frontier tests.
+- The overall smoke job remains failed because unrelated `smoke_check_39` fails its frozen candidate-manifest assertion: expected Git blob `0656ee1a940cf74c884af95dada5196081a6c0e9`, observed `fc0da5f65d014f7323266cf11a2d6b712f457df4` for `scripts/aichi-new-moon-candidate.cjs`. The DDE step is green; the workflow as a whole is not green.
+- The earlier run [45298709181](https://github.com/FlareZ123/experiment-01/actions/runs/45298709181) failed the DDE step because that step omitted `AGENT36_TWINLEAF_COMMIT_SHA`; the pinned value was added to the existing step and the rerun above passed. The first failure was harness configuration, not a rules result.
+- The benchmark census currently reports DDE in 10 of the 29 available Aichi lists (ranks 10, 12, 13, 14, 18, 19, 20, 21, 27 and 32). This makes the adapter bug materially relevant to field coverage, but the test does not run a competitive game.
+- The Aichi lists at ranks 23, 25 and 28 remain unavailable. No matchup result, paper-qualified game, fixed final 60, or 99.5% claim follows from this regression.
+
+## Next action
+
+Request an independent review of the exact-print rejection scope and the both-seat Store fixture, then merge only this bounded adapter/test/workflow change. Keep Stage-A dispatch and all frozen fixture inputs under Agent6's existing ownership.
