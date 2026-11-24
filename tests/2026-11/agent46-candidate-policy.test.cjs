@@ -142,7 +142,8 @@ function evaluate(req) {
 
 function cardPrompt(seat, view, {
   sourcePrinting = 'Mysterious Treasure FLI', effectName = 'Mysterious Treasure',
-  sourceZone = 'deck', printings = [], minimumCount = 1, maximumCount = 1
+  sourceZone = 'deck', printings = [], minimumCount = 1, maximumCount = 1,
+  receipt = null
 } = {}) {
   const choices = printings.map((printing, index) => ({
     token: 'card-' + index, kind: 'card', printing, label: printing,
@@ -169,7 +170,7 @@ function cardPrompt(seat, view, {
     ...view, decisionKind: 'owner-prompt',
     pendingPromptType: 'ChooseCardsPrompt'
   };
-  return request(seat, requestView, { prompt, actions: [] });
+  return request(seat, requestView, { prompt, actions: [], receipt });
 }
 
 function pokemonPrompt(seat, view, choices) {
@@ -1400,5 +1401,158 @@ test('Radiant Eternatus is selected only when the terminal Gate has Bench and de
   assert.deepEqual(evaluate(blocked), {
     kind: 'select-action',
     token: 'pass'
+  });
+});
+
+
+test('Tapu Lele-GX is benched for Wonder Tag when the Ability is live', () => {
+  const active = pokemon({
+    printing: 'Shadow Rider Calyrex V CRE 74',
+    name: 'Shadow Rider Calyrex V',
+    hp: 210
+  });
+  const view = observation(0, {
+    active,
+    ownHand: ['Tapu Lele-GX GRI 60']
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'tapu-lele',
+        kind: 'play-card',
+        actorPrinting: 'Tapu Lele-GX GRI 60',
+        publicMetadata: {
+          targetSeat: 'actor',
+          targetZone: 'bench',
+          isOwnerVisible: true
+        }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'tapu-lele'
+  });
+});
+
+test('Tapu Lele-GX is not played into Path to the Peak or Silent Lab Ability lock', () => {
+  for (const stadium of ['Path to the Peak CES 148', 'Silent Lab FCO 95']) {
+    const view = observation(0, {
+      ownHand: ['Tapu Lele-GX GRI 60'],
+      opponentStadium: [stadium]
+    });
+    const req = request(0, view, {
+      actions: [
+        {
+          token: 'tapu-lele',
+          kind: 'play-card',
+          actorPrinting: 'Tapu Lele-GX GRI 60',
+          publicMetadata: {
+            targetSeat: 'actor',
+            targetZone: 'bench',
+            isOwnerVisible: true
+          }
+        },
+        { token: 'pass', kind: 'pass' }
+      ]
+    });
+    assert.deepEqual(evaluate(req), {
+      kind: 'select-action',
+      token: 'pass'
+    });
+  }
+});
+
+test('Wonder Tag selects Teammates after a validated opponent-turn Knock Out', () => {
+  const view = observation(0, { active: null, bench: [] });
+  const receipt = {
+    version: 'agent8-public-event-receipt-v3-turn-stamped',
+    actorSeat: 0,
+    turn: view.globalTurn,
+    ownerActive: null,
+    ownerBench: Array(5).fill(null),
+    priorOpponentTurnKO: { any: true, byAttack: true },
+    opponentLastTurnAttack: null,
+    opponentLastTurnTurn: null,
+    opponentLastTurnAttacks: null
+  };
+  const req = cardPrompt(0, view, {
+    sourcePrinting: 'Tapu Lele-GX GRI 60',
+    effectName: 'Wonder Tag',
+    printings: [
+      'Teammates PRC 141',
+      "Lillie's Determination MEG 119",
+      'Guzma BUS 115'
+    ],
+    receipt
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choices',
+    tokens: ['card-0']
+  });
+});
+
+test('Wonder Tag selects Guzma when the active attacker can Knock Out a benched target', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    energies: Array(3).fill('Psychic Energy CRE 232'),
+    attacks: [attack('Max Geist', ['Colorless', 'Colorless', 'Colorless'], '300')]
+  });
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT 136',
+    name: 'Regidrago VSTAR',
+    hp: 280,
+    types: ['Dragon'],
+    subtypes: ['VSTAR']
+  });
+  const target = pokemon({
+    printing: 'Mimikyu GRI 58',
+    name: 'Mimikyu',
+    hp: 70
+  });
+  const view = observation(0, {
+    active: vmax,
+    opponentActive: regidrago,
+    opponentBench: [target]
+  });
+  const req = cardPrompt(0, view, {
+    sourcePrinting: 'Tapu Lele-GX GRI 60',
+    effectName: 'Wonder Tag',
+    printings: [
+      'Guzma BUS 115',
+      "Lillie's Determination MEG 119",
+      'Teammates PRC 141'
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choices',
+    tokens: ['card-0']
+  });
+});
+
+test('Wonder Tag selects Arven when the Shadow Rider Basic line is missing', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const view = observation(0, { active: vmax });
+  const req = cardPrompt(0, view, {
+    sourcePrinting: 'Tapu Lele-GX GRI 60',
+    effectName: 'Wonder Tag',
+    printings: [
+      'Arven SVI 166',
+      "Lillie's Determination MEG 119",
+      'Iono PAL 185'
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choices',
+    tokens: ['card-0']
   });
 });
