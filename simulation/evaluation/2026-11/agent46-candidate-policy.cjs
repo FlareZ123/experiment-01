@@ -494,6 +494,12 @@ function supporterNeedScore(view, printing, receipt) {
 function searchNeedScore(view, printing, effectName = '', receipt = null) {
   if (!isText(printing)) return -Infinity;
   if (effectName === 'Wonder Tag') return supporterNeedScore(view, printing, receipt);
+  if (effectName === 'Star Alchemy') {
+    const ordinary = searchNeedScore(view, printing, '', receipt);
+    const supporter = supporterNeedScore(view, printing, receipt);
+    const score = Math.max(ordinary, supporter);
+    return score > 0 ? score + 10 : score;
+  }
   const regidrago = opponentHasRegidrago(view);
   const dragon = opponentHasDragon(view);
   const board = ownBoard(view);
@@ -1234,16 +1240,83 @@ function canGuzmaForAttack(view) {
   });
 }
 
+function actionTargetSlot(view, metadata) {
+  if (metadata?.targetSeat !== 'actor' || metadata?.isOwnerVisible !== true) return null;
+  if (metadata.targetZone === 'active') return view.ownPublic.active ?? null;
+  if (metadata.targetZone === 'bench' && Number.isSafeInteger(metadata.targetIndex)) {
+    return view.ownPublic.bench[metadata.targetIndex] ?? null;
+  }
+  return null;
+}
+
+function isShadowRiderVTarget(slot) {
+  return isBasicShadowRiderV(slot) || isShadowRiderVmax(slot);
+}
+
+function hasStarAlchemyLock(view, target) {
+  const stadiums = [...view.ownPublic.stadium, ...view.opponentPublic.stadium];
+  if (stadiums.some(name => hasName(name, 'Path to the Peak'))) return true;
+  if (view.ownTurnResources?.abilityPokemonPlayLocked === true ||
+      view.ownPublic.publicTurnRestrictions?.abilityPokemonPlayLocked === true) return true;
+  if (allBoard(view).some(slot =>
+    hasName(slot.printing, 'Garbodor') && (slot.tools ?? []).length > 0)) return true;
+  if (isBasicShadowRiderV(target)) {
+    if (stadiums.some(name => hasName(name, 'Silent Lab'))) return true;
+    if (allBoard(view).some(slot => hasName(slot.printing, 'Iron Thorns ex'))) return true;
+  }
+  return false;
+}
+
+function hasStarAlchemyBottleneck(view, receipt) {
+  const missingBasicV = !hasBasicShadowRiderV(view) &&
+    !handHas(view, 'Shadow Rider Calyrex V') && hasOpenBench(view);
+  const missingVmax = hasUnevolvedShadowRiderV(view) &&
+    !handHas(view, 'Shadow Rider Calyrex VMAX');
+  const missingDialga = opponentHasRegidrago(view) &&
+    !boardHas(view, 'Dialga-GX') && !handHas(view, 'Dialga-GX') &&
+    !discardHas(view, 'Dialga-GX');
+  const missingMimikyu = opponentHasRegidrago(view) &&
+    !boardHas(view, 'Mimikyu') && !handHas(view, 'Mimikyu');
+  const missingClefairy = opponentHasDragon(view) &&
+    !boardHas(view, "Lillie's Clefairy ex") &&
+    !handHas(view, "Lillie's Clefairy ex");
+  const missingStadiumAnswer = hasStadiumRemovalTarget(view) &&
+    !handHas(view, 'Field Blower') && !boardHas(view, 'Marshadow');
+  const missingStamp = receipt?.priorOpponentTurnKO?.any === true &&
+    !handHas(view, 'Unfair Stamp') && !discardHas(view, 'Unfair Stamp');
+  const lowHand = view.ownPublic.handCount <= 1 && view.ownPublic.deckCount > 0;
+  const critical = missingBasicV || missingVmax || missingDialga || missingMimikyu ||
+    missingClefairy || missingStadiumAnswer || missingStamp || lowHand;
+  if (!critical) return false;
+
+  const alternativeTrainerPlay = view.ownHand.some(printing =>
+    !hasName(printing, 'Forest Seal Stone') &&
+    Number.isFinite(scoreTrainerPlay({ actorPrinting: printing }, view, receipt)));
+  return !alternativeTrainerPlay;
+}
+
 function scoreTrainerPlay(item, view, receipt) {
   const name = item.actorPrinting ?? '';
   const supporterUsed = view.ownTurnResources.supporterPlayedTurn > 0;
   if (hasName(name, 'Unfair Stamp') && receipt?.priorOpponentTurnKO?.any === true) return 980;
+  if (hasName(name, 'Forest Seal Stone')) {
+    const target = actionTargetSlot(view, item.publicMetadata);
+    if (target && isShadowRiderVTarget(target) &&
+        !(target.tools ?? []).some(tool => hasName(tool, 'Forest Seal Stone')) &&
+        view.ownTurnResources.vstarUsed !== true &&
+        view.ownPublic.publicTurnRestrictions?.vstarUsed !== true &&
+        !hasStarAlchemyLock(view, target) &&
+        hasStarAlchemyBottleneck(view, receipt)) return 550;
+  }
   if (hasName(name, 'Field Blower') && hasStadiumRemovalTarget(view)) return 950;
   if (hasName(name, 'Battle Compressor') && opponentHasRegidrago(view) &&
       !discardHas(view, 'Dialga-GX') && !handHas(view, 'Dialga-GX') &&
       !boardHas(view, 'Dialga-GX') && (boardHas(view, 'Mimikyu') || handHas(view, 'Mimikyu'))) return 860;
   if (hasName(name, 'Fog Crystal') &&
       ((!hasBasicShadowRiderV(view) && hasOpenBench(view)) ||
+       (opponentHasDragon(view) &&
+        !boardHas(view, "Lillie's Clefairy ex") &&
+        !handHas(view, "Lillie's Clefairy ex")) ||
        psychicEnergyCount(view) < 3)) return 820;
   if (hasName(name, 'Mysterious Treasure') && hasDiscardableHand(view, 1) &&
       (opponentHasRegidrago(view) ||
@@ -1336,6 +1409,19 @@ function canUseUnderworldDoor(view, item) {
       slot && slot.printed?.types?.includes('Psychic'));
 }
 
+function canUseStarAlchemy(view, item, receipt) {
+  const metadata = item.publicMetadata ?? {};
+  const source = abilitySourceSlot(view, item);
+  return metadata.abilityName === 'Star Alchemy' &&
+    source !== null &&
+    (!item.actorPrinting || item.actorPrinting === source.printing) &&
+    (source.tools ?? []).some(tool => hasName(tool, 'Forest Seal Stone')) &&
+    view.ownTurnResources.vstarUsed !== true &&
+    view.ownPublic.publicTurnRestrictions?.vstarUsed !== true &&
+    !hasStarAlchemyLock(view, source) &&
+    hasStarAlchemyBottleneck(view, receipt);
+}
+
 function chooseRoot(view, request) {
   const items = request.actionFrontier.items.filter(item =>
     ['play-card', 'attack', 'retreat', 'use-ability', 'use-stadium', 'pass'].includes(item.kind));
@@ -1380,19 +1466,24 @@ function chooseRoot(view, request) {
     item.publicMetadata?.abilityName === 'Resetting Hole' &&
     hasStadiumRemovalTarget(view));
   const underworldDoor = abilities.find(item => canUseUnderworldDoor(view, item));
-  const usefulAbility = resettingHole ?? underworldDoor;
+  const starAlchemy = abilities.find(item =>
+    canUseStarAlchemy(view, item, request.publicEventReceipt));
+  const usefulAbility = resettingHole ?? underworldDoor ?? starAlchemy;
   for (const item of abilities) {
     if (usefulAbility && item.token === usefulAbility.token) {
-      recordPolicyAuditRule(item.token, usefulAbility === resettingHole
-        ? 'RESETTING_HOLE_STADIUM_REMOVAL'
-        : 'UNDERWORLD_DOOR_OWNER_ENERGY_SETUP');
+      recordPolicyAuditRule(item.token,
+        usefulAbility === resettingHole ? 'RESETTING_HOLE_STADIUM_REMOVAL' :
+          usefulAbility === underworldDoor ? 'UNDERWORLD_DOOR_OWNER_ENERGY_SETUP' :
+            'STAR_ALCHEMY_GENUINE_BOTTLENECK');
     } else {
       recordPolicyAuditUnscored(item.token, 'UNSUPPORTED_ABILITY_BRANCH');
     }
   }
   if (usefulAbility) {
     setPolicyAuditRule(usefulAbility === resettingHole
-      ? 'ROOT_RESETTING_HOLE_RULE' : 'ROOT_UNDERWORLD_DOOR_RULE', 'FIRST_FRONTIER_MATCH');
+      ? 'ROOT_RESETTING_HOLE_RULE' :
+        usefulAbility === underworldDoor ? 'ROOT_UNDERWORLD_DOOR_RULE' :
+          'ROOT_STAR_ALCHEMY_RULE', 'FIRST_FRONTIER_MATCH');
     return { kind: 'select-action', token: usefulAbility.token };
   }
 
