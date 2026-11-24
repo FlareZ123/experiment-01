@@ -457,9 +457,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
   };
   const nativeGameMessageValues=new Set(
     native?.GameMessage&&typeof native.GameMessage==='object'?
-      Object.values(native.GameMessage).filter(value=>
-        typeof value==='string'&&/^[A-Z0-9_]{1,128}$/.test(value)
-      ):[]);
+      Object.values(native.GameMessage).filter(value=>typeof value==='string'&&value.length<=256):[]);
   const redactError=error=>{
     const message=String(error?.message??error??'native fixture failure');
     const isNativeGameError=typeof native?.GameError==='function'&&
