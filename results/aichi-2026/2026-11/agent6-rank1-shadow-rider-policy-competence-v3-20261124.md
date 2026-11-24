@@ -6,7 +6,7 @@
 **Tested source revision:** `a5ba464b92092a033f015fcea79af8497b90151c`  
 **Policy blob:** `0c8573581232a88a9c6b36d6040d622d0b3abe30`  
 **Test blob:** `b39132ba87fca35c8238f3fe95e11fdbcb7cf61d`  
-**Contract-only acceptance:** [run 45416861911](https://github.com/FlareZ123/experiment-01/actions/runs/45416861911)  
+**Contract-only acceptance:** [run 45416861911](https://github.com/FlareZ123/experiment-01/actions/runs/45416861911) on the source commit and [run 45418790071](https://github.com/FlareZ123/experiment-01/actions/runs/45418790071) on the current-main-based review branch  
 **Working branch:** `agent6/rank1-policy-v3-implementation-20261124`
 
 This continues the earlier [rank-1 policy prototype](../../methodology/2026-11/agent6-rank1-shadow-rider-opponent-policy-prototype.md) and supersedes the initial v3 contract-only report. The published rank-1 60-card reference list is unchanged. No candidate deck, matchup result, or win-rate claim is produced by this work.
@@ -53,7 +53,7 @@ These decisions are prompt-contract heuristics. The current evidence does not sh
 
 ## Contract evidence
 
-Run [45416861911](https://github.com/FlareZ123/experiment-01/actions/runs/45416861911) passed on the exact tested source revision `a5ba464b92092a033f015fcea79af8497b90151c`.
+Runs [45416861911](https://github.com/FlareZ123/experiment-01/actions/runs/45416861911) and [45418790071](https://github.com/FlareZ123/experiment-01/actions/runs/45418790071) both passed. The first ran on exact source revision `a5ba464b92092a033f015fcea79af8497b90151c`; the second ran on review-branch head `b5551c34bcf7ea86707223e8d574b32ac12edb52`, with the same policy and test blobs, after porting onto the latest main baseline.
 
 - The rank-1 policy regression file contains **103 tests** and was included in the contract suite.
 - The workflow's pure policy/prompt/worker/action-frontier contract step passed.
