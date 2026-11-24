@@ -36,6 +36,8 @@ All **9/9 authenticated Regidrago lists** (ranks 10, 12, 13, 14, 18, 20, 21, 27,
 
 Seven of those nine Regidrago lists also contain Battle Compressor, providing another way to put Guzma into the discard pile for VS Seeker.
 
+Across the full 29-list field, 23/29 contain both Guzma and VS Seeker, 14/29 contain Guzma + VS Seeker + Battle Compressor, and 10/29 contain Latias ex + Guzma + VS Seeker + Double Dragon Energy (the 9 Regidrago lists plus rank 19 Raging Bolt). These intersections show package prevalence, not a guaranteed playable hand.
+
 Ranks 23 and 28 are also source-confirmed Regidrago archetypes, but their original 60-card lists remain unauthenticated. Do not impute these counts to the missing lists.
 
 This matters in two distinct ways:
