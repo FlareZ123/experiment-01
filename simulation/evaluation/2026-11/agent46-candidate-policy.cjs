@@ -454,6 +454,24 @@ function resolveAbilityLockSources(view) {
   return { active, unknown: false };
 }
 
+function effectiveAbilityStatus(slot, abilityName, seat, view) {
+  const direct = abilityStatus(slot, abilityName);
+  if (direct !== null) return direct;
+
+  const stadiumSuppression = abilityLockSourceStadiumSuppression({ slot }, view);
+  if (stadiumSuppression === true) return false;
+  if (stadiumSuppression === null) return null;
+
+  const resolution = resolveAbilityLockSources(view);
+  let unknown = resolution.unknown;
+  for (const source of resolution.active) {
+    const suppresses = abilityLockSourceSuppressesTarget(source, seat, slot, view);
+    if (suppresses === true) return false;
+    if (suppresses === null) unknown = true;
+  }
+  return unknown ? null : true;
+}
+
 function fairyZoneHolderStatus(view, holderSeat, holder) {
   const direct = abilityStatus(holder, 'Fairy Zone');
   if (direct !== null) return direct;
@@ -1946,9 +1964,9 @@ function hasActiveStealthyHoodThreat(view) {
       source.tools.some(tool => hasName(tool, 'Tool Jammer'))) return false;
 
   const flutterMane = hasName(source?.printing, 'Flutter Mane') &&
-    abilityMayBeActive(source, 'Midnight Fluttering');
+    effectiveAbilityStatus(source, 'Midnight Fluttering', 'opponent', view) === true;
   const snorlaxBlock = hasName(source?.printing, 'Snorlax PGO 55') &&
-    abilityMayBeActive(source, 'Block');
+    effectiveAbilityStatus(source, 'Block', 'opponent', view) === true;
   return flutterMane || snorlaxBlock;
 }
 
