@@ -67,6 +67,16 @@ The same source inventory records Klefki SVI 96 in ranks 4 and 17. These are car
 
 **Focused correction:** recognize Active Klefki with its Active-only scope; recognize both Garbodor LTR 68 and BKP 57 while preserving the attached-Tool requirement. Add tests for Klefki Active versus Benched, and for Tool-attached LTR/BKP Garbodor versus no-Tool cases.
 
+## Finding 5 — Fairy Zone target detection ignores benched Dragon Pokémon
+
+**Confidence: high; directly follows from the printed Ability text and current helper.**
+
+`hasDragonActive()` (around line 453) checks only `opponentPublic.active.printed.types`. The policy uses it both to search for Lillie's Clefairy ex and to give its root play positive score. But Lillie's Clefairy ex JTG 56 says Fairy Zone changes the Weakness of **each** opposing Dragon Pokémon `in play`; this includes the opponent's Bench, not only its Active Pokémon.
+
+This is relevant to the current leading Hood Shield Shadow Rider candidate: its fixed 60 contains one Dialga-GX UPR 100, whose printing is Dragon type. If the candidate has Dialga-GX on the Bench while a non-Dragon Pokémon is Active, the rank-1 policy's `hasDragonActive()` returns false and it will neither search for nor play Clefairy, even though Fairy Zone would apply to the benched Dialga and remain relevant if it is promoted. The current tests cover only an opposing Dragon Active; there is no bench-only Dragon case.
+
+**Focused correction:** replace the Active-only predicate with an opponent-board predicate (Active plus all occupied Bench slots), e.g. the existing candidate-v2 `opponentHasDragon(view)` pattern, which checks `opponentBoard(view).some(slot => slot.printed.types.includes('Dragon'))`. Add a negative case with no Dragon in play and a positive case with a benched Dragon plus a non-Dragon Active.
+
 ## Evidence qualification — Ability suppression status is not currently observed as resolved
 
 `simulation/twinleaf/actor-observation-contract.cjs` initializes each visible Ability suppression row as `suppressed: null`, `reasonCode: null`, `sourcePrinting: null`, explicitly marking the status unknown. The v3 runner binds this contract directly as `observe: actorObservation`. The policy's `abilityIsSuppressed()` treats only an explicit `true` as suppressed, so a visible Wobbuffet / Iron Thorns / Garbodor is conservatively presumed live when the observation's suppression status is null.
@@ -79,8 +89,9 @@ That conservative choice can be reasonable for declining a risky Gate, but the r
 2. Silent Lab in play suppresses Radiant Eternatus Gate; the same Stadium is not treated as effective when the pinned global Stadium/Tool suppression epoch is active.
 3. Path to the Peak with only the opponent epoch positive does not suppress Gate; unknown epoch remains fail-closed.
 4. Active Klefki suppresses Gate; Benched Klefki does not; Tool-attached Garbodor LTR 68 and BKP 57 suppress Gate, while no-Tool copies do not.
-5. Existing Active-only Wobbuffet / Iron Thorns cases remain intact.
-6. Re-run contract tests against the exact current policy/test blobs; do not treat the older 8e2c receipt as evidence for later blobs.
+5. Fairy Zone search/play triggers for a Dragon on the opponent's Bench with a non-Dragon Active.
+6. Existing Active-only Wobbuffet / Iron Thorns cases remain intact.
+7. Re-run contract tests against the exact current policy/test blobs; do not treat the older 8e2c receipt as evidence for later blobs.
 
 **Disposition:** send these focused corrections to the policy owner before treating v3 as an independently reviewed Aichi opponent policy. No decklist change or competitive win-rate conclusion follows from this review.
 
