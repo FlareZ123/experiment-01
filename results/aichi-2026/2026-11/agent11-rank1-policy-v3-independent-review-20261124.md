@@ -52,6 +52,8 @@ The actor-observation contract exposes `specialConditions`, but `opponentCanRetr
 
 **Required correction:** gate the public retreat path on the pinned engine's normalized Asleep / Paralyzed values, and add one regression for each. Keep switching effects as a separate uncertainty; this finding concerns the ordinary Retreat action.
 
+**Aichi retreat-modifier cross-check:** the 29 authenticated lists contain Float Stone in 12 lists (recognized by the current policy), U-Turn Board UNM 211 in ranks 4 and 17 (not recognized), and Snorlax PGO 55 Block in ranks 3 and 7. Snorlax Block prevents the *opponent's* Active Pokémon from retreating while Snorlax is Active; it does not prevent Snorlax itself from retreating, so it is not an escape reducer for a Pale Moon target that is Snorlax. The policy's public cannot-retreat flag is available for restrictions applied to the target, but native projection still needs evidence. Air Balloon is supported by the policy but does not appear in these 29 lists.
+
 ### 3. Underworld Door's Girafarig target score ignores a suppressed Dimension Valley
 
 The Girafarig LOT 94 branch in `scorePokemonChoice()` checks only whether a Dimension Valley printing is present. Girafarig's Get Lost costs [C], so Dimension Valley reduces it to zero only while the Stadium effect is live. The policy already has `toolEffectsStatus()`; it should require that status to be exactly live before treating Dimension Valley as active for the Girafarig target score.
