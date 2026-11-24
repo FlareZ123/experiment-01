@@ -2288,7 +2288,10 @@ test('Climactic Gate confirmation is source-bound and probability-conditioned', 
       { token: 'no', kind: 'confirm', label: 'No' }
     ],
     publicMetadata: { selectionType: 'confirm' },
-    observation: { ownPublic: player(observationOptions) }
+    observation: { ownPublic: player({
+      bench: [pokemon('Radiant Eternatus CRZ 105')],
+      ...observationOptions
+    }) }
   });
   const yes = confirm(actorChoiceSource('Radiant Eternatus CRZ 105', 'Climactic Gate'),
     { deckCount: 30, prizeCount: 6 });
@@ -2359,7 +2362,10 @@ test('Climactic Gate accepts up to two actor-visible VMAX choices from the deck 
       isSecret: false,
       selectionType: 'pokemon'
     },
-    observation: { ownPublic: player({ deckCount: 30, prizeCount: 6 }) }
+    observation: { ownPublic: player({
+      bench: [pokemon('Radiant Eternatus CRZ 105')],
+      deckCount: 30, prizeCount: 6
+    }) }
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-choices', tokens: ['vmax']
@@ -2384,7 +2390,10 @@ test('Climactic Gate declines a source-mismatched ChoosePokemonPrompt', () => {
       isSecret: false,
       selectionType: 'pokemon'
     },
-    observation: { ownPublic: player({ deckCount: 30, prizeCount: 6 }) }
+    observation: { ownPublic: player({
+      bench: [pokemon('Radiant Eternatus CRZ 105')],
+      deckCount: 30, prizeCount: 6
+    }) }
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'abstain', reasonCode: 'UNSUPPORTED_CLIMACTIC_GATE_SOURCE'
@@ -2418,9 +2427,68 @@ test('rank-1 core actions are actor-relative and work from physical seat one', (
       { token: 'no', kind: 'confirm', label: 'No' }
     ],
     publicMetadata: { selectionType: 'confirm' },
-    observation: { ownPublic: player({ deckCount: 30, prizeCount: 6 }) }
+    observation: { ownPublic: player({
+      bench: [pokemon('Radiant Eternatus CRZ 105')],
+      deckCount: 30, prizeCount: 6
+    }) }
   });
   assert.deepEqual(checkedDecision(prompt, 1), {
     kind: 'select-choice', token: 'yes'
+  });
+});
+
+
+test('Radiant Eternatus is not played when its Bench slot would leave no VMAX slot', () => {
+  const request = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94'),
+      bench: [
+        pokemon('Mimikyu GRI 58'),
+        pokemon('Tapu Lele-GX GRI 60'),
+        pokemon('Shadow Rider Calyrex V CRE 74'),
+        pokemon('Trevenant & Dusknoir-GX SMP SM217'),
+        null
+      ],
+      deckCount: 30, prizeCount: 6
+    }),
+    items: [
+      { token: 'radiant', kind: 'play-card',
+        actorPrinting: 'Radiant Eternatus CRZ 105',
+        publicMetadata: { cardType: 'pokemon', handIndex: 0,
+          targetSeat: 'actor', targetZone: 'bench', targetIndex: 4,
+          isOwnerVisible: true } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action', token: 'pass'
+  });
+});
+
+test('face-up VMAX prizes are excluded from the hidden prize pool in the Gate estimate', () => {
+  const request = promptRequest({
+    promptType: 'ConfirmPrompt',
+    source: actorChoiceSource('Radiant Eternatus CRZ 105', 'Climactic Gate'),
+    choices: [
+      { token: 'yes', kind: 'confirm', label: 'Yes' },
+      { token: 'no', kind: 'confirm', label: 'No' }
+    ],
+    publicMetadata: { selectionType: 'confirm' },
+    observation: {
+      ownPublic: player({
+        bench: [pokemon('Radiant Eternatus CRZ 105')],
+        deckCount: 1, prizeCount: 6,
+        prizeSlots: [{ index: 0, printing: 'Shadow Rider Calyrex VMAX CRE 75' }],
+        discard: [
+          'Shadow Rider Calyrex VMAX CRE 75',
+          'Shadow Rider Calyrex VMAX CRE 75',
+          'Shadow Rider Calyrex VMAX CRE 75'
+        ]
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice', token: 'no'
   });
 });
