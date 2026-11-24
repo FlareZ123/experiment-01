@@ -345,7 +345,7 @@ function validatePromptMetadata(value, requireSelectionType = false) {
   for (const key of ['isPublic', 'isOwnerVisible', 'allowCancel', 'isSecret', 'eligible']) {
     if (value[key] !== undefined && typeof value[key] !== 'boolean') fail('BAD_PROMPT_METADATA');
   }
-  for (const key of ['selectionIndex', 'choiceIndex']) {
+  for (const key of ['selectionIndex', 'choiceIndex', 'benchIndex', 'slotIndex']) {
     if (value[key] !== undefined &&
         (!Number.isSafeInteger(value[key]) || value[key] < 0 || value[key] >= LIMITS.maxArrayItems)) {
       fail('BAD_PROMPT_METADATA');
