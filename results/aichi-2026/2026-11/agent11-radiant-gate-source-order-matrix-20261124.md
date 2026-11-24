@@ -36,6 +36,10 @@ The source list is not an OR of printed card names. A source only blocks Gate if
 7. **Unknown information:** missing source order, missing Tool state, or unknown Stadium/Tool epoch must remain explicitly unknown/fail-closed; do not silently equate presence with effective lock.
 8. **Rule Box classification:** the generic Rule Box predicate used for Iron Thorns / Path must recognize Radiant Pokémon. The current candidate worker's `isRuleBoxPokemon()` helper does not include the Radiant subtype.
 
+## Native activation-order field prerequisite
+
+The main-branch `simulation/twinleaf/actor-observation-contract.cjs` only copies `pokemon.abilityLockActivationOrder` when the native object already has a safe integer; otherwise it emits null. A repository-wide search found no research-owned writer. Before relying on v4, verify against the pinned Twinleaf revision that the native property exists and is updated when an Ability source becomes effective, including when a Benched Pokémon enters the Active Spot. The candidate policy's synthetic non-null test values do not prove this. If the native property is absent or tracks only initial play rather than Ability activation/Active entry, add a research-side hook/tracker and a native observation regression; do not modify upstream Twinleaf.
+
 ## Implementation direction
 
 Use one source-attributed resolver for the target Radiant Ability, not `hasRadiantGateLock()` as a collection of independent boolean presence checks. It must account for:
