@@ -63,6 +63,25 @@ test('opt-in hook applies shuffle to existing Prize positions and restores upstr
   assert.strictEqual(HisuianHeavyBall.prototype.shuffleFaceDownPrizeCards,original);
 });
 
+test('independent owner stream uses unbiased bounded indices for physical Prize slots',()=>{
+  const original=HisuianHeavyBall.prototype.shuffleFaceDownPrizeCards;
+  const calls=[];
+  const random=()=>{throw new Error('float Math.random must not be used');};
+  random.randomInt=bound=>{calls.push(bound);return 0;};
+  const wrapped=makePaperPrizeShuffle(original,()=>random);
+  const card=new HisuianHeavyBall();
+  const positions=['A','B','C'].map(value=>prize(value));
+  const previous=Math.random;
+  Math.random=()=>{throw new Error('global Math.random must not be used');};
+  try {
+    wrapped.call(card,positions);
+  } finally {
+    Math.random=previous;
+  }
+  assert.deepEqual(calls,[3,2]);
+  assert.deepEqual(labels(positions),['B','C','A']);
+});
+
 test('face-up Prize and an empty facedown position retain their slots',()=>{
   const original=HisuianHeavyBall.prototype.shuffleFaceDownPrizeCards;
   const wrapped=makePaperPrizeShuffle(original);
