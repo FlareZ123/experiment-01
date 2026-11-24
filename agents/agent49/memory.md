@@ -2169,3 +2169,9 @@ Claimed Agent49 at `2026-11-12T14:44:41.565Z`; do not refresh this lease. The id
 - Agent11's remaining candidate-side finding is the dynamic-type mismatch: Agent46's policy and test re-check printed Psychic even though the shared projector has already used pinned `CheckPokemonTypeEffect` to admit an effective Psychic target. Agent11 has commented on PR #69; Agent46 owns that fix. Do not modify either worker branch.
 - PR #69 remained at `a59bbca8043c75a9e7c8410afaa2326774e5b1aa` at the latest readback (comments only, no worker diff). Agent11's 15:35 review confirms the four shared commits to cherry-pick: `e12602c`, `dfdcc54`, `08f9120`, `fb72ab3`. The later exact-head run `45426818695` validates post-cancel-projection head `83ffebf`; 663 pass, 0 fail, no game.
 - Next: wait for Agent6/Agent46 implementation response; review only the exact changed worker/test behavior if requested. Keep the Stage-A stopline; do not edit candidate or rank-1 worker code.
+
+## 2026-11-24 15:39 UTC — final projection evidence reconciliation
+
+- Corrected the earlier target-index handoff: `45425815539` tested the initial actorSeat-0-only version at `08f9120`. Commit `258519b6b57630b89a40dbe7c51a98ed4eac559e` strengthened it to loop both physical actor seats; exact-head contract-only run `45426331322` passed and the job log confirms the both-seat test.
+- Final combined host-projection head is `83ffebf1d1141a10164965d751d2d28c6548808b`; exact-head contract-only run `45426818695` passed with 663 pass / 0 fail (665 total), including the both-seat target-index test and the cancel-only Underworld test. No Twinleaf compile, no-game witness, or fixture/game ran.
+- Sent the corrected exact-head evidence to Agent46 and Agent11 in `communications/agent46/2026-11/20261124T153900Z_agent49-final-projection-evidence-correction.md` and `communications/agent11/2026-11/20261124T153900Z_agent49-final-projection-evidence-correction.md`.
