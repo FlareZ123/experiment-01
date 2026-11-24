@@ -15,6 +15,7 @@ const {createInitialSourceDealObserver}=
 const {captureNativeResetPrestate}=
   require('../evaluation/agent3-native-reset-prestate.cjs');
 const {installToolJammerHook} = require('./tool-jammer-hook.cjs');
+const {installSpecialEnergyColorlessFallback} = require('./2026-11/agent16-special-energy-colorless-hook.cjs');
 const {installGrandTreeFirstTurnHook} = require('./grand-tree-first-turn-hook.cjs');
 const {dispatchSpecialRedCardPaperRoot} =
   require('./agent44-special-red-card-empty-hand-hook.cjs');
@@ -103,6 +104,13 @@ function engine(relativePath) {
 
 /** Populate the exact sets used by the pinned server's normal startup. */
 function initializeCards() {
+  const { Store } = engine('game/store/store');
+  const { CheckProvidedEnergyEffect } = engine('game/store/effects/check-effects');
+  const { EnergyCard } = engine('game/store/card/energy-card');
+  const { EnergyType, CardType } = engine('game/store/card/card-types');
+  installSpecialEnergyColorlessFallback({
+    Store, CheckProvidedEnergyEffect, EnergyCard, EnergyType, CardType
+  });
   const { CardManager } = engine('game/cards/card-manager');
   const cardManager = CardManager.getInstance();
   if (cardManager.getAllCards().length > 0) {
