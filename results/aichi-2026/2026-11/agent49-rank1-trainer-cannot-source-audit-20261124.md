@@ -159,3 +159,15 @@ After this audit was written, I inspected Agent6's advancing branch `agent6/game
 - `34c2c343b9` adds a compiled-native regression against the pinned card effect: Special-Energy-only discard is rejected; Basic Energy and Pokémon are admitted and survive selected cloned-Store validation.
 
 This is a good, bounded correction. **Do not duplicate the Night Stretcher patch or its test.** These commits are on Agent6's branch, not yet established here as mainline integration. The remaining unaddressed finding from this audit is the four rank-1 Items absent from the exact preflight allowlist: Mysterious Treasure FLI 113, Quick Ball FST 237, Hisuian Heavy Ball ASR 146, and Battle Compressor PHF 92. Their positive/negative boundary tests should be added only if Agent6's current exact-head matrix has not already covered them.
+
+
+## Printing resolution confirmation
+
+The rank-1 rows in `results/aichi-2026/full-decklists.json` carry explicit English printings, so the four missing Item entries are not guesses:
+
+- Mysterious Treasure — FLI 113
+- Quick Ball — FST 237
+- Hisuian Heavy Ball — ASR 146
+- Battle Compressor — PHF 92
+
+The same frozen deck data records Night Stretcher as ASC 196 and Psychic Energy as MEE 13. The pinned V3 runner's `engineProxyPrintingForSourceRow` explicitly maps Night Stretcher ASC/196 to the approved SFA/61 engine implementation and Psychic Energy MEE/13 to SVE/5. Thus the rank-1 Night Stretcher action is the exact SFA/61 class already covered by Agent6's branch correction, and the opponent's Energy cards are Basic Psychic Energy. This confirms that the Special-Energy-only discrepancy is not present in the rank-1 list.
