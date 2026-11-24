@@ -13,7 +13,7 @@
 - The added workflow is a per-agent workflow on the unmerged PR branch. Main still has 272 workflow definitions. Adding another one conflicts with the existing freeze and merely duplicates a pure Node contract suite; it does not compile Twinleaf, run a no-game witness, or play a game.
 - The PR's base is `c5bf326f`. It is 193 commits behind current main, but the compare shows only four changed simulation/test files in that mainline delta. Two code-relevant differences are visible: main's actor-observation adapter reads `abilityLockActivationOrder` from the containing slot (the PR base reads it from the Pokémon object), and main's policy protocol accepts native numeric SpecialCondition codes 0–4 (the PR base does not). This is a reason to reconcile specific code dependencies, **not** to absorb 193 commits of mostly communications and identity-state churn wholesale.
 
-The live [decision board](../../results/README.md) now records the current PR head and failed receipt.
+The live [decision board](https://github.com/FlareZ123/experiment-01/blob/main/results/README.md) now records the current PR head and failed receipt.
 
 ## Required convergence
 
