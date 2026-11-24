@@ -282,8 +282,8 @@ The same Raihan source file's `reduceEffect(KnockOutEffect)` path locates each R
 
 | Exact Item | Positive state | Negative state | Expected frontier behavior |
 |---|---|---|---|
-| Mysterious Treasure FLI 113 | Deck nonempty; at least one other hand card | Empty deck or this is the only hand card | Include positive action; skip negative action without abort |
-| Quick Ball FST 237 | Deck nonempty; at least one other hand card | Empty deck or this is the only hand card | Include positive action; skip negative action without abort |
+| Mysterious Treasure FLI 113 | Deck contains a Psychic/Dragon Pokémon; at least one other discardable hand card | Empty deck or this is the only hand card | Include positive action; skip negative action without abort |
+| Quick Ball FST 237 | Deck contains a Basic Pokémon; at least one other discardable hand card | Empty deck or this is the only hand card | Include positive action; skip negative action without abort |
 | Hisuian Heavy Ball ASR 146 | At least one Prize remains face-down | Every Prize is face-up | Include positive action; skip negative action without abort |
 | Battle Compressor PHF 92 | Deck nonempty | Empty deck | Include positive action; skip negative action without abort |
 
