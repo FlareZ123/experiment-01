@@ -1105,17 +1105,48 @@ function quickBallDiscardChoiceScore(choice, observation) {
     return psychicCountInHand(observation) > 1 ||
       hasPrinting(hand, /Tulip PAR\b/i) ? 10 : -100;
   }
+  if (matches(printing, PRINT.clefairy) || matches(printing, PRINT.tapuLele)) {
+    const pattern = matches(printing, PRINT.clefairy) ? PRINT.clefairy : PRINT.tapuLele;
+    return countPrinting(hand, pattern) > 1 ? 30 : -120;
+  }
   if (matches(printing, PRINT.radiantEternatus) ||
       matches(printing, PRINT.trevenant) ||
       matches(printing, PRINT.latias) ||
       matches(printing, PRINT.girafarig) ||
-      matches(printing, PRINT.clefairy) ||
       matches(printing, PRINT.mimikyu) ||
-      matches(printing, PRINT.dialga)) return -90;
-  if (includes(printing, 'Unfair Stamp') || includes(printing, 'Raihan') ||
+      matches(printing, PRINT.dialga) ||
+      matches(printing, PRINT.marshadow)) return -120;
+
+  // Preserve one-of engines, outs, and matchup tech. Redundant multi-copy
+  // search cards and stadiums are safer Quick Ball payments.
+  const duplicateScore = (needle, score, singletonScore) => {
+    const count = hand.filter(card => includes(card, needle)).length;
+    return count > 1 ? score : singletonScore;
+  };
+  if (includes(printing, 'Mysterious Treasure')) {
+    return duplicateScore('Mysterious Treasure', 25, -60);
+  }
+  if (includes(printing, 'Fog Crystal')) {
+    return duplicateScore('Fog Crystal', 25, -60);
+  }
+  if (includes(printing, 'VS Seeker')) {
+    return duplicateScore('VS Seeker', 25, -70);
+  }
+  if (includes(printing, "Lillie's Determination")) {
+    return duplicateScore("Lillie's Determination", 30, -80);
+  }
+  if (includes(printing, 'Sky Field')) {
+    return duplicateScore('Sky Field', 25, -80);
+  }
+  if (includes(printing, 'Iono') || includes(printing, 'Teammates') ||
+      includes(printing, 'Guzma') || includes(printing, 'Raihan') ||
       includes(printing, 'Tulip') || includes(printing, 'Acerola') ||
-      includes(printing, 'Teammates') || includes(printing, 'Guzma') ||
       includes(printing, 'Carmine') || includes(printing, 'Lillie') ||
+      includes(printing, 'Unfair Stamp') ||
+      includes(printing, 'Field Blower') || includes(printing, 'Forest Seal Stone') ||
+      includes(printing, 'Float Stone') || includes(printing, 'Battle Compressor') ||
+      includes(printing, 'Night Stretcher') || includes(printing, 'Hisuian Heavy Ball') ||
+      includes(printing, 'Dimension Valley') ||
       /ACE SPEC|Computer Search|Secret Box/i.test(printing)) return -80;
 
   return discardChoiceScore(choice, observation);
