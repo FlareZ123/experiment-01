@@ -1,32 +1,35 @@
-# Fairy Zone / Max Geist one-hit-KO breakpoints against Aichi Dragon targets
+# Fairy Zone / Max Geist one-hit-KO breakpoints against Aichi Dragon-type targets
 
 **Date:** 24 November 2026  
 **Author:** Agent4  
-**Status:** exact card-pool arithmetic; no game or matchup evidence
+**Status:** corrected exact card-type arithmetic; no game or matchup evidence
+
+## Correction
+
+The preliminary version included Dialga-GX UPR 100 (Metal), Koraidon ex TEF 120 (Fighting), and Kyurem SFA 47 (Water) as Dragon targets based on species identity. Fairy Zone targets TCG Pokémon whose exact card `types` include Dragon. These three are excluded.
+
+The corrected field has **11 unique Dragon-type printings / 91 copies across 12 ranks**. Ten printings have no printed Weakness; Arceus & Dialga & Palkia-GX CEC 156 has Fairy ×2. None has Psychic Weakness. Fairy Zone therefore creates Psychic ×2 Weakness on all 11 printings, replacing Fairy ×2 on ADP-GX.
+
+The candidate's Dialga-GX UPR 100 is Metal and is not affected by Fairy Zone. The candidate does contain Radiant Eternatus CRZ 105 (Dragon, 170 HP, no printed Weakness), which can be affected by an opponent's Fairy Zone.
 
 ## Formula and scope
 
-Shadow Rider Calyrex VMAX CRE 75's Max Geist does 10 + 30 damage for each Psychic Energy attached to all of the attacker's Pokémon. The pinned Twinleaf card implementation at `vendor/twinleaf/ptcg-server/src/sets/09-sword-and-shield/set-chilling-reign/shadow-rider-calyrex-vmax.ts` matches that text.
+Shadow Rider Calyrex VMAX CRE 75's Max Geist does 10 + 30 damage for each Psychic Energy attached to all of the attacker's Pokémon. The pinned Twinleaf implementation at `vendor/twinleaf/ptcg-server/src/sets/09-sword-and-shield/set-chilling-reign/shadow-rider-calyrex-vmax.ts` matches that text.
 
 For (N) Psychic Energy across the attacker's board:
 
 - Without Fairy Zone: (D_0(N)=10+30N).
 - With active Fairy Zone against a Dragon target not protected by effective Stealthy Hood: (D_F(N)=2(10+30N)), because Fairy Zone changes the target's Weakness to Psychic.
 
-The exact 14 Dragon printings in the 13 authenticated Aichi lists were joined to `resources/cards/en/*.json` using `resources/sets/en.json`. None has printed Psychic Weakness: 12 have no printed Weakness, and Dialga-GX UPR 100 / Arceus & Dialga & Palkia-GX CEC 156 have Fairy ×2. Fairy Zone therefore creates a Psychic ×2 Weakness on every one of these printings.
+The exact 11 Dragon printings were joined against `resources/cards/en/*.json` through `resources/sets/en.json`. This analysis considers only printed Max Geist damage and Weakness; it does not model other damage modifiers.
 
 ## Energy breakpoints by Dragon printing
-
-The table gives the minimum total Psychic Energy on the attacker's board needed for a clean one-hit KO, considering only Max Geist's printed damage and Weakness.
 
 | Dragon target | HP | Printed Weakness | Psychic Energy without Fairy Zone | Psychic Energy with Fairy Zone |
 |---|---:|---|---:|---:|
 | Tatsugiri TWM 131 | 70 | None | 2 | 1 |
-| Kyurem SFA 47 | 130 | None | 4 | 2 |
 | Radiant Eternatus CRZ 105 | 170 | None | 6 | 3 |
-| Dialga-GX UPR 100 | 180 | Fairy ×2 | 6 | 3 |
 | Regidrago V SIT 135 | 220 | None | 7 | 4 |
-| Koraidon ex TEF 120 | 230 | None | 8 | 4 |
 | Raging Bolt ex TEF 123 | 240 | None | 8 | 4 |
 | Noivern ex PAL 153 | 260 | None | 9 | 4 |
 | Hisuian Goodra VSTAR LOR 136 | 270 | None | 9 | 5 |
@@ -40,31 +43,29 @@ The table gives the minimum total Psychic Energy on the attacker's board needed 
 
 | Psychic Energy on board | Max Geist without Fairy Zone | Max Geist with Fairy Zone | Dragon printings one-shot without / with Fairy Zone |
 |---:|---:|---:|---:|
-| 4 | 130 | 260 | 1 / 8 |
-| 5 | 160 | 320 | 2 / 13 |
-| 6 | 190 | 380 | 4 / 14 |
+| 4 | 130 | 260 | 1 / 5 |
+| 5 | 160 | 320 | 1 / 10 |
+| 6 | 190 | 380 | 2 / 11 |
 
-At five Psychic Energy, Fairy Zone changes Max Geist from 160 to 320 damage: the attack moves from one-shotting only Tatsugiri and Kyurem to one-shotting 13 of the 14 unique Dragon printings. At six Psychic Energy, all 14 are within the clean 380-damage threshold. This is a major strategic breakpoint, not a marginal bonus.
+At five Psychic Energy, Fairy Zone changes Max Geist from 160 to 320 damage: the attack moves from one-shotting only Tatsugiri to one-shotting 10 of the 11 unique Dragon printings. At six Psychic Energy, all 11 are within the clean 380-damage threshold. This remains a major strategic breakpoint, but the corrected target set is smaller than the preliminary estimate.
+
+## Candidate-deck context
+
+The current Hood Shield Shadow Rider v1 60 contains 11 Basic Psychic Energy and four Shadow Rider Calyrex VMAX (`results/decks/hood-shield-shadow-rider-v1-expanded-legal-60.md`). The five-energy breakpoint is 5/11 of the deck's entire Psychic Energy package, and Underworld Door can accelerate Psychic Energy to Psychic Pokémon. This makes the 320-damage / 10-of-11 Dragon one-shot threshold strategically plausible, but it is not a probability estimate or demonstrated setup rate.
+
+## Candidate's own Dragon target and opponent Fairy Zone
+
+The candidate's own Dragon-type Pokémon is Radiant Eternatus CRZ 105. Opponent Fairy Zone in Aichi ranks 1, 5, and 30 can change its Weakness to Psychic ×2. The candidate's Dialga-GX UPR 100 is Metal and is not affected. The candidate's own Fairy Zone can affect the opponent-side Radiant Eternatus in rank 1.
 
 ## Policy implications
 
-1. Accurate Fairy Zone status is essential to Max Geist attack selection and lethal estimation. A false negative can miss one-hit-KO lines across most of the Dragon field.
-2. The policy must use exact replacement semantics: Fairy Zone changes Weakness to Psychic; it does not stack Psychic Weakness with printed Fairy Weakness.
-3. The multiplier applies only when Fairy Zone is active and the target's Stealthy Hood is known ineffective or absent. Unknown target Tool status must not be treated as definitely disabled.
-4. Path to the Peak and Silent Lab suppress the Clefairy holder directly; Stealthy Hood on the holder does not bypass them. The prior lock-overlap cross-tab identifies 7/13 Dragon ranks with one or both.
-5. This arithmetic does not model damage reduction, healing, protection, damage counters, other attack modifiers, or actual board development. It is a threshold analysis, not evidence of matchup win rate.
+1. Accurate Fairy Zone status is essential to Max Geist attack selection and lethal estimation. A false negative can miss one-hit-KO lines across most of the corrected Dragon field.
+2. Use exact replacement semantics: Fairy Zone changes Weakness to Psychic; it does not stack Psychic Weakness with printed Fairy Weakness.
+3. Apply the multiplier only when Fairy Zone is active and the target's Stealthy Hood is absent or known ineffective. Unknown target Tool status must not be treated as definitely disabled.
+4. Path to the Peak and Silent Lab suppress the Clefairy holder directly; Stealthy Hood on the holder does not bypass them. The corrected lock-overlap report identifies 7/12 Dragon ranks with one or both.
+5. The opponent's Fairy Zone risk to this candidate concerns Radiant Eternatus, not Dialga-GX.
 
-## Reproduction
-
-For each exact Dragon printing, calculate:
-
-- `N_without = ceil((HP - 10) / 30)`
-- `N_with = ceil((HP / 2 - 10) / 30)`
-
-Use the exact HP and Weakness from the repository card JSON. The 13 ranks / 118 Dragon Pokémon copies are documented in `results/aichi-2026/2026-11/agent4-fairy-zone-dragon-weakness-value-20261124.md`.
-
-
-## Test-fixture audit against current PR #70
+## PR #70 fixture audit
 
 At PR #70 head `11de3acf0136de3585c54c3e2ee880d25b1892b4`:
 
@@ -74,7 +75,18 @@ At PR #70 head `11de3acf0136de3585c54c3e2ee880d25b1892b4`:
 
 These are synthetic fixture mismatches, not evidence that the policy's general formula is wrong. They were sent to Agent6 in `communications/agent6/2026-11/20261124T195046Z_agent4-pr70-fairy-zone-test-fixtures.md`.
 
+## Limitations
 
-## Candidate-deck context
+- Three Aichi lists (ranks 23, 25, 28) remain missing; their Dragon-type contents are unknown.
+- Decklist counts are not board-state counts; not every Dragon is expected to be in play simultaneously.
+- No games, matchup samples, policy competence, or win-rate claims are included.
+- This analysis does not change the fixed candidate deck or nominate a new list.
 
-The current Hood Shield Shadow Rider v1 60 contains 11 Basic Psychic Energy and four Shadow Rider Calyrex VMAX (`results/decks/hood-shield-shadow-rider-v1-expanded-legal-60.md`). The five-energy breakpoint is 5/11 of the deck's entire Psychic Energy package, and Underworld Door can accelerate Psychic Energy to Psychic Pokémon. This makes the 320-damage / 13-of-14 Dragon one-shot threshold strategically plausible, but this is only a deck-structure observation—not a probability estimate or demonstrated setup rate.
+## Reproduction
+
+For each exact Dragon printing, calculate:
+
+- `N_without = ceil((HP - 10) / 30)`
+- `N_with = ceil((HP / 2 - 10) / 30)`
+
+Use exact HP and Weakness from the repository card JSON. The corrected 12 ranks / 91 Dragon Pokémon copies are documented in `results/aichi-2026/2026-11/agent4-fairy-zone-dragon-weakness-value-20261124.md`.
