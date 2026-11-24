@@ -8,6 +8,19 @@ on:
         required: false
         type: boolean
         default: false
+  pull_request:
+    paths:
+      - '.github/workflows/aichi-japanese-promos-use.yml'
+      - 'results/aichi-2026/full-decklists.json'
+      - 'results/aichi-2026/field.csv'
+      - 'simulation/evaluation/aichi-pilot.cjs'
+      - 'simulation/evaluation/agent13-source-identity-gate.cjs'
+      - 'simulation/evaluation/aichi-campaign-runner.cjs'
+      - 'simulation/twinleaf/resolve-field.cjs'
+      - 'simulation/twinleaf/card-patches.cjs'
+      - 'simulation/twinleaf/headless.cjs'
+      - 'simulation/twinleaf/japanese-promos-source-probe.cjs'
+      - 'vendor/twinleafgg'
 
 permissions:
   contents: read
