@@ -252,3 +252,8 @@ The token path also does not reveal a likely collision for this single-actor fro
 - The builder deduplicates signatures, assigns a fresh sequential `act-N` token to each admitted action, and stores the matching native action in the per-frontier `actionByToken` map (lines 524–560). Selection retrieves from that same map (593–598).
 
 So a cross-seat or target-token collision is not supported by the current implementation. The remaining high-value boundary is whether the live state graph changed after frontier admission, followed by clone/global side effects if it did not.
+
+
+## Raihan marker nuance
+
+Raihan's native `canPlay` checks the KO marker with the specific Raihan card as its source argument, but the actual play effect's `CANNOT_PLAY_THIS_CARD` guard checks the marker name without a source argument. The effect therefore requires marker-name presence, nonempty deck, and Basic Energy in discard; it does **not** require that this exact Raihan copy be the marker source. The Store's post-dispatch playability recalculation may report this copy as not playable under the stricter source-specific predicate, but that recalculation catches per-card exceptions and the ActionEnumerator does not gate on `playableCardIds`. For the second-clone CANNOT question, compare marker-name presence first; source-card identity is a useful secondary diagnostic for the playability projection, not the effect's CANNOT guard.
