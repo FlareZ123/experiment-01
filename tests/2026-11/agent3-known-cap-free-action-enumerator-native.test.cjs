@@ -979,3 +979,113 @@ test('pinned Store rejects a GX attack after GX use and preserves a legal attack
     item.kind === 'attack' && item.attackName === 'Pale Moon-GX'), false);
   assert.equal(state.players[0].usedGX, true);
 });
+
+
+test('pinned Night Stretcher effect-target preflight rejects Special Energy-only discard and admits Basic Energy or Pokémon', {
+  skip: !fs.existsSync(compiledActionEnumerator),
+  timeout: 30000
+}, () => {
+  const enginePin=runner.V3_FIXTURE.engineCommit;
+  const native=runner.loadNativeRoleDependencies({enginePin});
+  const withValidationRandom=createValidationRandomScope({
+    ambientRandom:Math.random,
+    physicalRandom:seededRandom(0x61a7e129)
+  });
+  const manager=native.CardManager.getInstance();
+  let nextCardId=960000;
+  function cloneCard(fullName){
+    const card=manager.getCardByName(fullName);
+    assert.ok(card,'CardManager must resolve '+fullName);
+    card.id=nextCardId++;
+    return card;
+  }
+  const specialEnergyDefinition=manager.getAllCards().find(card=>
+    card instanceof native.EnergyCard&&card.energyType===native.EnergyType.SPECIAL);
+  const basicEnergyDefinition=manager.getAllCards().find(card=>
+    card instanceof native.EnergyCard&&card.energyType===native.EnergyType.BASIC);
+  const basicPokemonDefinition=manager.getAllCards().find(card=>
+    card instanceof native.PokemonCard&&card.stage===native.Stage.BASIC);
+  assert.ok(specialEnergyDefinition,'pinned pool must contain Special Energy');
+  assert.ok(basicEnergyDefinition,'pinned pool must contain Basic Energy');
+  assert.ok(basicPokemonDefinition,'pinned pool must contain Basic Pokémon');
+
+  function makePlayer(id){
+    const player=new native.Player();
+    player.id=id;
+    player.active=new native.PokemonCardList();
+    const active=cloneCard(basicPokemonDefinition.fullName);
+    player.active.cards=[active];
+    player.active.hp=active.hp;
+    player.active.damage=0;
+    player.active.energies.cards=[];
+    player.active.tools=[];
+    player.active.specialConditions=[];
+    player.bench=Array.from({length:5},()=>new native.PokemonCardList());
+    player.prizes=Array.from({length:6},()=>{
+      const prize=new native.CardList();
+      prize.cards=[cloneCard(basicPokemonDefinition.fullName)];
+      return prize;
+    });
+    player.deck.cards=Array.from({length:20},()=>cloneCard(basicPokemonDefinition.fullName));
+    player.hand.cards=[];
+    player.discard.cards=[];
+    player.playableCardIds=[];
+    player.playableHandAbilityCardIds=[];
+    player.canEvolve=false;
+    return player;
+  }
+  function makeState(discardDefinition){
+    const candidate=makePlayer(0);
+    const opponent=makePlayer(1);
+    const nightStretcher=cloneCard('Night Stretcher SFA');
+    candidate.hand.cards=[nightStretcher];
+    candidate.playableCardIds=[nightStretcher.id];
+    candidate.discard.cards=[cloneCard(discardDefinition.fullName)];
+    const initialState=new native.State();
+    initialState.players=[candidate,opponent];
+    initialState.activePlayer=0;
+    initialState.phase=native.GamePhase.PLAYER_TURN;
+    initialState.turn=17;
+    initialState.prompts=[];
+    initialState.gameSettings.format=native.Format.EXPANDED;
+    initialState.gameSettings.sandboxMode=false;
+    return withValidationRandom(()=>new native.Simulator(initialState)).store.state;
+  }
+  const enumeratorFor=state=>adapterModule.createKnownCapFreeActionEnumerator({native,enginePin});
+  function nightStretcherAction(state){
+    const player=state.players[0];
+    const enumerator=enumeratorFor(state);
+    const action=enumerator.playItemActions(state,player).find(candidate=>
+      player.hand.cards[candidate.handIndex]?.name==='Night Stretcher');
+    assert.ok(action,'pinned native enumerator must expose Night Stretcher under its broad canPlay predicate');
+    return action;
+  }
+
+  const specialState=makeState(specialEnergyDefinition);
+  const specialAction=nightStretcherAction(specialState);
+  const rawSpecialStore=withValidationRandom(()=>new native.Simulator(specialState)).store;
+  assert.throws(()=>withValidationRandom(()=>rawSpecialStore.dispatch(specialAction)),error=>
+    error instanceof native.GameError&&error.message===native.GameMessage.CANNOT_PLAY_THIS_CARD,
+    'pinned effect must reject Special Energy without a Pokémon or Basic Energy target');
+  const specialFrontier=withValidationRandom(()=>frontierModule.buildNativeActionFrontier({
+    state:specialState,actorSeat:0,native,enumerator:{enumerate:()=>[specialAction]}
+  }));
+  assert.equal(specialFrontier.diagnostics.preflightRejectedCount,1);
+  assert.equal(specialFrontier.actionFrontier.items.some(item=>item.kind==='play-card'),false,
+    'adapter preflight must filter the card before it reaches the policy');
+
+  for(const definition of [basicEnergyDefinition,basicPokemonDefinition]){
+    const state=makeState(definition);
+    const action=nightStretcherAction(state);
+    const frontier=withValidationRandom(()=>frontierModule.buildNativeActionFrontier({
+      state,actorSeat:0,native,enumerator:{enumerate:()=>[action]}
+    }));
+    const item=frontier.actionFrontier.items.find(row=>row.actorPrinting==='Night Stretcher SFA');
+    assert.ok(item,'Night Stretcher must be admitted with '+definition.fullName);
+    const selectedSimulator=withValidationRandom(()=>new native.Simulator(state));
+    frontierModule.dispatchSelectedNativeAction({
+      store:selectedSimulator.store,frontier,token:item.token,
+      state:selectedSimulator.store.state,actorSeat:0,native,withValidationRandom
+    });
+  }
+});
