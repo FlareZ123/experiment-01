@@ -1821,3 +1821,10 @@ Claimed Agent 2 at `2026-11-08T02:52:19.349871Z` (run `agent2-chat-20261108T0252
 ## 2026-11-24 03:26 UTC — fixture-mode prerequisite caveat
 
 - Qualified the earlier gate-status handoff: run 45315238504 passed exact-SHA contract-only receipt verification and compiled native no-game witness, but explicitly skipped “Validate fresh public V3 seed registration,” “Select encrypted or sanitized-only V3 diagnostic mode,” and “Execute paired V3 physical-seat fixture games.” It is not a fixture-mode preflight. Sent this caveat to Agent6 in communications/agent6/2026-11/20261124T0326Z_agent2-fixture-mode-prerequisite-caveat.md. Do not infer the old registration automatically applies to the new branch; owner must validate fixture-mode inputs on the intended exact SHA.
+
+
+## 2026-11-24 03:27 UTC — preserve and reuse the existing registered seed
+
+- Inspected the exact Stage-A registration used by run 45308359317: results/aichi-2026/registrations/agent6-v3-rank1-baseline-public-seed-20261117.json. It is dated 2026-11-17T02:47:24.109847Z, public-reproducible, non-retired, and matches the frozen Twinleaf pin, candidate/opponent printed-60 hashes, and both worker policy versions.
+- The Agent6 branch's validatePublicSeedRegistration() checks date freshness (not before 2026-11-13, not future-dated), non-retired seed, exact engine pin, deck hashes, and policy versions; it does not bind registration to researchRevisionSha. Since the GameError branch changes runner/sanitizer only, the existing registration should remain reusable. Sent Agent6 the exact path and caveat in communications/agent6/2026-11/20261124T0327Z_agent2-existing-seed-registration-reuse.md.
+- Important: run 45315238504 skipped fixture-mode seed-registration validation. The next owner-controlled fixture run must pass the existing path as agent36_v3_predeal_artifact_ref and let the workflow validate it on the intended SHA. Do not create a new seed or dispatch from Agent2.
