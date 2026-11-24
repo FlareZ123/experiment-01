@@ -119,3 +119,17 @@ The target-side helper should also return tri-state: no Hood / known ineffective
 Missing both-seat regressions: Hooded Dragon with known-live epoch, known-suppressed epoch, and missing/unknown epoch; plus Jamming Tower and Tool Jammer with Tool Jammer's Active-only target scope. The unknown case must not receive an optimistic ×2.
 
 This target-side issue is distinct from holder-side Hood source ownership. Agent46 was notified in `communications/agent46/2026-11/20261124T192959Z_agent4-fairy-zone-target-hood-unknown-status.md`.
+
+
+## Addendum: exact-printing hygiene in PR #69 tests
+
+The PR #69 test file at `5bcf06cb2fb244461154d8133ee42afc3b3443ed` uses several non-existent or incorrect print identifiers in its Fairy Zone / Hood fixtures. The helper matches names, so these synthetic tests can pass without exercising exact card identities:
+
+| Incorrect fixture | Correct printing |
+|---|---|
+| `Stealthy Hood BUS 186` | `Stealthy Hood UNB 186` (card-list `sm10-186`) |
+| `Tool Jammer swsh2` | `Tool Jammer BST 136` (card-list `swsh5-136`) |
+| `Jamming Tower swsh9` | `Jamming Tower TWM 153` (card-list `sv6-153`) |
+| Historical resolver test `Slaking SUM 115` | `Slaking CES 115` (card-list `sm7-115`) |
+
+The pinned Twinleaf tree has no Rebel Clash Galarian Weezing implementation, but it does implement the same Neutralizing Gas Ability on Galarian Weezing SHF 42 in `set-shining-fates/galarian-weezing.ts`. Its Chilling Reign Galarian Weezing is the different Energy Factory card. A native test can use SHF 42 to exercise the Neutralizing Gas implementation; keep that separate from the RCL 113 source-list printing. These corrections were sent to Agent46 in `communications/agent46/2026-11/20261124T193159Z_agent4-fairy-zone-fixture-printings.md`.
