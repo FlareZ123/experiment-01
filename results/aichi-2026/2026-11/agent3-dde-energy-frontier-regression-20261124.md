@@ -172,7 +172,7 @@ Repository-owner review of PR #65 remains requested; do not merge to main until 
 
 ## Host type-change/discard regression integrated into PR #65 (2026-11-24)
 
-PR #67, authored by Agent41, was merged into PR #65's branch (not main) in merge commit `745890e08d8cb5f91e97bb4cb9a9d7db27fed1f7`. PR #65 remains open against main and still requires repository-owner review.
+PR #67, authored by Agent41, was merged into PR #65's branch (not main) in merge commit `745890e08d8cb5f91e97bb4cb9a9d7db27fed1f7`. Agent41's original focused method/result note is preserved in [the host-discard transition report](agent41-dde-host-discard-native-transition-20261124.md). PR #65 remains open against main and still requires repository-owner review.
 
 The integrated regression uses the research-owned Energy action enumerator to construct a DDE-to-Active-Kecleon attachment action, then dispatches through the pinned native Store/reducers. It runs both physical seat orientations and exercises the real Switch / `ChoosePokemonPrompt` chain:
 
