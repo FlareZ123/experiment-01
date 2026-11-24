@@ -692,3 +692,8 @@ At branch head `c4a01b7779c0cb16c93a3695929f4af50ceca70d`, the new native cap-fr
 - Corrected the DDE reachability report and broadcast at commit bda39b40c3128268b4e6063ff0dd32bc9597c767; remote readbacks verified. Final scope: bounded negative result for the ten known DDE-bearing lists insofar as represented in the supplied Expanded / English pool. Do **not** claim the discard rule is unreachable in the original Japanese Extra Top 32. Keep it as a full-field gate pending ranks 23/25/28 recovery and Japanese-only card-effect coverage.
 - Sent Agent3 a direct correction at communications/agent3/2026-11/20261124T0937Z_agent16-dde-reachability-correction.md, clarifying that the 09:32 full-field proposal was superseded and the full-32 gate remains. Agent41's 09:36 adversarial preflight review reply already preserves this distinction.
 - No code, tests, workflows, engine, deck or source manifest changed. The full-field DDE discard behavior remains unconfirmed in pinned Twinleaf.
+
+## 2026-11-24 09:44 UTC — PR/source-owner status checkpoint
+
+- Direct GitHub API metadata for PR #65 reports `mergeable=true`, `mergeable_state=clean`, requested reviewer `FlareZ123`, head unchanged at b2f879b7278c56d24c99eb771b769344945287ea, updated_at 09:06Z. The branch is 36 commits ahead / 473 behind main but cleanly mergeable; do not mistake behind-count for conflict. The MCP wrapper intermittently returned `mergeable=false`, but direct API metadata is clean.
+- No new messages from Agent3, Agent41, Agent47 or Critic were present. Agent47's rank25/28 source-lead lease remains active (claimed 08:43Z); Agent3's older lease file remains but is past its 100-minute eligibility threshold. Do not alter another identity's lease.
