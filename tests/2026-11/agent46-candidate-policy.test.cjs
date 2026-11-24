@@ -212,33 +212,44 @@ function pokemonPrompt(seat, view, choices, effectName = 'Guzma', sourcePrinting
   const printing = sourcePrinting ??
     (effectName === 'Acerola' ? 'Acerola PRC 112' :
      effectName === 'Stealthy Hood' ? 'Stealthy Hood UNB 186' : 'Guzma BUS 115');
-  return request(seat, view, {
-    prompt: {
-      promptType: 'ChoosePokemonPrompt',
-      source: { sourcePrinting: printing, effectName },
-      choices: choices.map((row, index) => {
-        const ownerSeat = row.ownerSeat ?? 'actor';
-        const zone = row.zone ?? 'bench';
-        const targetIndex = Number.isSafeInteger(row.index) ? row.index : 0;
-        return {
-          token: row.token ?? `pokemon-${index}`,
-          kind: 'pokemon',
-          printing: row.printing,
-          label: row.label ?? row.printing,
-          publicMetadata: {
-            selectionIndex: index, selectedCount: 1, ownerSeat,
-            targetZone: zone, isOwnerVisible: true,
-            ...(zone === 'active' ? { slotIndex: 0 } : { benchIndex: targetIndex })
-          }
-        };
-      }),
-      publicMetadata: {
-        selectionType: 'pokemon', minimumCount: 1, maximumCount: 1,
-        allowCancel: false, isSecret: false,
-        targetZone: choices.some(row => row.zone === 'active') ? 'in-play' : 'bench'
-      }
+  const requestView = {
+    ...view, decisionKind: 'owner-prompt',
+    pendingPromptType: 'ChoosePokemonPrompt'
+  };
+  const prompt = {
+    schema: protocol.PROMPT_SCHEMA,
+    actingSeat: seat,
+    promptType: 'ChoosePokemonPrompt',
+    description: null,
+    source: {
+      classification: 'actor-choice',
+      sourceKind: 'card-effect',
+      sourcePrinting: printing,
+      effectName
+    },
+    choices: choices.map((row, index) => {
+      const ownerSeat = row.ownerSeat ?? 'actor';
+      const zone = row.zone ?? 'bench';
+      const targetIndex = Number.isSafeInteger(row.index) ? row.index : 0;
+      return {
+        token: row.token ?? `pokemon-${index}`,
+        kind: 'pokemon',
+        printing: row.printing,
+        label: row.label ?? row.printing,
+        publicMetadata: {
+          selectionIndex: index, selectedCount: 1, ownerSeat,
+          targetZone: zone, isOwnerVisible: true,
+          ...(zone === 'active' ? { slotIndex: 0 } : { benchIndex: targetIndex })
+        }
+      };
+    }),
+    publicMetadata: {
+      selectionType: 'pokemon', minimumCount: 1, maximumCount: 1,
+      allowCancel: false, isSecret: false,
+      targetZone: choices.some(row => row.zone === 'active') ? 'in-play' : 'bench'
     }
-  });
+  };
+  return request(seat, requestView, { prompt, actions: [] });
 }
 function priorKoReceipt(view) {
   const project = slot => slot === null ? null : ({
@@ -3962,24 +3973,12 @@ test('Field Blower prioritizes a Dragon Stealthy Hood that will block Fairy Zone
     bench: [clefairy], opponentActive: activeToolHolder, opponentBench: [dragon],
     opponentStadium: ['Silent Lab PRC 140']
   });
-  const pokemonPromptRequest = request(0, {
-    ...view, decisionKind: 'owner-prompt', pendingPromptType: 'ChoosePokemonPrompt'
-  }, {
-    prompt: {
-      promptType: 'ChoosePokemonPrompt',
-      source: { sourcePrinting: 'Field Blower BCR 125', effectName: 'Field Blower' },
-      choices: [
-        { token: 'active', kind: 'pokemon', printing: activeToolHolder.printing,
-          publicMetadata: { selectionIndex: 0, ownerSeat: 'opponent', targetZone: 'active',
-            slotIndex: 0, isOwnerVisible: true } },
-        { token: 'bench', kind: 'pokemon', printing: dragon.printing,
-          publicMetadata: { selectionIndex: 1, ownerSeat: 'opponent', targetZone: 'bench',
-            benchIndex: 0, isOwnerVisible: true } }
-      ],
-      publicMetadata: { selectionType: 'pokemon', minimumCount: 1, maximumCount: 1,
-        allowCancel: false, isSecret: false }
-    }
-  });
+  const pokemonPromptRequest = pokemonPrompt(0, view, [
+    { token: 'active', index: 0, zone: 'active', ownerSeat: 'opponent',
+      printing: activeToolHolder.printing, label: 'Sigilyph' },
+    { token: 'bench', index: 0, zone: 'bench', ownerSeat: 'opponent',
+      printing: dragon.printing, label: 'Regidrago VSTAR' }
+  ], 'Field Blower', 'Field Blower BCR 125');
   assert.deepEqual(evaluate(pokemonPromptRequest), { kind: 'select-choices', tokens: ['bench'] });
   const toolPrompt = cardPrompt(0, view, {
     sourcePrinting: 'Field Blower BCR 125', effectName: 'Field Blower',

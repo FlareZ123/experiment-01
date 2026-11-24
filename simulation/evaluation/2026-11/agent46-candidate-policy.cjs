@@ -1227,7 +1227,7 @@ function searchNeedScore(view, printing, effectName = '', receipt = null) {
     return missingBasicV || psychicEnergyCount(view) < 3 ? 60 : 10;
   }
   if (hasName(printing, 'Stealthy Hood')) {
-    return hasStealthyHoodSearchNeed(view) ? 70 : 0;
+    return hasStealthyHoodSearchNeed(view) ? 85 : 0;
   }
   if (hasName(printing, 'Field Blower')) {
     return hasStadiumRemovalTarget(view) || hasOpponentToolRemovalTarget(view) ? 72 : 0;
