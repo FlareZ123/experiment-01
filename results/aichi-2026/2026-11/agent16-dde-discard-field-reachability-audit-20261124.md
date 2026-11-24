@@ -11,7 +11,7 @@ Does the separate paper rule that discards Double Dragon Energy (DDE) when its a
 - Read the canonical `results/aichi-2026/full-decklists.json`: 29 exact published lists, with ranks 23, 25 and 28 still missing.
 - Identified the ten published lists containing DDE: ranks 10, 12, 13, 14, 18, 19, 20, 21, 27 and 32.
 - Matched all 30 unique Pokémon printings in those ten DDE-bearing lists to the repository's exact `resources/cards/en/*.json` records and inspected their Abilities.
-- Scanned the complete supplied card-pool archive for Ability, attack and Trainer-rule text that changes Pokémon type, distinguishes Pokémon types, or changes Energy type. Classified direct Pokémon-type changes separately from Energy-type changes, Weakness changes and type comparisons.
+- Scanned the complete supplied **Expanded / English** card-pool archive (`cards/en`) for Ability, attack and Trainer-rule text that changes Pokémon type, distinguishes Pokémon types, or changes Energy type. Classified direct Pokémon-type changes separately from Energy-type changes, Weakness changes and type comparisons.
 - Compared the known type-changing Pokémon / Trainer effects against all 29 published decklists. Verified the exact current-field printings that might look similar by name (Mew V/VMAX, Ditto Prism Star, Crobat V, Ho-Oh-EX, Fan Rotom SCR #118 and Rotom V LOR #58) against repository card JSON.
 
 ## Findings
@@ -42,16 +42,18 @@ The full-pool attack-text scan found type comparisons, Energy-type references, s
 
 **The DDE host-ceases-to-be-Dragon discard condition appears unreachable in the current Aichi benchmark.** The DDE-owning decks have no type-changing host Ability; the known own-side global / Tool type-changing effects are absent or cannot affect the opposing host; and no attack that changes an opponent's Pokémon type was found in the card pool. The three missing lists are not known to be DDE-bearing or non-DDE; any could itself contain DDE. Therefore this audit supports only the 29 published lists. If a missing list contains DDE plus a type-changing own-side effect, the discard rule could be reachable in that matchup.
 
-Accordingly, the ongoing DDE discard rule should remain documented as a **generic simulator completeness gap**. It is non-blocking for the ten known DDE-bearing lists within the 29 published-list subset, but it remains unresolved for the full 32 until ranks 23, 25 and 28 are recovered or independently shown not to add a DDE/type-changing interaction. The same distinction applies to PR #65's preflight-before-AttachEnergyEffect ordering assumption: universal equivalence remains unproven, but no reachable target-type change was identified in the ten known DDE-bearing lists.
+Accordingly, the ongoing DDE discard rule remains a **full-field gate**. This audit narrows risk for the ten known DDE-bearing lists only insofar as their cards and interactions are represented in the supplied Expanded / English pool; it does not waive the gate for the original Japanese Extra Top 32. Ranks 23, 25 and 28 must be recovered, and any Japanese Extra-only card effects must be checked, before claiming full-field reachability is resolved. The same limitation applies to PR #65's preflight-before-AttachEnergyEffect ordering assumption: universal equivalence remains unproven.
 
 ## Limitations
 
 - This is a static card-text reachability audit, not a Twinleaf state-transition test or proof of engine implementation.
+- The broad card-text scan used the supplied Expanded / English `cards/en` archive, not a complete Japanese Extra card database. Any Japanese-only Extra card text absent from that archive is not covered; the exact Pokémon printings in the ten known DDE lists were cross-checked against repository records, but not every possible Japanese-only Trainer / attack interaction.
 - The supplied card-pool archive was scanned broadly; the exact Aichi decklists and key relevant card records were cross-checked against repository data. An independent full-pool scan would increase confidence.
 - The three missing opponent lists remain unauthenticated. Their own-side effects cannot alter an opposing DDE host under the card text found, but the absence of a full list remains a separate source-coverage limitation.
 - This does not resolve the generic DDE discard rule for other Expanded matchups, future card pools or synthetic game states.
 
 ## Proposed disposition
 
-Reclassify the DDE host-type-change/discard regression as non-blocking for the ten known DDE-bearing lists in the 29-list subset, but retain it as a full-32 gate until ranks 23, 25 and 28 are recovered or independently ruled out as DDE/type-changing lists. Do not claim that Twinleaf implements the rule; do not remove the regression from the general correctness backlog.
+Keep the DDE host-type-change/discard regression as a full-field gate. The current audit is a bounded negative result for ten known DDE-bearing lists under the supplied Expanded / English card pool, not proof for the original Japanese Extra field. Recover ranks 23, 25 and 28 and check any Japanese Extra-only card effects before reclassifying the gate. Do not claim that Twinleaf implements the rule; do not remove the regression from the general correctness backlog.
+
 
