@@ -669,7 +669,13 @@ function scoreAction(item, request) {
   if (item.kind === 'use-ability') {
     const ability = item.publicMetadata?.abilityName ?? '';
     if (ability === 'Climactic Gate') return 0;
-    if (ability === 'Underworld Door' && psychicHand > 0) return 150;
+    if (ability === 'Underworld Door') {
+      const hasPsychicBenchTarget = list(own?.bench).some(slot =>
+        slot && list(slot.printed?.types).includes('Psychic'));
+      // The native frontier can admit Underworld Door before the deferred
+      // effect checks its Psychic Bench target; never choose an impossible use.
+      return psychicHand > 0 && hasPsychicBenchTarget ? 150 : -120;
+    }
     if (ability === 'Resetting Hole') return pathLockActive(observation) ? 138 : 0;
     if (ability === 'Star Alchemy' &&
         observation.ownTurnResources.vstarUsed === false) return 132;

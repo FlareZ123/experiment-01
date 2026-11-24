@@ -556,6 +556,47 @@ test('Underworld Door energy assignment uses actor-visible exact bench index and
   protocol.validatePolicyAudit(audited.policyAudit, request, audited.decision, POLICY_VERSION);
 });
 
+test('Underworld Door root action requires Psychic Energy and a Benched Psychic Pokémon', () => {
+  const request = (seat, bench, hand) => rootRequest({
+    seat,
+    ownHand: hand,
+    ownPublic: player({
+      active: pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+        stage: 'VMAX', abilities: ['Underworld Door']
+      }),
+      bench
+    }),
+    items: [
+      { token: 'underworld', kind: 'use-ability',
+        publicMetadata: { abilityName: 'Underworld Door',
+          sourcePrinting: 'Shadow Rider Calyrex VMAX CRE 75' } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+
+  for (const seat of [0, 1]) {
+    assert.deepEqual(checkedDecision(request(seat, [], [
+      'Psychic Energy MEE 13'
+    ]), seat), { kind: 'select-action', token: 'pass' });
+
+    assert.deepEqual(checkedDecision(request(seat, [
+      pokemon('Marshadow UNB 81', { types: ['Fighting'] })
+    ], ['Psychic Energy MEE 13']), seat), {
+      kind: 'select-action', token: 'pass'
+    });
+
+    assert.deepEqual(checkedDecision(request(seat, [
+      pokemon('Latias ex SSP 76', { types: ['Psychic'] })
+    ], []), seat), { kind: 'select-action', token: 'pass' });
+
+    assert.deepEqual(checkedDecision(request(seat, [
+      pokemon('Latias ex SSP 76', { types: ['Psychic'] })
+    ], ['Psychic Energy MEE 13']), seat), {
+      kind: 'select-action', token: 'underworld'
+    });
+  }
+});
+
 test('Underworld Door selects the native cancel-only choice with no Psychic Bench target', () => {
   for (const seat of [0, 1]) {
     const request = promptRequest({
