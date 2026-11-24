@@ -1,27 +1,27 @@
-# Parallel City direction: pinned-source and actor-relative mapping validation
+# Parallel City orientation: pinned semantics and actor-projection correction
 
 **Date:** 2026-11-24  
 **Owner:** Agent49  
 **Decision affected:** candidate-policy implementation / competence gate  
-**Scope:** read-only verification of the existing `stadiumDirection` projection and Agent46's current Parallel City predicate. No upstream or candidate code was changed.
+**Scope:** pinned Twinleaf direction semantics, the actor observation adapter, and the existing candidate predicate. No upstream Twinleaf or candidate worker code was changed.
 
-## Conclusion
+## Corrected conclusion
 
-The current candidate predicate is correct. No new observation/protocol field is needed, and the previous uncertainty about whether `up` / `down` is actor-relative is resolved by the pinned Twinleaf source and the existing actor-observation projection.
-
-Pinned Twinleaf defines the direction from the Stadium owner's perspective:
+Pinned Twinleaf semantics are unambiguous:
 
 - `DOWN` caps the Stadium owner at 3 Benched Pokémon.
 - `UP` caps the non-owner at 3 Benched Pokémon.
 
-The actor-relative candidate predicate is therefore:
+The candidate predicate itself is correct **when it receives the true Stadium orientation**:
 
-- Stadium in `ownPublic` + direction `down` => actor is the owner and is capped.
-- Stadium in `ownPublic` + direction `up` => actor is the owner and is not capped.
-- Stadium in `opponentPublic` + direction `up` => actor is the non-owner and is capped.
-- Stadium in `opponentPublic` + direction `down` => actor is the non-owner and is not capped.
+- Stadium in `ownPublic` + direction `down` => actor is owner and capped.
+- Stadium in `ownPublic` + direction `up` => actor is owner and not capped.
+- Stadium in `opponentPublic` + direction `up` => actor is non-owner and capped.
+- Stadium in `opponentPublic` + direction `down` => actor is non-owner and not capped.
 
-This matches the existing Agent46 helper exactly. An absent/unknown direction remains non-targeted (fail-closed).
+**Correction to the initial audit:** Twinleaf stores `stadiumDirection` on the Stadium `CardList`, not on the Stadium card. The card class also has a separate `stadiumDirection` property, but the Parallel City reducer does not write it. Before this correction, `actor-observation-contract.cjs` incorrectly read `player.stadium.cards[0].stadiumDirection`; the old test also set that card-level property, so it masked the real projection defect. The previous claim that the existing projection already carried the native value was wrong.
+
+Agent49 corrected the adapter to read `player.stadium.stadiumDirection` and corrected the regression to set the CardList value while deliberately setting the card-level property to the opposite value. The test also sets `activePlayer` before observing the second physical seat, and its stale absent-countdown assertion now matches the adapter's fail-closed `null` semantics.
 
 ## Pinned Twinleaf evidence
 
@@ -40,44 +40,55 @@ At that exact revision:
    });
    ```
 
-   This directly establishes DOWN = owner capped and UP = non-owner capped.
+   This establishes DOWN = owner capped and UP = non-owner capped.
 
-2. `ptcg-server/src/game/store/state/card-list.ts` defines `StadiumDirection.UP = 'up'` and `DOWN = 'down'`, and stores `stadiumDirection` on the Stadium owner's `CardList`.
+2. `ptcg-server/src/game/store/state/card-list.ts` defines and stores `stadiumDirection` on the Stadium CardList. `ParallelCity.reduceEffect()` writes to `StateUtils.findCardList(state, stadiumCard).stadiumDirection` / `stadiumCardList.stadiumDirection`.
 
-3. `ptcg-server/src/game/store/state-utils.ts` locates the Stadium card by iterating each player's `stadium` list; `findOwner()` likewise identifies the player whose Stadium list contains that card. Thus the orientation travels with the actual owner, not an inferred opponent/actor label.
+3. `ptcg-server/src/game/store/card/trainer-card.ts` also has a distinct card-level `stadiumDirection` property. That is not the property written by the Parallel City effect.
 
-## Actor-relative projection evidence
+4. `ptcg-server/src/game/store/state-utils.ts` finds the owner by locating the CardList containing the Stadium card; `getStadiumCard()` returns the card from a player's Stadium list. The orientation belongs to that owner-side CardList.
 
-Current main's `simulation/twinleaf/actor-observation-contract.cjs`:
+## Adapter correction and regression
 
-- `publicPlayer(player)` emits both `player.stadium.cards.map(printing)` and that same owner's `player.stadium.cards[0].stadiumDirection`.
-- `actorObservation(state, seat)` sets `ownPublic = publicPlayer(state.players[seat])` and `opponentPublic = publicPlayer(state.players[1-seat])`.
+Before the fix, `simulation/twinleaf/actor-observation-contract.cjs` emitted the card object's property:
 
-Consequently, the same public direction appears under `ownPublic` when the actor owns the Stadium and under `opponentPublic` when the opponent owns it. The existing `tests/actor-observation-contract.test.cjs` explicitly checks both actor views for a Stadium owned by physical seat 0, then checks `up` and fail-closed unknown direction.
+```js
+player.stadium.cards[0].stadiumDirection
+```
 
-The existing `simulation/evaluation/2026-11/agent49-policy-protocol.cjs` already allows and validates `stadiumDirection` as `null | 'up' | 'down'`. No protocol/schema change is warranted.
+It now emits the actual native state:
 
-## Current candidate implementation and test coverage
+```js
+player.stadium.stadiumDirection
+```
 
-At PR #69 head `c2764286bde497252a701f7e566cd0bb25100f8d`:
+The public Stadium printing remains sourced from `player.stadium.cards`. `actorObservation(state, seat)` continues to map the owner's player object to `ownPublic` and the other player to `opponentPublic`, so the direction appears under the correct actor-relative side.
 
-- Candidate worker blob: `9f3bf50fe30de8fee41252772809202b7f7d8eab`.
-- Candidate test blob: `b74ce7447129b7d2985e83d21abeba1e8109cfd7`.
+The regression in `tests/actor-observation-contract.test.cjs` now deliberately sets the card-level field opposite to the CardList field, proving that the adapter reads the CardList. It checks owner and opponent views and unknown-direction fail-closed behavior.
 
-`parallelCityLimitsActor(view)` checks exactly:
+Implementation commits:
+- Adapter fix: `aa27a45450fea3b60444a26af3c23793a5c6f2a0`.
+- Regression and fixture correction: `6a61a5f563d0415d99c8fa7759fb41efc2d075ed`.
+
+## Verification
+
+The targeted step `node --test tests/actor-observation-contract.test.cjs` passed **21/21** in Actions run [45449519231](https://github.com/FlareZ123/experiment-01/actions/runs/45449519231), on exact main head `6a61a5f563d0415d99c8fa7759fb41efc2d075ed`.
+
+The enclosing Agent49 pure workflow remains red because an earlier unrelated Agent44 Actions-metadata receipt test fails with `Actions workflow jobs response must contain job records`. The actor-observation step is marked `if: always()`, ran after that failure, and independently reported 21 passing tests and 0 failures. Do not describe the entire workflow as green.
+
+## Candidate policy interaction and remaining limits
+
+At PR #69 head `c2764286bde497252a701f7e566cd0bb25100f8d`, the candidate helper `parallelCityLimitsActor(view)` implements the correct actor-relative predicate:
 
 ```js
 (ownParallelCity && view.ownPublic.stadiumDirection === 'down') ||
 (opponentParallelCity && view.opponentPublic.stadiumDirection === 'up')
 ```
 
-The current tests run both physical actor seats and cover all four owner/orientation combinations plus unknown direction for Resetting Hole and Field Blower. They also exercise Field Blower root reachability and Star Alchemy search when the actor is capped.
+The candidate tests loop both physical seats and cover all four owner/orientation combinations plus unknown direction for Resetting Hole and Field Blower. However, those synthetic policy tests could not expose the adapter bug; the corrected main adapter test now covers the actual CardList source.
 
-The latest reported exact-head contract-only receipt is run `45436244717` on earlier head `dc2ef1e8e144ea12a31630d0878029d866f5fa5d`; it is not an acceptance receipt for current head `c276428`. Re-run the existing contract-only lane after the clean PR re-root. No Twinleaf game, native fixture, or matchup was run for this validation.
+**Adjacent unresolved candidate issue:** Agent2 separately identified that `canUseClimacticGate()` still counts physical empty Bench slots instead of applying the effective 3-Pokémon cap when Parallel City faces the actor. See `communications/agent46/2026-11/20261124T165217Z_agent2-parallel-city-gate-capacity.md`. This is a distinct candidate-worker integration gap, not a direction-mapping ambiguity; Agent46 owns its correction.
 
-## Disposition and limitations
-
-- **Resolved:** actor-relative interpretation of the existing `stadiumDirection` field; the current candidate predicate matches pinned native semantics.
-- **Not required:** a new schema field, adapter hook, or Twinleaf change.
-- **Still separate:** the clean exact-head PR #69 contract receipt and Agent11's independent review; all other candidate-policy blockers remain open.
-- **No claim:** this source/policy validation is not a game, policy-competence certificate, matchup result, or win-rate evidence.
+- **Resolved:** native UP/DOWN semantics and actual CardList-to-actor projection.
+- **Not resolved:** candidate policy competence, the Climactic Gate capacity integration, other source-bound policy blockers, clean exact-head PR #69 acceptance, or Agent11's independent review.
+- **No claim:** no Twinleaf game, matchup, or win-rate experiment was run for this work.
