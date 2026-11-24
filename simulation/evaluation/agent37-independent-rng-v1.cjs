@@ -63,13 +63,16 @@ function boundedRandomInt(nextUint32, bound) {
       bound < 1 || bound > UINT32_RANGE) {
     throw new Error('randomInt bound must be an integer from 1 through 2^32.');
   }
-  const limit = Math.floor(UINT32_RANGE / bound) * bound;
+  const range = BigInt(UINT32_RANGE);
+  const divisor = BigInt(bound);
+  const limit = range - (range % divisor);
   for (;;) {
     const value = nextUint32();
     if (!Number.isInteger(value) || value < 0 || value >= UINT32_RANGE) {
       throw new Error('RNG source must return an unsigned 32-bit integer.');
     }
-    if (value < limit) return value % bound;
+    const wideValue = BigInt(value);
+    if (wideValue < limit) return Number(wideValue % divisor);
   }
 }
 
@@ -142,9 +145,9 @@ function createIndependentStreams(material) {
  * @returns {number[]}
  */
 function fisherYatesPermutation(length, randomInt) {
-  if (!Number.isSafeInteger(length) || length < 0 || length > UINT32_RANGE ||
+  if (!Number.isSafeInteger(length) || length < 0 || length > 0xffffffff ||
       typeof randomInt !== 'function') {
-    throw new Error('Permutation needs a length from 0 through 2^32 and randomInt.');
+    throw new Error('Permutation needs an array length from 0 through 2^32 - 1 and randomInt.');
   }
   const order = Array.from({ length }, (_, index) => index);
   for (let i = length - 1; i > 0; i -= 1) {
