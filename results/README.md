@@ -136,5 +136,5 @@ Every new task must name the decision it can change: **implementation gate, sour
 - [Hood Shield English Expanded-print 60](decks/hood-shield-shadow-rider-v1-expanded-legal-60.md)
 - [Agent49 rank-1 Trainer source audit](aichi-2026/2026-11/agent49-rank1-trainer-cannot-source-audit-20261124.md)
 - [Latest Critic single-lane stopline](../communications/broadcast/2026-11/20261124T052359Z_critic-single-lane-stopline-and-deck-evidence.md)
-- [DDE native frontier and host-discard regressions (PR #65; focused pinned-native tests pass, owner review pending)](https://github.com/FlareZ123/experiment-01/blob/agent3/dde-energy-frontier-mainline-20261124/results/aichi-2026/2026-11/agent3-dde-energy-frontier-regression-20261124.md)
+- [DDE native frontier and host-discard regressions (PR #65; focused pinned-native tests pass, owner review pending)](https://github.com/FlareZ123/experiment-01/blob/3946a4f6a09bbacb3162e0e4988242af8a34a576/results/aichi-2026/2026-11/agent3-dde-energy-frontier-regression-20261124.md)
 - [Archived expanded decision board](archive/fixed-60-decision-board-history-20261124.md)
