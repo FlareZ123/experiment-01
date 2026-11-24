@@ -231,6 +231,16 @@ test('pinned Store validates real attack and ability actions and skips only know
     itemByName.get('Quick Ball FST'),
     pass
   ];
+  const quickBallAction=itemByName.get('Quick Ball FST');
+  const actionSnapshot=action=>JSON.stringify({
+    signature:frontierModule.actionSignature(action),
+    keys:Reflect.ownKeys(action).map(String).sort(),
+    type:action.type??null,id:action.id??null,handIndex:action.handIndex??null,
+    target:action.target&&typeof action.target==='object'?
+      Object.fromEntries(Object.keys(action.target).sort().map(key=>[key,action.target[key]])):
+      action.target??null
+  });
+  const quickBallActionBefore=actionSnapshot(quickBallAction);
   const selectedEnumerator = { enumerate: () => selectedActions };
   const frontier = withValidationRandom(() => frontierModule.buildNativeActionFrontier({
     state, actorSeat: 0, native, enumerator: selectedEnumerator
@@ -250,8 +260,10 @@ test('pinned Store validates real attack and ability actions and skips only know
     item.kind === 'play-card' && item.actorPrinting === 'Quick Ball FST'));
   assert.equal(frontier.actionFrontier.items.some(item =>
     item.actorPrinting === 'Battle VIP Pass FST' || item.actorPrinting === 'VS Seeker PHF'), false);
+  assert.equal(actionSnapshot(quickBallAction),quickBallActionBefore,
+    'frontier validation must not mutate the retained Quick Ball PlayCardAction');
 
-  for (const kind of ['attack', 'use-ability']) {
+  for (const kind of ['attack', 'use-ability','play-card']) {
     const item = frontier.actionFrontier.items.find(candidate => candidate.kind === kind);
     const freshSimulator = withValidationRandom(() => new native.Simulator(state));
     frontierModule.dispatchSelectedNativeAction({
@@ -264,6 +276,31 @@ test('pinned Store validates real attack and ability actions and skips only know
       withValidationRandom
     });
   }
+  assert.equal(actionSnapshot(quickBallAction),quickBallActionBefore,
+    'selected cloned-Store validation must not mutate the retained Quick Ball PlayCardAction');
+
+  const freshSimulator=withValidationRandom(()=>new native.Simulator(state));
+  const freshState=freshSimulator.store.state;
+  const freshActor=freshState.players[0];
+  const freshEnumerator=adapterModule.createKnownCapFreeActionEnumerator({native,enginePin});
+  const freshQuickBallAction=freshEnumerator.playItemActions(freshState,freshActor).find(action=>
+    freshActor.hand.cards[action.handIndex]?.fullName==='Quick Ball FST');
+  const freshPass=freshEnumerator.passTurnActions(freshState,freshActor)[0];
+  assert.ok(freshQuickBallAction,'fresh native enumeration must reconstruct Quick Ball');
+  const freshQuickBallActionBefore=actionSnapshot(freshQuickBallAction);
+  const freshFrontier=withValidationRandom(()=>frontierModule.buildNativeActionFrontier({
+    state:freshState,actorSeat:0,native,
+    enumerator:{enumerate:()=>[freshQuickBallAction,freshPass]}
+  }));
+  const freshQuickBallItem=freshFrontier.actionFrontier.items.find(item=>
+    item.actorPrinting==='Quick Ball FST');
+  assert.ok(freshQuickBallItem,'fresh Quick Ball must pass the frontier');
+  frontierModule.dispatchSelectedNativeAction({
+    store:freshSimulator.store,frontier:freshFrontier,token:freshQuickBallItem.token,
+    state:freshState,actorSeat:0,native,withValidationRandom
+  });
+  assert.equal(actionSnapshot(freshQuickBallAction),freshQuickBallActionBefore,
+    'freshly enumerated Quick Ball must survive cloned-Store revalidation');
 });
 
 
@@ -382,7 +419,7 @@ test('pinned Store frontier projects and revalidates actions for physical seat 1
   assert.equal(frontier.actionFrontier.items.some(item =>
     item.actorPrinting === 'Battle VIP Pass FST' || item.actorPrinting === 'VS Seeker PHF'), false);
 
-  for (const kind of ['attack', 'use-ability']) {
+  for (const kind of ['attack', 'use-ability','play-card']) {
     const item = frontier.actionFrontier.items.find(candidate => candidate.kind === kind);
     const freshSimulator = withValidationRandom(() => new native.Simulator(state));
     frontierModule.dispatchSelectedNativeAction({
