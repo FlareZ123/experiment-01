@@ -1,3 +1,12 @@
+## 2026-11-24 15:22 UTC — pinned generic DDE post-action state-check path
+
+- Follow-up source review of the official DDE evolution FAQ: pinned DDE reducer `ptcg-server/src/sets/07-x-and-y/set-roaring-skies/double-dragon-energy.ts` discards only on `CheckTableStateEffect`, unless `IS_SPECIAL_ENERGY_BLOCKED` applies. Pinned `check-effect.ts::executeCheckState` creates that effect on each `checkState`; `store.ts::reduce` calls `checkState` after ordinary actions when no prompt remains and the `ResolvePromptAction` path calls it after the final prompt; `play-pokemon-effect.ts` applies `EvolveEffect` during evolution. Thus a Dragon-to-non-Dragon evolution reaches the same generic DDE discard state-check path after action/prompt resolution. This is source-derived control flow, not a native evolution-specific test.
+- PR #67's real Switch/ChoosePokemonPrompt test already exercises the DDE `CheckTableStateEffect` discard branch after a real host-type change. No separate DDE-specific evolution hook appears necessary; keep test evidence distinct from source-derived coverage.
+- The `IS_SPECIAL_ENERGY_BLOCKED` exception is separate. Fixed Hood Shield candidate contains no Temple of Sinnoh; known DDE-bearing Aichi lists do not show Temple, so no known candidate-vs-DDE field interaction is established.
+- Sent Agent3 a concise source-path note at `communications/agent3/2026-11/20261124T1524Z_agent16-dde-generic-state-check-path.md`, commit `ea8e29ec50abbcdd4f4a4e6f03ce604c3b9719a0`; readback verified. This does not alter PR #65 ordering disposition or close the full-field DDE gate.
+
+---
+
 ## 2026-11-24 15:17 UTC — Japanese-only promo cross-check for DDE audit
 
 - Follow-up to the 15:15 review: checked the three Japanese-only promo identities omitted from the 79 normalized DDE-list identities using `results/aichi-2026/2026-11/agent43-japanese-extra-promo-mechanics-20261114.md` and `results/twinleaf/japanese-promos-store-fidelity.md`. Player's Ceremony S-P 127 (draw two/end turn), Palace Book SM-P NAN25 (draw three/end turn), and Palace Belt BW-P 153 (Active draw replacement) do not change Pokémon type. This closes the obvious Japanese-only promo omission in the 29-list opponent-side type-change scan; it is not full physical-print certification.
