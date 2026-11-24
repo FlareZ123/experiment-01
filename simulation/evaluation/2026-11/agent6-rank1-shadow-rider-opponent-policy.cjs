@@ -10,7 +10,7 @@
  * certificate or a matchup result.
  */
 
-const POLICY_VERSION = 'agent6-rank1-shadow-rider-opponent-v2';
+const POLICY_VERSION = 'agent6-rank1-shadow-rider-opponent-v3';
 
 let activePolicyAudit = null;
 
@@ -118,6 +118,10 @@ const PRINT = Object.freeze({
   clefairy: /^Lillie's Clefairy ex JTG\b/i,
   mimikyu: /^Mimikyu GRI\b/i,
   radiantEternatus: /^Radiant Eternatus CRZ\b/i,
+  wobbuffet: /^Wobbuffet PHF 36\b/i,
+  ironThorns: /^Iron Thorns ex TWM 77\b/i,
+  garbodor: /^Garbodor BKP 57\b/i,
+  pathToPeak: /^Path to the Peak\b/i,
   tapuLele: /^Tapu Lele-GX GRI\b/i,
   marshadow: /^Marshadow UNB 81\b/i
 });
@@ -161,7 +165,7 @@ function knownCardCount(observation, pattern) {
 }
 
 const SHADOW_RIDER_VMAX_DECK_COPIES = 4;
-const CLIMACTIC_GATE_MIN_DECK_PROBABILITY = 0.5;
+const CLIMACTIC_GATE_MIN_EXPECTED_FETCHES = 0.75;
 
 // The owner can know cards in play, hand, discard, Lost Zone, resolving
 // Supporter, and face-up prizes. All remaining copies are distributed only
@@ -186,34 +190,90 @@ function knownVmaxOutsideHiddenZones(observation) {
   };
 }
 
-function climacticGateDeckProbability(observation) {
+function combination(n, k) {
+  if (!Number.isSafeInteger(n) || !Number.isSafeInteger(k) ||
+      n < 0 || k < 0 || k > n) return 0;
+  const steps = Math.min(k, n - k);
+  let result = 1;
+  for (let i = 1; i <= steps; i += 1) {
+    result *= (n - steps + i) / i;
+  }
+  return result;
+}
+
+function climacticGateDeckEstimate(observation, maxFetch) {
   const own = observation?.ownPublic ?? {};
   const deckCount = own.deckCount;
   const prizeCount = own.prizeCount;
+  const cap = Math.max(0, Math.min(2, Number.isSafeInteger(maxFetch) ? maxFetch : 0));
   if (!Number.isSafeInteger(deckCount) || deckCount < 0 ||
-      !Number.isSafeInteger(prizeCount) || prizeCount < 0) return 0;
+      !Number.isSafeInteger(prizeCount) || prizeCount < 0) {
+    return { probabilityZero: 1, probabilityOne: 0, expectedFetchCount: 0 };
+  }
 
   const visible = knownVmaxOutsideHiddenZones(observation);
   if (visible.knownOutsideHidden > SHADOW_RIDER_VMAX_DECK_COPIES ||
-      visible.visiblePrizeCount > prizeCount) return 0;
+      visible.visiblePrizeCount > prizeCount) {
+    return { probabilityZero: 1, probabilityOne: 0, expectedFetchCount: 0 };
+  }
   const remainingCopies = SHADOW_RIDER_VMAX_DECK_COPIES -
     visible.knownOutsideHidden;
   const hiddenPrizeCount = prizeCount - visible.visiblePrizeCount;
   const hiddenTotal = deckCount + hiddenPrizeCount;
-  if (remainingCopies <= 0 || deckCount <= 0 || hiddenTotal <= 0 ||
-      remainingCopies > hiddenTotal) return 0;
-
-  // Hypergeometric complement: P(no remaining VMAX is in the deck).
-  let probabilityNoneInDeck = 1;
-  for (let i = 0; i < remainingCopies; i += 1) {
-    const remainingPrizeSlots = hiddenPrizeCount - i;
-    if (remainingPrizeSlots <= 0) {
-      probabilityNoneInDeck = 0;
-      break;
-    }
-    probabilityNoneInDeck *= remainingPrizeSlots / (hiddenTotal - i);
+  if (remainingCopies > hiddenTotal || hiddenTotal < 0) {
+    return { probabilityZero: 1, probabilityOne: 0, expectedFetchCount: 0 };
   }
-  return Math.max(0, Math.min(1, 1 - probabilityNoneInDeck));
+
+  const denominator = combination(hiddenTotal, remainingCopies);
+  if (denominator <= 0) {
+    return { probabilityZero: 1, probabilityOne: 0, expectedFetchCount: 0 };
+  }
+  const probabilityZero = combination(hiddenPrizeCount, remainingCopies) /
+    denominator;
+  const probabilityOne = deckCount *
+    combination(hiddenPrizeCount, remainingCopies - 1) / denominator;
+  const expectedFetchCount = cap === 0 ? 0
+    : cap === 1 ? 1 - probabilityZero
+      : 2 - 2 * probabilityZero - probabilityOne;
+  return {
+    probabilityZero: Math.max(0, Math.min(1, probabilityZero)),
+    probabilityOne: Math.max(0, Math.min(1, probabilityOne)),
+    expectedFetchCount: Math.max(0, Math.min(cap, expectedFetchCount))
+  };
+}
+
+function abilityIsSuppressed(slot, abilityName) {
+  return list(slot?.abilitySuppressions).some(entry =>
+    entry?.abilityName === abilityName && entry.suppressed === true);
+}
+
+function isGateAbilitySuppressed(observation) {
+  const own = observation?.ownPublic ?? {};
+  const opponent = observation?.opponentPublic ?? {};
+  const players = [own, opponent];
+
+  const pathToPeakInPlay = players.some(player =>
+    hasPrinting(player.stadium, PRINT.pathToPeak));
+  const stadiumEffectsDisabled =
+    (own.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining ?? 0) > 0;
+  if (pathToPeakInPlay && !stadiumEffectsDisabled) return true;
+
+  const activeWobbuffet = players.some(player =>
+    matches(player.active?.printing ?? '', PRINT.wobbuffet) &&
+    !abilityIsSuppressed(player.active, 'Bide Barricade'));
+  if (activeWobbuffet) return true;
+
+  const activeIronThorns = players.some(player =>
+    matches(player.active?.printing ?? '', PRINT.ironThorns) &&
+    !abilityIsSuppressed(player.active, 'Initialization'));
+  if (activeIronThorns) return true;
+
+  const liveGarbotoxin = players.some(player =>
+    boardSlots(player).some(slot =>
+      matches(slot.printing ?? '', PRINT.garbodor) &&
+      list(slot.tools).length > 0 &&
+      !abilityIsSuppressed(slot, 'Garbotoxin')));
+  return liveGarbotoxin;
 }
 
 function shouldUseClimacticGate(observation) {
@@ -221,13 +281,15 @@ function shouldUseClimacticGate(observation) {
   const radiantAlreadyInPlay = list(own.bench).some(slot =>
     matches(slot?.printing ?? '', PRINT.radiantEternatus));
   const emptyBenchSlots = 5 - list(own.bench).filter(Boolean).length;
-  // Before playing Radiant, reserve one slot for it and at least one for a
-  // fetched VMAX. Once Radiant is on the Bench, only one open slot is needed.
-  const requiredOpenBenchSlots = radiantAlreadyInPlay ? 1 : 2;
-  return emptyBenchSlots >= requiredOpenBenchSlots &&
-    countBoard(own, PRINT.shadowRiderVmax) < 2 &&
-    climacticGateDeckProbability(observation) >=
-      CLIMACTIC_GATE_MIN_DECK_PROBABILITY;
+  const maxFetch = Math.min(2, emptyBenchSlots - (radiantAlreadyInPlay ? 0 : 1));
+  if (maxFetch <= 0 || countBoard(own, PRINT.shadowRiderVmax) >= 2 ||
+      isGateAbilitySuppressed(observation)) return false;
+
+  // Expected VMAX fetched, capped by both the Ability's two-card limit and
+  // the actual open Bench. The 0.75 cutoff is a conservative terminal-turn
+  // heuristic, not a calibrated optimum.
+  const estimate = climacticGateDeckEstimate(observation, maxFetch);
+  return estimate.expectedFetchCount >= CLIMACTIC_GATE_MIN_EXPECTED_FETCHES;
 }
 
 function isActorBenchPlacement(item, observation) {
