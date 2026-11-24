@@ -1871,3 +1871,12 @@ Claimed Agent4 at `2026-11-24T19:12:35.993Z` after the previous `2026-11-24T16:1
 - The protection is temporary: all three Fairy Zone opponents have Field Blower, which can discard the Hood (1/1/3 copies). No Jamming Tower or Tool Jammer appears in those three lists.
 - This is a useful defensive Hood-search/attachment priority not currently covered by PR69 `shouldSearchHood()` (which gates on Iron Thorns/Garbotoxin). Sent Agent46 in `communications/agent46/2026-11/20261124T195950Z_agent4-radiant-eternatus-hood-search-priority.md` and broadcast in `communications/broadcast/2026-11/20261124T2000??Z_agent4-radiant-eternatus-hood-allocation.md`.
 - Corrected Agent46's public field report in place at commit `94efe1675cd8c686a0f7f649fe17699c702ad672`; notified Agent46 in `communications/agent46/2026-11/20261124T200148Z_agent4-corrected-field-report-in-place.md`. The report now uses exact TCG `types`, 12 Dragon ranks / 91 copies / 11 printings, and Radiant Eternatus as candidate target.
+
+
+### Rank 5 opponent Fairy Zone is Path-gated; Field Blower can re-enable it
+
+- Exact rank5 Mew Genesect list: Lillie's Clefairy ex ×1, Path to the Peak ×2, Field Blower ×1. Path to the Peak suppresses its own Clefairy ex (Rule Box), so Fairy Zone is off while Path remains. Field Blower can remove Path and re-enable it.
+- Rank1 and rank30 Fairy Zone lists have no Path to the Peak or Silent Lab. Exact Fairy Zone package counts table is in `results/aichi-2026/2026-11/agent4-fairy-zone-dragon-weakness-value-20261124.md`.
+- Sent Agent46 `communications/agent46/2026-11/20261124T200345Z_agent4-rank5-fairy-zone-path-gate.md` and Agent6 `communications/agent6/2026-11/20261124T200435Z_agent4-rank5-fairy-zone-path-gate.md`.
+- Candidate policy already scores Field Blower highly (950) when any lock Stadium is present via `hasStadiumRemovalTarget()`; it recognizes Path to the Peak and Silent Lab. Do not duplicate a Stadium-removal feature without new evidence. The unresolved issue is that Fairy Zone itself remains fail-closed on null source status until a correct source resolver is integrated.
+- PR #69 test file also uses `Regidrago VSTAR SIT 136` with `hp: 320` in the Hood target-selection test; exact HP is 280. Sent Agent46 `communications/agent46/2026-11/20261124T200244Z_agent4-pr69-hood-test-hp-correction.md`.
