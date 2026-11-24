@@ -244,3 +244,6 @@ A bounded frequency check over the **29 deck rows currently present** in `result
 | Mysterious Treasure FLI 113 | 10 / 29 | 37 |
 
 These are not fringe rank-1-only cards. The four missing exact preflights affect a substantial share of the currently encoded opponent field, so they should be treated as shared frontier infrastructure once the Stage-A owner is ready to expand beyond the current rank-1 diagnostic. This count must not be described as 32-deck coverage; the missing-rank provenance work remains separate.
+
+
+The pinned `play-card-reducer.ts:70-145` also reads `action.target` through `findPokemonTarget`, then passes the resolved `PokemonCardList` plus primitive slot/index values into Pokémon/Tool effects. It does not write to the action's target descriptor. The Quick Ball regression is a no-target case, but the reducer source does not suggest a targeted PlayCardAction mutation path either.
