@@ -141,6 +141,8 @@ function isDdeNonDragonTargetInValidationStore(action, simulator, actorSeat, nat
   simulator.store.reduceEffect(validationState, typeCheck);
   assert.ok(Array.isArray(typeCheck.cardTypes),
     'pinned CheckPokemonTypeEffect must produce a cardTypes array');
+  assert.ok(typeCheck.cardTypes.length > 0,
+    'pinned CheckPokemonTypeEffect must produce at least one Pokémon type');
   return !typeCheck.cardTypes.includes(native.CardType.DRAGON);
 }
 
