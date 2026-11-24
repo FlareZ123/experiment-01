@@ -540,31 +540,45 @@ function buildNativeActionFrontier({
     const signature = actionSignature(action);
     if (seen.has(signature)) continue;
     seen.add(signature);
-    // Construct the deep-cloned Simulator outside the expected-rejection
-    // catch: constructor instability is an engine failure, never an illegal move.
-    const simulator = createIsolatedValidationSimulator(state,native);
-    if(!itemCanPlayInValidationStore(action,simulator,actorSeat,native)||
-        !underworldDoorCanUseInValidationStore(action,simulator,actorSeat,native)){
-      rejectedCount += 1;
-      preflightRejectedCount += 1;
-      continue;
+    let validationStage='validation-simulator-construction';
+    try{
+      // Constructor instability is an engine failure, never an illegal move.
+      const simulator=createIsolatedValidationSimulator(state,native);
+      validationStage='item-can-play-preflight';
+      if(!itemCanPlayInValidationStore(action,simulator,actorSeat,native)){
+        rejectedCount+=1;
+        preflightRejectedCount+=1;
+        continue;
+      }
+      validationStage='underworld-door-preflight';
+      if(!underworldDoorCanUseInValidationStore(action,simulator,actorSeat,native)){
+        rejectedCount+=1;
+        preflightRejectedCount+=1;
+        continue;
+      }
+      try{
+        validationStage='candidate-store-dispatch';
+        simulator.store.dispatch(action);
+        validationStage='ability-wait-prompt-resolution';
+        resolveFirstAbilityWaitPrompt(simulator,action,native);
+      }catch(error){
+        if(!isExpectedActionRejection(action,state,actorSeat,native,error))throw error;
+        rejectedCount+=1;
+        continue;
+      }
+      validationStage='action-projection';
+      const token='act-'+items.length.toString(36);
+      const item=projectNativeAction(action,state,actorSeat,native,token);
+      if(!item){
+        unsupportedCount+=1;
+        continue;
+      }
+      items.push(item);
+      actionByToken.set(token,action);
+    }catch(error){
+      attachSafeFrontierCandidateDiagnostic(error,action,validationStage,native);
+      throw error;
     }
-    try {
-      simulator.store.dispatch(action);
-      resolveFirstAbilityWaitPrompt(simulator,action,native);
-    } catch(error) {
-      if(!isExpectedActionRejection(action,state,actorSeat,native,error))throw error;
-      rejectedCount += 1;
-      continue;
-    }
-    const token = 'act-' + items.length.toString(36);
-    const item = projectNativeAction(action, state, actorSeat, native, token);
-    if (!item) {
-      unsupportedCount += 1;
-      continue;
-    }
-    items.push(item);
-    actionByToken.set(token, action);
   }
   assert.deepEqual(stateGuard(state), before,
     'ActionEnumerator or Simulator validation mutated the live Store state');
@@ -610,6 +624,22 @@ function selectedNativeAction(frontier, token) {
 }
 
 const SAFE_ACTION_DIAGNOSTIC_TYPES=new Set(['PLAY_CARD_ACTION','ATTACK_ACTION','USE_ABILITY_ACTION','USE_TRAINER_ABILITY_ACTION','USE_ENERGY_ABILITY_ACTION','USE_STADIUM_ACTION','RETREAT_ACTION','PASS_TURN']);
+const SAFE_FRONTIER_VALIDATION_STAGES=new Set([
+  'validation-simulator-construction',
+  'item-can-play-preflight',
+  'underworld-door-preflight',
+  'candidate-store-dispatch',
+  'ability-wait-prompt-resolution',
+  'action-projection'
+]);
+function attachSafeFrontierCandidateDiagnostic(error,action,stage,native){
+  if(!native?.GameError||!(error instanceof native.GameError)||
+      !error||typeof error!=='object')return;
+  if(SAFE_ACTION_DIAGNOSTIC_TYPES.has(action?.type))
+    error.nativeActionType=action.type;
+  if(SAFE_FRONTIER_VALIDATION_STAGES.has(stage))
+    error.nativeActionValidationStage=stage;
+}
 const SAFE_ACTION_DIAGNOSTIC_CARD_FAMILIES=new Set(['ITEM','SUPPORTER','STADIUM','ENERGY','TOOL','POKEMON']);
 
 function attachSafeActionDiagnostic(error,action,state,actorSeat,native){
