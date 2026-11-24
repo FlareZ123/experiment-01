@@ -183,7 +183,8 @@ test('headless opt-in hook is reversible and has no effect when no Ball is prese
   assert.strictEqual(HisuianHeavyBall.prototype.shuffleFaceDownPrizeCards, original);
   const repeated = runMatch(common);
   assert.strictEqual(HisuianHeavyBall.prototype.shuffleFaceDownPrizeCards, original);
-  assert.deepEqual(fixed, baseline,
+  const withoutHookReceipt = ({hisuianHeavyBallPrizeShuffleCorrection, ...game}) => game;
+  assert.deepEqual(withoutHookReceipt(fixed), withoutHookReceipt(baseline),
     'Enabling the correction cannot perturb a no-Ball source game');
   assert.deepEqual(repeated, baseline,
     'Headless hook must leave the following uninstrumented game unchanged');
