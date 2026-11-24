@@ -171,3 +171,16 @@ The rank-1 rows in `results/aichi-2026/full-decklists.json` carry explicit Engli
 - Battle Compressor — PHF 92
 
 The same frozen deck data records Night Stretcher as ASC 196 and Psychic Energy as MEE 13. The pinned V3 runner's `engineProxyPrintingForSourceRow` explicitly maps Night Stretcher ASC/196 to the approved SFA/61 engine implementation and Psychic Energy MEE/13 to SVE/5. Thus the rank-1 Night Stretcher action is the exact SFA/61 class already covered by Agent6's branch correction, and the opponent's Energy cards are Basic Psychic Energy. This confirms that the Special-Energy-only discrepancy is not present in the rank-1 list.
+
+
+## Exact-card attribution without exposing the opponent's hand
+
+A direct diagnostic improvement is already available in the repository:
+
+- `simulation/evaluation/2026-11/agent49-native-fixture-game.cjs:305-336` defines `selectedCardIdentity(action,state,actingSeat,cardActions)`. Its contract is explicit: resolve the physical card from the acting player's private hand for trace only; never put it in public state or policy input.
+- The helper is currently called only at lines 1014–1017, after the decision-resolution `yield` returns to the outer native fixture generator.
+- The selected root handler calls `dispatchSelectedNativeAction` at `simulation/evaluation/2026-11/agent36-v3-runner.cjs:2601-2606`. If cloned validation throws there, the `yield` never returns, so the later identity capture is skipped. The attempt record starts with `selectedCardIdentity:null` at line 843 and remains null on this failure path.
+
+Call the existing helper immediately after `assertTrustedActionSelection` and before `dispatchSelectedNativeAction`, using the native action from `frontier.actionByToken`, `request.state`, `actorSeat`, and `native.cardActions`. Attach the result only to the encrypted/private trace or another owner-controlled internal diagnostic. Do not add `fullName`, set, number, or any hidden-hand identity to the worker request, public decision trace, public receipt, or sanitized artifact. Keep the current public-safe action type/family and exact GameMessage projection.
+
+This is a more direct next-run attribution path than guessing among the card matrix. It does not require a second harness or a new fixture; it only moves an existing trace-only capture before the operation that can fail.
