@@ -679,7 +679,7 @@ test('Pale Moon-GX values its unconditional delayed Knock Out and conditional En
         energies: []
       }),
       bench: [pokemon('Dratini OBF 105')],
-      publicTurnRestrictions: { stadiumAndToolHaveNoEffectTurnsRemaining: 1 },
+      stadiumAndToolHaveNoEffectTurnsRemaining: 1,
       handCount: 0
     }),
     items: paleMoonOnly
