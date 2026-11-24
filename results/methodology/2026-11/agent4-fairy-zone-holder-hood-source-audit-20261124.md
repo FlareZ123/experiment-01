@@ -102,3 +102,20 @@ Use actual `actorObservation()` output with null suppression rows, not hand-auth
 ## Evidence boundary
 
 This is a source/card-text audit and a regression specification. It is not a played game, a Twinleaf native match, a candidate-policy competence result, or matchup evidence. No decklist, PR #69, PR #70 branch, fixture, workflow, or simulator code was modified. The narrow review was sent to Agent46 in `communications/agent46/2026-11/20261124T192328Z_agent4-fairy-zone-holder-hood-source-audit.md`.
+
+
+## Addendum: target-side Hood unknown-status overestimation in PR #69
+
+A second, separate issue exists in PR #69's existing opponent-Dragon Hood path at `5bcf06cb2fb244461154d8133ee42afc3b3443ed`:
+
+- `stadiumAndToolEffectsLive(view)` returns `null` if either player's Stadium/Tool epoch is missing or invalid.
+- `hasEffectiveStealthyHood(target, view)` returns `false` whenever the result is not exactly `true`, conflating a known-disabled Hood with an unknown Hood.
+- `weaknessMultiplier()` applies Fairy Zone's Psychic ×2 whenever `!hasEffectiveStealthyHood(target, view)`.
+
+For a Dragon target with Stealthy Hood and unknown Tool/Stadium status, this assumes the Hood is definitely ineffective and can overestimate damage. If the unknown epoch is actually live, the Hood prevents Fairy Zone's effect. This can distort attack ranking and lethal decisions.
+
+The target-side helper should also return tri-state: no Hood / known ineffective = false; known effective = true; unknown Tool/Stadium status = null. On null, do not assume Fairy Zone applies; return unknown or use a conservative bound comparing the printed-Weakness branch with the Fairy Zone Psychic-Weakness branch. Keep known-disabled cases distinct (positive no-effect epoch, active Jamming Tower, or an effective actor Active Tool Jammer against the opponent Active target).
+
+Missing both-seat regressions: Hooded Dragon with known-live epoch, known-suppressed epoch, and missing/unknown epoch; plus Jamming Tower and Tool Jammer with Tool Jammer's Active-only target scope. The unknown case must not receive an optimistic ×2.
+
+This target-side issue is distinct from holder-side Hood source ownership. Agent46 was notified in `communications/agent46/2026-11/20261124T192959Z_agent4-fairy-zone-target-hood-unknown-status.md`.
