@@ -2597,7 +2597,10 @@ function createV3WorkerDecisionResolver({
         if(!error.code)error.code='WORKER_SELECTED_TOKEN_UNTRUSTED';
         throw error;
       }
-      const selectedAction=actionFrontier.selectedNativeAction(frontier,response.decision.token);
+      assert.ok(frontier?.actionByToken instanceof Map,
+        'trusted worker token must resolve through the host-native action map');
+      const selectedAction=frontier.actionByToken.get(response.decision.token);
+      assert.ok(selectedAction,'trusted worker token must resolve to a host-native action');
       let selectedCardIdentityForDiagnostic=null;
       try{
         if(typeof request.captureSelectedCardIdentity==='function')

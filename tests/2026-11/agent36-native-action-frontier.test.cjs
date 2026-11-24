@@ -890,7 +890,7 @@ test('selected-action validation rejects live Store divergence from the frontier
     rejectActionTypes:[]
   });
   const built=buildNativeActionFrontier({state,actorSeat:0,native});
-  state.players[0].hand.cards[0].name='changed after frontier admission';
+  state.turn++;
   const store={state,dispatch(){assert.fail('diverged live Store must not be dispatched');}};
   assert.throws(()=>dispatchSelectedNativeAction({
     store,frontier:built,token:built.actionFrontier.items[0].token,
