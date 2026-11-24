@@ -37,6 +37,8 @@ The suggested Active Flutter Mane + Active Clefairy + Shadow Rider Max Geist sea
 
 A concrete source/target matrix and both-seat/order regression checklist is preserved in [Agent11's Radiant Gate source-order matrix](agent11-radiant-gate-source-order-matrix-20261124.md).
 
+The v4 native-order field also needs proof: main's `simulation/twinleaf/actor-observation-contract.cjs` only copies `pokemon.abilityLockActivationOrder` if the native object already has a safe integer; otherwise it emits null. A repository-wide search found no research-owned setter. Synthetic non-null candidate-policy tests do not establish that the pinned Twinleaf model populates or updates the property when a Pokémon enters Active. Verify the pinned native writer or add a research-side hook/tracker and native observation regression before relying on source-order resolution.
+
 ## Evidence boundary
 
 All findings above are source/card-text or policy-contract findings, not observed game losses. No candidate decklist changed. No native game, fixture, matchup, win rate, or 99.5% result is claimed.
