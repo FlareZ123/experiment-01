@@ -1,7 +1,13 @@
-name: Aichi Japanese promo source-use diagnostic
+name: Aichi original source resolution and promo source-use
 
 on:
   workflow_dispatch:
+    inputs:
+      run_source_use:
+        description: 'Also run the bounded rank-6 versus rank-1 generic-bot source-use diagnostic (unqualified)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -29,38 +35,57 @@ jobs:
       - name: Compile upstream Twinleaf
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
-      - name: Resolve all 29 authenticated original Aichi lists with explicit research hooks
+      - name: Admit all original Aichi lists through the production plan builder
         run: |
           node <<'NODE'
-          const path = require('node:path');
-          const { resolveManifestFile } = require('./simulation/twinleaf/resolve-field.cjs');
-          const report = resolveManifestFile(
-            path.resolve('results/aichi-2026/full-decklists.json'),
-            {
-              allowEquivalentBasicEnergies: true,
-              allowJapanesePromoHooks: true
-            }
-          );
-          const summary = {
-            source: report.source,
-            engineRevision: report.engineRevision,
-            publishedDecks: report.totalPublishedDecks,
-            resolvedDecks: report.resolvedDecks,
-            note: 'ID resolution and Twinleaf 60-card construction only; not paper legality, full card-effect fidelity, policy competence, or matchup evidence.',
-            ranks: report.decks.map(deck => ({
-              rank: deck.rank,
-              deckSize: deck.deckSize,
-              mappedAndStructurallyValid: deck.playableUnderEngine,
-              researchPromoCopies: deck.modifications
-                .filter(change => change.reason === 'research-only-japanese-promo-implementation')
-                .reduce((sum, change) => sum + change.count, 0),
-              unresolved: deck.unresolved
-            }))
+          const { planAichi, summarisePlan } = require('./simulation/evaluation/aichi-pilot.cjs');
+          const plan = planAichi(1, {
+            allowEquivalentBasicEnergies: true,
+            allowBasicEnergyMirrorPrintings: true,
+            allowJapanesePromoHooks: true,
+            requireFrozenSourceBaseline: true
+          });
+          const summary = summarisePlan(plan);
+          const ready = plan.opponents.filter(deck => deck.status === 'ready');
+          const missing = plan.opponents
+            .filter(deck => deck.status === 'missing-published-list')
+            .map(deck => deck.rank);
+          const blocked = plan.opponents
+            .filter(deck => deck.status === 'unresolved-printings')
+            .map(deck => ({ rank: deck.rank, unresolved: deck.unresolved }));
+          const promoHookCopies = ready.reduce((total, deck) =>
+            total + (deck.substitutions || [])
+              .filter(change => change.reason === 'research-only-japanese-promo-implementation')
+              .reduce((sum, change) => sum + change.count, 0), 0);
+          const result = {
+            engineRevision: plan.engineRevision,
+            sourceDeckCount: plan.sourceDeckCount,
+            rosterSize: plan.opponents.length,
+            frozenSourceBaselineMatched: plan.originalSourceFiles.matchedFrozenReference,
+            candidateRankPlaceholder: plan.candidateRank,
+            candidateResolved: summary.candidateResolved,
+            readyRanks: ready.map(deck => deck.rank),
+            missingRanks: missing,
+            blockedRanks: blocked,
+            researchPromoCopies: promoHookCopies,
+            substitutionRanks: ready
+              .filter(deck => deck.substitutions && deck.substitutions.length)
+              .map(deck => ({ rank: deck.rank, substitutions: deck.substitutions }))
           };
-          console.log(JSON.stringify(summary, null, 2));
-          if (report.totalPublishedDecks !== 29 || report.resolvedDecks !== 29) {
+          console.log(JSON.stringify(result, null, 2));
+          const expectedMissing = [23, 25, 28];
+          if (
+            plan.sourceDeckCount !== 29 ||
+            plan.opponents.length !== 32 ||
+            plan.originalSourceFiles.matchedFrozenReference !== true ||
+            summary.candidateResolved !== true ||
+            ready.length !== 29 ||
+            JSON.stringify(missing) !== JSON.stringify(expectedMissing) ||
+            blocked.length !== 0
+          ) {
             process.exitCode = 1;
           }
           NODE
       - name: Run bounded two-slot source diagnostic
+        if: ${{ inputs.run_source_use }}
         run: node simulation/twinleaf/japanese-promos-source-probe.cjs
