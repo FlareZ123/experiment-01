@@ -89,3 +89,15 @@ The candidate's two Hoods therefore create a real defensive allocation option: i
 ### Field Blower interaction
 
 All three Aichi lists with Fairy Zone (ranks 1, 5, 30) also contain Field Blower GRI 125: one copy in rank 1, one in rank 5, and three in rank 30. A Stealthy Hood attached to the candidate's Radiant Eternatus blocks opponent Fairy Zone only while the Tool remains effective and attached; Field Blower can discard it. The Hood allocation is therefore a tactical protection window, not a guaranteed permanent answer. No Jamming Tower or Tool Jammer appears in these three exact lists.
+
+
+### Exact Fairy Zone matchup package counts
+
+| Deck | Lillie's Clefairy ex | Radiant Eternatus | Stealthy Hood | Field Blower |
+|---|---:|---:|---:|---:|
+| Candidate Hood Shield Shadow Rider v1 | 2 | 1 | 2 | 1 |
+| Aichi rank 1 Shadow Rider | 2 | 1 | 0 | 1 |
+| Aichi rank 5 Mew Genesect | 1 | 0 | 0 | 1 |
+| Aichi rank 30 Lillie's Clefairy | 3 | 0 | 0 | 3 |
+
+In rank 1, both decks have a Dragon-type Radiant Eternatus and Fairy Zone; only the candidate has Stealthy Hood. The candidate can therefore protect its own Radiant Eternatus from the opponent's Fairy Zone while its own Fairy Zone changes the opponent's unprotected Radiant Eternatus to Psychic ×2. The opponent's Field Blower can remove the candidate's Hood, so timing remains relevant. Ranks 5 and 30 have no Dragon target in their own lists but can still target the candidate's Radiant Eternatus.
