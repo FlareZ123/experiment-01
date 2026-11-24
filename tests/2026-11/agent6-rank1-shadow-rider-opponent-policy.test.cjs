@@ -2538,3 +2538,235 @@ test('a claimed Radiant source is rejected when no Radiant is on the actor Bench
     kind: 'abstain', reasonCode: 'UNSUPPORTED_CONFIRMATION_SOURCE'
   });
 });
+
+
+test('one remaining VMAX uses the deck/prize hypergeometric estimate, not a guaranteed-deck assumption', () => {
+  const request = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94'),
+      discard: [
+        'Shadow Rider Calyrex VMAX CRE 75',
+        'Shadow Rider Calyrex VMAX CRE 75',
+        'Shadow Rider Calyrex VMAX CRE 75'
+      ],
+      deckCount: 30, prizeCount: 6
+    }),
+    items: [
+      { token: 'radiant', kind: 'play-card',
+        actorPrinting: 'Radiant Eternatus CRZ 105',
+        publicMetadata: { cardType: 'pokemon', handIndex: 0,
+          targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+          isOwnerVisible: true } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action', token: 'radiant'
+  });
+});
+
+test('Aichi Wobbuffet suppresses Radiant only from the Active Spot', () => {
+  const radiantAction = {
+    token: 'radiant', kind: 'play-card',
+    actorPrinting: 'Radiant Eternatus CRZ 105',
+    publicMetadata: { cardType: 'pokemon', handIndex: 0,
+      targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+      isOwnerVisible: true }
+  };
+  const activeLock = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94'), deckCount: 30, prizeCount: 6 }),
+    opponentPublic: player({
+      active: pokemon('Wobbuffet PHF 36', { abilities: ['Bide Barricade'] })
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(activeLock), {
+    kind: 'select-action', token: 'pass'
+  });
+
+  const benchedWobbuffet = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94'), deckCount: 30, prizeCount: 6 }),
+    opponentPublic: player({
+      active: pokemon('Regidrago V SIT'),
+      bench: [pokemon('Wobbuffet PHF 36', { abilities: ['Bide Barricade'] })]
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(benchedWobbuffet), {
+    kind: 'select-action', token: 'radiant'
+  });
+});
+
+test('Path to the Peak suppresses Gate unless Stadium effects are disabled', () => {
+  const radiantAction = {
+    token: 'radiant', kind: 'play-card',
+    actorPrinting: 'Radiant Eternatus CRZ 105',
+    publicMetadata: { cardType: 'pokemon', handIndex: 0,
+      targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+      isOwnerVisible: true }
+  };
+  const activePath = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94'),
+      stadium: ['Path to the Peak CRE 148'],
+      deckCount: 30, prizeCount: 6
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(activePath), {
+    kind: 'select-action', token: 'pass'
+  });
+
+  const disabledPath = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94'),
+      stadium: ['Path to the Peak CRE 148'],
+      publicTurnRestrictions: publicRestrictions({
+        stadiumAndToolHaveNoEffectTurnsRemaining: 1
+      }),
+      deckCount: 30, prizeCount: 6
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(disabledPath), {
+    kind: 'select-action', token: 'radiant'
+  });
+});
+
+test('Iron Thorns Initialization is an Active-only Radiant Gate lock', () => {
+  const radiantAction = {
+    token: 'radiant', kind: 'play-card',
+    actorPrinting: 'Radiant Eternatus CRZ 105',
+    publicMetadata: { cardType: 'pokemon', handIndex: 0,
+      targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+      isOwnerVisible: true }
+  };
+  const activeLock = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94'), deckCount: 30, prizeCount: 6 }),
+    opponentPublic: player({
+      active: pokemon('Iron Thorns ex TWM 77', { abilities: ['Initialization'] })
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(activeLock), {
+    kind: 'select-action', token: 'pass'
+  });
+
+  const benchedIronThorns = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94'), deckCount: 30, prizeCount: 6 }),
+    opponentPublic: player({
+      active: pokemon('Regidrago V SIT'),
+      bench: [pokemon('Iron Thorns ex TWM 77', { abilities: ['Initialization'] })]
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(benchedIronThorns), {
+    kind: 'select-action', token: 'radiant'
+  });
+});
+
+test('Garbodor suppresses Gate only with a Tool attached and live Garbotoxin', () => {
+  const radiantAction = {
+    token: 'radiant', kind: 'play-card',
+    actorPrinting: 'Radiant Eternatus CRZ 105',
+    publicMetadata: { cardType: 'pokemon', handIndex: 0,
+      targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+      isOwnerVisible: true }
+  };
+  const garbotoxin = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94'), deckCount: 30, prizeCount: 6 }),
+    opponentPublic: player({
+      active: pokemon('Regidrago V SIT'),
+      bench: [pokemon('Garbodor BKP 57', {
+        abilities: ['Garbotoxin'], tools: ['Stealthy Hood DRX 96']
+      })]
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(garbotoxin), {
+    kind: 'select-action', token: 'pass'
+  });
+
+  const bareGarbodor = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94'), deckCount: 30, prizeCount: 6 }),
+    opponentPublic: player({
+      active: pokemon('Regidrago V SIT'),
+      bench: [pokemon('Garbodor BKP 57', { abilities: ['Garbotoxin'] })]
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(bareGarbodor), {
+    kind: 'select-action', token: 'radiant'
+  });
+});
+
+test('Snorlax Block does not suppress Radiant, and Wobbuffet does not block Psychic Wonder Tag', () => {
+  const radiantAction = {
+    token: 'radiant', kind: 'play-card',
+    actorPrinting: 'Radiant Eternatus CRZ 105',
+    publicMetadata: { cardType: 'pokemon', handIndex: 0,
+      targetSeat: 'actor', targetZone: 'bench', targetIndex: 0,
+      isOwnerVisible: true }
+  };
+  const snorlax = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94'), deckCount: 30, prizeCount: 6 }),
+    opponentPublic: player({
+      active: pokemon('Snorlax PGO 55', { abilities: ['Block'] })
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(snorlax), {
+    kind: 'select-action', token: 'radiant'
+  });
+
+  const wonderTag = rootRequest({
+    ownHand: ['Tapu Lele-GX GRI 60'],
+    ownPublic: player({ active: pokemon('Girafarig LOT 94') }),
+    opponentPublic: player({
+      active: pokemon('Wobbuffet PHF 36', { abilities: ['Bide Barricade'] })
+    }),
+    items: [
+      { token: 'wonder-tag', kind: 'use-ability',
+        publicMetadata: { abilityName: 'Wonder Tag', sourceSeat: 'actor',
+          sourceZone: 'bench', sourceIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(wonderTag), {
+    kind: 'select-action', token: 'wonder-tag'
+  });
+});
+
+test('a live Wobbuffet lock declines an already-open Radiant confirmation', () => {
+  const request = promptRequest({
+    promptType: 'ConfirmPrompt',
+    source: actorChoiceSource('Radiant Eternatus CRZ 105', 'Climactic Gate'),
+    choices: [
+      { token: 'yes', kind: 'confirm', label: 'Yes' },
+      { token: 'no', kind: 'confirm', label: 'No' }
+    ],
+    publicMetadata: { selectionType: 'confirm' },
+    observation: {
+      ownPublic: player({
+        bench: [pokemon('Radiant Eternatus CRZ 105')],
+        deckCount: 30, prizeCount: 6
+      }),
+      opponentPublic: player({
+        active: pokemon('Wobbuffet PHF 36', { abilities: ['Bide Barricade'] })
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choice', token: 'no'
+  });
+});
