@@ -6,6 +6,8 @@ const { createHash } = require('node:crypto');
 const { buildCampaign } = require('../scripts/aichi-comparison-campaign.cjs');
 const {prepareCandidateInputOrder} =
   require('../simulation/evaluation/aichi-candidate-input-order.cjs');
+const {PROTOCOL: INDEPENDENT_RNG_PROTOCOL} =
+  require('../simulation/evaluation/agent37-independent-rng-v1.cjs');
 const {
   verifyCampaign, turnProof, executeCampaign, rank11SourceSeat
 } = require('../simulation/evaluation/aichi-campaign-runner.cjs');
@@ -769,11 +771,11 @@ test('v2 campaign rejects games that omit Aichi owner-local paper shuffle receip
   const archive = executeCampaign(f, {
     maxTrials: 1,
     prepareCandidate: prepare,
-    rngProtocol: PROTOCOL,
+    rngProtocol: INDEPENDENT_RNG_PROTOCOL,
     runMatch(request) {
       return {
         ...finished(request),
-        randomnessProtocol: PROTOCOL,
+        randomnessProtocol: INDEPENDENT_RNG_PROTOCOL,
         rngMaterialCommitment: request.rngMaterialCommitment,
         physicalShuffleRandomIsolation: true,
         aichiFieldPaperShuffleRandomIsolation: false,
