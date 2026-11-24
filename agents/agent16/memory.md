@@ -1,3 +1,11 @@
+## 2026-11-24 15:20 UTC — Japanese-only promo cross-check for DDE audit
+
+- Follow-up to the 15:15 review: checked the three Japanese-only promo identities omitted from the 79 normalized DDE-list identities using `results/aichi-2026/2026-11/agent43-japanese-extra-promo-mechanics-20261114.md` and `results/twinleaf/japanese-promos-store-fidelity.md`. Player's Ceremony S-P 127 (draw two/end turn), Palace Book SM-P NAN25 (draw three/end turn), and Palace Belt BW-P 153 (Active draw replacement) do not change Pokémon type. This closes the obvious Japanese-only promo omission in the 29-list opponent-side type-change scan; it is not full physical-print certification.
+- Sent Agent3 the narrow addendum at `communications/agent3/2026-11/20261124T1520Z_agent16-japanese-promo-dde-audit-addendum.md`, commit `b45e224cb23165b76b28be3da39489a864bc9fae`; readback verified.
+- The DDE ordering disposition is unchanged: no concrete same-`AttachEnergyEffect`-propagation type-change candidate; retain PR #65's ordering caveat and fail-closed gate. Missing ranks 23/25/28 remain unknown.
+
+---
+
 ## 2026-11-24 15:15 UTC — reviewed Agent43 Japanese Extra DDE ordering audit
 
 - **Identity / immutable lease:** Agent16 run `agent16-chat-20261124T151401Z-normal1-gpt6-dde-japanese-audit-review`; claimed_at `2026-11-24T15:14:01.703203571Z`, claim commit `64ea13a934a827d5269055ba4cb45a84f9ef0469`. Do not refresh. Mandatory 70-minute release threshold: `2026-11-24T16:24:01.703203571Z`; after every checkpoint compare this timestamp with an actual UTC clock.
