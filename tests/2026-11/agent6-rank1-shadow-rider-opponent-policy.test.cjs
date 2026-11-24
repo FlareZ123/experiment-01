@@ -273,11 +273,11 @@ function paleMoonReceipt(ownPublic, turn = 3) {
   };
 }
 
-function copycatReceipt(ownPublic, attackName = 'Max Geist', turn = 3) {
+function copycatReceipt(ownPublic, attackName = 'Max Geist', turn = 3, sourcePrinting = 'Shadow Rider Calyrex VMAX CRE 75') {
   const receipt = paleMoonReceipt(ownPublic, turn);
   const row = {
     turn: turn - 1,
-    sourcePrinting: 'Shadow Rider Calyrex VMAX CRE 75',
+    sourcePrinting,
     attackName,
     gxAttack: false,
     copycatAttack: false
@@ -2063,9 +2063,8 @@ test('Mimikyu Copycat attack is selected when a legal non-GX target is visible',
 });
 
 test('Mimikyu is not played when the only prior-turn Copycat choice is unsupported Night Watch', () => {
-  const opponentActive = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
-    hp: 320,
-    stage: 'VMAX',
+  const opponentActive = pokemon('Trevenant & Dusknoir-GX SMP 217', {
+    hp: 270,
     attacks: [{
       name: 'Night Watch',
       cost: ['Psychic', 'Psychic', 'Colorless'],
@@ -2081,7 +2080,7 @@ test('Mimikyu is not played when the only prior-turn Copycat choice is unsupport
     ownHand: ['Mimikyu GRI 58'],
     ownPublic,
     opponentPublic: player({ active: opponentActive }),
-    receipt: copycatReceipt(ownPublic, 'Night Watch'),
+    receipt: copycatReceipt(ownPublic, 'Night Watch', 3, 'Trevenant & Dusknoir-GX SMP 217'),
     items: [
       { token: 'mimikyu', kind: 'play-card', actorPrinting: 'Mimikyu GRI 58',
         publicMetadata: { cardType: 'pokemon', handIndex: 0 } },
