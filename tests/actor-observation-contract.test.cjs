@@ -185,9 +185,29 @@ test('a prompted opponent can observe its own choice without active-turn ownersh
   s.prompts=[prompt];
   const p=actorObservation(s,1);
   assert.equal(p.decisionKind,'owner-prompt');
+  assert.equal(p.actorSeat,1);
+  assert.equal(p.turnSeat,0,
+    'the actual turn seat remains distinct from the prompted actor');
   assert.equal(p.pendingPromptType,'ChooseCardsPrompt');
   assert.equal(p.pendingOwnerDeckSearch,true);
   assert.throws(()=>actorObservation(s,0),/prompted actor/);
+});
+
+test('public Ability-lock activation order is exposed only as a detached safe integer',()=>{
+  const s=fixture();
+  const own=s.players[0].active.getPokemonCard();
+  const opponent=s.players[1].active.getPokemonCard();
+  own.abilityLockActivationOrder=17;
+  opponent.abilityLockActivationOrder=23;
+  const view=actorObservation(s,0);
+  assert.equal(view.turnSeat,0);
+  assert.equal(view.ownPublic.active.abilityLockActivationOrder,17);
+  assert.equal(view.opponentPublic.active.abilityLockActivationOrder,23);
+  own.abilityLockActivationOrder=Number.MAX_SAFE_INTEGER+1;
+  delete opponent.abilityLockActivationOrder;
+  const unknown=actorObservation(s,0);
+  assert.equal(unknown.ownPublic.active.abilityLockActivationOrder,null);
+  assert.equal(unknown.opponentPublic.active.abilityLockActivationOrder,null);
 });
 
 test('a deck alias is not a deck search without a native choice prompt',()=>{
