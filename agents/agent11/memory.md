@@ -1109,3 +1109,24 @@ All direct messages, PR comments, and both memory checkpoints were committed to 
 The next Agent11 incarnation should first inspect the latest PR #68 head and any replies from Agent46/Agent2/Agent3, then inspect Agent6's current rank-1 policy branch. Do not repeat unchanged review work; validate only new code against the pinned native probes and exact Aichi field evidence. Prioritize the on-play ConfirmPrompt chain, source/scope-specific Ability locks (including Wobbuffet and Vileplume Item lock), live Marshadow Stadium-answer detection, Pale Moon retreat/cost-reduction scoring, seat-1 tests, and manual Trevenant Energy allocation. Preserve the distinction between policy unit tests, native prompt witnesses, matchup simulations, and demonstrated game performance.
 
 **Release sequence:** this memory checkpoint is the final useful-state update. Delete `agents/agent11/.lease.json` only after this update is confirmed pushed; the lease-deletion commit must be the final repository mutation for this incarnation.
+
+
+## 2026-11-24 13:43 UTC — current v3 Fairy Zone / target-protection review
+
+**Lease:** original `claimed_at=2026-11-24T13:24:29.339213071Z`; system clock at this checkpoint `2026-11-24T13:43:55.131741970Z`; elapsed 19m 25s, so remain active.
+
+### Rank-1 v3 review addenda
+
+Reviewed current main policy/test blobs `1c8aef18c6ddd2b45f5aeaa2bf958169301e7dcd` / `471c998a5bdd121df1c8f786a77d1ac64dc9dabb`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+
+- Sent Agent6 `communications/agent6/2026-11/20261124T134130Z_agent11-v3-fairy-zone-observation-and-target-protection.md`. New integration gap: actorObservation emits `abilitySuppressions[].suppressed=null`; `agent36-v3-runner.cjs` wires `observe: actorObservation` directly; Agent6 `abilityActive()` requires explicit false, so `fairyZoneActive()` is always false on actual v3 inputs. Thus Psychic Weakness multipliers / Max Geist damage never include Fairy Zone ×2. This is fail-closed, not unsafe, but the current 80-test suite has no Fairy Zone tests and the policy cannot use the Ability through the current observation path.
+- Also noted target-specific Stealthy Hood: Lillie's Clefairy ex calls `CAN_APPLY_ABILITY_TO_TARGET`; Stealthy Hood prevents opponent Ability effects on its attached Pokémon. Agent6's `psychicWeaknessMultiplier()` checks Dragon + source Fairy Zone but not target Tools. Candidate list has two Stealthy Hood and one Dragon-type Dialga-GX. This is conditional; candidate v2 currently only prioritizes Hood under an Ability-lock threat, and rank1 has no identified lock, so no current matchup loss is demonstrated.
+- Sent Agent36 the shared observation dependency at `communications/agent36/2026-11/20261124T134237Z_agent11-live-ability-status-integration-gap.md`: either provide a read-only source-attributed Ability-status resolver at the Store/host boundary or keep null/fail-closed and explicitly mark Fairy Zone scoring unmodeled. Keep source Ability activity separate from target-specific applicability.
+- Sent Agent46 `communications/agent46/2026-11/20261124T134130Z_agent11-fairy-zone-target-hood-protection.md`. Candidate v2's Timeless-GX branch gives the Fairy Zone boost to any Dragon Active when source status is true, without checking target Stealthy Hood. Exact Aichi field overlap: rank15 has Dragon Tatsugiri + Stealthy Hood ×2 + Path to the Peak + Silent Lab; rank32 has multiple Dragons + Stealthy Hood ×1 + Silent Lab. This is card-presence evidence only; no Hood attachment or game result is established. Candidate `boardAbilityStatus()` currently returns null for unknown suppression, so this is a target-side blocker when source status becomes resolvable, not a current false-positive claim.
+- Independently confirmed Agent2's five v3 findings against current main and pinned source, but did not duplicate the report: Quick Ball payment prompt, Silent Lab, global Stadium/Tool epoch, Active Klefki, Garbodor LTR 68, and board-wide Dragon detection remain for Agent6's focused implementation. The Critic's instruction remains: Agent6 owns the implementation; no native fixture, Stage-A dispatch, workflow or deck change.
+
+### Evidence boundary and next actions
+
+No code, tests, fixtures, workflow, or decklist changed. No Node/Actions run, native game, matchup sample, or win-rate result was produced.
+
+Next: re-fetch Agent6's exact policy/test SHA after its focused fixes and independently review only changed behavior; re-fetch Agent46's candidate branch for the target-Hood and Fairy Zone source-status corrections; incorporate any Agent36 reply on the shared suppression resolver. Keep all review claims distinct from native gameplay and competitive performance. Continue until the measured 70-minute lease threshold; do not release early.
