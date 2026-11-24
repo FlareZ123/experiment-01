@@ -2003,3 +2003,42 @@ Claimed Agent 2 at `2026-11-24T16:22:40.530Z` with run id `agent2-chat-20261124T
 3. Keep the benchmark cross-format distinction explicit and the 99.5% claim unsupported until credible matchup evidence exists.
 4. Continue until the lease-age 70-minute rule is met; do not release early.
 
+
+
+## 2026-11-24 continuation checkpoint — Gate, Marshadow, and target-specific effects
+
+### Candidate list facts
+
+- `results/aichi-2026/candidate-hood-shadow-rider.json` totals 60 cards / 34 entries. The human-usable Expanded-legal normalized export is `results/decks/hood-shield-shadow-rider-v1-expanded-legal-60.md`: 18 Pokémon, 31 Trainers, 11 Basic Psychic Energy. It normalizes the 11 nonstandard `MEE 13` Energy entries to English CRE 232; the original JSON remains unchanged for experiment fingerprints.
+- Relevant singleton/low-count pieces: 1 Trevenant & Dusknoir-GX, 1 Dimension Valley, 1 Marshadow UNB 81, 1 Field Blower, 2 Stealthy Hood, 1 Radiant Eternatus, 1 Tapu Lele-GX, 4 Shadow Rider VMAX. This makes the policy issues below directly relevant to the nominated candidate hypothesis.
+- Aichi field ranks verified from `full-decklists.json`: Parallel City at ranks 10,12,13,20,21,25,29; Flutter Mane at rank 19 (no Tool Jammer/Jamming Tower in that list); Snorlax PGO 55 at ranks 3 and 7, both with Tool Jammer; Klefki at ranks 4 and 17; Silent Lab at ranks 9,13,15,32; Garbodor+Tool at ranks 8,11,16,22; Wobbuffet at ranks 7,10,21; Iron Thorns at ranks 6,24,29.
+
+### New candidate-policy findings sent to Agent46
+
+- **Climactic Gate target cap:** `expectedClimacticGateTargets()` correctly computes (E[min(X,2)]) for deck + hidden Prize unknowns, and current `prizeCount` / `prizeSlots` projection supports the revealed-Prize partition. But the policy does not cap by Bench space after Radiant uses one slot. Message `20261124T164850Z_agent2-climactic-gate-capacity-math.md` gives counterexample: deck=4, hidden prizes=6, two VMAX copies remaining among 10 unknown gives (E[min(X,2)]=0.8), but if only one target slot remains (P(X\ge1)=2/3). Use `maxTargets = min(2, openBench - 1)`.
+- **Parallel City + Gate:** the new `parallelCityLimitsActor()` is only used for Field Blower target selection; `canUseClimacticGate()` still counts five physical Bench slots. With two existing Bench Pokémon under a cap of three, the physical array has three nulls but Radiant fills the third allowed slot, leaving no VMAX space. With one existing Bench Pokémon, only one VMAX can be placed after Radiant. Message `20261124T165217Z_agent2-parallel-city-gate-capacity.md` asks for effective capacity = `min(physicalOpen, 3 - occupiedBench)` when the actor is capped, then subtract one for Radiant. Direction semantics remain unverified per Agent4; don't treat policy tests as proof until pinned-source mapping is established.
+- **Marshadow Resetting Hole:** candidate policy incorrectly treats any Marshadow on board as a Stadium answer, but Resetting Hole requires Marshadow on the Bench. It also counts a Marshadow whose Basic Ability is suppressed by Silent Lab, Active Klefki, or Tool-equipped Garbodor. `scoreBasicPlay()` also plays Marshadow against any opponent Stadium even when the policy would not remove that Stadium (e.g. opponent-owned Dimension Valley that benefits this Psychic deck); the prompt handler later declines unless `hasStadiumRemovalTarget()` is true. Findings and precision corrections:
+  - `20261124T165747Z_agent2-resetting-hole-suppression-gap.md`
+  - `20261124T165825Z_agent2-resetting-hole-scope-correction.md` (clarifies `missingStadiumAnswer` only suppresses Star Alchemy priority; generic Arven Field Blower search still exists)
+  - `20261124T165919Z_agent2-resetting-hole-bench-only.md`
+  - `20261124T170105Z_agent2-resetting-hole-target-value.md`
+  The right predicate must require a Benched Marshadow, an actually live Resetting Hole Ability (Path to the Peak does not suppress non-Rule-Box Marshadow; Silent Lab/Klefki/Garbodor do; Wobbuffet exempts Psychic; Iron Thorns does not affect non-Rule-Box Marshadow), and a Stadium the policy genuinely wants to remove.
+- **Underworld Door fuel scoring:** `canFuelNightWatch()` returns true on `energyPlayedTurn === false` even if `boardAbilityStatus('Underworld Door')` is explicitly false. This can prioritize/search/bench Trevenant & Dusknoir-GX despite the known source Ability suppression; later `canUseUnderworldDoor()` rejects the actual prompt. Message `20261124T165552Z_agent2-underworld-fuel-suppression-guard.md` asks that explicit false dominate while preserving the intended unknown-state policy. This is separate from the previously known live-null prompt rejection.
+- **Pale Moon-GX:** Rulebook A-03 says effects clear when the Active moves to Bench or evolves. Use actual Retreat Cost, Energy, Special Conditions, and public restrictions; account for evolution/switch outs as uncertainty. The current fixed 3-Energy cutoff is wrong; the Energy-denial bonus should apply only when extra Psychic is actually present. Two Psychic Energy under Dimension Valley (Pale Moon cost [P][C] reduced to [P]) leave one extra Psychic. Messages: `20261124T163809Z_agent2-pale-moon-gx-score-review.md`, `20261124T164126Z_agent2-pale-moon-retreat-correction.md`, `20261124T164506Z_agent2-pale-moon-energy-bonus-scope.md`.
+- **Stealthy Hood search:** Flutter Mane rank 19 is an Active-only effect and can be prevented by Hood on an untooled own Active Shadow Rider. Snorlax PGO Block ranks 3/7 is another Active-specific Hood out, but both lists have Tool Jammer: remove Tool Jammer with Field Blower first, then Hood the own Active Shadow Rider if it has an open Tool slot. Messages: `20261124T163958Z_agent2-flutter-mane-hood-search-gap.md`, `20261124T164415Z_agent2-snorlax-block-hood-target-gap.md`, `20261124T164951Z_agent2-snorlax-tool-jammer-qualification.md`.
+- **Fairy Zone:** live actor projection emits `suppressed:null`; candidate's damage evaluator requires explicit true and therefore never applies the Fairy Zone multiplier under ordinary projection. Reuse Agent6's source-derived public-suppressor resolver, keeping genuinely unknown sources unknown. Message `20261124T164208Z_agent2-fairy-zone-live-status-gap.md`; Agent4 independently confirmed reuse path in `20261124T164543Z_agent4-fairy-zone-resolver-reuse.md`.
+
+### Current PR/lease state
+
+- At `2026-11-24T17:01Z`, Agent46's branch and PR #69 both remained at `c2764286bde497252a701f7e566cd0bb25100f8d`, PR body last updated 16:32, no exact-head contract receipt; Agent46 lease claimed 16:03:22Z (about 58 minutes old). Await their response/commit rather than changing their branch.
+- Agent6 branch/PR #70 remained at `3b071e4b57c26f9db7ccecd45c9ce4f4d5f8f1f2`, with no exact-head contract receipt. The Quick Ball fail-open message is in Agent6's mailbox.
+- Main objective remains unachieved: current README says 29/32 Aichi lists authenticated, 0/32 physical-copy certifications, 0/32 qualified matchups, no nominated final deck, and no credible 99.5% result. The benchmark is an English Expanded-legal deck against Japanese Extra Aichi Top32 lists, i.e. a custom cross-format challenge, not sanctioned Expanded-vs-Expanded.
+- Stage-A fixture/game execution remains frozen. No fixture/game/simulation was run.
+
+### Next actions
+
+1. Check Agent46 for exact-head changes before any further candidate review; review only changed behavior.
+2. If no code response by their lease release, preserve the messages and let the next incarnation resume.
+3. Recheck Agent6/Agent46 exact-head contract receipts after fixes; do not run Stage-A fixture/game.
+4. Continue until Agent2's measured 70-minute lease age; do not release early.
+
