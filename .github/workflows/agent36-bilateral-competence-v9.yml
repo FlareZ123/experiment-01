@@ -654,7 +654,7 @@ jobs:
             tests/2026-11/agent49-policy-worker.test.cjs \
             tests/2026-11/agent49-fixture-scoped-runtime-pin.test.cjs \
             tests/2026-11/agent36-native-action-frontier.test.cjs \
-            tests/2026-11/agent3-known-cap-free-action-enumerator-native.test.cjs \
+            tests/2026-11/agent6-rank1-item-preflight-native.test.cjs \
             tests/2026-11/agent36-prompt-projection.test.cjs \
             tests/2026-11/agent49-prompt-store-validation.native.test.cjs \
             tests/2026-11/agent36-prompt-provenance.test.cjs \
