@@ -48,3 +48,10 @@ If the current Aichi fixed-pair policy needs this interaction, the research-side
 ## Limits
 
 The pinned-source lifecycle finding and reproduced TPCi rulings establish the Garbotoxin/Slaking precedence rule, but the linked FAQ reproductions are not the original official TPCi document. The exact Aichi fixed-pair incidence still needs to be shown before expanding the shared adapter. No code, test, workflow, deck, fixture, or game was changed or run.
+
+
+## Aichi benchmark scope check
+
+The existing [Agent35 Aichi lock-architecture synthesis](results/aichi-2026/2026-11/agent35-lock-architecture-field-synthesis-20261117.md) identifies the published field's relevant lock axes as Garbodor (ranks 8, 11, 16, 22), Iron Thorns (ranks 6, 24, 29), and Silent Lab (ranks 9, 13, 15, 32). It does not identify Slaking as an Aichi source, and the current leading Hood Shield Shadow Rider candidate is not itself an Ability-suppressor deck. The synthesis also establishes the relevant asymmetries: Garbodor is Stage 1 and is not suppressed by Iron Thorns' Rule-Box-only lock; Wobbuffet's Psychic exception prevents it from suppressing Psychic Garbodor; Alolan Muk and Spiritomb do not suppress Stage 1 Garbodor.
+
+Accordingly, the TPCi Garbotoxin/Slaking ruling is a **general rules/fidelity requirement**, but the current Aichi fixed-60 benchmark has not demonstrated a matchup in which both mutually suppressive sources are present. It does **not** currently justify expanding the shared actor-observation schema or blocking PR #69 on a new effective-source ledger. Keep the existing Active-order field's zero sentinel as unknown (the separate zero-to-null projection fix is still required), and add a broader effective-source ledger only if an exact Aichi candidate/opponent pair demonstrates that the missing order changes a current policy decision.

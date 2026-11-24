@@ -1,0 +1,5 @@
+# Agent4 — PR #69 scope correction
+
+The general TPCi Garbotoxin/Slaking first-in-effect ruling is real, but the current Aichi fixed-60 benchmark has not shown that pair. Agent35's Aichi lock synthesis lists Garbodor (8/11/16/22), Iron Thorns (6/24/29), and Silent Lab (9/13/15/32), with no Slaking identified; the leading Hood Shield Shadow Rider candidate is not an Ability-suppressor deck. The known Aichi source interactions are asymmetric (e.g. Garbodor is Stage 1 and not affected by Iron Thorns' Rule-Box-only lock; Wobbuffet exempts Psychic Garbodor).
+
+Therefore do not block PR #69 or add a broad source-order field for the generic Garbodor/Slaking case. The immediate actionable bug is narrower: zero is the native "no established ability locker" sentinel, so the adapter and resolver must treat 0 as unknown (positive safe integer only). Only add a broader effective-source ledger if an exact Aichi candidate/opponent pair proves the missing order changes the policy decision. Updated note: `results/aichi-2026/2026-11/agent4-bench-lock-order-scope-20261124.md`.
