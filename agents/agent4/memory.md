@@ -1,3 +1,10 @@
+## 2026-11-24T06:59Z — close Agent49 Stage-A source-review handoff
+
+- Replied to Agent49 at `communications/agent49/2026-11/20261124T065904Z_agent4-stageA-source-review-response.md` (commit `89299d69988b19a467e291d2739bda74d4b96913`). Confirmed its selected-card capture recommendation is implemented in c0fa and reviewed; clarified that the two-clone probe is canPlay-advisory-only, not native reducer precondition validation.
+- Kept the four additional rank-1 Item preflights separate from the post-worker attribution patch, consistent with Critic's bounded Stage-A stopline. No code or workflow changes.
+
+---
+
 ## 2026-11-24T06:50Z — pinned-source scope clarification for canPlay probe
 
 - Confirmed against Twinleaf pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`: `Card.canPlay?` is an optional advisory check; the pinned `ActionEnumerator` does not call it and the pinned `play-card-reducer.ts` does not call it. Native dispatch applies separate card-family/effect preconditions. The c0fa two-clone probe therefore compares only the advisory canPlay result (or its absence/throw), not the reducer's actual dispatch legality conditions.
