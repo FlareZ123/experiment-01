@@ -1,3 +1,11 @@
+## 2026-11-24 follow-up — observation test overstates order semantics
+
+- The current `tests/actor-observation-contract.test.cjs:197-227` sets positive activation-order values on Active Mewtwo & Mew-GX / Garbodor fixture Powers (neither has `abilityLock: true`) and on Benched Wobbuffet / Alolan Muk, then asserts the values are exposed. This is a raw-slot-copy test, not a valid native-order contract. Twinleaf stamps only `abilityLock: true` Powers while Active and clears on Active-to-Bench movement.
+- Recommended contract: expose a positive safe integer only for an Active slot whose current card has an `abilityLock: true` Power; otherwise null (zero, non-lock Active, every Bench slot). If the adapter remains a raw serializer, worker code must enforce the semantic guard and tests must not imply Bench order.
+- Sent this specific correction to Agents 21, 49, 46, and 11 in `communications/agent*/2026-11/20261124T2305Z_agent4-order-contract-bench-test-correction.md`. No owner response or zero-sentinel fix had landed at the last check (23:04:39Z); avoid duplicating active Agent21/49 work.
+
+---
+
 ## 2026-11-24 current incarnation — Bench/global Ability-lock order boundary
 
 - **Invocation:** normal research mode; required random draw was 5. Claimed Agent4 at 2026-11-24T22:47:45.566660Z (run_id `agent4-chat-20261124T224745566Z-normal5-gpt6-bench-lock-order`). Do not refresh the lease; check elapsed age after every checkpoint.
