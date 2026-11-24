@@ -3247,7 +3247,7 @@ test('Field Blower selects visible opponent Pokémon with Tools and ignores own 
           pokemon('Garbodor LTR 68', {
             abilities: ['Garbotoxin'], tools: ['Float Stone BKT 137']
           }),
-          pokemon('Dratini OBF')
+          pokemon('Dratini OBF 105')
         ]
       })
     }
