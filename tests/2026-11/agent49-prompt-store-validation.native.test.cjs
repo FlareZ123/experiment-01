@@ -431,6 +431,9 @@ test('native action frontier keeps first Star Alchemy use but rejects the deferr
     result.id=id++;
     return result;
   };
+  // Stage(0) carries Double Dragon Energy in hand; remove it so the
+  // frontier does not probe an intentionally illegal off-type attachment.
+  x.owner.hand.cards.length=0;
   x.owner.bench[0].cards.length=0;
   x.owner.bench[0].cards.push(card('Shadow Rider Calyrex V CRE'));
   const stone=card('Forest Seal Stone SIT');
@@ -634,6 +637,8 @@ function createMarshadowFixture({onBench,withStadium}){
   const x=stage(0);
   const manager=initializeCards();
   const native=nativeFrontierBindings();
+  // Stage(0) carries Double Dragon Energy; keep the hand focused on this fixture.
+  x.owner.hand.cards.length=0;
   let id=93000;
   const card=name=>{
     const template=manager.getCardByName(name);
@@ -657,6 +662,9 @@ function createMarshadowFixture({onBench,withStadium}){
     x.store.dispatch(new native.cardActions.PlayCardAction(x.owner.id,handIndex,{
       player:native.PlayerType.ANY,slot:native.SlotType.BOARD,index:0
     }));
+    // Training Court's optional use action requires a Basic Energy in discard;
+    // seed one so the frontier can enumerate that separate action without error.
+    x.owner.discard.cards.push(card('Psychic Energy SVE'));
   }
   const enumerator=createKnownCapFreeActionEnumerator({native,enginePin:EXPECTED_ENGINE_PIN});
   const isResettingHole=action=>action?.type==='USE_ABILITY_ACTION'&&
