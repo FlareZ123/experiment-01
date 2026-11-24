@@ -290,9 +290,20 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
     },
     fixtureGamePartial:{finalFullState:{privateField:'PARTIAL_FULL_STATE_SENTINEL'}},
     fixtureFailure:{name:'Error',code:'TEST',stage:'fixture',
-      messageSha256:'f'.repeat(64),messageLength:10}
+      messageSha256:'f'.repeat(64),messageLength:10,
+      nativeFixtureFailure:{
+        name:'GameError',code:'NATIVE_FIXTURE_FAILURE',stage:'dispatch',
+        messageSha256:'e'.repeat(64),messageLength:21,
+        nativeErrorKind:'GameError',nativeGameMessage:'CANNOT_PLAY_THIS_CARD',
+        stackSite:{
+          file:'simulation/evaluation/2026-11/agent49-native-fixture-game.cjs',
+          line:456,column:12
+        }
+      }}
   };
-  const sanitized=sanitizeFixtureArtifact(artifact);
+  const sanitized=sanitizeFixtureArtifact(artifact,{
+    nativeGameMessageValues:['CANNOT_PLAY_THIS_CARD']
+  });
   const json=JSON.stringify(sanitized);
   assert.doesNotMatch(json,
     /"(?:candidateAudit|opponentAudit|setupPromptDecisions|selectedHandIndices|selectedPrintings|nativeError|promptId|playerId|perspectivePlayerId|workerDecisionTrace|actorInput|promptProjection|selectedItems|policyAudit|validationReceipt)"\s*:/);
@@ -324,7 +335,32 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
   assert.equal(sanitized.privacyBoundary.fullStateCaptured,false);
   assert.equal(sanitized.fixtureFailure.messageSha256,undefined);
   assert.equal(sanitized.fixtureFailure.messageLength,10);
-  assert.doesNotMatch(json,/f{64}/);
+  assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.nativeErrorKind,'GameError');
+  assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.nativeGameMessage,
+    'CANNOT_PLAY_THIS_CARD');
+  assert.deepEqual(sanitized.fixtureFailure.nativeFixtureFailure.stackSite,{
+    file:'simulation/evaluation/2026-11/agent49-native-fixture-game.cjs',
+    line:456,column:12
+  });
+  assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.messageSha256,undefined);
+  assert.doesNotMatch(json,/f{64}|e{64}/);
+
+  for(const stackSite of [
+    {file:'/tmp/private.cjs',line:1,column:1},
+    {file:'simulation/../private/secret.cjs',line:1,column:1},
+    {file:'simulation/evaluation/private.cjs',line:0,column:-1}
+  ]){
+    const invalidArtifact=structuredClone(artifact);
+    invalidArtifact.fixtureFailure.nativeFixtureFailure.nativeGameMessage='PRIVATE_CUSTOM_GAME_ERROR';
+    invalidArtifact.fixtureFailure.nativeFixtureFailure.stackSite=stackSite;
+    const invalid=sanitizeFixtureArtifact(invalidArtifact,{
+      nativeGameMessageValues:['CANNOT_PLAY_THIS_CARD']
+    });
+    assert.equal(invalid.fixtureFailure.nativeFixtureFailure.nativeErrorKind,'GameError');
+    assert.equal(invalid.fixtureFailure.nativeFixtureFailure.nativeGameMessage,undefined);
+    assert.equal(invalid.fixtureFailure.nativeFixtureFailure.stackSite,undefined);
+    assert.doesNotMatch(JSON.stringify(invalid),/PRIVATE_CUSTOM_GAME_ERROR/);
+  }
   assert.equal(sanitized.game.actorDecisions[0].actorObservation.ownHandCount,1);
   assert.equal(sanitized.game.actorDecisions[0].selectedCardPublicPrinting,'PubliclyPlayedCard');
   assert.equal(sanitized.game.finalPublicState.players[0].active,'Public Active');
