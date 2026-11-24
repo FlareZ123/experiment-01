@@ -950,7 +950,7 @@ test('no-game failure receipt projects only allowlisted worker and native failur
 });
 
 
-test('runner projects safe native GameError kind, enum message and repo-relative stack site',()=>{
+test('runner projects structured native GameError diagnostics for downstream sanitizer',()=>{
   const projected=runner.projectV3FixtureFailureForReceipt({
     name:'Error',code:'NATIVE_FIXTURE_FAILURE',stage:'policy-decode',messageLength:21,
     nativeFixtureFailure:{
