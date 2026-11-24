@@ -13,9 +13,9 @@ Added one regression to `tests/2026-11/agent3-dde-energy-frontier-native.test.cj
 The test runs both physical seat orientations on Twinleaf commit `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`:
 
 1. Build a native Simulator state with Kecleon PLF 94 Active opposite Regidrago V SIT.
-2. Attach DDE to Kecleon through the native attachment action frontier; verify Kecleon resolves as Dragon and DDE is present in both host card and Energy lists.
+2. The research-owned Energy action enumerator constructs the Double Dragon Energy ROS 97 attachment action, which is then dispatched through the pinned native Store/reducers; verify Kecleon resolves as Dragon and DDE is present in both host card and Energy lists.
 3. End the Kecleon owner's turn through native `PassTurnAction`, resolving the actual silent `WaitPrompt` transitions.
-4. Play `Switch BS` through native `PlayCardAction`; resolve its `Choose pokemon` prompt by moving Dedenne GX UNB (Lightning) Active.
+4. Play Switch BS 95 through native `PlayCardAction`; resolve its `Choose pokemon` prompt by moving Dedenne GX UNB (Lightning) Active.
 5. After final prompt resolution, query Kecleon's type and inspect DDE's actual card locations.
 
 No direct mutation of the host's type, no manually invoked DDE discard effect, no engine source patch, and no adapter hook are used in the transition.
@@ -30,14 +30,14 @@ In both orientations:
 - DDE is moved into the Kecleon owner's discard pile by the post-prompt state check.
 - DDE is absent from both the host's main card list and Energy list.
 
-This exercises the native `CheckTableStateEffect` path after a completed top-level action and final prompt resolution. It turns the prior source-only trace into a passing regression for this concrete host/type-change sequence.
+This exercises the native attachment reducer and post-Switch `CheckTableStateEffect` path after a completed top-level action and final prompt resolution. The test does not call `buildNativeActionFrontier()` and does not qualify the full frontier-builder/admission path. It turns the prior source-only trace into a passing regression for this concrete host/type-change sequence.
 
 ## Reproduction
 
 - Test: `tests/2026-11/agent3-dde-energy-frontier-native.test.cjs`
 - Workflow: `twinleaf-smoke.yml`
 - Selector: `agent3_dde_energy_frontier_only=true`
-- Successful run: [45380972111](https://github.com/FlareZ123/experiment-01/actions/runs/45380972111)
+- Successful run: [45381618321](https://github.com/FlareZ123/experiment-01/actions/runs/45381618321) on test/report commit `006f0c6759d47c56345b4468862929f38b095dfa`
 - Successful job: `agent3-dde-energy-frontier`
 - Review PR: [#67](https://github.com/FlareZ123/experiment-01/pull/67), based on PR #65's exact head and targeting its branch
 
