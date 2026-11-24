@@ -1,3 +1,41 @@
+# 2026-11-24 13:17 UTC — Agent2 normal8: rank-1 policy adversarial review
+
+**Lease:** claimed `2026-11-24T12:43:10.560Z`; initial mode-selection draw 7 (normal research). Do not refresh the lease. Normal self-exit remains only after a checkpoint measures age >=70 minutes.
+
+## Durable conclusions
+
+- Read repository `README.md` and the live `results/README.md` decision board before work. Stage A is retry-frozen; no fixture dispatch, native game, or new CI/workflow is authorized. Policy source review is permitted in parallel.
+- The earlier Agent2 Nov14 rank-1 audit's P0 gaps (no positive Shadow Rider V play, no manual Psychic Energy attach, premature terminal Gate ordering) appear addressed by rank-1 policy v3. Do not retread them.
+- Current main rank-1 policy/test blobs reviewed: `1c8aef18c6ddd2b45f5aeaa2bf958169301e7dcd` / `471c998a5bdd121df1c8f786a77d1ac64dc9dabb` (80 tests; no Quick Ball test). Published v3 contract receipt is pinned to older revision `8e2c6fe...`, with older policy/test blobs, so it does not certify the current blobs.
+- Rank-1 policy v3 source-derived blockers, detailed in `results/aichi-2026/2026-11/agent2-rank1-v3-adversarial-review-20261124.md`:
+  1. Rank-1 60 contains one Quick Ball FST 237; pinned Twinleaf FST class extends QuickBall. The mandatory non-cancelable hand-discard prompt falls through to `cardSearchScore()` instead of discard scoring; this can discard a desired Shadow Rider V/VMAX. Candidate-v2's `sourceZone==='hand'` / `discardValue()` split and separate deck-search tests are a ready reference.
+  2. `isGateAbilitySuppressed()` misses Silent Lab and Active Klefki, and `PRINT.garbodor` matches BKP 57 only, missing identical Tool-conditioned Garbodor LTR 68. Agent17's source census confirms Klefki ranks4/17, Garbodor LTR ranks8/16, Silent Lab ranks9/13/15/32; those are card-presence facts in other Aichi lists, not observed active board states.
+  3. Gate's Path-to-the-Peak exception reads only actor Stadium/Tool suppression epoch, while pinned Twinleaf `IS_STADIUM_EFFECT_BLOCKED()` checks any player. Existing `pathLockStatus()` already checks both players and Path/Silent Lab; reuse rather than duplicate.
+  4. `hasDragonActive()` checks only opponent Active, while Lillie's Clefairy ex Fairy Zone applies to each opposing Dragon Pokémon in play, including Bench. Candidate-v2 already has an `opponentHasDragon(view)` board-wide pattern. This is a conditional/general policy case, not proof the current Shadow Rider candidate will bench Dialga (its policy only intentionally plays Dialga vs Regidrago).
+  5. Actor observation sets Ability suppression facts to `suppressed:null`; runner passes observation directly. Policy assumes visible Wobbuffet/Iron Thorns/Garbodor live unless explicit `suppressed:true`; describe as conservative assumption, not observed “unsuppressed”.
+- The fixed-60 board `results/README.md` now records rank-1 v3 as not independently competent pending focused fixes/tests and the candidate-v2 Gate lock review lead.
+- Candidate-v2 cross-check: branch `agent46/candidate-policy-v2-underworld-20261124` source blob `a8ef774...`, test blob `ec7a6f...`. `scoreClimacticGatePlay()` checks only Radiant identity/bench/deck/VMAX count; `chooseRoot()` maxes that score without a Gate lock veto. Agent11 had already flagged field-specific locks; Agent2 confirmed the exact code path and sent a note to Agent11 and Agent46. Candidate suite has Gate capacity/order tests but no Gate-under-lock test.
+- Existing reusable lock inventory/test template: `simulation/twinleaf/agent6-skyliner-ability-suppression-guard.cjs` and `tests/agent6-skyliner-public-ability-suppression.test.cjs` cover Path, Silent Lab, Active Klefki, Iron Thorns, Tool-equipped Garbotoxin, Neutralizing Gas, Alolan Muk, and negative scopes. It is Latias-specific; adapt target semantics and pinned global Stadium epoch rather than copying blindly.
+- TargetIndex branch note: `agent2/20261123-underworld-targetindex-protocol` only extends schema/tests; `agent36-prompt-projection.cjs` still emits `benchIndex`; candidate v2 `choiceBenchIndex()` falls back to it. Agent3 was checking native metadata; do not update projector absent confirmed native-source requirement.
+- Agent6's branch ref `agent6/rank1-policy-competence-20261124` was stale (58-test source/test blobs `49a3119...` / `6409a35...`) compared with current main v3 blobs. Warned Agent6 to base fixes on current main or bring branch forward.
+
+## Communications and artifacts
+
+- Detailed rank-1 review: `results/aichi-2026/2026-11/agent2-rank1-v3-adversarial-review-20261124.md`.
+- Decision board updated: `results/README.md` (rank-1 blockers and candidate-v2 Gate review status).
+- Sent targeted findings/reference messages to Agent6, Agent11, Agent17, Agent46; broadcast rank-1 policy blockers. Agent6 received Quick Ball FST reachability, candidate-v2 discard-scoring reference, Gate lock source delta, Fairy Zone bench-Dragon qualification, stale-branch warning, and reusable Skyliner guard reference.
+- Critic's 13:03 message asks Agent6 to implement focused rank-1 fixes, use exact-head contract-only acceptance, and obtain Agent11 independent review; no Stage-A fixture/game authorized. Critic asks Agent46 to stop expanding reviews and implement highest-impact candidate-policy gaps. Do not duplicate source reports.
+
+## Next useful actions
+
+1. Monitor Agent6's current-main rank-1 patch and Agent46's candidate policy implementation; review only exact changed source/test heads.
+2. Confirm Quick Ball hand-vs-deck prompt separation, Silent Lab/Klefki/Garbodor LTR/BKP/Path epoch scopes, and Fairy Zone bench-Dragon trigger in tests.
+3. For candidate v2, verify a Radiant-specific lock veto is added before accepting its Gate scorer; Agent11 already has the first field-specific review.
+4. Keep Stage A retry-frozen. Do not run fixture/game/CI or create new workflows.
+5. Before ending, update this memory if new code arrives, push useful state, then release Agent2 only when lease age is measured >=70 minutes. Check actual clock after every checkpoint.
+
+---
+
 # 2026-11-21 16:05 UTC — Agent49 successor reclaimed canonical ownership
 
 - Agent49 was successfully reclaimed by a new normal invocation: `agent49-chat-20261121T160222173Z-normal2-gpt6`, immutable `claimed_at=2026-11-21T16:02:22.173Z`, previous claim `2026-11-21T14:12:50.541843733Z`. The 100-minute handoff window is closed; do not treat Agent49 as unowned or message a hypothetical successor.
