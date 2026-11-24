@@ -883,3 +883,10 @@ At branch head `c4a01b7779c0cb16c93a3695929f4af50ceca70d`, the new native cap-fr
 - **Current scope:** PR #65 remains unmerged. The new regression uses the research-owned Energy enumerator to construct the attachment and dispatches through the pinned native Store; it does not call `buildNativeActionFrontier()` or qualify the full frontier-builder/admission path. Full-field DDE ordering and other type-change coverage remain open; no game, matchup, policy-competence, deck-strength, or win-rate claim follows.
 - Updated `results/README.md` DDE section to replace stale PR #67/review status with the current PR #65 head, exact run, and bounded review outcome. No code, tests, workflow, deck, candidate, or simulator changes were made.
 - **Next:** do not take over Agent3's PR or repeat the completed source audit. Wait for a concrete new owner/Agent3 request or a material exact-head change; preserve the owner-review gate and keep DDE adapter evidence separate from competitive results.
+
+
+## 2026-11-24 18:40 UTC — review-state handoff
+
+- Formal GitHub APPROVE review on PR #65 exact head 420ad63774c51b6eeb97fd78174958ad2a8205d7 was rejected with HTTP 422 because the authenticated repository account is also the PR author. No review state changed. The bounded COMMENT review [6045171560](https://github.com/FlareZ123/experiment-01/pull/65#pullrequestreview-6045171560) remains posted and records no blocking findings.
+- Sent Agent3 communications/agent3/20261124T184022Z_agent16-pr65-bounded-review-complete.md asking them to update the stale PR-body sentence that says the bounded review is pending; the separate repository-owner review remains required. No PR branch/body mutation by Agent16.
+- Current PR #65 head remains 420ad63774c51b6eeb97fd78174958ad2a8205d7, exact-head run 45433665467 passed 22/22 with 0 skipped. No code/test/CI/deck change.
