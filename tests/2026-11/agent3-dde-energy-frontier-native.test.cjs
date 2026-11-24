@@ -742,6 +742,12 @@ test('pinned DDE host-type-change discard runs after a native Switch prompt in b
     // Play the real Switch Item and resolve its native ChoosePokemonPrompt.
     const switchIndex = switcher.hand.cards.findIndex(card => card.id === switchCardId);
     assert.ok(switchIndex >= 0, 'Switch must remain in the opponent hand');
+    assert.ok(switcher.hand.cards[switchIndex] instanceof native.TrainerCard,
+      'Switch printing must remain a native TrainerCard after Simulator cloning');
+    assert.ok(switcher.bench[0].cards.length > 0,
+      'the Switch player must have a legal Bench target');
+    assert.equal(state.phase, native.GamePhase.PLAYER_TURN,
+      'the native PassTurnAction must leave the opponent in its Player Turn');
     switcher.playableCardIds = [switchCardId];
     const switchAction = new native.cardActions.PlayCardAction(
       switcher.id,
@@ -752,10 +758,22 @@ test('pinned DDE host-type-change discard runs after a native Switch prompt in b
         index: 0
       }
     );
+    assert.ok(switchAction instanceof native.cardActions.PlayCardAction);
     store.dispatch(switchAction);
     state = store.state;
     assert.equal(state.prompts.length, 1,
-      'native Switch must open its ChoosePokemonPrompt');
+      'native Switch must open its ChoosePokemonPrompt; diagnostics=' + JSON.stringify({
+        phase: state.phase,
+        turn: state.turn,
+        activePlayer: state.activePlayer,
+        switcherSeat,
+        switcherId: state.players[switcherSeat].id,
+        switchCard: state.players[switcherSeat].hand.cards[switchIndex]?.fullName,
+        switchCardIsTrainer: state.players[switcherSeat].hand.cards[switchIndex] instanceof native.TrainerCard,
+        switchCardTrainerType: state.players[switcherSeat].hand.cards[switchIndex]?.trainerType,
+        bench: state.players[switcherSeat].bench.map(slot => slot.cards.map(card => card.fullName)),
+        prompts: state.prompts.map(item => item.type)
+      }));
     const prompt = state.prompts[0];
     assert.equal(prompt.type, 'Choose pokemon');
     const chosenBenchPokemon = state.players[switcherSeat].bench[0];
