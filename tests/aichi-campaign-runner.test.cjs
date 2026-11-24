@@ -742,6 +742,12 @@ test('independent CSPRNG campaign protocol generates, echoes, archives and audit
   tamperedReceipt.records[0].observedRngMaterialCommitment = '0'.repeat(64);
   assert.throws(() => auditArchive(f, tamperedReceipt), /independent RNG receipts/);
 
+  const tamperedPaperShuffleReceipt = structuredClone(archive);
+  tamperedPaperShuffleReceipt.records[0].effectiveMatchOptions
+    .aichiFieldPaperShuffleRandomIsolation = false;
+  assert.throws(() => auditArchive(f, tamperedPaperShuffleReceipt),
+    /independent RNG receipts/);
+
   const provenance = {
     researchRevision: archive.researchRevision || 'synthetic-research-revision',
     engineRevision: 'tested-revision',
