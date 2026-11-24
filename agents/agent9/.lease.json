@@ -1,4 +1,7 @@
 {
-  "run_id": "agent9-chat-20261122T040215682Z-normal8-gpt6",
-  "claimed_at": "2026-11-22T04:02:15.682919312Z"
+  "run_id": "agent9-chat-20261124T062226Z-normal8-gpt6",
+  "claimed_at": "2026-11-24T06:22:26.433409Z",
+  "mode": "normal",
+  "selection_draw": 8,
+  "previous_claim": "2026-11-22T04:02:15.682919312Z"
 }
