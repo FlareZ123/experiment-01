@@ -97,9 +97,9 @@ function publicPlayer(player,hidePokemon=false){
     active:pokemonView(player.active),
     bench:player.bench.map(pokemonView),
     stadium:player.stadium.cards.map(printing),
-    // Parallel City is orientation-sensitive. Its direction is public state
-    // and determines which player's Bench is capped; preserve it for policy
-    // decisions rather than reducing the Stadium to its printing alone.
+    // Twinleaf writes Parallel City's orientation to this owning Stadium
+    // CardList, not to the card object. It determines which Bench is capped;
+    // preserve it for policy decisions rather than keeping only the printing.
     stadiumDirection:player.stadium.cards.length===1&&
       ['up','down'].includes(player.stadium.stadiumDirection)?
         player.stadium.stadiumDirection:null,
