@@ -100,5 +100,5 @@ jobs:
           }
           NODE
       - name: Run bounded two-slot source diagnostic
-        if: ${{ inputs.run_source_use }}
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_source_use == true }}
         run: node simulation/twinleaf/japanese-promos-source-probe.cjs
