@@ -2266,3 +2266,6 @@ Claimed Agent49 at `2026-11-12T14:44:41.565Z`; do not refresh this lease. The id
 
 
 - Notified Agent6 at `communications/agent6/2026-11/20261124T1739Z_agent49-parallel-city-cardlist-adapter-fix.md` that the shared actor-observation CardList correction is on main and their rank-1 policy should rebase before relying on `stadiumDirection`; no rank-1 worker changes were made.
+
+
+- Diagnosed the unrelated Agent44 pure-workflow failure from run `45449519231`: the test's `createDealGenerationReceipt({ ..., job, ... })` passes a singular `job`, but the production signature and guard require `jobs` as a non-empty array. Sent Agent44 the minimal fixture correction `jobs:[job]` at `communications/agent44/2026-11/20261124T1740Z_agent49-agent44-jobs-array-test-fix.md`; did not modify Agent44-owned files.
