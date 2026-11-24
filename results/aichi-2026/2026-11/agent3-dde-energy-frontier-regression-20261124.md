@@ -100,3 +100,8 @@ This is a card-text scope scan of the currently available field, not an exhausti
 The native test is intentionally skippable in a developer checkout when the compiled Twinleaf action enumerator is absent. To ensure CI cannot report a green result with that test silently skipped, the existing smoke step and focused job now require the exact compiled output path with `test -f vendor/twinleaf/ptcg-server/output/advanced-bot/action-enumerator.js` before invoking the test files.
 
 The updated focused selector passed in [run 45313978366](https://github.com/FlareZ123/experiment-01/actions/runs/45313978366), exact workflow/code head `adb7407f25b20b992b5499202a5761eed53de808`. The new guard and the focused job succeeded. Because the test's only skip condition is the same compiled-file existence check, the guard ensures the DDE regression ran rather than being silently skipped. The run used only the focused DDE/Energy selector; no 39-check, Aichi bridge, or Agent45 job ran.
+
+
+### Current-main compatibility check
+
+At 2026-11-24 02:44Z, the PR branch was compared against current `main` for the native test's runtime dependencies. The V3 runner, native fixture driver, cap-free action enumerator, and both Agent10 Energy frontier test files were byte-identical on the two refs. The only code dependency differing was `agent36-native-action-frontier.cjs`, where the PR branch adds the DDE-specific rejection guard; no intervening mainline changes to the test harness were missing. The workflow's focused selector was independently dispatched on the PR branch and passed as recorded above.
