@@ -12,7 +12,7 @@ The original PR #65 approach caught the native `CANNOT_PLAY_THIS_CARD` message a
 
 Branch: `agent41/dde-preflight-alternative-20261124`  
 Base: `agent3/dde-energy-frontier-mainline-20261124` at `2a3c51368aa2f6becfa2f59e59376a607a245c45`  
-Latest head: `444254677d6e26f5021b5087319ccb85f38d49d0`  
+Latest head: `8b65c33d75825e8eb59cfa34de9417fb11ac67c1`  
 PR: [#66](https://github.com/FlareZ123/experiment-01/pull/66)
 
 In `simulation/evaluation/2026-11/agent36-native-action-frontier.cjs`:
@@ -23,7 +23,7 @@ In `simulation/evaluation/2026-11/agent36-native-action-frontier.cjs`:
 4. Evaluate the target with the pinned `CheckPokemonTypeEffect` through the cloned Store's `reduceEffect`.
 5. Preflight-reject only if the resulting dynamic `cardTypes` definitely omit Dragon.
 
-There is no DDE-specific `CANNOT_PLAY_THIS_CARD` catch anymore. Dragon-target actions go through native dispatch normally; any dispatch error remains fatal. Type-check errors, missing primitives, or malformed results also remain fatal. Existing Item and Underworld Door preflight behavior is unchanged.
+There is no DDE-specific `CANNOT_PLAY_THIS_CARD` catch anymore. Dragon-target actions go through native dispatch normally; any dispatch error remains fatal. Type-check errors, missing primitives, malformed results, or an empty dynamic type list also remain fatal. Existing Item and Underworld Door preflight behavior is unchanged.
 
 ## Regression coverage
 
@@ -43,6 +43,7 @@ Pinned Twinleaf submodule: `vendor/twinleaf`, gitlink `a9905a76a6c4103ba4b6cb9a4
 
 - [Run 45323084755](https://github.com/FlareZ123/experiment-01/actions/runs/45323084755) passed after adding both-seat Kecleon dynamic-type and same-message legal-Dragon fatal controls.
 - [Run 45323659321](https://github.com/FlareZ123/experiment-01/actions/runs/45323659321) passed after adding the fail-closed opponent-owned target control.
+- [Run 45324322296](https://github.com/FlareZ123/experiment-01/actions/runs/45324322296) passed on latest head `8b65c33d75825e8eb59cfa34de9417fb11ac67c1` after requiring a non-empty dynamic type result.
 
 The focused workflow verifies the pinned submodule gitlink, pinned Node/dependencies, vendor compilation without modifying upstream, compiled native action-enumerator presence, and the focused native Energy frontier tests.
 
