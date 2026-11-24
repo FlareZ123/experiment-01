@@ -402,7 +402,6 @@ function canFuelNightWatch(view) {
 
 function paleMoonScore(attacker, attack, view, target) {
   if (!attacker || !attack || !target ||
-      view.ownTurnResources.gxUsed === true ||
       view.ownPublic.publicTurnRestrictions?.gxUsed === true ||
       !canPayAttack(attacker, attack, view)) return -Infinity;
   const psychicAttached = attacker.energies.filter(energy =>
