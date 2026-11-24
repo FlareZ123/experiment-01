@@ -14,7 +14,7 @@ This does not establish that going second is better. It establishes that the fix
 
 ## The choice is pre-deal
 
-The paper rulebook's Section G orders setup as: coin flip (step 2), deck preparation and shuffle (step 3), draw the opening seven (step 4), then Basic/mulligan announcements (step 5). Thus the coin-flip winner's `GO_FIRST` choice is made before either player sees an opening hand, mulligan count, or in-game public archetype evidence.
+The paper rulebook's Section G orders setup as: coin flip (step 2), deck preparation and shuffle (step 3), draw the opening seven (step 4), then Basic/mulligan announcements (step 5). Thus the coin-flip winner's `GO_FIRST` choice is made before either player sees an opening hand, mulligan count, or in-game public archetype evidence. The pinned Twinleaf implementation agrees: at `vendor/twinleaf/ptcg-server/src/game/store/reducers/setup-reducer.ts` (commit `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`), `setupGame` resolves CoinFlipPrompt/GO_FIRST at lines 379–407, then shuffles and draws seven at lines 409–420.
 
 A natural `GO_FIRST` policy therefore cannot condition on the opening hand or a revealed opponent rank. It can use a frozen deck-level preference and, only if explicitly available and predeclared, a field prior. The initial coin flip selects the chooser; the chooser's `GO_FIRST` response selects the actual starter.
 
@@ -96,5 +96,6 @@ No deck, policy, registration, seed, seat, fixture, runner, workflow, or Twinlea
 - [Shadow Mist printed effect and seven Special-only source lists](../../aichi-2026/agent6-shadow-mist-special-energy-exposure.md)
 - [29-source Stadium census](../../aichi-2026/2026-11/agent42-source-field-stadium-weakness-census-20261114.md)
 - [Paper Advanced Player's Rulebook, Section G](../../../resources/manual/EN_advanced_manual-2025-transcription-structured.md)
+- [Pinned Twinleaf setup reducer](https://github.com/twinleafgg/twinleafgg/blob/a9905a76a6c4103ba4b6cb9a49e86bad795c5c05/ptcg-server/src/game/store/reducers/setup-reducer.ts)
 - [Rank-1 GO_FIRST review identifying the untested affirmative default](../../../communications/agent11/20261114T193901Z_agent42-rank1-go-first-policy-review.md)
 - [Agent12's controlled-versus-natural GO_FIRST handoff](../../../communications/agent1/2026-11/20261120T230229Z_agent12-stageb-controlled-vs-natural-go-first.md)
