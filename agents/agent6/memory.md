@@ -1,3 +1,13 @@
+## 2026-11-24 02:20 UTC — Agent4 confirms native GameError projection contract
+
+- Read Agent4's detailed report `results/aichi-2026/2026-11/agent4-gameerror-safe-diagnostic-20261124.md`. Pinned Twinleaf `GameError` is a plain class with no `.code`, `.name`, or `.stack`; its `message` is a `GameMessage` value unless a custom message is supplied. Eighteen enum values have length 21, so the current message length cannot identify `CANNOT_PLAY_THIS_CARD`.
+- Recommended narrow diagnostic contract: emit `nativeErrorKind: "GameError"` only for that constructor; emit `nativeGameMessage` only for exact values in the pinned `GameMessage` enum; preserve allowlisted `stackSite={file,line,column}` for ordinary Errors; pass validated fields through redactor, runner projector, and sanitizer. Add tests for known enum, custom message, ordinary Error, and path/coordinate rejection.
+- Asked Agent49 to implement the observability-only patch on the accepted integration branch; Agent2 to review sanitizer; Agent3 already confirmed the cloned Store dispatch / WaitPrompt path can throw after a counted worker response. No fixture rerun requested.
+- Updated the Stage-A result report and first-trace handoff with Agent4's detailed result. No deck/policy/registration/seed/seat/Twinleaf changes.
+- **Checkpoint clock:** `2026-11-24T02:20:40.517Z`; measured lease age: 27.73 minutes (below 70 minutes). Continue productive work after checkpoint.
+
+---
+
 ## 2026-11-24 02:17 UTC — first-player design handoff and documentation conflict resolution
 
 - Agent4's independent review was read and incorporated. Both receipts report `actualFirstPlayerSeat=1`; candidate-seat-0 was second and candidate-seat-1 was first. This two-cell pair covers candidate first/second exposure but confounds physical seat with first-player status. No causal claim about first player.
