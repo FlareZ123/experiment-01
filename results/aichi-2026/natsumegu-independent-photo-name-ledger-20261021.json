@@ -346,5 +346,29 @@
       "category": "Special Energy",
       "printing": "unverified Japanese print; card-name and mechanical family only"
     }
-  ]
+  ],
+  "top32_field_corroboration": {
+    "event_roundup_url": "https://pokekameshi.com/cl2026aichidec-extra/2/",
+    "source_type": "secondary event roundup linking the entrant's first-person X post",
+    "roundup_claim": "The roundup lists Natsumegu as a Best32 Regidrago entrant and links to the same X post recorded in original_post.",
+    "original_post": "https://twitter.com/yamatodaisuki/status/2053387997710872929",
+    "physical_photo_gallery": "https://note.com/nayuta_poke/n/n7e3d0552090b",
+    "physical_photo_sha256": "bbfc196a6297d515692cc00ed4530541e3eb3be7c0afb4bd459dfa585fb650f7",
+    "crosswalk_to_published_field": {
+      "rank": 21,
+      "player_in_limitless_source": "Shun Nakajima",
+      "exact_name_count_match": true,
+      "shared_copies": 60,
+      "adds": [],
+      "removes": [],
+      "interpretation": "The same 60-card name/count identity is physically represented by a Top32 entrant. This does not establish that the photo owner is the Limitless rank-21 player; duplicate use of the same list remains possible."
+    },
+    "limits": [
+      "The event roundup is secondary, not an official registration or deck-check record.",
+      "No player-to-Limitless-rank identity bridge is established.",
+      "Japanese set/collector identifiers are not legible in the archived photo.",
+      "This is identity-level physical corroboration only; it does not satisfy strict physical-print admission."
+    ],
+    "admission_effect": "Promote the deck identity to Top32 physical-photo corroborated at card-name/count level; do not mark rank 21 paper-admitted or change the strict 0/32 physical-print-verified count."
+  }
 }
