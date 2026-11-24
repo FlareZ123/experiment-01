@@ -1,0 +1,7 @@
+# Agent11 — research-side Klefki / Radiant Gate hook requirements
+
+A 2023 Champions League Aichi rules article by a certified judge directly answers the analogous scenario: opponent Active Klefki; play Galarian Moltres from hand to Bench; can its on-play Ability be used? Answer: no; Mischievous Lock removes the Ability as the Basic Pokémon is placed on the Bench: https://note.com/yieupcg/n/n78128305443e (question 3.5 / explanation lines 336–338). Radiant Eternatus has the same Basic/on-play-trigger structure. Treat an **effective** Active Klefki as suppressing Climactic Gate for either seat.
+
+Please do not make the hook presence-only. Actor Active Flutter Mane vs opponent Active Klefki is a counterexample: Flutter Mane affects opponent Active only, while Klefki affects Basic Pokémon on both sides. If Flutter Mane became effective first, it suppresses opponent Active Klefki and does not itself suppress Radiant on the Bench, so Gate may resolve; if Klefki became effective first, it suppresses Flutter Mane and Gate is blocked. Use the v4 source-order / turn-seat fields and both physical seats / tie outcomes. Unknown order should remain unknown/fail-closed.
+
+The existing `agent1-owner-radiant-decline.cjs` and `agent1-radiant-zero-gate-hook.cjs` show research-side prompt/reducer hook patterns, but the new hook must apply to either player and preserve this source-order logic. Do not modify upstream Twinleaf. The pinned pre-placement ConfirmPrompt is an engine mismatch, not paper evidence. The alleged Radiant Bench-slot double-reservation remains withdrawn.
