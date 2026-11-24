@@ -124,7 +124,7 @@ const PRINT = Object.freeze({
   klefki: /^Klefki SVI 96\b/i,
   wobbuffet: /^Wobbuffet PHF 36\b/i,
   ironThorns: /^Iron Thorns ex TWM 77\b/i,
-  garbodor: /^Garbodor (?:BKP 57|LTR 68)\b/i,
+  garbodor: /^Garbodor (?:DRX 54|LTR 68|BKP 57)\b/i,
   pathToPeak: /^Path to the Peak\b/i,
   tapuLele: /^Tapu Lele-GX GRI\b/i,
   marshadow: /^Marshadow UNB 81\b/i
@@ -270,23 +270,35 @@ function isGateAbilitySuppressed(observation) {
   if (pathLockStatus(observation) !== false) return true;
 
   const activeKlefki = players.some(player =>
-    matches(player.active?.printing ?? '', PRINT.klefki) &&
+    hasAbility(player.active, 'Mischievous Lock') &&
     !abilityIsSuppressed(player.active, 'Mischievous Lock'));
   if (activeKlefki) return true;
 
   const activeWobbuffet = players.some(player =>
-    matches(player.active?.printing ?? '', PRINT.wobbuffet) &&
+    hasAbility(player.active, 'Bide Barricade') &&
     !abilityIsSuppressed(player.active, 'Bide Barricade'));
   if (activeWobbuffet) return true;
 
   const activeIronThorns = players.some(player =>
-    matches(player.active?.printing ?? '', PRINT.ironThorns) &&
+    hasAbility(player.active, 'Initialization') &&
     !abilityIsSuppressed(player.active, 'Initialization'));
   if (activeIronThorns) return true;
 
+  // Neutralizing Gas only shuts down the opponent of its Active controller.
+  const opponentNeutralizingGas = hasAbility(opponent.active, 'Neutralizing Gas') &&
+    !abilityIsSuppressed(opponent.active, 'Neutralizing Gas');
+  if (opponentNeutralizingGas) return true;
+
+  // Power of Alchemy applies from either player's board, including the Bench.
+  const livePowerOfAlchemy = players.some(player =>
+    boardSlots(player).some(slot =>
+      hasAbility(slot, 'Power of Alchemy') &&
+      !abilityIsSuppressed(slot, 'Power of Alchemy')));
+  if (livePowerOfAlchemy) return true;
+
   const liveGarbotoxin = players.some(player =>
     boardSlots(player).some(slot =>
-      matches(slot.printing ?? '', PRINT.garbodor) &&
+      hasAbility(slot, 'Garbotoxin') &&
       list(slot.tools).length > 0 &&
       !abilityIsSuppressed(slot, 'Garbotoxin')));
   return liveGarbotoxin;
