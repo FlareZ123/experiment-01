@@ -118,9 +118,13 @@ const PRINT = Object.freeze({
   clefairy: /^Lillie's Clefairy ex JTG\b/i,
   mimikyu: /^Mimikyu GRI\b/i,
   radiantEternatus: /^Radiant Eternatus CRZ\b/i,
+  quickBall: /^Quick Ball FST(?: 237)?\b/i,
+  fieldBlower: /^Field Blower GRI(?: 125)?\b/i,
+  stealthyHood: /^Stealthy Hood UNB 186\b/i,
+  klefki: /^Klefki SVI 96\b/i,
   wobbuffet: /^Wobbuffet PHF 36\b/i,
   ironThorns: /^Iron Thorns ex TWM 77\b/i,
-  garbodor: /^Garbodor BKP 57\b/i,
+  garbodor: /^Garbodor (?:DRX 54|LTR 68|BKP 57)\b/i,
   pathToPeak: /^Path to the Peak\b/i,
   tapuLele: /^Tapu Lele-GX GRI\b/i,
   marshadow: /^Marshadow UNB 81\b/i
@@ -149,6 +153,17 @@ function countPrinting(values, pattern) {
 
 function boardSlots(player) {
   return [player?.active, ...list(player?.bench)].filter(Boolean);
+}
+
+function opponentToolCount(observation) {
+  return boardSlots(observation?.opponentPublic).reduce((sum, slot) =>
+    sum + list(slot.tools).length, 0);
+}
+
+function opponentHasDragonWithStealthyHood(observation) {
+  return boardSlots(observation?.opponentPublic).some(slot =>
+    list(slot?.printed?.types).includes('Dragon') &&
+    list(slot.tools).some(tool => matches(tool, PRINT.stealthyHood)));
 }
 
 function boardHas(player, pattern) {
@@ -255,28 +270,41 @@ function isGateAbilitySuppressed(observation) {
   const opponent = observation?.opponentPublic ?? {};
   const players = [own, opponent];
 
-  const pathToPeakInPlay = players.some(player =>
-    hasPrinting(player.stadium, PRINT.pathToPeak));
-  const stadiumSuppressionEpoch =
-    own.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
-  // Null/absent epochs are unknown, so Path to the Peak remains a live lock.
-  const stadiumEffectsDisabled =
-    Number.isSafeInteger(stadiumSuppressionEpoch) && stadiumSuppressionEpoch > 0;
-  if (pathToPeakInPlay && !stadiumEffectsDisabled) return true;
+  // Path to the Peak and Silent Lab share the pinned engine's global Stadium
+  // suppression rule: either player's positive epoch disables both effects.
+  // Unknown epochs remain fail-closed whenever either Stadium is present.
+  if (pathLockStatus(observation) !== false) return true;
+
+  const activeKlefki = players.some(player =>
+    hasAbility(player.active, 'Mischievous Lock') &&
+    !abilityIsSuppressed(player.active, 'Mischievous Lock'));
+  if (activeKlefki) return true;
 
   const activeWobbuffet = players.some(player =>
-    matches(player.active?.printing ?? '', PRINT.wobbuffet) &&
+    hasAbility(player.active, 'Bide Barricade') &&
     !abilityIsSuppressed(player.active, 'Bide Barricade'));
   if (activeWobbuffet) return true;
 
   const activeIronThorns = players.some(player =>
-    matches(player.active?.printing ?? '', PRINT.ironThorns) &&
+    hasAbility(player.active, 'Initialization') &&
     !abilityIsSuppressed(player.active, 'Initialization'));
   if (activeIronThorns) return true;
 
+  // Neutralizing Gas only shuts down the opponent of its Active controller.
+  const opponentNeutralizingGas = hasAbility(opponent.active, 'Neutralizing Gas') &&
+    !abilityIsSuppressed(opponent.active, 'Neutralizing Gas');
+  if (opponentNeutralizingGas) return true;
+
+  // Power of Alchemy applies from either player's board, including the Bench.
+  const livePowerOfAlchemy = players.some(player =>
+    boardSlots(player).some(slot =>
+      hasAbility(slot, 'Power of Alchemy') &&
+      !abilityIsSuppressed(slot, 'Power of Alchemy')));
+  if (livePowerOfAlchemy) return true;
+
   const liveGarbotoxin = players.some(player =>
     boardSlots(player).some(slot =>
-      matches(slot.printing ?? '', PRINT.garbodor) &&
+      hasAbility(slot, 'Garbotoxin') &&
       list(slot.tools).length > 0 &&
       !abilityIsSuppressed(slot, 'Garbotoxin')));
   return liveGarbotoxin;
@@ -450,13 +478,35 @@ function fairyZoneActive(observation) {
     abilityActive(slot, 'Fairy Zone', observation));
 }
 
-function hasDragonActive(observation) {
+function opponentHasDragonInPlay(observation) {
+  return boardSlots(observation?.opponentPublic).some(slot =>
+    list(slot?.printed?.types).includes('Dragon'));
+}
+
+function opponentActiveIsDragon(observation) {
   return list(observation?.opponentPublic?.active?.printed?.types).includes('Dragon');
 }
 
+function toolEffectsStatus(observation) {
+  const epochs = [
+    observation?.ownPublic?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining,
+    observation?.opponentPublic?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining
+  ];
+  if (epochs.some(value => !Number.isSafeInteger(value) || value < 0)) return null;
+  return epochs.some(value => value > 0) ? false : true;
+}
+
 function psychicWeaknessMultiplier(request) {
-  return hasDragonActive(request.observation) &&
-    fairyZoneActive(request.observation) ? 2 : 1;
+  const observation = request.observation;
+  const target = observation?.opponentPublic?.active;
+  if (!opponentActiveIsDragon(observation) || !fairyZoneActive(observation)) return 1;
+
+  const targetHasStealthyHood = list(target?.tools).some(tool =>
+    matches(tool, PRINT.stealthyHood));
+  if (targetHasStealthyHood && toolEffectsStatus(observation) !== false) {
+    return 1;
+  }
+  return 2;
 }
 
 function maxGeistDamage(request) {
@@ -641,7 +691,9 @@ function scoreAction(item, request) {
         (receiptKO || opponentHandCount >= ownHandCount + 3 ||
           opponent.prizeCount < 6)) return 142;
 
-    if (includes(card, 'Field Blower') && pathLockActive(observation) &&
+    if (matches(card, PRINT.fieldBlower) &&
+        (pathLockActive(observation) ||
+          (toolEffectsStatus(observation) === true && opponentToolCount(observation) > 0)) &&
         boardSlots(own).some(slot => hasAbility(slot, 'Underworld Door'))) return 140;
 
     if (includes(card, 'Battle Compressor') &&
@@ -653,14 +705,14 @@ function scoreAction(item, request) {
           !boardHas(own, PRINT.mimikyu) && !hasPrinting(hand, PRINT.mimikyu)) ||
           (pathLockActive(observation) && !boardHas(own, PRINT.marshadow) &&
             !hasPrinting(hand, PRINT.marshadow)) ||
-          (hasDragonActive(observation) && pathLockStatus(observation) === false &&
+          (opponentHasDragonInPlay(observation) && pathLockStatus(observation) === false &&
             !fairyZoneActive(observation) && !boardHas(own, PRINT.clefairy) && !hasPrinting(hand, PRINT.clefairy))) &&
         hand.length > 1) return 132;
 
     if (matches(card, PRINT.marshadow) && pathLockActive(observation)) return 138;
     if (matches(card, PRINT.tapuLele) && !hasSupporterInHand(hand) &&
         observation.ownTurnResources.supporterPlayedTurn === 0) return 110;
-    if (matches(card, PRINT.clefairy) && hasDragonActive(observation) &&
+    if (matches(card, PRINT.clefairy) && opponentHasDragonInPlay(observation) &&
         pathLockStatus(observation) === false && !fairyZoneActive(observation) &&
         !boardHas(own, PRINT.clefairy)) return 130;
     if (matches(card, PRINT.mimikyu) && copycatTargetAvailable(request) &&
@@ -668,12 +720,12 @@ function scoreAction(item, request) {
 
     if (includes(card, 'Fog Crystal') &&
         (psychicHand === 0 || boardV < 2 ||
-          (hasDragonActive(observation) && pathLockStatus(observation) === false &&
+          (opponentHasDragonInPlay(observation) && pathLockStatus(observation) === false &&
             !fairyZoneActive(observation) && !boardHas(own, PRINT.clefairy) &&
             !hasPrinting(hand, PRINT.clefairy)))) return 108;
 
     if (includes(card, 'Quick Ball') &&
-        (boardV < 2 || (hasDragonActive(observation) && pathLockStatus(observation) === false &&
+        (boardV < 2 || (opponentHasDragonInPlay(observation) && pathLockStatus(observation) === false &&
           !fairyZoneActive(observation) && !boardHas(own, PRINT.clefairy) &&
           !hasPrinting(hand, PRINT.clefairy))) && hand.length > 1) return 102;
 
@@ -807,10 +859,16 @@ function choiceOwner(choice) {
   return choice?.publicMetadata?.ownerSeat ?? '';
 }
 
-function findVisibleSlot(player, zone, printing) {
+function findVisibleSlot(player, zone, printing, metadata = {}) {
   if (!player || typeof printing !== 'string') return null;
   if (zone === 'active' && player.active?.printing === printing) return player.active;
   if (zone === 'bench') {
+    const index = Number.isSafeInteger(metadata.benchIndex) ? metadata.benchIndex :
+      Number.isSafeInteger(metadata.slotIndex) ? metadata.slotIndex : null;
+    if (index !== null) {
+      const indexed = list(player.bench)[index];
+      if (indexed?.printing === printing) return indexed;
+    }
     return list(player.bench).find(slot => slot?.printing === printing) ?? null;
   }
   return null;
@@ -826,10 +884,31 @@ function isRadiantClimacticGatePrompt(prompt, observation) {
       matches(slot?.printing ?? '', PRINT.radiantEternatus));
 }
 
+function isFieldBlowerSource(prompt) {
+  return prompt?.source?.classification === 'actor-choice' &&
+    prompt.source.sourceKind === 'card-effect' &&
+    prompt.source.effectName === 'Field Blower' &&
+    matches(prompt.source.sourcePrinting ?? '', PRINT.fieldBlower);
+}
+
 function scorePokemonChoice(choice, observation, mode) {
   const meta = choice.publicMetadata ?? {};
+
+  if (mode === 'field-blower') {
+    if (meta.ownerSeat !== 'opponent' || meta.isOwnerVisible !== true) return -1;
+    const slot = findVisibleSlot(observation.opponentPublic,
+      meta.targetZone, choice.printing, meta);
+    if (!slot || list(slot.tools).length === 0 ||
+        toolEffectsStatus(observation) !== true) return -1;
+    const garbodor = hasAbility(slot, 'Garbotoxin');
+    const dragonHood = list(slot?.printed?.types).includes('Dragon') &&
+      list(slot.tools).some(tool => matches(tool, PRINT.stealthyHood));
+    return 150 + Math.min(20, list(slot.tools).length * 10) +
+      (garbodor ? 50 : 0) + (dragonHood ? 40 : 0);
+  }
+
   if (meta.ownerSeat !== 'actor') return -1;
-  const slot = findVisibleSlot(observation.ownPublic, meta.targetZone, choice.printing);
+  const slot = findVisibleSlot(observation.ownPublic, meta.targetZone, choice.printing, meta);
   if (!slot) return -1;
 
   if (mode === 'underworld' || mode === 'raihan') {
@@ -873,6 +952,16 @@ function sortedChoiceTokens(choices, score) {
     .map(row => row.choice.token);
 }
 
+function rankedChoiceTokensIncludingNegative(choices, score) {
+  return list(choices).map((choice, index) => {
+    const value = score(choice);
+    recordPolicyAuditScore(choice.token, value, 'NO_PROMPT_SCORE');
+    return { choice, index, score: value };
+  }).filter(row => Number.isFinite(row.score))
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .map(row => row.choice.token);
+}
+
 function cardSearchScore(printing, request, effectName) {
   const observation = request.observation;
   const hand = observation.ownHand;
@@ -905,7 +994,7 @@ function cardSearchScore(printing, request, effectName) {
       !boardHas(own, PRINT.marshadow) && !hasPrinting(hand, PRINT.marshadow)) return 170;
   if (matches(printing, PRINT.tapuLele) && !hasSupporterInHand(hand) &&
       !boardHas(own, PRINT.tapuLele) && !hasPrinting(hand, PRINT.tapuLele)) return 115;
-  if (matches(printing, PRINT.clefairy) && hasDragonActive(observation) &&
+  if (matches(printing, PRINT.clefairy) && opponentHasDragonInPlay(observation) &&
       pathLockStatus(observation) === false && !fairyZoneActive(observation) &&
       !boardHas(own, PRINT.clefairy) && !hasPrinting(hand, PRINT.clefairy)) return 160;
 
@@ -980,11 +1069,16 @@ function getLostChoiceScore(choice) {
   return 30;
 }
 
-function fieldBlowerChoiceScore(choice) {
+function fieldBlowerChoiceScore(choice, observation) {
   if (choiceOwner(choice) !== 'opponent') return -1;
   const printing = choicePrinting(choice);
-  if (/Path to the Peak|Silent Lab|Garbotoxin|Garbotoxin Tool/i.test(printing)) return 180;
-  if (choiceZone(choice) === 'tool') return 110;
+  if (choiceZone(choice) === 'stadium' &&
+      /Path to the Peak|Silent Lab/i.test(printing)) return 180;
+  if (choiceZone(choice) === 'tool') {
+    if (matches(printing, PRINT.stealthyHood) &&
+        opponentHasDragonWithStealthyHood(observation)) return 220;
+    return toolEffectsStatus(observation) === true ? 110 : -1;
+  }
   if (choiceZone(choice) === 'stadium') return 100;
   return -1;
 }
@@ -996,14 +1090,77 @@ function discardChoiceScore(choice, observation) {
     return psychicCountInHand(observation) > 1 ||
       hasPrinting(hand, /Tulip PAR\b/i) ? 10 : -100;
   }
-  if (matches(printing, PRINT.shadowRiderVmax) &&
-      countPrinting(hand, PRINT.shadowRiderVmax) > 1) return 20;
+  if (matches(printing, PRINT.shadowRiderVmax)) {
+    return countPrinting(hand, PRINT.shadowRiderVmax) > 1 ? 20 : -120;
+  }
   if (includes(printing, 'Carmine') || includes(printing, 'Lillie')) return 30;
   if (includes(printing, 'Unfair Stamp') || includes(printing, 'Raihan') ||
       includes(printing, 'Tulip') || includes(printing, 'Acerola')) return -80;
-  if (matches(printing, PRINT.shadowRiderV) &&
-      countPrinting(hand, PRINT.shadowRiderV) > 1) return 35;
+  if (matches(printing, PRINT.shadowRiderV)) {
+    return countPrinting(hand, PRINT.shadowRiderV) > 1 ? 35 : -120;
+  }
   return 50;
+}
+
+function quickBallDiscardChoiceScore(choice, observation) {
+  const printing = choicePrinting(choice);
+  const hand = list(observation.ownHand);
+
+  if (matches(printing, PRINT.shadowRiderVmax)) {
+    return countPrinting(hand, PRINT.shadowRiderVmax) > 1 ? 20 : -120;
+  }
+  if (matches(printing, PRINT.shadowRiderV)) {
+    return countPrinting(hand, PRINT.shadowRiderV) > 1 ? 35 : -120;
+  }
+  if (matches(printing, PRINT.psychic)) {
+    return psychicCountInHand(observation) > 1 ||
+      hasPrinting(hand, /Tulip PAR\b/i) ? 10 : -100;
+  }
+  if (matches(printing, PRINT.clefairy) || matches(printing, PRINT.tapuLele)) {
+    const pattern = matches(printing, PRINT.clefairy) ? PRINT.clefairy : PRINT.tapuLele;
+    return countPrinting(hand, pattern) > 1 ? 30 : -120;
+  }
+  if (matches(printing, PRINT.radiantEternatus) ||
+      matches(printing, PRINT.trevenant) ||
+      matches(printing, PRINT.latias) ||
+      matches(printing, PRINT.girafarig) ||
+      matches(printing, PRINT.mimikyu) ||
+      matches(printing, PRINT.dialga) ||
+      matches(printing, PRINT.marshadow)) return -120;
+
+  // Preserve one-of engines, outs, and matchup tech. Redundant multi-copy
+  // search cards and stadiums are safer Quick Ball payments.
+  const duplicateScore = (needle, score, singletonScore) => {
+    const count = hand.filter(card => includes(card, needle)).length;
+    return count > 1 ? score : singletonScore;
+  };
+  if (includes(printing, 'Mysterious Treasure')) {
+    return duplicateScore('Mysterious Treasure', 25, -60);
+  }
+  if (includes(printing, 'Fog Crystal')) {
+    return duplicateScore('Fog Crystal', 25, -60);
+  }
+  if (includes(printing, 'VS Seeker')) {
+    return duplicateScore('VS Seeker', 25, -70);
+  }
+  if (includes(printing, "Lillie's Determination")) {
+    return duplicateScore("Lillie's Determination", 30, -80);
+  }
+  if (includes(printing, 'Sky Field')) {
+    return duplicateScore('Sky Field', 25, -80);
+  }
+  if (includes(printing, 'Iono') || includes(printing, 'Teammates') ||
+      includes(printing, 'Guzma') || includes(printing, 'Raihan') ||
+      includes(printing, 'Tulip') || includes(printing, 'Acerola') ||
+      includes(printing, 'Carmine') || includes(printing, 'Lillie') ||
+      includes(printing, 'Unfair Stamp') ||
+      includes(printing, 'Field Blower') || includes(printing, 'Forest Seal Stone') ||
+      includes(printing, 'Float Stone') || includes(printing, 'Battle Compressor') ||
+      includes(printing, 'Night Stretcher') || includes(printing, 'Hisuian Heavy Ball') ||
+      includes(printing, 'Dimension Valley') ||
+      /ACE SPEC|Computer Search|Secret Box/i.test(printing)) return -80;
+
+  return discardChoiceScore(choice, observation);
 }
 
 function engineSetupPromptDecision(prompt, observation, choices, metadata) {
@@ -1168,6 +1325,31 @@ function promptDecision(request) {
       selectionType === 'prize-slots' ? (metadata.requiredCount ?? 1) :
         selectionType === 'card-order' ? (metadata.count ?? 1) : 1;
 
+  // Quick Ball's first owner prompt is a mandatory payment, not the subsequent
+  // Basic-Pokémon deck search. Bind the phase, exact source, actor hand, and
+  // non-cancelable 1-of-1 bounds before applying discard valuation.
+  if (prompt.promptType === 'ChooseCardsPrompt' &&
+      prompt.source.sourceKind === 'card-effect' &&
+      effectName === 'Quick Ball' &&
+      matches(sourcePrinting, PRINT.quickBall) &&
+      prompt.description === 'CHOOSE_CARD_TO_DISCARD' &&
+      selectionType === 'card-combination' &&
+      metadata.sourceZone === 'hand' &&
+      metadata.ownerSeat === 'actor' &&
+      metadata.minimumCount === 1 &&
+      metadata.maximumCount === 1 &&
+      metadata.allowCancel === false) {
+    setPolicyAuditRule('QUICK_BALL_MANDATORY_DISCARD_SCORE',
+      'LEAST_COST_FIRST_NATIVE_CHOICE_ORDER');
+    const paymentChoices = choices.filter(choice => choice.kind === 'card' &&
+      typeof choice.printing === 'string');
+    const ranked = rankedChoiceTokensIncludingNegative(paymentChoices,
+      choice => quickBallDiscardChoiceScore(choice, observation));
+    return ranked.length > 0
+      ? { kind: 'select-choices', tokens: [ranked[0]] }
+      : { kind: 'abstain', reasonCode: 'NO_SUPPORTED_CARD_SELECTION' };
+  }
+
   // The pinned Underworld Door projects each legal (hand Psychic Energy, Psychic
   // Bench target) pair as one energy-attachment choice. This is not an Energy
   // *payment* prompt: select exactly one paired assignment, never bare Energy.
@@ -1216,6 +1398,7 @@ function promptDecision(request) {
     else if (includes(effect, 'Acerola')) mode = 'acerola';
     else if (effectName === 'Climactic Gate' &&
         isRadiantClimacticGatePrompt(prompt, observation)) mode = 'evolution';
+    else if (isFieldBlowerSource(prompt)) mode = 'field-blower';
     else if (prompt.source.sourceKind === 'engine' && observation.ownPublic.active === null) mode = 'promotion';
     else if (includes(effect, 'Guzma')) {
       const candidates = choices.filter(choice =>
@@ -1299,7 +1482,8 @@ function promptDecision(request) {
         scored = sortedChoiceTokens(cardChoices,
           choice => discardChoiceScore(choice, observation));
       } else if (includes(effect, 'Field Blower')) {
-        scored = sortedChoiceTokens(cardChoices, fieldBlowerChoiceScore);
+        scored = sortedChoiceTokens(cardChoices,
+          choice => fieldBlowerChoiceScore(choice, observation));
       } else if (includes(effect, 'Get Lost')) {
         scored = sortedChoiceTokens(cardChoices, getLostChoiceScore);
       } else {
@@ -1309,7 +1493,8 @@ function promptDecision(request) {
       let tokens = scored.slice(0, Math.min(max, scored.length));
       if (tokens.length < min && includes(effect, 'Mysterious Treasure') &&
           choices.some(choice => choiceZone(choice) === 'hand')) {
-        tokens = cardChoices.slice(0, min).map(choice => choice.token);
+        tokens = rankedChoiceTokensIncludingNegative(cardChoices,
+          choice => discardChoiceScore(choice, observation)).slice(0, min);
       }
       if (tokens.length >= min && tokens.length > 0) {
         return { kind: 'select-choices', tokens };
@@ -1419,6 +1604,24 @@ function promptDecision(request) {
       kind: 'select-choice',
       token: shouldUseClimacticGate(observation) ? yes.token : no.token
     };
+  }
+
+  if (prompt.promptType === 'SelectOptionPrompt' && isFieldBlowerSource(prompt)) {
+    if (selectionType !== 'option' || min !== 1 || max !== 1) {
+      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
+    }
+    const preferredOption = pathLockStatus(observation) !== false ||
+      toolEffectsStatus(observation) !== true ||
+      opponentToolCount(observation) < 2 ? 0 : 1;
+    const selected = choices.find(choice => choice.kind === 'option' &&
+      choice.publicMetadata?.choiceIndex === preferredOption);
+    if (selected) {
+      setPolicyAuditRule('FIELD_BLOWER_MODE_BY_PUBLIC_TARGETS',
+        preferredOption === 0 ? 'DISCARD_STADIUM_AND_UP_TO_ONE_TOOL' :
+          'DISCARD_UP_TO_TWO_TOOLS');
+      return { kind: 'select-choice', token: selected.token };
+    }
+    return { kind: 'abstain', reasonCode: 'UNRECOGNIZED_SIMPLE_PROMPT' };
   }
 
   if (prompt.promptType === 'ConfirmPrompt' ||
