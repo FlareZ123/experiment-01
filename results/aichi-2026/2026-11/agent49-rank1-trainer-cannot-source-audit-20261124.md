@@ -291,3 +291,14 @@ For each positive case, run the selected-action clone validation on the same sta
 
 
 A check of the shared search helpers found no hidden indirect CANNOT emitter: pinned `SEARCH_DECK_FOR_CARDS_TO_HAND` returns immediately when the deck is empty (it does not throw), and `SEARCH_DISCARD_PILE_FOR_CARDS_TO_HAND` likewise returns on an empty discard. Thus these helpers do not add unlisted CANNOT conditions to Fog Crystal or the other search Items; their card-specific guards remain the relevant source predicates.
+
+
+### No-key diagnostic fallback
+
+Exact card identity is useful internally but is not required in the public artifact. Even while the owner key is absent, the runner can keep the identity and predicate values in memory, compare them, then emit only a generic allowlisted classification such as:
+
+- `FRONTIER_STATE_DIVERGED` — live Store graph changed between frontier admission and selected validation;
+- `CLONE_PREDICATE_DIVERGED` — live state is unchanged, but the selected card's legality predicate differs between the two fresh clones;
+- `PREDICATE_STABLE_DISPATCH_FAILED` — predicate inputs match, but the second dispatch still throws.
+
+These codes reveal neither card identity nor family. Add sanitizer tests that seed private identity/family fields and assert only the generic classification survives. This provides actionable diagnosis without generating a key or persisting plaintext hidden-state data.
