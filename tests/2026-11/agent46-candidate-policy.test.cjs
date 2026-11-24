@@ -83,7 +83,8 @@ function publicPlayer({
 function observation(seat, {
   active = null, bench = [], opponentActive = null, opponentBench = [],
   ownHand = [], ownDiscard = [], globalTurn = 3, ownStadium = [],
-  opponentStadium = [], decisionKind = 'owner-root', promptType = null
+  opponentStadium = [], opponentHandCount = 5,
+  decisionKind = 'owner-root', promptType = null
 } = {}) {
   return {
     actorSeat: seat, globalTurn, phase: 2, decisionKind,
@@ -95,7 +96,7 @@ function observation(seat, {
     }),
     opponentPublic: publicPlayer({
       active: opponentActive, bench: opponentBench,
-      stadium: opponentStadium, handCount: 5
+      stadium: opponentStadium, handCount: opponentHandCount
     }),
     ownTurnResources: {
       supporterPlayedTurn: 0, retreatedTurn: 0, extraTurnActive: false,
@@ -142,7 +143,8 @@ function evaluate(req) {
 
 function cardPrompt(seat, view, {
   sourcePrinting = 'Mysterious Treasure FLI', effectName = 'Mysterious Treasure',
-  sourceZone = 'deck', printings = [], minimumCount = 1, maximumCount = 1
+  sourceZone = 'deck', printings = [], minimumCount = 1, maximumCount = 1,
+  receipt = null
 } = {}) {
   const choices = printings.map((printing, index) => ({
     token: 'card-' + index, kind: 'card', printing, label: printing,
@@ -169,16 +171,17 @@ function cardPrompt(seat, view, {
     ...view, decisionKind: 'owner-prompt',
     pendingPromptType: 'ChooseCardsPrompt'
   };
-  return request(seat, requestView, { prompt, actions: [] });
+  return request(seat, requestView, { prompt, actions: [], receipt });
 }
 
-function pokemonPrompt(seat, view, choices) {
+function pokemonPrompt(seat, view, choices, effectName = 'Guzma') {
   const prompt = {
     schema: protocol.PROMPT_SCHEMA, actingSeat: seat,
     promptType: 'ChoosePokemonPrompt', description: null,
     source: {
       classification: 'actor-choice', sourceKind: 'card-effect',
-      sourcePrinting: 'Guzma BUS', effectName: 'Guzma'
+      sourcePrinting: effectName === 'Acerola' ? 'Acerola PRC 112' : 'Guzma BUS',
+      effectName
     },
     choices: choices.map((row, index) => ({
       token: row.token, kind: 'pokemon', printing: row.printing,
@@ -198,6 +201,25 @@ function pokemonPrompt(seat, view, choices) {
     pendingPromptType: 'ChoosePokemonPrompt'
   };
   return request(seat, requestView, { prompt, actions: [] });
+}
+
+function priorKoReceipt(view) {
+  const project = slot => slot === null ? null : ({
+    printing: slot.printing,
+    movedFromBenchToActiveThisTurn: null,
+    knownAbilityUse: []
+  });
+  return {
+    version: 'agent8-public-event-receipt-v3-turn-stamped',
+    actorSeat: view.actorSeat,
+    turn: view.globalTurn,
+    ownerActive: project(view.ownPublic.active),
+    ownerBench: view.ownPublic.bench.map(project),
+    priorOpponentTurnKO: { any: true, byAttack: true },
+    opponentLastTurnAttack: null,
+    opponentLastTurnTurn: null,
+    opponentLastTurnAttacks: null
+  };
 }
 
 test('candidate bundle is pure and rejects opponent-role or configurable initialization', () => {
@@ -940,4 +962,1485 @@ test('candidate rule-selected setup choices carry no fabricated numeric score', 
   assert.equal(selected.score, null);
   assert.equal(selected.reasonCode, 'SELECTED_BY_POLICY_RULE');
   protocol.validatePolicyAudit(audited.policyAudit, req, audited.decision, POLICY_VERSION);
+});
+
+
+function underworldAttachmentRequest(seat, view, targets) {
+  const prompt = {
+    schema: protocol.PROMPT_SCHEMA,
+    actingSeat: seat,
+    promptType: 'AttachEnergyPrompt',
+    description: 'ATTACH_ENERGY_TO_BENCH',
+    source: {
+      classification: 'actor-choice',
+      sourceKind: 'card-effect',
+      sourcePrinting: 'Shadow Rider Calyrex VMAX CRE 75',
+      effectName: 'Underworld Door'
+    },
+    choices: targets.map((target, index) => ({
+      token: target.token,
+      kind: 'energy',
+      printing: 'Psychic Energy SVE 13',
+      label: 'Attach Psychic Energy to Bench ' + (target.benchIndex + 1) +
+        ': ' + target.printing,
+      publicMetadata: {
+        sourceZone: 'hand',
+        ownerSeat: 'actor',
+        isOwnerVisible: true,
+        energyType: 'BASIC',
+        zone: 'bench',
+        benchIndex: target.benchIndex,
+        choiceIndex: index,
+        selectedCount: 1
+      }
+    })),
+    publicMetadata: {
+      selectionType: 'energy-attachment',
+      count: targets.length,
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: false,
+      sourceZone: 'hand',
+      ownerSeat: 'actor',
+      isOwnerVisible: true,
+      energyType: 'BASIC',
+      zone: 'bench'
+    }
+  };
+  return request(seat, {
+    ...view,
+    decisionKind: 'owner-prompt',
+    pendingPromptType: 'AttachEnergyPrompt'
+  }, { prompt, actions: [] });
+}
+
+test('VMAX-only board still searches and benches a second unevolved Shadow Rider V', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const view = observation(0, { active: vmax });
+  const search = cardPrompt(0, view, {
+    printings: [
+      'Shadow Rider Calyrex V CRE 74',
+      'Latias ex SSP 76',
+      'Psychic Energy SVE 13'
+    ]
+  });
+  assert.deepEqual(evaluate(search), {
+    kind: 'select-choices',
+    tokens: ['card-0']
+  });
+
+  const play = request(0, {
+    ...view,
+    ownHand: ['Shadow Rider Calyrex V CRE 74']
+  }, {
+    actions: [
+      {
+        token: 'play-second-v',
+        kind: 'play-card',
+        actorPrinting: 'Shadow Rider Calyrex V CRE 74',
+        publicMetadata: { targetSeat: 'actor', targetZone: 'bench', isOwnerVisible: true }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(play), {
+    kind: 'select-action',
+    token: 'play-second-v'
+  });
+});
+
+test('candidate searches a VMAX for an unevolved Basic V even when another VMAX is already in play', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const basic = pokemon({
+    printing: 'Shadow Rider Calyrex V CRE 74',
+    name: 'Shadow Rider Calyrex V',
+    hp: 210
+  });
+  const view = observation(0, { active: vmax, bench: [basic] });
+  const search = cardPrompt(0, view, {
+    printings: [
+      'Shadow Rider Calyrex VMAX CRE 75',
+      'Latias ex SSP 76',
+      'Psychic Energy SVE 13'
+    ]
+  });
+  assert.deepEqual(evaluate(search), {
+    kind: 'select-choices',
+    tokens: ['card-0']
+  });
+});
+
+test('live Underworld Door is selected before a payable Max Geist attack', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    energies: Array(3).fill('Psychic Energy SVE 13'),
+    attacks: [attack('Max Geist', ['Colorless', 'Colorless', 'Colorless'], '10+')],
+    abilities: ['Underworld Door'],
+    suppression: false
+  });
+  const mimikyu = pokemon({
+    printing: 'Mimikyu GRI 58',
+    name: 'Mimikyu',
+    hp: 70,
+    attacks: [attack('Copycat', ['Psychic', 'Colorless'], null)]
+  });
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT 136',
+    name: 'Regidrago VSTAR',
+    hp: 280,
+    types: ['Dragon'],
+    subtypes: ['VSTAR']
+  });
+  const view = observation(0, {
+    active: vmax,
+    bench: [mimikyu],
+    opponentActive: regidrago,
+    ownHand: ['Psychic Energy SVE 13']
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'underworld',
+        kind: 'use-ability',
+        actorPrinting: vmax.printing,
+        publicMetadata: {
+          abilityName: 'Underworld Door',
+          sourceZone: 'active',
+          sourceSeat: 'actor',
+          sourceIndex: 0
+        }
+      },
+      {
+        token: 'max-geist',
+        kind: 'attack',
+        actorPrinting: vmax.printing,
+        attackName: 'Max Geist',
+        publicMetadata: { attackCostPayable: true }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'underworld'
+  });
+});
+
+test('Underworld Door is not selected when its source Ability is suppressed', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    energies: Array(3).fill('Psychic Energy SVE 13'),
+    attacks: [attack('Max Geist', ['Colorless', 'Colorless', 'Colorless'], '10+')],
+    abilities: ['Underworld Door'],
+    suppression: true
+  });
+  const mimikyu = pokemon({
+    printing: 'Mimikyu GRI 58',
+    name: 'Mimikyu',
+    hp: 70
+  });
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT 136',
+    name: 'Regidrago VSTAR',
+    hp: 280,
+    types: ['Dragon'],
+    subtypes: ['VSTAR']
+  });
+  const view = observation(0, {
+    active: vmax,
+    bench: [mimikyu],
+    opponentActive: regidrago,
+    ownHand: ['Psychic Energy SVE 13']
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'underworld',
+        kind: 'use-ability',
+        actorPrinting: vmax.printing,
+        publicMetadata: {
+          abilityName: 'Underworld Door',
+          sourceZone: 'active',
+          sourceSeat: 'actor',
+          sourceIndex: 0
+        }
+      },
+      {
+        token: 'max-geist',
+        kind: 'attack',
+        actorPrinting: vmax.printing,
+        attackName: 'Max Geist',
+        publicMetadata: { attackCostPayable: true }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'max-geist'
+  });
+});
+
+test('Underworld Door prompt funds Mimikyu before Max Geist against Regidrago', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    energies: Array(3).fill('Psychic Energy SVE 13')
+  });
+  const mimikyu = pokemon({
+    printing: 'Mimikyu GRI 58',
+    name: 'Mimikyu',
+    hp: 70
+  });
+  const benchVmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT 136',
+    name: 'Regidrago VSTAR',
+    hp: 280,
+    types: ['Dragon'],
+    subtypes: ['VSTAR']
+  });
+  const view = observation(0, {
+    active: vmax,
+    bench: [mimikyu, benchVmax],
+    opponentActive: regidrago,
+    ownHand: ['Psychic Energy SVE 13']
+  });
+  const req = underworldAttachmentRequest(0, view, [
+    { token: 'mimikyu-energy', benchIndex: 0, printing: mimikyu.printing },
+    { token: 'vmax-energy', benchIndex: 1, printing: benchVmax.printing }
+  ]);
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choice',
+    token: 'mimikyu-energy'
+  });
+});
+
+
+test('Climactic Gate selects up to two Shadow Rider VMAX from its owner-visible deck prompt', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const view = observation(0, { active: vmax });
+  const req = cardPrompt(0, view, {
+    sourcePrinting: 'Radiant Eternatus PR-SW 134',
+    effectName: 'Climactic Gate',
+    printings: [
+      'Shadow Rider Calyrex VMAX CRE 75',
+      'Shadow Rider Calyrex VMAX CRE 75',
+      'Psychic Energy SVE 13'
+    ],
+    minimumCount: 0,
+    maximumCount: 2
+  });
+  req.prompt.choices.push({
+    token: 'empty-selection',
+    kind: 'empty-selection',
+    label: 'Choose no cards'
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choices',
+    tokens: ['card-0', 'card-1']
+  });
+});
+
+test('Radiant Eternatus Climactic Gate is a terminal play after non-ending setup and abilities', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    energies: ['Psychic Energy SVE 13'],
+    abilities: ['Underworld Door'],
+    suppression: false
+  });
+  const mimikyu = pokemon({
+    printing: 'Mimikyu GRI 58',
+    name: 'Mimikyu',
+    hp: 70
+  });
+  const view = observation(0, {
+    active: vmax,
+    bench: [mimikyu],
+    ownHand: ['Radiant Eternatus PR-SW 134', 'Psychic Energy SVE 13']
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'radiant',
+        kind: 'play-card',
+        actorPrinting: 'Radiant Eternatus PR-SW 134',
+        publicMetadata: {
+          targetSeat: 'actor',
+          targetZone: 'bench',
+          isOwnerVisible: true
+        }
+      },
+      {
+        token: 'underworld',
+        kind: 'use-ability',
+        actorPrinting: vmax.printing,
+        publicMetadata: {
+          abilityName: 'Underworld Door',
+          sourceZone: 'active',
+          sourceSeat: 'actor',
+          sourceIndex: 0
+        }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'underworld'
+  });
+});
+
+test('Radiant Eternatus is deferred while a payable attack remains', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    energies: Array(3).fill('Psychic Energy SVE 13'),
+    attacks: [attack('Max Geist', ['Colorless', 'Colorless', 'Colorless'], '10+')]
+  });
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT 136',
+    name: 'Regidrago VSTAR',
+    hp: 280,
+    types: ['Dragon'],
+    subtypes: ['VSTAR']
+  });
+  const view = observation(0, {
+    active: vmax,
+    opponentActive: regidrago,
+    ownHand: ['Radiant Eternatus PR-SW 134']
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'radiant',
+        kind: 'play-card',
+        actorPrinting: 'Radiant Eternatus PR-SW 134',
+        publicMetadata: {
+          targetSeat: 'actor',
+          targetZone: 'bench',
+          isOwnerVisible: true
+        }
+      },
+      {
+        token: 'max-geist',
+        kind: 'attack',
+        actorPrinting: vmax.printing,
+        attackName: 'Max Geist',
+        publicMetadata: { attackCostPayable: true }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'max-geist'
+  });
+});
+
+test('Radiant Eternatus is selected only when the terminal Gate has Bench and deck capacity', () => {
+  const view = observation(0, {
+    ownHand: ['Radiant Eternatus PR-SW 134']
+  });
+  const available = request(0, view, {
+    actions: [
+      {
+        token: 'radiant',
+        kind: 'play-card',
+        actorPrinting: 'Radiant Eternatus PR-SW 134',
+        publicMetadata: {
+          targetSeat: 'actor',
+          targetZone: 'bench',
+          isOwnerVisible: true
+        }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(available), {
+    kind: 'select-action',
+    token: 'radiant'
+  });
+
+  const occupied = pokemon({
+    printing: 'Mimikyu GRI 58',
+    name: 'Mimikyu',
+    hp: 70
+  });
+  const fullBench = observation(0, {
+    bench: [occupied, occupied, occupied, occupied, occupied],
+    ownHand: ['Radiant Eternatus PR-SW 134']
+  });
+  const blocked = request(0, fullBench, {
+    actions: [
+      {
+        token: 'radiant',
+        kind: 'play-card',
+        actorPrinting: 'Radiant Eternatus PR-SW 134',
+        publicMetadata: {
+          targetSeat: 'actor',
+          targetZone: 'bench',
+          isOwnerVisible: true
+        }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(blocked), {
+    kind: 'select-action',
+    token: 'pass'
+  });
+});
+
+
+test('Tapu Lele-GX is benched for Wonder Tag when the Ability is live', () => {
+  const active = pokemon({
+    printing: 'Shadow Rider Calyrex V CRE 74',
+    name: 'Shadow Rider Calyrex V',
+    hp: 210
+  });
+  const view = observation(0, {
+    active,
+    ownHand: ['Tapu Lele-GX GRI 60']
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'tapu-lele',
+        kind: 'play-card',
+        actorPrinting: 'Tapu Lele-GX GRI 60',
+        publicMetadata: {
+          targetSeat: 'actor',
+          targetZone: 'bench',
+          isOwnerVisible: true
+        }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'tapu-lele'
+  });
+});
+
+test('Tapu Lele-GX is not played into Path to the Peak or Silent Lab Ability lock', () => {
+  for (const stadium of ['Path to the Peak CES 148', 'Silent Lab FCO 95']) {
+    const view = observation(0, {
+      ownHand: ['Tapu Lele-GX GRI 60'],
+      opponentStadium: [stadium]
+    });
+    const req = request(0, view, {
+      actions: [
+        {
+          token: 'tapu-lele',
+          kind: 'play-card',
+          actorPrinting: 'Tapu Lele-GX GRI 60',
+          publicMetadata: {
+            targetSeat: 'actor',
+            targetZone: 'bench',
+            isOwnerVisible: true
+          }
+        },
+        { token: 'pass', kind: 'pass' }
+      ]
+    });
+    assert.deepEqual(evaluate(req), {
+      kind: 'select-action',
+      token: 'pass'
+    });
+  }
+});
+
+test('Wonder Tag selects Teammates after a validated opponent-turn Knock Out', () => {
+  const view = observation(0, { active: null, bench: [] });
+  const receipt = {
+    version: 'agent8-public-event-receipt-v3-turn-stamped',
+    actorSeat: 0,
+    turn: view.globalTurn,
+    ownerActive: null,
+    ownerBench: Array(5).fill(null),
+    priorOpponentTurnKO: { any: true, byAttack: true },
+    opponentLastTurnAttack: null,
+    opponentLastTurnTurn: null,
+    opponentLastTurnAttacks: null
+  };
+  const req = cardPrompt(0, view, {
+    sourcePrinting: 'Tapu Lele-GX GRI 60',
+    effectName: 'Wonder Tag',
+    printings: [
+      'Teammates PRC 141',
+      "Lillie's Determination MEG 119",
+      'Guzma BUS 115'
+    ],
+    receipt
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choices',
+    tokens: ['card-0']
+  });
+});
+
+test('Wonder Tag selects Guzma when the active attacker can Knock Out a benched target', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    energies: Array(3).fill('Psychic Energy CRE 232'),
+    attacks: [attack('Max Geist', ['Colorless', 'Colorless', 'Colorless'], '300')]
+  });
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT 136',
+    name: 'Regidrago VSTAR',
+    hp: 280,
+    types: ['Dragon'],
+    subtypes: ['VSTAR']
+  });
+  const target = pokemon({
+    printing: 'Mimikyu GRI 58',
+    name: 'Mimikyu',
+    hp: 70
+  });
+  const view = observation(0, {
+    active: vmax,
+    opponentActive: regidrago,
+    opponentBench: [target]
+  });
+  const req = cardPrompt(0, view, {
+    sourcePrinting: 'Tapu Lele-GX GRI 60',
+    effectName: 'Wonder Tag',
+    printings: [
+      'Guzma BUS 115',
+      "Lillie's Determination MEG 119",
+      'Teammates PRC 141'
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choices',
+    tokens: ['card-0']
+  });
+});
+
+test('Wonder Tag selects Arven when the Shadow Rider Basic line is missing', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const view = observation(0, { active: vmax });
+  const req = cardPrompt(0, view, {
+    sourcePrinting: 'Tapu Lele-GX GRI 60',
+    effectName: 'Wonder Tag',
+    printings: [
+      'Arven SVI 166',
+      "Lillie's Determination MEG 119",
+      'Iono PAL 185'
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choices',
+    tokens: ['card-0']
+  });
+});
+
+
+test('Star Alchemy searches the missing Basic Shadow Rider line before generic resources', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const view = observation(0, { active: vmax });
+  const req = cardPrompt(0, view, {
+    sourcePrinting: 'Forest Seal Stone SIT 156',
+    effectName: 'Star Alchemy',
+    printings: [
+      'Shadow Rider Calyrex V CRE 74',
+      'Psychic Energy SVE 13',
+      'Teammates PRC 141'
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choices',
+    tokens: ['card-0']
+  });
+});
+
+test('Forest Seal Stone is attached only for a live bottleneck and defers to Fog Crystal', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const stoneOnly = observation(0, {
+    active: vmax,
+    ownHand: ['Forest Seal Stone SIT 156']
+  });
+  const attach = request(0, stoneOnly, {
+    actions: [
+      {
+        token: 'attach-stone',
+        kind: 'play-card',
+        actorPrinting: 'Forest Seal Stone SIT 156',
+        publicMetadata: {
+          targetSeat: 'actor',
+          targetZone: 'active',
+          targetIndex: 0,
+          isOwnerVisible: true
+        }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(attach), {
+    kind: 'select-action',
+    token: 'attach-stone'
+  });
+
+  const withFogCrystal = observation(0, {
+    active: vmax,
+    ownHand: ['Forest Seal Stone SIT 156', 'Fog Crystal CRE 140']
+  });
+  const defer = request(0, withFogCrystal, {
+    actions: [
+      {
+        token: 'attach-stone',
+        kind: 'play-card',
+        actorPrinting: 'Forest Seal Stone SIT 156',
+        publicMetadata: {
+          targetSeat: 'actor',
+          targetZone: 'active',
+          targetIndex: 0,
+          isOwnerVisible: true
+        }
+      },
+      {
+        token: 'fog-crystal',
+        kind: 'play-card',
+        actorPrinting: 'Fog Crystal CRE 140'
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(defer), {
+    kind: 'select-action',
+    token: 'fog-crystal'
+  });
+});
+
+test('Star Alchemy is sequenced after Underworld Door when both are available', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    energies: ['Psychic Energy SVE 13'],
+    abilities: ['Underworld Door'],
+    suppression: false,
+    tools: ['Forest Seal Stone SIT 156']
+  });
+  const mimikyu = pokemon({
+    printing: 'Mimikyu GRI 58',
+    name: 'Mimikyu',
+    hp: 70
+  });
+  const view = observation(0, {
+    active: vmax,
+    bench: [mimikyu],
+    ownHand: ['Psychic Energy SVE 13']
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'star-alchemy',
+        kind: 'use-ability',
+        actorPrinting: vmax.printing,
+        publicMetadata: {
+          abilityName: 'Star Alchemy',
+          sourceZone: 'active',
+          sourceSeat: 'actor',
+          sourceIndex: 0
+        }
+      },
+      {
+        token: 'underworld',
+        kind: 'use-ability',
+        actorPrinting: vmax.printing,
+        publicMetadata: {
+          abilityName: 'Underworld Door',
+          sourceZone: 'active',
+          sourceSeat: 'actor',
+          sourceIndex: 0
+        }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'underworld'
+  });
+});
+
+test('Star Alchemy is used before attacking only when its VSTAR Power is attached and needed', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    energies: Array(3).fill('Psychic Energy SVE 13'),
+    tools: ['Forest Seal Stone SIT 156'],
+    attacks: [attack('Max Geist', ['Colorless', 'Colorless', 'Colorless'], '10+')]
+  });
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT 136',
+    name: 'Regidrago VSTAR',
+    hp: 280,
+    types: ['Dragon'],
+    subtypes: ['VSTAR']
+  });
+  const view = observation(0, {
+    active: vmax,
+    opponentActive: regidrago,
+    ownHand: []
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'star-alchemy',
+        kind: 'use-ability',
+        actorPrinting: vmax.printing,
+        publicMetadata: {
+          abilityName: 'Star Alchemy',
+          sourceZone: 'active',
+          sourceSeat: 'actor',
+          sourceIndex: 0
+        }
+      },
+      {
+        token: 'max-geist',
+        kind: 'attack',
+        actorPrinting: vmax.printing,
+        attackName: 'Max Geist',
+        publicMetadata: { attackCostPayable: true }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'star-alchemy'
+  });
+});
+
+test('Star Alchemy is not spent when no material bottleneck remains', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    tools: ['Forest Seal Stone SIT 156']
+  });
+  const basic = pokemon({
+    printing: 'Shadow Rider Calyrex V CRE 74',
+    name: 'Shadow Rider Calyrex V',
+    hp: 210
+  });
+  const view = observation(0, {
+    active: vmax,
+    bench: [basic],
+    ownHand: [
+      'Shadow Rider Calyrex VMAX CRE 75',
+      'N FCO 105',
+      'Professor\'s Research SVI 189',
+      'Guzma BUS 115'
+    ]
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'star-alchemy',
+        kind: 'use-ability',
+        actorPrinting: vmax.printing,
+        publicMetadata: {
+          abilityName: 'Star Alchemy',
+          sourceZone: 'active',
+          sourceSeat: 'actor',
+          sourceIndex: 0
+        }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'pass'
+  });
+});
+
+
+test('a Shadow Rider VMAX in hand does not satisfy the missing Basic V search need', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const view = observation(0, {
+    active: vmax,
+    ownHand: ['Shadow Rider Calyrex VMAX CRE 75']
+  });
+  const req = cardPrompt(0, view, {
+    printings: [
+      'Shadow Rider Calyrex V CRE 74',
+      'Latias ex SSP 76',
+      'Psychic Energy SVE 13'
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choices',
+    tokens: ['card-0']
+  });
+});
+
+test('Arven search ranks Fog Crystal without conflating VMAX with a Basic V', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const ironThorns = pokemon({
+    printing: 'Iron Thorns ex TWM 77',
+    name: 'Iron Thorns ex',
+    hp: 230
+  });
+  const view = observation(0, {
+    active: vmax,
+    ownHand: ['Shadow Rider Calyrex VMAX CRE 75'],
+    opponentActive: ironThorns
+  });
+  const req = cardPrompt(0, view, {
+    sourcePrinting: 'Arven SVI 166',
+    effectName: 'Arven',
+    printings: [
+      'Fog Crystal CRE 140',
+      'Stealthy Hood UNB 186'
+    ],
+    minimumCount: 2,
+    maximumCount: 2
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choices',
+    tokens: ['card-0', 'card-1']
+  });
+});
+
+test('Forest Seal Stone is not attached under Path to the Peak Ability suppression', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const view = observation(0, {
+    active: vmax,
+    ownHand: ['Forest Seal Stone SIT 156'],
+    opponentStadium: ['Path to the Peak CRE 148']
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'attach-stone',
+        kind: 'play-card',
+        actorPrinting: 'Forest Seal Stone SIT 156',
+        publicMetadata: {
+          targetSeat: 'actor',
+          targetZone: 'active',
+          targetIndex: 0,
+          isOwnerVisible: true
+        }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'pass'
+  });
+});
+
+
+test('Trevenant & Dusknoir-GX is benched as a Night Watch disruption attacker against a large hand', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    abilities: ['Underworld Door'],
+    suppression: false
+  });
+  const view = observation(0, {
+    active: vmax,
+    ownHand: ['Trevenant & Dusknoir-GX SMP 10', 'Psychic Energy SVE 13'],
+    opponentHandCount: 6
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'trevenant',
+        kind: 'play-card',
+        actorPrinting: 'Trevenant & Dusknoir-GX SMP 10',
+        publicMetadata: {
+          targetSeat: 'actor',
+          targetZone: 'bench',
+          isOwnerVisible: true
+        }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'trevenant'
+  });
+});
+
+test('search finds Trevenant & Dusknoir-GX when Night Watch can punish a large opponent hand', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    abilities: ['Underworld Door'],
+    suppression: false
+  });
+  const view = observation(0, {
+    active: vmax,
+    ownHand: ['Psychic Energy SVE 13'],
+    opponentHandCount: 6
+  });
+  const req = cardPrompt(0, view, {
+    printings: [
+      'Trevenant & Dusknoir-GX SMP 10',
+      'Latias ex SSP 76',
+      'Psychic Energy SVE 13'
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choices',
+    tokens: ['card-0']
+  });
+});
+
+test('Underworld Door funds Trevenant & Dusknoir-GX for Night Watch against a large hand', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    abilities: ['Underworld Door'],
+    suppression: false
+  });
+  const trevenant = pokemon({
+    printing: 'Trevenant & Dusknoir-GX SMP 10',
+    name: 'Trevenant & Dusknoir-GX',
+    hp: 270,
+    types: ['Psychic'],
+    subtypes: ['GX'],
+    attacks: [attack('Night Watch', ['Psychic', 'Psychic', 'Psychic'], '150')]
+  });
+  const benchVmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const view = observation(0, {
+    active: vmax,
+    bench: [trevenant, benchVmax],
+    ownHand: ['Psychic Energy SVE 13'],
+    opponentHandCount: 6
+  });
+  const req = underworldAttachmentRequest(0, view, [
+    { token: 'trevenant-energy', benchIndex: 0, printing: trevenant.printing },
+    { token: 'vmax-energy', benchIndex: 1, printing: benchVmax.printing }
+  ]);
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choice',
+    token: 'trevenant-energy'
+  });
+});
+
+
+test('Pale Moon-GX is prioritized for a high-prize Active with no Bench escape', () => {
+  const trevenant = pokemon({
+    printing: 'Trevenant & Dusknoir-GX SMP 217',
+    name: 'Trevenant & Dusknoir-GX',
+    hp: 270,
+    types: ['Psychic'],
+    subtypes: ['Basic', 'TAG TEAM', 'GX'],
+    energies: Array(3).fill('Psychic Energy SVE 13'),
+    attacks: [
+      attack('Night Watch', ['Psychic', 'Psychic', 'Psychic'], '150'),
+      attack('Pale Moon-GX', ['Psychic', 'Colorless'], '')
+    ]
+  });
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT 136',
+    name: 'Regidrago VSTAR',
+    hp: 280,
+    types: ['Dragon'],
+    subtypes: ['VSTAR'],
+    energies: ['Fire Energy', 'Grass Energy']
+  });
+  const view = observation(0, {
+    active: trevenant,
+    opponentActive: regidrago,
+    opponentBench: [],
+    opponentHandCount: 1
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'night-watch',
+        kind: 'attack',
+        actorPrinting: trevenant.printing,
+        attackName: 'Night Watch',
+        publicMetadata: { attackCostPayable: true }
+      },
+      {
+        token: 'pale-moon',
+        kind: 'attack',
+        actorPrinting: trevenant.printing,
+        attackName: 'Pale Moon-GX',
+        publicMetadata: { attackCostPayable: true }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'pale-moon'
+  });
+});
+
+test('Pale Moon-GX is excluded after the once-per-game GX attack has been used', () => {
+  const trevenant = pokemon({
+    printing: 'Trevenant & Dusknoir-GX SMP 217',
+    name: 'Trevenant & Dusknoir-GX',
+    hp: 270,
+    types: ['Psychic'],
+    subtypes: ['Basic', 'TAG TEAM', 'GX'],
+    energies: Array(3).fill('Psychic Energy SVE 13'),
+    attacks: [
+      attack('Night Watch', ['Psychic', 'Psychic', 'Psychic'], '150'),
+      attack('Pale Moon-GX', ['Psychic', 'Colorless'], '')
+    ]
+  });
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT 136',
+    name: 'Regidrago VSTAR',
+    hp: 280,
+    types: ['Dragon'],
+    subtypes: ['VSTAR'],
+    energies: ['Fire Energy', 'Grass Energy']
+  });
+  const view = observation(0, {
+    active: trevenant,
+    opponentActive: regidrago,
+    opponentBench: [],
+    opponentHandCount: 1
+  });
+  view.ownPublic.publicTurnRestrictions.gxUsed = true;
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'night-watch',
+        kind: 'attack',
+        actorPrinting: trevenant.printing,
+        attackName: 'Night Watch',
+        publicMetadata: { attackCostPayable: true }
+      },
+      {
+        token: 'pale-moon',
+        kind: 'attack',
+        actorPrinting: trevenant.printing,
+        attackName: 'Pale Moon-GX',
+        publicMetadata: { attackCostPayable: true }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'night-watch'
+  });
+});
+
+
+test('Night Watch disruption value rises with opponent hand size and can change attack choice', () => {
+  const trevenant = pokemon({
+    printing: 'Trevenant & Dusknoir-GX SMP 217',
+    name: 'Trevenant & Dusknoir-GX',
+    hp: 270,
+    types: ['Psychic'],
+    subtypes: ['Basic', 'TAG TEAM', 'GX'],
+    energies: Array(3).fill('Psychic Energy SVE 13'),
+    attacks: [
+      attack('Night Watch', ['Psychic', 'Psychic', 'Psychic'], '150'),
+      attack('Heavy Strike', ['Psychic', 'Psychic', 'Psychic'], '160')
+    ]
+  });
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT 136',
+    name: 'Regidrago VSTAR',
+    hp: 280,
+    types: ['Dragon'],
+    subtypes: ['VSTAR']
+  });
+  const actions = [
+    {
+      token: 'night-watch',
+      kind: 'attack',
+      actorPrinting: trevenant.printing,
+      attackName: 'Night Watch',
+      publicMetadata: { attackCostPayable: true }
+    },
+    {
+      token: 'heavy-strike',
+      kind: 'attack',
+      actorPrinting: trevenant.printing,
+      attackName: 'Heavy Strike',
+      publicMetadata: { attackCostPayable: true }
+    },
+    { token: 'pass', kind: 'pass' }
+  ];
+  const largeHand = request(0, observation(0, {
+    active: trevenant,
+    opponentActive: regidrago,
+    opponentHandCount: 6
+  }), { actions });
+  const smallHand = request(0, observation(0, {
+    active: trevenant,
+    opponentActive: regidrago,
+    opponentHandCount: 0
+  }), { actions });
+  assert.deepEqual(evaluate(largeHand), {
+    kind: 'select-action',
+    token: 'night-watch'
+  });
+  assert.deepEqual(evaluate(smallHand), {
+    kind: 'select-action',
+    token: 'heavy-strike'
+  });
+});
+
+
+test('Teammates is played after a validated opponent-turn Knock Out', () => {
+  const view = observation(0, {
+    active: null,
+    bench: [],
+    ownHand: ['Teammates PRC 141']
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'teammates',
+        kind: 'play-card',
+        actorPrinting: 'Teammates PRC 141'
+      },
+      { token: 'pass', kind: 'pass' }
+    ],
+    receipt: priorKoReceipt(view)
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'teammates'
+  });
+});
+
+test('Raihan is played after a Knock Out when Psychic Energy is available in discard', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX']
+  });
+  const mimikyu = pokemon({
+    printing: 'Mimikyu GRI 58',
+    name: 'Mimikyu',
+    hp: 70
+  });
+  const view = observation(0, {
+    active: vmax,
+    bench: [mimikyu],
+    ownHand: ['Raihan CRZ 140'],
+    ownDiscard: ['Psychic Energy SVE 13']
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'raihan',
+        kind: 'play-card',
+        actorPrinting: 'Raihan CRZ 140'
+      },
+      { token: 'pass', kind: 'pass' }
+    ],
+    receipt: priorKoReceipt(view)
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'raihan'
+  });
+});
+
+test('Iono is played to disrupt a large opponent hand when our hand can reload', () => {
+  const view = observation(0, {
+    ownHand: [
+      'Iono PAL 185',
+      'Psychic Energy SVE 13',
+      'N FCO 105',
+      "Professor's Research SVI 189"
+    ],
+    opponentHandCount: 6
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'iono',
+        kind: 'play-card',
+        actorPrinting: 'Iono PAL 185'
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'iono'
+  });
+});
+
+test('Acerola selects the damaged, energy-loaded VMAX nearest to being Knocked Out', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    damage: 250,
+    energies: Array(3).fill('Psychic Energy SVE 13')
+  });
+  const trevenant = pokemon({
+    printing: 'Trevenant & Dusknoir-GX SMP 217',
+    name: 'Trevenant & Dusknoir-GX',
+    hp: 270,
+    types: ['Psychic'],
+    subtypes: ['Basic', 'TAG TEAM', 'GX'],
+    damage: 100
+  });
+  const view = observation(0, {
+    bench: [vmax, trevenant]
+  });
+  const req = pokemonPrompt(0, view, [
+    { token: 'vmax', index: 0, printing: vmax.printing },
+    { token: 'trevenant', index: 1, printing: trevenant.printing }
+  ], 'Acerola');
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choices',
+    tokens: ['vmax']
+  });
+});
+
+
+test('Acerola is still played to save a damaged high-prize Pokémon without attached Energy', () => {
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE 75',
+    name: 'Shadow Rider Calyrex VMAX',
+    hp: 320,
+    subtypes: ['VMAX'],
+    damage: 250
+  });
+  const view = observation(0, {
+    bench: [vmax],
+    ownHand: ['Acerola PRC 112']
+  });
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'acerola',
+        kind: 'play-card',
+        actorPrinting: 'Acerola PRC 112'
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-action',
+    token: 'acerola'
+  });
+});
+
+
+function confirmPromptRequest(seat, view, sourcePrinting, effectName = sourcePrinting) {
+  const prompt = {
+    schema: protocol.PROMPT_SCHEMA,
+    actingSeat: seat,
+    promptType: 'ConfirmPrompt',
+    description: 'WANT_TO_USE_ABILITY',
+    source: {
+      classification: 'actor-choice',
+      sourceKind: 'card-effect',
+      sourcePrinting,
+      effectName
+    },
+    choices: [
+      { token: 'yes', kind: 'confirm', label: 'Yes' },
+      { token: 'no', kind: 'confirm', label: 'No' }
+    ],
+    publicMetadata: { selectionType: 'confirm' }
+  };
+  return request(seat, {
+    ...view,
+    decisionKind: 'owner-prompt',
+    pendingPromptType: 'ConfirmPrompt'
+  }, { prompt, actions: [] });
+}
+
+test('Radiant Climactic Gate confirmation uses actor-visible hypergeometric target EV for both seats', () => {
+  for (const seat of [0, 1]) {
+    const view = observation(seat);
+    const req = confirmPromptRequest(
+      seat, view, 'Radiant Eternatus CRZ 105', 'Climactic Gate'
+    );
+    assert.deepEqual(evaluate(req), { kind: 'select-choice', token: 'yes' });
+  }
+});
+
+test('Radiant Climactic Gate declines when target EV is low or two Bench slots are unavailable', () => {
+  const lowView = observation(0, {
+    ownDiscard: [
+      'Shadow Rider Calyrex VMAX CRE 75',
+      'Shadow Rider Calyrex VMAX CRE 75',
+      'Shadow Rider Calyrex VMAX CRE 75'
+    ]
+  });
+  lowView.ownPublic.deckCount = 1;
+  lowView.ownPublic.prizeCount = 6;
+  assert.deepEqual(evaluate(confirmPromptRequest(
+    0, lowView, 'Radiant Eternatus CRZ 105', 'Climactic Gate'
+  )), { kind: 'select-choice', token: 'no' });
+
+  const fullBench = observation(0, {
+    bench: Array.from({ length: 5 }, (_, index) => pokemon({
+      printing: 'Shadow Rider Calyrex V CRE 74 ' + index,
+      name: 'Shadow Rider Calyrex V'
+    }))
+  });
+  assert.deepEqual(evaluate(confirmPromptRequest(
+    0, fullBench, 'Radiant Eternatus CRZ 105', 'Climactic Gate'
+  )), { kind: 'select-choice', token: 'no' });
+});
+
+test('Radiant root play is not selected when the remaining VMAX are unlikely to be in deck', () => {
+  const view = observation(0, {
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownDiscard: [
+      'Shadow Rider Calyrex VMAX CRE 75',
+      'Shadow Rider Calyrex VMAX CRE 75',
+      'Shadow Rider Calyrex VMAX CRE 75'
+    ]
+  });
+  view.ownPublic.deckCount = 1;
+  view.ownPublic.prizeCount = 6;
+  const req = request(0, view, {
+    actions: [
+      {
+        token: 'radiant',
+        kind: 'play-card',
+        actorPrinting: 'Radiant Eternatus CRZ 105',
+        publicMetadata: {
+          targetSeat: 'actor', targetZone: 'bench', isOwnerVisible: true
+        }
+      },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(evaluate(req), { kind: 'select-action', token: 'pass' });
+});
+
+test('Tapu Lele Wonder Tag confirmation is source-bound and declines only with no deck cards', () => {
+  for (const seat of [0, 1]) {
+    const view = observation(seat);
+    assert.deepEqual(evaluate(confirmPromptRequest(
+      seat, view, 'Tapu Lele-GX GRI 60', 'Tapu Lele-GX'
+    )), { kind: 'select-choice', token: 'yes' });
+  }
+  const empty = observation(0);
+  empty.ownPublic.deckCount = 0;
+  assert.deepEqual(evaluate(confirmPromptRequest(
+    0, empty, 'Tapu Lele-GX GRI 60', 'Tapu Lele-GX'
+  )), { kind: 'select-choice', token: 'no' });
+
+  const unrelated = evaluate(confirmPromptRequest(
+    0, observation(0), 'Mewtwo ex MEW 151', 'Mewtwo ex'
+  ));
+  assert.deepEqual(unrelated, { kind: 'abstain', reasonCode: 'UNSUPPORTED_CONFIRM_SOURCE' });
+});
+
+test('Tapu Lele source printing activates Wonder Tag Supporter scoring when effect name is card name', () => {
+  const view = observation(0);
+  const req = cardPrompt(0, view, {
+    sourcePrinting: 'Tapu Lele-GX GRI 60',
+    effectName: 'Tapu Lele-GX',
+    printings: ['Fog Crystal FLI 99', 'Teammates TEU 141'],
+    minimumCount: 0,
+    maximumCount: 1,
+    receipt: priorKoReceipt(view)
+  });
+  req.prompt.choices.push({
+    token: 'empty-selection',
+    kind: 'empty-selection',
+    label: 'Choose no cards'
+  });
+  assert.deepEqual(evaluate(req), {
+    kind: 'select-choices',
+    tokens: ['card-1']
+  });
 });
