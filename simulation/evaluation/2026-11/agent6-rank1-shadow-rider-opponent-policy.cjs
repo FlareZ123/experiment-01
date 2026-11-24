@@ -295,6 +295,10 @@ function isGateAbilitySuppressed(observation) {
     !abilityIsSuppressed(opponent.active, 'Neutralizing Gas');
   if (opponentNeutralizingGas) return true;
 
+  const opponentSlaking = hasAbility(opponent.active, 'Lazy') &&
+    !abilityIsSuppressed(opponent.active, 'Lazy');
+  if (opponentSlaking) return true;
+
   // Power of Alchemy applies from either player's board, including the Bench.
   const livePowerOfAlchemy = players.some(player =>
     boardSlots(player).some(slot =>
@@ -473,9 +477,67 @@ function abilityActive(slot, name, observation) {
   return true;
 }
 
+function abilitySuppressionStatus(slot, abilityName) {
+  const row = list(slot?.abilitySuppressions).find(item =>
+    item?.abilityName === abilityName);
+  if (row?.suppressed === true || row?.suppressed === false) return row.suppressed;
+  return null;
+}
+
+function fairyZoneSuppressedByPublicSources(slot, observation) {
+  const own = observation?.ownPublic ?? {};
+  const opponent = observation?.opponentPublic ?? {};
+  const players = [own, opponent];
+
+  // The actor contract leaves this status unknown. Resolve the known public
+  // suppressors that can affect Lillie's Basic Psychic ex.
+  if (pathLockStatus(observation) !== false) return true;
+
+  const activeKlefki = players.some(player =>
+    hasAbility(player.active, 'Mischievous Lock') &&
+    !abilityIsSuppressed(player.active, 'Mischievous Lock'));
+  if (activeKlefki) return true;
+
+  const activeIronThorns = players.some(player =>
+    hasAbility(player.active, 'Initialization') &&
+    !abilityIsSuppressed(player.active, 'Initialization'));
+  if (activeIronThorns) return true;
+
+  const opponentNeutralizingGas = hasAbility(opponent.active, 'Neutralizing Gas') &&
+    !abilityIsSuppressed(opponent.active, 'Neutralizing Gas');
+  if (opponentNeutralizingGas) return true;
+
+  const opponentSlaking = hasAbility(opponent.active, 'Lazy') &&
+    !abilityIsSuppressed(opponent.active, 'Lazy');
+  if (opponentSlaking) return true;
+
+  const opponentActiveFlutterMane = slot === own.active &&
+    hasAbility(opponent.active, 'Midnight Fluttering') &&
+    !abilityIsSuppressed(opponent.active, 'Midnight Fluttering');
+  if (opponentActiveFlutterMane) return true;
+
+  const livePowerOfAlchemy = players.some(player =>
+    boardSlots(player).some(candidate =>
+      hasAbility(candidate, 'Power of Alchemy') &&
+      !abilityIsSuppressed(candidate, 'Power of Alchemy')));
+  if (livePowerOfAlchemy) return true;
+
+  const liveGarbotoxin = players.some(player =>
+    boardSlots(player).some(candidate =>
+      hasAbility(candidate, 'Garbotoxin') &&
+      list(candidate.tools).length > 0 &&
+      !abilityIsSuppressed(candidate, 'Garbotoxin')));
+  return liveGarbotoxin;
+}
+
 function fairyZoneActive(observation) {
-  return boardSlots(observation.ownPublic).some(slot =>
-    abilityActive(slot, 'Fairy Zone', observation));
+  const own = observation?.ownPublic ?? {};
+  return boardSlots(own).some(slot => {
+    if (!hasAbility(slot, 'Fairy Zone')) return false;
+    const explicitStatus = abilitySuppressionStatus(slot, 'Fairy Zone');
+    if (explicitStatus !== null) return explicitStatus === false;
+    return !fairyZoneSuppressedByPublicSources(slot, observation);
+  });
 }
 
 function opponentHasDragonInPlay(observation) {
