@@ -2630,9 +2630,7 @@ test('Path to the Peak suppresses Gate unless Stadium effects are disabled', () 
     ownPublic: player({
       active: pokemon('Girafarig LOT 94'),
       stadium: ['Path to the Peak CRE 148'],
-      publicTurnRestrictions: publicRestrictions({
-        stadiumAndToolHaveNoEffectTurnsRemaining: 1
-      }),
+      stadiumAndToolHaveNoEffectTurnsRemaining: 1,
       deckCount: 30, prizeCount: 6
     }),
     items: [radiantAction, { token: 'pass', kind: 'pass' }]
