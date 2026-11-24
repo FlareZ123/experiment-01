@@ -3,10 +3,10 @@
 **Status:** updated policy implementation; contract-validated, not independently competent and not native-game validated.
 
 **Policy version:** `agent6-rank1-shadow-rider-opponent-v3`  
-**Tested source revision:** `2cde3b7745c7e9c73b62fb47e4237a16297e1c32`  
+**Tested source revision:** `e6827320c345dc6a1b8b89e049002af1785e1ad3`  
 **Policy blob:** `0d85d7ee527bad58ecbe2e7d3ca6d179a21063a3`  
 **Test blob:** `9af479f128042e5d56c5fd63ccab662d4808ea20`  
-**Contract-only acceptance:** [run 45467037909](https://github.com/FlareZ123/experiment-01/actions/runs/45467037909) passed on exact head `2cde3b7745c7e9c73b62fb47e4237a16297e1c32`  
+**Contract-only acceptance:** [run 45467037909](https://github.com/FlareZ123/experiment-01/actions/runs/45467037909) passed on source/test commit `2cde3b7745c7e9c73b62fb47e4237a16297e1c32`; [run 45467764288](https://github.com/FlareZ123/experiment-01/actions/runs/45467764288) passed on the latest-main re-root `e6827320c345dc6a1b8b89e049002af1785e1ad3` with unchanged policy/test blobs  
 **Working branch:** `agent6/rank1-policy-v3-review-20261124`
 
 This continues the earlier [rank-1 policy prototype](../../methodology/2026-11/agent6-rank1-shadow-rider-opponent-policy-prototype.md) and supersedes the initial v3 contract-only report. The published rank-1 60-card reference list is unchanged. No candidate deck, matchup result, or win-rate claim is produced by this work.
@@ -64,7 +64,9 @@ Tapu Lele-GX's Energy Drive now counts only Energy attached to both Active Poké
 
 ## Contract evidence
 
-The exact-head contract-only run [45467037909](https://github.com/FlareZ123/experiment-01/actions/runs/45467037909) passed on source revision `2cde3b7745c7e9c73b62fb47e4237a16297e1c32`, with policy blob `0d85d7ee527bad58ecbe2e7d3ca6d179a21063a3` and test blob `9af479f128042e5d56c5fd63ccab662d4808ea20`.
+Two exact-head contract-only runs passed:
+- [Run 45467037909](https://github.com/FlareZ123/experiment-01/actions/runs/45467037909) on source/test commit `2cde3b7745c7e9c73b62fb47e4237a16297e1c32`.
+- [Run 45467764288](https://github.com/FlareZ123/experiment-01/actions/runs/45467764288) on latest-main re-root `e6827320c345dc6a1b8b89e049002af1785e1ad3), with the same policy blob `0d85d7ee527bad58ecbe2e7d3ca6d179a21063a3` and test blob `9af479f128042e5d56c5fd63ccab662d4808ea20`.
 
 - The rank-1 policy regression file contains **110 test cases** and was included in the contract suite.
 - The pure policy/prompt/worker/action-frontier contract step passed.
