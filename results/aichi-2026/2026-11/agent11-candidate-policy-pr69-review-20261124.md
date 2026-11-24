@@ -25,6 +25,8 @@ Keep PR #69 in draft. The exact-head contract lane passed, but it is contract-on
 
 6. **Exact-card test fixtures need correction.** The Hood/Fairy Zone tests use `Stealthy Hood BUS 186` instead of UNB 186, `Tool Jammer swsh2` instead of BST 136, and `Jamming Tower swsh9` instead of TWM 153. A `Regidrago VSTAR SIT 136` fixture is assigned 320 HP although the repository card pool gives it 280 HP. Correct these before treating the tests as exact-printing regressions.
 
+The field-side consequence is not hypothetical: the 29 authenticated Aichi lists contain Guzma in 25/29, Latias ex in 14/29, Float Stone in 12/29, Double Dragon Energy in 10/29, Escape Rope in 7/29, and Double Colorless Energy in 6/29. All 9 authenticated Regidrago lists have Latias ex, Guzma, and 3–4 Double Dragon Energy. See [the Aichi Pale Moon retreat-out census](agent11-pale-moon-retreat-out-field-census-20261124.md); these are deck-inventory counts, not observed hand/board states or win rates.
+
 ## Radiant / Climactic Gate qualification
 
 `hasRadiantGateLock()` omits Active Klefki, Alolan Muk / Power of Alchemy, opponent-Active Galarian Weezing / Neutralizing Gas, and opponent-Active Slaking / Lazy. The available Aichi evidence confirms Klefki at ranks 4 and 17; the other sources are general Expanded coverage and are not established threats in the 29 authenticated lists.
