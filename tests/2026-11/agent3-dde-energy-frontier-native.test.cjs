@@ -268,6 +268,72 @@ test('pinned dynamic type check keeps DDE-to-Active Kecleon when opponent Active
   }
 });
 
+test('pinned dynamic type check rejects DDE-to-Active Kecleon when opponent Active is non-Dragon in both seats', {
+  skip: !fs.existsSync(compiledActionEnumerator),
+  timeout: 30000
+}, () => {
+  const enginePin = runner.V3_FIXTURE.engineCommit;
+  const native = runner.loadNativeRoleDependencies({ enginePin });
+  const withValidationRandom = createValidationRandomScope({
+    ambientRandom: Math.random,
+    physicalRandom: seededRandom(0xdde24006)
+  });
+  const manager = native.CardManager.getInstance();
+  let nextCardId = 970000;
+  function cloneCard(fullName) {
+    const card = manager.getCardByName(fullName);
+    assert.ok(card, 'CardManager must resolve ' + fullName);
+    card.id = nextCardId++;
+    return card;
+  }
+
+  for (const actorSeat of [0, 1]) {
+    const state = makeGameState({
+      native,
+      actorSeat,
+      energyCard: cloneCard(DDE),
+      cloneCard,
+      withValidationRandom,
+      actorActiveCard: KECLEON,
+      opponentActiveCard: TAPU_LELE
+    });
+    const actor = state.players[actorSeat];
+    const enumerator = adapterModule.createKnownCapFreeActionEnumerator({
+      native,
+      enginePin
+    });
+    const candidates = enumerator.attachEnergyActions(state, actor);
+    assert.equal(candidates.length, 3);
+    const activeAction = candidates.find(action =>
+      action.target.slot === native.SlotType.ACTIVE);
+    assert.ok(activeAction);
+
+    // Kecleon copies the opponent Active's Psychic type here, so DDE is
+    // genuinely illegal; the native Store and frontier must both reject it.
+    const nativeSimulator = withValidationRandom(() =>
+      frontierModule.createIsolatedValidationSimulator(state, native));
+    assert.throws(
+      () => withValidationRandom(() => nativeSimulator.store.dispatch(activeAction)),
+      error => error instanceof native.GameError &&
+        error.message === 'CANNOT_PLAY_THIS_CARD'
+    );
+
+    const frontier = withValidationRandom(() =>
+      frontierModule.buildNativeActionFrontier({
+        state,
+        actorSeat,
+        native,
+        enumerator: { enumerate: () => candidates }
+      }));
+    assert.equal(frontier.diagnostics.enumeratedCount, 3);
+    assert.equal(frontier.diagnostics.validatedCount, 0);
+    assert.equal(frontier.diagnostics.rejectedCount, 3);
+    assert.equal(frontier.diagnostics.preflightRejectedCount, 3);
+    assert.equal(frontier.diagnostics.unsupportedCount, 0);
+    assert.equal(frontier.actionFrontier.items.length, 0);
+  }
+});
+
 test('exact DDE preflight fails closed on opponent-owned target descriptors', {
   skip: !fs.existsSync(compiledActionEnumerator),
   timeout: 30000
