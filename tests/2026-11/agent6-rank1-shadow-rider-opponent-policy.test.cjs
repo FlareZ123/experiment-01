@@ -1945,7 +1945,7 @@ test('Lillie’s Clefairy ex is not played when Path to the Peak status is unkno
 });
 
 
-test('Fairy Zone does not apply when the actor projection omits ability-suppression status', () => {
+test('Fairy Zone policy resolver applies the ability when no public suppressor is present', () => {
   const clefairy = pokemon("Lillie's Clefairy ex JTG 56", {
     hp: 190,
     abilities: ['Fairy Zone']
@@ -1978,7 +1978,7 @@ test('Fairy Zone does not apply when the actor projection omits ability-suppress
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-action',
-    token: 'night-watch'
+    token: 'max-geist'
   });
 });
 
@@ -3645,6 +3645,18 @@ test('Fairy Zone public-source resolver covers suppressors and card-specific exc
   )), true);
   assert.equal(active(observation(
     {}, { active: pokemon('Empoleon V BST 40', { abilities: ["Emperor's Eyes"] }) }
+  )), true);
+  assert.equal(active(observation(
+    {}, { active: pokemon('Ting-Lu ex PAL 127', { abilities: ['Cursed Land'] }) }
+  )), true);
+  assert.equal(active(observation(
+    {}, { active: pokemon('Spiritomb PAL 89', { abilities: ['Fettered in Misfortune'] }) }
+  )), true);
+  assert.equal(active(observation(
+    {}, { active: pokemon('Glaceon-GX FLI 39', { abilities: ['Freezing Gaze'] }) }
+  )), true);
+  assert.equal(active(observation(
+    {}, { active: pokemon('Mimikyu CEC 97', { abilities: ['Shadow Box'] }) }
   )), true);
 
   // Flutter Mane affects only the opponent's Active Pokémon.
