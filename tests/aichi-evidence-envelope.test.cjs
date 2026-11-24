@@ -40,6 +40,7 @@ function fixture(mirror = false) {
     observedEngineDeckHashes:[h1,h2]
   }));
   const archive={schemaVersion:1,planDigest:campaign.planDigest,phase:'pilot',
+    rngProtocol:'isolated-policy-rng',
     recordedTrials:2,selectedTrialIds:trials.map(t=>t.trialId),
     competitiveWinRateCertified:false,rulesAndBotCompetenceCertified:false,records};
   const provenance={researchRevision:'commit-test',engineRevision:'pinned-test',
