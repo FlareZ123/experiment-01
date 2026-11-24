@@ -337,7 +337,7 @@ function nativePlayer(active, bench = []) {
   const energy = () => nativeCard('Psychic Energy MEE 13');
   return {
     active,
-    bench: [...bench, ...Array.from({ length: Math.max(0, 5 - bench.length) }, () => null)],
+    bench: [...bench, ...Array.from({ length: Math.max(0, 5 - bench.length) }, () => ({ getPokemonCard: () => null, cards: [] }))],
     hand: { cards: [], isPublic: false },
     deck: { cards: Array.from({ length: 30 }, energy) },
     prizes: Array.from({ length: 6 }, () => ({ cards: [energy()] })),
