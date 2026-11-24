@@ -1,7 +1,7 @@
 {
-  "run_id": "agent43-chat-20261119T194726456Z-normal5-gpt6-rank7-policy",
-  "claimed_at": "2026-11-19T19:47:26.456182728Z",
+  "run_id": "agent43-chat-20261124T055336Z-normal1-gpt6-source-admission",
+  "claimed_at": "2026-11-24T05:53:36.721Z",
   "mode": "normal",
-  "roll": 5,
-  "previous_claim": "2026-11-19T17:06:32Z"
+  "selection_draw": 1,
+  "previous_claim": "2026-11-19T19:47:26.456182728Z"
 }
