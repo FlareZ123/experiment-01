@@ -5,7 +5,7 @@ const READY_SCHEMA = 'aichi-policy-worker-ready-v3';
 const REQUEST_SCHEMA = 'aichi-policy-request-v2';
 const RESPONSE_SCHEMA = 'aichi-policy-response-v5';
 const POLICY_AUDIT_SCHEMA = 'agent6-policy-audit-v1';
-const OBSERVATION_SCHEMA = 'aichi-actor-observation-v3';
+const OBSERVATION_SCHEMA = 'aichi-actor-observation-v4-ability-lock-order';
 const PROMPT_SCHEMA = 'aichi-owner-prompt-projection-v3';
 const EVENT_RECEIPT_VERSION = 'agent8-public-event-receipt-v3-turn-stamped';
 const FRONTIER_SCHEMA = 'aichi-action-frontier-v1';
@@ -192,6 +192,7 @@ const ACTOR_KEYS = [
   'pendingOwnerDeckSearch', 'ownHand', 'ownPublic', 'opponentPublic',
   'ownTurnResources', 'ownerK1'
 ];
+const ACTOR_OPTIONAL_KEYS = ['turnSeat'];
 const PLAYER_KEYS = [
   'active', 'bench', 'stadium', 'discard', 'lostZone', 'resolvingSupporter',
   'publicHand', 'prizeSlots', 'publicTurnRestrictions', 'handCount', 'deckCount', 'prizeCount'
@@ -201,7 +202,7 @@ const POKEMON_KEYS = [
   'specialConditions', 'publicRestrictions', 'evolutionPrintings', 'energies',
   'tools', 'attacks', 'abilities', 'abilityDetails', 'abilitySuppressions'
 ];
-const POKEMON_OPTIONAL_KEYS = [];
+const POKEMON_OPTIONAL_KEYS = ['abilityLockActivationOrder'];
 const PRINTED_KEYS = ['stage', 'subtypes', 'types', 'retreatCost', 'weakness', 'resistance'];
 const PUBLIC_RESTRICTION_KEYS = [
   'cannotAttackNextTurn', 'cannotUseAttacksNextTurn', 'blockedAttackNameNextTurn',
@@ -450,6 +451,10 @@ function validatePokemonSlot(slot, allowConcealed) {
     return;
   }
   exactKeys(slot, POKEMON_KEYS, POKEMON_OPTIONAL_KEYS);
+  if (slot.abilityLockActivationOrder !== undefined &&
+      !(slot.abilityLockActivationOrder === null || Number.isSafeInteger(slot.abilityLockActivationOrder))) {
+    fail('BAD_ABILITY_LOCK_ACTIVATION_ORDER');
+  }
   if (!boundedString(slot.printing, null, 256) || !boundedString(slot.name, null, 128)) fail('BAD_POKEMON_IDENTITY');
   if (!Number.isFinite(slot.hp) || !Number.isFinite(slot.damage)) fail('BAD_POKEMON_VITALS');
   if (slot.lastPlayedOrEvolvedTurn !== null && !Number.isSafeInteger(slot.lastPlayedOrEvolvedTurn)) fail('BAD_POKEMON_TURN');
@@ -548,7 +553,11 @@ function validatePublicPlayer(player, allowConcealed) {
   }
 }
 function validateActorObservation(view, seat) {
-  exactKeys(view, ACTOR_KEYS);
+  exactKeys(view, ACTOR_KEYS, ACTOR_OPTIONAL_KEYS);
+  if (view.turnSeat !== undefined &&
+      !(view.turnSeat === null || view.turnSeat === 0 || view.turnSeat === 1)) {
+    fail('BAD_TURN_SEAT');
+  }
   if (view.actorSeat !== seat || !Number.isSafeInteger(view.globalTurn) || view.globalTurn < 0 ||
       !Number.isSafeInteger(view.phase) || view.phase < 0 || !['owner-root', 'owner-prompt'].includes(view.decisionKind) ||
       typeof view.pendingOwnerDeckSearch !== 'boolean') fail('BAD_ACTOR_OBSERVATION');
@@ -1083,6 +1092,7 @@ module.exports = {
   assertBoundedJson,
   assertNoForbiddenFields,
   ACTOR_KEYS,
+  ACTOR_OPTIONAL_KEYS,
   PLAYER_KEYS,
   POKEMON_KEYS,
   POKEMON_OPTIONAL_KEYS,
