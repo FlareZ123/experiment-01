@@ -685,9 +685,12 @@ function pathLockActive(observation) {
 }
 
 function copycatTargetAvailable(request) {
-  const attacks = list(request?.observation?.opponentPublic?.active?.attacks);
-  return attacks.some(attack => attack && attack.name &&
-    attack.gxAttack !== true && attack.name !== 'Night Watch');
+  // Printed attacks are not evidence that the opponent used them last turn.
+  // Only a validated public receipt can authorize pre-play Copycat planning.
+  const choices = list(request?.publicEventReceipt?.opponentCopycatChoices);
+  return choices.some(choice => choice && choice.attackName &&
+    choice.gxAttack !== true && choice.copycatAttack !== true &&
+    choice.attackName !== 'Night Watch');
 }
 
 function opponentHasWeakBenchTarget(observation) {
@@ -817,7 +820,7 @@ function scoreAttack(item, request) {
     return 105 + (hp > 0 && damage >= hp ? 30 : 0);
   }
   if (name === 'Get Lost') return getLostAttackScore(observation);
-  if (name === 'Copycat') return copycatTargetAvailable(request) ? 132 : 0;
+  if (name === 'Copycat') return 132; // Native action frontier already proves this attack is legal.
   if (name === 'Energy Drive') {
     const activeEnergyUnits =
       energyUnitsOn(observation.ownPublic?.active, observation, 'actor') +
@@ -875,7 +878,7 @@ function scoreAction(item, request) {
     const card = item.actorPrinting ?? '';
 
     // The primary V line must be reachable from hand. The native frontier
-    // already proves the play is legal; require an actor-owned empty Bench slot.
+    // already proves the play is legal; the actor must have an empty Bench slot.
     if (matches(card, PRINT.shadowRiderV) &&
         isActorBenchPlacement(item, observation)) return boardV < 2 ? 160 : 0;
 

@@ -2,6 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const { actorObservation } = require('../../simulation/twinleaf/actor-observation-contract.cjs');
 const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
 const { POLICY_VERSION, createPolicy, __test: policyInternals } =
   require('../../simulation/evaluation/2026-11/agent6-rank1-shadow-rider-opponent-policy.cjs');
@@ -271,6 +272,160 @@ function paleMoonReceipt(ownPublic, turn = 3) {
     }]
   };
 }
+
+function copycatReceipt(ownPublic, attackName = 'Max Geist', turn = 3) {
+  const receipt = paleMoonReceipt(ownPublic, turn);
+  const row = {
+    turn: turn - 1,
+    sourcePrinting: 'Shadow Rider Calyrex VMAX CRE 75',
+    attackName,
+    gxAttack: false,
+    copycatAttack: false
+  };
+  receipt.opponentLastTurnAttacks = [row];
+  receipt.opponentCopycatChoices = [row];
+  const active = ownPublic.active;
+  const activeHasCopycat = active?.name === 'Mimikyu' &&
+    Array.isArray(active.attacks) && active.attacks.some(attack => attack?.name === 'Copycat');
+  receipt.mimikyuCopycatCompatible = activeHasCopycat && receipt.opponentCopycatChoices.length > 0;
+  return receipt;
+}
+
+function nativeCard(fullName, options = {}) {
+  const name = options.name ?? fullName.replace(/ [A-Z0-9]{2,4} \d+$/, '');
+  return {
+    fullName,
+    name,
+    hp: options.hp ?? 210,
+    stage: options.stage ?? 2,
+    subtypes: options.subtypes ?? [],
+    cardType: options.cardType ?? ['Psychic'],
+    retreat: options.retreat ?? [],
+    weakness: options.weakness ?? [],
+    resistance: options.resistance ?? [],
+    attacks: options.attacks ?? [],
+    powers: options.powers ?? []
+  };
+}
+
+function nativePokemon(fullName, options = {}) {
+  const top = nativeCard(fullName, options);
+  return {
+    getPokemonCard: () => top,
+    cards: [top],
+    damage: options.damage ?? 0,
+    pokemonPlayedTurn: options.pokemonPlayedTurn ?? 1,
+    abilityLockActivationOrder: null,
+    specialConditions: options.specialConditions ?? [],
+    cannotAttackNextTurn: false,
+    cannotUseAttacksNextTurn: [],
+    blockedAttackNameNextTurn: null,
+    blockedAttackNameUntilLeavesActive: null,
+    onlyAllowedAttackNameNextTurn: null,
+    attackCostIncreaseNextTurn: 0,
+    attackCostIncreaseWhileActive: 0,
+    cannotRetreat: false,
+    cannotRetreatNextTurn: false,
+    cannotRetreatWhileActive: false,
+    cannotEvolveNextTurn: false,
+    energies: { cards: (options.energies ?? []).map(name => nativeCard(name)) },
+    tools: (options.tools ?? []).map(name => nativeCard(name))
+  };
+}
+
+function nativePlayer(active, bench = []) {
+  const energy = () => nativeCard('Psychic Energy MEE 13');
+  return {
+    active,
+    bench: [...bench, ...Array.from({ length: Math.max(0, 5 - bench.length) }, () => null)],
+    hand: { cards: [], isPublic: false },
+    deck: { cards: Array.from({ length: 30 }, energy) },
+    prizes: Array.from({ length: 6 }, () => ({ cards: [energy()] })),
+    discard: { cards: [] },
+    lostzone: { cards: [] },
+    stadium: { cards: [], stadiumDirection: null },
+    supporter: { cards: [] },
+    supporterTurn: 0,
+    energyPlayedTurn: 0,
+    stadiumPlayedTurn: 0,
+    stadiumUsedTurn: 0,
+    retreatedTurn: 0,
+    usedGX: false,
+    usedVSTAR: false,
+    usedTurnSkip: false,
+    cannotAttackTurnsRemaining: 0,
+    cannotAttackMaxEnergy: null,
+    cannotAttackMaxEnergyTurnsRemaining: 0,
+    ignoreAttackCostCardTypes: [],
+    ignoreAttackCostTurnsRemaining: 0,
+    cannotUseGXAttacks: false,
+    cannotPlayPokemonCards: false,
+    cannotPlayPokemonWithAbilities: false,
+    cannotEvolvePokemonCards: false,
+    cannotPlayItemCards: false,
+    cannotPlaySupporterCards: false,
+    cannotPlayStadiumCards: false,
+    cannotPlayToolCards: false,
+    cannotPlayEnergyCards: false,
+    cannotPlaySpecialEnergyCards: false,
+    stadiumAndToolHaveNoEffectTurnsRemaining: null
+  };
+}
+
+function nativeRank1Observation(seat, condition) {
+  const ownActive = nativePokemon('Trevenant & Dusknoir-GX SMP 217', {
+    hp: 270,
+    stage: 2,
+    subtypes: ['GX', 'TAG TEAM'],
+    cardType: ['Psychic'],
+    energies: [
+      'Psychic Energy MEE 13',
+      'Psychic Energy MEE 13',
+      'Psychic Energy MEE 13'
+    ],
+    attacks: [
+      { name: 'Night Watch', cost: ['Psychic', 'Psychic', 'Colorless'],
+        damage: '150', damageCalculation: '150', text: '150 damage.',
+        gxAttack: false, barrage: false },
+      { name: 'Pale Moon-GX', cost: ['Psychic', 'Colorless'],
+        damage: '0', damageCalculation: '0', text: 'Delayed Knock Out.',
+        gxAttack: true, barrage: false }
+    ]
+  });
+  const opponentActive = nativePokemon('Shadow Rider Calyrex VMAX CRE 75', {
+    hp: 320,
+    stage: 5,
+    subtypes: ['V', 'VMAX'],
+    cardType: ['Psychic'],
+    retreat: ['Colorless', 'Colorless'],
+    energies: ['Psychic Energy MEE 13', 'Psychic Energy MEE 13'],
+    specialConditions: condition === null ? [] : [condition],
+    attacks: [
+      { name: 'Max Geist', cost: ['Psychic'], damage: '10+30',
+        damageCalculation: '10+30', text: '10+30 damage.',
+        gxAttack: false, barrage: false }
+    ]
+  });
+  const own = nativePlayer(ownActive, [
+    nativePokemon('Shadow Rider Calyrex V CRE 74', {
+      hp: 210, stage: 2, subtypes: ['V'], cardType: ['Psychic']
+    })
+  ]);
+  const opponent = nativePlayer(opponentActive, [
+    nativePokemon('Latias ex SSP 76', {
+      hp: 210, stage: 2, subtypes: ['ex'], cardType: ['Psychic']
+    })
+  ]);
+  const players = seat === 0 ? [own, opponent] : [opponent, own];
+  return actorObservation({
+    activePlayer: seat,
+    turn: 3,
+    phase: 5,
+    prompts: [],
+    players
+  }, seat);
+}
+
 
 test('rank1 response recovers the three discarded Psychic Energy before evolving', () => {
   const latias = pokemon('Latias ex SSP 76', { hp: 210, damage: 40, abilities: ['Skyliner'] });
@@ -1617,7 +1772,33 @@ test('Star Alchemy does not prioritize a second Tulip already held in hand', () 
   });
 });
 
-test('Mysterious Treasure searches Mimikyu when the opponent Active exposes a non-GX attack to Copycat', () => {
+test('native numeric ASLEEP and PARALYZED observations change Pale Moon retreat decisions through checkedDecision', () => {
+  const items = [
+    { token: 'pale-moon', kind: 'attack', attackName: 'Pale Moon-GX' },
+    { token: 'night-watch', kind: 'attack', attackName: 'Night Watch' },
+    { token: 'pass', kind: 'pass' }
+  ];
+  for (const seat of [0, 1]) {
+    for (const [condition, expected] of [
+      [null, 'night-watch'],
+      [0, 'pale-moon'],
+      [2, 'pale-moon']
+    ]) {
+      const request = rootRequest({ seat, items });
+      request.observation = nativeRank1Observation(seat, condition);
+      assert.deepEqual(
+        request.observation.opponentPublic.active.specialConditions,
+        condition === null ? [] : [condition]
+      );
+      assert.deepEqual(checkedDecision(request, seat), {
+        kind: 'select-action',
+        token: expected
+      });
+    }
+  }
+});
+
+test('Mysterious Treasure searches Mimikyu only when a prior-turn receipt records a non-GX attack', () => {
   const opponentActive = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
     hp: 320,
     stage: 'VMAX',
@@ -1630,6 +1811,64 @@ test('Mysterious Treasure searches Mimikyu when the opponent Active exposes a no
       gxAttack: false,
       barrage: false
     }]
+  });
+  const ownPublic = player({
+    active: pokemon('Girafarig LOT 94', { hp: 90 }),
+    bench: [
+      pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 }),
+      pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 })
+    ]
+  });
+  const request = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Mysterious Treasure FLI 113', 'Mysterious Treasure'),
+    choices: [
+      { token: 'vmax', kind: 'card', printing: 'Shadow Rider Calyrex VMAX CRE 75',
+        label: 'Shadow Rider Calyrex VMAX', publicMetadata: { sourceZone: 'deck' } },
+      { token: 'mimikyu', kind: 'card', printing: 'Mimikyu GRI 58',
+        label: 'Mimikyu', publicMetadata: { sourceZone: 'deck' } }
+    ],
+    publicMetadata: {
+      sourceZone: 'deck',
+      minimumCount: 1,
+      maximumCount: 1,
+      allowCancel: false,
+      isSecret: false,
+      selectionType: 'card-combination'
+    },
+    receipt: copycatReceipt(ownPublic),
+    observation: {
+      ownHand: ['Mysterious Treasure FLI 113'],
+      ownPublic,
+      opponentPublic: player({ active: opponentActive })
+    }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-choices',
+    tokens: ['mimikyu']
+  });
+});
+
+test('Mysterious Treasure does not search Mimikyu from printed Max Geist without prior-turn receipt', () => {
+  const opponentActive = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+    hp: 320,
+    stage: 'VMAX',
+    attacks: [{
+      name: 'Max Geist',
+      cost: ['Psychic'],
+      damage: '10+30',
+      damageCalculation: '10+30 per Psychic Energy attached to your Pokémon',
+      text: '10+30 damage.',
+      gxAttack: false,
+      barrage: false
+    }]
+  });
+  const ownPublic = player({
+    active: pokemon('Girafarig LOT 94', { hp: 90 }),
+    bench: [
+      pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 }),
+      pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 })
+    ]
   });
   const request = promptRequest({
     promptType: 'ChooseCardsPrompt',
@@ -1650,23 +1889,15 @@ test('Mysterious Treasure searches Mimikyu when the opponent Active exposes a no
     },
     observation: {
       ownHand: ['Mysterious Treasure FLI 113'],
-      ownPublic: player({
-        active: pokemon('Girafarig LOT 94', { hp: 90 }),
-        bench: [
-          pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 }),
-          pokemon('Shadow Rider Calyrex V CRE 74', { hp: 210 })
-        ]
-      }),
+      ownPublic,
       opponentPublic: player({ active: opponentActive })
     }
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-choices',
-    tokens: ['mimikyu']
+    tokens: ['vmax']
   });
 });
-
-
 test('Marshadow is played to trigger Resetting Hole against Path to the Peak', () => {
   const request = rootRequest({
     ownHand: ['Marshadow UNB 81'],
@@ -1741,7 +1972,7 @@ test('Mysterious Treasure searches Marshadow to remove Path to the Peak when the
 });
 
 
-test('Mimikyu is played when the opponent Active exposes a non-GX Copycat target', () => {
+test('Mimikyu is played only when a validated prior-turn receipt records a non-GX Copycat target', () => {
   const opponentActive = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
     hp: 320,
     stage: 'VMAX',
@@ -1755,10 +1986,12 @@ test('Mimikyu is played when the opponent Active exposes a non-GX Copycat target
       barrage: false
     }]
   });
+  const ownPublic = player({ active: pokemon('Girafarig LOT 94', { hp: 90 }) });
   const request = rootRequest({
     ownHand: ['Mimikyu GRI 58'],
-    ownPublic: player({ active: pokemon('Girafarig LOT 94', { hp: 90 }) }),
+    ownPublic,
     opponentPublic: player({ active: opponentActive }),
+    receipt: copycatReceipt(ownPublic),
     items: [
       { token: 'mimikyu', kind: 'play-card', actorPrinting: 'Mimikyu GRI 58',
         publicMetadata: { cardType: 'pokemon', handIndex: 0 } },
@@ -1771,6 +2004,36 @@ test('Mimikyu is played when the opponent Active exposes a non-GX Copycat target
   });
 });
 
+test('Mimikyu is not played from current Active Max Geist without prior-turn receipt', () => {
+  const opponentActive = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+    hp: 320,
+    stage: 'VMAX',
+    attacks: [{
+      name: 'Max Geist',
+      cost: ['Psychic'],
+      damage: '10+30',
+      damageCalculation: '10+30 per Psychic Energy attached to your Pokémon',
+      text: '10+30 damage.',
+      gxAttack: false,
+      barrage: false
+    }]
+  });
+  const ownPublic = player({ active: pokemon('Girafarig LOT 94', { hp: 90 }) });
+  const request = rootRequest({
+    ownHand: ['Mimikyu GRI 58'],
+    ownPublic,
+    opponentPublic: player({ active: opponentActive }),
+    items: [
+      { token: 'mimikyu', kind: 'play-card', actorPrinting: 'Mimikyu GRI 58',
+        publicMetadata: { cardType: 'pokemon', handIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'pass'
+  });
+});
 test('Mimikyu Copycat attack is selected when a legal non-GX target is visible', () => {
   const opponentActive = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
     hp: 320,
@@ -1799,7 +2062,7 @@ test('Mimikyu Copycat attack is selected when a legal non-GX target is visible',
   });
 });
 
-test('Mimikyu is not played for Copycat when the opponent Active has no known non-GX attack', () => {
+test('Mimikyu is not played when the only prior-turn Copycat choice is unsupported Night Watch', () => {
   const opponentActive = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
     hp: 320,
     stage: 'VMAX',
@@ -1813,10 +2076,12 @@ test('Mimikyu is not played for Copycat when the opponent Active has no known no
       barrage: false
     }]
   });
+  const ownPublic = player({ active: pokemon('Girafarig LOT 94', { hp: 90 }) });
   const request = rootRequest({
     ownHand: ['Mimikyu GRI 58'],
-    ownPublic: player({ active: pokemon('Girafarig LOT 94', { hp: 90 }) }),
+    ownPublic,
     opponentPublic: player({ active: opponentActive }),
+    receipt: copycatReceipt(ownPublic, 'Night Watch'),
     items: [
       { token: 'mimikyu', kind: 'play-card', actorPrinting: 'Mimikyu GRI 58',
         publicMetadata: { cardType: 'pokemon', handIndex: 0 } },
@@ -1825,8 +2090,6 @@ test('Mimikyu is not played for Copycat when the opponent Active has no known no
   });
   assert.deepEqual(checkedDecision(request), { kind: 'select-action', token: 'pass' });
 });
-
-
 test('Mysterious Treasure completes the second Shadow Rider V before optional Copycat setup', () => {
   const opponentActive = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
     hp: 320,
