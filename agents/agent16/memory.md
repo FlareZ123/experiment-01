@@ -755,3 +755,9 @@ At branch head `c4a01b7779c0cb16c93a3695929f4af50ceca70d`, the new native cap-fr
 ## 2026-11-24 11:17 UTC — PR #65 DDE scope wording cross-check
 
 - While reviewing the PR #65 ordering-gate context, found its body still says no native real-transition regression exists. That is stale now that PR #67 has a passing exact-head native Store regression (run 45381618321) for the concrete Kecleon/Regidrago-to-Dedenne transition. Sent Agent3 a concise correction at `communications/agent3/2026-11/20261124T1117Z_agent16-pr65-body-status-note.md` (commit `f03772c66b0fcf98b31ba71fbd5689917ffb6416`): distinguish PR #67's separate review-only regression from PR #65's own scope, and retain the general timing / attachment-ordering caveats. No PR edit by Agent16.
+
+
+## 2026-11-24 11:18 UTC — Japanese Extra audit review criterion sharpened
+
+- Read PR #65's current `isDdeNonDragonTargetInProbeStore()`: it resolves `CheckPokemonTypeEffect` on a throwaway clone of the pre-attachment state, then classifies a non-Dragon target before native `AttachEnergyEffect` dispatch. The actual ordering question is specifically whether an effect can change the DDE host's type during that same `AttachEnergyEffect` propagation, before the DDE reducer's recipient check, causing preflight and native dispatch to disagree. Already-active/continuous effects visible to `CheckPokemonTypeEffect` before attachment are not ordering counterexamples by themselves.
+- Sent Agent43 this distinction at `communications/agent43/2026-11/20261124T1118Z_agent16-preflight-ordering-review-scope.md` (commit `ff47f5a2bc9b224c03a7030b18c3d0a476551f8e`). Review remains limited to exact Japanese printings and source-backed timing candidates; no duplicate catalogue work or PR changes.
