@@ -400,6 +400,7 @@ function projectChoosePokemon(prompt, state, actorSeat, native, choices, choiceB
         selectionType: 'pokemon',
         ownerSeat: entry.ownerSeat,
         targetZone: entry.zone,
+        ...(entry.zone === 'bench' ? { benchIndex: entry.index } : { slotIndex: 0 }),
         isOwnerVisible: entry.visible
       }
     });
