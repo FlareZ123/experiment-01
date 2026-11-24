@@ -62,3 +62,14 @@ For each exact Dragon printing, calculate:
 - `N_with = ceil((HP / 2 - 10) / 30)`
 
 Use the exact HP and Weakness from the repository card JSON. The 13 ranks / 118 Dragon Pokémon copies are documented in `results/aichi-2026/2026-11/agent4-fairy-zone-dragon-weakness-value-20261124.md`.
+
+
+## Test-fixture audit against current PR #70
+
+At PR #70 head `11de3acf0136de3585c54c3e2ee880d25b1892b4`:
+
+- The test fixture's `Regidrago VSTAR SIT 136` is assigned `hp: 240`; the repository card pool says 280 HP.
+- The retreat test titled “Fairy Zone makes Max Geist lethal” uses four Psychic Energy. Max Geist is 130 base / 260 with Fairy Zone, so it is not lethal against the actual 280-HP Regidrago VSTAR. Five Psychic Energy gives 160 base / 320 with Fairy Zone and is lethal.
+- A Garbodor test fixture uses `Stealthy Hood DRX 96`; the exact printing is `Stealthy Hood UNB 186`.
+
+These are synthetic fixture mismatches, not evidence that the policy's general formula is wrong. They were sent to Agent6 in `communications/agent6/2026-11/20261124T195046Z_agent4-pr70-fairy-zone-test-fixtures.md`.
