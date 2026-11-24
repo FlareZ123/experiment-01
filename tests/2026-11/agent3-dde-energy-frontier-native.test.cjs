@@ -198,7 +198,7 @@ test('pinned Store frontier keeps DDE-to-Dragon and rejects DDE-to-Dedenne/Tapu 
   }
 });
 
-test('pinned dynamic type check keeps DDE-to-Active Kecleon when opponent Active is Dragon', {
+test('pinned dynamic type check keeps DDE-to-Active Kecleon when opponent Active is Dragon in both seats', {
   skip: !fs.existsSync(compiledActionEnumerator),
   timeout: 30000
 }, () => {
@@ -217,53 +217,55 @@ test('pinned dynamic type check keeps DDE-to-Active Kecleon when opponent Active
     return card;
   }
 
-  const state = makeGameState({
-    native,
-    actorSeat: 0,
-    energyCard: cloneCard(DDE),
-    cloneCard,
-    withValidationRandom,
-    actorActiveCard: KECLEON,
-    opponentActiveCard: REGIDRAGO
-  });
-  const actor = state.players[0];
-  const enumerator = adapterModule.createKnownCapFreeActionEnumerator({
-    native,
-    enginePin
-  });
-  const candidates = enumerator.attachEnergyActions(state, actor);
-  assert.equal(candidates.length, 3);
-  const activeAction = candidates.find(action =>
-    action.target.slot === native.SlotType.ACTIVE);
-  assert.ok(activeAction, 'DDE-to-Active Kecleon action must be enumerated');
-
-  // The pinned Store itself must accept Kecleon because its Active-only Color
-  // Change Ability copies the opponent Active Regidrago's Dragon type.
-  const legalSimulator = withValidationRandom(() =>
-    frontierModule.createIsolatedValidationSimulator(state, native));
-  withValidationRandom(() => legalSimulator.store.dispatch(activeAction));
-  assert.ok(legalSimulator.store.state.players[0].active.energies.cards.some(card =>
-    card.fullName === DDE),
-  'DDE must attach to Active Kecleon when Color Change makes it Dragon');
-
-  const snapshotStoreState = createStoreStateSnapshotter();
-  const before = snapshotStoreState(state);
-  const frontier = withValidationRandom(() =>
-    frontierModule.buildNativeActionFrontier({
-      state,
-      actorSeat: 0,
+  for (const actorSeat of [0, 1]) {
+    const state = makeGameState({
       native,
-      enumerator: { enumerate: () => candidates }
-    }));
+      actorSeat,
+      energyCard: cloneCard(DDE),
+      cloneCard,
+      withValidationRandom,
+      actorActiveCard: KECLEON,
+      opponentActiveCard: REGIDRAGO
+    });
+    const actor = state.players[actorSeat];
+    const enumerator = adapterModule.createKnownCapFreeActionEnumerator({
+      native,
+      enginePin
+    });
+    const candidates = enumerator.attachEnergyActions(state, actor);
+    assert.equal(candidates.length, 3);
+    const activeAction = candidates.find(action =>
+      action.target.slot === native.SlotType.ACTIVE);
+    assert.ok(activeAction, 'DDE-to-Active Kecleon action must be enumerated');
 
-  assert.deepEqual(snapshotStoreState(state), before);
-  assert.equal(frontier.diagnostics.enumeratedCount, 3);
-  assert.equal(frontier.diagnostics.validatedCount, 1);
-  assert.equal(frontier.diagnostics.rejectedCount, 2);
-  assert.equal(frontier.diagnostics.preflightRejectedCount, 2);
-  assert.equal(frontier.diagnostics.unsupportedCount, 0);
-  assert.equal(frontier.actionFrontier.items.length, 1);
-  assert.equal(frontier.actionFrontier.items[0].targetPrinting, KECLEON);
+    // The pinned Store itself must accept Kecleon because its Active-only Color
+    // Change Ability copies the opponent Active Regidrago's Dragon type.
+    const legalSimulator = withValidationRandom(() =>
+      frontierModule.createIsolatedValidationSimulator(state, native));
+    withValidationRandom(() => legalSimulator.store.dispatch(activeAction));
+    assert.ok(legalSimulator.store.state.players[actorSeat].active.energies.cards.some(card =>
+      card.fullName === DDE),
+    'DDE must attach to Active Kecleon when Color Change makes it Dragon');
+
+    const snapshotStoreState = createStoreStateSnapshotter();
+    const before = snapshotStoreState(state);
+    const frontier = withValidationRandom(() =>
+      frontierModule.buildNativeActionFrontier({
+        state,
+        actorSeat,
+        native,
+        enumerator: { enumerate: () => candidates }
+      }));
+
+    assert.deepEqual(snapshotStoreState(state), before);
+    assert.equal(frontier.diagnostics.enumeratedCount, 3);
+    assert.equal(frontier.diagnostics.validatedCount, 1);
+    assert.equal(frontier.diagnostics.rejectedCount, 2);
+    assert.equal(frontier.diagnostics.preflightRejectedCount, 2);
+    assert.equal(frontier.diagnostics.unsupportedCount, 0);
+    assert.equal(frontier.actionFrontier.items.length, 1);
+    assert.equal(frontier.actionFrontier.items[0].targetPrinting, KECLEON);
+  }
 });
 
 test('same-message CANNOT_PLAY_THIS_CARD from DDE to a legal Dragon target remains fatal', {
