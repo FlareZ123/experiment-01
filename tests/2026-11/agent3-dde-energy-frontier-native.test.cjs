@@ -212,13 +212,6 @@ test('CANNOT_PLAY_THIS_CARD from a non-DDE Energy reducer remains a fatal fronti
     card instanceof native.EnergyCard && card.fullName !== DDE);
   assert.ok(ordinaryEnergyDefinition, 'pinned card pool must contain another Energy printing');
   const ordinaryEnergy = cloneCard(ordinaryEnergyDefinition.fullName);
-  ordinaryEnergy.reduceEffect = (store, state, effect) => {
-    if (effect?.type === 'ATTACH_ENERGY_EFFECT') {
-      throw new native.GameError('CANNOT_PLAY_THIS_CARD');
-    }
-    return state;
-  };
-
   const state = makeGameState({
     native,
     actorSeat: 0,
@@ -227,6 +220,14 @@ test('CANNOT_PLAY_THIS_CARD from a non-DDE Energy reducer remains a fatal fronti
     withValidationRandom
   });
   const actor = state.players[0];
+  // Inject the control failure after Simulator construction so only the
+  // cloned Store's actual AttachEnergyEffect dispatch can raise this error.
+  actor.hand.cards[0].reduceEffect = (store, validationState, effect) => {
+    if (effect?.type === 'ATTACH_ENERGY_EFFECT') {
+      throw new native.GameError('CANNOT_PLAY_THIS_CARD');
+    }
+    return validationState;
+  };
   const enumerator = adapterModule.createKnownCapFreeActionEnumerator({
     native,
     enginePin
