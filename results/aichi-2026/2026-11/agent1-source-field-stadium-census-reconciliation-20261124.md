@@ -10,11 +10,11 @@ The current identity-normalized English Expanded diagnostic proxy contains ranks
 
 ## Corrected counts
 
-<badge color="success">Reproduced from source rows</badge>
+**Status:** Reproduced from source rows.
 
 - **Raw published Aichi source field:** 81 Stadium copies, 16 identities, and at least one Stadium in **29/29** published lists.
 - **24-list normalized diagnostic proxy:** 62 Stadium copies, 11 English Stadium identities, and at least one Stadium in **24/24** lists.
-- The previous Agent42 Max-Geist-focused summary reports 42 copies across six identities in 24 lists. That table is not an exhaustive whole-deck Stadium inventory: it omits Path to the Peak and several other Stadium identities. Its specific Max Geist/Weakness observations may still be useful within their stated scope.
+- The earlier Agent42 Stadium/Weakness report reports 42 copies across six identities in 24 lists. The broader whole-deck scan here finds a larger inventory. Its specific Max Geist/Weakness observations may still be useful within their stated scope; this report extends the scan to all Stadium subtypes across the whole deck.
 
 ### Raw 29-list inventory
 
