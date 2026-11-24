@@ -921,6 +921,35 @@ test('selected-card legality predicates are compared across fresh clones without
   assert.equal(itemDispatches,1,'divergent predicates must fail before cloned dispatch');
 });
 
+test('stable absence of a selected-card canPlay hook still distinguishes clone stability from dispatch rejection',()=>{
+  const state=fixtureState();
+  state.players[0].hand.cards[0].canPlay=undefined;
+  const itemAction={type:'PLAY_CARD_ACTION',id:'p0',handIndex:0};
+  let itemDispatches=0;
+  const native=fakeNative({
+    actions:[itemAction,{type:'PASS_TURN',clientId:'p0'}],
+    rejectActionTypes:[],
+    onDispatch(action){
+      if(action===itemAction){
+        itemDispatches++;
+        if(itemDispatches===2)throw new GameError('CANNOT_PLAY_THIS_CARD');
+      }
+    }
+  });
+  const built=buildNativeActionFrontier({state,actorSeat:0,native});
+  const store={state,dispatch(){assert.fail('live Store must not be dispatched');}};
+  const validationEvidence={};
+  assert.throws(()=>dispatchSelectedNativeAction({
+    store,frontier:built,token:built.actionFrontier.items[0].token,
+    state,actorSeat:0,native,withValidationRandom:fn=>fn(),dispatch:false,
+    validationEvidence
+  }),error=>error.code==='PREDICATE_STABLE_DISPATCH_FAILED');
+  assert.equal(validationEvidence.selectedCardPredicateCompared,true);
+  assert.equal(validationEvidence.selectedCardPredicateApplicable,false);
+  assert.equal(validationEvidence.selectedCardPredicateStableAcrossClones,true);
+  assert.equal(itemDispatches,2);
+});
+
 test('stable selected-card predicate plus native CANNOT_PLAY_THIS_CARD gets a generic classification',()=>{
   const state=fixtureState();
   state.players[0].hand.cards[0].canPlay=()=>true;

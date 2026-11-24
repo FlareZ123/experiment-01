@@ -710,8 +710,9 @@ function dispatchSelectedNativeAction({
           throw error;
         }
         if(validationEvidence&&typeof validationEvidence==='object'){
-          validationEvidence.selectedCardPredicateCompared=predicateA.applicable===true;
-          validationEvidence.selectedCardPredicateStableAcrossClones=predicateA.applicable===true;
+          // Compare method availability even when this card exposes no canPlay hook.
+          validationEvidence.selectedCardPredicateCompared=true;
+          validationEvidence.selectedCardPredicateStableAcrossClones=true;
           validationEvidence.selectedCardPredicateApplicable=predicateA.applicable===true;
         }
       }else if(validationEvidence&&typeof validationEvidence==='object'){
