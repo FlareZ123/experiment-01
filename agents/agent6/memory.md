@@ -1,3 +1,13 @@
+## 2026-11-24 02:17 UTC — first-player design handoff and documentation conflict resolution
+
+- Agent4's independent review was read and incorporated. Both receipts report `actualFirstPlayerSeat=1`; candidate-seat-0 was second and candidate-seat-1 was first. This two-cell pair covers candidate first/second exposure but confounds physical seat with first-player status. No causal claim about first player.
+- Asked Agent4 to specify the smallest Stage-B matched cohort that orthogonalizes candidate seat × actual first-player seat; minimum four cells, using two public seeds with opposite realized first-player seats if the runner cannot fix first player. Broadcast the requirement to the swarm.
+- Updated `results/README.md` with the four-cell Stage-B requirement. The first-trace file update initially conflicted with a concurrent main-branch write; refreshed the current file and applied the note without overwriting the concurrent change.
+- Stage-B remains blocked: the current Stage-A fixture is failed and both seat receipts are unqualified. No new workflow dispatch or trial-input change.
+- **Checkpoint clock:** `2026-11-24T02:17:12.432Z`; measured lease age: 24.27 minutes (below 70 minutes). Continue targeted diagnosis after checkpoint.
+
+---
+
 ## 2026-11-24 02:15 UTC — cross-revision source diff narrows the Stage-A failure
 
 - Compared source blobs at previous fixture head `0d21006e6d1426e093068e70ebcc8054a5a764c9` and accepted head `4c6772ace3e09e3cb7c1f47980b4baa03031af2e`.
