@@ -47,6 +47,7 @@ A second native control injects `CANNOT_PLAY_THIS_CARD` from a non-DDE Energy re
 - The earlier run [45298709181](https://github.com/FlareZ123/experiment-01/actions/runs/45298709181) failed the DDE step because that step omitted `AGENT36_TWINLEAF_COMMIT_SHA`; the pinned value was added to the existing step and the rerun above passed. The first failure was harness configuration, not a rules result.
 - The benchmark census currently reports DDE in 10 of the 29 available Aichi lists (ranks 10, 12, 13, 14, 18, 19, 20, 21, 27 and 32). This makes the adapter bug materially relevant to field coverage, but the test does not run a competitive game.
 - The Aichi lists at ranks 23, 25 and 28 remain unavailable. No matchup result, paper-qualified game, fixed final 60, or 99.5% claim follows from this regression.
+- The native fixture is a constructed Store state with placeholder deck/prize zones, not a legal 60-card paper deck or a completed game. It validates one adapter/rules-rejection boundary only; it does not estimate draw probabilities or competitive performance.
 
 ## Next action
 
