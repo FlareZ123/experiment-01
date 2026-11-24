@@ -10,7 +10,7 @@
  * Unknown prompt provenance or actor-visible state fails closed.
  */
 
-const POLICY_VERSION = 'agent46-hood-candidate-v1';
+const POLICY_VERSION = 'agent46-hood-candidate-v2';
 
 let activePolicyAudit = null;
 
@@ -175,6 +175,37 @@ function boardHas(view, name) {
   return ownBoard(view).some(slot => hasName(slot.printing, name));
 }
 
+function isBasicShadowRiderVPrinting(printing) {
+  return hasName(printing, 'Shadow Rider Calyrex V') &&
+    !hasName(printing, 'Shadow Rider Calyrex VMAX');
+}
+
+function isBasicShadowRiderV(slot) {
+  return isBasicShadowRiderVPrinting(slot?.printing) &&
+    !(slot?.printed?.subtypes ?? []).includes('VMAX');
+}
+
+function isShadowRiderVmax(slot) {
+  return hasName(slot?.printing, 'Shadow Rider Calyrex VMAX');
+}
+
+function hasBasicShadowRiderV(view) {
+  return ownBoard(view).some(isBasicShadowRiderV);
+}
+
+function handHasBasicShadowRiderV(view) {
+  return view.ownHand.some(isBasicShadowRiderVPrinting);
+}
+
+function hasUnevolvedShadowRiderV(view) {
+  return ownBoard(view).some(isBasicShadowRiderV);
+}
+
+function hasOpenBench(view) {
+  return Array.isArray(view.ownPublic?.bench) &&
+    view.ownPublic.bench.some(slot => !slot);
+}
+
 function handHas(view, name) {
   return view.ownHand.some(printing => hasName(printing, name));
 }
@@ -252,9 +283,9 @@ function prizeLiability(slot) {
   if (subtypes.some(value => ['VMAX', 'V-UNION', 'TAG TEAM'].includes(value)) ||
       hasName(printing, 'VMAX') || hasName(printing, 'V-UNION') ||
       hasName(printing, ' & ') && hasName(printing, '-GX')) return 3;
-  if (subtypes.some(value => ['ex', 'GX', 'V'].includes(value)) ||
+  if (subtypes.some(value => ['ex', 'GX', 'V', 'VSTAR'].includes(value)) ||
       hasName(printing, '-GX') || / ex(?: |$)/.test(printing) ||
-      / V(?: |$)/.test(printing)) return 2;
+      / V(?: |$)/.test(printing) || / VSTAR(?: |$)/.test(printing)) return 2;
   return 1;
 }
 
@@ -306,8 +337,41 @@ function canPayAttack(slot, attack, view) {
   return slotEnergyCount(slot) >= effectiveAttackCost(slot, attack, view);
 }
 
+function isPokemonV(slot) {
+  const subtypes = slot?.printed?.subtypes ?? [];
+  return subtypes.some(value => ['V', 'VMAX', 'VSTAR', 'V-UNION'].includes(value));
+}
+
+function stadiumAndToolEffectsLive(view) {
+  const own = view.ownPublic.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
+  const opponent = view.opponentPublic.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
+  if (!Number.isSafeInteger(own) || own < 0 ||
+      !Number.isSafeInteger(opponent) || opponent < 0) return null;
+  return own === 0 && opponent === 0;
+}
+
+function hasEffectiveStealthyHood(target, view) {
+  if (!Array.isArray(target?.tools) ||
+      !target.tools.some(tool => hasName(tool, 'Stealthy Hood'))) return false;
+  const opponentTarget = opponentBoard(view).includes(target);
+  if (!opponentTarget) return true;
+  const effectsLive = stadiumAndToolEffectsLive(view);
+  const stadiums = [...view.ownPublic.stadium, ...view.opponentPublic.stadium];
+  const jammingTowerActive = effectsLive === true &&
+    stadiums.some(name => hasName(name, 'Jamming Tower'));
+  if (isPokemonV(target) && jammingTowerActive) return false;
+  const toolJammerAttached = Array.isArray(view.ownPublic.active?.tools) &&
+    view.ownPublic.active.tools.some(tool => hasName(tool, 'Tool Jammer'));
+  const toolJammerDisabledByJammingTower = jammingTowerActive &&
+    isPokemonV(view.ownPublic.active);
+  if (toolJammerAttached && !toolJammerDisabledByJammingTower &&
+      effectsLive === true) return false;
+  return true;
+}
+
 function weaknessMultiplier(attacker, target, view) {
-  if (isDragon(target) && fairyZoneStatus(view) === true) return 2;
+  if (isDragon(target) && fairyZoneStatus(view) === true &&
+      !hasEffectiveStealthyHood(target, view)) return 2;
   const types = attacker?.printed?.types ?? [];
   const weakness = (target?.printed?.weakness ?? []).find(row =>
     types.includes(row.type));
@@ -358,6 +422,28 @@ function estimatedDamage(attacker, attack, view, target) {
   return Number.isFinite(damage) ? damage : null;
 }
 
+function canFuelNightWatch(view) {
+  return handHas(view, 'Psychic Energy') &&
+    (view.ownTurnResources.energyPlayedTurn === false ||
+     boardAbilityStatus(view, 'Underworld Door') === true);
+}
+
+function paleMoonScore(attacker, attack, view, target) {
+  if (!attacker || !attack || !target ||
+      view.ownPublic.publicTurnRestrictions?.gxUsed === true ||
+      !canPayAttack(attacker, attack, view)) return -Infinity;
+  const psychicAttached = attacker.energies.filter(energy =>
+    hasName(energy, 'Psychic Energy')).length;
+  const extraPsychic = psychicAttached >= 2 && slotEnergyCount(attacker) >= 3;
+  const opponentBenchCount = view.opponentPublic.bench.filter(Boolean).length;
+  const targetEnergyCount = target.energies.length;
+  if (opponentBenchCount > 0 && !extraPsychic && targetEnergyCount < 3) {
+    return -Infinity;
+  }
+  return 900 + targetEnergyCount * 80 + prizeLiability(target) * 100 +
+    (extraPsychic ? 350 : 0) + (opponentBenchCount === 0 ? 700 : -250);
+}
+
 function attackScore(attacker, attack, view, target, options = {}) {
   if (!attacker || !attack || !target) return -Infinity;
   if (attack.gxAttack && view.ownPublic.publicTurnRestrictions.gxUsed) return -Infinity;
@@ -376,11 +462,17 @@ function attackScore(attacker, attack, view, target, options = {}) {
       hasName(row.sourcePrinting, 'Regidrago VSTAR'));
     return dialgaReady && apex ? 50000 : -Infinity;
   }
+  if (attack.name === 'Pale Moon-GX') {
+    return paleMoonScore(attacker, attack, view, target);
+  }
 
   const damage = estimatedDamage(attacker, attack, view, target);
   if (damage === null) return -Infinity;
   const remaining = Math.max(0, target.hp - target.damage);
   let score = damage * 10;
+  if (attack.name === 'Night Watch') {
+    score += Math.min(120, view.opponentPublic.handCount * 20);
+  }
   if (damage >= remaining) {
     score += 10000 + prizeLiability(target) * 500;
   }
@@ -416,6 +508,11 @@ function bestAttackForSlot(slot, view, target, options = {}) {
 }
 
 function choiceBenchIndex(choice) {
+  const metadataIndex = choice?.publicMetadata?.targetIndex ??
+    choice?.publicMetadata?.benchIndex;
+  if (Number.isSafeInteger(metadataIndex) && metadataIndex >= 0) {
+    return metadataIndex;
+  }
   const label = choice?.label ?? '';
   const match = /^(?:Your|Opponent) bench ([1-9][0-9]*)(?::|$)/i.exec(label);
   return match ? Number(match[1]) - 1 : null;
@@ -435,13 +532,150 @@ function slotForPokemonChoice(view, choice) {
   return { slot, index, ownerSeat: metadata.ownerSeat };
 }
 
-function searchNeedScore(view, printing, effectName = '') {
+
+function isFieldBlowerPrompt(prompt) {
+  return prompt?.source?.effectName === 'Field Blower' &&
+    hasName(prompt.source.sourcePrinting, 'Field Blower');
+}
+
+function slotForFieldBlowerChoice(view, choice) {
+  const metadata = choice?.publicMetadata;
+  if (!metadata || metadata.isOwnerVisible !== true ||
+      !['actor', 'opponent'].includes(metadata.ownerSeat)) return null;
+  const player = metadata.ownerSeat === 'actor'
+    ? view.ownPublic : view.opponentPublic;
+  const zone = metadata.targetZone;
+  let index;
+  let slot;
+  if (zone === 'active') {
+    if (metadata.slotIndex !== 0) return null;
+    index = -1;
+    slot = player.active ?? null;
+  } else if (zone === 'bench') {
+    index = metadata.benchIndex ?? metadata.targetIndex;
+    if (!Number.isSafeInteger(index) || index < 0) return null;
+    slot = player.bench[index] ?? null;
+  } else {
+    return null;
+  }
+  if (!slot || (choice.printing && slot.printing !== choice.printing) ||
+      !Array.isArray(slot.tools) || slot.tools.length === 0) return null;
+  return { slot, index, ownerSeat: metadata.ownerSeat, zone };
+}
+
+function chooseFieldBlowerMode(view, prompt) {
+  setPolicyAuditRule('FIELD_BLOWER_MODE_CHOICE',
+    'STADIUM_PRIORITY_THEN_TWO_OPPONENT_TOOLS');
+  if (!isFieldBlowerPrompt(prompt) ||
+      prompt.publicMetadata?.selectionType !== 'option') {
+    return abstain('UNTRUSTED_PROMPT');
+  }
+  const options = prompt.choices.filter(choice =>
+    choice.kind === 'option' && typeof choice.label === 'string');
+  const stadiumOptions = options.filter(choice =>
+    choice.label.toLowerCase().includes('stadium'));
+  const toolOnlyOptions = options.filter(choice => {
+    const label = choice.label.toLowerCase();
+    return label.includes('tool') && !label.includes('stadium');
+  });
+  let selected = null;
+  if (hasStadiumRemovalTarget(view)) {
+    if (stadiumOptions.length === 1) selected = stadiumOptions[0];
+  } else if (hasOpponentToolRemovalTarget(view)) {
+    if (toolOnlyOptions.length === 1) selected = toolOnlyOptions[0];
+  }
+  if (!selected) return abstain('AMBIGUOUS_SIMPLE_PROMPT');
+  return { kind: 'select-choice', token: selected.token };
+}
+
+function chooseFieldBlowerPokemon(view, prompt) {
+  setPolicyAuditRule('FIELD_BLOWER_TOOL_TARGET_SCORE',
+    'OPPONENT_ACTIVE_THEN_BENCH_SCORE_DESC');
+  const metadata = prompt.publicMetadata;
+  if (!isFieldBlowerPrompt(prompt) || metadata?.selectionType !== 'pokemon') {
+    return abstain('UNTRUSTED_PROMPT');
+  }
+  const minimum = metadata.minimumCount;
+  const maximum = metadata.maximumCount;
+  if (!Number.isSafeInteger(minimum) || !Number.isSafeInteger(maximum) ||
+      minimum < 0 || maximum < minimum || maximum > 2) {
+    return abstain('BAD_POKEMON_SELECTION_BOUNDS');
+  }
+  const ranked = prompt.choices.filter(choice => choice.kind === 'pokemon')
+    .map(choice => ({ choice, target: slotForFieldBlowerChoice(view, choice) }))
+    .filter(row => row.target !== null)
+    .map(row => ({
+      ...row,
+      score: row.target.ownerSeat === 'opponent'
+        ? (row.target.zone === 'active' ? 1000 : 700) +
+          Math.min(200, row.target.slot.tools.length * 100)
+        : -Infinity
+    }));
+  for (const row of ranked) {
+    recordPolicyAuditScore(row.choice.token, row.score,
+      'NO_OPPONENT_TOOL_TARGET');
+  }
+  ranked.sort((a, b) => b.score - a.score ||
+    a.target.index - b.target.index);
+  const selected = ranked.filter(row => Number.isFinite(row.score) && row.score > 0)
+    .slice(0, maximum);
+  if (selected.length < minimum) {
+    return abstain('NO_SUPPORTED_POKEMON_CHOICE');
+  }
+  if (selected.length === 0) {
+    const empty = prompt.choices.find(choice => choice.kind === 'empty-selection');
+    return minimum === 0 && empty
+      ? { kind: 'select-choice', token: empty.token }
+      : abstain('NO_POKEMON_SELECTION');
+  }
+  return {
+    kind: 'select-choices',
+    tokens: selected.map(row => row.choice.token)
+  };
+}
+
+function supporterNeedScore(view, printing, receipt) {
+  const priorOpponentKO = receipt?.priorOpponentTurnKO?.any === true;
+  if (hasName(printing, 'Teammates')) return priorOpponentKO ? 100 : -5;
+  if (hasName(printing, 'Raihan')) {
+    return priorOpponentKO && discardHas(view, 'Psychic Energy') &&
+      view.ownTurnResources.energyPlayedTurn === false ? 96 : -5;
+  }
+  if (hasName(printing, 'Guzma')) return canGuzmaForAttack(view) ? 92 : -5;
+  if (hasName(printing, 'Arven')) {
+    const missingV = !hasBasicShadowRiderV(view) && hasOpenBench(view);
+    const missingHood = hasAbilityLockThreat(view) &&
+      !ownBoard(view).some(slot =>
+        slot.tools.some(tool => hasName(tool, 'Stealthy Hood')));
+    return missingV || missingHood ? 90 : 40;
+  }
+  if (hasName(printing, 'Acerola')) {
+    return ownBoard(view).some(slot =>
+      slot.damage > 0 && slot.hp - slot.damage <= 120) ? 88 : -5;
+  }
+  if (hasName(printing, "Lillie's Determination")) {
+    return view.ownPublic.handCount <= 3 || view.ownPublic.deckCount <= 10 ? 85 : 35;
+  }
+  if (hasName(printing, 'Iono')) {
+    return view.opponentPublic.handCount >= 5 && view.ownPublic.handCount >= 4 ? 80 : 25;
+  }
+  if (hasName(printing, 'Pokémon Ranger')) return 5;
+  return -5;
+}
+
+function searchNeedScore(view, printing, effectName = '', receipt = null) {
   if (!isText(printing)) return -Infinity;
+  if (effectName === 'Wonder Tag') return supporterNeedScore(view, printing, receipt);
+  if (effectName === 'Star Alchemy') {
+    const ordinary = searchNeedScore(view, printing, '', receipt);
+    const supporter = supporterNeedScore(view, printing, receipt);
+    const score = Math.max(ordinary, supporter);
+    return score > 0 ? score + 10 : score;
+  }
   const regidrago = opponentHasRegidrago(view);
   const dragon = opponentHasDragon(view);
   const board = ownBoard(view);
-  const hasShadowV = board.some(slot => hasName(slot.printing, 'Shadow Rider Calyrex V'));
-  const hasShadowVmax = board.some(slot => hasName(slot.printing, 'Shadow Rider Calyrex VMAX'));
+  const hasShadowV = hasBasicShadowRiderV(view);
   const hasMimikyu = board.some(slot => hasName(slot.printing, 'Mimikyu'));
   const hasClefairy = board.some(slot => hasName(slot.printing, "Lillie's Clefairy ex"));
   const hasLatias = board.some(slot => hasName(slot.printing, 'Latias ex'));
@@ -455,12 +689,23 @@ function searchNeedScore(view, printing, effectName = '') {
     if (regidrago && !hasMimikyu && !handHas(view, 'Mimikyu')) return 96;
     return -5;
   }
+  if (effectName === 'Climactic Gate') {
+    return hasName(printing, 'Shadow Rider Calyrex VMAX') ? 100 : -5;
+  }
+  if (hasName(printing, 'Trevenant & Dusknoir-GX')) {
+    return view.opponentPublic.handCount >= 4 &&
+      !boardHas(view, 'Trevenant & Dusknoir-GX') &&
+      !handHas(view, 'Trevenant & Dusknoir-GX') &&
+      canFuelNightWatch(view) ? 90 : -5;
+  }
   if (hasName(printing, 'Shadow Rider Calyrex VMAX')) {
-    if (hasShadowV && !hasShadowVmax && !handHas(view, 'Shadow Rider Calyrex VMAX')) return 94;
+    if (hasUnevolvedShadowRiderV(view) &&
+        !handHas(view, 'Shadow Rider Calyrex VMAX')) return 94;
     return -5;
   }
-  if (hasName(printing, 'Shadow Rider Calyrex V')) {
-    if (!hasShadowV && !hasShadowVmax && !handHas(view, 'Shadow Rider Calyrex V')) return 100;
+  if (isBasicShadowRiderVPrinting(printing)) {
+    if (!hasShadowV && !handHasBasicShadowRiderV(view) &&
+        hasOpenBench(view)) return 100;
     return -5;
   }
   if (hasName(printing, "Lillie's Clefairy ex")) {
@@ -475,17 +720,15 @@ function searchNeedScore(view, printing, effectName = '') {
     return psychicEnergyCount(view) < 5 ? 45 : 5;
   }
   if (hasName(printing, 'Fog Crystal')) {
-    return (!hasShadowV && !hasShadowVmax) || psychicEnergyCount(view) < 3 ? 60 : 10;
+    const missingBasicV = !hasShadowV &&
+      !handHas(view, 'Shadow Rider Calyrex V') && hasOpenBench(view);
+    return missingBasicV || psychicEnergyCount(view) < 3 ? 60 : 10;
   }
   if (hasName(printing, 'Stealthy Hood')) {
-    const lock = allBoard(view).some(slot =>
-      hasName(slot.printing, 'Iron Thorns ex') ||
-      hasName(slot.printing, 'Garbodor') ||
-      hasName(slot.printing, 'Snorlax PGO'));
     const protectedTarget = board.some(slot =>
       hasName(slot.printing, 'Shadow Rider Calyrex V') ||
       hasName(slot.printing, 'Shadow Rider Calyrex VMAX'));
-    return lock && protectedTarget ? 70 : 0;
+    return hasAbilityLockThreat(view) && protectedTarget ? 70 : 0;
   }
   if (hasName(printing, 'Field Blower')) {
     return view.opponentPublic.stadium.some(name =>
@@ -502,7 +745,7 @@ function searchNeedScore(view, printing, effectName = '') {
     return board.length < 3 ? 20 : 0;
   }
   if (hasName(printing, 'Unfair Stamp')) {
-    return view.publicEventReceipt?.priorOpponentTurnKO?.any === true ? 80 : 0;
+    return receipt?.priorOpponentTurnKO?.any === true ? 80 : 0;
   }
   if (effectName === 'Arven' && hasAnyName(printing, TOOL_NAMES)) return 70;
   return 0;
@@ -543,9 +786,14 @@ function isItem(printing) {
   return hasAnyName(printing, ITEM_NAMES);
 }
 
-function searchCandidates(view, prompt, choices) {
+function searchCandidates(view, prompt, choices, receipt = null) {
   const effectName = prompt.source?.effectName ?? '';
+  const sourcePrinting = prompt.source?.sourcePrinting ?? '';
   const sourceZone = prompt.publicMetadata?.sourceZone;
+  const scoringEffectName = sourceZone === 'deck' &&
+    hasName(sourcePrinting, 'Tapu Lele-GX') ? 'Wonder Tag' :
+    sourceZone === 'deck' && hasName(sourcePrinting, 'Radiant Eternatus')
+      ? 'Climactic Gate' : effectName;
   let rows;
   if (sourceZone === 'deck' && effectName === 'Battle Compressor') {
     rows = choices.map(choice => ({
@@ -560,7 +808,7 @@ function searchCandidates(view, prompt, choices) {
     }));
   } else {
     rows = choices.map(choice => ({
-      choice, score: searchNeedScore(view, choice.printing, effectName)
+      choice, score: searchNeedScore(view, choice.printing, scoringEffectName, receipt)
     }));
   }
   for (const row of rows) {
@@ -569,7 +817,7 @@ function searchCandidates(view, prompt, choices) {
   return rows;
 }
 
-function chooseCardCombination(view, prompt) {
+function chooseCardCombination(view, prompt, receipt = null) {
   setPolicyAuditRule('CARD_COMBINATION_SEARCH_SCORE', 'SCORE_DESC_PRINTING_ASC');
   const metadata = prompt.publicMetadata;
   if (!metadata || metadata.selectionType !== 'card-combination' ||
@@ -590,7 +838,7 @@ function chooseCardCombination(view, prompt) {
     return abstain('HIDDEN_PRIZE_IDENTITY');
   }
 
-  const ranked = searchCandidates(view, prompt, choices)
+  const ranked = searchCandidates(view, prompt, choices, receipt)
     .sort((a, b) => b.score - a.score ||
       String(a.choice.printing).localeCompare(String(b.choice.printing)));
 
@@ -655,7 +903,19 @@ function choosePokemonRecipient(view, prompt) {
   const opponentChoices = visible.filter(row => row.target.ownerSeat === 'opponent');
 
   let ranked;
-  if (effectName === 'Guzma' && actorChoices.length > 0) {
+  if (effectName === 'Acerola' && actorChoices.length > 0) {
+    ranked = actorChoices.map(row => {
+      const slot = row.target.slot;
+      if (slot.damage <= 0) return { ...row, score: -Infinity };
+      const remaining = Math.max(0, slot.hp - slot.damage);
+      return {
+        ...row,
+        score: 1000 + Math.min(600, slot.damage * 2) +
+          slotEnergyCount(slot) * 80 + (remaining <= 120 ? 400 : 0) +
+          prizeLiability(slot) * 100
+      };
+    });
+  } else if (effectName === 'Guzma' && actorChoices.length > 0) {
     const target = view.opponentPublic.active;
     ranked = actorChoices.map(row => {
       const attack = bestAttackForSlot(row.target.slot, view, target);
@@ -685,11 +945,14 @@ function choosePokemonRecipient(view, prompt) {
       let score = 100 - slotEnergyCount(slot) * 5;
       if (opponentHasRegidrago(view) && hasName(slot.printing, 'Mimikyu') &&
           slotEnergyCount(slot) < 2) score += 1000;
-      if (hasName(slot.printing, 'Shadow Rider Calyrex VMAX') &&
-          psychicEnergyCount(view) < 5) score += 700;
+      if (isShadowRiderVmax(slot) && psychicEnergyCount(view) < 5) score += 700;
       if (opponentHasDragon(view) && hasName(slot.printing, "Lillie's Clefairy ex") &&
           slotEnergyCount(slot) < 2) score += 600;
-      if (hasName(slot.printing, 'Shadow Rider Calyrex V')) score += 100;
+      if (hasName(slot.printing, 'Trevenant & Dusknoir-GX') &&
+          view.opponentPublic.handCount >= 4 && slotEnergyCount(slot) < 3) {
+        score += 850 + Math.min(100, (view.opponentPublic.handCount - 4) * 20);
+      }
+      if (isBasicShadowRiderV(slot)) score += 100;
       return { ...row, score };
     });
   }
@@ -737,6 +1000,58 @@ function chooseEnergyPayment(view, prompt) {
   return { kind: 'select-choices', tokens: selected.map(row => row.choice.token) };
 }
 
+function chooseEnergyAttachment(view, prompt) {
+  setPolicyAuditRule('UNDERWORLD_DOOR_ENERGY_TARGET_SCORE', 'SCORE_DESC_BENCH_INDEX_TOKEN_ASC');
+  const metadata = prompt.publicMetadata;
+  if (!metadata || metadata.selectionType !== 'energy-attachment' ||
+      metadata.minimumCount !== 1 || metadata.maximumCount !== 1 ||
+      metadata.sourceZone !== 'hand' || metadata.ownerSeat !== 'actor' ||
+      metadata.isOwnerVisible !== true || metadata.energyType !== 'BASIC' ||
+      metadata.zone !== 'bench' ||
+      prompt.source?.effectName !== 'Underworld Door' ||
+      !hasName(prompt.source?.sourcePrinting, 'Shadow Rider Calyrex VMAX')) {
+    return abstain('UNTRUSTED_ENERGY_SELECTION');
+  }
+
+  const ranked = prompt.choices.map(choice => {
+    const item = choice.publicMetadata;
+    const index = choiceBenchIndex(choice);
+    const target = Number.isSafeInteger(index)
+      ? view.ownPublic.bench[index] ?? null : null;
+    const valid = choice.kind === 'energy' &&
+      hasName(choice.printing, 'Psychic Energy') &&
+      item?.sourceZone === 'hand' && item?.ownerSeat === 'actor' &&
+      item?.isOwnerVisible === true && item?.energyType === 'BASIC' &&
+      item?.zone === 'bench' && target &&
+      target.printed?.types?.includes('Psychic');
+    if (!valid) return { choice, index: Number.MAX_SAFE_INTEGER, score: -Infinity };
+
+    const attached = slotEnergyCount(target);
+    let score = 100 - attached * 20;
+    if (opponentHasRegidrago(view) && hasName(target.printing, 'Mimikyu') &&
+        attached < 2) score += 1000;
+    if (opponentHasDragon(view) && hasName(target.printing, "Lillie's Clefairy ex") &&
+        attached < 2) score += 900;
+    if (hasName(target.printing, 'Trevenant & Dusknoir-GX') &&
+        view.opponentPublic.handCount >= 4 && attached < 3) {
+      score += 850 + Math.min(100, (view.opponentPublic.handCount - 4) * 20);
+    }
+    if (isShadowRiderVmax(target) && psychicEnergyCount(view) < 5 &&
+        attached < 5) score += 800;
+    if (isBasicShadowRiderV(target) && hasUnevolvedShadowRiderV(view)) score += 700;
+    return { choice, index, score };
+  });
+  for (const row of ranked) {
+    recordPolicyAuditScore(row.choice.token, row.score, 'INVALID_UNDERWORLD_ASSIGNMENT');
+  }
+  ranked.sort((a, b) => b.score - a.score ||
+    a.index - b.index || a.choice.token.localeCompare(b.choice.token));
+  if (!Number.isFinite(ranked[0]?.score)) {
+    return abstain('NO_VISIBLE_ENERGY_CHOICE');
+  }
+  return { kind: 'select-choice', token: ranked[0].choice.token };
+}
+
 function chooseAttackPrompt(view, prompt, receipt) {
   setPolicyAuditRule('ATTACK_CHOICE_SCORE_DESC', 'SCORE_DESC_TOKEN_ASC');
   const choices = prompt.choices.filter(choice =>
@@ -765,7 +1080,13 @@ function chooseAttackPrompt(view, prompt, receipt) {
     else if (attackName === 'Max Geist') score = 10 + 30 * psychicEnergyCount(view);
     else if (attackName === 'Full Moon Rondo') {
       score = 20 + 20 * (countBench(view.ownPublic) + countBench(view.opponentPublic));
-    } else if (attackName === 'Night Watch') score = 150;
+    } else if (attackName === 'Night Watch') {
+      score = 150 + Math.min(120, view.opponentPublic.handCount * 20);
+    } else if (attackName === 'Pale Moon-GX') {
+      const attacker = view.ownPublic.active;
+      const attack = attacker?.attacks.find(row => row.name === 'Pale Moon-GX');
+      score = paleMoonScore(attacker, attack, view, view.opponentPublic.active);
+    }
     else score = parseDamage(attackName);
     return { choice, score };
   });
@@ -976,6 +1297,37 @@ function chooseEngineSetupPrompt(view, prompt) {
   return abstain('UNSUPPORTED_ENGINE_SETUP_PROMPT');
 }
 
+function chooseConfirmPrompt(view, prompt) {
+  if (prompt.description !== 'WANT_TO_USE_ABILITY' ||
+      prompt.publicMetadata?.selectionType !== 'confirm') {
+    return abstain('UNSUPPORTED_CONFIRMATION_SOURCE');
+  }
+
+  const sourcePrinting = prompt.source?.sourcePrinting ?? '';
+  let useAbility;
+  let rule;
+  if (hasName(sourcePrinting, 'Radiant Eternatus')) {
+    useAbility = canUseClimacticGate(view);
+    rule = useAbility ? 'RADIANT_CLIMACTIC_GATE_EXPECTED_VALUE_ACCEPT'
+      : 'RADIANT_CLIMACTIC_GATE_EXPECTED_VALUE_DECLINE';
+  } else if (hasName(sourcePrinting, 'Tapu Lele-GX')) {
+    useAbility = Number.isSafeInteger(view.ownPublic.deckCount) &&
+      view.ownPublic.deckCount > 0;
+    rule = useAbility ? 'TAPU_LELE_WONDER_TAG_DECK_AVAILABLE'
+      : 'TAPU_LELE_WONDER_TAG_EMPTY_DECK';
+  } else {
+    return abstain('UNSUPPORTED_CONFIRMATION_SOURCE');
+  }
+
+  const wantedLabel = useAbility ? 'Yes' : 'No';
+  const choice = prompt.choices.find(row =>
+    row.kind === 'confirm' && row.label === wantedLabel);
+  if (!choice) return abstain('UNSUPPORTED_CONFIRMATION_SOURCE');
+  setPolicyAuditRule(rule, 'SOURCE_BOUND_YES_NO');
+  recordPolicyAuditRule(choice.token, rule);
+  return { kind: 'select-choice', token: choice.token };
+}
+
 function choosePrompt(view, prompt, receipt) {
   if (!prompt || prompt.actingSeat !== view.actorSeat ||
       prompt.source?.classification !== 'actor-choice') {
@@ -989,11 +1341,15 @@ function choosePrompt(view, prompt, receipt) {
   }
   switch (prompt.promptType) {
     case 'ChooseCardsPrompt':
-      return chooseCardCombination(view, prompt);
+      return chooseCardCombination(view, prompt, receipt);
     case 'ChoosePokemonPrompt':
-      return choosePokemonRecipient(view, prompt);
+      return isFieldBlowerPrompt(prompt)
+        ? chooseFieldBlowerPokemon(view, prompt)
+        : choosePokemonRecipient(view, prompt);
     case 'ChooseEnergyPrompt':
       return chooseEnergyPayment(view, prompt);
+    case 'AttachEnergyPrompt':
+      return chooseEnergyAttachment(view, prompt);
     case 'ChooseAttackPrompt':
       return chooseAttackPrompt(view, prompt, receipt);
     case 'ChoosePrizePrompt':
@@ -1001,8 +1357,11 @@ function choosePrompt(view, prompt, receipt) {
     case 'OrderCardsPrompt':
       return chooseCardOrder(view, prompt);
     case 'ConfirmPrompt':
-    case 'SelectPrompt':
-    case 'SelectOptionPrompt': {
+      return chooseConfirmPrompt(view, prompt);
+    case 'SelectOptionPrompt':
+      if (isFieldBlowerPrompt(prompt)) return chooseFieldBlowerMode(view, prompt);
+      // Other multi-option effects remain fail-closed until source-bound support exists.
+    case 'SelectPrompt': {
       setPolicyAuditRule('SINGLE_UNAMBIGUOUS_CHOICE', 'ONLY_CHOICE');
       if (prompt.choices.length === 1) {
         return { kind: 'select-choice', token: prompt.choices[0].token };
@@ -1018,9 +1377,18 @@ function scoreBasicPlay(item, view) {
   const metadata = item.publicMetadata ?? {};
   if (metadata.targetSeat !== 'actor' || metadata.targetZone !== 'bench') return -Infinity;
   const printing = item.actorPrinting ?? '';
-  if (hasName(printing, 'Shadow Rider Calyrex V') &&
-      !hasName(printing, 'VMAX') &&
-      !boardHas(view, 'Shadow Rider Calyrex V')) return 1000;
+  if (isBasicShadowRiderVPrinting(printing) &&
+      !hasBasicShadowRiderV(view) && hasOpenBench(view)) return 1000;
+  if (hasName(printing, 'Tapu Lele-GX') &&
+      !boardHas(view, 'Tapu Lele-GX') && hasOpenBench(view) &&
+      view.ownPublic.deckCount > 0 && !hasWonderTagLock(view)) {
+    return view.ownTurnResources.supporterPlayedTurn > 0 ? 620 : 720;
+  }
+  if (hasName(printing, 'Trevenant & Dusknoir-GX') &&
+      !boardHas(view, 'Trevenant & Dusknoir-GX') && hasOpenBench(view) &&
+      view.opponentPublic.handCount >= 4 && canFuelNightWatch(view)) {
+    return 700 + Math.min(100, (view.opponentPublic.handCount - 4) * 25);
+  }
   if (hasName(printing, 'Mimikyu') && opponentHasRegidrago(view) &&
       !boardHas(view, 'Mimikyu')) return 950;
   if (hasName(printing, "Lillie's Clefairy ex") && opponentHasDragon(view) &&
@@ -1031,6 +1399,82 @@ function scoreBasicPlay(item, view) {
   if (hasName(printing, 'Marshadow') &&
       view.opponentPublic.stadium.length > 0 && !boardHas(view, 'Marshadow')) return 400;
   return -Infinity;
+}
+
+function knownShadowRiderVmaxCount(view) {
+  const revealedPrizePrintings = Array.isArray(view.ownPublic.prizeSlots)
+    ? view.ownPublic.prizeSlots.filter(slot => isText(slot?.printing))
+      .map(slot => slot.printing)
+    : [];
+  const visiblePrintings = [
+    ...ownBoard(view).map(slot => slot.printing),
+    ...view.ownHand,
+    ...view.ownPublic.discard,
+    ...(Array.isArray(view.ownPublic.lostZone) ? view.ownPublic.lostZone : []),
+    ...revealedPrizePrintings
+  ];
+  return visiblePrintings.filter(printing =>
+    hasName(printing, 'Shadow Rider Calyrex VMAX')).length;
+}
+
+// A terminal Gate line must offer at least 0.75 expected VMAX targets.
+const MIN_EXPECTED_CLIMACTIC_GATE_TARGETS = 0.75;
+
+function binomialCoefficient(n, k) {
+  if (!Number.isSafeInteger(n) || !Number.isSafeInteger(k) ||
+      n < 0 || k < 0 || k > n) return 0;
+  const count = Math.min(k, n - k);
+  let result = 1;
+  for (let index = 1; index <= count; index += 1) {
+    result = result * (n - count + index) / index;
+  }
+  return result;
+}
+
+// Expected number of VMAX cards Climactic Gate can place, capped at two.
+// The four-copy population is partitioned only across the actor's known zones,
+// deck and prizes; malformed/incomplete counts fail closed.
+function expectedClimacticGateTargets(view) {
+  const deck = view.ownPublic.deckCount;
+  const prizeCount = view.ownPublic.prizeCount;
+  const revealedPrizeSlots = Array.isArray(view.ownPublic.prizeSlots)
+    ? view.ownPublic.prizeSlots.filter(slot => isText(slot?.printing))
+    : [];
+  const prizes = prizeCount - revealedPrizeSlots.length;
+  if (!Number.isSafeInteger(deck) || !Number.isSafeInteger(prizeCount) ||
+      deck < 0 || prizeCount < 0 || prizes < 0) return null;
+  const remaining = 4 - knownShadowRiderVmaxCount(view);
+  const hidden = deck + prizes;
+  if (remaining < 0 || remaining > hidden || hidden === 0) return null;
+  if (remaining === 0 || deck === 0) return 0;
+  const denominator = binomialCoefficient(hidden, remaining);
+  if (denominator <= 0) return null;
+  const probabilityZero = binomialCoefficient(prizes, remaining) / denominator;
+  const probabilityOne = deck *
+    binomialCoefficient(prizes, remaining - 1) / denominator;
+  const expected = 2 - 2 * probabilityZero - probabilityOne;
+  return Number.isFinite(expected) ? Math.max(0, Math.min(2, expected)) : null;
+}
+
+function canUseClimacticGate(view) {
+  const openBench = view.ownPublic.bench.filter(slot => !slot).length;
+  const expectedTargets = expectedClimacticGateTargets(view);
+  return openBench >= 2 && expectedTargets !== null &&
+    expectedTargets >= MIN_EXPECTED_CLIMACTIC_GATE_TARGETS &&
+    !hasRadiantGateLock(view);
+}
+
+function canPlayRadiantForGate(view) {
+  return canUseClimacticGate(view) &&
+    view.ownTurnResources?.abilityPokemonPlayLocked !== true &&
+    view.ownPublic.publicTurnRestrictions?.abilityPokemonPlayLocked !== true;
+}
+
+function scoreClimacticGatePlay(item, view) {
+  if (!hasName(item.actorPrinting, 'Radiant Eternatus') ||
+      !canPlayRadiantForGate(view)) return -Infinity;
+  const openBench = view.ownPublic.bench.filter(slot => !slot).length;
+  return openBench >= 3 ? 120 : 60;
 }
 
 function scoreEvolutionPlay(item) {
@@ -1049,11 +1493,11 @@ function scoreEnergyPlay(item, view) {
   if (!target || (item.targetPrinting && target.printing !== item.targetPrinting)) return -Infinity;
   const count = slotEnergyCount(target);
   if (opponentHasRegidrago(view) && hasName(target.printing, 'Mimikyu') && count < 2) return 920;
-  if (hasName(target.printing, 'Shadow Rider Calyrex VMAX') &&
+  if (isShadowRiderVmax(target) &&
       psychicEnergyCount(view) < 5 && count < 5) return 880;
   if (opponentHasDragon(view) && hasName(target.printing, "Lillie's Clefairy ex") &&
       count < 2) return 840;
-  if (hasName(target.printing, 'Shadow Rider Calyrex V') && count < 3) return 600;
+  if (isBasicShadowRiderV(target) && count < 3) return 600;
   return -Infinity;
 }
 
@@ -1063,18 +1507,81 @@ function hasDiscardableHand(view, required = 1) {
   return ranked.length >= required && ranked.slice(0, required).every(value => value < 800);
 }
 
-function hasAbilityLockThreat(view) {
+function abilityMayBeActive(slot, abilityName) {
+  if (!slot) return false;
+  if (!Array.isArray(slot.abilities)) return true;
+  if (!slot.abilities.includes(abilityName)) return false;
+  return abilityStatus(slot, abilityName) !== false;
+}
+
+function hasActiveAbilityOnEitherSide(view, cardName, abilityName) {
+  return [view.ownPublic.active, view.opponentPublic.active].some(slot =>
+    hasName(slot?.printing, cardName) && abilityMayBeActive(slot, abilityName));
+}
+
+function hasActiveStadiumLock(view, stadiumName) {
+  const stadiums = [...view.ownPublic.stadium, ...view.opponentPublic.stadium];
+  if (!stadiums.some(name => hasName(name, stadiumName))) return false;
+  // Unknown suppression epochs fail closed: do not assume a lock Stadium is inert.
+  return stadiumAndToolEffectsLive(view) !== false;
+}
+
+function hasActiveIronThorns(view) {
+  return hasActiveAbilityOnEitherSide(view, 'Iron Thorns ex', 'Initialization');
+}
+
+function hasActiveWobbuffet(view) {
+  return hasActiveAbilityOnEitherSide(view, 'Wobbuffet', 'Bide Barricade');
+}
+
+function hasActiveGarbotoxin(view) {
   return allBoard(view).some(slot =>
-    hasName(slot.printing, 'Iron Thorns ex') ||
-    hasName(slot.printing, 'Garbodor') ||
-    hasName(slot.printing, 'Snorlax PGO'));
+    hasName(slot.printing, 'Garbodor') &&
+    (!Array.isArray(slot.tools) || slot.tools.length > 0) &&
+    abilityMayBeActive(slot, 'Garbotoxin'));
+}
+
+function hasRadiantGateLock(view) {
+  return hasActiveStadiumLock(view, 'Path to the Peak') ||
+    hasActiveStadiumLock(view, 'Silent Lab') ||
+    hasActiveIronThorns(view) ||
+    hasActiveWobbuffet(view) ||
+    hasActiveGarbotoxin(view);
+}
+
+function hasAbilityLockThreat(view) {
+  const opponentActive = view.opponentPublic.active;
+  const opponentIronThorns = hasName(opponentActive?.printing, 'Iron Thorns ex') &&
+    abilityMayBeActive(opponentActive, 'Initialization');
+  const opponentGarbotoxin = opponentBoard(view).some(slot =>
+    hasName(slot.printing, 'Garbodor') &&
+    (!Array.isArray(slot.tools) || slot.tools.length > 0) &&
+    abilityMayBeActive(slot, 'Garbotoxin'));
+  return opponentIronThorns || opponentGarbotoxin;
+}
+
+function hasWonderTagLock(view) {
+  if (hasActiveStadiumLock(view, 'Path to the Peak') ||
+      hasActiveStadiumLock(view, 'Silent Lab')) return true;
+  if (view.ownTurnResources?.abilityPokemonPlayLocked === true ||
+      view.ownPublic.publicTurnRestrictions?.abilityPokemonPlayLocked === true) return true;
+  return hasActiveIronThorns(view) || hasActiveGarbotoxin(view);
 }
 
 function hasStadiumRemovalTarget(view) {
+  // Keep the target set to Stadium locks that interfere with this deck.
+  // Sky Field and Dimension Valley are not reasons to discard a Stadium
+  // merely because an opponent Tool can also be removed.
   return [...view.ownPublic.stadium, ...view.opponentPublic.stadium].some(name =>
     hasName(name, 'Path to the Peak') ||
+    hasName(name, 'Silent Lab') ||
     hasName(name, 'Jamming Tower') ||
     hasName(name, 'Wondrous Labyrinth'));
+}
+
+function hasOpponentToolRemovalTarget(view) {
+  return [view.opponentPublic.active, ...view.opponentPublic.bench].some(slot =>
+    slot && Array.isArray(slot.tools) && slot.tools.length > 0);
 }
 
 function canGuzmaForAttack(view) {
@@ -1087,29 +1594,113 @@ function canGuzmaForAttack(view) {
   });
 }
 
+function actionTargetSlot(view, metadata) {
+  if (metadata?.targetSeat !== 'actor' || metadata?.isOwnerVisible !== true) return null;
+  if (metadata.targetZone === 'active') return view.ownPublic.active ?? null;
+  if (metadata.targetZone === 'bench' && Number.isSafeInteger(metadata.targetIndex)) {
+    return view.ownPublic.bench[metadata.targetIndex] ?? null;
+  }
+  return null;
+}
+
+function isShadowRiderVTarget(slot) {
+  return isBasicShadowRiderV(slot) || isShadowRiderVmax(slot);
+}
+
+function hasStarAlchemyLock(view, target) {
+  if (hasActiveStadiumLock(view, 'Path to the Peak')) return true;
+  if (hasActiveGarbotoxin(view)) return true;
+  if (isShadowRiderVTarget(target) && hasActiveIronThorns(view)) return true;
+  if (isBasicShadowRiderV(target) &&
+      hasActiveStadiumLock(view, 'Silent Lab')) return true;
+  return false;
+}
+
+function hasStarAlchemyBottleneck(view, receipt) {
+  const missingBasicV = !hasBasicShadowRiderV(view) &&
+    !handHasBasicShadowRiderV(view) && hasOpenBench(view);
+  const missingVmax = hasUnevolvedShadowRiderV(view) &&
+    !handHas(view, 'Shadow Rider Calyrex VMAX');
+  const missingDialga = opponentHasRegidrago(view) &&
+    !boardHas(view, 'Dialga-GX') && !handHas(view, 'Dialga-GX') &&
+    !discardHas(view, 'Dialga-GX');
+  const missingMimikyu = opponentHasRegidrago(view) &&
+    !boardHas(view, 'Mimikyu') && !handHas(view, 'Mimikyu');
+  const missingClefairy = opponentHasDragon(view) &&
+    !boardHas(view, "Lillie's Clefairy ex") &&
+    !handHas(view, "Lillie's Clefairy ex");
+  const missingStadiumAnswer = hasStadiumRemovalTarget(view) &&
+    !handHas(view, 'Field Blower') && !boardHas(view, 'Marshadow');
+  const missingStamp = receipt?.priorOpponentTurnKO?.any === true &&
+    !handHas(view, 'Unfair Stamp') && !discardHas(view, 'Unfair Stamp');
+  const lowHand = view.ownPublic.handCount <= 1 && view.ownPublic.deckCount > 0;
+  const critical = missingBasicV || missingVmax || missingDialga || missingMimikyu ||
+    missingClefairy || missingStadiumAnswer || missingStamp || lowHand;
+  if (!critical) return false;
+
+  const alternativeTrainerPlay = view.ownHand.some(printing =>
+    !hasName(printing, 'Forest Seal Stone') &&
+    Number.isFinite(scoreTrainerPlay({ actorPrinting: printing }, view, receipt)));
+  return !alternativeTrainerPlay;
+}
+
 function scoreTrainerPlay(item, view, receipt) {
   const name = item.actorPrinting ?? '';
   const supporterUsed = view.ownTurnResources.supporterPlayedTurn > 0;
   if (hasName(name, 'Unfair Stamp') && receipt?.priorOpponentTurnKO?.any === true) return 980;
-  if (hasName(name, 'Field Blower') && hasStadiumRemovalTarget(view)) return 950;
+  if (hasName(name, 'Forest Seal Stone')) {
+    const target = actionTargetSlot(view, item.publicMetadata);
+    if (target && isShadowRiderVTarget(target) &&
+        !(target.tools ?? []).some(tool => hasName(tool, 'Forest Seal Stone')) &&
+        view.ownTurnResources.vstarUsed !== true &&
+        view.ownPublic.publicTurnRestrictions?.vstarUsed !== true &&
+        !hasStarAlchemyLock(view, target) &&
+        hasStarAlchemyBottleneck(view, receipt)) return 550;
+  }
+  if (hasName(name, 'Field Blower')) {
+    if (hasStadiumRemovalTarget(view)) return 950;
+    if (hasOpponentToolRemovalTarget(view)) return 720;
+  }
+  if (hasName(name, 'Teammates') && !supporterUsed &&
+      receipt?.priorOpponentTurnKO?.any === true) return 900;
+  if (hasName(name, 'Raihan') && !supporterUsed &&
+      receipt?.priorOpponentTurnKO?.any === true &&
+      discardHas(view, 'Psychic Energy') &&
+      view.ownTurnResources.energyPlayedTurn === false) return 880;
+  if (hasName(name, 'Acerola') && !supporterUsed &&
+      ownBoard(view).some(slot =>
+        slot.damage > 0 && slot.hp - slot.damage <= 120)) return 850;
   if (hasName(name, 'Battle Compressor') && opponentHasRegidrago(view) &&
       !discardHas(view, 'Dialga-GX') && !handHas(view, 'Dialga-GX') &&
       !boardHas(view, 'Dialga-GX') && (boardHas(view, 'Mimikyu') || handHas(view, 'Mimikyu'))) return 860;
+  const missingBasicV = !hasBasicShadowRiderV(view) &&
+    !handHasBasicShadowRiderV(view) && hasOpenBench(view);
   if (hasName(name, 'Fog Crystal') &&
-      (!boardHas(view, 'Shadow Rider Calyrex V') || psychicEnergyCount(view) < 3)) return 820;
+      (missingBasicV ||
+       (opponentHasDragon(view) &&
+        !boardHas(view, "Lillie's Clefairy ex") &&
+        !handHas(view, "Lillie's Clefairy ex")) ||
+       psychicEnergyCount(view) < 3)) return 820;
+  const needNightWatch = view.opponentPublic.handCount >= 4 &&
+    !boardHas(view, 'Trevenant & Dusknoir-GX') &&
+    !handHas(view, 'Trevenant & Dusknoir-GX') && canFuelNightWatch(view);
   if (hasName(name, 'Mysterious Treasure') && hasDiscardableHand(view, 1) &&
-      (opponentHasRegidrago(view) || !boardHas(view, 'Shadow Rider Calyrex V'))) return 800;
+      (opponentHasRegidrago(view) || missingBasicV || needNightWatch)) return 800;
   if (hasName(name, 'Quick Ball') && hasDiscardableHand(view, 1) &&
-      (!boardHas(view, 'Shadow Rider Calyrex V') ||
+      (missingBasicV || needNightWatch ||
        (opponentHasRegidrago(view) && !boardHas(view, 'Mimikyu')))) return 790;
   if (hasName(name, 'Ultra Ball') && hasDiscardableHand(view, 2) &&
-      boardHas(view, 'Shadow Rider Calyrex V') &&
-      !boardHas(view, 'Shadow Rider Calyrex VMAX')) return 780;
+      hasUnevolvedShadowRiderV(view) &&
+      !handHas(view, 'Shadow Rider Calyrex VMAX')) return 780;
   if (hasName(name, 'Arven') && !supporterUsed &&
-      (!boardHas(view, 'Shadow Rider Calyrex V') ||
+      (missingBasicV ||
        (hasAbilityLockThreat(view) && !ownBoard(view).some(slot =>
          slot.tools.some(tool => hasName(tool, 'Stealthy Hood')))))) return 760;
   if (hasName(name, 'Guzma') && !supporterUsed && canGuzmaForAttack(view)) return 750;
+  if (hasName(name, 'Iono') && !supporterUsed &&
+      view.opponentPublic.handCount >= 5 && view.ownPublic.handCount >= 4) {
+    return 740 + Math.min(40, (view.opponentPublic.handCount - 5) * 10);
+  }
   if (hasName(name, "Lillie's Determination") && !supporterUsed &&
       (view.ownPublic.handCount <= 3 || view.ownPublic.deckCount <= 10)) return 700;
   if (hasName(name, 'Sky Field') && !view.ownPublic.stadium.some(s => hasName(s, 'Sky Field')) &&
@@ -1164,26 +1755,68 @@ function chooseRetreat(view, items) {
   return best && best.score > 0 ? best.item : null;
 }
 
+function abilitySourceSlot(view, item) {
+  const metadata = item.publicMetadata ?? {};
+  if (metadata.sourceSeat !== 'actor') return null;
+  if (metadata.sourceZone === 'active') return view.ownPublic.active ?? null;
+  if (metadata.sourceZone === 'bench' && Number.isSafeInteger(metadata.sourceIndex)) {
+    return view.ownPublic.bench[metadata.sourceIndex] ?? null;
+  }
+  return null;
+}
+
+function canUseUnderworldDoor(view, item) {
+  const metadata = item.publicMetadata ?? {};
+  const source = abilitySourceSlot(view, item);
+  return metadata.abilityName === 'Underworld Door' &&
+    source !== null && isShadowRiderVmax(source) &&
+    (!item.actorPrinting || item.actorPrinting === source.printing) &&
+    abilityStatus(source, 'Underworld Door') === true &&
+    handHas(view, 'Psychic Energy') &&
+    view.ownPublic.bench.some(slot =>
+      slot && slot.printed?.types?.includes('Psychic'));
+}
+
+function canUseStarAlchemy(view, item, receipt) {
+  const metadata = item.publicMetadata ?? {};
+  const source = abilitySourceSlot(view, item);
+  return metadata.abilityName === 'Star Alchemy' &&
+    source !== null &&
+    (!item.actorPrinting || item.actorPrinting === source.printing) &&
+    (source.tools ?? []).some(tool => hasName(tool, 'Forest Seal Stone')) &&
+    view.ownTurnResources.vstarUsed !== true &&
+    view.ownPublic.publicTurnRestrictions?.vstarUsed !== true &&
+    !hasStarAlchemyLock(view, source) &&
+    hasStarAlchemyBottleneck(view, receipt);
+}
+
 function chooseRoot(view, request) {
   const items = request.actionFrontier.items.filter(item =>
     ['play-card', 'attack', 'retreat', 'use-ability', 'use-stadium', 'pass'].includes(item.kind));
   const pass = items.find(item => item.kind === 'pass');
 
   const plays = items.filter(item => item.kind === 'play-card');
+  const terminalPlays = [];
   const scoredPlays = plays.map(item => {
     const basic = scoreBasicPlay(item, view);
     const evolution = scoreEvolutionPlay(item);
     const energy = scoreEnergyPlay(item, view);
     const trainer = scoreTrainerPlay(item, view, request.publicEventReceipt);
-    const score = Math.max(basic, evolution, energy, trainer);
+    const terminal = scoreClimacticGatePlay(item, view);
+    const score = Math.max(basic, evolution, energy, trainer, terminal);
     recordPolicyAuditScore(item.token, score, 'NO_ELIGIBLE_PLAY_COMPONENT', [
       { name: 'basic-play', score: basic },
       { name: 'evolution-play', score: evolution },
       { name: 'energy-play', score: energy },
-      { name: 'trainer-play', score: trainer }
+      { name: 'trainer-play', score: trainer },
+      { name: 'terminal-climactic-gate', score: terminal }
     ]);
+    if (Number.isFinite(terminal)) {
+      terminalPlays.push({ item, score: terminal });
+      return null;
+    }
     return { item, score };
-  }).filter(row => Number.isFinite(row.score)).sort((a, b) =>
+  }).filter(row => row && Number.isFinite(row.score)).sort((a, b) =>
     b.score - a.score || a.item.token.localeCompare(b.item.token));
   if (scoredPlays.length > 0) {
     setPolicyAuditRule('ROOT_PLAY_MAX_COMPONENT_SCORE', 'SCORE_DESC_TOKEN_ASC');
@@ -1194,6 +1827,32 @@ function chooseRoot(view, request) {
   if (retreat) {
     setPolicyAuditRule('ROOT_RETREAT_ATTACK_IMPROVEMENT', 'SCORE_DESC_NATIVE_FRONTIER_ORDER');
     return { kind: 'select-action', token: retreat.token };
+  }
+
+  const abilities = items.filter(item => item.kind === 'use-ability');
+  const resettingHole = abilities.find(item =>
+    item.publicMetadata?.abilityName === 'Resetting Hole' &&
+    hasStadiumRemovalTarget(view));
+  const underworldDoor = abilities.find(item => canUseUnderworldDoor(view, item));
+  const starAlchemy = abilities.find(item =>
+    canUseStarAlchemy(view, item, request.publicEventReceipt));
+  const usefulAbility = resettingHole ?? underworldDoor ?? starAlchemy;
+  for (const item of abilities) {
+    if (usefulAbility && item.token === usefulAbility.token) {
+      recordPolicyAuditRule(item.token,
+        usefulAbility === resettingHole ? 'RESETTING_HOLE_STADIUM_REMOVAL' :
+          usefulAbility === underworldDoor ? 'UNDERWORLD_DOOR_OWNER_ENERGY_SETUP' :
+            'STAR_ALCHEMY_GENUINE_BOTTLENECK');
+    } else {
+      recordPolicyAuditUnscored(item.token, 'UNSUPPORTED_ABILITY_BRANCH');
+    }
+  }
+  if (usefulAbility) {
+    setPolicyAuditRule(usefulAbility === resettingHole
+      ? 'ROOT_RESETTING_HOLE_RULE' :
+        usefulAbility === underworldDoor ? 'ROOT_UNDERWORLD_DOOR_RULE' :
+          'ROOT_STAR_ALCHEMY_RULE', 'FIRST_FRONTIER_MATCH');
+    return { kind: 'select-action', token: usefulAbility.token };
   }
 
   const active = view.ownPublic.active;
@@ -1215,20 +1874,12 @@ function chooseRoot(view, request) {
     }
   }
 
-  const abilities = items.filter(item => item.kind === 'use-ability');
-  const usefulAbility = abilities.find(item =>
-    item.publicMetadata?.abilityName === 'Resetting Hole' &&
-    hasStadiumRemovalTarget(view));
-  for (const item of abilities) {
-    if (usefulAbility && item.token === usefulAbility.token) {
-      recordPolicyAuditRule(item.token, 'RESETTING_HOLE_STADIUM_REMOVAL');
-    } else {
-      recordPolicyAuditUnscored(item.token, 'UNSUPPORTED_ABILITY_BRANCH');
-    }
-  }
-  if (usefulAbility) {
-    setPolicyAuditRule('ROOT_RESETTING_HOLE_RULE', 'FIRST_FRONTIER_MATCH');
-    return { kind: 'select-action', token: usefulAbility.token };
+  if (terminalPlays.length > 0) {
+    terminalPlays.sort((a, b) => b.score - a.score ||
+      a.item.token.localeCompare(b.item.token));
+    setPolicyAuditRule('ROOT_CLIMACTIC_GATE_TERMINAL', 'SCORE_DESC_TOKEN_ASC');
+    recordPolicyAuditRule(terminalPlays[0].item.token, 'CLIMACTIC_GATE_ENDS_TURN');
+    return { kind: 'select-action', token: terminalPlays[0].item.token };
   }
 
   if (pass) {
