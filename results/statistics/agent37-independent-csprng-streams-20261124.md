@@ -6,6 +6,7 @@
 
 - Research code used by the final native verification: `FlareZ123/experiment-01@2085a7d1ff50eb299732e334c877a90c413d5ba8`.
 - Twinleaf submodule: `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`, pinned commit `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- Aichi list snapshot: `results/aichi-2026/full-decklists.json` at blob `ae773f6201d7aa69d31914dbfee66f3fba692200` in the research commit above (29 authenticated lists; ranks 23, 25 and 28 unavailable).
 - The four card source implementations were checked at that exact Twinleaf commit; the native tests in run 45481185995 compiled and exercised that same submodule revision.
 
 ## Why this exists
