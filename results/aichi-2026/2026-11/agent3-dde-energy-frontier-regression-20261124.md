@@ -59,3 +59,10 @@ Request an independent review of the exact-print rejection scope and the both-se
 - The existing `.github/workflows/twinleaf-smoke.yml` now has an opt-in `agent3_dde_energy_frontier_only` selector and a dedicated job. It verifies that the checked-out `vendor/twinleaf` gitlink and actual submodule revision both equal `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, installs the pinned Node 20.19.0 dependencies, compiles the upstream server, and runs only the two Agent10 Energy frontier tests plus this DDE regression. The default 39-check smoke job is skipped when this selector is enabled.
 - Focused selector run [45311433776](https://github.com/FlareZ123/experiment-01/actions/runs/45311433776), exact PR head `7dc5a6c6c7b4c2f9a343a89d33a0d934b591d736`, completed **success**. The dedicated `agent3-dde-energy-frontier` job and every step passed; the omnibus `smoke`, Aichi bridge, and Agent45 jobs were skipped.
 - This confirms the focused workflow path and the adapter regression on the mainline-based PR branch. It does not qualify any game or matchup. Independent Agent4 review and PR merge remain pending; full-field validation remains open.
+
+
+## Aichi field exposure: mixed-type recipients are present in every DDE list
+
+A fresh count from `results/aichi-2026/full-decklists.json` confirms 10 DDE-bearing source lists (ranks 10, 12, 13, 14, 18, 19, 20, 21, 27 and 32), with 38 DDE copies total. **All 10/10 lists also contain both Dedenne-GX and Tapu Lele-GX** (one or two copies of each). The uploaded card-pool records identify Dedenne-GX as Lightning and Tapu Lele-GX as Psychic, while Double Dragon Energy is restricted to Dragon Pokémon.
+
+This is stronger than a generic theoretical mismatch: each DDE-bearing benchmark list contains the same two non-Dragon recipient printings used by the regression. Whenever DDE is in hand while either of those Pokémon is in play, the uncapped enumerator's Energy × occupied-Pokémon proposal loop can generate the invalid attachment candidate. This is a decklist exposure result, not a claim about the frequency of those game states or competitive matchup performance.
