@@ -1134,21 +1134,21 @@ function discardChoiceScore(choice, observation) {
   const singletonPatterns = [
     PRINT.trevenant, PRINT.latias, PRINT.dialga, PRINT.girafarig,
     PRINT.mimikyu, PRINT.marshadow, PRINT.radiantEternatus,
-    /^Carmine TWM 145\\b/i, /^Iono PAL 185\\b/i,
-    /^Teammates PRC 160\\b/i, /^Raihan CRZ 140\\b/i,
-    /^Acerola BUS 112\\b/i, /^Guzma BUS 115\\b/i,
-    /^Tulip PAR 181\\b/i, PRINT.quickBall,
-    /^Hisuian Heavy Ball ASR 146\\b/i,
-    /^Battle Compressor PHF 92\\b/i, PRINT.fieldBlower,
-    /^Night Stretcher SFA 61\\b/i, /^Unfair Stamp TWM 165\\b/i,
-    /^Float Stone BKT 137\\b/i, /^Forest Seal Stone SIT 156\\b/i,
-    /^Dimension Valley PHF 93\\b/i
+    /^Carmine TWM 145\b/i, /^Iono PAL 185\b/i,
+    /^Teammates PRC 160\b/i, /^Raihan CRZ 140\b/i,
+    /^Acerola BUS 112\b/i, /^Guzma BUS 115\b/i,
+    /^Tulip PAR 181\b/i, PRINT.quickBall,
+    /^Hisuian Heavy Ball ASR 146\b/i,
+    /^Battle Compressor PHF 92\b/i, PRINT.fieldBlower,
+    /^Night Stretcher SFA 61\b/i, /^Unfair Stamp TWM 165\b/i,
+    /^Float Stone BKT 137\b/i, /^Forest Seal Stone SIT 156\b/i,
+    /^Dimension Valley PHF 93\b/i
   ];
   if (singletonPatterns.some(pattern => matches(printing, pattern))) return -120;
 
   if (matches(printing, PRINT.psychic)) {
     return psychicCountInHand(observation) > 1 ||
-      hasPrinting(hand, /Tulip PAR\\b/i) ? 10 : -100;
+      hasPrinting(hand, /Tulip PAR\b/i) ? 10 : -100;
   }
   if (matches(printing, PRINT.shadowRiderVmax)) {
     return countPrinting(hand, PRINT.shadowRiderVmax) > 1 ? 20 : -120;

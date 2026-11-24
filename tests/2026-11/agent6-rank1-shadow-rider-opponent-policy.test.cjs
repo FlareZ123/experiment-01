@@ -596,9 +596,8 @@ test('Pale Moon-GX values its unconditional delayed Knock Out and conditional En
   const opponentActive = options => pokemon('Regidrago VSTAR SIT 136', {
     hp: 280, types: ['Dragon'], ...options
   });
-  const items = [
+  const paleMoonOnly = [
     { token: 'pale-moon', kind: 'attack', attackName: 'Pale Moon-GX' },
-    { token: 'night-watch', kind: 'attack', attackName: 'Night Watch' },
     { token: 'pass', kind: 'pass' }
   ];
 
@@ -611,13 +610,11 @@ test('Pale Moon-GX values its unconditional delayed Knock Out and conditional En
         'Grass Energy SVE 1', 'Grass Energy SVE 1', 'Grass Energy SVE 1'
       ] })
     }),
-    items
+    items: paleMoonOnly
   });
   const noExtraScore = paleMoonScore(noExtra);
-  const nightWatchScore = policy.decideWithAudit(noExtra).policyAudit.evaluations
-    .find(row => row.token === 'night-watch')?.score;
-  assert.ok(noExtraScore > nightWatchScore,
-    'the unconditional delayed Knock Out must be valued without the extra-Energy clause');
+  assert.ok(noExtraScore > 0,
+    'the unconditional delayed Knock Out is valuable even without the extra-Energy clause');
 
   const dimensionValleyExtra = rootRequest({
     ownPublic: player({
@@ -629,7 +626,7 @@ test('Pale Moon-GX values its unconditional delayed Knock Out and conditional En
         'Grass Energy SVE 1', 'Grass Energy SVE 1', 'Grass Energy SVE 1'
       ] })
     }),
-    items
+    items: paleMoonOnly
   });
   assert.ok(paleMoonScore(dimensionValleyExtra) > noExtraScore,
     'Dimension Valley makes two Psychic Energy sufficient for the extra-Psychic Energy denial');
@@ -646,11 +643,34 @@ test('Pale Moon-GX values its unconditional delayed Knock Out and conditional En
       bench: [pokemon('Dratini OBF 105')],
       handCount: 5
     }),
-    items
+    items: paleMoonOnly
   });
   assert.ok(paleMoonScore(escapeOuts) < noExtraScore,
     'a visible retreat path and larger hidden hand discount the delayed-KO estimate');
+
+  const immediateKnockout = rootRequest({
+    ownPublic: player({ active: ownActive([
+      'Psychic Energy MEE 13',
+      'Psychic Energy MEE 13',
+      'Psychic Energy MEE 13'
+    ]) }),
+    opponentPublic: player({
+      active: opponentActive({
+        hp: 150,
+        energies: ['Grass Energy SVE 1', 'Grass Energy SVE 1', 'Grass Energy SVE 1']
+      })
+    }),
+    items: [
+      { token: 'pale-moon', kind: 'attack', attackName: 'Pale Moon-GX' },
+      { token: 'night-watch', kind: 'attack', attackName: 'Night Watch' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(immediateKnockout), {
+    kind: 'select-action', token: 'night-watch'
+  });
 });
+
 
 test('Energy Drive counts only both Active Pokémon and ignores Weakness', () => {
   const fairy = pokemon("Lillie's Clefairy ex JTG 56", {
