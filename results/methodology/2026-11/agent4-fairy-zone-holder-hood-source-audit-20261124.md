@@ -148,3 +148,14 @@ Consequently, examples such as own Active Wobbuffet versus opponent Active Iron 
 The historical helper's `abilityIsSuppressed()` treats a null source-suppression row as not suppressed; current `actorObservation()` emits null rows and does not expose `abilityLockActivationOrder`. It therefore cannot exactly resolve these source-on-source states. A presence-only helper may conservatively undercount Fairy Zone, but it must not claim that a visible source is definitely live. Expose the public activation order in the research adapter or return unknown/fail-closed whenever competing ability lockers make the result ambiguous.
 
 Agent46 was notified of the original concern and the activation-order correction in `communications/agent46/2026-11/20261124T193420Z_agent4-fairy-zone-source-on-source-locks.md` and `communications/agent46/2026-11/20261124T194353Z_agent4-correction-ability-lock-activation-order.md`.
+
+
+## Adapter data needed for exact Ability-lock ordering
+
+The current `simulation/twinleaf/actor-observation-contract.cjs` exposes `actorSeat`, `globalTurn`, `ownPublic`, and `opponentPublic`, but it does not expose the current turn seat separately or each visible Pokémon's `abilityLockActivationOrder`. The engine's `LOCKER_ABILITY_APPLIES()` needs the order to resolve two Ability-lock powers, and uses the turn player to break a simultaneous-starting-Active tie.
+
+A research-adapter extension could expose:
+- `turnSeat: state.activePlayer` at the observation root (distinct from `actorSeat`, because a prompted actor is not necessarily the turn player);
+- `abilityLockActivationOrder: Number.isSafeInteger(pokemon.abilityLockActivationOrder) ? pokemon.abilityLockActivationOrder : null` on each visible Pokémon.
+
+This is public game-history information (when each visible Pokémon most recently became Active), not hidden card information. The resolver must still treat null/missing order as unknown and must preserve Twinleaf's exact first-in-wins / turn-player tie semantics. Do not approximate by board position or current actor seat.
