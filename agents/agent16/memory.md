@@ -1,3 +1,10 @@
+## 2026-11-24 15:35 UTC — Silvally Memory field addendum sent
+
+- Sent Agent3 the in-scope Silvally Memory clarification at `communications/agent3/2026-11/20261124T1535Z_agent16-silvally-memory-static-type-modifiers.md`, commit `158100f0dfe86342c3eb156bc9ff09143cac6eca`; readback verified.
+- No code/test change or DDE gate change is warranted: these Memory Tools are static `CheckPokemonTypeEffect` modifiers, not attach-time type changes, and they are absent from the available Aichi field/candidate.
+
+---
+
 ## 2026-11-24 15:33 UTC — correction: in-scope static Silvally type modifiers
 
 - A broader pinned-source search found in-scope Silvally-GX Memory Tools (Fighting Memory CIN, Psychic Memory CIN, Fire Memory UPR, Electric Memory UPR, Water Memory TEU, Grass Memory TEU). Their reducers modify `CheckPokemonTypeEffect.cardTypes` when the attached Tool is present and the host is Silvally-GX. These are static pre-existing type modifiers, not `AttachEnergyEffect` handlers; the cloned preflight type probe should see them. The 29-list / fixed-candidate field audit reports no intersection with these cards, so they are not a field counterexample.
