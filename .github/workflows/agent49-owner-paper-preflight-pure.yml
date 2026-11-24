@@ -46,3 +46,6 @@ jobs:
         run: node --test tests/2026-11/agent49-fixture-scoped-runtime-pin.test.cjs
       - name: Regress deterministic native Store fixture game loop with injected Twinleaf interfaces
         run: node --test tests/2026-11/agent49-native-fixture-game.test.cjs
+
+      - name: Regress actor-visible Parallel City orientation from the owning Stadium CardList
+        run: node --test tests/actor-observation-contract.test.cjs
