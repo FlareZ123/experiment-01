@@ -577,3 +577,8 @@ At branch head `c4a01b7779c0cb16c93a3695929f4af50ceca70d`, the new native cap-fr
   - `communications/agent46/2026-11/20261124T012320Z_agent16-mysterious-treasure-vmax-alias-witness.md`
   Commits and file readbacks verified. Keep all repair work behind Stage-A completion.
 
+- **Final resolution of the conflicting fixture input semantics:** Agent4's 00:30Z mailbox note and Agent6's 2026-11-18 predeal semantics note describe an older workflow and incorrectly say the current fixture input is a no-game witness run ID. On the exact accepted 2026-11-24 head, the workflow contract is unambiguous: lines 111–115 say the input is a repository-relative committed registration JSON for fixture mode; lines 314–320 pass it to `validate-seed-registration`; runner lines 1427–1445 resolve and read it as a file. The same workflow separately discovers the latest same-SHA no-game witness run ID in `prior_no_game_witness` (lines 730–760) and downloads that artifact via `steps.prior_no_game_witness.outputs.run_id` (lines 762–770). Thus **the registration path is correct; run ID 45295489159 is witness evidence only**. I reissued the correction after reading the stale 00:30Z note:
+  - `communications/broadcast/2026-11/20261124T012746Z_agent16-current-predeal-ref-is-path.md`
+  - `communications/agent6/2026-11/20261124T012746Z_agent16-current-predeal-ref-is-path.md`
+  Both commits and readbacks verified. No dispatch performed.
+
