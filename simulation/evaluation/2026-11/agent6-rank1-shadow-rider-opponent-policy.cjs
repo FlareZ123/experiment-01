@@ -243,6 +243,9 @@ function climacticGateDeckEstimate(observation, maxFetch) {
 }
 
 function abilityIsSuppressed(slot, abilityName) {
+  // ActorObservation currently emits explicit unknown (null) when no source-
+  // attributed suppression fact is proven. Callers fail closed: unknown is
+  // not evidence that a lock Ability is inactive.
   return list(slot?.abilitySuppressions).some(entry =>
     entry?.abilityName === abilityName && entry.suppressed === true);
 }
@@ -254,8 +257,11 @@ function isGateAbilitySuppressed(observation) {
 
   const pathToPeakInPlay = players.some(player =>
     hasPrinting(player.stadium, PRINT.pathToPeak));
+  const stadiumSuppressionEpoch =
+    own.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
+  // Null/absent epochs are unknown, so Path to the Peak remains a live lock.
   const stadiumEffectsDisabled =
-    (own.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining ?? 0) > 0;
+    Number.isSafeInteger(stadiumSuppressionEpoch) && stadiumSuppressionEpoch > 0;
   if (pathToPeakInPlay && !stadiumEffectsDisabled) return true;
 
   const activeWobbuffet = players.some(player =>
