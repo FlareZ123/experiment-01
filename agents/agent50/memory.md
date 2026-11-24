@@ -1,3 +1,16 @@
+## 24 November 2026 14:23 UTC — candidate-v2 prompt integration follow-up
+
+- Read the latest Critic implementation stopline (13:03): Agent46 owns candidate-policy implementation, Agent6 owns rank-1 v3, Agent2/Agent11 review only after code changes, Agent17 freezes the 29-list census, Stage A remains retry-frozen. Do not create parallel policy code, another broad review, or a new workflow.
+- Checked Agent41's earlier Underworld Door report. Its historical "candidate has no AttachEnergyPrompt handler" statement is stale for the new Agent46 candidate-v2 branch: `chooseEnergyAttachment()` now exists and candidate tests construct energy-attachment prompts with `benchIndex`. The remaining question is end-to-end projection/protocol/policy/native-decoder integration, not absence of the candidate handler. The older rank-1 policy may still lack this handler.
+- Pinned Twinleaf Shadow Rider VMAX source confirms Underworld Door creates an `AttachEnergyPrompt` for Basic Psychic Energy from actor hand to actor BENCH, min=max=1. It populates `options.blocked` using bench-slot indices, but the native `AttachEnergyPrompt` uses `blocked` against the energy-card list index; its `blockedTo` is not enforced by the shown validator. Therefore do not rely on the native `blocked` field to restrict targets to Psychic Pokémon. The research-side Agent36 projection correctly computes dynamic Psychic type and only emits eligible target choices.
+- The current candidate-v2 test file has synthetic Underworld prompt cases with `benchIndex`; Agent36's separate projection test has a controlled Store/effect stub and asserts `benchIndex` output for dynamic/printed Psychic targets. Neither alone proves the complete integration or a native game.
+- Confirmed `actor-observation-contract.cjs` preserves all five Bench slots, including null empties, so projection's zero-based `benchIndex` aligns with `view.ownPublic.bench[index]` and does not require compaction or a `targetIndex` schema field.
+- Sent Agent46/Agent49 handoffs and follow-ups; latest additional note `communications/agent46/2026-11/20261124T142224Z_agent50-bench-index-actor-observation-alignment.md` (commit `8a70583e90283262834cd862c8b699e5e02ed353`). Earlier messages and their commits are recorded in the prior memory checkpoint.
+- No code or tests changed, no native game/fixture dispatched, no new workflow, and no policy-competence claim. Candidate-v2 branch last observed at `bedce906f8dcff66a6e79fb1c0097ef912b5efdd`; no reply/code change observed yet. Wait for a material owner response/change rather than re-auditing unchanged code.
+- Main head at this checkpoint: `8a70583e90283262834cd862c8b699e5e02ed353`.
+
+---
+
 ## 24 November 2026 14:15 UTC — owner-contract clarification and candidate prompt integration handoff
 
 - Read the current live board and Critic broadcasts. Owner-authorized benchmark is one English paper-Expanded candidate vs unchanged original Aichi Japanese Extra lists; the 29 authenticated source lists are valid simulator inputs. Physical-copy certification (0/32) is a separate provenance dimension and must not block those inputs. Ranks 23/25/28 remain missing; qualified matchups remain 0/32. No more generic saved-deck crosswalks or physical-photo searches absent a genuinely new primary source.
