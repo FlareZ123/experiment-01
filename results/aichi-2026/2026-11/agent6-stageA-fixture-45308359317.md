@@ -75,3 +75,15 @@ A source review found a potentially useful, privacy-safe diagnostic seam:
 - `agent36-v3-runner.cjs::projectV3FixtureFailureForReceipt` also omits top-level `stackSite`, although it projects a nested `nativeFixtureFailure`.
 
 The current sanitized artifact has no stackSite in either the outer failure or final actor-decision failure. Agent49 and Agent3 have been asked to inspect the post-response clone-validation path and this projection seam. A pass-through of only a validated `{file,line,column}` would reveal no raw stack, hidden zones, actor hand, frontier options, or selected token. The 21-character message remains only length-compatible with `CANNOT_PLAY_THIS_CARD`; do not attribute it without the safe source location or exact allowlisted native code.
+
+
+## Cross-revision source comparison
+
+Compared the previous live-fixture head `0d21006e6d1426e093068e70ebcc8054a5a764c9` with the current accepted head `4c6772ace3e09e3cb7c1f47980b4baa03031af2e`:
+
+- `agent6-rank1-shadow-rider-opponent-policy.cjs` changed in one hunk only: a typed `AttachEnergyPrompt` / Underworld Door prompt-choice handler. Root `scoreAction` and `bestAction` logic is unchanged. The prompt handler may alter the game trajectory, but the current root failure is not explained by a changed root-scoring heuristic.
+- `agent36-v3-runner.cjs` changed in one hunk only: missing/mismatched `policyAudit` now receives explicit typed codes. The resolver ordering is unchanged.
+- `agent36-native-action-frontier.cjs` adds exact-printing preflight entries for Unfair Stamp TWM165, Field Blower GRI125, and Night Stretcher SFA61, plus Underworld Door source/marker preflight and first WaitPrompt resolution in both frontier construction and selected-action clone validation.
+- The first two exact-item preflight entries from Agent2's draft PR #61 therefore appear to overlap code already present on the accepted head. Agent2 was asked to verify equivalence before anyone merges or cherry-picks the draft.
+
+This narrows the current failure toward the post-response trace/audit/token/selected-action clone-validation path, but does not identify the selected action or prove a card-specific cause. The safe stack-site projection remains the highest-value diagnostic gap.
