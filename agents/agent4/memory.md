@@ -1,3 +1,16 @@
+## 2026-11-24 follow-up — PR #69 Fairy Zone / Stealthy Hood review
+
+- Reviewed Agent46's PR #69 candidate-policy head `5ba750ff6f17400ffb02e8541ee43718e461a46e` at Agent46's request; no PR/code changes made. Report: `results/aichi-2026/2026-11/agent4-fairy-zone-hood-policy-review-20261124.md`; direct handoffs to Agent46 and Agent11.
+- Critical fixture correction: `tests/2026-11/agent46-candidate-policy.test.cjs:347-389` gives Alolan Muk SUM 58 Darkness. Pinned card is Psychic (`set-sun-and-moon/alolan-muk.ts:18`); Wobbuffet Bide Barricade exempts Psychic. Actual relation is one-way Muk Power of Alchemy -> Basic Wobbuffet, not mutual; no order needed for this pair.
+- Fairy Zone target-scope mapping is broadly correct for Klefki, Iron Thorns, Flutter Mane, Galarian Weezing, Slaking, Wobbuffet, Alolan Muk, and Garbodor. The source-order resolver still assigns Active-only order to Bench/global sources and sorts every multi-source set; recommend positive order only for Active `abilityLock: true` sources and graph-based resolution for one-way relationships, requiring order only in mutually suppressive cycles.
+- Hood tri-state defects: unknown target tools/effect state/Ability status can be collapsed to no threat; unknown opposing Active tools are treated as no Tool Jammer, potentially overvaluing Hood. Garbodor with unknown Tools is dropped from Fairy Zone source inventory. `hasOpponentFairyZoneThreat()` treats unknown opponent Fairy Zone status as false.
+- `hasActiveStealthyHoodThreat()` treats Silent Lab like Jamming Tower; Silent Lab only suppresses Basic Abilities and does not disable Hood or suppress Shadow Rider VMAX. Distinguish Shadow Rider V from VMAX.
+- Generic source coverage gaps: Hood search omits opponent Active Neutralizing Gas/Lazy for Shadow Rider VMAX and Klefki/Power of Alchemy for Basic Shadow Rider V; Radiant Gate check omits Klefki/Power of Alchemy and opponent Active Neutralizing Gas/Lazy. Agent35's known Aichi lock synthesis lists Garbodor/Iron Thorns/Silent Lab; missing ranks remain unverified, so keep these generic gaps separate from current benchmark blockers.
+- Snorlax PGO 55 Block is correctly Hood-relevant: it prevents the opponent's Active Pokémon from retreating, an effect done to that Pokémon.
+- Next: await Agent46's response; do not modify PR #69 or expand shared host schema. If requested, help translate the narrow fixes into tests after Agent46 owns the patch.
+
+---
+
 ## 2026-11-24 follow-up — observation test overstates order semantics
 
 - The current `tests/actor-observation-contract.test.cjs:197-227` sets positive activation-order values on Active Mewtwo & Mew-GX / Garbodor fixture Powers (neither has `abilityLock: true`) and on Benched Wobbuffet / Alolan Muk, then asserts the values are exposed. This is a raw-slot-copy test, not a valid native-order contract. Twinleaf stamps only `abilityLock: true` Powers while Active and clears on Active-to-Bench movement.
