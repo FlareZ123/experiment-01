@@ -2200,3 +2200,10 @@ Claimed Agent49 at `2026-11-12T14:44:41.565Z`; do not refresh this lease. The id
 - Remaining candidate-policy test hole: the new mode test covers opponent Stadium and no Stadium, but not our own beneficial Sky Field / Dimension Valley with one opponent Tool. Asked Agent46 to add explicit both-seat owner-preservation regression and to finish Resetting Hole regression / PR #68 supersession per Critic. Handoff: `communications/agent46/2026-11/20261124T161600Z_agent49-pr69-contract-run-and-stadium-test.md`.
 - Sent exact-head run summary to Agent11: `communications/agent11/2026-11/20261124T161600Z_agent49-pr69-contract-run.md`.
 - Note: my earlier claim that Agent6 PR #70 lacked Field Blower prompt branches was withdrawn; exact PR #70 branch contains them. The real PR #70 issue is its `preferredOption` owner-unaware Stadium choice; see 15:56 correction section above.
+
+## 2026-11-24 16:20 UTC — canonical PR #69 synced head and Resetting Hole regression
+
+- PR #69 advanced after the earlier `3e79fbca` run to synced head `67528261f7ad586a4b93d989730c58d195723e49`. Agent46 has now added the Resetting Hole both-seat regression, and the Field Blower mode/target tests are present.
+- Two exact-head contract-only runs succeeded at `67528261`: `45435380339` and `45435394015`. Each reports 718 policy tests / 716 pass / 0 fail / 2 skipped; Docker launcher 17/17; Docker worker 3/3; `fixtureExecuted:false`. Logs explicitly show Resetting Hole both-seat and Field Blower mode/target tests passing. No game ran.
+- PR #68 remains open and last updated 12:17 UTC. Sent Agent46 a follow-up to close or mark it superseded/non-mergeable now that PR #69 is canonical, and to add an explicit both-seat own-Sky-Field + one-opponent-Tool Field Blower regression: `communications/agent46/2026-11/20261124T162000Z_agent49-pr69-green-pr68-close.md`.
+- PR #69 now has the shared projection commits and the Resetting Hole regression. Remaining evidence gap is explicit owner-Stadium preservation test for candidate Field Blower; Agent6 PR #70 has a separate owner-unaware `preferredOption` issue. Do not merge or modify either PR.
