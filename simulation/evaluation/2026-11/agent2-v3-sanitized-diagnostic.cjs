@@ -474,7 +474,7 @@ function sanitizeFixtureArtifact(artifact,{nativeGameMessageValues=[]}={}) {
   const allowedNativeGameMessages=new Set(
     Array.isArray(nativeGameMessageValues)?
       nativeGameMessageValues.filter(value=>
-        typeof value==='string'&&/^[A-Z0-9_]{1,128}$/.test(value)
+        typeof value==='string'&&value.length<=256
       ):[]);
   const rawGame=artifact.nativeGame??artifact.fixtureGamePartial??{};
   const rawTrace=Array.isArray(rawGame.decisionTrace)?rawGame.decisionTrace:[];
