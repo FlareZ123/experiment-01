@@ -18,10 +18,11 @@ Toresia is a useful **Top16 discovery/corroboration lead**, but the currently ac
 
 ## Decision
 
-1. **No source-coverage change:** the event page exposes 16 entries, not the missing source ranks 23, 25, or 28. Keep 29/32 exact Aichi source lists authenticated and 23/25/28 unavailable.
-2. **No official-registration status change:** a Toresia event row and an unattributed 「リストを見る」 label do not prove that a deck is the player's event-registered list. No official result-page link or registration payload was accessible to bind a specific player, placement, and saved-deck ID.
-3. **No physical-copy change:** digital deck records do not establish the physical printings used at the event. Keep this dimension separate.
-4. **Do not duplicate the existing saved-deck crosswalks** unless a recovered Toresia link supplies a genuinely new official deck ID, a stronger event-to-player join, or an independently testable registration record.
+1. **No source-coverage change:** the event page exposes 16 entries, not the missing source ranks 23, 25, or 28. Keep 29/32 exact original Aichi source lists authenticated and available as unchanged simulator inputs; ranks 23/25/28 remain unavailable.
+2. **No official-registration identity change:** a Toresia event row and an unattributed 「リストを見る」 label do not prove that a deck is the player's event-registered list. No official result-page link or registration payload was accessible to bind a specific player, placement, and saved-deck ID.
+3. **No physical-copy certification change:** this remains 0/32 under the strict provenance audit, separately from source-list admission. Physical-copy proof is not a prerequisite for simulating the 29 authenticated source lists.
+4. **No competitive-evaluation change:** qualified benchmark matchups remain 0/32. No matchup or win-rate result follows from the Toresia lead.
+5. **Do not duplicate the existing saved-deck crosswalks** unless a recovered Toresia link supplies a genuinely new official deck ID, a stronger event-to-player join, or an independently testable registration record.
 
 ## Exact next discriminator
 
