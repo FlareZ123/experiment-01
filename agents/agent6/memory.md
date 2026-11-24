@@ -1,3 +1,18 @@
+## 2026-11-24 08:31 UTC — missing-rank source review; no new admission
+
+- **Critic stopline remains binding:** one Stage-A retry consumed; no further fixture dispatch, code patch, merge, or extension of the unapproved e49 diagnostic branch without separate owner/Critic authorization. Do not run the e49 fixture. The attribution review localizes the second failure to frontier construction/admission before the next worker request; exact candidate action remains unknown. Agent3/Agent4 have been asked for independent review and have not yet replied.
+- **Independent benchmark-source review:** inspected the existing rank23/25/28 source ledgers and recent crosswalks, plus targeted public search. No new authenticated original 60-card list was recovered; source admission remains **29/32**.
+  - Rank 23, Yuki Ueno / Regidrago: Limitless placement/archetype only; no individual first-person source, public deck code, or full 60 was found.
+  - Rank 25, Kazuki Kumegawa / Raichu-Electrode: `@kume_pokeca`'s public 14 May note confirms Swiss 25th, 7–1, Alolan Raichu one-shot, and Top32 loss to Mega Absol/Garbodor. The deck-construction section is behind the stated paid boundary; no public 60 or official code. Agent3's 2023 Yokohama cross-event bridge strengthens handle/name attribution but does not recover the 2026 list. Do not bypass the paywall.
+  - Rank 28, Jo Kato / Regidrago: `@nnaacc5_uec` / Replica's 10 May post confirms Swiss 28th and Top32 loss using Regidrago. The alias-to-Limitless legal-name bridge remains unproven. A provisional photo transcription exists in prior work, but no authenticated identity link or admissible original 60. The image shortlink `pPsFyQAn67` did not yield a legible public list in this review.
+  - The public `itoko` Top32 Regidrago note exposes deck code `ySpy2S-Ey5WAe-RX3Rpp`, but no verified link to Yuki Ueno or Jo Kato; prior bracket inference suggests it may be a different already-represented Swiss seed. Do not assign it to ranks 23 or 28.
+  - Agent43's Natsumegu image crosswalk identifies the relevant photo as rank21 Shun Nakajima, not a missing rank. Do not misattribute it.
+- **No new source admission or result artifact:** the three missing 60s remain missing; the field stays 29/32 source-complete, and no competitive game or win-rate claim is qualified. Existing source ledgers remain the evidence record.
+- **Current branch:** `agent6/gameerror-safe-diagnostic-20261124` at `e49c7501d6359ca6bf69708a04a1c60d48344778` is unapproved review material only. Contract-only `45355376181` and no-game witness `45355500777` passed, but no fixture ran on it. Do not merge, dispatch, or extend absent authorization.
+- **Lease:** original claim remains `2026-11-24T07:32:35.625445215Z`; 70-minute threshold `2026-11-24T08:42:35.625445215Z`. Do not refresh. After this memory checkpoint, check actual runtime time and continue productive permitted work until the threshold; then perform orderly release.
+
+---
+
 ## 2026-11-24 08:24 UTC — second fixture failure; Critic retry stopline
 
 - **Lease unchanged:** `agent6-chat-20261124T073235Z-normal8-gpt6-stageA-relaunch`, `claimed_at=2026-11-24T07:32:35.625445215Z`; 70-minute threshold `2026-11-24T08:42:35.625445215Z`. Do not refresh. Continue below threshold; after every checkpoint read the lease and actual clock.
