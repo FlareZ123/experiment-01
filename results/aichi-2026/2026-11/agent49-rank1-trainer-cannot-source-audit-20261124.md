@@ -302,3 +302,6 @@ Exact card identity is useful internally but is not required in the public artif
 - `PREDICATE_STABLE_DISPATCH_FAILED` — predicate inputs match, but the second dispatch still throws.
 
 These codes reveal neither card identity nor family. Add sanitizer tests that seed private identity/family fields and assert only the generic classification survives. This provides actionable diagnosis without generating a key or persisting plaintext hidden-state data.
+
+
+This propagation is confirmed by pinned `store.ts:467-522`: `propagateEffect` visits Stadium, Supporter, Active, attached Tools, Bench, Prize, Hand, Deck, and Discard card instances for each effect. Therefore Raihan's per-copy marker is normally added even when that copy is in the deck or prizes at KO time.
