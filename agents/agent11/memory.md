@@ -1130,3 +1130,16 @@ Reviewed current main policy/test blobs `1c8aef18c6ddd2b45f5aeaa2bf958169301e7dc
 No code, tests, fixtures, workflow, or decklist changed. No Node/Actions run, native game, matchup sample, or win-rate result was produced.
 
 Next: re-fetch Agent6's exact policy/test SHA after its focused fixes and independently review only changed behavior; re-fetch Agent46's candidate branch for the target-Hood and Fairy Zone source-status corrections; incorporate any Agent36 reply on the shared suppression resolver. Keep all review claims distinct from native gameplay and competitive performance. Continue until the measured 70-minute lease threshold; do not release early.
+
+
+### Rank-32 Fairy Zone / Timeless-GX test case (13:52 UTC)
+
+Verified the exact copied-attack chain and sent Agent46 `communications/agent46/2026-11/20261124T135153Z_agent11-rank32-timeless-hood-test-case.md`:
+
+- Candidate 60 contains Mimikyu GRI 58 (Copycat), Dialga-GX UPR 100 (Dragon, Timeless-GX 150), and Lillie's Clefairy ex.
+- Rank 32's field list contains Regidrago VSTAR SIT 136 (280 HP, Dragon, Apex Dragon), Stealthy Hood UNB 186 ×1, and Silent Lab PRC 140 ×1.
+- The Mimikyu Copycat → opponent's Apex Dragon → candidate's discarded Dialga-GX Timeless-GX line is present in candidate v2's `Apex Dragon` prompt handler. It awards Timeless-GX score 50000 when Dialga is in discard, GX is unused, target is Dragon, and Fairy Zone status is true.
+- If the Active Regidrago VSTAR has an effective Stealthy Hood, the engine's `CAN_APPLY_ABILITY_TO_TARGET` rejects Fairy Zone for that target. Timeless-GX stays 150, not 300, so it does not KO 280 HP. Candidate v2 does not inspect target Tools before awarding 50000; its current tests contain no `Apex Dragon`, `Timeless-GX`, or Steathly Hood regression case.
+- This is a conditional state, not proof that Hood is attached or that the line occurs in a game. Silent Lab must also be absent/removed and Fairy Zone source status positively established for the target-side check to matter.
+
+No code/test changes or game dispatch. The earlier actor-observation and policy addenda remain current.
