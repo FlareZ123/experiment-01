@@ -218,8 +218,8 @@ function decodeWithPolicyRandom(bot, state, randomSource) {
  * @returns {[() => number, () => number]}
  */
 /**
- * Independent deterministic physical deck-shuffle streams by player seat.
- * Opt-in only: original archived native games remain on legacy common RNG.
+ * Separate deterministic physical deck-shuffle streams by player seat.
+ * Opt-in legacy seed-derived path; the independent CSPRNG protocol supersedes it.
  * @param {number} seed Unsigned 32-bit original game seed.
  * @returns {[()=>number,()=>number]} Seat-ordered independent sources.
  */
@@ -239,10 +239,10 @@ function policyRandomStreams(seed) {
 
 /**
  * Choose the native physical deck-shuffle random source without consuming it.
- * In after-setup mode, the original common stream handles all turn-0 setup
- * shuffles, preserving original physical openings. Once the first player's
- * turn has begun, each seat's own stream handles its deck searches.
- * Coin flips retain their separate historical shared-stream behavior.
+ * In legacy after-setup mode, the common stream handles turn-0 setup shuffles;
+ * per-seat streams handle later deck searches. The independent CSPRNG protocol
+ * uses per-seat streams from setup and routes live CoinFlipPrompt events to a
+ * separate coin stream. Legacy coin behavior remains on the shared game stream.
  *
  * @param {()=>number} shared
  * @param {[()=>number,()=>number]|null} seatStreams
@@ -261,7 +261,10 @@ function choosePhysicalShuffleRandom(shared,seatStreams,ownerSeat,globalTurn,
  * @typedef {object} MatchRequest
  * @property {string[]} deckA Fully resolved Twinleaf fullName strings, exactly 60.
  * @property {string[]} deckB Fully resolved Twinleaf fullName strings, exactly 60.
- * @property {number} seed Unsigned 32-bit random seed.
+ * @property {number} seed Unsigned 32-bit schedule/trial label. Under the independent CSPRNG protocol, rngMaterial supplies the actual entropy.
+ * @property {'independent-csprng-streams-v1'} [rngProtocol] Opt-in independently keyed per-game RNG streams.
+ * @property {object} [rngMaterial] Validated six-stream 256-bit key material for the independent protocol.
+ * @property {string} [rngMaterialCommitment] SHA-256 commitment to rngMaterial.
  * @property {number} [maxActions] Fail-safe bound on all user/bot actions.
  * @property {string} [label] Experimental label for machine-readable output.
  * @property {boolean} [strictPromptValidation] Opt-in pre-dispatch Prompt.validate gate.
