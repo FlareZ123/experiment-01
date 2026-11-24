@@ -2625,6 +2625,20 @@ test('Path to the Peak suppresses Gate unless Stadium effects are disabled', () 
     kind: 'select-action', token: 'pass'
   });
 
+  const unknownPathEpoch = rootRequest({
+    ownHand: ['Radiant Eternatus CRZ 105'],
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94'),
+      stadium: ['Path to the Peak CRE 148'],
+      omitStadiumSuppression: true,
+      deckCount: 30, prizeCount: 6
+    }),
+    items: [radiantAction, { token: 'pass', kind: 'pass' }]
+  });
+  assert.deepEqual(checkedDecision(unknownPathEpoch), {
+    kind: 'select-action', token: 'pass'
+  });
+
   const disabledPath = rootRequest({
     ownHand: ['Radiant Eternatus CRZ 105'],
     ownPublic: player({
