@@ -376,6 +376,9 @@ function attackBaseDamage(attacker, attack, view, target) {
   if (attack.name === 'Night Watch') {
     return 1500 + Math.min(120, view.opponentPublic.handCount * 20);
   }
+  if (attack.name === 'Pale Moon-GX') {
+    return paleMoonScore(attacker, attack, view, target);
+  }
   if (attack.name === 'Shadow Mist') return 10;
   if (attack.name === 'Filch' || attack.name === 'Copycat' ||
       attack.name === 'Apex Dragon' || attack.name === 'Astral Barrage') return 0;
@@ -395,6 +398,23 @@ function canFuelNightWatch(view) {
   return handHas(view, 'Psychic Energy') &&
     (view.ownTurnResources.energyPlayedTurn === false ||
      boardAbilityStatus(view, 'Underworld Door') === true);
+}
+
+function paleMoonScore(attacker, attack, view, target) {
+  if (!attacker || !attack || !target ||
+      view.ownTurnResources.gxUsed === true ||
+      view.ownPublic.publicTurnRestrictions?.gxUsed === true ||
+      !canPayAttack(attacker, attack, view)) return -Infinity;
+  const psychicAttached = attacker.energies.filter(energy =>
+    hasName(energy, 'Psychic Energy')).length;
+  const extraPsychic = psychicAttached >= 2 && slotEnergyCount(attacker) >= 3;
+  const opponentBenchCount = view.opponentPublic.bench.filter(Boolean).length;
+  const targetEnergyCount = target.energies.length;
+  if (opponentBenchCount > 0 && !extraPsychic && targetEnergyCount < 3) {
+    return -Infinity;
+  }
+  return 900 + targetEnergyCount * 80 + prizeLiability(target) * 100 +
+    (extraPsychic ? 350 : 0) + (opponentBenchCount === 0 ? 700 : -250);
 }
 
 function attackScore(attacker, attack, view, target, options = {}) {
@@ -909,6 +929,10 @@ function chooseAttackPrompt(view, prompt, receipt) {
       score = 20 + 20 * (countBench(view.ownPublic) + countBench(view.opponentPublic));
     } else if (attackName === 'Night Watch') {
       score = 150 + Math.min(120, view.opponentPublic.handCount * 20);
+    } else if (attackName === 'Pale Moon-GX') {
+      const attacker = view.ownPublic.active;
+      const attack = attacker?.attacks.find(row => row.name === 'Pale Moon-GX');
+      score = paleMoonScore(attacker, attack, view, view.opponentPublic.active);
     }
     else score = parseDamage(attackName);
     return { choice, score };
