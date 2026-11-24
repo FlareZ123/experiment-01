@@ -49,7 +49,8 @@ class GameError {
 }
 const GameMessage=Object.freeze({
   CANNOT_PLAY_THIS_CARD:'CANNOT_PLAY_THIS_CARD',
-  PRIVATE_TEST_ONLY:'PRIVATE_TEST_ONLY'
+  PRIVATE_TEST_ONLY:'PRIVATE_TEST_ONLY',
+  YES:'Yes'
 });
 let lastStore=null;
 let failNextPlayCardDispatch=false;
@@ -704,6 +705,7 @@ test('native GameError redaction emits only exact pinned GameMessage values',()=
   const originalRandom=Math.random;
   for(const [message,expected] of [
     [GameMessage.CANNOT_PLAY_THIS_CARD,GameMessage.CANNOT_PLAY_THIS_CARD],
+    [GameMessage.YES,GameMessage.YES],
     ['PRIVATE_CUSTOM_GAME_ERROR',undefined]
   ]){
     failNextNativeGameErrorMessage=message;
