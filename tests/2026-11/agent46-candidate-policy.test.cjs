@@ -1021,7 +1021,7 @@ test('VMAX-only board still searches and benches a second unevolved Shadow Rider
         token: 'play-second-v',
         kind: 'play-card',
         actorPrinting: 'Shadow Rider Calyrex V CRE 74',
-        publicMetadata: { targetSeat: 'actor', targetZone: 'bench' }
+        publicMetadata: { targetSeat: 'actor', targetZone: 'bench', isOwnerVisible: true }
       },
       { token: 'pass', kind: 'pass' }
     ]
