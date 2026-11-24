@@ -84,3 +84,8 @@ This creates a directional interaction in the rank 1 mirror:
 - At three Psychic Energy, Max Geist is 100 base / 200 with Fairy Zone. That is enough to KO an unprotected 170-HP Radiant Eternatus; an effective Hood prevents the Fairy Zone multiplier, leaving 100 base damage.
 
 The candidate's two Hoods therefore create a real defensive allocation option: in Fairy Zone matchups, one Hood can protect its only Dragon Pokémon (Radiant Eternatus), while the other remains available for a Shadow Rider VMAX or another priority target. This is a card-text interaction and damage threshold, not evidence that the policy will make the correct attachment or that the matchup is won.
+
+
+### Field Blower interaction
+
+All three Aichi lists with Fairy Zone (ranks 1, 5, 30) also contain Field Blower GRI 125: one copy in rank 1, one in rank 5, and three in rank 30. A Stealthy Hood attached to the candidate's Radiant Eternatus blocks opponent Fairy Zone only while the Tool remains effective and attached; Field Blower can discard it. The Hood allocation is therefore a tactical protection window, not a guaranteed permanent answer. No Jamming Tower or Tool Jammer appears in these three exact lists.
