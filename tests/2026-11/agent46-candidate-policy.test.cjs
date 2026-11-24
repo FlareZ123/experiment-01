@@ -46,29 +46,27 @@ function attack(name, cost, damage, extra = {}) {
 }
 
 function pokemon({
-  printing, name, hp = 200, types = ['Psychic'], subtypes = ['Basic'],
-  energies = [], attacks = [], abilities = [], suppression = null,
-  damage = 0, tools = [], weakness = [], abilityLockActivationOrder = null
-}) {
+  printing = 'Test Pokémon', name = 'Test Pokémon', hp = 200, damage = 0,
+  types = ['Psychic'], subtypes = ['Basic'], abilities = [], suppression = false,
+  tools = [], energies = [], attacks = [], weakness = [], abilityLockActivationOrder = null,
+  retreatCost = [], specialConditions = [], publicRestrictionOverrides = {}
+} = {}) {
+  const stage = subtypes.includes('VMAX') ? 'VMAX' :
+    subtypes.includes('VSTAR') ? 'VSTAR' :
+    subtypes.includes('Stage 2') ? 'STAGE2' :
+    subtypes.includes('Stage 1') ? 'STAGE1' : 'BASIC';
   return {
-    printing, name, hp, damage, abilityLockActivationOrder,
-    lastPlayedOrEvolvedTurn: 0,
-    printed: {
-      stage: subtypes.includes('VMAX') ? 'VMAX' : 'BASIC',
-      subtypes, types, retreatCost: [], weakness, resistance: []
-    },
-    specialConditions: [], publicRestrictions: pokemonRestrictions(),
-    evolutionPrintings: [], energies, tools, attacks, abilities,
-    abilityDetails: abilities.map(name => ({ name, powerType: 'ABILITY', text: null })),
-    abilitySuppressions: abilities.map(abilityName => ({
-      abilityName,
-      suppressed: suppression,
-      reasonCode: suppression === true ? 'TEST_SUPPRESSION' : null,
-      sourcePrinting: suppression === true ? 'Path to the Peak CRE 148' : null
-    }))
+    printing, name, hp, damage, types, subtypes, abilities,
+    abilitySuppressions: suppression === null ? null : abilities.map(abilityName => ({
+      abilityName, suppressed: suppression,
+      sourcePrinting: suppression ? 'Test suppression' : null,
+      reasonCode: suppression ? 'TEST_SUPPRESSION' : null
+    })),
+    abilityLockActivationOrder, tools, energies, attacks, specialConditions,
+    publicRestrictions: { ...pokemonRestrictions(), ...publicRestrictionOverrides },
+    printed: { name, hp, types, subtypes, stage, weakness, retreatCost }
   };
 }
-
 function publicPlayer({
   active = null, bench = [], stadium = [], stadiumDirection = null, discard = [],
   handCount = 0, deckCount = 30, prizeCount = 6
@@ -204,39 +202,38 @@ function cardPrompt(seat, view, {
   return request(seat, requestView, { prompt, actions: [], receipt });
 }
 
-function pokemonPrompt(seat, view, choices, effectName = 'Guzma') {
-  const prompt = {
-    schema: protocol.PROMPT_SCHEMA, actingSeat: seat,
-    promptType: 'ChoosePokemonPrompt', description: null,
-    source: {
-      classification: 'actor-choice', sourceKind: 'card-effect',
-      sourcePrinting: effectName === 'Acerola' ? 'Acerola PRC 112' : 'Guzma BUS',
-      effectName
-    },
-    choices: choices.map((row, index) => {
-      const ownerSeat = row.ownerSeat ?? 'actor';
-      return {
-        token: row.token, kind: 'pokemon', printing: row.printing,
-        label: (ownerSeat === 'opponent' ? 'Opponent' : 'Your') +
-          ' bench ' + (row.index + 1) + ': ' + row.printing,
-        publicMetadata: {
-          selectionIndex: index, selectedCount: 1, selectionType: 'pokemon',
-          ownerSeat, targetZone: 'bench', isOwnerVisible: true
-        }
-      };
-    }),
-    publicMetadata: {
-      minimumCount: 1, maximumCount: 1, allowCancel: false,
-      isSecret: false, selectionType: 'pokemon', targetZone: 'bench'
+function pokemonPrompt(seat, view, choices, effectName = 'Guzma', sourcePrinting = null) {
+  const printing = sourcePrinting ??
+    (effectName === 'Acerola' ? 'Acerola PRC 112' :
+     effectName === 'Stealthy Hood' ? 'Stealthy Hood UNB 186' : 'Guzma BUS 115');
+  return request(seat, view, {
+    prompt: {
+      promptType: 'ChoosePokemonPrompt',
+      source: { sourcePrinting: printing, effectName },
+      choices: choices.map((row, index) => {
+        const ownerSeat = row.ownerSeat ?? 'actor';
+        const zone = row.zone ?? 'bench';
+        const targetIndex = Number.isSafeInteger(row.index) ? row.index : 0;
+        return {
+          token: row.token ?? `pokemon-${index}`,
+          kind: 'pokemon',
+          printing: row.printing,
+          label: row.label ?? row.printing,
+          publicMetadata: {
+            selectionIndex: index, selectedCount: 1, ownerSeat,
+            targetZone: zone, isOwnerVisible: true,
+            ...(zone === 'active' ? { slotIndex: 0 } : { benchIndex: targetIndex })
+          }
+        };
+      }),
+      publicMetadata: {
+        selectionType: 'pokemon', minimumCount: 1, maximumCount: 1,
+        allowCancel: false, isSecret: false,
+        targetZone: choices.some(row => row.zone === 'active') ? 'in-play' : 'bench'
+      }
     }
-  };
-  const requestView = {
-    ...view, decisionKind: 'owner-prompt',
-    pendingPromptType: 'ChoosePokemonPrompt'
-  };
-  return request(seat, requestView, { prompt, actions: [] });
+  });
 }
-
 function priorKoReceipt(view) {
   const project = slot => slot === null ? null : ({
     printing: slot.printing,
@@ -3054,7 +3051,7 @@ test('Stealthy Hood search covers active target-specific and global ability thre
   const hoodSearch = view => cardPrompt(0, view, {
     sourcePrinting: 'Mysterious Treasure FLI 113',
     effectName: 'Mysterious Treasure',
-    printings: ['Stealthy Hood BUS 186', 'Psychic Energy SVE 5']
+    printings: ['Stealthy Hood UNB 186', 'Psychic Energy SVE 5']
   });
   assert.deepEqual(evaluate(hoodSearch(observation(0, {
     active: vmax, opponentActive: ironThorns
@@ -3103,8 +3100,8 @@ test('Fairy Zone respects effective Stealthy Hood and accounts for Jamming Tower
   });
   const hooded = pokemon({
     printing: 'Regidrago VSTAR SIT 136', name: 'Regidrago VSTAR',
-    hp: 320, damage: 120, types: ['Dragon'], subtypes: ['VSTAR'],
-    tools: ['Stealthy Hood BUS 186']
+    hp: 280, damage: 120, types: ['Dragon'], subtypes: ['VSTAR'],
+    tools: ['Stealthy Hood UNB 186']
   });
   const plain = pokemon({
     printing: 'Dragon Basic test', name: 'Dragon Basic',
@@ -3126,7 +3123,7 @@ test('Fairy Zone respects effective Stealthy Hood and accounts for Jamming Tower
   });
 
   const jammingView = observation(0, {
-    active: vmax, bench: [clefairy], ownStadium: ['Jamming Tower swsh9'],
+    active: vmax, bench: [clefairy], ownStadium: ['Jamming Tower TWM 153'],
     opponentActive: active, opponentBench: [hooded, plain]
   });
   assert.deepEqual(evaluate(makePrompt(jammingView)), {
@@ -3138,7 +3135,7 @@ test('Fairy Zone respects effective Stealthy Hood and accounts for Jamming Tower
     name: 'Shadow Rider Calyrex VMAX', hp: 320, subtypes: ['VMAX'],
     energies: Array(5).fill('Psychic Energy SVE 5'),
     attacks: [attack('Max Geist', ['Colorless', 'Colorless', 'Colorless'], '10+')],
-    tools: ['Tool Jammer swsh2']
+    tools: ['Tool Jammer BST 136']
   });
   const jammerView = observation(0, {
     active: jammerVmax, bench: [clefairy],
@@ -3161,18 +3158,18 @@ test('Fairy Zone respects effective Stealthy Hood and accounts for Jamming Tower
   const basicHooded = pokemon({
     printing: 'Dragon Basic Hood test', name: 'Dragon Basic',
     hp: 320, damage: 120, types: ['Dragon'], subtypes: ['Basic'],
-    tools: ['Stealthy Hood BUS 186']
+    tools: ['Stealthy Hood UNB 186']
   });
   const vWithJammer = pokemon({
     printing: 'Shadow Rider Calyrex VMAX CRE 75',
     name: 'Shadow Rider Calyrex VMAX', hp: 320, subtypes: ['VMAX'],
     energies: Array(5).fill('Psychic Energy SVE 5'),
     attacks: [attack('Max Geist', ['Colorless', 'Colorless', 'Colorless'], '10+')],
-    tools: ['Tool Jammer swsh2']
+    tools: ['Tool Jammer BST 136']
   });
   const jammerSuppressedByTower = observation(0, {
     active: vWithJammer, bench: [clefairy],
-    ownStadium: ['Jamming Tower swsh9'],
+    ownStadium: ['Jamming Tower TWM 153'],
     opponentActive: active, opponentBench: [basicHooded, plain]
   });
   assert.deepEqual(evaluate(pokemonPrompt(0, jammerSuppressedByTower, [
@@ -3780,4 +3777,347 @@ test('Field Blower min-zero target prompt selects the native empty option when n
       kind: 'select-choice', token: 'empty'
     });
   }
+});
+
+
+test('Sky Field bench capacity is live, bounded, and no-effect aware', () => {
+  const bench = Array.from({ length: 5 }, (_, index) =>
+    pokemon({ printing: `Bench filler ${index}`, name: `Bench filler ${index}` })
+  );
+  const skyField = observation(0, { bench, ownStadium: ['Sky Field ROS 89'] });
+  assert.equal(candidate.__test.effectiveBenchCapacity(skyField), 8);
+  const disabled = observation(0, { bench, ownStadium: ['Sky Field ROS 89'] });
+  disabled.ownPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining = 1;
+  assert.equal(candidate.__test.effectiveBenchCapacity(disabled), 5);
+  const unknown = observation(0, { bench, ownStadium: ['Sky Field ROS 89'] });
+  unknown.ownPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining = null;
+  assert.equal(candidate.__test.effectiveBenchCapacity(unknown), null);
+  const parallel = observation(0, { ownStadium: ['Parallel City BKT 145'], ownStadiumDirection: 'down' });
+  assert.equal(candidate.__test.effectiveBenchCapacity(parallel), 3);
+  const unknownDirection = observation(0, { ownStadium: ['Parallel City BKT 145'], ownStadiumDirection: null });
+  assert.equal(candidate.__test.effectiveBenchCapacity(unknownDirection), null);
+});
+
+test('same-Ability immunity applies only after the source scope reaches its target', () => {
+  const cases = [
+    { ability: 'Mischievous Lock', scope: 'active-basic-both', sourceZone: 'active', targetZone: 'active',
+      sourcePrinting: 'Klefki SVI 96', targetPrinting: 'Klefki SVI 96', sourceTools: [], targetTools: [] },
+    { ability: 'Neutralizing Gas', scope: 'active-opponent-all', sourceZone: 'active', targetZone: 'bench',
+      sourcePrinting: 'Galarian Weezing SHF 42', targetPrinting: 'Galarian Weezing SHF 42', sourceTools: [], targetTools: [] },
+    { ability: 'Lazy', scope: 'active-opponent-all', sourceZone: 'active', targetZone: 'active',
+      sourcePrinting: 'Slaking CES 115', targetPrinting: 'Slaking CES 115', sourceTools: [], targetTools: [] },
+    { ability: 'Garbotoxin', scope: 'all-tool-attached', sourceZone: 'bench', targetZone: 'bench',
+      sourcePrinting: 'Garbodor LTR 68', targetPrinting: 'Garbodor LTR 68',
+      sourceTools: ['Float Stone PLF 99'], targetTools: ['Float Stone PLF 99'] },
+    { ability: 'Midnight Fluttering', scope: 'active-opponent-active', sourceZone: 'active', targetZone: 'active',
+      sourcePrinting: 'Flutter Mane TEF 78', targetPrinting: 'Flutter Mane TEF 78', sourceTools: [], targetTools: [] }
+  ];
+  for (const item of cases) {
+    const make = abilities => {
+      const target = pokemon({
+        printing: item.targetPrinting, abilities, tools: item.targetTools,
+        subtypes: item.ability === 'Lazy' || item.ability === 'Garbotoxin' ? ['Stage 2'] : ['Basic']
+      });
+      const sourceSlot = pokemon({
+        printing: item.sourcePrinting, abilities: [item.ability], tools: item.sourceTools,
+        subtypes: item.ability === 'Lazy' ? ['Stage 2'] :
+          item.ability === 'Garbotoxin' ? ['Stage 1'] : ['Basic']
+      });
+      const view = observation(0, {
+        active: item.targetZone === 'active' ? target : pokemon({ printing: 'Actor active' }),
+        bench: item.targetZone === 'bench' ? [target] : [],
+        opponentActive: item.sourceZone === 'active' ? sourceSlot : pokemon({ printing: 'Opponent active' }),
+        opponentBench: item.sourceZone === 'bench' ? [sourceSlot] : []
+      });
+      return {
+        view, target,
+        source: { slot: sourceSlot, seat: 'opponent', zone: item.sourceZone,
+          abilityName: item.ability, scope: item.scope }
+      };
+    };
+    const same = make([item.ability]);
+    assert.equal(candidate.__test.abilityLockSourceSuppressesTarget(same.source, 'actor', same.target, same.view), false);
+    const different = make(['Different Ability']);
+    assert.equal(candidate.__test.abilityLockSourceSuppressesTarget(
+      different.source, 'actor', different.target, different.view
+    ), true, `${item.ability} still suppresses other Abilities`);
+  }
+});
+
+test('Path to the Peak suppresses Future Rule Box sources and yields to the no-effect epoch', () => {
+  const ironThorns = pokemon({
+    printing: 'Iron Thorns ex TWM 77', name: 'Iron Thorns ex',
+    types: ['Lightning'], subtypes: ['Basic', 'ex', 'Future'],
+    abilities: ['Initialization'], suppression: null
+  });
+  const live = observation(0, {
+    opponentActive: ironThorns, opponentStadium: ['Path to the Peak CRE 148']
+  });
+  assert.equal(candidate.__test.abilityLockSourceStadiumSuppression({ slot: ironThorns }, live), true);
+  const disabled = observation(0, {
+    opponentActive: ironThorns, opponentStadium: ['Path to the Peak CRE 148']
+  });
+  disabled.opponentPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining = 1;
+  assert.equal(candidate.__test.abilityLockSourceStadiumSuppression({ slot: ironThorns }, disabled), false);
+});
+
+test('Ability-lock activation-order ties use the physical turn player for either actor seat', () => {
+  const status = (actorSeat, turnSeat, wobbuffetOrder, ironThornsOrder) => {
+    const clefairy = pokemon({
+      printing: "Lillie's Clefairy ex JTG 56", name: "Lillie's Clefairy ex",
+      types: ['Psychic'], subtypes: ['Basic', 'ex'],
+      abilities: ['Fairy Zone'], suppression: null
+    });
+    const wobbuffet = pokemon({
+      printing: 'Wobbuffet PHF 36', name: 'Wobbuffet', types: ['Psychic'],
+      abilities: ['Bide Barricade'], suppression: null,
+      abilityLockActivationOrder: wobbuffetOrder
+    });
+    const ironThorns = pokemon({
+      printing: 'Iron Thorns ex TWM 77', name: 'Iron Thorns ex',
+      types: ['Lightning'], subtypes: ['Basic', 'ex', 'Future'],
+      abilities: ['Initialization'], suppression: null,
+      abilityLockActivationOrder: ironThornsOrder
+    });
+    const view = observation(actorSeat, {
+      turnSeat, active: wobbuffet, bench: [clefairy], opponentActive: ironThorns
+    });
+    return candidate.__test.fairyZoneStatusForSeat(view, 'actor');
+  };
+  for (const actorSeat of [0, 1]) {
+    for (const turnSeat of [0, 1]) {
+      assert.equal(status(actorSeat, turnSeat, 0, 0), turnSeat === actorSeat);
+      assert.equal(status(actorSeat, turnSeat, 0, 1), true);
+      assert.equal(status(actorSeat, turnSeat, 1, 0), false);
+    }
+  }
+});
+
+test('Arven searches and attaches Stealthy Hood to an opponent-lock-threatened Fairy Zone holder', () => {
+  const clefairy = pokemon({
+    printing: "Lillie's Clefairy ex JTG 56", name: "Lillie's Clefairy ex",
+    types: ['Psychic'], subtypes: ['Basic', 'ex'],
+    abilities: ['Fairy Zone'], suppression: null
+  });
+  const shadowRider = pokemon({
+    printing: 'Shadow Rider Calyrex V CRE 74', name: 'Shadow Rider Calyrex V',
+    subtypes: ['Basic', 'V'], tools: ['Float Stone PLF 99']
+  });
+  const garbodor = pokemon({
+    printing: 'Garbodor LTR 68', name: 'Garbodor', subtypes: ['Stage 1'],
+    abilities: ['Garbotoxin'], tools: ['Float Stone PLF 99'], suppression: false
+  });
+  const view = observation(0, {
+    active: pokemon({ printing: 'Mimikyu GRI 58', name: 'Mimikyu' }),
+    bench: [shadowRider, clefairy,
+      pokemon({ printing: 'Bench filler A' }),
+      pokemon({ printing: 'Bench filler B' }),
+      pokemon({ printing: 'Bench filler C' })],
+    opponentActive: pokemon({ printing: 'Regidrago VSTAR SIT 136', name: 'Regidrago VSTAR',
+      hp: 280, types: ['Dragon'], subtypes: ['VSTAR'] }),
+    opponentBench: [garbodor]
+  });
+  assert.equal(candidate.__test.hasOwnFairyZoneHolderLockThreat(view), true);
+  const wonderTag = cardPrompt(0, view, {
+    sourcePrinting: 'Tapu Lele-GX GRI 60', effectName: 'Wonder Tag',
+    sourceZone: 'deck', ownerSeat: 'actor',
+    printings: ['Arven SVI 166', 'Iono PAL 185'], minimumCount: 1, maximumCount: 1
+  });
+  assert.deepEqual(evaluate(wonderTag), { kind: 'select-choices', tokens: ['card-0'] });
+  const arvenSearch = cardPrompt(0, view, {
+    sourcePrinting: 'Arven SVI 166', effectName: 'Arven',
+    sourceZone: 'deck', ownerSeat: 'actor',
+    printings: ['Stealthy Hood UNB 186', 'Big Charm SSH 158'],
+    minimumCount: 1, maximumCount: 1
+  });
+  assert.deepEqual(evaluate(arvenSearch), { kind: 'select-choices', tokens: ['card-0'] });
+  const attach = pokemonPrompt(0, view, [
+    { index: 0, printing: shadowRider.printing, label: 'Shadow Rider V' },
+    { index: 1, printing: clefairy.printing, label: "Lillie's Clefairy ex" }
+  ], 'Stealthy Hood', 'Stealthy Hood UNB 186');
+  assert.deepEqual(evaluate(attach), { kind: 'select-choices', tokens: ['pokemon-1'] });
+});
+
+test('Field Blower prioritizes a Dragon Stealthy Hood that will block Fairy Zone after Stadium removal', () => {
+  const clefairy = pokemon({
+    printing: "Lillie's Clefairy ex JTG 56", name: "Lillie's Clefairy ex",
+    subtypes: ['Basic', 'ex'], abilities: ['Fairy Zone'], suppression: null
+  });
+  const activeToolHolder = pokemon({
+    printing: 'Sigilyph PLB 41', name: 'Sigilyph', tools: ['Tool Jammer BST 136']
+  });
+  const dragon = pokemon({
+    printing: 'Regidrago VSTAR SIT 136', name: 'Regidrago VSTAR', hp: 280,
+    types: ['Dragon'], subtypes: ['VSTAR'], tools: ['Stealthy Hood UNB 186']
+  });
+  const view = observation(0, {
+    active: pokemon({ printing: 'Shadow Rider Calyrex VMAX CRE 75',
+      name: 'Shadow Rider Calyrex VMAX', subtypes: ['VMAX'] }),
+    bench: [clefairy], opponentActive: activeToolHolder, opponentBench: [dragon],
+    opponentStadium: ['Silent Lab PRC 140']
+  });
+  const pokemonPromptRequest = request(0, view, {
+    prompt: {
+      promptType: 'ChoosePokemonPrompt',
+      source: { sourcePrinting: 'Field Blower BCR 125', effectName: 'Field Blower' },
+      choices: [
+        { token: 'active', kind: 'pokemon', printing: activeToolHolder.printing,
+          publicMetadata: { selectionIndex: 0, ownerSeat: 'opponent', targetZone: 'active',
+            slotIndex: 0, isOwnerVisible: true } },
+        { token: 'bench', kind: 'pokemon', printing: dragon.printing,
+          publicMetadata: { selectionIndex: 1, ownerSeat: 'opponent', targetZone: 'bench',
+            benchIndex: 0, isOwnerVisible: true } }
+      ],
+      publicMetadata: { selectionType: 'pokemon', minimumCount: 1, maximumCount: 1,
+        allowCancel: false, isSecret: false }
+    }
+  });
+  assert.deepEqual(evaluate(pokemonPromptRequest), { kind: 'select-choices', tokens: ['bench'] });
+  const toolPrompt = cardPrompt(0, view, {
+    sourcePrinting: 'Field Blower BCR 125', effectName: 'Field Blower',
+    sourceZone: 'tool', ownerSeat: 'opponent',
+    printings: ['Tool Jammer BST 136', 'Stealthy Hood UNB 186'],
+    minimumCount: 1, maximumCount: 1
+  });
+  assert.deepEqual(evaluate(toolPrompt), { kind: 'select-choices', tokens: ['card-1'] });
+
+  const klefki = pokemon({
+    printing: 'Klefki SVI 96', name: 'Klefki',
+    abilities: ['Mischievous Lock'], suppression: null
+  });
+  const lockAfterLab = observation(0, {
+    bench: [clefairy], opponentActive: klefki,
+    opponentStadium: ['Silent Lab PRC 140'], opponentBench: [dragon]
+  });
+  const dragonTarget = { ownerSeat: 'opponent', zone: 'bench', index: 0, slot: dragon };
+  assert.equal(candidate.__test.hasOwnFairyZoneHolderLockThreat(lockAfterLab), true);
+  assert.equal(candidate.__test.fieldBlowerHoodBlocksFairyZone(lockAfterLab, dragonTarget), false);
+});
+
+test('Pale Moon accounts for extra Psychic payment, retreat Energy units, and live escape effects', () => {
+  const paleMoon = attack('Pale Moon-GX', ['Psychic', 'Colorless'], 0);
+  const attacker = pokemon({
+    printing: 'Trevenant & Dusknoir-GX SMP SM217', name: 'Trevenant & Dusknoir-GX',
+    subtypes: ['Basic', 'TAG TEAM', 'GX'],
+    energies: ['Psychic Energy', 'Psychic Energy'], attacks: [paleMoon]
+  });
+  const withValley = observation(0, {
+    active: attacker, ownStadium: ['Dimension Valley PRC 103'],
+    opponentActive: pokemon({
+      printing: 'Regidrago VSTAR SIT 136', name: 'Regidrago VSTAR', hp: 280,
+      types: ['Dragon'], subtypes: ['VSTAR'],
+      retreatCost: ['Colorless', 'Colorless', 'Colorless'], energies: ['Fire Energy']
+    }),
+    opponentBench: [pokemon({ printing: 'Bench escape' })]
+  });
+  const withoutValley = observation(0, {
+    active: attacker, opponentActive: withValley.opponentPublic.active,
+    opponentBench: [pokemon({ printing: 'Bench escape' })]
+  });
+  assert.equal(candidate.__test.paleMoonExtraPsychicAvailable(attacker, paleMoon, withValley), true);
+  assert.equal(candidate.__test.paleMoonExtraPsychicAvailable(attacker, paleMoon, withoutValley), false);
+  const blockedTarget = withValley.opponentPublic.active;
+  const oneCostTarget = pokemon({
+    printing: 'Regidrago VSTAR SIT 136', name: 'Regidrago VSTAR', hp: 280,
+    types: ['Dragon'], subtypes: ['VSTAR'], retreatCost: ['Colorless'], energies: ['Fire Energy']
+  });
+  const oneCostView = observation(0, {
+    active: attacker, opponentActive: oneCostTarget,
+    opponentBench: [pokemon({ printing: 'Bench escape' })]
+  });
+  assert.ok(candidate.__test.paleMoonScore(attacker, paleMoon, withValley, blockedTarget) >
+    candidate.__test.paleMoonScore(attacker, paleMoon, oneCostView, oneCostTarget));
+
+  const doubleDragon = pokemon({
+    printing: 'Regidrago VSTAR SIT 136', name: 'Regidrago VSTAR', hp: 280,
+    types: ['Dragon'], subtypes: ['VSTAR'],
+    retreatCost: ['Colorless', 'Colorless', 'Colorless'], energies: ['Double Dragon Energy']
+  });
+  const doubleDragonView = observation(0, {
+    opponentActive: doubleDragon, opponentBench: [pokemon({ printing: 'Bench escape' })]
+  });
+  assert.equal(candidate.__test.paleMoonRetreatStatus(doubleDragon, doubleDragonView,
+    doubleDragon.energies).canRetreat, false);
+  const paidTarget = pokemon({
+    printing: 'Regidrago VSTAR SIT 136', name: 'Regidrago VSTAR', hp: 280,
+    types: ['Dragon'], subtypes: ['VSTAR'],
+    retreatCost: ['Colorless', 'Colorless', 'Colorless'],
+    energies: ['Double Dragon Energy', 'Fire Energy']
+  });
+  const paidView = observation(0, {
+    opponentActive: paidTarget, opponentBench: [pokemon({ printing: 'Bench escape' })]
+  });
+  assert.equal(candidate.__test.paleMoonRetreatStatus(paidTarget, paidView,
+    paidTarget.energies).canRetreat, true);
+
+  const latias = pokemon({
+    printing: 'Latias ex SSP 76', name: 'Latias ex',
+    subtypes: ['Basic', 'ex'], abilities: ['Skyliner'], suppression: false
+  });
+  const basicTarget = pokemon({
+    printing: 'Regidrago V SIT 135', name: 'Regidrago V',
+    types: ['Dragon'], subtypes: ['Basic', 'V'],
+    retreatCost: ['Colorless', 'Colorless', 'Colorless'], energies: []
+  });
+  const latiasView = observation(0, { opponentActive: basicTarget, opponentBench: [latias] });
+  assert.equal(candidate.__test.paleMoonRetreatStatus(basicTarget, latiasView, []).free, true);
+
+  const asleepTarget = pokemon({
+    printing: 'Regidrago VSTAR SIT 136', name: 'Regidrago VSTAR',
+    types: ['Dragon'], subtypes: ['VSTAR'], retreatCost: ['Colorless'],
+    energies: ['Fire Energy'], specialConditions: ['Asleep'], tools: ['Escape Board UPR 122']
+  });
+  const asleepView = observation(0, {
+    opponentActive: asleepTarget, opponentBench: [pokemon({ printing: 'Bench escape' })]
+  });
+  assert.equal(candidate.__test.paleMoonRetreatStatus(asleepTarget, asleepView,
+    asleepTarget.energies).canRetreat, true);
+  const paralyzedTarget = pokemon({
+    printing: 'Regidrago VSTAR SIT 136', name: 'Regidrago VSTAR',
+    types: ['Dragon'], subtypes: ['VSTAR'], retreatCost: ['Colorless'],
+    energies: ['Fire Energy'], specialConditions: ['Paralyzed'], tools: ['Escape Board UPR 122']
+  });
+  const paralyzedView = observation(0, {
+    opponentActive: paralyzedTarget, opponentBench: [pokemon({ printing: 'Bench escape' })]
+  });
+  assert.equal(candidate.__test.paleMoonRetreatStatus(paralyzedTarget, paralyzedView,
+    paralyzedTarget.energies).canRetreat, false);
+});
+
+test('Copycat scores the copied Timeless-GX against target-side Stealthy Hood and Fairy Zone', () => {
+  const mimikyu = pokemon({
+    printing: 'Mimikyu GRI 58', name: 'Mimikyu', energies: ['Psychic Energy'],
+    attacks: [attack('Copycat', ['Psychic'], 0)]
+  });
+  const clefairy = pokemon({
+    printing: "Lillie's Clefairy ex JTG 56", name: "Lillie's Clefairy ex",
+    types: ['Psychic'], subtypes: ['Basic', 'ex'], abilities: ['Fairy Zone'], suppression: false
+  });
+  const adp = pokemon({
+    printing: 'Arceus & Dialga & Palkia-GX CEC 156',
+    name: 'Arceus & Dialga & Palkia-GX', hp: 280,
+    types: ['Dragon', 'Metal'], subtypes: ['Basic', 'TAG TEAM', 'GX'],
+    tools: ['Stealthy Hood UNB 186']
+  });
+  const receipt = { opponentCopycatChoices: [{
+    attackName: 'Apex Dragon', sourcePrinting: 'Regidrago VSTAR SIT 136'
+  }] };
+  const makeRequest = target => request(0, observation(0, {
+    active: mimikyu, bench: [clefairy], ownDiscard: ['Dialga-GX UPR 100'],
+    opponentActive: target
+  }), {
+    receipt,
+    actions: [
+      { token: 'copycat', kind: 'attack', actorPrinting: mimikyu.printing,
+        attackName: 'Copycat', publicMetadata: { attackCostPayable: true } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  const hooded = evaluateWithAudit(makeRequest(adp));
+  const unhooded = evaluateWithAudit(makeRequest({ ...adp, tools: [] }));
+  const hoodedScore = hooded.policyAudit.evaluations.find(row => row.token === 'copycat').score;
+  const unhoodedScore = unhooded.policyAudit.evaluations.find(row => row.token === 'copycat').score;
+  assert.ok(unhoodedScore >= 50000);
+  assert.ok(hoodedScore < 50000);
+  assert.ok(unhoodedScore > hoodedScore);
 });
