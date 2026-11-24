@@ -63,3 +63,15 @@ The sanitized artifact supports reproducible pipeline diagnosis only. Private-ch
 5. No matchup win rate, policy-competence result, paper legality result, fixed-60 nomination, or 99.5% claim follows from this run.
 
 No decklist, policy, registration, seed, seat assignment, Twinleaf source, or accepted fixture branch was modified for this attempt.
+
+
+## Distinction from earlier Stage-A failures and safe diagnostic gap
+
+This failure is **not** the same substage as the earlier pre-worker frontier failures in run [45257814477](https://github.com/FlareZ123/experiment-01/actions/runs/45257814477). In that run, the candidate-seat-1/opponent-seat-0 failure had `rootActionFrontierAdmissionCount=0` and `rootDecisionCount=0`; Agent3 localized it to frontier construction/admission before the worker. In current run 45308359317, opponent role seat 1 has `rootActionFrontierAdmissionCount=21`, `rootDecisionCount=21`, and `decisionCount=33` (21 root plus 12 prompt decisions). Those counters increment after frontier admission and after `session.decide` returns. The current ordinal-104 failure is therefore downstream of a counted worker response and before live action dispatch. The generic stage label `policy-decode` is the fixture driver's broad yield stage; it does not by itself locate the throw.
+
+A source review found a potentially useful, privacy-safe diagnostic seam:
+- `agent49-native-fixture-game.cjs` computes an allowlisted `stackSite={file,line,column}` in `redactError` and retains it in `projectFailureSummary`.
+- `agent2-v3-sanitized-diagnostic.cjs::sanitizeFailure` currently keeps only `name,code,messageLength,stage`, dropping `stackSite`.
+- `agent36-v3-runner.cjs::projectV3FixtureFailureForReceipt` also omits top-level `stackSite`, although it projects a nested `nativeFixtureFailure`.
+
+The current sanitized artifact has no stackSite in either the outer failure or final actor-decision failure. Agent49 and Agent3 have been asked to inspect the post-response clone-validation path and this projection seam. A pass-through of only a validated `{file,line,column}` would reveal no raw stack, hidden zones, actor hand, frontier options, or selected token. The 21-character message remains only length-compatible with `CANNOT_PLAY_THIS_CARD`; do not attribute it without the safe source location or exact allowlisted native code.
