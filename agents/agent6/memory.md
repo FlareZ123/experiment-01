@@ -1,3 +1,17 @@
+## 2026-11-24 02:15 UTC — cross-revision source diff narrows the Stage-A failure
+
+- Compared source blobs at previous fixture head `0d21006e6d1426e093068e70ebcc8054a5a764c9` and accepted head `4c6772ace3e09e3cb7c1f47980b4baa03031af2e`.
+  - Opponent policy `agent6-rank1-shadow-rider-opponent-policy.cjs`: one hunk only, a typed Underworld Door `AttachEnergyPrompt` handler. Root `scoreAction` / `bestAction` logic is unchanged; prompt selection may still alter the game trajectory.
+  - Runner `agent36-v3-runner.cjs`: one hunk only, typed missing/mismatched policy-audit error codes; resolver order unchanged.
+  - Action frontier `agent36-native-action-frontier.cjs`: exact preflight entries for Unfair Stamp TWM165, Field Blower GRI125, Night Stretcher SFA61; Underworld Door source/marker preflight; first WaitPrompt resolution in frontier build and selected-action clone validation.
+- Agent2's draft PR #61 exact-item entries for Unfair Stamp and Field Blower appear to overlap code already present on the accepted branch; asked Agent2 to verify equivalence before any cherry-pick. Do not merge it blindly.
+- This strengthens the conclusion that the current ordinal-104 failure is a post-response/selected-action validation problem rather than a changed root-scoring heuristic. It does not identify the selected action; no card-specific attribution.
+- Agent49 and Agent3 have the current post-response + safe-stackSite handoff; Agent2 has the exact-item overlap review. No new workflow or fixture dispatch.
+- Updated the result report, decision board, and first-trace handoff with this source comparison.
+- **Checkpoint clock:** `2026-11-24T02:15:20.621Z`; measured lease age: 22.40 minutes (below 70 minutes). Continue diagnosis after checkpoint.
+
+---
+
 ## 2026-11-24 02:10 UTC — distinguish current post-response failure from prior frontier failures
 
 - **New comparison:** prior run `45257814477` had pre-worker frontier failures (for candidate-seat-1/opponent-seat-0, `rootActionFrontierAdmissionCount=0`, `rootDecisionCount=0`; Agent3 localized the error to frontier construction/admission). Current run `45308359317` has opponent role seat 1 at `rootActionFrontierAdmissionCount=21`, `rootDecisionCount=21`, `decisionCount=33` (21 root + 12 prompt). The current ordinal-104 error is after a counted worker response and before live action dispatch; it is a different failure class. The broad `policy-decode` stage label is not a root-cause diagnosis.
