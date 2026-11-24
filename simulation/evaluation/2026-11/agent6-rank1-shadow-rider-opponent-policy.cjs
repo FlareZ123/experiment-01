@@ -10,7 +10,7 @@
  * certificate or a matchup result.
  */
 
-const POLICY_VERSION = 'agent6-rank1-shadow-rider-opponent-v1';
+const POLICY_VERSION = 'agent6-rank1-shadow-rider-opponent-v2';
 
 let activePolicyAudit = null;
 
@@ -158,6 +158,125 @@ function countBoard(player, pattern) {
 function knownCardCount(observation, pattern) {
   return countBoard(observation.ownPublic, pattern) +
     countPrinting(observation.ownHand, pattern);
+}
+
+const SHADOW_RIDER_VMAX_DECK_COPIES = 4;
+const CLIMACTIC_GATE_MIN_DECK_PROBABILITY = 0.5;
+
+// The owner can know cards in play, hand, discard, Lost Zone, resolving
+// Supporter, and face-up prizes. All remaining copies are distributed only
+// between the deck and face-down prizes. Estimate P(at least one VMAX in deck)
+// from those public counts; never treat an unknown VMAX as guaranteed in deck.
+function knownVmaxOutsideHiddenZones(observation) {
+  const own = observation?.ownPublic ?? {};
+  const visiblePrizeCards = list(own.prizeSlots).filter(slot =>
+    typeof slot?.printing === 'string');
+  const visiblePrizeVmax = visiblePrizeCards.filter(slot =>
+    matches(slot.printing, PRINT.shadowRiderVmax)).length;
+  const knownOutsideHidden =
+    countBoard(own, PRINT.shadowRiderVmax) +
+    countPrinting(observation?.ownHand, PRINT.shadowRiderVmax) +
+    countPrinting(own.discard, PRINT.shadowRiderVmax) +
+    countPrinting(own.lostZone, PRINT.shadowRiderVmax) +
+    countPrinting(own.resolvingSupporter, PRINT.shadowRiderVmax) +
+    visiblePrizeVmax;
+  return {
+    knownOutsideHidden,
+    visiblePrizeCount: visiblePrizeCards.length
+  };
+}
+
+function climacticGateDeckProbability(observation) {
+  const own = observation?.ownPublic ?? {};
+  const deckCount = own.deckCount;
+  const prizeCount = own.prizeCount;
+  if (!Number.isSafeInteger(deckCount) || deckCount < 0 ||
+      !Number.isSafeInteger(prizeCount) || prizeCount < 0) return 0;
+
+  const visible = knownVmaxOutsideHiddenZones(observation);
+  if (visible.knownOutsideHidden > SHADOW_RIDER_VMAX_DECK_COPIES ||
+      visible.visiblePrizeCount > prizeCount) return 0;
+  const remainingCopies = SHADOW_RIDER_VMAX_DECK_COPIES -
+    visible.knownOutsideHidden;
+  const hiddenPrizeCount = prizeCount - visible.visiblePrizeCount;
+  const hiddenTotal = deckCount + hiddenPrizeCount;
+  if (remainingCopies <= 0 || deckCount <= 0 || hiddenTotal <= 0 ||
+      remainingCopies > hiddenTotal) return 0;
+
+  // Hypergeometric complement: P(no remaining VMAX is in the deck).
+  let probabilityNoneInDeck = 1;
+  for (let i = 0; i < remainingCopies; i += 1) {
+    const remainingPrizeSlots = hiddenPrizeCount - i;
+    if (remainingPrizeSlots <= 0) {
+      probabilityNoneInDeck = 0;
+      break;
+    }
+    probabilityNoneInDeck *= remainingPrizeSlots / (hiddenTotal - i);
+  }
+  return Math.max(0, Math.min(1, 1 - probabilityNoneInDeck));
+}
+
+function shouldUseClimacticGate(observation) {
+  return countBoard(observation?.ownPublic, PRINT.shadowRiderVmax) < 2 &&
+    climacticGateDeckProbability(observation) >=
+      CLIMACTIC_GATE_MIN_DECK_PROBABILITY;
+}
+
+function isActorBenchPlacement(item, observation) {
+  const metadata = item?.publicMetadata ?? {};
+  const index = metadata.targetIndex;
+  return metadata.cardType === 'pokemon' &&
+    metadata.targetSeat === 'actor' &&
+    metadata.targetZone === 'bench' &&
+    metadata.isOwnerVisible === true &&
+    Number.isSafeInteger(index) && index >= 0 && index < 5 &&
+    list(observation?.ownPublic?.bench)[index] === null &&
+    item.targetPrinting == null;
+}
+
+function actionTargetSlot(item, observation) {
+  const metadata = item?.publicMetadata ?? {};
+  if (metadata.targetSeat !== 'actor' || metadata.isOwnerVisible !== true) return null;
+  if (metadata.targetZone === 'active') return observation?.ownPublic?.active ?? null;
+  if (metadata.targetZone === 'bench' &&
+      Number.isSafeInteger(metadata.targetIndex) &&
+      metadata.targetIndex >= 0 && metadata.targetIndex < 5) {
+    return list(observation?.ownPublic?.bench)[metadata.targetIndex] ?? null;
+  }
+  return null;
+}
+
+function scoreManualPsychicEnergy(item, request) {
+  const observation = request.observation;
+  const own = observation.ownPublic;
+  const resources = observation.ownTurnResources ?? {};
+  const metadata = item.publicMetadata ?? {};
+  if (!matches(item.actorPrinting ?? '', PRINT.psychic) ||
+      metadata.cardType !== 'energy' ||
+      resources.energyPlayedTurn !== false ||
+      resources.energyPlayLocked === true ||
+      own.publicTurnRestrictions?.energyPlayLocked === true) return 0;
+
+  const target = actionTargetSlot(item, observation);
+  if (!target || target.printing !== item.targetPrinting) return 0;
+  const energy = psychicEnergyOn(target);
+  if (matches(target.printing, PRINT.shadowRiderVmax)) {
+    return energy < 6 ? 180 - energy * 5 : 0;
+  }
+  if (matches(target.printing, PRINT.shadowRiderV)) {
+    return energy < 3 ? 165 - energy * 5 : 0;
+  }
+  if (matches(target.printing, PRINT.trevenant)) {
+    return energy < 3 ? 155 - energy * 5 : 0;
+  }
+  if (matches(target.printing, PRINT.latias)) {
+    return energy < 2 ? 145 - energy * 5 : 0;
+  }
+  if (matches(target.printing, PRINT.girafarig)) return energy < 1 ? 135 : 0;
+  if (matches(target.printing, PRINT.mimikyu)) {
+    return energy < 2 ? 125 - energy * 5 : 0;
+  }
+  return 0;
 }
 
 function psychicCountInHand(observation) {
@@ -359,8 +478,8 @@ function scoreAction(item, request) {
 
   if (item.kind === 'use-ability') {
     const ability = item.publicMetadata?.abilityName ?? '';
+    if (ability === 'Climactic Gate') return 0;
     if (ability === 'Underworld Door' && psychicHand > 0) return 150;
-    if (ability === 'Climactic Gate' && boardV > 0) return 145;
     if (ability === 'Resetting Hole') return pathLockActive(observation) ? 138 : 0;
     if (ability === 'Star Alchemy' &&
         observation.ownTurnResources.vstarUsed === false) return 132;
@@ -372,6 +491,47 @@ function scoreAction(item, request) {
 
   if (item.kind === 'play-card') {
     const card = item.actorPrinting ?? '';
+
+    // The primary V line must be reachable from hand. The native frontier
+    // already proves the play is legal; require an actor-owned empty Bench slot.
+    if (matches(card, PRINT.shadowRiderV) &&
+        isActorBenchPlacement(item, observation)) return boardV < 2 ? 160 : 0;
+
+    // Manual Basic Psychic Energy is projected as a play-card action with an
+    // actor-owned active/Bench target, not as an energy-payment prompt.
+    if (matches(card, PRINT.psychic)) return scoreManualPsychicEnergy(item, request);
+
+    if (matches(card, PRINT.latias) &&
+        isActorBenchPlacement(item, observation) &&
+        !boardHas(own, PRINT.latias) &&
+        boardSlots(own).some(slot => slot.printed?.stage === 'BASIC')) return 112;
+
+    if (matches(card, PRINT.girafarig) &&
+        isActorBenchPlacement(item, observation) &&
+        !boardHas(own, PRINT.girafarig)) {
+      const valuableDiscard = list(opponent.discard).filter(value =>
+        /Energy|VS Seeker|Raihan|Tulip|Battle Compressor|Night Stretcher/i.test(value)).length;
+      if (valuableDiscard > 0) return 104 + Math.min(12, valuableDiscard * 3);
+    }
+
+    if (matches(card, PRINT.trevenant) &&
+        isActorBenchPlacement(item, observation) &&
+        !boardHas(own, PRINT.trevenant)) {
+      const restrictions = opponent.active?.publicRestrictions ?? {};
+      const trapped = restrictions.cannotRetreat === true ||
+        restrictions.cannotRetreatNextTurn === true ||
+        restrictions.cannotRetreatWhileActive === true;
+      if ((opponent.handCount ?? 0) >= 2 || trapped) {
+        return 108 + Math.min(8, opponent.handCount ?? 0);
+      }
+    }
+
+    // Climactic Gate is turn-ending. Its root play is deliberately deferred
+    // until bestAction has exhausted every positive non-terminal action.
+    if (matches(card, PRINT.radiantEternatus) &&
+        isActorBenchPlacement(item, observation)) {
+      return shouldUseClimacticGate(observation) ? 145 : 0;
+    }
 
     if (matches(card, PRINT.shadowRiderVmax) &&
         matches(item.targetPrinting ?? '', PRINT.shadowRiderV)) return 148;
@@ -497,9 +657,17 @@ function bestAction(request) {
       'use-stadium', 'pass'].includes(item.kind));
   if (items.length === 0) return { kind: 'abstain', reasonCode: 'NO_EXECUTABLE_ACTION' };
 
+  // Radiant Eternatus is not an ordinary high-score play: using Climactic Gate
+  // ends the turn. Always exhaust positive non-terminal actions first, then
+  // reconsider the Gate play on the next root decision.
+  const terminalGateItems = items.filter(item =>
+    item.kind === 'play-card' &&
+    matches(item.actorPrinting ?? '', PRINT.radiantEternatus));
+  const ordinaryItems = items.filter(item => !terminalGateItems.includes(item));
+
   let best = null;
   let bestScore = -1;
-  for (const item of items) {
+  for (const item of ordinaryItems) {
     const score = scoreAction(item, request);
     recordPolicyAuditScore(item.token, score, 'NO_ROOT_ACTION_SCORE');
     if (score > bestScore) {
@@ -511,6 +679,23 @@ function bestAction(request) {
     setPolicyAuditRule('ROOT_MAX_ACTION_SCORE', 'STRICT_GREATER_THAN_FIRST_NATIVE_FRONTIER_ORDER');
     return { kind: 'select-action', token: best.token };
   }
+
+  let gate = null;
+  let gateScore = -1;
+  for (const item of terminalGateItems) {
+    const score = scoreAction(item, request);
+    recordPolicyAuditScore(item.token, score, 'NO_TERMINAL_GATE_SCORE');
+    if (score > gateScore) {
+      gate = item;
+      gateScore = score;
+    }
+  }
+  if (gate && gateScore > 0) {
+    setPolicyAuditRule('ROOT_CLIMACTIC_GATE_LAST_USE',
+      'ONLY_WHEN_NO_POSITIVE_NONTERMINAL_ACTION');
+    return { kind: 'select-action', token: gate.token };
+  }
+
   const pass = items.find(item => item.kind === 'pass');
   if (pass) {
     setPolicyAuditRule('ROOT_PASS_FALLBACK', 'FIRST_NATIVE_FRONTIER_ORDER');
@@ -540,6 +725,13 @@ function findVisibleSlot(player, zone, printing) {
     return list(player.bench).find(slot => slot?.printing === printing) ?? null;
   }
   return null;
+}
+
+function isRadiantClimacticGatePrompt(prompt) {
+  return prompt?.source?.classification === 'actor-choice' &&
+    prompt.source.sourceKind === 'card-effect' &&
+    matches(prompt.source.sourcePrinting ?? '', PRINT.radiantEternatus) &&
+    prompt.source.effectName === 'Climactic Gate';
 }
 
 function scorePokemonChoice(choice, observation, mode) {
@@ -595,7 +787,7 @@ function cardSearchScore(printing, request, effectName) {
   const own = observation.ownPublic;
   const opponent = observation.opponentPublic;
   const knownV = knownCardCount(observation, PRINT.shadowRiderV);
-  const knownVmax = knownCardCount(observation, PRINT.shadowRiderVmax);
+  const knownVmax = knownVmaxOutsideHiddenZones(observation).knownOutsideHidden;
   const psychicHand = psychicCountInHand(observation);
   const psychicDiscard = psychicCountInDiscard(observation);
   const psychicBoard = psychicCountOnBoard(observation);
@@ -672,7 +864,8 @@ function cardSearchScore(printing, request, effectName) {
   }
   if (matches(printing, PRINT.shadowRiderV) && knownV < 2) return 130;
   if (matches(printing, PRINT.shadowRiderVmax) && knownVmax < 2) return 125;
-  if (matches(printing, PRINT.radiantEternatus) && knownVmax < 2) return 118;
+  if (matches(printing, PRINT.radiantEternatus) &&
+      shouldUseClimacticGate(observation)) return 118;
   if (matches(printing, PRINT.trevenant) && psychicBoard < 3) return 110;
   if (matches(printing, PRINT.latias) && !boardHas(own, PRINT.latias) &&
       !hasPrinting(hand, PRINT.latias)) return 105;
@@ -864,6 +1057,9 @@ function promptDecision(request) {
   const sourcePrinting = prompt.source.sourcePrinting ?? '';
   const effect = effectName + ' ' + sourcePrinting;
   const metadata = prompt.publicMetadata ?? {};
+  if (effectName === 'Climactic Gate' && !isRadiantClimacticGatePrompt(prompt)) {
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CLIMACTIC_GATE_SOURCE' };
+  }
   const selectionType = metadata.selectionType ?? '';
   const engineSetupDecision = engineSetupPromptDecision(prompt, observation, choices, metadata);
   if (engineSetupDecision) return engineSetupDecision;
@@ -921,7 +1117,8 @@ function promptDecision(request) {
     if (includes(effect, 'Underworld Door')) mode = 'underworld';
     else if (includes(effect, 'Raihan')) mode = 'raihan';
     else if (includes(effect, 'Acerola')) mode = 'acerola';
-    else if (includes(effect, 'Climactic Gate')) mode = 'evolution';
+    else if (effectName === 'Climactic Gate' &&
+        isRadiantClimacticGatePrompt(prompt)) mode = 'evolution';
     else if (prompt.source.sourceKind === 'engine' && observation.ownPublic.active === null) mode = 'promotion';
     else if (includes(effect, 'Guzma')) {
       const candidates = choices.filter(choice =>
@@ -946,9 +1143,21 @@ function promptDecision(request) {
     }
 
     if (mode === 'evolution') {
-      setPolicyAuditRule('EVOLUTION_TARGET_FIRST_MATCH', 'NATIVE_CHOICE_ORDER');
+      setPolicyAuditRule('CLIMACTIC_GATE_VMAX_ONLY',
+        'ACTOR_DECK_VMAX_IN_NATIVE_CHOICE_ORDER');
+      if (!shouldUseClimacticGate(observation)) {
+        if (min === 0) {
+          const empty = choices.find(choice => choice.kind === 'empty-selection');
+          if (empty) return { kind: 'select-choice', token: empty.token };
+        }
+        return { kind: 'abstain', reasonCode: 'NO_CONFIDENT_CLIMACTIC_GATE_TARGET' };
+      }
       const tokens = choices.filter(choice =>
-        choice.kind === 'pokemon' && matches(choice.printing, PRINT.shadowRiderVmax))
+        choice.kind === 'pokemon' &&
+        matches(choice.printing, PRINT.shadowRiderVmax) &&
+        choice.publicMetadata?.ownerSeat === 'actor' &&
+        choice.publicMetadata?.targetZone === 'deck' &&
+        choice.publicMetadata?.isOwnerVisible === true)
         .slice(0, Math.min(max, choices.length)).map(choice => choice.token);
       if (tokens.length >= min && tokens.length > 0) {
         return { kind: 'select-choices', tokens };
@@ -1096,12 +1305,31 @@ function promptDecision(request) {
       { kind: 'abstain', reasonCode: 'NO_COPY_ATTACK_CHOICE' };
   }
 
+  if (prompt.promptType === 'ConfirmPrompt' && effectName === 'Climactic Gate') {
+    setPolicyAuditRule('CLIMACTIC_GATE_DECK_PROBABILITY_THRESHOLD',
+      'YES_IF_P_AT_LEAST_ONE_VMAX_IN_DECK_GE_0_5');
+    if (!isRadiantClimacticGatePrompt(prompt)) {
+      return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CLIMACTIC_GATE_SOURCE' };
+    }
+    const yes = choices.find(choice =>
+      choice.kind === 'confirm' && /^(yes|true|confirm)$/i.test(choice.label ?? ''));
+    const no = choices.find(choice =>
+      choice.kind === 'confirm' && /^(no|false|decline)$/i.test(choice.label ?? ''));
+    if (!yes || !no) {
+      return { kind: 'abstain', reasonCode: 'UNRECOGNIZED_CLIMACTIC_GATE_CONFIRMATION' };
+    }
+    return {
+      kind: 'select-choice',
+      token: shouldUseClimacticGate(observation) ? yes.token : no.token
+    };
+  }
+
   if (prompt.promptType === 'ConfirmPrompt' ||
       prompt.promptType === 'SelectPrompt' ||
       prompt.promptType === 'SelectOptionPrompt') {
     setPolicyAuditRule('CONFIRM_YES_THEN_FIRST_SAFE', 'YES_FIRST_THEN_NATIVE_ORDER');
     const confirmable = [
-      'Climactic Gate', 'Underworld Door', 'Star Alchemy', 'Forest Seal Stone',
+      'Underworld Door', 'Star Alchemy', 'Forest Seal Stone',
       'Wonder Tag', 'Skyliner', 'Pale Moon-GX'
     ].some(name => includes(effect, name));
     if (!confirmable) {
