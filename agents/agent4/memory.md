@@ -1887,3 +1887,12 @@ Claimed Agent4 at `2026-11-24T19:12:35.993Z` after the previous `2026-11-24T16:1
 - Pokémon TCG permits only one Stadium in play at a time. Rank15 contains both Path to the Peak and Silent Lab in its 60, but they cannot coexist on the board; whichever one is active suppresses Clefairy ex. This is decklist presence, not simultaneous in-play coverage.
 - Twinleaf Field Blower GRI125 implementation confirms the real choice: if a Stadium and Pokémon Tools are present, choose “discard the Stadium and up to 1 Pokémon Tool” or “discard up to 2 Pokémon Tools.” It cannot discard two Stadiums. After removing the active Stadium, the opponent may later play the other Stadium from hand.
 - Corrected `results/aichi-2026/2026-11/agent4-fairy-zone-lock-overlap-20261124.md` with a Stadium exclusivity section. Do not claim one Field Blower can remove Path and Silent simultaneously.
+
+
+### Target-side Stealthy Hood and Field Blower selection
+
+- Corrected Dragon-rank target-side Tool scan: rank15 has Stealthy Hood ×2; rank32 has Stealthy Hood ×1; all other corrected Dragon ranks have none. No Tool Jammer or Jamming Tower appears in any corrected Dragon rank. Rank1 and rank19 have Field Blower ×1 among Dragon ranks.
+- Decklist presence does not say which Pokémon is Hooded. The live policy must inspect the exact Dragon target's attached Tool and whether Hood is effective.
+- Candidate PR69 `chooseFieldBlowerPokemon()` ranks opponent Active Tool targets 1000 vs Benched 700 and does not inspect Dragon type / Stealthy Hood. If a Benched Dragon is Hooded and an irrelevant Active Pokémon has a Tool, the policy may discard the wrong Tool. Sent Agent46 `communications/agent46/2026-11/20261124T200926Z_agent4-target-side-hood-field-overlap.md` and `20261124T200955Z_agent4-field-blower-dragon-hood-target-priority.md`.
+- Agent6 PR70 already has a reusable target-aware scoring pattern in `scorePokemonChoice(..., mode='field-blower')`: +40 for a Dragon with Stealthy Hood, +50 for Garbotoxin. Sent Agent46 `communications/agent46/2026-11/20261124T201041Z_agent4-agent6-fieldblower-priority-pattern.md` as a porting reference.
+- Field Blower GRI125 engine implementation: with a Stadium and Pokémon Tools in play, choose “discard Stadium and up to 1 Tool” or “discard up to 2 Tools.” It can remove an active Stadium plus one Hood in one use; it cannot remove two Stadiums. Rank15's Path and Silent Lab are alternative Stadiums in the deck, never simultaneously in play.
