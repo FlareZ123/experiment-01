@@ -294,6 +294,15 @@ function itemCanPlayInValidationStore(action,simulator,actorSeat,native){
       card.trainerType!==native.TrainerType.ITEM||
       typeof card.canPlay!=='function'||
       !isScopedItemCanPlayPreflightPrinting(card))return true;
+  // Night Stretcher's pinned canPlay accepts Special Energy, but its effect
+  // only accepts Pokémon or Basic Energy. Mirror the effect here so an Item
+  // that will throw CANNOT_PLAY_THIS_CARD is never offered to a policy.
+  if(card.name==='Night Stretcher'){
+    return validationPlayer.discard.cards.some(discarded=>
+      (native.PokemonCard&&discarded instanceof native.PokemonCard)||
+      (native.EnergyCard&&discarded instanceof native.EnergyCard&&
+        native.EnergyType&&discarded.energyType===native.EnergyType.BASIC));
+  }
   const canPlay=card.canPlay(simulator.store,validationState,validationPlayer);
   // Twinleaf's predicate is tri-state: only explicit false proves that the
   // Item is unplayable. true and undefined must both reach cloned-Store native

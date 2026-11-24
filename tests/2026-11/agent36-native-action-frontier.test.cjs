@@ -136,6 +136,7 @@ function fakeNative({onDispatch=()=>{},actions:providedActions=null,rejectAction
     PokemonCard,
     TrainerCard,
     EnergyCard,
+    EnergyType:{BASIC:1},
     PlayerType: { BOTTOM_PLAYER: 1, TOP_PLAYER: 2, ANY: 3 },
     SlotType: { BENCH: 2, ACTIVE: 1, BOARD: 9, HAND: 3, DECK: 4, DISCARD: 5 },
     TrainerType: { ITEM: 1, SUPPORTER: 2, STADIUM: 3, TOOL: 4 }
@@ -804,13 +805,12 @@ test('a name-spoofed Error is not accepted as a pinned native GameError rejectio
 });
 
 
-test('pinned five-item exact-print canPlay tri-state rejects only false and delegates true or undefined to native validation',()=>{
+test('pinned non-Night-Stretcher exact-print canPlay tri-state rejects only false and delegates true or undefined to native validation',()=>{
   const printings=[
     {name:'Battle VIP Pass',fullName:'Battle VIP Pass FST 225',set:'FST',number:'225'},
     {name:'VS Seeker',fullName:'VS Seeker PHF 109',set:'PHF',number:'109'},
     {name:'Unfair Stamp',fullName:'Unfair Stamp TWM 165',set:'TWM',number:'165'},
-    {name:'Field Blower',fullName:'Field Blower GRI 125',set:'GRI',number:'125'},
-    {name:'Night Stretcher',fullName:'Night Stretcher SFA 61',set:'SFA',number:'61'}
+    {name:'Field Blower',fullName:'Field Blower GRI 125',set:'GRI',number:'125'}
   ];
   for(const printing of printings){
     for(const predicateResult of [false,true,undefined]){
@@ -835,6 +835,50 @@ test('pinned five-item exact-print canPlay tri-state rejects only false and dele
         assert.deepEqual(built.actionFrontier.items.map(item=>item.kind),['play-card','pass']);
       }
     }
+  }
+});
+
+test('Night Stretcher preflight matches the effect Basic-Energy-or-Pokémon target rule',()=>{
+  const cases=[
+    {name:'Special Energy only',discard:[Object.assign(new EnergyCard('Double Colorless Energy'),{energyType:2})],expected:false},
+    {name:'Basic Energy',discard:[Object.assign(new EnergyCard('Psychic Energy'),{energyType:1})],expected:true},
+    {name:'Pokémon',discard:[new PokemonCard('Mimikyu GRI')],expected:true}
+  ];
+  for(const entry of cases){
+    const state=fixtureState();
+    const item=state.players[0].hand.cards[0];
+    Object.assign(item,{
+      name:'Night Stretcher',fullName:'Night Stretcher SFA',
+      set:'SFA',number:'61',setNumber:'61',trainerType:1
+    });
+    let predicateCalls=0;
+    item.canPlay=()=>{predicateCalls++;return true;}; // pinned, broader canPlay predicate
+    state.players[0].discard.cards=entry.discard;
+    const action={type:'PLAY_CARD_ACTION',id:'p0',handIndex:0,
+      target:{player:1,slot:2,index:0}};
+    let dispatches=0;
+    const native=fakeNative({
+      actions:[action,{type:'PASS_TURN',clientId:'p0'}],rejectActionTypes:[],
+      onDispatch(candidate){if(candidate===action)dispatches++;}
+    });
+    const built=buildNativeActionFrontier({state,actorSeat:0,native});
+    assert.equal(predicateCalls,0,'adapter must not trust Night Stretcher canPlay');
+    const playItem=built.actionFrontier.items.find(row=>row.kind==='play-card');
+    assert.equal(Boolean(playItem),entry.expected,entry.name);
+    if(!entry.expected){
+      assert.equal(built.diagnostics.preflightRejectedCount,1);
+      assert.equal(dispatches,0);
+      continue;
+    }
+    assert.equal(built.diagnostics.preflightRejectedCount,0);
+    assert.equal(dispatches,1);
+    const selectedState=cloneState(state);
+    const store={state:selectedState,dispatch(){assert.fail('live Store must not dispatch in cloned validation test');}};
+    dispatchSelectedNativeAction({
+      store,frontier:built,token:playItem.token,state:selectedState,actorSeat:0,native,
+      withValidationRandom:fn=>fn(),dispatch:false
+    });
+    assert.equal(dispatches,2,entry.name+' must survive selected cloned-Store validation');
   }
 });
 
