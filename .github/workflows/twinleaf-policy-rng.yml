@@ -49,8 +49,8 @@ jobs:
     steps:
       - name: Check out research repository
         uses: actions/checkout@v4
-      - name: Verify policy/game stream isolation without Twinleaf
-        run: node --test tests/twinleaf-policy-rng-isolation.test.cjs
+      - name: Verify policy/game stream isolation and independent RNG contract without Twinleaf
+        run: node --test tests/twinleaf-policy-rng-isolation.test.cjs tests/agent37-independent-rng-v1.test.cjs
       - name: Test normal and nested-abort root ledger reconciliation
         run: node --test tests/agent48-native-root-ledger-reconciliation.test.cjs
       - name: Test owner-scoped VS Seeker Supporter prompt and Lillie compatibility
