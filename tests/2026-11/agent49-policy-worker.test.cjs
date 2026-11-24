@@ -97,6 +97,7 @@ function visiblePokemon() {
   return {
     printing: 'Shadow Rider Calyrex VMAX CRE', name: 'Shadow Rider Calyrex VMAX',
     hp: 320, damage: 0, lastPlayedOrEvolvedTurn: 1,
+    abilityLockActivationOrder: null,
     printed: { stage: 'VMAX', subtypes: [], types: ['Psychic'], retreatCost: [],
       weakness: [{ type: 'Fighting', value: '×2' }], resistance: [] },
     specialConditions: [], publicRestrictions: pokemonRestrictions(),
@@ -120,7 +121,7 @@ function mimikyuPokemon() {
 }
 function observation(seat, decisionKind = 'owner-root', promptType = null) {
   return {
-    actorSeat: seat, globalTurn: 1, phase: 2, decisionKind,
+    actorSeat: seat, turnSeat: seat, globalTurn: 1, phase: 2, decisionKind,
     pendingPromptType: promptType, pendingOwnerDeckSearch: false,
     ownHand: ['Shadow Rider Calyrex V CRE'], ownPublic: publicPlayer(),
     opponentPublic: publicPlayer(),
@@ -400,6 +401,22 @@ test('strict actor, prompt, event and metadata schemas reject nested aliases', a
   assert.throws(() => protocol.validateActorObservation({ ...view, opponentPublic: { ...view.opponentPublic, hand: ['hidden'] } }, 0), /UNKNOWN_FIELD/);
   assert.throws(() => protocol.validateActorObservation({ ...view, ownDeckOrder: ['hidden'] }, 0), /UNKNOWN_FIELD/);
   assert.throws(() => protocol.validateActorObservation({ ...view, globalTurn: -1 }, 0), /BAD_ACTOR_OBSERVATION/);
+  const orderedLocks=observation(0);
+  orderedLocks.turnSeat=1;
+  orderedLocks.ownPublic.active.abilityLockActivationOrder=-1;
+  assert.doesNotThrow(()=>protocol.validateActorObservation(orderedLocks,0),
+    'a safe integer sentinel and the other turn seat are valid public facts');
+  const legacyObservation=observation(0);
+  delete legacyObservation.turnSeat;
+  delete legacyObservation.ownPublic.active.abilityLockActivationOrder;
+  assert.doesNotThrow(()=>protocol.validateActorObservation(legacyObservation,0),
+    'missing optional extension fields remain explicitly unknown');
+  const badTurnSeat=observation(0);
+  badTurnSeat.turnSeat=2;
+  assert.throws(()=>protocol.validateActorObservation(badTurnSeat,0),/BAD_TURN_SEAT/);
+  const badLockOrder=observation(0);
+  badLockOrder.ownPublic.active.abilityLockActivationOrder=1.5;
+  assert.throws(()=>protocol.validateActorObservation(badLockOrder,0),/BAD_ABILITY_LOCK_ACTIVATION_ORDER/);
   assert.throws(() => protocol.validateActorObservation({ ...view, decisionKind: 'owner-prompt', pendingPromptType: 'UseAbilityPrompt', pendingOwnerDeckSearch: true }, 0), /BAD_OWNER_DECK_SEARCH_FLAG/);
   const badPlayerRestriction = observation(0);
   badPlayerRestriction.ownPublic.publicTurnRestrictions.gxUsed = 'false';
