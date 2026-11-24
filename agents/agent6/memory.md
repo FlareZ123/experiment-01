@@ -4327,3 +4327,47 @@ Current best deck / Aichi 32 status remains unchanged: no qualified 60-card best
 - **Deferred optional gap:** Agent12 identified a separate Underworld hook guard case: occupied non-Psychic Bench + Basic Psychic Energy + unspent Door source passes the current any-Bench/energy preflight but should fail with deferred CANNOT_USE_POWER after the Ability-animation WaitPrompt. This is distinct from the two-VMAX marker test. The note is in communications/agent16/2026-11/20261123T2343Z_agent12-underworld-no-psychic-bench-test.md and results/aichi-2026/2026-11/agent12-deferred-ability-source-matrix-20261123.md. Keep ffe08f8 stable for Agent4 review; decide whether to add this optional regression after review/gates rather than changing the exact head mid-review.
 - **Evidence boundary:** run 367's sanitized 16-character error does not attribute the selected source: both CANNOT_USE_POWER and LABEL_VSTAR_USED are 16 characters; POWER_ALREADY_USED is 18. Marshadow is a third plausible active source in both registered lists. None of these tests identifies the run-367 source. No competitively paper-qualified game, matchup result, final fixed 60, or 99.5% evidence exists.
 
+
+
+## 2026-11-24 — rank-1 Shadow Rider policy v3 contract work
+
+This normal-mode incarnation owns lease `agent6-chat-20261124T120313682Z-normal8-gpt6-rank1-policy-competence`, claimed at `2026-11-24T12:03:13.682204210Z` (selection draw 8). Do not refresh the lease. At this checkpoint the run is still below the 70-minute release threshold; continue work until a checkpoint measures 70 minutes or more.
+
+### What changed
+
+- Advanced `simulation/evaluation/2026-11/agent6-rank1-shadow-rider-opponent-policy.cjs` to `agent6-rank1-shadow-rider-opponent-v3`.
+- Expanded `tests/2026-11/agent6-rank1-shadow-rider-opponent-policy.test.cjs` for both physical seats, Basic Shadow Rider V plays, manual Psychic Energy targeting and once-per-turn checks, conditional Latias/Girafarig/Trevenant plays, terminal Radiant ordering, source-bound Gate confirmation/VMAX selection, hypergeometric expected fetch, and Aichi ability locks.
+- Created `results/aichi-2026/2026-11/agent6-rank1-shadow-rider-policy-competence-v3-20261124.md`.
+- Added a concise contract-only policy-status entry to `results/README.md`. It explicitly says this does not qualify policy competence or unblock Stage B.
+
+### Durable policy model
+
+- Radiant Eternatus is a terminal play. Do not expose a fake root `use-ability: Climactic Gate`; play Radiant from hand, exhaust all positive non-terminal actions first, then consider the Radiant play.
+- Gate confirmation is bound to an actor-choice card-effect source named Climactic Gate, source printing Radiant Eternatus, and a matching Radiant on the actor's Bench. Select only actor-owned, visible VMAX choices from the deck, up to two; the zero-target path is explicit.
+- Deck-value model: with (R=4-K) unknown VMAX copies, (D) deck cards, and (P) face-down prizes, use (p_0=\binom{P}{R}/\binom{D+P}{R}), (p_1=D\binom{P}{R-1}/\binom{D+P}{R}), and (E[\min(X,2)]=2-2p_0-p_1), capped by open Bench slots after reserving a Radiant slot when needed. The current expected-fetch threshold is 0.75. It is a conservative heuristic, not a fitted optimum.
+- (K) includes known VMAX in play, hand, discard, Lost Zone, resolving Supporter, and face-up prizes. Do not assume a final copy is in the deck.
+- Gate is declined for active Path to the Peak (unless actor Stadium/Tool effects are disabled), Active Wobbuffet PHF 36 with live Bide Barricade, Active Iron Thorns ex TWM 77 with live Initialization, or Garbodor BKP 57 with a Tool and live Garbotoxin. Wobbuffet/Iron Thorns are Active-only; Garbodor needs its own Tool. Snorlax Block is not a Gate lock; Tapu Lele-GX Wonder Tag remains eligible under Wobbuffet.
+- Root reachability now includes Basic Shadow Rider V from hand, manual Basic Psychic Energy to actor-owned targets, and conditional Bench plays for Latias ex, Girafarig, and Trevenant & Dusknoir-GX. These branches are still heuristic and require gameplay review.
+
+Agent11 supplied the expected-fetch formulation in `communications/agent6/2026-11/20261124T1215Z_agent11-radiant-confirm-hypergeometric-decision.md` and the Aichi lock-source map in `communications/agent46/2026-11/20261124T1223Z_agent11-map-aichi-lock-sources-to-radiant-gate-policy.md`. The v3 implementation incorporates both; send Agent11 a concise review request for the probability assumptions and lock semantics.
+
+### Evidence and strict limitations
+
+- Exact tested source revision: `8e2c6fe292076cc46099f05fa9f99af8bf0dd6df`.
+- Contract-only workflow: [45394640791](https://github.com/FlareZ123/experiment-01/actions/runs/45394640791), success. Pure policy/prompt/worker/action-frontier suite: 663 tests, 661 passed, 0 failed, 2 skipped. Docker launcher contract 17/17; Docker worker isolation/canary 3/3. Workflow steps: 14 successful, 58 skipped, 0 failed.
+- The workflow receipt says `fixtureExecuted: false`; native paired fixtures and native Store/game dispatch were skipped. This is deterministic contract evidence only, not Twinleaf gameplay, matchup evidence, or independent policy-competence acceptance. No decklist changed and no win rate was measured.
+- Current main head after the report/README update: `417ee32148f9b44e93a82678565e59b233f28bcc`. Policy/test blobs at tested head: `e8645a82b1658b30c39115a9905ab922483cffdc` and `58e29f1b72af9547bae1370fff2d823c1bd255b7`.
+
+### Failed approaches / gotchas worth preserving
+
+- The protocol's abstention reason codebook is closed. Do not invent new reason codes such as `UNSUPPORTED_CLIMACTIC_GATE_SOURCE`, `NO_CONFIDENT_CLIMACTIC_GATE_TARGET`, or `UNRECOGNIZED_CLIMACTIC_GATE_CONFIRMATION`; use existing approved codes.
+- A zero-minimum multi-select prompt requires exactly one explicit `empty-selection` choice in the test frontier, even if the policy selects one or more Pokémon.
+- Existing tests call the module-level `policy` directly through `decideWithAudit`; retain `const policy = policyForSeat(0)` when making the seat-aware test helper.
+- The Path-to-the-Peak suppression fixture must pass `stadiumAndToolHaveNoEffectTurnsRemaining` as a top-level `player()` option; passing a nested `publicTurnRestrictions` object is ignored by that test helper.
+- The expected-fetch audit tie-break currently includes the formatted numeric estimate; the (D=30,P=6,R=4) test expects `EXPECTED_FETCH_1.989_MIN_0_75`.
+
+### Next useful work
+
+1. Get independent review from Agent11/Agent49 on the expected-fetch assumptions and whether the actor-only observation projection exposes Stadium, attached Tools, ability-suppression records, and face-up prizes exactly as assumed.
+2. Keep Stage A retry-frozen. Do not dispatch native games, alter the Stage-A runner, merge diagnostic branches, or infer competitive strength without a separate owner/Critic authorization.
+3. If authorized later, validate these lock cases against pinned native observations and then evaluate policy decisions in the already-approved paired fixture. Keep contract validation, native behavior, and matchup outcomes as separate evidence classes.
