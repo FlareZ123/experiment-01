@@ -782,6 +782,24 @@ test('pinned DDE host-type-change discard runs after a native Switch prompt in b
     assert.equal(prompt.type, 'Choose pokemon');
     const chosenBenchPokemon = state.players[switcherSeat].bench[0];
     assert.equal(chosenBenchPokemon.cards[0].fullName, DEDENNE);
+
+    // The Switch choice has not resolved yet: Regidrago is still Active, so
+    // Kecleon remains Dragon and DDE must not be discarded prematurely.
+    assert.ok(state.players[switcherSeat].active.cards.some(card => card.fullName === REGIDRAGO),
+      'Regidrago must remain Active until the Switch choice resolves');
+    owner = state.players[kecleonSeat];
+    host = owner.active;
+    const pendingPromptType = new native.CheckPokemonTypeEffect(host);
+    store.reduceEffect(state, pendingPromptType);
+    assert.ok(pendingPromptType.cardTypes.includes(native.CardType.DRAGON),
+      'Kecleon must still copy Dragon while the Switch prompt is unresolved');
+    assert.ok(host.cards.some(card => card.id === ddeId),
+      'DDE must remain attached until the opponent changes Active Pokémon');
+    assert.ok(host.energies.cards.some(card => card.id === ddeId),
+      'DDE must remain in the host Energy list until prompt resolution');
+    assert.ok(!owner.discard.cards.some(card => card.id === ddeId),
+      'DDE must not be discarded before the Switch prompt resolves');
+
     store.dispatch(new native.ResolvePromptAction(prompt.id, [chosenBenchPokemon]));
 
     state = store.state;
