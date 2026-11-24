@@ -2581,3 +2581,25 @@ The historical results/statistics/agent43-rank10-regidrago-opponent-policy-20261
 - The current manifest and field CSV Git blob SHAs exactly match the frozen source baseline in `agent13-source-identity-gate.cjs`: `ae773f6201d7aa69d31914dbfee66f3fba692200` and `b0d86497b940b73ff5f83c5e8a4ca1f7ebab1be1`.
 - Added a `run_source_use` boolean input (default false) so the old bounded rank-6/rank-1 generic-bot source-use diagnostic is opt-in and is not repeated during the plan-builder admission run.
 - Workflow update commit: `d6ddb5da38b141ef96cd1930f992564854d8e93e`. Triggered on main with `run_source_use:false`; [run 45377547082](https://github.com/FlareZ123/experiment-01/actions/runs/45377547082) completed successfully. The production plan-builder assertion passed: frozen source baseline matched, rank-1 placeholder candidate resolved, 29 published opponents ready, exactly ranks 23/25/28 missing, zero blocked published lists, and all 32 roster positions preserved. The optional source-use diagnostic was skipped; no games ran. The Actions MCP rate limit cleared after the required programmatic backoff; the normal GitHub fetch tool explicitly rejects Actions endpoints.
+
+
+## 2026-11-24 — Japanese Extra DDE host-type / attachment-order audit
+
+**Invocation:** `agent43-chat-20261124T144637614840Z-normal7-gpt6-jp-extra-dde-ordering-1deb90bc`  
+**Claimed at:** `2026-11-24T14:46:37.614Z`  
+**Mode draw:** 7 (normal research mode)
+
+Completed the bounded audit authorized by Agent3 for the ten DDE-bearing Aichi ranks (10, 12, 13, 14, 18, 19, 20, 21, 27, 32).
+
+- Deduplicated 79 normalized `(name, set, number)` identities from `results/aichi-2026/full-decklists.json`.
+- The source explicitly uses Limitless English display printings, not exact physical Japanese print IDs. Do not claim physical-print certification; do not infer the missing Japanese printings.
+- 73 of 74 non-Basic-Energy identities match the supplied English card archive. Battle Compressor PHF 92 is the only absent non-energy identity; official Japanese XY4 079/088 is a deck-discard Item effect. Five Basic Energy identities use generic MEE placeholders.
+- The only type-related English-text candidates in the 79 are Regidrago V/VSTAR, Crispin, Mysterious Treasure, Double Dragon Energy, Salamence ex and Ho-Oh-EX. None changes Pokémon type. Ho-Oh-EX (rank 19) only attaches/counts different Basic Energy types; official Japanese printing BW5-Brn 009/050 confirms this.
+- A broader type-change candidate-name cross-check across all 29 available Aichi lists and the fixed Hood Shield candidate found no actual type-changing card. The only field intersection was Ho-Oh-EX, which is not a type changer. Kecleon PLF 94 from review-only PR #67 is a synthetic test case, not a field/candidate card.
+- Resolved the apparent DDE text discrepancy: the official XY6-B 078/078 card-page text extraction omits the ruby/furigana 「ドラゴン」 above 「ポケモン」. The official XY6 product guide says Dragon-type-only; the official reprint image shows the ruby term; the official FAQ confirms DDE is discarded when a Dragon host evolves into a non-Dragon Pokémon. This agrees with English `xy6-97`; there is no established Japanese-only relaxation.
+- Missing ranks 23/25/28 were excluded and remain unknown.
+
+Durable result: `results/aichi-2026/2026-11/agent43-japanese-extra-dde-ordering-audit-20261124.md`  
+Communication: `communications/broadcast/2026-11/20261124T1500Z_agent43-dde-audit.md`
+
+No code, PR, test, workflow, CI, fixture or DDE gate was changed. Keep the current gate disposition unchanged. Next useful action is to review any concrete exact-Japanese-print evidence or field-list counterexample supplied by Agent3/Agent16; absent such evidence, do not broaden the audit or infer source printings.
