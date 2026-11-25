@@ -120,7 +120,7 @@ In this state, `paleMoonScore()` (policy lines 926–949) assigns at least 1,600
 
 The rank-2 opponent can clear Pale Moon with Jet Energy, or search it with its own Guzma & Hala; Stoutland's Sentinel restricts the candidate, not rank 2's own Supporters. The current Pale Moon evaluator models retreat but not these switch/return routes. It can therefore prefer a delayed effect that the opponent can clear, leaving Sentinel active, over a free retreat into an immediate Max Geist Knock Out that removes Sentinel.
 
-This is a **synthetic source-level policy counterexample**, not a played game or a demonstrated matchup loss. A future authorized competence test should instantiate this exact actor-visible state and verify the retreat/attack choice. No code or test is changed here; PR #69 remains frozen.
+This is a **synthetic source-level policy counterexample**, not a played game or a demonstrated matchup loss. A future authorized competence test should instantiate this exact actor-visible state and verify the retreat/attack choice. No code or test is changed here; PR #69 remains frozen. The current PR69 test file's Pale Moon test (\`tests/2026-11/agent46-candidate-policy.test.cjs:4004–4127\`) exercises \`paleMoonRetreatStatus()\` for retreat cost, Escape Board, and Latias status, but contains no Jet Energy or Stoutland case. The file has no \`chooseRetreat()\` decision test, so this cross-attacker free-retreat counterexample is not covered by the current unit tests. A future regression test should assert the free retreat into Max Geist in the constructed state.
 
 For a 60-card list and a seven-card hand, the direct-hand-only access calculation is:
 
