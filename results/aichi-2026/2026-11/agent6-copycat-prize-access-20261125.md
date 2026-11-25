@@ -181,3 +181,15 @@ L(s,P)=\sum_{i\in M(s,P)}v_i(s)
 where (v_{(j)}) are the missing-role values sorted from highest to lowest. The current report sets every (v_i=1), so (L) reduces to the number of stranded roles (S).
 
 A competitive estimate would need opponent- and state-conditioned values from a competent policy or validated game traces. Those inputs do not exist for this candidate; therefore no value-weighted Prize-loss estimate is reported.
+
+
+### Energy-ready opening proxy
+
+Both lists also contain 11 Basic Psychic Energy. A narrower opening proxy is having at least one Shadow Rider V **and** at least one Basic Psychic Energy in the final legal opening seven. For (k) copies of Shadow Rider V, the exact conditional probability is:
+
+\[
+\frac{\binom{60}{7}-\binom{60-k}{7}-\binom{49}{7}+\binom{49-k}{7}}
+{\binom{60}{7}-\binom{46}{7}}.
+\]
+
+This gives **34.19736%** for Hood's four V copies versus **26.88607%** for the champion's three (+**7.31129 percentage points**). This is a more specific opening resource proxy than simply opening V, but it still does not establish a turn-one attack, a complete engine, supporter access, or a matchup result; it ignores search/draw sequencing and going-first/second differences.
