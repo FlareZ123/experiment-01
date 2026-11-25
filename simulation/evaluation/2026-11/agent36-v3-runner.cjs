@@ -213,6 +213,46 @@ const SAFE_V3_FAILURE_CODE_PREFIXES=[
   'NATIVE_','WORKER_','V3_RUNNER_','VALIDATION_','POLICY_','PREDICATE_',
   'ERROR_','ERR_','TEST_','NO_GAME_WITNESS_','UNSUPPORTED_','INVALID_','NOT_','CANNOT_','BAD_','MISSING_'
 ];
+const SAFE_V3_ASSERTION_IDS=new Set([
+  'game-result-schema',
+  'game-not-executed',
+  'native-store-created',
+  'both-players-registered',
+  'native-action-frontier-used',
+  'native-validation-store-mode',
+  'host-stopped-before-live-dispatch',
+  'actor-seat',
+  'actual-first-player-seat',
+  'actor-observation-used',
+  'selected-action-validated',
+  'full-original-store-state-unchanged',
+  'live-action-not-dispatched',
+  'accepted-root-actions-zero',
+  'prompt-provenance-hook-installed',
+  'prompt-provenance-hook-restored',
+  'runtime-pin-guard-restored',
+  'worker-cleanup-verified',
+  'worker-total-failures-zero',
+  'worker-cleanup-failures-zero',
+  'worker-replayable-evidence',
+  'worker-decision-total-',
+  'global-worker-decision-count',
+  'role-seat',
+  'role-root-decision-count-one',
+  'other-role-root-decision-count-zero',
+  'other-role-decision-count-is-prompt-only',
+  'role-frontier-admission-failures-zero',
+  'role-policy-rng-replayable',
+  'target-role-setup-prompt-types-only',
+  'other-role-setup-prompt-types-only',
+  'all-worker-sessions-closed',
+  'worker-process-per-role',
+  'physical-seed-not-disclosed',
+  'policy-seed-not-disclosed',
+  'native-state-not-disclosed',
+  'opponent-private-zones-not-disclosed',
+  'actor-only-worker-input'
+]);
 const SAFE_V3_FAILURE_STAGES=new Set([
   'action-cap','actor-observation','after','after-failed-dispatch','before','cleanup','native-game',
   'dispatch','engine-wait-prompt-resolution','failure-final','fixture',
@@ -265,7 +305,7 @@ function projectV3FixtureFailureForReceipt(source,{
     stage:safeStage
   };
   const assertionId=failure?.assertionId??source?.assertionId;
-  if(typeof assertionId==='string'&&/^[a-z0-9-]{1,64}$/.test(assertionId))result.assertionId=assertionId;
+  if(SAFE_V3_ASSERTION_IDS.has(assertionId))result.assertionId=assertionId;
   for(const key of ['expectedActorSeat','actualActorSeat']){
     const seat=failure?.[key]??source?.[key];
     if(seat===0||seat===1)result[key]=seat;

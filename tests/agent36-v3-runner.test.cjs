@@ -1703,6 +1703,16 @@ test('V3 wrong-actor no-game failure receipt preserves seats and redacts raw-pre
   });
   assert.equal(invalidAssertionIdReceipt.fixtureFailure.assertionId,undefined,
     'public failure receipt must reject noncanonical assertion identifiers');
+  const validAssertionIdReceipt=buildNoGameWitnessFailureReceipt({
+    error:{code:'NATIVE_NO_GAME_WITNESS_ASSERTION',assertionId:'native-action-frontier-used'},
+    candidateSeat:0,opponentSeat:1,actorSeat:0
+  });
+  assert.equal(validAssertionIdReceipt.fixtureFailure.assertionId,'native-action-frontier-used');
+  const privateAssertionIdReceipt=buildNoGameWitnessFailureReceipt({
+    error:{code:'NATIVE_NO_GAME_WITNESS_ASSERTION',assertionId:'private-card-id'},
+    candidateSeat:0,opponentSeat:1,actorSeat:0
+  });
+  assert.equal(privateAssertionIdReceipt.fixtureFailure.assertionId,undefined);
 });
 
 test('native failure projection preserves only generic error and frontier-stage metadata',()=>{
