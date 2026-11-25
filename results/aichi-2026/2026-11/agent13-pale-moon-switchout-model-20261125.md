@@ -4,7 +4,7 @@
 **Date:** 2026-11-25  
 **Decision relevance:** candidate-policy competence disposition for the Pale Moon-GX line in PR #69. This is not a deck nomination, matchup result, or win-rate estimate.
 
-> **Revision note (revision 3):** The field/access corrections from revision 2 remain. This revision withdraws the earlier Stoutland synthetic policy counterexample after Agent11's independent score review: the frozen policy chooses an immediate Night Watch or Max Geist Knock Out, not Pale Moon, in that state. It replaces that example with a separate conditional rank-2 Vileplume-GX / Pidgeot ex / Cassius-or-Jet-Energy decision-risk state, with the no-Shadow-Rider-VMAX / no-Underworld-Door condition made explicit. Neither example is a played game or matchup result.
+> **Revision note (revision 4):** The revision-3 Stoutland withdrawal and conditional rank-2 Pidgeot state remain. This revision qualifies the Pidgeot access prior with Guzma's both-Bench requirement and distinguishes the three-out case (candidate Bench not established) from the five-out case (both Benches present). It also adds a hand-only sensitivity when Quick Search has already been used. These remain conditional hidden-zone access calculations, not games or matchup results.
 
 ## Field audit: direct effect-clear, switch and return outs
 
@@ -118,7 +118,7 @@ A different, conditional state does expose a source-level decision risk in the f
 - Candidate has **no Shadow Rider Calyrex VMAX in play** (so there is no Underworld Door source), no live Latias ex / Skyliner, no live Float Stone on the Active, no other powered Benched attacker, and no higher-scored card play or usable Ability. Thus no free-retreat or Underworld Door line preempts the attack choice.
 - Opponent Active: Vileplume-GX CEC 4, 240 HP, two-Colorless Retreat Cost, zero Energy, and no effective retreat Tool.
 - Opponent Bench: Pidgeot ex OBF 164 with Quick Search available; the opponent's Vileplume AOR 3 remains in play to impose Item lock.
-- Quick Search is unused. At least one out is accessible in hand or deck: **Cassius XY 115** with the Supporter play unused, or **Jet Energy PAL 190** with the manual Energy attachment unused. If an out is in deck, Pidgeot ex can search it; if it is in hand, it can be used directly.
+- Quick Search is unused. At least one out is accessible in hand or deck: **Cassius XY 115** with the Supporter play unused, or **Jet Energy PAL 190** with the manual Energy attachment unused. If an out is in deck, Pidgeot ex can search it; if it is in hand, it can be used directly. The synthetic state does **not** specify a candidate Bench, so the baseline three-out estimate excludes rank 2's two **Guzma** copies. If the candidate also has a Benched Pokémon, Guzma becomes an additional eligible Supporter switch route.
 
 This is a possible state in authenticated Aichi rank 2 Takahiro Ando's original list: it contains Pidgey ×2, Pidgeotto ×2, Pidgeot ex ×2, Vileplume AOR ×2, Vileplume-GX ×1, Cassius ×1, Guzma ×2, Jet Energy ×2, and Guzma & Hala ×4. Vileplume AOR's Item lock does not suppress Pidgeot ex's Ability or prevent a Supporter or Energy play.
 
@@ -155,6 +155,26 @@ P(\text{accessible})=1-\frac{\binom{6}{k}}{\binom{43}{k}}.
 
 This assumes the listed remaining copies are not already in public discard or attached zones. Any publicly identified copy in discard, attached, or a revealed Prize must be removed from k and the unknown-pool sizes recomputed; unrevealed Prizes remain among P and are inaccessible. It is a conditional hand/deck access prior only, not the probability of reaching this board, the opponent choosing the out, or a game/match result. **Do not add these values to the existing 31.54% direct-hand prior**: the events overlap, and this calculation is a separate Pidgeot-enabled union under explicit action/zone assumptions.
 
+**Guzma qualification and Quick Search sensitivity (revision 4).** Agent4 correctly noted that Guzma SM3 115 switches the opponent's Benched Pokémon with its Active Pokémon and then switches your own Active Pokémon with one of your Benched Pokémon. Therefore, Guzma requires **both players to have a Bench**. The opponent Bench is specified by Pidgeot ex in the synthetic state, but the candidate Bench is not; the original three-out Cassius + Jet Energy estimate is consequently the conservative state-as-written calculation. If the candidate also has a Benched Pokémon, both Guzma copies are additional eligible Supporter outs, provided the Supporter play remains unused. With both Benches present, Quick Search unused, and both the Supporter and manual Energy-attachment windows unused, the eligible set is Cassius ×1 + Guzma ×2 + Jet Energy ×2 (k=5).
+
+| Eligible out set | k | Conditional access with Quick Search unused |
+|---|---:|---:|
+| Cassius ×1 | 1 | 86.05% |
+| Jet Energy ×2 | 2 | 98.34% |
+| Cassius + Jet Energy ×2 (candidate Bench absent; Guzma excluded) | 3 | 99.84% |
+| Cassius + Guzma ×2 (both Benches; Energy attachment spent) | 3 | 99.84% |
+| Cassius + Guzma ×2 + Jet Energy ×2 (both Benches and both action windows unused) | 5 | **99.9994%** |
+
+The five-out result is (1-\binom{6}{5}/\binom{43}{5}=99.9993767\%\). It is not applicable when the candidate has no Bench, the Supporter play is spent (exclude Cassius and Guzma), or the Energy attachment is spent (exclude Jet Energy). If the Supporter play is spent, only Jet Energy ×2 remain; if the attachment is spent, Cassius + Guzma ×2 remain only when both Benches are present.
+
+If Quick Search has already been used or is suppressed, deck copies are no longer accessible through Pidgeot. The relevant event becomes “at least one eligible out is in hand”:
+
+\[
+P(\text{hand access})=1-\frac{\binom{D+P}{k}}{\binom{N}{k}}.
+\]
+
+For the same synthetic H=7, D=30, P=6, N=43 pool, the hand-only access is **42.14%** for the three-out no-candidate-Bench case and **60.84%** for the five-out both-Benches case. These sensitivities assume all relevant action windows remain unused and do not include other draw/search routes. The five-out estimate must not be read as a 99.9994% chance of escaping Pale Moon in a game: it is only the chance that at least one eligible card is in hand or searchable from deck under the stated hidden-zone and action-window assumptions.
+
 
 This is a **conditional, source-derived policy-risk state**, not a played game, demonstrated matchup loss, or full-competence finding. It shows that the frozen heuristic treats “cannot retreat” as “cannot clear the delayed effect” and awards extra-Psychic value against a zero-Energy target. It does not show that an opponent will always find or choose an out, that the state is frequent, or that the candidate loses a matchup. The candidate actor view does not expose the opponent's hidden deck composition. Any future policy correction must therefore use an explicitly permitted public registered-deck prior or a conservative response to visible board information; it must not read hidden opponent zones or assume the worker already knows the rank-2 list.
 
@@ -173,7 +193,7 @@ Remaining limitations: Jet Energy is not included in the aggregate or list-level
 - Source: [authenticated Aichi decklists](../full-decklists.json), 29 published 60-card lists.
 - Original baseline: [Agent46 static prior](agent46-pale-moon-switch-out-prior-20261125.md).
 - Prior policy audit: [Agent21 policy-gap audit](agent21-pale-moon-switch-out-policy-gap-20261125.md).
-- Card text: [Jet Energy PAL 190](../../../resources/cards/en/sv2.json), [Pokémon Ranger XY 104](../../../resources/cards/en/xy11.json), [Prime Catcher TEF 157](../../../resources/cards/en/sv5.json), [Cassius XY 115](../../../resources/cards/en/xy1.json), [Penny SVI 183](../../../resources/cards/en/sv1.json), [Arven OBF 186](../../../resources/cards/en/sv3.json), [Guzma & Hala CEC 193](../../../resources/cards/en/sm12.json), [Float Stone BKT 137](../../../resources/cards/en/xy8.json).
+- Card text: [Jet Energy PAL 190](../../../resources/cards/en/sv2.json), [Pokémon Ranger XY 104](../../../resources/cards/en/xy11.json), [Prime Catcher TEF 157](../../../resources/cards/en/sv5.json), [Cassius XY 115](../../../resources/cards/en/xy1.json), [Guzma SM3 115](../../../resources/cards/en/sm3.json), [Pidgeot ex OBF 164](../../../resources/cards/en/sv3.json), [Penny SVI 183](../../../resources/cards/en/sv1.json), [Arven OBF 186](../../../resources/cards/en/sv3.json), [Guzma & Hala CEC 193](../../../resources/cards/en/sm12.json), [Float Stone BKT 137](../../../resources/cards/en/xy8.json).
 - Effect-removal ruling: [Advanced Player's Manual](../../../resources/manual/EN_advanced_manual-2025-transcription-structured.md), C-02 and the attack-effect section. See also [Agent11's Jet Energy field correction](../../../communications/agent13/2026-11/20261125T1348Z_agent11-jet-energy-pale-moon-switchout.md).
 - Calculator: [agent13-pale-moon-switchout-model.cjs](../../../scripts/agent13-pale-moon-switchout-model.cjs).
 - Focused tests: [agent13-pale-moon-switchout-model.test.cjs](../../../tests/2026-11/agent13-pale-moon-switchout-model.test.cjs). Local Node test run: 14 passed, 0 failed. No CI workflow was added or manually dispatched.
