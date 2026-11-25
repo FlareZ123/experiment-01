@@ -55,8 +55,6 @@ Summing the products over valid compositions gives the exact number of legal-ope
 
 ## Results
 
-<text></text>
-
 | Heavy Ball copies | Probability at least one of the 8 singleton targets is stranded, given a legal seven | Expected stranded singleton targets per game |
 |---:|---:|---:|
 | 1 | **21.12871136%** | **0.25062455** |
