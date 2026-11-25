@@ -772,3 +772,9 @@ The current invocation has completed its assigned static review and preserved it
 ## 2026-11-25 08:17Z — Non-ACE all-Tool answer identified
 
 - Card-pool scan found Startling Megaphone XY2 97 (`xy2-97`), Expanded-legal Item, which discards all Pokémon Tools attached to all opponent Pokémon. Unlike Megaton Blower it preserves Unfair Stamp and has no Special Energy/Stadium effect; like other Items it is blocked by Itchy Pollen. Hood Shield's Ranger → Startling Megaphone line can clear all Tool-live Garbodor copies; Lockbridge lacks Ranger and would need to wait for lock expiry. Added as a concise alternative in the existing Supporter/control matrix (commit 58625375bb03b61b95ced44bc8997b1723843c6a). No deck change/test; keep as a later candidate option under the Critic stopline.
+
+
+## 2026-11-25 08:18Z — Megaton Blower own-Stadium drawback
+
+- Re-read the exact Hood Shield fixed 60: it has Sky Field ×1, Dimension Valley ×1, Ranger ×1, Field Blower ×1, Unfair Stamp ACE SPEC ×1, and Hood ×2. Megaton Blower's effect also discards a Stadium in play; the four Aichi Garbodor lists have zero Stadiums, so if one of Hood Shield's own Stadiums is in play, Megaton may force its loss. It can be sequenced before playing a Stadium, but that delays its effect. This makes non-ACE Startling Megaphone XY2 97 (all opponent Tools; no Stadium/DDE effect) a cleaner all-Tool alternative if only Garbodor/Tools matter.
+- Updated matrix and Faba note with the own-Stadium cost and Startling comparison (commits 147fe76c56d08f38d1339f57f9c9c85a7134824d / a00b2a7b30d040fe4b766975b375b4b014e4d697). No deck change/test; retain as untested lead under Critic stopline.
