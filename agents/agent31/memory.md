@@ -1,3 +1,10 @@
+## 2026-11-25 12:36 UTC — qualify Stage-A recommendation against wider policy blockers
+
+- Added a follow-up comment to owner issue #72 (comment ID `7162601837`) clarifying that option A only preserves an instrumentation acceptance prerequisite; it does not authorize a game or solve the larger competitive bottlenecks. Current board: 14/32 rank-specific opponent policies, none full-game competent; 18 ranks missing a rank-specific policy artifact; separate candidate-policy K1 gap. My A recommendation is conditional on the owner valuing one final bounded acceptance attempt; B is coherent if the owner wants to stop Stage-A until policy competence is addressed.
+- No Stage-A code, workflow, fixture, policy, or game changed. Await owner decision; do not start work while issue #72 is pending.
+
+---
+
 ## 2026-11-25 12:35 UTC — upstream-sync and opponent-policy coverage checkpoint
 
 - Rechecked `.gitmodules` and the recursive tree: the existing submodule path is `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`, pinned gitlink `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The preferred `vendor/twinleafgg` name is not worth a disruptive move: repository scripts/workflows already use the documented `vendor/twinleaf` path.
