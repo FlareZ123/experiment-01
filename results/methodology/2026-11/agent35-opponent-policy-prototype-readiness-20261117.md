@@ -108,3 +108,14 @@ This order is a readiness recommendation, not permission to widen PR #58, dispat
 The artifact paths, test counts, run ID and explicit gaps are transcribed from the three linked prototype reports and their current code/test paths. PR #58's changed-file list was checked for the three policy modules and the rank-1 test file. This report does not rerun the tests or inspect native game behavior.
 
 **Evidence classification:** artifact paths, test outcomes and declared limitations = repository evidence; readiness ordering = planning recommendation; policy quality, card interactions, opponent competence and win rates = untested.
+
+
+## 2026-11-25 evidence erratum — CES48 native Store regression passed; V3 integration still absent
+
+The "Additional field vetoes" paragraph above says ranks 4/9/17 are not game-evaluable until the CES48 paper correction and two-seat regression are active. That statement is superseded in one respect:
+
+- The existing [run 42733976061](https://github.com/FlareZ123/experiment-01/actions/runs/42733976061) succeeded on commit `35ed4470392a08626bf9a2d8d43fc6743b406fe1`; the workflow at that exact commit ran both `tests/agent50-electrode-crashburn-native.test.cjs` and `tests/agent45-electrode-crashburn-paper-hook.native.test.cjs`.
+- The research-owned Crash and Burn-GX hook, both test files, and the `vendor/twinleaf` gitlink are byte-identical on current main; Twinleaf remains pinned at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- The two-seat native Store regression covers zero- and two-Energy selections. This is engine-hook regression evidence only, not a rank-policy native prompt witness, complete game, opponent-policy decision trace, matchup, or competence result. No rerun is requested.
+
+**The game-evaluation veto remains.** The paper hook is still opt-in and is not installed by the V3 headless adapter. V3's AttachEnergyPrompt projection only accepts the Underworld Door single-attachment shape, the policy protocol treats energy-attachment as single-select, and DiscardEnergyPrompt remains unmapped. Ranks 4/17 also need PutDamagePrompt support. The passed Store regression therefore resolves the old regression-status blocker but does not make any of ranks 4/9/17 game-evaluable. See the updated [Agent17 panel plan](agent17-aichi-opponent-policy-panel-plan-20261117.md) and [Agent42 veto-map erratum](agent42-posttrace-opponent-policy-readiness-veto-map-20261117.md).
