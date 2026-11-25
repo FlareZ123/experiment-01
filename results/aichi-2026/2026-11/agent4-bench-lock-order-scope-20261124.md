@@ -96,16 +96,16 @@ This is a static observation/policy review only. It does not validate a native i
 The rank-1 policy's explicit suppression tests are synthetic branch tests, not actor-observation integration. For example, `tests/2026-11/agent6-rank1-shadow-rider-opponent-policy.test.cjs:4140-4170` hand-constructs a Benched Clefairy with `abilitySuppressions: [{ abilityName: 'Fairy Zone', suppressed: false }]`; the corresponding unknown fixture omits that field. The live actor-observation adapter instead emits `suppressed:null`, `reasonCode:null`, and `sourcePrinting:null` for every ability entry. Thus the passing explicit-false test proves only that the policy's known-unsuppressed branch behaves as authored; it does not prove the real adapter can ever supply that branch. No current end-to-end test demonstrates an actor-observation record with source-attributed Fairy Zone or Gate suppression reaching the rank-1 policy. Keep this distinction explicit: branch logic is contract-tested, live source attribution is not.
 
 
-### Opponent-side scope reminder
+### Symmetric Wobbuffet scope
 
-Wobbuffet PHF's Bide Barricade is an **opponent-side** lock: while Wobbuffet is Active, it removes Abilities from the opponent's non-Psychic Pokémon in play, not from its controller's own board. Thus the Radiant Eternatus row above applies when Wobbuffet is on the opposing side; it does not suppress its controller's own Radiant. The same opponent-only distinction matters for Flutter Mane and Slaking. Do not model these as global both-side sources like Path to the Peak, Silent Lab, Iron Thorns, or Tool-live Garbotoxin.
-
-
-### Rank-1 Gate helper: Wobbuffet is incorrectly treated as a both-side source
-
-Static review of `agent6-rank1-shadow-rider-opponent-policy.cjs:346-349` found that `isGateAbilitySuppressed()` scans `[own, opponent]` for Active Wobbuffet. Bide Barricade is opponent-only: an Active Wobbuffet suppresses the opponent's non-Psychic Pokémon, not its controller's own Radiant Eternatus. The helper should therefore consider only `opponent.active` for Wobbuffet. By contrast, Klefki and Iron Thorns have both-side scopes, so scanning both players is correct; Neutralizing Gas and Slaking are already checked only on the opponent side.
-
-This is a generic policy bug, not necessarily exercised by the current Hood Shield Shadow Rider fixed pair (neither deck includes own Wobbuffet). If a future candidate controls Wobbuffet, the current helper can falsely block its own Climactic Gate. The minimal separately authorized correction is an opponent-only check plus paired tests (opponent Active Wobbuffet blocks own Gate; own Active Wobbuffet does not). Do not fold this into the Stage-A instrumentation patch.
+Wobbuffet PHF's Bide Barricade is **symmetric**: if Wobbuffet is Active, each Pokémon in play, in each player's hand, and in each player's discard pile has no Abilities except Psychic Pokémon. It suppresses non-Psychic Pokémon on both sides, including its controller's own Radiant Eternatus. It does not suppress Psychic Garbodor, Psychic Alolan Muk, Psychic Clefairy, or Psychic Shadow Rider. This is distinct from opponent-only locks such as Flutter Mane and Slaking, and from both-side locks such as Path to the Peak, Silent Lab, Iron Thorns, and Tool-live Garbotoxin.
 
 
-The current regression `tests/2026-11/agent6-rank1-shadow-rider-opponent-policy.test.cjs:3660-3692` verifies only an **opponent** Active Wobbuffet (and an opponent Benched Wobbuffet); it has no own-Active-Wobbuffet case. Add the paired own-side negative case if/when the separate policy correction is authorized.
+### Rank-1 Gate helper: Wobbuffet's both-side scan is correct
+
+Static review of `agent6-rank1-shadow-rider-opponent-policy.cjs:346-349` found that `isGateAbilitySuppressed()` scans `[own, opponent]` for Active Wobbuffet. This is consistent with the exact Bide Barricade text in `resources/cards/en/xy4.json`: “each Pokémon in play, in each player's hand, and in each player's discard pile” has no Abilities except Psychic Pokémon. An own Active Wobbuffet therefore does suppress its controller's own non-Psychic Radiant Eternatus; do not change the helper to opponent-only. Klefki and Iron Thorns are also both-side sources, while Neutralizing Gas and Slaking are opponent-only.
+
+This is not a policy bug. The current regression `tests/2026-11/agent6-rank1-shadow-rider-opponent-policy.test.cjs:3660-3692` verifies opponent Active/Bench Wobbuffet but does not explicitly test the symmetric own-Active positive case. Adding that test would improve coverage if separately authorized, but the missing test is not evidence that the implementation is wrong.
+
+
+The current regression `tests/2026-11/agent6-rank1-shadow-rider-opponent-policy.test.cjs:3660-3692` verifies opponent Active/Bench Wobbuffet but lacks an own-Active positive case. Add one if separately authorized to lock in the symmetric printed scope.
