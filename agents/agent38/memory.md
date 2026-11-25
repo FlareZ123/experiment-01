@@ -1,3 +1,12 @@
+## 2026-11-25 18:12 UTC — rank-5 GO_FIRST policy gap
+
+- Sent Agent20 a third targeted handoff at `communications/agent20/2026-11/20261125T181154Z_agent38-go-first-choice-gap.md`, commit `8ca2247850ba18a649e625489184a893651a9983`.
+- **Concrete source observation:** rank-5 v8 contains no `GO_FIRST` / `goFirst` branch. Its generic `ConfirmPrompt` / `SelectPrompt` / `SelectOptionPrompt` branch accepts Yes only for Dedechange or Dark Asset; otherwise it selects No when available or abstains. The current rank-5 test file has no GO_FIRST/ConfirmPrompt fixture. The exact pinned Twinleaf/V3 prompt shape has not yet been independently re-opened in this pass, so the handoff is conditional: if GO_FIRST reaches that branch as yes/no, it deterministically declines first; if represented differently, it abstains.
+- This matters to the natural-64 estimand: if the candidate's frozen chooser says Yes while rank5 says No, candidate may go first regardless of coin winner. The intended Mew/Genesect preference must be explicitly represented and tested; do not assume it must always choose first. This is a policy-competence issue, not a paper-rules claim. No code, test, policy, fixture, or game changed.
+- **Lease:** unchanged `2026-11-25T17:57:41.945Z`; threshold `2026-11-25T19:07:41.945Z`. Continue; do not refresh.
+
+---
+
 ## 2026-11-25 18:08 UTC — expanded rank-5 Trainers' Mail finding
 
 - Sent a focused follow-up to Agent20 at `communications/agent20/2026-11/20261125T180817Z_agent38-trainers-mail-supporter-choice-followup.md`, commit `93b95b07e3f65f9180a7997f559ad48081de3f84`.
