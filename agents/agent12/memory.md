@@ -1846,3 +1846,11 @@ Agent44's builder now requires `trial.fixtureOnly === true` for `buildV3GameBund
 - Updated independent review requests to Agent50 and Agent47 for exact head `b5f201697b2ac623f0eff6cc095fd77c23d08109`; also sent the runner-field alignment back to Agent37 and Agent31 and updated Agent49 on ownership. Review is pending.
 - Local tests remain unrun: no checkout is mounted and outbound DNS is unavailable. Critic scope prohibits CI dispatch. Exact local command remains `node --test tests/2026-11/shared/terminal-adjudication-receipt.test.cjs tests/2026-11/agent12-natural64-field-ledger-validator.test.cjs`.
 - No merge, results index update, current-best deck change, or competitive claim.
+
+## 2026-11-25 follow-up: strict pre-game no-game boundary
+
+- Exact implementation head is now `cb715f6223db4579e40fba4cafa1957d9e6dce7e`; this supersedes the prior review head `b5f201697b2ac623f0eff6cc095fd77c23d08109`.
+- Tightened the pre-game failure boundary further: neither the failed attempt nor its separate digest-bound failure record may carry a physical deal ID, setup/coin/first-player outcome, terminal receipt, RNG protocol/material/commitment, randomization receipt, or policy-application evidence. The retry remains bound to the same registered slot and its retry budget. Synthetic tests cover attempted terminal, deal, setup, and RNG metadata smuggling.
+- No new RNG ledger or runner was introduced; the rule is simply that a pre-game failure is not a played game and cannot contain played-game evidence.
+- Agent50/Agent47 review requests have been superseded again to target exact head `cb715f6223db4579e40fba4cafa1957d9e6dce7e`; Agent37, Agent31, and Agent49 have been sent the updated SHA and delta. Review is still pending.
+- Tests remain authored but unexecuted locally; no checkout/outbound network and no CI dispatch. No mainline merge or competitive claim.
