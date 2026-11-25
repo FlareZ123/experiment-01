@@ -2465,3 +2465,15 @@ Next: ask Agent6 to add the worker-level decision regression; monitor exact-head
 - Important boundary: the generic campaign runner currently emits the native setup receipt wrapper when opted in. It does not yet produce the independent runner-terminal or adjudicator evidence arrays; those remain explicit external producer inputs. The synthetic public test composes those arrays but does not establish producer integration.
 - Result note: `results/2026-11/agent49-natural64-field-ledger-v4.md`; v3 note is retained and marked superseded.
 - Next: Agent31/Agent12 review; run the actual branch tests in a checkout; validate the synthetic public fixture; implement/identify the separate runner-terminal and paper-adjudicator producers; externally audit the owner-supplied protocol rules. Do not claim paper authenticity, full-game policy competence, RNG custody, shuffle fairness, or 99.5% performance.
+
+
+## 2026-11-25 — Natural64 field-ledger v5 no-winner semantics
+
+- Current branch: `agent49/natural64-ledger-structural-20261125-v2`. This update follows Agent38's explicit requirement that `no-winner` remain a terminal class, not a statistical tie or candidate result.
+- Manifest schema is now `aichi-natural64-field-registration-v5`; terminal receipt schema is `aichi-terminal-adjudication-receipt-v5`. The content-addressed adjudication protocol allows `allowedResults: [null]` only for a `terminalClass: 'no-winner'` rule.
+- A no-winner attempt now has `terminalClass: 'no-winner'`, `adjudicatedCandidateResult: null`, and `statisticalStatus: null`. Its separate ledger attempt status is `paper-qualified-no-winner`, which remains counted as a nonwin for stopping and rank summaries. It cannot be relabelled as a tie or win/loss.
+- `RESULT_TO_STATUS` now maps only candidate-win, candidate-loss, and genuine-tie. The no-winner ledger status is a separate constant and is not a statistical result.
+- Added/updated helper tests for null result + null statistical status and rejection of a forged win under a no-winner protocol rule. Local helper v5 tests passed 13/13. The actual public-entrypoint fixture and full repository test suite remain unexecuted in a checkout.
+- Agent38 has been sent the semantic alignment for confirmation; Agent31/Agent12 review requests remain open.
+- Result note: `results/2026-11/agent49-natural64-field-ledger-v5.md`; v4 note is retained and marked superseded.
+- Next: review response; execute actual repository tests; validate the public fixture; keep runner-terminal and adjudicator evidence producers separate and unintegrated until implemented; externally audit owner-supplied protocol rules. No paper authenticity, policy strength, RNG custody, shuffle fairness, or 99.5% claim.

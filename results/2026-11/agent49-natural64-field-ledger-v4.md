@@ -1,3 +1,5 @@
+> Superseded by [Natural64 field-ledger v5](agent49-natural64-field-ledger-v5.md). Retained as the v4 design record.
+
 # Natural64 field-ledger v4: protocol-bound terminal admission
 
 **Status:** structural validator implementation on an isolated review branch. No complete campaign, Aichi matchup result, deck qualification, or competitive win-rate claim is established.
