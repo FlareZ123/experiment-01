@@ -8,9 +8,9 @@
   "producerBindingStatus": "prototype only; not inserted into the signed/hash-bound V3 policy plan",
   "policyModule": {
     "path": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "gitBlobSha1": "2f861f5e7b34fd57fdf19889f6507bf0148c2bcb",
-    "sha256": "281e6345c0c945a82c8be304365999ee21887768077678c3484e6f5c19e6d2cd",
-    "policyVersion": "agent17-rank3-snorlax-stall-opponent-v1.1",
+    "gitBlobSha1": "7706de06082e2c1e2e06dfa1685a8cc06d8b011c",
+    "sha256": "6f1cba46292d234eb1a71c9482b893a5ee933066f0c14fe350088ee4e0bc4c85",
+    "policyVersion": "agent17-rank3-snorlax-stall-opponent-v1.2",
     "config": {},
     "imports": [],
     "externalRuntimeDependencies": [],
@@ -140,10 +140,10 @@
   },
   "testSuite": {
     "path": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "gitBlobSha1": "2b578dffeb5053096e56a64118d5318ec4a0a2e4",
-    "sha256": "db3f60adc577474e57b86371fa09b9b8ef74bc265dc282034682d9fa2c657071",
+    "gitBlobSha1": "44b3044a176cd0c9d5ca17d759896efbb35562ab",
+    "sha256": "fdf026ca37245f6195e4f98b134a125d0145221d1210cba35d5daa1d9da3334e",
     "testFramework": "node:test source file",
-    "localExecution": "V8 deterministic harness; exact pinned worker source d51ea95c457d61b50a9ee114d342eb17f4350451 plus actual policy/test sources evaluated; 49/49 tests passed; no node --test, worker IPC, or native game.",
+    "localExecution": "49/49 deterministic V8 shim cases passed against exact pinned worker blob d51ea95c457d61b50a9ee114d342eb17f4350451; harness injects the pinned worker at the test require boundary. Not node --test, worker IPC, or a native rank-3 game.",
     "testCount": 49
   },
   "commonConstraints": {
@@ -154,7 +154,7 @@
     "policyCommit": null,
     "testCommit": null,
     "baselineMainCommitAtInitialInspection": "2a86d357bf5ae699148f0fa7ce74c497e6973d49",
-    "currentMainAtManifestUpdate": "fcac5ca581c7be60a8080b57e2cfc58a12f0b7e8"
+    "currentMainAtManifestUpdate": "536fad6aaad7f7ecf5187cf091a77fe2f6e96071"
   },
   "hashDefinitions": {
     "fileSha256": "SHA-256 of exact UTF-8 file bytes",
@@ -341,7 +341,9 @@
       "policyUse": "scores 95,90,80,65,50,35 for hand sizes 0-5; score 0 if own deck <=2; subtract 15 when opponent handCount <=2 and 20 when own deckCount <=4",
       "placement": "only play from hand when no Stadium is already in play",
       "recovery": "Land Maker score 150; Lusamine score 135",
-      "confidence": "synthetic actor-view heuristic only; native card-effect hook separately verified; no complete rank-3 game"
+      "confidence": "synthetic actor-view heuristic only; native card-effect hook separately verified; no complete rank-3 game",
+      "terminalSequencing": "The policy defers positively scored non-terminal actions before choosing attack/pass or supported draw-and-end-turn Stadium uses; synthetic competing-action tests cover Player's Ceremony and Tropical Beach versus beneficial retreat.",
+      "openQuestion": "Opponent low-deck incentives and paper partial-draw interpretation remain unmodeled/unverified; the effect is optional."
     }
   }
 }

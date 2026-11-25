@@ -5,16 +5,16 @@
   "status": "prototype-not-attestable",
   "attestationStatus": "blocked",
   "policy": {
-    "policyId": "agent17-rank3-snorlax-stall-opponent-v1.1",
-    "policyVersion": "agent17-rank3-snorlax-stall-opponent-v1.1",
+    "policyId": "agent17-rank3-snorlax-stall-opponent-v1.2",
+    "policyVersion": "agent17-rank3-snorlax-stall-opponent-v1.2",
     "role": "opponent-policy",
     "sourceRank": 3,
     "policyProducerId": "agent17",
     "bundleProducerId": null,
     "producerBindingStatus": "not bound into signed/hash-bound V3 plan; standalone prototype only",
     "modulePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "moduleBlobSha1": "2f861f5e7b34fd57fdf19889f6507bf0148c2bcb",
-    "moduleSha256": "281e6345c0c945a82c8be304365999ee21887768077678c3484e6f5c19e6d2cd",
+    "moduleBlobSha1": "7706de06082e2c1e2e06dfa1685a8cc06d8b011c",
+    "moduleSha256": "6f1cba46292d234eb1a71c9482b893a5ee933066f0c14fe350088ee4e0bc4c85",
     "config": {},
     "deterministic": true,
     "gamesPlayed": 0,
@@ -145,15 +145,15 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json",
-    "manifestSha256": "eb005c2aef84248bfffc803e9720fb6d28b08a512393ed8bf614d1af148067ae",
+    "manifestSha256": "f4eb4c863844d7aef728038f7093908e8fb7368c7de249fe3dca4a0a1fcb4db4",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "testFilePath": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "testFileBlobSha1": "2b578dffeb5053096e56a64118d5318ec4a0a2e4",
-    "testFileSha256": "db3f60adc577474e57b86371fa09b9b8ef74bc265dc282034682d9fa2c657071",
+    "testFileBlobSha1": "44b3044a176cd0c9d5ca17d759896efbb35562ab",
+    "testFileSha256": "fdf026ca37245f6195e4f98b134a125d0145221d1210cba35d5daa1d9da3334e",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
@@ -171,10 +171,10 @@
     "developmentTestCount": 49,
     "unitTestsPassed": 49,
     "unitTestsFailed": 0,
-    "actorRequestCount": 60,
-    "decisionReceiptCount": 59,
+    "actorRequestCount": 62,
+    "decisionReceiptCount": 61,
     "promptTypeCounts": {
-      "root-action-frontier": 28,
+      "root-action-frontier": 30,
       "ChooseCardsPrompt": 22,
       "ChoosePokemonPrompt": 6,
       "UnknownNativePrompt": 1,
@@ -182,7 +182,7 @@
       "ChoosePrizePrompt": 2
     },
     "selectionTypeCounts": {
-      "none": 45,
+      "none": 47,
       "card-combination": 14,
       "energy-payment": 1
     },
@@ -2412,7 +2412,7 @@
       "caseId": "r3-dev-11-player-s-ceremony-shared-draw-two-and-empty-stadium-gate",
       "split": "development",
       "caseClass": "policy-decision",
-      "objective": "Player's Ceremony shared draw-two use is gated by hand/deck state and placement only occurs with no Stadium in play",
+      "objective": "Player's Ceremony and Tropical Beach draw-and-end-turn uses are deferred until positively scored non-terminal actions, such as a beneficial retreat, have been completed.",
       "evidenceClass": "synthetic",
       "actorView": {
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
@@ -2629,6 +2629,106 @@
               "emptySelection": false,
               "cancel": false
             }
+          },
+          {
+            "requestIndex": 5,
+            "digestSha256": "948526887ac0a35f04171ca8c019f13c6c48999b68f535e5163134dfe32fb86f",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "role": "opponent",
+              "seat": 0,
+              "actorSeat": 0,
+              "ownHandCount": 1,
+              "ownActive": "Snorlax TEU 158",
+              "ownBench": [
+                "Bunnelby SVI 164"
+              ],
+              "opponentHandCount": 5,
+              "opponentHandRevealed": false,
+              "opponentActive": null,
+              "opponentBench": [],
+              "ownDeckCount": 20,
+              "opponentDeckCount": 20,
+              "ownPrizeCount": 6,
+              "opponentPrizeCount": 6
+            },
+            "promptCoverage": {
+              "promptType": null,
+              "frontier": [
+                {
+                  "kind": "use-stadium",
+                  "actorPrinting": "Player's Ceremony SP 127",
+                  "targetPrinting": null,
+                  "attackName": null,
+                  "abilityName": null
+                },
+                {
+                  "kind": "retreat",
+                  "actorPrinting": null,
+                  "targetPrinting": "Bunnelby SVI 164",
+                  "attackName": null,
+                  "abilityName": null
+                },
+                {
+                  "kind": "pass",
+                  "actorPrinting": null,
+                  "targetPrinting": null,
+                  "attackName": null,
+                  "abilityName": null
+                }
+              ]
+            }
+          },
+          {
+            "requestIndex": 6,
+            "digestSha256": "6e6944428a95c8264bb32667a1f8e3e802ce9c290a8693c8ef9be7716514366d",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "role": "opponent",
+              "seat": 0,
+              "actorSeat": 0,
+              "ownHandCount": 1,
+              "ownActive": "Snorlax TEU 158",
+              "ownBench": [
+                "Bunnelby SVI 164"
+              ],
+              "opponentHandCount": 5,
+              "opponentHandRevealed": false,
+              "opponentActive": null,
+              "opponentBench": [],
+              "ownDeckCount": 20,
+              "opponentDeckCount": 20,
+              "ownPrizeCount": 6,
+              "opponentPrizeCount": 6
+            },
+            "promptCoverage": {
+              "promptType": null,
+              "frontier": [
+                {
+                  "kind": "use-stadium",
+                  "actorPrinting": "Tropical Beach BWP 50",
+                  "targetPrinting": null,
+                  "attackName": null,
+                  "abilityName": null
+                },
+                {
+                  "kind": "retreat",
+                  "actorPrinting": null,
+                  "targetPrinting": "Bunnelby SVI 164",
+                  "attackName": null,
+                  "abilityName": null
+                },
+                {
+                  "kind": "pass",
+                  "actorPrinting": null,
+                  "targetPrinting": null,
+                  "attackName": null,
+                  "abilityName": null
+                }
+              ]
+            }
           }
         ],
         "digestAlgorithm": "SHA-256 canonical JSON of role, seat, observation, prompt, publicEventReceipt and actionFrontier"
@@ -2679,6 +2779,24 @@
             },
             "validatorResult": "accepted",
             "validationError": null
+          },
+          {
+            "decisionIndex": 5,
+            "decision": {
+              "kind": "select-action",
+              "token": "retreat"
+            },
+            "validatorResult": "accepted",
+            "validationError": null
+          },
+          {
+            "decisionIndex": 6,
+            "decision": {
+              "kind": "select-action",
+              "token": "retreat"
+            },
+            "validatorResult": "accepted",
+            "validationError": null
           }
         ],
         "expectedOutcomeAssertedByTest": true,
@@ -2694,14 +2812,15 @@
           "select-action",
           "abstain"
         ],
-        "rationale": "The V8 harness asserts deterministic actor-view choices and actual pinned worker validation. This is policy heuristic evidence only; it does not establish natural game frequency or strategic competence."
+        "rationale": "The policy now treats attacks and supported draw-and-end-turn Stadium uses as terminal; positive-scoring non-terminal actions are selected first. The test covers Ceremony and Tropical Beach competing with a beneficial retreat. Synthetic evidence only."
       },
       "costLedger": {
         "effect": "draw 2; then the using player's turn ends",
         "useGate": "own deck > 2; hand size <= 5",
         "score": "95,90,80,65,50,35 for hand sizes 0-5",
         "penalties": "-15 when opponent handCount <=2; -20 when own deckCount <=4",
-        "placement": "only play from hand when no Stadium is in play"
+        "placement": "only play from hand when no Stadium is in play",
+        "terminalSequencing": "positive-scoring non-terminal actions are exhausted before attack/pass/Tropical Beach/Player's Ceremony terminal choices"
       },
       "promptCoverage": [
         {
@@ -2805,6 +2924,58 @@
           ],
           "emptySelection": false,
           "cancel": false
+        },
+        {
+          "promptType": null,
+          "frontier": [
+            {
+              "kind": "use-stadium",
+              "actorPrinting": "Player's Ceremony SP 127",
+              "targetPrinting": null,
+              "attackName": null,
+              "abilityName": null
+            },
+            {
+              "kind": "retreat",
+              "actorPrinting": null,
+              "targetPrinting": "Bunnelby SVI 164",
+              "attackName": null,
+              "abilityName": null
+            },
+            {
+              "kind": "pass",
+              "actorPrinting": null,
+              "targetPrinting": null,
+              "attackName": null,
+              "abilityName": null
+            }
+          ]
+        },
+        {
+          "promptType": null,
+          "frontier": [
+            {
+              "kind": "use-stadium",
+              "actorPrinting": "Tropical Beach BWP 50",
+              "targetPrinting": null,
+              "attackName": null,
+              "abilityName": null
+            },
+            {
+              "kind": "retreat",
+              "actorPrinting": null,
+              "targetPrinting": "Bunnelby SVI 164",
+              "attackName": null,
+              "abilityName": null
+            },
+            {
+              "kind": "pass",
+              "actorPrinting": null,
+              "targetPrinting": null,
+              "attackName": null,
+              "abilityName": null
+            }
+          ]
         }
       ],
       "executionEvidence": {
@@ -2815,9 +2986,13 @@
           "accepted",
           "accepted",
           "accepted",
+          "accepted",
+          "accepted",
           "accepted"
         ],
         "decisionValidation": [
+          "accepted",
+          "accepted",
           "accepted",
           "accepted",
           "accepted",
@@ -2852,6 +3027,14 @@
           {
             "kind": "abstain",
             "reasonCode": "UNSUPPORTED_SINGLE_CARD_PROMPT"
+          },
+          {
+            "kind": "select-action",
+            "token": "retreat"
+          },
+          {
+            "kind": "select-action",
+            "token": "retreat"
           }
         ],
         "nativeAcceptance": null,
@@ -2880,7 +3063,9 @@
         "cardPrintReferences": [
           "Player's Ceremony SP 127",
           "Tropical Beach BWP 50",
-          "Quick Ball FST 237"
+          "Quick Ball FST 237",
+          "Snorlax TEU 158",
+          "Bunnelby SVI 164"
         ],
         "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
         "researchHookRevision": "0f5be9a0562eb461d36745c8470f6040bd2a5287",
@@ -10210,7 +10395,8 @@
     "Legendary Ascent multi-Energy payment is covered only by synthetic fixtures; native effect and prompt semantics remain unverified.",
     "Mimikyu V-only protection is tested synthetically against VMAX and ex fixtures; native ability/effect behavior remains unverified.",
     "Get Lost target valuation uses the fixed candidate's Supporter/VS Seeker inventory; natural target frequency and native Lost Zone resolution remain untested.",
-    "Generic Teammates search scoring is target-aware; context-specific VS Seeker / Trainers' Mail priorities and Lusamine discard availability remain untested."
+    "Generic Teammates search scoring is target-aware; context-specific VS Seeker / Trainers' Mail priorities and Lusamine discard availability remain untested.",
+    "Player's Ceremony low-opponent-deck incentives and paper partial-draw interpretation remain unresolved; the shared effect is optional and no full game has been reviewed."
   ],
   "reviewer": {
     "status": "not reviewed",
@@ -10219,7 +10405,7 @@
     "reviewReceipt": null
   },
   "claims": {
-    "demonstrated": "Deterministic policy decisions and pinned worker request/decision validation on synthetic actor-view fixtures; Player's Ceremony card-effect hook separately passed a native Store action test.",
+    "demonstrated": "Deterministic policy decisions and pinned worker request/decision validation on synthetic actor-view fixtures; Player's Ceremony card-effect hook separately passed a native Store action test. The terminal-action gate prevents draw-and-end-turn Stadium effects from pre-empting positively scored non-terminal actions in synthetic competing-frontier tests.",
     "notDemonstrated": [
       "real game win rate",
       "matchup advantage",
@@ -10231,7 +10417,7 @@
     ]
   },
   "caseRecordCount": 49,
-  "suiteSha256": "2d7c5e8c6c2a842bee429bee002ebb82da46699cf785ec261aea207867075a38",
+  "suiteSha256": "ce33ad012266e38631732956a62b539eb56009b0a748ab5c9706b7494945bcd2",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
@@ -10239,8 +10425,8 @@
     "sourceRank": 3,
     "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
     "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
-    "policySha256": "281e6345c0c945a82c8be304365999ee21887768077678c3484e6f5c19e6d2cd",
-    "dependencyManifestSha256": "eb005c2aef84248bfffc803e9720fb6d28b08a512393ed8bf614d1af148067ae",
+    "policySha256": "6f1cba46292d234eb1a71c9482b893a5ee933066f0c14fe350088ee4e0bc4c85",
+    "dependencyManifestSha256": "f4eb4c863844d7aef728038f7093908e8fb7368c7de249fe3dca4a0a1fcb4db4",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
@@ -10439,9 +10625,9 @@
   },
   "policyStaticAudit": {
     "sourcePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "sourceBlobSha1": "2f861f5e7b34fd57fdf19889f6507bf0148c2bcb",
-    "sourceSha256": "281e6345c0c945a82c8be304365999ee21887768077678c3484e6f5c19e6d2cd",
-    "scannedAt": "2026-11-25T23:27:34.147Z",
+    "sourceBlobSha1": "7706de06082e2c1e2e06dfa1685a8cc06d8b011c",
+    "sourceSha256": "6f1cba46292d234eb1a71c9482b893a5ee933066f0c14fe350088ee4e0bc4c85",
+    "scannedAt": "2026-11-25T23:47:01.578Z",
     "scannedTerms": [
       {
         "term": "Math.random",

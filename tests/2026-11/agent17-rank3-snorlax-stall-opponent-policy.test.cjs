@@ -672,6 +672,40 @@ test("Player's Ceremony is a conservative shared draw-two and is played only int
     ]
   });
   assert.deepEqual(checkedDecision(occupiedStadiumRequest), { kind: 'select-action', token: 'pass' });
+  const ceremonyCompetingAction = rootRequest({
+    ownHand: ['Quick Ball FST 237'],
+    ownPublic: player({
+      active: pokemon('Snorlax TEU 158', { damage: 100 }),
+      bench: [pokemon('Bunnelby SVI 164')],
+      deckCount: 20,
+      stadium: ["Player's Ceremony SP 127"]
+    }),
+    opponentPublic: player({ handCount: 5, deckCount: 20 }),
+    items: [
+      { token: 'ceremony-use', kind: 'use-stadium', actorPrinting: "Player's Ceremony SP 127",
+        publicMetadata: { stadiumPrinting: "Player's Ceremony SP 127", stadiumEffectLive: true } },
+      { token: 'retreat', kind: 'retreat', targetPrinting: 'Bunnelby SVI 164' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(ceremonyCompetingAction), { kind: 'select-action', token: 'retreat' });
+  const beachCompetingAction = rootRequest({
+    ownHand: ['Quick Ball FST 237'],
+    ownPublic: player({
+      active: pokemon('Snorlax TEU 158', { damage: 100 }),
+      bench: [pokemon('Bunnelby SVI 164')],
+      deckCount: 20,
+      stadium: ['Tropical Beach BWP 50']
+    }),
+    opponentPublic: player({ handCount: 5, deckCount: 20 }),
+    items: [
+      { token: 'beach-use', kind: 'use-stadium', actorPrinting: 'Tropical Beach BWP 50',
+        publicMetadata: { stadiumPrinting: 'Tropical Beach BWP 50', stadiumEffectLive: true } },
+      { token: 'retreat', kind: 'retreat', targetPrinting: 'Bunnelby SVI 164' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(beachCompetingAction), { kind: 'select-action', token: 'retreat' });
   const unexpectedPrompt = promptRequest({
     promptType: 'ChooseCardsPrompt',
     source: actorChoiceSource("Player's Ceremony SP 127", "Player's Ceremony"),

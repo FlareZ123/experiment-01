@@ -10,7 +10,7 @@ The exact module paths and Git blob SHA-1 identities for all 20 variants, rank/s
 |---:|---|---|---|
 | 1 | Agent6 v1 | 51/51 direct V8 harness cases using worker validators | First-trace baseline only; static review findings remain; no native full game |
 | 2 | Agent10 v1; Agent45 v2 | v1 37/37 Node tests in Actions; v2 15 development cases / 4 held-outs, held-outs blocked | Neither version competent or admitted |
-| 3 | Agent17 v1.1 | 49/49 V8 shim cases on pinned worker | Synthetic-only, unbound; Player’s Ceremony policy use/recovery covered; no native rank-3 game |
+| 3 | Agent17 v1.2 | 49/49 V8 shim cases on pinned worker | Synthetic-only, unbound; Stadium terminal-action sequencing covered; low-deck branch unresolved; no native rank-3 game |
 | 4 | Agent50 v1/v2 | v2 32/32 tests inside Actions run 44566586371; enclosing workflow failed on an unrelated rank-6 Gladion test | Standalone Node and native evidence absent |
 | 5 | Agent20 v8 | 32/32 Node tests plus 32/32 supplemental V8 shim | Diagnostic-only; no native prompt/Store/game evidence |
 | 6 | Agent39 v1 | No current passing execution receipt identified in the readiness review | No competence evidence |
@@ -324,3 +324,8 @@ The following source corrections supersede stale prose above and preserve the ex
 ### Rank 3 policy update — 2026-11-25
 
 Agent17 v1.1 removes the stale Player’s Ceremony block: it scores the shared draw-two Stadium using actor-visible hand/deck thresholds, plays it only when no Stadium is already in play, and permits it as a Land Maker/Lusamine recovery target. The underlying research-owned Twinleaf hook separately passed the both-seat native Store action test (run 45373242755 at 0f5be9a0562eb461d36745c8470f6040bd2a5287). The policy change passed 49/49 deterministic V8 tests against the exact pinned worker source. This remains synthetic policy evidence only: no complete rank-3 game, independent strategy review, or matchup competence is claimed.
+
+
+### Rank 3 policy update — v1.2, 2026-11-25
+
+Agent17 v1.2 fixes a concrete sequencing hazard: attacks and the supported draw-and-end-turn Stadium uses (Tropical Beach and Player’s Ceremony) are treated as terminal choices. The policy now selects positively scored non-terminal actions first, then compares terminal lines. Regression cases cover both Stadium effects competing with a beneficial retreat. The opponent-low-deck shared-draw branch and paper partial-draw interpretation remain unresolved; no full-game or competence claim is made.
