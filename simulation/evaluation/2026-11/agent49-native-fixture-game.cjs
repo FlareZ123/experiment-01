@@ -461,8 +461,10 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
       error?.nativeActionValidationStage
     )?error.nativeActionValidationStage:null;
     const code=safeFailureCode(error?.code);
+    const isNativeGameError=typeof native?.GameError==='function'&&
+      error instanceof native.GameError;
     return {
-      name:safeFailureName(error?.name),
+      name:isNativeGameError?'GameError':safeFailureName(error?.name),
       ...(code?{code}:{}),
       ...(nativeActionType?{nativeActionType}:{}),
       ...(nativeActionValidationStage?{nativeActionValidationStage}:{})

@@ -1099,7 +1099,7 @@ test('registered V3 diagnostics accept sanitized-only with the existing artifact
   assert.match(source,/requireFullStateDiagnostics:diagnosticMode==='encrypted-full'&&!witnessOnly/,
     'full-state acceptance remains conditional on encrypted-full');
   assert.match(source,/const sanitizedOnly=diagnosticMode==='sanitized-only'/);
-  assert.match(source,/sanitizeFixtureArtifact\(artifact,\s*\{/);
+  assert.match(source,/sanitizeFixtureArtifact\(artifact\)/);
   assert.doesNotMatch(source,/nativeGameMessageValues/);
   assert.match(source,/withSafeFrontierStage\(\s*'native-enumerator-construction'/);
   assert.match(source,/withSafeFrontierStage\(\s*'frontier-admission'/);
