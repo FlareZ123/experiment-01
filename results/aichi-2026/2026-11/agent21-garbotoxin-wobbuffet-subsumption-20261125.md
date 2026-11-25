@@ -53,7 +53,7 @@ All four authenticated Garbodor source lists are ranks 8, 11, 16, and 22. Ranks 
 
 ## Combined Budew + Field Blower counterline in Aichi ranks 8 and 22
 
-The Hood exposure is more specific than “Field Blower may remove Tools.” The exact published source lists at ranks **8 and 22** each contain all three pieces: Tool-live Garbodor, one Budew ASC 16, and one Field Blower GRI 125. Each also lists three VS Seeker. Ranks 11 and 16 have Garbodor but no Field Blower; rank 16 has two Budew, while rank 11 has none.
+The Hood exposure is more specific than “Field Blower may remove Tools.” The exact published source lists at ranks **8 and 22** each contain all three pieces: Tool-live Garbodor, one Budew ASC 16 (`resources/cards/en/me2pt5.json`, `me2pt5-16`; zero-cost Itchy Pollen), and one Field Blower GRI 125 (`resources/cards/en/sm2.json`, `sm2-125`; up to two Tools/Stadiums from either side). Each also lists three VS Seeker. Ranks 11 and 16 have Garbodor but no Field Blower; rank 16 has two Budew, while rank 11 has none.
 
 A legal pressure sequence exists when both Lockbridge Hoods are already attached:
 
@@ -62,10 +62,10 @@ A legal pressure sequence exists when both Lockbridge Hoods are already attached
 3. The opponent then attacks with Budew's zero-cost Itchy Pollen. The candidate's next turn cannot play Item cards from hand.
 4. On that locked turn, Lockbridge cannot use its own Field Blower to remove Garbodor's Tool, nor Night Stretcher to recover a Pokémon/Basic Energy. Knocking out Budew does not erase the already-created Item restriction for the rest of that turn.
 
-There is an important defensive sequencing option. Itchy Pollen restricts **Items**, not all Trainer cards. The Advanced Player's Manual B-02 classifies Pokémon Tools separately and explicitly says older Pokémon Tools that printed the word “Item” are still not treated as Items. Stealthy Hood is a Pokémon Tool, so Lockbridge can attach a Hood from hand during the Item-locked turn; Arven is a Supporter and can also be played then to search a Pokémon Tool from the deck. Consequently:
+There is an important defensive sequencing option. Itchy Pollen restricts **Items**, not all Trainer cards. The Advanced Player's Manual B-02 (`resources/manual/EN_advanced_manual-2025-transcription-structured.md`) classifies Pokémon Tools separately and explicitly says older Pokémon Tools that printed the word “Item” are still not treated as Items. Stealthy Hood is a Pokémon Tool, so Lockbridge can attach a Hood from hand during the Item-locked turn; Arven is a Supporter and can also be played then to search a Pokémon Tool from the deck. Consequently:
 
 - If one Hood is attached and the second copy is held in hand (or remains in the deck for Arven), one Field Blower cannot remove the held copy. Lockbridge can redeploy it during Itchy Pollen's Item lock and preserve one Underworld Door engine.
-- If both Hoods are attached when Field Blower is played, both can be discarded at once. The exact 60 has no Tool-recovery card: Arven searches the deck, not the discard pile; Night Stretcher retrieves a Pokémon or Basic Energy, not a Tool. The candidate's own Field Blower is also unavailable during the Item-locked turn.
+- If both Hoods are attached when Field Blower is played, both can be discarded at once. The exact 60 has no Tool-recovery card: Arven SVI 166 (`resources/cards/en/sv1.json`, `sv1-166`) searches the deck, not the discard pile; Night Stretcher retrieves a Pokémon or Basic Energy, not a Tool. The candidate's own Field Blower GRI 125 (`resources/cards/en/sm2.json`, `sm2-125`) is an Item and is also unavailable during the Item-locked turn.
 - Each rank-8/rank-22 list has three VS Seeker, so repeated Field Blower recovery is a possible later counterline, not a proven sequence or guaranteed access rate.
 
 **Practical policy:** against ranks 8/22, do not expose both Hood copies to the same Field Blower unless the second engine is worth the risk. Keep one Hood in hand/deck as a replacement where possible. The Item-lock window does not prevent Tool redeployment, but it does prevent the candidate's immediate Item-based answer to Garbotoxin. This makes Hood staging and the timing of the first Field Blower decision-relevant.
