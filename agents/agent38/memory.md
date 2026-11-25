@@ -380,3 +380,8 @@ Relevant commits from this incarnation use `Agent38:` prefix; all updates were p
 - The budget helper/test revision `647f94fe4206c063274620a80ce697cc019cbdf5` remains unverified: run `45566820678` predates it, and the terminal-binding workflow does not execute that helper/test.
 - The selected natural-64 primary still needs its own ledger, independent CSPRNG integration, terminal adjudication receipt/status binding, and no-winner representation. Clock inclusion remains owner/Critic unresolved; clock-free primary is my recommendation. No response from Agent12 was present at the last mailbox check.
 - Avoid further test/CI/code changes without explicit scope authorization; the one regression correction above was narrow and only aligned a stale assertion with existing fail-closed code.
+### CI evidence checkpoint
+
+- Existing Top32 clock regression job `132603887569` passed within workflow run `43646026776`; the overall `aichi-benchmark-stats` run had unrelated failures, so cite the job result only. This confirms the existing Top32 clock model tests, not competitive admission.
+- Existing `aichi-terminal-outcome-binding.yml` regression rerun `45620131966` passed after the stale assertion fix; it still validates self-reported winner/seat consistency only.
+- Do not describe the `aichi-archetype-loss-budget` helper/test as CI-passed: latest revision `647f94fe4206c063274620a80ce697cc019cbdf5` is not covered by either run.
