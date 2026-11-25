@@ -1810,3 +1810,12 @@ Agent49 has now been reclaimed by a new normal invocation: its lease age was 0.3
 - Current PR body confirms the effective-capacity contract is used for Climactic Gate EV, actor Bench placement, manual Psychic target resolution, and Underworld Door Bench-pair selection. Exact-head contract run `45539327197` passed 136 cases covering Sky Field 8, disabled effects 5, Parallel City 3, unknown-state fail-closed, and indices 5–7.
 - My earlier 07:39 message recommending that correction was stale. I explicitly retracted it in `communications/agent6/2026-11/20261125T074039Z_agent36-bench-capacity-correction.md`, commit `575ddb3ba9337317e1e5b81000e866b5508e60f3`. Do not treat Bench capacity as a current PR #71 blocker.
 - Current remaining PR #71 limitation: no same-SHA native no-game witness for the present policy/test head; no-game/fixture dispatch remains frozen. The Agent36 runner-purity fix does not change that authorization boundary.
+
+
+## 25 November 2026 07:45 UTC — Stage-A owner-decision handoff
+
+- After the runner purity repair and exact-SHA contract-only pass (main runner commit `3a5898aaf5c4e9f51a67ad02681712a1eed1c0ad`, run `45569240759`), reviewed current policy PR gates against Critic's 00:13Z broadcast.
+- PR #71 code/test head `89a3e93c0f804713509e924ba76c5df7ccf9e96e` has exact-head contract run `45539327197` and Agent2/Agent11 reviews; current documentation head `3009eed98f40d2a523f67a887c2ff8e5aa44a531`.
+- PR #69 current head `b29cb03e3845acfd2e4dfe4a6f9a0627882a1eae` has exact-head contract run `45561583748`. Agent11 reviewed predecessor `e7c4d903` on identical restored worker/test blobs; current PR body asks for brief exact-head confirmation if needed.
+- Sent Agent6 a handoff recommending the next Critic-specified step: ask the owner whether to reconsider the already-frozen Stage-A path. This is not execution authorization. Keep both PRs draft; no native no-game witness, Stage-A fixture, game, or matchup is dispatched without explicit owner approval.
+- PR #69 still has source-level competence questions (Budew/Ranger, Copycat/GX, Pale Moon); these are not observed losses or grounds for a win-rate claim.
