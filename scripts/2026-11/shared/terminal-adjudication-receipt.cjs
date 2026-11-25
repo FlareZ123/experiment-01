@@ -20,6 +20,7 @@ const RESULT_TO_STATUS = Object.freeze({
   'genuine-tie': 'paper-qualified-tie'
 });
 const NO_WINNER_STATUS = 'paper-qualified-no-winner';
+const DUAL_DEFEAT_EVIDENCE_SCHEMA = 'aichi-dual-defeat-penalty-evidence-v1';
 const TERMINAL_CLASS_ALLOWED_RESULTS = Object.freeze({
   'engine-winner': Object.freeze(['candidate-win', 'candidate-loss']),
   'opponent-forfeit': Object.freeze(['candidate-win']),
@@ -41,7 +42,7 @@ const TERMINAL_CLASS_ALLOWED_REASONS = Object.freeze({
   'candidate-illegal-action': Object.freeze(['candidate-illegal-action']),
   'candidate-timeout': Object.freeze(['candidate-timeout']),
   'draw': Object.freeze(['draw']),
-  'no-winner': Object.freeze(['ambiguous-played-terminal', 'no-winner']),
+  'no-winner': Object.freeze(['both-players-defeated']),
   'top32-prize-tiebreaker': Object.freeze(['top32-prize-tiebreaker'])
 });
 
@@ -350,6 +351,28 @@ function validateTerminalAdjudicationReceipt({
       } else {
         seenAdjudicationEvidenceSha256.add(adjudicationEvidence.evidenceSha256);
       }
+    }
+  }
+
+  if (receipt.terminalClass === 'no-winner') {
+    const dualDefeat = adjudicationEvidence?.dualDefeatEvidence;
+    const requiredKeys = [
+      'eventStage', 'judgeRulingRef', 'penalizedPhysicalSeats', 'penalty', 'schema'
+    ];
+    const actualKeys = dualDefeat && typeof dualDefeat === 'object' &&
+      !Array.isArray(dualDefeat)
+      ? Object.keys(dualDefeat).sort()
+      : [];
+    if (actualKeys.join('|') !== requiredKeys.join('|') ||
+        dualDefeat.schema !== DUAL_DEFEAT_EVIDENCE_SCHEMA ||
+        dualDefeat.eventStage !== 'aichi-open-top32' ||
+        dualDefeat.penalty !== 'Defeat' ||
+        !Array.isArray(dualDefeat.penalizedPhysicalSeats) ||
+        dualDefeat.penalizedPhysicalSeats.length !== 2 ||
+        dualDefeat.penalizedPhysicalSeats[0] !== 0 ||
+        dualDefeat.penalizedPhysicalSeats[1] !== 1 ||
+        !nonEmptyString(dualDefeat.judgeRulingRef)) {
+      reject('terminal-adjudication-dual-defeat-evidence-invalid');
     }
   }
 

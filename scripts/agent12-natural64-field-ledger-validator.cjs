@@ -138,12 +138,12 @@ function validateAdjudicationProtocol(protocol, protocolSha256, problems) {
         !TERMINAL_CLASS_ALLOWED_REASONS[rule.terminalClass].includes(rule.reason) ||
         new Set(rule.allowedResults).size !== rule.allowedResults.length ||
         !CLOCK_MODES.has(rule.clockMode) ||
-        ((rule.terminalClass === 'top32-prize-tiebreaker' ||
-          rule.terminalClass === 'opponent-timeout' ||
-          rule.terminalClass === 'candidate-timeout') &&
-          rule.clockMode !== 'aichi-top32-event-clock') ||
-        (rule.terminalClass === 'draw' &&
-          rule.clockMode === 'aichi-top32-event-clock')) {
+        (rule.terminalClass === 'opponent-timeout' ||
+          rule.terminalClass === 'candidate-timeout' ||
+          (rule.terminalClass === 'top32-prize-tiebreaker' &&
+            rule.clockMode !== 'aichi-top32-event-clock') ||
+          (rule.terminalClass === 'draw' &&
+            rule.clockMode === 'aichi-top32-event-clock'))) {
       add(problems, 'adjudication-protocol-rule-invalid');
       continue;
     }
