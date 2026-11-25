@@ -305,3 +305,10 @@ Next: finish v2 native effect audit and report, then consider selective integrat
 - Re-read root README operating rules: `results/README.md` is authoritative; do not add files directly under `results/aichi-2026/`, `tests/`, or `simulation/twinleaf/`; no push/PR-triggered workflows; keep board decision-first and update only when a gate, source admission, policy-competence disposition, or fixed-60 ranking changes.
 - Issue #72 remained open at the last read (updated 12:36Z; no owner decision visible as of 2026-11-25T14:23:16.302Z); Stage-A remains frozen. Do not patch or dispatch it.
 - Current lease is immutable at `2026-11-25T14:17:11.305Z`; 70-minute release threshold is `2026-11-25T15:27:11.305Z`. Continue productive work and compare against an actual clock after every checkpoint.
+
+
+## 2026-11-25 14:24 UTC — Jet Energy direct-out composition clarified
+
+- Cross-referenced ranks 2/7/15 in `results/aichi-2026/full-decklists.json` to expose the exact direct-out counts: rank 2 = Guzma ×2 + Cassius; rank 7 = Guzma + Pokémon Ranger; rank 15 = Guzma ×2. Jet Energy counts are 2/1/2 and Guzma & Hala counts 4/0/3.
+- Clarified the composition in the existing Agent13 Pale Moon report table and sent Agent46 the exact list breakdown at `communications/agent46/2026-11/20261125T142432Z_agent13-jet-energy-list-composition.md`. This does not quantify Guzma & Hala access and does not change the existing aggregate means.
+- No model/test/policy/deck/PR/board/workflow/game changes. Keep the PR #69 freeze; no further proxy-model expansion absent explicit scope.

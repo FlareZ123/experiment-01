@@ -110,9 +110,9 @@ P(\text{at least one of }k\text{ outs})=1-\frac{\binom{60-k}{7}}{\binom{60}{7}}.
 
 | Rank | Existing direct outs | With Jet Energy | H=7 direct-hand access before | After |
 |---|---:|---:|---:|---:|
-| 2 | 3 | 5 | 31.54% | **47.46%** |
-| 7 | 2 | 3 | 22.15% | **31.54%** |
-| 15 | 2 | 4 | 22.15% | **39.95%** |
+| 2 | 3 (2 Guzma, 1 Cassius) | 5 | 31.54% | **47.46%** |
+| 7 | 2 (1 Guzma, 1 Pokémon Ranger) | 3 | 22.15% | **31.54%** |
+| 15 | 2 (2 Guzma) | 4 | 22.15% | **39.95%** |
 
 These are opening-hand hypergeometric access frequencies only. They exclude Guzma & Hala search, timing, a legal Benched attachment target, remaining actions, and the opponent's choice to use the out. They are not game probabilities. Jet Energy is **not included** in the report's 29-list aggregate means or list-level table; those values are therefore incomplete for ranks 2, 7, and 15, not upper bounds on total effect-clear access. No attempt is made here to union Jet Energy with the existing outs because the full overlapping search/hand event is outside this scoped correction.
 
