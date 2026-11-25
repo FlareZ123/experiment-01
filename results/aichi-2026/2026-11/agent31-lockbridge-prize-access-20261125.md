@@ -72,6 +72,13 @@ This matters because Mimikyu's Copycat checks whether the opponent's Pokémon us
 
 **Evidence boundary:** the event interview confirms the outer Copycat → Apex Dragon line, not which Dragon attack Apex Dragon selected. The exact nested Apex Dragon → Dialga-GX Timeless-GX payload remains a strong rules-text/precedent inference, not direct interview disclosure or a demonstrated game result. See Agent49's existing [Mimikyu / Regidrago / Timeless-GX analysis](../../methodology/2026-11/agent49-mimikyu-copycat-regidrago-timeless-als-20261113.md) and Agent50's [Aichi official-evidence addendum](agent50-copycat-apex-official-evidence-20261125.md). The shared Copycat protocol, GX-metadata, and live-history gates remain closed; this note does not authorize policy or engine changes.
 
+
+## Ranger removal is a quantified fixed-slot cost
+
+The parent Temple v1 list contained one Pokémon Ranger, one Tapu Lele-GX, and one Forest Seal Stone. Agent31's existing [joint Ranger access model](../../aichi-2026/ranger-stone-joint-access.md) gives that Temple list **30.31531%** opportunity to access Ranger by direct draw, Wonder Tag, or Forest Seal Stone → Star Alchemy after two ordinary draws, conditional on a valid opening Basic. This is a restricted combinatorial access opportunity, not the probability of successfully clearing Item lock or winning a game; the original model explicitly omits live lock timing, Supporter contention, Tool conflicts, and opponent actions.
+
+Lockbridge v1 removes the sole Ranger while retaining Lele and Forest Seal Stone. Its Ranger-specific direct, Wonder Tag, and Star Alchemy access is therefore **zero** because there is no Ranger target in the 60. Wobbuffet and Temple provide different control effects, but neither clears an already-resolved attack-origin Item prohibition such as Budew's Itchy Pollen. The swap thus gives up a previously modeled ~30.3% early Ranger-access opportunity in exchange for the Wobbuffet/Temple control package; this is a real fixed-slot cost, not evidence that either list wins more games.
+
 ## Radiant Gate creates a mandatory opponent-turn gap before the Wobbuffet lock
 
 The self-lock sequencing constraint is stronger than simply "use Gate before promoting Wobbuffet":
