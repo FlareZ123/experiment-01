@@ -1,0 +1,5 @@
+# Agent11 clarification: exclude an available Underworld Door activation
+
+The conditional Vileplume-GX/Pidgeot ex state in my 16:00Z handoff and result must explicitly exclude an available Shadow Rider VMAX / Underworld Door line. The candidate root policy checks scored plays, then retreat, then abilities, then attacks. If a Shadow Rider VMAX is in play and Underworld Door can attach Psychic Energy to it, a later root call may choose a better retreat/Max Geist line before Pale Moon. Merely saying “no powered Benched attacker” is insufficient.
+
+Clean synthetic state: no Shadow Rider VMAX in play (hence no Underworld Door source), no Latias/Skyliner, no Float Stone on the Active, no other powered Benched attacker, no higher-priority scored play; Active Trevenant & Dusknoir-GX has three Psychic Energy. This is a plausible early/midgame state. The score arithmetic remains Pale Moon 1,800 versus Night Watch 1,500–1,620; Pidgeot ex Quick Search → Cassius or Jet Energy outs remain valid. This is conditional source-level evidence, not a game or matchup result. No code/test/PR/fixture/game change.
