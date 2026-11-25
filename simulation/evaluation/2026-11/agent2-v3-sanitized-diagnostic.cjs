@@ -203,33 +203,39 @@ function sanitizePromptResolution(resolution) {
   return pick(resolution,['kind','ownerSeat']);
 }
 
-function sanitizeStackSite(site){
-  if(!site||typeof site!=='object')return null;
-  const file=site.file;
-  if(typeof file!=='string'||
-    !/^(?:simulation|vendor\/twinleaf)\/[A-Za-z0-9_.\/-]{1,240}$/.test(file)||
-    file.split('/').includes('..')||
-    !Number.isSafeInteger(site.line)||site.line<1||
-    !Number.isSafeInteger(site.column)||site.column<1)return null;
-  return {file,line:site.line,column:site.column};
-}
-
 const SAFE_SANITIZED_NATIVE_ACTION_TYPES=new Set(['PLAY_CARD_ACTION','ATTACK_ACTION','USE_ABILITY_ACTION','USE_TRAINER_ABILITY_ACTION','USE_ENERGY_ABILITY_ACTION','USE_STADIUM_ACTION','RETREAT_ACTION','PASS_TURN']);
-
-function sanitizeFailure(failure,nativeGameMessageValues=new Set()) {
+const SAFE_SANITIZED_NATIVE_ACTION_VALIDATION_STAGES=new Set([
+  'validation-simulator-construction','item-can-play-preflight','underworld-door-preflight',
+  'candidate-store-dispatch','ability-wait-prompt-resolution','action-projection',
+  'native-enumerator-construction','native-enumerator-execution','frontier-assembly',
+  'frontier-admission','final-frontier-invariants'
+]);
+const SAFE_SANITIZED_FAILURE_NAMES=new Set([
+  'Error','GameError','AssertionError','TypeError','RangeError','ReferenceError','SyntaxError','TimeoutError'
+]);
+const SAFE_SANITIZED_FAILURE_CODE_PREFIXES=[
+  'NATIVE_','WORKER_','V3_RUNNER_','VALIDATION_','POLICY_','PREDICATE_',
+  'ERROR_','ERR_','TEST_','NO_GAME_WITNESS_','UNSUPPORTED_','INVALID_','NOT_','CANNOT_','BAD_','MISSING_'
+];
+function sanitizeFailureName(value){return SAFE_SANITIZED_FAILURE_NAMES.has(value)?value:'Error';}
+function sanitizeFailureCode(value){
+  if(typeof value!=='string'||!/^[A-Z0-9_]{1,64}$/.test(value))return null;
+  return value==='TEST'||SAFE_SANITIZED_FAILURE_CODE_PREFIXES.some(prefix=>value.startsWith(prefix))?value:null;
+}
+function sanitizeFailure(failure){
   if(!failure||typeof failure!=='object')return null;
-  const result=pick(failure,['name','code','messageLength','stage']);
-  if(failure.nativeErrorKind==='GameError'){
-    result.nativeErrorKind='GameError';
-    if(typeof failure.nativeGameMessage==='string'&&
-      nativeGameMessageValues.has(failure.nativeGameMessage))
-      result.nativeGameMessage=failure.nativeGameMessage;
-    if(SAFE_SANITIZED_NATIVE_ACTION_TYPES.has(failure.nativeActionType))
-      result.nativeActionType=failure.nativeActionType;
-  }
-  const stackSite=sanitizeStackSite(failure.stackSite);
-  if(stackSite)result.stackSite=stackSite;
-  const nested=sanitizeFailure(failure.nativeFixtureFailure,nativeGameMessageValues);
+  const result={name:sanitizeFailureName(failure.name)};
+  const code=sanitizeFailureCode(failure.code);
+  if(code)result.code=code;
+  if(typeof failure.stage==='string'&&/^[a-z0-9-]{1,64}$/.test(failure.stage))
+    result.stage=failure.stage;
+  if(Number.isSafeInteger(failure.actionOrdinal)&&failure.actionOrdinal>=0)
+    result.actionOrdinal=failure.actionOrdinal;
+  if(SAFE_SANITIZED_NATIVE_ACTION_TYPES.has(failure.nativeActionType))
+    result.nativeActionType=failure.nativeActionType;
+  if(SAFE_SANITIZED_NATIVE_ACTION_VALIDATION_STAGES.has(failure.nativeActionValidationStage))
+    result.nativeActionValidationStage=failure.nativeActionValidationStage;
+  const nested=sanitizeFailure(failure.nativeFixtureFailure);
   if(nested)result.nativeFixtureFailure=nested;
   return result;
 }
@@ -472,14 +478,9 @@ function sanitizeWorkerExecutionAudit(audit) {
   return safe;
 }
 
-function sanitizeFixtureArtifact(artifact,{nativeGameMessageValues=[]}={}) {
+function sanitizeFixtureArtifact(artifact) {
   assert.ok(artifact&&artifact.fixtureOnly===true,
     'Only a fixture-only artifact may be converted to a sanitized diagnostic');
-  const allowedNativeGameMessages=new Set(
-    Array.isArray(nativeGameMessageValues)?
-      nativeGameMessageValues.filter(value=>
-        typeof value==='string'&&value.length<=256
-      ):[]);
   const rawGame=artifact.nativeGame??artifact.fixtureGamePartial??{};
   const rawTrace=Array.isArray(rawGame.decisionTrace)?rawGame.decisionTrace:[];
   const actorDecisions=rawTrace.map(sanitizeDecisionRecord);
@@ -604,7 +605,7 @@ function sanitizeFixtureArtifact(artifact,{nativeGameMessageValues=[]}={}) {
     workerExecutionAudit,
     workerExecutionAuditSha256,
     game:safeGame,
-    fixtureFailure:sanitizeFailure(artifact.fixtureFailure,allowedNativeGameMessages),
+    fixtureFailure:sanitizeFailure(artifact.fixtureFailure),
     summary:{
       winner:safeGame.winner,
       winnerSeat:safeGame.winnerSeat,

@@ -521,11 +521,17 @@ function buildNativeActionFrontier({
   const snapshotStoreState = createStoreStateSnapshotter();
   const fullStateBefore = snapshotStoreState(state);
   const player = state.players[actorSeat];
-  const enumerator = suppliedEnumerator ?? new native.ActionEnumerator();
-  assert.ok(enumerator && typeof enumerator.enumerate === 'function',
-    'a pinned or explicitly supplied native ActionEnumerator is required');
-  const candidates = enumerator.enumerate(state, player, player.id);
-  assert.ok(Array.isArray(candidates), 'ActionEnumerator did not return an array');
+  const enumerator = withSafeFrontierStage('native-enumerator-construction', () => {
+    const value = suppliedEnumerator ?? new native.ActionEnumerator();
+    assert.ok(value && typeof value.enumerate === 'function',
+      'a pinned or explicitly supplied native ActionEnumerator is required');
+    return value;
+  });
+  const candidates = withSafeFrontierStage('native-enumerator-execution', () => {
+    const value = enumerator.enumerate(state, player, player.id);
+    assert.ok(Array.isArray(value), 'ActionEnumerator did not return an array');
+    return value;
+  });
 
   const items = [];
   const actionByToken = new Map();
@@ -576,16 +582,18 @@ function buildNativeActionFrontier({
       items.push(item);
       actionByToken.set(token,action);
     }catch(error){
-      attachSafeFrontierCandidateDiagnostic(error,action,validationStage,native);
+      attachSafeFrontierDiagnostic(error,action,validationStage);
       throw error;
     }
   }
-  assert.deepEqual(stateGuard(state), before,
-    'ActionEnumerator or Simulator validation mutated the live Store state');
-  assert.deepEqual(snapshotStoreState(state), fullStateBefore,
-    'ActionEnumerator or Simulator validation mutated the full live Store state graph');
-  assert.ok(items.length > 0, 'No supported legal native actions were enumerated');
-  const frontier = Object.freeze({
+  withSafeFrontierStage('final-frontier-invariants', () => {
+    assert.deepEqual(stateGuard(state), before,
+      'ActionEnumerator or Simulator validation mutated the live Store state');
+    assert.deepEqual(snapshotStoreState(state), fullStateBefore,
+      'ActionEnumerator or Simulator validation mutated the full live Store state graph');
+    assert.ok(items.length > 0, 'No supported legal native actions were enumerated');
+  });
+  const frontier = withSafeFrontierStage('frontier-assembly', () => Object.freeze({
     schema: protocol.FRONTIER_SCHEMA,
     items: Object.freeze(items.map(item => Object.freeze({
       ...item,
@@ -593,8 +601,8 @@ function buildNativeActionFrontier({
         publicMetadata: Object.freeze({ ...item.publicMetadata })
       } : {})
     })))
-  });
-  protocol.validateFrontier(frontier);
+  }));
+  withSafeFrontierStage('final-frontier-invariants', () => protocol.validateFrontier(frontier));
   return {
     actionFrontier: frontier,
     actionByToken,
@@ -625,20 +633,29 @@ function selectedNativeAction(frontier, token) {
 
 const SAFE_ACTION_DIAGNOSTIC_TYPES=new Set(['PLAY_CARD_ACTION','ATTACK_ACTION','USE_ABILITY_ACTION','USE_TRAINER_ABILITY_ACTION','USE_ENERGY_ABILITY_ACTION','USE_STADIUM_ACTION','RETREAT_ACTION','PASS_TURN']);
 const SAFE_FRONTIER_VALIDATION_STAGES=new Set([
-  'validation-simulator-construction',
-  'item-can-play-preflight',
-  'underworld-door-preflight',
-  'candidate-store-dispatch',
-  'ability-wait-prompt-resolution',
-  'action-projection'
+  'validation-simulator-construction','item-can-play-preflight','underworld-door-preflight',
+  'candidate-store-dispatch','ability-wait-prompt-resolution','action-projection',
+  'native-enumerator-construction','native-enumerator-execution','frontier-assembly',
+  'frontier-admission','final-frontier-invariants'
 ]);
-function attachSafeFrontierCandidateDiagnostic(error,action,stage,native){
-  if(!native?.GameError||!(error instanceof native.GameError)||
-      !error||typeof error!=='object')return;
-  if(SAFE_ACTION_DIAGNOSTIC_TYPES.has(action?.type))
-    error.nativeActionType=action.type;
+function attachSafeFrontierDiagnostic(error,action,stage){
+  if(!error||typeof error!=='object')return;
+  const defineSafe=(key,value)=>{
+    if(value===undefined||Object.hasOwn(error,key))return;
+    try{
+      Object.defineProperty(error,key,{value,enumerable:false,configurable:true,writable:false});
+    }catch{
+      // Diagnostic tagging must never replace or mask the original engine error.
+    }
+  };
+  if(SAFE_ACTION_DIAGNOSTIC_TYPES.has(action?.type))defineSafe('nativeActionType',action.type);
   if(SAFE_FRONTIER_VALIDATION_STAGES.has(stage))
-    error.nativeActionValidationStage=stage;
+    defineSafe('nativeActionValidationStage',stage);
+}
+function withSafeFrontierStage(stage,callback,action=null){
+  assert.equal(typeof callback,'function');
+  try{return callback();}
+  catch(error){attachSafeFrontierDiagnostic(error,action,stage);throw error;}
 }
 const SAFE_ACTION_DIAGNOSTIC_CARD_FAMILIES=new Set(['ITEM','SUPPORTER','STADIUM','ENERGY','TOOL','POKEMON']);
 
@@ -801,6 +818,7 @@ function dispatchSelectedNativeAction({
 
 module.exports = {
   MAX_ACTION_FRONTIER_ITEMS,
+  withSafeFrontierStage,
   enumName,
   targetProjection,
   cardType,

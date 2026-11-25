@@ -436,53 +436,36 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
   const snapshotStoreState=input.stopBeforeLiveDispatch===true?
     createStoreStateSnapshotter():null;
 
-  const projectSafeStackSite=error=>{
-    const stack=typeof error?.stack==='string'?error.stack:'';
-    for(const frame of stack.split('\n').slice(1)){
-      const match=frame.match(/\(([^()\n]+):(\d+):(\d+)\)$/)||
-        frame.match(/^\s*at ([^()\s]+):(\d+):(\d+)$/);
-      if(!match)continue;
-      const rawPath=match[1].trim().replace(/\\/g,'/');
-      const marker='/experiment-01/';
-      const markerIndex=rawPath.lastIndexOf(marker);
-      const file=markerIndex>=0?rawPath.slice(markerIndex+marker.length):rawPath;
-      if(!/^(?:simulation|vendor\/twinleaf)\/[A-Za-z0-9_.\/-]{1,240}$/.test(file)||
-          file.split('/').includes('..'))continue;
-      const line=Number(match[2]),column=Number(match[3]);
-      if(!Number.isSafeInteger(line)||line<1||
-          !Number.isSafeInteger(column)||column<1)continue;
-      return {file,line,column};
-    }
-    return null;
-  };
   const SAFE_FIXTURE_NATIVE_ACTION_TYPES=new Set(['PLAY_CARD_ACTION','ATTACK_ACTION','USE_ABILITY_ACTION','USE_TRAINER_ABILITY_ACTION','USE_ENERGY_ABILITY_ACTION','USE_STADIUM_ACTION','RETREAT_ACTION','PASS_TURN']);
-  const SAFE_FIXTURE_NATIVE_ACTION_VALIDATION_STAGES=new Set(['validation-simulator-construction','item-can-play-preflight','underworld-door-preflight','candidate-store-dispatch','ability-wait-prompt-resolution','action-projection']);
-  const nativeGameMessageValues=new Set(
-    native?.GameMessage&&typeof native.GameMessage==='object'?
-      Object.values(native.GameMessage).filter(value=>typeof value==='string'&&value.length<=256):[]);
+  const SAFE_FIXTURE_NATIVE_ACTION_VALIDATION_STAGES=new Set([
+    'validation-simulator-construction','item-can-play-preflight','underworld-door-preflight',
+    'candidate-store-dispatch','ability-wait-prompt-resolution','action-projection',
+    'native-enumerator-construction','native-enumerator-execution','frontier-assembly',
+    'frontier-admission','final-frontier-invariants'
+  ]);
+  const SAFE_FIXTURE_FAILURE_NAMES=new Set([
+    'Error','GameError','AssertionError','TypeError','RangeError','ReferenceError','SyntaxError','TimeoutError'
+  ]);
+  const SAFE_FIXTURE_FAILURE_CODE_PREFIXES=[
+    'NATIVE_','WORKER_','V3_RUNNER_','VALIDATION_','POLICY_','PREDICATE_',
+    'ERROR_','ERR_','TEST_','NO_GAME_WITNESS_','UNSUPPORTED_','INVALID_','NOT_','CANNOT_','BAD_','MISSING_'
+  ];
+  const safeFailureName=value=>SAFE_FIXTURE_FAILURE_NAMES.has(value)?value:'Error';
+  const safeFailureCode=value=>{
+    if(typeof value!=='string'||!/^[A-Z0-9_]{1,64}$/.test(value))return null;
+    return value==='TEST'||SAFE_FIXTURE_FAILURE_CODE_PREFIXES.some(prefix=>value.startsWith(prefix))?value:null;
+  };
   const redactError=error=>{
-    const message=String(error?.message??error??'native fixture failure');
-    const isNativeGameError=typeof native?.GameError==='function'&&
-      error instanceof native.GameError;
-    const nativeGameMessage=isNativeGameError&&
-      typeof error?.message==='string'&&nativeGameMessageValues.has(error.message)?
-        error.message:null;
-    const nativeActionType=isNativeGameError&&
-      SAFE_FIXTURE_NATIVE_ACTION_TYPES.has(error?.nativeActionType)?
-        error.nativeActionType:null;
-    const nativeActionValidationStage=isNativeGameError&&
-      SAFE_FIXTURE_NATIVE_ACTION_VALIDATION_STAGES.has(error?.nativeActionValidationStage)?
-        error.nativeActionValidationStage:null;
-    const stackSite=projectSafeStackSite(error);
+    const nativeActionType=SAFE_FIXTURE_NATIVE_ACTION_TYPES.has(error?.nativeActionType)?error.nativeActionType:null;
+    const nativeActionValidationStage=SAFE_FIXTURE_NATIVE_ACTION_VALIDATION_STAGES.has(
+      error?.nativeActionValidationStage
+    )?error.nativeActionValidationStage:null;
+    const code=safeFailureCode(error?.code);
     return {
-      name:isNativeGameError?'GameError':error?.name??'Error',
-      ...(isNativeGameError?{nativeErrorKind:'GameError'}:{}),
-      ...(nativeGameMessage?{nativeGameMessage}:{}),
+      name:safeFailureName(error?.name),
+      ...(code?{code}:{}),
       ...(nativeActionType?{nativeActionType}:{}),
-      ...(nativeActionValidationStage?{nativeActionValidationStage}:{}),
-      messageSha256:sha256Json({message}),
-      messageLength:message.length,
-      ...(stackSite?{stackSite}:{})
+      ...(nativeActionValidationStage?{nativeActionValidationStage}:{})
     };
   };
   const captureDiagnostic=(state,context)=>{
@@ -641,8 +624,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
 
     const failure={
       stage:context?.stage??'game-loop',
-      code:typeof cause?.code==='string'&&/^[A-Z0-9_]{1,64}$/.test(cause.code)?
-        cause.code:'NATIVE_FIXTURE_FAILURE',
+      code:safeFailureCode(cause?.code)??'NATIVE_FIXTURE_FAILURE',
       actionOrdinal:failedRecord?.actionOrdinal??actions,
       actingSeat:failedRecord?.actingSeat??null,
       actingPlayerId:failedRecord?.actingPlayerId??null,
@@ -714,40 +696,17 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
   };
   const projectFailureSummary=(failure,includePrimary=true)=>{
     if(!failure||typeof failure!=='object')return null;
-    const summary={};
-    const isNativeGameError=(typeof native?.GameError==='function'&&
-      failure instanceof native.GameError)||failure.nativeErrorKind==='GameError';
-    for(const key of ['stage','code','actionOrdinal','actingSeat','phaseBefore',
-      'turnBefore','pendingPromptType','actionName','actionPayloadSha256',
-      'name','nativeErrorKind','nativeGameMessage','nativeActionType','nativeActionValidationStage',
-      'messageSha256','messageLength','stackSite']){
-      const value=failure[key];
-      if(value===undefined||value===null)continue;
-      if(key==='stage'&&typeof value==='string'&&/^[a-z0-9-]{1,64}$/.test(value))summary[key]=value;
-      else if(key==='code'&&typeof value==='string'&&/^[A-Z0-9_]{1,64}$/.test(value))summary[key]=value;
-      else if(['actionOrdinal','turnBefore','messageLength'].includes(key)&&
-        Number.isSafeInteger(value)&&value>=0)summary[key]=value;
-      else if(key==='actingSeat'&&(value===0||value===1))summary[key]=value;
-      else if(['phaseBefore','pendingPromptType','actionName'].includes(key)&&
-        typeof value==='string'&&/^[A-Za-z0-9_.:-]{1,128}$/.test(value))summary[key]=value;
-      else if(['actionPayloadSha256','messageSha256'].includes(key)&&
-        typeof value==='string'&&/^[0-9a-f]{64}$/i.test(value))summary[key]=value;
-      else if(key==='name'&&typeof value==='string'&&/^[A-Za-z0-9_.-]{1,64}$/.test(value))summary[key]=value;
-      else if(key==='nativeErrorKind'&&value==='GameError')summary[key]=value;
-      else if(key==='nativeActionType'&&isNativeGameError&&
-        SAFE_FIXTURE_NATIVE_ACTION_TYPES.has(value))summary[key]=value;
-      else if(key==='nativeActionValidationStage'&&isNativeGameError&&
-        SAFE_FIXTURE_NATIVE_ACTION_VALIDATION_STAGES.has(value))summary[key]=value;
-      else if(key==='nativeGameMessage'&&typeof value==='string'&&nativeGameMessageValues.has(value))
-        summary[key]=value;
-      else if(key==='stackSite'&&value&&typeof value==='object'&&
-        typeof value.file==='string'&&
-        /^(?:simulation|vendor\/twinleaf)\/[A-Za-z0-9_.\/-]{1,240}$/.test(value.file)&&
-        !value.file.split('/').includes('..')&&
-        Number.isSafeInteger(value.line)&&value.line>0&&
-        Number.isSafeInteger(value.column)&&value.column>0)
-        summary.stackSite={file:value.file,line:value.line,column:value.column};
-    }
+    const summary={name:safeFailureName(failure.name)};
+    const code=safeFailureCode(failure.code);
+    if(code)summary.code=code;
+    if(typeof failure.stage==='string'&&/^[a-z0-9-]{1,64}$/.test(failure.stage))
+      summary.stage=failure.stage;
+    if(Number.isSafeInteger(failure.actionOrdinal)&&failure.actionOrdinal>=0)
+      summary.actionOrdinal=failure.actionOrdinal;
+    if(SAFE_FIXTURE_NATIVE_ACTION_TYPES.has(failure.nativeActionType))
+      summary.nativeActionType=failure.nativeActionType;
+    if(SAFE_FIXTURE_NATIVE_ACTION_VALIDATION_STAGES.has(failure.nativeActionValidationStage))
+      summary.nativeActionValidationStage=failure.nativeActionValidationStage;
     if(includePrimary&&failure.primaryFailure){
       const primary=projectFailureSummary(failure.primaryFailure,false);
       if(primary)summary.primaryFailure=primary;

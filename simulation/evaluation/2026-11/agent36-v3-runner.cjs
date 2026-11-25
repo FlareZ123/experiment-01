@@ -198,77 +198,60 @@ function normalizeV3FixtureRoleResult(returnedResult){
 }
 
 const SAFE_V3_NATIVE_ACTION_TYPES=new Set(['PLAY_CARD_ACTION','ATTACK_ACTION','USE_ABILITY_ACTION','USE_TRAINER_ABILITY_ACTION','USE_ENERGY_ABILITY_ACTION','USE_STADIUM_ACTION','RETREAT_ACTION','PASS_TURN']);
-const SAFE_V3_NATIVE_ACTION_VALIDATION_STAGES=new Set(['validation-simulator-construction','item-can-play-preflight','underworld-door-preflight','candidate-store-dispatch','ability-wait-prompt-resolution','action-projection']);
-
+const SAFE_V3_NATIVE_ACTION_VALIDATION_STAGES=new Set([
+  'validation-simulator-construction','item-can-play-preflight','underworld-door-preflight',
+  'candidate-store-dispatch','ability-wait-prompt-resolution','action-projection',
+  'native-enumerator-construction','native-enumerator-execution','frontier-assembly',
+  'frontier-admission','final-frontier-invariants'
+]);
+const SAFE_V3_FAILURE_NAMES=new Set([
+  'Error','GameError','AssertionError','TypeError','RangeError','ReferenceError','SyntaxError','TimeoutError'
+]);
+const SAFE_V3_FAILURE_CODE_PREFIXES=[
+  'NATIVE_','WORKER_','V3_RUNNER_','VALIDATION_','POLICY_','PREDICATE_',
+  'ERROR_','ERR_','TEST_','NO_GAME_WITNESS_','UNSUPPORTED_','INVALID_','NOT_','CANNOT_','BAD_','MISSING_'
+];
+function safeV3FailureName(value){return SAFE_V3_FAILURE_NAMES.has(value)?value:'Error';}
+function safeV3FailureCode(value){
+  if(typeof value!=='string'||!/^[A-Z0-9_]{1,64}$/.test(value))return null;
+  return value==='TEST'||SAFE_V3_FAILURE_CODE_PREFIXES.some(prefix=>value.startsWith(prefix))?value:null;
+}
 function projectNativeFixtureFailureForReceipt(failure,{includePrimary=true}={}) {
   if(!failure||typeof failure!=='object')return null;
-  const summary={};
-  for(const key of ['stage','code','actionOrdinal','actingSeat','phaseBefore',
-    'turnBefore','pendingPromptType','actionName',
-    'name','messageLength','stackSite','nativeErrorKind','nativeGameMessage',
-    'nativeActionType','nativeActionValidationStage']){
-    const value=failure[key];
-    if(value===undefined||value===null)continue;
-    if(key==='stage'&&typeof value==='string'&&/^[a-z0-9-]{1,64}$/.test(value))summary[key]=value;
-    else if(key==='code'&&typeof value==='string'&&/^[A-Z0-9_]{1,64}$/.test(value))summary[key]=value;
-    else if(['actionOrdinal','turnBefore','messageLength'].includes(key)&&
-      Number.isSafeInteger(value)&&value>=0)summary[key]=value;
-    else if(key==='actingSeat'&&(value===0||value===1))summary[key]=value;
-    else if(['phaseBefore','pendingPromptType','actionName'].includes(key)&&
-      typeof value==='string'&&/^[A-Za-z0-9_.:-]{1,128}$/.test(value))summary[key]=value;
-    else if(key==='name'&&typeof value==='string'&&/^[A-Za-z0-9_.-]{1,64}$/.test(value))summary[key]=value;
-    else if(key==='nativeErrorKind'&&value==='GameError')summary[key]=value;
-    else if(key==='nativeActionType'&&failure.nativeErrorKind==='GameError'&&
-      SAFE_V3_NATIVE_ACTION_TYPES.has(value))summary[key]=value;
-    else if(key==='nativeActionValidationStage'&&failure.nativeErrorKind==='GameError'&&
-      SAFE_V3_NATIVE_ACTION_VALIDATION_STAGES.has(value))summary[key]=value;
-    else if(key==='nativeGameMessage'&&typeof value==='string'&&value.length<=256)
-      summary[key]=value;
-    else if(key==='stackSite'&&value&&typeof value==='object'&&
-      typeof value.file==='string'&&
-      /^(?:simulation|vendor\/twinleaf)\/[A-Za-z0-9_.\/-]{1,240}$/.test(value.file)&&
-      !value.file.split('/').includes('..')&&
-      Number.isSafeInteger(value.line)&&value.line>0&&
-      Number.isSafeInteger(value.column)&&value.column>0)
-      summary.stackSite={file:value.file,line:value.line,column:value.column};
-  }
+  const summary={name:safeV3FailureName(failure.name)};
+  const code=safeV3FailureCode(failure.code);
+  if(code)summary.code=code;
+  if(Number.isSafeInteger(failure.actionOrdinal)&&failure.actionOrdinal>=0)
+    summary.actionOrdinal=failure.actionOrdinal;
+  if(typeof failure.stage==='string'&&/^[a-z0-9-]{1,64}$/.test(failure.stage))
+    summary.stage=failure.stage;
+  if(SAFE_V3_NATIVE_ACTION_TYPES.has(failure.nativeActionType))
+    summary.nativeActionType=failure.nativeActionType;
+  if(SAFE_V3_NATIVE_ACTION_VALIDATION_STAGES.has(failure.nativeActionValidationStage))
+    summary.nativeActionValidationStage=failure.nativeActionValidationStage;
   if(includePrimary&&failure.primaryFailure){
     const primary=projectNativeFixtureFailureForReceipt(failure.primaryFailure,{includePrimary:false});
     if(primary)summary.primaryFailure=primary;
   }
   return Object.keys(summary).length?summary:null;
 }
-
 function projectV3FixtureFailureForReceipt(source,{
   stage='native-no-game-witness',fallbackCode='WORKER_FIXTURE_FAILURE',includeNested=true
 }={}) {
-  const failure=source?.fixtureFailure&&typeof source.fixtureFailure==='object'?
-    source.fixtureFailure:source;
+  const failure=source?.fixtureFailure&&typeof source.fixtureFailure==='object'?source.fixtureFailure:source;
   const nativeFailure=projectNativeFixtureFailureForReceipt(
     failure?.nativeFixtureFailure??source?.nativeFixtureFailure
   );
+  const rawStage=failure?.stage??nativeFailure?.stage??stage;
+  const safeStage=typeof rawStage==='string'&&/^[a-z0-9-]{1,64}$/.test(rawStage)?rawStage:stage;
   const result={
-    name:typeof failure?.name==='string'&&/^[A-Za-z0-9_.-]{1,64}$/.test(failure.name)?
-      failure.name:'Error',
-    code:typeof (failure?.code??source?.code)==='string'&&
-      /^[A-Z0-9_]{1,64}$/.test(failure?.code??source?.code)?
-        (failure?.code??source?.code):fallbackCode,
-    stage:typeof (failure?.stage??nativeFailure?.stage??stage)==='string'&&
-      /^[a-z0-9-]{1,64}$/.test(failure?.stage??nativeFailure?.stage??stage)?
-        (failure?.stage??nativeFailure?.stage??stage):stage
+    name:safeV3FailureName(failure?.name),
+    code:safeV3FailureCode(failure?.code??source?.code)||
+      safeV3FailureCode(fallbackCode)||'WORKER_FIXTURE_FAILURE',
+    stage:safeStage
   };
-  const messageLength=failure?.messageLength??nativeFailure?.messageLength;
-  if(Number.isSafeInteger(messageLength)&&messageLength>=0)result.messageLength=messageLength;
-  if(failure?.nativeErrorKind==='GameError')result.nativeErrorKind='GameError';
-  if(typeof failure?.nativeGameMessage==='string'&&failure.nativeGameMessage.length<=256)
-    result.nativeGameMessage=failure.nativeGameMessage;
-  const topStackSite=projectNativeFixtureFailureForReceipt({
-    stackSite:failure?.stackSite
-  })?.stackSite;
-  if(topStackSite)result.stackSite=topStackSite;
   const assertionId=failure?.assertionId??source?.assertionId;
-  if(typeof assertionId==='string'&&/^[a-z0-9-]{1,64}$/.test(assertionId))
-    result.assertionId=assertionId;
+  if(typeof assertionId==='string'&&/^[a-z0-9-]{1,64}$/.test(assertionId))result.assertionId=assertionId;
   for(const key of ['expectedActorSeat','actualActorSeat']){
     const seat=failure?.[key]??source?.[key];
     if(seat===0||seat===1)result[key]=seat;
@@ -2540,29 +2523,39 @@ function createV3WorkerDecisionResolver({
           }
         };
       }
-      if(typeof native.ActionEnumerator!=='function'||
-          typeof native.Simulator!=='function'){
-        const error=new Error('pinned Twinleaf ActionEnumerator and Simulator must be wired into loadNativeRoleDependencies before worker root decisions');
-        error.code='NATIVE_ACTION_FRONTIER_BINDINGS_MISSING';
-        throw error;
-      }
+      nativeActionFrontier.withSafeFrontierStage('native-enumerator-construction',()=>{
+        if(typeof native.ActionEnumerator!=='function'||
+            typeof native.Simulator!=='function'){
+          const error=new Error('pinned Twinleaf ActionEnumerator and Simulator must be wired into loadNativeRoleDependencies before worker root decisions');
+          error.code='NATIVE_ACTION_FRONTIER_BINDINGS_MISSING';
+          throw error;
+        }
+      });
       if(typeof request.withValidationRandom!=='function'){
         const error=new Error('native action frontier requires an isolated deterministic validation RNG scope');
         error.code='VALIDATION_RANDOM_SCOPE_MISSING';
         throw error;
       }
       const {frontier,admission}=request.withValidationRandom(()=>{
-        const enumerator=actionEnumerator.createKnownCapFreeActionEnumerator({
-          native,enginePin:V3_FIXTURE.engineCommit
-        });
+        const enumerator=nativeActionFrontier.withSafeFrontierStage(
+          'native-enumerator-construction',
+          ()=>actionEnumerator.createKnownCapFreeActionEnumerator({
+            native,enginePin:V3_FIXTURE.engineCommit
+          })
+        );
         const frontier=actionFrontier.buildNativeActionFrontier({
           state:request.state,actorSeat,native,enumerator
         });
-        bindTraceInputs(decisionTrace,receipt,null,frontier.actionFrontier);
-        const admission=actionEnumerator.assertKnownCapFreeAdapterAdmissionClear({
-          enumerator,enginePin:V3_FIXTURE.engineCommit,
-          frontierDiagnostics:frontier.diagnostics
-        });
+        nativeActionFrontier.withSafeFrontierStage('frontier-assembly',()=>
+          bindTraceInputs(decisionTrace,receipt,null,frontier.actionFrontier)
+        );
+        const admission=nativeActionFrontier.withSafeFrontierStage(
+          'frontier-admission',
+          ()=>actionEnumerator.assertKnownCapFreeAdapterAdmissionClear({
+            enumerator,enginePin:V3_FIXTURE.engineCommit,
+            frontierDiagnostics:frontier.diagnostics
+          })
+        );
         return {frontier,admission};
       });
       roleAudit.rootActionFrontierAdmissionCount++;
@@ -3764,10 +3757,7 @@ async function runV3FixtureGame({
   ].join('\n');
   const sanitizedOnly=diagnosticMode==='sanitized-only';
   const persistedArtifact=sanitizedOnly?
-    sanitizedDiagnostic.sanitizeFixtureArtifact(artifact,{
-      nativeGameMessageValues:native?.GameMessage&&typeof native.GameMessage==='object'?
-        Object.values(native.GameMessage):[]
-    }):artifact;
+    sanitizedDiagnostic.sanitizeFixtureArtifact(artifact):artifact;
   fs.mkdirSync(runOutputDir,{recursive:true});
   const outputPath = path.join(runOutputDir,sanitizedOnly?
     'fixture-game.sanitized.json':'fixture-game.json');
