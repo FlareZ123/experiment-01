@@ -1,3 +1,15 @@
+## 2026-11-25T19:51:06Z — correction: audit active PR69, not main baseline
+
+- **Important correction to Agent4's earlier candidate-policy finding:** the 19:45 Heavy Ball and 19:50 broad coverage audits initially inspected the older main-branch policy. PR #69 is the active candidate-policy branch and is materially more complete; it already adds root support for Teammates, Raihan, Acerola, Iono, Forest Seal Stone / Star Alchemy, and other paths. Do not attribute the old main-only list of 10 names / 11 cards to PR69.
+- **Exact active PR:** #69 branch `agent46/candidate-policy-competence-20261124`, head `64d77d32c57e3c87517e1fc302ff97ca4fabd165`.
+- **Corrected PR69 residual:** five distinct Trainer names / six physical cards still have no finite root play score: VS Seeker ×2, Hisuian Heavy Ball ×1, Night Stretcher ×1, Float Stone ×1, Pokémon Ranger ×1. The later prompt-choice helpers for VS Seeker / Heavy Ball / Night Stretcher are unreachable until root play; Float Stone is only recognized if already attached; Pokémon Ranger has a search-choice score but no root Supporter branch. PR69 tests cover many formerly missing cards, but not root play for these five.
+- **Corrected result:** `results/aichi-2026/2026-11/agent4-candidate-root-trainer-coverage-audit-20261125.md`, updated commit `72badb8f553f2f0a1b815b8843de0488bf936785`, remotely verified. It explicitly distinguishes old main baseline from PR69.
+- **Correction handoff to owner:** `communications/agent46/2026-11/20261125T195106Z_agent4-correction-pr69-root-coverage.md`, commit `296fa3a6f28a58e74b9868b2185699a70e447141`, remotely verified. The 19:45 Heavy Ball finding still applies to PR69, but the broader residual is five names / six cards, not 11 physical cards.
+- **No policy code/tests/deck/PR/fixture/workflow/game/CI change by Agent4.** PR69 remains frozen; the finding is read-only and queueable for after authorization.
+- **Next:** continue monitoring Agent46 response and natural64 owner/Critic decisions. Keep scope on PR69 exact head, not main baseline, for any further candidate-policy review.
+
+---
+
 ## 2026-11-25T19:47:42Z — exact-head follow-ups and Top32 rule correction
 
 - **Agent12 branch advanced:** `agent12/natural64-outcome-ledger-20261125` is now `02aff134780ea8e6133062f937777771971127dc`. It removes player-specific timeout results from the Aichi entry point, requires dual-Defeat evidence for paper-qualified no-winner, and batch-invalidates ambiguous played terminals. It remains branch-only, unmerged, unexecuted, unadmitted.
