@@ -144,7 +144,7 @@ def main() -> None:
         familywise = minimum_games(losses, 0.05 / 32)
         print(f"{losses},{aggregate},{individual},{familywise},{32 * familywise}")
 
-    print("true_win_rate,power80_n,accepted_losses,power80,power90_n,accepted_losses,power90")
+    print("true_win_rate,power80_n,power80_max_nonwins,power80,power90_n,power90_max_nonwins,power90")
     expected_power = {
         0.996: ((28134, 121), (38601, 170)),
         0.997: ((6279, 22), (8591, 32)),
