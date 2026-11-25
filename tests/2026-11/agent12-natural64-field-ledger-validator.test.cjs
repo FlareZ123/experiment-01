@@ -889,6 +889,15 @@ test('pre-game evidence and attempts cannot smuggle terminal, deal, setup or RNG
   assert.ok(setupResult.rejectionReasons.includes(
     'pre-game-failure-has-played-game-evidence'));
 
+  const nestedSetupEvidence = makePreGameRetryFixture();
+  const played = makePublicEntryFixture();
+  nestedSetupEvidence.attempts[0].setupCoinChoiceEvidence =
+    played.setupCoinChoiceEvidence[0];
+  const nestedSetupResult = validateNatural64FieldLedger(nestedSetupEvidence);
+  assert.equal(nestedSetupResult.status, 'INVALID');
+  assert.ok(nestedSetupResult.rejectionReasons.includes(
+    'pre-game-failure-attempt-schema-invalid'));
+
 });
 
 test('unknown terminal classes and mismatched class reasons are rejected without throwing', () => {

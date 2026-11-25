@@ -42,6 +42,24 @@ const PRE_GAME_FAILURE_EVIDENCE_KEYS = new Set([
   'gameStarted', 'terminalReached', 'failureDisposition',
   'observedAt', 'evidenceSha256'
 ]);
+
+// A pre-game attempt is a closed record too. Only slot/trial identity and
+// registered provenance metadata may remain; no nested setup/coin/terminal/RNG
+// receipt or arbitrary extension can ride along with a retry.
+const PRE_GAME_FAILURE_ATTEMPT_KEYS = new Set([
+  'attemptId', 'trialId', 'slotId', 'sequenceIndex', 'roundIndex',
+  'attemptNumber', 'retryOfAttemptId', 'rank', 'seat', 'opponentSeat',
+  'status', 'gameStarted', 'terminalReached',
+  'source60Sha', 'candidate60Sha', 'candidatePolicySha',
+  'engineAndHooksSha', 'opponentPolicyBundleSha',
+  'adjudicationProtocolSha256', 'registrationSha',
+  'enginePin', 'runnerRevision', 'startedAt', 'endedAt',
+  'policyPlanSha256', 'policyRegistrationSha256',
+  'policyAttestationBundleSha256', 'policyApplicationReceiptSha256',
+  'paperReceiptId', 'terminalAdjudicationReceipt',
+  'terminalAdjudicationReceiptSha256',
+  'failureClass', 'failureCriteriaSha256', 'failureEvidenceSha256'
+]);
 const PLAYED_STATUSES = new Set([...Object.values(RESULT_TO_STATUS), NO_WINNER_STATUS]);
 const RNG_HOOKS = Object.freeze([
   'Gladion CIN',
@@ -472,6 +490,10 @@ function validateSlotAttempts(attempts, slotRoster, manifest, problems) {
 
     if (attempt.status === 'pre-game-failure') {
       preGameFailureCount += 1;
+      if (Object.keys(attempt).some(key =>
+        !PRE_GAME_FAILURE_ATTEMPT_KEYS.has(key))) {
+        add(problems, 'pre-game-failure-attempt-schema-invalid');
+      }
       if (attempt.gameStarted !== false || attempt.terminalReached !== false ||
           !PRE_GAME_FAILURE_CLASSES.has(attempt.failureClass) ||
           attempt.failureCriteriaSha256 !== manifest.preGameFailureCriteriaSha256 ||
