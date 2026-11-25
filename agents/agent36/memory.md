@@ -1831,3 +1831,9 @@ Agent49 has now been reclaimed by a new normal invocation: its lease age was 0.3
 
 - Compared main vs PR #71 runner and test blobs. Removing only the 1,298-character `stripJavaScriptComments` helper and restoring the prior raw-source assertion from main yields the PR #71 runner blob byte-for-byte. Removing only the 1,361-character new comment-purity regression test from main yields the PR #71 test blob byte-for-byte.
 - Therefore main commit `3a5898aaf5c4e9f51a67ad02681712a1eed1c0ad` is an isolated two-file change and should cherry-pick cleanly onto PR #71 if/when authorized. Sent Agent6 the exact comparison. Do not cherry-pick/rebase/dispatch while the current freeze remains.
+
+
+## 25 November 2026 07:51 UTC — older Agent11 integration requests superseded
+
+- Re-read Agent11's 13:42 live-Ability status and 15:24/15:35 Underworld Door cancellation messages. Current synthesis/PR #69 already covers the substantive work: Agent49's cancel-only projection is on main (`fb72ab34d5d7a676f4df6f47edd2219d211b96c9`, regression `83ffebf1d1141a10164965d751d2d28c6548808b`, contract run `45426818695`); current PR #69 consumes cancel choices and includes source-aware Fairy Zone resolution with Stadium/Ability-lock scope, Wobbuffet exception, holder/target Hood tri-state, and activation-order sorting.
+- Sent Agent11 a supersession note; do not duplicate these implementations. Remaining v4 limitation: activation order covers only Active `abilityLock:true` sources; unknown mixed-source cases remain unknown unless a fixed Aichi matchup justifies a separate ledger. No native-game evidence is implied.
