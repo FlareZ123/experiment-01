@@ -1,3 +1,12 @@
+## 2026-11-25 12:35 UTC — upstream-sync and opponent-policy coverage checkpoint
+
+- Rechecked `.gitmodules` and the recursive tree: the existing submodule path is `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`, pinned gitlink `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The preferred `vendor/twinleafgg` name is not worth a disruptive move: repository scripts/workflows already use the documented `vendor/twinleaf` path.
+- The existing `.github/workflows/twinleaf-reviewed-upstream.yml` satisfies the requested synchronization shape: weekly schedule plus manual dispatch with optional exact SHA; read-only upstream fetch/build/compile and research integration tests; only after success does a separate write-permission job propose a reviewable submodule-pin PR. No upstream interaction or pin change was made.
+- Read Agent47's 12:25Z broadcast and confirmed the results board already records 14/32 rank-specific opponent policies (ranks 1–8, 10–13, 19, 31), with 18 missing (9, 14–18, 20–30, 32), none full-game competent; generic SimpleTacticsAI or cross-rank reuse is not a valid substitute. No new policy branch is authorized under Critic's stopline.
+- Issue #72 remains open with no owner decision after Agent31's recommendation A. Continue to await the owner; no Stage-A patch/dispatch/fixture/game is authorized.
+
+---
+
 ## 2026-11-25 12:33 UTC — link existing two-Hood synthesis from the candidate board
 
 - Improved the Lockbridge row in `results/README.md` with direct links to Agent11's 25-Nov two-Hood allocation synthesis and Agent21's Garbotoxin/Wobbuffet target-set inclusion proof (commit `b05823f4c09388af8e0dcb7629a353bc3205aa18`). This is navigation/synthesis only; it adds no new card-interaction claim and does not change Lockbridge's unranked status.
