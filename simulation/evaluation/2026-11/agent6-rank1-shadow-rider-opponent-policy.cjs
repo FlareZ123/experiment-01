@@ -381,7 +381,11 @@ function shouldUseClimacticGate(observation) {
   const own = observation?.ownPublic ?? {};
   const radiantAlreadyInPlay = list(own.bench).some(slot =>
     matches(slot?.printing ?? '', PRINT.radiantEternatus));
-  const emptyBenchSlots = 5 - list(own.bench).filter(Boolean).length;
+  const emptyBenchSlots = openBenchSlots(observation);
+  if (emptyBenchSlots === null) {
+    setPolicyAuditRule('CLIMACTIC_GATE_NO_BENCH_CAPACITY', 'UNKNOWN_BENCH_CAPACITY');
+    return false;
+  }
   const maxFetch = Math.min(2, emptyBenchSlots - (radiantAlreadyInPlay ? 0 : 1));
   if (maxFetch <= 0) {
     setPolicyAuditRule('CLIMACTIC_GATE_NO_BENCH_CAPACITY', 'MAX_FETCH_ZERO');
@@ -409,12 +413,15 @@ function shouldUseClimacticGate(observation) {
 function isActorBenchPlacement(item, observation) {
   const metadata = item?.publicMetadata ?? {};
   const index = metadata.targetIndex;
+  const capacity = effectiveBenchCapacity(observation);
+  const bench = list(observation?.ownPublic?.bench);
   return metadata.cardType === 'pokemon' &&
     metadata.targetSeat === 'actor' &&
     metadata.targetZone === 'bench' &&
     metadata.isOwnerVisible === true &&
-    Number.isSafeInteger(index) && index >= 0 && index < 5 &&
-    list(observation?.ownPublic?.bench)[index] === null &&
+    Number.isSafeInteger(capacity) &&
+    Number.isSafeInteger(index) && index >= 0 && index < capacity &&
+    bench[index] === null &&
     item.targetPrinting == null;
 }
 
@@ -422,9 +429,11 @@ function actionTargetSlot(item, observation) {
   const metadata = item?.publicMetadata ?? {};
   if (metadata.targetSeat !== 'actor' || metadata.isOwnerVisible !== true) return null;
   if (metadata.targetZone === 'active') return observation?.ownPublic?.active ?? null;
+  const capacity = effectiveBenchCapacity(observation);
   if (metadata.targetZone === 'bench' &&
+      Number.isSafeInteger(capacity) &&
       Number.isSafeInteger(metadata.targetIndex) &&
-      metadata.targetIndex >= 0 && metadata.targetIndex < 5) {
+      metadata.targetIndex >= 0 && metadata.targetIndex < capacity) {
     return list(observation?.ownPublic?.bench)[metadata.targetIndex] ?? null;
   }
   return null;
@@ -559,6 +568,49 @@ function toolEffectsStatus(observation) {
   ];
   if (epochs.some(value => !Number.isSafeInteger(value) || value < 0)) return null;
   return epochs.some(value => value > 0) ? false : true;
+}
+
+function parallelCityLimitsActor(observation) {
+  const own = observation?.ownPublic ?? {};
+  const opponent = observation?.opponentPublic ?? {};
+  const ownParallelCity = list(own.stadium).some(stadium =>
+    includes(stadium, 'Parallel City'));
+  const opponentParallelCity = list(opponent.stadium).some(stadium =>
+    includes(stadium, 'Parallel City'));
+  // Twinleaf stores Parallel City's direction on its owner: DOWN caps that
+  // player's Bench; UP caps the other player's Bench.
+  return (ownParallelCity && own.stadiumDirection === 'down') ||
+    (opponentParallelCity && opponent.stadiumDirection === 'up');
+}
+
+function effectiveBenchCapacity(observation) {
+  const own = observation?.ownPublic ?? {};
+  const opponent = observation?.opponentPublic ?? {};
+  const ownParallelCity = list(own.stadium).some(stadium =>
+    includes(stadium, 'Parallel City'));
+  const opponentParallelCity = list(opponent.stadium).some(stadium =>
+    includes(stadium, 'Parallel City'));
+  const hasSkyField = activeStadiums(observation).some(stadium =>
+    includes(stadium, 'Sky Field'));
+  const hasParallelCity = ownParallelCity || opponentParallelCity;
+  if (!hasSkyField && !hasParallelCity) return 5;
+  const effectsLive = toolEffectsStatus(observation);
+  if (effectsLive === null) return null;
+  if (effectsLive === false) return 5;
+  if (hasSkyField && hasParallelCity) return null;
+  if (hasSkyField) return 8;
+  if (ownParallelCity && opponentParallelCity) return null;
+  if (ownParallelCity && !['up', 'down'].includes(own.stadiumDirection)) return null;
+  if (opponentParallelCity &&
+      !['up', 'down'].includes(opponent.stadiumDirection)) return null;
+  return parallelCityLimitsActor(observation) ? 3 : 5;
+}
+
+function openBenchSlots(observation) {
+  const bench = observation?.ownPublic?.bench;
+  const capacity = effectiveBenchCapacity(observation);
+  if (!Array.isArray(bench) || !Number.isSafeInteger(capacity)) return null;
+  return Math.max(0, capacity - bench.filter(Boolean).length);
 }
 
 function toolEffectsStatusOnPokemon(observation, ownerSeat, zone) {
@@ -1710,9 +1762,11 @@ function promptDecision(request) {
       choice.publicMetadata?.energyType === 'BASIC' &&
       choice.publicMetadata?.zone === 'bench' &&
       choice.publicMetadata?.selectedCount === 1);
+    const benchCapacity = effectiveBenchCapacity(observation);
     const ranked = sortedChoiceTokens(legalPairs, choice => {
       const index = choice.publicMetadata?.benchIndex;
-      const slot = Number.isSafeInteger(index) && index >= 0 && index < 5 ?
+      const slot = Number.isSafeInteger(benchCapacity) &&
+        Number.isSafeInteger(index) && index >= 0 && index < benchCapacity ?
         list(observation.ownPublic.bench)[index] : null;
       if (!slot || !matches(choice.printing, PRINT.psychic)) return -1;
       const energy = psychicEnergyOn(slot);

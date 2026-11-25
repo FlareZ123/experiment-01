@@ -118,12 +118,15 @@ function publicRestrictions(options = {}) {
 }
 
 function player(options = {}) {
-  const bench = (options.bench ?? []).slice(0, 5);
-  while (bench.length < 5) bench.push(null);
+  const benchCapacity = Number.isSafeInteger(options.benchCapacity) ?
+    options.benchCapacity : 5;
+  const bench = (options.bench ?? []).slice(0, benchCapacity);
+  while (bench.length < benchCapacity) bench.push(null);
   return {
     active: options.active ?? null,
     bench,
     stadium: options.stadium ?? [],
+    stadiumDirection: options.stadiumDirection ?? null,
     discard: options.discard ?? [],
     lostZone: options.lostZone ?? [],
     resolvingSupporter: options.resolvingSupporter ?? [],
@@ -3095,6 +3098,233 @@ test('Radiant Eternatus is played only when a VMAX remains plausibly in the deck
     items: [radiantAction, { token: 'pass', kind: 'pass' }]
   });
   assert.deepEqual(checkedDecision(exhausted), {
+    kind: 'select-action', token: 'pass'
+  });
+});
+
+
+test('Climactic Gate capacity uses live Sky Field and fails closed when effects are disabled or unknown', () => {
+  const confirm = ownPublic => promptRequest({
+    promptType: 'ConfirmPrompt',
+    source: actorChoiceSource('Radiant Eternatus CRZ 105', 'Climactic Gate'),
+    choices: [
+      { token: 'yes', kind: 'confirm', label: 'Yes' },
+      { token: 'no', kind: 'confirm', label: 'No' }
+    ],
+    publicMetadata: { selectionType: 'confirm' },
+    observation: { ownPublic }
+  });
+  const bench = [
+    pokemon('Radiant Eternatus CRZ 105'),
+    pokemon('Shadow Rider Calyrex V CRE 74'),
+    pokemon('Latias ex SSP 76'),
+    pokemon('Girafarig LOT 94'),
+    pokemon('Mimikyu GRI 58')
+  ];
+  const liveSkyField = confirm(player({
+    bench, benchCapacity: 8, stadium: ['Sky Field ROS 89'],
+    deckCount: 30, prizeCount: 6
+  }));
+  assert.deepEqual(checkedDecision(liveSkyField), {
+    kind: 'select-choice', token: 'yes'
+  });
+  const disabledEffects = confirm(player({
+    bench, benchCapacity: 8, stadium: ['Sky Field ROS 89'],
+    stadiumAndToolHaveNoEffectTurnsRemaining: 1,
+    deckCount: 30, prizeCount: 6
+  }));
+  assert.deepEqual(checkedDecision(disabledEffects), {
+    kind: 'select-choice', token: 'no'
+  });
+  const unknownEffects = confirm(player({
+    bench, benchCapacity: 8, stadium: ['Sky Field ROS 89'],
+    omitStadiumSuppression: true, deckCount: 30, prizeCount: 6
+  }));
+  assert.deepEqual(checkedDecision(unknownEffects), {
+    kind: 'select-choice', token: 'no'
+  });
+});
+
+test('Sky Field capacity admits actor Bench placements and Psychic targets at indices 5–7', () => {
+  for (const index of [5, 6, 7]) {
+    const placement = rootRequest({
+      ownHand: ['Shadow Rider Calyrex V CRE 74'],
+      ownPublic: player({
+        active: pokemon('Girafarig LOT 94'),
+        bench: Array(8).fill(null), benchCapacity: 8,
+        stadium: ['Sky Field ROS 89']
+      }),
+      items: [
+        { token: 'bench-v', kind: 'play-card',
+          actorPrinting: 'Shadow Rider Calyrex V CRE 74',
+          publicMetadata: { cardType: 'pokemon', handIndex: 0,
+            targetSeat: 'actor', targetZone: 'bench', targetIndex: index,
+            isOwnerVisible: true } },
+        { token: 'pass', kind: 'pass' }
+      ]
+    });
+    assert.deepEqual(checkedDecision(placement), {
+      kind: 'select-action', token: 'bench-v'
+    });
+    const targetBench = Array(8).fill(null);
+    targetBench[index] = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+      hp: 320, stage: 'VMAX'
+    });
+    const energy = rootRequest({
+      ownHand: ['Psychic Energy MEE 13'],
+      ownPublic: player({
+        active: pokemon('Girafarig LOT 94'),
+        bench: targetBench, benchCapacity: 8,
+        stadium: ['Sky Field ROS 89']
+      }),
+      items: [
+        { token: 'energy', kind: 'play-card',
+          actorPrinting: 'Psychic Energy MEE 13',
+          targetPrinting: 'Shadow Rider Calyrex VMAX CRE 75',
+          publicMetadata: { cardType: 'energy', handIndex: 0,
+            targetSeat: 'actor', targetZone: 'bench', targetIndex: index,
+            isOwnerVisible: true } },
+        { token: 'pass', kind: 'pass' }
+      ]
+    });
+    assert.deepEqual(checkedDecision(energy), {
+      kind: 'select-action', token: 'energy'
+    });
+  }
+  const noSkyField = rootRequest({
+    ownHand: ['Shadow Rider Calyrex V CRE 74'],
+    ownPublic: player({
+      active: pokemon('Girafarig LOT 94'),
+      bench: Array(8).fill(null), benchCapacity: 8
+    }),
+    items: [
+      { token: 'bench-v', kind: 'play-card',
+        actorPrinting: 'Shadow Rider Calyrex V CRE 74',
+        publicMetadata: { cardType: 'pokemon', handIndex: 0,
+          targetSeat: 'actor', targetZone: 'bench', targetIndex: 5,
+          isOwnerVisible: true } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(noSkyField), {
+    kind: 'select-action', token: 'pass'
+  });
+});
+
+test('Underworld Door resolves Sky Field Bench-pair targets at indices 5–7 only', () => {
+  for (const index of [5, 6, 7]) {
+    const bench = Array(8).fill(null);
+    bench[index] = pokemon('Latias ex SSP 76', { hp: 210 });
+    const request = promptRequest({
+      promptType: 'AttachEnergyPrompt',
+      source: actorChoiceSource('Shadow Rider Calyrex VMAX CRE 75', 'Underworld Door'),
+      choices: [{
+        token: 'attach-' + index, kind: 'energy',
+        printing: 'Psychic Energy MEE 13',
+        label: 'Attach Psychic Energy to Bench ' + (index + 1),
+        publicMetadata: {
+          sourceZone: 'hand', ownerSeat: 'actor', isOwnerVisible: true,
+          energyType: 'BASIC', zone: 'bench', benchIndex: index,
+          choiceIndex: 0, selectedCount: 1
+        }
+      }],
+      publicMetadata: {
+        selectionType: 'energy-attachment', count: 1,
+        minimumCount: 1, maximumCount: 1, allowCancel: false, isSecret: false,
+        sourceZone: 'hand', ownerSeat: 'actor', isOwnerVisible: true,
+        energyType: 'BASIC', zone: 'bench'
+      },
+      observation: {
+        ownPublic: player({
+          active: pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+            hp: 320, stage: 'VMAX', abilities: ['Underworld Door']
+          }),
+          bench, benchCapacity: 8, stadium: ['Sky Field ROS 89']
+        })
+      }
+    });
+    assert.deepEqual(checkedDecision(request), {
+      kind: 'select-choice', token: 'attach-' + index
+    });
+  }
+  const beyondBaseCapacity = promptRequest({
+    promptType: 'AttachEnergyPrompt',
+    source: actorChoiceSource('Shadow Rider Calyrex VMAX CRE 75', 'Underworld Door'),
+    choices: [{
+      token: 'attach-5', kind: 'energy', printing: 'Psychic Energy MEE 13',
+      label: 'Attach Psychic Energy to Bench 6',
+      publicMetadata: {
+        sourceZone: 'hand', ownerSeat: 'actor', isOwnerVisible: true,
+        energyType: 'BASIC', zone: 'bench', benchIndex: 5,
+        choiceIndex: 0, selectedCount: 1
+      }
+    }],
+    publicMetadata: {
+      selectionType: 'energy-attachment', count: 1,
+      minimumCount: 1, maximumCount: 1, allowCancel: false, isSecret: false,
+      sourceZone: 'hand', ownerSeat: 'actor', isOwnerVisible: true,
+      energyType: 'BASIC', zone: 'bench'
+    },
+    observation: {
+      ownPublic: player({
+        active: pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+          hp: 320, stage: 'VMAX', abilities: ['Underworld Door']
+        }),
+        bench: [
+          null, null, null, null, null,
+          pokemon('Latias ex SSP 76', { hp: 210 }), null, null
+        ],
+        benchCapacity: 8
+      })
+    }
+  });
+  assert.deepEqual(checkedDecision(beyondBaseCapacity), {
+    kind: 'abstain', reasonCode: 'NO_VISIBLE_ENERGY_CHOICE'
+  });
+});
+
+test('Parallel City Bench capacity follows owner orientation and fails closed when unknown', () => {
+  const makePlacement = (ownStadium, ownDirection, opponentStadium, opponentDirection) =>
+    rootRequest({
+      ownHand: ['Shadow Rider Calyrex V CRE 74'],
+      ownPublic: player({
+        active: pokemon('Girafarig LOT 94'),
+        bench: [
+          pokemon('Mimikyu GRI 58'),
+          pokemon('Latias ex SSP 76'),
+          pokemon('Trevenant & Dusknoir-GX SMP SM217')
+        ],
+        benchCapacity: 8,
+        stadium: ownStadium,
+        stadiumDirection: ownDirection
+      }),
+      opponentPublic: player({
+        stadium: opponentStadium,
+        stadiumDirection: opponentDirection
+      }),
+      items: [
+        { token: 'bench-v', kind: 'play-card',
+          actorPrinting: 'Shadow Rider Calyrex V CRE 74',
+          publicMetadata: { cardType: 'pokemon', handIndex: 0,
+            targetSeat: 'actor', targetZone: 'bench', targetIndex: 3,
+            isOwnerVisible: true } },
+        { token: 'pass', kind: 'pass' }
+      ]
+    });
+  const parallelCity = ['Parallel City BKT 145'];
+  assert.deepEqual(checkedDecision(makePlacement(parallelCity, 'down', [], null)), {
+    kind: 'select-action', token: 'pass'
+  });
+  assert.deepEqual(checkedDecision(makePlacement([], null, parallelCity, 'up')), {
+    kind: 'select-action', token: 'pass'
+  });
+  assert.deepEqual(checkedDecision(makePlacement(parallelCity, 'up', [], null)), {
+    kind: 'select-action', token: 'bench-v'
+  });
+  assert.deepEqual(checkedDecision(makePlacement([], null, parallelCity, 'down')), {
+    kind: 'select-action', token: 'bench-v'
+  });
+  assert.deepEqual(checkedDecision(makePlacement(parallelCity, null, [], null)), {
     kind: 'select-action', token: 'pass'
   });
 });
