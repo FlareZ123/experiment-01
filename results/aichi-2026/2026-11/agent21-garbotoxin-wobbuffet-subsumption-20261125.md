@@ -20,6 +20,7 @@ This is a material qualification to the proposed “Hooded Wobbuffet + Hooded VM
 - **Garbodor LTR 68** — `resources/cards/en/bw11.json`, ID `bw11-68`; **Garbodor BKP 57** — `resources/cards/en/xy9.json`, ID `xy9-57`. Both are Psychic and have the same Garbotoxin condition: while that Garbodor has a Pokémon Tool attached, each Pokémon in play, both players' hands, and both discards has no Abilities “except for Garbotoxin.”
 - **Stealthy Hood UNB 186** — `resources/cards/en/sm10.json`, ID `sm10-186`. It prevents effects of the opponent's Abilities done to the attached Pokémon. This can protect a Hooded Wobbuffet from the opponent's Garbotoxin effect, but it does not make Bide Barricade's target set larger.
 - **Shadow Rider Calyrex VMAX CRE 75** — `resources/cards/en/swsh6.json`, ID `swsh6-75`, is Psychic and has Underworld Door: each VMAX may once during the turn attach a Psychic Energy from hand to a Benched Psychic Pokémon and, if it does, draw two cards.
+- **Dialga-GX UPR 100** — `resources/cards/en/sm5.json`, ID `sm5-100`, is Dragon-type but has no Ability; Overclock, Shred, and Timeless-GX are attacks. Bide Barricade does not suppress it.
 - Exact Lockbridge 60: `results/aichi-2026/2026-11/agent31-lockbridge-shadow-rider-v1.json`, blob `907014e330aae8889fe5869a32dfcdf0d876291a`. It contains 1 Wobbuffet, 4 Shadow Rider Calyrex VMAX, 2 Stealthy Hood, 1 Float Stone, and 1 Forest Seal Stone.
 
 ## Set-inclusion argument
