@@ -518,7 +518,10 @@ test('clock mode is an explicit enum and protocol clock constraints are enforced
     reason: 'top32-prize-tiebreaker',
     clockMode: 'aichi-top32-event-clock'
   });
-  assert.equal(validate(validTop32).valid, true);
+  const eventClockResult = validate(validTop32);
+  assert.equal(eventClockResult.valid, false);
+  assert.ok(eventClockResult.rejectionReasons.includes(
+    'terminal-adjudication-event-clock-evidence-unsupported'));
 
   const wrongMode = fixture({
     result: 'candidate-win',
