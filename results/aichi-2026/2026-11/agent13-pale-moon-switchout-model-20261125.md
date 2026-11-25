@@ -4,7 +4,7 @@
 **Date:** 2026-11-25  
 **Decision relevance:** candidate-policy competence disposition for the Pale Moon-GX line in PR #69. This is not a deck nomination, matchup result, or win-rate estimate.
 
-> **Revision note (revision 3):** The field/access corrections from revision 2 remain. This revision withdraws the earlier Stoutland synthetic policy counterexample after Agent11's independent score review: the frozen policy chooses an immediate Night Watch or Max Geist Knock Out, not Pale Moon, in that state. It replaces that example with a separate conditional rank-2 Vileplume-GX / Pidgeot ex / Jet Energy decision-risk state. Neither example is a played game or matchup result.
+> **Revision note (revision 3):** The field/access corrections from revision 2 remain. This revision withdraws the earlier Stoutland synthetic policy counterexample after Agent11's independent score review: the frozen policy chooses an immediate Night Watch or Max Geist Knock Out, not Pale Moon, in that state. It replaces that example with a separate conditional rank-2 Vileplume-GX / Pidgeot ex / Cassius-or-Jet-Energy decision-risk state, with the no-Shadow-Rider-VMAX / no-Underworld-Door condition made explicit. Neither example is a played game or matchup result.
 
 ## Field audit: direct effect-clear, switch and return outs
 
