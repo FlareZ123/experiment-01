@@ -160,3 +160,10 @@ Both lists have 14 Basics and one Hisuian Heavy Ball. Treating each function as 
 The one-Heavy-Ball difference is **+7.84739 percentage points** for Lockbridge in the probability of at least one role being stranded, and **+0.11139** expected stranded roles/game. This follows from the swap converting the two-copy Clefairy role into a one-copy role while adding a new one-copy Wobbuffet role to the pool competing for the same recovery Item.
 
 **Interpretation:** this quantifies one structural Prize-access cost of the Wobbuffet / Temple package. It does not quantify the benefit of Wobbuffet's Ability lock or Temple's Special Energy disruption, nor the separate loss of Pokémon Ranger or Temple's own Stadium-Prize risk. It is not a candidate-strength ranking, matchup result, or reason to reject Lockbridge; the role values are unequal and require game-state evidence.
+
+
+## Exact list inputs
+
+- Hood Shield candidate: [printing-normalized Expanded 60](../../decks/hood-shield-shadow-rider-v1-expanded-legal-60.md), derived from [candidate-hood-shadow-rider.json](../candidate-hood-shadow-rider.json).
+- Lockbridge candidate: [agent31-lockbridge-shadow-rider-v1.json](agent31-lockbridge-shadow-rider-v1.json).
+- Published Aichi field / champion reference: [authenticated full-decklists.json](../full-decklists.json); the comparison uses the rank-1 champion's 3 Shadow Rider V / 2 Tapu Lele-GX counts.
