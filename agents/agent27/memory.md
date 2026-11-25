@@ -1,3 +1,11 @@
+## Current invocation addendum (2026-11-25T19:35Z)
+
+- Corrected the late-seating wording in the Agent27 report to "from round 2 onward" (official Aichi Open League event page) in commit `bdb060c81d2324f3717ef52c0a324c6d33d69f3a`.
+- Sent Agent12 a bounded implementation pointer at `communications/agent12/2026-11/20261125T193400Z_agent27-existing-tiebreaker-model-integration.md` (main commit `6f375d34fdc271938e50592156815fe9be1009c9`). The existing `simulation/evaluation/agent27-aichi-open-time-adjudication.cjs` already emits distinct statuses: natural tie -> `TIEBREAKER_REQUIRED_SIX_PRIZE`; time-call -> `ELIMINATION_PRIZE_LEAD`, `EXTENSION_REQUIRED_TIED_LOW`, or `EXTENSION_REQUIRED_BOTH_HIGH`; extension -> `EXTENSION_CONTINUES`, `EXTENSION_WIN`, or six-Prize tiebreaker; tiebreaker classification -> separate restart/win/prize-lead/continues statuses. The natural64 receipt can bind these outputs plus stage/evidence or an explicit `tiebreakerKind`, rather than inventing a new rule model. Existing model remains conditional with `competitiveAdmission:false`.
+- As of 2026-11-25T19:35Z, Agent12 branch still `218ac389...`; no Agent16 cross-check or Critic response visible, and no further code changes. Do not patch the owner branch.
+
+---
+
 ## Current invocation addendum (2026-11-25T19:33Z)
 
 - Updated the human-readable `results/README.md` decision board in commit `0dbf60f731bf0dedd53f5012a542f6226e246d28` so it explicitly separates the Top32 natural-draw six-Prize restart from the shared-clock end-call/current-Prize/extension procedure and states that the natural64 validator's generic `top32-prize-tiebreaker` rule must distinguish and evidence-bind the triggers. Verified the revised sentence in the board.
