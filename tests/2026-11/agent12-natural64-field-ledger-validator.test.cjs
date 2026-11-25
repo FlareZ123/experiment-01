@@ -583,9 +583,11 @@ function makePreGameRetryFixture() {
   failed.endedAt = '2026-11-25T11:59:45Z';
   for (const field of [
     'setupCoinChoiceReceiptSha256', 'setupCoinChoiceEvidenceSha256',
-    'rngMaterial', 'rngMaterialCommitment', 'observedRngProtocol',
-    'observedRngMaterialCommitment', 'effectiveMatchOptions',
-    'randomizationReceiptSha256'
+    'rngProtocol', 'rngMaterial', 'rngMaterialCommitment',
+    'observedRngProtocol', 'observedRngMaterialCommitment',
+    'effectiveMatchOptions', 'randomizationReceiptSha256',
+    'coinWinnerSeat', 'chooserSeat', 'goFirstResponse', 'hostOverride',
+    'firstPlayerSeat', 'actualFirstPlayerSeat', 'physicalDealId'
   ]) delete failed[field];
 
   const evidence = {
@@ -840,7 +842,7 @@ test('natural64 roster rejects duplicate or missing rank-seat cells', () => {
 });
 
 
-test('pre-game evidence cannot smuggle a played terminal and pre-game attempts cannot carry RNG material', () => {
+test('pre-game evidence and attempts cannot smuggle terminal, deal, setup or RNG metadata', () => {
   const terminalEvidence = makePreGameRetryFixture();
   terminalEvidence.preGameFailureEvidence[0].terminalEventSha256 = hash('f');
   seal(terminalEvidence.preGameFailureEvidence[0], 'evidenceSha256');
@@ -855,6 +857,22 @@ test('pre-game evidence cannot smuggle a played terminal and pre-game attempts c
   assert.equal(rngResult.status, 'INVALID');
   assert.ok(rngResult.rejectionReasons.includes(
     'pre-game-failure-has-played-game-evidence'));
+
+  const evidenceRng = makePreGameRetryFixture();
+  evidenceRng.preGameFailureEvidence[0].rngMaterialCommitment = hash('e');
+  seal(evidenceRng.preGameFailureEvidence[0], 'evidenceSha256');
+  const evidenceRngResult = validateNatural64FieldLedger(evidenceRng);
+  assert.equal(evidenceRngResult.status, 'INVALID');
+  assert.ok(evidenceRngResult.rejectionReasons.includes(
+    'pre-game-failure-independent-evidence-invalid'));
+
+  const setupEvidence = makePreGameRetryFixture();
+  setupEvidence.attempts[0].coinWinnerSeat = 0;
+  const setupResult = validateNatural64FieldLedger(setupEvidence);
+  assert.equal(setupResult.status, 'INVALID');
+  assert.ok(setupResult.rejectionReasons.includes(
+    'pre-game-failure-has-played-game-evidence'));
+
 });
 
 test('unknown terminal classes and mismatched class reasons are rejected without throwing', () => {

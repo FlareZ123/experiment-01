@@ -310,6 +310,13 @@ function validatePreGameFailureEvidence(attempt, evidence, manifest, problems) {
       evidence.terminalEventSha256 != null ||
       evidence.engineTerminalSha256 != null ||
       evidence.paperReceiptId != null ||
+      evidence.physicalDealId != null ||
+      evidence.rngProtocol != null ||
+      evidence.rngMaterial != null ||
+      evidence.rngMaterialCommitment != null ||
+      evidence.randomizationReceiptSha256 != null ||
+      evidence.setupCoinChoiceReceiptSha256 != null ||
+      evidence.policyApplicationReceiptSha256 != null ||
       evidence.failureCriteriaSha256 !== manifest.preGameFailureCriteriaSha256 ||
       attempt.failureCriteriaSha256 !== manifest.preGameFailureCriteriaSha256 ||
       evidence.enginePin !== manifest.twinleafPin ||
@@ -459,9 +466,18 @@ function validateSlotAttempts(attempts, slotRoster, manifest, problems) {
         add(problems, 'pre-game-failure-evidence-invalid');
       }
       if (attempt.terminalAdjudicationReceipt != null ||
+          attempt.terminalAdjudicationReceipt != null ||
           attempt.terminalAdjudicationReceiptSha256 != null ||
           attempt.paperReceiptId != null ||
+          attempt.physicalDealId != null ||
           attempt.policyApplicationReceiptSha256 != null ||
+          attempt.rngProtocol != null ||
+          attempt.coinWinnerSeat != null ||
+          attempt.chooserSeat != null ||
+          attempt.goFirstResponse != null ||
+          attempt.hostOverride != null ||
+          attempt.firstPlayerSeat != null ||
+          attempt.actualFirstPlayerSeat != null ||
           attempt.setupCoinChoiceReceiptSha256 != null ||
           attempt.setupCoinChoiceEvidenceSha256 != null ||
           attempt.rngMaterial != null ||
