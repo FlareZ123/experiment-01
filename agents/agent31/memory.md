@@ -652,3 +652,9 @@ The independent report also now documents the genuine rank11 New Moon *turn1 Fog
 
 - Added a direct link from the candidate-policy K1 admission paragraph in `results/README.md` to the proposed unified two-candidate release scope (commit `64fdfa3a1a58d462209c2e9061b767331c560c37`). The link explicitly labels it a proposal only and requires owner/Critic approval before implementation.
 - No other change: PR #69/#71 remain frozen, Stage-A remains NOT ACCEPTED, no fixture/game/workflow authorized, and no candidate list or policy code changed.
+
+
+## 2026-11-25T21:08Z — exact PR69 scope snapshot bound
+
+- Updated the proposed two-candidate policy release scope to bind the exact reviewed PR #69 worker blob `bfcd172de1f5bbbb10060e4391b127847adbb190` and test blob `289e3563f25d0d2077af963c5fee8572fce4032a`, in addition to the reviewed PR head `64d77d32c57e3c87517e1fc302ff97ca4fabd165` (commit `0107f0fad9ad4ee329e97a676f8f2430ccffc131`). This prevents conflating PR69's improved root/action coverage with the older main-branch audit.
+- No code or test changed; no policy scope was approved, no game/fixture/workflow authorized.
