@@ -98,3 +98,27 @@ Hisuian Heavy Ball is an Item. If an Item-only restriction is active when the de
 - (E[X\mid\text{legal seven}]=\) **0.78300048** singleton targets in the Prizes.
 
 This is the no-recovery stress endpoint, not the probability that Item lock is established or that any particular target is required. If Heavy Ball was used before the lock, or the lock has cleared, the one-/two-copy usable-capacity rows above are the relevant models. No timing or opponent setup rate is inferred.
+
+
+## Narrow comparison with the published champion reference
+
+The candidate's eight target roles can be compared with the published Aichi champion baseline without treating the result as a deck-strength ranking. The seven singleton roles other than Tapu Lele-GX are identical. The one-card structural difference relevant to this model is:
+
+- **Hood Shield candidate:** 4 Shadow Rider Calyrex V, 1 Tapu Lele-GX, 2 Lillie's Clefairy ex.
+- **Champion reference:** 3 Shadow Rider Calyrex V, 2 Tapu Lele-GX, 2 Lillie's Clefairy ex.
+
+Both lists have 14 Basics and one Hisuian Heavy Ball. The candidate has one more copy of its primary Basic attacker but one fewer copy of the Tapu Lele support role.
+
+| Conditional-on-legal-seven metric | Hood Shield candidate | Champion reference |
+|---|---:|---:|
+| Open at least one Shadow Rider Calyrex V | **46.37744%** (4 copies) | **36.61785%** (3 copies) |
+| At least one of the eight support/tech roles stranded by one usable Heavy Ball | **21.12871%** | **17.54447%** |
+| Expected stranded support/tech roles per game | **0.25062** | **0.20309** |
+| At least one role unavailable in the no-Heavy-Ball / active-Item-lock stress case | **58.50050%** | **53.81455%** |
+| Expected unavailable roles in that no-recovery stress case | **0.78300** | **0.69321** |
+
+The first row uses the exact opening-hand event: with (k) copies of Shadow Rider Calyrex V and 14 Basics total, (P(V\text{ in opening seven}\mid\text{legal seven})=[\binom{60}{7}-\binom{60-k}{7}]/[\binom{60}{7}-\binom{46}{7}]).
+
+The remaining rows use the same role-capacity enumeration above. For the champion reference, Tapu Lele-GX is one role with multiplicity two; the other seven target roles are singletons. The remaining Basics are 3 Shadow Rider V + 2 Clefairy ex. Both decks are modeled with one Heavy Ball.
+
+**Interpretation:** the candidate's extra Shadow Rider V materially improves the narrow opening-V proxy (+9.76 percentage points), while reducing Tapu Lele redundancy increases the modeled pressure on its single Heavy Ball (+3.58 points in the one-Ball stranded-role metric). This is a structural tradeoff, not a claim that either list is stronger. It excludes all other card-count differences, target-value differences, draw/search access, opponent actions, and complete-game outcomes.
