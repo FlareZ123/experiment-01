@@ -30,6 +30,8 @@ Four GX attacks in field-present card identities include the standard once-per-g
 
 The affected-rank union is **19/29**: the 18 lists containing Dedenne-GX plus rank 1 containing Trevenant & Dusknoir-GX. Oricorio-GX and Arceus & Dialga & Palkia-GX occur within the Dedenne ranks.
 
+This is also an internal Twinleaf inconsistency, not just a text-based inference: the corresponding card reducers enforce the GX once-per-game rule. Trevenant & Dusknoir-GX manually checks `player.usedGX` and sets it; Dedenne-GX, Oricorio-GX, and Arceus & Dialga & Palkia-GX each call `BLOCK_IF_GX_ATTACK_USED(player)` and set `player.usedGX = true` in the affected attack branch. The attack metadata flag is therefore missing even though the same pinned implementations enforce GX semantics.
+
 Six other field-present GX attack implementations were positive controls and explicitly set the flag: Tapu Lele-GX / Tapu Cure-GX; Dialga-GX / Timeless-GX; Vileplume-GX / Allergic Explosion-GX; Articuno-GX / Cold Crush-GX; Electrode-GX / Crash and Burn-GX; Gengar & Mimikyu-GX / Horror House-GX.
 
 ## Why the current tracker misclassifies them
