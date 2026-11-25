@@ -19,8 +19,8 @@ test('actual 32-placement source manifest has the five expected multi-rank group
   assert.equal(report.totalLossBudget, report.totalNonWinBudget,
     'legacy alias must preserve the all-game non-win budget');
   assert.match(report.outcomeDefinition, /all-game win probability after frozen terminal adjudication/);
-  assert.ok(report.outcomeDefinition.includes('opponent timeout/forfeit counts as a win only if adjudicated for candidate'));
-  assert.ok(report.outcomeDefinition.includes('candidate loss/forfeit, tie'));
+  assert.ok(report.outcomeDefinition.includes('only adjudicated candidate wins count as wins'));
+  assert.ok(report.outcomeDefinition.includes('candidate losses/forfeits, ties'));
   assert.ok(report.outcomeDefinition.includes('pre-game harness/engine failures are unqualified attempts'));
   assert.equal(report.archetypes.reduce((sum, row) => sum + row.count, 0), 32);
   assert.deepEqual(

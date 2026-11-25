@@ -9,12 +9,13 @@ const TARGET = 0.995;
 
 /**
  * Exact necessary subset-averaged all-game win floors for the equal-rank target.
- * p_i is P(candidate receives a win after frozen tournament-style terminal
- * adjudication on a played paper-adjudicable game). A candidate loss/forfeit,
- * tie, or other terminal outcome not adjudicated as a candidate win is a
- * non-win. An opponent timeout/forfeit counts as a win only when the frozen
- * adjudicator awards the game to the candidate. Pre-game harness/engine
- * failures remain unqualified attempts under the registered retry rule.
+ * p_i is P(candidate receives a win after frozen terminal adjudication on a
+ * played paper-adjudicable game). Only an adjudicated candidate win is a
+ * success; a candidate loss/forfeit, tie, or any other terminal outcome not
+ * adjudicated as a candidate win is a non-win. Tournament-clock, concession,
+ * and other event-specific outcomes must be resolved by the frozen protocol.
+ * Pre-game harness/engine failures remain unqualified attempts under the
+ * registered retry rule.
  *
  * @param {Array<{rank:number, archetype:string}>} field Prevalidated Aichi ranks.
  * @returns {{target:number,outcomeDefinition:string,totalNonWinBudget:number,totalLossBudget:number,rankCount:number,archetypeCount:number,archetypes:object[]}}
@@ -43,7 +44,7 @@ function fieldArchetypeFloors(field) {
     a.archetype.localeCompare(b.archetype));
   return {
     target: TARGET,
-    outcomeDefinition: 'all-game win probability after frozen terminal adjudication; opponent timeout/forfeit counts as a win only if adjudicated for candidate; candidate loss/forfeit, tie, and other terminal outcomes not adjudicated as candidate wins count as non-wins; pre-game harness/engine failures are unqualified attempts',
+    outcomeDefinition: 'all-game win probability after frozen terminal adjudication; only adjudicated candidate wins count as wins; candidate losses/forfeits, ties, and other terminal outcomes not adjudicated as candidate wins count as non-wins; pre-game harness/engine failures are unqualified attempts',
     totalNonWinBudget,
     // Backward-compatible alias. This is a non-win budget, not losses only.
     totalLossBudget: totalNonWinBudget,
