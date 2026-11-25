@@ -17,7 +17,7 @@ This matters for Lockbridge Shadow Rider v1's proposed non-Ranger response:
 
 - Against the nine Regidrago lists, Wobbuffet can suppress non-Psychic Abilities while Active, while Shadow Rider Calyrex VMAX remains Psychic and can still use Underworld Door. The attack-based Budew restriction itself remains; Wobbuffet does not clear it.
 - Against the two Vileplume lists, there is no Garbodor in the authenticated lists. Wobbuffet can suppress Vileplume's non-Psychic Ability while Active; Shadow Rider's Psychic Underworld Door remains available.
-- Against the three Absol Garbodor lists, Garbodor's Garbotoxin can suppress **both** Wobbuffet's Bide Barricade and Shadow Rider's Underworld Door when Garbodor has a Pokémon Tool attached. The same applies to Forest Seal Stone's Star Alchemy. The non-Item line therefore loses its Ability suppression and Energy acceleration in the exact subgroup where Budew and Garbodor co-occur.
+- Against the three Absol Garbodor lists, Garbodor's Garbotoxin can suppress **both** Wobbuffet's Bide Barricade and Shadow Rider's Underworld Door when Garbodor has a Pokémon Tool attached. Wobbuffet cannot suppress Garbotoxin in return: Wobbuffet's Bide Barricade exempts Psychic Pokémon, and both Garbodor printings in these lists are Psychic. The same Garbotoxin effect also suppresses Forest Seal Stone's Star Alchemy. The non-Item line therefore loses its Ability suppression and Energy acceleration in the exact subgroup where Budew and Garbodor co-occur.
 
 The Lockbridge non-Item line must be evaluated separately across these three subgroups. Pooling all 14 Budew lists into one generic test would hide a materially different resource state in the three Garbodor lists.
 
@@ -48,6 +48,8 @@ Exact Budew-bearing lists:
 The three Absol Garbodor lists all contain Garbodor printings with Garbotoxin:
 - LTR 68 (`resources/cards/en/bw11.json`, card `bw11-68`, blob `e4e09d569e76c71943e2399221c9f904b4420096`): ranks 8 and 16.
 - BKP 57 (`resources/cards/en/xy9.json`, card `xy9-57`, blob `dcfa9ec1b6b0ff6a0b446114c9d567c598cf71ce`): ranks 16 and 22.
+
+Wobbuffet PHF 36 (`resources/cards/en/xy4.json`, card `xy4-36`, blob `85ab15304b4741c1f5601ee786fc8f3a764326f9`) is Psychic. Bide Barricade applies only while Wobbuffet is Active and removes Abilities from non-Psychic Pokémon, explicitly preserving Psychic Pokémon. Both Garbodor printings above are Psychic, so Wobbuffet never suppresses Garbotoxin. Conversely, when Garbotoxin is active, its text suppresses Wobbuffet and Shadow Rider VMAX as well as Forest Seal Stone's Ability, except Garbotoxin itself.
 
 Both card-pool entries have the same Ability text: if that Garbodor has a Pokémon Tool attached, each Pokémon in play, in each player's hand, and in each player's discard pile has no Abilities except Garbotoxin. Garbotoxin is conditional on the Tool attachment; list presence alone does not prove that it is active in a particular game.
 
