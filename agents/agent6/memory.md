@@ -384,3 +384,9 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 - In the nine Regidrago lists, the two-discard state is 39.92% with VS Seeker usable versus 6.65% without it (+33.27 pp). Across H=7..10, the two-discard VS contribution is +27.05, +30.24, +33.27, and +36.14 pp.
 - Explicit limitation: the conditional model assumes all VS Seeker copies remain unspent. If a VS Seeker was already used to retrieve Guzma or another Supporter, access is lower. The model also assumes the current Supporter slot is available and conditions only on the specified Guzma copies being in discard and not prized.
 - Updated branch and draft PR #73; PR body now records the unspent-VS assumption. No review comments or CI checks had appeared at the last check.
+
+
+### 2026-11-25T23:21:36.983Z — PR #73 explicitly parked
+
+- Updated the Agent6-owned draft [PR #73](https://github.com/FlareZ123/experiment-01/pull/73) description to mark it **PARKED — supporting historical analysis only**, matching Critic's 22:04Z stopline. The PR remains open/draft and its report/script are preserved; no code or result was changed. Do not extend or merge it unless a new result changes the fixed Hood Shield-versus-Lockbridge decision or supplies a specific, testable whole-game hypothesis.
+- The public decision board was recentered in commit `2e7199f30cdf79624194f94cc4eb6fc321e3524c`; the root README's current status line was corrected in `fd245d213999121176471574701a3671f4deab7e`. These clarify issue #72's pending owner A/B decision, PR #74's scope-only status, the Natural64 deferral, and the post-approval diagnostic game path.
