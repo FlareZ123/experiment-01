@@ -27,8 +27,25 @@ function fixture({
   result = 'candidate-win',
   terminalClass = 'engine-winner',
   reason = 'engine-winner',
-  clockMode = 'clock-free-game-win'
+  clockMode = 'clock-free-game-win',
+  allowedResults
 } = {}) {
+  const protocolRule = {
+    ruleId: 'rule-' + reason,
+    reason,
+    terminalClass,
+    allowedResults: allowedResults || (
+      reason === 'engine-winner' ? ['candidate-win', 'candidate-loss'] :
+      reason === 'simultaneous-game-loss' ? ['no-winner'] :
+      reason === 'genuine-tie' ? ['genuine-tie'] :
+      reason === 'top32-prize-tiebreaker'
+        ? ['candidate-win', 'candidate-loss', 'genuine-tie', 'no-winner']
+        : [result]
+    ),
+    ...(reason === 'top32-prize-tiebreaker'
+      ? {clockMode: 'aichi-top32-event-clock'} : {})
+  };
+  const protocolRuleSha256 = canonicalSha256(protocolRule);
   const expected = {
     attemptId: 'attempt-1',
     slotId: 'slot-1',
@@ -48,6 +65,7 @@ function fixture({
     opponentPolicyBundleSha: hash('6'),
     adjudicationProtocolSha256: hash('7'),
     clockMode,
+    protocolRule,
     rngMaterialCommitmentSha256: hash('8'),
     enginePin: gitHash('a'),
     runnerRevision: gitHash('b'),
@@ -117,6 +135,11 @@ function fixture({
     attemptId: expected.attemptId,
     slotId: expected.slotId,
     adjudicationProtocolSha256: expected.adjudicationProtocolSha256,
+    protocolRuleId: protocolRule.ruleId,
+    protocolRuleSha256,
+    runnerEvidenceSha256: runnerEvidence.evidenceSha256,
+    terminalEventSha256: runnerEvidence.terminalEventSha256,
+    engineTerminalSha256: runnerEvidence.engineTerminalSha256,
     clockMode,
     adjudicatorId: 'adjudicator-1',
     adjudicatedAt: '2026-11-25T12:02:00Z',
@@ -146,6 +169,8 @@ function fixture({
     engineAndHooksSha: expected.engineAndHooksSha,
     opponentPolicyBundleSha: expected.opponentPolicyBundleSha,
     adjudicationProtocolSha256: expected.adjudicationProtocolSha256,
+    protocolRuleId: protocolRule.ruleId,
+    protocolRuleSha256,
     clockMode,
     rngMaterialCommitmentSha256: expected.rngMaterialCommitmentSha256,
     setupCoinChoiceReceiptSha256: setupCoinChoiceEvidence.receiptSha256,
@@ -182,7 +207,7 @@ function validate(input, extra = {}) {
   });
 }
 
-test('valid receipt binds attempt, native setup, runner terminal and adjudicator evidence', () => {
+test('valid receipt binds attempt, native setup, exact runner terminal and protocol-selected adjudication', () => {
   const input = fixture();
   const result = validate(input);
   assert.equal(result.valid, true, result.rejectionReasons.join(','));
@@ -209,6 +234,20 @@ test('runner terminal-event digest must match the separately supplied runner evi
   const result = validate(input);
   assert.equal(result.valid, false);
   assert.ok(result.rejectionReasons.includes('terminal-adjudication-runner-evidence-binding-mismatch'));
+});
+
+test('adjudicator evidence must join the exact runner terminal, even after its own digest is resealed', () => {
+  const input = fixture();
+  input.adjudicationEvidence.terminalEventSha256 = hash('d');
+  seal(input.adjudicationEvidence, 'evidenceSha256');
+  input.attempt.terminalAdjudicationReceipt.adjudicationEvidenceSha256 =
+    input.adjudicationEvidence.evidenceSha256;
+  seal(input.attempt.terminalAdjudicationReceipt, 'receiptSha256');
+  input.attempt.terminalAdjudicationReceiptSha256 =
+    input.attempt.terminalAdjudicationReceipt.receiptSha256;
+  const result = validate(input);
+  assert.equal(result.valid, false);
+  assert.ok(result.rejectionReasons.includes('terminal-adjudication-adjudicator-terminal-binding-mismatch'));
 });
 
 test('native setup receipt must bind the actual first draw and candidate seat/choice fields', () => {
@@ -257,23 +296,31 @@ test('no-winner is always a distinct nonwin and cannot be relabelled', () => {
   });
   const forgedResult = validate(forged);
   assert.equal(forgedResult.valid, false);
-  assert.ok(forgedResult.rejectionReasons.includes('terminal-adjudication-terminal-class-result-incompatible'));
+  assert.ok(forgedResult.rejectionReasons.includes('terminal-adjudication-protocol-rule-binding-invalid'));
 });
 
-test('terminal class and reason vocabulary are controlled and compatible', () => {
-  const unknown = fixture({terminalClass: 'arbitrary-terminal', reason: 'arbitrary'});
-  const unknownResult = validate(unknown);
-  assert.equal(unknownResult.valid, false);
-  assert.ok(unknownResult.rejectionReasons.includes('terminal-adjudication-terminal-class-result-incompatible'));
-  const tie = fixture({
-    result: 'genuine-tie',
-    terminalClass: 'genuine-tie',
-    reason: 'genuine-tie'
+test('a concession or timeout result is determined by its registered rule, not a universal hardcoded map', () => {
+  const input = fixture({
+    result: 'candidate-loss',
+    terminalClass: 'timeout',
+    reason: 'opponent-timeout',
+    allowedResults: ['candidate-loss']
   });
-  assert.equal(validate(tie).valid, true);
+  const result = validate(input);
+  assert.equal(result.valid, true, result.rejectionReasons.join(','));
 });
 
-test('clock mode is an explicit enum and event-clock reasons require Aichi Top32 mode', () => {
+test('protocol rule hash and allowed result are mandatory and content-addressed', () => {
+  const input = fixture();
+  input.adjudicationEvidence.protocolRuleSha256 = hash('f');
+  seal(input.adjudicationEvidence, 'evidenceSha256');
+  const result = validate(input);
+  assert.equal(result.valid, false);
+  assert.ok(result.rejectionReasons.includes('terminal-adjudication-adjudicator-evidence-binding-mismatch') ||
+    result.rejectionReasons.includes('terminal-adjudication-protocol-rule-binding-invalid'));
+});
+
+test('clock mode is an explicit enum and protocol clock constraints are enforced', () => {
   const invalid = fixture({clockMode: 'whatever'});
   assert.equal(validate(invalid).valid, false);
   const wrongMode = fixture({
@@ -284,7 +331,7 @@ test('clock mode is an explicit enum and event-clock reasons require Aichi Top32
   });
   const result = validate(wrongMode);
   assert.equal(result.valid, false);
-  assert.ok(result.rejectionReasons.includes('terminal-adjudication-clock-reason-mode-mismatch'));
+  assert.ok(result.rejectionReasons.includes('terminal-adjudication-protocol-rule-binding-invalid'));
 });
 
 test('adjudicator evidence is independently bound to result, class, reason and protocol', () => {
@@ -296,7 +343,7 @@ test('adjudicator evidence is independently bound to result, class, reason and p
   assert.ok(result.rejectionReasons.includes('terminal-adjudication-adjudicator-evidence-binding-mismatch'));
 });
 
-test('receipt and terminal event replay are rejected', () => {
+test('receipt, terminal event and setup evidence replay are rejected', () => {
   const input = fixture();
   const result = validate(input, {
     seenReceiptSha256: new Set([input.attempt.terminalAdjudicationReceiptSha256]),
