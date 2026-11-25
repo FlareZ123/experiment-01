@@ -10,7 +10,7 @@ Produce **one frozen actor-only candidate-policy code release** with two immutab
 - Hood Shield Shadow Rider v1: `results/aichi-2026/candidate-hood-shadow-rider.json`, Git blob `24ace2d6feb9ce5d9056bcf271827cfe31b7357b`.
 - Lockbridge Shadow Rider v1: `results/aichi-2026/2026-11/agent31-lockbridge-shadow-rider-v1.json`, Git blob `32557af137c70010970cde8dc5eaa1105935b59d`.
 
-The lists are the exact four-slot trade documented in the [Lockbridge package synthesis](../../aichi-2026/2026-11/agent21-lockbridge-package-comparison-20261125.md). The policy code SHA is shared; each profile has its own immutable deck fingerprint and configuration digest. The policy must select legal actions from actor-visible observations, not from opponent hidden zones, native Store state, physical seed, or an inferred opponent hand.
+The lists are the exact four-slot trade documented in the [Lockbridge package synthesis](../../aichi-2026/2026-11/agent21-lockbridge-package-comparison-20261125.md). The policy code SHA is shared; each profile has its own immutable deck fingerprint and configuration digest. The policy must select legal actions from actor-visible observations, not from opponent hidden zones, native Store state, physical seed, or an inferred opponent hand. The allowed public-history input, `publicEventReceipt`, must remain a separate host-built allowlisted projection; never reconstruct it from or expose raw native Store state.
 
 Current frozen references are PR #69 head `64d77d32c57e3c87517e1fc302ff97ca4fabd165` and PR #71 head `3009eed98f40d2a523f67a887c2ff8e5aa44a531`. They remain frozen. At PR #69's reviewed head, the candidate worker blob is `bfcd172de1f5bbbb10060e4391b127847adbb190` and its test blob is `289e3563f25d0d2077af963c5fee8572fce4032a`. This is a proposed successor scope, not permission to patch either PR.
 
@@ -38,6 +38,18 @@ Current frozen references are PR #69 head `64d77d32c57e3c87517e1fc302ff97ca4fabd
 
 These are source-level capability findings, not proof that each card should be played in every game or that an omission causes a loss.
 
+### Profile identity and worker-delivery path
+
+Reuse the repository's existing role-identity path rather than inventing a second profile registry:
+
+- `simulation/evaluation/2026-11/agent42-role-policy-identity.cjs` already hashes `policyOptions` into `policyOptionsSha256` and binds the role identity to `deckSha256`.
+- `agent36-v3-runner.cjs` already accepts `candidatePolicyOptions` when building fixture role identities.
+- The missing link is delivery/validation: the async Docker session currently initializes worker config as `{}`, the policy protocol requires an empty config, and candidate `createPolicy()` rejects non-empty config.
+
+For the approved successor only, thread the exact candidate options from the frozen role identity into worker init and require equality between the hashed identity options and the delivered options. The candidate protocol should allow only the agreed profile keys; opponent workers must retain the existing empty config. The candidate worker should accept only the two registered profile IDs and their exact schema/version, rejecting unknown or malformed profiles. Keep options public/non-sensitive and preserve the existing physical-context guard. Both profiles must share one candidate policy-code SHA.
+
+Minimum profile-binding regressions: options-hash mismatch; profile/deck SHA mismatch; unknown profile; missing profile; extra config key; worker init altered after identity construction; correct Hood profile; correct Lockbridge profile; and unchanged empty opponent config.
+
 ## One-release acceptance criteria
 
 A successor release should not be admitted until **all** of the following are bound to the same immutable release:
@@ -45,10 +57,10 @@ A successor release should not be admitted until **all** of the following are bo
 1. **Exact deck/profile identity:** both original JSON lists and their printing-aware fingerprints; one shared policy code SHA; two immutable profile/configuration digests; no deck substitution.
 2. **Complete root-action matrix:** for every Trainer and Pokémon in each exact 60, classify root action as supported, state-conditionally supported, deliberately declined, or unsupported. A later prompt helper does not count unless the root action is reachable.
 3. **Prompt and effect receipts:** exercise the full search, multi-select, energy-payment, retreat, Stadium, Tool, Ability, attack, and recovery sequences with exact card printings, legal payment, correct count, both physical seats, and both turn-player orientations. Every selected action must bind to the native effect receipt.
-4. **Actor-only K0/K1 contract:** the runner supplies only authenticated actor-owned derived knowledge; own-deck/Prize mutations invalidate epochs; only certified complete accounting may produce a known-Prized veto. K0/unknown/partial/stale states remain conservative.
+4. **Actor-only K0/K1 contract:** the runner supplies only authenticated actor-owned derived knowledge; own-deck/Prize mutations invalidate epochs; only certified complete accounting may produce a known-Prized veto. K0/unknown/partial/stale states remain conservative. Keep `publicEventReceipt` as a separate host-built allowlisted public-history input, never raw Store state. Add decision-invariance tests: mutate concealed opponent hand/deck/face-down Prize data and physical seed while holding the actor-visible observation and allowed public receipt fixed; the worker's decision must remain identical. Exercise ownerK1 current/valid, absent, stale-epoch, and invalidated states.
 5. **Deck-specific branches:** prove Ranger/VS Seeker and Item-lock behavior for Hood; prove Wobbuffet/Temple, self-lock timing, Stadium opportunity cost, Marshadow counterplay, and the non-Item Budew response for Lockbridge. Do not assume one profile's answer exists in the other.
 6. **Strategy challenges:** freeze development and held-out state envelopes for Gate-first/lock-first, Underworld Door before Gate, Fairy Zone/Weakness breakpoints, Pale Moon-GX extra-Energy and retreat escape, Tool/Stadium suppression, Budew, Prize-recovery, and each deck's actual root Trainer choices. No synthetic test count is a game result.
-7. **Native execution and independent review:** only after a separate authorization and accepted execution gates, run the actual frozen policy (not scripted helpers) through complete native games. Require resolved prompts, no engine errors, actor-only inputs, source-bound opponent policy, complete terminal/effect receipts, and independent strategy plus paper/clock review of the exact code/profile/game trace.
+7. **Native execution and independent review:** only after a separate authorization and accepted execution gates, run the actual frozen policy (not scripted helpers) through complete native games. Require resolved prompts, no engine errors, actor-only inputs, source-bound opponent policy, complete terminal/effect receipts, and separate pre-deal candidate-policy and opponent-policy strategy reviewers. Those reviewers must be distinct from each other and from policy/bundle producers, and must have no authorship or material conflict for the relevant rank; retain the separate post-game paper/clock adjudication. Apply the existing issue #39 reviewer-role separation rather than a generic single-reviewer sign-off.
 8. **No early competitive aggregate:** the current field is 29/32, 14/32 opponent modules exist but 0/14 have demonstrated full-game competence, and the natural-64 receipt validator remains unadmitted. No 99.5% or full-Top-32 claim follows until the 32 source lists and competent rank policies are admitted.
 
 ## Explicit non-goals and current stopline
