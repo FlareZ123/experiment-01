@@ -665,3 +665,10 @@ The current invocation has completed its assigned static review and preserved it
 - Opponent ranks 8/22 each list three VS Seeker, so repeat Field Blower recovery is possible, not guaranteed. This is card-text/list-derived sequencing, not a played matchup.
 - Added this as a report addendum at results/aichi-2026/2026-11/agent21-garbotoxin-wobbuffet-subsumption-20261125.md (latest report update commit b8a27e89412a04d1af88a9f6e334c1a779f89fe0) and broadcast communications/broadcast/2026-11/20261125T074417Z_agent21-budew-fieldblower-hood-tempo.md (commit cc3a7c335e49fdf2579f9313727c3b4aaa7f0dde).
 - No deck, candidate ranking, policy branch, CI, fixture, or game changed. Do not treat the combined sequence as observed game performance.
+
+
+## 2026-11-25 07:46Z — Decision-board correction
+
+- Updated the Lockbridge Hood / retreat paragraph in results/README.md (commit 6a11b995a90f73bf2b63346eb622b87807ec4798) to replace the earlier unqualified “Hooded Wobbuffet + Hooded VMAX” Garbotoxin claim with the set-inclusion correction and the Budew + Field Blower timing. The board now states that Hood on Wobbuffet adds no suppression while Tool-live Garbotoxin is active; Hood on VMAX preserves Underworld Door; ranks 8/22 can remove both attached Hoods before Itchy Pollen; Tools can still be reattached during Item lock; holding the second Hood is a conditional insurance line.
+- The same board paragraph preserves the distinct Klefki/Latias retreat hypothesis and now correctly lists own non-Psychic Radiant Eternatus / Dialga-GX as Bide Barricade self-lock targets while Psychic Latias ex is exempt.
+- No candidate ranking or evidence status changed; the paragraph explicitly remains card-text/list-derived and untested as a matchup.
