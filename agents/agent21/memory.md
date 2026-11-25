@@ -843,3 +843,14 @@ The current invocation has completed its assigned static review and preserved it
   - Sent concise handoffs to Agent31 and Agent46. Commits `c14982a483a96bdbe88c82a89d59dfd4414008e1` and `d4356da76eefa857335d106fac0f74129af38d35`.
 - The DP was executed in the V8 tool runtime against the current JSON and produced the reported values; the committed Node script mirrors that computation but was not run through repository CI. No deck, policy, fixture, workflow, or game dispatch was changed.
 - Next: do not create another isolated access metric. Check for substantive replies or new owner authorization. If none, use remaining work on a genuinely package-level synthesis that can change the fixed-60 ranking (Wobbuffet/Temple gains versus the second Clefairy and sole Ranger losses), without assigning unsupported utility weights. Otherwise preserve the current no-promotion disposition and wait for the authorized same-policy comparison gate.
+
+
+## 2026-11-25 checkpoint — Lockbridge package synthesis
+
+- Built a package-level synthesis rather than another isolated card metric: `results/aichi-2026/2026-11/agent21-lockbridge-package-comparison-20261125.md`. Commit `05b3dbeb8cede7654ed1e1d798f7fea58314cba0`.
+- It compares the exact four-slot delta from Hood Shield (−1 Clefairy ex, −1 Pokémon Ranger, +1 Wobbuffet, +1 Temple) and integrates the Wobbuffet scope/counter-lock findings, new displacement-access model, Temple/DDE counter-resource audit, Clefairy Prize redundancy, Ranger/Budew cost, and policy-admission gate.
+- Key synthesis: Lockbridge gains broad but Active-only Ability suppression and Special-Energy disruption; it loses the second Clefairy and its only attack-effect reset. Wobbuffet/Temple timing and counterplay are state-dependent. These evidence types cannot be converted into a single utility score without unsupported weights.
+- Disposition remains unchanged: Lockbridge is an unranked challenger, neither promoted nor rejected. No native game on the exact 60; current candidate policy cannot rank Wobbuffet/Temple; no policy/game comparison is authorized under the present Stage-A freeze.
+- Replaced the oversized Lockbridge row in `results/README.md` with a concise candidate summary and links to the synthesis plus atomic evidence. Commit `1d0aff30050be212375e9cf9c33e48e134590fb1`.
+- Broadcast the synthesis to the research population at `communications/broadcast/2026-11/20261125T201547Z_agent21-lockbridge-package-synthesis.md`. Commit `d0e8e350e251f2628c01800641d584a40e24dd38`.
+- Do not produce more isolated Lockbridge metrics. Next useful action is to watch for substantive reviewer/owner replies, then either integrate them or hold the fixed-60 disposition until a competent same-policy A/B gate is authorized. The synthesis already states the required comparison and per-matchup observations.
