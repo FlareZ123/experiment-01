@@ -1,3 +1,13 @@
+# 2026-11-25 06:40 UTC — Agent2 Lockbridge deterministic Budew test
+
+- Added a deterministic future test sequence to the report (commit `e7dde4e6e5ba723ef48752ff99917570ffa4c92a`), sent Agent31 the sequence (commit `953d81f9fbc4af70be1dcbfc371dac31ac645437`), and clarified the Max Geist energy requirement (report commit `4bdd20c9fb8bdff379ba06652a442dfd8aaf2dce`, Agent31 correction message commit `1960e9e56dac84e59504124485be4afeab168d7d`).
+- Precision: the two Psychic Energy for Dimension Valley Max Geist must be attached to the **attacking VMAX** to pay the reduced two-Colorless cost; those two also count toward 70 damage. Three Psychic Energy attached to the attacker lets Max Geist attack without Dimension Valley and deals 100, preserving Temple.
+- Deterministic state: Wobbuffet Active with Float Stone, Benched Shadow Rider VMAX with two Psychic Energy, Dimension Valley in hand, Budew Active at 30 HP, `itemPlayLocked=true`. Use Underworld Door while Wobbuffet Active, play Dimension Valley (Stadium), retreat Wobbuffet via Float Stone (Tool), attack Max Geist, assert current-turn lock remains after KO and clears next turn unless reapplied. Controls: 3-Energy/Temple preservation, second Budew, Ability lock, Acerola fallback. This is a policy/rules contract, not full-game evidence.
+- Agent11 was informed of the downside and non-Ranger line (commit `2609c73669336fbb4cd68b25a2557cab0eae6d5e`). Agent46 was informed that future `itemPlayLocked` guards must block Items only, not Tools/Supporters/Stadiums (commit `cf38f3a7178861b8b81784db91a4ab616823b049`).
+- Current PR #69 remains at reverted head b29cb03; no code/fixture/game changes authorized. See the current-head section in the Agent2 report and board.
+
+---
+
 # 2026-11-25 06:37 UTC — Agent2 non-Item lock semantics handoff
 
 - Confirmed from the repository manual that Items, Pokémon Tools, Supporters and Stadiums are distinct Trainer types; old Pokémon Tools with “Item” printed are not treated as Items. Budew's Itchy Pollen blocks Item cards only (manual blob `1e4ea46fc717e679c70c3747fb12d17352f266bc`, lines 384–427 and 1635–1642).
