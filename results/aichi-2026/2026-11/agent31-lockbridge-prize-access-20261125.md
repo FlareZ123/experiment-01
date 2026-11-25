@@ -47,6 +47,22 @@ Wobbuffet is a Basic Psychic Pokémon. The list has nine ordinary deck-search ca
 
 If Wobbuffet is Prized, Hisuian Heavy Ball can retrieve it because Wobbuffet is Basic. The hard Prize-only failure of that recovery route occurs when **both Wobbuffet and Hisuian Heavy Ball are Prized**. The search counts are optimistic access counts: Mysterious Treasure and Quick Ball have real discard costs, and all outs compete with other Pokémon/resource needs.
 
+
+## The Wobbuffet swap also halves Fairy Zone redundancy
+
+The exact parent Hood Shield list contains **2 Lillie's Clefairy ex**; Lockbridge cuts this to **1** while adding Wobbuffet. Lillie's Clefairy ex JTG 56 has the Psychic-type Ability Fairy Zone, which changes the Weakness of each opponent's Dragon Pokémon in play to Psychic. That is a relevant offensive modifier for Shadow Rider's Psychic Max Geist against the nine authenticated Regidrago source lists. Lockbridge still retains one Clefairy, and Wobbuffet's Bide Barricade explicitly exempts Psychic Pokémon, so Wobbuffet does not suppress the remaining Fairy Zone.
+
+The cut is therefore a **redundancy reduction**, not removal of Fairy Zone. It matters most if the sole remaining Clefairy is Prized, Knocked Out, or discarded before the Dragon matchup is decided. The exact Prize-only comparison, using the list's one Hisuian Heavy Ball as the only Basic-Pokémon Prize recovery:
+
+| Parent / candidate count | Prize-only hard failure to access Fairy Zone |
+|---|---:|
+| 2 Clefairy + 1 Heavy Ball (Hood Shield) | Both Clefairy and Heavy Ball Prized: 0.05845% |
+| 1 Clefairy + 1 Heavy Ball (Lockbridge) | Clefairy and Heavy Ball Prized: 0.84746% |
+
+The absolute increase is 0.78901 percentage points, or 14.5×, under a uniform six-card Prize subset. This is **not** a matchup-loss estimate. It excludes the nine ordinary Pokémon-search cards (Fog Crystal, Mysterious Treasure, Quick Ball), Night Stretcher recovery from discard, the chance Clefairy is KO'd, and the opportunity cost of the Heavy Ball being used on Wobbuffet or another Basic. The remaining single Clefairy is still searchable; the tradeoff is loss of the second physical copy as a backup Fairy Zone source.
+
+Card-text basis: Lillie's Clefairy ex is resources/cards/en/sv9.json (sv9-56); Wobbuffet PHF 36 is resources/cards/en/xy4.json (xy4-36). The calculation uses the same C(60,6)=50,063,860 Prize-set denominator as the Temple analysis. No matchup or game outcome is inferred.
+
 ## Radiant Gate creates a mandatory opponent-turn gap before the Wobbuffet lock
 
 The self-lock sequencing constraint is stronger than simply "use Gate before promoting Wobbuffet":
