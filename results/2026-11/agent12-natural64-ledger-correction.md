@@ -1,25 +1,24 @@
-# Agent12 natural-64 outcome/adjudication admission correction
+# Agent12 Natural64 outcome/adjudication admission correction
 
-**Status:** implementation branch only; not merged, not a campaign result, and not a competitive qualification.
+**Status:** bounded implementation branch only; not merged, not admitted, and not a campaign result.
 
-## Scope and contract
+## Corrected contract
 
-This branch carries the bounded natural-64 structural-admission correction assigned by Critic at 2026-11-25T16:14:07Z. It is based on the existing Agent49 natural-64 prototype rather than creating another statistical framework. The selected design remains 32 source ranks × two candidate physical seats, 20 slots per cell (1,280 total), with natural actual-starter outcomes and the preregistered two-look 1,216/1,280 rule. The separate 128-cell equal-start sensitivity panel is untouched.
+- `paper-qualified-no-winner` is a completed played nonwin only when the adjudicator binds a Top32 dual-Defeat ruling for physical seats 0 and 1, exact `Defeat` penalties, and a non-empty judge reference. Ambiguous played terminals invalidate the batch; they are not no-winner outcomes.
+- Candidate/opponent forfeit and concession retain their narrow explicit mappings. A single candidate-side Defeat maps to candidate loss; a single opponent-side Defeat maps to candidate win, but only with exact Top32 stage, physical seat, penalty, and judge-ruling evidence. A generic illegal-action observation is not a game loss. Player-specific timeouts are not Aichi Top32 paper outcomes.
+- The shared helper rejects timeout classes and applies the same Defeat evidence rules as the Natural64 entrypoint. Adjudication must occur at or after runner-terminal evidence capture.
+- Played attempts, terminal receipts, runner/adjudicator evidence, and setup evidence use closed key allowlists so unknown properties cannot carry hidden-zone payloads through the public validator. Pre-game attempts reject nested setup/terminal/RNG evidence and unbound policy-registration/attestation hashes.
+- Invalid ledgers expose only raw attempt diagnostics. Qualified win/loss/tie/no-winner counts, rank summaries, observed rate, and stopping disposition are null/non-evaluable when any structural or receipt join fails.
+- The `aichi-top32-event-clock` mode is explicitly non-admitting in this v1 because the validator does not bind the distinct natural-draw, official time-call/final-turn, Prize-count, extension, and tiebreaker evidence. This does **not** select a clock-free estimand; the owner must explicitly decide whether the benchmark target is clock-free or requires a later event-clock-complete validator. The clock-free mode remains an explicit manifest value, not an inferred default.
 
-## Corrections
+## Structural limits and evidence
 
-- Treat `paper-qualified-no-winner` as a completed played terminal and a nonwin. It is neither a tie nor a candidate loss; its candidate result and statistical status remain null.
-- Restrict terminal classes and reasons to a fixed result vocabulary: opponent forfeit/concession → candidate win; candidate forfeit or illegal action → candidate loss; Aichi rejects player-specific timeout terminals in either clock mode; draw → genuine tie only in clock-free game-win mode; ambiguous played terminal → batch invalidity; paper-qualified no-winner → only an evidenced dual-Defeat ruling binding both physical seats, exact penalty, judge reference, and Top32 stage; engine winner and Top32 prize tiebreaker → candidate win/loss.
-- Require an explicit clock mode on every protocol rule. A Top32 prize-tiebreaker must use `aichi-top32-event-clock`; Aichi rejects player-specific timeout classes entirely, and event-clock mode cannot admit a terminal draw because Top32 time-expiry ties must continue through the six-Prize tiebreaker.
-- Require separate, digest-bound pre-game failure evidence that binds the attempt, slot, abort criteria, engine/runner identities, and explicit no-start/no-terminal state. Both the pre-game attempt and its separate failure-evidence record now have exact key allowlists: the attempt cannot carry a nested setup/coin/terminal/RNG receipt or arbitrary extension, and the evidence record cannot smuggle played-game metadata. Such attempts remain outside the played denominator and may retry only within the registered slot budget.
-- Validate per-attempt RNG metadata against the actual runner record shape: require `attempt.rngProtocol`, the six-stream material schema/algorithm/roles, commitment and observed echo, `effectiveMatchOptions.isolatePolicyRandomness`, the exact hook list and isolation flags. Bind the registered unbiased-shuffle method into the randomization receipt and the per-attempt material commitment into the terminal receipt.
-- Reject repeated physical-deal IDs. The six-stream v2 bundle is explicitly sampled with replacement: repeated complete commitments or individual stream keys are preserved and surfaced as high-severity audit warnings, never silently redrawn or treated as proof of intentional reuse. Unknown terminal classes and class/reason mismatches are rejected without unsafe property lookups. Repeated `trial.seed` labels remain irrelevant to v2 entropy.
-- Preserve explicit structural-only and non-authentication labels. Hashes do not authenticate the runner, adjudicator, source producer, host entropy, or paper shuffle.
+This is a structural-admission validator only. Hashes do not authenticate the source producer, runner, adjudicator, physical paper record, external entropy, or fair shuffle. It does not establish paper legality, policy competence, matchup strength, or a 99.5% win rate. The 128-cell equal-start sensitivity panel remains separate and non-poolable.
 
-## Tests authored
+## Test status
 
-The test additions cover the terminal-result matrix, evidenced dual-Defeat no-winner and denominator behavior, batch invalidation of ambiguous played terminals, Aichi rejection of player-specific timeout terminals, Top32 clock/result constraints including rejection of event-clock draws, pre-game retry/evidence with exact attempt/evidence allowlists and nested setup-receipt rejection, terminal/engine/RNG commitment binding, per-attempt RNG protocol and policy-isolation checks, unknown protocol rule IDs, natural-64 roster defects, duplicate deal IDs, and RNG collision auditing.
+The authored suites are intended to run with:
 
-## Evidence limits
+    node --test tests/2026-11/shared/terminal-adjudication-receipt.test.cjs tests/2026-11/agent12-natural64-field-ledger-validator.test.cjs
 
-No game simulations or real campaign data, CI dispatches, or workflow changes are included or authorized; the tests use synthetic unit-test fixtures only. No full-game Twinleaf/V3 RNG integration, pre-game RNG custody, external entropy attestation, paper shuffle fairness, paper adjudicator signature, original-source authentication, policy competence, matchup result, or 99.5% win rate is established. The current campaign runner emits the RNG metadata checked here but does not emit the full independent runner-terminal/adjudicator/setup/policy evidence bundle required by this validator; raw archive fields alone do not pass the gate. Local test execution was not performed in this invocation: the repository is not mounted in the shell and outbound DNS is unavailable; Critic's scope prohibits CI dispatch. The authored suites should be run with `node --test tests/2026-11/shared/terminal-adjudication-receipt.test.cjs tests/2026-11/agent12-natural64-field-ledger-validator.test.cjs` and independently reviewed on the exact branch SHA before this structural gate is considered accepted.
+They were **not executed in this environment**: the repository is not mounted in the local shell and outbound DNS to GitHub is unavailable. No Actions workflow was dispatched or changed. The branch remains unadmitted until the exact two suites run successfully in a repository checkout and Agent50/Agent47 confirm the final exact SHA.
