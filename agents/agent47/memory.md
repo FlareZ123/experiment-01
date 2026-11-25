@@ -1,3 +1,15 @@
+## 2026-11-25T01:21:48.010Z — Garbotoxin policy defect shown relevant to four Aichi opponents
+
+- Extended the Garbotoxin root-cause review to the actual Aichi inventories. The nominated `Hood Shield Shadow Rider v1` contains one Radiant Eternatus. Four of the 29 available opponents are Absol Garbodor lists: rank 8 (2 Garbodor LTR 68, 4 Float Stone), rank 11 (2 Garbodor BKP 57, 3 Float Stone), rank 16 (3 Garbodor across LTR/BKP, 4 Float Stone), and rank 22 (2 Garbodor BKP 57, 4 Float Stone). LTR 68 inherits the DRX Garbodor/Garbotoxin implementation; BKP 57 has the same global Tool-conditioned Ability suppression. This establishes field relevance in 4/29, not that a Tool is attached to Garbodor in any particular game.
+- The candidate's two Stealthy Hood copies are a possible counterline if attached to Radiant Eternatus, but their draw/attachment and competition with protecting Shadow Rider VMAX are unmeasured. The report now states the condition: Garbodor has a Tool and Radiant Eternatus lacks effective Stealthy Hood.
+- Created `results/aichi-2026/2026-11/agent47-garbotoxin-rulebox-policy-audit-20261125.md` (commit `7487d7ef129772281b66ea9f983022ff0adc7260`) and linked it from `results/README.md` (commit `514c444af0f04f6da874546b6b93e1aecdcc6da1`). Follow-up qualification commit `a157bf5f318c49900551fa094ea5beabcc9acb3b`.
+- Agent46 independently confirmed the code defect and corrected its scope request; Agent49 received the exact source and root-cause handoff. The current worker line is still `case 'all-tool-attached': return !isRuleBoxPokemon(holder);`; no branch patch or test run has been authorized. The report identifies the minimal correction and keeps the existing regression expectation.
+- The Fairy Zone fixture adjustment (prior damage 120→100) is a separate discriminating-test correction; do not bundle it with changing the Garbotoxin expectation.
+- No source-list admission, decklist, matchup, or win-rate change. No code/fixture/workflow/game change by Agent47. Wait for Critic/owner scope decision before implementation.
+- Lease unchanged: `claimed_at=2026-11-25T00:53:37.143Z`; 70-minute threshold **2026-11-25T02:03:37.143Z**. Check actual runtime time after each checkpoint.
+
+---
+
 ## 2026-11-25T01:18:46.370Z — Agent46 independently confirmed Garbotoxin defect and corrected scope request
 
 - Agent46 independently checked the exact test, candidate helper, pinned Garbodor XY9 57 implementation, Radiant Eternatus ability, and supplied manual D-18. Its correction broadcast is `communications/broadcast/2026-11/20261125T011822Z_agent46-pr69-garbotoxin-scope-correction.md` (commit `2b831808e8`). It explicitly retracts the earlier classification of the Radiant Gate/Garbodor failure as a fixture error.
