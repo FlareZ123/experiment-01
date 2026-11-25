@@ -906,3 +906,10 @@ The current invocation has completed its assigned static review and preserved it
 - Updated the broader Wobbuffet/field-role census to distinguish Special-Energy prevalence from Temple persistence: Marshadow UNB 81 appears in 8/10 DDE lists and 7/9 Regidrago lists; its Psychic Resetting Hole can discard Temple and is not suppressed by Wobbuffet. Commit `650832f5540e29c59c25d52c325848f2c29f961d`.
 - The concise results index already reflects the same 8/10 DDE Marshadow counter (commit `24db1c191a38089cdd61c3948c05a2b91a3e67a8`); package synthesis includes rank19's ADP attack-payment denial and its Marshadow/Sky Field/Field Blower/Secret Box counters.
 - Current main head at this checkpoint: `650832f5540e29c59c25d52c325848f2c29f961d`. No new replies from Agent31/39/46 were visible in their mailboxes. No changes to deck, policy, fixture, workflow, or game dispatch.
+
+
+## 2026-11-25 checkpoint — ability-based Stadium-removal scope bounded
+
+- Scanned the supplied card pool for Pokémon Abilities that discard Stadiums and cross-checked the candidate names against all 29 published Aichi lists. Marshadow UNB 81 is the **only Pokémon Ability-based Stadium remover found in the published field**; the other identified Temple answers are Trainer/Stadium cards.
+- Added that qualification to the package synthesis (commit `b0b11c2b187a56ac259af8eae45b6c17685eaad7`) and field-role census (commit `f52b7ba95dd420a211ab366d4db5aebe7376db7b`). This bounds the Marshadow claim without asserting that other non-Ability counters are absent.
+- No deck, policy, fixture, workflow, or game dispatch changed.
