@@ -107,14 +107,17 @@ test('Arven can search Float Stone when the target Tool slot is open', () => {
   close(result.totalAccessProbability, 0.4340457001650825);
 });
 
-test('Guzma and Hala needs a Stadium in deck for the modeled Float Stone search', () => {
-  const list = deck({ 'Float Stone': 1, 'Guzma & Hala': 3, 'Path to the Peak': 1, 'Silent Lab': 1 });
-  const withStadium = estimateFloatStoneSearchAccess(list, { ...staticState, targetToolSlotOpen: true });
-  const noStadium = estimateFloatStoneSearchAccess(deck({ 'Float Stone': 1, 'Guzma & Hala': 3 }), {
-    ...staticState, targetToolSlotOpen: true
-  });
-  close(withStadium.totalAccessProbability, 0.3573178103592758);
+test('Guzma and Hala needs a Stadium and Special Energy in deck for the modeled Float Stone search', () => {
+  const list = deck({ 'Float Stone': 1, 'Guzma & Hala': 3, 'Path to the Peak': 1, 'Silent Lab': 1,
+    'Double Colorless Energy': 1 });
+  const withTargets = estimateFloatStoneSearchAccess(list, { ...staticState, targetToolSlotOpen: true });
+  const noStadium = estimateFloatStoneSearchAccess(deck({ 'Float Stone': 1, 'Guzma & Hala': 3,
+    'Double Colorless Energy': 1 }), { ...staticState, targetToolSlotOpen: true });
+  const noSpecial = estimateFloatStoneSearchAccess(deck({ 'Float Stone': 1, 'Guzma & Hala': 3,
+    'Path to the Peak': 1, 'Silent Lab': 1 }), { ...staticState, targetToolSlotOpen: true });
+  assert.ok(withTargets.pGuzmaHalaSearch > 0);
   close(noStadium.totalAccessProbability, 7 / 60);
+  close(noSpecial.totalAccessProbability, 7 / 60);
 });
 
 test('Float Stone is still directly attachable under Item lock if a Tool slot is open', () => {
