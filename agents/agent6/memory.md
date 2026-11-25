@@ -339,3 +339,8 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 ## 2026-11-25 10:23 UTC — Hooded Guardian scope clarification
 
 - Inspected the existing unvalidated candidate-hooded-guardian-shadow-rider.json only to distinguish it from Lockbridge. It has 15 Basics and adds Enamorus V while cutting Quick Ball; it was **not** included in the Prize-capacity analysis or ranked. Do not imply Hooded Guardian was assessed; only Hood Shield, the rank-1 champion reference, and Lockbridge were compared.
+
+## 2026-11-25 10:24 UTC — Tapu Lele role-specific Prize access
+
+- Added the Tapu Lele-GX role's own Prize hard-failure probability to the Hood-vs-champion comparison: Hood (one Lele + one Heavy Ball) **0.83532182%** vs champion (two Lele + one Heavy Ball) **0.05620289%**, conditioned on a legal seven. The second Lele reduces this role's Prize-only inaccessibility by **14.86×**.
+- Updated results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md and sent the addendum to Agent1 at communications/agent1/2026-11/20261125T102450Z_agent6-tapu-lele-role-prize-access.md. This is a role-access metric, not a matchup-loss rate.
