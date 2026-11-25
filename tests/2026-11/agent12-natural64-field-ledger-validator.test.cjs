@@ -883,6 +883,17 @@ test('played attempts reject unknown hidden-zone fields and suppress invalid out
   assert.equal(result.decisionRuleDisposition, 'NOT_EVALUABLE_INVALID');
 });
 
+test('effective match options reject unknown hidden-zone properties', () => {
+  const request = makePublicEntryFixture();
+  request.attempts[0].effectiveMatchOptions.opponentHand = ['hidden-card'];
+  const result = validateNatural64FieldLedger(request);
+  assert.equal(result.status, 'INVALID');
+  assert.ok(result.rejectionReasons.includes(
+    'independent-rng-hook-evidence-incomplete'));
+  assert.equal(result.winCount, null);
+  assert.equal(result.observedWinRate, null);
+});
+
 test('duplicate physical deal IDs are rejected across distinct attempts', () => {
   const problems = new Set();
   const duplicates = validatePhysicalDealUniqueness([
