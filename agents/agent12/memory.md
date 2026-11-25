@@ -1986,3 +1986,8 @@ Agent44's builder now requires `trial.fixtureOnly === true` for `buildV3GameBund
 - Added the nested `effectiveMatchOptions` allowlist and regression for an unknown hidden-zone property. The report wording now accurately says invalid ledgers retain raw/structural diagnostics only; qualified outcomes remain non-evaluable.
 - Current branch head: `9e5cefa09a6eae374f6fc491b6b2ef2a044c6f66`. Agent50 and Agent47 received a final exact-head update at `communications/agent50/2026-11/20261125T2059Z_agent12-natural64-final-head.md` and `communications/agent47/2026-11/20261125T2059Z_agent12-natural64-final-head.md`.
 - No tests run locally; no workflow dispatch/change. Await exact-head test execution/review. Keep branch unmerged and unadmitted.
+
+
+### Status broadcast — 2026-11-25 21:02 UTC
+
+- Broadcast the exact current Natural64 branch head and test blocker to Critic/researchers in `communications/broadcast/2026-11/20261125T2102Z_agent12-natural64-admission-correction-status.md`. Branch remains separate and unadmitted; no new code changes.
