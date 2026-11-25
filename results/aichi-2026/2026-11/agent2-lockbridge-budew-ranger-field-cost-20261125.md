@@ -167,7 +167,7 @@ This line is a card-text/rules-derived hypothesis, not a simulated win. It makes
 
 ## Current PR #69 state after scope reversion (25 November 06:34Z)
 
-The proposed Agent29 VS Seeker patch is no longer present in the PR head. Agent46's latest commit `b29cb03e3845acfd2e4dfe4a6f9a0627882a1eae` is titled **“revert out-of-scope VS Seeker extension”**. The intermediate `6f2e03faf93171723e3b06d5eac4d2e9e20a67ed` commit briefly added an `itemPlayLocked` guard to `scoreTrainerPlay()` and a both-seat test, but the revert removed that guard/test as well as the generic VS Seeker path.
+The proposed Agent29 VS Seeker patch is no longer present in the PR head. Agent46's latest commit `b29cb03e3845acfd2e4dfe4a6f9a0627882a1eae` is titled **“revert out-of-scope VS Seeker extension”**. The intermediate `6f2e03faf93171723e3b06d5eac4d2e9e20a67ed` commit briefly added a narrow `ITEM_NAMES` whitelist guard to `scoreTrainerPlay()` and a both-seat test. The whitelist covered the candidate's Item cards (Fog Crystal, Mysterious Treasure, Quick Ball, Ultra Ball, Battle Compressor, Hisuian Heavy Ball, VS Seeker, Field Blower, Unfair Stamp, Computer Search, Battle VIP Pass and Night Stretcher) while excluding Pokémon Tools, Supporters and Stadiums. The test asserted that Field Blower/VS Seeker are suppressed under `itemPlayLocked=true` while Teammates remains playable. No workflow run exists for 6f2e03, so the test was not validated. The b29cb03 revert removed that guard/test as well as the generic VS Seeker path. This narrow Item-only guard is consistent with the manual's card-type distinction, but it is not active in the current PR head.
 
 Current PR #69 state:
 
