@@ -118,7 +118,7 @@ A different, conditional state does expose a source-level decision risk in the f
 - Candidate has **no Shadow Rider Calyrex VMAX in play** (so there is no Underworld Door source), no live Latias ex / Skyliner, no live Float Stone on the Active, no other powered Benched attacker, and no higher-scored card play or usable Ability. Thus no free-retreat or Underworld Door line preempts the attack choice.
 - Opponent Active: Vileplume-GX CEC 4, 240 HP, two-Colorless Retreat Cost, zero Energy, and no effective retreat Tool.
 - Opponent Bench: Pidgeot ex OBF 164 with Quick Search available; the opponent's Vileplume AOR 3 remains in play to impose Item lock.
-- Quick Search is unused. At least one of these alternative outs remains: **Cassius XY 115 is in the opponent's deck and the Supporter play is unused**, or **Jet Energy PAL 190 is in the opponent's deck and the manual Energy attachment is unused**.
+- Quick Search is unused. At least one out is accessible in hand or deck: **Cassius XY 115** with the Supporter play unused, or **Jet Energy PAL 190** with the manual Energy attachment unused. If an out is in deck, Pidgeot ex can search it; if it is in hand, it can be used directly.
 
 This is a possible state in authenticated Aichi rank 2 Takahiro Ando's original list: it contains Pidgey ×2, Pidgeotto ×2, Pidgeot ex ×2, Vileplume AOR ×2, Vileplume-GX ×1, Cassius ×1, Guzma ×2, Jet Energy ×2, and Guzma & Hala ×4. Vileplume AOR's Item lock does not suppress Pidgeot ex's Ability or prevent a Supporter or Energy play.
 
