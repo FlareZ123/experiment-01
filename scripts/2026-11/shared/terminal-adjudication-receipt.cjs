@@ -94,7 +94,7 @@ function createSetupCoinChoiceEvidence({attemptId, trialId, slotId, receipt}) {
   return {...payload, evidenceSha256: canonicalSha256(payload)};
 }
 
-function validateSetupCoinChoiceEvidence({attempt, expected, receipt, setupEvidence}) {
+function validateSetupCoinChoiceEvidence({attempt, receipt, setupEvidence}) {
   const problems = new Set();
   const reject = reason => problems.add(reason);
   if (!setupEvidence || typeof setupEvidence !== 'object' || Array.isArray(setupEvidence)) {
@@ -262,7 +262,7 @@ function validateTerminalAdjudicationReceipt({
   if (!CLOCK_MODES.has(expected.clockMode)) reject('terminal-adjudication-clock-mode-invalid');
 
   for (const reason of validateSetupCoinChoiceEvidence({
-    attempt, expected, receipt, setupEvidence: setupCoinChoiceEvidence
+    attempt, receipt, setupEvidence: setupCoinChoiceEvidence
   })) reject(reason);
   if (setupCoinChoiceEvidence && isSha(setupCoinChoiceEvidence.evidenceSha256)) {
     if (seenSetupEvidenceSha256.has(setupCoinChoiceEvidence.evidenceSha256)) {

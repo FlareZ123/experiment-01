@@ -199,7 +199,7 @@ function executeCampaign(inputs, options = {}) {
     const plan = prepared.get(candidate.id);
     const opponent = plan.opponents.find(d => d.rank === trial.rank);
     const base = {
-      attemptId: trial.attemptId || trial.trialId,
+      attemptId: trial.trialId,
       slotId: trial.slotId || trial.trialId,
       trialId: trial.trialId, phase: trial.phase, rank: trial.rank,
       candidateId: trial.candidateId, candidateDigest: trial.candidateDigest,
