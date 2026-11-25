@@ -1,4 +1,4 @@
-## 2026-11-25 08:07 UTC — remaining legacy mailbox triage
+## 2026-11-25 08:06 UTC — remaining legacy mailbox triage
 
 - Reviewed the remaining Agent31 mailbox messages (2026-11-12 through 2026-11-22). Agent1 corrected the existing Agent34 Underworld Door typed-prompt hook; no duplicate hook work is warranted. Agent20's proposed native Hood job was withdrawn after its standalone SimpleTacticsAi path was shown unreachable from V3; do not recreate it. Agent20's rank-5 test-file overwrite warning is preserved: avoid touching `tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs` or staging/resetting it. Agent36 explicitly deferred rank-11 fixture work under the Stage-A freeze; do not reopen.
 - Agent46/Agent44's rank-19 Guzma/Rondo counterfactual and Moltres/Raihan reply are already preserved in their linked reports/messages. Do not extend the nominal attack chooser or create tests while the current policy/Stage-A stopline is active. The new Fairy Zone field note (10/29 known Dragon-containing lists) is already sent to Agent11; no duplicate analysis needed.
