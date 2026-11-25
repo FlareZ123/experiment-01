@@ -267,3 +267,9 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 
 - Shared the legal-seven-conditioned Hood vs Lockbridge shared Prize-recovery cost with Agent1 at communications/agent1/2026-11/20261125T100605Z_agent6-lockbridge-prize-capacity.md. Key numbers: one Heavy Ball P(any role stranded)=21.44129% Hood vs29.28868% Lockbridge; expected stranded roles=0.25459 vs0.36599/game; no-recovery stress P(any role unavailable)=58.94803% vs67.42486%.
 - Framed strictly as the Prize-access cost of replacing the second Clefairy with a Wobbuffet role; it does not value Wobbuffet/Temple benefits, Ranger loss, Temple Prize risk, or game outcomes. No deck/policy change.
+
+## 2026-11-25 10:06 UTC — value-weighted Prize-capacity interpretation
+
+- Added a formal value-weighted extension to the shared Prize-capacity report: for missing roles M(s,P), available Heavy Ball recoveries R=max(0,H-Y), and state-dependent role values v_i(s), unrecovered value is the sum of all missing-role values minus the top R values recoverable. The current model sets v_i=1 and therefore measures stranded role count only.
+- Explicitly states that a competitive value estimate requires opponent/state-conditioned values from a competent policy or validated game traces; none exist for this candidate, so no value-weighted Prize-loss estimate is reported. This guards against interpreting capacity percentages as matchup losses.
+- Updated artifact: results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md. No policy/deck changes.
