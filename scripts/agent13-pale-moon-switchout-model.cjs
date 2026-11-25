@@ -14,6 +14,15 @@ const STADIUM_NAMES = new Set([
   "Team Magma's Secret Base", "Team Galactic's Wager", 'Tower of Waters', 'Beach Court',
   'Calamitous Wasteland', 'Mount Lanakila', 'Paradise Resort'
 ]);
+const SPECIAL_ENERGY_NAMES = new Set([
+  'Jet Energy', 'Capture Energy', 'Powerful Colorless Energy', 'Double Colorless Energy',
+  'Double Dragon Energy', 'Rainbow Energy', 'Aurora Energy', 'Unit Energy {GFW}',
+  'Unit Energy {LPM}', 'Unit Energy {GRW}', 'Strong Energy', 'Mystery Energy', 'Prism Energy',
+  'Flash Energy', 'Splash Energy', 'Herbal Energy', 'Wonder Energy', 'Shield Energy',
+  'Counter Energy', 'Recycle Energy', 'Triple Acceleration Energy', 'Twin Energy',
+  'Rapid Strike Energy', 'Single Strike Energy', 'Fusion Strike Energy', 'Luminous Energy',
+  'Legacy Energy', 'Double Turbo Energy', 'Beast Energy Prism Star'
+]);
 
 function choose(n, k) {
   if (!Number.isInteger(n) || !Number.isInteger(k) || k < 0 || k > n) return 0;
@@ -200,24 +209,27 @@ function estimateFloatStoneSearchAccess(deck, state = {}) {
     ? remainingCount(deck, 'Guzma & Hala', knownPublicCounts) : 0;
   const stadiumCount = deck.cards.filter(card => STADIUM_NAMES.has(card.name)).reduce((sum, card) =>
     sum + Math.max(0, card.count - (knownPublicCounts[card.name] || 0)), 0);
-  const usableGuzmaHala = stadiumCount > 0 ? guzmaHala : 0;
+  const specialEnergyCount = deck.cards.filter(card => SPECIAL_ENERGY_NAMES.has(card.name)).reduce((sum, card) =>
+    sum + Math.max(0, card.count - (knownPublicCounts[card.name] || 0)), 0);
+  const usableGuzmaHala = stadiumCount > 0 && specialEnergyCount > 0 ? guzmaHala : 0;
   const live = targetToolSlotOpen && toolEffectsActive && retreatPermitted;
 
   if (!live || floatStone === 0) {
     return {
       handSize, deckCount, prizeCount, knownPublicCount, targetToolSlotOpen, toolEffectsActive,
       retreatPermitted, floatStoneCopies: floatStone, arvenSearchers: arven,
-      guzmaHalaSearchers: usableGuzmaHala, stadiumCopies: stadiumCount,
+      guzmaHalaSearchers: usableGuzmaHala, stadiumCopies: stadiumCount, specialEnergyCopies: specialEnergyCount,
       pFloatStoneInHand: 0, pArvenSearch: 0, pGuzmaHalaSearch: 0, totalAccessProbability: 0
     };
   }
 
-  const other = unknownPoolSize - floatStone - arven - usableGuzmaHala - stadiumCount;
+  const other = unknownPoolSize - floatStone - arven - usableGuzmaHala - stadiumCount - specialEnergyCount;
   if (other < 0) throw new Error('Tracked Float Stone search cards exceed unknown pool');
   const floatDistributions = distributions(floatStone);
   const arvenDistributions = distributions(arven);
   const guzmaHalaDistributions = distributions(usableGuzmaHala);
   const stadiumDistributions = distributions(stadiumCount);
+  const specialEnergyDistributions = distributions(specialEnergyCount);
   const denominator = multinomial(unknownPoolSize, handSize, deckCount, prizeCount);
   let floatHandWays = 0n;
   let arvenSearchWays = 0n;
@@ -227,16 +239,18 @@ function estimateFloatStoneSearchAccess(deck, state = {}) {
     for (const a of arvenDistributions) {
       for (const g of guzmaHalaDistributions) {
         for (const s of stadiumDistributions) {
-          const otherHand = handSize - f.hand - a.hand - g.hand - s.hand;
-          const otherDeck = deckCount - f.deck - a.deck - g.deck - s.deck;
-          const otherPrizes = prizeCount - f.prizes - a.prizes - g.prizes - s.prizes;
+          for (const e of specialEnergyDistributions) {
+          const otherHand = handSize - f.hand - a.hand - g.hand - s.hand - e.hand;
+          const otherDeck = deckCount - f.deck - a.deck - g.deck - s.deck - e.deck;
+          const otherPrizes = prizeCount - f.prizes - a.prizes - g.prizes - s.prizes - e.prizes;
           if (otherHand < 0 || otherDeck < 0 || otherPrizes < 0 ||
               otherHand + otherDeck + otherPrizes !== other) continue;
-          const ways = f.ways * a.ways * g.ways * s.ways *
+          const ways = f.ways * a.ways * g.ways * s.ways * e.ways *
             multinomial(other, otherHand, otherDeck, otherPrizes);
           if (f.hand > 0) floatHandWays += ways;
           else if (f.deck > 0 && a.hand > 0) arvenSearchWays += ways;
-          else if (f.deck > 0 && g.hand > 0 && s.deck > 0) guzmaHalaSearchWays += ways;
+          else if (f.deck > 0 && g.hand > 0 && s.deck > 0 && e.deck > 0) guzmaHalaSearchWays += ways;
+          }
         }
       }
     }
@@ -249,7 +263,7 @@ function estimateFloatStoneSearchAccess(deck, state = {}) {
   return {
     handSize, deckCount, prizeCount, knownPublicCount, targetToolSlotOpen, toolEffectsActive,
     retreatPermitted, floatStoneCopies: floatStone, arvenSearchers: arven,
-    guzmaHalaSearchers: usableGuzmaHala, stadiumCopies: stadiumCount,
+    guzmaHalaSearchers: usableGuzmaHala, stadiumCopies: stadiumCount, specialEnergyCopies: specialEnergyCount,
     pFloatStoneInHand, pArvenSearch, pGuzmaHalaSearch,
     totalAccessProbability: pFloatStoneInHand + pArvenSearch + pGuzmaHalaSearch
   };
@@ -360,7 +374,7 @@ function run(source) {
         'Acerola (damaged targets only)', 'Escape Rope', 'Switch', 'Scoop Up Cyclone', 'Prime Catcher'],
       retrieval: 'VS Seeker + an eligible Supporter in discard, or Battle Compressor + VS Seeker + an eligible Supporter in deck',
       staticState: 'no public history, six unknown Prizes, actor Bench and other Bench available, Item/Supporter access, ACE SPEC unused',
-      floatStoneState: 'target Tool slot open, Tool effects active, retreat permitted; Arven requires a legal Item/Tool search, Guzma & Hala requires a Stadium in deck and two discardable cards',
+      floatStoneState: 'target Tool slot open, Tool effects active, retreat permitted; Arven requires a legal Item/Tool search, Guzma & Hala requires a Stadium and Special Energy in deck plus two discardable cards',
       omissions: ['Channeler is in the Expanded card pool but absent from all 29 Aichi lists',
         'U-Turn Board access is shown only for target retreat cost 1',
         'VS Seeker/BC retrieval of Arven or Guzma & Hala', 'other draw/search and opponent decisions']
