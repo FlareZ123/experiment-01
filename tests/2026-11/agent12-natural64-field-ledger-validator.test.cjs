@@ -268,13 +268,13 @@ function makePublicEntryFixture() {
       {ruleId:'opponent-concession',reason:'opponent-concession',terminalClass:'opponent-concession',
         allowedResults:['candidate-win'],clockMode:'clock-free-game-win'},
       {ruleId:'opponent-timeout',reason:'opponent-timeout',terminalClass:'opponent-timeout',
-        allowedResults:['candidate-win'],clockMode:'clock-free-game-win'},
+        allowedResults:['candidate-win'],clockMode:'aichi-top32-event-clock'},
       {ruleId:'candidate-forfeit',reason:'candidate-forfeit',terminalClass:'candidate-forfeit',
         allowedResults:['candidate-loss'],clockMode:'clock-free-game-win'},
       {ruleId:'candidate-illegal-action',reason:'candidate-illegal-action',terminalClass:'candidate-illegal-action',
         allowedResults:['candidate-loss'],clockMode:'clock-free-game-win'},
       {ruleId:'candidate-timeout',reason:'candidate-timeout',terminalClass:'candidate-timeout',
-        allowedResults:['candidate-loss'],clockMode:'clock-free-game-win'},
+        allowedResults:['candidate-loss'],clockMode:'aichi-top32-event-clock'},
       {ruleId:'draw',reason:'draw',terminalClass:'draw',
         allowedResults:['genuine-tie'],clockMode:'clock-free-game-win'},
       {ruleId:'ambiguous-played-terminal',reason:'ambiguous-played-terminal',terminalClass:'no-winner',
@@ -526,6 +526,30 @@ function makePublicEntryFixture() {
   };
 }
 
+function setPublicClockMode(request, clockMode) {
+  const manifest = request.fieldSamplingRegistration;
+  manifest.clockMode = clockMode;
+  request.registrationSha = canonicalSha256(manifest);
+  for (const attempt of request.attempts) {
+    attempt.registrationSha = request.registrationSha;
+    attempt.terminalAdjudicationReceipt.registrationSha = request.registrationSha;
+    attempt.terminalAdjudicationReceipt.clockMode = clockMode;
+  }
+  for (const evidence of request.adjudicationEvidence) {
+    evidence.clockMode = clockMode;
+    seal(evidence, 'evidenceSha256');
+  }
+  for (const attempt of request.attempts) {
+    const evidence = request.adjudicationEvidence.find(
+      item => item.attemptId === attempt.attemptId);
+    const receipt = attempt.terminalAdjudicationReceipt;
+    receipt.adjudicationEvidenceSha256 = evidence.evidenceSha256;
+    seal(receipt, 'receiptSha256');
+    attempt.terminalAdjudicationReceiptSha256 = receipt.receiptSha256;
+  }
+  return request;
+}
+
 function setPublicOutcome(request, ruleId) {
   const attempt = request.attempts[0];
   const rule = request.fieldSamplingRegistration.adjudicationProtocol.rules
@@ -651,8 +675,8 @@ test('public natural64 validator rejects a terminal receipt whose statistical st
 });
 
 
-test('opponent forfeit, concession and timeout are candidate wins', () => {
-  for (const ruleId of ['opponent-forfeit', 'opponent-concession', 'opponent-timeout']) {
+test('opponent forfeit and concession are candidate wins', () => {
+  for (const ruleId of ['opponent-forfeit', 'opponent-concession']) {
     const request = setPublicOutcome(makePublicEntryFixture(), ruleId);
     const result = validateNatural64FieldLedger(request);
     assert.equal(result.status, 'INCOMPLETE', ruleId);
@@ -662,10 +686,8 @@ test('opponent forfeit, concession and timeout are candidate wins', () => {
   }
 });
 
-test('candidate forfeit, illegal action and timeout are candidate losses', () => {
-  for (const ruleId of [
-    'candidate-forfeit', 'candidate-illegal-action', 'candidate-timeout'
-  ]) {
+test('candidate forfeit and illegal action are candidate losses', () => {
+  for (const ruleId of ['candidate-forfeit', 'candidate-illegal-action']) {
     const request = setPublicOutcome(makePublicEntryFixture(), ruleId);
     const result = validateNatural64FieldLedger(request);
     assert.equal(result.status, 'INCOMPLETE', ruleId);
@@ -673,10 +695,37 @@ test('candidate forfeit, illegal action and timeout are candidate losses', () =>
     assert.equal(result.winCount, 0, ruleId);
     assert.equal(result.lossCount, 1, ruleId);
     assert.equal(result.nonWinCount, 1, ruleId);
-    if (ruleId === 'candidate-timeout') {
-      assert.equal(request.policyPanelReceipts[0].timeoutStatus, 'none');
-    }
   }
+});
+
+test('timeout outcomes require event-clock mode; candidate timeout is a loss', () => {
+  const clockFree = validateNatural64FieldLedger(
+    setPublicOutcome(makePublicEntryFixture(), 'candidate-timeout'));
+  assert.equal(clockFree.status, 'INVALID');
+  assert.ok(clockFree.rejectionReasons.includes(
+    'terminal-adjudication-protocol-rule-binding-invalid'));
+
+  const candidateTimeout = validateNatural64FieldLedger(
+    setPublicOutcome(
+      setPublicClockMode(makePublicEntryFixture(), 'aichi-top32-event-clock'),
+      'candidate-timeout'
+    )
+  );
+  assert.equal(candidateTimeout.status, 'INCOMPLETE');
+  assert.deepEqual(candidateTimeout.rejectionReasons, []);
+  assert.equal(candidateTimeout.lossCount, 1);
+  assert.equal(candidateTimeout.nonWinCount, 1);
+
+  const opponentTimeout = validateNatural64FieldLedger(
+    setPublicOutcome(
+      setPublicClockMode(makePublicEntryFixture(), 'aichi-top32-event-clock'),
+      'opponent-timeout'
+    )
+  );
+  assert.equal(opponentTimeout.status, 'INCOMPLETE');
+  assert.deepEqual(opponentTimeout.rejectionReasons, []);
+  assert.equal(opponentTimeout.winCount, 1);
+  assert.equal(opponentTimeout.nonWinCount, 0);
 });
 
 test('draw is a genuine tie and ambiguous played terminal is a distinct nonwin', () => {
@@ -772,6 +821,21 @@ test('natural64 protocol requires fixed result semantics and explicit Top32 even
   validateAdjudicationProtocol(
     wrongOutcome, canonicalSha256(wrongOutcome), wrongOutcomeProblems);
   assert.ok(wrongOutcomeProblems.has('adjudication-protocol-rule-invalid'));
+
+  const timeoutProtocol = {
+    schema: 'aichi-natural64-adjudication-protocol-v2',
+    rules: [{
+      ruleId: 'candidate-timeout',
+      reason: 'candidate-timeout',
+      terminalClass: 'candidate-timeout',
+      allowedResults: ['candidate-loss'],
+      clockMode: 'clock-free-game-win'
+    }]
+  };
+  const timeoutProblems = new Set();
+  validateAdjudicationProtocol(
+    timeoutProtocol, canonicalSha256(timeoutProtocol), timeoutProblems);
+  assert.ok(timeoutProblems.has('adjudication-protocol-rule-invalid'));
 });
 
 test('protocol content changes without a new digest are rejected', () => {
