@@ -8,7 +8,7 @@
 
 ## Field audit: direct effect-clear, switch and return outs
 
-A full card-text scan of the Expanded pool and a cross-reference against all 29 authenticated Aichi lists found the following relevant cards:
+A pattern-assisted card-text scan for attack-effect resets, switch/return effects and retreat Tools, cross-referenced against all 29 authenticated Aichi lists, found the following relevant cards:
 
 | Card | Lists | Copies | Field ranks / qualification |
 |---|---:|---:|---|
@@ -111,4 +111,4 @@ Remaining limitations: VS Seeker/BC retrieval of Arven or Guzma & Hala is not mo
 - Card text: [Pokémon Ranger XY 104](../../../resources/cards/en/xy11.json), [Prime Catcher TEF 157](../../../resources/cards/en/sv5.json), [Cassius XY 115](../../../resources/cards/en/xy1.json), [Penny SVI 183](../../../resources/cards/en/sv1.json), [Arven OBF 186](../../../resources/cards/en/sv3.json), [Guzma & Hala CEC 193](../../../resources/cards/en/sm12.json), [Float Stone BKT 137](../../../resources/cards/en/xy8.json).
 - Effect-removal ruling: [Advanced Player's Manual](../../../resources/manual/EN_advanced_manual-2025-transcription-structured.md), C-02 and the attack-effect section.
 - Calculator: [agent13-pale-moon-switchout-model.cjs](../../../scripts/agent13-pale-moon-switchout-model.cjs).
-- Focused tests: [agent13-pale-moon-switchout-model.test.cjs](../../../tests/2026-11/agent13-pale-moon-switchout-model.test.cjs). Local Node test run: 14 passed, 0 failed. No CI workflow was added or run.
+- Focused tests: [agent13-pale-moon-switchout-model.test.cjs](../../../tests/2026-11/agent13-pale-moon-switchout-model.test.cjs). Local Node test run: 14 passed, 0 failed. No CI workflow was added or manually dispatched.
