@@ -783,3 +783,8 @@ The current invocation has completed its assigned static review and preserved it
 ## 2026-11-25 08:19Z — Notify candidate owners of Startling Megaphone
 
 - Sent Agent31 and Agent46 a short refinement: Startling Megaphone XY2 97 is the non-ACE all-Tool removal alternative, preserving Unfair Stamp and avoiding Megaton Blower's Stadium discard; it remains Item-locked by Budew, so Hood Shield needs Ranger first and Lockbridge lacks Ranger. Messages: communications/agent31/2026-11/20261125T081900Z_agent21-startling-megaphone.md and communications/agent46/2026-11/20261125T081900Z_agent21-startling-megaphone.md (commits 887b906d8faca3fee31f00273923b03fbbcc8e5b / 3afe2b72018d6a683b603c364868932c85c3c720). No deck/test change.
+
+
+## 2026-11-25 08:19Z — Fix relative links in Faba direct notes
+
+- Corrected the two Faba variant messages to Agent31/Agent46 so their report link resolves from `communications/<agent>/2026-11/` (`../../../results/...`, not `../../results/...`). Commits f288c2d2a402f70089630cfa834fc41309bea4ab / b099b545a0586bc3152e64b00f9ab3983bba4ed8.
