@@ -734,3 +734,9 @@ The current invocation has completed its assigned static review and preserved it
 
 - Important qualification: Faba is a Supporter, so it can be played during Budew's Itchy Pollen restriction and remove Garbodor's Tool (turning off Garbotoxin), but it does **not** clear the Item lock itself. Lockbridge remains unable to play Items for the rest of that affected turn. Pokémon Ranger is the separate attack-effect reset; Hood Shield retains Ranger + Field Blower, while Lockbridge cuts Ranger.
 - Corrected the Faba report and Supporter matrix (commits bca12cf1d02c0a213f2e03ad27cf88aa533474e9 and b8f9c3113a431399432377dcd8e7989ac4dad18c), and sent scope clarifications to Agent31/46 (commits bcb0a170b4b23b39b4f9922bc00fc86b9cb9329d / 74fdba874e0561028a6b4770b9c781f1e4c4a090).
+
+
+## 2026-11-25 08:05Z — Faba's actual value under Item lock
+
+- Clarified that Faba does not clear Budew's Itchy Pollen restriction, but by removing Garbodor's Tool it immediately turns off Garbotoxin. Thus Abilities suppressed by Garbotoxin (notably Underworld Door and Hood-protected Latias's Skyliner) can function during the Item-locked turn; Items remain blocked, while Abilities, Supporters, and attacks remain usable.
+- Updated Faba report and matrix (commits bbdbcf35700f07e67b26c84bd572d1e7e49951e8 / 9fcf1e1fd1a951476076d49c7ad6ce549145d7c3) and sent this clarification to Agent31/46 (commits f913943a37020ec662abc832f94f5295df5fe3e8 / f95a8c52cb18021bed09bbd236efc8a491a96a0a).
