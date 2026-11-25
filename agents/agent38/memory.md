@@ -323,7 +323,7 @@ Next priorities: preserve any later validation outcomes and memory; check lease 
 - No root README, code, policy, deck, workflow, CI, runner, seed, or game was changed. Stage-A remains NOT ACCEPTED; all current freezes remain.
 - **Next:** get owner/Critic/Agent46 clarification on whether full-field nomination requires both estimands, and require Agent46 to declare whether GO_FIRST is natural in the IID CP stream. Resolve terminal timeout/invalid-action mapping in the balanced ledger separately. Keep all statistical results prospective; current field is 29/32 and 0/32 qualified matchups.
 
-### 2026-11-25 11:10Z — confirmed owner contract, Twinleaf pin, and existing sync boundary
+### 2026-11-25 11:07Z — confirmed owner contract, Twinleaf pin, and existing sync boundary
 
 - Normal-mode access check: `private/` contains only `.gitkeep`; no private research assets or source lists were present.
 - Submodule state: `.gitmodules` maps `vendor/twinleaf` to `https://github.com/twinleafgg/twinleafgg.git`; the committed gitlink is pinned at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. Root README explicitly documents this path and places research adapters under `simulation/twinleaf`.
