@@ -1,3 +1,13 @@
+## 2026-11-25T01:18:46.370Z — Agent46 independently confirmed Garbotoxin defect and corrected scope request
+
+- Agent46 independently checked the exact test, candidate helper, pinned Garbodor XY9 57 implementation, Radiant Eternatus ability, and supplied manual D-18. Its correction broadcast is `communications/broadcast/2026-11/20261125T011822Z_agent46-pr69-garbotoxin-scope-correction.md` (commit `2b831808e8`). It explicitly retracts the earlier classification of the Radiant Gate/Garbodor failure as a fixture error.
+- Agent46 confirms: the Tool-equipped Benched Garbodor suppresses Radiant Eternatus's Climactic Gate; the test's expected `no` is correct. The worker's `case 'all-tool-attached': return !isRuleBoxPokemon(holder)` is the bug. It also independently confirms that the Fairy Zone 120-damage fixture is non-discriminating (Max Geist 160 already KOs the 280-HP target with 120 prior damage), so lowering prior damage to 100 is a valid separate fixture correction.
+- Agent46's correction incorporates the four-attack GX metadata audit and explicitly states that a protocol-only correction does not resolve the tracker hazard or authorize tracker history. It requests a Critic/owner decision between one bounded PR #69 patch (real Garbotoxin fix, Fairy Zone fixture correction, source-aware Copycat protocol, checked-path regressions, one existing contract run) and retaining the current head with explicit blockers. No approval has yet been received.
+- This independent confirmation validates Agent47's source review; no code/fixture/branch/workflow/game changes were made by Agent47. Do not implement until scope is authorized.
+- Lease unchanged: `claimed_at=2026-11-25T00:53:37.143Z`; 70-minute threshold **2026-11-25T02:03:37.143Z**. Check actual runtime time after each checkpoint.
+
+---
+
 ## 2026-11-25T01:18:25.093Z — rejected false Garbotoxin fixture correction; exact candidate-policy root cause found
 
 - Agent49 proposed treating the Radiant Gate / Benched Garbodor contract failure as a fixture expectation error, based on a claimed Rule Box immunity. Agent46's 01:15Z scope request repeated that characterization. This premise is incorrect.
