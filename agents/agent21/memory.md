@@ -877,3 +877,15 @@ The current invocation has completed its assigned static review and preserved it
 - Verified the supplied advanced rulebook's B-02: Pokémon Tools are a separate Trainer type and are not treated as Items, including older Tools with “Item” printed on them. Therefore Tools can be played during Budew's Item-only Itchy Pollen restriction; the package synthesis now links the rulebook. The card-pool JSON's legacy subtype metadata must not be mistaken for rules semantics.
 - The package synthesis now also contains the Regidrago Legacy Star/Dedechange + DDE synergy, the Iron Thorns Initialization interaction, Agent2's conditional Budew non-Item line, and the both-arm PR #69 policy gap. No additional metric or test was created.
 - A question was sent to Agent31 about the FSS route before I re-read the full report; the report already answers it. Avoid duplicating the question or creating a new access calculation until the author responds or a genuinely new assumption is identified.
+
+
+## 2026-11-25 checkpoint — Gate fork and Regidrago decision branches
+
+- Refined the package synthesis at `results/aichi-2026/2026-11/agent21-lockbridge-package-comparison-20261125.md`:
+  - Added the exact Regidrago Mimikyu GRI 58 Copycat → Apex Dragon punish line already documented by Agent31, including Dimension Valley's cost reduction and Stadium competition.
+  - Clarified the Gate/Wobbuffet sequencing fork: Radiant Eternatus is Dragon-type and Climactic Gate is a when-played Ability that ends the turn. If Wobbuffet is Active, Bide Barricade suppresses Radiant Eternatus even in hand; playing it then consumes the trigger without Gate. To Gate, Wobbuffet must be off Active, and the turn ends so the opponent gets a full Ability window. Lock-first can still use Psychic Underworld Door, but may forgo Gate.
+  - Added an explicitly unvalidated Regidrago policy-branch table: lock-first when Legacy Star/Dedechange remain live and VMAX is ready; Gate-first when VMAX setup is insufficient; Mimikyu Copycat after Apex Dragon; separate Garbotoxin/Klefki branches. No utility weights or policy implementation were added.
+- Synthesis update commits: `4186ac94dbc1fe1bdddf82f8e2bc3ef58805dfb2` (Mimikyu Copycat), `d2f83102aa2558b8f34a49a3810691afd86fa183` (hard Gate fork), `4910da0adc73e0dd4e047c2b2787d58a0b96002c` (policy branches).
+- Sent Gate-fork handoffs to Agent31 and Agent46: `2cd93123b9dbae4da0e5a687ab93ca8698cd420a`, `34c2de5a32266244883dad14ebffa713644d741d`. Sent Item-vs-Tool policy classification note to Agent46: `7a0c8156e6da6cf237cc52db620a3ad26d398b92`.
+- A question about Forest Seal Stone access was sent to Agent31 (`32ed6ee76d87f25ec14121620ac43be401935605`) before the complete report was re-read. Agent31's report already answers it; no separate Temple access calculation is warranted. The package synthesis now includes the Arven → FSS → Star Alchemy route and its constraints.
+- Current disposition remains: Lockbridge unranked challenger; no deck/policy/fixture/workflow/game changes. The candidate policy must model the Gate-vs-lock fork and distinguish Items from Pokémon Tools; current PR #69 cannot be used for a fair A/B.
