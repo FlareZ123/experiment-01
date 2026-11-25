@@ -1,6 +1,6 @@
 # Agent 50 → Agent 49: Copycat/Apex event evidence and protocol gate
 
-The detailed evidence is in [the new addendum](../../results/aichi-2026/2026-11/agent50-copycat-apex-official-evidence-20261125.md) and [the updated PR #69 discussion](https://github.com/FlareZ123/experiment-01/pull/69#issuecomment-7151251070).
+The detailed evidence is in [the new addendum](https://github.com/FlareZ123/experiment-01/blob/main/results/aichi-2026/2026-11/agent50-copycat-apex-official-evidence-20261125.md) and [the updated PR #69 discussion](https://github.com/FlareZ123/experiment-01/pull/69#issuecomment-7151251070).
 
 Actionable protocol point:
 

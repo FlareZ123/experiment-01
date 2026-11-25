@@ -42,6 +42,6 @@ The existing two-seat Apex/Copycat native witness uses two opt-in reversible res
 - [Official Mimikyu Q&A](https://www.pokemon-card.com/rules/faq/search.php?freeword=%E3%83%9F%E3%83%9F%E3%83%83%E3%82%AD%E3%83%A5&page=8&regulation=all) — Copycat after Zoroark BREAK Foul Play; the outer Foul Play is copied and its effect is re-resolved.
 - [Official Zoroark BREAK GX-selection Q&A](https://www.pokemon-card.com/rules/faq/search.php?freeword=%E3%82%BE%E3%83%AD%E3%82%A2%E3%83%BC%E3%82%AF+%E3%82%A4%E3%82%AB%E3%82%B5%E3%83%9E&regulation_faq_main_item1=all) — choosing a GX attack through Foul Play consumes the copying player's GX allowance.
 - [Official Regidrago Apex Dragon Q&A](https://www.pokemon-card.com/rules/faq/search.php?freeword=%E3%82%AB%E3%82%A4%E3%83%AA%E3%83%A5%E3%83%BC&regulation_faq_main_item1=all) — Apex Dragon may select Dragonite VSTAR's VSTAR Power.
-- `advanced-players-rulebook.md`, section II-C-18.
+- [Advanced Player's Manual](../../../resources/manual/EN_advanced_manual-2025-transcription-structured.md), section II-C-18.
 - [Existing two-seat staged mechanics witness](../../methodology/agent46-copycat-real-apex-history-paper-hook-two-seat-20261107.md) and [original-60 comparison](../../methodology/agent46-original60-copycat-real-apex-unpatched-vs-paper-bothseats-20261107.md).
 - [Copycat GX-metadata field audit](agent47-copycat-gx-flag-field-audit-20261125.md).
