@@ -31,6 +31,16 @@ The 24/29 Special-Energy coverage count is not a 24/29 persistent-lock estimate.
 
 Lockbridge has only one Temple of Sinnoh. Treat it as a potential one-shot disruption, not a persistent lock: once replaced or removed, this 60 has no second Temple to replay. Its value may be highest when timed after DDE is attached and before the opponent can use an alternate Stadium/removal card. That timing hypothesis has not been tested in a complete Lockbridge game.
 
+## Temple also taxes the Lockbridge owner's own Stadium plan
+
+The exact Lockbridge 60 contains one each of **Sky Field ROS 89, Dimension Valley PHF 93, and Temple of Sinnoh ASR 155**. Only one Stadium can be in play, so playing Temple necessarily displaces one of the other two:
+
+- Replacing **Sky Field** ends the eight-Pokémon Bench expansion and, if either player has more than five Benched Pokémon, forces that player to discard down to five. This can cost the Lockbridge player a Gate target or another developed Bench Pokémon.
+- Replacing **Dimension Valley** removes its one-Colorless discount for Psychic attacks, including Shadow Rider VMAX's Max Geist; the attack then needs one additional Colorless Energy.
+- Replaying Sky Field or Dimension Valley later removes Temple and ends its Special-Energy suppression.
+
+Temple is therefore not a free third Stadium. The policy must choose whether the DDE disruption is worth sacrificing Bench capacity or attack efficiency at that exact point. The current candidate worker has no Temple play score and cannot make this tradeoff. These are direct card-text consequences, not observed game outcomes.
+
 ## Current candidate-policy gate
 
 At candidate-policy branch `agent46/candidate-policy-competence-20261124`, head `e7c4d9032fbb0ee162028d744f2bab1debd7a52e`:
