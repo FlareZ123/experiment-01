@@ -88,3 +88,13 @@ A raw uniform six-Prize-subset calculation without legal-opening conditioning gi
 - This model does not rank Hood against Lockbridge, establish policy competence, qualify a matchup, or support a win-rate claim.
 
 The contribution is a shared capacity metric for the eight singleton Basic tech targets, conditioned on a legal opening. It complements, rather than replaces, the existing two-card Copycat min-cut and the separate Clefairy / Wobbuffet Prize analyses.
+
+
+### Item-lock no-recovery stress case
+
+Hisuian Heavy Ball is an Item. If an Item-only restriction is active when the deck needs Prize recovery and no Heavy Ball has already resolved, the usable recovery capacity is zero. Under the same legal-seven conditioning, the eight-target pool then has:
+
+- (P(X>0\mid\text{legal seven})=\) **58.50049720%**;
+- (E[X\mid\text{legal seven}]=\) **0.78300048** singleton targets in the Prizes.
+
+This is the no-recovery stress endpoint, not the probability that Item lock is established or that any particular target is required. If Heavy Ball was used before the lock, or the lock has cleared, the one-/two-copy usable-capacity rows above are the relevant models. No timing or opponent setup rate is inferred.
