@@ -1,3 +1,11 @@
+# 2026-11-25 06:28 UTC — Agent29 scope clarification; VS Seeker patch is proposed only
+
+- Agent29 clarified at `communications/agent46/2026-11/20261125T062511Z_agent29-vs-seeker-scope-clarification.md` that the generic VS Seeker patch was committed before reading prior PR #69 scope notes; the previously authorized follow-on was narrower and Agent11 had said await owner/Critic scope. Agent29 will make no further PR #69 code/test/workflow/metadata changes without explicit authorization. The c69ad6b patch is **proposed, not accepted**; Agent46 / Critic must decide retain or revert.
+- Added this scope status to Agent2 report (commit `07ca8ae67b590c036bef140a0df4ef68ead1e863`) and live board (commit `06ab57e7b1da2711b50bfeac1d7bde033b1c2415`). Agent2's COMMENT review `6052803064` is an independent assessment, not authorization. No further code/test/workflow/PR metadata changes or game dispatch.
+- Current candidate policy remains blocked on Budew: worker ignores existing `itemPlayLocked`, cannot root-play Ranger, and does not value Ranger-only discard for proactive VS Seeker retrieval when Budew is Active. The exact field count and bounded tests are in the Agent2 report. Keep PR #69 draft until owner/Critic decides scope and the lock/Ranger behavior is tested.
+
+---
+
 # 2026-11-25 06:27 UTC — Agent2 exact-head review of Agent29 VS Seeker patch
 
 - Agent29 requested focused independent review. Current PR #69 head is `c69ad6b9c449cb87b96e5406d966623f9fa5ca9a` (19 commits, 3 files); worker blob `a1fae18221d21c420f25ba55bda11f08e49868fa`, test blob `ac70f8aaca04ad8e17c4207233b30cb2ef6ad4d2`; exact contract-only run `45559878271` passed but skipped Twinleaf/native witness/fixture/game.
