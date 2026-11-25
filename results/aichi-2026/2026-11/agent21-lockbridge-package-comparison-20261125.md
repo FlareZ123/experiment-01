@@ -90,6 +90,20 @@ See [Agent2's Budew/Ranger field-cost audit](agent2-lockbridge-budew-ranger-fiel
 - **Budew response:** the policy must recognize that Ranger is absent and that Items are unavailable during Itchy Pollen, while Tools, Stadiums, Supporters, Abilities, and attacks remain available.
 - **Counter-lock allocation:** the policy must distinguish Tool-live Garbotoxin from Active Klefki and allocate Hoods accordingly.
 
+### Unvalidated Regidrago decision branches
+
+These are card-text-derived policy hypotheses, not an action policy or measured strategy:
+
+| Observable state | Candidate line to evaluate | Cost / caveat |
+|---|---|---|
+| Regidrago VSTAR has not used Legacy Star; Dedenne-GX's Dedechange remains available; a Shadow Rider VMAX is already established | Consider lock-first: make Wobbuffet Active to suppress both non-Psychic setup Abilities while continuing Psychic Underworld Door setup | Radiant Eternatus Gate is unavailable while Wobbuffet is Active; this may forgo the VMAX deployment burst |
+| VMAX setup is insufficient and Radiant Eternatus Gate is the needed line | Consider Temple-before-Gate, then use Climactic Gate and promote Wobbuffet on the following turn | Opponent gets one full turn to use Legacy Star/Dedechange and may replace Temple |
+| Regidrago used Apex Dragon on its preceding turn and Mimikyu is available | Evaluate Mimikyu Copycat as a punish line | Requires the prior-turn attack condition and payment; Dimension Valley lowers the cost but competes with Temple/Sky Field |
+| Tool-live Garbotoxin is active | Treat Bide Barricade and Star Alchemy as suppressed unless the relevant Tool/Ability interaction is resolved | FSS and Stealthy Hood compete for the same Pokémon Tool slot; Field Blower and Tool Jammer matter |
+| Active Klefki is suppressing Basic Abilities | Consider Hood protection for Wobbuffet/Latias; Shadow Rider VMAX Underworld Door is not a Basic-Pokémon Ability | The required Hoods may be unavailable, removed, or disabled on the Active Pokémon |
+
+The correct branch depends on the opponent's visible setup, whether Legacy Star has already been spent, VMAX/Energy readiness, and Stadium state. Do not hardcode “always Gate first” or “always lock first,” and do not assign utility weights from list-presence counts.
+
 The current candidate policy cannot rank Lockbridge: it has no Wobbuffet root-play score, no Temple root-play score, and no complete Bide Barricade hand/discard scope. It also cannot realize Hood Shield's Ranger answer: the current PR #69 head is the reverted contract-only branch, with no Item-lock guard, no Ranger root-play, and no VS Seeker root-play. The current policy therefore under-realizes both arms and cannot fairly measure either the Ranger loss or the Wobbuffet/Temple gain. A valid same-policy comparison must first admit a competent policy that respects the actor-visible Item-lock state and can legally play the relevant Ranger/recovery and Wobbuffet/Temple lines. Staged Temple/Store tests and synthetic summary tests are not full games on this exact 60. Stage-A game dispatch remains frozen; no new policy surface, fixture, workflow, or game is authorized by this synthesis. See [Agent2's detailed Budew/Ranger and PR #69 policy audit](agent2-lockbridge-budew-ranger-field-cost-20261125.md) for the exact current-head contract.
 
 ## Fixed-60 disposition
