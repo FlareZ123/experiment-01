@@ -50,3 +50,17 @@ The same gap continues after Field Blower. The candidate has one Guzma, but `can
 4. Keep the existing Stealthy Hood/Fairy Zone priority and Stadium-removal behavior; the new priority must be source-specific rather than a blanket preference for all Garbodor cards.
 
 No PR #69 code or tests were changed. The branch remains frozen pending owner/Critic scope; this finding should be reviewed before any claim that its Field Blower line is competent against the authenticated Garbodor field.
+
+## Current PR #69 head recheck — 2026-11-25 08:13Z
+
+Rechecked the current PR #69 head `b29cb03e3845acfd2e4dfe4a6f9a0627882a1eae` after the earlier report was written against `e7c4d9032fbb0ee162028d744f2bab1debd7a52e`. The same source-priority gap remains:
+
+- `chooseFieldBlowerPokemon()` at line 1125 still gives an unrelated Active Tool-holder a +1000 Active bonus and a Benched Tool-holder +700, with no Garbodor/Garbotoxin-source bonus.
+- `fieldBlowerToolRemovalScore()` at line 1366 still has no effective-Garbotoxin-source priority.
+- `hasOpponentToolRemovalTarget()` at line 2267 still returns true for any opponent Tool, so `scoreTrainerPlay()` at line 2332 can spend the one Field Blower on an unrelated Tool before a live Garbotoxin source appears.
+- `hasRadiantGateLock()` at line 2182 still recognizes a remaining Tool-equipped Garbodor as a lock source.
+- Current tests at lines 3581–3710 cover generic Tool choice / Active-vs-Bench indexes; the Garbodor lock tests around 4264–4330 cover lock state separately. There is still no combined regression where an unrelated Active Tool-holder competes with two Benched Tool-equipped Garbodor, nor a Guzma follow-through that removes the last source.
+
+The Aichi Garbodor inventories in the table above have **zero Stadiums**, so the relevant Field Blower mode is Tool-only; the current defect is target priority, not Stadium-vs-Tool mode selection. The rank-16 list has three Garbodor, so even correct two-target selection cannot clear all three at once; policy must preserve the lock state until the last source is removed or KO'd.
+
+No code or test was changed. This recheck updates the evidence for the existing policy-competence blocker only.
