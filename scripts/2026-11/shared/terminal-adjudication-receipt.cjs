@@ -101,14 +101,18 @@ function validateSetupCoinChoiceEvidence({attempt, expected, receipt, setupEvide
     return ['terminal-adjudication-setup-coin-choice-evidence-missing'];
   }
   const setup = setupEvidence.receipt;
+  let setupReceiptDigestValid = false;
+  try {
+    setupReceiptDigestValid = isSha(setupEvidence.receiptSha256) &&
+      canonicalSha256(setup) === setupEvidence.receiptSha256;
+  } catch {}
   if (setupEvidence.schema !== SETUP_EVIDENCE_SCHEMA ||
       setupEvidence.attemptId !== attempt.attemptId ||
       setupEvidence.trialId !== attempt.trialId ||
       setupEvidence.slotId !== attempt.slotId ||
       !setup || typeof setup !== 'object' || Array.isArray(setup) ||
       !digestMatches(setupEvidence, 'evidenceSha256') ||
-      !isSha(setupEvidence.receiptSha256) ||
-      canonicalSha256(setup) !== setupEvidence.receiptSha256) {
+      !setupReceiptDigestValid) {
     reject('terminal-adjudication-setup-coin-choice-evidence-invalid');
   }
   if (attempt.setupCoinChoiceReceiptSha256 !== setupEvidence.receiptSha256 ||
