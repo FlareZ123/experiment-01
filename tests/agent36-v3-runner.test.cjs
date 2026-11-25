@@ -1771,6 +1771,10 @@ test('native failure projection preserves only generic error and frontier-stage 
   });
   assert.equal(rejected.nativeActionType,undefined);
   assert.equal(rejected.nativeActionValidationStage,undefined);
+  const rejectedCode=projectNativeFixtureFailureForReceipt({
+    name:'Error',code:'NATIVE_PRIVATE_CARD_PIKACHU'
+  });
+  assert.equal(rejectedCode.code,undefined,'unknown code suffixes must not leak card identities');
   const rejectedStage=projectNativeFixtureFailureForReceipt({
     name:'Error',stage:'private-card-stage',
     nativeActionValidationStage:'private-card-stage'

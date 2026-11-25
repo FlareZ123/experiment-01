@@ -446,12 +446,53 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
   const SAFE_FIXTURE_FAILURE_NAMES=new Set([
     'Error','GameError','AssertionError','TypeError','RangeError','ReferenceError','SyntaxError','TimeoutError'
   ]);
-  const SAFE_FIXTURE_FAILURE_CODE_PREFIXES=[
-  'ACTOR_','CLONED_','FIXTURE_','FULL_STATE_','NON_','PRIMARY_','RECORDER_',
-  'RUNNER_','SEED_','SETUP_','UNKNOWN_','V3_',
-  'NATIVE_','WORKER_','V3_RUNNER_','VALIDATION_','POLICY_','PREDICATE_',
-  'ERROR_','ERR_','TEST_','NO_GAME_WITNESS_','UNSUPPORTED_','INVALID_','NOT_','CANNOT_','BAD_','MISSING_'
-  ];
+  const SAFE_FIXTURE_FAILURE_CODES=new Set([
+    'ACTOR_OBSERVATION_DIGEST_MISMATCH',
+    'CLONED_ACTION_VALIDATION_REJECTED',
+    'CLONED_PROMPT_NOT_RESOLVED',
+    'ERR_ASSERTION',
+    'FIXTURE_PROCESS_OVERLAP',
+    'FULL_STATE_TRACE_INCOMPLETE',
+    'NATIVE_ACTION_FRONTIER_ADMISSION_TEST',
+    'NATIVE_ACTION_FRONTIER_ASSEMBLY_TEST',
+    'NATIVE_ACTION_FRONTIER_BINDINGS_MISSING',
+    'NATIVE_ACTION_FRONTIER_CONSTRUCTOR_TEST',
+    'NATIVE_ACTION_FRONTIER_ENUMERATION_TEST',
+    'NATIVE_ACTION_FRONTIER_FINAL_TEST',
+    'NATIVE_ACTION_FRONTIER_TEST_FAILURE',
+    'NATIVE_FIXTURE_CLEANUP_FAILURE',
+    'NATIVE_FIXTURE_FAILURE',
+    'NATIVE_NO_GAME_WITNESS_ASSERTION',
+    'NATIVE_NO_GAME_WITNESS_FAILURE',
+    'NON_TERMINAL',
+    'NO_GAME_WITNESS_SEED_PROBE_STOP',
+    'NO_GAME_WITNESS_SETUP_INCOMPATIBLE',
+    'NO_GAME_WITNESS_WRONG_ACTOR',
+    'POLICY_ABSTAINED',
+    'PREDICATE_STABLE_DISPATCH_FAILED',
+    'PRIMARY_NATIVE_FAILURE',
+    'RECORDER_CAPTURE_FAILED',
+    'RUNNER_HOOK_RESTORE_FAILURE',
+    'SEED_DISCLOSURE_NOT_AUTHORIZED',
+    'SETUP_PROMPT_AUDIT_INCOMPLETE',
+    'TEST',
+    'TEST_PRIMARY_FAILURE',
+    'UNKNOWN_STADIUM_LIVENESS',
+    'UNSUPPORTED_WORKER_PROMPT_DECISION',
+    'UNSUPPORTED_WORKER_ROOT_DECISION',
+    'V3_RUNNER_CLEANUP_FAILURE',
+    'V3_RUNNER_FAILURE',
+    'V3_SEAT_PAIR_FAILED',
+    'V3_WORKER_EXECUTION_BOUNDARY_INCOMPLETE',
+    'VALIDATION_RANDOM_SCOPE_MISSING',
+    'WORKER_ACTION_ORDINAL_INVALID',
+    'WORKER_CLEANUP_UNVERIFIED',
+    'WORKER_DECISION_FAILURE',
+    'WORKER_FIXTURE_FAILURE',
+    'WORKER_ONLY_POLICY_HOST_IMPORT_BLOCKED',
+    'WORKER_SELECTED_TOKEN_UNTRUSTED',
+    'WORKER_START_FAILURE'
+  ]);
   const SAFE_FIXTURE_FAILURE_STAGES=new Set([
   'action-cap','actor-observation','after','after-failed-dispatch','before','cleanup','native-game',
   'dispatch','engine-wait-prompt-resolution','failure-final','fixture',
@@ -465,10 +506,7 @@ function* runNativeFixtureGameSteps(input,{requirePolicySeeds=true}={}) {
   'v3-worker-execution-boundary','worker-cleanup','worker-execution'
 ]);
   const safeFailureName=value=>SAFE_FIXTURE_FAILURE_NAMES.has(value)?value:'Error';
-  const safeFailureCode=value=>{
-    if(typeof value!=='string'||!/^[A-Z0-9_]{1,64}$/.test(value))return null;
-    return value==='TEST'||SAFE_FIXTURE_FAILURE_CODE_PREFIXES.some(prefix=>value.startsWith(prefix))?value:null;
-  };
+  const safeFailureCode=value=>typeof value==='string'&&SAFE_FIXTURE_FAILURE_CODES.has(value)?value:null;
   const redactError=error=>{
     const nativeActionType=SAFE_FIXTURE_NATIVE_ACTION_TYPES.has(error?.nativeActionType)?error.nativeActionType:null;
     const nativeActionValidationStage=SAFE_FIXTURE_NATIVE_ACTION_VALIDATION_STAGES.has(

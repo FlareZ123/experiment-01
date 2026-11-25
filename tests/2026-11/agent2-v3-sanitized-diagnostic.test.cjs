@@ -382,6 +382,12 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
   assert.equal(ordinaryErrorSanitized.fixtureFailure.nativeFixtureFailure.nativeActionValidationStage,
     'frontier-admission','ordinary Error stages must survive sanitization');
 
+  const unknownCodeArtifact=structuredClone(artifact);
+  unknownCodeArtifact.fixtureFailure.nativeFixtureFailure.code='NATIVE_PRIVATE_CARD_PIKACHU';
+  const unknownCodeSanitized=sanitizeFixtureArtifact(unknownCodeArtifact);
+  assert.equal(unknownCodeSanitized.fixtureFailure.nativeFixtureFailure.code,undefined,
+    'unknown code suffixes must not leak card identities');
+
   const unknownStageArtifact=structuredClone(artifact);
   unknownStageArtifact.fixtureFailure.stage='private-card-stage';
   unknownStageArtifact.fixtureFailure.nativeFixtureFailure.nativeActionValidationStage='private-card-stage';
