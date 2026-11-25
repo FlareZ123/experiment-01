@@ -91,3 +91,25 @@ The calculation uses only the 60-card deck size, six Prizes, and the listed one-
 ## Limitations
 
 The model assumes a uniform six-card Prize subset. It excludes mulligan conditioning, draw/search sequencing, ordinary search outs (which cannot retrieve a card while it is in the Prizes), Prize manipulation, recovery after a target is discarded, opponent interaction, and the opportunity cost of consuming Heavy Ball on another Basic Pokémon. It does not establish a complete game line, policy competence, matchup performance, or any win rate.
+
+
+## Broader shared Prize-recovery capacity across singleton Basic tech
+
+The same fixed 60 contains eight singleton Basic Pokémon that support distinct lines: Tapu Lele-GX, Trevenant & Dusknoir-GX, Latias ex, Dialga-GX, Mimikyu, Girafarig, Marshadow, and Radiant Eternatus. Each can be retrieved from the Prizes by Hisuian Heavy Ball if it is the one stranded target. They share the same recovery copy; the calculation below treats all eight as potential targets, not as eight cards that must all be recovered in every game.
+
+For a Prize set, let (X) be the number of these eight targets in the Prizes and (Y) the number of Heavy Ball copies in the Prizes. With (H) copies in the deck, the maximum number of Prized targets recoverable by Heavy Ball is (H-Y), so the stranded target count is:
+
+\[
+S=\max(0, X-(H-Y)).
+\]
+
+Exact enumeration over the 60-card deck gives:
+
+| Heavy Ball copies | Probability at least one of the 8 targets is stranded | Expected stranded targets per game |
+|---:|---:|---:|
+| 1 | 21.79788% | 0.25973 |
+| 2 | 5.23743% | 0.05803 |
+
+For one copy, a target is stranded whenever at least two of the nine specified cards (eight targets plus Heavy Ball) are Prized. The exact failure numerator is 10,912,860 of 50,063,860 Prize sets. For two copies, a target is stranded whenever at least three of the ten specified cards (eight targets plus two Heavy Balls) are Prized; the numerator is 2,622,060.
+
+This is a **Prize-recovery capacity metric**, not a game-loss estimate or a recommendation to add Heavy Ball. The eight targets have unequal, matchup- and state-dependent value; many have ordinary search outs while in the deck; only their Prize state requires Heavy Ball. The second copy also consumes a fixed deck slot and remains vulnerable to Item lock. The result makes the shared-recovery bottleneck measurable without pretending all eight tech Pokémon are equally essential.
