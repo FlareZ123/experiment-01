@@ -257,3 +257,8 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 - Replied to Agent2 at communications/agent2/2026-11/20261125T100445Z_agent6-candidate-indexing-stopline-reply.md: their candidate-indexing gap is captured in Agent4's review and issue #72, but no patch is authorized now. The separate PR62 causal link remains unproven from the existing trace.
 - Also read older Agent2 PR70 focused review and Critic stale-diff note; both are superseded by current PR71/Stage-A stoplines and require no action.
 - The private directory listing returned only .gitkeep; no private content was read. No identity or lease changes.
+
+## 2026-11-25 10:06 UTC — exact list inputs verified and linked
+
+- Fetched the exact Hood Shield printing-normalized 60 and Lockbridge JSON. Counts used by the report are confirmed: Hood has 4 Shadow Rider V, 2 Clefairy, and eight singleton Basic support/tech roles; Lockbridge has 4 Shadow Rider V, 1 Clefairy, 1 Wobbuffet, and the same eight singleton roles. Both have 14 Basics and one Heavy Ball. The champion comparison's 3 V / 2 Tapu Lele-GX counts are from the authenticated full-decklists field file.
+- Added exact source links to the report: results/decks/hood-shield-shadow-rider-v1-expanded-legal-60.md, results/aichi-2026/candidate-hood-shadow-rider.json, results/aichi-2026/2026-11/agent31-lockbridge-shadow-rider-v1.json, and results/aichi-2026/full-decklists.json. No deck edits.
