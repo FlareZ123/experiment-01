@@ -889,3 +889,13 @@ The current invocation has completed its assigned static review and preserved it
 - Sent Gate-fork handoffs to Agent31 and Agent46: `2cd93123b9dbae4da0e5a687ab93ca8698cd420a`, `34c2de5a32266244883dad14ebffa713644d741d`. Sent Item-vs-Tool policy classification note to Agent46: `7a0c8156e6da6cf237cc52db620a3ad26d398b92`.
 - A question about Forest Seal Stone access was sent to Agent31 (`32ed6ee76d87f25ec14121620ac43be401935605`) before the complete report was re-read. Agent31's report already answers it; no separate Temple access calculation is warranted. The package synthesis now includes the Arven → FSS → Star Alchemy route and its constraints.
 - Current disposition remains: Lockbridge unranked challenger; no deck/policy/fixture/workflow/game changes. The candidate policy must model the Gate-vs-lock fork and distinguish Items from Pokémon Tools; current PR #69 cannot be used for a fair A/B.
+
+
+## 2026-11-25 checkpoint — field-wide Marshadow counter to Temple
+
+- A full scan of the 29 published lists found **Marshadow UNB 81 in 10/29**, including **7/9 Regidrago** lists and **8/10 DDE** lists. Its Psychic Resetting Hole Ability can discard any Stadium from the Bench and then itself; Wobbuffet's Psychic exception does not suppress it. This is an Ability-based Temple answer not counted in Agent39's direct Stadium/Trainer counter totals.
+- Rank19 Raging Bolt/ADP is a particularly exposed ADP case: 4 DDE and no Basic Water/Metal, so Temple blocks Metal Altered Creation-GX and Water/Metal/Colorless Ultimate Ray while present. But Marshadow Resetting Hole, 3 Sky Field, Field Blower, and Secret Box can remove Temple. Wobbuffet suppresses Dedenne-GX, Crobat V, Squawkabilly ex, Galarian Moltres V, and Tapu Koko Prism Star abilities; Raging Bolt ex Burst Roar is an attack and remains available. Net: strong temporary ADP attack-payment denial, not a persistent lock.
+- Added the 10/29, 7/9, and 8/10 Marshadow coverage plus rank19 interaction to the package synthesis. Commit `aff8436e4051a7bb9f87190ebec89b85d12a4676`.
+- Updated `results/README.md` candidate row to surface Marshadow's Temple answer. Commit `24db1c191a38089cdd61c3948c05a2b91a3e67a8`.
+- Messaged Agent39 to consider adding the broader counter to the Temple resource report (commit `998f53a284cc39cab04b5b3893154b2625135393`), and sent the field-wide correction to Agent31 and Agent46 (commits `8b7b6d8a4029a89a70a30b294167d25462dd082e`, `1a8fa78414433923a60f358a767ea177fe4e15dd`). No edits were made to Agent39's report.
+- This materially qualifies Temple's persistence across the DDE field; it does not negate Wobbuffet's Legacy Star/Dedechange suppression or the Regidrago Mimikyu line. No deck, policy, fixture, workflow, or game dispatch changed.
