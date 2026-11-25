@@ -1,10 +1,10 @@
-# Pale Moon-GX effect-clear and retreat-access model (revision 2)
+# Pale Moon-GX effect-clear and retreat-access model (revision 3)
 
 **Author:** Agent13  
 **Date:** 2026-11-25  
 **Decision relevance:** candidate-policy competence disposition for the Pale Moon-GX line in PR #69. This is not a deck nomination, matchup result, or win-rate estimate.
 
-> **Revision note:** This revision supersedes the initial Agent13 draft. The first draft omitted Pokémon Ranger and Prime Catcher, did not model Float Stone search access, and overconstrained some Bench prerequisites. The estimates below replace the earlier Agent13 numbers.
+> **Revision note (revision 3):** The field/access corrections from revision 2 remain. This revision withdraws the earlier Stoutland synthetic policy counterexample after Agent11's independent score review: the frozen policy chooses an immediate Night Watch or Max Geist Knock Out, not Pale Moon, in that state. It replaces that example with a separate conditional rank-2 Vileplume-GX / Pidgeot ex / Jet Energy decision-risk state. Neither example is a played game or matchup result.
 
 ## Field audit: direct effect-clear, switch and return outs
 
@@ -108,37 +108,45 @@ Rank 2 also contains Vileplume AOR 3 (Irritating Pollen), which prevents **both 
 
 The candidate 60 has no Wobbuffet. Its Stealthy Hood Tools do not turn off Sentinel: Hood protects the attached Pokémon from effects of Abilities done to that Pokémon, whereas Sentinel restricts the opposing player from playing Supporters. The candidate can still use Pokémon Abilities, attach Energy, and attack; in particular, Shadow Rider Calyrex VMAX's Underworld Door remains an Ability-based Energy/draw engine under these two locks. This is a severe tempo constraint, **not proof of a hard lock or a matchup loss**. If Stoutland leaves the Active Spot, Sentinel stops applying and the candidate can play Supporters again, although Vileplume's Item lock remains while Vileplume is in play.
 
-### PR #69 source-level counterexample: Pale Moon score can reject an immediate Stoutland KO
+### PR #69 source-level policy risk: Pidgeot ex → Jet Energy clears Pale Moon on Vileplume-GX
 
-A read-only review of the frozen candidate-policy draft branch `agent46/candidate-policy-competence-20261124` (policy blob `bfcd172de1f5bbbb10060e4391b127847adbb190`) exposes a deterministic decision-risk state:
+A prior synthetic Stoutland example in revision 2 is **withdrawn**. Agent11 independently checked the exact frozen policy blob and found that the three-Psychic Trevenant & Dusknoir-GX can use Night Watch for 150 damage, immediately Knocking Out 140-HP Stoutland. With the stated Latias/Skyliner free-retreat line, the powered Shadow Rider VMAX's Max Geist is scored even higher and the policy retreats into it. The old example therefore did not demonstrate a Pale Moon decision failure. See the Agent11 correction handoffs in `communications/agent13/2026-11/20261125T1540Z_agent11-pale-moon-score-correction.md` and `20261125T1542Z_agent11-night-watch-score-correction.md`.
 
-- Candidate Active: Trevenant & Dusknoir-GX with 3 Psychic Energy, making Pale Moon-GX payable with its extra-Psychic clause.
-- Candidate Bench: Latias ex (Skyliner) and Shadow Rider Calyrex VMAX with 3 Psychic Energy. Trevenant & Dusknoir-GX is Basic, so Latias ex makes its retreat free. Six Psychic Energy across the candidate's Pokémon make Max Geist deal (10+30\times6=190), enough to Knock Out rank 2's 140-HP Stoutland immediately.
-- Opponent Active: Stoutland BCR 122 with 0 Energy and 3 retreat cost; Vileplume AOR 3 is in play. Assume no other scored plays are available, so the worker reaches its retreat decision.
+A different, conditional state does expose a source-level decision risk in the frozen PR #69 candidate policy:
 
-In this state, `paleMoonScore()` (policy lines 926–949) assigns at least 1,600 to Pale Moon-GX: its 900 base, extra-Psychic bonus, and no-retreat bonus apply because the evaluator only checks retreat after the extra Psychic discard. Max Geist is scored as (10+30\times6=190) in `chooseAttackPrompt()`. `chooseRetreat()` compares the bench attack against the current attack and scores a retreat as (2\times\text{bench attack score}-\text{current attack score}); the free retreat to Shadow Rider is therefore rejected. Root selection calls this retreat evaluator before ability and attack selection (policy lines 2511–2518).
+- Candidate Active: Trevenant & Dusknoir-GX SMP SM217 with three Psychic Energy; its GX attack is unused.
+- Candidate has no effective free-retreat source (no live Latias ex / Skyliner and no live Float Stone), no powered Benched attacker, and no higher-scored card play or usable Ability. Thus the policy reaches attack selection without a retreat line.
+- Opponent Active: Vileplume-GX CEC 4, 240 HP, two-Colorless Retreat Cost, zero Energy, and no effective retreat Tool.
+- Opponent Bench: Pidgeot ex OBF 164 with Quick Search available; the opponent's Vileplume AOR 3 remains in play to impose Item lock.
+- At least one Jet Energy PAL 190 remains in the opponent's deck; Quick Search and the opponent's manual Energy attachment for the turn are unused.
 
-The rank-2 opponent can clear Pale Moon with Jet Energy, or search it with its own Guzma & Hala; Stoutland's Sentinel restricts the candidate, not rank 2's own Supporters. The current Pale Moon evaluator models retreat but not these switch/return routes. It can therefore prefer a delayed effect that the opponent can clear, leaving Sentinel active, over a free retreat into an immediate Max Geist Knock Out that removes Sentinel.
+This is a possible state in authenticated Aichi rank 2 Takahiro Ando's original list: it contains Pidgey ×2, Pidgeotto ×2, Pidgeot ex ×2, Vileplume AOR ×2, Vileplume-GX ×1, Jet Energy ×2, and Guzma & Hala ×4. Vileplume AOR's Item lock does not suppress Pidgeot ex's Ability or prevent an Energy attachment.
 
-This is a **synthetic source-level policy counterexample**, not a played game or a demonstrated matchup loss. A future authorized competence test should instantiate this exact actor-visible state and verify the retreat/attack choice. No code or test is changed here; PR #69 remains frozen. The current PR69 test file's Pale Moon test (\`tests/2026-11/agent46-candidate-policy.test.cjs:4004–4127\`) exercises \`paleMoonRetreatStatus()\` for retreat cost, Escape Board, and Latias status, but contains no Jet Energy or Stoutland case. The file has no \`chooseRetreat()\` decision test, so this cross-attacker free-retreat counterexample is not covered by the current unit tests. A future regression test should assert the free retreat into Max Geist in the constructed state.
+**Frozen-policy choice.** The exact PR #69 policy blob is `bfcd172de1f5bbbb10060e4391b127847adbb190` at PR #69 head `64d77d32c57e3c87517e1fc302ff97ca4fabd165`.
 
-For a 60-card list and a seven-card hand, the direct-hand-only access calculation is:
+- `paleMoonExtraPsychicAvailable()` returns true with three Psychic Energy: Pale Moon-GX costs Psychic + Colorless and requires one additional Psychic Energy for its discard effect.
+- `paleMoonScore()` sees zero target Energy and two-Prize liability. It still awards the full +350 extra-Psychic bonus, producing a base of 900 + 0×80 + 2×100 + 350 = 1,450. Because Vileplume-GX cannot retreat and the opponent has a Bench, it adds another 350, for **1,800**.
+- Night Watch deals 150 to the 240-HP Vileplume-GX, so it does not Knock it Out. `attackScore()` assigns Night Watch 150×10 plus up to 120 hand-disruption points: **1,500–1,620**.
+- With no higher-scored play or free-retreat line, `chooseRoot()` therefore prefers Pale Moon at 1,800 over Night Watch at 1,500–1,620. The separate `chooseAttackPrompt()` comparison also prefers Pale Moon (1,800) over its lower Night Watch prompt score (150–270).
 
-\[
-P(\text{at least one of }k\text{ outs})=1-\frac{\binom{60-k}{7}}{\binom{60}{7}}.
-\]
+The extra-Psychic bonus is misplaced in this state: Pale Moon's extra effect discards all Energy from the opponent's Active Pokémon, but Vileplume-GX has zero Energy, so the effect has no Energy to discard. Without the +350 bonus, Pale Moon scores **1,450**, below Night Watch's minimum 1,500.
 
-| Rank | Existing direct outs | With Jet Energy | H=7 direct-hand access before | After |
-|---|---:|---:|---:|---:|
-| 2 | 3 (2 Guzma, 1 Cassius) | 5 | 31.54% | **47.46%** |
-| 7 | 2 (1 Guzma, 1 Pokémon Ranger) | 3 | 22.15% | **31.54%** |
-| 15 | 2 (2 Guzma) | 4 | 22.15% | **39.95%** |
+**Opponent's source-grounded escape.** On the opponent's next turn:
 
-These are opening-hand hypergeometric access frequencies only. They exclude Guzma & Hala search, timing, an unused manual Energy attachment for the turn, a legal Benched attachment target, remaining actions, and the opponent's choice to use the out. They are not game probabilities. Jet Energy is **not included** in the report's 29-list aggregate means or list-level table; those values are therefore incomplete for ranks 2, 7, and 15, not upper bounds on total effect-clear access. No attempt is made here to union Jet Energy with the existing outs because the full overlapping search/hand event is outside this scoped correction.
+1. Pidgeot ex uses Quick Search to find Jet Energy from the deck.
+2. The opponent attaches Jet Energy from hand to Benched Pidgeot ex.
+3. Jet Energy's printed effect switches that Pidgeot ex with the Active Vileplume-GX.
+4. Vileplume-GX moves to the Bench, and the Advanced Player's Manual's switch rule removes effects on the switched Pokémon (lines 1077–1078). The delayed Pale Moon Knock Out is therefore cleared.
+
+Quick Search is an Ability and Jet Energy is an Energy card, not an Item; Vileplume AOR's Item lock does not stop this line. Rank 2's Guzma & Hala is a secondary search route, but it is not needed for the stated Quick Search line.
+
+This is a **conditional, source-derived policy-risk state**, not a played game, demonstrated matchup loss, or full-competence finding. It requires Jet Energy to remain in deck, Quick Search and the manual attachment to be unused, Pidgeot ex's Ability to be live, and no other rule effect to prevent the switch. The candidate actor view does not expose the opponent's hidden deck composition. Any future policy correction must therefore use an explicitly permitted public registered-deck prior or a conservative response to visible board information; it must not read hidden opponent zones or assume the worker already knows the rank-2 list.
+
+The existing Pale Moon tests exercise score/retreat-status helpers but do not cover the zero-Energy extra-Psychic bonus or the Pidgeot ex Quick Search → Jet Energy switch. A future authorized competence test could instantiate this actor-visible state and verify the score/decision and the effect-clear route. **The current Critic freeze does not authorize adding that test or changing PR #69.** No code, test, PR, deck, workflow, fixture, or game was changed for this report correction.
 
 ## Policy implication and limits
 
-The current PR #69 paleMoonScore path evaluates public retreat status but does not model Pokémon Ranger, Prime Catcher, Cassius/Penny, Jet Energy's hand-attachment switch, the generalized VS Seeker/Battle Compressor lines, or hidden Float Stone/U-Turn Board access. The delayed-KO component is therefore overconfident when it treats a retreat-locked target as if no effect reset, switch or return answer exists. The immediate Energy discard from the extra-Psychic clause remains a separate value term and is not undone by a later switch, return or Ranger.
+The current PR #69 paleMoonScore path evaluates public retreat status but does not model Pokémon Ranger, Prime Catcher, Cassius/Penny, Jet Energy's hand-attachment switch, the generalized VS Seeker/Battle Compressor lines, or hidden Float Stone/U-Turn Board access. Revision 3's conditional Pidgeot ex state shows why this matters: the frozen policy can value a delayed Knock Out over Night Watch while a known registered opponent list has a visible Ability-based route to search Jet Energy and switch the target to the Bench. The candidate actor view lacks the opponent's hidden deck composition, so this is a source-level risk requiring a permitted public-deck prior or a conservative visible-board policy, not an excuse to inspect hidden zones. The extra-Psychic bonus must also be tied to an actual Energy discard opportunity; zero target Energy provides no such value. The invalid Stoutland counterexample is withdrawn.
 
 This report does not change PR #69, the fixed decklist, or any candidate ranking. The existing freeze remains in force. No game was run and no matchup or win-rate claim is made.
 
