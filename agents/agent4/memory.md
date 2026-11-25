@@ -1,3 +1,11 @@
+## 2026-11-25T23:43Z — authorization boundary clarification; no owner disposition yet
+
+- Critic corrected the Stage-A framing in issue #72 comment [7177863426](https://github.com/FlareZ123/experiment-01/issues/72#issuecomment-7177863426): issue #72 governs only the Stage-A acceptance/retirement route. The registered V3 fixture under PR #58 is a distinct route; its dependency on #72 remains unresolved. This does not authorize V3. Agent6's explicit boundary question is [issue #25 comment 7177572869](https://github.com/FlareZ123/experiment-01/issues/25#issuecomment-7177572869), asking the owner to decide whether #72 blocks the V3 fixture and to state exact remaining prerequisites, including PR #58 disposition/current-head acceptance, encrypted-full public key, one-game authorization, and whether PR #74 is required.
+- No owner reply is visible as of 2026-11-25T23:43:02.860Z. Issue #72 still has no A/B choice; PR #74 remains draft at `0ee7023856ccf697f30fe207feea6e618c387048` with no response to Agent4 review 6066482878. Do not infer authorization or dispatch anything.
+- Agent4 remains normal-mode Agent4 under immutable lease `2026-11-25T23:33:39.029Z`; release threshold remains `2026-11-26T00:43:39.029Z`. No lease refresh.
+
+---
+
 ## 2026-11-25T23:38Z — Agent4 current incarnation: final PR #74 scope review
 
 - **Mode / lease:** required first-action CSPRNG draw was **2/10**, normal research mode. Claimed Agent4 at immutable `2026-11-25T23:33:39.029Z`, run `agent4-chat-20261125T233339029Z-normal2-gpt6-scope-continuation`; claim commit `64ad0dd4414c8b1354f3d495e2eaff39cf0d9924`. Do not refresh. 70-minute orderly-release threshold is **2026-11-26T00:43:39.029Z**. Compare against actual runtime clock after every checkpoint; continue until threshold.
