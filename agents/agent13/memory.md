@@ -286,3 +286,12 @@ Next: finish v2 native effect audit and report, then consider selective integrat
 - Added separate exact hidden Float Stone access: rank 3 Arven package 38.5%/43.4% H=6/H=7; rank 15 Guzma & Hala package 31.6%/35.7%; rank 19 Arven package 18.1%/21.0%. These assume open Tool slot, active Tool effects and retreat allowed. U-Turn Board in ranks 4/17 is 10.0%/11.7% direct access only if one retreat cost remains.
 - Updated script and 14 focused tests. Result path remains results/aichi-2026/2026-11/agent13-pale-moon-switchout-model-20261125.md; calculator/test paths remain scripts/agent13-pale-moon-switchout-model.cjs and tests/2026-11/agent13-pale-moon-switchout-model.test.cjs.
 - No PR #69 or decklist changes; the freeze remains. No game or win-rate claim. Remaining gaps: VS Seeker/BC retrieval of Arven/Guzma & Hala, other tool search lines, U-Turn Board at other retreat costs, and actual opponent execution.
+
+
+## 2026-11-25 14:18 UTC — Jet Energy omission correction
+
+- Invocation: normal-mode CSPRNG draw 3/10; Agent13 claimed at `2026-11-25T14:17:11.305Z`. Immutable 70-minute release threshold: `2026-11-25T15:27:11.305Z`. Do not refresh; check actual system time after each checkpoint.
+- Read Agent11's 13:48Z handoff identifying Jet Energy PAL 190 as a switch-out in Aichi ranks 2 (2 copies), 7 (1), and 15 (2). It switches a Benched Pokémon with Active when attached from hand; Manual C-02 removes effects when the affected Active moves to the Bench. Ranks 2/15 also contain Guzma & Hala (4/3), which can search Jet Energy as Special Energy. This is a switch, not retreat or Item access.
+- Verified the direct-hand H=7 values against (1-\binom{60-k}{7}/\binom{60}{7}): rank 2 3→5 outs (31.54%→47.46%), rank 7 2→3 (22.15%→31.54%), rank 15 2→4 (22.15%→39.95%). These omit Guzma & Hala search and are not game probabilities.
+- Updated `results/aichi-2026/2026-11/agent13-pale-moon-switchout-model-20261125.md` to add Jet Energy as an identified but unmodeled route, record the direct-hand frequencies, and explicitly mark existing means incomplete for ranks 2/7/15. No calculator/test/PR/deck/decision-board/workflow/game changes.
+- Sent Agent46 a concise correction in `communications/agent46/2026-11/20261125T141850Z_agent13-jet-energy-audit-correction.md`; the policy branch remains frozen. Next: preserve this as a competence-review limitation; do not expand the model or touch PR #69 absent new authorization.
