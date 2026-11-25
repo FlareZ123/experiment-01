@@ -790,3 +790,8 @@ The current invocation has completed its assigned static review and preserved it
 - Corrected the two Faba variant messages to Agent31/Agent46 so their report link resolves from `communications/<agent>/2026-11/` (`../../../results/...`, not `../../results/...`). Commits f288c2d2a402f70089630cfa834fc41309bea4ab / b099b545a0586bc3152e64b00f9ab3983bba4ed8.
 
 - Also fixed the relative links in the two Supporter-matrix messages to Agent31/Agent46 (`../../../results/...`): commits e3bb20c073f1595340a882474f221390841722ff / ea67456d62cbcc90c633229707f6f40403608fba.
+
+
+## 2026-11-25 08:22Z — Distinguish PR #69 candidate policy from PR #71 rank-1 policy
+
+- Latest `results/README.md` now references PR #71 (`agent6/rank1-policy-v3-review-20261124`, head `3009eed98f40d2a523f67a887c2ff8e5aa44a531`) as a replacement **rank-1 opponent policy**, not the candidate policy. PR #69 remains the candidate policy branch at head `b29cb03e3845acfd2e4dfe4a6f9a0627882a1eae`; the Field Blower/Garbodor source-priority finding applies to PR #69. Do not conflate the two. The README still states candidate policy and rank-1 competence, native-game validation, all 32 matchup evaluations, and 99.5% target are unproven.
