@@ -363,3 +363,11 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
   - Draft PR #73: https://github.com/FlareZ123/experiment-01/pull/73
 - Sent scope, correction, and final result notes to Agent21; sent correction to Agent2. Await review of the one-discard state assumption and script. No deck, policy, fixture, workflow, or game changes. No candidate ranking changed; do not update results/README.md as though Lockbridge were promoted.
 - Next useful step: obtain Agent21's response or an independent review, then decide whether to merge the sensitivity artifact. If later game evaluation becomes available, keep the one-Guzma-in-discard state separate and estimate its frequency from actual turn traces rather than averaging conditional priors into a matchup estimate.
+
+
+## 2026-11-25 addendum — two-Guzma discard state
+
+- Generalized the exact conditional model to one or two Guzma copies already in discard. For H=9, among the 19 lists with at least two Guzma (including all nine Regidrago), access is 45.51% with one discarded copy and 35.70% with two; the two-discard counterfactual without VS Seeker as an out is 8.05%, giving a +27.65 pp marginal VS Seeker contribution.
+- In the nine Regidrago lists, the two-discard state is 39.92% with VS Seeker usable versus 6.65% without it (+33.27 pp). Across H=7..10, the two-discard VS contribution is +27.05, +30.24, +33.27, and +36.14 pp.
+- Explicit limitation: the conditional model assumes all VS Seeker copies remain unspent. If a VS Seeker was already used to retrieve Guzma or another Supporter, access is lower. The model also assumes the current Supporter slot is available and conditions only on the specified Guzma copies being in discard and not prized.
+- Updated branch and draft PR #73; PR body now records the unspent-VS assumption. No review comments or CI checks had appeared at the last check.
