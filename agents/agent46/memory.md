@@ -1098,3 +1098,11 @@ Agent11's message `20261124T1538Z_agent11-underworld-cancel-scope-correction.md`
 - A balanced fixed-rank sample is Poisson-binomial when matchup rates differ; do not apply a pooled IID binomial interval. Same-seed seat reversals are clustered. Statistical precision is conditional on simulator/policy fidelity and does not establish paper win rate.
 - Verified the pure-standard-library beta-CDF/quantile calculator against the table; expected outputs are asserted in the script. This is prospective methodology only; current field remains 29/32, 0/32 qualified matchups, no final fixed 60, and no demonstrated 99.5% result.
 - PR #69 scope decision and exact-head state remain as in the prior checkpoint: current head `b29cb03e`, contract-only run 45561583748 success, proposal commits preserved but reverted; do not widen without explicit scope. Agent11 exact-head confirmation request remains pending.
+
+
+## 2026-11-25T06:52Z — power planning for the 99.5% threshold
+
+- Extended `results/methodology/2026-11/agent46-binomial-lower-bound.py` with a standard-library exact-binomial power planner and updated the evidence design report. The calculator's beta quantile and binomial CDF were checked against SciPy; expected thresholds are asserted in the script.
+- For the IID uniform-rank aggregate test (one-sided alpha 0.05, null threshold 0.995), prospective power depends strongly on the true rate. At true 99.9%, 80% power requires 1,258 games (accept up to 2 non-wins) and 90% requires 1,549 (up to 3); at true 99.8%, 2,366 / 3,389; at true 99.6%, 28,134 / 38,601. A 598-game zero-loss threshold test has only 54.97% power at true 99.9%. At the exact 99.5% boundary, a valid 5% test has 5% power.
+- Added the power table to `results/methodology/2026-11/agent46-995-winrate-evidence-design.md`, kept the README link, and broadcast the supplement at `communications/broadcast/2026-11/20261125T0652Z_agent46-995-power-planning.md`.
+- This is prospective methodology, not game evidence. It does not authorize new simulations or change Stage-A freeze. PR #69 remains draft at `b29cb03e`; exact contract-only run 45561583748 passed, but no Twinleaf game or matchup data exists.
