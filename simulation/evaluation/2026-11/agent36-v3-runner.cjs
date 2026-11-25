@@ -208,9 +208,23 @@ const SAFE_V3_FAILURE_NAMES=new Set([
   'Error','GameError','AssertionError','TypeError','RangeError','ReferenceError','SyntaxError','TimeoutError'
 ]);
 const SAFE_V3_FAILURE_CODE_PREFIXES=[
+  'ACTOR_','CLONED_','FIXTURE_','FULL_STATE_','NON_','PRIMARY_','RECORDER_',
+  'RUNNER_','SEED_','SETUP_','UNKNOWN_','V3_',
   'NATIVE_','WORKER_','V3_RUNNER_','VALIDATION_','POLICY_','PREDICATE_',
   'ERROR_','ERR_','TEST_','NO_GAME_WITNESS_','UNSUPPORTED_','INVALID_','NOT_','CANNOT_','BAD_','MISSING_'
 ];
+const SAFE_V3_FAILURE_STAGES=new Set([
+  'action-cap','actor-observation','after','after-failed-dispatch','before','cleanup',
+  'dispatch','engine-wait-prompt-resolution','failure-final','fixture',
+  'fixture-pin-restore-verification','frontier-admission','full-state-trace-acceptance',
+  'game-loop','native-enumerator-execution','native-no-game-witness',
+  'native-no-game-witness-postflight','on-action-callback','on-game-ready-callback',
+  'physical-prompt-resolution','policy-decode','post-dispatch-full-state-snapshot',
+  'post-dispatch-public-snapshot','pre-action-snapshot','primary-failure',
+  'prompt-resolver-decode','runner-hook-restore','runner-hook-restore-verification',
+  'runner-lock-release','setup-prompt-audit','terminal-check','trace-prepare',
+  'v3-worker-execution-boundary','worker-cleanup','worker-execution'
+]);
 function safeV3FailureName(value){return SAFE_V3_FAILURE_NAMES.has(value)?value:'Error';}
 function safeV3FailureCode(value){
   if(typeof value!=='string'||!/^[A-Z0-9_]{1,64}$/.test(value))return null;
@@ -223,8 +237,7 @@ function projectNativeFixtureFailureForReceipt(failure,{includePrimary=true}={})
   if(code)summary.code=code;
   if(Number.isSafeInteger(failure.actionOrdinal)&&failure.actionOrdinal>=0)
     summary.actionOrdinal=failure.actionOrdinal;
-  if(typeof failure.stage==='string'&&/^[a-z0-9-]{1,64}$/.test(failure.stage))
-    summary.stage=failure.stage;
+  if(SAFE_V3_FAILURE_STAGES.has(failure.stage))summary.stage=failure.stage;
   if(SAFE_V3_NATIVE_ACTION_TYPES.has(failure.nativeActionType))
     summary.nativeActionType=failure.nativeActionType;
   if(SAFE_V3_NATIVE_ACTION_VALIDATION_STAGES.has(failure.nativeActionValidationStage))
@@ -243,7 +256,8 @@ function projectV3FixtureFailureForReceipt(source,{
     failure?.nativeFixtureFailure??source?.nativeFixtureFailure
   );
   const rawStage=failure?.stage??nativeFailure?.stage??stage;
-  const safeStage=typeof rawStage==='string'&&/^[a-z0-9-]{1,64}$/.test(rawStage)?rawStage:stage;
+  const safeStage=SAFE_V3_FAILURE_STAGES.has(rawStage)?rawStage:
+    (SAFE_V3_FAILURE_STAGES.has(stage)?stage:'native-no-game-witness');
   const result={
     name:safeV3FailureName(failure?.name),
     code:safeV3FailureCode(failure?.code??source?.code)||

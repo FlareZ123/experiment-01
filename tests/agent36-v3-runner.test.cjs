@@ -1103,6 +1103,7 @@ test('registered V3 diagnostics accept sanitized-only with the existing artifact
   assert.doesNotMatch(source,/nativeGameMessageValues/);
   assert.match(source,/withSafeFrontierStage\(\s*'native-enumerator-construction'/);
   assert.match(source,/withSafeFrontierStage\(\s*'frontier-admission'/);
+  assert.match(source,/sanitizeFixtureArtifact\(artifact\)/);
   assert.match(source,/fixture-game\.sanitized\.json/);
   assert.match(source,/fixture-game\.sanitized\.txt/);
   assert.ok(V3_FIXTURE_TEST_PATHS.includes(
@@ -1756,6 +1757,12 @@ test('native failure projection preserves only generic error and frontier-stage 
   });
   assert.equal(rejected.nativeActionType,undefined);
   assert.equal(rejected.nativeActionValidationStage,undefined);
+  const rejectedStage=projectNativeFixtureFailureForReceipt({
+    name:'Error',stage:'private-card-stage',
+    nativeActionValidationStage:'private-card-stage'
+  });
+  assert.equal(rejectedStage.stage,undefined);
+  assert.equal(rejectedStage.nativeActionValidationStage,undefined);
 });
 test('V3 wrong-actor resolver failure survives callback projection and final witness receipt',async()=>{
   const workerAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});

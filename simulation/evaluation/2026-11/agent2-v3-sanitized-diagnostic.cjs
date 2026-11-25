@@ -214,9 +214,23 @@ const SAFE_SANITIZED_FAILURE_NAMES=new Set([
   'Error','GameError','AssertionError','TypeError','RangeError','ReferenceError','SyntaxError','TimeoutError'
 ]);
 const SAFE_SANITIZED_FAILURE_CODE_PREFIXES=[
+  'ACTOR_','CLONED_','FIXTURE_','FULL_STATE_','NON_','PRIMARY_','RECORDER_',
+  'RUNNER_','SEED_','SETUP_','UNKNOWN_','V3_',
   'NATIVE_','WORKER_','V3_RUNNER_','VALIDATION_','POLICY_','PREDICATE_',
   'ERROR_','ERR_','TEST_','NO_GAME_WITNESS_','UNSUPPORTED_','INVALID_','NOT_','CANNOT_','BAD_','MISSING_'
 ];
+const SAFE_SANITIZED_FAILURE_STAGES=new Set([
+  'action-cap','actor-observation','after','after-failed-dispatch','before','cleanup',
+  'dispatch','engine-wait-prompt-resolution','failure-final','fixture',
+  'fixture-pin-restore-verification','frontier-admission','full-state-trace-acceptance',
+  'game-loop','native-enumerator-execution','native-no-game-witness',
+  'native-no-game-witness-postflight','on-action-callback','on-game-ready-callback',
+  'physical-prompt-resolution','policy-decode','post-dispatch-full-state-snapshot',
+  'post-dispatch-public-snapshot','pre-action-snapshot','primary-failure',
+  'prompt-resolver-decode','runner-hook-restore','runner-hook-restore-verification',
+  'runner-lock-release','setup-prompt-audit','terminal-check','trace-prepare',
+  'v3-worker-execution-boundary','worker-cleanup','worker-execution'
+]);
 function sanitizeFailureName(value){return SAFE_SANITIZED_FAILURE_NAMES.has(value)?value:'Error';}
 function sanitizeFailureCode(value){
   if(typeof value!=='string'||!/^[A-Z0-9_]{1,64}$/.test(value))return null;
@@ -227,8 +241,7 @@ function sanitizeFailure(failure){
   const result={name:sanitizeFailureName(failure.name)};
   const code=sanitizeFailureCode(failure.code);
   if(code)result.code=code;
-  if(typeof failure.stage==='string'&&/^[a-z0-9-]{1,64}$/.test(failure.stage))
-    result.stage=failure.stage;
+  if(SAFE_SANITIZED_FAILURE_STAGES.has(failure.stage))result.stage=failure.stage;
   if(Number.isSafeInteger(failure.actionOrdinal)&&failure.actionOrdinal>=0)
     result.actionOrdinal=failure.actionOrdinal;
   if(SAFE_SANITIZED_NATIVE_ACTION_TYPES.has(failure.nativeActionType))
