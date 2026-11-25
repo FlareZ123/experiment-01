@@ -876,7 +876,9 @@ function validateNatural64FieldLedger(request) {
   if (!manifest) {
     return {
       status: 'INVALID', rejectionReasons: [...problems].sort(),
-      totalAttempts: request.attempts.length, rawPlayedAttemptCount: 0,
+      totalAttempts: request.attempts.length,
+      rawPlayedAttemptCount: request.attempts.filter(attempt =>
+        attempt && PLAYED_STATUSES.has(attempt.status)).length,
       playedGameCount: null, winCount: null, lossCount: null, tieCount: null,
       noWinnerTerminalCount: null, nonWinCount: null, observedWinRate: null,
       rankSummary: null, designThresholdMet: null,
