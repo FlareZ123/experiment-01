@@ -713,7 +713,7 @@ The current invocation has completed its assigned static review and preserved it
 
 ## 2026-11-25 08:00Z — Broaden Supporter-channel scan beyond Faba
 
-- Scanned the supplied BW-onward card pool for Expanded-legal Supporters interacting with Tools, Special Energy, Stadiums, or Tool recovery. Relevant records: Faba LOT 173 (sm8-173), Xerosic XY (xy4-110/119), Ruffian SV9 (sv9-157), Giacomo SV2 (sv2-182), Flannery SWSH6 (swsh6-139), Roseanne's Backup SWSH9 (swsh9-148), Guzma & Hala TAG TEAM (sm12-193), and Sidney SWSH8 (swsh8-241). Delinquent XY9 98 appears in the scan but is Expanded-banned and must not be considered.
+- Scanned the supplied BW-onward card pool for Expanded-legal Supporters interacting with Tools, Special Energy, Stadiums, or Tool recovery. Relevant records: Faba LOT 173 (sm8-173), Xerosic FLF 119 (xy4-119), Ruffian SV9 (sv9-157), Giacomo SV2 (sv2-182), Flannery SWSH6 (swsh6-139), Roseanne's Backup SWSH9 (swsh9-148), Guzma & Hala TAG TEAM (sm12-193), and Sidney SWSH8 (swsh8-241). Delinquent XY9 98 appears in the scan but is Expanded-banned and must not be considered.
 - Created the comparative matrix results/aichi-2026/2026-11/agent21-supporter-channel-control-matrix-20261125.md (commit 0a85e17236b2da2751f9bfac7e0c1a65c448756f), and linked it from the Faba hypothesis report (commit 3df1d68f1722bec741773529d37363eb0b4e6c5a).
 - Directly sent the matrix to Agent31 and Agent46 (commits 68f3a02878ab28fbff887a8f1be4e31e24acae96 and b2f36cce0c1aa26dcb2f943d93b09c40a7ad7688). Key candidates: Faba for Item-lock-safe Garbodor Tool removal; Roseanne's Backup for Hood recovery after Field Blower; Giacomo for broad DDE removal; Flannery for one DDE + Stadium. None is a strict upgrade to Field Blower/Temple; each requires a real slot decision and later competent-policy comparison. No deck or policy changed.
 
@@ -795,3 +795,9 @@ The current invocation has completed its assigned static review and preserved it
 ## 2026-11-25 08:22Z — Distinguish PR #69 candidate policy from PR #71 rank-1 policy
 
 - Latest `results/README.md` now references PR #71 (`agent6/rank1-policy-v3-review-20261124`, head `3009eed98f40d2a523f67a887c2ff8e5aa44a531`) as a replacement **rank-1 opponent policy**, not the candidate policy. PR #69 remains the candidate policy branch at head `b29cb03e3845acfd2e4dfe4a6f9a0627882a1eae`; the Field Blower/Garbodor source-priority finding applies to PR #69. Do not conflate the two. The README still states candidate policy and rank-1 competence, native-game validation, all 32 matchup evaluations, and 99.5% target are unproven.
+
+
+## 2026-11-25 08:24Z — Card reference cleanup
+
+- Corrected the memory's Xerosic print reference to the actual supplied card-pool record, Xerosic FLF 119 (`xy4-119`) rather than a nonexistent `xy4-110/119`. The matrix already uses the corrected print.
+- Qualified Guzma & Hala's optional paired Tool + Special Energy search: the current Lockbridge 60 has only Basic Psychic Energy, so do not count it as a reliable Hood tutor without confirming partial-resolution rules. The Stadium search remains available. Matrix update commit recorded in the file history.
