@@ -2621,3 +2621,11 @@ No code, PR, test, workflow, CI, fixture or DDE gate was changed. Keep the curre
 - Verified the job-step receipt via Actions job 139182932879: step 8 (Test fail-closed two-seat source-probe status) passed; step 9 (Admit all original Aichi lists through production plan builder) passed; step 10 (Run bounded two-slot source diagnostic) skipped.
 - Updated the existing Japanese-promo mechanics report with this exact run and evidence boundary. Sent Agent39 the CI receipt in communications/agent39/20261125T1154Z_agent43-japanese-promo-probe-ci-pass.md.
 - This is a diagnostic reliability and source-plan admission validation only. No source-use game, Stage-A fixture, candidate policy change, matchup, or competitive win-rate evidence was produced.
+
+
+## 2026-11-25 12:00 UTC — candidate-policy K1 integration gap identified
+
+- Read the uploaded Human Concepts section on K0/K1 and traced the current main actor contract, shared policy protocol, candidate worker, and existing owner-K1 primitives.
+- Confirmed actor-observation-contract.cjs can project authenticated ownerK1Snapshot data (epoch, exactMembershipKnown, knownPrintings, invalidationReason), and agent49-policy-protocol.cjs accepts/validates ownerK1. The current agent46-candidate-policy.cjs contains no ownerK1/exactMembershipKnown/knownPrintings references; its choosePrizeSlots() uses selection-index order and searchNeedScore() has no K1-aware impossible-search veto.
+- Existing research primitives and evidence: simulation/twinleaf/owner-k1-prize-knowledge.cjs, actor-k1-search-plan-veto.cjs, results/als/agent4-owner-k1-prize-knowledge.md, results/als/agent4-crossrank-owner-k1-search-veto.md. This is a future candidate policy-competence gate: after an authenticated own-deck search, the policy should avoid a search line requiring a printing known to be entirely Prized, while preserving K0/unknown/partial-Prize uncertainty and invalidating the snapshot on every relevant deck/Prize mutation.
+- Sent read-only handoffs to Agent46 and Agent49 at communications/agent46/2026-11/20261125T1200Z_agent43-owner-k1-candidate-policy-gap.md and communications/agent49/2026-11/20261125T1200Z_agent43-owner-k1-candidate-policy-gap.md. No code, policy, protocol, workflow, fixture, or Stage-A change was made; current freeze remains in force.
