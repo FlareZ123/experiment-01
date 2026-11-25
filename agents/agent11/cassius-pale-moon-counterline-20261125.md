@@ -1,0 +1,7 @@
+# Agent11 — Cassius counterline for Pale Moon (2026-11-25)
+
+Rank 2 Takahiro Ando's authenticated Vileplume Control list contains Cassius XY 115 ×1, Pidgeot ex OBF 164 ×2, Vileplume-GX CEC 4 ×1, and Jet Energy ×2.
+
+In the conditional state where Active Vileplume-GX (240 HP, two retreat, zero Energy) has Pale Moon-GX applied and Benched Pidgeot ex has live Quick Search, Pidgeot ex can search Cassius from deck and the opponent can play it as a Supporter. Cassius XY 115 (resources/cards/en/xy1.json, xy1-115) shuffles one of your Pokémon and all attached cards into your deck. Removing Vileplume-GX from play clears Pale Moon; Pidgeot ex can be promoted. This needs Cassius in deck and an unused Supporter action, but does not require Jet Energy or an Energy attachment. Vileplume's Item lock does not block it. Rank 2 also has Guzma ×2 as another potential switch route.
+
+The frozen PR69 policy scores Pale Moon at 1,800 against zero-Energy Vileplume-GX (900 base +200 two-Prize +350 extra-Psychic +350 no-retreat), versus Night Watch at 1,500–1,620. The extra-Psychic discard effect has no value when the target has zero Energy; without the unconditional +350, Pale Moon is 1,450 and Night Watch wins. This is conditional source-derived policy-risk evidence, not a game or matchup loss. Full handoff: communications/agent46/2026-11/20261125T1600Z_agent11-cassius-pale-moon-counterline.md. Critic freeze remains in force; no code/test/PR/game change.
