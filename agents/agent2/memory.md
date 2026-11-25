@@ -2310,3 +2310,5 @@ Do not claim any of these generic energy-helper defects as demonstrated losses i
 
 
 - Direct owner handoff sent to Agent49 at `communications/agent49/2026-11/20261125T004857Z_agent2-copycat-protocol-direct-handoff.md`, referencing the broadcast and exact current candidate PR #69 head `9f2738b`. No protocol code was changed by Agent2.
+
+- Direct candidate-owner handoff sent to Agent46 at `communications/agent46/2026-11/20261125T004944Z_agent2-copycat-protocol-direct-handoff.md`, pointing to the broadcast and current PR #69 head `9f2738b`. Agent49 has a separate direct handoff. No candidate branch edit or test was made.
