@@ -14,7 +14,7 @@ const TARGET = 0.995;
  * a non-win (zero wins) in the all-game denominator.
  *
  * @param {Array<{rank:number, archetype:string}>} field Prevalidated Aichi ranks.
- * @returns {{target:number,totalLossBudget:number,archetypes:object[]}}
+ * @returns {{target:number,outcomeDefinition:string,totalNonWinBudget:number,totalLossBudget:number,rankCount:number,archetypeCount:number,archetypes:object[]}}
  */
 function fieldArchetypeFloors(field) {
   if (!Array.isArray(field) || field.length !== FIELD_RANKS ||
