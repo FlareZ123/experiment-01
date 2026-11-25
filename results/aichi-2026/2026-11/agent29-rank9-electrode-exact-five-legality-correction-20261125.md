@@ -24,21 +24,25 @@ The native Store accepted a physically resolved prompt, but the activation was *
 
 ## Affected rank-9 studies
 
-The exact-five defect invalidates the paper-legality interpretation of the v10-v14 campaign, because each later study inherits the three-Energy source line:
+The exact-five defect affects more than the later v10-v14 campaign. The following constructed Bomb activations used three physical Energy and are **not paper-legal**:
 
 | Study | Native run | Paper-legality status |
 |---|---:|---|
-| v10 late-benched Electrode | 42528415819 | Three-Energy Bomb; illegal |
+| 3 Nov staged Compressor → Bomb → Claw chain | 41611816587 | Three-Energy Bomb; illegal |
+| 7 Nov v4 post-Compressor source payoff | 42338242533 | Two three-Energy Bombs; illegal |
+| v10 late-benched Electrode | 42528415819 | Two three-Energy Bombs; illegal |
 | v11 post-Bomb Float Stone | 42529547643 | Three-Energy source line; illegal |
 | v12 early Escape Rope | 42596045697 | Three physical Energy attached; illegal |
 | v13 opponent HP-only backfire | 42597351313 | Inherits v12 three-Energy line; illegal |
 | v14 opponent Prize-aware Rope | 42598823216 | Inherits v12/v13 three-Energy line; illegal |
 
-These artifacts remain valuable for reproducing Twinleaf's incorrect prompt acceptance, physical card movement, Prize settlement, and the opponent-choice heuristics under that simulated state. They must **not** be cited as paper-legal source wins, legal card-interaction proof, qualified matchup games, or competitive opponent-policy evidence. Preserve the reports and raw outputs; do not delete the historical work. Their prior “source win” and comparative policy conclusions are engine-behavior observations conditional on an illegal three-Energy activation.
+The separate 3 Nov underpayment regression run **41611263470** also reproduced native acceptance of zero/two-of-three Energy payments; it is a simulator-defect test, not a legal activation. The unexecuted v6 registration `agent29-rank9-one-vs-three-prospective-v6-20261107.json` proposed 1-vs-3 Energy payments and must not be executed as a paper-legal experiment without redesign.
+
+These artifacts remain valuable for reproducing Twinleaf's incorrect prompt acceptance, physical card movement, Prize settlement, and opponent-choice heuristics under that simulated state. They must **not** be cited as paper-legal source wins, legal card-interaction proof, qualified matchup games, or competitive opponent-policy evidence. Preserve the reports and raw outputs; do not delete the historical work. Their prior “source win” and comparative policy conclusions are engine-behavior observations conditional on an illegal three-Energy activation. Runs that did not actually activate Bomb (for example, v2/v8 Compressor-only outcomes) are not invalidated by this exact-five issue, but they also do not demonstrate a legal Bomb payoff.
 
 ## Unaffected staged evidence
 
-The separate 2 November staged attack-chain CI run **41488522008** reports five physical Energy attached in each positive arm. That payment is consistent with the printed exact-five cost. It remains a constructed native sequence, not a natural game, a competent opponent-policy result, or a qualified matchup. The distinction must remain explicit.
+The separate five-Energy staged chains remain consistent with the printed cost: **41486251849**, **41488522008**, and **41489519157** report five physical Energy attached in their positive arms. These are constructed native sequences, not natural games, competent opponent-policy results, or qualified matchups. The 2 Nov 41488522008 full attack-chain result is therefore unaffected by the exact-five correction, but it must not be confused with the later three-Energy v4/v10-v14 studies.
 
 Mega Absol ex remains an eligible recipient: the uploaded card pool's `cards/en/me1.json`, `me1-86`, lists modern lowercase `ex` (Basic / MEGA / ex), not legacy uppercase Pokémon-EX and not Pokémon-GX. Do not overblock it when enforcing the printed exclusion.
 
