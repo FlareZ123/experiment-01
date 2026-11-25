@@ -362,6 +362,7 @@ function validateSlotAttempts(attempts, slotRoster, manifest, problems) {
       preGameFailureCount += 1;
       if (attempt.gameStarted !== false || attempt.terminalReached !== false ||
           !PRE_GAME_FAILURE_CLASSES.has(attempt.failureClass) ||
+          attempt.failureCriteriaSha256 !== manifest.preGameFailureCriteriaSha256 ||
           !isSha(attempt.failureEvidenceSha256)) {
         add(problems, 'pre-game-failure-evidence-invalid');
       }
@@ -553,6 +554,11 @@ function validatePolicyPanel(request, attempts, manifest, problems) {
 }
 
 function evaluateStoppingRule(rawAttempts, playedAttempts, manifest, problems) {
+  if (!DECISION_SCHEDULES.has(manifest.decisionSchedule)) {
+    add(problems, 'field-sampling-decision-schedule-invalid');
+    return {disposition: 'INVALID_SCHEDULE', met: false,
+      counts: {wins: 0, losses: 0, ties: 0, noWinners: 0}};
+  }
   const counts = {wins: 0, losses: 0, ties: 0, noWinners: 0};
   for (const attempt of playedAttempts) {
     if (attempt.status === 'paper-qualified-win') counts.wins += 1;
@@ -624,10 +630,10 @@ function findRepeatedRandomizationMaterialGroups(attempts) {
 /**
  * Validate a preregistered 32-rank × candidate-physical-seat design. Actual
  * first-player seat is observed from the natural coin/GO_FIRST sequence and
- * is never quota-balanced. A pre-game failure invalidates this batch under
- * the registered conservative disposition. Repeated random seeds/deals are
- * permitted: sampling is with replacement and no redraw/uniqueness filter is
- * applied to random material or physicalDealId.
+ * is never quota-balanced. Pre-game failures are unqualified executions and
+ * may retry only within the preregistered per-slot budget; exhausted slots
+ * invalidate the batch. Sampling is with replacement, but repeated exact RNG
+ * material blocks a design-threshold disposition pending independent audit.
  */
 function validateNatural64FieldLedger(request) {
   if (!request || !Array.isArray(request.originalSources) ||
@@ -692,7 +698,6 @@ function validateNatural64FieldLedger(request) {
     adjudicationEvidence: new Set()
   };
   const paperReceiptIds = new Set();
-  const rngCommitmentTrials = new Map();
 
   for (const attempt of attempts) {
     if (!attempt || typeof attempt !== 'object' || Array.isArray(attempt)) continue;
@@ -757,11 +762,6 @@ function validateNatural64FieldLedger(request) {
       problems
     );
     validateRandomization(attempt, manifest, problems);
-    if (isSha(attempt.rngMaterialCommitment)) {
-      const ids = rngCommitmentTrials.get(attempt.rngMaterialCommitment) || [];
-      ids.push(attempt.attemptId);
-      rngCommitmentTrials.set(attempt.rngMaterialCommitment, ids);
-    }
   }
 
   validatePolicyPanel(request, playedAttempts, manifest, problems);
