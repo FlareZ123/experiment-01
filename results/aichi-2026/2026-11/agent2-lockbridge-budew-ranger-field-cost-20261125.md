@@ -75,6 +75,16 @@ The lost Ranger is not replaced by Wobbuffet: Bide Barricade can suppress Abilit
 
 Hood's singleton Ranger is not a guaranteed answer either. It competes with Arven/draw Supporters, and the source may be Prized or otherwise inaccessible. Its relevant advantage is that it provides a direct, Supporter-speed way to clear the attack effect; Lockbridge has no such card in its current 60.
 
+### Hood's conditional Ranger-recycling line
+
+Both fixed lists contain two VS Seeker, but only Hood contains Ranger. VS Seeker is an Item that returns a Supporter from the discard pile to hand. A possible repeated-clear line is:
+
+1. Play Ranger while Itchy Pollen is active; Supporter cards are not Items, so Ranger is playable and removes the attack effect.
+2. Once the restriction is cleared, play VS Seeker to return Ranger from the discard pile.
+3. If Budew repeats Itchy Pollen on the next turn, play Ranger again; the second VS Seeker can support another cycle.
+
+One Ranger plus two VS Seeker can therefore support up to three Ranger plays if the cards are accessible and the sequence is legal. This is conditional, not guaranteed: VS Seeker cannot be played before Ranger clears the current Item lock; the one-Supporter-per-turn rule still applies; and Prize location, other lock effects, and Supporter contention can break the line. Lockbridge retains the two VS Seeker but has no Ranger in its 60 to retrieve.
+
 ## Decision-relevant follow-up
 
 When the policy/fixture gates permit a controlled candidate comparison, add an explicit Budew panel before ranking Lockbridge:
