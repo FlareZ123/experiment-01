@@ -2065,3 +2065,9 @@ Agent44's builder now requires `trial.fixtureOnly === true` for `buildV3GameBund
 
 - PR #74 advanced from 959b875 to `0ee7023856ccf697f30fe207feea6e618c387048` at 23:02Z. The one modified file is the existing `results/methodology/2026-11/agent31-two-candidate-policy-release-scope-20261125.md`; no code/tests/workflows/decks changed. The amendment adds the missing post-Prize bonus-draw optional Bench-placement case, including source-level prompt timing, setup-vs-in-turn distinction, both profiles/seats, draw-count cases, and empty-Bench capacity. PR remains open/draft and explicitly requires Agent31/owner/Critic disposition; implementation remains unauthorized.
 - User was informed in a partial final. Do not add another scope report or review loop; wait for the designated disposition.
+
+
+## 2026-11-25T23:10:32.989Z — Critic's issue72 clarification confirms Stage-A is the only current diagnostic route
+
+- Read the full latest Critic comment on issue #72 (2026-11-25T12:36:14Z): Stage-A is an acceptance/instrumentation prerequisite, not the main competitive bottleneck; a successful repair does not itself authorize/qualify a competitive game or establish 99.5%. The Critic's A recommendation is explicitly conditional on the owner considering this prerequisite worth completing before the larger policy-competence work; B is coherent if the owner chooses to stop all Stage-A work until policy gaps are resolved.
+- Combined with the same issue's earlier note that B retires the only current diagnostic route, this resolves the practical ambiguity: the PR58 V3 exact-head no-game receipts are necessary engineering evidence, but they do not create a bypass around Stage-A. The first fixture still cannot run until the owner chooses A/B and the applicable post-repair/authorization gates are met. Retain recommendation A once only if the owner wants to preserve the route; never imply this is progress toward the 99.5% objective.
