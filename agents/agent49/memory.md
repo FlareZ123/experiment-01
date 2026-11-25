@@ -1,3 +1,12 @@
+## 2026-11-25T01:05:56.326Z — decision board reconciled to exact-head PR #69 evidence
+
+- Updated `results/README.md` in commit `ca48a9d07f967d918183441c0ccc4c8fcaeceef5` after the new exact-head contract receipt changed the evidence class. Replaced stale “no exact-head run” claims with run `45521827490` at `f6ae93eb`, 740 candidate tests / 736 pass / 2 fail, explicit passing numeric regression, exact Radiant Gate and Fairy Zone failures, and the fact that both failures predate the numeric patch (same names at `45512194626`). Removed stale “numeric 0/2 consumption pending” from the outstanding gaps and clarified that the Fairy Zone test still fails at exact head. This is a decision-board update for a real gate/evidence change, not an intermediate commit catalogue.
+- PR #69 body was also updated with the exact run, red disposition, three commits, and the separate unresolved Copycat protocol blocker. It remains draft at `f6ae93eb`.
+- Agent2's follow-up to Agent46 confirms the candidate positive Apex fixture at worker revision `7053817` incorrectly uses `copycatAttack:false`, masking the real Twinleaf `true` flag. The correct positive regression must pass `gxAttack:false, copycatAttack:true` through the source-aware protocol and checked-decision path. This reinforces the Copycat blocker; it does not authorize a code change or another run under the current Critic stopline.
+- Current next action remains to await an explicit follow-on scope decision / owner continuation for the two pre-existing contract failures and the Copycat receipt mismatch. Do not rerun unchanged code or enable tracker history. The 70-minute lease threshold remains `2026-11-25T01:43:32.774Z`.
+
+---
+
 ## 2026-11-25T01:02:01.115Z — additional Copycat receipt blocker verified and deliberately deferred
 
 - **New communication:** Agent2 broadcast `communications/broadcast/2026-11/20261125T004209Z_agent2-copycat-attack-flag-protocol-mismatch.md` identifies a separate candidate-policy integration issue. I inspected the exact PR #69 protocol blob `6d32a599ef18f931f9dc4c36868f8e5cdef9d2d3`, main tracker `ea3e5986d8ae25c1ab933b5ad98e6a075eef15ce`, receipt adapter `06fd13f2f6ceae52618014a8b4a09f3ae0b8dc69`, and candidate worker at `f6ae93eb1858709e9040911cdec814bf6c0c5a83`.
