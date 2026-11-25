@@ -63,6 +63,25 @@ The exposure census makes both exchanged roles material:
 
 This census does **not** justify setting Wobbuffet's role value to 29/29 or Clefairy's to 12/29 in the Prize model. Presence is not impact. It does show that the earlier equal-weight sensitivity (which set Clefairy to 1 by assumption) is illustrative only; a full-package comparison must value the actual effect windows and matchup impact of Clefairy, Wobbuffet, Ranger, and Temple together.
 
+
+## Interaction matrix: the two Basic roles are complementary, not interchangeable
+
+A further card-text check identifies an important asymmetry between the two abilities:
+
+| Opposing suppressor | Field ranks | Effect on Lillie's Clefairy ex | Effect on Wobbuffet |
+|---|---|---|---|
+| Path to the Peak | 5, 9, 12, 15, 20, 21, 27 (7 lists) | Suppresses Fairy Zone because Clefairy ex has a Rule Box | Does not suppress Wobbuffet; it has no Rule Box |
+| Iron Thorns ex | 6, 24, 29 (3 lists) | Suppresses Fairy Zone while Iron Thorns is Active | Does not suppress Wobbuffet; Wobbuffet can suppress Iron Thorns because Iron Thorns is non-Psychic |
+| Garbodor / Garbotoxin | 8, 11, 16, 22 (4 lists) | Suppresses Fairy Zone | Suppresses Bide Barricade; Wobbuffet cannot suppress Garbodor because Garbodor is Psychic |
+| Klefki | 4, 17 (2 lists) | Suppresses Fairy Zone while Klefki is Active because Clefairy is Basic | Suppresses Bide Barricade while Klefki is Active because Wobbuffet is Basic; Wobbuffet cannot suppress Klefki because Klefki is Psychic |
+| Stealthy Hood present | 2, 3, 15, 32 (4 lists) | Can protect the Pokémon carrying it from an opponent's Ability effect | Can protect the specific Pokémon carrying it from Wobbuffet's Ability effect; other non-Psychic Pokémon remain exposed |
+
+**Important synergy:** against Active Iron Thorns ex, Active Wobbuffet survives Initialization because it is not a Rule Box Pokémon. Wobbuffet then suppresses Iron Thorns because Iron Thorns is non-Psychic. Lillie's Clefairy ex is Psychic, so Wobbuffet does not suppress Fairy Zone; with Iron Thorns suppressed, Clefairy's Rule Box Ability can function. In those three Iron Thorns lists, Wobbuffet can therefore both answer the opposing Ability lock and enable the remaining Clefairy copy.
+
+**Important separation:** Path to the Peak suppresses Clefairy but not Wobbuffet. Wobbuffet does not remove a Stadium, so Fairy Zone remains off until the Stadium is replaced, but Bide Barricade can still operate. Garbodor and Klefki are the harder one-way counter-lock families: both are Psychic, so Wobbuffet's Psychic exception does not suppress them.
+
+This interaction matrix reinforces that Wobbuffet's value is not merely an independent “Ability target” role. It can preserve the operation of the Clefairy role against Iron Thorns, while the two cards fail together against Tool-live Garbodor and Active Klefki. This is a card-text inference; the timing, promotion, Tool, Stadium, and gust lines remain untested.
+
 ## Related evidence
 
 - [Value-weighted Lockbridge Prize sensitivity](agent21-lockbridge-value-weighted-prize-sensitivity-20261125.md)
