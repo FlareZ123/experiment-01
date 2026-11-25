@@ -6,7 +6,7 @@
 
 ## Question
 
-The Hood Shield Shadow Rider v1 / Lockbridge v1 family has eight singleton Basic Pokémon that support different lines, but only one Hisuian Heavy Ball to retrieve a Basic from the Prize cards. How often does this shared recovery capacity leave one or more of those singleton targets stranded in the Prizes?
+Hood Shield Shadow Rider v1 has eight singleton Basic support/tech roles and two Clefairy; Lockbridge retains those eight, reduces Clefairy to one, and adds a one-copy Wobbuffet role. Both lists have only one Hisuian Heavy Ball to retrieve a Basic from the Prize cards. How often does this shared recovery capacity leave one or more of those roles stranded in the Prizes?
 
 The eight singleton Basic targets in the exact 60 are:
 
