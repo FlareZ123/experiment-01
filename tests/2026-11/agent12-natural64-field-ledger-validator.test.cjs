@@ -269,8 +269,10 @@ function makePublicEntryFixture() {
         allowedResults:['candidate-win'],clockMode:'clock-free-game-win'},
       {ruleId:'candidate-forfeit',reason:'candidate-forfeit',terminalClass:'candidate-forfeit',
         allowedResults:['candidate-loss'],clockMode:'clock-free-game-win'},
-      {ruleId:'candidate-illegal-action',reason:'candidate-illegal-action',terminalClass:'candidate-illegal-action',
+      {ruleId:'candidate-defeat',reason:'candidate-defeat',terminalClass:'candidate-defeat',
         allowedResults:['candidate-loss'],clockMode:'clock-free-game-win'},
+      {ruleId:'opponent-defeat',reason:'opponent-defeat',terminalClass:'opponent-defeat',
+        allowedResults:['candidate-win'],clockMode:'clock-free-game-win'},
       {ruleId:'draw',reason:'draw',terminalClass:'draw',
         allowedResults:['genuine-tie'],clockMode:'clock-free-game-win'},
       {ruleId:'both-players-defeated',reason:'both-players-defeated',terminalClass:'no-winner',
@@ -581,6 +583,16 @@ function setPublicOutcome(request, ruleId) {
       penalizedPhysicalSeats: [0, 1],
       judgeRulingRef: 'synthetic-judge-ruling-001'
     };
+  } else if (rule.terminalClass === 'candidate-defeat' ||
+      rule.terminalClass === 'opponent-defeat') {
+    adjudication.singleDefeatEvidence = {
+      schema: 'aichi-single-defeat-penalty-evidence-v1',
+      eventStage: 'aichi-open-top32',
+      penalty: 'Defeat',
+      penalizedPhysicalSeats: [rule.terminalClass === 'candidate-defeat'
+        ? attempt.seat : 1 - attempt.seat],
+      judgeRulingRef: 'synthetic-single-defeat-ruling-001'
+    };
   }
   seal(adjudication, 'evidenceSha256');
 
@@ -618,7 +630,9 @@ function makePreGameRetryFixture() {
   failed.failureCriteriaSha256 =
     request.fieldSamplingRegistration.preGameFailureCriteriaSha256;
   failed.paperReceiptId = null;
-  failed.policyApplicationReceiptSha256 = null;
+  delete failed.policyRegistrationSha256;
+  delete failed.policyAttestationBundleSha256;
+  delete failed.policyApplicationReceiptSha256;
   failed.terminalAdjudicationReceipt = null;
   failed.terminalAdjudicationReceiptSha256 = null;
   failed.startedAt = '2026-11-25T11:59:30Z';
@@ -682,6 +696,11 @@ test('public natural64 validator rejects missing adjudicator evidence for a play
   assert.equal(result.status,'INVALID');
   assert.ok(result.rejectionReasons.includes('adjudicator-evidence-count-mismatch'));
   assert.ok(result.rejectionReasons.includes('terminal-adjudication-independent-adjudicator-evidence-missing'));
+  assert.equal(result.winCount, null);
+  assert.equal(result.nonWinCount, null);
+  assert.equal(result.observedWinRate, null);
+  assert.equal(result.rankSummary, null);
+  assert.equal(result.decisionRuleDisposition, 'NOT_EVALUABLE_INVALID');
 });
 
 test('public natural64 validator rejects a terminal receipt whose statistical status disagrees with the attempt', () => {
@@ -690,6 +709,11 @@ test('public natural64 validator rejects a terminal receipt whose statistical st
   const result=validateNatural64FieldLedger(request);
   assert.equal(result.status,'INVALID');
   assert.ok(result.rejectionReasons.includes('terminal-adjudication-result-status-mismatch'));
+  assert.equal(result.winCount, null);
+  assert.equal(result.nonWinCount, null);
+  assert.equal(result.observedWinRate, null);
+  assert.equal(result.rankSummary, null);
+  assert.equal(result.decisionRuleDisposition, 'NOT_EVALUABLE_INVALID');
 });
 
 
@@ -704,8 +728,8 @@ test('opponent forfeit and concession are candidate wins', () => {
   }
 });
 
-test('candidate forfeit and illegal action are candidate losses', () => {
-  for (const ruleId of ['candidate-forfeit', 'candidate-illegal-action']) {
+test('candidate forfeit and judge-awarded Defeat are losses; opponent Defeat is a win', () => {
+  for (const ruleId of ['candidate-forfeit', 'candidate-defeat']) {
     const request = setPublicOutcome(makePublicEntryFixture(), ruleId);
     const result = validateNatural64FieldLedger(request);
     assert.equal(result.status, 'INCOMPLETE', ruleId);
@@ -714,6 +738,43 @@ test('candidate forfeit and illegal action are candidate losses', () => {
     assert.equal(result.lossCount, 1, ruleId);
     assert.equal(result.nonWinCount, 1, ruleId);
   }
+
+  const opponentDefeat = validateNatural64FieldLedger(
+    setPublicOutcome(makePublicEntryFixture(), 'opponent-defeat'));
+  assert.equal(opponentDefeat.status, 'INCOMPLETE');
+  assert.deepEqual(opponentDefeat.rejectionReasons, []);
+  assert.equal(opponentDefeat.winCount, 1);
+  assert.equal(opponentDefeat.lossCount, 0);
+
+  const badSeat = setPublicOutcome(makePublicEntryFixture(), 'candidate-defeat');
+  badSeat.adjudicationEvidence[0].singleDefeatEvidence.penalizedPhysicalSeats = [1];
+  const adjudication = badSeat.adjudicationEvidence[0];
+  seal(adjudication, 'evidenceSha256');
+  const terminal = badSeat.attempts[0].terminalAdjudicationReceipt;
+  terminal.adjudicationEvidenceSha256 = adjudication.evidenceSha256;
+  seal(terminal, 'receiptSha256');
+  badSeat.attempts[0].terminalAdjudicationReceiptSha256 = terminal.receiptSha256;
+  const rejectedSeat = validateNatural64FieldLedger(badSeat);
+  assert.equal(rejectedSeat.status, 'INVALID');
+  assert.ok(rejectedSeat.rejectionReasons.includes(
+    'terminal-adjudication-single-defeat-evidence-invalid'));
+  assert.equal(rejectedSeat.winCount, null);
+});
+
+test('generic illegal-action observations are not automatically game losses', () => {
+  const protocol = {
+    schema: 'aichi-natural64-adjudication-protocol-v2',
+    rules: [{
+      ruleId: 'candidate-illegal-action',
+      reason: 'candidate-illegal-action',
+      terminalClass: 'candidate-illegal-action',
+      allowedResults: ['candidate-loss'],
+      clockMode: 'clock-free-game-win'
+    }]
+  };
+  const problems = new Set();
+  validateAdjudicationProtocol(protocol, canonicalSha256(protocol), problems);
+  assert.ok(problems.has('adjudication-protocol-rule-invalid'));
 });
 
 test('Aichi protocol rejects player-specific timeout terminals in both clock modes', () => {
@@ -737,16 +798,14 @@ test('Aichi protocol rejects player-specific timeout terminals in both clock mod
 });
 
 
-test('Top32 event-clock genuine draw cannot be admitted as a terminal', () => {
-  const result = validateNatural64FieldLedger(
-    setPublicOutcome(
-      setPublicClockMode(makePublicEntryFixture(), 'aichi-top32-event-clock'),
-      'draw'
-    )
-  );
+test('Top32 event-clock mode is non-admitting without event evidence', () => {
+  const request = setPublicClockMode(makePublicEntryFixture(), 'aichi-top32-event-clock');
+  const result = validateNatural64FieldLedger(request);
   assert.equal(result.status, 'INVALID');
   assert.ok(result.rejectionReasons.includes(
-    'terminal-adjudication-protocol-rule-binding-invalid'));
+    'aichi-top32-event-clock-evidence-unsupported'));
+  assert.equal(result.winCount, null);
+  assert.equal(result.observedWinRate, null);
 });
 
 test('dual Defeat is paper no-winner; ambiguous played terminal invalidates batch', () => {
@@ -772,7 +831,12 @@ test('dual Defeat is paper no-winner; ambiguous played terminal invalidates batc
   assert.equal(ambiguous.status, 'INVALID');
   assert.ok(ambiguous.rejectionReasons.includes(
     'terminal-adjudication-protocol-rule-binding-invalid'));
-  assert.equal(ambiguous.playedGameCount, 1);
+  assert.equal(ambiguous.playedGameCount, null);
+  assert.equal(ambiguous.rawPlayedAttemptCount, 1);
+  assert.equal(ambiguous.winCount, null);
+  assert.equal(ambiguous.observedWinRate, null);
+  assert.equal(ambiguous.rankSummary, null);
+  assert.equal(ambiguous.decisionRuleDisposition, 'NOT_EVALUABLE_INVALID');
 });
 
 test('pre-game exception requires separate no-start evidence and retries the same slot', () => {
@@ -792,17 +856,34 @@ test('pre-game exception requires separate no-start evidence and retries the sam
     'pre-game-failure-independent-evidence-invalid'));
 });
 
-test('duplicate physical deal IDs are rejected across distinct attempts', () => {
-  const problems = new Set();
-  const duplicates = validatePhysicalDealUniqueness([
-    {attemptId: 'a1', physicalDealId: 'same-deal'},
-    {attemptId: 'a2', physicalDealId: 'same-deal'}
-  ], problems);
-  assert.deepEqual(duplicates, ['same-deal']);
-  assert.ok(problems.has('physical-deal-id-replayed-across-attempts'));
+test('pre-game retries reject nested setup evidence and unbound policy hashes', () => {
+  const nested = makePreGameRetryFixture();
+  nested.attempts[0].setupCoinChoiceEvidence = nested.setupCoinChoiceEvidence[0];
+  const nestedResult = validateNatural64FieldLedger(nested);
+  assert.equal(nestedResult.status, 'INVALID');
+  assert.ok(nestedResult.rejectionReasons.includes('pre-game-failure-attempt-schema-invalid'));
+
+  const policyHash = makePreGameRetryFixture();
+  policyHash.attempts[0].policyRegistrationSha256 = hash('f');
+  const policyHashResult = validateNatural64FieldLedger(policyHash);
+  assert.equal(policyHashResult.status, 'INVALID');
+  assert.ok(policyHashResult.rejectionReasons.includes('pre-game-failure-attempt-schema-invalid'));
 });
 
-test('reusing one stream key across games is flagged, not rejected, under with-replacement sampling', () => {
+test('played attempts reject unknown hidden-zone fields and suppress invalid outcome metrics', () => {
+  const request = makePublicEntryFixture();
+  request.attempts[0].opponentHand = ['hidden-card'];
+  const result = validateNatural64FieldLedger(request);
+  assert.equal(result.status, 'INVALID');
+  assert.ok(result.rejectionReasons.includes('played-attempt-schema-invalid'));
+  assert.equal(result.winCount, null);
+  assert.equal(result.lossCount, null);
+  assert.equal(result.observedWinRate, null);
+  assert.equal(result.rankSummary, null);
+  assert.equal(result.decisionRuleDisposition, 'NOT_EVALUABLE_INVALID');
+});
+
+test('duplicate physical deal IDs are rejected across distinct attempts', () => {test('reusing one stream key across games is flagged, not rejected, under with-replacement sampling', () => {
   const makeMaterial = (keys) => ({
     schema: 'aichi-independent-rng-material-v1',
     algorithm: 'hmac-sha256-counter-v1',
