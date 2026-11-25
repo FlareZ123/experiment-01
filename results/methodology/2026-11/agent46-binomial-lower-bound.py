@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
-"""Standard-library Clopper-Pearson lower bounds for the 99.5% evidence design."""
+"""Standard-library confidence and power planning for a 99.5% win-rate claim."""
 
 from math import exp, lgamma, log, log1p
+
+
+TARGET = 0.995
+ALPHA = 0.05
 
 
 def _beta_continued_fraction(a: float, b: float, x: float) -> float:
@@ -67,7 +71,7 @@ def beta_quantile(probability: float, a: float, b: float) -> float:
     return (low + high) / 2.0
 
 
-def clopper_pearson_lower(n: int, non_wins: int, alpha: float) -> float:
+def clopper_pearson_lower(n: int, non_wins: int, alpha: float = ALPHA) -> float:
     if n < 1 or not 0 <= non_wins <= n:
         raise ValueError("Require n >= 1 and 0 <= non_wins <= n.")
     if non_wins == n:
@@ -75,13 +79,61 @@ def clopper_pearson_lower(n: int, non_wins: int, alpha: float) -> float:
     return beta_quantile(alpha, n - non_wins, non_wins + 1)
 
 
-def minimum_games(non_wins: int, alpha: float, target: float = 0.995) -> int:
+def minimum_games(non_wins: int, alpha: float = ALPHA, target: float = TARGET) -> int:
+    """Smallest n whose exact lower bound reaches target for given losses."""
     if non_wins < 0:
         raise ValueError("non_wins must be nonnegative.")
-    n = non_wins + 1
-    while clopper_pearson_lower(n, non_wins, alpha) < target:
-        n += 1
-    return n
+    low = non_wins + 1
+    high = max(100, 2 * low)
+    while clopper_pearson_lower(high, non_wins, alpha) < target:
+        high *= 2
+    while low < high:
+        midpoint = (low + high) // 2
+        if clopper_pearson_lower(midpoint, non_wins, alpha) >= target:
+            high = midpoint
+        else:
+            low = midpoint + 1
+    return low
+
+
+def binomial_cdf(non_wins: int, n: int, loss_probability: float) -> float:
+    """P(K <= non_wins) for K~Binomial(n, loss_probability)."""
+    if non_wins < 0:
+        return 0.0
+    if non_wins >= n:
+        return 1.0
+    if loss_probability <= 0.0:
+        return 1.0
+    if loss_probability >= 1.0:
+        return 0.0
+    return regularized_incomplete_beta(
+        1.0 - loss_probability, n - non_wins, non_wins + 1
+    )
+
+
+def power_plan(
+    true_win_rate: float,
+    desired_power: float,
+    alpha: float = ALPHA,
+    target: float = TARGET,
+    max_non_wins: int = 1000,
+) -> tuple[int, int, float]:
+    """Find the first acceptance threshold with the requested power.
+
+    For each possible accepted non-win count k, the smallest sample size that
+    accepts k is a threshold. Between thresholds the acceptance count is fixed
+    and power decreases as n grows, so it is sufficient to inspect thresholds.
+    """
+    if not 0.0 < true_win_rate < 1.0:
+        raise ValueError("true_win_rate must be between 0 and 1.")
+    if not 0.0 < desired_power < 1.0:
+        raise ValueError("desired_power must be between 0 and 1.")
+    for non_wins in range(max_non_wins + 1):
+        n = minimum_games(non_wins, alpha, target)
+        power = binomial_cdf(non_wins, n, 1.0 - true_win_rate)
+        if power >= desired_power:
+            return n, non_wins, power
+    raise ValueError("Increase max_non_wins; power target not reached.")
 
 
 def main() -> None:
@@ -91,14 +143,31 @@ def main() -> None:
         individual = minimum_games(losses, 0.05)
         familywise = minimum_games(losses, 0.05 / 32)
         print(f"{losses},{aggregate},{individual},{familywise},{32 * familywise}")
-    print(f"19_games_zero_losses_per_matchup_lower_95pct={clopper_pearson_lower(19, 0, 0.05):.12f}")
-    expected_aggregate = [598, 947, 1258, 1549]
-    expected_familywise = [1290, 1744, 2135, 2494]
-    for losses in range(4):
-        assert minimum_games(losses, 0.05) == expected_aggregate[losses]
-        assert minimum_games(losses, 0.05 / 32) == expected_familywise[losses]
-        assert clopper_pearson_lower(expected_aggregate[losses], losses, 0.05) >= 0.995
-        assert clopper_pearson_lower(expected_aggregate[losses] - 1, losses, 0.05) < 0.995
+
+    print("true_win_rate,power80_n,accepted_losses,power80,power90_n,accepted_losses,power90")
+    expected_power = {
+        0.996: ((28134, 121), (38601, 170)),
+        0.997: ((6279, 22), (8591, 32)),
+        0.998: ((2366, 6), (3389, 10)),
+        0.999: ((1258, 2), (1549, 3)),
+        0.9995: ((947, 1), (947, 1)),
+        0.9999: ((598, 0), (598, 0)),
+    }
+    for true_rate, expected in expected_power.items():
+        p80 = power_plan(true_rate, 0.80)
+        p90 = power_plan(true_rate, 0.90)
+        assert (p80[0], p80[1]) == expected[0]
+        assert (p90[0], p90[1]) == expected[1]
+        print(
+            f"{true_rate:.4f},{p80[0]},{p80[1]},{p80[2]:.6f},"
+            f"{p90[0]},{p90[1]},{p90[2]:.6f}"
+        )
+
+    assert minimum_games(0, 0.05) == 598
+    assert minimum_games(0, 0.05 / 32) == 1290
+    assert clopper_pearson_lower(598, 0, 0.05) >= TARGET
+    assert clopper_pearson_lower(597, 0, 0.05) < TARGET
+    print(f"19_games_zero_losses_per_matchup_lower_95pct={clopper_pearson_lower(19, 0):.12f}")
 
 
 if __name__ == "__main__":
