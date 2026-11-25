@@ -1708,6 +1708,11 @@ test('V3 wrong-actor no-game failure receipt preserves seats and redacts raw-pre
     candidateSeat:0,opponentSeat:1,actorSeat:0
   });
   assert.equal(validAssertionIdReceipt.fixtureFailure.assertionId,'native-action-frontier-used');
+  const dynamicAssertionIdReceipt=buildNoGameWitnessFailureReceipt({
+    error:{code:'NATIVE_NO_GAME_WITNESS_ASSERTION',assertionId:'worker-decision-total-candidate'},
+    candidateSeat:0,opponentSeat:1,actorSeat:0
+  });
+  assert.equal(dynamicAssertionIdReceipt.fixtureFailure.assertionId,'worker-decision-total-candidate');
   const privateAssertionIdReceipt=buildNoGameWitnessFailureReceipt({
     error:{code:'NATIVE_NO_GAME_WITNESS_ASSERTION',assertionId:'private-card-id'},
     candidateSeat:0,opponentSeat:1,actorSeat:0

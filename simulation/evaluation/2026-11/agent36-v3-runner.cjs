@@ -235,7 +235,7 @@ const SAFE_V3_ASSERTION_IDS=new Set([
   'worker-total-failures-zero',
   'worker-cleanup-failures-zero',
   'worker-replayable-evidence',
-  'worker-decision-total-',
+  'worker-decision-total-candidate','worker-decision-total-opponent',
   'global-worker-decision-count',
   'role-seat',
   'role-root-decision-count-one',
