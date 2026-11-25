@@ -929,3 +929,16 @@ test('per-attempt RNG protocol and policy-isolation summary are required', () =>
   assert.ok(isolationResult.rejectionReasons.includes(
     'independent-rng-hook-evidence-incomplete'));
 });
+
+test('natural64 terminal receipt is bound to the attempt RNG commitment', () => {
+  const request = makePublicEntryFixture();
+  const receipt = request.attempts[0].terminalAdjudicationReceipt;
+  receipt.rngMaterialCommitmentSha256 = hash('f');
+  seal(receipt, 'receiptSha256');
+  request.attempts[0].terminalAdjudicationReceiptSha256 = receipt.receiptSha256;
+  const result = validateNatural64FieldLedger(request);
+  assert.equal(result.status, 'INVALID');
+  assert.ok(result.rejectionReasons.includes(
+    'terminal-adjudication-binding-mismatch:rngMaterialCommitmentSha256'));
+});
+

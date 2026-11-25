@@ -210,6 +210,18 @@ test('valid receipt binds attempt, native setup, exact runner terminal and proto
   assert.equal(result.valid, true, result.rejectionReasons.join(','));
 });
 
+test('terminal receipt binds the per-attempt RNG material commitment', () => {
+  const input = fixture();
+  const receipt = input.attempt.terminalAdjudicationReceipt;
+  receipt.rngMaterialCommitmentSha256 = hash('f');
+  seal(receipt, 'receiptSha256');
+  input.attempt.terminalAdjudicationReceiptSha256 = receipt.receiptSha256;
+  const result = validate(input);
+  assert.equal(result.valid, false);
+  assert.ok(result.rejectionReasons.includes(
+    'terminal-adjudication-binding-mismatch:rngMaterialCommitmentSha256'));
+});
+
 test('receipt without separate setup, runner or adjudicator evidence is rejected', () => {
   const input = fixture();
   const result = validate({
