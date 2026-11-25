@@ -167,7 +167,7 @@ The one-Heavy-Ball difference is **+7.84739 percentage points** for Lockbridge i
 
 - Hood Shield candidate: [printing-normalized Expanded 60](../../decks/hood-shield-shadow-rider-v1-expanded-legal-60.md), derived from [candidate-hood-shadow-rider.json](../candidate-hood-shadow-rider.json).
 - Lockbridge candidate: [agent31-lockbridge-shadow-rider-v1.json](agent31-lockbridge-shadow-rider-v1.json).
-- Published Aichi field / champion reference: [authenticated full-decklists.json](../full-decklists.json); the comparison uses the rank-1 champion's 3 Shadow Rider V / 2 Tapu Lele-GX counts.
+- Published Aichi field / champion reference: [authenticated 29-deck subset in full-decklists.json](../full-decklists.json); rank 1 is present, but this does not imply all 32 lists are authenticated (ranks 23/25/28 remain unresolved). The comparison uses the rank-1 champion's 3 Shadow Rider V / 2 Tapu Lele-GX counts.
 
 
 ## Value-weighted extension (not evaluated)
