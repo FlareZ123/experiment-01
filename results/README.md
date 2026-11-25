@@ -18,6 +18,7 @@ A strict international Expanded-vs-Expanded comparison is a separate secondary e
 - **Qualified competitive benchmark matchups:** 0/32.
 - **Demonstrated 99.5% field win rate:** none.
 - **Current leading hypothesis:** Hood Shield Shadow Rider v1, not nominated and not proven strongest.
+- **99.5% evidence design:** [Statistical evidence design](methodology/2026-11/agent46-995-winrate-evidence-design.md) defines the equal-rank field-average sampling plan, exact one-sided confidence thresholds, and separate per-matchup coverage requirements. Prospective methodology only; no game data or win-rate claim.
 
 These are separate status dimensions: source-list identity, physical-copy provenance, candidate card-pool legality, engine fidelity, actor-only policy competence, and competitive outcome. Physical-copy provenance does not gate simulator use of an authenticated source list.
 
