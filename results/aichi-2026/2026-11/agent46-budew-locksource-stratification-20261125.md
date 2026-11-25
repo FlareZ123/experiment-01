@@ -46,8 +46,8 @@ Exact Budew-bearing lists:
 | **Total** | **14/29 lists** | **19** | **3 lists** | **2 lists** |
 
 The three Absol Garbodor lists all contain Garbodor printings with Garbotoxin:
-- LTR 68 (`resources/cards/en/bw11.json`, card `bw11-68`, blob `eecf3a... `): ranks 8 and 16.
-- BKP 57 (`resources/cards/en/xy9.json`, card `xy9-57`, blob `...`): ranks 16 and 22.
+- LTR 68 (`resources/cards/en/bw11.json`, card `bw11-68`, blob `e4e09d569e76c71943e2399221c9f904b4420096`): ranks 8 and 16.
+- BKP 57 (`resources/cards/en/xy9.json`, card `xy9-57`, blob `dcfa9ec1b6b0ff6a0b446114c9d567c598cf71ce`): ranks 16 and 22.
 
 Both card-pool entries have the same Ability text: if that Garbodor has a Pokémon Tool attached, each Pokémon in play, in each player's hand, and in each player's discard pile has no Abilities except Garbotoxin. Garbotoxin is conditional on the Tool attachment; list presence alone does not prove that it is active in a particular game.
 
