@@ -31,6 +31,8 @@ At pinned Twinleaf revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`:
 
 Thus the existing `no` / `yes` expectations are correct. The observed `yes` is a worker defect. Changing the expected value to `yes` would conceal it.
 
+The PR #69 test suite also contains a contradictory later assertion: `Radiant is a Rule Box target: Garbotoxin excludes it, while opposing Alolan Muk suppresses it` at lines 4262–4282 asserts that `hasRadiantGateLock` is false for the same Tool-equipped Benched Garbodor. That later assertion encodes the incorrect Rule Box exemption. The coherent correction is to retain the first test's `no` / no-Tool `yes` expectations, change the later Garbotoxin assertion to `true`, and remove the Rule Box exclusion from the worker's `all-tool-attached` scope. Keep the zero-activation-order sentinel test fail-closed.
+
 ## Relevance to the Aichi field
 
 The nominated candidate, [Hood Shield Shadow Rider v1](../candidate-hood-shadow-rider.md), contains one Radiant Eternatus.
