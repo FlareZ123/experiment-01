@@ -10,7 +10,7 @@
 
 - Input lists: all 29 source-verified decks in `results/aichi-2026/full-decklists.json`. Ranks 23, 25, and 28 remain absent from the source dataset.
 - Printing-to-card mapping: `resources/sets/en.json` plus `resources/cards/en/{set-id}.json`. The 51 Pokémon-printing set codes mapped through the set index were checked against the corresponding card records; no mapped Pokémon printing failed to resolve.
-- Three promo printings did not map through the set index and were excluded from the type/Ability scan: Trevenant & Dusknoir-GX SMP 217 (rank 1), Jirachi XYP 67 (rank 2), and Regirock XYP 49 (ranks 3 and 7). None is Dragon-type. Ranks 1, 2, 3, and 7 already have other mapped non-Psychic Ability-bearing Pokémon, so the 29/29 potential-target count below is unchanged. Regirock may add another Wobbuffet target in ranks 3 and 7.
+- Three promo printings did not map through the set index and were excluded from the type/Ability scan: Trevenant & Dusknoir-GX SMP 217 (rank 1), Jirachi XYP 67 (rank 2), and Regirock XYP 49 (ranks 3 and 7). None is Dragon-type. Ranks 1, 2, 3, and 7 already have other mapped non-Psychic Ability-bearing Pokémon, so the 29/29 potential-target count below is unchanged. The promo cards are excluded from individual Ability classification.
 - “Potential Wobbuffet target” means the source list contains at least one Pokémon whose printed type is not Psychic and which has a printed Ability. It does not mean that the Ability is live, decisive, unused, or still available after Wobbuffet enters the Active Spot.
 - “Clefairy target” means the source list contains at least one Dragon-type Pokémon. Fairy Zone changes the Weakness of each opponent's Dragon Pokémon **in play** to Psychic (×2); the count does not imply that a Dragon Pokémon is necessarily in play at the relevant time.
 
@@ -21,7 +21,7 @@ Both printings are marked Expanded Legal in the card database.
 
 ## Results
 
-<badge color="success">29/29 potential Wobbuffet target lists</badge>
+**29/29 potential Wobbuffet target lists**
 
 Every one of the 29 source-verified lists contains at least one mapped non-Psychic Ability-bearing Pokémon. Representative target families include:
 
@@ -32,7 +32,7 @@ Every one of the 29 source-verified lists contains at least one mapped non-Psych
 
 This is a broad *potential target presence* result. Wobbuffet's Active-only requirement and the timing of the opponent's Ability use are decisive limitations: it cannot undo an Ability that already resolved, and it does not suppress Psychic Pokémon.
 
-<badge color="info">12/29 Dragon-type target lists</badge>
+**12/29 Dragon-type target lists**
 
 The 12 ranks containing at least one Dragon-type Pokémon are:
 
