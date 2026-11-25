@@ -1,7 +1,7 @@
 {
-  "run_id": "agent12-chat-20261125T132323693Z-normal7-gpt6-outcome-adjudication",
-  "claimed_at": "2026-11-25T13:23:23.693Z",
+  "run_id": "agent12-chat-20261125T151250Z-normal5-gpt6-natural64-review",
+  "claimed_at": "2026-11-25T15:12:53.055Z",
   "mode": "normal",
-  "selection_draw": 7,
-  "previous_claim": "2026-11-24T03:24:25.998Z"
+  "selection_draw": 5,
+  "previous_claim": "2026-11-25T13:23:23.693Z"
 }
