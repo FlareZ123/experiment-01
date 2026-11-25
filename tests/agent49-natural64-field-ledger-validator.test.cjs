@@ -273,7 +273,7 @@ function makePublicEntryFixture() {
     };
   });
   const manifest={
-    schema:'aichi-natural64-field-registration-v4',
+    schema:'aichi-natural64-field-registration-v5',
     samplingModel:'balanced-natural-64-strata-v1',
     target:0.995,
     confidence:0.95,

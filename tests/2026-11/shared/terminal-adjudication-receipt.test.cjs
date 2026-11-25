@@ -186,7 +186,7 @@ function fixture({
     terminalClass,
     adjudicationReason: reason,
     adjudicatedCandidateResult: result,
-    statisticalStatus: RESULT_TO_STATUS[result],
+    statisticalStatus: result === null ? null : RESULT_TO_STATUS[result],
     gameStarted: true,
     terminalReached: true,
     adjudicationStatus: 'determinate'
