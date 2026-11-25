@@ -20,6 +20,7 @@ on:
       - 'simulation/twinleaf/card-patches.cjs'
       - 'simulation/twinleaf/headless.cjs'
       - 'simulation/twinleaf/japanese-promos-source-probe.cjs'
+      - 'tests/japanese-promos-source-probe.test.cjs'
       - 'vendor/twinleafgg'
 
 permissions:
@@ -48,6 +49,8 @@ jobs:
       - name: Compile upstream Twinleaf
         working-directory: vendor/twinleaf/ptcg-server
         run: npm run compile
+      - name: Test fail-closed two-seat source-probe status
+        run: node --test tests/japanese-promos-source-probe.test.cjs
       - name: Admit all original Aichi lists through the production plan builder
         run: |
           node <<'NODE'

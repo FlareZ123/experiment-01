@@ -97,6 +97,17 @@ function probe() {
 if (require.main === module) {
   const report = probe();
   console.log(JSON.stringify(report, null, 2));
-  if (report.cases.every(c => c.status === 'engine-exception')) process.exitCode = 1;
+  if (hasProbeFailure(report.cases)) process.exitCode = 1;
 }
-module.exports = {probe};
+
+/** Fail closed unless both physical-seat cases return recognized non-exception statuses. */
+function hasProbeFailure(cases) {
+  const acceptable = new Set(['completed-engine-game', 'action-limited']);
+  const hasBothSeats = Array.isArray(cases) &&
+    cases.some(item => item && item.sourceSeat === 0) &&
+    cases.some(item => item && item.sourceSeat === 1);
+  return !Array.isArray(cases) || cases.length !== 2 || !hasBothSeats ||
+    cases.some(item => !item || !acceptable.has(item.status));
+}
+
+module.exports = {probe, hasProbeFailure};
