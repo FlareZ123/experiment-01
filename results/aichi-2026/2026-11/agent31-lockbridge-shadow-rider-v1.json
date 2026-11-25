@@ -360,7 +360,7 @@
     }
   ],
   "label": "agent31-lockbridge-shadow-rider-v1",
-  "researchStatus": "Unqualified printed 60; print-language and Japanese Extra bans not independently certified",
+  "researchStatus": "Development challenger; English Expanded-printing-normalized 60 with all 35 distinct rows card-pool legal and construction checks passed; physical-copy certification, policy competence, and matchup strength unproven.",
   "parents": [
     "results/aichi-2026/candidate-hood-shadow-rider.json",
     "results/aichi-2026/candidate-temple-shadow-rider.json"
