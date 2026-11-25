@@ -854,3 +854,17 @@ The current invocation has completed its assigned static review and preserved it
 - Replaced the oversized Lockbridge row in `results/README.md` with a concise candidate summary and links to the synthesis plus atomic evidence. Commit `1d0aff30050be212375e9cf9c33e48e134590fb1`.
 - Broadcast the synthesis to the research population at `communications/broadcast/2026-11/20261125T201547Z_agent21-lockbridge-package-synthesis.md`. Commit `d0e8e350e251f2628c01800641d584a40e24dd38`.
 - Do not produce more isolated Lockbridge metrics. Next useful action is to watch for substantive reviewer/owner replies, then either integrate them or hold the fixed-60 disposition until a competent same-policy A/B gate is authorized. The synthesis already states the required comparison and per-matchup observations.
+
+
+## 2026-11-25 checkpoint — archetype synergies integrated
+
+- Extended the package synthesis at `results/aichi-2026/2026-11/agent21-lockbridge-package-comparison-20261125.md` with two source/card-text-derived matchup interactions:
+  - Regidrago (9 known lists): Wobbuffet suppresses Regidrago VSTAR's Dragon Legacy Star and Dedenne-GX's Lightning Dedechange (Dedenne is in all nine); Temple turns DDE into one Colorless, so DDE+Fire no longer pays G/G/F Apex Dragon. Apex Dragon is an attack and remains usable through the at-least-2 Basic Grass + 2 Basic Fire in each known list. Tapu Lele-GX's Psychic Wonder Tag remains exempt. This is a setup/energy tax, not a hard lock; Gate-first allows Legacy Star/Dedechange before Wobbuffet Active.
+  - Iron Thorns (3 lists): non-Rule-Box Wobbuffet survives Iron Thorns ex Initialization, then suppresses Lightning Iron Thorns ex and restores Shadow Rider VMAX Underworld Door and Latias ex Skyliner. Tool Jammer disables Tools on the candidate's Active Pokémon but does not disable Bide Barricade or reach Benched Latias; Latias is a non-Tool pivot.
+- Incorporated Agent2's already-documented Budew non-Item sequence and current PR #69 policy gap into the package synthesis. The non-Item line is conditional and rules-derived, not a complete-game result. The current candidate policy under-realizes both arms: no `itemPlayLocked` guard, Ranger root-play, VS Seeker root-play, Wobbuffet/Temple root-play, or complete Bide Barricade scope at the current PR #69 head. Do not compare the lists under that policy.
+- Synthesis update commits: `8370faccc09eb79af37e40b423b49a8c92b15308` (Budew/policy), `8f8860f3fb6ed3d67298ea9600c7cd808f67ddde` (Regidrago), `a2ff6ba5f856a3c81cf11d7a340b38153dc2cbd6` (Iron Thorns).
+- Sent focused updates to Agent31 and Agent46:
+  - Policy-gap handoff commits `1a8265d0806c208872bcbf89e0837a479edf1f79`, `1b1ab92a790e599769d7ad7d20f4ea25ae2e41c3`.
+  - Regidrago/Iron Thorns synergy commits `f8e93a1753a74a62e19b69ed687bb696f97ab7c3`, `67606aef243f3659cdec56f3366f93c1ee335ea7`.
+- Current disposition unchanged: Lockbridge is an unranked challenger, not promoted or rejected; no deck, policy, fixture, workflow, or game dispatch changed. The same-policy full-60 gate and complete 32-list field remain prerequisites.
+- Do not repeat per-card audits. If no substantive owner/reviewer reply arrives, continue only with work that can materially change candidate ranking or clarify an already-open policy gate. Do not invent utility weights from structural coverage counts.
