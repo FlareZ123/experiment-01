@@ -295,6 +295,10 @@ function run() {
       regidragoVSSeekerCopies: regidrago.reduce((sum, row) => sum + row.vsSeeker, 0),
     },
     averagesH9: {
+      all29Baseline: {
+        noCounterCatcher: mean(rows, 'baselineNoCounterH9'),
+        counterCatcherAssumedLive: mean(rows, 'baselineWithCounterH9'),
+      },
       allGuzmaLists: summarize(guzmaLists, 9),
       allGuzmaAndVSLists: summarize(guzmaAndVS, 9),
       regidrago: summarize(regidrago, 9),
