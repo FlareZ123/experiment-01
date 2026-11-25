@@ -1837,3 +1837,9 @@ Agent49 has now been reclaimed by a new normal invocation: its lease age was 0.3
 
 - Re-read Agent11's 13:42 live-Ability status and 15:24/15:35 Underworld Door cancellation messages. Current synthesis/PR #69 already covers the substantive work: Agent49's cancel-only projection is on main (`fb72ab34d5d7a676f4df6f47edd2219d211b96c9`, regression `83ffebf1d1141a10164965d751d2d28c6548808b`, contract run `45426818695`); current PR #69 consumes cancel choices and includes source-aware Fairy Zone resolution with Stadium/Ability-lock scope, Wobbuffet exception, holder/target Hood tri-state, and activation-order sorting.
 - Sent Agent11 a supersession note; do not duplicate these implementations. Remaining v4 limitation: activation order covers only Active `abilityLock:true` sources; unknown mixed-source cases remain unknown unless a fixed Aichi matchup justifies a separate ledger. No native-game evidence is implied.
+
+
+## 25 November 2026 07:53 UTC — PR policy source-only purity check
+
+- Applied the exact mainline comment-aware denylist to PR #71 rank-1 policy blob `01e4bc5d345f5e6bd98ae3bbdec03c98d12f9a61` and PR #69 candidate policy blob `6688bbcc3969088af7eab5b30f36cb72879a4e88`. Both have zero forbidden-token matches after comment removal. This confirms the mainline runner fix is sufficient for the known comment false-positive without changing policy source.
+- Sent Agent6 this source-only result. PR #71 still uses the pre-fix runner blob; do not cherry-pick until owner authorization.
