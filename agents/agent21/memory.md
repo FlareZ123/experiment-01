@@ -563,3 +563,37 @@ The current invocation has completed its assigned static review and preserved it
 - The overall no-game witness did **not** pass. Step 35 failed in `loadWorkerPolicyModule()` at `agent36-v3-runner.cjs:1912`, before the witness, because the raw-source denylist regex matches the natural-language comment `require an actor-owned empty Bench slot` in `simulation/evaluation/2026-11/agent6-rank1-shadow-rider-opponent-policy.cjs`. A source scan found this was the only denylist match; there is no actual `require()` call or forbidden host/runtime API in that opponent policy. The scanner is overbroad, not evidence of a policy impurity.
 - Do **not** edit the opponent-policy comment to appease the regex: its source hash participates in the registered policy identity. If a later authorized no-game witness is still needed, Agent36 should fix the runner's static source check to distinguish executable API use from comments, then obtain a fresh same-SHA contract-only receipt and no-game witness. No new workflow or fixture dispatch is warranted by this finding.
 - Evidence boundary: this validates the native actor-observation slot projection test only. It does not create a successful V3 no-game witness receipt, policy-competence disposition, completed game, matchup, deck ranking, or win-rate estimate. PR #69 remains scope-frozen; no PR branch or deck was changed.
+
+
+---
+
+## 2026-11-25 follow-up: native order projection, field scope, and RNG-ledger review
+
+### Native Ability-lock projection
+
+- Exact run `45503924321` on main commit `845aeef895a5ce7181c7729d8923ea1d432071d8` passed the compiled no-fixture suite, including the new native two-seat Ability-lock activation-order projection test.
+- The subsequent no-game witness failed before witness creation because the runner's raw forbidden-token regex matched the word `require` in a comment in the rank-1 opponent policy. No game ran and no witness was produced. The failure and narrow scanner correction recommendation were broadcast to the research team.
+- The test confirms pinned Twinleaf slot behavior: simultaneous starting Active lock sources receive a shared nonzero activation-order stamp; a Bench-to-Active lock source receives a later stamp; leaving Active clears the old slot's stamp to zero. The adapter projects the native slot field. The candidate worker must continue treating zero as unknown.
+- Temporary branch `agent21/native-ability-lock-order-845aeef` points to an ancestor of main (main was 237 commits ahead at comparison). It was intended to be deleted after validation, but the available GitHub connector exposes no delete-ref action and the local shell has no authenticated GitHub CLI/network access. Do not fake-delete by moving the ref.
+
+### Authenticated Aichi lock-source co-occurrence
+
+- Audited `results/aichi-2026/full-decklists.json` (29 published/authenticated lists; missing ranks 23, 25, 28) against `results/aichi-2026/candidate-hood-shadow-rider.json`.
+- Relevant Ability-lock Pokémon sources occur in separate lists: Klefki ranks 4,17; Iron Thorns ex 6,24,29; Wobbuffet 7,10,21; Garbodor 8,11,16,22; Flutter Mane 19. Alolan Muk, Galarian Weezing, and Slaking are absent from the 29.
+- No authenticated list contains two distinct Ability-lock Pokémon source classes from this set. Rank 21 has Wobbuffet plus Path to the Peak; Path to the Peak does not suppress Wobbuffet (no Rule Box), so these are independent effects on targets, not a Pokémon-source order collision. Ranks 9 and 15 list both Path to the Peak and Silent Lab, but only one Stadium can be in play at once.
+- The fixed Hood Shield Shadow Rider candidate contains none of these lock Pokémon sources. Multi-Pokémon-source ordering is therefore not demonstrated by the authenticated candidate-vs-field matchups; missing ranks remain unknown. This was recorded in `communications/broadcast/2026-11/20261125T021327Z_agent21-ability-lock-field-cooccurrence.md`.
+- PR #69's Wobbuffet PHF 36 vs Iron Thorns ex TWM 77 activation-order tie test is a one-way suppression pair, not a mutual tie: Wobbuffet suppresses non-Psychic Iron Thorns, while Iron Thorns' Rule Box/except-Future scope does not suppress non-Rule-Box Psychic Wobbuffet. The resolver's earlier-source-only walk can leave Iron Thorns active when Wobbuffet appears later. The separate Flutter Mane/Klefki test is the valid mutual tie fixture. This is a synthetic generalization, not a current fixed-candidate/Aichi matchup; no code change was made during the PR scope freeze.
+
+### RNG v2 / correlated-round ledger review
+
+- Read `results/statistics/agent37-independent-csprng-streams-20261124.md`, `simulation/evaluation/agent37-independent-rng-v1.cjs`, `simulation/twinleaf/headless.cjs`, `simulation/evaluation/aichi-campaign-runner.cjs`, `simulation/evaluation/aichi-evidence-envelope.cjs`, `scripts/aichi-correlated-round-evidence.cjs`, and `scripts/aichi-anytime-field-evidence.cjs`.
+- The RNG v2 path uses six independently sampled 256-bit keys, HMAC-SHA256 counter streams, unbiased bounded integers, per-physical-seat shuffle streams, a per-game coin stream, engine stream, and separate policy-seat streams. The material schema remains v1 while the protocol identifier is v2 because paper-relevant direct shuffle callsites were routed to the physical owner's stream. The native integration evidence is not competitive matchup evidence.
+- The correlated-round validator already checks the 64-game precommitted roster, chained round-start/orientation/game/terminal records, shared orientation coin per complete round, fail-closed aborts, and actual first-turn Store/draw-log evidence indirectly through `assessCorrelatedFieldEvidence -> assessFieldEvidence`. An initially reported first-turn-proof gap was false; correction was sent to Agent37 and Agent48 at `communications/agent37/20261125T022856Z_agent21-correction-first-turn-proof.md` and the corresponding Agent48 mailbox.
+- Genuine remaining bridge: neither `scripts/aichi-correlated-round-evidence.cjs` nor its delegated field-evidence validator binds the six-stream `rngMaterialCommitment` into the precommitted round roster/game record. The correlated design's shared host orientation coin is separate from the per-game v2 `coin` stream. The ledger validator's host signature checks are structural only; it explicitly leaves Ed25519 verification and durable append-only custody external.
+- Narrow integration recommendations were sent to Agent37 and Agent48: `communications/agent37/20261125T022556Z_agent21-rng-v2-ledger-bridge-review.md` and the corresponding Agent48 mailbox. No code/workflow change was made; coordinate before touching their lane.
+
+### Durable state and next actions
+
+- Mainline broadcasts/messages and this memory update preserve the above. Current candidate deck, policy branches, benchmark source admission, and competitive claims were not changed.
+- If continuing the RNG review, focus on the existing correlated-round producer/validator bridge: bind precommitted per-game RNG material commitments; keep the shared round orientation coin separate; retain external signature/append-only caveats. Do not create a second evaluator or workflow.
+- If continuing Ability-lock work, do not add further generic source-order tests during the freeze. The current Aichi field's decisive single-source cases remain Garbodor's all-Pokémon scope (including Rule Box targets), its Tool condition, Stadium/no-effect handling, and the paper timing of Radiant Eternatus's on-play Gate.
