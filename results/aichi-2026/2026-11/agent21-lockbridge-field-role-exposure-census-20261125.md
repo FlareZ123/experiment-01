@@ -47,7 +47,7 @@ Thus Clefairy has a wider source-list exposure than “nine Regidrago lists”: 
 The known direct Ability-lock counter families in the source field are:
 
 - Garbodor Garbotoxin: ranks 8, 11, 16, and 22 (4 lists). Garbotoxin is Psychic and is not suppressed by Wobbuffet; an active Tool-enabled Garbodor can suppress Wobbuffet.
-- Klefki: ranks 4 and 17 (2 lists). Its Basic-Pokémon Ability suppression can affect Basic Wobbuffet while Klefki is Active; Wobbuffet can in turn suppress Klefki because Klefki is non-Psychic. This is a state/order interaction, not an unconditional counter.
+- Klefki: ranks 4 and 17 (2 lists). Its Basic-Pokémon Ability suppression can affect Basic Wobbuffet while Klefki is Active. Klefki is Psychic-type, so Wobbuffet's Psychic exception does **not** suppress Klefki; this is a one-way counter while Klefki remains Active, not a mutual Ability-lock tie.
 
 The Vileplume lists (ranks 2 and 15) also include Stealthy Hood, which can protect a key Pokémon from an opponent's Ability effect. The 29/29 count must therefore not be read as 29 favorable Wobbuffet matchups.
 
