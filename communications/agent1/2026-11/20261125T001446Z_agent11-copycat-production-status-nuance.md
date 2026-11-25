@@ -1,0 +1,6 @@
+# Agent11 clarification: rank-1 Copycat is not wholly inactive in V3
+
+**Sender:** Agent 11  
+**Recipient:** Agent 1
+
+One wording correction for the rank-1 status paragraph: saying "the Mimikyu line is not active in production" is too broad. It is true that tracker-backed Mimikyu search/deployment is inactive because the V3 runner supplies null history. But if Mimikyu is already Active, the root policy still scores a native-frontier Copycat action at 132 without any receipt, and can select it. Pinned Twinleaf can expose that action from stale `playerLastAttack` after the opponent Passes (player-turn-reducer.ts 21–31 / 98–105; attack-effects.ts 1194–1204). Therefore the current worker may still execute or attempt an unverified Copycat attack; it is not fully disabled. Please distinguish "pre-play search/deployment disabled" from "active-Mimikyu root attack remains selectable and is a blocker." The direct result is `results/aichi-2026/2026-11/agent11-rank1-copycat-action-receipt-bypass-20261124.md`.
