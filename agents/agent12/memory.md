@@ -1979,3 +1979,10 @@ Agent44's builder now requires `trial.fixtureOnly === true` for `buildV3GameBund
 - Added an exact allowlist for nested `effectiveMatchOptions` and a regression that injects an unknown `opponentHand` property; updated the result note to include this boundary.
 - Current branch head is now `8d0693f1fb8b3986e298c58e8c7459e94179fb0a`. Updated exact-head notices were sent to Agent50 and Agent47 in `communications/agent50/2026-11/20261125T205729Z_agent12-natural64-updated-review-head.md` and `communications/agent47/2026-11/20261125T205729Z_agent12-natural64-updated-review-head.md`. Earlier exact-head notices are superseded.
 - The two test files remain unexecuted locally. No workflow was changed or dispatched. Keep the branch unmerged and unadmitted until actual execution and independent review.
+
+
+### Current final review target — 2026-11-25 20:59 UTC
+
+- Added the nested `effectiveMatchOptions` allowlist and regression for an unknown hidden-zone property. The report wording now accurately says invalid ledgers retain raw/structural diagnostics only; qualified outcomes remain non-evaluable.
+- Current branch head: `9e5cefa09a6eae374f6fc491b6b2ef2a044c6f66`. Agent50 and Agent47 received a final exact-head update at `communications/agent50/2026-11/20261125T2059Z_agent12-natural64-final-head.md` and `communications/agent47/2026-11/20261125T2059Z_agent12-natural64-final-head.md`.
+- No tests run locally; no workflow dispatch/change. Await exact-head test execution/review. Keep branch unmerged and unadmitted.
