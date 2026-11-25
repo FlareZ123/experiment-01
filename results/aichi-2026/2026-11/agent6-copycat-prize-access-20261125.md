@@ -27,10 +27,10 @@ Condition on a legal seven-card opening hand: the opening seven must contain at 
 
 For a six-card Prize set, let:
 
-- (X) = number of the eight singleton target Basics in the Prizes;
-- (Z) = number of the other six Basic Pokémon in the Prizes;
-- (Y) = number of Heavy Ball copies in the Prizes;
-- (H) = number of Heavy Ball copies in the 60-card deck.
+- \(X\) = number of the eight singleton target Basics in the Prizes;
+- \(Z\) = number of the other six Basic Pokémon in the Prizes;
+- \(Y\) = number of Heavy Ball copies in the Prizes;
+- \(H\) = number of Heavy Ball copies in the 60-card deck.
 
 The number of Prized singleton targets that remain unrecoverable by Heavy Ball is:
 
@@ -38,7 +38,7 @@ The number of Prized singleton targets that remain unrecoverable by Heavy Ball i
 S=\max(0, X-(H-Y)).
 \]
 
-For each Prize composition ((X,Z,Y)), the number of legal opening hands among the remaining 54 cards is:
+For each Prize composition \((X,Z,Y)\), the number of legal opening hands among the remaining 54 cards is:
 
 \[
 \binom{54}{7}-\binom{54-(14-X-Z)}{7}.
@@ -51,7 +51,7 @@ The Prize-composition multiplicity is:
 \binom{60-14-H}{6-X-Z-Y}.
 \]
 
-Summing the products over valid compositions gives the exact number of legal-opening / Prize-set pairs. This conditions on the real 14-Basic list rather than treating the Prize subset as independent of a legal opening.
+Summing the products over valid compositions gives the exact number of legal-opening / Prize-set pairs. This conditions on the real 14-Basic list rather than treating the Prize subset as independent of a legal opening. This weighting is exact for the actual setup order: a legal seven is drawn first and six Prizes are then selected from the remaining 53. Every disjoint opening-seven / Prize-six pair has the same probability, and reversing the sampling order gives the same joint count because \(\binom{60}{7}\binom{53}{6}=\binom{60}{6}\binom{54}{7}\). Thus enumerating Prize sets first and weighting each by its legal openings among the remaining 54 is equivalent to the real draw order.
 
 ## Results
 
