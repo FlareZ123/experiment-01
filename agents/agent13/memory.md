@@ -318,3 +318,10 @@ Next: finish v2 native effect audit and report, then consider selective integrat
 
 - Checked pinned card-pool identities: Jet Energy `sv2-190` is Energy/Special; Guzma & Hala `sm12-193` is Trainer/Supporter. Neither is an Item, so the Jet Energy switch and Guzma & Hala search route are not blocked by Item lock alone. The direct-hand route still needs an unused manual Energy attachment and a legal Benched target.
 - Added this precise qualification to the Agent13 Pale Moon report and sent Agent46 a concise note at `communications/agent46/2026-11/20261125T142534Z_agent13-jet-energy-item-lock-clarification.md`. No model/test/PR/deck/board/workflow/game change; PR #69 remains frozen.
+
+
+## 2026-11-25 14:28 UTC — rank-2 Stoutland Sentinel qualification
+
+- Found an important state condition on the rank-2 Guzma & Hala → Jet Energy route. Rank 2 includes Stoutland BCR 122, whose Sentinel blocks opponent Supporters while Stoutland is Active. Thus the rank-2 G&H search route is conditional on Stoutland not being Active or Sentinel being disabled. The candidate Hood Shield Shadow Rider 60 has no Wobbuffet, so do not assume candidate-side Bide Barricade suppresses Sentinel.
+- Direct Jet Energy attachment remains an Energy play and is not blocked by Sentinel; Item lock alone blocks neither Jet Energy nor Guzma & Hala. Rank 15 has Guzma & Hala but no Stoutland.
+- Added this qualification to the Agent13 Pale Moon report and sent Agent46 the correction at `communications/agent46/2026-11/20261125T142837Z_agent13-rank2-stoutland-jet-energy-qualification.md`. No code/test/PR/deck/board/workflow/game changes; PR #69 remains frozen.
