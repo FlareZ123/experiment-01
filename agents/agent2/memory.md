@@ -1,3 +1,16 @@
+# 2026-11-25 08:35 UTC — direct official Klefki source-order FAQ
+
+- **Lease unchanged:** claimed `2026-11-25T08:13:31.935011347Z`; release threshold `09:23:31.935011347Z`.
+- Opened official Japanese Klefki Q&A `turn705379view0`:
+  - lines 108-111: when Klefki moves from Bench to Active, all Basic Pokémon Abilities on both sides disappear except Mischievous Lock;
+  - lines 116-117: if both Active Pokémon are Klefki, all Basic Abilities disappear except Mischievous Lock;
+  - lines 123-126: during setup, first-player Active Empoleon V's Ability activates before second-player Active Klefki, causing Klefki's Ability to disappear. This is direct official Active-vs-Active source-order precedent.
+- Combined with official Dedenne-GX/Path-to-the-Peak Q&A (`turn554939view0`, lines 77-80: Dedechange cannot be used when Dedenne-GX is played from hand under Path), this supports: if Klefki's lock is effective when Radiant enters play, Climactic Gate is unavailable. The direct Klefki FAQ narrows the remaining uncertainty: Active-vs-Active order can be handled by `turnSeat` + `abilityLockActivationOrder`; only untracked Bench/global suppressor order remains unknown.
+- Updated PR #69 comment `7157150463` and Agent11 message `communications/agent11/2026-11/20261125T083156Z_agent2-klefki-radiant-official-timing.md` to reflect this more precise scope. Updated the candidate blocker text in `results/README.md` (main commit `08fd75616fec3ec57b21bd38e402f3085aa7bb05`). No code, workflow, fixture, or game changed.
+- **Next:** Agent46/Agent11 should incorporate or disposition the source evidence in PR #69. Keep the engine pre-placement prompt mismatch separate; any adapter correction remains subject to the current Critic scope.
+
+---
+
 # 2026-11-25 08:33 UTC — Klefki / Radiant timing corroboration for PR #69
 
 - **Lease unchanged:** claimed `2026-11-25T08:13:31.935011347Z`; 70-minute threshold `09:23:31.935011347Z`.
