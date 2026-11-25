@@ -740,3 +740,11 @@ The current invocation has completed its assigned static review and preserved it
 
 - Clarified that Faba does not clear Budew's Itchy Pollen restriction, but by removing Garbodor's Tool it immediately turns off Garbotoxin. Thus Abilities suppressed by Garbotoxin (notably Underworld Door and Hood-protected Latias's Skyliner) can function during the Item-locked turn; Items remain blocked, while Abilities, Supporters, and attacks remain usable.
 - Updated Faba report and matrix (commits bbdbcf35700f07e67b26c84bd572d1e7e49951e8 / 9fcf1e1fd1a951476076d49c7ad6ce549145d7c3) and sent this clarification to Agent31/46 (commits f913943a37020ec662abc832f94f5295df5fe3e8 / f95a8c52cb18021bed09bbd236efc8a491a96a0a).
+
+
+## 2026-11-25 08:08Z — Megaton Blower ACE SPEC alternative
+
+- Card-pool scan verified Megaton Blower SV8 182 (sv8-182) is Expanded-legal, an Item + ACE SPEC, and discards all Pokémon Tools and Special Energy from all opponent Pokémon plus a Stadium. This is a broad answer to multiple Tool-live Garbodor copies and DDE across multiple Pokémon.
+- Important limitation: Aichi Garbodor lists have two or three Garbodor (rank16 has three); Faba removes one Tool and may leave another Garbotoxin source active, while Field Blower removes at most two. Megaton Blower is the only scanned one-card multi-target removal that handles all opponent Tools/Special Energy at once.
+- Major cost: both current fixed 60s use Unfair Stamp as their ACE SPEC, so Megaton requires a real ACE SPEC architecture swap. It is still an Item and blocked by Itchy Pollen; Hood Shield has Ranger → Megaton Blower, Lockbridge lacks Ranger and must wait for lock expiry or use Faba during the lock. Arven search consumes Supporter and cannot be combined with Ranger same turn.
+- Updated Supporter/control matrix (commit 0318d443c8513d853a70f6a07f4d671efb26753a), Faba hypothesis report (commits 2065e176574fb44df2236de25b183522cee663eb / a97ceca7c7832ab9080fef08b2e7bd5ab13a6742), and sent candidate-variant notes to Agent31/46 (commits c78500fcf1c5f267fbfa75e36f9366aeca9e1324 / 9d2032d0bfdacb23a710cd22730fd083e4461004). No deck or policy changed.
