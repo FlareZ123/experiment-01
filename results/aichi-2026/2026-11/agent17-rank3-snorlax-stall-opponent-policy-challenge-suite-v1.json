@@ -5,16 +5,16 @@
   "status": "prototype-not-attestable",
   "attestationStatus": "blocked",
   "policy": {
-    "policyId": "agent17-rank3-snorlax-stall-opponent-v1",
-    "policyVersion": "agent17-rank3-snorlax-stall-opponent-v1",
+    "policyId": "agent17-rank3-snorlax-stall-opponent-v1.1",
+    "policyVersion": "agent17-rank3-snorlax-stall-opponent-v1.1",
     "role": "opponent-policy",
     "sourceRank": 3,
     "policyProducerId": "agent17",
     "bundleProducerId": null,
     "producerBindingStatus": "not bound into signed/hash-bound V3 plan; standalone prototype only",
     "modulePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "moduleBlobSha1": "b71df8b981d8562183d8c3e35a8c0d117c79cf7f",
-    "moduleSha256": "ef1ccd12e95b2dee409921d61f8ae8006ed25d1845ae7c993ee4d3bd58c47658",
+    "moduleBlobSha1": "2f861f5e7b34fd57fdf19889f6507bf0148c2bcb",
+    "moduleSha256": "281e6345c0c945a82c8be304365999ee21887768077678c3484e6f5c19e6d2cd",
     "config": {},
     "deterministic": true,
     "gamesPlayed": 0,
@@ -140,24 +140,25 @@
         "count": 1
       }
     ],
-    "subtypeFinding": "Forest Seal Stone is Item + Pokémon Tool; Stealthy Hood and Float Stone are Pokémon Tool only. Eri is Item-only, so it may discard Forest Seal Stone but not Hood or Float Stone."
+    "subtypeFinding": "Forest Seal Stone is Item + Pokémon Tool; Stealthy Hood and Float Stone are Pokémon Tool only. Eri is Item-only, so it may discard Forest Seal Stone but not Hood or Float Stone.",
+    "researchHookRevision": "0f5be9a0562eb461d36745c8470f6040bd2a5287"
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json",
-    "manifestSha256": "488d612ef94684577b2f495166d7ba41272b96c4cb07e55af799a71de4bca2a6",
+    "manifestSha256": "eb005c2aef84248bfffc803e9720fb6d28b08a512393ed8bf614d1af148067ae",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
     "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451",
     "workerProtocolSha256": "5405d2c86865e3c423b9b14e6da14c3551c5aba3675dfb6c3c6ddc4cc1450751",
     "testFilePath": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "testFileBlobSha1": "8d77da0fe5e2403a9bdd04901a51829e9f413f80",
-    "testFileSha256": "3cbc56eb51fc457b335ae141865d503abcf7f3cf52f09e4ce0e1969681ded6d3",
+    "testFileBlobSha1": "2b578dffeb5053096e56a64118d5318ec4a0a2e4",
+    "testFileSha256": "db3f60adc577474e57b86371fa09b9b8ef74bc265dc282034682d9fa2c657071",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
       "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
-      "researchHookRevision": "none",
+      "researchHookRevision": "0f5be9a0562eb461d36745c8470f6040bd2a5287",
       "upstreamModified": false
     }
   },
@@ -170,19 +171,19 @@
     "developmentTestCount": 49,
     "unitTestsPassed": 49,
     "unitTestsFailed": 0,
-    "actorRequestCount": 54,
-    "decisionReceiptCount": 53,
+    "actorRequestCount": 60,
+    "decisionReceiptCount": 59,
     "promptTypeCounts": {
-      "root-action-frontier": 24,
-      "ChooseCardsPrompt": 20,
+      "root-action-frontier": 28,
+      "ChooseCardsPrompt": 22,
       "ChoosePokemonPrompt": 6,
       "UnknownNativePrompt": 1,
       "ChooseEnergyPrompt": 1,
       "ChoosePrizePrompt": 2
     },
     "selectionTypeCounts": {
-      "none": 41,
-      "card-combination": 12,
+      "none": 45,
+      "card-combination": 14,
       "energy-payment": 1
     },
     "localHarness": {
@@ -203,7 +204,8 @@
       "actualValidateInitExecuted": true,
       "workerInitPayloadValidated": true,
       "actualPublicEventReceiptValidatorExecuted": true,
-      "publicEventReceiptValidationCount": 2
+      "publicEventReceiptValidationCount": 2,
+      "workerProtocolBlobSha1": "d51ea95c457d61b50a9ee114d342eb17f4350451"
     },
     "fullMatchupCoverage": {
       "rank3VsFixedCandidateGames": 0,
@@ -2407,17 +2409,181 @@
       "reviewerExplanation": "Synthetic actor-view and direct score tests only; no worker IPC, native game or matchup result."
     },
     {
-      "caseId": "r3-dev-11-player-s-ceremony-remains-explicitly-blocked-until-its-resea",
+      "caseId": "r3-dev-11-player-s-ceremony-shared-draw-two-and-empty-stadium-gate",
       "split": "development",
       "caseClass": "policy-decision",
-      "objective": "Player’s Ceremony remains explicitly blocked until its research-owned engine hook exists",
+      "objective": "Player's Ceremony shared draw-two use is gated by hand/deck state and placement only occurs with no Stadium in play",
       "evidenceClass": "synthetic",
       "actorView": {
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-        "testName": "Player’s Ceremony remains explicitly blocked until its research-owned engine hook exists",
+        "testName": "Player's Ceremony is a conservative shared draw-two and is played only into an empty Stadium slot",
         "requestDigests": [
           {
             "requestIndex": 0,
+            "digestSha256": "71d95ee4751b407ec933cc057e69bf9ca4d538f6e90581b5a5ac235aaa485f0e",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "role": "opponent",
+              "seat": 0,
+              "actorSeat": 0,
+              "ownHandCount": 1,
+              "ownActive": null,
+              "ownBench": [],
+              "opponentHandCount": 5,
+              "opponentHandRevealed": false,
+              "opponentActive": null,
+              "opponentBench": [],
+              "ownDeckCount": 20,
+              "opponentDeckCount": 20,
+              "ownPrizeCount": 6,
+              "opponentPrizeCount": 6
+            },
+            "promptCoverage": {
+              "promptType": null,
+              "frontier": [
+                {
+                  "kind": "use-stadium",
+                  "actorPrinting": "Player's Ceremony SP 127",
+                  "targetPrinting": null,
+                  "attackName": null,
+                  "abilityName": null
+                },
+                {
+                  "kind": "pass",
+                  "actorPrinting": null,
+                  "targetPrinting": null,
+                  "attackName": null,
+                  "abilityName": null
+                }
+              ]
+            }
+          },
+          {
+            "requestIndex": 1,
+            "digestSha256": "6185b651f09cc3ccf671a0292c00828f3e9508dfefe75d881f7f44383f5df6ea",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "role": "opponent",
+              "seat": 0,
+              "actorSeat": 0,
+              "ownHandCount": 1,
+              "ownActive": null,
+              "ownBench": [],
+              "opponentHandCount": 5,
+              "opponentHandRevealed": false,
+              "opponentActive": null,
+              "opponentBench": [],
+              "ownDeckCount": 2,
+              "opponentDeckCount": 20,
+              "ownPrizeCount": 6,
+              "opponentPrizeCount": 6
+            },
+            "promptCoverage": {
+              "promptType": null,
+              "frontier": [
+                {
+                  "kind": "use-stadium",
+                  "actorPrinting": "Player's Ceremony SP 127",
+                  "targetPrinting": null,
+                  "attackName": null,
+                  "abilityName": null
+                },
+                {
+                  "kind": "pass",
+                  "actorPrinting": null,
+                  "targetPrinting": null,
+                  "attackName": null,
+                  "abilityName": null
+                }
+              ]
+            }
+          },
+          {
+            "requestIndex": 2,
+            "digestSha256": "4b4eeedc199001aa72b7445b4a1349343d48da2c36d8fa486bf1d0ac90a65ade",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "role": "opponent",
+              "seat": 0,
+              "actorSeat": 0,
+              "ownHandCount": 1,
+              "ownActive": null,
+              "ownBench": [],
+              "opponentHandCount": 5,
+              "opponentHandRevealed": false,
+              "opponentActive": null,
+              "opponentBench": [],
+              "ownDeckCount": 20,
+              "opponentDeckCount": 20,
+              "ownPrizeCount": 6,
+              "opponentPrizeCount": 6
+            },
+            "promptCoverage": {
+              "promptType": null,
+              "frontier": [
+                {
+                  "kind": "play-card",
+                  "actorPrinting": "Player's Ceremony SP 127",
+                  "targetPrinting": null,
+                  "attackName": null,
+                  "abilityName": null
+                },
+                {
+                  "kind": "pass",
+                  "actorPrinting": null,
+                  "targetPrinting": null,
+                  "attackName": null,
+                  "abilityName": null
+                }
+              ]
+            }
+          },
+          {
+            "requestIndex": 3,
+            "digestSha256": "ef45cea56af7785b4e1b2253f741a1fee8ca7db5db1ae9c84ab0695aebeedc4b",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "role": "opponent",
+              "seat": 0,
+              "actorSeat": 0,
+              "ownHandCount": 1,
+              "ownActive": null,
+              "ownBench": [],
+              "opponentHandCount": 5,
+              "opponentHandRevealed": false,
+              "opponentActive": null,
+              "opponentBench": [],
+              "ownDeckCount": 20,
+              "opponentDeckCount": 20,
+              "ownPrizeCount": 6,
+              "opponentPrizeCount": 6
+            },
+            "promptCoverage": {
+              "promptType": null,
+              "frontier": [
+                {
+                  "kind": "play-card",
+                  "actorPrinting": "Player's Ceremony SP 127",
+                  "targetPrinting": null,
+                  "attackName": null,
+                  "abilityName": null
+                },
+                {
+                  "kind": "pass",
+                  "actorPrinting": null,
+                  "targetPrinting": null,
+                  "attackName": null,
+                  "abilityName": null
+                }
+              ]
+            }
+          },
+          {
+            "requestIndex": 4,
             "digestSha256": "193b114399dbb69951ce1bbf7a7e14ae3824ae683a97d87b053866cc1b6a03d2",
             "requestValidation": "accepted",
             "validationError": null,
@@ -2472,8 +2638,44 @@
           {
             "decisionIndex": 0,
             "decision": {
+              "kind": "select-action",
+              "token": "ceremony-use"
+            },
+            "validatorResult": "accepted",
+            "validationError": null
+          },
+          {
+            "decisionIndex": 1,
+            "decision": {
+              "kind": "select-action",
+              "token": "pass"
+            },
+            "validatorResult": "accepted",
+            "validationError": null
+          },
+          {
+            "decisionIndex": 2,
+            "decision": {
+              "kind": "select-action",
+              "token": "ceremony-play"
+            },
+            "validatorResult": "accepted",
+            "validationError": null
+          },
+          {
+            "decisionIndex": 3,
+            "decision": {
+              "kind": "select-action",
+              "token": "pass"
+            },
+            "validatorResult": "accepted",
+            "validationError": null
+          },
+          {
+            "decisionIndex": 4,
+            "decision": {
               "kind": "abstain",
-              "reasonCode": "PLAYERS_CEREMONY_ENGINE_HOOK_BLOCKED"
+              "reasonCode": "UNSUPPORTED_SINGLE_CARD_PROMPT"
             },
             "validatorResult": "accepted",
             "validationError": null
@@ -2489,14 +2691,95 @@
           "delegated fallback"
         ],
         "acceptableOutcomeFamilies": [
+          "select-action",
           "abstain"
         ],
-        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
+        "rationale": "The V8 harness asserts deterministic actor-view choices and actual pinned worker validation. This is policy heuristic evidence only; it does not establish natural game frequency or strategic competence."
       },
       "costLedger": {
-        "applicability": "no card played; policy abstains until the printing is represented by a research-owned hook"
+        "effect": "draw 2; then the using player's turn ends",
+        "useGate": "own deck > 2; hand size <= 5",
+        "score": "95,90,80,65,50,35 for hand sizes 0-5",
+        "penalties": "-15 when opponent handCount <=2; -20 when own deckCount <=4",
+        "placement": "only play from hand when no Stadium is in play"
       },
       "promptCoverage": [
+        {
+          "promptType": null,
+          "frontier": [
+            {
+              "kind": "use-stadium",
+              "actorPrinting": "Player's Ceremony SP 127",
+              "targetPrinting": null,
+              "attackName": null,
+              "abilityName": null
+            },
+            {
+              "kind": "pass",
+              "actorPrinting": null,
+              "targetPrinting": null,
+              "attackName": null,
+              "abilityName": null
+            }
+          ]
+        },
+        {
+          "promptType": null,
+          "frontier": [
+            {
+              "kind": "use-stadium",
+              "actorPrinting": "Player's Ceremony SP 127",
+              "targetPrinting": null,
+              "attackName": null,
+              "abilityName": null
+            },
+            {
+              "kind": "pass",
+              "actorPrinting": null,
+              "targetPrinting": null,
+              "attackName": null,
+              "abilityName": null
+            }
+          ]
+        },
+        {
+          "promptType": null,
+          "frontier": [
+            {
+              "kind": "play-card",
+              "actorPrinting": "Player's Ceremony SP 127",
+              "targetPrinting": null,
+              "attackName": null,
+              "abilityName": null
+            },
+            {
+              "kind": "pass",
+              "actorPrinting": null,
+              "targetPrinting": null,
+              "attackName": null,
+              "abilityName": null
+            }
+          ]
+        },
+        {
+          "promptType": null,
+          "frontier": [
+            {
+              "kind": "play-card",
+              "actorPrinting": "Player's Ceremony SP 127",
+              "targetPrinting": null,
+              "attackName": null,
+              "abilityName": null
+            },
+            {
+              "kind": "pass",
+              "actorPrinting": null,
+              "targetPrinting": null,
+              "attackName": null,
+              "abilityName": null
+            }
+          ]
+        },
         {
           "promptType": "ChooseCardsPrompt",
           "source": {
@@ -2508,6 +2791,7 @@
           "selectionType": null,
           "minimumCount": null,
           "maximumCount": null,
+          "energyCount": null,
           "allowCancel": null,
           "isSecret": null,
           "choiceKinds": [
@@ -2524,12 +2808,20 @@
         }
       ],
       "executionEvidence": {
-        "unitHarness": "local V8 deterministic harness",
+        "unitHarness": "local V8 deterministic harness using the exact pinned worker source",
         "unitTestResult": "pass",
         "requestValidation": [
+          "accepted",
+          "accepted",
+          "accepted",
+          "accepted",
           "accepted"
         ],
         "decisionValidation": [
+          "accepted",
+          "accepted",
+          "accepted",
+          "accepted",
           "accepted"
         ],
         "nativeTwinleafExecution": false,
@@ -2542,8 +2834,24 @@
         "processSandboxVerified": false,
         "actualChosenActions": [
           {
+            "kind": "select-action",
+            "token": "ceremony-use"
+          },
+          {
+            "kind": "select-action",
+            "token": "pass"
+          },
+          {
+            "kind": "select-action",
+            "token": "ceremony-play"
+          },
+          {
+            "kind": "select-action",
+            "token": "pass"
+          },
+          {
             "kind": "abstain",
-            "reasonCode": "PLAYERS_CEREMONY_ENGINE_HOOK_BLOCKED"
+            "reasonCode": "UNSUPPORTED_SINGLE_CARD_PROMPT"
           }
         ],
         "nativeAcceptance": null,
@@ -2560,7 +2868,7 @@
         "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
-      "blockReason": "Player's Ceremony SP 127 is absent from the bundled English card snapshot and has no research-owned hook; policy deliberately abstains. This is not a legality ruling.",
+      "blockReason": "No rank-3 native policy game or independent strategy review; the native card-effect hook is validated separately. Synthetic action scoring does not establish policy competence.",
       "reviewerStatus": "unreviewed",
       "sourceBinding": {
         "role": "opponent-policy",
@@ -2570,15 +2878,17 @@
         "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "cardPrintReferences": [
-          "Player's Ceremony SP 127"
+          "Player's Ceremony SP 127",
+          "Tropical Beach BWP 50",
+          "Quick Ball FST 237"
         ],
         "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
-        "researchHookRevision": "none",
+        "researchHookRevision": "0f5be9a0562eb461d36745c8470f6040bd2a5287",
         "sourceTraceRef": null,
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
         "evidenceClass": "synthetic"
       },
-      "reviewerExplanation": "Player's Ceremony SP 127 is absent from the bundled English card snapshot and has no research-owned hook; policy deliberately abstains. This is not a legality ruling."
+      "reviewerExplanation": "No rank-3 native policy game or independent strategy review; the native card-effect hook is validated separately. Synthetic action scoring does not establish policy competence."
     },
     {
       "caseId": "r3-dev-12-unsupported-native-prompt-families-fail-closed-rather-than-s",
@@ -3759,18 +4069,75 @@
       "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
     },
     {
-      "caseId": "r3-dev-19-regirock-land-maker-recovers-the-two-useful-stadiums-and-exc",
+      "caseId": "r3-dev-19-regirock-land-maker-includes-player-s-ceremony-as-fallback",
       "split": "development",
       "caseClass": "policy-decision",
-      "objective": "Regirock Land Maker recovers the two useful Stadiums and excludes unsupported Player’s Ceremony",
+      "objective": "Land Maker prioritizes Tropical Beach and Temple, while Player's Ceremony is a valid fallback Stadium recovery target",
       "evidenceClass": "synthetic",
       "actorView": {
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-        "testName": "Regirock Land Maker recovers the two useful Stadiums and excludes unsupported Player’s Ceremony",
+        "testName": "Regirock Land Maker prioritizes Tropical Beach and Temple while retaining Player’s Ceremony as a fallback",
         "requestDigests": [
           {
             "requestIndex": 0,
             "digestSha256": "30706f92d4397ffd373aea267a15a3a90029eee9700f40651dfe654a274f118b",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "role": "opponent",
+              "seat": 0,
+              "actorSeat": 0,
+              "ownHandCount": 0,
+              "ownActive": null,
+              "ownBench": [],
+              "opponentHandCount": 0,
+              "opponentHandRevealed": false,
+              "opponentActive": null,
+              "opponentBench": [],
+              "ownDeckCount": 30,
+              "opponentDeckCount": 30,
+              "ownPrizeCount": 6,
+              "opponentPrizeCount": 6
+            },
+            "promptCoverage": {
+              "promptType": "ChooseCardsPrompt",
+              "source": {
+                "classification": "actor-choice",
+                "sourceKind": "card-effect",
+                "sourcePrinting": "Regirock XYP 49",
+                "effectName": "Land Maker"
+              },
+              "selectionType": "card-combination",
+              "minimumCount": 0,
+              "maximumCount": 2,
+              "energyCount": null,
+              "allowCancel": false,
+              "isSecret": false,
+              "choiceKinds": [
+                "card",
+                "card",
+                "card",
+                "empty-selection"
+              ],
+              "ownerSeats": [
+                "actor",
+                "actor",
+                "actor",
+                null
+              ],
+              "zones": [
+                "discard",
+                "discard",
+                "discard",
+                null
+              ],
+              "emptySelection": true,
+              "cancel": false
+            }
+          },
+          {
+            "requestIndex": 1,
+            "digestSha256": "d59fe1f72690523edb08e9415236d3d9fde50fefca1b48d7e8881b854cd27b63",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -3835,6 +4202,17 @@
             },
             "validatorResult": "accepted",
             "validationError": null
+          },
+          {
+            "decisionIndex": 1,
+            "decision": {
+              "kind": "select-choices",
+              "tokens": [
+                "ceremony"
+              ]
+            },
+            "validatorResult": "accepted",
+            "validationError": null
           }
         ],
         "expectedOutcomeAssertedByTest": true,
@@ -3849,13 +4227,11 @@
         "acceptableOutcomeFamilies": [
           "select-choices"
         ],
-        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
+        "rationale": "The V8 harness asserts deterministic actor-view choices and actual pinned worker validation. This is policy heuristic evidence only; it does not establish natural game frequency or strategic competence."
       },
       "costLedger": {
-        "energyAlreadyAttached": "1 Colorless on Regirock",
-        "attackForTurn": true,
-        "attackCost": "1 Colorless",
-        "ownDiscardStadiumsRecovered": 2
+        "attack": "Land Maker recovers up to two Stadiums from discard",
+        "priority": "Tropical Beach 230; Temple of Sinnoh 190; Player's Ceremony 150"
       },
       "promptCoverage": [
         {
@@ -3869,6 +4245,42 @@
           "selectionType": "card-combination",
           "minimumCount": 0,
           "maximumCount": 2,
+          "energyCount": null,
+          "allowCancel": false,
+          "isSecret": false,
+          "choiceKinds": [
+            "card",
+            "card",
+            "card",
+            "empty-selection"
+          ],
+          "ownerSeats": [
+            "actor",
+            "actor",
+            "actor",
+            null
+          ],
+          "zones": [
+            "discard",
+            "discard",
+            "discard",
+            null
+          ],
+          "emptySelection": true,
+          "cancel": false
+        },
+        {
+          "promptType": "ChooseCardsPrompt",
+          "source": {
+            "classification": "actor-choice",
+            "sourceKind": "card-effect",
+            "sourcePrinting": "Regirock XYP 49",
+            "effectName": "Land Maker"
+          },
+          "selectionType": "card-combination",
+          "minimumCount": 0,
+          "maximumCount": 2,
+          "energyCount": null,
           "allowCancel": false,
           "isSecret": false,
           "choiceKinds": [
@@ -3888,12 +4300,14 @@
         }
       ],
       "executionEvidence": {
-        "unitHarness": "local V8 deterministic harness",
+        "unitHarness": "local V8 deterministic harness using the exact pinned worker source",
         "unitTestResult": "pass",
         "requestValidation": [
+          "accepted",
           "accepted"
         ],
         "decisionValidation": [
+          "accepted",
           "accepted"
         ],
         "nativeTwinleafExecution": false,
@@ -3911,6 +4325,12 @@
               "beach",
               "temple"
             ]
+          },
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "ceremony"
+            ]
           }
         ],
         "nativeAcceptance": null,
@@ -3927,7 +4347,7 @@
         "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
-      "blockReason": "Player's Ceremony SP 127 is absent from the bundled English card snapshot and has no research-owned hook; policy deliberately abstains. This is not a legality ruling.",
+      "blockReason": "No rank-3 native policy game or independent strategy review; this is synthetic prompt-selection evidence only.",
       "reviewerStatus": "unreviewed",
       "sourceBinding": {
         "role": "opponent-policy",
@@ -3937,15 +4357,18 @@
         "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "cardPrintReferences": [
-          "Regirock XYP 49"
+          "Regirock XYP 49",
+          "Player's Ceremony SP 127",
+          "Tropical Beach BWP 50",
+          "Temple of Sinnoh ASR 155"
         ],
         "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
-        "researchHookRevision": "none",
+        "researchHookRevision": "0f5be9a0562eb461d36745c8470f6040bd2a5287",
         "sourceTraceRef": null,
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
         "evidenceClass": "synthetic"
       },
-      "reviewerExplanation": "Player's Ceremony SP 127 is absent from the bundled English card snapshot and has no research-owned hook; policy deliberately abstains. This is not a legality ruling."
+      "reviewerExplanation": "No rank-3 native policy game or independent strategy review; this is synthetic prompt-selection evidence only."
     },
     {
       "caseId": "r3-dev-20-quick-ball-discards-expendable-cards-before-the-unique-tool-",
@@ -4308,7 +4731,7 @@
       "caseId": "r3-dev-22-lusamine-retrieves-faba-and-team-rocket-s-handiwork-before-a",
       "split": "development",
       "caseClass": "policy-decision",
-      "objective": "Lusamine retrieves Faba and Team Rocket’s Handiwork before a low-value Stadium",
+      "objective": "Lusamine prioritizes Faba and Team Rocket's Handiwork while retaining Player's Ceremony as a lower-priority Stadium target",
       "evidenceClass": "synthetic",
       "actorView": {
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
@@ -4316,7 +4739,7 @@
         "requestDigests": [
           {
             "requestIndex": 0,
-            "digestSha256": "ee12e29b88d62d55ae98684d3f961b5f7c87bc649f498e7a58bad9d1c6a00332",
+            "digestSha256": "9bb0b0faa5bf54848be450300a08acca736511212b212db85933ad3a8442d354",
             "requestValidation": "accepted",
             "validationError": null,
             "visibleSummary": {
@@ -4350,15 +4773,78 @@
               "allowCancel": false,
               "isSecret": false,
               "choiceKinds": [
+                "card",
+                "card",
+                "card",
+                "card",
                 "card"
               ],
               "ownerSeats": [
+                "actor",
+                "actor",
+                "actor",
+                "actor",
                 "actor"
               ],
               "zones": [
+                "discard",
+                "discard",
+                "discard",
+                "discard",
                 "discard"
               ],
               "emptySelection": false,
+              "cancel": false
+            }
+          },
+          {
+            "requestIndex": 1,
+            "digestSha256": "06b2e7f75d92b107d508da595ff4f7dcfb6f096641b9c55df18e73a9ab1442f9",
+            "requestValidation": "accepted",
+            "validationError": null,
+            "visibleSummary": {
+              "role": "opponent",
+              "seat": 0,
+              "actorSeat": 0,
+              "ownHandCount": 0,
+              "ownActive": null,
+              "ownBench": [],
+              "opponentHandCount": 0,
+              "opponentHandRevealed": false,
+              "opponentActive": null,
+              "opponentBench": [],
+              "ownDeckCount": 30,
+              "opponentDeckCount": 30,
+              "ownPrizeCount": 6,
+              "opponentPrizeCount": 6
+            },
+            "promptCoverage": {
+              "promptType": "ChooseCardsPrompt",
+              "source": {
+                "classification": "actor-choice",
+                "sourceKind": "card-effect",
+                "sourcePrinting": "Lusamine CIN 96",
+                "effectName": "Lusamine"
+              },
+              "selectionType": "card-combination",
+              "minimumCount": 0,
+              "maximumCount": 2,
+              "energyCount": null,
+              "allowCancel": false,
+              "isSecret": false,
+              "choiceKinds": [
+                "card",
+                "empty-selection"
+              ],
+              "ownerSeats": [
+                "actor",
+                null
+              ],
+              "zones": [
+                "discard",
+                null
+              ],
+              "emptySelection": true,
               "cancel": false
             }
           }
@@ -4378,6 +4864,17 @@
             },
             "validatorResult": "accepted",
             "validationError": null
+          },
+          {
+            "decisionIndex": 1,
+            "decision": {
+              "kind": "select-choices",
+              "tokens": [
+                "ceremony"
+              ]
+            },
+            "validatorResult": "accepted",
+            "validationError": null
           }
         ],
         "expectedOutcomeAssertedByTest": true,
@@ -4392,11 +4889,12 @@
         "acceptableOutcomeFamilies": [
           "select-choices"
         ],
-        "rationale": "The unit test asserts a deterministic response on a synthetic actor-visible fixture. It does not establish natural frequency, native effect correctness, or strategic competence."
+        "rationale": "The V8 harness asserts deterministic actor-view choices and actual pinned worker validation. This is policy heuristic evidence only; it does not establish natural game frequency or strategic competence."
       },
       "costLedger": {
         "supporterForTurn": true,
-        "ownDiscardSupporterOrStadiumRecovered": 2
+        "ownDiscardSupporterOrStadiumRecovered": 2,
+        "playersCeremonyPriority": 135
       },
       "promptCoverage": [
         {
@@ -4410,28 +4908,72 @@
           "selectionType": "card-combination",
           "minimumCount": 2,
           "maximumCount": 2,
+          "energyCount": null,
           "allowCancel": false,
           "isSecret": false,
           "choiceKinds": [
+            "card",
+            "card",
+            "card",
+            "card",
             "card"
           ],
           "ownerSeats": [
+            "actor",
+            "actor",
+            "actor",
+            "actor",
             "actor"
           ],
           "zones": [
+            "discard",
+            "discard",
+            "discard",
+            "discard",
             "discard"
           ],
           "emptySelection": false,
           "cancel": false
+        },
+        {
+          "promptType": "ChooseCardsPrompt",
+          "source": {
+            "classification": "actor-choice",
+            "sourceKind": "card-effect",
+            "sourcePrinting": "Lusamine CIN 96",
+            "effectName": "Lusamine"
+          },
+          "selectionType": "card-combination",
+          "minimumCount": 0,
+          "maximumCount": 2,
+          "energyCount": null,
+          "allowCancel": false,
+          "isSecret": false,
+          "choiceKinds": [
+            "card",
+            "empty-selection"
+          ],
+          "ownerSeats": [
+            "actor",
+            null
+          ],
+          "zones": [
+            "discard",
+            null
+          ],
+          "emptySelection": true,
+          "cancel": false
         }
       ],
       "executionEvidence": {
-        "unitHarness": "local V8 deterministic harness",
+        "unitHarness": "local V8 deterministic harness using the exact pinned worker source",
         "unitTestResult": "pass",
         "requestValidation": [
+          "accepted",
           "accepted"
         ],
         "decisionValidation": [
+          "accepted",
           "accepted"
         ],
         "nativeTwinleafExecution": false,
@@ -4449,6 +4991,12 @@
               "faba",
               "handiwork"
             ]
+          },
+          {
+            "kind": "select-choices",
+            "tokens": [
+              "ceremony"
+            ]
           }
         ],
         "nativeAcceptance": null,
@@ -4465,7 +5013,7 @@
         "fallbackStatus": "no delegated fallback; unsupported paths abstain or return a real pass token only when present"
       },
       "disposition": "blocked",
-      "blockReason": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer.",
+      "blockReason": "No rank-3 native policy game or independent strategy review; this is synthetic prompt-selection evidence only.",
       "reviewerStatus": "unreviewed",
       "sourceBinding": {
         "role": "opponent-policy",
@@ -4475,15 +5023,18 @@
         "candidateDeckPath": "results/aichi-2026/candidate-hood-shadow-rider.json",
         "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
         "cardPrintReferences": [
-          "Lusamine CIN 96"
+          "Lusamine CIN 96",
+          "Player's Ceremony SP 127",
+          "Faba LOT 173",
+          "Team Rocket's Handiwork FCO 112"
         ],
         "engineCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
-        "researchHookRevision": "none",
+        "researchHookRevision": "0f5be9a0562eb461d36745c8470f6040bd2a5287",
         "sourceTraceRef": null,
         "fixtureRef": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
         "evidenceClass": "synthetic"
       },
-      "reviewerExplanation": "Synthetic fixture only: no native Twinleaf Store receipt, no completed game, no strategic outcome, and no independent reviewer."
+      "reviewerExplanation": "No rank-3 native policy game or independent strategy review; this is synthetic prompt-selection evidence only."
     },
     {
       "caseId": "r3-dev-23-counter-catcher-targets-the-opponent-bench-pok-mon-with-the-",
@@ -9545,8 +10096,8 @@
       "unitResult": "pass"
     },
     {
-      "test": "Player’s Ceremony remains explicitly blocked until its research-owned engine hook exists",
-      "expected": "abstain; no fallback",
+      "test": "Player's Ceremony is a conservative shared draw-two and is played only into an empty Stadium slot",
+      "expected": "use only when hand/deck thresholds justify; unexpected prompt abstains",
       "unitResult": "pass"
     },
     {
@@ -9651,7 +10202,7 @@
     "No native Twinleaf Store receipt for any case.",
     "No completed game against the fixed candidate.",
     "Legendary Ascent energy-payment prompt is implemented but not exercised.",
-    "Player's Ceremony SP 127 is absent from the bundled English snapshot and unsupported; not a legality ruling.",
+    "Player's Ceremony SP 127 now has a research-owned hook and synthetic rank-3 policy use/recovery; no complete rank-3 native game or competence evidence yet.",
     "No worker IPC handshake, timeout budget, runtime sandbox, or compute-budget test.",
     "Policy module is not wired into worker ./policy.cjs loader or signed bundle.",
     "No independent reviewer.",
@@ -9668,18 +10219,19 @@
     "reviewReceipt": null
   },
   "claims": {
-    "demonstrated": "Deterministic decisions and actual worker request/decision validator behavior on synthetic actor-view fixtures only.",
+    "demonstrated": "Deterministic policy decisions and pinned worker request/decision validation on synthetic actor-view fixtures; Player's Ceremony card-effect hook separately passed a native Store action test.",
     "notDemonstrated": [
       "real game win rate",
       "matchup advantage",
       "full rank-3 policy competence",
       "99.5% Top 32 target",
       "complete paper Expanded legality of all source entries",
-      "Twinleaf completeness for every effect"
+      "Twinleaf completeness for every effect",
+      "Player's Ceremony shared draw valuation is heuristic and has not been tested in a complete rank-3 game."
     ]
   },
   "caseRecordCount": 49,
-  "suiteSha256": "474ab292583801a4eb38dc6fac17117c24c539eac11d34a5886fbaee7fe23c59",
+  "suiteSha256": "2d7c5e8c6c2a842bee429bee002ebb82da46699cf785ec261aea207867075a38",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
@@ -9687,14 +10239,14 @@
     "sourceRank": 3,
     "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
     "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
-    "policySha256": "c3ab0ea5c22fe48583391a480106814f950949f8c0ba114de0c345436da2e902",
-    "dependencyManifestSha256": "488d612ef94684577b2f495166d7ba41272b96c4cb07e55af799a71de4bca2a6",
+    "policySha256": "281e6345c0c945a82c8be304365999ee21887768077678c3484e6f5c19e6d2cd",
+    "dependencyManifestSha256": "eb005c2aef84248bfffc803e9720fb6d28b08a512393ed8bf614d1af148067ae",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
       "remote": "https://github.com/twinleafgg/twinleafgg.git",
       "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
-      "researchHookRevision": "none"
+      "researchHookRevision": "0f5be9a0562eb461d36745c8470f6040bd2a5287"
     },
     "candidatePolicyProducerId": null,
     "opponentPolicyProducerIdByRank": {
@@ -9733,7 +10285,7 @@
         "r3-dev-03-bunnelby-burrow-is-preferred-when-the-opponent-deck-is-near-",
         "r3-dev-04-cold-crush-gx-is-reserved-unless-the-opponent-active-has-sub",
         "r3-dev-09-rank-3-get-lost-prompt-prioritizes-opponent-recovery-cards-i",
-        "r3-dev-19-regirock-land-maker-recovers-the-two-useful-stadiums-and-exc",
+        "r3-dev-19-regirock-land-maker-includes-player-s-ceremony-as-fallback",
         "r3-dev-28-water-energy-is-allocated-to-articuno-when-it-enables-the-co",
         "r3-dev-29-capture-energy-is-attached-to-bunnelby-to-enable-burrow-and-",
         "r3-dev-31-forest-seal-stone-star-alchemy-searches-for-tool-jammer-when",
@@ -9828,7 +10380,7 @@
         "r3-dev-04-cold-crush-gx-is-reserved-unless-the-opponent-active-has-sub",
         "r3-dev-09-rank-3-get-lost-prompt-prioritizes-opponent-recovery-cards-i",
         "r3-dev-10-guzma-root-play-requires-opponent-bench-target",
-        "r3-dev-19-regirock-land-maker-recovers-the-two-useful-stadiums-and-exc",
+        "r3-dev-19-regirock-land-maker-includes-player-s-ceremony-as-fallback",
         "r3-dev-23-counter-catcher-targets-the-opponent-bench-pok-mon-with-the-",
         "r3-dev-28-water-energy-is-allocated-to-articuno-when-it-enables-the-co",
         "r3-dev-29-capture-energy-is-attached-to-bunnelby-to-enable-burrow-and-",
@@ -9887,9 +10439,9 @@
   },
   "policyStaticAudit": {
     "sourcePath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "sourceBlobSha1": "c524698afdb097f07f634cf335354505db09b50d",
-    "sourceSha256": "c3ab0ea5c22fe48583391a480106814f950949f8c0ba114de0c345436da2e902",
-    "scannedAt": "2026-11-19T17:26:11Z",
+    "sourceBlobSha1": "2f861f5e7b34fd57fdf19889f6507bf0148c2bcb",
+    "sourceSha256": "281e6345c0c945a82c8be304365999ee21887768077678c3484e6f5c19e6d2cd",
+    "scannedAt": "2026-11-25T23:27:34.147Z",
     "scannedTerms": [
       {
         "term": "Math.random",

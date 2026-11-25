@@ -8,9 +8,9 @@
   "producerBindingStatus": "prototype only; not inserted into the signed/hash-bound V3 policy plan",
   "policyModule": {
     "path": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-    "gitBlobSha1": "c524698afdb097f07f634cf335354505db09b50d",
-    "sha256": "c3ab0ea5c22fe48583391a480106814f950949f8c0ba114de0c345436da2e902",
-    "policyVersion": "agent17-rank3-snorlax-stall-opponent-v1",
+    "gitBlobSha1": "2f861f5e7b34fd57fdf19889f6507bf0148c2bcb",
+    "sha256": "281e6345c0c945a82c8be304365999ee21887768077678c3484e6f5c19e6d2cd",
+    "policyVersion": "agent17-rank3-snorlax-stall-opponent-v1.1",
     "config": {},
     "imports": [],
     "externalRuntimeDependencies": [],
@@ -115,7 +115,8 @@
     "pinnedCommit": "a9905a76a6c4103ba4b6cb9a49e86bad795c5c05",
     "upstreamModified": false,
     "localPatches": [],
-    "usedInThisPolicyHarness": false
+    "usedInThisPolicyHarness": false,
+    "researchHookRevision": "0f5be9a0562eb461d36745c8470f6040bd2a5287"
   },
   "protocolContract": {
     "path": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
@@ -139,10 +140,10 @@
   },
   "testSuite": {
     "path": "tests/2026-11/agent17-rank3-snorlax-stall-opponent-policy.test.cjs",
-    "gitBlobSha1": "8d77da0fe5e2403a9bdd04901a51829e9f413f80",
-    "sha256": "3cbc56eb51fc457b335ae141865d503abcf7f3cf52f09e4ce0e1969681ded6d3",
+    "gitBlobSha1": "2b578dffeb5053096e56a64118d5318ec4a0a2e4",
+    "sha256": "db3f60adc577474e57b86371fa09b9b8ef74bc265dc282034682d9fa2c657071",
     "testFramework": "node:test source file",
-    "localExecution": "V8 deterministic harness; actual validateInit, validateRequest, validateDecision and validatePublicEventReceipt plus policy/test sources evaluated; not node --test or worker IPC",
+    "localExecution": "V8 deterministic harness; exact pinned worker source d51ea95c457d61b50a9ee114d342eb17f4350451 plus actual policy/test sources evaluated; 49/49 tests passed; no node --test, worker IPC, or native game.",
     "testCount": 49
   },
   "commonConstraints": {
@@ -150,10 +151,10 @@
     "sha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27"
   },
   "repositoryBindings": {
-    "policyCommit": "2ae13106ed11af0e14f56722fc90146e1412e97c",
-    "testCommit": "df1290a3771a7b9678bad04cea0944c98f8d4151",
+    "policyCommit": null,
+    "testCommit": null,
     "baselineMainCommitAtInitialInspection": "2a86d357bf5ae699148f0fa7ce74c497e6973d49",
-    "currentMainAtManifestUpdate": "df1290a3771a7b9678bad04cea0944c98f8d4151"
+    "currentMainAtManifestUpdate": "fcac5ca581c7be60a8080b57e2cfc58a12f0b7e8"
   },
   "hashDefinitions": {
     "fileSha256": "SHA-256 of exact UTF-8 file bytes",
@@ -162,7 +163,15 @@
   },
   "integrationStatus": "standalone prototype; the Agent49 worker run() currently loads ./policy.cjs, and this module has not been wired into that loader or a policy bundle",
   "ciStatus": "no workflow added or run",
-  "nativeEvidence": "none",
+  "nativeEvidence": {
+    "type": "native Twinleaf Store card-action hook test only",
+    "workflowRunId": 45373242755,
+    "workflowHead": "0f5be9a0562eb461d36745c8470f6040bd2a5287",
+    "testPath": "tests/agent33-players-ceremony-full-action-pinned.test.cjs",
+    "result": "passed",
+    "scope": "both player seats; PlayCardAction and UseStadiumAction; draw-two effect, turn-ending behavior, and repeat-use rejection",
+    "limitations": "not a rank-3 policy game; does not establish strategic competence or worker IPC"
+  },
   "matchupEvidence": "none",
   "cardPoolSnapshot": {
     "indexPath": "resources/INDEX.md",
@@ -262,11 +271,15 @@
         "gitBlobSha1": "888a5253d3bf05bc4107d52742003ce42f1980f3"
       }
     ],
-    "unsupportedSourceEntry": {
+    "researchOwnedPromoHook": {
       "card": "Player's Ceremony",
       "printing": "SP 127",
-      "status": "not found in the bundled English snapshot; no Twinleaf hook or policy support",
-      "treatment": "explicitly blocked; no legality claim is made from this absence"
+      "status": "not in bundled English snapshot; research-owned Twinleaf hook exists",
+      "hookPath": "simulation/twinleaf/card-patches.cjs",
+      "nativeTestPath": "tests/agent33-players-ceremony-full-action-pinned.test.cjs",
+      "nativeTestRunId": 45373242755,
+      "nativeTestHead": "0f5be9a0562eb461d36745c8470f6040bd2a5287",
+      "treatment": "supported in the research simulator; absence from the bundled English snapshot is not a paper-legality ruling"
     }
   },
   "policySpecificAssumptions": {
@@ -321,6 +334,14 @@
       "protectionScope": "Safeguard prevents damage from attacks by Pokémon V; it does not protect from Pokémon ex",
       "policy": "prioritize only when opponent actor-visible board contains Pokémon V/VMAX/VSTAR and no Mimikyu is already established",
       "testCoverage": "synthetic VMAX positive and Pokémon ex negative controls; native effect not tested"
+    },
+    "playersCeremony": {
+      "card": "Player's Ceremony SP 127",
+      "effect": "Once during each player's turn, that player may draw 2 cards; if they do, their turn ends.",
+      "policyUse": "scores 95,90,80,65,50,35 for hand sizes 0-5; score 0 if own deck <=2; subtract 15 when opponent handCount <=2 and 20 when own deckCount <=4",
+      "placement": "only play from hand when no Stadium is already in play",
+      "recovery": "Land Maker score 150; Lusamine score 135",
+      "confidence": "synthetic actor-view heuristic only; native card-effect hook separately verified; no complete rank-3 game"
     }
   }
 }

@@ -1,7 +1,7 @@
 'use strict';
 
 /*
- * Rank-3 Snorlax Stall opponent-role policy, version 1.
+ * Rank-3 Snorlax Stall opponent-role policy, version 1.1.
  *
  * This is a deterministic actor-view-only prototype, not a competent-policy
  * attestation. It is bound to the exact rank-3 source inventory and the
@@ -9,7 +9,7 @@
  * Native Store legality remains authoritative.
  */
 
-const POLICY_VERSION = 'agent17-rank3-snorlax-stall-opponent-v1';
+const POLICY_VERSION = 'agent17-rank3-snorlax-stall-opponent-v1.1';
 const SOURCE_RANK = 3;
 const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
 const SOURCE_FINGERPRINT_SHA256 = '0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368';
@@ -323,6 +323,25 @@ function opponentSpecialEnergyCount(observation) {
     ).length, 0);
 }
 
+function scorePlayersCeremonyUse(observation) {
+  const handSize = list(observation?.ownHand).length;
+  const deckCount = ownDeckCount(observation);
+  if (deckCount <= 2 || handSize > 5) return 0;
+  const baseScores = [95, 90, 80, 65, 50, 35];
+  const opponentHandCount = Number.isSafeInteger(observation?.opponentPublic?.handCount) ?
+    observation.opponentPublic.handCount : null;
+  const sharedDrawPenalty = opponentHandCount !== null && opponentHandCount <= 2 ? 15 : 0;
+  const thinDeckPenalty = deckCount <= 4 ? 20 : 0;
+  return Math.max(0, baseScores[handSize] - sharedDrawPenalty - thinDeckPenalty);
+}
+
+function scorePlayersCeremonyPlay(observation) {
+  // Do not replace an already useful Stadium; this shared effect is optional.
+  if (stadiumsInPlay(observation).length > 0) return 0;
+  const useScore = scorePlayersCeremonyUse(observation);
+  return useScore > 0 ? Math.max(0, useScore - 10) : 0;
+}
+
 function scoreSearchCard(printing, observation, context = '') {
   const own = observation.ownPublic;
   const opponent = observation.opponentPublic ?? {};
@@ -419,6 +438,7 @@ function scoreSearchCard(printing, observation, context = '') {
   if (context === 'land-maker') {
     if (matches(printing, PRINT.tropicalBeach)) return 230;
     if (matches(printing, PRINT.temple)) return 190;
+    if (matches(printing, PRINT.playersCeremony)) return 150;
     return 0;
   }
   if (matches(printing, PRINT.toolJammer)) {
@@ -595,7 +615,7 @@ function scoreAction(item, request) {
     if (matches(stadium, PRINT.temple)) {
       return opponentHasSpecialEnergy(opponent) ? 100 : 0;
     }
-    if (matches(stadium, PRINT.playersCeremony)) return 0;
+    if (matches(stadium, PRINT.playersCeremony)) return scorePlayersCeremonyUse(observation);
     return 0;
   }
 
@@ -665,7 +685,7 @@ function scoreAction(item, request) {
     return !hasStadium(observation, PRINT.tropicalBeach) && hand.length <= 6 &&
       ownDeckCount(observation) > 7 ? 130 : 15;
   }
-  if (matches(card, PRINT.playersCeremony)) return 0;
+  if (matches(card, PRINT.playersCeremony)) return scorePlayersCeremonyPlay(observation);
   if (matches(card, PRINT.temple)) return opponentHasSpecialEnergy(opponent) ? 115 : 0;
 
   if ([PRINT.arven, PRINT.plumeria, PRINT.teamFlare, PRINT.teammates, PRINT.lusamine,
@@ -781,6 +801,7 @@ function cardChoiceScore(choice, observation, context) {
     if (matches(printing, PRINT.teamFlare)) return 175;
     if (matches(printing, PRINT.guzma)) return 160;
     if (matches(printing, PRINT.tropicalBeach) || matches(printing, PRINT.temple)) return 145;
+    if (matches(printing, PRINT.playersCeremony)) return 135;
     return 0;
   }
   if (context === 'plumeria-cost') {
@@ -867,10 +888,6 @@ function promptDecision(request) {
   const sourcePrinting = prompt?.source?.sourcePrinting ?? '';
   const metadata = prompt?.publicMetadata ?? {};
   const selectionType = metadata.selectionType ?? null;
-
-  if (/player's ceremony/i.test(sourcePrinting + ' ' + source)) {
-    return { kind: 'abstain', reasonCode: 'PLAYERS_CEREMONY_ENGINE_HOOK_BLOCKED' };
-  }
 
   if (prompt.promptType === 'ChooseCardsPrompt') {
     if (selectionType) {

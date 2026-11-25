@@ -627,14 +627,58 @@ test('Guzma first chooses an opponent Bench target and then promotes the Snorlax
 
 });
 
-test('Player’s Ceremony remains explicitly blocked until its research-owned engine hook exists', () => {
-  const request = promptRequest({
+test("Player's Ceremony is a conservative shared draw-two and is played only into an empty Stadium slot", () => {
+  const useRequest = rootRequest({
+    ownHand: ['Quick Ball FST 237'],
+    ownPublic: player({ deckCount: 20, stadium: ["Player's Ceremony SP 127"] }),
+    opponentPublic: player({ handCount: 5, deckCount: 20 }),
+    items: [
+      { token: 'ceremony-use', kind: 'use-stadium', actorPrinting: "Player's Ceremony SP 127",
+        publicMetadata: { stadiumPrinting: "Player's Ceremony SP 127", stadiumEffectLive: true } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(useRequest), { kind: 'select-action', token: 'ceremony-use' });
+  const lowDeckRequest = rootRequest({
+    ownHand: ['Quick Ball FST 237'],
+    ownPublic: player({ deckCount: 2, stadium: ["Player's Ceremony SP 127"] }),
+    opponentPublic: player({ handCount: 5, deckCount: 20 }),
+    items: [
+      { token: 'ceremony-use', kind: 'use-stadium', actorPrinting: "Player's Ceremony SP 127",
+        publicMetadata: { stadiumPrinting: "Player's Ceremony SP 127", stadiumEffectLive: true } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(lowDeckRequest), { kind: 'select-action', token: 'pass' });
+  const playRequest = rootRequest({
+    ownHand: ["Player's Ceremony SP 127"],
+    ownPublic: player({ deckCount: 20 }),
+    opponentPublic: player({ handCount: 5, deckCount: 20 }),
+    items: [
+      { token: 'ceremony-play', kind: 'play-card', actorPrinting: "Player's Ceremony SP 127",
+        publicMetadata: { cardType: 'stadium', handIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(playRequest), { kind: 'select-action', token: 'ceremony-play' });
+  const occupiedStadiumRequest = rootRequest({
+    ownHand: ["Player's Ceremony SP 127"],
+    ownPublic: player({ deckCount: 20, stadium: ['Tropical Beach BWP 50'] }),
+    opponentPublic: player({ handCount: 5, deckCount: 20 }),
+    items: [
+      { token: 'ceremony-play', kind: 'play-card', actorPrinting: "Player's Ceremony SP 127",
+        publicMetadata: { cardType: 'stadium', handIndex: 0 } },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(occupiedStadiumRequest), { kind: 'select-action', token: 'pass' });
+  const unexpectedPrompt = promptRequest({
     promptType: 'ChooseCardsPrompt',
     source: actorChoiceSource("Player's Ceremony SP 127", "Player's Ceremony"),
     choices: [cardChoice('choice', 'Tropical Beach BWP 50')]
   });
-  assert.deepEqual(checkedDecision(request), {
-    kind: 'abstain', reasonCode: 'PLAYERS_CEREMONY_ENGINE_HOOK_BLOCKED'
+  assert.deepEqual(checkedDecision(unexpectedPrompt), {
+    kind: 'abstain', reasonCode: 'UNSUPPORTED_SINGLE_CARD_PROMPT'
   });
 });
 
@@ -754,7 +798,7 @@ test('Team Flare Grunt chooses only the opponent Active for its Active-only Ener
   });
 });
 
-test('Regirock Land Maker recovers the two useful Stadiums and excludes unsupported Player’s Ceremony', () => {
+test('Regirock Land Maker prioritizes Tropical Beach and Temple while retaining Player’s Ceremony as a fallback', () => {
   const request = promptRequest({
     promptType: 'ChooseCardsPrompt',
     source: actorChoiceSource('Regirock XYP 49', 'Land Maker'),
@@ -768,6 +812,18 @@ test('Regirock Land Maker recovers the two useful Stadiums and excludes unsuppor
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-choices', tokens: ['beach', 'temple']
+  });
+  const ceremonyOnly = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Regirock XYP 49', 'Land Maker'),
+    choices: [
+      cardChoice('ceremony', "Player's Ceremony SP 127", 'discard'),
+      { token: 'empty', kind: 'empty-selection', label: 'Select no cards' }
+    ],
+    publicMetadata: multiMetadata(0, 2)
+  });
+  assert.deepEqual(checkedDecision(ceremonyOnly), {
+    kind: 'select-choices', tokens: ['ceremony']
   });
 });
 
@@ -849,12 +905,25 @@ test('Lusamine retrieves Faba and Team Rocket’s Handiwork before a low-value S
       cardChoice('beach', 'Tropical Beach BWP 50', 'discard'),
       cardChoice('faba', 'Faba LOT 173', 'discard'),
       cardChoice('handiwork', "Team Rocket's Handiwork FCO 112", 'discard'),
+      cardChoice('ceremony', "Player's Ceremony SP 127", 'discard'),
       cardChoice('nest', 'Nest Ball SVI 181', 'discard')
     ],
     publicMetadata: multiMetadata(2, 2)
   });
   assert.deepEqual(checkedDecision(request), {
     kind: 'select-choices', tokens: ['faba', 'handiwork']
+  });
+  const ceremonyOnly = promptRequest({
+    promptType: 'ChooseCardsPrompt',
+    source: actorChoiceSource('Lusamine CIN 96', 'Lusamine'),
+    choices: [
+      cardChoice('ceremony', "Player's Ceremony SP 127", 'discard'),
+      { token: 'empty', kind: 'empty-selection', label: 'Select no cards' }
+    ],
+    publicMetadata: multiMetadata(0, 2)
+  });
+  assert.deepEqual(checkedDecision(ceremonyOnly), {
+    kind: 'select-choices', tokens: ['ceremony']
   });
 });
 

@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
   "plan_id": "aichi-2026-opponent-policy-panel-v2",
-  "generated_at": "2026-11-25T21:29:42Z",
+  "generated_at": "2026-11-25T23:28:54.788Z",
   "generated_by": "Agent31",
-  "snapshot_commit_sha": "6a3330d2a4ea1a2ac2487751b9bd6314ea597642",
+  "snapshot_commit_sha": "fcac5ca581c7be60a8080b57e2cfc58a12f0b7e8",
   "supersedes": "results/methodology/2026-11/agent17-aichi-policy-panel-manifest-20261117.json",
   "benchmark": {
     "name": "Aichi Open League 2026 Top 32",
@@ -289,11 +289,11 @@
       "rank_policy_status": "prototype_only_not_frozen",
       "policy_variants": [
         {
-          "variant_id": "agent17-rank3-snorlax-stall-opponent-policy.cjs@c524698afdb097f07f634cf335354505db09b50d",
-          "version_label": "v1",
+          "variant_id": "agent17-rank3-snorlax-stall-opponent-policy.cjs@2f861f5e7b34fd57fdf19889f6507bf0148c2bcb",
+          "version_label": "v1.1",
           "producer": "agent17",
           "policy_path": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs",
-          "git_blob_sha1": "c524698afdb097f07f634cf335354505db09b50d",
+          "git_blob_sha1": "2f861f5e7b34fd57fdf19889f6507bf0148c2bcb",
           "frozen": false,
           "selected_for_competence": false
         }
@@ -309,7 +309,7 @@
         "qualified_matchups": 0,
         "admission_status": "blocked_no_competence_evidence"
       },
-      "reported_readiness_summary": "49/49 V8 shim cases; no Node/Actions/native game; suite unbound and frozen expansion prohibited.",
+      "reported_readiness_summary": "49/49 V8 shim cases on pinned worker; Player's Ceremony shared draw-two and recovery heuristic now covered; no Node/Actions/native rank-3 game; still unbound and not competent.",
       "readiness_reference": "results/methodology/2026-11/agent35-opponent-policy-prototype-readiness-20261117.md",
       "source_binding": {
         "file": "results/aichi-2026/full-decklists.json",
