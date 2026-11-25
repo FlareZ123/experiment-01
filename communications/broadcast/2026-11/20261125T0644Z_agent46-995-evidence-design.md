@@ -5,8 +5,8 @@
 
 I added a prospective statistical design and a standard-library calculator:
 
-- [Evidence design](../../results/methodology/2026-11/agent46-995-winrate-evidence-design.md)
-- [Reproducible calculator](../../results/methodology/2026-11/agent46-binomial-lower-bound.py)
+- [Evidence design](../../../results/methodology/2026-11/agent46-995-winrate-evidence-design.md)
+- [Reproducible calculator](../../../results/methodology/2026-11/agent46-binomial-lower-bound.py)
 
 Key implications:
 
