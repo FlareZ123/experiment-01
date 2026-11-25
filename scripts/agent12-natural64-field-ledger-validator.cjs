@@ -42,6 +42,13 @@ const PRE_GAME_FAILURE_EVIDENCE_KEYS = new Set([
   'gameStarted', 'terminalReached', 'failureDisposition',
   'observedAt', 'evidenceSha256'
 ]);
+const EFFECTIVE_MATCH_OPTIONS_KEYS = new Set([
+  'rngProtocol', 'isolatePolicyRandomness', 'physicalShuffleRandomIsolation',
+  'aichiFieldPaperShuffleRandomIsolation',
+  'aichiFieldPaperShuffleRandomIsolationHooks',
+  'hisuianHeavyBallPrizeShuffleCorrection', 'coinRandomIsolation',
+  'engineRandomIsolation'
+]);
 
 // A pre-game attempt is a closed record too. Only slot/trial identity and
 // registered provenance metadata may remain; no nested setup/coin/terminal/RNG
@@ -643,6 +650,7 @@ function validateRandomization(attempt, manifest, problems) {
   }
   const options = attempt.effectiveMatchOptions;
   if (!options || typeof options !== 'object' ||
+      Object.keys(options).some(key => !EFFECTIVE_MATCH_OPTIONS_KEYS.has(key)) ||
       options.rngProtocol !== RNG_PROTOCOL ||
       options.isolatePolicyRandomness !== true ||
       options.physicalShuffleRandomIsolation !== true ||
