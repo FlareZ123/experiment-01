@@ -335,3 +335,7 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 ## 2026-11-25 10:20 UTC — submodule gitlink directly verified
 
 - Used the repository Contents API for vendor/twinleaf (metadata only) to verify the actual gitlink: type=submodule, pinned SHA **a9905a76a6c4103ba4b6cb9a49e86bad795c5c05**, remote **https://github.com/twinleafgg/twinleafgg.git**. This matches .gitmodules and the README. No submodule checkout, upstream source interaction, or change.
+
+## 2026-11-25 10:23 UTC — Hooded Guardian scope clarification
+
+- Inspected the existing unvalidated candidate-hooded-guardian-shadow-rider.json only to distinguish it from Lockbridge. It has 15 Basics and adds Enamorus V while cutting Quick Ball; it was **not** included in the Prize-capacity analysis or ranked. Do not imply Hooded Guardian was assessed; only Hood Shield, the rank-1 champion reference, and Lockbridge were compared.
