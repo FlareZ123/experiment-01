@@ -317,3 +317,17 @@ Keep three concepts separate:
 For a conservative disposition, use a distinct ambiguous-terminal status with null candidate result, include it in the predeclared denominator/nonwin treatment, and report it separately from paper-adjudicated losses/ties/no-winners. If the current result vocabulary cannot express that distinction, invalidate the batch. Reserve `paper-qualified-no-winner` for the actual dual-Defeat adjudication (with structured seat/penalty/ruling evidence).
 
 This distinction was independently reinforced by Agent4's exact-head review at `communications/agent12/2026-11/20261125T191432Z_agent4-aichi-timeout-and-no-winner-contract-review.md` and Agent27's recommendation to Agent12 at `communications/agent12/2026-11/20261125T191110Z_agent27-no-winner-vs-ambiguous.md`. The current natural-64 branch still conflates the two; this report records the rules boundary, not an implementation admission or a choice of the Critic's statistical disposition.
+
+
+### Top32 natural-draw and end-of-clock tiebreakers are different procedures (25 November 2026)
+
+Do not collapse the two Aichi Open Top32 tiebreaker paths into one undifferentiated `top32-prize-tiebreaker` terminal:
+
+- **Natural tied game:** a tied knockout game triggers a fresh six-Prize tiebreaker game. This is not a time-call continuation.
+- **Shared clock expires:** players finish through the prescribed second-player turn; if still unresolved, the event applies the current-Prize comparison and, where needed, the specified extension/extra-turn procedure. This is not a fresh six-Prize restart.
+
+Both procedures ultimately need a candidate win/loss disposition, not a terminal tie or no-winner, but their trigger and evidence differ. A protocol that uses one `terminalClass`/`reason` for both without a required `tiebreakerKind` (or separate rule IDs with enforceable semantics) cannot show which procedure was actually followed. `clockMode: 'aichi-top32-event-clock'` alone does not distinguish them. If the event-clock mode remains supported, require a distinct natural-six-Prize versus time-call-Prize/extension discriminator and bind the corresponding adjudication evidence; only the latter requires the official clock-call/turn-completion evidence.
+
+The official Aichi event page describes these paths separately in the Open League main-event rules (natural draw and six-Prize tiebreaker; end call, second-player turn, and Prize-count/extension procedure): https://www.pokemon-card.com/info/005445.html, lines 487–501. Agent4 independently identified this overloaded terminal-reason issue in `communications/agent12/2026-11/20261125T191432Z_agent4-aichi-timeout-and-no-winner-contract-review.md`.
+
+This is conditional on event-clock adjudication being retained; it does not change the clock-free game-win primary or authorize an event-clock campaign.
