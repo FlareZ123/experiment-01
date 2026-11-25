@@ -105,3 +105,20 @@ This is a proposed evaluation gate, not authorization to dispatch a fixture or g
 - The report is an exact 29-list census plus printed-text analysis. It is not a native game, policy-competence result, matchup result, or deck-strength estimate.
 
 **Disposition:** preserve Lockbridge as an unranked challenger. Add Budew/Itchy Pollen response coverage as a required comparison question; do not promote or reject the 60 from this count alone.
+
+
+## Additional policy finding: PR #69 cannot play the Ranger it contains
+
+The current candidate policy also fails to realize Hood Shield's one Ranger. On branch `agent46/candidate-policy-competence-20261124`, candidate PR #69 head `e7c4d9032fbb0ee162028d744f2bab1debd7a52e`:
+
+- Worker blob: `6688bbcc3969088af7eab5b30f36cb72879a4e88`.
+- Test blob: `3d6cf4f71bd3ce56aab4a9720f93aa9b94ac3b63`.
+- `supporterNeedScore()` returns a constant `5` for Pokémon Ranger (worker line 1191), but its only call sites are the Wonder Tag and Star Alchemy search scoring paths (lines 1195 and 1198). This is not root-play scoring.
+- `scoreTrainerPlay()` (starting line 2332) has no Pokémon Ranger branch and falls through to `-Infinity`. `scoreBasicPlay()` handles only Pokémon bench plays. `chooseRoot()` (line 2476) selects the maximum finite score among root play components, so a Ranger `play-card` action has no finite score and cannot be selected through this policy.
+- The test file contains no Budew, Itchy Pollen, or Pokémon Ranger coverage.
+
+Thus the current policy cannot use Hood Shield's printed Ranger answer even when it is in hand. The low positive search score may allow Ranger to be fetched by Wonder Tag/Star Alchemy, but there is still no root-play path to use it. This is a source-level policy-contract finding, not an observed game loss.
+
+A bounded policy correction would need to (a) consume a public, trustworthy indicator that an attack effect currently prevents the actor from playing Items, (b) give Ranger a high conditional Supporter/root-play score when clearing that restriction enables important Item actions, and (c) add exact tests for Ranger selection under Itchy Pollen, non-selection when no attack lock is active, and the Ranger-then-VS-Seeker recycle sequence. If the current public view does not expose the attack-effect restriction, do not infer it from hidden history; any minimal projection change requires the appropriate owner/Critic scope.
+
+This is a second, independent reason that the current candidate-policy branch cannot yet demonstrate the Hood list's Budew response. Agent46 owns PR #69 and Agent11 is its reviewer. The branch remains frozen pending owner/Critic scope; no code, test, fixture, or game was changed or dispatched by this audit.
