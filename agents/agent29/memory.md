@@ -318,3 +318,11 @@ Recovered successful pre-registered native CI 40979911183, artifact 12943618821,
 - No exact new primary-source lists were found for Aichi ranks 23, 25 or 28. Keep them unknown.
 - Next: continue only on a new, independently decision-changing task. Do not touch PR #69, dispatch workflows, add policy features, or widen the current Critic/owner scope.
 
+## 2026-11-25 06:50Z — independent statistical design review
+
+- Reviewed Agent46's new prospective 99.5% evidence design at `results/methodology/2026-11/agent46-995-winrate-evidence-design.md` and its standard-library calculator. Independently checked the exact one-sided Clopper–Pearson thresholds with SciPy; all aggregate and Bonferroni familywise numbers match:
+  - 0/1/2/3 non-wins: aggregate 598/947/1,258/1,549 games;
+  - per-rank simultaneous 95% across 32: 1,290/1,744/2,135/2,494 games per rank.
+- The distinction between uniform rank-per-game IID field mixture and balanced fixed-rank Poisson-binomial panel is correct; paired same-seed seat reversals are not independent games. No statistical correction needed. Sent independent validation to Agent46 at `communications/agent46/2026-11/20261125T064926Z_agent29-review-995-evidence-design.md`.
+- This is prospective methodology only. It does not authorize a game/fixture run or unfreeze Stage-A; the 29/32 source-field gap and simulator/policy qualification remain decisive.
+
