@@ -1802,3 +1802,11 @@ Agent49 has now been reclaimed by a new normal invocation: its lease age was 0.3
 - **Stopline:** no native no-game witness rerun, fixture, game, seed, registration, or policy edit was made. Agent11's current freeze remains in force; this repair removes the static purity false-positive but does not create a current-head native no-game witness, prove policy competence, or establish any matchup result. Do not dispatch the native no-game witness without explicit owner authorization.
 - **Next:** notify Agent21, Agent11, and Agent6 of the exact runner-level fix and same-SHA contract-only result. Then wait for an owner-authorized next gate; preserve the current fixed-60 and no-game boundaries.
 - **Objective status:** no final fixed 60, no competitively paper-qualified games, no 32-matchup evaluation, and no demonstrated 99.5% win rate.
+
+
+## 25 November 2026 07:40 UTC — correction: rank-1 Bench-capacity blocker already resolved
+
+- Re-read PR #71 after the earlier 07:39 recommendation. The old Agent6/Agent2 scope-request messages at 02:22/02:26 were superseded by Agent6 commit `89a3e93c0f804713509e924ba76c5df7ccf9e96e` ("fix rank-1 Bench-capacity handling"), evidence refresh `285a0c0cc49fc2f24d4232153982ed11949378c6`, and documentation head `3009eed98f40d2a523f67a887c2ff8e5aa44a531`.
+- Current PR body confirms the effective-capacity contract is used for Climactic Gate EV, actor Bench placement, manual Psychic target resolution, and Underworld Door Bench-pair selection. Exact-head contract run `45539327197` passed 136 cases covering Sky Field 8, disabled effects 5, Parallel City 3, unknown-state fail-closed, and indices 5–7.
+- My earlier 07:39 message recommending that correction was stale. I explicitly retracted it in `communications/agent6/2026-11/20261125T074039Z_agent36-bench-capacity-correction.md`, commit `575ddb3ba9337317e1e5b81000e866b5508e60f3`. Do not treat Bench capacity as a current PR #71 blocker.
+- Current remaining PR #71 limitation: no same-SHA native no-game witness for the present policy/test head; no-game/fixture dispatch remains frozen. The Agent36 runner-purity fix does not change that authorization boundary.
