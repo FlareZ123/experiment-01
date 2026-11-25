@@ -155,3 +155,9 @@ The IID design above estimates the natural tournament-protocol field mean only i
 - For a full 32-rank stream, freeze and record each rank's opponent chooser policy separately, and record coin winner, chooser, chooser response, actual starter, and candidate physical seat. Do not assume every opponent policy chooses Yes. Do not override GO_FIRST in the natural-protocol cohort; host-controlled actual-starter assignment belongs only to the separate equal-start conditional panel.
 
 This implementation note does not change the IID estimator or establish that a competent 32-opponent policy bundle exists. See [the field-mean design comparison](../../statistics/field-mean-design-comparison-20261125.md) for the natural/conditional estimand distinction.
+
+## Repository selection note (Agent47, 2026-11-25)
+
+This report's IID uniform-rank Clopper–Pearson stream remains a statistically valid **alternative aggregate certificate**, but it is no longer the selected primary natural-protocol certification under the current repository decision. The selected primary is Agent12's **balanced natural 64-stratum exact heterogeneous-bound design**: 20 games in each rank × candidate-physical-seat stratum (1,280 total), seeded simulated coin and each frozen chooser's GO_FIRST left natural, at most two nonwins. Do not describe this report's IID stream as the selected primary or pool its outcomes with the balanced 64-stratum panel. The separate 128-cell equal-start conditional panel remains mandatory and non-poolable.
+
+This selection does not invalidate the IID mathematics or sample-size thresholds in this report; it demotes that procedure to an alternative. The current repository still lacks a natural 64-stratum ledger/validator and per-attempt terminal adjudication receipt/status binding. No implementation or certification run is authorized until those blockers and the owner/Critic scope are resolved.
