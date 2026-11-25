@@ -55,6 +55,7 @@ const GameMessage=Object.freeze({
 let lastStore=null;
 let failNextPlayCardDispatch=false;
 let failNextNativeGameErrorMessage=null;
+let failNextNativeActionError=null;
 let failNextNativeActionContext=null;
 let failNextDecode=false;
 let failNextPromptDecode=false;
@@ -117,6 +118,14 @@ class Store {
       return;
     }
     if(action instanceof PlayCardAction){
+      if(failNextNativeActionError){
+        const error=failNextNativeActionError;
+        failNextNativeActionError=null;
+        const actionContext=failNextNativeActionContext;
+        failNextNativeActionContext=null;
+        if(actionContext&&typeof actionContext==='object')Object.assign(error,actionContext);
+        throw error;
+      }
       if(failNextNativeGameErrorMessage!==null){
         const message=failNextNativeGameErrorMessage;
         failNextNativeGameErrorMessage=null;
@@ -706,38 +715,44 @@ test('native fixture preserves accepted prefix and failed attempted action with 
 });
 
 
-test('native GameError redaction emits only exact pinned GameMessage values',()=>{
+test('native fixture failure redaction preserves only safe stage metadata for GameError and ordinary Error',()=>{
   const originalRandom=Math.random;
-  for(const [message,expected] of [
-    [GameMessage.CANNOT_PLAY_THIS_CARD,GameMessage.CANNOT_PLAY_THIS_CARD],
-    [GameMessage.YES,GameMessage.YES],
-    ['PRIVATE_CUSTOM_GAME_ERROR',undefined]
-  ]){
-    failNextNativeGameErrorMessage=message;
-    failNextNativeActionContext=message===GameMessage.CANNOT_PLAY_THIS_CARD?{
-      nativeActionType:'PLAY_CARD_ACTION',nativeActionFamily:'ITEM',
-      nativeActionValidationStage:'candidate-store-dispatch'
-    }:null;
+  const cases=[
+    {kind:'native',message:'PRIVATE_CARD_SPECIFIC_GAME_MESSAGE',name:'GameError',
+      stage:'native-enumerator-execution'},
+    {kind:'ordinary',message:'PRIVATE_CARD_IMPLEMENTATION_ERROR',name:'Error',
+      stage:'frontier-admission'}
+  ];
+  for(const entry of cases){
+    const context={
+      code:'NATIVE_ACTION_FRONTIER_TEST_FAILURE',
+      nativeActionType:'PLAY_CARD_ACTION',
+      nativeActionValidationStage:entry.stage,
+      nativeActionFamily:'PRIVATE_FAMILY_SENTINEL'
+    };
+    if(entry.kind==='native')failNextNativeGameErrorMessage=entry.message;
+    else failNextNativeActionError=Object.assign(new Error(entry.message),context);
+    failNextNativeActionContext=entry.kind==='native'?context:null;
     let failure;
-    try {
-      runNativeFixtureGame(input());
-    } catch(error) {
-      failure=error;
-    } finally {
+    try{runNativeFixtureGame(input());}
+    catch(error){failure=error;}
+    finally{
       failNextNativeGameErrorMessage=null;
+      failNextNativeActionError=null;
       failNextNativeActionContext=null;
     }
     assert.ok(failure);
     const nativeFailure=failure.fixtureGamePartial.failure;
-    assert.equal(nativeFailure.name,'GameError');
-    assert.equal(nativeFailure.nativeErrorKind,'GameError');
-    assert.equal(nativeFailure.nativeGameMessage,expected);
-    assert.equal(nativeFailure.nativeActionType,
-      message===GameMessage.CANNOT_PLAY_THIS_CARD?'PLAY_CARD_ACTION':undefined);
-    assert.equal(nativeFailure.nativeActionFamily,undefined,
-      'sanitized-only public failure must not reveal a private card family');
-    assert.equal(nativeFailure.messageLength,message.length);
-    assert.equal(Object.prototype.hasOwnProperty.call(nativeFailure,'message'),false);
+    assert.equal(nativeFailure.name,entry.name);
+    assert.equal(nativeFailure.code,'NATIVE_ACTION_FRONTIER_TEST_FAILURE');
+    assert.equal(nativeFailure.nativeActionType,'PLAY_CARD_ACTION');
+    assert.equal(nativeFailure.nativeActionValidationStage,entry.stage);
+    assert.equal(nativeFailure.nativeActionFamily,undefined);
+    for(const omitted of ['message','messageLength','messageSha256','nativeGameMessage',
+      'nativeErrorKind','stackSite'])
+      assert.equal(nativeFailure[omitted],undefined,'public failure redactor must omit '+omitted);
+    assert.equal(JSON.stringify(nativeFailure).includes(entry.message),false);
+    assert.equal(JSON.stringify(nativeFailure).includes('PRIVATE_FAMILY_SENTINEL'),false);
   }
   assert.equal(Math.random,originalRandom);
 });
@@ -828,10 +843,9 @@ test('native async failure preserves only allowlisted seed-probe reason through 
     assert.equal(failure.code,'NO_GAME_WITNESS_SETUP_INCOMPATIBLE');
     assert.equal(failure.cause,resolverError);
     assert.equal(failure.privatePromptPayload,undefined);
-    assert.deepEqual(failure.nativeFixtureFailure.stackSite,{
-      file:stackCase.expectedFile,
-      line:stackCase.line,column:stackCase.column
-    });
+    assert.equal(failure.nativeFixtureFailure.stackSite,undefined,
+      'public failure summaries must not expose source paths');
+    assert.equal(JSON.stringify(failure.nativeFixtureFailure).includes(stackCase.expectedFile),false);
     assert.equal(JSON.stringify(failure.nativeFixtureFailure).includes('private prompt payload canary'),false);
     assert.equal(JSON.stringify(failure.nativeFixtureFailure).includes('/home/runner/'),false);
     assert.equal(JSON.stringify(failure.nativeFixtureFailure).includes('private/secret.js'),false);
@@ -1070,8 +1084,8 @@ test('native cleanup failure preserves a sanitized primary failure summary witho
   assert.equal(failure.nativeFixtureFailure.code,'NATIVE_FIXTURE_CLEANUP_FAILURE');
   assert.equal(failure.nativeFixtureFailure.primaryFailure.stage,'on-action-callback');
   assert.equal(failure.nativeFixtureFailure.primaryFailure.code,'TEST_PRIMARY_FAILURE');
-  assert.match(failure.nativeFixtureFailure.primaryFailure.messageSha256,/^[0-9a-f]{64}$/);
-  assert.match(failure.nativeFixtureFailure.messageSha256,/^[0-9a-f]{64}$/);
+  assert.equal(failure.nativeFixtureFailure.primaryFailure.messageSha256,undefined);
+  assert.equal(failure.nativeFixtureFailure.messageSha256,undefined);
   const safe=JSON.stringify(failure.nativeFixtureFailure);
   assert.equal(safe.includes('primary hidden-zone canary'),false);
   assert.equal(safe.includes('cleanup hidden-zone canary'),false);

@@ -287,8 +287,8 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
         isRootDecision:true,policyInputKind:'actor-observation',
         actionName:null,actionType:null,dispatchStatus:'not-dispatched',
         selectedCardIdentity:{fullName:'PRIVATE_FAILED_SELECTED_CARD_SENTINEL',set:'PRIVATE_SET_SENTINEL'},
-        failure:{name:'GameError',nativeErrorKind:'GameError',
-          nativeActionType:'PLAY_CARD_ACTION',nativeActionFamily:'ITEM'}
+        failure:{name:'GameError',nativeActionType:'PLAY_CARD_ACTION',
+          nativeActionValidationStage:'native-enumerator-execution',nativeActionFamily:'ITEM'}
       }],
       finalPublicState:{phase:3,turn:3,activePlayer:0,pendingPrompts:[],
         players:[{seat:0,handCount:2,deckCount:35,prizeCount:5,discardCount:1,
@@ -296,22 +296,21 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
       finalFullState:{privateField:'FULL_STATE_SENTINEL'}
     },
     fixtureGamePartial:{finalFullState:{privateField:'PARTIAL_FULL_STATE_SENTINEL'}},
-    fixtureFailure:{name:'Error',code:'TEST',stage:'fixture',
+    fixtureFailure:{name:'Error',code:'TEST',stage:'fixture',actionOrdinal:9,
       messageSha256:'f'.repeat(64),messageLength:10,
       nativeFixtureFailure:{
-        name:'GameError',code:'PREDICATE_STABLE_DISPATCH_FAILED',stage:'dispatch',
+        name:'GameError',code:'PREDICATE_STABLE_DISPATCH_FAILED',stage:'dispatch',actionOrdinal:9,
         messageSha256:'e'.repeat(64),messageLength:21,
         nativeErrorKind:'GameError',nativeGameMessage:'CANNOT_PLAY_THIS_CARD',
-        nativeActionType:'PLAY_CARD_ACTION',nativeActionFamily:'ITEM',
+        nativeActionType:'PLAY_CARD_ACTION',nativeActionValidationStage:'native-enumerator-execution',
+        nativeActionFamily:'ITEM',
         stackSite:{
-          file:'simulation/evaluation/2026-11/agent49-native-fixture-game.cjs',
+          file:'vendor/twinleaf/ptcg-server/output/game/cards/private-card.js',
           line:456,column:12
         }
       }}
   };
-  const sanitized=sanitizeFixtureArtifact(artifact,{
-    nativeGameMessageValues:['CANNOT_PLAY_THIS_CARD']
-  });
+  const sanitized=sanitizeFixtureArtifact(artifact);
   const json=JSON.stringify(sanitized);
   assert.doesNotMatch(json,
     /"(?:candidateAudit|opponentAudit|setupPromptDecisions|selectedHandIndices|selectedPrintings|selectedCardIdentity|nativeError|promptId|playerId|perspectivePlayerId|workerDecisionTrace|actorInput|promptProjection|selectedItems|policyAudit|validationReceipt)"\s*:/);
@@ -343,58 +342,64 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
   assert.equal(sanitized.competitiveGameQualified,false);
   assert.equal(sanitized.privacyBoundary.fullStateCaptured,false);
   assert.equal(sanitized.fixtureFailure.messageSha256,undefined);
-  assert.equal(sanitized.fixtureFailure.messageLength,10);
-  assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.nativeErrorKind,'GameError');
-  assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.code,
-    'PREDICATE_STABLE_DISPATCH_FAILED',
+  assert.equal(sanitized.fixtureFailure.messageLength,undefined);
+  assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.nativeErrorKind,undefined);
+  assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.code,'PREDICATE_STABLE_DISPATCH_FAILED',
     'generic diagnostic classifications must survive the public sanitizer');
-  assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.nativeGameMessage,
-    'CANNOT_PLAY_THIS_CARD');
-  assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.nativeActionType,
-    'PLAY_CARD_ACTION');
+  assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.nativeGameMessage,undefined);
+  assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.nativeActionType,'PLAY_CARD_ACTION');
+  assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.nativeActionValidationStage,
+    'native-enumerator-execution');
   assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.nativeActionFamily,undefined,
     'public sanitizer must not expose private card family');
   assert.equal(sanitized.game.actorDecisions[3].failure.nativeActionType,'PLAY_CARD_ACTION');
+  assert.equal(sanitized.game.actorDecisions[3].failure.nativeActionValidationStage,
+    'native-enumerator-execution');
   assert.equal(sanitized.game.actorDecisions[3].failure.nativeActionFamily,undefined,
     'public actor decision failure must not expose private card family');
-  assert.deepEqual(sanitized.fixtureFailure.nativeFixtureFailure.stackSite,{
-    file:'simulation/evaluation/2026-11/agent49-native-fixture-game.cjs',
-    line:456,column:12
-  });
+  assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.stackSite,undefined);
   assert.equal(sanitized.fixtureFailure.nativeFixtureFailure.messageSha256,undefined);
   assert.doesNotMatch(json,/f{64}|e{64}/);
 
   const yesArtifact=structuredClone(artifact);
   yesArtifact.fixtureFailure.nativeFixtureFailure.nativeGameMessage='Yes';
-  const yesSanitized=sanitizeFixtureArtifact(yesArtifact,{
-    nativeGameMessageValues:['CANNOT_PLAY_THIS_CARD','Yes']
-  });
-  assert.equal(yesSanitized.fixtureFailure.nativeFixtureFailure.nativeGameMessage,'Yes');
+  const yesSanitized=sanitizeFixtureArtifact(yesArtifact);
+  assert.equal(yesSanitized.fixtureFailure.nativeFixtureFailure.nativeGameMessage,undefined);
 
   const invalidActionArtifact=structuredClone(artifact);
   invalidActionArtifact.fixtureFailure.nativeFixtureFailure.nativeActionType='PRIVATE_ACTION_TYPE';
   invalidActionArtifact.fixtureFailure.nativeFixtureFailure.nativeActionFamily='PRIVATE_FAMILY';
-  const invalidActionSanitized=sanitizeFixtureArtifact(invalidActionArtifact,{
-    nativeGameMessageValues:['CANNOT_PLAY_THIS_CARD']
-  });
+  const invalidActionSanitized=sanitizeFixtureArtifact(invalidActionArtifact);
   assert.equal(invalidActionSanitized.fixtureFailure.nativeFixtureFailure.nativeActionType,undefined);
   assert.equal(invalidActionSanitized.fixtureFailure.nativeFixtureFailure.nativeActionFamily,undefined);
+
+  const ordinaryErrorArtifact=structuredClone(artifact);
+  ordinaryErrorArtifact.fixtureFailure.nativeFixtureFailure.name='Error';
+  delete ordinaryErrorArtifact.fixtureFailure.nativeFixtureFailure.nativeErrorKind;
+  ordinaryErrorArtifact.fixtureFailure.nativeFixtureFailure.nativeActionValidationStage='frontier-admission';
+  const ordinaryErrorSanitized=sanitizeFixtureArtifact(ordinaryErrorArtifact);
+  assert.equal(ordinaryErrorSanitized.fixtureFailure.nativeFixtureFailure.name,'Error');
+  assert.equal(ordinaryErrorSanitized.fixtureFailure.nativeFixtureFailure.nativeActionValidationStage,
+    'frontier-admission','ordinary Error stages must survive sanitization');
+
+  const unknownStageArtifact=structuredClone(artifact);
+  unknownStageArtifact.fixtureFailure.nativeFixtureFailure.nativeActionValidationStage='private-card-stage';
+  const unknownStageSanitized=sanitizeFixtureArtifact(unknownStageArtifact);
+  assert.equal(unknownStageSanitized.fixtureFailure.nativeFixtureFailure.nativeActionValidationStage,undefined);
 
   for(const stackSite of [
     {file:'/tmp/private.cjs',line:1,column:1},
     {file:'simulation/../private/secret.cjs',line:1,column:1},
-    {file:'simulation/evaluation/private.cjs',line:0,column:-1}
+    {file:'simulation/evaluation/private.cjs',line:0,column:-1},
+    {file:'vendor/twinleaf/ptcg-server/output/game/cards/private-card.js',line:1,column:1}
   ]){
     const invalidArtifact=structuredClone(artifact);
     invalidArtifact.fixtureFailure.nativeFixtureFailure.nativeGameMessage='PRIVATE_CUSTOM_GAME_ERROR';
     invalidArtifact.fixtureFailure.nativeFixtureFailure.stackSite=stackSite;
-    const invalid=sanitizeFixtureArtifact(invalidArtifact,{
-      nativeGameMessageValues:['CANNOT_PLAY_THIS_CARD']
-    });
-    assert.equal(invalid.fixtureFailure.nativeFixtureFailure.nativeErrorKind,'GameError');
+    const invalid=sanitizeFixtureArtifact(invalidArtifact);
     assert.equal(invalid.fixtureFailure.nativeFixtureFailure.nativeGameMessage,undefined);
     assert.equal(invalid.fixtureFailure.nativeFixtureFailure.stackSite,undefined);
-    assert.doesNotMatch(JSON.stringify(invalid),/PRIVATE_CUSTOM_GAME_ERROR/);
+    assert.doesNotMatch(JSON.stringify(invalid),/PRIVATE_CUSTOM_GAME_ERROR|private-card/);
   }
   assert.equal(sanitized.game.actorDecisions[0].actorObservation.ownHandCount,1);
   assert.equal(sanitized.game.actorDecisions[0].selectedCardPublicPrinting,'PubliclyPlayedCard');

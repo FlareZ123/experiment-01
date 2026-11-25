@@ -1100,7 +1100,9 @@ test('registered V3 diagnostics accept sanitized-only with the existing artifact
     'full-state acceptance remains conditional on encrypted-full');
   assert.match(source,/const sanitizedOnly=diagnosticMode==='sanitized-only'/);
   assert.match(source,/sanitizeFixtureArtifact\(artifact,\s*\{/);
-  assert.match(source,/nativeGameMessageValues:native\?\.GameMessage/);
+  assert.doesNotMatch(source,/nativeGameMessageValues/);
+  assert.match(source,/withSafeFrontierStage\(\s*'native-enumerator-construction'/);
+  assert.match(source,/withSafeFrontierStage\(\s*'frontier-admission'/);
   assert.match(source,/fixture-game\.sanitized\.json/);
   assert.match(source,/fixture-game\.sanitized\.txt/);
   assert.ok(V3_FIXTURE_TEST_PATHS.includes(
@@ -1703,28 +1705,25 @@ test('V3 wrong-actor no-game failure receipt preserves seats and redacts raw-pre
     'public failure receipt must reject noncanonical assertion identifiers');
 });
 
-test('native failure projection preserves only a safe repository assertion site',()=>{
-  const site={
-    file:'simulation/evaluation/2026-11/agent36-native-action-frontier.cjs',
-    line:499,column:7
-  };
+test('native failure projection preserves only generic error and frontier-stage metadata',()=>{
   const nativeFailure={
     stage:'policy-decode',code:'ERR_ASSERTION',actionOrdinal:11,
     actingSeat:1,turnBefore:1,name:'AssertionError',nativeErrorKind:'GameError',
     nativeActionType:'PLAY_CARD_ACTION',nativeActionFamily:'ITEM',
+    nativeActionValidationStage:'native-enumerator-execution',
     actionPayloadSha256:'c'.repeat(64),messageSha256:'a'.repeat(64),messageLength:79,
-    stackSite:{...site,absolutePath:'/home/runner/work/experiment-01/experiment-01/private/secret.js'}
+    nativeGameMessage:'PRIVATE_CARD_MESSAGE',
+    stackSite:{file:'vendor/twinleaf/ptcg-server/output/game/cards/private-card.js',line:499,column:7}
   };
   const projectedNative=projectNativeFixtureFailureForReceipt(nativeFailure);
-  assert.deepEqual(projectedNative.stackSite,site);
+  assert.equal(projectedNative.name,'AssertionError');
+  assert.equal(projectedNative.code,'ERR_ASSERTION');
+  assert.equal(projectedNative.actionOrdinal,11);
   assert.equal(projectedNative.nativeActionType,'PLAY_CARD_ACTION');
-  assert.equal(projectedNative.nativeActionFamily,undefined);
-  assert.equal(projectedNative.actionPayloadSha256,undefined);
-  assert.equal(projectedNative.messageSha256,undefined);
-  assert.equal(JSON.stringify(projectedNative).includes('a'.repeat(64)),false);
-  assert.equal(JSON.stringify(projectedNative).includes('c'.repeat(64)),false);
-  assert.equal(JSON.stringify(projectedNative).includes('/home/runner/'),false);
-  assert.equal(JSON.stringify(projectedNative).includes('private/secret.js'),false);
+  assert.equal(projectedNative.nativeActionValidationStage,'native-enumerator-execution');
+  for(const omitted of ['nativeActionFamily','actionPayloadSha256','messageSha256',
+    'messageLength','nativeGameMessage','nativeErrorKind','stackSite','actingSeat','turnBefore'])
+    assert.equal(projectedNative[omitted],undefined);
 
   const projectedFixture=projectV3FixtureFailureForReceipt({
     message:'private raw error text',
@@ -1734,20 +1733,30 @@ test('native failure projection preserves only a safe repository assertion site'
       nativeFixtureFailure:nativeFailure
     }
   });
-  assert.deepEqual(projectedFixture.nativeFixtureFailure.stackSite,site);
+  assert.equal(projectedFixture.name,'AssertionError');
+  assert.equal(projectedFixture.nativeFixtureFailure.nativeActionValidationStage,
+    'native-enumerator-execution');
   const projectedFixtureJson=JSON.stringify(projectedFixture);
   for(const secret of ['a'.repeat(64),'b'.repeat(64),'c'.repeat(64),
-    'messageSha256','actionPayloadSha256','private raw error text'])
+    'messageSha256','actionPayloadSha256','private raw error text',
+    'PRIVATE_CARD_MESSAGE','private-card','vendor/twinleaf'])
     assert.equal(projectedFixtureJson.includes(secret),false,'public fixture failure leaked '+secret);
-  const rejected=projectNativeFixtureFailureForReceipt({
-    ...nativeFailure,stackSite:{file:'private/secret.js',line:2,column:3},
-    nativeActionType:'PRIVATE_ACTION_TYPE',nativeActionFamily:'PRIVATE_FAMILY'
-  });
-  assert.equal(rejected.stackSite,undefined);
-  assert.equal(rejected.nativeActionType,undefined);
-  assert.equal(rejected.nativeActionFamily,undefined);
-});
 
+  const ordinaryError=projectNativeFixtureFailureForReceipt({
+    name:'Error',code:'NATIVE_ACTION_FRONTIER_TEST_FAILURE',actionOrdinal:12,
+    nativeActionType:'PLAY_CARD_ACTION',nativeActionValidationStage:'frontier-admission'
+  });
+  assert.equal(ordinaryError.name,'Error');
+  assert.equal(ordinaryError.nativeActionType,'PLAY_CARD_ACTION');
+  assert.equal(ordinaryError.nativeActionValidationStage,'frontier-admission');
+
+  const rejected=projectNativeFixtureFailureForReceipt({
+    ...nativeFailure,nativeActionType:'PRIVATE_ACTION_TYPE',
+    nativeActionValidationStage:'private-card-stage'
+  });
+  assert.equal(rejected.nativeActionType,undefined);
+  assert.equal(rejected.nativeActionValidationStage,undefined);
+});
 test('V3 wrong-actor resolver failure survives callback projection and final witness receipt',async()=>{
   const workerAudit=createV3WorkerExecutionAudit({candidateSeat:0,opponentSeat:1});
   const resolver=createV3WorkerDecisionResolver({

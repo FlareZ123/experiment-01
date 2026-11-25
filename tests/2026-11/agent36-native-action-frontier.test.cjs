@@ -6,6 +6,7 @@ const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-pro
 const {createValidationRandomScope,seededRandom}=require('../../simulation/evaluation/2026-11/agent49-native-fixture-game.cjs');
 const {
   buildNativeActionFrontier,
+  withSafeFrontierStage,
   selectedNativeAction,
   dispatchSelectedNativeAction
 } = require('../../simulation/evaluation/2026-11/agent36-native-action-frontier.cjs');
@@ -82,7 +83,7 @@ function twinleafDeepClone(source,ignores=[],refMap=[]){
   return source;
 }
 
-function fakeNative({onDispatch=()=>{},actions:providedActions=null,rejectActionTypes=['ATTACK_ACTION'],cloneCardsByReference=false,deepCloneImpl=state=>cloneState(state),actorSeat=0}={}) {
+function fakeNative({onDispatch=()=>{},actions:providedActions=null,rejectActionTypes=['ATTACK_ACTION'],cloneCardsByReference=false,deepCloneImpl=state=>cloneState(state),actorSeat=0,enumeratorConstructorError=null,enumeratorExecutionError=null}={}) {
   const actions = providedActions ?? [
     {
       type: 'PLAY_CARD_ACTION',
@@ -107,9 +108,13 @@ function fakeNative({onDispatch=()=>{},actions:providedActions=null,rejectAction
     }
   ];
   class ActionEnumerator {
+    constructor() {
+      if(enumeratorConstructorError)throw enumeratorConstructorError;
+    }
     enumerate(state, player, clientId) {
       assert.equal(state.players[actorSeat], player);
       assert.equal(clientId, player.id);
+      if(enumeratorExecutionError)throw enumeratorExecutionError;
       return actions;
     }
   }
@@ -670,7 +675,7 @@ test('pinned Underworld Door excludes deferred no-Bench and no-Energy roots with
   assert.equal(unrelated.result.actionFrontier.items[0].kind,'use-ability');
 });
 
-test('frontier propagates unknown, impossible, invalid-target, non-allowlisted native GameError and arbitrary Error failures',()=>{
+test('frontier preserves original candidate errors and tags both GameError and ordinary Error',()=>{
   const cases=[
     {type:'ATTACK_ACTION',message:'UNKNOWN_ATTACK',ErrorType:GameError},
     {type:'USE_ABILITY_ACTION',message:'UNKNOWN_POWER',ErrorType:GameError},
@@ -683,33 +688,99 @@ test('frontier propagates unknown, impossible, invalid-target, non-allowlisted n
   ];
   for(const entry of cases){
     const state=fixtureState();
-    if(entry.family){
-      state.players[0].hand.cards[0].trainerType=
-        entry.family==='SUPPORTER'?2:1;
-    }
+    if(entry.family)state.players[0].hand.cards[0].trainerType=entry.family==='SUPPORTER'?2:1;
+    const beforeState=JSON.stringify(state);
     const action={type:entry.type,clientId:'p0',handIndex:0,name:'Fatal candidate'};
     const pass={type:'PASS_TURN',clientId:'p0'};
+    const injectedError=new entry.ErrorType(entry.message);
+    injectedError.code='NATIVE_ACTION_FRONTIER_TEST_FAILURE';
+    const beforeError={name:injectedError.name,message:injectedError.message,
+      code:injectedError.code,stack:injectedError.stack};
     const native=fakeNative({
       actions:[action,pass],rejectActionTypes:[],
-      onDispatch(candidate){
-        if(candidate===action)throw new entry.ErrorType(entry.message);
-      }
+      onDispatch(candidate){if(candidate===action)throw injectedError;}
     });
-    assert.throws(()=>buildNativeActionFrontier({state,actorSeat:0,native}),
-      error=>{
-        assert.equal(error.message,entry.message);
-        if(entry.ErrorType===GameError){
-          assert.equal(error.nativeActionType,entry.type);
-          assert.equal(error.nativeActionValidationStage,'candidate-store-dispatch');
-          assert.equal(error.nativeActionFamily,undefined,
-            'frontier failure diagnostics must not expose card family');
-        }else{
-          assert.equal(error.nativeActionType,undefined);
-          assert.equal(error.nativeActionValidationStage,undefined);
-        }
-        return true;
-      });
+    assert.throws(()=>buildNativeActionFrontier({state,actorSeat:0,native}),error=>{
+      assert.equal(error,injectedError,'the original error object must be rethrown');
+      assert.deepEqual({name:error.name,message:error.message,code:error.code,stack:error.stack},beforeError,
+        'original error identity fields must remain unchanged');
+      assert.equal(error.nativeActionType,entry.type);
+      assert.equal(error.nativeActionValidationStage,'candidate-store-dispatch');
+      assert.equal(Object.getOwnPropertyDescriptor(error,'nativeActionType').enumerable,false);
+      assert.equal(Object.getOwnPropertyDescriptor(error,'nativeActionValidationStage').enumerable,false);
+      assert.equal(error.nativeActionFamily,undefined,
+        'frontier failure diagnostics must not expose card family');
+      return true;
+    });
+    assert.equal(JSON.stringify(state),beforeState,'candidate validation must not mutate live Store state');
   }
+});
+
+test('frontier tags each outer pre-worker boundary without replacing the original error',()=>{
+  const assertOriginal=(error,stage,invoke)=>{
+    const before={name:error.name,message:error.message,code:error.code,stack:error.stack};
+    assert.throws(invoke,thrown=>{
+      assert.equal(thrown,error);
+      assert.deepEqual({name:thrown.name,message:thrown.message,code:thrown.code,stack:thrown.stack},before);
+      assert.equal(thrown.nativeActionValidationStage,stage);
+      assert.equal(Object.getOwnPropertyDescriptor(thrown,'nativeActionValidationStage').enumerable,false);
+      return true;
+    });
+  };
+
+  const constructorState=fixtureState();
+  const constructorBefore=JSON.stringify(constructorState);
+  const constructorError=new Error('private constructor canary');
+  constructorError.code='NATIVE_ACTION_FRONTIER_CONSTRUCTOR_TEST';
+  assertOriginal(constructorError,'native-enumerator-construction',()=>
+    buildNativeActionFrontier({state:constructorState,actorSeat:0,
+      native:fakeNative({enumeratorConstructorError:constructorError})}));
+  assert.equal(JSON.stringify(constructorState),constructorBefore);
+
+  const enumerationState=fixtureState();
+  const enumerationBefore=JSON.stringify(enumerationState);
+  const enumerationError=new TypeError('private enumeration canary');
+  enumerationError.code='NATIVE_ACTION_FRONTIER_ENUMERATION_TEST';
+  assertOriginal(enumerationError,'native-enumerator-execution',()=>
+    buildNativeActionFrontier({state:enumerationState,actorSeat:0,
+      native:fakeNative({enumeratorExecutionError:enumerationError})}));
+  assert.equal(JSON.stringify(enumerationState),enumerationBefore);
+
+  const assemblyState=fixtureState();
+  const assemblyBefore=JSON.stringify(assemblyState);
+  const assemblyError=new Error('private assembly canary');
+  assemblyError.code='NATIVE_ACTION_FRONTIER_ASSEMBLY_TEST';
+  const originalFreeze=Object.freeze;
+  try{
+    Object.freeze=function(value){
+      if(value&&value.schema===protocol.FRONTIER_SCHEMA)throw assemblyError;
+      return originalFreeze(value);
+    };
+    assertOriginal(assemblyError,'frontier-assembly',()=>
+      buildNativeActionFrontier({state:assemblyState,actorSeat:0,native:fakeNative()}));
+  }finally{
+    Object.freeze=originalFreeze;
+  }
+  assert.equal(JSON.stringify(assemblyState),assemblyBefore);
+
+  const finalState=fixtureState();
+  const finalBefore=JSON.stringify(finalState);
+  const finalError=new Error('private final-invariant canary');
+  finalError.code='NATIVE_ACTION_FRONTIER_FINAL_TEST';
+  const originalValidate=protocol.validateFrontier;
+  try{
+    protocol.validateFrontier=()=>{throw finalError;};
+    assertOriginal(finalError,'final-frontier-invariants',()=>
+      buildNativeActionFrontier({state:finalState,actorSeat:0,native:fakeNative()}));
+  }finally{
+    protocol.validateFrontier=originalValidate;
+  }
+  assert.equal(JSON.stringify(finalState),finalBefore);
+
+  const admissionError=new Error('private admission canary');
+  admissionError.code='NATIVE_ACTION_FRONTIER_ADMISSION_TEST';
+  assertOriginal(admissionError,'frontier-admission',()=>
+    withSafeFrontierStage('frontier-admission',()=>{throw admissionError;}));
 });
 
 test('frontier preserves typed active, bench, and tool attack sources', () => {
