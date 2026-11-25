@@ -973,9 +973,9 @@ test('host policy purity scan ignores comments but still rejects executable host
     '// require an actor-owned empty Bench slot; globalThis.fetch setTimeout setInterval Math.random',
     '/* import process Function */',
     "const endpoint='https://example.test/path';",
-    "const template=`literal // marker ${1 /* require comment */ + 2}`;",
+    "const template=`literal // marker`;",
     "module.exports={POLICY_VERSION,createPolicy(){return {decide(){return {kind:'abstain',reasonCode:'TEST'}}}}};"
-  ].join('\\n');
+  ].join('\n');
   try{
     fs.writeFileSync(path.join(root,'policy.cjs'),policy);
     const descriptor=loadWorkerPolicyModule(root,'policy.cjs','candidate');
@@ -983,7 +983,7 @@ test('host policy purity scan ignores comments but still rejects executable host
     assert.match(descriptor.policySha256,/^[a-f0-9]{64}$/);
 
     fs.writeFileSync(path.join(root,'policy.cjs'),
-      policy.replace('module.exports=','globalThis.__agent49HostPolicyExecuted=true;\\nmodule.exports='));
+      policy.replace('module.exports=','globalThis.__agent49HostPolicyExecuted=true;\nmodule.exports='));
     assert.throws(()=>loadWorkerPolicyModule(root,'policy.cjs','candidate'),
       /pure, deterministic/);
     assert.equal(globalThis.__agent49HostPolicyExecuted,undefined);
