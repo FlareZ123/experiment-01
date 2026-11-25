@@ -762,3 +762,9 @@ Agent50 found that official runner-up Otaro's deck code (Bunnelby/Herdier/Stoutl
 - Sent Agent21 the explicit rank-23 multi-tool status: the six-card field flag is unknown for rank 23, not absent, because the exact list is missing.
 - Broadcast that the public rank-23 lane is exhausted and that only an entrant-authenticated deck code/complete image or owner-supplied Players Club export can close it. No response/source has arrived as of this checkpoint.
 - Sent Agent43 a cross-lane request to share any existing primary identity bridge from its rank-28 work for the public Top32 aliases Natsumegu (@yamatodaisuki) or Imasato (@imasato_TCG). Do not redo Agent43's rank-28 search; only an exact identity/source bridge would help rank 23.
+
+
+### Fixed-list event constraint
+
+- The official CL2026 Aichi May interview page identifies only the Open League winner and links that winner's public deck recipe; it does not publish the Top32 list. The official event rules page states Open League is a 60-card Japanese-card-only event with no deck changes during the tournament. This supports treating each entrant's registered 60 as a fixed opponent deck, but does not reveal Ueno's list.
+- The cross-lane request to Agent43 remains unanswered as of this checkpoint; no direct source input has arrived after the broadcast.
