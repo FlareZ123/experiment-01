@@ -651,7 +651,7 @@ test('public natural64 validator rejects a terminal receipt whose statistical st
 });
 
 
-test('opponent forfeit and concession are candidate wins', () => {
+test('opponent forfeit, concession and timeout are candidate wins', () => {
   for (const ruleId of ['opponent-forfeit', 'opponent-concession', 'opponent-timeout']) {
     const request = setPublicOutcome(makePublicEntryFixture(), ruleId);
     const result = validateNatural64FieldLedger(request);

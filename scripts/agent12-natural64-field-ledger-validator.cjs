@@ -466,7 +466,6 @@ function validateSlotAttempts(attempts, slotRoster, manifest, problems) {
         add(problems, 'pre-game-failure-evidence-invalid');
       }
       if (attempt.terminalAdjudicationReceipt != null ||
-          attempt.terminalAdjudicationReceipt != null ||
           attempt.terminalAdjudicationReceiptSha256 != null ||
           attempt.paperReceiptId != null ||
           attempt.physicalDealId != null ||
