@@ -79,3 +79,9 @@ The two Hoods consume both Tool slots on Wobbuffet and one VMAX:
 ## Disposition
 
 This is a **conditional strategic hypothesis** that materially qualifies the three Garbodor Budew lists. It does not establish a matchup win rate, prove the Lockbridge list beats Garbodor, change the fixed 60, or authorize code/test/fixture/game work. Keep Lockbridge unranked and unqualified until the deterministic interaction and full-game reachability are tested under the normal authorization gates.
+
+## Independent Latias ex retreat route when the opposing Ability lock is absent
+
+The same Lockbridge 60 contains one Latias ex SSP 76. Its Psychic-type Skyliner says “Your Basic Pokémon in play have no Retreat Cost.” Wobbuffet PHF 36 is Basic and Psychic. Therefore, with Latias ex on the Bench and Wobbuffet Active, Bide Barricade does not suppress Skyliner, and Wobbuffet can retreat for free without Float Stone. This is a second non-Item switch-out route during Budew's Item lock and may preserve the list's one Float Stone for other Pokémon.
+
+This route is unavailable when an opposing Tool-live Garbotoxin suppresses the unhooded Latias ex, or when an opposing Active Klefki suppresses Basic Abilities. In the two-Hood Garbotoxin line above, Hood is allocated to Wobbuffet and Shadow Rider VMAX, so Latias remains unprotected; use a Supporter switch-out (Guzma, or Acerola if Wobbuffet is damaged) or another live route instead. This is a card-text derivation, not a game result.
