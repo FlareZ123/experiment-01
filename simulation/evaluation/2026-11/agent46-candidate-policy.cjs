@@ -1190,17 +1190,9 @@ function supporterNeedScore(view, printing, receipt) {
   return -5;
 }
 
-function isCandidateSupporter(printing) {
-  return hasAnyName(printing, [
-    'Teammates', 'Raihan', 'Guzma', 'Acerola', 'Arven', 'Iono',
-    "Lillie's Determination", 'Pokémon Ranger'
-  ]);
-}
-
 function searchNeedScore(view, printing, effectName = '', receipt = null) {
   if (!isText(printing)) return -Infinity;
   if (effectName === 'Wonder Tag') return supporterNeedScore(view, printing, receipt);
-  if (effectName === 'VS Seeker') return supporterNeedScore(view, printing, receipt);
   if (effectName === 'Star Alchemy') {
     const ordinary = searchNeedScore(view, printing, '', receipt);
     const supporter = supporterNeedScore(view, printing, receipt);
@@ -2339,16 +2331,7 @@ function hasStarAlchemyBottleneck(view, receipt) {
 
 function scoreTrainerPlay(item, view, receipt) {
   const name = item.actorPrinting ?? '';
-  // The actor-visible Item restriction applies to candidate Item cards played from hand.
-  // Pokémon Tools are a separate Trainer type and are intentionally not in ITEM_NAMES.
-  if (view.ownPublic.publicTurnRestrictions?.itemPlayLocked === true &&
-      ITEM_NAMES.some(itemName => hasName(name, itemName))) return -Infinity;
   const supporterUsed = view.ownTurnResources.supporterPlayedTurn > 0;
-  if (hasName(name, 'VS Seeker') && !supporterUsed &&
-      !view.ownHand.some(isCandidateSupporter) &&
-      view.ownPublic.discard.some(printing =>
-        isCandidateSupporter(printing) &&
-        supporterNeedScore(view, printing, receipt) >= 50)) return 770;
   if (hasName(name, 'Unfair Stamp') && receipt?.priorOpponentTurnKO?.any === true) return 980;
   if (hasName(name, 'Forest Seal Stone')) {
     const target = actionTargetSlot(view, item.publicMetadata);
