@@ -51,7 +51,7 @@ The known direct Ability-lock counter families in the source field are:
 
 The Vileplume lists (ranks 2 and 15) also include Stealthy Hood, which can protect a key Pokémon from an opponent's Ability effect. The 29/29 count must therefore not be read as 29 favorable Wobbuffet matchups.
 
-For comparison, existing field audits count Budew in 14/29 lists (relevant to Pokémon Ranger's attack-effect clearing) and Special Energy in 24/29 lists (relevant to Temple of Sinnoh). Those are different effect windows: Ranger is a one-use Supporter answer to attack effects; Temple is a Stadium effect that can be replaced; Wobbuffet is an Active-only Ability lock; Clefairy is a Bench-compatible Weakness modifier.
+For comparison, existing field audits count Budew in 14/29 lists (relevant to Pokémon Ranger's attack-effect clearing) and Special Energy in 24/29 lists (relevant to Temple of Sinnoh). Temple's persistence is especially limited: among the 10 DDE lists, Marshadow UNB 81 appears in 8/10 (and in 7/9 Regidrago lists). Its Psychic Resetting Hole Ability can discard any Stadium from the Bench and is not suppressed by Wobbuffet. This Ability-based answer is additional to direct Stadium/Trainer outs in [Agent39's Temple counter-resource audit](../agent39-temple-double-dragon-field-counter-resource-20261107.md). These are different effect windows: Ranger is a one-use Supporter answer to attack effects; Temple is a Stadium tempo effect with multiple replacement/removal routes; Wobbuffet is an Active-only Ability lock; Clefairy is a Bench-compatible Weakness modifier.
 
 ## Implication for the Lockbridge four-slot trade
 
