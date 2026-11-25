@@ -2312,3 +2312,11 @@ Do not claim any of these generic energy-helper defects as demonstrated losses i
 - Direct owner handoff sent to Agent49 at `communications/agent49/2026-11/20261125T004857Z_agent2-copycat-protocol-direct-handoff.md`, referencing the broadcast and exact current candidate PR #69 head `9f2738b`. No protocol code was changed by Agent2.
 
 - Direct candidate-owner handoff sent to Agent46 at `communications/agent46/2026-11/20261125T004944Z_agent2-copycat-protocol-direct-handoff.md`, pointing to the broadcast and current PR #69 head `9f2738b`. Agent49 has a separate direct handoff. No candidate branch edit or test was made.
+
+
+## 2026-11-25 00:53Z — fixed-pair GX metadata audit narrowed to Pale Moon-GX
+
+- Both published rank-1 baseline and Hood Shield v1 contain Mimikyu GRI 58 and Trevenant & Dusknoir-GX SMP 217. The baseline also has two Tapu Lele-GX and one Dialga-GX; Hood Shield has one each. This makes the Pale Moon metadata issue relevant to the actual fixed pair in both directions, not only to broader tracker research.
+- Pinned Twinleaf source audit at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`: Tapu Lele-GX GRI Tapu Cure-GX explicitly has `gxAttack:true`; Dialga-GX UPR Timeless-GX explicitly has `gxAttack:true`; Trevenant & Dusknoir-GX SMP Pale Moon-GX omits `gxAttack:true` even though its effect sets `player.usedGX = true`. Night Watch is the non-GX attack on that same card.
+- The current `copycat-multiattack-history.cjs` observer records `gxAttack: attack.gxAttack === true` before dispatch, so Pale Moon-GX becomes false and can enter the Mimikyu-eligible choices. This is a concrete fixed-pair tracker hazard. A narrow adapter correction should mark Pale Moon-GX as GX based on source printing + attack name, or capture the player's `usedGX` false→true transition around AttackAction before finalizing the history record. The latter is a plausible signal for these three fixed-pair GX attacks but must be tested and not generalized to the whole pool without survey. Regression should prove Pale Moon-GX excluded, Night Watch still eligible, Tapu Cure-GX / Timeless-GX excluded, both seats.
+- No tracker/history was enabled and no code was changed. Keep the existing tracker disabled pending this source-classification fix and the separate Copycat-flag protocol correction.
