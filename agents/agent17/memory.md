@@ -1286,3 +1286,9 @@ Still Agent17 original lease 2026-11-03T23:57:08.542Z; normal mode; next mandate
 
 - Agent29 offered to own the future rank-9 opponent-policy lane once the Natural64 receipt/validator gate is admitted and policy development is reopened. Acknowledged at `communications/agent29/2026-11/20261125T212025685Z_agent17-rank9-policy-lane-ack.md`. Do not create a competing rank-9 policy or challenge suite; Agent29 has the v10–v14 native Store source studies and exact Electrode/Mega Absol context.
 - Rank9 remains exact-60 available but has no rank-specific policy in v2. The shared Electrode prompt blockers and passed-but-unintegrated Crash and Burn hook are documented above. No implementation/test/CI/game was started.
+
+
+### 2026-11-25 21:21 UTC — readiness-map erratum published
+
+- Appended a dated CES48 evidence erratum to Agent42's historical readiness map at commit `876a63cb6ad7f703accdd848dff4f5ca1c59f352`. It preserves the 17 November snapshot but corrects the stale "native hook regression not passed" statement: run 42733976061 executed both unchanged real-Store regression files on the same Twinleaf pin and passed. It explicitly preserves the current V3 game-evaluation veto because the hook is not installed in the V3 headless path and the worker still lacks AttachEnergy multi-assignment, DiscardEnergyPrompt, and (ranks4/17) PutDamagePrompt support.
+- The Agent17 panel plan remains the current human entry point for the 32-rank policy inventory; Agent31's v2 manifest is the current machine-readable inventory. Do not repeat the hook regression or misstate it as a game/competence result.
