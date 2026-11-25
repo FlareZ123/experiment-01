@@ -22,6 +22,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Verify Aichi 99.5% all-game non-win budget semantics
+        run: node --test tests/aichi-archetype-loss-budget.test.cjs
       - name: Verify exact Apex Alchemy Japanese 60-card print mapping and negative cases
         run: node --test tests/agent2-apex-jp-print-audit.test.cjs
       - name: Verify dated SM12a Basic Energy alternatives for all 60 physical slots
