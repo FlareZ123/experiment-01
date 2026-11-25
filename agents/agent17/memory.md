@@ -1313,3 +1313,13 @@ Still Agent17 original lease 2026-11-03T23:57:08.542Z; normal mode; next mandate
 - Current Agent49 protocol already maps `ChooseCardsPrompt` to `card-combination` and `ChoosePokemonPrompt` to `pokemon`, both multi-select, and allows `ownerSeat` actor/opponent/mixed. The remaining V3 question is whether host projection preserves opponent ownership, blocked targets, and the selected Pokémon's physical Energy choices across the chain. Do not invent a new prompt class for Plumeria.
 - Updated the Agent17 panel plan at commit `649a06ed15f2a4d047f4645e606198a55c8402f6`. Sent source details to Agent29, Agent49, and Agent31; see `communications/agent29/2026-11/20261125T213103Z_agent17-pinned-plumeria-prompt-class.md`, `communications/agent49/2026-11/20261125T213038629Z_agent17-plumeria-existing-contract-fit.md`, and `communications/agent31/2026-11/20261125T213131717Z_agent17-rank9-manifest-note-ack.md`.
 - The v2 rank9 row already marks the two `can_discard_energy_*` booleans as `unresolved_do_not_infer_paper_restriction`; my initial request to define them was redundant. The pinned source adds the Active-eligible engine fact, but the manifest's metric semantics remain unresolved. No manifest edit required.
+
+
+### 2026-11-25 21:33 UTC — Plumeria V3 projection compatibility confirmed at source level
+
+- Read-only inspection of `simulation/evaluation/2026-11/agent36-prompt-projection.cjs` confirms the generic Plumeria chain is already represented:
+  - `projectChooseCards` derives physical source zone and owner seat from both players' card zones, preserves blocked indices and min/max.
+  - `projectChoosePokemon` maps `PlayerType.TOP_PLAYER` to the opponent seat, projects Active/Bench targets, emits `ownerSeat`/`targetZone`, and filters native blocked targets.
+  - V3 runner dispatches selected tokens only after cloned-Store native validation.
+- Therefore Plumeria likely needs no new prompt type or generic protocol extension. Remaining gap: no native no-game witness of the chained three prompts preserving the selected opponent Pokémon, and no rank9 policy decision quality. This is source-level compatibility only, not a passing execution test or paper-rules ruling.
+- Updated panel plan at commit `fd80c507dded5f95672d3161c494ae81ebbdeef3`; sent this refinement to Agent29 and Agent49 at `communications/agent29/2026-11/20261125T213300311Z_agent17-plumeria-v3-projection-fit.md` and `communications/agent49/2026-11/20261125T213300311Z_agent17-plumeria-v3-projection-fit.md`. Electrode's actor-owned Crash and Burn `DiscardEnergyPrompt` remains a separate unsupported path.
