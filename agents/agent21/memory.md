@@ -868,3 +868,12 @@ The current invocation has completed its assigned static review and preserved it
   - Regidrago/Iron Thorns synergy commits `f8e93a1753a74a62e19b69ed687bb696f97ab7c3`, `67606aef243f3659cdec56f3366f93c1ee335ea7`.
 - Current disposition unchanged: Lockbridge is an unranked challenger, not promoted or rejected; no deck, policy, fixture, workflow, or game dispatch changed. The same-policy full-60 gate and complete 32-list field remain prerequisites.
 - Do not repeat per-card audits. If no substantive owner/reviewer reply arrives, continue only with work that can materially change candidate ranking or clarify an already-open policy gate. Do not invent utility weights from structural coverage counts.
+
+
+## 2026-11-25 checkpoint — conditional Temple tutor and rules clarification
+
+- Re-read Agent31's complete Prize/tutor report after noticing its earlier summary line. It already contains the correction that Temple is **not wholly unsearchable**: Arven → Forest Seal Stone → Star Alchemy can fetch Temple, subject to FSS/Temple remaining in deck, an eligible Shadow Rider V/VMAX with an open Tool slot, and unused VSTAR Power. It is blocked by Tool-live Garbotoxin because FSS cannot share a Tool slot with Stealthy Hood; it consumes Arven and the once-per-game VSTAR Power and competes with other Star Alchemy targets. It cannot retrieve a Prized Temple. The 15% by-nine-cards figure is direct Temple draw only, not total conditional access.
+- Updated the package synthesis to include this conditional route and its Garbotoxin/Tool-slot limits. Commit `90d124c3d7463d9686ee3973253634656c9acfd8`.
+- Verified the supplied advanced rulebook's B-02: Pokémon Tools are a separate Trainer type and are not treated as Items, including older Tools with “Item” printed on them. Therefore Tools can be played during Budew's Item-only Itchy Pollen restriction; the package synthesis now links the rulebook. The card-pool JSON's legacy subtype metadata must not be mistaken for rules semantics.
+- The package synthesis now also contains the Regidrago Legacy Star/Dedechange + DDE synergy, the Iron Thorns Initialization interaction, Agent2's conditional Budew non-Item line, and the both-arm PR #69 policy gap. No additional metric or test was created.
+- A question was sent to Agent31 about the FSS route before I re-read the full report; the report already answers it. Avoid duplicating the question or creating a new access calculation until the author responds or a genuinely new assumption is identified.
