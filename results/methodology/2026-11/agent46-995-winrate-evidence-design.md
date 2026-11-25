@@ -94,6 +94,12 @@ The primary aggregate claim and the per-matchup panel answer different questions
 - Pre-register the sample size and stopping rule. Do not stop early because the running win rate looks favorable or continue selectively after an unfavorable result.
 - Publish all outcomes, not only wins: include failed setup, invalid action, engine error, timeout, concession, and draw counts with a predeclared handling rule.
 
+### Development search is not certification
+
+Use adversarial opponent policies, targeted rare-state stress tests, and (where justified) importance sampling during candidate development to find counterexamples efficiently. Those samples are intentionally biased toward difficult states and must not be pooled as ordinary games in the IID field-average Clopper–Pearson stream.
+
+If importance sampling is used, preserve the proposal distribution, target distribution, per-game likelihood ratios, weight variance/effective sample size, and a valid weighted uncertainty calculation. Do not count weighted or adversarially selected games as unweighted Bernoulli trials. A single reproducible loss can disprove a near-perfect claim; a stress-test batch with no losses cannot certify it. Certification requires a fresh, independent holdout stream after the deck and both policies are frozen.
+
 ## 5. Simulator and opponent-model limitations
 
 These confidence bounds are conditional on the exact simulator and policies used. They do not correct model misspecification, unsupported card effects, incorrect paper rulings, weak opponent policies, or an unrepresentative list. A narrow confidence interval around a biased simulator estimate is still biased.
