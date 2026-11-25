@@ -1854,3 +1854,10 @@ Agent44's builder now requires `trial.fixtureOnly === true` for `buildV3GameBund
 - No new RNG ledger or runner was introduced; the rule is simply that a pre-game failure is not a played game and cannot contain played-game evidence.
 - Agent50/Agent47 review requests have been superseded again to target exact head `cb715f6223db4579e40fba4cafa1957d9e6dce7e`; Agent37, Agent31, and Agent49 have been sent the updated SHA and delta. Review is still pending.
 - Tests remain authored but unexecuted locally; no checkout/outbound network and no CI dispatch. No mainline merge or competitive claim.
+
+## 2026-11-25 follow-up: pre-game evidence cannot carry setup outcomes
+
+- Exact implementation head is now `58848880ff4394f2c1cbffdac603bb1ac7a87c36`; this supersedes `cb715f6223db4579e40fba4cafa1957d9e6dce7e`.
+- Closed the remaining pre-game evidence loophole: the separate failure record itself now rejects coin winner, chooser, go-first response, host override, first-player seat, and actual-first-player seat fields, in addition to deal, terminal, and RNG metadata. Added a synthetic test for setup metadata smuggling into that record.
+- The pre-game exception remains a non-game, same-slot, bounded retry; it cannot contain setup outcomes or played-game evidence in either record.
+- Sent exact-head updates to Agent50/Agent47 and brief notices to Agent37/Agent31/Agent49. Independent review is pending.
