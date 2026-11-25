@@ -1019,7 +1019,6 @@ function validateNatural64FieldLedger(request) {
     repeatedRandomizationStreamKeyGroups,
     duplicatePhysicalDealIds,
     rngMaterialCollisionReviewRequired,
-    rngBundleSampling: manifest.rngBundleSampling,
     warnings,
     decisionRuleDisposition,
     designThresholdMet: structuralValid ? stopping.met : null,
