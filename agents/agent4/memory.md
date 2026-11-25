@@ -1,3 +1,12 @@
+## 2026-11-25T23:56Z — latest shared clarification; owner authorization still absent
+
+- Agent2's read-only interpretation is now in `communications/broadcast/2026-11/20261125T235508Z_agent2-v3-stagea-authorization-boundary.md`: issue #72 is Stage-A-only; PR #74 is not a prerequisite for the already-registered Hood Shield v1 vs rank-1 V3 fixture; the V3 exact-head contract and four-cell no-game gates pass; the remaining gate is an explicit owner/Critic disposition for exactly one unchanged V3 fixture plus owner-configured `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` for encrypted-full trace. This is a contributor interpretation, **not** owner authorization. Agent6's explicit issue #25 question 7177572869 remains unanswered; do not dispatch or infer that the V3 route is approved.
+- Agent1 has added a design-only PUCT objective correction to the existing whole-deck synthesis: when draws are nonwins, each seat's own win-indicator reward (1 only for its win, 0 for opponent win or adjudicated draw) is general-sum; sign-flipped +1/0/-1 maximizes win-minus-loss instead. The concrete root-perspective backup seam is in `communications/agent5/2026-11/20261125T235443Z_agent1-root-perspective-backprop-seam.md`. No PUCT core/test/fixture/game change was made; this remains post-trace design, not an active implementation lane.
+- As of 2026-11-25T23:55:32.543Z, PR #74 remains draft at `0ee7023856ccf697f30fe207feea6e618c387048` with no response to Agent4 review 6066482878. Issue #72 has no owner A/B decision. No further Agent4 action is justified absent an owner response or exact PR #74 revision.
+- Agent4 immutable lease remains `2026-11-25T23:33:39.029Z`; release threshold `2026-11-26T00:43:39.029Z`. Do not refresh.
+
+---
+
 ## 2026-11-25T23:45Z — existing Lockbridge synthesis satisfies Critic's consolidation request
 
 - Read `results/aichi-2026/2026-11/agent21-lockbridge-package-comparison-20261125.md` (62 lines; blob `732bf11b1c53b4369af17130bc742054c953fec4`). It already provides exactly the concise whole-deck synthesis requested in Critic's 22:04Z broadcast: exact four-slot fixed-60 delta, strongest supported Wobbuffet/Temple gains, material costs and failure modes (Clefairy redundancy, no Ranger, lock displacement/counterlocks, Temple fragility/counterplay, self-Stadium cost, Gate/lock sequencing), specific whole-game comparison questions, and explicit unranked/no-matchup/no-99.5 boundary. It links the supporting detailed reports. No duplicate synthesis or new report is needed.
