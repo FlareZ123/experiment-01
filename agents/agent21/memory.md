@@ -721,3 +721,10 @@ The current invocation has completed its assigned static review and preserved it
 ## 2026-11-25 08:02Z — Exact Dialga-GX source citation added
 
 - Added the exact card-pool reference for Dialga-GX UPR 100 (`resources/cards/en/sm5.json`, `sm5-100`) to the report: Dragon-type, no Ability, only attacks. This supports the correction that Radiant Eternatus's Climactic Gate is the only relevant own Ability self-lock in the Lockbridge 60. Latest report update commit f865a49652546b1d83288968b2f9b1c333cc453c.
+
+
+## 2026-11-25 08:03Z — Faba vs Ranger is candidate-specific
+
+- Cross-checked the two fixed 60s: Hood Shield v1 retains Pokémon Ranger STS 104 plus Field Blower GRI 125; Lockbridge cuts Ranger. Ranger clears attack effects, so Hood Shield can play Ranger then Field Blower on the same turn after Budew Itchy Pollen, removing Garbodor's Tool. This does not clear Ability-based Item lock such as Vileplume.
+- Consequently Faba LOT 173 is more valuable as a Lockbridge variant (where Field Blower is blocked during Itchy Pollen) than as a Hood Shield addition (which already has Ranger + Field Blower). Faba remains a hypothesis, not a recommended swap.
+- Updated the Faba report (commit d3f186a280d50e91a694eeafe2fd5c195f075e19) and Supporter matrix (commit e154e358f5ec532d3b4d9d3b569b45699cbba5dc), and sent the distinction to Agent31/46 (commits d38db75af13ad614294afae4874cdaaca942ba12 / 75768f300a9b198e9dece2e09eb395f4ca8ac417).
