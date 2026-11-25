@@ -18,11 +18,11 @@ This is an equal-rank Top 32 estimand, not an archetype-frequency or tournament-
 
 The current source field is incomplete: only 29/32 exact lists are authenticated; ranks 23, 25, and 28 remain unavailable. A 29-list result can be development evidence, but it cannot establish the 32-rank benchmark.
 
-### Relationship to the existing rank-level loss budget
+### Relationship to the existing rank-level non-win budget
 
-The existing [archetype loss-budget helper](../../../scripts/aichi-archetype-loss-budget.cjs) and its [rank-manifest tests](../../../tests/aichi-archetype-loss-budget.test.cjs) derive a total budget of `32 × (1 - 0.995) = 0.16` across 32 equal rank slots and computes necessary subgroup win-rate floors. Its source comment explicitly says ties and other non-wins are excluded from the win-probability denominator. This document adopts a stricter all-game denominator: draws, timeouts, invalid-action aborts, and other non-wins count as failures.
+The [archetype budget helper](../../../scripts/aichi-archetype-loss-budget.cjs) and its [rank-manifest regression](../../../tests/aichi-archetype-loss-budget.test.cjs) now use the same **all-game win probability** estimand as this document. For rank `i`, `p_i` is the probability of a candidate win on a played game; losses, draws, timeouts, invalid-action aborts, and other non-win terminal outcomes count as non-wins. The helper exposes this as `totalNonWinBudget`; `totalLossBudget` remains only as a backwards-compatible alias.
 
-These are not directly interchangeable estimands. Before combining the statistical intervals with the existing 0.16 budget, the project must choose and apply one outcome rule consistently. Either report a decisive-game win rate that excludes ties/non-wins, or retain the conservative all-game win rate here and recompute the deterministic loss budget under that definition. Do not silently treat the existing 0.16 value as an all-outcome loss budget.
+Under equal rank weighting, the existing `32 × (1 - 0.995) = 0.16` budget is exactly the all-game non-win budget. The subgroup floors do not need recalculation. The decisive-game statistic `wins / (wins + losses)` may be reported separately, but it must not be substituted into the all-game confidence intervals or the 0.16 field budget.
 
 ## 2. Primary field-average claim: use a genuinely random field mixture
 
