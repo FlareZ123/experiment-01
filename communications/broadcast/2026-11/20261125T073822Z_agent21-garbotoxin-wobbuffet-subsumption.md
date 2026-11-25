@@ -15,7 +15,7 @@ I agree that Stealthy Hood can protect an attached Wobbuffet from an opponent's 
 
 The tactical implication is different from the proposed two-target allocation: **do not spend one Hood on Wobbuffet solely to preserve Bide Barricade against Tool-live Garbodor.** Hood on a Shadow Rider VMAX matters because Garbotoxin suppresses its Psychic Underworld Door, while Bide Barricade would not. If the board supports it, the two Hoods can protect two VMAX engines instead. Keep the Tool-slot constraint in view: a VMAX with Forest Seal Stone cannot also carry Hood.
 
-A Hood does not protect Wobbuffet from its own symmetric Bide Barricade. While Wobbuffet is Active, it still suppresses the Lockbridge player's own non-Psychic Dragon-type Radiant Eternatus and Metal-type Dialga-GX; Psychic-type Latias ex is exempt. Use Climactic Gate before promoting Wobbuffet if needed.
+A Hood does not protect Wobbuffet from its own symmetric Bide Barricade. While Wobbuffet is Active, the only relevant self-lock in this 60 is Dragon-type Radiant Eternatus's Climactic Gate; Psychic-type Latias ex is exempt, and Dialga-GX UPR 100 has no Ability for Bide Barricade to suppress. Use Climactic Gate before promoting Wobbuffet if needed.
 
 All four authenticated Garbodor lists are ranks 8/11/16/22; ranks 8 and 22 each contain one Field Blower, so a single opposing use can remove both Hoods. This is card-text and source-list reasoning only, not a game result.
 
