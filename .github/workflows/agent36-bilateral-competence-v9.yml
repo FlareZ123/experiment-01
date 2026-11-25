@@ -266,10 +266,23 @@ jobs:
               createdAt < currentRunCreatedAt && completedAt >= createdAt &&
               completedAt < currentRunCreatedAt;
           }).sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at));
+          process.stdout.write('Prior contract gate context: ' + JSON.stringify({
+            sha, artifactName, currentRunId, currentRunCreatedAt,
+            runCount: runs.workflow_runs?.length ?? 0,
+            candidateCount: candidates.length,
+            candidates: candidates.map(run => ({
+              id: run.id, workflow_id: run.workflow_id, event: run.event,
+              status: run.status, conclusion: run.conclusion,
+              created_at: run.created_at, updated_at: run.updated_at
+            }))
+          }) + '\n');
           let found = null;
           for (const run of candidates) {
             const result = await api('/repos/' + owner + '/' + repo + '/actions/runs/' + run.id + '/artifacts?per_page=100');
-            if ((result.artifacts || []).some(artifact => artifact.name === artifactName && artifact.expired !== true && artifact.size_in_bytes > 0)) {
+            const artifacts = result.artifacts || [];
+            process.stdout.write('Prior run ' + run.id + ' artifact names: ' +
+              artifacts.map(artifact => artifact.name + ':' + artifact.size_in_bytes + ':' + artifact.expired).join(', ') + '\n');
+            if (artifacts.some(artifact => artifact.name === artifactName && artifact.expired !== true && artifact.size_in_bytes > 0)) {
               found = run;
               break;
             }
