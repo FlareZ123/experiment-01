@@ -763,13 +763,6 @@ function findRepeatedRandomizationStreamKeyGroups(attempts) {
     }));
 }
 
-function validateRandomizationStreamKeyUniqueness(attempts, _problems) {
-  // Six v2 stream keys are independently sampled with replacement per attempt.
-  // A cross-attempt duplicate is an astronomically rare collision/reuse anomaly,
-  // not proof of intentional replay. Preserve the sample and require audit.
-  return findRepeatedRandomizationStreamKeyGroups(attempts);
-}
-
 function findRepeatedRandomizationMaterialGroups(attempts) {
   const byCommitment = new Map();
   for (const attempt of attempts) {
@@ -782,13 +775,6 @@ function findRepeatedRandomizationMaterialGroups(attempts) {
   return [...byCommitment.entries()]
     .filter(([, ids]) => ids.length > 1)
     .map(([commitment, attemptIds]) => ({commitment, attemptIds}));
-}
-
-function validateRandomizationUniqueness(attempts, _problems) {
-  // Full six-stream bundles are also sampled with replacement. Commitment
-  // equality cannot distinguish an accidental collision from intentional reuse.
-  // Preserve every attempt and surface duplicate bundles for manual audit.
-  return findRepeatedRandomizationMaterialGroups(attempts);
 }
 
 
@@ -954,9 +940,9 @@ function validateNatural64FieldLedger(request) {
   validatePolicyPanel(request, playedAttempts, manifest, problems);
   const stopping = evaluateStoppingRule(attempts, playedAttempts, manifest, problems);
   const repeatedRandomizationMaterialGroups =
-    validateRandomizationUniqueness(playedAttempts, problems);
+    findRepeatedRandomizationMaterialGroups(playedAttempts);
   const repeatedRandomizationStreamKeyGroups =
-    validateRandomizationStreamKeyUniqueness(playedAttempts, problems);
+    findRepeatedRandomizationStreamKeyGroups(playedAttempts);
   const rngMaterialCollisionReviewRequired =
     repeatedRandomizationMaterialGroups.length > 0 ||
     repeatedRandomizationStreamKeyGroups.length > 0;
@@ -1052,9 +1038,7 @@ module.exports = {
   validateNatural64SlotAttempts: validateSlotAttempts,
   evaluateNatural64StoppingRule: evaluateStoppingRule,
   findRepeatedRandomizationMaterialGroups,
-  validateRandomizationUniqueness,
   findRepeatedRandomizationStreamKeyGroups,
-  validateRandomizationStreamKeyUniqueness,
   validatePhysicalDealUniqueness,
   validateAdjudicationProtocol,
   PRE_GAME_FAILURE_EVIDENCE_SCHEMA,

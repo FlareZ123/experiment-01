@@ -7,9 +7,7 @@ const {
   validateNatural64SlotAttempts,
   evaluateNatural64StoppingRule,
   findRepeatedRandomizationMaterialGroups,
-  validateRandomizationUniqueness,
   findRepeatedRandomizationStreamKeyGroups,
-  validateRandomizationStreamKeyUniqueness,
   validatePhysicalDealUniqueness,
   validateAdjudicationProtocol,
   PRE_GAME_FAILURE_EVIDENCE_SCHEMA,
@@ -171,7 +169,7 @@ test('third nonwin must be the final raw execution, including no pre-game retry 
   assert.ok(problems.has('futility-stop-not-immediate'));
 });
 
-test('repeated exact RNG material is identified for structural rejection', () => {
+test('repeated exact RNG material is identified for audit, not structural rejection', () => {
   const attempts = [
     {attemptId:'a1',rngMaterialCommitment:hash('a')},
     {attemptId:'a2',rngMaterialCommitment:hash('a')},
@@ -184,23 +182,19 @@ test('repeated exact RNG material is identified for structural rejection', () =>
 });
 
 
-test('duplicate exact RNG material is preserved and flagged for audit; seed labels are irrelevant', () => {
+test('duplicate exact RNG material is preserved and identified as a collision; seed labels are irrelevant', () => {
   const commitment = hash('a');
-  const problems = new Set();
-  const groups = validateRandomizationUniqueness([
+  const groups = findRepeatedRandomizationMaterialGroups([
     {attemptId:'a1',seed:'same-label',rngMaterialCommitment:commitment},
     {attemptId:'a2',seed:'same-label',rngMaterialCommitment:commitment}
-  ],problems);
+  ]);
   assert.equal(groups.length,1);
   assert.deepEqual(groups[0].attemptIds,['a1','a2']);
-  assert.equal(problems.size,0);
-  const independent = new Set();
-  const distinct = validateRandomizationUniqueness([
+  const distinct = findRepeatedRandomizationMaterialGroups([
     {attemptId:'b1',seed:'same-label',rngMaterialCommitment:hash('b')},
     {attemptId:'b2',seed:'same-label',rngMaterialCommitment:hash('c')}
-  ],independent);
+  ]);
   assert.equal(distinct.length,0);
-  assert.equal(independent.size,0);
 });
 
 test('pre-game failure evidence must bind the preregistered abort criteria digest', () => {
@@ -272,6 +266,8 @@ function makePublicEntryFixture() {
       {ruleId:'opponent-forfeit',reason:'opponent-forfeit',terminalClass:'opponent-forfeit',
         allowedResults:['candidate-win'],clockMode:'clock-free-game-win'},
       {ruleId:'opponent-concession',reason:'opponent-concession',terminalClass:'opponent-concession',
+        allowedResults:['candidate-win'],clockMode:'clock-free-game-win'},
+      {ruleId:'opponent-timeout',reason:'opponent-timeout',terminalClass:'opponent-timeout',
         allowedResults:['candidate-win'],clockMode:'clock-free-game-win'},
       {ruleId:'candidate-forfeit',reason:'candidate-forfeit',terminalClass:'candidate-forfeit',
         allowedResults:['candidate-loss'],clockMode:'clock-free-game-win'},
@@ -653,7 +649,7 @@ test('public natural64 validator rejects a terminal receipt whose statistical st
 
 
 test('opponent forfeit and concession are candidate wins', () => {
-  for (const ruleId of ['opponent-forfeit', 'opponent-concession']) {
+  for (const ruleId of ['opponent-forfeit', 'opponent-concession', 'opponent-timeout']) {
     const request = setPublicOutcome(makePublicEntryFixture(), ruleId);
     const result = validateNatural64FieldLedger(request);
     assert.equal(result.status, 'INCOMPLETE', ruleId);
@@ -736,14 +732,12 @@ test('reusing one stream key across games is flagged, not rejected, under with-r
   });
   const first = makeMaterial(['1','2','3','4','5','6'].map(hash));
   const second = makeMaterial(['7','8','3','9','a','b'].map(hash));
-  const problems = new Set();
-  const groups = validateRandomizationStreamKeyUniqueness([
+  const groups = findRepeatedRandomizationStreamKeyGroups([
     {attemptId: 'a1', rngMaterial: first},
     {attemptId: 'a2', rngMaterial: second}
-  ], problems);
+  ]);
   assert.equal(groups.length, 1);
   assert.deepEqual(groups[0].attemptIds, ['a1', 'a2']);
-  assert.equal(problems.size, 0);
   assert.notEqual(randomMaterialCommitment(first), randomMaterialCommitment(second));
 });
 

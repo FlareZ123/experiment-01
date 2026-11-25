@@ -9,15 +9,15 @@ This branch carries the bounded natural-64 structural-admission correction assig
 ## Corrections
 
 - Treat `paper-qualified-no-winner` as a completed played terminal and a nonwin. It is neither a tie nor a candidate loss; its candidate result and statistical status remain null.
-- Restrict terminal classes and reasons to a fixed result vocabulary: opponent forfeit/concession → candidate win; candidate forfeit, illegal action, or timeout → candidate loss; draw → genuine tie; no-winner/ambiguous played terminal → null-result nonwin; engine winner and Top32 prize tiebreaker → candidate win/loss.
+- Restrict terminal classes and reasons to a fixed result vocabulary: opponent forfeit/concession/timeout → candidate win; candidate forfeit, illegal action, or timeout → candidate loss; draw → genuine tie; no-winner/ambiguous played terminal → null-result nonwin; engine winner and Top32 prize tiebreaker → candidate win/loss.
 - Require an explicit clock mode on every protocol rule. A Top32 prize-tiebreaker rule must use `aichi-top32-event-clock` and cannot admit tie/no-winner results.
 - Require separate, digest-bound pre-game failure evidence that binds the attempt, slot, abort criteria, engine/runner identities, and explicit no-start/no-terminal state; pre-game attempts cannot carry setup, terminal, or RNG evidence. Such attempts remain outside the played denominator and may retry only within the registered slot budget.
-- Reject repeated physical-deal IDs. The six-stream v2 bundle is explicitly sampled with replacement: repeated complete commitments or individual stream keys are preserved and surfaced as high-severity audit warnings, never silently redrawn or treated as proof of intentional reuse. Unknown terminal classes and class/reason mismatches are rejected without unsafe property lookups. Repeated 32-bit schedule labels remain irrelevant to v2 entropy.
+- Reject repeated physical-deal IDs. The six-stream v2 bundle is explicitly sampled with replacement: repeated complete commitments or individual stream keys are preserved and surfaced as high-severity audit warnings, never silently redrawn or treated as proof of intentional reuse. Unknown terminal classes and class/reason mismatches are rejected without unsafe property lookups. Repeated `trial.seed` labels remain irrelevant to v2 entropy.
 - Preserve explicit structural-only and non-authentication labels. Hashes do not authenticate the runner, adjudicator, source producer, host entropy, or paper shuffle.
 
 ## Tests authored
 
-The test additions cover the terminal-result matrix, no-winner denominator behavior, Top32 clock/result constraints, pre-game retry/evidence, receipt and engine-terminal mismatch, unknown protocol rule IDs, natural-64 roster defects, duplicate deal IDs, and partial RNG stream-key replay.
+The test additions cover the terminal-result matrix, no-winner denominator behavior, Top32 clock/result constraints, pre-game retry/evidence, receipt and engine-terminal mismatch, unknown protocol rule IDs, natural-64 roster defects, duplicate deal IDs, and partial RNG stream-key collision.
 
 ## Evidence limits
 

@@ -313,6 +313,13 @@ test('opponent forfeits/concessions are wins; candidate forfeits, illegal action
   });
   assert.equal(validate(opponentConcession).valid, true);
 
+  const opponentTimeout = fixture({
+    result: 'candidate-win',
+    terminalClass: 'opponent-timeout',
+    reason: 'opponent-timeout'
+  });
+  assert.equal(validate(opponentTimeout).valid, true);
+
   for (const [terminalClass, reason] of [
     ['candidate-forfeit', 'candidate-forfeit'],
     ['candidate-illegal-action', 'candidate-illegal-action'],
