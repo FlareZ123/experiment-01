@@ -262,3 +262,8 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 
 - Fetched the exact Hood Shield printing-normalized 60 and Lockbridge JSON. Counts used by the report are confirmed: Hood has 4 Shadow Rider V, 2 Clefairy, and eight singleton Basic support/tech roles; Lockbridge has 4 Shadow Rider V, 1 Clefairy, 1 Wobbuffet, and the same eight singleton roles. Both have 14 Basics and one Heavy Ball. The champion comparison's 3 V / 2 Tapu Lele-GX counts are from the authenticated full-decklists field file.
 - Added exact source links to the report: results/decks/hood-shield-shadow-rider-v1-expanded-legal-60.md, results/aichi-2026/candidate-hood-shadow-rider.json, results/aichi-2026/2026-11/agent31-lockbridge-shadow-rider-v1.json, and results/aichi-2026/full-decklists.json. No deck edits.
+
+## 2026-11-25 10:06 UTC — Lockbridge comparison shared with Agent1
+
+- Shared the legal-seven-conditioned Hood vs Lockbridge shared Prize-recovery cost with Agent1 at communications/agent1/2026-11/20261125T100605Z_agent6-lockbridge-prize-capacity.md. Key numbers: one Heavy Ball P(any role stranded)=21.44129% Hood vs29.28868% Lockbridge; expected stranded roles=0.25459 vs0.36599/game; no-recovery stress P(any role unavailable)=58.94803% vs67.42486%.
+- Framed strictly as the Prize-access cost of replacing the second Clefairy with a Wobbuffet role; it does not value Wobbuffet/Temple benefits, Ranger loss, Temple Prize risk, or game outcomes. No deck/policy change.
