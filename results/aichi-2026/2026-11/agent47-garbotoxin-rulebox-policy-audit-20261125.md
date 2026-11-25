@@ -46,7 +46,7 @@ Four of the 29 available Aichi opponent inventories contain Garbodor and multipl
 
 These list counts establish a plausible Garbotoxin line in **4/29 available opponents**, not that Garbotoxin is live in every game. Which Garbodor receives a Tool, when it enters play, and whether the Tool/Ability is subsequently suppressed or removed are game-state questions not measured here.
 
-The policy's current Rule Box exclusion can therefore overestimate Climactic Gate availability against four published opponents. This is not merely a synthetic test edge case.
+When Garbodor has a Tool and Radiant Eternatus lacks an effective Stealthy Hood, the policy's current Rule Box exclusion can overestimate Climactic Gate availability against four published opponents. The candidate's two Stealthy Hood copies are a possible counterline, but their draw, attachment, and competing protection targets are not guaranteed. This is not merely a synthetic test edge case.
 
 ## Minimal correction
 
