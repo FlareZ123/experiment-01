@@ -1532,3 +1532,19 @@ Agent2's independent review of exact tested head `3bfd7aca` remains pending. Age
 - Verified the four Garbodor lists' VS Seeker counts from the exact 29-list JSON: rank 8 = 3, rank 11 = 1, rank 16 = 3, rank 22 = 3. Corrected the Agent11 report's rank-11 table cell (was erroneously 3).
 - Klefki branch remains separate: ranks 4/17 each have one Klefki and three Escape Rope; Hood Wobbuffet + Hood Latias can preserve Bide Barricade/Skyliner, but Joust strips the Active Wobbuffet Hood and Escape Rope forces Wobbuffet off Active. Lockbridge has one Guzma plus two VS Seeker (up to three Guzma accesses), so lock uptime is a resource race. No deterministic or full-game evidence.
 - No code, tests, fixtures, games, or workflows changed. Broadcast scope request remains pending; do not implement the isolated contract tests until explicit authorization.
+
+## 2026-11-25T07:54Z — refined Garbodor Hood allocation: VMAX + Latias
+
+- Read Agent21's full Garbotoxin/Wobbuffet subsumption report. Its preferred two-Hood allocation against Tool-live Garbodor is **Shadow Rider VMAX + Latias ex**, not Wobbuffet + VMAX and not necessarily two VMAX:
+  - Hooded VMAX preserves Underworld Door from Garbotoxin.
+  - Hooded Latias preserves Skyliner; because Latias is Psychic, Wobbuffet's Bide Barricade does not suppress it. Skyliner gives Basic Wobbuffet free retreat to the powered VMAX.
+  - Wobbuffet's Bide Barricade is suppressed by Garbotoxin but redundant while Garbotoxin is active (B ⊆ G); it does not need Hood.
+  - If the pivot is not needed, a second VMAX or holding the second Hood in reserve are alternatives.
+- Updated Agent11 result and README to make VMAX + Latias the preferred two-Hood Garbodor allocation. Result latest blob `4d0b849afd5b7531d7dbbf92728254ae49166efe`; README latest blob `5e3fff257c21905cc91f2086e9a75a95715a1b5c` before later card-source-only refinement.
+- Verified exact supporting card sources:
+  - Budew ASC 16, `resources/cards/en/me2pt5.json`, blob `cc04bc2c7819fb642e8473ab6953f82e16366471`, card `me2pt5-16`: zero-cost Itchy Pollen prevents Items from hand during the opponent's next turn.
+  - Field Blower GRI 125, `resources/cards/en/sm2.json`, blob `0d2296a8c32fac6442c9b407653d30f8e9c3f0d6`, card `sm2-125`: discards up to two Tools/Stadiums in play from either side.
+  - Arven SVI 166, `resources/cards/en/sv1.json`, blob `9ec168ce0ea7bf03fe9f22dd7e447d1eb35c8678`, card `sv1-166`: searches one Item and one Pokémon Tool; only one Supporter per turn.
+  - Manual B-02/B-03 source blob `1e4ea46fc717e679c70c3747fb12d17352f266bc`: Tools are a separate Trainer type, including older Tools printed with “Item”; one Supporter per turn.
+- The Agent11 report now records exact VS Seeker counts for Garbodor ranks 8/11/16/22 as 3/1/3/3. Ranks 8/22 have one Field Blower each and three VS Seeker; if both Hoods are attached, Field Blower can discard both before Itchy Pollen. If one Hood is held/in-deck, it can be redeployed during Item lock (attach directly or Arven search); if both are discarded, no Tool recovery exists. Arven consumes Supporter quota and cannot be combined with Guzma.
+- Sent updated VMAX + Latias allocation messages to Agent31 and Agent46. No code/test/game changes. Wait for Critic/owner authorization before deterministic Lockbridge contract work.
