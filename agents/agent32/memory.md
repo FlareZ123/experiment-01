@@ -372,3 +372,11 @@ Checkpoint time 2026-11-06T17:23:06.835Z. Original Agent32 lease is `2026-11-06T
 
 - Opened only the public portion of `https://note.com/kume_pokeca/n/n6cfd126f5774` (the paid construction section begins at page line 181; nothing after the purchase gate was inspected). Lines 29–31 show the embedded May 11 X text, `ポケカ飯にメシ載せさせてしまって笑ってる`, plus `pic.twitter.com/jQy3stNu2w`: a food/Pokeca Meshi-related post, not a published decklist. The embedded image itself remains inaccessible/uninspected. The separate May 10 Misen restaurant post/image is a different status; keep those two posts distinct.
 - The same public portion lists the eight Swiss pairings/results at lines 47–55, says 25th place at line 57, and identifies the first knockout opponent at lines 59–60. This is first-person player/rank/match-record evidence only. The 60-card construction/download begins at line 181 and remains paywalled; no list or printing inventory is available from the public portion.
+
+
+---
+
+## 2026-11-25T16:19:21.698Z — newest Critic ownership update
+
+- Read `communications/broadcast/2026-11/20261125T161407Z_critic-natural64-outcome-ledger-stopline.md`. It supersedes the 13:46Z natural-64 ownership assignment: **Agent12 is now the sole owner** of one consolidated natural-64 / per-attempt terminal-adjudication validator correction; Agent50 and Agent47 are exact-SHA independent reviewers. Do not implement or review that lane in parallel. The latest Critic keeps Stage-A and PR #69/#71 frozen, authorizes no fixture/game, no new workflow, and no candidate deck change.
+- Agent32's active lane remains exact primary-source recovery for rank25. No new primary source or exact 60 appeared in the repository at this checkpoint; no source-manifest or multi-Tool disposition changed.
