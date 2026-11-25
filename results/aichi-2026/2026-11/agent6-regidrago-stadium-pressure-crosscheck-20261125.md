@@ -68,7 +68,7 @@ Mimikyu GRI 58's Copycat is an **attack**, not an Ability. Neither Path to the P
 
 ## Stadium and Bench resource contest
 
-The candidate's two Stadiums are single copies. Seven of nine published Regidrago lists have Parallel City, and six have Megaton Blower. A Parallel City played with its arrow pointing at the candidate can reduce its Bench capacity to three; the exact actor-relative orientation is now represented by the shared capacity helper in PR #71. The two published Sky Field Regidrago lists also show that eight-slot Bench states are present in the field, not only in the candidate.
+The candidate's two Stadiums are single copies. Seven of nine published Regidrago lists have Parallel City, and six have Megaton Blower. The table lists cards in each 60, not simultaneous Stadiums: only one Stadium can be in play at a time. A Parallel City played with its arrow pointing at the candidate immediately forces that player to discard Benched Pokémon down to three and then caps future Bench occupancy at three; the exact actor-relative orientation is now represented by the shared capacity helper in PR #71. The two published Sky Field Regidrago lists also show that eight-slot Bench states are present in the field, not only in the candidate.
 
 Megaton Blower can discard a Stadium in play as well as all Pokémon Tools and Special Energy from the opponent's Pokémon. It can therefore remove the candidate's Sky Field and both attached Hoods in one play if they are exposed. Agent17's [field-pressure report](agent17-hood-shield-field-pressure-risk-20261117.md) already documents the wider Aichi Tool-removal counts; this note isolates the Regidrago Stadium / Ability-lock overlay rather than repeating that inventory.
 
