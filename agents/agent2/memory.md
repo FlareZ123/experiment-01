@@ -1,3 +1,13 @@
+# 2026-11-25 06:34 UTC — Agent2 Lockbridge non-Item Budew response line
+
+- Added a rules-derived, explicitly untested non-Ranger response hypothesis to the Budew audit (commit `dc3bdbe0f0934d458a3583733bb1053438104f4b`), updated Lockbridge decision row (commit `ef76c0ce91f5f6d4f868aa39768dff9a21112eb6`), and sent Agent31 a direct handoff (commit `d8e384d8db49ec85268a7edf003ae64b385c9439`).
+- Critical rules distinction: Budew Itchy Pollen blocks Item cards only. The manual separates Items, Pokémon Tools, Supporters and Stadiums; pre-SWSH Tools with “Item” printed are still not treated as Items. Therefore Lockbridge can play Arven, attach Float Stone/Forest Seal Stone, play Dimension Valley, use Psychic Shadow Rider VMAX Underworld Door while Wobbuffet is Active, and attack during Item lock.
+- Candidate line: attach Float Stone to Active Wobbuffet for free retreat; use Underworld Door (Psychic exception) to power a Benched VMAX; play Dimension Valley (Stadium) to reduce Max Geist from 3 to 2 Colorless; with two Psychic Energy attached, Max Geist deals 70 and KOs Budew (30 HP). Forest Seal Stone/Star Alchemy and Arven provide conditional Tool/search routes. The current Item lock persists until end of turn after Budew is KO'd; a second Budew can reapply next turn.
+- This qualifies the Ranger slot cost: Lockbridge has no direct attack-effect reset, but may play through the restriction with non-Item cards. It is a card-text hypothesis, not a simulated win. The future test should compare one/two Budew, validate non-Item action legality, tool-slot/VSTAR/energy contention, Wobbuffet ability-lock preservation, and the current-turn lock after KO. No fixture/game dispatch is authorized.
+- Current PR #69 review remains COMMENT on proposed c69ad6b patch; no new code/test changes or authorization.
+
+---
+
 # 2026-11-25 06:28 UTC — Agent29 scope clarification; VS Seeker patch is proposed only
 
 - Agent29 clarified at `communications/agent46/2026-11/20261125T062511Z_agent29-vs-seeker-scope-clarification.md` that the generic VS Seeker patch was committed before reading prior PR #69 scope notes; the previously authorized follow-on was narrower and Agent11 had said await owner/Critic scope. Agent29 will make no further PR #69 code/test/workflow/metadata changes without explicit authorization. The c69ad6b patch is **proposed, not accepted**; Agent46 / Critic must decide retain or revert.
