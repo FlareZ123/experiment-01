@@ -27,7 +27,6 @@ const CLOCK_MODES = new Set([
   'aichi-top32-event-clock'
 ]);
 const DECISION_SCHEDULES = new Set(['two-look-1216-1280']);
-const NO_WINNER_DISPOSITIONS = new Set(['count-as-nonwin', 'invalidate-batch']);
 const PRE_GAME_FAILURE_CLASSES = new Set([
   'runner-launch-failure',
   'engine-startup-failure',
@@ -41,7 +40,7 @@ const RNG_HOOKS = Object.freeze([
   'Marnie SSH',
   'Iono PAL'
 ]);
-const MANIFEST_SCHEMA = 'aichi-natural64-field-registration-v2';
+const MANIFEST_SCHEMA = 'aichi-natural64-field-registration-v3';
 const RNG_RECEIPT_SCHEMA = 'aichi-natural64-rng-receipt-v1';
 const UNBIASED_SHUFFLE_METHOD = 'fisher-yates-bounded-rejection-v1';
 const SAMPLING_MODEL = 'balanced-natural-64-strata-v1';
@@ -111,9 +110,6 @@ function validateManifest(request, problems) {
       manifest.maxPreGameRetriesPerSlot > 2 ||
       !isSha(manifest.preGameFailureCriteriaSha256)) {
     add(problems, 'field-sampling-pregame-retry-policy-invalid');
-  }
-  if (!NO_WINNER_DISPOSITIONS.has(manifest.noWinnerDisposition)) {
-    add(problems, 'field-sampling-no-winner-disposition-invalid');
   }
   if (!CLOCK_MODES.has(manifest.clockMode)) {
     add(problems, 'adjudication-clock-mode-missing-or-invalid');
@@ -243,20 +239,31 @@ function validateSources(originalSources, manifest, policyPlanCore, problems) {
   return sourceByRank;
 }
 
-function validateNaturalStarter(attempt, problems) {
-  const coin = attempt.coinWinnerSeat;
-  const chooser = attempt.chooserSeat;
-  if (!SEATS.includes(coin) || !SEATS.includes(chooser) || chooser !== coin) {
+function validateNaturalStarter(attempt, setupEvidence, problems) {
+  const setup = setupEvidence?.receipt;
+  const coin = setup?.coin;
+  const choice = setup?.choice;
+  if (!setup || !coin || !choice) {
+    add(problems, 'natural-setup-coin-choice-evidence-missing');
+    return;
+  }
+  if (!SEATS.includes(coin.coinWinnerSeat) ||
+      !SEATS.includes(choice.choiceOwnerSeat) ||
+      choice.choiceOwnerSeat !== coin.coinWinnerSeat ||
+      typeof choice.choseFirst !== 'boolean') {
     add(problems, 'natural-coin-chooser-invalid');
     return;
   }
-  if (attempt.goFirstResponse !== 'yes' && attempt.goFirstResponse !== 'no') {
-    add(problems, 'natural-go-first-response-invalid');
-    return;
-  }
-  const expectedStarter = attempt.goFirstResponse === 'yes' ? chooser : 1 - chooser;
-  if (attempt.firstPlayerSeat !== expectedStarter ||
-      attempt.actualFirstPlayerSeat !== expectedStarter) {
+  const expectedStarter = choice.choseFirst
+    ? coin.coinWinnerSeat
+    : 1 - coin.coinWinnerSeat;
+  if (attempt.coinWinnerSeat !== coin.coinWinnerSeat ||
+      attempt.chooserSeat !== choice.choiceOwnerSeat ||
+      attempt.goFirstResponse !== (choice.choseFirst ? 'yes' : 'no') ||
+      attempt.firstPlayerSeat !== expectedStarter ||
+      attempt.actualFirstPlayerSeat !== expectedStarter ||
+      setup.firstSeatFromAcceptedSetup !== expectedStarter ||
+      setup.firstSeatFromVerifiedDraw !== expectedStarter) {
     add(problems, 'natural-first-player-mismatch');
   }
   if (attempt.hostOverride !== false) add(problems, 'host-first-player-override-present');
@@ -403,8 +410,8 @@ function validateSlotAttempts(attempts, slotRoster, manifest, problems) {
   };
 }
 
-function validateAdjudicationReceipt(attempt, manifest, runnerEvidence, adjudicationEvidence,
-  seen, problems) {
+function validateAdjudicationReceipt(attempt, manifest, runnerEvidence,
+  adjudicationEvidence, setupCoinChoiceEvidence, seen, problems) {
   const result = validateTerminalAdjudicationReceipt({
     attempt,
     expected: {
@@ -414,6 +421,10 @@ function validateAdjudicationReceipt(attempt, manifest, runnerEvidence, adjudica
       rank: attempt.rank,
       candidatePhysicalSeat: attempt.seat,
       actualStarterSeat: attempt.actualFirstPlayerSeat,
+      firstPlayerSeat: attempt.firstPlayerSeat,
+      coinWinnerSeat: attempt.coinWinnerSeat,
+      chooserSeat: attempt.chooserSeat,
+      goFirstResponse: attempt.goFirstResponse,
       physicalDealId: attempt.physicalDealId,
       source60Sha: attempt.source60Sha,
       candidate60Sha: attempt.candidate60Sha,
@@ -422,7 +433,6 @@ function validateAdjudicationReceipt(attempt, manifest, runnerEvidence, adjudica
       opponentPolicyBundleSha: attempt.opponentPolicyBundleSha,
       adjudicationProtocolSha256: manifest.adjudicationProtocolSha256,
       clockMode: manifest.clockMode,
-      noWinnerDisposition: manifest.noWinnerDisposition,
       rngMaterialCommitmentSha256: attempt.rngMaterialCommitment,
       enginePin: attempt.enginePin,
       runnerRevision: attempt.runnerRevision,
@@ -431,10 +441,12 @@ function validateAdjudicationReceipt(attempt, manifest, runnerEvidence, adjudica
     },
     runnerEvidence,
     adjudicationEvidence,
+    setupCoinChoiceEvidence,
     seenReceiptSha256: seen.receipts,
     seenTerminalEventSha256: seen.terminalEvents,
     seenRunnerEvidenceSha256: seen.runnerEvidence,
-    seenAdjudicationEvidenceSha256: seen.adjudicationEvidence
+    seenAdjudicationEvidenceSha256: seen.adjudicationEvidence,
+    seenSetupEvidenceSha256: seen.setupEvidence
   });
   for (const reason of result.rejectionReasons) add(problems, reason);
 }
@@ -625,6 +637,14 @@ function findRepeatedRandomizationMaterialGroups(attempts) {
     .map(([commitment, attemptIds]) => ({commitment, attemptIds}));
 }
 
+function validateRandomizationUniqueness(attempts, problems) {
+  const groups = findRepeatedRandomizationMaterialGroups(attempts);
+  if (groups.length > 0) {
+    add(problems, 'independent-rng-material-replayed-across-attempts');
+  }
+  return groups;
+}
+
 
 
 /**
@@ -633,7 +653,7 @@ function findRepeatedRandomizationMaterialGroups(attempts) {
  * is never quota-balanced. Pre-game failures are unqualified executions and
  * may retry only within the preregistered per-slot budget; exhausted slots
  * invalidate the batch. Sampling is with replacement, but repeated exact RNG
- * material blocks a design-threshold disposition pending independent audit.
+ * material invalidates structural admission. No-winner is a distinct nonwin.
  */
 function validateNatural64FieldLedger(request) {
   if (!request || !Array.isArray(request.originalSources) ||
@@ -691,11 +711,14 @@ function validateNatural64FieldLedger(request) {
     request.runnerTerminalEvidence, playedAttempts, 'runner-terminal', problems);
   const adjudicationEvidenceByAttemptId = indexEvidence(
     request.adjudicationEvidence, playedAttempts, 'adjudicator', problems);
+  const setupCoinChoiceEvidenceByAttemptId = indexEvidence(
+    request.setupCoinChoiceEvidence, playedAttempts, 'setup-coin-choice', problems);
   const seen = {
     receipts: new Set(),
     terminalEvents: new Set(),
     runnerEvidence: new Set(),
-    adjudicationEvidence: new Set()
+    adjudicationEvidence: new Set(),
+    setupEvidence: new Set()
   };
   const paperReceiptIds = new Set();
 
@@ -747,7 +770,8 @@ function validateNatural64FieldLedger(request) {
 
     if (attempt.status === 'pre-game-failure') continue;
 
-    validateNaturalStarter(attempt, problems);
+    validateNaturalStarter(attempt,
+      setupCoinChoiceEvidenceByAttemptId.get(attempt.attemptId), problems);
     if (!isText(attempt.paperReceiptId) || paperReceiptIds.has(attempt.paperReceiptId)) {
       add(problems, 'duplicate-or-missing-paper-receipt');
     } else {
@@ -758,6 +782,7 @@ function validateNatural64FieldLedger(request) {
       manifest,
       runnerEvidenceByAttemptId.get(attempt.attemptId),
       adjudicationEvidenceByAttemptId.get(attempt.attemptId),
+      setupCoinChoiceEvidenceByAttemptId.get(attempt.attemptId),
       seen,
       problems
     );
@@ -767,10 +792,10 @@ function validateNatural64FieldLedger(request) {
   validatePolicyPanel(request, playedAttempts, manifest, problems);
   const stopping = evaluateStoppingRule(attempts, playedAttempts, manifest, problems);
   const repeatedRandomizationMaterialGroups =
-    findRepeatedRandomizationMaterialGroups(playedAttempts);
-  const randomizationReviewRequired = repeatedRandomizationMaterialGroups.length > 0;
-  const warnings = randomizationReviewRequired
-    ? ['repeated-rng-material-commitment-blocks-design-threshold-pending-independent-audit']
+    validateRandomizationUniqueness(playedAttempts, problems);
+  const rngMaterialReplayDetected = repeatedRandomizationMaterialGroups.length > 0;
+  const warnings = rngMaterialReplayDetected
+    ? ['cross-trial-rng-material-replay-rejected']
     : [];
   const rejectionReasons = [...problems].sort();
   const structuralValid = rejectionReasons.length === 0;
@@ -797,8 +822,8 @@ function validateNatural64FieldLedger(request) {
   const noWinnerTerminalCount = stopping.counts.noWinners;
   const nonWinCount = lossCount + tieCount + noWinnerTerminalCount;
   const playedGameCount = playedAttempts.length;
-  const decisionRuleDisposition = randomizationReviewRequired
-    ? 'RNG_REUSE_REVIEW_REQUIRED'
+  const decisionRuleDisposition = rngMaterialReplayDetected
+    ? 'INVALID_RNG_MATERIAL_REPLAY'
     : stopping.disposition;
 
   return {
@@ -824,22 +849,23 @@ function validateNatural64FieldLedger(request) {
       playedGameCount === REGISTERED_SLOTS ? 20 : null,
     rankSummary,
     repeatedRandomizationMaterialGroups,
-    randomizationReviewRequired,
+    rngMaterialReplayDetected,
     warnings,
     decisionRuleDisposition,
-    designThresholdMet: structuralValid && !randomizationReviewRequired
-      ? stopping.met
-      : null,
+    designThresholdMet: structuralValid ? stopping.met : null,
     samplingModelRegistrationValid: registrationValid && structuralValid,
     clockMode: manifest.clockMode,
     adjudicationProtocolSha256: manifest.adjudicationProtocolSha256,
-    noWinnerDisposition: manifest.noWinnerDisposition,
     randomizationProtocol: manifest.randomizationProtocol,
     unbiasedShuffleMethod: manifest.unbiasedShuffleMethod,
     structuralAdmissionOnly: true,
     sourceAuthenticityProven: false,
     policyCompetenceProven: false,
     rngIntegrationProven: false,
+    rngPreGameCustodyProven: false,
+    externalRngIndependenceProven: false,
+    paperShuffleFairnessProven: false,
+    nativeSetupReceiptAuthenticated: false,
     runnerTerminalEvidenceAuthenticated: false,
     paperAdjudicatorSignatureVerified: false,
     externalQualificationRequired: true,
@@ -855,6 +881,7 @@ module.exports = {
   validateNatural64SlotAttempts: validateSlotAttempts,
   evaluateNatural64StoppingRule: evaluateStoppingRule,
   findRepeatedRandomizationMaterialGroups,
+  validateRandomizationUniqueness,
   NATURAL64_DECISION_SCHEDULES: DECISION_SCHEDULES,
   NATURAL64_MANIFEST_SCHEMA: MANIFEST_SCHEMA,
   NATURAL64_SAMPLING_MODEL: SAMPLING_MODEL,
