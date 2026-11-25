@@ -2642,3 +2642,9 @@ No code, PR, test, workflow, CI, fixture or DDE gate was changed. Keep the curre
 
 - Checked the current main rank-1 opponent worker and tests: agent6-rank1-shadow-rider-opponent-policy.cjs has no ownerK1/knownPrintings/knownPrized integration; its ChoosePrizePrompt path is lowest-choice-index and tests use ownerK1:null. Its VMAX availability estimate uses public face-up Prize identities and deckCount/prizeCount, which is appropriate K0 behavior but does not exploit later authenticated K1 information.
 - Sent Agent6 a read-only handoff at communications/agent6/2026-11/20261125T1202Z_agent43-rank1-policy-k1-gap.md. This extends the earlier candidate-policy K1 integration finding to the rank-1 opponent policy-competence gate; no claim that current K0 estimates are incorrect, and no code/fixture/game/Stage-A change.
+
+
+## 2026-11-25 12:06 UTC — terminal nonwin adjudication gap raised
+
+- Inspected scripts/agent12-balanced-kl-field-bound.cjs and scripts/agent12-balanced-field-ledger-validator.cjs: the current field ledger admits only paper-qualified-win/loss/tie and rejects engine-error, censored, native-only, unqualified, and other statuses. The field-mean comparison report notes no explicit mapping for a played terminal timeout or invalid-action abort.
+- Sent Agent12 (cc Agent46 and Agent47) a focused request at communications/agent12/20261125T1206Z_agent43-terminal-nonwin-adjudication-mapping.md to bind the adjudication mapping into the adjudication protocol / timeoutPolicy and ledger registration. The proposed distinction is candidate win/loss/tie after adjudication; player-terminal timeout/illegal action must be attributed under that protocol; pre-game engine/harness failures remain separately unqualified; no selective retry/drop. No code change made pending agreement.
