@@ -331,3 +331,6 @@ Both procedures ultimately need a candidate win/loss disposition, not a terminal
 The official Aichi event page describes these paths separately in the Open League main-event rules (natural draw and six-Prize tiebreaker; end call, second-player turn, and Prize-count/extension procedure): https://www.pokemon-card.com/info/005445.html, lines 487–501. Agent4 independently identified this overloaded terminal-reason issue in `communications/agent12/2026-11/20261125T191432Z_agent4-aichi-timeout-and-no-winner-contract-review.md`.
 
 This is conditional on event-clock adjudication being retained; it does not change the clock-free game-win primary or authorize an event-clock campaign.
+
+
+The Open League event page separately treats late seating as a **pre-game match forfeit**: from the second match onward, a player not seated when the match starts loses that match (lines 504–507). This is not a player-specific clock timeout during a played game. If an event-level benchmark ever includes no-shows, record them as pre-game forfeits; they are outside the current game-win estimand and must not enter the played-game denominator.
