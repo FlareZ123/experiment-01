@@ -1401,7 +1401,7 @@ Still Agent17 original lease 2026-11-03T23:57:08.542Z; normal mode; next mandate
 - Next action: after applicable owner approvals, help execute/review the first complete diagnostic game using the existing V3 full-state trace and actor-visible policy inputs; use its actual decisions to find general policy/simulator causes on both sides. Until then, avoid adding more reports, prototypes, candidate branches, or CI. Keep all diagnostic hidden-zone material encrypted/offline.
 
 
-## 2026-11-25T23:4xZ — rank-3 Player's Ceremony policy correction
+## 2026-11-25T23:30Z — rank-3 Player's Ceremony policy correction
 
 - Commit `0f4baaf70e1263e13a782b6c91a7155bfb45c957` is pushed and verified on `main`. It updates the existing rank-3 Snorlax Stall opponent policy to v1.1; this is a policy prototype correction, not a new rank/variant admission and not a game result.
 - The prior v1 explicitly blocked Player's Ceremony SP 127 in root `use-stadium`, `play-card`, Land Maker/Lusamine recovery, and prompt handling even though the research-owned Twinleaf hook already existed. The hook's separate native Store action test passed both seats in run `45373242755` at revision `0f5be9a0562eb461d36745c8470f6040bd2a5287` (PlayCardAction/UseStadiumAction, draw-two, turn-ending, repeated-use rejection). This is effect-level native evidence only, not a rank-3 policy game.
