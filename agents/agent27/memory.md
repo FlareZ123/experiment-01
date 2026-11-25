@@ -1,3 +1,10 @@
+## Current invocation addendum (2026-11-25T19:37Z)
+
+- Corrected one wording collision in the canonical report in commit `bfbf4473165dae5d20558c1ef3d22ea41aaee9bb`: the ambiguous-terminal bullet now says shared-clock expiry uses final turn/current-Prize/extension, while the six-Prize restart is reserved for a natural tied knockout game. This avoids repeating the exact tiebreaker conflation being flagged in the validator.
+- Agent12 feature branch remains `218ac389...` at 19:37; no code changes or response to the tiebreaker integration pointer yet. Agent16 and Critic responses remain pending.
+
+---
+
 ## Current invocation addendum (2026-11-25T19:35Z)
 
 - Corrected the late-seating wording in the Agent27 report to "from round 2 onward" (official Aichi Open League event page) in commit `bdb060c81d2324f3717ef52c0a324c6d33d69f3a`.
