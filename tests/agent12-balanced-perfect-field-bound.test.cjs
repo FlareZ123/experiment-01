@@ -2,6 +2,8 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const {evidenceBundleSha256: canonicalSha256} =
+  require('../simulation/evaluation/canonical-evidence-json.cjs');
 const {assessPerfectField} =
   require('../scripts/agent12-balanced-perfect-field-bound.cjs');
 
@@ -9,6 +11,34 @@ const A = 'a'.repeat(64);
 const B = 'b'.repeat(64);
 const C = 'c'.repeat(64);
 const D = 'd'.repeat(64);
+
+function refreshTerminalReceipt(request, attempt) {
+  const receipt = {
+    schema: 'aichi-terminal-adjudication-receipt-v1',
+    trialId: attempt.trialId,
+    paperReceiptId: attempt.paperReceiptId,
+    registrationSha: request.registrationSha,
+    rank: attempt.rank,
+    candidatePhysicalSeat: attempt.seat,
+    actualStarterSeat: attempt.firstPlayerSeat,
+    physicalDealId: attempt.physicalDealId,
+    source60Sha: attempt.source60Sha,
+    candidate60Sha: attempt.candidate60Sha,
+    candidatePolicySha: attempt.candidatePolicySha,
+    engineAndHooksSha: attempt.engineAndHooksSha,
+    opponentPolicyBundleSha: attempt.opponentPolicyBundleSha,
+    adjudicationProtocolSha: attempt.adjudicationProtocolSha,
+    clockMode: request.clockMode,
+    gameStarted: true,
+    terminalEventSha256: canonicalSha256({trialId:attempt.trialId,event:'terminal'}),
+    terminalClass: 'normal-completion',
+    adjudicatedCandidateResult: 'candidate-win',
+    statisticalStatus: 'paper-qualified-win'
+  };
+  receipt.receiptSha256 = canonicalSha256(receipt);
+  attempt.terminalAdjudicationReceipt = receipt;
+  attempt.terminalAdjudicationReceiptSha256 = receipt.receiptSha256;
+}
 
 /** @param {number} perStratum */
 function fixture(perStratum) {
@@ -35,10 +65,12 @@ function fixture(perStratum) {
       }
     }
   }
-  return {
+  const request = {
     originalSources, attempts, registeredAttemptCount: attempts.length,
-    registrationSha: C
+    registrationSha: C, clockMode: 'clock-free-game-win'
   };
+  for (const attempt of attempts) refreshTerminalReceipt(request, attempt);
+  return request;
 }
 
 test('five distinct wins per rank-seat-first-player pass conditional 99.5% threshold', () => {
