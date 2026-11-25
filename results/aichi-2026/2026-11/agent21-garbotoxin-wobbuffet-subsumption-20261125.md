@@ -40,7 +40,7 @@ Against an established Tool-live Garbodor:
 - Do not attach a Hood to Wobbuffet solely to preserve Bide Barricade. The preserved effect is redundant in that state.
 - Prioritize a Hood on a Shadow Rider VMAX if preserving Underworld Door is important. Two Hoods can instead protect two VMAX engines, provided both have open Tool slots; a VMAX carrying Forest Seal Stone cannot also carry Hood.
 - The list's Float Stone can remain available for Wobbuffet. Wobbuffet does not need to stay Active to maintain the suppression that Garbotoxin is already providing. If Garbodor's Tool is removed, decide whether to keep/promote Wobbuffet Active to re-establish Bide Barricade.
-- Do not confuse this with protection from Wobbuffet's **own** effect: Stealthy Hood protects against the opponent's Abilities, not your own. While Wobbuffet is Active, its symmetric Bide Barricade still suppresses the Lockbridge player's own non-Psychic Pokémon, including its Dragon-type Radiant Eternatus and Latias ex. Climactic Gate must still be used before Wobbuffet becomes Active if Radiant Eternatus is needed.
+- Do not confuse this with protection from Wobbuffet's **own** effect: Stealthy Hood protects against the opponent's Abilities, not your own. While Wobbuffet is Active, its symmetric Bide Barricade still suppresses the Lockbridge player's own non-Psychic Pokémon, including its Dragon-type Radiant Eternatus and Metal-type Dialga-GX; Psychic-type Latias ex is exempt. Climactic Gate must still be used before Wobbuffet becomes Active if Radiant Eternatus is needed.
 
 This is matchup-specific. A Hood on Wobbuffet may still matter against a different opponent Ability lock that Garbotoxin does not already subsume; it is not justified by the Tool-live Garbodor state alone.
 
