@@ -11,7 +11,8 @@ const {
   RUNNER_EVIDENCE_SCHEMA,
   ADJUDICATOR_EVIDENCE_SCHEMA,
   SETUP_RECEIPT_VERSION,
-  RESULT_TO_STATUS
+  RESULT_TO_STATUS,
+  NO_WINNER_STATUS
 } = require('../../../scripts/2026-11/shared/terminal-adjudication-receipt.cjs');
 
 const hash = ch => ch.repeat(64);
@@ -36,7 +37,7 @@ function fixture({
     terminalClass,
     allowedResults: allowedResults || (
       reason === 'engine-winner' ? ['candidate-win', 'candidate-loss'] :
-      reason === 'simultaneous-game-loss' ? ['no-winner'] :
+      reason === 'simultaneous-game-loss' ? [null] :
       reason === 'genuine-tie' ? ['genuine-tie'] :
       reason === 'top32-prize-tiebreaker'
         ? ['candidate-win', 'candidate-loss', 'genuine-tie', 'no-winner']
@@ -70,7 +71,7 @@ function fixture({
     enginePin: gitHash('a'),
     runnerRevision: gitHash('b'),
     endedAt: '2026-11-25T12:00:00Z',
-    status: RESULT_TO_STATUS[result]
+    status: result === null ? NO_WINNER_STATUS : RESULT_TO_STATUS[result]
   };
   const setupReceipt = {
     version: SETUP_RECEIPT_VERSION,
@@ -282,13 +283,15 @@ test('setup evidence must be bound to the exact attempt and trial identifiers', 
 
 test('no-winner is always a distinct nonwin and cannot be relabelled', () => {
   const input = fixture({
-    result: 'no-winner',
+    result: null,
     terminalClass: 'no-winner',
     reason: 'simultaneous-game-loss'
   });
   const result = validate(input);
   assert.equal(result.valid, true, result.rejectionReasons.join(','));
-  assert.equal(input.attempt.status, 'paper-qualified-no-winner');
+  assert.equal(input.attempt.status, NO_WINNER_STATUS);
+  assert.equal(input.attempt.terminalAdjudicationReceipt.adjudicatedCandidateResult, null);
+  assert.equal(input.attempt.terminalAdjudicationReceipt.statisticalStatus, null);
   const forged = fixture({
     result: 'candidate-win',
     terminalClass: 'no-winner',
