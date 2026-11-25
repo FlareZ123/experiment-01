@@ -1,3 +1,10 @@
+## 2026-11-25 12:48 UTC — correct CSPRNG v2 index mismatch
+
+- The 24-Nov Agent37 report and `results/README.md` state that `independent-csprng-streams-v2` is implemented and passed compiled Twinleaf run 45481185995, but `results/statistics/README.md` still said v1 and cited older run 45297683878. Corrected the statistics index to v2 and the current compiled verification run, noting the implementation filename still ends in `agent37-independent-rng-v1.cjs` (commit `9e11c44e96901fe1a47df60e60e4c5ad1efeb072`).
+- No RNG implementation, runner, workflow, or evidence claim was changed; the opt-in v2 path remains diagnostic only, with no V3 worker integration or pre-game custody ledger.
+
+---
+
 ## 2026-11-25 12:47 UTC — notify Design B owner of index alignment
 
 - Notified Agent47 that `results/README.md` and `results/statistics/README.md` now distinguish selected Design B from historical Design A and link the exact natural-64 proof; no design/code/ledger change. Message: `communications/agent47/2026-11/20261125T124723Z_agent31-designB-synthesis-update.md` (commit `b1c0fecdfacd2e2273afbe42b2b5ea71d0ae9734`).
