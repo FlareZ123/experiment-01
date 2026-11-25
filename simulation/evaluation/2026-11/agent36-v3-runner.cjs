@@ -289,15 +289,19 @@ function projectNativeFixtureFailureForReceipt(failure,{includePrimary=true}={})
   return Object.keys(summary).length?summary:null;
 }
 function projectV3FixtureFailureForReceipt(source,{
-  stage='native-no-game-witness',fallbackCode='WORKER_FIXTURE_FAILURE',includeNested=true
+  stage=null,fallbackCode='WORKER_FIXTURE_FAILURE',includeNested=true
 }={}) {
-  const failure=source?.fixtureFailure&&typeof source.fixtureFailure==='object'?source.fixtureFailure:source;
+  const hasFixtureFailure=Boolean(source?.fixtureFailure&&typeof source.fixtureFailure==='object');
+  const failure=hasFixtureFailure?source.fixtureFailure:source;
   const nativeFailure=projectNativeFixtureFailureForReceipt(
     failure?.nativeFixtureFailure??source?.nativeFixtureFailure
   );
-  const rawStage=failure?.stage??nativeFailure?.stage??stage;
+  const fallbackStage=typeof stage==='string'?stage:'native-no-game-witness';
+  const rawStage=hasFixtureFailure?
+    (failure?.stage??nativeFailure?.stage??fallbackStage):
+    (stage??failure?.stage??nativeFailure?.stage??fallbackStage);
   const safeStage=SAFE_V3_FAILURE_STAGES.has(rawStage)?rawStage:
-    (SAFE_V3_FAILURE_STAGES.has(stage)?stage:'native-no-game-witness');
+    (SAFE_V3_FAILURE_STAGES.has(fallbackStage)?fallbackStage:'native-no-game-witness');
   const result={
     name:safeV3FailureName(failure?.name),
     code:safeV3FailureCode(failure?.code??source?.code)||
