@@ -1,3 +1,10 @@
+## 2026-11-25 12:46 UTC — align statistical index with selected Design B
+
+- Added a short current-selection notice to `results/statistics/README.md`: Design B is the selected natural-protocol primary (balanced 64 rank × candidate-seat strata, 20 games/cell, at most two nonwins); Design A IID/Clopper–Pearson is an alternative; the 128-cell equal-start conditional panel is separate and mandatory. The notice points to Agent12's exact heterogeneous proof and the design comparison and states that natural-64 ledger/validator plus terminal receipt binding remain absent (commit `e77faaf0fecf6b94484301a503ff4f582c13e401`).
+- This is documentation alignment only. No sampling plan, test, ledger, validator, workflow, policy, or game was changed.
+
+---
+
 ## 2026-11-25 12:46 UTC — clarify selected Design B versus historical Agent46 IID memo
 
 - Read the updated `results/statistics/field-mean-design-comparison-20261125.md`, Agent12's exact natural-64 proof, Agent47's 12:38 selection revision, and Agent50's review. Design B is now selected: balanced natural 64 rank × candidate-seat strata, 20 games/cell (1,280), at most two nonwins, natural fair coin and chooser GO_FIRST; the 128-cell equal-start panel is separate and mandatory. Design A IID uniform-rank/Clopper–Pearson remains a valid alternative, not the selected primary.
