@@ -4259,7 +4259,7 @@ test('Radiant Gate uses effective lock scope and physical source order, includin
   }
 });
 
-test('Radiant is a Rule Box target: Garbotoxin excludes it, while opposing Alolan Muk suppresses it', () => {
+test('Radiant is a Rule Box target: Garbotoxin and opposing Alolan Muk suppress it', () => {
   const garbodor = pokemon({
     printing: 'Garbodor LTR 68', name: 'Garbodor', subtypes: ['Stage 1'],
     abilities: ['Garbotoxin'], tools: ['Float Stone PLF 99'], suppression: null,
@@ -4275,7 +4275,7 @@ test('Radiant is a Rule Box target: Garbotoxin excludes it, while opposing Alola
   }), true);
   assert.equal(candidate.__test.hasRadiantGateLock(
     observation(0, { opponentBench: [garbodor] })
-  ), false, 'Garbotoxin does not suppress a Rule Box Pokémon');
+  ), true, 'Tool-equipped Garbotoxin suppresses a Rule Box Pokémon');
   assert.equal(candidate.__test.hasRadiantGateLock(
     observation(0, { bench: [alolanMuk] })
   ), false, 'Power of Alchemy affects the opponent, not its owner');
@@ -4283,6 +4283,41 @@ test('Radiant is a Rule Box target: Garbotoxin excludes it, while opposing Alola
     observation(0, { opponentBench: [alolanMuk] })
   ), true, 'opponent Alolan Muk suppresses the actor Basic Radiant');
 });
+  
+test('Tool-equipped Garbotoxin suppresses Rule Box Fairy Zone holders; Stealthy Hood protects them', () => {
+  for (const seat of [0, 1]) {
+    const holder = pokemon({
+      printing: "Lillie's Clefairy ex JTG 56", name: "Lillie's Clefairy ex",
+      subtypes: ['Basic', 'ex'], abilities: ['Fairy Zone'], suppression: null
+    });
+    const garbodor = pokemon({
+      printing: 'Garbodor LTR 68', name: 'Garbodor', subtypes: ['Stage 1'],
+      abilities: ['Garbotoxin'], tools: ['Float Stone PLF 99'], suppression: null
+    });
+    const locked = observation(seat, { bench: [holder], opponentBench: [garbodor] });
+    assert.equal(candidate.__test.fairyZoneStatusForSeat(locked, 'actor'), false);
+    assert.equal(candidate.__test.hasOwnFairyZoneHolderLockThreat(locked), true);
+
+    holder.tools = ['Stealthy Hood UNB 186'];
+    assert.equal(candidate.__test.fairyZoneStatusForSeat(locked, 'actor'), true);
+    assert.equal(candidate.__test.hasOwnFairyZoneHolderLockThreat(locked), false);
+
+    const untooledGarbodor = pokemon({
+      printing: 'Garbodor BKP 57', name: 'Garbodor', subtypes: ['Stage 1'],
+      abilities: ['Garbotoxin'], tools: [], suppression: null
+    });
+    const noToolHolder = pokemon({
+      printing: "Lillie's Clefairy ex JTG 56", name: "Lillie's Clefairy ex",
+      subtypes: ['Basic', 'ex'], abilities: ['Fairy Zone'], suppression: null
+    });
+    const inactive = observation(seat, {
+      bench: [noToolHolder], opponentBench: [untooledGarbodor]
+    });
+    assert.equal(candidate.__test.fairyZoneStatusForSeat(inactive, 'actor'), true);
+    assert.equal(candidate.__test.hasOwnFairyZoneHolderLockThreat(inactive), false);
+  }
+});
+
 
 test('zero activation-order sentinel and mixed Bench/Active lock order fail closed', () => {
   const wobbuffet = pokemon({

@@ -351,7 +351,8 @@ function fairyZoneSourceTargetsHolder(view, source, holderSeat, holder) {
     case 'basic-all':
       return !sameSide && isBasicPokemon(holder);
     case 'all-tool-attached':
-      return !isRuleBoxPokemon(holder);
+      // Garbotoxin suppresses every Pokémon in play, including Rule Box Pokémon.
+      return true;
     default:
       return false;
   }
