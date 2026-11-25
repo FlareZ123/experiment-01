@@ -13,38 +13,41 @@ const {
 const {
   PROTOCOL: RNG_PROTOCOL, validateRandomMaterial, randomMaterialCommitment
 } = require('../simulation/evaluation/agent37-independent-rng-v1.cjs');
+const {
+  validateTerminalAdjudicationReceipt,
+  RECEIPT_SCHEMA: ADJUDICATION_SCHEMA,
+  RESULT_TO_STATUS
+} = require('./2026-11/shared/terminal-adjudication-receipt.cjs');
 
 const SHA256 = /^[a-f0-9]{64}$/i;
 const GIT_SHA = /^[a-f0-9]{40}$/i;
 const SEATS = Object.freeze([0, 1]);
-const STATUS_TO_RESULT = Object.freeze({
-  'paper-qualified-win': 'candidate-win',
-  'paper-qualified-loss': 'candidate-loss',
-  'paper-qualified-tie': 'tie'
-});
 const CLOCK_MODES = new Set([
   'clock-free-game-win',
   'aichi-top32-event-clock'
 ]);
-const DECISION_SCHEDULES = new Set([
-  'fixed-1280',
-  'two-look-1216-1280'
+const DECISION_SCHEDULES = new Set(['two-look-1216-1280']);
+const NO_WINNER_DISPOSITIONS = new Set(['count-as-nonwin', 'invalidate-batch']);
+const PRE_GAME_FAILURE_CLASSES = new Set([
+  'runner-launch-failure',
+  'engine-startup-failure',
+  'pre-game-harness-failure',
+  'registered-input-failure'
 ]);
+const PLAYED_STATUSES = new Set(Object.values(RESULT_TO_STATUS));
 const RNG_HOOKS = Object.freeze([
   'Gladion CIN',
   'Hisuian Heavy Ball ASR',
   'Marnie SSH',
   'Iono PAL'
 ]);
-const MANIFEST_SCHEMA = 'aichi-natural64-field-registration-v1';
-const ADJUDICATION_SCHEMA = 'aichi-natural64-adjudication-receipt-v1';
+const MANIFEST_SCHEMA = 'aichi-natural64-field-registration-v2';
 const RNG_RECEIPT_SCHEMA = 'aichi-natural64-rng-receipt-v1';
-// Versioned name for agent37's Fisher-Yates permutation with rejection-sampled bounded integers.
 const UNBIASED_SHUFFLE_METHOD = 'fisher-yates-bounded-rejection-v1';
 const SAMPLING_MODEL = 'balanced-natural-64-strata-v1';
-const REGISTERED_ATTEMPTS = 1280;
+const REGISTERED_SLOTS = 1280;
 const GAMES_PER_STRATUM = 20;
-const LOOK1_ATTEMPTS = 1216;
+const LOOK1_GAMES = 1216;
 
 function isSha(value) {
   return typeof value === 'string' && SHA256.test(value);
@@ -76,7 +79,7 @@ function validateManifest(request, problems) {
   const manifest = request.fieldSamplingRegistration;
   if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) {
     add(problems, 'field-sampling-registration-missing');
-    return {manifest: null, roster: new Map(), registrationValid: false};
+    return {manifest: null, slotRoster: new Map(), registrationValid: false};
   }
 
   if (manifest.schema !== MANIFEST_SCHEMA) add(problems, 'field-sampling-registration-schema-invalid');
@@ -88,26 +91,34 @@ function validateManifest(request, problems) {
       manifest.confidence !== 0.95 || request.confidence !== 0.95) {
     add(problems, 'field-sampling-inference-contract-mismatch');
   }
-  if (manifest.registeredAttemptCount !== REGISTERED_ATTEMPTS ||
-      request.registeredAttemptCount !== REGISTERED_ATTEMPTS) {
-    add(problems, 'field-sampling-registered-attempt-count-invalid');
+  if (manifest.registeredSlotCount !== REGISTERED_SLOTS ||
+      request.registeredSlotCount !== REGISTERED_SLOTS) {
+    add(problems, 'field-sampling-registered-slot-count-invalid');
   }
   if (manifest.gamesPerStratum !== GAMES_PER_STRATUM) {
     add(problems, 'field-sampling-stratum-quota-invalid');
   }
-  if (!DECISION_SCHEDULES.has(manifest.decisionSchedule)) {
+  if (!DECISION_SCHEDULES.has(manifest.decisionSchedule) ||
+      manifest.look1GameCount !== LOOK1_GAMES) {
     add(problems, 'field-sampling-decision-schedule-invalid');
   }
   if (manifest.maxNonwins !== 2 || manifest.stopAfterThirdNonwin !== true) {
     add(problems, 'field-sampling-stopping-rule-invalid');
   }
-  if (manifest.preGameFailureDisposition !== 'invalidate-batch') {
-    add(problems, 'field-sampling-pregame-failure-policy-invalid');
+  if (manifest.preGameFailureDisposition !== 'retry-registered-budget-then-invalidate-batch' ||
+      !Number.isInteger(manifest.maxPreGameRetriesPerSlot) ||
+      manifest.maxPreGameRetriesPerSlot < 0 ||
+      manifest.maxPreGameRetriesPerSlot > 2 ||
+      !isSha(manifest.preGameFailureCriteriaSha256)) {
+    add(problems, 'field-sampling-pregame-retry-policy-invalid');
+  }
+  if (!NO_WINNER_DISPOSITIONS.has(manifest.noWinnerDisposition)) {
+    add(problems, 'field-sampling-no-winner-disposition-invalid');
   }
   if (!CLOCK_MODES.has(manifest.clockMode)) {
     add(problems, 'adjudication-clock-mode-missing-or-invalid');
   }
-  if (!isSha(manifest.adjudicationProtocolSha)) {
+  if (!isSha(manifest.adjudicationProtocolSha256)) {
     add(problems, 'adjudication-protocol-unverified');
   }
   if (manifest.randomizationProtocol !== RNG_PROTOCOL ||
@@ -137,21 +148,20 @@ function validateManifest(request, problems) {
   } catch {}
   if (!digestValid) add(problems, 'field-sampling-registration-digest-mismatch');
 
-  const roster = new Map();
-  if (!Array.isArray(manifest.attempts) ||
-      manifest.attempts.length !== REGISTERED_ATTEMPTS) {
-    add(problems, 'field-sampling-attempt-roster-invalid');
+  const slotRoster = new Map();
+  if (!Array.isArray(manifest.slots) || manifest.slots.length !== REGISTERED_SLOTS) {
+    add(problems, 'field-sampling-slot-roster-invalid');
   } else {
     const roundCells = Array.from({length: 20}, () => new Set());
-    for (let i = 0; i < manifest.attempts.length; i += 1) {
-      const planned = manifest.attempts[i];
+    for (let i = 0; i < manifest.slots.length; i += 1) {
+      const planned = manifest.slots[i];
       const expectedRound = Math.floor(i / 64);
       if (!planned || typeof planned !== 'object' ||
-          !isText(planned.trialId) || roster.has(planned.trialId) ||
+          !isText(planned.slotId) || slotRoster.has(planned.slotId) ||
           planned.sequenceIndex !== i || planned.roundIndex !== expectedRound ||
           !Number.isInteger(planned.rank) || planned.rank < 1 ||
           planned.rank > FIELD_SIZE || !SEATS.includes(planned.seat)) {
-        add(problems, 'field-sampling-attempt-roster-invalid');
+        add(problems, 'field-sampling-slot-roster-invalid');
         continue;
       }
       const cell = planned.rank + ':' + planned.seat;
@@ -159,13 +169,13 @@ function validateManifest(request, problems) {
         add(problems, 'field-sampling-round-cell-duplicate');
       }
       roundCells[expectedRound].add(cell);
-      roster.set(planned.trialId, planned);
+      slotRoster.set(planned.slotId, planned);
     }
     if (roundCells.some(cells => cells.size !== 64)) {
       add(problems, 'field-sampling-round-cell-coverage-invalid');
     }
-    if (roster.size !== REGISTERED_ATTEMPTS) {
-      add(problems, 'field-sampling-attempt-roster-invalid');
+    if (slotRoster.size !== REGISTERED_SLOTS) {
+      add(problems, 'field-sampling-slot-roster-invalid');
     }
   }
 
@@ -174,7 +184,11 @@ function validateManifest(request, problems) {
     add(problems, 'field-sampling-source-roster-invalid');
   }
 
-  return {manifest, roster, registrationValid: digestValid && roster.size === REGISTERED_ATTEMPTS};
+  return {
+    manifest,
+    slotRoster,
+    registrationValid: digestValid && slotRoster.size === REGISTERED_SLOTS
+  };
 }
 
 function validateSources(originalSources, manifest, policyPlanCore, problems) {
@@ -248,72 +262,183 @@ function validateNaturalStarter(attempt, problems) {
   if (attempt.hostOverride !== false) add(problems, 'host-first-player-override-present');
 }
 
-function validateAdjudicationReceipt(attempt, manifest, problems) {
-  const receipt = attempt.adjudicationReceipt;
-  if (!receipt || typeof receipt !== 'object' || Array.isArray(receipt)) {
-    add(problems, 'terminal-adjudication-receipt-missing');
-    return;
+function indexEvidence(records, playedAttempts, label, problems) {
+  if (!Array.isArray(records)) {
+    add(problems, label + '-evidence-array-missing');
+    return new Map();
   }
-  const result = STATUS_TO_RESULT[attempt.status];
-  if (!result) add(problems, 'outcome-status-invalid');
-  if (receipt.schema !== ADJUDICATION_SCHEMA ||
-      receipt.receiptId !== attempt.paperReceiptId ||
-      !isText(receipt.receiptId)) {
-    add(problems, 'terminal-adjudication-receipt-identity-invalid');
+  const expectedIds = new Set(playedAttempts.map(attempt => attempt.attemptId));
+  const indexed = new Map();
+  for (const record of records) {
+    if (!record || typeof record !== 'object' || Array.isArray(record) ||
+        !isText(record.attemptId) || indexed.has(record.attemptId)) {
+      add(problems, label + '-evidence-identity-invalid');
+      continue;
+    }
+    indexed.set(record.attemptId, record);
   }
-  if (receipt.trialId !== attempt.trialId ||
-      receipt.rank !== attempt.rank ||
-      receipt.candidateSeat !== attempt.seat ||
-      receipt.opponentSeat !== 1 - attempt.seat ||
-      receipt.candidate60Sha !== attempt.candidate60Sha ||
-      receipt.source60Sha !== attempt.source60Sha ||
-      receipt.candidatePolicySha !== attempt.candidatePolicySha ||
-      receipt.opponentPolicyBundleSha !== attempt.opponentPolicyBundleSha ||
-      receipt.enginePin !== attempt.enginePin ||
-      receipt.runnerRevision !== attempt.runnerRevision ||
-      receipt.actualFirstPlayerSeat !== attempt.firstPlayerSeat ||
-      receipt.coinWinnerSeat !== attempt.coinWinnerSeat ||
-      receipt.chooserSeat !== attempt.chooserSeat ||
-      receipt.goFirstResponse !== attempt.goFirstResponse ||
-      receipt.hostOverride !== attempt.hostOverride ||
-      receipt.startedAt !== attempt.startedAt ||
-      receipt.endedAt !== attempt.endedAt ||
-      receipt.registrationSha !== attempt.registrationSha ||
-      receipt.randomizationReceiptSha256 !== attempt.randomizationReceiptSha256 ||
-      receipt.policyApplicationReceiptSha256 !== attempt.policyApplicationReceiptSha256) {
-    add(problems, 'terminal-adjudication-receipt-outcome-mismatch');
+  if (indexed.size !== expectedIds.size) add(problems, label + '-evidence-count-mismatch');
+  for (const attemptId of expectedIds) {
+    if (!indexed.has(attemptId)) add(problems, label + '-evidence-missing-for-played-attempt');
   }
-  if (!isSha(receipt.engineTerminalSha256) ||
-      !isSha(receipt.adjudicatorAttestationSha256) ||
-      !isText(receipt.adjudicatorId) || !isText(receipt.terminalClass)) {
-    add(problems, 'terminal-adjudication-receipt-evidence-unverified');
+  for (const attemptId of indexed.keys()) {
+    if (!expectedIds.has(attemptId)) add(problems, label + '-evidence-without-played-attempt');
   }
-  if (receipt.gameStarted !== true || receipt.terminalReached !== true ||
-      receipt.adjudicationStatus !== 'determinate') {
-    add(problems, 'terminal-adjudication-not-determinate');
-  }
-  const adjudicatedAt = Date.parse(receipt.adjudicatedAt);
-  const endedAt = Date.parse(attempt.endedAt);
-  if (typeof receipt.adjudicatedAt !== 'string' ||
-      !/(?:Z|[+-][0-9]{2}:[0-9]{2})$/.test(receipt.adjudicatedAt) ||
-      !Number.isFinite(adjudicatedAt) || !Number.isFinite(endedAt) ||
-      adjudicatedAt < endedAt) {
-    add(problems, 'terminal-adjudication-time-invalid');
-  }
-  if (!['candidate-win', 'candidate-loss', 'tie'].includes(receipt.adjudicatedCandidateResult) ||
-      receipt.adjudicatedCandidateResult !== result) {
-    add(problems, 'terminal-adjudication-result-status-mismatch');
-  }
-  if (receipt.clockMode !== manifest.clockMode ||
-      receipt.adjudicationProtocolSha !== manifest.adjudicationProtocolSha ||
-      attempt.adjudicationProtocolSha !== manifest.adjudicationProtocolSha) {
-    add(problems, 'terminal-adjudication-protocol-mismatch');
-  }
-  if (!receiptDigest(receipt) ||
-      attempt.adjudicationReceiptSha256 !== receipt.receiptSha256) {
-    add(problems, 'terminal-adjudication-receipt-digest-invalid');
-  }
+  return indexed;
 }
+
+function validateSlotAttempts(attempts, slotRoster, manifest, problems) {
+  const attemptIds = new Set();
+  const slotHistory = new Map();
+  const playedAttempts = [];
+  let lastSequenceIndex = -1;
+  let lastSlotId = null;
+  let preGameFailureCount = 0;
+
+  if (attempts.length > REGISTERED_SLOTS * (manifest.maxPreGameRetriesPerSlot + 1)) {
+    add(problems, 'execution-attempt-count-exceeds-registered-retry-budget');
+  }
+
+  for (const attempt of attempts) {
+    if (!attempt || typeof attempt !== 'object' || Array.isArray(attempt)) {
+      add(problems, 'attempt-record-invalid');
+      continue;
+    }
+    const planned = slotRoster.get(attempt.slotId);
+    if (!planned) {
+      add(problems, 'attempt-slot-unknown');
+      continue;
+    }
+    const sequenceIndex = planned.sequenceIndex;
+    if (attempt.sequenceIndex !== sequenceIndex ||
+        attempt.roundIndex !== planned.roundIndex ||
+        attempt.rank !== planned.rank ||
+        attempt.seat !== planned.seat) {
+      add(problems, 'attempt-slot-roster-mismatch');
+    }
+    if (!isText(attempt.attemptId) || attemptIds.has(attempt.attemptId)) {
+      add(problems, 'duplicate-or-missing-attempt-id');
+    } else {
+      attemptIds.add(attempt.attemptId);
+    }
+    if (attempt.trialId !== attempt.attemptId) {
+      add(problems, 'attempt-trial-id-must-equal-unique-attempt-id');
+    }
+
+    const history = slotHistory.get(attempt.slotId) || [];
+    if (history.length === 0) {
+      if (sequenceIndex !== lastSequenceIndex + 1) {
+        add(problems, 'attempt-slot-order-or-prefix-gap');
+      }
+      if (attempt.attemptNumber !== 1 || attempt.retryOfAttemptId !== null) {
+        add(problems, 'first-slot-attempt-retry-link-invalid');
+      }
+      if (lastSlotId !== null) {
+        const previousHistory = slotHistory.get(lastSlotId) || [];
+        const previous = previousHistory[previousHistory.length - 1];
+        if (!previous || previous.status === 'pre-game-failure') {
+          add(problems, 'pre-game-retry-skipped-before-next-slot');
+        }
+      }
+    } else {
+      const previous = history[history.length - 1];
+      if (sequenceIndex !== lastSequenceIndex || previous.status !== 'pre-game-failure') {
+        add(problems, 'retry-after-played-terminal-or-out-of-order');
+      }
+      if (attempt.attemptNumber !== history.length + 1 ||
+          attempt.retryOfAttemptId !== previous.attemptId) {
+        add(problems, 'attempt-retry-chain-invalid');
+      }
+      if (history.length > manifest.maxPreGameRetriesPerSlot) {
+        add(problems, 'pre-game-retry-budget-exceeded');
+      }
+    }
+    if (sequenceIndex < lastSequenceIndex) add(problems, 'attempt-slot-order-invalid');
+    if (attempt.attemptNumber > manifest.maxPreGameRetriesPerSlot + 1) {
+      add(problems, 'attempt-retry-budget-exceeded');
+    }
+
+    if (attempt.status === 'pre-game-failure') {
+      preGameFailureCount += 1;
+      if (attempt.gameStarted !== false || attempt.terminalReached !== false ||
+          !PRE_GAME_FAILURE_CLASSES.has(attempt.failureClass) ||
+          !isSha(attempt.failureEvidenceSha256)) {
+        add(problems, 'pre-game-failure-evidence-invalid');
+      }
+      if (attempt.terminalAdjudicationReceipt != null ||
+          attempt.terminalAdjudicationReceiptSha256 != null ||
+          attempt.paperReceiptId != null ||
+          attempt.policyApplicationReceiptSha256 != null) {
+        add(problems, 'pre-game-failure-has-played-game-evidence');
+      }
+      if (attempt.attemptNumber > manifest.maxPreGameRetriesPerSlot) {
+        add(problems, 'pre-game-retry-budget-exhausted');
+      }
+    } else if (PLAYED_STATUSES.has(attempt.status)) {
+      if (attempt.gameStarted !== true || attempt.terminalReached !== true) {
+        add(problems, 'played-attempt-terminal-flags-invalid');
+      }
+      playedAttempts.push(attempt);
+    } else {
+      add(problems, 'attempt-status-invalid');
+    }
+
+    history.push(attempt);
+    slotHistory.set(attempt.slotId, history);
+    lastSequenceIndex = sequenceIndex;
+    lastSlotId = attempt.slotId;
+  }
+
+  let completedSlotCount = 0;
+  for (const history of slotHistory.values()) {
+    const last = history[history.length - 1];
+    if (last && PLAYED_STATUSES.has(last.status)) completedSlotCount += 1;
+  }
+  return {
+    playedAttempts,
+    slotHistory,
+    completedSlotCount,
+    preGameFailureCount
+  };
+}
+
+function validateAdjudicationReceipt(attempt, manifest, runnerEvidence, adjudicationEvidence,
+  seen, problems) {
+  const result = validateTerminalAdjudicationReceipt({
+    attempt,
+    expected: {
+      attemptId: attempt.attemptId,
+      slotId: attempt.slotId,
+      registrationSha: attempt.registrationSha,
+      rank: attempt.rank,
+      candidatePhysicalSeat: attempt.seat,
+      actualStarterSeat: attempt.actualFirstPlayerSeat,
+      physicalDealId: attempt.physicalDealId,
+      source60Sha: attempt.source60Sha,
+      candidate60Sha: attempt.candidate60Sha,
+      candidatePolicySha: attempt.candidatePolicySha,
+      engineAndHooksSha: attempt.engineAndHooksSha,
+      opponentPolicyBundleSha: attempt.opponentPolicyBundleSha,
+      adjudicationProtocolSha256: manifest.adjudicationProtocolSha256,
+      clockMode: manifest.clockMode,
+      noWinnerDisposition: manifest.noWinnerDisposition,
+      rngMaterialCommitmentSha256: attempt.rngMaterialCommitment,
+      enginePin: attempt.enginePin,
+      runnerRevision: attempt.runnerRevision,
+      endedAt: attempt.endedAt,
+      status: attempt.status
+    },
+    runnerEvidence,
+    adjudicationEvidence,
+    seenReceiptSha256: seen.receipts,
+    seenTerminalEventSha256: seen.terminalEvents,
+    seenRunnerEvidenceSha256: seen.runnerEvidence,
+    seenAdjudicationEvidenceSha256: seen.adjudicationEvidence
+  });
+  for (const reason of result.rejectionReasons) add(problems, reason);
+}
+
+
 
 function validateRandomization(attempt, manifest, problems) {
   let commitment = null;
@@ -427,68 +552,74 @@ function validatePolicyPanel(request, attempts, manifest, problems) {
   }
 }
 
-function evaluateStoppingRule(attempts, manifest, problems) {
-  const counts = {wins: 0, losses: 0, ties: 0};
-  for (const attempt of attempts) {
-    if (!attempt || typeof attempt !== 'object') continue;
+function evaluateStoppingRule(rawAttempts, playedAttempts, manifest, problems) {
+  const counts = {wins: 0, losses: 0, ties: 0, noWinners: 0};
+  for (const attempt of playedAttempts) {
     if (attempt.status === 'paper-qualified-win') counts.wins += 1;
     else if (attempt.status === 'paper-qualified-loss') counts.losses += 1;
     else if (attempt.status === 'paper-qualified-tie') counts.ties += 1;
+    else if (attempt.status === 'paper-qualified-no-winner') counts.noWinners += 1;
   }
-  const nonwins = counts.losses + counts.ties;
-  const n = attempts.length;
-  const thirdNonwinIndex = (() => {
-    let seen = 0;
-    for (let i = 0; i < attempts.length; i += 1) {
-      if (attempts[i] && attempts[i].status !== 'paper-qualified-win') {
-        seen += 1;
-        if (seen === 3) return i;
-      }
-    }
-    return -1;
-  })();
-
-  if (manifest.decisionSchedule === 'two-look-1216-1280' &&
-      n > LOOK1_ATTEMPTS &&
-      attempts.slice(0, LOOK1_ATTEMPTS).every(a => a && a.status === 'paper-qualified-win')) {
-    add(problems, 'two-look-continued-after-early-pass');
+  const nonwins = counts.losses + counts.ties + counts.noWinners;
+  if (playedAttempts.length > REGISTERED_SLOTS) {
+    add(problems, 'played-game-count-exceeds-registered-slots');
     return {disposition: 'INVALID_STOP', met: false, counts};
   }
 
+  const firstLook = playedAttempts.slice(0, LOOK1_GAMES);
+  if (firstLook.length === LOOK1_GAMES &&
+      firstLook.every(attempt => attempt.status === 'paper-qualified-win')) {
+    const lastFirstLookRawIndex = rawAttempts.indexOf(firstLook[LOOK1_GAMES - 1]);
+    if (playedAttempts.length !== LOOK1_GAMES ||
+        lastFirstLookRawIndex !== rawAttempts.length - 1) {
+      add(problems, 'two-look-continued-after-early-pass');
+      return {disposition: 'INVALID_STOP', met: false, counts};
+    }
+    return {disposition: 'PASS_EARLY_ALL_WIN', met: true, counts};
+  }
+
   if (nonwins >= 3) {
-    if (nonwins !== 3 || thirdNonwinIndex !== n - 1) {
+    let seen = 0;
+    let thirdNonwin = null;
+    for (const attempt of playedAttempts) {
+      if (attempt.status !== 'paper-qualified-win') {
+        seen += 1;
+        if (seen === 3) {
+          thirdNonwin = attempt;
+          break;
+        }
+      }
+    }
+    const thirdRawIndex = thirdNonwin ? rawAttempts.indexOf(thirdNonwin) : -1;
+    if (nonwins !== 3 || thirdRawIndex !== rawAttempts.length - 1) {
       add(problems, 'futility-stop-not-immediate');
       return {disposition: 'INVALID_STOP', met: false, counts};
     }
     return {disposition: 'FUTILITY_STOP', met: false, counts};
   }
 
-  if (manifest.decisionSchedule === 'fixed-1280') {
-    if (n !== REGISTERED_ATTEMPTS) {
-      return {disposition: 'INCOMPLETE', met: null, counts};
-    }
-    return {disposition: nonwins <= 2 ? 'PASS' : 'FAIL',
+  if (playedAttempts.length === REGISTERED_SLOTS) {
+    return {disposition: nonwins <= 2 ? 'PASS_FINAL' : 'FAIL',
       met: nonwins <= 2, counts};
   }
-
-  if (manifest.decisionSchedule === 'two-look-1216-1280') {
-    if (n === LOOK1_ATTEMPTS && nonwins === 0) {
-      return {disposition: 'PASS_EARLY_ALL_WIN', met: true, counts};
-    }
-    if (n === REGISTERED_ATTEMPTS) {
-      const firstLookNonwins = attempts.slice(0, LOOK1_ATTEMPTS)
-        .filter(a => !a || a.status !== 'paper-qualified-win').length;
-      if (firstLookNonwins === 0) {
-        add(problems, 'two-look-continued-after-early-pass');
-        return {disposition: 'INVALID_STOP', met: false, counts};
-      }
-      return {disposition: nonwins <= 2 ? 'PASS_FINAL' : 'FAIL',
-        met: nonwins <= 2, counts};
-    }
-    return {disposition: 'INCOMPLETE', met: null, counts};
-  }
-  return {disposition: 'INVALID_SCHEDULE', met: false, counts};
+  return {disposition: 'INCOMPLETE', met: null, counts};
 }
+
+function findRepeatedRandomizationMaterialGroups(attempts) {
+  const byCommitment = new Map();
+  for (const attempt of attempts) {
+    if (!attempt || attempt.status === 'pre-game-failure' ||
+        !isSha(attempt.rngMaterialCommitment)) continue;
+    const ids = byCommitment.get(attempt.rngMaterialCommitment) || [];
+    ids.push(attempt.attemptId);
+    byCommitment.set(attempt.rngMaterialCommitment, ids);
+  }
+  return [...byCommitment.entries()]
+    .filter(([, ids]) => ids.length > 1)
+    .map(([commitment, attemptIds]) => ({commitment, attemptIds}));
+}
+
+
 
 /**
  * Validate a preregistered 32-rank × candidate-physical-seat design. Actual
@@ -506,12 +637,13 @@ function validateNatural64FieldLedger(request) {
   const problems = new Set();
   const target = request.target ?? 0.995;
   const confidence = request.confidence ?? 0.95;
-  const {manifest, registrationValid} = validateManifest(request, problems);
+  const {manifest, slotRoster, registrationValid} = validateManifest(request, problems);
   if (!manifest) {
     return {
       status: 'INVALID', rejectionReasons: [...problems].sort(),
-      totalAttempts: request.attempts.length, winCount: 0, nonWinCount: 0,
-      designThresholdMet: null, decisionRuleDisposition: 'INVALID_REGISTRATION',
+      totalAttempts: request.attempts.length, playedGameCount: 0,
+      winCount: 0, nonWinCount: 0, designThresholdMet: null,
+      decisionRuleDisposition: 'INVALID_REGISTRATION',
       structuralAdmissionOnly: true,
       sourceAuthenticityProven: false,
       policyCompetenceProven: false,
@@ -547,28 +679,23 @@ function validateNatural64FieldLedger(request) {
   }
 
   const attempts = request.attempts;
-  if (attempts.length > REGISTERED_ATTEMPTS) add(problems, 'attempt-count-exceeds-registration');
-  const trialIds = new Set();
+  const slotValidation = validateSlotAttempts(attempts, slotRoster, manifest, problems);
+  const playedAttempts = slotValidation.playedAttempts;
+  const runnerEvidenceByAttemptId = indexEvidence(
+    request.runnerTerminalEvidence, playedAttempts, 'runner-terminal', problems);
+  const adjudicationEvidenceByAttemptId = indexEvidence(
+    request.adjudicationEvidence, playedAttempts, 'adjudicator', problems);
+  const seen = {
+    receipts: new Set(),
+    terminalEvents: new Set(),
+    runnerEvidence: new Set(),
+    adjudicationEvidence: new Set()
+  };
   const paperReceiptIds = new Set();
   const rngCommitmentTrials = new Map();
 
-  for (let i = 0; i < attempts.length; i += 1) {
-    const attempt = attempts[i];
-    const planned = manifest.attempts?.[i];
-    if (!attempt || typeof attempt !== 'object' || Array.isArray(attempt)) {
-      add(problems, 'attempt-record-invalid');
-      continue;
-    }
-    if (!planned || attempt.trialId !== planned.trialId ||
-        attempt.sequenceIndex !== i || attempt.roundIndex !== Math.floor(i / 64) ||
-        attempt.rank !== planned.rank || attempt.seat !== planned.seat) {
-      add(problems, 'attempt-roster-prefix-mismatch');
-    }
-    if (!isText(attempt.trialId) || trialIds.has(attempt.trialId)) {
-      add(problems, 'duplicate-or-missing-trial');
-    } else {
-      trialIds.add(attempt.trialId);
-    }
+  for (const attempt of attempts) {
+    if (!attempt || typeof attempt !== 'object' || Array.isArray(attempt)) continue;
     if (!Number.isInteger(attempt.rank) || attempt.rank < 1 ||
         attempt.rank > FIELD_SIZE || !SEATS.includes(attempt.seat)) {
       add(problems, 'invalid-rank-or-candidate-seat');
@@ -583,10 +710,11 @@ function validateNatural64FieldLedger(request) {
       ['candidatePolicySha', 'candidatePolicySha'],
       ['engineAndHooksSha', 'engineAndHooksSha'],
       ['opponentPolicyBundleSha', 'opponentPolicyBundleSha'],
-      ['adjudicationProtocolSha', 'adjudicationProtocolSha']
+      ['adjudicationProtocolSha256', 'adjudicationProtocolSha256']
     ]) {
-      const expected = manifest[manifestField];
-      if (attempt[field] !== expected) add(problems, 'attempt-fixed-identity-mismatch:' + field);
+      if (attempt[field] !== manifest[manifestField]) {
+        add(problems, 'attempt-fixed-identity-mismatch:' + field);
+      }
     }
     if (attempt.enginePin !== manifest.twinleafPin ||
         attempt.runnerRevision !== manifest.runnerRevision) {
@@ -599,19 +727,7 @@ function validateNatural64FieldLedger(request) {
     if (attempt.opponentSeat !== 1 - attempt.seat) {
       add(problems, 'opponent-seat-mismatch');
     }
-    if (!['paper-qualified-win', 'paper-qualified-loss',
-         'paper-qualified-tie'].includes(attempt.status)) {
-      add(problems, 'attempt-status-invalid-or-pregame-failure');
-    }
-    if (attempt.gameStarted !== true || attempt.terminalReached !== true) {
-      add(problems, 'attempt-is-not-a-completed-game');
-    }
-    validateNaturalStarter(attempt, problems);
-    if (!isText(attempt.paperReceiptId) || paperReceiptIds.has(attempt.paperReceiptId)) {
-      add(problems, 'duplicate-or-missing-paper-receipt');
-    } else {
-      paperReceiptIds.add(attempt.paperReceiptId);
-    }
+
     const registeredAt = Date.parse(manifest.registeredAt);
     const startedAt = Date.parse(attempt.startedAt);
     const endedAt = Date.parse(attempt.endedAt);
@@ -623,70 +739,108 @@ function validateNatural64FieldLedger(request) {
         startedAt < registeredAt || endedAt < startedAt) {
       add(problems, 'attempt-time-or-preregistration-invalid');
     }
-    validateAdjudicationReceipt(attempt, manifest, problems);
+
+    if (attempt.status === 'pre-game-failure') continue;
+
+    validateNaturalStarter(attempt, problems);
+    if (!isText(attempt.paperReceiptId) || paperReceiptIds.has(attempt.paperReceiptId)) {
+      add(problems, 'duplicate-or-missing-paper-receipt');
+    } else {
+      paperReceiptIds.add(attempt.paperReceiptId);
+    }
+    validateAdjudicationReceipt(
+      attempt,
+      manifest,
+      runnerEvidenceByAttemptId.get(attempt.attemptId),
+      adjudicationEvidenceByAttemptId.get(attempt.attemptId),
+      seen,
+      problems
+    );
     validateRandomization(attempt, manifest, problems);
     if (isSha(attempt.rngMaterialCommitment)) {
       const ids = rngCommitmentTrials.get(attempt.rngMaterialCommitment) || [];
-      ids.push(attempt.trialId);
+      ids.push(attempt.attemptId);
       rngCommitmentTrials.set(attempt.rngMaterialCommitment, ids);
     }
   }
 
-  validatePolicyPanel(request, attempts, manifest, problems);
-
-  const stopping = evaluateStoppingRule(attempts, manifest, problems);
+  validatePolicyPanel(request, playedAttempts, manifest, problems);
+  const stopping = evaluateStoppingRule(attempts, playedAttempts, manifest, problems);
+  const repeatedRandomizationMaterialGroups =
+    findRepeatedRandomizationMaterialGroups(playedAttempts);
+  const randomizationReviewRequired = repeatedRandomizationMaterialGroups.length > 0;
+  const warnings = randomizationReviewRequired
+    ? ['repeated-rng-material-commitment-blocks-design-threshold-pending-independent-audit']
+    : [];
   const rejectionReasons = [...problems].sort();
   const structuralValid = rejectionReasons.length === 0;
   const rankSummary = Array.from({length: FIELD_SIZE}, (_, index) => {
     const bySeat = [0, 1].map(seat => {
-      const rows = attempts.filter(a => a && a.rank === index + 1 && a.seat === seat);
+      const played = playedAttempts.filter(a => a && a.rank === index + 1 && a.seat === seat);
+      const executions = attempts.filter(a => a && a.rank === index + 1 && a.seat === seat);
       return {
-        attempts: rows.length,
-        wins: rows.filter(a => a && a.status === 'paper-qualified-win').length,
-        losses: rows.filter(a => a && a.status === 'paper-qualified-loss').length,
-        ties: rows.filter(a => a && a.status === 'paper-qualified-tie').length,
-        noWinnerTerminals: rows.filter(a => a && a.adjudicationReceipt &&
-          a.adjudicationReceipt.terminalClass === 'no-winner').length
+        slotsScheduled: GAMES_PER_STRATUM,
+        executionAttempts: executions.length,
+        preGameFailures: executions.filter(a => a.status === 'pre-game-failure').length,
+        playedGames: played.length,
+        wins: played.filter(a => a.status === 'paper-qualified-win').length,
+        losses: played.filter(a => a.status === 'paper-qualified-loss').length,
+        ties: played.filter(a => a.status === 'paper-qualified-tie').length,
+        noWinners: played.filter(a => a.status === 'paper-qualified-no-winner').length
       };
     });
     return {rank: index + 1, seat0: bySeat[0], seat1: bySeat[1]};
   });
-  const nonWinCount = stopping.counts.losses + stopping.counts.ties;
-  const noWinnerTerminalCount = attempts.filter(a => a && a.adjudicationReceipt &&
-    a.adjudicationReceipt.terminalClass === 'no-winner').length;
-  const repeatedRandomizationMaterialGroups = [...rngCommitmentTrials.entries()]
-    .filter(([, ids]) => ids.length > 1)
-    .map(([commitment, trialIds]) => ({commitment, trialIds}));
-  const warnings = repeatedRandomizationMaterialGroups.length
-    ? ['repeated-rng-material-commitment-requires-independent-draw-audit']
-    : [];
+  const winCount = stopping.counts.wins;
+  const lossCount = stopping.counts.losses;
+  const tieCount = stopping.counts.ties;
+  const noWinnerTerminalCount = stopping.counts.noWinners;
+  const nonWinCount = lossCount + tieCount + noWinnerTerminalCount;
+  const playedGameCount = playedAttempts.length;
+  const decisionRuleDisposition = randomizationReviewRequired
+    ? 'RNG_REUSE_REVIEW_REQUIRED'
+    : stopping.disposition;
+
   return {
-    status: structuralValid ? (stopping.disposition === 'INCOMPLETE' ? 'INCOMPLETE' : 'VALID') : 'INVALID',
-    target, confidence,
+    status: structuralValid
+      ? (stopping.disposition === 'INCOMPLETE' ? 'INCOMPLETE' : 'VALID')
+      : 'INVALID',
+    target,
+    confidence,
     totalAttempts: attempts.length,
-    registeredAttemptCount: REGISTERED_ATTEMPTS,
-    winCount: stopping.counts.wins,
-    lossCount: stopping.counts.losses,
-    tieCount: stopping.counts.ties,
+    registeredSlotCount: REGISTERED_SLOTS,
+    completedSlotCount: slotValidation.completedSlotCount,
+    preGameFailureCount: slotValidation.preGameFailureCount,
+    playedGameCount,
+    retryAttempts: attempts.filter(a => a && a.attemptNumber > 1).length,
+    winCount,
+    lossCount,
+    tieCount,
     noWinnerTerminalCount,
     nonWinCount,
-    observedWinRate: attempts.length ? stopping.counts.wins / attempts.length : null,
+    observedWinRate: playedGameCount ? winCount / playedGameCount : null,
     attemptsPerRankAndCandidateSeat:
-      attempts.length === LOOK1_ATTEMPTS ? 19 :
-      attempts.length === REGISTERED_ATTEMPTS ? 20 : null,
+      playedGameCount === LOOK1_GAMES ? 19 :
+      playedGameCount === REGISTERED_SLOTS ? 20 : null,
     rankSummary,
     repeatedRandomizationMaterialGroups,
+    randomizationReviewRequired,
     warnings,
-    decisionRuleDisposition: stopping.disposition,
-    designThresholdMet: structuralValid ? stopping.met : null,
+    decisionRuleDisposition,
+    designThresholdMet: structuralValid && !randomizationReviewRequired
+      ? stopping.met
+      : null,
     samplingModelRegistrationValid: registrationValid && structuralValid,
     clockMode: manifest.clockMode,
+    adjudicationProtocolSha256: manifest.adjudicationProtocolSha256,
+    noWinnerDisposition: manifest.noWinnerDisposition,
     randomizationProtocol: manifest.randomizationProtocol,
     unbiasedShuffleMethod: manifest.unbiasedShuffleMethod,
     structuralAdmissionOnly: true,
     sourceAuthenticityProven: false,
     policyCompetenceProven: false,
     rngIntegrationProven: false,
+    runnerTerminalEvidenceAuthenticated: false,
     paperAdjudicatorSignatureVerified: false,
     externalQualificationRequired: true,
     statisticalCertification: 'NOT_ESTABLISHED',
@@ -694,8 +848,14 @@ function validateNatural64FieldLedger(request) {
   };
 }
 
+
+
 module.exports = {
   validateNatural64FieldLedger,
+  validateNatural64SlotAttempts: validateSlotAttempts,
+  evaluateNatural64StoppingRule: evaluateStoppingRule,
+  findRepeatedRandomizationMaterialGroups,
+  NATURAL64_DECISION_SCHEDULES: DECISION_SCHEDULES,
   NATURAL64_MANIFEST_SCHEMA: MANIFEST_SCHEMA,
   NATURAL64_SAMPLING_MODEL: SAMPLING_MODEL,
   NATURAL64_ADJUDICATION_SCHEMA: ADJUDICATION_SCHEMA,
