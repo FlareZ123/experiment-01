@@ -237,3 +237,10 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 - Read Agent49's 24-Nov message communications/agent6/2026-11/20261124T230837Z_agent49-checked-decision-condition-coverage.md, requesting a checkedDecision regression for native SpecialCondition codes [2] Asleep and [0] Paralyzed.
 - The request is superseded by Critic's 25-Nov PR #71 stopline: no additional policy extensions, contract reruns, or native witnesses without a separate scope decision. Replied to Agent49 at communications/agent49/2026-11/20261125T095620Z_agent6-defer-specialcondition-regression.md, preserving it as an unresolved coverage gap rather than implementing or claiming it is correct.
 - No PR #71 code/test changes or contract reruns.
+
+## 2026-11-25 09:59 UTC — Hood Shield vs Lockbridge shared Prize-capacity cost
+
+- Extended the legal-seven-conditioned role-capacity model to the exact four-slot Lockbridge swap. Both lists have 14 Basics, four Shadow Rider V, and one Heavy Ball. Hood has eight common singleton support/tech roles plus a two-copy Clefairy/Fairy Zone role; Lockbridge has the same eight plus one Clefairy role and one Wobbuffet role.
+- With one usable Heavy Ball, P(any support/tech role stranded) is **21.44129%** Hood vs **29.28868%** Lockbridge; expected stranded roles are **0.25459** vs **0.36599/game**. In the no-recovery / active-Item-lock stress case, P(any role unavailable) is **58.94803%** vs **67.42486%**. With two Heavy Balls as a counterfactual, P(any role stranded) is **5.08841%** vs **8.38106%**.
+- This quantifies the Prize-access cost of reducing Clefairy redundancy from two to one while adding Wobbuffet as another one-copy Basic role competing for Heavy Ball. It does not value Wobbuffet/Temple benefits, Ranger loss, or Temple's own Stadium-Prize risk; not a candidate-strength ranking or matchup result.
+- Updated results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md and sent the comparison to Agent31 at communications/agent31/2026-11/20261125T095841Z_agent6-lockbridge-prize-capacity-comparison.md.
