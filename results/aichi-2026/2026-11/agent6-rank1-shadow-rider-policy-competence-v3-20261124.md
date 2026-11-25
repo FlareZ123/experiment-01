@@ -111,17 +111,19 @@ The exact-head workflow is deliberately a small pure-policy contract workflow. I
 - The fixed rank-1 reference list is unchanged: [benchmark list](../benchmark-shadow-rider.md).
 - This is not independent policy-competence acceptance and does not unblock the frozen Stage-A/Stage-B gates. The current decision board remains authoritative: [results index](../../README.md).
 
-Next useful work is one consolidated independent review each from Agent2 and Agent11 of the exact tested code/test revision `89a3e93`, followed by separately scoped source-attributed Ability-suppression work and Agent49's source-correct GX classification/Copycat receipt projection. Do not dispatch a native fixture: Stage-A remains retry-frozen, and the prior no-game witness is not same-SHA evidence for this head.
+The consolidated independent reviews of exact tested revision `89a3e93` are now complete. No additional policy patch, native witness, fixture, or game is authorized by the current scope. Keep the fixed rank-1 60 and tested policy/test blobs unchanged; Stage-A remains retry-frozen.
 
 
-## Current exact-head review disposition — 2026-11-25 03:22Z
+## Current exact-head review disposition — 2026-11-25 05:05Z
 
-The four-path Bench-capacity blocker from Agent2's review is corrected on exact tested policy/test revision `89a3e93c0f804713509e924ba76c5df7ccf9e96b`. One capacity contract now drives Gate open-slot estimation, actor placement, manual Energy target resolution, and Underworld Door prompt pairing. The 136-case contract suite passed on that exact revision ([run 45539327197](https://github.com/FlareZ123/experiment-01/actions/runs/45539327197)); policy blob `01e4bc5d345f5e6bd98ae3bbdec03c98d12f9a61`, protocol blob `204d0aff81d0ab2a1e46f1ad3b167ee50bcc4766`, test blob `3046db51d74e98d7c2e032e636588bdce5506f91`.
+The authorized four-path Bench-capacity correction is complete on exact tested policy/test revision `89a3e93c0f804713509e924ba76c5df7ccf9e96b`. The exact-head contract workflow [45539327197](https://github.com/FlareZ123/experiment-01/actions/runs/45539327197) passed all 136 Node 22 policy/prompt/worker/action-frontier cases. Tested blobs remain policy `01e4bc5d345f5e6bd98ae3bbdec03c98d12f9a61`, protocol `204d0aff81d0ab2a1e46f1ad3b167ee50bcc4766`, and tests `3046db51d74e98d7c2e032e636588bdce5506f91`. The published rank-1 60 is unchanged.
 
-The tests cover live Sky Field capacity 8, Stadium/Tool suppression restoring 5, Parallel City owner/orientation capacity 3 where applicable, unknown effect/direction fail-closed, and valid actor/target/Underworld Door indices 5–7. The fixed rank-1 60 remains unchanged.
+**Independent reviews are complete:**
+- Agent2's scoped review [6051755266](https://github.com/FlareZ123/experiment-01/pull/71#pullrequestreview-6051755266) found no blocking issue in the four corrected paths. Its follow-up [6051784770](https://github.com/FlareZ123/experiment-01/pull/71#pullrequestreview-6051784770) narrows the separate pinned-Twinleaf Stadium/Tool-suppression fidelity caveat to Shiftry STS 11 / Wicked Wind. Shiftry is absent from the rank-1/Hood fixed pair and all 29 authenticated Aichi lists; this is not a blocker for those inputs. Do not generalize to missing ranks 23, 25, and 28 or the complete 32.
+- Agent11's consolidated review [6052077621](https://github.com/FlareZ123/experiment-01/pull/71#pullrequestreview-6052077621) found no blocking issue in the four corrected paths. Its only note is non-blocking future test hardening: there is no direct Sky Field root-action regression for the one-slot Radiant reservation while Radiant remains in hand; the implementation arithmetic was considered consistent and no patch was requested.
 
-Agent2 and Agent11 have been asked for one consolidated independent review of this exact code/test revision. PR #71 remains draft pending those reviews and the separate native/game acceptance gates. This contract run is not a native witness, fixture, game, Aichi matchup, policy-competence acceptance, win-rate estimate, or evidence of 99.5%.
+**Disposition:** the authorized policy-contract and independent-review obligations for PR #71 are complete. Keep PR #71 draft and freeze the policy/protocol/test blobs above. This is not policy-competence acceptance: no same-SHA native no-game witness, fixture, game, Aichi matchup, matchup sample, win-rate estimate, or evidence of 99.5% exists. The previous no-game witness used superseded policy code.
 
-**Explicitly deferred:** Agent4 identified a separate sequencing risk: after capacity is corrected, ordinary Bench-consuming Shadow Rider V plays may spend spaces needed for the terminal Radiant Eternatus / Climactic Gate line before Gate is used. This was expressly outside the current four-path authorization and is not changed here; it requires a separate scope decision.
+**Explicitly deferred:** Agent4's separate Gate-slot reservation/sequencing concern remains outside the authorized four-path patch. Do not extend this PR or dispatch another workflow to address it without a new scope decision.
 
-Stage-A remains retry-frozen. No fixture or game was dispatched.
+Stage-A remains retry-frozen. No fixture or game was dispatched. No native hook or run is warranted solely by the bounded Shiftry caveat.
