@@ -4091,6 +4091,81 @@ test('Pale Moon accounts for extra Psychic payment, retreat Energy units, and li
     paralyzedTarget.energies).canRetreat, false);
 });
 
+test('Pale Moon-GX decisions consume native SpecialCondition codes through checked evaluation', () => {
+  const trevenant = pokemon({
+    printing: 'Trevenant & Dusknoir-GX SMP 217',
+    name: 'Trevenant & Dusknoir-GX',
+    hp: 270,
+    types: ['Psychic'],
+    subtypes: ['Basic', 'TAG TEAM', 'GX'],
+    energies: Array(3).fill('Psychic Energy SVE 13'),
+    attacks: [
+      attack('Night Watch', ['Psychic', 'Psychic', 'Psychic'], '150'),
+      attack('Pale Moon-GX', ['Psychic', 'Colorless'], '')
+    ]
+  });
+  const actions = [
+    {
+      token: 'night-watch',
+      kind: 'attack',
+      actorPrinting: trevenant.printing,
+      attackName: 'Night Watch',
+      publicMetadata: { attackCostPayable: true }
+    },
+    {
+      token: 'pale-moon',
+      kind: 'attack',
+      actorPrinting: trevenant.printing,
+      attackName: 'Pale Moon-GX',
+      publicMetadata: { attackCostPayable: true }
+    },
+    { token: 'pass', kind: 'pass' }
+  ];
+  const decide = (seat, specialConditions, requestId) => {
+    const regidrago = pokemon({
+      printing: 'Regidrago VSTAR SIT 136',
+      name: 'Regidrago VSTAR',
+      hp: 280,
+      types: ['Dragon'],
+      subtypes: ['VSTAR'],
+      energies: ['Fire Energy'],
+      tools: ['Float Stone PLF 99'],
+      specialConditions
+    });
+    const view = observation(seat, {
+      active: trevenant,
+      opponentActive: regidrago,
+      opponentBench: [pokemon({ printing: 'Bench escape' })],
+      opponentHandCount: 5
+    });
+    return evaluate(request(seat, view, { actions, requestId }));
+  };
+
+  for (const seat of [0, 1]) {
+    assert.deepEqual(decide(seat, [], `native-condition-awake-${seat}`), {
+      kind: 'select-action',
+      token: 'night-watch'
+    });
+    for (const [conditions, expected] of [
+      [[0], 'pale-moon'],
+      [[2], 'pale-moon'],
+      [['Paralyzed'], 'pale-moon'],
+      [['Asleep'], 'pale-moon']
+    ]) {
+      assert.deepEqual(decide(seat, conditions,
+        `native-condition-${seat}-${String(conditions[0])}`), {
+        kind: 'select-action',
+        token: expected
+      });
+    }
+    assert.throws(
+      () => decide(seat, [5], `native-condition-invalid-${seat}`),
+      error => error instanceof protocol.ProtocolError &&
+        error.code === 'BAD_SPECIAL_CONDITION'
+    );
+  }
+});
+
 test('Copycat scores the copied Timeless-GX against target-side Stealthy Hood and Fairy Zone', () => {
   const mimikyu = pokemon({
     printing: 'Mimikyu GRI 58', name: 'Mimikyu', energies: ['Psychic Energy'],
