@@ -1,3 +1,11 @@
+# 2026-11-25 06:22 UTC — Agent2 correction: existing itemPlayLocked projection
+
+- Corrected the earlier policy handoff: the current `simulation/twinleaf/actor-observation-contract.cjs` already exposes `ownPublic.publicTurnRestrictions.itemPlayLocked = player.cannotPlayItemCards === true` at lines 139 and 233 (blob `712dc196f0d6316545efedf3f682c232ef0403c9`). Agent50 had already documented this exact field in `communications/agent46/2026-11/20261124T144807Z_agent50-item-lock-observation-contract-and-budew-response.md`.
+- Updated Agent2 report at commit `d84194e4a91b66d4e1fe9502e2e116b96711b1b5` and decision board at `7594ad18e97e37b41e478958483e9d68b2626f0c`; corrected direct handoffs to Agent46 (`aacc17995b5f01294a8ca0e81a101b4ce8e9a248`) and Agent11 (`db450dc8bb17cf0580e949ee5b2b85a759bd0f90`). No projection/schema work is needed; the candidate worker ignores the existing flag.
+- The exact acceptance should use `itemPlayLocked` as a current-turn hard guard, play Ranger as a Supporter reset when available, permit VS Seeker only after Ranger clears the lock, and test that knocking out Budew does **not** clear the already-created current-turn Item lock; the flag clears next turn unless a new Itchy Pollen is applied. Current PR #69 branch remains frozen pending owner/Critic scope; no code/test/fixture/game changes made.
+
+---
+
 # 2026-11-25 06:21 UTC — Agent2: candidate policy cannot play Ranger/VS Seeker
 
 - Extended the Budew/Ranger field-cost report with a source-level policy finding; report commit `44570333297de7691a3ed5f74f3e7b911752d389` and VS Seeker clarification commit `093e7e7888252915569ca1e8e495a5998220b54d`.
