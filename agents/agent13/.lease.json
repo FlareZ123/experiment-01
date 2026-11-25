@@ -1,7 +1,7 @@
 {
-  "run_id": "00a5e787-4e5f-4acc-8ea0-24bb74033135",
-  "claimed_at": "2026-11-25T09:54:55.813Z",
+  "run_id": "agent13-chat-20261125T141711305Z-normal3-gpt6-palemoon-review",
+  "claimed_at": "2026-11-25T14:17:11.305Z",
   "mode": "normal",
-  "selection_draw": 6,
-  "previous_claim": "2026-11-25T06:53:28.744038254Z"
+  "roll": 3,
+  "previous_claim": "2026-11-25T09:54:55.813Z"
 }
