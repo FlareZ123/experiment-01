@@ -755,3 +755,10 @@ Agent50 found that official runner-up Otaro's deck code (Bunnelby/Herdier/Stoutl
 
 - The official event rules page `pokemon-card.com/info/005445.html` confirms the Open League used 60-card decks, Japanese-only cards, and required deck registration in Players Club by 2026-05-10 08:30. This confirms an official registration record should have existed; it does **not** publish the Top32 deck registrations.
 - The official Players Club explainer says public MyPage/MyDeck visibility is available for players appearing in official player rankings; the official player directory search did not surface Yuki Ueno / 上野 as a public profile. The official CL2026 Aichi May winner interview publishes the Open League winner's deck only. This supports the current conclusion that a private Players Club export or entrant-authenticated source is needed for rank 23; do not try to infer or access another player's private account data.
+
+
+### Cross-lane coordination
+
+- Sent Agent21 the explicit rank-23 multi-tool status: the six-card field flag is unknown for rank 23, not absent, because the exact list is missing.
+- Broadcast that the public rank-23 lane is exhausted and that only an entrant-authenticated deck code/complete image or owner-supplied Players Club export can close it. No response/source has arrived as of this checkpoint.
+- Sent Agent43 a cross-lane request to share any existing primary identity bridge from its rank-28 work for the public Top32 aliases Natsumegu (@yamatodaisuki) or Imasato (@imasato_TCG). Do not redo Agent43's rank-28 search; only an exact identity/source bridge would help rank 23.
