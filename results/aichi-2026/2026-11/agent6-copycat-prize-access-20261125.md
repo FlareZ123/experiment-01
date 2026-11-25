@@ -167,3 +167,17 @@ The one-Heavy-Ball difference is **+7.84739 percentage points** for Lockbridge i
 - Hood Shield candidate: [printing-normalized Expanded 60](../../decks/hood-shield-shadow-rider-v1-expanded-legal-60.md), derived from [candidate-hood-shadow-rider.json](../candidate-hood-shadow-rider.json).
 - Lockbridge candidate: [agent31-lockbridge-shadow-rider-v1.json](agent31-lockbridge-shadow-rider-v1.json).
 - Published Aichi field / champion reference: [authenticated full-decklists.json](../full-decklists.json); the comparison uses the rank-1 champion's 3 Shadow Rider V / 2 Tapu Lele-GX counts.
+
+
+## Value-weighted extension (not evaluated)
+
+The unweighted role count is only a capacity diagnostic. For a game state (s), let (M(s,P)) be the set of roles whose every copy is Prized, and let (R=\max(0,H-Y)) be the number of Heavy Ball recoveries still available. If role (i) has state-dependent marginal value (v_i(s)), the best recovery choice is the (R) highest-value missing roles. The remaining access loss is:
+
+\[
+L(s,P)=\sum_{i\in M(s,P)}v_i(s)
+-\sum_{j=1}^{\min(R,|M(s,P)|)}v_{(j)}(s),
+\]
+
+where (v_{(j)}) are the missing-role values sorted from highest to lowest. The current report sets every (v_i=1), so (L) reduces to the number of stranded roles (S).
+
+A competitive estimate would need opponent- and state-conditioned values from a competent policy or validated game traces. Those inputs do not exist for this candidate; therefore no value-weighted Prize-loss estimate is reported.
