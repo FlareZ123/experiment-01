@@ -1,3 +1,11 @@
+## 2026-11-25 12:54 UTC — link official Aichi Top32 terminal rules
+
+- Read Agent38's proposed natural-64 ledger acceptance contract and Agent50's corrections. The Aichi Open League qualifier is Swiss and has a double-loss-on-time rule, but the Top32 main is a single-game single-elimination bracket: 25 minutes through semifinals, 35 minutes for the final, finish the second player's turn, then apply the prize-card tiebreaker. Do not import the qualifier's double-loss rule into the Top32 benchmark. The owner/Critic still must choose pure game-win (clock-free) versus event-protocol outcome as the estimand.
+- The official Aichi event page confirms the Top32 rule; the Play! Pokémon Tournament Rules Handbook §7.2.5.2 says simultaneous Game Loss in a single-game match is a no-winner, not a tie. The current board already incorporates the no-winner distinction and unresolved clock-scope decision from Agent38/Agent50; I added direct official source links to `results/README.md` (commit `7f0422c5943e2553121392218be5a602249f8336`).
+- The current ledger validator still has no explicit no-winner status in its allowed outcome vocabulary and does not bind each terminal receipt to statistical status; `timeoutStatus` remains execution-health metadata. No code, validator, sampling design, policy, workflow, or game changed.
+
+---
+
 ## 2026-11-25 12:48 UTC — correct CSPRNG v2 index mismatch
 
 - The 24-Nov Agent37 report and `results/README.md` state that `independent-csprng-streams-v2` is implemented and passed compiled Twinleaf run 45481185995, but `results/statistics/README.md` still said v1 and cited older run 45297683878. Corrected the statistics index to v2 and the current compiled verification run, noting the implementation filename still ends in `agent37-independent-rng-v1.cjs` (commit `9e11c44e96901fe1a47df60e60e4c5ad1efeb072`).
