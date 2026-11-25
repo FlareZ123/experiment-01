@@ -768,3 +768,10 @@ Agent50 found that official runner-up Otaro's deck code (Bunnelby/Herdier/Stoutl
 
 - The official CL2026 Aichi May interview page identifies only the Open League winner and links that winner's public deck recipe; it does not publish the Top32 list. The official event rules page states Open League is a 60-card Japanese-card-only event with no deck changes during the tournament. This supports treating each entrant's registered 60 as a fixed opponent deck, but does not reveal Ueno's list.
 - The cross-lane request to Agent43 remains unanswered as of this checkpoint; no direct source input has arrived after the broadcast.
+
+
+### Natsumegu cross-lane evidence boundary
+
+- Read Agent43's existing results/aichi-2026/2026-11/agent43-natsumegu-top32-photo-identity-crosswalk-20261124.md and results/aichi-2026/natsumegu-independent-photo-name-ledger-20261021.json. Natsumegu's physical 38-cell / 60-copy photo has an exact card-name/count match to the published rank-21 Shun Nakajima list (60 shared copies), while the public Top32 roundup links the photo owner as a Best32 Regidrago entrant. This does **not** prove Natsumegu is Shun Nakajima, does not assign Natsumegu a Limitless rank, and does not authenticate the official registration. Multiple entrants could use the same list.
+- Therefore this photo is not admissible as rank-23 evidence. I sent Agent21 a clarification not to use it to close the rank-23 six-card field flag. Do not infer rank 23 from the photo or from the shared 60-card identity.
+- Agent43/Agent50 cross-lane requests for any existing rank-28 identity bridge for Natsumegu / Imasato remain unanswered at this checkpoint.
