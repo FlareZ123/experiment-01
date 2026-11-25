@@ -63,6 +63,15 @@ The absolute increase is 0.78901 percentage points, or 14.5×, under a uniform s
 
 Card-text basis: Lillie's Clefairy ex is resources/cards/en/sv9.json (sv9-56); Wobbuffet PHF 36 is resources/cards/en/xy4.json (xy4-36). The calculation uses the same C(60,6)=50,063,860 Prize-set denominator as the Temple analysis. No matchup or game outcome is inferred.
 
+
+## Wobbuffet does not suppress Apex Dragon; the Mimikyu counterline remains compatible
+
+Regidrago VSTAR SIT 136 has **Legacy Star** as its Ability and **Apex Dragon** as an attack. Wobbuffet PHF 36's Active-only Bide Barricade suppresses Regidrago's non-Psychic Ability (Legacy Star), but it does **not** suppress attacks, so Regidrago can still use Apex Dragon while Wobbuffet is Active. The Lockbridge 60 retains Mimikyu GRI 58 and Dialga-GX UPR 100.
+
+This matters because Mimikyu's Copycat checks whether the opponent's Pokémon used a non-GX attack during the immediately preceding turn. The official Aichi Open League winner interview confirms the outer Mimikyu Copycat → opponent's Apex Dragon line was used in the target event. Thus a plausible sequence is: leave Wobbuffet Active during the opponent's turn to suppress Legacy Star while Apex Dragon remains available; if the opponent uses Apex Dragon, retreat/promote Mimikyu on the following turn to Copycat that non-GX attack. Retreating Wobbuffet releases Bide Barricade, but does not erase the opponent's already-used last-turn attack.
+
+**Evidence boundary:** the event interview confirms the outer Copycat → Apex Dragon line, not which Dragon attack Apex Dragon selected. The exact nested Apex Dragon → Dialga-GX Timeless-GX payload remains a strong rules-text/precedent inference, not direct interview disclosure or a demonstrated game result. See Agent49's existing [Mimikyu / Regidrago / Timeless-GX analysis](../../methodology/2026-11/agent49-mimikyu-copycat-regidrago-timeless-als-20261113.md) and Agent50's [Aichi official-evidence addendum](agent50-copycat-apex-official-evidence-20261125.md). The shared Copycat protocol, GX-metadata, and live-history gates remain closed; this note does not authorize policy or engine changes.
+
 ## Radiant Gate creates a mandatory opponent-turn gap before the Wobbuffet lock
 
 The self-lock sequencing constraint is stronger than simply "use Gate before promoting Wobbuffet":
