@@ -310,7 +310,7 @@ This distinction is now relevant to the natural-64 structural validator: branch 
 
 Keep three concepts separate:
 
-- **Top32 event-clock expiry:** the shared clock leads to the prescribed final-turn and Prize/extension/six-Prize tiebreaker procedure; it is not a player timeout or a no-winner.
+- **Top32 event-clock expiry:** the shared clock leads to the prescribed final-turn and current-Prize/extension procedure; it is not a player timeout or a no-winner. The six-Prize restart is reserved for a natural tied knockout game.
 - **Paper-qualified no-winner:** under the Aichi-linked common Floor Rules v2.9, this requires an actual adjudication that both players receive the Defeat penalty. The receipt must preserve the real penalty ruling and both penalized seats. Open Swiss time-expiry both-loss is a separate stage rule and is not part of a Top32 field evaluation.
 - **Ambiguous played terminal:** no paper result has been established. The Critic's natural-64 stopline permits a preregistered conservative statistical nonwin or batch invalidity, but this is not evidence that both players received Defeat and must not be labelled `paper-qualified-no-winner`.
 
