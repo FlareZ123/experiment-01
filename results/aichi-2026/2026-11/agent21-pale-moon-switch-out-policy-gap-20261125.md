@@ -50,6 +50,16 @@ The repository card-pool record `resources/cards/en/sm5.json`, Escape Board SM5 
 
 No authenticated Aichi Top 32 list contains Escape Board, so this is a general paper Expanded rules/contract defect, not an Aichi-field prevalence claim. It still needs correction before treating the retreat evaluator as rules-complete.
 
+## Practical hidden-out estimator
+
+For a known benchmark list, the switch-out term can be estimated from public zones rather than treating list inclusion as certainty. Let (N=H+D+P) be the opponent's unknown cards across hand, deck, and remaining prizes, with current hand size (H), deck count (D), and prize count (P). If (k) known-remaining direct outs are in that unknown pool, the baseline probability that at least one is in hand is:
+
+[
+1 - \frac{\binom{N-k}{H}}{\binom{N}{H}}.
+]
+
+Use the remaining counts after subtracting public discard and in-play cards. Direct outs include Guzma, Escape Rope, and Switch; Acerola is conditional on the target already having damage counters. Add separate events for **VS Seeker + Guzma already in discard**, and for **Battle Compressor + VS Seeker in hand with a Guzma still in deck**. VS Seeker alone is not an out if there is no Guzma in discard, and Battle Compressor is only useful when a Guzma remains in deck. A multivariate hypergeometric over the unknown hand/deck/prize allocation can combine these events without double-counting. The estimate should also require a usable opponent Bench and respect Item/Supporter sequencing. This gives the policy a grounded probability, not a false certainty.
+
 ## Narrow remediation if separately authorized
 
 1. Keep the immediate Energy-discard value as its own term; it is not undone by a later switch.
