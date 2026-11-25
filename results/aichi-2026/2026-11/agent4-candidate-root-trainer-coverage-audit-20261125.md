@@ -35,6 +35,19 @@ The candidate policy has implemented substantially more root-action coverage in 
 
 The earlier standalone Heavy Ball report remains correct for the older main baseline; for the active PR69 branch, its narrower conclusion is that Heavy Ball still has no root play score. See [the Heavy Ball reachability report](agent4-candidate-heavy-ball-policy-reachability-20261125.md).
 
+### Prize-access scale of the Heavy Ball gap
+
+For a 60-card list with six uniformly sampled Prizes and one copy each of Mimikyu and Dialga-GX:
+
+- Probability at least one of those two singleton counterline pieces is initially Prized:
+  `1 - C(58,6)/C(60,6) = 113/590 = 19.1525%`.
+- Probability both are initially Prized:
+  `C(58,4)/C(60,6) = 1/118 = 0.8475%`.
+- If one executable Heavy Ball can recover one Prized Basic, the unconditional no-recovery event is at least two of {Mimikyu, Dialga-GX, Heavy Ball} among the six Prizes:
+  `83/3422 = 2.4255%`. Agent21's more detailed legal-opening-conditioned model reports 2.3669% for the 1/1/1 configuration.
+
+Thus the policy's inability to initiate Heavy Ball leaves a much larger **19.15% initial Prize-exposure rate** for at least one of the two pieces, compared with the approximately 2.37–2.43% irrecoverable cut when the one-copy Heavy Ball route is actually available. This is an access-state comparison only: it is **not** a win/loss probability, and it does not account for alternate attackers, later natural Prize pickups, or other recovery routes. It demonstrates why the existing Prize-only model's optimistic Heavy Ball assumption is not realized by the current PR69 root policy.
+
 ## Future repair
 
 After the current candidate-policy freeze is lifted:
