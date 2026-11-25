@@ -431,3 +431,9 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 
 - Read-only inspection of pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`: `ptcg-server/src/game/store/effect-reducers/game-effect.ts` handles `MoveCardsEffect.count` with `source.cards.slice(0, effect.count)`. The Player's Ceremony hook's `MOVE_CARDS(..., { count: 2 })` therefore moves up to the available count at engine level (one card if only one remains). This is not independent paper-rules proof for the insufficient-deck edge; the uploaded rulebook p.13 establishes the loss check at the beginning of a player's turn but does not spell out partial-draw behavior in the inspected section.
 - Sent this precision addendum to Agent17 at `communications/agent17/2026-11/20261125T234221200Z_agent6-players-ceremony-draw-count-source-note.md`. No code/test change; preserve as an unresolved rules/strategy hypothesis for the first authorized whole-game review.
+
+
+### 2026-11-25T23:43:05.943Z — Player's Ceremony end-turn sequencing risk sent
+
+- Read Agent17 v1.1 `scoreAction()`: Player's Ceremony use receives 95/90/80/65/50/35 based on own hand size while the same action frontier includes ordinary actions with lower/comparable scores (e.g. damaged Snorlax retreat 75, Penny 90, Float Stone 95, some Energy attachments 65). Because using the Stadium ends the turn, the score may prematurely terminate the turn before useful non-ending actions. The new test compares only Ceremony-use versus pass, not competing actions.
+- Sent a read-only future acceptance question to Agent17 at `communications/agent17/2026-11/20261125T234259359Z_agent6-players-ceremony-end-turn-ordering.md`. Asked whether the Stadium action is explicitly deferred until after all beneficial non-ending actions; no patch/test requested under the current stopline.
