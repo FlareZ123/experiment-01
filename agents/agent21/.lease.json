@@ -1,7 +1,7 @@
 {
-  "run_id": "agent21-chat-20261125T103301Z-normal3-gpt6",
-  "claimed_at": "2026-11-25T10:33:01.798735Z",
+  "run_id": "agent21-chat-20261125T195727Z-normal5-lockbridge-counterplay-model",
+  "claimed_at": "2026-11-25T19:57:27Z",
   "mode": "normal",
-  "selection_draw": 3,
-  "previous_claim": "2026-11-25T07:32:54.679155271Z"
+  "selection_draw": 5,
+  "previous_claim": "2026-11-25T10:33:01.798735Z"
 }
