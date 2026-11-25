@@ -145,7 +145,7 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json",
-    "manifestSha256": "f4eb4c863844d7aef728038f7093908e8fb7368c7de249fe3dca4a0a1fcb4db4",
+    "manifestSha256": "a5d782030054c45f4a3218b3002ad4a2c5f7d2f7c3ff777069c27dadf8a919e2",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
@@ -10396,7 +10396,7 @@
     "Mimikyu V-only protection is tested synthetically against VMAX and ex fixtures; native ability/effect behavior remains unverified.",
     "Get Lost target valuation uses the fixed candidate's Supporter/VS Seeker inventory; natural target frequency and native Lost Zone resolution remain untested.",
     "Generic Teammates search scoring is target-aware; context-specific VS Seeker / Trainers' Mail priorities and Lusamine discard availability remain untested.",
-    "Player's Ceremony low-opponent-deck incentives and paper partial-draw interpretation remain unresolved; the shared effect is optional and no full game has been reviewed."
+    "Player's Ceremony opponent low-deck incentives remain unresolved; official Pokémon TCG rules confirm partial draw up to the remaining deck cards; the shared effect is optional and no full game has been reviewed."
   ],
   "reviewer": {
     "status": "not reviewed",
@@ -10417,7 +10417,7 @@
     ]
   },
   "caseRecordCount": 49,
-  "suiteSha256": "ce33ad012266e38631732956a62b539eb56009b0a748ab5c9706b7494945bcd2",
+  "suiteSha256": "0ac6a2664eee2339aaf7d163b987d47102037db32762b5931f1e0a85c377c124",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
@@ -10426,7 +10426,7 @@
     "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
     "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
     "policySha256": "6f1cba46292d234eb1a71c9482b893a5ee933066f0c14fe350088ee4e0bc4c85",
-    "dependencyManifestSha256": "f4eb4c863844d7aef728038f7093908e8fb7368c7de249fe3dca4a0a1fcb4db4",
+    "dependencyManifestSha256": "a5d782030054c45f4a3218b3002ad4a2c5f7d2f7c3ff777069c27dadf8a919e2",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
