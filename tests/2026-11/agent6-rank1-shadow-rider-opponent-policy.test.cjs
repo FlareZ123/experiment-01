@@ -1344,7 +1344,13 @@ test('known Star Alchemy confirmation selects Yes', () => {
   });
 });
 
-test('Copycat attack choice prefers Max Geist over Eon Blade and excludes Night Watch', () => {
+test('Copycat attack prompt fails closed without a previous-turn receipt', () => {
+  const ownPublic = player({
+    active: pokemon('Mimikyu GRI 58', {
+      hp: 70,
+      attacks: [{ name: 'Copycat', cost: ['Psychic', 'Colorless'] }]
+    })
+  });
   const request = promptRequest({
     promptType: 'ChooseAttackPrompt',
     source: {
@@ -1357,10 +1363,48 @@ test('Copycat attack choice prefers Max Geist over Eon Blade and excludes Night 
     },
     choices: [
       { token: 'eon', kind: 'attack', label: 'Eon Blade',
+        printing: 'Shadow Rider Calyrex VMAX CRE 75',
         publicMetadata: { sourceAttack: 'Eon Blade' } },
       { token: 'max', kind: 'attack', label: 'Max Geist',
+        printing: 'Shadow Rider Calyrex VMAX CRE 75',
         publicMetadata: { sourceAttack: 'Max Geist' } }
     ],
+    observation: { ownPublic },
+    publicMetadata: { selectionType: 'attack', allowCancel: false }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'abstain',
+    reasonCode: 'NO_COPY_ATTACK_CHOICE'
+  });
+});
+
+test('Copycat prompt selects only the exact receipt-backed source and attack', () => {
+  const ownPublic = player({
+    active: pokemon('Mimikyu GRI 58', {
+      hp: 70,
+      attacks: [{ name: 'Copycat', cost: ['Psychic', 'Colorless'] }]
+    })
+  });
+  const request = promptRequest({
+    promptType: 'ChooseAttackPrompt',
+    source: {
+      classification: 'actor-choice',
+      sourceKind: 'card-effect',
+      sourcePrinting: 'Mimikyu GRI 58',
+      effectName: 'Copycat',
+      copiedSourcePrinting: 'Shadow Rider Calyrex VMAX CRE 75',
+      copiedAttackName: 'Max Geist'
+    },
+    choices: [
+      { token: 'eon', kind: 'attack', label: 'Eon Blade',
+        printing: 'Shadow Rider Calyrex VMAX CRE 75',
+        publicMetadata: { sourceAttack: 'Eon Blade' } },
+      { token: 'max', kind: 'attack', label: 'Max Geist',
+        printing: 'Shadow Rider Calyrex VMAX CRE 75',
+        publicMetadata: { sourceAttack: 'Max Geist' } }
+    ],
+    observation: { ownPublic },
+    receipt: copycatReceipt(ownPublic, 'Max Geist', 3, 'Shadow Rider Calyrex VMAX CRE 75'),
     publicMetadata: { selectionType: 'attack', allowCancel: false }
   });
   assert.deepEqual(checkedDecision(request), {
@@ -1369,6 +1413,37 @@ test('Copycat attack choice prefers Max Geist over Eon Blade and excludes Night 
   });
 });
 
+test('Copycat prompt does not enable the host-only Trevenant and Dusknoir Night Watch', () => {
+  const ownPublic = player({
+    active: pokemon('Mimikyu GRI 58', {
+      hp: 70,
+      attacks: [{ name: 'Copycat', cost: ['Psychic', 'Colorless'] }]
+    })
+  });
+  const request = promptRequest({
+    promptType: 'ChooseAttackPrompt',
+    source: {
+      classification: 'actor-choice',
+      sourceKind: 'card-effect',
+      sourcePrinting: 'Mimikyu GRI 58',
+      effectName: 'Copycat',
+      copiedSourcePrinting: 'Trevenant & Dusknoir-GX SMP 217',
+      copiedAttackName: 'Night Watch'
+    },
+    choices: [
+      { token: 'night', kind: 'attack', label: 'Night Watch',
+        printing: 'Trevenant & Dusknoir-GX SMP 217',
+        publicMetadata: { sourceAttack: 'Night Watch' } }
+    ],
+    observation: { ownPublic },
+    receipt: copycatReceipt(ownPublic, 'Night Watch', 3, 'Trevenant & Dusknoir-GX SMP 217'),
+    publicMetadata: { selectionType: 'attack', allowCancel: false }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'abstain',
+    reasonCode: 'NO_COPY_ATTACK_CHOICE'
+  });
+});
 test('non-Copycat attack-choice source abstains', () => {
   const request = promptRequest({
     promptType: 'ChooseAttackPrompt',
@@ -2034,7 +2109,7 @@ test('Mimikyu is not played from current Active Max Geist without prior-turn rec
     token: 'pass'
   });
 });
-test('Mimikyu Copycat attack is selected when a legal non-GX target is visible', () => {
+test('Mimikyu Copycat root action fails closed when prior-turn history is absent', () => {
   const opponentActive = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
     hp: 320,
     stage: 'VMAX',
@@ -2048,9 +2123,50 @@ test('Mimikyu Copycat attack is selected when a legal non-GX target is visible',
       barrage: false
     }]
   });
+  const ownPublic = player({
+    active: pokemon('Mimikyu GRI 58', {
+      hp: 70,
+      attacks: [{ name: 'Copycat', cost: ['Psychic', 'Colorless'] }]
+    })
+  });
   const request = rootRequest({
-    ownPublic: player({ active: pokemon('Mimikyu GRI 58', { hp: 70 }) }),
+    ownPublic,
     opponentPublic: player({ active: opponentActive }),
+    items: [
+      { token: 'copycat', kind: 'attack', attackName: 'Copycat' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'pass'
+  });
+});
+
+test('Mimikyu Copycat root action is selected only with a receipt-backed previous-turn choice', () => {
+  const opponentActive = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+    hp: 320,
+    stage: 'VMAX',
+    attacks: [{
+      name: 'Max Geist',
+      cost: ['Psychic'],
+      damage: '10+30',
+      damageCalculation: '10+30 per Psychic Energy attached to your Pokémon',
+      text: '10+30 damage.',
+      gxAttack: false,
+      barrage: false
+    }]
+  });
+  const ownPublic = player({
+    active: pokemon('Mimikyu GRI 58', {
+      hp: 70,
+      attacks: [{ name: 'Copycat', cost: ['Psychic', 'Colorless'] }]
+    })
+  });
+  const request = rootRequest({
+    ownPublic,
+    opponentPublic: player({ active: opponentActive }),
+    receipt: copycatReceipt(ownPublic, 'Max Geist', 3, 'Shadow Rider Calyrex VMAX CRE 75'),
     items: [
       { token: 'copycat', kind: 'attack', attackName: 'Copycat' },
       { token: 'pass', kind: 'pass' }
@@ -2062,6 +2178,43 @@ test('Mimikyu Copycat attack is selected when a legal non-GX target is visible',
   });
 });
 
+test('Mimikyu Copycat root action fails closed when receipt has no eligible choices', () => {
+  const opponentActive = pokemon('Shadow Rider Calyrex VMAX CRE 75', {
+    hp: 320,
+    stage: 'VMAX',
+    attacks: [{
+      name: 'Max Geist',
+      cost: ['Psychic'],
+      damage: '10+30',
+      damageCalculation: '10+30 per Psychic Energy attached to your Pokémon',
+      text: '10+30 damage.',
+      gxAttack: false,
+      barrage: false
+    }]
+  });
+  const ownPublic = player({
+    active: pokemon('Mimikyu GRI 58', {
+      hp: 70,
+      attacks: [{ name: 'Copycat', cost: ['Psychic', 'Colorless'] }]
+    })
+  });
+  const receipt = copycatReceipt(ownPublic, 'Max Geist', 3, 'Shadow Rider Calyrex VMAX CRE 75');
+  receipt.opponentCopycatChoices = [];
+  receipt.mimikyuCopycatCompatible = false;
+  const request = rootRequest({
+    ownPublic,
+    opponentPublic: player({ active: opponentActive }),
+    receipt,
+    items: [
+      { token: 'copycat', kind: 'attack', attackName: 'Copycat' },
+      { token: 'pass', kind: 'pass' }
+    ]
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'select-action',
+    token: 'pass'
+  });
+});
 test('Mimikyu is not played when the only prior-turn Copycat choice is unsupported Night Watch', () => {
   const opponentActive = pokemon('Trevenant & Dusknoir-GX SMP 217', {
     hp: 270,
