@@ -220,3 +220,7 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 
 - Added one concise link from the existing Copycat/Apex section of results/README.md to results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md. The addition states the legal-seven 8-role capacity comparison (Hood 21.1287% vs champion 17.5445%) and the unchanged combined V-or-Lele opening probability (55.0914%). It is explicitly labeled a structural proxy, not a strength ranking.
 - This is the only README change for the new result; no candidate nomination, list edit, policy change, or win-rate claim.
+
+## 2026-11-25 09:54 UTC — reverted unnecessary decision-board detail
+
+- The root README's repository-practice rule says results/README.md should be updated for fixed-60 contender, source-coverage, released-policy, or competitive-qualification changes; atomic reports should be linked from their research area. My brief addition linking the new Prize-capacity proxy from results/README.md did not meet that bar, so I reverted it in commit 93e92ddecafd28993fa0b7a54850be1af5996de9. The report remains under results/aichi-2026/2026-11/ and is linked from relevant communications. No results/README.md change remains from this work.
