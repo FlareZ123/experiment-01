@@ -5,16 +5,14 @@ const {
 } = require('../../../simulation/evaluation/canonical-evidence-json.cjs');
 
 const SHA256 = /^[a-f0-9]{64}$/i;
-const RECEIPT_SCHEMA = 'aichi-terminal-adjudication-receipt-v2';
+const RECEIPT_SCHEMA = 'aichi-terminal-adjudication-receipt-v3';
 const RUNNER_EVIDENCE_SCHEMA = 'aichi-runner-terminal-evidence-v1';
 const ADJUDICATOR_EVIDENCE_SCHEMA = 'aichi-adjudicator-evidence-v1';
+const SETUP_EVIDENCE_SCHEMA = 'aichi-natural64-setup-coin-choice-evidence-v1';
+const SETUP_RECEIPT_VERSION = 'agent16-accepted-native-setup-coin-and-first-choice-v1';
 const CLOCK_MODES = new Set([
   'clock-free-game-win',
   'aichi-top32-event-clock'
-]);
-const NO_WINNER_DISPOSITIONS = new Set([
-  'count-as-nonwin',
-  'invalidate-batch'
 ]);
 const RESULT_TO_STATUS = Object.freeze({
   'candidate-win': 'paper-qualified-win',
@@ -75,20 +73,113 @@ function digestMatches(record, field) {
 }
 
 /**
- * Bind a played attempt to two separately supplied evidence records:
- * native-runner terminal evidence and adjudicator evidence. This is
- * structural/content-addressed validation only. It does not authenticate
- * either producer, verify signatures, decide paper rules, or prove RNG fairness.
+ * Wrap the native Store's post-dispatch setup receipt with immutable attempt
+ * identity. This digest is structural evidence, not a signature or proof of
+ * fair coin randomness.
+ */
+function createSetupCoinChoiceEvidence({attemptId, trialId, slotId, receipt}) {
+  if (!nonEmptyString(attemptId) || !nonEmptyString(trialId) ||
+      !nonEmptyString(slotId) || !receipt || typeof receipt !== 'object' ||
+      Array.isArray(receipt)) {
+    throw new TypeError('attempt identity and native setup receipt are required');
+  }
+  const payload = {
+    schema: SETUP_EVIDENCE_SCHEMA,
+    attemptId,
+    trialId,
+    slotId,
+    receipt,
+    receiptSha256: canonicalSha256(receipt)
+  };
+  return {...payload, evidenceSha256: canonicalSha256(payload)};
+}
+
+function validateSetupCoinChoiceEvidence({attempt, expected, receipt, setupEvidence}) {
+  const problems = new Set();
+  const reject = reason => problems.add(reason);
+  if (!setupEvidence || typeof setupEvidence !== 'object' || Array.isArray(setupEvidence)) {
+    return ['terminal-adjudication-setup-coin-choice-evidence-missing'];
+  }
+  const setup = setupEvidence.receipt;
+  if (setupEvidence.schema !== SETUP_EVIDENCE_SCHEMA ||
+      setupEvidence.attemptId !== attempt.attemptId ||
+      setupEvidence.trialId !== attempt.trialId ||
+      setupEvidence.slotId !== attempt.slotId ||
+      !setup || typeof setup !== 'object' || Array.isArray(setup) ||
+      !digestMatches(setupEvidence, 'evidenceSha256') ||
+      !isSha(setupEvidence.receiptSha256) ||
+      canonicalSha256(setup) !== setupEvidence.receiptSha256) {
+    reject('terminal-adjudication-setup-coin-choice-evidence-invalid');
+  }
+  if (attempt.setupCoinChoiceReceiptSha256 !== setupEvidence.receiptSha256 ||
+      attempt.setupCoinChoiceEvidenceSha256 !== setupEvidence.evidenceSha256 ||
+      receipt.setupCoinChoiceReceiptSha256 !== setupEvidence.receiptSha256 ||
+      receipt.setupCoinChoiceEvidenceSha256 !== setupEvidence.evidenceSha256) {
+    reject('terminal-adjudication-setup-coin-choice-binding-mismatch');
+  }
+  const coin = setup?.coin;
+  const choice = setup?.choice;
+  if (setup?.version !== SETUP_RECEIPT_VERSION ||
+      setup?.status !== 'consistent-accepted-native-setup-and-first-draw' ||
+      setup?.firstSetupOnly !== true ||
+      setup?.nativeFirstDrawVerified !== true ||
+      setup?.malformedNativeSetupEvents !== 0 ||
+      setup?.fullGamePolicyCertified !== false ||
+      setup?.officialCoinChoiceRuleCertified !== false ||
+      setup?.competitiveGameQualified !== false ||
+      !coin || coin.resolution !== 'accepted-native-prompt' ||
+      typeof coin.heads !== 'boolean' ||
+      ![0, 1].includes(coin.coinWinnerSeat) ||
+      coin.coinWinnerSeat !== (coin.heads ? 0 : 1) ||
+      !Number.isInteger(coin.ordinal) ||
+      !choice || choice.resolution !== 'accepted-native-prompt' ||
+      ![0, 1].includes(choice.choiceOwnerSeat) ||
+      typeof choice.choseFirst !== 'boolean' ||
+      !Number.isInteger(choice.ordinal) || choice.ordinal <= coin.ordinal ||
+      choice.choiceOwnerSeat !== coin.coinWinnerSeat) {
+    reject('terminal-adjudication-native-setup-receipt-invalid');
+  } else {
+    const expectedFirstSeat = choice.choseFirst
+      ? coin.coinWinnerSeat
+      : 1 - coin.coinWinnerSeat;
+    if (setup.firstSeatFromAcceptedSetup !== expectedFirstSeat ||
+        setup.firstSeatFromVerifiedDraw !== expectedFirstSeat ||
+        attempt.coinWinnerSeat !== coin.coinWinnerSeat ||
+        attempt.chooserSeat !== choice.choiceOwnerSeat ||
+        attempt.goFirstResponse !== (choice.choseFirst ? 'yes' : 'no') ||
+        attempt.firstPlayerSeat !== expectedFirstSeat ||
+        attempt.actualFirstPlayerSeat !== expectedFirstSeat ||
+        attempt.hostOverride !== false) {
+      reject('terminal-adjudication-native-setup-outcome-mismatch');
+    }
+    if (receipt.coinWinnerSeat !== coin.coinWinnerSeat ||
+        receipt.chooserSeat !== choice.choiceOwnerSeat ||
+        receipt.goFirstResponse !== (choice.choseFirst ? 'yes' : 'no') ||
+        receipt.firstPlayerSeat !== expectedFirstSeat ||
+        receipt.actualStarterSeat !== expectedFirstSeat) {
+      reject('terminal-adjudication-receipt-setup-binding-mismatch');
+    }
+  }
+  return [...problems].sort();
+}
+
+/**
+ * Bind one played attempt to separate runner-terminal, adjudicator, and
+ * native-setup evidence. This is structural/content-addressed validation only:
+ * it authenticates none of those producers, verifies no signature, decides no
+ * paper rule, and proves neither RNG custody nor fair shuffling.
  */
 function validateTerminalAdjudicationReceipt({
   attempt,
   expected,
   runnerEvidence,
   adjudicationEvidence,
+  setupCoinChoiceEvidence,
   seenReceiptSha256 = new Set(),
   seenTerminalEventSha256 = new Set(),
   seenRunnerEvidenceSha256 = new Set(),
-  seenAdjudicationEvidenceSha256 = new Set()
+  seenAdjudicationEvidenceSha256 = new Set(),
+  seenSetupEvidenceSha256 = new Set()
 }) {
   const problems = new Set();
   const reject = reason => problems.add(reason);
@@ -123,6 +214,10 @@ function validateTerminalAdjudicationReceipt({
     rank: expected.rank,
     candidatePhysicalSeat: expected.candidatePhysicalSeat,
     actualStarterSeat: expected.actualStarterSeat,
+    firstPlayerSeat: expected.firstPlayerSeat,
+    coinWinnerSeat: expected.coinWinnerSeat,
+    chooserSeat: expected.chooserSeat,
+    goFirstResponse: expected.goFirstResponse,
     physicalDealId: expected.physicalDealId,
     source60Sha: expected.source60Sha,
     candidate60Sha: expected.candidate60Sha,
@@ -131,7 +226,6 @@ function validateTerminalAdjudicationReceipt({
     opponentPolicyBundleSha: expected.opponentPolicyBundleSha,
     adjudicationProtocolSha256: expected.adjudicationProtocolSha256,
     clockMode: expected.clockMode,
-    noWinnerDisposition: expected.noWinnerDisposition,
     rngMaterialCommitmentSha256: expected.rngMaterialCommitmentSha256
   };
   for (const [field, value] of Object.entries(bindings)) {
@@ -153,13 +247,25 @@ function validateTerminalAdjudicationReceipt({
     reject('terminal-adjudication-rank-invalid');
   }
   if (![0, 1].includes(expected.candidatePhysicalSeat) ||
-      ![0, 1].includes(expected.actualStarterSeat)) {
-    reject('terminal-adjudication-seat-invalid');
+      ![0, 1].includes(expected.actualStarterSeat) ||
+      ![0, 1].includes(expected.firstPlayerSeat) ||
+      ![0, 1].includes(expected.coinWinnerSeat) ||
+      ![0, 1].includes(expected.chooserSeat) ||
+      !['yes', 'no'].includes(expected.goFirstResponse)) {
+    reject('terminal-adjudication-seat-or-choice-invalid');
   }
   if (!nonEmptyString(expected.physicalDealId)) reject('terminal-adjudication-physical-deal-id-invalid');
   if (!CLOCK_MODES.has(expected.clockMode)) reject('terminal-adjudication-clock-mode-invalid');
-  if (!NO_WINNER_DISPOSITIONS.has(expected.noWinnerDisposition)) {
-    reject('terminal-adjudication-no-winner-disposition-invalid');
+
+  for (const reason of validateSetupCoinChoiceEvidence({
+    attempt, expected, receipt, setupEvidence: setupCoinChoiceEvidence
+  })) reject(reason);
+  if (setupCoinChoiceEvidence && isSha(setupCoinChoiceEvidence.evidenceSha256)) {
+    if (seenSetupEvidenceSha256.has(setupCoinChoiceEvidence.evidenceSha256)) {
+      reject('terminal-adjudication-setup-coin-choice-evidence-replayed');
+    } else {
+      seenSetupEvidenceSha256.add(setupCoinChoiceEvidence.evidenceSha256);
+    }
   }
 
   if (runnerEvidence) {
@@ -242,15 +348,11 @@ function validateTerminalAdjudicationReceipt({
       expected.clockMode !== 'aichi-top32-event-clock') {
     reject('terminal-adjudication-clock-reason-mode-mismatch');
   }
-  if (result === 'no-winner' && expected.noWinnerDisposition === 'invalidate-batch') {
-    reject('terminal-adjudication-no-winner-invalidates-batch');
-  }
   if (receipt.statisticalStatus !== expectedStatus ||
       attempt.status !== expected.status ||
       expected.status !== expectedStatus) {
     reject('terminal-adjudication-result-status-mismatch');
   }
-
   if (receipt.gameStarted !== true || receipt.terminalReached !== true ||
       receipt.adjudicationStatus !== 'determinate') {
     reject('terminal-adjudication-not-determinate');
@@ -285,11 +387,14 @@ function validateTerminalAdjudicationReceipt({
 
 module.exports = {
   validateTerminalAdjudicationReceipt,
+  validateSetupCoinChoiceEvidence,
+  createSetupCoinChoiceEvidence,
   RECEIPT_SCHEMA,
   RUNNER_EVIDENCE_SCHEMA,
   ADJUDICATOR_EVIDENCE_SCHEMA,
+  SETUP_EVIDENCE_SCHEMA,
+  SETUP_RECEIPT_VERSION,
   CLOCK_MODES,
-  NO_WINNER_DISPOSITIONS,
   RESULT_TO_STATUS,
   RESULT_BY_REASON,
   CLASS_BY_REASON,
