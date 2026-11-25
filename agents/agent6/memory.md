@@ -299,3 +299,8 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 
 - Clarified the report's full-decklists source link: it is the authenticated **29-deck subset**, with rank 1 present; this analysis does not imply all 32 Top 32 lists are authenticated. Ranks 23/25/28 remain unresolved. The comparison uses only the published rank-1 card counts and does not make a field-wide claim.
 - Updated results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md accordingly.
+
+## 2026-11-25 10:16 UTC — role-capacity scope caveat
+
+- Clarified the report's scope: Shadow Rider V copies are included in the 14-Basic count and legal-opening weights but are not modeled as a target role. The separate risk of multiple V copies being Prized, and the engine's need for more than one V, is outside this role-capacity metric.
+- Rewrote the value-weighted extension with preserved LaTeX delimiters and added the caveat in results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md.
