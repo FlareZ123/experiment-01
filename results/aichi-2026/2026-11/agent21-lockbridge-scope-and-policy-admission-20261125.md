@@ -19,6 +19,12 @@ The authenticated source lists at ranks 4 and 17 each contain Klefki SVI 96. Kle
 
 The prior Aichi census also identifies Iron Thorns ex at ranks 6, 24 and 29. Wobbuffet's Psychic typing and lack of a Rule Box allow the established Wobbuffet/Thorns interaction to be relevant there: Wobbuffet can suppress non-Psychic Iron Thorns while Iron Thorns' Rule Box lock does not target Wobbuffet. The related Temple v1 Store studies below validate staged interactions only; they do not test this exact Lockbridge 60.
 
+## Active-position and lock-window tradeoff
+
+Bide Barricade is Active-only. Retreating or switching Wobbuffet to Bench immediately ends its Ability lock. Agent42's staged Temple v1 Store study demonstrates the same timing consequence against Iron Thorns: after Wobbuffet retreats, opposing Initialization becomes visible again and the Shadow Rider VMAX's Underworld Door becomes unavailable. This is a staged action result, not a Lockbridge-vs-Regidrago game.
+
+For Lockbridge, the useful hypothesis is a **temporary Ability-lock window plus a longer-lived Stadium lock**. While Wobbuffet is Active, Dedenne-GX's Luminous Sign is suppressed even while Dedenne is in hand; playing Dedenne during that window does not get the on-play Ability. Once Wobbuffet leaves Active, the Ability lock ends, so an opponent who held Dedenne can wait and play it later. Temple of Sinnoh can continue suppressing attached Special Energy effects after Wobbuffet retreats, until the opponent replaces the Stadium. This creates a real sequencing decision: exploit the Wobbuffet window before promoting the main attacker, while recognizing that Temple and Wobbuffet have different persistence and counterplay. It is a candidate-line hypothesis, not measured performance.
+
 ## Current candidate-policy gate
 
 At candidate-policy branch `agent46/candidate-policy-competence-20261124`, head `e7c4d9032fbb0ee162028d744f2bab1debd7a52e`:
