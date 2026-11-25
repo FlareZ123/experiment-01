@@ -819,3 +819,27 @@ The current invocation has completed its assigned static review and preserved it
 **Strict limitations:** this omits the lost Pokémon Ranger, gained Temple of Sinnoh, actual role values, non-Basic Prize access, draw/search, lock timing, and game outcomes. It does not promote Lockbridge or justify any 60-card change. The result only means the unweighted “more roles stranded” statistic is not sufficient to reject the 4-slot challenger; the full package still needs comparable policy/game evidence when authorized.
 
 **Current shared stopline:** Stage-A remains fixture/game-dispatch frozen. PR #69 is draft; no new policy surface, test, workflow, fixture, or game dispatch is authorized. Keep the fixed 60s unchanged. Useful future action, only after gate/owner direction: compare the full Lockbridge package (including Wobbuffet, Temple, Ranger loss and Clefairy redundancy) against Hood under the same competent frozen policy, not a further isolated card metric.
+
+
+## 2026-11-25 checkpoint — Lockbridge displacement-access model
+
+- Current incarnation claimed Agent21 at `2026-11-25T19:57:27Z` in normal mode after the required RNG draw returned 5. Lease run ID: `agent21-chat-20261125T195727Z-normal5-lockbridge-counterplay-model`. Do not refresh the lease; 70-minute release threshold is `2026-11-25T21:07:27Z`.
+- Chosen decision: refine the fixed-60 Lockbridge-vs-Hood ranking input by converting raw field list-presence counts for Wobbuffet displacement cards into exact access probabilities. This is a whole-field card-pool access model, not a new per-card strength audit or game simulation.
+- Source: `results/aichi-2026/full-decklists.json`, 29 published 60-card lists; ranks 23, 25, and 28 remain missing. Equal weight per published rank; no extrapolation.
+- Field counts: Guzma 48 copies / 25 lists; VS Seeker 59 / 23; Battle Compressor 33 / 17; Escape Rope 11 / 7; Counter Catcher 10 / 7; Prime Catcher 3 / 3.
+- Exact multivariate-hypergeometric DP: choose six Prizes from 60, then H cards from the remaining 54, for H=7,8,9,10. Count direct Guzma, Prime Catcher, Escape Rope, optional Counter Catcher, and the VS Seeker + Battle Compressor + Guzma-still-in-deck line. It deliberately does not count VS Seeker retrieving Guzma already in discard.
+- Equal-rank field averages:
+  - H=7: any modeled displacement 24.72% without Counter Catcher; 28.02% with its Prize condition assumed live.
+  - H=8: 28.11%; 31.74%.
+  - H=9: 31.42%; 35.36%.
+  - H=10: 34.67%; 38.88%.
+  - At H=9, 64.64–68.58% have no modeled Trainer displacement line in the sampled card pool. This is not proof that Wobbuffet stays Active.
+- H=9 archetype examples: Regidrago (9 known) 35.85–40.66%; Iron Thorns (3) 35.42%; Raichu Electrode Combo (2) 39.14%; Absol Garbodor (4) 27.70%; Snorlax Stall (2) 15.00–43.95% depending on Counter Catcher being live.
+- Interpretation: the old 25/29 Guzma prevalence is a list-presence statistic, not a 86.2% immediate-interruption probability. The new model materially qualifies that inference, but it is not an action rate, lock-uptime estimate, matchup result, or win rate. It does not model mulligans/valid Basic opening conditioning, cards spent before the response, Supporter contention, legal bench/targets, prior discard lines, attacks/Abilities, opponent choice, re-establishment, or separate Garbotoxin/Klefki counter-locks.
+- Persistent artifacts:
+  - Added `scripts/agent21-lockbridge-displacement-access.cjs` (pure Node built-ins, exact DP, JSON output, 60-card and monotonicity checks). Commit `49dc632b10fe0e9d0e0a5a43dba882294a9acff6`.
+  - Extended `results/aichi-2026/2026-11/agent21-lockbridge-field-role-exposure-census-20261125.md` with method, aggregate, archetype, and per-rank tables, and corrected the prior overstatement from list prevalence. Commit `3de5481da3680cda2639a117a05ab678dd04098f`.
+  - Updated `results/README.md` to link the model and qualify the field-level inference. Commit `900a17e2709bd1072eaa01b991c600779e1aefcd`.
+  - Sent concise handoffs to Agent31 and Agent46. Commits `c14982a483a96bdbe88c82a89d59dfd4414008e1` and `d4356da76eefa857335d106fac0f74129af38d35`.
+- The DP was executed in the V8 tool runtime against the current JSON and produced the reported values; the committed Node script mirrors that computation but was not run through repository CI. No deck, policy, fixture, workflow, or game dispatch was changed.
+- Next: do not create another isolated access metric. Check for substantive replies or new owner authorization. If none, use remaining work on a genuinely package-level synthesis that can change the fixed-60 ranking (Wobbuffet/Temple gains versus the second Clefairy and sole Ranger losses), without assigning unsupported utility weights. Otherwise preserve the current no-promotion disposition and wait for the authorized same-policy comparison gate.
