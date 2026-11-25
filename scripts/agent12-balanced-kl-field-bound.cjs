@@ -64,8 +64,9 @@ function lowerKlBound(wins, total, confidence) {
 
 /**
  * Complete 32-original-opponent balanced paper-game panel, including
- * paper-qualified wins, losses, and ties. Ties count as nonwins for the
- * objective of maximizing GAME WIN PROBABILITY. Assumes independently sampled
+ * paper-qualified wins, losses, genuine ties, and distinct no-winner terminals.
+ * Every outcome except candidate win counts as a nonwin for the objective of
+ * maximizing GAME WIN PROBABILITY. Assumes independently sampled
  * deals and truly externally audited outcomes: labels are caller assertions.
  *
  * Returns no inference unless all 32 unique original source rosters are
@@ -92,7 +93,8 @@ function lowerKlBound(wins, total, confidence) {
  */
 function assessBalancedFieldKl(request) {
   const v = validateFieldLedger(request,
-    ['paper-qualified-win','paper-qualified-loss','paper-qualified-tie'],
+    ['paper-qualified-win','paper-qualified-loss','paper-qualified-tie',
+      'paper-qualified-no-winner'],
     'noncompleted-or-unqualified-attempt');
   const valid = v.rejectionReasons.length === 0;
   const exactIidRequested = request.stratumSamplingModel === 'iid-bernoulli-v1';
