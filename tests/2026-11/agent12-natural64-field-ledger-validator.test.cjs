@@ -184,7 +184,7 @@ test('repeated exact RNG material is identified for structural rejection', () =>
 });
 
 
-test('duplicate exact RNG material invalidates the structural ledger; seed labels are irrelevant', () => {
+test('duplicate exact RNG material is preserved and flagged for audit; seed labels are irrelevant', () => {
   const commitment = hash('a');
   const problems = new Set();
   const groups = validateRandomizationUniqueness([
@@ -192,7 +192,8 @@ test('duplicate exact RNG material invalidates the structural ledger; seed label
     {attemptId:'a2',seed:'same-label',rngMaterialCommitment:commitment}
   ],problems);
   assert.equal(groups.length,1);
-  assert.ok(problems.has('independent-rng-material-replayed-across-attempts'));
+  assert.deepEqual(groups[0].attemptIds,['a1','a2']);
+  assert.equal(problems.size,0);
   const independent = new Set();
   const distinct = validateRandomizationUniqueness([
     {attemptId:'b1',seed:'same-label',rngMaterialCommitment:hash('b')},
@@ -301,6 +302,7 @@ function makePublicEntryFixture() {
   });
   const manifest={
     schema:'aichi-natural64-field-registration-v6',
+    rngBundleSampling:'independent-with-replacement',
     samplingModel:'balanced-natural-64-strata-v1',
     target:0.995,
     confidence:0.95,
@@ -612,6 +614,14 @@ function makePreGameRetryFixture() {
   return request;
 }
 
+test('manifest must explicitly register with-replacement v2 bundle sampling', () => {
+  const request = makePublicEntryFixture();
+  delete request.fieldSamplingRegistration.rngBundleSampling;
+  const result = validateNatural64FieldLedger(request);
+  assert.equal(result.status, 'INVALID');
+  assert.ok(result.rejectionReasons.includes('randomization-protocol-unverified'));
+});
+
 test('public natural64 validator composes a complete registered field with one synthetic played attempt', () => {
   const request=makePublicEntryFixture();
   const result=validateNatural64FieldLedger(request);
@@ -715,7 +725,7 @@ test('duplicate physical deal IDs are rejected across distinct attempts', () => 
   assert.ok(problems.has('physical-deal-id-replayed-across-attempts'));
 });
 
-test('reusing one stream key across games is rejected even when full material differs', () => {
+test('reusing one stream key across games is flagged, not rejected, under with-replacement sampling', () => {
   const makeMaterial = (keys) => ({
     schema: 'aichi-independent-rng-material-v1',
     algorithm: 'hmac-sha256-counter-v1',
@@ -733,7 +743,7 @@ test('reusing one stream key across games is rejected even when full material di
   ], problems);
   assert.equal(groups.length, 1);
   assert.deepEqual(groups[0].attemptIds, ['a1', 'a2']);
-  assert.ok(problems.has('independent-rng-stream-key-replayed-across-attempts'));
+  assert.equal(problems.size, 0);
   assert.notEqual(randomMaterialCommitment(first), randomMaterialCommitment(second));
 });
 

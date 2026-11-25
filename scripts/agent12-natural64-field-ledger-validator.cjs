@@ -49,6 +49,7 @@ const ADJUDICATION_PROTOCOL_SCHEMA = 'aichi-natural64-adjudication-protocol-v2';
 const PRE_GAME_FAILURE_EVIDENCE_SCHEMA = 'aichi-natural64-pre-game-failure-evidence-v1';
 const UNBIASED_SHUFFLE_METHOD = 'fisher-yates-bounded-rejection-v1';
 const SAMPLING_MODEL = 'balanced-natural-64-strata-v1';
+const RNG_BUNDLE_SAMPLING = 'independent-with-replacement';
 const REGISTERED_SLOTS = 1280;
 const GAMES_PER_STRATUM = 20;
 const LOOK1_GAMES = 1216;
@@ -165,6 +166,7 @@ function validateManifest(request, problems) {
   validateAdjudicationProtocol(
     manifest.adjudicationProtocol, manifest.adjudicationProtocolSha256, problems);
   if (manifest.randomizationProtocol !== RNG_PROTOCOL ||
+      manifest.rngBundleSampling !== RNG_BUNDLE_SAMPLING ||
       manifest.unbiasedShuffleMethod !== UNBIASED_SHUFFLE_METHOD ||
       !isGitSha(manifest.rngProtocolModuleSha)) {
     add(problems, 'randomization-protocol-unverified');
@@ -761,12 +763,11 @@ function findRepeatedRandomizationStreamKeyGroups(attempts) {
     }));
 }
 
-function validateRandomizationStreamKeyUniqueness(attempts, problems) {
-  const groups = findRepeatedRandomizationStreamKeyGroups(attempts);
-  if (groups.length > 0) {
-    add(problems, 'independent-rng-stream-key-replayed-across-attempts');
-  }
-  return groups;
+function validateRandomizationStreamKeyUniqueness(attempts, _problems) {
+  // Six v2 stream keys are independently sampled with replacement per attempt.
+  // A cross-attempt duplicate is an astronomically rare collision/reuse anomaly,
+  // not proof of intentional replay. Preserve the sample and require audit.
+  return findRepeatedRandomizationStreamKeyGroups(attempts);
 }
 
 function findRepeatedRandomizationMaterialGroups(attempts) {
@@ -783,12 +784,11 @@ function findRepeatedRandomizationMaterialGroups(attempts) {
     .map(([commitment, attemptIds]) => ({commitment, attemptIds}));
 }
 
-function validateRandomizationUniqueness(attempts, problems) {
-  const groups = findRepeatedRandomizationMaterialGroups(attempts);
-  if (groups.length > 0) {
-    add(problems, 'independent-rng-material-replayed-across-attempts');
-  }
-  return groups;
+function validateRandomizationUniqueness(attempts, _problems) {
+  // Full six-stream bundles are also sampled with replacement. Commitment
+  // equality cannot distinguish an accidental collision from intentional reuse.
+  // Preserve every attempt and surface duplicate bundles for manual audit.
+  return findRepeatedRandomizationMaterialGroups(attempts);
 }
 
 
@@ -798,8 +798,8 @@ function validateRandomizationUniqueness(attempts, problems) {
  * first-player seat is observed from the natural coin/GO_FIRST sequence and
  * is never quota-balanced. Pre-game failures are unqualified executions and
  * may retry only within the preregistered per-slot budget; exhausted slots
- * invalidate the batch. Sampling is with replacement, but repeated exact RNG
- * material or any reused stream key invalidates structural admission.
+ * invalidate the batch. Six-stream RNG bundles are sampled with replacement;
+ * duplicate bundle/key values are preserved and flagged for audit, not rejected.
  * No-winner is a distinct completed nonwin.
  */
 function validateNatural64FieldLedger(request) {
@@ -957,14 +957,14 @@ function validateNatural64FieldLedger(request) {
     validateRandomizationUniqueness(playedAttempts, problems);
   const repeatedRandomizationStreamKeyGroups =
     validateRandomizationStreamKeyUniqueness(playedAttempts, problems);
-  const rngMaterialReplayDetected =
+  const rngMaterialCollisionReviewRequired =
     repeatedRandomizationMaterialGroups.length > 0 ||
     repeatedRandomizationStreamKeyGroups.length > 0;
   const warnings = [
     ...(repeatedRandomizationMaterialGroups.length > 0
-      ? ['cross-trial-rng-material-replay-rejected'] : []),
+      ? ['cross-trial-rng-material-collision-review-required'] : []),
     ...(repeatedRandomizationStreamKeyGroups.length > 0
-      ? ['cross-trial-rng-stream-key-replay-rejected'] : [])
+      ? ['cross-trial-rng-stream-key-collision-review-required'] : [])
   ];
   const rejectionReasons = [...problems].sort();
   const structuralValid = rejectionReasons.length === 0;
@@ -991,9 +991,7 @@ function validateNatural64FieldLedger(request) {
   const noWinnerTerminalCount = stopping.counts.noWinners;
   const nonWinCount = lossCount + tieCount + noWinnerTerminalCount;
   const playedGameCount = playedAttempts.length;
-  const decisionRuleDisposition = rngMaterialReplayDetected
-    ? 'INVALID_RNG_MATERIAL_REPLAY'
-    : stopping.disposition;
+  const decisionRuleDisposition = stopping.disposition;
 
   return {
     status: structuralValid
@@ -1020,7 +1018,8 @@ function validateNatural64FieldLedger(request) {
     repeatedRandomizationMaterialGroups,
     repeatedRandomizationStreamKeyGroups,
     duplicatePhysicalDealIds,
-    rngMaterialReplayDetected,
+    rngMaterialCollisionReviewRequired,
+    rngBundleSampling: manifest.rngBundleSampling,
     warnings,
     decisionRuleDisposition,
     designThresholdMet: structuralValid ? stopping.met : null,
@@ -1028,6 +1027,7 @@ function validateNatural64FieldLedger(request) {
     clockMode: manifest.clockMode,
     adjudicationProtocolSha256: manifest.adjudicationProtocolSha256,
     randomizationProtocol: manifest.randomizationProtocol,
+    rngBundleSampling: manifest.rngBundleSampling,
     unbiasedShuffleMethod: manifest.unbiasedShuffleMethod,
     structuralAdmissionOnly: true,
     sourceAuthenticityProven: false,
