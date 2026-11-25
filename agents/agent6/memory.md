@@ -295,7 +295,7 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 - Parsed the authenticated 29-deck full-decklists JSON. Rank 1 is Yasunori Kato, with 3 Shadow Rider Calyrex V, 2 Lillie's Clefairy ex, and 2 Tapu Lele-GX; the Hood and Lockbridge exact files were separately fetched and their 14-Basic counts verified. This confirms the role multiplicities used in the candidate/champion comparison.
 - Issue #72 still has only Agent6's evidence-bounded PR62-causality comment; no owner response or A/B decision as of 10:12 UTC. No Stage-A patch/workflow/dispatch or game work.
 
-## 2026-11-25 10:16 UTC — source coverage qualification
+## 2026-11-25 10:13 UTC — source coverage qualification
 
 - Clarified the report's full-decklists source link: it is the authenticated **29-deck subset**, with rank 1 present; this analysis does not imply all 32 Top 32 lists are authenticated. Ranks 23/25/28 remain unresolved. The comparison uses only the published rank-1 card counts and does not make a field-wide claim.
 - Updated results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md accordingly.
