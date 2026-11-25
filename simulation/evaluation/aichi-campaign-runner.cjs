@@ -10,6 +10,8 @@ const {
   PROTOCOL: INDEPENDENT_RNG_PROTOCOL, createRandomMaterial,
   randomMaterialCommitment
 } = require('./agent37-independent-rng-v1.cjs');
+const {createSetupCoinChoiceEvidence} =
+  require('../../scripts/2026-11/shared/terminal-adjudication-receipt.cjs');
 
 const SOURCE_DIR = path.resolve(__dirname, '../../results/aichi-2026');
 
@@ -197,6 +199,8 @@ function executeCampaign(inputs, options = {}) {
     const plan = prepared.get(candidate.id);
     const opponent = plan.opponents.find(d => d.rank === trial.rank);
     const base = {
+      attemptId: trial.attemptId || trial.trialId,
+      slotId: trial.slotId || trial.trialId,
       trialId: trial.trialId, phase: trial.phase, rank: trial.rank,
       candidateId: trial.candidateId, candidateDigest: trial.candidateDigest,
       opponentDigest: trial.opponentDigest, seed: trial.seed,
@@ -247,6 +251,7 @@ function executeCampaign(inputs, options = {}) {
       strictPromptValidation: true,
       isolatePolicyRandomness: true,
       captureDecisionTrace: options.captureDecisionTrace === true,
+      captureSetupCoinChoiceReceipt: options.captureSetupCoinChoiceReceipt === true,
       ...(options.captureInitialSourceDeal===true ? {
         captureInitialSourceDealFingerprintSeat:candidateA?1:0
       } : {})
@@ -285,6 +290,15 @@ function executeCampaign(inputs, options = {}) {
       const requestedPolicyEchoValid = Object.entries(policyFlags)
         .every(([key, value]) => game[key] === value);
       const observedSourceDeal=game.initialSourceDealFingerprint;
+      const setupCoinChoiceReceipt = options.captureSetupCoinChoiceReceipt === true
+        ? game.setupCoinChoiceReceipt || null : null;
+      const setupCoinChoiceEvidence = setupCoinChoiceReceipt ?
+        createSetupCoinChoiceEvidence({
+          attemptId: base.attemptId, trialId: base.trialId,
+          slotId: base.slotId, receipt: setupCoinChoiceReceipt
+        }) : null;
+      const setupCoinChoiceValid = options.captureSetupCoinChoiceReceipt !== true ||
+        setupCoinChoiceEvidence !== null;
       const sourceDealValid=options.captureInitialSourceDeal!==true || (
         observedSourceDeal?.schema==='initial-source-physical-position-sha256-v1' &&
         observedSourceDeal.seat===(candidateA?1:0) &&
@@ -300,6 +314,7 @@ function executeCampaign(inputs, options = {}) {
         !cloneProfileValid ? 'simulator-profile-mismatch' :
         !requestedPolicyEchoValid ? 'match-policy-echo-mismatch' :
         !sourceDealValid ? 'unverified-initial-source-deal' :
+        !setupCoinChoiceValid ? 'unverified-setup-coin-choice' :
         !proof ? 'unverified-first-turn' :
           !terminal ? 'unfinished' : 'completed';
       const candidateSlot = candidateA ? 0 : 1;
@@ -310,6 +325,12 @@ function executeCampaign(inputs, options = {}) {
             schema:observedSourceDeal.schema,seat:observedSourceDeal.seat,
             digestSha256:observedSourceDeal.digestSha256
           }:undefined
+        } : {}),
+        ...(options.captureSetupCoinChoiceReceipt===true ? {
+          setupCoinChoiceReceipt,
+          setupCoinChoiceEvidence,
+          setupCoinChoiceReceiptSha256:setupCoinChoiceEvidence?.receiptSha256 || null,
+          setupCoinChoiceEvidenceSha256:setupCoinChoiceEvidence?.evidenceSha256 || null
         } : {}),
         candidateInputOrder: {
           protocol:inputOrder.protocol,
@@ -398,6 +419,8 @@ function executeCampaign(inputs, options = {}) {
     expectedPolicyProfile,
     captureDecisionTrace: options.captureDecisionTrace === true,
     captureInitialSourceDeal:options.captureInitialSourceDeal===true,
+    captureSetupCoinChoiceReceipt:options.captureSetupCoinChoiceReceipt===true,
+    setupCoinChoiceEvidence: records.map(r => r.setupCoinChoiceEvidence).filter(Boolean),
     purpose: 'exploratory-engine-feasibility',
     competitiveWinRateCertified: false,
     rulesAndBotCompetenceCertified: false,
@@ -418,6 +441,8 @@ if (require.main === module) {
   const trialIds = selectedText ? selectedText.split(',').map(x => x.trim()) : undefined;
   const profile = process.env.CAMPAIGN_POLICY_PROFILE || '';
   const captureDecisionTrace = process.env.CAMPAIGN_CAPTURE_DECISIONS === 'true';
+  const captureSetupCoinChoiceReceipt =
+    process.env.CAMPAIGN_CAPTURE_SETUP_COIN_CHOICE === 'true';
   const inputOrderProtocol = process.env.CAMPAIGN_INPUT_ORDER_PROTOCOL ||
     'source-row-order-v1';
   const rngProtocol = process.env.CAMPAIGN_RNG_PROTOCOL || undefined;
@@ -452,7 +477,8 @@ if (require.main === module) {
       attachedToolPowerPolicy:
         process.env.CAMPAIGN_ATTACHED_TOOL_POWER === 'true'
     },
-    captureDecisionTrace, expectedPolicyProfile: profile || null,
+    captureDecisionTrace, captureSetupCoinChoiceReceipt,
+    expectedPolicyProfile: profile || null,
     inputOrderProtocol, rngProtocol
   }), null, 2) + '\n');
 }

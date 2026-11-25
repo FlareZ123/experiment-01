@@ -812,3 +812,46 @@ test('independent RNG material survives a caught engine exception for replay and
     randomMaterialCommitment(row.rngMaterial));
   assert.equal(auditArchive(f, archive).completed, 0);
 });
+
+
+test('opt-in native setup coin-choice receipt is requested and archived with attempt identity', () => {
+  const f = fixture();
+  const receipt = {
+    version: 'agent16-accepted-native-setup-coin-and-first-choice-v1',
+    status: 'consistent-accepted-native-setup-and-first-draw'
+  };
+  let observedFlag;
+  const archive = executeCampaign(f, {
+    maxTrials: 1,
+    prepareCandidate: prepare,
+    captureSetupCoinChoiceReceipt: true,
+    runMatch(request) {
+      observedFlag = request.captureSetupCoinChoiceReceipt;
+      return {...finished(request), setupCoinChoiceReceipt: receipt};
+    }
+  });
+  assert.equal(observedFlag, true);
+  assert.equal(archive.captureSetupCoinChoiceReceipt, true);
+  assert.equal(archive.records[0].status, 'completed');
+  assert.deepEqual(archive.records[0].setupCoinChoiceReceipt, receipt);
+  assert.equal(archive.records[0].setupCoinChoiceEvidence.attemptId,
+    archive.records[0].attemptId);
+  assert.equal(archive.records[0].setupCoinChoiceEvidence.trialId,
+    archive.records[0].trialId);
+  assert.equal(archive.records[0].setupCoinChoiceEvidence.slotId,
+    archive.records[0].slotId);
+  assert.equal(archive.setupCoinChoiceEvidence.length, 1);
+});
+
+test('requested setup coin-choice capture without native receipt is not a completed match', () => {
+  const f = fixture();
+  const archive = executeCampaign(f, {
+    maxTrials: 1,
+    prepareCandidate: prepare,
+    captureSetupCoinChoiceReceipt: true,
+    runMatch: finished
+  });
+  assert.equal(archive.records[0].status, 'unverified-setup-coin-choice');
+  assert.equal(archive.records[0].winner, null);
+  assert.equal(archive.setupCoinChoiceEvidence.length, 0);
+});

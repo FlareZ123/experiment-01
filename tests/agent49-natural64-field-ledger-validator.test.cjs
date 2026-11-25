@@ -6,6 +6,7 @@ const {
   validateNatural64SlotAttempts,
   evaluateNatural64StoppingRule,
   findRepeatedRandomizationMaterialGroups,
+  validateRandomizationUniqueness,
   NATURAL64_DECISION_SCHEDULES
 } = require('../scripts/agent49-natural64-field-ledger-validator.cjs');
 
@@ -152,4 +153,39 @@ test('repeated exact RNG material is surfaced as a threshold-blocking review con
   assert.equal(groups.length,1);
   assert.equal(groups[0].commitment,hash('a'));
   assert.deepEqual(groups[0].attemptIds,['a1','a2']);
+});
+
+
+test('duplicate exact RNG material invalidates the structural ledger; seed labels are irrelevant', () => {
+  const commitment = hash('a');
+  const problems = new Set();
+  const groups = validateRandomizationUniqueness([
+    {attemptId:'a1',seed:'same-label',rngMaterialCommitment:commitment},
+    {attemptId:'a2',seed:'same-label',rngMaterialCommitment:commitment}
+  ],problems);
+  assert.equal(groups.length,1);
+  assert.ok(problems.has('independent-rng-material-replayed-across-attempts'));
+  const independent = new Set();
+  const distinct = validateRandomizationUniqueness([
+    {attemptId:'b1',seed:'same-label',rngMaterialCommitment:hash('b')},
+    {attemptId:'b2',seed:'same-label',rngMaterialCommitment:hash('c')}
+  ],independent);
+  assert.equal(distinct.length,0);
+  assert.equal(independent.size,0);
+});
+
+test('pre-game failure evidence must bind the preregistered abort criteria digest', () => {
+  const roster = new Map([['slot-0',slot('slot-0',0,1,0)]]);
+  const attempt = execution({
+    attemptId:'a1',slotId:'slot-0',sequenceIndex:0,rank:1,seat:0,
+    status:'pre-game-failure'
+  });
+  attempt.failureCriteriaSha256 = hash('c');
+  const problems = new Set();
+  validateNatural64SlotAttempts(
+    [attempt],roster,
+    {maxPreGameRetriesPerSlot:1,preGameFailureCriteriaSha256:hash('a')},
+    problems
+  );
+  assert.ok(problems.has('pre-game-failure-evidence-invalid'));
 });
