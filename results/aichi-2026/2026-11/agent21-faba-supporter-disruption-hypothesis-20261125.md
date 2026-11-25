@@ -56,3 +56,6 @@ The most decision-relevant test cases would be:
 4. Opponent Stadium lock: determine whether Faba's stadium mode is redundant with Marshadow Resetting Hole / Temple, or adds meaningful coverage.
 
 This is a candidate-variant proposal, not a recommendation to change the fixed list. No simulation, policy, or game was run.
+
+
+**Related scan:** this Faba hypothesis is one of several Supporter-channel options. See [Agent21's Supporter-channel control matrix](agent21-supporter-channel-control-matrix-20261125.md) for Xerosic, Ruffian, Giacomo, Flannery, Roseanne's Backup, Guzma & Hala, Sidney, and the Expanded-banned Delinquent exclusion.
