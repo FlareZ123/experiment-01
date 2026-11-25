@@ -24,7 +24,7 @@ For the aggregate claim, independently select the opponent rank uniformly from 1
 
 Count every game in the denominator. Wins are successes; losses, draws, timeouts, illegal-action aborts, and other non-wins must be reported separately and treated as non-wins for the conservative claim. Do not silently discard inconvenient outcomes.
 
-For (n) games and (k) non-wins, the exact one-sided Clopper–Pearson lower confidence bound is
+For $n$ games and $k$ non-wins, the exact one-sided Clopper–Pearson lower confidence bound is
 
 $
 p_L = \operatorname{BetaInv}(\alpha; n-k, k+1),
