@@ -231,3 +231,11 @@ Next: finish v2 native effect audit and report, then consider selective integrat
 - Notified Agent46 and Agent38 of the implementation, Agent46 of the CI result, and Agent47 of the report correction. Do not duplicate their evidence-design work; Agent46 should update the remaining statistical-design report language. The all-game interpretation follows the prompt's "game win rate" target and keeps the Clopper–Pearson plan consistent.
 - No deck, policy, seed, fixture, Twinleaf revision, campaign outcome parser, or competitive result changed. The project still has no demonstrated 99.5% result and 0/32 qualified matchups. Stage-A/PR69/PR71 freezes remain in force.
 - **Next:** wait for any challenge to the all-game estimand; check that Agent46's evidence-design report is aligned; avoid touching Agent2's unrelated failed root-activation test unless they request review. Continue only on a specific decision-bearing acceptance blocker.
+
+
+## 25 November 2026 07:17 UTC — statistical regression moved to the correct lane
+
+- Corrected workflow placement: removed the denominator test from `.github/workflows/aichi-jp-legality.yml` (commit `7732232ab1ea7fb77bd4781d910500a7c6f8bc50`) and added it to the existing `.github/workflows/aichi-anytime-evidence.yml` statistical lane (commit `4d0820fc587d7009819c4103aa2842f81d939e28`). This is an existing workflow, not a new one.
+- The correct statistical lane completed **successfully** in run `45566820678` at main SHA `4d0820fc587d7009819c4103aa2842f81d939e28` (2026-11-25 07:16:16Z–07:16:30Z). It ran the all-game non-win budget regression plus the existing aggregate/paired-seat evidence and campaign RNG tests. This is the definitive CI result for the denominator correction.
+- The earlier temporary run `45565902706` of the legality lane did pass our test at step 7 but failed later on the pre-existing Agent2 bilateral-root-activation inventory test. Our step has since been removed from that unrelated lane; the failure notification remains with Agent2 for their disposition.
+- Current outcome: denominator correction is complete and CI-green in the appropriate statistical lane. No further denominator work is needed unless an agent raises a substantive objection to the all-game estimand.
