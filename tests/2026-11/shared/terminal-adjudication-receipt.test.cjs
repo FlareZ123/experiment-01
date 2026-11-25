@@ -13,7 +13,8 @@ const {
   SETUP_RECEIPT_VERSION,
   RESULT_TO_STATUS,
   NO_WINNER_STATUS,
-  TERMINAL_CLASS_ALLOWED_RESULTS
+  TERMINAL_CLASS_ALLOWED_RESULTS,
+  TERMINAL_CLASS_ALLOWED_REASONS
 } = require('../../../scripts/2026-11/shared/terminal-adjudication-receipt.cjs');
 
 const hash = ch => ch.repeat(64);
@@ -280,7 +281,7 @@ test('no-winner is always a distinct nonwin and cannot be relabelled', () => {
   const input = fixture({
     result: null,
     terminalClass: 'no-winner',
-    reason: 'simultaneous-game-loss'
+    reason: 'ambiguous-played-terminal'
   });
   const result = validate(input);
   assert.equal(result.valid, true, result.rejectionReasons.join(','));
@@ -290,7 +291,7 @@ test('no-winner is always a distinct nonwin and cannot be relabelled', () => {
   const forged = fixture({
     result: 'candidate-win',
     terminalClass: 'no-winner',
-    reason: 'simultaneous-game-loss'
+    reason: 'ambiguous-played-terminal'
   });
   const forgedResult = validate(forged);
   assert.equal(forgedResult.valid, false);
@@ -340,6 +341,20 @@ test('draw is a genuine tie and cannot be promoted to candidate win', () => {
     allowedResults: ['candidate-win']
   });
   assert.equal(validate(forged).valid, false);
+});
+
+test('terminal-class reason must agree with the registered outcome semantics', () => {
+  const forged = fixture({
+    result: 'candidate-win',
+    terminalClass: 'opponent-forfeit',
+    reason: 'candidate-timeout'
+  });
+  const result = validate(forged);
+  assert.equal(result.valid, false);
+  assert.ok(result.rejectionReasons.includes(
+    'terminal-adjudication-protocol-rule-binding-invalid'));
+  assert.ok(TERMINAL_CLASS_ALLOWED_REASONS['opponent-forfeit'].includes(
+    'opponent-forfeit'));
 });
 
 test('protocol rule hash and allowed result are mandatory and content-addressed', () => {

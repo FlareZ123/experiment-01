@@ -600,6 +600,7 @@ function makePreGameRetryFixture() {
     runnerRevision: request.fieldSamplingRegistration.runnerRevision,
     gameStarted: false,
     terminalReached: false,
+    failureDisposition: 'unqualified-pre-game-failure',
     observedAt: '2026-11-25T11:59:46Z'
   };
   seal(evidence, 'evidenceSha256');
@@ -831,4 +832,53 @@ test('natural64 roster rejects duplicate or missing rank-seat cells', () => {
   const missingResult = validateNatural64FieldLedger(missing);
   assert.ok(missingResult.rejectionReasons.includes(
     'field-sampling-slot-roster-invalid'));
+});
+
+
+test('pre-game evidence cannot smuggle a played terminal and pre-game attempts cannot carry RNG material', () => {
+  const terminalEvidence = makePreGameRetryFixture();
+  terminalEvidence.preGameFailureEvidence[0].terminalEventSha256 = hash('f');
+  seal(terminalEvidence.preGameFailureEvidence[0], 'evidenceSha256');
+  const terminalResult = validateNatural64FieldLedger(terminalEvidence);
+  assert.equal(terminalResult.status, 'INVALID');
+  assert.ok(terminalResult.rejectionReasons.includes(
+    'pre-game-failure-independent-evidence-invalid'));
+
+  const rngEvidence = makePreGameRetryFixture();
+  rngEvidence.attempts[0].rngMaterial = rngEvidence.attempts[1].rngMaterial;
+  const rngResult = validateNatural64FieldLedger(rngEvidence);
+  assert.equal(rngResult.status, 'INVALID');
+  assert.ok(rngResult.rejectionReasons.includes(
+    'pre-game-failure-has-played-game-evidence'));
+});
+
+test('unknown terminal classes and mismatched class reasons are rejected without throwing', () => {
+  const unknown = {
+    schema: 'aichi-natural64-adjudication-protocol-v2',
+    rules: [{
+      ruleId: 'bad-class',
+      reason: 'unknown',
+      terminalClass: 'constructor',
+      allowedResults: ['candidate-win'],
+      clockMode: 'clock-free-game-win'
+    }]
+  };
+  const unknownProblems = new Set();
+  validateAdjudicationProtocol(unknown, canonicalSha256(unknown), unknownProblems);
+  assert.ok(unknownProblems.has('adjudication-protocol-rule-invalid'));
+
+  const mismatch = {
+    schema: 'aichi-natural64-adjudication-protocol-v2',
+    rules: [{
+      ruleId: 'bad-reason',
+      reason: 'candidate-timeout',
+      terminalClass: 'opponent-forfeit',
+      allowedResults: ['candidate-win'],
+      clockMode: 'clock-free-game-win'
+    }]
+  };
+  const mismatchProblems = new Set();
+  validateAdjudicationProtocol(
+    mismatch, canonicalSha256(mismatch), mismatchProblems);
+  assert.ok(mismatchProblems.has('adjudication-protocol-rule-invalid'));
 });

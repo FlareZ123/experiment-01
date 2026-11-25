@@ -31,6 +31,17 @@ const TERMINAL_CLASS_ALLOWED_RESULTS = Object.freeze({
   'no-winner': Object.freeze([null]),
   'top32-prize-tiebreaker': Object.freeze(['candidate-win', 'candidate-loss'])
 });
+const TERMINAL_CLASS_ALLOWED_REASONS = Object.freeze({
+  'engine-winner': Object.freeze(['engine-winner']),
+  'opponent-forfeit': Object.freeze(['opponent-forfeit']),
+  'opponent-concession': Object.freeze(['opponent-concession']),
+  'candidate-forfeit': Object.freeze(['candidate-forfeit']),
+  'candidate-illegal-action': Object.freeze(['candidate-illegal-action']),
+  'candidate-timeout': Object.freeze(['candidate-timeout']),
+  'draw': Object.freeze(['draw']),
+  'no-winner': Object.freeze(['ambiguous-played-terminal', 'no-winner']),
+  'top32-prize-tiebreaker': Object.freeze(['top32-prize-tiebreaker'])
+});
 
 function nonEmptyString(value) {
   return typeof value === 'string' && value.trim().length > 0;
@@ -347,11 +358,14 @@ function validateTerminalAdjudicationReceipt({
     : RESULT_TO_STATUS[result];
   const rule = expected.protocolRule;
   const classAllowedResults = rule && TERMINAL_CLASS_ALLOWED_RESULTS[rule.terminalClass];
+  const classAllowedReasons = rule && TERMINAL_CLASS_ALLOWED_REASONS[rule.terminalClass];
   const classResultSetValid = Array.isArray(classAllowedResults) &&
     Array.isArray(rule.allowedResults) &&
     rule.allowedResults.length === classAllowedResults.length &&
     classAllowedResults.every(allowed => rule.allowedResults.includes(allowed)) &&
     classAllowedResults.includes(result);
+  const classReasonValid = Array.isArray(classAllowedReasons) &&
+    classAllowedReasons.includes(rule.reason);
   let protocolRuleSha256 = null;
   try {
     if (rule && typeof rule === 'object' && !Array.isArray(rule)) {
@@ -362,6 +376,7 @@ function validateTerminalAdjudicationReceipt({
       !nonEmptyString(rule.ruleId) || !nonEmptyString(rule.reason) ||
       !nonEmptyString(rule.terminalClass) || !Array.isArray(rule.allowedResults) ||
       !rule.allowedResults.includes(result) || !classResultSetValid ||
+      !classReasonValid ||
       !CLOCK_MODES.has(rule.clockMode) ||
       (rule.terminalClass === 'top32-prize-tiebreaker' &&
         rule.clockMode !== 'aichi-top32-event-clock') ||
@@ -428,5 +443,6 @@ module.exports = {
   RESULT_TO_STATUS,
   NO_WINNER_STATUS,
   TERMINAL_CLASS_ALLOWED_RESULTS,
+  TERMINAL_CLASS_ALLOWED_REASONS,
   digestMatches
 };

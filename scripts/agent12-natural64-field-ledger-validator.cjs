@@ -18,7 +18,8 @@ const {
   RECEIPT_SCHEMA: ADJUDICATION_SCHEMA,
   RESULT_TO_STATUS,
   NO_WINNER_STATUS,
-  TERMINAL_CLASS_ALLOWED_RESULTS
+  TERMINAL_CLASS_ALLOWED_RESULTS,
+  TERMINAL_CLASS_ALLOWED_REASONS
 } = require('./2026-11/shared/terminal-adjudication-receipt.cjs');
 
 const SHA256 = /^[a-f0-9]{64}$/i;
@@ -104,10 +105,12 @@ function validateAdjudicationProtocol(protocol, protocolSha256, problems) {
         !isText(rule.ruleId) || ruleIds.has(rule.ruleId) ||
         !isText(rule.reason) || !isText(rule.terminalClass) ||
         !Array.isArray(rule.allowedResults) || rule.allowedResults.length === 0 ||
-        !TERMINAL_CLASS_ALLOWED_RESULTS[rule.terminalClass] ||
+        !Array.isArray(TERMINAL_CLASS_ALLOWED_RESULTS[rule.terminalClass]) ||
         rule.allowedResults.length !== TERMINAL_CLASS_ALLOWED_RESULTS[rule.terminalClass].length ||
         TERMINAL_CLASS_ALLOWED_RESULTS[rule.terminalClass].some(result =>
           !rule.allowedResults.includes(result)) ||
+        !Array.isArray(TERMINAL_CLASS_ALLOWED_REASONS[rule.terminalClass]) ||
+        !TERMINAL_CLASS_ALLOWED_REASONS[rule.terminalClass].includes(rule.reason) ||
         new Set(rule.allowedResults).size !== rule.allowedResults.length ||
         !CLOCK_MODES.has(rule.clockMode) ||
         (rule.terminalClass === 'top32-prize-tiebreaker' &&
@@ -301,6 +304,10 @@ function validatePreGameFailureEvidence(attempt, evidence, manifest, problems) {
       evidence.slotId !== attempt.slotId ||
       evidence.failureClass !== attempt.failureClass ||
       !PRE_GAME_FAILURE_CLASSES.has(evidence.failureClass) ||
+      evidence.failureDisposition !== 'unqualified-pre-game-failure' ||
+      evidence.terminalEventSha256 != null ||
+      evidence.engineTerminalSha256 != null ||
+      evidence.paperReceiptId != null ||
       evidence.failureCriteriaSha256 !== manifest.preGameFailureCriteriaSha256 ||
       attempt.failureCriteriaSha256 !== manifest.preGameFailureCriteriaSha256 ||
       evidence.enginePin !== manifest.twinleafPin ||
@@ -452,7 +459,15 @@ function validateSlotAttempts(attempts, slotRoster, manifest, problems) {
       if (attempt.terminalAdjudicationReceipt != null ||
           attempt.terminalAdjudicationReceiptSha256 != null ||
           attempt.paperReceiptId != null ||
-          attempt.policyApplicationReceiptSha256 != null) {
+          attempt.policyApplicationReceiptSha256 != null ||
+          attempt.setupCoinChoiceReceiptSha256 != null ||
+          attempt.setupCoinChoiceEvidenceSha256 != null ||
+          attempt.rngMaterial != null ||
+          attempt.rngMaterialCommitment != null ||
+          attempt.observedRngProtocol != null ||
+          attempt.observedRngMaterialCommitment != null ||
+          attempt.effectiveMatchOptions != null ||
+          attempt.randomizationReceiptSha256 != null) {
         add(problems, 'pre-game-failure-has-played-game-evidence');
       }
       if (attempt.attemptNumber > manifest.maxPreGameRetriesPerSlot) {
@@ -784,7 +799,8 @@ function validateRandomizationUniqueness(attempts, problems) {
  * is never quota-balanced. Pre-game failures are unqualified executions and
  * may retry only within the preregistered per-slot budget; exhausted slots
  * invalidate the batch. Sampling is with replacement, but repeated exact RNG
- * material invalidates structural admission. No-winner is a distinct nonwin.
+ * material or any reused stream key invalidates structural admission.
+ * No-winner is a distinct completed nonwin.
  */
 function validateNatural64FieldLedger(request) {
   if (!request || !Array.isArray(request.originalSources) ||
@@ -806,6 +822,7 @@ function validateNatural64FieldLedger(request) {
       policyCompetenceProven: false,
       rngIntegrationProven: false,
       paperAdjudicatorSignatureVerified: false,
+      preGameFailureEvidenceAuthenticated: false,
       externalQualificationRequired: true,
       statisticalCertification: 'NOT_ESTABLISHED'
     };

@@ -9,10 +9,10 @@ This branch carries the bounded natural-64 structural-admission correction assig
 ## Corrections
 
 - Treat `paper-qualified-no-winner` as a completed played terminal and a nonwin. It is neither a tie nor a candidate loss; its candidate result and statistical status remain null.
-- Restrict terminal classes to a fixed result vocabulary: opponent forfeit/concession → candidate win; candidate forfeit, illegal action, or timeout → candidate loss; draw → genuine tie; no-winner/ambiguous played terminal → null-result nonwin; engine winner and Top32 prize tiebreaker → candidate win/loss.
+- Restrict terminal classes and reasons to a fixed result vocabulary: opponent forfeit/concession → candidate win; candidate forfeit, illegal action, or timeout → candidate loss; draw → genuine tie; no-winner/ambiguous played terminal → null-result nonwin; engine winner and Top32 prize tiebreaker → candidate win/loss.
 - Require an explicit clock mode on every protocol rule. A Top32 prize-tiebreaker rule must use `aichi-top32-event-clock` and cannot admit tie/no-winner results.
-- Require separate, digest-bound pre-game failure evidence that binds the attempt, slot, abort criteria, engine/runner identities, and explicit no-start/no-terminal state. Such attempts remain outside the played denominator and may retry only within the registered slot budget.
-- Reject repeated physical-deal IDs, repeated complete RNG material, and reuse of any one of the six independent RNG stream keys across played attempts. Repeated 32-bit schedule labels remain irrelevant to v2 entropy.
+- Require separate, digest-bound pre-game failure evidence that binds the attempt, slot, abort criteria, engine/runner identities, and explicit no-start/no-terminal state; pre-game attempts cannot carry setup, terminal, or RNG evidence. Such attempts remain outside the played denominator and may retry only within the registered slot budget.
+- Reject repeated physical-deal IDs, repeated complete RNG material, and reuse of any one of the six independent RNG stream keys across played attempts. Unknown terminal classes and class/reason mismatches are rejected without unsafe property lookups. Repeated 32-bit schedule labels remain irrelevant to v2 entropy.
 - Preserve explicit structural-only and non-authentication labels. Hashes do not authenticate the runner, adjudicator, source producer, host entropy, or paper shuffle.
 
 ## Tests authored
