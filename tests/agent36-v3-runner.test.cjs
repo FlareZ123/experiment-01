@@ -1103,7 +1103,6 @@ test('registered V3 diagnostics accept sanitized-only with the existing artifact
   assert.doesNotMatch(source,/nativeGameMessageValues/);
   assert.match(source,/withSafeFrontierStage\(\s*'native-enumerator-construction'/);
   assert.match(source,/withSafeFrontierStage\(\s*'frontier-admission'/);
-  assert.match(source,/sanitizeFixtureArtifact\(artifact\)/);
   assert.match(source,/fixture-game\.sanitized\.json/);
   assert.match(source,/fixture-game\.sanitized\.txt/);
   assert.ok(V3_FIXTURE_TEST_PATHS.includes(

@@ -220,7 +220,7 @@ const SAFE_SANITIZED_FAILURE_CODE_PREFIXES=[
   'ERROR_','ERR_','TEST_','NO_GAME_WITNESS_','UNSUPPORTED_','INVALID_','NOT_','CANNOT_','BAD_','MISSING_'
 ];
 const SAFE_SANITIZED_FAILURE_STAGES=new Set([
-  'action-cap','actor-observation','after','after-failed-dispatch','before','cleanup',
+  'action-cap','actor-observation','after','after-failed-dispatch','before','cleanup','native-game',
   'dispatch','engine-wait-prompt-resolution','failure-final','fixture',
   'fixture-pin-restore-verification','frontier-admission','full-state-trace-acceptance',
   'game-loop','native-enumerator-execution','native-no-game-witness',
