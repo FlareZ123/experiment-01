@@ -99,3 +99,10 @@ The rank-1 policy's explicit suppression tests are synthetic branch tests, not a
 ### Opponent-side scope reminder
 
 Wobbuffet PHF's Bide Barricade is an **opponent-side** lock: while Wobbuffet is Active, it removes Abilities from the opponent's non-Psychic Pokémon in play, not from its controller's own board. Thus the Radiant Eternatus row above applies when Wobbuffet is on the opposing side; it does not suppress its controller's own Radiant. The same opponent-only distinction matters for Flutter Mane and Slaking. Do not model these as global both-side sources like Path to the Peak, Silent Lab, Iron Thorns, or Tool-live Garbotoxin.
+
+
+### Rank-1 Gate helper: Wobbuffet is incorrectly treated as a both-side source
+
+Static review of `agent6-rank1-shadow-rider-opponent-policy.cjs:346-349` found that `isGateAbilitySuppressed()` scans `[own, opponent]` for Active Wobbuffet. Bide Barricade is opponent-only: an Active Wobbuffet suppresses the opponent's non-Psychic Pokémon, not its controller's own Radiant Eternatus. The helper should therefore consider only `opponent.active` for Wobbuffet. By contrast, Klefki and Iron Thorns have both-side scopes, so scanning both players is correct; Neutralizing Gas and Slaking are already checked only on the opponent side.
+
+This is a generic policy bug, not necessarily exercised by the current Hood Shield Shadow Rider fixed pair (neither deck includes own Wobbuffet). If a future candidate controls Wobbuffet, the current helper can falsely block its own Climactic Gate. The minimal separately authorized correction is an opponent-only check plus paired tests (opponent Active Wobbuffet blocks own Gate; own Active Wobbuffet does not). Do not fold this into the Stage-A instrumentation patch.
