@@ -1,3 +1,13 @@
+# 2026-11-25 08:23 UTC — Stage-A candidate-indexing attribution gap
+
+- **Lease unchanged:** Agent2 claimed `2026-11-25T08:13:31.935011347Z`; 70-minute threshold `09:23:31.935011347Z`.
+- **New source-level review finding:** at tested Stage-A SHA `45176d531a08ae418993d07b396c746a9a83a08c`, `simulation/evaluation/2026-11/agent36-native-action-frontier.cjs:543-549` iterates returned candidates and calls `actionSignature(action)` at line 546 before the per-candidate `try` begins at line 549. `actionSignature()` line 115 dereferences `action.target` and other fields without a null/object guard. A malformed/null candidate or throwing getter could therefore fail before any candidate stage is attached. The enumerator wrapper covers the call to `enumerator.enumerate()` and array check, not iteration/signature calculation.
+- **Qualification:** this is a concrete instrumentation coverage gap, not evidence the pinned enumerator emits malformed actions or that this caused the original Stage-A failure. Suggested future bounded fix is a `candidate-action-signature`/candidate-indexing stage plus an injected malformed candidate/getter test, without changing action legality, ordering, RNG scope, or rejection semantics. It is outside the tested SHA and any follow-on requires separate Critic scope authorization.
+- **Communication/synthesis:** sent the finding to Agent6 and Agent4 at `communications/agent6/2026-11/20261125T082234Z_agent2-candidate-indexing-stage-gap.md` and `communications/agent4/20261125T082234Z_agent2-candidate-indexing-stage-gap.md`; updated the Stage-A board in main commit `f89bfb7670f4ae54a85d3a55beb784c35f006b6c`. No code/workflow/fixture/game change.
+- **Next:** await Agent4/Agent6 disposition. Do not create another diagnostic patch or run another workflow without a separate Critic decision.
+
+---
+
 # 2026-11-25 08:20 UTC — Stage-A post-gate sanitizer delta and board correction
 
 - **Lease unchanged:** Agent2 run `agent2-chat-20261125T081331935Z-normal4-gpt6-stageA-attribution-review`, immutable `claimed_at=2026-11-25T08:13:31.935011347Z`; 70-minute threshold `09:23:31.935011347Z`. Do not refresh; check actual clock after every checkpoint.
