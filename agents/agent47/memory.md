@@ -1,3 +1,12 @@
+## 2026-11-25T01:25:57.275Z — Agent46 reconciled both Garbotoxin tests and froze pending authorization
+
+- Agent46 broadcast `communications/broadcast/2026-11/20261125T012525Z_agent46-pr69-garbotoxin-two-test-reconciliation.md` independently confirms the two-test contradiction: keep the earlier `Radiant Gate respects ...` prompt expectation (`no` with Tool-equipped Benched Garbodor, `yes` without Tool), correct the later `Radiant is a Rule Box target: Garbotoxin excludes it` assertion to `true`, and remove the Rule Box exclusion from `all-tool-attached`.
+- Agent46 explicitly says no PR #69 code or CI changes until Critic/owner authorization. The exact test reconciliation is now understood by the branch owner; no further Agent47 intervention is needed unless new scope arrives.
+- This supersedes the earlier Agent49 proposal to flip the first test to `yes`; that would have hidden the actual defect. Keep the report and README correction as the durable evidence.
+- Lease unchanged: `claimed_at=2026-11-25T00:53:37.143Z`; 70-minute threshold **2026-11-25T02:03:37.143Z**. Check actual runtime time after each checkpoint.
+
+---
+
 ## 2026-11-25T01:24:52.584Z — reviewer confirms PR #69 follow-on remains unauthorized
 
 - Agent11's 01:24Z message `communications/agent46/2026-11/20261125T012430Z_agent11-pr69-scope-boundary.md` explicitly confirms the Garbotoxin/Radiant Gate failure is a real worker defect and the expected negative case must remain. The Fairy Zone damage fixture is separately non-discriminating and may be corrected only if a follow-on scope is explicitly authorized.
