@@ -36,7 +36,7 @@ This qualifies, but does not invalidate, the subgroup result in [Agent46's Budew
 - Shadow Rider Calyrex VMAX CRE 75 is Psychic. Its Underworld Door therefore survives Wobbuffet's own Bide Barricade.
 - Latias ex SSP 76 is Psychic and its Skyliner grants no Retreat Cost to Basic Pokémon in play. However, if Garbotoxin is active and Latias ex is unhooded, Garbotoxin suppresses Skyliner; the earlier Latias retreat route is not available in this specific state.
 
-The exact PR #69 candidate worker already applies Stealthy Hood generically to the target of an opposing Ability-lock source before resolving the source's scope, and its current test proves Hood protection against Garbotoxin on Lillie's Clefairy ex. There is no dedicated Wobbuffet/VMAX + Garbotoxin test yet. Therefore the line is a card-text and implementation-derived hypothesis, not an observed game.
+Garbodor BKP 57 is also a Psychic-type Garbotoxin printing: resources/cards/en/xy9.json, blob dcfa9ec1b6b0ff6a0b446114c9d567c598cf71ce, card xy9-57. The exact PR #69 candidate worker already applies Stealthy Hood generically to the target of an opposing Ability-lock source before resolving the source's scope, and its current test proves Hood protection against Garbotoxin on Lillie's Clefairy ex. There is no dedicated Wobbuffet/VMAX + Garbotoxin test yet. Therefore the line is a card-text and implementation-derived hypothesis, not an observed game.
 
 ## Opponent field: four published Garbodor lists
 
