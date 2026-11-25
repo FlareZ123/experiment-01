@@ -5,9 +5,9 @@ const {
 } = require('../../../simulation/evaluation/canonical-evidence-json.cjs');
 
 const SHA256 = /^[a-f0-9]{64}$/i;
-const RECEIPT_SCHEMA = 'aichi-terminal-adjudication-receipt-v3';
+const RECEIPT_SCHEMA = 'aichi-terminal-adjudication-receipt-v4';
 const RUNNER_EVIDENCE_SCHEMA = 'aichi-runner-terminal-evidence-v1';
-const ADJUDICATOR_EVIDENCE_SCHEMA = 'aichi-adjudicator-evidence-v1';
+const ADJUDICATOR_EVIDENCE_SCHEMA = 'aichi-adjudicator-evidence-v2';
 const SETUP_EVIDENCE_SCHEMA = 'aichi-natural64-setup-coin-choice-evidence-v1';
 const SETUP_RECEIPT_VERSION = 'agent16-accepted-native-setup-coin-and-first-choice-v1';
 const CLOCK_MODES = new Set([
@@ -19,30 +19,6 @@ const RESULT_TO_STATUS = Object.freeze({
   'candidate-loss': 'paper-qualified-loss',
   'genuine-tie': 'paper-qualified-tie',
   'no-winner': 'paper-qualified-no-winner'
-});
-const RESULT_BY_REASON = Object.freeze({
-  'engine-winner': ['candidate-win', 'candidate-loss'],
-  'genuine-tie': ['genuine-tie'],
-  'simultaneous-game-loss': ['no-winner'],
-  'top32-prize-tiebreaker': ['candidate-win', 'candidate-loss', 'genuine-tie', 'no-winner'],
-  'candidate-concession': ['candidate-loss'],
-  'opponent-concession': ['candidate-win'],
-  'candidate-forfeit': ['candidate-loss'],
-  'opponent-forfeit': ['candidate-win'],
-  'candidate-timeout': ['candidate-loss'],
-  'opponent-timeout': ['candidate-win']
-});
-const CLASS_BY_REASON = Object.freeze({
-  'engine-winner': 'engine-winner',
-  'genuine-tie': 'genuine-tie',
-  'simultaneous-game-loss': 'no-winner',
-  'top32-prize-tiebreaker': 'clock-adjudication',
-  'candidate-concession': 'concession',
-  'opponent-concession': 'concession',
-  'candidate-forfeit': 'forfeit',
-  'opponent-forfeit': 'forfeit',
-  'candidate-timeout': 'timeout',
-  'opponent-timeout': 'timeout'
 });
 
 function nonEmptyString(value) {
@@ -168,10 +144,10 @@ function validateSetupCoinChoiceEvidence({attempt, receipt, setupEvidence}) {
 }
 
 /**
- * Bind one played attempt to separate runner-terminal, adjudicator, and
- * native-setup evidence. This is structural/content-addressed validation only:
- * it authenticates none of those producers, verifies no signature, decides no
- * paper rule, and proves neither RNG custody nor fair shuffling.
+ * Bind a played attempt to separate runner-terminal, adjudicator, and native
+ * setup evidence. Protocol semantics are supplied by the content-addressed
+ * manifest rule; this helper does not invent universal concession/timeout rules.
+ * Content digests are not signatures and authenticate none of the producers.
  */
 function validateTerminalAdjudicationReceipt({
   attempt,
@@ -319,8 +295,19 @@ function validateTerminalAdjudicationReceipt({
         !validIso(adjudicationEvidence.adjudicatedAt) ||
         Date.parse(adjudicationEvidence.adjudicatedAt) < Date.parse(expected.endedAt) ||
         !isSha(adjudicationEvidence.attestationSha256) ||
+        !isSha(adjudicationEvidence.runnerEvidenceSha256) ||
+        !isSha(adjudicationEvidence.terminalEventSha256) ||
+        !isSha(adjudicationEvidence.engineTerminalSha256) ||
+        !nonEmptyString(adjudicationEvidence.protocolRuleId) ||
+        !isSha(adjudicationEvidence.protocolRuleSha256) ||
         !digestMatches(adjudicationEvidence, 'evidenceSha256')) {
       reject('terminal-adjudication-adjudicator-evidence-invalid');
+    }
+    if (!runnerEvidence ||
+        adjudicationEvidence.runnerEvidenceSha256 !== runnerEvidence.evidenceSha256 ||
+        adjudicationEvidence.terminalEventSha256 !== runnerEvidence.terminalEventSha256 ||
+        adjudicationEvidence.engineTerminalSha256 !== runnerEvidence.engineTerminalSha256) {
+      reject('terminal-adjudication-adjudicator-terminal-binding-mismatch');
     }
     if (receipt.adjudicationEvidenceSha256 !== adjudicationEvidence.evidenceSha256 ||
         receipt.adjudicatorAttestationSha256 !== adjudicationEvidence.attestationSha256 ||
@@ -328,7 +315,9 @@ function validateTerminalAdjudicationReceipt({
         receipt.adjudicatedAt !== adjudicationEvidence.adjudicatedAt ||
         receipt.terminalClass !== adjudicationEvidence.terminalClass ||
         receipt.adjudicationReason !== adjudicationEvidence.adjudicationReason ||
-        receipt.adjudicatedCandidateResult !== adjudicationEvidence.adjudicatedCandidateResult) {
+        receipt.adjudicatedCandidateResult !== adjudicationEvidence.adjudicatedCandidateResult ||
+        receipt.protocolRuleId !== adjudicationEvidence.protocolRuleId ||
+        receipt.protocolRuleSha256 !== adjudicationEvidence.protocolRuleSha256) {
       reject('terminal-adjudication-adjudicator-evidence-binding-mismatch');
     }
     if (isSha(adjudicationEvidence.evidenceSha256)) {
@@ -342,15 +331,26 @@ function validateTerminalAdjudicationReceipt({
 
   const result = receipt.adjudicatedCandidateResult;
   const expectedStatus = RESULT_TO_STATUS[result];
-  const reason = receipt.adjudicationReason;
-  const expectedClass = CLASS_BY_REASON[reason];
-  if (!expectedStatus || !expectedClass || receipt.terminalClass !== expectedClass ||
-      !RESULT_BY_REASON[reason]?.includes(result)) {
-    reject('terminal-adjudication-terminal-class-result-incompatible');
-  }
-  if (reason === 'top32-prize-tiebreaker' &&
-      expected.clockMode !== 'aichi-top32-event-clock') {
-    reject('terminal-adjudication-clock-reason-mode-mismatch');
+  const rule = expected.protocolRule;
+  let protocolRuleSha256 = null;
+  try {
+    if (rule && typeof rule === 'object' && !Array.isArray(rule)) {
+      protocolRuleSha256 = canonicalSha256(rule);
+    }
+  } catch {}
+  if (!expectedStatus || !rule || typeof rule !== 'object' ||
+      !nonEmptyString(rule.ruleId) || !nonEmptyString(rule.reason) ||
+      !nonEmptyString(rule.terminalClass) || !Array.isArray(rule.allowedResults) ||
+      !rule.allowedResults.includes(result) ||
+      rule.reason !== receipt.adjudicationReason ||
+      rule.terminalClass !== receipt.terminalClass ||
+      (rule.clockMode !== undefined && rule.clockMode !== expected.clockMode) ||
+      receipt.protocolRuleId !== rule.ruleId ||
+      receipt.protocolRuleSha256 !== protocolRuleSha256 ||
+      !adjudicationEvidence ||
+      adjudicationEvidence.protocolRuleId !== rule.ruleId ||
+      adjudicationEvidence.protocolRuleSha256 !== protocolRuleSha256) {
+    reject('terminal-adjudication-protocol-rule-binding-invalid');
   }
   if (receipt.statisticalStatus !== expectedStatus ||
       attempt.status !== expected.status ||
@@ -400,7 +400,5 @@ module.exports = {
   SETUP_RECEIPT_VERSION,
   CLOCK_MODES,
   RESULT_TO_STATUS,
-  RESULT_BY_REASON,
-  CLASS_BY_REASON,
   digestMatches
 };
