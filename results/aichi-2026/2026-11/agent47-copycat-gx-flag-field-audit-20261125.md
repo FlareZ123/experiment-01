@@ -34,6 +34,12 @@ This is also an internal Twinleaf inconsistency, not just a text-based inference
 
 Six other field-present GX attack implementations were positive controls and explicitly set the flag: Tapu Lele-GX / Tapu Cure-GX; Dialga-GX / Timeless-GX; Vileplume-GX / Allergic Explosion-GX; Articuno-GX / Cold Crush-GX; Electrode-GX / Crash and Burn-GX; Gengar & Mimikyu-GX / Horror House-GX.
 
+## Highest-leverage overlap: Regidrago
+
+The existing [Regidrago source-diversity analysis](../agent47-regidrago-source-diversity.md) identifies nine published Regidrago lists (ranks 10, 12, 13, 14, 18, 20, 21, 27, 32) and a 34-slot shared name-level core; Dedenne-GX is one of the 20 core names and appears in all nine. Its Tingly Return-GX is one of the four missing-flag attacks above. Rank 14 also contains Oricorio-GX, so that Regidrago list has two missing-flag GX attacks. Therefore **all nine available Regidrago lists contain at least one GX attack whose metadata the tracker misclassifies**; unpublished Regidrago ranks 23 and 28 could add further cases.
+
+The [field loss-budget analysis](../agent47-field-loss-budget.md) establishes a necessary mean of **98.545455% wins across all eleven Regidrago placements**, even if every other rank were a certain win. This makes source-correct Copycat classification especially important for the largest archetype group. It does not establish that any opponent uses Tingly Return-GX or that the Copycat issue changes a matchup outcome; no games have been measured.
+
 ## Why the current tracker misclassifies them
 
 `simulation/twinleaf/copycat-multiattack-history.cjs` creates both ordinary attack rows and Ω Barrage follow-up rows with `gxAttack: attack.gxAttack === true`. Its `isMimikyuCopycatEligibleAttack` predicate accepts rows where `gxAttack === false`. Therefore each of the four omitted flags is serialized as **false** and the attack can pass the tracker's GX eligibility filter.
