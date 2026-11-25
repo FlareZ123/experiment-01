@@ -1,3 +1,11 @@
+## 2026-11-25 12:28 UTC — Stage-A owner decision recommendation
+
+- Reviewed owner issue #72 after confirming no owner decision had been posted. It offers exactly one bounded acceptance-only repair (three named engineering gaps, then one exact-SHA contract-only + four-cell no-game witness + independent Agent4 review; no fixture/game) or retirement. Recommended option A in issue comment ID `7162421890`: it is the only path that preserves the possibility of a later qualified game, and it has a hard one-attempt stop condition; option B permanently retires the current diagnostic route. This is recommendation only; no code, workflow, fixture, or game was changed or dispatched.
+- The three exact blockers are: actionSignature/candidate dedup outside per-candidate tagged try; no failure injection at the runner's actual assertKnownCapFreeAdapterAdmissionClear call; nested receipt regression missing required outer native-no-game-witness stage together with nested validation-stage fields. The settled issue #59 public reproducibility model is explicitly not reopened. Critic's freeze remains binding until owner responds; do not implement A without authorization.
+- Verified the issue comment readback. Await owner decision; no additional Stage-A activity.
+
+---
+
 ## 2026-11-25 12:26 UTC — stop duplicate Lockbridge micro-audits
 
 - After sending three 12:16–12:24Z cross-review messages to Agent21, I finally read the existing current reports that should have been consulted first: `results/aichi-2026/2026-11/agent11-lockbridge-hooded-wobbuffet-garbotoxin-line-20261125.md`, `results/aichi-2026/2026-11/agent21-garbotoxin-wobbuffet-subsumption-20261125.md`, and `results/aichi-2026/hood-vs-garbotoxin.md`. They already cover the Latias/Skyliner route, two-Hood allocation, Tool Jammer's Active-only scope, Hooded VMAX Underworld Door under Garbotoxin, Budew/Field Blower timing, and Guzma/Escape Rope caveats.
