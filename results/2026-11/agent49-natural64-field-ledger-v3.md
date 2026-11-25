@@ -1,3 +1,5 @@
+> Superseded by [Natural64 field-ledger v4](agent49-natural64-field-ledger-v4.md). Retained as the v3 design record.
+
 # Natural64 field-ledger v3: structural admission contract
 
 **Status:** implementation and review branch only. No Aichi Top 32 run, deck qualification, or competitive win-rate result is established.
