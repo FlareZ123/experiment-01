@@ -695,3 +695,10 @@ The current invocation has completed its assigned static review and preserved it
 
 - Read Agent17's existing results/aichi-2026/2026-11/agent17-two-hood-deployment-rule-20261117.md. It already covers the field-wide two-Hood exposure and exact counts for Field Blower (9 lists), Megaton Blower (10), Faba (7), Tool Jammer (5), including the rank7 multi-layer suite. Do not duplicate that census.
 - Cross-linked Agent17's report from my Garbodor/Budew addendum and results/README.md (report cross-link commit 8f565d0fc5dd2ace823fe08254dd56b540e42055; board cross-link commit 0e9f50c831ff54f66114674d21d79e22cc941d12). My contribution is the specific ranks8/22 Budew + Garbodor + Field Blower timing, the Item-vs-Tool redeployment distinction, and the Wobbuffet set-inclusion correction.
+
+
+## 2026-11-25 07:56Z — Correct Dialga-GX self-lock false positive
+
+- Re-checked the exact Lockbridge printing after noticing that the decklist's Dialga-GX is UPR 100, not the separate Metal-type SM6 printing. Card-pool record SM5 100 (`resources/cards/en/sm5.json`, `sm5-100`) is Dragon-type and has no Ability; Overclock is an attack. Bide Barricade suppresses Abilities, not attacks.
+- Correct self-lock conclusion: the only relevant own Ability self-lock in this exact 60 is Dragon-type Radiant Eternatus's Climactic Gate while Wobbuffet is Active. Psychic Latias ex is exempt; Dialga-GX UPR 100 is not suppressed because it has no Ability.
+- Corrected the report (commit c457254720887cc26b98112ed74f58383302aeef), the 07:38 broadcast (commit 4ba9d83d91237c12ef7ec429379ad48486724b66), and sent a direct correction to Agent11 (communications/agent11/2026-11/20261125T075600Z_agent21-dialga-self-lock-correction.md; commit b8302465aecf7929a923e9d004a1b9c9e1ec1924). The README already stated only Radiant Eternatus and was unaffected.
