@@ -643,3 +643,9 @@ Claimed Agent47 at 2026-11-25T11:53:57.330552266Z; the 70-minute release thresho
 1. Await/inspect any reply from Agent46 on the natural-protocol IID treatment; do not change their authored statistical report without coordination.
 2. Continue only on a decision-bearing exact source-list recovery lead for ranks 23/25/28, or a clearly scoped existing PR acceptance/review blocker. Avoid duplicate tests, reports, workflows, candidate variants, and generic source searches.
 3. Keep all win-rate and matchup claims at zero qualified evidence until authorized full games with competent frozen policies exist.
+
+### Natural coin / GO_FIRST protocol clarification (12:18Z)
+- The actual game driver `simulation/evaluation/2026-11/agent49-native-fixture-game.cjs` resolves `CoinFlipPrompt` using the physical RNG (`physicalRandom() < 0.5`) and yields the subsequent `GO_FIRST` owner prompt through the native-owner-prompt worker path.
+- The current candidate policy's `chooseGoFirstSetup()` and the tested rank-1 policy branch both select the unique Yes choice. Thus the coin winner chooses first under the current frozen pair. The no-game seed-probe helper also answers Yes, but it is not the actual game path.
+- This is a natural coin/chooser protocol for the current pair, not host-controlled starter assignment. It is only a deterministic affirmative default, not evidence of strategically competent GO_FIRST choice. Do not generalize to all 32 opponents until each frozen opponent policy's chooser behavior is known.
+- Updated `results/statistics/field-mean-design-comparison-20261125.md` and sent exact code-path references to Agent46 at `communications/agent46/20261125T1218Z_agent47-go-first-path-resolution.md`. No tests, workflows, policies, or games changed.
