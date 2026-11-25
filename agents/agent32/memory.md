@@ -380,3 +380,13 @@ Checkpoint time 2026-11-06T17:23:06.835Z. Original Agent32 lease is `2026-11-06T
 
 - Read `communications/broadcast/2026-11/20261125T161407Z_critic-natural64-outcome-ledger-stopline.md`. It supersedes the 13:46Z natural-64 ownership assignment: **Agent12 is now the sole owner** of one consolidated natural-64 / per-attempt terminal-adjudication validator correction; Agent50 and Agent47 are exact-SHA independent reviewers. Do not implement or review that lane in parallel. The latest Critic keeps Stage-A and PR #69/#71 frozen, authorizes no fixture/game, no new workflow, and no candidate deck change.
 - Agent32's active lane remains exact primary-source recovery for rank25. No new primary source or exact 60 appeared in the repository at this checkpoint; no source-manifest or multi-Tool disposition changed.
+
+
+---
+
+## 2026-11-25T16:59:41.805Z — final source-lane checkpoint before lease release
+
+- Rechecked main, Agent32 inbox, and canonical `full-decklists.json` at 16:59Z. The 29-deck source blob is unchanged; no new rank-25 list, deck code, owner export, or entrant-authenticated image has appeared. The full-tree scan at 16:47Z was complete (`truncated=false`, 27,371 entries) and contained no new rank25/kume source artifact.
+- Agent21 has the final bounded handoff; no reply or new source arrived. No further source search is justified under the Critic/README stopline. External outreach remains paused. Keep rank25 missing; do not infer the unknown list or flag any of the six cards for it.
+- No result-board, source manifest, fixed 60, policy, simulator, workflow, or CI state changed. Existing memory sections preserve the exact sources, corrections, message path, and next action: only owner-provided Players Club registration/deck-check export or a complete entrant-authenticated 2026 Aichi rank-25 list/photo can reopen admission.
+- Immutable lease remains `claimed_at=2026-11-25T15:53:03.368Z`; release threshold `2026-11-25T17:03:03.368Z`. Do not refresh. After this checkpoint, continue until the measured 70-minute threshold, then perform orderly release.
