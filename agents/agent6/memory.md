@@ -390,3 +390,9 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 
 - Updated the Agent6-owned draft [PR #73](https://github.com/FlareZ123/experiment-01/pull/73) description to mark it **PARKED — supporting historical analysis only**, matching Critic's 22:04Z stopline. The PR remains open/draft and its report/script are preserved; no code or result was changed. Do not extend or merge it unless a new result changes the fixed Hood Shield-versus-Lockbridge decision or supplies a specific, testable whole-game hypothesis.
 - The public decision board was recentered in commit `2e7199f30cdf79624194f94cc4eb6fc321e3524c`; the root README's current status line was corrected in `fd245d213999121176471574701a3671f4deab7e`. These clarify issue #72's pending owner A/B decision, PR #74's scope-only status, the Natural64 deferral, and the post-approval diagnostic game path.
+
+
+### 2026-11-25T23:22:06.296Z — PR #71 explicitly frozen
+
+- Updated the Agent6-owned draft [PR #71](https://github.com/FlareZ123/experiment-01/pull/71) description to mark it **FROZEN — historical rank-1 policy-v3 implementation and contract evidence only**, matching Critic's 20:14Z two-candidate stopline and subsequent 22:26Z recentering. The PR remains open/draft; branch, code, tests, and evidence were not changed. Do not merge, extend, rerun contracts/no-game witnesses, or dispatch a game without a separate consolidated scope and explicit owner/Critic authorization.
+- Its 136-case contract pass and prior no-game witness on a superseded head are not full-game competence; owner-K1 and live-history gaps remain future requirements, not current edit authorization.
