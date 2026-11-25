@@ -7,7 +7,7 @@
 
 The exact Lockbridge 60 has two Stealthy Hood UNB 186, one Wobbuffet PHF 36, one Latias ex SSP 76, and four Shadow Rider Calyrex VMAX.
 
-- **Against Tool-live Garbotoxin:** a Hood on Shadow Rider VMAX can preserve Underworld Door. A Hood on Wobbuffet is redundant while Garbotoxin remains active: Garbotoxin already suppresses every Pokémon Ability except Garbotoxin, while Bide Barricade only suppresses non-Psychic Pokémon. Since the Aichi Garbodor sources are Psychic, every Bide Barricade target is already suppressed by Garbotoxin (target-set inclusion B ⊆ G). Prefer Hood on one or two VMAX engines, or keep one copy in hand/deck as a reserve; do not spend a Hood on Wobbuffet solely to preserve a redundant lock.
+- **Against Tool-live Garbotoxin:** Hood on Shadow Rider VMAX preserves Underworld Door; Hood on Latias ex preserves Skyliner and gives Basic Wobbuffet free retreat. This is the best two-Hood allocation when the pivot is needed. A Hood on Wobbuffet is redundant while Garbotoxin remains active: Garbotoxin already suppresses every Pokémon Ability except Garbotoxin, while Bide Barricade only suppresses non-Psychic Pokémon. Since the Aichi Garbodor sources are Psychic, every Bide Barricade target is already suppressed by Garbotoxin (target-set inclusion B ⊆ G). If the Latias pivot is not needed, the second Hood may protect a second VMAX or remain in hand/deck as a reserve; do not spend a Hood on Wobbuffet solely to preserve a redundant lock.
 - **Against Budew + Field Blower:** ranks 8 and 22 each have Garbodor, Budew, one Field Blower, and three VS Seeker. Field Blower can discard both attached Hoods before Budew uses zero-cost Itchy Pollen. However, Tools are not Items: one Hood held in hand or left in the deck can be attached/searched during the Item-locked turn. If both Hoods are attached and discarded, the list has no Tool-recovery effect.
 - **Against Klefki:** a different allocation can matter. Hood Wobbuffet to protect Bide Barricade and Hood Latias ex to protect Skyliner; Shadow Rider VMAX is not Basic, so Klefki's Basic-only lock does not suppress Underworld Door. Joust can strip the Hood from Active Wobbuffet, while the Hood on Benched Latias remains and may allow a retreat into a powered VMAX. Both Klefki lists also have three Escape Rope, which can force Wobbuffet off Active and end Bide Barricade.
 - **Latias retreat:** when no opposing Garbotoxin or Active Klefki suppresses it, Latias ex's Psychic Skyliner is not suppressed by Wobbuffet and gives Basic Wobbuffet free retreat.
@@ -46,7 +46,7 @@ Consequences:
 3. A Hood that preserves Bide Barricade on Wobbuffet adds no opponent-Ability suppression while Garbotoxin remains Tool-live.
 4. If Garbodor loses its Tool, Garbotoxin's condition ends; Bide Barricade resumes automatically if Wobbuffet is Active. Wobbuffet does not need Hood to reactivate.
 
-The valuable Hood target in this state is Shadow Rider Calyrex VMAX: Garbotoxin suppresses its Underworld Door, and Stealthy Hood can prevent that effect on the attached VMAX. A second Hood may protect a second VMAX, or be held in reserve. A VMAX with Hood cannot also hold Forest Seal Stone, so Star Alchemy is not protected on that same Pokémon.
+The valuable Hood targets in this state are Shadow Rider Calyrex VMAX and Latias ex: the VMAX's Hood preserves Underworld Door, while Latias's Hood preserves Skyliner and lets Wobbuffet retreat for free. This VMAX + Latias allocation preserves both the engine and pivot without spending a Hood on Wobbuffet. If the pivot is not needed, a second Hood may protect another VMAX or remain in hand/deck as a reserve. A VMAX with Hood cannot also hold Forest Seal Stone, so Star Alchemy is not protected on that same Pokémon.
 
 This is a matchup-specific set-inclusion result. It does not make Wobbuffet generally redundant: against Ability locks that do not already suppress all non-Psychic Abilities, Bide Barricade may add coverage.
 
@@ -95,12 +95,12 @@ Radiant Eternatus is a separate sequencing issue: it is Basic Dragon and is supp
 
 Latias ex SSP 76 is Psychic, so Wobbuffet's Bide Barricade does not suppress Skyliner. With Latias ex on the Bench and Wobbuffet Active, Wobbuffet (Basic) can retreat for free without Float Stone. This is a non-Item switch-out route during Budew's Item lock and may preserve Float Stone.
 
-This route is unavailable if an opposing Tool-live Garbotoxin suppresses unhooded Latias ex, or if an opposing Active Klefki suppresses Basic Abilities. Against Klefki, a Hood on Latias can preserve Skyliner; against Garbotoxin, a Hood on Latias competes with the more valuable Hood on Shadow Rider VMAX.
+This route is unavailable if an opposing Tool-live Garbotoxin or an opposing Active Klefki suppresses unhooded Latias ex. Against Garbotoxin, Hood on Latias does not compete with the VMAX Hood: the preferred two-Hood allocation is VMAX + Latias, preserving Underworld Door and Skyliner together; Bide Barricade remains suppressed but redundant. Against Klefki, allocate Hoods to Latias and Wobbuffet, because Klefki suppresses Basic Abilities while Shadow Rider VMAX is not Basic.
 
 ## Proposed deterministic tests and limits
 
 If an isolated Lockbridge rules-contract scope is authorized, test:
-- Tool-live Garbodor with Wobbuffet unhooded: confirm Garbotoxin already suppresses every non-Psychic Ability that Bide Barricade would suppress.
+- Tool-live Garbodor with Wobbuffet unhooded: confirm Garbotoxin already suppresses every non-Psychic Ability that Bide Barricade would suppress. Also test Hooded Shadow Rider VMAX + Hooded Latias ex: confirm Underworld Door and Skyliner remain active, while unhooded Wobbuffet's Bide Barricade remains suppressed but adds no target coverage.
 - Tool removal from the last Garbodor source: confirm Bide Barricade resumes while Wobbuffet is Active, without Hood.
 - Hooded Shadow Rider VMAX under Garbotoxin: confirm Underworld Door remains usable; no-Hood control should fail.
 - Budew + Field Blower before Itchy Pollen: both Hoods attached versus one Hood held/in deck; confirm Tool attachment and Arven remain available during Item lock, while Item cards do not.
