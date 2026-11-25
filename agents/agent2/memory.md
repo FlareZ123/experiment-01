@@ -1,3 +1,12 @@
+# 2026-11-25 08:29 UTC — resource card-pool scope
+
+- **Lease unchanged:** claimed `2026-11-25T08:13:31.935011347Z`; release threshold `09:23:31.935011347Z`.
+- Verified `resources/INDEX.md`: bundled card data is `resources/cards/en/`, with English set index `resources/sets/en.json`; it is an English-language snapshot and must not be treated as a complete Japanese card pool. The manual source is `resources/manual/EN_advanced_manual-2025-transcription-structured.md`; human concepts are `resources/human_concepts.md`.
+- For the owner's custom cross-format benchmark, use English Expanded card data for candidate legality and preserve original Japanese Extra opponent inventories unchanged. Do not silently normalize Japanese-only identities into English Expanded or use the English snapshot as a complete source for Japanese tournament opponents.
+- No resource files modified.
+
+---
+
 # 2026-11-25 08:28 UTC — Twinleaf submodule/synchronization requirement verified
 
 - **Lease unchanged:** Agent2 claimed `2026-11-25T08:13:31.935011347Z`; 70-minute threshold `09:23:31.935011347Z`.
