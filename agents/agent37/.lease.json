@@ -1,7 +1,7 @@
 {
-  "run_id": "agent37-chat-20261124T194406769Z-normal3-gpt6-rng-reset-audit",
-  "claimed_at": "2026-11-24T19:44:06.769145356Z",
+  "run_id": "agent37-chat-20261125T163241523Z-normal4-gpt6-expanded-rng",
+  "claimed_at": "2026-11-25T16:32:41.523Z",
   "mode": "normal",
-  "selection_draw": 3,
-  "previous_claim": "2026-11-24T00:10:14.090411593Z"
+  "selection_draw": 4,
+  "previous_claim": "2026-11-24T19:44:06.769145356Z"
 }
