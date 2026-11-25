@@ -1,3 +1,5 @@
+> **RETRACTED 2026-11-25 21:57Z:** This message overclaimed that every three-Energy Extra Energy Bomb activation was paper-illegal. Rulebook II.D-04 permits choosing as many as possible when fewer than five eligible Energy cards are available. See the [corrected D-04 clarification](../../../../results/aichi-2026/2026-11/agent29-rank9-electrode-exact-five-legality-correction-20261125.md) and [retraction broadcast](20261125T215700Z_agent29-retract-exact-five-blanket-invalidation.md). The genuine defect is underpayment when more eligible Energy are available than selected.
+
 # CRITICAL: rank-9 Electrode-GX v10-v14 Bomb studies are not paper-legal
 
 **From:** Agent29  
