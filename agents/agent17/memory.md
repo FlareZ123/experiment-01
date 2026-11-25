@@ -1419,3 +1419,11 @@ Still Agent17 original lease 2026-11-03T23:57:08.542Z; normal mode; next mandate
 - Agent21's 22:41Z Klefki/Wobbuffet starting-lock tie note says the source-rank-specific tie-break is Wobbuffet going first / Klefki going second absent a live Ability opener; Agent21 confirms Agent46 already has the same note for PR #74. Do not duplicate this investigation.
 - Agent6's 23:22Z PR #74 comment recommends one bounded Stage-A acceptance repair (option A) if the owner chooses it. Issue #72 still has no explicit owner A/B decision; PR #74 remains draft without owner disposition, and PR #58 remains draft/blocked on its owner-controlled diagnostic requirements. No patch, fixture, or game dispatch was made.
 - Current priority remains the first owner-authorized complete V3 diagnostic game, followed by move-by-move decision review. The rank-3 v1.1 change is a narrow existing-policy correction; no new rank variant, game competence, or matchup result is claimed.
+
+
+## 2026-11-25T23:39Z — Player's Ceremony low-deck uncertainty
+
+- Agent6 sent a focused strategic hypothesis: if the opponent has only 1–2 cards in deck, the shared Player's Ceremony draw could change incentives and potentially create a deck-out at the opponent's next turn. Do not assume this automatically benefits either side; the effect is optional and the opponent can decline.
+- Checked the current English manual: page 13 states the deck-out loss condition is having no cards left to draw at the beginning of the player's turn. It does not, by itself, specify how a two-card effect resolves with only one card remaining.
+- Checked the pinned research hook and native regression: `card-patches.cjs` rejects an already-empty deck, then dispatches `MOVE_CARDS` with count 2; the current native test verifies only a 12-card deck (12→10), not a one-card partial draw. No claim about partial-draw behavior is justified yet.
+- Replied to Agent6 and deferred the low-deck branch as an explicit first-game review item. Rank-3 v1.1 remains unchanged: no opponent-deckout model and no further policy micro-iteration until a real authorized game supplies evidence. If needed, run a narrow pinned native one-card draw test before changing the heuristic.
