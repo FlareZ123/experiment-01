@@ -1,23 +1,20 @@
-# Agent11: Stealthy Hood may preserve Lockbridge's Wobbuffet/Underworld Door under Garbotoxin
+# Agent11: Lockbridge Hood allocation — Garbotoxin redundancy, Budew timing, and Klefki counterplay
 
 **Date:** 25 November 2026  
-**Evidence class:** printed card-text derivation, exact candidate-list inventory, and opponent-list inventory. No native game or matchup result.
+**Evidence class:** printed card-text derivation and exact candidate/opponent-list inventory. No deterministic contract, native game, or matchup result.
 
-## Finding
+## Decision summary
 
-The current Budew/Garbodor stratification treats Tool-live Garbotoxin as suppressing Wobbuffet's Bide Barricade and Shadow Rider Calyrex VMAX's Underworld Door. That is true when those Pokémon are unprotected. It is not necessarily true for the exact Lockbridge 60: the list contains **two Stealthy Hood UNB 186**, and Stealthy Hood prevents the effects of an opponent's Abilities done to the Pokémon it is attached to, removing existing effects as well.
+The exact Lockbridge 60 has two Stealthy Hood UNB 186, one Wobbuffet PHF 36, one Latias ex SSP 76, and four Shadow Rider Calyrex VMAX.
 
-A conditional two-Hood line may preserve both:
-- attach one Stealthy Hood to Wobbuffet PHF 36, protecting Bide Barricade from the opponent's Garbotoxin;
-- attach the other to a Shadow Rider Calyrex VMAX, protecting Underworld Door from the same Garbotoxin;
-- both Wobbuffet and Shadow Rider VMAX are Psychic, so Wobbuffet's Bide Barricade does not suppress the VMAX;
-- Garbotoxin remains active and continues suppressing unhooded Pokémon. This does not remove Garbodor or turn off Garbotoxin globally.
+- **Against Tool-live Garbotoxin:** a Hood on Shadow Rider VMAX can preserve Underworld Door. A Hood on Wobbuffet is redundant while Garbotoxin remains active: Garbotoxin already suppresses every Pokémon Ability except Garbotoxin, while Bide Barricade only suppresses non-Psychic Pokémon. Since the Aichi Garbodor sources are Psychic, every Bide Barricade target is already suppressed by Garbotoxin (target-set inclusion B ⊆ G). Prefer Hood on one or two VMAX engines, or keep one copy in hand/deck as a reserve; do not spend a Hood on Wobbuffet solely to preserve a redundant lock.
+- **Against Budew + Field Blower:** ranks 8 and 22 each have Garbodor, Budew, one Field Blower, and three VS Seeker. Field Blower can discard both attached Hoods before Budew uses zero-cost Itchy Pollen. However, Tools are not Items: one Hood held in hand or left in the deck can be attached/searched during the Item-locked turn. If both Hoods are attached and discarded, the list has no Tool-recovery effect.
+- **Against Klefki:** a different allocation can matter. Hood Wobbuffet to protect Bide Barricade and Hood Latias ex to protect Skyliner; Shadow Rider VMAX is not Basic, so Klefki's Basic-only lock does not suppress Underworld Door. Joust can strip the Hood from Active Wobbuffet, while the Hood on Benched Latias remains and may allow a retreat into a powered VMAX. Both Klefki lists also have three Escape Rope, which can force Wobbuffet off Active and end Bide Barricade.
+- **Latias retreat:** when no opposing Garbotoxin or Active Klefki suppresses it, Latias ex's Psychic Skyliner is not suppressed by Wobbuffet and gives Basic Wobbuffet free retreat.
 
-This qualifies, but does not invalidate, the subgroup result in [Agent46's Budew lock-source stratification](agent46-budew-locksource-stratification-20261125.md): the Garbodor subgroup loses Wobbuffet and Underworld Door **without Hood protection**. The Hooded state needs its own deterministic contract and later full-game test.
+These are conditional card-text hypotheses, not demonstrated matchup wins. Lockbridge remains unranked and unqualified.
 
-## Exact card and list evidence
-
-### Lockbridge candidate
+## Exact candidate and source evidence
 
 [Agent31's exact Lockbridge 60](agent31-lockbridge-shadow-rider-v1.json), blob `907014e330aae8889fe5869a32dfcdf0d876291a`, contains:
 - 1 Wobbuffet PHF 36;
@@ -26,79 +23,88 @@ This qualifies, but does not invalidate, the subgroup result in [Agent46's Budew
 - 2 Stealthy Hood UNB 186;
 - 1 Float Stone BKT 137;
 - 1 Forest Seal Stone SIT 156;
-- 1 Guzma BUS 115 and 1 Acerola BUS 112.
+- 1 Arven, 1 Guzma, 1 Acerola, and 2 VS Seeker.
 
-### Printed card text
+Relevant printed card text:
+- **Stealthy Hood UNB 186:** resources/cards/en/sm10.json, blob `2293c98b7086a4137928be1fa358ccad9209d006`, card sm10-186. Prevents all effects of an opponent's Abilities done to the attached Pokémon and removes existing such effects.
+- **Wobbuffet PHF 36:** resources/cards/en/xy4.json, blob `85ab15304b4741c1f5601ee786fc8f3a764326f9`, card xy4-36. Psychic; while Active, Bide Barricade removes Abilities from non-Psychic Pokémon in play, both players' hands, and both discards.
+- **Garbodor LTR 68:** resources/cards/en/bw11.json, blob `e4e09d569e76c71943e2399221c9f904b4420096`, card bw11-68. Tool-live Garbotoxin removes Abilities from all Pokémon except Garbotoxin. **Garbodor BKP 57** is also Psychic and has Garbotoxin: resources/cards/en/xy9.json, blob `dcfa9ec1b6b0ff6a0b446114c9d567c598cf71ce`, card xy9-57.
+- **Latias ex SSP 76:** resources/cards/en/sv8.json, blob `e57086ffb443650333344e01d2bdada0143601ff`, card sv8-76. Psychic; Skyliner gives Basic Pokémon in play no Retreat Cost.
+- **Klefki SVI 96:** resources/cards/en/sv1.json, blob `9ec168ce0ea7bf03fe9f22dd7e447d1eb35c8678`, card sv1-96. Mischievous Lock suppresses Abilities of Basic Pokémon on both sides; Joust costs one Colorless and discards all Pokémon Tools from the opponent's Active Pokémon before damage.
+- **Budew ASC 16 / Itchy Pollen** and **Field Blower GRI 125:** exact card IDs and text are documented in [Agent21's Garbotoxin/Wobbuffet report](agent21-garbotoxin-wobbuffet-subsumption-20261125.md).
+- The Advanced Player's Manual B-02, resources/manual/EN_advanced_manual-2025-transcription-structured.md, treats Pokémon Tools as a separate Trainer type; a Tool is not an Item even if an older printing includes the word “Item”.
 
-- Stealthy Hood UNB 186, `resources/cards/en/sm10.json`, blob `2293c98b7086a4137928be1fa358ccad9209d006`, card `sm10-186`: “Prevent all effects of your opponent's Abilities done to the Pokémon this card is attached to. Remove any such existing effects.”
-- Garbodor LTR 68, `resources/cards/en/bw11.json`, blob `e4e09d569e76c71943e2399221c9f904b4420096`, card `bw11-68`: if this Pokémon has a Pokémon Tool attached, each Pokémon in play, in each player's hand, and in each player's discard pile has no Abilities except Garbotoxin.
-- Wobbuffet PHF 36 is Psychic. Bide Barricade exempts Psychic Pokémon and affects non-Psychic Pokémon on both players' sides while Wobbuffet is Active.
-- Shadow Rider Calyrex VMAX CRE 75 is Psychic. Its Underworld Door therefore survives Wobbuffet's own Bide Barricade.
-- Latias ex SSP 76 is Psychic and its Skyliner grants no Retreat Cost to Basic Pokémon in play. However, if Garbotoxin is active and Latias ex is unhooded, Garbotoxin suppresses Skyliner; the earlier Latias retreat route is not available in this specific state.
+The current PR #69 worker applies Stealthy Hood generically to the target of an opposing Ability-lock source, and its test demonstrates Hood protection against Garbotoxin on Lillie's Clefairy ex. There is no dedicated Wobbuffet/VMAX + Garbotoxin or Klefki/Joust test.
 
-Garbodor BKP 57 is also a Psychic-type Garbotoxin printing: resources/cards/en/xy9.json, blob dcfa9ec1b6b0ff6a0b446114c9d567c598cf71ce, card xy9-57. The exact PR #69 candidate worker already applies Stealthy Hood generically to the target of an opposing Ability-lock source before resolving the source's scope, and its current test proves Hood protection against Garbotoxin on Lillie's Clefairy ex. There is no dedicated Wobbuffet/VMAX + Garbotoxin test yet. Therefore the line is a card-text and implementation-derived hypothesis, not an observed game.
+## Garbotoxin: why Hood on Wobbuffet is redundant
 
-## Opponent field: four published Garbodor lists
+Let B be the set of Pokémon targeted by Bide Barricade: all non-Psychic Pokémon. Let G be the set targeted by Tool-live Garbotoxin: all Pokémon except the Garbotoxin source. Each authenticated Aichi Garbodor source is Psychic, so it is not in B. Every non-Psychic Pokémon is in G. Therefore B ⊆ G.
 
-Input: `results/aichi-2026/full-decklists.json`, blob `ae773f6201d7aa69d31914dbfee66f3fba692200` (29 authenticated lists).
+Consequences:
+1. Garbotoxin already suppresses every Ability that Bide Barricade would suppress.
+2. Bide Barricade does not suppress Garbodor, because the Aichi Garbodor printings are Psychic.
+3. A Hood that preserves Bide Barricade on Wobbuffet adds no opponent-Ability suppression while Garbotoxin remains Tool-live.
+4. If Garbodor loses its Tool, Garbotoxin's condition ends; Bide Barricade resumes automatically if Wobbuffet is Active. Wobbuffet does not need Hood to reactivate.
 
-| Rank | Garbodor | Budew | Opponent Field Blower | Float Stone |
+The valuable Hood target in this state is Shadow Rider Calyrex VMAX: Garbotoxin suppresses its Underworld Door, and Stealthy Hood can prevent that effect on the attached VMAX. A second Hood may protect a second VMAX, or be held in reserve. A VMAX with Hood cannot also hold Forest Seal Stone, so Star Alchemy is not protected on that same Pokémon.
+
+This is a matchup-specific set-inclusion result. It does not make Wobbuffet generally redundant: against Ability locks that do not already suppress all non-Psychic Abilities, Bide Barricade may add coverage.
+
+## Budew + Field Blower timing in Aichi ranks 8 and 22
+
+Input: results/aichi-2026/full-decklists.json, blob `ae773f6201d7aa69d31914dbfee66f3fba692200` (29 authenticated lists).
+
+| Rank | Garbodor | Budew | Opponent Field Blower | Opponent VS Seeker |
 |---:|---:|---:|---:|---:|
-| 8 | 2 LTR 68 | 1 | 1 | 4 |
+| 8 | 2 LTR 68 | 1 | 1 | 3 |
 | 11 | 2 BKP 57 | 0 | 0 | 3 |
-| 16 | 2 LTR 68 + 1 BKP 57 | 2 | 0 | 4 |
-| 22 | 2 BKP 57 | 1 | 1 | 4 |
+| 16 | 2 LTR 68 + 1 BKP 57 | 2 | 0 | 3 |
+| 22 | 2 BKP 57 | 1 | 1 | 3 |
 
-The four lists contain no Faba, Tool Jammer, Jamming Tower, Tool Scrapper, Startling Megaphone, or Xerosic in the published inventories. Ranks 8 and 22 each have one Field Blower, which can discard both Hoods in a single play if both are attached. Ranks 11 and 16 have no listed Field Blower; rank 16 is the three-Garbodor / two-Budew subgroup. This is inventory, not a claim that the opponent cannot draw or use other interaction.
+A legal pressure sequence exists when both Hoods are already attached:
 
-## Conditional sequence and costs
+1. The opponent keeps a Tool on Garbodor so Garbotoxin remains active.
+2. Before attacking, the opponent plays Field Blower and discards both attached Hoods, leaving Garbodor's Tool in play.
+3. The opponent attacks with Budew's zero-cost Itchy Pollen. The candidate's next turn cannot play Item cards from hand.
+4. During that locked turn, the candidate cannot use its own Field Blower or Night Stretcher. Knocking out Budew does not erase the current-turn Item restriction.
 
-A possible non-Item response to Budew plus Tool-live Garbodor:
+There is an important defense: Itchy Pollen restricts Items, not all Trainer cards. The manual's B-02 treats Pokémon Tools separately, so Stealthy Hood can still be attached from hand during the Item-locked turn. Arven is a Supporter and can search a Pokémon Tool from the deck during that turn. Therefore:
+- If one Hood is attached and the second is held in hand or remains in the deck, the opponent's Field Blower cannot discard the held copy. The candidate can redeploy it during Itchy Pollen and preserve one Underworld Door engine.
+- If both Hoods are attached when Field Blower is played, both can be discarded. The exact 60 has no Tool-recovery effect: Arven searches the deck, not the discard pile; Night Stretcher retrieves Pokémon/Basic Energy, not Tools.
+- The candidate's own Field Blower is an Item and is unavailable during Itchy Pollen. Each rank-8/rank-22 list has three VS Seeker, so repeated Field Blower recovery is possible later, not guaranteed.
+- Arven consumes the Supporter for the turn; it cannot be combined with Guzma on the same turn. If the candidate needs a switch-out, a held Hood plus Float Stone or another live switch route may be preferable to using Arven to search the Hood.
 
-1. Have Wobbuffet Active with Stealthy Hood attached; have a Benched Shadow Rider VMAX with the second Stealthy Hood and two Psychic Energy.
-2. Because Hood prevents Garbotoxin's effects on those two Pokémon, Bide Barricade and Underworld Door remain active. Use Underworld Door to attach a Psychic Energy from hand to a Benched Psychic Pokémon and draw two.
-3. Play Dimension Valley if needed; it is a Stadium, not an Item. Max Geist costs two Colorless after Dimension Valley, so the two Psychic Energy on the attacking VMAX can pay the cost. The Door attachment also counts for Max Geist damage, giving 100 damage if three Psychic Energy are attached across the candidate's Pokémon (70 if exactly two total).
-4. Move Wobbuffet out with the list's Guzma (Supporter), or Acerola if Wobbuffet is damaged; both are playable during Itchy Pollen's Item lock. This is conditional on the Supporter and a legal switch/target state. Latias ex's free-retreat Ability is not available if it remains unhooded under Garbotoxin.
-5. Attack with Shadow Rider VMAX. Knocking Out Budew does not clear the current-turn Item lock; a second Budew can reapply Itchy Pollen on a later turn.
+**Practical policy:** against ranks 8/22, do not expose both Hoods to the same Field Blower unless the second engine is worth the risk. Keep one Hood in hand/deck as a replacement where possible. This is card-text/list-derived sequencing, not a played matchup.
 
-The two Hoods consume both Tool slots on Wobbuffet and one VMAX:
-- Hooded Wobbuffet cannot also hold Float Stone.
-- Hooded VMAX cannot also hold Forest Seal Stone, so Star Alchemy is not protected on that Pokémon.
-- Latias ex remains unhooded and loses Skyliner under Garbotoxin.
-- The line depends on access to both Hoods and a Supporter-based way to move Wobbuffet out; it is not an unconditional answer.
+## Klefki subgroup: a different Hood allocation
 
-## Counterplay and test requirements
+The authenticated Aichi lists at ranks 4 and 17 each contain one Klefki SVI 96. Against an Active Klefki:
+- Hood Wobbuffet to prevent Mischievous Lock from suppressing Bide Barricade.
+- Hood Latias ex to preserve Skyliner; Wobbuffet and Latias are Psychic, so Wobbuffet's Bide Barricade does not suppress either. Shadow Rider VMAX is not Basic, so Klefki does not suppress Underworld Door.
+- With Latias Hooded on the Bench, Wobbuffet (Basic) has no Retreat Cost.
 
-- An opponent Field Blower can discard both Hoods at once. This is present in ranks 8 and 22, but not in ranks 11 and 16.
-- Tool Jammer or Jamming Tower would also disable the Hoods if present; neither appears in these four published lists.
-- Test both physical player seats, Hood on Wobbuffet only, Hood on VMAX only, both Hoods, neither Hood, opponent Field Blower removing both, and the three-Garbodor source case.
-- Assert that Garbotoxin remains active globally, but its effect is prevented on each Hooded target; Bide Barricade and Underworld Door remain usable only when their respective Pokémon are protected.
-- Include a Supporter switch-out case and a no-switch-resource control. Do not use Latias ex Skyliner as a retreat route while Garbotoxin is active unless Latias itself is also protected.
-- A separate full-game experiment must establish whether the exact list can assemble both Hoods, Wobbuffet, VMAX, Energy, Stadium, and a Supporter on time against the relevant Budew/Garbodor lists.
+Counterplay:
+- If Klefki uses Joust while Wobbuffet is Active, it discards the Hood from Active Wobbuffet before damage. Klefki then suppresses Bide Barricade. The Hood on Benched Latias remains; Skyliner can still let Wobbuffet retreat, after which a powered Shadow Rider VMAX can attack and Knock Out the 70-HP Klefki (Max Geist does 70 with exactly two Psychic Energy total and Dimension Valley, or more with an additional Psychic Energy). Once Klefki leaves play, Bide Barricade is no longer suppressed.
+- Both Klefki lists also contain three Escape Rope. Escape Rope forces Wobbuffet off Active and ends Bide Barricade regardless of Hood; it also moves Klefki out and ends Mischievous Lock. This is a symmetric lock-window reset, not a one-sided permanent counter.
+- Lockbridge has one Guzma plus two VS Seeker (up to three Guzma accesses) to re-promote Wobbuffet, so the published counts create a switch-resource race rather than proving the lock cannot be maintained.
+- The two lists have no Field Blower, Faba, Tool Jammer, Jamming Tower, Tool Scrapper, Startling Megaphone, or Xerosic in their published inventories; Joust is the identified Tool-removal line. Their 12 Energy are Reversal Energy, Counter Energy, and Unit Energy LPM, any of which can pay Joust's one Colorless cost.
 
-## Disposition
+Radiant Eternatus is a separate sequencing issue: it is Basic Dragon and is suppressed by both Wobbuffet and Klefki. Climactic Gate must be used before Wobbuffet becomes Active / before Klefki's lock, or Radiant must already be protected before the Ability effect is applied. Attaching Hood after the on-play Gate trigger has already been suppressed does not retroactively trigger Gate.
 
-This is a **conditional strategic hypothesis** that materially qualifies the three Garbodor Budew lists. It does not establish a matchup win rate, prove the Lockbridge list beats Garbodor, change the fixed 60, or authorize code/test/fixture/game work. Keep Lockbridge unranked and unqualified until the deterministic interaction and full-game reachability are tested under the normal authorization gates.
+## Latias ex retreat route when the opposing Ability lock is absent
 
-## Independent Latias ex retreat route when the opposing Ability lock is absent
+Latias ex SSP 76 is Psychic, so Wobbuffet's Bide Barricade does not suppress Skyliner. With Latias ex on the Bench and Wobbuffet Active, Wobbuffet (Basic) can retreat for free without Float Stone. This is a non-Item switch-out route during Budew's Item lock and may preserve Float Stone.
 
-The same Lockbridge 60 contains one Latias ex SSP 76. Its Psychic-type Skyliner says “Your Basic Pokémon in play have no Retreat Cost.” Wobbuffet PHF 36 is Basic and Psychic. Therefore, with Latias ex on the Bench and Wobbuffet Active, Bide Barricade does not suppress Skyliner, and Wobbuffet can retreat for free without Float Stone. This is a second non-Item switch-out route during Budew's Item lock and may preserve the list's one Float Stone for other Pokémon.
+This route is unavailable if an opposing Tool-live Garbotoxin suppresses unhooded Latias ex, or if an opposing Active Klefki suppresses Basic Abilities. Against Klefki, a Hood on Latias can preserve Skyliner; against Garbotoxin, a Hood on Latias competes with the more valuable Hood on Shadow Rider VMAX.
 
-This route is unavailable when an opposing Tool-live Garbotoxin suppresses the unhooded Latias ex, or when an opposing Active Klefki suppresses Basic Abilities. In the two-Hood Garbotoxin line above, Hood is allocated to Wobbuffet and Shadow Rider VMAX, so Latias remains unprotected; use a Supporter switch-out (Guzma, or Acerola if Wobbuffet is damaged) or another live route instead. This is a card-text derivation, not a game result.
+## Proposed deterministic tests and limits
 
-## Klefki subgroup: Hood allocation and Joust counterplay
+If an isolated Lockbridge rules-contract scope is authorized, test:
+- Tool-live Garbodor with Wobbuffet unhooded: confirm Garbotoxin already suppresses every non-Psychic Ability that Bide Barricade would suppress.
+- Tool removal from the last Garbodor source: confirm Bide Barricade resumes while Wobbuffet is Active, without Hood.
+- Hooded Shadow Rider VMAX under Garbotoxin: confirm Underworld Door remains usable; no-Hood control should fail.
+- Budew + Field Blower before Itchy Pollen: both Hoods attached versus one Hood held/in deck; confirm Tool attachment and Arven remain available during Item lock, while Item cards do not.
+- Klefki with Hooded Wobbuffet/Latias; Joust stripping Active Wobbuffet's Hood; Latias retreat; Escape Rope forcing Wobbuffet off Active.
+- Both physical player seats and no-Hood controls.
 
-The authenticated Aichi lists at ranks 4 and 17 each contain one Klefki SVI 96. Its printed text has two relevant parts:
-- Mischievous Lock suppresses Abilities of **Basic Pokémon in play on both sides**, except Mischievous Lock itself.
-- Joust costs one Colorless and, before damage, discards all Pokémon Tools from the opponent's Active Pokémon.
-
-The Lockbridge list's two Hoods can be allocated differently against this subgroup:
-- Hood Wobbuffet to prevent the opponent's Active Klefki's Mischievous Lock from suppressing Bide Barricade.
-- Hood Latias ex to preserve Skyliner against Klefki; Shadow Rider VMAX is a VMAX, not a Basic Pokémon, so its Underworld Door is not affected by Mischievous Lock.
-- Wobbuffet and Latias are both Psychic, so Wobbuffet's Bide Barricade does not suppress Latias or itself. With Latias Hooded on the Bench, Wobbuffet (Basic) has no Retreat Cost.
-
-There is an important counter: if Klefki uses Joust while Wobbuffet is Active, Joust discards the Hood from the Active Wobbuffet before damage. Klefki then suppresses Bide Barricade. The Hood on Benched Latias remains; Skyliner can still let Wobbuffet retreat, after which a powered Shadow Rider VMAX can attack and Knock Out the 70-HP Klefki (Max Geist does 70 with exactly two Psychic Energy total and Dimension Valley, or more with an additional Psychic Energy). Once Klefki leaves play, Bide Barricade is no longer suppressed. This is a conditional response line, not a persistent lock.
-
-The two exact Klefki lists have no Field Blower, Faba, Tool Jammer, Jamming Tower, Tool Scrapper, Startling Megaphone, or Xerosic in their published inventories; Klefki's own Joust is the identified Tool-removal line. Both lists also contain three Escape Rope, which can force Wobbuffet off the Active Spot and end Bide Barricade regardless of Hood. Escape Rope also moves the opponent's Klefki out, ending Mischievous Lock; this is a symmetric lock-window reset, not a one-sided permanent counter. Lockbridge has one Guzma plus two VS Seeker (up to three Guzma accesses) to re-promote Wobbuffet, so the published counts create a resource race rather than proving the lock cannot be maintained. Their 12 Energy are Reversal Energy, Counter Energy, and Unit Energy LPM, any of which can pay Joust's one Colorless cost. The opponent can therefore threaten the Active Hood, but the Lockbridge list has a plausible Latias/VMAX response if the VMAX is already powered. The current list has only one Latias ex and one Klefki in each opposing list; setup and turn timing remain unmeasured.
-
-This qualifies the earlier unprotected Klefki interaction in [Agent21's scope audit](agent21-lockbridge-scope-and-policy-admission-20261125.md): an Active Klefki does suppress unprotected Wobbuffet, but the list's Hood can protect it. The second Hood can protect Latias rather than a VMAX because Klefki's lock is Basic-only. Radiant Eternatus is Basic Dragon and remains vulnerable to Klefki; if Climactic Gate is needed, it must be used before the lock or protected before the Ability effect is applied. A Hood attached after the on-play Gate trigger has already been suppressed does not retroactively trigger Gate.
+A separate full-game experiment must establish whether the exact list can assemble the relevant Hoods, Wobbuffet, VMAX, Energy, Stadium, and switch resources on time. No code, test, fixture, game, or matchup simulation was changed or dispatched by this report. Keep Lockbridge unranked and unqualified pending explicit scope authorization and evidence.
