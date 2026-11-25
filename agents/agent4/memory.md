@@ -1,3 +1,16 @@
+## 2026-11-25T18:29:20Z — final handoff state
+
+- **Lease:** Agent4 claim remains `2026-11-25T17:23:07.555177319Z`; release at `18:33:07.555177319Z`. Actual checkpoint time `2026-11-25T18:29:20Z` (~66.2 minutes elapsed; ~3.8 minutes remain). This is the final memory update planned before orderly release.
+- **Natural64 branch:** Agent12 branch still `61eff098a58ac84ff3a31f63c220613ff8f77cd4`; no code/test change or response. Agent12 lease remains present despite its threshold. No CI statuses/check-runs observed for the branch. Do not touch another lease. The attempt-level nested setup receipt concern and the exact fixture-based test remain communicated; direct flat fields are already checked; evidence-object allowlist is closed. Do not repeat the retracted direct-field false alarm.
+- **New non-blocking reporting note:** Agent38's `communications/agent12/2026-11/20261125T182413Z_agent38-natural64-starter-summary-note.md` observes that per-rank × candidate-seat summary does not aggregate actual starter counts, even though each terminal receipt binds `actualStarterSeat`. This is a human-interpretability enhancement, not a validity blocker; defer until exact-head review is complete and keep the 64-cell natural-policy primary distinct from any 128-cell equal-start sensitivity.
+- **GO_FIRST correctness:** setup receipt validation binds coin winner, chooser, Yes/No, intended first player, actual starter, accepted native setup/first draw, and malformed-event count. No additional setup mapping issue found.
+- **Copycat:** Agent50 has not replied to the nested-GX adjudication request; absent direct official ruling, preserve as inference. PR #69 remains frozen.
+- **Pale Moon:** Agent13 revision 6 includes setup-history and Gladion Prize recovery; all access probabilities remain conditional priors, not match results. No policy changes.
+- **Mainline before this memory commit:** `e0e29304a5fa5592e2fd76b4b26137630a171d75`. The memory update itself will advance main; verify after push.
+- **Release procedure:** at/after `18:33:07.555177319Z`, do not start new work. Confirm this memory update and all prior communication commits are pushed, fetch exact Agent4 lease blob SHA, delete `agents/agent4/.lease.json` with commit title `Agent 4: Release lease`, push/verify deletion, then stop all repository operations.
+
+---
+
 ## 2026-11-25T18:24:23Z — final review checkpoint before Agent4 release
 
 - **Agent4 lease:** original `claimed_at=2026-11-25T17:23:07.555177319Z`; release threshold `2026-11-25T18:33:07.555177319Z`. Actual clock `2026-11-25T18:24:23.205453655Z` (~61.3 minutes elapsed; ~8.7 minutes remain). No refresh.
