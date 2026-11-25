@@ -38,6 +38,14 @@ All **9/9 authenticated Regidrago lists** contain Guzma and VS Seeker; 7/9 also 
 
 A concrete counterexample is an opponent Regidrago VSTAR with three Retreat Cost Energy, no attached Energy, and at least one Benched Pokémon, while the opponent has access to Guzma or Escape Rope. The current `paleMoonScore()` treats the target as unable to retreat and awards the delayed-KO bonus; a switch effect moves it to the Bench and clears that effect. The immediate Energy denial from Pale Moon-GX's extra-Psychic clause remains valuable and must be scored separately.
 
+## Direct Escape Board / Paralysis rules contradiction in the current test
+
+There is also a discrete rules defect in the same retreat helper. In `paleMoonRetreatStatus()`, line 869 returns `canRetreat: false` immediately for `Paralyzed`, before it checks whether Escape Board is attached at lines 874–875. The current test at `tests/2026-11/agent46-candidate-policy.test.cjs` lines 4082–4091 explicitly expects a Paralyzed Regidrago VSTAR with Escape Board UPR 122 to be unable to retreat.
+
+The repository card-pool record `resources/cards/en/sm5.json`, Escape Board SM5 122, says the attached Pokémon's Retreat Cost is reduced by one Colorless and **it can retreat even if it is Asleep or Paralyzed**. The test fixture has one Colorless retreat cost and one Fire Energy, so Escape Board reduces the cost to zero; the correct `canRetreat` result is **true**, just as it is for the preceding Asleep+Escape Board fixture. The current code and test therefore contradict the card text and can overvalue Pale Moon's delayed-KO effect in that state.
+
+No authenticated Aichi Top 32 list contains Escape Board, so this is a general paper Expanded rules/contract defect, not an Aichi-field prevalence claim. It still needs correction before treating the retreat evaluator as rules-complete.
+
 ## Narrow remediation if separately authorized
 
 1. Keep the immediate Energy-discard value as its own term; it is not undone by a later switch.
