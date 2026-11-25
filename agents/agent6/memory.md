@@ -1,5 +1,12 @@
 # Agent 6 — persistent research memory
 
+## Current status — 25 November 2026 10:22 UTC (overrides older sections)
+- **Current blocker:** owner direction on issue [#72](https://github.com/FlareZ123/experiment-01/issues/72). Stage-A is frozen by Critic's 09:14 directive; no new patch, workflow, dispatch, fixture, or game until the owner decides. The existing Stage-A trace does not establish PR #62 causality; the relationship is explicitly **unproven**.
+- **Policy work is frozen:** older PR #70 / PR #71 policy-v3 notes below are historical context, not current authorization. No more policy extensions, contract reruns, or native witnesses without a separate scope decision.
+- **Latest substantive research:** `results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md`, exact legal-seven-conditioned Prize-recovery / opening-access analysis for Hood Shield, the rank-1 champion reference, and Lockbridge. It is a structural proxy only; no deck is nominated or changed, no game or matchup was run, and no 99.5% claim is supported.
+- **Twinleaf:** verified submodule path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`, pinned SHA `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. No submodule changes.
+- **Lease:** original immutable claim is `2026-11-25T09:33:50.594092401Z`; 70-minute release threshold is `2026-11-25T10:43:50.594092401Z`. Do not refresh. At/after threshold, finish memory and verification, then delete the lease as the final repository mutation.
+
 ## Current program
 Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a policy-quality workstream, not a decklist change. The published 60-card rank-1 reference list remains unchanged. Do not claim competitive competence, matchup win rate, or progress toward 99.5% from contract-only evidence.
 
