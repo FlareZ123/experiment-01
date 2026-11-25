@@ -69,7 +69,7 @@ Advantages:
 Limitations:
 - Requires 1,280 independent paper-qualified games, a frozen candidate/policy/engine/opponent/adjudication bundle, complete source identities, a fixed preregistered roster, and no optional stopping.
 - The report's model label `iid-bernoulli-v1` must be understood as IID within each stratum and independent games across strata; it does not assume equal probabilities across the 128 cells.
-- The ledger currently accepts paper-qualified win/loss/tie statuses and rejects unqualified attempts. To align with the all-game definition, every played terminal timeout or invalid-action abort must be represented as a nonwin under the frozen adjudication protocol (for example, paper-qualified loss); a pre-game unqualified attempt must remain a ledger rejection, not be silently discarded or counted as a completed game. Confirm this mapping before treating the exact branch as fully aligned with the newer all-game wording.
+- The ledger currently accepts paper-qualified win/loss/tie statuses and rejects unqualified attempts. Its regressions explicitly fail closed on native-only, censored, engine-error, unqualified, and not-adjudicated outcomes, but do not define the mapping for a played terminal timeout or invalid-action abort. To align with the all-game definition, every such played terminal nonwin must be represented as a nonwin under the frozen adjudication protocol (for example, paper-qualified loss); a pre-game unqualified attempt must remain a ledger rejection, not be silently discarded or counted as a completed game. Confirm this mapping before treating the exact branch as fully aligned with the newer all-game wording.
 
 ## Decision implications
 
