@@ -9,11 +9,11 @@
 
 ## Disposition
 
-The exact-head contract changes are internally consistent in the areas reviewed, but a concrete Bench-capacity defect prevents a policy-competence disposition. PR #71 should remain draft until the policy uses effective Bench capacity consistently.
+At the time of this 02:21 review, a concrete Bench-capacity defect prevented a policy-competence disposition. The follow-up review below confirms that this specific blocker is corrected on tested head 89a3e93. PR #71 remains draft for independent review and the separate competence/native gates.
 
 This is source/policy review, not a native game, matchup, or strength result.
 
-## Blocking finding: five-slot assumptions conflict with the rank-1 60
+## Initial blocking finding (resolved on tested head 89a3e93): five-slot assumptions conflict with the rank-1 60
 
 The authenticated rank-1 list in results/aichi-2026/full-decklists.json contains 18 Pokémon and two Sky Field. The policy nevertheless hard-codes the standard five-slot Bench in several decision paths:
 
@@ -72,3 +72,27 @@ Therefore the right status is: paper-text-supported with staged native reproduct
 ## Evidence boundary
 
 The exact-head contract run 45529074554 passed 132 policy/prompt/worker/action-frontier cases. The previous four-cell native no-game witness 45511057679 was on superseded head 32c1557a23e3a69083498ac72b2e7e0a35969d5a and is not same-SHA evidence for this PR. No native no-game witness, fixture/game, Aichi matchup, game sample, win-rate estimate, confidence interval, or evidence for the 99.5% target was produced by this review.
+
+
+## 2026-11-25 04:12Z — follow-up review of the corrected Bench-capacity contract
+
+**Reviewed exact tested policy/test head:** 89a3e93c0f804713509e924ba76c5df7ccf9e96b  
+**Policy / protocol / test blobs:** 01e4bc5d345f5e6bd98ae3bbdec03c98d12f9a61 / 204d0aff81d0ab2a1e46f1ad3b167ee50bcc4766 / 3046db51d74e98d7c2e032e636588bdce5506f91  
+**Exact-head contract run:** [45539327197](https://github.com/FlareZ123/experiment-01/actions/runs/45539327197) — passed, Node 22 syntax checks and 136 policy/prompt/worker/action-frontier cases.  
+**PR documentation head:** 285a0c0cc49fc2f24d4232153982ed11949378c6 (report-only refresh).  
+**Review comment:** [6051755266](https://github.com/FlareZ123/experiment-01/pull/71#pullrequestreview-6051755266).
+
+### Scoped disposition
+
+No blocking finding remains in the authorized Sky Field / Parallel City capacity correction:
+
+- Sky Field on either player's Stadium gives capacity 8 while its effects are live; open slots are calculated from occupied Bench entries.
+- Parallel City orientation is correctly actor-relative: owner/DOWN caps the owner at 3; non-owner/UP caps the non-owner at 3; inverse orientations leave the actor at 5.
+- The global Stadium/Tool no-effect status reads both players' public epochs. Any positive epoch restores capacity 5; unknown effect state or unknown Parallel City direction returns null.
+- Climactic Gate, actor Bench placement, manual Psychic target resolution, and Underworld Door share the same helper. Tests cover Gate capacity, disabled/unknown effects, Parallel City orientation, actor placement, Energy targets, and Underworld Door at indices 5–7, plus a no-Sky-Field negative.
+
+This helper is bounded to the Sky Field / Parallel City cases under review; it is not a complete Expanded Bench-modifier model. The prior five-slot blocker is resolved on the tested branch. Agent11's independent review of this correction remains pending. PR #71 remains draft; no policy-competence acceptance, native witness, game, matchup, or win-rate evidence follows.
+
+### Separate pinned-engine fidelity caveat
+
+The paper-correct policy behavior for a positive Stadium/Tool no-effect epoch may diverge from the pinned Twinleaf engine. At a9905a76a6c4103ba4b6cb9a49e86bad795c5c05, Sky Field's and Parallel City's CheckTableStateEffect handlers modify benchSizes without consulting the global Stadium/Tool suppression predicate; check-effect.ts then applies the resulting sizes. The shared Twinleaf predicate returns true when either player's suppression epoch is positive, but those two Bench-size handlers do not call it. This is a separate research-owned hook / engine-fidelity test to address before any native fixture, not a defect in the pure-policy correction. Do not modify upstream Twinleaf.
