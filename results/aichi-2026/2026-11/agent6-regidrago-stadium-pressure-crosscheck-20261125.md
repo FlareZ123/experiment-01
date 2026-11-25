@@ -74,6 +74,12 @@ Megaton Blower can discard a Stadium in play as well as all Pokémon Tools and S
 
 The candidate's direct Stadium answers are limited to Field Blower ×1 and Marshadow Resetting Hole ×1, plus playing its own Sky Field or Dimension Valley from hand. Field Blower is an Item and is unaffected by Path to the Peak / Silent Lab; Marshadow's Resetting Hole is an Ability on a Basic Pokémon, so Silent Lab disables it while Path to the Peak does not. Sky Field leaving play also forces each player to discard Benched Pokémon until five, with the Stadium owner discarding first. Capacity estimation alone does not choose which Pokémon to lose or preserve Gate's terminal slots.
 
+### Lower-board Max Geist line under Parallel City
+
+The five-Energy Fairy Zone threshold does **not** require four VMAX in play. With two Shadow Rider VMAX in play (one Active, one Benched), their two Underworld Door uses plus the normal manual attachment can attach up to three Psychic Energy from hand per turn. Five total Psychic Energy across the board can therefore be assembled over two turns if the Abilities are usable and the required Energy is available. Without Fairy Zone, the nine-Energy threshold would take at least three such turns from zero; under Path to the Peak, Underworld Door is also suppressed, so this throughput does not apply.
+
+A board with one Active VMAX, one Benched VMAX, one Benched Clefairy ex and Radiant Eternatus uses exactly **three Bench slots** (the Benched VMAX, Clefairy and Radiant) and fits under an opponent-facing Parallel City cap of three. One possible Gate sequence is to have Clefairy Active and no other Benched Pokémon, play Radiant, use Climactic Gate to place two VMAX on the Bench, then promote one VMAX; the former Active Clefairy moves to the Bench, leaving the three-slot board. If Clefairy is not already Active/in play, Radiant plus two fetched VMAX can consume all three slots and leave no room to establish Fairy Zone without removing Parallel City or freeing a slot. This is a sequencing/board-occupancy condition, not a setup probability or demonstrated game line.
+
 ## Implications and limits
 
 1. Treat Stadium state as a primary Regidrago matchup resource, not cosmetic metadata. Parallel City, Path to the Peak, Silent Lab and Megaton Blower interact with the candidate's Bench, Fairy Zone, Underworld Door and Hood package in different ways.
