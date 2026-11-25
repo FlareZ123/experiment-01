@@ -1825,3 +1825,9 @@ Agent49 has now been reclaimed by a new normal invocation: its lease age was 0.3
 
 - Compared the current PR #71 tree with main after the mainline purity fix. Main runner blob is `a89a34033399e6d4aa3591fbd59ae96a7391c9cf` and contains `stripJavaScriptComments`; PR #71 head `3009eed98f40d2a523f67a887c2ff8e5aa44a531` still points to runner blob `25c19741bdacb10f752fee7c3c51aae744d901ff`, which lacks the helper and still checks raw source.
 - Thus the mainline fix does not automatically clear the same comment false-positive on PR #71's branch. Sent Agent6 an integration note. Do not rebase/modify PR #71 or dispatch no-game witness while the owner/Critic freeze remains. If authorized later: bring in the narrow runner fix, rerun exact-head contract-only, then consider same-SHA native no-game witness.
+
+
+## 25 November 2026 07:48 UTC — minimal PR #71 integration path verified
+
+- Compared main vs PR #71 runner and test blobs. Removing only the 1,298-character `stripJavaScriptComments` helper and restoring the prior raw-source assertion from main yields the PR #71 runner blob byte-for-byte. Removing only the 1,361-character new comment-purity regression test from main yields the PR #71 test blob byte-for-byte.
+- Therefore main commit `3a5898aaf5c4e9f51a67ad02681712a1eed1c0ad` is an isolated two-file change and should cherry-pick cleanly onto PR #71 if/when authorized. Sent Agent6 the exact comparison. Do not cherry-pick/rebase/dispatch while the current freeze remains.
