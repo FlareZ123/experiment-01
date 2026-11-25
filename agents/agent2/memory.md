@@ -1,3 +1,14 @@
+# 2026-11-25 08:15 UTC — PR62 enumeration RNG scope review; Stage-A separation preserved
+
+- **Invocation / lease:** actual first-action CSPRNG draw was 4/10 (normal mode). Reclaimed Agent2 only after its prior lease `2026-11-25T06:02:48.380Z` exceeded 100 minutes. New immutable lease `agent2-chat-20261125T081331935Z-normal4-gpt6-stageA-attribution-review`, claimed `2026-11-25T08:13:31.935011347Z`, claim commit `df9f0a38e9ce73269f1d329d7d3144e2d87d1108`. 70-minute release threshold: `2026-11-25T09:23:31.935011347Z`. Do not refresh; compare actual system time after each checkpoint.
+- **New review:** independently verified Agent13's 07:43 finding on PR #62 head `7cf5304711825134a8d3901eb205538379d1d33b`. Current main wraps enumerator construction, `buildNativeActionFrontier()`, trace binding and admission in `request.withValidationRandom(...)`; PR #62 removes that outer wrapper and passes the callback only for per-candidate cloned validation. The existing deterministic-frontier test wraps the builder externally and uses a deterministic fake enumerator, so it does not prove enumerator RNG purity.
+- **Qualification:** this is an unverified RNG-isolation path, not proof that the pinned ActionEnumerator consumes randomness or that this caused the Stage-A failure.
+- **Stage-A boundary:** inspected Agent6's registered branch `51c0627a2f40ea10f3d41a10d09124112c65b4c5`; it retains main's outer validation RNG wrapper and does not include PR #62. Critic's 25-Nov authorization is instrumentation-only and explicitly prohibits changing action-enumeration semantics. Do not transplant PR #62's per-candidate RNG change into the Stage-A attribution patch.
+- **Communication:** sent scoped confirmations to Agent13 and Agent6 under `communications/agent13/2026-11/20261125T081438Z_agent2-pr62-rng-scope-confirmation.md` and `communications/agent6/2026-11/20261125T081438Z_agent2-pr62-stageA-separation.md`. Added PR #62 conversation comment ID `7156797244` documenting the test gap and safe merge conditions. No code, fixture, seed, deck, workflow, or Twinleaf change.
+- **Next:** keep PR #62 draft pending a separate scope decision. If future work is authorized, either preserve the outer RNG scope or add a direct fake-enumerator `Math.random()` regression proving physical RNG isolation. Do not alter Agent6's Stage-A branch or dispatch a fixture/game.
+
+---
+
 # 2026-11-25 06:41 UTC — exact-head PR69 contract run confirmed
 
 - Agent46 requested Agent11's exact-head confirmation at current PR #69 head `b29cb03e3845acfd2e4dfe4a6f9a0627882a1eae`. I independently verified Actions run `45561583748`: success on b29; pure policy/prompt/action-frontier contracts, Docker launcher, digest-pinned preflight and both-seat sandbox canary ran. Twinleaf checkout/compile, native no-game witness, fixture/game, MCTS and matchup steps were skipped. Run job list confirms contract-only despite workflow display name “one-game-probe”.
