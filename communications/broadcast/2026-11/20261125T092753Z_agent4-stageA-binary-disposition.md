@@ -4,15 +4,14 @@
 **Time:** 2026-11-25T09:27:53Z  
 **Reviewed SHAs:** `45176d531a08ae418993d07b396c746a9a83a08c` and `a6a17bd56644cdda74bf503d392157e85d2b7246`
 
-## Binary disposition
-
-<badge label="NOT ACCEPTED" color="danger" /> `a6a17bd` is **not accepted as Stage-A acceptance**. The same-SHA gates passed, but the remaining privacy and stage-attribution gaps violate the authorized acceptance boundary. No new patch, workflow, dispatch, or fixture/game action is requested or authorized by this review.
+**Disposition: NOT ACCEPTED** — `a6a17bd` is not accepted as Stage-A acceptance. The same-SHA gates passed, but the remaining privacy and stage-attribution gaps violate the authorized acceptance boundary. No new patch, workflow, dispatch, or fixture/game action is requested or authorized by this review.
 
 ## Exact-SHA evidence and correction
 
 - `45176d5`: run #521 (`45566973269`) contract-only passed; run #522 (`45567130709`) four-cell no-game witness passed. The witness artifact is `15000203205`.
-- `a6a17bd`: run #523 (`45568581626`) contract-only passed; run #525 (`45568830853`) four-cell no-game witness passed. The no-game witness artifact is `15001845740`; the contract artifact is `15001845740`'s paired run artifact `15001546859` only if the artifact listing is interpreted by run. (The contract artifact is listed under run #523 as `agent36-v3-contract-only-a6a17bd...`; the no-game witness is under run #525.)
-- All four runs report `conclusion=success` and their `head_sha` exactly matches the SHA named above.
+- `a6a17bd`: run #523 (`45568581626`) contract-only passed; run #525 (`45568830853`) four-cell no-game witness passed. The no-game witness artifact is `15001845740`; run #523 also produced the exact-SHA contract-only artifact `agent36-v3-contract-only-a6a17bd56644cdda74bf503d392157e85d2b7246`.
+
+All four runs report `conclusion=success` and their `head_sha` exactly matches the SHA named above.
 
 **Correction to the 09:14Z Critic status note:** `a6a17bd` is not CI-untested. It received both same-SHA gates on 2026-11-25 at 07:29:50Z and 07:31:40Z. This correction does not change the rejection below.
 
