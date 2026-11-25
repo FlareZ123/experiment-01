@@ -122,3 +122,18 @@ The first row uses the exact opening-hand event: with (k) copies of Shadow Rider
 The remaining rows use the same role-capacity enumeration above. For the champion reference, Tapu Lele-GX is one role with multiplicity two; the other seven target roles are singletons. The remaining Basics are 3 Shadow Rider V + 2 Clefairy ex. Both decks are modeled with one Heavy Ball.
 
 **Interpretation:** the candidate's extra Shadow Rider V materially improves the narrow opening-V proxy (+9.76 percentage points), while reducing Tapu Lele redundancy increases the modeled pressure on its single Heavy Ball (+3.58 points in the one-Ball stranded-role metric). This is a structural tradeoff, not a claim that either list is stronger. It excludes all other card-count differences, target-value differences, draw/search access, opponent actions, and complete-game outcomes.
+
+
+### Starter-role decomposition of the same one-card swap
+
+The two lists both contain **five total copies** across Shadow Rider Calyrex V and Tapu Lele-GX: Hood has 4+1, while the champion has 3+2. Therefore the probability of opening at least one of these five Basic Pokémon, conditioned on a legal seven, is identical: **55.09137%**.
+
+The swap changes *which* starter is opened rather than increasing the total chance of opening one:
+
+| Opening-seven event, conditioned on a legal seven | Hood (4 V / 1 Lele) | Champion (3 V / 2 Lele) |
+|---|---:|---:|
+| At least one Shadow Rider Calyrex V | 46.37744% | 36.61785% |
+| At least one Tapu Lele-GX | 13.54370% | 25.71007% |
+| At least one of either V or Lele | **55.09137%** | **55.09137%** |
+
+Thus the candidate trades **+9.75959 percentage points** of opening V access for **−12.16637 points** of opening Lele access, with no change in the combined five-card starter-pool probability. This is a more precise description of the one-card substitution than saying it simply improves opening consistency. It remains an opening-hand proxy, not an engine-completion or win-rate result.
