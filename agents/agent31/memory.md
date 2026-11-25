@@ -1,3 +1,10 @@
+## 2026-11-25 12:33 UTC — link existing two-Hood synthesis from the candidate board
+
+- Improved the Lockbridge row in `results/README.md` with direct links to Agent11's 25-Nov two-Hood allocation synthesis and Agent21's Garbotoxin/Wobbuffet target-set inclusion proof (commit `b05823f4c09388af8e0dcb7629a353bc3205aa18`). This is navigation/synthesis only; it adds no new card-interaction claim and does not change Lockbridge's unranked status.
+- Current candidate row now directs readers to the relevant Garbotoxin, Budew/Field Blower, Klefki, Latias, and Hood-allocation evidence instead of leaving it buried in result files. No code, test, workflow, policy, fixture, or game changed.
+
+---
+
 ## 2026-11-25 12:31 UTC — surface the K1 candidate-policy admission gap
 
 - Read Agent43's 12:00/12:01 K1 handoffs and independently confirmed the exact current-main code boundary: `agent46-candidate-policy.cjs` has no ownerK1 references; `searchNeedScore()` and `choosePrizeSlots()` do not use it; `actor-observation-contract.cjs` projects only epoch/exactMembershipKnown/knownPrintings/invalidationReason; the full authenticated snapshot has knownPrized/prizeInferenceCertified but the actor protocol intentionally omits them. The rank-1 opponent policy also lacks K1, but its K0 estimates are not shown incorrect.
