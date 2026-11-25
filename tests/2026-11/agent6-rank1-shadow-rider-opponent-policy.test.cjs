@@ -273,6 +273,18 @@ function paleMoonReceipt(ownPublic, turn = 3) {
   };
 }
 
+function copycatAttackFixture() {
+  return {
+    name: 'Copycat',
+    cost: ['Psychic', 'Colorless'],
+    damage: null,
+    damageCalculation: null,
+    text: null,
+    gxAttack: false,
+    barrage: false
+  };
+}
+
 function copycatReceipt(ownPublic, attackName = 'Max Geist', turn = 3, sourcePrinting = 'Shadow Rider Calyrex VMAX CRE 75') {
   const receipt = paleMoonReceipt(ownPublic, turn);
   const row = {
@@ -1348,7 +1360,7 @@ test('Copycat attack prompt fails closed without a previous-turn receipt', () =>
   const ownPublic = player({
     active: pokemon('Mimikyu GRI 58', {
       hp: 70,
-      attacks: [{ name: 'Copycat', cost: ['Psychic', 'Colorless'] }]
+      attacks: [copycatAttackFixture()]
     })
   });
   const request = promptRequest({
@@ -1378,11 +1390,46 @@ test('Copycat attack prompt fails closed without a previous-turn receipt', () =>
   });
 });
 
+test('Copycat prompt fails closed when receipt has no eligible choices', () => {
+  const ownPublic = player({
+    active: pokemon('Mimikyu GRI 58', {
+      hp: 70,
+      attacks: [copycatAttackFixture()]
+    })
+  });
+  const receipt = copycatReceipt(ownPublic, 'Max Geist', 3, 'Shadow Rider Calyrex VMAX CRE 75');
+  receipt.opponentCopycatChoices = [];
+  receipt.mimikyuCopycatCompatible = false;
+  const request = promptRequest({
+    promptType: 'ChooseAttackPrompt',
+    source: {
+      classification: 'actor-choice',
+      sourceKind: 'card-effect',
+      sourcePrinting: 'Mimikyu GRI 58',
+      effectName: 'Copycat',
+      copiedSourcePrinting: 'Shadow Rider Calyrex VMAX CRE 75',
+      copiedAttackName: 'Max Geist'
+    },
+    choices: [
+      { token: 'max', kind: 'attack', label: 'Max Geist',
+        printing: 'Shadow Rider Calyrex VMAX CRE 75',
+        publicMetadata: { sourceAttack: 'Max Geist' } }
+    ],
+    observation: { ownPublic },
+    receipt,
+    publicMetadata: { selectionType: 'attack', allowCancel: false }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'abstain',
+    reasonCode: 'NO_COPY_ATTACK_CHOICE'
+  });
+});
+
 test('Copycat prompt selects only the exact receipt-backed source and attack', () => {
   const ownPublic = player({
     active: pokemon('Mimikyu GRI 58', {
       hp: 70,
-      attacks: [{ name: 'Copycat', cost: ['Psychic', 'Colorless'] }]
+      attacks: [copycatAttackFixture()]
     })
   });
   const request = promptRequest({
@@ -1413,11 +1460,75 @@ test('Copycat prompt selects only the exact receipt-backed source and attack', (
   });
 });
 
+test('Copycat prompt rejects a matching attack name from a different copied source printing', () => {
+  const ownPublic = player({
+    active: pokemon('Mimikyu GRI 58', {
+      hp: 70,
+      attacks: [copycatAttackFixture()]
+    })
+  });
+  const request = promptRequest({
+    promptType: 'ChooseAttackPrompt',
+    source: {
+      classification: 'actor-choice',
+      sourceKind: 'card-effect',
+      sourcePrinting: 'Mimikyu GRI 58',
+      effectName: 'Copycat',
+      copiedSourcePrinting: 'Shadow Rider Calyrex V CRE 74',
+      copiedAttackName: 'Max Geist'
+    },
+    choices: [
+      { token: 'max', kind: 'attack', label: 'Max Geist',
+        printing: 'Shadow Rider Calyrex VMAX CRE 75',
+        publicMetadata: { sourceAttack: 'Max Geist' } }
+    ],
+    observation: { ownPublic },
+    receipt: copycatReceipt(ownPublic, 'Max Geist', 3, 'Shadow Rider Calyrex VMAX CRE 75'),
+    publicMetadata: { selectionType: 'attack', allowCancel: false }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'abstain',
+    reasonCode: 'NO_COPY_ATTACK_CHOICE'
+  });
+});
+
+test('Copycat prompt rejects a matching source printing with a different copied attack name', () => {
+  const ownPublic = player({
+    active: pokemon('Mimikyu GRI 58', {
+      hp: 70,
+      attacks: [copycatAttackFixture()]
+    })
+  });
+  const request = promptRequest({
+    promptType: 'ChooseAttackPrompt',
+    source: {
+      classification: 'actor-choice',
+      sourceKind: 'card-effect',
+      sourcePrinting: 'Mimikyu GRI 58',
+      effectName: 'Copycat',
+      copiedSourcePrinting: 'Shadow Rider Calyrex VMAX CRE 75',
+      copiedAttackName: 'Eon Blade'
+    },
+    choices: [
+      { token: 'max', kind: 'attack', label: 'Max Geist',
+        printing: 'Shadow Rider Calyrex VMAX CRE 75',
+        publicMetadata: { sourceAttack: 'Max Geist' } }
+    ],
+    observation: { ownPublic },
+    receipt: copycatReceipt(ownPublic, 'Max Geist', 3, 'Shadow Rider Calyrex VMAX CRE 75'),
+    publicMetadata: { selectionType: 'attack', allowCancel: false }
+  });
+  assert.deepEqual(checkedDecision(request), {
+    kind: 'abstain',
+    reasonCode: 'NO_COPY_ATTACK_CHOICE'
+  });
+});
+
 test('Copycat prompt does not enable the host-only Trevenant and Dusknoir Night Watch', () => {
   const ownPublic = player({
     active: pokemon('Mimikyu GRI 58', {
       hp: 70,
-      attacks: [{ name: 'Copycat', cost: ['Psychic', 'Colorless'] }]
+      attacks: [copycatAttackFixture()]
     })
   });
   const request = promptRequest({
@@ -2126,7 +2237,7 @@ test('Mimikyu Copycat root action fails closed when prior-turn history is absent
   const ownPublic = player({
     active: pokemon('Mimikyu GRI 58', {
       hp: 70,
-      attacks: [{ name: 'Copycat', cost: ['Psychic', 'Colorless'] }]
+      attacks: [copycatAttackFixture()]
     })
   });
   const request = rootRequest({
@@ -2160,7 +2271,7 @@ test('Mimikyu Copycat root action is selected only with a receipt-backed previou
   const ownPublic = player({
     active: pokemon('Mimikyu GRI 58', {
       hp: 70,
-      attacks: [{ name: 'Copycat', cost: ['Psychic', 'Colorless'] }]
+      attacks: [copycatAttackFixture()]
     })
   });
   const request = rootRequest({
@@ -2195,7 +2306,7 @@ test('Mimikyu Copycat root action fails closed when receipt has no eligible choi
   const ownPublic = player({
     active: pokemon('Mimikyu GRI 58', {
       hp: 70,
-      attacks: [{ name: 'Copycat', cost: ['Psychic', 'Colorless'] }]
+      attacks: [copycatAttackFixture()]
     })
   });
   const receipt = copycatReceipt(ownPublic, 'Max Geist', 3, 'Shadow Rider Calyrex VMAX CRE 75');

@@ -705,13 +705,19 @@ function copycatPromptChoiceMatches(choice, request) {
       !Array.isArray(receipt.opponentCopycatChoices)) return false;
 
   const promptSource = request?.prompt?.source ?? observation?.prompt?.source;
-  const sourcePrinting = choice?.printing ??
-    choice?.publicMetadata?.sourcePrinting ??
-    promptSource?.copiedSourcePrinting;
-  const attackName = choice?.publicMetadata?.sourceAttack ?? choice?.label ?? '';
-  if (choice?.kind !== 'attack' ||
+  const expectedSourcePrinting = promptSource?.copiedSourcePrinting;
+  const expectedAttackName = promptSource?.copiedAttackName;
+  const sourcePrinting = choice?.printing ?? choice?.publicMetadata?.sourcePrinting;
+  const attackName = choice?.publicMetadata?.sourceAttack;
+  if (promptSource?.effectName !== 'Copycat' ||
+      !matches(promptSource?.sourcePrinting ?? '', PRINT.mimikyu) ||
+      choice?.kind !== 'attack' ||
+      typeof expectedSourcePrinting !== 'string' || !expectedSourcePrinting ||
+      typeof expectedAttackName !== 'string' || !expectedAttackName ||
       typeof sourcePrinting !== 'string' ||
-      typeof attackName !== 'string' || !attackName) return false;
+      typeof attackName !== 'string' ||
+      sourcePrinting !== expectedSourcePrinting ||
+      attackName !== expectedAttackName) return false;
 
   return receipt.opponentCopycatChoices.some(row =>
     row &&
