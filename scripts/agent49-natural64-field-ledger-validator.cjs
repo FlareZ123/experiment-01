@@ -40,7 +40,7 @@ const RNG_HOOKS = Object.freeze([
   'Marnie SSH',
   'Iono PAL'
 ]);
-const MANIFEST_SCHEMA = 'aichi-natural64-field-registration-v4';
+const MANIFEST_SCHEMA = 'aichi-natural64-field-registration-v5';
 const RNG_RECEIPT_SCHEMA = 'aichi-natural64-rng-receipt-v1';
 const ADJUDICATION_PROTOCOL_SCHEMA = 'aichi-natural64-adjudication-protocol-v1';
 const UNBIASED_SHUFFLE_METHOD = 'fisher-yates-bounded-rejection-v1';
@@ -95,7 +95,10 @@ function validateAdjudicationProtocol(protocol, protocolSha256, problems) {
         !isText(rule.ruleId) || ruleIds.has(rule.ruleId) ||
         !isText(rule.reason) || !isText(rule.terminalClass) ||
         !Array.isArray(rule.allowedResults) || rule.allowedResults.length === 0 ||
-        rule.allowedResults.some(result => !Object.prototype.hasOwnProperty.call(RESULT_TO_STATUS, result)) ||
+        (rule.terminalClass === 'no-winner'
+          ? rule.allowedResults.length !== 1 || rule.allowedResults[0] !== null
+          : rule.allowedResults.some(result =>
+              result === null || !Object.prototype.hasOwnProperty.call(RESULT_TO_STATUS, result))) ||
         new Set(rule.allowedResults).size !== rule.allowedResults.length ||
         (rule.clockMode !== undefined && !CLOCK_MODES.has(rule.clockMode))) {
       add(problems, 'adjudication-protocol-rule-invalid');

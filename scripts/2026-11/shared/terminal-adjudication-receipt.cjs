@@ -5,7 +5,7 @@ const {
 } = require('../../../simulation/evaluation/canonical-evidence-json.cjs');
 
 const SHA256 = /^[a-f0-9]{64}$/i;
-const RECEIPT_SCHEMA = 'aichi-terminal-adjudication-receipt-v4';
+const RECEIPT_SCHEMA = 'aichi-terminal-adjudication-receipt-v5';
 const RUNNER_EVIDENCE_SCHEMA = 'aichi-runner-terminal-evidence-v1';
 const ADJUDICATOR_EVIDENCE_SCHEMA = 'aichi-adjudicator-evidence-v2';
 const SETUP_EVIDENCE_SCHEMA = 'aichi-natural64-setup-coin-choice-evidence-v1';
@@ -17,9 +17,9 @@ const CLOCK_MODES = new Set([
 const RESULT_TO_STATUS = Object.freeze({
   'candidate-win': 'paper-qualified-win',
   'candidate-loss': 'paper-qualified-loss',
-  'genuine-tie': 'paper-qualified-tie',
-  'no-winner': 'paper-qualified-no-winner'
+  'genuine-tie': 'paper-qualified-tie'
 });
+const NO_WINNER_STATUS = 'paper-qualified-no-winner';
 
 function nonEmptyString(value) {
   return typeof value === 'string' && value.trim().length > 0;
@@ -330,7 +330,10 @@ function validateTerminalAdjudicationReceipt({
   }
 
   const result = receipt.adjudicatedCandidateResult;
-  const expectedStatus = RESULT_TO_STATUS[result];
+  const isNoWinnerTerminal = receipt.terminalClass === 'no-winner';
+  const expectedStatus = isNoWinnerTerminal && result === null
+    ? NO_WINNER_STATUS
+    : RESULT_TO_STATUS[result];
   const rule = expected.protocolRule;
   let protocolRuleSha256 = null;
   try {
@@ -344,6 +347,8 @@ function validateTerminalAdjudicationReceipt({
       !rule.allowedResults.includes(result) ||
       rule.reason !== receipt.adjudicationReason ||
       rule.terminalClass !== receipt.terminalClass ||
+      (isNoWinnerTerminal && result !== null) ||
+      (!isNoWinnerTerminal && result === null) ||
       (rule.clockMode !== undefined && rule.clockMode !== expected.clockMode) ||
       receipt.protocolRuleId !== rule.ruleId ||
       receipt.protocolRuleSha256 !== protocolRuleSha256 ||
@@ -352,11 +357,12 @@ function validateTerminalAdjudicationReceipt({
       adjudicationEvidence.protocolRuleSha256 !== protocolRuleSha256) {
     reject('terminal-adjudication-protocol-rule-binding-invalid');
   }
-  if (receipt.statisticalStatus !== expectedStatus ||
-      attempt.status !== expected.status ||
-      expected.status !== expectedStatus) {
-    reject('terminal-adjudication-result-status-mismatch');
-  }
+  const statusConsistent = isNoWinnerTerminal
+    ? result === null && receipt.statisticalStatus === null &&
+      attempt.status === NO_WINNER_STATUS && expected.status === NO_WINNER_STATUS
+    : receipt.statisticalStatus === expectedStatus &&
+      attempt.status === expected.status && expected.status === expectedStatus;
+  if (!statusConsistent) reject('terminal-adjudication-result-status-mismatch');
   if (receipt.gameStarted !== true || receipt.terminalReached !== true ||
       receipt.adjudicationStatus !== 'determinate') {
     reject('terminal-adjudication-not-determinate');
@@ -400,5 +406,6 @@ module.exports = {
   SETUP_RECEIPT_VERSION,
   CLOCK_MODES,
   RESULT_TO_STATUS,
+  NO_WINNER_STATUS,
   digestMatches
 };
