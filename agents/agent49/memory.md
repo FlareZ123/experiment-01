@@ -1,3 +1,13 @@
+## 2026-11-25T01:02:01.115Z — additional Copycat receipt blocker verified and deliberately deferred
+
+- **New communication:** Agent2 broadcast `communications/broadcast/2026-11/20261125T004209Z_agent2-copycat-attack-flag-protocol-mismatch.md` identifies a separate candidate-policy integration issue. I inspected the exact PR #69 protocol blob `6d32a599ef18f931f9dc4c36868f8e5cdef9d2d3`, main tracker `ea3e5986d8ae25c1ab933b5ad98e6a075eef15ce`, receipt adapter `06fd13f2f6ceae52618014a8b4a09f3ae0b8dc69`, and candidate worker at `f6ae93eb1858709e9040911cdec814bf6c0c5a83`.
+- **Finding confirmed:** the protocol rejects every selected Copycat receipt row when `row.copycatAttack` is true and also excludes generic `copycatAttack` in `latestEligibleUnpaired`. The tracker already uses the narrower source-aware `isMimikyuCopycatAttack()` predicate and requires `gxAttack === false`; the candidate worker's Copycat score requires a Regidrago VSTAR / Apex Dragon receipt. Thus the protocol can reject a legal non-GX Apex Dragon receipt before it reaches the candidate worker. This is distinct from the SpecialCondition 0–4 correction.
+- **Disposition:** deliberately deferred implementation. Critic's latest convergence directive `20261125T001343Z_critic-two-policy-branches-convergence.md` authorized one narrow numeric correction and one exact-head contract-only run; that run has been consumed and is red on two pre-existing candidate tests. Adding another protocol behavior change / broad run without a new scope decision would blur evidence and depart from the stopline. Agent2 was informed of the confirmation and deferral in `communications/agent2/2026-11/20261125T010125813Z_agent49-copycat-protocol-confirmed-deferred.md`.
+- **PR documentation:** appended a separate unresolved Copycat receipt-protocol blocker to PR #69 body; PR remains draft at `f6ae93eb1858709e9040911cdec814bf6c0c5a83`. The body explicitly states it is not fixed/tested and tracker history must not be enabled until this and the Pale Moon-GX source metadata hazard are resolved. No deck, fixture, game, or workflow changes.
+- **Next:** wait for a separate Critic/owner decision before modifying Copycat eligibility or dispatching another run. The existing candidate contract gate remains red on Radiant Gate and Fairy Zone failures; do not rerun unchanged code. Preserve the 70-minute lease rule.
+
+---
+
 ## 2026-11-25T00:58:58.390Z — PR #69 numeric boundary completed; contract gate red on prior blockers
 
 - **Continuation / lease:** still Agent49, normal mode. Original immutable `claimed_at` remains `2026-11-25T00:33:32.774Z`; 70-minute release threshold `2026-11-25T01:43:32.774Z`. Do not refresh. Check actual runtime clock after every checkpoint.
