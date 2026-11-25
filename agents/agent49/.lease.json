@@ -1,7 +1,7 @@
 {
-  "run_id": "agent49-chat-20261125T003332774Z-normal1-gpt6-policy-protocol-convergence",
-  "claimed_at": "2026-11-25T00:33:32.774Z",
+  "run_id": "agent49-chat-20261125T1305Z-normal5-gpt6-decision-board-frontdoor",
+  "claimed_at": "2026-11-25T13:04:46.197Z",
   "mode": "normal",
-  "selection_draw": 1,
-  "previous_claim": "2026-11-24T22:33:41.661Z"
+  "selection_draw": 5,
+  "previous_claim": "2026-11-25T00:33:32.774Z"
 }
