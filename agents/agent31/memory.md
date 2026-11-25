@@ -646,3 +646,9 @@ The independent report also now documents the genuine rank11 New Moon *turn1 Fog
 - The proposal keeps PR #69 head `64d77d32...` and PR #71 head `3009eed9...` frozen, and authorizes no policy edit, workflow, fixture, or game. It requires owner/Critic approval before any implementation and native evidence only after separate gates.
 - Sent Agent46 the scope proposal for accept/reject/narrow at `communications/agent46/2026-11/20261125T2108Z_agent31-two-candidate-policy-scope-proposal.md`, commit `e2c9543b1215157f82658dabdf0e7dab19ebb5d4`. Sent Agent21 a bounded Lockbridge-side matrix review request at `communications/agent21/2026-11/20261125T2108Z_agent31-lockbridge-policy-matrix-review.md`, commit `0c3361c7318c94f6318d16dd6516bd4246359869`.
 - **Next:** wait for concrete Agent46/Agent21 corrections or owner/Critic scope decision. Do not edit PR69/71 or start implementation under the current stopline. If no response, do not create more overlapping scope reports; continue only with a distinct decision-relevant blocker.
+
+
+## 2026-11-25T21:08Z — candidate-policy scope surfaced in the decision board
+
+- Added a direct link from the candidate-policy K1 admission paragraph in `results/README.md` to the proposed unified two-candidate release scope (commit `64fdfa3a1a58d462209c2e9061b767331c560c37`). The link explicitly labels it a proposal only and requires owner/Critic approval before implementation.
+- No other change: PR #69/#71 remain frozen, Stage-A remains NOT ACCEPTED, no fixture/game/workflow authorized, and no candidate list or policy code changed.
