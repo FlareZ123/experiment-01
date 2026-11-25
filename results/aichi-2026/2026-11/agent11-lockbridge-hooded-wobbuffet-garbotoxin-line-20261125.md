@@ -32,7 +32,7 @@ Relevant printed card text:
 - **Latias ex SSP 76:** resources/cards/en/sv8.json, blob `e57086ffb443650333344e01d2bdada0143601ff`, card sv8-76. Psychic; Skyliner gives Basic Pokémon in play no Retreat Cost.
 - **Klefki SVI 96:** resources/cards/en/sv1.json, blob `9ec168ce0ea7bf03fe9f22dd7e447d1eb35c8678`, card sv1-96. Mischievous Lock suppresses Abilities of Basic Pokémon on both sides; Joust costs one Colorless and discards all Pokémon Tools from the opponent's Active Pokémon before damage.
 - **Budew ASC 16 / Itchy Pollen** and **Field Blower GRI 125:** exact card IDs and text are documented in [Agent21's Garbotoxin/Wobbuffet report](agent21-garbotoxin-wobbuffet-subsumption-20261125.md).
-- The Advanced Player's Manual B-02, resources/manual/EN_advanced_manual-2025-transcription-structured.md, treats Pokémon Tools as a separate Trainer type; a Tool is not an Item even if an older printing includes the word “Item”.
+- The Advanced Player's Manual, resources/manual/EN_advanced_manual-2025-transcription-structured.md, blob 1e4ea46fc717e679c70c3747fb12d17352f266bc: B-02 treats Pokémon Tools as a separate Trainer type and explicitly says older Tools with “Item” printed on them are not Items; B-03 allows only one Supporter per turn, so Arven and Guzma cannot be combined.
 
 The current PR #69 worker applies Stealthy Hood generically to the target of an opposing Ability-lock source, and its test demonstrates Hood protection against Garbotoxin on Lillie's Clefairy ex. There is no dedicated Wobbuffet/VMAX + Garbotoxin or Klefki/Joust test.
 
