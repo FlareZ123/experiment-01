@@ -29,6 +29,8 @@ The current Lockbridge list (`results/aichi-2026/2026-11/agent31-lockbridge-shad
 
 The authenticated Garbodor subgroup has four lists (ranks 8, 11, 16, 22). Three contain Budew; ranks 8 and 22 also contain one Field Blower and three VS Seeker each. In those two lists, the opponent can use Field Blower before Itchy Pollen; Lockbridge's own Field Blower cannot answer during the resulting Item lock, while Faba in hand could.
 
+This is candidate-specific. The leading **Hood Shield Shadow Rider v1** 60 retains Pokémon Ranger STS 104 as well as Field Blower GRI 125. Ranger is a Supporter that removes attack effects from both players and their Pokémon; against Itchy Pollen, the line is Ranger first, then Field Blower to remove Garbodor's Tool on the same turn. That gives Hood Shield an Item-lock reset that Lockbridge lacks. Faba may still offer a one-card Supporter answer and Lost Zone destination, but its incremental value is lower in Hood Shield; it is more relevant as a compensating variant for Lockbridge after Ranger was cut. Neither line is guaranteed access or a matchup result.
+
 The broader field contains ten Double Dragon Energy lists and many Stadium/Tool-removal matchups. Faba's Special Energy/Stadium modes could add value beyond Garbodor, but it must not be treated as a replacement for Temple's broad effect on all Special Energy in play: Faba removes one target per Supporter play.
 
 ## Tradeoffs against Field Blower
