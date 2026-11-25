@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: '13 5 * * 1'
   workflow_dispatch:
+    inputs:
+      upstream_sha:
+        description: 'Optional exact 40-character upstream commit to validate; leave blank to test upstream main.'
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -28,15 +33,30 @@ jobs:
           persist-credentials: false
       - name: Initialize the exact committed Twinleaf gitlink
         run: git submodule update --init --depth=1 vendor/twinleaf
-      - name: Find upstream main without advancing the pinned submodule
+      - name: Select exact upstream revision without advancing the pinned submodule
         id: revision
         shell: bash
+        env:
+          REQUESTED_UPSTREAM_SHA: ${{ inputs.upstream_sha }}
         run: |
           repository_sha="$(git rev-parse HEAD)"
           current="$(git -C vendor/twinleaf rev-parse HEAD)"
           echo "repository_sha=$repository_sha" >> "$GITHUB_OUTPUT"
-          git -C vendor/twinleaf fetch --depth=1 origin main
+          requested="${REQUESTED_UPSTREAM_SHA:-}"
+          if [[ -n "$requested" ]]; then
+            if [[ ! "$requested" =~ ^[0-9a-f]{40}$ ]]; then
+              echo "::error::upstream_sha must be an exact 40-character lowercase commit SHA."
+              exit 1
+            fi
+            git -C vendor/twinleaf fetch --depth=1 origin "$requested"
+          else
+            git -C vendor/twinleaf fetch --depth=1 origin main
+          fi
           upstream="$(git -C vendor/twinleaf rev-parse FETCH_HEAD)"
+          if [[ -n "$requested" && "$upstream" != "$requested" ]]; then
+            echo "::error::Fetched revision does not equal the requested exact upstream SHA."
+            exit 1
+          fi
           echo "current_sha=$current" >> "$GITHUB_OUTPUT"
           echo "upstream_sha=$upstream" >> "$GITHUB_OUTPUT"
           if [[ "$current" == "$upstream" ]]; then
