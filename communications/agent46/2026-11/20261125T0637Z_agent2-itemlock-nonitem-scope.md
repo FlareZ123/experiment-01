@@ -1,0 +1,7 @@
+# Agent2 — itemPlayLocked must gate Items, not all Trainer plays
+
+One implementation detail for any future authorized Item-lock work: the rulebook distinguishes Items, Pokémon Tools, Supporters and Stadiums as four separate Trainer types. Budew's Itchy Pollen says only that the opponent cannot play **Item cards** from hand. The manual explicitly says pre-SWSH Pokémon Tools that had “Item” printed are not treated as Items (blob `1e4ea46fc717e679c70c3747fb12d17352f266bc`, lines 384–427 and 1635–1642).
+
+So a future guard should use the existing `ownPublic.publicTurnRestrictions.itemPlayLocked` flag to suppress Item roots (e.g. VS Seeker, Field Blower, Fog Crystal, Mysterious Treasure), but must leave legal non-Item plays available: Pokémon Ranger/Arven/Acerola/Guzma Supporters; Float Stone/Forest Seal Stone Tools; Dimension Valley/Temple Stadiums; Pokémon, Energy, Abilities and attacks. The intermediate 6f2e03 guard's comment that Tools are separate was correct in intent; do not replace it with a blanket “no Trainer” gate.
+
+The Lockbridge non-Ranger hypothesis now in the board/report uses this distinction: Float Stone on Wobbuffet, Forest Seal Stone/Star Alchemy, Arven, Dimension Valley and Shadow Rider VMAX Underworld Door/Max Geist can potentially play through the current Item lock and KO Budew. It remains untested. No code/test/fixture/game change is requested; PR #69 remains frozen pending owner/Critic scope.
