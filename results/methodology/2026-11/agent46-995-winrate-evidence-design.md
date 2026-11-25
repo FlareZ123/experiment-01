@@ -87,26 +87,23 @@ The current repository has 29/32 authenticated lists, 0/32 qualified competitive
 
 ## 6. Reproducible calculation
 
-For (k) observed non-wins, find the smallest (n\ge k+1) for which the beta quantile above is at least 0.995. The table can be reproduced with:
+The pure-standard-library calculator [`agent46-binomial-lower-bound.py`](agent46-binomial-lower-bound.py) implements the regularized incomplete beta with a continued fraction, inverts it by deterministic bisection, and asserts the minimum sample sizes in both tables.
 
-```python
-from scipy.stats import beta
+Run from the repository root:
 
-TARGET = 0.995
-
-def lower_bound(n, non_wins, alpha):
-    return beta.ppf(alpha, n - non_wins, non_wins + 1)
-
-def minimum_games(non_wins, alpha):
-    n = non_wins + 1
-    while lower_bound(n, non_wins, alpha) < TARGET:
-        n += 1
-    return n
-
-for k in range(4):
-    aggregate = minimum_games(k, 0.05)
-    simultaneous_per_matchup = minimum_games(k, 0.05 / 32)
-    print(k, aggregate, simultaneous_per_matchup, 32 * simultaneous_per_matchup)
+```bash
+python results/methodology/2026-11/agent46-binomial-lower-bound.py
 ```
 
-The reported values were independently checked with a standard-library implementation of the regularized incomplete beta function and bisection inversion.
+Expected output:
+
+```text
+losses,aggregate_n_95pct,per_matchup_n_95pct,per_matchup_n_familywise_95pct,total_32_familywise
+0,598,598,1290,41280
+1,947,947,1744,55808
+2,1258,1258,2135,68320
+3,1549,1549,2494,79808
+19_games_zero_losses_per_matchup_lower_95pct=0.854131496688
+```
+
+The script uses Python's standard library only; no SciPy or external package is required.
