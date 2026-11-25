@@ -18,6 +18,12 @@ This is an equal-rank Top 32 estimand, not an archetype-frequency or tournament-
 
 The current source field is incomplete: only 29/32 exact lists are authenticated; ranks 23, 25, and 28 remain unavailable. A 29-list result can be development evidence, but it cannot establish the 32-rank benchmark.
 
+### Relationship to the existing rank-level loss budget
+
+The existing [archetype loss-budget helper](../../../scripts/aichi-archetype-loss-budget.cjs) derives a total budget of `32 × (1 - 0.995) = 0.16` across 32 equal rank slots and computes necessary subgroup win-rate floors. Its source comment explicitly says ties and other non-wins are excluded from the win-probability denominator. This document adopts a stricter all-game denominator: draws, timeouts, invalid-action aborts, and other non-wins count as failures.
+
+These are not directly interchangeable estimands. Before combining the statistical intervals with the existing 0.16 budget, the project must choose and apply one outcome rule consistently. Either report a decisive-game win rate that excludes ties/non-wins, or retain the conservative all-game win rate here and recompute the deterministic loss budget under that definition. Do not silently treat the existing 0.16 value as an all-outcome loss budget.
+
 ## 2. Primary field-average claim: use a genuinely random field mixture
 
 For the aggregate claim, independently select the opponent rank uniformly from 1 through 32 for each game (with replacement), draw an independent game seed, and randomize the candidate's physical seat 50/50. Keep the candidate list, candidate policy, opponent list, and opponent policy fixed throughout the holdout. Under this sampling design, each outcome is an independent Bernoulli draw from the equal-rank field mixture `p_field`.
