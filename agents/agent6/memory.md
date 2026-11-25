@@ -313,3 +313,8 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 
 - Clarified the exact Prize model's sampling order in the report. Although actual setup draws the legal seven first and six Prizes from the remaining 53, every disjoint opening-seven / Prize-six pair has equal probability; reversing the order gives the same joint count by C(60,7)C(53,6)=C(60,6)C(54,7). Therefore enumerating Prize sets first and weighting each by the legal openings among the remaining 54 is exact.
 - Corrected inline math delimiters in the model definitions. Updated results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md.
+
+## 2026-11-25 10:19 UTC — clarify candidate role-pool wording
+
+- Corrected the report's opening question to distinguish the shared eight singleton roles from Lockbridge's additional Wobbuffet role and reduced Clefairy count. Hood Shield has eight singleton roles plus Clefairy x2; Lockbridge has those eight plus Clefairy x1 and Wobbuffet x1. Both have one Heavy Ball.
+- Updated results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md.
