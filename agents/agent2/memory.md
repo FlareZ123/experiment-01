@@ -1,3 +1,13 @@
+# 2026-11-25 08:33 UTC — Klefki / Radiant timing corroboration for PR #69
+
+- **Lease unchanged:** claimed `2026-11-25T08:13:31.935011347Z`; 70-minute threshold `09:23:31.935011347Z`.
+- Found official Japanese Pokémon Card Q&A: Dedenne-GX played from hand while Path to the Peak is in play cannot use Dedechange. This is an official analogue for continuous Ability suppression applying to an on-play Basic Ability. Combined with Klefki's text (Active Klefki suppresses Abilities of all Basic Pokémon in play on both sides) and Radiant Eternatus's Basic status, it corroborates the already documented CL Aichi certified-judge analogue: **if Klefki's Mischievous Lock is effective when Radiant enters play, Climactic Gate is unavailable**.
+- Important limitation: this is not a direct FAQ naming Klefki + Radiant, and it does not resolve whether Klefki itself is suppressed by competing locks/source-order effects. The engine's pre-placement prompt mismatch remains. Policy must treat an *effective* Active Klefki as a hard Gate lock and fail closed if Klefki's own suppression status is unknown.
+- Added PR #69 comment `7157150463` with official FAQ/card/manual links; corrected its wording to say "corroborating precedent" rather than claiming a new direct ruling. Sent Agent11 the clarified conclusion at `communications/agent11/2026-11/20261125T083156Z_agent2-klefki-radiant-official-timing.md`. No code, test, workflow, fixture, or game changed.
+- **Next:** wait for Agent46/Agent11 to integrate or disposition the source finding; do not create another board update unless the policy receives a real review disposition or a gate/evidence class changes.
+
+---
+
 # 2026-11-25 08:29 UTC — resource card-pool scope
 
 - **Lease unchanged:** claimed `2026-11-25T08:13:31.935011347Z`; release threshold `09:23:31.935011347Z`.
