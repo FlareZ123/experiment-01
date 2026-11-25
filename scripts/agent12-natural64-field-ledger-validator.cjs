@@ -560,7 +560,8 @@ function validateRandomization(attempt, manifest, problems) {
   } catch {
     add(problems, 'independent-rng-material-invalid');
   }
-  if (!commitment || attempt.rngMaterialCommitment !== commitment ||
+  if (!commitment || attempt.rngProtocol !== RNG_PROTOCOL ||
+      attempt.rngMaterialCommitment !== commitment ||
       attempt.observedRngProtocol !== RNG_PROTOCOL ||
       attempt.observedRngMaterialCommitment !== commitment) {
     add(problems, 'independent-rng-observation-mismatch');
@@ -568,10 +569,10 @@ function validateRandomization(attempt, manifest, problems) {
   const options = attempt.effectiveMatchOptions;
   if (!options || typeof options !== 'object' ||
       options.rngProtocol !== RNG_PROTOCOL ||
+      options.isolatePolicyRandomness !== true ||
       options.physicalShuffleRandomIsolation !== true ||
       options.aichiFieldPaperShuffleRandomIsolation !== true ||
       JSON.stringify(options.aichiFieldPaperShuffleRandomIsolationHooks) !== JSON.stringify(RNG_HOOKS) ||
-      options.unbiasedShuffleMethod !== UNBIASED_SHUFFLE_METHOD ||
       options.hisuianHeavyBallPrizeShuffleCorrection !== true ||
       options.coinRandomIsolation !== true ||
       options.engineRandomIsolation !== true) {
@@ -580,12 +581,12 @@ function validateRandomization(attempt, manifest, problems) {
   const payload = {
     schema: RNG_RECEIPT_SCHEMA,
     trialId: attempt.trialId,
-    rngProtocol: RNG_PROTOCOL,
+    rngProtocol: attempt.rngProtocol,
     rngMaterialCommitment: attempt.rngMaterialCommitment,
     observedRngProtocol: attempt.observedRngProtocol,
     observedRngMaterialCommitment: attempt.observedRngMaterialCommitment,
     coinWinnerSeat: attempt.coinWinnerSeat,
-    unbiasedShuffleMethod: options && options.unbiasedShuffleMethod,
+    unbiasedShuffleMethod: manifest.unbiasedShuffleMethod,
     effectiveMatchOptions: options
   };
   try {

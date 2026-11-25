@@ -379,12 +379,12 @@ function makePublicEntryFixture() {
   const rngMaterialCommitmentValue=randomMaterialCommitment(rngMaterial);
   const effectiveMatchOptions={
     rngProtocol:RNG_PROTOCOL,
+    isolatePolicyRandomness:true,
     physicalShuffleRandomIsolation:true,
     aichiFieldPaperShuffleRandomIsolation:true,
     aichiFieldPaperShuffleRandomIsolationHooks:[
       'Gladion CIN','Hisuian Heavy Ball ASR','Marnie SSH','Iono PAL'
     ],
-    unbiasedShuffleMethod:'fisher-yates-bounded-rejection-v1',
     hisuianHeavyBallPrizeShuffleCorrection:true,
     coinRandomIsolation:true,
     engineRandomIsolation:true
@@ -397,7 +397,7 @@ function makePublicEntryFixture() {
     observedRngProtocol:RNG_PROTOCOL,
     observedRngMaterialCommitment:rngMaterialCommitmentValue,
     coinWinnerSeat:0,
-    unbiasedShuffleMethod:effectiveMatchOptions.unbiasedShuffleMethod,
+    unbiasedShuffleMethod:manifest.unbiasedShuffleMethod,
     effectiveMatchOptions
   };
   const setupReceipt={
@@ -439,6 +439,7 @@ function makePublicEntryFixture() {
     policyRegistrationSha256,
     policyAttestationBundleSha256,
     policyApplicationReceiptSha256:policyPanelReceipt.receiptSha256,
+    rngProtocol:RNG_PROTOCOL,
     rngMaterial,
     rngMaterialCommitment:rngMaterialCommitmentValue,
     observedRngProtocol:RNG_PROTOCOL,
@@ -885,4 +886,20 @@ test('unknown terminal classes and mismatched class reasons are rejected without
   validateAdjudicationProtocol(
     mismatch, canonicalSha256(mismatch), mismatchProblems);
   assert.ok(mismatchProblems.has('adjudication-protocol-rule-invalid'));
+});
+
+test('per-attempt RNG protocol and policy-isolation summary are required', () => {
+  const wrongProtocol = makePublicEntryFixture();
+  wrongProtocol.attempts[0].rngProtocol = 'other-rng-protocol';
+  const protocolResult = validateNatural64FieldLedger(wrongProtocol);
+  assert.equal(protocolResult.status, 'INVALID');
+  assert.ok(protocolResult.rejectionReasons.includes(
+    'independent-rng-observation-mismatch'));
+
+  const missingIsolation = makePublicEntryFixture();
+  missingIsolation.attempts[0].effectiveMatchOptions.isolatePolicyRandomness = false;
+  const isolationResult = validateNatural64FieldLedger(missingIsolation);
+  assert.equal(isolationResult.status, 'INVALID');
+  assert.ok(isolationResult.rejectionReasons.includes(
+    'independent-rng-hook-evidence-incomplete'));
 });
