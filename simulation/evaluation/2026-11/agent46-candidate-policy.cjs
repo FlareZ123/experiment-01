@@ -2339,6 +2339,10 @@ function hasStarAlchemyBottleneck(view, receipt) {
 
 function scoreTrainerPlay(item, view, receipt) {
   const name = item.actorPrinting ?? '';
+  // The actor-visible Item restriction applies to candidate Item cards played from hand.
+  // Pokémon Tools are a separate Trainer type and are intentionally not in ITEM_NAMES.
+  if (view.ownPublic.publicTurnRestrictions?.itemPlayLocked === true &&
+      ITEM_NAMES.some(itemName => hasName(name, itemName))) return -Infinity;
   const supporterUsed = view.ownTurnResources.supporterPlayedTurn > 0;
   if (hasName(name, 'VS Seeker') && !supporterUsed &&
       !view.ownHand.some(isCandidateSupporter) &&

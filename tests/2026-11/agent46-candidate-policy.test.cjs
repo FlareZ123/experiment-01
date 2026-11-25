@@ -2601,6 +2601,39 @@ test('VS Seeker is withheld when its Supporter quota is spent or its discard tar
   }
 });
 
+
+test('actor-visible Item lock suppresses candidate Item roots but leaves Supporters available', () => {
+  for (const seat of [0, 1]) {
+    const view = observation(seat, {
+      ownHand: [
+        'VS Seeker PHF 109',
+        'Field Blower GRI 125',
+        'Teammates PRC 141'
+      ],
+      ownDiscard: ["Lillie's Determination MEG 119"],
+      opponentStadium: ['Path to the Peak ASR 213']
+    });
+    const actions = [
+      { token: 'vs-seeker', kind: 'play-card', actorPrinting: 'VS Seeker PHF 109' },
+      { token: 'field-blower', kind: 'play-card', actorPrinting: 'Field Blower GRI 125' },
+      { token: 'teammates', kind: 'play-card', actorPrinting: 'Teammates PRC 141' },
+      { token: 'pass', kind: 'pass' }
+    ];
+    const receipt = priorKoReceipt(view);
+
+    // Without an Item lock, the higher-value Field Blower line is selected.
+    assert.deepEqual(evaluate(request(seat, view, { actions, receipt })), {
+      kind: 'select-action', token: 'field-blower'
+    });
+
+    // The public restriction blocks every candidate Item root, not Supporters.
+    view.ownPublic.publicTurnRestrictions.itemPlayLocked = true;
+    assert.deepEqual(evaluate(request(seat, view, { actions, receipt })), {
+      kind: 'select-action', token: 'teammates'
+    });
+  }
+});
+
 test('Teammates is played after a validated opponent-turn Knock Out', () => {
   const view = observation(0, {
     active: null,
