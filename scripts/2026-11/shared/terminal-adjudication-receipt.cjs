@@ -21,14 +21,58 @@ const RESULT_TO_STATUS = Object.freeze({
 });
 const NO_WINNER_STATUS = 'paper-qualified-no-winner';
 const DUAL_DEFEAT_EVIDENCE_SCHEMA = 'aichi-dual-defeat-penalty-evidence-v1';
+const SINGLE_DEFEAT_EVIDENCE_SCHEMA = 'aichi-single-defeat-penalty-evidence-v1';
+const SETUP_EVIDENCE_KEYS = new Set([
+  'schema', 'attemptId', 'trialId', 'slotId', 'receipt', 'receiptSha256', 'evidenceSha256'
+]);
+const SETUP_RECEIPT_KEYS = new Set([
+  'version', 'status', 'coin', 'choice', 'firstSeatFromAcceptedSetup',
+  'firstSeatFromVerifiedDraw', 'nativeFirstDrawVerified', 'firstSetupOnly',
+  'malformedNativeSetupEvents', 'fullGamePolicyCertified',
+  'officialCoinChoiceRuleCertified', 'competitiveGameQualified'
+]);
+const SETUP_COIN_KEYS = new Set(['ordinal', 'resolution', 'heads', 'coinWinnerSeat']);
+const SETUP_CHOICE_KEYS = new Set([
+  'ordinal', 'resolution', 'choiceOwnerSeat', 'choseFirst'
+]);
+const RUNNER_EVIDENCE_KEYS = new Set([
+  'schema', 'attemptId', 'slotId', 'enginePin', 'runnerRevision',
+  'gameStarted', 'terminalReached', 'terminalEventSha256',
+  'engineTerminalSha256', 'capturedAt', 'evidenceSha256'
+]);
+const ADJUDICATOR_EVIDENCE_KEYS = new Set([
+  'schema', 'attemptId', 'slotId', 'adjudicationProtocolSha256',
+  'protocolRuleId', 'protocolRuleSha256', 'runnerEvidenceSha256',
+  'terminalEventSha256', 'engineTerminalSha256', 'clockMode',
+  'adjudicatorId', 'adjudicatedAt', 'terminalClass', 'adjudicationReason',
+  'adjudicatedCandidateResult', 'attestationSha256', 'dualDefeatEvidence',
+  'singleDefeatEvidence', 'evidenceSha256'
+]);
+const TERMINAL_RECEIPT_KEYS = new Set([
+  'schema', 'attemptId', 'trialId', 'slotId', 'paperReceiptId',
+  'registrationSha', 'rank', 'candidatePhysicalSeat', 'actualStarterSeat',
+  'firstPlayerSeat', 'coinWinnerSeat', 'chooserSeat', 'goFirstResponse',
+  'physicalDealId', 'source60Sha', 'candidate60Sha', 'candidatePolicySha',
+  'engineAndHooksSha', 'opponentPolicyBundleSha', 'adjudicationProtocolSha256',
+  'protocolRuleId', 'protocolRuleSha256', 'clockMode',
+  'rngMaterialCommitmentSha256', 'setupCoinChoiceReceiptSha256',
+  'setupCoinChoiceEvidenceSha256', 'runnerEvidenceSha256',
+  'adjudicationEvidenceSha256', 'terminalEventSha256', 'engineTerminalSha256',
+  'adjudicatorAttestationSha256', 'adjudicatorId', 'adjudicatedAt',
+  'terminalClass', 'adjudicationReason', 'adjudicatedCandidateResult',
+  'statisticalStatus', 'gameStarted', 'terminalReached', 'adjudicationStatus',
+  'receiptSha256'
+]);
+const DEFEAT_EVIDENCE_KEYS = new Set([
+  'eventStage', 'judgeRulingRef', 'penalizedPhysicalSeats', 'penalty', 'schema'
+]);
 const TERMINAL_CLASS_ALLOWED_RESULTS = Object.freeze({
   'engine-winner': Object.freeze(['candidate-win', 'candidate-loss']),
   'opponent-forfeit': Object.freeze(['candidate-win']),
   'opponent-concession': Object.freeze(['candidate-win']),
-  'opponent-timeout': Object.freeze(['candidate-win']),
   'candidate-forfeit': Object.freeze(['candidate-loss']),
-  'candidate-illegal-action': Object.freeze(['candidate-loss']),
-  'candidate-timeout': Object.freeze(['candidate-loss']),
+  'candidate-defeat': Object.freeze(['candidate-loss']),
+  'opponent-defeat': Object.freeze(['candidate-win']),
   'draw': Object.freeze(['genuine-tie']),
   'no-winner': Object.freeze([null]),
   'top32-prize-tiebreaker': Object.freeze(['candidate-win', 'candidate-loss'])
@@ -37,10 +81,9 @@ const TERMINAL_CLASS_ALLOWED_REASONS = Object.freeze({
   'engine-winner': Object.freeze(['engine-winner']),
   'opponent-forfeit': Object.freeze(['opponent-forfeit']),
   'opponent-concession': Object.freeze(['opponent-concession']),
-  'opponent-timeout': Object.freeze(['opponent-timeout']),
   'candidate-forfeit': Object.freeze(['candidate-forfeit']),
-  'candidate-illegal-action': Object.freeze(['candidate-illegal-action']),
-  'candidate-timeout': Object.freeze(['candidate-timeout']),
+  'candidate-defeat': Object.freeze(['candidate-defeat']),
+  'opponent-defeat': Object.freeze(['opponent-defeat']),
   'draw': Object.freeze(['draw']),
   'no-winner': Object.freeze(['both-players-defeated']),
   'top32-prize-tiebreaker': Object.freeze(['top32-prize-tiebreaker'])
@@ -52,6 +95,11 @@ function nonEmptyString(value) {
 
 function isSha(value) {
   return typeof value === 'string' && SHA256.test(value);
+}
+
+function hasOnlyKeys(record, allowed) {
+  return !!record && typeof record === 'object' && !Array.isArray(record) &&
+    Object.keys(record).every(key => allowed.has(key));
 }
 
 function validIso(value) {
@@ -101,6 +149,9 @@ function validateSetupCoinChoiceEvidence({attempt, receipt, setupEvidence}) {
   if (!setupEvidence || typeof setupEvidence !== 'object' || Array.isArray(setupEvidence)) {
     return ['terminal-adjudication-setup-coin-choice-evidence-missing'];
   }
+  if (!hasOnlyKeys(setupEvidence, SETUP_EVIDENCE_KEYS)) {
+    reject('terminal-adjudication-setup-coin-choice-evidence-invalid');
+  }
   const setup = setupEvidence.receipt;
   let setupReceiptDigestValid = false;
   try {
@@ -111,6 +162,9 @@ function validateSetupCoinChoiceEvidence({attempt, receipt, setupEvidence}) {
       setupEvidence.attemptId !== attempt.attemptId ||
       setupEvidence.trialId !== attempt.trialId ||
       setupEvidence.slotId !== attempt.slotId ||
+      !hasOnlyKeys(setup, SETUP_RECEIPT_KEYS) ||
+      !hasOnlyKeys(setup?.coin, SETUP_COIN_KEYS) ||
+      !hasOnlyKeys(setup?.choice, SETUP_CHOICE_KEYS) ||
       !setup || typeof setup !== 'object' || Array.isArray(setup) ||
       !digestMatches(setupEvidence, 'evidenceSha256') ||
       !setupReceiptDigestValid) {
@@ -201,9 +255,16 @@ function validateTerminalAdjudicationReceipt({
   }
   if (!runnerEvidence || typeof runnerEvidence !== 'object' || Array.isArray(runnerEvidence)) {
     reject('terminal-adjudication-independent-runner-evidence-missing');
+  } else if (!hasOnlyKeys(runnerEvidence, RUNNER_EVIDENCE_KEYS)) {
+    reject('terminal-adjudication-runner-evidence-schema-fields-invalid');
   }
   if (!adjudicationEvidence || typeof adjudicationEvidence !== 'object' || Array.isArray(adjudicationEvidence)) {
     reject('terminal-adjudication-independent-adjudicator-evidence-missing');
+  } else if (!hasOnlyKeys(adjudicationEvidence, ADJUDICATOR_EVIDENCE_KEYS)) {
+    reject('terminal-adjudication-adjudicator-evidence-schema-fields-invalid');
+  }
+  if (!hasOnlyKeys(receipt, TERMINAL_RECEIPT_KEYS)) {
+    reject('terminal-adjudication-receipt-schema-fields-invalid');
   }
 
   if (receipt.schema !== RECEIPT_SCHEMA) reject('terminal-adjudication-receipt-schema-invalid');
@@ -319,6 +380,8 @@ function validateTerminalAdjudicationReceipt({
         !nonEmptyString(adjudicationEvidence.adjudicatorId) ||
         !validIso(adjudicationEvidence.adjudicatedAt) ||
         Date.parse(adjudicationEvidence.adjudicatedAt) < Date.parse(expected.endedAt) ||
+        !runnerEvidence || !validIso(runnerEvidence.capturedAt) ||
+        Date.parse(adjudicationEvidence.adjudicatedAt) < Date.parse(runnerEvidence.capturedAt) ||
         !isSha(adjudicationEvidence.attestationSha256) ||
         !isSha(adjudicationEvidence.runnerEvidenceSha256) ||
         !isSha(adjudicationEvidence.terminalEventSha256) ||
@@ -356,14 +419,7 @@ function validateTerminalAdjudicationReceipt({
 
   if (receipt.terminalClass === 'no-winner') {
     const dualDefeat = adjudicationEvidence?.dualDefeatEvidence;
-    const requiredKeys = [
-      'eventStage', 'judgeRulingRef', 'penalizedPhysicalSeats', 'penalty', 'schema'
-    ];
-    const actualKeys = dualDefeat && typeof dualDefeat === 'object' &&
-      !Array.isArray(dualDefeat)
-      ? Object.keys(dualDefeat).sort()
-      : [];
-    if (actualKeys.join('|') !== requiredKeys.join('|') ||
+    if (!hasOnlyKeys(dualDefeat, DEFEAT_EVIDENCE_KEYS) ||
         dualDefeat.schema !== DUAL_DEFEAT_EVIDENCE_SCHEMA ||
         dualDefeat.eventStage !== 'aichi-open-top32' ||
         dualDefeat.penalty !== 'Defeat' ||
@@ -374,6 +430,27 @@ function validateTerminalAdjudicationReceipt({
         !nonEmptyString(dualDefeat.judgeRulingRef)) {
       reject('terminal-adjudication-dual-defeat-evidence-invalid');
     }
+  } else if (adjudicationEvidence?.dualDefeatEvidence !== undefined) {
+    reject('terminal-adjudication-dual-defeat-evidence-unexpected');
+  }
+
+  if (receipt.terminalClass === 'candidate-defeat' ||
+      receipt.terminalClass === 'opponent-defeat') {
+    const singleDefeat = adjudicationEvidence?.singleDefeatEvidence;
+    const expectedSeat = receipt.terminalClass === 'candidate-defeat'
+      ? expected.candidatePhysicalSeat : 1 - expected.candidatePhysicalSeat;
+    if (!hasOnlyKeys(singleDefeat, DEFEAT_EVIDENCE_KEYS) ||
+        singleDefeat.schema !== SINGLE_DEFEAT_EVIDENCE_SCHEMA ||
+        singleDefeat.eventStage !== 'aichi-open-top32' ||
+        singleDefeat.penalty !== 'Defeat' ||
+        !Array.isArray(singleDefeat.penalizedPhysicalSeats) ||
+        singleDefeat.penalizedPhysicalSeats.length !== 1 ||
+        singleDefeat.penalizedPhysicalSeats[0] !== expectedSeat ||
+        !nonEmptyString(singleDefeat.judgeRulingRef)) {
+      reject('terminal-adjudication-single-defeat-evidence-invalid');
+    }
+  } else if (adjudicationEvidence?.singleDefeatEvidence !== undefined) {
+    reject('terminal-adjudication-single-defeat-evidence-unexpected');
   }
 
   const result = receipt.adjudicatedCandidateResult;
@@ -382,6 +459,11 @@ function validateTerminalAdjudicationReceipt({
     ? NO_WINNER_STATUS
     : RESULT_TO_STATUS[result];
   const rule = expected.protocolRule;
+  if (expected.clockMode === 'aichi-top32-event-clock' ||
+      rule?.clockMode === 'aichi-top32-event-clock' ||
+      rule?.terminalClass === 'top32-prize-tiebreaker') {
+    reject('terminal-adjudication-event-clock-evidence-unsupported');
+  }
   const classAllowedResults = rule && TERMINAL_CLASS_ALLOWED_RESULTS[rule.terminalClass];
   const classAllowedReasons = rule && TERMINAL_CLASS_ALLOWED_REASONS[rule.terminalClass];
   const classResultSetValid = Array.isArray(classAllowedResults) &&
@@ -467,6 +549,7 @@ module.exports = {
   CLOCK_MODES,
   RESULT_TO_STATUS,
   NO_WINNER_STATUS,
+  SINGLE_DEFEAT_EVIDENCE_SCHEMA,
   TERMINAL_CLASS_ALLOWED_RESULTS,
   TERMINAL_CLASS_ALLOWED_REASONS,
   digestMatches
