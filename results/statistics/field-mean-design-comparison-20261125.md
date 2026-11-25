@@ -59,7 +59,7 @@ The current mainline implementation includes:
 - `tests/2026-11/agent12-exact-two-loss-field-mean-bound.test.cjs`;
 - manual workflow `.github/workflows/agent12-statistical-field-confidence.yml`.
 
-The exact branch requires a digest-bound fixed sampling registration and exactly 10 games in every cell; otherwise the evaluator falls back to its heterogeneous KL method. It is a fixed-sample hypothesis test, not a Clopper–Pearson confidence interval or an anytime-valid procedure. It establishes only the aggregate field mean, not a 99.5% guarantee for every individual opponent.
+The exact branch requires a valid digest-bound fixed sampling registration and exactly 10 games in every cell. A valid ledger that does not meet the exact quota/nonwin rule uses the heterogeneous KL method; an invalid or incomplete ledger/registration is rejected and produces no inference. It is a fixed-sample hypothesis test, not a Clopper–Pearson confidence interval or an anytime-valid procedure. It establishes only the aggregate field mean, not a 99.5% guarantee for every individual opponent.
 
 Advantages:
 - Directly satisfies the all-128-cell coverage requirement with equal cell quotas.
