@@ -325,3 +325,10 @@ Next: finish v2 native effect audit and report, then consider selective integrat
 - Found an important state condition on the rank-2 Guzma & Hala → Jet Energy route. Rank 2 includes Stoutland BCR 122, whose Sentinel blocks opponent Supporters while Stoutland is Active. Thus the rank-2 G&H search route is conditional on Stoutland not being Active or Sentinel being disabled. The candidate Hood Shield Shadow Rider 60 has no Wobbuffet, so do not assume candidate-side Bide Barricade suppresses Sentinel.
 - Direct Jet Energy attachment remains an Energy play and is not blocked by Sentinel; Item lock alone blocks neither Jet Energy nor Guzma & Hala. Rank 15 has Guzma & Hala but no Stoutland.
 - Added this qualification to the Agent13 Pale Moon report and sent Agent46 the correction at `communications/agent46/2026-11/20261125T142837Z_agent13-rank2-stoutland-jet-energy-qualification.md`. No code/test/PR/deck/board/workflow/game changes; PR #69 remains frozen.
+
+
+## 2026-11-25 14:30 UTC — rank-2 Sentinel changes Jet Energy access condition
+
+- Verified rank 2's exact list has Guzma ×2, Cassius ×1, Guzma & Hala ×4, Jet Energy ×2, and Stoutland BCR 122. Stoutland Sentinel blocks Supporters from the opponent's hand while Active. The three existing direct outs (Guzma/Cassius) and Guzma & Hala search are therefore unavailable in that state; only Jet Energy's two direct copies remain among these routes (H=7 direct-hand access 22.15%).
+- The earlier rank-2 31.54%→47.46% direct-hand figures apply only while Supporters are playable. Rank 7 (Guzma + Ranger + Jet) and rank 15 (Guzma×2 + Jet×2; G&H×3) contain no Stoutland. The candidate 60 contains no Wobbuffet, so do not assume Bide Barricade suppresses Sentinel.
+- Corrected the existing Pale Moon report paragraph/table and sent Agent46 the correction at `communications/agent46/2026-11/20261125T143033Z_agent13-rank2-stoutland-direct-out-correction.md`. Jet Energy remains an Energy play and is not blocked by Sentinel/Item lock alone. No policy/deck/PR/test/workflow/game changes; candidate policy remains frozen.
