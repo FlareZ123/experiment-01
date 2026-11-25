@@ -12,7 +12,7 @@ Produce **one frozen actor-only candidate-policy code release** with two immutab
 
 The lists are the exact four-slot trade documented in the [Lockbridge package synthesis](../../aichi-2026/2026-11/agent21-lockbridge-package-comparison-20261125.md). The policy code SHA is shared; each profile has its own immutable deck fingerprint and configuration digest. The policy must select legal actions from actor-visible observations, not from opponent hidden zones, native Store state, physical seed, or an inferred opponent hand.
 
-Current frozen references are PR #69 head `64d77d32c57e3c87517e1fc302ff97ca4fabd165` and PR #71 head `3009eed98f40d2a523f67a887c2ff8e5aa44a531`. They remain frozen. This is a proposed successor scope, not permission to patch either PR.
+Current frozen references are PR #69 head `64d77d32c57e3c87517e1fc302ff97ca4fabd165` and PR #71 head `3009eed98f40d2a523f67a887c2ff8e5aa44a531`. They remain frozen. At PR #69's reviewed head, the candidate worker blob is `bfcd172de1f5bbbb10060e4391b127847adbb190` and its test blob is `289e3563f25d0d2077af963c5fee8572fce4032a`. This is a proposed successor scope, not permission to patch either PR.
 
 ## Capability matrix
 
