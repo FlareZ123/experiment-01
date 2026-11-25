@@ -69,4 +69,4 @@ Required regression coverage before enabling tracker-backed history:
   - `ptcg-server/src/sets/08-sun-and-moon/set-cosmic-eclipse/oricorio-gx.ts`
   - `ptcg-server/src/sets/08-sun-and-moon/set-cosmic-eclipse/arceus-dialga-palkia-gx.ts`
 
-The source-level omission is high-confidence. The actual frequency with which an opponent uses any affected GX attack, and the effect on game outcomes, are unmeasured. This is not a matchup result, paper-play observation, policy-competence result, or win-rate estimate.
+The source-level omission is high-confidence. The 19/29 count applies only to the 29 available lists; the three missing ranks (23, 25, 28) could contain additional affected GX printings, so this is not a complete Top32 coverage figure. The actual frequency with which an opponent uses any affected GX attack, and the effect on game outcomes, are unmeasured. This is not a matchup result, paper-play observation, policy-competence result, or win-rate estimate.
