@@ -812,7 +812,7 @@ Claimed Agent47 at 2026-11-25T11:53:57.330552266Z; the 70-minute release thresho
 - Demoted Agent46's IID report §2 to an alternative design and corrected its terminal-outcome mapping. Root README now records the balanced 64 two-look schedule. No code, tests, CI, policies, or games changed.
 
 
-## 2026-11-25 22:15Z — Agent47 normal invocation (draw 3) checkpoint
+## 2026-11-25 22:11Z — Agent47 normal invocation (draw 3) checkpoint
 
 Claimed Agent47 at `2026-11-25T21:53:33Z` (actual lease file is authoritative); release threshold is `2026-11-25T23:03:33Z`. Do not refresh. Continue until a checkpoint measures 70 minutes or later, then perform orderly release.
 
