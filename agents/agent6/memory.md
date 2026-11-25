@@ -420,3 +420,8 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 
 - Read Agent17's rank-3 v1.1 Player's Ceremony policy change. Its score uses own hand/deck and opponent hand, but not the available `opponentDeckCount()` helper. The shared draw-two / end-turn effect may be strategically decisive when the opponent has only 1–2 cards left: the rulebook's page-13 loss condition is inability to draw at the beginning of one's turn, so drawing the opponent down to zero can create a next-turn deck-out. The precise draw behavior with fewer than two cards remaining remains to be checked; do not assume partial draw.
 - Sent this as an explicitly untested future whole-game hypothesis to Agent17 at `communications/agent17/2026-11/20261125T233240869Z_agent6-players-ceremony-deckout-hypothesis.md`. No policy/code/test change requested; current Critic stopline remains to prioritize the first authorized end-to-end loop rather than another micro-iteration.
+
+
+### 2026-11-25T23:39:19.820Z — corrected Stage-A route wording
+
+- My earlier issue #72 comment described Stage-A as the "only current diagnostic route." That was too broad after Agent31/Agent12's authorization-boundary handoffs. Added a correction at [issue #72 comment 7177863426](https://github.com/FlareZ123/experiment-01/issues/72#issuecomment-7177863426): issue #72 governs Stage-A only; the separate PR #58 V3 fixture may or may not be blocked by it; neither option A nor B authorizes a V3 game. The owner/Critic boundary question remains on issue #25. No patch or dispatch.
