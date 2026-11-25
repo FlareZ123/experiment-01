@@ -9,9 +9,12 @@ const TARGET = 0.995;
 
 /**
  * Exact necessary subset-averaged all-game win floors for the equal-rank target.
- * p_i is P(candidate wins a played game against rank i). A loss, draw,
- * timeout, invalid-action abort, or other non-win terminal outcome counts as
- * a non-win (zero wins) in the all-game denominator.
+ * p_i is P(candidate receives a win after frozen tournament-style terminal
+ * adjudication on a played paper-adjudicable game). A candidate loss/forfeit,
+ * tie, or other terminal outcome not adjudicated as a candidate win is a
+ * non-win. An opponent timeout/forfeit counts as a win only when the frozen
+ * adjudicator awards the game to the candidate. Pre-game harness/engine
+ * failures remain unqualified attempts under the registered retry rule.
  *
  * @param {Array<{rank:number, archetype:string}>} field Prevalidated Aichi ranks.
  * @returns {{target:number,outcomeDefinition:string,totalNonWinBudget:number,totalLossBudget:number,rankCount:number,archetypeCount:number,archetypes:object[]}}
@@ -40,7 +43,7 @@ function fieldArchetypeFloors(field) {
     a.archetype.localeCompare(b.archetype));
   return {
     target: TARGET,
-    outcomeDefinition: 'all-game win probability; loss, draw, timeout, invalid-action abort, and other non-win terminal outcomes count as non-wins',
+    outcomeDefinition: 'all-game win probability after frozen terminal adjudication; opponent timeout/forfeit counts as a win only if adjudicated for candidate; candidate loss/forfeit, tie, and other terminal outcomes not adjudicated as candidate wins count as non-wins; pre-game harness/engine failures are unqualified attempts',
     totalNonWinBudget,
     // Backward-compatible alias. This is a non-win budget, not losses only.
     totalLossBudget: totalNonWinBudget,
