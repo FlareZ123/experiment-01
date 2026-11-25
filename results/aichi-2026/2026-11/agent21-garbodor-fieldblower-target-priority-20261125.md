@@ -34,6 +34,10 @@ A concrete reachable counterexample is an opponent Active attacker with Float St
 
 This matters because Garbotoxin is a Bench/global Ability: removing a Tool from an unrelated Active Pokémon does not deactivate it. The candidate cannot attach Stealthy Hood to Radiant Eternatus before the on-play Gate trigger, so the relevant source must be disabled before attempting that Gate line. The existing Gate lock resolver correctly treats any remaining Tool-equipped Garbodor as effective.
 
+## The one Field Blower can also be spent before a lock source appears
+
+The root play score is broad as well: `scoreTrainerPlay()` gives Field Blower its play score whenever `hasStadiumRemovalTarget()` **or** `hasOpponentToolRemovalTarget()` is true, and the latter is true for any opponent Tool. The Lockbridge/Hood candidate has one Field Blower. In a turn with only an unrelated Active Float Stone and no live Garbodor/Stealthy Hood/Stadium lock target, the worker can still spend its only copy; it does not price the opportunity cost of saving it for a later Gate blocker. Removing a Float Stone can be useful, so this is not automatically a bad play, but the current trigger is not source- or plan-aware.
+
 ## Guzma does not currently prioritize the remaining lock source
 
 The same gap continues after Field Blower. The candidate has one Guzma, but `canGuzmaForAttack()` returns true if **any** Benched opponent Pokémon is KO-able, and the `Guzma` target rank is based on attack score, Prize liability, and remaining HP. It has no bonus for KO'ing a Tool-equipped Garbodor whose removal would deactivate the last Garbotoxin source. In rank 16's three-Garbodor case, a useful combined line may be Field Blower on two sources plus Guzma/attack on the third; the current policy has no explicit source-removal objective to ensure it takes that line instead of gusting another attractive Prize target. This is a policy-priority gap, not a claim that the line is always available.
