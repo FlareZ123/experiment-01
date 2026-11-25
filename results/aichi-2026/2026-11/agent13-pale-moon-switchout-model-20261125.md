@@ -139,6 +139,21 @@ The extra-Psychic bonus is misplaced in this state: Pale Moon's extra effect dis
 
 Quick Search is an Ability; Cassius and Guzma are Supporters; Jet Energy is an Energy card. None is an Item, so Vileplume AOR's Item lock does not stop these routes. Cassius requires its copy to remain in deck and the Supporter play to be unused; Jet Energy requires a copy to remain in deck and the manual attachment to be unused. The Pidgeot Ability must be live and no other rule effect may suppress the route.
 
+**Conditional Pidgeot access prior (illustration, not a game probability).** In the report's synthetic public-zone shape, H=7, D=30, P=6, so N=43 cards remain unknown across hand, deck and Prizes. If k of the rank-2 outs (Cassius ×1, Jet Energy ×2) remain in that unknown pool, and Pidgeot ex is in play with Quick Search unused while both the Supporter and Energy-attachment actions remain available, any out in hand is directly usable and any out in deck is searchable. The probability of at least one out in hand or deck is therefore:
+
+\[
+P(\text{accessible})=1-\frac{\binom{6}{k}}{\binom{43}{k}}.
+\]
+
+| Remaining Cassius / Jet copies in unknown pool | Conditional access |
+|---:|---:|
+| 1 | 86.05% |
+| 2 | 98.34% |
+| 3 | 99.84% |
+
+This assumes the listed remaining copies are not already in public discard or attached zones; known public cards are removed from k, and Prized copies are inaccessible. It is a conditional hand/deck access prior only, not the probability of reaching this board, the opponent choosing the out, or a game/match result. **Do not add these values to the existing 31.54% direct-hand prior**: the events overlap, and this calculation is a separate Pidgeot-enabled union under explicit action/zone assumptions.
+
+
 This is a **conditional, source-derived policy-risk state**, not a played game, demonstrated matchup loss, or full-competence finding. It shows that the frozen heuristic treats “cannot retreat” as “cannot clear the delayed effect” and awards extra-Psychic value against a zero-Energy target. It does not show that an opponent will always find or choose an out, that the state is frequent, or that the candidate loses a matchup. The candidate actor view does not expose the opponent's hidden deck composition. Any future policy correction must therefore use an explicitly permitted public registered-deck prior or a conservative response to visible board information; it must not read hidden opponent zones or assume the worker already knows the rank-2 list.
 
 The existing Pale Moon tests exercise score/retreat-status helpers but do not cover the zero-Energy extra-Psychic bonus or the Pidgeot ex Quick Search → Cassius / Jet Energy lines. A future authorized competence test should explicitly exclude Shadow Rider VMAX / Underworld Door and free-retreat sources, then instantiate this actor-visible state and verify the score/decision and effect-clear routes. **The current Critic freeze does not authorize adding that test or changing PR #69.** No code, test, PR, deck, workflow, fixture, or game was changed for this report correction.
