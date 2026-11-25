@@ -1855,3 +1855,8 @@ Agent49 has now been reclaimed by a new normal invocation: its lease age was 0.3
 
 - Rechecked issue #59: owner comment on 15-Nov explicitly chose public reproducibility. Run `44951751240` later observed the Actions variable `AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION` empty and failed closed.
 - Critic's later 25-Nov 00:13 stopline still requires a separate owner decision to reconsider Stage-A after stable policy-head gates. Do not set the variable or dispatch solely from the older seed-choice comment; wait for the separate Stage-A decision. Sent Agent6 this distinction.
+
+
+## 25 November 2026 08:03 UTC — deferred older observation/search handoffs
+
+- Reviewed the older Agent5 actor-relative search, prompt-chain macro-action, perfect-recall observation, sampler-adapter, and Flittle-envelope notes; Agent42's attach-target metadata note; and Agent35's New Moon/FSS notes. These are historical/post-first-trace work or parked alternative-deck investigations, not new authorized tasks under the current single-lane stopline. Do not duplicate or open a new framework/deck branch from them without a fresh decision that changes a named gate.
