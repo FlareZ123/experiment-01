@@ -6,13 +6,13 @@
 
 ## 1. Define the estimand before collecting games
 
-Let $p_i$ be the probability that the unchanged candidate wins one game against the exact original Aichi list at rank $i$, under a fixed simulator revision, fixed candidate policy, fixed opponent policy, randomized game seed, and randomized physical seat.
+Let `p_i` be the probability that the unchanged candidate wins one game against the exact original Aichi list at rank `i`, under a fixed simulator revision, fixed candidate policy, fixed opponent policy, randomized game seed, and randomized physical seat.
 
 For the primary benchmark, weight the 32 ranks equally:
 
-$
-p_{field}=\frac{1}{32}\sum_{i=1}^{32}p_i.
-$
+```text
+p_field = (1/32) * sum(p_i for i = 1..32)
+```
 
 This is an equal-rank Top 32 estimand, not an archetype-frequency or tournament-population estimate. If another weighting is desired, declare it as a separate estimand before testing. The target is a **single game**, not a best-of-three match.
 
@@ -20,17 +20,17 @@ The current source field is incomplete: only 29/32 exact lists are authenticated
 
 ## 2. Primary field-average claim: use a genuinely random field mixture
 
-For the aggregate claim, independently select the opponent rank uniformly from 1 through 32 for each game (with replacement), draw an independent game seed, and randomize the candidate's physical seat 50/50. Keep the candidate list, candidate policy, opponent list, and opponent policy fixed throughout the holdout. Under this sampling design, each outcome is an independent Bernoulli draw from the equal-rank field mixture $p_{field}$.
+For the aggregate claim, independently select the opponent rank uniformly from 1 through 32 for each game (with replacement), draw an independent game seed, and randomize the candidate's physical seat 50/50. Keep the candidate list, candidate policy, opponent list, and opponent policy fixed throughout the holdout. Under this sampling design, each outcome is an independent Bernoulli draw from the equal-rank field mixture `p_field`.
 
 Count every game in the denominator. Wins are successes; losses, draws, timeouts, illegal-action aborts, and other non-wins must be reported separately and treated as non-wins for the conservative claim. Do not silently discard inconvenient outcomes.
 
-For $n$ games and $k$ non-wins, the exact one-sided Clopper–Pearson lower confidence bound is
+For `n` games and `k` non-wins, the exact one-sided Clopper–Pearson lower confidence bound is
 
-$
-p_L = \operatorname{BetaInv}(\alpha; n-k, k+1),
-$
+```text
+p_L = BetaInv(alpha; n-k, k+1)
+```
 
-where $\operatorname{BetaInv}$ is the beta-distribution quantile. Claim $p_{field}\ge 0.995$ at 95% one-sided confidence only when $p_L\ge0.995$. With zero non-wins, this reduces to $p_L=\alpha^{1/n}$.
+where `BetaInv(alpha; a, b)` is the beta-distribution quantile. Claim `p_field >= 0.995` at 95% one-sided confidence only when `p_L >= 0.995`. With zero non-wins, this reduces to `p_L = alpha^(1/n)`.
 
 | Non-wins observed | Minimum aggregate games, one-sided 95% |
 |---:|---:|
@@ -41,7 +41,7 @@ where $\operatorname{BetaInv}$ is the beta-distribution quantile. Claim $p_{fiel
 
 Thus 598 zero-loss games is only just sufficient: the lower bound is 99.500294%. One loss raises the requirement to 947 games. These are exact binomial results, not normal-approximation intervals.
 
-**Important allocation caveat:** a deliberately balanced design with exactly the same number of games against each fixed opponent produces independent but non-identically distributed outcomes when the $p_i$ differ (a Poisson-binomial total), not an IID binomial sample. Do not apply the pooled Clopper–Pearson interval to that stratified total as if the opponent rank had been randomly sampled. Either keep a separate uniformly randomized aggregate stream for the field-average claim, or use a pre-specified stratified confidence procedure for the balanced panel.
+**Important allocation caveat:** a deliberately balanced design with exactly the same number of games against each fixed opponent produces independent but non-identically distributed outcomes when the `p_i` differ (a Poisson-binomial total), not an IID binomial sample. Do not apply the pooled Clopper–Pearson interval to that stratified total as if the opponent rank had been randomly sampled. Either keep a separate uniformly randomized aggregate stream for the field-average claim, or use a pre-specified stratified confidence procedure for the balanced panel.
 
 ## 3. Per-matchup reporting is a separate requirement
 
@@ -60,7 +60,7 @@ The zero-loss simultaneous requirement is 1,290 games per rank, or **41,280 game
 
 For scale, zero losses in only 19 games against one rank gives a one-sided 95% lower bound of about **85.4%**, not 99.5%. A small clean-looking matchup sample is not evidence for a near-perfect matchup rate.
 
-The primary aggregate claim and the per-matchup panel answer different questions. A field-average result does not establish that every $p_i\ge0.995$. If the project wants both claims, preregister both sampling streams and report both; do not switch estimands after seeing the results.
+The primary aggregate claim and the per-matchup panel answer different questions. A field-average result does not establish that every `p_i >= 0.995`. If the project wants both claims, preregister both sampling streams and report both; do not switch estimands after seeing the results.
 
 ## 4. Dependence, seat balance, and stopping rules
 
