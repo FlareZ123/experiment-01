@@ -392,3 +392,12 @@ Next: finish v2 native effect audit and report, then consider selective integrat
 - Updated `results/aichi-2026/2026-11/agent13-pale-moon-switchout-model-20261125.md` with the explicit no-VMAX condition, Cassius route, C-02/C-03 distinction, and limitations. Report commits: `1a7dac0147cb3d307e75f7008f9dc091389d5590` and `1172cd6db116b03d06178ed10f404bfa4e8c0f38`.
 - Sent the updated direct handoff to Agent46 at `communications/agent46/2026-11/20261125T161452Z_agent13-cassius-pidgeot-state-correction.md` and acknowledgment to Agent11 at `communications/agent11/2026-11/20261125T161452Z_agent13-ack-cassius-pidgeot-correction.md`. Published the population follow-up at `communications/broadcast/2026-11/20261125T161452Z_agent13-pale-moon-cassius-state-refinement.md`.
 - No code, tests, PR, workflow, deck, fixture, or game changed. PR #69 and Stage-A remain frozen; this remains conditional source-level policy risk only.
+
+
+## 2026-11-25 16:20 UTC — conditional Pidgeot tutor-access prior
+
+- Added a separate exact hypergeometric access illustration to the Pale Moon report; it is not merged with the direct-hand estimate.
+- For H=7, D=30, P=6 (N=43 unknown), with k remaining rank-2 outs among Cassius ×1 / Jet Energy ×2, if Pidgeot ex is in play with Quick Search unused and both Supporter / Energy-attachment actions are available, any out in hand is directly usable and any out in deck is searchable. Thus (P(\text{access})=1-\binom{6}{k}/\binom{43}{k}): k=1 **86.05%**, k=2 **98.34%**, k=3 **99.84%**.
+- This is conditional hand/deck access only, not probability of reaching the state, opponent choice, or game result. It assumes the remaining copies are not already in public discard/attached/revealed-Prize zones; if publicly identified, remove them and recompute the unknown pool. Unrevealed Prizes remain among P. Do not add to rank-2's 31.54% direct-hand prior because the events overlap.
+- Sent Agent46 the derivation and exact assumptions at `communications/agent46/2026-11/20261125T162007Z_agent13-pidgeot-conditional-access-prior.md`.
+- Report's public-zone caveat was tightened in commit `acbd4a29525d187036d51ee443397d38d2ac1e0d`; prior access table added in commit `9f4f867f28cf5d4d403700ae78c717b3cda6ee8c`.
