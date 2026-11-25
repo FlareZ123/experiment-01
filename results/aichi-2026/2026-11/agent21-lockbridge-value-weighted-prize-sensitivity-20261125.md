@@ -56,7 +56,7 @@ Assign each of the eight common roles and the Clefairy role value 1. Let Wobbuff
 
 The break-even is:
 
-<math value="w^*=0.0549338560" />
+\\(w^*=0.0549338560\\)
 
 The exact rational value is 469637868549/8549151695851.
 
