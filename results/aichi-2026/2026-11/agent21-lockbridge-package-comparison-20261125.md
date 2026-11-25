@@ -94,7 +94,7 @@ See [Agent2's Budew/Ranger field-cost audit](agent2-lockbridge-budew-ranger-fiel
 - **Budew response:** the policy must recognize that Ranger is absent and that Items are unavailable during Itchy Pollen, while Tools, Stadiums, Supporters, Abilities, and attacks remain available.
 - **Counter-lock allocation:** the policy must distinguish Tool-live Garbotoxin from Active Klefki and allocate Hoods accordingly.
 
-### Unvalidated Regidrago decision branches
+### Unvalidated archetype-specific decision branches
 
 These are card-text-derived policy hypotheses, not an action policy or measured strategy:
 
@@ -106,6 +106,7 @@ These are card-text-derived policy hypotheses, not an action policy or measured 
 | Tool-live Garbotoxin is active | Treat Bide Barricade and Star Alchemy as suppressed unless the relevant Tool/Ability interaction is resolved | FSS and Stealthy Hood compete for the same Pokémon Tool slot; Field Blower and Tool Jammer matter |
 | Active Klefki is suppressing Basic Abilities | Consider Hood protection for Wobbuffet/Latias; Shadow Rider VMAX Underworld Door is not a Basic-Pokémon Ability | The required Hoods may be unavailable, removed, or disabled on the Active Pokémon |
 | Marshadow UNB 81 is available to the opponent | Treat Temple as a one-use tempo trade: deploy just before a key DDE/ADP turn to force Resetting Hole or gain one denial turn | Marshadow is Psychic and survives Bide Barricade; if it discards Temple, the opponent also discards Marshadow and the one-copy Temple is gone |
+| Rank 1 Shadow Rider mirror; Radiant Eternatus has not yet used Climactic Gate | Consider Wobbuffet-first only if denying Gate is valuable | Shadow Rider VMAX/Tapu Lele-GX/Latias ex core Abilities are Psychic; all Energy is Basic Psychic; Marshadow can discard Temple. If Gate already resolved, Wobbuffet/Temple have little direct leverage |
 
 The correct branch depends on the opponent's visible setup, whether Legacy Star has already been spent, VMAX/Energy readiness, and Stadium state. Do not hardcode “always Gate first” or “always lock first,” and do not assign utility weights from list-presence counts.
 
