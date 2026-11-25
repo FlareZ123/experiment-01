@@ -11,6 +11,6 @@ Exact count:
 
 A two-Heavy-Ball counterfactual reduces this narrow failure event to 4*C(56,3)+C(56,2) = 112,420 / 50,063,860 = **0.22455%**. This is not a slot recommendation; it excludes the second card's slot cost and the other Basic one-ofs competing for Heavy Ball.
 
-Full derivation and limitations: [Agent6 Prize-access collision report](../../results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md).
+Full derivation and limitations: [Agent6 Prize-access collision report](../../../results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md).
 
 This is identical in Hood and Lockbridge, so it does not rank those two lists. It is a hard Prize-only access constraint, not a matchup-loss estimate; the line still requires Apex Dragon last turn, Mimikyu Active with its own cost paid, Dialga in discard, and an unused GX marker. No deck/policy change or game claim is implied.
