@@ -9,7 +9,9 @@ const SHA256 = /^[a-f0-9]{64}$/i;
 const GIT_SHA = /^[a-f0-9]{40}$/i;
 const {evidenceBundleSha256: canonicalSha256} =
   require('../simulation/evaluation/canonical-evidence-json.cjs');
-const FIELD_SAMPLING_REGISTRATION_SCHEMA = 'aichi-field-sampling-registration-v1';
+const {validateTerminalAdjudicationReceipt} =
+  require('./2026-11/shared/terminal-adjudication-receipt.cjs');
+const FIELD_SAMPLING_REGISTRATION_SCHEMA = 'aichi-field-sampling-registration-v2';
 const POLICY_PLAN_SCHEMA = 'aichi-policy-plan-core-v1';
 const OPPONENT_BUNDLE_SCHEMA = 'aichi-opponent-policy-bundle-v1';
 const POLICY_IDENTITY_FIELDS = Object.freeze([
@@ -403,6 +405,12 @@ function validateFieldSamplingRegistration(request, originalSources, attempts,
       local.add('field-sampling-registration-schema-invalid');
     if (manifest.stratumSamplingModel !== request.stratumSamplingModel)
       local.add('field-sampling-model-mismatch');
+    if (typeof request.clockMode !== 'string' || !request.clockMode.trim() ||
+        ['unresolved','tbd'].includes(request.clockMode.toLowerCase())) {
+      local.add('field-sampling-clock-mode-unverified');
+    }
+    if (manifest.clockMode !== request.clockMode)
+      local.add('field-sampling-clock-mode-mismatch');
     if (manifest.target !== (request.target ?? 0.995) ||
         manifest.confidence !== (request.confidence ?? 0.95)) {
       local.add('field-sampling-inference-contract-mismatch');
@@ -541,7 +549,7 @@ function validateFieldLedger(request, allowedStatuses, unqualifiedLabel) {
     throw new TypeError('originalSources and attempts must be arrays');
   }
   const {originalSources, attempts, registeredAttemptCount,
-    registrationSha, target = 0.995, confidence = 0.95} = request;
+    registrationSha, clockMode, target = 0.995, confidence = 0.95} = request;
   if (!(target > 0 && target < 1) ||
       !(confidence > 0 && confidence < 1)) {
     throw new RangeError('target and confidence must be between 0 and 1');
@@ -570,11 +578,17 @@ function validateFieldLedger(request, allowedStatuses, unqualifiedLabel) {
     problems.add('incomplete-preregistered-attempt-ledger');
   }
   if (!SHA256.test(registrationSha)) problems.add('registration-unverified');
+  if (typeof clockMode !== 'string' || !clockMode.trim() ||
+      ['unresolved','tbd'].includes(clockMode.toLowerCase())) {
+    problems.add('clock-mode-unverified');
+  }
   const counts = Array.from({length: FIELD_SIZE}, () =>
     SEATS.map(() => [0, 0]));
   const trialIds = new Set();
   const physicalDealIds = new Set();
   const paperReceiptIds = new Set();
+  const terminalReceiptSha256s = new Set();
+  const terminalEventSha256s = new Set();
   let candidate60Sha = null;
   let candidatePolicySha = null;
   let engineAndHooksSha = null;
@@ -642,6 +656,27 @@ function validateFieldLedger(request, allowedStatuses, unqualifiedLabel) {
     if (attempt.registrationSha !== registrationSha) {
       problems.add('registration-mismatch');
     }
+    const terminalReceipt = validateTerminalAdjudicationReceipt({
+      attempt,
+      expected: {
+        registrationSha,
+        rank: attempt.rank,
+        candidatePhysicalSeat: attempt.seat,
+        actualStarterSeat: attempt.firstPlayerSeat,
+        physicalDealId: attempt.physicalDealId,
+        source60Sha: attempt.source60Sha,
+        candidate60Sha: attempt.candidate60Sha,
+        candidatePolicySha: attempt.candidatePolicySha,
+        engineAndHooksSha: attempt.engineAndHooksSha,
+        opponentPolicyBundleSha: attempt.opponentPolicyBundleSha,
+        adjudicationProtocolSha: attempt.adjudicationProtocolSha,
+        clockMode
+      },
+      seenReceiptSha256: terminalReceiptSha256s,
+      seenTerminalEventSha256: terminalEventSha256s
+    });
+    for (const reason of terminalReceipt.rejectionReasons)
+      problems.add(reason);
   }
   validateV3PolicyPanelJoin(request, attempts, problems,
     opponentPolicyBundleSha);
