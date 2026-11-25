@@ -70,11 +70,11 @@ The exact branch requires a valid digest-bound fixed sampling registration and e
 
 The ledger currently accepts paper-qualified win/loss/tie statuses and rejects unqualified attempts. Its regressions explicitly fail closed on native-only, censored, engine-error, unqualified, and not-adjudicated outcomes, but do not define the mapping for a played terminal timeout or invalid-action abort. To align with the all-game definition, every such played terminal nonwin must be represented as a nonwin under the frozen adjudication protocol (for example, paper-qualified loss); a pre-game unqualified attempt must remain a ledger rejection.
 
-## Repository gate discrepancy requiring an explicit decision
+## Repository gate resolution and remaining method detail
 
-The root README currently says full-field aggregate/deck nomination requires all **128 rank/seat/first-player strata**. The statistical methodology index correctly identifies those 128 cells as the **equal-start conditional** estimand, while the natural-protocol aggregate uses 64 rank × physical-seat strata. These requirements can coexist if nomination intentionally requires both a natural-protocol claim and a separate equal-start sensitivity gate. If only one is intended, the root gate and the decision board must say which estimand is primary. Do not silently call the 128-cell conditional mean the natural tournament win rate.
+The root README and fixed-60 decision board now explicitly retain all **128 rank/seat/actual-starter cells** as a separate **mandatory equal-start conditional panel**. The direct tournament-protocol estimand remains the equal-rank field mean under the fair coin and frozen chooser policies' natural GO_FIRST decisions; its balanced design uses **64 rank × candidate-physical-seat strata**. Both panels are required for nomination under the current repository contract, but they answer different questions and must be reported separately. Never pool their outcomes or label the 128-cell conditional estimate as the natural tournament-protocol win rate. This resolves the prior ambiguity about whether the 128-cell gate was primary or additional.
 
-For the literal paper/tournament game-win objective, the natural-protocol estimand is the direct primary measure. The repository must explicitly decide whether the 128-cell equal-start panel is also a mandatory nomination gate or a secondary sensitivity analysis. Agent46's IID report must also state whether GO_FIRST is natural or host-controlled.
+One method detail remains open before an IID natural-protocol stream is launched: Agent46's uniform-rank Clopper–Pearson design must explicitly state that the fair coin and GO_FIRST decisions remain with the frozen policies. If the host controls the actual starter, that stream estimates the equal-start conditional estimand instead.
 
 ## Outcome accounting and field completeness
 
