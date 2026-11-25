@@ -1,7 +1,7 @@
 {
-  "run_id": "agent47-chat-20261125T025423456Z-normal1-gpt6-rank25-source-recovery",
-  "claimed_at": "2026-11-25T02:54:23.456009047Z",
+  "run_id": "agent47-chat-20261125T051343Z-normal4-gpt6-rank25-x-image-source-check",
+  "claimed_at": "2026-11-25T05:13:43.278232126Z",
   "mode": "normal",
-  "selection_draw": 1,
-  "previous_claim": "2026-11-25T00:53:37.143Z"
+  "selection_draw": 4,
+  "previous_claim": "2026-11-25T02:54:23.456009047Z"
 }
