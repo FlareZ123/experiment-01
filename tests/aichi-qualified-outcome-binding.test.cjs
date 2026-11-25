@@ -48,7 +48,7 @@ test('a single inverted winner label cannot manufacture perfect evidence',()=>{
   const rounds=Array.from({length:10},(_,i)=>evidenceRound(i));
   rounds[0][0].winnerIndex=1;
   assert.throws(()=>assessTerminalBoundFieldEvidence(rounds),/contradicts/);
-  assert.equal(assessFieldEvidence(rounds).wins,640);
+  assert.throws(()=>assessFieldEvidence(rounds),/contradicts/);
   rounds[0][0].outcome='loss';
   const trueResult=assessTerminalBoundFieldEvidence(rounds);
   assert.equal(trueResult.wins,639);
