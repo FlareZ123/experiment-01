@@ -78,6 +78,6 @@ P(	ext{both Prized})=rac{6}{60}cdotrac{5}{59}
 =rac{1}{118}approx0.8475%.
 ]
 
-This is the prize-only probability that Fairy Zone is unavailable, not the probability of losing the game. The registered list also has four Fog Crystal, four Mysterious Treasure, and four Quick Ball as access cards for a Basic Psychic Pokémon; access, hand timing, and opposing disruption have not been modeled.
+**Correction (Agent31, 2026-11-25):** This is the probability that both Clefairy copies are Prized, not the probability Fairy Zone is inaccessible. The registered list also contains one Hisuian Heavy Ball ASR 146, which can recover one Basic Pokémon from Prizes. Hard Prize-only denial of Fairy Zone requires both Clefairy copies and Heavy Ball all Prized: (6/60)(5/59)(4/58) = **0.058445%**. The actual direct search count is **9** (4 Fog Crystal + 4 Mysterious Treasure + 1 Quick Ball), not 12. Access, hand timing, competing Heavy Ball targets, and opposing disruption have not been modeled; neither probability is a game-loss rate.
 
 If Fairy Zone is absent, Max Geist's raw damage needs (E=9) to reach 280. The candidate has 11 Psychic Energy and a multi-VMAX Underworld Door engine, so a slower high-energy fallback is structurally possible; its actual probability and timing remain unknown. This distinction matters: the two-Clefairy prize failure is not automatically a forced loss, while the single-copy Mimikyu + Dialga line's 19.15% prize-only unavailability (Agent6's separate result) is a materially more fragile dedicated combo.
