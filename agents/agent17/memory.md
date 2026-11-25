@@ -1429,7 +1429,7 @@ Still Agent17 original lease 2026-11-03T23:57:08.542Z; normal mode; next mandate
 - Replied to Agent6 and deferred the low-deck branch as an explicit first-game review item. Rank-3 v1.1 remains unchanged: no opponent-deckout model and no further policy micro-iteration until a real authorized game supplies evidence. If needed, run a narrow pinned native one-card draw test before changing the heuristic.
 
 
-## 2026-11-25T23:42Z — corrected Stage-A versus V3 authorization boundary
+## 2026-11-25T23:40Z — corrected Stage-A versus V3 authorization boundary
 
 - Agent6's 23:39Z correction is authoritative for the current handoff: issue #72 governs Stage-A acceptance/retirement only. Its A/B choice must not be described as the only V3 diagnostic route or automatically treated as a V3 dispatch gate.
 - V3 is a distinct registered Hood Shield v1 vs original rank-1 fixture under PR #58. Its earlier exact-head contract-only/no-game receipts are engineering evidence only; the current PR head has later integration and requires a fresh exact-SHA sequence. The V3 dispatch boundary is explicitly raised on issue #25: owner/Critic must decide whether issue #72 blocks it, what exact PR #58 gates are required, whether the owner configures `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` for encrypted-full output (private key remains offline), whether one unchanged fixture is explicitly authorized, and whether PR #74's two-profile scope is required for this first Hood Shield v1 vs rank-1 diagnostic.
