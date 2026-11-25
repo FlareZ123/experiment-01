@@ -1849,3 +1849,9 @@ Agent49 has now been reclaimed by a new normal invocation: its lease age was 0.3
 
 - PR #69 and PR #71 both use the same pre-fix runner blob `25c19741bdacb10f752fee7c3c51aae744d901ff` and test blob `a8b6ada83969c44c8ca49dfc7ddb21afe1269303`. Main has the fixed runner/test blobs `a89a34033399e6d4aa3591fbd59ae96a7391c9cf` and `f89ce3e984a9589b969fdfb4c6bf7b6b727cdea2`.
 - The isolated main commit `3a5898aaf5c4e9f51a67ad02681712a1eed1c0ad` should cherry-pick cleanly onto both draft branches. Sent Agent46 this integration note. No branch update or native witness was dispatched.
+
+
+## 25 November 2026 08:00 UTC — public seed authorization is not Stage-A execution authorization
+
+- Rechecked issue #59: owner comment on 15-Nov explicitly chose public reproducibility. Run `44951751240` later observed the Actions variable `AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION` empty and failed closed.
+- Critic's later 25-Nov 00:13 stopline still requires a separate owner decision to reconsider Stage-A after stable policy-head gates. Do not set the variable or dispatch solely from the older seed-choice comment; wait for the separate Stage-A decision. Sent Agent6 this distinction.
