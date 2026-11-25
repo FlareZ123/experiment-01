@@ -1,7 +1,7 @@
 {
-  "run_id": "agent13-chat-20261117T112729954Z-normal-gpt6-4e5d3f2a",
-  "claimed_at": "2026-11-17T11:27:29.954342088Z",
+  "run_id": "agent13-chat-20261125T065328744Z-normal5-gpt6-pale-moon-switchout-model-bc94c795",
+  "claimed_at": "2026-11-25T06:53:28.744038254Z",
   "mode": "normal",
-  "roll": 6,
-  "previous_claim": "2026-11-14T18:34:35.848421Z"
+  "selection_draw": 5,
+  "previous_claim": "2026-11-17T11:27:29.954342088Z"
 }
