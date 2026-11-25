@@ -13,7 +13,7 @@ Lockbridge's current 60 contains one Field Blower GRI 125, but Field Blower is a
 
 That creates a different response channel from Field Blower:
 
-- Faba can remove the Tool attached to Garbodor and immediately switch off Tool-live Garbotoxin.
+- Faba can remove one Tool attached to one Garbodor. This switches off Garbotoxin only if no other Garbodor with a Tool remains in play; if both Garbodor copies are Tool-live, one Faba leaves the other source active.
 - Faba can be played during Itchy Pollen because it is a Supporter, not an Item. It does **not** clear the Itchy Pollen restriction; Lockbridge still cannot play Items for the remainder of that affected turn unless a separate effect clears the attack lock. Its important benefit is that removing Garbodor's Tool turns off Garbotoxin, so suppressed Pokémon Abilities such as Underworld Door (and Hood-protected Latias's Skyliner) can function during the Item-locked turn. The player can still use Abilities, Supporters, and attacks even though Items remain blocked.
 - It can remove a Double Dragon Energy from an opponent's Pokémon, or remove a Stadium from play.
 - Putting the Tool/Special Energy in the Lost Zone prevents ordinary discard-pile recovery of that exact card.
@@ -27,7 +27,7 @@ The current Lockbridge list (`results/aichi-2026/2026-11/agent31-lockbridge-shad
 - Arven ×1, Teammates ×1, Raihan ×1 (Supporters);
 - Temple of Sinnoh ×1 and no Faba.
 
-The authenticated Garbodor subgroup has four lists (ranks 8, 11, 16, 22). Three contain Budew; ranks 8 and 22 also contain one Field Blower and three VS Seeker each. In those two lists, the opponent can use Field Blower before Itchy Pollen; Lockbridge's own Field Blower cannot answer during the resulting Item lock, while Faba in hand could.
+The authenticated Garbodor subgroup has four lists (ranks 8, 11, 16, 22), and **each list contains two Garbodor**. Three contain Budew; ranks 8 and 22 also contain one Field Blower and three VS Seeker each. If both Garbodor copies have Tools attached, one Faba cannot shut off the global Garbotoxin effect; it would take a second Supporter play on a later turn or a multi-target Tool remover. Field Blower can remove up to two Tools/Stadiums at once. In those two lists, the opponent can use Field Blower before Itchy Pollen; Lockbridge's own Field Blower cannot answer during the resulting Item lock, while Faba in hand could.
 
 This is candidate-specific. The leading **Hood Shield Shadow Rider v1** 60 retains Pokémon Ranger STS 104 as well as Field Blower GRI 125. Ranger is a Supporter that removes attack effects from both players and their Pokémon; against Itchy Pollen, the line is Ranger first, then Field Blower to remove Garbodor's Tool on the same turn. That gives Hood Shield an Item-lock reset that Lockbridge lacks. Faba may still offer a one-card Supporter answer and Lost Zone destination, but its incremental value is lower in Hood Shield; it is more relevant as a compensating variant for Lockbridge after Ranger was cut. Neither line is guaranteed access or a matchup result.
 
