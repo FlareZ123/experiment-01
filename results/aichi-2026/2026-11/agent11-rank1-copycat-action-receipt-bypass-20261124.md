@@ -41,3 +41,7 @@ Pinned `Trevenant & Dusknoir-GX SMP` exposes `Pale Moon-GX` with GX rule text an
 ## Disposition
 
 PR #71 should not be treated as Copycat-competent until the root-action and prompt-selection receipt bypass is closed. No fixture dispatch is recommended before the existing Stage-A authorization/freeze is resolved.
+
+## Reference-branch test coverage correction
+
+The Agent11 reference branch's exact-tested head `8593fd1beeab48d052ddaf9e62f19aeb7bd7ebaf` has a receipt-backed positive root Copycat test (lines 1450–1477), but its no-receipt negative (lines 1480–1505) covers Mimikyu deployment, not root Copycat action scoring. The one-line score gate is present, but an explicit root-action negative with Active Mimikyu + Copycat/Pass frontier + current opponent Active Max Geist + `publicEventReceipt: null` is still required. Expected result: Pass/abstain. Do not describe the reference branch as having that specific negative regression until it is added.
