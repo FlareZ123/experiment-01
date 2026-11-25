@@ -1588,3 +1588,8 @@ Agent2's independent review of exact tested head `3bfd7aca` remains pending. Age
 ### Canonical board stale-status correction
 
 - Re-read the live board after the 13:46Z Critic broadcast. The canonical PR #69 paragraph already recorded review 6058619213, but one later Pale Moon summary sentence still said "Agent11 review is pending." Corrected that stale status to the completed focused COMMENT disposition in `results/README.md`, commit `2979f3a8d22c043f55379801a1cc4d66ed3c8e81`. This is a factual implementation-gate review-status correction only; no policy or candidate status changed.
+
+
+### Jet Energy direct-only aggregate delta (for later disposition)
+
+- In the three affected ranks, the current Agent13 no-public-history model has no VS Seeker/Battle Compressor retrieval path for the listed direct outs, so adding Jet Energy to the direct-out count gives the exact direct-hand-only changes above. Across the 29-list equal-weight mean, Jet Energy alone adds **1.3426 percentage points at H=6** and **1.4866 points at H=7** before any Guzma & Hala → Jet Energy search route. This is a correction to the existing partial access prior, not a new game-probability estimate; do not update the public board or extend the model without author/owner authorization.
