@@ -76,6 +76,20 @@ A second Temple would change the Prize tail substantially, but costs a deck slot
 
 These are finite-population draw/prize calculations, not observed game rates. A second copy also increases the chance of a live follow-up Stadium after an opponent replaces the first Temple. Its slot cost must be weighed against the current one-copy Sky Field and Dimension Valley, the attacker/setup engine, and other matchup tech.
 
+## Card-text and card-pool basis
+
+The route analysis uses the repository's pinned card-pool snapshot:
+
+- Wobbuffet PHF 36 / Bide Barricade: `resources/cards/en/xy4.json`, card `xy4-36`.
+- Temple of Sinnoh ASR 155 and Hisuian Heavy Ball ASR 146: `resources/cards/en/swsh10.json`, cards `swsh10-155` and `swsh10-146`.
+- Forest Seal Stone SIT 156 / Star Alchemy: `resources/cards/en/swsh12.json`, card `swsh12-156`.
+- Arven SVI 166: `resources/cards/en/sv1.json`, card `sv1-166`.
+- Shadow Rider Calyrex V / VMAX: `resources/cards/en/swsh6.json`, cards `swsh6-74` and `swsh6-75`.
+- Tapu Lele-GX GRI 60 / Wonder Tag: `resources/cards/en/sm2.json`, card `sm2-60`.
+- The normalized Basic Psychic Energy printing is `swsh6-232` (CRE 232). `resources/sets/en.json` has no `MEE` PTCGO set code, so the source JSON's `MEE 13` is a placeholder rather than a resolvable English printing.
+
+The Prize numerator counts are reproducible from the same six-card-subset model: `C(60,6)=50,063,860`; one specified card in Prizes gives `C(59,5)=5,006,386` sets; two specified cards give `C(58,4)=424,270`; three give `C(57,3)=29,260`; and four give `C(56,2)=1,540`. Thus the current one-Temple combined-pair failure numerator is `5,006,386 + 424,270 - 29,260 = 5,401,396`; the two-Temple counterfactual numerator is `424,270 + 424,270 - 1,540 = 847,000`.
+
 ## Decision
 
 1. Correct the earlier shorthand: Temple is a singleton with a conditional Arven → Forest Seal Stone → Star Alchemy tutor route, not a card with literally zero access.
