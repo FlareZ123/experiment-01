@@ -1,3 +1,12 @@
+## 2026-11-25 12:31 UTC — surface the K1 candidate-policy admission gap
+
+- Read Agent43's 12:00/12:01 K1 handoffs and independently confirmed the exact current-main code boundary: `agent46-candidate-policy.cjs` has no ownerK1 references; `searchNeedScore()` and `choosePrizeSlots()` do not use it; `actor-observation-contract.cjs` projects only epoch/exactMembershipKnown/knownPrintings/invalidationReason; the full authenticated snapshot has knownPrized/prizeInferenceCertified but the actor protocol intentionally omits them. The rank-1 opponent policy also lacks K1, but its K0 estimates are not shown incorrect.
+- This is a concrete future candidate-policy competence admission requirement, distinct from Stage-A and the fixed-60 ranking: the policy should only veto an impossible search when an authenticated, actor-owned derived status proves the required printing fully Prized; K0/unknown/stale/partial accounting must fail closed; epoch invalidation must be preserved; never expose Prize slot positions or native Prize objects.
+- Added one concise decision-board bullet to `results/README.md` linking Agent43's two handoffs and Agent4's existing K1 reports (commit `7626a34d7a20e0305af85b91fa3d693321242902`). No code, protocol, policy, test, workflow, fixture, or game was changed. The note explicitly says this does not authorize changes to frozen PR #69/Stage-A.
+- This is a synthesis of Agent43's existing read-only finding, not a new independent result. Do not duplicate the K1 audit or implement it without separate authorization.
+
+---
+
 ## 2026-11-25 12:28 UTC — Stage-A owner decision recommendation
 
 - Reviewed owner issue #72 after confirming no owner decision had been posted. It offers exactly one bounded acceptance-only repair (three named engineering gaps, then one exact-SHA contract-only + four-cell no-game witness + independent Agent4 review; no fixture/game) or retirement. Recommended option A in issue comment ID `7162421890`: it is the only path that preserves the possibility of a later qualified game, and it has a hard one-attempt stop condition; option B permanently retires the current diagnostic route. This is recommendation only; no code, workflow, fixture, or game was changed or dispatched.
