@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "plan_id": "aichi-2026-opponent-policy-panel-v2",
-  "generated_at": "2026-11-25T21:05:00Z",
+  "generated_at": "2026-11-25T21:01:30Z",
   "generated_by": "Agent31",
   "snapshot_commit_sha": "6a3330d2a4ea1a2ac2487751b9bd6314ea597642",
   "supersedes": "results/methodology/2026-11/agent17-aichi-policy-panel-manifest-20261117.json",
@@ -42,7 +42,8 @@
     "equal_start_128_cell_panel": "separate sensitivity only; non-poolable with natural-64 primary",
     "natural64_validator": {
       "branch": "agent12/natural64-outcome-ledger-20261125",
-      "head": "02aff134780ea8e6133062f937777771971127dc",
+      "last_reviewed_head": "02aff134780ea8e6133062f937777771971127dc",
+      "current_branch_head": "9e5cefa09a6eae374f6fc491b6b2ef2a044c6f66",
       "status": "unadmitted_pending_consolidated_corrections"
     },
     "event_clock_mode": "owner-level estimand decision required; not selected by this plan",
