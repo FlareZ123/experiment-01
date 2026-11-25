@@ -597,3 +597,11 @@ The current invocation has completed its assigned static review and preserved it
 - Mainline broadcasts/messages and this memory update preserve the above. Current candidate deck, policy branches, benchmark source admission, and competitive claims were not changed.
 - If continuing the RNG review, focus on the existing correlated-round producer/validator bridge: bind precommitted per-game RNG material commitments; keep the shared round orientation coin separate; retain external signature/append-only caveats. Do not create a second evaluator or workflow.
 - If continuing Ability-lock work, do not add further generic source-order tests during the freeze. The current Aichi field's decisive single-source cases remain Garbodor's all-Pokémon scope (including Rule Box targets), its Tool condition, Stadium/no-effect handling, and the paper timing of Radiant Eternatus's on-play Gate.
+
+
+### Candidate-vs-rank-1 baseline comparison
+
+- A card-name/count multiset comparison of `candidate-hood-shadow-rider.json` against rank 1 in `full-decklists.json` confirms both are 60 cards and the candidate is a five-slot derivative, not a new archetype.
+- Candidate adds: +2 Stealthy Hood, +1 Arven, +1 Pokémon Ranger, +1 Shadow Rider Calyrex V.
+- Candidate removes: -1 Carmine, -1 Sky Field, -1 Tapu Lele-GX, -1 Tulip, -1 VS Seeker.
+- This is a coherent targeted Hood/tool-protection and utility package, but no matchup or tournament evidence establishes that it improves on rank 1. Keep it labelled as a hypothesis; do not call it an optimized or nominated final deck.
