@@ -1,8 +1,50 @@
 # Aichi Top 32 opponent-policy panel: rank coverage and admission plan
 
+## 25 November 2026 — current version 2: 32-rank policy coverage
+
+**Current status:** the main tree contains **20 rank-specific opponent-policy module files across 14 of 32 ranks**: 1–8, 10–13, 19, and 31. The remaining **18 ranks** are 9, 14–18, 20–30, and 32. All 14 implemented ranks remain prototypes: **0/14 have demonstrated full-game competence, 0 independently reviewed full-game witnesses, and 0 qualified matchups**. File presence, unit tests, V8 shims, and Actions contract tests are not competence.
+
+The exact module paths and Git blob SHA-1 identities for all 20 variants, rank/source bindings, readiness summaries, and missing ranks are recorded in the [versioned machine-readable v2 manifest](agent17-aichi-policy-panel-manifest-v2-20261125.json). The [Agent35 readiness matrix](agent35-opponent-policy-prototype-readiness-20261117.md) supplies the reported test receipts and per-rank implementation gaps; those tests were not rerun for this inventory.
+
+| Rank | Current source-bound module variants | Reported automated evidence | Competence disposition |
+|---:|---|---|---|
+| 1 | Agent6 v1 | 51/51 direct V8 harness cases using worker validators | First-trace baseline only; static review findings remain; no native full game |
+| 2 | Agent10 v1; Agent45 v2 | v1 37/37 Node tests in Actions; v2 15 development cases / 4 held-outs, held-outs blocked | Neither version competent or admitted |
+| 3 | Agent17 v1 | 49/49 V8 shim cases | Synthetic-only, unbound; frozen expansion; no native game |
+| 4 | Agent50 v1/v2 | v2 32/32 tests inside Actions run 44566586371; enclosing workflow failed on an unrelated rank-6 Gladion test | Standalone Node and native evidence absent |
+| 5 | Agent20 v8 | 32/32 Node tests plus 32/32 supplemental V8 shim | Diagnostic-only; no native prompt/Store/game evidence |
+| 6 | Agent39 v1 | No current passing execution receipt identified in the readiness review | No competence evidence |
+| 7 | Agent43 v1/v2 | v2.3 44/44 Node tests in Actions run 44605512482 | Synthetic contract only; no native game |
+| 8 | Agent44 v1 | 28/28 tests in Actions run 44631949020; 72/72 combined rank-7/rank-8 suite | Synthetic only; ten prompt families held out |
+| 10 | Agent43 v1 | 22/22 policy tests and 17/17 Apex evaluator tests in local Node | No Actions/native evidence; Phantom Dive allocation gap |
+| 11 | Agent31 v1 | 29/29 V8 shim cases | No Node/Actions/native evidence; prompt gaps remain |
+| 12 | Agent1 v1/v2 | v2 20/21 V8 shim cases; one Heavy Ball fixture fails before policy execution | No Node/Actions/native evidence |
+| 13 | Agent24 v1 | Module/test file present; no published execution result or versioned suite/manifest found | Source-bound development only |
+| 19 | Agent23 v1/v2 | v2 27/27 synthetic cases in custom V8 harness | No Node/CI/native evidence; no held-outs or independent reviewer |
+| 31 | Agent35 v1/v2 | v2 16/16 V8 shim cases | No Node/worker IPC/native evidence; eight held-outs unrun |
+
+The 18 ranks without a rank-specific module are:
+- **Exact source list available:** 9, 14, 15, 16, 17, 18, 20, 21, 22, 24, 26, 27, 29, 30, 32.
+- **Exact source list unavailable:** 23, 25, 28. Do not infer these lists, substitute archetype proxies, or treat them as byes.
+
+### Current admission contract
+
+1. **One rank, one explicit profile.** For every rank, freeze the unchanged original 60-card source fingerprint, one selected policy file identity (path + Git blob SHA), a rank-specific configuration digest, and a challenge-suite digest. Where several variants exist, preserve them as alternatives; do not count them as extra ranks or silently combine them.
+2. **Shared code is allowed; silent policy transfer is not.** A common archetype core may be reused only with explicit exact-list configuration and rank-specific challenges. Rank 2 is not rank 15; ranks 3 and 7 are separate Snorlax lists; ranks 4, 9, and 17 are not interchangeable; rank-10 Regidrago is not a blanket policy for the other Regidrago ranks.
+3. **Actor-only competence evidence.** The selected policy must operate only on its own actor-visible observations and public receipts. Require source-specific development and held-out challenges, complete native games, selected actions bound to native effect receipts, resolved prompts, no engine errors, and an independent strategy review of the exact policy/configuration/trace. Contract tests and static reviews remain prerequisites, not competence.
+4. **Keep the two candidate 60s fixed.** The first whole-deck comparison is Hood Shield Shadow Rider v1 versus Lockbridge Shadow Rider v1. The current candidate policy is not a frozen actor-only release capable of operating both lists. PR #69 and PR #71 remain frozen at their reviewed scopes; this plan does not authorize policy patches.
+5. **Do not run the field panel yet.** The selected future primary is balanced natural-64: 32 source ranks × two candidate physical seats, 20 attempts per cell (1,280 slots), with actual first player observed naturally rather than used as a balancing dimension. The 128-cell equal-start sensitivity remains separate and non-poolable. The Natural64 receipt validator remains unadmitted, its event-clock mode still requires an owner-level estimand decision, Stage-A remains NOT ACCEPTED, and the latest Critic stopline authorizes no fixture or game.
+6. **Do not claim a full-field result with 29 lists.** Ranks 23/25/28 remain unknown. No aggregate can stand in for the original Top 32 until all 32 exact lists and competent rank-specific opponent policies are admitted.
+
+**Current decision:** use this v2 inventory as the policy coverage baseline. The 14 existing modules are development assets, not a ready opponent panel. The next useful policy milestone is a single exact candidate/policy pair that can complete and independently survive a full-game strategy review; then expand the same evidence standard across the remaining ranks. No 99.5% field rate is demonstrated.
+
+> **Historical boundary:** the sections below preserve the 17–19 November planning snapshot and its detailed research. Their earlier four-prototype count and 128-stratum primary description are superseded by this 25 November v2 inventory and the selected balanced-natural-64 design. Retain the old material as history, not current status.
+
+
+
 **Agent 17 · 17 November 2026**
 
-## Purpose and decision
+## 17 November historical purpose and decision
 
 The next competitive bottleneck after the canonical V3 acceptance and first rank-1 natural-terminal trace is not another generic bot or a larger 24-rank replay. It is a **rank-complete, independently competent opponent-policy panel** for the owner's unchanged original Aichi Top 32 field.
 
