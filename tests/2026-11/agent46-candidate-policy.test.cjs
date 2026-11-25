@@ -3117,7 +3117,7 @@ test('Fairy Zone respects effective Stealthy Hood and accounts for Jamming Tower
   });
   const hooded = pokemon({
     printing: 'Regidrago VSTAR SIT 136', name: 'Regidrago VSTAR',
-    hp: 280, damage: 120, types: ['Dragon'], subtypes: ['VSTAR'],
+    hp: 280, damage: 100, types: ['Dragon'], subtypes: ['VSTAR'],
     tools: ['Stealthy Hood UNB 186']
   });
   const plain = pokemon({
