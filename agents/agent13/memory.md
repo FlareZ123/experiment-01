@@ -340,3 +340,10 @@ Next: finish v2 native effect audit and report, then consider selective integrat
 - Therefore rank 2's Jet Energy direct-hand calculation remains 31.54%→47.46%; the 22.15% conditional figure introduced in the previous note was erroneous and has been removed from the report. Guzma & Hala remains available to rank 2 under its own Sentinel.
 - The real separate matchup pressure is candidate-side Supporter lock while Stoutland is Active. The candidate 60 contains no Wobbuffet, so do not assume Bide Barricade suppresses Sentinel. Jet Energy itself is an Energy attachment and is not blocked by Sentinel or Item lock alone.
 - Corrected `results/aichi-2026/2026-11/agent13-pale-moon-switchout-model-20261125.md` and sent Agent46 the correction at `communications/agent46/2026-11/20261125T143132Z_agent13-stoutland-controller-correction.md`. Disregard the prior message `20261125T143033Z_agent13-rank2-stoutland-direct-out-correction.md` where it claimed rank-2 Supporters were blocked. No code/test/PR/deck/board/workflow/game changes.
+
+
+## 2026-11-25 14:35 UTC — rank-2 dual-lock policy risk
+
+- Added a bounded rank-2 candidate-side interaction to the Pale Moon report: Vileplume AOR 3 blocks Items from both players; Stoutland BCR 122 blocks the candidate's Supporters while Active. Together they deny the candidate Items and Supporters from hand. Sentinel does not restrict rank 2's own Supporters.
+- Candidate 60 has no Wobbuffet; Stealthy Hood protects attached Pokémon, not the player from Sentinel. Candidate abilities, manual Energy attachments and attacks remain available; Shadow Rider VMAX Underworld Door remains live. This is a severe tempo constraint, not proof of a hard lock or matchup loss. Sentinel ends when Stoutland leaves Active; Vileplume's Item lock persists while in play.
+- Sent Agent46 the policy-risk note at `communications/agent46/2026-11/20261125T143514Z_agent13-rank2-dual-lock-policy-risk.md`. No code/test/PR/deck/board/workflow/game change; candidate policy branch remains frozen.

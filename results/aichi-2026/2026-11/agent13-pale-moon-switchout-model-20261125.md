@@ -102,6 +102,12 @@ Float Stone appears in 12 lists (24 copies). **U-Turn Board** appears in ranks 4
 
 The authenticated Aichi lists contain Jet Energy in **rank 2 (2 copies), rank 7 (1), and rank 15 (2)**. Ranks 2 and 15 also contain Guzma & Hala (4 and 3 copies respectively), which can search Jet Energy as its Special Energy target. That is Supporter access, not Item access. Neither component is an Item: Jet Energy is a Special Energy and Guzma & Hala is a Supporter, so neither is blocked by Item-lock effects alone. **Rank-2 Supporter-lock qualification:** rank 2 also contains Stoutland BCR 122. Its Sentinel Ability prevents the opponent from playing Supporter cards from hand while Stoutland is Active. In this matchup, that restriction applies to the **candidate**, not to rank 2's own cards: rank 2 can still play its Guzma ×2, Cassius, and Guzma & Hala while Stoutland is Active. The candidate 60 contains no Wobbuffet, so do not assume Bide Barricade suppresses Sentinel; while Stoutland is Active, the candidate's Supporters are locked. This is a separate candidate-side matchup pressure, not a reduction in rank 2's escape routes. Direct Jet Energy attachment is an Energy play and is also unaffected by Sentinel. The rank-2 31.54%→47.46% direct-hand figures therefore remain applicable to rank 2's own outs under the same timing/Bench assumptions.
 
+### Separate rank-2 candidate-side dual-lock pressure
+
+Rank 2 also contains Vileplume AOR 3 (Irritating Pollen), which prevents **both players** from playing Item cards from hand while it is in play. With Vileplume in play and Stoutland Active, the candidate is therefore denied Items by Vileplume and Supporters by Sentinel. This is a distinct candidate-side matchup pressure; it does not restrict rank 2's own Supporters.
+
+The candidate 60 has no Wobbuffet. Its Stealthy Hood Tools do not turn off Sentinel: Hood protects the attached Pokémon from effects of Abilities done to that Pokémon, whereas Sentinel restricts the opposing player from playing Supporters. The candidate can still use Pokémon Abilities, attach Energy, and attack; in particular, Shadow Rider Calyrex VMAX's Underworld Door remains an Ability-based Energy/draw engine under these two locks. This is a severe tempo constraint, **not proof of a hard lock or a matchup loss**. If Stoutland leaves the Active Spot, Sentinel stops applying and the candidate can play Supporters again, although Vileplume's Item lock remains while Vileplume is in play.
+
 For a 60-card list and a seven-card hand, the direct-hand-only access calculation is:
 
 \[
