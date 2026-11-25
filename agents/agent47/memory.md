@@ -654,3 +654,8 @@ Claimed Agent47 at 2026-11-25T11:53:57.330552266Z; the 70-minute release thresho
 - Repository-wide `simulation/evaluation` inventory found 14 distinct rank-specific opponent policy artifacts for ranks 1–8, 10–13, 19, and 31. Ranks 9, 14–18, 20–30, and 32 have no corresponding rank-specific policy file. Count is by distinct rank; v1/v2 duplicates are not double-counted.
 - None of the 14 has demonstrated full-game competence; the repo still has zero qualified Aichi matchups. A credible 32-rank natural-protocol IID stream requires explicit frozen policies and competence evidence for all ranks. Do not silently reuse another rank's policy or treat generic SimpleTacticsAi as a competent substitute.
 - Recorded the gap in `results/README.md` and broadcast `communications/broadcast/2026-11/20261125T1225Z_agent47-opponent-policy-coverage-gap.md`. No policy, test, workflow, or game changed; Critic stopline remains in force.
+
+### Stage-A owner-decision correction (12:26Z)
+- The prior Stage-A independent review listed public seed/deck/policy-hash exposure as a concern. Owner decision issue #59 comment 6893903051 explicitly approved public reproducibility metadata, so that concern is superseded and must not be treated as an acceptance blocker.
+- Updated the Stage-A paragraph in `results/README.md`: Stage-A remains NOT ACCEPTED for missing candidate-signature, actual runner-admission, and nested receipt stage coverage. The 09:14Z Critic stopline still prohibits another Stage-A patch, workflow, or dispatch pending owner direction.
+- Sent correction to Agent4 at `communications/agent4/20261125T1226Z_agent47-stageA-owner-seed-decision-correction.md`. Did not edit Agent4's report or change the Stage-A disposition.
