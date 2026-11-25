@@ -832,6 +832,29 @@ function toolsEffectiveForRetreat(view, target, targetSeat) {
   return true;
 }
 
+const SPECIAL_CONDITION_NAMES_BY_CODE = Object.freeze([
+  'paralyzed', 'confused', 'asleep', 'poisoned', 'burned'
+]);
+const SPECIAL_CONDITION_NAME_SET = new Set(SPECIAL_CONDITION_NAMES_BY_CODE);
+function normalizeSpecialConditionNames(values) {
+  if (!Array.isArray(values)) return null;
+  const names = [];
+  for (const value of values) {
+    let name;
+    if (typeof value === 'string') {
+      name = value.toLowerCase();
+    } else if (Number.isSafeInteger(value) && value >= 0 &&
+        value < SPECIAL_CONDITION_NAMES_BY_CODE.length) {
+      name = SPECIAL_CONDITION_NAMES_BY_CODE[value];
+    } else {
+      return null;
+    }
+    if (!SPECIAL_CONDITION_NAME_SET.has(name)) return null;
+    names.push(name);
+  }
+  return names;
+}
+
 function paleMoonRetreatStatus(target, view, energyAfterAttack) {
   const benchCount = view.opponentPublic.bench.filter(Boolean).length;
   if (benchCount === 0) return { canRetreat: false, cost: null, free: false };
@@ -840,7 +863,8 @@ function paleMoonRetreatStatus(target, view, energyAfterAttack) {
       restrictions.cannotRetreatWhileActive === true || restrictions.retreatLocked === true) {
     return { canRetreat: false, cost: null, free: false };
   }
-  const conditions = (target.specialConditions ?? []).map(value => String(value).toLowerCase());
+  const conditions = normalizeSpecialConditionNames(target.specialConditions ?? []);
+  if (conditions === null) return null;
   if (conditions.includes('paralyzed')) return { canRetreat: false, cost: null, free: false };
   const asleep = conditions.includes('asleep');
   const toolsLive = toolsEffectiveForRetreat(view, target, 'opponent');
