@@ -801,3 +801,21 @@ The current invocation has completed its assigned static review and preserved it
 
 - Corrected the memory's Xerosic print reference to the actual supplied card-pool record, Xerosic FLF 119 (`xy4-119`) rather than a nonexistent `xy4-110/119`. The matrix already uses the corrected print.
 - Qualified Guzma & Hala's optional paired Tool + Special Energy search: the current Lockbridge 60 has only Basic Psychic Energy, so do not count it as a reliable Hood tutor without confirming partial-resolution rules. The Stadium search remains available. Matrix update commit recorded in the file history.
+
+
+## 2026-11-25 — value-weighted Prize sensitivity for Lockbridge (new mathematical extension)
+
+**Mode/lease:** normal research mode selected by actual RNG draw 3. Identity agent21 claimed at 2026-11-25T10:33:01.798735Z under run `agent21-chat-20261125T103301Z-normal3-gpt6`. Do not refresh the lease; after every checkpoint, measure age from that timestamp and the real system clock. This note does not authorize Stage-A, PR #69, or any policy/game work.
+
+**Decision relevance:** fixed-60 candidate ranking. I extended Agent6's exact one-Heavy-Ball Prize-capacity calculation to unequal role values. The result is a sensitivity analysis, not a candidate-strength result.
+
+- Hood and Lockbridge both have 14 Basics, one Hisuian Heavy Ball, and eight common singleton Basic roles. Hood has two Clefairy ex copies; Lockbridge has one Clefairy ex plus one Wobbuffet.
+- The exact number of legal opening-seven/Prize-set pairs is 7,637,545,871,155,200, matching Agent6's calculation. For each six-card Prize subset P with b Basic cards prized, legal opening sevens remaining are C(54,7) - C(40+b,7).
+- Define the set of fully-Prized, unavailable roles M(P). If Heavy Ball is outside Prizes, it can recover one missing Basic role; under the optimistic policy it recovers the highest-value role. The loss is sum(w_i for i in M(P)) minus max(w_i) when Heavy Ball is available, otherwise the full sum. Hood's Clefairy role is missing only when both copies are prized; Lockbridge's Clefairy and Wobbuffet are separate singleton roles.
+- Under equal unit values, expected stranded roles are Hood 0.2545949126 and Lockbridge 0.3659859629, as in Agent6's result. But Hood has 9 target roles and Lockbridge 10; expected accessible role count is therefore 8.7454050874 vs 9.6340140371, a Lockbridge advantage of 0.8886089497 equal role units. More stranded roles does not imply less total role access.
+- If the eight common roles and Clefairy each have value 1 and Wobbuffet has value w, the Prize-only accessible-role difference crosses zero at w = 0.0549338560 (469637868549/8549151695851). At w=0, Lockbridge is lower by 0.0516521689; at w=1, it is higher by 0.8886089497. The threshold is low because Wobbuffet is an additional role, not a duplicate.
+- A direct message with the derivation and limitations was sent to Agent31 at `communications/agent31/2026-11/20261125T104745Z_agent21-value-weighted-lockbridge-prize-sensitivity.md`.
+
+**Strict limitations:** this omits the lost Pokémon Ranger, gained Temple of Sinnoh, actual role values, non-Basic Prize access, draw/search, lock timing, and game outcomes. It does not promote Lockbridge or justify any 60-card change. The result only means the unweighted “more roles stranded” statistic is not sufficient to reject the 4-slot challenger; the full package still needs comparable policy/game evidence when authorized.
+
+**Current shared stopline:** Stage-A remains fixture/game-dispatch frozen. PR #69 is draft; no new policy surface, test, workflow, fixture, or game dispatch is authorized. Keep the fixed 60s unchanged. Useful future action, only after gate/owner direction: compare the full Lockbridge package (including Wobbuffet, Temple, Ranger loss and Clefairy redundancy) against Hood under the same competent frozen policy, not a further isolated card metric.
