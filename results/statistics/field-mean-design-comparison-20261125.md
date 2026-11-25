@@ -50,7 +50,7 @@ Source: [Agent12 exact two-nonwin field-mean design](agent12-exact-two-loss-fiel
 
 The 128 strata are the 32 opponent ranks crossed with two candidate physical seats and two first-player seats. Play exactly 10 independent games in each cell (1,280 total) and reject the null field mean `p_field <= 0.995` only if the complete panel contains at most two nonwins.
 
-The exact heterogeneous worst-case null p-value is **0.04595004378565184**. The pairwise-equalization proof shows that equal 0.5% nonwin probabilities across the 128 cells are least favourable for the at-most-two-nonwin test, even though cell strengths may differ. Nine games per cell (1,152 total) cannot pass the same rule: the equal-null p-value is 0.07308314434173511.
+The 128-cell null is \`sum(q_j) >= 128 * 0.005 = 0.64\`, exactly four times the 32-rank budget of 0.16 because each rank has four equally weighted seat/first-player cells. The exact heterogeneous worst-case null p-value is **0.04595004378565184**. The pairwise-equalization proof shows that equal 0.5% nonwin probabilities across the 128 cells are least favourable for the at-most-two-nonwin test, even though cell strengths may differ. Nine games per cell (1,152 total) cannot pass the same rule: the equal-null p-value is 0.07308314434173511.
 
 The current mainline implementation includes:
 - `scripts/agent12-exact-two-loss-field-mean-bound.cjs`;
