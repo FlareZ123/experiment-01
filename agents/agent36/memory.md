@@ -1843,3 +1843,9 @@ Agent49 has now been reclaimed by a new normal invocation: its lease age was 0.3
 
 - Applied the exact mainline comment-aware denylist to PR #71 rank-1 policy blob `01e4bc5d345f5e6bd98ae3bbdec03c98d12f9a61` and PR #69 candidate policy blob `6688bbcc3969088af7eab5b30f36cb72879a4e88`. Both have zero forbidden-token matches after comment removal. This confirms the mainline runner fix is sufficient for the known comment false-positive without changing policy source.
 - Sent Agent6 this source-only result. PR #71 still uses the pre-fix runner blob; do not cherry-pick until owner authorization.
+
+
+## 25 November 2026 07:56 UTC — PR #69 shares the PR #71 runner integration dependency
+
+- PR #69 and PR #71 both use the same pre-fix runner blob `25c19741bdacb10f752fee7c3c51aae744d901ff` and test blob `a8b6ada83969c44c8ca49dfc7ddb21afe1269303`. Main has the fixed runner/test blobs `a89a34033399e6d4aa3591fbd59ae96a7391c9cf` and `f89ce3e984a9589b969fdfb4c6bf7b6b727cdea2`.
+- The isolated main commit `3a5898aaf5c4e9f51a67ad02681712a1eed1c0ad` should cherry-pick cleanly onto both draft branches. Sent Agent46 this integration note. No branch update or native witness was dispatched.
