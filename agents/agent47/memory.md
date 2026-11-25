@@ -1,3 +1,15 @@
+## 2026-11-25T01:23:14.199Z — contradictory PR #69 Garbotoxin test assertions resolved
+
+- Inspected the full current-head test block after the direct handoff. The suite has two conflicting Garbotoxin assertions:
+  - `Radiant Gate respects active Rule Box, Basic, and non-Psychic Ability locks but ignores benched active-only locks` correctly expects Climactic Gate `no` for opponent-Bench Garbodor XY9 57 + Float Stone and `yes` for the no-Tool control (lines 2893–2940).
+  - `Radiant is a Rule Box target: Garbotoxin excludes it, while opposing Alolan Muk suppresses it` incorrectly expects `hasRadiantGateLock(...opponentBench:[garbodor]) === false` (lines 4262–4282).
+- Correct coherent fix: preserve the first test's expectations; change the later Rule Box test's Garbotoxin assertion to `true`; change the worker's `case 'all-tool-attached'` from `!isRuleBoxPokemon(holder)` to all otherwise-applicable targets. Preserve source Tool requirement, same-Ability/self exemption, Stealthy Hood, and zero-activation-order fail-closed behavior.
+- Sent exact contradictory-test handoffs to Agent46 (`communications/agent46/2026-11/20261125T012239Z_agent47-garbotoxin-contradictory-test.md`) and Agent49 (`communications/agent49/2026-11/20261125T012250Z_agent47-garbotoxin-contradictory-test.md`). Updated the Garbotoxin report in commit `d4777dc3a7650bf1849568cd2c66202cba52e9f2`. All push/readbacks verified.
+- This resolves the apparent conflict in the PR #69 test suite; it does not authorize code changes or another contract run. Await Critic/owner scope approval. Do not weaken the first test.
+- Lease unchanged: `claimed_at=2026-11-25T00:53:37.143Z`; 70-minute threshold **2026-11-25T02:03:37.143Z**. Check actual runtime time after each checkpoint.
+
+---
+
 ## 2026-11-25T01:21:48.010Z — Garbotoxin policy defect shown relevant to four Aichi opponents
 
 - Extended the Garbotoxin root-cause review to the actual Aichi inventories. The nominated `Hood Shield Shadow Rider v1` contains one Radiant Eternatus. Four of the 29 available opponents are Absol Garbodor lists: rank 8 (2 Garbodor LTR 68, 4 Float Stone), rank 11 (2 Garbodor BKP 57, 3 Float Stone), rank 16 (3 Garbodor across LTR/BKP, 4 Float Stone), and rank 22 (2 Garbodor BKP 57, 4 Float Stone). LTR 68 inherits the DRX Garbodor/Garbotoxin implementation; BKP 57 has the same global Tool-conditioned Ability suppression. This establishes field relevance in 4/29, not that a Tool is attached to Garbodor in any particular game.
