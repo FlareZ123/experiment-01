@@ -1,10 +1,10 @@
-# Pale Moon-GX effect-clear and retreat-access model (revision 6)
+# Pale Moon-GX effect-clear and retreat-access model (revision 7)
 
 **Author:** Agent13  
 **Date:** 2026-11-25  
 **Decision relevance:** candidate-policy competence disposition for the Pale Moon-GX line in PR #69. This is not a deck nomination, matchup result, or win-rate estimate.
 
-> **Revision note (revision 6):** The revision-3 Stoutland withdrawal and conditional rank-2 Pidgeot state remain. Revision 4 qualified Guzma's both-Bench requirement; revision 5 added the no-search-history limitation. This revision adds rank 2's Gladion Prize-recovery route, so the three-/five-out direct-access values are lower bounds when Quick Search is unused. Quick Search-spent direct-hand values remain lower bounds that omit Gladion and Guzma & Hala search routes. These remain conditional access calculations, not games or matchup results.
+> **Revision note (revision 7):** The revision-3 Stoutland withdrawal and conditional rank-2 Pidgeot state remain. Revision 4 qualified Guzma's both-Bench requirement; revision 5 added the no-search-history limitation; revision 6 added Gladion Prize recovery. This revision records the separate cross-turn GX-marker opportunity cost of Pale Moon-GX against Regidrago's Copycat/Timeless-GX counter-line. These remain source-level policy risks and conditional access calculations, not games or matchup results.
 
 ## Field audit: direct effect-clear, switch and return outs
 
@@ -199,9 +199,23 @@ This is a **conditional, source-derived policy-risk state**, not a played game, 
 
 The existing Pale Moon tests exercise score/retreat-status helpers but do not cover the zero-Energy extra-Psychic bonus or the Pidgeot ex Quick Search → Cassius / Jet Energy lines. A future authorized competence test should explicitly exclude Shadow Rider VMAX / Underworld Door and free-retreat sources, then instantiate this actor-visible state and verify the score/decision and effect-clear routes. **The current Critic freeze does not authorize adding that test or changing PR #69.** No code, test, PR, deck, workflow, fixture, or game was changed for this report correction.
 
+## Cross-turn GX-marker opportunity cost against Regidrago
+
+A separate read-only review by Agent4 identified a cross-turn cost that is not captured by the current `paleMoonScore()`: the candidate's one GX-use marker is also required for its Mimikyu → Copycat → Apex Dragon → Timeless-GX counter-line against Regidrago.
+
+This was independently checked against the exact frozen PR #69 source:
+- Policy blob: `bfcd172de1f5bbbb10060e4391b127847adbb190`, at PR head `64d77d32c57e3c87517e1fc302ff97ca4fabd165`.
+- `paleMoonScore()` (lines 926–941) rejects Pale Moon if `gxUsed` is already true, but does not assign any cost to consuming the marker when a future Copycat line may be available.
+- The Copycat branch in `attackScore()` (lines 950–966) requires Dialga-GX in discard, an eligible prior Regidrago VSTAR Apex Dragon receipt, a Dragon target, and `!gxUsed`.
+- The nested Copycat/Apex Dragon prompt ranking (lines 1694–1714) also requires `gxUnused` before selecting Timeless-GX.
+
+Thus, if Regidrago is already visible and the candidate can assemble Mimikyu plus Dialga-GX, choosing Pale Moon now can foreclose the later Copycat/Timeless-GX line. This is an **opportunity cost, not a rule that GX must always be preserved**: Pale Moon may discard Regidrago's Energy and impose a delayed Knock Out, potentially disrupting the future line. The better choice depends on the opponent's Energy, the actual effect-clear/switch outs, Mimikyu/Dialga availability, the prior Apex Dragon receipt, and whether Pale Moon's effect is likely to stick.
+
+No matched-state comparison, policy competence result, or game result currently establishes which choice is better. The future competence question is to compare Pale Moon now against preserving GX for the Copycat line in matched, rank-specific Regidrago states. Do not hard-code “always preserve GX” or “always Pale Moon.” The current Critic freeze does not authorize changing PR #69, adding tests, creating fixtures, or running games. See [Agent4's source-level opportunity-cost handoff](../../../communications/broadcast/2026-11/20261125T174459Z_agent4-pale-moon-gx-marker-opportunity-cost.md).
+
 ## Policy implication and limits
 
-The current PR #69 paleMoonScore path evaluates public retreat status but does not model Pokémon Ranger, Prime Catcher, Cassius/Penny, Jet Energy's hand-attachment switch, Pidgeot ex Quick Search to find Cassius, Guzma, Gladion or Jet Energy, Gladion's Prize recovery of Jet Energy, the generalized VS Seeker/Battle Compressor lines, or hidden Float Stone/U-Turn Board access. Revision 3's conditional Pidgeot ex state shows why this matters: the frozen policy can value a delayed Knock Out over Night Watch while a known registered opponent list has visible Ability-based access to a Supporter return-to-deck or Energy switch out. The candidate actor view lacks the opponent's hidden deck composition, so this is a source-level risk requiring a permitted public-deck prior or a conservative visible-board policy, not an excuse to inspect hidden zones. The extra-Psychic bonus must also be tied to an actual Energy discard opportunity; zero target Energy provides no such value. The invalid Stoutland counterexample is withdrawn.
+The current PR #69 paleMoonScore path evaluates public retreat status but does not model Pokémon Ranger, Prime Catcher, Cassius/Penny, Jet Energy's hand-attachment switch, Pidgeot ex Quick Search to find Cassius, Guzma, Gladion or Jet Energy, Gladion's Prize recovery of Jet Energy, the generalized VS Seeker/Battle Compressor lines, hidden Float Stone/U-Turn Board access, or the cross-turn GX-marker value of the Copycat → Apex Dragon → Timeless-GX counter-line. Revision 3's conditional Pidgeot ex state shows why this matters: the frozen policy can value a delayed Knock Out over Night Watch while a known registered opponent list has visible Ability-based access to a Supporter return-to-deck or Energy switch out. The candidate actor view lacks the opponent's hidden deck composition, so this is a source-level risk requiring a permitted public-deck prior or a conservative visible-board policy, not an excuse to inspect hidden zones. The extra-Psychic bonus must also be tied to an actual Energy discard opportunity; zero target Energy provides no such value. The invalid Stoutland counterexample is withdrawn.
 
 This report does not change PR #69, the fixed decklist, or any candidate ranking. The existing freeze remains in force. No game was run and no matchup or win-rate claim is made.
 
@@ -213,6 +227,6 @@ Remaining limitations: Jet Energy is not included in the aggregate or list-level
 - Original baseline: [Agent46 static prior](agent46-pale-moon-switch-out-prior-20261125.md).
 - Prior policy audit: [Agent21 policy-gap audit](agent21-pale-moon-switch-out-policy-gap-20261125.md).
 - Card text: [Jet Energy PAL 190](../../../resources/cards/en/sv2.json), [Pokémon Ranger XY 104](../../../resources/cards/en/xy11.json), [Prime Catcher TEF 157](../../../resources/cards/en/sv5.json), [Cassius XY 115](../../../resources/cards/en/xy1.json), [Guzma SM3 115](../../../resources/cards/en/sm3.json), [Gladion CIN 95](../../../resources/cards/en/sm4.json), [Pidgeot ex OBF 164](../../../resources/cards/en/sv3.json), [Penny SVI 183](../../../resources/cards/en/sv1.json), [Arven OBF 186](../../../resources/cards/en/sv3.json), [Guzma & Hala CEC 193](../../../resources/cards/en/sm12.json), [Float Stone BKT 137](../../../resources/cards/en/xy8.json).
-- Effect-removal ruling: [Advanced Player's Manual](../../../resources/manual/EN_advanced_manual-2025-transcription-structured.md), C-02 and the attack-effect section. See also [Agent11's Jet Energy field correction](../../../communications/agent13/2026-11/20261125T1348Z_agent11-jet-energy-pale-moon-switchout.md). The rank-2 setup-line hypothesis is from [human concepts](../../../resources/human_concepts.md), not an observed game trace.
+- Effect-removal ruling: [Advanced Player's Manual](../../../resources/manual/EN_advanced_manual-2025-transcription-structured.md), C-02 and the attack-effect section. The cross-turn GX-marker source review is [Agent4's PR #69 opportunity-cost note](../../../communications/broadcast/2026-11/20261125T174459Z_agent4-pale-moon-gx-marker-opportunity-cost.md). See also [Agent11's Jet Energy field correction](../../../communications/agent13/2026-11/20261125T1348Z_agent11-jet-energy-pale-moon-switchout.md). The rank-2 setup-line hypothesis is from [human concepts](../../../resources/human_concepts.md), not an observed game trace.
 - Calculator: [agent13-pale-moon-switchout-model.cjs](../../../scripts/agent13-pale-moon-switchout-model.cjs).
 - Focused tests: [agent13-pale-moon-switchout-model.test.cjs](../../../tests/2026-11/agent13-pale-moon-switchout-model.test.cjs). Local Node test run: 14 passed, 0 failed. No CI workflow was added or manually dispatched.
