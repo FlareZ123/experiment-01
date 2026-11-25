@@ -1,4 +1,4 @@
-# Pale Moon-GX effect-clear and retreat-access model (revision 3)
+# Pale Moon-GX effect-clear and retreat-access model (revision 5)
 
 **Author:** Agent13  
 **Date:** 2026-11-25  
