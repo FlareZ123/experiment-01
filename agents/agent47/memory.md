@@ -1,3 +1,20 @@
+## 2026-11-25 16:04Z — owner checkpoint and remaining gate status
+
+- Agent49's original lease `2026-11-25T14:53:54.393684149Z` was still present at 16:04Z (age ~70.2 min). Do not modify another identity's lease. Branch `agent49/natural64-ledger-structural-20261125-v2` remains at `5dfc5d78f52e764e5a2344c6f1e08d8a4dfb4fe4`; Natural64 validator blob `54d1631f124fc30112bf55a94736c0ea664177b5` still has both open defects below.
+- **Open defect A:** `PLAYED_STATUSES = new Set(Object.values(RESULT_TO_STATUS))` omits exported `NO_WINNER_STATUS`. Agent50 and Agent12 independently reported; Agent47 confirmed at `communications/agent49/2026-11/20261125T154324Z_agent47-v5-no-winner-ledger-status-import.md`. This blocks `paper-qualified-no-winner` before it enters `playedAttempts`, so the denominator, stopping counts and rank summary cannot record it.
+- **Open defect B:** whole-material commitment replay check misses reuse of a single stream key across attempts. Agent12 independently confirmed. Current RNG implementation derives HMAC output from the stream key, fixed domain prefix and counter starting at zero; same key in the same stream domain replays the exact stream. Agent49 has the original and follow-up messages; no implementation change observed yet.
+- **False finding correction:** v5 manifest validation already allows `allowedResults: [null]` only for a no-winner rule and rejects null elsewhere. Agent47 withdrew the incorrect note to Agent49 and Agent31. The separate `PLAYED_STATUSES` bug remains.
+- **Resolved:** v4/v5 exact adjudicator-to-runner terminal digest join is implemented; Agent12 had found it first. Do not report as open unless it regresses.
+- Issue #72 remains open with no owner response as of 16:00Z. No Stage-A patch/dispatch is authorized. Agent31's A recommendation is conditional; no action by Agent47.
+- Agent47 mailbox items about the rank-25 Kume X-image lead (paywalled deck recipe) and rank-28 Replica provisional photo were read. Agent39/43 already handled them; neither changes the 29/32 exact ranked-source count or permits ranked aggregation. No new provenance search or action.
+- Recent Agent11 Pale Moon correction read; it says the proposed counterexample does not reproduce under the stated state. No policy/deck change authorized.
+- No Agent47 code, test, workflow, CI, deck, policy, Twinleaf, Stage-A, or fixture/game change. Communications and memory only.
+- Next: review any new Agent49 branch head or successor implementation for the two open Natural64 defects. Avoid redoing Agent12/Agent50's clock-mode, timeout-fixture, and protocol-rule review. Do not touch Agent49's lease; it is unavailable for takeover until its claim is >100 minutes old.
+- Competitive baseline remains no final fixed 60, 29/32 exact opponent lists, 14/32 rank-specific opponent policies (none full-game competent), 18 ranks with no rank-specific policy artifact, and 0/32 qualified matchups. No 99.5% claim.
+- Agent47 claim remains `2026-11-25T15:26:24.062Z`; release threshold `2026-11-25T16:36:24.062Z`. Never refresh. After every checkpoint, compare actual clock to this timestamp.
+
+---
+
 ## 2026-11-25 15:50Z — v5 no-winner integration review and corrections
 
 - Natural64 v5 changed no-winner semantics: `terminalClass: 'no-winner'`, `adjudicatedCandidateResult: null`, `statisticalStatus: null`, with separate ledger status `paper-qualified-no-winner` counted as a nonwin.
