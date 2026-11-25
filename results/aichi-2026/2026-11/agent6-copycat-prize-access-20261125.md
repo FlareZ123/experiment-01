@@ -102,27 +102,28 @@ This is the no-recovery stress endpoint, not the probability that Item lock is e
 
 ## Narrow comparison with the published champion reference
 
-The candidate's eight target roles can be compared with the published Aichi champion baseline without treating the result as a deck-strength ranking. The seven singleton roles other than Tapu Lele-GX are identical. The one-card structural difference relevant to this model is:
+The candidate's singleton support/tech roles can be compared with the published champion baseline. The seven singleton roles other than Tapu Lele-GX are identical. Both lists also contain a **two-copy Clefairy / Fairy Zone role**. The relevant differences are:
 
-- **Hood Shield candidate:** 4 Shadow Rider Calyrex V, 1 Tapu Lele-GX, 2 Lillie's Clefairy ex.
-- **Champion reference:** 3 Shadow Rider Calyrex V, 2 Tapu Lele-GX, 2 Lillie's Clefairy ex.
+- **Hood Shield candidate:** 4 Shadow Rider Calyrex V, 1 Tapu Lele-GX, 2 Lillie's Clefairy ex, and seven other singleton Basic roles.
+- **Champion reference:** 3 Shadow Rider Calyrex V, 2 Tapu Lele-GX, 2 Lillie's Clefairy ex, and the same seven other singleton Basic roles.
 
-Both lists have 14 Basics and one Hisuian Heavy Ball. The candidate has one more copy of its primary Basic attacker but one fewer copy of the Tapu Lele support role.
+Both lists have 14 Basics and one Hisuian Heavy Ball. The role-capacity comparison below includes **all nine** support/tech roles (the eight singleton roles plus Clefairy as one role with two copies); the remaining Basic Pokémon are the four vs three Shadow Rider V copies.
 
 | Conditional-on-legal-seven metric | Hood Shield candidate | Champion reference |
 |---|---:|---:|
 | Open at least one Shadow Rider Calyrex V | **46.37744%** (4 copies) | **36.61785%** (3 copies) |
-| At least one of the eight support/tech roles stranded by one usable Heavy Ball | **21.12871%** | **17.54447%** |
-| Expected stranded support/tech roles per game | **0.25062** | **0.20309** |
-| At least one role unavailable in the no-Heavy-Ball / active-Item-lock stress case | **58.50050%** | **53.81455%** |
-| Expected unavailable roles in that no-recovery stress case | **0.78300** | **0.69321** |
+| At least one of the nine support/tech roles stranded by one usable Heavy Ball | **21.44129%** | **17.84089%** |
+| Expected stranded support/tech roles per game | **0.25459** | **0.20673** |
+| At least one role unavailable in the no-Heavy-Ball / active-Item-lock stress case | **58.94803%** | **54.29676%** |
+| Expected unavailable roles in that no-recovery stress case | **0.79109** | **0.70130** |
+| At least one role stranded in the two-Heavy-Ball counterfactual | **5.08841%** | **3.81085%** |
+| Expected stranded roles in that counterfactual | **0.05624** | **0.04149** |
 
 The first row uses the exact opening-hand event: with (k) copies of Shadow Rider Calyrex V and 14 Basics total, (P(V\text{ in opening seven}\mid\text{legal seven})=[\binom{60}{7}-\binom{60-k}{7}]/[\binom{60}{7}-\binom{46}{7}]).
 
-The remaining rows use the same role-capacity enumeration above. For the champion reference, Tapu Lele-GX is one role with multiplicity two; the other seven target roles are singletons. The remaining Basics are 3 Shadow Rider V + 2 Clefairy ex. Both decks are modeled with one Heavy Ball.
+The remaining rows use the same role-capacity enumeration above. For the champion reference, Tapu Lele-GX is one role with multiplicity two, Clefairy is another role with multiplicity two, and the other seven target roles are singletons. The remaining Basics are three Shadow Rider V. Both decks are modeled with one Heavy Ball.
 
-**Interpretation:** the candidate's extra Shadow Rider V materially improves the narrow opening-V proxy (+9.76 percentage points), while reducing Tapu Lele redundancy increases the modeled pressure on its single Heavy Ball (+3.58 points in the one-Ball stranded-role metric). This is a structural tradeoff, not a claim that either list is stronger. It excludes all other card-count differences, target-value differences, draw/search access, opponent actions, and complete-game outcomes.
-
+**Interpretation:** the candidate's extra Shadow Rider V improves the narrow opening-V proxy, while reducing Tapu Lele redundancy increases the modeled Prize-recovery burden. Including the common two-copy Clefairy role gives the fuller nine-role comparison above. This is a structural tradeoff, not a claim that either list is stronger. It excludes all other card-count differences, target-value differences, draw/search access, opponent actions, and complete-game outcomes.
 
 ### Starter-role decomposition of the same one-card swap
 
