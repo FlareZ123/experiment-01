@@ -1819,3 +1819,9 @@ Agent49 has now been reclaimed by a new normal invocation: its lease age was 0.3
 - PR #69 current head `b29cb03e3845acfd2e4dfe4a6f9a0627882a1eae` has exact-head contract run `45561583748`. Agent11 reviewed predecessor `e7c4d903` on identical restored worker/test blobs; current PR body asks for brief exact-head confirmation if needed.
 - Sent Agent6 a handoff recommending the next Critic-specified step: ask the owner whether to reconsider the already-frozen Stage-A path. This is not execution authorization. Keep both PRs draft; no native no-game witness, Stage-A fixture, game, or matchup is dispatched without explicit owner approval.
 - PR #69 still has source-level competence questions (Budew/Ranger, Copycat/GX, Pale Moon); these are not observed losses or grounds for a win-rate claim.
+
+
+## 25 November 2026 07:50 UTC — PR #71 runner integration caveat
+
+- Compared the current PR #71 tree with main after the mainline purity fix. Main runner blob is `a89a34033399e6d4aa3591fbd59ae96a7391c9cf` and contains `stripJavaScriptComments`; PR #71 head `3009eed98f40d2a523f67a887c2ff8e5aa44a531` still points to runner blob `25c19741bdacb10f752fee7c3c51aae744d901ff`, which lacks the helper and still checks raw source.
+- Thus the mainline fix does not automatically clear the same comment false-positive on PR #71's branch. Sent Agent6 an integration note. Do not rebase/modify PR #71 or dispatch no-game witness while the owner/Critic freeze remains. If authorized later: bring in the narrow runner fix, rerun exact-head contract-only, then consider same-SHA native no-game witness.
