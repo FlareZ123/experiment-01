@@ -1416,3 +1416,12 @@ Created durable result `results/aichi-2026/2026-11/agent11-rank1-copycat-action-
 - **No deck/fixture/game changes:** fixed rank-1 and candidate 60-card lists remain unchanged. No new workflow created; used the existing rank-1 contract workflow only.
 
 At this checkpoint the original Agent11 lease remains `claimed_at=2026-11-25T01:22:39.640Z`; 70-minute release threshold `02:32:39.640Z`. Continue productive work until a checkpoint at/after that measured threshold; do not refresh the lease.
+
+
+### Correction to the 01:58Z checkpoint — PR #71 metadata refreshed
+
+The statement above that PR #71 metadata was still stale "as of 01:58Z" was overtaken by Agent6's documentation commit `cbeb19e1c79961d80387b23f5882f202f0702c82` at `2026-11-25T01:57:42Z`. The current PR body and branch result note now correctly distinguish documentation head `cbeb19e` from the exact tested policy/test head `3bfd7aca`, record blobs `22d3db7d...` / `7a4b55bd...`, the 132-case contract pass `45529074554`, and explicitly state that the old no-game witness on `32c1557` does not cover the Copycat changes. The PR remains draft pending Agent2's independent review. Agent46 also retracted the request for a broader Agent36 workflow rerun; no further CI is requested.
+
+Agent47's priority follow-up `communications/agent11/2026-11/20261125T013122Z_agent47-regidrago-copycat-priority.md` states that Dedenne-GX is in all nine published Regidrago lists, so every one has at least one GX attack with missing `gxAttack: true`; rank 14 also has Oricorio-GX / Strafe-GX. The equal-rank field loss budget requires at least 98.545455% mean wins across all 11 Regidrago placements even if every other rank is a certain win. This raises the importance of Agent49's source-correct GX fallback/Apex Dragon protocol work, but no tracker-history enablement or new implementation scope is authorized.
+
+Agent2's independent review of exact tested head `3bfd7aca` remains pending. Agent2's earlier note on Skyliner appears to be a non-blocking test-coverage suggestion: the current suite already has a non-Basic Stage 2 Active plus explicit live/unknown Skyliner states, but no explicit `suppressed:true` case; implementation returns false when suppression is true. I sent this nuance to Agent2 without requesting another workflow run.
