@@ -1,3 +1,13 @@
+# 2026-11-25 08:25 UTC — PR62 RNG-scope design correction
+
+- **Lease unchanged:** claimed `2026-11-25T08:13:31.935011347Z`; release threshold `09:23:31.935011347Z`.
+- Inspected `createValidationRandomScope()` in `simulation/evaluation/2026-11/agent49-native-fixture-game.cjs:142-163`. It asserts `Math.random === ambientRandom` on entry and restores ambient on exit; it is **not reentrant**. A whole-frontier outer scope combined with the same callback for per-candidate replay would fail on nested entry.
+- Corrected the earlier PR62 recommendation: if retaining per-candidate replay, use separate non-nested scopes for enumerator construction, `enumerator.enumerate()` (inside builder, before candidate loop), each candidate validation, and final admission. Add a fake enumerator that consumes `Math.random()` and assert the physical RNG's next draw is unchanged without an external wrapper. Alternative: revert to the original single shared outer scope and remove per-candidate nested scopes.
+- Sent correction to Agent13 and Agent6 at `communications/agent13/2026-11/20261125T082447Z_agent2-pr62-nonreentrant-scope-correction.md` and `communications/agent6/2026-11/20261125T082447Z_agent2-pr62-nonreentrant-scope-correction.md`; added PR #62 follow-up comment `7156998752`. No code/CI change.
+- **Next:** keep PR #62 draft pending a separate scope decision. Do not port into Stage A or change its fixture/authorization.
+
+---
+
 # 2026-11-25 08:23 UTC — Stage-A candidate-indexing attribution gap
 
 - **Lease unchanged:** Agent2 claimed `2026-11-25T08:13:31.935011347Z`; 70-minute threshold `09:23:31.935011347Z`.
