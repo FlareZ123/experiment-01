@@ -3,6 +3,8 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {sha256} = require('../simulation/evaluation/2026-11/agent36-4410-policy-provenance.cjs');
+const {evidenceBundleSha256: canonicalSha256} =
+  require('../simulation/evaluation/canonical-evidence-json.cjs');
 const {assessBalancedFieldKl, lowerKlBound, binaryKl} =
   require('../scripts/agent12-balanced-kl-field-bound.cjs');
 const {assessPerfectField} =
@@ -14,6 +16,50 @@ const C = 'c'.repeat(64);
 const D = 'd'.repeat(64);
 const E = 'e'.repeat(64);
 const F = 'f'.repeat(64);
+const RESULT_TO_STATUS = {
+  'candidate-win':'paper-qualified-win',
+  'candidate-loss':'paper-qualified-loss',
+  'genuine-tie':'paper-qualified-tie',
+  'no-winner':'paper-qualified-no-winner'
+};
+
+function refreshTerminalReceipt(request, attempt) {
+  const result = Object.keys(RESULT_TO_STATUS).find(key =>
+    RESULT_TO_STATUS[key] === attempt.status) || 'candidate-win';
+  const terminalClass = result === 'no-winner' ? 'simultaneous-game-loss' :
+    result === 'genuine-tie' ? 'genuine-draw' :
+      result === 'candidate-loss' ? 'candidate-forfeit' : 'normal-completion';
+  const receipt = {
+    schema: 'aichi-terminal-adjudication-receipt-v1',
+    trialId: attempt.trialId,
+    paperReceiptId: attempt.paperReceiptId,
+    registrationSha: request.registrationSha,
+    rank: attempt.rank,
+    candidatePhysicalSeat: attempt.seat,
+    actualStarterSeat: attempt.firstPlayerSeat,
+    physicalDealId: attempt.physicalDealId,
+    source60Sha: attempt.source60Sha,
+    candidate60Sha: attempt.candidate60Sha,
+    candidatePolicySha: attempt.candidatePolicySha,
+    engineAndHooksSha: attempt.engineAndHooksSha,
+    opponentPolicyBundleSha: attempt.opponentPolicyBundleSha,
+    adjudicationProtocolSha: attempt.adjudicationProtocolSha,
+    clockMode: request.clockMode,
+    gameStarted: true,
+    terminalEventSha256: canonicalSha256({trialId:attempt.trialId,terminalClass}),
+    terminalClass,
+    adjudicatedCandidateResult: result,
+    statisticalStatus: RESULT_TO_STATUS[result]
+  };
+  receipt.receiptSha256 = canonicalSha256(receipt);
+  attempt.terminalAdjudicationReceipt = receipt;
+  attempt.terminalAdjudicationReceiptSha256 = receipt.receiptSha256;
+}
+
+function setOutcome(request, attempt, result) {
+  attempt.status = RESULT_TO_STATUS[result];
+  refreshTerminalReceipt(request, attempt);
+}
 
 /** @param {number} trialsPerStratum */
 function fixture(trialsPerStratum) {
@@ -46,18 +92,22 @@ function fixture(trialsPerStratum) {
       }
     }
   }
-  return {
+  const request = {
     originalSources, attempts,
     registeredAttemptCount: attempts.length,
-    registrationSha: F
+    registrationSha: F,
+    clockMode: 'clock-free-game-win'
   };
+  for (const attempt of attempts) refreshTerminalReceipt(request, attempt);
+  return request;
 }
 
 function bindIidSamplingModel(request) {
   request.stratumSamplingModel = 'iid-bernoulli-v1';
   request.fieldSamplingRegistration = {
-    schema: 'aichi-field-sampling-registration-v1',
+    schema: 'aichi-field-sampling-registration-v2',
     stratumSamplingModel: 'iid-bernoulli-v1',
+    clockMode: request.clockMode,
     registeredAt: '2026-11-14T00:00:00Z',
     target: request.target ?? 0.995,
     confidence: request.confidence ?? 0.95,
@@ -76,8 +126,10 @@ function bindIidSamplingModel(request) {
       physicalDealId}) => ({trialId,rank,seat,firstPlayerSeat,physicalDealId}))
   };
   request.registrationSha = sha256(request.fieldSamplingRegistration);
-  for (const attempt of request.attempts)
+  for (const attempt of request.attempts) {
     attempt.registrationSha = request.registrationSha;
+    refreshTerminalReceipt(request, attempt);
+  }
   return request;
 }
 
@@ -94,7 +146,7 @@ test('640 perfect wins reproduce the exact all-win confidence bound', () => {
 
 test('639 wins and one paper-qualified loss give a numerical FAIL, not a ledger rejection', () => {
   const f = fixture(5);
-  f.attempts[0].status = 'paper-qualified-loss';
+  setOutcome(f, f.attempts[0], 'candidate-loss');
   const b = assessBalancedFieldKl(f), a = assessPerfectField(f);
   assert.equal(b.winCount, 639);
   assert.deepEqual(b.rejectionReasons, []);
@@ -105,7 +157,7 @@ test('639 wins and one paper-qualified loss give a numerical FAIL, not a ledger 
 
 test('1151 wins from 1152 balanced trials exceed conditional 99.5 lower bound', () => {
   const f = fixture(9);
-  f.attempts[17].status = 'paper-qualified-loss';
+  setOutcome(f, f.attempts[17], 'candidate-loss');
   const b = assessBalancedFieldKl(f);
   assert.equal(b.totalAttempts, 1152);
   assert.equal(b.winCount, 1151);
@@ -116,13 +168,13 @@ test('1151 wins from 1152 balanced trials exceed conditional 99.5 lower bound', 
 
 test('1023 of 1024 wins remain insufficient and 1534 of 1536 suffice', () => {
   const f = fixture(8);
-  f.attempts[0].status = 'paper-qualified-loss';
+  setOutcome(f, f.attempts[0], 'candidate-loss');
   const a = assessBalancedFieldKl(f);
   assert.equal(a.conditionalStatisticalThresholdMet, false);
   assert.ok(Math.abs(a.conditionalLowerBound-0.9944037333431)<1e-12);
   const g = fixture(12);
-  g.attempts[0].status = 'paper-qualified-loss';
-  g.attempts[1].status = 'paper-qualified-loss';
+  setOutcome(g, g.attempts[0], 'candidate-loss');
+  setOutcome(g, g.attempts[1], 'candidate-loss');
   const b = assessBalancedFieldKl(g);
   assert.equal(b.winCount, 1534);
   assert.equal(b.conditionalStatisticalThresholdMet, true);
@@ -131,11 +183,45 @@ test('1023 of 1024 wins remain insufficient and 1534 of 1536 suffice', () => {
 
 test('paper-qualified tie counts as a complete game and a nonwin', () => {
   const f = fixture(5);
-  f.attempts[0].status = 'paper-qualified-tie';
+  setOutcome(f, f.attempts[0], 'genuine-tie');
   const b = assessBalancedFieldKl(f);
   assert.deepEqual(b.rejectionReasons, []);
   assert.equal(b.winCount, 639);
   assert.equal(b.observedWinRate, 639/640);
+});
+
+
+test('paper-qualified no-winner is distinct and counts as a nonwin', () => {
+  const f = fixture(5);
+  setOutcome(f, f.attempts[0], 'no-winner');
+  const b = assessBalancedFieldKl(f);
+  assert.deepEqual(b.rejectionReasons, []);
+  assert.equal(b.winCount, 639);
+  assert.equal(b.nonwinCount, 1);
+  assert.equal(b.observedWinRate, 639/640);
+  const perfect = assessPerfectField(f);
+  assert.ok(perfect.rejectionReasons.includes('nonwin-or-unqualified-attempt'));
+});
+
+test('missing, replayed or mismatched terminal receipts invalidate the 128-cell ledger', () => {
+  const missing = fixture(5);
+  delete missing.attempts[0].terminalAdjudicationReceipt;
+  const missingResult = assessBalancedFieldKl(missing);
+  assert.equal(missingResult.conditionalLowerBound, null);
+  assert.ok(missingResult.rejectionReasons.includes(
+    'terminal-adjudication-receipt-missing'));
+
+  const replay = fixture(5);
+  replay.attempts[1].terminalAdjudicationReceipt =
+    {...replay.attempts[0].terminalAdjudicationReceipt};
+  replay.attempts[1].terminalAdjudicationReceiptSha256 =
+    replay.attempts[0].terminalAdjudicationReceiptSha256;
+  const replayResult = assessBalancedFieldKl(replay);
+  assert.equal(replayResult.conditionalLowerBound, null);
+  assert.ok(replayResult.rejectionReasons.includes(
+    'terminal-adjudication-receipt-replayed'));
+  assert.ok(replayResult.rejectionReasons.includes(
+    'terminal-adjudication-event-replayed'));
 });
 
 test('native, censored, errors and unaudited statuses all fail closed', () => {
@@ -232,8 +318,8 @@ test('conservative upper-tail KL bound dominates exact heterogeneous Bernoulli t
 
 test('10 games in each of 128 strata and at most two nonwins use the exact field-mean test only under digest-bound iid registration', () => {
   const f = fixture(10);
-  f.attempts[0].status = 'paper-qualified-loss';
-  f.attempts[1].status = 'paper-qualified-tie';
+  setOutcome(f, f.attempts[0], 'candidate-loss');
+  setOutcome(f, f.attempts[1], 'genuine-tie');
   bindIidSamplingModel(f);
   const result = assessBalancedFieldKl(f);
   assert.equal(result.totalAttempts, 1280);
@@ -281,8 +367,8 @@ test('sampling registration digest and exact trial roster are enforced', () => {
 
 test('the aggregate exact field-mean branch fails closed to heterogeneous KL without iid declaration', () => {
   const f = fixture(10);
-  f.attempts[0].status = 'paper-qualified-loss';
-  f.attempts[1].status = 'paper-qualified-tie';
+  setOutcome(f, f.attempts[0], 'candidate-loss');
+  setOutcome(f, f.attempts[1], 'genuine-tie');
   const result = assessBalancedFieldKl(f);
   assert.equal(result.boundMethod, 'heterogeneous-kl');
   assert.equal(result.worstCaseNullPValue, null);
@@ -292,9 +378,9 @@ test('the aggregate exact field-mean branch fails closed to heterogeneous KL wit
 
 test('the aggregate exact field-mean branch is limited to 10 per cell and at most two nonwins', () => {
   const threeNonwins = fixture(10);
-  threeNonwins.attempts[0].status = 'paper-qualified-loss';
-  threeNonwins.attempts[1].status = 'paper-qualified-tie';
-  threeNonwins.attempts[2].status = 'paper-qualified-loss';
+  setOutcome(threeNonwins, threeNonwins.attempts[0], 'candidate-loss');
+  setOutcome(threeNonwins, threeNonwins.attempts[1], 'genuine-tie');
+  setOutcome(threeNonwins, threeNonwins.attempts[2], 'candidate-loss');
   bindIidSamplingModel(threeNonwins);
   const three = assessBalancedFieldKl(threeNonwins);
   assert.equal(three.boundMethod, 'heterogeneous-kl');
@@ -302,8 +388,8 @@ test('the aggregate exact field-mean branch is limited to 10 per cell and at mos
   assert.equal(three.conditionalStatisticalThresholdMet, false);
 
   const ninePerCell = fixture(9);
-  ninePerCell.attempts[0].status = 'paper-qualified-loss';
-  ninePerCell.attempts[1].status = 'paper-qualified-tie';
+  setOutcome(ninePerCell, ninePerCell.attempts[0], 'candidate-loss');
+  setOutcome(ninePerCell, ninePerCell.attempts[1], 'genuine-tie');
   bindIidSamplingModel(ninePerCell);
   const nine = assessBalancedFieldKl(ninePerCell);
   assert.equal(nine.boundMethod, 'heterogeneous-kl');
@@ -326,8 +412,8 @@ test('an invalid field ledger cannot use the exact aggregate field-mean branch',
 test('the exact aggregate field-mean rule does not transfer to another target or confidence', () => {
   const targetRequest = fixture(10);
   targetRequest.target = 0.994;
-  targetRequest.attempts[0].status = 'paper-qualified-loss';
-  targetRequest.attempts[1].status = 'paper-qualified-tie';
+  setOutcome(targetRequest, targetRequest.attempts[0], 'candidate-loss');
+  setOutcome(targetRequest, targetRequest.attempts[1], 'genuine-tie');
   bindIidSamplingModel(targetRequest);
   const targetResult = assessBalancedFieldKl(targetRequest);
   assert.equal(targetResult.boundMethod, 'heterogeneous-kl');
@@ -336,8 +422,8 @@ test('the exact aggregate field-mean rule does not transfer to another target or
 
   const confidenceRequest = fixture(10);
   confidenceRequest.confidence = 0.9;
-  confidenceRequest.attempts[0].status = 'paper-qualified-loss';
-  confidenceRequest.attempts[1].status = 'paper-qualified-tie';
+  setOutcome(confidenceRequest, confidenceRequest.attempts[0], 'candidate-loss');
+  setOutcome(confidenceRequest, confidenceRequest.attempts[1], 'genuine-tie');
   bindIidSamplingModel(confidenceRequest);
   const confidenceResult = assessBalancedFieldKl(confidenceRequest);
   assert.equal(confidenceResult.boundMethod, 'heterogeneous-kl');
