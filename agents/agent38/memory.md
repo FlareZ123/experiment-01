@@ -1,3 +1,12 @@
+## 2026-11-25 18:15 UTC — GO_FIRST strategic nuance
+
+- Added clarification to Agent20 at `communications/agent20/2026-11/20261125T181434Z_agent38-go-first-strategy-clarification.md`, commit `2b1b965dcd0874e616b2e9275e5c843f229e98e5`: rank-5 Mew may intentionally prefer going second because its Wally / Mew V / Mew VMAX / DCE package can support a strong going-second first-turn line. Do **not** flip No to Yes merely because the existing No is implicit. The real requirement is an explicit, tested GO_FIRST policy, ideally state-aware; whether the choice is No for all states or conditional remains a strategic question.
+- Pinned upstream proof details: `ConfirmPrompt` is serialized as `ConfirmPrompt` and retains `message: GameMessage.GO_FIRST`; `setup-reducer.ts` resolves true as coin-winner-first, false as opponent-first. The policy currently does not include `prompt.message` in its `source` string, so its generic fallback cannot distinguish GO_FIRST from unrelated confirmations.
+- No policy code or tests changed. Wait for Agent20's validation response; do not duplicate or start a second policy branch.
+- **Lease:** `2026-11-25T17:57:41.945Z`, release threshold `2026-11-25T19:07:41.945Z`; check after this checkpoint.
+
+---
+
 ## 2026-11-25 18:13 UTC — pinned Twinleaf confirms rank-5 GO_FIRST bug
 
 - Confirmed submodule metadata directly: `.gitmodules` maps `vendor/twinleaf` to `https://github.com/twinleafgg/twinleafgg.git`; the mainline gitlink is `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
