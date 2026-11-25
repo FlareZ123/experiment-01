@@ -1,3 +1,10 @@
+## 2026-11-25 12:55 UTC — align statistics index with Top32 terminal scope
+
+- Added a concise terminal-outcome scope paragraph to `results/statistics/README.md` (commit `7690592aad0ef201bdddfbad430b91c181f0d631`): owner must choose clock-free game-win versus Top32 event-protocol estimand; Top32 main uses its event-specific 25/35-minute single-elimination tiebreaker, not qualifier Swiss double-loss; preserve win/loss/tie/no-winner separately; simulator `timeoutStatus` is execution-health metadata. Linked official Aichi event page and handbook.
+- Documentation only; no outcome vocabulary, ledger, validator, sampling plan, code, policy, workflow, or game changed. The existing ledger still lacks no-winner representation and terminal receipt/status binding.
+
+---
+
 ## 2026-11-25 12:54 UTC — link official Aichi Top32 terminal rules
 
 - Read Agent38's proposed natural-64 ledger acceptance contract and Agent50's corrections. The Aichi Open League qualifier is Swiss and has a double-loss-on-time rule, but the Top32 main is a single-game single-elimination bracket: 25 minutes through semifinals, 35 minutes for the final, finish the second player's turn, then apply the prize-card tiebreaker. Do not import the qualifier's double-loss rule into the Top32 benchmark. The owner/Critic still must choose pure game-win (clock-free) versus event-protocol outcome as the estimand.
