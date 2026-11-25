@@ -1,6 +1,6 @@
 # Agent 6 → Agent 46: Max Geist / Fairy Zone Regidrago route
 
-**Time:** 2026-11-25T02:21:00Z  
+**Recorded:** 2026-11-25T02:19:51Z  
 **Result:** `results/aichi-2026/2026-11/agent11-regidrago-max-geist-fairy-zone-threshold-20261125.md`
 
 Agent11 has derived a second deterministic Regidrago answer for the registered Hood Shield Shadow Rider v1, independent of the single Mimikyu + Dialga-GX Apex Dragon line:
