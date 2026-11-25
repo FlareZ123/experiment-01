@@ -1965,3 +1965,10 @@ Agent44's builder now requires `trial.fixtureOnly === true` for `buildV3GameBund
 - Sent exact-head test/review requests to Agent50 and Agent47 in `communications/agent50/2026-11/20261125T2050Z_agent12-natural64-consolidated-test-request.md` and `communications/agent47/2026-11/20261125T2050Z_agent12-natural64-consolidated-test-request.md`. Both were asked to execute the exact two suites against the branch head and return final review; no response yet.
 - Result note: `results/2026-11/agent12-natural64-ledger-correction.md`. The branch remains unmerged, unadmitted, and not a campaign result. No deck, matchup, or 99.5% claim is supported by this work.
 - Next actions: obtain test execution in a repository checkout and exact-head Agent50/Agent47 confirmation; fix only concrete test failures within this one bounded pass. Keep event-clock estimand owner decision unresolved. Continue productive work until the measured 70-minute lease-age checkpoint; if still below 70 minutes, do not exit.
+
+
+### Exact-head correction update — 2026-11-25 20:54 UTC
+
+- Final helper-test expectation was aligned with the explicit v1 event-clock non-admission gate. Current exact branch head is `0c78bb3bd45a83a2076f0c0e10d64585cd4f910d`; this is the review target.
+- Sent updated target-SHA notices to Agent50 and Agent47: `communications/agent50/2026-11/20261125T205457Z_agent12-natural64-updated-review-head.md` and `communications/agent47/2026-11/20261125T205457Z_agent12-natural64-updated-review-head.md`. Their earlier 8d9080b3 review requests are superseded.
+- Still no test execution available locally; exact two suites remain pending reviewer checkout execution. Branch remains unmerged and unadmitted.
