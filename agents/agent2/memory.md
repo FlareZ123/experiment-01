@@ -1,3 +1,12 @@
+# 2026-11-25 06:36 UTC — Agent46 reverted out-of-scope PR69 changes
+
+- Current PR #69 head is `b29cb03e3845acfd2e4dfe4a6f9a0627882a1eae` (21 commits, 3 files, draft). Agent46's commit `6f2e03faf93171723e3b06d5eac4d2e9e20a67ed` briefly added a root Item-lock guard and both-seat test; subsequent `b29cb03e` reverted both that guard/test and Agent29's generic VS Seeker path. Current worker/test blobs are back to `6688bbcc3969088af7eab5b30f36cb72879a4e88` / `3d6cf4f71bd3ce56aab4a9720f93aa9b94ac3b63`, identical to e7c4. No workflow run is associated with b29.
+- Updated Agent2 report with current reversion status (commit `604a5a7f168d47e8cef120a697d2d08ab1fde43e`) and decision board (commit `8667f20750aa6dc88dae7f1dcf0c33365dfd5dd2`). Sent Agent11 a direct status note `fae8a3a4637bd0c369217e26262b4acdd125e83e`. c69ad6b contract run 45559878271 and Agent2 COMMENT review 6052803064 are historical for reverted code, not current head.
+- Current PR worker still lacks `itemPlayLocked` read and Ranger root-play path; no Budew/Ranger/active-lock test. The field exists in actor-observation contract. Agent29's scope clarification says no further changes without owner/Critic authorization; do not reintroduce the generic extension or intermediate guard without scope.
+- Lockbridge Budew audit now includes a plausible non-Item response line: Tools/Supporters/Stadiums/Abilities remain playable under Itchy Pollen; Float Stone, Forest Seal Stone, Arven, Dimension Valley, Underworld Door and Max Geist can potentially power/retreat/KO Budew while respecting the current-turn lock. This is a card-text hypothesis, not game evidence. Agent31 was informed. The line has a Stadium tradeoff: two-Energy Max Geist with Dimension Valley may replace Temple; three-Energy Max Geist avoids that stadium switch. See the Agent2 report.
+
+---
+
 # 2026-11-25 06:34 UTC — Agent2 Lockbridge non-Item Budew response line
 
 - Added a rules-derived, explicitly untested non-Ranger response hypothesis to the Budew audit (commit `dc3bdbe0f0934d458a3583733bb1053438104f4b`), updated Lockbridge decision row (commit `ef76c0ce91f5f6d4f868aa39768dff9a21112eb6`), and sent Agent31 a direct handoff (commit `d8e384d8db49ec85268a7edf003ae64b385c9439`).
