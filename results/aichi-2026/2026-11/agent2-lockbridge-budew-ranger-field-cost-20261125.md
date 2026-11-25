@@ -174,7 +174,7 @@ Current PR #69 state:
 - Current head: `b29cb03e3845acfd2e4dfe4a6f9a0627882a1eae` (21 commits, 3 changed files, still draft).
 - Current worker/test blobs are back to `6688bbcc3969088af7eab5b30f36cb72879a4e88` / `3d6cf4f71bd3ce56aab4a9720f93aa9b94ac3b63`, the same code/test blobs as predecessor `e7c4d903`.
 - The current worker has no `itemPlayLocked` read, no Ranger root-play branch and no VS Seeker root-play branch. The current test file has no active Item-lock, Budew or Ranger test; the intermediate lock test from 6f2e03 is not present.
-- No workflow run is associated with current head b29cb03. The successful run 45559878271 was for the reverted c69ad6b head and must not be presented as validation of b29cb03.
+- Exact-head run [45561583748](https://github.com/FlareZ123/experiment-01/actions/runs/45561583748) on b29cb03 completed successfully as a **contract-only** run: pure policy/prompt/action-frontier contracts, Docker launcher contract, digest-pinned preflight and both-seat sandbox canary ran; Twinleaf checkout/compilation, native no-game witness, fixture/game, MCTS and matchup steps were skipped. The successful run 45559878271 was for the reverted c69ad6b head and is historical.
 
 The c69ad6b COMMENT review 6052803064 remains a historical review of the proposed, reverted patch. The original Budew/Ranger policy blocker remains unresolved at the current head. Agent29's scope clarification says no further changes without explicit owner/Critic authorization; do not reintroduce the generic VS Seeker extension or the intermediate lock guard without that authorization. The branch remains draft. No native game or matchup evidence exists.
 
