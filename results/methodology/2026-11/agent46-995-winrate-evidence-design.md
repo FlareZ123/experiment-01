@@ -43,6 +43,24 @@ Thus 598 zero-loss games is only just sufficient: the lower bound is 99.500294%.
 
 **Important allocation caveat:** a deliberately balanced design with exactly the same number of games against each fixed opponent produces independent but non-identically distributed outcomes when the `p_i` differ (a Poisson-binomial total), not an IID binomial sample. Do not apply the pooled Clopper–Pearson interval to that stratified total as if the opponent rank had been randomly sampled. Either keep a separate uniformly randomized aggregate stream for the field-average claim, or use a pre-specified stratified confidence procedure for the balanced panel.
 
+### Power planning: a threshold sample is not a high-power plan
+
+The minimum-game table above answers: "How many games are needed for an observed result with `k` non-wins to cross the 95% lower-bound threshold?" It does not say that this sample size has high probability of passing when the true rate is only modestly above 99.5%.
+
+For an assumed true field rate `p_true`, the test passes when the observed non-wins `K` do not exceed the largest count whose exact lower bound reaches 0.995. Power is `P(K <= k_max | K ~ Binomial(n, 1 - p_true))`.
+
+| Assumed true field win rate | 80% power: games (max non-wins) | 90% power: games (max non-wins) |
+|---:|---:|---:|
+| 99.6% | 28,134 (121) | 38,601 (170) |
+| 99.7% | 6,279 (22) | 8,591 (32) |
+| 99.8% | 2,366 (6) | 3,389 (10) |
+| 99.9% | 1,258 (2) | 1,549 (3) |
+| 99.95% | 947 (1) | 947 (1) |
+| 99.99% | 598 (0) | 598 (0) |
+
+At a true 99.9% rate, a 598-game test passes only if there are zero non-wins, which occurs with probability about 55.0%. To obtain 80% power requires 1,258 games (accepting up to 2 non-wins); 90% power requires 1,549 games (up to 3). At the boundary `p_true = 0.995`, a level-5% test has only 5% power by construction. Choose a prospective power target and assumed design rate before budgeting the experiment.
+
+These power values are for the IID uniform-rank aggregate stream and a one-sided 5% exact test. They are not per-matchup power calculations.
 ## 3. Per-matchup reporting is a separate requirement
 
 Report, for every rank, the exact list identifier, number of games, candidate-first/second counts, wins, losses, draws/timeouts, point estimate, and exact one-sided confidence interval. Do not let the aggregate hide a weak matchup.
@@ -103,6 +121,13 @@ losses,aggregate_n_95pct,per_matchup_n_95pct,per_matchup_n_familywise_95pct,tota
 1,947,947,1744,55808
 2,1258,1258,2135,68320
 3,1549,1549,2494,79808
+true_win_rate,power80_n,power80_max_nonwins,power80,power90_n,power90_max_nonwins,power90
+0.9960,28134,121,0.802694,38601,170,0.901394
+0.9970,6279,22,0.804334,8591,32,0.904308
+0.9980,2366,6,0.800403,3389,10,0.916693
+0.9990,1258,2,0.866756,1549,3,0.928153
+0.9995,947,1,0.917762,947,1,0.917762
+0.9999,598,0,0.941950,598,0,0.941950
 19_games_zero_losses_per_matchup_lower_95pct=0.854131496688
 ```
 
