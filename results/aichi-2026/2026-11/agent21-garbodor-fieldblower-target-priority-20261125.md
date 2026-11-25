@@ -1,0 +1,44 @@
+# Agent21: Garbodor Field Blower target-priority gap in PR #69
+
+**Date:** 25 November 2026  
+**Decision relevance:** candidate-policy competence for the fixed Hood Shield 60. This is a source-bound policy review, not a native game or matchup result.
+
+## Finding
+
+PR #69 correctly recognizes a Tool-equipped Garbodor as an Ability-lock source for Radiant Eternatus's Climactic Gate. However, its Field Blower target policy does not prioritize removing the Tool from an effective Garbotoxin source over unrelated opponent Tools.
+
+At branch `agent46/candidate-policy-competence-20261124`, head `e7c4d9032fbb0ee162028d744f2bab1debd7a52e`:
+
+- `collectAbilityLockSources()` adds each Tool-equipped Garbodor with `all-tool-attached` scope; `hasRadiantGateLock()` therefore continues to report a lock while any effective Garbotoxin source remains.
+- `hasOpponentToolRemovalTarget()` returns true for any opponent Tool-bearing Pokémon, not specifically a Garbodor sustaining Garbotoxin.
+- `chooseFieldBlowerPokemon()` scores any opponent Active Tool-holder at 1000 plus generic Tool value and any Benched Tool-holder at 700 plus generic Tool value. Its only special target bonus is for a Stealthy Hood that blocks Fairy Zone. There is no Garbodor/Garbotoxin source bonus.
+- `fieldBlowerToolRemovalScore()` similarly prefers Active targets and selected Tool names; it has no Garbotoxin-specific priority.
+- Existing tests cover generic Active/Bench Tool holders, Stealthy Hood, and Garbotoxin's suppression effect separately. They do not test selecting Garbodor's Tool over an unrelated Active Tool when both are present.
+
+The relevant implementation is in `simulation/evaluation/2026-11/agent46-candidate-policy.cjs` around `chooseFieldBlowerPokemon` (1125–1156), `fieldBlowerToolRemovalScore` (1366–1376), `hasOpponentToolRemovalTarget` (2267–2270), and `hasRadiantGateLock` (2182–2202). The focused tests are in `tests/2026-11/agent46-candidate-policy.test.cjs` around the Field Blower target-selection cases (3515–3725) and the Garbotoxin lock cases (4262–4319).
+
+## Why it is field-relevant
+
+The four authenticated Aichi Garbodor lists are ranks **8, 11, 16 and 22**. Their source inventories contain:
+
+| Rank | Garbodor copies | Float Stone | Muscle Band | Stadiums |
+| ---: | ---: | ---: | ---: | ---: |
+| 8 | 2 | 4 | 1 | 0 |
+| 11 | 2 | 3 | 1 | 0 |
+| 16 | 3 | 4 | 1 | 0 |
+| 22 | 2 | 4 | 1 | 0 |
+
+The fixed Hood Shield candidate has one Field Blower. These four opponent lists have no Stadium, so the Field Blower two-Tool mode is the relevant route in the simple case.
+
+A concrete reachable counterexample is an opponent Active attacker with Float Stone and two Benched Garbodor, each with Float Stone. With a maximum-two Pokémon-target prompt, the current policy ranks the unrelated Active Tool-holder first and then one Bench Tool-holder. At least one Garbodor remains Tool-equipped, so Garbotoxin remains effective and Radiant Gate is still blocked. With three Garbodor Tool sources (the rank-16 list contains three copies), even choosing two Garbodor tools cannot clear all sources in one Field Blower. The exact board is a counterexample state, not a claim that every game reaches it.
+
+This matters because Garbotoxin is a Bench/global Ability: removing a Tool from an unrelated Active Pokémon does not deactivate it. The candidate cannot attach Stealthy Hood to Radiant Eternatus before the on-play Gate trigger, so the relevant source must be disabled before attempting that Gate line. The existing Gate lock resolver correctly treats any remaining Tool-equipped Garbodor as effective.
+
+## Narrow remediation if separately authorized
+
+1. Give a visible Tool attached to an effective Garbotoxin source priority over unrelated Tool-bearing Pokémon when selecting Field Blower targets.
+2. If multiple Garbodor sources are present, prioritize all effective sources; do not treat Field Blower as having cleared the lock while any source remains.
+3. Add both-seat regressions with (a) an unrelated Active Tool-holder plus two Benched Tool-equipped Garbodor and max-two selection, (b) max-one selection, and (c) three effective Garbodor sources. Assert that `hasRadiantGateLock()` remains true until the last effective Garbotoxin source loses its Tool or is otherwise suppressed.
+4. Keep the existing Stealthy Hood/Fairy Zone priority and Stadium-removal behavior; the new priority must be source-specific rather than a blanket preference for all Garbodor cards.
+
+No PR #69 code or tests were changed. The branch remains frozen pending owner/Critic scope; this finding should be reviewed before any claim that its Field Blower line is competent against the authenticated Garbodor field.
