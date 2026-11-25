@@ -91,11 +91,13 @@ test('Guzma and Prime Catcher require both Benches; Escape Rope and Switch requi
   assert.equal(noActorBench.totalAccessProbability, 0);
 });
 
-test('Prime Catcher is disabled when the ACE SPEC has already been used', () => {
-  const result = estimatePaleMoonEscapeAccess(deck({ 'Prime Catcher': 1 }), {
-    ...staticState, aceSpecAvailable: false
-  });
-  assert.equal(result.itemOutCopies, 0);
+test('Prime Catcher is a direct ACE SPEC out with both Benches and is disabled after use', () => {
+  const list = deck({ 'Prime Catcher': 1 });
+  const live = estimatePaleMoonEscapeAccess(list, staticState);
+  const used = estimatePaleMoonEscapeAccess(list, { ...staticState, aceSpecAvailable: false });
+  close(live.directOutProbability, 7 / 60);
+  assert.ok(live.itemOutNames.includes('Prime Catcher'));
+  assert.equal(used.itemOutCopies, 0);
 });
 
 test('Arven can search Float Stone when the target Tool slot is open', () => {
