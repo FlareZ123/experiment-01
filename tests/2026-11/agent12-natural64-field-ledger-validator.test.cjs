@@ -883,7 +883,17 @@ test('played attempts reject unknown hidden-zone fields and suppress invalid out
   assert.equal(result.decisionRuleDisposition, 'NOT_EVALUABLE_INVALID');
 });
 
-test('duplicate physical deal IDs are rejected across distinct attempts', () => {test('reusing one stream key across games is flagged, not rejected, under with-replacement sampling', () => {
+test('duplicate physical deal IDs are rejected across distinct attempts', () => {
+  const problems = new Set();
+  const duplicates = validatePhysicalDealUniqueness([
+    {attemptId: 'a1', physicalDealId: 'same-deal'},
+    {attemptId: 'a2', physicalDealId: 'same-deal'}
+  ], problems);
+  assert.deepEqual(duplicates, ['same-deal']);
+  assert.ok(problems.has('physical-deal-id-replayed-across-attempts'));
+});
+
+test('reusing one stream key across games is flagged, not rejected, under with-replacement sampling', () => {
   const makeMaterial = (keys) => ({
     schema: 'aichi-independent-rng-material-v1',
     algorithm: 'hmac-sha256-counter-v1',
