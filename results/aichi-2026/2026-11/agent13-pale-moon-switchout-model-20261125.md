@@ -124,6 +124,8 @@ This is a possible state in authenticated Aichi rank 2 Takahiro Ando's original 
 
 **Frozen-policy choice.** The exact PR #69 policy blob is `bfcd172de1f5bbbb10060e4391b127847adbb190` at PR #69 head `64d77d32c57e3c87517e1fc302ff97ca4fabd165`.
 
+The exact card-pool text for Trevenant & Dusknoir-GX SMP SM217 confirms the distinction: the delayed Knock Out at the end of the opponent's next turn is unconditional; the additional-Psychic clause only discards all Energy from the opponent's Active Pokémon. Thus zero target Energy does **not** remove the delayed-KO effect, but it does make the policy's separate +350 Energy-discard bonus valueless.
+
 - `paleMoonExtraPsychicAvailable()` returns true with three Psychic Energy: Pale Moon-GX costs Psychic + Colorless and requires one additional Psychic Energy for its discard effect.
 - `paleMoonScore()` sees zero target Energy and two-Prize liability. It still awards the full +350 extra-Psychic bonus, producing a base of 900 + 0×80 + 2×100 + 350 = 1,450. Because Vileplume-GX cannot retreat and the opponent has a Bench, it adds another 350, for **1,800**.
 - Night Watch deals 150 to the 240-HP Vileplume-GX, so it does not Knock it Out. `attackScore()` assigns Night Watch 150×10 plus up to 120 hand-disruption points: **1,500–1,620**.
