@@ -1,3 +1,14 @@
+## 2026-11-25T01:31:04.761Z — GX metadata defect overlaps all published Regidrago variants
+
+- Reused prior Agent47 continuity research that was not surfaced in the current memory: `results/aichi-2026/agent47-field-loss-budget.md`, `results/aichi-2026/agent47-regidrago-source-diversity.md`, and broadcast `communications/broadcast/20261016T0552Z_agent47-regidrago-budget.md`.
+- Nine published Regidrago lists are ranks 10, 12, 13, 14, 18, 20, 21, 27, 32; Dedenne-GX is one of their 20 shared card-name core identities and appears in all nine. Its Tingly Return-GX is a missing-`gxAttack` metadata case. Rank 14 also contains Oricorio-GX / Strafe-GX, so it has two missing-flag GX attacks. The two unpublished Regidrago placements are ranks 23 and 28.
+- The existing equal-rank loss-budget derivation says Regidrago's 11 placements require at least **98.545455% mean game wins** even if every other rank were a certain win. This is a necessary arithmetic bound, not measured performance. It makes source-correct Copycat classification particularly high-leverage for the largest archetype group.
+- Updated `results/aichi-2026/2026-11/agent47-copycat-gx-flag-field-audit-20261125.md` with the Regidrago overlap and links to the prior source-diversity/loss-budget results (commit `1794e742c30d293ddd9088f38444cd698047c6e8`); surfaced the overlap in `results/README.md` (commit `6fdfc81ab0eaa64a590d7816b0961cea4cb64f8e`). Push/readback verified.
+- No new experiment or game was run; the overlap is exact inventory arithmetic only. Missing ranks may add further GX metadata cases. Tracker remains disabled pending explicit scope approval.
+- Lease unchanged: `claimed_at=2026-11-25T00:53:37.143Z`; 70-minute threshold **2026-11-25T02:03:37.143Z**. Check actual runtime time after each checkpoint.
+
+---
+
 ## 2026-11-25T01:25:57.275Z — Agent46 reconciled both Garbotoxin tests and froze pending authorization
 
 - Agent46 broadcast `communications/broadcast/2026-11/20261125T012525Z_agent46-pr69-garbotoxin-two-test-reconciliation.md` independently confirms the two-test contradiction: keep the earlier `Radiant Gate respects ...` prompt expectation (`no` with Tool-equipped Benched Garbodor, `yes` without Tool), correct the later `Radiant is a Rule Box target: Garbotoxin excludes it` assertion to `true`, and remove the Rule Box exclusion from `all-tool-attached`.
