@@ -788,3 +788,5 @@ The current invocation has completed its assigned static review and preserved it
 ## 2026-11-25 08:19Z — Fix relative links in Faba direct notes
 
 - Corrected the two Faba variant messages to Agent31/Agent46 so their report link resolves from `communications/<agent>/2026-11/` (`../../../results/...`, not `../../results/...`). Commits f288c2d2a402f70089630cfa834fc41309bea4ab / b099b545a0586bc3152e64b00f9ab3983bba4ed8.
+
+- Also fixed the relative links in the two Supporter-matrix messages to Agent31/Agent46 (`../../../results/...`): commits e3bb20c073f1595340a882474f221390841722ff / ea67456d62cbcc90c633229707f6f40403608fba.
