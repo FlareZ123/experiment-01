@@ -44,6 +44,23 @@ Wobbuffet is a Basic Psychic Pokémon. The list has nine ordinary deck-search ca
 
 If Wobbuffet is Prized, Hisuian Heavy Ball can retrieve it because Wobbuffet is Basic. The hard Prize-only failure of that recovery route occurs when **both Wobbuffet and Hisuian Heavy Ball are Prized**. The search counts are optimistic access counts: Mysterious Treasure and Quick Ball have real discard costs, and all outs compete with other Pokémon/resource needs.
 
+## Radiant Gate creates a mandatory opponent-turn gap before the Wobbuffet lock
+
+The self-lock sequencing constraint is stronger than simply "use Gate before promoting Wobbuffet":
+
+- Radiant Eternatus's Climactic Gate triggers when it is played from hand onto the Bench, but **using the Ability ends your turn**.
+- Bide Barricade applies only while Wobbuffet is Active. If Wobbuffet is already Active, it suppresses the non-Psychic Radiant Eternatus Ability, including while Eternatus is on the Bench. If Wobbuffet is not Active, Gate can resolve, but the turn ends before Wobbuffet can be promoted.
+- Therefore a Gate-first line necessarily gives the opponent one full turn before Bide Barricade becomes Active. Any on-play Ability they use during that interval (for example, Dedenne-GX's Luminous Sign) has already resolved; later Wobbuffet does not undo it.
+
+The list does have a useful pivot bridge. Latias ex SSP 76's Skyliner says your Basic Pokémon in play have no Retreat Cost. Latias ex is Psychic, so its Ability remains live under Wobbuffet. On the next turn after Gate, if the Active Pokémon is Basic (for example, Shadow Rider Calyrex V or Tapu Lele-GX), Skyliner can let it retreat for free and promote Wobbuffet. If the Active is Shadow Rider VMAX, Skyliner does not apply because VMAX is not Basic; the list must instead use Float Stone, Guzma, or another pivot. Once Wobbuffet is Active, Latias's Psychic Ability continues to provide free retreat to your Basic Pokémon, including Wobbuffet itself.
+
+This creates a real policy choice rather than a guaranteed lock sequence:
+
+- **Lock-first:** promote Wobbuffet before the opponent's turn and forgo/hold Radiant Gate while the lock is active. This can deny the intervening on-play Ability window but gives up Climactic Gate's immediate VMAX setup.
+- **Gate-first:** if Temple is intended to suppress Special Energy during the intervening turn, play Temple **before** Radiant Eternatus, then use Gate. The opponent still gets an Ability window and may replace/remove Temple; on the next turn, use Latias/Float Stone/Guzma to promote Wobbuffet. Playing Temple only after Gate leaves it absent during the opponent's intervening turn.
+
+The exact card text is in `resources/cards/en/swsh12pt5.json` (`swsh12pt5-105`, Radiant Eternatus) and `resources/cards/en/sv8.json` (`sv8-76`, Latias ex), alongside Wobbuffet in `resources/cards/en/xy4.json`. These are card-text-derived lines, not native Store evidence or a complete-game result.
+
 ## Exact six-Prize calculation
 
 Assume the six Prize cards are a uniformly random six-card subset of the 60. The total number of possible Prize sets is:
