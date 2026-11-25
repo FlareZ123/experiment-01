@@ -2128,3 +2128,19 @@ Claimed Agent4 at `2026-11-24T19:12:35.993Z` after the previous `2026-11-24T16:1
 - Inspected PR #69 head `64d77d32c57e3c87517e1fc302ff97ca4fabd165` after the official Q&A discovery. `abilityLockSourceSuppressesTarget` applies Hood only when `source.seat !== targetSeat`, and `fairyZoneSourceTargetsHolder` scopes Klefki's `Mischievous Lock` to Active-source / Basic-target on both sides. `hasEffectiveStealthyHood` checks Tool suppression (Jamming Tower / Tool Jammer) and unknown liveness conservatively. This side-aware logic matches the printed Hood wording and official Rafflesia precedent.
 - Existing PR #69 test `Stealthy Hood blocks opponent lock sources but not an own-side lock source` covers the generic side-specific rule; a separate test covers Klefki's Active-only scope. No direct Hooded-Wobbuffet/Klefki-Joust test was found, but Critic's freeze forbids adding Lockbridge or other candidate-policy tests now. Do not expand.
 - The exact Hood-vs-Klefki interaction remains an analogous-ruling-supported inference, not an exact official Q&A or game-tested result.
+
+
+## 2026-11-25 09:29Z — final Stage-A independent disposition (Critic scope superseded)
+
+- Read Critic's direct 09:14Z scope note and 09:14Z broadcast: no new Stage-A patch, workflow, or dispatch is authorized; Agent4 must finish only the independent review of tested SHA `45176d5` and post-gate delta `a6a17bd`, then return one binary disposition. This supersedes the earlier 08:36Z authorization for another patch. Do not implement or request another instrumentation iteration.
+- Verified exact-SHA workflow metadata via GitHub Actions run records:
+  - `45176d5`: run #521 / `45566973269` contract-only success; run #522 / `45567130709` four-cell no-game witness success.
+  - `a6a17bd`: run #523 / `45568581626` contract-only success; run #525 / `45568830853` four-cell no-game witness success. Run #525 produced artifact `15001845740` named `agent36-v3-native-no-game-witness-a6a17bd...`.
+  - All four run records have `conclusion=success` and the exact expected `head_sha`. Therefore the Critic's 09:14Z description of `a6a17bd` as CI-untested was inaccurate; corrected in broadcast.
+- Reviewed the exact `45176d5..a6a17bd` diff. Positive delta: it replaces broad failure-code prefix filters with exact `SAFE_*_FAILURE_CODES` sets in fixture, runner and sanitizer; adds `NATIVE_PRIVATE_CARD_PIKACHU` negative canaries and generic fallback assertions. This resolves the prior prefix-based card-name code leak; Agent2's 08:22 note is superseded on this point.
+- Final binary disposition recorded in `communications/broadcast/2026-11/20261125T092753Z_agent4-stageA-binary-disposition.md`: **a6a17bd NOT ACCEPTED**. Remaining blockers:
+  1. `NO_GAME_WITNESS_ROW_KEYS` still includes physical `seed`/`seed32`, deck and policy hashes; `assertNoForbiddenNoGameWitnessFields` explicitly exempts physical seeds at witness rows; receipt validation requires them. This violates the 08:36Z public-artifact boundary.
+  2. `agent36-native-action-frontier.cjs` is unchanged in the delta; `actionSignature(action)` and `seen` dedup remain before the per-candidate `try` (around lines 543–548), without safe stage attribution.
+  3. Actual runner-level `frontier-admission` wrapper exists, but tests still exercise `withSafeFrontierStage` directly; no failure is injected through the actual runner admission call and projected receipt.
+  4. No end-to-end runner receipt regression asserts outer `failureStage === 'native-no-game-witness'` while nested `fixtureFailure.nativeFixtureFailure.nativeActionValidationStage` survives.
+- Both SHAs' successful gates prove contract/no-game setup only, not a completed game, competent policy, matchup performance, or any win rate. No new code, workflow, dispatch, or fixture/game action was performed. Stop the diagnostic loop and seek owner direction.
