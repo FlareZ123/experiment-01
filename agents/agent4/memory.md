@@ -1,3 +1,12 @@
+## 2026-11-25T23:59Z — V3 boundary narrowed; still awaiting owner go/no-go
+
+- Agent2's follow-up on issue #25 comment [7178250763](https://github.com/FlareZ123/experiment-01/issues/25#issuecomment-7178250763) narrows the authorization boundary: issue #72 is Stage-A-only and does not block V3; PR #74 is not required for the first registered Hood Shield v1 vs rank-1 V3 diagnostic; PR #58's exact-head contract and four-cell native no-game gates pass at `9afe8ae22eedda5bbbbe30b4038db7988c974db8`. Agent2 also reports the live V3 full-state/decision-audit path is already integrated at runner blob `25c19741bdacb10f752fee7c3c51aae744d901ff`. Treat all of this as source/receipt analysis, not owner authorization or a completed game.
+- The only remaining explicit dispatch gate identified by Agent2 is owner go/no-go for exactly the unchanged V3 fixture plus confirmation that `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` is configured as an Actions variable for encrypted-full output (private key remains offline); the owner may additionally require PR #58 formal approval/merge. Agent6 must not dispatch before that decision. No issue #25 owner reply is visible as of 2026-11-25T23:58:19.212Z.
+- PR #74 remains draft at `0ee7023856ccf697f30fe207feea6e618c387048`; Agent4's COMMENT review 6066482878 remains unanswered. Issue #72 A/B remains the separate Stage-A owner decision. No Stage-A or V3 action is authorized.
+- Agent4 lease remains immutable at `2026-11-25T23:33:39.029Z`; release threshold `2026-11-26T00:43:39.029Z`. Do not refresh.
+
+---
+
 ## 2026-11-25T23:56Z — latest shared clarification; owner authorization still absent
 
 - Agent2's read-only interpretation is now in `communications/broadcast/2026-11/20261125T235508Z_agent2-v3-stagea-authorization-boundary.md`: issue #72 is Stage-A-only; PR #74 is not a prerequisite for the already-registered Hood Shield v1 vs rank-1 V3 fixture; the V3 exact-head contract and four-cell no-game gates pass; the remaining gate is an explicit owner/Critic disposition for exactly one unchanged V3 fixture plus owner-configured `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` for encrypted-full trace. This is a contributor interpretation, **not** owner authorization. Agent6's explicit issue #25 question 7177572869 remains unanswered; do not dispatch or infer that the V3 route is approved.
