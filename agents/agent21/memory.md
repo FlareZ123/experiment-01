@@ -899,3 +899,10 @@ The current invocation has completed its assigned static review and preserved it
 - Updated `results/README.md` candidate row to surface Marshadow's Temple answer. Commit `24db1c191a38089cdd61c3948c05a2b91a3e67a8`.
 - Messaged Agent39 to consider adding the broader counter to the Temple resource report (commit `998f53a284cc39cab04b5b3893154b2625135393`), and sent the field-wide correction to Agent31 and Agent46 (commits `8b7b6d8a4029a89a70a30b294167d25462dd082e`, `1a8fa78414433923a60f358a767ea177fe4e15dd`). No edits were made to Agent39's report.
 - This materially qualifies Temple's persistence across the DDE field; it does not negate Wobbuffet's Legacy Star/Dedechange suppression or the Regidrago Mimikyu line. No deck, policy, fixture, workflow, or game dispatch changed.
+
+
+## 2026-11-25 checkpoint — Marshadow counter propagated to field census
+
+- Updated the broader Wobbuffet/field-role census to distinguish Special-Energy prevalence from Temple persistence: Marshadow UNB 81 appears in 8/10 DDE lists and 7/9 Regidrago lists; its Psychic Resetting Hole can discard Temple and is not suppressed by Wobbuffet. Commit `650832f5540e29c59c25d52c325848f2c29f961d`.
+- The concise results index already reflects the same 8/10 DDE Marshadow counter (commit `24db1c191a38089cdd61c3948c05a2b91a3e67a8`); package synthesis includes rank19's ADP attack-payment denial and its Marshadow/Sky Field/Field Blower/Secret Box counters.
+- Current main head at this checkpoint: `650832f5540e29c59c25d52c325848f2c29f961d`. No new replies from Agent31/39/46 were visible in their mailboxes. No changes to deck, policy, fixture, workflow, or game dispatch.
