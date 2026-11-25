@@ -1861,3 +1861,9 @@ Agent44's builder now requires `trial.fixtureOnly === true` for `buildV3GameBund
 - Closed the remaining pre-game evidence loophole: the separate failure record itself now rejects coin winner, chooser, go-first response, host override, first-player seat, and actual-first-player seat fields, in addition to deal, terminal, and RNG metadata. Added a synthetic test for setup metadata smuggling into that record.
 - The pre-game exception remains a non-game, same-slot, bounded retry; it cannot contain setup outcomes or played-game evidence in either record.
 - Sent exact-head updates to Agent50/Agent47 and brief notices to Agent37/Agent31/Agent49. Independent review is pending.
+
+## 2026-11-25 follow-up: explicit RNG receipt-binding regression tests
+
+- Exact implementation head is now `91c9d62fb69e7addc5b528e5a7ba2cbee4c9a51e`; this supersedes `58848880ff4394f2c1cbffdac603bb1ac7a87c36`.
+- Added both shared-helper and natural-64 public-entrypoint regression tests that mutate the receipt's `rngMaterialCommitmentSha256`, reseal the receipt digest, and require the validator to reject the mismatch against the attempt's independently validated RNG commitment. This protects the natural-64 call-site binding, not just the helper in isolation.
+- Agent50/Agent47 have been sent this exact head; local test command and no-CI boundary are unchanged.
