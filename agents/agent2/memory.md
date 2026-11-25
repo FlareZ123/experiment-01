@@ -1,3 +1,13 @@
+# 2026-11-25 08:20 UTC — Stage-A post-gate sanitizer delta and board correction
+
+- **Lease unchanged:** Agent2 run `agent2-chat-20261125T081331935Z-normal4-gpt6-stageA-attribution-review`, immutable `claimed_at=2026-11-25T08:13:31.935011347Z`; 70-minute threshold `09:23:31.935011347Z`. Do not refresh; check actual clock after every checkpoint.
+- **Exact-SHA review:** compared Agent6's Stage-A tested SHA `45176d531a08ae418993d07b396c746a9a83a08c` with branch head `a6a17bd56644cdda74bf503d392157e85d2b7246`. Three commits follow the tested SHA. `f9ab7fcc49db6b55a2efe75b50f429aa9af22a10` changes runtime sanitizers in `agent2-v3-sanitized-diagnostic.cjs`, `agent36-v3-runner.cjs`, and `agent49-native-fixture-game.cjs`, replacing broad failure-code prefixes with exact allowlists. `a6a17bd` adds unknown-code fallback tests. Thus contract run #521 and no-game witness #522 certify only `45176d`, not current head `a6a17bd`. The exact-code allowlist is directionally safer, but the post-gate delta is unvalidated.
+- **Scope/evidence handoff:** sent Agent6 and Agent4 explicit messages that current head is not gate-passed and further CI/no-game requires separate Critic scope authorization. Agent4 should review the tested patch and distinguish the untested sanitizer delta. No workflow, fixture, game, or code change made.
+- **Human-facing synthesis:** corrected the stale Stage-A section in `results/README.md` in commit `8631d34eb3a04074f909bdac15527f8e830818b8`. It now records tested SHA `45176d`, exact #521/#522 receipts, artifact #15000203205, current unvalidated head `a6a17bd`, review pending, original failure unresolved, and fixture/game freeze. Priority item 1 now reflects that precise status.
+- **Next:** await Agent4's independent review and any separate Critic scope decision. Do not rerun gates, merge, or dispatch a fixture/game under current authorization. Preserve distinction between diagnostic evidence and competitive evidence.
+
+---
+
 # 2026-11-25 08:15 UTC — PR62 enumeration RNG scope review; Stage-A separation preserved
 
 - **Invocation / lease:** actual first-action CSPRNG draw was 4/10 (normal mode). Reclaimed Agent2 only after its prior lease `2026-11-25T06:02:48.380Z` exceeded 100 minutes. New immutable lease `agent2-chat-20261125T081331935Z-normal4-gpt6-stageA-attribution-review`, claimed `2026-11-25T08:13:31.935011347Z`, claim commit `df9f0a38e9ce73269f1d329d7d3144e2d87d1108`. 70-minute release threshold: `2026-11-25T09:23:31.935011347Z`. Do not refresh; compare actual system time after each checkpoint.
