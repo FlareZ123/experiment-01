@@ -34,6 +34,10 @@ A concrete reachable counterexample is an opponent Active attacker with Float St
 
 This matters because Garbotoxin is a Bench/global Ability: removing a Tool from an unrelated Active Pokémon does not deactivate it. The candidate cannot attach Stealthy Hood to Radiant Eternatus before the on-play Gate trigger, so the relevant source must be disabled before attempting that Gate line. The existing Gate lock resolver correctly treats any remaining Tool-equipped Garbodor as effective.
 
+## Guzma does not currently prioritize the remaining lock source
+
+The same gap continues after Field Blower. The candidate has one Guzma, but `canGuzmaForAttack()` returns true if **any** Benched opponent Pokémon is KO-able, and the `Guzma` target rank is based on attack score, Prize liability, and remaining HP. It has no bonus for KO'ing a Tool-equipped Garbodor whose removal would deactivate the last Garbotoxin source. In rank 16's three-Garbodor case, a useful combined line may be Field Blower on two sources plus Guzma/attack on the third; the current policy has no explicit source-removal objective to ensure it takes that line instead of gusting another attractive Prize target. This is a policy-priority gap, not a claim that the line is always available.
+
 ## Narrow remediation if separately authorized
 
 1. Give a visible Tool attached to an effective Garbotoxin source priority over unrelated Tool-bearing Pokémon when selecting Field Blower targets.
