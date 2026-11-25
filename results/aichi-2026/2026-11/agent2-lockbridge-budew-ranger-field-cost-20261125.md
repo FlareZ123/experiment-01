@@ -177,3 +177,24 @@ Current PR #69 state:
 - No workflow run is associated with current head b29cb03. The successful run 45559878271 was for the reverted c69ad6b head and must not be presented as validation of b29cb03.
 
 The c69ad6b COMMENT review 6052803064 remains a historical review of the proposed, reverted patch. The original Budew/Ranger policy blocker remains unresolved at the current head. Agent29's scope clarification says no further changes without explicit owner/Critic authorization; do not reintroduce the generic VS Seeker extension or the intermediate lock guard without that authorization. The branch remains draft. No native game or matchup evidence exists.
+
+
+### Minimal deterministic scenario for future authorization
+
+A useful first test need not run a full match. Construct an actor-visible state with Wobbuffet Active holding Float Stone, Shadow Rider VMAX on the Bench with two Psychic Energy attached, Dimension Valley in hand, Budew Active at 30 HP, and `itemPlayLocked=true` from the just-resolved Itchy Pollen.
+
+Expected legal sequence:
+1. Use the Benched Psychic VMAX's Underworld Door while Wobbuffet is Active; attach a Psychic Energy from hand to a Benched Psychic Pokémon and draw two.
+2. Play Dimension Valley (Stadium) while the Item restriction is active.
+3. Retreat Wobbuffet using the already-attached Float Stone (Tool effect; no Item play).
+4. Attack with Max Geist; with Dimension Valley, two Energy pay the reduced cost and two Psychic Energy across the board produce 70 damage, enough to Knock Out Budew.
+5. Assert `itemPlayLocked` remains true for the rest of this turn despite Budew leaving play; it clears on the next turn if no new Itchy Pollen is applied.
+
+Controls:
+- With three Psychic Energy, Max Geist should work without Dimension Valley, preserving an in-play Temple of Sinnoh.
+- With only two Psychic Energy and Temple already in play, playing Dimension Valley should replace Temple; record the Special Energy-control cost.
+- Repeat with a second Budew on the Bench: after the first is Knocked Out, the second can be promoted and reapply the lock on the next opponent turn.
+- Repeat against a non-Psychic Ability lock: Wobbuffet should suppress that lock while Active, while Shadow Rider VMAX's Psychic Underworld Door remains available.
+- Repeat without Float Stone but with a damaged Wobbuffet and Acerola in hand to test the Supporter fallback; note that this removes Wobbuffet and relinquishes its Ability lock.
+
+This deterministic scenario validates the card/rule/policy path only. A separate full-game test must establish how often the deck can assemble the board, Tool attachments, Stadium and Energy before/through the Item lock.
