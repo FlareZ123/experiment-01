@@ -25,16 +25,20 @@ Pale Moon-GX's delayed Knock Out is an effect on the Defending Pokémon. Therefo
 
 ## Aichi field relevance
 
-Agent11's exact 29-list census, [Pale Moon-GX delayed-KO escape inventory](agent11-pale-moon-retreat-out-field-census-20261124.md), reports:
+Agent11's exact 29-list census, [Pale Moon-GX delayed-KO escape inventory](agent11-pale-moon-retreat-out-field-census-20261124.md), plus a direct read of the authenticated source lists gives the following coverage map:
 
-| Public switch route | Authenticated lists | Copies | Relevance |
+| Retreat / switch route | Lists | Copies | Current PR69 policy |
 | --- | ---: | ---: | --- |
-| Guzma | 25/29 | 48 | Moves the opponent's Active to the Bench |
-| VS Seeker | 23/29 | 59 | Can recover a discarded Guzma |
-| Battle Compressor | 17/29 | 33 | Can put Guzma into the discard pile for VS Seeker |
-| Escape Rope | 7/29 | 11 | Additional Item switch route |
+| Latias ex (Skyliner) | 14/29 | 14 | Modeled as a free-retreat Ability for Basic Pokémon |
+| Float Stone | 12/29 | 24 | Modeled |
+| U-Turn Board | 2/29 | 2 | Retreat-cost reduction modeled; no direct regression |
+| Guzma | 25/29 | 48 | **Not modeled** as a switch-to-Bench escape |
+| VS Seeker | 23/29 | 59 | **Not modeled** as recovery of Guzma |
+| Battle Compressor | 17/29 | 33 | **Not modeled** as setup for VS Seeker/Guzma |
+| Escape Rope | 7/29 | 11 | **Not modeled** as a forced switch-to-Bench escape |
+| Acerola | 1/29 | 1 | **Not modeled**; can pick up a damaged target and clear its effects |
 
-All **9/9 authenticated Regidrago lists** contain Guzma and VS Seeker; 7/9 also contain Battle Compressor. This is a prevalence signal, not proof that a particular opponent has the card in hand on the relevant turn. The policy should estimate hidden access rather than assume the out is certain.
+All **9/9 authenticated Regidrago lists** contain Guzma and VS Seeker; 7/9 also contain Battle Compressor. This is a prevalence signal, not proof that a particular opponent has the card in hand on the relevant turn. The policy should estimate hidden access rather than assume the out is certain. Escape Board is absent from the Aichi 29 but is Expanded-legal; its separate Paralyzed-status test defect is documented below.
 
 A concrete counterexample is an opponent Regidrago VSTAR with three Retreat Cost Energy, no attached Energy, and at least one Benched Pokémon, while the opponent has access to Guzma or Escape Rope. The current `paleMoonScore()` treats the target as unable to retreat and awards the delayed-KO bonus; a switch effect moves it to the Bench and clears that effect. The immediate Energy denial from Pale Moon-GX's extra-Psychic clause remains valuable and must be scored separately.
 
