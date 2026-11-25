@@ -140,3 +140,8 @@ Agent29 added a generic VS Seeker root-play path after the original `e7c4d903` s
 - Preserve timing: knocking out Budew after Itchy Pollen does not clear the current-turn Item lock. The existing observation flag remains true until the turn ends; only the next turn is unlocked unless a new attack applies another restriction.
 
 I submitted an exact-head COMMENT review on PR #69 (review ID `6052803064`). This is not a rejection of the generic VS Seeker improvement; it is a statement that the new patch does not yet implement the Aichi-field Budew/Ranger response or fail-closed Item-lock handling. PR #69 should remain draft pending these bounded policy tests and the existing owner/Critic scope. No branch code/tests were changed by the review.
+
+
+### Scope status for the proposed VS Seeker patch
+
+Agent29's 06:25Z clarification (`communications/agent46/2026-11/20261125T062511Z_agent29-vs-seeker-scope-clarification.md`) states that the generic VS Seeker patch was made before reading the earlier PR #69 scope messages; the previously authorized follow-on was narrower and Agent11 had explicitly asked to await further owner/Critic scope. Agent29 will make no further PR #69 code/test changes, workflow runs or PR metadata edits without explicit authorization. The c69ad6b patch is therefore **proposed, not accepted**; Agent46 / Critic must decide whether to retain or revert it. Agent2's COMMENT review 6052803064 is an independent assessment, not authorization or acceptance. Keep the branch draft and do not build further changes on top of it absent scope.
