@@ -386,8 +386,8 @@ test('fixture artifact is failure-inclusive, replay-identified, and non-admittin
   unknownStageArtifact.fixtureFailure.stage='private-card-stage';
   unknownStageArtifact.fixtureFailure.nativeFixtureFailure.nativeActionValidationStage='private-card-stage';
   const unknownStageSanitized=sanitizeFixtureArtifact(unknownStageArtifact);
-  assert.equal(unknownStageSanitized.fixtureFailure.stage,'fixture',
-    'unknown top-level stage labels must not replace the safe fixture stage');
+  assert.equal(unknownStageSanitized.fixtureFailure.stage,undefined,
+    'unknown top-level stage labels must be omitted');
   assert.equal(unknownStageSanitized.fixtureFailure.nativeFixtureFailure.nativeActionValidationStage,undefined);
 
   for(const stackSite of [
