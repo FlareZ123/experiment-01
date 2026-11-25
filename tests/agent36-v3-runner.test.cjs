@@ -965,6 +965,33 @@ test('host validates worker policy as inert data and never executes its module b
   }
 });
 
+test('host policy purity scan ignores comments but still rejects executable host APIs',()=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),'agent49-policy-purity-comments-'));
+  const policy=[
+    "'use strict';",
+    "const POLICY_VERSION='test-worker-policy-v1';",
+    '// require an actor-owned empty Bench slot; globalThis.fetch setTimeout setInterval Math.random',
+    '/* import process Function */',
+    "const endpoint='https://example.test/path';",
+    "const template=`literal // marker ${1 /* require comment */ + 2}`;",
+    "module.exports={POLICY_VERSION,createPolicy(){return {decide(){return {kind:'abstain',reasonCode:'TEST'}}}}};"
+  ].join('\\n');
+  try{
+    fs.writeFileSync(path.join(root,'policy.cjs'),policy);
+    const descriptor=loadWorkerPolicyModule(root,'policy.cjs','candidate');
+    assert.equal(descriptor.POLICY_VERSION,'test-worker-policy-v1');
+    assert.match(descriptor.policySha256,/^[a-f0-9]{64}$/);
+
+    fs.writeFileSync(path.join(root,'policy.cjs'),
+      policy.replace('module.exports=','globalThis.__agent49HostPolicyExecuted=true;\\nmodule.exports='));
+    assert.throws(()=>loadWorkerPolicyModule(root,'policy.cjs','candidate'),
+      /pure, deterministic/);
+    assert.equal(globalThis.__agent49HostPolicyExecuted,undefined);
+  }finally{
+    fs.rmSync(root,{recursive:true,force:true});
+    delete globalThis.__agent49HostPolicyExecuted;
+  }
+});
 function makeWorkerManifestFixture(extraDataAssets=[]){
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'agent49-worker-manifest-fixture-'));
   const commonRuntimeBindings=[
