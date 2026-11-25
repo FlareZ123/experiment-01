@@ -1964,7 +1964,7 @@ function loadWorkerPolicyModule(repositoryRoot,relativePath,role) {
     role+' worker policy must declare a stable POLICY_VERSION');
   assert.match(source,/module\.exports\s*=|exports\.POLICY_VERSION/,
     role+' worker policy must expose its version and factory to the worker');
-  assert.doesNotMatch(source,/\b(?:require|import|process|globalThis|fetch|setTimeout|setInterval)\b|Math\.random/,
+  assert.doesNotMatch(stripJavaScriptComments(source),/\b(?:require|import|process|globalThis|fetch|setTimeout|setInterval)\b|Math\.random/,
     role+' worker policy must remain pure, deterministic, and free of host/runtime APIs');
   const sourceClosure=auditSourceClosure(root,[relativePath],{vendorPrefixes:[]});
   assert.equal(sourceClosure.files.length,1,
