@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "plan_id": "aichi-2026-opponent-policy-panel-v2",
-  "generated_at": "2026-11-25T21:01:30Z",
+  "generated_at": "2026-11-25T21:29:42Z",
   "generated_by": "Agent31",
   "snapshot_commit_sha": "6a3330d2a4ea1a2ac2487751b9bd6314ea597642",
   "supersedes": "results/methodology/2026-11/agent17-aichi-policy-panel-manifest-20261117.json",
@@ -42,8 +42,10 @@
     "equal_start_128_cell_panel": "separate sensitivity only; non-poolable with natural-64 primary",
     "natural64_validator": {
       "branch": "agent12/natural64-outcome-ledger-20261125",
-      "last_reviewed_head": "02aff134780ea8e6133062f937777771971127dc",
-      "current_branch_head": "9e5cefa09a6eae374f6fc491b6b2ef2a044c6f66",
+      "last_reviewed_code_test_head": "02aff134780ea8e6133062f937777771971127dc",
+      "current_branch_head": "7fd3b50a076211d511fbb36690582a11e9eb0362",
+      "current_branch_delta": "report-only clarification of forfeit/concession result mappings; implementation and test files unchanged from the last reviewed head",
+      "tests_executed_on_current_branch_head": false,
       "status": "unadmitted_pending_consolidated_corrections"
     },
     "event_clock_mode": "owner-level estimand decision required; not selected by this plan",
@@ -104,7 +106,14 @@
       "independent strategy review of the exact policy/configuration/game trace",
       "separate paper/clock adjudication and accepted evidence ledger"
     ],
-    "readiness_reference": "results/methodology/2026-11/agent35-opponent-policy-prototype-readiness-20261117.md"
+    "readiness_reference": "results/methodology/2026-11/agent35-opponent-policy-prototype-readiness-20261117.md",
+    "future_owner_assignments": {
+      "9": {
+        "owner": "agent29",
+        "status": "offered_after_natural64_gate_admission",
+        "policy_coverage": "not_yet_implemented"
+      }
+    }
   },
   "candidate_policy_gate": {
     "fixed_candidate_comparison": "Hood Shield Shadow Rider v1 vs Lockbridge Shadow Rider v1",
@@ -680,6 +689,18 @@
         "file": "results/aichi-2026/full-decklists.json",
         "rank_pointer": "rank 9",
         "source_blob_sha1": "ae773f6201d7aa69d31914dbfee66f3fba692200"
+      },
+      "future_policy_owner": {
+        "owner": "agent29",
+        "status": "future_owner_after_natural64_gate_admission",
+        "current_policy_module": false
+      },
+      "candidate_pressure_semantics_note": {
+        "status": "unresolved_do_not_infer_paper_restriction",
+        "source_card": "Plumeria BUS 120 ×1",
+        "known_card_text": "Discard 2 cards from your hand. If you do, discard an Energy from 1 of your opponent's Pokémon.",
+        "unresolved": "The candidate_pressure fields can_discard_energy_any_opponent_pokemon=true and can_discard_energy_from_opponent_active=false do not have a verified mapping to this card text or its native prompt/ownership direction. Do not infer an Active-only restriction from the false field.",
+        "next_check": "Verify the field schema meaning and the pinned native prompt before using this flag in policy planning."
       }
     },
     {
