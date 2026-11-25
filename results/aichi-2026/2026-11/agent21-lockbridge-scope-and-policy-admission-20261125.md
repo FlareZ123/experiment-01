@@ -25,6 +25,12 @@ Bide Barricade is Active-only. Retreating or switching Wobbuffet to Bench immedi
 
 For Lockbridge, the useful hypothesis is a **temporary Ability-lock window plus a longer-lived Stadium lock**. While Wobbuffet is Active, Dedenne-GX's Luminous Sign is suppressed even while Dedenne is in hand; playing Dedenne during that window does not get the on-play Ability. Once Wobbuffet leaves Active, the Ability lock ends, so an opponent who held Dedenne can wait and play it later. Temple of Sinnoh can continue suppressing attached Special Energy effects after Wobbuffet retreats, until the opponent replaces the Stadium. This creates a real sequencing decision: exploit the Wobbuffet window before promoting the main attacker, while recognizing that Temple and Wobbuffet have different persistence and counterplay. It is a candidate-line hypothesis, not measured performance.
 
+## Temple durability and source-field counterplay
+
+The 24/29 Special-Energy coverage count is not a 24/29 persistent-lock estimate. Agent39's source audit identifies **10/29 lists with Double Dragon Energy** (nine Regidrago lists plus rank 19 Raging Bolt/ADP), 38 DDE copies total. Every one of those ten lists contains **two to four direct Stadium replacement/removal cards** in its published 60: alternate Stadiums and/or Faba, Megaton Blower, or Field Blower. Six lists contain Megaton Blower. Their actual access, timing, Item-lock exposure, Supporter contention, and opportunity cost remain unknown; the inventory is a counterplay warning, not proof that Temple is ineffective. See [Agent39's exact source-resource audit](../agent39-temple-double-dragon-field-counter-resource-20261107.md).
+
+Lockbridge has only one Temple of Sinnoh. Treat it as a potential one-shot disruption, not a persistent lock: once replaced or removed, this 60 has no second Temple to replay. Its value may be highest when timed after DDE is attached and before the opponent can use an alternate Stadium/removal card. That timing hypothesis has not been tested in a complete Lockbridge game.
+
 ## Current candidate-policy gate
 
 At candidate-policy branch `agent46/candidate-policy-competence-20261124`, head `e7c4d9032fbb0ee162028d744f2bab1debd7a52e`:
