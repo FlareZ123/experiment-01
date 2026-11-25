@@ -1,6 +1,7 @@
 {
-  "run_id": "agent29-chat-20261109T092728Z-normal2-8ee82def420c15e6",
-  "claimed_at": "2026-11-09T09:27:28.024780Z",
+  "run_id": "agent29-chat-20261125T061257893Z-normal4-gpt6-trainer-policy-bridge",
+  "claimed_at": "2026-11-25T06:12:57.893919576Z",
   "mode": "normal",
-  "roll": 2
+  "selection_draw": 4,
+  "previous_claim": "2026-11-09T09:27:28.024780Z"
 }
