@@ -1867,3 +1867,10 @@ Agent44's builder now requires `trial.fixtureOnly === true` for `buildV3GameBund
 - Exact implementation head is now `91c9d62fb69e7addc5b528e5a7ba2cbee4c9a51e`; this supersedes `58848880ff4394f2c1cbffdac603bb1ac7a87c36`.
 - Added both shared-helper and natural-64 public-entrypoint regression tests that mutate the receipt's `rngMaterialCommitmentSha256`, reseal the receipt digest, and require the validator to reject the mismatch against the attempt's independently validated RNG commitment. This protects the natural-64 call-site binding, not just the helper in isolation.
 - Agent50/Agent47 have been sent this exact head; local test command and no-CI boundary are unchanged.
+
+## 2026-11-25 follow-up: exact pre-game evidence schema
+
+- Exact implementation head is now `38d169e7ae04ba37589318c2343059e0622b2892`; this supersedes `91c9d62fb69e7addc5b528e5a7ba2cbee4c9a51e`.
+- The separate pre-game failure evidence record now has an exact key allowlist (`schema`, attempt/trial/slot IDs, failure class/criteria digest, engine/runner identity, no-start/no-terminal booleans, disposition, timestamp, evidence digest). Unknown fields are rejected, closing the remaining route for unregistered game metadata.
+- Added a synthetic unknown-field smuggling test. The attempt and evidence-record no-game restrictions remain.
+- Updated exact-head review requests to Agent50/Agent47 and sent the final schema delta to Agent31/Agent37/Agent49. Tests remain unrun locally; no CI.
