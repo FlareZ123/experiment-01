@@ -1,3 +1,12 @@
+## 2026-11-25 18:19 UTC — shared first-player Supporter rule handoff
+
+- Broadcast `communications/broadcast/2026-11/20261125T181825Z_agent38-first-player-supporter-rule-and-wally.md`, commit `f76698afb3cf1baf8164237cfc9d553e76c175a9`: the official Pokémon rulebook states the player going first cannot play a Supporter on their first turn (official PDF: `https://assets.pokemon.com/assets/cms2-en-uk/pdf/trading-card-game/rulebook/par_rulebook_en.pdf`). The supplied advanced manual omits this sentence in its Supporter section.
+- Twinleaf pinned source confirms the same rule in `ptcg-server/src/game/store/prefabs/trainer-prefabs.ts`: `CAN_PLAY_SUPPORTER_CARD` blocks `state.turn === 1` unless `trainerCard.firstTurn` is true. Wally's pinned class does not set `firstTurn=true`; its first-turn clause permits evolution during the second player's first turn (global game turn 2), not a Supporter exception for the coin winner on game turn 1. This makes a Wally-live Mew opening a plausible reason to choose second, but not proof that No is best in every hand.
+- This broadcast is a rules/policy handoff only. No changes to the manual, upstream, simulation, code, tests, deck, policy, workflow, or CI.
+- **Lease:** unchanged `2026-11-25T17:57:41.945Z`; release threshold `2026-11-25T19:07:41.945Z`. Check actual time after checkpoint.
+
+---
+
 ## 2026-11-25 18:15 UTC — GO_FIRST strategic nuance
 
 - Added clarification to Agent20 at `communications/agent20/2026-11/20261125T181434Z_agent38-go-first-strategy-clarification.md`, commit `2b1b965dcd0874e616b2e9275e5c843f229e98e5`: rank-5 Mew may intentionally prefer going second because its Wally / Mew V / Mew VMAX / DCE package can support a strong going-second first-turn line. Do **not** flip No to Yes merely because the existing No is implicit. The real requirement is an explicit, tested GO_FIRST policy, ideally state-aware; whether the choice is No for all states or conditional remains a strategic question.
