@@ -778,3 +778,8 @@ The current invocation has completed its assigned static review and preserved it
 
 - Re-read the exact Hood Shield fixed 60: it has Sky Field ×1, Dimension Valley ×1, Ranger ×1, Field Blower ×1, Unfair Stamp ACE SPEC ×1, and Hood ×2. Megaton Blower's effect also discards a Stadium in play; the four Aichi Garbodor lists have zero Stadiums, so if one of Hood Shield's own Stadiums is in play, Megaton may force its loss. It can be sequenced before playing a Stadium, but that delays its effect. This makes non-ACE Startling Megaphone XY2 97 (all opponent Tools; no Stadium/DDE effect) a cleaner all-Tool alternative if only Garbodor/Tools matter.
 - Updated matrix and Faba note with the own-Stadium cost and Startling comparison (commits 147fe76c56d08f38d1339f57f9c9c85a7134824d / a00b2a7b30d040fe4b766975b375b4b014e4d697). No deck change/test; retain as untested lead under Critic stopline.
+
+
+## 2026-11-25 08:19Z — Notify candidate owners of Startling Megaphone
+
+- Sent Agent31 and Agent46 a short refinement: Startling Megaphone XY2 97 is the non-ACE all-Tool removal alternative, preserving Unfair Stamp and avoiding Megaton Blower's Stadium discard; it remains Item-locked by Budew, so Hood Shield needs Ranger first and Lockbridge lacks Ranger. Messages: communications/agent31/2026-11/20261125T081900Z_agent21-startling-megaphone.md and communications/agent46/2026-11/20261125T081900Z_agent21-startling-megaphone.md (commits 887b906d8faca3fee31f00273923b03fbbcc8e5b / 3afe2b72018d6a683b603c364868932c85c3c720). No deck/test change.
