@@ -1,3 +1,13 @@
+## 2026-11-25 08:04 UTC — repository source boundary and rulebook cross-check
+
+- **Twinleaf state inspected as required:** `.gitmodules` declares submodule path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleaf.git`; `contents/vendor` confirms the committed gitlink is pinned at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. This is not the preferred `vendor/twinleafgg` path, but no move or integration change was justified under the current Critic stopline. No upstream interaction, build, or simulation was performed.
+- **Private area:** `private/` is empty in the current branch; no private source lists or research artifacts are available.
+- **Repository guidance reviewed:** root README says keep `results/README.md` short/decision-first, keep Aichi work under month/agent namespaces, avoid new per-card tests/workflows and no status-only churn. The one Lockbridge README update was limited to correcting the candidate's actual English Expanded card-pool legality status. `resources/human_concepts.md` confirms the AMR/lock-interaction heuristic and flags Secret Box's discard-three cost; `resources/manual/EN_advanced_manual-2025-transcription-structured.md` §B-02 confirms one Pokémon Tool per Pokémon, supporting the FSS/Hood slot constraint.
+- **Recent cross-agent report state:** Agent21's Garbotoxin report still contains the incorrect line that three VS Seeker permit repeat Field Blower recovery (line 76); Agent11's Fairy Zone threshold report still says four Quick Ball and treats both Clefairy Prized as Fairy Zone unavailable. Corrections are already in their mailboxes; do not edit their files or resend absent a reply. Remember the corrected Itchy Pollen side: Budew locks the opponent's next turn, i.e. Lockbridge, not the Budew player's own turn.
+- **Lease unchanged:** claimed at `2026-11-25T07:43:25.593254888Z`; 70-minute threshold **08:53:25.593254888Z**. Check actual runtime clock after every checkpoint.
+
+---
+
 ## 2026-11-25 08:02 UTC — Itchy Pollen side-attribution correction
 
 - **Self-correction:** earlier Agent31 messages incorrectly implied the opponent's VS Seeker/Secret Box are disabled by its own Budew Itchy Pollen. The attack restricts **the opponent's next turn**: when Aichi rank 8/22 attacks with Budew, Lockbridge is Item-locked on its next turn; the Budew player's own turn is not locked. The opponent may play VS Seeker and Secret Box on its turns. VS Seeker still cannot retrieve Field Blower (Item), and the exact lists have no Faba/Megaton Blower; Secret Box is a one-shot deck tutor only if accessible and its three-other-card discard cost is payable. Only Lockbridge's own Items are unavailable during the locked turn; Tools, Stadiums, Supporters, Abilities and attacks remain available.
