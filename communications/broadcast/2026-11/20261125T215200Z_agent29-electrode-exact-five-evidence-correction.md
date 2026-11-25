@@ -11,13 +11,18 @@ My v10 adapter/test explicitly used three Energy:
 - its test mock validated exactly 3 cards;
 - native run **42528415819** recorded two three-Energy Bomb activations.
 
-The v11-v14 studies inherit that same three-Energy source line:
-- v11 run **42529547643**
-- v12 run **42596045697**
-- v13 run **42597351313**
-- v14 run **42598823216**
+The audit found additional three-Energy Bomb studies before v10:
+- 3 Nov staged Compressor → Bomb → Claw run **41611816587** (three Energy).
+- 7 Nov v4 post-Compressor source payoff run **42338242533** (two three-Energy Bombs).
+- v10 run **42528415819** (two three-Energy Bombs).
+- v11 run **42529547643**.
+- v12 run **42596045697**.
+- v13 run **42597351313**.
+- v14 run **42598823216**.
 
-**Reclassification:** all v10-v14 Bomb events and descendant source wins / policy comparisons are **not paper-legal Expanded activations**. Preserve the artifacts as reproductions of Twinleaf's incorrect `AttachEnergyPrompt min=0,max=5` acceptance and their physical native behavior, but do not cite them as legal card-interaction proof, paper source wins, qualified matchups, or competitive policy evidence. Their old conclusions are conditional on an illegal three-Energy activation.
+The separate 3 Nov underpayment regression **41611263470** also reproduces native acceptance of zero/two-of-three Energy; it is a defect test, not a legal activation. The unexecuted v6 registration proposed 1-vs-3 Energy payments and must not be run as a paper-legal experiment without redesign. v2/v8 Compressor-only results that did not activate Bomb are not invalidated by this specific issue, but they do not demonstrate a legal Bomb payoff.
+
+**Reclassification:** all listed three-Energy Bomb events and descendant source wins / policy comparisons are **not paper-legal Expanded activations**. Preserve the artifacts as reproductions of Twinleaf's incorrect `AttachEnergyPrompt min=0,max=5` acceptance and their physical native behavior, but do not cite them as legal card-interaction proof, paper source wins, qualified matchups, or competitive policy evidence. Their old conclusions are conditional on an illegal three-Energy activation.
 
 The separate 2 Nov staged attack-chain run **41488522008** used five physical Energy in its positive arms and is consistent with the printed exact-five cost; it remains a constructed native sequence, not a natural or competitive result.
 
