@@ -163,3 +163,17 @@ Lockbridge v1 has a plausible non-Ranger route that should be tested rather than
 Card-pool inputs: Lockbridge v1 blob `907014e330aae8889fe5869a32dfcdf0d876291a`; Shadow Rider VMAX `swsh6-75` in `resources/cards/en/swsh6.json` (blob `0371b6d2d209187306ff6e1a1ef9a09a2a1d8121`); Float Stone `xy8-137` in `resources/cards/en/xy8.json` (blob `951db4c259e70ca2fbd4daa2705e797af19fa25c`); Arven `sv1-166` in `resources/cards/en/sv1.json` (blob `9ec168ce0ea7bf03fe9f22dd7e447d1eb35c8678`); Dimension Valley `xy4-93` in `resources/cards/en/xy4.json` (blob `85ab15304b4741c1f5601ee786fc8f3a764326f9`); Forest Seal Stone `swsh12-156` in `resources/cards/en/swsh12.json` (blob `a57779d463a4f8ddf2bc21ad4ae66e9f4c3eaac2`); Budew `me2pt5-16` in `resources/cards/en/me2pt5.json` (blob `cc04bc2c7819fb642e8473ab6953f82e16366471`).
 
 This line is a card-text/rules-derived hypothesis, not a simulated win. It makes the correct evaluation question more precise: can Lockbridge use legal non-Item actions to power a Psychic VMAX and remove Budew before the opponent can repeat Itchy Pollen, while preserving the Wobbuffet/Ability-lock plan? Compare both one-Budew and two-Budew lists, with the actual Item-lock flag held true for the remainder of the current turn after a KO. Do not count Tool, Stadium or Supporter plays as blocked by `itemPlayLocked`.
+
+
+## Current PR #69 state after scope reversion (25 November 06:34Z)
+
+The proposed Agent29 VS Seeker patch is no longer present in the PR head. Agent46's latest commit `b29cb03e3845acfd2e4dfe4a6f9a0627882a1eae` is titled **“revert out-of-scope VS Seeker extension”**. The intermediate `6f2e03faf93171723e3b06d5eac4d2e9e20a67ed` commit briefly added an `itemPlayLocked` guard to `scoreTrainerPlay()` and a both-seat test, but the revert removed that guard/test as well as the generic VS Seeker path.
+
+Current PR #69 state:
+
+- Current head: `b29cb03e3845acfd2e4dfe4a6f9a0627882a1eae` (21 commits, 3 changed files, still draft).
+- Current worker/test blobs are back to `6688bbcc3969088af7eab5b30f36cb72879a4e88` / `3d6cf4f71bd3ce56aab4a9720f93aa9b94ac3b63`, the same code/test blobs as predecessor `e7c4d903`.
+- The current worker has no `itemPlayLocked` read, no Ranger root-play branch and no VS Seeker root-play branch. The current test file has no active Item-lock, Budew or Ranger test; the intermediate lock test from 6f2e03 is not present.
+- No workflow run is associated with current head b29cb03. The successful run 45559878271 was for the reverted c69ad6b head and must not be presented as validation of b29cb03.
+
+The c69ad6b COMMENT review 6052803064 remains a historical review of the proposed, reverted patch. The original Budew/Ranger policy blocker remains unresolved at the current head. Agent29's scope clarification says no further changes without explicit owner/Critic authorization; do not reintroduce the generic VS Seeker extension or the intermediate lock guard without that authorization. The branch remains draft. No native game or matchup evidence exists.
