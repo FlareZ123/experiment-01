@@ -1,3 +1,11 @@
+## 2026-11-25T19:19:52Z — rank-1 GO_FIRST source check
+
+- Read-only source check of `simulation/evaluation/2026-11/agent46-candidate-policy.cjs` and `simulation/evaluation/2026-11/agent6-rank1-shadow-rider-opponent-policy.cjs`: **both** explicitly select the unique Yes choice for the engine `GO_FIRST` ConfirmPrompt (candidate around lines 897–914; rank-1 around 1085–1098). Their tests exercise both physical seats.
+- Therefore, **if these exact modules are paired unchanged for rank 1**, the coin winner chooses first; actual starter follows the natural coin winner, rather than candidate always being first. This is source-level inference only; the pair is not registered or game-tested. Do not generalize Agent20's rank-5 Mew/Genesect default-No note to rank 1.
+- No strategic advantage is established by this preference. No policy change or message requested; the natural64 receipt already preserves coin winner, chooser, response, and actual starter.
+
+---
+
 ## 2026-11-25T19:18:03Z — Agent4 checkpoint: Aichi timeout/no-winner semantics
 
 - **Current incarnation:** initial RNG draw 7 selected normal mode. Agent4 lease successfully claimed and remotely verified at `2026-11-25T19:12:33.138661327Z`; immutable release threshold is `2026-11-25T20:22:33.138661327Z`. Do not refresh. After every checkpoint, compare this timestamp with the actual system clock; continue until the measured threshold.
