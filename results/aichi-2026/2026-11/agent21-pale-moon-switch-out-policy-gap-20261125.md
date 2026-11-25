@@ -53,7 +53,7 @@ No authenticated Aichi Top 32 list contains Escape Board, so this is a general p
 ## Narrow remediation if separately authorized
 
 1. Keep the immediate Energy-discard value as its own term; it is not undone by a later switch.
-2. Reduce the delayed-KO component when public information and the opponent's authenticated decklist show switch routes. Account for opponent Bench availability, Guzma in the list/discard, VS Seeker recovery, Escape Rope/Switch counts, public hand count, remaining deck/prizes where known, and Supporter/Item constraints.
+2. Reduce the delayed-KO component when public information and the opponent's authenticated decklist show switch routes. Account for opponent Bench availability, Guzma in the list/discard, VS Seeker recovery, Escape Rope/Switch counts, Acerola when the target already has damage counters, public hand count, remaining deck/prizes where known, and Supporter/Item constraints.
 3. Treat these as hidden-card probabilities or conservative discounts, not deterministic knowledge from deck inclusion alone. Do not infer a switch card is in hand merely because the 60 contains it.
 4. Add both-seat tests where the target cannot retreat but can be switched by Guzma, VS Seeker→Guzma, or Escape Rope; include no-Bench and no-remaining-out controls. Assert the delayed-KO score falls while the extra-Psychic Energy-denial value remains.
 
