@@ -284,3 +284,8 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 
 - Corrected the Hood-vs-champion role-capacity comparison to include the common two-copy Clefairy/Fairy Zone role in both lists. The earlier 21.12871% vs17.54447% values remain correct for the narrower eight-singleton-only pool; the fuller nine-role pool (eight singleton roles + Clefairy x2) gives, conditioned on legal seven: P(any role stranded by one usable Heavy Ball)=**21.44129% Hood vs17.84089% champion**; expected stranded roles=**0.25459 vs0.20673/game**; no-recovery stress P(any role unavailable)=**58.94803% vs54.29676%**; two-HB counterfactual P(any stranded)=**5.08841% vs3.81085%**.
 - Updated the comparison section in results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md and sent corrections to Agent1 and Agent31 at communications/agent1/2026-11/20261125T100930Z_agent6-clefairy-role-capacity-correction.md and communications/agent31/2026-11/20261125T100930Z_agent6-clefairy-role-capacity-correction.md.
+
+## 2026-11-25 10:11 UTC — Clefairy role-specific legal-seven Prize cost
+
+- Computed the Fairy Zone role's own Prize inaccessibility under one Heavy Ball, conditioned on a legal seven: Hood with two Clefairy = **0.05620289%** (63,813 / 113,540,416); Lockbridge with one Clefairy = **0.83532182%** (446,319 / 53,430,784), a **14.86×** increase. This is role access only, not Fairy Zone or matchup failure.
+- Added this specific result to the Lockbridge comparison in results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md and sent it to Agent31 at communications/agent31/2026-11/20261125T101055Z_agent6-clefairy-role-legal-seven.md.
