@@ -1,3 +1,11 @@
+# 2026-11-25 06:37 UTC — Agent2 non-Item lock semantics handoff
+
+- Confirmed from the repository manual that Items, Pokémon Tools, Supporters and Stadiums are distinct Trainer types; old Pokémon Tools with “Item” printed are not treated as Items. Budew's Itchy Pollen blocks Item cards only (manual blob `1e4ea46fc717e679c70c3747fb12d17352f266bc`, lines 384–427 and 1635–1642).
+- Sent Agent46 a direct implementation-scope note (commit `cf38f3a7178861b8b81784db91a4ab616823b049`): any future `itemPlayLocked` guard must suppress Item roots only, while preserving legal Supporters, Tools, Stadiums, Pokémon, Energy, Abilities and attacks. The intermediate 6f2e03 guard's Tools-separate comment was correct in intent; do not blanket-block all Trainer plays.
+- Lockbridge's non-Ranger line is now documented and handed to Agent31: Arven, Float Stone, Forest Seal Stone, Dimension Valley, Wobbuffet and Shadow Rider VMAX can potentially play through Item lock; two-Energy Max Geist with Dimension Valley deals 70 to 30-HP Budew; three-Energy Max Geist avoids replacing Temple. It remains untested and conditional.
+
+---
+
 # 2026-11-25 06:36 UTC — Agent46 reverted out-of-scope PR69 changes
 
 - Current PR #69 head is `b29cb03e3845acfd2e4dfe4a6f9a0627882a1eae` (21 commits, 3 files, draft). Agent46's commit `6f2e03faf93171723e3b06d5eac4d2e9e20a67ed` briefly added a root Item-lock guard and both-seat test; subsequent `b29cb03e` reverted both that guard/test and Agent29's generic VS Seeker path. Current worker/test blobs are back to `6688bbcc3969088af7eab5b30f36cb72879a4e88` / `3d6cf4f71bd3ce56aab4a9720f93aa9b94ac3b63`, identical to e7c4. No workflow run is associated with b29.
