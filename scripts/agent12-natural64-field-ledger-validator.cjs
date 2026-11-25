@@ -54,11 +54,26 @@ const PRE_GAME_FAILURE_ATTEMPT_KEYS = new Set([
   'engineAndHooksSha', 'opponentPolicyBundleSha',
   'adjudicationProtocolSha256', 'registrationSha',
   'enginePin', 'runnerRevision', 'startedAt', 'endedAt',
-  'policyPlanSha256', 'policyRegistrationSha256',
-  'policyAttestationBundleSha256', 'policyApplicationReceiptSha256',
+  'policyPlanSha256',
   'paperReceiptId', 'terminalAdjudicationReceipt',
   'terminalAdjudicationReceiptSha256',
   'failureClass', 'failureCriteriaSha256', 'failureEvidenceSha256'
+]);
+const PLAYED_ATTEMPT_KEYS = new Set([
+  'attemptId', 'trialId', 'slotId', 'sequenceIndex', 'roundIndex',
+  'attemptNumber', 'retryOfAttemptId', 'rank', 'seat', 'opponentSeat',
+  'firstPlayerSeat', 'actualFirstPlayerSeat', 'coinWinnerSeat', 'chooserSeat',
+  'goFirstResponse', 'hostOverride', 'physicalDealId', 'paperReceiptId',
+  'status', 'gameStarted', 'terminalReached', 'source60Sha', 'candidate60Sha',
+  'candidatePolicySha', 'engineAndHooksSha', 'opponentPolicyBundleSha',
+  'adjudicationProtocolSha256', 'registrationSha', 'enginePin', 'runnerRevision',
+  'startedAt', 'endedAt', 'policyPlanSha256', 'policyRegistrationSha256',
+  'policyAttestationBundleSha256', 'policyApplicationReceiptSha256',
+  'rngProtocol', 'rngMaterial', 'rngMaterialCommitment', 'observedRngProtocol',
+  'observedRngMaterialCommitment', 'effectiveMatchOptions',
+  'randomizationReceiptSha256', 'setupCoinChoiceReceiptSha256',
+  'setupCoinChoiceEvidenceSha256', 'terminalAdjudicationReceipt',
+  'terminalAdjudicationReceiptSha256'
 ]);
 const PLAYED_STATUSES = new Set([...Object.values(RESULT_TO_STATUS), NO_WINNER_STATUS]);
 const RNG_HOOKS = Object.freeze([
@@ -190,6 +205,9 @@ function validateManifest(request, problems) {
   }
   if (!CLOCK_MODES.has(manifest.clockMode)) {
     add(problems, 'adjudication-clock-mode-missing-or-invalid');
+  }
+  if (manifest.clockMode === 'aichi-top32-event-clock') {
+    add(problems, 'aichi-top32-event-clock-evidence-unsupported');
   }
   validateAdjudicationProtocol(
     manifest.adjudicationProtocol, manifest.adjudicationProtocolSha256, problems);
@@ -530,6 +548,9 @@ function validateSlotAttempts(attempts, slotRoster, manifest, problems) {
         add(problems, 'pre-game-retry-budget-exhausted');
       }
     } else if (PLAYED_STATUSES.has(attempt.status)) {
+      if (Object.keys(attempt).some(key => !PLAYED_ATTEMPT_KEYS.has(key))) {
+        add(problems, 'played-attempt-schema-invalid');
+      }
       if (attempt.gameStarted !== true || attempt.terminalReached !== true) {
         add(problems, 'played-attempt-terminal-flags-invalid');
       }
@@ -855,9 +876,11 @@ function validateNatural64FieldLedger(request) {
   if (!manifest) {
     return {
       status: 'INVALID', rejectionReasons: [...problems].sort(),
-      totalAttempts: request.attempts.length, playedGameCount: 0,
-      winCount: 0, nonWinCount: 0, designThresholdMet: null,
-      decisionRuleDisposition: 'INVALID_REGISTRATION',
+      totalAttempts: request.attempts.length, rawPlayedAttemptCount: 0,
+      playedGameCount: null, winCount: null, lossCount: null, tieCount: null,
+      noWinnerTerminalCount: null, nonWinCount: null, observedWinRate: null,
+      rankSummary: null, designThresholdMet: null,
+      decisionRuleDisposition: 'NOT_EVALUABLE_INVALID',
       structuralAdmissionOnly: true,
       sourceAuthenticityProven: false,
       policyCompetenceProven: false,
@@ -1009,7 +1032,8 @@ function validateNatural64FieldLedger(request) {
   ];
   const rejectionReasons = [...problems].sort();
   const structuralValid = rejectionReasons.length === 0;
-  const rankSummary = Array.from({length: FIELD_SIZE}, (_, index) => {
+  const rankSummary = structuralValid
+    ? Array.from({length: FIELD_SIZE}, (_, index) => {
     const bySeat = [0, 1].map(seat => {
       const played = playedAttempts.filter(a => a && a.rank === index + 1 && a.seat === seat);
       const executions = attempts.filter(a => a && a.rank === index + 1 && a.seat === seat);
@@ -1025,14 +1049,17 @@ function validateNatural64FieldLedger(request) {
       };
     });
     return {rank: index + 1, seat0: bySeat[0], seat1: bySeat[1]};
-  });
-  const winCount = stopping.counts.wins;
-  const lossCount = stopping.counts.losses;
-  const tieCount = stopping.counts.ties;
-  const noWinnerTerminalCount = stopping.counts.noWinners;
-  const nonWinCount = lossCount + tieCount + noWinnerTerminalCount;
-  const playedGameCount = playedAttempts.length;
-  const decisionRuleDisposition = stopping.disposition;
+    }) : null;
+  const winCount = structuralValid ? stopping.counts.wins : null;
+  const lossCount = structuralValid ? stopping.counts.losses : null;
+  const tieCount = structuralValid ? stopping.counts.ties : null;
+  const noWinnerTerminalCount = structuralValid ? stopping.counts.noWinners : null;
+  const nonWinCount = structuralValid
+    ? lossCount + tieCount + noWinnerTerminalCount : null;
+  const rawPlayedAttemptCount = playedAttempts.length;
+  const playedGameCount = structuralValid ? rawPlayedAttemptCount : null;
+  const decisionRuleDisposition = structuralValid
+    ? stopping.disposition : 'NOT_EVALUABLE_INVALID';
 
   return {
     status: structuralValid
@@ -1044,6 +1071,7 @@ function validateNatural64FieldLedger(request) {
     registeredSlotCount: REGISTERED_SLOTS,
     completedSlotCount: slotValidation.completedSlotCount,
     preGameFailureCount: slotValidation.preGameFailureCount,
+    rawPlayedAttemptCount,
     playedGameCount,
     retryAttempts: attempts.filter(a => a && a.attemptNumber > 1).length,
     winCount,
