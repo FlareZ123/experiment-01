@@ -304,3 +304,7 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 
 - Clarified the report's scope: Shadow Rider V copies are included in the 14-Basic count and legal-opening weights but are not modeled as a target role. The separate risk of multiple V copies being Prized, and the engine's need for more than one V, is outside this role-capacity metric.
 - Rewrote the value-weighted extension with preserved LaTeX delimiters and added the caveat in results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md.
+
+## 2026-11-25 10:17 UTC — champion recovery and energy counts verified
+
+- Raw rank-1 entry for Yasunori Kato in results/aichi-2026/full-decklists.json confirms 3 Shadow Rider Calyrex V, 2 Tapu Lele-GX, 2 Lillie's Clefairy ex, **1 Hisuian Heavy Ball**, and **11 Psychic Energy**. This confirms the Heavy Ball and energy-count assumptions in the champion comparison.
