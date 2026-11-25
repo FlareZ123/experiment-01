@@ -143,6 +143,25 @@ function fixture({
     terminalClass,
     adjudicationReason: reason,
     adjudicatedCandidateResult: result,
+    ...(terminalClass === 'no-winner' ? {
+      dualDefeatEvidence: {
+        schema: 'aichi-dual-defeat-penalty-evidence-v1',
+        eventStage: 'aichi-open-top32',
+        penalty: 'Defeat',
+        penalizedPhysicalSeats: [0, 1],
+        judgeRulingRef: 'synthetic-dual-defeat-ruling'
+      }
+    } : {}),
+    ...((terminalClass === 'candidate-defeat' || terminalClass === 'opponent-defeat') ? {
+      singleDefeatEvidence: {
+        schema: 'aichi-single-defeat-penalty-evidence-v1',
+        eventStage: 'aichi-open-top32',
+        penalty: 'Defeat',
+        penalizedPhysicalSeats: [terminalClass === 'candidate-defeat'
+          ? expected.candidatePhysicalSeat : 1 - expected.candidatePhysicalSeat],
+        judgeRulingRef: 'synthetic-single-defeat-ruling'
+      }
+    } : {}),
     attestationSha256: hash('c')
   }, 'evidenceSha256');
   const receipt = seal({
@@ -202,6 +221,31 @@ function validate(input, extra = {}) {
     seenSetupEvidenceSha256: new Set(),
     ...extra
   });
+}
+
+function resealAdjudication(input) {
+  const adjudication = input.adjudicationEvidence;
+  seal(adjudication, 'evidenceSha256');
+  const receipt = input.attempt.terminalAdjudicationReceipt;
+  receipt.adjudicationEvidenceSha256 = adjudication.evidenceSha256;
+  receipt.adjudicatorAttestationSha256 = adjudication.attestationSha256;
+  receipt.adjudicatorId = adjudication.adjudicatorId;
+  receipt.adjudicatedAt = adjudication.adjudicatedAt;
+  receipt.terminalClass = adjudication.terminalClass;
+  receipt.adjudicationReason = adjudication.adjudicationReason;
+  receipt.adjudicatedCandidateResult = adjudication.adjudicatedCandidateResult;
+  receipt.protocolRuleId = adjudication.protocolRuleId;
+  receipt.protocolRuleSha256 = adjudication.protocolRuleSha256;
+  seal(receipt, 'receiptSha256');
+  input.attempt.terminalAdjudicationReceiptSha256 = receipt.receiptSha256;
+  return input;
+}
+
+function resealReceipt(input) {
+  const receipt = input.attempt.terminalAdjudicationReceipt;
+  seal(receipt, 'receiptSha256');
+  input.attempt.terminalAdjudicationReceiptSha256 = receipt.receiptSha256;
+  return input;
 }
 
 test('valid receipt binds attempt, native setup, exact runner terminal and protocol-selected adjudication', () => {
@@ -289,28 +333,124 @@ test('setup evidence must be bound to the exact attempt and trial identifiers', 
   assert.ok(result.rejectionReasons.includes('terminal-adjudication-setup-coin-choice-evidence-invalid'));
 });
 
-test('no-winner is always a distinct nonwin and cannot be relabelled', () => {
+test('no-winner is a distinct nonwin only with an evidenced dual-Defeat ruling', () => {
   const input = fixture({
     result: null,
     terminalClass: 'no-winner',
-    reason: 'ambiguous-played-terminal'
+    reason: 'both-players-defeated'
   });
   const result = validate(input);
   assert.equal(result.valid, true, result.rejectionReasons.join(','));
   assert.equal(input.attempt.status, NO_WINNER_STATUS);
   assert.equal(input.attempt.terminalAdjudicationReceipt.adjudicatedCandidateResult, null);
   assert.equal(input.attempt.terminalAdjudicationReceipt.statisticalStatus, null);
-  const forged = fixture({
-    result: 'candidate-win',
+
+  const ambiguous = fixture({
+    result: null,
     terminalClass: 'no-winner',
     reason: 'ambiguous-played-terminal'
   });
+  const ambiguousResult = validate(ambiguous);
+  assert.equal(ambiguousResult.valid, false);
+  assert.ok(ambiguousResult.rejectionReasons.includes(
+    'terminal-adjudication-protocol-rule-binding-invalid'));
+
+  const forged = fixture({
+    result: 'candidate-win',
+    terminalClass: 'no-winner',
+    reason: 'both-players-defeated'
+  });
   const forgedResult = validate(forged);
   assert.equal(forgedResult.valid, false);
-  assert.ok(forgedResult.rejectionReasons.includes('terminal-adjudication-protocol-rule-binding-invalid'));
+  assert.ok(forgedResult.rejectionReasons.includes(
+    'terminal-adjudication-protocol-rule-binding-invalid'));
 });
 
-test('opponent forfeits/concessions are wins; candidate forfeits, illegal actions and timeouts are losses', () => {
+test('single-seat Defeat evidence maps candidate and opponent penalties correctly', () => {
+  const candidateDefeat = fixture({
+    result: 'candidate-loss',
+    terminalClass: 'candidate-defeat',
+    reason: 'candidate-defeat'
+  });
+  assert.equal(validate(candidateDefeat).valid, true);
+
+  const opponentDefeat = fixture({
+    result: 'candidate-win',
+    terminalClass: 'opponent-defeat',
+    reason: 'opponent-defeat'
+  });
+  assert.equal(validate(opponentDefeat).valid, true);
+
+  const wrongSeat = fixture({
+    result: 'candidate-loss',
+    terminalClass: 'candidate-defeat',
+    reason: 'candidate-defeat'
+  });
+  wrongSeat.adjudicationEvidence.singleDefeatEvidence.penalizedPhysicalSeats = [1];
+  resealAdjudication(wrongSeat);
+  const rejected = validate(wrongSeat);
+  assert.equal(rejected.valid, false);
+  assert.ok(rejected.rejectionReasons.includes(
+    'terminal-adjudication-single-defeat-evidence-invalid'));
+});
+
+test('generic illegal-action and player-timeout labels are not terminal classes', () => {
+  for (const [terminalClass, reason, result] of [
+    ['candidate-illegal-action', 'candidate-illegal-action', 'candidate-loss'],
+    ['candidate-timeout', 'candidate-timeout', 'candidate-loss'],
+    ['opponent-timeout', 'opponent-timeout', 'candidate-win']
+  ]) {
+    const rejected = validate(fixture({result, terminalClass, reason}));
+    assert.equal(rejected.valid, false, terminalClass);
+  }
+});
+
+test('adjudication must occur after runner-terminal evidence capture', () => {
+  const input = fixture();
+  input.adjudicationEvidence.adjudicatedAt = '2026-11-25T12:00:30Z';
+  input.attempt.terminalAdjudicationReceipt.adjudicatedAt = '2026-11-25T12:00:30Z';
+  resealAdjudication(input);
+  const result = validate(input);
+  assert.equal(result.valid, false);
+  assert.ok(result.rejectionReasons.includes(
+    'terminal-adjudication-adjudicator-evidence-invalid'));
+});
+
+test('terminal and nested evidence records reject unknown public fields after resealing', () => {
+  const terminal = fixture();
+  terminal.attempt.terminalAdjudicationReceipt.opponentHand = ['hidden-card'];
+  resealReceipt(terminal);
+  assert.ok(validate(terminal).rejectionReasons.includes(
+    'terminal-adjudication-receipt-schema-fields-invalid'));
+
+  const setup = fixture();
+  setup.setupCoinChoiceEvidence.hiddenHand = ['hidden-card'];
+  seal(setup.setupCoinChoiceEvidence, 'evidenceSha256');
+  setup.attempt.setupCoinChoiceEvidenceSha256 = setup.setupCoinChoiceEvidence.evidenceSha256;
+  setup.attempt.terminalAdjudicationReceipt.setupCoinChoiceEvidenceSha256 =
+    setup.setupCoinChoiceEvidence.evidenceSha256;
+  resealReceipt(setup);
+  assert.ok(validate(setup).rejectionReasons.includes(
+    'terminal-adjudication-setup-coin-choice-evidence-invalid'));
+
+  const runner = fixture();
+  runner.runnerEvidence.hiddenHand = ['hidden-card'];
+  seal(runner.runnerEvidence, 'evidenceSha256');
+  runner.adjudicationEvidence.runnerEvidenceSha256 = runner.runnerEvidence.evidenceSha256;
+  runner.attempt.terminalAdjudicationReceipt.runnerEvidenceSha256 =
+    runner.runnerEvidence.evidenceSha256;
+  resealAdjudication(runner);
+  assert.ok(validate(runner).rejectionReasons.includes(
+    'terminal-adjudication-runner-evidence-schema-fields-invalid'));
+
+  const adjudicator = fixture();
+  adjudicator.adjudicationEvidence.hiddenHand = ['hidden-card'];
+  resealAdjudication(adjudicator);
+  assert.ok(validate(adjudicator).rejectionReasons.includes(
+    'terminal-adjudication-adjudicator-evidence-schema-fields-invalid'));
+});
+
+test('forfeit and concession outcomes retain their narrow result mapping', () => {
   const opponentForfeit = fixture({
     result: 'candidate-win',
     terminalClass: 'opponent-forfeit',
@@ -325,29 +465,12 @@ test('opponent forfeits/concessions are wins; candidate forfeits, illegal action
   });
   assert.equal(validate(opponentConcession).valid, true);
 
-  const opponentTimeout = fixture({
-    result: 'candidate-win',
-    terminalClass: 'opponent-timeout',
-    reason: 'opponent-timeout'
+  const candidateForfeit = fixture({
+    result: 'candidate-loss',
+    terminalClass: 'candidate-forfeit',
+    reason: 'candidate-forfeit'
   });
-  assert.equal(validate(opponentTimeout).valid, true);
-
-  for (const [terminalClass, reason] of [
-    ['candidate-forfeit', 'candidate-forfeit'],
-    ['candidate-illegal-action', 'candidate-illegal-action'],
-    ['candidate-timeout', 'candidate-timeout']
-  ]) {
-    const candidateLoss = fixture({result: 'candidate-loss', terminalClass, reason});
-    assert.equal(validate(candidateLoss).valid, true, terminalClass);
-    const forgedWin = fixture({
-      result: 'candidate-win', terminalClass, reason,
-      allowedResults: ['candidate-win']
-    });
-    const rejected = validate(forgedWin);
-    assert.equal(rejected.valid, false, terminalClass);
-    assert.ok(rejected.rejectionReasons.includes(
-      'terminal-adjudication-protocol-rule-binding-invalid'));
-  }
+  assert.equal(validate(candidateForfeit).valid, true);
 });
 
 test('draw is a genuine tie and cannot be promoted to candidate win', () => {
