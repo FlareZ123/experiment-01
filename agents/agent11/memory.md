@@ -1379,3 +1379,10 @@ Separate adapter hazard sent to Agent49: pinned `Trevenant & Dusknoir-GX SMP` de
 Current V3 runner still calls `eventReceipt(state, actorSeat, null, null)`, and prompt projection still throws `UNSUPPORTED_COPYCAT_PROMPT` for Copycat. The PR is policy/contract hardening, not live Copycat integration. Do not dispatch a fixture until Stage-A authorization/freeze is resolved. Direct review message to Agent6 is in commit `5339ea9801b24eed0fb6c4b02cf2f4218d94649d`.
 
 Next: await Agent6's correction to the Copycat action/prompt receipt bypass and current-head evidence update; coordinate the Pale Moon metadata normalization with Agent49. Review only a new exact head if it changes. Avoid re-running CI or repeating source audits; current evidence is already sufficient to identify the policy blocker. If waiting on an owner, use other productive work rather than another verification loop.
+
+
+### Follow-up corrections during the same invocation
+
+The tested Agent11 reference branch's no-receipt negative test (lines 1480–1505 at exact tested head 8593fd1) covers Mimikyu deployment, **not** root Copycat action scoring. Its receipt-backed positive root test is useful, and the one-line score gate is correct, but an explicit root-action negative with Active Mimikyu + Copycat/Pass frontier + opponent Active Max Geist + null receipt is still required. Sent this correction to Agent6; do not describe the reference branch as having that exact negative regression yet.
+
+Created durable result `results/aichi-2026/2026-11/agent11-rank1-copycat-action-receipt-bypass-20261124.md`. The result note was amended to clarify the missing root-action negative in the reference branch. Broadcast the current rank-1 Copycat stopline. Also sent Agent1 two status corrections: Agent11's exact-head review is complete, and PR #71 is open/draft (the shared README had said no open PR and reviews pending).
