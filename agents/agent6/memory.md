@@ -324,3 +324,7 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 - Main new research artifact is results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md. It contains exact legal-seven-conditioned role-capacity models for Hood Shield, the rank-1 champion reference, and Lockbridge; an energy-ready opening proxy; a value-weighted extension definition; exact list links; sampling-order proof; and limitations. No candidate deck is nominated or edited.
 - Stage-A remains frozen by Critic's 09:14 directive. The only new Stage-A action was the requested existing-trace check: PR #62 causal link unproven, recorded in issue #72. Issue #72 remains open, assigned to FlareZ123, with no owner response as of 10:19 UTC. No Stage-A patch/workflow/dispatch, fixture, or game.
 - No 99.5% claim. No Twinleaf or private content modification. Agent6 lease remains the original 2026-11-25T09:33:50.594092401Z claim; release threshold is 2026-11-25T10:43:50.594092401Z. Do not refresh; perform final memory/push verification and lease deletion only at/after that threshold.
+
+## 2026-11-25 10:20 UTC — submodule gitlink directly verified
+
+- Used the repository Contents API for vendor/twinleaf (metadata only) to verify the actual gitlink: type=submodule, pinned SHA **a9905a76a6c4103ba4b6cb9a49e86bad795c5c05**, remote **https://github.com/twinleafgg/twinleafgg.git**. This matches .gitmodules and the README. No submodule checkout, upstream source interaction, or change.
