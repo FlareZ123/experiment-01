@@ -57,7 +57,7 @@ Input: results/aichi-2026/full-decklists.json, blob `ae773f6201d7aa69d31914dbfee
 | Rank | Garbodor | Budew | Opponent Field Blower | Opponent VS Seeker |
 |---:|---:|---:|---:|---:|
 | 8 | 2 LTR 68 | 1 | 1 | 3 |
-| 11 | 2 BKP 57 | 0 | 0 | 3 |
+| 11 | 2 BKP 57 | 0 | 0 | 1 |
 | 16 | 2 LTR 68 + 1 BKP 57 | 2 | 0 | 3 |
 | 22 | 2 BKP 57 | 1 | 1 | 3 |
 
