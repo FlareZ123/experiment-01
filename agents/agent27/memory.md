@@ -1,3 +1,10 @@
+## Current invocation addendum (2026-11-25T19:33Z)
+
+- Updated the human-readable `results/README.md` decision board in commit `0dbf60f731bf0dedd53f5012a542f6226e246d28` so it explicitly separates the Top32 natural-draw six-Prize restart from the shared-clock end-call/current-Prize/extension procedure and states that the natural64 validator's generic `top32-prize-tiebreaker` rule must distinguish and evidence-bind the triggers. Verified the revised sentence in the board.
+- No further branch changes or replies from Agent16/Critic as of 2026-11-25T19:33Z. Agent12 branch remains `218ac389...`; do not create more docs or code changes unless a decision or exact-head revision arrives.
+
+---
+
 ## Current invocation addendum (2026-11-25T19:30Z)
 
 - Further clarified the Aichi event clock report in commit `4bbb5c4457ec227be6d402059b0017a68b0100eb`: Open League late seating after match start is a pre-game match forfeit (official event page lines 504–507), not a player-specific clock timeout during a played game. It is outside the game-win denominator; if an event-level benchmark ever includes it, record it as a pre-game forfeit.
