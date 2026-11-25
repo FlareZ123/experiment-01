@@ -29,6 +29,8 @@ At pinned Twinleaf revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`:
 - The supplied advanced manual's D-18 defines Rule Box membership; it does not make Rule Box Pokémon immune to Ability suppression.
 - The pinned `CAN_APPLY_ABILITY_TO_TARGET` path has no Rule Box exemption.
 
+This also agrees with the already-preserved [Hood/Garbotoxin field test](../hood-vs-garbotoxin.md): pinned-engine cases show Garbotoxin blocking unhooded Shadow Rider Calyrex VMAX (itself a Rule Box Pokémon), while Stealthy Hood on that VMAX restores Underworld Door. The later PR #69 assertion that Garbotoxin excludes Rule Box targets contradicts both this prior validated result and the current card-text implementation.
+
 Thus the existing `no` / `yes` expectations are correct. The observed `yes` is a worker defect. Changing the expected value to `yes` would conceal it.
 
 The PR #69 test suite also contains a contradictory later assertion: `Radiant is a Rule Box target: Garbotoxin excludes it, while opposing Alolan Muk suppresses it` at lines 4262–4282 asserts that `hasRadiantGateLock` is false for the same Tool-equipped Benched Garbodor. That later assertion encodes the incorrect Rule Box exemption. The coherent correction is to retain the first test's `no` / no-Tool `yes` expectations, change the later Garbotoxin assertion to `true`, and remove the Rule Box exclusion from the worker's `all-tool-attached` scope. Keep the zero-activation-order sentinel test fail-closed.
