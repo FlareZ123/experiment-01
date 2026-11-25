@@ -15,6 +15,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Test all-game 99.5% field non-win budget
+        run: node --test tests/aichi-archetype-loss-budget.test.cjs
       - name: Test aggregate and paired-seat anytime statistical evidence
         run: node --test tests/aichi-anytime-field-evidence.test.cjs tests/agent37-aichi-995-paired-seat-rejection.test.cjs tests/aichi-correlated-round-evidence.test.cjs
       - name: Test independent CSPRNG streams, headless wiring and campaign replay audit
