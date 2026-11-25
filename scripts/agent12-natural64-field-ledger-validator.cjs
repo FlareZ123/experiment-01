@@ -141,7 +141,9 @@ function validateAdjudicationProtocol(protocol, protocolSha256, problems) {
         ((rule.terminalClass === 'top32-prize-tiebreaker' ||
           rule.terminalClass === 'opponent-timeout' ||
           rule.terminalClass === 'candidate-timeout') &&
-          rule.clockMode !== 'aichi-top32-event-clock')) {
+          rule.clockMode !== 'aichi-top32-event-clock') ||
+        (rule.terminalClass === 'draw' &&
+          rule.clockMode === 'aichi-top32-event-clock')) {
       add(problems, 'adjudication-protocol-rule-invalid');
       continue;
     }

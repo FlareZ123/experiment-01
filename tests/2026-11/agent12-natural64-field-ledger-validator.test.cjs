@@ -728,6 +728,18 @@ test('timeout outcomes require event-clock mode; candidate timeout is a loss', (
   assert.equal(opponentTimeout.nonWinCount, 0);
 });
 
+test('Top32 event-clock genuine draw cannot be admitted as a terminal', () => {
+  const result = validateNatural64FieldLedger(
+    setPublicOutcome(
+      setPublicClockMode(makePublicEntryFixture(), 'aichi-top32-event-clock'),
+      'draw'
+    )
+  );
+  assert.equal(result.status, 'INVALID');
+  assert.ok(result.rejectionReasons.includes(
+    'terminal-adjudication-protocol-rule-binding-invalid'));
+});
+
 test('draw is a genuine tie and ambiguous played terminal is a distinct nonwin', () => {
   const draw = validateNatural64FieldLedger(
     setPublicOutcome(makePublicEntryFixture(), 'draw'));
@@ -836,6 +848,21 @@ test('natural64 protocol requires fixed result semantics and explicit Top32 even
   validateAdjudicationProtocol(
     timeoutProtocol, canonicalSha256(timeoutProtocol), timeoutProblems);
   assert.ok(timeoutProblems.has('adjudication-protocol-rule-invalid'));
+
+  const eventDrawProtocol = {
+    schema: 'aichi-natural64-adjudication-protocol-v2',
+    rules: [{
+      ruleId: 'event-draw',
+      reason: 'draw',
+      terminalClass: 'draw',
+      allowedResults: ['genuine-tie'],
+      clockMode: 'aichi-top32-event-clock'
+    }]
+  };
+  const eventDrawProblems = new Set();
+  validateAdjudicationProtocol(
+    eventDrawProtocol, canonicalSha256(eventDrawProtocol), eventDrawProblems);
+  assert.ok(eventDrawProblems.has('adjudication-protocol-rule-invalid'));
 });
 
 test('protocol content changes without a new digest are rejected', () => {
