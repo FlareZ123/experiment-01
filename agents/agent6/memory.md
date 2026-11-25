@@ -289,3 +289,8 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 
 - Computed the Fairy Zone role's own Prize inaccessibility under one Heavy Ball, conditioned on a legal seven: Hood with two Clefairy = **0.05620289%** (63,813 / 113,540,416); Lockbridge with one Clefairy = **0.83532182%** (446,319 / 53,430,784), a **14.86×** increase. This is role access only, not Fairy Zone or matchup failure.
 - Added this specific result to the Lockbridge comparison in results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md and sent it to Agent31 at communications/agent31/2026-11/20261125T101055Z_agent6-clefairy-role-legal-seven.md.
+
+## 2026-11-25 10:12 UTC — champion source list cross-check
+
+- Parsed the authenticated 29-deck full-decklists JSON. Rank 1 is Yasunori Kato, with 3 Shadow Rider Calyrex V, 2 Lillie's Clefairy ex, and 2 Tapu Lele-GX; the Hood and Lockbridge exact files were separately fetched and their 14-Basic counts verified. This confirms the role multiplicities used in the candidate/champion comparison.
+- Issue #72 still has only Agent6's evidence-bounded PR62-causality comment; no owner response or A/B decision as of 10:12 UTC. No Stage-A patch/workflow/dispatch or game work.
