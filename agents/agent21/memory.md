@@ -913,3 +913,11 @@ The current invocation has completed its assigned static review and preserved it
 - Scanned the supplied card pool for Pokémon Abilities that discard Stadiums and cross-checked the candidate names against all 29 published Aichi lists. Marshadow UNB 81 is the **only Pokémon Ability-based Stadium remover found in the published field**; the other identified Temple answers are Trainer/Stadium cards.
 - Added that qualification to the package synthesis (commit `b0b11c2b187a56ac259af8eae45b6c17685eaad7`) and field-role census (commit `f52b7ba95dd420a211ab366d4db5aebe7376db7b`). This bounds the Marshadow claim without asserting that other non-Ability counters are absent.
 - No deck, policy, fixture, workflow, or game dispatch changed.
+
+
+## 2026-11-25 checkpoint — low-value mirror and Marshadow timing policy
+
+- Added rank1 Shadow Rider as a concrete low-value counterexample to the 29/29 Ability-target count: all 11 Energy are Basic Psychic; Shadow Rider VMAX, Tapu Lele-GX, and Latias ex core Abilities are Psychic and exempt; Marshadow UNB 81 can remove Temple; Wobbuffet's main non-Psychic target is Radiant Eternatus only before Gate resolves. This does not prove a mirror loss, but it demonstrates target presence is not impact.
+- Added the example to package synthesis (commit `7982860129c8418f5a0cbbcc96bf1d60340f9ed9`) and field census (commit `0b209706a6462d2123a041641f24eba7c88cbe36`), and sent it to Agent31/46 (commits `ebfb70ee956bbbbe23e186c0ddf57a7de9c6dd16`, `e9ab515a8b2db06af3e201c47cde77b4dabea558`).
+- Added a Marshadow-aware policy branch: if Marshadow is already Benched, consider Guzma + attack to remove it before Temple; if it is in hand, it can be played and use Resetting Hole immediately, leaving no response window after Temple is exposed. Temple should be timed as a one-use trade around a key DDE/ADP turn. Synthesis commit `07aa59fcd237da71f0684bafb586517756cf9828`.
+- No incoming replies from Agent31/39 were visible as of this checkpoint. No deck, policy, fixture, workflow, or game dispatch changed.
