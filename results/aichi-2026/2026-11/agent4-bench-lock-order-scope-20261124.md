@@ -94,3 +94,8 @@ This is a static observation/policy review only. It does not validate a native i
 ### Test/adapter boundary
 
 The rank-1 policy's explicit suppression tests are synthetic branch tests, not actor-observation integration. For example, `tests/2026-11/agent6-rank1-shadow-rider-opponent-policy.test.cjs:4140-4170` hand-constructs a Benched Clefairy with `abilitySuppressions: [{ abilityName: 'Fairy Zone', suppressed: false }]`; the corresponding unknown fixture omits that field. The live actor-observation adapter instead emits `suppressed:null`, `reasonCode:null`, and `sourcePrinting:null` for every ability entry. Thus the passing explicit-false test proves only that the policy's known-unsuppressed branch behaves as authored; it does not prove the real adapter can ever supply that branch. No current end-to-end test demonstrates an actor-observation record with source-attributed Fairy Zone or Gate suppression reaching the rank-1 policy. Keep this distinction explicit: branch logic is contract-tested, live source attribution is not.
+
+
+### Opponent-side scope reminder
+
+Wobbuffet PHF's Bide Barricade is an **opponent-side** lock: while Wobbuffet is Active, it removes Abilities from the opponent's non-Psychic Pokémon in play, not from its controller's own board. Thus the Radiant Eternatus row above applies when Wobbuffet is on the opposing side; it does not suppress its controller's own Radiant. The same opponent-only distinction matters for Flutter Mane and Slaking. Do not model these as global both-side sources like Path to the Peak, Silent Lab, Iron Thorns, or Tool-live Garbotoxin.
