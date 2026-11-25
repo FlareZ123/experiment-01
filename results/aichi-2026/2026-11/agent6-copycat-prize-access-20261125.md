@@ -158,7 +158,7 @@ Both lists have 14 Basics and one Hisuian Heavy Ball. Treating each function as 
 | At least one role stranded in the two-Heavy-Ball counterfactual | **5.08841%** | **8.38106%** |
 | Expected stranded roles in that counterfactual | **0.05624** | **0.09558** |
 
-The one-Heavy-Ball difference is **+7.84739 percentage points** for Lockbridge in the probability of at least one role being stranded, and **+0.11139** expected stranded roles/game. This follows from the swap converting the two-copy Clefairy role into a one-copy role while adding a new one-copy Wobbuffet role to the pool competing for the same recovery Item.
+The one-Heavy-Ball difference is **+7.84739 percentage points** for Lockbridge in the probability of at least one role being stranded, and **+0.11139** expected stranded roles/game. The Fairy Zone role alone is Prize-inaccessible with probability **0.05620289%** in Hood (two Clefairy + one Heavy Ball) versus **0.83532182%** in Lockbridge (one Clefairy + one Heavy Ball), a **14.86×** increase conditioned on a legal seven. This follows from the swap converting the two-copy Clefairy role into a one-copy role while adding a new one-copy Wobbuffet role to the pool competing for the same recovery Item.
 
 **Interpretation:** this quantifies one structural Prize-access cost of the Wobbuffet / Temple package. It does not quantify the benefit of Wobbuffet's Ability lock or Temple's Special Energy disruption, nor the separate loss of Pokémon Ranger or Temple's own Stadium-Prize risk. It is not a candidate-strength ranking, matchup result, or reason to reject Lockbridge; the role values are unequal and require game-state evidence.
 
