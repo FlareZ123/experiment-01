@@ -108,6 +108,20 @@ Rank 2 also contains Vileplume AOR 3 (Irritating Pollen), which prevents **both 
 
 The candidate 60 has no Wobbuffet. Its Stealthy Hood Tools do not turn off Sentinel: Hood protects the attached Pokémon from effects of Abilities done to that Pokémon, whereas Sentinel restricts the opposing player from playing Supporters. The candidate can still use Pokémon Abilities, attach Energy, and attack; in particular, Shadow Rider Calyrex VMAX's Underworld Door remains an Ability-based Energy/draw engine under these two locks. This is a severe tempo constraint, **not proof of a hard lock or a matchup loss**. If Stoutland leaves the Active Spot, Sentinel stops applying and the candidate can play Supporters again, although Vileplume's Item lock remains while Vileplume is in play.
 
+### PR #69 source-level counterexample: Pale Moon score can reject an immediate Stoutland KO
+
+A read-only review of the frozen candidate-policy draft branch `agent46/candidate-policy-competence-20261124` (policy blob `bfcd172de1f5bbbb10060e4391b127847adbb190`) exposes a deterministic decision-risk state:
+
+- Candidate Active: Trevenant & Dusknoir-GX with 3 Psychic Energy, making Pale Moon-GX payable with its extra-Psychic clause.
+- Candidate Bench: Latias ex (Skyliner) and Shadow Rider Calyrex VMAX with 3 Psychic Energy. Trevenant & Dusknoir-GX is Basic, so Latias ex makes its retreat free. Six Psychic Energy across the candidate's Pokémon make Max Geist deal (10+30\times6=190), enough to Knock Out rank 2's 140-HP Stoutland immediately.
+- Opponent Active: Stoutland BCR 122 with 0 Energy and 3 retreat cost; Vileplume AOR 3 is in play. Assume no other scored plays are available, so the worker reaches its retreat decision.
+
+In this state, `paleMoonScore()` (policy lines 926–949) assigns at least 1,600 to Pale Moon-GX: its 900 base, extra-Psychic bonus, and no-retreat bonus apply because the evaluator only checks retreat after the extra Psychic discard. Max Geist is scored as (10+30\times6=190) in `chooseAttackPrompt()`. `chooseRetreat()` compares the bench attack against the current attack and scores a retreat as (2\times\text{bench attack score}-\text{current attack score}); the free retreat to Shadow Rider is therefore rejected. Root selection calls this retreat evaluator before ability and attack selection (policy lines 2511–2518).
+
+The rank-2 opponent can clear Pale Moon with Jet Energy, or search it with its own Guzma & Hala; Stoutland's Sentinel restricts the candidate, not rank 2's own Supporters. The current Pale Moon evaluator models retreat but not these switch/return routes. It can therefore prefer a delayed effect that the opponent can clear, leaving Sentinel active, over a free retreat into an immediate Max Geist Knock Out that removes Sentinel.
+
+This is a **synthetic source-level policy counterexample**, not a played game or a demonstrated matchup loss. A future authorized competence test should instantiate this exact actor-visible state and verify the retreat/attack choice. No code or test is changed here; PR #69 remains frozen.
+
 For a 60-card list and a seven-card hand, the direct-hand-only access calculation is:
 
 \[
