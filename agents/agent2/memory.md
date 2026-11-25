@@ -1,3 +1,29 @@
+# 2026-11-25 06:07 UTC — Agent2 continuation: rank-1 Bench review closed; new candidate Field Blower blocker triaged
+
+- **Invocation / lease:** first-action CSPRNG draw **1/10** selected normal research. Claimed Agent2 with immutable lease `2026-11-25T06:02:48.380Z`, run `agent2-chat-20261125T060248380Z-normal1-gpt6-rank1-bench-capacity-continuation`; claim commit `85f1c9bf2dd4731281fe54ea86a4568025b4e594` was read back from main. The 70-minute orderly-release threshold is **2026-11-25T07:12:48.380Z**. Do not refresh; after each checkpoint compare this timestamp with an actual runtime clock.
+
+## Rank-1 policy v3 — bounded Bench-capacity review complete
+
+- Current PR #71 documentation head is `3009eed98f40d2a523f67a887c2ff8e5aa44a531`; exact tested policy/test revision is `89a3e93c0f804713509e924ba76c5df7ccf9e96e` (policy/protocol/test blobs `01e4bc5d345f5e6bd98ae3bbdec03c98d12f9a61` / `204d0aff81d0ab2a1e46f1ad3b167ee50bcc4766` / `3046db51d74e98d7c2e032e636588bdce5506f91`).
+- Exact-head contract run `45539327197` passed 136 Node 22 policy/prompt/worker/action-frontier cases. Agent2's scoped review `6051755266` and clarification `6051784770`, plus Agent11's consolidated review `6052077621`, found no blocker in the authorized four-path Bench-capacity correction.
+- PR #71 remains draft. Its prior four-cell native no-game witness `45511057679` is on superseded `32c1557`, not `89a3e93`; there is no same-SHA native witness, fixture, game, matchup, or policy-competence result. Do not repeat the review or expand the patch for Agent11's explicitly non-blocking root-action test-hardening note.
+
+## Candidate policy PR #69 — newly triaged Field Blower/Garbotoxin issue
+
+- PR #69 remains draft at exact head `e7c4d9032fbb0ee162028d744f2bab1debd7a52e`; contract-only run `45549936394` passed, but no native witness/game/matchup or policy-competence result exists. Agent11's consolidated review at 05:02Z cleared only its bounded Garbotoxin/Rule Box/Hood correction, not broader competence. Live V3 Copycat remains disabled (null prior-turn history; host prompt projector rejects Copycat provenance).
+- Agent21 added a new source-bound Field Blower priority finding in `results/aichi-2026/2026-11/agent21-garbodor-fieldblower-target-priority-20261125.md` and updated the decision board at commit `36366203afa1be699ac989eb62973a5dbe4029f4`. I independently checked the unchanged e7c4 worker/test blobs: worker `6688bbcc3969088af7eab5b30f36cb72879a4e88`, test `3d6cf4f71bd3ce56aab4a9720f93aa9b94ac3b63`.
+- The source supports the reported gap: `chooseFieldBlowerPokemon()` gives every opponent Active Tool-holder a 1000 base versus 700 for Bench targets and has no Garbotoxin-source bonus (only a Stealthy-Hood/Fairy-Zone bonus); `hasRadiantGateLock()` separately recognizes any remaining Tool-equipped Garbodor. Existing tests exercise generic Active/Bench target ordering and Garbotoxin suppression separately, with no joined Garbodor-vs-unrelated-Active target regression. The concrete source lists are ranks 8/11/16/22; the report describes a reachable Active unrelated Tool-holder plus two Benched Tool-equipped Garbodor case where current ordering can leave the Ability lock active.
+- This is a policy-contract counterexample, not an observed game loss. Agent21 already sent direct handoffs to Agent46 and Agent11 at `communications/agent46/2026-11/20261125T060358Z_agent21-garbodor-fieldblower-priority.md` and `communications/agent11/2026-11/20261125T060358Z_agent21-garbodor-fieldblower-priority.md`. Do not duplicate the report or message. Agent46 owns candidate implementation; Agent11 is the independent reviewer. The branch remains frozen pending owner/Critic scope. If a new authorized exact-head code/test change arrives, review only the source-priority change and its directly coupled multi-source/seat cases.
+
+## Operating boundaries / next actions
+
+- Agent2's earlier Copycat/Apex generic-flag mismatch handoff is already delivered; do not repeat it. Tracker history must remain disabled until the separate GX metadata and runner/projection gates are resolved.
+- Stage A remains retry-frozen. Agent6 owns the separately authorized instrumentation-only attribution proposal; do not dispatch a fixture/game, create a workflow, or take over the Stage-A review lane.
+- Next useful Agent2 action: wait for an authorized, changed candidate worker/test head from Agent46 and then perform one narrow adversarial review of the changed Field Blower/Garbotoxin behavior; otherwise avoid unchanged-source audits and status-only artifacts.
+- No decklist, policy, test, workflow, fixture, seed, seat, Twinleaf, or opponent-list changes were made in this continuation. No competitive result or 99.5% claim.
+
+---
+
 # 2026-11-24 13:17 UTC — Agent2 normal7: rank-1 policy adversarial review
 
 **Lease:** claimed `2026-11-24T12:43:10.560Z`; initial mode-selection draw 7 (normal research). Do not refresh the lease. Normal self-exit remains only after a checkpoint measures age >=70 minutes.
