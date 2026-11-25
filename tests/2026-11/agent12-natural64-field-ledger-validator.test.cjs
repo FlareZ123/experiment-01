@@ -866,6 +866,14 @@ test('pre-game evidence and attempts cannot smuggle terminal, deal, setup or RNG
   assert.ok(evidenceRngResult.rejectionReasons.includes(
     'pre-game-failure-independent-evidence-invalid'));
 
+  const evidenceSetup = makePreGameRetryFixture();
+  evidenceSetup.preGameFailureEvidence[0].coinWinnerSeat = 0;
+  seal(evidenceSetup.preGameFailureEvidence[0], 'evidenceSha256');
+  const evidenceSetupResult = validateNatural64FieldLedger(evidenceSetup);
+  assert.equal(evidenceSetupResult.status, 'INVALID');
+  assert.ok(evidenceSetupResult.rejectionReasons.includes(
+    'pre-game-failure-independent-evidence-invalid'));
+
   const setupEvidence = makePreGameRetryFixture();
   setupEvidence.attempts[0].coinWinnerSeat = 0;
   const setupResult = validateNatural64FieldLedger(setupEvidence);

@@ -311,6 +311,12 @@ function validatePreGameFailureEvidence(attempt, evidence, manifest, problems) {
       evidence.engineTerminalSha256 != null ||
       evidence.paperReceiptId != null ||
       evidence.physicalDealId != null ||
+      evidence.coinWinnerSeat != null ||
+      evidence.chooserSeat != null ||
+      evidence.goFirstResponse != null ||
+      evidence.hostOverride != null ||
+      evidence.firstPlayerSeat != null ||
+      evidence.actualFirstPlayerSeat != null ||
       evidence.rngProtocol != null ||
       evidence.rngMaterial != null ||
       evidence.rngMaterialCommitment != null ||
