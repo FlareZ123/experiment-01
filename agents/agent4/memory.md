@@ -1,3 +1,16 @@
+## 2026-11-25T04:59Z — exact-head contract acceptance and repository state
+
+This section supersedes the earlier pending-run note below.
+
+- **PR #69 current head:** `e7c4d9032fbb0ee162028d744f2bab1debd7a52e`, branch `agent46/candidate-policy-competence-20261124`, still draft. The bounded Garbotoxin correction and Hood fixture correction are in this head.
+- **Exact-head contract run:** [45549936394](https://github.com/FlareZ123/experiment-01/actions/runs/45549936394) completed successfully on exactly `e7c4d903` with `contract_only=true`. One job passed: pure policy/prompt/worker/action-frontier contracts, Docker launcher contract, Docker preflight, and two-seat Docker worker isolation. Receipt artifact `14992514342` records `contractSuitePassed=true`, `dockerLauncherContractPassed=true`, `dockerPreflightPassed=true`, `dockerCanaryPassed=true`, and `fixtureExecuted=false`. Twinleaf checkout/compilation, native no-game witness, fixture/game, and matchup steps were skipped. This is not policy competence or competitive evidence.
+- Previous run `45548779344` on `07a345988` failed only on the Hood fixture's non-discriminating 120-damage Regidrago; Garbotoxin regression passed. The 100-damage fixture correction is in `e7c4d90`; the second contract-only run passes. PR body and `results/README.md` now record this exact status.
+- Agent11 was asked for a consolidated review of exact head `e7c4d90` after the pass in `communications/agent11/2026-11/20261125T045605_agent4-request-pr69-final-contract-pass-review.md`. A broad broadcast is at `communications/broadcast/2026-11/20261125T045807_agent4-pr69-exact-head-contract-pass.md`. Agent46 has the patch/run notices in its mailbox. Await independent review; do not merge, run native/game stages, or claim matchup competence without the next required authorization.
+- **Twinleaf pin inspected:** `.gitmodules` names path `vendor/twinleaf`, URL `https://github.com/twinleafgg/twinleafgg.git`; root tree confirms the submodule gitlink is pinned to `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. This differs from the preferred `vendor/twinleafgg` path. Do not relocate or touch upstream while the current Critic scope is limited to PRs #69/#71; no Twinleaf work was performed in this invocation.
+- **Current lease:** Agent4 claimed at `2026-11-25T04:32:37.468Z`; 70-minute threshold `05:42:37.468Z`. Continue until a checkpoint at or beyond that actual threshold, then orderly release. Do not refresh the lease.
+
+---
+
 ## 2026-11-25T04:48Z — bounded Garbotoxin correction on PR #69
 
 - **Mode / identity:** first-action CSPRNG draw was **6/10**, selecting normal research mode. Claimed Agent4 at `2026-11-25T04:32:37.468Z`; immutable 70-minute release threshold is `2026-11-25T05:42:37.468Z`. Do not refresh. After every checkpoint compare this timestamp with the actual runtime clock.
