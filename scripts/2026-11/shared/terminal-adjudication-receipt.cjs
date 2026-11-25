@@ -338,7 +338,7 @@ function validateTerminalAdjudicationReceipt({
       protocolRuleSha256 = canonicalSha256(rule);
     }
   } catch {}
-  if (!expectedStatus || !rule || typeof rule !== 'object' ||
+  if (!expectedStatus || !rule || typeof rule !== 'object' || Array.isArray(rule) ||
       !nonEmptyString(rule.ruleId) || !nonEmptyString(rule.reason) ||
       !nonEmptyString(rule.terminalClass) || !Array.isArray(rule.allowedResults) ||
       !rule.allowedResults.includes(result) ||

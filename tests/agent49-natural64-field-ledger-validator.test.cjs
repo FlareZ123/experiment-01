@@ -25,6 +25,7 @@ const {
 
 const hash = ch => ch.repeat(64);
 const gitHash = ch => ch.repeat(40);
+const hexHash = n => n.toString(16).padStart(64,'0');
 function slot(slotId, sequenceIndex, rank, seat) {
   return {slotId, sequenceIndex, roundIndex: 0, rank, seat};
 }
@@ -210,10 +211,10 @@ function makePublicPolicyCore() {
     const rank=index+1;
     return {
       rank,sourceStatus:'authenticated',
-      deckSha256:hash((index+1).toString(16)[0]),
-      policySha256:hash((index+2).toString(16)[0]),
-      entryManifestSha256:hash((index+3).toString(16)[0]),
-      challengeSuiteSha256:hash((index+4).toString(16)[0]),
+      deckSha256:hexHash(1000+rank),
+      policySha256:hexHash(2000+rank),
+      entryManifestSha256:hexHash(3000+rank),
+      challengeSuiteSha256:hexHash(4000+rank),
       policyProducerId:'opponent-policy-author-'+rank
     };
   });
@@ -221,8 +222,8 @@ function makePublicPolicyCore() {
     schema:'aichi-policy-plan-core-v1',
     comparisonMode:'candidate-vs-field',
     candidate:{
-      deckSha256:hash('c'),policySha256:hash('d'),
-      entryManifestSha256:hash('e'),challengeSuiteSha256:hash('f'),
+      deckSha256:hexHash(9001),policySha256:hexHash(9002),
+      entryManifestSha256:hexHash(9003),challengeSuiteSha256:hexHash(9004),
       policyProducerId:'candidate-policy-author'
     },
     opponentPolicyBundle:{schema:'aichi-opponent-policy-bundle-v1',ranks},
