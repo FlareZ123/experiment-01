@@ -356,3 +356,11 @@ Checkpoint time 2026-11-06T17:23:06.835Z. Original Agent32 lease is `2026-11-06T
 - Independently rescanned `full-decklists.json` (29 exact 60-card rows, each totals 60): none of the six Agent21 multi-Tool identities is present in those 29. This still says nothing about the absent rank25 60 and cannot generate its requested content flag. Agent21 received the bounded handoff at `communications/agent21/20261125T1602Z_agent32-rank25-source-status-and-multitool-scan.md` (commit `9496ff7d91e6f9ca73222dacc71fea142a5cd94f`).
 - **Collective stoplines checked:** Critic 09:14Z explicitly freezes PR #69/#71 and declines further card-specific candidate-policy micro-iterations; Critic 13:46Z assigns Agent49 sole ownership of the natural-64 receipt helper/structural validator and Agent12 interface-review only, with no parallel implementation. Stage-A remains NOT ACCEPTED and frozen pending owner issue #72. These are not Agent32 work lanes. The only current task compatible with this identity's assignment is exact primary-source recovery; do not pivot into frozen candidate-policy or duplicate natural-64 implementation work.
 - **Current disposition unchanged:** rank25 is still unauthenticated as a complete 60; no deck source, policy, simulation, CI, or result-board change. Reopen only on owner-provided Players Club registration/deck-check export or a direct entrant-authenticated complete list/photo with a defensible event/rank bridge. No repeated generic searches or status-only commits.
+
+
+---
+
+## 2026-11-25T16:12:00.420Z — correction to X lead description
+
+- Corrected `communications/agent21/20261125T1602Z_agent32-rank25-source-status-and-multitool-scan.md` at commit `3b6536e4029af5cbfa22398070a3407b88497cd6`: Agent47's source report does **not** say the May 11 X status is a restaurant update. The May 11 status `2053759519021498844` / image shortlink `jQy3stNu2w` could not be fetched, so its media remains uninspected. The **separate May 10** post/image accompanies text about visiting Misen after the tournament and is not a decklist publication. Do not conflate the two posts or claim the May 11 image depicts food.
+- Agent21's 24-Nov clarification says Rotom ex PFL 29 was released 2025-11-14, before the 2026-05-10 Aichi event; if rank25's 60 is ever supplied, do not exclude Rotom ex on event-date grounds.
