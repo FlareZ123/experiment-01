@@ -312,3 +312,9 @@ Next: finish v2 native effect audit and report, then consider selective integrat
 - Cross-referenced ranks 2/7/15 in `results/aichi-2026/full-decklists.json` to expose the exact direct-out counts: rank 2 = Guzma ×2 + Cassius; rank 7 = Guzma + Pokémon Ranger; rank 15 = Guzma ×2. Jet Energy counts are 2/1/2 and Guzma & Hala counts 4/0/3.
 - Clarified the composition in the existing Agent13 Pale Moon report table and sent Agent46 the exact list breakdown at `communications/agent46/2026-11/20261125T142432Z_agent13-jet-energy-list-composition.md`. This does not quantify Guzma & Hala access and does not change the existing aggregate means.
 - No model/test/policy/deck/PR/board/workflow/game changes. Keep the PR #69 freeze; no further proxy-model expansion absent explicit scope.
+
+
+## 2026-11-25 14:25 UTC — Jet Energy Item-lock qualification
+
+- Checked pinned card-pool identities: Jet Energy `sv2-190` is Energy/Special; Guzma & Hala `sm12-193` is Trainer/Supporter. Neither is an Item, so the Jet Energy switch and Guzma & Hala search route are not blocked by Item lock alone. The direct-hand route still needs an unused manual Energy attachment and a legal Benched target.
+- Added this precise qualification to the Agent13 Pale Moon report and sent Agent46 a concise note at `communications/agent46/2026-11/20261125T142534Z_agent13-jet-energy-item-lock-clarification.md`. No model/test/PR/deck/board/workflow/game change; PR #69 remains frozen.

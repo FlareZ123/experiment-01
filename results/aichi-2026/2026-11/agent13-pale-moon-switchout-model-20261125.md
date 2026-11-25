@@ -100,7 +100,7 @@ Float Stone appears in 12 lists (24 copies). **U-Turn Board** appears in ranks 4
 
 **Jet Energy (PAL 190; repository card identity `sv2-190`)** is a Special Energy with a switch effect when attached from hand to one of your Benched Pokémon: that Pokémon switches with your Active Pokémon. This is not a retreat, so a retreat prohibition does not prevent it. Under the Advanced Player's Manual C-02, a Pokémon that moves from Active to the Bench loses effects on it; attaching Jet Energy to a Benched Pokémon can therefore clear Pale Moon-GX's delayed attack effect.
 
-The authenticated Aichi lists contain Jet Energy in **rank 2 (2 copies), rank 7 (1), and rank 15 (2)**. Ranks 2 and 15 also contain Guzma & Hala (4 and 3 copies respectively), which can search Jet Energy as its Special Energy target. That is Supporter access, not Item access.
+The authenticated Aichi lists contain Jet Energy in **rank 2 (2 copies), rank 7 (1), and rank 15 (2)**. Ranks 2 and 15 also contain Guzma & Hala (4 and 3 copies respectively), which can search Jet Energy as its Special Energy target. That is Supporter access, not Item access. Neither component is an Item: Jet Energy is a Special Energy and Guzma & Hala is a Supporter, so this route is not blocked by Item-lock effects alone.
 
 For a 60-card list and a seven-card hand, the direct-hand-only access calculation is:
 
@@ -114,7 +114,7 @@ P(\text{at least one of }k\text{ outs})=1-\frac{\binom{60-k}{7}}{\binom{60}{7}}.
 | 7 | 2 (1 Guzma, 1 Pokémon Ranger) | 3 | 22.15% | **31.54%** |
 | 15 | 2 (2 Guzma) | 4 | 22.15% | **39.95%** |
 
-These are opening-hand hypergeometric access frequencies only. They exclude Guzma & Hala search, timing, a legal Benched attachment target, remaining actions, and the opponent's choice to use the out. They are not game probabilities. Jet Energy is **not included** in the report's 29-list aggregate means or list-level table; those values are therefore incomplete for ranks 2, 7, and 15, not upper bounds on total effect-clear access. No attempt is made here to union Jet Energy with the existing outs because the full overlapping search/hand event is outside this scoped correction.
+These are opening-hand hypergeometric access frequencies only. They exclude Guzma & Hala search, timing, an unused manual Energy attachment for the turn, a legal Benched attachment target, remaining actions, and the opponent's choice to use the out. They are not game probabilities. Jet Energy is **not included** in the report's 29-list aggregate means or list-level table; those values are therefore incomplete for ranks 2, 7, and 15, not upper bounds on total effect-clear access. No attempt is made here to union Jet Energy with the existing outs because the full overlapping search/hand event is outside this scoped correction.
 
 ## Policy implication and limits
 
