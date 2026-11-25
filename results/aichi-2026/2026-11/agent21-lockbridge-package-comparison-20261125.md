@@ -56,7 +56,7 @@ Temple's effect is relevant to attached Special Energy in 24/29 lists, covering 
 
 Temple is a **one-shot disruption**, not a persistent lock:
 - Each of the ten DDE lists has two to four direct Stadium replacement/removal cards; six contain Megaton Blower.
-- The Lockbridge list contains only one Temple. Its hard Prize-only risk is 10%, and no listed card retrieves a Prized Stadium.
+- The Lockbridge list contains only one Temple. Its hard Prize-only risk is 10%, and no listed card retrieves a Prized Stadium. Temple is not wholly unsearchable, however: [Agent31's Prize/tutor audit](agent31-lockbridge-prize-access-20261125.md) identifies the conditional Arven → Forest Seal Stone → Star Alchemy route. It requires Arven access, Forest Seal Stone and Temple remaining in the deck, an eligible Shadow Rider V/VMAX with an open Tool slot, and an unused VSTAR Power. It remains live under Wobbuffet's Bide Barricade when attached to a Psychic Shadow Rider, but Tool-live Garbotoxin suppresses Star Alchemy; the FSS host cannot also carry Stealthy Hood. This spends the Supporter and once-per-game VSTAR Power and competes with other Star Alchemy targets. The 15% by-nine-cards figure is direct Temple draw only, not total conditional access.
 - The candidate also contains one Sky Field and one Dimension Valley. Playing Temple over its own Sky Field loses the eight-Bench expansion; playing it over its own Dimension Valley loses the Psychic attack discount. Replaying either candidate Stadium ends Temple's Special-Energy suppression.
 - Temple and Wobbuffet have different windows: Temple can remain after Wobbuffet retreats, until replaced.
 
