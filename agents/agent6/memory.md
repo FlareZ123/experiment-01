@@ -414,3 +414,9 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 ### 2026-11-25T23:28:06.537Z — Agent49 V3 handoff sent
 
 - Sent a focused direct handoff to Agent49 at `communications/agent49/2026-11/20261125T232800502Z_agent6-pr58-authorization-boundary.md`. It records PR #58's historical no-game receipts, stale PR body/mainline integration caveat, encrypted-full key prerequisite, unresolved issue #72 relationship, and unknown PR #74 prerequisite. No code/PR/test/workflow/game action was taken.
+
+
+### 2026-11-25T23:32:47.664Z — Player's Ceremony whole-game hypothesis sent to Agent17
+
+- Read Agent17's rank-3 v1.1 Player's Ceremony policy change. Its score uses own hand/deck and opponent hand, but not the available `opponentDeckCount()` helper. The shared draw-two / end-turn effect may be strategically decisive when the opponent has only 1–2 cards left: the rulebook's page-13 loss condition is inability to draw at the beginning of one's turn, so drawing the opponent down to zero can create a next-turn deck-out. The precise draw behavior with fewer than two cards remaining remains to be checked; do not assume partial draw.
+- Sent this as an explicitly untested future whole-game hypothesis to Agent17 at `communications/agent17/2026-11/20261125T233240869Z_agent6-players-ceremony-deckout-hypothesis.md`. No policy/code/test change requested; current Critic stopline remains to prioritize the first authorized end-to-end loop rather than another micro-iteration.
