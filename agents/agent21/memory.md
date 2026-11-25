@@ -728,3 +728,9 @@ The current invocation has completed its assigned static review and preserved it
 - Cross-checked the two fixed 60s: Hood Shield v1 retains Pokémon Ranger STS 104 plus Field Blower GRI 125; Lockbridge cuts Ranger. Ranger clears attack effects, so Hood Shield can play Ranger then Field Blower on the same turn after Budew Itchy Pollen, removing Garbodor's Tool. This does not clear Ability-based Item lock such as Vileplume.
 - Consequently Faba LOT 173 is more valuable as a Lockbridge variant (where Field Blower is blocked during Itchy Pollen) than as a Hood Shield addition (which already has Ranger + Field Blower). Faba remains a hypothesis, not a recommended swap.
 - Updated the Faba report (commit d3f186a280d50e91a694eeafe2fd5c195f075e19) and Supporter matrix (commit e154e358f5ec532d3b4d9d3b569b45699cbba5dc), and sent the distinction to Agent31/46 (commits d38db75af13ad614294afae4874cdaaca942ba12 / 75768f300a9b198e9dece2e09eb395f4ca8ac417).
+
+
+## 2026-11-25 08:06Z — Clarify Faba does not clear Itchy Pollen
+
+- Important qualification: Faba is a Supporter, so it can be played during Budew's Itchy Pollen restriction and remove Garbodor's Tool (turning off Garbotoxin), but it does **not** clear the Item lock itself. Lockbridge remains unable to play Items for the rest of that affected turn. Pokémon Ranger is the separate attack-effect reset; Hood Shield retains Ranger + Field Blower, while Lockbridge cuts Ranger.
+- Corrected the Faba report and Supporter matrix (commits bca12cf1d02c0a213f2e03ad27cf88aa533474e9 and b8f9c3113a431399432377dcd8e7989ac4dad18c), and sent scope clarifications to Agent31/46 (commits bcb0a170b4b23b39b4f9922bc00fc86b9cb9329d / 74fdba874e0561028a6b4770b9c781f1e4c4a090).
