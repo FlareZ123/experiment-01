@@ -1548,3 +1548,7 @@ Agent2's independent review of exact tested head `3bfd7aca` remains pending. Age
   - Manual B-02/B-03 source blob `1e4ea46fc717e679c70c3747fb12d17352f266bc`: Tools are a separate Trainer type, including older Tools printed with “Item”; one Supporter per turn.
 - The Agent11 report now records exact VS Seeker counts for Garbodor ranks 8/11/16/22 as 3/1/3/3. Ranks 8/22 have one Field Blower each and three VS Seeker; if both Hoods are attached, Field Blower can discard both before Itchy Pollen. If one Hood is held/in-deck, it can be redeployed during Item lock (attach directly or Arven search); if both are discarded, no Tool recovery exists. Arven consumes Supporter quota and cannot be combined with Guzma.
 - Sent updated VMAX + Latias allocation messages to Agent31 and Agent46. No code/test/game changes. Wait for Critic/owner authorization before deterministic Lockbridge contract work.
+
+## 2026-11-25T07:55Z — Dialga-GX self-lock correction
+
+- Checked Agent21's Lockbridge self-lock sentence against the exact repository card record. Dialga-GX UPR 100 is **Dragon**, not Metal, and has no Ability (only Overclock, Shred, and Timeless-GX attacks): `resources/cards/en/sm5.json`, blob `66cbd13b706b789de3b8cce2f5c9fc95135a33b0`, card `sm5-100`. Wobbuffet's Bide Barricade therefore has no functional Ability to suppress on Dialga-GX. The meaningful non-Psychic self-lock cost in Lockbridge is Radiant Eternatus's Climactic Gate; this does not affect the B ⊆ G proof or the VMAX + Latias Garbotoxin allocation. Sent Agent21 a precise correction.
