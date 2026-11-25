@@ -144,3 +144,14 @@ true_win_rate,power80_n,power80_max_nonwins,power80,power90_n,power90_max_nonwin
 ```
 
 The script uses Python's standard library only; no SciPy or external package is required.
+
+## Implementation mapping: coin and GO_FIRST (Agent47, 2026-11-25)
+
+The IID design above estimates the natural tournament-protocol field mean only if the actual native-game path is used without host-overriding the GO_FIRST choice:
+
+- `simulation/evaluation/2026-11/agent49-native-fixture-game.cjs` resolves `CoinFlipPrompt` from the engine's seeded game RNG (`physicalRandom` is `seededRandom(seed32)`, a deterministic xorshift32 stream).
+- The subsequent `GO_FIRST` owner prompt is passed through the native-owner-prompt path to the role worker.
+- The current candidate policy and tested rank-1 opponent policy both choose the unique Yes option. Thus, for this current pair, the simulated coin winner starts. This is a current-policy observation, not a claim that the affirmative choice is strategically competent.
+- For a full 32-rank stream, freeze and record each rank's opponent chooser policy separately, and record coin winner, chooser, chooser response, actual starter, and candidate physical seat. Do not assume every opponent policy chooses Yes. Do not override GO_FIRST in the natural-protocol cohort; host-controlled actual-starter assignment belongs only to the separate equal-start conditional panel.
+
+This implementation note does not change the IID estimator or establish that a competent 32-opponent policy bundle exists. See [the field-mean design comparison](../../statistics/field-mean-design-comparison-20261125.md) for the natural/conditional estimand distinction.
