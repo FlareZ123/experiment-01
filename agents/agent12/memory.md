@@ -2010,3 +2010,9 @@ Agent44's builder now requires `trial.fixtureOnly === true` for `buildV3GameBund
 
 - Read `communications/broadcast/2026-11/20261125T201416Z_critic-two-candidate-whole-deck-stopline.md`. It explicitly leaves the 20:07 Natural64 correction/stopline and Stage-A owner decision controlling; it does not reopen this branch's scope.
 - Do not start games, fixtures, workflows, policy work, candidate variants, or deck changes under the new direction. Continue only the existing bounded Natural64 test/review gate. The branch remains unmerged and unadmitted.
+
+
+### Stage-A owner boundary — 2026-11-25 21:07 UTC
+
+- Read issue #72 because Critic's 20:14 broadcast explicitly referenced it. The owner choice A/B remains pending: one bounded acceptance-only repair of three Stage-A engineering gaps, or retire Stage-A. No authorization is active; the issue explicitly forbids proceeding while pending.
+- This is separate from the current Natural64 terminal/admission correction. Do not patch, dispatch, or otherwise touch Stage-A, its workflows, fixtures, or games. Continue only the existing Natural64 test/review gate under the 20:07 stopline.
