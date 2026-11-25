@@ -866,13 +866,15 @@ function paleMoonRetreatStatus(target, view, energyAfterAttack) {
   }
   const conditions = normalizeSpecialConditionNames(target.specialConditions ?? []);
   if (conditions === null) return null;
-  if (conditions.includes('paralyzed')) return { canRetreat: false, cost: null, free: false };
   const asleep = conditions.includes('asleep');
+  const paralyzed = conditions.includes('paralyzed');
   const toolsLive = toolsEffectiveForRetreat(view, target, 'opponent');
   if (toolsLive === null && (!Array.isArray(target.tools) || target.tools.length > 0)) return null;
   if (toolsLive === true && !Array.isArray(target.tools)) return null;
   const escapeBoard = toolsLive === true && target.tools.some(tool => hasName(tool, 'Escape Board'));
-  if (asleep && !escapeBoard) return { canRetreat: false, cost: null, free: false };
+  if ((asleep || paralyzed) && !escapeBoard) {
+    return { canRetreat: false, cost: null, free: false };
+  }
 
   const snorlax = view.ownPublic.active;
   if (hasName(snorlax?.printing, 'Snorlax PGO 55')) {

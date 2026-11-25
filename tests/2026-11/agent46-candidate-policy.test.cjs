@@ -4070,25 +4070,59 @@ test('Pale Moon accounts for extra Psychic payment, retreat Energy units, and li
   assert.equal(candidate.__test.paleMoonRetreatStatus(basicTarget, latiasView, []).free, true);
 
   const asleepTarget = pokemon({
-    printing: 'Regidrago VSTAR SIT 136', name: 'Regidrago VSTAR',
-    types: ['Dragon'], subtypes: ['VSTAR'], retreatCost: ['Colorless'],
-    energies: ['Fire Energy'], specialConditions: ['Asleep'], tools: ['Escape Board UPR 122']
+    printing: 'Regidrago VSTAR SIT 136', name: 'Regidrago VSTAR', hp: 280,
+    types: ['Dragon'], subtypes: ['VSTAR'],
+    retreatCost: ['Colorless', 'Colorless', 'Colorless'],
+    energies: ['Fire Energy', 'Fire Energy'],
+    specialConditions: ['Asleep'], tools: ['Escape Board UPR 122']
   });
   const asleepView = observation(0, {
     opponentActive: asleepTarget, opponentBench: [pokemon({ printing: 'Bench escape' })]
   });
   assert.equal(candidate.__test.paleMoonRetreatStatus(asleepTarget, asleepView,
     asleepTarget.energies).canRetreat, true);
+
   const paralyzedTarget = pokemon({
-    printing: 'Regidrago VSTAR SIT 136', name: 'Regidrago VSTAR',
-    types: ['Dragon'], subtypes: ['VSTAR'], retreatCost: ['Colorless'],
-    energies: ['Fire Energy'], specialConditions: ['Paralyzed'], tools: ['Escape Board UPR 122']
+    printing: 'Regidrago VSTAR SIT 136', name: 'Regidrago VSTAR', hp: 280,
+    types: ['Dragon'], subtypes: ['VSTAR'],
+    retreatCost: ['Colorless', 'Colorless', 'Colorless'],
+    energies: ['Fire Energy', 'Fire Energy'],
+    specialConditions: ['Paralyzed'], tools: ['Escape Board UPR 122']
   });
   const paralyzedView = observation(0, {
     opponentActive: paralyzedTarget, opponentBench: [pokemon({ printing: 'Bench escape' })]
   });
   assert.equal(candidate.__test.paleMoonRetreatStatus(paralyzedTarget, paralyzedView,
-    paralyzedTarget.energies).canRetreat, false);
+    paralyzedTarget.energies).canRetreat, true);
+
+  const paralyzedWithoutBoard = pokemon({
+    printing: 'Regidrago VSTAR SIT 136', name: 'Regidrago VSTAR', hp: 280,
+    types: ['Dragon'], subtypes: ['VSTAR'],
+    retreatCost: ['Colorless', 'Colorless', 'Colorless'],
+    energies: ['Fire Energy', 'Fire Energy', 'Fire Energy'],
+    specialConditions: ['Paralyzed']
+  });
+  const paralyzedWithoutBoardView = observation(0, {
+    opponentActive: paralyzedWithoutBoard,
+    opponentBench: [pokemon({ printing: 'Bench escape' })]
+  });
+  assert.equal(candidate.__test.paleMoonRetreatStatus(paralyzedWithoutBoard,
+    paralyzedWithoutBoardView, paralyzedWithoutBoard.energies).canRetreat, false);
+
+  const paralyzedWithDisabledBoard = pokemon({
+    printing: 'Regidrago VSTAR SIT 136', name: 'Regidrago VSTAR', hp: 280,
+    types: ['Dragon'], subtypes: ['VSTAR'],
+    retreatCost: ['Colorless', 'Colorless', 'Colorless'],
+    energies: ['Fire Energy', 'Fire Energy', 'Fire Energy'],
+    specialConditions: ['Paralyzed'], tools: ['Escape Board UPR 122']
+  });
+  const paralyzedWithDisabledBoardView = observation(0, {
+    opponentActive: paralyzedWithDisabledBoard,
+    opponentBench: [pokemon({ printing: 'Bench escape' })],
+    opponentStadium: ['Jamming Tower TWM 153']
+  });
+  assert.equal(candidate.__test.paleMoonRetreatStatus(paralyzedWithDisabledBoard,
+    paralyzedWithDisabledBoardView, paralyzedWithDisabledBoard.energies).canRetreat, false);
 });
 
 test('Pale Moon-GX decisions consume native SpecialCondition codes through checked evaluation', () => {
