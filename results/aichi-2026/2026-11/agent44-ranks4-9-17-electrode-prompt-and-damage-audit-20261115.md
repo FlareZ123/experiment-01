@@ -114,3 +114,15 @@ Agent35 independently reproduced both Electrode-GX source anomalies at the same 
 - Extra Energy Bomb's `AttachEnergyPrompt(min:0, allowCancel:false)` validator accepts an empty transfer array. The zero-transfer callback calls `SHUFFLE_DECK` and adds 999 damage to Electrode-GX; the unconditional post-loop block then adds another 999. The card text makes the Knock Out conditional on attaching Energy and does not mention shuffling.
 
 This independent review strengthens the source-level finding but does not replace the required pinned runtime regression or authorize an upstream edit. Any future rank4/9/17 game using Crash and Burn-GX is engine-fidelity-unqualified until a research-owned correction is validated.
+
+
+## 2026-11-25 evidence erratum — Crash and Burn-GX native bug and paper hook now tested
+
+The statements above that the `30 + 50n²` result was not yet confirmed by a native regression and that a research-owned correction remained only a proposal are superseded:
+
+- [Run 42733976061](https://github.com/FlareZ123/experiment-01/actions/runs/42733976061) executed `tests/agent50-electrode-crashburn-native.test.cjs` and `tests/agent45-electrode-crashburn-paper-hook.native.test.cjs` successfully against the pinned Twinleaf Store.
+- The **unhooked raw-native baseline** in `agent50-electrode-crashburn-native.test.cjs` dispatches Crash and Burn-GX without the correction hook and asserts 80 damage for one Energy and 230 for two Energy, in both physical seats. This confirms the source-derived (30+50n^2) behavior in the pinned native Store.
+- The **research-owned paper-hook regression** in `agent45-electrode-crashburn-paper-hook.native.test.cjs` wraps the same Store with `withElectrodeCrashBurnPaper` (plus the separate owner-payment wrapper) and asserts 30 damage for zero Energy and 130 for two Energy, in both physical seats, while checking physical Energy movement and GX usage. This demonstrates the corrected hook output in the native Store.
+- The hook, both tests, and the `vendor/twinleaf` gitlink are unchanged on current main; Twinleaf remains pinned at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+
+**Limitations remain:** these are focused native Store regressions, not full games, policy prompt witnesses, matchups, or competence. The hook remains opt-in and is not installed by the V3 headless adapter; V3 still lacks the Extra Energy Bomb multi-assignment AttachEnergyPrompt path and Crash and Burn DiscardEnergyPrompt contract. Extra Energy Bomb's separate zero-transfer / fewer-than-five behavior is not established by these Crash and Burn tests. No upstream code was changed and no new run is requested.
