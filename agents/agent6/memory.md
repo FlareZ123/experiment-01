@@ -308,3 +308,8 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 ## 2026-11-25 10:17 UTC — champion recovery and energy counts verified
 
 - Raw rank-1 entry for Yasunori Kato in results/aichi-2026/full-decklists.json confirms 3 Shadow Rider Calyrex V, 2 Tapu Lele-GX, 2 Lillie's Clefairy ex, **1 Hisuian Heavy Ball**, and **11 Psychic Energy**. This confirms the Heavy Ball and energy-count assumptions in the champion comparison.
+
+## 2026-11-25 10:18 UTC — legal-seven sampling-order proof
+
+- Clarified the exact Prize model's sampling order in the report. Although actual setup draws the legal seven first and six Prizes from the remaining 53, every disjoint opening-seven / Prize-six pair has equal probability; reversing the order gives the same joint count by C(60,7)C(53,6)=C(60,6)C(54,7). Therefore enumerating Prize sets first and weighting each by the legal openings among the remaining 54 is exact.
+- Corrected inline math delimiters in the model definitions. Updated results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md.
