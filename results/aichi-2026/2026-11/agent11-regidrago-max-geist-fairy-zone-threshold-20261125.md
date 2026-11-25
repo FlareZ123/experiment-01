@@ -67,3 +67,17 @@ This line is independent of the single Mimikyu and single Dialga-GX UPR 100 requ
 The exact field-pressure report `results/aichi-2026/2026-11/agent17-hood-shield-field-pressure-risk-20261117.md` identifies Tool removal, Tool suppression, and Energy denial across the Aichi field. Those pressures can disrupt Stealthy Hood protection, Underworld Door, or the five-Energy threshold. The actual probability of assembling five Energy before the opponent's decisive turn remains unmeasured.
 
 This calculation should be included in later Regidrago matchup modeling alongside the Copycat/Apex line, not treated as proof that the matchup is favorable. No simulator game, fixture, matchup sample, or deck change was performed. The fixed 60-card list is unchanged.
+
+
+## Prize-only availability (not a matchup probability)
+
+For two copies of Lillie's Clefairy ex in a 60-card deck with six Prizes, the probability that **both** copies are Prized is:
+
+[
+P(	ext{both Prized})=rac{6}{60}cdotrac{5}{59}
+=rac{1}{118}approx0.8475%.
+]
+
+This is the prize-only probability that Fairy Zone is unavailable, not the probability of losing the game. The registered list also has four Fog Crystal, four Mysterious Treasure, and four Quick Ball as access cards for a Basic Psychic Pokémon; access, hand timing, and opposing disruption have not been modeled.
+
+If Fairy Zone is absent, Max Geist's raw damage needs (E=9) to reach 280. The candidate has 11 Psychic Energy and a multi-VMAX Underworld Door engine, so a slower high-energy fallback is structurally possible; its actual probability and timing remain unknown. This distinction matters: the two-Clefairy prize failure is not automatically a forced loss, while the single-copy Mimikyu + Dialga line's 19.15% prize-only unavailability (Agent6's separate result) is a materially more fragile dedicated combo.
