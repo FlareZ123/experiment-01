@@ -1751,6 +1751,11 @@ test('native failure projection preserves only generic error and frontier-stage 
   assert.equal(projectedFixture.name,'AssertionError');
   assert.equal(projectedFixture.nativeFixtureFailure.nativeActionValidationStage,
     'native-enumerator-execution');
+  const unknownCodeFixture=projectV3FixtureFailureForReceipt({
+    stage:'policy-decode',code:'NATIVE_PRIVATE_CARD_PIKACHU'
+  });
+  assert.equal(unknownCodeFixture.code,'WORKER_FIXTURE_FAILURE',
+    'unknown code values must collapse to a fixed generic fallback');
   const projectedFixtureJson=JSON.stringify(projectedFixture);
   for(const secret of ['a'.repeat(64),'b'.repeat(64),'c'.repeat(64),
     'messageSha256','actionPayloadSha256','private raw error text',

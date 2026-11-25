@@ -721,11 +721,14 @@ test('native fixture failure redaction preserves only safe stage metadata for Ga
     {kind:'native',message:'PRIVATE_CARD_SPECIFIC_GAME_MESSAGE',name:'GameError',
       stage:'native-enumerator-execution'},
     {kind:'ordinary',message:'PRIVATE_CARD_IMPLEMENTATION_ERROR',name:'Error',
-      stage:'frontier-admission'}
+      stage:'frontier-admission'},
+    {kind:'ordinary',message:'PRIVATE_CARD_CODE_SENTINEL',name:'Error',
+      stage:'frontier-admission',code:'NATIVE_PRIVATE_CARD_PIKACHU',
+      expectedCode:'NATIVE_FIXTURE_FAILURE'}
   ];
   for(const entry of cases){
     const context={
-      code:'NATIVE_ACTION_FRONTIER_TEST_FAILURE',
+      code:entry.code??'NATIVE_ACTION_FRONTIER_TEST_FAILURE',
       nativeActionType:'PLAY_CARD_ACTION',
       nativeActionValidationStage:entry.stage,
       nativeActionFamily:'PRIVATE_FAMILY_SENTINEL'
@@ -744,7 +747,7 @@ test('native fixture failure redaction preserves only safe stage metadata for Ga
     assert.ok(failure);
     const nativeFailure=failure.fixtureGamePartial.failure;
     assert.equal(nativeFailure.name,entry.name);
-    assert.equal(nativeFailure.code,'NATIVE_ACTION_FRONTIER_TEST_FAILURE');
+    assert.equal(nativeFailure.code,entry.expectedCode??'NATIVE_ACTION_FRONTIER_TEST_FAILURE');
     assert.equal(nativeFailure.nativeActionType,'PLAY_CARD_ACTION');
     assert.equal(nativeFailure.nativeActionValidationStage,entry.stage);
     assert.equal(nativeFailure.nativeActionFamily,undefined);
