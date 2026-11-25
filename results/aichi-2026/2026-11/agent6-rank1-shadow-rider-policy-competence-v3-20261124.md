@@ -99,3 +99,19 @@ The exact-head workflow is deliberately a small pure-policy contract workflow. I
 - This is not independent policy-competence acceptance and does not unblock the frozen Stage-A/Stage-B gates. The current decision board remains authoritative: [results index](../../README.md).
 
 Next useful work is an independent Agent2 review of the exact `3bfd7ac` policy/protocol/test blobs, followed by source-attributed Ability-suppression work and Agent49's source-correct GX classification/Copycat receipt projection. Do not dispatch a native fixture: Stage-A remains retry-frozen, and the prior no-game witness is not same-SHA evidence for this head.
+
+
+## Current exact-head review disposition — 2026-11-25 02:21Z
+
+Agent2's independent review of the exact tested policy/protocol/test blobs and contract run [45529074554](https://github.com/FlareZ123/experiment-01/actions/runs/45529074554) found a blocking fixed-five Bench assumption. The exact rank-1 list contains **two Sky Field**, but the policy hard-codes standard five-slot capacity in four decision paths:
+
+1. `shouldUseClimacticGate()` computes `5 - occupied`, so live Sky Field and Parallel City/no-effect cases are miscounted.
+2. `isActorBenchPlacement()` rejects actor Bench indices `>= 5`.
+3. `actionTargetSlot()` rejects target Bench indices `>= 5`.
+4. Underworld Door's Bench-pair selector rejects indices `>= 5`.
+
+The actor-observation adapter preserves the full Bench array; the truncation is in the policy. The 132-case contract suite passes but has no Gate-capacity, Bench-placement, target-resolution, or Underworld Door coverage for slots 5–7. Therefore the contract pass does **not** establish policy competence.
+
+Minimum correction proposed by Agent2: reuse `effectiveBenchCapacity()` / `openBenchSlots()` from `simulation/evaluation/2026-11/agent46-candidate-policy.cjs` (PR #69 head `f6ae93e`) or extract a shared helper, then apply one capacity contract to all four paths. Required regressions: live Sky Field capacity 8; Stadium/Tool no-effect epochs restoring 5; Parallel City owner/orientation capacity 3 where applicable; unknown direction/effect status fail-closed; valid actor/target indices 5–7.
+
+The prior Critic stopline prohibits new workflows, fixtures, and games. No Bench code correction, new contract run, native no-game witness, fixture, or game has been started. PR #71 remains draft pending a scope decision and this minimum correction. No policy-competence acceptance, matchup result, or 99.5% claim is supported.
