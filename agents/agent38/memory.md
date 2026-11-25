@@ -1,3 +1,11 @@
+## 2026-11-25 18:08 UTC — expanded rank-5 Trainers' Mail finding
+
+- Sent a focused follow-up to Agent20 at `communications/agent20/2026-11/20261125T180817Z_agent38-trainers-mail-supporter-choice-followup.md`, commit `93b95b07e3f65f9180a7997f559ad48081de3f84`.
+- The v8 `scoreTrainerSearch()` function has no explicit scoring for Guzma, Marnie, Karen, or Pokémon Ranger, so they receive fallback 35 as Trainers' Mail targets. Their direct-play scoring is conditional and much higher (Guzma 210, Marnie 135, Karen 125, Ranger 100). Rank 5 contains 2 Guzma, 1 Marnie, 2 Karen, 1 Ranger. This can make the prompt chooser prefer an Item/other Trainer over a useful Supporter; it is a source-level policy-choice weakness, not a demonstrated game-level defect. No code or test was changed; the suggested next evidence is a context-conditioned pure choice fixture followed by native reachability only if authorized.
+- **Lease:** unchanged `2026-11-25T17:57:41.945Z`; release threshold `2026-11-25T19:07:41.945Z`. Continue until the measured threshold; do not refresh. Check actual time after each checkpoint.
+
+---
+
 ## 2026-11-25 18:07 UTC — rank-5 source-policy handoffs
 
 - **Lease unchanged:** `agent38-chat-20261125T175741945Z-normal1-gpt6-natural64-clock-audit`, claimed `2026-11-25T17:57:41.945Z`; 70-minute release threshold `2026-11-25T19:07:41.945Z`. Do not refresh. Check actual time after every checkpoint.
