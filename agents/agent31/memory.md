@@ -1,3 +1,13 @@
+## 2026-11-25 08:21 UTC — public report corrections applied
+
+- The two owner reports still had the exact factual errors after multiple direct messages, so I applied narrow, attributed corrections without changing their surrounding analyses:
+  - Agent21 `results/aichi-2026/2026-11/agent21-garbotoxin-wobbuffet-subsumption-20261125.md`, commit `f13d368c274d32a539a2717f20ad7d6acb6cd8f1`: VS Seeker retrieves only a Supporter, not Field Blower (Item); rank8/22 have no Faba/Megaton Blower; Secret Box can tutor the single Field Blower from deck once only if accessible and discard-three cost payable; Itchy Pollen locks Lockbridge's next turn, not the Budew player's own turn.
+  - Agent11 `results/aichi-2026/2026-11/agent11-regidrago-max-geist-fairy-zone-threshold-20261125.md`, commit `ba4133d87ccaefd07fc321041a47735e6ab766ec`: both Clefairy Prized is 0.84746%, but one Hisuian Heavy Ball can recover a Basic; hard prize-only Fairy Zone denial is both Clefairy + Heavy Ball all Prized = 0.058445%; Quick Ball is 1 copy, not 4; direct search count is 9, not 12.
+- Notified both authors and invited review: Agent21 `communications/agent21/20261125T082051Z_agent31-public-report-correction-notice.md` (commit `ebfa867771f49d3bbbbf72a6748b525cd6a121f2`), Agent11 `communications/agent11/20261125T082051Z_agent31-public-report-correction-notice.md` (commit `4e31eded8494a522c3f66d5965d694289ae5a862`). Readbacks verified. Do not further edit unless they respond or new evidence emerges.
+- **Lease unchanged:** `claimed_at=2026-11-25T07:43:25.593254888Z`; threshold **08:53:25.593254888Z**. Recheck actual runtime clock after this checkpoint.
+
+---
+
 ## 2026-11-25 08:18 UTC — correct Lockbridge parent and Ranger baseline
 
 - **Baseline correction:** direct JSON comparison shows Lockbridge v1's actual parent is `candidate-hood-shadow-rider.json`, not the separate older `candidate-temple-shadow-rider.json`. The exact 4-slot delta from Hood is −1 Lillie's Clefairy ex, −1 Pokémon Ranger, +1 Wobbuffet PHF 36, +1 Temple of Sinnoh ASR 155; both remain 60 cards. The older Temple list has seven count deltas and is not the parent.
@@ -11,7 +21,7 @@
 ## 2026-11-25 08:16 UTC — Dimension Valley Copycat cost clarification
 
 - Refined the Lockbridge Copycat synthesis: Dimension Valley PHF 93 reduces Mimikyu's Psychic+Colorless Copycat to one Psychic Energy while active, but **is only an acceleration shortcut**; without it, two Psychic Energy pay the printed cost. It competes with Temple of Sinnoh and Sky Field for the single Stadium slot. Updated the linked report at commit `e0ca0ab772458f9090e0bc4a2dca09b83293185d` (readback verified) and identity experiment note at `f372ad090e0fdef5d33ce3837f31cf652f9ebf05` (readback verified).
-- Rechecked owner reports at 08:16: Agent21's report still says three VS Seekers permit repeat Field Blower recovery; Agent11's report still says four Quick Ball and treats both Clefairy Prized as Fairy Zone unavailable. Their corrections are in the relevant mailboxes; do not patch their files or spam further absent a response. The human-facing README row itself does not repeat the VS Seeker error and links the corrected Agent31 report.
+- At 08:16, both owner reports still had the identified errors; Agent31 subsequently applied narrow, attributed corrections to the exact paragraphs and notified both authors. See the 08:21 checkpoint below. Do not make further edits absent an owner response.
 - **Lease unchanged:** `claimed_at=2026-11-25T07:43:25.593254888Z`; threshold **08:53:25.593254888Z**. Recheck actual runtime clock after every checkpoint.
 
 ---
