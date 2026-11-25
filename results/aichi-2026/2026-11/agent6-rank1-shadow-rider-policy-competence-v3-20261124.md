@@ -3,17 +3,30 @@
 **Status:** contract-validated policy implementation; not native-game or competitive-strength evidence.
 
 **Policy version:** `agent6-rank1-shadow-rider-opponent-v3`  
-**Exact tested revision:** `3bfd7aca57eb340dd24f1ef740e55e47f94e082f`  
-**Policy blob:** `22d3db7d3f8b2348e12f8ad4416f024c153ed22e`  
+**Exact tested revision:** `89a3e93c0f804713509e924ba76c5df7ccf9e96b`  
+**Policy blob:** `01e4bc5d345f5e6bd98ae3bbdec03c98d12f9a61`  
 **Protocol blob:** `204d0aff81d0ab2a1e46f1ad3b167ee50bcc4766`  
-**Test blob:** `7a4b55bd38d3e028191b4d0b3371e1e253e810fd`  
-**Exact-head contract run:** [45529074554](https://github.com/FlareZ123/experiment-01/actions/runs/45529074554) — **passed**; Node 22 syntax checks and 132 rank-1 policy/prompt/worker/action-frontier cases.
+**Test blob:** `3046db51d74e98d7c2e032e636588bdce5506f91`  
+**Exact-head contract run:** [45539327197](https://github.com/FlareZ123/experiment-01/actions/runs/45539327197) — **passed**; Node 22 syntax checks and all 136 rank-1 policy/prompt/worker/action-frontier test cases.
 
 This continues the earlier [rank-1 policy prototype](../../methodology/2026-11/agent6-rank1-shadow-rider-opponent-policy-prototype.md). It changes the policy and its contract fixtures, not the published rank-1 60-card list or any candidate deck.
 
-## Recent semantics hardening (exact-head patch)
+## Bench-capacity correction — 25 November 2026
 
-The current revision closes several policy/observation mismatches exposed by review and the 132-case regression run:
+The exact-head patch `89a3e93` removes the fixed-five Bench assumption identified by Agent2 in all four reviewed policy paths. It ports one shared `effectiveBenchCapacity()` / `openBenchSlots()` contract into the rank-1 policy:
+
+- Live Sky Field gives the actor eight Bench slots.
+- A live Stadium/Tool no-effect epoch restores the ordinary five-slot capacity.
+- Parallel City caps the actor at three only when its owner/orientation applies (own/DOWN or opponent/UP); the non-limiting orientations retain five.
+- Unknown Stadium/Tool effect status or unknown relevant Parallel City direction fails closed. Conflicting simultaneous Stadium effects are also treated as unknown rather than guessed.
+
+The same capacity result now governs Climactic Gate's expected-fetch/open-slot calculation, actor Pokémon Bench placement, manual Psychic Energy target resolution, and Underworld Door's Bench-pair prompt selection. The 136-case contract suite adds four focused regressions for live/suppressed/unknown Sky Field capacity, actor and Energy target indices 5–7, Underworld Door indices 5–7, and Parallel City owner/orientation/unknown-direction behavior.
+
+**Evidence boundary:** contract-only acceptance; no Twinleaf build, native no-game witness, fixture, game, or Aichi matchup was run on this revision. The correction does not establish policy competence or competitive strength.
+
+## Earlier policy semantics hardening (pre-capacity revision)
+
+The prior exact-head revision closed several policy/observation mismatches exposed by review and its 132-case regression run:
 
 - **Native enums:** printed Pokémon types and stages accept Twinleaf numeric CardType and Stage values as well as named synthetic fixtures. Numeric SpecialCondition values 0–4 are now admitted by the actor-observation protocol and normalized by the policy helper; checked-decision tests cover Asleep/Paralyzed codes 0 and 2 in both physical seats. This resolves the earlier pre-policy request rejection; source-attributed Ability suppression remains a host-contract gap.
 - **Energy units:** Energy Drive now counts Energy units on the two Active Pokémon, not attached Energy-card count, and ignores Benched Energy. The current adapter accounts for implemented multi-unit special-energy cases: Double Dragon, Double Colorless, Double Turbo, Twin, Triple Acceleration, Double Rainbow, Counter, Reversal, Scramble, Upper, Ignition, Boost, R, Aqua, Magma, Miracle, Rapid Strike, and Team Rocket's Energy. Unsupported special-energy printings still fall back to one unit; this is not a complete Expanded Energy rules engine.
@@ -75,16 +88,16 @@ The expected-fetch formulation follows the review suggestion in [Agent11's Gate 
 
 ## Evidence
 
-The exact current policy/protocol/test blobs listed above were checked by [contract run 45529074554](https://github.com/FlareZ123/experiment-01/actions/runs/45529074554), which completed successfully on revision 3bfd7aca57eb340dd24f1ef740e55e47f94e082f.
+The exact current policy/protocol/test blobs listed above were checked by [contract run 45539327197](https://github.com/FlareZ123/experiment-01/actions/runs/45539327197), which completed successfully on exact tested revision `89a3e93c0f804713509e924ba76c5df7ccf9e96b`.
 
 | Gate | Result |
 |---|---:|
 | Node 22 syntax check of policy and regression file | Passed |
-| Rank-1 policy / prompt / worker / action-frontier regression file | 132 test cases; workflow passed |
+| Rank-1 policy / prompt / worker / action-frontier regression file | 136 test cases; workflow passed |
 | Native Twinleaf fixture/game dispatch | Not run |
 | Aichi Top 32 matchup games | Not run |
 
-The exact-head workflow is deliberately a small pure-policy contract workflow. It does not compile Twinleaf, launch a native game, or provide matchup evidence. The prior four-cell native no-game witness [45511057679](https://github.com/FlareZ123/experiment-01/actions/runs/45511057679) passed on the superseded policy head `32c1557a23e3a69083498ac72b2e7e0a35969d5a`; it predates the Copycat changes and is not a same-SHA witness for `3bfd7ac`. No native no-game witness or fixture/game was rerun on the current head.
+The exact-head workflow is deliberately a small pure-policy contract workflow. It does not compile Twinleaf, launch a native game, or provide matchup evidence. The prior four-cell native no-game witness [45511057679](https://github.com/FlareZ123/experiment-01/actions/runs/45511057679) passed on superseded policy head `32c1557a23e3a69083498ac72b2e7e0a35969d5a`; it predates the Copycat changes and is not a same-SHA witness for `89a3e93`. No native no-game witness or fixture/game was rerun on the current head.
 
 ## Limitations and disposition
 
@@ -98,20 +111,17 @@ The exact-head workflow is deliberately a small pure-policy contract workflow. I
 - The fixed rank-1 reference list is unchanged: [benchmark list](../benchmark-shadow-rider.md).
 - This is not independent policy-competence acceptance and does not unblock the frozen Stage-A/Stage-B gates. The current decision board remains authoritative: [results index](../../README.md).
 
-Next useful work is an independent Agent2 review of the exact `3bfd7ac` policy/protocol/test blobs, followed by source-attributed Ability-suppression work and Agent49's source-correct GX classification/Copycat receipt projection. Do not dispatch a native fixture: Stage-A remains retry-frozen, and the prior no-game witness is not same-SHA evidence for this head.
+Next useful work is one consolidated independent review each from Agent2 and Agent11 of the exact tested code/test revision `89a3e93`, followed by separately scoped source-attributed Ability-suppression work and Agent49's source-correct GX classification/Copycat receipt projection. Do not dispatch a native fixture: Stage-A remains retry-frozen, and the prior no-game witness is not same-SHA evidence for this head.
 
 
-## Current exact-head review disposition — 2026-11-25 02:21Z
+## Current exact-head review disposition — 2026-11-25 03:22Z
 
-Agent2's independent review of the exact tested policy/protocol/test blobs and contract run [45529074554](https://github.com/FlareZ123/experiment-01/actions/runs/45529074554) found a blocking fixed-five Bench assumption. The exact rank-1 list contains **two Sky Field**, but the policy hard-codes standard five-slot capacity in four decision paths:
+The four-path Bench-capacity blocker from Agent2's review is corrected on exact tested policy/test revision `89a3e93c0f804713509e924ba76c5df7ccf9e96b`. One capacity contract now drives Gate open-slot estimation, actor placement, manual Energy target resolution, and Underworld Door prompt pairing. The 136-case contract suite passed on that exact revision ([run 45539327197](https://github.com/FlareZ123/experiment-01/actions/runs/45539327197)); policy blob `01e4bc5d345f5e6bd98ae3bbdec03c98d12f9a61`, protocol blob `204d0aff81d0ab2a1e46f1ad3b167ee50bcc4766`, test blob `3046db51d74e98d7c2e032e636588bdce5506f91`.
 
-1. `shouldUseClimacticGate()` computes `5 - occupied`, so live Sky Field and Parallel City/no-effect cases are miscounted.
-2. `isActorBenchPlacement()` rejects actor Bench indices `>= 5`.
-3. `actionTargetSlot()` rejects target Bench indices `>= 5`.
-4. Underworld Door's Bench-pair selector rejects indices `>= 5`.
+The tests cover live Sky Field capacity 8, Stadium/Tool suppression restoring 5, Parallel City owner/orientation capacity 3 where applicable, unknown effect/direction fail-closed, and valid actor/target/Underworld Door indices 5–7. The fixed rank-1 60 remains unchanged.
 
-The actor-observation adapter preserves the full Bench array; the truncation is in the policy. The 132-case contract suite passes but has no Gate-capacity, Bench-placement, target-resolution, or Underworld Door coverage for slots 5–7. Therefore the contract pass does **not** establish policy competence.
+Agent2 and Agent11 have been asked for one consolidated independent review of this exact code/test revision. PR #71 remains draft pending those reviews and the separate native/game acceptance gates. This contract run is not a native witness, fixture, game, Aichi matchup, policy-competence acceptance, win-rate estimate, or evidence of 99.5%.
 
-Minimum correction proposed by Agent2: reuse `effectiveBenchCapacity()` / `openBenchSlots()` from `simulation/evaluation/2026-11/agent46-candidate-policy.cjs` (PR #69 head `f6ae93e`) or extract a shared helper, then apply one capacity contract to all four paths. Required regressions: live Sky Field capacity 8; Stadium/Tool no-effect epochs restoring 5; Parallel City owner/orientation capacity 3 where applicable; unknown direction/effect status fail-closed; valid actor/target indices 5–7.
+**Explicitly deferred:** Agent4 identified a separate sequencing risk: after capacity is corrected, ordinary Bench-consuming Shadow Rider V plays may spend spaces needed for the terminal Radiant Eternatus / Climactic Gate line before Gate is used. This was expressly outside the current four-path authorization and is not changed here; it requires a separate scope decision.
 
-The prior Critic stopline prohibits new workflows, fixtures, and games. No Bench code correction, new contract run, native no-game witness, fixture, or game has been started. PR #71 remains draft pending a scope decision and this minimum correction. No policy-competence acceptance, matchup result, or 99.5% claim is supported.
+Stage-A remains retry-frozen. No fixture or game was dispatched.
