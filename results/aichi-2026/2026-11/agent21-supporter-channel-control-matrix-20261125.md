@@ -25,6 +25,10 @@ All listed records are Expanded-legal in the supplied card pool. The pre-Black &
 
 **Delinquent XY 98** also appears in the text scan as a Stadium-discard Supporter, but its Expanded legality is **Banned**. It is not a candidate.
 
+## Item-lock reset that is not Tool removal
+
+**Pokémon Ranger STS 104** (`xy11-104`) removes all effects of attacks on each player and their Pokémon. It does not remove Garbodor's Tool itself, but it clears Budew's Itchy Pollen restriction. The Hood Shield Shadow Rider v1 60 contains both Ranger and Field Blower, so it can play Ranger (Supporter) and then Field Blower (Item) in the same turn to remove Garbodor's Tool. The Lockbridge 60 removes Ranger; that makes a Supporter-channel Tool answer such as Faba more valuable there. Ranger's value is specific to attack-origin Item lock; it does not clear an Ability-based Item lock such as Vileplume.
+
 ## Application to Lockbridge
 
 The exact Lockbridge 60 currently contains Field Blower ×1, VS Seeker ×2, Arven ×1, Teammates ×1, Raihan ×1, Temple of Sinnoh ×1, and no Faba/Xerosic/Giacomo/Flannery/Roseanne's Backup.
