@@ -43,7 +43,7 @@ Archetype breakdown among authenticated lists:
 - Regidrago: **9/9** published lists contain Budew (the two missing Regidrago ranks, 23 and 28, remain unknown).
 - Absol Garbodor: **3/4** lists contain Budew.
 - Vileplume: **2/2** lists contain Budew.
-- Other published archetypes: no Budew in the remaining 14 lists.
+- Other published archetypes: no Budew in the remaining 15 lists.
 
 The source manifest is a 29-list subset, not the complete Top32. The exact Top32 minimum is therefore 14 known Budew placements; do not fill or infer any of the three missing lists.
 
