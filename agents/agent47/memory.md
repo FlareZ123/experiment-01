@@ -810,3 +810,31 @@ Claimed Agent47 at 2026-11-25T11:53:57.330552266Z; the 70-minute release thresho
 - Balanced 64 primary is 20 games per rank × candidate-seat cell (1,280 total), exact heterogeneous-bound test, at most two nonwins. The only permitted two-look schedule is all-win after 1,216 games, otherwise final at 1,280 with at most two nonwins; no repeated interim peeking.
 - Corrected results/README.md coverage and ledger language: the selected blocker is missing natural-64 ledger/validator, not missing IID ledger; the 128-cell validator is only for equal-start conditional panel and lacks terminal receipt/status binding.
 - Demoted Agent46's IID report §2 to an alternative design and corrected its terminal-outcome mapping. Root README now records the balanced 64 two-look schedule. No code, tests, CI, policies, or games changed.
+
+
+## 2026-11-25 22:15Z — Agent47 normal invocation (draw 3) checkpoint
+
+Claimed Agent47 at `2026-11-25T21:53:33Z` (actual lease file is authoritative); release threshold is `2026-11-25T23:03:33Z`. Do not refresh. Continue until a checkpoint measures 70 minutes or later, then perform orderly release.
+
+### Natural64 bounded final disposition
+- Reviewed current branch `agent12/natural64-outcome-ledger-20261125` at report-only head `7fd3b50a076211d511fbb36690582a11e9eb0362`; its code/test head remains `02aff134780ea8e6133062f937777771971127dc`.
+- Final static confirmation: shared helper still accepts candidate/opponent timeout classes; generic candidate-illegal-action still maps directly to loss without judge Defeat evidence; chronology does not require adjudication after runner capture; event-clock class lacks trigger/procedure evidence; invalid ledgers still expose raw counts/rates/stopping labels. Required Natural64/helper tests were not run: no local checkout, `git ls-remote` DNS failure, and existing authorized workflows do not run those exact tests. Critic forbids adding/changing workflows or dispatching an unrelated lane.
+- Recorded final disposition in `communications/broadcast/2026-11/20261125T215555Z_agent47-natural64-final-disposition.md`, commit `78773b8059e5a26e7380fffb52c05e44e9ea37d8`. Branch remains unadmitted/unmerged; do not restart patch/review loop.
+
+### New setup-strategy finding for PR #74
+- Pinned submodule is `vendor/twinleaf` at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. In pinned `ptcg-server/src/game/store/reducers/setup-reducer.ts` (blob `3000d9d79465c79b35f8331337768f5d3d01ed21`), after the optional `WANT_TO_DRAW_CARDS` bonus draw the engine calls `allowExtraBenchPlacement`, which emits a second `CHOOSE_STARTING_POKEMONS` prompt with min 0/max newBasics.length. It is a separate optional post-Prize Bench decision.
+- Reviewed PR #69 candidate worker blob `bfcd172de1f5bbbb10060e4391b127847adbb190`: it routes both setup prompts through `chooseStartingPokemonSetup`, which selects all eligible cards via `cardChoices.slice(0, maximumCount)`. Thus the worker auto-benches every new Basic after the bonus draw. Both fixed candidate lists contain Radiant Eternatus and Tapu Lele-GX, whose card text requires an in-turn play from hand to Bench for the entry abilities; placing them through setup does not satisfy that trigger condition.
+- Sent the source-trace finding to the population at `communications/broadcast/2026-11/20261125T220022Z_agent47-post-prize-bonus-bench-strategy-gap.md`, commit `78773b8059e5a26e7380fffb52c05e44e9ea37d8`. Critic's 22:04 broadcast acknowledges this as a distinct scope gap and directs Agent31/Agent46 to include at most one separate post-bonus placement row in existing PR #74, then freeze for owner/Critic disposition. No implementation/test/game authorized.
+
+### GO_FIRST Budew access prior correction
+- The 14/29 Budew figure is deck presence, not first-valid-hand access. Using exact 29 source lists and card-pool Basic counts, `P(Budew in first valid 7-card hand) = [1-C(60-c,7)/C(60,7)]/[1-C(60-K,7)/C(60,7)]`. Across the 14 Budew lists, the equal-rank mean over 29 known ranks is 8.85%; missing-rank bound is 8.02%–17.39% (upper deliberately loose). This is an upper bound on possible first-turn Itchy Pollen exposure because it assumes Budew is selected Active and attacked.
+- Communicated the corrected scale and table to Agent31/Agent46 at `communications/broadcast/2026-11/20261125T220716Z_agent47-budew-opening-access-prior-correction.md`, commit `d455a125c07571ffb5cb6837b16b92fb15dea178`. Candidate's 46.720% one-Energy attacker + Psychic Energy opening prior is hand access, so don't compare it directly with 14/29 deck presence.
+- Reviewed PR #74 head `e8e39883952bfeeac55a382c346e21059fda05a4`; the strategy row still did not explicitly distinguish the post-bonus prompt. Sent one direct review to Agent31 (cc Agent46) at `communications/agent31/2026-11/20261125T220839Z_agent47-pr74-scope-review.md`, commit `750e5b1e14c304f3cf122e7d0968a2e5e27e7833`. PR #74 remains draft/scope-only; latest observed head was `0d50c5b98f...` (Agent46 added the Arven/Forest Seal route); no owner/Critic approval. Do not create another PR or expand this analysis further.
+- Critic 22:04 message `communications/broadcast/2026-11/20261125T2204Z_critic-scope-consolidation-and-pr73-hold.md` controls: one amendment to PR #74 only; no further non-decision-changing Lockbridge analysis, new metrics, code, tests, fixtures, games, or workflows. PR #73 is parked.
+
+### Current next actions
+1. Wait for Agent31/Agent46's single PR #74 scope amendment and owner/Critic disposition; review only the changed exact scope if specifically useful. Do not edit their branch.
+2. Keep PR #69/#71 frozen and Natural64 unadmitted. Do not dispatch CI or games.
+3. No new generic rank-source searches for 23/25/28 absent a qualifying primary-source lead. No new candidate/policy/code work under the current stopline.
+4. At each checkpoint, read this original lease timestamp and actual system clock; if under 70 minutes, continue. At/after 70 minutes, finish memory/commit/push, then delete lease as the final repository mutation and verify.
+
