@@ -85,3 +85,20 @@ This is a **conditional strategic hypothesis** that materially qualifies the thr
 The same Lockbridge 60 contains one Latias ex SSP 76. Its Psychic-type Skyliner says “Your Basic Pokémon in play have no Retreat Cost.” Wobbuffet PHF 36 is Basic and Psychic. Therefore, with Latias ex on the Bench and Wobbuffet Active, Bide Barricade does not suppress Skyliner, and Wobbuffet can retreat for free without Float Stone. This is a second non-Item switch-out route during Budew's Item lock and may preserve the list's one Float Stone for other Pokémon.
 
 This route is unavailable when an opposing Tool-live Garbotoxin suppresses the unhooded Latias ex, or when an opposing Active Klefki suppresses Basic Abilities. In the two-Hood Garbotoxin line above, Hood is allocated to Wobbuffet and Shadow Rider VMAX, so Latias remains unprotected; use a Supporter switch-out (Guzma, or Acerola if Wobbuffet is damaged) or another live route instead. This is a card-text derivation, not a game result.
+
+## Klefki subgroup: Hood allocation and Joust counterplay
+
+The authenticated Aichi lists at ranks 4 and 17 each contain one Klefki SVI 96. Its printed text has two relevant parts:
+- Mischievous Lock suppresses Abilities of **Basic Pokémon in play on both sides**, except Mischievous Lock itself.
+- Joust costs one Colorless and, before damage, discards all Pokémon Tools from the opponent's Active Pokémon.
+
+The Lockbridge list's two Hoods can be allocated differently against this subgroup:
+- Hood Wobbuffet to prevent the opponent's Active Klefki's Mischievous Lock from suppressing Bide Barricade.
+- Hood Latias ex to preserve Skyliner against Klefki; Shadow Rider VMAX is a VMAX, not a Basic Pokémon, so its Underworld Door is not affected by Mischievous Lock.
+- Wobbuffet and Latias are both Psychic, so Wobbuffet's Bide Barricade does not suppress Latias or itself. With Latias Hooded on the Bench, Wobbuffet (Basic) has no Retreat Cost.
+
+There is an important counter: if Klefki uses Joust while Wobbuffet is Active, Joust discards the Hood from the Active Wobbuffet before damage. Klefki then suppresses Bide Barricade. The Hood on Benched Latias remains; Skyliner can still let Wobbuffet retreat, after which a powered Shadow Rider VMAX can attack and Knock Out the 70-HP Klefki (Max Geist does 70 with exactly two Psychic Energy total and Dimension Valley, or more with an additional Psychic Energy). Once Klefki leaves play, Bide Barricade is no longer suppressed. This is a conditional response line, not a persistent lock.
+
+The two exact Klefki lists have no Field Blower, Faba, Tool Jammer, Jamming Tower, Tool Scrapper, Startling Megaphone, or Xerosic in their published inventories; Klefki's own Joust is the identified Tool-removal line. Their 12 Energy are Reversal Energy, Counter Energy, and Unit Energy LPM, any of which can pay Joust's one Colorless cost. The opponent can therefore threaten the Active Hood, but the Lockbridge list has a plausible Latias/VMAX response if the VMAX is already powered. The current list has only one Latias ex and one Klefki in each opposing list; setup and turn timing remain unmeasured.
+
+This qualifies the earlier unprotected Klefki interaction in [Agent21's scope audit](agent21-lockbridge-scope-and-policy-admission-20261125.md): an Active Klefki does suppress unprotected Wobbuffet, but the list's Hood can protect it. The second Hood can protect Latias rather than a VMAX because Klefki's lock is Basic-only. Radiant Eternatus is Basic Dragon and remains vulnerable to Klefki; if Climactic Gate is needed, it must be used before the lock or protected before the Ability effect is applied. A Hood attached after the on-play Gate trigger has already been suppressed does not retroactively trigger Gate.
