@@ -40,8 +40,9 @@ const RNG_HOOKS = Object.freeze([
   'Marnie SSH',
   'Iono PAL'
 ]);
-const MANIFEST_SCHEMA = 'aichi-natural64-field-registration-v3';
+const MANIFEST_SCHEMA = 'aichi-natural64-field-registration-v4';
 const RNG_RECEIPT_SCHEMA = 'aichi-natural64-rng-receipt-v1';
+const ADJUDICATION_PROTOCOL_SCHEMA = 'aichi-natural64-adjudication-protocol-v1';
 const UNBIASED_SHUFFLE_METHOD = 'fisher-yates-bounded-rejection-v1';
 const SAMPLING_MODEL = 'balanced-natural-64-strata-v1';
 const REGISTERED_SLOTS = 1280;
@@ -71,6 +72,36 @@ function receiptDigest(receipt) {
     return isSha(receiptSha256) && canonicalSha256(payload) === receiptSha256;
   } catch {
     return false;
+  }
+}
+
+function validateAdjudicationProtocol(protocol, protocolSha256, problems) {
+  if (!protocol || typeof protocol !== 'object' || Array.isArray(protocol) ||
+      protocol.schema !== ADJUDICATION_PROTOCOL_SCHEMA ||
+      !Array.isArray(protocol.rules) || protocol.rules.length === 0) {
+    add(problems, 'adjudication-protocol-content-invalid');
+    return;
+  }
+  let digestValid = false;
+  try {
+    digestValid = isSha(protocolSha256) &&
+      canonicalSha256(protocol) === protocolSha256;
+  } catch {}
+  if (!digestValid) add(problems, 'adjudication-protocol-content-digest-mismatch');
+
+  const ruleIds = new Set();
+  for (const rule of protocol.rules) {
+    if (!rule || typeof rule !== 'object' || Array.isArray(rule) ||
+        !isText(rule.ruleId) || ruleIds.has(rule.ruleId) ||
+        !isText(rule.reason) || !isText(rule.terminalClass) ||
+        !Array.isArray(rule.allowedResults) || rule.allowedResults.length === 0 ||
+        rule.allowedResults.some(result => !Object.prototype.hasOwnProperty.call(RESULT_TO_STATUS, result)) ||
+        new Set(rule.allowedResults).size !== rule.allowedResults.length ||
+        (rule.clockMode !== undefined && !CLOCK_MODES.has(rule.clockMode))) {
+      add(problems, 'adjudication-protocol-rule-invalid');
+      continue;
+    }
+    ruleIds.add(rule.ruleId);
   }
 }
 
@@ -114,9 +145,8 @@ function validateManifest(request, problems) {
   if (!CLOCK_MODES.has(manifest.clockMode)) {
     add(problems, 'adjudication-clock-mode-missing-or-invalid');
   }
-  if (!isSha(manifest.adjudicationProtocolSha256)) {
-    add(problems, 'adjudication-protocol-unverified');
-  }
+  validateAdjudicationProtocol(
+    manifest.adjudicationProtocol, manifest.adjudicationProtocolSha256, problems);
   if (manifest.randomizationProtocol !== RNG_PROTOCOL ||
       manifest.unbiasedShuffleMethod !== UNBIASED_SHUFFLE_METHOD ||
       !isGitSha(manifest.rngProtocolModuleSha)) {
@@ -412,9 +442,15 @@ function validateSlotAttempts(attempts, slotRoster, manifest, problems) {
 
 function validateAdjudicationReceipt(attempt, manifest, runnerEvidence,
   adjudicationEvidence, setupCoinChoiceEvidence, seen, problems) {
+  const protocolRule = Array.isArray(manifest.adjudicationProtocol?.rules)
+    ? manifest.adjudicationProtocol.rules.find(rule =>
+        rule && rule.ruleId === adjudicationEvidence?.protocolRuleId)
+    : null;
+  if (!protocolRule) add(problems, 'adjudication-protocol-rule-missing');
   const result = validateTerminalAdjudicationReceipt({
     attempt,
     expected: {
+      protocolRule,
       attemptId: attempt.attemptId,
       slotId: attempt.slotId,
       registrationSha: attempt.registrationSha,
@@ -883,6 +919,7 @@ module.exports = {
   findRepeatedRandomizationMaterialGroups,
   validateRandomizationUniqueness,
   NATURAL64_DECISION_SCHEDULES: DECISION_SCHEDULES,
+  NATURAL64_ADJUDICATION_PROTOCOL_SCHEMA: ADJUDICATION_PROTOCOL_SCHEMA,
   NATURAL64_MANIFEST_SCHEMA: MANIFEST_SCHEMA,
   NATURAL64_SAMPLING_MODEL: SAMPLING_MODEL,
   NATURAL64_ADJUDICATION_SCHEMA: ADJUDICATION_SCHEMA,
