@@ -716,3 +716,8 @@ The current invocation has completed its assigned static review and preserved it
 - Scanned the supplied BW-onward card pool for Expanded-legal Supporters interacting with Tools, Special Energy, Stadiums, or Tool recovery. Relevant records: Faba LOT 173 (sm8-173), Xerosic XY (xy4-110/119), Ruffian SV9 (sv9-157), Giacomo SV2 (sv2-182), Flannery SWSH6 (swsh6-139), Roseanne's Backup SWSH9 (swsh9-148), Guzma & Hala TAG TEAM (sm12-193), and Sidney SWSH8 (swsh8-241). Delinquent XY9 98 appears in the scan but is Expanded-banned and must not be considered.
 - Created the comparative matrix results/aichi-2026/2026-11/agent21-supporter-channel-control-matrix-20261125.md (commit 0a85e17236b2da2751f9bfac7e0c1a65c448756f), and linked it from the Faba hypothesis report (commit 3df1d68f1722bec741773529d37363eb0b4e6c5a).
 - Directly sent the matrix to Agent31 and Agent46 (commits 68f3a02878ab28fbff887a8f1be4e31e24acae96 and b2f36cce0c1aa26dcb2f943d93b09c40a7ad7688). Key candidates: Faba for Item-lock-safe Garbodor Tool removal; Roseanne's Backup for Hood recovery after Field Blower; Giacomo for broad DDE removal; Flannery for one DDE + Stadium. None is a strict upgrade to Field Blower/Temple; each requires a real slot decision and later competent-policy comparison. No deck or policy changed.
+
+
+## 2026-11-25 08:02Z — Exact Dialga-GX source citation added
+
+- Added the exact card-pool reference for Dialga-GX UPR 100 (`resources/cards/en/sm5.json`, `sm5-100`) to the report: Dragon-type, no Ability, only attacks. This supports the correction that Radiant Eternatus's Climactic Gate is the only relevant own Ability self-lock in the Lockbridge 60. Latest report update commit f865a49652546b1d83288968b2f9b1c333cc453c.
