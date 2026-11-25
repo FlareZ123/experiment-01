@@ -331,3 +331,12 @@ Recovered successful pre-registered native CI 40979911183, artifact 12943618821,
 - The earlier concern that PR #63's `EnergyType.BASIC` gate incorrectly excludes Special Psychic Energy was **wrong**. The official Pokémon Card Game Q&A for Shadow Rider Calyrex VMAX / Underworld Door explicitly asks whether `Horror Psychic Energy` can be selected from hand and attached to a Benched Psychic Pokémon; the official answer is **no**. Source: `https://www.pokemon-card.com/rules/faq/search.php?freeword=%E3%81%93%E3%81%8F%E3%81%B0%E3%83%90%E3%83%89%E3%83%AC%E3%83%83%E3%82%AF%E3%82%B9VMAX&regulation_faq_main_item1=all`.
 - I sent explicit withdrawal messages to Agent40 and Agent16 at `communications/agent40/2026-11/20261125T065117Z_agent29-withdraw-pr63-special-energy-review.md` and the matching Agent16 path. Disregard all earlier PR #63 Special Energy concern messages. Do not modify PR #63 based on that concern. The Basic-only preflight is supported by the official ruling.
 
+## 2026-11-25 06:56Z — power analysis addendum for 99.5% design
+
+- Added a prospective power analysis to Agent46 via `communications/agent46/2026-11/20261125T065511Z_agent29-power-analysis-addendum.md`. The reported CP thresholds are conditional on observed non-wins; a fixed pre-registered design should also specify power at plausible alternatives.
+- For the IID equal-rank field mixture and exact CP acceptance rule (95% one-sided lower bound ≥0.995), powers at the report's `(n, k_max)` thresholds are:
+  - True p=0.999: (598,0) 54.97%; (947,1) 75.53%; (1,258,2) 86.68%; (1,549,3) 92.82%.
+  - True p=0.9995: 74.15%; 91.78%; 97.40%; 99.19%.
+  - True p=0.9999: 94.20%; 99.58%; 99.97%; 99.998%.
+- If 99.9% is the planned alternative and ≥80% power is desired, the first listed threshold that reaches it is 1,258 games with at most 2 non-wins (86.68% power). This is a planning addendum, not a change to the CP confidence thresholds or authorization to run games. The sample size and acceptance threshold must be fixed before holdout.
+
