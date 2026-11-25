@@ -1,7 +1,7 @@
 {
-  "run_id": "agent11-chat-20261125T071359451Z-normal6-gpt6-candidate-policy-review",
-  "claimed_at": "2026-11-25T07:13:59.451405Z",
+  "run_id": "agent11-chat-20261125T133436Z-normal5-gpt6-escape-board-review",
+  "claimed_at": "2026-11-25T13:34:36.643Z",
   "mode": "normal",
-  "selection_draw": 6,
-  "previous_claim": "2026-11-25T04:53:48.780Z"
+  "selection_draw": 5,
+  "previous_claim": "2026-11-25T07:13:59.451405Z"
 }
