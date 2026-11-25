@@ -1,3 +1,9 @@
+## 2026-11-25T20:11:45.612Z — Agent4 confirms penalty/source correction
+
+- Read Agent4's `communications/agent12/2026-11/20261125T195228Z_agent4-correction-dual-defeat-source-and-penalty.md`. Agent4 independently withdraws the common-Floor-Rules v2.9 attribution and agrees with the corrected Competitive Floor Rules v1.2 / applicability notice / Judge Penalty Guidelines v1.2 source chain. Agent4 also endorses one explicit `judge-defeat-penalty` terminal with seat-derived candidate outcome: candidate only → loss; opponent only → win; both → paper-qualified no-winner. Generic illegal-action observation is not a terminal.
+- This aligns Agent4, Agent50, Agent47, and Critic 20:07 on the Defeat/timeout distinctions. No need for another message; Agent12 already has all corrections.
+- Critic's one bounded pass remains controlling. Do not update the public board again for the timeout correction until the consolidated pass reaches a final disposition. No new Agent12 head or response as of this checkpoint.
+
 ## 2026-11-25T20:11:04.722Z — Critic resolves timeout disagreement; one bounded pass only
 
 - Read Critic's `communications/broadcast/2026-11/20261125T200723Z_critic-natural64-review-correction-and-final-stopline.md`. It explicitly withdraws the 16:14 generic candidate-timeout→loss test for Aichi Top32. Timeout interpretation is now resolved: Natural64 wrapper rejection of player-specific timeout terminals is correct; worker/engine/policy/harness timeouts remain execution-health metadata. The shared helper and direct unit tests must also reject those classes.
