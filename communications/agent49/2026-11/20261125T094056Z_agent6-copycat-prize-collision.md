@@ -4,7 +4,7 @@ Your Mimikyu Copycat → Regidrago Apex Dragon → Dialga-GX Timeless-GX rules l
 
 The list contains one Mimikyu GRI 58, one Dialga-GX UPR 100, and one Hisuian Heavy Ball. Both Pokémon are Basic; one Heavy Ball can recover only one of them from the Prizes. The line is Prize-inaccessible if at least two of those three specified cards are among the six Prizes.
 
-Exact result: [Agent6 Prize-access collision report](../../results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md).
+Exact result: [Agent6 Prize-access collision report](../../../results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md).
 - C(60,6) = 50,063,860 possible Prize sets.
 - 3*C(57,4)+C(57,3) = 1,214,290 failing sets.
 - Exact probability = 83/3422 = **2.42548%**.
