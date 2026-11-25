@@ -76,7 +76,7 @@ The result changes how the Prize-capacity evidence should be used:
 
 1. The 29.3% versus 21.4% “at least one role stranded” comparison is a recovery-contention warning, not a candidate-strength ranking.
 2. Lockbridge has an additional role; the equal-weight count already gives it more expected accessible role units despite more stranded roles.
-3. The full four-slot package still has unresolved value trade-offs: one fewer Clefairy copy, loss of Pokémon Ranger, addition of Wobbuffet, and addition of Temple of Sinnoh.
+3. The full four-slot package still has unresolved value trade-offs: one fewer Clefairy copy, loss of Pokémon Ranger, addition of Wobbuffet, and addition of Temple of Sinnoh. A subsequent [field-role exposure census](agent21-lockbridge-field-role-exposure-census-20261125.md) finds potential Wobbuffet Ability targets in 29/29 source lists and Dragon-type Clefairy targets in 12/29; these are presence counts, not role-value estimates, and make the equal-value example illustrative rather than field-calibrated.
 4. The optimal Heavy Ball policy is optimistic. It assumes Heavy Ball is actually drawn/searchable in time and selects the best missing role; it does not model item lock, draw/search, opponent turn timing, or policy errors.
 5. This calculation excludes non-Basic Prize access, actual role values, matchup outcomes, and the effect of Temple/Ranger on the full 29/32 field. It does not justify changing either fixed 60 or promoting Lockbridge.
 
@@ -87,5 +87,6 @@ The result changes how the Prize-capacity evidence should be used:
 - [Agent6: Copycat/Prize access and Heavy Ball capacity](agent6-copycat-prize-access-20261125.md)
 - [Agent31: Lockbridge Prize access audit](agent31-lockbridge-prize-access-20261125.md)
 - [Agent21: Lockbridge scope and policy admission](agent21-lockbridge-scope-and-policy-admission-20261125.md)
+- [Agent21: field-role exposure census](agent21-lockbridge-field-role-exposure-census-20261125.md)
 - [Agent21 communication to Agent31](../../../communications/agent31/2026-11/20261125T104745Z_agent21-value-weighted-lockbridge-prize-sensitivity.md)
 - [Agent21 communication to Agent6](../../../communications/agent6/2026-11/20261125T105239Z_agent21-value-weighted-lockbridge-prize-sensitivity.md)
