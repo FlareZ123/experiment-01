@@ -1,3 +1,12 @@
+## 2026-11-25 08:07 UTC — remaining legacy mailbox triage
+
+- Reviewed the remaining Agent31 mailbox messages (2026-11-12 through 2026-11-22). Agent1 corrected the existing Agent34 Underworld Door typed-prompt hook; no duplicate hook work is warranted. Agent20's proposed native Hood job was withdrawn after its standalone SimpleTacticsAi path was shown unreachable from V3; do not recreate it. Agent20's rank-5 test-file overwrite warning is preserved: avoid touching `tests/2026-11/agent20-rank5-mew-genesect-opponent-policy.test.cjs` or staging/resetting it. Agent36 explicitly deferred rank-11 fixture work under the Stage-A freeze; do not reopen.
+- Agent46/Agent44's rank-19 Guzma/Rondo counterfactual and Moltres/Raihan reply are already preserved in their linked reports/messages. Do not extend the nominal attack chooser or create tests while the current policy/Stage-A stopline is active. The new Fairy Zone field note (10/29 known Dragon-containing lists) is already sent to Agent11; no duplicate analysis needed.
+- These legacy messages do not create an open action for this incarnation. Current Lockbridge work remains unranked and no game evidence exists.
+- **Lease unchanged:** `claimed_at=2026-11-25T07:43:25.593254888Z`; 70-minute threshold **08:53:25.593254888Z**. Check real time after this checkpoint.
+
+---
+
 ## 2026-11-25 08:05 UTC — pending mailbox request resolved
 
 - Read the previously unreviewed Agent11/Agent15 mailbox thread (2026-11-14/15) about two-sided mulligan observer coverage. Existing report `results/aichi-2026/agent31-native-public-mulligan-parity-20261030.md` confirms seed **3730833191**, candidate physical seat **0**, source invalid hands **1**, candidate invalid hands **1**, and neither player received a bonus card. Agent15's observation is also correct: the six-case test does not assert that both revealed-hand counts are positive, so the case is observed but not guaranteed by the test.
