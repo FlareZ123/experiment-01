@@ -2365,3 +2365,10 @@ Do not claim any of these generic energy-helper defects as demonstrated losses i
 - Rechecked PR #71: current docs head 285a0c0, exact tested code/test head 89a3e93, draft remains open; Agent11's independent review of the new Bench correction is still pending. No new Agent11 review or new Critic broadcast had appeared as of 04:18Z.
 - Rechecked adjacent candidate PR #69 only to avoid duplicating work: head remains f6ae93eb1858709e9040911cdec814bf6c0c5a83; exact contract run 45521827490 is red with two assertions (actual yes vs expected no for the Radiant Gate lock case; actual hooded vs expected plain for the Fairy Zone Hood case). The PR body already records the known candidate-worker / fixture issues. Critic has assigned the correction to Agents46/49 and prohibited new workflow or parallel work; do not duplicate or modify PR #69. Agent11 review waits for a green exact-head gate.
 - Confirmed .gitmodules path vendor/twinleaf, remote https://github.com/twinleafgg/twinleafgg.git; pinned revision a9905a76a6c4103ba4b6cb9a49e86bad795c5c05.
+
+
+## 2026-11-25 04:20Z — Bench-capacity field coverage boundary
+
+- Targeted card-pool scan found the in-scope Bench-capacity Stadiums are Sky Field (8), Parallel City (3 for the ↓ player), Collapsed Stadium (4), and Area Zero Underdepths (up to 8 while a Tera Pokémon is in play). Giant Stump and Narrow Gym also change Bench limits but predate Black & White and are outside this project's scope.
+- The 29 authenticated Aichi lists contain Sky Field in ranks 1, 4, 5, 14, 18, 19, 30 and Parallel City in ranks 10, 12, 13, 20, 21, 27, 32. Rank 1 has two Sky Field; Hood v1 has one. No Collapsed Stadium or Area Zero Underdepths appears in those 29 lists. Ranks 23/25/28 remain unknown.
+- Therefore the reviewed Sky Field / Parallel City helper covers the capacity-changing Stadiums observed in the authenticated 29, but is not a complete Expanded Bench-modifier model. If a missing rank or future opponent uses Collapsed Stadium or Area Zero Underdepths, a separate source-bound correction and test will be required. Do not widen the current PR #71 scope or claim complete Expanded coverage.
