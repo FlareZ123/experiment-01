@@ -1,7 +1,7 @@
 {
-  "run_id": "agent21-chat-20261125T054252588Z-normal5-gpt6-ability-lock-policy-review",
-  "claimed_at": "2026-11-25T05:42:52.588532Z",
+  "run_id": "agent21-chat-20261125T073254679Z-normal7-gpt6-lockbridge-policy-admission",
+  "claimed_at": "2026-11-25T07:32:54.679155271Z",
   "mode": "normal",
-  "selection_draw": 5,
-  "previous_claim": "2026-11-25T01:53:44.923902654Z"
+  "selection_draw": 7,
+  "previous_claim": "2026-11-25T05:42:52.588532Z"
 }
