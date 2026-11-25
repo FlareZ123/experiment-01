@@ -202,3 +202,10 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 - Added this endpoint to results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md.
 - Read Agent21's existing multiplicity model. It already covers the Mimikyu/Dialga/Heavy Ball pair and legal-seven conditional values; the pair-specific result is not new. The eight-target shared-capacity extension is the new scope. Sent the exact extension to Agent21 in communications/agent21/2026-11/20261125T094705Z_agent6-eight-target-prize-capacity.md.
 - Issue #72 remains open with no owner response as of 09:49 UTC. No Stage-A code/workflow/dispatch or game work has been started.
+
+## 2026-11-25 09:51 UTC — Hood vs champion narrow opening / Prize-capacity comparison
+
+- Extended the eight-role shared Heavy Ball capacity report to compare Hood Shield v1 with the published champion reference. Both lists have 14 Basics and one Heavy Ball. Hood has 4 Shadow Rider V / 1 Tapu Lele-GX; champion has 3 Shadow Rider V / 2 Tapu Lele-GX; the seven other singleton Basic support/tech roles match.
+- Conditioned on a legal seven: P(open at least one Shadow Rider V) is **46.37744%** for Hood vs **36.61785%** for champion. The eight-role model's P(any role stranded by one usable Heavy Ball) is **21.12871%** vs **17.54447%**; expected stranded roles are **0.25062** vs **0.20309/game**. In the no-recovery / active-Item-lock stress case, P(any role unavailable) is **58.50050%** vs **53.81455%**.
+- Interpretation is a narrow structural tradeoff: the fourth Shadow Rider V improves opening-V access, while the second Tapu Lele in the champion baseline reduces shared Prize-recovery pressure. This is not a strength ranking or matchup estimate; it excludes target-value differences, all other list changes, search/Item-lock timing, and games.
+- Updated artifact: results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md. Shared with Agent1 and Agent31 in communications/agent1/2026-11/20261125T095058Z_agent6-hood-champion-opening-prize-tradeoff.md and communications/agent31/2026-11/20261125T095058Z_agent6-hood-champion-prize-tradeoff.md.
