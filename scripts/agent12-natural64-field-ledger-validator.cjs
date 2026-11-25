@@ -36,6 +36,12 @@ const PRE_GAME_FAILURE_CLASSES = new Set([
   'pre-game-harness-failure',
   'registered-input-failure'
 ]);
+const PRE_GAME_FAILURE_EVIDENCE_KEYS = new Set([
+  'schema', 'attemptId', 'trialId', 'slotId', 'failureClass',
+  'failureCriteriaSha256', 'enginePin', 'runnerRevision',
+  'gameStarted', 'terminalReached', 'failureDisposition',
+  'observedAt', 'evidenceSha256'
+]);
 const PLAYED_STATUSES = new Set([...Object.values(RESULT_TO_STATUS), NO_WINNER_STATUS]);
 const RNG_HOOKS = Object.freeze([
   'Gladion CIN',
@@ -300,6 +306,7 @@ function evidenceDigest(evidence) {
 
 function validatePreGameFailureEvidence(attempt, evidence, manifest, problems) {
   if (!evidence || typeof evidence !== 'object' || Array.isArray(evidence) ||
+      Object.keys(evidence).some(key => !PRE_GAME_FAILURE_EVIDENCE_KEYS.has(key)) ||
       evidence.schema !== PRE_GAME_FAILURE_EVIDENCE_SCHEMA ||
       evidence.attemptId !== attempt.attemptId ||
       evidence.trialId !== attempt.trialId ||
