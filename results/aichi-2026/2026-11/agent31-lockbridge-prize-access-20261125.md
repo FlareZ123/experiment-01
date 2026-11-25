@@ -45,7 +45,7 @@ Wobbuffet is a Basic Psychic Pokémon. The list has nine ordinary deck-search ca
 - 4 Mysterious Treasure (Psychic/Dragon Pokémon, with a discard payment)
 - 1 Quick Ball (Basic Pokémon, with a discard payment)
 
-If Wobbuffet is Prized, Hisuian Heavy Ball can retrieve it because Wobbuffet is Basic. The hard Prize-only failure of that recovery route occurs when **both Wobbuffet and Hisuian Heavy Ball are Prized**. The search counts are optimistic access counts: Mysterious Treasure and Quick Ball have real discard costs, and all outs compete with other Pokémon/resource needs.
+If Wobbuffet is Prized, Hisuian Heavy Ball can retrieve it because Wobbuffet is Basic. The hard Prize-only failure of that recovery route occurs when **both Wobbuffet and Hisuian Heavy Ball are Prized**. These same nine cards also search Lillie's Clefairy ex because it is Basic Psychic; they are a **shared pool**, not nine independent outs for each target. The search counts are optimistic access counts: Mysterious Treasure and Quick Ball have real discard costs, and all outs compete with other Pokémon/resource needs.
 
 
 ## The Wobbuffet swap also halves Fairy Zone redundancy
