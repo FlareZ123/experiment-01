@@ -690,7 +690,38 @@ function copycatTargetAvailable(request) {
   const choices = list(request?.publicEventReceipt?.opponentCopycatChoices);
   return choices.some(choice => choice && choice.attackName &&
     choice.gxAttack !== true && choice.copycatAttack !== true &&
-    choice.attackName !== 'Night Watch');
+    !(/^Trevenant & Dusknoir-GX SMP(?:\s|$)/.test(choice.sourcePrinting ?? '') &&
+      choice.attackName === 'Night Watch'));
+}
+
+function copycatPromptChoiceMatches(choice, request) {
+  const receipt = request?.publicEventReceipt;
+  const observation = request?.observation;
+  if (!receipt ||
+      receipt.actorSeat !== observation?.actorSeat ||
+      receipt.turn !== observation?.globalTurn ||
+      receipt.mimikyuCopycatCompatible !== true ||
+      !Number.isSafeInteger(receipt.opponentLastTurnTurn) ||
+      !Array.isArray(receipt.opponentCopycatChoices)) return false;
+
+  const promptSource = request?.prompt?.source ?? observation?.prompt?.source;
+  const sourcePrinting = choice?.printing ??
+    choice?.publicMetadata?.sourcePrinting ??
+    promptSource?.copiedSourcePrinting;
+  const attackName = choice?.publicMetadata?.sourceAttack ?? choice?.label ?? '';
+  if (choice?.kind !== 'attack' ||
+      typeof sourcePrinting !== 'string' ||
+      typeof attackName !== 'string' || !attackName) return false;
+
+  return receipt.opponentCopycatChoices.some(row =>
+    row &&
+    row.turn === receipt.opponentLastTurnTurn &&
+    row.sourcePrinting === sourcePrinting &&
+    row.attackName === attackName &&
+    row.gxAttack === false &&
+    row.copycatAttack === false &&
+    !(/^Trevenant & Dusknoir-GX SMP(?:\s|$)/.test(row.sourcePrinting) &&
+      row.attackName === 'Night Watch'));
 }
 
 function opponentHasWeakBenchTarget(observation) {
@@ -820,7 +851,7 @@ function scoreAttack(item, request) {
     return 105 + (hp > 0 && damage >= hp ? 30 : 0);
   }
   if (name === 'Get Lost') return getLostAttackScore(observation);
-  if (name === 'Copycat') return 132; // Native action frontier already proves this attack is legal.
+  if (name === 'Copycat') return copycatTargetAvailable(request) ? 132 : 0;
   if (name === 'Energy Drive') {
     const activeEnergyUnits =
       energyUnitsOn(observation.ownPublic?.active, observation, 'actor') +
@@ -1879,14 +1910,17 @@ function promptDecision(request) {
     if (!includes(effect, 'Copycat')) {
       return { kind: 'abstain', reasonCode: 'UNSUPPORTED_ATTACK_CHOICE_SOURCE' };
     }
-    setPolicyAuditRule('COPYCAT_ATTACK_SCORE_DESC', 'SCORE_DESC_NATIVE_CHOICE_ORDER');
+    setPolicyAuditRule('COPYCAT_ATTACK_SCORE_DESC', 'RECEIPT_MATCHED_SCORE_DESC');
     const ranked = choices.map((choice, index) => {
       const name = choice.publicMetadata?.sourceAttack ?? choice.label ?? '';
-      const score = name === 'Night Watch' ? -100 :
+      const eligible = copycatPromptChoiceMatches(choice, request);
+      const score = !eligible ? -1000 :
+        name === 'Night Watch' ? -100 :
         name === 'Max Geist' ? 100 : name === 'Eon Blade' ? 90 : 50;
       recordPolicyAuditScore(choice.token, score, 'COPYCAT_ATTACK_SCORE');
-      return { choice, index, score };
-    }).sort((a, b) => b.score - a.score || a.index - b.index);
+      return { choice, index, score, eligible };
+    }).filter(row => row.eligible)
+      .sort((a, b) => b.score - a.score || a.index - b.index);
     const choice = ranked[0]?.choice ?? null;
     return choice ? { kind: 'select-choice', token: choice.token } :
       { kind: 'abstain', reasonCode: 'NO_COPY_ATTACK_CHOICE' };
