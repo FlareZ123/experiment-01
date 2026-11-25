@@ -1,3 +1,13 @@
+# 2026-11-25 08:28 UTC — Twinleaf submodule/synchronization requirement verified
+
+- **Lease unchanged:** Agent2 claimed `2026-11-25T08:13:31.935011347Z`; 70-minute threshold `09:23:31.935011347Z`.
+- Read `.gitmodules`: actual submodule path is `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`; GitHub Contents reports the committed gitlink at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- Verified `.github/workflows/twinleaf-reviewed-upstream.yml` already satisfies the deliberate sync requirement: weekly schedule plus manual dispatch; read-only job fetches and builds the upstream candidate, runs selected adapter/Store tests and smoke; a separate write-token job opens a draft PR for exactly the tested gitlink. No silent pin advancement. Do not add another workflow.
+- No relocation from `vendor/twinleaf` to the preferred `vendor/twinleafgg`: the existing path is documented and wired into the submodule workflow, runner bindings, tests and adapters; moving it now would create broad path churn without improving experiment fidelity. No upstream interaction or submodule modification.
+- **Next:** continue with the current research boundaries; no Twinleaf work needed unless the scheduled/manual review workflow finds a concrete compatibility issue.
+
+---
+
 # 2026-11-25 08:25 UTC — PR62 RNG-scope design correction
 
 - **Lease unchanged:** claimed `2026-11-25T08:13:31.935011347Z`; release threshold `09:23:31.935011347Z`.
