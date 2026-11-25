@@ -52,10 +52,11 @@ Faba is not a strict upgrade. Field Blower is multi-target and Arven-searchable;
 Do **not** replace Field Blower or add Faba to the nominated 60 on this evidence alone. Record a distinct Lockbridge candidate variant with one Faba LOT 173, then compare it against the unchanged list only after the candidate policy passes independent competence and the same experiment conditions can be used.
 
 The most decision-relevant test cases would be:
-1. Tool-live Garbodor + Budew: Faba removes Garbodor's Tool during Itchy Pollen; compare with Field Blower's blocked response.
-2. Garbodor reattaches a Tool: measure whether Faba + two VS Seeker can keep Garbotoxin off at acceptable Supporter cost.
-3. Regidrago with Double Dragon Energy and a replacement Stadium: compare Faba's Lost Zone removal of one DDE/stadium against Temple of Sinnoh's broad but replaceable suppression.
-4. Opponent Stadium lock: determine whether Faba's stadium mode is redundant with Marshadow Resetting Hole / Temple, or adds meaningful coverage.
+1. Tool-live Garbodor + Budew: Faba removes one Garbodor Tool during Itchy Pollen; compare with Field Blower's blocked two-target response. Test one versus multiple Tool-live Garbodor copies (rank 16 has three Garbodor), because one Faba does not turn off the global Ability while another Tool-live copy remains.
+2. Garbodor reattaches a Tool: measure whether Faba + two VS Seeker can keep all Garbotoxin sources off at acceptable Supporter cost.
+3. ACE SPEC alternative: compare Megaton Blower (removes all opponent Tools and Special Energy, plus a Stadium) against Unfair Stamp, accounting for Item lock and Hood Shield's Ranger → Megaton sequence.
+4. Regidrago with Double Dragon Energy and a replacement Stadium: compare Faba's Lost Zone removal of one DDE/stadium against Temple of Sinnoh's broad but replaceable suppression, and Megaton Blower's board-wide Special Energy removal.
+5. Opponent Stadium lock: determine whether Faba's stadium mode is redundant with Marshadow Resetting Hole / Temple, or adds meaningful coverage.
 
 This is a candidate-variant proposal, not a recommendation to change the fixed list. No simulation, policy, or game was run.
 
