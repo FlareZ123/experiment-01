@@ -119,6 +119,8 @@ Both lists have 14 Basics and one Hisuian Heavy Ball. The role-capacity comparis
 | At least one role stranded in the two-Heavy-Ball counterfactual | **5.08841%** | **3.81085%** |
 | Expected stranded roles in that counterfactual | **0.05624** | **0.04149** |
 
+ The Tapu Lele-GX role itself is Prize-inaccessible under the one-Heavy-Ball recovery structure with probability **0.83532182%** for Hood (one Lele) versus **0.05620289%** for the champion (two Lele), conditioned on a legal seven; the second copy reduces this specific role's Prize-only hard failure by **14.86×**.
+
 The first row uses the exact opening-hand event: with (k) copies of Shadow Rider Calyrex V and 14 Basics total, (P(V\text{ in opening seven}\mid\text{legal seven})=[\binom{60}{7}-\binom{60-k}{7}]/[\binom{60}{7}-\binom{46}{7}]).
 
 The remaining rows use the same role-capacity enumeration above. For the champion reference, Tapu Lele-GX is one role with multiplicity two, Clefairy is another role with multiplicity two, and the other seven target roles are singletons. The remaining Basics are three Shadow Rider V. Both decks are modeled with one Heavy Ball.
