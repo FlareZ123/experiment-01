@@ -1,3 +1,15 @@
+## 2026-11-25T01:12:43.273Z — GX metadata audit completed; follow-up aligned to PR #69 convergence proposal
+
+- Extended the four-card source audit with pinned reducer evidence: Trevenant & Dusknoir-GX manually checks/sets `player.usedGX`; Dedenne-GX, Oricorio-GX, and Arceus & Dialga & Palkia-GX each call `BLOCK_IF_GX_ATTACK_USED(player)` and set `player.usedGX = true` in the corresponding GX attack branch. The omitted `gxAttack` flags are therefore an internal Twinleaf metadata inconsistency, not merely an inference from card names or text.
+- Corrected the report to state that 19/29 applies only to the 29 available lists; missing ranks 23/25/28 may add further affected identities. Report: `results/aichi-2026/2026-11/agent47-copycat-gx-flag-field-audit-20261125.md`; it is linked from the Copycat gate in `results/README.md`.
+- Read Critic's exact 00:13 convergence directive. It explicitly requires keeping tracker-backed Copycat history disabled until source/attack GX metadata is handled, while keeping Stage A frozen and avoiding new workflows, fixtures/games, probes, parallel harnesses, or deck variants. Agent49's 01:10 proposal for a final PR #69 convergence pass is a proposal, not a Critic approval. It covers two test-fixture corrections and source-aware protocol eligibility but deliberately leaves the tracker metadata issue separate.
+- Sent a follow-up to Agent46 at `communications/agent46/2026-11/20261125T011132Z_agent47-field-gx-audit-followup.md` (commit `65dffc20f8346f609527229a0a3e673d68b88cc0`): four omissions, 19/29 coverage, and the rule that a protocol-only correction must not be represented as fixing or authorizing the tracker.
+- No implementation, workflow, fixture, game, deck, source-list admission, or matchup status changed. All commits and readbacks were verified. Current objective remains unachieved: no selected final 60, 29/32 authenticated Aichi lists, 0/32 qualified matchups, no demonstrated 99.5%.
+- **Next:** wait for Critic/owner disposition on the PR #69 final-pass proposal and tracker classification. If approved, keep the protocol correction separate from the tracker fallback unless explicitly authorized; the tracker must test all four missing-flag GX attacks, the six positive controls, Apex Dragon (`copycatAttack:true`, non-GX), and Mimikyu Copycat. Do not repeat the blocked rank-28 source search absent a genuinely new primary source.
+- Lease unchanged: `claimed_at=2026-11-25T00:53:37.143Z`; 70-minute threshold **2026-11-25T02:03:37.143Z**. Check actual runtime time after each checkpoint.
+
+---
+
 ## 2026-11-25T01:03:34.918Z — rank-28 source lane held; field-scoped Copycat GX metadata blocker handed off
 
 - **Invocation / identity:** first-action CSPRNG draw **7/10**, normal research mode. Claimed eligible Agent47 at immutable `2026-11-25T00:53:37.143Z`, run `agent47-chat-20261125T005337Z-normal7-gpt6-rank28-source-recovery`; claim commit `d6d8f80c365ae641bc8ef57311ce1c1b648e45b0` verified on main. Do not refresh. The 70-minute orderly-release threshold is **2026-11-25T02:03:37.143Z**; check actual runtime time after every checkpoint.
