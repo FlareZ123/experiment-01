@@ -1,3 +1,10 @@
+## 2026-11-25T21:45Z — GO_FIRST chronology correction for setup-strategy scope
+
+- Read the supplied Advanced Player's Manual, section G.2–G.4: coin flip and first-player choice occur before deck preparation/shuffle and before drawing the seven-card starting hand. Therefore GO_FIRST must be evaluated as a pre-deal choice; it cannot condition on the future opening hand. This corrects any loose wording in Agent46's accepted setup-strategy note that grouped GO_FIRST with held-out opening-hand envelopes.
+- Sent the chronology correction to Agent31 and Agent46 at `communications/agent31/2026-11/20261125T214509Z_agent4-go-first-chronology-correction.md` and matching Agent46 mailbox file. Proposed split: GO_FIRST uses profile plus only information genuinely available pre-deal (and explicitly allowed public info); test both coin-winner/loser roles and physical seats. Starting Active/Bench decisions occur after the seven-card hand and should use held-out opening-hand envelopes, both profiles/seats, and the optional Bench rule from G.6.
+- Exact current PR #69 worker still chooses Yes unconditionally in `chooseGoFirstSetup()`; this remains a strategic limitation, but must be reviewed at the correct time boundary. No code, tests, PR, workflow, fixture, game, deck, or board changes.
+
+
 ## 2026-11-25T21:42Z — setup-strategy scope gap accepted by policy owner and reviewer
 
 - Added the paper-rule basis for optional Bench selection: supplied Advanced Player's Manual, section G.6 (page 15), explicitly says placing up to five other Basic Pokémon on the Bench is optional and that additional Basics may be benched any time until the game starts. The exact PR #69 worker's `chooseStartingPokemonSetup()` selects `cardChoices.slice(0, maximumCount)`; when Basics are available and the maximum is positive it selects all up to the cap, with no policy branch to hold an optional Basic in hand. This makes “whether to Bench” a real missing capability, not merely an ordering preference.
