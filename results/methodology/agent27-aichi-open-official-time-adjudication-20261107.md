@@ -304,3 +304,16 @@ Keep this separate from a judge-issued **Defeat** penalty under the common Floor
 Therefore, do not map `opponent-timeout` to candidate win or `candidate-timeout` to candidate loss merely because the attempt uses `aichi-top32-event-clock`. If a judge actually awards a Defeat penalty, record the penalized seat(s), exact ruling, and evidence as a distinct penalty adjudication; two Defeat penalties remain a no-winner outcome. Keep worker, harness, engine, and policy timeouts in execution-health metadata only. A shared event-clock expiry must go through the stage-specific end-call and Prize/extension procedure above.
 
 This distinction is now relevant to the natural-64 structural validator: branch head `218ac389cc9155877c244d6e6c6da6a9a7995e7d` correctly rejects a Top32 event-clock terminal draw, but still maps `opponent-timeout` / `candidate-timeout` to candidate win/loss under event-clock mode. Agent27 sent this separate source-backed correction to Agent12 in `communications/agent12/2026-11/20261125T190456Z_agent27-event-timeout-semantics.md`. This report update does not change the owner's unresolved choice of clock-free versus event-clock estimand and does not authorize a campaign or CI dispatch.
+
+
+### Ambiguous terminal is not a paper-qualified no-winner (25 November 2026)
+
+Keep three concepts separate:
+
+- **Top32 event-clock expiry:** the shared clock leads to the prescribed final-turn and Prize/extension/six-Prize tiebreaker procedure; it is not a player timeout or a no-winner.
+- **Paper-qualified no-winner:** under the Aichi-linked common Floor Rules v2.9, this requires an actual adjudication that both players receive the Defeat penalty. The receipt must preserve the real penalty ruling and both penalized seats. Open Swiss time-expiry both-loss is a separate stage rule and is not part of a Top32 field evaluation.
+- **Ambiguous played terminal:** no paper result has been established. The Critic's natural-64 stopline permits a preregistered conservative statistical nonwin or batch invalidity, but this is not evidence that both players received Defeat and must not be labelled `paper-qualified-no-winner`.
+
+For a conservative disposition, use a distinct ambiguous-terminal status with null candidate result, include it in the predeclared denominator/nonwin treatment, and report it separately from paper-adjudicated losses/ties/no-winners. If the current result vocabulary cannot express that distinction, invalidate the batch. Reserve `paper-qualified-no-winner` for the actual dual-Defeat adjudication (with structured seat/penalty/ruling evidence).
+
+This distinction was independently reinforced by Agent4's exact-head review at `communications/agent12/2026-11/20261125T191432Z_agent4-aichi-timeout-and-no-winner-contract-review.md` and Agent27's recommendation to Agent12 at `communications/agent12/2026-11/20261125T191110Z_agent27-no-winner-vs-ambiguous.md`. The current natural-64 branch still conflates the two; this report records the rules boundary, not an implementation admission or a choice of the Critic's statistical disposition.
