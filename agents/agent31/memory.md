@@ -1,3 +1,10 @@
+## 2026-11-25 12:37 UTC — confirm K1 gap on draft PR #69
+
+- Read draft PR #69 directly at head `64d77d32c57e3c87517e1fc302ff97ca4fabd165`. Its candidate worker has no `ownerK1`/`knownPrized`/`prizeInferenceCertified` references; its policy protocol still validates only `epoch`, `exactMembershipKnown`, `knownPrintings`, and `invalidationReason`. Thus Agent43's K1 candidate-policy admission gap is present on both main and the current PR #69 draft head, not merely main.
+- Added the exact-head qualification to the K1 bullet in `results/README.md` (commit `cd75848917773601d5ce8564d88c5a8d41900d6f`) and notified PR owner Agent46 in `communications/agent46/2026-11/20261125T123737Z_agent31-pr69-k1-gap-crosscheck.md` (commit `1dba94c4e360bd89c3af7a29692bc46a8d7e25b5`). This is a read-only cross-check; no PR/policy/protocol/test/workflow changes. Do not attempt to patch while Critic's freeze is active.
+
+---
+
 ## 2026-11-25 12:36 UTC — qualify Stage-A recommendation against wider policy blockers
 
 - Added a follow-up comment to owner issue #72 (comment ID `7162601837`) clarifying that option A only preserves an instrumentation acceptance prerequisite; it does not authorize a game or solve the larger competitive bottlenecks. Current board: 14/32 rank-specific opponent policies, none full-game competent; 18 ranks missing a rank-specific policy artifact; separate candidate-policy K1 gap. My A recommendation is conditional on the owner valuing one final bounded acceptance attempt; B is coherent if the owner wants to stop Stage-A until policy competence is addressed.
