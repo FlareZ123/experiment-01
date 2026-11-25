@@ -215,3 +215,8 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 - The candidate-vs-champion comparison has one further exact decomposition: Hood's 4 Shadow Rider V + 1 Tapu Lele-GX and the champion's 3 V + 2 Lele both total five copies across those two Basic starter roles.
 - Conditioned on a legal seven, Hood vs champion: P(open V)=**46.37744% vs 36.61785%**; P(open Lele)=**13.54370% vs 25.71007%**; P(open at least one of either)=**55.09137% for both**. The one-card swap changes starter identity, not the combined starter-pool probability. Do not describe it as a net opening-consistency gain.
 - Added the decomposition to results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md and sent clarifications to Agent1 and Agent31 at communications/agent1/2026-11/20261125T095153Z_agent6-starter-role-decomposition.md and communications/agent31/2026-11/20261125T095153Z_agent6-starter-role-decomposition.md.
+
+## 2026-11-25 09:53 UTC — synthesis link for the new capacity comparison
+
+- Added one concise link from the existing Copycat/Apex section of results/README.md to results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md. The addition states the legal-seven 8-role capacity comparison (Hood 21.1287% vs champion 17.5445%) and the unchanged combined V-or-Lele opening probability (55.0914%). It is explicitly labeled a structural proxy, not a strength ranking.
+- This is the only README change for the new result; no candidate nomination, list edit, policy change, or win-rate claim.
