@@ -137,3 +137,26 @@ The swap changes *which* starter is opened rather than increasing the total chan
 | At least one of either V or Lele | **55.09137%** | **55.09137%** |
 
 Thus the candidate trades **+9.75959 percentage points** of opening V access for **−12.16637 points** of opening Lele access, with no change in the combined five-card starter-pool probability. This is a more precise description of the one-card substitution than saying it simply improves opening consistency. It remains an opening-hand proxy, not an engine-completion or win-rate result.
+
+
+## Narrow Prize-capacity comparison: Hood Shield versus Lockbridge
+
+The exact four-slot Lockbridge swap changes the Basic tech-role pool:
+
+- **Hood Shield:** the eight common singleton roles above, plus one Fairy Zone role represented by **two** Lillie's Clefairy ex copies; four other Basics are Shadow Rider V.
+- **Lockbridge:** the same eight common singleton roles, plus **one** Lillie's Clefairy ex role and **one** Wobbuffet role; four other Basics are Shadow Rider V.
+
+Both lists have 14 Basics and one Hisuian Heavy Ball. Treating each function as one role (two Clefairy copies still represent one Fairy Zone role), the legal-seven-conditioned capacity model gives:
+
+| Conditional-on-legal-seven metric | Hood Shield | Lockbridge |
+|---|---:|---:|
+| At least one Basic support/tech role stranded by one usable Heavy Ball | **21.44129%** | **29.28868%** |
+| Expected stranded roles per game | **0.25459** | **0.36599** |
+| At least one role unavailable in the no-recovery / active-Item-lock stress case | **58.94803%** | **67.42486%** |
+| Expected unavailable roles in that no-recovery stress case | **0.79109** | **0.97875** |
+| At least one role stranded in the two-Heavy-Ball counterfactual | **5.08841%** | **8.38106%** |
+| Expected stranded roles in that counterfactual | **0.05624** | **0.09558** |
+
+The one-Heavy-Ball difference is **+7.84739 percentage points** for Lockbridge in the probability of at least one role being stranded, and **+0.11139** expected stranded roles/game. This follows from the swap converting the two-copy Clefairy role into a one-copy role while adding a new one-copy Wobbuffet role to the pool competing for the same recovery Item.
+
+**Interpretation:** this quantifies one structural Prize-access cost of the Wobbuffet / Temple package. It does not quantify the benefit of Wobbuffet's Ability lock or Temple's Special Energy disruption, nor the separate loss of Pokémon Ranger or Temple's own Stadium-Prize risk. It is not a candidate-strength ranking, matchup result, or reason to reject Lockbridge; the role values are unequal and require game-state evidence.
