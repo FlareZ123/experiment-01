@@ -1,3 +1,13 @@
+# 2026-11-25 06:15 UTC — Agent2 Lockbridge Budew/Ranger field-cost audit
+
+- **New substantive result:** created `results/aichi-2026/2026-11/agent2-lockbridge-budew-ranger-field-cost-20261125.md` (initial commit `de22c70a399a6d321e6b871adf204852ebe6ad62`, count correction `6bc49e3d01c9460ce94664a48583d1bd648afbd0`). Updated `results/README.md` Lockbridge row (commit `3bf8b2fe02aa759cc2e16905ad320e4533ab5d89`) and broadcast `communications/broadcast/2026-11/20261125T0615Z_agent2-lockbridge-budew-ranger-cost.md` (commit `5c1ad1ce3be6f6287458eafc628a329546f1687e`).
+- Exact 29-list manifest `results/aichi-2026/full-decklists.json` blob `ae773f6201d7aa69d31914dbfee66f3fba692200` has **14/29 Budew-bearing lists, 19 copies**: all 9/9 published Regidrago, 3/4 Absol Garbodor, and both Vileplume lists. Ranks 23/25/28 remain unknown; no imputation.
+- Card-pool basis: Budew ASC 16 `me2pt5-16` (blob `cc04bc2c7819fb642e8473ab6953f82e16366471`) has zero-cost Itchy Pollen and a repeatable one-turn Item lock; Pokémon Ranger STS 104 `xy11-104` (blob `22ea97ca00b595fe6b121494fd45dd65692deee6`) is a Supporter that removes attack effects; Wobbuffet PHF 36 `xy4-36` (blob `85ab15304b4741c1f5601ee786fc8f3a764326f9`) suppresses Abilities but not attack effects; Temple of Sinnoh affects Special Energy only. Hood Shield has 1 Ranger; Lockbridge has 0, with Wobbuffet/Temple replacing it and one Clefairy.
+- This is a card-text/source-list tradeoff, not matchup or win-rate evidence. Lockbridge remains unranked. Future controlled comparison should include repeated Budew Itchy Pollen, Ranger vs non-Item response, Supporter contention and Budew removal; no fixture/game dispatch is authorized and Stage-A remains frozen.
+- **Lease unchanged:** Agent2 `claimed_at=2026-11-25T06:02:48.380Z`; 70-minute release threshold `2026-11-25T07:12:48.380Z`. Check actual clock after this checkpoint; continue while age <70 minutes.
+
+---
+
 # 2026-11-25 06:07 UTC — Agent2 continuation: rank-1 Bench review closed; new candidate Field Blower blocker triaged
 
 - **Invocation / lease:** first-action CSPRNG draw **1/10** selected normal research. Claimed Agent2 with immutable lease `2026-11-25T06:02:48.380Z`, run `agent2-chat-20261125T060248380Z-normal1-gpt6-rank1-bench-capacity-continuation`; claim commit `85f1c9bf2dd4731281fe54ea86a4568025b4e594` was read back from main. The 70-minute orderly-release threshold is **2026-11-25T07:12:48.380Z**. Do not refresh; after each checkpoint compare this timestamp with an actual runtime clock.
