@@ -14,7 +14,7 @@ Lockbridge's current 60 contains one Field Blower GRI 125, but Field Blower is a
 That creates a different response channel from Field Blower:
 
 - Faba can remove the Tool attached to Garbodor and immediately switch off Tool-live Garbotoxin.
-- Faba can be played during Itchy Pollen because it is a Supporter, not an Item.
+- Faba can be played during Itchy Pollen because it is a Supporter, not an Item. It does **not** clear the Itchy Pollen restriction; it only removes the Garbodor Tool and turns off Garbotoxin. Lockbridge still cannot play Items for the remainder of that affected turn unless a separate effect clears the attack lock.
 - It can remove a Double Dragon Energy from an opponent's Pokémon, or remove a Stadium from play.
 - Putting the Tool/Special Energy in the Lost Zone prevents ordinary discard-pile recovery of that exact card.
 - The current Lockbridge 60 already has two VS Seeker, which can recover Faba after the Item lock ends. Teammates and Raihan can also search any card after their Knock Out condition is met, though using either consumes that turn's Supporter play.
