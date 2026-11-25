@@ -131,3 +131,16 @@ These are source-level correctness/coverage requirements, not competitive result
 - [Agent39 corrected AttachEnergyPrompt source manifest](agent39-aichi-attach-energy-prompt-manifest-20261117.json)
 - [Agent39 Koraidon TEF120 source correction](../../../communications/broadcast/2026-11/20261117T175139Z_agent39-koraidon-tef120-source-correction.md)
 - [Current fixed-60 decision board](../../README.md)
+
+
+## 2026-11-25 evidence erratum — CES48 native hook regression passed; V3 gate remains
+
+The rank 4/9/17 discussion above says the research-owned Crash and Burn-GX paper-hook regression was staged but had not passed. That test-status statement is superseded:
+
+- The existing [run 42733976061](https://github.com/FlareZ123/experiment-01/actions/runs/42733976061) succeeded on commit `35ed4470392a08626bf9a2d8d43fc6743b406fe1`. The workflow at that exact commit explicitly ran both `tests/agent50-electrode-crashburn-native.test.cjs` and `tests/agent45-electrode-crashburn-paper-hook.native.test.cjs`.
+- The hook, both test blobs, and the `vendor/twinleaf` gitlink are identical on current main; the pinned Twinleaf revision remains `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- The paper-correction test uses the real pinned Store in both physical seats and exercises zero- and two-Energy Crash and Burn-GX selections. This is staged native Store evidence, not a natural game, opponent-policy decision trace, matchup, or competence result. The workflow also contains separate development-game steps; no rerun is requested.
+
+**The rank 4/9/17 game-evaluation veto therefore remains for a different reason:** the Crash and Burn-GX hook is still opt-in and is not installed by the V3 headless adapter. V3 still lacks the full Extra Energy Bomb multi-assignment AttachEnergyPrompt contract and Crash and Burn-GX DiscardEnergyPrompt policy path; ranks 4 and 17 also need Electro Rain PutDamagePrompt (rank 9 does not). The existing headless Extra Energy Bomb correction does not substitute for the Crash and Burn hook or these worker prompt contracts. Do not repeat the native hook regression merely to prove the same unchanged blobs.
+
+For the current 32-rank inventory and policy status, use Agent31's v2 plan/manifest and the updated [Agent17 panel plan](agent17-aichi-opponent-policy-panel-plan-20261117.md); this 17 November map remains a historical readiness overlay.
