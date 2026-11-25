@@ -61,7 +61,7 @@ The exposure census makes both exchanged roles material:
 - Clefairy has Dragon-type targets in 12/29 known lists, not only the nine Regidrago lists. The second copy therefore provides redundancy for a role with meaningful field exposure.
 - Ranger and Temple also have distinct field exposure and timing. Their 14/29 and 24/29 counts are not directly comparable to the Ability/Weakness counts.
 
-This census does **not** justify setting Wobbuffet's role value to 29/29 or Clefairy's to 12/29 in the Prize model. Presence is not impact. It does show that the earlier equal-weight sensitivity (which set Clefairy to 1 by assumption) is illustrative only; a full-package comparison must value the actual effect windows and matchup impact of Clefairy, Wobbuffet, Ranger, and Temple together.
+This census does **not** justify setting Wobbuffet's role value to 29/29 or Clefairy's to 12/29 in the Prize model. Presence is not impact. Rank 1 Shadow Rider is a concrete low-value example: all 11 Energy are Basic Psychic, its Shadow Rider VMAX/Tapu Lele-GX/Latias ex core Abilities are Psychic and exempt from Bide Barricade, and its Marshadow can remove Temple; Wobbuffet's main non-Psychic target is Radiant Eternatus before Gate resolves. It does show that the earlier equal-weight sensitivity (which set Clefairy to 1 by assumption) is illustrative only; a full-package comparison must value the actual effect windows and matchup impact of Clefairy, Wobbuffet, Ranger, and Temple together.
 
 
 ## Interaction matrix: the two Basic roles are complementary, not interchangeable
