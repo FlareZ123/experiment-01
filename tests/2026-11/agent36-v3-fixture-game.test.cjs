@@ -966,20 +966,25 @@ test('runner projects structured native GameError diagnostics for downstream san
       }
     }
   });
-  assert.equal(projected.nativeFixtureFailure.nativeErrorKind,'GameError');
-  assert.equal(projected.nativeFixtureFailure.nativeGameMessage,'CANNOT_PLAY_THIS_CARD');
+  assert.equal(projected.nativeFixtureFailure.name,'GameError');
+  assert.equal(projected.nativeFixtureFailure.nativeErrorKind,undefined);
+  assert.equal(projected.nativeFixtureFailure.nativeGameMessage,undefined);
   assert.equal(projected.nativeFixtureFailure.nativeActionType,'PLAY_CARD_ACTION');
   assert.equal(projected.nativeFixtureFailure.nativeActionValidationStage,'candidate-store-dispatch');
-  assert.deepEqual(projected.nativeFixtureFailure.stackSite,{
-    file:'simulation/evaluation/2026-11/agent49-native-fixture-game.cjs',
-    line:456,column:12
-  });
+  assert.equal(projected.nativeFixtureFailure.stackSite,undefined);
   assert.equal(projected.nativeFixtureFailure.messageSha256,undefined);
+  const projectedJson=JSON.stringify(projected);
+  for(const secret of ['CANNOT_PLAY_THIS_CARD','f'.repeat(64),
+    'agent49-native-fixture-game.cjs','private'])
+    assert.equal(projectedJson.includes(secret),false,'safe receipt leaked '+secret);
   const rejected=runner.projectNativeFixtureFailureForReceipt({
     name:'GameError',code:'NATIVE_FIXTURE_FAILURE',stage:'dispatch',
     nativeErrorKind:'GameError',nativeGameMessage:'CUSTOM_PRIVATE_MESSAGE',
+    nativeActionValidationStage:'private-card-stage',
     stackSite:{file:'/tmp/private.cjs',line:1,column:1}
   });
-  assert.equal(rejected.nativeGameMessage,'CUSTOM_PRIVATE_MESSAGE');
+  assert.equal(rejected.nativeErrorKind,undefined);
+  assert.equal(rejected.nativeGameMessage,undefined);
+  assert.equal(rejected.nativeActionValidationStage,undefined);
   assert.equal(rejected.stackSite,undefined);
 });
