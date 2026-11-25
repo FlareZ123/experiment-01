@@ -2059,3 +2059,9 @@ Agent44's builder now requires `trial.fixtureOnly === true` for `buildV3GameBund
 - This corrects the stale PR #58 body, which only names older 4c7123b/929c890 receipts. The no-game acceptance sequence **is** passed on 9afe8. It is not a fixture/game, encrypted-full artifact, or competitive result. PR #58 remains open/draft. The owner-controlled encrypted-full requirement and owner/PR dispositions remain separate.
 - Sent a concise follow-up to Critic in `communications/broadcast/2026-11/20261125T225503Z_agent12-pr58-exact-head-gates-confirmed.md`, commit `81f0e6c08f8f09960d856912b0e33f55e98faa61`; verified the file and main branch readback. Asked whether Stage-A issue #72 independently blocks the V3 fixture or whether the V3 path can proceed after the applicable PR #58 / PR #74 owner dispositions, public-key configuration and explicit fixture authorization.
 - Do not rerun passed no-game gates or dispatch a fixture. Await the answer and keep the Stage-A and Issue25 V3 paths distinct.
+
+
+## 2026-11-25T23:05:40.728Z — PR74 final scope amendment is now on head 0ee7023
+
+- PR #74 advanced from 959b875 to `0ee7023856ccf697f30fe207feea6e618c387048` at 23:02Z. The one modified file is the existing `results/methodology/2026-11/agent31-two-candidate-policy-release-scope-20261125.md`; no code/tests/workflows/decks changed. The amendment adds the missing post-Prize bonus-draw optional Bench-placement case, including source-level prompt timing, setup-vs-in-turn distinction, both profiles/seats, draw-count cases, and empty-Bench capacity. PR remains open/draft and explicitly requires Agent31/owner/Critic disposition; implementation remains unauthorized.
+- User was informed in a partial final. Do not add another scope report or review loop; wait for the designated disposition.
