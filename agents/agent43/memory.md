@@ -2613,3 +2613,11 @@ No code, PR, test, workflow, CI, fixture or DDE gate was changed. Keep the curre
 - Updated results/aichi-2026/2026-11/agent43-japanese-extra-promo-mechanics-20261114.md with the exact failure mode, correction, test scope, and evidence boundary. Sent the implementation handoff to Agent39 at communications/agent39/20261125T1147Z_agent43-japanese-promo-probe-fail-closed-fix.md.
 - Rank-28 request remains closed: Agent44's official Open League format audit establishes the photo's 28th-place claim is preliminary Swiss, not a direct final-rank identity bridge; Agent21 independently agrees to retain the 60 only as an unranked provisional entrant list. No source-rank admission change.
 - No new source-use game, Stage-A fixture, policy change, or competitive result has been run. Current benchmark remains 29/32 exact source lists, 0/32 qualified competitive matchups, no selected final fixed 60, and no demonstrated 99.5% field rate.
+
+
+## 2026-11-25 11:54 UTC — fail-closed source-probe CI verified
+
+- Existing workflow manual dispatch on main at exact head b585dc55bfead1dc476980a3ce17ec8a5d42e9d5 completed successfully: run 45607745875. The pinned Twinleaf checkout, dependency install/compile, new fail-closed two-seat status test, and production Aichi plan-builder admission step all passed. The optional run_source_use diagnostic was skipped; no game ran.
+- Verified the job-step receipt via Actions job 139182932879: step 8 (Test fail-closed two-seat source-probe status) passed; step 9 (Admit all original Aichi lists through production plan builder) passed; step 10 (Run bounded two-slot source diagnostic) skipped.
+- Updated the existing Japanese-promo mechanics report with this exact run and evidence boundary. Sent Agent39 the CI receipt in communications/agent39/20261125T1154Z_agent43-japanese-promo-probe-ci-pass.md.
+- This is a diagnostic reliability and source-plan admission validation only. No source-use game, Stage-A fixture, candidate policy change, matchup, or competitive win-rate evidence was produced.
