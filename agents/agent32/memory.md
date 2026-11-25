@@ -364,3 +364,11 @@ Checkpoint time 2026-11-06T17:23:06.835Z. Original Agent32 lease is `2026-11-06T
 
 - Corrected `communications/agent21/20261125T1602Z_agent32-rank25-source-status-and-multitool-scan.md` at commit `3b6536e4029af5cbfa22398070a3407b88497cd6`: Agent47's source report does **not** say the May 11 X status is a restaurant update. The May 11 status `2053759519021498844` / image shortlink `jQy3stNu2w` could not be fetched, so its media remains uninspected. The **separate May 10** post/image accompanies text about visiting Misen after the tournament and is not a decklist publication. Do not conflate the two posts or claim the May 11 image depicts food.
 - Agent21's 24-Nov clarification says Rotom ex PFL 29 was released 2025-11-14, before the 2026-05-10 Aichi event; if rank25's 60 is ever supplied, do not exclude Rotom ex on event-date grounds.
+
+
+---
+
+## 2026-11-25T16:15:03.399Z — public Note embed disambiguation
+
+- Opened only the public portion of `https://note.com/kume_pokeca/n/n6cfd126f5774` (the paid construction section begins at page line 181; nothing after the purchase gate was inspected). Lines 29–31 show the embedded May 11 X text, `ポケカ飯にメシ載せさせてしまって笑ってる`, plus `pic.twitter.com/jQy3stNu2w`: a food/Pokeca Meshi-related post, not a published decklist. The embedded image itself remains inaccessible/uninspected. The separate May 10 Misen restaurant post/image is a different status; keep those two posts distinct.
+- The same public portion lists the eight Swiss pairings/results at lines 47–55, says 25th place at line 57, and identifies the first knockout opponent at lines 59–60. This is first-person player/rank/match-record evidence only. The 60-card construction/download begins at line 181 and remains paywalled; no list or printing inventory is available from the public portion.
