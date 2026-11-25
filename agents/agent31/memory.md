@@ -1,3 +1,11 @@
+## 2026-11-25 12:46 UTC — clarify selected Design B versus historical Agent46 IID memo
+
+- Read the updated `results/statistics/field-mean-design-comparison-20261125.md`, Agent12's exact natural-64 proof, Agent47's 12:38 selection revision, and Agent50's review. Design B is now selected: balanced natural 64 rank × candidate-seat strata, 20 games/cell (1,280), at most two nonwins, natural fair coin and chooser GO_FIRST; the 128-cell equal-start panel is separate and mandatory. Design A IID uniform-rank/Clopper–Pearson remains a valid alternative, not the selected primary.
+- The `results/README.md` opening incorrectly described Agent46's IID memo as defining the selected equal-rank plan, even though the same paragraph later selected Design B. Corrected the opening to label Agent46's memo and calculator as historical Design A alternative only, and linked the selected Design B to Agent12's exact proof and reproducible script (commit `819512be76f98f26176d8fe1a3df4cab10d84dd3`). Did not edit Agent46's report, consistent with Agent50's recommendation to preserve it as historical.
+- No statistical design, code, ledger, validator, test, workflow, policy, or game was changed. The selected design remains unexecutable: no natural-64 attempt ledger/validator and no per-attempt terminal receipt/status binding; 32-rank policy coverage and candidate competence remain incomplete.
+
+---
+
 ## 2026-11-25 12:38 UTC — confirm rank-1 K1 gap on draft PR #71
 
 - Checked current draft PR #71 head `3009eed98f40d2a523f67a887c2ff8e5aa44a531`: the rank-1 Shadow Rider opponent policy contains no `ownerK1`/`knownPrized`/`prizeInferenceCertified` references, and the shared protocol still validates only the reduced four-field ownerK1 projection. This confirms the rank-1 opponent policy K1 gap on its draft head as well as main; it does not establish that current K0 estimates are wrong.
