@@ -79,7 +79,7 @@ A further card-text check identifies an important asymmetry between the two abil
 | Guzma | 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 24, 27, 29, 30, 32 (25 lists) | Does not suppress Fairy Zone | Supporter can force our Active Wobbuffet to the Bench, ending Bide Barricade; remains playable under Wobbuffet |
 | Escape Rope | 4, 5, 9, 11, 17, 26, 31 (7 lists) | Does not suppress Fairy Zone | Item forces both Active Pokémon to switch, ending Bide Barricade if playable |
 
-**Important synergy:** against Active Iron Thorns ex, Active Wobbuffet survives Initialization because it has no Rule Box. Wobbuffet then suppresses Iron Thorns because it is non-Psychic. This restores the candidate's own Rule Box Abilities on Psychic Pokémon, most importantly Shadow Rider Calyrex VMAX's Underworld Door; Wobbuffet is Psychic and does not suppress that Ability, while Iron Thorns's Ability is disabled for as long as Wobbuffet remains Active. Clefairy ex's Fairy Zone can also function during that window, although the three Iron Thorns lists (ranks 6, 24, 29) contain no Dragon-type target, so Fairy Zone is not the relevant payoff in those matchups. The key payoff is restoring Shadow Rider's engine and other Rule Box Abilities. If Wobbuffet leaves the Active Spot, Iron Thorns's Initialization becomes active again; the timing and switch/attack line are therefore important and untested. There is a concrete mobility constraint: all three Iron Thorns lists (6, 24, 29) also contain Tool Jammer. The Lockbridge 60 has one Float Stone and no Switch/Escape Rope; an opponent's Active Tool Jammer can turn off Float Stone or Stealthy Hood on our Active Wobbuffet. It does not turn off Bide Barricade, but it can prevent a free retreat after the Underworld Door window. Manual retreat or Guzma changes the energy/lock state and must be tested. More importantly, the source field has Guzma in 25/29 lists and Escape Rope in 7/29. Either can force Wobbuffet out of the Active Spot; Guzma is a Supporter and therefore remains playable under Bide Barricade, while Escape Rope is an Item. The 25/29 Guzma prevalence makes this a highly interruptible lock, not a persistent lock. The candidate has no Switch or Escape Rope of its own, so re-establishing Wobbuffet after a forced switch is not automatic.
+**Important synergy:** against Active Iron Thorns ex, Active Wobbuffet survives Initialization because it has no Rule Box. Wobbuffet then suppresses Iron Thorns because it is non-Psychic. This restores the candidate's own Rule Box Abilities on Psychic Pokémon, most importantly Shadow Rider Calyrex VMAX's Underworld Door; Wobbuffet is Psychic and does not suppress that Ability, while Iron Thorns's Ability is disabled for as long as Wobbuffet remains Active. Clefairy ex's Fairy Zone can also function during that window, although the three Iron Thorns lists (ranks 6, 24, 29) contain no Dragon-type target, so Fairy Zone is not the relevant payoff in those matchups. The key payoff is restoring Shadow Rider's engine and other Rule Box Abilities. If Wobbuffet leaves the Active Spot, Iron Thorns's Initialization becomes active again; the timing and switch/attack line are therefore important and untested. There is a concrete mobility constraint: all three Iron Thorns lists (6, 24, 29) also contain Tool Jammer. The Lockbridge 60 has one Float Stone and no Switch/Escape Rope; an opponent's Active Tool Jammer can turn off Float Stone or Stealthy Hood on our Active Wobbuffet. It does not turn off Bide Barricade, but it can prevent a free retreat after the Underworld Door window. Manual retreat or Guzma changes the energy/lock state and must be tested. More importantly, the source field has Guzma in 25/29 lists and Escape Rope in 7/29. Either can force Wobbuffet out of the Active Spot; Guzma is a Supporter and therefore remains playable under Bide Barricade, while Escape Rope is an Item. The 25/29 Guzma prevalence shows broad list-level access, but it is not an immediate-access probability; the exact first-response displacement model below quantifies the distinction. The lock remains Active-only and can be displaced, but its persistence cannot be inferred from list presence alone. The candidate has no Switch or Escape Rope of its own, so re-establishing Wobbuffet after a forced switch is not automatic.
 
 **Important separation:** Path to the Peak suppresses Clefairy but not Wobbuffet. Wobbuffet does not remove a Stadium, so Fairy Zone remains off until the Stadium is replaced, but Bide Barricade can still operate. Garbodor and Klefki are the harder one-way counter-lock families: both are Psychic, so Wobbuffet's Psychic exception does not suppress them.
 
@@ -91,3 +91,98 @@ This interaction matrix reinforces that Wobbuffet's value is not merely an indep
 - [Lockbridge Prize/tutor audit](agent31-lockbridge-prize-access-20261125.md)
 - [Lockbridge scope and policy admission](agent21-lockbridge-scope-and-policy-admission-20261125.md)
 - [Aichi lock matrix source census](../../../scripts/aichi_lock_matrix.cjs)
+
+
+## First-response displacement-access model
+
+**Decision relevance:** fixed-60 candidate ranking, specifically whether the Wobbuffet Active lock should be discounted as immediately removable across most of the Aichi field.
+
+**Evidence class:** exact multivariate-hypergeometric access prior over the 29 published source lists. This is not a game, policy, action-use rate, lock-uptime estimate, matchup result, or win rate.
+
+### Method
+
+The reproducible script is [`scripts/agent21-lockbridge-displacement-access.cjs`](../../../scripts/agent21-lockbridge-displacement-access.cjs). It reads the unchanged `results/aichi-2026/full-decklists.json`.
+
+For each 60-card opponent list, the calculation chooses six Prize cards from the 60, then samples (H\) cards from the remaining 54, for (H=7,8,9,10). It counts access to:
+- Guzma directly;
+- Prime Catcher directly;
+- Escape Rope directly, assuming the Lockbridge player has a Benched Pokémon to promote;
+- Counter Catcher in a separate conditional scenario, assuming the opponent has more Prize cards remaining than Lockbridge;
+- a Guzma recovery line when both VS Seeker and Battle Compressor are in the sampled cards and at least one Guzma remains in the draw deck.
+
+The DP enumerates Prize/hand allocations exactly. The `no Counter Catcher` scenario includes Guzma, Prime Catcher, Escape Rope, and the VS Seeker + Battle Compressor + Guzma line. The `with Counter Catcher` scenario adds Counter Catcher as though its Prize condition is live.
+
+This is a K0-style access prior: it does not condition on a legal Basic opening hand, mulligans, cards spent to establish the opponent's board, Supporter contention, whether a legal target/Bench exists, or whether the opponent chooses to use the card. It does not count VS Seeker retrieving a Guzma already in the discard pile, other attacks/Abilities, or other unlisted displacement effects. Consequently these figures are a controlled access screen, not strict lower or upper bounds on actual play.
+
+### Aggregate results
+
+| Cards observed (H) | Gust-style access, no Counter Catcher | Any modeled displacement, no Counter Catcher | Any modeled displacement, Counter Catcher condition assumed live |
+|---:|---:|---:|---:|
+| 7 | 20.78% | 24.72% | 28.02% |
+| 8 | 23.68% | 28.11% | 31.74% |
+| 9 | 26.54% | 31.42% | 35.36% |
+| 10 | 29.35% | 34.67% | 38.88% |
+
+At (H=9), the modeled access rate is **31.42%–35.36%** across the 29 known lists. The complement, **64.64%–68.58%**, is the share with no modeled displacement line in that sampled card pool; it does not prove that Wobbuffet remains Active or that its Ability is effective.
+
+### (H=9) by archetype
+
+| Archetype | Known lists | Any displacement, no Counter Catcher | Counter Catcher condition assumed live |
+|---|---:|---:|---:|
+| Regidrago | 9 | 35.85% | 40.66% |
+| Iron Thorns | 3 | 35.42% | 35.42% |
+| Raichu Electrode Combo | 2 | 39.14% | 39.14% |
+| Absol Garbodor | 4 | 27.70% | 27.70% |
+| Snorlax Stall | 2 | 15.00% | 43.95% |
+| Vileplume archetypes | 2 | 27.97% | 27.97% |
+| Absol Electrode | 1 | 41.68% | 41.68% |
+| Lillie's Clefairy | 1 | 43.95% | 43.95% |
+| Raging Bolt | 1 | 33.41% | 33.41% |
+| Mew Genesect | 1 | 39.14% | 39.14% |
+| Meloetta Donk | 1 | 15.00% | 27.97% |
+| Shadow Rider Calyrex | 1 | 19.17% | 19.17% |
+| Dusknoir Chimecho | 1 | 15.00% | 15.00% |
+
+### (H=9) by published rank
+
+| Rank | Archetype | No Counter Catcher | Counter Catcher condition assumed live |
+|---:|---|---:|---:|
+| 1 | Shadow Rider Calyrex | 19.17% | 19.17% |
+| 2 | Vileplume Control | 27.97% | 27.97% |
+| 3 | Snorlax Stall | 15.00% | 39.14% |
+| 4 | Raichu Electrode Combo | 39.14% | 39.14% |
+| 5 | Mew Genesect | 39.14% | 39.14% |
+| 6 | Iron Thorns | 39.14% | 39.14% |
+| 7 | Snorlax Stall | 15.00% | 48.75% |
+| 8 | Absol Garbodor | 22.83% | 22.83% |
+| 9 | Absol Electrode | 41.68% | 41.68% |
+| 10 | Regidrago | 42.71% | 42.71% |
+| 11 | Absol Garbodor | 39.14% | 39.14% |
+| 12 | Regidrago | 27.97% | 39.14% |
+| 13 | Regidrago | 35.63% | 35.63% |
+| 14 | Regidrago | 32.06% | 42.71% |
+| 15 | Lopunny Vileplume | 27.97% | 27.97% |
+| 16 | Absol Garbodor | 26.01% | 26.01% |
+| 17 | Raichu Electrode Combo | 39.14% | 39.14% |
+| 18 | Regidrago | 48.75% | 48.75% |
+| 19 | Raging Bolt | 33.41% | 33.41% |
+| 20 | Regidrago | 30.87% | 30.87% |
+| 21 | Regidrago | 32.06% | 42.71% |
+| 22 | Absol Garbodor | 22.83% | 22.83% |
+| 24 | Iron Thorns | 27.97% | 27.97% |
+| 26 | Meloetta Donk | 15.00% | 27.97% |
+| 27 | Regidrago | 41.68% | 41.68% |
+| 29 | Iron Thorns | 39.14% | 39.14% |
+| 30 | Lillie's Clefairy | 43.95% | 43.95% |
+| 31 | Dusknoir Chimecho | 15.00% | 15.00% |
+| 32 | Regidrago | 30.87% | 41.68% |
+
+Ranks 23, 25, and 28 remain missing and are not imputed. The nine known Regidrago lists are therefore not the complete Regidrago portion of the Top 32.
+
+### Interpretation for the fixed-60 decision
+
+The raw presence counts are 48 Guzma copies in 25 lists, 11 Escape Rope in 7 lists, 10 Counter Catcher in 7 lists, and 3 Prime Catcher in 3 lists. Those counts establish broad potential access, not immediate access in a particular response window. The exact access calculation materially narrows the inference: among the 29 published lists, only about one-third have one of the modeled Trainer displacement lines in the first nine cards observed under the stated assumptions.
+
+This supports treating Wobbuffet as a meaningful potential control window rather than assuming that list-level Guzma prevalence immediately removes it. It does **not** prove a persistent lock. The model does not evaluate whether the opponent actually spends a Supporter, whether the line is strategically correct, whether Wobbuffet can be re-established, or whether a separate Ability counter-lock (notably Tool-live Garbotoxin or Active Klefki) neutralizes Bide Barricade. Those remain distinct matchup questions.
+
+**Disposition:** keep Lockbridge as an unranked structural challenger; do not promote it or alter the fixed 60 from this access prior alone. The next admissible comparison remains the full Lockbridge package against Hood Shield under the same competent frozen policies, once the policy/game gate is separately authorized. No deck, policy, fixture, workflow, or game was changed or dispatched for this analysis.
