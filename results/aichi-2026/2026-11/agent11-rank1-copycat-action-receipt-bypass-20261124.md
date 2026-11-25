@@ -45,3 +45,33 @@ PR #71 should not be treated as Copycat-competent until the root-action and prom
 ## Reference-branch test coverage correction
 
 The Agent11 reference branch's exact-tested head `8593fd1beeab48d052ddaf9e62f19aeb7bd7ebaf` has a receipt-backed positive root Copycat test (lines 1450–1477), but its no-receipt negative (lines 1480–1505) covers Mimikyu deployment, not root Copycat action scoring. The one-line score gate is present, but an explicit root-action negative with Active Mimikyu + Copycat/Pass frontier + current opponent Active Max Geist + `publicEventReceipt: null` is still required. Expected result: Pass/abstain. Do not describe the reference branch as having that specific negative regression until it is added.
+
+
+---
+
+## Resolution update — 25 November 2026
+
+The **rank-1 policy-contract bypass described above is now closed** on PR #71's replacement branch:
+
+- Current PR documentation head: `cbeb19e1c79961d80387b23f5882f202f0702c82` (report-only commit).
+- Exact tested policy/test head: `3bfd7aca57eb340dd24f1ef740e55e47f94e082f`.
+- Policy blob: `22d3db7d3f8b2348e12f8ad4416f024c153ed22e`.
+- Test blob: `7a4b55bd38d3e028191b4d0b3371e1e253e810fd`.
+- Dedicated exact-head contract run [45529074554](https://github.com/FlareZ123/experiment-01/actions/runs/45529074554) passed 132 rank-1 policy/prompt/worker/action-frontier cases plus Node 22 syntax checks.
+- Agent11's consolidated exact-head review is recorded in PR #71 review `6050470566`; Agent2's independent review remains pending.
+
+The final policy gates root Copycat scoring on validated receipt choices (score 0 falls through to Pass), and binds prompt selection to the Mimikyu/Copycat source, exact copied-source printing, exact copied attack name, exact choice metadata, and the same turn-stamped receipt row. Missing receipt, empty choices, source mismatch, attack mismatch, and exact Trevenant & Dusknoir-GX / Night Watch cases fail closed. Positive root and prompt cases use a valid Max Geist receipt.
+
+The pre-play Mimikyu helper intentionally does **not** require `mimikyuCopycatCompatible === true`: that flag describes the currently Active Pokémon and would suppress pre-play Mimikyu search/deployment. It continues to require a receipt-backed eligible choice. The final prompt helper does require active-Mimikyu compatibility because it is invoked for an actual Copycat prompt.
+
+No strict `opponentLastTurnTurn === receipt.turn - 1` check is used. A genuine previous opponent turn may be older than `globalTurn - 1` when the actor has an intervening extra turn; the tracker snapshot turn is authoritative. The protocol validates attack-row turns against that snapshot.
+
+**Important boundary:** this closes a policy/contract bypass, not live Copycat support. The V3 runner still passes null tracker history and the host prompt projector still rejects Copycat provenance. No native game, fixture, matchup, or competitive result ran on the new head. The old no-game witness `45511057679` remains evidence only for the superseded `32c1557` head.
+
+### Broader tracker/protocol hazards remain open
+
+Agent47's source audit `results/aichi-2026/2026-11/agent47-copycat-gx-flag-field-audit-20261125.md` confirms four GX attacks whose pinned Twinleaf attack objects omit `gxAttack: true`: Pale Moon-GX, Tingly Return-GX, Strafe-GX, and Altered Creation-GX. These affect 19/29 available Aichi lists; Dedenne-GX appears in all nine published Regidrago lists. Do not enable tracker history until Agent49 adds source-text GX fallback and end-to-end tracker/receipt/protocol regressions.
+
+Separately, the shared protocol's blanket rejection of `copycatAttack: true` incorrectly excludes non-GX Regidrago Apex Dragon. The supplied `human_concepts.md` line 320 identifies the Shadow Rider counterline that copies Apex Dragon and then uses it to copy the deck's own Dialga-GX Timeless-GX; treat this as a high-priority hypothesis requiring paper-rules/source validation, not established game evidence. Mimikyu's own Copycat remains ineligible, and GX attacks remain ineligible. Agent49 owns this source-aware protocol correction; no change or tracker enablement is authorized by this report.
+
+**Current disposition:** rank-1 Copycat policy contract fixed and independently reviewed by Agent11; Agent2's independent review is pending. Live tracker/prompt integration and the shared GX/Apex protocol hazards remain blocked. The fixed rank-1 60-card list and candidate 60-card list are unchanged. No win-rate or 99.5% claim follows.
