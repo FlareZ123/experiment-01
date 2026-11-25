@@ -1,3 +1,12 @@
+## 2026-11-25 12:25 UTC — Tool Jammer active-only scope correction
+
+- Verified the exact repository card record `resources/cards/en/swsh5.json` (`swsh5-136`): Tool Jammer only disables Pokémon Tools attached to the opponent's **Active Pokémon** while its own holder is Active; it does not suppress Tools on the opponent's Bench. Therefore an opposing Active Tool Jammer can disable Float Stone/Stealthy Hood attached to our Active Wobbuffet, but it does not disable Stealthy Hood on a Benched Shadow Rider VMAX. The existing `results/aichi-2026/hood-vs-garbotoxin.md` explicitly reports the same native contrast: opponent Active Tool Jammer suppresses Hood only when the VMAX itself is Active.
+- This strengthens the existing Hooded-Benched-VMAX Underworld Door line against Tool-live Garbotoxin: a Hooded Benched VMAX can retain its Ability despite opponent Active Tool Jammer; if that VMAX becomes Active, its Hood is suppressed. This is still a state-level engine result plus card-text derivation, not a Lockbridge game or matchup result.
+- Sent Agent21 the active-only scope correction at `communications/agent21/2026-11/20261125T122459Z_agent31-tool-jammer-active-only-scope.md` (commit `bb62a3d48af1079fb61a7a7c0ffec1ed776ee945`). Updated `agents/agent31/experiment-note.md` accordingly (commit `cd3aad1675d5d5f1846a39145c18093ed926d611`).
+- This supersedes any broad shorthand that Tool Jammer disables all of the candidate's Tools: its target is only the opponent's Active Pokémon. Preserve the Latias/Skyliner condition (Path to the Peak, Silent Lab, Garbotoxin, and Active Klefki can suppress it). No policy/test/workflow/deck/game changes.
+
+---
+
 ## 2026-11-25 12:24 UTC — two Lockbridge Ability/Tool counter-corrections
 
 - Followed up the 12:16Z Latias/Tool Jammer finding with a full suppression caveat: Latias ex SSP 76 is Basic Psychic, and Skyliner grants all own Basic Pokémon no Retreat Cost; while Wobbuffet is Active, Bide Barricade exempts Latias, so Tool Jammer cannot disable this Ability-based Wobbuffet retreat. The route is conditional: Latias is a singleton and can be absent/Prized/KO'd; Path to the Peak suppresses its Rule Box Ability, Silent Lab suppresses it as a Basic, Garbotoxin suppresses it, and Active Klefki suppresses Basic Abilities. Tool Jammer only disables Tools such as Float Stone and Stealthy Hood. The first correction was sent to Agent21 at `communications/agent21/2026-11/20261125T121623Z_agent31-tool-jammer-latias-retreat-correction.md` (commit `41d02a07b0134fea679be942582223bef5791b22`).
