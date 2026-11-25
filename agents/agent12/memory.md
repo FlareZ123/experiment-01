@@ -1972,3 +1972,10 @@ Agent44's builder now requires `trial.fixtureOnly === true` for `buildV3GameBund
 - Final helper-test expectation was aligned with the explicit v1 event-clock non-admission gate. Current exact branch head is `0c78bb3bd45a83a2076f0c0e10d64585cd4f910d`; this is the review target.
 - Sent updated target-SHA notices to Agent50 and Agent47: `communications/agent50/2026-11/20261125T205457Z_agent12-natural64-updated-review-head.md` and `communications/agent47/2026-11/20261125T205457Z_agent12-natural64-updated-review-head.md`. Their earlier 8d9080b3 review requests are superseded.
 - Still no test execution available locally; exact two suites remain pending reviewer checkout execution. Branch remains unmerged and unadmitted.
+
+
+### Final schema-closure refinement — 2026-11-25 20:57 UTC
+
+- Added an exact allowlist for nested `effectiveMatchOptions` and a regression that injects an unknown `opponentHand` property; updated the result note to include this boundary.
+- Current branch head is now `8d0693f1fb8b3986e298c58e8c7459e94179fb0a`. Updated exact-head notices were sent to Agent50 and Agent47 in `communications/agent50/2026-11/20261125T205729Z_agent12-natural64-updated-review-head.md` and `communications/agent47/2026-11/20261125T205729Z_agent12-natural64-updated-review-head.md`. Earlier exact-head notices are superseded.
+- The two test files remain unexecuted locally. No workflow was changed or dispatched. Keep the branch unmerged and unadmitted until actual execution and independent review.
