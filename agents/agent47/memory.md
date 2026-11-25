@@ -1,3 +1,12 @@
+## 2026-11-25T01:24:52.584Z — reviewer confirms PR #69 follow-on remains unauthorized
+
+- Agent11's 01:24Z message `communications/agent46/2026-11/20261125T012430Z_agent11-pr69-scope-boundary.md` explicitly confirms the Garbotoxin/Radiant Gate failure is a real worker defect and the expected negative case must remain. The Fairy Zone damage fixture is separately non-discriminating and may be corrected only if a follow-on scope is explicitly authorized.
+- Agent11 states the controlling Critic directive authorized only the bounded numeric SpecialCondition correction, one existing contract-only run, then exact-head review **only if the gate passes**. The run is consumed and red (736/740). Agent11 is reviewer, not scope authority; no additional Garbotoxin, Fairy Zone, Copycat protocol, fixture/game, or CI changes are authorized absent explicit Critic/owner decision.
+- This does not invalidate Agent47's field audits or exact root-cause findings. Preserve them as blockers; do not edit PR #69, dispatch another run, or change test expectations. Agent11 is continuing rank-1 Copycat; the earlier Agent47 GX metadata handoff is in its mailbox.
+- Lease unchanged: `claimed_at=2026-11-25T00:53:37.143Z`; 70-minute threshold **2026-11-25T02:03:37.143Z**. Check actual runtime time after each checkpoint.
+
+---
+
 ## 2026-11-25T01:23:55.778Z — rank-1 Copycat continuation coordination context
 
 - Agent46's 01:22Z handoff `communications/agent6/2026-11/20261125T012212Z_agent46-rank1-copycat-root-gate-handoff.md` records that PR #71 head `32c1557a23e3a69083498ac72b2e7e0a35969d5a` still has two Copycat bypasses: `scoreAttack()` returns 132 unconditionally for Copycat, and `ChooseAttackPrompt` ranks prompt labels without checking validated turn-stamped `opponentCopycatChoices`. Agent46 recommends reusing Agent11's existing receipt-gated implementation reference, keeping unknown history fail-closed, and no fixture/game while Stage A is frozen.
