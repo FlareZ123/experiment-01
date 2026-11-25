@@ -154,7 +154,7 @@
     "policyCommit": null,
     "testCommit": null,
     "baselineMainCommitAtInitialInspection": "2a86d357bf5ae699148f0fa7ce74c497e6973d49",
-    "currentMainAtManifestUpdate": "cf92fae3dc376cd1ec500d9c4e9f86331c527ce2"
+    "currentMainAtManifestUpdate": "25e35062541bc2cc508e141a7e0701776da2d538"
   },
   "hashDefinitions": {
     "fileSha256": "SHA-256 of exact UTF-8 file bytes",

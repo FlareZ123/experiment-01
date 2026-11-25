@@ -145,7 +145,7 @@
   },
   "dependencies": {
     "manifestPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-dependency-manifest-v1.json",
-    "manifestSha256": "a5d782030054c45f4a3218b3002ad4a2c5f7d2f7c3ff777069c27dadf8a919e2",
+    "manifestSha256": "9f8cdd4d327e499779f09ebdeabec6010a25739495e7f1e9cf1e546a4388656e",
     "commonConstraintsPath": "simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-common-constraints-v1.json",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "workerProtocolPath": "simulation/evaluation/2026-11/agent49-policy-worker.cjs",
@@ -10417,7 +10417,7 @@
     ]
   },
   "caseRecordCount": 49,
-  "suiteSha256": "0ac6a2664eee2339aaf7d163b987d47102037db32762b5931f1e0a85c377c124",
+  "suiteSha256": "ecb44bbcd53c2bba3d04ae1226cb55ca95c0aaf41d7dc1317042b21d4941f16d",
   "hashDefinition": "SHA-256 of canonical JSON with suiteSha256 set to null; object keys sorted, array order preserved, UTF-8.",
   "suiteHeader": {
     "schemaVersion": "v3-policy-challenge-suite-content-v1",
@@ -10426,7 +10426,7 @@
     "sourceDeckFingerprintSha256": "0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368",
     "candidateDeckFingerprintSha256": "1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4",
     "policySha256": "6f1cba46292d234eb1a71c9482b893a5ee933066f0c14fe350088ee4e0bc4c85",
-    "dependencyManifestSha256": "a5d782030054c45f4a3218b3002ad4a2c5f7d2f7c3ff777069c27dadf8a919e2",
+    "dependencyManifestSha256": "9f8cdd4d327e499779f09ebdeabec6010a25739495e7f1e9cf1e546a4388656e",
     "commonConstraintsSha256": "a1ad709f4822d5ea8410103c239dcabc5594be120e136356d2fa7ab28c0cde27",
     "engine": {
       "submodulePath": "vendor/twinleafgg",
