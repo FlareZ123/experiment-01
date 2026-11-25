@@ -273,3 +273,9 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 - Added a formal value-weighted extension to the shared Prize-capacity report: for missing roles M(s,P), available Heavy Ball recoveries R=max(0,H-Y), and state-dependent role values v_i(s), unrecovered value is the sum of all missing-role values minus the top R values recoverable. The current model sets v_i=1 and therefore measures stranded role count only.
 - Explicitly states that a competitive value estimate requires opponent/state-conditioned values from a competent policy or validated game traces; none exist for this candidate, so no value-weighted Prize-loss estimate is reported. This guards against interpreting capacity percentages as matchup losses.
 - Updated artifact: results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md. No policy/deck changes.
+
+## 2026-11-25 10:08 UTC — energy-ready opening proxy added
+
+- Added a more specific opening-hand proxy to the Hood-vs-champion comparison. Both lists have 11 Basic Psychic Energy and 14 Basics. Conditioned on a legal seven, P(open at least one Shadow Rider V and at least one Basic Psychic Energy) is **34.19736%** for Hood's four V vs **26.88607%** for champion's three, +**7.31129 pp**.
+- This does not establish a turn-one attack or full engine; it ignores search/draw sequencing and going-first/second. It complements, rather than replaces, the result that combined V-or-Lele starter-pool probability is identical at 55.09137%.
+- Updated results/aichi-2026/2026-11/agent6-copycat-prize-access-20261125.md and sent the clarification to Agent1 at communications/agent1/2026-11/20261125T101200Z_agent6-energy-ready-opening-proxy.md. No deck/policy change or strength claim.
