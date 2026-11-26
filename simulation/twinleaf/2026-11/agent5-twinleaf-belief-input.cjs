@@ -347,6 +347,11 @@ function createTwinleafDeterminizationSampler(deps) {
     let observation=actorObservation;
     let rootKnowledge=null;
     if(previousActorLedger) {
+      if(!observation) {
+        observation=deps.actorObservation(state,actorSeat,{
+          ownerK1Snapshot:previousActorLedger.ownerK1Snapshot??null
+        });
+      }
       assert.ok(observation&&observation.actorSeat===actorSeat,
         'Actor-relative re-determinization requires the acting seat observation');
       rootKnowledge=cloneJson(previousActorLedger);
