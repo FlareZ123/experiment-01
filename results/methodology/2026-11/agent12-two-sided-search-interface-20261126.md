@@ -50,7 +50,7 @@ The contract tests are appended to the existing MCTS suites:
   - exercises a player-owned prompt as a search node;
   - checks the actor-relative knowledge metadata contract.
 
-The first workflow dispatch exposed two fixture mistakes (the root prompt-frontier count and a duplicate test-only determinizer overriding its metadata-bearing sampler); both were corrected. The first MCTS contract run passed the new general-sum tests and all existing MCTS/belief tests, with the then-current generic adapter fixture failures. A subsequent run passed the corrected prompt-count assertion but exposed the duplicate determinizer; the fixture now retains the metadata-bearing sampler. The latest exact-head workflow result must be checked before treating these tests as passing.
+The first workflow dispatch exposed a prompt-frontier count expectation error; the next exposed a duplicate test-only determinizer overriding its metadata-bearing sampler. Both fixture defects were corrected. Exact-head run **45735503362** on branch head **5fbf2e0a5016ac87f2109737386059ca2ac1ca65** completed with the workflow step **“Information-set MCTS core, belief, adapter, Flittle, and Aichi bridge contract tests” successful**. The overall workflow job was not green: a later, separate step, **“Generic owner-hand Trainer category and shared-action opportunity tests,”** failed three Wondrous Labyrinth assertions in tests/agent8-wondrous-energy-cost-regression.test.cjs. Thus the MCTS/general-sum/generic-adapter contract step passed on the exact head; the broader workflow has an unrelated failure and must not be represented as green.
 
 ## Integration contract
 
