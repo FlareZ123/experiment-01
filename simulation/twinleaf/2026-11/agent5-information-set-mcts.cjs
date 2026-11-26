@@ -217,10 +217,6 @@ function validateWinProbabilityVector(values, label = 'Win-probability value') {
 }
 
 /**
- * Each decision node maximizes its own seat's win probability. This is
- * intentionally general-sum: draws/nonwins are zero for both players.
- */
-/**
  * Terminal states are realized outcomes, not probabilistic forecasts. The
  * caller must classify a real seat win or an explicitly adjudicated draw;
  * unresolved/NONE/invalid/aborted terminals must throw before reaching here.
@@ -237,6 +233,10 @@ function validateTerminalWinProbabilityVector(values, label = 'Terminal values')
   return normalized;
 }
 
+/**
+ * Each decision node maximizes its own seat's win probability. This is
+ * intentionally general-sum: draws/nonwins are zero for both players.
+ */
 function backpropagateWinProbabilities(path, values) {
   for (let i = path.length - 1; i >= 0; i--) {
     const step = path[i];
@@ -267,7 +267,7 @@ function backpropagateWinProbabilities(path, values) {
  * @param {'zero-sum'|'seat-win-probability'} [config.valueMode='zero-sum']
  * @param {(state:object,seat:0|1)=>number} [config.terminalValue] Legacy zero-sum terminal utility.
  * @param {(observation:object,seat:0|1)=>number} [config.evaluateObservation] Legacy zero-sum value.
- * @param {(state:object)=>[number,number]} [config.terminalValues] Per-seat win probabilities; adjudicated draws are [0,0], while unresolved/invalid terminal classes must be explicitly adjudicated or rejected.
+ * @param {(state:object)=>[number,number]} [config.terminalValues] Exact realized outcomes only: [1,0], [0,1], or [0,0] for a documented adjudicated draw; throw for unresolved/invalid terminal classes.
  * @param {(observation:object,seat:0|1)=>[number,number]} [config.evaluateObservationValues] Actor-view-only per-seat win probabilities; sum must not exceed one.
  * @param {(action:object,observation:object,seat:0|1)=>number} [config.actionPrior]
  * @param {number} [config.iterations=128]
