@@ -2083,6 +2083,7 @@ test('Radiant Eternatus Climactic Gate is a terminal play after non-ending setup
     ownHand: ['Radiant Eternatus PR-SW 134', 'Psychic Energy SVE 13']
   });
   const req = request(0, view, {
+    receipt: underworldReceipt(0, view, { activeUsed: false }),
     actions: [
       {
         token: 'radiant',
