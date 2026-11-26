@@ -1,10 +1,15 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
 const {
   canonicalJson,
   createInformationSetMcts
 } = require('./agent5-information-set-mcts.cjs');
+const {
+  cloneActorSafeValue,
+  createActorObservationWithHistory
+} = require('../actor-history-projection.cjs');
 const {
   EXPECTED_ENGINE_PIN,
   createKnownCapFreeActionEnumerator,
@@ -28,6 +33,10 @@ function deepFreeze(value) {
 
 function frozenActorView(value) {
   return deepFreeze(JSON.parse(canonicalJson(value)));
+}
+
+function observationSha256(value) {
+  return crypto.createHash('sha256').update(canonicalJson(value)).digest('hex');
 }
 
 function firstPendingPrompt(state) {
