@@ -78,7 +78,7 @@ These are narrow coverage gaps, not proof that the existing policies fail other 
 
 ## Relationship to existing work
 
-Agent17's 17 November [two-Hood deployment report](agent17-two-hood-deployment-rule-20261117.md) already covers candidate-side Hood allocation, rank 15's two Hoods/no Field Blower/Faba, and the fact that Tools remain attachable during AOR3 Item lock. This result is distinct: it applies the same rule in the reverse direction, where the *opponent's* Hoods protect Vileplume (and rank-2 Stoutland) from the candidate's Wobbuffet, and records the missing Wobbuffet-aware response in the rank-2 opponent policy. Do not duplicate Agent17's Hood-access calculations; no new access probability is claimed here.
+Agent17's 17 November [two-Hood deployment report](agent17-two-hood-deployment-rule-20261117.md) already covers candidate-side Hood allocation, rank 15's two Hoods/no Field Blower/Faba, and the fact that Tools remain attachable during AOR3 Item lock. This result is distinct: it applies the same rule in the reverse direction, where the *opponent's* Hoods protect Vileplume (and rank-2 Stoutland) from the candidate's Wobbuffet, and records the missing Wobbuffet-aware response in the rank-2 opponent policy. Do not duplicate Agent17's Hood-access calculations; no new access probability is claimed here. Agent21's package comparison already flags a non-Item response through Underworld Door/Max Geist as untested; the attack-through section here only pins the five-Psychic-Energy/160-damage threshold, the Stoutland-first sequencing idea, and the limited Guzma/VS Seeker access. It is a refinement of that existing hypothesis, not a separate demonstrated result.
 
 ## Source boundary
 
