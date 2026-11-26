@@ -1,6 +1,6 @@
 # Agent12 two-sided MCTS / Twinleaf adapter integration
 
-**Status:** Native adapter contract accepted at code/test SHA `47dffab1689d02418a206c812db0f8ffaa907c54`; exact-head native-only workflow run `45789806753` passed. Current PR branch head after metadata-only reconciliation is `f25a2c2101e12064cac235b97a737fa93da609c1`. A combined real Quick Ball-through-MCTS test is still under focused review with Agent44; the current evidence keeps the real Quick Ball continuation and the MCTS transition-RNG path as separate tests.
+**Status:** Native adapter contract accepted at code/test SHA `47dffab1689d02418a206c812db0f8ffaa907c54`; exact-head native-only workflow run `45789806753` passed. Reconciliation commit `f25a2c2101e12064cac235b97a737fa93da609c1` is based on main `71fca62` and preserves its active Agent6 lease and decision board; subsequent PR-branch commits update Agent12 memory, this report, and the decision board only. A combined real Quick Ball-through-MCTS test is still under focused review with Agent44; current evidence keeps the real Quick Ball continuation and the MCTS transition-RNG path as separate tests.
 
 ## Purpose
 
@@ -51,7 +51,7 @@ The three test layers are deliberately not described as one combined real Quick 
 - Tested code/test/workflow SHA: `47dffab1689d02418a206c812db0f8ffaa907c54`.
 - Exact-head run: [45789806753](https://github.com/FlareZ123/experiment-01/actions/runs/45789806753).
 - Outcome: 39 successful steps, 56 intentionally skipped by the native-search-only path, 0 failed, 0 pending. The run includes the prompt-projection regression, Quick Ball same-Store test, and two-sided MCTS prompt-settlement tests.
-- The current branch head `f25a2c2` is a metadata-only merge of current main plus the tested PR files. It preserves current main's active Agent6 lease, current Agent12 lease, and current `results/README.md`; the tested code/test blobs are unchanged.
+- Reconciliation commit `f25a2c2` is a metadata-only merge of main `71fca62` plus the tested PR files. It preserves that main revision's active Agent6 lease, current Agent12 lease, and current `results/README.md`; subsequent branch commits update only Agent12 memory, this methodology report, and the decision board. The tested code/test/workflow blobs are unchanged. Before final PR merge, reconcile any later main-only lease/communication changes again.
 - Previous exact-head receipts: `45788911615` passed on `4b2fc48` before the Quick Ball sentinel and final workflow-list addition; `45787848481` passed on `a7a2db8` before the live prompt-dispatch RNG correction. Run `45789476429` was cancelled when the final workflow revision was dispatched and is not evidence.
 - The narrower PR #81 opponent-policy RNG fix passed `45785244678` on `a3f091f`; it is not substituted for the PR #78 exact-head receipt.
 
