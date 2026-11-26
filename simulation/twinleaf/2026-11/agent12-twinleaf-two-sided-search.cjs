@@ -187,12 +187,10 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
   let latestHistoryMetadata = null;
   const nativePayloadByAction = new WeakMap();
   const promptChoicesByProjection = new Map();
-  const hostPromptValidationHookIds = new Set();
   const counters = {
     nativeFrontiers: 0,
     promptFrontiers: 0,
     automaticPromptResolutions: 0,
-    hostPromptValidationHooks: 0,
     nativeTransitions: 0,
     promptTransitions: 0,
     playerPromptSubcalls: 0,
@@ -638,7 +636,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     });
     const admission = assertKnownCapFreeAdapterAdmissionClear({
       enumerator,
-      enginePin: deps.enginePin,
+      enginePin,
       frontierDiagnostics: result.diagnostics
     });
     counters.nativeFrontiers += 1;
@@ -853,18 +851,16 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     latestRootHistoryPrefixDigest = null;
     for (const key of Object.keys(counters)) counters[key] = 0;
     promptChoicesByProjection.clear();
-    hostPromptValidationHookIds.clear();
   }
 
   function audit() {
     return {
-      schema: 'agent12-twinleaf-two-sided-search-adapter-v3',
+      schema: 'agent12-twinleaf-two-sided-search-adapter-v2',
       enginePin: deps.enginePin,
       rulesProfileId: deps.rulesProfileId,
       terminalOutcomeProtocolId: deps.terminalOutcomeProtocolId,
       promptEventSchemaId: PROMPT_EVENT_SCHEMA_ID,
       promptRandomProtocolId: PROMPT_RANDOM_PROTOCOL_ID,
-      hostPromptValidationHookIds: [...hostPromptValidationHookIds].sort(),
       maxPliesSemantics: 'stable-native-action-transitions-v1',
       maxPromptResolutions,
       candidateDecklistId: deps.ownDecklistId ?? null,
@@ -931,6 +927,11 @@ function createNativeTwinleafPromptCallbacks({
   mapSourceCard = null
 } = {}) {
   assert.ok(native && typeof native.Simulator === 'function');
+  if (enginePin !== null) {
+    assert.equal(enginePin, EXPECTED_ENGINE_PIN,
+      'Prompt callback validation hooks require the reviewed pinned Twinleaf revision');
+  }
+  const hostPromptValidationHookIds = new Set();
   assert.ok(['same-store-subcall', 'synthetic-search-node'].includes(mode));
   assert.equal(typeof provenanceForPrompt, 'function');
   if (mapSourceCard !== null) assert.equal(typeof mapSourceCard, 'function');
@@ -1134,7 +1135,6 @@ function createNativeTwinleafPromptCallbacks({
       dispatch: false
     });
     if (resolved.summary.validationHookId) {
-      counters.hostPromptValidationHooks += 1;
       hostPromptValidationHookIds.add(resolved.summary.validationHookId);
     }
     return resolved.decoded;
@@ -1149,12 +1149,22 @@ function createNativeTwinleafPromptCallbacks({
     return Object.freeze({
       ...common,
       promptSubPolicyId,
-      resolvePlayerPrompt
+      resolvePlayerPrompt,
+      audit: () => ({
+        schema: 'agent12-native-twinleaf-prompt-callbacks-v1',
+        enginePin,
+        hostPromptValidationHookIds: [...hostPromptValidationHookIds].sort()
+      })
     });
   }
   return Object.freeze({
     ...common,
-    projectPrompt
+    projectPrompt,
+    audit: () => ({
+      schema: 'agent12-native-twinleaf-prompt-callbacks-v1',
+      enginePin,
+      hostPromptValidationHookIds: [...hostPromptValidationHookIds].sort()
+    })
   });
 }
 
