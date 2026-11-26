@@ -1305,10 +1305,10 @@ function discardValue(view, printing) {
       duplicates > 1) return 10;
   if (duplicates > 1 && !hasAnyName(printing, CORE_PRINTINGS)) return 15;
   // Keep a Basic Pokémon if the same policy currently scores its bench play.
-  const liveBasicPlay = scoreBasicPlay({
+  const liveBasicPlay = hasOpenBench(view) ? scoreBasicPlay({
     actorPrinting: printing,
     publicMetadata: { targetSeat: 'actor', targetZone: 'bench' }
-  }, view);
+  }, view) : -Infinity;
   if (Number.isFinite(liveBasicPlay) && liveBasicPlay > 0) {
     return Math.max(81, liveBasicPlay);
   }

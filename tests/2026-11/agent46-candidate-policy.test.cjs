@@ -922,6 +922,31 @@ test('the final Psychic Energy is retained at the maximum reachable attached cou
   assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-0'] });
 });
 
+test('a full Bench does not preserve a Girafarig that cannot be played now', () => {
+  const active = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE',
+    name: 'Shadow Rider Calyrex VMAX', hp: 320,
+    subtypes: ['VMAX'], energies: Array(5).fill('Psychic Energy SVE')
+  });
+  const fullBench = Array.from({ length: 5 }, (_, index) => pokemon({
+    printing: `Bench filler ${index}`, name: `Bench filler ${index}`
+  }));
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT', name: 'Regidrago VSTAR',
+    hp: 280, types: ['Dragon'], subtypes: ['VSTAR']
+  });
+  const view = observation(0, {
+    active, bench: fullBench, opponentActive: regidrago,
+    ownHand: ['Girafarig LOT 94', 'Psychic Energy SVE'],
+    globalTurn: 3
+  });
+  const req = cardPrompt(0, view, {
+    sourceZone: 'hand', printings: view.ownHand,
+    minimumCount: 1, maximumCount: 1
+  });
+  assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-0'] });
+});
+
 test('live Regidrago Girafarig play is preserved ahead of Psychic Energy', () => {
   const ownVmax = pokemon({
     printing: 'Shadow Rider Calyrex VMAX CRE',
