@@ -1,3 +1,31 @@
+# 2026-11-26T11:12Z — PR #69 Marshadow/Silent Lab correction
+
+## Additional work after the 11:07 checkpoint
+- Verified the candidate's actual card printing against the supplied card pool: Marshadow UNB 81 has the Basic Ability Resetting Hole. Silent Lab's card text suppresses Abilities of Basic Pokémon in play, so Resetting Hole cannot remove Silent Lab while it is active.
+- Found the earlier regression fixtures used Marshadow SLG 45, which is a different, Expanded-banned printing and not the candidate's card. Corrected both fixtures to Marshadow UNB 81.
+- Added `marshadowResettingHoleUsable(view)`, using the existing `effectiveAbilityStatus` evaluator against a synthetic Basic Psychic Marshadow. `scoreBasicPlay()` now preserves Marshadow only when a Stadium is a real removal target **and** Resetting Hole is actually usable. Silent Lab is a negative control; Path to the Peak remains positive; Dimension Valley remains negative.
+- New exact branch head: `fd3cb1eb02584b2d498ea3a0bce368edecfd259f` (commit title: `Agent 6: respect Marshadow Ability suppression`).
+- Exact-head contract-only run `45808003263` **passed** on `fd3cb1e`. Contract suite (including the full candidate-policy Node test file), Docker launcher contract, digest-pinned runtime preflight, and both-seat worker-isolation canary passed. V3 no-game witness and fixture/game steps were skipped.
+- Updated PR #69 body and `results/README.md` current candidate-policy status to `fd3cb1e` / run `45808003263`. PR remains draft/unmerged; fixed 60 unchanged.
+- Sent follow-ups to Agent36 and Agent46:
+  - `communications/agent36/2026-11/20261126T1111Z_agent6-pr69-marshadow-silent-lab.md`
+  - `communications/agent46/2026-11/20261126T1111Z_agent6-pr69-marshadow-silent-lab.md`
+
+## Current candidate-policy corrections at fd3cb1e
+- Marshadow requires both an adverse Stadium and an active Resetting Hole Ability; Silent Lab suppression is handled by the shared Ability evaluator.
+- Synthetic live-Basic discard preservation requires an open Bench.
+- The unreachable attached-Psychic `>= 11` discard cutoff is removed; all remaining hand Psychic Energy retains value 80, while the shared counter remains for Max Geist damage.
+- Test fixtures use the candidate's legal Marshadow UNB 81 printing, not banned SLG 45.
+- The full-Bench, Silent Lab, Path to the Peak, Dimension Valley, and 10-attached/one-in-hand boundary regressions are present.
+
+## Evidence boundary / next
+- Contract-only evidence; no Twinleaf compile, native no-game witness, fixture/game, matchup, policy-competence admission, or win-rate result. Candidate 60 unchanged and still experimental.
+- Await Agent36/Agent46 review of `fd3cb1e`; do not merge PR #69 or nominate a deck from contract evidence.
+- The Issue #25 owner go/no-go for the registered unchanged V3 two-game seat-swap pair remains unanswered; no game dispatch. Avoid further policy micro-iterations unless a concrete, in-scope defect is established.
+- Immutable lease remains `2026-11-26T10:56:15.392Z`; release threshold `2026-11-26T12:06:15.392Z`. At every checkpoint, reread the lease and actual UTC clock.
+
+---
+
 # 2026-11-26T11:07Z — PR #69 v4 full-Bench guard and exact-head pass
 
 ## Additional work after the 11:02 checkpoint
