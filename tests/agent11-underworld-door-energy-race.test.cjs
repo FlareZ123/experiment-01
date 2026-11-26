@@ -34,21 +34,30 @@ function permutations(items) {
 
 function bruteForce(options) {
   const { totalCardsAfterBoard, energyCountAfterBoard, handSize,
-    prizeCount, doorCounts, initialAttached, targetAttached } = options;
+    prizeCount, doorCounts, initialAttached, targetAttached,
+    guaranteedEnergySearchBeforeTurn2 = false } = options;
   const cards = Array.from({ length: totalCardsAfterBoard }, (_, i) =>
     i < energyCountAfterBoard - initialAttached);
-  const initialEnergy = initialAttached;
   const all = cards.map((_, i) => i);
-  let deals = 0;
-  let wins = 0;
+  let initialDeals = 0;
+  let successProbability = 0;
   for (const hand of combinations(all, handSize)) {
     const afterHand = all.filter(i => !hand.includes(i));
     for (const prizes of combinations(afterHand, prizeCount)) {
-      const deck = afterHand.filter(i => !prizes.includes(i));
-      for (const order of permutations(deck)) {
-        deals += 1;
-        let handEnergy = hand.filter(i => cards[i]).length;
-        let attached = initialEnergy;
+      let deck = afterHand.filter(i => !prizes.includes(i));
+      let startingHandEnergy = hand.filter(i => cards[i]).length;
+      if (guaranteedEnergySearchBeforeTurn2) {
+        const energyIndex = deck.findIndex(i => cards[i]);
+        if (energyIndex >= 0) {
+          deck = [...deck.slice(0, energyIndex), ...deck.slice(energyIndex + 1)];
+          startingHandEnergy += 1;
+        }
+      }
+      const orders = permutations(deck);
+      let winsForDeal = 0;
+      for (const order of orders) {
+        let handEnergy = startingHandEnergy;
+        let attached = initialAttached;
         let cursor = 0;
         for (const doors of doorCounts) {
           if (cursor < order.length && cards[order[cursor]]) handEnergy += 1;
@@ -67,11 +76,13 @@ function bruteForce(options) {
             attached += 1;
           }
         }
-        if (attached >= targetAttached) wins += 1;
+        if (attached >= targetAttached) winsForDeal += 1;
       }
+      initialDeals += 1;
+      successProbability += winsForDeal / orders.length;
     }
   }
-  return wins / deals;
+  return successProbability / initialDeals;
 }
 
 test('choose handles boundaries and symmetry', () => {
@@ -81,7 +92,7 @@ test('choose handles boundaries and symmetry', () => {
   assert.equal(choose(10, 11), 0);
 });
 
-test('small-deck DP matches exhaustive hand/Prize/deck-order enumeration', () => {
+test('small-deck DP matches exhaustive hand/Prize/deck-order enumeration, with and without tutor', () => {
   const options = {
     totalCardsAfterBoard: 10,
     energyCountAfterBoard: 3,
@@ -91,9 +102,15 @@ test('small-deck DP matches exhaustive hand/Prize/deck-order enumeration', () =>
     initialAttached: 0,
     targetAttached: 2
   };
-  const exact = exactUnderworldDoorEnergyRace(options).probabilityAtLeastTarget;
-  const brute = bruteForce(options);
-  assert.ok(Math.abs(exact - brute) < 1e-12, exact + ' vs ' + brute);
+  for (const tutor of [false, true]) {
+    const exact = exactUnderworldDoorEnergyRace({
+      ...options, guaranteedEnergySearchBeforeTurn2: tutor
+    }).probabilityAtLeastTarget;
+    const brute = bruteForce({
+      ...options, guaranteedEnergySearchBeforeTurn2: tutor
+    });
+    assert.ok(Math.abs(exact - brute) < 1e-12, exact + ' vs ' + brute);
+  }
 });
 
 test('the registered 11-Energy baseline reproduces the exact conditional result', () => {
@@ -120,6 +137,37 @@ test('more Energy, larger hand, more Door activations, and a starting attachment
   assert.ok(run({ handSize: 8 }) > base);
   assert.ok(run({ doorCounts: [3, 3] }) > base);
   assert.ok(run({ initialAttached: 1 }) > base);
+});
+
+test('conditional Forest Seal Stone Energy search moves one Energy from deck to hand', () => {
+  const options = {
+    totalCardsAfterBoard: 56,
+    energyCountAfterBoard: 11,
+    handSize: 5,
+    prizeCount: 6,
+    doorCounts: [2, 2],
+    initialAttached: 0
+  };
+  const withoutTutor = exactUnderworldDoorEnergyRace(options).probabilityAtLeastTarget;
+  const withTutor = exactUnderworldDoorEnergyRace({
+    ...options, guaranteedEnergySearchBeforeTurn2: true
+  }).probabilityAtLeastTarget;
+  assert.ok(Math.abs(withoutTutor - 0.06217622763093656) < 1e-12);
+  assert.ok(Math.abs(withTutor - 0.17864167090989147) < 1e-12);
+  assert.ok(withTutor > withoutTutor);
+});
+
+test('conditional Energy search still respects a pre-Gate attachment', () => {
+  const result = exactUnderworldDoorEnergyRace({
+    totalCardsAfterBoard: 56,
+    energyCountAfterBoard: 11,
+    handSize: 4,
+    initialAttached: 1,
+    guaranteedEnergySearchBeforeTurn2: true
+  });
+  assert.equal(result.config.unknownCards, 55);
+  assert.equal(result.config.unknownEnergy, 10);
+  assert.ok(Math.abs(result.probabilityAtLeastTarget - 0.239226411034665) < 1e-12);
 });
 
 test('the model rejects more than one pre-Gate attachment and non-two-turn schedules', () => {

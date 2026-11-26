@@ -52,6 +52,20 @@ The four-Door ceiling adds only 5.09 percentage points in the no-pre-Gate-attach
 
 In this narrow model, a twelfth Energy raises the five-Energy threshold rate by 3.65–4.02 percentage points across the two simple starting states. That is a measurable card-slot benefit, not a recommendation to add Energy: the displaced card's value across the other 31 opponents has not been evaluated.
 
+
+### Conditional Forest Seal Stone tutor
+
+The registered 60 contains one Forest Seal Stone (SIT 156). The pinned card pool, resources/cards/en/swsh12.json, marks it Expanded Legal and gives the attached Pokémon V the Star Alchemy VSTAR Power: search the deck for any card and put it into hand. This creates a real Energy-access route, but only when the Tool is already attached to a Pokémon V, the VSTAR Power remains unused, and no Ability lock prevents it.
+
+The sensitivity below conditions on Forest Seal Stone already being in play and usable. The Stone is removed from the post-Gate unknown population, leaving 56 cards after Radiant and the two VMAX are also out. Star Alchemy is modeled as moving one Psychic Energy from deck to hand before the turn-two draw, if an Energy remains in deck. It does not create Energy.
+
+| Conditional FSS state | Without Star Alchemy Energy search | With one Energy search | Four-Door ceiling with search |
+|---|---:|---:|---:|
+| H=5, A=0 | 6.22% | **17.86%** | 26.12% |
+| H=4, A=1 | 8.22% | **23.92%** | 31.46% |
+
+The tutor materially improves this narrow line, but these are conditional probabilities, not the chance of drawing/attaching Forest Seal Stone. The model does not account for the one-Tool-per-Pokémon constraint, the Bench needed to host the Stone separately from Stealthy Hood, the VSTAR Power's competing uses, or Ability-lock exposure. It is not a recommendation to spend Star Alchemy on Energy in every game.
+
 ## Interpretation
 
 The candidate's five-Energy Max Geist line should not be treated as an early deterministic Regidrago answer merely because four VMAX can theoretically produce four Underworld Door attachments. Even after conditioning on the Radiant-plus-two-VMAX board, the 11-Energy list reaches five total attachments only 8.10–10.66% of the time in the two-Door baseline for the simple turn-one hand states above. The four-Door ceiling reaches 13.19–15.01%.
@@ -67,7 +81,7 @@ It conditions on Radiant Eternatus and two VMAX already being in play. It does n
 - the Active/Bench allocation needed to make a VMAX attack-ready, or the two/three Psychic Energy needed on that specific attacker;
 - Parallel City, Sky Field, Bench-slot contention, the Active Spot, or the switch/retreat route from the Gate turn;
 - Ability lock, Stealthy Hood, Tool removal, Stadium changes, or Energy denial;
-- Lillie's Determination, Iono, Tapu Lele-GX, Forest Seal Stone, search effects, or other draw engines;
+- Lillie's Determination, Iono, Tapu Lele-GX, or other draw engines. Forest Seal Stone is modeled only in the separate conditional-tutor sensitivity above;
 - Quick Ball discard costs, Energy recovery, Supporter contention, Prize knowledge after a deck search, or opponent choices;
 - damage modifiers, Weakness prevention, or changes to the 280-HP target.
 
@@ -77,6 +91,6 @@ Those omitted effects can move the full-game probability in either direction. Th
 
 - Implementation: scripts/agent11-underworld-door-energy-race.cjs
 - Tests: tests/agent11-underworld-door-energy-race.test.cjs
-- Local Node v22.16.0 test result: 6/6 passed.
-- One test independently enumerates every hand, six-Prize selection, and ordered deck for a ten-card toy deck and matches the dynamic program to within 1e-12.
+- Local Node v22.16.0 test result: 8/8 passed.
+- The exhaustive small-deck test independently enumerates every hand, six-Prize selection, and ordered deck for a ten-card toy deck, with and without the tutor transition, and matches the dynamic program to within 1e-12.
 - The registered candidate 60, its policy, Twinleaf pin, workflows, fixtures, and game authorization were not changed. No CI or simulator game was run.

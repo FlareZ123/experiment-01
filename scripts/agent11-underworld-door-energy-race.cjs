@@ -55,7 +55,8 @@ function exactUnderworldDoorEnergyRace(options = {}) {
     prizeCount = 6,
     doorCounts = [2, 2],
     initialAttached = 0,
-    targetAttached = 5
+    targetAttached = 5,
+    guaranteedEnergySearchBeforeTurn2 = false
   } = options;
   const values = [totalCardsAfterBoard, energyCountAfterBoard, handSize, prizeCount, initialAttached, targetAttached];
   if (values.some(x => !Number.isInteger(x) || x < 0) ||
@@ -63,6 +64,7 @@ function exactUnderworldDoorEnergyRace(options = {}) {
       initialAttached > 1 ||
       initialAttached > energyCountAfterBoard ||
       initialAttached > totalCardsAfterBoard ||
+      typeof guaranteedEnergySearchBeforeTurn2 !== 'boolean' ||
       !Array.isArray(doorCounts) || doorCounts.length !== 2 ||
       doorCounts.some(x => !Number.isInteger(x) || x < 0 || x > 4)) {
     throw new Error('Invalid energy-race configuration');
@@ -102,6 +104,19 @@ function exactUnderworldDoorEnergyRace(options = {}) {
   if (Math.abs(initialMass - 1) > 1e-10) throw new Error('Initial deal mass is ' + initialMass + ', expected 1');
 
   let states = initial;
+  if (guaranteedEnergySearchBeforeTurn2) {
+    const afterSearch = new Map();
+    for (const [key, probability] of states) {
+      const state = decodeState(key, probability);
+      if (state.deckEnergy > 0) {
+        state.deckEnergy -= 1;
+        state.handEnergy += 1;
+      }
+      addState(afterSearch, state, probability);
+    }
+    states = afterSearch;
+  }
+
   for (const doors of doorCounts) {
     states = drawFromStates(states, 1);
     for (let use = 0; use < doors; use += 1) {
@@ -158,7 +173,8 @@ function exactUnderworldDoorEnergyRace(options = {}) {
     config: {
       totalCardsAfterBoard, energyCountAfterBoard, handSize, prizeCount,
       doorCounts: [...doorCounts], initialAttached, targetAttached,
-      unknownCards, unknownEnergy, startingDeckSize: unknownCards - handSize - prizeCount
+      unknownCards, unknownEnergy, startingDeckSize: unknownCards - handSize - prizeCount,
+      guaranteedEnergySearchBeforeTurn2
     },
     distribution: Object.fromEntries(Object.entries(distribution).sort((a, b) => Number(a[0]) - Number(b[0]))),
     meanAttached,
@@ -169,27 +185,34 @@ function exactUnderworldDoorEnergyRace(options = {}) {
 
 if (require.main === module) {
   const scenarios = [
-    { label: 'no pre-Gate attachment; six-card hand', handSize: 6, initialAttached: 0 },
-    { label: 'one pre-Gate attachment; five-card hand', handSize: 5, initialAttached: 1 }
+    { label: 'no FSS; H6 A0', totalCardsAfterBoard: 57, handSize: 6, initialAttached: 0, guaranteedEnergySearchBeforeTurn2: false },
+    { label: 'no FSS; H5 A1', totalCardsAfterBoard: 57, handSize: 5, initialAttached: 1, guaranteedEnergySearchBeforeTurn2: false },
+    { label: 'FSS already attached and usable; H5 A0', totalCardsAfterBoard: 56, handSize: 5, initialAttached: 0, guaranteedEnergySearchBeforeTurn2: true },
+    { label: 'FSS already attached and usable; H4 A1', totalCardsAfterBoard: 56, handSize: 4, initialAttached: 1, guaranteedEnergySearchBeforeTurn2: true }
   ];
   for (const scenario of scenarios) {
-    for (const energyCountAfterBoard of [9, 10, 11, 12, 13]) {
-      const baseline = exactUnderworldDoorEnergyRace({
-        energyCountAfterBoard, handSize: scenario.handSize,
-        initialAttached: scenario.initialAttached, doorCounts: [2, 2]
-      });
-      const fourVMAX = exactUnderworldDoorEnergyRace({
-        energyCountAfterBoard, handSize: scenario.handSize,
-        initialAttached: scenario.initialAttached, doorCounts: [4, 4]
-      });
-      console.log(JSON.stringify({
-        scenario: scenario.label, energyCountAfterBoard,
-        twoVMAXEachTurn: baseline.probabilityAtLeastTarget,
-        fourVMAXEachTurn: fourVMAX.probabilityAtLeastTarget,
-        meanAttachedWithTwo: baseline.meanAttached
-      }));
-    }
+    const baseline = exactUnderworldDoorEnergyRace({
+      totalCardsAfterBoard: scenario.totalCardsAfterBoard,
+      energyCountAfterBoard: 11,
+      handSize: scenario.handSize,
+      initialAttached: scenario.initialAttached,
+      guaranteedEnergySearchBeforeTurn2: scenario.guaranteedEnergySearchBeforeTurn2,
+      doorCounts: [2, 2]
+    });
+    const fourVMAX = exactUnderworldDoorEnergyRace({
+      totalCardsAfterBoard: scenario.totalCardsAfterBoard,
+      energyCountAfterBoard: 11,
+      handSize: scenario.handSize,
+      initialAttached: scenario.initialAttached,
+      guaranteedEnergySearchBeforeTurn2: scenario.guaranteedEnergySearchBeforeTurn2,
+      doorCounts: [4, 4]
+    });
+    console.log(JSON.stringify({
+      scenario: scenario.label,
+      twoVMAXEachTurn: baseline.probabilityAtLeastTarget,
+      fourVMAXEachTurn: fourVMAX.probabilityAtLeastTarget,
+      meanAttachedWithTwo: baseline.meanAttached
+    }));
   }
 }
-
 module.exports = { choose, hypergeometricDraw, exactUnderworldDoorEnergyRace };

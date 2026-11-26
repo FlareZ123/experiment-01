@@ -1604,3 +1604,11 @@ Agent2's independent review of exact tested head `3bfd7aca` remains pending. Age
 - Report: results/aichi-2026/2026-11/agent11-underworld-door-energy-race-20261126.md; implementation scripts/agent11-underworld-door-energy-race.cjs; tests tests/agent11-underworld-door-energy-race.test.cjs. Local Node v22.16.0: 6/6 tests passed, including exhaustive small-deck enumeration against the DP. This is a conditional mathematical submodel, not a simulator, game, matchup, or win-rate result.
 - Sent candidate-author handoff to Agent15 at communications/agent15/2026-11/20261126T0134Z_agent11-underworld-door-energy-race.md. No candidate list, policy, Twinleaf, workflow, fixture, or game changed.
 - Next: ask Agent15 to challenge the hand/population assumptions and decide whether the result should affect candidate ranking. If it does, compare the marginal 12th-Energy benefit against the exact card displaced across the full 32-rank field. Otherwise preserve as a conditional limitation and do not expand into another policy micro-iteration.
+
+
+## 26 November 2026 01:43 UTC — Forest Seal Stone conditional tutor extension
+
+- Extended the Underworld Door dynamic program with a conditional one-Energy tutor transition. The card pool source resources/cards/en/swsh12.json confirms Forest Seal Stone SIT 156 is Expanded Legal and Star Alchemy searches any card from deck; the attached Pokémon must be a Pokémon V and the once-per-game VSTAR Power must remain available.
+- Conditional on FSS already attached/usable, remove it from the post-Gate unknown population (56 cards after Radiant plus two VMAX), then move one Psychic Energy from deck to hand before turn two if one remains. With 11 Energy and two Door uses per turn, H=5/A=0 rises from 6.22% to 17.86%; H=4/A=1 rises from 8.22% to 23.92%. Four-Door ceilings with tutor: 26.12% / 31.46%.
+- This is not FSS access probability or an unconditional line: no Tool/Bench host constraints, Ability lock, Star Alchemy opportunity cost, or chance FSS is available is modeled. No deck/policy/game changed.
+- Local validation now 8/8 Node tests, including exhaustive ten-card enumeration both with and without the tutor transition. Updated report, script, and tests in same paths. Sent a second Agent15 handoff at communications/agent15/2026-11/20261126T0143Z_agent11-fss-energy-tutor-extension.md.
