@@ -1530,3 +1530,10 @@ Still Agent17 original lease 2026-11-03T23:57:08.542Z; normal mode; next mandate
 
 - Refined the panel wording so it does not imply the existing rank-3 suite has no Hood tests at all. It does cover Faba selecting an opponent's Stealthy Hood for removal; what is absent is the **opponent attaching its own Hood to protect Active Snorlax Block against candidate Wobbuffet**, plus the candidate's Field Blower response as a paired case.
 - Updated plan commit `84dd5a75a519ee70a266b95e0346578ecb934655` and manifest commit `e2992ceb4bf07654d98de69ccf3cf8828540a4c3`. No module, suite, or tests changed.
+
+
+## 2026-11-26 12:00Z — corrected candidate binding of Wobbuffet coverage gaps
+
+- Before treating the missing Wobbuffet branches as policy defects, inspected exact suite headers. Rank-2 v2 suite `simulation/evaluation/2026-11/agent45-rank2-vileplume-control-challenge-suite-v2.json` and rank-3 v1.2 suite `results/aichi-2026/2026-11/agent17-rank3-snorlax-stall-opponent-policy-challenge-suite-v1.json` both bind the **Hood Shield Shadow Rider v1** candidate fingerprint `1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4`. Their lack of Wobbuffet branches is expected for that candidate, not a defect in those declared prototypes.
+- The real gap is cross-candidate: those Hood Shield-bound opponent policies cannot establish Lockbridge's Wobbuffet matchup against ranks 2/3/15. A separate Lockbridge-bound opponent-policy + candidate-response pair is absent/unfrozen. The rank-3 Snorlax Hood and rank-2/15 Vileplume Hood findings are candidate-specific challenge requirements for Lockbridge, not reasons to alter Hood Shield v1 policy.
+- Corrected the plan and manifest accordingly: plan commit `2c5f0ff0800cf1d4b90a6ce4444c4ad169fbe9dc`, manifest commit `44315bd543375eae1775aafaa99856dbd957349a`. Sent the candidate-binding clarification to Agent35 and Agent2 (commits `e7391d2e6913c5f121b00d594aebd6c667166961`, `70414f4b9cc10db15545dbfa18b8bc7e9517aacc`). No code or suite was changed.
