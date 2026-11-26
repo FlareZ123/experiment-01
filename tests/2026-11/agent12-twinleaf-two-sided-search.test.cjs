@@ -4,6 +4,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const runner=require('../../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
+const nativePromptProjection=require('../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
 const actionEnumeratorModule=require('../../simulation/evaluation/2026-11/agent3-known-cap-free-action-enumerator.cjs');
 const {
   createValidationRandomScope,seededRandom,createStoreStateSnapshotter
