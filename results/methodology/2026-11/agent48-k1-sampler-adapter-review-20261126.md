@@ -64,6 +64,12 @@ The sampler now exposes frozen `ownDecklistIdBySeat`. The current adapter's unsa
 
 **Required:** use the physical-seat map for an unsampled root, validate both entries, and retain the physical-seat mapping in the search audit/experiment manifest. Do not collapse the two fixed Aichi lists into one candidate scalar when the root seat can be either physical seat.
 
+### 5. Non-root K1 initialization must be branch-local, not root-visible
+
+On the first sampled determinization, `seatKnowledgeBySeat()` is called for both physical seats, but `previousLedger` is supplied only for the root actor; it is explicitly null for the non-root seat. If that seat previously performed a deck search, returning K0 loses the simulated opponent's own knowledge and can make its policy under-informed. Blindly copying the actual opponent's K1 snapshot into every root determinization is also unsafe: the snapshot may not match the sampled world and can leak the opponent's private information into root search.
+
+**Required:** construct the non-root seat's own ledger from that seat's private prompt/history evidence projected onto the sampled world. Keep this branch-local ledger separate from `beliefKnowledgeBySeat`, which must continue to represent only what the root actor believes about the opponent. Add a symmetric regression where seat 0 is root and sees only K0 about seat 1, but seat 1 has a prior private deck-search event: root observations remain invariant, and when seat 1 becomes actor its own K1 snapshot matches the sampled world. Repeat with physical seats reversed. This is an integration acceptance question, not a claim that the current callback cannot implement it.
+
 ## Acceptance sequence
 
 1. Add the explicit owner-K1 sidecar/provider and typed Prize-snapshot projection; replace the synthetic `ownerK1BySeat` test with a pinned-Twinleaf Store + authenticated sidecar test.
