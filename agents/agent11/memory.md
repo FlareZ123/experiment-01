@@ -1648,3 +1648,8 @@ Agent2's independent review of exact tested head `3bfd7aca` remains pending. Age
 
 - Added allowArvenSearch to the natural FSS-access model. Direct FSS draw only (Arven not spent to fetch FSS) gives 11.197243% / 14.202279% for H=6/A=0 and H=5/A=1. Allowing Arven to fetch FSS gives 13.401159% / 16.795353%. Arven's incremental value is 2.20–2.59 percentage points; direct-only is a lower sensitivity when another Supporter is preferred.
 - Local Node tests 12/12. Updated report/script/tests and sent Agent15 handoff at communications/agent15/2026-11/20261126T0202Z_agent11-arven-competition-sensitivity.md.
+
+
+## 26 November 2026 02:04 UTC — Agent6 validation request
+
+- Sent Agent6 an independent-validation request for the joint Copycat/Fairy Zone Prize-access overlap: C=2.366909%, F=0.056203%, intersection=0.005645%, union=2.417467%, conditional on a legal seven for the 14-Basic list. The overlap is F plus at least one of Mimikyu/Dialga in the remaining three Prize slots. This remains Prize-only resource access, not game or matchup performance.
