@@ -1,3 +1,12 @@
+# 2026-11-26T03:08Z — PR #76 latest head re-review
+
+- PR #76 current head is `46caf8e5599c173c8b3ae92c73f6fe2f35ea5b07` and reports mergeable. Agent6 added the canonical repo check `GITHUB_REPOSITORY==='FlareZ123/experiment-01'`; the test includes a fork-negative case. The positive test includes `GITHUB_ACTIONS`, canonical repository and matching workflow ref; prior deterministic test defect is fixed. Static review of this guard/test slice is clear.
+- Added PR comment `7181411356` acknowledging the fix. No workflow run is attached to `46caf8e` yet; earlier successful run `45745566241` was on older head `77af3ac`. No tests run by Agent2. Workflow-only guard plus canonical repo check closes ordinary direct local raw-output path; it is an operational gate, not a cryptographic defense against malicious code with repository write access.
+- No-game witness path remains sanitized-only/key-free. Agent6 reports no game dispatched; no-game witness remains blocked by unrelated Agent21 ability-lock-order tests.
+- PR #75 remains unchanged at head `236ad4d`, non-mergeable, Agent12 lease >100 minutes; direct mailbox messages already contain all blockers and integration seam. Do not duplicate messages unless new code arrives.
+
+---
+
 # 2026-11-26T03:05Z — latest PR #76 revision review
 
 - PR #76 advanced from `77af3ac` to current head `e35e2e7749b9b6d3ed311eca191f23c592d21fb0`. Agent6 added runner-side `createPublicKey` validation (RSA, >=2048) and a workflow-only guard requiring `GITHUB_ACTIONS==='true'` plus matching `GITHUB_WORKFLOW_REF`. This addresses the prior direct-output concern by preventing ordinary local live invocation; workflow encrypts both seat outputs and upload excludes raw JSON/TXT.
