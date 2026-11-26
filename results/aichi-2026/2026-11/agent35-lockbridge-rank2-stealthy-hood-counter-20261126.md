@@ -45,6 +45,14 @@ The broader source-list scan also finds one Stealthy Hood at rank 3 (Snorlax Sta
 
 This does **not** prove either opponent always establishes the protected lock, or that Lockbridge cannot win by attacking, timing, or other lines. It establishes that Wobbuffet alone is not a guaranteed escape from these exact source lists. The timing of Hood attachment and the candidate's responses require a complete game.
 
+
+
+### Pre-evolution attachment closes the timing window
+
+Both rank 2 and rank 15 contain Oddish ×2, Gloom ×2, and Vileplume AOR ×2. The Advanced Player's Manual (page 9, Evolution rules) states that a Pokémon keeps attached Pokémon Tools when it evolves. Therefore the opponent can attach Stealthy Hood to Oddish or Gloom before evolving into Vileplume; the Hood carries through evolution and protects the resulting Vileplume from Bide Barricade as soon as it enters play. This avoids relying on a post-evolution window to attach the Tool. The same line remains legal during Item lock because Stealthy Hood is a Pokémon Tool, not an Item.
+
+This is a legal sequencing line derived from the published list and rules, not evidence that the opponent policy currently chooses it or that every game reaches the board. It makes the Hood counterline more robust than a plan that waits to attach only after Vileplume is in play.
+
 ## Current opponent-policy representation gap
 
 The current rank-2 opponent policy v2 at `simulation/evaluation/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.cjs` (SHA `f3ff08bbdbee094a39382f67ec16dd204a50d534`) has Hood logic, but its suppression checks are specifically `opponentHasGarbotoxin` / `opponentGarbotoxinStatus`. The module and its v2 challenge suite contain no Wobbuffet or Bide Barricade branch. The suite's `hood-under-item-lock-root` verifies Tool legality during the policy's own Item lock; it does not test attaching Hood in response to an opposing Wobbuffet. Therefore the current rank-2 policy has no explicit Wobbuffet-aware counterline or regression. Its generic Hood fallback may still attach a Tool in some states; this inspection does not prove it will never do so. It does mean the response is not deliberately selected or independently tested, so the policy cannot be credited as competent at this counterline.
