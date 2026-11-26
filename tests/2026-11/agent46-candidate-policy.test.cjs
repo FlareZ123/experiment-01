@@ -717,7 +717,7 @@ test('mandatory discard uses dead or excess resources before Regidrago core piec
     printings: ['Battle VIP Pass FST', 'Psychic Energy SVE', 'Dialga-GX UPR', 'Mimikyu GRI'],
     minimumCount: 2, maximumCount: 2
   });
-  assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-0', 'card-1'] });
+  assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-0', 'card-3'] });
 });
 
 test('mirror discard spends Stealthy Hood before Max Geist Energy when no Hood threat exists', () => {
@@ -773,7 +773,7 @@ test('mirror discard spends matchup-dead Dialga-GX before Max Geist Energy', () 
   assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-0'] });
 });
 
-test('Regidrago keeps Dialga-GX as the Copycat payload ahead of Psychic Energy', () => {
+test('Regidrago preserves Dialga and unplayed Mimikyu ahead of Psychic Energy', () => {
   const ownVmax = pokemon({
     printing: 'Shadow Rider Calyrex VMAX CRE',
     name: 'Shadow Rider Calyrex VMAX', hp: 320,
@@ -785,7 +785,7 @@ test('Regidrago keeps Dialga-GX as the Copycat payload ahead of Psychic Energy',
   });
   const view = observation(0, {
     active: ownVmax, opponentActive: regidrago,
-    ownHand: ['Dialga-GX UPR', 'Psychic Energy SVE'],
+    ownHand: ['Dialga-GX UPR', 'Mimikyu GRI', 'Psychic Energy SVE'],
     globalTurn: 3
   });
   const req = cardPrompt(0, view, {
@@ -793,7 +793,7 @@ test('Regidrago keeps Dialga-GX as the Copycat payload ahead of Psychic Energy',
     printings: view.ownHand,
     minimumCount: 1, maximumCount: 1
   });
-  assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-1'] });
+  assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-2'] });
 });
 
 test('ability-lock threat preserves Stealthy Hood ahead of Max Geist Energy', () => {
