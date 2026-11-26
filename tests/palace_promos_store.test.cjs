@@ -263,7 +263,8 @@ test("Luvdisc Heart Wink suppresses Palace Belt replacement draw only on heads",
 
   // Heart Wink prevents the opponent's next normal turn-start draw. Palace
   // Belt replaces that draw with two cards, but does not bypass prevention.
-  // Resolve the actual CoinFlipPrompt so both branches are deterministic.
+  // Twinleaf resolves its coin flip through Math.random and an animation
+  // WaitPrompt, so stub only the synchronous flip and then restore randomness.
   for (const heads of [true, false]) {
     const f = board();
     f.a.active.cards[0] = f.card('Luvdisc FLF');
@@ -271,23 +272,27 @@ test("Luvdisc Heart Wink suppresses Palace Belt replacement draw only on heads",
     f.b.active.tools.push(f.card('Palace Belt BWP'));
     const deckBefore = f.b.deck.cards.length;
 
-    f.store.dispatch(new AttackAction(f.a.id, 'Heart Wink'));
-    const coin = f.state.prompts.find(prompt => prompt.result === undefined);
-    assert.ok(coin, 'Heart Wink must request a coin flip');
-    assert.equal(coin.constructor.name, 'CoinFlipPrompt');
-    assert.equal(coin.playerId, f.a.id);
-    assert.equal(coin.validate(heads, f.state), true);
-    f.store.dispatch(new ResolvePromptAction(coin.id, heads));
-
-    assert.equal(f.b.cannotDrawAtStartOfTurn, heads,
-      'Only heads should set the opponent next-turn draw-prevention flag');
+    const originalRandom = Math.random;
+    let coinCalls = 0;
+    try {
+      Math.random = () => {
+        coinCalls++;
+        return heads ? 0 : 0.99;
+      };
+      f.store.dispatch(new AttackAction(f.a.id, 'Heart Wink'));
+    } finally {
+      Math.random = originalRandom;
+    }
+    assert.ok(coinCalls >= 1, 'Heart Wink must perform its coin flip');
+    assert.equal(Math.random, originalRandom,
+      'The deterministic test stub must not leak beyond attack dispatch');
 
     let resolved = 0;
     for (; resolved < 8; resolved++) {
       const pending = f.state.prompts.find(prompt => prompt.result === undefined);
       if (!pending) break;
       assert.equal(pending.constructor.name, 'WaitPrompt',
-        'Only normal turn-transition waits should remain after the coin flip');
+        'Coin animation and normal turn-transition waits are expected');
       assert.equal(pending.validate(null, f.state), true);
       f.store.dispatch(new ResolvePromptAction(pending.id, null));
     }
