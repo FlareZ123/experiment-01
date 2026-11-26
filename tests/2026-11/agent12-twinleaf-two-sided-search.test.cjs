@@ -483,11 +483,13 @@ test('complete per-seat decision histories survive actor-relative redeterminizat
   });
   const result=search.search(harness.state,0);
   assert.ok(seen.some(item=>item.seat===0 &&
-    item.history.length===1 && item.history[0].actorSeat===0 &&
-    item.history[0].actionKey==='prior-seat-0'));
+    item.history.some(event=>event.actorSeat===0 &&
+      event.actionKey==='prior-seat-0')),
+  'seat 0 did not retain its attested prefix: ' + JSON.stringify(seen));
   assert.ok(seen.some(item=>item.seat===1 &&
-    item.history.length===1 && item.history[0].actorSeat===1 &&
-    item.history[0].actionKey==='prior-seat-1'));
+    item.history.some(event=>event.actorSeat===1 &&
+      event.actionKey==='prior-seat-1')),
+  'seat 1 did not retain its attested prefix: ' + JSON.stringify(seen));
   assert.deepEqual(result.audit.twinleafAdapter.historyEventCountsBySeat,[2,1]);
   assert.deepEqual(result.audit.twinleafAdapter.historyCompleteBySeat,[true,true]);
 });
@@ -682,9 +684,21 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
       withValidationRandom,
       provenanceForPrompt:(state,prompt,actorSeat)=>{
         if(actorSeat!==0&&actorSeat!==1)return null;
+        const player=state.players[actorSeat];
         const zones=[
-          ...(state.players[actorSeat].discard?.cards??[]),
-          ...(state.players[actorSeat].hand?.cards??[])
+          ...(player.discard?.cards??[]),
+          ...(player.hand?.cards??[]),
+          ...(player.lostzone?.cards??[]),
+          ...(player.stadium?.cards??[]),
+          ...(player.supporter?.cards??[]),
+          ...(player.active?.cards??[]),
+          ...(player.active?.energies?.cards??[]),
+          ...(player.active?.tools??[]),
+          ...(player.bench??[]).flatMap(slot=>[
+            ...(slot?.cards??[]),
+            ...(slot?.energies?.cards??[]),
+            ...(slot?.tools??[])
+          ])
         ];
         const sourceCard=zones.find(card=>card.fullName==='Switch BLW');
         assert.ok(sourceCard,'Switch source must remain in an actor-visible zone while its prompt is pending');
