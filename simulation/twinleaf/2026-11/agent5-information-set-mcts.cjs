@@ -221,28 +221,64 @@ function validateWinProbabilityVector(values, label = 'Win-probability value') {
  * A draw requires a versioned rule plus a concrete evidence reference; a bare
  * [0,0] vector can never attest that an unresolved/NONE state was adjudicated.
  */
-function terminalOutcomeToWinProbabilityVector(outcome, label = 'Terminal outcome') {
+function normalizeTerminalOutcome(outcome, label = 'Terminal outcome') {
   assert.ok(outcome !== null && typeof outcome === 'object' && !Array.isArray(outcome),
     label + ' must be a typed outcome object');
   const prototype = Object.getPrototypeOf(outcome);
   assert.ok(prototype === Object.prototype || prototype === null,
     label + ' must be a plain data object');
-  if (outcome.kind === 'seat-win') {
-    assert.ok(outcome.winnerSeat === 0 || outcome.winnerSeat === 1,
+  const kindDescriptor = Object.getOwnPropertyDescriptor(outcome, 'kind');
+  assert.ok(kindDescriptor && kindDescriptor.enumerable === true &&
+    Object.hasOwn(kindDescriptor, 'value'),
+  label + ' kind must be an enumerable data property');
+  const kind = kindDescriptor.value;
+  if (kind === 'seat-win') {
+    assert.deepEqual(Reflect.ownKeys(outcome).slice().sort(), ['kind','winnerSeat'],
+      label + ' seat-win must contain exactly kind and winnerSeat');
+    const winnerDescriptor = Object.getOwnPropertyDescriptor(outcome, 'winnerSeat');
+    assert.ok(winnerDescriptor && winnerDescriptor.enumerable === true &&
+      Object.hasOwn(winnerDescriptor, 'value'),
+    label + ' winnerSeat must be an enumerable data property');
+    const winnerSeat = winnerDescriptor.value;
+    assert.ok(winnerSeat === 0 || winnerSeat === 1,
       label + ' winnerSeat must be 0 or 1');
-    return outcome.winnerSeat === 0 ? [1, 0] : [0, 1];
+    return Object.freeze({kind:'seat-win',winnerSeat});
   }
-  if (outcome.kind === 'adjudicated-draw') {
-    assert.ok(typeof outcome.ruleId === 'string' && /v\d+$/.test(outcome.ruleId),
-      label + ' draw requires a versioned ruleId');
-    assert.ok(typeof outcome.reason === 'string' && outcome.reason.trim().length > 0,
-      label + ' draw requires a non-empty reason');
-    assert.ok(typeof outcome.evidenceId === 'string' && outcome.evidenceId.trim().length > 0,
-      label + ' draw requires a non-empty evidenceId');
-    return [0, 0];
+  if (kind === 'adjudicated-draw' || kind === 'adjudicated-no-winner') {
+    assert.deepEqual(Reflect.ownKeys(outcome).slice().sort(),
+      ['evidenceId','kind','reason','ruleId'],
+      label + ' adjudicated nonwin must contain exactly kind, ruleId, reason, and evidenceId');
+    const read = key => {
+      const descriptor = Object.getOwnPropertyDescriptor(outcome, key);
+      assert.ok(descriptor && descriptor.enumerable === true &&
+        Object.hasOwn(descriptor, 'value'),
+      label + ' ' + key + ' must be an enumerable data property');
+      return descriptor.value;
+    };
+    const ruleId = read('ruleId');
+    const reason = read('reason');
+    const evidenceId = read('evidenceId');
+    assert.ok(typeof ruleId === 'string' && /v[0-9]+$/.test(ruleId),
+      label + ' ' + kind + ' requires a versioned ruleId');
+    assert.ok(typeof reason === 'string' && reason.trim().length > 0,
+      label + ' ' + kind + ' requires a non-empty reason');
+    assert.ok(typeof evidenceId === 'string' && evidenceId.trim().length > 0,
+      label + ' ' + kind + ' requires a non-empty evidenceId');
+    return Object.freeze({kind,ruleId,reason,evidenceId});
   }
-  assert.fail(label + ' kind must be seat-win or adjudicated-draw; ' +
-    'unresolved, invalid, aborted, NONE, and unknown outcomes are rejected');
+  assert.fail(label + ' kind must be seat-win, adjudicated-draw, or adjudicated-no-winner; ' +
+    'raw NONE, unresolved, invalid, aborted, and unknown outcomes are rejected');
+}
+
+function terminalOutcomeResult(outcome, label = 'Terminal outcome') {
+  const receipt = normalizeTerminalOutcome(outcome, label);
+  const values = receipt.kind === 'seat-win' ?
+    (receipt.winnerSeat === 0 ? [1, 0] : [0, 1]) : [0, 0];
+  return Object.freeze({receipt,values:Object.freeze(values)});
+}
+
+function terminalOutcomeToWinProbabilityVector(outcome, label = 'Terminal outcome') {
+  return terminalOutcomeResult(outcome, label).values.slice();
 }
 
 /**
@@ -279,7 +315,7 @@ function backpropagateWinProbabilities(path, values) {
  * @param {'zero-sum'|'seat-win-probability'} [config.valueMode='zero-sum']
  * @param {(state:object,seat:0|1)=>number} [config.terminalValue] Legacy zero-sum terminal utility.
  * @param {(observation:object,seat:0|1)=>number} [config.evaluateObservation] Legacy zero-sum value.
- * @param {(state:object)=>({kind:'seat-win',winnerSeat:0|1}|{kind:'adjudicated-draw',ruleId:string,reason:string,evidenceId:string})} [config.terminalOutcome] Typed realized outcome; unresolved/invalid/aborted/NONE classes are rejected.
+ * @param {(state:object)=>({kind:'seat-win',winnerSeat:0|1}|{kind:'adjudicated-draw'|'adjudicated-no-winner',ruleId:string,reason:string,evidenceId:string})} [config.terminalOutcome] Typed realized outcome; raw unresolved/invalid/aborted/NONE classes are rejected.
  * @param {string} [config.terminalOutcomeProtocolId] Required versioned ID for the caller's terminal adjudication mapping.
  * @param {(observation:object,seat:0|1)=>[number,number]} [config.evaluateObservationValues] Actor-view-only per-seat win probabilities; sum must not exceed one.
  * @param {(action:object,observation:object,seat:0|1)=>number} [config.actionPrior]
@@ -499,13 +535,19 @@ function createInformationSetMcts(config) {
         let leafValue;
         let leafSeat;
         let finished = false;
+        let terminalOutcomeReceipt = null;
 
         for (let ply = 0; ply < maxPlies; ply++) {
           maxObservedDepth = Math.max(maxObservedDepth, ply);
           if (config.isTerminal(state)) {
-            leafValue = valueMode === 'seat-win-probability' ?
-              terminalOutcomeToWinProbabilityVector(config.terminalOutcome(state), 'Terminal outcome') :
-              config.terminalValue(state, seat);
+            if (valueMode === 'seat-win-probability') {
+              const terminalResult = terminalOutcomeResult(
+                config.terminalOutcome(state), 'Terminal outcome');
+              terminalOutcomeReceipt = terminalResult.receipt;
+              leafValue = terminalResult.values;
+            } else {
+              leafValue = config.terminalValue(state, seat);
+            }
             checkDeadline('terminal-value');
             leafSeat = seat;
             terminalRollouts += 1;
@@ -641,16 +683,21 @@ function createInformationSetMcts(config) {
         // checks terminality at each ply's start, so recognize this boundary
         // before falling through to a heuristic evaluation of a terminal state.
         if (!finished && config.isTerminal(state)) {
-          leafValue = valueMode === 'seat-win-probability' ?
-              terminalOutcomeToWinProbabilityVector(config.terminalOutcome(state), 'Terminal outcome') :
-              config.terminalValue(state, seat);
+          if (valueMode === 'seat-win-probability') {
+            const terminalResult = terminalOutcomeResult(
+              config.terminalOutcome(state), 'Terminal outcome');
+            terminalOutcomeReceipt = terminalResult.receipt;
+            leafValue = terminalResult.values;
+          } else {
+            leafValue = config.terminalValue(state, seat);
+          }
           checkDeadline('terminal-value-after-final-ply');
           leafSeat = seat;
           terminalRollouts += 1;
           finished = true;
         }
 
-        rolloutPaths.push({iteration,actions:actionPath});
+        rolloutPaths.push({iteration,actions:actionPath,terminalOutcome:terminalOutcomeReceipt});
         if (!finished) {
           const prepared = prepareActorState(state, seat, iteration, 'leaf');
           state = prepared.state;
@@ -702,6 +749,7 @@ function createInformationSetMcts(config) {
           valueMode,
           terminalOutcomeProtocolId: valueMode === 'seat-win-probability' ?
             config.terminalOutcomeProtocolId : null,
+          terminalOutcomeSchemaId: valueMode === 'seat-win-probability' ? 'typed-terminal-outcome-v2' : null,
           searchMode: typeof config.opponentActionPolicy === 'function' ?
             'root-best-response-fixed-opponent-policy' : 'two-sided-puct',
           objectiveProtocol: valueMode === 'seat-win-probability' ?
