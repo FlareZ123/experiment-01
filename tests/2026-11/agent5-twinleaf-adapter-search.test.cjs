@@ -708,7 +708,13 @@ test('card-effect prompt provenance maps its source into the exact projected clo
         sourceKind:'card-effect',sourceCard:currentSourceCard,
         effectName:'Quick Ball',effectType:'ItemEffect'
       };
-    })():null
+    })():null,
+    mapSourceCard:({clonedState,actorSeat,sourceCard})=>{
+      const mapped=clonedState.players[actorSeat].discard.cards.find(card=>
+        card.fullName===sourceCard.fullName);
+      assert.ok(mapped,'cloned prompt Store must preserve the public source card');
+      return mapped;
+    }
   }));
   const search=createTwinleafTwoSidedSearch(harness.deps,{
     iterations:4,maxPlies:1,seed:20261202
@@ -799,7 +805,7 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
       native,switcherSeat,cloneCard(NATIVE_PROMPT_REGIDRAGO),cloneCard);
     switcher.bench[0]=makeNativePromptPokemonList(
       native,cloneCard(NATIVE_PROMPT_DEDENNE));
-    const switchCard=cloneCard('Switch BS');
+    const switchCard=cloneCard('Switch BLW');
     switcher.hand.cards=[switchCard];
     switcher.playableCardIds=[switchCard.id];
 
@@ -839,13 +845,13 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
     assert.equal(rootState.phase,native.GamePhase.PLAYER_TURN);
     const switcherAtRoot=rootState.players[switcherSeat];
     const switchIndex=switcherAtRoot.hand.cards.findIndex(card=>
-      card.fullName==='Switch BS');
+      card.fullName==='Switch BLW');
     assert.ok(switchIndex>=0,'Switcher must hold Switch at the search root');
     switcherAtRoot.playableCardIds=[switcherAtRoot.hand.cards[switchIndex].id];
     const nativeActions=enumerator.enumerate(rootState,switcherAtRoot);
     assert.ok(nativeActions.some(action=>
       action.type==='PLAY_CARD_ACTION' &&
-      rootState.players[switcherSeat].hand.cards[action.handIndex]?.fullName==='Switch BS'),
+      rootState.players[switcherSeat].hand.cards[action.handIndex]?.fullName==='Switch BLW'),
     'the uncapped native frontier must include Switch');
 
     const metadataByState=new WeakMap();
@@ -876,15 +882,14 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
       promptSubPolicyId:'switch-bench-choice-test-v1',
       withValidationRandom,
       provenanceForPrompt:(state,prompt,actorSeat)=>{
+        if(actorSeat!==0&&actorSeat!==1)return null;
         const zones=[
           ...(state.players[actorSeat].discard?.cards??[]),
           ...(state.players[actorSeat].hand?.cards??[])
         ];
-        const sourceCard=prompt.sourceCard ??
-          zones.find(card=>card.fullName==='Switch BS');
-        return sourceCard ? {
-          sourceKind:'card-effect',sourceCard,effectName:'Switch'
-        } : null;
+        const sourceCard=zones.find(card=>card.fullName==='Switch BLW');
+        assert.ok(sourceCard,'Switch source must remain in an actor-visible zone while its prompt is pending');
+        return {sourceKind:'card-effect',sourceCard,effectName:'Switch'};
       },
       decidePrompt:({actorSeat,actorView,promptProjection})=>{
         promptCalls++;
@@ -936,7 +941,7 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
       redeterminize,
       actorObservation,
       actionPrior:publicAction=>
-        publicAction.actorPrinting==='Switch BS'?1:0,
+        publicAction.actorPrinting==='Switch BLW'?1:0,
       isTerminal:state=>state.phase===native.GamePhase.FINISHED,
       terminalValues:()=>[0.5,0.5],
       evaluateObservationValues:()=>[0.5,0.5]
@@ -944,7 +949,7 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
       iterations:4,maxPlies:1,seed:0x420100+kecleonSeat
     });
     const result=search.search(rootState,switcherSeat);
-    assert.equal(result.action.actorPrinting,'Switch BS');
+    assert.equal(result.action.actorPrinting,'Switch BLW');
     assert.ok(promptCalls>0,'MCTS transition must invoke the synchronous prompt sub-policy');
     assert.ok(sawSettledSuccessor,
       'the stable successor after prompt continuation must be observed by MCTS');
