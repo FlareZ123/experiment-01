@@ -235,6 +235,9 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
       assert.ok(typeof attestation.sourceId === 'string' &&
         attestation.sourceId.length > 0);
       assert.match(attestation.rootStateDigest, /^[a-f0-9]{64}$/);
+      assert.equal(attestation.rootStateDigest,
+        observationSha256(snapshotState(rootState)),
+      'Root history attestation is not bound to the actual root State snapshot');
       assert.ok(Array.isArray(attestation.completeBySeat) &&
         attestation.completeBySeat.length === 2 &&
         attestation.completeBySeat.every(value => typeof value === 'boolean'));
@@ -765,6 +768,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
         deps.promptSubPolicyId : null,
       promptDecisionProtocol: 'same-store-player-prompt-subpolicy-plus-host-chance-resolution-v2',
       historyProtocolId: 'agent12-actor-visible-own-decision-history-v1',
+      rootStateDigestProtocolId: 'agent49-store-state-snapshot-sha256-v1',
       historyCompleteBySeat: (latestHistoryMetadata ?? defaultHistoryMetadata()).completeBySeat.slice(),
       historySourceBySeat: (latestHistoryMetadata ?? defaultHistoryMetadata()).sourceBySeat.slice(),
       historyEventCountsBySeat: (latestHistoryMetadata ?? defaultHistoryMetadata()).historiesBySeat.map(history => history.length),
@@ -774,6 +778,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
   }
 
   return Object.freeze({
+    initializeHistory,
     observe,
     activeSeat,
     enumerateActions,
