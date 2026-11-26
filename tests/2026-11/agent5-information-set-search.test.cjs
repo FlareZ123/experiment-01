@@ -202,7 +202,7 @@ test('seat-win-probability objective prefers actual wins over draw-heavy win-min
     'the general-sum objective must maximize seat 0 actual win probability');
   assert.equal(winRate.audit.valueMode,'seat-win-probability');
   assert.equal(winRate.audit.objectiveProtocol,
-    'each-seat-maximizes-own-win-probability-draws-nonwins-zero-v1');
+    'each-seat-maximizes-own-win-probability-adjudicated-draws-zero-v1');
   assert.ok(winRate.audit.rootActions.find(row=>row.actionKey==='balanced').meanValue >
     winRate.audit.rootActions.find(row=>row.actionKey==='draw-heavy').meanValue);
 });
