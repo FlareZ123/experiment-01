@@ -160,6 +160,24 @@ test('strictly rejects accessor log data without invoking getters', () => {
   assert.equal(getterCalls, 0);
 });
 
+test('does not coerce an object-valued private flag', () => {
+  let coercions = 0;
+  const params = {
+    private: {
+      toString() {
+        coercions += 1;
+        return 'true';
+      }
+    }
+  };
+  const state = {
+    players: [{ id: 10 }, { id: 20 }],
+    logs: [{ id: 1, client: 20, message: 'PRIVATE', params }]
+  };
+  assert.throws(() => projectActorVisibleHistory(state, 0), /ACTOR_HISTORY_INVALID_PRIVATE_FLAG/);
+  assert.equal(coercions, 0);
+});
+
 test('does not inspect the payload of an opponent-private log', () => {
   let getterCalls = 0;
   const params = { private: true };
