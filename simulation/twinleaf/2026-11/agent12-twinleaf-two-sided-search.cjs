@@ -14,6 +14,8 @@ const {
   buildNativeActionFrontier,
   actionSignature
 } = require('../../evaluation/2026-11/agent36-native-action-frontier.cjs');
+const nativePromptProjection =
+  require('../../evaluation/2026-11/agent36-prompt-projection.cjs');
 const {
   createStoreStateSnapshotter
 } = require('../../evaluation/2026-11/agent49-native-fixture-game.cjs');
@@ -64,7 +66,6 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     'enginePin',
     'actorObservation',
     'projectPrompt',
-    'enumeratePromptChoices',
     'isAutomaticPrompt',
     'resolveAutomaticPrompt',
     'redeterminize',
@@ -87,7 +88,9 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
   assert.equal(typeof deps.projectPrompt, 'function');
   assert.ok(typeof deps.rulesProfileId === 'string' && deps.rulesProfileId.length > 0,
     'Twinleaf rulesProfileId is required for reproducible state observations');
-  assert.equal(typeof deps.enumeratePromptChoices, 'function');
+  if (deps.enumeratePromptChoices !== undefined) {
+    assert.equal(typeof deps.enumeratePromptChoices, 'function');
+  }
   assert.equal(typeof deps.isAutomaticPrompt, 'function');
   assert.equal(typeof deps.resolveAutomaticPrompt, 'function');
   assert.equal(typeof deps.redeterminize, 'function');
@@ -131,6 +134,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
 
   const snapshotState = createStoreStateSnapshotter();
   const nativePayloadByAction = new WeakMap();
+  const promptChoicesByProjection = new Map();
   const counters = {
     nativeFrontiers: 0,
     promptFrontiers: 0,
@@ -224,11 +228,25 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     const prompt = firstPendingPrompt(state);
     if (!prompt) return frozenActorView(view);
     assert.equal(unresolvedDecisionSeat(prompt, state), seat);
-    const projectedPrompt = deps.projectPrompt(state, prompt, seat, view, context);
-    assert.ok(projectedPrompt && typeof projectedPrompt === 'object' &&
-      !Array.isArray(projectedPrompt),
+    const projectionResult = deps.projectPrompt(state, prompt, seat, view, context);
+    assert.ok(projectionResult && typeof projectionResult === 'object' &&
+      !Array.isArray(projectionResult),
     'Prompt projector must return an actor-visible object');
-    return frozenActorView({ ...view, pendingPrompt: projectedPrompt });
+    assert.notEqual(projectionResult.hostOnly, true,
+      'Host-only prompt reached the player-choice projection path');
+    const projectedPrompt = projectionResult.promptProjection ??
+      projectionResult;
+    if (projectionResult.promptProjection &&
+        projectionResult.choiceByToken instanceof Map) {
+      const frozenProjection = frozenActorView(projectedPrompt);
+      promptChoicesByProjection.set(canonicalJson(frozenProjection), {
+        promptId: prompt.id,
+        choiceByToken: projectionResult.choiceByToken
+      });
+      return frozenActorView({ ...view, pendingPrompt: frozenProjection });
+    }
+    return frozenActorView({ ...view,
+      pendingPrompt: frozenActorView(projectedPrompt) });
   }
 
   function enumeratePromptActions(state, seat, context) {
@@ -239,7 +257,16 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     const projectedPrompt = observation.pendingPrompt;
     const promptType = typeof projectedPrompt.type === 'string' ?
       projectedPrompt.type : (prompt.constructor?.name ?? 'prompt');
-    const choices = deps.enumeratePromptChoices(projectedPrompt, observation, seat);
+    const cachedProjection = promptChoicesByProjection.get(
+      canonicalJson(projectedPrompt));
+    const choices = deps.enumeratePromptChoices ?
+      deps.enumeratePromptChoices(projectedPrompt, observation, seat) :
+      (cachedProjection && Array.isArray(projectedPrompt.choices) ?
+        projectedPrompt.choices.map(choice => ({
+          key: choice.token,
+          label: choice.label,
+          result: cachedProjection.choiceByToken.get(choice.token)
+        })) : null);
     assert.ok(Array.isArray(choices) && choices.length > 0,
       'Actor-visible prompt frontier must contain at least one choice');
     const seen = new Set();
@@ -262,7 +289,9 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
       nativePayloadByAction.set(action, {
         kind: 'prompt',
         promptId: prompt.id,
-        result: choice.result
+        result: choice.result,
+        choiceKey: choice.key,
+        projection: cachedProjection ?? null
       });
       return action;
     });
@@ -323,7 +352,12 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
       if (!prompt || !deps.isAutomaticPrompt(prompt, state)) return resolved;
       assert.ok(resolved < maxAutomaticPromptResolutions,
         'Automatic prompt resolution exceeded its safety bound');
-      const result = deps.resolveAutomaticPrompt(prompt, random);
+      const result = deps.resolveAutomaticPrompt(prompt, random, {
+        simulator,
+        state,
+        native,
+        context: arguments[2] ?? null
+      });
       assert.notEqual(result, undefined,
         'Automatic prompt resolver must return an explicit result (null is valid)');
       const previous = state;
@@ -351,8 +385,12 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
         'Selected prompt action is stale for the current native state');
       assert.equal(unresolvedDecisionSeat(prompt, simulator.store.state),
         activeSeat(state));
+      const validation = nativePromptProjection.validateRawPromptResult(
+        prompt, payload.result, simulator.store.state);
+      assert.equal(validation.valid, true,
+        'Selected actor-owned prompt choice failed native decode/validation');
       withRandom(random, () => simulator.store.dispatch(
-        new native.ResolvePromptAction(prompt.id, payload.result)));
+        new native.ResolvePromptAction(prompt.id, validation.decoded)));
       transferMetadata(state, simulator.store.state);
       counters.promptTransitions += 1;
     } else {
@@ -372,6 +410,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
 
   function resetAudit() {
     for (const key of Object.keys(counters)) counters[key] = 0;
+    promptChoicesByProjection.clear();
   }
 
   function audit() {
