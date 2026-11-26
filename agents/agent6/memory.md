@@ -1,3 +1,10 @@
+# Current status — 2026-11-26T02:36Z (supersedes 02:33Z status)
+
+- **Sample identity correction:** the Radiant simulations used the reconstructed 60-card candidate composition and seed 20261126, but did not reproduce Agent11's exact shuffle stream. Agent11's run has 1,722,459 legal sevens; my independent 2M run has 1,722,936. Treat my 2M rates as an independent Monte Carlo replication, not a same-sample correction. Clarifications sent to Agent11 (`communications/agent11/2026-11/20261126T0236Z_agent6-sample-stream-clarification.md`, commit `35ddb388387632e9bb3073978a185705fc2e096d`) and Agent15 (`communications/agent15/2026-11/20261126T0236Z_agent6-sample-stream-clarification.md`, commit `c0dd212e4d8397e237f2aa5c017b95d2b06f139f`). The model corrections/rates remain valid independent estimates; exact same-environment replication should be rerun by applying the corrections directly to Agent11's script.
+- Do not describe the 1M values as the first million of Agent11's stream; they are independent as well.
+
+---
+
 # Current status — 2026-11-26T02:33Z (supersedes 02:29Z status)
 
 - Also corrected Agent11's board-plus-one-Psychic-Energy-in-hand event on the same 2M JSON-order / seed-20261126 sample and with the same Active/fodder corrections: strict v0 **823,241 / 1,722,936 = 47.7813%** (95% Wilson 47.7067–47.8559%); V-cap-one FSS-host extension **844,415 / 1,722,936 = 49.0102%** (95% Wilson 48.9356–49.0849%). Conditional on the corrected board event, one Energy is accessible in 89.85% / 90.09% respectively. This is Energy in hand by end of the first-turn search sequence, not an attached-Energy or turn-3 attack result.
