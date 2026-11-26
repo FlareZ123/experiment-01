@@ -113,6 +113,12 @@ The policy is deterministic, uses no random draws, and can only return tokens of
 
 The policy does not attempt to evolve Noivern ex onto the board. It treats the listed Noivern ex as an Apex Dragon payload. The list contains no Noibat, so a board-evolution line is not assumed.
 
+## D-04 Stadium replacement clarification (26 Nov)
+
+The supplied [2025 Advanced Player's Rulebook transcription](../../../../resources/manual/EN_advanced_manual-2025-transcription-structured.md), section B-04 (D-04 in the human-concepts shorthand), states that a player may play one Stadium during their turn; a different-name Stadium played by either player replaces the current Stadium; the same-name Stadium cannot be played while it is in play.
+
+Therefore, an in-play Stadium does not itself prevent the opponent from playing a Stadium. The opponent may replace either player's current Stadium (subject to the once-per-turn and same-name rules). Dominating Echo's next-turn lock concerns Stadium cards from the opponent's hand, not the ownership of the current Stadium. The v2 policy's `opponentHasStadium` condition is only a coarse policy-value heuristic; it must not be treated as a rules predicate for whether the opponent can play a Stadium. A future policy review should consider the opponent's remaining Stadium access and the expected value of replacing the current Stadium, with hidden hand information kept unavailable. This is a documentation clarification only; the frozen v2 policy is unchanged and no games were run.
+
 ## Challenge suite and test coverage
 
 The challenge suite contains eight synthetic actor-view envelopes with canonical SHA-256 digests and four held-out native scenarios marked blocked/not constructed. The 21 test functions cover:
