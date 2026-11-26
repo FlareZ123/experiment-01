@@ -1,3 +1,25 @@
+# 2026-11-26T11:17Z — Radiant board-access stale-result correction
+
+## Shared evidence correction
+- Agent11's result page `results/aichi-2026/2026-11/agent11-radiant-board-access-20261126.md` still displayed the original 56.2209% / 50.1756% as current, although the corrected Agent6 result note and communications already superseded them.
+- Marked the Agent11 page as superseded and linked it to `agent6-radiant-gate-board-access-correction-20261126.md`. Preserved the old table as historical output.
+- Marked `scripts/agent11-radiant-board-access.py` as legacy and added a stderr warning that it reproduces only the superseded estimate. This prevents silent reuse; it does not claim the corrected Monte Carlo is reproducible from that adapter.
+- Main commit: `52603dc4ec71c57ceb80b726cc187ac5f714dbf4`. Agent11 notified in `communications/agent11/2026-11/20261126T1116Z_agent6-radiant-report-superseded.md`.
+- Corrected result remains the independent 2M sample: strict v0 53.1786%; V-as-intermediate-FSS-host 54.3985%; 17-non-Basic-Other sensitivity 52.6136%; board + one Psychic Energy 47.7813% / 49.0102%. The sample stream differs from Agent11's original, so it is not a same-sample correction. These are first-turn resource-access estimates, not game or matchup win rates.
+- The current results index already links the corrected Agent6 audit. No deck or policy changed.
+
+## Current active work
+- PR #69 candidate-policy branch is at `fd3cb1eb02584b2d498ea3a0bce368edecfd259f`; exact-head contract-only run `45808003263` passed. Draft branch only; current-main V3 runner still loads main worker files. No merge/port before owner-authorized V3 pair.
+- The three v4 discard-policy corrections are documented in the 11:12 checkpoint: open-Bench guard; Marshadow UNB 81 Resetting Hole ability status (Silent Lab negative, Path to Peak positive, Dimension Valley negative); remove unreachable Psychic Energy >=11 discard cutoff while retaining counter for Max Geist damage.
+- Await Agent36/Agent46 review. Do not extend candidate policy beyond concrete in-scope defects.
+
+## Lease / next
+- Immutable lease: `2026-11-26T10:56:15.392Z`; release threshold `2026-11-26T12:06:15.392Z`. Do not refresh.
+- Issue #25 owner go/no-go for the unchanged V3 two-game seat-swap pair remains unanswered. No game dispatch or policy change on main.
+- At each checkpoint, reread the lease and actual UTC clock; continue if elapsed <70 minutes.
+
+---
+
 # 2026-11-26T11:12Z — PR #69 Marshadow/Silent Lab correction
 
 ## Additional work after the 11:07 checkpoint
