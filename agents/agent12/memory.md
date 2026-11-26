@@ -2098,3 +2098,23 @@ Agent44's builder now requires `trial.fixtureOnly === true` for `buildV3GameBund
 - The overall workflow job failed later in a separate step, Generic owner-hand Trainer category and shared-action opportunity tests, on three Wondrous Labyrinth assertions in tests/agent8-wondrous-energy-cost-regression.test.cjs. Do not call the workflow green; this failure is outside the modified files and not the MCTS contract step.
 - Added the exact test outcome to results/methodology/2026-11/agent12-two-sided-search-interface-20261126.md. Current branch head is now ff4a3bc5881f93fd1dc12a520ec13af7d461a351.
 - Compared against current main: branch is 16 commits ahead / 9 behind; the nine main-side commits since merge base touch only other agents' leases/memory and communications, not this branch's changed implementation files. Open a draft PR for review; do not merge without Agent5/Agent25 review and exact-head integration discussion.
+
+
+## 2026-11-26 01:46 UTC — native prompt binding, terminal classification, and final contract run
+
+- Read Agent1's handoffs on draw-sensitive objective, rootSeat vs actorSeat, and frozen-opponent best responses. Integrated the useful distinctions:
+  - vector values are indexed by physical seat at every node; actorSeat owns the observation, rootSeat remains fixed;
+  - audit searchMode distinguishes two-sided PUCT from root best response against a frozen opponentActionPolicy/opponentPolicyId;
+  - only a paper-adjudicated draw is [0,0]. Unresolved/invalid/no-winner terminal states must be explicitly adjudicated or rejected; test terminalValues throws on unclassified terminal state.
+- Added a fixed-opponent root best-response test, and audit protocol name now explicitly says adjudicated draws. Core test demonstrates draw-heavy vs win/loss tradeoff, opponent node own-win optimization, frozen-policy root response, invalid vectors, and unclassified terminal rejection.
+- Extended the generic adapter to bind Agent36's native prompt projection:
+  - createNativeTwinleafPromptCallbacks wraps agent36-prompt-projection.cjs for actor-visible prompt projection, host-only physical-RNG resolution, and card-effect source provenance mapping;
+  - native prompt choices are decoded/validated before dispatch;
+  - prompt action dispatch reuses the exact cloned Simulator/Store used to project the choice, avoiding cross-clone raw-result references;
+  - host-only resolver receives the cloned simulator/state context;
+  - prompt projection cache is bounded and cleared after search.
+- Card-effect prompts remain fail-closed unless the caller provides provenanceForPrompt and mapSourceCard. No full Twinleaf prompt-class coverage or live provenance transfer is claimed.
+- Adapter audit now records enginePin, rulesProfileId, candidateDecklistId, candidateSeat, maxNativeFrontier, and knowledge/prompt protocol identifiers; tests assert these fields for both root seats.
+- Exact code head 33ff8bae24417ea57b01f3ac124cf1836d924957 passed the MCTS/belief/adapter/Flittle/Aichi bridge contract-test workflow step in run 45737837996. Overall workflow failed later in the separate Agent8 Wondrous Labyrinth regression step (three assertions); do not call the workflow green. No game/Stage-A/B/Aichi match was dispatched.
+- PR #75 is open as a draft and mergeable; current PR head d3c66a8dd41283938d83249e6259847080d9ae5f (documentation-only update after the tested code head). Branch is synced to main (ahead 20, behind 0 at last compare). Review requests sent to Agent1, Agent5, Agent25; no replies observed yet.
+- Next: get review on general-sum vs frozen-opponent objective and sampler/provenance contracts; bind provenanceForPrompt/mapSourceCard to the actual pinned V3 Store lifecycle; connect the adapter into the existing V3 runner and full-state recorder only after that audit. No new runner/workflow, no full games without owner authorization, no deck/matchup/99.5 claim.
