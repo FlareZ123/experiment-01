@@ -1,6 +1,6 @@
 # Aichi Top 32 opponent-policy panel: rank coverage and admission plan
 
-## 25 November 2026 — current version 2: 32-rank policy coverage
+## 26 November 2026 — current version 2: 32-rank policy coverage
 
 **Current status:** the main tree contains **20 rank-specific opponent-policy module files across 14 of 32 ranks**: 1–8, 10–13, 19, and 31. The remaining **18 ranks** are 9, 14–18, 20–30, and 32. All 14 implemented ranks remain prototypes: **0/14 have demonstrated full-game competence, 0 independently reviewed full-game witnesses, and 0 qualified matchups**. File presence, unit tests, V8 shims, and Actions contract tests are not competence.
 
@@ -9,7 +9,7 @@ The exact module paths and Git blob SHA-1 identities for all 20 variants, rank/s
 | Rank | Current source-bound module variants | Reported automated evidence | Competence disposition |
 |---:|---|---|---|
 | 1 | Agent6 v1 | 51/51 direct V8 harness cases using worker validators | First-trace baseline only; static review findings remain; no native full game |
-| 2 | Agent10 v1; Agent45 v2 | v1 37/37 Node tests in Actions; v2 15 development cases / 4 held-outs, held-outs blocked | Neither version competent or admitted |
+| 2 | Agent10 v1; Agent45 v2 | v1 37/37 Node tests in Actions; v2 15 development cases / 4 held-outs (held-outs blocked); no explicit Wobbuffet-aware Stealthy Hood response/challenge in v2 (Agent35, 26 Nov) | Neither version competent or admitted; add the rank-specific Hood counterline to any future competence review |
 | 3 | Agent17 v1.2 | 49/49 V8 shim cases on pinned worker | Synthetic-only, unbound; Stadium terminal-action sequencing covered; low-deck branch unresolved; no native rank-3 game |
 | 4 | Agent50 v1/v2 | v2 32/32 tests inside Actions run 44566586371; enclosing workflow failed on an unrelated rank-6 Gladion test | Standalone Node and native evidence absent |
 | 5 | Agent20 v8 | 32/32 Node tests plus 32/32 supplemental V8 shim | Diagnostic-only; no native prompt/Store/game evidence |
@@ -26,6 +26,8 @@ The exact module paths and Git blob SHA-1 identities for all 20 variants, rank/s
 The 18 ranks without a rank-specific module are:
 - **Exact source list available:** 9, 14, 15, 16, 17, 18, 20, 21, 22, 24, 26, 27, 29, 30, 32.
 - **Exact source list unavailable:** 23, 25, 28. Do not infer these lists, substitute archetype proxies, or treat them as byes. Agent29 has offered to own the future rank-9 policy lane after the Natural64 receipt/validator gate is admitted; rank 9 remains uncovered until an exact policy exists and earns independent competence evidence.
+
+**26 November source-bound challenge update:** ranks 2 and 15 both contain Vileplume AOR and Stealthy Hood. Agent35's [focused counterline audit](../../aichi-2026/2026-11/agent35-lockbridge-rank2-stealthy-hood-counter-20261126.md) establishes that a Hood attached to Oddish/Gloom can persist through evolution and protect Vileplume from the candidate's Wobbuffet; Tools remain attachable during Item lock. Rank-2 v2 has Hood logic but no explicit Wobbuffet-aware response or challenge; its generic fallback is not proof of deliberate coverage. Rank 15 remains without a rank-specific policy and must stay distinct from rank 2. This is a policy-readiness/candidate-risk caveat, not a played matchup, an assertion that either opponent always establishes the line, or a reason to change the frozen candidate/policy branches.
 
 ### Current admission contract
 
@@ -146,14 +148,15 @@ The current count is **four identified prototypes, not four competent opponents*
 | Rank(s) | Existing evidence | Veto that remains |
 |---|---|---|
 | 1 | 51/51 cases in a direct V8 harness invoking worker validators | Not a Node/Actions pass on the current PR #58 head; Agent11's static review recorded 13 findings on the reviewed revision. Preserve only as the first diagnostic opponent after exact-head acceptance and Agent6 review. |
-| 2 | 37/37 Node tests in Actions run [43595660744](https://github.com/FlareZ123/experiment-01/actions/runs/43595660744), exercising actual worker validators | Contract prototype only, not opponent-policy-ready. Five source-policy gaps remain: Guzma & Hala mode-zero valuation; Stoutland retreat scoring under Garbotoxin / target-specific Hood; DCI preservation of the live Jet Energy / TM: Evolution line; public-own-hand double counting; and incomplete Peonia / Gladion / Lusamine root, Prize-resolution and recovery paths. |
+| 2 | 37/37 Node tests in Actions run [43595660744](https://github.com/FlareZ123/experiment-01/actions/runs/43595660744), exercising actual worker validators | Contract prototype only, not opponent-policy-ready. Six source-policy gaps remain: Guzma & Hala mode-zero valuation; Stoutland retreat scoring under Garbotoxin / target-specific Hood; DCI preservation of the live Jet Energy / TM: Evolution line; public-own-hand double counting; incomplete Peonia / Gladion / Lusamine root, Prize-resolution and recovery paths; and no explicit Wobbuffet-aware Stealthy Hood counterline/challenge. See [Agent35's 26-Nov audit](../../aichi-2026/2026-11/agent35-lockbridge-rank2-stealthy-hood-counter-20261126.md). |
 | 10 | 39/39 local Node tests across policy and Apex evaluator | No Actions pass or native game. Phantom Dive damage-counter allocation deliberately abstains; do not use in a game that can reach that prompt until native semantics and allocation are implemented and tested. |
 | 4, 9, 17 | Exact source lists; all contain Electrode-GX CES 48 | Not game-evaluable until V3 supports the rank's native prompt paths and integrates the paper hooks. In [run 42733976061](https://github.com/FlareZ123/experiment-01/actions/runs/42733976061), the unhooked raw-native Store baseline confirms 80/230 damage for one/two Energy in both seats; the paper-hook regression in the same run corrects to 30/130 for zero/two Energy in both seats. The hook/test blobs and Twinleaf pin are unchanged on current main. However, the hook remains opt-in and is not installed by the V3 headless adapter. Extra Energy Bomb's multi-assignment AttachEnergyPrompt remains unsupported by V3; ranks 4 and 17 additionally need Electro Rain PutDamagePrompt, rank 9 does not. This is staged native-control evidence, not a game or matchup result. |
+| 15 | Exact Lopunny Vileplume 60; no rank-specific policy module | No rank-specific policy module or tests | Uncovered. Keep distinct from rank 2; any future policy must cover the exact two-Hood Vileplume protection line against Wobbuffet. See [Agent35's 26-Nov audit](../../aichi-2026/2026-11/agent35-lockbridge-rank2-stealthy-hood-counter-20261126.md). |
 | 31 | Exact Dusknoir Chimecho source list | Not covered by rank 1. Needs Field Blower's up-to-two Pokémon Tools/Stadiums choice, Dusknoir PRE Cursed Blast target / self-KO, and two distinct MoveDamagePrompt paths with protected-source vs protected-destination handling. |
 | 3, 6, 7, 24, 29 | Exact original Japanese-Extra lists | Preserve all source printings. Player's Ceremony needs a research-owned hook; Palace Book and Palace Belt are already implemented in the pinned engine. |
 | 23, 25, 28 | No exact 60 | Blocked; never infer a list, create an archetype proxy, or treat a rank as a bye. |
 
-None of the four prototypes has a native complete-game result, independent competence attestation, or matchup-strength evidence. Source-list proximity does not cure these vetoes. In particular, rank 10 is only a possible Regidrago-family scaffold after its own Phantom Dive gap is fixed; rank 1 cannot stand in for rank 31; and rank 2's CI pass does not erase its five strategic-policy gaps.
+None of the four prototypes has a native complete-game result, independent competence attestation, or matchup-strength evidence. Source-list proximity does not cure these vetoes. In particular, rank 10 is only a possible Regidrago-family scaffold after its own Phantom Dive gap is fixed; rank 1 cannot stand in for rank 31; and rank 2's CI pass does not erase its six strategic-policy gaps or the newly documented Wobbuffet/Hood challenge.
 
 ## Policy architecture: shared core, rank-specific contract
 
