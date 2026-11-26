@@ -1,3 +1,38 @@
+# 2026-11-26 04:05 UTC — exact-head V3 no-game witness passed; Agent6 continuation
+
+## Invocation and lease
+- Initial CSPRNG draw: 6/10, normal research mode. Agent6 was available because the prior lease had been released at the preceding incarnation's 70-minute checkpoint.
+- Current immutable lease: 2026-11-26T03:52:29.975578548Z, run agent6-chat-20261126T035229Z-normal6-gpt6-policy-vertical-slice, claim commit ecc4e1f8200d7916827195b35a27df5671262b02. 70-minute orderly-release threshold: 2026-11-26T05:02:29.975578548Z. Do not refresh; compare actual UTC clock after every checkpoint.
+- No private data was needed. Do not change other agents' leases.
+
+## Exact V3 gate result
+- PR #76 branch agent6/v3-fail-closed-guard-20261126 corrected head: 1e65ff55cca31c42ee7607311304efecbf959ad1.
+- Exact-head contract-only run 45752339937 passed.
+- Exact-head four-cell native no-game witness 45752443093 passed, using pinned Twinleaf a9905a76a6c4103ba4b6cb9a49e86bad795c5c05. Existing workflow .github/workflows/agent36-bilateral-competence-v9.yml; no new workflow.
+- Witness artifact ID 15086561820, ZIP digest sha256:04cdaf823a157fad38df4d3b4477c14eb4b7f8178cb143788e16989bf614604c. The downloaded native-no-game-witness.json records schema agent36-v3-native-no-game-witness-v2, coverage 0:0, 0:1, 1:0, 1:1 (candidate/opponent role × physical actor seat), same registered candidate/opponent deck hashes and policy hashes across all cells, actor-only worker inputs, cloned-Store action validation, unchanged original Store, closed workers, and zero worker failures. Top-level and every cell explicitly record gameExecuted=false; top-level liveActionsDispatched=false; each cell has acceptedRootActions=0. This is an engineering/no-game witness only, not a fixture game, policy-competence result, matchup, deck nomination, or win-rate evidence.
+- Exact policies in the witness: candidate agent46-hood-candidate-v1 SHA256 a4acf984f859f5fc216e92ccf307bdf6f8a52de61694ae83c643d6907c62a4a3; opponent agent6-rank1-shadow-rider-opponent-v3 SHA256 be490919a86da2c80af5e58a2bb0b02875b7428bcc757fbc729694019a886371. Candidate printed-60 SHA256 1cc3d2080b40c7a9e0c61297439ba5d1ae34f9211ba9b24fcffffb2786a3e924; opponent printed-60 SHA256 159019c3e714677433e87bbdaf6789922ba33491549864d3a7ab17b4f7db3090.
+- No fixture game or any other game was dispatched. The owner-controlled two-game physical-seat-swap go/no-go and encrypted-full key confirmation remain outstanding. Stage-A/issue #72 is a separate frozen owner decision.
+
+## Ability-lock test failure: corrected diagnosis
+- Earlier no-game run 45745695972 at branch head 77af3ac54fb8fa791050b0d9f4793d2a9becd865 failed two Agent21 assertions at test line 73 (both seats, null !== 0). Initial diagnosis in messages 20261126T035712Z_agent6-ability-lock-projection-root-cause.md and 20261126T035712Z_agent6-pr76-ability-lock-projection-fix.md was wrong and explicitly retracted in follow-up messages.
+- Pinned Twinleaf source confirms native PokemonCardList.abilityLockActivationOrder initializes to 0, and CLEAR_ABILITY_LOCK_ACTIVATION writes 0 when a Pokémon leaves Active. Agent21's direct native-state assertion at line 65 already passed.
+- The research actor-observation contract intentionally normalizes native zero (no established locker) to null, exposing only positive established activation orders. Existing tests/actor-observation-contract.test.cjs:197-244 explicitly asserts zero-to-null at lines 235-243. Thus the production projector was correct; Agent21's new projected-view assertion was stale.
+- A temporary wrong helper change was committed at 82f973d7c94c896ea5a99a922510c7fafa8f9ded; exact-head contract-only run 45752134781 failed because it contradicted the existing zero-to-null contract test. It was reverted. The helper is back to original blob 712dc196f0d6316545efedf3f682c232ef0403c9. Only the Agent21 assertion was changed to expect null with an explanatory message. The corrected head is 1e65ff55; contract-only and no-game gates both pass.
+- Correction sent to Agent21 and Agent49; Agent2 asked to independently inspect the receipt; Agent1/Agent4 asked to review the bounded key/workflow guard.
+
+## PR and integration state
+- PR #76 remains draft. Its description now records exact-head run IDs, artifact digest, no-game scope, corrected test disposition, and the fact that it is not merge-ready.
+- At 04:03Z, compare showed branch agent6/v3-fail-closed-guard-20261126 was 15 commits ahead / 67 behind current main, diverged at merge base dd1cc61df5182ebf9e73eaf215e81dc9b5d53c78. Do not merge this branch as-is. Agent49 is the V3 integration steward; hand off the exact receipts and let the steward reconcile the bounded guard/test changes onto current main, preserving mainline changes, then rerun existing exact-head contract-only and no-game gates.
+- Messages sent at 04:04Z to Agent49, Agent21, Agent2, Agent1, Agent4 under their 2026-11 mailboxes. Wait for substantive review; do not create parallel workflow or dispatch.
+
+## Objective status and next actions
+- Still no selected final fixed 60, 0/32 qualified competitive Aichi matchups, and no demonstrated 99.5% field win rate.
+- Next: (1) obtain Agent49's integration disposition and independent Agent1/Agent4 guard review; (2) have Agent2 review the exact witness artifact and actor/seat invariants; (3) keep PR #76 draft until the bounded patch is reconciled onto current main and exact-head gates pass; (4) do not dispatch the registered two-game fixture without explicit owner go/no-go and valid encrypted-full key configuration.
+- Do not expand MCTS, candidate variants, statistics, or other sidework. The 03:15Z and 03:34Z Critic broadcasts prioritize one owner-authorized complete game and trace-to-learning loop; this invocation has only passed a no-game engineering gate.
+- Useful references: communications/broadcast/2026-11/20261126T031528Z_critic_trace-to-learning-loop-convergence.md, communications/broadcast/2026-11/20261126T033444Z_critic-mcts-ci-lane-convergence.md, communications/agent49/2026-11/20261126T040426_agent6-pr76-four-cell-no-game-pass.md.
+
+---
+
 # Final handoff — 2026-11-26T03:12Z (Agent6 normal incarnation releasing at 70-minute lease age)
 
 ## Durable work
