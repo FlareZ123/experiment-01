@@ -2,6 +2,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {buildTwinleafBeliefInput,applySampledPartitionsToTwinleafState,createPublicDecklistPriorProvider,createTwinleafDeterminizationSampler}=require('../../simulation/twinleaf/2026-11/agent5-twinleaf-belief-input.cjs');
+const {canonicalJson,observationSha256}=require('../../simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs');
 
 const throwingHiddenCard=()=>new Proxy({}, {
   get(_target,key){
@@ -139,7 +140,13 @@ test('two-seat Twinleaf determinizer replaces hidden faces from registered 60s a
     knownBottomDeckOrder:false,knownPrizePrintings:[],ownerK1Snapshot:null};
   const rootKnowledgeCalls=[],beliefCalls=[],seatLedgerCalls=[];
   const sampler=createTwinleafDeterminizationSampler({
-    actorObservation:()=>observation,
+    actorObservation:(currentState,actorSeat,{ownerK1Snapshot})=>({
+      actorSeat,
+      ownHand:currentState.players[actorSeat].hand.cards.map(card=>card.fullName),
+      ownPublic:actorSeat===0?observation.ownPublic:observation.opponentPublic,
+      opponentPublic:actorSeat===0?observation.opponentPublic:observation.ownPublic,
+      ownerK1:ownerK1Snapshot??null
+    }),
     cloneState,
     rootKnowledgeBySeat:input=>{
       rootKnowledgeCalls.push(input);
@@ -150,12 +157,13 @@ test('two-seat Twinleaf determinizer replaces hidden faces from registered 60s a
     beliefKnowledgeBySeat:input=>{
       beliefCalls.push(input);
       assert.equal(Object.hasOwn(input,'state'),false);
-      assert.equal(input.targetSeat,1);
+      assert.equal(input.targetSeat,1-input.rootSeat);
       return knowledge;
     },
     seatKnowledgeBySeat:input=>{
       seatLedgerCalls.push(input.seat);
-      if(input.seat===0)return input.previousLedger;
+      if(input.previousLedger)return input.previousLedger;
+      if(input.seat===0)return k0();
       const prizes=input.state.players[input.seat].prizes
         .flatMap(slot=>slot.cards.map(card=>card.fullName));
       const counts=new Map();
@@ -203,6 +211,32 @@ test('two-seat Twinleaf determinizer replaces hidden faces from registered 60s a
   assert.equal(rootKnowledgeCalls.length,1);
   assert.equal(beliefCalls.length,1);
   assert.deepEqual(seatLedgerCalls.sort(),[0,1]);
+
+  // The opponent's K1 ledger is now the acting seat's own perfect-recall
+  // ledger. Re-determinizing from seat 1 must preserve that exact metadata,
+  // not reconstruct it through the root-knowledge provider.
+  const successor=cloneState(sampled);
+  assert.equal(sampler.refreshMetadata(sampled,successor),true);
+  const priorSeat1Ledger=sampler.metadataByState.get(successor).knowledgeBySeat[1];
+  assert.equal(priorSeat1Ledger.mode,'K1');
+  assert.equal(priorSeat1Ledger.ownerK1Snapshot.epoch,1);
+  const seat1Observation={
+    actorSeat:1,
+    ownHand:successor.players[1].hand.cards.map(card=>card.fullName),
+    ownPublic:observation.opponentPublic,
+    opponentPublic:observation.ownPublic,
+    ownerK1:priorSeat1Ledger.ownerK1Snapshot,
+    ownerKnowledgeLedger:priorSeat1Ledger
+  };
+  const redeterminedForSeat1=sampler(successor,1,()=>0.271828,seat1Observation);
+  const preservedSeat1Ledger=sampler.metadataByState.get(redeterminedForSeat1).knowledgeBySeat[1];
+  assert.deepEqual(preservedSeat1Ledger,priorSeat1Ledger);
+  assert.deepEqual(preservedSeat1Ledger.knownPrizePrintings,
+    priorSeat1Ledger.knownPrizePrintings);
+  assert.equal(rootKnowledgeCalls.length,1,
+    'A sampled acting seat must reuse its authenticated ledger instead of reconstructing it');
+  assert.equal(sampler.metadataByState.get(redeterminedForSeat1).rootSeat,1);
+
   assert.equal(sampler.knowledgeBySeat(state,0,{rootSeat:0}).mode,'K0');
   assert.throws(()=>sampler.knowledgeBySeat(state,1,{rootSeat:0}),
     /only the root actor private ledger/);
@@ -328,4 +362,43 @@ test('a public opponent hand is included as known hand rather than sampled',()=>
     beliefKnowledgeBySeat:f.knowledgeBySeat});
   assert.deepEqual(result.knownHand,['H','H','H']);
   assert.equal(result.hiddenHandCount,0);
+});
+
+
+test('observation canonicalization rejects values that would collide or change type in policy snapshots',()=>{
+  assert.equal(canonicalJson({z:1,a:[true,'x']}),'{"a":[true,"x"],"z":1}');
+  assert.equal(observationSha256({a:[1,2]}),observationSha256({a:[1,2]}));
+  assert.notEqual(observationSha256({a:[1,2]}),observationSha256({a:[2,1]}));
+  assert.throws(()=>canonicalJson({value:undefined}),/JSON-safe/);
+  assert.throws(()=>canonicalJson({value:()=>0}),/JSON-safe/);
+  assert.throws(()=>canonicalJson([undefined]),/JSON-safe/);
+  assert.throws(()=>canonicalJson({value:-0}),/negative zero/);
+  assert.throws(()=>canonicalJson({value:NaN}),/non-finite/);
+  assert.throws(()=>canonicalJson(new Array(1)),/dense/);
+  const sparse=new Array(1);
+  assert.throws(()=>observationSha256(sparse),/dense/);
+});
+
+test('observation canonicalization rejects hidden object properties and accessors without invoking getters',()=>{
+  const symbolKey=Symbol('hidden');
+  const withSymbol={visible:true};
+  withSymbol[symbolKey]='secret';
+  assert.throws(()=>canonicalJson(withSymbol),/symbol keys/);
+
+  const nonEnumerable={visible:true};
+  Object.defineProperty(nonEnumerable,'hidden',{value:'secret',enumerable:false});
+  assert.throws(()=>canonicalJson(nonEnumerable),/enumerable data properties/);
+
+  let getterCalls=0;
+  const withGetter={};
+  Object.defineProperty(withGetter,'secret',{
+    enumerable:true,
+    get(){getterCalls++;return 'secret';}
+  });
+  assert.throws(()=>canonicalJson(withGetter),/enumerable data properties/);
+  assert.equal(getterCalls,0,'Canonicalization must reject accessors without invoking them');
+
+  const arrayWithExtra=[1];
+  arrayWithExtra.extra='secret';
+  assert.throws(()=>canonicalJson(arrayWithExtra),/dense and have no extra properties/);
 });
