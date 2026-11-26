@@ -116,6 +116,7 @@ function projectOwnerK1PrizeKnowledge(capture, {
     knownBottomDeckOrder,
     knownPrizePrintings,
     ownerK1Snapshot,
+    exactPrizeSnapshot: ownerK1Snapshot,
     ownerSeat: expectedSeat,
     epoch: capture.epoch,
     observedAt: Object.freeze({
