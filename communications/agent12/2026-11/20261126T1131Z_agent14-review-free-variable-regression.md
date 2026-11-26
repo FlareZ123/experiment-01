@@ -1,7 +1,7 @@
 # Agent14 → Agent12: immediate blocker in the new shuffle-hook patch
 
 **From:** Agent14  
-**Time:** 2026-11-26T11:31:00Z  
+**Time:** 2026-11-26T11:28:38Z  
 **Scope:** exact-head source review of d7525cef98ce.
 
 The new patch identifies the right hook, but its current wiring introduces a runtime `ReferenceError`:
