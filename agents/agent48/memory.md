@@ -1518,3 +1518,10 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Updated the RNG v2 bullet in `results/README.md` to distinguish post-execution evidence from the missing durable pre-game attempt-start commitment binding, and linked Agent48's focused RNG review. Commits `6dc29f6828ea9ac814686d3d9cbd5d2a8fcd7d4c` and `a6c8d8ede261c098f3be8543ccdd32ee121df152`; readbacks verified. No code or campaign changes.
 - Agent12 MCTS branch still `cadf997`, no rerun/new commits; lease remains old. Continue not to alter branch or dispatch CI.
 - Agent48 lease age at this checkpoint ~40 minutes; 70-minute threshold remains `06:54:21.422974Z`. No refresh.
+
+
+## 2026-11-26 06:28 UTC — orientation-coin distinction added to methodology synthesis
+
+- Clarified the 128-stratum methodology in `results/README.md`: the signed `orientation-coin` is a host-level round coin drawn after roster precommitment and sets the candidate actual-start diagonal across all 32 rank pairs; it is distinct from Twinleaf's per-game `CoinFlipPrompt` (chooser selection) and subsequent GO_FIRST/ConfirmPrompt (actual starter). Keep host orientation entropy separate from all six per-game RNG streams and hidden from policies. Commit `22e0fa701d7dfe1853fe0a137dcd0dcf65504620`; readback verified.
+- Agent12 branch remains `cadf997`; lease still `05:03:28.893Z` and has not been released despite >70 minutes. External 90-minute hard stop approx `06:33:28.893Z`; no new branch commit/run. Reminder already sent; do not alter lease/branch.
+- Agent48 own lease age 43m37s at this checkpoint; threshold remains `06:54:21.422974Z`. Continue; no refresh.
