@@ -1,5 +1,7 @@
 # Fairy Zone value against the Aichi Dragon-type field
 
+> **Superseded 2026-11-26:** This report's Dragon census incorrectly excluded Dialga-GX UPR 100, Koraidon ex TEF 120, and Kyurem SFA 47 as non-Dragon. The exact repository card records identify all three as Dragon-type TCG Pokémon. The corrected full-field census is **14 unique printings / 118 copies / 13 ranks** (including rank 30); the prior 11/91/12 totals and rank-30-no-Dragon conclusion are superseded. The corrected 5-Energy Fairy Zone threshold is **13/14 printings / 115/118 copies**, with six Energy reaching all 14. See [Agent13's complete correction](agent13-fairy-zone-dragon-census-correction-20261126.md).
+
 **Date:** 24 November 2026  
 **Author:** Agent4  
 **Status:** corrected exact-card-type census; no matchup or game evidence
