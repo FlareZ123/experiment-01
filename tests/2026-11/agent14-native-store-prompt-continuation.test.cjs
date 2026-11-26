@@ -15,6 +15,8 @@ const { initializeCards } =
 const {
   projectPrompt, dispatchPromptChoice, resolveHostOnlyPrompt
 } = require('../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
+const { createValidationRandomScope } =
+  require('../../simulation/evaluation/2026-11/agent49-native-fixture-game.cjs');
 const repositoryRoot = path.resolve(__dirname, '../..');
 const twinleafRoot = path.join(repositoryRoot, 'vendor/twinleaf');
 const compiledSimulator = path.join(
@@ -169,12 +171,29 @@ test('Quick Ball actor choice resumes its real effect in the same pinned Store',
   );
   assert.ok(choice, 'the real deck-search prompt must project its Basic Pokémon choice');
 
-  const decisionReceipt = dispatchPromptChoice({
-    store, prompt, state, actorSeat: 0, projection,
-    decision: { kind: 'select-choices', tokens: [choice.token] },
-    native,
-    withValidationRandom: callback => callback()
-  });
+  const originalAmbientRandom = Math.random;
+  const ambientSentinel = () => {
+    throw new Error('Quick Ball live player-prompt dispatch must not consume ambient Math.random');
+  };
+  Math.random = ambientSentinel;
+  let decisionReceipt;
+  try {
+    const withValidationRandom = createValidationRandomScope({
+      ambientRandom: ambientSentinel,
+      physicalRandom: () => 0.5,
+      seed: 0x141126
+    });
+    decisionReceipt = dispatchPromptChoice({
+      store, prompt, state, actorSeat: 0, projection,
+      decision: { kind: 'select-choices', tokens: [choice.token] },
+      native,
+      withValidationRandom
+    });
+    assert.strictEqual(Math.random, ambientSentinel,
+      'cloned validation must restore ambient RNG before live Quick Ball dispatch');
+  } finally {
+    Math.random = originalAmbientRandom;
+  }
   assert.equal(decisionReceipt.validationReceipt?.promptDecodeValidated, true);
 
   const hostPromptKinds = [];
