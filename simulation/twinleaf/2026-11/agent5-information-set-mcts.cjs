@@ -85,6 +85,14 @@ const PROMPT_EVENT_KEYS = Object.freeze([
 const PROMPT_DIGEST_RE = /^[a-f0-9]{64}$/i;
 const VERSIONED_PROMPT_POLICY_ID_RE = /(?:^|-)v[0-9]+$/;
 
+function hasPromptEventControlCharacters(value, rejectWhitespace = false) {
+  for (let index = 0; index < value.length; index++) {
+    const code = value.charCodeAt(index);
+    if (code < 32 || code === 127 || (rejectWhitespace && code === 32)) return true;
+  }
+  return false;
+}
+
 function readPromptEventDataProperty(event, key, label) {
   const descriptor = Object.getOwnPropertyDescriptor(event, key);
   assert.ok(descriptor && descriptor.enumerable === true &&
@@ -115,7 +123,7 @@ function sanitizePromptEvent(event, expectedActorSeat, ordinal) {
     'Prompt event actorSeat must match the bound transition actor');
   assert.ok(typeof values.promptType === 'string' &&
     values.promptType.trim().length > 0 && values.promptType.length <= 128 &&
-    !/[\\u0000-\\u001f\\u007f]/.test(values.promptType),
+    !hasPromptEventControlCharacters(values.promptType),
   'Prompt event promptType must be a short non-empty string');
   for (const key of [
     'actorObservationDigest',
@@ -139,7 +147,7 @@ function sanitizePromptEvent(event, expectedActorSeat, ordinal) {
     const token = readPromptEventDataProperty(
       values.selectedTokens, String(index), 'Prompt event selectedTokens');
     assert.ok(typeof token === 'string' && token.length > 0 && token.length <= 256 &&
-      !/\\s/.test(token),
+      !hasPromptEventControlCharacters(token, true),
     'Prompt event selectedTokens must contain only non-empty opaque token strings');
     selectedTokens.push(token);
   }
