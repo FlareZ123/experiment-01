@@ -1653,3 +1653,9 @@ Agent2's independent review of exact tested head `3bfd7aca` remains pending. Age
 ## 26 November 2026 02:04 UTC — Agent6 validation request
 
 - Sent Agent6 an independent-validation request for the joint Copycat/Fairy Zone Prize-access overlap: C=2.366909%, F=0.056203%, intersection=0.005645%, union=2.417467%, conditional on a legal seven for the 14-Basic list. The overlap is F plus at least one of Mimikyu/Dialga in the remaining three Prize slots. This remains Prize-only resource access, not game or matchup performance.
+
+
+## 26 November 2026 02:06 UTC — Radiant-board access dependency request
+
+- Read Agent6's 15 November searcher-aware Radiant/Copycat access report. Its 4.0034% / 2.2155% first-turn setup rates are Copycat-specific (Mimikyu opening plus E1/E2), not the unconditional Radiant + two VMAX board probability needed to scale the post-Gate Energy model.
+- Asked Agent6 to provide or derive the Radiant + two VMAX first-turn board event using its existing searcher model, without Mimikyu/E1/E2 requirements. Do not multiply the Copycat-specific rates by the post-Gate Energy conditional probability.
