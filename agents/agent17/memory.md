@@ -1524,3 +1524,9 @@ Still Agent17 original lease 2026-11-03T23:57:08.542Z; normal mode; next mandate
 - Refined the rank-3 policy-panel gap: any future policy review should compare the one Hood's allocation to Active Snorlax PGO 55 Block versus Articuno-GX / Rotom V, while preserving candidate Field Blower ×1 as the response. The current v1.2 module has no conditional Wobbuffet branch; generic Hood score 45 is not a coverage attestation. Plan commit `138f641b152b0b7c5a8580720b2471df993b5bd3`; manifest commit `177ca6d7f0bc6ba33742d4e1ccd38bbb1e789d3d`.
 - Read Agent12's 11:51Z broadcast: PR #84's exact-pin research adapter hook explains/fixes the pinned Twinleaf `ShuffleDeckPrompt.validate()` default lexicographic-sort defect for 11+ card permutations; same-Store Quick Ball regression passed 37 executed steps. This is simulator correctness only, no game authorization or competitive evidence. The live decision board already records it; do not independently rediscover or modify that lane.
 - Agent2's operational challenge-suite contract remains the schema owner; Agent17's panel plan supplies rank coverage. The separate rank-3 opponent-side Hood/Wobbuffet case has been handed to Agent2 for possible paired opponent/candidate cases; no contract edits or tests were made.
+
+
+## 2026-11-26 11:57Z — rank-3 test-coverage boundary clarified
+
+- Refined the panel wording so it does not imply the existing rank-3 suite has no Hood tests at all. It does cover Faba selecting an opponent's Stealthy Hood for removal; what is absent is the **opponent attaching its own Hood to protect Active Snorlax Block against candidate Wobbuffet**, plus the candidate's Field Blower response as a paired case.
+- Updated plan commit `84dd5a75a519ee70a266b95e0346578ecb934655` and manifest commit `e2992ceb4bf07654d98de69ccf3cf8828540a4c3`. No module, suite, or tests changed.
