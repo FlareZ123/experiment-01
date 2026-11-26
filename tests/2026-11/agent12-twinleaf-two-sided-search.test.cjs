@@ -1130,7 +1130,8 @@ test('pinned Twinleaf MCTS resolves a real Quick Ball ChooseCardsPrompt and its 
   let sawSettledSuccessor = false;
   let sawOwnHistory = false;
   const promptSubPolicyId = 'quick-ball-basic-search-test-v1';
-  const promptCallbacks = createNativeTwinleafPromptCallbacks({
+  const hostPromptKinds = [];
+  const basePromptCallbacks = createNativeTwinleafPromptCallbacks({
     native,
     promptSubPolicyId,
     withValidationRandom,
@@ -1164,6 +1165,13 @@ test('pinned Twinleaf MCTS resolves a real Quick Ball ChooseCardsPrompt and its 
       return { kind: 'select-choices', tokens: [choice.token] };
     }
   });
+  const promptCallbacks = {
+    ...basePromptCallbacks,
+    resolveAutomaticPrompt: (prompt, random, hostContext) => {
+      hostPromptKinds.push(prompt?.constructor?.name ?? 'prompt');
+      return basePromptCallbacks.resolveAutomaticPrompt(prompt, random, hostContext);
+    }
+  };
 
   const actorObservation = (state, seat, { ownerK1Snapshot }) => {
     const player = state.players[seat];
@@ -1247,6 +1255,8 @@ test('pinned Twinleaf MCTS resolves a real Quick Ball ChooseCardsPrompt and its 
   assert.equal(selectedPromptTokens.length, promptCalls);
   assert.ok(sawSettledSuccessor,
     'MCTS must observe the stable successor after the real Quick Ball continuation and shuffle');
+  assert.ok(hostPromptKinds.includes('ShuffleDeckPrompt'),
+    'MCTS must resolve Quick Ball\'s native ShuffleDeckPrompt through the automatic-prompt path');
   assert.ok(sawOwnHistory,
     'a later actor observation must include the native Quick Ball action and player-prompt decision');
 
@@ -1259,6 +1269,7 @@ test('pinned Twinleaf MCTS resolves a real Quick Ball ChooseCardsPrompt and its 
     'native player prompts are subcalls, not MCTS action frontiers');
   assert.equal(audit.promptTransitions, 0);
   assert.ok(audit.playerPromptSubcalls > 0);
+  assert.ok(audit.automaticPromptResolutions > 0);
   assert.ok(audit.promptEventsRecorded > 0);
 
   const promptEvents = result.audit.rolloutPaths.flatMap(path => path.promptEvents);
