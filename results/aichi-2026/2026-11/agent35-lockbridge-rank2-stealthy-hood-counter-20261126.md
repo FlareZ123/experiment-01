@@ -53,6 +53,14 @@ Both rank 2 and rank 15 contain Oddish ×2, Gloom ×2, and Vileplume AOR ×2. Th
 
 This is a legal sequencing line derived from the published list and rules, not evidence that the opponent policy currently chooses it or that every game reaches the board. It makes the Hood counterline more robust than a plan that waits to attach only after Vileplume is in play.
 
+
+
+## Candidate-side attack-through hypothesis (unvalidated)
+
+The Hood counterline does not prove Lockbridge loses. Its Psychic engine remains available: Wobbuffet PHF 36 does not suppress Psychic Pokémon, and Shadow Rider Calyrex VMAX's Psychic-type Underworld Door remains usable while the candidate's own Wobbuffet is Active. Max Geist deals 10 + 30 for each Psychic Energy attached to all of the candidate's Pokémon; at five Psychic Energy it reaches 160 damage, enough to Knock Out rank-2 Stoutland BCR 122 (140 HP) and Vileplume AOR 3 (130 HP).
+
+A plausible rank-2 line is to attack the Hooded Active Stoutland first without relying on Items or Supporters; after it is Knocked Out, Sentinel no longer blocks Supporters, potentially opening a Guzma line to gust and attack Vileplume. Rank 15 has no Stoutland, so Supporters remain available even while Vileplume locks Items. Whether the candidate can reach five Psychic Energy, gust both Vileplume copies, and maintain the line through the opponent's attacks is untested. This is a concrete policy/game hypothesis, not evidence of a favorable matchup. Keep the counterline and the possible attack-through response separate in future evaluation.
+
 ## Current opponent-policy representation gap
 
 The current rank-2 opponent policy v2 at `simulation/evaluation/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.cjs` (SHA `f3ff08bbdbee094a39382f67ec16dd204a50d534`) has Hood logic, but its suppression checks are specifically `opponentHasGarbotoxin` / `opponentGarbotoxinStatus`. The module and its v2 challenge suite contain no Wobbuffet or Bide Barricade branch. The suite's `hood-under-item-lock-root` verifies Tool legality during the policy's own Item lock; it does not test attaching Hood in response to an opposing Wobbuffet. Therefore the current rank-2 policy has no explicit Wobbuffet-aware counterline or regression. Its generic Hood fallback may still attach a Tool in some states; this inspection does not prove it will never do so. It does mean the response is not deliberately selected or independently tested, so the policy cannot be credited as competent at this counterline.
