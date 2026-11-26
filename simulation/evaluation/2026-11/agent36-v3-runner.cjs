@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const Module=require('node:module');
 const fs=require('node:fs');
 const path=require('node:path');
-const {createHash}=require('node:crypto');
+const {createHash,createPublicKey}=require('node:crypto');
 const {canonicalJson,evidenceBundleSha256}=require('../agent45-independent-competitive-admission.cjs');
 const actionsReceipts=require('./agent44-actions-metadata-receipts.cjs');
 const {preparePreDealPolicyRegistration,revalidatePreDealPolicyRegistration,
@@ -2728,6 +2728,16 @@ function requireEncryptedFullDiagnosticMode({env=process.env,witnessOnly=false}=
   const recipientKey=env.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM;
   assert.ok(typeof recipientKey==='string'&&recipientKey.trim().length>0,
     'live V3 fixture games require a diagnostic recipient public key');
+  let publicKey;
+  try {
+    publicKey=createPublicKey(recipientKey);
+  } catch {
+    throw new Error('live V3 fixture games require a valid RSA-2048 diagnostic recipient public key');
+  }
+  assert.equal(publicKey.asymmetricKeyType,'rsa',
+    'live V3 fixture games require an RSA diagnostic recipient public key');
+  assert.ok((publicKey.asymmetricKeyDetails?.modulusLength??0)>=2048,
+    'live V3 fixture games require an RSA diagnostic recipient key of at least 2048 bits');
   return diagnosticMode;
 }
 
