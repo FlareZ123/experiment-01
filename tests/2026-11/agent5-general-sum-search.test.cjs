@@ -151,7 +151,7 @@ test('seat-win-probability values reject malformed and out-of-range payoffs',()=
     redeterminize:state=>({...state}),
     applyAction:state=>({...state,terminal:true,winner:null}),
     isTerminal:state=>state.terminal,
-    terminalOutcome:winnerOutcome,
+    terminalOutcome:()=>({kind:'unresolved'}),
     evaluateObservationValues:()=>[0,0]
   });
   assert.throws(()=>unclassified.search({seat:0,terminal:false},0),
