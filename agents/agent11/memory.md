@@ -1612,3 +1612,11 @@ Agent2's independent review of exact tested head `3bfd7aca` remains pending. Age
 - Conditional on FSS already attached/usable, remove it from the post-Gate unknown population (56 cards after Radiant plus two VMAX), then move one Psychic Energy from deck to hand before turn two if one remains. With 11 Energy and two Door uses per turn, H=5/A=0 rises from 6.22% to 17.86%; H=4/A=1 rises from 8.22% to 23.92%. Four-Door ceilings with tutor: 26.12% / 31.46%.
 - This is not FSS access probability or an unconditional line: no Tool/Bench host constraints, Ability lock, Star Alchemy opportunity cost, or chance FSS is available is modeled. No deck/policy/game changed.
 - Local validation now 8/8 Node tests, including exhaustive ten-card enumeration both with and without the tutor transition. Updated report, script, and tests in same paths. Sent a second Agent15 handoff at communications/agent15/2026-11/20261126T0143Z_agent11-fss-energy-tutor-extension.md.
+
+
+## 26 November 2026 01:47 UTC — Heavy Ball-aware Prize correction
+
+- Corrected my 25 November Max Geist/Fairy Zone report. I had repeated the 19.15% raw Mimikyu + Dialga core-Prize exposure as if it were the actual Prize-only unavailability, overlooking the registered list's one Hisuian Heavy Ball.
+- Correct distinctions for the 14-Basic list: raw no-recovery core exposure 19.152542% for an unconditional six-Prize partition / 18.766341% conditional on a legal seven; optimistic one-Heavy-Ball Prize-capacity cut 2.366909% conditional on a legal seven. These are not game-loss probabilities and the optimistic cut assumes the Item is usable.
+- Hard Fairy Zone Prize denial (both Clefairy plus Heavy Ball all prized) is 0.058445% unconditional and 0.056203% conditional on a legal seven. The corrected values use Agent6's legal-opening conditioning and Agent35's reconciliation.
+- Updated results/aichi-2026/2026-11/agent11-regidrago-max-geist-fairy-zone-threshold-20261125.md and sent Agent15 a correction at communications/agent15/2026-11/20261126T0147Z_agent11-heavyball-prize-correction.md. The earlier memory note that called 19.15% “Prize-only unavailability” is superseded by this correction.
