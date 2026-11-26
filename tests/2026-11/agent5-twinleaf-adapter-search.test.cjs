@@ -468,14 +468,46 @@ function makeGenericTwoSidedSearchHarness() {
     ResolvePromptAction,
     GamePhase:{FINISHED:'FINISHED'}
   };
+  const ledger={
+    verified:true,mode:'K1',
+    ownerK1Snapshot:{
+      epoch:0,exactMembershipKnown:true,knownPrintings:[],
+      invalidationReason:null
+    }
+  };
+  const metadataByState=new WeakMap();
+  const redeterminize=(state,seat,random)=>{
+    const sampled={...structuredClone(state),hiddenDraw:random()};
+    metadataByState.set(sampled,{
+      knowledgeBySeat:[ledger,ledger],decklistIds:['deck-0','deck-1']
+    });
+    return sampled;
+  };
+  redeterminize.metadataByState=metadataByState;
+  redeterminize.knowledgeBySeat=(state,seat,context={})=>{
+    const metadata=metadataByState.get(state);
+    if(metadata)return metadata.knowledgeBySeat[seat];
+    assert.equal(context.rootSeat,seat);
+    return ledger;
+  };
+  redeterminize.refreshMetadata=(fromState,toState)=>{
+    const metadata=metadataByState.get(fromState);
+    if(!metadata)return false;
+    metadataByState.set(toState,metadata);
+    return true;
+  };
   const deps={
     native,
     enginePin:GENERIC_SEARCH_ENGINE_PIN,
     enumerator,
     simulatorOptions:{},
-    actorObservation:(state,seat)=>({
+    rulesProfileId:'twinleaf-standard-generic-search-test-v1',
+    ownDecklistSeat:0,
+    ownDecklistId:'deck-0',
+    redeterminize,
+    actorObservation:(state,seat,{ownerK1Snapshot})=>({
       actorSeat:seat,turn:state.turn,phase:state.phase,
-      choice:state.choice??null
+      choice:state.choice??null,ownerK1:ownerK1Snapshot
     }),
     projectPrompt:(state,prompt,seat)=>({
       type:'choice',
