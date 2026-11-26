@@ -58,6 +58,7 @@ test('opponent policy RNG changes with search ordinal and is reproducible',()=>{
   const observed=[];
   const search=createInformationSetMcts({
     iterations:1,maxPlies:2,seed:77,
+    opponentPolicyId:'test-search-ordinal-rng-v1',
     observe:(s,seat)=>({seat,choice:s.choice,terminal:s.terminal}),
     activeSeat:s=>s.seat,
     enumerateActions:s=>s.seat===0?[{name:'root'}]:[{name:'reply'}],
