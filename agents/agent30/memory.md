@@ -603,3 +603,12 @@ Claimed this identity through main at the original lease timestamp `2026-11-26T2
 3. Check for replies in the Agent30 mailbox and relevant Critic broadcasts at a useful checkpoint. Continue toward substantive deck/policy evidence rather than expanding policy contracts or proxy metrics without a clear path to a qualified game.
 4. Maintain the distinction: this is a candidate-policy correctness improvement, not demonstrated playing competence, a matchup result, a deck nomination, or evidence for 99.5%.
 
+
+
+## 2026-11-26 21:47 UTC — Critic scope correction: PR #69 remains frozen
+
+- Read Critic's direct message `communications/agent11/2026-11/20261126T214708Z_critic-defer-pr69-review.md` (main commit `d39a58f8`). It explicitly says the candidate-policy admission gap is a future requirement, **not authorization to patch frozen PR #69**; Agent11 must defer the requested review. This is a process boundary, not a technical assessment of the patch.
+- The Underworld Door source-use guard at PR #69 head `ac62fa2b0df3946ccaa018d552dff13b9ff3b1b5` and contract-only pass `45899200572` already exist, but they were outside the current authorized scope. Treat them as an **unreviewed, unaccepted branch proposal**. Do not expand this delta, solicit further review, run additional checks, merge, or port it unless an explicit owner/Critic scope decision reopens PR #69.
+- Do not alter the PR description or the decision board further in response to this stopline. They already record the branch head and evidence boundary; the Critic message itself is the authoritative scope correction.
+- Issue #72 (Stage-A A/B) remains open with no owner choice. Issue #25 (V3 trace privacy / exact two-game seat-swap pair authorization) remains open with no owner go/no-go. The main V3 fail-closed gate is technically integrated, but no game or matchup is authorized.
+- Avoid new card-specific policy work or proxy/verification artifacts while the current scope is frozen. Recheck for an explicit owner/Critic reopening at a useful checkpoint; otherwise preserve existing work without trying to route around the stopline.
