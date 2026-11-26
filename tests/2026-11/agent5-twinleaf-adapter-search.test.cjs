@@ -6,6 +6,7 @@ const {
   flittleActionKey,flittleNativeActionToIntent
 }=require('../../simulation/twinleaf/2026-11/agent5-twinleaf-mcts-adapter.cjs');
 const {observationSha256}=require('../../simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs');
+const {createTwinleafTwoSidedSearch}=require('../../simulation/twinleaf/2026-11/agent12-twinleaf-two-sided-search.cjs');
 
 class WaitPrompt {
   constructor(id,playerId,stage=0) {
@@ -403,4 +404,136 @@ test('Twinleaf adapter forwards a fixed actor-observation opponent policy into t
   assert.ok(result.audit.opponentInformationSetCount>0);
   assert.ok(policyCalls.every(call=>call.seat===1&&call.actionKeys.includes('PASS_TURN')));
   assert.ok(result.audit.seatActionTransitions[1]>0);
+});
+
+
+const GENERIC_SEARCH_ENGINE_PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
+
+function makeGenericTwoSidedSearchHarness() {
+  class ResolvePromptAction {
+    constructor(id,result) {
+      this.type='RESOLVE_PROMPT';
+      this.id=id;
+      this.result=result;
+    }
+  }
+  class Simulator {
+    constructor(state) {
+      this.store={state:structuredClone(state)};
+      this.store.dispatch=action=>this.dispatch(action);
+    }
+    dispatch(action) {
+      const state=this.store.state;
+      if(action.type==='PASS_TURN') {
+        const seat=state.activePlayer;
+        assert.equal(action.clientId,state.players[seat].id);
+        state.activePlayer=1-seat;
+        state.turn++;
+        return state;
+      }
+      if(action.type==='RESOLVE_PROMPT') {
+        const index=state.prompts.findIndex(prompt=>prompt.id===action.id);
+        assert.notEqual(index,-1);
+        const prompt=state.prompts[index];
+        prompt.result=action.result;
+        state.prompts.splice(index,1);
+        state.choice=action.result;
+        state.activePlayer=state.players.findIndex(player=>
+          player.id===prompt.playerId);
+        return state;
+      }
+      throw new Error('Unexpected native action: '+action.type);
+    }
+  }
+  const enumerator={
+    enumerate(state,player) {
+      return [{type:'PASS_TURN',clientId:player.id}];
+    }
+  };
+  Object.defineProperty(enumerator,'__agent3UncappedAdapter',{
+    value:Object.freeze({
+      schema:'agent3-known-cap-free-action-enumerator-v1',
+      enginePin:GENERIC_SEARCH_ENGINE_PIN,
+      removedPerFamilyCap:8,
+      includesAttachedToolPowers:true,
+      includesToolAndBenchAttacks:true,
+      includesHandAbilities:true,
+      includesTrainerEnergyDiscardAbilities:true
+    }),
+    writable:false,configurable:false,enumerable:false
+  });
+  const native={
+    Simulator,
+    ActionEnumerator:class ActionEnumerator{},
+    ResolvePromptAction,
+    GamePhase:{FINISHED:'FINISHED'}
+  };
+  const deps={
+    native,
+    enginePin:GENERIC_SEARCH_ENGINE_PIN,
+    enumerator,
+    simulatorOptions:{},
+    actorObservation:(state,seat)=>({
+      actorSeat:seat,turn:state.turn,phase:state.phase,
+      choice:state.choice??null
+    }),
+    projectPrompt:(state,prompt,seat)=>({
+      type:'choice',
+      options:['left','right']
+    }),
+    enumeratePromptChoices:()=>[
+      {key:'left',label:'Choose left',result:'left'},
+      {key:'right',label:'Choose right',result:'right'}
+    ],
+    isAutomaticPrompt:prompt=>prompt.kind==='automatic',
+    resolveAutomaticPrompt:()=>null,
+    redeterminize:(state,seat,random)=>({
+      ...structuredClone(state),
+      hiddenDraw:random()
+    }),
+    terminalValues:state=>state.winner===0?[1,0]:
+      state.winner===1?[0,1]:[0,0],
+    evaluateObservationValues:()=>[0.5,0.5]
+  };
+  return {
+    deps,
+    state:{
+      activePlayer:0,turn:1,phase:'PLAYER_TURN',prompts:[],
+      players:[{id:'seat-0'},{id:'seat-1'}],winner:null
+    }
+  };
+}
+
+test('generic Twinleaf search uses the uncapped native frontier and searches both physical seats',()=>{
+  const harness=makeGenericTwoSidedSearchHarness();
+  const search=createTwinleafTwoSidedSearch(harness.deps,{
+    iterations:12,maxPlies:3,seed:20261128
+  });
+  const result=search.search(harness.state,0);
+  assert.equal(result.action.kind,'pass');
+  assert.equal(result.audit.valueMode,'seat-win-probability');
+  assert.equal(result.audit.objectiveProtocol,
+    'each-seat-maximizes-own-win-probability-draws-nonwins-zero-v1');
+  assert.ok(result.audit.twinleafAdapter.nativeFrontiers>1);
+  assert.equal(result.audit.twinleafAdapter.unsupportedNativeActions,0);
+  assert.equal(result.audit.twinleafAdapter.truncatedNativeFrontiers,0);
+  assert.ok(result.audit.seatActionTransitions[0]>0);
+  assert.ok(result.audit.seatActionTransitions[1]>0);
+});
+
+test('generic Twinleaf search treats actor-owned prompts as search decisions',()=>{
+  const harness=makeGenericTwoSidedSearchHarness();
+  harness.state.prompts=[{
+    id:71,playerId:'seat-1',kind:'choice',result:undefined
+  }];
+  const search=createTwinleafTwoSidedSearch(harness.deps,{
+    iterations:4,maxPlies:1,seed:20261129
+  });
+  const result=search.search(harness.state,1);
+  assert.equal(result.action.kind,'prompt');
+  assert.equal(result.action.promptType,'choice');
+  assert.ok(['left','right'].includes(result.action.choiceKey));
+  assert.equal(result.audit.twinleafAdapter.promptFrontiers,4);
+  assert.equal(result.audit.twinleafAdapter.promptTransitions,4);
+  assert.equal(result.audit.twinleafAdapter.nativeFrontiers,0);
 });
