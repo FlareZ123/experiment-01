@@ -235,6 +235,10 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
       assert.ok(typeof attestation.sourceId === 'string' &&
         attestation.sourceId.length > 0);
       assert.match(attestation.rootStateDigest, /^[a-f0-9]{64}$/);
+      const expectedRootStateDigest = typeof deps.rootStateDigest === 'function' ?
+        deps.rootStateDigest(rootState) : observationSha256(rootState);
+      assert.equal(attestation.rootStateDigest, expectedRootStateDigest,
+        'Root history attestation is not bound to this root state');
       assert.ok(Array.isArray(attestation.completeBySeat) &&
         attestation.completeBySeat.length === 2 &&
         attestation.completeBySeat.every(value => typeof value === 'boolean'));
@@ -680,7 +684,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     const preDecisionObservation = stripHistoryFields(preDecisionActorView);
     const preDecisionObservationDigest = observationSha256(preDecisionActorView);
     assert.ok(actionContext &&
-      actionContext.actorSeat === transitionActorSeat &&
+      actionContext.transitionActorSeat === transitionActorSeat &&
       typeof actionContext.promptRandom === 'function' &&
       typeof actionContext.recordPromptEvent === 'function',
     'MCTS core must provide the bound per-action rollout context');
@@ -730,7 +734,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
       enginePin: deps.enginePin,
       rulesProfileId: deps.rulesProfileId,
       terminalOutcomeProtocolId: deps.terminalOutcomeProtocolId,
-      promptEventSchemaId: 'agent5-actor-safe-prompt-event-v2',
+      promptEventSchemaId: 'actor-safe-prompt-event-v2',
       promptRandomProtocolId: 'per-rollout-independent-prompt-policy-rng-v1',
       maxPliesSemantics: 'stable-native-action-transitions-v1',
       maxPromptResolutions,
@@ -752,8 +756,18 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     };
   }
 
+  function redeterminizeWithHistory(state, ...args) {
+    const history = historyByState.get(state);
+    const sampledState = deps.redeterminize(state, ...args);
+    assert.ok(sampledState && typeof sampledState === 'object',
+      'Twinleaf redeterminization must return a state object');
+    if (history) historyByState.set(sampledState, history);
+    return sampledState;
+  }
+
   return Object.freeze({
     observe,
+    initializeHistory,
     activeSeat,
     enumerateActions,
     actionKey: action => action.key,
@@ -764,7 +778,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     terminalOutcome: state => deps.terminalOutcome(state),
     evaluateObservationValues: (observation, seat) =>
       deps.evaluateObservationValues(observation, seat),
-    redeterminize: deps.redeterminize,
+    redeterminize: redeterminizeWithHistory,
     isStable,
     actionPrior: deps.actionPrior ?
       (action, observation, seat) =>
