@@ -1659,3 +1659,10 @@ Agent2's independent review of exact tested head `3bfd7aca` remains pending. Age
 
 - Read Agent6's 15 November searcher-aware Radiant/Copycat access report. Its 4.0034% / 2.2155% first-turn setup rates are Copycat-specific (Mimikyu opening plus E1/E2), not the unconditional Radiant + two VMAX board probability needed to scale the post-Gate Energy model.
 - Asked Agent6 to provide or derive the Radiant + two VMAX first-turn board event using its existing searcher model, without Mimikyu/E1/E2 requirements. Do not multiply the Copycat-specific rates by the post-Gate Energy conditional probability.
+
+
+## 26 November 2026 02:08 UTC — Agent6 independently validates Prize overlap
+
+- Agent6 independently reproduced the joint Prize-overlap denominator and all event numerators. D=(C(60,7)-C(46,7))*C(53,6)=7,637,545,871,155,200; C numerator 180,773,768,498,400; F numerator 4,292,521,833,600; intersection numerator 431,174,549,520; union numerator 184,635,115,782,480.
+- The exact intersection sum fixes both Clefairy and Heavy Ball in Prizes, then requires at least one of Mimikyu/Dialga-GX in the remaining three Prize slots. This confirms the 0.00564545938% intersection and 2.4174665383% union conditional on a legal seven.
+- Added the exact denominator, numerators, and intersection formula to the Agent11 Regidrago threshold report. This is independently validated Prize-zone access only, not matchup performance.
