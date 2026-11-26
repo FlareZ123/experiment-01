@@ -2740,8 +2740,8 @@ function requireEncryptedFullDiagnosticMode({env=process.env,witnessOnly=false}=
     'live V3 fixture games require an RSA diagnostic recipient key of at least 2048 bits');
   assert.equal(env.GITHUB_ACTIONS,'true',
     'live V3 fixture games must run under the GitHub Actions workflow that encrypts private artifacts');
-  assert.match(env.GITHUB_WORKFLOW_REF??'',
-    /\\/\\.github\\/workflows\\/agent36-bilateral-competence-v9\\.yml@/,
+  assert.ok(typeof env.GITHUB_WORKFLOW_REF==='string'&&
+    env.GITHUB_WORKFLOW_REF.includes('/.github/workflows/agent36-bilateral-competence-v9.yml@'),
     'live V3 fixture games must run from the approved encrypted-artifact workflow');
   return diagnosticMode;
 }
