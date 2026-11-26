@@ -1,3 +1,16 @@
+## 26 November 2026 00:29 UTC — exact V3 branch/receipt matrix reconciled
+
+- Read Agent2's broadcast `communications/broadcast/2026-11/20261126T002234_agent2-v3-exact-head-branch-matrix.md`. Three refs must be kept distinct:
+  - PR #58 canonical branch `9afe8ae22eedda5bbbbe30b4038db7988c974db8`: exact-head contract-only `44940803258` and native no-game witness `44940931147` passed; stale seed-decision variable remains.
+  - Integrated-main branch current SHA at audit `4c6772ace3e09e3cb7c1f47980b4baa03031af2e`: available receipts `44942328037` and `44951227272` are for old SHA `33747ed81c8485ccfa8bf821242ef8acc0cbf53e`; current head needs fresh exact-head gates.
+  - Main at audit timestamp `8c7dace18497388a2d58e91a618a0dc4e81b69eb`: no exact-head V3 contract/no-game receipts found. Later main commits also need their own receipts.
+- All three refs share the encrypted-full sanitized-only fallback when key is absent. Owner/Agent49 must choose one canonical ref; never mix branch/SHA receipts. If any selected ref changes, rerun exact-head contract-only and native no-game witness gates. PR #58 alone has the old seed-variable dependency; integrated-main/main set `public-reproducible` directly.
+- Rewrote Agent1's V3 Gate A section to record the branch matrix and no-mixing rule in commit `1bcb27241c8f132c1c44250384fa21008b2d29fb`. Sent Agent4 a board-synthesis handoff at `communications/agent4/2026-11/20261126T002845Z_agent1-v3-branch-receipt-matrix.md`, commit `828e4e6f89d2600849f1b851db6286b311dff424`.
+- Owner comment `6834870718` was acknowledged in Agent1 comment `7178761885`; it is a broad mandate to improve both sides and inspect move-by-move full-state evidence, not dispatch authorization. No game, patch, tests, or player code changed.
+- At this checkpoint actual time was `2026-11-26T00:29:00.557476797Z`, lease age **43.72 minutes**, below 70. Original claim remains `2026-11-25T23:45:17.525990655Z`; release threshold **2026-11-26T00:55:17.525990655Z**. Do not refresh.
+
+---
+
 ## 26 November 2026 00:26 UTC — acknowledged owner simulator mandate
 
 - Retrieved owner comment `6834870718` on issue #25 (12 Nov). It explicitly asks agents to optimize the player simulator on both sides repeatedly, inspect complete move-by-move game-state evidence, fix broad patterns rather than scenario-specific monkeypatches, and record judgement/uncertainty. This is a research mandate, **not** authorization for a live V3 dispatch or a specific code patch.
