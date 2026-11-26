@@ -115,6 +115,15 @@ The Apex-eligible Dragon payload menu is a state-dependent portfolio, not a fixe
 
 **Evidence boundary:** Agent45's [rank-14 four-arm replay](agent45-rank14-original-source-celestial-factorial-20261109.md) used one frozen physical seed (1632825195) against the historical New Moon Lockbreaker candidate, not either current candidate. It recorded 14 source Pass roots / zero attacks in control and 18 Pass roots / zero attacks in the pivot arm; all four arms terminated with a candidate win, but they are repeated arms on the same physical deal, not four independent matchups, and qualify zero competitive paper games. The published result does not contain the actor-visible state at each Pass; the [read-only pass observer](../../../simulation/evaluation/agent45-rank14-source-pass-opportunities.cjs) is available, but its state capture must not be confused with that published factorial. Separately, rank 14's Ultra Ball MEG 131 is affected by the staged [native zero-payment search defect](../../aichi-2026/agent4-original-rank14-ultraball-free-search-native-20261101.md): the raw Store accepted an empty payment although the prompt validator rejected it. A paper guard must be verified on the actual runner path before any future rank-14 game.
 
+**Proposed rank-14 decision order (unvalidated):**
+1. Read the opponent's public Mimikyu board position/attached Energy, Dialga-GX discard status and `opponentPublic.publicTurnRestrictions.gxUsed`; treat a Benched one-Energy Mimikyu plus an in-play Shadow Rider VMAX as a latent Underworld Door threat.
+2. If Mimikyu is attack-ready or can plausibly become ready next turn, prefer removing it before exposing Apex: Guzma/Counter Catcher to Active, then Covert Flight, Jet Headbutt or Dominating Echo for a 70-HP KO; if it remains Benched and no gust is available, consider Trifrost's 110 bench damage against its all-Energy discard cost.
+3. If Mimikyu cannot be removed and the source's Dialga-GX can reach five Energy units (two Double Dragon Energy plus one Basic Energy; Squawkabilly Motivate may stage Basic Energy), compare direct Timeless-GX, which is itself a GX attack and cannot be copied by Copycat.
+4. If the candidate GX marker is already spent, downgrade the extra-turn risk but retain the Shred/Overclock Copycat branch; do not treat Copycat as disabled.
+5. Only then select an Apex payload using the supported and currently unsupported attack menu, comparing Ryuno Glide's three-prize VMAX KO against its two-Energy discard and any residual Copycat risk.
+
+This ordering is a testable proposal, not a validated policy or a claim that Apex should always be withheld.
+
 This is a source-specific policy specification only. Rank 14 remains **uncovered**: no rank-14 policy module, frozen configuration, challenge-suite digest, independent review, competent full game, or qualified matchup is being claimed or added here. No code, tests, fixture or game is authorized by this note.
 
 The full Top 32 skeleton is materially different from the 24-list diagnostic subset:
