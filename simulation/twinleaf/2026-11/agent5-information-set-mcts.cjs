@@ -165,8 +165,9 @@ function backpropagate(path, leafValue, leafSeat) {
 
 /**
  * Validate a general-sum terminal/leaf payoff vector. Each component is the
- * estimated probability that the corresponding physical seat wins. A draw
- * or other paper nonwin is [0, 0], not a zero-sum neutral reward.
+ * estimated probability that the corresponding physical seat wins. An
+ * adjudicated draw is [0, 0]; unresolved/invalid terminals must be classified
+ * explicitly by terminalValues and must not silently become a draw.
  */
 function validateWinProbabilityVector(values, label = 'Win-probability value') {
   assert.ok(Array.isArray(values) && values.length === 2,
@@ -215,7 +216,7 @@ function backpropagateWinProbabilities(path, values) {
  * @param {'zero-sum'|'seat-win-probability'} [config.valueMode='zero-sum']
  * @param {(state:object,seat:0|1)=>number} [config.terminalValue] Legacy zero-sum terminal utility.
  * @param {(observation:object,seat:0|1)=>number} [config.evaluateObservation] Legacy zero-sum value.
- * @param {(state:object)=>[number,number]} [config.terminalValues] Per-seat win probabilities; draws are [0,0].
+ * @param {(state:object)=>[number,number]} [config.terminalValues] Per-seat win probabilities; adjudicated draws are [0,0], while unresolved/invalid terminal classes must be explicitly adjudicated or rejected.
  * @param {(observation:object,seat:0|1)=>[number,number]} [config.evaluateObservationValues] Actor-view-only per-seat win probabilities; sum must not exceed one.
  * @param {(action:object,observation:object,seat:0|1)=>number} [config.actionPrior]
  * @param {number} [config.iterations=128]
@@ -632,6 +633,8 @@ function createInformationSetMcts(config) {
         actionKey: selected.actionKey,
         audit: {
           valueMode,
+          searchMode: typeof config.opponentActionPolicy === 'function' ?
+            'root-best-response-fixed-opponent-policy' : 'two-sided-puct',
           objectiveProtocol: valueMode === 'seat-win-probability' ?
             'each-seat-maximizes-own-win-probability-draws-nonwins-zero-v1' :
             'zero-sum-seat-relative-value-v1',
