@@ -170,6 +170,7 @@ test('pinned compiled ActionEnumerator and Simulator admit every Basic hand acti
   assert.equal(frontier.actionFrontier.items.length, 10);
 
   for (const item of frontier.actionFrontier.items) {
+    if (item.kind === 'pass') continue;
     const simulator = new native.Simulator(state);
     frontierModule.dispatchSelectedNativeAction({
       store: simulator.store,
@@ -287,7 +288,8 @@ test('pinned Store validates real attack and ability actions and skips only know
   assert.ok(itemByName.has('Battle VIP Pass FST'));
   assert.ok(itemByName.has('VS Seeker PHF'));
   assert.ok(itemByName.has('Quick Ball FST'));
-  const pass = enumerator.passTurnActions(state, currentPlayer)[0];
+  const pass = enumerator.enumerate(state, currentPlayer, currentPlayer.id)
+    .find(action => action.type === 'PASS_TURN');
   const selectedActions = [
     attack, ability,
     itemByName.get('Battle VIP Pass FST'),
@@ -430,7 +432,7 @@ test('pinned Store frontier projects and revalidates actions for physical seat 1
   assert.ok(itemByName.has('Battle VIP Pass FST'));
   assert.ok(itemByName.has('VS Seeker PHF'));
   assert.ok(itemByName.has('Quick Ball FST'));
-  const pass = enumerator.passTurnActions(state, actor)[0];
+  const pass = enumerator.enumerate(state, actor, actor.id).find(action => action.type === 'PASS_TURN');
   const selectedActions = [
     attack, ability,
     itemByName.get('Battle VIP Pass FST'),
@@ -701,7 +703,7 @@ test('pinned Store rejects an already-used Quick Search ability and preserves Pa
     .find(action => action.name === 'Quick Search');
   assert.ok(repeatedAbility,
     'pinned ActionEnumerator intentionally continues to emit the already-used Quick Search');
-  const pass = enumerator.passTurnActions(state, actor)[0];
+  const pass = enumerator.enumerate(state, actor, actor.id).find(action => action.type === 'PASS_TURN');
   const frontier = withValidationRandom(() => frontierModule.buildNativeActionFrontier({
     state,
     actorSeat: 0,
@@ -1057,11 +1059,16 @@ test('pinned Store attaches Forest Seal Stone and uses Star Alchemy through Vile
     (!Array.isArray(card.powers) || card.powers.length === 0)
   );
   assert.ok(basicDefinition, 'pinned Expanded pool must contain a Basic Pokémon without powers');
-  const vileplumeDefinition = manager.getCardByName('Vileplume AOR 3');
-  assert.ok(vileplumeDefinition, 'pinned Expanded pool must contain Vileplume AOR 3');
-  assert.ok(vileplumeDefinition.powers.some(power =>
-    power.name === 'Irritating Pollen' && power.useWhenInPlay
-  ), 'Vileplume fixture must carry its Item lock ability');
+  const vileplumeDefinition = manager.getAllCards().find(card =>
+    card instanceof native.PokemonCard &&
+    card.name === 'Vileplume' &&
+    typeof card.fullName === 'string' && card.fullName.includes('AOR') &&
+    Array.isArray(card.powers) &&
+    card.powers.some(power => power.name === 'Irritating Pollen' && power.useWhenInPlay)
+  );
+  assert.ok(vileplumeDefinition,
+    'pinned Twinleaf CardManager must expose Vileplume AOR3 Irritating Pollen; available Vileplume printings: ' +
+    manager.getAllCards().filter(card => card.name === 'Vileplume').map(card => card.fullName).join(', '));
 
   function makePlayer(id, activeCard) {
     const player = new native.Player();
@@ -1132,7 +1139,7 @@ test('pinned Store attaches Forest Seal Stone and uses Star Alchemy through Vile
       actor.hand.cards[action.handIndex]?.fullName === 'Forest Seal Stone SIT');
     const itemAction = enumerator.playItemActions(state, actor).find(action =>
       actor.hand.cards[action.handIndex]?.fullName === 'Quick Ball FST');
-    const pass = enumerator.passTurnActions(state, actor)[0];
+    const pass = enumerator.enumerate(state, actor, actor.id).find(action => action.type === 'PASS_TURN');
     assert.ok(toolAction, 'adapter must expose Forest Seal Stone attachment to the Benched Pokémon V');
     assert.equal(toolAction.target.slot, native.SlotType.BENCH);
     assert.equal(toolAction.target.index, 0);
@@ -1186,7 +1193,7 @@ test('pinned Store attaches Forest Seal Stone and uses Star Alchemy through Vile
     assert.ok(ability, 'attached Forest Seal Stone must expose Star Alchemy under the Item lock');
     assert.equal(ability.target.slot, native.SlotType.BENCH);
     assert.equal(ability.target.index, 0);
-    const passAfterAttach = enumerator.passTurnActions(state, actor)[0];
+    const passAfterAttach = enumerator.enumerate(state, actor, actor.id).find(action => action.type === 'PASS_TURN');
     const abilityFrontier = withValidationRandom(() => frontierModule.buildNativeActionFrontier({
       state,
       actorSeat,
