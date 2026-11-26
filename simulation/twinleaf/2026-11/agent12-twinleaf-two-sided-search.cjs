@@ -53,8 +53,9 @@ function withRandom(random, callback) {
  *
  * The search tree and action selection are shared across both physical seats.
  * Each seat's PUCT node maximizes that seat's own win probability. Player
- * prompts are search decisions; engine/chance prompts are resolved by a
- * trusted host callback. Policy/value callbacks receive only actor views.
+ * prompts are fixed same-Store subcalls, never MCTS decision nodes; engine/chance
+ * prompts are resolved by a trusted host callback. Policy/value callbacks receive
+ * only actor-relative views with per-seat decision history.
  *
  * This adapter is deliberately fail-closed: the pinned uncapped action
  * enumerator and the existing native frontier projector must account for
@@ -92,7 +93,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     assert.equal(typeof deps.resolvePlayerPrompt, 'function',
       'Same-Store prompt subcalls require a synchronous player prompt resolver');
     assert.ok(typeof deps.promptSubPolicyId === 'string' &&
-      /v\\d+$/.test(deps.promptSubPolicyId),
+      /v\d+$/.test(deps.promptSubPolicyId),
     'Same-Store prompt subcalls require a versioned prompt sub-policy ID');
   } else {
     assert.equal(typeof deps.projectPrompt, 'function');
@@ -106,7 +107,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
   assert.equal(typeof deps.resolveAutomaticPrompt, 'function');
   assert.equal(typeof deps.redeterminize, 'function');
   assert.ok(typeof deps.terminalOutcomeProtocolId === 'string' &&
-    /v\\d+$/.test(deps.terminalOutcomeProtocolId),
+    /v\d+$/.test(deps.terminalOutcomeProtocolId),
   'Twinleaf terminal outcome protocol ID must be versioned');
   assert.equal(typeof deps.terminalOutcome, 'function');
   assert.equal(typeof deps.evaluateObservationValues, 'function');
@@ -633,7 +634,7 @@ function createNativeTwinleafPromptCallbacks({
   if (mode === 'same-store-subcall') {
     assert.equal(typeof decidePrompt, 'function',
       'Same-Store prompt subcalls require a synchronous actor-only prompt policy');
-    assert.ok(typeof promptSubPolicyId === 'string' && /v\\d+$/.test(promptSubPolicyId),
+    assert.ok(typeof promptSubPolicyId === 'string' && /v\d+$/.test(promptSubPolicyId),
       'Same-Store prompt subcalls require a versioned sub-policy ID');
     assert.equal(typeof withValidationRandom, 'function',
       'Same-Store prompt subcalls require an isolated cloned-Store validation RNG');
