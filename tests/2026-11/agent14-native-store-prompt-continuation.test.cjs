@@ -1,0 +1,71 @@
+'use strict';
+
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const test = require('node:test');
+
+const runner = require('../../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
+const { ConfirmPrompt } = require('../../vendor/twinleaf/ptcg-server/output/game/store/prompts/confirm-prompt');
+
+const compiledSimulator = path.join(
+  __dirname,
+  '../../vendor/twinleaf/ptcg-server/output/game/bots/simulator.js'
+);
+
+test('pinned Store retains grouped prompt continuations while State-only Simulator reconstruction is rejected', {
+  skip: !fs.existsSync(compiledSimulator),
+  timeout: 30000
+}, () => {
+  const enginePin = runner.V3_FIXTURE.engineCommit;
+  const native = runner.loadNativeRoleDependencies({ enginePin });
+
+  const initial = new native.State();
+  const firstPlayer = new native.Player();
+  firstPlayer.id = 0;
+  const secondPlayer = new native.Player();
+  secondPlayer.id = 1;
+  initial.players = [firstPlayer, secondPlayer];
+  initial.activePlayer = 0;
+  initial.phase = native.GamePhase.SETUP;
+  initial.turn = 0;
+  initial.prompts = [];
+
+  const simulator = new native.Simulator(initial);
+  const store = simulator.store;
+  const state = store.state;
+
+  const first = new ConfirmPrompt(firstPlayer.id, 'GO_FIRST');
+  const second = new ConfirmPrompt(firstPlayer.id, 'GO_FIRST');
+  const unrelated = new ConfirmPrompt(secondPlayer.id, 'GO_FIRST');
+  let continuationCalls = 0;
+  let continuationResults = null;
+
+  store.prompt(state, [first, second], results => {
+    continuationCalls += 1;
+    continuationResults = results.slice();
+  });
+  store.prompt(state, unrelated, () => {});
+
+  assert.deepEqual(store.promptItems.map(item => item.ids), [
+    [first.id, second.id],
+    [unrelated.id]
+  ]);
+  assert.throws(
+    () => new native.Simulator(state),
+    error => error instanceof native.GameError
+  );
+
+  store.dispatch(new native.ResolvePromptAction(first.id, true));
+  assert.equal(continuationCalls, 0,
+    'a grouped continuation must wait until every prompt in its group is resolved');
+  assert.equal(first.result, true);
+  assert.equal(second.result, undefined);
+
+  store.dispatch(new native.ResolvePromptAction(second.id, false));
+  assert.equal(continuationCalls, 1,
+    'the original Store must invoke the registered continuation exactly once');
+  assert.deepEqual(continuationResults, [true, false]);
+  assert.deepEqual(store.promptItems.map(item => item.ids), [[unrelated.id]]);
+  assert.equal(unrelated.result, undefined);
+});
