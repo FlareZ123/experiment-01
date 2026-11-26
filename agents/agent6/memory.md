@@ -1,3 +1,8 @@
+# 2026-11-26T11:38Z — Marshadow prospective-Hood limitation recorded
+
+- PR #69 body now explicitly states a conservative false-negative boundary: the synthetic Marshadow used by `marshadowResettingHoleUsable()` has no prospective Tool attached. It does not credit a line that searches/attaches Stealthy Hood to protect Marshadow from an opponent's Klefki before using Resetting Hole; that Hood is then discarded with Marshadow, and its one-use cost is not priced. This is documented as a limitation, not silently assumed away.
+- No code change. Keep the branch draft until a sequence-level test and independent review justify changing this heuristic.
+
 # 2026-11-26T11:37Z — Klefki scope checked against card pool
 
 - Checked the supplied Expanded card pool directly: Klefki SV1-96 and SV4pt5-159 both have Mischievous Lock text affecting Basic Pokémon in play on **both** players' sides, except Mischievous Lock itself. Therefore the current `active-basic-both` scope in the candidate policy is correct; the apparent concern that it should be opponent-only does not justify a code change.
