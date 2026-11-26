@@ -19,15 +19,6 @@ function normalizePrintingCounts(value, label) {
   return Object.freeze(counts.map(entry => Object.freeze(entry)));
 }
 
-function normalizeKnownDeckBlock(value, label) {
-  assert.ok(Array.isArray(value), label + ' must be an array');
-  for (const printing of value) {
-    assert.ok(typeof printing === 'string' && printing.length > 0,
-      label + ' entries must be nonempty printing strings');
-  }
-  return Object.freeze(value.slice());
-}
-
 function countCopies(counts) {
   return counts.reduce((sum, entry) => sum + entry.copies, 0);
 }
@@ -43,14 +34,12 @@ function countCopies(counts) {
  * This function validates and projects an existing trusted capture; it does
  * not authenticate arbitrary caller-supplied data or inspect Twinleaf State.
  */
-function projectOwnerK1PrizeKnowledge(capture, {
-  expectedSeat,
-  currentTurn,
-  currentPrizeCount,
-  knownTopDeck = [],
-  knownBottomDeck = [],
-  knownBottomDeckOrder = false
-} = {}) {
+function projectOwnerK1PrizeKnowledge(capture, options = {}) {
+  const allowedOptions = new Set(['expectedSeat', 'currentTurn', 'currentPrizeCount']);
+  for (const key of Object.keys(options)) {
+    assert.ok(allowedOptions.has(key), 'Unsupported projection option: ' + key);
+  }
+  const { expectedSeat, currentTurn, currentPrizeCount } = options;
   assert.ok(capture && typeof capture === 'object', 'K1 capture is required');
   assert.ok(expectedSeat === 0 || expectedSeat === 1, 'Expected seat must be physical seat 0 or 1');
   assert.equal(capture.ownerSeat, expectedSeat, 'K1 capture belongs to a different physical seat');
@@ -74,15 +63,9 @@ function projectOwnerK1PrizeKnowledge(capture, {
     'K1 capture must state whether Prize inference is certified');
   assert.equal(typeof capture.deckMembershipStale, 'boolean',
     'K1 capture must state whether remaining-deck membership is stale');
-  assert.equal(typeof knownBottomDeckOrder, 'boolean',
-    'Known bottom-deck order flag must be boolean');
-
-  const top = normalizeKnownDeckBlock(knownTopDeck, 'Known top-deck block');
-  const bottom = normalizeKnownDeckBlock(knownBottomDeck, 'Known bottom-deck block');
-
   let ownerK1Snapshot = null;
   let knownPrizePrintings = Object.freeze([]);
-  let mode = top.length > 0 || bottom.length > 0 ? 'PARTIAL' : 'K0';
+  let mode = 'K0';
 
   if (capture.prizeInferenceCertified) {
     const prized = normalizePrintingCounts(capture.knownPrized, 'Known Prize printings');
@@ -111,9 +94,9 @@ function projectOwnerK1PrizeKnowledge(capture, {
   return Object.freeze({
     verified: true,
     mode,
-    knownTopDeck: top,
-    knownBottomDeck: bottom,
-    knownBottomDeckOrder,
+    knownTopDeck: Object.freeze([]),
+    knownBottomDeck: Object.freeze([]),
+    knownBottomDeckOrder: false,
     knownPrizePrintings,
     ownerK1Snapshot,
     exactPrizeSnapshot: ownerK1Snapshot,
