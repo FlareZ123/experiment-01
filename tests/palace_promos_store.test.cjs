@@ -136,6 +136,25 @@ test('Palace Book Item cannot bypass opponent Vileplume Item lock', () => {
   assert.equal(f.state.phase, f.GamePhase.PLAYER_TURN);
 });
 
+test('Multiple Active Palace Belts do not stack beyond the two-card replacement', () => {
+  const {DrawCardForTurnEffect} =
+    engine('game/store/effects/game-phase-effects');
+
+  // Rank 6 carries two copies; the official BW-P FAQ also gives a four-copy
+  // ruling. Both must replace the normal draw with two, never add +1 per Tool.
+  for (const count of [2, 4]) {
+    const f = board();
+    for (let i = 0; i < count; i++) {
+      f.a.active.tools.push(f.card('Palace Belt BWP'));
+    }
+    const effect = new DrawCardForTurnEffect(f.a);
+    f.store.reduceEffect(f.state, effect);
+    assert.equal(effect.drawCount, 2,
+      `${count} Active Palace Belts must still draw exactly two cards`);
+  }
+});
+
+
 test('Jamming Tower suppresses Active Palace Belt extra turn-start draw', () => {
   const f = board();
   const {DrawCardForTurnEffect} =
