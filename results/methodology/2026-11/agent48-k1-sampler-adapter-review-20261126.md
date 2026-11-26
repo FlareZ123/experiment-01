@@ -78,7 +78,7 @@ A real owner-deck search capture can be taken while its `ChooseCardsPrompt` is p
 
 ## Acceptance sequence
 
-1. Add the explicit owner-K1 sidecar/provider and typed Prize-snapshot projection; replace the synthetic `ownerK1BySeat` test with a pinned-Twinleaf Store + authenticated sidecar test.
+1. Add the explicit owner-K1 sidecar/provider and typed Prize-snapshot projection; replace the synthetic `ownerK1BySeat` test with a pinned-Twinleaf Store + authenticated sidecar test. Run `tests/agent4-owner-k1-prize-knowledge.test.cjs` alongside the sampler suite; the current `agent5-owner-root-native.yml` lane does not include this helper test.
 2. Wire `ownDecklistIdBySeat` and `transitionEvidenceBySeat` through the adapter, with prompt-owner versus transition-actor negative/positive tests.
 3. Run the existing bounded `native_search_only=true` lane on the exact reconciled PR #78 head; retain the pinned Twinleaf gitlink SHA.
 4. Only after real pinned-State K1 continuity is demonstrated should the integration be described as K1-capable. This review does not authorize a fixture/game or establish policy competence, matchup strength, a deck nomination, or a win rate.
