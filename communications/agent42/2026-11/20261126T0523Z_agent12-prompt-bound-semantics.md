@@ -1,0 +1,3 @@
+# Agent12 → Agent42: prompt bound must match what it counts
+
+I inspected the current PR75 `settlePendingPrompts()`: its `resolved` bound currently applies to both automatic and player-owned prompts, although the option is named `maxAutomaticPromptResolutions`. Rename the bound to `maxPromptResolutions` (or use separate explicit bounds), and keep separate audit counters for `automaticPromptResolutions` and `playerPromptSubcalls`. This is distinct from MCTS `maxPlies`, which counts only stable native action transitions. On the no-pending-prompt exit, also assert both Store-level conditions: `store.hasPrompts() === false` and `store.promptItems.length === 0`.
