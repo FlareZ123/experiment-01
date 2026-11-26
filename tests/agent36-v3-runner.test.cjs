@@ -14,7 +14,8 @@ const {
   revalidatePreDealPersistenceReceipt,revalidateDealGenerationReceipt,
   bindFixtureFormatToApplicationReceipt,buildFixtureRoleIdentities,
   resolveFixtureSeatAssignment,candidateOpponentRoleSeats,loadWorkerPolicyModule,
-  assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,validateV3DiagnosticMode,runV3FixtureGame,normalizeV3FixtureRoleResult,
+  assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,validateV3DiagnosticMode,
+  requireEncryptedFullDiagnosticMode,runV3FixtureGame,runV3FixtureGameBothSeats,normalizeV3FixtureRoleResult,
   V3_FIXTURE,V3_FIXTURE_TEST_PATHS,V3_FIXTURE_COMMON_BINDINGS,
   V3_FIXTURE_WORKER_COMMON_BINDINGS,V3_FIXTURE_WORKER_PROMPT_CHAIN,
   buildFixtureRoleEntryManifest,buildRoleWorkerBundle,preloadRoleHostModules,
@@ -1107,7 +1108,7 @@ test('V3 runner preloads the Agent45 recorder before the fixture pin and capture
 });
 
 
-test('registered V3 diagnostics accept sanitized-only with the existing artifact allowlist',()=>{
+test('V3 diagnostic mode validator retains sanitized-only for no-game witness',()=>{
   assert.equal(validateV3DiagnosticMode('sanitized-only'),'sanitized-only');
   assert.equal(validateV3DiagnosticMode('encrypted-full'),'encrypted-full');
   assert.throws(()=>validateV3DiagnosticMode('unsupported-mode'),
@@ -1134,6 +1135,65 @@ test('registered V3 diagnostics accept sanitized-only with the existing artifact
     'the existing sanitizer allowlist/redaction tests must run in the V3 contract suite');
 });
 
+
+test('live V3 fixture games fail closed without encrypted-full diagnostics and recipient key',async()=>{
+  assert.throws(()=>requireEncryptedFullDiagnosticMode({
+    env:{AGENT36_V3_DIAGNOSTIC_MODE:'sanitized-only',
+      AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:'test-public-key'}
+  }),/live V3 fixture games require encrypted-full diagnostics/);
+  assert.throws(()=>requireEncryptedFullDiagnosticMode({
+    env:{AGENT36_V3_DIAGNOSTIC_MODE:'encrypted-full'}
+  }),/diagnostic recipient public key/);
+  assert.throws(()=>requireEncryptedFullDiagnosticMode({
+    env:{AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:'test-public-key'}
+  }),/live V3 fixture games require encrypted-full diagnostics/);
+  assert.equal(requireEncryptedFullDiagnosticMode({
+    env:{AGENT36_V3_DIAGNOSTIC_MODE:'encrypted-full',
+      AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:'test-public-key'}
+  }),'encrypted-full');
+  assert.equal(requireEncryptedFullDiagnosticMode({
+    env:{AGENT36_V3_DIAGNOSTIC_MODE:'sanitized-only'},witnessOnly:true
+  }),'sanitized-only');
+
+  await assert.rejects(runV3FixtureGame({
+    env:{
+      AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION:'public-reproducible',
+      AGENT36_V3_DIAGNOSTIC_MODE:'sanitized-only',
+      AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:'test-public-key'
+    }
+  }),/live V3 fixture games require encrypted-full diagnostics/);
+  await assert.rejects(runV3FixtureGameBothSeats({
+    env:{
+      AGENT36_V3_DIAGNOSTIC_MODE:'sanitized-only',
+      AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:'test-public-key'
+    }
+  }),/live V3 fixture games require encrypted-full diagnostics/);
+
+  const runnerSource=fs.readFileSync(path.resolve(__dirname,
+    '../simulation/evaluation/2026-11/agent36-v3-runner.cjs'),'utf8');
+  const liveGameStart=runnerSource.indexOf('async function runV3FixtureGame({');
+  const liveGameGuard=runnerSource.indexOf('requireEncryptedFullDiagnosticMode({env,witnessOnly})',liveGameStart);
+  const liveGamePolicyLoad=runnerSource.indexOf('loadWorkerPolicyModule',liveGameStart);
+  assert.ok(liveGameGuard>=0&&liveGameGuard<liveGamePolicyLoad,
+    'single live fixture runner must guard before loading worker policies');
+  const livePairStart=runnerSource.indexOf('async function runV3FixtureGameBothSeats');
+  const livePairGuard=runnerSource.indexOf('requireEncryptedFullDiagnosticMode({env})',livePairStart);
+  const livePairPolicyLoad=runnerSource.indexOf('loadWorkerPolicyModule',livePairStart);
+  assert.ok(livePairGuard>=0&&livePairGuard<livePairPolicyLoad,
+    'paired live fixture runner must guard before loading worker policies');
+
+  const workflowSource=fs.readFileSync(path.resolve(__dirname,
+    '../.github/workflows/agent36-bilateral-competence-v9.yml'),'utf8');
+  assert.match(workflowSource,
+    /if \(typeof pem !== 'string' \|\| pem\.trim\(\)\.length === 0\) \{\s*throw new Error\('AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM is required for live V3 fixture games\.'\);\s*\}/,
+    'missing recipient key must fail before compile/game');
+  const liveStepStart=workflowSource.indexOf('- name: Execute paired V3 physical-seat fixture games');
+  const liveStepEnd=workflowSource.indexOf('- name: Preserve per-run digest-pinned Docker policy-worker runtime receipt',liveStepStart);
+  const liveStep=workflowSource.slice(liveStepStart,liveStepEnd);
+  assert.match(liveStep,
+    /AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:\s*\$\{\{ vars\.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM \}\}/,
+    'the live runner must receive the same validated recipient key');
+});
 
 test('host and worker common binding arrays have unique names and path/export identities',()=>{
   for(const [label,bindings] of [
