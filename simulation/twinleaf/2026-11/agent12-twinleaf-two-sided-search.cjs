@@ -432,7 +432,11 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     return {
       schema: 'agent12-twinleaf-two-sided-search-adapter-v1',
       enginePin: deps.enginePin,
+      rulesProfileId: deps.rulesProfileId,
+      candidateDecklistId: deps.ownDecklistId ?? null,
+      candidateSeat: deps.ownDecklistSeat ?? null,
       uncappedEnumeratorSchema: enumerator.__agent3UncappedAdapter?.schema ?? null,
+      maxNativeFrontier: options.maxNativeFrontier ?? 256,
       knowledgeLedgerProtocol: 'verified-two-seat-k0-k1-partial-ledgers-v1',
       promptDecisionProtocol: 'actor-view-prompt-actions-plus-host-chance-resolution-v1',
       ...counters
