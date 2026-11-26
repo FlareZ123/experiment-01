@@ -1147,24 +1147,37 @@ test('live V3 fixture games fail closed without encrypted-full diagnostics and r
   assert.throws(()=>requireEncryptedFullDiagnosticMode({
     env:{AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:'test-public-key'}
   }),/live V3 fixture games require encrypted-full diagnostics/);
+  const workflowEnv={
+    GITHUB_ACTIONS:'true',
+    GITHUB_WORKFLOW_REF:'FlareZ123/experiment-01/.github/workflows/agent36-bilateral-competence-v9.yml@refs/heads/main'
+  };
   const rsa=generateKeyPairSync('rsa',{modulusLength:2048});
   const rsaPem=rsa.publicKey.export({type:'spki',format:'pem'});
+  assert.throws(()=>requireEncryptedFullDiagnosticMode({
+    env:{...workflowEnv,AGENT36_V3_DIAGNOSTIC_MODE:'encrypted-full',
+      AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:rsaPem,GITHUB_ACTIONS:'false'}
+  }),/must run under the GitHub Actions workflow/);
+  assert.throws(()=>requireEncryptedFullDiagnosticMode({
+    env:{...workflowEnv,AGENT36_V3_DIAGNOSTIC_MODE:'encrypted-full',
+      AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:rsaPem,
+      GITHUB_WORKFLOW_REF:'other.yml@refs/heads/main'}
+  }),/approved encrypted-artifact workflow/);
   assert.equal(requireEncryptedFullDiagnosticMode({
-    env:{AGENT36_V3_DIAGNOSTIC_MODE:'encrypted-full',
+    env:{...workflowEnv,AGENT36_V3_DIAGNOSTIC_MODE:'encrypted-full',
       AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:rsaPem}
   }),'encrypted-full');
   const ec=generateKeyPairSync('ec',{namedCurve:'prime256v1'});
   assert.throws(()=>requireEncryptedFullDiagnosticMode({
-    env:{AGENT36_V3_DIAGNOSTIC_MODE:'encrypted-full',
+    env:{...workflowEnv,AGENT36_V3_DIAGNOSTIC_MODE:'encrypted-full',
       AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:ec.publicKey.export({type:'spki',format:'pem'})}
   }),/RSA diagnostic recipient public key/);
   const weakRsa=generateKeyPairSync('rsa',{modulusLength:1024});
   assert.throws(()=>requireEncryptedFullDiagnosticMode({
-    env:{AGENT36_V3_DIAGNOSTIC_MODE:'encrypted-full',
+    env:{...workflowEnv,AGENT36_V3_DIAGNOSTIC_MODE:'encrypted-full',
       AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:weakRsa.publicKey.export({type:'spki',format:'pem'})}
   }),/at least 2048 bits/);
   assert.throws(()=>requireEncryptedFullDiagnosticMode({
-    env:{AGENT36_V3_DIAGNOSTIC_MODE:'encrypted-full',
+    env:{...workflowEnv,AGENT36_V3_DIAGNOSTIC_MODE:'encrypted-full',
       AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:'not-a-pem'}
   }),/valid RSA-2048 diagnostic recipient public key/);
   assert.equal(requireEncryptedFullDiagnosticMode({
