@@ -900,6 +900,7 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
     let sawOwnHistory=false;
     const promptCallbacks=createNativeTwinleafPromptCallbacks({
       native,
+      enginePin:GENERIC_SEARCH_ENGINE_PIN,
       promptSubPolicyId:'switch-bench-choice-test-v1',
       withValidationRandom,
       provenanceForPrompt:(state,prompt,actorSeat)=>{
@@ -1145,6 +1146,7 @@ test('pinned Twinleaf MCTS resolves a real Quick Ball ChooseCardsPrompt and its 
   const hostPromptKinds = [];
   const basePromptCallbacks = createNativeTwinleafPromptCallbacks({
     native,
+    enginePin: GENERIC_SEARCH_ENGINE_PIN,
     promptSubPolicyId,
     withValidationRandom,
     provenanceForPrompt: (state, prompt, actorSeat) => {
@@ -1288,6 +1290,9 @@ test('pinned Twinleaf MCTS resolves a real Quick Ball ChooseCardsPrompt and its 
   assert.equal(audit.promptTransitions, 0);
   assert.ok(audit.playerPromptSubcalls > 0);
   assert.ok(audit.automaticPromptResolutions > 0);
+  assert.deepEqual(basePromptCallbacks.audit().hostPromptValidationHookIds, [
+    'agent12-twinleaf-shuffle-deck-numeric-permutation-validation-v1'
+  ]);
   assert.ok(audit.promptEventsRecorded > 0);
 
   const promptEvents = result.audit.rolloutPaths.flatMap(path => path.promptEvents);
