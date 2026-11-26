@@ -1034,3 +1034,246 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
     }
   }
 });
+
+
+test('pinned Twinleaf MCTS resolves a real Quick Ball ChooseCardsPrompt and its ShuffleDeckPrompt on the same Store', {
+  skip: !fs.existsSync(compiledActionEnumerator),
+  timeout: 30000
+}, () => {
+  const enginePin = runner.V3_FIXTURE.engineCommit;
+  const native = runner.loadNativeRoleDependencies({ enginePin });
+  const manager = native.CardManager.getInstance();
+  let nextCardId = 981000;
+  const cloneCard = fullName => {
+    const card = manager.getCardByName(fullName);
+    assert.ok(card, 'CardManager must resolve ' + fullName);
+    card.id = nextCardId++;
+    return card;
+  };
+
+  const candidateSeat = 0;
+  const opponentSeat = 1;
+  const candidate = makeNativePromptPlayer(
+    native, candidateSeat, cloneCard(NATIVE_PROMPT_KECLEON), cloneCard);
+  const opponent = makeNativePromptPlayer(
+    native, opponentSeat, cloneCard(NATIVE_PROMPT_REGIDRAGO), cloneCard);
+
+  const quickBall = cloneCard('Quick Ball FST');
+  const discardCard = cloneCard(NATIVE_PROMPT_DDE);
+  const searchedBasic = cloneCard('Venonat MEW');
+  candidate.hand.cards = [quickBall, discardCard];
+  candidate.playableCardIds = [quickBall.id];
+  candidate.playableHandAbilityCardIds = [];
+  candidate.deck.cards = [
+    searchedBasic,
+    ...Array.from({ length: 29 }, () => cloneCard(NATIVE_PROMPT_REGIDRAGO))
+  ];
+
+  const initialState = new native.State();
+  initialState.players = [candidate, opponent];
+  initialState.activePlayer = candidateSeat;
+  initialState.phase = native.GamePhase.PLAYER_TURN;
+  initialState.turn = 3;
+  initialState.prompts = [];
+  initialState.gameSettings.format = native.Format.EXPANDED;
+  initialState.gameSettings.sandboxMode = false;
+
+  const rootStore = new native.Simulator(initialState).store;
+  const rootState = rootStore.state;
+  if (!Array.isArray(rootState.logs)) rootState.logs = [];
+  assert.equal(rootState.activePlayer, candidateSeat);
+  assert.equal(rootState.phase, native.GamePhase.PLAYER_TURN);
+
+  const ownerAtRoot = rootState.players[candidateSeat];
+  const enumerator = actionEnumeratorModule.createKnownCapFreeActionEnumerator({
+    native, enginePin
+  });
+  const nativeActions = enumerator.enumerate(rootState, ownerAtRoot);
+  assert.ok(nativeActions.some(action =>
+    action.type === 'PLAY_CARD_ACTION' &&
+    rootState.players[candidateSeat].hand.cards[action.handIndex]?.fullName === 'Quick Ball FST'),
+  'the uncapped native frontier must include Quick Ball');
+
+  const metadataByState = new WeakMap();
+  const decklistIds = [];
+  decklistIds[candidateSeat] = 'quick-ball-deck';
+  decklistIds[opponentSeat] = 'quick-ball-opponent';
+  metadataByState.set(rootState, { decklistIds });
+  const refreshMetadata = (fromState, toState) => {
+    const metadata = metadataByState.get(fromState);
+    if (!metadata) return false;
+    metadataByState.set(toState, metadata);
+    return true;
+  };
+  const knowledgeBySeat = () => ({
+    verified: true, mode: 'K0', ownerK1Snapshot: null
+  });
+
+  const originalAmbientRandom = Math.random;
+  const ambientSentinel = () => {
+    throw new Error('Quick Ball MCTS prompt chain must not consume ambient Math.random');
+  };
+  const withValidationRandom = createValidationRandomScope({
+    ambientRandom: ambientSentinel,
+    physicalRandom: seededRandom(0x421126),
+    seed: 0x421126
+  });
+  const redeterminize = state => {
+    const sampled = withValidationRandom(() => new native.Simulator(state)).store.state;
+    const metadata = metadataByState.get(state);
+    if (metadata) metadataByState.set(sampled, metadata);
+    return sampled;
+  };
+
+  let promptCalls = 0;
+  const selectedPromptTokens = [];
+  let sawSettledSuccessor = false;
+  let sawOwnHistory = false;
+  const promptSubPolicyId = 'quick-ball-basic-search-test-v1';
+  const promptCallbacks = createNativeTwinleafPromptCallbacks({
+    native,
+    promptSubPolicyId,
+    withValidationRandom,
+    provenanceForPrompt: (state, prompt, actorSeat) => {
+      if (actorSeat !== candidateSeat ||
+        prompt?.constructor?.name !== 'ChooseCardsPrompt') return null;
+      const player = state.players[actorSeat];
+      const asCards = value => Array.isArray(value) ? value :
+        (Array.isArray(value?.cards) ? value.cards : []);
+      const sourceCard = [
+        ...asCards(player.discard),
+        ...asCards(player.supporter),
+        ...asCards(player.hand)
+      ].find(card => card.id === quickBall.id);
+      assert.ok(sourceCard,
+        'Quick Ball source must remain in an actor-visible zone while its prompt is pending');
+      return { sourceKind: 'card-effect', sourceCard, effectName: 'Quick Ball' };
+    },
+    decidePrompt: ({ actorSeat, actorView, promptProjection }) => {
+      promptCalls++;
+      assert.equal(actorSeat, candidateSeat);
+      assert.equal(actorView.actorSeat, candidateSeat);
+      assert.match(actorView.actorHistorySha256, /^[a-f0-9]{64}$/);
+      assert.ok(actorView.actorOwnDecisionHistory.some(event =>
+        event.kind === 'native-action'),
+      'the prompt owner must remember the native Quick Ball action');
+      const choice = promptProjection.choices.find(item =>
+        item.printing === searchedBasic.fullName);
+      assert.ok(choice, 'Quick Ball prompt projection must expose the searched Basic Pokémon');
+      selectedPromptTokens.push(choice.token);
+      return { kind: 'select-choices', tokens: [choice.token] };
+    }
+  });
+
+  const actorObservation = (state, seat, { ownerK1Snapshot }) => {
+    const player = state.players[seat];
+    const candidateState = state.players[candidateSeat];
+    const selectedBasicInHand = candidateState.hand.cards.some(card =>
+      card.id === searchedBasic.id);
+    if (selectedBasicInHand) {
+      assert.equal(state.prompts.filter(prompt => prompt.result === undefined).length, 0,
+        'MCTS must not observe the Quick Ball successor while a continuation is unresolved');
+      assert.ok(candidateState.discard.cards.some(card => card.id === discardCard.id),
+        'Quick Ball must complete its discard cost before the successor is observed');
+      assert.ok(
+        candidateState.discard.cards.some(card => card.id === quickBall.id) ||
+        candidateState.supporter.cards.some(card => card.id === quickBall.id),
+        'Quick Ball must leave the hand before the successor is observed'
+      );
+      sawSettledSuccessor = true;
+    }
+    return {
+      actorSeat: seat,
+      turn: state.turn,
+      phase: state.phase,
+      ownerK1: ownerK1Snapshot ?? null,
+      ownHand: player.hand.cards.map(card => card.fullName),
+      publicActives: state.players.map(item =>
+        item.active.cards.map(card => card.fullName)),
+      publicBenches: state.players.map(item =>
+        item.bench.map(slot => slot.cards.map(card => card.fullName)))
+    };
+  };
+
+  const search = createTwinleafTwoSidedSearch({
+    ...promptCallbacks,
+    native,
+    enginePin,
+    rulesProfileId: 'pinned-paper-expanded-quick-ball-prompt-test-v1',
+    enumerator,
+    simulatorOptions: {},
+    ownDecklistSeat: candidateSeat,
+    ownDecklistId: 'quick-ball-deck',
+    metadataByState,
+    refreshMetadata,
+    knowledgeBySeat,
+    redeterminize,
+    actorObservation,
+    actionPrior: publicAction =>
+      publicAction.actorPrinting === 'Quick Ball FST' ? 1 : 0,
+    isTerminal: state => state.phase === native.GamePhase.FINISHED,
+    terminalOutcomeProtocolId: 'agent12-quick-ball-prompt-test-terminal-outcome-v1',
+    terminalOutcome: () => {
+      throw new Error('Unexpected terminal outcome in nonterminal Quick Ball prompt test');
+    },
+    evaluateObservationValues: (observation, seat) => {
+      assert.match(observation.actorHistorySha256, /^[a-f0-9]{64}$/);
+      assert.ok(Array.isArray(observation.actorOwnDecisionHistory));
+      if (seat === candidateSeat &&
+        observation.actorOwnDecisionHistory.some(event => event.kind === 'native-action') &&
+        observation.actorOwnDecisionHistory.some(event => event.kind === 'player-prompt')) {
+        sawOwnHistory = true;
+      }
+      return [0.5, 0.5];
+    }
+  }, {
+    iterations: 4,
+    maxPlies: 2,
+    seed: 0x421126,
+    requireCompleteHistory: false
+  });
+
+  let result;
+  Math.random = ambientSentinel;
+  try {
+    result = search.search(rootState, candidateSeat);
+  } finally {
+    Math.random = originalAmbientRandom;
+  }
+
+  assert.equal(result.action.actorPrinting, 'Quick Ball FST');
+  assert.ok(promptCalls > 0,
+    'MCTS must invoke the synchronous player-prompt sub-policy for Quick Ball');
+  assert.equal(selectedPromptTokens.length, promptCalls);
+  assert.ok(sawSettledSuccessor,
+    'MCTS must observe the stable successor after the real Quick Ball continuation and shuffle');
+  assert.ok(sawOwnHistory,
+    'a later actor observation must include the native Quick Ball action and player-prompt decision');
+
+  const audit = result.audit.twinleafAdapter;
+  assert.equal(audit.promptResolutionMode, 'same-store-subcall');
+  assert.equal(audit.promptSubPolicyId, promptSubPolicyId);
+  assert.equal(audit.promptDecisionProtocol,
+    'same-store-player-prompt-subpolicy-plus-host-chance-and-live-dispatch-rng-v3');
+  assert.equal(audit.promptFrontiers, 0,
+    'native player prompts are subcalls, not MCTS action frontiers');
+  assert.equal(audit.promptTransitions, 0);
+  assert.ok(audit.playerPromptSubcalls > 0);
+  assert.ok(audit.promptEventsRecorded > 0);
+
+  const promptEvents = result.audit.rolloutPaths.flatMap(path => path.promptEvents);
+  assert.ok(promptEvents.length > 0,
+    'per-iteration rollout receipts must contain the resolved Quick Ball prompt');
+  assert.equal(audit.promptEventsRecorded, promptEvents.length);
+  for (const event of promptEvents) {
+    assert.equal(event.transitionActorSeat, candidateSeat);
+    assert.equal(event.actorSeat, candidateSeat);
+    assert.equal(event.promptType, 'ChooseCardsPrompt');
+    assert.equal(event.promptPolicyId, promptSubPolicyId);
+    assert.equal(event.nativeValidationSucceeded, true);
+    assert.ok(event.selectedTokens.every(token => selectedPromptTokens.includes(token)));
+    assert.match(event.actorObservationDigest, /^[a-f0-9]{64}$/);
+    assert.match(event.promptProjectionDigest, /^[a-f0-9]{64}$/);
+    assert.match(event.stableSuccessorDigest, /^[a-f0-9]{64}$/);
+  }
+});
