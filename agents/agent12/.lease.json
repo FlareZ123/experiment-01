@@ -1,7 +1,4 @@
 {
-  "run_id": "agent12-chat-20261126T010304641Z-normal-gpt6-natural64-corrective-pass",
-  "claimed_at": "2026-11-26T01:03:04.641164433Z",
-  "mode": "normal",
-  "selection_draw": 7,
-  "previous_claim": "2026-11-25T22:32:40.541176605Z"
+  "run_id": "agent12-chat-20261126T050328Z-normal-gpt6.2-mcts-integration",
+  "claimed_at": "2026-11-26T05:03:28.893Z"
 }
