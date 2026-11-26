@@ -1,3 +1,35 @@
+# Follow-up checkpoint — 2026-11-26T13:33:52.211Z
+
+## Additional reviews in this incarnation
+
+### Agent48 owner-K1 projection
+
+- Reviewed `simulation/twinleaf/2026-11/agent48-owner-k1-sampler-projection.cjs`, its tests, `agent5-twinleaf-belief-input.cjs`, `agent5-hidden-partition-sampler.cjs`, `owner-k1-prize-knowledge.cjs`, and production `actor-observation-contract.cjs`.
+- The key projection is correct: `captureOwnerK1().knownPrintings` is remaining-deck membership, while sampler `ownerK1Snapshot.knownPrintings` must be the exact Prize multiset from `capture.knownPrized`. Deck-only staleness does not invalidate K1 Prize membership if Prize composition did not change.
+- **Blocker before wiring:** the helper accepts raw caller-supplied `knownTopDeck`/`knownBottomDeck` arrays but returns `verified:true` without source/epoch/prompt provenance. `normalizeKnowledge` treats that flag as an authenticated ledger and the sampler conditions determinization on those blocks. Keep this helper K1-only with empty top/bottom, or require separate authenticated evidence for every nonempty block. The existing PARTIAL test currently blesses unproven blocks and should be revised.
+- Production wiring must pass `projected.ownerK1Snapshot` into `actorObservation(state, seat, {ownerK1Snapshot})`. The nested snapshot currently omits physical `ownerSeat`; the adapter should assert `projected.ownerSeat === seat` before passing it, or add ownerSeat to the nested snapshot and validate in actorObservation. Add a production-path test.
+- Reviews sent to Agent48: `communications/agent48/2026-11/20261126T1338Z_agent1-k1-projection-review.md` and `communications/agent48/2026-11/20261126T1334Z_agent1-k1-seat-binding-followup.md`. No code changed or CI rerun by Agent1.
+
+### Stadium replacement rule / rank12 Dominating Echo
+
+- Checked the supplied Advanced Player's Rulebook transcription, `resources/manual/EN_advanced_manual-2025-transcription-structured.md`, section B-04 (D-04 shorthand). A different-name Stadium played by either player replaces the current Stadium; a same-name Stadium cannot be played while it is in play; each player may play one Stadium per turn.
+- Therefore, an in-play Stadium does not itself prevent the opponent from playing a different-name Stadium. Dominating Echo's next-turn hand-Stadium lock can matter regardless of who owns the current Stadium and even when none is in play. Any Stadium-presence helper is a value heuristic, not a legality condition; stronger value estimation needs the opponent's remaining Stadium access and expected replacement value, without leaking hand contents.
+- Clarification sent to Agent8 and appended to the rank12 v2 research note; no policy code changed.
+
+### Covert Flight / visible evolved attacker
+
+- Card-pool text for Noivern ex Covert Flight protects its user only from damage by attacks of **Basic** Pokémon during the opponent's next turn.
+- An active Basic Shadow Rider V is not a sufficient reason to value the protection as a one-turn lock if a Shadow Rider VMAX is already visible on the candidate's Bench and can plausibly be promoted. Do not infer a hidden VMAX in hand. Energy/retreat access may refine the heuristic, but the Store remains final legality authority.
+- Confirmed to Agent45 as a post-diagnostic policy review item; no policy patch made during the freeze.
+
+## Current constraints
+
+- The no-game witness is the pinned exact-SHA run documented above; no live game has been dispatched. Owner go/no-go and public RSA key configuration remain outstanding.
+- Keep policies and fixed 60 frozen until the authorized diagnostic pair. Do not expand MCTS/CI or start a new policy branch. Continue focused reviews only where they expose a concrete correctness or evidence issue.
+- Next checkpoint must compare the original lease timestamp with actual system time. Orderly release threshold remains `2026-11-26T14:04:13.568Z`.
+
+---
+
 # Agent1 incarnation checkpoint — 2026-11-26T13:21:53.801Z
 
 ## Current invocation
