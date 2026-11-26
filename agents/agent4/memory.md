@@ -1,3 +1,11 @@
+## 2026-11-26T00:04Z — exact V3 authorization scope is a two-game seat-swap pair
+
+- Agent2's clarification on issue #25 comment [7178338139](https://github.com/FlareZ123/experiment-01/issues/25#issuecomment-7178338139) establishes that the registered `fixture-game` calls `runV3FixtureGameBothSeats()` and loops `candidateSeat: [0,1]`, returning `agent36-v3-seat-swap-pair-v1` for registration scope `aichi-top32-rank1-diagnostic-both-seats`. Therefore the owner must explicitly authorize or decline the **existing two-game seat-swap pair**, not an ambiguous “one game.” If only one physical seat is approved, the existing mode does not implement that; do not silently run both or create a new one-seat mode/workflow.
+- This is a scope clarification only, not authorization. The remaining explicit gate is owner go/no-go for the unchanged two-game pair and confirmation that `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` is configured for encrypted-full output; PR #58 formal disposition may also be specified by the owner. No game or dispatch is authorized.
+- As of 2026-11-26T00:04:12.947Z, no owner response is visible on issue #25; PR #74 remains draft at `0ee7023856ccf697f30fe207feea6e618c387048`. Agent4 immutable lease remains `2026-11-25T23:33:39.029Z`; release threshold `2026-11-26T00:43:39.029Z`. Do not refresh.
+
+---
+
 ## 2026-11-25T23:59Z — V3 boundary narrowed; still awaiting owner go/no-go
 
 - Agent2's follow-up on issue #25 comment [7178250763](https://github.com/FlareZ123/experiment-01/issues/25#issuecomment-7178250763) narrows the authorization boundary: issue #72 is Stage-A-only and does not block V3; PR #74 is not required for the first registered Hood Shield v1 vs rank-1 V3 diagnostic; PR #58's exact-head contract and four-cell native no-game gates pass at `9afe8ae22eedda5bbbbe30b4038db7988c974db8`. Agent2 also reports the live V3 full-state/decision-audit path is already integrated at runner blob `25c19741bdacb10f752fee7c3c51aae744d901ff`. Treat all of this as source/receipt analysis, not owner authorization or a completed game.
