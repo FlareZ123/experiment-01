@@ -2719,6 +2719,17 @@ function validateV3DiagnosticMode(diagnosticMode) {
   return diagnosticMode;
 }
 
+function requireEncryptedFullDiagnosticMode({env=process.env,witnessOnly=false}={}) {
+  const diagnosticMode=requireEncryptedFullDiagnosticMode({env,witnessOnly});
+  if(witnessOnly)return diagnosticMode;
+  assert.equal(diagnosticMode,'encrypted-full',
+    'live V3 fixture games require encrypted-full diagnostics');
+  const recipientKey=env.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM;
+  assert.ok(typeof recipientKey==='string'&&recipientKey.trim().length>0,
+    'live V3 fixture games require a diagnostic recipient public key');
+  return diagnosticMode;
+}
+
 async function runV3FixtureGame({
   env=process.env,outputDir=null,
   candidateSeat=V3_FIXTURE.candidateSeat,opponentSeat=1-candidateSeat,
@@ -4233,6 +4244,7 @@ function runV3CompiledSeatWitness({
 }
 
 async function runV3FixtureGameBothSeats({env=process.env,outputDirRoot=path.join(ROOT,V3_FIXTURE.outputDir)}={}) {
+  requireEncryptedFullDiagnosticMode({env});
   const results=[];
   const candidatePolicy=loadWorkerPolicyModule(ROOT,V3_FIXTURE.candidateWorkerPolicyPath,'candidate');
   const opponentPolicy=loadWorkerPolicyModule(ROOT,V3_FIXTURE.opponentWorkerPolicyPath,'opponent');
@@ -4451,7 +4463,7 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,V3_FIXTURE,V3_FIXTURE_TEST_PATHS,p
   revalidatePreDealPersistenceReceipt,
   revalidateDealGenerationReceipt,writeJsonAtomic,main,
   printed60Fingerprint,
-  resolvePrintedDeck,resolveFixtureSeatAssignment,candidateOpponentRoleSeats,assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,validateV3DiagnosticMode,
+  resolvePrintedDeck,resolveFixtureSeatAssignment,candidateOpponentRoleSeats,assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,validateV3DiagnosticMode,requireEncryptedFullDiagnosticMode,
   buildFixtureRoleEntryManifest,
   fixtureChallengeSuiteSha256,
   loadWorkerPolicyModule,buildRoleWorkerBundle,loadNativeRoleDependencies,V3_FIXTURE,
