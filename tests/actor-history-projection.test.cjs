@@ -65,6 +65,13 @@ test('visibility is perspective-relative and wall-clock timestamps do not affect
   assert.notEqual(seat0.actorHistorySha256, changedDecision.actorHistorySha256);
 });
 
+test('does not certify complete history without an explicit source', () => {
+  assert.throws(
+    () => projectActorVisibleHistory(fixtureState(), 0, { historyComplete: true }),
+    /ACTOR_HISTORY_COMPLETE_REQUIRES_EXPLICIT_SOURCE/
+  );
+});
+
 test('strictly rejects accessor log data without invoking getters', () => {
   let getterCalls = 0;
   const params = { private: false };
