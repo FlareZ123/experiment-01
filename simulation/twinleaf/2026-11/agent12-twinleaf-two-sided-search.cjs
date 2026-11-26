@@ -39,6 +39,14 @@ function observationSha256(value) {
   return crypto.createHash('sha256').update(canonicalJson(value)).digest('hex');
 }
 
+function stripHistoryFields(actorView) {
+  const base = cloneActorSafeValue(actorView);
+  delete base.actorHistorySha256;
+  delete base.actorVisibleHistory;
+  delete base.actorOwnDecisionHistory;
+  return base;
+}
+
 function firstPendingPrompt(state) {
   return (state.prompts ?? []).find(prompt => prompt.result === undefined) ?? null;
 }
@@ -280,14 +288,6 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     historyByState.set(state, next);
     latestHistoryMetadata = next;
     return next;
-  }
-
-  function stripHistoryFields(actorView) {
-    const base = cloneActorSafeValue(actorView);
-    delete base.actorHistorySha256;
-    delete base.actorVisibleHistory;
-    delete base.actorOwnDecisionHistory;
-    return base;
   }
 
   function historyOptionsForSeat(state, seat) {
