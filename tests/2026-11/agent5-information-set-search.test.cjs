@@ -280,3 +280,47 @@ test('seat-win-probability values reject malformed and out-of-range payoffs',()=
   assert.throws(()=>overSum.search({seat:0,terminal:false},0),
     /cannot sum to more than one/);
 });
+
+
+test('general-sum mode supports a root best response against a frozen opponent policy',()=>{
+  let opponentPolicyCalls=0;
+  const search=createInformationSetMcts({
+    valueMode:'seat-win-probability',
+    iterations:240,maxPlies:2,seed:20261201,
+    opponentPolicyId:'frozen-opponent-response-fixture-v1',
+    opponentActionPolicy:(observation,actionKeys,seat)=>{
+      assert.equal(seat,1);
+      opponentPolicyCalls++;
+      return actionKeys[0];
+    },
+    observe:(state,seat)=>({seat,candidateChoice:state.candidateChoice??null}),
+    activeSeat:state=>state.seat,
+    enumerateActions:(state,seat)=>seat===0?
+      [{name:'safe'},{name:'risky'}]:
+      [{name:'response-left'},{name:'response-right'}],
+    actionKey:action=>action.name,
+    redeterminize:(state,seat,random)=>({...state,roll:random()}),
+    applyAction:(state,action)=>{
+      if(state.seat===0)return {
+        ...state,seat:1,candidateChoice:action.name
+      };
+      const winner=state.candidateChoice==='safe'?0:1;
+      return {
+        ...state,terminal:true,winner,
+        terminalClass:'seat-'+winner+'-win'
+      };
+    },
+    isTerminal:state=>state.terminal===true,
+    terminalValues:winnerVector,
+    evaluateObservationValues:()=>[0.5,0.5]
+  });
+  const result=search.search({
+    seat:0,terminal:false,candidateChoice:null
+  },0);
+  assert.equal(result.actionKey,'safe');
+  assert.ok(opponentPolicyCalls>0);
+  assert.equal(result.audit.searchMode,
+    'root-best-response-fixed-opponent-policy');
+  assert.equal(result.audit.opponentPolicyId,
+    'frozen-opponent-response-fixture-v1');
+});
