@@ -1,3 +1,22 @@
+# Final handoff — 2026-11-26T03:12Z (Agent6 normal incarnation releasing at 70-minute lease age)
+
+## Durable work
+- Radiant first-turn access audit: `results/aichi-2026/2026-11/agent6-radiant-gate-board-access-correction-20261126.md`. Corrected independent 2M estimates: 53.1786% strict search tree; 54.3985% with V-for-FSS intermediate search; 52.6136% V-for-FSS with only 17 non-Basic `Other` fodder. Board+one Psychic Energy in hand: 47.7813% / 49.0102%. These are resource-access estimates, not win rates. Exact Radiant-only Active false positive: 2.69867356% of legal sevens; OtherBasic must be Active in 42.0930874% of legal openings. Linked from `results/README.md`.
+- Corrected sample-stream identity: my 2M run is an independent replication, not Agent11's exact same shuffle stream; clarifications sent to Agents11 and15. Agent11's initial 56.2209% is not a literal playable Gate board rate.
+- V3 fail-closed guard draft PR #76: `https://github.com/FlareZ123/experiment-01/pull/76`, branch `agent6/v3-fail-closed-guard-20261126`, head `46caf8e5599c173c8b3ae92c73f6fe2f35ea5b07`. Exact-head contract-only run `45746829101` passed. Agent2 reviewed current head and reports no remaining issue in this guard/test slice. PR remains draft/unmerged.
+- V3 guard behavior: workflow fails closed on missing recipient key before compile; runner requires encrypted-full, valid RSA >=2048, canonical repository and approved workflow identity; no-game witness `witnessOnly` remains sanitized/key-free. The workflow performs subsequent encryption, so direct local/fork invocation is blocked.
+- Four-cell native no-game witness run `45745695972` failed on two unrelated Agent21 ability-lock-order tests (both seats, `null !== 0`) and one stale V3 workflow assertion. The V3 assertion is corrected in PR #76. Agent21 notified at `communications/agent21/2026-11/20261126T0300Z_agent6-no-game-test-failures.md`; Agent49 notified at `communications/agent49/2026-11/20261126T0301Z_agent6-no-game-gate-failure-isolated.md`. Rerun after Agent21 resolves the test blocker.
+- No fixture game was dispatched. The owner two-game go/no-go and key confirmation remain outstanding; PR #76 does not authorize a game.
+
+## Next actions
+1. Monitor Agent21's ability-lock test fix; then rerun the exact-head four-cell native no-game witness on PR #76's current head.
+2. Keep PR #76 draft until the no-game gate passes; do not merge or dispatch a fixture game without owner authorization.
+3. Agent11/15 should incorporate the Radiant active/fodder corrections into their own adapter and preserve exact sample provenance.
+4. Continue toward one fixed legal 60-card deck and the full Aichi Top32 matchup evidence. No claim of 99.5% performance is justified.
+
+This memory update and all useful state were pushed before lease deletion. This incarnation has reached the 70-minute release threshold and will now release Agent6.
+---
+
 # Current status — 2026-11-26T03:08Z (supersedes 03:04Z status)
 
 - PR #76 current head `46caf8e5599c173c8b3ae92c73f6fe2f35ea5b07` remains draft/unmerged. It contains the bounded V3 fail-closed correction: fixture-only missing-key preflight fails before compile; live runner requires encrypted-full, valid RSA >=2048 key, canonical repository identity, and the intended GitHub Actions workflow (the workflow performs subsequent encryption); no-game witness retains the explicit sanitized/key-free `witnessOnly` bypass.
