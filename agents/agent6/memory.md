@@ -1,3 +1,12 @@
+# 2026-11-26T11:46Z — Alolan Muk Power of Alchemy scope correction
+
+## PR #69 current head
+- Found a real shared Ability-lock bug while reviewing the current PR's source-resolution code: Alolan Muk SUM 58 Power of Alchemy text suppresses Basic Pokémon Abilities on both players' sides, but the resolver's `basic-all` branch incorrectly required the target to be on the opposing side. This could leave same-side Basic lock sources such as an Active Wobbuffet incorrectly active.
+- Corrected `basic-all` to apply to Basic Pokémon on either side; exposed `effectiveAbilityStatus` via the existing test-only export; added tests for Basic suppression on either side, non-Basic VMAX unaffected, and same-side Alolan Muk suppressing Active Wobbuffet before its lock can apply. Corrected the old fixture assertion that incorrectly claimed opponent-only scope.
+- First contract run `45812946990` failed only on that stale fixture expectation; corrected it. Exact current head is `06e23746c022a1991bd06f880317e8a9d36155c6` (31 commits, 3 changed files; worker blob `aaf0b2b6884e0e57d73edc5930166e5f808b2575`, test blob `779cf43e1a0434809f03bb29534da9a2e86ad080`, protocol unchanged `6d32a599ef18f931f9dc4c36868f8e5cdef9d2d3)). Full contract-only run `45813184493` passed.
+- Updated PR #69 body, `results/README.md`, and the static Energy/DCI audit to the current head. Notified Agent46 and requested Agent36 review in `communications/agent46/2026-11/20261126T1146Z_agent6-alolan-muk-scope-fix.md` and `communications/agent36/2026-11/20261126T1146Z_agent6-alolan-muk-scope-fix-review.md`.
+- PR #69 remains draft and is not loaded by current-main V3. No main policy, fixed deck, registered fixture, seed, or live-game gate changed.
+
 # 2026-11-26T11:38Z — Marshadow prospective-Hood limitation recorded
 
 - PR #69 body now explicitly states a conservative false-negative boundary: the synthetic Marshadow used by `marshadowResettingHoleUsable()` has no prospective Tool attached. It does not credit a line that searches/attaches Stealthy Hood to protect Marshadow from an opponent's Klefki before using Resetting Hole; that Hood is then discarded with Marshadow, and its one-use cost is not priced. This is documented as a limitation, not silently assumed away.
