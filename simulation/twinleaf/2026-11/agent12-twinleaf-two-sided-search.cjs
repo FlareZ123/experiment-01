@@ -179,10 +179,25 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
   function observe(state, seat, context) {
     assert.equal(activeSeat(state), seat,
       'Actor observation requested for a non-acting physical seat');
-    const ownerLedger = knowledgeBySeat(state, seat, context);
-    assert.ok(ownerLedger && ownerLedger.verified === true &&
-      ['K0', 'K1', 'PARTIAL'].includes(ownerLedger.mode),
-    'Actor observation requires a verified K0/K1/PARTIAL knowledge ledger');
+    const sampled = metadataByState.has(state);
+    if (!sampled) {
+      assert.equal(seat, context?.rootSeat,
+        'The undeterminized State may be observed only by the root actor');
+    }
+    const ledgers = sampled ?
+      [0, 1].map(physicalSeat => knowledgeBySeat(state, physicalSeat, context)) :
+      [null, null];
+    const ownerLedger = sampled ? ledgers[seat] :
+      knowledgeBySeat(state, seat, context);
+    for (const [physicalSeat, ledger] of (sampled ?
+      ledgers.map((value, index) => [index, value]) : [[seat, ownerLedger]])) {
+      assert.ok(ledger && ledger.verified === true &&
+        ['K0', 'K1', 'PARTIAL'].includes(ledger.mode),
+      'Actor observation requires verified K0/K1/PARTIAL ledgers for both sampled seats');
+      assert.ok(ledger.ownerK1Snapshot === null ||
+        (ledger.ownerK1Snapshot && typeof ledger.ownerK1Snapshot === 'object'),
+      'Seat ' + physicalSeat + ' has an invalid owner K1 snapshot');
+    }
     const base = deps.actorObservation(state, seat, {
       ownerK1Snapshot: ownerLedger.ownerK1Snapshot ?? null
     });
@@ -309,6 +324,8 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
       assert.ok(resolved < maxAutomaticPromptResolutions,
         'Automatic prompt resolution exceeded its safety bound');
       const result = deps.resolveAutomaticPrompt(prompt, random);
+      assert.notEqual(result, undefined,
+        'Automatic prompt resolver must return an explicit result (null is valid)');
       const previous = state;
       withRandom(random, () => simulator.store.dispatch(
         new native.ResolvePromptAction(prompt.id, result)));
@@ -362,6 +379,8 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
       schema: 'agent12-twinleaf-two-sided-search-adapter-v1',
       enginePin: deps.enginePin,
       uncappedEnumeratorSchema: enumerator.__agent3UncappedAdapter?.schema ?? null,
+      knowledgeLedgerProtocol: 'verified-two-seat-k0-k1-partial-ledgers-v1',
+      promptDecisionProtocol: 'actor-view-prompt-actions-plus-host-chance-resolution-v1',
       ...counters
     };
   }
