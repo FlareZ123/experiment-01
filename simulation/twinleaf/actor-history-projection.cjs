@@ -6,9 +6,63 @@ const {
   observationSha256
 } = require('./2026-11/agent5-information-set-mcts.cjs');
 
+function cloneActorSafeValue(value, label = 'actor-safe value', seen = new Set()) {
+  if (value === null) return null;
+  const type = typeof value;
+  if (type === 'string' || type === 'boolean') return value;
+  if (type === 'number') {
+    assert.ok(Number.isFinite(value) && !Object.is(value, -0),
+      'ACTOR_HISTORY_NON_JSON_NUMBER: ' + label);
+    return value;
+  }
+  assert.equal(type, 'object', 'ACTOR_HISTORY_NON_JSON_VALUE: ' + label);
+  assert.equal(seen.has(value), false, 'ACTOR_HISTORY_CYCLE: ' + label);
+  seen.add(value);
+  let clone;
+  if (Array.isArray(value)) {
+    assert.equal(Object.getPrototypeOf(value), Array.prototype,
+      'ACTOR_HISTORY_ARRAY_PROTOTYPE: ' + label);
+    const keys = Reflect.ownKeys(value);
+    assert.equal(keys.length, value.length + 1,
+      'ACTOR_HISTORY_ARRAY_SPARSE_OR_EXTRA_KEYS: ' + label);
+    clone = [];
+    for (let index = 0; index < value.length; index++) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, String(index));
+      assert.ok(descriptor && descriptor.enumerable === true &&
+        Object.hasOwn(descriptor, 'value'),
+      'ACTOR_HISTORY_ARRAY_ACCESSOR_OR_HOLE: ' + label);
+      clone.push(cloneActorSafeValue(descriptor.value, label + '[' + index + ']', seen));
+    }
+    for (const key of keys) {
+      if (key === 'length') continue;
+      const index = typeof key === 'string' ? Number(key) : NaN;
+      assert.ok(Number.isSafeInteger(index) && index >= 0 &&
+        String(index) === key && index < value.length,
+      'ACTOR_HISTORY_ARRAY_EXTRA_KEY: ' + label);
+    }
+  } else {
+    const prototype = Object.getPrototypeOf(value);
+    assert.ok(prototype === Object.prototype || prototype === null,
+      'ACTOR_HISTORY_OBJECT_PROTOTYPE: ' + label);
+    const keys = Reflect.ownKeys(value);
+    assert.ok(keys.every(key => typeof key === 'string'),
+      'ACTOR_HISTORY_SYMBOL_KEY: ' + label);
+    clone = {};
+    for (const key of keys.sort()) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      assert.ok(descriptor && descriptor.enumerable === true &&
+        Object.hasOwn(descriptor, 'value'),
+      'ACTOR_HISTORY_OBJECT_ACCESSOR: ' + label + '.' + key);
+      clone[key] = cloneActorSafeValue(descriptor.value, label + '.' + key, seen);
+    }
+  }
+  seen.delete(value);
+  return clone;
+}
+
 function cloneCanonicalJson(value, label) {
   try {
-    return JSON.parse(canonicalJson(value));
+    return cloneActorSafeValue(value, label);
   } catch (error) {
     throw new Error('ACTOR_HISTORY_NON_JSON: ' + label + ': ' + error.message);
   }
@@ -167,6 +221,7 @@ function createActorObservationWithHistory(baseActorObservation, historyOptionsF
 }
 
 module.exports = {
+  cloneActorSafeValue,
   projectActorVisibleHistory,
   createActorObservationWithHistory
 };
