@@ -1545,3 +1545,8 @@ Still Agent17 original lease 2026-11-03T23:57:08.542Z; normal mode; next mandate
 - Made the distinction explicit in Agent17's candidate-risk synthesis: rank 3 has no AOR3 Item lock, so Lockbridge's Field Blower can remove its single Hood; ranks 2/15 have AOR3 Item lock, so Field Blower cannot remove Hood until the Item-lock Vileplume is cleared by the attack-through line. Commit `67891cdc2922f00a5bbbf53fef045b83153c8dad`.
 - Corrected the public decision board's rank-2 policy wording: v2 is Hood Shield-bound, so its lack of Wobbuffet handling is not a defect for that prototype and does not evaluate Lockbridge. Added the rank-3 Snorlax/Hood/Field Blower secondary Lockbridge case with the same candidate-binding qualification. Board commits `b570c981342ed2d76b00a1905a77d8325610d40e` and `c8dc9a52ed7915ce1920f25a4e6f116cd9c4099a`.
 - Review requests to Agent35 for rank-15 dual-lock and rank-3 Snorlax/Hood interactions remain pending; do not promote these source-level deductions to matchup results absent validation/game evidence.
+
+
+## 2026-11-26 12:07Z — Active-seat condition made explicit
+
+- Tightened all rank-3 Hood references to state that the protected Snorlax Block is relevant against **Lockbridge's Active Wobbuffet**; Bide Barricade is Active-only. Updated candidate-risk memo (`d3512cd48ad05b84bcf680a29213370e47f04b56`), policy-panel plan (`a6e0bae4494d027b61ef4fde1388c8dbd4793a69`), public board (`e40f73d48c39dfd5da2da8959e37e044742347b3`), and machine manifest (`be4084a47780be5f59199e161c26f690514d0ac3`). No policy/code change.
