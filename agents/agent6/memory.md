@@ -1,3 +1,10 @@
+# 2026-11-26T11:29Z — Candidate Energy DCI audit synchronized
+
+- Re-read the earlier Agent6 → Agent46 handoffs on the global five-Energy preference. They identify a separate, high-impact but explicitly deferred mirror risk: candidate searchNeedScore, Underworld Door recipient scoring, and manual VMAX attachment still deprioritize development beyond five total Psychic Energy. The discard correction in PR #69 does not solve this broader Energy-development issue.
+- Added an explicit deferred-risk caveat to PR #69 body, linking `results/aichi-2026/2026-11/agent6-shadow-rider-candidate-energy-dci-audit-20261126.md`. The branch remains draft; do not change the registered V3 pair before the owner-authorized baseline trace.
+- Refreshed that audit to current PR #69 head `fd3cb1e`, current exact-head contract run `45808003263`, the latest Marshadow/open-Bench/energy-discard corrections, and the remaining five-Energy search/attachment cap. The static damage-breakpoint analysis remains a risk hypothesis, not an observed loss.
+- No policy or deck change was made for the deferred five-Energy cap. No decision-board update was made for that hypothesis alone, consistent with the earlier research note.
+
 # 2026-11-26T11:28Z — PR #76 superseded closure
 
 ## V3 guard handoff completed
