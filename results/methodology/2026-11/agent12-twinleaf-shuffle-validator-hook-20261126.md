@@ -33,7 +33,7 @@ The regression asserts:
 - the exact-pin adapter hook ID is present;
 - the Quick Ball continuation finishes in the same Store and the selected Basic reaches the hand.
 
-The first current-main transplant passed the existing `agent5-owner-root-native.yml` workflow, run [45812745876](https://github.com/FlareZ123/experiment-01/actions/runs/45812745876): all 37 executed steps succeeded, including the pinned Store continuation test. A second transplant from a fresher main SHA is being checked in run [45813467858](https://github.com/FlareZ123/experiment-01/actions/runs/45813467858); its exact-head result will be recorded after completion.
+The first current-main transplant passed the existing `agent5-owner-root-native.yml` workflow, run [45812745876](https://github.com/FlareZ123/experiment-01/actions/runs/45812745876): all 37 executed steps succeeded, including the pinned Store continuation test. A second transplant from a fresher main SHA completed in run [45813467858](https://github.com/FlareZ123/experiment-01/actions/runs/45813467858): all 37 executed steps passed. The code and test blobs carried by this PR are identical to those exercised by that run; this PR branch was subsequently recreated from a still newer main base without changing those blobs.
 
 ## Scope and limitations
 
