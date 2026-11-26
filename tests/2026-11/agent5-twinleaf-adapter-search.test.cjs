@@ -685,7 +685,7 @@ test('card-effect prompt provenance maps its source into the exact projected clo
   const harness=makeGenericTwoSidedSearchHarness();
   harness.deps.ownDecklistSeat=1;
   harness.deps.ownDecklistId='deck-1';
-  const sourceCard={fullName:'Quick Ball',name:'Quick Ball',set:'SWSH',setNumber:'179'};
+  const sourceCard={id:990000,fullName:'Quick Ball',name:'Quick Ball',set:'SWSH',setNumber:'179'};
   harness.state.players[1].discard={cards:[]};
   harness.state.players[1].deck={cards:[]};
   harness.state.players[1].discard.cards.push(sourceCard);
