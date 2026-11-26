@@ -1,5 +1,24 @@
 # Agent5 — connecting actor-relative PUCT to DCI/AMR and whole-deck evaluation
 
+## 2026-11-26 addendum — owner-directed two-sided search and shared integrity fixes
+
+The later Critic direction in [the owner-directed search-loop broadcast](../../../communications/broadcast/2026-11/20261126T005601Z_critic-owner-directed-search-loop.md) changes the near-term priority: a bounded shared two-sided search substrate and its source-level integrity seams may now be reviewed/fixed before the earlier Stage-B policy-competence gate. This supersedes the original *timing* restriction above only for the shared MCTS/sampler/observation-integrity work. It does **not** authorize V3 fixture dispatch, competitive games, candidate/opponent policy admission, or any change to the owner-controlled execution gates.
+
+Agent12's draft [PR #75](https://github.com/FlareZ123/experiment-01/pull/75) adds a general-sum `seat-win-probability` mode. Agent5's source review finds the vector payoff/backpropagation semantics sound: each node accumulates its acting physical seat's win-probability component, and the fixed-opponent callback is invoked only for the non-root seat while the root remains PUCT. The branch is still a search component, not an iterative self-play/alternating-best-response training loop or a competent policy. Its remaining review requirements include a combined vector-objective + actor-relative-redeterminization + fixed-opponent regression mirrored for root seats 0/1, immutable opponent-policy snapshot identity, separate `cPuct` calibration for [0,1] values, and strict separation of adjudicated nonwins from execution failures.
+
+Two previously documented shared integrity defects have now been fixed on main:
+
+1. **Observation canonicalization:** `canonicalJson()` now accepts only strict JSON-safe plain data and rejects undefined/functions/symbols/BigInt, non-finite and negative-zero numbers, cycles, sparse/extra-property arrays, accessors, symbol/non-enumerable object properties, and non-plain objects. This removes the previously described sentinel and sparse-array collisions and rejects getters without invoking them. Commits: `75d176ca5de90e5dac14ac8e9487ba75dabd2652`, `99f13e4a87dcfc260e45dff11ff2321056373694`.
+
+2. **Acting-seat ledger continuity:** `createTwinleafDeterminizationSampler()` now consumes the core-supplied actor observation; when re-determinizing a metadata-backed sampled state, it reuses the acting physical seat's exact prior K1/PARTIAL ledger instead of reconstructing it from current zones. It checks the actor's exact Prize snapshot/full ledger and fails closed if sampled metadata lacks that seat's ledger. Commits: `ddd9cfc26f621565737bb2ab8ac16e7e580a0c6d`, `e91441541e2267cec709fb22653e28f16a8cbdc4`, `26c0f786f111b923aa1d48055fbc1bc2945371a1`.
+
+Regression coverage is in `tests/2026-11/agent5-twinleaf-belief-search.test.cjs` (commits `5c3067bf84cedfdca7e453a0019507bfd0afe299`, `493d1270dea3358f9d2f4f6af9f8b41f1acc532e`, `b2a60b1a2ca5f32c0071274495ce364cf96f74aa`). Existing `agent5-owner-root-native.yml` run [45739806169](https://github.com/FlareZ123/experiment-01/actions/runs/45739806169) passed its dedicated “Information-set MCTS core, belief, adapter, Flittle, and Aichi bridge contract tests” step, including these regressions. The overall workflow failed only in the separate Agent8 Wondrous Energy test step; do not describe the overall run as green or attribute that unrelated failure to these changes.
+
+These fixes close the **hash and acting-seat ledger** seams only. They do not supply complete perfect recall: the default actor observation still needs public history and the acting player's prior actions/observations. They also do not resolve pinned Twinleaf prompt continuation, prompt-class binding, physical-seat-aware opponent decklist beliefs, branch-local public history/reveals, evaluator calibration, or actual opponent-policy competence. Agent1's [pinned prompt-continuation/perfect-recall audit](agent1-pinned-twinleaf-prompt-continuation-gate-20261126.md) and the live [fixed-60 decision board](../../README.md) track those blockers. PR #75's reviewed head `236ad4dd22212d226549a943846cfdb835c2a4e4` predates these mainline fixes and must integrate/rebase them before another exact-head review. No game, matchup, fixed-60 nomination, win-rate estimate, or 99.5% claim follows from these source fixes.
+
+---
+
+
 **20 November 2026 · design synthesis only**
 
 **Status:** post-trace integration specification. No code, candidate list, policy, fixture, workflow, seed, seat map, Twinleaf revision, game, matchup result, or win-rate estimate is changed or claimed here.
