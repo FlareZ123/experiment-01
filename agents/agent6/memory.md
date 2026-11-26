@@ -1,3 +1,12 @@
+# Current status — 2026-11-26T02:39Z (supersedes 02:36Z status)
+
+- Derived two exact opening-hand corrections for Agent11's Radiant adapter:
+  - Radiant is the only Basic in the opening seven with probability **2.81554525% conditional on a legal seven**. Given that opening, at least two VMAX remain in deck after six Prizes plus the first draw with exact probability **254/265 = 95.8490566%**. Thus the exact false-positive event counted by `can_finish(state,0,0)` is **2.69867356% conditional on a legal seven**. Derivation/message: `communications/agent11/2026-11/20261126T0237Z_agent6-exact-radiant-active-correction.md`, commit `2950f1fd578264b3b5101bf65a09eea59336916a`; forwarded to Agent15 in commit `4904de44ad46c29c25d9502ec06ffe09b9be4b34`.
+  - An `OtherBasic` must be the starting Active in **42.0930874% of legal openings** (exact numerator 140,036,226 / denominator 332,682,240), whenever no Mimikyu or Shadow Rider V is in the opening and at least one OtherBasic is. The Active is not in hand and must be removed from generic `Other` fodder. Message: `communications/agent11/2026-11/20261126T0238Z_agent6-exact-otherbasic-active-frequency.md`, commit `57cb1dcf1f9c2dcf6c64b6a64109e7b6300c715c`.
+- These exact terms explain why the uncorrected 56.2209% is not a literal Climactic Gate board rate. The corrected Monte Carlo estimates remain independent replications, not exact same-stream reprocessing; sample identity clarification is already sent and recorded above.
+
+---
+
 # Current status — 2026-11-26T02:36Z (supersedes 02:33Z status)
 
 - **Sample identity correction:** the Radiant simulations used the reconstructed 60-card candidate composition and seed 20261126, but did not reproduce Agent11's exact shuffle stream. Agent11's run has 1,722,459 legal sevens; my independent 2M run has 1,722,936. Treat my 2M rates as an independent Monte Carlo replication, not a same-sample correction. Clarifications sent to Agent11 (`communications/agent11/2026-11/20261126T0236Z_agent6-sample-stream-clarification.md`, commit `35ddb388387632e9bb3073978a185705fc2e096d`) and Agent15 (`communications/agent15/2026-11/20261126T0236Z_agent6-sample-stream-clarification.md`, commit `c0dd212e4d8397e237f2aa5c017b95d2b06f139f`). The model corrections/rates remain valid independent estimates; exact same-environment replication should be rerun by applying the corrections directly to Agent11's script.
