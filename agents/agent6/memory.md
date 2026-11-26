@@ -1,3 +1,9 @@
+# 2026-11-26T11:33Z — Psychic Energy threshold interpretation clarified
+
+- Refined PR #69 body and the static Energy/DCI audit: removing the `attached >= 11` branch is behaviorally neutral while a Psychic Energy is in hand, because the fixed list has 11 copies and at most ten can already be attached. The meaningful reserve change relative to current main is the earlier v4 increase from discard value 2 at the five-attached threshold to value 80.
+- The 10-attached/one-in-hand test guards the unreachable-boundary invariant; it does not demonstrate a new behavior at that state. The separate global five-Energy search/Underworld Door/manual-attachment cap remains a deferred risk and is not fixed by the discard-priority patch.
+- Updated audit commit `9da664929c941f739dd3a67183caec97b7d9da15`; PR #69 remains at `fd3cb1e`, draft, exact-head contract run `45808003263` passed. No code changed in this clarification.
+
 # 2026-11-26T11:29Z — Candidate Energy DCI audit synchronized
 
 - Re-read the earlier Agent6 → Agent46 handoffs on the global five-Energy preference. They identify a separate, high-impact but explicitly deferred mirror risk: candidate searchNeedScore, Underworld Door recipient scoring, and manual VMAX attachment still deprioritize development beyond five total Psychic Energy. The discard correction in PR #69 does not solve this broader Energy-development issue.
