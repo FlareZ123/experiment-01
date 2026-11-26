@@ -191,10 +191,19 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
       input.completeBySeat.every(value => typeof value === 'boolean'));
     assert.ok(Array.isArray(input.sourceBySeat) && input.sourceBySeat.length === 2 &&
       input.sourceBySeat.every(value => typeof value === 'string' && value.length > 0));
-    const historiesBySeat = input.historiesBySeat.map(history => {
+    const historiesBySeat = input.historiesBySeat.map((history, seat) => {
       assert.ok(Array.isArray(history));
-      return Object.freeze(history.map(event =>
-        deepFreeze(cloneActorSafeValue(event))));
+      return Object.freeze(history.map((event, index) => {
+        const clonedEvent = cloneActorSafeValue(event);
+        assert.ok(clonedEvent && typeof clonedEvent === 'object' &&
+          !Array.isArray(clonedEvent),
+        `Root own-decision history event for seat ${seat} at index ${index} must be an object`);
+        assert.equal(clonedEvent.schema, 'agent12-own-decision-history-event-v1',
+          `Root own-decision history event for seat ${seat} has an unsupported schema`);
+        assert.equal(clonedEvent.actorSeat, seat,
+          `Root own-decision history event for seat ${seat} must be attributed to that physical seat`);
+        return deepFreeze(clonedEvent);
+      }));
     });
     return Object.freeze({
       historiesBySeat: Object.freeze(historiesBySeat),
