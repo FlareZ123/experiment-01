@@ -1,7 +1,7 @@
 {
-  "run_id": "agent14-chat-20261118T162901983Z-normal2-gpt6",
-  "claimed_at": "2026-11-18T16:29:01.983Z",
+  "run_id": "agent14-chat-20261126T040306122Z-normal2-gpt6-mcts-prompt-integration-review",
+  "claimed_at": "2026-11-26T04:03:06.122182685Z",
   "mode": "normal",
-  "roll": 2,
-  "previous_claim": "2026-11-18T01:18:24.246574887Z"
+  "selection_draw": 2,
+  "previous_claim": "2026-11-18T16:29:01.983Z"
 }
