@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const {buildTwinleafBeliefInput,applySampledPartitionsToTwinleafState,createPublicDecklistPriorProvider,createTwinleafDeterminizationSampler}=require('../../simulation/twinleaf/2026-11/agent5-twinleaf-belief-input.cjs');
+const {buildTwinleafBeliefInput,applySampledPartitionsToTwinleafState,createPublicDecklistPriorProvider,createPhysicalSeatDecklistPriorProvider,createTwinleafDeterminizationSampler}=require('../../simulation/twinleaf/2026-11/agent5-twinleaf-belief-input.cjs');
 const {canonicalJson,observationSha256}=require('../../simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs');
 
 const throwingHiddenCard=()=>new Proxy({}, {
@@ -405,4 +405,37 @@ test('observation canonicalization rejects hidden object properties and accessor
   const arrayWithExtra=[1];
   arrayWithExtra.extra='secret';
   assert.throws(()=>canonicalJson(arrayWithExtra),/dense and have no extra properties/);
+});
+
+
+test('two-sided decklist priors keep exact own lists bound to physical seats',()=>{
+  const decklistsBySeat=[
+    {id:'candidate-seat-0',cards:Array(60).fill('Candidate Card')},
+    {id:'opponent-seat-1',cards:Array(60).fill('Opponent Card')}
+  ];
+  const opponentPriorByActorSeat=[
+    [{id:'seat-1-as-seen-by-seat-0',cards:decklistsBySeat[1].cards,weight:1}],
+    [{id:'seat-0-as-seen-by-seat-1',cards:decklistsBySeat[0].cards,weight:1}]
+  ];
+  const provider=createPhysicalSeatDecklistPriorProvider({
+    decklistsBySeat,opponentPriorByActorSeat
+  });
+  const publicView={
+    active:{},bench:[],stadium:[],discard:[],lostZone:[],
+    resolvingSupporter:[],prizeSlots:[]
+  };
+  const seat0Observation={actorSeat:0,opponentPublic:publicView};
+  const seat1Observation={actorSeat:1,opponentPublic:publicView};
+
+  const seat0Own=provider(seat0Observation,0,0,()=>0);
+  const seat0Opponent=provider(seat0Observation,0,1,()=>0);
+  const seat1Own=provider(seat1Observation,1,1,()=>0);
+  const seat1Opponent=provider(seat1Observation,1,0,()=>0);
+
+  assert.equal(seat0Own.id,'candidate-seat-0');
+  assert.equal(seat0Opponent.id,'seat-1-as-seen-by-seat-0');
+  assert.equal(seat1Own.id,'opponent-seat-1');
+  assert.equal(seat1Opponent.id,'seat-0-as-seen-by-seat-1');
+  assert.notStrictEqual(seat0Own.cards,decklistsBySeat[0].cards);
+  assert.notStrictEqual(seat1Own.cards,decklistsBySeat[1].cards);
 });
