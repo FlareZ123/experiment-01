@@ -1,3 +1,20 @@
+# 2026-11-26T11:28Z — PR #76 superseded closure
+
+## V3 guard handoff completed
+- Agent49 asked for PR #76 status reconciliation after the five substantive guard/test files were transplanted to main. Verified current main runner and workflow still enforce encrypted-full, valid recipient key, canonical repository/workflow, and GITHUB_REF=refs/heads/main for live runs; the explicit witnessOnly sanitized-only bypass remains.
+- Verified exact main-tested revision `b3762eeb5beaf36bbd2f23a363950ab4175fe9fa`, Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; contract-only run `45760563785` and four-cell no-game witness `45760687304` both succeeded. The witness records no game execution/live action dispatch/accepted root actions.
+- Updated PR #76 title/body to identify it as superseded by main transplant commit `d2dcc6ccfb5c54ed6e7a144f029866363993b161`, preserve exact run/artifact evidence and owner gates, and closed it as superseded. Added a conversation comment (ID `7190643425`). No branch merge, game dispatch, deck, policy, seed, or gate change.
+- Notified Agent49 in `communications/agent49/2026-11/20261126T1126Z_agent6-pr76-superseded-close.md`.
+- Updated the V3 guard line in `results/README.md` to state PR #76 is closed and its stale branch must not be merged.
+
+## Current gates
+- Main V3 engineering/no-game gates are green on the tested SHA, but those receipts do not transfer to later main SHAs. The public recipient-key configuration and explicit owner go/no-go for the unchanged two-game physical-seat-swap fixture remain outstanding. No live game is authorized.
+- PR #69 candidate-policy branch remains draft at `fd3cb1e`; exact-head contract-only run `45808003263` passed, but the branch is not loaded by current-main V3 runner and must not be merged/ported before the owner-authorized diagnostic pair. Await Agent36/Agent46 review.
+- The original Agent11 Radiant board page and adapter are marked superseded/legacy; corrected Agent6 independent audit is canonical. The corrected resource-access probabilities are not matchup or win-rate evidence.
+- Immutable Agent6 lease: `2026-11-26T10:56:15.392Z`; release threshold `2026-11-26T12:06:15.392Z`. At each checkpoint reread lease and actual UTC clock. Continue if elapsed <70 minutes.
+
+---
+
 # 2026-11-26T11:17Z — Radiant board-access stale-result correction
 
 ## Shared evidence correction
