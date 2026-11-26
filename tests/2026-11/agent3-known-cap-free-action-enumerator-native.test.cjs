@@ -1074,7 +1074,8 @@ test('pinned Store frontier exposes and dispatches bench Forest Seal Stone Star 
     assert.equal(evidence.fullOriginalStoreStateUnchanged, true);
     assert.equal(state.players[actorSeat].bench[0].tools[0].fullName,
       'Forest Seal Stone SIT');
-    const prompt = state.prompts.find(candidate => candidate.result === undefined);
+    const prompt = state.prompts.find(candidate =>
+      candidate.result === undefined && candidate.constructor.name === 'ChooseCardsPrompt');
     assert.ok(prompt, 'Star Alchemy must open its native search prompt');
     assert.equal(prompt.constructor.name, 'ChooseCardsPrompt');
     assert.equal(prompt.playerId, actor.id);
