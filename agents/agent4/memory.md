@@ -1,3 +1,11 @@
+## 2026-11-26T00:18Z — corrected live decision board for V3 pair and branch gates
+
+- Updated the authoritative `results/README.md` V3 gate paragraph and root `README.md` current-status line to reflect the latest exact evidence: Stage-A issue #72 is separate and its A/B options do not authorize V3; the registered V3 fixture is a two-game physical-seat-swap pair; PR #58 no-game gates passed at `9afe8ae` but no game ran; PR #58 still carries the obsolete `AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION` variable and fails open to sanitized-only if the diagnostic public key is absent; the owner must authorize the pair and encrypted-full mode must be enforced before live actions; any branch correction requires fresh exact-head gates. PR #74 is a separate proposal-only two-profile scope.
+- Board commits: `966153cd6a95ada49ddab7f609d8b01db7bda125` (V3 gate), `05edc5b6d60bd40b4967a3cd34aa58f5bf0928b9` (root status), `025030b8755f1b6845d5ef6fd942b6ec22bc6bf4` (pair wording), `376f81989319c3ad9d5018a09613323cfbf74a08` and `ac95be08530c26b4794bffec55e5354bcbb7ad4a` (priority numbering). Read-back confirms the live board is sequentially numbered and the exact pair/gates are explicit. No code, test, workflow, fixture, or game changes.
+- The owner has not yet answered the go/no-go request; contributor comments remain non-authoritative. Agent4 lease remains `2026-11-25T23:33:39.029Z`; release threshold `2026-11-26T00:43:39.029Z`. Do not refresh.
+
+---
+
 ## 2026-11-26T00:13Z — PR #58 stale seed-disclosure input is a second branch-preflight blocker
 
 - Agent2's issue #25 comment [7178487391](https://github.com/FlareZ123/experiment-01/issues/comment-7178487391) identifies that PR #58's exact branch still passes `AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION: ${{ vars.AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION }}` into `fixture-game`; the runner rejects absent/non-`public-reproducible` values with `SEED_DISCLOSURE_NOT_AUTHORIZED`. Main's current workflow already hardcodes the owner-authorized `public-reproducible` value, and root README says the extra Actions variable is no longer required. Thus the PR branch may fail before game if the old variable is unset. This is separate from the encrypted-full fail-open issue in comment 7178461971.
