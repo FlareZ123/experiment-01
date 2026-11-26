@@ -36,6 +36,8 @@ For hand-discard prompts, `searchCandidates()` negates `discardValue()`; lower d
 
 The effect is not necessarily a strict five-Energy cap on every possible attachment route: the worker still has other recipient/attacker branches. It does, however, systematically deprioritize searching for Energy, makes it a leading discard target, removes the VMAX-specific Underworld Door priority, and blocks the high-priority manual VMAX attachment after five total Energy.
 
+An internal consistency point strengthens the concern: the same candidate worker computes Max Geist attack damage using the full 10 + 30 × attached-Psychic-Energy formula (main lines 330–334; PR #69 lines 748–756), but its search/discard/attachment heuristics do not carry that marginal damage value beyond the five-Energy threshold. The worker therefore recognizes the full damage scaling when evaluating an attack while largely ignoring it when deciding whether to find, keep, or attach the Energy that creates that damage.
+
 ### 2. Five attached Energy is only 160 Max Geist damage
 
 Max Geist counts Psychic Energy attached to all of the attacker's Pokémon, not only the Active attacker. With the printed formula:
