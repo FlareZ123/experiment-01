@@ -67,7 +67,7 @@ function projectActorVisibleHistory(state, actorSeat, options = {}) {
     const logId = log.id;
     assert.ok(Number.isSafeInteger(logId) && logId >= 0,
       'ACTOR_HISTORY_INVALID_LOG_ID');
-    const clientId = log.client === undefined || log.client === null ? 0 : log.client;
+    const clientId = log.client;
     const params = log.params === undefined || log.params === null ? {} : log.params;
 
     // Match TableGameLogPanel.isLogHidden exactly without invoking an accessor.
@@ -82,7 +82,7 @@ function projectActorVisibleHistory(state, actorSeat, options = {}) {
     // and would make equivalent histories hash differently.
     delete projectedParams.timestamp;
 
-    const clientSeat = clientId === 0
+    const clientSeat = clientId === 0 || clientId === undefined || clientId === null
       ? null
       : state.players.findIndex(player => player.id === clientId);
     visibleLogs.push({
