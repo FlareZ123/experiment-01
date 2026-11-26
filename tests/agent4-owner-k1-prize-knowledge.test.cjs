@@ -72,7 +72,7 @@ test('source deck actually containing singleton prevents false Prize veto',()=>{
   assert.equal(assessRequiredDeckPrinting(dual,THUNDER),'unknown');
 });
 
-test('opponent secrets and hidden deck order cannot affect owner's K1 evidence',()=>{
+test("opponent secrets and hidden deck order cannot affect owner's K1 evidence",()=>{
   const source=ownerSearch(false);
   const before=captureOwnerK1(source.state,0,REGISTERED,null,()=>source.view);
   source.state.players[1].hiddenHand=['secret variant'];
