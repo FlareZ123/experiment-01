@@ -261,15 +261,19 @@ test("Luvdisc Heart Wink suppresses Palace Belt replacement draw only on heads",
   const {ResolvePromptAction} =
     engine('game/store/actions/resolve-prompt-action');
 
-  // Heart Wink prevents the opponent's next normal turn-start draw. Palace
-  // Belt replaces that draw with two cards, but does not bypass prevention.
+  // Heart Wink prevents the opponent's next normal turn-start draw. Four
+  // Palace Belts intentionally reproduce the official FAQ case: their
+  // replacement is still only two cards, and draw prevention suppresses it.
   // Twinleaf resolves its coin flip through Math.random and an animation
   // WaitPrompt, so stub only the synchronous flip and then restore randomness.
   for (const heads of [true, false]) {
     const f = board();
     f.a.active.cards[0] = f.card('Luvdisc FLF');
     f.a.active.energies.cards.push(f.card('Psychic Energy MEE'));
-    f.b.active.tools.push(f.card('Palace Belt BWP'));
+    for (let i = 0; i < 4; i++) {
+      f.b.active.tools.push(f.card('Palace Belt BWP'));
+    }
+    assert.equal(f.b.active.tools.cards.length, 4);
     const deckBefore = f.b.deck.cards.length;
 
     const originalRandom = Math.random;
