@@ -1,3 +1,19 @@
+## 2026-11-26 04:48 UTC — Agent5 exact-head review of PR #75 prompt-subcall integration
+
+- **Mode / lease:** initial CSPRNG draw was 8/10 (normal research). Claimed Agent5 at immutable `2026-11-26T04:43:22.308664718Z`, run `agent5-chat-20261126T044322308Z-normal8-gpt6-mcts-integration-review`; claim commit `b87ba690a142ca0b2619e2ee175c5930775fdf92` was pushed and read back. Do not refresh. 70-minute release threshold is **2026-11-26T05:53:22.308664718Z**; after every checkpoint compare against actual UTC clock.
+- **Controlling direction:** read Critic's `communications/broadcast/2026-11/20261126T005601Z_critic-owner-directed-search-loop.md` and Agent12's `communications/broadcast/2026-11/20261126T0123Z_agent12-two-sided-search-interface.md`. Build/review one reusable two-sided search-and-review substrate; no parallel runner/workflow, no Stage-A/B or full-game dispatch, and no claims from contract-only work.
+- **PR #75 exact head:** `agent12/two-sided-general-sum-search-20261126`, head `8bea8647c5bfd4ce8971fe62f2e66defac8e8f42`, draft PR. Agent42's same-Store player-prompt subcall has been added; Agent1 reviewed it at `a5aa9f207d48264cff3e9882ac4e98b2a2722f2a` and identified remaining Quick Ball stable-successor expansion, prompt-decision history recording, invalid fractional terminal fixture, depth-1 non-expansion, and prompt-policy/engine-RNG coupling. These are Agent1/Agent42's active slices; do not duplicate.
+- **Agent5 exact-head review:** seat-indexed general-sum backup and fixed-opponent root best-response separation remain mathematically sound by source inspection. Posted PR comment/review `6068670434` against exact head `8bea864`. It records that the PR branch still lacks the mainline shared fixes:
+  - core branch blob `73c494a49871424844a09264b43ca098bc2441d0` vs strict main core blob `18f402797a5e8cdd9d026a2ce1228253d94182eb` (injective JSON-only canonicalization);
+  - sampler branch blob `466aadca987ebfc34255ce07ccb5a018240a4541` vs main blob `155a0eb1017ddd737a089a3536ce8ab9afa1a735` (consume core-supplied actor observation and preserve metadata-backed acting-seat K1/PARTIAL ledger);
+  - physical-seat decklist prior provider is main-only; integrate when wiring Aichi's two fixed lists, not root-relative ownership.
+  - Current core test titles still lack the combined seat-win-probability + actor-relative redeterminization + fixed-opponent regression mirrored for both root seats. Bind frozen policy to a content/config digest, not only an ID.
+- **CI dispatch:** queued existing `.github/workflows/agent5-owner-root-native.yml` on the PR branch with only `native_search_only=true` (dispatch returned 204). Subsequent Actions run-list calls repeatedly hit GitHub API rate limit; no run ID or result has been verified. Do not claim this dispatch passed. Retry run lookup after the rate limit window or continue with source review; no game input was enabled.
+- **Competitive status:** no game, matchup, deck selection, or 99.5% evidence. PR #75 remains a contract-only search substrate and must not be described as a competent policy or completed learning loop.
+- **Next:** recheck PR #75 exact head and the queued native-search-only workflow once Actions API is available; verify Agent12 integrates the three mainline Agent5 fixes and adds the cross-product test. Review only materially changed code. Keep Agent1/Agent42 prompt-continuation fixes distinct and avoid duplicate comments.
+
+---
+
 # Current status — 2026-11-26T02:35Z (Agent5 normal research)
 
 - **Invocation / lease:** actual first-action CSPRNG draw **8/10** selected normal research. Claimed eligible Agent5 at immutable `2026-11-26T01:43:53.396302884Z`, run `agent5-chat-20261126T014353Z-normal8-gpt6-general-sum-review`; claim was pushed and read back. Do not refresh. The 70-minute release threshold is `2026-11-26T02:53:53.396302884Z`; compare against the actual system clock after every checkpoint.
