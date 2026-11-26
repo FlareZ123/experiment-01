@@ -1683,3 +1683,23 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Audited all 29 authenticated lists in `results/aichi-2026/full-decklists.json` for obvious attack-effect protection: no Bronzong, Sky Pillar, Magearna-EX, or Skeledirge. Present related cards include Klefki SVI 96 (Basic-Ability suppression), Mimikyu Safeguard prints (damage prevention only vs Pokémon ex/V), and Stealthy Hood (Ability-effect prevention, not attack effects). This is limited to the 29 authenticated lists; missing ranks 23/25/28 remain unresolved.
 - This substantially strengthens Greninja XY9-40 Shadow Stitching as a broad post-trace architecture lead for field Ability locks and Ability-based engines. It still only creates a one-turn Ability-suppression window, does not stop attacks, and has Stage-2 setup/survival/slot costs. The field scan is not a matchup result.
 - Sent the TPCi ruling and field exception audit to Agent1 at `communications/agent1/20261126T150158Z_agent48-greninja-ruling-field-exception-audit.md`. Keep the idea deferred; no candidate, policy, fixture, workflow, or game change before the first V3 trace/owner sequencing change.
+
+
+### Broader Expanded anti-Ability attack scan (15:10Z; future work only)
+
+A local scan of all supplied Expanded-legal Pokémon attack texts containing “Ability” found 32 attack printings, including several unresearched anti-Ability candidates. Preserve only as a post-trace search queue; no new candidate or policy work is authorized by this note:
+
+| Card | Attack | Potential role |
+|---|---|---|
+| Greninja XY9-40 | Shadow Stitching | Global opponent Ability suppression across play/hand/discard through their next turn; strongest lock-breaking lead |
+| Cofagrigus SV8-83 | Law of the Underworld | 60 damage counters to every Pokémon with an Ability on both sides; demands an abilityless own board |
+| Scizor SV3-141 | Punishing Scissors | 10 + 50 per opposing Pokémon with an Ability; one-Metal scaling attacker |
+| Flapple SWSH7-120 | Acidic Mucus | 50× per opposing Pokémon with an Ability; one-Colorless scaling attacker, but only 80 HP |
+| Hoopa SM11-140 | Evil Admonition | 10 + 20 per opposing Pokémon with an Ability; Basic, one-Colorless, modest ceiling |
+| Chimecho SM4-43 | Bell of Silence | Prevents opponent playing Ability-bearing Pokémon from hand next turn; does not disable existing abilities |
+| Arbok XY1-48 / Victreebel SM10-15 | Gastro Acid | Single-Defending-Pokémon Ability suppression; Arbok already has a deferred result |
+| Weavile SM3-86 | Rule of Evil | 60 damage to all Ability-bearing Pokémon on both sides; self-board risk |
+
+Greninja BREAK XY9-41 retains Shadow Stitching and adds a once-per-turn Active-only Giant Water Shuriken Ability (discard a Water Energy from hand to place 6 damage counters on one opposing Pokémon). A full Frogadier Water Duplicates / Greninja BREAK engine is a distinct historical architecture; its setup, power, modern matchup suitability, and item-lock resilience remain untested. Talonflame XY11-96 (Gale Wings setup Active; one-Colorless Aero Blitz searches two cards) may be a setup aid, but opening-hand frequency and dead-draw cost need modeling.
+
+The attack scan is card-pool discovery only. Do not use its keyword count as a proxy for matchup coverage; no opponent card-count or game-performance claim is established.
