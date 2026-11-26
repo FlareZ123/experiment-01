@@ -171,11 +171,14 @@ function backpropagate(path, leafValue, leafSeat) {
 function validateWinProbabilityVector(values, label = 'Win-probability value') {
   assert.ok(Array.isArray(values) && values.length === 2,
     label + ' must be a two-seat array');
-  return values.map((value, seat) => {
+  const normalized = values.map((value, seat) => {
     assert.ok(Number.isFinite(value) && value >= 0 && value <= 1,
       label + ' for seat ' + seat + ' must be within [0, 1]');
     return value;
   });
+  assert.ok(normalized[0] + normalized[1] <= 1 + 1e-9,
+    label + ' seat win probabilities cannot sum to more than one');
+  return normalized;
 }
 
 /**
@@ -209,8 +212,11 @@ function backpropagateWinProbabilities(path, values) {
  * @param {(state:object,action:object,random:()=>number)=>object} config.applyAction
  * @param {(state:object,seat:0|1,random:()=>number)=>object} [config.sampleDeterminization]
  * @param {(state:object)=>boolean} config.isTerminal
- * @param {(state:object,seat:0|1)=>number} config.terminalValue
- * @param {(observation:object,seat:0|1)=>number} config.evaluateObservation
+ * @param {'zero-sum'|'seat-win-probability'} [config.valueMode='zero-sum']
+ * @param {(state:object,seat:0|1)=>number} [config.terminalValue] Legacy zero-sum terminal utility.
+ * @param {(observation:object,seat:0|1)=>number} [config.evaluateObservation] Legacy zero-sum value.
+ * @param {(state:object)=>[number,number]} [config.terminalValues] Per-seat win probabilities; draws are [0,0].
+ * @param {(observation:object,seat:0|1)=>[number,number]} [config.evaluateObservationValues] Actor-view-only per-seat win probabilities; sum must not exceed one.
  * @param {(action:object,observation:object,seat:0|1)=>number} [config.actionPrior]
  * @param {number} [config.iterations=128]
  * @param {number} [config.maxPlies=16]
