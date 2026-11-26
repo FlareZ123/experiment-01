@@ -2495,7 +2495,8 @@ function createV3WorkerDecisionResolver({
         if(projected.hostOnly){
           const resolved=promptProjection.resolveHostOnlyPrompt({
             prompt:request.prompt,state:request.state,store:request.store,native,
-            physicalRandom:request.physicalRandom,provenanceHook:activeProvenanceHook,dispatch:false
+            physicalRandom:request.physicalRandom,provenanceHook:activeProvenanceHook,
+            enginePin:process.env.AGENT36_TWINLEAF_COMMIT_SHA,dispatch:false
           });
           roleAudit.hostOnlyPromptCount++;
           workerAudit.totalHostOnlyPrompts++;

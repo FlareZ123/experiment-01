@@ -13,7 +13,8 @@ const { stage } =
 const { initializeCards } =
   require('../../simulation/twinleaf/headless.cjs');
 const {
-  projectPrompt, dispatchPromptChoice, resolveHostOnlyPrompt
+  projectPrompt, dispatchPromptChoice, resolveHostOnlyPrompt,
+  isNumericPermutation, PINNED_SHUFFLE_DECK_VALIDATION_HOOK
 } = require('../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
 const repositoryRoot = path.resolve(__dirname, '../..');
 const twinleafRoot = path.join(repositoryRoot, 'vendor/twinleaf');
@@ -95,6 +96,14 @@ test('pinned Store retains grouped prompt continuations while State-only Simulat
   assert.equal(unrelated.result, undefined);
 });
 
+test('numeric shuffle validation accepts large permutations and rejects malformed indices', () => {
+  assert.equal(isNumericPermutation([0, 10, 2, 1, 9, 8, 7, 6, 5, 4, 3], 11), true);
+  assert.equal(isNumericPermutation([0, 1, 1], 3), false);
+  assert.equal(isNumericPermutation([0, 1, 3], 3), false);
+  assert.equal(isNumericPermutation([0, 1], 3), false);
+  assert.equal(isNumericPermutation(null, 0), false);
+});
+
 
 test('Quick Ball actor choice resumes its real effect in the same pinned Store', {
   skip: !fs.existsSync(compiledSimulator),
@@ -123,6 +132,11 @@ test('Quick Ball actor choice resumes its real effect in the same pinned Store',
   owner.hand.cards.unshift(quickBall);
   owner.deck.cards.length = 0;
   owner.deck.cards.push(searchedBasic);
+  for (let index = 0; index < 28; index += 1) {
+    owner.deck.cards.push(card('Psychic Energy SVE'));
+  }
+  assert.equal(owner.deck.cards.length, 29,
+    'Quick Ball fixture must exercise large-deck numeric shuffle validation');
   for (const slot of owner.bench) slot.cards.length = 0;
   owner.playableCardIds = [quickBall.id];
   owner.playableHandAbilityCardIds = [];
@@ -188,9 +202,17 @@ test('Quick Ball actor choice resumes its real effect in the same pinned Store',
       'Quick Ball continuation produced an unexpected prompt: ' + kind
     );
     hostPromptKinds.push(kind);
-    resolveHostOnlyPrompt({
-      prompt, state, store, native, physicalRandom: () => 0.5
+    const resolution = resolveHostOnlyPrompt({
+      prompt, state, store, native, physicalRandom: () => 0.5,
+      enginePin: actualEnginePin
     });
+    if (kind === 'ShuffleDeckPrompt') {
+      assert.equal(resolution.rawResult.length, 28);
+      assert.equal(resolution.summary.validationHookId,
+        PINNED_SHUFFLE_DECK_VALIDATION_HOOK.id);
+      assert.equal(resolution.summary.nativeValidatorResult, false,
+        'the adapter hook must correct the pinned native lexicographic-sort rejection');
+    }
   }
 
   state = store.state;

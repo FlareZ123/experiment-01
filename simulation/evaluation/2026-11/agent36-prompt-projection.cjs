@@ -6,6 +6,27 @@ const { enumName, cloneNativeValidationGraph } = require('./agent36-native-actio
 
 const MAX_PROMPT_CHOICES = 512;
 
+// Twinleaf a9905a76's ShuffleDeckPrompt.validate() calls Array.sort() without
+// a comparator. JavaScript therefore sorts numeric indices lexicographically,
+// rejecting valid permutations for decks of 11+ cards. Correct only this
+// known pinned validator defect in the research adapter; leave vendor untouched.
+const PINNED_SHUFFLE_DECK_VALIDATION_HOOK = Object.freeze({
+  engineCommit: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+  id: 'agent12-twinleaf-shuffle-deck-numeric-permutation-validation-v1'
+});
+
+function isNumericPermutation(result, expectedLength) {
+  if (!Array.isArray(result) || !Number.isSafeInteger(expectedLength) ||
+      expectedLength < 0 || result.length !== expectedLength) return false;
+  const seen = new Uint8Array(expectedLength);
+  for (const value of result) {
+    if (!Number.isSafeInteger(value) || value < 0 ||
+        value >= expectedLength || seen[value] !== 0) return false;
+    seen[value] = 1;
+  }
+  return true;
+}
+
 function printing(card) {
   return typeof card?.fullName === 'string' && card.fullName.length > 0
     ? card.fullName : null;
@@ -164,13 +185,27 @@ function enumeratePermutations(values, cap = MAX_PROMPT_CHOICES) {
   return output;
 }
 
-function validateRawPromptResult(prompt, rawResult, state) {
+function validateRawPromptResult(prompt, rawResult, state, { enginePin } = {}) {
   try {
     const decoded = typeof prompt.decode === 'function'
       ? prompt.decode(rawResult, state) : rawResult;
-    const valid = typeof prompt.validate === 'function'
+    const nativeValidatorResult = typeof prompt.validate === 'function'
       ? prompt.validate(decoded, state) : true;
-    return { valid: valid !== false, decoded };
+
+    if (prompt.constructor?.name === 'ShuffleDeckPrompt' &&
+        enginePin === PINNED_SHUFFLE_DECK_VALIDATION_HOOK.engineCommit) {
+      const ownerId = prompt.getPerspectivePlayerId?.() ?? prompt.playerId;
+      const owner = state.players.find(player => player.id === ownerId);
+      const expectedLength = owner?.deck?.cards?.length;
+      return {
+        valid: owner !== undefined && isNumericPermutation(decoded, expectedLength),
+        decoded,
+        validatorResult: nativeValidatorResult,
+        validationHookId: PINNED_SHUFFLE_DECK_VALIDATION_HOOK.id
+      };
+    }
+
+    return { valid: nativeValidatorResult !== false, decoded, validatorResult: nativeValidatorResult };
   } catch {
     return { valid: false, decoded: null };
   }
@@ -727,7 +762,7 @@ function randomPermutation(length, physicalRandom) {
 }
 
 function resolveHostOnlyPrompt({
-  prompt, state, store, native, physicalRandom, provenanceHook, dispatch=true
+  prompt, state, store, native, physicalRandom, provenanceHook, enginePin, dispatch=true
 } = {}) {
   assert.ok(prompt && state && store && native);
   assert.equal(store.state, state, 'native Store state changed before host prompt resolution');
@@ -791,7 +826,14 @@ function resolveHostOnlyPrompt({
     });
   }
 
-  const validation = validateRawPromptResult(prompt, rawResult, state);
+  const validation = validateRawPromptResult(prompt, rawResult, state, { enginePin });
+  if (validation.validationHookId) {
+    summary = {
+      ...summary,
+      validationHookId: validation.validationHookId,
+      nativeValidatorResult: validation.validatorResult ?? null
+    };
+  }
   assert.equal(validation.valid, true, 'host-selected prompt result failed native validation');
   const action = new native.ResolvePromptAction(prompt.id, validation.decoded);
   const result = dispatch?store.dispatch(action):undefined;
@@ -1059,6 +1101,8 @@ module.exports = {
   makeSource,
   hostOnlyPrompt,
   randomPermutation,
+  isNumericPermutation,
+  PINNED_SHUFFLE_DECK_VALIDATION_HOOK,
   resolveHostOnlyPrompt,
   projectPrompt,
   dispatchPromptChoice
