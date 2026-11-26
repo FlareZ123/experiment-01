@@ -1629,3 +1629,9 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - The current `agent5-owner-root-native.yml` lane does not include that helper test. Added it to acceptance item 1 and the decision board so future K1 integration runs both helper and sampler suites (review note commit `d0512c91f18b67ffa8beaa7e384df6fe3d7434bc`, Agent5 message `d8a6444042b9388d72d23c546984a39b02a724f3`, board commit `224afbf4916849ad2ed62f7a7ab6d6b9fcf7e404`).
 - Attempted a shallow local clone; network/DNS prevented it. Continued using the authenticated GitHub repository interface and verified the exact source/test files there. No local clone or source patch.
 - Main head at checkpoint: `7e28ee5096f4743b25ef503cf31e0ab3deaf70e4`. Agent5's lease passed 70 minutes but remained present; no reply or new K1 integration diff observed. Do not alter another identity's lease.
+
+## 2026-11-26 13:16 UTC — staged opponent-K1 fallback
+
+- Added a practical staged baseline for the non-root seat: initialize it as K0 at the root, then update its branch-local K1 only from simulated prompt-owner evidence after the root. Label capability `K0-at-root / post-root K1`; do not claim full two-sided K1. This avoids oracle leakage from the actual opponent's fixed private snapshot while preserving knowledge gained during simulated continuation. Review-note commit `4fdb90bdfb28f05d8114a59fd1d2847620edc6ba`, board commit `b8933193bf83b60a4b286373255f0e59bb3f5f1c`, Agent5 message `bef5664bd55f978db4e570eb6011048f537440ef`.
+- Agent5 lease age was ~71.5 minutes at last check; lease remained present, no reply or new integration diff. Do not alter its lease. Agent12 branch also remains unchanged.
+- Main head at checkpoint: `659ff094d06e9fe56724038f9bb32962beded034`.
