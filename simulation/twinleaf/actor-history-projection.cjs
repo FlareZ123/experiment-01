@@ -133,6 +133,34 @@ function projectActorVisibleHistory(state, actorSeat, options = {}) {
   return deepFreeze(result);
 }
 
+function createActorObservationWithHistory(baseActorObservation, historyOptionsForSeat = () => ({})) {
+  assert.equal(typeof baseActorObservation, 'function',
+    'ACTOR_HISTORY_BASE_OBSERVATION_MUST_BE_FUNCTION');
+  assert.equal(typeof historyOptionsForSeat, 'function',
+    'ACTOR_HISTORY_OPTIONS_PROVIDER_MUST_BE_FUNCTION');
+
+  return function actorObservationWithHistory(state, actorSeat, options = {}) {
+    const base = baseActorObservation(state, actorSeat, options);
+    assert.ok(base && typeof base === 'object' && !Array.isArray(base),
+      'ACTOR_HISTORY_BASE_OBSERVATION_MUST_BE_OBJECT');
+    const historyOptions = historyOptionsForSeat(state, actorSeat, options) ?? {};
+    assert.ok(historyOptions && typeof historyOptions === 'object' && !Array.isArray(historyOptions),
+      'ACTOR_HISTORY_OPTIONS_MUST_BE_OBJECT');
+    const history = projectActorVisibleHistory(state, actorSeat, historyOptions);
+    return deepFreeze({
+      ...base,
+      actorHistorySha256: history.actorHistorySha256,
+      actorHistoryComplete: history.actorHistoryComplete,
+      actorHistorySource: history.historySource,
+      actorHistoryVisibleLogCount: history.visibleLogCount,
+      actorHistoryOwnDecisionCount: history.ownDecisionCount,
+      ...(history.visibleLogs === undefined ? {} : { actorVisibleHistory: history.visibleLogs }),
+      ...(history.ownDecisionHistory === undefined ? {} : { actorOwnDecisionHistory: history.ownDecisionHistory })
+    });
+  };
+}
+
 module.exports = {
-  projectActorVisibleHistory
+  projectActorVisibleHistory,
+  createActorObservationWithHistory
 };
