@@ -568,10 +568,10 @@ test('V3 fixture pins candidate Quick Ball policy and routes owner prompts to ro
   assert.match(runnerSource, /workerHostOnlyPromptCount:/);
 });
 
-test('V3 fixture diagnostics select encrypted-full only with a valid owner key and otherwise remain sanitized-only', () => {
+test('V3 live fixture diagnostics require encrypted-full with a valid owner key and fail closed otherwise', () => {
   const workflowPath = path.join(ROOT, '.github/workflows/agent36-bilateral-competence-v9.yml');
   const workflow = fs.readFileSync(workflowPath, 'utf8');
-  const modeAt = workflow.indexOf('Select encrypted or sanitized-only V3 diagnostic mode');
+  const modeAt = workflow.indexOf('Require encrypted-full V3 diagnostic mode and recipient key');
   const compileAt = workflow.indexOf('Install and compile the pinned native server');
   const gameAt = workflow.indexOf('Execute paired V3 physical-seat fixture games');
   const encryptAt = workflow.indexOf('Encrypt private V3 fixture diagnostics before artifact upload');
@@ -586,10 +586,10 @@ test('V3 fixture diagnostics select encrypted-full only with a valid owner key a
   assert.ok(modeStep.includes('crypto.createPublicKey(pem)'));
   assert.ok(modeStep.includes("key.asymmetricKeyType !== 'rsa'"));
   assert.ok(modeStep.includes('bits < 2048'));
-  assert.ok(modeStep.includes("mode=sanitized-only\\n"));
+  assert.doesNotMatch(modeStep,/mode=sanitized-only/,
+    'live fixture preflight must not select sanitized-only when the key is missing');
   assert.ok(modeStep.includes("mode=encrypted-full\\n"));
-  assert.ok(modeStep.includes('captures no full state.'),
-    'missing key must explicitly select sanitized-only diagnostics without capturing full state');
+  assert.match(modeStep,/AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM is required for live V3 fixture games/);
 
   const heredocAt = modeStep.indexOf("node - <<'NODE'\n");
   const heredocEnd = modeStep.indexOf("\n          NODE", heredocAt);
@@ -605,27 +605,37 @@ test('V3 fixture diagnostics select encrypted-full only with a valid owner key a
     const publicPem = rsa.publicKey.export({ type: 'spki', format: 'pem' });
     const validRun = spawnSync(process.execPath, ['-e', script], {
       encoding: 'utf8',
-      env: { ...process.env, GITHUB_OUTPUT: outputPath, AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: publicPem }
+      env: { ...process.env, GITHUB_OUTPUT: outputPath, AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: publicPem, GITHUB_REF: 'refs/heads/main' }
     });
     assert.equal(validRun.status, 0, validRun.stderr || 'valid RSA-2048 recipient key should pass preflight');
     assert.match(fs.readFileSync(outputPath, 'utf8'), /mode=encrypted-full/);
 
     fs.writeFileSync(outputPath, '');
-    const missingEnv = { ...process.env, GITHUB_OUTPUT: outputPath };
+    const nonMainRun = spawnSync(process.execPath, ['-e', script], {
+      encoding: 'utf8',
+      env: { ...process.env, GITHUB_OUTPUT: outputPath, AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: publicPem, GITHUB_REF: 'refs/heads/agent6/v3-fail-closed-guard-20261126' }
+    });
+    assert.notEqual(nonMainRun.status, 0, 'non-main refs must fail the live fixture preflight');
+    assert.equal(fs.readFileSync(outputPath, 'utf8'), '', 'non-main refs must not write encrypted-full mode output');
+    assert.ok(nonMainRun.stderr.includes('Live V3 fixture games must run from refs/heads/main.'));
+
+    fs.writeFileSync(outputPath, '');
+    const missingEnv = { ...process.env, GITHUB_OUTPUT: outputPath, GITHUB_REF: 'refs/heads/main' };
     delete missingEnv.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM;
     const missingRun = spawnSync(process.execPath, ['-e', script], {
       encoding: 'utf8',
       env: missingEnv
     });
-    assert.equal(missingRun.status, 0, missingRun.stderr || 'missing key must select sanitized-only mode');
-    assert.match(fs.readFileSync(outputPath, 'utf8'), /mode=sanitized-only/);
-    assert.match(missingRun.stdout, /captures no full state/);
+    assert.notEqual(missingRun.status, 0, 'missing key must fail the live fixture preflight');
+    assert.equal(fs.readFileSync(outputPath, 'utf8'), '',
+      'missing key must not write a sanitized-only mode output');
+    assert.match(missingRun.stderr, /AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM is required for live V3 fixture games/);
 
     fs.writeFileSync(outputPath, '');
     const ec = crypto.generateKeyPairSync('ec', { namedCurve: 'prime256v1' });
     const invalidRun = spawnSync(process.execPath, ['-e', script], {
       encoding: 'utf8',
-      env: { ...process.env, GITHUB_OUTPUT: outputPath,
+      env: { ...process.env, GITHUB_OUTPUT: outputPath, GITHUB_REF: 'refs/heads/main',
         AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: ec.publicKey.export({ type: 'spki', format: 'pem' }) }
     });
     assert.notEqual(invalidRun.status, 0, 'non-RSA recipient key must fail preflight');

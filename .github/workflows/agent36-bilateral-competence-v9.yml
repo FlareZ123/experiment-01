@@ -340,7 +340,7 @@ jobs:
           }
           NODE
 
-      - name: Select encrypted or sanitized-only V3 diagnostic mode
+      - name: Require encrypted-full V3 diagnostic mode and recipient key
         id: diagnostic_recipient
         if: ${{ inputs.agent36_v3_fixture_game }}
         env:
@@ -353,11 +353,13 @@ jobs:
           if (typeof output !== 'string' || output.length === 0) {
             throw new Error('GitHub Actions output path is unavailable.');
           }
+          const ref = process.env.GITHUB_REF;
+          if (ref !== 'refs/heads/main') {
+            throw new Error('Live V3 fixture games must run from refs/heads/main.');
+          }
           const pem = process.env.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM;
           if (typeof pem !== 'string' || pem.trim().length === 0) {
-            fs.appendFileSync(output, 'mode=sanitized-only\n');
-            console.log('No owner recipient key is configured; fixture emits only allowlisted actor-observation diagnostics and captures no full state.');
-            process.exit(0);
+            throw new Error('AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM is required for live V3 fixture games.');
           }
           const key = crypto.createPublicKey(pem);
           const bits = key.asymmetricKeyDetails?.modulusLength;
@@ -825,6 +827,7 @@ jobs:
         env:
           AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION: public-reproducible
           AGENT36_V3_DIAGNOSTIC_MODE: ${{ steps.diagnostic_recipient.outputs.mode }}
+          AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: ${{ vars.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM }}
           AGENT36_V3_PREDEAL_ARTIFACT_REF: ${{ inputs.agent36_v3_predeal_artifact_ref }}
           AGENT36_V3_NO_GAME_WITNESS_RECEIPT: artifacts/prior-v3-acceptance/native-no-game-witness.json
         run: node simulation/evaluation/2026-11/agent36-v3-runner.cjs fixture-game

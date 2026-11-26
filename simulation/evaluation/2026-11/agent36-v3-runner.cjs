@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const Module=require('node:module');
 const fs=require('node:fs');
 const path=require('node:path');
-const {createHash}=require('node:crypto');
+const {createHash,createPublicKey}=require('node:crypto');
 const {canonicalJson,evidenceBundleSha256}=require('../agent45-independent-competitive-admission.cjs');
 const actionsReceipts=require('./agent44-actions-metadata-receipts.cjs');
 const {preparePreDealPolicyRegistration,revalidatePreDealPolicyRegistration,
@@ -2719,6 +2719,37 @@ function validateV3DiagnosticMode(diagnosticMode) {
   return diagnosticMode;
 }
 
+function requireEncryptedFullDiagnosticMode({env=process.env,witnessOnly=false}={}) {
+  const diagnosticMode=validateV3DiagnosticMode(
+    env.AGENT36_V3_DIAGNOSTIC_MODE??'sanitized-only');
+  if(witnessOnly)return diagnosticMode;
+  assert.equal(diagnosticMode,'encrypted-full',
+    'live V3 fixture games require encrypted-full diagnostics');
+  const recipientKey=env.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM;
+  assert.ok(typeof recipientKey==='string'&&recipientKey.trim().length>0,
+    'live V3 fixture games require a diagnostic recipient public key');
+  let publicKey;
+  try {
+    publicKey=createPublicKey(recipientKey);
+  } catch {
+    throw new Error('live V3 fixture games require a valid RSA-2048 diagnostic recipient public key');
+  }
+  assert.equal(publicKey.asymmetricKeyType,'rsa',
+    'live V3 fixture games require an RSA diagnostic recipient public key');
+  assert.ok((publicKey.asymmetricKeyDetails?.modulusLength??0)>=2048,
+    'live V3 fixture games require an RSA diagnostic recipient key of at least 2048 bits');
+  assert.equal(env.GITHUB_ACTIONS,'true',
+    'live V3 fixture games must run under the GitHub Actions workflow that encrypts private artifacts');
+  assert.equal(env.GITHUB_REPOSITORY,'FlareZ123/experiment-01',
+    'live V3 fixture games must run in the canonical research repository');
+  assert.equal(env.GITHUB_REF,'refs/heads/main',
+    'live V3 fixture games must run from the canonical main branch');
+  assert.ok(typeof env.GITHUB_WORKFLOW_REF==='string'&&
+    env.GITHUB_WORKFLOW_REF.includes('/.github/workflows/agent36-bilateral-competence-v9.yml@'),
+    'live V3 fixture games must run from the approved encrypted-artifact workflow');
+  return diagnosticMode;
+}
+
 async function runV3FixtureGame({
   env=process.env,outputDir=null,
   candidateSeat=V3_FIXTURE.candidateSeat,opponentSeat=1-candidateSeat,
@@ -2726,8 +2757,7 @@ async function runV3FixtureGame({
 }={}) {
   const seedDisclosureDecision=witnessOnly?'public-reproducible':
     validatePhysicalSeedDisclosureDecision(env.AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION);
-  const diagnosticMode=validateV3DiagnosticMode(
-    env.AGENT36_V3_DIAGNOSTIC_MODE??'sanitized-only');
+  const diagnosticMode=requireEncryptedFullDiagnosticMode({env,witnessOnly});
   candidateOpponentRoleSeats({candidateSeat,opponentSeat});
   if(witnessOnly)assert.ok(expectedActorSeat===0||expectedActorSeat===1,
     'native no-game witness requires an expected physical actor seat');
@@ -4233,6 +4263,7 @@ function runV3CompiledSeatWitness({
 }
 
 async function runV3FixtureGameBothSeats({env=process.env,outputDirRoot=path.join(ROOT,V3_FIXTURE.outputDir)}={}) {
+  requireEncryptedFullDiagnosticMode({env});
   const results=[];
   const candidatePolicy=loadWorkerPolicyModule(ROOT,V3_FIXTURE.candidateWorkerPolicyPath,'candidate');
   const opponentPolicy=loadWorkerPolicyModule(ROOT,V3_FIXTURE.opponentWorkerPolicyPath,'opponent');
@@ -4451,7 +4482,7 @@ module.exports={GIT_SHA,RUN_ID,PREDEAL_FIELDS,V3_FIXTURE,V3_FIXTURE_TEST_PATHS,p
   revalidatePreDealPersistenceReceipt,
   revalidateDealGenerationReceipt,writeJsonAtomic,main,
   printed60Fingerprint,
-  resolvePrintedDeck,resolveFixtureSeatAssignment,candidateOpponentRoleSeats,assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,validateV3DiagnosticMode,
+  resolvePrintedDeck,resolveFixtureSeatAssignment,candidateOpponentRoleSeats,assertTrustedActionSelection,validatePhysicalSeedDisclosureDecision,validateV3DiagnosticMode,requireEncryptedFullDiagnosticMode,
   buildFixtureRoleEntryManifest,
   fixtureChallengeSuiteSha256,
   loadWorkerPolicyModule,buildRoleWorkerBundle,loadNativeRoleDependencies,V3_FIXTURE,
