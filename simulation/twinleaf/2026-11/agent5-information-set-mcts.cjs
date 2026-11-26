@@ -198,6 +198,69 @@ function backpropagate(path, leafValue, leafSeat) {
 }
 
 /**
+ * Validate a general-sum terminal/leaf payoff vector. Each component is the
+ * estimated probability that the corresponding physical seat wins. Terminal
+ * outcomes are supplied separately as typed, versioned adjudications; leaf
+ * estimates may be fractional but must sum to at most one.
+ */
+function validateWinProbabilityVector(values, label = 'Win-probability value') {
+  assert.ok(Array.isArray(values) && values.length === 2,
+    label + ' must be a two-seat array');
+  const normalized = values.map((value, seat) => {
+    assert.ok(Number.isFinite(value) && value >= 0 && value <= 1,
+      label + ' for seat ' + seat + ' must be within [0, 1]');
+    return value;
+  });
+  assert.ok(normalized[0] + normalized[1] <= 1 + 1e-9,
+    label + ' seat win probabilities cannot sum to more than one');
+  return normalized;
+}
+
+/**
+ * Convert a typed terminal classification into realized per-seat win values.
+ * A draw requires a versioned rule plus a concrete evidence reference; a bare
+ * [0,0] vector can never attest that an unresolved/NONE state was adjudicated.
+ */
+function terminalOutcomeToWinProbabilityVector(outcome, label = 'Terminal outcome') {
+  assert.ok(outcome !== null && typeof outcome === 'object' && !Array.isArray(outcome),
+    label + ' must be a typed outcome object');
+  const prototype = Object.getPrototypeOf(outcome);
+  assert.ok(prototype === Object.prototype || prototype === null,
+    label + ' must be a plain data object');
+  if (outcome.kind === 'seat-win') {
+    assert.ok(outcome.winnerSeat === 0 || outcome.winnerSeat === 1,
+      label + ' winnerSeat must be 0 or 1');
+    return outcome.winnerSeat === 0 ? [1, 0] : [0, 1];
+  }
+  if (outcome.kind === 'adjudicated-draw') {
+    assert.ok(typeof outcome.ruleId === 'string' && /v\d+$/.test(outcome.ruleId),
+      label + ' draw requires a versioned ruleId');
+    assert.ok(typeof outcome.reason === 'string' && outcome.reason.trim().length > 0,
+      label + ' draw requires a non-empty reason');
+    assert.ok(typeof outcome.evidenceId === 'string' && outcome.evidenceId.trim().length > 0,
+      label + ' draw requires a non-empty evidenceId');
+    return [0, 0];
+  }
+  assert.fail(label + ' kind must be seat-win or adjudicated-draw; ' +
+    'unresolved, invalid, aborted, NONE, and unknown outcomes are rejected');
+}
+
+/**
+ * Each decision node maximizes its own seat's win probability. This is
+ * intentionally general-sum: draws/nonwins are zero for both players.
+ */
+function backpropagateWinProbabilities(path, values) {
+  for (let i = path.length - 1; i >= 0; i--) {
+    const step = path[i];
+    const stat = step.node.stats.get(step.actionKey);
+    assert.ok(stat, 'Backpropagation lost its selected action');
+    stat.visits += 1;
+    stat.valueSum += values[step.seat];
+    step.node.visits += 1;
+  }
+}
+
+/**
  * Observation-keyed, determinization-based PUCT search.
  *
  * This is an information-set search core, not a complete Pokémon policy. The
@@ -213,8 +276,12 @@ function backpropagate(path, leafValue, leafSeat) {
  * @param {(state:object,action:object,random:()=>number)=>object} config.applyAction
  * @param {(state:object,seat:0|1,random:()=>number)=>object} [config.sampleDeterminization]
  * @param {(state:object)=>boolean} config.isTerminal
- * @param {(state:object,seat:0|1)=>number} config.terminalValue
- * @param {(observation:object,seat:0|1)=>number} config.evaluateObservation
+ * @param {'zero-sum'|'seat-win-probability'} [config.valueMode='zero-sum']
+ * @param {(state:object,seat:0|1)=>number} [config.terminalValue] Legacy zero-sum terminal utility.
+ * @param {(observation:object,seat:0|1)=>number} [config.evaluateObservation] Legacy zero-sum value.
+ * @param {(state:object)=>({kind:'seat-win',winnerSeat:0|1}|{kind:'adjudicated-draw',ruleId:string,reason:string,evidenceId:string})} [config.terminalOutcome] Typed realized outcome; unresolved/invalid/aborted/NONE classes are rejected.
+ * @param {string} [config.terminalOutcomeProtocolId] Required versioned ID for the caller's terminal adjudication mapping.
+ * @param {(observation:object,seat:0|1)=>[number,number]} [config.evaluateObservationValues] Actor-view-only per-seat win probabilities; sum must not exceed one.
  * @param {(action:object,observation:object,seat:0|1)=>number} [config.actionPrior]
  * @param {number} [config.iterations=128]
  * @param {number} [config.maxPlies=16]
@@ -241,10 +308,27 @@ function backpropagate(path, leafValue, leafSeat) {
 function createInformationSetMcts(config) {
   const required = [
     'observe', 'activeSeat', 'enumerateActions', 'actionKey', 'applyAction',
-    'isTerminal', 'terminalValue', 'evaluateObservation'
+    'isTerminal'
   ];
   for (const name of required) assert.equal(typeof config[name], 'function',
     'Missing search dependency: ' + name);
+  const valueMode = config.valueMode ?? 'zero-sum';
+  assert.ok(valueMode === 'zero-sum' || valueMode === 'seat-win-probability',
+    'valueMode must be zero-sum or seat-win-probability');
+  if (valueMode === 'seat-win-probability') {
+    assert.equal(typeof config.terminalOutcome, 'function',
+      'seat-win-probability mode requires terminalOutcome(state)');
+    assert.ok(typeof config.terminalOutcomeProtocolId === 'string' &&
+      /v\d+$/.test(config.terminalOutcomeProtocolId),
+    'seat-win-probability mode requires a versioned terminalOutcomeProtocolId');
+    assert.equal(typeof config.evaluateObservationValues, 'function',
+      'seat-win-probability mode requires evaluateObservationValues(observation, seat)');
+  } else {
+    assert.equal(typeof config.terminalValue, 'function',
+      'zero-sum mode requires terminalValue(state, seat)');
+    assert.equal(typeof config.evaluateObservation, 'function',
+      'zero-sum mode requires evaluateObservation(observation, seat)');
+  }
   const redeterminize = config.redeterminize ?? null;
   const sampleDeterminization = config.sampleDeterminization ?? null;
   if (redeterminize !== null) assert.equal(typeof redeterminize, 'function',
@@ -419,7 +503,9 @@ function createInformationSetMcts(config) {
         for (let ply = 0; ply < maxPlies; ply++) {
           maxObservedDepth = Math.max(maxObservedDepth, ply);
           if (config.isTerminal(state)) {
-            leafValue = config.terminalValue(state, seat);
+            leafValue = valueMode === 'seat-win-probability' ?
+              terminalOutcomeToWinProbabilityVector(config.terminalOutcome(state), 'Terminal outcome') :
+              config.terminalValue(state, seat);
             checkDeadline('terminal-value');
             leafSeat = seat;
             terminalRollouts += 1;
@@ -449,7 +535,11 @@ function createInformationSetMcts(config) {
               opponentFrontiers.set(nodeKey, actionKeys);
             }
             if (actionMap.size === 0) {
-              leafValue = config.evaluateObservation(observation, seat);
+              leafValue = valueMode === 'seat-win-probability' ?
+                validateWinProbabilityVector(
+                  config.evaluateObservationValues(observation, seat),
+                  'Observation value evaluation') :
+                config.evaluateObservation(observation, seat);
               checkDeadline('opponent-no-action-evaluation');
               leafSeat = seat;
               heuristicLeaves += 1;
@@ -500,7 +590,11 @@ function createInformationSetMcts(config) {
           }
           if (!node) {
             if (actionMap.size === 0) {
-              leafValue = config.evaluateObservation(observation, seat);
+              leafValue = valueMode === 'seat-win-probability' ?
+                validateWinProbabilityVector(
+                  config.evaluateObservationValues(observation, seat),
+                  'Observation value evaluation') :
+                config.evaluateObservation(observation, seat);
               checkDeadline('new-node-evaluation');
               leafSeat = seat;
               heuristicLeaves += 1;
@@ -510,7 +604,11 @@ function createInformationSetMcts(config) {
             node = createNode(nodeKey, seat, actions, observation,
               config.actionPrior, config.actionKey);
             nodes.set(nodeKey, node);
-            leafValue = config.evaluateObservation(observation, seat);
+            leafValue = valueMode === 'seat-win-probability' ?
+                validateWinProbabilityVector(
+                  config.evaluateObservationValues(observation, seat),
+                  'Observation value evaluation') :
+                config.evaluateObservation(observation, seat);
             checkDeadline('new-node-evaluation');
             leafSeat = seat;
             heuristicLeaves += 1;
@@ -543,7 +641,9 @@ function createInformationSetMcts(config) {
         // checks terminality at each ply's start, so recognize this boundary
         // before falling through to a heuristic evaluation of a terminal state.
         if (!finished && config.isTerminal(state)) {
-          leafValue = config.terminalValue(state, seat);
+          leafValue = valueMode === 'seat-win-probability' ?
+              terminalOutcomeToWinProbabilityVector(config.terminalOutcome(state), 'Terminal outcome') :
+              config.terminalValue(state, seat);
           checkDeadline('terminal-value-after-final-ply');
           leafSeat = seat;
           terminalRollouts += 1;
@@ -555,14 +655,22 @@ function createInformationSetMcts(config) {
           const prepared = prepareActorState(state, seat, iteration, 'leaf');
           state = prepared.state;
           const observation = prepared.observation;
-          leafValue = config.evaluateObservation(observation, seat);
+          leafValue = valueMode === 'seat-win-probability' ?
+                validateWinProbabilityVector(
+                  config.evaluateObservationValues(observation, seat),
+                  'Observation value evaluation') :
+                config.evaluateObservation(observation, seat);
           checkDeadline('leaf-evaluation');
           leafSeat = seat;
           heuristicLeaves += 1;
         }
-        assert.ok(Number.isFinite(leafValue) && leafValue >= -1 && leafValue <= 1,
-          'Leaf value must be finite and normalized to [-1, 1]');
-        backpropagate(path, leafValue, leafSeat);
+        if (valueMode === 'seat-win-probability') {
+          backpropagateWinProbabilities(path, leafValue);
+        } else {
+          assert.ok(Number.isFinite(leafValue) && leafValue >= -1 && leafValue <= 1,
+            'Leaf value must be finite and normalized to [-1, 1]');
+          backpropagate(path, leafValue, leafSeat);
+        }
         completedIterations += 1;
         checkDeadline('iteration-complete');
       }
@@ -591,6 +699,14 @@ function createInformationSetMcts(config) {
         action: rootActionMap.get(selected.actionKey),
         actionKey: selected.actionKey,
         audit: {
+          valueMode,
+          terminalOutcomeProtocolId: valueMode === 'seat-win-probability' ?
+            config.terminalOutcomeProtocolId : null,
+          searchMode: typeof config.opponentActionPolicy === 'function' ?
+            'root-best-response-fixed-opponent-policy' : 'two-sided-puct',
+          objectiveProtocol: valueMode === 'seat-win-probability' ?
+            'each-seat-maximizes-own-win-probability-adjudicated-draws-zero-v1' :
+            'zero-sum-seat-relative-value-v1',
           protocol: redeterminize === null ?
             'observation-keyed-determinization-puct-v1' :
             'observation-keyed-actor-relative-redeterminization-puct-v1',
@@ -654,5 +770,7 @@ module.exports = {
   canonicalJson,
   observationSha256,
   seededRandom,
+  validateWinProbabilityVector,
+  terminalOutcomeToWinProbabilityVector,
   createInformationSetMcts
 };
