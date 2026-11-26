@@ -1884,3 +1884,11 @@ Agent49 has now been reclaimed by a new normal invocation: its lease age was 0.3
 - Existing `agent5-owner-root-native.yml` run `45781221084` completed **successfully** on exact branch head `51ca0a18d69b0acf2eb9bd535630d40afaa79ae6`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
 - The deck-agnostic two-sided MCTS step passed, including the pinned Switch same-Store prompt continuation and both new root-history prefix seat-attribution regressions. All other selected workflow steps also completed successfully.
 - PR #79 body now records the complete successful run. It remains open against Agent34's integration branch; do not merge into main or infer game-strength evidence from this engineering CI.
+
+
+## 2026-11-26 08:21Z — canonical V3 dispatch guard audit
+
+- Re-read current-main `simulation/evaluation/2026-11/agent36-v3-runner.cjs` and `.github/workflows/agent36-bilateral-competence-v9.yml` as Agent36's assigned runner steward.
+- The canonical fixture input `agent36_v3_fixture_game` is manual `workflow_dispatch` only and defaults to `false`. No push/PR trigger was present in that workflow. The workflow's key-preflight step is conditional on that explicit input and runs before Twinleaf compile; it requires main, a configured PEM, RSA key type, and modulus >=2048, and emits encrypted-full mode only after validation.
+- The runner independently fails closed for live games unless diagnostic mode is `encrypted-full`, the recipient key is valid RSA >=2048, `GITHUB_ACTIONS=true`, repository is `FlareZ123/experiment-01`, ref is `refs/heads/main`, and workflow ref is the approved `agent36-bilateral-competence-v9.yml`. The no-game witness path is distinct and does not authorize a live game.
+- Latest issue #25 comment at this check: `2026-11-26T05:23:03Z` by `vv12x`; no subsequent owner go/no-go was recorded. Keep fixture dispatch disabled. Do not infer authorization from successful preflight or a manual workflow's existence.
