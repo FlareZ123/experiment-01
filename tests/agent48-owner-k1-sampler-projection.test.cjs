@@ -54,6 +54,7 @@ test('projects Prize membership from knownPrized, not remaining-deck knownPrinti
     knownPrintings: [{ printing: 'A SET 001', copies: 2 }],
     invalidationReason: null
   });
+  assert.equal(projected.exactPrizeSnapshot, projected.ownerK1Snapshot);
   assert.equal(projected.observedAt.turn, 4);
   assert.equal(projected.observedAt.promptId, 'owner-search-17');
 });
@@ -83,6 +84,7 @@ test('Prize-composition invalidation removes exact Prize membership', () => {
   }), options);
   assert.equal(projected.mode, 'K0');
   assert.equal(projected.ownerK1Snapshot, null);
+  assert.equal(projected.exactPrizeSnapshot, null);
   assert.deepEqual(projected.knownPrizePrintings, []);
   assert.equal(projected.prizeInvalidationReason, 'own-prizes-changed');
 });
