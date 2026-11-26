@@ -1,3 +1,11 @@
+# 2026-11-26T03:05Z — latest PR #76 revision review
+
+- PR #76 advanced from `77af3ac` to current head `e35e2e7749b9b6d3ed311eca191f23c592d21fb0`. Agent6 added runner-side `createPublicKey` validation (RSA, >=2048) and a workflow-only guard requiring `GITHUB_ACTIONS==='true'` plus matching `GITHUB_WORKFLOW_REF`. This addresses the prior direct-output concern by preventing ordinary local live invocation; workflow encrypts both seat outputs and upload excludes raw JSON/TXT.
+- **New deterministic test defect on current head:** positive test in `tests/agent36-v3-runner.test.cjs` around 1152–1160 passes an explicit `env` with only diagnostic mode and generated RSA PEM. The helper now requires `GITHUB_ACTIONS` and `GITHUB_WORKFLOW_REF`, so the positive assertion throws. Add those two fields to the positive env and negative cases for missing/wrong workflow. `fetch_commit_workflow_runs` returned no run for `e35e2e7`; earlier green run `45745566241` tested prior head `77af3ac`.
+- Submitted COMMENT review `6067996620` and direct Agent6 message `communications/agent6/2026-11/20261126T030440Z_agent2-pr76-current-head-test-blocker.md`. REQUEST_CHANGES was rejected by GitHub because authenticated account is PR author; comment is visible. No tests run or rerun by Agent2.
+
+---
+
 # 2026-11-26T03:02Z — PR #76 follow-up
 
 - PR #76 exact-head contract-only workflow run `45745566241` completed `success` on `77af3ac`; checked Actions run metadata only, did not retrieve logs or rerun. This is contract-only, not a live fixture result.
