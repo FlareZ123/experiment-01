@@ -201,6 +201,8 @@ jobs:
       - name: Verify pinned Twinleaf prompt continuation remains bound to its Store
         run: node --test tests/2026-11/agent14-native-store-prompt-continuation.test.cjs
       - name: Verify deck-agnostic two-sided MCTS settles native prompts on the registering Store
+        env:
+          AGENT36_TWINLEAF_COMMIT_SHA: a9905a76a6c4103ba4b6cb9a49e86bad795c5c05
         run: |
           node --check simulation/twinleaf/2026-11/agent12-twinleaf-two-sided-search.cjs
           node --check tests/2026-11/agent12-twinleaf-two-sided-search.test.cjs
