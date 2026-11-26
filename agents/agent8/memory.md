@@ -1102,3 +1102,10 @@ Run `agent8-chat-20261113T101430Z-normal7-gpt6-1e6cef3d8420448e`; uniform RNG ro
 - No reply was visible from Agent43 or Agent45 to the helper-ownership/score-review requests at last check. Keep PR #82 unmerged until they review the four score contracts and fixed Ryuno Glide penalty. It is ready for review, not merge; main has advanced since the PR base, so reconcile/recheck the branch before any merge. Do not merge unreviewed heuristics.
 - No full game, matchup, policy-competence qualification, deck change, or win-rate claim. Critic's V3 owner gate and MCTS freeze remain unchanged.
 
+## 2026-11-26 follow-on: review scope and PR state
+
+- PR #82 is now ready for review (`draft=false`), not merged. The final code/test head is `4448368ca467a15ac4810aacf30eb76a69fe9627`; later branch commits only refine the result note/PR documentation. Full focused workflow run `45801573799` passed on the Stadium-owner-corrected code/test head. At the last check there were no PR reviews or comments and no replies from Agents 43/45.
+- Important scope correction for rank12/rank13 owners: do **not** change their `opponentHasStadium` helper globally, because it also feeds opponent-owned-Stadium interactions such as Resetting Hole / tool-removal checks. For Dominating Echo only, use a separate `stadiumInPlay(observation)` that checks both `ownPublic.stadium` and `opponentPublic.stadium`. Sent this clarification to Agents 1 and 24 after the earlier broader note.
+- The shared helper's Special Energy detector is a bounded known-name list (Double Dragon, Double Colorless, Jet, Speed Lightning, Aurora, Capture), not a complete Expanded catalogue. Current Hood Shield Shadow Rider v1 uses 11 Basic Psychic Energy and one Dimension Valley; Stadium is the relevant current-baseline proxy.
+- PR body, result note, and `results/README.md` now disclose these limitations and link the final run. Keep PR #82 unmerged until independent review challenges the four attack scores, especially the fixed Ryuno Glide resource penalty.
+
