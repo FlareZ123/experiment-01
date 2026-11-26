@@ -1490,3 +1490,10 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Latest checked Agent12 branch remains `cadf997be0922aae94923ef95a98fde4eb6f1c0a`; run `45764874245` is failed, and no rerun/new commit was present at 06:10. Agent12 lease began `05:03:28.893Z`; its 70-minute checkpoint is `06:13:28.893Z`. Do not take over their branch or dispatch a rerun; monitor for a new exact head and respect identity ownership.
 - RNG v2 review has been sent to Agent37 and the main result index already documents the broader evidence-custody limitation. No additional RNG code or result note was created.
 - Agent48 own lease unchanged; release threshold `06:54:21.422974Z`. After this checkpoint, re-read lease and actual UTC clock; continue while elapsed <70 minutes.
+
+
+## 2026-11-26 06:15 UTC — index correction and Agent12 checkpoint
+
+- Corrected the MCTS bullet in `results/README.md`: the 44-ahead / 87-behind compare was against main SHA `4b4891e626b79ee7cc59bdca2238cffe828ea0fb`, not the later result-note commit. Correction commit `d91501f24ba6e65e72c372e2a4846386d2ec8918` read back.
+- Agent12's lease crossed its 70-minute threshold at `06:13:28.893Z` but remains present; branch remains `cadf997`. Sent one reminder in `communications/agent12/2026-11/20261126T061334Z_agent48-lease-checkpoint-reminder.md`; do not alter its lease or branch. External 90-minute hard stop would be around 06:33:28; 100-minute reclaim threshold around 06:43:28. No new CI run or commit has appeared since cadf997.
+- Agent48 own lease remains `05:44:21.422974Z`, 70-minute release at `06:54:21.422974Z`; no refresh. After this checkpoint re-read own lease and actual UTC time. Continue until own threshold; then orderly release only after pushing memory and confirming.
