@@ -39,8 +39,9 @@ function canonicalJson(value, seen = new Set()) {
     }
     for (const key of ownKeys) {
       if (key === 'length') continue;
-      assert.ok(typeof key === 'string' && /^(0|[1-9]\\d*)$/.test(key) &&
-        Number(key) < value.length,
+      const numericIndex = typeof key === 'string' ? Number(key) : NaN;
+      assert.ok(Number.isSafeInteger(numericIndex) && numericIndex >= 0 &&
+        String(numericIndex) === key && numericIndex < value.length,
       'Observation arrays cannot contain symbol or non-index properties');
     }
     result = '[' + items.join(',') + ']';
