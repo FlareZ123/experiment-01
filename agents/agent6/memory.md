@@ -1,3 +1,35 @@
+# 2026-11-26T11:02Z — PR #69 v4 discard-priority correction and contract pass
+
+## Invocation / lease
+- Continuing Agent6 in normal mode. Initial required CSPRNG draw was 3/10. Current immutable lease: `2026-11-26T10:56:15.392Z`, run id `agent6-chat-20261126T105615392Z-normal3-gpt6.2-pr69-discard-fix`; 70-minute release threshold is `2026-11-26T12:06:15.392Z`. Do not refresh the lease. Check actual UTC time after every checkpoint.
+- Claim commit: `396f1a24b854ce20675bc79db6f2cfeb197bcbdd`. No other identity lease was changed.
+
+## Work completed
+- Continued Agent36's 10:20Z review of the v4 candidate-policy discard patch on PR #69 / branch `agent46/candidate-policy-competence-20261124`.
+- Exact branch head now: `aabf76a5a9d102b4cde4bbc5e82d1f39da27b371`. Commits in this continuation:
+  - `b1483aa019c8daec3ef1f4228b3a9b664387ee15`: Marshadow now requires `hasStadiumRemovalTarget(view)`; positive Path to the Peak and negative Dimension Valley controls; maximum-reachable Psychic Energy boundary test; removed unreachable `psychicEnergyCount(view) >= 11` discard cutoff and retained hand Psychic Energy value 80.
+  - `aabf76a5a9d102b4cde4bbc5e82d1f39da27b371`: restored shared `psychicEnergyCount(view)` helper because `attackBaseDamage()` also uses it for Max Geist damage. Keep the helper; only the discard cutoff was dead.
+- First exact-head contract-only run `45806268676` on `b1483aa` failed because the helper had been removed. The failed log directly showed ReferenceError in `attackBaseDamage`; this was corrected rather than ignored.
+- Second exact-head contract-only run `45806439884` on `aabf76a` **passed**. It used existing `.github/workflows/agent36-bilateral-competence-v9.yml`; its contract command includes the complete `tests/2026-11/agent46-candidate-policy.test.cjs` file (workflow line 581). Docker launcher contract, runtime preflight, and both-seat worker-isolation canary also passed. This is contract-only evidence; Twinleaf checkout/compile, native no-game witness, fixture/game, matchup, and win-rate steps were skipped.
+- Updated PR #69 body with exact head, both run dispositions, scope, and evidence boundary. PR remains draft and unmerged.
+- Updated `results/README.md` Candidate policy review status with the current exact-head contract result. No decklist changed.
+- Sent direct handoffs to Agent36 and Agent46:
+  - `communications/agent36/2026-11/20261126T1101Z_agent6-pr69-v4-correction-and-contract-pass.md`
+  - `communications/agent46/2026-11/20261126T1102Z_agent6-pr69-v4-correction-and-contract-pass.md`
+
+## Findings / limits
+- Marshadow is no longer preserved solely because an opponent has any Stadium; it needs a Stadium the existing policy already recognizes as a removal target. Dimension Valley is correctly a negative control for this Psychic candidate.
+- With 11 Basic Psychic Energy in the fixed list, an Energy still in hand cannot coexist with 11 already attached. The prior threshold was unreachable for the discard candidate. Preserve remaining hand Psychic at value 80; keep the counter for damage calculations.
+- The passing run does not establish candidate-policy competence, paper matchup strength, a final fixed-60 nomination, or any win-rate claim. The candidate deck is unchanged and still experimental.
+
+## Next
+1. Await Agent36 / Agent46 review of exact head `aabf76a`; do not merge PR #69 or change the fixed deck based on contract evidence.
+2. Keep any follow-up within the authorized candidate/opponent pair and the current Critic convergence scope. Avoid reopening the declined Budew/Ranger lane or adding a new workflow.
+3. No fixture/game dispatch without the explicit owner go/no-go. No competitive or 99.5% claim.
+4. At each checkpoint, read this lease and compare actual UTC clock; orderly release only at/after `12:06:15.392Z`.
+
+---
+
 # 2026-11-26 04:20 UTC — no-game registration identity confirmed against current main
 
 - Compared PR #76 branch and current main: candidate policy blob 59466565caa241558c3ed62a331c56228c30e3d1 and rank-1 opponent policy blob 1c8aef18c6ddd2b45f5aeaa2bf958169301e7dcd are identical. The entire V3_FIXTURE registration block is byte-identical too, including both printed-60 hashes, policy paths/versions, role identities, and Twinleaf pin. Therefore the passing no-game witness uses the same registered decks, policy source, and engine as current main; only the guard/workflow behavior differs.
