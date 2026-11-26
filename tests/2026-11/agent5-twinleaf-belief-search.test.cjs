@@ -115,9 +115,9 @@ test('two-seat Twinleaf determinizer replaces hidden faces from registered 60s a
   const state={players:[makePlayer(0),makePlayer(1)],activePlayer:0,phase:'PLAY',prompts:[]};
   const observation={actorSeat:0,ownHand:['HandA','HandB'],
     ownPublic:{...publicView('Mon0',2,49,6),active:{printing:'Mon0',
-      evolutionPrintings:['Mon0','Energy0'],energies:['Energy0'],tools:['Tool0']}},
+      evolutionPrintings:['Mon0'],energies:['Energy0'],tools:['Tool0']}},
     opponentPublic:{...publicView('Mon1',3,48,6),active:{printing:'Mon1',
-      evolutionPrintings:['Mon1','Energy1'],energies:['Energy1'],tools:['Tool1']},
+      evolutionPrintings:['Mon1'],energies:['Energy1'],tools:['Tool1']},
       prizeSlots:Array.from({length:6},(_,index)=>
         index===0?{index,printing:'P1'}:{index})},
     ownerK1:null};
