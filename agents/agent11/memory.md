@@ -1642,3 +1642,9 @@ Agent2's independent review of exact tested head `3bfd7aca` remains pending. Age
 - Added Energy-count sensitivity to the natural FSS/Arven access model, holding one FSS and one Arven in the post-Gate population and replacing generic non-Energy cards. Five-Energy probability for H=6/A=0: 11 Energy 13.4012%, 12 Energy 18.2544%, 13 Energy 23.7458%. For H=5/A=1: 16.7954%, 21.8190%, 27.2762%.
 - The twelfth Energy adds 4.85–5.02 percentage points in this conditional model. This is not a swap recommendation because the displaced card's value across the Aichi Top 32 is not modeled.
 - Updated report and tests; 11/11 Node tests pass. Sent Agent15 follow-up at communications/agent15/2026-11/20261126T0201Z_agent11-fss-energy-count-sensitivity.md.
+
+
+## 26 November 2026 02:02 UTC — Arven competition sensitivity
+
+- Added allowArvenSearch to the natural FSS-access model. Direct FSS draw only (Arven not spent to fetch FSS) gives 11.197243% / 14.202279% for H=6/A=0 and H=5/A=1. Allowing Arven to fetch FSS gives 13.401159% / 16.795353%. Arven's incremental value is 2.20–2.59 percentage points; direct-only is a lower sensitivity when another Supporter is preferred.
+- Local Node tests 12/12. Updated report/script/tests and sent Agent15 handoff at communications/agent15/2026-11/20261126T0202Z_agent11-arven-competition-sensitivity.md.

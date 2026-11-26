@@ -215,12 +215,15 @@ if (require.main === module) {
     }));
   }
   for (const scenario of [
-    { label: 'natural FSS/Arven access; H6 A0', handSize: 6, initialAttached: 0 },
-    { label: 'natural FSS/Arven access; H5 A1', handSize: 5, initialAttached: 1 }
+    { label: 'natural FSS direct-only; H6 A0', handSize: 6, initialAttached: 0, allowArvenSearch: false },
+    { label: 'natural FSS direct-only; H5 A1', handSize: 5, initialAttached: 1, allowArvenSearch: false },
+    { label: 'natural FSS plus Arven; H6 A0', handSize: 6, initialAttached: 0, allowArvenSearch: true },
+    { label: 'natural FSS plus Arven; H5 A1', handSize: 5, initialAttached: 1, allowArvenSearch: true }
   ]) {
     const result = exactUnderworldDoorEnergyRaceWithFSSAccess({
       handSize: scenario.handSize,
       initialAttached: scenario.initialAttached,
+      allowArvenSearch: scenario.allowArvenSearch,
       doorCounts: [2, 2]
     });
     console.log(JSON.stringify({
@@ -294,7 +297,7 @@ function drawFssAccessStates(states, drawCount) {
   return next;
 }
 
-function useFssForEnergyIfAvailable(state) {
+function useFssForEnergyIfAvailable(state, allowArvenSearch = true) {
   if (state.fssUsed || state.deckEnergy === 0) return state;
   if (state.handFss > 0) {
     return {
@@ -305,7 +308,7 @@ function useFssForEnergyIfAvailable(state) {
       fssUsed: 1
     };
   }
-  if (state.handArven > 0 && state.deckFss > 0) {
+  if (allowArvenSearch && state.handArven > 0 && state.deckFss > 0) {
     return {
       ...state,
       handEnergy: state.handEnergy + 1,
@@ -328,13 +331,15 @@ function exactUnderworldDoorEnergyRaceWithFSSAccess(options = {}) {
     initialAttached = 0,
     targetAttached = 5,
     fssCount = 1,
-    arvenCount = 1
+    arvenCount = 1,
+    allowArvenSearch = true
   } = options;
   const values = [totalCardsAfterBoard, energyCountAfterBoard, handSize,
     prizeCount, initialAttached, targetAttached, fssCount, arvenCount];
   if (values.some(x => !Number.isInteger(x) || x < 0) ||
       energyCountAfterBoard > totalCardsAfterBoard || initialAttached > 1 ||
       initialAttached > energyCountAfterBoard ||
+      typeof allowArvenSearch !== 'boolean' ||
       !Array.isArray(doorCounts) || doorCounts.length !== 2 ||
       doorCounts.some(x => !Number.isInteger(x) || x < 0 || x > 4)) {
     throw new Error('Invalid FSS-access energy-race configuration');
@@ -397,7 +402,7 @@ function exactUnderworldDoorEnergyRaceWithFSSAccess(options = {}) {
     const afterNormalTutor = new Map();
     for (const [key, probability] of states) {
       addFssAccessState(afterNormalTutor,
-        useFssForEnergyIfAvailable(decodeFssAccessState(key, probability)), probability);
+        useFssForEnergyIfAvailable(decodeFssAccessState(key, probability), allowArvenSearch), probability);
     }
     states = afterNormalTutor;
 
@@ -464,7 +469,7 @@ function exactUnderworldDoorEnergyRaceWithFSSAccess(options = {}) {
   return {
     config: { totalCardsAfterBoard, energyCountAfterBoard, handSize,
       prizeCount, doorCounts: [...doorCounts], initialAttached,
-      targetAttached, fssCount, arvenCount, unknownCards, unknownEnergy,
+      targetAttached, fssCount, arvenCount, allowArvenSearch, unknownCards, unknownEnergy,
       startingDeckSize: unknownCards - handSize - prizeCount },
     distribution: Object.fromEntries(Object.entries(distribution)
       .sort((a, b) => Number(a[0]) - Number(b[0]))),

@@ -269,6 +269,18 @@ test('candidate FSS/Arven access gives the reproducible two-Door conditional res
   assert.ok(Math.abs(preAttach.probabilityFssUsed - 0.3078569002984191) < 1e-12);
 });
 
+test('Arven search is a separately measurable boost over drawing Forest Seal Stone directly', () => {
+  const directOnly = exactUnderworldDoorEnergyRaceWithFSSAccess({
+    handSize: 6, initialAttached: 0, allowArvenSearch: false
+  });
+  const withArven = exactUnderworldDoorEnergyRaceWithFSSAccess({
+    handSize: 6, initialAttached: 0, allowArvenSearch: true
+  });
+  assert.ok(Math.abs(directOnly.probabilityAtLeastTarget - 0.11197242592648837) < 1e-12);
+  assert.ok(Math.abs(directOnly.probabilityFssUsed - 0.2036015192759421) < 1e-12);
+  assert.ok(withArven.probabilityAtLeastTarget > directOnly.probabilityAtLeastTarget);
+});
+
 test('natural FSS/Arven access benefits from a twelfth Energy without changing FSS/Arven counts', () => {
   const base = exactUnderworldDoorEnergyRaceWithFSSAccess({
     energyCountAfterBoard: 11, handSize: 6, initialAttached: 0

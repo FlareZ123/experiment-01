@@ -93,6 +93,19 @@ Here the Energy count varies while the one FSS and one Arven remain in the 57-ca
 
 Under this model, the twelfth Energy adds 4.85–5.02 percentage points. This is a stronger consistency signal than the no-tutor baseline, but the displaced card's field-wide value remains unmodeled; it is not a deck-swap recommendation.
 
+
+### Arven-use sensitivity
+
+If Arven is reserved for another Supporter line, disable Arven search while still allowing Forest Seal Stone to be used when drawn. This isolates the direct-FSS route from the additional Arven-to-FSS search.
+
+| FSS access policy | H=6, A=0 | H=5, A=1 | Star Alchemy used for Energy |
+|---|---:|---:|---:|
+| No FSS/Arven access (baseline) | 8.10% | 10.66% | — |
+| FSS drawn directly; no Arven search | 11.20% | 14.20% | 20.36% / 17.81% |
+| FSS drawn or fetched by Arven | 13.40% | 16.80% | 34.70% / 30.79% |
+
+Arven's contribution over direct FSS access is 2.20–2.59 percentage points. The direct-only case is a useful lower sensitivity when another Supporter is more valuable; the Arven-enabled case assumes no competing Supporter is played on either turn.
+
 This is still conditional on Radiant plus two VMAX already being in play. It assumes an available Tool slot on a Pokémon V, no Ability lock, no other Supporter played on either turn (so Arven is always available when drawn), and that spending Star Alchemy on Energy is the chosen policy. It does not model Tapu Lele-GX finding Arven, Arven's second Item search, other Supporter/draw competition, or FSS used before Gate. Those omissions can move the result in either direction. The reported 34.70% / 30.79% is the probability the model actually spends Star Alchemy on Energy, not a standalone FSS access rate.
 
 ## Interpretation
@@ -120,6 +133,6 @@ Those omitted effects can move the full-game probability in either direction. Th
 
 - Implementation: scripts/agent11-underworld-door-energy-race.cjs
 - Tests: tests/agent11-underworld-door-energy-race.test.cjs
-- Local Node v22.16.0 test result: 11/11 passed.
+- Local Node v22.16.0 test result: 12/12 passed.
 - Exhaustive small-deck tests independently validate the Energy-only transition, the conditional tutor transition, and natural FSS/Arven tutor use to within 1e-12.
 - The registered candidate 60, its policy, Twinleaf pin, workflows, fixtures, and game authorization were not changed. No CI or simulator game was run.
