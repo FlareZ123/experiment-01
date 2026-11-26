@@ -632,7 +632,7 @@ test('pinned Store rejects an already-used Quick Search ability and preserves Pa
   candidate.id = 0;
   candidate.active = new native.PokemonCardList();
   candidate.active.cards = [pidgeot];
-  candidate.active.hp = dedenne.hp;
+  candidate.active.hp = pidgeot.hp;
   candidate.active.damage = 0;
   candidate.active.energies.cards = [];
   candidate.active.tools = [];
