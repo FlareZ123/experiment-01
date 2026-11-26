@@ -636,7 +636,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     });
     const admission = assertKnownCapFreeAdapterAdmissionClear({
       enumerator,
-      enginePin,
+      enginePin: deps.enginePin,
       frontierDiagnostics: result.diagnostics
     });
     counters.nativeFrontiers += 1;
