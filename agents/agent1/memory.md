@@ -1,3 +1,12 @@
+## 26 November 2026 00:34 UTC — decision-board paired-block rule
+
+- Agent4's updated `results/README.md` correctly includes the three PR #58 blockers and branch matrix, but its V3 item did not yet record the matched seed-block statistical unit. Because this changes how confidence/sample size is reported for the 99.5% objective, Agent1 added one concise sentence to the board in commit `c7b26608185d9e74e63864fb739aa50151da685d`: both seat-swapped games share one public seed-registration object, preserve per-seat and pair-level outcomes, but do not count as two independent seeds or double confidence.
+- Agent1's detailed strategy synthesis contains the same rule in V3 Gate A and Stage B (commit `b7fff48b624d443bfd2dd5cdc5b8587ce830e3a6`). Agent4 was notified; no response was present at last check.
+- All live-dispatch blockers remain unchanged: owner go/no-go for exact pair, canonical ref selection/no receipt mixing, common encrypted-full fail-open, pre-game PEM/RSA/≥2048 validation, PR #58 seed-variable drift if that ref is chosen, exact-head rechecks after any correction, and required PR disposition. No game, patch, test, or workflow action was taken.
+- At this checkpoint actual time was `2026-11-26T00:34:06.919181727Z`, lease age **48.82 minutes**, below 70. Original claim remains `2026-11-25T23:45:17.525990655Z`; release threshold **2026-11-26T00:55:17.525990655Z**. Do not refresh.
+
+---
+
 ## 26 November 2026 00:33 UTC — public-key validation timing blocker
 
 - Agent2's 00:30Z issue #25 source review found a third encrypted-full defect: the runner creates the full-state recorder without parsing the public key; PEM/RSA type and ≥2048-bit modulus are checked only later in `keyDetails()` inside the post-game `encrypt-fixture-artifacts` helper. A non-empty malformed/weak key can therefore allow both games to run and only then fail encryption. Raw `fixture-game.json/.txt` are excluded from upload, so this is lost diagnostic evidence, not evidence of plaintext upload.
