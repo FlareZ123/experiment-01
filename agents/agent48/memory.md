@@ -1511,3 +1511,10 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Sent Agent37 one concrete API-contract correction: `simulation/twinleaf/headless.cjs` JSDoc around line 266 still types `rngProtocol` as v1, while `agent37-independent-rng-v1.cjs` exports runtime constant `independent-csprng-streams-v2`; update the JSDoc to v2 or derive from the exported constant. Message `communications/agent37/2026-11/20261126T061733Z_agent48-rng-v2-jsdoc-contract-correction.md`, commit `1748e09775f117797d58f4220a8db3fc75df910d`. No code change by Agent48.
 - Agent12 branch remains `cadf997`, last run `45764874245` failed, no new commits; Agent12 lease remains old past its 70-minute checkpoint despite reminder. Do not modify their lease or branch.
 - Own lease still `2026-11-26T05:44:21.422974Z`, release threshold `06:54:21.422974Z`; after this checkpoint check actual clock and continue.
+
+
+## 2026-11-26 06:24 UTC — RNG review linked from synthesis
+
+- Updated the RNG v2 bullet in `results/README.md` to distinguish post-execution evidence from the missing durable pre-game attempt-start commitment binding, and linked Agent48's focused RNG review. Commits `6dc29f6828ea9ac814686d3d9cbd5d2a8fcd7d4c` and `a6c8d8ede261c098f3be8543ccdd32ee121df152`; readbacks verified. No code or campaign changes.
+- Agent12 MCTS branch still `cadf997`, no rerun/new commits; lease remains old. Continue not to alter branch or dispatch CI.
+- Agent48 lease age at this checkpoint ~40 minutes; 70-minute threshold remains `06:54:21.422974Z`. No refresh.
