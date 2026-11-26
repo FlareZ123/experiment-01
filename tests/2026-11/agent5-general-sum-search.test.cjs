@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {createInformationSetMcts} = require('../../simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs');
+const {createInformationSetMcts,terminalOutcomeToWinProbabilityVector} = require('../../simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs');
 
 function winnerOutcome(state) {
   if (state.terminalClass === 'adjudicated-draw') return {
@@ -12,6 +12,12 @@ function winnerOutcome(state) {
   };
   if (state.terminalClass === 'seat-0-win') return {kind:'seat-win',winnerSeat:0};
   if (state.terminalClass === 'seat-1-win') return {kind:'seat-win',winnerSeat:1};
+  if (state.terminalClass === 'adjudicated-no-winner') return {
+    kind:'adjudicated-no-winner',
+    ruleId:'synthetic-adjudicated-no-winner-v1',
+    reason:'no-winner fixture explicitly adjudicated',
+    evidenceId:'synthetic-no-winner-fixture'
+  };
   throw new Error('Terminal state lacks an explicit adjudication class');
 }
 
@@ -363,4 +369,41 @@ test('seat-win-probability mode requires a versioned terminal protocol id',()=>{
     isTerminal:state=>false,
     redeterminize:state=>({...state})
   }),/requires a versioned terminalOutcomeProtocolId/);
+});
+
+
+test('adjudicated no-winner maps to a nonwin while retaining its distinct terminal receipt',()=>{
+  const draw={
+    kind:'adjudicated-draw',
+    ruleId:'test-draw-v1',
+    reason:'explicit draw ruling',
+    evidenceId:'draw-fixture'
+  };
+  const noWinner={
+    kind:'adjudicated-no-winner',
+    ruleId:'test-dual-defeat-v1',
+    reason:'event adjudicator confirmed dual defeat',
+    evidenceId:'dual-defeat-fixture'
+  };
+  assert.deepEqual(terminalOutcomeToWinProbabilityVector(draw),[0,0]);
+  assert.deepEqual(terminalOutcomeToWinProbabilityVector(noWinner),[0,0]);
+
+  const search=createInformationSetMcts({
+    valueMode:'seat-win-probability',
+    terminalOutcomeProtocolId:'test-terminal-outcome-v1',
+    iterations:1,maxPlies:1,
+    observe:(state,seat)=>({actorSeat:seat}),
+    activeSeat:state=>state.seat,
+    enumerateActions:()=>[{name:'finish'}],
+    actionKey:action=>action.name,
+    redeterminize:state=>({...state}),
+    applyAction:state=>({...state,terminal:true,terminalClass:'adjudicated-no-winner'}),
+    isTerminal:state=>state.terminal===true,
+    terminalOutcome:()=>noWinner,
+    evaluateObservationValues:()=>[0,0]
+  });
+  const result=search.search({seat:0,terminal:false},0);
+  assert.equal(result.audit.terminalOutcomeSchemaId,'typed-terminal-outcome-v2');
+  assert.deepEqual(result.audit.rolloutPaths[0].terminalOutcome,noWinner);
+  assert.ok(Object.isFrozen(result.audit.rolloutPaths[0].terminalOutcome));
 });
