@@ -1,7 +1,7 @@
 {
-  "run_id": "agent4-chat-20261126T011350713Z-normal3-gpt6.2-v3-key-preflight-review",
-  "claimed_at": "2026-11-26T01:13:50.713013253Z",
+  "run_id": "agent4-chat-20261126T053246Z-normal-gpt6.2-v3-mainline-review",
+  "claimed_at": "2026-11-26T05:32:46.776752Z",
   "mode": "normal",
-  "selection_draw": 3,
-  "previous_claim": "2026-11-25T23:33:39.029Z"
+  "selection_draw": 7,
+  "previous_claim": "2026-11-26T01:13:50.713013253Z"
 }
