@@ -26,9 +26,6 @@ function cloneLogParams(params, label) {
   if (!keys.every(key => typeof key === 'string')) {
     fail('log params cannot contain symbol keys');
   }
-  if (keys.length === 0 && prototype !== Object.prototype && prototype !== null) {
-    fail('empty custom-prototype log params are not a JSON record');
-  }
   const plain = {};
   for (const key of keys) {
     const descriptor = Object.getOwnPropertyDescriptor(params, key);
