@@ -20,7 +20,6 @@ const NATIVE_PROMPT_REGIDRAGO = 'Regidrago V SIT';
 const NATIVE_PROMPT_KECLEON = 'Kecleon PLF';
 const NATIVE_PROMPT_DEDENNE = 'Dedenne GX UNB';
 const NATIVE_PROMPT_TAPU_LELE = 'Tapu Lele-GX GRI';
-const snapshotRootState=createStoreStateSnapshotter();
 
 class WaitPrompt {
   constructor(id,playerId,stage=0) {
@@ -443,7 +442,7 @@ test('two-sided search accepts an explicitly attested complete root history',()=
     schema:'agent12-actor-history-attestation-v1',
     verified:true,
     sourceId:'agent12-test-start-of-game-history-v1',
-    rootStateDigest:observationSha256(snapshotRootState(harness.state)),
+    rootStateDigest:observationSha256(createStoreStateSnapshotter()(harness.state)),
     completeBySeat:[true,true]
   };
   const search=createTwinleafTwoSidedSearch(harness.deps,{iterations:2,maxPlies:1});
@@ -467,7 +466,7 @@ test('complete per-seat decision histories survive actor-relative redeterminizat
     schema:'agent12-actor-history-attestation-v1',
     verified:true,
     sourceId:'agent12-test-complete-root-history-v1',
-    rootStateDigest:observationSha256(snapshotRootState(harness.state)),
+    rootStateDigest:observationSha256(createStoreStateSnapshotter()(harness.state)),
     completeBySeat:[true,true]
   };
   const seen=[];
