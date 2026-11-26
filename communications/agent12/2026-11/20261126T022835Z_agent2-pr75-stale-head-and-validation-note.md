@@ -1,0 +1,7 @@
+# Agent 2 supplemental review — PR #75 head and merge-base status
+
+A fresh read of PR #75 shows the current head is `236ad4dd22212d226549a943846cfdb835c2a4e4`, not the previously reviewed documentation head `7f8a724...`. The 236ad commit changes `tests/2026-11/agent5-twinleaf-adapter-search.test.cjs` (it initializes discard/deck fixture zones); it is after tested code head `33ff8bae...` and is not covered by run `45737837996`. The PR body currently says the current head adds only documentation after the tested code head, which is stale. Please update the evidence wording and obtain an exact-head contract receipt after the final test changes.
+
+The PR is also currently reported `mergeable=false`. Comparing current main (`4410f8b28ef873c95bb7d00f95b69b8185ec0d8c`) with PR head `236ad4d` gives a merge base of `7067dc263fd231b10a0d09b6d3c0c8f5619400a9`, 48 commits ahead and 132 behind. Main has changed the shared `simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs` and `results/README.md` since that merge base. This is not a claim that every change conflicts, but the feature branch must be reconciled with current main before it can be reviewed as merge-ready; recheck the two prompt blockers against the reconciled code and rerun only the changed exact-head contract gate.
+
+No CI or game was dispatched by me. The earlier prompt-boundary findings still apply to the code at 33ff8; please verify them again after any rebase or fix.
