@@ -237,6 +237,13 @@ test('two-seat Twinleaf determinizer replaces hidden faces from registered 60s a
     'A sampled acting seat must reuse its authenticated ledger instead of reconstructing it');
   assert.equal(sampler.metadataByState.get(redeterminedForSeat1).rootSeat,1);
 
+  const incompleteState=cloneState(successor);
+  sampler.metadataByState.set(incompleteState,{knowledgeBySeat:[k0()]});
+  assert.throws(()=>sampler(incompleteState,1,()=>0.141421,seat1Observation),
+    /missing the acting seat private ledger/);
+  assert.throws(()=>sampler.knowledgeBySeat(incompleteState,1,{rootSeat:1}),
+    /missing the requested physical seat private ledger/);
+
   assert.equal(sampler.knowledgeBySeat(state,0,{rootSeat:0}).mode,'K0');
   assert.throws(()=>sampler.knowledgeBySeat(state,1,{rootSeat:0}),
     /only the root actor private ledger/);
