@@ -7,6 +7,7 @@ const {
   createInformationSetMcts
 } = require('./agent5-information-set-mcts.cjs');
 const {
+  cloneActorSafeValue,
   createActorObservationWithHistory
 } = require('../actor-history-projection.cjs');
 const {
@@ -28,10 +29,6 @@ function deepFreeze(value) {
   if (!value || typeof value !== 'object' || Object.isFrozen(value)) return value;
   for (const child of Object.values(value)) deepFreeze(child);
   return Object.freeze(value);
-}
-
-function cloneActorSafeValue(value) {
-  return JSON.parse(canonicalJson(value));
 }
 
 function frozenActorView(value) {
