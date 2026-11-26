@@ -344,7 +344,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     return enumerateNativeActions(state, seat, context);
   }
 
-  function resolveAutomaticPrompts(simulator, random) {
+  function resolveAutomaticPrompts(simulator, random, context) {
     let resolved = 0;
     while (true) {
       const state = simulator.store.state;
@@ -356,7 +356,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
         simulator,
         state,
         native,
-        context: arguments[2] ?? null
+        context: context ?? null
       });
       assert.notEqual(result, undefined,
         'Automatic prompt resolver must return an explicit result (null is valid)');
@@ -399,7 +399,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
       counters.nativeTransitions += 1;
     }
 
-    resolveAutomaticPrompts(simulator, random);
+    resolveAutomaticPrompts(simulator, random, context);
     const after = snapshotState(simulator.store.state);
     assert.notDeepEqual(after, before,
       'Selected Twinleaf action produced no state transition');
@@ -445,6 +445,97 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
   });
 }
 
+
+/**
+ * Bind the generic search adapter to the repository's audited native prompt
+ * projector. Card-effect provenance and source-card remapping remain explicit
+ * host dependencies: the helper fails closed if a cloned source card cannot be
+ * located in the cloned State.
+ */
+function createNativeTwinleafPromptCallbacks({
+  native,
+  simulatorOptions = {},
+  provenanceForPrompt = () => null,
+  mapSourceCard = null
+} = {}) {
+  assert.ok(native && typeof native.Simulator === 'function');
+  assert.equal(typeof provenanceForPrompt, 'function');
+  if (mapSourceCard !== null) assert.equal(typeof mapSourceCard, 'function');
+
+  function provenanceHookFor(prompt, provenance) {
+    return {
+      getPromptProvenance(candidate) {
+        return candidate && candidate.id === prompt.id ? provenance : null;
+      }
+    };
+  }
+
+  function isAutomaticPrompt(prompt, state, context) {
+    const seat = defaultPromptSeat(prompt, state);
+    const provenance = provenanceForPrompt(
+      state, prompt, seat === -1 ? null : seat, context);
+    return Boolean(nativePromptProjection.hostOnlyPrompt(prompt, provenance));
+  }
+
+  function projectPrompt(state, prompt, actorSeat, actorView, context) {
+    const simulator = new native.Simulator(state, simulatorOptions);
+    assert.ok(simulator.store && typeof simulator.store.dispatch === 'function');
+    const clonedState = simulator.store.state;
+    const clonedPrompt = firstPendingPrompt(clonedState);
+    assert.ok(clonedPrompt && clonedPrompt.id === prompt.id,
+      'Prompt clone did not preserve the pending prompt identity');
+
+    const provenance = provenanceForPrompt(state, prompt, actorSeat, context);
+    let clonedProvenance = provenance;
+    if (provenance?.sourceCard) {
+      let sourceCard = provenance.sourceCard;
+      if (!nativePromptProjection.locateCard(clonedState, actorSeat, sourceCard)) {
+        assert.equal(typeof mapSourceCard, 'function',
+          'Card-effect prompt provenance requires an explicit cloned source-card mapper');
+        sourceCard = mapSourceCard(
+          state, clonedState, sourceCard, actorSeat, context);
+      }
+      assert.ok(sourceCard &&
+        nativePromptProjection.locateCard(clonedState, actorSeat, sourceCard),
+      'Mapped card-effect source is not actor-visible in the cloned State');
+      clonedProvenance = { ...provenance, sourceCard };
+    }
+
+    return nativePromptProjection.projectPrompt({
+      prompt: clonedPrompt,
+      state: clonedState,
+      actorSeat,
+      native,
+      store: simulator.store,
+      provenanceHook: provenanceHookFor(clonedPrompt, clonedProvenance)
+    });
+  }
+
+  function resolveAutomaticPrompt(prompt, random, hostContext = {}) {
+    const { simulator, state, context } = hostContext;
+    assert.ok(simulator?.store && state === simulator.store.state,
+      'Automatic prompt resolver requires the current cloned Twinleaf Store');
+    const seat = defaultPromptSeat(prompt, state);
+    const provenance = provenanceForPrompt(
+      state, prompt, seat === -1 ? null : seat, context);
+    return nativePromptProjection.resolveHostOnlyPrompt({
+      prompt,
+      state,
+      store: simulator.store,
+      native,
+      physicalRandom: random,
+      provenanceHook: provenanceHookFor(prompt, provenance),
+      dispatch: false
+    }).decoded;
+  }
+
+  return Object.freeze({
+    projectPrompt,
+    isAutomaticPrompt,
+    resolveAutomaticPrompt
+  });
+}
+
 function createTwinleafTwoSidedSearch(deps, options = {}) {
   const adapter = createTwinleafTwoSidedSearchAdapter(deps, options);
   const {
@@ -484,5 +575,6 @@ function createTwinleafTwoSidedSearch(deps, options = {}) {
 
 module.exports = {
   createTwinleafTwoSidedSearchAdapter,
+  createNativeTwinleafPromptCallbacks,
   createTwinleafTwoSidedSearch
 };
