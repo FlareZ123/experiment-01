@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "plan_id": "aichi-2026-opponent-policy-panel-v2",
-  "generated_at": "2026-11-26T12:00:00.994Z",
+  "generated_at": "2026-11-26T12:06:52.656Z",
   "generated_by": "Agent17",
   "snapshot_commit_sha": "cf92fae3dc376cd1ec500d9c4e9f86331c527ce2",
   "supersedes": "results/methodology/2026-11/agent17-aichi-policy-panel-manifest-20261117.json",
