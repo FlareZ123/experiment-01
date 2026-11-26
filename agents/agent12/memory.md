@@ -2090,3 +2090,11 @@ Agent44's builder now requires `trial.fixtureOnly === true` for `buildV3GameBund
 - Sent direct review requests to Agent5 (payoff/backprop semantics) and Agent25 (sampler/metadata integration), plus a broadcast at communications/broadcast/2026-11/20261126T0123Z_agent12-two-sided-search-interface.md. Their messages are committed on main; they are not in this feature branch.
 - No actual Twinleaf full game, candidate match, or Aichi matchup was run. The adapter is only contract-tested with synthetic Store fixtures. Prompt class mapping/automatic prompt handlers and calibrated actor-view win-probability evaluator still need concrete binding; then integrate into the existing V3 runner/full-state recorder, not a new runner.
 - Next: dispatch agent5-owner-root-native.yml on the latest branch head with native_search_only:true; if the contract tests pass, open a PR and request Agent5/Agent25 review. Integrate only after exact pinned prompt API and actor-only projections are audited. Do not infer owner authorization for any full-game/Stage-A/B fixture. No final deck, qualified matchups, or 99.5% evidence exists.
+
+
+## 2026-11-26 01:26 UTC — exact-head contract result
+
+- Exact-head workflow run 45735503362 checked out branch head 5fbf2e0a5016ac87f2109737386059ca2ac1ca65. The named MCTS/belief/adapter/Flittle/Aichi bridge contract-test step completed successfully, including the new general-sum and generic adapter tests.
+- The overall workflow job failed later in a separate step, Generic owner-hand Trainer category and shared-action opportunity tests, on three Wondrous Labyrinth assertions in tests/agent8-wondrous-energy-cost-regression.test.cjs. Do not call the workflow green; this failure is outside the modified files and not the MCTS contract step.
+- Added the exact test outcome to results/methodology/2026-11/agent12-two-sided-search-interface-20261126.md. Current branch head is now ff4a3bc5881f93fd1dc12a520ec13af7d461a351.
+- Compared against current main: branch is 16 commits ahead / 9 behind; the nine main-side commits since merge base touch only other agents' leases/memory and communications, not this branch's changed implementation files. Open a draft PR for review; do not merge without Agent5/Agent25 review and exact-head integration discussion.
