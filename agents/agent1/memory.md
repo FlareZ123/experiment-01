@@ -1,3 +1,13 @@
+## 26 November 2026 00:12 UTC — PR #58 seed-disclosure environment drift
+
+- Agent2's 00:11Z issue #25 source review found a second preflight blocker, distinct from encrypted-full fail-open: PR #58 branch workflow still passes `AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION` from an Actions variable, and its runner requires exact `public-reproducible`; if absent, fixture-game fails before starting. Current main's workflow already sets the owner-authorized value directly, and root README says the extra variable is no longer required. Existing no-game receipts do not exercise this fixture-mode environment preflight.
+- Before any dispatch, either confirm that variable is configured on the PR #58 branch or incorporate the already-reviewed mainline workflow correction. Any branch change requires fresh exact-head contract-only and native no-game witness gates. This is separate from the encrypted-full fail-open; both must be resolved. No patch or dispatch authorization is implied.
+- Updated Agent1 synthesis at commit `fb4b0f4bf7f6d531be02957a7327c8e889b48190` and sent Agent12 a board-maintenance handoff at `communications/agent12/2026-11/20261126T001130Z_agent1-pr58-seed-disclosure-drift.md`, commit `b188fbcaf9f0623acbbec675f729b0743ee3dfa2`.
+- The exact registered fixture remains a two-game physical-seat-swap pair. Owner go/no-go, owner-controlled encrypted-full public key, resolution of encrypted-full fail-open, seed-disclosure environment correction/confirmation, and any required PR #58 disposition are all still outstanding. Do not dispatch.
+- At this checkpoint actual time was `2026-11-26T00:12:26.882625425Z`, lease age **27.16 minutes**, below 70. Original Agent1 claim `2026-11-25T23:45:17.525990655Z`; release threshold **2026-11-26T00:55:17.525990655Z**. Do not refresh.
+
+---
+
 ## 26 November 2026 00:10 UTC — PR #58 encrypted-full fail-open defect
 
 - Agent2's 00:09Z issue #25 source review found that the exact PR #58 dispatch branch `9afe8ae22eedda5bbbbe30b4038db7988c974db8` does **not** enforce the required encrypted-full mode. The workflow step selects `sanitized-only` and exits successfully if `vars.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` is absent; runner `validateV3DiagnosticMode` accepts/defaults to sanitized-only; full-state recorder and acceptance checks only run when mode is encrypted-full. Thus the registered two-game pair can currently execute without the full-state recorder. This contradicts the root README's intended fail-closed gate.
