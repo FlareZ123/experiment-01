@@ -765,12 +765,14 @@ function createNativeTwinleafPromptCallbacks({
     const actorObservationDigest = observationSha256(actorView);
     const promptProjectionDigest = observationSha256(projection.promptProjection);
     const promptType = prompt.constructor?.name ?? 'prompt';
-    const decision = decidePrompt({
+    // Scope global Math.random only around the prompt policy. Restore ambient
+    // randomness before dispatchPromptChoice enters its isolated validation RNG.
+    const decision = withRandom(random, () => decidePrompt({
       actorSeat,
       actorView,
       promptProjection: projection.promptProjection,
       random
-    });
+    }));
     assert.ok(decision && typeof decision === 'object' && !Array.isArray(decision),
       'Prompt sub-policy must return a typed decision object');
     assert.equal(typeof decision.then, 'undefined',
