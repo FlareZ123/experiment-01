@@ -187,10 +187,12 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
   let latestHistoryMetadata = null;
   const nativePayloadByAction = new WeakMap();
   const promptChoicesByProjection = new Map();
+  const hostPromptValidationHookIds = new Set();
   const counters = {
     nativeFrontiers: 0,
     promptFrontiers: 0,
     automaticPromptResolutions: 0,
+    hostPromptValidationHooks: 0,
     nativeTransitions: 0,
     promptTransitions: 0,
     playerPromptSubcalls: 0,
@@ -851,16 +853,18 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     latestRootHistoryPrefixDigest = null;
     for (const key of Object.keys(counters)) counters[key] = 0;
     promptChoicesByProjection.clear();
+    hostPromptValidationHookIds.clear();
   }
 
   function audit() {
     return {
-      schema: 'agent12-twinleaf-two-sided-search-adapter-v2',
+      schema: 'agent12-twinleaf-two-sided-search-adapter-v3',
       enginePin: deps.enginePin,
       rulesProfileId: deps.rulesProfileId,
       terminalOutcomeProtocolId: deps.terminalOutcomeProtocolId,
       promptEventSchemaId: PROMPT_EVENT_SCHEMA_ID,
       promptRandomProtocolId: PROMPT_RANDOM_PROTOCOL_ID,
+      hostPromptValidationHookIds: [...hostPromptValidationHookIds].sort(),
       maxPliesSemantics: 'stable-native-action-transitions-v1',
       maxPromptResolutions,
       candidateDecklistId: deps.ownDecklistId ?? null,
@@ -1119,15 +1123,21 @@ function createNativeTwinleafPromptCallbacks({
     const seat = defaultPromptSeat(prompt, state);
     const provenance = provenanceForPrompt(
       state, prompt, seat === -1 ? null : seat, context);
-    return nativePromptProjection.resolveHostOnlyPrompt({
+    const resolved = nativePromptProjection.resolveHostOnlyPrompt({
       prompt,
       state,
       store: simulator.store,
       native,
       physicalRandom: random,
       provenanceHook: provenanceHookFor(prompt, provenance),
+      enginePin: deps.enginePin,
       dispatch: false
-    }).decoded;
+    });
+    if (resolved.summary.validationHookId) {
+      counters.hostPromptValidationHooks += 1;
+      hostPromptValidationHookIds.add(resolved.summary.validationHookId);
+    }
+    return resolved.decoded;
   }
 
   const common = {
