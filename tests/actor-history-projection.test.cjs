@@ -101,6 +101,13 @@ test('does not certify complete history without an explicit source', () => {
   );
 });
 
+test('rejects an empty history source attestation', () => {
+  assert.throws(
+    () => projectActorVisibleHistory(fixtureState(), 0, { historyComplete: true, historySource: '   ' }),
+    /ACTOR_HISTORY_SOURCE_MUST_BE_NONEMPTY/
+  );
+});
+
 test('strictly rejects accessor log data without invoking getters', () => {
   let getterCalls = 0;
   const params = { private: false };
