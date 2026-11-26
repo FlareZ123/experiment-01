@@ -353,6 +353,10 @@ jobs:
           if (typeof output !== 'string' || output.length === 0) {
             throw new Error('GitHub Actions output path is unavailable.');
           }
+          const ref = process.env.GITHUB_REF;
+          if (ref !== 'refs/heads/main') {
+            throw new Error('Live V3 fixture games must run from refs/heads/main.');
+          }
           const pem = process.env.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM;
           if (typeof pem !== 'string' || pem.trim().length === 0) {
             throw new Error('AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM is required for live V3 fixture games.');

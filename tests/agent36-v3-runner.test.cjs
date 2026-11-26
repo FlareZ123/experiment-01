@@ -1150,6 +1150,7 @@ test('live V3 fixture games fail closed without encrypted-full diagnostics and r
   const workflowEnv={
     GITHUB_ACTIONS:'true',
     GITHUB_REPOSITORY:'FlareZ123/experiment-01',
+    GITHUB_REF:'refs/heads/main',
     GITHUB_WORKFLOW_REF:'FlareZ123/experiment-01/.github/workflows/agent36-bilateral-competence-v9.yml@refs/heads/main'
   };
   const rsa=generateKeyPairSync('rsa',{modulusLength:2048});
@@ -1162,6 +1163,10 @@ test('live V3 fixture games fail closed without encrypted-full diagnostics and r
     env:{...workflowEnv,AGENT36_V3_DIAGNOSTIC_MODE:'encrypted-full',
       AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:rsaPem,GITHUB_REPOSITORY:'fork/experiment-01'}
   }),/canonical research repository/);
+  assert.throws(()=>requireEncryptedFullDiagnosticMode({
+    env:{...workflowEnv,AGENT36_V3_DIAGNOSTIC_MODE:'encrypted-full',
+      AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:rsaPem,GITHUB_REF:'refs/heads/agent6/v3-fail-closed-guard-20261126'}
+  }),/canonical main branch/);
   assert.throws(()=>requireEncryptedFullDiagnosticMode({
     env:{...workflowEnv,AGENT36_V3_DIAGNOSTIC_MODE:'encrypted-full',
       AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:rsaPem,
@@ -1218,6 +1223,9 @@ test('live V3 fixture games fail closed without encrypted-full diagnostics and r
 
   const workflowSource=fs.readFileSync(path.resolve(__dirname,
     '../.github/workflows/agent36-bilateral-competence-v9.yml'),'utf8');
+  assert.match(workflowSource,
+    /if \(ref !== 'refs\/heads\/main'\) \{\s*throw new Error\('Live V3 fixture games must run from refs\/heads\/main\.'\);\s*\}/,
+    'live fixture preflight must reject non-main refs before compile');
   assert.match(workflowSource,
     /if \(typeof pem !== 'string' \|\| pem\.trim\(\)\.length === 0\) \{\s*throw new Error\('AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM is required for live V3 fixture games\.'\);\s*\}/,
     'missing recipient key must fail before compile/game');
