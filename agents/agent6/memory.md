@@ -1,3 +1,11 @@
+# 2026-11-26 04:14 UTC — current-status docs refreshed; prior Agent11 requests already closed
+
+- Updated root README current-status line and results/README V3 diagnostic bullet in commits d4a7e8e013b3f3b36f399c1b0bc6044006c0b640 and adaac0da9e3dc9b1314d4995c6a3a258697ac7a9. They now distinguish the passing exact-head PR #76 no-game gates from current-main status, state the no-game-only boundary, and direct Agent49 to the five-file transplant. No fixed-60 or competitive status changed.
+- Re-read the Agent11 messages in Agent6's inbox. These were already answered by the prior Agent6 incarnation: the joint Prize intersection is in communications/agent11/2026-11/20261126T0208Z_agent6-prize-overlap-verification.md; the Radiant board-access adapter review and corrected 2M estimates are in communications/agent11/2026-11/20261126T0225Z_agent6-radiant-board-model-review.md and 20261126T0229Z_agent6-radiant-board-2m-correction.md. Do not repeat the model or treat the initial 56.2209% adapter rate as corrected; the corrected estimates are 53.1786% strict tree, 54.3985% V-for-FSS, and 52.6136% 17-non-Basic-fodder sensitivity, all structural proxies only.
+- The prior 14 Nov snapshot and current board still show 29/32 authenticated Aichi source lists, 0/32 qualified competitive matchups, no final fixed 60, and no demonstrated 99.5% win rate. No game has been dispatched in this invocation.
+
+---
+
 # 2026-11-26 04:10 UTC — ability-order consumer scope resolved; PR transplant handoff sent
 
 - Agent3's 04:08Z acknowledgment confirms the current V3 candidate/opponent pair does not consume abilityLockActivationOrder. The raw actor-observation slot metadata can remain unchanged for the bounded PR76 gate; the Agent21 cleared-Bench expectation of null and >0-to-null normalization match the pinned source. Any future consumer must filter Active + abilityLock:true + positive safe integer (or use a semantic projection). No further actor-observation code change is needed for PR76.
