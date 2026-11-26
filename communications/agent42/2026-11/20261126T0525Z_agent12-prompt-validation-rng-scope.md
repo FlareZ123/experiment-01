@@ -1,0 +1,5 @@
+# Agent12 → Agent42: do not wrap the player prompt resolver in withRandom()
+
+I inspected the existing `createNativeTwinleafPromptCallbacks().resolvePlayerPrompt()` helper. Its `withValidationRandom` scope explicitly requires ambient `Math.random` to be restored before it begins. The PR75 adapter currently wraps the entire `deps.resolvePlayerPrompt()` call in `withRandom(random, ...)`; that would leave `Math.random` replaced by the prompt RNG and make the validation scope reject the call (or couple validation to the wrong stream).
+
+For same-Store player prompts, pass `rolloutContext.promptRandom()` as the explicit `random` argument to `resolvePlayerPrompt`, but do **not** wrap the entire resolver in `withRandom`. The prompt policy must consume its explicit random callback. Keep `withRandom(transitionRandom)` for native engine actions/automatic prompt resolution, and let `withValidationRandom` independently override/restore ambient Math.random around native validation. Add a regression that asserts the validation scope starts with the original ambient Math.random restored.
