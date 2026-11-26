@@ -861,7 +861,26 @@ test('Tapu Lele is discardable when Wonder Tag is locked by Path to the Peak', (
   assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-0'] });
 });
 
-test('live Marshadow Stadium-removal play is preserved ahead of Psychic Energy', () => {
+test('live Marshadow Stadium-removal play is preserved ahead of Psychic Energy for a harmful Stadium', () => {
+  const ownVmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE',
+    name: 'Shadow Rider Calyrex VMAX', hp: 320,
+    subtypes: ['VMAX'], energies: Array(5).fill('Psychic Energy SVE')
+  });
+  const view = observation(0, {
+    active: ownVmax,
+    opponentStadium: ['Path to the Peak CRE 148'],
+    ownHand: ['Marshadow SLG 45', 'Psychic Energy SVE'],
+    globalTurn: 3
+  });
+  const req = cardPrompt(0, view, {
+    sourceZone: 'hand', printings: view.ownHand,
+    minimumCount: 1, maximumCount: 1
+  });
+  assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-1'] });
+});
+
+test('Marshadow is discardable when Dimension Valley benefits the Psychic deck', () => {
   const ownVmax = pokemon({
     printing: 'Shadow Rider Calyrex VMAX CRE',
     name: 'Shadow Rider Calyrex VMAX', hp: 320,
@@ -877,7 +896,30 @@ test('live Marshadow Stadium-removal play is preserved ahead of Psychic Energy',
     sourceZone: 'hand', printings: view.ownHand,
     minimumCount: 1, maximumCount: 1
   });
-  assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-1'] });
+  assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-0'] });
+});
+
+test('the final Psychic Energy is retained at the maximum reachable attached count', () => {
+  const active = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE',
+    name: 'Shadow Rider Calyrex VMAX', hp: 320,
+    subtypes: ['VMAX'], energies: Array(5).fill('Psychic Energy SVE')
+  });
+  const benchedVmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE',
+    name: 'Shadow Rider Calyrex VMAX', hp: 320,
+    subtypes: ['VMAX'], energies: Array(5).fill('Psychic Energy SVE')
+  });
+  const view = observation(0, {
+    active, bench: [benchedVmax],
+    ownHand: ['Girafarig LOT 94', 'Psychic Energy SVE'],
+    globalTurn: 3
+  });
+  const req = cardPrompt(0, view, {
+    sourceZone: 'hand', printings: view.ownHand,
+    minimumCount: 1, maximumCount: 1
+  });
+  assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-0'] });
 });
 
 test('live Regidrago Girafarig play is preserved ahead of Psychic Energy', () => {

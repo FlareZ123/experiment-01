@@ -605,12 +605,6 @@ function skylinerStatus(view) {
   return boardAbilityStatus(view, 'Skyliner');
 }
 
-function psychicEnergyCount(view) {
-  return ownBoard(view).reduce((sum, slot) =>
-    sum + (slot.energies ?? []).filter(printing =>
-      hasName(printing, 'Psychic Energy')).length, 0);
-}
-
 function countBench(player) {
   return player.bench.filter(Boolean).length;
 }
@@ -1284,8 +1278,8 @@ function discardValue(view, printing) {
     return hasStealthyHoodSearchNeed(view) ? 700 : 0;
   }
   if (hasName(printing, 'Psychic Energy')) {
-    // Every attached Psychic Energy still adds 30 Max Geist damage.
-    return psychicEnergyCount(view) >= 11 ? 2 : 80;
+    // Preserve every remaining Basic Psychic as future attachment fuel and Max Geist damage.
+    return 80;
   }
   if (hasName(printing, 'Dialga-GX')) {
     // This list's Dialga is the Regidrago/Copycat payload, not a Psychic attacker.
@@ -2038,7 +2032,7 @@ function scoreBasicPlay(item, view) {
   if (hasName(printing, 'Girafarig') && opponentHasRegidrago(view) &&
       !boardHas(view, 'Girafarig')) return 450;
   if (hasName(printing, 'Marshadow') &&
-      view.opponentPublic.stadium.length > 0 && !boardHas(view, 'Marshadow')) return 400;
+      hasStadiumRemovalTarget(view) && !boardHas(view, 'Marshadow')) return 400;
   return -Infinity;
 }
 
