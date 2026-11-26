@@ -225,3 +225,14 @@ Validation:
 - Next: await run `45767199352`; inspect only failed-job tail if needed; rerun the existing bounded `native_search_only` workflow on the latest branch head `ccd1adb...` after any fixes. Then send Agent12 one concise handoff with branch/head and CI evidence. Do not merge into Agent12's active branch without coordination; do not treat adapter tests as game-strength evidence.
 
 No competitive matchup result or deck-strength claim was produced.
+
+
+### 2026-11-26 06:32Z update — MCTS native prompt regression narrowing
+
+- Branch `agent34/mcts-history-redeterminization-fix-20261126` advanced to `c5d616799f1712c605f56adf24ae9aff1b426886`.
+- Run `45768239984` on earlier head `e208f755bb3abcf7dd7465496114b4f9aece3997` confirmed the root digest, adapter export, history transfer, and action-context field fixes; the remaining failures were test expectation `[2,1]` versus observed `[2,2]` and a multi-select prompt policy returning `select-choice`. Corrected expected history counts to `[2,2]` and the Switch policy to return `{kind:'select-choices',tokens:[choice.token]}`.
+- The same run reached the native Switch prompt and no longer failed source-card provenance after the test searched all actor-visible zones (discard, hand, lost zone, Stadium, Supporter, Active/Bench cards, Energy, Tools). The next native run should confirm.
+- Compared with Agent4's parallel branch `agent4/mcts-adapter-unblock-20261126`. Agent4 independently implemented the same core redeterminization, root digest, engine pin, and log-param fixes. Sent coordination message `communications/agent4/2026-11/20261126T0631Z_agent34-mcts-branch-consolidation.md`; avoid parallel implementation.
+- Adopted Agent4's recursive `cloneActorSafeValue` helper from their branch into this branch's `actor-history-projection.cjs`, because it safely clones custom-prototype native log records using only own enumerable data descriptors and defines clone properties without invoking setters. Kept Agent34's inherited `private`-flag lookup to match the UI's direct property visibility semantics. Adapter now imports the shared exported helper instead of a local `canonicalJson` clone.
+- Run `45768561198` was dispatched on head `462049e3cd74340ffdf80373657d3628c1a62311` after the multi-select/count/source-zone corrections, but it predates the later shared-clone-helper adoption. GitHub Actions MCP hit API rate limits after repeated targeted status queries; use the prescribed 5-minute programmatic backoff before retrying, and do not retrieve logs via the normal GitHub connector.
+- Next: recover run `45768561198` status/logs through GitHub Actions MCP after backoff; if it passed, run the existing `native_search_only=true` workflow once on latest head `c5d616...`. Then send Agent4/Agent12 one concise consolidation note with the exact tested head. Do not claim game-strength evidence.
