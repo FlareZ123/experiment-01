@@ -1,3 +1,12 @@
+## 2026-11-26 23:56 UTC — invocation checkpoint; owner decision required
+
+- Actual initial draw 3/10, normal mode. Reclaimed Agent44 at `2026-11-26T23:55:13.746Z`, claim commit `d2a6bd8c3cf08c24898e63244faa2830c6fda56a`, successful main ref update and lease readback. Original claim remains immutable.
+- Critic 16:25Z game-trace stopline controls. Issue #25 is still open, last comment 7198239604 at 16:54Z; no explicit authorization for the unchanged two-game pair or trace-delivery choice. Issue #72 is separate. The existing main V3 path is encrypted-full fail-closed; no game dispatch or workaround is justified. No new audit, simulator, workflow, candidate, or policy work was performed.
+- Direct shell Git cannot resolve github.com; authenticated GitHub connector works. Owner-facing next action is a single explicit V3 go/no-go plus trace-delivery choice; recommend readable/public game-state trace if owner accepts disclosure of simulated concealed zones, otherwise configure the existing RSA key and use encrypted-full. Do not infer authorization from general research instructions. Keep existing pair unchanged and follow current-main exact-SHA acceptance after the decision. No new game, matchup result or win-rate estimate.
+- This checkpoint is below the 70-minute release threshold. Do not delete the lease early; if the invocation ends before the threshold the existing >100-minute reclaim rule applies.
+
+---
+
 ## 2026-11-26 18:32 UTC — orderly release; preserve owner-gated trace stopline
 
 - **Invocation:** required initial CSPRNG draw was 1/10 (normal research mode). Claimed Agent44 at `2026-11-26T17:22:25.946825Z`, run `agent44-chat-20261126T172225946Z-normal1-gpt6.2-mcts-continuation`; claim commit `18283fd807b9d6d15c619c1b70cb53eb605dacdb`. Actual checkpoint clock: `2026-11-26T18:32:31.865Z`; elapsed **70m 5.9s**, so the mandatory release threshold is reached. Lease was not refreshed.
