@@ -70,6 +70,141 @@ function observationSha256(observation) {
   return createHash('sha256').update(canonicalJson(observation)).digest('hex');
 }
 
+const PROMPT_EVENT_SCHEMA_ID = 'actor-safe-prompt-event-v1';
+const PROMPT_RANDOM_PROTOCOL_ID = 'per-rollout-independent-prompt-policy-rng-v1';
+const PROMPT_EVENT_KEYS = Object.freeze([
+  'actorObservationDigest',
+  'actorSeat',
+  'nativeValidationSucceeded',
+  'promptPolicyId',
+  'promptProjectionDigest',
+  'promptType',
+  'selectedTokens',
+  'stableSuccessorDigest'
+]);
+const PROMPT_DIGEST_RE = /^[a-f0-9]{64}$/i;
+const VERSIONED_PROMPT_POLICY_ID_RE = /(?:^|-)v[0-9]+$/;
+
+function readPromptEventDataProperty(event, key, label) {
+  const descriptor = Object.getOwnPropertyDescriptor(event, key);
+  assert.ok(descriptor && descriptor.enumerable === true &&
+    Object.hasOwn(descriptor, 'value'),
+  label + ' must contain enumerable data properties only');
+  return descriptor.value;
+}
+
+function sanitizePromptEvent(event, expectedActorSeat, ordinal) {
+  assert.ok(event !== null && typeof event === 'object' && !Array.isArray(event),
+    'Prompt event must be a plain data object');
+  const prototype = Object.getPrototypeOf(event);
+  assert.ok(prototype === Object.prototype || prototype === null,
+    'Prompt event must be a plain data object');
+  const ownKeys = Reflect.ownKeys(event);
+  assert.ok(ownKeys.every(key => typeof key === 'string'),
+    'Prompt event cannot contain symbol keys');
+  assert.deepEqual(ownKeys.slice().sort(), PROMPT_EVENT_KEYS,
+    'Prompt event must contain exactly the actor-safe allowlisted keys');
+
+  const values = Object.create(null);
+  for (const key of PROMPT_EVENT_KEYS) {
+    values[key] = readPromptEventDataProperty(event, key, 'Prompt event');
+  }
+  assert.ok(expectedActorSeat === 0 || expectedActorSeat === 1,
+    'Prompt event action context requires a physical actor seat');
+  assert.equal(values.actorSeat, expectedActorSeat,
+    'Prompt event actorSeat must match the bound transition actor');
+  assert.ok(typeof values.promptType === 'string' &&
+    values.promptType.trim().length > 0 && values.promptType.length <= 128 &&
+    !/[\\u0000-\\u001f\\u007f]/.test(values.promptType),
+  'Prompt event promptType must be a short non-empty string');
+  for (const key of [
+    'actorObservationDigest',
+    'promptProjectionDigest',
+    'stableSuccessorDigest'
+  ]) {
+    assert.ok(typeof values[key] === 'string' && PROMPT_DIGEST_RE.test(values[key]),
+      'Prompt event ' + key + ' must be a 64-character SHA-256 hex digest');
+  }
+  assert.ok(Array.isArray(values.selectedTokens),
+    'Prompt event selectedTokens must be an array of opaque strings');
+  assert.equal(Object.getPrototypeOf(values.selectedTokens), Array.prototype,
+    'Prompt event selectedTokens must use the standard Array prototype');
+  assert.ok(values.selectedTokens.length <= 16,
+    'Prompt event selectedTokens cannot exceed 16 tokens');
+  const tokenKeys = Reflect.ownKeys(values.selectedTokens);
+  assert.equal(tokenKeys.length, values.selectedTokens.length + 1,
+    'Prompt event selectedTokens must be dense and have no extra properties');
+  const selectedTokens = [];
+  for (let index = 0; index < values.selectedTokens.length; index++) {
+    const token = readPromptEventDataProperty(
+      values.selectedTokens, String(index), 'Prompt event selectedTokens');
+    assert.ok(typeof token === 'string' && token.length > 0 && token.length <= 256 &&
+      !/\\s/.test(token),
+    'Prompt event selectedTokens must contain only non-empty opaque token strings');
+    selectedTokens.push(token);
+  }
+  assert.equal(new Set(selectedTokens).size, selectedTokens.length,
+    'Prompt event selectedTokens cannot contain duplicates');
+  assert.ok(typeof values.promptPolicyId === 'string' &&
+    values.promptPolicyId.length <= 128 &&
+    VERSIONED_PROMPT_POLICY_ID_RE.test(values.promptPolicyId),
+  'Prompt event promptPolicyId must be a versioned identifier');
+  assert.equal(values.nativeValidationSucceeded, true,
+    'Prompt event can be recorded only after successful native validation');
+
+  return Object.freeze({
+    ordinal,
+    actorSeat: values.actorSeat,
+    promptType: values.promptType,
+    actorObservationDigest: values.actorObservationDigest,
+    promptProjectionDigest: values.promptProjectionDigest,
+    selectedTokens: Object.freeze(selectedTokens),
+    promptPolicyId: values.promptPolicyId,
+    nativeValidationSucceeded: true,
+    stableSuccessorDigest: values.stableSuccessorDigest
+  });
+}
+
+function createRolloutContext(iteration, promptRandom) {
+  const promptEvents = [];
+  let iterationOpen = true;
+  return Object.freeze({
+    forAction(actorSeat) {
+      assert.ok(iterationOpen, 'Rollout prompt-event collector is already closed');
+      assert.ok(actorSeat === 0 || actorSeat === 1,
+        'Rollout action context requires a physical actor seat');
+      let actionOpen = true;
+      const view = Object.freeze({
+        iteration,
+        actorSeat,
+        promptRandom() {
+          assert.ok(iterationOpen && actionOpen,
+            'Prompt RNG cannot be used outside its action transition');
+          return promptRandom();
+        },
+        recordPromptEvent(event) {
+          assert.ok(iterationOpen && actionOpen,
+            'Prompt events can be recorded only during their action transition');
+          const sanitized = sanitizePromptEvent(event, actorSeat, promptEvents.length);
+          promptEvents.push(sanitized);
+          return sanitized;
+        }
+      });
+      return Object.freeze({
+        view,
+        close() {
+          actionOpen = false;
+        }
+      });
+    },
+    close() {
+      assert.ok(iterationOpen, 'Rollout prompt-event collector was closed twice');
+      iterationOpen = false;
+      return Object.freeze(promptEvents.slice());
+    }
+  });
+}
+
 function deepFreezePolicySnapshot(value) {
   if (!value || typeof value !== 'object' || Object.isFrozen(value)) return value;
   for (const child of Object.values(value)) deepFreezePolicySnapshot(child);
@@ -472,6 +607,8 @@ function createInformationSetMcts(config) {
         const opponentPolicyDecisions = new Map();
         const sampleRandom = seededRandom(mixSeed(seed, iteration, 0x51ed270b));
         const transitionRandom = seededRandom(mixSeed(seed, iteration, 0x2c1b3c6d));
+        const promptRandom = seededRandom(mixSeed(seed, iteration, 0x3c6ef372));
+        const rolloutContext = createRolloutContext(iteration, promptRandom);
         let state;
         if (redeterminize === null) {
           state = sampleDeterminization(rootState, rootSeat, sampleRandom, searchContext);
@@ -577,7 +714,14 @@ function createInformationSetMcts(config) {
             actionPath.push({seat,actionKey:selectedKey});
             seatActionTransitions[seat]++;
             checkDeadline('transition-start');
-            const nextState = config.applyAction(state, selectedAction, transitionRandom, searchContext);
+            const actionContext = rolloutContext.forAction(seat);
+            let nextState;
+            try {
+              nextState = config.applyAction(
+                state, selectedAction, transitionRandom, searchContext, actionContext.view);
+            } finally {
+              actionContext.close();
+            }
             checkDeadline('transition-complete');
             assert.ok(nextState && typeof nextState === 'object' && nextState !== state,
               'Action adapter must return a detached successor state');
@@ -650,7 +794,12 @@ function createInformationSetMcts(config) {
           finished = true;
         }
 
-        rolloutPaths.push({iteration,actions:actionPath});
+        const promptEvents = rolloutContext.close();
+        rolloutPaths.push(Object.freeze({
+          iteration,
+          actions: Object.freeze(actionPath.slice()),
+          promptEvents
+        }));
         if (!finished) {
           const prepared = prepareActorState(state, seat, iteration, 'leaf');
           state = prepared.state;
@@ -702,6 +851,8 @@ function createInformationSetMcts(config) {
           valueMode,
           terminalOutcomeProtocolId: valueMode === 'seat-win-probability' ?
             config.terminalOutcomeProtocolId : null,
+          promptEventSchemaId: PROMPT_EVENT_SCHEMA_ID,
+          promptRandomProtocolId: PROMPT_RANDOM_PROTOCOL_ID,
           searchMode: typeof config.opponentActionPolicy === 'function' ?
             'root-best-response-fixed-opponent-policy' : 'two-sided-puct',
           objectiveProtocol: valueMode === 'seat-win-probability' ?
