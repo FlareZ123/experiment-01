@@ -185,8 +185,12 @@ test('seat-win-probability objective prefers actual wins over draw-heavy win-min
       },
       isTerminal:state=>state.terminal,
       evaluateObservation:()=>0,
-      terminalValue:(state,seat)=>state.terminalClass==='adjudicated-draw'?0:
-        (state.winner===seat?1:-1),
+      terminalValue:(state,seat)=>{
+        if(state.terminalClass==='adjudicated-draw')return 0;
+        if(state.winner===seat)return 1;
+        if(state.winner===1-seat)return -1;
+        throw new Error('Terminal state lacks an explicit adjudication class');
+      },
       evaluateObservationValues:()=>[0,0],
       terminalValues:winnerVector
     };
