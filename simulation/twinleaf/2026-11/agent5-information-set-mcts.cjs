@@ -220,6 +220,23 @@ function validateWinProbabilityVector(values, label = 'Win-probability value') {
  * Each decision node maximizes its own seat's win probability. This is
  * intentionally general-sum: draws/nonwins are zero for both players.
  */
+/**
+ * Terminal states are realized outcomes, not probabilistic forecasts. The
+ * caller must classify a real seat win or an explicitly adjudicated draw;
+ * unresolved/NONE/invalid/aborted terminals must throw before reaching here.
+ */
+function validateTerminalWinProbabilityVector(values, label = 'Terminal values') {
+  const normalized = validateWinProbabilityVector(values, label);
+  const validOutcome =
+    (normalized[0] === 1 && normalized[1] === 0) ||
+    (normalized[0] === 0 && normalized[1] === 1) ||
+    (normalized[0] === 0 && normalized[1] === 0);
+  assert.ok(validOutcome,
+    label + ' must be an actual seat win or an explicitly adjudicated draw; ' +
+    'unresolved or invalid terminal classes must be rejected');
+  return normalized;
+}
+
 function backpropagateWinProbabilities(path, values) {
   for (let i = path.length - 1; i >= 0; i--) {
     const step = path[i];
@@ -471,7 +488,7 @@ function createInformationSetMcts(config) {
           maxObservedDepth = Math.max(maxObservedDepth, ply);
           if (config.isTerminal(state)) {
             leafValue = valueMode === 'seat-win-probability' ?
-              validateWinProbabilityVector(config.terminalValues(state), 'Terminal values') :
+              validateTerminalWinProbabilityVector(config.terminalValues(state), 'Terminal values') :
               config.terminalValue(state, seat);
             checkDeadline('terminal-value');
             leafSeat = seat;
@@ -609,7 +626,7 @@ function createInformationSetMcts(config) {
         // before falling through to a heuristic evaluation of a terminal state.
         if (!finished && config.isTerminal(state)) {
           leafValue = valueMode === 'seat-win-probability' ?
-              validateWinProbabilityVector(config.terminalValues(state), 'Terminal values') :
+              validateTerminalWinProbabilityVector(config.terminalValues(state), 'Terminal values') :
               config.terminalValue(state, seat);
           checkDeadline('terminal-value-after-final-ply');
           leafSeat = seat;
