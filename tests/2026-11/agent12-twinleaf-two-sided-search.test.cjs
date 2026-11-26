@@ -430,6 +430,24 @@ test('two-sided search fails closed when the root decision-history prefix is una
     /Complete perfect-recall history was required but root prefixes are unattested\/incomplete/);
 });
 
+test('two-sided search accepts an explicitly attested complete root history',()=>{
+  const harness=makeGenericTwoSidedSearchHarness();
+  harness.deps.rootHistoryAttestation={
+    schema:'agent12-actor-history-attestation-v1',
+    verified:true,
+    sourceId:'agent12-test-start-of-game-history-v1',
+    rootStateDigest:'a'.repeat(64),
+    completeBySeat:[true,true]
+  };
+  const search=createTwinleafTwoSidedSearch(harness.deps,{iterations:2,maxPlies:1});
+  const result=search.search(harness.state,0);
+  assert.deepEqual(result.audit.twinleafAdapter.historyCompleteBySeat,[true,true]);
+  assert.deepEqual(result.audit.twinleafAdapter.historySourceBySeat,[
+    'agent12-test-start-of-game-history-v1',
+    'agent12-test-start-of-game-history-v1'
+  ]);
+});
+
 test('generic Twinleaf search uses the uncapped native frontier and searches both physical seats',()=>{
   const harness=makeGenericTwoSidedSearchHarness();
   const search=createTwinleafTwoSidedSearch(harness.deps,{
