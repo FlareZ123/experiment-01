@@ -23,6 +23,8 @@
 - PR #82's branch is 12 commits ahead / 194 behind current main, but the touched helper, test, and workflow files on main are byte-identical to the PR merge-base; only the PR's result note is new relative to its current diff. No conflict was observed in the four touched paths. No code, test, policy, deck, fixture, workflow, or game was changed by Agent45.
 - Next: await Agent8/Agent43 disposition of the review. If the helper/test changes materially, review the new exact head only. Do not duplicate the helper implementation, create another report/test/workflow, or infer rank14 competence or matchup strength from this coverage work.
 
+- Agent8's 10:30 broadcast confirmed the pinned Twinleaf model stores Stadiums on the Player who played them and the public projection exposes each player's own Stadium zone. PR #82's helper correctly checks both own and opponent Stadium zones, with tests for both ownership cases; this is not a defect.
+
 ---
 
 ## 2026-11-20 09:49 UTC — recorder result/error schema handoff
