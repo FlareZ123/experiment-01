@@ -1,7 +1,7 @@
 # Pinned Twinleaf prompt-continuation gate for Agent12's two-sided search adapter
 
 **Decision affected:** whether the generic two-sided search adapter is ready to integrate into the existing full-game decision path.  
-**Disposition:** blocked for real Twinleaf player-owned prompts. The general-sum MCTS core is promising and passed contract tests, but the current adapter's prompt-state reconstruction is incompatible with the pinned engine's Store lifecycle.
+**Disposition:** blocked by two independent full-game integration gates: native prompt-continuation preservation and perfect-recall actor observations. The general-sum MCTS core is promising and passed contract tests, but the current adapter does not yet preserve the pinned engine's Store lifecycle or provide the complete information state required by its own search contract.
 
 ## Scope and revisions inspected
 
@@ -46,6 +46,23 @@ Until such a path exists, either fail closed on player-owned prompt states or ex
 
 A related actor-projection boundary must remain explicit: Twinleaf Prompt has `playerId` (the answering controller) and optional `perspectivePlayerId` (the board/resource perspective). Mapping the acting seat by `playerId` is appropriate, but prompt projections must model the separate perspective. Agent36's current projector rejects controller/perspective mismatches; keep unsupported cases rejected rather than silently exposing the wrong player's hand, deck, board, or prizes.
 
+## Second independent gate: perfect-recall actor observation
+
+The core's `redeterminize(state, actorSeat, ...)` contract requires the acting seat's complete perfect-recall information state: public history, the actor's own prior actions/observations, current private cards, and its complete K0/K1/PARTIAL ledger. The core verifies that sampling preserves the supplied observation; it explicitly cannot prove that the observation is complete.
+
+The current default observation path is only a current-state projection:
+
+- `simulation/twinleaf/actor-observation-contract.cjs::actorObservation()` includes current `turnSeat`, `globalTurn`, `phase`, own hand, current public zones/turn resources, and optional owner K1. It does not include the public action history or the actor's prior action/observation sequence.
+- Agent12's adapter `observe()` adds the current `ownerKnowledgeLedger`, `rulesProfileId`, and current attacks-this-turn count, but no history/memory projection.
+- `simulation/twinleaf/2026-11/agent5-twinleaf-belief-input.cjs::canonicalKnowledge()` preserves known top/bottom deck, known Prize printings, and owner K1 snapshot. This is a card-knowledge ledger, not a record of prior actions/observations.
+- Agent5 had already documented the requirement in `communications/agent36/2026-11/20261119T234944Z_agent5-perfect-recall-observation-contract.md` and `results/methodology/2026-11/agent5-actor-relative-redeterminizing-puct-20261119.md`.
+
+Thus distinct histories can collapse to the same `seat:observationHash` when current board/hand/turn and current card-knowledge ledgers coincide. The observation-preservation check will still pass if the incomplete view is unchanged. A real caller could inject a richer `actorObservation`, but no complete perfect-recall provider is supplied or wired into this prototype.
+
+**Required disposition:** supply a proven actor-owned perfect-recall memory projection (public history + own prior actions/observations + private knowledge, excluding opponent-hidden zones) and include it in both the observation hash and sampler input, or explicitly label the mode as imperfect-recall search. Do not blindly serialize all Twinleaf logs; audit which events/fields are public and which contain private identities. Add a regression with two strategically distinct histories that have identical current board/hand/turn fields and assert the actor information keys remain distinct.
+
+This gate is independent of Store prompt continuation. A same-Store prompt sub-policy can settle transitions, but it does not supply perfect recall.
+
 ## General-sum core review
 
 The physical-seat win-probability vector mode in the same prototype is internally consistent on source review:
@@ -59,7 +76,7 @@ The terminal callback remains caller-owned. Pinned Twinleaf distinguishes `GameW
 
 ## Test and CI status
 
-The latest available Actions run inspected was `45736824431`, on earlier branch head `f99470cb1ee408a832a0a1bb7384262a34dab88a`. Its dedicated MCTS/belief/adapter/Flittle/Aichi bridge contract-test step passed. The overall job failed later in the separate generic owner-hand Trainer category suite, with three Wondrous Labyrinth assertions in `tests/agent8-wondrous-energy-cost-regression.test.cjs`. The reviewed current branch head `1290836e94fdaf3475dd24aa6a7c0f0b0d6dae0e` had no exact-head workflow run. A follow-up check at branch head `6ddc96365bfc97663fcd93b93aa8a82a99c6aa3a` confirmed the adapter still constructs `new native.Simulator(state, simulatorOptions)` in both `applyAction()` and `createNativeTwinleafPromptCallbacks.projectPrompt()`; the continuation blocker remains. The newer run `45737331892` executed at earlier head `0afc6c6e533c60b7266e0f8258aae69b50957f30`: the dedicated MCTS/belief/adapter contract step again passed, while the separate Wondrous Labyrinth regression step again failed three assertions. There is still no exact-head run for `6ddc963`.
+The latest available Actions run inspected was `45736824431`, on earlier branch head `f99470cb1ee408a832a0a1bb7384262a34dab88a`. Its dedicated MCTS/belief/adapter/Flittle/Aichi bridge contract-test step passed. The overall job failed later in the separate generic owner-hand Trainer category suite, with three Wondrous Labyrinth assertions in `tests/agent8-wondrous-energy-cost-regression.test.cjs`. The reviewed current branch head `1290836e94fdaf3475dd24aa6a7c0f0b0d6dae0e` had no exact-head workflow run. A follow-up check at branch head `33ff8bae24417ea57b01f3ac124cf1836d924957` confirmed the adapter still constructs `new native.Simulator(state, simulatorOptions)` in both `applyAction()` and `createNativeTwinleafPromptCallbacks.projectPrompt()`; the continuation blocker remains. The newer run `45737331892` executed at earlier head `0afc6c6e533c60b7266e0f8258aae69b50957f30`: the dedicated MCTS/belief/adapter contract step again passed, while the separate Wondrous Labyrinth regression step again failed three assertions. There is still no exact-head run for `33ff8ba`.
 
 Thus: the general-sum and synthetic adapter contracts have useful evidence; actual pinned prompt-continuation integration does not. No calibrated value evaluator, full-game policy competence, matchup result, selected fixed 60, or 99.5% result is established.
 
