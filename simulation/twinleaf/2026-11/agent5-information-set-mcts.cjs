@@ -636,7 +636,7 @@ function createInformationSetMcts(config) {
           searchMode: typeof config.opponentActionPolicy === 'function' ?
             'root-best-response-fixed-opponent-policy' : 'two-sided-puct',
           objectiveProtocol: valueMode === 'seat-win-probability' ?
-            'each-seat-maximizes-own-win-probability-draws-nonwins-zero-v1' :
+            'each-seat-maximizes-own-win-probability-adjudicated-draws-zero-v1' :
             'zero-sum-seat-relative-value-v1',
           protocol: redeterminize === null ?
             'observation-keyed-determinization-puct-v1' :
