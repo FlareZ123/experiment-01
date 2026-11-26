@@ -64,31 +64,27 @@ function projectActorVisibleHistory(state, actorSeat, options = {}) {
   const visibleLogs = [];
   for (const log of state.logs) {
     assert.ok(log && typeof log === 'object', 'ACTOR_HISTORY_INVALID_LOG');
-    const logId = log.id;
-    assert.ok(Number.isSafeInteger(logId) && logId >= 0,
-      'ACTOR_HISTORY_INVALID_LOG_ID');
+    const diagnosticLogId = Number.isSafeInteger(log.id) ? log.id : 'unknown';
     const clientId = log.client;
     const params = log.params === undefined || log.params === null ? {} : log.params;
 
     // Match TableGameLogPanel.isLogHidden exactly without invoking an accessor.
-    if (privateFlag(params, logId) && clientId !== actorId && clientId !== 0) {
+    if (privateFlag(params, diagnosticLogId) && clientId !== actorId && clientId !== 0) {
       continue;
     }
 
     assert.equal(typeof log.message, 'string',
-      'ACTOR_HISTORY_INVALID_LOG_MESSAGE: log ' + logId);
-    const projectedParams = cloneCanonicalJson(params, 'log ' + logId + ' params');
-    // Store.log() adds wall-clock timestamps. They are not game information
-    // and would make equivalent histories hash differently.
+      'ACTOR_HISTORY_INVALID_LOG_MESSAGE: log ' + diagnosticLogId);
+    const projectedParams = cloneCanonicalJson(params, 'log ' + diagnosticLogId + ' params');
+    // These are host/UI metadata, not player-visible event content. Global IDs
+    // would reveal hidden-log gaps after filtering; timestamps vary between
+    // otherwise identical histories; private is used only for visibility.
     delete projectedParams.timestamp;
+    delete projectedParams.private;
 
-    const clientSeat = clientId === 0 || clientId === undefined || clientId === null
-      ? null
-      : state.players.findIndex(player => player.id === clientId);
+    // Preserve only the ordered visible event content. Do not expose global
+    // log IDs or client IDs: neither is rendered in the player's log panel.
     visibleLogs.push({
-      id: logId,
-      clientSeat: clientSeat < 0 ? null : clientSeat,
-      isSystem: clientId === 0,
       message: log.message,
       params: projectedParams
     });
