@@ -1037,7 +1037,7 @@ test('pinned Store rejects a GX attack after GX use and preserves a legal attack
 });
 
 
-test('pinned Store frontier exposes and dispatches bench Forest Seal Stone Star Alchemy in both physical seats', {
+test('pinned Store attaches Forest Seal Stone and uses Star Alchemy through Vileplume Item lock in both physical seats', {
   skip: !fs.existsSync(compiledActionEnumerator),
   timeout: 30000
 }, () => {
@@ -1057,6 +1057,11 @@ test('pinned Store frontier exposes and dispatches bench Forest Seal Stone Star 
     (!Array.isArray(card.powers) || card.powers.length === 0)
   );
   assert.ok(basicDefinition, 'pinned Expanded pool must contain a Basic Pokémon without powers');
+  const vileplumeDefinition = manager.getCardByName('Vileplume AOR 3');
+  assert.ok(vileplumeDefinition, 'pinned Expanded pool must contain Vileplume AOR 3');
+  assert.ok(vileplumeDefinition.powers.some(power =>
+    power.name === 'Irritating Pollen' && power.useWhenInPlay
+  ), 'Vileplume fixture must carry its Item lock ability');
 
   function makePlayer(id, activeCard) {
     const player = new native.Player();
@@ -1095,15 +1100,18 @@ test('pinned Store frontier exposes and dispatches bench Forest Seal Stone Star 
       physicalRandom: seededRandom(0x51a7e130 + actorSeat)
     });
     const candidate = makePlayer(actorSeat, cloneCard(basicDefinition.fullName));
-    const opponent = makePlayer(1 - actorSeat, cloneCard(basicDefinition.fullName));
+    const opponent = makePlayer(1 - actorSeat, cloneCard(vileplumeDefinition.fullName));
     const shadowRider = cloneCard('Shadow Rider Calyrex V CRE');
     const forestSealStone = cloneCard('Forest Seal Stone SIT');
+    const quickBall = cloneCard('Quick Ball FST');
     candidate.bench[0].cards = [shadowRider];
     candidate.bench[0].hp = shadowRider.hp;
     candidate.bench[0].damage = 0;
     candidate.bench[0].energies.cards = [];
-    candidate.bench[0].tools = [forestSealStone];
+    candidate.bench[0].tools = [];
     candidate.bench[0].specialConditions = [];
+    candidate.hand.cards = [forestSealStone, quickBall];
+    candidate.playableCardIds = candidate.hand.cards.map(card => card.id);
 
     const initialState = new native.State();
     initialState.players = actorSeat === 0
@@ -1120,53 +1128,92 @@ test('pinned Store frontier exposes and dispatches bench Forest Seal Stone Star 
     const state = simulator.store.state;
     const actor = state.players[actorSeat];
     const enumerator = adapterModule.createKnownCapFreeActionEnumerator({ native, enginePin });
-    const ability = enumerator.abilityActions(state, actor)
-      .find(action => action.name === 'Star Alchemy');
-    assert.ok(ability, 'adapter must expose attached Forest Seal Stone on the Bench');
-    assert.equal(ability.target.slot, native.SlotType.BENCH);
-    assert.equal(ability.target.index, 0);
-    const pass = enumerator.enumerate(state, actor, actor.id)
-      .find(action => action.type === 'PASS_TURN');
+    const toolAction = enumerator.attachToolActions(state, actor).find(action =>
+      actor.hand.cards[action.handIndex]?.fullName === 'Forest Seal Stone SIT');
+    const itemAction = enumerator.playItemActions(state, actor).find(action =>
+      actor.hand.cards[action.handIndex]?.fullName === 'Quick Ball FST');
+    const pass = enumerator.passTurnActions(state, actor)[0];
+    assert.ok(toolAction, 'adapter must expose Forest Seal Stone attachment to the Benched Pokémon V');
+    assert.equal(toolAction.target.slot, native.SlotType.BENCH);
+    assert.equal(toolAction.target.index, 0);
+    assert.ok(itemAction, 'Quick Ball must remain visible as a candidate Item action');
     assert.ok(pass, 'the native Pass action remains available');
 
-    const frontier = withValidationRandom(() => frontierModule.buildNativeActionFrontier({
+    const attachFrontier = withValidationRandom(() => frontierModule.buildNativeActionFrontier({
       state,
       actorSeat,
       native,
-      enumerator: { enumerate: () => [ability, pass] }
+      enumerator: { enumerate: () => [toolAction, itemAction, pass] }
     }));
-    const admission = adapterModule.assertKnownCapFreeAdapterAdmissionClear({
+    const attachAdmission = adapterModule.assertKnownCapFreeAdapterAdmissionClear({
       enumerator,
       enginePin,
-      frontierDiagnostics: frontier.diagnostics
+      frontierDiagnostics: attachFrontier.diagnostics
     });
-    assert.equal(admission.adapter.enginePin, enginePin);
-    assert.equal(frontier.diagnostics.enumeratedCount, 2);
-    assert.equal(frontier.diagnostics.validatedCount, 2);
-    assert.equal(frontier.diagnostics.rejectedCount, 0);
-    assert.equal(frontier.diagnostics.unsupportedCount, 0);
-    assert.equal(frontier.diagnostics.truncated, false);
-    assert.equal(frontier.diagnostics.omittedCount, 0);
+    assert.equal(attachAdmission.adapter.enginePin, enginePin);
+    assert.equal(attachFrontier.diagnostics.enumeratedCount, 3);
+    assert.equal(attachFrontier.diagnostics.validatedCount, 2);
+    assert.equal(attachFrontier.diagnostics.rejectedCount, 1,
+      'Vileplume Irritating Pollen must reject the Item while preserving the Tool');
+    assert.equal(attachFrontier.diagnostics.unsupportedCount, 0);
+    assert.equal(attachFrontier.diagnostics.truncated, false);
+    assert.equal(attachFrontier.diagnostics.omittedCount, 0);
+    const toolItem = attachFrontier.actionFrontier.items.find(item =>
+      item.kind === 'play-card' && item.actorPrinting === 'Forest Seal Stone SIT');
+    assert.ok(toolItem, 'the Tool attachment must survive the Vileplume Item lock');
+    assert.equal(attachFrontier.actionFrontier.items.some(item =>
+      item.actorPrinting === 'Quick Ball FST'), false,
+      'Quick Ball must be absent from the legal frontier under Irritating Pollen');
 
-    const item = frontier.actionFrontier.items.find(candidate =>
-      candidate.kind === 'use-ability' &&
-      candidate.publicMetadata?.abilityName === 'Star Alchemy');
-    assert.ok(item, 'worker frontier must expose the Bench Star Alchemy action');
-    const evidence = {};
+    const attachEvidence = {};
     frontierModule.dispatchSelectedNativeAction({
       store: simulator.store,
-      frontier,
-      token: item.token,
+      frontier: attachFrontier,
+      token: toolItem.token,
       state,
       actorSeat,
       native,
       withValidationRandom,
-      validationEvidence: evidence
+      validationEvidence: attachEvidence
     });
-    assert.equal(evidence.selectedActionValidated, true);
-    assert.equal(evidence.fullOriginalStoreStateUnchanged, true);
+    assert.equal(attachEvidence.selectedActionValidated, true);
+    assert.equal(attachEvidence.fullOriginalStoreStateUnchanged, true);
     assert.equal(state.players[actorSeat].bench[0].tools[0].fullName,
       'Forest Seal Stone SIT');
+
+    const ability = enumerator.abilityActions(state, actor)
+      .find(action => action.name === 'Star Alchemy');
+    assert.ok(ability, 'attached Forest Seal Stone must expose Star Alchemy under the Item lock');
+    assert.equal(ability.target.slot, native.SlotType.BENCH);
+    assert.equal(ability.target.index, 0);
+    const passAfterAttach = enumerator.passTurnActions(state, actor)[0];
+    const abilityFrontier = withValidationRandom(() => frontierModule.buildNativeActionFrontier({
+      state,
+      actorSeat,
+      native,
+      enumerator: { enumerate: () => [ability, passAfterAttach] }
+    }));
+    assert.equal(abilityFrontier.diagnostics.enumeratedCount, 2);
+    assert.equal(abilityFrontier.diagnostics.validatedCount, 2);
+    assert.equal(abilityFrontier.diagnostics.rejectedCount, 0);
+    const abilityItem = abilityFrontier.actionFrontier.items.find(item =>
+      item.kind === 'use-ability' &&
+      item.publicMetadata?.abilityName === 'Star Alchemy');
+    assert.ok(abilityItem, 'worker frontier must expose Bench Star Alchemy under the Item lock');
+
+    const abilityEvidence = {};
+    frontierModule.dispatchSelectedNativeAction({
+      store: simulator.store,
+      frontier: abilityFrontier,
+      token: abilityItem.token,
+      state,
+      actorSeat,
+      native,
+      withValidationRandom,
+      validationEvidence: abilityEvidence
+    });
+    assert.equal(abilityEvidence.selectedActionValidated, true);
+    assert.equal(abilityEvidence.fullOriginalStoreStateUnchanged, true);
     const resolvedWaits = resolveNativeWaitPrompts({
       store: simulator.store,
       state,
@@ -1176,17 +1223,16 @@ test('pinned Store frontier exposes and dispatches bench Forest Seal Stone Star 
     const prompt = state.prompts.find(candidate =>
       candidate.result === undefined && candidate.constructor.name === 'ChooseCardsPrompt');
     assert.ok(prompt, 'Star Alchemy must open its native search prompt after the wait boundary');
-    assert.equal(prompt.constructor.name, 'ChooseCardsPrompt');
     assert.equal(prompt.playerId, actor.id);
-    console.log('AGENT3_NATIVE_FSS_FRONTIER', JSON.stringify({
+    console.log('AGENT3_NATIVE_FSS_VILEPLUME', JSON.stringify({
       actorSeat,
-      activePrinting: state.players[actorSeat].active.getPokemonCard().fullName,
-      holderPrinting: state.players[actorSeat].bench[0].getPokemonCard().fullName,
-      toolPrinting: state.players[actorSeat].bench[0].tools[0].fullName,
-      selectedAbility: item.publicMetadata.abilityName,
+      opponentLock: vileplumeDefinition.fullName,
+      rejectedItem: 'Quick Ball FST',
+      attachedTool: state.players[actorSeat].bench[0].tools[0].fullName,
+      selectedAbility: abilityItem.publicMetadata.abilityName,
       promptKind: prompt.constructor.name,
-      nativeActionValidated: evidence.selectedActionValidated,
-      originalStoreUnchangedDuringValidation: evidence.fullOriginalStoreStateUnchanged
+      nativeToolValidated: attachEvidence.selectedActionValidated,
+      nativeAbilityValidated: abilityEvidence.selectedActionValidated
     }));
   }
 });
