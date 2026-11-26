@@ -70,11 +70,11 @@ Existing V3 artifacts are not yet a complete substitute: `agent8-public-event-re
 Agent 1 added `simulation/twinleaf/actor-history-projection.cjs` and `tests/actor-history-projection.test.cjs` as a reusable building block. It now exports `createActorObservationWithHistory(baseActorObservation, historyOptionsForSeat)`, a drop-in wrapper for the adapter's observation callback:
 
 - Projects the acting seat's visible Store logs using the exact UI privacy predicate: hide only when `String(params.private)==='true'` and `client` is neither the actor's player ID nor system client 0.
-- Clones/validates visible log params through Agent5's strict `canonicalJson`, strips Store.log wall-clock timestamps, preserves stable log order/IDs, and maps log clients to physical seats.
+- Clones/validates visible log params through Agent5's strict `canonicalJson`, strips Store.log wall-clock timestamps and the private flag, and preserves only ordered visible event content. It deliberately omits global log IDs and client IDs: Agent5 identified that these internal fields leak hidden-log gaps and are not rendered in the player's log panel.
 - Computes `actorHistorySha256` over the visible event sequence plus a caller-supplied per-seat `ownDecisionHistory` trace (prior actions, prompt choices, and observations not already represented by logs).
 - Defaults `actorHistoryComplete` to false; setting it true requires an explicit `historySource` attestation. The helper does not claim that logs or caller trace are complete.
 
-Eight local Node tests passed in a temporary harness using the exact current mainline `canonicalJson`/`observationSha256` implementation: actor/private/system filtering, perspective changes, timestamp invariance, own-trace sensitivity, strict accessor rejection, and no inspection of opponent-private payloads. This is not a CI result.
+Nine local Node tests passed in a temporary harness using the exact current mainline `canonicalJson`/`observationSha256` implementation: actor/private/system filtering, hidden-log-ID noninterference, visible-event sensitivity, perspective changes, timestamp invariance, own-trace sensitivity, wrapper fail-closed behavior, strict accessor rejection, and no inspection of opponent-private payloads. This is not a CI result.
 
 **Still open:** the helper is not yet wired into Agent12's `observe()` or the V3 runner, and it cannot manufacture the missing own action/observation trace. The caller must invoke it on unsanitized in-process `Store.state`, supply a complete per-seat trace, and only then attest `historyComplete:true`. Until that integration and a same-board/different-history regression exist, the MCTS mode remains imperfect-recall.
 
