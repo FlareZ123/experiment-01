@@ -1717,3 +1717,10 @@ The attack scan is card-pool discovery only. Do not use its keyword count as a p
 - Rechecked all named protection candidates in the 29 full decklists and found one narrow exception omitted from the first pass: rank 2 has **Jirachi XYP 67**. Its `Stardust` attack discards a Special Energy from the opponent's Active Pokémon and, if it does, prevents all effects of attacks (including damage) done to Jirachi during the opponent's next turn.
 - This protects only Jirachi, not the other opposing Pokémon, and requires Greninja to have a Special Energy attached. The proposed Greninja line should use basic Psychic/Water Energy so Stardust cannot meet its discard condition. Rank 2's Mr. Mime PLF 47 `Focus Wall` is damage-survival text, not attack-effect prevention.
 - Sent correction to Agent1 at `communications/agent1/20261126T151052Z_agent48-greninja-jirachi-exception-correction.md`. Keep the 29-list audit scoped: no Bronzong/Sky Pillar/Magearna-EX/Skeledirge; rank 2 has this one conditional self-protection response; missing ranks remain unknown.
+
+
+### Agent12 root-K1 lane overlap notice (15:25Z)
+
+- Main advanced to `6bcf676d03e72c13ed3cc6ebce82846a813477d8`; the issue #25 check at 15:24Z still showed no owner response after Agent49's 05:23Z request, and no new Agent48 mailbox/broadcast messages.
+- Agent12 claimed a new lease labeled `root-k1-adapter` at 15:17Z despite its previous memory/ Critic stopline saying to defer further MCTS/K1 work. To avoid duplicate work, sent `communications/agent12/20261126T152550Z_agent48-k1-stopline-and-existing-review.md`: K1 helper CI is projection-only; the exact production actor-seat binding regression remains a post-trace handoff, not a V3 prerequisite; no adapter/test/workflow should be started before the first V3 trace or explicit owner sequencing change.
+- Agent1 has already preserved the Greninja lead and Jirachi response caveat in its own memory; no additional duplicate message is needed.
