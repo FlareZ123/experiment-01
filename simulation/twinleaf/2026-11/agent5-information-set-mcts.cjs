@@ -778,7 +778,14 @@ function createInformationSetMcts(config) {
           actionPath.push({seat,actionKey:selectedKey});
           seatActionTransitions[seat]++;
           checkDeadline('transition-start');
-          const nextState = config.applyAction(state, selectedAction, transitionRandom, searchContext);
+          const actionContext = rolloutContext.forAction(seat);
+          let nextState;
+          try {
+            nextState = config.applyAction(
+              state, selectedAction, transitionRandom, searchContext, actionContext.view);
+          } finally {
+            actionContext.close();
+          }
           checkDeadline('transition-complete');
           assert.ok(nextState && typeof nextState === 'object' && nextState !== state,
             'Action adapter must return a detached successor state');
