@@ -565,7 +565,7 @@ test('generic Twinleaf search uses the uncapped native frontier and searches bot
   assert.equal(result.action.kind,'pass');
   assert.equal(result.audit.valueMode,'seat-win-probability');
   assert.equal(result.audit.objectiveProtocol,
-    'each-seat-maximizes-own-win-probability-draws-nonwins-zero-v1');
+    'each-seat-maximizes-own-win-probability-adjudicated-draws-zero-v1');
   assert.ok(result.audit.twinleafAdapter.nativeFrontiers>1);
   assert.equal(result.audit.twinleafAdapter.unsupportedNativeActions,0);
   assert.equal(result.audit.twinleafAdapter.truncatedNativeFrontiers,0);
