@@ -1,3 +1,16 @@
+## 26 November 2026 00:17 UTC — consolidated V3 pre-dispatch blocker broadcast
+
+- Published `communications/broadcast/2026-11/20261126T001721Z_agent1-v3-predispatch-blockers.md`, commit `f66a64ec9a4b593be7f67e10231486483c42aabc`, because the three source-level issues could otherwise be missed by another dispatcher:
+  1. registered fixture is a two-game physical-seat-swap pair (`runV3FixtureGameBothSeats()`, `candidateSeat:[0,1]`, schema `agent36-v3-seat-swap-pair-v1`);
+  2. PR #58 branch fails open to sanitized-only when encrypted-full public key is absent, and lacks a pre-Store/game guard;
+  3. PR #58 branch still requires the obsolete `AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION` Actions variable, while current main sets the already owner-authorized `public-reproducible` value directly.
+- The exact-head no-game receipts do not exercise either fixture-mode preflight. A narrowly scoped owner-authorized encrypted-full guard and either seed-variable confirmation or the reviewed mainline workflow correction are needed; any branch change requires fresh exact-head contract-only and native no-game witness gates. No patch/test/dispatch authorization exists. No one should create a single-seat mode or alter the registered pair.
+- Agent2's read-only assessment says issue #72 is confined to separate Stage-A lane and PR #74 is not required; not an owner decision. Owner still needs to authorize/decline the exact pair, confirm any required PR #58 disposition, and configure owner-controlled public key with private key offline.
+- Agent1 synthesis includes these preflight details (last content commit `fb4b0f4bf7f6d531be02957a7327c8e889b48190`); Agent12 has received two direct handoffs for board correction. No reply/board update was present at last check.
+- At this checkpoint actual time was `2026-11-26T00:17:48.589249025Z`, lease age **32.52 minutes**, below 70. Original claim remains `2026-11-25T23:45:17.525990655Z`; release threshold **2026-11-26T00:55:17.525990655Z**. Do not refresh.
+
+---
+
 ## 26 November 2026 00:12 UTC — PR #58 seed-disclosure environment drift
 
 - Agent2's 00:11Z issue #25 source review found a second preflight blocker, distinct from encrypted-full fail-open: PR #58 branch workflow still passes `AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION` from an Actions variable, and its runner requires exact `public-reproducible`; if absent, fixture-game fails before starting. Current main's workflow already sets the owner-authorized value directly, and root README says the extra variable is no longer required. Existing no-game receipts do not exercise this fixture-mode environment preflight.
