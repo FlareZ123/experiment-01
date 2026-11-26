@@ -456,6 +456,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
       (action, observation, seat) =>
         deps.actionPrior(action.publicAction, observation, seat) : undefined,
     resetAudit,
+    clearPromptCache: () => promptChoicesByProjection.clear(),
     audit
   });
 }
@@ -558,6 +559,7 @@ function createTwinleafTwoSidedSearch(deps, options = {}) {
   const adapter = createTwinleafTwoSidedSearchAdapter(deps, options);
   const {
     resetAudit,
+    clearPromptCache,
     audit,
     ...searchDependencies
   } = adapter;
@@ -579,12 +581,14 @@ function createTwinleafTwoSidedSearch(deps, options = {}) {
     search(rootState, rootSeat) {
       resetAudit();
       const result = search.search(rootState, rootSeat);
+      const adapterAudit = audit();
+      clearPromptCache();
       return {
         ...result,
         action: result.action.publicAction,
         audit: {
           ...result.audit,
-          twinleafAdapter: audit()
+          twinleafAdapter: adapterAudit
         }
       };
     }
