@@ -434,6 +434,8 @@ test('two-sided decklist priors keep exact own lists bound to physical seats',()
   const provider=createPhysicalSeatDecklistPriorProvider({
     decklistsBySeat,opponentPriorByActorSeat
   });
+  assert.deepEqual(provider.ownDecklistIdBySeat,['candidate-seat-0','opponent-seat-1']);
+  assert.equal(Object.isFrozen(provider.ownDecklistIdBySeat),true);
   // Provider construction snapshots the fixed own lists and both actor priors.
   decklistsBySeat[0].cards[0]='mutated-candidate';
   decklistsBySeat[1].cards[0]='mutated-opponent';
