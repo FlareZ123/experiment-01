@@ -819,6 +819,89 @@ test('ability-lock threat preserves Stealthy Hood ahead of Max Geist Energy', ()
   assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-1'] });
 });
 
+test('live Tapu Lele Wonder Tag play is preserved ahead of Psychic Energy', () => {
+  const ownVmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE',
+    name: 'Shadow Rider Calyrex VMAX', hp: 320,
+    subtypes: ['VMAX'], energies: Array(5).fill('Psychic Energy SVE')
+  });
+  const opponentVmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE',
+    name: 'Shadow Rider Calyrex VMAX', hp: 320,
+    subtypes: ['VMAX']
+  });
+  const view = observation(0, {
+    active: ownVmax, opponentActive: opponentVmax,
+    ownHand: ['Tapu Lele-GX GRI 60', 'Psychic Energy SVE'],
+    globalTurn: 3
+  });
+  const req = cardPrompt(0, view, {
+    sourceZone: 'hand', printings: view.ownHand,
+    minimumCount: 1, maximumCount: 1
+  });
+  assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-1'] });
+});
+
+test('Tapu Lele is discardable when Wonder Tag is locked by Path to the Peak', () => {
+  const ownVmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE',
+    name: 'Shadow Rider Calyrex VMAX', hp: 320,
+    subtypes: ['VMAX'], energies: Array(5).fill('Psychic Energy SVE')
+  });
+  const view = observation(0, {
+    active: ownVmax,
+    opponentStadium: ['Path to the Peak CRE 148'],
+    ownHand: ['Tapu Lele-GX GRI 60', 'Psychic Energy SVE'],
+    globalTurn: 3
+  });
+  const req = cardPrompt(0, view, {
+    sourceZone: 'hand', printings: view.ownHand,
+    minimumCount: 1, maximumCount: 1
+  });
+  assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-0'] });
+});
+
+test('live Marshadow Stadium-removal play is preserved ahead of Psychic Energy', () => {
+  const ownVmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE',
+    name: 'Shadow Rider Calyrex VMAX', hp: 320,
+    subtypes: ['VMAX'], energies: Array(5).fill('Psychic Energy SVE')
+  });
+  const view = observation(0, {
+    active: ownVmax,
+    opponentStadium: ['Dimension Valley PHF 93'],
+    ownHand: ['Marshadow SLG 45', 'Psychic Energy SVE'],
+    globalTurn: 3
+  });
+  const req = cardPrompt(0, view, {
+    sourceZone: 'hand', printings: view.ownHand,
+    minimumCount: 1, maximumCount: 1
+  });
+  assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-1'] });
+});
+
+test('live Regidrago Girafarig play is preserved ahead of Psychic Energy', () => {
+  const ownVmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE',
+    name: 'Shadow Rider Calyrex VMAX', hp: 320,
+    subtypes: ['VMAX'], energies: Array(5).fill('Psychic Energy SVE')
+  });
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT', name: 'Regidrago VSTAR',
+    hp: 280, types: ['Dragon'], subtypes: ['VSTAR']
+  });
+  const view = observation(0, {
+    active: ownVmax, opponentActive: regidrago,
+    ownHand: ['Girafarig LOT 94', 'Psychic Energy SVE'],
+    globalTurn: 3
+  });
+  const req = cardPrompt(0, view, {
+    sourceZone: 'hand', printings: view.ownHand,
+    minimumCount: 1, maximumCount: 1
+  });
+  assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-1'] });
+});
+
 test('energy-payment prompt relies on per-choice visibility, not absent prompt-level owner fields', () => {
   const active = pokemon({
     printing: 'Shadow Rider Calyrex VMAX CRE', name: 'Shadow Rider Calyrex VMAX',

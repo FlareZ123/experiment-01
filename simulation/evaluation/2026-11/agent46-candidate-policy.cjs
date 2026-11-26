@@ -1,7 +1,7 @@
 'use strict';
 
 /*
- * Agent46 candidate-only policy v3.
+ * Agent46 candidate-only policy v4.
  *
  * This module is deliberately a pure worker bundle: it has no imports, engine
  * objects, native actions, Store access, filesystem/network access,
@@ -10,7 +10,7 @@
  * Unknown prompt provenance or actor-visible state fails closed.
  */
 
-const POLICY_VERSION = 'agent46-hood-candidate-v3';
+const POLICY_VERSION = 'agent46-hood-candidate-v4';
 
 let activePolicyAudit = null;
 
@@ -1304,6 +1304,14 @@ function discardValue(view, printing) {
   if (hasAnyName(printing, ['Fog Crystal', 'Quick Ball', 'Mysterious Treasure']) &&
       duplicates > 1) return 10;
   if (duplicates > 1 && !hasAnyName(printing, CORE_PRINTINGS)) return 15;
+  // Keep a Basic Pokémon if the same policy currently scores its bench play.
+  const liveBasicPlay = scoreBasicPlay({
+    actorPrinting: printing,
+    publicMetadata: { targetSeat: 'actor', targetZone: 'bench' }
+  }, view);
+  if (Number.isFinite(liveBasicPlay) && liveBasicPlay > 0) {
+    return Math.max(81, liveBasicPlay);
+  }
   if (hasAnyName(printing, CORE_PRINTINGS)) return 700;
   return 50;
 }
