@@ -14,11 +14,12 @@ A zero-sum terminal utility of win (+1), draw (0), loss (-1) maximizes (P(win)-P
 
 The core keeps the existing scalar `zero-sum` mode as the default and adds opt-in `valueMode: 'seat-win-probability'`.
 
-- Terminal values are a two-element vector `[P(seat0 wins), P(seat1 wins)]`.
+- The caller supplies a typed `terminalOutcome` rather than a bare vector: `{kind:'seat-win', winnerSeat:0|1}` or `{kind:'adjudicated-draw', ruleId, reason, evidenceId}`. The draw rule ID and evidence reference are mandatory, and a versioned `terminalOutcomeProtocolId` is required and recorded in the audit. Bare `[0,0]`, `NONE`, unresolved, invalid, aborted, and unknown outcomes are rejected.
+- The core converts typed terminal outcomes to `[1,0]`, `[0,1]`, or `[0,0]`; a draw is a nonwin for both seats.
 - Each selected node backs up the component belonging to that node's physical seat. Seat 0 maximizes seat 0's win probability; seat 1 maximizes seat 1's win probability. No alternating sign flip is applied in this mode.
 - Two-sided PUCT uses PUCT nodes for both physical seats.
 - When a frozen `opponentActionPolicy` is supplied, only the non-root seat uses that policy; the root searches a best response. Audit metadata distinguishes `two-sided-puct` from `root-best-response-fixed-opponent-policy`.
-- Fractional vectors are permitted for observation/leaf estimates. Realized terminal values are stricter: only `[1,0]`, `[0,1]`, or `[0,0]` are accepted. The terminal callback must map an actual seat win or explicitly adjudicated draw and throw for `GameWinner.NONE`, invalid, aborted, or unsupported terminal states. The core cannot infer paper adjudication from Twinleaf state by itself.
+- Fractional vectors are permitted only for observation/leaf estimates. The typed terminal callback must return a real seat winner or an explicitly adjudicated draw with a versioned rule ID, reason, and evidence reference; it must throw for `GameWinner.NONE`, invalid, aborted, or unsupported terminal states. The core checks the shape and attestation fields but cannot independently verify the external evidence. The Aichi caller must derive draw classifications from the event adjudicator, not merely Twinleaf's generic FINISHED phase or equal Prize counts.
 
 ## Validation added
 
@@ -26,7 +27,7 @@ The core keeps the existing scalar `zero-sum` mode as the default and adds opt-i
 
 1. seat-swap symmetry for both `rootSeat=0` and `rootSeat=1`;
 2. a fixed-opponent best-response cross-product for both root seats, verifying that actor-relative re-determinization occurs for both physical seats and the frozen policy is called only for the non-root seat;
-3. rejection of fractional terminal values such as `[0.5,0.5]`.
+3. rejection of bare `[0,0]`, unresolved outcomes, and draws without a rule/evidence attestation; fractional terminal estimates are no longer expressible through the typed API.
 
 The existing `agent5-owner-root-native.yml` contract lane includes this test file. The lane is explicitly `native_search_only=true`; it does not dispatch games.
 
