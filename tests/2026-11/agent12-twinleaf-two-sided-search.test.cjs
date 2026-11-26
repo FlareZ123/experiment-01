@@ -490,7 +490,7 @@ test('complete per-seat decision histories survive actor-relative redeterminizat
     item.history.some(event=>event.actorSeat===1 &&
       event.actionKey==='prior-seat-1')),
   'seat 1 did not retain its attested prefix: ' + JSON.stringify(seen));
-  assert.deepEqual(result.audit.twinleafAdapter.historyEventCountsBySeat,[2,1]);
+  assert.deepEqual(result.audit.twinleafAdapter.historyEventCountsBySeat,[2,2]);
   assert.deepEqual(result.audit.twinleafAdapter.historyCompleteBySeat,[true,true]);
 });
 
@@ -715,7 +715,7 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
           item.printing===NATIVE_PROMPT_DEDENNE);
         assert.ok(choice,'Switch prompt projection must expose the actor-owned Bench Dedenne');
         selectedPromptTokens.push(choice.token);
-        return {kind:'select-choice',token:choice.token};
+        return {kind:'select-choices',tokens:[choice.token]};
       }
     });
 
