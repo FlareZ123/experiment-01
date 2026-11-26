@@ -7,6 +7,7 @@ const path = require('node:path');
 const protocol = require('../../simulation/evaluation/2026-11/agent49-policy-worker.cjs');
 const candidate = require('../../simulation/evaluation/2026-11/agent46-candidate-policy.cjs');
 const policyProtocol = require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
+const { VERSION: EVENT_RECEIPT_VERSION } = require('../../simulation/twinleaf/agent8-public-event-receipt.cjs');
 const nativePromptProjection = require('../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
 
 const POLICY_VERSION = candidate.POLICY_VERSION;
@@ -130,6 +131,28 @@ function request(seat, view, {
     observationSchema: protocol.OBSERVATION_SCHEMA,
     observation: view, prompt, publicEventReceipt: receipt,
     actionFrontier: { schema: protocol.FRONTIER_SCHEMA, items: actions }
+  };
+}
+
+function underworldReceipt(seat, view, { activeUsed = null, benchUsed = [] } = {}) {
+  const eventPokemon = (slot, usedThisTurn) => slot === null ? null : ({
+    printing: slot.printing,
+    movedFromBenchToActiveThisTurn: null,
+    knownAbilityUse: (slot.abilities ?? []).includes('Underworld Door')
+      ? [{ name: 'Underworld Door', usedThisTurn }]
+      : []
+  });
+  return {
+    version: EVENT_RECEIPT_VERSION,
+    actorSeat: seat,
+    turn: view.globalTurn,
+    ownerActive: eventPokemon(view.ownPublic.active, activeUsed),
+    ownerBench: view.ownPublic.bench.map((slot, index) =>
+      eventPokemon(slot, benchUsed[index] ?? null)),
+    priorOpponentTurnKO: { any: null, byAttack: null },
+    opponentLastTurnAttack: null,
+    opponentLastTurnTurn: null,
+    opponentLastTurnAttacks: null
   };
 }
 
@@ -1752,6 +1775,7 @@ test('live Underworld Door is selected before a payable Max Geist attack for bot
       ownHand: ['Psychic Energy SVE 13']
     });
     const req = request(seat, view, {
+      receipt: underworldReceipt(seat, view, { activeUsed: false }),
       actions: [
         {
           token: 'underworld',
@@ -1777,6 +1801,103 @@ test('live Underworld Door is selected before a payable Max Geist attack for bot
     assert.deepEqual(evaluate(req), {
       kind: 'select-action',
       token: 'underworld'
+    });
+  }
+});
+
+test('Underworld Door requires a source-specific unspent owner receipt', () => {
+  for (const seat of [0, 1]) {
+    const vmax = pokemon({
+      printing: 'Shadow Rider Calyrex VMAX CRE 75',
+      name: 'Shadow Rider Calyrex VMAX', hp: 320, subtypes: ['VMAX'],
+      energies: Array(3).fill('Psychic Energy SVE 13'),
+      attacks: [attack('Max Geist', ['Colorless', 'Colorless', 'Colorless'], '10+')],
+      abilities: ['Underworld Door'], suppression: false
+    });
+    const mimikyu = pokemon({
+      printing: 'Mimikyu GRI 58', name: 'Mimikyu', hp: 70
+    });
+    const regidrago = pokemon({
+      printing: 'Regidrago VSTAR SIT 136', name: 'Regidrago VSTAR',
+      hp: 280, types: ['Dragon'], subtypes: ['VSTAR']
+    });
+    const view = observation(seat, {
+      active: vmax, bench: [mimikyu], opponentActive: regidrago,
+      ownHand: ['Psychic Energy SVE 13']
+    });
+    const actions = [
+      {
+        token: 'underworld', kind: 'use-ability', actorPrinting: vmax.printing,
+        publicMetadata: {
+          abilityName: 'Underworld Door', sourceZone: 'active',
+          sourceSeat: 'actor', sourceIndex: 0
+        }
+      },
+      {
+        token: 'max-geist', kind: 'attack', actorPrinting: vmax.printing,
+        attackName: 'Max Geist', publicMetadata: { attackCostPayable: true }
+      },
+      { token: 'pass', kind: 'pass' }
+    ];
+    for (const receipt of [
+      underworldReceipt(seat, view, { activeUsed: true }),
+      underworldReceipt(seat, view, { activeUsed: null }),
+      null
+    ]) {
+      assert.deepEqual(evaluate(request(seat, view, { receipt, actions })), {
+        kind: 'select-action', token: 'max-geist'
+      });
+    }
+  }
+});
+
+test('Underworld Door used-marker receipt is matched to the exact source slot', () => {
+  for (const seat of [0, 1]) {
+    const activeVmax = pokemon({
+      printing: 'Shadow Rider Calyrex VMAX CRE 75',
+      name: 'Shadow Rider Calyrex VMAX', hp: 320, subtypes: ['VMAX'],
+      abilities: ['Underworld Door'], suppression: false
+    });
+    const mimikyu = pokemon({
+      printing: 'Mimikyu GRI 58', name: 'Mimikyu', hp: 70
+    });
+    const benchVmax = pokemon({
+      printing: 'Shadow Rider Calyrex VMAX CRE 75',
+      name: 'Shadow Rider Calyrex VMAX', hp: 320, subtypes: ['VMAX'],
+      abilities: ['Underworld Door'], suppression: false
+    });
+    const regidrago = pokemon({
+      printing: 'Regidrago VSTAR SIT 136', name: 'Regidrago VSTAR',
+      hp: 280, types: ['Dragon'], subtypes: ['VSTAR']
+    });
+    const view = observation(seat, {
+      active: activeVmax, bench: [mimikyu, benchVmax],
+      opponentActive: regidrago, ownHand: ['Psychic Energy SVE 13']
+    });
+    const req = request(seat, view, {
+      receipt: underworldReceipt(seat, view, {
+        activeUsed: true, benchUsed: [null, false]
+      }),
+      actions: [
+        {
+          token: 'active-door', kind: 'use-ability', actorPrinting: activeVmax.printing,
+          publicMetadata: {
+            abilityName: 'Underworld Door', sourceZone: 'active',
+            sourceSeat: 'actor', sourceIndex: 0
+          }
+        },
+        {
+          token: 'bench-door', kind: 'use-ability', actorPrinting: benchVmax.printing,
+          publicMetadata: {
+            abilityName: 'Underworld Door', sourceZone: 'bench',
+            sourceSeat: 'actor', sourceIndex: 1
+          }
+        },
+        { token: 'pass', kind: 'pass' }
+      ]
+    });
+    assert.deepEqual(evaluate(req), {
+      kind: 'select-action', token: 'bench-door'
     });
   }
 });
@@ -2358,6 +2479,7 @@ test('Star Alchemy is sequenced after Underworld Door when both are available', 
     ownHand: ['Psychic Energy SVE 13']
   });
   const req = request(0, view, {
+    receipt: underworldReceipt(0, view, { activeUsed: false }),
     actions: [
       {
         token: 'star-alchemy',
@@ -3317,6 +3439,7 @@ test('Ability-Pokémon play restrictions do not suppress already-in-play Underwo
     }
   };
   assert.deepEqual(evaluate(request(0, doorView, {
+    receipt: underworldReceipt(0, doorView, { activeUsed: false }),
     actions: [door, { token: 'pass', kind: 'pass' }]
   })), { kind: 'select-action', token: 'door' });
 
