@@ -125,6 +125,16 @@ test('two-seat Twinleaf determinizer replaces hidden faces from registered 60s a
     ['Mon0','Energy0','Tool0','HandA','HandB',...Array(49).fill('D0'),...Array(6).fill('P0')],
     ['Mon1','Energy1','Tool1',...Array(3).fill('H1'),...Array(48).fill('D1'),...Array(6).fill('P1')]
   ];
+  const physicalDecklistProvider=createPhysicalSeatDecklistPriorProvider({
+    decklistsBySeat:[
+      {id:'physical-seat-0',cards:decks[0]},
+      {id:'physical-seat-1',cards:decks[1]}
+    ],
+    opponentPriorByActorSeat:[
+      [{id:'seat-1-prior-from-seat-0',cards:decks[1],weight:1}],
+      [{id:'seat-0-prior-from-seat-1',cards:decks[0],weight:1}]
+    ]
+  });
   const cloneState=s=>({
     ...s,players:s.players.map(p=>({
       ...p,active:{...p.active,cards:p.active.cards.slice(),
@@ -180,14 +190,16 @@ test('two-seat Twinleaf determinizer replaces hidden faces from registered 60s a
         }
       };
     },
-    decklistForSeat:(actorObservation,actorSeat,seat)=>{
+    decklistForSeat:(actorObservation,actorSeat,seat,random)=>{
       assert.equal(Object.hasOwn(actorObservation,'players'),false,
         'Decklist prior must not receive native State');
-      return {id:'deck-'+seat,cards:decks[seat]};
+      return physicalDecklistProvider(actorObservation,actorSeat,seat,random);
     },
     createCard:printing=>({id:-1,fullName:printing})
   });
   const sampled=sampler(state,0,()=>0.314159);
+  assert.deepEqual(sampler.metadataByState.get(sampled).decklistIds,
+    ['physical-seat-0','seat-1-prior-from-seat-0']);
   assert.equal(typeof sampler.knowledgeBySeat,'function');
   const metadata=sampler.metadataByState.get(sampled);
   const capturedLedgers=metadata.knowledgeBySeat;
@@ -229,6 +241,8 @@ test('two-seat Twinleaf determinizer replaces hidden faces from registered 60s a
     ownerKnowledgeLedger:priorSeat1Ledger
   };
   const redeterminedForSeat1=sampler(successor,1,()=>0.271828,seat1Observation);
+  assert.deepEqual(sampler.metadataByState.get(redeterminedForSeat1).decklistIds,
+    ['seat-0-prior-from-seat-1','physical-seat-1']);
   const preservedSeat1Ledger=sampler.metadataByState.get(redeterminedForSeat1).knowledgeBySeat[1];
   assert.deepEqual(preservedSeat1Ledger,priorSeat1Ledger);
   assert.deepEqual(preservedSeat1Ledger.knownPrizePrintings,
