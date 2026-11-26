@@ -254,3 +254,55 @@ test('Palace Belt changes an actual next-turn draw; Jamming Tower restores one',
     assert.equal(f.a.hand.cards.length, expected);
   }
 });
+
+
+test("Luvdisc Heart Wink suppresses Palace Belt replacement draw only on heads", () => {
+  const {AttackAction} = engine('game/store/actions/game-actions');
+  const {ResolvePromptAction} =
+    engine('game/store/actions/resolve-prompt-action');
+
+  // Heart Wink prevents the opponent's next normal turn-start draw. Palace
+  // Belt replaces that draw with two cards, but does not bypass prevention.
+  // Resolve the actual CoinFlipPrompt so both branches are deterministic.
+  for (const heads of [true, false]) {
+    const f = board();
+    f.a.active.cards[0] = f.card('Luvdisc FLF');
+    f.a.active.energies.cards.push(f.card('Psychic Energy MEE'));
+    f.b.active.tools.push(f.card('Palace Belt BWP'));
+    const deckBefore = f.b.deck.cards.length;
+
+    f.store.dispatch(new AttackAction(f.a.id, 'Heart Wink'));
+    const coin = f.state.prompts.find(prompt => prompt.result === undefined);
+    assert.ok(coin, 'Heart Wink must request a coin flip');
+    assert.equal(coin.constructor.name, 'CoinFlipPrompt');
+    assert.equal(coin.playerId, f.a.id);
+    assert.equal(coin.validate(heads, f.state), true);
+    f.store.dispatch(new ResolvePromptAction(coin.id, heads));
+
+    assert.equal(f.b.cannotDrawAtStartOfTurn, heads,
+      'Only heads should set the opponent next-turn draw-prevention flag');
+
+    let resolved = 0;
+    for (; resolved < 8; resolved++) {
+      const pending = f.state.prompts.find(prompt => prompt.result === undefined);
+      if (!pending) break;
+      assert.equal(pending.constructor.name, 'WaitPrompt',
+        'Only normal turn-transition waits should remain after the coin flip');
+      assert.equal(pending.validate(null, f.state), true);
+      f.store.dispatch(new ResolvePromptAction(pending.id, null));
+    }
+    assert.ok(resolved > 0 && resolved < 8,
+      'Luvdisc attack must complete a bounded turn transition');
+    assert.equal(f.state.activePlayer, 1,
+      'The defender must receive the next turn');
+    assert.equal(f.state.phase, f.GamePhase.PLAYER_TURN);
+    assert.equal(f.b.cannotDrawAtStartOfTurn, false,
+      'The one-turn draw-prevention flag must be consumed');
+
+    const expectedDraw = heads ? 0 : 2;
+    assert.equal(f.b.deck.cards.length, deckBefore - expectedDraw,
+      'Heart Wink heads must suppress both Palace Belt replacement cards');
+    assert.equal(f.b.hand.cards.length, expectedDraw,
+      'Tails must leave Palace Belt two-card replacement intact');
+  }
+});
