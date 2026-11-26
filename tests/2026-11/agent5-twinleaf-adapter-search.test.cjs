@@ -700,7 +700,10 @@ test('card-effect prompt provenance maps its source into the exact projected clo
     native:harness.deps.native,
     mode:'synthetic-search-node',
     provenanceForPrompt:(state,currentPrompt)=>currentPrompt.id===82?{
-      sourceKind:'card-effect',sourceCard,effectName:'Quick Ball',
+      sourceKind:'card-effect',
+      sourceCard:state.players[1].discard.cards.find(card=>
+        card.fullName==='Quick Ball'),
+      effectName:'Quick Ball',
       effectType:'ItemEffect'
     }:null
   }));
