@@ -2071,3 +2071,50 @@ Agent44's builder now requires `trial.fixtureOnly === true` for `buildV3GameBund
 
 - Read the full latest Critic comment on issue #72 (2026-11-25T12:36:14Z): Stage-A is an acceptance/instrumentation prerequisite, not the main competitive bottleneck; a successful repair does not itself authorize/qualify a competitive game or establish 99.5%. The Critic's A recommendation is explicitly conditional on the owner considering this prerequisite worth completing before the larger policy-competence work; B is coherent if the owner chooses to stop all Stage-A work until policy gaps are resolved.
 - Combined with the same issue's earlier note that B retires the only current diagnostic route, this resolves the practical ambiguity: the PR58 V3 exact-head no-game receipts are necessary engineering evidence, but they do not create a bypass around Stage-A. The first fixture still cannot run until the owner chooses A/B and the applicable post-repair/authorization gates are met. Retain recommendation A once only if the owner wants to preserve the route; never imply this is progress toward the 99.5% objective.
+
+
+---
+
+## 2026-11-26 01:23 UTC — Agent12: general-sum two-sided Twinleaf search interface
+
+- Invocation mode draw was 7 → normal research. Claimed Agent12 at 2026-11-26T01:03:04.641164433Z; lease is immutable. Continue until the measured 70-minute lease-age checkpoint, then perform the prescribed release procedure.
+- Critic's 26 Nov owner-directed search-loop broadcast (communications/broadcast/2026-11/20261126T005601Z_critic-owner-directed-search-loop.md) supersedes the previous wait-on-Natural64 direction for this work: build one reusable deck-agnostic two-sided search interface over existing Twinleaf components; do not add another runner/workflow or dispatch full-game/Stage-A/B games.
+- Created review branch agent12/two-sided-general-sum-search-20261126, current head at checkpoint 7f8a72497b9b37653c6f62f2bc029503ec8600ac.
+- Implemented:
+  - simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs: optional valueMode 'seat-win-probability', terminalValues(state) and evaluateObservationValues(actorView,seat) vectors, per-seat backpropagation, draws/no-winners [0,0], vector probability validation including sum <=1. Legacy zero-sum scalar mode remains default.
+  - simulation/twinleaf/2026-11/agent12-twinleaf-two-sided-search.cjs: generic adapter over pinned Agent3 cap-free ActionEnumerator, Agent36 cloned-Store native frontier/projector, and Agent5 per-seat determinization sampler; player-owned prompts are search nodes; automatic/chance prompts are explicit host callbacks; both sampled-seat K0/K1/PARTIAL ledgers are carried into actor-view keys; unsupported/truncated frontiers and unknown prompt ownership fail closed.
+  - Tests appended to tests/2026-11/agent5-information-set-search.test.cjs and tests/2026-11/agent5-twinleaf-adapter-search.test.cjs.
+  - Methodology report results/methodology/2026-11/agent12-two-sided-search-interface-20261126.md; branch results/README.md links it.
+- CI workflow agent5-owner-root-native.yml was used with native_search_only:true (no full-game or Stage-A/B dispatch). Run 45734298048 failed only because prompt-frontier audit expected 4 but actual root+iteration count was 5; fixed. Run 45734798889 then exposed a duplicate test-only redeterminize property overriding the metadata-bearing sampler; removed in commit a1468611dd7776db5de1ced0c988633d75c6a622. The generic prompt test now also sets candidate deck identity to seat 1 for its root-seat-1 fixture. A final exact-head workflow run after these fixes is still required.
+- The first run's core tests (including the new general-sum tests) passed; generic adapter fixture tests passed before the actor-ledger requirement was added. Do not describe the final adapter tests as passing until the latest exact-head run completes.
+- Sent direct review requests to Agent5 (payoff/backprop semantics) and Agent25 (sampler/metadata integration), plus a broadcast at communications/broadcast/2026-11/20261126T0123Z_agent12-two-sided-search-interface.md. Their messages are committed on main; they are not in this feature branch.
+- No actual Twinleaf full game, candidate match, or Aichi matchup was run. The adapter is only contract-tested with synthetic Store fixtures. Prompt class mapping/automatic prompt handlers and calibrated actor-view win-probability evaluator still need concrete binding; then integrate into the existing V3 runner/full-state recorder, not a new runner.
+- Next: dispatch agent5-owner-root-native.yml on the latest branch head with native_search_only:true; if the contract tests pass, open a PR and request Agent5/Agent25 review. Integrate only after exact pinned prompt API and actor-only projections are audited. Do not infer owner authorization for any full-game/Stage-A/B fixture. No final deck, qualified matchups, or 99.5% evidence exists.
+
+
+## 2026-11-26 01:26 UTC — exact-head contract result
+
+- Exact-head workflow run 45735503362 checked out branch head 5fbf2e0a5016ac87f2109737386059ca2ac1ca65. The named MCTS/belief/adapter/Flittle/Aichi bridge contract-test step completed successfully, including the new general-sum and generic adapter tests.
+- The overall workflow job failed later in a separate step, Generic owner-hand Trainer category and shared-action opportunity tests, on three Wondrous Labyrinth assertions in tests/agent8-wondrous-energy-cost-regression.test.cjs. Do not call the workflow green; this failure is outside the modified files and not the MCTS contract step.
+- Added the exact test outcome to results/methodology/2026-11/agent12-two-sided-search-interface-20261126.md. Current branch head is now ff4a3bc5881f93fd1dc12a520ec13af7d461a351.
+- Compared against current main: branch is 16 commits ahead / 9 behind; the nine main-side commits since merge base touch only other agents' leases/memory and communications, not this branch's changed implementation files. Open a draft PR for review; do not merge without Agent5/Agent25 review and exact-head integration discussion.
+
+
+## 2026-11-26 01:46 UTC — native prompt binding, terminal classification, and final contract run
+
+- Read Agent1's handoffs on draw-sensitive objective, rootSeat vs actorSeat, and frozen-opponent best responses. Integrated the useful distinctions:
+  - vector values are indexed by physical seat at every node; actorSeat owns the observation, rootSeat remains fixed;
+  - audit searchMode distinguishes two-sided PUCT from root best response against a frozen opponentActionPolicy/opponentPolicyId;
+  - only a paper-adjudicated draw is [0,0]. Unresolved/invalid/no-winner terminal states must be explicitly adjudicated or rejected; test terminalValues throws on unclassified terminal state.
+- Added a fixed-opponent root best-response test, and audit protocol name now explicitly says adjudicated draws. Core test demonstrates draw-heavy vs win/loss tradeoff, opponent node own-win optimization, frozen-policy root response, invalid vectors, and unclassified terminal rejection.
+- Extended the generic adapter to bind Agent36's native prompt projection:
+  - createNativeTwinleafPromptCallbacks wraps agent36-prompt-projection.cjs for actor-visible prompt projection, host-only physical-RNG resolution, and card-effect source provenance mapping;
+  - native prompt choices are decoded/validated before dispatch;
+  - prompt action dispatch reuses the exact cloned Simulator/Store used to project the choice, avoiding cross-clone raw-result references;
+  - host-only resolver receives the cloned simulator/state context;
+  - prompt projection cache is bounded and cleared after search.
+- Card-effect prompts remain fail-closed unless the caller provides provenanceForPrompt and mapSourceCard. No full Twinleaf prompt-class coverage or live provenance transfer is claimed.
+- Adapter audit now records enginePin, rulesProfileId, candidateDecklistId, candidateSeat, maxNativeFrontier, and knowledge/prompt protocol identifiers; tests assert these fields for both root seats.
+- Exact code head 33ff8bae24417ea57b01f3ac124cf1836d924957 passed the MCTS/belief/adapter/Flittle/Aichi bridge contract-test workflow step in run 45737837996. Overall workflow failed later in the separate Agent8 Wondrous Labyrinth regression step (three assertions); do not call the workflow green. No game/Stage-A/B/Aichi match was dispatched.
+- PR #75 is open as a draft and mergeable; current PR head d3c66a8dd41283938d83249e6259847080d9ae5f (documentation-only update after the tested code head). Branch is synced to main (ahead 20, behind 0 at last compare). Review requests sent to Agent1, Agent5, Agent25; no replies observed yet.
+- Next: get review on general-sum vs frozen-opponent objective and sampler/provenance contracts; bind provenanceForPrompt/mapSourceCard to the actual pinned V3 Store lifecycle; connect the adapter into the existing V3 runner and full-state recorder only after that audit. No new runner/workflow, no full games without owner authorization, no deck/matchup/99.5 claim.

@@ -190,6 +190,7 @@ Every new task must name the decision it can change: **implementation gate, sour
 
 ## Core references
 
+- [Deck-agnostic two-sided Twinleaf search interface (contract-only; no full-game evidence)](methodology/2026-11/agent12-two-sided-search-interface-20261126.md)
 - [Owner benchmark and public-seed decision](https://github.com/FlareZ123/experiment-01/issues/59)
 - [Critic owner-contract and source-list admission correction](../communications/broadcast/2026-11/20261124T094550Z_critic-owner-contract-source-list-admission.md)
 - [Aichi source field and provenance index](aichi-2026/README.md)
