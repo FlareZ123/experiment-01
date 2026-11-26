@@ -6,6 +6,27 @@ const { enumName, cloneNativeValidationGraph } = require('./agent36-native-actio
 
 const MAX_PROMPT_CHOICES = 512;
 
+// Pinned Twinleaf a9905a76's ShuffleDeckPrompt.validate() uses Array.sort()
+// without a comparator. JavaScript therefore sorts numeric indices as strings,
+// rejecting otherwise valid permutations once a deck has at least 11 cards.
+// Keep this correction in the research adapter; never patch vendor/twinleaf.
+const PINNED_SHUFFLE_DECK_VALIDATION_HOOK = Object.freeze({
+  engineCommit: 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05',
+  id: 'agent12-twinleaf-shuffle-deck-numeric-permutation-validation-v1'
+});
+
+function isNumericPermutation(result, expectedLength) {
+  if (!Array.isArray(result) || !Number.isSafeInteger(expectedLength) ||
+      expectedLength < 0 || result.length !== expectedLength) return false;
+  const seen = new Uint8Array(expectedLength);
+  for (const value of result) {
+    if (!Number.isSafeInteger(value) || value < 0 ||
+        value >= expectedLength || seen[value] !== 0) return false;
+    seen[value] = 1;
+  }
+  return true;
+}
+
 function printing(card) {
   return typeof card?.fullName === 'string' && card.fullName.length > 0
     ? card.fullName : null;
@@ -164,12 +185,26 @@ function enumeratePermutations(values, cap = MAX_PROMPT_CHOICES) {
   return output;
 }
 
-function validateRawPromptResult(prompt, rawResult, state) {
+function validateRawPromptResult(prompt, rawResult, state, { enginePin } = {}) {
   try {
     const decoded = typeof prompt.decode === 'function'
       ? prompt.decode(rawResult, state) : rawResult;
     const valid = typeof prompt.validate === 'function'
       ? prompt.validate(decoded, state) : true;
+
+    if (prompt.constructor?.name === 'ShuffleDeckPrompt' &&
+        enginePin === PINNED_SHUFFLE_DECK_VALIDATION_HOOK.engineCommit) {
+      const ownerId = prompt.getPerspectivePlayerId?.() ?? prompt.playerId;
+      const owner = state.players.find(player => player.id === ownerId);
+      const expectedLength = owner?.deck?.cards?.length;
+      return {
+        valid: owner !== undefined && isNumericPermutation(decoded, expectedLength),
+        decoded,
+        validatorResult: valid,
+        validationHookId: PINNED_SHUFFLE_DECK_VALIDATION_HOOK.id
+      };
+    }
+
     return { valid: valid !== false, decoded, validatorResult: valid };
   } catch (error) {
     return {
@@ -735,7 +770,7 @@ function randomPermutation(length, physicalRandom) {
 }
 
 function resolveHostOnlyPrompt({
-  prompt, state, store, native, physicalRandom, provenanceHook, dispatch=true
+  prompt, state, store, native, physicalRandom, provenanceHook, enginePin, dispatch=true
 } = {}) {
   assert.ok(prompt && state && store && native);
   assert.equal(store.state, state, 'native Store state changed before host prompt resolution');
@@ -799,7 +834,14 @@ function resolveHostOnlyPrompt({
     });
   }
 
-  const validation = validateRawPromptResult(prompt, rawResult, state);
+  const validation = validateRawPromptResult(prompt, rawResult, state, { enginePin });
+  if (validation.validationHookId) {
+    summary = {
+      ...summary,
+      validationHookId: validation.validationHookId,
+      nativeValidatorResult: validation.validatorResult ?? null
+    };
+  }
   if (!validation.valid) {
     const validationOwnerId = prompt.getPerspectivePlayerId?.() ?? prompt.playerId;
     const validationOwner = state.players.find(player => player.id === validationOwnerId) ?? null;
@@ -830,6 +872,7 @@ function resolveHostOnlyPrompt({
         ? 'array' : validation.decoded === null ? 'null' : typeof validation.decoded,
       decodedLength: Array.isArray(validation.decoded) ? validation.decoded.length : null,
       validatorResult: validation.validatorResult ?? null,
+      validationHookId: validation.validationHookId ?? null,
       validationError: validation.error ?? null
     };
     throw Object.assign(new Error(
@@ -1109,6 +1152,8 @@ module.exports = {
   makeSource,
   hostOnlyPrompt,
   randomPermutation,
+  isNumericPermutation,
+  PINNED_SHUFFLE_DECK_VALIDATION_HOOK,
   resolveHostOnlyPrompt,
   projectPrompt,
   dispatchPromptChoice
