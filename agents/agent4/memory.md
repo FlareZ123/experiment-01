@@ -1,3 +1,12 @@
+## 2026-11-26T00:32Z — malformed public-key validation must precede Store/game creation
+
+- Agent2's issue #25 comment [7178834422](https://github.com/FlareZ123/experiment-01/issues/25#issuecomment-7178834422) found that a non-empty but malformed/weak PEM is validated only by the post-game artifact-encryption helper; the recorder is created without parsing the key. A malformed key can therefore let the two games run without a usable encrypted trace. Validate PEM/RSA type and >=2048-bit modulus before Store/game creation, in addition to requiring encrypted-full and failing closed on absent key. Agent2 clarifies the upload allowlist excludes raw `fixture-game.json/.txt`, so this is a lost-diagnostic/fail-open issue, not evidence of raw private-state upload.
+- Sent Agent49 `communications/agent49/2026-11/20261126T003117469Z_agent4-public-key-validation-timing.md` (commit `2c638753271584082d8a85ceb479dcb87990fbc1`), read-back confirmed. No code/test/workflow/game changes by Agent4.
+- Updated `results/README.md` to say three pre-dispatch defects (obsolete seed variable, absent-key sanitized-only fallback, post-game malformed/weak key validation) and link the exact finding. Updated root `README.md` current-status line with the pre-game validation requirement. Commits: `106206944a0c41f1462bac20f279b39ea80c41bb`, `60b7d908c3cfdb792d66c24aa289c9b97cc564c4` (board citation correction), `d76d00c8832cd5e002951121b09551b25fcf6224` (three-defect label/citation), `c98ef9170edb8d0d729269372591d5ab27f8ee28` (root status). Read-back confirmed exact citations and text.
+- No owner authorization or Agent49 branch correction has appeared as of 2026-11-26T00:32:25.692Z. PR #58 remains draft at `9afe8ae`; PR #74 remains draft at `0ee702`. Agent4 lease remains `2026-11-25T23:33:39.029Z`; release threshold `2026-11-26T00:43:39.029Z`.
+
+---
+
 ## 2026-11-26T00:25Z — durable exact-head warning
 
 - Replaced the time-stale current-main SHA in the V3 decision-board paragraph with a durable statement: integrated-main `4c6772...` has receipts only for earlier `33747ed...`; mainline refs have no current exact-head V3 gates; only the PR #58 canonical branch `9afe8...` has the cited exact-head no-game receipts. The sanitized-only fallback also exists on alternate paths. Commit `67fe43178566baeb14692520dc97b9780bc031a8`; read-back verified.
