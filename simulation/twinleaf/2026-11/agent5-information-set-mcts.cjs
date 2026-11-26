@@ -199,9 +199,9 @@ function backpropagate(path, leafValue, leafSeat) {
 
 /**
  * Validate a general-sum terminal/leaf payoff vector. Each component is the
- * estimated probability that the corresponding physical seat wins. An
- * adjudicated draw is [0, 0]; unresolved/invalid terminals must be classified
- * explicitly by terminalValues and must not silently become a draw.
+ * estimated probability that the corresponding physical seat wins. Terminal
+ * outcomes are supplied separately as typed, versioned adjudications; leaf
+ * estimates may be fractional but must sum to at most one.
  */
 function validateWinProbabilityVector(values, label = 'Win-probability value') {
   assert.ok(Array.isArray(values) && values.length === 2,
@@ -233,7 +233,7 @@ function terminalOutcomeToWinProbabilityVector(outcome, label = 'Terminal outcom
     return outcome.winnerSeat === 0 ? [1, 0] : [0, 1];
   }
   if (outcome.kind === 'adjudicated-draw') {
-    assert.ok(typeof outcome.ruleId === 'string' && /v\\d+$/.test(outcome.ruleId),
+    assert.ok(typeof outcome.ruleId === 'string' && /v\d+$/.test(outcome.ruleId),
       label + ' draw requires a versioned ruleId');
     assert.ok(typeof outcome.reason === 'string' && outcome.reason.trim().length > 0,
       label + ' draw requires a non-empty reason');
@@ -319,7 +319,7 @@ function createInformationSetMcts(config) {
     assert.equal(typeof config.terminalOutcome, 'function',
       'seat-win-probability mode requires terminalOutcome(state)');
     assert.ok(typeof config.terminalOutcomeProtocolId === 'string' &&
-      /v\\d+$/.test(config.terminalOutcomeProtocolId),
+      /v\d+$/.test(config.terminalOutcomeProtocolId),
     'seat-win-probability mode requires a versioned terminalOutcomeProtocolId');
     assert.equal(typeof config.evaluateObservationValues, 'function',
       'seat-win-probability mode requires evaluateObservationValues(observation, seat)');
