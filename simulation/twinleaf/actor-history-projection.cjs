@@ -104,6 +104,8 @@ function projectActorVisibleHistory(state, actorSeat, options = {}) {
   const historySource = options.historySource ?? 'unspecified';
   assert.equal(typeof historySource, 'string',
     'ACTOR_HISTORY_SOURCE_MUST_BE_STRING');
+  assert.ok(historySource.trim().length > 0,
+    'ACTOR_HISTORY_SOURCE_MUST_BE_NONEMPTY');
   const historyComplete = options.historyComplete === true;
   if (historyComplete) {
     assert.notEqual(historySource, 'unspecified',
