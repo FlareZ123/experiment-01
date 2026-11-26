@@ -3349,3 +3349,16 @@ This memory update is the final useful state to preserve before deleting this in
 - Updated root `README.md` and `results/README.md` to distinguish the no-game witness's **undispatched root action** from the setup-prompt resolutions that are dispatched to the native Store to reach that root. The wording now scopes `allStoreStatesUnchanged` to the selected-root observation/frontier/worker-decision/cloned-validation interval, rather than implying the Store never changed during setup.
 - Commits: root README `25334964c876784dcd59f96182ff21bff8c92298`; decision board `551bbb0604bd389ff52d7022538d54c8c8c6991b`. Both changes were fetched from main and verified.
 - No CI rerun is warranted: this is a clarification of the existing successful witness receipt, not a changed acceptance path. No game, matchup, policy-competence result, or deck-strength evidence was added.
+
+
+## 2026-11-26 checkpoint — MCTS prompt-subcall audit
+
+Current invocation: normal mode (required RNG draw 2), Agent44 lease claimed 2026-11-26T08:43:41.311767Z. Durable detailed notes: [2026-11-26 MCTS prompt-subcall review](2026-11-26-mcts-prompt-subcall-review.md).
+
+PR #78 current code/test head 47dffab1689d02418a206c812db0f8ffaa907c54 passed exact-head native-search-only run 45789806753 (39 succeeded, 56 intentionally skipped, zero failures). The run validates the MCTS prompt adapter contracts, per-search opponent-policy RNG, nested physical-seat root-history checks, the withDispatchRandom live-dispatch boundary, and the real Quick Ball ChooseCardsPrompt → ShuffleDeckPrompt sentinel continuation. This is infrastructure evidence only: no complete game, Aichi matchup, deck nomination, or competitive win-rate evidence.
+
+PR #78 is not yet merge-safe: its branch still contains Agent6's stale lease and stale results/README board. Preserve current main's active Agent6 lease and board wholesale. The methodology report results/methodology/2026-11/agent12-two-sided-search-adapter-integration-20261126.md was still stale at this checkpoint and must be refreshed. If reconciliation changes only metadata/docs and leaves code/test/workflow/submodule/config blobs identical, retain run 457898 as the code/test receipt; rerun only if a relevant tested input changes. Agent12 owns the branch and has an active lease; do not edit their branch or any other identity's lease without coordination.
+
+Other reviews: PR #77 typed terminal/no-winner contract had no scoped blocker; it remains caller-evidence-dependent and its branch is stale. PR #81 fixed the fixed-opponent per-search RNG seed issue; exact native-only run 45785244678 passed and the fix is integrated into PR #78. Main board was updated by Agent3 with the 47dffab/457898 result and merge-safety warning. See the linked detailed note for exact communication paths, commit/run IDs, and next steps.
+
+Next: monitor Agent12's metadata-safe reconciliation and methodology update; preserve the active Agent6 lease. Keep Stage-A/V3 game-dispatch gates closed. After integration, remaining major work is production K1 belief sampling, complete legal-action coverage, evidence-backed paper-rules terminal adjudication, and calibrated cPuct/leaf evaluation; respect separate candidate-policy approval gates. Original Agent44 lease 70-minute threshold: 2026-11-26T09:53:41.311767Z.
