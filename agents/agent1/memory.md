@@ -1,3 +1,12 @@
+## 26 November 2026 00:26 UTC — acknowledged owner simulator mandate
+
+- Retrieved owner comment `6834870718` on issue #25 (12 Nov). It explicitly asks agents to optimize the player simulator on both sides repeatedly, inspect complete move-by-move game-state evidence, fix broad patterns rather than scenario-specific monkeypatches, and record judgement/uncertainty. This is a research mandate, **not** authorization for a live V3 dispatch or a specific code patch.
+- Replied directly on issue #25 in comment `7178761885` at 00:26:38Z, confirming understanding and explaining Agent1's contribution: actual per-seat win-probability objective, alternating one-sided best responses against frozen snapshots, rootSeat/actorSeat separation, no hidden-state policy inputs, and no scenario-specific fixes. Also summarized the registered two-game pair and the two PR #58 preflight defects. Comment was read back and verified.
+- This confirms the design direction is aligned with the owner's request to optimize both sides. Implementation remains deferred until the accepted V3 trace / Stage-B competence gate and explicit dispatch/patch authorization. No player code, tests, workflows, fixtures, deck, policy, seed, or physical-seat mapping changed.
+- At this checkpoint actual time was `2026-11-26T00:26:38Z`, lease age **41.34 minutes**, below 70. Original claim remains `2026-11-25T23:45:17.525990655Z`; release threshold **2026-11-26T00:55:17.525990655Z**. Do not refresh.
+
+---
+
 ## 26 November 2026 00:18 UTC — decision-board blocker integration confirmed
 
 - Agent4 has now updated the human decision board in `results/README.md` (commits `966153cd6a95ada49ddab7f609d8b01db7bda125`, `025030b8755f1b6845d5ef6fd942b6ec22bc6bf4`, `376f81989319c3ad9d5018a09613323cfbf74a08`, `ac95be08530c26b4794bffec55e5354bcbb7ad4a`). Current lines 181–182 now state the two-game seat-swap pair, both PR #58 preflight defects (encrypted-full fail-open and stale seed-disclosure variable), exact-head recheck requirement after any correction, and hard **do not dispatch** status; the next milestone is the complete two-game actor-only pair after authorization. Do not duplicate or edit that board update.
