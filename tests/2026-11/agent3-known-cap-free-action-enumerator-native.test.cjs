@@ -10,6 +10,64 @@ const frontierModule = require('../../simulation/evaluation/2026-11/agent36-nati
 const adapterModule = require('../../simulation/evaluation/2026-11/agent3-known-cap-free-action-enumerator.cjs');
 const { createValidationRandomScope, seededRandom } = require('../../simulation/evaluation/2026-11/agent49-native-fixture-game.cjs');
 
+function resolveNativeSearchPrompts({ store, state, withValidationRandom }) {
+  const { ResolvePromptAction } = require(path.join(
+    __dirname,
+    '../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action'
+  ));
+  const promptNames = [];
+  for (let step = 0; step < 16; step++) {
+    const prompt = (state.prompts ?? []).find(candidate => candidate.result === undefined);
+    if (!prompt) return promptNames;
+    promptNames.push(prompt.constructor.name);
+    let selected;
+    switch (prompt.constructor.name) {
+      case 'WaitPrompt':
+        selected = null;
+        break;
+      case 'ChooseCardsPrompt': {
+        const ownerId = prompt.getPerspectivePlayerId?.() ?? prompt.playerId;
+        const owner = state.players.find(player => player.id === ownerId) ??
+          state.players[state.activePlayer];
+        selected = [owner.deck.cards[0]];
+        assert.ok(selected[0], 'native search prompt must have a card to choose');
+        assert.equal(prompt.validate(selected), true, 'native search selection must validate');
+        break;
+      }
+      case 'ShuffleDeckPrompt': {
+        const ownerId = prompt.getPerspectivePlayerId?.() ?? prompt.playerId;
+        const owner = state.players.find(player => player.id === ownerId) ??
+          state.players[state.activePlayer];
+        selected = Array.from({ length: owner.deck.cards.length }, (_, index) => index);
+        break;
+      }
+      case 'ShowCardsPrompt':
+        selected = true;
+        break;
+      default:
+        throw new Error('Unexpected native search prompt: ' + prompt.constructor.name);
+    }
+    withValidationRandom(() => store.dispatch(new ResolvePromptAction(prompt.id, selected)));
+  }
+  throw new Error('native search prompt chain did not settle');
+}
+
+function resolveNativeWaitPrompts({ store, state, withValidationRandom }) {
+  const { ResolvePromptAction } = require(path.join(
+    __dirname,
+    '../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action'
+  ));
+  const promptNames = [];
+  for (let step = 0; step < 8; step++) {
+    const prompt = (state.prompts ?? []).find(candidate => candidate.result === undefined);
+    if (!prompt || prompt.constructor.name !== 'WaitPrompt') return promptNames;
+    promptNames.push(prompt.constructor.name);
+    withValidationRandom(() => store.dispatch(new ResolvePromptAction(prompt.id, null)));
+  }
+  return promptNames;
+}
+
+
 const compiledActionEnumerator = path.join(
   __dirname,
   '../../vendor/twinleaf/ptcg-server/output/advanced-bot/action-enumerator.js'
@@ -103,13 +161,13 @@ test('pinned compiled ActionEnumerator and Simulator admit every Basic hand acti
   });
 
   assert.equal(admission.adapter.enginePin, enginePin);
-  assert.equal(frontier.diagnostics.enumeratedCount, 9);
-  assert.equal(frontier.diagnostics.validatedCount, 9);
+  assert.equal(frontier.diagnostics.enumeratedCount, 10);
+  assert.equal(frontier.diagnostics.validatedCount, 10);
   assert.equal(frontier.diagnostics.rejectedCount, 0);
   assert.equal(frontier.diagnostics.unsupportedCount, 0);
   assert.equal(frontier.diagnostics.truncated, false);
   assert.equal(frontier.diagnostics.omittedCount, 0);
-  assert.equal(frontier.actionFrontier.items.length, 9);
+  assert.equal(frontier.actionFrontier.items.length, 10);
 
   for (const item of frontier.actionFrontier.items) {
     const simulator = new native.Simulator(state);
@@ -146,9 +204,15 @@ test('pinned Store validates real attack and ability actions and skips only know
     card.id = nextCardId++;
     return card;
   }
-  const zoroark = cloneCard('Zoroark-GX SLG');
-  assert.ok(zoroark.powers.some(power => power.name === 'Trade' && power.useWhenInPlay));
-  assert.ok(zoroark.attacks.some(attack => attack.name === 'Riotous Beating'));
+  const pidgeotDefinition = manager.getAllCards().find(card =>
+    card instanceof native.PokemonCard &&
+    card.name === 'Pidgeot ex' &&
+    Array.isArray(card.powers) &&
+    card.powers.some(power => power.name === 'Quick Search' && power.useWhenInPlay) &&
+    card.attacks.some(attack => attack.name === 'Blustery Wind')
+  );
+  assert.ok(pidgeotDefinition, 'pinned Expanded pool must contain Pidgeot ex Quick Search');
+  const pidgeot = cloneCard(pidgeotDefinition.fullName);
   const battleVipPass = cloneCard('Battle VIP Pass FST');
   const vsSeeker = cloneCard('VS Seeker PHF');
   const quickBall = cloneCard('Quick Ball FST');
@@ -193,7 +257,7 @@ test('pinned Store validates real attack and ability actions and skips only know
     return player;
   }
 
-  const candidate = makePlayer(0, zoroark);
+  const candidate = makePlayer(0, pidgeot);
   candidate.active.energies.cards = [energyOne, energyTwo];
   candidate.hand.cards = [battleVipPass, vsSeeker, quickBall, cloneCard(handBasic.fullName)];
   candidate.playableCardIds = candidate.hand.cards.map(card => card.id);
@@ -211,15 +275,15 @@ test('pinned Store validates real attack and ability actions and skips only know
   const currentPlayer = state.players[0];
   const enumerator = adapterModule.createKnownCapFreeActionEnumerator({ native, enginePin });
   const attack = enumerator.attackActions(state, currentPlayer)
-    .find(action => action.name === 'Riotous Beating');
+    .find(action => action.name === 'Blustery Wind');
   const ability = enumerator.abilityActions(state, currentPlayer)
-    .find(action => action.name === 'Trade');
+    .find(action => action.name === 'Quick Search');
   const items = enumerator.playItemActions(state, currentPlayer);
   const itemByName = new Map(items.map(action => [
     currentPlayer.hand.cards[action.handIndex]?.fullName, action
   ]));
-  assert.ok(attack, 'adapter must expose Zoroark-GX Riotous Beating');
-  assert.ok(ability, 'adapter must expose Zoroark-GX Trade');
+  assert.ok(attack, 'adapter must expose Pidgeot ex Blustery Wind');
+  assert.ok(ability, 'adapter must expose Pidgeot ex Quick Search');
   assert.ok(itemByName.has('Battle VIP Pass FST'));
   assert.ok(itemByName.has('VS Seeker PHF'));
   assert.ok(itemByName.has('Quick Ball FST'));
@@ -243,9 +307,9 @@ test('pinned Store validates real attack and ability actions and skips only know
   assert.deepEqual(frontier.actionFrontier.items.map(item => item.kind),
     ['attack', 'use-ability', 'play-card', 'pass']);
   assert.ok(frontier.actionFrontier.items.some(item =>
-    item.kind === 'attack' && item.attackName === 'Riotous Beating'));
+    item.kind === 'attack' && item.attackName === 'Blustery Wind'));
   assert.ok(frontier.actionFrontier.items.some(item =>
-    item.kind === 'use-ability' && item.publicMetadata?.abilityName === 'Trade'));
+    item.kind === 'use-ability' && item.publicMetadata?.abilityName === 'Quick Search'));
   assert.ok(frontier.actionFrontier.items.some(item =>
     item.kind === 'play-card' && item.actorPrinting === 'Quick Ball FST'));
   assert.equal(frontier.actionFrontier.items.some(item =>
@@ -286,9 +350,15 @@ test('pinned Store frontier projects and revalidates actions for physical seat 1
     return card;
   }
 
-  const zoroark = cloneCard('Zoroark-GX SLG');
-  assert.ok(zoroark.powers.some(power => power.name === 'Trade' && power.useWhenInPlay));
-  assert.ok(zoroark.attacks.some(attack => attack.name === 'Riotous Beating'));
+  const pidgeotDefinition = manager.getAllCards().find(card =>
+    card instanceof native.PokemonCard &&
+    card.name === 'Pidgeot ex' &&
+    Array.isArray(card.powers) &&
+    card.powers.some(power => power.name === 'Quick Search' && power.useWhenInPlay) &&
+    card.attacks.some(attack => attack.name === 'Blustery Wind')
+  );
+  assert.ok(pidgeotDefinition, 'pinned Expanded pool must contain Pidgeot ex Quick Search');
+  const pidgeot = cloneCard(pidgeotDefinition.fullName);
   const battleVipPass = cloneCard('Battle VIP Pass FST');
   const vsSeeker = cloneCard('VS Seeker PHF');
   const quickBall = cloneCard('Quick Ball FST');
@@ -328,7 +398,7 @@ test('pinned Store frontier projects and revalidates actions for physical seat 1
     return player;
   }
 
-  const candidate = makePlayer(1, zoroark);
+  const candidate = makePlayer(1, pidgeot);
   candidate.active.energies.cards = [energyOne, energyTwo];
   candidate.hand.cards = [
     battleVipPass, vsSeeker, quickBall, cloneCard(handBasicDefinition.fullName)
@@ -348,9 +418,9 @@ test('pinned Store frontier projects and revalidates actions for physical seat 1
   const actor = state.players[1];
   const enumerator = adapterModule.createKnownCapFreeActionEnumerator({ native, enginePin });
   const attack = enumerator.attackActions(state, actor)
-    .find(action => action.name === 'Riotous Beating');
+    .find(action => action.name === 'Blustery Wind');
   const ability = enumerator.abilityActions(state, actor)
-    .find(action => action.name === 'Trade');
+    .find(action => action.name === 'Quick Search');
   const items = enumerator.playItemActions(state, actor);
   const itemByName = new Map(items.map(action => [
     actor.hand.cards[action.handIndex]?.fullName, action
@@ -415,7 +485,7 @@ test('pinned Store frontier continues after ordinary hand-lock, Stadium-suppress
     card.id = nextCardId++;
     return card;
   }
-  const zoroark = cloneCard('Zoroark-GX SLG');
+  const activePokemon = cloneCard('Shadow Rider Calyrex V CRE');
   const basicDefinition = manager.getAllCards().find(card =>
     card instanceof native.PokemonCard &&
     card.stage === native.Stage.BASIC &&
@@ -468,7 +538,7 @@ test('pinned Store frontier continues after ordinary hand-lock, Stadium-suppress
     return player;
   }
 
-  const candidate = makePlayer(0, zoroark);
+  const candidate = makePlayer(0, activePokemon);
   const benchPokemon = cloneCard(basicDefinition.fullName);
   candidate.bench[0].cards = [benchPokemon];
   candidate.bench[0].hp = benchPokemon.hp;
@@ -523,7 +593,7 @@ test('pinned Store frontier continues after ordinary hand-lock, Stadium-suppress
     blockedPrintings.includes(item.actorPrinting)), false);
 });
 
-test('pinned Store rejects an already-used Dedechange ability and preserves Pass', {
+test('pinned Store rejects an already-used Quick Search ability and preserves Pass', {
   skip: !fs.existsSync(compiledActionEnumerator),
   timeout: 30000
 }, () => {
@@ -541,27 +611,27 @@ test('pinned Store rejects an already-used Dedechange ability and preserves Pass
     card.id = nextCardId++;
     return card;
   }
-  const dedenneDefinition = manager.getAllCards().find(card =>
+  const pidgeotDefinition = manager.getAllCards().find(card =>
     card instanceof native.PokemonCard &&
-    card.name === 'Dedenne-GX' &&
+    card.name === 'Pidgeot ex' &&
     Array.isArray(card.powers) &&
-    card.powers.some(power => power.name === 'Dedechange' && power.useWhenInPlay)
+    card.powers.some(power => power.name === 'Quick Search' && power.useWhenInPlay)
   );
   const basicDefinition = manager.getAllCards().find(card =>
     card instanceof native.PokemonCard &&
     card.stage === native.Stage.BASIC &&
     (!Array.isArray(card.powers) || card.powers.length === 0)
   );
-  assert.ok(dedenneDefinition, 'pinned card pool must include Dedenne-GX Dedechange');
+  assert.ok(pidgeotDefinition, 'pinned card pool must include Pidgeot ex Quick Search');
   assert.ok(basicDefinition);
-  const dedenne = cloneCard(dedenneDefinition.fullName);
+  const pidgeot = cloneCard(pidgeotDefinition.fullName);
   const handCard = cloneCard('Quick Ball FST');
   const opponentActive = cloneCard(basicDefinition.fullName);
 
   const candidate = new native.Player();
   candidate.id = 0;
   candidate.active = new native.PokemonCardList();
-  candidate.active.cards = [dedenne];
+  candidate.active.cards = [pidgeot];
   candidate.active.hp = dedenne.hp;
   candidate.active.damage = 0;
   candidate.active.energies.cards = [];
@@ -613,17 +683,24 @@ test('pinned Store rejects an already-used Dedechange ability and preserves Pass
   let actor = state.players[0];
   const enumerator = adapterModule.createKnownCapFreeActionEnumerator({ native, enginePin });
   const firstAbility = enumerator.abilityActions(state, actor)
-    .find(action => action.name === 'Dedechange');
-  assert.ok(firstAbility, 'native ActionEnumerator must expose Dedechange');
+    .find(action => action.name === 'Quick Search');
+  assert.ok(firstAbility, 'native ActionEnumerator must expose Quick Search');
   withValidationRandom(() => simulator.store.dispatch(firstAbility));
+  const resolvedPromptNames = resolveNativeSearchPrompts({
+    store: simulator.store,
+    state,
+    withValidationRandom
+  });
   state = simulator.store.state;
   actor = state.players[0];
+  assert.ok(resolvedPromptNames.includes('ChooseCardsPrompt'),
+    'the first Quick Search use must resolve its native search prompt');
   assert.equal((state.prompts ?? []).filter(prompt => prompt.result === undefined).length, 0,
-    'the first Dedechange use must settle before the repeated-use witness');
+    'the first Quick Search use must settle before the repeated-use witness');
   const repeatedAbility = enumerator.abilityActions(state, actor)
-    .find(action => action.name === 'Dedechange');
+    .find(action => action.name === 'Quick Search');
   assert.ok(repeatedAbility,
-    'pinned ActionEnumerator intentionally continues to emit the already-used ability');
+    'pinned ActionEnumerator intentionally continues to emit the already-used Quick Search');
   const pass = enumerator.passTurnActions(state, actor)[0];
   const frontier = withValidationRandom(() => frontierModule.buildNativeActionFrontier({
     state,
@@ -812,15 +889,31 @@ test('pinned Store rejects Forest Seal Stone after VSTAR use and preserves Pass'
   initialState.gameSettings.sandboxMode = false;
 
   const simulator = withValidationRandom(() => new native.Simulator(initialState));
-  const state = simulator.store.state;
-  state.players[0].usedVSTAR = true;
-  const actor = state.players[0];
+  let state = simulator.store.state;
+  let actor = state.players[0];
   const enumerator = adapterModule.createKnownCapFreeActionEnumerator({ native, enginePin });
+  const firstAbility = enumerator.abilityActions(state, actor)
+    .find(action => action.name === 'Star Alchemy');
+  assert.ok(firstAbility, 'attached Forest Seal Stone must expose Star Alchemy before use');
+  withValidationRandom(() => simulator.store.dispatch(firstAbility));
+  const resolvedPromptNames = resolveNativeSearchPrompts({
+    store: simulator.store,
+    state,
+    withValidationRandom
+  });
+  state = simulator.store.state;
+  actor = state.players[0];
+  assert.ok(resolvedPromptNames.includes('ChooseCardsPrompt'),
+    'first Star Alchemy use must resolve its native search prompt');
+  assert.equal(state.players[0].usedVSTAR, true,
+    'the real native Store use must mark the VSTAR Power as spent');
+  assert.equal((state.prompts ?? []).some(prompt => prompt.result === undefined), false,
+    'the first Star Alchemy use must settle before repeated-use validation');
   const ability = enumerator.abilityActions(state, actor)
     .find(action => action.name === 'Star Alchemy');
   const pass = enumerator.enumerate(state, actor, actor.id)
     .find(action => action.type === 'PASS_TURN');
-  assert.ok(ability, 'attached Forest Seal Stone must be enumerated after VSTAR use');
+  assert.ok(ability, 'adapter intentionally continues to enumerate the spent VSTAR action');
   assert.ok(pass);
 
   const frontier = withValidationRandom(() => frontierModule.buildNativeActionFrontier({
@@ -859,11 +952,8 @@ test('pinned Store rejects a GX attack after GX use and preserves a legal attack
   const attacker = cloneCard('Trevenant & Dusknoir-GX SMP');
   assert.ok(attacker.attacks.some(attack => attack.name === 'Pale Moon-GX'));
   assert.ok(attacker.attacks.some(attack => attack.name === 'Night Watch'));
-  const psychicDefinition = manager.getAllCards().find(card =>
-    card instanceof native.EnergyCard &&
-    card.energyType === native.EnergyType.PSYCHIC
-  );
-  assert.ok(psychicDefinition, 'pinned card pool must contain Psychic Energy');
+  const psychicDefinition = manager.getCardByName('Psychic Energy SVE');
+  assert.ok(psychicDefinition, 'pinned card pool must contain Psychic Energy SVE');
   const basicDefinition = manager.getAllCards().find(card =>
     card instanceof native.PokemonCard &&
     card.stage === native.Stage.BASIC &&
@@ -896,11 +986,8 @@ test('pinned Store rejects a GX attack after GX use and preserves a legal attack
   }
 
   const candidate = makePlayer(0, attacker);
-  candidate.active.energies.cards = [
-    cloneCard(psychicDefinition.fullName),
-    cloneCard(psychicDefinition.fullName),
-    cloneCard(psychicDefinition.fullName)
-  ];
+  candidate.active.energies.cards = Array.from({ length: 4 }, () =>
+    cloneCard(psychicDefinition.fullName));
   const opponent = makePlayer(1, cloneCard(basicDefinition.fullName));
   const initialState = new native.State();
   initialState.players = [candidate, opponent];
@@ -1074,9 +1161,15 @@ test('pinned Store frontier exposes and dispatches bench Forest Seal Stone Star 
     assert.equal(evidence.fullOriginalStoreStateUnchanged, true);
     assert.equal(state.players[actorSeat].bench[0].tools[0].fullName,
       'Forest Seal Stone SIT');
+    const resolvedWaits = resolveNativeWaitPrompts({
+      store: simulator.store,
+      state,
+      withValidationRandom
+    });
+    assert.ok(resolvedWaits.length > 0, 'native Store must expose the opponent wait boundary');
     const prompt = state.prompts.find(candidate =>
       candidate.result === undefined && candidate.constructor.name === 'ChooseCardsPrompt');
-    assert.ok(prompt, 'Star Alchemy must open its native search prompt');
+    assert.ok(prompt, 'Star Alchemy must open its native search prompt after the wait boundary');
     assert.equal(prompt.constructor.name, 'ChooseCardsPrompt');
     assert.equal(prompt.playerId, actor.id);
     console.log('AGENT3_NATIVE_FSS_FRONTIER', JSON.stringify({
