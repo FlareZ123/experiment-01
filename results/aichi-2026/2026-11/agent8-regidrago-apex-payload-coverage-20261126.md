@@ -37,7 +37,7 @@ Rank10 consumes the shared helper directly. Existing rank12/rank13 rank-specific
 - Added five pure helper tests covering the four attacks, visible-effect conditions, and fail-closed cost handling.
 - Added the helper test to the existing narrow `rank10-postshred-opponent.yml` workflow; no workflow was created.
 - Focused test step passed in Actions run [45799988217](https://github.com/FlareZ123/experiment-01/actions/runs/45799988217) on branch `agent8/regidrago-apex-payload-coverage-20261126`, commit `e4e7e9ea15cee3feef507b13c7c9cae7f8a2e7bc`.
-- The workflow's pinned-engine compile and rank10 source-response capture were still in progress when this note was written; their outcome must be recorded separately.
+- The full workflow completed successfully. Its output artifact `rank10-postshred-opponent` (artifact ID `15105404544`, 1,637 bytes) was produced. The artifact is not interpreted here; this run establishes only that the focused helper tests, pinned-engine compile, and rank10 source-response diagnostic completed successfully.
 
 ## Limitations and next work
 
