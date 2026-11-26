@@ -154,3 +154,121 @@ test('canonical observation hash ignores object insertion order but preserves ar
   assert.equal(observationSha256(a),observationSha256(b));
   assert.notEqual(observationSha256(a),observationSha256(c));
 });
+
+
+function winnerVector(state) {
+  if (state.winner === 0) return [1, 0];
+  if (state.winner === 1) return [0, 1];
+  return [0, 0];
+}
+
+test('seat-win-probability objective prefers actual wins over draw-heavy win-minus-loss score',()=>{
+  function run(valueMode) {
+    const config={
+      iterations:2400,maxPlies:1,seed:20261126,cPuct:1.4,
+      observe:(state,seat)=>({seat,terminal:state.terminal}),
+      activeSeat:state=>state.seat,
+      enumerateActions:()=>[{name:'draw-heavy'},{name:'balanced'}],
+      actionKey:action=>action.name,
+      redeterminize:(state,seat,random)=>({...state,roll:random()}),
+      applyAction:(state,action)=>({
+        ...state,
+        terminal:true,
+        winner:action.name==='draw-heavy' ?
+          (state.roll<0.4?0:null) :
+          (state.roll<0.5?0:1)
+      }),
+      isTerminal:state=>state.terminal,
+      evaluateObservation:()=>0,
+      terminalValue:(state,seat)=>state.winner===null?0:
+        (state.winner===seat?1:-1),
+      evaluateObservationValues:()=>[0,0],
+      terminalValues:winnerVector
+    };
+    if(valueMode)config.valueMode='seat-win-probability';
+    return createInformationSetMcts(config).search(
+      {seat:0,terminal:false,winner:null},0);
+  }
+  const legacy=run(false);
+  const winRate=run(true);
+  assert.equal(legacy.actionKey,'draw-heavy',
+    'zero-sum margin treats a draw as neutral and can prefer a high-draw line');
+  assert.equal(winRate.actionKey,'balanced',
+    'the general-sum objective must maximize seat 0 actual win probability');
+  assert.equal(winRate.audit.valueMode,'seat-win-probability');
+  assert.equal(winRate.audit.objectiveProtocol,
+    'each-seat-maximizes-own-win-probability-draws-nonwins-zero-v1');
+  assert.ok(winRate.audit.rootActions.find(row=>row.actionKey==='balanced').meanValue >
+    winRate.audit.rootActions.find(row=>row.actionKey==='draw-heavy').meanValue);
+});
+
+test('general-sum PUCT makes the opponent choose its own win-probability best response',()=>{
+  const search=createInformationSetMcts({
+    valueMode:'seat-win-probability',
+    iterations:2400,maxPlies:2,seed:20261127,cPuct:1.4,
+    observe:(state,seat)=>({
+      seat,entered:state.entered===true,terminal:state.terminal===true
+    }),
+    activeSeat:state=>state.seat,
+    enumerateActions:(state,seat)=>seat===0?
+      [{name:'enter'}]:[{name:'draw-heavy'},{name:'balanced'}],
+    actionKey:action=>action.name,
+    redeterminize:(state,seat,random)=>({...state,roll:random()}),
+    applyAction:(state,action)=>{
+      if(state.seat===0)return {...state,seat:1,entered:true};
+      const winner=action.name==='draw-heavy'?
+        (state.roll<0.4?1:null):
+        (state.roll<0.5?1:0);
+      return {...state,terminal:true,winner};
+    },
+    isTerminal:state=>state.terminal,
+    terminalValues:winnerVector,
+    evaluateObservationValues:()=>[0,0]
+  });
+  const result=search.search({
+    seat:0,entered:false,terminal:false,winner:null
+  },0);
+  const opponentChoices=result.audit.rolloutPaths.flatMap(path=>path.actions)
+    .filter(action=>action.seat===1);
+  const counts=opponentChoices.reduce((out,action)=>{
+    out[action.actionKey]=(out[action.actionKey]??0)+1;
+    return out;
+  },{});
+  assert.ok((counts.balanced??0)>(counts['draw-heavy']??0),
+    'seat 1 must maximize its own win probability, not its win-minus-loss margin');
+  assert.equal(result.audit.seatActionTransitions[0],result.audit.rootVisits);
+  assert.ok(result.audit.seatActionTransitions[1]>0);
+});
+
+test('seat-win-probability values reject malformed and out-of-range payoffs',()=>{
+  const search=createInformationSetMcts({
+    valueMode:'seat-win-probability',
+    iterations:1,maxPlies:1,
+    observe:(state,seat)=>({seat}),
+    activeSeat:state=>state.seat,
+    enumerateActions:()=>[{name:'finish'}],
+    actionKey:action=>action.name,
+    redeterminize:state=>({...state}),
+    applyAction:state=>({...state,terminal:true}),
+    isTerminal:state=>state.terminal,
+    terminalValues:()=>[1,1.01],
+    evaluateObservationValues:()=>[0,0]
+  });
+  assert.throws(()=>search.search({seat:0,terminal:false},0),
+    /within \[0, 1\]/);
+  const overSum=createInformationSetMcts({
+    valueMode:'seat-win-probability',
+    iterations:1,maxPlies:1,
+    observe:(state,seat)=>({seat}),
+    activeSeat:state=>state.seat,
+    enumerateActions:()=>[{name:'finish'}],
+    actionKey:action=>action.name,
+    redeterminize:state=>({...state}),
+    applyAction:state=>({...state,terminal:true}),
+    isTerminal:state=>state.terminal,
+    terminalValues:()=>[0.6,0.6],
+    evaluateObservationValues:()=>[0,0]
+  });
+  assert.throws(()=>overSum.search({seat:0,terminal:false},0),
+    /cannot sum to more than one/);
+});
