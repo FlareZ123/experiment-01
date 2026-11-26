@@ -2495,7 +2495,8 @@ function createV3WorkerDecisionResolver({
         if(projected.hostOnly){
           const resolved=promptProjection.resolveHostOnlyPrompt({
             prompt:request.prompt,state:request.state,store:request.store,native,
-            physicalRandom:request.physicalRandom,provenanceHook:activeProvenanceHook,dispatch:false
+            physicalRandom:request.physicalRandom,provenanceHook:activeProvenanceHook,
+            enginePin:process.env.AGENT36_TWINLEAF_COMMIT_SHA,dispatch:false
           });
           roleAudit.hostOnlyPromptCount++;
           workerAudit.totalHostOnlyPrompts++;
@@ -2504,7 +2505,9 @@ function createV3WorkerDecisionResolver({
             action:resolved.action,
             promptResolution:{
               kind:resolved.summary?.kind??'host-only',
-              selectedCount:resolved.summary?.selectedCount??null
+              selectedCount:resolved.summary?.selectedCount??null,
+              validationHookId:resolved.summary?.validationHookId??null,
+              nativeValidatorResult:resolved.summary?.nativeValidatorResult??null
             }
           };
         }
