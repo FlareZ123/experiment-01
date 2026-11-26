@@ -2038,7 +2038,9 @@ function scoreBasicPlay(item, view) {
   if (hasName(printing, 'Girafarig') && opponentHasRegidrago(view) &&
       !boardHas(view, 'Girafarig')) return 450;
   if (hasName(printing, 'Marshadow') &&
-      hasStadiumRemovalTarget(view) && !boardHas(view, 'Marshadow')) return 400;
+      hasStadiumRemovalTarget(view) &&
+      marshadowResettingHoleUsable(view) &&
+      !boardHas(view, 'Marshadow')) return 400;
   return -Infinity;
 }
 
@@ -2277,6 +2279,21 @@ function hasStadiumRemovalTarget(view) {
     hasName(name, 'Jamming Tower') ||
     hasName(name, 'Wondrous Labyrinth'));
   return lockStadium || parallelCityLimitsActor(view);
+}
+
+function marshadowResettingHoleUsable(view) {
+  // Marshadow UNB 81 is Basic: Silent Lab suppresses Resetting Hole, as can
+  // the actor-visible Ability-lock sources resolved by the shared evaluator.
+  const marshadow = {
+    printing: 'Marshadow UNB 81',
+    subtypes: ['Basic'],
+    types: ['Psychic'],
+    printed: { subtypes: ['Basic'], types: ['Psychic'] },
+    abilities: ['Resetting Hole'],
+    abilitySuppressions: [],
+    tools: []
+  };
+  return effectiveAbilityStatus(marshadow, 'Resetting Hole', 'actor', view) === true;
 }
 
 function hasOpponentToolRemovalTarget(view) {

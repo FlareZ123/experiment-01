@@ -870,7 +870,7 @@ test('live Marshadow Stadium-removal play is preserved ahead of Psychic Energy f
   const view = observation(0, {
     active: ownVmax,
     opponentStadium: ['Path to the Peak CRE 148'],
-    ownHand: ['Marshadow SLG 45', 'Psychic Energy SVE'],
+    ownHand: ['Marshadow UNB 81', 'Psychic Energy SVE'],
     globalTurn: 3
   });
   const req = cardPrompt(0, view, {
@@ -889,7 +889,26 @@ test('Marshadow is discardable when Dimension Valley benefits the Psychic deck',
   const view = observation(0, {
     active: ownVmax,
     opponentStadium: ['Dimension Valley PHF 93'],
-    ownHand: ['Marshadow SLG 45', 'Psychic Energy SVE'],
+    ownHand: ['Marshadow UNB 81', 'Psychic Energy SVE'],
+    globalTurn: 3
+  });
+  const req = cardPrompt(0, view, {
+    sourceZone: 'hand', printings: view.ownHand,
+    minimumCount: 1, maximumCount: 1
+  });
+  assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-0'] });
+});
+
+test("Marshadow cannot remove Silent Lab while its Basic Ability is suppressed", () => {
+  const ownVmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE',
+    name: 'Shadow Rider Calyrex VMAX', hp: 320,
+    subtypes: ['VMAX'], energies: Array(5).fill('Psychic Energy SVE')
+  });
+  const view = observation(0, {
+    active: ownVmax,
+    opponentStadium: ['Silent Lab XY5 140'],
+    ownHand: ['Marshadow UNB 81', 'Psychic Energy SVE'],
     globalTurn: 3
   });
   const req = cardPrompt(0, view, {
