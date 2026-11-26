@@ -3,7 +3,8 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {
-  projectActorVisibleHistory
+  projectActorVisibleHistory,
+  createActorObservationWithHistory
 } = require('../simulation/twinleaf/actor-history-projection.cjs');
 
 function fixtureState() {
@@ -63,6 +64,34 @@ test('visibility is perspective-relative and wall-clock timestamps do not affect
     ownDecisionHistory: [{ kind: 'prompt-choice', key: 'choose-prize', result: 'prize-2' }]
   });
   assert.notEqual(seat0.actorHistorySha256, changedDecision.actorHistorySha256);
+});
+
+test('wraps a base actor observation with a per-seat history key', () => {
+  const state = fixtureState();
+  const baseActorObservation = (currentState, seat) => ({
+    actorSeat: seat,
+    publicTurn: 4
+  });
+  const withHistory = createActorObservationWithHistory(
+    baseActorObservation,
+    (currentState, seat) => ({
+      ownDecisionHistory: [{ kind: 'action', key: seat === 0 ? 'play-supporter' : 'pass' }],
+      historySource: 'unsanitized-store-plus-seat-trace',
+      historyComplete: false,
+      includeVisibleLogs: true,
+      includeOwnDecisionHistory: true
+    })
+  );
+  const view = withHistory(state, 0);
+  assert.equal(view.actorSeat, 0);
+  assert.equal(view.publicTurn, 4);
+  assert.match(view.actorHistorySha256, /^[a-f0-9]{64}$/);
+  assert.equal(view.actorHistoryComplete, false);
+  assert.equal(view.actorHistorySource, 'unsanitized-store-plus-seat-trace');
+  assert.ok(Array.isArray(view.actorVisibleHistory));
+  assert.deepEqual(view.actorOwnDecisionHistory, [{ kind: 'action', key: 'play-supporter' }]);
+  assert.equal(Object.isFrozen(view), true);
+  assert.equal(Object.isFrozen(view.actorVisibleHistory), true);
 });
 
 test('does not certify complete history without an explicit source', () => {
