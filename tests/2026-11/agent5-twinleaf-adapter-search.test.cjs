@@ -566,6 +566,12 @@ test('generic Twinleaf search uses the uncapped native frontier and searches bot
   assert.equal(result.audit.valueMode,'seat-win-probability');
   assert.equal(result.audit.objectiveProtocol,
     'each-seat-maximizes-own-win-probability-adjudicated-draws-zero-v1');
+  assert.equal(result.audit.twinleafAdapter.enginePin,GENERIC_SEARCH_ENGINE_PIN);
+  assert.equal(result.audit.twinleafAdapter.rulesProfileId,
+    'twinleaf-standard-generic-search-test-v1');
+  assert.equal(result.audit.twinleafAdapter.candidateDecklistId,'deck-0');
+  assert.equal(result.audit.twinleafAdapter.candidateSeat,0);
+  assert.equal(result.audit.twinleafAdapter.maxNativeFrontier,256);
   assert.ok(result.audit.twinleafAdapter.nativeFrontiers>1);
   assert.equal(result.audit.twinleafAdapter.unsupportedNativeActions,0);
   assert.equal(result.audit.twinleafAdapter.truncatedNativeFrontiers,0);
@@ -621,6 +627,8 @@ test('native prompt projection and host-only resolver plug into the generic sear
   assert.ok(['prompt-0','prompt-1'].includes(result.action.choiceKey));
   assert.equal(result.audit.twinleafAdapter.promptTransitions,4);
   assert.equal(result.audit.twinleafAdapter.promptFrontiers,5);
+  assert.equal(result.audit.twinleafAdapter.candidateDecklistId,'deck-1');
+  assert.equal(result.audit.twinleafAdapter.candidateSeat,1);
 });
 
 test('native host-only coin-flip prompts are resolved by the explicit physical RNG callback',()=>{
