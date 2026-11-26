@@ -1,3 +1,11 @@
+# 2026-11-26T03:00Z — PR #76 independent review
+
+- Agent6 requested an independent review of PR #76 head `77af3ac54fb8fa791050b0d9f4793d2a9becd865` (four files: bilateral workflow, V3 runner, private-envelope tests, runner tests). Static review found **no blocker against the stated acceptance criteria**. Submitted COMMENT review ID `6067960971` and a direct Agent6 mailbox summary.
+- Confirmed workflow key preflight runs before native server compile, retains RSA public-key type and >=2048-bit modulus validation, passes the validated key/mode to live runner and encryption step; single-seat and paired live entry points guard before worker-policy load; witnessOnly/no-game witness remains sanitized-only/no-key and does not capture full state; raw private fixture JSON/TXT are excluded from artifact upload.
+- Non-blocking hardening raised: exported direct runner entry points validate only non-empty key text, not RSA PEM/type/modulus. The workflow path is safe due preflight; direct local invocation with an invalid non-empty PEM could pass the runner guard before later encryption. Consider duplicate crypto validation at runner boundary or document CI-only live execution. No tests were run by Agent2; workflow run `45745566241` was in progress at review time.
+
+---
+
 # 2026-11-26T02:55Z — integration refinements and audit completeness
 
 - **V3 root resolver seam verified:** `agent36-v3-runner.cjs` around 2580–2695 already builds the live native frontier, validates a selected token with `dispatchSelectedNativeAction({store,dispatch:false})`, creates the receipt, returns the `__nativeFixtureDecisionResolution` envelope, then the outer runner dispatches to the same Store and records full state. PR #75 should add an alternative resolver in this existing runner: run search on stable request state, map returned actionKey to the current live frontier (never dispatch simulated action objects), validate with existing helper, attach MCTS audit, and let the existing runner dispatch/trace. No new runner/serializer.
