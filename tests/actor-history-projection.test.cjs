@@ -30,11 +30,13 @@ test('projects public, actor-private, and system logs with the UI visibility bou
     includeOwnDecisionHistory: true
   });
 
-  assert.deepEqual(projected.visibleLogs.map(log => log.id), [1, 3, 4]);
-  assert.equal(projected.visibleLogs[0].clientSeat, 1);
-  assert.equal(projected.visibleLogs[1].clientSeat, 0);
-  assert.equal(projected.visibleLogs[2].isSystem, true);
+  assert.deepEqual(projected.visibleLogs.map(log => log.message), [
+    'PUBLIC_OPPONENT_ACTION',
+    'ACTOR_PRIVATE',
+    'SYSTEM_PRIVATE'
+  ]);
   assert.equal(Object.hasOwn(projected.visibleLogs[0].params, 'timestamp'), false);
+  assert.equal(Object.hasOwn(projected.visibleLogs[1].params, 'private'), false);
   assert.deepEqual(projected.ownDecisionHistory, [
     { kind: 'prompt-choice', key: 'choose-prize', result: 'prize-1' }
   ]);
@@ -59,6 +61,25 @@ test('visibility is perspective-relative and wall-clock timestamps do not affect
   }
   const sameHistory = projectActorVisibleHistory(changedClock, 0);
   assert.equal(seat0.actorHistorySha256, sameHistory.actorHistorySha256);
+
+  const withoutHiddenLog = {
+    players: [{ id: 10 }, { id: 20 }],
+    logs: [
+      { id: 1, client: 20, message: 'PUBLIC_OPPONENT_ACTION', params: { card: 'Quick Ball', timestamp: '00:00:01' } },
+      { id: 2, client: 10, message: 'ACTOR_PRIVATE', params: { private: true, choice: 'own-prize', timestamp: '00:00:02' } },
+      { id: 3, client: 0, message: 'SYSTEM_PRIVATE', params: { private: 'true', result: true, timestamp: '00:00:03' } }
+    ]
+  };
+  const withHiddenEvents = projectActorVisibleHistory(state, 0, { includeVisibleLogs: true });
+  const withoutHiddenEvents = projectActorVisibleHistory(withoutHiddenLog, 0, { includeVisibleLogs: true });
+  assert.deepEqual(withHiddenEvents.visibleLogs, withoutHiddenEvents.visibleLogs);
+  assert.equal(withHiddenEvents.actorHistorySha256, withoutHiddenEvents.actorHistorySha256,
+    'inserting an opponent-private event and shifting global IDs must not change the actor information set');
+
+  const changedVisible = fixtureState();
+  changedVisible.logs[0].params.card = 'Ultra Ball';
+  const changedVisibleEvent = projectActorVisibleHistory(changedVisible, 0);
+  assert.notEqual(seat0.actorHistorySha256, changedVisibleEvent.actorHistorySha256);
 
   const changedDecision = projectActorVisibleHistory(state, 0, {
     ownDecisionHistory: [{ kind: 'prompt-choice', key: 'choose-prize', result: 'prize-2' }]
