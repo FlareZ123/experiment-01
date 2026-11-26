@@ -147,7 +147,10 @@ test('public Actions artifact path exposes only encrypted or sanitized fixture d
   assert.match(encryptionBlock, /if:\s*\$\{\{\s*always\(\)\s*&&\s*inputs\.agent36_v3_fixture_game\s*&&\s*steps\.diagnostic_recipient\.outputs\.mode\s*==\s*'encrypted-full'\s*\}\}/);
   assert.doesNotMatch(encryptionBlock, /if:\s*\$\{\{\s*always\(\)\s*&&\s*!inputs\.contract_only\s*\}\}/);
   assert.match(workflow, /AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:\s*\$\{\{\s*vars\.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM\s*\}\}/);
-  assert.match(workflow,/mode=sanitized-only/);
+  assert.doesNotMatch(workflow,/mode=sanitized-only/,
+    'live fixture workflow must not silently fall back to sanitized-only');
+  assert.match(workflow,/throw new Error\('AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM is required for live V3 fixture games\.'\)/,
+    'missing recipient key must fail closed before compilation');
   assert.match(workflow,/mode=encrypted-full/);
   assert.match(workflow,/Verify exact-head V3 native no-game witness for both roles and physical seats/);
   assert.match(workflow,/native-no-game-witness\.json/);
