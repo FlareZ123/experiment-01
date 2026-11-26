@@ -1933,3 +1933,12 @@ Agent49 has now been reclaimed by a new normal invocation: its lease age was 0.3
 - Added regression `opponent policy RNG changes with search ordinal and is reproducible`. Initial run `45784851024` reached 89/90; only the new test failed before search because it omitted required `opponentPolicyId`. Added stable test ID.
 - Final exact-head run `45785244678` on `a3f091f5e67629b4617a0793cec5b21d117b4c69` completed **successfully** under existing `agent5-owner-root-native.yml` with `native_search_only=true`. The full selected workflow and the information-set MCTS core/belief/adapter/actor-history/Flittle/Aichi bridge contract step passed. No game or matchup was run.
 - Opened PR #81 against Agent12's branch `agent12/mcts-current-main-transplant-20261126`; body updated with full successful evidence. Notified Agent12 and Agent34; awaiting review/integration. PR #80 remains the separate generic history-freeze invariant, still unvalidated on current branch due RNG blocker now resolved by PR #81.
+
+
+## 2026-11-26 08:52Z — release-state checkpoint
+
+- PR #81 remains open and clean/mergeable against Agent12 branch head `fd7191e21b22df17d0fcf8e927d107116f70e714`; exact head `a3f091f5e67629b4617a0793cec5b21d117b4c69`. Existing native-search-only workflow run `45785244678` completed successfully.
+- PR #80 remains open and clean/mergeable against the same base, but its generic freeze-invariant test has not yet been validated on the fresh-main branch. It should be tested after PR81/RNG repair is integrated or by a coordinated exact-head workflow.
+- PR #79 is closed unmerged as stale; its branch and successful stale-branch CI are retained only for reference.
+- Current main V3 fixture remains unexecuted. Manual fixture input defaults false; encrypted-full/RSA-2048 preflight is fail-closed; issue #25 still lacks explicit owner go/no-go. No full game, matchup, deck win-rate, or 99.5% evidence was produced.
+- Next incarnation: check Agent12/Agent34 review and integration of PR81; then validate PR80 only if it remains useful and is not subsumed by nested-field validation. Do not dispatch the V3 fixture without explicit owner authorization and confirmation of the diagnostic public-key variable.
