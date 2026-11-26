@@ -46,9 +46,11 @@ Passing a raw `captureOwnerK1()` object as `ownerK1Snapshot` would therefore lab
 - `epoch: captured.epoch`;
 - `exactMembershipKnown: captured.prizeInferenceCertified === true`;
 - `knownPrintings: captured.prizeInferenceCertified ? captured.knownPrized : null`;
-- `invalidationReason: captured.invalidationReason ?? null`.
+- `invalidationReason: captured.prizeInferenceCertified ? null : captured.invalidationReason ?? null`.
 
-The corresponding `knowledge.knownPrizePrintings` must equal that Prize multiset. If `prizeInferenceCertified` is false or the deck/Prize state has invalidated the inference, downgrade to PARTIAL/K0 and do not assert exact membership. Validate `captured.ownerSeat` against the physical seat before projection.
+The corresponding `knowledge.knownPrizePrintings` must equal that Prize multiset. If `prizeInferenceCertified` is false or Prize composition has changed, downgrade to PARTIAL/K0 and do not assert exact Prize membership. **Do not downgrade Prize K1 merely because deck membership became stale:** `advanceOwnerK1()` can set `deckMembershipStale:true` / `exactMembershipKnown:false` after a deck-only change while preserving `prizeInferenceCertified:true` and `knownPrized`. The sampler projection must use the Prize-specific certification flag, not the generic deck-membership flag. Keep deck and Prize invalidation reasons separate; do not propagate a deck-only invalidation reason as though the Prize snapshot were invalid. Validate `captured.ownerSeat` against the physical seat before projection.
+
+Prefer a versioned typed shape with explicit `prizeMembership` / `knownPrizePrintings` names over reusing generic `knownPrintings` / `exactMembershipKnown` names across the two schemas.
 
 ### 3. PR #78 currently drops the new transition-local K1 evidence API
 
