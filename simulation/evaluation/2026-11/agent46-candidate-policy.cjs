@@ -1,7 +1,7 @@
 'use strict';
 
 /*
- * Agent46 candidate-only policy v1.
+ * Agent46 candidate-only policy v3.
  *
  * This module is deliberately a pure worker bundle: it has no imports, engine
  * objects, native actions, Store access, filesystem/network access,
@@ -10,7 +10,7 @@
  * Unknown prompt provenance or actor-visible state fails closed.
  */
 
-const POLICY_VERSION = 'agent46-hood-candidate-v2';
+const POLICY_VERSION = 'agent46-hood-candidate-v3';
 
 let activePolicyAudit = null;
 
@@ -1280,11 +1280,16 @@ function discardValue(view, printing) {
   if (!isText(printing)) return 1000;
   const duplicates = view.ownHand.filter(item => item === printing).length;
   if (hasName(printing, 'Battle VIP Pass') && view.globalTurn > 1) return 1;
+  if (hasName(printing, 'Stealthy Hood')) {
+    return hasStealthyHoodSearchNeed(view) ? 700 : 0;
+  }
   if (hasName(printing, 'Psychic Energy')) {
-    return psychicEnergyCount(view) >= 5 ? 2 : 80;
+    // Every attached Psychic Energy still adds 30 Max Geist damage.
+    return psychicEnergyCount(view) >= 11 ? 2 : 80;
   }
   if (hasName(printing, 'Dialga-GX')) {
-    return opponentHasRegidrago(view) && !discardHas(view, 'Dialga-GX') ? 1000 : 35;
+    // This list's Dialga is the Regidrago/Copycat payload, not a Psychic attacker.
+    return opponentHasRegidrago(view) && !discardHas(view, 'Dialga-GX') ? 1000 : 0;
   }
   if (hasName(printing, 'Mimikyu')) {
     return opponentHasRegidrago(view) && !boardHas(view, 'Mimikyu') ? 1000 : 30;

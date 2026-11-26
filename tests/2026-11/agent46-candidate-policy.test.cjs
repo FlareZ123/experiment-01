@@ -720,6 +720,105 @@ test('mandatory discard uses dead or excess resources before Regidrago core piec
   assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-0', 'card-1'] });
 });
 
+test('mirror discard spends Stealthy Hood before Max Geist Energy when no Hood threat exists', () => {
+  const ownVmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE',
+    name: 'Shadow Rider Calyrex VMAX', hp: 320,
+    subtypes: ['VMAX'], energies: Array(5).fill('Psychic Energy SVE')
+  });
+  const opponentVmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE',
+    name: 'Shadow Rider Calyrex VMAX', hp: 320,
+    subtypes: ['VMAX']
+  });
+  const opponentClefairy = pokemon({
+    printing: "Lillie's Clefairy ex OBF",
+    name: "Lillie's Clefairy ex", abilities: ['Fairy Zone']
+  });
+  const view = observation(0, {
+    active: ownVmax, opponentActive: opponentVmax,
+    opponentBench: [opponentClefairy],
+    ownHand: ['Stealthy Hood UNB 186', 'Psychic Energy SVE'],
+    globalTurn: 3
+  });
+  const req = cardPrompt(0, view, {
+    sourceZone: 'hand',
+    printings: view.ownHand,
+    minimumCount: 1, maximumCount: 1
+  });
+  assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-0'] });
+});
+
+test('mirror discard spends matchup-dead Dialga-GX before Max Geist Energy', () => {
+  const ownVmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE',
+    name: 'Shadow Rider Calyrex VMAX', hp: 320,
+    subtypes: ['VMAX'], energies: Array(5).fill('Psychic Energy SVE')
+  });
+  const opponentVmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE',
+    name: 'Shadow Rider Calyrex VMAX', hp: 320,
+    subtypes: ['VMAX']
+  });
+  const view = observation(0, {
+    active: ownVmax, opponentActive: opponentVmax,
+    ownHand: ['Dialga-GX UPR', 'Psychic Energy SVE'],
+    globalTurn: 3
+  });
+  const req = cardPrompt(0, view, {
+    sourceZone: 'hand',
+    printings: view.ownHand,
+    minimumCount: 1, maximumCount: 1
+  });
+  assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-0'] });
+});
+
+test('Regidrago keeps Dialga-GX as the Copycat payload ahead of Psychic Energy', () => {
+  const ownVmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE',
+    name: 'Shadow Rider Calyrex VMAX', hp: 320,
+    subtypes: ['VMAX'], energies: Array(5).fill('Psychic Energy SVE')
+  });
+  const regidrago = pokemon({
+    printing: 'Regidrago VSTAR SIT', name: 'Regidrago VSTAR',
+    hp: 280, types: ['Dragon'], subtypes: ['VSTAR']
+  });
+  const view = observation(0, {
+    active: ownVmax, opponentActive: regidrago,
+    ownHand: ['Dialga-GX UPR', 'Psychic Energy SVE'],
+    globalTurn: 3
+  });
+  const req = cardPrompt(0, view, {
+    sourceZone: 'hand',
+    printings: view.ownHand,
+    minimumCount: 1, maximumCount: 1
+  });
+  assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-1'] });
+});
+
+test('ability-lock threat preserves Stealthy Hood ahead of Max Geist Energy', () => {
+  const ownVmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE',
+    name: 'Shadow Rider Calyrex VMAX', hp: 320,
+    subtypes: ['VMAX'], energies: Array(5).fill('Psychic Energy SVE')
+  });
+  const ironThorns = pokemon({
+    printing: 'Iron Thorns ex TWM 77', name: 'Iron Thorns ex',
+    hp: 230, abilities: ['Initialization']
+  });
+  const view = observation(0, {
+    active: ownVmax, opponentActive: ironThorns,
+    ownHand: ['Stealthy Hood UNB 186', 'Psychic Energy SVE'],
+    globalTurn: 3
+  });
+  const req = cardPrompt(0, view, {
+    sourceZone: 'hand',
+    printings: view.ownHand,
+    minimumCount: 1, maximumCount: 1
+  });
+  assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['card-1'] });
+});
+
 test('energy-payment prompt relies on per-choice visibility, not absent prompt-level owner fields', () => {
   const active = pokemon({
     printing: 'Shadow Rider Calyrex VMAX CRE', name: 'Shadow Rider Calyrex VMAX',
