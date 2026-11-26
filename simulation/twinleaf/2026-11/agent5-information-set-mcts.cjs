@@ -217,20 +217,32 @@ function validateWinProbabilityVector(values, label = 'Win-probability value') {
 }
 
 /**
- * Terminal states are realized outcomes, not probabilistic forecasts. The
- * caller must classify a real seat win or an explicitly adjudicated draw;
- * unresolved/NONE/invalid/aborted terminals must throw before reaching here.
+ * Convert a typed terminal classification into realized per-seat win values.
+ * A draw requires a versioned rule plus a concrete evidence reference; a bare
+ * [0,0] vector can never attest that an unresolved/NONE state was adjudicated.
  */
-function validateTerminalWinProbabilityVector(values, label = 'Terminal values') {
-  const normalized = validateWinProbabilityVector(values, label);
-  const validOutcome =
-    (normalized[0] === 1 && normalized[1] === 0) ||
-    (normalized[0] === 0 && normalized[1] === 1) ||
-    (normalized[0] === 0 && normalized[1] === 0);
-  assert.ok(validOutcome,
-    label + ' must be an actual seat win or an explicitly adjudicated draw; ' +
-    'unresolved or invalid terminal classes must be rejected');
-  return normalized;
+function terminalOutcomeToWinProbabilityVector(outcome, label = 'Terminal outcome') {
+  assert.ok(outcome !== null && typeof outcome === 'object' && !Array.isArray(outcome),
+    label + ' must be a typed outcome object');
+  const prototype = Object.getPrototypeOf(outcome);
+  assert.ok(prototype === Object.prototype || prototype === null,
+    label + ' must be a plain data object');
+  if (outcome.kind === 'seat-win') {
+    assert.ok(outcome.winnerSeat === 0 || outcome.winnerSeat === 1,
+      label + ' winnerSeat must be 0 or 1');
+    return outcome.winnerSeat === 0 ? [1, 0] : [0, 1];
+  }
+  if (outcome.kind === 'adjudicated-draw') {
+    assert.ok(typeof outcome.ruleId === 'string' && /v\\d+$/.test(outcome.ruleId),
+      label + ' draw requires a versioned ruleId');
+    assert.ok(typeof outcome.reason === 'string' && outcome.reason.trim().length > 0,
+      label + ' draw requires a non-empty reason');
+    assert.ok(typeof outcome.evidenceId === 'string' && outcome.evidenceId.trim().length > 0,
+      label + ' draw requires a non-empty evidenceId');
+    return [0, 0];
+  }
+  assert.fail(label + ' kind must be seat-win or adjudicated-draw; ' +
+    'unresolved, invalid, aborted, NONE, and unknown outcomes are rejected');
 }
 
 /**
@@ -267,7 +279,8 @@ function backpropagateWinProbabilities(path, values) {
  * @param {'zero-sum'|'seat-win-probability'} [config.valueMode='zero-sum']
  * @param {(state:object,seat:0|1)=>number} [config.terminalValue] Legacy zero-sum terminal utility.
  * @param {(observation:object,seat:0|1)=>number} [config.evaluateObservation] Legacy zero-sum value.
- * @param {(state:object)=>[number,number]} [config.terminalValues] Exact realized outcomes only: [1,0], [0,1], or [0,0] for a documented adjudicated draw; throw for unresolved/invalid terminal classes.
+ * @param {(state:object)=>({kind:'seat-win',winnerSeat:0|1}|{kind:'adjudicated-draw',ruleId:string,reason:string,evidenceId:string})} [config.terminalOutcome] Typed realized outcome; unresolved/invalid/aborted/NONE classes are rejected.
+ * @param {string} [config.terminalOutcomeProtocolId] Required versioned ID for the caller's terminal adjudication mapping.
  * @param {(observation:object,seat:0|1)=>[number,number]} [config.evaluateObservationValues] Actor-view-only per-seat win probabilities; sum must not exceed one.
  * @param {(action:object,observation:object,seat:0|1)=>number} [config.actionPrior]
  * @param {number} [config.iterations=128]
@@ -303,8 +316,11 @@ function createInformationSetMcts(config) {
   assert.ok(valueMode === 'zero-sum' || valueMode === 'seat-win-probability',
     'valueMode must be zero-sum or seat-win-probability');
   if (valueMode === 'seat-win-probability') {
-    assert.equal(typeof config.terminalValues, 'function',
-      'seat-win-probability mode requires terminalValues(state)');
+    assert.equal(typeof config.terminalOutcome, 'function',
+      'seat-win-probability mode requires terminalOutcome(state)');
+    assert.ok(typeof config.terminalOutcomeProtocolId === 'string' &&
+      /v\\d+$/.test(config.terminalOutcomeProtocolId),
+    'seat-win-probability mode requires a versioned terminalOutcomeProtocolId');
     assert.equal(typeof config.evaluateObservationValues, 'function',
       'seat-win-probability mode requires evaluateObservationValues(observation, seat)');
   } else {
@@ -488,7 +504,7 @@ function createInformationSetMcts(config) {
           maxObservedDepth = Math.max(maxObservedDepth, ply);
           if (config.isTerminal(state)) {
             leafValue = valueMode === 'seat-win-probability' ?
-              validateTerminalWinProbabilityVector(config.terminalValues(state), 'Terminal values') :
+              terminalOutcomeToWinProbabilityVector(config.terminalOutcome(state), 'Terminal outcome') :
               config.terminalValue(state, seat);
             checkDeadline('terminal-value');
             leafSeat = seat;
@@ -626,7 +642,7 @@ function createInformationSetMcts(config) {
         // before falling through to a heuristic evaluation of a terminal state.
         if (!finished && config.isTerminal(state)) {
           leafValue = valueMode === 'seat-win-probability' ?
-              validateTerminalWinProbabilityVector(config.terminalValues(state), 'Terminal values') :
+              terminalOutcomeToWinProbabilityVector(config.terminalOutcome(state), 'Terminal outcome') :
               config.terminalValue(state, seat);
           checkDeadline('terminal-value-after-final-ply');
           leafSeat = seat;
@@ -684,6 +700,8 @@ function createInformationSetMcts(config) {
         actionKey: selected.actionKey,
         audit: {
           valueMode,
+          terminalOutcomeProtocolId: valueMode === 'seat-win-probability' ?
+            config.terminalOutcomeProtocolId : null,
           searchMode: typeof config.opponentActionPolicy === 'function' ?
             'root-best-response-fixed-opponent-policy' : 'two-sided-puct',
           objectiveProtocol: valueMode === 'seat-win-probability' ?
@@ -753,5 +771,6 @@ module.exports = {
   observationSha256,
   seededRandom,
   validateWinProbabilityVector,
+  terminalOutcomeToWinProbabilityVector,
   createInformationSetMcts
 };
