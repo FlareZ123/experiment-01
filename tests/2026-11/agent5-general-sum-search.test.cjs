@@ -161,7 +161,7 @@ test('seat-win-probability values reject malformed and out-of-range payoffs',()=
     evaluateObservationValues:()=>[0,0]
   });
   assert.throws(()=>unclassified.search({seat:0,terminal:false},0),
-    /kind must be seat-win or adjudicated-draw/);
+    /kind must be seat-win, adjudicated-draw, or adjudicated-no-winner/);
 });
 
 
