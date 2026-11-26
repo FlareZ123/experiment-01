@@ -352,7 +352,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     while (true) {
       const state = simulator.store.state;
       const prompt = firstPendingPrompt(state);
-      if (!prompt || !deps.isAutomaticPrompt(prompt, state)) return resolved;
+      if (!prompt || !deps.isAutomaticPrompt(prompt, state, context)) return resolved;
       assert.ok(resolved < maxAutomaticPromptResolutions,
         'Automatic prompt resolution exceeded its safety bound');
       const result = deps.resolveAutomaticPrompt(prompt, random, {
