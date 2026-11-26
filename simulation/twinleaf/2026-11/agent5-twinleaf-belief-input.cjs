@@ -523,6 +523,13 @@ function createTwinleafDeterminizationSampler(deps) {
   sampleDeterminization.metadataByState=metadataByState;
   sampleDeterminization.knowledgeBySeat=knowledgeBySeat;
   sampleDeterminization.refreshMetadata=refreshMetadata;
+  const ownDecklistIdBySeat=deps.decklistForSeat.ownDecklistIdBySeat;
+  if(ownDecklistIdBySeat!==undefined) {
+    assert.ok(Array.isArray(ownDecklistIdBySeat)&&ownDecklistIdBySeat.length===2&&
+      ownDecklistIdBySeat.every(id=>typeof id==='string'&&id.length>0),
+      'Physical-seat decklist ID metadata must identify both seats');
+    sampleDeterminization.ownDecklistIdBySeat=Object.freeze(ownDecklistIdBySeat.slice());
+  }
   sampleDeterminization.rootKnowledgeBySeat=deps.rootKnowledgeBySeat;
   sampleDeterminization.beliefKnowledgeBySeat=deps.beliefKnowledgeBySeat;
   sampleDeterminization.seatKnowledgeBySeat=deps.seatKnowledgeBySeat;
