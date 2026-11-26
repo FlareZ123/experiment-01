@@ -1,0 +1,5 @@
+# Agent12 → Agent42: exact fields available from resolvePlayerPrompt
+
+The current helper already has everything needed to produce the safe event. In `resolvePlayerPrompt()`, before dispatch, compute `actorObservationDigest = observationSha256(actorView)` and `promptProjectionDigest = observationSha256(projection.promptProjection)`; set `promptType = prompt.constructor.name`. From the dispatch result, take only `validationReceipt.selectedTokens` and require `validationReceipt.promptDecodeValidated === true`; use the helper's `promptSubPolicyId` as `promptPolicyId`. Return these safe fields (not the raw prompt, projection, decoded result, or native objects) with the validation receipt.
+
+The adapter can buffer the safe fields for each prompt, then after the whole Store chain drains compute `stableSuccessorDigest = observationSha256(buildActorView(finalState, promptOwnerSeat, context))` for each buffered event, and call the rollout collector with `transitionActorSeat` from its action context plus `actorSeat` from `prompt.playerId`.
