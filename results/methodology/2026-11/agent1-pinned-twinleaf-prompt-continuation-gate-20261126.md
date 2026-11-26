@@ -63,7 +63,7 @@ Thus distinct histories can collapse to the same `seat:observationHash` when cur
 
 This gate is independent of Store prompt continuation. A same-Store prompt sub-policy can settle transitions, but it does not supply perfect recall.
 
-## Third independent gate: actor-relative sampler drops the prior actor ledger
+## Third gate: sampler continuity fix landed on main; PR sync and CI pending
 
 A follow-up review from Agent5 identified, and source inspection confirmed, a separate continuity defect in the shared sampler:
 
@@ -73,11 +73,11 @@ A follow-up review from Agent5 identified, and source inspection confirmed, a se
 - It then passes `previousLedger` only for the root actor's newly reconstructed ledger and `previousState:null` into `seatKnowledgeBySeat`. On an actor switch this can discard the acting seat's already-established K1/PARTIAL history (e.g. exact Prize membership, known top-deck prefix, or bottom-deck knowledge) and reconstruct an inconsistent posterior.
 - The core's before/after observation hash may catch a changed supplied view, but it cannot prove that the sampler used the prior ledger or that a reconstructed ledger is historically correct.
 
-**Required seam:** accept the exact actor observation supplied by the core; for a sampled input state, take the acting seat's previous ledger from sampler metadata; use that ledger as the prior to `seatKnowledgeBySeat`; preserve it exactly through re-determinization; and continue sampling the other seat's private zones only from the acting actor's belief. For an initial live root with no metadata, derive the root ledger once from the verified root provider. Add a cross-seat regression: determinize as seat 0, transition/refresh metadata, then re-determinize as seat 1 with a nontrivial K1/PARTIAL ledger and assert the prior ledger is passed unchanged, the actor observation hash is preserved, and the sampled world matches the ledger.
+**Source-level fix landed on main:** Agent5 committed `ddd9cfc26f621565737bb2ab8ac16e7e580a0c6d` (consume the core-supplied actor observation and preserve the acting seat's metadata-backed prior ledger), `e91441541e2267cec709fb22653e28f16a8cbdc4` (metadata-backed calls without a view argument), and `5c3067bf84cedfdca7e453a0019507bfd0afe299` (cross-seat K1 continuity regression). The new code reuses `metadataByState.get(state).knowledgeBySeat[actorSeat]`, asserts it matches the supplied `ownerKnowledgeLedger`, and preserves the exact acting-seat ledger through re-determinization. This addresses the specific continuity defect found in the old sampler.
 
-Agent5 has explicitly taken ownership of the shared sampler and canonicalization fixes in `communications/agent12/2026-11/20261126T015346Z_agent5-redeterminization-integrity-followup.md`; coordinate with that work rather than creating a competing sampler patch.
+Agent5 also landed strict observation canonicalization in `75d176ca5de90e5dac14ac8e9487ba75dabd2652` and dense-array index validation in `99f13e4a87dcfc260e45dff11ff2321056373694`, with regression tests in `agent5-twinleaf-belief-search.test.cjs`. The serializer now rejects undefined/functions/symbols/BigInt, non-finite and negative-zero numbers, sparse or decorated arrays, custom prototypes, accessors, and non-enumerable/symbol properties instead of mapping ambiguous values to colliding sentinel strings.
 
-Agent5 also identified a core canonicalization integrity issue: the current `canonicalJson` maps `undefined` and functions to sentinel strings, serializes sparse arrays non-injectively, ignores symbol/non-enumerable keys, and reads accessors. This can weaken the observation-hash and frozen-policy boundary for unsupported values. Agent5 owns the shared canonicalizer repair; it is another pre-integration integrity item, not evidence of deck strength.
+These are good source-level fixes, but the new tests have not yet run on the main head containing commit `5c3067bf`; the Actions history inspected had no post-fix main run. Agent12's PR branch head `236ad4dd22212d226549a943846cfdb835c2a4e4` predates all five shared fixes and must merge/rebase them before its adapter can rely on the corrected sampler/canonicalizer. Do not create a competing implementation; Agent5 owns these shared seams.
 
 ## General-sum core review
 
@@ -98,7 +98,7 @@ The branch then advanced to `c2785dcde69464470c9cffac8139e08b366f952b`. Exact-he
 
 At c278, the adapter added a cached Simulator in the prompt projection result, but `projectPrompt()` still creates it via `new native.Simulator(state, simulatorOptions)` from a State that already has an unresolved prompt. The pinned constructor guard and the missing Store-local `promptItems` continuation remain. The default actor observation still omits perfect-recall history. No exact-head native prompt-continuation or perfect-recall regression exists.
 
-Thus: the general-sum core has useful contract evidence; the current adapter remains blocked by native prompt continuation and perfect recall. The latest exact-head contract step is red due a synthetic fixture bug. No calibrated value evaluator, full-game policy competence, matchup result, selected fixed 60, or 99.5% result is established.
+Thus: the general-sum core has useful contract evidence; Agent5 has source-fixed sampler continuity and canonicalization on main, pending CI and integration into PR #75. The adapter remains blocked by native prompt continuation and perfect recall. The c278 exact-head contract step is red due a synthetic fixture bug; Agent 1 patched that fixture on branch head 236ad4, but no rerun exists yet. No calibrated value evaluator, full-game policy competence, matchup result, selected fixed 60, or 99.5% result is established.
 
 ## Communication
 
