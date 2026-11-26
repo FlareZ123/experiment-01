@@ -6,7 +6,7 @@ const {
   flittleActionKey,flittleNativeActionToIntent
 }=require('../../simulation/twinleaf/2026-11/agent5-twinleaf-mcts-adapter.cjs');
 const {observationSha256}=require('../../simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs');
-const {createTwinleafTwoSidedSearch}=require('../../simulation/twinleaf/2026-11/agent12-twinleaf-two-sided-search.cjs');
+const {createTwinleafTwoSidedSearch,createNativeTwinleafPromptCallbacks}=require('../../simulation/twinleaf/2026-11/agent12-twinleaf-two-sided-search.cjs');
 
 class WaitPrompt {
   constructor(id,playerId,stage=0) {
@@ -409,6 +409,14 @@ test('Twinleaf adapter forwards a fixed actor-observation opponent policy into t
 
 const GENERIC_SEARCH_ENGINE_PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 
+function cloneNativeTestValue(value) {
+  if(Array.isArray(value))return value.map(cloneNativeTestValue);
+  if(!value||typeof value!=='object')return value;
+  const clone=Object.create(Object.getPrototypeOf(value));
+  for(const key of Object.keys(value))clone[key]=cloneNativeTestValue(value[key]);
+  return clone;
+}
+
 function makeGenericTwoSidedSearchHarness() {
   class ResolvePromptAction {
     constructor(id,result) {
@@ -417,9 +425,15 @@ function makeGenericTwoSidedSearchHarness() {
       this.result=result;
     }
   }
+  class CoinFlipPrompt {
+    constructor(id,playerId) {
+      this.id=id;this.playerId=playerId;this.result=undefined;
+    }
+    getPerspectivePlayerId(){return this.playerId;}
+  }
   class Simulator {
     constructor(state) {
-      this.store={state:structuredClone(state)};
+      this.store={state:cloneNativeTestValue(state)};
       this.store.dispatch=action=>this.dispatch(action);
     }
     dispatch(action) {
@@ -429,6 +443,10 @@ function makeGenericTwoSidedSearchHarness() {
         assert.equal(action.clientId,state.players[seat].id);
         state.activePlayer=1-seat;
         state.turn++;
+        if(state.triggerCoinFlip===true&&!state.coinFlipTriggered) {
+          state.coinFlipTriggered=true;
+          state.prompts.push(new CoinFlipPrompt(99,state.players[state.activePlayer].id));
+        }
         return state;
       }
       if(action.type==='RESOLVE_PROMPT') {
@@ -438,6 +456,7 @@ function makeGenericTwoSidedSearchHarness() {
         prompt.result=action.result;
         state.prompts.splice(index,1);
         state.choice=action.result;
+        if(prompt.constructor.name==='CoinFlipPrompt')state.coinFlipResult=action.result;
         state.activePlayer=state.players.findIndex(player=>
           player.id===prompt.playerId);
         return state;
@@ -466,6 +485,7 @@ function makeGenericTwoSidedSearchHarness() {
     Simulator,
     ActionEnumerator:class ActionEnumerator{},
     ResolvePromptAction,
+    CoinFlipPrompt,
     GamePhase:{FINISHED:'FINISHED'}
   };
   const ledger={
@@ -477,7 +497,7 @@ function makeGenericTwoSidedSearchHarness() {
   };
   const metadataByState=new WeakMap();
   const redeterminize=(state,seat,random)=>{
-    const sampled={...structuredClone(state),hiddenDraw:random()};
+    const sampled={...cloneNativeTestValue(state),hiddenDraw:random()};
     metadataByState.set(sampled,{
       knowledgeBySeat:[ledger,ledger],decklistIds:['deck-0','deck-1']
     });
@@ -566,4 +586,50 @@ test('generic Twinleaf search treats actor-owned prompts as search decisions',()
   assert.equal(result.audit.twinleafAdapter.promptFrontiers,5);
   assert.equal(result.audit.twinleafAdapter.promptTransitions,4);
   assert.equal(result.audit.twinleafAdapter.nativeFrontiers,0);
+});
+
+
+test('native prompt projection and host-only resolver plug into the generic search adapter',()=>{
+  class ConfirmPrompt {
+    constructor(id,playerId) {
+      this.id=id;this.playerId=playerId;this.result=undefined;
+      this.message='GO_FIRST';this.options={};
+    }
+    getPerspectivePlayerId(){return this.playerId;}
+    decode(value){return value;}
+    validate(value){return typeof value==='boolean';}
+  }
+  const harness=makeGenericTwoSidedSearchHarness();
+  harness.deps.ownDecklistSeat=1;
+  harness.deps.ownDecklistId='deck-1';
+  delete harness.deps.enumeratePromptChoices;
+  Object.assign(harness.deps,createNativeTwinleafPromptCallbacks({
+    native:harness.deps.native
+  }));
+  harness.state.phase=1;
+  harness.state.prompts=[new ConfirmPrompt(81,'seat-1')];
+  const search=createTwinleafTwoSidedSearch(harness.deps,{
+    iterations:4,maxPlies:1,seed:20261130
+  });
+  const result=search.search(harness.state,1);
+  assert.equal(result.action.kind,'prompt');
+  assert.equal(result.action.promptType,'ConfirmPrompt');
+  assert.ok(['prompt-0','prompt-1'].includes(result.action.choiceKey));
+  assert.equal(result.audit.twinleafAdapter.promptTransitions,4);
+  assert.equal(result.audit.twinleafAdapter.promptFrontiers,5);
+});
+
+test('native host-only coin-flip prompts are resolved by the explicit physical RNG callback',()=>{
+  const harness=makeGenericTwoSidedSearchHarness();
+  Object.assign(harness.deps,createNativeTwinleafPromptCallbacks({
+    native:harness.deps.native
+  }));
+  harness.state.triggerCoinFlip=true;
+  const search=createTwinleafTwoSidedSearch(harness.deps,{
+    iterations:4,maxPlies:1,seed:20261131
+  });
+  const result=search.search(harness.state,0);
+  assert.equal(result.action.kind,'pass');
+  assert.equal(result.audit.twinleafAdapter.nativeTransitions,4);
+  assert.equal(result.audit.twinleafAdapter.automaticPromptResolutions,4);
 });
