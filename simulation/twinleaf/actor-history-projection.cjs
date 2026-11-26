@@ -41,9 +41,9 @@ function cloneActorSafeValue(value, label = 'actor-safe value', seen = new Set()
       'ACTOR_HISTORY_ARRAY_EXTRA_KEY: ' + label);
     }
   } else {
-    const prototype = Object.getPrototypeOf(value);
-    assert.ok(prototype === Object.prototype || prototype === null,
-      'ACTOR_HISTORY_OBJECT_PROTOTYPE: ' + label);
+    // Twinleaf's native Store log params may be record instances with a
+    // non-plain prototype. Copy only own enumerable data properties; never
+    // traverse prototypes or invoke getters/methods.
     const keys = Reflect.ownKeys(value);
     assert.ok(keys.every(key => typeof key === 'string'),
       'ACTOR_HISTORY_SYMBOL_KEY: ' + label);
