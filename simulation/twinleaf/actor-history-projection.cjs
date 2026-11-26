@@ -22,7 +22,11 @@ function privateFlag(params, logId) {
   if (descriptor === undefined) return false;
   assert.ok(Object.hasOwn(descriptor, 'value'),
     'ACTOR_HISTORY_ACCESSOR_PRIVATE_FLAG: log ' + logId);
-  return String(descriptor.value) === 'true';
+  const value = descriptor.value;
+  assert.ok(value === undefined || value === null
+    || typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number',
+  'ACTOR_HISTORY_INVALID_PRIVATE_FLAG: log ' + logId);
+  return String(value) === 'true';
 }
 
 function deepFreeze(value, seen = new WeakSet()) {
