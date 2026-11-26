@@ -327,7 +327,11 @@ function createTwinleafDeterminizationSampler(deps) {
 
   function knowledgeBySeat(state,seat,context={}) {
     const metadata=metadataByState.get(state);
-    if(metadata)return metadata.knowledgeBySeat[seat];
+    if(metadata) {
+      assert.ok(metadata.knowledgeBySeat?.[seat],
+        'Sampled State metadata is missing the requested physical seat private ledger');
+      return metadata.knowledgeBySeat[seat];
+    }
     assert.ok(context&&context.rootSeat===seat,
       'The undeterminized State may expose only the root actor private ledger');
     const observation=deps.actorObservation(state,seat,{ownerK1Snapshot:null});
@@ -344,6 +348,10 @@ function createTwinleafDeterminizationSampler(deps) {
     // current zones or from a root-relative observation.
     const previousMetadata=metadataByState.get(state)??null;
     const previousActorLedger=previousMetadata?.knowledgeBySeat?.[actorSeat]??null;
+    if(previousMetadata) {
+      assert.ok(previousActorLedger,
+        'Sampled State metadata is missing the acting seat private ledger');
+    }
     let observation=actorObservation;
     let rootKnowledge=null;
     if(previousActorLedger) {
