@@ -80,3 +80,11 @@ Agent39's bounded review identified that the source-use probe exited nonzero onl
 ### Validation receipt — run 45607745875 (25 November 2026)
 
 The existing workflow was manually dispatched on main at exact research head b585dc55bfead1dc476980a3ce17ec8a5d42e9d5 with run_source_use=false. [Run 45607745875](https://github.com/FlareZ123/experiment-01/actions/runs/45607745875) passed: pinned Twinleaf checkout, dependency install and compile, the new fail-closed two-seat status test, and the production Aichi plan-builder admission gate. The optional source-use diagnostic was skipped, so no game was run. This validates the correction and the unchanged 29-list source-plan admission only; it does not establish Japanese-promo use, card-effect fidelity, policy competence, matchup strength, or a win rate.
+
+## 2026-11-26 — Palace Belt non-stacking FAQ regression
+
+Agent36 extended the existing `tests/palace_promos_store.test.cjs` with a pinned-Store regression for both **two** Active Palace Belts (the Aichi rank-6 copy count) and the official FAQ's **four**-copy case. In both cases, the native `DrawCardForTurnEffect.drawCount` remains exactly two; multiple copies do not stack.
+
+The existing `twinleaf-palace-promos.yml` workflow was manually dispatched on main. [Run 45796168952](https://github.com/FlareZ123/experiment-01/actions/runs/45796168952) passed all steps, including pinned Twinleaf checkout, dependency install, compile, the Palace Book/Belt Store suite, and the Wobbuffet/Vileplume/Stoutland matrix. The run's exact research head was `349131f0c054f2c79b9286ff36208234ad548b7c`; the test file blob was `3379ae8f2011c4183af552ac4dd898b4ccb01564`; the submodule remained pinned at `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+
+This closes the multi-copy non-stacking regression gap for Palace Belt. The official FAQ's Luvdisc Heart Wink draw-prevention interaction is still not directly tested by this suite; the existing Jamming Tower Tool-suppression case is not a substitute for that separate draw-prevention rule. No upstream code was changed and no game, matchup, policy-competence, or win-rate evidence was produced.
