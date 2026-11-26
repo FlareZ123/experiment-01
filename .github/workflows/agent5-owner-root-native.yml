@@ -170,6 +170,7 @@ jobs:
             tests/actor-history-projection.test.cjs \
             tests/2026-11/agent36-flittle-mcts-root-provider.test.cjs \
             tests/2026-11/agent5-information-set-search.test.cjs \
+            tests/2026-11/agent5-general-sum-search.test.cjs \
             tests/2026-11/agent5-twinleaf-belief-search.test.cjs \
             tests/2026-11/agent5-twinleaf-adapter-search.test.cjs \
             tests/2026-11/agent5-root-determinization-opponent-belief-fusion.test.cjs \
@@ -193,12 +194,19 @@ jobs:
       - name: Check exact nonmulligan and Stadium-counter access fractions
         run: node -e "const a=require('node:assert/strict');const x=require('./agent5-marshadow-opening-access.json');const p=x.conditionalOnLegalOpening;a.equal(x.categories.marshadow,1);a.equal(x.categories.otherBasic,13);a.equal(p.directMarshadowOrStadium.numerator,'66494477');a.equal(p.directMarshadowOrStadium.denominator,'166341120');a.equal(p.zeroDiscardFogOrPrizedHeavyBall.numerator,'11011492057');a.equal(p.zeroDiscardFogOrPrizedHeavyBall.denominator,'17632158720');a.equal(p.discardSearchFeasibleUpperBound.numerator,'13873403837');a.equal(p.discardSearchFeasibleUpperBound.denominator,'17632158720');console.log(JSON.stringify({source:x.rank,opening:p}))"
       - run: git submodule update --init --depth=1 vendor/twinleaf
+      - name: Record actual checked-out Twinleaf gitlink revision
+        run: echo "AGENT36_TWINLEAF_COMMIT_SHA=$(git -C vendor/twinleaf rev-parse HEAD)" >> "$GITHUB_ENV"
       - working-directory: vendor/twinleaf/ptcg-server
         run: |
           npm ci --no-audit --no-fund
           npm run compile
       - name: Verify pinned Twinleaf prompt continuation remains bound to its Store
         run: node --test tests/2026-11/agent14-native-store-prompt-continuation.test.cjs
+      - name: Verify deck-agnostic two-sided MCTS settles native prompts on the registering Store
+        run: |
+          node --check simulation/twinleaf/2026-11/agent12-twinleaf-two-sided-search.cjs
+          node --check tests/2026-11/agent12-twinleaf-two-sided-search.test.cjs
+          node --test tests/2026-11/agent12-twinleaf-two-sided-search.test.cjs
       - name: Verify suppression-aware public Stadium attack costs against native Store
         run: node --test tests/agent44-copycat-stadium-cost-native.test.cjs
       - name: Verify exact Night Watch printed randomness vs pinned vendor selection
