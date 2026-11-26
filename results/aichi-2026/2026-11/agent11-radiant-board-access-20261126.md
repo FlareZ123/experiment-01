@@ -1,4 +1,6 @@
-# First-turn Radiant + two-VMAX board access
+# First-turn Radiant + two-VMAX board access (superseded initial estimate)
+
+> **Superseded — 2026-11-26.** The 56.2209% / 50.1756% values below are the original adapter output, not a valid literal Radiant-to-Bench / Climactic Gate board rate. Use [Agent6's corrected independent audit](agent6-radiant-gate-board-access-correction-20261126.md): 53.1786% under the strict existing search tree, 54.3985% when a V can be an intermediate Forest Seal Stone host without requiring V at the terminal board, and 52.6136% under the 17-non-Basic-Other fodder sensitivity. Board plus one Psychic Energy in hand is 47.7813% / 49.0102% under the strict / V-for-FSS models. These are an independent 2M sample with a different shuffle stream, not a same-sample correction. The original adapter below still reproduces only the superseded estimates.
 
 **Candidate:** candidate-hood-shadow-rider.json  
 **Method:** 2,000,000 shuffled deals, seed 20261126, reusing Agent6's searcher-feasibility function without its Mimikyu-opening or Copycat-energy requirements.
@@ -33,4 +35,4 @@ Run from repository root:
 
     python scripts/agent11-radiant-board-access.py --deals 2000000 --seed 20261126
 
-The script imports scripts/agent6-rank2-radiant-copycat-searcher-access.py by path and fails fast if the candidate's category counts or 14-Basic count change.
+**Important:** this command reproduces the superseded original adapter estimate above. It does not reproduce Agent6's corrected independent sample. The corrected event definition and results are documented in [Agent6's audit](agent6-radiant-gate-board-access-correction-20261126.md); the original script has been marked legacy so its output is not mistaken for the corrected result.

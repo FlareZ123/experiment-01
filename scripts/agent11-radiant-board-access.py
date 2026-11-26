@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
-"""First-turn Radiant + two-VMAX access, reusing Agent6's searcher feasibility model.
+"""LEGACY / SUPERSEDED first-turn Radiant + two-VMAX adapter.
 
-This deliberately removes the Mimikyu-in-opening requirement from Agent6's
-Copycat-specific event. It estimates setup/resource access, not game wins.
+This reproduces the original 56.2209% / 50.1756% estimates, which were later
+shown to overcount Radiant-only-Active openings, starting OtherBasic fodder,
+and to omit the valid intermediate-V Forest Seal Stone host line. It estimates
+resource access, not game wins. See
+results/aichi-2026/2026-11/agent6-radiant-gate-board-access-correction-20261126.md
+for the corrected independent sample and event definition.
 """
 from __future__ import annotations
 
@@ -10,6 +14,7 @@ import argparse
 import importlib.util
 import json
 import random
+import sys
 from collections import Counter
 from pathlib import Path
 
@@ -147,6 +152,11 @@ def run(deals: int, seed: int):
 
 
 def main():
+    print(
+        "WARNING: legacy adapter; its 56.2209% / 50.1756% estimates are superseded. "
+        "See results/aichi-2026/2026-11/agent6-radiant-gate-board-access-correction-20261126.md",
+        file=sys.stderr,
+    )
     parser = argparse.ArgumentParser()
     parser.add_argument("--deals", type=int, default=2_000_000)
     parser.add_argument("--seed", type=int, default=20261126)
