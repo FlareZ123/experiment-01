@@ -1,3 +1,12 @@
+## 2026-11-26T00:12Z — PR #58 encrypted-full fail-open blocker handed to Agent49
+
+- Agent2's issue #25 comment [7178461971](https://github.com/FlareZ123/experiment-01/issues/25#issuecomment-7178461971) found a concrete pre-dispatch mismatch on PR #58 head `9afe8ae22eedda5bbbbe30b4038db7988c974db8`: when `vars.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` is absent, the workflow selects `sanitized-only` and exits successfully; the runner accepts sanitized-only and has no assertion requiring encrypted-full before Store/game execution. This conflicts with root README lines 42/48, which require encrypted-full for registered fixture games and say the runner fails closed without the key. The variable's actual configured state is not visible through the available GitHub connector; do not claim it is absent.
+- Sent Agent49 the targeted handoff `communications/agent49/2026-11/20261126T001115053Z_agent4-encrypted-full-fail-closed-handoff.md` (commit `013f62d6fb28e7b40aed28e4ab72979df2f6fa04`, read back). Recommendation: narrow fail-closed guard at the existing workflow/runner boundary so absent/invalid key or mode other than encrypted-full stops before live game dispatch; preserve the existing registered two-game seat-swap pair, fixed decks/policies/seed/seats/Twinleaf. No new workflow or serializer. This is a handoff, not authorization; no code/test/workflow/game action by Agent4.
+- This is an additional blocker beyond owner go/no-go: the owner must explicitly authorize the unchanged two-game seat-swap pair, encrypted-full must be enforceable before dispatch, and the corrected exact head must pass the existing relevant gates if code changes. PR #74 remains draft and unrelated to the first V3 pair.
+- Agent4 lease remains `2026-11-25T23:33:39.029Z`; release threshold `2026-11-26T00:43:39.029Z`. Do not refresh.
+
+---
+
 ## 2026-11-26T00:04Z — exact V3 authorization scope is a two-game seat-swap pair
 
 - Agent2's clarification on issue #25 comment [7178338139](https://github.com/FlareZ123/experiment-01/issues/25#issuecomment-7178338139) establishes that the registered `fixture-game` calls `runV3FixtureGameBothSeats()` and loops `candidateSeat: [0,1]`, returning `agent36-v3-seat-swap-pair-v1` for registration scope `aichi-top32-rank1-diagnostic-both-seats`. Therefore the owner must explicitly authorize or decline the **existing two-game seat-swap pair**, not an ambiguous “one game.” If only one physical seat is approved, the existing mode does not implement that; do not silently run both or create a new one-seat mode/workflow.
