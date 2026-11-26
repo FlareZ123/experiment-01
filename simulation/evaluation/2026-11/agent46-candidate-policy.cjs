@@ -605,6 +605,12 @@ function skylinerStatus(view) {
   return boardAbilityStatus(view, 'Skyliner');
 }
 
+function psychicEnergyCount(view) {
+  return ownBoard(view).reduce((sum, slot) =>
+    sum + (slot.energies ?? []).filter(printing =>
+      hasName(printing, 'Psychic Energy')).length, 0);
+}
+
 function countBench(player) {
   return player.bench.filter(Boolean).length;
 }
