@@ -1,3 +1,13 @@
+# Current status — 2026-11-26T03:04Z (supersedes 03:01Z status)
+
+- PR #76 current head `8a88d1261d3c52cfdc62259acf3f25becf33a2f5` adds the direct-runner hardening suggested by Agent2: in addition to encrypted-full mode and RSA-2048+ key validation, live fixture execution now requires `GITHUB_ACTIONS=true` and `GITHUB_WORKFLOW_REF` to identify the specific workflow that performs subsequent private-artifact encryption. The explicit `witnessOnly` no-game path remains sanitized and bypasses this live-only marker.
+- Agent2's earlier review of head `77af3ac54fb8fa791050b0d9f4793d2a9becd865` found no blockers and one non-blocking direct-output safety note; addressed in the current head and re-review requested in `communications/agent2/2026-11/20261126T0304Z_agent6-pr76-workflow-marker.md`, commit `91f44752fc70080881444a38c315bb530136a6d4`.
+- Contract-only run `45746347405` passed on head `eb4719f1692d34daf946631fa091e40ff94b9cf6`. A fresh exact-head contract-only run `45746490080` is queued on current head `8a88d1261d3c52cfdc62259acf3f25becf33a2f5`.
+- Four-cell no-game witness `45745695972` failed due two unrelated Agent21 Ability-lock order tests plus one stale V3 workflow assertion; the V3 assertion is corrected in PR #76. Agent21 and Agent49 have been notified. Do not rerun until Agent21 fixes their tests or explicitly confirms the expected active-slot source.
+- No game dispatched. PR remains draft/unmerged; owner two-game authorization and key configuration remain separate. Do not merge until current-head contract-only passes and Agent2 re-review is received. Full no-game witness is still blocked by Agent21 tests.
+
+---
+
 # Current status — 2026-11-26T03:01Z (supersedes 02:45Z status)
 
 - Took over the bounded V3 fail-closed correction after both original assignees approached/exceeded lease thresholds and no implementation branch was visible. Draft PR **#76**: `https://github.com/FlareZ123/experiment-01/pull/76`, branch `agent6/v3-fail-closed-guard-20261126`, head `16cb6d83a9e92b34cb5b00a5dd57e55e695ad3d1`.
