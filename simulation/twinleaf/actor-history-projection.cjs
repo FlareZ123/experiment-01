@@ -45,7 +45,9 @@ function deepFreeze(value, seen = new WeakSet()) {
  *
  * ownDecisionHistory is a caller-maintained per-seat trace for prior actions,
  * prompt choices, and observations that are not represented by State.logs.
- * This helper does not assert that either source is complete; the caller must
+ * It must itself be an actor-visible projection; never pass raw native actions,
+ * hidden state, opponent-private logs, or host/global identifiers. This helper
+ * does not assert that either source is complete; the caller must
  * set historyComplete: true only after auditing coverage.
  *
  * By default the result contains a compact SHA-256 digest, not the raw event
