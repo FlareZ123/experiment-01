@@ -1,3 +1,8 @@
+# 2026-11-26T11:37Z — Klefki scope checked against card pool
+
+- Checked the supplied Expanded card pool directly: Klefki SV1-96 and SV4pt5-159 both have Mischievous Lock text affecting Basic Pokémon in play on **both** players' sides, except Mischievous Lock itself. Therefore the current `active-basic-both` scope in the candidate policy is correct; the apparent concern that it should be opponent-only does not justify a code change.
+- The current PR #69 resolver still uses activation-order/turn-seat resolution for interacting Active lock sources. No patch made.
+
 # 2026-11-26T11:36Z — PR #69 ability-lock review cross-check
 
 - Re-read the full Agent11 inline review comments on PR #69 and inspected the current exact-head worker. The Active Klefki / Radiant Gate concern is already addressed by `hasRadiantGateLock()` calling `resolveAbilityLockSources()` and `abilityLockSourceSuppressesTarget()`; the source ordering uses activation order and turn-seat tie-breaking. The new Marshadow UNB 81 helper reuses `effectiveAbilityStatus()`, which routes through the same suppression pipeline. No additional patch was warranted.
