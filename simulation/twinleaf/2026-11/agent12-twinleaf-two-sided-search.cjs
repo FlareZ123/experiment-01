@@ -746,6 +746,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
         actorView,
         native,
         random: promptRandom,
+        withDispatchRandom: callback => withRandom(transitionRandom, callback),
         context: context ?? null
       });
       assert.ok(resolution && typeof resolution === 'object' &&
@@ -870,7 +871,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
       promptResolutionMode,
       promptSubPolicyId: promptResolutionMode === 'same-store-subcall' ?
         deps.promptSubPolicyId : null,
-      promptDecisionProtocol: 'same-store-player-prompt-subpolicy-plus-host-chance-resolution-v2',
+      promptDecisionProtocol: 'same-store-player-prompt-subpolicy-plus-host-chance-and-live-dispatch-rng-v3',
       historyProtocolId: 'agent12-actor-visible-own-decision-history-v1',
       rootStateDigestProtocolId: 'agent49-store-state-snapshot-sha256-v1',
       rootHistoryAttestationSchemaId: 'agent12-actor-history-attestation-v2',
@@ -1038,7 +1039,8 @@ function createNativeTwinleafPromptCallbacks({
   }
 
   function resolvePlayerPrompt({
-    store, state, prompt, actorSeat, actorView, random, context
+    store, state, prompt, actorSeat, actorView, random,
+    withDispatchRandom = callback => callback(), context
   } = {}) {
     assert.ok(store && typeof store.dispatch === 'function');
     assert.equal(store.state, state,
@@ -1085,7 +1087,8 @@ function createNativeTwinleafPromptCallbacks({
       decision,
       native,
       dispatch: true,
-      withValidationRandom
+      withValidationRandom,
+      withDispatchRandom
     });
     const validationReceipt = result.validationReceipt;
     assert.ok(validationReceipt &&
