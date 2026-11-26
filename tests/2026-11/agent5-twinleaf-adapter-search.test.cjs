@@ -539,8 +539,12 @@ function makeGenericTwoSidedSearchHarness() {
     ],
     isAutomaticPrompt:prompt=>prompt.kind==='automatic',
     resolveAutomaticPrompt:()=>null,
-    terminalValues:state=>state.winner===0?[1,0]:
-      state.winner===1?[0,1]:[0,0],
+    terminalValues:state=>{
+      if(state.winner===0)return [1,0];
+      if(state.winner===1)return [0,1];
+      if(state.terminalClass==='adjudicated-draw')return [0,0];
+      throw new Error('Terminal state lacks an explicit adjudication class');
+    },
     evaluateObservationValues:()=>[0.5,0.5]
   };
   return {
