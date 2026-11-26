@@ -63,12 +63,12 @@ Dialga-GX UPR 100 has no Ability and all its printed attacks require Metal Energ
 
 At five attached Energy, current candidate-worker discard values are:
 
-| Card | Discard value when opponent is not Regidrago |
-|---|---:|
-| Psychic Energy | 2 |
-| Mimikyu | 30 |
-| Dialga-GX | 35 |
-| Stealthy Hood | 700 |
+| Card | Registered main at five Energy, non-Regidrago mirror | PR #69 candidate v3 |
+|---|---:|---:|
+| Psychic Energy | 2 | 80 until 11 attached |
+| Mimikyu | 30 | 30 |
+| Dialga-GX | 35 | 0 |
+| Stealthy Hood | 700 | 0 when no Hood need; 700 when needed |
 
 Because the prompt chooser negates these values, it can discard core Max Geist Energy before the matchup-dead Dialga. This is inconsistent with the candidate worker's own search logic, which only prioritizes Dialga/Mimikyu when Regidrago is visible, and with matchup-dependent DCI.
 
@@ -81,6 +81,19 @@ The existing test `mandatory discard uses dead or excess resources before Regidr
 The registered rank-1 worker blob is `1c8aef18c6ddd2b45f5aeaa2bf958169301e7dcd`. Its `scoreManualPsychicEnergy()` gives a Shadow Rider VMAX a positive attachment score while that **target** has fewer than six Psychic Energy (lines 338–368). It does not impose the candidate's same global five-Energy threshold.
 
 This is a concrete policy asymmetry in the chosen pair. It is not proof that the rank-1 policy is generally stronger: separate rank-1 defects are already preserved for post-trace remediation in Agent42's and Agent35's handoffs.
+
+
+
+### Narrow discard-priority correction on PR #69
+
+A candidate-only correction has now been committed to PR #69 branch `agent46/candidate-policy-competence-20261124` as commit `6f923e1803e1d87e6b029cf4c1213499dbb318c8` (worker v3; blob `8a94161b2fafb7a146698f1cb6dfc9d06b539225`; test blob `7809cae76a6de9b1012a85e1e693faab1d657638`). It changes only discard ranking:
+
+- Psychic Energy remains discard value 80 until all 11 are attached, instead of becoming value 2 at five.
+- Stealthy Hood is value 700 only when the worker's existing Hood-need helper says it is live; otherwise it is a discard-first tech (value 0).
+- Dialga-GX is protected at 1000 only when Regidrago is present and its payload is not already in discard; otherwise it is discard-first (value 0).
+- Four focused tests cover mirror Hood discard, mirror Dialga discard, Regidrago Dialga preservation, and ability-lock Hood preservation.
+
+This commit is on the draft PR #69 branch only. The registered main candidate blob `59466565caa241558c3ed62a331c56228c30e3d1`, V3 fixture, deck, seed, seats, PR #71, and all main-branch registration files are unchanged. The PR #69 branch's searchNeedScore and VMAX attachment/Underworld Door five-Energy preferences are also unchanged; those remain open state-aware policy work. No GitHub Actions check was triggered for this commit, so the four new tests are **not yet executed** and the patch is not validated or merged.
 
 ## Recommended follow-up
 
