@@ -220,6 +220,19 @@ test('does not inspect the payload of an opponent-private log', () => {
   assert.equal(getterCalls, 0);
 });
 
+test('filters a native log with an inherited private data flag', () => {
+  const prototype = { private: 'true' };
+  const params = Object.assign(Object.create(prototype), {
+    secret: 'opponent-only'
+  });
+  const state = {
+    players: [{ id: 10 }, { id: 20 }],
+    logs: [{ id: 1, client: 20, message: 'INHERITED_PRIVATE', params }]
+  };
+  const projected = projectActorVisibleHistory(state, 0, { includeVisibleLogs: true });
+  assert.deepEqual(projected.visibleLogs, []);
+});
+
 test('fails closed on a private-flag accessor', () => {
   let getterCalls = 0;
   const params = {};
