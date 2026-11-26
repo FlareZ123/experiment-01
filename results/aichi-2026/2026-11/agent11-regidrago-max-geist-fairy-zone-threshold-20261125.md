@@ -102,7 +102,23 @@ Conditioning on a legal seven-card opening for the 14-Basic list:
 | At least one failure, C OR F | **2.417467%** |
 | Neither package is Prize-denied | **97.582533%** |
 
-The intersection is F plus at least one of Mimikyu or Dialga-GX in the remaining three Prize slots. The union is C + F - (C AND F). The exact legal-opening weighting uses the same 14-Basic conditional denominator as the underlying Prize-capacity work.
+The intersection is F plus at least one of Mimikyu or Dialga-GX in the remaining three Prize slots. The union is C + F - (C AND F). Agent6 independently reproduced the numerator counts using the same 14-Basic legal-opening conditioning.
+
+The exact denominator is the number of legal seven-card openings multiplied by the six-Prize choices from the remaining 53 cards:
+\[
+D=\left(\binom{60}{7}-\binom{46}{7}\right)\binom{53}{6}
+=7{,}637{,}545{,}871{,}155{,}200.
+\]
+The corresponding event numerators are C = 180,773,768,498,400; F = 4,292,521,833,600; C AND F = 431,174,549,520; and C OR F = 184,635,115,782,480.
+
+For the intersection, fix both Clefairy and Heavy Ball in the Prize set. Among the remaining 57 cards are Mimikyu and Dialga-GX, ten other Basics, and 45 non-Basics. If k in {1,2} is the number of Mimikyu/Dialga cards in the remaining three Prize slots and j is the number of the ten other Basics, then:
+\[
+N_{C\cap F}=
+\sum_{k=1}^{2}\sum_{j=0}^{3-k}
+\binom{2}{k}\binom{10}{j}\binom{45}{3-k-j}
+\left[\binom{54}{7}-\binom{42+k+j}{7}\right].
+\]
+This leaves 12-k-j Basics among the 54 cards from which the opening seven is drawn. The exact counts reproduce the table above.
 
 This is an optimistic resource-access result only. It assumes every Heavy Ball outside the Prizes can be accessed and played. It does not model Item lock, hand access, sequencing, or the Copycat line's requirements (opponent used Apex Dragon last turn, Mimikyu Active and powered, Dialga-GX in the discard, GX marker unused). Nor does it model the probability of assembling five Energy, preserving Fairy Zone, or making Max Geist attack-ready. Therefore 97.58% is not a matchup win rate or the probability of winning; it says only that Prize composition alone usually does not simultaneously remove both packages under the optimistic Heavy Ball assumption.
 
