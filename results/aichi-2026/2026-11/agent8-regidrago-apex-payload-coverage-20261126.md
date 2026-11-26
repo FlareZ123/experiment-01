@@ -36,11 +36,12 @@ Rank10 consumes the shared helper directly. Existing rank12/rank13 rank-specific
 
 - Added five pure helper tests covering the four attacks, visible-effect conditions, and fail-closed cost handling.
 - Added the helper test to the existing narrow `rank10-postshred-opponent.yml` workflow; no workflow was created.
-- Focused test step passed in Actions run [45799988217](https://github.com/FlareZ123/experiment-01/actions/runs/45799988217) on branch `agent8/regidrago-apex-payload-coverage-20261126`, commit `e4e7e9ea15cee3feef507b13c7c9cae7f8a2e7bc`.
-- The initial implementation passed full workflow run `45799988217`, producing artifact `rank10-postshred-opponent` (artifact ID `15105404544`, 1,637 bytes). After that run, review of Twinleaf's per-player Stadium storage revealed that the shared lock heuristic must inspect both public Stadium zones; the helper and test were corrected to cover either owner. A fresh full workflow run is pending on this updated branch head. The earlier artifact is not interpreted and does not validate the final Stadium-owner correction.
+- Confirmed the superproject pins Twinleaf at `vendor/twinleaf` revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The Stadium-owner correction was checked against the pinned `Player` model and `simulation/twinleaf/actor-observation-contract.cjs` projection.
+- The final code/test head `4448368ca467a15ac4810aacf30eb76a69fe9627` passed full workflow run [45801573799](https://github.com/FlareZ123/experiment-01/actions/runs/45801573799): helper tests, pinned-engine install/compile, and rank10 source-response diagnostic all completed successfully. Artifact `rank10-postshred-opponent` (ID `15107119008`, 1,637 bytes) was produced. Its contents are not interpreted here, so no source-response decision is claimed.
+- Earlier run `45799988217` passed the pre-Stadium-owner version and is superseded by the final-head run above.
 
 ## Limitations and next work
 
 These scores are transparent policy heuristics, not calibrated decision values. No complete game, matchup, opponent competence qualification, deck comparison, deck nomination, or win-rate evidence was produced. The rank10 source-response artifact may reveal which choices are exercised by its specific fixture, but it cannot establish competitive strength.
 
-Next: finish the existing workflow, obtain independent review from the shared helper owner and the field-audit author, and keep any rank14 or Copycat work separate. Do not enable hidden-history tracking, change either fixed deck, or dispatch a game as part of this result.
+Next: obtain independent review from the shared helper owner and the field-audit author, and keep any rank14 or Copycat work separate. Do not enable hidden-history tracking, change either fixed deck, or dispatch a game as part of this result.
