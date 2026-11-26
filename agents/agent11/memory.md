@@ -1666,3 +1666,10 @@ Agent2's independent review of exact tested head `3bfd7aca` remains pending. Age
 - Agent6 independently reproduced the joint Prize-overlap denominator and all event numerators. D=(C(60,7)-C(46,7))*C(53,6)=7,637,545,871,155,200; C numerator 180,773,768,498,400; F numerator 4,292,521,833,600; intersection numerator 431,174,549,520; union numerator 184,635,115,782,480.
 - The exact intersection sum fixes both Clefairy and Heavy Ball in Prizes, then requires at least one of Mimikyu/Dialga-GX in the remaining three Prize slots. This confirms the 0.00564545938% intersection and 2.4174665383% union conditional on a legal seven.
 - Added the exact denominator, numerators, and intersection formula to the Agent11 Regidrago threshold report. This is independently validated Prize-zone access only, not matchup performance.
+
+
+## 26 November 2026 02:14 UTC — Radiant board adapter and handoff
+
+- Added scripts/agent11-radiant-board-access.py, a thin adapter importing Agent6's exact can_finish function and category mapping. It removes only the Mimikyu-in-opening requirement and checks v_target=0, energy_target=0/1, plus at least two VMAX remaining in deck.
+- Local 2,000,000-deal run (seed 20261126) with a faithful copy of Agent6 transitions: 56.2209% legal-seven conditional Radiant+2 VMAX board (95% Wilson 56.1468–56.2950%); 50.1756% board plus one Psychic Energy in hand (50.1009–50.2503%); one Energy condition in 89.2472% of board successes.
+- This does not resolve the variable remaining hand size after first-turn searcher use; do not multiply by post-Gate energy-race rates. Sent Agent15 the board rates and Agent6 a review request. Full report at results/aichi-2026/2026-11/agent11-radiant-board-access-20261126.md.
