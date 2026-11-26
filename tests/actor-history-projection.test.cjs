@@ -107,12 +107,24 @@ test('wraps a base actor observation with a per-seat history key', () => {
   assert.equal(view.actorSeat, 0);
   assert.equal(view.publicTurn, 4);
   assert.match(view.actorHistorySha256, /^[a-f0-9]{64}$/);
-  assert.equal(view.actorHistoryComplete, false);
-  assert.equal(view.actorHistorySource, 'unsanitized-store-plus-seat-trace');
+  assert.equal(Object.hasOwn(view, 'actorHistoryComplete'), false);
+  assert.equal(Object.hasOwn(view, 'actorHistorySource'), false);
   assert.ok(Array.isArray(view.actorVisibleHistory));
   assert.deepEqual(view.actorOwnDecisionHistory, [{ kind: 'action', key: 'play-supporter' }]);
   assert.equal(Object.isFrozen(view), true);
   assert.equal(Object.isFrozen(view.actorVisibleHistory), true);
+});
+
+test('wrapper can fail closed when complete recall is required', () => {
+  const withHistory = createActorObservationWithHistory(
+    () => ({ actorSeat: 0 }),
+    () => ({
+      historyComplete: false,
+      historySource: 'unsanitized-store-only',
+      requireComplete: true
+    })
+  );
+  assert.throws(() => withHistory(fixtureState(), 0), /ACTOR_HISTORY_COMPLETE_TRACE_REQUIRED/);
 });
 
 test('does not certify complete history without an explicit source', () => {
