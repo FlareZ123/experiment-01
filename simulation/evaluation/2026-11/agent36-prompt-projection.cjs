@@ -170,9 +170,17 @@ function validateRawPromptResult(prompt, rawResult, state) {
       ? prompt.decode(rawResult, state) : rawResult;
     const valid = typeof prompt.validate === 'function'
       ? prompt.validate(decoded, state) : true;
-    return { valid: valid !== false, decoded };
-  } catch {
-    return { valid: false, decoded: null };
+    return { valid: valid !== false, decoded, validatorResult: valid };
+  } catch (error) {
+    return {
+      valid: false,
+      decoded: null,
+      validatorResult: null,
+      error: {
+        name: error?.name ?? 'Error',
+        message: String(error?.message ?? error).slice(0, 400)
+      }
+    };
   }
 }
 
@@ -792,7 +800,45 @@ function resolveHostOnlyPrompt({
   }
 
   const validation = validateRawPromptResult(prompt, rawResult, state);
-  assert.equal(validation.valid, true, 'host-selected prompt result failed native validation');
+  if (!validation.valid) {
+    const validationOwnerId = prompt.getPerspectivePlayerId?.() ?? prompt.playerId;
+    const validationOwner = state.players.find(player => player.id === validationOwnerId) ?? null;
+    const rawArray = Array.isArray(rawResult);
+    const rawResultIsPermutation = rawArray &&
+      rawResult.every(Number.isSafeInteger) &&
+      new Set(rawResult).size === rawResult.length &&
+      rawResult.every(value => value >= 0 && value < rawResult.length);
+    const diagnostic = {
+      promptType: name,
+      promptId: prompt.id,
+      playerId: prompt.playerId,
+      perspectivePlayerId: prompt.perspectivePlayerId ?? null,
+      effectivePerspectivePlayerId: validationOwnerId,
+      ownerSeat,
+      statePlayerIds: state.players.map(player => player.id),
+      expectedLengthAtSelection: summary?.itemCount ?? null,
+      expectedLengthAtValidation: name === 'ShuffleDeckPrompt'
+        ? validationOwner?.deck?.cards?.length ?? null
+        : name === 'ShuffleHandPrompt' ? validationOwner?.prizes?.length ?? null : null,
+      ownerDeckLength: validationOwner?.deck?.cards?.length ?? null,
+      ownerPrizeCount: validationOwner?.prizes?.length ?? null,
+      rawResultType: rawArray ? 'array' : typeof rawResult,
+      rawResultLength: rawArray ? rawResult.length : null,
+      rawResultPreview: rawArray ? rawResult.slice(0, 12) : null,
+      rawResultIsPermutation,
+      decodedType: Array.isArray(validation.decoded)
+        ? 'array' : validation.decoded === null ? 'null' : typeof validation.decoded,
+      decodedLength: Array.isArray(validation.decoded) ? validation.decoded.length : null,
+      validatorResult: validation.validatorResult ?? null,
+      validationError: validation.error ?? null
+    };
+    throw Object.assign(new Error(
+      'host-selected prompt result failed native validation: ' + JSON.stringify(diagnostic)
+    ), {
+      code: 'HOST_ONLY_PROMPT_NATIVE_VALIDATION_FAILED',
+      diagnostic
+    });
+  }
   const action = new native.ResolvePromptAction(prompt.id, validation.decoded);
   const result = dispatch?store.dispatch(action):undefined;
   return {
