@@ -327,6 +327,7 @@ test('terminal outcomes cannot turn an unclassified state into a draw',()=>{
   for(const outcome of [
     [0,0],
     {kind:'unresolved'},
+    {kind:'adjudicated-draw',ruleId:'unversioned',reason:'missing rule version',evidenceId:'fixture-evidence'},
     {kind:'adjudicated-draw',ruleId:'test-draw-v1',reason:'no evidence',evidenceId:''}
   ]) {
     const search=createInformationSetMcts({
@@ -345,4 +346,21 @@ test('terminal outcomes cannot turn an unclassified state into a draw',()=>{
     });
     assert.throws(()=>search.search({seat:0,terminal:false},0));
   }
+});
+
+
+test('seat-win-probability mode requires a versioned terminal protocol id',()=>{
+  assert.throws(()=>createInformationSetMcts({
+    valueMode:'seat-win-probability',
+    terminalOutcomeProtocolId:'unversioned',
+    terminalOutcome:()=>({kind:'seat-win',winnerSeat:0}),
+    evaluateObservationValues:()=>[0,0],
+    observe:(state,seat)=>({actorSeat:seat}),
+    activeSeat:state=>state.seat,
+    enumerateActions:()=>[{name:'pass'}],
+    actionKey:action=>action.name,
+    applyAction:state=>({...state}),
+    isTerminal:state=>false,
+    redeterminize:state=>({...state})
+  }),/requires a versioned terminalOutcomeProtocolId/);
 });
