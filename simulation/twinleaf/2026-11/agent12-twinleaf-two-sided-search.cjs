@@ -85,6 +85,8 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
   'Pinned Twinleaf Simulator, ActionEnumerator, prompt action and terminal phase are required');
   assert.equal(typeof deps.actorObservation, 'function');
   assert.equal(typeof deps.projectPrompt, 'function');
+  assert.ok(typeof deps.rulesProfileId === 'string' && deps.rulesProfileId.length > 0,
+    'Twinleaf rulesProfileId is required for reproducible state observations');
   assert.equal(typeof deps.enumeratePromptChoices, 'function');
   assert.equal(typeof deps.isAutomaticPrompt, 'function');
   assert.equal(typeof deps.resolveAutomaticPrompt, 'function');
@@ -113,9 +115,18 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     deps.redeterminize.metadataByState ?? null;
   const refreshMetadata = deps.refreshMetadata ??
     deps.redeterminize.refreshMetadata ?? null;
-  if (metadataByState) {
-    assert.equal(typeof refreshMetadata, 'function',
-      'Sampled-state metadata requires a refreshMetadata transition hook');
+  const knowledgeBySeat = deps.knowledgeBySeat ??
+    deps.redeterminize.knowledgeBySeat ?? null;
+  assert.ok(metadataByState && typeof metadataByState.has === 'function' &&
+    typeof metadataByState.get === 'function',
+  'Actor-relative determinization requires a per-State metadata WeakMap');
+  assert.equal(typeof refreshMetadata, 'function',
+    'Sampled-state metadata requires a refreshMetadata transition hook');
+  assert.equal(typeof knowledgeBySeat, 'function',
+    'Actor-relative determinization requires the same per-seat knowledge provider');
+  if (deps.knowledgeBySeat && deps.redeterminize.knowledgeBySeat) {
+    assert.equal(deps.knowledgeBySeat, deps.redeterminize.knowledgeBySeat,
+      'Observation and determinization must share one knowledge provider');
   }
 
   const snapshotState = createStoreStateSnapshotter();
@@ -168,18 +179,41 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
   function observe(state, seat, context) {
     assert.equal(activeSeat(state), seat,
       'Actor observation requested for a non-acting physical seat');
-    const base = deps.actorObservation(state, seat, context);
+    const ownerLedger = knowledgeBySeat(state, seat, context);
+    assert.ok(ownerLedger && ownerLedger.verified === true &&
+      ['K0', 'K1', 'PARTIAL'].includes(ownerLedger.mode),
+    'Actor observation requires a verified K0/K1/PARTIAL knowledge ledger');
+    const base = deps.actorObservation(state, seat, {
+      ownerK1Snapshot: ownerLedger.ownerK1Snapshot ?? null
+    });
     assert.ok(base && typeof base === 'object' && !Array.isArray(base));
     assert.equal(base.actorSeat, seat,
       'Twinleaf actor observation belongs to a different physical seat');
+    assert.deepEqual(base.ownerK1, ownerLedger.ownerK1Snapshot ?? null,
+      'Actor observation omitted or changed its owner K1 snapshot');
+    const ownTurnResources = {
+      ...(base.ownTurnResources ?? {}),
+      attacksThisTurn: state.players[seat].active?.attacksThisTurn ?? 0
+    };
+    const sampledMetadata = metadataByState.get(state);
+    const ownDecklistId = sampledMetadata?.decklistIds?.[seat] ??
+      (seat === deps.ownDecklistSeat ? deps.ownDecklistId : null);
+    const view = {
+      ...base,
+      ownTurnResources,
+      ownerKnowledgeLedger: ownerLedger,
+      rulesProfileId: deps.rulesProfileId,
+      ...(typeof ownDecklistId === 'string' && ownDecklistId.length > 0 ?
+        { ownDecklistId } : {})
+    };
     const prompt = firstPendingPrompt(state);
-    if (!prompt) return frozenActorView(base);
+    if (!prompt) return frozenActorView(view);
     assert.equal(unresolvedDecisionSeat(prompt, state), seat);
-    const projectedPrompt = deps.projectPrompt(state, prompt, seat, base, context);
+    const projectedPrompt = deps.projectPrompt(state, prompt, seat, view, context);
     assert.ok(projectedPrompt && typeof projectedPrompt === 'object' &&
       !Array.isArray(projectedPrompt),
     'Prompt projector must return an actor-visible object');
-    return frozenActorView({ ...base, pendingPrompt: projectedPrompt });
+    return frozenActorView({ ...view, pendingPrompt: projectedPrompt });
   }
 
   function enumeratePromptActions(state, seat, context) {
