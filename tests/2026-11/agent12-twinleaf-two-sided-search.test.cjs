@@ -13,7 +13,11 @@ const compiledActionEnumerator=path.join(
   __dirname,'../../vendor/twinleaf/ptcg-server/output/advanced-bot/action-enumerator.js'
 );
 const {observationSha256}=require('../../simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs');
-const {createTwinleafTwoSidedSearch,createNativeTwinleafPromptCallbacks}=require('../../simulation/twinleaf/2026-11/agent12-twinleaf-two-sided-search.cjs');
+const {
+  assertOwnDecisionHistoryEventForSeat,
+  createTwinleafTwoSidedSearch,
+  createNativeTwinleafPromptCallbacks
+}=require('../../simulation/twinleaf/2026-11/agent12-twinleaf-two-sided-search.cjs');
 const GENERIC_SEARCH_ENGINE_PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const NATIVE_PROMPT_DDE = 'Double Dragon Energy ROS';
 const NATIVE_PROMPT_REGIDRAGO = 'Regidrago V SIT';
@@ -516,6 +520,17 @@ test('two-sided search rejects a complete-history attestation for a different ro
   const search=createTwinleafTwoSidedSearch(harness.deps,{iterations:1,maxPlies:1});
   assert.throws(()=>search.search(harness.state,0),
     /Root history attestation is not bound to the actual root State snapshot/);
+});
+
+test('generic history freeze invariant rejects misattributed or unsupported events',()=>{
+  const valid=makeRootActionHistoryEvent(0,'valid-seat-zero-history-event');
+  assert.strictEqual(assertOwnDecisionHistoryEventForSeat(valid,0),valid);
+  assert.throws(()=>assertOwnDecisionHistoryEventForSeat(
+    makeRootActionHistoryEvent(1,'misattributed-seat-one-event'),0),
+  /Own-decision history event actorSeat must match physical seat 0/);
+  assert.throws(()=>assertOwnDecisionHistoryEventForSeat(
+    {...valid,schema:'unsupported-history-event-v0'},0),
+  /Own-decision history event has an unsupported schema/);
 });
 
 test('root history prefix events cannot be attributed to the other physical seat',()=>{

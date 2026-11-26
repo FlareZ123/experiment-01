@@ -33,6 +33,21 @@ function deepFreeze(value) {
   return Object.freeze(value);
 }
 
+function assertOwnDecisionHistoryEventForSeat(event, seat) {
+  assert.ok(seat === 0 || seat === 1,
+    'Own-decision history event requires a physical seat');
+  assert.ok(event && typeof event === 'object' && !Array.isArray(event),
+    'Own-decision history event must be a plain data object');
+  assert.ok(Reflect.ownKeys(event).every(key => typeof key === 'string'),
+    'Own-decision history event cannot contain symbol keys');
+  assert.equal(event.schema, 'agent12-own-decision-history-event-v1',
+    'Own-decision history event has an unsupported schema');
+  assert.equal(event.actorSeat, seat,
+    'Own-decision history event actorSeat must match physical seat ' + seat);
+  return event;
+}
+
+
 function frozenActorView(value) {
   return deepFreeze(JSON.parse(canonicalJson(value)));
 }
@@ -191,10 +206,13 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
       input.completeBySeat.every(value => typeof value === 'boolean'));
     assert.ok(Array.isArray(input.sourceBySeat) && input.sourceBySeat.length === 2 &&
       input.sourceBySeat.every(value => typeof value === 'string' && value.length > 0));
-    const historiesBySeat = input.historiesBySeat.map(history => {
+    const historiesBySeat = input.historiesBySeat.map((history, seat) => {
       assert.ok(Array.isArray(history));
-      return Object.freeze(history.map(event =>
-        deepFreeze(cloneActorSafeValue(event))));
+      return Object.freeze(history.map(event => {
+        const clonedEvent = cloneActorSafeValue(event);
+        assertOwnDecisionHistoryEventForSeat(clonedEvent, seat);
+        return deepFreeze(clonedEvent);
+      }));
     });
     return Object.freeze({
       historiesBySeat: Object.freeze(historiesBySeat),
@@ -1154,6 +1172,7 @@ function createTwinleafTwoSidedSearch(deps, options = {}) {
 }
 
 module.exports = {
+  assertOwnDecisionHistoryEventForSeat,
   createTwinleafTwoSidedSearchAdapter,
   createNativeTwinleafPromptCallbacks,
   createTwinleafTwoSidedSearch
