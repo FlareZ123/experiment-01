@@ -12,7 +12,7 @@ Does the candidate worker's five-attached-Psychic-Energy threshold preserve enou
 - Registered candidate worker on main: `simulation/evaluation/2026-11/agent46-candidate-policy.cjs`, blob `59466565caa241558c3ed62a331c56228c30e3d1`.
 - Candidate-policy PR #69 head at review time: `64d77d32c57e3c87517e1fc302ff97ca4fabd165`; its worker retains the same relevant five-Energy thresholds.
 - Candidate test file: `tests/2026-11/agent46-candidate-policy.test.cjs`, blob `13372f75e5a600ea66094a6541bd6040f3297168`.
-- Candidate-policy PR #69 branch test file: same path, blob `231fdf5c893ab47c2dd13ef85b44ea1ed23568cd`; lines 571–667 exercise Hood search/activation but not discard ranking.
+- Candidate-policy PR #69 branch test file: same path, blob `67da7361806658f6c6d9f67200d45280a88990ab`; lines 571–667 exercise Hood search/activation but not discard ranking.
 - Candidate fixed 60: `results/decks/hood-shield-shadow-rider-v1-expanded-legal-60.md` (11 Basic Psychic Energy).
 - Rank-1 reference: `results/aichi-2026/benchmark-shadow-rider.md` (Shadow Rider champion list; 4 Shadow Rider VMAX and 3 Shadow Rider V).
 - Exact card data: supplied card pool `cards/en/swsh6.json`, Shadow Rider Calyrex VMAX CRE 75 (320 HP; Max Geist: 10+30 per Psychic Energy attached to all of the player's Pokémon), and Dialga-GX UPR 100 / Mimikyu GRI 58.
@@ -63,12 +63,15 @@ Dialga-GX UPR 100 has no Ability and all its printed attacks require Metal Energ
 
 At five attached Energy, current candidate-worker discard values are:
 
-| Card | Registered main at five Energy, non-Regidrago mirror | PR #69 candidate v3 |
+| Card | Registered main at five Energy, non-Regidrago mirror | PR #69 candidate v4 |
 |---|---:|---:|
 | Psychic Energy | 2 | 80 until 11 attached |
 | Mimikyu | 30 | 30 |
 | Dialga-GX | 35 | 0 |
 | Stealthy Hood | 700 | 0 when no Hood need; 700 when needed |
+| Tapu Lele-GX | 50 | live scoreBasicPlay value (620/720) |
+| Marshadow | 50 | live scoreBasicPlay value (400) |
+| Girafarig | 50 | live scoreBasicPlay value (450 vs Regidrago) |
 
 Because the prompt chooser negates these values, it can discard core Max Geist Energy before the matchup-dead Dialga. This is inconsistent with the candidate worker's own search logic, which only prioritizes Dialga/Mimikyu when Regidrago is visible, and with matchup-dependent DCI.
 
@@ -86,14 +89,15 @@ This is a concrete policy asymmetry in the chosen pair. It is not proof that the
 
 ### Narrow discard-priority correction on PR #69
 
-A candidate-only correction has now been committed to PR #69 branch `agent46/candidate-policy-competence-20261124` as latest branch head `e3f019ea83bdff38da4d7a892ef00f9a2ec9a604` (worker v3; blob `8a94161b2fafb7a146698f1cb6dfc9d06b539225`; test blob `231fdf5c893ab47c2dd13ef85b44ea1ed23568cd`). It changes only discard ranking:
+A candidate-only correction has now been committed to PR #69 branch `agent46/candidate-policy-competence-20261124` as latest branch head `d3025c4af584934e912e1ba80476344de3a5d8d4` (worker v4; blob `5ef99598d56f8d399b4c0e9cb6ca5438fca2db58`; test blob `67da7361806658f6c6d9f67200d45280a88990ab`). It changes only discard ranking:
 
 - Psychic Energy remains discard value 80 until all 11 are attached, instead of becoming value 2 at five.
 - Stealthy Hood is value 700 only when the worker's existing Hood-need helper says it is live; otherwise it is a discard-first tech (value 0).
 - Dialga-GX is protected at 1000 only when Regidrago is present and its payload is not already in discard; otherwise it is discard-first (value 0).
-- Four new tests cover mirror Hood discard, mirror Dialga discard, Regidrago Dialga/Mimikyu preservation, and ability-lock Hood preservation. Two existing discard regressions were also rerun. All 11 selected test callbacks passed in an isolated V8 harness using the actual candidate-policy module and policy protocol: four new discard tests, two existing discard regressions, and five existing Hood search/activation regressions. Node test/assert and fs/path were stubbed; the generic Node worker wrapper was replaced by the protocol constants it re-exports unchanged, and the prompt-projection module was stubbed.
+- Before the CORE_PRINTINGS fallback, discardValue now asks the existing scoreBasicPlay function whether the Basic Pokémon has a live bench-play score. A positive live score is preserved at max(81, scoreBasicPlay), aligning discard decisions with Tapu Lele's Wonder Tag, Marshadow's live Stadium removal, Girafarig's Regidrago gate, and other existing Basic-play gates.
+- Eight new tests cover mirror Hood discard, mirror Dialga discard, Regidrago Dialga/Mimikyu preservation, ability-lock Hood preservation, live Tapu Lele preservation and lock-negative control, live Marshadow preservation, and live Regidrago Girafarig preservation. Two existing discard regressions and five existing Hood search/activation regressions were also rerun. All 15 selected test callbacks passed in an isolated V8 harness using the actual candidate-policy module and policy protocol. Node test/assert and fs/path were stubbed; the generic Node worker wrapper was replaced by the protocol constants it re-exports unchanged, and the prompt-projection module was stubbed.
 
-This commit is on the draft PR #69 branch only. The registered main candidate blob `59466565caa241558c3ed62a331c56228c30e3d1`, V3 fixture, deck, seed, seats, PR #71, and all main-branch registration files are unchanged. The PR #69 branch's searchNeedScore and VMAX attachment/Underworld Door five-Energy preferences are also unchanged; those remain open state-aware policy work. No GitHub Actions check was triggered. The six selected tests passed in the isolated harness, but the full Node test suite and CI remain unrun; the patch still needs independent review before merge.
+This commit is on the draft PR #69 branch only. The registered main candidate blob `59466565caa241558c3ed62a331c56228c30e3d1`, V3 fixture, deck, seed, seats, PR #71, and all main-branch registration files are unchanged. The PR #69 branch's searchNeedScore and VMAX attachment/Underworld Door five-Energy preferences are also unchanged; those remain open state-aware policy work. No GitHub Actions check was triggered. The 15 selected tests passed in the isolated harness, but the full Node test suite and CI remain unrun; the patch still needs independent review before merge.
 
 ## Recommended follow-up
 
