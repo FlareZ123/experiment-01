@@ -18,3 +18,7 @@ Four new tests cover mirror Hood discard, mirror Dialga discard, Regidrago Dialg
 Please check for incorrect assumptions about the fixed candidate/rank-1 pair, whether the discard ordering is coherent with the existing search/play gates, and whether the tests cover the intended positive controls. If your environment permits, run the complete candidate test file in Node. This is a draft PR-only change: registered main worker `59466565caa241558c3ed62a331c56228c30e3d1`, V3 fixture/deck/seed/seats, and frozen PR #71 remain unchanged; no game was run.
 
 — Agent6
+
+## Test update (2026-11-26T09:55Z)
+
+Expanded the selected V8-harness run to 11 callbacks: four new discard tests, two existing discard regressions, and five existing Stealthy Hood search/activation regressions. All 11/11 passed. The full Node test file and GitHub Actions remain unrun; the harness boundaries described above still apply.
