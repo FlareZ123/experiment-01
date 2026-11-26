@@ -18,9 +18,9 @@ The immediate implementation gate is whether the existing information-set MCTS c
 - **zero-sum** remains the default and preserves the previous scalar terminalValue / evaluateObservation API.
 - **seat-win-probability** accepts terminalValues(state) -> [pSeat0, pSeat1] and evaluateObservationValues(actorObservation, actorSeat) -> [pSeat0, pSeat1].
 
-In the second mode, each decision node maximizes the acting physical seat's own win probability. A terminal seat-0 win is [1,0], a seat-1 win is [0,1], and a draw/no-winner is [0,0]. Values must be finite probabilities in [0,1] and the two win probabilities may not sum above one. Backpropagation adds the corresponding physical seat's component at every node; it does not negate the other seat's component.
+In the second mode, each decision node maximizes the acting physical seat's own win probability. A terminal seat-0 win is [1,0], a seat-1 win is [0,1], and a paper-adjudicated draw is [0,0]. Values must be finite probabilities in [0,1] and the two win probabilities may not sum above one. Backpropagation adds the corresponding physical seat's component at every node; it does not negate the other seat's component. The terminalValues callback must classify terminal outcomes explicitly: unresolved/invalid/no-winner states must be rejected or handled under a preregistered adjudication rule, never silently treated as a draw.
 
-With no fixed opponentActionPolicy, both seats use PUCT nodes in the same search tree. Supplying a fixed opponent policy intentionally changes the opponent side to that behavioral policy; it is not the two-sided PUCT configuration.
+The core records searchMode in its audit. With no fixed opponentActionPolicy, both seats use PUCT nodes in the same search tree (two-sided PUCT). Supplying a fixed opponent policy intentionally changes the opponent side to that frozen behavioral policy and turns the search into a root best response; this is not two-sided PUCT. The existing interface can support alternating best responses by freezing one policy snapshot, improving the other seat against it with that seat as rootSeat, then swapping roles. Held-out evaluation must use fresh deals and frozen snapshots; no such training loop is implemented here.
 
 ### Generic Twinleaf adapter
 
@@ -64,7 +64,7 @@ A real Twinleaf/V3 caller should provide:
 - rulesProfileId, candidate deck identity/seat, and the same knowledgeBySeat / metadata hooks attached to that sampler;
 - the callbacks returned by createNativeTwinleafPromptCallbacks({native,simulatorOptions,provenanceForPrompt,mapSourceCard}) for Agent36 prompt projection and host-only resolution; for card-effect prompts, provenanceForPrompt must return typed source provenance and mapSourceCard must map the source object into the cloned State;
 - alternatively, custom projectPrompt and enumeratePromptChoices callbacks returning stable actor-visible keys and opaque native results; native raw results are still decoded/validated before dispatch;
-- terminalValues mapping paper wins/losses/draws to [1,0], [0,1], [0,0];
+- terminalValues mapping paper wins to [1,0] / [0,1] and only adjudicated draws to [0,0]; unresolved/invalid terminals must be rejected or explicitly adjudicated under a preregistered rule;
 - an actor-view-only evaluateObservationValues calibrated to estimate both seats' win probabilities. It must return nonnegative probabilities summing to at most one.
 
 A minimal construction is shown below.
@@ -105,7 +105,7 @@ This is an interface example, not a complete configured runner. maxPlies counts 
 
 - The adapter is tested against synthetic Store fixtures, not yet against a complete actual Twinleaf game. Contract tests do not establish full card-pool support or paper Expanded correctness.
 - The native prompt helper is contract-tested with synthetic ConfirmPrompt/CoinFlipPrompt fixtures, not yet against the full pinned engine prompt-class population. Card-effect prompts need a provenanceForPrompt callback and source-card remapping into each cloned State; unsupported or provenance-incomplete prompts remain fail-closed.
-- The value evaluator is an injected dependency; no calibrated all-game win-probability model is supplied here. A heuristic or uncalibrated evaluator is not evidence of deck strength.
+- The value evaluator is an injected dependency; no calibrated all-game win-probability model is supplied here. A heuristic or uncalibrated evaluator is not evidence of deck strength. The optional frozen-opponent best-response path is contract-tested but no alternating best-response training or held-out evaluation has been run.
 - The adapter is not yet connected to the V3 registered two-seat search/review loop. Use the existing V3 runner and full-state recorder; do not add another runner, workflow, or trace serializer.
 - Before any competitive evaluation, run exact-head no-game contracts, integrate the adapter into the existing candidate decision path, capture both seats' complete decision traces, and obtain independent review of meaningful candidate and opponent decisions. No game or matchup result is claimed here.
 
