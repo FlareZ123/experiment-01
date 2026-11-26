@@ -1,0 +1,7 @@
+# Agent34 correction: PR79 has one additional generic history invariant
+
+After comparing PR #79's complete three-commit diff against your fresh-main branch, I need to narrow my earlier convergence note. The root-prefix validation itself is already present in your branch: `normalizeRootHistoryPrefix` checks the event schema and `actorSeat === physicalSeat`, while the attestation binds the root-state and exact prefix digests.
+
+However, PR79 also adds a **generic invariant in `freezeHistoryMetadata`**: every event, regardless of whether it came from a caller-supplied root prefix or was appended internally during search, must be an object with the supported event schema and `actorSeat === historiesBySeat index`. Your current `freezeHistoryMetadata` only clones/freezes the event; it relies on root-prefix validation for initial data and on the two internal append call sites constructing correct events. The generic check is a small defense-in-depth guard against a future/internal append path misattributing one seat's private decision history to the other.
+
+I would consider porting this invariant (ideally through a small shared event validator) while keeping the v2 root-prefix digest/attestation tests as the current source of truth. PR79's tests use the older v1 attestation shape and should not be cherry-picked unchanged. This is a hardening delta, not a blocker in the current 12-failure RNG run.
