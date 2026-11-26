@@ -942,3 +942,151 @@ test('pinned Store rejects a GX attack after GX use and preserves a legal attack
     item.kind === 'attack' && item.attackName === 'Pale Moon-GX'), false);
   assert.equal(state.players[0].usedGX, true);
 });
+
+
+test('pinned Store frontier exposes and dispatches bench Forest Seal Stone Star Alchemy in both physical seats', {
+  skip: !fs.existsSync(compiledActionEnumerator),
+  timeout: 30000
+}, () => {
+  const enginePin = runner.V3_FIXTURE.engineCommit;
+  const native = runner.loadNativeRoleDependencies({ enginePin });
+  const manager = native.CardManager.getInstance();
+  let nextCardId = 900000;
+  function cloneCard(fullName) {
+    const card = manager.getCardByName(fullName);
+    assert.ok(card, 'CardManager must resolve ' + fullName);
+    card.id = nextCardId++;
+    return card;
+  }
+  const basicDefinition = manager.getAllCards().find(card =>
+    card instanceof native.PokemonCard &&
+    card.stage === native.Stage.BASIC &&
+    (!Array.isArray(card.powers) || card.powers.length === 0)
+  );
+  assert.ok(basicDefinition, 'pinned Expanded pool must contain a Basic Pokémon without powers');
+
+  function makePlayer(id, activeCard) {
+    const player = new native.Player();
+    player.id = id;
+    player.active = new native.PokemonCardList();
+    player.active.cards = [activeCard];
+    player.active.hp = activeCard.hp;
+    player.active.damage = 0;
+    player.active.energies.cards = [];
+    player.active.tools = [];
+    player.active.specialConditions = [];
+    player.bench = Array.from({ length: 5 }, () => new native.PokemonCardList());
+    player.prizes = Array.from({ length: 6 }, () => {
+      const prize = new native.CardList();
+      prize.cards = [cloneCard(basicDefinition.fullName)];
+      return prize;
+    });
+    player.deck.cards = Array.from({ length: 30 }, () => cloneCard(basicDefinition.fullName));
+    player.hand.cards = [];
+    player.discard.cards = [];
+    player.stadium.cards = [];
+    player.lostzone.cards = [];
+    player.supporter.cards = [];
+    player.playableCardIds = [];
+    player.playableHandAbilityCardIds = [];
+    player.supporterTurn = 0;
+    player.energyPlayedTurn = 0;
+    player.canEvolve = false;
+    player.usedVSTAR = false;
+    return player;
+  }
+
+  for (const actorSeat of [0, 1]) {
+    const withValidationRandom = createValidationRandomScope({
+      ambientRandom: Math.random,
+      physicalRandom: seededRandom(0x51a7e130 + actorSeat)
+    });
+    const candidate = makePlayer(actorSeat, cloneCard(basicDefinition.fullName));
+    const opponent = makePlayer(1 - actorSeat, cloneCard(basicDefinition.fullName));
+    const shadowRider = cloneCard('Shadow Rider Calyrex V CRE');
+    const forestSealStone = cloneCard('Forest Seal Stone SIT');
+    candidate.bench[0].cards = [shadowRider];
+    candidate.bench[0].hp = shadowRider.hp;
+    candidate.bench[0].damage = 0;
+    candidate.bench[0].energies.cards = [];
+    candidate.bench[0].tools = [forestSealStone];
+    candidate.bench[0].specialConditions = [];
+
+    const initialState = new native.State();
+    initialState.players = actorSeat === 0
+      ? [candidate, opponent]
+      : [opponent, candidate];
+    initialState.activePlayer = actorSeat;
+    initialState.phase = native.GamePhase.PLAYER_TURN;
+    initialState.turn = 3;
+    initialState.prompts = [];
+    initialState.gameSettings.format = native.Format.EXPANDED;
+    initialState.gameSettings.sandboxMode = false;
+
+    const simulator = withValidationRandom(() => new native.Simulator(initialState));
+    const state = simulator.store.state;
+    const actor = state.players[actorSeat];
+    const enumerator = adapterModule.createKnownCapFreeActionEnumerator({ native, enginePin });
+    const ability = enumerator.abilityActions(state, actor)
+      .find(action => action.name === 'Star Alchemy');
+    assert.ok(ability, 'adapter must expose attached Forest Seal Stone on the Bench');
+    assert.equal(ability.target.slot, native.SlotType.BENCH);
+    assert.equal(ability.target.index, 0);
+    const pass = enumerator.enumerate(state, actor, actor.id)
+      .find(action => action.type === 'PASS_TURN');
+    assert.ok(pass, 'the native Pass action remains available');
+
+    const frontier = withValidationRandom(() => frontierModule.buildNativeActionFrontier({
+      state,
+      actorSeat,
+      native,
+      enumerator: { enumerate: () => [ability, pass] }
+    }));
+    const admission = adapterModule.assertKnownCapFreeAdapterAdmissionClear({
+      enumerator,
+      enginePin,
+      frontierDiagnostics: frontier.diagnostics
+    });
+    assert.equal(admission.adapter.enginePin, enginePin);
+    assert.equal(frontier.diagnostics.enumeratedCount, 2);
+    assert.equal(frontier.diagnostics.validatedCount, 2);
+    assert.equal(frontier.diagnostics.rejectedCount, 0);
+    assert.equal(frontier.diagnostics.unsupportedCount, 0);
+    assert.equal(frontier.diagnostics.truncated, false);
+    assert.equal(frontier.diagnostics.omittedCount, 0);
+
+    const item = frontier.actionFrontier.items.find(candidate =>
+      candidate.kind === 'use-ability' &&
+      candidate.publicMetadata?.abilityName === 'Star Alchemy');
+    assert.ok(item, 'worker frontier must expose the Bench Star Alchemy action');
+    const evidence = {};
+    frontierModule.dispatchSelectedNativeAction({
+      store: simulator.store,
+      frontier,
+      token: item.token,
+      state,
+      actorSeat,
+      native,
+      withValidationRandom,
+      validationEvidence: evidence
+    });
+    assert.equal(evidence.selectedActionValidated, true);
+    assert.equal(evidence.fullOriginalStoreStateUnchanged, true);
+    assert.equal(state.players[actorSeat].bench[0].tools[0].fullName,
+      'Forest Seal Stone SIT');
+    const prompt = state.prompts.find(candidate => candidate.result === undefined);
+    assert.ok(prompt, 'Star Alchemy must open its native search prompt');
+    assert.equal(prompt.constructor.name, 'ChooseCardsPrompt');
+    assert.equal(prompt.playerId, actor.id);
+    console.log('AGENT3_NATIVE_FSS_FRONTIER', JSON.stringify({
+      actorSeat,
+      activePrinting: state.players[actorSeat].active.getPokemonCard().fullName,
+      holderPrinting: state.players[actorSeat].bench[0].getPokemonCard().fullName,
+      toolPrinting: state.players[actorSeat].bench[0].tools[0].fullName,
+      selectedAbility: item.publicMetadata.abilityName,
+      promptKind: prompt.constructor.name,
+      nativeActionValidated: evidence.selectedActionValidated,
+      originalStoreUnchangedDuringValidation: evidence.fullOriginalStoreStateUnchanged
+    }));
+  }
+});
