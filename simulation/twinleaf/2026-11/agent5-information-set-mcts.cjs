@@ -70,11 +70,12 @@ function observationSha256(observation) {
   return createHash('sha256').update(canonicalJson(observation)).digest('hex');
 }
 
-const PROMPT_EVENT_SCHEMA_ID = 'actor-safe-prompt-event-v1';
+const PROMPT_EVENT_SCHEMA_ID = 'actor-safe-prompt-event-v2';
 const PROMPT_RANDOM_PROTOCOL_ID = 'per-rollout-independent-prompt-policy-rng-v1';
 const PROMPT_EVENT_KEYS = Object.freeze([
   'actorObservationDigest',
   'actorSeat',
+  'transitionActorSeat',
   'nativeValidationSucceeded',
   'promptPolicyId',
   'promptProjectionDigest',
@@ -101,7 +102,7 @@ function readPromptEventDataProperty(event, key, label) {
   return descriptor.value;
 }
 
-function sanitizePromptEvent(event, expectedActorSeat, ordinal) {
+function sanitizePromptEvent(event, expectedTransitionActorSeat, ordinal) {
   assert.ok(event !== null && typeof event === 'object' && !Array.isArray(event),
     'Prompt event must be a plain data object');
   const prototype = Object.getPrototypeOf(event);
@@ -117,10 +118,12 @@ function sanitizePromptEvent(event, expectedActorSeat, ordinal) {
   for (const key of PROMPT_EVENT_KEYS) {
     values[key] = readPromptEventDataProperty(event, key, 'Prompt event');
   }
-  assert.ok(expectedActorSeat === 0 || expectedActorSeat === 1,
-    'Prompt event action context requires a physical actor seat');
-  assert.equal(values.actorSeat, expectedActorSeat,
-    'Prompt event actorSeat must match the bound transition actor');
+  assert.ok(expectedTransitionActorSeat === 0 || expectedTransitionActorSeat === 1,
+    'Prompt event action context requires a physical transition actor seat');
+  assert.equal(values.transitionActorSeat, expectedTransitionActorSeat,
+    'Prompt event transitionActorSeat must match the bound transition actor');
+  assert.ok(values.actorSeat === 0 || values.actorSeat === 1,
+    'Prompt event actorSeat must be a physical prompt-owner seat');
   assert.ok(typeof values.promptType === 'string' &&
     values.promptType.trim().length > 0 && values.promptType.length <= 128 &&
     !hasPromptEventControlCharacters(values.promptType),
@@ -162,6 +165,7 @@ function sanitizePromptEvent(event, expectedActorSeat, ordinal) {
 
   return Object.freeze({
     ordinal,
+    transitionActorSeat: values.transitionActorSeat,
     actorSeat: values.actorSeat,
     promptType: values.promptType,
     actorObservationDigest: values.actorObservationDigest,
@@ -177,14 +181,14 @@ function createRolloutContext(iteration, promptRandom) {
   const promptEvents = [];
   let iterationOpen = true;
   return Object.freeze({
-    forAction(actorSeat) {
+    forAction(transitionActorSeat) {
       assert.ok(iterationOpen, 'Rollout prompt-event collector is already closed');
-      assert.ok(actorSeat === 0 || actorSeat === 1,
-        'Rollout action context requires a physical actor seat');
+      assert.ok(transitionActorSeat === 0 || transitionActorSeat === 1,
+        'Rollout action context requires a physical transition actor seat');
       let actionOpen = true;
       const view = Object.freeze({
         iteration,
-        actorSeat,
+        transitionActorSeat,
         promptRandom() {
           assert.ok(iterationOpen && actionOpen,
             'Prompt RNG cannot be used outside its action transition');
@@ -193,7 +197,7 @@ function createRolloutContext(iteration, promptRandom) {
         recordPromptEvent(event) {
           assert.ok(iterationOpen && actionOpen,
             'Prompt events can be recorded only during their action transition');
-          const sanitized = sanitizePromptEvent(event, actorSeat, promptEvents.length);
+          const sanitized = sanitizePromptEvent(event, transitionActorSeat, promptEvents.length);
           promptEvents.push(sanitized);
           return sanitized;
         }
