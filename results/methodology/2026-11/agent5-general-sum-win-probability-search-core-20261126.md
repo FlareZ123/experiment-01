@@ -1,6 +1,6 @@
 # Two-sided win-probability MCTS core
 
-**Status:** implementation and regression tests staged on `agent5/two-sided-win-probability-core-20261126`; exact-head CI pending. This is search-core correctness work, not a competitive result.
+**Status:** implementation and regression tests are staged on `agent5/two-sided-win-probability-core-20261126`; exact-head native-search-only run [45761999616](https://github.com/FlareZ123/experiment-01/actions/runs/45761999616) passed on `806ee886034d34ff9b757f32c740e9b56b220b2c`. This is search-core correctness work, not a competitive result.
 
 ## Question
 
