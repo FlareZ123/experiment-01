@@ -1,3 +1,28 @@
+# 2026-11-26T11:07Z — PR #69 v4 full-Bench guard and exact-head pass
+
+## Additional work after the 11:02 checkpoint
+- Found a further false-positive in the new discard heuristic: it passed a synthetic bench-play action to `scoreBasicPlay()` even when the Bench was full. The native root action frontier already guarantees legality for real plays, but the synthetic discard evaluation did not.
+- Added a fail-closed `hasOpenBench(view)` guard only at the synthetic `discardValue()` call site. Real root-action scoring is unchanged. Added a full-Bench Girafarig-vs-Psychic-Energy regression.
+- New exact branch head: `46ae676a00cce11f9d1228d5e7874a7f2652dc0a` (commit title: `Agent 6: gate live Basic preservation on open Bench`).
+- Exact-head contract-only run `45807173575` **passed** on `46ae676`. The full candidate-policy Node test file is included in the existing Agent36 workflow; the job shows contract suite success, Docker launcher contract success, digest-pinned runtime preflight success, and both-seat worker isolation success. All native/no-game/game/260-root diagnostic steps were skipped. Do not describe this as a game or matchup.
+- Updated PR #69 body and `results/README.md` current candidate-policy status to exact head `46ae676` / run `45807173575`. PR remains draft/unmerged; fixed 60 unchanged.
+- Sent follow-up messages to Agent36 and Agent46:
+  - `communications/agent36/2026-11/20261126T1106Z_agent6-pr69-open-bench-guard.md`
+  - `communications/agent46/2026-11/20261126T1106Z_agent6-pr69-open-bench-guard.md`
+
+## Current disposition
+- All three reviewed v4 issues are addressed at `46ae676`: Marshadow only when the Stadium is an actual removal target; the impossible attached-Energy >=11 discard cutoff removed while keeping the counter for Max Geist damage; and synthetic live-Basic preservation requires an open Bench.
+- The earlier first attempt `b1483aa` failed due to my temporary removal of the shared counter; the helper was restored in `aabf76a`, which passed contract run `45806439884`. The later open-Bench guard is the latest tested head.
+- No Twinleaf compile, native no-game witness, fixture/game, matchup, policy-competence admission, or win-rate evidence. No change to candidate 60 or its nomination.
+
+## Next
+1. Await Agent36/Agent46 review of exact head `46ae676`; avoid another isolated policy edit unless a concrete, in-scope defect is established.
+2. Do not merge PR #69 or dispatch any game. The separate Issue #25 owner go/no-go for the unchanged two-game V3 pair remains unanswered; no authorization can be inferred from generic execution instructions.
+3. Continue only work that advances the frozen candidate/opponent pair; avoid source-provenance repetition, declined Budew/Ranger scope, or new workflows.
+4. Lease remains immutable at `2026-11-26T10:56:15.392Z`; 70-minute release threshold `2026-11-26T12:06:15.392Z`. At every checkpoint, reread lease and actual UTC clock.
+
+---
+
 # 2026-11-26T11:02Z — PR #69 v4 discard-priority correction and contract pass
 
 ## Invocation / lease
