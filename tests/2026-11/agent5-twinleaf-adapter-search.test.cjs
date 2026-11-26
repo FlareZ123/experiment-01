@@ -409,11 +409,19 @@ test('Twinleaf adapter forwards a fixed actor-observation opponent policy into t
 
 const GENERIC_SEARCH_ENGINE_PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 
-function cloneNativeTestValue(value) {
-  if(Array.isArray(value))return value.map(cloneNativeTestValue);
+function cloneNativeTestValue(value,seen=new WeakMap()) {
+  if(Array.isArray(value)) {
+    if(seen.has(value))return seen.get(value);
+    const clone=[];
+    seen.set(value,clone);
+    for(const item of value)clone.push(cloneNativeTestValue(item,seen));
+    return clone;
+  }
   if(!value||typeof value!=='object')return value;
+  if(seen.has(value))return seen.get(value);
   const clone=Object.create(Object.getPrototypeOf(value));
-  for(const key of Object.keys(value))clone[key]=cloneNativeTestValue(value[key]);
+  seen.set(value,clone);
+  for(const key of Object.keys(value))clone[key]=cloneNativeTestValue(value[key],seen);
   return clone;
 }
 
@@ -644,4 +652,48 @@ test('native host-only coin-flip prompts are resolved by the explicit physical R
   assert.equal(result.action.kind,'pass');
   assert.equal(result.audit.twinleafAdapter.nativeTransitions,4);
   assert.equal(result.audit.twinleafAdapter.automaticPromptResolutions,4);
+});
+
+
+test('card-effect prompt provenance maps its source into the exact projected cloned Store',()=>{
+  class ChooseCardsPrompt {
+    constructor(id,playerId,cards) {
+      this.id=id;this.playerId=playerId;this.cards=cards;
+      this.options={min:1,max:1,blocked:[],allowCancel:false,isSecret:true};
+      this.result=undefined;
+    }
+    getPerspectivePlayerId(){return this.playerId;}
+    decode(result){return result===null?null:result.map(index=>this.cards.cards[index]);}
+    validate(decoded) {
+      return decoded===null?false:
+        decoded.length===1&&decoded.every(card=>this.cards.cards.includes(card));
+    }
+  }
+  const harness=makeGenericTwoSidedSearchHarness();
+  harness.deps.ownDecklistSeat=1;
+  harness.deps.ownDecklistId='deck-1';
+  const sourceCard={fullName:'Quick Ball',name:'Quick Ball',set:'SWSH',setNumber:'179'};
+  harness.state.players[1].discard.cards.push(sourceCard);
+  harness.state.players[1].deck.cards.push(
+    {fullName:'Deck Card A',name:'Deck Card A'},
+    {fullName:'Deck Card B',name:'Deck Card B'}
+  );
+  const prompt=new ChooseCardsPrompt(82,'seat-1',harness.state.players[1].deck);
+  harness.state.prompts=[prompt];
+  delete harness.deps.enumeratePromptChoices;
+  Object.assign(harness.deps,createNativeTwinleafPromptCallbacks({
+    native:harness.deps.native,
+    provenanceForPrompt:(state,currentPrompt)=>currentPrompt.id===82?{
+      sourceKind:'card-effect',sourceCard,effectName:'Quick Ball',
+      effectType:'ItemEffect'
+    }:null
+  }));
+  const search=createTwinleafTwoSidedSearch(harness.deps,{
+    iterations:4,maxPlies:1,seed:20261202
+  });
+  const result=search.search(harness.state,1);
+  assert.equal(result.action.kind,'prompt');
+  assert.equal(result.action.promptType,'ChooseCardsPrompt');
+  assert.ok(['prompt-0','prompt-1'].includes(result.action.choiceKey));
+  assert.equal(result.audit.twinleafAdapter.promptTransitions,4);
 });
