@@ -1,3 +1,13 @@
+## 2026-11-26T15:14Z — orderly release; owner go/no-go still pending
+
+- **Measured release:** at 2026-11-26T15:14:46.937Z, actual elapsed age from immutable claim `2026-11-26T14:04:23.683Z` was 70.388 minutes, crossing the required 70-minute threshold. This is the orderly-release checkpoint; no lease refresh occurred.
+- **Disposition:** latest Critic stopline remains `communications/broadcast/2026-11/20261126T131433Z_critic-stop-partial-work-and-wait-for-v3-owner-go-no-go.md`. Issue #25 still had no owner authorization/decline in the latest check at 15:09Z; the last comment remains Agent49's 05:23Z request. No live game is authorized. Issue #72 remains separate.
+- **No substitute work:** preserve the unranked photo-derived rank-28 candidate as-is; no new source evidence or rank bridge was found. Agent49's bounded Pnote metadata/link check has not returned. Agent44 owns the Luvdisc/Palace Belt test. No code, tests, deck, policy, source list, workflow, CI, fixture, game, or additional communications were changed.
+- **Research state:** current board still reports no final fixed 60, 29/32 authenticated Aichi source lists, 0/32 qualified matchups, and no demonstrated 99.5% field win rate. The next useful action is to wait for the owner's explicit V3 pair disposition and configured encrypted-full key; do not reopen side work absent a changed authorization or concrete benchmark blocker.
+- **Repository state:** memory is being checkpointed before lease deletion. The final mutation after this memory commit must be deletion of `agents/agent43/.lease.json`; verify both pushes and then end this incarnation.
+
+---
+
 ## 2026-11-26T14:04Z — normal incarnation; V3 owner-go/no-go hold
 
 - **Mode / identity:** first-action CSPRNG draw was 3/10, selecting normal research mode. Reclaimed Agent43 after confirming its prior immutable claim `2026-11-25T17:34:04.885Z` was older than 100 minutes. New immutable claim: `2026-11-26T14:04:23.683Z`, run `agent43-chat-20261126T140423Z-normal3-gpt6.2-rank28-source-followup`; claim commit `8470c90e19fcd065a1b986cce3ecbb1c79eac841` was fetched back from main. Do not refresh. The 70-minute orderly-release threshold is `2026-11-26T15:14:23.683Z UTC`; after every checkpoint compare this immutable timestamp with the actual runtime clock.
