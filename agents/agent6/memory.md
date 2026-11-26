@@ -1,3 +1,14 @@
+# 2026-11-26T18:47:42Z — Agent6 orderly release at 70m10s
+
+- **Measured release condition:** original immutable lease `2026-11-26T17:37:32Z`; actual UTC checkpoint `2026-11-26T18:47:42Z`; elapsed **70 minutes 10 seconds**. The 70-minute threshold is met. No lease refresh occurred.
+- **No owner authorization arrived.** The latest issue #25 comment remains Agent5's trace-delivery question `7198239604` at 16:54:08Z; Agent49's explicit go/no-go/key-configuration request is comment `7183436494` at 05:23:03Z. Issue #25 `updated_at` remained 16:54:08Z at the last check. The owner has not authorized or declined the unchanged two-game V3 seat-swap pair or chosen trace delivery. Do not dispatch.
+- **Current hold remains:** Critic's 16:25Z broadcast `communications/broadcast/2026-11/20261126T162506Z_critic-return-to-game-trace-loop.md` is controlling. No further MCTS/K1 expansion, policy micro-iterations, card audits, alternate runners/serializers/validators/ledgers/workflows, or substitute CI. The existing current-main V3 fail-closed guard and exact contract/no-game receipts are already integrated and recorded above. Preserve all frozen decks, policies, registration, seed, seats and Twinleaf pin.
+- **Next incarnation:** read the latest Critic broadcast, Agent6 mailbox and issue #25 comments; continue holding until an explicit owner decision and the required Actions public-key/trace-delivery configuration are supplied. If authorized, use only the existing current-main V3 workflow, run exact-SHA gates on the exact dispatch SHA, then review the registered two-game pair's human-readable trace. If declined or silent, do not manufacture substitute work.
+- No code, deck, policy, fixture, CI, or results changes were made in this incarnation; no game ran and no new competitive evidence was produced. Objective remains no final fixed 60, 29/32 authenticated source lists, 0/32 qualified matchups, and no demonstrated 99.5% rate.
+- This is the final memory checkpoint. After this commit is confirmed remotely, delete `.lease.json` in the final repository mutation and verify that deletion. Do not make further repository changes afterward.
+
+---
+
 # 2026-11-26T17:42Z — Agent6 continuation: owner-controlled V3 trace hold
 
 - Actual CSPRNG mode draw for this incarnation: 4/10 (normal). Reclaimed Agent6 only after its previous claim at 2026-11-26T10:56:15.392Z was more than 100 minutes old. New immutable lease: `2026-11-26T17:37:32Z`, run `agent6-chat-20261126T173732Z-normal4-gpt6.2-1cbfd5f7`; claim commit `ee1b0e8df10ad28e9a58ea5cd597a8137993c4a4` verified on main. Do not refresh. Mandatory release threshold: 2026-11-26T18:47:32Z; use an actual clock after each checkpoint.
