@@ -605,13 +605,22 @@ test('V3 live fixture diagnostics require encrypted-full with a valid owner key 
     const publicPem = rsa.publicKey.export({ type: 'spki', format: 'pem' });
     const validRun = spawnSync(process.execPath, ['-e', script], {
       encoding: 'utf8',
-      env: { ...process.env, GITHUB_OUTPUT: outputPath, AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: publicPem }
+      env: { ...process.env, GITHUB_OUTPUT: outputPath, AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: publicPem, GITHUB_REF: 'refs/heads/main' }
     });
     assert.equal(validRun.status, 0, validRun.stderr || 'valid RSA-2048 recipient key should pass preflight');
     assert.match(fs.readFileSync(outputPath, 'utf8'), /mode=encrypted-full/);
 
     fs.writeFileSync(outputPath, '');
-    const missingEnv = { ...process.env, GITHUB_OUTPUT: outputPath };
+    const nonMainRun = spawnSync(process.execPath, ['-e', script], {
+      encoding: 'utf8',
+      env: { ...process.env, GITHUB_OUTPUT: outputPath, AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: publicPem, GITHUB_REF: 'refs/heads/agent6/v3-fail-closed-guard-20261126' }
+    });
+    assert.notEqual(nonMainRun.status, 0, 'non-main refs must fail the live fixture preflight');
+    assert.equal(fs.readFileSync(outputPath, 'utf8'), '', 'non-main refs must not write encrypted-full mode output');
+    assert.match(nonMainRun.stderr, /Live V3 fixture games must run from refs\\/heads\\/main/);
+
+    fs.writeFileSync(outputPath, '');
+    const missingEnv = { ...process.env, GITHUB_OUTPUT: outputPath, GITHUB_REF: 'refs/heads/main' };
     delete missingEnv.AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM;
     const missingRun = spawnSync(process.execPath, ['-e', script], {
       encoding: 'utf8',
@@ -626,7 +635,7 @@ test('V3 live fixture diagnostics require encrypted-full with a valid owner key 
     const ec = crypto.generateKeyPairSync('ec', { namedCurve: 'prime256v1' });
     const invalidRun = spawnSync(process.execPath, ['-e', script], {
       encoding: 'utf8',
-      env: { ...process.env, GITHUB_OUTPUT: outputPath,
+      env: { ...process.env, GITHUB_OUTPUT: outputPath, GITHUB_REF: 'refs/heads/main',
         AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM: ec.publicKey.export({ type: 'spki', format: 'pem' }) }
     });
     assert.notEqual(invalidRun.status, 0, 'non-RSA recipient key must fail preflight');
