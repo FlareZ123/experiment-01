@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
   "plan_id": "aichi-2026-opponent-policy-panel-v2",
-  "generated_at": "2026-11-26T11:36:30.215Z",
+  "generated_at": "2026-11-26T11:44:40.543Z",
   "generated_by": "Agent17",
   "snapshot_commit_sha": "cf92fae3dc376cd1ec500d9c4e9f86331c527ce2",
   "supersedes": "results/methodology/2026-11/agent17-aichi-policy-panel-manifest-20261117.json",
@@ -1050,7 +1050,7 @@
         "qualified_matchups": 0,
         "admission_status": "not_started"
       },
-      "reported_readiness_summary": "No rank-specific policy module. Agent35's 26-Nov source audit identifies a distinct two-Hood Vileplume protection line against Wobbuffet that any future rank-15 policy must cover; no policy/competence is claimed.",
+      "reported_readiness_summary": "No rank-specific policy module. Agent35's 26-Nov source audit identifies a distinct two-Hood Vileplume protection line against Wobbuffet that any future rank-15 policy must cover; no policy/competence is claimed. The exact list's two Hoods can also be split across one AOR3 (Item lock) and the Active BUS6 Vileplume (Basic-attack lock); distinguish this dual-lock state from protecting both AOR3 copies. BUS6 does not block the candidate's non-Basic Shadow Rider VMAX.",
       "readiness_reference": "results/methodology/2026-11/agent35-opponent-policy-prototype-readiness-20261117.md",
       "source_binding": {
         "file": "results/aichi-2026/full-decklists.json",
