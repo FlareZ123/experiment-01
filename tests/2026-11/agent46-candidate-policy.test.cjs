@@ -4604,7 +4604,7 @@ test('Radiant Gate uses effective lock scope and physical source order, includin
   }
 });
 
-test('Radiant is a Rule Box target: Garbotoxin and opposing Alolan Muk suppress it', () => {
+test('Radiant is a Rule Box target: Garbotoxin and Alolan Muk on either side suppress it', () => {
   const garbodor = pokemon({
     printing: 'Garbodor LTR 68', name: 'Garbodor', subtypes: ['Stage 1'],
     abilities: ['Garbotoxin'], tools: ['Float Stone PLF 99'], suppression: null,
@@ -4623,7 +4623,7 @@ test('Radiant is a Rule Box target: Garbotoxin and opposing Alolan Muk suppress 
   ), true, 'Tool-equipped Garbotoxin suppresses a Rule Box Pokémon');
   assert.equal(candidate.__test.hasRadiantGateLock(
     observation(0, { bench: [alolanMuk] })
-  ), false, 'Power of Alchemy affects the opponent, not its owner');
+  ), true, 'Power of Alchemy suppresses Basic Pokémon on both sides');
   assert.equal(candidate.__test.hasRadiantGateLock(
     observation(0, { opponentBench: [alolanMuk] })
   ), true, 'opponent Alolan Muk suppresses the actor Basic Radiant');
