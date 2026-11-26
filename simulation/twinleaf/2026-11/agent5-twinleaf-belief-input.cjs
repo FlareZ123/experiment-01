@@ -227,8 +227,9 @@ function applySampledPartitionsToTwinleafState(state,partitionsBySeat,createCard
 }
 
 /**
- * The prior receives only a detached actor observation, never native State or
- * concealed Player zones.
+ * Root-relative one-sided provider. Do not use this helper for two-sided
+ * search: its single ownDecklist would be assigned to whichever physical seat
+ * is currently acting.
  */
 function createPublicDecklistPriorProvider({ownDecklist,opponentPrior,ignorePublicCard=()=>false}) {
   assert.ok(ownDecklist&&typeof ownDecklist.id==='string'&&Array.isArray(ownDecklist.cards));
@@ -241,6 +242,48 @@ function createPublicDecklistPriorProvider({ownDecklist,opponentPrior,ignorePubl
     const evidence=collectPublicEvidence(observation.opponentPublic)
       .filter(printing=>!ignorePublicCard(printing));
     return sampleDecklistPrior(opponentPrior,evidence,random);
+  };
+}
+ 
+/**
+ * Physical-seat-aware provider for two-sided re-determinization.
+ *
+ * decklistsBySeat fixes the exact list known to each physical seat as its own.
+ * opponentPriorByActorSeat[actorSeat] describes what that actor believes
+ * about the other physical seat. For open-list evaluation, each prior can be a
+ * singleton containing the other seat's exact list. For hidden-list play, it
+ * can be a distribution. The assumption is explicit at the call site.
+ */
+function createPhysicalSeatDecklistPriorProvider({
+  decklistsBySeat,opponentPriorByActorSeat,ignorePublicCard=()=>false
+}) {
+  assert.ok(Array.isArray(decklistsBySeat)&&decklistsBySeat.length===2,
+    'Two physical-seat decklists are required');
+  for(const [seat,decklist] of decklistsBySeat.entries()) {
+    assert.ok(decklist&&typeof decklist.id==='string'&&Array.isArray(decklist.cards),
+      `Physical seat ${seat} requires an {id,cards} decklist`);
+    assert.equal(decklist.cards.length,60,
+      `Physical seat ${seat} decklist must contain exactly 60 cards`);
+  }
+  assert.ok(Array.isArray(opponentPriorByActorSeat)&&opponentPriorByActorSeat.length===2,
+    'An opponent decklist prior is required for each acting physical seat');
+  for(const actorSeat of [0,1]) {
+    assert.ok(Array.isArray(opponentPriorByActorSeat[actorSeat])&&
+      opponentPriorByActorSeat[actorSeat].length>0,
+    `Physical seat ${actorSeat} requires an opponent decklist prior`);
+  }
+  assert.equal(typeof ignorePublicCard,'function');
+  return function decklistForSeat(observation,actorSeat,seat,random) {
+    assert.ok(observation&&observation.actorSeat===actorSeat);
+    assert.ok((actorSeat===0||actorSeat===1)&&(seat===0||seat===1));
+    assert.equal(typeof random,'function');
+    if(seat===actorSeat) {
+      const own=decklistsBySeat[seat];
+      return {id:own.id,cards:own.cards.slice()};
+    }
+    const evidence=collectPublicEvidence(observation.opponentPublic)
+      .filter(printing=>!ignorePublicCard(printing));
+    return sampleDecklistPrior(opponentPriorByActorSeat[actorSeat],evidence,random);
   };
 }
 
@@ -469,5 +512,6 @@ module.exports={
   buildTwinleafBeliefInput,
   applySampledPartitionsToTwinleafState,
   createPublicDecklistPriorProvider,
+  createPhysicalSeatDecklistPriorProvider,
   createTwinleafDeterminizationSampler
 };
