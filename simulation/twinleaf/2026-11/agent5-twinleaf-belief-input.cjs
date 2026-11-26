@@ -505,9 +505,9 @@ function createTwinleafDeterminizationSampler(deps) {
   }
 
   /**
-   * Refresh both private ledgers after a native transition. Optional evidence is
-   * partitioned by physical seat: each entry may contain public events plus
-   * only that seat's private prompt/search/reveal evidence.
+   * Refresh both private ledgers after one native transition. Optional evidence
+   * is a transition-local delta partitioned by physical seat: each entry may
+   * contain public events plus only that seat's private prompt/search/reveal evidence.
    */
   function refreshMetadata(fromState,toState,transitionEvidenceBySeat=null) {
     const previous=metadataByState.get(fromState);

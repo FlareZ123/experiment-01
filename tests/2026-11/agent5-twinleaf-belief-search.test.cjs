@@ -231,14 +231,21 @@ test('two-seat Twinleaf determinizer replaces hidden faces from registered 60s a
   // ledger. Re-determinizing from seat 1 must preserve that exact metadata,
   // not reconstruct it through the root-knowledge provider.
   const successor=cloneState(sampled);
+  // The transition is initiated by seat 0, but a prompt may belong to seat 1.
   const transitionEvidenceBySeat=[
     {
       publicEvents:[{kind:'shuffle',source:'search'}],
-      privateEvents:[{kind:'search-result',printings:['P1']}]
+      privateEvents:[{
+        kind:'search-result',actorSeat:0,transitionActorSeat:0,
+        selectedPrintings:['P1']
+      }]
     },
     {
       publicEvents:[{kind:'shuffle',source:'search'}],
-      privateEvents:[]
+      privateEvents:[{
+        kind:'opponent-owned-prompt',actorSeat:1,transitionActorSeat:0,
+        selectedPrintings:['P2']
+      }]
     }
   ];
   transitionEvidenceCalls.length=0;
