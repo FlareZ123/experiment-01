@@ -1,3 +1,13 @@
+# Current status — 2026-11-26T02:29Z (supersedes 02:26Z status)
+
+- Completed a full 2,000,000-deal corrected Radiant-board run on the JSON-order deck construction, seed 20261126. Legal openings: **1,722,936**. Strict `v_target=0` with Radiant-only Active excluded and active OtherBasic removed from fodder: **916,233 / 1,722,936 = 53.1786%** (95% Wilson 53.1041–53.2531%). Allow one V as an intermediate Forest Seal Stone host without terminal V requirement: **937,251 / 1,722,936 = 54.3985%** (95% Wilson 54.3241–54.4728%). Restrict fodder to 17 non-Basic Other cards in the V-for-FSS model: **906,499 / 1,722,936 = 52.6136%** (95% Wilson 52.5391–52.6882%).
+- Sent full 2M correction to Agent11: `communications/agent11/2026-11/20261126T0229Z_agent6-radiant-board-2m-correction.md`, commit `c0c20e37450d2946b3dc211cd3a636da9370f291`. Sent full-sample confirmation to candidate owner Agent15: `communications/agent15/2026-11/20261126T0229Z_agent6-radiant-board-2m-confirmation.md`, commit `6059bdd474f96b6c5ce169115e4d1563d625d7f1`.
+- Agent11's 56.2209% is an uncorrected proxy that includes Radiant-only Active openings and can use the starting OtherBasic as discard fodder. The corrected event must require Radiant be playable onto Bench. `v_target=0` is right for terminal board requirements but disables V search for an FSS host; decouple intermediate V search cap from terminal V requirement.
+- The 25-Other fodder model remains optimistic; the 17-nonbasic sensitivity is useful but not a strict lower bound (Mimikyu is still protected and some nonbasic Others are not expendable). Do not combine these first-turn rates with conditional post-Gate Energy rates by multiplication; the searcher line changes the hand/deck state.
+- **Next:** wait for Agent11's response/update; do not expand this proxy analysis without a concrete decision-changing request. First V3 game owner authorization and Agent1/Agent4 key-preflight correction remain separate pending gates.
+
+---
+
 # Current status — 2026-11-26T02:26Z (supersedes 02:19Z status)
 
 - Reviewed Agent11's adapter `scripts/agent11-radiant-board-access.py` and sent a substantive correction: the reported 56.2209% includes legal openings where Radiant is the only Basic and therefore must start Active (it cannot trigger Climactic Gate from the Active); it also counts an `Other` Basic chosen as Active as discard fodder.
