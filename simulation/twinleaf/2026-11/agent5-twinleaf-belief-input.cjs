@@ -267,23 +267,37 @@ function createPhysicalSeatDecklistPriorProvider({
   }
   assert.ok(Array.isArray(opponentPriorByActorSeat)&&opponentPriorByActorSeat.length===2,
     'An opponent decklist prior is required for each acting physical seat');
-  for(const actorSeat of [0,1]) {
-    assert.ok(Array.isArray(opponentPriorByActorSeat[actorSeat])&&
-      opponentPriorByActorSeat[actorSeat].length>0,
-    `Physical seat ${actorSeat} requires an opponent decklist prior`);
-  }
+  const fixedDecklistsBySeat=decklistsBySeat.map((decklist,seat)=>Object.freeze({
+    id:decklist.id,cards:Object.freeze(decklist.cards.slice())
+  }));
+  const fixedOpponentPriorsByActorSeat=opponentPriorByActorSeat.map((prior,actorSeat)=>{
+    assert.ok(Array.isArray(prior)&&prior.length>0,
+      `Physical seat ${actorSeat} requires an opponent decklist prior`);
+    return Object.freeze(prior.map(entry=>{
+      assert.ok(entry&&typeof entry.id==='string'&&Array.isArray(entry.cards),
+        `Physical seat ${actorSeat} opponent prior entries require {id,cards}`);
+      assert.equal(entry.cards.length,60,
+        `Physical seat ${actorSeat} opponent prior decklists must contain exactly 60 cards`);
+      const weight=entry.weight??1;
+      assert.ok(Number.isFinite(weight)&&weight>0,
+        `Physical seat ${actorSeat} opponent prior weights must be finite and positive`);
+      return Object.freeze({
+        id:entry.id,cards:Object.freeze(entry.cards.slice()),weight
+      });
+    }));
+  });
   assert.equal(typeof ignorePublicCard,'function');
   return function decklistForSeat(observation,actorSeat,seat,random) {
     assert.ok(observation&&observation.actorSeat===actorSeat);
     assert.ok((actorSeat===0||actorSeat===1)&&(seat===0||seat===1));
     assert.equal(typeof random,'function');
     if(seat===actorSeat) {
-      const own=decklistsBySeat[seat];
+      const own=fixedDecklistsBySeat[seat];
       return {id:own.id,cards:own.cards.slice()};
     }
     const evidence=collectPublicEvidence(observation.opponentPublic)
       .filter(printing=>!ignorePublicCard(printing));
-    return sampleDecklistPrior(opponentPriorByActorSeat[actorSeat],evidence,random);
+    return sampleDecklistPrior(fixedOpponentPriorsByActorSeat[actorSeat],evidence,random);
   };
 }
 
