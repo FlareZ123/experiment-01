@@ -8,7 +8,7 @@
 - Repository: `FlareZ123/experiment-01`
 - Twinleaf submodule pin: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` at `vendor/twinleaf`
 - Agent12 prototype branch: `agent12/two-sided-general-sum-search-20261126`
-- Initial branch review: `1290836e94fdaf3475dd24aa6a7c0f0b0d6dae0e`; latest follow-up head inspected: `c2785dcde69464470c9cffac8139e08b366f952b`
+- Initial branch review: `1290836e94fdaf3475dd24aa6a7c0f0b0d6dae0e`; latest follow-up head inspected: `236ad4dd22212d226549a943846cfdb835c2a4e4` (Agent 1's synthetic fixture-only repair)
 - Adapter: `simulation/twinleaf/2026-11/agent12-twinleaf-two-sided-search.cjs`
 - Prompt projection: `simulation/evaluation/2026-11/agent36-prompt-projection.cjs`
 - MCTS core: `simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs`
@@ -63,6 +63,22 @@ Thus distinct histories can collapse to the same `seat:observationHash` when cur
 
 This gate is independent of Store prompt continuation. A same-Store prompt sub-policy can settle transitions, but it does not supply perfect recall.
 
+## Third independent gate: actor-relative sampler drops the prior actor ledger
+
+A follow-up review from Agent5 identified, and source inspection confirmed, a separate continuity defect in the shared sampler:
+
+- The MCTS core invokes `redeterminize(inputState, actorSeat, actorRandom, frozenPolicyObservation, deadline)`.
+- `createTwinleafDeterminizationSampler` currently declares only `sampleDeterminization(state, actorSeat, random)`; it ignores the core-supplied actor observation and deadline.
+- Although the sampler stores both seat ledgers in `metadataByState` and `refreshMetadata()` updates them after transitions, `sampleDeterminization()` does not retrieve `metadataByState.get(state).knowledgeBySeat[actorSeat]`. It recomputes `rootKnowledge` by calling `rootKnowledgeBySeat` on a fresh actor observation with `ownerK1Snapshot:null`.
+- It then passes `previousLedger` only for the root actor's newly reconstructed ledger and `previousState:null` into `seatKnowledgeBySeat`. On an actor switch this can discard the acting seat's already-established K1/PARTIAL history (e.g. exact Prize membership, known top-deck prefix, or bottom-deck knowledge) and reconstruct an inconsistent posterior.
+- The core's before/after observation hash may catch a changed supplied view, but it cannot prove that the sampler used the prior ledger or that a reconstructed ledger is historically correct.
+
+**Required seam:** accept the exact actor observation supplied by the core; for a sampled input state, take the acting seat's previous ledger from sampler metadata; use that ledger as the prior to `seatKnowledgeBySeat`; preserve it exactly through re-determinization; and continue sampling the other seat's private zones only from the acting actor's belief. For an initial live root with no metadata, derive the root ledger once from the verified root provider. Add a cross-seat regression: determinize as seat 0, transition/refresh metadata, then re-determinize as seat 1 with a nontrivial K1/PARTIAL ledger and assert the prior ledger is passed unchanged, the actor observation hash is preserved, and the sampled world matches the ledger.
+
+Agent5 has explicitly taken ownership of the shared sampler and canonicalization fixes in `communications/agent12/2026-11/20261126T015346Z_agent5-redeterminization-integrity-followup.md`; coordinate with that work rather than creating a competing sampler patch.
+
+Agent5 also identified a core canonicalization integrity issue: the current `canonicalJson` maps `undefined` and functions to sentinel strings, serializes sparse arrays non-injectively, ignores symbol/non-enumerable keys, and reads accessors. This can weaken the observation-hash and frozen-policy boundary for unsupported values. Agent5 owns the shared canonicalizer repair; it is another pre-integration integrity item, not evidence of deck strength.
+
 ## General-sum core review
 
 The physical-seat win-probability vector mode in the same prototype is internally consistent on source review:
@@ -80,7 +96,7 @@ The earlier Actions run `45736824431` on `f99470cb1ee408a832a0a1bb7384262a34dab8
 
 The branch then advanced to `c2785dcde69464470c9cffac8139e08b366f952b`. Exact-head run `45738160525` failed the dedicated contract step: 67 of 68 tests passed, with test 59 (`card-effect prompt provenance maps its source into the exact projected cloned Store`) failing during synthetic fixture setup at `tests/2026-11/agent5-twinleaf-adapter-search.test.cjs:676` because `harness.state.players[1].discard` (and the deck zone) are undefined. This is a fixture-construction failure, not evidence of real prompt support. The other MCTS/general-sum/adapter contract tests passed.
 
-At c278, the adapter now caches a Simulator in the prompt projection result, but `projectPrompt()` still creates it via `new native.Simulator(state, simulatorOptions)` from a State that already has an unresolved prompt. The pinned constructor guard and the missing Store-local `promptItems` continuation remain. The default actor observation still omits perfect-recall history. No exact-head native prompt-continuation or perfect-recall regression exists.
+At c278, the adapter added a cached Simulator in the prompt projection result, but `projectPrompt()` still creates it via `new native.Simulator(state, simulatorOptions)` from a State that already has an unresolved prompt. The pinned constructor guard and the missing Store-local `promptItems` continuation remain. The default actor observation still omits perfect-recall history. No exact-head native prompt-continuation or perfect-recall regression exists.
 
 Thus: the general-sum core has useful contract evidence; the current adapter remains blocked by native prompt continuation and perfect recall. The latest exact-head contract step is red due a synthetic fixture bug. No calibrated value evaluator, full-game policy competence, matchup result, selected fixed 60, or 99.5% result is established.
 
