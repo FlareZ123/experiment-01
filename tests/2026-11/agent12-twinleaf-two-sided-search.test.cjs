@@ -628,6 +628,8 @@ test('player-prompt live dispatch uses the rollout transition RNG, separate from
     harness.state.triggerCoinFlip = true;
     const policyDraws = [];
     const dispatchDraws = [];
+    const automaticDraws = [];
+    const automaticDispatchDraws = [];
     const ambientRandom = Math.random;
     const ambientSentinel = () => 0.123456789;
     Math.random = ambientSentinel;
@@ -651,6 +653,12 @@ test('player-prompt live dispatch uses the rollout transition RNG, separate from
         } finally {
           store.dispatch = originalDispatch;
         }
+        store.state.prompts.push({
+          id: prompt.id + 1,
+          playerId: store.state.players[actorSeat].id,
+          kind: 'automatic',
+          result: undefined
+        });
         return {
           nativeValidationSucceeded: true,
           promptType: prompt.constructor.name,
@@ -663,18 +671,47 @@ test('player-prompt live dispatch uses the rollout transition RNG, separate from
           promptPolicyId: harness.deps.promptSubPolicyId
         };
       };
+      harness.deps.resolveAutomaticPrompt = (prompt, random, { simulator }) => {
+        const draw = random();
+        automaticDraws.push(draw);
+        const originalDispatch = simulator.store.dispatch;
+        simulator.store.dispatch = action => {
+          try {
+            if (action instanceof harness.deps.native.ResolvePromptAction) {
+              automaticDispatchDraws.push(Math.random());
+            }
+            return originalDispatch(action);
+          } finally {
+            simulator.store.dispatch = originalDispatch;
+          }
+        };
+        return draw;
+      };
       const search = createTwinleafTwoSidedSearch(harness.deps, {
         iterations: 1, maxPlies: 1, seed: 0x120026, requireCompleteHistory: false
       });
       search.search(harness.state, 0);
       assert.equal(dispatchDraws.length, 1);
-      assert.notEqual(dispatchDraws[0], 0.123456789,
-        'live prompt dispatch must not consume ambient Math.random');
-      assert.notEqual(dispatchDraws[0], policyDraws[0],
-        'live game continuation must not consume the prompt-policy RNG stream');
+      assert.equal(automaticDraws.length, 1,
+        'the follow-up automatic prompt must consume the transition stream');
+      assert.equal(automaticDispatchDraws.length, 1,
+        'the follow-up automatic prompt dispatch must also run under the transition stream');
+      for (const draw of [
+        dispatchDraws[0], automaticDraws[0], automaticDispatchDraws[0]
+      ]) {
+        assert.notEqual(draw, 0.123456789,
+          'game continuation must not consume ambient Math.random');
+        assert.notEqual(draw, policyDraws[0],
+          'game continuation must not consume the prompt-policy RNG stream');
+      }
       assert.strictEqual(Math.random, ambientSentinel,
         'MCTS prompt dispatch must restore ambient Math.random');
-      return { policyDraw: policyDraws[0], dispatchDraw: dispatchDraws[0] };
+      return {
+        policyDraw: policyDraws[0],
+        dispatchDraw: dispatchDraws[0],
+        automaticDraw: automaticDraws[0],
+        automaticDispatchDraw: automaticDispatchDraws[0]
+      };
     } finally {
       Math.random = ambientRandom;
     }
