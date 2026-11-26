@@ -396,7 +396,7 @@ test('Twinleaf adapter forwards a fixed actor-observation opponent policy into t
   const result=mcts.search(h.state,0);
   assert.equal(result.audit.opponentModel,'fixed-actor-observation-policy');
   assert.equal(result.audit.opponentPolicyId,'test-fixed-opponent-v1');
-  assert.equal(result.audit.opponentPolicyRngProtocol,'mcts-opponent-policy-rng-v2');
+  assert.equal(result.audit.opponentPolicyRngProtocol,'mcts-search-ordinal-opponent-policy-rng-v3');
   assert.equal(result.audit.opponentPolicyContextProtocol,'no-context-v1');
   assert.ok(result.audit.opponentPolicyCalls>0);
   assert.equal(result.audit.opponentPolicyCalls,policyCalls.length);

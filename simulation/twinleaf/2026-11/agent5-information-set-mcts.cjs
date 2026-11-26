@@ -938,7 +938,7 @@ function createInformationSetMcts(config) {
           actorRelativeDeterminizationProtocol: redeterminize === null ? null :
             'observation-preserving-per-decision-v1',
           actorRelativeDeterminizationRngProtocol: redeterminize === null ? null :
-            'search-ordinal-seed-iteration-seat-observation-v2',
+            'mcts-search-ordinal-actor-relative-determinization-rng-v2',
           actorRelativeDeterminizationCallsBySeat,
           actorRelativeDeterminizationCalls:
             actorRelativeDeterminizationCallsBySeat[0] +
