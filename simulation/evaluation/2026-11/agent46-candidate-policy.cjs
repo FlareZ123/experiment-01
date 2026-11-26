@@ -2481,13 +2481,28 @@ function abilitySourceSlot(view, item) {
   return null;
 }
 
-function canUseUnderworldDoor(view, item) {
+function underworldDoorSourceIsUnspent(receipt, metadata, source) {
+  if (receipt?.version !== 'agent8-public-event-receipt-v3-turn-stamped') return false;
+  const ownerSource = metadata.sourceZone === 'active'
+    ? receipt.ownerActive
+    : metadata.sourceZone === 'bench' && Number.isSafeInteger(metadata.sourceIndex)
+      ? receipt.ownerBench?.[metadata.sourceIndex]
+      : null;
+  if (!ownerSource || ownerSource.printing !== source.printing ||
+      !Array.isArray(ownerSource.knownAbilityUse)) return false;
+  const markers = ownerSource.knownAbilityUse.filter(row =>
+    row?.name === 'Underworld Door');
+  return markers.length === 1 && markers[0].usedThisTurn === false;
+}
+
+function canUseUnderworldDoor(view, item, receipt) {
   const metadata = item.publicMetadata ?? {};
   const source = abilitySourceSlot(view, item);
   return metadata.abilityName === 'Underworld Door' &&
     source !== null && isShadowRiderVmax(source) &&
     (!item.actorPrinting || item.actorPrinting === source.printing) &&
     abilityStatus(source, 'Underworld Door') === true &&
+    underworldDoorSourceIsUnspent(receipt, metadata, source) &&
     handHas(view, 'Psychic Energy') &&
     view.ownPublic.bench.some(slot =>
       slot && slot.printed?.types?.includes('Psychic'));
@@ -2549,7 +2564,8 @@ function chooseRoot(view, request) {
   const resettingHole = abilities.find(item =>
     item.publicMetadata?.abilityName === 'Resetting Hole' &&
     hasStadiumRemovalTarget(view));
-  const underworldDoor = abilities.find(item => canUseUnderworldDoor(view, item));
+  const underworldDoor = abilities.find(item =>
+    canUseUnderworldDoor(view, item, request.publicEventReceipt));
   const starAlchemy = abilities.find(item =>
     canUseStarAlchemy(view, item, request.publicEventReceipt));
   const usefulAbility = resettingHole ?? underworldDoor ?? starAlchemy;
