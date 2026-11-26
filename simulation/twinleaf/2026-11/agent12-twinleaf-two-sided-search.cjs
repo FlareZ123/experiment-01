@@ -263,6 +263,14 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
           ].sort(), 'Native-action history event has an unexpected shape');
           assert.ok(event.actorObservation && typeof event.actorObservation === 'object' &&
             !Array.isArray(event.actorObservation));
+          assert.equal(event.actorObservation.actorSeat, seat,
+            'Root history prefix actorObservation.actorSeat must match physical seat ' + seat);
+          for (const field of [
+            'actorHistorySha256', 'actorVisibleHistory', 'actorOwnDecisionHistory'
+          ]) {
+            assert.equal(Object.hasOwn(event.actorObservation, field), false,
+              'Root history prefix actorObservation must not embed actor history field ' + field);
+          }
           assert.match(event.actorObservationDigest, /^[a-f0-9]{64}$/);
           assert.ok(typeof event.actionKey === 'string' && event.actionKey.length > 0);
           assert.ok(event.publicAction && typeof event.publicAction === 'object' &&
@@ -275,12 +283,22 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
           ].sort(), 'Player-prompt history event has an unexpected shape');
           assert.ok(event.actorObservation && typeof event.actorObservation === 'object' &&
             !Array.isArray(event.actorObservation));
+          assert.equal(event.actorObservation.actorSeat, seat,
+            'Root history prefix actorObservation.actorSeat must match physical seat ' + seat);
+          for (const field of [
+            'actorHistorySha256', 'actorVisibleHistory', 'actorOwnDecisionHistory'
+          ]) {
+            assert.equal(Object.hasOwn(event.actorObservation, field), false,
+              'Root history prefix actorObservation must not embed actor history field ' + field);
+          }
           assert.match(event.actorObservationDigest, /^[a-f0-9]{64}$/);
           assert.ok(event.actorHistorySha256 === null ||
             (typeof event.actorHistorySha256 === 'string' &&
               /^[a-f0-9]{64}$/.test(event.actorHistorySha256)));
           assert.ok(event.promptProjection && typeof event.promptProjection === 'object' &&
             !Array.isArray(event.promptProjection));
+          assert.equal(event.promptProjection.actingSeat, seat,
+            'Root history prefix promptProjection.actingSeat must match physical seat ' + seat);
           assert.match(event.promptProjectionDigest, /^[a-f0-9]{64}$/);
           assert.ok(Array.isArray(event.selectedTokens) && event.selectedTokens.length <= 60 &&
             event.selectedTokens.every(token => typeof token === 'string' && token.length > 0));
