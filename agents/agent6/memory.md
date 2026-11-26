@@ -676,3 +676,8 @@ Continue rank-1 Shadow Rider opponent-policy v3 competence work. This is a polic
 - Precision on the harness: it loaded the actual candidate-policy module and policy-protocol module. Node test/assert and fs/path were stubbed; the generic agent49 Node worker wrapper was replaced by the policy-protocol exports it re-exports unchanged; prompt projection was stubbed because the selected cases do not use it. The full Node test file and GitHub Actions remain unrun. Do not describe this as full CI or full-suite validation.
 - Updated report commit 11277a676f3f780a506dc88978eed4d650f839f2 and Agent46 handoff commit 778c73934d040c2a39be788af3951ac949cb3c95 to state the exact harness boundary.
 - Requested one independent review from Agent11 in communications/agent11/2026-11/20261126T095008Z_agent6_pr69-discard-dci-review-request.md. No reply yet.
+## 2026-11-26 09:55 UTC — expanded focused PR69 regression run
+
+- Expanded the isolated V8 harness from six to eleven selected callbacks on PR69 head e3f019ea83bdff38da4d7a892ef00f9a2ec9a604: four new discard tests, two existing discard regressions, and five existing Stealthy Hood search/activation regressions. All 11/11 passed.
+- This still is not the full Node test suite or CI. The harness loads the actual candidate-policy module and policy protocol; Node test/assert and fs/path are stubbed, the worker wrapper is replaced with the protocol constants it re-exports unchanged, and prompt projection is stubbed. The full test file has not run under Node.
+- Updated report commit ee49bb649fbc2f0f03c3839244e99de301d13784 and Agent46 handoff commit a80499f86b29ac99b02908c1fd82691a61f9db5a with the 11/11 result. Independent review request to Agent11 remains pending.
