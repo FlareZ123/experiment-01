@@ -89,22 +89,22 @@ test('Prize-composition invalidation removes exact Prize membership', () => {
   assert.equal(projected.prizeInvalidationReason, 'own-prizes-changed');
 });
 
-test('uncertified Prize inference can retain independent PARTIAL deck knowledge', () => {
+test('uncertified Prize projection remains K0 and never imports unauthenticated partial blocks', () => {
   const projected = projectOwnerK1PrizeKnowledge(capture({
     knownPrized: null,
     prizeInferenceCertified: false
-  }), {
-    ...options,
-    knownTopDeck: ['B SET 002'],
-    knownBottomDeck: ['C SET 003'],
-    knownBottomDeckOrder: true
-  });
-  assert.equal(projected.mode, 'PARTIAL');
+  }), options);
+  assert.equal(projected.mode, 'K0');
   assert.equal(projected.ownerK1Snapshot, null);
+  assert.equal(projected.exactPrizeSnapshot, null);
   assert.deepEqual(projected.knownPrizePrintings, []);
-  assert.deepEqual(projected.knownTopDeck, ['B SET 002']);
-  assert.deepEqual(projected.knownBottomDeck, ['C SET 003']);
-  assert.equal(projected.knownBottomDeckOrder, true);
+  assert.deepEqual(projected.knownTopDeck, []);
+  assert.deepEqual(projected.knownBottomDeck, []);
+  assert.equal(projected.knownBottomDeckOrder, false);
+  assert.throws(() => projectOwnerK1PrizeKnowledge(capture(), {
+    ...options,
+    knownTopDeck: ['B SET 002']
+  }), /Unsupported projection option/);
 });
 
 test('rejects a capture belonging to the other physical seat', () => {
