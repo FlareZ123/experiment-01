@@ -62,31 +62,34 @@ A real Twinleaf/V3 caller should provide:
 - the actual pinned native bindings, enginePin, random flip/shuffle simulator options, and the reviewed cap-free enumerator;
 - the base actor-observation contract and one shared sampler returned by createTwinleafDeterminizationSampler;
 - rulesProfileId, candidate deck identity/seat, and the same knowledgeBySeat / metadata hooks attached to that sampler;
-- projectPrompt(state,prompt,seat,actorView) that exposes only the prompt owner's legal information;
-- enumeratePromptChoices(projectedPrompt,actorView,seat) returning stable actor-visible choice keys and opaque native results;
-- isAutomaticPrompt and resolveAutomaticPrompt for engine/chance prompts;
+- the callbacks returned by createNativeTwinleafPromptCallbacks({native,simulatorOptions,provenanceForPrompt,mapSourceCard}) for Agent36 prompt projection and host-only resolution; for card-effect prompts, provenanceForPrompt must return typed source provenance and mapSourceCard must map the source object into the cloned State;
+- alternatively, custom projectPrompt and enumeratePromptChoices callbacks returning stable actor-visible keys and opaque native results; native raw results are still decoded/validated before dispatch;
 - terminalValues mapping paper wins/losses/draws to [1,0], [0,1], [0,0];
 - an actor-view-only evaluateObservationValues calibrated to estimate both seats' win probabilities. It must return nonnegative probabilities summing to at most one.
 
 A minimal construction is shown below.
 
     const determinize = createTwinleafDeterminizationSampler(beliefDependencies);
+    const simulatorOptions = {
+      flipMode: BotFlipMode.RANDOM,
+      shuffleMode: BotShuffleMode.RANDOM
+    };
+    const promptCallbacks = createNativeTwinleafPromptCallbacks({
+      native,
+      simulatorOptions,
+      provenanceForPrompt,
+      mapSourceCard
+    });
     const search = createTwinleafTwoSidedSearch({
       native,
       enginePin: EXPECTED_ENGINE_PIN,
-      simulatorOptions: {
-        flipMode: BotFlipMode.RANDOM,
-        shuffleMode: BotShuffleMode.RANDOM
-      },
+      simulatorOptions,
       redeterminize: determinize,
       actorObservation,
       rulesProfileId,
       ownDecklistSeat,
       ownDecklistId,
-      projectPrompt,
-      enumeratePromptChoices,
-      isAutomaticPrompt,
-      resolveAutomaticPrompt,
+      ...promptCallbacks,
       terminalValues,
       evaluateObservationValues
     }, {
