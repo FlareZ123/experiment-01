@@ -1,3 +1,18 @@
+## 2026-11-26 03:35 UTC — V3 policy-audit binding and rank-1 DDE scope clarification
+
+- **Lease:** still Agent3, immutable claim `2026-11-26T03:22:26.933772Z`; release threshold `2026-11-26T04:32:26.933772Z`. Do not refresh. Actual clock at this checkpoint was 03:35:12Z (12.8 minutes elapsed); continue.
+- **Messages delivered to Agent12 on main:**
+  - DDE frontier dependency: `communications/agent12/2026-11/20261126T032559Z_agent3-dde-frontier-dependency-two-sided-adapter.md`, commit `929d1bae34dd0b8f2c4ac3f72e57fbf6ce55a1ac`.
+  - MCTS-to-V3 worker policyAudit/live-token binding: `communications/agent12/2026-11/20261126T033322Z_agent3-mcts-v3-policy-audit-binding.md`, commit `768aa4a1277ff31155554a74452b994a3efb44f2`.
+  - Rank-1 DDE nonblocking clarification: `communications/agent12/2026-11/20261126T033440Z_agent3-rank1-dde-nonblocking-clarification.md`, commit `0fb631347438f43c863bd3f684edb7d0b7fa91e9`.
+  No Agent12 reply was visible at the latest inbox read.
+- **Verified source scope:** current `results/aichi-2026/full-decklists.json` blob `ae773f6201d7aa69d31914dbfee66f3fba692200` has 29 lists / missing 23,25,28. Exactly 10 lists contain DDE (ranks 10,12,13,14,18,19,20,21,27,32; 38 copies); all ten also contain Dedenne-GX and Tapu Lele-GX. Rank 1 (Yasunori Kato) contains 11 Psychic Energy and zero DDE; Hood Shield candidate contains zero DDE. Therefore DDE does not block the frozen rank-1 pair; it is a later field-coverage dependency.
+- **V3 protocol binding detail:** main `simulation/evaluation/2026-11/agent49-policy-protocol.cjs` `validatePolicyAudit()` requires one evaluation row for each prompt choice or action-frontier item, in exact source order, with token/status/score/reasonCode and optional componentScores. It also binds policyVersion, decisionKind, decisionType, selectionRuleCode, tieBreakCode, selectedTokens; the selected token must be scored or rule-selected. Agent12 MCTS rootStats use actionKey = NATIVE + native signature, not live `act-N` worker tokens; host integration must map the exact selected key and every root stat to the exact current live frontier (or prompt projection) and build the existing policyAudit. Do not treat meanValue as a calibrated win probability; document it as an MCTS estimate and keep visits/prior as separate component scores. No second serializer is needed.
+- **Current trace source audit:** the V3 runner's existing workerDecisionTrace records actor input, public receipt, prompt projection, action frontier, selected items, policyAudit, validation receipt, and the full-state recorder joins it to before/after native state and root-action ledger. The runner does not automatically copy arbitrary `search.audit`/rolloutPaths from a worker response, so root statistics must be represented in the supported policyAudit (or an explicitly approved existing trace field) if they are to survive into the review artifact.
+- **No new competitive evidence:** no game dispatch, no matchup, no fixed-60 selection, no win-rate claim. Do not duplicate the already assigned prompt-continuation/perfect-recall review or merge PR #65 without owner review.
+
+---
+
 ## 2026-11-26 03:29 UTC — current-main MCTS/DDE integration handoff
 
 - **Invocation / lease:** actual initial CSPRNG draw = 3/10, selecting normal research mode. Claimed Agent3 at immutable `2026-11-26T03:22:26.933772Z`; remote claim was verified. Do not refresh the lease. The 70-minute orderly-release threshold is `2026-11-26T04:32:26.933772Z`; after every checkpoint compare the original timestamp with the actual runtime clock.
