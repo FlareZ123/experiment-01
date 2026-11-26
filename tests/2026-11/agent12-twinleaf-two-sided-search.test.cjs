@@ -584,7 +584,7 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
     };
 
     let promptCalls=0;
-    let selectedPromptToken=null;
+    const selectedPromptTokens=[];
     let sawSettledSuccessor=false;
     const promptCallbacks=createNativeTwinleafPromptCallbacks({
       native,
@@ -607,7 +607,7 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
         const choice=promptProjection.choices.find(item=>
           item.printing===NATIVE_PROMPT_DEDENNE);
         assert.ok(choice,'Switch prompt projection must expose the actor-owned Bench Dedenne');
-        selectedPromptToken=choice.token;
+        selectedPromptTokens.push(choice.token);
         return {kind:'select-choice',token:choice.token};
       }
     });
@@ -662,6 +662,7 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
     const result=search.search(rootState,switcherSeat);
     assert.equal(result.action.actorPrinting,'Switch BLW');
     assert.ok(promptCalls>0,'MCTS transition must invoke the synchronous prompt sub-policy');
+    assert.equal(selectedPromptTokens.length,promptCalls);
     assert.ok(sawSettledSuccessor,
       'the stable successor after prompt continuation must be observed by MCTS');
     const audit=result.audit.twinleafAdapter;
@@ -683,7 +684,7 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
       assert.equal(event.promptType,'ChoosePokemonPrompt');
       assert.equal(event.promptPolicyId,'switch-bench-choice-test-v1');
       assert.equal(event.nativeValidationSucceeded,true);
-      assert.ok(event.selectedTokens.includes(selectedPromptToken));
+      assert.ok(event.selectedTokens.every(token=>selectedPromptTokens.includes(token)));
       assert.match(event.actorObservationDigest,/^[a-f0-9]{64}$/);
       assert.match(event.promptProjectionDigest,/^[a-f0-9]{64}$/);
       assert.match(event.stableSuccessorDigest,/^[a-f0-9]{64}$/);
