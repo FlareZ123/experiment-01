@@ -3,6 +3,12 @@
 **Date:** 2026-11-26  
 **Status:** static policy-risk analysis; not an observed game error, matchup result, or deck-strength estimate.
 
+## Current branch update — 2026-11-26T11:25Z
+
+PR #69 has advanced from the initial v4 discard correction at `d3025c4` to exact head `fd3cb1eb02584b2d498ea3a0bce368edecfd259f`. The current branch retains the mirror DCI discard corrections and adds: open-Bench gating for synthetic live-Basic preservation; Marshadow UNB 81 Ability-aware Resetting Hole gating (Silent Lab negative, Path to the Peak positive, Dimension Valley negative); correction of the test printing from banned Marshadow SLG 45 to the candidate's UNB 81; and removal of the unreachable Psychic Energy `attached >= 11` discard cutoff while retaining the shared counter for Max Geist damage. Exact-head contract-only run [45808003263](https://github.com/FlareZ123/experiment-01/actions/runs/45808003263) passed on `fd3cb1e`, including the complete candidate-policy Node test file, Docker launcher contract, runtime preflight, and both-seat worker-isolation canary. PR #69 remains draft; current-main V3 still loads main's worker files, so this branch does not alter the registered baseline.
+
+**Important remaining risk:** the separate global five-Energy preferences in `searchNeedScore()`, Underworld Door recipient scoring, and manual VMAX attachment remain unchanged. The current discard-value correction does not make Energy development damage-breakpoint-aware. Keep this as a post-baseline question; do not change the registered V3 pair before the owner-authorized trace.
+
 ## Question
 
 Does the candidate worker's five-attached-Psychic-Energy threshold preserve enough Max Geist damage and rank hand/deck discards correctly for the frozen Hood Shield Shadow Rider v1 vs original rank-1 Shadow Rider diagnostic pair?
@@ -87,7 +93,7 @@ This is a concrete policy asymmetry in the chosen pair. It is not proof that the
 
 
 
-### Narrow discard-priority correction on PR #69
+### Historical initial discard-priority correction on PR #69 (head d3025c4)
 
 A candidate-only correction has now been committed to PR #69 branch `agent46/candidate-policy-competence-20261124` as latest branch head `d3025c4af584934e912e1ba80476344de3a5d8d4` (worker v4; blob `5ef99598d56f8d399b4c0e9cb6ca5438fca2db58`; test blob `67da7361806658f6c6d9f67200d45280a88990ab`). It changes only discard ranking:
 
@@ -101,9 +107,9 @@ This commit is on the draft PR #69 branch only. The registered main candidate bl
 
 ## Recommended follow-up
 
-1. **Review and validate PR #69 v4.** Agent46 and the requested independent reviewer should inspect the exact branch head and run the complete candidate test file under Node. The 15 selected V8-harness cases are targeted validation, not full-suite or CI evidence; do not merge on that basis alone.
-2. **Keep the registered V3 pair unchanged** for the owner-authorized baseline. The v4 change is confined to the draft PR #69 branch; do not alter the registered main worker, deck, fixture, seed, seats, runner, or frozen PR #71.
-3. **Leave the remaining energy sequencing question open.** PR #69 v4 intentionally does not change searchNeedScore or the five-Energy VMAX manual-attachment/Underworld Door preferences. Evaluate those after the baseline trace using Max Geist damage breakpoints, visible target HP/damage, attacker availability, and the risk of concentrating Energy on a vulnerable Basic versus a VMAX.
+1. **Independent review of current PR #69 head `fd3cb1e` remains pending.** The complete candidate-policy Node test file now passes in exact-head contract-only run `45808003263`; the earlier 15-case isolated V8 harness is historical targeted validation only. Keep the PR draft and do not merge from contract evidence alone.
+2. **Keep the registered V3 pair unchanged** for the owner-authorized baseline. The v4 changes are confined to the draft PR #69 branch; do not alter the registered main worker, deck, fixture, seed, seats, runner, or frozen PR #71.
+3. **Leave the remaining energy-development question open.** PR #69 still does not change `searchNeedScore` or the five-Energy VMAX manual-attachment/Underworld Door preferences. Evaluate those after the baseline trace using Max Geist damage breakpoints, visible target HP/damage, attacker availability, and the risk of concentrating Energy on a vulnerable Basic versus a VMAX.
 4. If evidence supports changing those remaining thresholds, add matchup- and state-aware tests with both mirror and Regidrago positive controls before changing the candidate policy again.
 
 Do not modify frozen PR #71, create a new policy PR, add a workflow, or update the decision board for this hypothesis alone.
