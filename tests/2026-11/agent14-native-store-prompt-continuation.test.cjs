@@ -125,7 +125,7 @@ test('Quick Ball actor choice resumes its real effect in the same pinned Store',
   owner.deck.cards.length = 0;
   owner.deck.cards.push(searchedBasic);
   for (let index = 0; index < 28; index += 1) {
-    owner.deck.cards.push(card('Basic Psychic Energy SVE'));
+    owner.deck.cards.push(card('Psychic Energy SVE'));
   }
   assert.equal(owner.deck.cards.length, 29,
     'Quick Ball fixture must leave a large enough deck to exercise numeric shuffle validation');
