@@ -14,8 +14,8 @@ A zero-sum terminal utility of win (+1), draw (0), loss (-1) maximizes (P(win)-P
 
 The core keeps the existing scalar `zero-sum` mode as the default and adds opt-in `valueMode: 'seat-win-probability'`.
 
-- The caller supplies a typed `terminalOutcome` rather than a bare vector: `{kind:'seat-win', winnerSeat:0|1}` or `{kind:'adjudicated-draw', ruleId, reason, evidenceId}`. The draw rule ID and evidence reference are mandatory, and a versioned `terminalOutcomeProtocolId` is required and recorded in the audit. Bare `[0,0]`, `NONE`, unresolved, invalid, aborted, and unknown outcomes are rejected.
-- The core converts typed terminal outcomes to `[1,0]`, `[0,1]`, or `[0,0]`; a draw is a nonwin for both seats.
+- The caller supplies a typed `terminalOutcome` rather than a bare vector: `{kind:'seat-win', winnerSeat:0|1}`, `{kind:'adjudicated-draw', ruleId, reason, evidenceId}`, or `{kind:'adjudicated-no-winner', ruleId, reason, evidenceId}`. Both adjudicated nonwin classes require a versioned rule ID, non-empty reason, and evidence reference; a versioned `terminalOutcomeProtocolId` is required and recorded in the audit. Bare `[0,0]`, raw `NONE`, unresolved, invalid, aborted, and unknown outcomes are rejected.
+- The core converts typed terminal outcomes to `[1,0]`, `[0,1]`, or `[0,0]`; both adjudicated draws and adjudicated no-winner outcomes are nonwins for both seats, while their distinct typed class is preserved in each rollout receipt.
 - Each selected node backs up the component belonging to that node's physical seat. Seat 0 maximizes seat 0's win probability; seat 1 maximizes seat 1's win probability. No alternating sign flip is applied in this mode.
 - Two-sided PUCT uses PUCT nodes for both physical seats.
 - When a frozen `opponentActionPolicy` is supplied, only the non-root seat uses that policy; the root searches a best response. Audit metadata distinguishes `two-sided-puct` from `root-best-response-fixed-opponent-policy`.
