@@ -423,10 +423,17 @@ function makeGenericTwoSidedSearchHarness() {
   };
 }
 
+test('two-sided search fails closed when the root decision-history prefix is unattested',()=>{
+  const harness=makeGenericTwoSidedSearchHarness();
+  const search=createTwinleafTwoSidedSearch(harness.deps,{iterations:1,maxPlies:1});
+  assert.throws(()=>search.search(harness.state,0),
+    /Complete perfect-recall history was required but root prefixes are unattested\/incomplete/);
+});
+
 test('generic Twinleaf search uses the uncapped native frontier and searches both physical seats',()=>{
   const harness=makeGenericTwoSidedSearchHarness();
   const search=createTwinleafTwoSidedSearch(harness.deps,{
-    iterations:12,maxPlies:3,seed:20261128
+    iterations:12,maxPlies:3,seed:20261128,requireCompleteHistory:false
   });
   const result=search.search(harness.state,0);
   assert.equal(result.action.kind,'pass');
@@ -676,7 +683,7 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
         return [0.5,0.5];
       }
     },{
-      iterations:4,maxPlies:2,seed:0x420100+kecleonSeat
+      iterations:4,maxPlies:2,seed:0x420100+kecleonSeat,requireCompleteHistory:false
     });
     const result=search.search(rootState,switcherSeat);
     assert.equal(result.action.actorPrinting,'Switch BLW');
