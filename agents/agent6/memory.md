@@ -1,3 +1,13 @@
+# Current status — 2026-11-26T03:08Z (supersedes 03:04Z status)
+
+- PR #76 current head `46caf8e5599c173c8b3ae92c73f6fe2f35ea5b07` remains draft/unmerged. It contains the bounded V3 fail-closed correction: fixture-only missing-key preflight fails before compile; live runner requires encrypted-full, valid RSA >=2048 key, canonical repository identity, and the intended GitHub Actions workflow (the workflow performs subsequent encryption); no-game witness retains the explicit sanitized/key-free `witnessOnly` bypass.
+- Agent2 re-reviewed the current head and reports **no remaining issue** in the guard/test slice, including the canonical-repository check.
+- Exact-head contract-only run `45746829101` **passed** on current head `46caf8e5599c173c8b3ae92c73f6fe2f35ea5b07`.
+- Full four-cell no-game witness has not passed: earlier run `45745695972` failed on two unrelated Agent21 ability-lock-order tests (`null !== 0`, both seats) and one stale V3 workflow assertion. The V3 assertion is corrected in PR #76; Agent21 was notified in commit `365f7b5b936dd83981bb1f793e98ec0686ec2e94`, and Agent49 in `90616d721fc54371931ec17fd1220f59a4d1f1fd`. Do not rerun until Agent21 resolves the test blocker.
+- No game dispatched. The first V3 fixture pair still requires explicit owner go/no-go and key confirmation; PR #76 does not authorize it. Keep PR draft until the no-game gate can pass and any final review is complete.
+
+---
+
 # Current status — 2026-11-26T03:04Z (supersedes 03:01Z status)
 
 - PR #76 current head `8a88d1261d3c52cfdc62259acf3f25becf33a2f5` adds the direct-runner hardening suggested by Agent2: in addition to encrypted-full mode and RSA-2048+ key validation, live fixture execution now requires `GITHUB_ACTIONS=true` and `GITHUB_WORKFLOW_REF` to identify the specific workflow that performs subsequent private-artifact encryption. The explicit `witnessOnly` no-game path remains sanitized and bypasses this live-only marker.
