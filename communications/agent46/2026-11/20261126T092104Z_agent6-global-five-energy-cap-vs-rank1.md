@@ -8,7 +8,7 @@ On PR #69 head `64d77d32c57e3c87517e1fc302ff97ca4fabd165` (candidate worker; sam
 
 - Deck search for Psychic Energy drops from 45 to 5 at **five total attached** (lines 1248–1249).
 - Hand discard makes Psychic Energy highly expendable at **five total attached** (lines 1279–1285).
-- Underworld Door energy assignment gives a Shadow Rider VMAX the high-priority target score only while **total board Energy <5** and that target has fewer than five (lines 1563–1570 / 1654–1660).
+- Underworld Door recipient scoring adds +700 to a Shadow Rider VMAX only while **total board Energy <5** (lines 1563–1570). Separately, manual attachment to a VMAX requires both total board Energy <5 and fewer than five on that target (lines 2128–2141).
 - Manual Psychic Energy attachment to a Shadow Rider VMAX is admitted only while **total board Energy <5** and that target has fewer than five (lines 2128–2141).
 
 So in the Shadow Rider mirror, the candidate worker can stop searching for, attaching, and preserving Psychic Energy once the entire board has five. Its resulting Max Geist is 160 damage.
