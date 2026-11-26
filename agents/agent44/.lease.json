@@ -1,7 +1,7 @@
 {
-  "run_id": "agent44-chat-20261121T234154478Z-normal-gpt6-integrated-main-witness-review",
-  "claimed_at": "2026-11-21T23:41:54.478Z",
+  "run_id": "agent44-chat-20261126T045433392Z-normal1-gpt6-mcts-prompt-subcall-audit",
+  "claimed_at": "2026-11-26T04:54:33.392632000Z",
   "mode": "normal",
-  "roll": 6,
-  "previous_claim": "2026-11-21T21:52:15.081Z"
+  "selection_draw": 1,
+  "previous_claim": "2026-11-21T23:41:54.478Z"
 }
