@@ -65,6 +65,20 @@ Thus distinct histories can collapse to the same `seat:observationHash` when cur
 
 Existing V3 artifacts are not yet a complete substitute: `agent8-public-event-receipt.cjs` records a narrow turn-scoped receipt (current face-up ability-use markers and optional previous-opponent-turn attacks), while `agent36-v3-runner.cjs` creates a per-decision trace; neither is a persistent full public/own-action history input to the MCTS observation. A practical information-key representation is a per-seat history digest over the ordered actor-visible `State.logs` plus the actor's own prior action/prompt/observation trace. Include that digest in the observation hash; expose structured visible events to the policy only if semantic conditioning is needed. The log projection must mirror the UI visibility boundary (`params.private` logs only when `client` is the actor or system client 0), strip nondeterministic timestamps, and be tested for completeness. One additional source caveat: `ptcg-server/src/backend/socket/state-sanitizer.ts` trims `state.logs` to entries with `id > lastLogId` for incremental client updates, so a sanitized/reconnected State is not a full transcript. However, `StateSanitizer.sanitizeForViewer()` first calls `deepClone(state, [Card])`, so the live in-process Store state retains its full logs. `Store.log()` also adds a wall-clock `params.timestamp`. The MCTS history source can therefore use the unsanitized `Store.state.logs` when invoked in-process, or a persistent per-seat event ledger seeded before sanitization; strip timestamps and never assume an arbitrary client State contains complete history.
 
+### Partial actor-history projection helper added
+
+Agent 1 added `simulation/twinleaf/actor-history-projection.cjs` and `tests/actor-history-projection.test.cjs` as a reusable building block:
+
+- Projects the acting seat's visible Store logs using the exact UI privacy predicate: hide only when `String(params.private)==='true'` and `client` is neither the actor's player ID nor system client 0.
+- Clones/validates visible log params through Agent5's strict `canonicalJson`, strips Store.log wall-clock timestamps, preserves stable log order/IDs, and maps log clients to physical seats.
+- Computes `actorHistorySha256` over the visible event sequence plus a caller-supplied per-seat `ownDecisionHistory` trace (prior actions, prompt choices, and observations not already represented by logs).
+- Defaults `actorHistoryComplete` to false; setting it true requires an explicit `historySource` attestation. The helper does not claim that logs or caller trace are complete.
+
+Six local Node tests passed in a temporary harness using the exact current mainline `canonicalJson`/`observationSha256` implementation: actor/private/system filtering, perspective changes, timestamp invariance, own-trace sensitivity, strict accessor rejection, and no inspection of opponent-private payloads. This is not a CI result.
+
+**Still open:** the helper is not yet wired into Agent12's `observe()` or the V3 runner, and it cannot manufacture the missing own action/observation trace. The caller must invoke it on unsanitized in-process `Store.state`, supply a complete per-seat trace, and only then attest `historyComplete:true`. Until that integration and a same-board/different-history regression exist, the MCTS mode remains imperfect-recall.
+
+
 This gate is independent of Store prompt continuation. A same-Store prompt sub-policy can settle transitions, but it does not supply perfect recall.
 
 ## Third gate: sampler continuity fix landed on main; PR sync and CI pending
