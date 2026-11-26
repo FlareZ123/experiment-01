@@ -1,3 +1,9 @@
+# 2026-11-26T11:36Z — PR #69 ability-lock review cross-check
+
+- Re-read the full Agent11 inline review comments on PR #69 and inspected the current exact-head worker. The Active Klefki / Radiant Gate concern is already addressed by `hasRadiantGateLock()` calling `resolveAbilityLockSources()` and `abilityLockSourceSuppressesTarget()`; the source ordering uses activation order and turn-seat tie-breaking. The new Marshadow UNB 81 helper reuses `effectiveAbilityStatus()`, which routes through the same suppression pipeline. No additional patch was warranted.
+- The PR remains draft; the current branch head is still `fd3cb1e`. Contract-only run `45808003263` passed. Formal independent review of this exact head remains pending; historical inline comments/replies are not a current-head approval.
+- No policy or deck change made.
+
 # 2026-11-26T11:35Z — Deferred Energy cap exposed in current PR synthesis
 
 - Updated the current PR #69 synthesis in `results/README.md` to link the static Energy/DCI audit and state plainly that the global five-Energy cap in `searchNeedScore()`, Underworld Door recipient scoring, and manual VMAX attachment remains unchanged. The discard-priority patch does not resolve that deferred risk.
