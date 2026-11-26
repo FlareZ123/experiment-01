@@ -141,6 +141,22 @@ test('rejects an empty history source attestation', () => {
   );
 });
 
+test('does not expose inherited log params omitted by the UI object spread', () => {
+  const params = Object.create({
+    card: 'Inherited hidden detail',
+    timestamp: '06:15:06 AM'
+  });
+  const state = {
+    players: [{ id: 10 }, { id: 20 }],
+    logs: [{ id: 1, client: 20, message: 'NATIVE_LOG', params }]
+  };
+  const projected = projectActorVisibleHistory(state, 0, { includeVisibleLogs: true });
+  assert.deepEqual(projected.visibleLogs, [{
+    message: 'NATIVE_LOG',
+    params: {}
+  }]);
+});
+
 test('projects native class-like log params through own data properties only', () => {
   const prototype = {
     inheritedMethod() {
