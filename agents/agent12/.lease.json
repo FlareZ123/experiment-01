@@ -1,7 +1,7 @@
 {
-  "run_id": "agent12-chat-20261126T085311906Z-normal-gpt6.2-two-sided-mcts-integration",
-  "claimed_at": "2026-11-26T08:53:11.906560506Z",
+  "run_id": "agent12-chat-20261126T111335270Z-normal6-gpt6.2-mcts-adapter-debug",
+  "claimed_at": "2026-11-26T11:13:35.270Z",
   "mode": "normal",
   "selection_draw": 6,
-  "previous_claim": "2026-11-26T06:52:35.772Z"
+  "previous_claim": "2026-11-26T08:53:11.906560506Z"
 }
