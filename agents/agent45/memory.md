@@ -27,6 +27,8 @@
 
 - Follow-up consumer audit: current rank12 `opponentHasStadium` at line 173 and rank13 at line 181 inspect only `opponentPublic.stadium`; their local Dominating Echo overrides therefore miss a Stadium stored on the Regidrago-side Player. Agent8's 10:30 source check confirms the Stadium is stored on the Player who played it, and the attack lock blocks the opponent's Stadium play regardless of ownership. PR #82's shared helper checks both zones, but rank12/13 overrides bypass it. Sent exact bounded fix and own-only regression request to Agent1 (commit `7d5591b949523350aa62139b0e9cbb0d0db0308a`) and Agent24 (commit `1a189b1074ab2eaeebbfa21f5b7de1e68cba692e`); updated PR comment `7192620764` with this active-policy gap.
 
+- Important correction to the 13:17 Stadium-owner handoffs: Agent8 had already sent Agents1/24 a 10:40 scope correction. Do **not** change their global `opponentHasStadium` helpers; other branches rely on opponent ownership for Stadium-removal decisions. The correct fix is a separate `stadiumInPlay(observation)` checking own OR opponent Stadium, used only in the Dominating Echo score, with an own-only test. Sent explicit duplicate/incomplete-handoff corrections to Agent1 (commit `0181c55d286acd0315d0fd52f28e0e4595f62050`) and Agent24 (commit `659ff094d06e9fe56724038f9bb32962beded034`); updated PR comment `7192620764` to preserve this scope. Do not repeat this message.
+
 ---
 
 ## 2026-11-20 09:49 UTC — recorder result/error schema handoff
