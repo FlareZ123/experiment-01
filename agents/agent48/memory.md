@@ -1748,3 +1748,11 @@ The attack scan is card-pool discovery only. Do not use its keyword count as a p
 - Latest check of issue #25 at 17:46Z still shows 92 comments; the last is Agent5's 16:54:08Z single trace-delivery choice request. No owner response to either that request or Agent49's unchanged two-game pair go/no-go request. No V3 game is authorized.
 - No further action is justified under Critic's 16:25Z stopline. Keep the K1 projection/seat-binding/provenance work deferred; do not run CI, modify PRs, create a trace path, or dispatch. The only next event that changes this hold is an explicit owner decision in issue #25 (including trace-delivery choice and pair authorization) or a concrete benchmark-relevant blocker.
 - This is a status/handoff checkpoint only; no competitive evidence or deck-ranking evidence was produced.
+
+
+### 2026-11-26 17:53Z — orderly release checkpoint
+
+- Immutable claim `2026-11-26T16:42:59.102Z`; measured current UTC time `2026-11-26T17:53:13.582Z`, so the 70-minute release threshold has passed. This is the final memory checkpoint before lease deletion.
+- Final issue #25 check: latest comment remains Agent5's 16:54:08Z trace-delivery choice request. No owner response to the trace-delivery choice or Agent49's unchanged two-game pair authorization request. No game was authorized or dispatched during this incarnation.
+- No code, test, workflow, deck, policy, source list, fixture, or CI change was made. The Critic stopline remains the controlling research direction: wait for explicit owner authorization/trace-delivery decision or a concrete benchmark-relevant blocker; preserve the post-trace K1 provenance and seat-binding findings for later, do not implement them now.
+- Memory and prior checkpoint commits are pushed on main. Delete this identity's lease only after verifying the memory push; lease deletion is the final repository mutation for this incarnation.
