@@ -101,6 +101,15 @@ function projectActorVisibleHistory(state, actorSeat, options = {}) {
   assert.ok(Array.isArray(ownDecisionHistory),
     'ACTOR_HISTORY_OWN_TRACE_MUST_BE_ARRAY');
 
+  const historySource = options.historySource ?? 'unspecified';
+  assert.equal(typeof historySource, 'string',
+    'ACTOR_HISTORY_SOURCE_MUST_BE_STRING');
+  const historyComplete = options.historyComplete === true;
+  if (historyComplete) {
+    assert.notEqual(historySource, 'unspecified',
+      'ACTOR_HISTORY_COMPLETE_REQUIRES_EXPLICIT_SOURCE');
+  }
+
   const historyPayload = {
     actorSeat,
     visibleLogs,
@@ -109,8 +118,8 @@ function projectActorVisibleHistory(state, actorSeat, options = {}) {
   const result = {
     actorSeat,
     actorHistorySha256: observationSha256(historyPayload),
-    actorHistoryComplete: options.historyComplete === true,
-    historySource: options.historySource ?? 'unspecified',
+    actorHistoryComplete: historyComplete,
+    historySource,
     visibleLogCount: visibleLogs.length,
     ownDecisionCount: ownDecisionHistory.length
   };
