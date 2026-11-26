@@ -88,8 +88,10 @@ const VERSIONED_PROMPT_POLICY_ID_RE = /(?:^|-)v[0-9]+$/;
 
 function hasPromptEventControlCharacters(value, rejectWhitespace = false) {
   for (let index = 0; index < value.length; index++) {
+    const character = value[index];
     const code = value.charCodeAt(index);
-    if (code < 32 || code === 127 || (rejectWhitespace && code === 32)) return true;
+    if (code < 32 || code === 127 ||
+      (rejectWhitespace && character.trim().length === 0)) return true;
   }
   return false;
 }
