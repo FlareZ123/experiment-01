@@ -33,6 +33,7 @@ function observation(options = {}) {
         hp: 280, subtypes: ['VSTAR'], energies: ['Double Dragon Energy XY 97']
       }),
       bench: options.ownBench ?? [],
+      stadium: options.ownStadium ?? [],
       deckCount: options.deckCount ?? 20,
       publicTurnRestrictions: { gxUsed: options.gxUsed ?? false },
       prizeCount: options.ownPrizeCount ?? 6
@@ -236,15 +237,20 @@ test('Covert Flight values its Basic-attack protection only when the current Act
 
 test('Dominating Echo values visible Stadium or Special Energy use as lock targets', () => {
   const noVisibleTarget = evaluateApexAttackChoice(choice('d', 'Dominating Echo'), observation());
-  const stadiumTarget = evaluateApexAttackChoice(choice('d', 'Dominating Echo'), observation({
+  const opponentOwnedStadium = evaluateApexAttackChoice(choice('d', 'Dominating Echo'), observation({
     opponentStadium: ['Path to the Peak']
+  }));
+  const attackerOwnedStadium = evaluateApexAttackChoice(choice('d', 'Dominating Echo'), observation({
+    ownStadium: ['Path to the Peak']
   }));
   const specialEnergyTarget = evaluateApexAttackChoice(choice('d', 'Dominating Echo'), observation({
     opponentBench: [pokemon('Opponent Pokémon', { energies: ['Double Dragon Energy XY 97'] })]
   }));
   assert.equal(noVisibleTarget.score, 185);
-  assert.equal(stadiumTarget.opponentHasStadium, true);
-  assert.equal(stadiumTarget.score, 260);
+  assert.equal(opponentOwnedStadium.stadiumInPlay, true);
+  assert.equal(opponentOwnedStadium.score, 260);
+  assert.equal(attackerOwnedStadium.stadiumInPlay, true);
+  assert.equal(attackerOwnedStadium.score, 260);
   assert.equal(specialEnergyTarget.opponentHasSpecialEnergy, true);
   assert.equal(specialEnergyTarget.score, 260);
 });
