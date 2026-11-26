@@ -469,8 +469,8 @@ test('two-sided search accepts an explicitly attested complete root history',()=
   const result=search.search(harness.state,0);
   assert.deepEqual(result.audit.twinleafAdapter.historyCompleteBySeat,[true,true]);
   assert.deepEqual(result.audit.twinleafAdapter.historySourceBySeat,[
-    'agent12-test-start-of-game-history-v1',
-    'agent12-test-start-of-game-history-v1'
+    'agent12-test-start-of-game-history-v2',
+    'agent12-test-start-of-game-history-v2'
   ]);
 });
 
@@ -727,19 +727,21 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
       provenanceForPrompt:(state,prompt,actorSeat)=>{
         if(actorSeat!==0&&actorSeat!==1)return null;
         const player=state.players[actorSeat];
+        const asCards=value=>Array.isArray(value)?value:
+          (Array.isArray(value?.cards)?value.cards:[]);
         const zones=[
-          ...(player.discard?.cards??[]),
-          ...(player.hand?.cards??[]),
-          ...(player.lostzone?.cards??[]),
-          ...(player.stadium?.cards??[]),
-          ...(player.supporter?.cards??[]),
-          ...(player.active?.cards??[]),
-          ...(player.active?.energies?.cards??[]),
-          ...(player.active?.tools??[]),
+          ...asCards(player.discard),
+          ...asCards(player.hand),
+          ...asCards(player.lostzone),
+          ...asCards(player.stadium),
+          ...asCards(player.supporter),
+          ...asCards(player.active?.cards),
+          ...asCards(player.active?.energies),
+          ...asCards(player.active?.tools),
           ...(player.bench??[]).flatMap(slot=>[
-            ...(slot?.cards??[]),
-            ...(slot?.energies?.cards??[]),
-            ...(slot?.tools??[])
+            ...asCards(slot?.cards),
+            ...asCards(slot?.energies),
+            ...asCards(slot?.tools)
           ])
         ];
         const sourceCard=zones.find(card=>card.fullName==='Switch BLW');
