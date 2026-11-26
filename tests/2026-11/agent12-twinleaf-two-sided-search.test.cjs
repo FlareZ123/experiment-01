@@ -646,6 +646,7 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
       provenanceForPrompt:(state,prompt,actorSeat)=>{
         if(actorSeat!==0&&actorSeat!==1)return null;
         const zones=[
+          ...(state.players[actorSeat].supporter?.cards??[]),
           ...(state.players[actorSeat].discard?.cards??[]),
           ...(state.players[actorSeat].hand?.cards??[])
         ];
