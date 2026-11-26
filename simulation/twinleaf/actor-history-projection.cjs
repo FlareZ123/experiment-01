@@ -53,7 +53,12 @@ function cloneActorSafeValue(value, label = 'actor-safe value', seen = new Set()
       assert.ok(descriptor && descriptor.enumerable === true &&
         Object.hasOwn(descriptor, 'value'),
       'ACTOR_HISTORY_OBJECT_ACCESSOR: ' + label + '.' + key);
-      clone[key] = cloneActorSafeValue(descriptor.value, label + '.' + key, seen);
+      Object.defineProperty(clone, key, {
+        value: cloneActorSafeValue(descriptor.value, label + '.' + key, seen),
+        enumerable: true,
+        writable: true,
+        configurable: true
+      });
     }
   }
   seen.delete(value);
