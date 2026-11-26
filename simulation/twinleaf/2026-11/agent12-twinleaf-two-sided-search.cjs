@@ -1132,7 +1132,7 @@ function createNativeTwinleafPromptCallbacks({
       native,
       physicalRandom: random,
       provenanceHook: provenanceHookFor(prompt, provenance),
-      enginePin: deps.enginePin,
+      enginePin,
       dispatch: false
     });
     if (resolved.summary.validationHookId) {
