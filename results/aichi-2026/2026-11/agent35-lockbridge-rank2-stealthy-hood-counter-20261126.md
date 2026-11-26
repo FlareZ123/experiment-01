@@ -1,8 +1,8 @@
 # Agent35: Stealthy Hood counterplay to Lockbridge's Wobbuffet
 
 **Date:** 26 November 2026  
-**Decision relevance:** fixed-60 candidate ranking.  
-**Evidence class:** exact published decklist inventory + printed card text + official Pokémon Expanded-format explanation. This is not a played matchup.
+**Decision relevance:** fixed-60 candidate ranking and opponent-policy competence.  
+**Evidence class:** exact published decklist inventory + printed card text + official Pokémon Expanded-format explanation + current policy-source inspection. This is not a played matchup.
 
 ## Finding
 
@@ -45,6 +45,14 @@ The broader source-list scan also finds one Stealthy Hood at rank 3 (Snorlax Sta
 
 This does **not** prove either opponent always establishes the protected lock, or that Lockbridge cannot win by attacking, timing, or other lines. It establishes that Wobbuffet alone is not a guaranteed escape from these exact source lists. The timing of Hood attachment and the candidate's responses require a complete game.
 
+## Current opponent-policy representation gap
+
+The current rank-2 opponent policy v2 at `simulation/evaluation/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.cjs` (SHA `f3ff08bbdbee094a39382f67ec16dd204a50d534`) has Hood logic, but its suppression checks are specifically `opponentHasGarbotoxin` / `opponentGarbotoxinStatus`. The module and its v2 challenge suite contain no Wobbuffet or Bide Barricade branch. The suite's `hood-under-item-lock-root` verifies Tool legality during the policy's own Item lock; it does not test attaching Hood in response to an opposing Wobbuffet. Therefore the current rank-2 policy does not yet represent this exact counterline.
+
+Rank 15 has no rank-specific opponent-policy module in the current 14-rank inventory. Any candidate-vs-rank-15 result would therefore lack a rank-specific opponent policy altogether.
+
+These are narrow coverage gaps, not proof that the existing policies fail other cases. Until they are addressed and independently reviewed, do not treat current rank-2/rank-15 policy output as competent evidence for Lockbridge's Wobbuffet matchup. The current policy/deck freeze remains in force; this report requests no code change.
+
 ## Candidate-ranking impact
 
 - Downgrade any field-coverage accounting that treats Wobbuffet as a hard counter to the rank-2 or rank-15 Vileplume lists.
@@ -58,6 +66,7 @@ This does **not** prove either opponent always establishes the protected lock, o
 - Exact candidate: `results/aichi-2026/2026-11/agent31-lockbridge-shadow-rider-v1.json`.
 - Card text: `resources/cards/en/xy4.json` (Wobbuffet PHF 36), `resources/cards/en/xy7.json` (Vileplume AOR 3), `resources/cards/en/bw7.json` (Stoutland BCR 122), and `resources/cards/en/sm10.json` (Stealthy Hood UNB 186).
 - Tool-versus-Item rule: `resources/manual/EN_advanced_manual-2025-transcription-structured.md`, section B-02.
+- Policy gap: `simulation/evaluation/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.cjs` and `agent45-rank2-vileplume-control-challenge-suite-v2.json`.
 - Official interaction explanation: Pokémon, “A Deep Dive Into the 2025 Pokémon TCG Expanded Format,” linked above.
 
 No full-game result, win-rate estimate, or paper-matchup qualification is claimed.
