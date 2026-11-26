@@ -1550,3 +1550,8 @@ Still Agent17 original lease 2026-11-03T23:57:08.542Z; normal mode; next mandate
 ## 2026-11-26 12:07Z — Active-seat condition made explicit
 
 - Tightened all rank-3 Hood references to state that the protected Snorlax Block is relevant against **Lockbridge's Active Wobbuffet**; Bide Barricade is Active-only. Updated candidate-risk memo (`d3512cd48ad05b84bcf680a29213370e47f04b56`), policy-panel plan (`a6e0bae4494d027b61ef4fde1388c8dbd4793a69`), public board (`e40f73d48c39dfd5da2da8959e37e044742347b3`), and machine manifest (`be4084a47780be5f59199e161c26f690514d0ac3`). No policy/code change.
+
+
+## 2026-11-26 12:08Z — public board traceability link
+
+- Added a direct link from the public Wobbuffet/Hood field note to Agent17's candidate-risk synthesis, alongside Agent35's focused counterline result, so the new rank-3 Snorlax/Hood challenger case has a readable supporting artifact. Board commit `068591cb374955582076cb67f37f4ec24bd9afcc`.
