@@ -407,12 +407,17 @@ function makeGenericTwoSidedSearchHarness() {
       };
       throw new Error('Terminal state lacks an explicit typed adjudication');
     },
-    evaluateObservationValues:()=>[0.5,0.5]
+    evaluateObservationValues:(observation)=>{
+      assert.match(observation.actorHistorySha256,/^[a-f0-9]{64}$/);
+      assert.ok(Array.isArray(observation.actorOwnDecisionHistory));
+      assert.ok(Array.isArray(observation.actorVisibleHistory));
+      return [0.5,0.5];
+    }
   };
   return {
     deps,
     state:{
-      activePlayer:0,turn:1,phase:'PLAYER_TURN',prompts:[],
+      activePlayer:0,turn:1,phase:'PLAYER_TURN',prompts:[],logs:[],
       players:[{id:'seat-0',bench:[]},{id:'seat-1',bench:[]}],winner:null
     }
   };
@@ -549,6 +554,7 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
     }
 
     const rootState=store.state;
+    if(!Array.isArray(rootState.logs))rootState.logs=[];
     assert.equal(rootState.activePlayer,switcherSeat);
     assert.equal(rootState.phase,native.GamePhase.PLAYER_TURN);
     const switcherAtRoot=rootState.players[switcherSeat];
@@ -586,6 +592,7 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
     let promptCalls=0;
     const selectedPromptTokens=[];
     let sawSettledSuccessor=false;
+    let sawOwnHistory=false;
     const promptCallbacks=createNativeTwinleafPromptCallbacks({
       native,
       promptSubPolicyId:'switch-bench-choice-test-v1',
@@ -604,6 +611,9 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
         promptCalls++;
         assert.equal(actorSeat,switcherSeat);
         assert.equal(actorView.actorSeat,switcherSeat);
+        assert.match(actorView.actorHistorySha256,/^[a-f0-9]{64}$/);
+        assert.ok(actorView.actorOwnDecisionHistory.some(event=>event.kind==='native-action'),
+          'prompt owner must remember the native action that registered this prompt');
         const choice=promptProjection.choices.find(item=>
           item.printing===NATIVE_PROMPT_DEDENNE);
         assert.ok(choice,'Switch prompt projection must expose the actor-owned Bench Dedenne');
@@ -655,9 +665,18 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
       isTerminal:state=>state.phase===native.GamePhase.FINISHED,
       terminalOutcomeProtocolId:'agent12-switch-prompt-test-terminal-outcome-v1',
       terminalOutcome:()=>{throw new Error('Unexpected terminal outcome in nonterminal Switch prompt test');},
-      evaluateObservationValues:()=>[0.5,0.5]
+      evaluateObservationValues:(observation,seat)=>{
+        assert.match(observation.actorHistorySha256,/^[a-f0-9]{64}$/);
+        assert.ok(Array.isArray(observation.actorOwnDecisionHistory));
+        if(seat===switcherSeat &&
+          observation.actorOwnDecisionHistory.some(event=>event.kind==='native-action') &&
+          observation.actorOwnDecisionHistory.some(event=>event.kind==='player-prompt')) {
+          sawOwnHistory=true;
+        }
+        return [0.5,0.5];
+      }
     },{
-      iterations:4,maxPlies:1,seed:0x420100+kecleonSeat
+      iterations:4,maxPlies:2,seed:0x420100+kecleonSeat
     });
     const result=search.search(rootState,switcherSeat);
     assert.equal(result.action.actorPrinting,'Switch BLW');
@@ -665,11 +684,16 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
     assert.equal(selectedPromptTokens.length,promptCalls);
     assert.ok(sawSettledSuccessor,
       'the stable successor after prompt continuation must be observed by MCTS');
+    assert.ok(sawOwnHistory,
+      'a later actor observation must include the actor\'s prior native action and prompt decision');
     const audit=result.audit.twinleafAdapter;
     assert.equal(audit.promptResolutionMode,'same-store-subcall');
     assert.equal(audit.promptSubPolicyId,'switch-bench-choice-test-v1');
     assert.equal(audit.promptDecisionProtocol,
       'same-store-player-prompt-subpolicy-plus-host-chance-resolution-v2');
+    assert.equal(audit.historyProtocolId,'agent12-actor-visible-own-decision-history-v1');
+    assert.deepEqual(audit.historyCompleteBySeat,[false,false],
+      'mid-game fixture prefix must remain explicitly incomplete without attestation');
     assert.equal(audit.promptFrontiers,0,
       'native player prompts are subcalls, not MCTS action frontiers');
     assert.equal(audit.promptTransitions,0);
