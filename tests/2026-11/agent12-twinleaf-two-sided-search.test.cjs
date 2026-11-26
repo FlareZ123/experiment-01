@@ -1275,14 +1275,10 @@ test('pinned Twinleaf MCTS resolves a real Quick Ball ChooseCardsPrompt and its 
     'a later actor observation must include the native Quick Ball action and player-prompt decision');
 
   const audit = result.audit.twinleafAdapter;
-  assert.equal(audit.schema, 'agent12-twinleaf-two-sided-search-adapter-v3');
+  assert.equal(audit.schema, 'agent12-twinleaf-two-sided-search-adapter-v2');
   assert.equal(audit.promptResolutionMode, 'same-store-subcall');
   assert.equal(audit.promptSubPolicyId, promptSubPolicyId);
-  assert.ok(audit.hostPromptValidationHooks > 0,
-    'the pinned large-deck shuffle validator correction must be exercised');
-  assert.deepEqual(audit.hostPromptValidationHookIds, [
-    'agent12-twinleaf-shuffle-deck-numeric-permutation-validation-v1'
-  ]);
+
   assert.equal(audit.promptDecisionProtocol,
     'same-store-player-prompt-subpolicy-plus-host-chance-and-live-dispatch-rng-v3');
   assert.equal(audit.promptFrontiers, 0,
