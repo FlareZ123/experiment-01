@@ -135,6 +135,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
   assert.equal(typeof promptSeat, 'function');
   const maxItems = options.maxActionFrontierItems ?? 256;
   const maxPromptResolutions = options.maxPromptResolutions ?? 64;
+  const requireCompleteHistory = options.requireCompleteHistory === true;
   assert.ok(Number.isSafeInteger(maxPromptResolutions) &&
     maxPromptResolutions > 0 && maxPromptResolutions <= 256);
 
@@ -157,6 +158,8 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
   }
 
   const snapshotState = createStoreStateSnapshotter();
+  const historyByState = new WeakMap();
+  let latestHistoryMetadata = null;
   const nativePayloadByAction = new WeakMap();
   const promptChoicesByProjection = new Map();
   const counters = {
@@ -172,12 +175,132 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     truncatedNativeFrontiers: 0
   };
 
-  function transferMetadata(fromState, toState) {
-    if (!metadataByState?.has(fromState)) return;
-    assert.equal(refreshMetadata(fromState, toState), true,
-      'Twinleaf transition lost the actor-private belief ledger');
+  function freezeHistoryMetadata(input) {
+    assert.ok(Array.isArray(input.historiesBySeat) && input.historiesBySeat.length === 2);
+    assert.ok(Array.isArray(input.completeBySeat) && input.completeBySeat.length === 2 &&
+      input.completeBySeat.every(value => typeof value === 'boolean'));
+    assert.ok(Array.isArray(input.sourceBySeat) && input.sourceBySeat.length === 2 &&
+      input.sourceBySeat.every(value => typeof value === 'string' && value.length > 0));
+    const historiesBySeat = input.historiesBySeat.map(history => {
+      assert.ok(Array.isArray(history));
+      return Object.freeze(history.map(event =>
+        deepFreeze(cloneActorSafeValue(event))));
+    });
+    return Object.freeze({
+      historiesBySeat: Object.freeze(historiesBySeat),
+      completeBySeat: Object.freeze(input.completeBySeat.slice()),
+      sourceBySeat: Object.freeze(input.sourceBySeat.slice())
+    });
   }
 
+  function defaultHistoryMetadata() {
+    return freezeHistoryMetadata({
+      historiesBySeat: [[], []],
+      completeBySeat: [false, false],
+      sourceBySeat: ['unattested-root-prefix', 'unattested-root-prefix']
+    });
+  }
+
+  function historyForState(state) {
+    if (!historyByState.has(state)) {
+      const metadata = defaultHistoryMetadata();
+      historyByState.set(state, metadata);
+      latestHistoryMetadata = metadata;
+    }
+    const metadata = historyByState.get(state);
+    latestHistoryMetadata = metadata;
+    return metadata;
+  }
+
+  function initializeHistory(rootState) {
+    const prefix = deps.rootHistoryPrefixBySeat ?? [[], []];
+    assert.ok(Array.isArray(prefix) && prefix.length === 2 &&
+      prefix.every(Array.isArray),
+    'Root own-decision history must provide one array per physical seat');
+    const attestation = deps.rootHistoryAttestation ?? null;
+    let completeBySeat = [false, false];
+    let sourceBySeat = prefix.map(history => history.length > 0 ?
+      'caller-provided-unattested-prefix' : 'unattested-root-prefix');
+    if (attestation !== null) {
+      assert.ok(attestation && typeof attestation === 'object' &&
+        !Array.isArray(attestation));
+      const attestationKeys = Reflect.ownKeys(attestation);
+      assert.ok(attestationKeys.every(key => typeof key === 'string'),
+        'Root history attestation cannot contain symbol keys');
+      assert.deepEqual(attestationKeys.sort(), [
+        'completeBySeat', 'rootStateDigest', 'schema', 'sourceId', 'verified'
+      ].sort(), 'Root history attestation has an unexpected shape');
+      assert.equal(attestation.schema, 'agent12-actor-history-attestation-v1');
+      assert.equal(attestation.verified, true);
+      assert.ok(typeof attestation.sourceId === 'string' &&
+        attestation.sourceId.length > 0);
+      assert.match(attestation.rootStateDigest, /^[a-f0-9]{64}$/);
+      assert.ok(Array.isArray(attestation.completeBySeat) &&
+        attestation.completeBySeat.length === 2 &&
+        attestation.completeBySeat.every(value => typeof value === 'boolean'));
+      completeBySeat = attestation.completeBySeat.slice();
+      sourceBySeat = [attestation.sourceId, attestation.sourceId];
+    }
+    if (requireCompleteHistory) {
+      assert.ok(completeBySeat.every(Boolean),
+        'Complete perfect-recall history was required but root prefixes are unattested/incomplete');
+    }
+    const metadata = freezeHistoryMetadata({
+      historiesBySeat: prefix,
+      completeBySeat,
+      sourceBySeat
+    });
+    historyByState.set(rootState, metadata);
+    latestHistoryMetadata = metadata;
+    return metadata;
+  }
+
+  function appendHistoryEvent(state, seat, event) {
+    assert.ok(seat === 0 || seat === 1);
+    const current = historyForState(state);
+    const historiesBySeat = current.historiesBySeat.map(history => history.slice());
+    historiesBySeat[seat].push(event);
+    const next = freezeHistoryMetadata({
+      historiesBySeat,
+      completeBySeat: current.completeBySeat,
+      sourceBySeat: current.sourceBySeat
+    });
+    historyByState.set(state, next);
+    latestHistoryMetadata = next;
+    return next;
+  }
+
+  function stripHistoryFields(actorView) {
+    const base = cloneActorSafeValue(actorView);
+    delete base.actorHistorySha256;
+    delete base.actorVisibleHistory;
+    delete base.actorOwnDecisionHistory;
+    return base;
+  }
+
+  function historyOptionsForSeat(state, seat) {
+    const metadata = historyForState(state);
+    return {
+      ownDecisionHistory: metadata.historiesBySeat[seat],
+      historySource: metadata.sourceBySeat[seat],
+      historyComplete: metadata.completeBySeat[seat],
+      includeVisibleLogs: true,
+      includeOwnDecisionHistory: true,
+      requireComplete: requireCompleteHistory
+    };
+  }
+
+  function transferMetadata(fromState, toState) {
+    if (metadataByState?.has(fromState)) {
+      assert.equal(refreshMetadata(fromState, toState), true,
+        'Twinleaf transition lost the actor-private belief ledger');
+    }
+    const history = historyByState.get(fromState);
+    if (history) {
+      historyByState.set(toState, history);
+      latestHistoryMetadata = history;
+    }
+  }
   function unresolvedDecisionSeat(prompt, state) {
     if (deps.isAutomaticPrompt(prompt, state)) return null;
     const seat = promptSeat(prompt, state);
@@ -209,7 +332,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     return seat;
   }
 
-  function buildActorView(state, seat, context) {
+  function buildBaseActorView(state, seat, context) {
     const sampled = metadataByState.has(state);
     if (!sampled) {
       assert.equal(seat, context?.rootSeat,
@@ -254,6 +377,11 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     };
   }
 
+
+  const buildActorView = createActorObservationWithHistory(
+    buildBaseActorView,
+    historyOptionsForSeat
+  );
   function observe(state, seat, context) {
     assert.equal(activeSeat(state), seat,
       'Actor observation requested for a non-acting physical seat');
