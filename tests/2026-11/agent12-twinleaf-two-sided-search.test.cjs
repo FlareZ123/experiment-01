@@ -1036,6 +1036,15 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
 });
 
 
+test('pinned ShuffleDeckPrompt adapter hook validates numeric permutations without weakening bounds', () => {
+  const { isNumericPermutation } = nativePromptProjection;
+  assert.equal(isNumericPermutation([0, 10, 2, 1, 9, 8, 7, 6, 5, 4, 3], 11), true);
+  assert.equal(isNumericPermutation([0, 10, 2, 1, 9, 8, 7, 6, 5, 4, 3], 12), false);
+  assert.equal(isNumericPermutation([0, 1, 1], 3), false);
+  assert.equal(isNumericPermutation([0, 1, 3], 3), false);
+  assert.equal(isNumericPermutation(null, 0), false);
+});
+
 test('pinned Twinleaf MCTS resolves a real Quick Ball ChooseCardsPrompt and its ShuffleDeckPrompt on the same Store', {
   skip: !fs.existsSync(compiledActionEnumerator),
   timeout: 30000
@@ -1263,8 +1272,14 @@ test('pinned Twinleaf MCTS resolves a real Quick Ball ChooseCardsPrompt and its 
     'a later actor observation must include the native Quick Ball action and player-prompt decision');
 
   const audit = result.audit.twinleafAdapter;
+  assert.equal(audit.schema, 'agent12-twinleaf-two-sided-search-adapter-v3');
   assert.equal(audit.promptResolutionMode, 'same-store-subcall');
   assert.equal(audit.promptSubPolicyId, promptSubPolicyId);
+  assert.ok(audit.hostPromptValidationHooks > 0,
+    'the pinned large-deck shuffle validator correction must be exercised');
+  assert.deepEqual(audit.hostPromptValidationHookIds, [
+    'agent12-twinleaf-shuffle-deck-numeric-permutation-validation-v1'
+  ]);
   assert.equal(audit.promptDecisionProtocol,
     'same-store-player-prompt-subpolicy-plus-host-chance-and-live-dispatch-rng-v3');
   assert.equal(audit.promptFrontiers, 0,
