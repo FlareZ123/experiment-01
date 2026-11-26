@@ -291,7 +291,7 @@ function createPhysicalSeatDecklistPriorProvider({
     }));
   });
   assert.equal(typeof ignorePublicCard,'function');
-  return function decklistForSeat(observation,actorSeat,seat,random) {
+  const decklistForSeat=function(observation,actorSeat,seat,random) {
     assert.ok(observation&&observation.actorSeat===actorSeat);
     assert.ok((actorSeat===0||actorSeat===1)&&(seat===0||seat===1));
     assert.equal(typeof random,'function');
@@ -303,6 +303,13 @@ function createPhysicalSeatDecklistPriorProvider({
       .filter(printing=>!ignorePublicCard(printing));
     return sampleDecklistPrior(fixedOpponentPriorsByActorSeat[actorSeat],evidence,random);
   };
+  // The adapter needs this on an unsampled root State, before sampler metadata
+  // exists, so it can expose the acting physical seat's own list ID.
+  Object.defineProperty(decklistForSeat,'ownDecklistIdBySeat',{
+    value:Object.freeze(fixedDecklistsBySeat.map(decklist=>decklist.id)),
+    enumerable:true
+  });
+  return decklistForSeat;
 }
 
 function cloneJson(value) { return JSON.parse(JSON.stringify(value)); }
