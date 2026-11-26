@@ -8,7 +8,7 @@
 - Repository: `FlareZ123/experiment-01`
 - Twinleaf submodule pin: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05` at `vendor/twinleaf`
 - Agent12 prototype branch: `agent12/two-sided-general-sum-search-20261126`
-- Current branch head at review: `1290836e94fdaf3475dd24aa6a7c0f0b0d6dae0e`
+- Initial branch review: `1290836e94fdaf3475dd24aa6a7c0f0b0d6dae0e`; latest follow-up head inspected: `c2785dcde69464470c9cffac8139e08b366f952b`
 - Adapter: `simulation/twinleaf/2026-11/agent12-twinleaf-two-sided-search.cjs`
 - Prompt projection: `simulation/evaluation/2026-11/agent36-prompt-projection.cjs`
 - MCTS core: `simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs`
@@ -76,9 +76,13 @@ The terminal callback remains caller-owned. Pinned Twinleaf distinguishes `GameW
 
 ## Test and CI status
 
-The latest available Actions run inspected was `45736824431`, on earlier branch head `f99470cb1ee408a832a0a1bb7384262a34dab88a`. Its dedicated MCTS/belief/adapter/Flittle/Aichi bridge contract-test step passed. The overall job failed later in the separate generic owner-hand Trainer category suite, with three Wondrous Labyrinth assertions in `tests/agent8-wondrous-energy-cost-regression.test.cjs`. The reviewed current branch head `1290836e94fdaf3475dd24aa6a7c0f0b0d6dae0e` had no exact-head workflow run. A follow-up check at branch head `33ff8bae24417ea57b01f3ac124cf1836d924957` confirmed the adapter still constructs `new native.Simulator(state, simulatorOptions)` in both `applyAction()` and `createNativeTwinleafPromptCallbacks.projectPrompt()`; the continuation blocker remains. The newer run `45737331892` executed at earlier head `0afc6c6e533c60b7266e0f8258aae69b50957f30`: the dedicated MCTS/belief/adapter contract step again passed, while the separate Wondrous Labyrinth regression step again failed three assertions. There is still no exact-head run for `33ff8ba`.
+The earlier Actions run `45736824431` on `f99470cb1ee408a832a0a1bb7384262a34dab88a` passed the dedicated MCTS/belief/adapter contract-test step but failed later in the separate Wondrous Labyrinth regression suite (three assertions). Run `45737331892` on `0afc6c6e533c60b7266e0f8258aae69b50957f30` repeated that pattern. Exact-head run `45737837996` on `33ff8bae24417ea57b01f3ac124cf1836d924957` also passed the dedicated MCTS/belief/adapter contract step; the overall job failed later in the separate Wondrous Labyrinth regression suite (three assertions).
 
-Thus: the general-sum and synthetic adapter contracts have useful evidence; actual pinned prompt-continuation integration does not. No calibrated value evaluator, full-game policy competence, matchup result, selected fixed 60, or 99.5% result is established.
+The branch then advanced to `c2785dcde69464470c9cffac8139e08b366f952b`. Exact-head run `45738160525` failed the dedicated contract step: 67 of 68 tests passed, with test 59 (`card-effect prompt provenance maps its source into the exact projected cloned Store`) failing during synthetic fixture setup at `tests/2026-11/agent5-twinleaf-adapter-search.test.cjs:676` because `harness.state.players[1].discard` (and the deck zone) are undefined. This is a fixture-construction failure, not evidence of real prompt support. The other MCTS/general-sum/adapter contract tests passed.
+
+At c278, the adapter now caches a Simulator in the prompt projection result, but `projectPrompt()` still creates it via `new native.Simulator(state, simulatorOptions)` from a State that already has an unresolved prompt. The pinned constructor guard and the missing Store-local `promptItems` continuation remain. The default actor observation still omits perfect-recall history. No exact-head native prompt-continuation or perfect-recall regression exists.
+
+Thus: the general-sum core has useful contract evidence; the current adapter remains blocked by native prompt continuation and perfect recall. The latest exact-head contract step is red due a synthetic fixture bug. No calibrated value evaluator, full-game policy competence, matchup result, selected fixed 60, or 99.5% result is established.
 
 ## Communication
 
