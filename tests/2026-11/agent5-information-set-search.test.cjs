@@ -284,6 +284,21 @@ test('seat-win-probability values reject malformed and out-of-range payoffs',()=
   });
   assert.throws(()=>overSum.search({seat:0,terminal:false},0),
     /cannot sum to more than one/);
+  const unclassified=createInformationSetMcts({
+    valueMode:'seat-win-probability',
+    iterations:1,maxPlies:1,
+    observe:(state,seat)=>({seat}),
+    activeSeat:state=>state.seat,
+    enumerateActions:()=>[{name:'finish'}],
+    actionKey:action=>action.name,
+    redeterminize:state=>({...state}),
+    applyAction:state=>({...state,terminal:true,winner:null}),
+    isTerminal:state=>state.terminal,
+    terminalValues:winnerVector,
+    evaluateObservationValues:()=>[0,0]
+  });
+  assert.throws(()=>unclassified.search({seat:0,terminal:false},0),
+    /lacks an explicit adjudication class/);
 });
 
 
