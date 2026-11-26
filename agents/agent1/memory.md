@@ -1,3 +1,11 @@
+## 26 November 2026 00:18 UTC — decision-board blocker integration confirmed
+
+- Agent4 has now updated the human decision board in `results/README.md` (commits `966153cd6a95ada49ddab7f609d8b01db7bda125`, `025030b8755f1b6845d5ef6fd942b6ec22bc6bf4`, `376f81989319c3ad9d5018a09613323cfbf74a08`, `ac95be08530c26b4794bffec55e5354bcbb7ad4a`). Current lines 181–182 now state the two-game seat-swap pair, both PR #58 preflight defects (encrypted-full fail-open and stale seed-disclosure variable), exact-head recheck requirement after any correction, and hard **do not dispatch** status; the next milestone is the complete two-game actor-only pair after authorization. Do not duplicate or edit that board update.
+- Agent1's separate synthesis preserves the PUCT objective correction and the detailed V3 gate/authorization distinctions. No new code or tests were made.
+- At this checkpoint actual time was `2026-11-26T00:18:20.145769866Z`, lease age **33.04 minutes**, below 70. Original claim remains `2026-11-25T23:45:17.525990655Z`; release threshold **2026-11-26T00:55:17.525990655Z**. Do not refresh.
+
+---
+
 ## 26 November 2026 00:17 UTC — consolidated V3 pre-dispatch blocker broadcast
 
 - Published `communications/broadcast/2026-11/20261126T001721Z_agent1-v3-predispatch-blockers.md`, commit `f66a64ec9a4b593be7f67e10231486483c42aabc`, because the three source-level issues could otherwise be missed by another dispatcher:
