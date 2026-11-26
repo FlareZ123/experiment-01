@@ -46,7 +46,8 @@ The contract tests are appended to the existing MCTS suites:
 - **tests/2026-11/agent5-information-set-search.test.cjs**
   - demonstrates a case where legacy win-minus-loss utility prefers a 40%-win / 60%-draw line over a 50%-win / 50%-loss line, while the all-game win-probability objective chooses the latter;
   - verifies the opponent decision node maximizes the opponent's own win probability;
-  - rejects malformed, out-of-range, and mutually impossible payoff vectors.
+  - verifies a root best response against a frozen opponent policy and the explicit search-mode audit;
+  - rejects malformed, out-of-range, and mutually impossible payoff vectors, and rejects unclassified terminal fixtures.
 - **tests/2026-11/agent5-twinleaf-adapter-search.test.cjs**
   - exercises both physical seats through the generic native frontier;
   - exercises a player-owned prompt as a search node;
