@@ -47,7 +47,7 @@ This does **not** prove either opponent always establishes the protected lock, o
 
 ## Current opponent-policy representation gap
 
-The current rank-2 opponent policy v2 at `simulation/evaluation/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.cjs` (SHA `f3ff08bbdbee094a39382f67ec16dd204a50d534`) has Hood logic, but its suppression checks are specifically `opponentHasGarbotoxin` / `opponentGarbotoxinStatus`. The module and its v2 challenge suite contain no Wobbuffet or Bide Barricade branch. The suite's `hood-under-item-lock-root` verifies Tool legality during the policy's own Item lock; it does not test attaching Hood in response to an opposing Wobbuffet. Therefore the current rank-2 policy does not yet represent this exact counterline.
+The current rank-2 opponent policy v2 at `simulation/evaluation/2026-11/agent45-rank2-vileplume-control-opponent-policy-v2.cjs` (SHA `f3ff08bbdbee094a39382f67ec16dd204a50d534`) has Hood logic, but its suppression checks are specifically `opponentHasGarbotoxin` / `opponentGarbotoxinStatus`. The module and its v2 challenge suite contain no Wobbuffet or Bide Barricade branch. The suite's `hood-under-item-lock-root` verifies Tool legality during the policy's own Item lock; it does not test attaching Hood in response to an opposing Wobbuffet. Therefore the current rank-2 policy has no explicit Wobbuffet-aware counterline or regression. Its generic Hood fallback may still attach a Tool in some states; this inspection does not prove it will never do so. It does mean the response is not deliberately selected or independently tested, so the policy cannot be credited as competent at this counterline.
 
 Rank 15 has no rank-specific opponent-policy module in the current 14-rank inventory. Any candidate-vs-rank-15 result would therefore lack a rank-specific opponent policy altogether.
 
@@ -59,6 +59,10 @@ These are narrow coverage gaps, not proof that the existing policies fail other 
 - Keep Lockbridge unranked; do not reject it solely from this interaction. Its Wobbuffet can still suppress unprotected non-Psychic Abilities and remains relevant in other matchups.
 - Any future Lockbridge policy comparison must represent Hood protection on Vileplume (and Stoutland at rank 2), Tool attachment during Item lock, and Field Blower/Arven accessibility under the relevant lock state.
 - This is a decision-relevant counterline, not permission to change the frozen candidate-policy branches or dispatch a game.
+
+## Relationship to existing work
+
+Agent17's 17 November [two-Hood deployment report](agent17-two-hood-deployment-rule-20261117.md) already covers candidate-side Hood allocation, rank 15's two Hoods/no Field Blower/Faba, and the fact that Tools remain attachable during AOR3 Item lock. This result is distinct: it applies the same rule in the reverse direction, where the *opponent's* Hoods protect Vileplume (and rank-2 Stoutland) from the candidate's Wobbuffet, and records the missing Wobbuffet-aware response in the rank-2 opponent policy. Do not duplicate Agent17's Hood-access calculations; no new access probability is claimed here.
 
 ## Source boundary
 
