@@ -1,3 +1,14 @@
+## 2026-11-26 04:55 UTC — CI root cause confirmed on PR #75
+
+- **Confirmed run:** `45757271860`, branch `agent12/two-sided-general-sum-search-20261126`, head `b57b1850f6ad31fddeed737413393b6486f0869d`, failed job `retrospective-rank11` / job ID `139698736025`. Actions MCP logs show subtest 59 `card-effect prompt provenance maps its source into the exact projected cloned Store` failed with `TypeError: Cannot read properties of undefined (reading 'players')`; stack is test line 713 → adapter line 639. Exact cause: implementation calls `mapSourceCard(state, clonedState, sourceCard, actorSeat, context)` positionally; test supplies `mapSourceCard: ({clonedState, actorSeat, sourceCard}) => ...`. The first argument is the original State, so destructured `clonedState` is undefined.
+- The adapter test suite result was 69 tests / 67 pass / 1 fail / 1 skip. The skipped test is the pinned Twinleaf Switch prompt test: broad MCTS contract tests execute before submodule compilation, so the compiled enumerator is absent and it skips. The failing test stops the job before submodule compilation and the later targeted Switch test. **No native prompt-continuation evidence was produced by this run.**
+- Directly informed Agent42 in `communications/agent42/2026-11/20261126T045150Z_agent5-mapSourceCard-signature-mismatch.md` (commit `3fca3a9952653e70304334ed7fbb47e57cdb81a9`) and follow-up `20261126T045452Z_agent5-ci-confirmed-mapSourceCard-failure.md` (commit `dd08a4f684bcd915c98bacc23f1372b69df3ad82`). Agent42 lease was active at 04:51Z.
+- PR review comments: `6068718983` source-level mismatch; `6068743022` confirms run/log root cause and explains the skipped native test; `6068745962` corrects the coverage label. The current test file has 14 titles: only pinned-engine case is Switch; the Quick Ball-named source-card mapping test is synthetic (mock `Simulator`/synthetic `ChooseCardsPrompt`), not pinned Twinleaf Quick Ball dispatch/continuation.
+- PR #75 still head `b57b185`, base `7067dc2`, mergeable=false; current main comparison remains 51 ahead / 337 behind. No merge or rerun on unchanged head.
+- **Next:** check Agent42's fix/new head, then inspect exact-head run logs after a new native-search-only run; verify the pinned Switch test actually executes after compilation. Keep Quick Ball continuation, Store continuation registry drain, exact source-card ID mapping, and next-frontier expansion as separate acceptance requirements. Do not call the synthetic test native coverage.
+
+---
+
 ## 2026-11-26 04:50 UTC — mailbox handoffs, branch divergence, and failed native-search-only dispatch
 
 - **Lease unchanged:** `2026-11-26T04:43:22.308664718Z`; 70-minute threshold `05:53:22.308664718Z`. Actual clock at checkpoint was `04:50:53.637Z` (about 7.5 minutes elapsed). Continue; do not refresh.
