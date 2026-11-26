@@ -70,6 +70,155 @@ function observationSha256(observation) {
   return createHash('sha256').update(canonicalJson(observation)).digest('hex');
 }
 
+const PROMPT_EVENT_SCHEMA_ID = 'actor-safe-prompt-event-v2';
+const PROMPT_RANDOM_PROTOCOL_ID = 'per-rollout-independent-prompt-policy-rng-v1';
+const PROMPT_EVENT_KEYS = Object.freeze([
+  'actorObservationDigest',
+  'actorSeat',
+  'nativeValidationSucceeded',
+  'promptPolicyId',
+  'promptProjectionDigest',
+  'promptType',
+  'selectedTokens',
+  'stableSuccessorDigest',
+  'transitionActorSeat'
+]);
+const PROMPT_DIGEST_RE = /^[a-f0-9]{64}$/i;
+const VERSIONED_PROMPT_POLICY_ID_RE = /(?:^|-)v[0-9]+$/;
+
+function hasPromptEventControlCharacters(value, rejectWhitespace = false) {
+  for (let index = 0; index < value.length; index++) {
+    const character = value[index];
+    const code = value.charCodeAt(index);
+    if (code < 32 || code === 127 ||
+      (rejectWhitespace && character.trim().length === 0)) return true;
+  }
+  return false;
+}
+
+function readPromptEventDataProperty(event, key, label) {
+  const descriptor = Object.getOwnPropertyDescriptor(event, key);
+  assert.ok(descriptor && descriptor.enumerable === true &&
+    Object.hasOwn(descriptor, 'value'),
+  label + ' must contain enumerable data properties only');
+  return descriptor.value;
+}
+
+function sanitizePromptEvent(event, expectedTransitionActorSeat, ordinal) {
+  assert.ok(event !== null && typeof event === 'object' && !Array.isArray(event),
+    'Prompt event must be a plain data object');
+  const prototype = Object.getPrototypeOf(event);
+  assert.ok(prototype === Object.prototype || prototype === null,
+    'Prompt event must be a plain data object');
+  const ownKeys = Reflect.ownKeys(event);
+  assert.ok(ownKeys.every(key => typeof key === 'string'),
+    'Prompt event cannot contain symbol keys');
+  assert.deepEqual(ownKeys.slice().sort(), PROMPT_EVENT_KEYS,
+    'Prompt event must contain exactly the actor-safe allowlisted keys');
+
+  const values = Object.create(null);
+  for (const key of PROMPT_EVENT_KEYS) {
+    values[key] = readPromptEventDataProperty(event, key, 'Prompt event');
+  }
+  assert.ok(expectedTransitionActorSeat === 0 || expectedTransitionActorSeat === 1,
+    'Prompt event action context requires a physical transition actor seat');
+  assert.equal(values.transitionActorSeat, expectedTransitionActorSeat,
+    'Prompt event transitionActorSeat must match the bound transition actor');
+  assert.ok(values.actorSeat === 0 || values.actorSeat === 1,
+    'Prompt event actorSeat must be a physical prompt-owner seat');
+  assert.ok(typeof values.promptType === 'string' &&
+    values.promptType.trim().length > 0 && values.promptType.length <= 128 &&
+    !hasPromptEventControlCharacters(values.promptType),
+  'Prompt event promptType must be a short non-empty string');
+  for (const key of [
+    'actorObservationDigest',
+    'promptProjectionDigest',
+    'stableSuccessorDigest'
+  ]) {
+    assert.ok(typeof values[key] === 'string' && PROMPT_DIGEST_RE.test(values[key]),
+      'Prompt event ' + key + ' must be a 64-character SHA-256 hex digest');
+  }
+  assert.ok(Array.isArray(values.selectedTokens),
+    'Prompt event selectedTokens must be an array of opaque strings');
+  assert.equal(Object.getPrototypeOf(values.selectedTokens), Array.prototype,
+    'Prompt event selectedTokens must use the standard Array prototype');
+  assert.ok(values.selectedTokens.length <= 60,
+    'Prompt event selectedTokens cannot exceed 60 tokens');
+  const tokenKeys = Reflect.ownKeys(values.selectedTokens);
+  assert.equal(tokenKeys.length, values.selectedTokens.length + 1,
+    'Prompt event selectedTokens must be dense and have no extra properties');
+  const selectedTokens = [];
+  for (let index = 0; index < values.selectedTokens.length; index++) {
+    const token = readPromptEventDataProperty(
+      values.selectedTokens, String(index), 'Prompt event selectedTokens');
+    assert.ok(typeof token === 'string' && token.length > 0 && token.length <= 256 &&
+      !hasPromptEventControlCharacters(token, true),
+    'Prompt event selectedTokens must contain only non-empty opaque token strings');
+    selectedTokens.push(token);
+  }
+  assert.equal(new Set(selectedTokens).size, selectedTokens.length,
+    'Prompt event selectedTokens cannot contain duplicates');
+  assert.ok(typeof values.promptPolicyId === 'string' &&
+    values.promptPolicyId.length <= 128 &&
+    VERSIONED_PROMPT_POLICY_ID_RE.test(values.promptPolicyId),
+  'Prompt event promptPolicyId must be a versioned identifier');
+  assert.equal(values.nativeValidationSucceeded, true,
+    'Prompt event can be recorded only after successful native validation');
+
+  return Object.freeze({
+    ordinal,
+    transitionActorSeat: values.transitionActorSeat,
+    actorSeat: values.actorSeat,
+    promptType: values.promptType,
+    actorObservationDigest: values.actorObservationDigest,
+    promptProjectionDigest: values.promptProjectionDigest,
+    selectedTokens: Object.freeze(selectedTokens),
+    promptPolicyId: values.promptPolicyId,
+    nativeValidationSucceeded: true,
+    stableSuccessorDigest: values.stableSuccessorDigest
+  });
+}
+
+function createRolloutContext(iteration, promptRandom) {
+  const promptEvents = [];
+  let iterationOpen = true;
+  return Object.freeze({
+    forAction(transitionActorSeat) {
+      assert.ok(iterationOpen, 'Rollout prompt-event collector is already closed');
+      assert.ok(transitionActorSeat === 0 || transitionActorSeat === 1,
+        'Rollout action context requires a physical transition actor seat');
+      let actionOpen = true;
+      const view = Object.freeze({
+        iteration,
+        transitionActorSeat,
+        promptRandom() {
+          assert.ok(iterationOpen && actionOpen,
+            'Prompt RNG cannot be used outside its action transition');
+          return promptRandom();
+        },
+        recordPromptEvent(event) {
+          assert.ok(iterationOpen && actionOpen,
+            'Prompt events can be recorded only during their action transition');
+          const sanitized = sanitizePromptEvent(event, transitionActorSeat, promptEvents.length);
+          promptEvents.push(sanitized);
+          return sanitized;
+        }
+      });
+      return Object.freeze({
+        view,
+        close() {
+          actionOpen = false;
+        }
+      });
+    },
+    close() {
+      assert.ok(iterationOpen, 'Rollout prompt-event collector was closed twice');
+      iterationOpen = false;
+      return Object.freeze(promptEvents.slice());
+    }
+  });
+}
+
 function deepFreezePolicySnapshot(value) {
   if (!value || typeof value !== 'object' || Object.isFrozen(value)) return value;
   for (const child of Object.values(value)) deepFreezePolicySnapshot(child);
@@ -198,6 +347,105 @@ function backpropagate(path, leafValue, leafSeat) {
 }
 
 /**
+ * Validate a general-sum terminal/leaf payoff vector. Each component is the
+ * estimated probability that the corresponding physical seat wins. Terminal
+ * outcomes are supplied separately as typed, versioned adjudications; leaf
+ * estimates may be fractional but must sum to at most one.
+ */
+function validateWinProbabilityVector(values, label = 'Win-probability value') {
+  assert.ok(Array.isArray(values) && values.length === 2,
+    label + ' must be a two-seat array');
+  const normalized = values.map((value, seat) => {
+    assert.ok(Number.isFinite(value) && value >= 0 && value <= 1,
+      label + ' for seat ' + seat + ' must be within [0, 1]');
+    return value;
+  });
+  assert.ok(normalized[0] + normalized[1] <= 1 + 1e-9,
+    label + ' seat win probabilities cannot sum to more than one');
+  return normalized;
+}
+
+/**
+ * Convert a typed terminal classification into realized per-seat win values.
+ * A draw requires a versioned rule plus a concrete evidence reference; a bare
+ * [0,0] vector can never attest that an unresolved/NONE state was adjudicated.
+ */
+function normalizeTerminalOutcome(outcome, label = 'Terminal outcome') {
+  assert.ok(outcome !== null && typeof outcome === 'object' && !Array.isArray(outcome),
+    label + ' must be a typed outcome object');
+  const prototype = Object.getPrototypeOf(outcome);
+  assert.ok(prototype === Object.prototype || prototype === null,
+    label + ' must be a plain data object');
+  const kindDescriptor = Object.getOwnPropertyDescriptor(outcome, 'kind');
+  assert.ok(kindDescriptor && kindDescriptor.enumerable === true &&
+    Object.hasOwn(kindDescriptor, 'value'),
+  label + ' kind must be an enumerable data property');
+  const kind = kindDescriptor.value;
+  if (kind === 'seat-win') {
+    assert.deepEqual(Reflect.ownKeys(outcome).slice().sort(), ['kind','winnerSeat'],
+      label + ' seat-win must contain exactly kind and winnerSeat');
+    const winnerDescriptor = Object.getOwnPropertyDescriptor(outcome, 'winnerSeat');
+    assert.ok(winnerDescriptor && winnerDescriptor.enumerable === true &&
+      Object.hasOwn(winnerDescriptor, 'value'),
+    label + ' winnerSeat must be an enumerable data property');
+    const winnerSeat = winnerDescriptor.value;
+    assert.ok(winnerSeat === 0 || winnerSeat === 1,
+      label + ' winnerSeat must be 0 or 1');
+    return Object.freeze({kind:'seat-win',winnerSeat});
+  }
+  if (kind === 'adjudicated-draw' || kind === 'adjudicated-no-winner') {
+    assert.deepEqual(Reflect.ownKeys(outcome).slice().sort(),
+      ['evidenceId','kind','reason','ruleId'],
+      label + ' adjudicated nonwin must contain exactly kind, ruleId, reason, and evidenceId');
+    const read = key => {
+      const descriptor = Object.getOwnPropertyDescriptor(outcome, key);
+      assert.ok(descriptor && descriptor.enumerable === true &&
+        Object.hasOwn(descriptor, 'value'),
+      label + ' ' + key + ' must be an enumerable data property');
+      return descriptor.value;
+    };
+    const ruleId = read('ruleId');
+    const reason = read('reason');
+    const evidenceId = read('evidenceId');
+    assert.ok(typeof ruleId === 'string' && /v[0-9]+$/.test(ruleId),
+      label + ' ' + kind + ' requires a versioned ruleId');
+    assert.ok(typeof reason === 'string' && reason.trim().length > 0,
+      label + ' ' + kind + ' requires a non-empty reason');
+    assert.ok(typeof evidenceId === 'string' && evidenceId.trim().length > 0,
+      label + ' ' + kind + ' requires a non-empty evidenceId');
+    return Object.freeze({kind,ruleId,reason,evidenceId});
+  }
+  assert.fail(label + ' kind must be seat-win, adjudicated-draw, or adjudicated-no-winner; ' +
+    'raw NONE, unresolved, invalid, aborted, and unknown outcomes are rejected');
+}
+
+function terminalOutcomeResult(outcome, label = 'Terminal outcome') {
+  const receipt = normalizeTerminalOutcome(outcome, label);
+  const values = receipt.kind === 'seat-win' ?
+    (receipt.winnerSeat === 0 ? [1, 0] : [0, 1]) : [0, 0];
+  return Object.freeze({receipt,values:Object.freeze(values)});
+}
+
+function terminalOutcomeToWinProbabilityVector(outcome, label = 'Terminal outcome') {
+  return terminalOutcomeResult(outcome, label).values.slice();
+}
+
+/**
+ * Each decision node maximizes its own seat's win probability. This is
+ * intentionally general-sum: draws/nonwins are zero for both players.
+ */
+function backpropagateWinProbabilities(path, values) {
+  for (let i = path.length - 1; i >= 0; i--) {
+    const step = path[i];
+    const stat = step.node.stats.get(step.actionKey);
+    assert.ok(stat, 'Backpropagation lost its selected action');
+    stat.visits += 1;
+    stat.valueSum += values[step.seat];
+    step.node.visits += 1;
+  }
+}
+
+/**
  * Observation-keyed, determinization-based PUCT search.
  *
  * This is an information-set search core, not a complete Pokémon policy. The
@@ -210,11 +458,15 @@ function backpropagate(path, leafValue, leafSeat) {
  * @param {(state:object)=>0|1} config.activeSeat
  * @param {(state:object,seat:0|1)=>object[]} config.enumerateActions
  * @param {(action:object)=>string} config.actionKey
- * @param {(state:object,action:object,random:()=>number)=>object} config.applyAction
+ * @param {(state:object,action:object,transitionRandom:()=>number,searchContext:object,rolloutContext?:{iteration:number,transitionActorSeat:0|1,promptRandom:()=>number,recordPromptEvent:(event:object)=>object})=>object} config.applyAction
  * @param {(state:object,seat:0|1,random:()=>number)=>object} [config.sampleDeterminization]
  * @param {(state:object)=>boolean} config.isTerminal
- * @param {(state:object,seat:0|1)=>number} config.terminalValue
- * @param {(observation:object,seat:0|1)=>number} config.evaluateObservation
+ * @param {'zero-sum'|'seat-win-probability'} [config.valueMode='zero-sum']
+ * @param {(state:object,seat:0|1)=>number} [config.terminalValue] Legacy zero-sum terminal utility.
+ * @param {(observation:object,seat:0|1)=>number} [config.evaluateObservation] Legacy zero-sum value.
+ * @param {(state:object)=>({kind:'seat-win',winnerSeat:0|1}|{kind:'adjudicated-draw'|'adjudicated-no-winner',ruleId:string,reason:string,evidenceId:string})} [config.terminalOutcome] Typed realized outcome; raw unresolved/invalid/aborted/NONE classes are rejected.
+ * @param {string} [config.terminalOutcomeProtocolId] Required versioned ID for the caller's terminal adjudication mapping.
+ * @param {(observation:object,seat:0|1)=>[number,number]} [config.evaluateObservationValues] Actor-view-only per-seat win probabilities; sum must not exceed one.
  * @param {(action:object,observation:object,seat:0|1)=>number} [config.actionPrior]
  * @param {number} [config.iterations=128]
  * @param {number} [config.maxPlies=16]
@@ -241,10 +493,27 @@ function backpropagate(path, leafValue, leafSeat) {
 function createInformationSetMcts(config) {
   const required = [
     'observe', 'activeSeat', 'enumerateActions', 'actionKey', 'applyAction',
-    'isTerminal', 'terminalValue', 'evaluateObservation'
+    'isTerminal'
   ];
   for (const name of required) assert.equal(typeof config[name], 'function',
     'Missing search dependency: ' + name);
+  const valueMode = config.valueMode ?? 'zero-sum';
+  assert.ok(valueMode === 'zero-sum' || valueMode === 'seat-win-probability',
+    'valueMode must be zero-sum or seat-win-probability');
+  if (valueMode === 'seat-win-probability') {
+    assert.equal(typeof config.terminalOutcome, 'function',
+      'seat-win-probability mode requires terminalOutcome(state)');
+    assert.ok(typeof config.terminalOutcomeProtocolId === 'string' &&
+      /v\d+$/.test(config.terminalOutcomeProtocolId),
+    'seat-win-probability mode requires a versioned terminalOutcomeProtocolId');
+    assert.equal(typeof config.evaluateObservationValues, 'function',
+      'seat-win-probability mode requires evaluateObservationValues(observation, seat)');
+  } else {
+    assert.equal(typeof config.terminalValue, 'function',
+      'zero-sum mode requires terminalValue(state, seat)');
+    assert.equal(typeof config.evaluateObservation, 'function',
+      'zero-sum mode requires evaluateObservation(observation, seat)');
+  }
   const redeterminize = config.redeterminize ?? null;
   const sampleDeterminization = config.sampleDeterminization ?? null;
   if (redeterminize !== null) assert.equal(typeof redeterminize, 'function',
@@ -388,6 +657,8 @@ function createInformationSetMcts(config) {
         const opponentPolicyDecisions = new Map();
         const sampleRandom = seededRandom(mixSeed(seed, iteration, 0x51ed270b));
         const transitionRandom = seededRandom(mixSeed(seed, iteration, 0x2c1b3c6d));
+        const promptRandom = seededRandom(mixSeed(seed, iteration, 0x3c6ef372));
+        const rolloutContext = createRolloutContext(iteration, promptRandom);
         let state;
         if (redeterminize === null) {
           state = sampleDeterminization(rootState, rootSeat, sampleRandom, searchContext);
@@ -415,11 +686,19 @@ function createInformationSetMcts(config) {
         let leafValue;
         let leafSeat;
         let finished = false;
+        let terminalOutcomeReceipt = null;
 
         for (let ply = 0; ply < maxPlies; ply++) {
           maxObservedDepth = Math.max(maxObservedDepth, ply);
           if (config.isTerminal(state)) {
-            leafValue = config.terminalValue(state, seat);
+            if (valueMode === 'seat-win-probability') {
+              const terminalResult = terminalOutcomeResult(
+                config.terminalOutcome(state), 'Terminal outcome');
+              terminalOutcomeReceipt = terminalResult.receipt;
+              leafValue = terminalResult.values;
+            } else {
+              leafValue = config.terminalValue(state, seat);
+            }
             checkDeadline('terminal-value');
             leafSeat = seat;
             terminalRollouts += 1;
@@ -449,7 +728,11 @@ function createInformationSetMcts(config) {
               opponentFrontiers.set(nodeKey, actionKeys);
             }
             if (actionMap.size === 0) {
-              leafValue = config.evaluateObservation(observation, seat);
+              leafValue = valueMode === 'seat-win-probability' ?
+                validateWinProbabilityVector(
+                  config.evaluateObservationValues(observation, seat),
+                  'Observation value evaluation') :
+                config.evaluateObservation(observation, seat);
               checkDeadline('opponent-no-action-evaluation');
               leafSeat = seat;
               heuristicLeaves += 1;
@@ -487,7 +770,14 @@ function createInformationSetMcts(config) {
             actionPath.push({seat,actionKey:selectedKey});
             seatActionTransitions[seat]++;
             checkDeadline('transition-start');
-            const nextState = config.applyAction(state, selectedAction, transitionRandom, searchContext);
+            const actionContext = rolloutContext.forAction(seat);
+            let nextState;
+            try {
+              nextState = config.applyAction(
+                state, selectedAction, transitionRandom, searchContext, actionContext.view);
+            } finally {
+              actionContext.close();
+            }
             checkDeadline('transition-complete');
             assert.ok(nextState && typeof nextState === 'object' && nextState !== state,
               'Action adapter must return a detached successor state');
@@ -500,7 +790,11 @@ function createInformationSetMcts(config) {
           }
           if (!node) {
             if (actionMap.size === 0) {
-              leafValue = config.evaluateObservation(observation, seat);
+              leafValue = valueMode === 'seat-win-probability' ?
+                validateWinProbabilityVector(
+                  config.evaluateObservationValues(observation, seat),
+                  'Observation value evaluation') :
+                config.evaluateObservation(observation, seat);
               checkDeadline('new-node-evaluation');
               leafSeat = seat;
               heuristicLeaves += 1;
@@ -510,7 +804,11 @@ function createInformationSetMcts(config) {
             node = createNode(nodeKey, seat, actions, observation,
               config.actionPrior, config.actionKey);
             nodes.set(nodeKey, node);
-            leafValue = config.evaluateObservation(observation, seat);
+            leafValue = valueMode === 'seat-win-probability' ?
+                validateWinProbabilityVector(
+                  config.evaluateObservationValues(observation, seat),
+                  'Observation value evaluation') :
+                config.evaluateObservation(observation, seat);
             checkDeadline('new-node-evaluation');
             leafSeat = seat;
             heuristicLeaves += 1;
@@ -528,7 +826,14 @@ function createInformationSetMcts(config) {
           actionPath.push({seat,actionKey:selectedKey});
           seatActionTransitions[seat]++;
           checkDeadline('transition-start');
-          const nextState = config.applyAction(state, selectedAction, transitionRandom, searchContext);
+          const actionContext = rolloutContext.forAction(seat);
+          let nextState;
+          try {
+            nextState = config.applyAction(
+              state, selectedAction, transitionRandom, searchContext, actionContext.view);
+          } finally {
+            actionContext.close();
+          }
           checkDeadline('transition-complete');
           assert.ok(nextState && typeof nextState === 'object' && nextState !== state,
             'Action adapter must return a detached successor state');
@@ -543,26 +848,47 @@ function createInformationSetMcts(config) {
         // checks terminality at each ply's start, so recognize this boundary
         // before falling through to a heuristic evaluation of a terminal state.
         if (!finished && config.isTerminal(state)) {
-          leafValue = config.terminalValue(state, seat);
+          if (valueMode === 'seat-win-probability') {
+            const terminalResult = terminalOutcomeResult(
+              config.terminalOutcome(state), 'Terminal outcome');
+            terminalOutcomeReceipt = terminalResult.receipt;
+            leafValue = terminalResult.values;
+          } else {
+            leafValue = config.terminalValue(state, seat);
+          }
           checkDeadline('terminal-value-after-final-ply');
           leafSeat = seat;
           terminalRollouts += 1;
           finished = true;
         }
 
-        rolloutPaths.push({iteration,actions:actionPath});
+        const promptEvents = rolloutContext.close();
+        rolloutPaths.push(Object.freeze({
+          iteration,
+          actions: Object.freeze(actionPath.slice()),
+          terminalOutcome: terminalOutcomeReceipt,
+          promptEvents
+        }));
         if (!finished) {
           const prepared = prepareActorState(state, seat, iteration, 'leaf');
           state = prepared.state;
           const observation = prepared.observation;
-          leafValue = config.evaluateObservation(observation, seat);
+          leafValue = valueMode === 'seat-win-probability' ?
+                validateWinProbabilityVector(
+                  config.evaluateObservationValues(observation, seat),
+                  'Observation value evaluation') :
+                config.evaluateObservation(observation, seat);
           checkDeadline('leaf-evaluation');
           leafSeat = seat;
           heuristicLeaves += 1;
         }
-        assert.ok(Number.isFinite(leafValue) && leafValue >= -1 && leafValue <= 1,
-          'Leaf value must be finite and normalized to [-1, 1]');
-        backpropagate(path, leafValue, leafSeat);
+        if (valueMode === 'seat-win-probability') {
+          backpropagateWinProbabilities(path, leafValue);
+        } else {
+          assert.ok(Number.isFinite(leafValue) && leafValue >= -1 && leafValue <= 1,
+            'Leaf value must be finite and normalized to [-1, 1]');
+          backpropagate(path, leafValue, leafSeat);
+        }
         completedIterations += 1;
         checkDeadline('iteration-complete');
       }
@@ -591,6 +917,17 @@ function createInformationSetMcts(config) {
         action: rootActionMap.get(selected.actionKey),
         actionKey: selected.actionKey,
         audit: {
+          valueMode,
+          terminalOutcomeProtocolId: valueMode === 'seat-win-probability' ?
+            config.terminalOutcomeProtocolId : null,
+          terminalOutcomeSchemaId: valueMode === 'seat-win-probability' ? 'typed-terminal-outcome-v2' : null,
+          promptEventSchemaId: PROMPT_EVENT_SCHEMA_ID,
+          promptRandomProtocolId: PROMPT_RANDOM_PROTOCOL_ID,
+          searchMode: typeof config.opponentActionPolicy === 'function' ?
+            'root-best-response-fixed-opponent-policy' : 'two-sided-puct',
+          objectiveProtocol: valueMode === 'seat-win-probability' ?
+            'each-seat-maximizes-own-win-probability-adjudicated-draws-zero-v1' :
+            'zero-sum-seat-relative-value-v1',
           protocol: redeterminize === null ?
             'observation-keyed-determinization-puct-v1' :
             'observation-keyed-actor-relative-redeterminization-puct-v1',
@@ -654,5 +991,9 @@ module.exports = {
   canonicalJson,
   observationSha256,
   seededRandom,
+  validateWinProbabilityVector,
+  terminalOutcomeToWinProbabilityVector,
+  PROMPT_EVENT_SCHEMA_ID,
+  PROMPT_RANDOM_PROTOCOL_ID,
   createInformationSetMcts
 };
