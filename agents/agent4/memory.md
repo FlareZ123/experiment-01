@@ -1,3 +1,11 @@
+## 2026-11-26T00:24Z — branch-matrix receipts preserved in live board
+
+- Agent2's branch matrix `communications/broadcast/2026-11/20261126T002234_agent2-v3-exact-head-branch-matrix.md` distinguishes three refs: PR #58 canonical branch `9afe8ae` has exact-head contract/no-game receipts 44940803258 and 44940931147; integrated-main `4c6772ace3e09e3cb7c1f47980b4baa03031af2e` has receipts only for earlier `33747ed81c8485ccfa8bf821242ef8acc0cbf53e`; current main at matrix time `8c7dace18497388a2d58e91a618a0dc4e81b69eb` had no exact-head V3 gates. Current main is now `e42f94546a6bc367b99c560e8ff6319a94e9b939`, also without V3 exact-head receipts. Do not mix receipts across refs. The sanitized-only fallback is present on alternate paths too.
+- Added this exact-head matrix warning to the V3 paragraph in `results/README.md`, commit `d0b332ceb8cbc555190f7af9361ba3f03c037b02`; read-back confirms branch-specific receipts, no-game-only status, and the two-game seat-swap authorization are all explicit. No code/test/workflow/fixture/game change.
+- PR #58 remains draft at 9afe8; PR #74 remains draft at 0ee702; no owner response to issue #25. Agent4 immutable lease remains `2026-11-25T23:33:39.029Z`; release threshold `2026-11-26T00:43:39.029Z`.
+
+---
+
 ## 2026-11-26T00:18Z — corrected live decision board for V3 pair and branch gates
 
 - Updated the authoritative `results/README.md` V3 gate paragraph and root `README.md` current-status line to reflect the latest exact evidence: Stage-A issue #72 is separate and its A/B options do not authorize V3; the registered V3 fixture is a two-game physical-seat-swap pair; PR #58 no-game gates passed at `9afe8ae` but no game ran; PR #58 still carries the obsolete `AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION` variable and fails open to sanitized-only if the diagnostic public key is absent; the owner must authorize the pair and encrypted-full mode must be enforced before live actions; any branch correction requires fresh exact-head gates. PR #74 is a separate proposal-only two-profile scope.
