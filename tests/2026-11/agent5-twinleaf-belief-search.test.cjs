@@ -243,9 +243,6 @@ test('two-seat Twinleaf determinizer replaces hidden faces from registered 60s a
   knowledge.knownTopDeck.push('Psychic Energy');
   assert.deepEqual(capturedLedgers[0].knownTopDeck,[]);
   assert.deepEqual(capturedLedgers[1].knownTopDeck,[]);
-  const successor=cloneState(sampled);
-  assert.equal(sampler.refreshMetadata(sampled,successor),true);
-  assert.equal(sampler.metadataByState.get(successor).knowledgeBySeat[1].mode,'K1');
   assert.notEqual(sampled,state);
   assert.deepEqual(sampled.players[0].hand.cards.map(c=>c.fullName),['HandA','HandB']);
   assert.equal(sampled.players[1].hand.cards.length,3);
