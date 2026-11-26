@@ -449,6 +449,44 @@ test('two-sided search accepts an explicitly attested complete root history',()=
   ]);
 });
 
+test('complete per-seat decision histories survive actor-relative redeterminization',()=>{
+  const harness=makeGenericTwoSidedSearchHarness();
+  harness.deps.rootHistoryPrefixBySeat=[
+    [{schema:'agent12-own-decision-history-event-v1',kind:'native-action',
+      actorSeat:0,actionKey:'prior-seat-0'}],
+    [{schema:'agent12-own-decision-history-event-v1',kind:'native-action',
+      actorSeat:1,actionKey:'prior-seat-1'}]
+  ];
+  harness.deps.rootHistoryAttestation={
+    schema:'agent12-actor-history-attestation-v1',
+    verified:true,
+    sourceId:'agent12-test-complete-root-history-v1',
+    rootStateDigest:'a'.repeat(64),
+    completeBySeat:[true,true]
+  };
+  const seen=[];
+  const evaluate=harness.deps.evaluateObservationValues;
+  harness.deps.evaluateObservationValues=(observation,seat)=>{
+    seen.push({
+      seat,
+      history:observation.actorOwnDecisionHistory.map(event=>({...event}))
+    });
+    return evaluate(observation,seat);
+  };
+  const search=createTwinleafTwoSidedSearch(harness.deps,{
+    iterations:2,maxPlies:2,seed:20261126,requireCompleteHistory:true
+  });
+  const result=search.search(harness.state,0);
+  assert.ok(seen.some(item=>item.seat===0 &&
+    item.history.length===1 && item.history[0].actorSeat===0 &&
+    item.history[0].actionKey==='prior-seat-0'));
+  assert.ok(seen.some(item=>item.seat===1 &&
+    item.history.length===1 && item.history[0].actorSeat===1 &&
+    item.history[0].actionKey==='prior-seat-1'));
+  assert.deepEqual(result.audit.twinleafAdapter.historyEventCountsBySeat,[2,1]);
+  assert.deepEqual(result.audit.twinleafAdapter.historyCompleteBySeat,[true,true]);
+});
+
 test('generic Twinleaf search uses the uncapped native frontier and searches both physical seats',()=>{
   const harness=makeGenericTwoSidedSearchHarness();
   const search=createTwinleafTwoSidedSearch(harness.deps,{
