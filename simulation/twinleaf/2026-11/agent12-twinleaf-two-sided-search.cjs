@@ -856,7 +856,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
   function audit() {
     return {
       schema: 'agent12-twinleaf-two-sided-search-adapter-v2',
-      enginePin: deps.enginePin,
+      enginePin,
       rulesProfileId: deps.rulesProfileId,
       terminalOutcomeProtocolId: deps.terminalOutcomeProtocolId,
       promptEventSchemaId: PROMPT_EVENT_SCHEMA_ID,
@@ -921,6 +921,7 @@ function createNativeTwinleafPromptCallbacks({
   mode = 'same-store-subcall',
   decidePrompt = null,
   promptSubPolicyId = null,
+  enginePin = null,
   withValidationRandom = null,
   simulatorOptions = {},
   provenanceForPrompt = () => null,
