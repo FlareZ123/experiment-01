@@ -54,6 +54,36 @@ test('root action is invariant to the real hidden identity for identical observa
   assert.deepEqual(a.audit.rootActions,b.audit.rootActions);
 });
 
+test('opponent policy RNG changes with search ordinal and is reproducible',()=>{
+  const observed=[];
+  const search=createInformationSetMcts({
+    iterations:1,maxPlies:2,seed:77,
+    observe:(s,seat)=>({seat,choice:s.choice,terminal:s.terminal}),
+    activeSeat:s=>s.seat,
+    enumerateActions:s=>s.seat===0?[{name:'root'}]:[{name:'reply'}],
+    actionKey:a=>a.name,
+    actionPrior:()=>1,
+    sampleDeterminization:s=>({...s}),
+    applyAction:(s,a)=>s.seat===0?
+      {...s,seat:1,choice:a.name}:
+      {...s,terminal:true,winner:0},
+    isTerminal:s=>s.terminal,
+    terminalValue:(s,seat)=>s.winner===seat?1:-1,
+    evaluateObservation:()=>0,
+    opponentActionPolicy:(observation,actionKeys,seat,random)=>{
+      observed.push({seat,draw:random()});
+      return actionKeys[0];
+    }
+  });
+  const root={seat:0,choice:null,terminal:false,winner:null};
+  search.search(root,0);
+  search.search(root,0);
+  assert.equal(observed.length,2);
+  assert.deepEqual(observed.map(item=>item.seat),[1,1]);
+  assert.notEqual(observed[0].draw,observed[1].draw,
+    'opponent policy RNG must incorporate the per-search ordinal seed');
+});
+
 test('two-player PUCT accounts for an adversarial response',()=>{
   const search=createInformationSetMcts({
     iterations:800,maxPlies:4,seed:77,cPuct:1.4,
