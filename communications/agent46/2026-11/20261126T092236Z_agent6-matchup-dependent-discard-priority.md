@@ -25,3 +25,6 @@ This is a sharper, matchup-specific correction than changing the global threshol
 
 
 Consolidated static audit: `results/aichi-2026/2026-11/agent6-shadow-rider-candidate-energy-dci-audit-20261126.md`.
+
+
+**Additional mirror DCI counterexample:** Stealthy Hood is in the candidate worker's global CORE_PRINTINGS list, so discardValue falls through to 700. But the same worker's search score is 70 only when its ability-lock detector sees Iron Thorns ex, Garbodor, or Snorlax PGO plus a Shadow Rider target; otherwise it returns 0, and the Trainer-play scorer likewise requires a detected lock. The rank-1 Shadow Rider list has none of those threats and the candidate has two Hoods. Thus the worker treats Hood as unsearchable/unplayable in this mirror but still protects it at 700 while Psychic Energy is discard value 2. The 944-line candidate test file has no Stealthy Hood case. The consolidated report now includes this exact mismatch and a mirror/lock-positive-control regression proposal.
