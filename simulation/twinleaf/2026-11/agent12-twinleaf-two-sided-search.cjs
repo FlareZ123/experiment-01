@@ -482,6 +482,55 @@ function createNativeTwinleafPromptCallbacks({
   assert.equal(typeof provenanceForPrompt, 'function');
   if (mapSourceCard !== null) assert.equal(typeof mapSourceCard, 'function');
 
+  function cardsAtLocation(state, actorSeat, location) {
+    const ownerSeat = location.ownerSeat === 'actor' ?
+      actorSeat : 1 - actorSeat;
+    const player = state.players[ownerSeat];
+    if (!player) return [];
+    const asCards = value => Array.isArray(value) ? value :
+      (Array.isArray(value?.cards) ? value.cards : []);
+    if (location.zone === 'hand') return asCards(player.hand);
+    if (location.zone === 'deck') return asCards(player.deck);
+    if (location.zone === 'discard') return asCards(player.discard);
+    if (location.zone === 'lostZone') return asCards(player.lostzone);
+    if (location.zone === 'stadium') return asCards(player.stadium);
+    if (location.zone === 'supporter') return asCards(player.supporter);
+    if (location.zone === 'prizes') {
+      return asCards(player.prizes?.[location.slotIndex]);
+    }
+    if (['board', 'energy', 'tool'].includes(location.zone)) {
+      const slot = location.boardZone === 'active' ?
+        player.active : player.bench?.[location.slotIndex];
+      if (!slot) return [];
+      if (location.zone === 'board') return asCards(slot.cards);
+      if (location.zone === 'energy') return asCards(slot.energies);
+      return asCards(slot.tools);
+    }
+    return [];
+  }
+
+  function defaultMapSourceCard(state, clonedState, sourceCard, actorSeat) {
+    const location = nativePromptProjection.locateCard(
+      state, actorSeat, sourceCard);
+    assert.ok(location && location.visible === true,
+      'Prompt source card is not visible to its actor in the source State');
+    const sourceCards = cardsAtLocation(state, actorSeat, location);
+    const sourceIndex = sourceCards.indexOf(sourceCard);
+    assert.ok(sourceIndex >= 0);
+    const clonedCards = cardsAtLocation(clonedState, actorSeat, location);
+    const clonedCard = clonedCards[sourceIndex];
+    assert.ok(clonedCard, 'Prompt source card is absent at the cloned zone/index');
+    const identityKeys = [
+      'fullName', 'name', 'set', 'setNumber', 'number', 'cardId', 'id'
+    ];
+    const comparableKeys = identityKeys.filter(key =>
+      sourceCard[key] !== undefined || clonedCard[key] !== undefined);
+    assert.ok(comparableKeys.length > 0 &&
+      comparableKeys.every(key => sourceCard[key] === clonedCard[key]),
+    'Cloned prompt source card identity changed at the same actor-visible zone/index');
+    return clonedCard;
+  }
+
   function provenanceHookFor(prompt, provenance) {
     return {
       getPromptProvenance(candidate) {
@@ -510,9 +559,7 @@ function createNativeTwinleafPromptCallbacks({
     if (provenance?.sourceCard) {
       let sourceCard = provenance.sourceCard;
       if (!nativePromptProjection.locateCard(clonedState, actorSeat, sourceCard)) {
-        assert.equal(typeof mapSourceCard, 'function',
-          'Card-effect prompt provenance requires an explicit cloned source-card mapper');
-        sourceCard = mapSourceCard(
+        sourceCard = (mapSourceCard ?? defaultMapSourceCard)(
           state, clonedState, sourceCard, actorSeat, context);
       }
       assert.ok(sourceCard &&
