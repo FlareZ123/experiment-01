@@ -54,15 +54,21 @@ function privateFlag(params, logId) {
   if (params === null || params === undefined) return false;
   assert.equal(typeof params, 'object',
     'ACTOR_HISTORY_INVALID_PARAMS: log ' + logId + ' params must be an object');
-  const descriptor = Object.getOwnPropertyDescriptor(params, 'private');
-  if (descriptor === undefined) return false;
-  assert.ok(Object.hasOwn(descriptor, 'value'),
-    'ACTOR_HISTORY_ACCESSOR_PRIVATE_FLAG: log ' + logId);
-  const value = descriptor.value;
-  assert.ok(value === undefined || value === null
-    || typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number',
-  'ACTOR_HISTORY_INVALID_PRIVATE_FLAG: log ' + logId);
-  return String(value) === 'true';
+  let cursor = params;
+  while (cursor && cursor !== Object.prototype) {
+    const descriptor = Object.getOwnPropertyDescriptor(cursor, 'private');
+    if (descriptor !== undefined) {
+      assert.ok(Object.hasOwn(descriptor, 'value'),
+        'ACTOR_HISTORY_ACCESSOR_PRIVATE_FLAG: log ' + logId);
+      const value = descriptor.value;
+      assert.ok(value === undefined || value === null
+        || typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number',
+      'ACTOR_HISTORY_INVALID_PRIVATE_FLAG: log ' + logId);
+      return String(value) === 'true';
+    }
+    cursor = Object.getPrototypeOf(cursor);
+  }
+  return false;
 }
 
 function deepFreeze(value, seen = new WeakSet()) {
