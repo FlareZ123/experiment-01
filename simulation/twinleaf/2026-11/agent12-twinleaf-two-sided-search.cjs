@@ -707,7 +707,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     const preDecisionObservation = stripHistoryFields(preDecisionActorView);
     const preDecisionObservationDigest = observationSha256(preDecisionActorView);
     assert.ok(actionContext &&
-      actionContext.actorSeat === transitionActorSeat &&
+      actionContext.transitionActorSeat === transitionActorSeat &&
       typeof actionContext.promptRandom === 'function' &&
       typeof actionContext.recordPromptEvent === 'function',
     'MCTS core must provide the bound per-action rollout context');
