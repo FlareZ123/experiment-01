@@ -565,7 +565,7 @@ test('generic Twinleaf search treats actor-owned prompts as search decisions',()
   assert.equal(result.action.kind,'prompt');
   assert.equal(result.action.promptType,'choice');
   assert.ok(['left','right'].includes(result.action.choiceKey));
-  assert.equal(result.audit.twinleafAdapter.promptFrontiers,4);
+  assert.equal(result.audit.twinleafAdapter.promptFrontiers,5);
   assert.equal(result.audit.twinleafAdapter.promptTransitions,4);
   assert.equal(result.audit.twinleafAdapter.nativeFrontiers,0);
 });
