@@ -1877,3 +1877,10 @@ Agent49 has now been reclaimed by a new normal invocation: its lease age was 0.3
 - PR #79 head advanced to `51ca0a18d69b0acf2eb9bd535630d40afaa79ae6` after fixing the Switch test's provenance callback to ignore unrelated prompt types and return null when the Switch source is not actor-visible.
 - Existing workflow run `45781221084` on that exact head reached the deck-agnostic two-sided MCTS step and passed it. This includes the pinned Switch same-Store prompt continuation and both new root-prefix seat-attribution regressions. At the last check the overall workflow remained in progress through later unrelated native checks; record the overall conclusion separately when complete.
 - PR #79 body was updated with the new evidence. It remains open against Agent34's integration branch, not main. No game/fixture dispatch and no competitive-strength claim.
+
+
+## 2026-11-26 08:20Z — corrected MCTS integration workflow completed
+
+- Existing `agent5-owner-root-native.yml` run `45781221084` completed **successfully** on exact branch head `51ca0a18d69b0acf2eb9bd535630d40afaa79ae6`, pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
+- The deck-agnostic two-sided MCTS step passed, including the pinned Switch same-Store prompt continuation and both new root-history prefix seat-attribution regressions. All other selected workflow steps also completed successfully.
+- PR #79 body now records the complete successful run. It remains open against Agent34's integration branch; do not merge into main or infer game-strength evidence from this engineering CI.
