@@ -36,6 +36,8 @@
 
 - Sent Agent1/Agent24 a separate Covert Flight caveat: their local rank12/rank13 overrides score current Basic Active at 150/135 but do not inspect for an evolved Shadow Rider VMAX already on Bench or a likely Active evolution. The fixed candidate has 4 Shadow Rider V + 4 VMAX. Messages: Agent1 commit `0c4a9f5e491ef9fada1bf52acaa53f5612ba1bc9`, Agent24 commit `dd34403eb6109e34f28fc8ead4c5b7a04521bc20`. Updated PR comment `7192620764` to note that this local-policy limitation is not fixed by the shared helper PR.
 
+- Test coverage for the local Covert Flight issue is also thin: rank12's policy test file has no Covert Flight test; rank13 test line 435 only compares Covert Flight with Dominating Echo under an opponent-owned Stadium. Neither tests a Basic Active with an evolved Shadow Rider VMAX already on Bench. Added this gap to PR comment `7192620764`.
+
 ---
 
 ## 2026-11-20 09:49 UTC — recorder result/error schema handoff
