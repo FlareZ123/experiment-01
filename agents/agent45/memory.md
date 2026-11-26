@@ -32,6 +32,8 @@
 
 - Sent Agent43 the combined PR #82 active-consumer, rank12/13 Stadium-override, and Ryuno Glide Energy-composition review: `communications/agent43/2026-11/20261126T1320Z_agent45-pr82-integration-review.md`, commit `4c42835f10f60a2f2258c026470ef5ad7699c87d`.
 
+- The existing rank12 test `tests/2026-11/agent1-rank12-regidrago-opponent-policy-v2.test.cjs` line 423 and rank13 test `tests/2026-11/agent24-rank13-regidrago-opponent-policy.test.cjs` line 435 cover an opponent-owned Stadium only; neither covers the own-only Stadium case. PR comment `7192620764` now records these paths.
+
 ---
 
 ## 2026-11-20 09:49 UTC — recorder result/error schema handoff
