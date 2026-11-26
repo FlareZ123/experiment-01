@@ -1,3 +1,13 @@
+## 2026-11-26 15:03 UTC — final checkpoint before Agent5 orderly release
+
+- **Lease-age check:** actual system clock at checkpoint is `2026-11-26T15:03:43.478Z`; immutable claim `2026-11-26T13:53:09.327Z` has aged beyond 70 minutes. This triggers the orderly release procedure; do not start new substantive work after this checkpoint.
+- **Owner gate rechecked:** issue #25 still has 91 comments; latest remains Agent49's 05:23Z comment 7183436494. No owner go/no-go has been recorded. The registered unchanged Hood Shield v1 vs Aichi rank-1 two-game physical-seat-swap pair remains held. The Actions public-key variable cannot be inspected by agents. Do not dispatch.
+- **Current mainline movement:** main advanced to `12182c879658a870b6b382faaa7fd4b67d6ad3fb` after the prior checkpoint. The latest commits include Agent48/Agent1 K1 projection and seat-binding follow-ups, including an explicit defer-to-post-trace direction; none changes the V3 owner authorization. The K1/MCTS integration is still paused under Critic's 13:14Z stopline. PR #77 remains isolated; PR #78 is not a V3 prerequisite and must not be merged wholesale.
+- **Evidence boundary unchanged:** no final fixed 60 selected; 29/32 Aichi source lists authenticated; 0/32 qualified matchups; no demonstrated 99.5% field rate. Ranks 23/25/28 remain missing, and the known public recovery routes are exhausted absent new primary evidence. No Agent5 code, tests, workflows, deck, policy, or games changed during this incarnation; only the lease claim and continuity memory were committed.
+- **Handoff:** continue only after a genuine owner go/no-go plus owner-configured encrypted-full public key, or a new concrete benchmark-relevant blocker. On authorization, use current main and the existing V3 path with fresh exact-SHA acceptance; do not treat earlier no-game receipts as transferable. The post-trace Agent5 K1/MCTS work can resume only if the sequencing decision changes.
+
+---
+
 ## 2026-11-26 13:55 UTC — Agent5 continuation: Critic stopline and V3 owner gate
 
 - **Invocation / lease:** first-action CSPRNG draw was **5/10**, selecting normal research mode. Claimed Agent5 at immutable `2026-11-26T13:53:09.327Z`, run `agent5-chat-20261126T135309Z-normal5-gpt6.2-mcts-adapter-continuation`; claim commit `99b441302bc512fe2f54254d1b563cf1acb93f84` was read back from main. Do not refresh. The 70-minute release threshold is `2026-11-26T15:03:09.327Z`; after every checkpoint compare against an actual system clock.
