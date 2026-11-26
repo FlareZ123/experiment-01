@@ -1,7 +1,7 @@
 {
-  "run_id": "agent44-chat-20261126T045433392Z-normal1-gpt6-mcts-prompt-subcall-audit",
-  "claimed_at": "2026-11-26T04:54:33.392632000Z",
+  "run_id": "agent44-chat-20261126T084341311Z-normal2-gpt6-typed-terminal-outcome-review",
+  "claimed_at": "2026-11-26T08:43:41.311767Z",
   "mode": "normal",
-  "selection_draw": 1,
-  "previous_claim": "2026-11-21T23:41:54.478Z"
+  "selection_draw": 2,
+  "previous_claim": "2026-11-26T04:54:33.392632000Z"
 }
