@@ -420,6 +420,11 @@ test('two-sided decklist priors keep exact own lists bound to physical seats',()
   const provider=createPhysicalSeatDecklistPriorProvider({
     decklistsBySeat,opponentPriorByActorSeat
   });
+  // Provider construction snapshots the fixed own lists and both actor priors.
+  decklistsBySeat[0].cards[0]='mutated-candidate';
+  decklistsBySeat[1].cards[0]='mutated-opponent';
+  opponentPriorByActorSeat[0][0].cards[0]='mutated-seat1-prior';
+  opponentPriorByActorSeat[1][0].cards[0]='mutated-seat0-prior';
   const publicView={
     active:{},bench:[],stadium:[],discard:[],lostZone:[],
     resolvingSupporter:[],prizeSlots:[]
@@ -436,6 +441,10 @@ test('two-sided decklist priors keep exact own lists bound to physical seats',()
   assert.equal(seat0Opponent.id,'seat-1-as-seen-by-seat-0');
   assert.equal(seat1Own.id,'opponent-seat-1');
   assert.equal(seat1Opponent.id,'seat-0-as-seen-by-seat-1');
+  assert.equal(seat0Own.cards[0],'Candidate Card');
+  assert.equal(seat0Opponent.cards[0],'Opponent Card');
+  assert.equal(seat1Own.cards[0],'Opponent Card');
+  assert.equal(seat1Opponent.cards[0],'Candidate Card');
   assert.notStrictEqual(seat0Own.cards,decklistsBySeat[0].cards);
   assert.notStrictEqual(seat1Own.cards,decklistsBySeat[1].cards);
 });
