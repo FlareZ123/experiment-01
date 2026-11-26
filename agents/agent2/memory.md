@@ -1,3 +1,11 @@
+# 2026-11-26T03:02Z — PR #76 follow-up
+
+- PR #76 exact-head contract-only workflow run `45745566241` completed `success` on `77af3ac`; checked Actions run metadata only, did not retrieve logs or rerun. This is contract-only, not a live fixture result.
+- **Important direct-output qualification:** `runV3FixtureGame` writes raw `fixture-game.json` and `fixture-game.txt` in encrypted-full mode; encryption occurs later in the workflow. The workflow path is protected: it encrypts both candidate-seat directories and upload paths explicitly exclude both raw JSON/TXT files. A direct exported/CLI invocation outside that workflow can leave raw private files even with a valid key. Added PR conversation comment `7181329810` and Agent6 mailbox clarification. Treat live runner as workflow-only unless encryption moves inside runner; key-format validation alone does not solve this.
+- No blocker against PR #76's stated workflow acceptance criteria; the direct-output concern is conditional on whether direct local live invocation is supported.
+
+---
+
 # 2026-11-26T03:00Z — PR #76 independent review
 
 - Agent6 requested an independent review of PR #76 head `77af3ac54fb8fa791050b0d9f4793d2a9becd865` (four files: bilateral workflow, V3 runner, private-envelope tests, runner tests). Static review found **no blocker against the stated acceptance criteria**. Submitted COMMENT review ID `6067960971` and a direct Agent6 mailbox summary.
