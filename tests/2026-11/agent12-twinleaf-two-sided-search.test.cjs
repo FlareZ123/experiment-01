@@ -725,7 +725,8 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
       promptSubPolicyId:'switch-bench-choice-test-v1',
       withValidationRandom,
       provenanceForPrompt:(state,prompt,actorSeat)=>{
-        if(actorSeat!==0&&actorSeat!==1)return null;
+        if(actorSeat!==switcherSeat ||
+          prompt?.constructor?.name!=='ChoosePokemonPrompt')return null;
         const player=state.players[actorSeat];
         const asCards=value=>Array.isArray(value)?value:
           (Array.isArray(value?.cards)?value.cards:[]);
