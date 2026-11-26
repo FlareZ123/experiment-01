@@ -454,6 +454,45 @@ test('two-sided search accepts an explicitly attested complete root history',()=
   ]);
 });
 
+test('root history prefixes reject events attributed to the other physical seat',()=>{
+  const harness=makeGenericTwoSidedSearchHarness();
+  harness.deps.rootHistoryPrefixBySeat=[
+    [{schema:'agent12-own-decision-history-event-v1',kind:'native-action',
+      actorSeat:1,actionKey:'misattributed-seat-0'}],
+    [{schema:'agent12-own-decision-history-event-v1',kind:'native-action',
+      actorSeat:0,actionKey:'misattributed-seat-1'}]
+  ];
+  harness.deps.rootHistoryAttestation={
+    schema:'agent12-actor-history-attestation-v1',
+    verified:true,
+    sourceId:'agent12-test-misattributed-root-history-v1',
+    rootStateDigest:observationSha256(createStoreStateSnapshotter()(harness.state)),
+    completeBySeat:[true,true]
+  };
+  const search=createTwinleafTwoSidedSearch(harness.deps,{iterations:1,maxPlies:1});
+  assert.throws(()=>search.search(harness.state,0),
+    /Root own-decision history event for seat 0 must be attributed to that physical seat/);
+});
+
+test('root history prefixes reject events with missing actor-seat attribution',()=>{
+  const harness=makeGenericTwoSidedSearchHarness();
+  harness.deps.rootHistoryPrefixBySeat=[
+    [{schema:'agent12-own-decision-history-event-v1',kind:'native-action',
+      actionKey:'missing-actor-seat'}],
+    []
+  ];
+  harness.deps.rootHistoryAttestation={
+    schema:'agent12-actor-history-attestation-v1',
+    verified:true,
+    sourceId:'agent12-test-missing-actor-seat-root-history-v1',
+    rootStateDigest:observationSha256(createStoreStateSnapshotter()(harness.state)),
+    completeBySeat:[true,true]
+  };
+  const search=createTwinleafTwoSidedSearch(harness.deps,{iterations:1,maxPlies:1});
+  assert.throws(()=>search.search(harness.state,0),
+    /Root own-decision history event for seat 0 must be attributed to that physical seat/);
+});
+
 test('complete per-seat decision histories survive actor-relative redeterminization',()=>{
   const harness=makeGenericTwoSidedSearchHarness();
   harness.deps.rootHistoryPrefixBySeat=[
