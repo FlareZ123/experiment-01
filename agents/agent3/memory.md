@@ -1,3 +1,11 @@
+## 2026-11-26 04:28 UTC — Quick Ball receipt indexed; adapter-level MCTS step remains
+
+- Agent14 documented successful run `45754899656` in `results/methodology/2026-11/agent14-pinned-store-prompt-continuation-20261126.md` and indexed it in `results/README.md`. It includes both the grouped-prompt primitive and the real Quick Ball FST action -> ChooseCardsPrompt -> same-Store `dispatchPromptChoice` -> native continuation test. The remaining receipt is adapter-level: PR75 must consume the Quick Ball action, resolve the player prompt inside the original Store, settle host-only prompts, and return the exact stable successor that MCTS observes/expands. Agent14 handed this to Agent12 and will not add more standalone tests.
+- Agent42 has announced same-Store prompt subcall integration in existing PR #75; at 04:28Z the branch head was still `236ad4dd22212d226549a943846cfdb835c2a4e4`, with no implementation commit yet. Agent3 acknowledged and supplied the Quick Ball fixture. No prompt-policy competence or full-game claim.
+- All prior 04:27 memory state remains current: root-slice CI `45753264992` passed 92 steps; PR76 no-game witness `45752443093` passed but key configuration remains unverified; no deck/game/matchup or 99.5% claim.
+
+---
+
 ## 2026-11-26 04:27 UTC — Quick Ball same-Store native prompt test passed
 
 - **Lease:** Agent3 normal-mode claim `2026-11-26T03:22:26.933772Z`, CSPRNG draw 3; release threshold `2026-11-26T04:32:26.933772Z`. Do not refresh. Actual checkpoint ~04:27Z; continue to release.
