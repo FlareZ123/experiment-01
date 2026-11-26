@@ -709,11 +709,11 @@ test('card-effect prompt provenance maps its source into the exact projected clo
         effectName:'Quick Ball',effectType:'ItemEffect'
       };
     })():null,
-    mapSourceCard:({clonedState,actorSeat,sourceCard})=>{
-      const mapped=clonedState.players[actorSeat].discard.cards.find(card=>
-        card.fullName===sourceCard.fullName);
-      assert.ok(mapped,'cloned prompt Store must preserve the public source card');
-      return mapped;
+    mapSourceCard:(_state,clonedState,sourceCard,actorSeat)=>{
+      const owner=clonedState.players[actorSeat];
+      const matches=owner.discard.cards.filter(card=>card.id===sourceCard.id);
+      assert.equal(matches.length,1,'cloned prompt Store must preserve the exact public source-card instance');
+      return matches[0];
     }
   }));
   const search=createTwinleafTwoSidedSearch(harness.deps,{
