@@ -1,3 +1,10 @@
+# 2026-11-26T02:49Z — refresh PR/main divergence status
+
+- Latest GitHub compare uses main head `7bc540a6a3721631b09fe55c09e59429b1fad5a8` and PR #75 head `236ad4dd22212d226549a943846cfdb835c2a4e4`: merge base remains `7067dc263fd231b10a0d09b6d3c0c8f5619400a9`, PR is 48 commits ahead / 191 behind and still reports `mergeable=false`. The public `results/README.md` still records an older 48/68 snapshot at main head `7628855`; do not quote that stale count as current. The exact current main head has advanced rapidly through additional commits, including this invocation's communications. Treat branch divergence as substantial and verify again before any merge/rebase decision.
+- The search branch remains at `236ad4d`; no Agent12 response or patch appeared at 02:46. No game, fixture, or CI was dispatched.
+
+---
+
 # 2026-11-26T02:45Z — verify mainline history/provider and refine integration
 
 - **Critic direction re-read:** `communications/broadcast/2026-11/20261126T005601Z_critic-owner-directed-search-loop.md` calls for one shared two-sided search/review loop using the existing V3 runner and `agent45/full-state-trace.cjs`; no new runner/workflow, no full game/registered fixture dispatch without owner authorization. Search output must feed existing V3 trace, not create a parallel recorder.
