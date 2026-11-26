@@ -364,3 +364,124 @@ test('seat-win-probability mode requires a versioned terminal protocol id',()=>{
     redeterminize:state=>({...state})
   }),/requires a versioned terminalOutcomeProtocolId/);
 });
+
+
+function makeActorSafePromptEvent(actorSeat, token='opaque-choice-'+actorSeat) {
+  return {
+    actorSeat,
+    promptType:'ChooseCardsPrompt',
+    actorObservationDigest:'a'.repeat(64),
+    promptProjectionDigest:'b'.repeat(64),
+    selectedTokens:[token],
+    promptPolicyId:'test-prompt-policy-v1',
+    nativeValidationSucceeded:true,
+    stableSuccessorDigest:'c'.repeat(64)
+  };
+}
+
+test('rollout prompt receipts are isolated per iteration and prompt RNG cannot perturb transition RNG',()=>{
+  function run(extraPromptDraws) {
+    const transitionDraws=[];
+    const retainedContexts=[];
+    const search=createInformationSetMcts({
+      iterations:4,maxPlies:2,seed:0x50524f4d,
+      opponentPolicyId:'test-finish-policy-v1',
+      opponentActionPolicy:(observation,actionKeys,seat)=>{
+        assert.equal(seat,1);
+        assert.ok(actionKeys.includes('finish'));
+        return 'finish';
+      },
+      observe:(state,seat)=>({
+        actorSeat:seat,lastAction:state.lastAction??null
+      }),
+      activeSeat:state=>state.seat,
+      enumerateActions:(state,seat)=>seat===0?
+        [{key:'start'}]:[{key:'finish'}],
+      actionKey:action=>action.key,
+      redeterminize:state=>({...state}),
+      applyAction:(state,action,transitionRandom,searchContext,rolloutContext)=>{
+        assert.ok(Object.isFrozen(searchContext));
+        assert.ok(Object.isFrozen(rolloutContext));
+        assert.equal(rolloutContext.actorSeat,state.seat);
+        assert.equal(typeof rolloutContext.promptRandom,'function');
+        const before=transitionRandom();
+        rolloutContext.promptRandom();
+        for(let index=0;index<extraPromptDraws;index++)rolloutContext.promptRandom();
+        const after=transitionRandom();
+        transitionDraws.push({seat:state.seat,before,after});
+        retainedContexts.push(rolloutContext);
+        rolloutContext.recordPromptEvent(makeActorSafePromptEvent(
+          state.seat,'opaque-'+rolloutContext.iteration+'-'+state.seat));
+        if(state.seat===0)return {...state,seat:1,lastAction:'start'};
+        return {...state,terminal:true,winner:0};
+      },
+      isTerminal:state=>state.terminal===true,
+      terminalValue:(state,seat)=>state.winner===seat?1:-1,
+      evaluateObservation:()=>0
+    });
+    return {
+      result:search.search({seat:0,terminal:false,lastAction:null},0),
+      transitionDraws,
+      retainedContexts
+    };
+  }
+
+  const onePromptDraw=run(0);
+  const manyPromptDraws=run(7);
+  assert.deepEqual(onePromptDraw.transitionDraws,manyPromptDraws.transitionDraws,
+    'prompt-policy RNG consumption must not shift engine transition RNG');
+  const audit=onePromptDraw.result.audit;
+  assert.equal(audit.promptEventSchemaId,'actor-safe-prompt-event-v1');
+  assert.equal(audit.promptRandomProtocolId,
+    'per-rollout-independent-prompt-policy-rng-v1');
+  assert.equal(audit.rolloutPaths.length,4);
+  assert.equal(audit.rolloutPaths[0].promptEvents.length,0,
+    'the initial root expansion has no action transition');
+  for(const path of audit.rolloutPaths.slice(1)) {
+    assert.equal(path.promptEvents.length,2);
+    assert.deepEqual(path.promptEvents.map(event=>event.ordinal),[0,1]);
+    assert.deepEqual(path.promptEvents.map(event=>event.actorSeat),[0,1]);
+    assert.ok(Object.isFrozen(path.promptEvents));
+    assert.ok(path.promptEvents.every(event=>Object.isFrozen(event)));
+    assert.ok(Object.isFrozen(path.promptEvents[0].selectedTokens));
+  }
+  assert.notStrictEqual(
+    audit.rolloutPaths[1].promptEvents,
+    audit.rolloutPaths[2].promptEvents,
+    'rollout event arrays must never be shared between iterations'
+  );
+  assert.throws(()=>onePromptDraw.retainedContexts[0].recordPromptEvent(
+    makeActorSafePromptEvent(0)),/only during their action transition/);
+  assert.throws(()=>onePromptDraw.retainedContexts[0].promptRandom(),
+    /cannot be used outside its action transition/);
+});
+
+test('rollout prompt recorder binds physical actor seat and rejects unsanitized event payloads',()=>{
+  const cases=[
+    [makeActorSafePromptEvent(1),/must match the bound transition actor/],
+    [{...makeActorSafePromptEvent(0),rawResult:{hiddenCard:'forbidden'}},/exactly the actor-safe allowlisted keys/],
+    [{...makeActorSafePromptEvent(0),actorObservationDigest:'not-a-digest'},/64-character SHA-256 hex digest/],
+    [{...makeActorSafePromptEvent(0),selectedTokens:[{}]},/opaque token strings/],
+    [{...makeActorSafePromptEvent(0),promptPolicyId:'unversioned-policy'},/versioned identifier/],
+    [{...makeActorSafePromptEvent(0),nativeValidationSucceeded:false},/only after successful native validation/],
+    [{...makeActorSafePromptEvent(0),promptType:''},/short non-empty string/]
+  ];
+  for(const [event,expected] of cases) {
+    const search=createInformationSetMcts({
+      iterations:2,maxPlies:1,seed:0x45564e54,
+      observe:(state,seat)=>({actorSeat:seat}),
+      activeSeat:state=>state.seat,
+      enumerateActions:()=>[{key:'finish'}],
+      actionKey:action=>action.key,
+      redeterminize:state=>({...state}),
+      applyAction:(state,action,transitionRandom,searchContext,rolloutContext)=>{
+        rolloutContext.recordPromptEvent(event);
+        return {...state,terminal:true,winner:0};
+      },
+      isTerminal:state=>state.terminal===true,
+      terminalValue:()=>1,
+      evaluateObservation:()=>0
+    });
+    assert.throws(()=>search.search({seat:0,terminal:false},0),expected);
+  }
+});
