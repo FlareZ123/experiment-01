@@ -250,9 +250,13 @@ function createPublicDecklistPriorProvider({ownDecklist,opponentPrior,ignorePubl
  *
  * decklistsBySeat fixes the exact list known to each physical seat as its own.
  * opponentPriorByActorSeat[actorSeat] describes what that actor believes
- * about the other physical seat. For open-list evaluation, each prior can be a
- * singleton containing the other seat's exact list. For hidden-list play, it
- * can be a distribution. The assumption is explicit at the call site.
+ * about the other physical seat. For the Aichi Top32 benchmark, use a singleton
+ * containing the other seat's exact list in both directions; this keeps the
+ * physical decklist pair fixed across actor switches. For hidden-list play, a
+ * distribution is possible, but this per-actor sampler does not pin one latent
+ * opponent decklist across the whole rollout. Multi-entry hidden-list priors
+ * therefore require a separate persistent-decklist model and must not be
+ * interpreted as a coherent fixed-list world by themselves.
  */
 function createPhysicalSeatDecklistPriorProvider({
   decklistsBySeat,opponentPriorByActorSeat,ignorePublicCard=()=>false
