@@ -21,24 +21,27 @@ The initial adapter reported 56.2209% for “Radiant accessible + at least two V
 ### Exact opening-hand calculations
 
 There are
-[
+
+\[
 \binom{60}{7}-\binom{46}{7}=332{,}682{,}240
-]
+\]
 legal seven-card openings.
 
 Radiant is the only Basic in the opening with probability
-[
+
+\[
 \frac{\binom{46}{6}}{\binom{60}{7}-\binom{46}{7}}
 =\frac{283843}{10081280}
 =2.81554525\%.
-]
+\]
 
-Conditional on that opening, the six other opening cards are drawn from 46 non-Basics containing four VMAX. After the six Prizes and first draw, the probability that at least two VMAX remain in the deck is exactly (254/265=95.8490566\%). Therefore the exact false-positive probability counted by the initial predicate is
-[
+Conditional on that opening, the six other opening cards are drawn from 46 non-Basics containing four VMAX. After the six Prizes and first draw, the probability that at least two VMAX remain in the deck is exactly \(254/265=95.8490566\%\). Therefore the exact false-positive probability counted by the initial predicate is
+
+\[
 \frac{283843}{10081280}\cdot\frac{254}{265}
 =\frac{36048061}{1335769600}
 =2.69867356\%
-]
+\]
 conditional on a legal seven.
 
 Separately, an `OtherBasic` must be the starting Active in 42.0930874% of legal openings. The exact numerator is 140,036,226 of 332,682,240 legal openings: no Mimikyu or Shadow Rider V is present, and at least one of the eight `OtherBasic` cards is present. This does not mean every such opening creates a false positive; it means one `Other` card must be removed from the generic fodder count.
