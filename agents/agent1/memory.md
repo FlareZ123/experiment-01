@@ -1,3 +1,40 @@
+# Agent1 incarnation checkpoint — 2026-11-26T13:21:53.801Z
+
+## Current invocation
+
+- Selected normal research mode with actual uniform draw **2/10**.
+- Claimed Agent1 at `2026-11-26T12:54:13.568Z`; do not refresh this lease. The 70-minute release threshold is `2026-11-26T14:04:13.568Z`.
+- Previous Agent1 lease was `2026-11-26T04:23:16.479Z`; this incarnation is separate and must preserve the history below.
+
+## Work completed
+
+### General-sum MCTS core review
+
+- Independently reviewed PR #77's general-sum core and regression tests at source/test blobs `967b8c01076936e0d04abbf508e9802209952601` and `08b324cead3877d8851cff2f1a264ebd42fbd5a2`.
+- These blobs are identical at tested head `cf07589585a634bac0742b5565d5bc0f781415c2` and PR #77 head `d29bfed81d1d062fc4b6b8ae7cc354a0f18f723f`; exact native-search-only run [45817935923](https://github.com/FlareZ123/experiment-01/actions/runs/45817935923) passed on the tested head.
+- No semantic blocker found: each decision node backs up the acting seat's own win-probability component; fixed-opponent best-response mode is separate from two-sided PUCT; typed terminal outcomes reject unclassified states and preserve draw/no-winner receipts.
+- Important unresolved calibration: old zero-sum Q is in [-1,1], new P(win) Q is in [0,1]. Under affine equivalence Q_old = 2P(win)-1, equivalent exploration scaling suggests cPuct roughly halves. This is a mathematical scale note, not an empirically validated default.
+- Full review: `results/methodology/2026-11/agent1-independent-general-sum-core-review-20261126.md`. Direct review sent to Agent5: `communications/agent5/2026-11/20261126T130024Z_agent1-general-sum-core-review.md`.
+- PR #77's branch is stale/diverged; do not merge accumulated branch wholesale. PR #78 at head `29431c2b45b84a49b1a53d2a5879082f30c5ac10` wires fixed-opponent policy option and Agent1's actor-history helper, but the K0/K1 sampler/transition-evidence bridge is still not integrated. Agent12/Agent5 own that active seam; avoid duplicating their work.
+
+### V3 no-game gate
+
+- Current main's V3 guard/workflow/test blobs were byte-identical to the previously reviewed `b3762eeb5beaf36bbd2f23a363950ab4175fe9fa` revision at the last comparison.
+- Contract-only run [45827378378](https://github.com/FlareZ123/experiment-01/actions/runs/45827378378) passed on `7e28ee5096f4743b25ef503cf31e0ab3deaf70e4` while that SHA was main.
+- Main advanced during the run window, so a temporary branch `agent1/v3-no-game-20261126-7e28ee` was pinned to that exact SHA. Native no-game witness run [45827707879](https://github.com/FlareZ123/experiment-01/actions/runs/45827707879) passed on the same SHA with only `agent36_v3_native_no_game_witness=true`. Artifact `15121305256` is `agent36-v3-native-no-game-witness-7e28ee5096f4743b25ef503cf31e0ab3deaf70e4`.
+- This is a main-derived exact-SHA **no-game** witness, not a current-main live-admission receipt. No fixture/game was dispatched. The no-game path asserts four role/physical-seat cells and no game/live actions; workflow success is not a matchup or policy-competence result.
+- Agent49 was notified at `communications/agent49/2026-11/20261126T1320Z_agent1-v3-no-game-gate-result.md`. The temporary branch remains to keep the exact tested SHA addressable; it contains no code/data commits.
+- Owner go/no-go for the unchanged two-game pair and public RSA key configuration remain outstanding. Do not dispatch a game, change the fixed 60, or change policies before the authorized diagnostic pair. Stage-A issue #72 is a separate decision and does not authorize V3.
+
+## Next useful work
+
+1. Continue to respect the owner gate; no game or live fixture without explicit go/no-go and the required public key.
+2. Avoid new MCTS branches, workflows, validators, or statistical ledgers. Agent12/Agent5 are implementing the K1 adapter seam; review only a new exact head when requested or when a concrete issue appears.
+3. Preserve the distinction between core correctness, synthetic/native-search-only tests, no-game witnesses, complete games, qualified matchups, and deck win-rate evidence.
+4. At the next checkpoint, compare the original lease timestamp to the actual system clock. If 70 minutes or more have elapsed, perform the orderly release; otherwise continue productive work.
+
+---
+
 ## 26 November 2026 00:34 UTC — decision-board paired-block rule
 
 - Agent4's updated `results/README.md` correctly includes the three PR #58 blockers and branch matrix, but its V3 item did not yet record the matched seed-block statistical unit. Because this changes how confidence/sample size is reported for the 99.5% objective, Agent1 added one concise sentence to the board in commit `c7b26608185d9e74e63864fb739aa50151da685d`: both seat-swapped games share one public seed-registration object, preserve per-seat and pair-level outcomes, but do not count as two independent seeds or double confidence.
