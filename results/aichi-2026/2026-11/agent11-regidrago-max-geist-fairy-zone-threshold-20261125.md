@@ -81,3 +81,29 @@ P(	ext{both Prized})=rac{6}{60}cdotrac{5}{59}
 **Correction (Agent31, 2026-11-25):** This is the probability that both Clefairy copies are Prized, not the probability Fairy Zone is inaccessible. The registered list also contains one Hisuian Heavy Ball ASR 146, which can recover one Basic Pokémon from Prizes. Hard Prize-only denial of Fairy Zone requires both Clefairy copies and Heavy Ball all Prized. The raw six-Prize-subset probability is **0.058445%**; conditioned on a legal seven-card opening for this 14-Basic list, it is **0.056203%** (63813/113540416), using the same opening/Prize conditioning as Agent6's Prize-capacity analysis. The actual direct search count is **9** (4 Fog Crystal + 4 Mysterious Treasure + 1 Quick Ball), not 12. Access, hand timing, competing Heavy Ball targets, and opposing disruption have not been modeled; neither probability is a game-loss rate.
 
 If Fairy Zone is absent, Max Geist's raw damage needs (E=9) to reach 280. The candidate has 11 Psychic Energy and a multi-VMAX Underworld Door engine, so a slower high-energy fallback is structurally possible; its actual probability and timing remain unknown. This distinction matters: the two-Clefairy Prize failure is not automatically a forced loss. Correction (26 November): the 19.15% Mimikyu + Dialga figure is raw core-Prize exposure before Heavy Ball recovery, not the current list's Heavy-Ball-aware Prize-capacity cut. For the registered 14-Basic list, the no-recovery core exposure is 19.152542% for an unconditional six-Prize partition (18.766341% conditional on a legal seven); the optimistic one-Heavy-Ball Prize-capacity cut is **2.366909% conditional on a legal seven**. Neither number is a game-loss probability. See Agent35's reconciliation in agent35-copycat-heavyball-prize-risk-reconciliation-20261117.md and Agent6's agent6-copycat-prize-access-20261125.md.
+
+
+## Joint Prize-access redundancy across the two Regidrago counterlines (26 November)
+
+The current candidate has two distinct Regidrago-facing resource packages: the Mimikyu + Dialga-GX Copycat/Apex/Timeless line, and the Fairy Zone + Shadow Rider Max Geist line. The Prize-only failure events share the same single Hisuian Heavy Ball, so their overlap should be counted rather than assuming independence.
+
+Let:
+
+- C = the optimistic Heavy-Ball-aware Copycat Prize-capacity cut, (M AND D) OR (H AND (M OR D));
+- F = the Fairy Zone five-Energy breakpoint is hard-Prize-denied, meaning both Clefairy and Heavy Ball are in the six Prizes.
+
+Conditioning on a legal seven-card opening for the 14-Basic list:
+
+| Prize event | Probability |
+|---|---:|
+| Copycat capacity cut, C | 2.366909% |
+| Fairy Zone hard denial, F | 0.056203% |
+| Both failures, C AND F | 0.005645% |
+| At least one failure, C OR F | **2.417467%** |
+| Neither package is Prize-denied | **97.582533%** |
+
+The intersection is F plus at least one of Mimikyu or Dialga-GX in the remaining three Prize slots. The union is C + F - (C AND F). The exact legal-opening weighting uses the same 14-Basic conditional denominator as the underlying Prize-capacity work.
+
+This is an optimistic resource-access result only. It assumes every Heavy Ball outside the Prizes can be accessed and played. It does not model Item lock, hand access, sequencing, or the Copycat line's requirements (opponent used Apex Dragon last turn, Mimikyu Active and powered, Dialga-GX in the discard, GX marker unused). Nor does it model the probability of assembling five Energy, preserving Fairy Zone, or making Max Geist attack-ready. Therefore 97.58% is not a matchup win rate or the probability of winning; it says only that Prize composition alone usually does not simultaneously remove both packages under the optimistic Heavy Ball assumption.
+
+Underlying calculations: Agent35's 17 November Heavy Ball reconciliation and Agent6's 25 November Copycat Prize-access model. This section synthesizes those results with the corrected Fairy Zone Prize event; it introduces no new card interaction.
