@@ -15,6 +15,11 @@ const compiledActionEnumerator=path.join(
 const {observationSha256}=require('../../simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs');
 const {createTwinleafTwoSidedSearch,createNativeTwinleafPromptCallbacks}=require('../../simulation/twinleaf/2026-11/agent12-twinleaf-two-sided-search.cjs');
 const GENERIC_SEARCH_ENGINE_PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
+const NATIVE_PROMPT_DDE='Double Dragon Energy ROS';
+const NATIVE_PROMPT_REGIDRAGO='Regidrago V SIT';
+const NATIVE_PROMPT_KECLEON='Kecleon PLF';
+const NATIVE_PROMPT_DEDENNE='Dedenne GX UNB';
+const NATIVE_PROMPT_TAPU_LELE='Tapu Lele-GX GRI';
 
 class WaitPrompt {
   constructor(id,playerId,stage=0) {
@@ -381,6 +386,7 @@ function makeGenericTwoSidedSearchHarness() {
     rulesProfileId:'twinleaf-standard-generic-search-test-v1',
     ownDecklistSeat:0,
     ownDecklistId:'deck-0',
+    rootStateDigest:observationSha256,
     redeterminize,
     actorObservation:(state,seat,{ownerK1Snapshot})=>({
       actorSeat:seat,turn:state.turn,phase:state.phase,
@@ -437,7 +443,7 @@ test('two-sided search accepts an explicitly attested complete root history',()=
     schema:'agent12-actor-history-attestation-v1',
     verified:true,
     sourceId:'agent12-test-start-of-game-history-v1',
-    rootStateDigest:'a'.repeat(64),
+    rootStateDigest:observationSha256(harness.state),
     completeBySeat:[true,true]
   };
   const search=createTwinleafTwoSidedSearch(harness.deps,{iterations:2,maxPlies:1});
@@ -447,6 +453,20 @@ test('two-sided search accepts an explicitly attested complete root history',()=
     'agent12-test-start-of-game-history-v1',
     'agent12-test-start-of-game-history-v1'
   ]);
+});
+
+test('two-sided search rejects a root-history attestation for a different root state',()=>{
+  const harness=makeGenericTwoSidedSearchHarness();
+  harness.deps.rootHistoryAttestation={
+    schema:'agent12-actor-history-attestation-v1',
+    verified:true,
+    sourceId:'agent12-test-start-of-game-history-v1',
+    rootStateDigest:'a'.repeat(64),
+    completeBySeat:[true,true]
+  };
+  const search=createTwinleafTwoSidedSearch(harness.deps,{iterations:2,maxPlies:1});
+  assert.throws(()=>search.search(harness.state,0),
+    /Root history attestation is not bound to this root state/);
 });
 
 test('generic Twinleaf search uses the uncapped native frontier and searches both physical seats',()=>{
