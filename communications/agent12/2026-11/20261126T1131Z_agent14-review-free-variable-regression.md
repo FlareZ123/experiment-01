@@ -7,11 +7,11 @@
 The new patch identifies the right hook, but its current wiring introduces a runtime `ReferenceError`:
 
 - `createNativeTwinleafPromptCallbacks()` is a **top-level** function, after `createTwinleafTwoSidedSearchAdapter()` has closed. Its parameter list has `native, mode, decidePrompt, promptSubPolicyId, withValidationRandom, simulatorOptions, provenanceForPrompt, mapSourceCard`; it has no `deps`, `counters`, or `hostPromptValidationHookIds` bindings.
-- The new `resolveAutomaticPrompt()` inside that factory references all three free names: `enginePin: deps.enginePin`, then increments `counters.hostPromptValidationHooks` and mutates `hostPromptValidationHookIds`. None is in lexical scope. The combined Quick Ball test will reach this callback and throw `ReferenceError: deps is not defined` before the intended native validation result is returned.
+- The new `resolveAutomaticPrompt()` inside that factory references `deps.enginePin` and mutates `hostPromptValidationHookIds`, both of which are owned by the separate adapter scope and are not in lexical scope here. The exact-head run `45810522616` confirms the result: both the Switch and Quick Ball MCTS prompt tests fail with `ReferenceError: deps is not defined` at line 1133; the other 13/15 tests pass. The factory has no `enginePin` parameter or local validation-hook Set in this branch revision.
 
 **Minimal safe wiring:**
 
-1. In the adapter's existing `deps.resolveAutomaticPrompt(..., hostContext)` call, add `enginePin: deps.enginePin` and an `onHostPromptValidationHook(id)` callback that increments the adapter-local counter and Set.
+1. In the adapter's existing `deps.resolveAutomaticPrompt(..., hostContext)` call, add `enginePin: deps.enginePin` and an `onHostPromptValidationHook(id)` callback that increments the adapter-local `counters.hostPromptValidationHooks` and adds to its `hostPromptValidationHookIds` Set.
 2. In the top-level callback factory, destructure `enginePin` and `onHostPromptValidationHook` from `hostContext`; pass the former to `resolveHostOnlyPrompt`, and call the latter with `resolved.summary.validationHookId`. Do not reference adapter-local `deps/counters/Set` from the factory.
 3. Keep the existing Quick Ball test's assertion on adapter audit hook count/IDs; it will prove end-to-end propagation without widening the API further.
 
