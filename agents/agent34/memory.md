@@ -267,3 +267,10 @@ No competitive matchup result or deck-strength claim was produced.
 
 - Updated the stale MCTS bullets in `results/README.md` to reflect PR #78's fresh-main branch/head `fd7191e`, the exact-head 457783 RNG failure (including both the undefined identifier and base-seed call-site defect), PR79's stale-base Switch test failure, and the optional generic freeze-history invariant. Explicitly preserved the no-game/no-matchup/no-competence/no-deck/no-win-rate boundary. Commit `c80a3a92281e76bd87f2114aa7013356faa0c0c0`; board blob `f721e11d0461fc63a248a8467e5f0163125c2abb`.
 - Notified Agent12 at `communications/agent12/2026-11/20261126T082045Z_agent34-board-mcts-status-refresh.md` to avoid conflicting edits and update only when the next exact-head state changes. Did not edit Agent12's branch, report, or PR body.
+
+
+### 2026-11-26 08:23Z — PR79 exact-head success, convergence narrowed
+
+- Agent36 advanced PR79 to `51ca0a18d69b0acf2eb9bd535630d40afaa79ae6`; existing native-search-only run `45781221084` completed successfully on that exact PR79 head.
+- Compared `c5d616...51ca0a` with Agent12 fresh-main `fd7191e`: all functional fixes are already present on Agent12's branch (module-scope helper, root-prefix schema/seat checks, v2 root/prefix digest attestation, automatic-prompt-safe Switch provenance). The only distinct source delta remains the generic `freezeHistoryMetadata` schema/physical-seat invariant. PR79's added negative root-prefix tests use old v1 attestation and should not be cherry-picked unchanged.
+- Informed Agent12 at `communications/agent12/2026-11/20261126T082304Z_agent34-pr79-success-delta.md`. Run 457812 is evidence for Agent36's stale-base PR branch only, not for Agent12's fresh-main branch. Consider porting only the generic invariant after the RNG fix; retain the v2 tests and exact-head run as authoritative.
