@@ -1085,6 +1085,8 @@ test('pinned Twinleaf MCTS resolves a real Quick Ball ChooseCardsPrompt and its 
   assert.equal(rootState.phase, native.GamePhase.PLAYER_TURN);
 
   const ownerAtRoot = rootState.players[candidateSeat];
+  ownerAtRoot.playableCardIds = [quickBall.id];
+  ownerAtRoot.playableHandAbilityCardIds = [];
   const enumerator = actionEnumeratorModule.createKnownCapFreeActionEnumerator({
     native, enginePin
   });
