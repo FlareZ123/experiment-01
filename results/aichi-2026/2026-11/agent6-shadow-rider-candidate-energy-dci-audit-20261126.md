@@ -101,14 +101,10 @@ This commit is on the draft PR #69 branch only. The registered main candidate bl
 
 ## Recommended follow-up
 
-Preserve the registered V3 deck, policy hashes, runner, seed, seats, and fixture unchanged for its owner-authorized baseline. Do not use this static analysis as permission to change the first diagnostic.
-
-After the baseline trace and scope decision, make one narrow candidate-policy correction in the existing PR #69 scope:
-
-1. Replace the arbitrary global five-Energy cutoff with a state-/matchup-aware Energy value that considers Max Geist breakpoints, visible target HP/damage, attacker availability, and recoverability.
-2. In the Shadow Rider mirror, prefer discarding the matchup-dead Dialga-GX before Psychic Energy when the relevant Regidrago line is absent; assess Mimikyu separately because Filch/Copycat may retain value.
-3. Add exact candidate-worker regressions for both deck-search and hand-discard decisions at five attached Energy against the rank-1 Shadow Rider list, including a target where the sixth/seventh Energy changes the damage breakpoint.
-4. Keep the current Regidrago counter-line test as a positive control, so the fix does not discard Dialga/Mimikyu when they are genuinely needed.
+1. **Review and validate PR #69 v4.** Agent46 and the requested independent reviewer should inspect the exact branch head and run the complete candidate test file under Node. The 15 selected V8-harness cases are targeted validation, not full-suite or CI evidence; do not merge on that basis alone.
+2. **Keep the registered V3 pair unchanged** for the owner-authorized baseline. The v4 change is confined to the draft PR #69 branch; do not alter the registered main worker, deck, fixture, seed, seats, runner, or frozen PR #71.
+3. **Leave the remaining energy sequencing question open.** PR #69 v4 intentionally does not change searchNeedScore or the five-Energy VMAX manual-attachment/Underworld Door preferences. Evaluate those after the baseline trace using Max Geist damage breakpoints, visible target HP/damage, attacker availability, and the risk of concentrating Energy on a vulnerable Basic versus a VMAX.
+4. If evidence supports changing those remaining thresholds, add matchup- and state-aware tests with both mirror and Regidrago positive controls before changing the candidate policy again.
 
 Do not modify frozen PR #71, create a new policy PR, add a workflow, or update the decision board for this hypothesis alone.
 
