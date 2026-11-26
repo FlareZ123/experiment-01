@@ -3,10 +3,15 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {createInformationSetMcts} = require('../../simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs');
 
-function winnerVector(state) {
-  if (state.terminalClass === 'adjudicated-draw') return [0, 0];
-  if (state.terminalClass === 'seat-0-win') return [1, 0];
-  if (state.terminalClass === 'seat-1-win') return [0, 1];
+function winnerOutcome(state) {
+  if (state.terminalClass === 'adjudicated-draw') return {
+    kind:'adjudicated-draw',
+    ruleId:'synthetic-adjudicated-draw-v1',
+    reason:'draw fixture explicitly adjudicated',
+    evidenceId:'synthetic-draw-fixture'
+  };
+  if (state.terminalClass === 'seat-0-win') return {kind:'seat-win',winnerSeat:0};
+  if (state.terminalClass === 'seat-1-win') return {kind:'seat-win',winnerSeat:1};
   throw new Error('Terminal state lacks an explicit adjudication class');
 }
 
@@ -39,7 +44,8 @@ test('seat-win-probability objective prefers actual wins over draw-heavy win-min
         throw new Error('Terminal state lacks an explicit adjudication class');
       },
       evaluateObservationValues:()=>[0,0],
-      terminalValues:winnerVector
+      terminalOutcome:winnerOutcome,
+      terminalOutcomeProtocolId:'test-terminal-outcome-v1'
     };
     if(valueMode)config.valueMode='seat-win-probability';
     return createInformationSetMcts(config).search(
@@ -62,6 +68,7 @@ test('seat-win-probability objective prefers actual wins over draw-heavy win-min
 test('general-sum PUCT makes the opponent choose its own win-probability best response',()=>{
   const search=createInformationSetMcts({
     valueMode:'seat-win-probability',
+    terminalOutcomeProtocolId:'test-terminal-outcome-v1',
     iterations:2400,maxPlies:2,seed:20261127,cPuct:1.4,
     observe:(state,seat)=>({
       seat,entered:state.entered===true,terminal:state.terminal===true
@@ -82,7 +89,7 @@ test('general-sum PUCT makes the opponent choose its own win-probability best re
       };
     },
     isTerminal:state=>state.terminal,
-    terminalValues:winnerVector,
+    terminalOutcome:winnerOutcome,
     evaluateObservationValues:()=>[0,0]
   });
   const result=search.search({
@@ -103,6 +110,7 @@ test('general-sum PUCT makes the opponent choose its own win-probability best re
 test('seat-win-probability values reject malformed and out-of-range payoffs',()=>{
   const search=createInformationSetMcts({
     valueMode:'seat-win-probability',
+    terminalOutcomeProtocolId:'test-terminal-outcome-v1',
     iterations:1,maxPlies:1,
     observe:(state,seat)=>({seat}),
     activeSeat:state=>state.seat,
@@ -111,28 +119,30 @@ test('seat-win-probability values reject malformed and out-of-range payoffs',()=
     redeterminize:state=>({...state}),
     applyAction:state=>({...state,terminal:true}),
     isTerminal:state=>state.terminal,
-    terminalValues:()=>[1,1.01],
+    terminalOutcome:()=>({kind:'seat-win',winnerSeat:2}),
     evaluateObservationValues:()=>[0,0]
   });
   assert.throws(()=>search.search({seat:0,terminal:false},0),
-    /within \[0, 1\]/);
+    /winnerSeat must be 0 or 1/);
   const overSum=createInformationSetMcts({
     valueMode:'seat-win-probability',
+    terminalOutcomeProtocolId:'test-terminal-outcome-v1',
     iterations:1,maxPlies:1,
     observe:(state,seat)=>({seat}),
     activeSeat:state=>state.seat,
     enumerateActions:()=>[{name:'finish'}],
     actionKey:action=>action.name,
     redeterminize:state=>({...state}),
-    applyAction:state=>({...state,terminal:true}),
+    applyAction:state=>({...state,terminal:false}),
     isTerminal:state=>state.terminal,
-    terminalValues:()=>[0.6,0.6],
-    evaluateObservationValues:()=>[0,0]
+    terminalOutcome:()=>({kind:'seat-win',winnerSeat:0}),
+    evaluateObservationValues:()=>[0.6,0.6]
   });
   assert.throws(()=>overSum.search({seat:0,terminal:false},0),
     /cannot sum to more than one/);
   const unclassified=createInformationSetMcts({
     valueMode:'seat-win-probability',
+    terminalOutcomeProtocolId:'test-terminal-outcome-v1',
     iterations:1,maxPlies:1,
     observe:(state,seat)=>({seat}),
     activeSeat:state=>state.seat,
@@ -141,11 +151,11 @@ test('seat-win-probability values reject malformed and out-of-range payoffs',()=
     redeterminize:state=>({...state}),
     applyAction:state=>({...state,terminal:true,winner:null}),
     isTerminal:state=>state.terminal,
-    terminalValues:winnerVector,
+    terminalOutcome:winnerOutcome,
     evaluateObservationValues:()=>[0,0]
   });
   assert.throws(()=>unclassified.search({seat:0,terminal:false},0),
-    /lacks an explicit adjudication class/);
+    /kind must be seat-win or adjudicated-draw/);
 });
 
 
@@ -153,6 +163,7 @@ test('general-sum mode supports a root best response against a frozen opponent p
   let opponentPolicyCalls=0;
   const search=createInformationSetMcts({
     valueMode:'seat-win-probability',
+    terminalOutcomeProtocolId:'test-terminal-outcome-v1',
     iterations:240,maxPlies:2,seed:20261201,
     opponentPolicyId:'frozen-opponent-response-fixture-v1',
     opponentActionPolicy:(observation,actionKeys,seat)=>{
@@ -178,7 +189,7 @@ test('general-sum mode supports a root best response against a frozen opponent p
       };
     },
     isTerminal:state=>state.terminal===true,
-    terminalValues:winnerVector,
+    terminalOutcome:winnerOutcome,
     evaluateObservationValues:()=>[0.5,0.5]
   });
   const result=search.search({
@@ -197,6 +208,7 @@ test('seat-win-probability two-sided PUCT is symmetric for rootSeat 0 and 1',()=
   for(const rootSeat of [0,1]) {
     const search=createInformationSetMcts({
       valueMode:'seat-win-probability',
+      terminalOutcomeProtocolId:'test-terminal-outcome-v1',
       iterations:96,maxPlies:1,seed:0x5ea700+rootSeat,cPuct:1.4,
       observe:(state,seat)=>({
         actorSeat:seat,rootSeat:state.rootSeat,turn:state.turn
@@ -213,7 +225,7 @@ test('seat-win-probability two-sided PUCT is symmetric for rootSeat 0 and 1',()=
         };
       },
       isTerminal:state=>state.terminal===true,
-      terminalValues:winnerVector,
+      terminalOutcome:winnerOutcome,
       evaluateObservationValues:()=>[0,0]
     });
     const result=search.search({
@@ -236,6 +248,7 @@ test('fixed-opponent best response crosses both root seats and actor-relative re
     const redeterminized=[0,0];
     const search=createInformationSetMcts({
       valueMode:'seat-win-probability',
+      terminalOutcomeProtocolId:'test-terminal-outcome-v1',
       iterations:128,maxPlies:2,seed:0x51de000+rootSeat,
       opponentPolicyId:'fixed-pass-cross-seat-v1',
       opponentActionPolicy:(observation,actionKeys,seat)=>{
@@ -268,7 +281,7 @@ test('fixed-opponent best response crosses both root seats and actor-relative re
         };
       },
       isTerminal:state=>state.terminal===true,
-      terminalValues:winnerVector,
+      terminalOutcome:winnerOutcome,
       evaluateObservationValues:()=>[0,0]
     });
     const result=search.search({
@@ -293,6 +306,7 @@ test('fixed-opponent best response crosses both root seats and actor-relative re
 test('terminal win-probability vectors reject fractional estimates',()=>{
   const search=createInformationSetMcts({
     valueMode:'seat-win-probability',
+    terminalOutcomeProtocolId:'test-terminal-outcome-v1',
     iterations:1,maxPlies:1,
     observe:(state,seat)=>({actorSeat:seat}),
     activeSeat:state=>state.seat,
@@ -301,9 +315,34 @@ test('terminal win-probability vectors reject fractional estimates',()=>{
     redeterminize:state=>({...state}),
     applyAction:state=>({...state,terminal:true}),
     isTerminal:state=>state.terminal===true,
-    terminalValues:()=>[0.5,0.5],
+    terminalOutcome:()=>[0,0],
     evaluateObservationValues:()=>[0.5,0.5]
   });
   assert.throws(()=>search.search({seat:0,terminal:false},0),
-    /actual seat win or an explicitly adjudicated draw/);
+    /must be a typed outcome object/);
+});
+
+
+test('terminal outcomes cannot turn an unclassified state into a draw',()=>{
+  for(const outcome of [
+    [0,0],
+    {kind:'unresolved'},
+    {kind:'adjudicated-draw',ruleId:'test-draw-v1',reason:'no evidence',evidenceId:''}
+  ]) {
+    const search=createInformationSetMcts({
+      valueMode:'seat-win-probability',
+      terminalOutcomeProtocolId:'test-terminal-outcome-v1',
+      iterations:1,maxPlies:1,
+      observe:(state,seat)=>({actorSeat:seat}),
+      activeSeat:state=>state.seat,
+      enumerateActions:()=>[{name:'finish'}],
+      actionKey:action=>action.name,
+      redeterminize:state=>({...state}),
+      applyAction:state=>({...state,terminal:true}),
+      isTerminal:state=>state.terminal===true,
+      terminalOutcome:()=>outcome,
+      evaluateObservationValues:()=>[0,0]
+    });
+    assert.throws(()=>search.search({seat:0,terminal:false},0));
+  }
 });
