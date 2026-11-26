@@ -65,7 +65,6 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     'native',
     'enginePin',
     'actorObservation',
-    'projectPrompt',
     'isAutomaticPrompt',
     'resolveAutomaticPrompt',
     'redeterminize',
@@ -85,7 +84,20 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     native.GamePhase?.FINISHED !== undefined,
   'Pinned Twinleaf Simulator, ActionEnumerator, prompt action and terminal phase are required');
   assert.equal(typeof deps.actorObservation, 'function');
-  assert.equal(typeof deps.projectPrompt, 'function');
+  const promptResolutionMode = deps.promptResolutionMode ??
+    (typeof deps.resolvePlayerPrompt === 'function' ?
+      'same-store-subcall' : 'synthetic-search-node');
+  assert.ok(['same-store-subcall', 'synthetic-search-node'].includes(promptResolutionMode),
+    'Twinleaf prompt resolution mode must be supported');
+  if (promptResolutionMode === 'same-store-subcall') {
+    assert.equal(typeof deps.resolvePlayerPrompt, 'function',
+      'Same-Store prompt subcalls require a synchronous player prompt resolver');
+    assert.ok(typeof deps.promptSubPolicyId === 'string' &&
+      deps.promptSubPolicyId.length > 0,
+    'Same-Store prompt subcalls require a versioned prompt sub-policy ID');
+  } else {
+    assert.equal(typeof deps.projectPrompt, 'function');
+  }
   assert.ok(typeof deps.rulesProfileId === 'string' && deps.rulesProfileId.length > 0,
     'Twinleaf rulesProfileId is required for reproducible state observations');
   if (deps.enumeratePromptChoices !== undefined) {
@@ -141,6 +153,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     automaticPromptResolutions: 0,
     nativeTransitions: 0,
     promptTransitions: 0,
+    playerPromptSubcalls: 0,
     validatedNativeActions: 0,
     unsupportedNativeActions: 0,
     truncatedNativeFrontiers: 0
@@ -163,12 +176,15 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
   function isStable(state) {
     const prompt = firstPendingPrompt(state);
     if (!prompt) return true;
+    if (promptResolutionMode === 'same-store-subcall') return false;
     return unresolvedDecisionSeat(prompt, state) !== null;
   }
 
   function activeSeat(state) {
     const prompt = firstPendingPrompt(state);
     if (prompt) {
+      assert.notEqual(promptResolutionMode, 'same-store-subcall',
+        'Same-Store player prompts must be settled inside applyAction before search observes a state');
       const seat = unresolvedDecisionSeat(prompt, state);
       assert.ok(seat === 0 || seat === 1,
         'Automatic prompts must be resolved before a search decision');
@@ -180,9 +196,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     return seat;
   }
 
-  function observe(state, seat, context) {
-    assert.equal(activeSeat(state), seat,
-      'Actor observation requested for a non-acting physical seat');
+  function buildActorView(state, seat, context) {
     const sampled = metadataByState.has(state);
     if (!sampled) {
       assert.equal(seat, context?.rootSeat,
@@ -217,7 +231,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     const sampledMetadata = metadataByState.get(state);
     const ownDecklistId = sampledMetadata?.decklistIds?.[seat] ??
       (seat === deps.ownDecklistSeat ? deps.ownDecklistId : null);
-    const view = {
+    return {
       ...base,
       ownTurnResources,
       ownerKnowledgeLedger: ownerLedger,
@@ -225,8 +239,16 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
       ...(typeof ownDecklistId === 'string' && ownDecklistId.length > 0 ?
         { ownDecklistId } : {})
     };
+  }
+
+  function observe(state, seat, context) {
+    assert.equal(activeSeat(state), seat,
+      'Actor observation requested for a non-acting physical seat');
+    const view = buildActorView(state, seat, context);
     const prompt = firstPendingPrompt(state);
     if (!prompt) return frozenActorView(view);
+    assert.equal(promptResolutionMode, 'synthetic-search-node',
+      'Unresolved native player prompts must be settled on their original Store before entering MCTS');
     assert.equal(unresolvedDecisionSeat(prompt, state), seat);
     const projectionResult = deps.projectPrompt(state, prompt, seat, view, context);
     assert.ok(projectionResult && typeof projectionResult === 'object' &&
@@ -349,34 +371,69 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     return enumerateNativeActions(state, seat, context);
   }
 
-  function resolveAutomaticPrompts(simulator, random, context) {
+  function settlePendingPrompts(simulator, random, context) {
     let resolved = 0;
     while (true) {
       const state = simulator.store.state;
       const prompt = firstPendingPrompt(state);
-      if (!prompt || !deps.isAutomaticPrompt(prompt, state, context)) return resolved;
+      if (!prompt) return resolved;
       assert.ok(resolved < maxAutomaticPromptResolutions,
-        'Automatic prompt resolution exceeded its safety bound');
-      const result = deps.resolveAutomaticPrompt(prompt, random, {
-        simulator,
-        state,
-        native,
-        context: context ?? null
-      });
-      assert.notEqual(result, undefined,
-        'Automatic prompt resolver must return an explicit result (null is valid)');
+        'Prompt settlement exceeded its safety bound');
+
+      if (deps.isAutomaticPrompt(prompt, state, context)) {
+        const result = deps.resolveAutomaticPrompt(prompt, random, {
+          simulator,
+          state,
+          native,
+          context: context ?? null
+        });
+        assert.notEqual(result, undefined,
+          'Automatic prompt resolver must return an explicit result (null is valid)');
+        const previous = state;
+        withRandom(random, () => simulator.store.dispatch(
+          new native.ResolvePromptAction(prompt.id, result)));
+        transferMetadata(previous, simulator.store.state);
+        resolved += 1;
+        counters.automaticPromptResolutions += 1;
+        continue;
+      }
+
+      if (promptResolutionMode !== 'same-store-subcall') return resolved;
+      const actorSeat = unresolvedDecisionSeat(prompt, state);
+      assert.ok(actorSeat === 0 || actorSeat === 1,
+        'Player-owned prompt must resolve to one physical seat');
+      const actorView = frozenActorView(buildActorView(state, actorSeat, context));
       const previous = state;
-      withRandom(random, () => simulator.store.dispatch(
-        new native.ResolvePromptAction(prompt.id, result)));
-      transferMetadata(previous, simulator.store.state);
+      const resolution = withRandom(random, () => deps.resolvePlayerPrompt({
+        store: simulator.store,
+        state,
+        prompt,
+        actorSeat,
+        actorView,
+        native,
+        random,
+        context: context ?? null
+      }));
+      assert.ok(!resolution || typeof resolution.then !== 'function',
+        'MCTS prompt sub-policy must be synchronous');
+      const after = simulator.store.state;
+      const stillPending = after.prompts?.find(item =>
+        item.id === prompt.id && item.result === undefined);
+      assert.equal(stillPending, undefined,
+        'Same-Store prompt subcall did not resolve the exact pending prompt');
+      transferMetadata(previous, after);
+      counters.playerPromptSubcalls += 1;
       resolved += 1;
-      counters.automaticPromptResolutions += 1;
     }
   }
 
   function applyAction(state, action, random, context) {
     const payload = nativePayloadByAction.get(action);
     assert.ok(payload, 'Search selected an action outside the current frontier');
+    if (promptResolutionMode === 'same-store-subcall') {
+      assert.equal(payload.kind, 'native',
+        'Same-Store prompt subcalls do not expose unresolved prompt choices as MCTS actions');
+    }
     const simulator = payload.kind === 'prompt' && payload.simulator ?
       payload.simulator :
       withRandom(random, () => new native.Simulator(state, simulatorOptions));
@@ -414,12 +471,14 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
       counters.nativeTransitions += 1;
     }
 
-    resolveAutomaticPrompts(simulator, random, context);
+    settlePendingPrompts(simulator, random, context);
     const after = snapshotState(simulator.store.state);
     assert.notDeepEqual(after, before,
       'Selected Twinleaf action produced no state transition');
     assert.equal(isStable(simulator.store.state), true,
-      'Twinleaf action left an unresolved automatic prompt');
+      promptResolutionMode === 'same-store-subcall' ?
+        'Twinleaf action left an unresolved prompt after same-Store settlement' :
+        'Twinleaf action left an unresolved automatic prompt');
     return simulator.store.state;
   }
 
@@ -438,7 +497,12 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
       uncappedEnumeratorSchema: enumerator.__agent3UncappedAdapter?.schema ?? null,
       maxNativeFrontier: options.maxNativeFrontier ?? 256,
       knowledgeLedgerProtocol: 'verified-two-seat-k0-k1-partial-ledgers-v1',
-      promptDecisionProtocol: 'actor-view-prompt-actions-plus-host-chance-resolution-v1',
+      promptResolutionMode,
+      promptSubPolicyId: promptResolutionMode === 'same-store-subcall' ?
+        deps.promptSubPolicyId : null,
+      promptDecisionProtocol: promptResolutionMode === 'same-store-subcall' ?
+        'same-store-player-prompt-subpolicy-plus-host-chance-resolution-v1' :
+        'synthetic-actor-view-prompt-actions-plus-host-chance-resolution-v1',
       ...counters
     };
   }
@@ -474,13 +538,26 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
  */
 function createNativeTwinleafPromptCallbacks({
   native,
+  mode = 'same-store-subcall',
+  decidePrompt = null,
+  promptSubPolicyId = null,
+  withValidationRandom = null,
   simulatorOptions = {},
   provenanceForPrompt = () => null,
   mapSourceCard = null
 } = {}) {
   assert.ok(native && typeof native.Simulator === 'function');
+  assert.ok(['same-store-subcall', 'synthetic-search-node'].includes(mode));
   assert.equal(typeof provenanceForPrompt, 'function');
   if (mapSourceCard !== null) assert.equal(typeof mapSourceCard, 'function');
+  if (mode === 'same-store-subcall') {
+    assert.equal(typeof decidePrompt, 'function',
+      'Same-Store prompt subcalls require a synchronous actor-only prompt policy');
+    assert.ok(typeof promptSubPolicyId === 'string' && promptSubPolicyId.length > 0,
+      'Same-Store prompt subcalls require a versioned sub-policy ID');
+    assert.equal(typeof withValidationRandom, 'function',
+      'Same-Store prompt subcalls require an isolated cloned-Store validation RNG');
+  }
 
   function cardsAtLocation(state, actorSeat, location) {
     const ownerSeat = location.ownerSeat === 'actor' ?
@@ -581,6 +658,57 @@ function createNativeTwinleafPromptCallbacks({
     };
   }
 
+  function resolvePlayerPrompt({
+    store, state, prompt, actorSeat, actorView, random, context
+  } = {}) {
+    assert.ok(store && typeof store.dispatch === 'function');
+    assert.equal(store.state, state,
+      'Player prompt must be projected and resolved on the Store that registered it');
+    assert.ok(actorSeat === 0 || actorSeat === 1);
+    const provenance = provenanceForPrompt(state, prompt, actorSeat, context);
+    const projection = nativePromptProjection.projectPrompt({
+      prompt,
+      state,
+      actorSeat,
+      native,
+      store,
+      provenanceHook: provenanceHookFor(prompt, provenance)
+    });
+    assert.notEqual(projection.hostOnly, true,
+      'Host-only prompts must use the physical-RNG resolver');
+    assert.ok(projection.promptProjection &&
+      projection.choiceByToken instanceof Map,
+    'Player prompt projector must return typed choices bound to the live Store');
+    const decision = decidePrompt({
+      actorSeat,
+      actorView,
+      promptProjection: projection.promptProjection,
+      random
+    });
+    assert.ok(decision && typeof decision === 'object' && !Array.isArray(decision),
+      'Prompt sub-policy must return a typed decision object');
+    assert.equal(typeof decision.then, 'undefined',
+      'Prompt sub-policy must be synchronous in the current MCTS core');
+    const result = nativePromptProjection.dispatchPromptChoice({
+      store,
+      prompt,
+      state,
+      actorSeat,
+      projection,
+      decision,
+      native,
+      dispatch: true,
+      withValidationRandom
+    });
+    return {
+      ...result,
+      promptSubPolicyId,
+      decisionKind: decision.kind,
+      selectedCount: decision.kind === 'select-choices' ?
+        decision.tokens.length : 1
+    };
+  }
+
   function resolveAutomaticPrompt(prompt, random, hostContext = {}) {
     const { simulator, state, context } = hostContext;
     assert.ok(simulator?.store && state === simulator.store.state,
@@ -599,10 +727,21 @@ function createNativeTwinleafPromptCallbacks({
     }).decoded;
   }
 
-  return Object.freeze({
-    projectPrompt,
+  const common = {
+    promptResolutionMode: mode,
     isAutomaticPrompt,
     resolveAutomaticPrompt
+  };
+  if (mode === 'same-store-subcall') {
+    return Object.freeze({
+      ...common,
+      promptSubPolicyId,
+      resolvePlayerPrompt
+    });
+  }
+  return Object.freeze({
+    ...common,
+    projectPrompt
   });
 }
 

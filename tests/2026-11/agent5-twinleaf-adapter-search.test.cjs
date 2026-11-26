@@ -1,6 +1,17 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const runner=require('../../simulation/evaluation/2026-11/agent36-v3-runner.cjs');
+const actionEnumeratorModule=require('../../simulation/evaluation/2026-11/agent3-known-cap-free-action-enumerator.cjs');
+const {
+  createValidationRandomScope,seededRandom
+}=require('../../simulation/evaluation/2026-11/agent49-native-fixture-game.cjs');
+
+const compiledActionEnumerator=path.join(
+  __dirname,'../../vendor/twinleaf/ptcg-server/output/advanced-bot/action-enumerator.js'
+);
 const {
   FLITTLE_ENVELOPE_ID,createTwinleafInformationSetSearch,createTwinleafMcts,
   flittleActionKey,flittleNativeActionToIntent
@@ -622,7 +633,8 @@ test('native prompt projection and host-only resolver plug into the generic sear
   harness.deps.ownDecklistId='deck-1';
   delete harness.deps.enumeratePromptChoices;
   Object.assign(harness.deps,createNativeTwinleafPromptCallbacks({
-    native:harness.deps.native
+    native:harness.deps.native,
+    mode:'synthetic-search-node'
   }));
   harness.state.phase=1;
   harness.state.prompts=[new ConfirmPrompt(81,'seat-1')];
@@ -642,7 +654,8 @@ test('native prompt projection and host-only resolver plug into the generic sear
 test('native host-only coin-flip prompts are resolved by the explicit physical RNG callback',()=>{
   const harness=makeGenericTwoSidedSearchHarness();
   Object.assign(harness.deps,createNativeTwinleafPromptCallbacks({
-    native:harness.deps.native
+    native:harness.deps.native,
+    mode:'synthetic-search-node'
   }));
   harness.state.triggerCoinFlip=true;
   const search=createTwinleafTwoSidedSearch(harness.deps,{
@@ -685,6 +698,7 @@ test('card-effect prompt provenance maps its source into the exact projected clo
   delete harness.deps.enumeratePromptChoices;
   Object.assign(harness.deps,createNativeTwinleafPromptCallbacks({
     native:harness.deps.native,
+    mode:'synthetic-search-node',
     provenanceForPrompt:(state,currentPrompt)=>currentPrompt.id===82?{
       sourceKind:'card-effect',sourceCard,effectName:'Quick Ball',
       effectType:'ItemEffect'
@@ -698,4 +712,244 @@ test('card-effect prompt provenance maps its source into the exact projected clo
   assert.equal(result.action.promptType,'ChooseCardsPrompt');
   assert.ok(['prompt-0','prompt-1'].includes(result.action.choiceKey));
   assert.equal(result.audit.twinleafAdapter.promptTransitions,4);
+});
+
+
+const NATIVE_PROMPT_DDE='Double Dragon Energy ROS';
+const NATIVE_PROMPT_REGIDRAGO='Regidrago V SIT';
+const NATIVE_PROMPT_KECLEON='Kecleon PLF';
+const NATIVE_PROMPT_DEDENNE='Dedenne GX UNB';
+const NATIVE_PROMPT_TAPU_LELE='Tapu Lele-GX GRI';
+
+function makeNativePromptPokemonList(native,card=null) {
+  const list=new native.PokemonCardList();
+  list.cards=card?[card]:[];
+  list.hp=card?.hp??0;
+  list.damage=0;
+  list.energies.cards=[];
+  list.tools=[];
+  list.specialConditions=[];
+  return list;
+}
+
+function makeNativePromptPlayer(native,id,activeCard,cloneCard) {
+  const player=new native.Player();
+  player.id=id;
+  player.active=makeNativePromptPokemonList(native,activeCard);
+  player.bench=Array.from({length:5},()=>makeNativePromptPokemonList(native));
+  player.prizes=Array.from({length:6},()=>{
+    const prize=new native.CardList();
+    prize.cards=[cloneCard(NATIVE_PROMPT_REGIDRAGO)];
+    return prize;
+  });
+  player.deck.cards=Array.from({length:30},()=>cloneCard(NATIVE_PROMPT_REGIDRAGO));
+  player.hand.cards=[];
+  player.discard.cards=[];
+  player.stadium.cards=[];
+  player.lostzone.cards=[];
+  player.supporter.cards=[];
+  player.playableCardIds=[];
+  player.playableHandAbilityCardIds=[];
+  player.energyPlayedTurn=0;
+  player.supporterTurn=0;
+  player.canEvolve=false;
+  player.stadiumAndToolHaveNoEffectTurnsRemaining=0;
+  return player;
+}
+
+test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering Store before searching the stable successor in both physical seats',{
+  skip:!fs.existsSync(compiledActionEnumerator),
+  timeout:30000
+},()=>{
+  const enginePin=runner.V3_FIXTURE.engineCommit;
+  const native=runner.loadNativeRoleDependencies({enginePin});
+  const manager=native.CardManager.getInstance();
+  let nextCardId=980000;
+
+  for(const kecleonSeat of [0,1]) {
+    const switcherSeat=1-kecleonSeat;
+    const withValidationRandom=createValidationRandomScope({
+      ambientRandom:Math.random,
+      physicalRandom:seededRandom(0x420000+kecleonSeat)
+    });
+    function cloneCard(fullName) {
+      const card=manager.getCardByName(fullName);
+      assert.ok(card,'CardManager must resolve '+fullName);
+      card.id=nextCardId++;
+      return card;
+    }
+
+    const candidate=makeNativePromptPlayer(
+      native,kecleonSeat,cloneCard(NATIVE_PROMPT_KECLEON),cloneCard);
+    candidate.bench[0]=makeNativePromptPokemonList(
+      native,cloneCard(NATIVE_PROMPT_DEDENNE));
+    candidate.bench[1]=makeNativePromptPokemonList(
+      native,cloneCard(NATIVE_PROMPT_TAPU_LELE));
+    const dde=cloneCard(NATIVE_PROMPT_DDE);
+    candidate.hand.cards=[dde];
+    candidate.playableCardIds=[dde.id];
+
+    const switcher=makeNativePromptPlayer(
+      native,switcherSeat,cloneCard(NATIVE_PROMPT_REGIDRAGO),cloneCard);
+    switcher.bench[0]=makeNativePromptPokemonList(
+      native,cloneCard(NATIVE_PROMPT_DEDENNE));
+    const switchCard=cloneCard('Switch BS');
+    switcher.hand.cards=[switchCard];
+    switcher.playableCardIds=[switchCard.id];
+
+    const initialState=new native.State();
+    initialState.players=kecleonSeat===0?[candidate,switcher]:[switcher,candidate];
+    initialState.activePlayer=kecleonSeat;
+    initialState.phase=native.GamePhase.PLAYER_TURN;
+    initialState.turn=3;
+    initialState.prompts=[];
+    initialState.gameSettings.format=native.Format.EXPANDED;
+    initialState.gameSettings.sandboxMode=false;
+
+    const store=withValidationRandom(()=>new native.Simulator(initialState)).store;
+    const owner=store.state.players[kecleonSeat];
+    const ddeId=owner.hand.cards[0].id;
+    const enumerator=actionEnumeratorModule.createKnownCapFreeActionEnumerator({
+      native,enginePin
+    });
+    const attachAction=enumerator.attachEnergyActions(store.state,owner).find(action=>
+      action.target.slot===native.SlotType.ACTIVE);
+    assert.ok(attachAction,'DDE must attach to the Active Kecleon while Regidrago is Active');
+    withValidationRandom(()=>store.dispatch(attachAction));
+    withValidationRandom(()=>store.dispatch(new native.gameActions.PassTurnAction(owner.id)));
+    let waitPromptCount=0;
+    while(true) {
+      const waitPrompt=store.state.prompts.find(prompt=>prompt.result===undefined);
+      if(!waitPrompt)break;
+      assert.equal(waitPrompt.constructor.name,'WaitPrompt');
+      withValidationRandom(()=>store.dispatch(
+        new native.ResolvePromptAction(waitPrompt.id,null)));
+      waitPromptCount++;
+      assert.ok(waitPromptCount<=4,'fixture setup must settle bounded WaitPrompts');
+    }
+
+    const rootState=store.state;
+    assert.equal(rootState.activePlayer,switcherSeat);
+    assert.equal(rootState.phase,native.GamePhase.PLAYER_TURN);
+    const switcherAtRoot=rootState.players[switcherSeat];
+    const switchIndex=switcherAtRoot.hand.cards.findIndex(card=>
+      card.fullName==='Switch BS');
+    assert.ok(switchIndex>=0,'Switcher must hold Switch at the search root');
+    switcherAtRoot.playableCardIds=[switcherAtRoot.hand.cards[switchIndex].id];
+    const nativeActions=enumerator.enumerate(rootState,switcherAtRoot);
+    assert.ok(nativeActions.some(action=>
+      action.type==='PLAY_CARD_ACTION' &&
+      rootState.players[switcherSeat].hand.cards[action.handIndex]?.fullName==='Switch BS'),
+    'the uncapped native frontier must include Switch');
+
+    const metadataByState=new WeakMap();
+    const decklistIds=[];
+    decklistIds[kecleonSeat]='kecleon-deck';
+    decklistIds[switcherSeat]='switcher-deck';
+    metadataByState.set(rootState,{decklistIds});
+    const refreshMetadata=(fromState,toState)=>{
+      const metadata=metadataByState.get(fromState);
+      if(!metadata)return false;
+      metadataByState.set(toState,metadata);
+      return true;
+    };
+    const knowledgeBySeat=()=>({
+      verified:true,mode:'K0',ownerK1Snapshot:null
+    });
+    const redeterminize=(state)=>{
+      const sampled=withValidationRandom(()=>new native.Simulator(state)).store.state;
+      const metadata=metadataByState.get(state);
+      if(metadata)metadataByState.set(sampled,metadata);
+      return sampled;
+    };
+
+    let promptCalls=0;
+    let sawSettledSuccessor=false;
+    const promptCallbacks=createNativeTwinleafPromptCallbacks({
+      native,
+      promptSubPolicyId:'switch-bench-choice-test-v1',
+      withValidationRandom,
+      provenanceForPrompt:(state,prompt,actorSeat)=>{
+        const zones=[
+          ...(state.players[actorSeat].discard?.cards??[]),
+          ...(state.players[actorSeat].hand?.cards??[])
+        ];
+        const sourceCard=prompt.sourceCard ??
+          zones.find(card=>card.fullName==='Switch BS');
+        return sourceCard ? {
+          sourceKind:'card-effect',sourceCard,effectName:'Switch'
+        } : null;
+      },
+      decidePrompt:({actorSeat,actorView,promptProjection})=>{
+        promptCalls++;
+        assert.equal(actorSeat,switcherSeat);
+        assert.equal(actorView.actorSeat,switcherSeat);
+        const choice=promptProjection.choices.find(item=>
+          item.printing===NATIVE_PROMPT_DEDENNE);
+        assert.ok(choice,'Switch prompt projection must expose the actor-owned Bench Dedenne');
+        return {kind:'select-choice',token:choice.token};
+      }
+    });
+
+    const actorObservation=(state,seat,{ownerK1Snapshot})=>{
+      const ddeDiscarded=state.players[kecleonSeat].discard.cards.some(card=>
+        card.id===ddeId);
+      if(ddeDiscarded) {
+        assert.equal(state.prompts.filter(prompt=>prompt.result===undefined).length,0,
+          'MCTS must not observe an unresolved continuation');
+        assert.ok(state.players[switcherSeat].active.cards.some(card=>
+          card.fullName===NATIVE_PROMPT_DEDENNE),
+        'Switch continuation must promote Dedenne before the successor enters search');
+        sawSettledSuccessor=true;
+      }
+      return {
+        actorSeat:seat,
+        turn:state.turn,
+        phase:state.phase,
+        ownerK1:ownerK1Snapshot??null,
+        ownHand:state.players[seat].hand.cards.map(card=>card.fullName),
+        publicActives:state.players.map(player=>
+          player.active.cards.map(card=>card.fullName)),
+        publicBenches:state.players.map(player=>
+          player.bench.map(slot=>slot.cards.map(card=>card.fullName)))
+      };
+    };
+
+    const search=createTwinleafTwoSidedSearch({
+      ...promptCallbacks,
+      native,
+      enginePin,
+      rulesProfileId:'pinned-paper-expanded-switch-prompt-test-v1',
+      enumerator,
+      simulatorOptions:{},
+      ownDecklistSeat:switcherSeat,
+      ownDecklistId:'switcher-deck',
+      metadataByState,
+      refreshMetadata,
+      knowledgeBySeat,
+      redeterminize,
+      actorObservation,
+      actionPrior:publicAction=>
+        publicAction.actorPrinting==='Switch BS'?1:0,
+      isTerminal:state=>state.phase===native.GamePhase.FINISHED,
+      terminalValues:()=>[0.5,0.5],
+      evaluateObservationValues:()=>[0.5,0.5]
+    },{
+      iterations:4,maxPlies:1,seed:0x420100+kecleonSeat
+    });
+    const result=search.search(rootState,switcherSeat);
+    assert.equal(result.action.actorPrinting,'Switch BS');
+    assert.ok(promptCalls>0,'MCTS transition must invoke the synchronous prompt sub-policy');
+    assert.ok(sawSettledSuccessor,
+      'the stable successor after prompt continuation must be observed by MCTS');
+    const audit=result.audit.twinleafAdapter;
+    assert.equal(audit.promptResolutionMode,'same-store-subcall');
+    assert.equal(audit.promptSubPolicyId,'switch-bench-choice-test-v1');
+    assert.equal(audit.promptDecisionProtocol,
+      'same-store-player-prompt-subpolicy-plus-host-chance-resolution-v1');
+    assert.equal(audit.promptFrontiers,0,
+      'native player prompts are subcalls, not MCTS action frontiers');
+    assert.equal(audit.promptTransitions,0);
+    assert.ok(audit.playerPromptSubcalls>0);
+  }
 });
