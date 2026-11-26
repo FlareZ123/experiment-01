@@ -1,0 +1,82 @@
+# Hood Shield Shadow Rider: exact Underworld Door Energy-race screen
+
+**Author:** Agent11  
+**Date:** 26 November 2026  
+**Decision relevance:** fixed-60 candidate ranking. This tests whether the registered 11-Psychic-Energy candidate can realistically reach its five-Energy Max Geist damage breakpoint after the Radiant Eternatus setup. It does not nominate or reject the candidate.
+
+## Question
+
+The existing Regidrago damage-threshold derivation establishes that Shadow Rider Calyrex VMAX reaches 320 damage against a 280-HP Regidrago VSTAR when Fairy Zone is active and five Psychic Energy are attached across the candidate's Pokémon. The deterministic attachment ceiling is not a probability. This analysis isolates the Energy-access bottleneck after Radiant Eternatus has already placed two VMAX onto the Bench.
+
+## Fixed-list facts and breakpoint
+
+The registered Hood Shield Shadow Rider v1 contains 11 Basic Psychic Energy, four Shadow Rider Calyrex VMAX, one Radiant Eternatus, and two Lillie's Clefairy ex. With Fairy Zone active, Max Geist damage is 2 × (10 + 30E), so five attached Psychic Energy produce 320 damage. The Energy count is across all of the candidate's Pokémon; the eventual attacker still needs enough Energy in its own attachment zone to pay Max Geist's attack cost.
+
+The card-text and damage derivation is preserved in the earlier Agent11 report, results/aichi-2026/2026-11/agent11-regidrago-max-geist-fairy-zone-threshold-20261125.md. That report correctly labels the five-Energy line as a structural possibility, not a setup or matchup probability.
+
+## Exact conditional model
+
+The model starts after Climactic Gate has resolved and Radiant Eternatus plus two VMAX have left the 60-card list and entered play. It conditions on the remaining cards being randomly distributed among the player's hand, six Prizes, and deck.
+
+- The post-Gate population is 57 cards, including all 11 Psychic Energy, before any pre-Gate manual attachment.
+- H is the hand size after the Gate turn's plays and before the normal draw at the start of the next turn.
+- A is the number of Psychic Energy manually attached before Gate: zero or one. If A=1, that Energy is removed from both the unknown-card and unknown-Energy populations; it is not counted twice.
+- On each of the next two turns, the player takes the normal draw, then may use each available Underworld Door once. A successful Door requires a Psychic Energy in hand, attaches it to a Benched Psychic Pokémon, and then draws two cards. One manual attachment is available each turn.
+- Door uses are sequenced before the manual attachment. Under this model that is optimal for maximizing attachments: it spends the same Energy but adds two cards before the manual attachment is committed.
+- The baseline has two usable Door activations each turn, corresponding to the two VMAX placed by Radiant. A four-activation ceiling assumes all four VMAX are already in play and all four Abilities are usable on both turns.
+
+The dynamic program tracks hand Energy, deck Energy, deck non-Energy, and total attached Energy. Initial hand and Prize counts and all subsequent draws are finite-population hypergeometric transitions. The event counted is at least five total Psychic Energy attached by the end of the second post-Gate turn.
+
+### 11-Energy results
+
+A simple turn-one line from a seven-card opening hand gives two useful starting cases: Radiant played from hand with no Energy attachment (H=6, A=0), or Radiant played from hand after the manual Energy attachment (H=5, A=1). Both have 45 cards in the deck at the start of the next turn under the stated population assumptions.
+
+| Start state | Door uses per turn | Probability of at least five total Energy by end of turn 3 | Mean total Energy attached |
+|---|---:|---:|---:|
+| H=6, A=0 | 2 | **8.10%** | 2.16 |
+| H=5, A=1 | 2 | **10.66%** | 2.72 |
+| H=6, A=0 | 4 | **13.19%** | 2.16 |
+| H=5, A=1 | 4 | **15.01%** | 2.72 |
+
+The four-Door ceiling adds only 5.09 percentage points in the no-pre-Gate-attachment case and 4.34 points in the one-attachment case. Extra VMAX Abilities help, but Energy-in-hand availability is still the binding resource in this submodel.
+
+### Energy-count sensitivity
+
+| Basic Psychic Energy in the fixed 60 | H=6, A=0; two Doors/turn | H=5, A=1; two Doors/turn |
+|---:|---:|---:|
+| 9 | 3.07% | 4.61% |
+| 10 | 5.21% | 7.29% |
+| **11 (registered list)** | **8.10%** | **10.66%** |
+| 12 | 11.75% | 14.69% |
+| 13 | 16.14% | 19.29% |
+
+In this narrow model, a twelfth Energy raises the five-Energy threshold rate by 3.65–4.02 percentage points across the two simple starting states. That is a measurable card-slot benefit, not a recommendation to add Energy: the displaced card's value across the other 31 opponents has not been evaluated.
+
+## Interpretation
+
+The candidate's five-Energy Max Geist line should not be treated as an early deterministic Regidrago answer merely because four VMAX can theoretically produce four Underworld Door attachments. Even after conditioning on the Radiant-plus-two-VMAX board, the 11-Energy list reaches five total attachments only 8.10–10.66% of the time in the two-Door baseline for the simple turn-one hand states above. The four-Door ceiling reaches 13.19–15.01%.
+
+This is a useful constraint on the fixed-60 hypothesis: the five-Energy line is a possible later or draw-assisted route, not demonstrated early coverage. The result does not invalidate the candidate or its separate Mimikyu/Dialga counterline. It does prevent the deterministic ceiling from being mistaken for a likely game line.
+
+## Limitations
+
+This is an exact calculation for the declared submodel, not a game simulation, matchup estimate, or full-deck setup probability.
+
+It conditions on Radiant Eternatus and two VMAX already being in play. It does not estimate the probability of finding Radiant, establishing Fairy Zone, or reaching the required board before the opponent acts. It does not model:
+
+- the Active/Bench allocation needed to make a VMAX attack-ready, or the two/three Psychic Energy needed on that specific attacker;
+- Parallel City, Sky Field, Bench-slot contention, the Active Spot, or the switch/retreat route from the Gate turn;
+- Ability lock, Stealthy Hood, Tool removal, Stadium changes, or Energy denial;
+- Lillie's Determination, Iono, Tapu Lele-GX, Forest Seal Stone, search effects, or other draw engines;
+- Quick Ball discard costs, Energy recovery, Supporter contention, Prize knowledge after a deck search, or opponent choices;
+- damage modifiers, Weakness prevention, or changes to the 280-HP target.
+
+Those omitted effects can move the full-game probability in either direction. The total-Energy event is necessary but not sufficient for an executable Max Geist attack. No lower bound, upper bound, matchup win rate, or 99.5% claim is inferred.
+
+## Reproduction and status
+
+- Implementation: scripts/agent11-underworld-door-energy-race.cjs
+- Tests: tests/agent11-underworld-door-energy-race.test.cjs
+- Local Node v22.16.0 test result: 6/6 passed.
+- One test independently enumerates every hand, six-Prize selection, and ordered deck for a ten-card toy deck and matches the dynamic program to within 1e-12.
+- The registered candidate 60, its policy, Twinleaf pin, workflows, fixtures, and game authorization were not changed. No CI or simulator game was run.
