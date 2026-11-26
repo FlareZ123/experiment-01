@@ -366,8 +366,9 @@ test('seat-win-probability mode requires a versioned terminal protocol id',()=>{
 });
 
 
-function makeActorSafePromptEvent(actorSeat, token='opaque-choice-'+actorSeat) {
+function makeActorSafePromptEvent(transitionActorSeat, actorSeat=transitionActorSeat, token='opaque-choice-'+transitionActorSeat+'-'+actorSeat) {
   return {
+    transitionActorSeat,
     actorSeat,
     promptType:'ChooseCardsPrompt',
     actorObservationDigest:'a'.repeat(64),
@@ -402,7 +403,7 @@ test('rollout prompt receipts are isolated per iteration and prompt RNG cannot p
       applyAction:(state,action,transitionRandom,searchContext,rolloutContext)=>{
         assert.ok(Object.isFrozen(searchContext));
         assert.ok(Object.isFrozen(rolloutContext));
-        assert.equal(rolloutContext.actorSeat,state.seat);
+        assert.equal(rolloutContext.transitionActorSeat,state.seat);
         assert.equal(typeof rolloutContext.promptRandom,'function');
         const before=transitionRandom();
         rolloutContext.promptRandom();
@@ -411,7 +412,7 @@ test('rollout prompt receipts are isolated per iteration and prompt RNG cannot p
         transitionDraws.push({seat:state.seat,before,after});
         retainedContexts.push(rolloutContext);
         rolloutContext.recordPromptEvent(makeActorSafePromptEvent(
-          state.seat,'opaque-'+rolloutContext.iteration+'-'+state.seat));
+          state.seat,1-state.seat,'opaque-'+rolloutContext.iteration+'-'+state.seat));
         if(state.seat===0)return {...state,seat:1,lastAction:'start'};
         return {...state,terminal:true,winner:0};
       },
@@ -431,7 +432,7 @@ test('rollout prompt receipts are isolated per iteration and prompt RNG cannot p
   assert.deepEqual(onePromptDraw.transitionDraws,manyPromptDraws.transitionDraws,
     'prompt-policy RNG consumption must not shift engine transition RNG');
   const audit=onePromptDraw.result.audit;
-  assert.equal(audit.promptEventSchemaId,'actor-safe-prompt-event-v1');
+  assert.equal(audit.promptEventSchemaId,'actor-safe-prompt-event-v2');
   assert.equal(audit.promptRandomProtocolId,
     'per-rollout-independent-prompt-policy-rng-v1');
   assert.equal(audit.rolloutPaths.length,4);
@@ -439,7 +440,8 @@ test('rollout prompt receipts are isolated per iteration and prompt RNG cannot p
     assert.equal(path.promptEvents.length,2,
       'each fixed-opponent rollout records root and opponent prompt events');
     assert.deepEqual(path.promptEvents.map(event=>event.ordinal),[0,1]);
-    assert.deepEqual(path.promptEvents.map(event=>event.actorSeat),[0,1]);
+    assert.deepEqual(path.promptEvents.map(event=>event.transitionActorSeat),[0,1]);
+    assert.deepEqual(path.promptEvents.map(event=>event.actorSeat),[1,0]);
     assert.ok(Object.isFrozen(path.promptEvents));
     assert.ok(path.promptEvents.every(event=>Object.isFrozen(event)));
     assert.ok(Object.isFrozen(path.promptEvents[0].selectedTokens));
@@ -455,9 +457,10 @@ test('rollout prompt receipts are isolated per iteration and prompt RNG cannot p
     /cannot be used outside its action transition/);
 });
 
-test('rollout prompt recorder binds physical actor seat and rejects unsanitized event payloads',()=>{
+test('rollout prompt recorder binds transition actor separately from prompt owner and rejects unsanitized payloads',()=>{
   const cases=[
-    [makeActorSafePromptEvent(1),/must match the bound transition actor/],
+    [makeActorSafePromptEvent(1,0),/transitionActorSeat must match the bound transition actor/],
+    [makeActorSafePromptEvent(0,2),/actorSeat must be a physical prompt-owner seat/],
     [{...makeActorSafePromptEvent(0),rawResult:{hiddenCard:'forbidden'}},/exactly the actor-safe allowlisted keys/],
     [{...makeActorSafePromptEvent(0),actorObservationDigest:'not-a-digest'},/64-character SHA-256 hex digest/],
     [{...makeActorSafePromptEvent(0),selectedTokens:[{}]},/opaque token strings/],
