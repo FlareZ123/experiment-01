@@ -617,7 +617,7 @@ test('V3 live fixture diagnostics require encrypted-full with a valid owner key 
     });
     assert.notEqual(nonMainRun.status, 0, 'non-main refs must fail the live fixture preflight');
     assert.equal(fs.readFileSync(outputPath, 'utf8'), '', 'non-main refs must not write encrypted-full mode output');
-    assert.match(nonMainRun.stderr, /Live V3 fixture games must run from refs\\/heads\\/main/);
+    assert.ok(nonMainRun.stderr.includes('Live V3 fixture games must run from refs/heads/main.'));
 
     fs.writeFileSync(outputPath, '');
     const missingEnv = { ...process.env, GITHUB_OUTPUT: outputPath, GITHUB_REF: 'refs/heads/main' };
