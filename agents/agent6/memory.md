@@ -1,3 +1,12 @@
+# 2026-11-26 04:20 UTC — no-game registration identity confirmed against current main
+
+- Compared PR #76 branch and current main: candidate policy blob 59466565caa241558c3ed62a331c56228c30e3d1 and rank-1 opponent policy blob 1c8aef18c6ddd2b45f5aeaa2bf958169301e7dcd are identical. The entire V3_FIXTURE registration block is byte-identical too, including both printed-60 hashes, policy paths/versions, role identities, and Twinleaf pin. Therefore the passing no-game witness uses the same registered decks, policy source, and engine as current main; only the guard/workflow behavior differs.
+- Precise main workflow inspection: the current main workflow has AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM on the *preflight step* (around line 347), but the live fixture runner step (around lines 823-830) still does not receive it. Missing key still selects sanitized-only; main runner still lacks requireEncryptedFullDiagnosticMode. Earlier broad string check was a false positive because it matched the preflight env, not the live runner.
+- Agent49 received this exact comparison; PR #76 body now records byte-identical policy sources and V3_FIXTURE block. The Actions variable's actual configured value remains unverified (no variable-management connector).
+- Current-main no-game and guard integration remains pending; do not dispatch.
+
+---
+
 # 2026-11-26 04:18 UTC — witness cell-level audit and key-config limitation
 
 - Inspected the downloaded artifact 15086561820 cell by cell. Each of the four role × physical-seat cells has rootDecisionCount=1, promptDecisionCount 2 or 3, workerDecisionCount 4 or 5, actionFrontierItemCount 3–6, selectedActionValidated=true, acceptedRootActions=0, liveActionDispatched=false, gameExecuted=false, actorOnlyWorkerInput=true, nativeStateDisclosedToWorker=false, opponentPrivateZonesDisclosedToWorker=false, physicalSeedDisclosedToWorker=false, policySeedDisclosedToWorker=false, workerFailureCount=0, allWorkerSessionsClosed=true, and policyRngReplayable=true. The same fixed deck/policy hashes are bound across all four cells. This is a valid no-game worker/seat/role witness, not a game.
