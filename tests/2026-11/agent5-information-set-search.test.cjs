@@ -157,9 +157,10 @@ test('canonical observation hash ignores object insertion order but preserves ar
 
 
 function winnerVector(state) {
-  if (state.winner === 0) return [1, 0];
-  if (state.winner === 1) return [0, 1];
-  return [0, 0];
+  if (state.terminalClass === 'adjudicated-draw') return [0, 0];
+  if (state.terminalClass === 'seat-0-win') return [1, 0];
+  if (state.terminalClass === 'seat-1-win') return [0, 1];
+  throw new Error('Terminal state lacks an explicit adjudication class');
 }
 
 test('seat-win-probability objective prefers actual wins over draw-heavy win-minus-loss score',()=>{
@@ -171,16 +172,20 @@ test('seat-win-probability objective prefers actual wins over draw-heavy win-min
       enumerateActions:()=>[{name:'draw-heavy'},{name:'balanced'}],
       actionKey:action=>action.name,
       redeterminize:(state,seat,random)=>({...state,roll:random()}),
-      applyAction:(state,action)=>({
-        ...state,
-        terminal:true,
-        winner:action.name==='draw-heavy' ?
+      applyAction:(state,action)=>{
+        const winner=action.name==='draw-heavy' ?
           (state.roll<0.4?0:null) :
-          (state.roll<0.5?0:1)
-      }),
+          (state.roll<0.5?0:1);
+        return {
+          ...state,
+          terminal:true,
+          winner,
+          terminalClass:winner===null?'adjudicated-draw':'seat-'+winner+'-win'
+        };
+      },
       isTerminal:state=>state.terminal,
       evaluateObservation:()=>0,
-      terminalValue:(state,seat)=>state.winner===null?0:
+      terminalValue:(state,seat)=>state.terminalClass==='adjudicated-draw'?0:
         (state.winner===seat?1:-1),
       evaluateObservationValues:()=>[0,0],
       terminalValues:winnerVector
@@ -219,7 +224,10 @@ test('general-sum PUCT makes the opponent choose its own win-probability best re
       const winner=action.name==='draw-heavy'?
         (state.roll<0.4?1:null):
         (state.roll<0.5?1:0);
-      return {...state,terminal:true,winner};
+      return {
+        ...state,terminal:true,winner,
+        terminalClass:winner===null?'adjudicated-draw':'seat-'+winner+'-win'
+      };
     },
     isTerminal:state=>state.terminal,
     terminalValues:winnerVector,
