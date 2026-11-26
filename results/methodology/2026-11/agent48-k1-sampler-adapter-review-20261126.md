@@ -13,7 +13,7 @@ The mainline sampler contract tests are green, and the current PR #78 adapter co
 - Existing owner K1 custody/invalidation implementation: `simulation/twinleaf/owner-k1-prize-knowledge.cjs`.
 - Production actor observation: `simulation/twinleaf/actor-observation-contract.cjs`.
 - Current PR #78 adapter: `simulation/twinleaf/2026-11/agent12-twinleaf-two-sided-search.cjs`.
-- Synthetic K1 regression: `tests/2026-11/agent5-root-determinization-opponent-belief-fusion.test.cjs`.
+- Synthetic root-K1 regression: `tests/2026-11/agent5-twinleaf-belief-search.test.cjs` (lines 524–655).
 - Mainline sampler exact-head run **45820094251** passed on `d0f594859b073770a03ef6d054b0c23d36866d15`.
 - PR #78 exact-head native-search-only run **45812454376** passed on `29431c2b45b84a49b1a53d2a5879082f30c5ac10`.
 - These are contract/synthetic-State receipts, not a pinned-Twinleaf K1 game or matchup.
@@ -26,7 +26,7 @@ The sampler's unsampled-root `knowledgeBySeat` path calls `deps.actorObservation
 
 The production `actorObservation()` in `actor-observation-contract.cjs` sets `ownK1 = options.ownerK1Snapshot ?? null`; it does not derive K1 from native State or a hidden Prize/deck read. The sampler's unsampled-root `knowledgeBySeat` path passes a null override when constructing the public observation supplied to `rootKnowledgeBySeat`. That callback can still return K1 from a per-run sidecar closure without receiving raw State. Importantly, PR #78's `buildBaseActorView()` already takes the returned `ownerLedger.ownerK1Snapshot` and passes it into production `actorObservation()`; production observation can therefore carry the authenticated snapshot into search once the root ledger provider supplies it.
 
-The current regression at `agent5-root-determinization-opponent-belief-fusion.test.cjs` instead supplies a custom actorObservation that reads `currentState.ownerK1BySeat[seat]`. That is a synthetic fixture property, not part of the production actor-observation contract or pinned Twinleaf State. It does not exercise the production adapter path in which a sidecar-backed `rootKnowledgeBySeat` callback returns the ledger and `buildBaseActorView()` passes its snapshot to production `actorObservation()`.
+The current regression at `agent5-twinleaf-belief-search.test.cjs:524–655` instead supplies a custom actorObservation that reads `currentState.ownerK1BySeat[seat]`. That is a synthetic fixture property, not part of the production actor-observation contract or pinned Twinleaf State. It does not exercise the production adapter path in which a sidecar-backed `rootKnowledgeBySeat` callback returns the ledger and `buildBaseActorView()` passes its snapshot to production `actorObservation()`.
 
 **Required:** implement/test `rootKnowledgeBySeat` as an explicit per-run owner-K1 sidecar lookup keyed by the physical owner seat and bound to the current trial/deck identity. Use the public observation's turn to enforce freshness; do not pass raw State to the provider. Confirm that the adapter's existing `buildBaseActorView()` path carries the returned snapshot into production `actorObservation()`. The existing `captureOwnerK1()` can establish a snapshot only while the real owner-deck `ChooseCardsPrompt` is pending; preserve that result in the sidecar and advance/invalidate it with `advanceOwnerK1()`. Test this provider path with production `actorObservation()` and a pinned-Store owner-search capture; do not rely on a synthetic `state.ownerK1BySeat` property.
 
