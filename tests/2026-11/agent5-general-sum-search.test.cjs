@@ -477,7 +477,7 @@ test('rollout prompt receipts are isolated per iteration and prompt RNG cannot p
   const audit=onePromptDraw.result.audit;
   assert.equal(audit.promptEventSchemaId,'actor-safe-prompt-event-v2');
   assert.equal(audit.promptRandomProtocolId,
-    'per-rollout-independent-prompt-policy-rng-v1');
+    'per-search-ordinal-per-rollout-independent-prompt-policy-rng-v2');
   assert.equal(audit.rolloutPaths.length,4);
   for(const path of audit.rolloutPaths) {
     assert.equal(path.promptEvents.length,2,
@@ -498,6 +498,51 @@ test('rollout prompt receipts are isolated per iteration and prompt RNG cannot p
     makeActorSafePromptEvent(0)),/only during their action transition/);
   assert.throws(()=>onePromptDraw.retainedContexts[0].promptRandom(),
     /cannot be used outside its action transition/);
+});
+
+test('successive searches use deterministic but distinct per-search RNG schedules',()=>{
+  const runSequence=()=>{
+    const draws=[];
+    const search=createInformationSetMcts({
+      iterations:1,maxPlies:1,seed:0x5eed1234,
+      observe:(state,seat)=>({seat}),
+      activeSeat:state=>state.seat,
+      enumerateActions:()=>[{key:'finish'}],
+      actionKey:action=>action.key,
+      redeterminize:(state,seat,random)=>{
+        draws.push(['belief',random()]);
+        return {...state};
+      },
+      applyAction:(state,action,transitionRandom,searchContext,rolloutContext)=>{
+        draws.push(['transition',transitionRandom()]);
+        draws.push(['prompt',rolloutContext.promptRandom()]);
+        return {...state,terminal:true};
+      },
+      isTerminal:state=>state.terminal===true,
+      terminalValue:()=>0,
+      evaluateObservation:()=>0
+    });
+    const first=search.search({seat:0,terminal:false},0);
+    const second=search.search({seat:0,terminal:false},0);
+    return {
+      draws,
+      audits:[first.audit,second.audit].map(a=>({
+        searchOrdinal:a.searchOrdinal,
+        searchSeed:a.searchSeed,
+        seedProtocolId:a.seedProtocolId,
+        baseSeed:a.seed
+      }))
+    };
+  };
+  const a=runSequence();
+  const b=runSequence();
+  assert.deepEqual(a,b,'the ordinal schedule must remain reproducible across identical call sequences');
+  assert.deepEqual(a.audits.map(a=>a.searchOrdinal),[0,1]);
+  assert.notEqual(a.audits[0].searchSeed,a.audits[1].searchSeed);
+  assert.equal(a.audits[0].seedProtocolId,'per-search-ordinal-mixseed-v1');
+  assert.ok(a.draws.length>=6);
+  assert.notDeepEqual(a.draws.slice(0,3),a.draws.slice(3,6),
+    'belief, transition, and prompt streams must differ between successive searches');
 });
 
 test('rollout prompt receipts accept empty and up-to-60 native-validated selections',()=>{

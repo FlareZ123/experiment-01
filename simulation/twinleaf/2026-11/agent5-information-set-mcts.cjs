@@ -71,7 +71,7 @@ function observationSha256(observation) {
 }
 
 const PROMPT_EVENT_SCHEMA_ID = 'actor-safe-prompt-event-v2';
-const PROMPT_RANDOM_PROTOCOL_ID = 'per-rollout-independent-prompt-policy-rng-v1';
+const PROMPT_RANDOM_PROTOCOL_ID = 'per-search-ordinal-per-rollout-independent-prompt-policy-rng-v2';
 const PROMPT_EVENT_KEYS = Object.freeze([
   'actorObservationDigest',
   'actorSeat',
@@ -252,9 +252,9 @@ function mixSeed(seed, iteration, salt = 0) {
   return value >>> 0;
 }
 
-function opponentPolicySeed(seed, iteration, seat, observationHash) {
+function opponentPolicySeed(searchSeed, iteration, seat, observationHash) {
   const digest = createHash('sha256').update(JSON.stringify({
-    protocol: 'mcts-opponent-policy-rng-v2',
+    protocol: 'mcts-search-ordinal-opponent-policy-rng-v3',
     seed,
     iteration,
     seat,
@@ -265,7 +265,7 @@ function opponentPolicySeed(seed, iteration, seat, observationHash) {
 
 function actorRelativeDeterminizationSeed(seed, iteration, seat, observationHash) {
   const digest = createHash('sha256').update(JSON.stringify({
-    protocol: 'mcts-actor-relative-determinization-rng-v1',
+    protocol: 'mcts-search-ordinal-actor-relative-determinization-rng-v2',
     seed,
     iteration,
     seat,
@@ -526,6 +526,7 @@ function createInformationSetMcts(config) {
   const maxPlies = config.maxPlies ?? 16;
   const cPuct = config.cPuct ?? 1.4;
   const seed = config.seed ?? 1;
+  let nextSearchOrdinal = 0;
   const maxDecisionMs = config.maxDecisionMs ?? Infinity;
   const now = config.now ?? (() => performance.now());
   assert.ok(Number.isSafeInteger(iterations) && iterations > 0 && iterations <= 100000);
@@ -548,6 +549,8 @@ function createInformationSetMcts(config) {
 
   return Object.freeze({
     search(rootState, rootSeat) {
+      const searchOrdinal = nextSearchOrdinal++;
+      const searchSeed = mixSeed(seed, searchOrdinal, 0x6a09e667);
       const startedAt = now();
       assert.ok(Number.isFinite(startedAt), 'Monotonic clock returned a non-finite value');
       const deadlineAt = startedAt + maxDecisionMs;
@@ -562,7 +565,7 @@ function createInformationSetMcts(config) {
         }
       };
       const searchContext = Object.freeze({
-        rootSeat,startedAt,deadlineAt,maxDecisionMs,seed,now,checkDeadline
+        rootSeat,startedAt,deadlineAt,maxDecisionMs,seed:searchSeed,baseSeed:seed,searchOrdinal,now,checkDeadline
       });
       const redeterminizationDeadline = Object.freeze({
         checkDeadline: stage => checkDeadline(stage)
@@ -585,7 +588,7 @@ function createInformationSetMcts(config) {
         }
         checkDeadline(stage + '-redeterminization-start');
         const actorRandom = seededRandom(
-          actorRelativeDeterminizationSeed(seed, iteration, actorSeat, beforeHash)
+          actorRelativeDeterminizationSeed(searchSeed, iteration, actorSeat, beforeHash)
         );
         const sampledState = redeterminize(
           inputState,
@@ -655,9 +658,9 @@ function createInformationSetMcts(config) {
         checkDeadline('iteration-start');
         // A behavioral policy chooses once for each information set in this rollout.
         const opponentPolicyDecisions = new Map();
-        const sampleRandom = seededRandom(mixSeed(seed, iteration, 0x51ed270b));
-        const transitionRandom = seededRandom(mixSeed(seed, iteration, 0x2c1b3c6d));
-        const promptRandom = seededRandom(mixSeed(seed, iteration, 0x3c6ef372));
+        const sampleRandom = seededRandom(mixSeed(searchSeed, iteration, 0x51ed270b));
+        const transitionRandom = seededRandom(mixSeed(searchSeed, iteration, 0x2c1b3c6d));
+        const promptRandom = seededRandom(mixSeed(searchSeed, iteration, 0x3c6ef372));
         const rolloutContext = createRolloutContext(iteration, promptRandom);
         let state;
         if (redeterminize === null) {
@@ -935,7 +938,7 @@ function createInformationSetMcts(config) {
           actorRelativeDeterminizationProtocol: redeterminize === null ? null :
             'observation-preserving-per-decision-v1',
           actorRelativeDeterminizationRngProtocol: redeterminize === null ? null :
-            'seed-iteration-seat-observation-v1',
+            'search-ordinal-seed-iteration-seat-observation-v2',
           actorRelativeDeterminizationCallsBySeat,
           actorRelativeDeterminizationCalls:
             actorRelativeDeterminizationCallsBySeat[0] +
@@ -948,7 +951,7 @@ function createInformationSetMcts(config) {
               'root-determinization-puct' : 'fixed-actor-observation-policy'),
           opponentPolicyId: opponentActionPolicy === null ? null : config.opponentPolicyId,
           opponentPolicyRngProtocol: opponentActionPolicy === null ? null :
-            'mcts-opponent-policy-rng-v2',
+            'mcts-search-ordinal-opponent-policy-rng-v3',
           opponentPolicyContextProtocol: opponentActionPolicy === null ? null :
             'no-context-v1',
           opponentPolicyInputProtocol: opponentActionPolicy === null ? null :
@@ -970,6 +973,9 @@ function createInformationSetMcts(config) {
           elapsedMs: Number(elapsedMs.toFixed(3)),
           timeoutStatus: 'completed',
           seed,
+          searchOrdinal,
+          searchSeed,
+          seedProtocolId: 'per-search-ordinal-mixseed-v1',
           rootActionCount: rootActionMap.size,
           maxActionTransitions,
           seatActionTransitions,
