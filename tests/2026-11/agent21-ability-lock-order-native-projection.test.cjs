@@ -70,7 +70,8 @@ for(const actorSeat of [0,1]){
     assert.equal(view.turnSeat,actorSeat);
     assert.equal(view.ownPublic.active.abilityLockActivationOrder,
       f.owner.active.abilityLockActivationOrder);
-    assert.equal(view.ownPublic.bench[0].abilityLockActivationOrder,0);
+    assert.equal(view.ownPublic.bench[0].abilityLockActivationOrder,null,
+      'the actor contract normalizes the native zero no-lock sentinel to null');
     assert.equal(view.opponentPublic.active.abilityLockActivationOrder,
       f.startingOrder);
   });

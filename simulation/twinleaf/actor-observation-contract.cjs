@@ -30,7 +30,7 @@ function visiblePokemon(slot){
     lastPlayedOrEvolvedTurn:slot.pokemonPlayedTurn,
     // Zero is the native "no established Active locker" sentinel.
     abilityLockActivationOrder:Number.isSafeInteger(slot.abilityLockActivationOrder)&&
-      slot.abilityLockActivationOrder>=0?slot.abilityLockActivationOrder:null,
+      slot.abilityLockActivationOrder>0?slot.abilityLockActivationOrder:null,
     // Fully face-up printed information needed to compare attack options,
     // vulnerabilities, and retreat. Printed values are not a final damage
     // or retreat-cost calculation; effects may modify them in the Store.
