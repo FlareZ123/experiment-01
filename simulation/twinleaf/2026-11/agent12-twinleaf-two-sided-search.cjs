@@ -244,7 +244,8 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
       }
       promptChoicesByProjection.set(canonicalJson(frozenProjection), {
         promptId: prompt.id,
-        choiceByToken: projectionResult.choiceByToken
+        choiceByToken: projectionResult.choiceByToken,
+        simulator: projectionResult.simulator ?? null
       });
       return frozenActorView({ ...view, pendingPrompt: frozenProjection });
     }
@@ -294,7 +295,8 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
         promptId: prompt.id,
         result: choice.result,
         choiceKey: choice.key,
-        projection: cachedProjection ?? null
+        projection: cachedProjection ?? null,
+        simulator: cachedProjection?.simulator ?? null
       });
       return action;
     });
@@ -375,10 +377,18 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
   function applyAction(state, action, random, context) {
     const payload = nativePayloadByAction.get(action);
     assert.ok(payload, 'Search selected an action outside the current frontier');
-    const simulator = withRandom(random, () =>
-      new native.Simulator(state, simulatorOptions));
+    const simulator = payload.kind === 'prompt' && payload.simulator ?
+      payload.simulator :
+      withRandom(random, () => new native.Simulator(state, simulatorOptions));
     assert.ok(simulator.store && typeof simulator.store.dispatch === 'function',
       'Twinleaf Simulator did not expose a dispatchable Store');
+    if (payload.kind === 'prompt') {
+      const projectedPrompt = firstPendingPrompt(simulator.store.state);
+      assert.ok(projectedPrompt && projectedPrompt.id === payload.promptId,
+        'Projected prompt Store is stale for the selected prompt action');
+      assert.equal(activeSeat(simulator.store.state), activeSeat(state),
+        'Projected prompt Store changed the acting physical seat');
+    }
     transferMetadata(state, simulator.store.state);
     const before = snapshotState(simulator.store.state);
 
@@ -506,14 +516,17 @@ function createNativeTwinleafPromptCallbacks({
       clonedProvenance = { ...provenance, sourceCard };
     }
 
-    return nativePromptProjection.projectPrompt({
-      prompt: clonedPrompt,
-      state: clonedState,
-      actorSeat,
-      native,
-      store: simulator.store,
-      provenanceHook: provenanceHookFor(clonedPrompt, clonedProvenance)
-    });
+    return {
+      ...nativePromptProjection.projectPrompt({
+        prompt: clonedPrompt,
+        state: clonedState,
+        actorSeat,
+        native,
+        store: simulator.store,
+        provenanceHook: provenanceHookFor(clonedPrompt, clonedProvenance)
+      }),
+      simulator
+    };
   }
 
   function resolveAutomaticPrompt(prompt, random, hostContext = {}) {
