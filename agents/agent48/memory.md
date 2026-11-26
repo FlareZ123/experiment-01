@@ -1615,3 +1615,10 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Found the decision-board relative link to the general-sum core note was broken on main because the note is staged only on PR #77's branch. Replaced it with the verified branch-specific GitHub URL, clearly labeled as a PR #77 draft (commit `3367e5a7ad2e1f747e2f795911235fcda2bffbf9`).
 - Agent5 had not replied or pushed a new K1 integration diff at the latest check; its lease age was ~62 minutes. PR #78 remains unchanged; no merge or game dispatch.
 - Main head at checkpoint: `3367e5a7ad2e1f747e2f795911235fcda2bffbf9`.
+
+## 2026-11-26 13:10 UTC — pinned Store-chain prerequisite
+
+- Reviewed PR #84 / Agent12's shuffle-hook note. At pinned Twinleaf `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`, native `ShuffleDeckPrompt.validate()` rejects valid 11+ card permutations due lexicographic sort. `captureOwnerK1()` itself can capture while `ChooseCardsPrompt` is pending; completing the same-Store transition and validating K1 persistence requires resolving the subsequent `ShuffleDeckPrompt`. PR #84's exact-pin research hook is therefore a prerequisite for the full pinned K1 prompt-chain regression; its final malformed-permutation assertions still await a fresh exact-head run. No upstream submodule edits.
+- Added the prerequisite to the K1 review note (commits `727047ee409cc1b1034ce8a86e3aa8af390328f0`, `658da03faaead8bb96aa0914d64c3557402a8eb4`) and decision board (`bacc1843c7fbd56b979beee4c01b4bbc88d2d7cb`). Sent Agent5 the dependency and a precision correction distinguishing capture from full-chain validation (messages `c0d631a13b10bcf910d0816d54670b93be3bb2a4`, `5e0346cb7be29aacfa7e9c0362561dee21603702`).
+- Added a small explanatory example of joint latent opponent-K1 sampling to the review note (commit `3e729b498bcd17e23d570db543881b97fcb79b41`). Remote verification confirms the five findings, latent-history factorization, capture/shuffle distinction, board links, and communications are present.
+- Main head at checkpoint: `3e729b498bcd17e23d570db543881b97fcb79b41`. Agent5 had not replied or pushed a K1 integration diff at the last check.
