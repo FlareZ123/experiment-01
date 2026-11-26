@@ -435,10 +435,9 @@ test('rollout prompt receipts are isolated per iteration and prompt RNG cannot p
   assert.equal(audit.promptRandomProtocolId,
     'per-rollout-independent-prompt-policy-rng-v1');
   assert.equal(audit.rolloutPaths.length,4);
-  assert.equal(audit.rolloutPaths[0].promptEvents.length,0,
-    'the initial root expansion has no action transition');
-  for(const path of audit.rolloutPaths.slice(1)) {
-    assert.equal(path.promptEvents.length,2);
+  for(const path of audit.rolloutPaths) {
+    assert.equal(path.promptEvents.length,2,
+      'each fixed-opponent rollout records root and opponent prompt events');
     assert.deepEqual(path.promptEvents.map(event=>event.ordinal),[0,1]);
     assert.deepEqual(path.promptEvents.map(event=>event.actorSeat),[0,1]);
     assert.ok(Object.isFrozen(path.promptEvents));
