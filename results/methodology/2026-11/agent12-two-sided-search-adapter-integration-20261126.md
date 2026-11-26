@@ -1,6 +1,6 @@
 # Agent12 two-sided MCTS / Twinleaf adapter integration
 
-**Status:** Native adapter contract accepted at code/test SHA `47dffab1689d02418a206c812db0f8ffaa907c54`; exact-head native-only workflow run `45789806753` passed. Reconciliation commit `f25a2c2101e12064cac235b97a737fa93da609c1` is based on main `71fca62`, incorporates the updated Agent12 memory, and preserves that main revision's active Agent6 lease and decision board; subsequent PR-branch commits update this report and the decision board only. A combined real Quick Ball-through-MCTS test is still under focused review with Agent44; current evidence keeps the real Quick Ball continuation and the MCTS transition-RNG path as separate tests.
+**Status:** The two-sided adapter and the combined real Quick Ball-through-MCTS test are implemented. Combined test code/test commit `29e09c79ca6cf080705970cc3dbeeb8e9cf33e60` is included in reconciled PR head `634469c6a2bbd7af517458caa94d8eda08759b0e`; exact-head native-only run `45792988401` is in progress. Earlier code/test SHA `47dffab1689d02418a206c812db0f8ffaa907c54` passed run `45789806753` before the combined fixture. Reconciliation commit `634469c6a2bbd7af517458caa94d8eda08759b0e` is based on main `8593960`, includes the updated Agent12 memory and latest main board, and preserves main's active leases; a final latest-main refresh will be done before PR merge.
 
 ## Purpose
 
@@ -38,8 +38,8 @@ Important qualification from Agent3's review: the pinned Quick Ball player-promp
 
 Tests:
 - `tests/2026-11/agent36-prompt-projection.test.cjs` proves cloned validation sees its isolated RNG, the final live dispatch sees the supplied transition RNG, and ambient `Math.random` is restored.
-- `tests/2026-11/agent12-twinleaf-two-sided-search.test.cjs` proves the MCTS adapter's player-prompt dispatch and a subsequent automatic prompt use deterministic transition-stream draws distinct from prompt-policy and ambient streams.
-- `tests/2026-11/agent14-native-store-prompt-continuation.test.cjs` drives a real pinned Twinleaf Quick Ball `ChooseCardsPrompt` through the same Store with ambient `Math.random` set to a throwing sentinel during cloned validation and live dispatch. It verifies the live dispatch does not consume ambient RNG and the effect creates a separate `ShuffleDeckPrompt`.
+- `tests/2026-11/agent12-twinleaf-two-sided-search.test.cjs` proves the MCTS adapter's player-prompt dispatch and a subsequent automatic prompt use deterministic transition-stream draws distinct from prompt-policy and ambient streams. Agent44 added a combined real Quick Ball-through-MCTS fixture: Quick Ball is the root action, the player-owned `ChooseCardsPrompt` resolves on the registering Store, the automatic `ShuffleDeckPrompt` resolves before the next observation, and the test checks the stable successor, ambient-RNG sentinel, and prompt audit/history receipts.
+- `tests/2026-11/agent14-native-store-prompt-continuation.test.cjs` independently drives a real pinned Twinleaf Quick Ball `ChooseCardsPrompt` through the same Store with ambient `Math.random` set to a throwing sentinel during cloned validation and live dispatch. It verifies the live dispatch does not consume ambient RNG and the effect creates a separate `ShuffleDeckPrompt`.
 
 The three test layers are deliberately not described as one combined real Quick Ball-through-MCTS fixture. Agent44 was asked to add that single combined integration test after the green run; if it lands, it requires a new exact-head CI receipt.
 
@@ -48,10 +48,9 @@ The three test layers are deliberately not described as one combined real Quick 
 - Workflow: `.github/workflows/agent5-owner-root-native.yml`
 - Invocation: manual dispatch with `native_search_only=true`; no game dispatch.
 - Pinned Twinleaf revision: `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`.
-- Tested code/test/workflow SHA: `47dffab1689d02418a206c812db0f8ffaa907c54`.
-- Exact-head run: [45789806753](https://github.com/FlareZ123/experiment-01/actions/runs/45789806753).
-- Outcome: 39 successful steps, 56 intentionally skipped by the native-search-only path, 0 failed, 0 pending. The run includes the prompt-projection regression, Quick Ball same-Store test, and two-sided MCTS prompt-settlement tests.
-- Reconciliation commit `f25a2c2` is a metadata-only merge of main `71fca62` plus the tested PR files and the updated Agent12 memory. It preserves that main revision's active Agent6 lease, current Agent12 lease, and current `results/README.md`; subsequent branch commits update only this methodology report and the decision board. The tested code/test/workflow blobs are unchanged. Before final PR merge, reconcile any later main-only lease/communication changes again.
+- Previous tested code/test/workflow SHA: `47dffab1689d02418a206c812db0f8ffaa907c54`; exact-head run [45789806753](https://github.com/FlareZ123/experiment-01/actions/runs/45789806753) passed with 39 successful steps, 56 intentionally skipped, zero failed, before the combined fixture was added.
+- Combined-test code/test commit: `29e09c79ca6cf080705970cc3dbeeb8e9cf33e60`; exact reconciled head: `634469c6a2bbd7af517458caa94d8eda08759b0e`; native-only run [45792988401](https://github.com/FlareZ123/experiment-01/actions/runs/45792988401) is in progress. Do not transfer the previous green receipt to the combined fixture.
+- Reconciliation commit `634469c` is based on main `8593960`, includes the updated Agent12 memory and latest main decision board, and preserves that main revision's active Agent6 and Agent12 leases. Main may advance with additional communications while CI runs; refresh from the latest main tree before PR merge, preserving all non-Agent12 lease/memory files.
 - Previous exact-head receipts: `45788911615` passed on `4b2fc48` before the Quick Ball sentinel and final workflow-list addition; `45787848481` passed on `a7a2db8` before the live prompt-dispatch RNG correction. Run `45789476429` was cancelled when the final workflow revision was dispatched and is not evidence.
 - The narrower PR #81 opponent-policy RNG fix passed `45785244678` on `a3f091f`; it is not substituted for the PR #78 exact-head receipt.
 
@@ -78,7 +77,7 @@ The sampler implements K0/K1/PARTIAL hidden partition logic, exact and partial p
 
 ## Next actions
 
-1. Complete or explicitly defer Agent44's combined real Quick Ball-through-MCTS fixture. If source/test/workflow changes, rerun the existing native-search-only workflow on that exact head.
+1. Complete exact-head native-only run `45792988401` on the combined Quick Ball-through-MCTS test. If it passes, obtain final exact-head review and merge PR #78; if it fails, inspect only the failing source/test and rerun the corrected exact head.
 2. After final exact-head review, merge PR #78. Before merge, reconcile against the latest main tree, preserving all active leases and memories; take the current main `results/README.md` as base and update only its MCTS status.
 3. Integrate the existing K0/K1 sampler with the two-sided adapter using the correct actor observation, per-seat knowledge, decklist priors, clone-state and card-reconstruction dependencies. Verify on real pinned Twinleaf states before claiming Expanded readiness.
 4. Continue policy readiness with one frozen candidate policy and independently specified rank-specific opponent policies; missing ranks must remain explicit.
