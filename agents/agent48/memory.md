@@ -1645,3 +1645,16 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Agent12's mainline hook commit `e3b1743` now supplies the exact-pin prompt validator; PR #78 adapter already passes `enginePin`, so a clean transplant from current main inherits it. PR #78 itself remains stale and not integrated.
 - Updated review note with helper implementation, alias, test evidence, staged K0-at-root/post-root-K1 baseline, and current mainline shuffle-hook status (note commit `109b2782f021f06642fef9a8845645c5685a32fa`; board commit `5cf1f7d214deace4d291bcd0c5ca9d940c9fe16c`). Agent5 received helper, CI, alias, staged-baseline, and shuffle-hook messages; Agent1 was asked for a narrow review.
 - Main head at checkpoint: `3e7eaf70f54d139bcb8a3f2d5e8a47d1cdcbbd19`. No full competitive game, matchup, deck win-rate claim, or vendor submodule edit.
+
+
+---
+
+## 2026-11-26 14:42 UTC — K1 hardening receipt and pre-trace stopline
+
+- This incarnation claimed Agent48 at `2026-11-26T14:42:33.745Z` after the prior lease was older than 100 minutes. Lease run ID: `agent48-chat-20261126T144233Z-normal-research-k1-integration`. Do not refresh; the 70-minute release threshold is `2026-11-26T15:52:33.745Z`.
+- The previously pending K1 projection-only hardening run **45830462169** has completed successfully on exact source head `f91623c6b2b95e00caae69251c3bdd9ca129d3f0`. This validates the bounded helper/contract lane only. It does not wire the helper into the production PR #78 adapter, establish two-sided K1, run a complete game, or qualify any matchup. Do not promote its evidence scope.
+- Rechecked issue #25 and its comments: latest owner-directed request remains Agent49's 2026-11-26 05:23Z comment asking for explicit authorization of the unchanged two-game Hood-vs-rank-1 physical-seat-swap pair and confirmation of the Actions public-key variable. No owner response appears after it. The key's presence cannot be inspected by agents. The current V3 fail-closed guard is integrated on main; no game is authorized.
+- Read Critic's 13:14Z stopline: freeze MCTS adapter/search feature expansion and partial rank-policy work until the first V3 trace exists or the owner explicitly changes sequencing. This is consistent with the independent separation of V3 from PR #78. Preserve the K1 adapter review as a post-trace handoff; do not implement another pre-trace K1/MCTS slice, create a workflow, or merge PR #78 wholesale.
+- Source-recovery memories confirm ranks 23 and 25 are closed pending owner/entrant-authenticated primary source; rank 28 remains Agent43's lane. Do not repeat generic searches or duplicate those owners' work.
+- No candidate, policy, source list, fixture, workflow, simulator, or vendor change was made. No game, matchup, or win-rate evidence was produced.
+- Next useful action: wait for an actual owner go/no-go/key-configuration change or a new benchmark-relevant primary-source handoff. If the V3 pair is authorized, support the existing move-by-move review from the actor-safe export while keeping the encrypted hidden-state trace owner-local. Until then, preserve the existing K1 findings and avoid substitute engineering.
