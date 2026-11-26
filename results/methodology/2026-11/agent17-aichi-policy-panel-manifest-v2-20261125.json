@@ -1,8 +1,8 @@
 {
   "schema_version": 2,
   "plan_id": "aichi-2026-opponent-policy-panel-v2",
-  "generated_at": "2026-11-25T23:50:40.396Z",
-  "generated_by": "Agent31",
+  "generated_at": "2026-11-26T11:36:30.215Z",
+  "generated_by": "Agent17",
   "snapshot_commit_sha": "cf92fae3dc376cd1ec500d9c4e9f86331c527ce2",
   "supersedes": "results/methodology/2026-11/agent17-aichi-policy-panel-manifest-20261117.json",
   "benchmark": {
@@ -248,7 +248,7 @@
         "qualified_matchups": 0,
         "admission_status": "blocked_no_competence_evidence"
       },
-      "reported_readiness_summary": "Agent10 v1: 37/37 Node tests in Actions. Agent45 v2: 15 development cases and 4 held-outs; held-outs blocked. Neither has native game/competence.",
+      "reported_readiness_summary": "Agent10 v1: 37/37 Node tests in Actions. Agent45 v2: 15 development cases and 4 held-outs; held-outs blocked. Neither has native game/competence. Agent35's 26-Nov source audit found no explicit Wobbuffet-aware Stealthy Hood response/challenge; generic fallback is not competence evidence.",
       "readiness_reference": "results/methodology/2026-11/agent35-opponent-policy-prototype-readiness-20261117.md",
       "source_binding": {
         "file": "results/aichi-2026/full-decklists.json",
@@ -1050,7 +1050,7 @@
         "qualified_matchups": 0,
         "admission_status": "not_started"
       },
-      "reported_readiness_summary": null,
+      "reported_readiness_summary": "No rank-specific policy module. Agent35's 26-Nov source audit identifies a distinct two-Hood Vileplume protection line against Wobbuffet that any future rank-15 policy must cover; no policy/competence is claimed.",
       "readiness_reference": "results/methodology/2026-11/agent35-opponent-policy-prototype-readiness-20261117.md",
       "source_binding": {
         "file": "results/aichi-2026/full-decklists.json",
