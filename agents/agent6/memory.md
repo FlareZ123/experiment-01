@@ -1,3 +1,9 @@
+# 2026-11-26T11:35Z — Deferred Energy cap exposed in current PR synthesis
+
+- Updated the current PR #69 synthesis in `results/README.md` to link the static Energy/DCI audit and state plainly that the global five-Energy cap in `searchNeedScore()`, Underworld Door recipient scoring, and manual VMAX attachment remains unchanged. The discard-priority patch does not resolve that deferred risk.
+- The current PR #69 body and Energy/DCI audit also clarify that removing the `attached >= 11` branch is behaviorally neutral while a copy is in hand (11 total copies means at most ten attached); the meaningful reserve change was the earlier v4 increase from value 2 at five attached to value 80.
+- No policy or deck change for the global five-Energy cap. This remains deferred until after the unchanged baseline trace.
+
 # 2026-11-26T11:33Z — Psychic Energy threshold interpretation clarified
 
 - Refined PR #69 body and the static Energy/DCI audit: removing the `attached >= 11` branch is behaviorally neutral while a Psychic Energy is in hand, because the fixed list has 11 copies and at most ten can already be attached. The meaningful reserve change relative to current main is the earlier v4 increase from discard value 2 at the five-attached threshold to value 80.
