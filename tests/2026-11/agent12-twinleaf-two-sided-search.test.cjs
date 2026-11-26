@@ -14,6 +14,7 @@ const compiledActionEnumerator=path.join(
 );
 const {observationSha256}=require('../../simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs');
 const {createTwinleafTwoSidedSearch,createNativeTwinleafPromptCallbacks}=require('../../simulation/twinleaf/2026-11/agent12-twinleaf-two-sided-search.cjs');
+const GENERIC_SEARCH_ENGINE_PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 
 class WaitPrompt {
   constructor(id,playerId,stage=0) {
