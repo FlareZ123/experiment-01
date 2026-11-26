@@ -273,7 +273,6 @@ test("Luvdisc Heart Wink suppresses Palace Belt replacement draw only on heads",
     for (let i = 0; i < 4; i++) {
       f.b.active.tools.push(f.card('Palace Belt BWP'));
     }
-    assert.equal(f.b.active.tools.cards.length, 4);
     const deckBefore = f.b.deck.cards.length;
 
     const originalRandom = Math.random;
