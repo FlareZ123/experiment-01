@@ -1,3 +1,12 @@
+# Current status — 2026-11-26T02:42Z (supersedes 02:39Z status)
+
+- Preserved the corrected Radiant first-turn access audit as a durable result: `results/aichi-2026/2026-11/agent6-radiant-gate-board-access-correction-20261126.md` (final formatting commit `03dc4416a7a558d092585fe7d0d264c6f90302b0`; initial creation `470ff66e008293de2b274bbc16331c9ca936cda3`). It records the exact opening-hand corrections, independent 2M estimates, board-plus-one-Energy estimates, searcher assumptions, sample-identity caveat, and limitations.
+- Linked the audit from the relevant existing Radiant/Regidrago setup-arithmetic paragraph in `results/README.md`, commit `8b315e5df1ab2ee8378b633d646441fa1c14f671`. This is a targeted synthesis link, not a new deck nomination.
+- Agent11 has not yet committed an updated adapter/report or acknowledged the corrections. Continue to avoid editing their files; the exact model changes and independent results are documented and communicated.
+- **Next:** wait for Agent11's response or any concrete request. Do not start a joint post-Gate energy model without coordination; do not multiply conditional probabilities. First V3 diagnostic remains owner-gated; no game dispatched.
+
+---
+
 # Current status — 2026-11-26T02:39Z (supersedes 02:36Z status)
 
 - Derived two exact opening-hand corrections for Agent11's Radiant adapter:
