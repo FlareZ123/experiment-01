@@ -493,3 +493,136 @@ test('physical-seat sampler exposes stable own decklist IDs for both root seats'
   assert.equal(Object.isFrozen(sampler.ownDecklistIdBySeat),true);
   assert.throws(()=>{sampler.ownDecklistIdBySeat[0]='misbound-seat';},TypeError);
 });
+
+test('undeterminized root retains actor-owned K1 when the sampler override is null',()=>{
+  const knownPrizePrintings=[{printing:'P',copies:6}];
+  const ownerK1Snapshot={
+    epoch:9,exactMembershipKnown:true,knownPrintings:knownPrizePrintings
+  };
+  const hidden=id=>new Proxy({id},{get(target,key){
+    if(key==='fullName')throw new Error('undeterminized root read a concealed card face');
+    return target[key];
+  }});
+  const makePlayer=seat=>{
+    const base=seat*1000;
+    return {
+      active:{
+        cards:[{id:base+1,fullName:seat===0?'OwnMon':'OppMon'},
+          {id:base+2,fullName:'Energy'}],
+        tools:[{id:base+3,fullName:'Tool'}]
+      },
+      bench:[],
+      stadium:{cards:[]},discard:{cards:[]},lostzone:{cards:[]},supporter:{cards:[]},
+      hand:{isPublic:false,cards:seat===0?
+        [{id:base+4,fullName:'A'},{id:base+5,fullName:'B'}]:
+        [hidden(base+4),hidden(base+5),hidden(base+6)]},
+      deck:{cards:Array.from({length:seat===0?49:48},(_,i)=>hidden(base+7+i))},
+      prizes:Array.from({length:6},(_,i)=>({
+        faceUpPrize:seat===1&&i===0,
+        cards:[seat===1&&i===0?{id:base+100+i,fullName:'P'}:hidden(base+100+i)]
+      }))
+    };
+  };
+  const state={
+    players:[makePlayer(0),makePlayer(1)],
+    ownerK1BySeat:[ownerK1Snapshot,null]
+  };
+  const ownPublic={
+    ...publicView('OwnMon',2,49,6),
+    active:{printing:'OwnMon',evolutionPrintings:['OwnMon','Energy'],
+      energies:['Energy'],tools:['Tool']}
+  };
+  const opponentPublic={
+    ...publicView('OppMon',3,48,6),
+    active:{printing:'OppMon',evolutionPrintings:['OppMon','Energy'],
+      energies:['Energy'],tools:['Tool']},
+    prizeSlots:Array.from({length:6},(_,index)=>
+      index===0?{index,printing:'P'}:{index})
+  };
+  const decklists=[
+    ['OwnMon','Energy','Tool','A','B',...Array(49).fill('D'),...Array(6).fill('P')],
+    ['OppMon','Energy','Tool',...Array(3).fill('H'),...Array(48).fill('D'),...Array(6).fill('P')]
+  ];
+  const decklistForSeat=createPhysicalSeatDecklistPriorProvider({
+    decklistsBySeat:[
+      {id:'fixed-root-seat-0',cards:decklists[0]},
+      {id:'fixed-opponent-seat-1',cards:decklists[1]}
+    ],
+    opponentPriorByActorSeat:[
+      [{id:'fixed-opponent-seat-1',cards:decklists[1],weight:1}],
+      [{id:'fixed-root-seat-0',cards:decklists[0],weight:1}]
+    ]
+  });
+  const cloneCard=card=>Object.hasOwn(card,'fullName')?
+    {id:card.id,fullName:card.fullName}:{id:card.id};
+  const cloneState=source=>({
+    ...source,
+    ownerK1BySeat:source.ownerK1BySeat.slice(),
+    players:source.players.map(player=>({
+      ...player,
+      active:{...player.active,cards:player.active.cards.map(cloneCard),
+        tools:player.active.tools.map(cloneCard)},
+      bench:player.bench.slice(),
+      stadium:{...player.stadium,cards:player.stadium.cards.map(cloneCard)},
+      discard:{...player.discard,cards:player.discard.cards.map(cloneCard)},
+      lostzone:{...player.lostzone,cards:player.lostzone.cards.map(cloneCard)},
+      supporter:{...player.supporter,cards:player.supporter.cards.map(cloneCard)},
+      hand:{...player.hand,cards:player.hand.cards.map(cloneCard)},
+      deck:{...player.deck,cards:player.deck.cards.map(cloneCard)},
+      prizes:player.prizes.map(slot=>({...slot,cards:slot.cards.map(cloneCard)}))
+    }))
+  });
+  const k1Ledger={
+    verified:true,mode:'K1',knownPrizePrintings,knownTopDeck:[],
+    knownBottomDeck:[],knownBottomDeckOrder:false,ownerK1Snapshot
+  };
+  const k0Ledger={
+    verified:true,mode:'K0',knownPrizePrintings:[],knownTopDeck:[],
+    knownBottomDeck:[],knownBottomDeckOrder:false
+  };
+  const actorObservationCalls=[];
+  const rootKnowledgeCalls=[];
+  const sampler=createTwinleafDeterminizationSampler({
+    actorObservation:(currentState,seat,{ownerK1Snapshot:override})=>{
+      const observedK1=override??currentState.ownerK1BySeat[seat]??null;
+      actorObservationCalls.push({seat,override,observedK1});
+      return {
+        actorSeat:seat,
+        ownHand:seat===0?
+          currentState.players[seat].hand.cards.map(card=>card.fullName):null,
+        ownPublic:seat===0?ownPublic:opponentPublic,
+        opponentPublic:seat===0?opponentPublic:ownPublic,
+        ownerK1:observedK1
+      };
+    },
+    cloneState,
+    rootKnowledgeBySeat:({rootSeat,observation})=>{
+      rootKnowledgeCalls.push({rootSeat,ownerK1:observation.ownerK1});
+      assert.equal(rootSeat,0);
+      assert.deepEqual(observation.ownerK1,ownerK1Snapshot);
+      return k1Ledger;
+    },
+    beliefKnowledgeBySeat:({rootSeat,targetSeat,observation})=>{
+      assert.equal(rootSeat,0);
+      assert.equal(targetSeat,1);
+      assert.equal(Object.hasOwn(observation,'players'),false);
+      return k0Ledger;
+    },
+    seatKnowledgeBySeat:({seat,previousLedger})=>
+      previousLedger??(seat===0?k1Ledger:k0Ledger),
+    decklistForSeat,
+    createCard:printing=>({id:-1,fullName:printing})
+  });
+  const sampled=sampler(state,0,()=>0.314159);
+  assert.equal(actorObservationCalls[0].override,null);
+  assert.deepEqual(actorObservationCalls[0].observedK1,ownerK1Snapshot);
+  assert.equal(rootKnowledgeCalls.length,1);
+  assert.deepEqual(sampler.metadataByState.get(sampled).knowledgeBySeat[0].ownerK1Snapshot,
+    ownerK1Snapshot);
+  assert.equal(sampler.metadataByState.get(sampled).knowledgeBySeat[0].mode,'K1');
+  assert.deepEqual(sampled.players[0].prizes.map(slot=>slot.cards[0].fullName),
+    Array(6).fill('P'));
+  assert.deepEqual(sampler.ownDecklistIdBySeat,[
+    'fixed-root-seat-0','fixed-opponent-seat-1'
+  ]);
+});
