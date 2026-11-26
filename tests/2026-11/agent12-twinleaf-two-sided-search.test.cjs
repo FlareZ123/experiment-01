@@ -622,6 +622,70 @@ test('root history attestation binds the exact supplied per-seat prefix',()=>{
     /Root history attestation is not bound to the supplied root history prefix/);
 });
 
+test('player-prompt live dispatch uses the rollout transition RNG, separate from prompt policy and ambient RNG', () => {
+  const runOnce = () => {
+    const harness = makeGenericTwoSidedSearchHarness();
+    harness.state.triggerCoinFlip = true;
+    const policyDraws = [];
+    const dispatchDraws = [];
+    const ambientRandom = Math.random;
+    const ambientSentinel = () => 0.123456789;
+    Math.random = ambientSentinel;
+    try {
+      harness.deps.resolvePlayerPrompt = ({
+        store, prompt, actorSeat, random, withDispatchRandom
+      }) => {
+        assert.equal(typeof withDispatchRandom, 'function',
+          'MCTS must supply a scoped transition-RNG capability for live prompt dispatch');
+        policyDraws.push(random());
+        const originalDispatch = store.dispatch;
+        store.dispatch = action => {
+          if (action instanceof harness.deps.native.ResolvePromptAction) {
+            dispatchDraws.push(Math.random());
+          }
+          return originalDispatch(action);
+        };
+        try {
+          withDispatchRandom(() => store.dispatch(
+            new harness.deps.native.ResolvePromptAction(prompt.id, 'heads')));
+        } finally {
+          store.dispatch = originalDispatch;
+        }
+        return {
+          nativeValidationSucceeded: true,
+          promptType: prompt.constructor.name,
+          actorObservation: { actorSeat },
+          actorObservationDigest: 'a'.repeat(64),
+          actorHistorySha256: null,
+          promptProjection: { actingSeat: actorSeat },
+          promptProjectionDigest: 'b'.repeat(64),
+          selectedTokens: ['heads'],
+          promptPolicyId: harness.deps.promptSubPolicyId
+        };
+      };
+      const search = createTwinleafTwoSidedSearch(harness.deps, {
+        iterations: 1, maxPlies: 1, seed: 0x120026, requireCompleteHistory: false
+      });
+      search.search(harness.state, 0);
+      assert.equal(dispatchDraws.length, 1);
+      assert.notEqual(dispatchDraws[0], 0.123456789,
+        'live prompt dispatch must not consume ambient Math.random');
+      assert.notEqual(dispatchDraws[0], policyDraws[0],
+        'live game continuation must not consume the prompt-policy RNG stream');
+      assert.strictEqual(Math.random, ambientSentinel,
+        'MCTS prompt dispatch must restore ambient Math.random');
+      return { policyDraw: policyDraws[0], dispatchDraw: dispatchDraws[0] };
+    } finally {
+      Math.random = ambientRandom;
+    }
+  };
+
+  const first = runOnce();
+  const replay = runOnce();
+  assert.deepEqual(replay, first,
+    'identical fresh-core searches must replay prompt-policy and live-dispatch draws');
+});
+
 test('generic Twinleaf search uses the uncapped native frontier and searches both physical seats',()=>{
   const harness=makeGenericTwoSidedSearchHarness();
   const search=createTwinleafTwoSidedSearch(harness.deps,{
@@ -908,7 +972,7 @@ test('pinned Twinleaf MCTS settles Switch ChoosePokemonPrompt on its registering
     assert.equal(audit.promptResolutionMode,'same-store-subcall');
     assert.equal(audit.promptSubPolicyId,'switch-bench-choice-test-v1');
     assert.equal(audit.promptDecisionProtocol,
-      'same-store-player-prompt-subpolicy-plus-host-chance-resolution-v2');
+      'same-store-player-prompt-subpolicy-plus-host-chance-and-live-dispatch-rng-v3');
     assert.equal(audit.historyProtocolId,'agent12-actor-visible-own-decision-history-v1');
     assert.deepEqual(audit.historyCompleteBySeat,[false,false],
       'mid-game fixture prefix must remain explicitly incomplete without attestation');
