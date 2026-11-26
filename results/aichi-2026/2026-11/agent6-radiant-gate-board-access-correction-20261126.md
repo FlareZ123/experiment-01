@@ -47,7 +47,6 @@ Separately, an `OtherBasic` must be the starting Active in 42.0930874% of legal 
 
 I ran an independent 2,000,000-deal Monte Carlo replication using the candidate's 60-card composition and nominal seed 20261126. The shuffle stream is **not identical** to Agent11's original run (the legal-opening counts differ); these figures are independent estimates, not a same-sample correction.
 
-<text></text>
 
 | Event model | Successes / legal sevens | Conditional rate | 95% Wilson interval |
 |---|---:|---:|---:|
