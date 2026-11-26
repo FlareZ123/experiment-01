@@ -32,7 +32,7 @@ The current regression at `agent5-twinleaf-belief-search.test.cjs:524–655` ins
 
 ### 2. Existing owner-K1 and sampler Prize-snapshot schemas are not interchangeable
 
-The existing `captureOwnerK1()` result in `owner-k1-prize-knowledge.cjs` uses:
+The existing `captureOwnerK1()` result in `simulation/twinleaf/owner-k1-prize-knowledge.cjs` uses:
 - `knownPrintings` for the remaining **deck** multiset;
 - `knownPrized` for the inferred **Prize** multiset;
 - `prizeInferenceCertified` to say whether that Prize inference is certified;
@@ -40,7 +40,7 @@ The existing `captureOwnerK1()` result in `owner-k1-prize-knowledge.cjs` uses:
 
 By contrast, `normalizeKnowledge()` in `agent5-twinleaf-belief-input.cjs` interprets `exactPrizeSnapshot.knownPrintings` as the exact **Prize** multiset and compares it directly with `knowledge.knownPrizePrintings`.
 
-Passing a raw `captureOwnerK1()` object as `ownerK1Snapshot` would therefore label deck membership as Prize membership. Also, `captureOwnerK1()` sets `exactMembershipKnown:true` even when `prizeInferenceCertified:false`; that flag cannot be reused as the sampler's exact-Prize flag.
+The helper has direct unit coverage at `tests/agent4-owner-k1-prize-knowledge.test.cjs:96–113`: deck-only staleness preserves Prize certification, while Prize taking/swapping invalidates it. That validates the custody helper's semantics, but not the separate sampler projection or adapter wiring. Passing a raw `captureOwnerK1()` object as `ownerK1Snapshot` would therefore label deck membership as Prize membership. Also, `captureOwnerK1()` sets `exactMembershipKnown:true` even when `prizeInferenceCertified:false`; that flag cannot be reused as the sampler's exact-Prize flag.
 
 **Required:** add an explicit typed projection/adapter. For example, the sampler's exact-Prize snapshot should be derived as:
 - `epoch: captured.epoch`;
