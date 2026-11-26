@@ -519,10 +519,6 @@ function makeGenericTwoSidedSearchHarness() {
     ],
     isAutomaticPrompt:prompt=>prompt.kind==='automatic',
     resolveAutomaticPrompt:()=>null,
-    redeterminize:(state,seat,random)=>({
-      ...structuredClone(state),
-      hiddenDraw:random()
-    }),
     terminalValues:state=>state.winner===0?[1,0]:
       state.winner===1?[0,1]:[0,0],
     evaluateObservationValues:()=>[0.5,0.5]
