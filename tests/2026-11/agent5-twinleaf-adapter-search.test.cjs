@@ -551,6 +551,8 @@ test('generic Twinleaf search uses the uncapped native frontier and searches bot
 
 test('generic Twinleaf search treats actor-owned prompts as search decisions',()=>{
   const harness=makeGenericTwoSidedSearchHarness();
+  harness.deps.ownDecklistSeat=1;
+  harness.deps.ownDecklistId='deck-1';
   harness.state.prompts=[{
     id:71,playerId:'seat-1',kind:'choice',result:undefined
   }];
