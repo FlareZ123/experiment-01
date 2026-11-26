@@ -570,7 +570,7 @@ function makeGenericTwoSidedSearchHarness() {
     deps,
     state:{
       activePlayer:0,turn:1,phase:'PLAYER_TURN',prompts:[],
-      players:[{id:'seat-0'},{id:'seat-1'}],winner:null
+      players:[{id:'seat-0',bench:[]},{id:'seat-1',bench:[]}],winner:null
     }
   };
 }
@@ -699,13 +699,16 @@ test('card-effect prompt provenance maps its source into the exact projected clo
   Object.assign(harness.deps,createNativeTwinleafPromptCallbacks({
     native:harness.deps.native,
     mode:'synthetic-search-node',
-    provenanceForPrompt:(state,currentPrompt)=>currentPrompt.id===82?{
-      sourceKind:'card-effect',
-      sourceCard:state.players[1].discard.cards.find(card=>
-        card.fullName==='Quick Ball'),
-      effectName:'Quick Ball',
-      effectType:'ItemEffect'
-    }:null
+    provenanceForPrompt:(state,currentPrompt)=>currentPrompt.id===82?(()=>{
+      const currentSourceCard=state.players[1].discard.cards.find(card=>
+        card.fullName==='Quick Ball');
+      assert.ok(currentSourceCard,
+        'sampled state must preserve the public Quick Ball source in the actor discard');
+      return {
+        sourceKind:'card-effect',sourceCard:currentSourceCard,
+        effectName:'Quick Ball',effectType:'ItemEffect'
+      };
+    })():null
   }));
   const search=createTwinleafTwoSidedSearch(harness.deps,{
     iterations:4,maxPlies:1,seed:20261202
