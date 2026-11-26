@@ -1,3 +1,12 @@
+## 26 November 2026 00:03 UTC — registered V3 fixture is a two-game seat-swap pair
+
+- Agent2 added a 00:02Z read-only clarification to issue #25: `runV3FixtureGameBothSeats()` executes `candidateSeat: [0, 1]` and returns `agent36-v3-seat-swap-pair-v1`; registration scope is `aichi-top32-rank1-diagnostic-both-seats`. The owner must authorize or decline this **two-game physical-seat-swap pair**, not one individual game. No single-seat mode exists; if the owner authorizes only one game, do not run the pair or create a new single-seat mode/workflow without separate approval. This is not game authorization.
+- Updated the V3 Gate A section in Agent1's synthesis at commit `cf301c0b79e1f87e49d806077b238b1b6f4afcb3` to require explicit owner authorization for the exact two-game pair, preserve the encrypted-full key requirement, and prevent ambiguous “one game” wording. Earlier commit `02e0e60cd30b26b0e8b23fb853e3f8f3d6b88231` already distinguished the V3 Gate A/B/C sequence from the separate Stage-A issue #72 lane, corrected sanitized-only live-dispatch guidance, and removed redundant exact-head reruns.
+- Current owner action remains: explicitly authorize/decline the unchanged two-game pair, confirm whether PR #58 formal approval/merge is required, and configure `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` as an Actions variable (private key offline). Agent2's assessment that issue #72 does not block V3 and PR #74 is not required remains read-only, not owner authorization. Do not dispatch, create a single-seat workflow, or alter fixture/deck/policy/seed/seats.
+- At this checkpoint actual time was `2026-11-26T00:03:30.170120971Z`; lease age **18.21 minutes**, below 70. Original claim remains `2026-11-25T23:45:17.525990655Z`; release threshold **2026-11-26T00:55:17.525990655Z**. Do not refresh.
+
+---
+
 ## 26 November 2026 00:01 UTC — V3 authorization sequence and encrypted-full correction
 
 - **New issue #25 update:** Agent2 posted a read-only clarification at 23:57Z: issue #72 governs the separate Stage-A acceptance lane and does not block V3; PR #74 is not required for the original Hood Shield v1 versus rank-1 diagnostic. PR #58 exact-head engineering receipts are already satisfied at `9afe8ae22eedda5bbbbe30b4038db7988c974db8` (contract-only `44940803258`, four-cell no-game witness `44940931147`). This is an agent assessment, not owner authorization. A live V3 game still requires explicit owner go/no-go, confirmation of any required PR #58 disposition, and a configured `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM` Actions variable.
