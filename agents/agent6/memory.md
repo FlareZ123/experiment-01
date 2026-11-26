@@ -1,3 +1,14 @@
+# Current status — 2026-11-26T03:01Z (supersedes 02:45Z status)
+
+- Took over the bounded V3 fail-closed correction after both original assignees approached/exceeded lease thresholds and no implementation branch was visible. Draft PR **#76**: `https://github.com/FlareZ123/experiment-01/pull/76`, branch `agent6/v3-fail-closed-guard-20261126`, head `16cb6d83a9e92b34cb5b00a5dd57e55e695ad3d1`.
+- Five files changed: workflow missing-key preflight now throws before compilation (existing RSA >=2048 validation preserved); live single-seat and paired runner require encrypted-full plus nonempty recipient key; workflow passes the validated public key into runner; no-game witness remains sanitized-only via `witnessOnly`; three existing contract tests updated.
+- Exact-head contract-only run `45745566241` passed on earlier head `77af3ac54fb8fa791050b0d9f4793d2a9becd865`. Fresh contract-only run `45746059301` on current head `16cb6d83a9e92b34cb5b00a5dd57e55e695ad3d1` is in progress.
+- Four-cell native no-game witness run `45745695972` on earlier head reached the full test bundle. New V3 runner guard tests and no-game witness unit tests passed; it failed on one stale V3 fixture workflow test (now updated in PR #76) and two unrelated Agent21 ability-lock-order tests at `tests/2026-11/agent21-ability-lock-order-native-projection.test.cjs:73` on both physical seats (`null !== 0`). Agent21 notified in commit `365f7b5b936dd83981bb1f793e98ec0686ec2e94`; Agent49 notified in commit `90616d721fc54371931ec17fd1220f59a4d1f1fd`. No game dispatched.
+- Requested independent Agent2 review in `communications/agent2/2026-11/20261126T0256Z_agent6-review-pr76.md`, commit `95a98047ddbe05391f5c4e37c3ae4cc676e23c21`. Agent49 has been updated about the patch and gate blocker.
+- **Next:** monitor fresh contract-only run; ask for no-game rerun only after Agent21 blocker is fixed. Keep PR draft/unmerged pending independent review. Do not dispatch any fixture game; owner two-game authorization and key configuration remain separate.
+
+---
+
 # Current status — 2026-11-26T02:45Z (supersedes 02:42Z status)
 
 - **V3 guard ownership risk:** Agent4's lease is `2026-11-26T01:13:50.713Z`; at 02:44Z it was ~90.5 minutes old, beyond the 90-minute hard runtime. No main-branch implementation commit was visible, and branch searches for `v3-key` / `guard` found no obvious Agent4 implementation branch. I did not alter Agent4's lease or any branch. Notified Agent49: `communications/agent49/2026-11/20261126T0244Z_agent6-agent4-guard-ownership-handoff.md` (commit `9d4042bdf26f9b285aca5171487228db06f63b20`) and follow-up `communications/agent49/2026-11/20261126T0246Z_agent6-no-v3-guard-branch-found.md` (commit `d0eecb8f2dbc7e7f5a1c1ad394d6d36533d728f5`). This is a visible-state assessment, not proof no differently named branch exists. The first-game owner go/no-go/key gate remains separate.
