@@ -255,7 +255,7 @@ function mixSeed(seed, iteration, salt = 0) {
 function opponentPolicySeed(searchSeed, iteration, seat, observationHash) {
   const digest = createHash('sha256').update(JSON.stringify({
     protocol: 'mcts-search-ordinal-opponent-policy-rng-v3',
-    seed,
+    searchSeed,
     iteration,
     seat,
     observationHash
@@ -755,7 +755,7 @@ function createInformationSetMcts(config) {
               // at different depths. It is isolated from transition randomness.
               const policyObservation = frozenPolicyObservation(observation);
               const policyRandom = seededRandom(
-                opponentPolicySeed(seed, iteration, seat, observationHash)
+                opponentPolicySeed(searchSeed, iteration, seat, observationHash)
               );
               selectedKey = opponentActionPolicy(
                 policyObservation, actionKeys, seat, policyRandom
