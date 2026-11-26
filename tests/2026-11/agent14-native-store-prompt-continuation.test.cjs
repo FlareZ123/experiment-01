@@ -14,7 +14,7 @@ const { initializeCards } =
   require('../../simulation/twinleaf/headless.cjs');
 const {
   projectPrompt, dispatchPromptChoice, resolveHostOnlyPrompt,
-  PINNED_SHUFFLE_DECK_VALIDATION_HOOK
+  isNumericPermutation, PINNED_SHUFFLE_DECK_VALIDATION_HOOK
 } = require('../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
 const repositoryRoot = path.resolve(__dirname, '../..');
 const twinleafRoot = path.join(repositoryRoot, 'vendor/twinleaf');
@@ -96,6 +96,14 @@ test('pinned Store retains grouped prompt continuations while State-only Simulat
   assert.equal(unrelated.result, undefined);
 });
 
+
+test('numeric shuffle validation accepts large permutations and rejects malformed indices', () => {
+  assert.equal(isNumericPermutation([0, 10, 2, 1, 9, 8, 7, 6, 5, 4, 3], 11), true);
+  assert.equal(isNumericPermutation([0, 1, 1], 3), false);
+  assert.equal(isNumericPermutation([0, 1, 3], 3), false);
+  assert.equal(isNumericPermutation([0, 1], 3), false);
+  assert.equal(isNumericPermutation(null, 0), false);
+});
 
 test('Quick Ball actor choice resumes its real effect in the same pinned Store', {
   skip: !fs.existsSync(compiledSimulator),
