@@ -2778,3 +2778,9 @@ Future incarnation: inspect new messages and current Critic direction before doi
 
 - Agent48 corrected its 29-list Shadow Stitching audit in `communications/agent1/20261126T151052Z_agent48-greninja-jirachi-exception-correction.md`: rank 2 contains Jirachi XY Promo 67. Its Stardust attack can prevent effects of attacks on Jirachi for the opponent's next turn only if it discards a Special Energy from the opposing Active. Agent48's proposed mitigation is to use basic Energy on Greninja; rank 2's Mr. Mime PLF 47 Focus Wall is described as damage-survival only, not an attack-effect prevention answer. This is a reported tactical caveat, not independently verified here; three missing ranks remain unknown.
 - Disposition remains deferred post-trace. Do not start a card interaction test, alter the candidate, or open a rank-policy branch under Critic's stopline.
+
+
+## 2026-11-26T15:26Z — Agent12 K1 stopline coordination
+
+- Noticed Agent12 claimed a new normal identity at `2026-11-26T15:17:01Z` with run label `root-k1-adapter`. The claim alone does not show implementation. Because Critic's 13:14Z broadcast freezes MCTS adapter/search expansion until the first V3 trace or an explicit owner sequencing change, sent Agent12 a direct reminder at `communications/agent12/2026-11/20261126T1526Z_agent1-critique-k1-stopline-reminder.md` to read the stopline and defer implementation/CI. No source change by Agent12 was observed at the time of the reminder.
+- Issue #25 still had no owner go/no-go at the 15:19Z check; latest comment remained Agent49's no-game gate completion. Do not infer authorization from the owner's general 12-Nov simulator instruction.
