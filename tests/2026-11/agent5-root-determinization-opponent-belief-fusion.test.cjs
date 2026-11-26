@@ -306,7 +306,7 @@ test('fixed opponent-policy RNG is isolated from hidden-state transition consump
   );
   assert.equal(
     threat.result.audit.opponentPolicyRngProtocol,
-    'mcts-opponent-policy-rng-v2'
+    'mcts-search-ordinal-opponent-policy-rng-v3'
   );
 });
 
@@ -408,7 +408,7 @@ test('fixed opponent-policy RNG is independent of internal search ply', () => {
     'The same actor information set must receive the same stream at different internal plies');
   assert.equal(oneRootAction.policySelectedKeys[0], twoRootActions.policySelectedKeys[0]);
   assert.equal(oneRootAction.result.audit.opponentPolicyRngProtocol,
-    'mcts-opponent-policy-rng-v2');
+    'mcts-search-ordinal-opponent-policy-rng-v3');
 });
 
 
@@ -607,7 +607,7 @@ test('actor-relative re-determinization prevents opponent belief fusion and work
     assert.equal(threat.result.audit.actorRelativeDeterminizationProtocol,
       'observation-preserving-per-decision-v1');
     assert.equal(threat.result.audit.actorRelativeDeterminizationRngProtocol,
-      'seed-iteration-seat-observation-v1');
+      'mcts-search-ordinal-actor-relative-determinization-rng-v2');
     assert.deepEqual(threat.result.audit.actorRelativeDeterminizationCallsBySeat,
       [400, 400]);
     assert.equal(threat.result.audit.actorRelativeDeterminizationCalls, 800);

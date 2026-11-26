@@ -6,9 +6,68 @@ const {
   observationSha256
 } = require('./2026-11/agent5-information-set-mcts.cjs');
 
+function cloneActorSafeValue(value, label = 'actor-safe value', seen = new Set()) {
+  if (value === null) return null;
+  const type = typeof value;
+  if (type === 'string' || type === 'boolean') return value;
+  if (type === 'number') {
+    assert.ok(Number.isFinite(value) && !Object.is(value, -0),
+      'ACTOR_HISTORY_NON_JSON_NUMBER: ' + label);
+    return value;
+  }
+  assert.equal(type, 'object', 'ACTOR_HISTORY_NON_JSON_VALUE: ' + label);
+  assert.equal(seen.has(value), false, 'ACTOR_HISTORY_CYCLE: ' + label);
+  seen.add(value);
+  let clone;
+  if (Array.isArray(value)) {
+    assert.equal(Object.getPrototypeOf(value), Array.prototype,
+      'ACTOR_HISTORY_ARRAY_PROTOTYPE: ' + label);
+    const keys = Reflect.ownKeys(value);
+    assert.equal(keys.length, value.length + 1,
+      'ACTOR_HISTORY_ARRAY_SPARSE_OR_EXTRA_KEYS: ' + label);
+    clone = [];
+    for (let index = 0; index < value.length; index++) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, String(index));
+      assert.ok(descriptor && descriptor.enumerable === true &&
+        Object.hasOwn(descriptor, 'value'),
+      'ACTOR_HISTORY_ARRAY_ACCESSOR_OR_HOLE: ' + label);
+      clone.push(cloneActorSafeValue(descriptor.value, label + '[' + index + ']', seen));
+    }
+    for (const key of keys) {
+      if (key === 'length') continue;
+      const index = typeof key === 'string' ? Number(key) : NaN;
+      assert.ok(Number.isSafeInteger(index) && index >= 0 &&
+        String(index) === key && index < value.length,
+      'ACTOR_HISTORY_ARRAY_EXTRA_KEY: ' + label);
+    }
+  } else {
+    // Twinleaf's native Store log params may be record instances with a
+    // non-plain prototype. Copy only own enumerable data properties; never
+    // traverse prototypes or invoke getters/methods.
+    const keys = Reflect.ownKeys(value);
+    assert.ok(keys.every(key => typeof key === 'string'),
+      'ACTOR_HISTORY_SYMBOL_KEY: ' + label);
+    clone = {};
+    for (const key of keys.sort()) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      assert.ok(descriptor && descriptor.enumerable === true &&
+        Object.hasOwn(descriptor, 'value'),
+      'ACTOR_HISTORY_OBJECT_ACCESSOR: ' + label + '.' + key);
+      Object.defineProperty(clone, key, {
+        value: cloneActorSafeValue(descriptor.value, label + '.' + key, seen),
+        enumerable: true,
+        writable: true,
+        configurable: true
+      });
+    }
+  }
+  seen.delete(value);
+  return clone;
+}
+
 function cloneCanonicalJson(value, label) {
   try {
-    return JSON.parse(canonicalJson(value));
+    return cloneActorSafeValue(value, label);
   } catch (error) {
     throw new Error('ACTOR_HISTORY_NON_JSON: ' + label + ': ' + error.message);
   }
@@ -18,15 +77,21 @@ function privateFlag(params, logId) {
   if (params === null || params === undefined) return false;
   assert.equal(typeof params, 'object',
     'ACTOR_HISTORY_INVALID_PARAMS: log ' + logId + ' params must be an object');
-  const descriptor = Object.getOwnPropertyDescriptor(params, 'private');
-  if (descriptor === undefined) return false;
-  assert.ok(Object.hasOwn(descriptor, 'value'),
-    'ACTOR_HISTORY_ACCESSOR_PRIVATE_FLAG: log ' + logId);
-  const value = descriptor.value;
-  assert.ok(value === undefined || value === null
-    || typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number',
-  'ACTOR_HISTORY_INVALID_PRIVATE_FLAG: log ' + logId);
-  return String(value) === 'true';
+  let cursor = params;
+  while (cursor && cursor !== Object.prototype) {
+    const descriptor = Object.getOwnPropertyDescriptor(cursor, 'private');
+    if (descriptor !== undefined) {
+      assert.ok(Object.hasOwn(descriptor, 'value'),
+        'ACTOR_HISTORY_ACCESSOR_PRIVATE_FLAG: log ' + logId);
+      const value = descriptor.value;
+      assert.ok(value === undefined || value === null
+        || typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number',
+      'ACTOR_HISTORY_INVALID_PRIVATE_FLAG: log ' + logId);
+      return String(value) === 'true';
+    }
+    cursor = Object.getPrototypeOf(cursor);
+  }
+  return false;
 }
 
 function deepFreeze(value, seen = new WeakSet()) {
@@ -167,6 +232,7 @@ function createActorObservationWithHistory(baseActorObservation, historyOptionsF
 }
 
 module.exports = {
+  cloneActorSafeValue,
   projectActorVisibleHistory,
   createActorObservationWithHistory
 };

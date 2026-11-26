@@ -2096,3 +2096,63 @@ Agent44's builder now requires `trial.fixtureOnly === true` for `buildV3GameBund
 - **CI:** dispatched run `45762629777` on commit `e78ee036ab34cc83251092c53d1add5c7323de89`; it was still in progress at the checkpoint and predates the small test-only token assertion patch `0058142f`. Check result; if green, dispatch the existing workflow again on the current branch head so the latest test tree is covered. The run uses `native_search_only=true`; no full game was launched.
 - **Handoff:** Agent42 and Agent1 passed their 70-minute lease-age thresholds without an adapter/history commit. Sent explicit handoff messages and am taking over shared-branch adapter/history work; do not modify or delete their lease files. Agent5 committed the per-rollout collector, prompt RNG, strict event schema v2, and transition-seat/prompt-owner split, with successful core test run `45760983787`.
 - **Next:** finish exact-head native adapter CI; implement per-physical-seat own-decision history in a WeakMap that transfers across state clones/redeterminization and appends prompt events to `event.actorSeat`; keep history completeness fail-closed and expose only the actor's own history/digest to the policy. Then sync current main, rerun bounded native lane, and record the integration evidence. No deck-performance or win-rate claim is justified yet.
+
+
+## 2026-11-26 — current-main two-sided MCTS integration
+
+- Created and consolidated `agent12/mcts-current-main-transplant-20261126` from current main, rather than importing the stale 120-commit-diverged integration branch.
+- Ported PR77's general-sum seat-win-probability core and typed-terminal-outcome-v2 receipts, preserving the distinct adjudicated-no-winner class, then layered in the per-rollout actor-safe prompt-event collector and independent prompt-policy RNG.
+- Added the Twinleaf same-Store two-sided adapter, imported the core's prompt schema/random IDs rather than duplicating them, and integrated the actor-history projection helper's safe clone support.
+- Root history now uses attestation schema v2 binding both the root State snapshot and canonical per-seat prefix digest. Prefix events are cloned safely, checked against exact native-action/player-prompt shapes, and required to have actorSeat equal to the physical-seat array index.
+- The adapter supports native-validated empty selections and up to 60 unique opaque selected tokens. The Switch provenance callback is scoped to the registering seat's ChoosePokemonPrompt; automatic WaitPrompts do not claim Switch provenance.
+- Exact native-search-only CI passed: run 45774958528 on code/test head 776ad812f04029b052e2fb1b6d484b65f055ea29, pinned Twinleaf a9905a76a6c4103ba4b6cb9a49e86bad795c5c05. The run covers general-sum/terminal tests, prompt receipts, actor-history tests, Quick Ball/Confirm continuation, and Switch same-Store continuation for both seat assignments.
+- No game, Aichi matchup, deck choice, or competitive win-rate result was produced. Do not infer movement toward 99.5% from the green contract lane.
+- Open issues: repeated searches on one core reuse the same iteration-seed schedule (add a per-search ordinal/advanced seed); calibrate cPuct and leaf evaluator; integrate a verified K1 sampler and complete legal action frontier; implement evidence-backed paper terminal adjudication for draws/no-winner.
+- Useful files: `simulation/twinleaf/2026-11/agent5-information-set-mcts.cjs`, `simulation/twinleaf/2026-11/agent12-twinleaf-two-sided-search.cjs`, `simulation/twinleaf/actor-history-projection.cjs`, their corresponding tests, `.github/workflows/agent5-owner-root-native.yml`, and `results/methodology/2026-11/agent12-two-sided-search-adapter-integration-20261126.md`.
+- Next: open a draft PR for review; request focused review from Agent3 (history attestation), Agent4 (native prompt adapter), and Agent5 (search core). Then address the per-search RNG protocol before any multi-decision game use. Full-game dispatch remains behind Stage-A owner approval.
+
+## 2026-11-26 invocation: PR #78 two-sided MCTS integration and RNG boundary
+
+Claimed Agent12 at `2026-11-26T08:53:11.906Z` (normal research mode; initial random mode draw selected normal). Continued the existing PR #78 branch `agent12/mcts-current-main-transplant-20261126`.
+
+### Implemented and validated
+
+- Added root-prefix validation in `simulation/twinleaf/2026-11/agent12-twinleaf-two-sided-search.cjs`: nested `actorObservation.actorSeat` must match the physical-seat bucket for native-action and player-prompt events; nested `actorHistorySha256`, `actorVisibleHistory`, and `actorOwnDecisionHistory` are rejected; player-prompt `promptProjection.actingSeat` must match the physical seat.
+- Added negative tests for both event kinds, all forbidden nested fields, and mismatched prompt acting seat.
+- Strengthened `tests/2026-11/agent5-information-set-search.test.cjs`: consecutive searches use distinct opponent-policy draws, while a fresh core replaying the same call sequence reproduces them exactly.
+- Added a scoped `withDispatchRandom` capability from `settlePendingPrompts` through `resolvePlayerPrompt` to `dispatchPromptChoice`. It wraps only the final live `ResolvePromptAction` dispatch in the rollout transition RNG; prompt-policy choice and cloned-Store validation retain separate RNG streams. Bumped the prompt decision protocol ID to v3.
+- Added a direct prompt-projection test proving cloned validation uses its isolated RNG, live dispatch uses the supplied transition RNG, and ambient `Math.random` is restored.
+- Added a generic MCTS adapter regression proving player-prompt dispatch and a subsequent automatic prompt both use deterministic transition-stream draws, separate from prompt-policy and ambient streams.
+- Added a pinned Twinleaf Quick Ball same-Store test with ambient `Math.random` set to a throwing sentinel during cloned validation and live `ChooseCardsPrompt` dispatch. It verifies the live player dispatch does not consume ambient RNG and that the effect defers shuffle to a separate `ShuffleDeckPrompt`.
+- Added the prompt-projection regression to the existing `.github/workflows/agent5-owner-root-native.yml` native-search-only contract step. No new workflow and no upstream Twinleaf modifications.
+
+Previous green code/test head: `47dffab1689d02418a206c812db0f8ffaa907c54`; run `45789806753` passed with 39 successful, 56 intentionally skipped, 0 failed steps, using `native_search_only=true` and Twinleaf pin `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. It predates the combined real Quick Ball-through-MCTS test. Agent44's combined-test code/test commit is `29e09c79ca6cf080705970cc3dbeeb8e9cf33e60`; reconciled branch head `634469c6a2bbd7af517458caa94d8eda08759b0e` is based on main `8593960` and preserves active Agent6/Agent12 leases and the latest board. Exact-head native-only run `45792988401` is in progress. This combined test is not yet validated; no complete game was dispatched or played. Earlier runs: `45788911615` passed on `4b2fc48`; `45787848481` passed on `a7a2db8` before the dispatch RNG fix; `45789476429` was cancelled after the workflow revision changed.
+
+Agent3 and Agent44 reviewed the scoped dispatch-RNG source/test change on the preceding `4b2fc48` head; Agent3 reviewed the exact `47dffab` head and identified merge-safety requirements. Their correction is important: the pinned Quick Ball player-prompt dispatch itself does not consume ambient randomness; it enqueues a separate automatic `ShuffleDeckPrompt`. The transition-RNG wrapper is defense in depth for any direct live-dispatch randomness, not evidence of a confirmed Quick Ball RNG leak.
+
+### Current review / merge state
+
+- Agent44 added the combined real Quick Ball `ChooseCardsPrompt` → MCTS same-Store resolver → automatic `ShuffleDeckPrompt` test in `tests/2026-11/agent12-twinleaf-two-sided-search.test.cjs`. It runs Quick Ball as the MCTS root action, keeps ambient `Math.random` throwing during search, verifies the stable successor after the same-Store player prompt and automatic shuffle, and checks prompt audit/history receipts. The combined test is included in exact-head run `45792988401`, currently in progress.
+- PR #78 description is updated with the exact-head receipt and explicit no-game boundary. Do not overstate the separate tests as a combined Quick Ball-through-MCTS fixture.
+- Main advanced after the branch's last reconciliation with communication-only commits and Agent6's active lease. Before finalizing, build a merge tree from the latest main tree and overlay only intended PR files. Preserve every current main lease/memory file except the intentional Agent12 memory update; specifically do not overwrite `agents/agent6/.lease.json`. Take the latest main `results/README.md` as base, then update only the MCTS status. Do not carry stale branch lease state.
+- Reconciliation head `634469c6a2bbd7af517458caa94d8eda08759b0e` is based on main `8593960` and includes Agent44's combined Quick Ball test. It preserves main's Agent6/Agent12 leases and current board. Main has since advanced one communication-only commit; before final PR merge, refresh from latest main and preserve all non-Agent12 lease/memory files. The current exact-head run `45792988401` is on the reconciled head; any further test/source/workflow change requires another exact-head native-only run.
+
+### Reusable K1 sampler discovered
+
+The K0/K1 hidden-partition sampler is not absent. Existing files:
+- `simulation/twinleaf/2026-11/agent5-hidden-partition-sampler.cjs`
+- `simulation/twinleaf/2026-11/agent5-twinleaf-belief-input.cjs`, exporting `createTwinleafDeterminizationSampler` plus `.metadataByState`, `.knowledgeBySeat`, and `.refreshMetadata`
+- `simulation/twinleaf/2026-11/agent5-twinleaf-mcts-adapter.cjs`
+- `tests/2026-11/agent5-twinleaf-belief-search.test.cjs` and `agent5-hidden-partition-search.test.cjs`
+
+The sampler has K0/K1/PARTIAL partition logic, exact/partial prize knowledge, top/bottom deck knowledge, per-seat knowledge ledgers, and unit-fixture tests. The Agent5 adapter uses it under a Flittle-only applicability envelope. Agent12's `redeterminize` callback and metadata/knowledge hooks appear structurally compatible, but live actor-observation/decklist-prior wiring and actual Expanded Twinleaf state validation are not established. Agent5 was asked for the intended composition contract; avoid reimplementing the sampler.
+
+### Next actions
+
+1. Complete exact-head native-only run `45792988401` for Agent44's combined Quick Ball/MCTS test. If it passes, request final exact-head review and merge PR #78; if it fails, inspect only the failing test/source and rerun the corrected exact head.
+2. Reconcile PR #78 against latest main using the main tree as base; preserve Agent6's active lease and all other identity state. Refresh `results/README.md` from current main, update the MCTS status to the final code/test SHA and run, and keep the full report under `results/methodology/2026-11/`.
+3. Request final exact-head review from Agent3/Agent44, then merge PR #78 only after clean merge state and review. No game is authorized by this PR or its CI.
+4. Continue with policy readiness rather than another generic witness: wire the existing K1 sampler into the two-sided adapter with the correct actor observation, seat knowledge, decklist priors, and Twinleaf card reconstruction. Verify the exact state contract before claiming production Expanded support.
+5. V3 complete-game dispatch remains blocked until explicit owner go/no-go for the unchanged registered Hood Shield v1 vs original Aichi rank-1 two-game physical-seat-swap pair and configured `AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM`. Stage-A issue #72 is separate and does not authorize V3. Issue #25 had no new owner authorization when last checked.
+
+No fixed 60-card best deck, Aichi Top 32 matchup result, or 99.5% win-rate claim was produced in this invocation.

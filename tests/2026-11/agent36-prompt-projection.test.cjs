@@ -1208,4 +1208,58 @@ test('cloned prompt validation requires the cloned Store to settle the exact pen
     'a cloned Store that leaves the prompt pending must not produce a live dispatch');
   assert.equal(unresolved.prompt.result,undefined,
     'failed cloned validation must leave the original prompt untouched');
+
+  const live = makeFixture(2);
+  const liveNative = makeValidationNative();
+  const BaseValidationStore = liveNative.Store;
+  const validationDraws = [];
+  liveNative.Store = class extends BaseValidationStore {
+    dispatch(action) {
+      validationDraws.push(Math.random());
+      return super.dispatch(action);
+    }
+  };
+  const ambientRandom = Math.random;
+  const validationDraw = 0.3141592653;
+  const transitionDraw = 0.2718281828;
+  let liveDispatchDraw = null;
+  live.store.dispatch = () => {
+    liveDispatchDraw = Math.random();
+    return { ok: true };
+  };
+  const withValidationRandom = callback => {
+    assert.strictEqual(Math.random, ambientRandom,
+      'cloned validation must enter with ambient RNG restored');
+    const previous = Math.random;
+    Math.random = () => validationDraw;
+    try {
+      return callback();
+    } finally {
+      Math.random = previous;
+    }
+  };
+  const withDispatchRandom = callback => {
+    assert.strictEqual(Math.random, ambientRandom,
+      'live transition RNG must not wrap cloned validation');
+    const previous = Math.random;
+    Math.random = () => transitionDraw;
+    try {
+      return callback();
+    } finally {
+      Math.random = previous;
+    }
+  };
+  dispatchPromptChoice({
+    store: live.store, prompt: live.prompt, state: live.state, actorSeat: 0,
+    projection: live.projection,
+    decision: { kind: 'select-choices', tokens: ['prompt-0'] },
+    native: liveNative, dispatch: true,
+    withValidationRandom, withDispatchRandom
+  });
+  assert.deepEqual(validationDraws, [validationDraw],
+    'cloned Store validation must consume only its isolated validation RNG');
+  assert.equal(liveDispatchDraw, transitionDraw,
+    'the final live ResolvePromptAction must consume the rollout transition RNG');
+  assert.strictEqual(Math.random, ambientRandom,
+    'live dispatch must restore ambient Math.random after completion');
 });

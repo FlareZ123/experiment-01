@@ -953,7 +953,7 @@ function createIsolatedValidationPromptStore({ store, state, prompt, native } = 
 
 function dispatchPromptChoice({
   store, prompt, state, actorSeat, projection, decision, token, native, dispatch=true,
-  withValidationRandom=null
+  withValidationRandom=null, withDispatchRandom=null
 } = {}) {
   assert.ok(store && typeof store.dispatch === 'function');
   assert.ok(projection?.choiceByToken instanceof Map);
@@ -1044,7 +1044,11 @@ function dispatchPromptChoice({
   const validation = validateRawPromptResult(prompt, rawResult, state);
   assert.equal(validation.valid, true, 'worker-selected prompt choice failed native decode/validation');
   const action = new native.ResolvePromptAction(prompt.id, validation.decoded);
-  const result = dispatch?store.dispatch(action):undefined;
+  const dispatchLiveAction = () => store.dispatch(action);
+  const result = dispatch ? (
+    typeof withDispatchRandom === 'function' ?
+      withDispatchRandom(dispatchLiveAction) : dispatchLiveAction()
+  ) : undefined;
   return { result, action, rawResult, decoded: validation.decoded, validationReceipt };
 }
 
