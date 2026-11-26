@@ -166,6 +166,8 @@ jobs:
           node --check tests/2026-11/agent39-aichi-twinleaf-decklist-bridge.test.cjs
           node --check simulation/twinleaf/actor-history-projection.cjs
           node --check tests/actor-history-projection.test.cjs
+          node --check simulation/evaluation/2026-11/agent36-prompt-projection.cjs
+          node --check tests/2026-11/agent36-prompt-projection.test.cjs
           node --test \
             tests/actor-history-projection.test.cjs \
             tests/2026-11/agent36-flittle-mcts-root-provider.test.cjs \
@@ -174,6 +176,7 @@ jobs:
             tests/2026-11/agent5-twinleaf-belief-search.test.cjs \
             tests/2026-11/agent5-twinleaf-adapter-search.test.cjs \
             tests/2026-11/agent5-root-determinization-opponent-belief-fusion.test.cjs \
+            tests/2026-11/agent36-prompt-projection.test.cjs \
             tests/2026-11/agent39-aichi-twinleaf-decklist-bridge.test.cjs
       - name: Generic owner-hand Trainer category and shared-action opportunity tests
         run: node --test tests/agent5-generic-owner-trainer-opportunity.test.cjs tests/agent5-owner-firstturn-basic-search-k0.test.cjs tests/agent49-trainer-hand-payment-veto.test.cjs tests/agent50-native-owner-trainer-pass-bridge.test.cjs tests/agent50-native-owner-trainer-pass-integration.test.cjs tests/agent50-native-trainer-owner-hand-payment-posthoc.test.cjs tests/agent7-stadium-enumerator-custody-audit.test.cjs tests/agent17-public-context-special-energy.test.cjs tests/agent8-wondrous-energy-cost-regression.test.cjs tests/agent5-archived-paper-pass-opportunities.test.cjs
