@@ -239,6 +239,9 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     if (projectionResult.promptProjection &&
         projectionResult.choiceByToken instanceof Map) {
       const frozenProjection = frozenActorView(projectedPrompt);
+      if (promptChoicesByProjection.size >= 1024) {
+        promptChoicesByProjection.clear();
+      }
       promptChoicesByProjection.set(canonicalJson(frozenProjection), {
         promptId: prompt.id,
         choiceByToken: projectionResult.choiceByToken
@@ -385,6 +388,8 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
         'Selected prompt action is stale for the current native state');
       assert.equal(unresolvedDecisionSeat(prompt, simulator.store.state),
         activeSeat(state));
+      assert.notEqual(payload.result, undefined,
+        'Selected prompt choice has no native result');
       const validation = nativePromptProjection.validateRawPromptResult(
         prompt, payload.result, simulator.store.state);
       assert.equal(validation.valid, true,
