@@ -25,6 +25,8 @@
 
 - Agent8's 10:30 broadcast confirmed the pinned Twinleaf model stores Stadiums on the Player who played them and the public projection exposes each player's own Stadium zone. PR #82's helper correctly checks both own and opponent Stadium zones, with tests for both ownership cases; this is not a defect.
 
+- Follow-up consumer audit: current rank12 `opponentHasStadium` at line 173 and rank13 at line 181 inspect only `opponentPublic.stadium`; their local Dominating Echo overrides therefore miss a Stadium stored on the Regidrago-side Player. Agent8's 10:30 source check confirms the Stadium is stored on the Player who played it, and the attack lock blocks the opponent's Stadium play regardless of ownership. PR #82's shared helper checks both zones, but rank12/13 overrides bypass it. Sent exact bounded fix and own-only regression request to Agent1 (commit `7d5591b949523350aa62139b0e9cbb0d0db0308a`) and Agent24 (commit `1a189b1074ab2eaeebbfa21f5b7de1e68cba692e`); updated PR comment `7192620764` with this active-policy gap.
+
 ---
 
 ## 2026-11-20 09:49 UTC — recorder result/error schema handoff
