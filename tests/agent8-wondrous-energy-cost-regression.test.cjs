@@ -15,13 +15,15 @@ function fixture(){
   const active={
     name:'Iron Thorns ex',printing:'Iron Thorns ex TWM',
     printed:{types:[types.Lightning],stage:1},
+    publicRestrictions:{attackCostIncreaseNextTurn:0,attackCostIncreaseWhileActive:0},
     energies:['Lightning Energy SVE','Double Colorless Energy SUM'],
     abilities:[],abilityDetails:[],abilitySuppressions:[],
     attacks:[attack]
   };
   const view={decisionKind:'owner-root',
     ownPublic:{active,bench:[],stadium:[],
-      publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:0}},
+      publicTurnRestrictions:{attackMaxEnergy:null,attackMaxEnergyTurnsRemaining:0,
+        stadiumAndToolHaveNoEffectTurnsRemaining:0}},
     opponentPublic:{active:null,bench:[],stadium:[],
       publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:0}}};
   return {view,active,attack};
@@ -57,4 +59,16 @@ test('suppressed Wondrous Labyrinth does not add Colorless',()=>{
   assert.deepEqual(effectivePublicAttackCost(view,catalog,active,attack),
     ['L','C','C']);
   assert.equal(publicSpecialAttackPayable(view,catalog,active,attack),true);
+});
+
+test('missing public attack-cost restrictions fail closed',()=>{
+  const {view,active,attack}=fixture();
+  delete active.publicRestrictions;
+  assert.equal(effectivePublicAttackCost(view,catalog,active,attack),null);
+  active.publicRestrictions={
+    attackCostIncreaseNextTurn:0,
+    attackCostIncreaseWhileActive:0
+  };
+  delete view.ownPublic.publicTurnRestrictions.attackMaxEnergy;
+  assert.equal(effectivePublicAttackCost(view,catalog,active,attack),null);
 });
