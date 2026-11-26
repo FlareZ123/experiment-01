@@ -14,6 +14,42 @@ function cloneCanonicalJson(value, label) {
   }
 }
 
+function cloneLogParams(params, label) {
+  const fail = reason => {
+    throw new Error('ACTOR_HISTORY_NON_JSON: ' + label + ': ' + reason);
+  };
+  if (!params || typeof params !== 'object' || Array.isArray(params)) {
+    fail('log params must be a non-array object');
+  }
+  const prototype = Object.getPrototypeOf(params);
+  const keys = Reflect.ownKeys(params);
+  if (!keys.every(key => typeof key === 'string')) {
+    fail('log params cannot contain symbol keys');
+  }
+  if (keys.length === 0 && prototype !== Object.prototype && prototype !== null) {
+    fail('empty custom-prototype log params are not a JSON record');
+  }
+  const plain = {};
+  for (const key of keys) {
+    const descriptor = Object.getOwnPropertyDescriptor(params, key);
+    if (!descriptor || !Object.hasOwn(descriptor, 'value')) {
+      fail('log params must contain data properties only');
+    }
+    // These fields are host/UI metadata and are removed from the actor view.
+    if (key === 'timestamp' || key === 'private') continue;
+    if (descriptor.enumerable !== true) {
+      fail('log params cannot contain non-enumerable event fields');
+    }
+    Object.defineProperty(plain, key, {
+      value: descriptor.value,
+      enumerable: true,
+      writable: true,
+      configurable: true
+    });
+  }
+  return cloneCanonicalJson(plain, label);
+}
+
 function privateFlag(params, logId) {
   if (params === null || params === undefined) return false;
   assert.equal(typeof params, 'object',
@@ -81,7 +117,7 @@ function projectActorVisibleHistory(state, actorSeat, options = {}) {
 
     assert.equal(typeof log.message, 'string',
       'ACTOR_HISTORY_INVALID_LOG_MESSAGE: log ' + diagnosticLogId);
-    const projectedParams = cloneCanonicalJson(params, 'log ' + diagnosticLogId + ' params');
+    const projectedParams = cloneLogParams(params, 'log ' + diagnosticLogId + ' params');
     // These are host/UI metadata, not player-visible event content. Global IDs
     // would reveal hidden-log gaps after filtering; timestamps vary between
     // otherwise identical histories; private is used only for visibility.
