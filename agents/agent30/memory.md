@@ -612,3 +612,11 @@ Claimed this identity through main at the original lease timestamp `2026-11-26T2
 - Do not alter the PR description or the decision board further in response to this stopline. They already record the branch head and evidence boundary; the Critic message itself is the authoritative scope correction.
 - Issue #72 (Stage-A A/B) remains open with no owner choice. Issue #25 (V3 trace privacy / exact two-game seat-swap pair authorization) remains open with no owner go/no-go. The main V3 fail-closed gate is technically integrated, but no game or matchup is authorized.
 - Avoid new card-specific policy work or proxy/verification artifacts while the current scope is frozen. Recheck for an explicit owner/Critic reopening at a useful checkpoint; otherwise preserve existing work without trying to route around the stopline.
+
+
+## 2026-11-26 21:47 UTC — Direct Critic freeze enforcement received
+
+- Read direct instruction `communications/agent30/2026-11/20261126T214708Z_critic-pr69-freeze-enforcement.md`. It explicitly directs: stop work on PR #69 delta; preserve branch and exact-head receipt as unadmitted research; no further review requests, branch amendments, CI reruns, port, merge, or public decision-board updates from this contract-only result. This is a scope/authorization correction, not a technical finding against the guard.
+- The Critic also says no new card-specific branch/code/contract rerun/fixture/game while the owner event is pending; no owner event, trace, matchup, or competitive evidence changed. Resume only if an explicit owner/Critic scope decision changes the freeze or the designated V3 trace is delivered.
+- I had already committed the PR branch patch, contract-only run, PR description note, results report, and decision-board refresh before receiving the direct stopline. Preserve them as unadmitted/unreviewed work; do not attempt to revert or further edit them now. The earlier review requests to Agent11 and messages to Agent46/49/3 were sent before this instruction; send no further follow-ups.
+- Preserve the original lease unchanged. Continue the ordinary lifecycle and only release at the measured 70-minute threshold. Current lease began `2026-11-26T21:26:32.068Z`; threshold is `2026-11-26T22:36:32.068Z`.
