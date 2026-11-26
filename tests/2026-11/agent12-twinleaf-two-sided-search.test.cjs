@@ -445,6 +445,33 @@ function makeRootActionHistoryEvent(seat, actionKey) {
   };
 }
 
+function makeRootPromptHistoryEvent(seat) {
+  return {
+    schema: 'agent12-own-decision-history-event-v1',
+    kind: 'player-prompt',
+    actorSeat: seat,
+    actorObservation: { actorSeat: seat, phase: 'PLAYER_TURN', turn: 1 },
+    actorObservationDigest: 'a'.repeat(64),
+    actorHistorySha256: null,
+    promptProjection: { actingSeat: seat, promptType: 'ChoosePokemonPrompt' },
+    promptProjectionDigest: 'b'.repeat(64),
+    selectedTokens: [],
+    promptPolicyId: 'agent12-test-root-prompt-policy-v1',
+    nativeValidationSucceeded: true
+  };
+}
+
+function assertRootHistoryPrefixRejected(event, matcher) {
+  const harness = makeGenericTwoSidedSearchHarness();
+  harness.deps.rootHistoryPrefixBySeat = [[event], []];
+  harness.deps.rootHistoryAttestation = makeRootHistoryAttestation(
+    harness, 'agent12-test-invalid-root-prefix-v2');
+  const search = createTwinleafTwoSidedSearch(harness.deps, {
+    iterations: 1, maxPlies: 1
+  });
+  assert.throws(() => search.search(harness.state, 0), matcher);
+}
+
 function makeRootHistoryAttestation(harness, sourceId, overrides = {}) {
   const prefix = harness.deps.rootHistoryPrefixBySeat ?? [[], []];
   return {
@@ -544,6 +571,40 @@ test('root history prefix events cannot be attributed to the other physical seat
   const search=createTwinleafTwoSidedSearch(harness.deps,{iterations:1,maxPlies:1});
   assert.throws(()=>search.search(harness.state,0),
     /Root history prefix event actorSeat must match physical seat 0/);
+});
+
+test('root history nested actor observations are bound to their physical seat', () => {
+  for (const kind of ['native-action', 'player-prompt']) {
+    const event = kind === 'native-action' ?
+      makeRootActionHistoryEvent(0, 'nested-wrong-seat') :
+      makeRootPromptHistoryEvent(0);
+    event.actorObservation.actorSeat = 1;
+    assertRootHistoryPrefixRejected(event,
+      /Root history prefix actorObservation\.actorSeat must match physical seat 0/);
+  }
+});
+
+test('root history actor observations cannot embed separately represented history fields', () => {
+  for (const kind of ['native-action', 'player-prompt']) {
+    for (const field of [
+      'actorHistorySha256', 'actorVisibleHistory', 'actorOwnDecisionHistory'
+    ]) {
+      const event = kind === 'native-action' ?
+        makeRootActionHistoryEvent(0, 'nested-history-' + field) :
+        makeRootPromptHistoryEvent(0);
+      event.actorObservation[field] = field === 'actorHistorySha256' ?
+        'c'.repeat(64) : [];
+      assertRootHistoryPrefixRejected(event,
+        new RegExp('Root history prefix actorObservation must not embed actor history field ' + field));
+    }
+  }
+});
+
+test('root player-prompt prefix projection is bound to the physical seat', () => {
+  const event = makeRootPromptHistoryEvent(0);
+  event.promptProjection.actingSeat = 1;
+  assertRootHistoryPrefixRejected(event,
+    /Root history prefix promptProjection\.actingSeat must match physical seat 0/);
 });
 
 test('root history attestation binds the exact supplied per-seat prefix',()=>{
