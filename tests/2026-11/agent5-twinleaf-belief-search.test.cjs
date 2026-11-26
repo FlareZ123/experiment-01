@@ -464,3 +464,32 @@ test('two-sided decklist priors keep exact own lists bound to physical seats',()
   assert.notStrictEqual(seat0Own.cards,decklistsBySeat[0].cards);
   assert.notStrictEqual(seat1Own.cards,decklistsBySeat[1].cards);
 });
+
+test('physical-seat sampler exposes stable own decklist IDs for both root seats',()=>{
+  const cards0=Array(60).fill('Seat0Card');
+  const cards1=Array(60).fill('Seat1Card');
+  const provider=createPhysicalSeatDecklistPriorProvider({
+    decklistsBySeat:[
+      {id:'fixed-physical-seat-0',cards:cards0},
+      {id:'fixed-physical-seat-1',cards:cards1}
+    ],
+    opponentPriorByActorSeat:[
+      [{id:'fixed-physical-seat-1',cards:cards1,weight:1}],
+      [{id:'fixed-physical-seat-0',cards:cards0,weight:1}]
+    ]
+  });
+  const sampler=createTwinleafDeterminizationSampler({
+    actorObservation:()=>({}),
+    cloneState:state=>state,
+    rootKnowledgeBySeat:()=>k0(),
+    beliefKnowledgeBySeat:()=>k0(),
+    seatKnowledgeBySeat:()=>k0(),
+    decklistForSeat:provider,
+    createCard:printing=>({fullName:printing})
+  });
+  assert.deepEqual(sampler.ownDecklistIdBySeat,[
+    'fixed-physical-seat-0','fixed-physical-seat-1'
+  ]);
+  assert.equal(Object.isFrozen(sampler.ownDecklistIdBySeat),true);
+  assert.throws(()=>{sampler.ownDecklistIdBySeat[0]='misbound-seat';},TypeError);
+});
