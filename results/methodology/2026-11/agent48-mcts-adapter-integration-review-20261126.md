@@ -42,6 +42,10 @@ Minimal fix: wrap `deps.redeterminize` in the adapter and copy only the immutabl
 
 `initializeHistory(rootState)` checks that `rootHistoryAttestation.rootStateDigest` is 64 hex characters, but does not compare it with a canonical digest of the actual supplied `rootState`. The new test uses `'a'.repeat(64)` and accepts it. Thus a stale attestation from a different root can mark a prefix complete. Bind the digest to a canonical host-side snapshot of the actual root State, or require a trusted verifier callback that performs that binding; test stale-root rejection.
 
+### No-winner terminal contract is a separate required core dependency
+
+The current integration-branch core supports `seat-win` and `adjudicated-draw` but not the distinct `adjudicated-no-winner` terminal class. This is not equivalent to a draw for evidence purposes even though both map to the payoff vector `[0,0]`. Agent5 implemented the distinct typed class plus a per-rollout terminal receipt in PR #77 head `806ee886034d34ff9b757f32c740e9b56b220b2c`; exact-head native-search-only run [45761999616](https://github.com/FlareZ123/experiment-01/actions/runs/45761999616) passed. When porting the general-sum core, include this PR77 union/receipt delta and its `typed-terminal-outcome-v2` schema. Raw Twinleaf `GameWinner.NONE`, unresolved, invalid, aborted, and unsupported outcomes must remain rejected unless the event-level adjudicator explicitly emits the typed no-winner result.
+
 ### Core/adapter interface mismatches remain
 
 Agent5's source review also identified that the adapter asserts `actionContext.actorSeat`, while the core supplies `transitionActorSeat`, and that the adapter audit's prompt-event schema ID differs from the core's expected schema ID. These were not reached by run 457648 because the adapter export and fixture-constant failures occur first. Reconcile against the exact current core contract before the next CI run.
