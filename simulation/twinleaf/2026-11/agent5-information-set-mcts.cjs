@@ -416,7 +416,7 @@ function backpropagateWinProbabilities(path, values) {
  * @param {(state:object)=>0|1} config.activeSeat
  * @param {(state:object,seat:0|1)=>object[]} config.enumerateActions
  * @param {(action:object)=>string} config.actionKey
- * @param {(state:object,action:object,random:()=>number)=>object} config.applyAction
+ * @param {(state:object,action:object,transitionRandom:()=>number,searchContext:object,rolloutContext?:{iteration:number,actorSeat:0|1,promptRandom:()=>number,recordPromptEvent:(event:object)=>object})=>object} config.applyAction Existing four-argument callbacks remain compatible.
  * @param {(state:object,seat:0|1,random:()=>number)=>object} [config.sampleDeterminization]
  * @param {(state:object)=>boolean} config.isTerminal
  * @param {'zero-sum'|'seat-win-probability'} [config.valueMode='zero-sum']
