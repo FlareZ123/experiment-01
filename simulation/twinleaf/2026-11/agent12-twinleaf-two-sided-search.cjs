@@ -856,7 +856,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
   function audit() {
     return {
       schema: 'agent12-twinleaf-two-sided-search-adapter-v2',
-      enginePin,
+      enginePin: deps.enginePin,
       rulesProfileId: deps.rulesProfileId,
       terminalOutcomeProtocolId: deps.terminalOutcomeProtocolId,
       promptEventSchemaId: PROMPT_EVENT_SCHEMA_ID,
