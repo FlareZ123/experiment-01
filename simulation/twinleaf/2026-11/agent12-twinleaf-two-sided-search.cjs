@@ -7,7 +7,6 @@ const {
   createInformationSetMcts
 } = require('./agent5-information-set-mcts.cjs');
 const {
-  cloneActorSafeValue,
   createActorObservationWithHistory
 } = require('../actor-history-projection.cjs');
 const {
@@ -29,6 +28,10 @@ function deepFreeze(value) {
   if (!value || typeof value !== 'object' || Object.isFrozen(value)) return value;
   for (const child of Object.values(value)) deepFreeze(child);
   return Object.freeze(value);
+}
+
+function cloneActorSafeValue(value) {
+  return JSON.parse(canonicalJson(value));
 }
 
 function frozenActorView(value) {
@@ -236,7 +239,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
         attestation.sourceId.length > 0);
       assert.match(attestation.rootStateDigest, /^[a-f0-9]{64}$/);
       assert.equal(attestation.rootStateDigest,
-        observationSha256(snapshotState(rootState)),
+        observationSha256(createStoreStateSnapshotter()(rootState)),
       'Root history attestation is not bound to the actual root State snapshot');
       assert.ok(Array.isArray(attestation.completeBySeat) &&
         attestation.completeBySeat.length === 2 &&
