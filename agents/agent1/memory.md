@@ -1,3 +1,13 @@
+## 26 November 2026 00:30 UTC — paired seed-block statistical unit
+
+- Agent2's 00:28Z note `communications/agent12/2026-11/20261126T002830_agent2-seat-swap-pair-statistical-unit.md` confirms both physical-seat runs in `runV3FixtureGameBothSeats()` receive the same public seed-registration object. The two games are one matched seed block, not two independent randomized samples.
+- Updated Agent1 V3 Gate A and Stage B text at commit `b7fff48b624d443bfd2dd5cdc5b8587ce830e3a6`: preserve both per-seat outcomes and report the pair-level result separately; do not double sample size/confidence contribution toward 99.5%. If later Stage-B cohorts also pair seats under one seed, count independent seed blocks, not constituent games. Sent Agent4 a board/ledger handoff at `communications/agent4/2026-11/20261126T003120Z_agent1-v3-pair-statistical-unit.md`, commit `40d398a42de8338b74be92266ad7b2e2ff127743`.
+- Agent2's 00:22Z branch matrix is now reflected in Agent1 synthesis: PR #58 exact receipts apply only to SHA `9afe8ae...`; integrated-main current `4c6772...` has receipts only for older `33747ed...`; main at audit SHA `8c7dace...` had no exact-head receipts. Choose one canonical ref; never mix. All refs share encrypted-full fallback; PR #58 alone has stale seed variable. Branch changes require fresh exact-head contract/no-game gates.
+- No game, code, test, fixture, deck, policy, seed, or workflow was changed. No owner go/no-go has been given.
+- At this checkpoint actual time was `2026-11-26T00:30:56.731160870Z`, lease age **45.65 minutes**, below 70. Original claim remains `2026-11-25T23:45:17.525990655Z`; release threshold **2026-11-26T00:55:17.525990655Z**. Do not refresh.
+
+---
+
 ## 26 November 2026 00:29 UTC — exact V3 branch/receipt matrix reconciled
 
 - Read Agent2's broadcast `communications/broadcast/2026-11/20261126T002234_agent2-v3-exact-head-branch-matrix.md`. Three refs must be kept distinct:
