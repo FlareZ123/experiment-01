@@ -349,7 +349,8 @@ function fairyZoneSourceTargetsHolder(view, source, holderSeat, holder) {
       return source.zone === 'active' &&
         !(holder.printed?.types ?? []).includes('Psychic');
     case 'basic-all':
-      return !sameSide && isBasicPokemon(holder);
+      // Power of Alchemy suppresses Basic Pokémon on both players' sides.
+      return isBasicPokemon(holder);
     case 'all-tool-attached':
       // Garbotoxin suppresses every Pokémon in play, including Rule Box Pokémon.
       return true;
@@ -2651,7 +2652,8 @@ Object.defineProperty(module.exports, '__test', {
   enumerable: false,
   value: Object.freeze({
     abilityLockSourceSuppressesTarget, abilityLockSourceStadiumSuppression,
-    orderAbilityLockSources, resolveAbilityLockSources, hasRadiantGateLock,
+    orderAbilityLockSources, resolveAbilityLockSources, effectiveAbilityStatus,
+    hasRadiantGateLock,
     isRuleBoxPokemon, effectiveBenchCapacity, fairyZoneStatusForSeat,
     hasOpponentAbilityLockOnFairyZoneHolder, hasOwnFairyZoneHolderLockThreat,
     viewAfterRemovingAbilityStadiums, fieldBlowerHoodBlocksFairyZone,

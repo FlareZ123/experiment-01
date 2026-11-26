@@ -400,6 +400,49 @@ test('competing Ability-lock sources leave Fairy Zone unknown rather than assumi
   assert.deepEqual(evaluate(req), { kind: 'select-choices', tokens: ['vmax'] });
 });
 
+test("Alolan Muk's Power of Alchemy suppresses Basic Abilities on both sides, not non-Basic Abilities", () => {
+  const alolanMuk = pokemon({
+    printing: 'Alolan Muk SUM 58', name: 'Alolan Muk', hp: 120,
+    types: ['Darkness'], subtypes: ['Stage 1'],
+    abilities: ['Power of Alchemy'], suppression: null,
+    abilityLockActivationOrder: 1
+  });
+  const marshadow = pokemon({
+    printing: 'Marshadow UNB 81', name: 'Marshadow', hp: 80,
+    types: ['Psychic'], subtypes: ['Basic'],
+    abilities: ['Resetting Hole'], suppression: null
+  });
+  const vmax = pokemon({
+    printing: 'Shadow Rider Calyrex VMAX CRE', name: 'Shadow Rider Calyrex VMAX',
+    hp: 320, types: ['Psychic'], subtypes: ['VMAX'],
+    abilities: ['Underworld Door'], suppression: null
+  });
+  const ownMuk = observation(0, { active: vmax, bench: [alolanMuk] });
+  const opponentMuk = observation(0, { active: vmax, opponentBench: [alolanMuk] });
+  assert.equal(candidate.__test.effectiveAbilityStatus(marshadow, 'Resetting Hole', 'actor', ownMuk), false);
+  assert.equal(candidate.__test.effectiveAbilityStatus(marshadow, 'Resetting Hole', 'actor', opponentMuk), false);
+  assert.equal(candidate.__test.effectiveAbilityStatus(vmax, 'Underworld Door', 'actor', ownMuk), true);
+});
+
+test('Alolan Muk suppresses a same-side Active Wobbuffet lock source before it can lock non-Psychic abilities', () => {
+  const alolanMuk = pokemon({
+    printing: 'Alolan Muk SUM 58', name: 'Alolan Muk', hp: 120,
+    types: ['Darkness'], subtypes: ['Stage 1'],
+    abilities: ['Power of Alchemy'], suppression: null,
+    abilityLockActivationOrder: 1
+  });
+  const wobbuffet = pokemon({
+    printing: 'Wobbuffet DRX 31', name: 'Wobbuffet', hp: 110,
+    types: ['Psychic'], subtypes: ['Basic'],
+    abilities: ['Bide Barricade'], suppression: null,
+    abilityLockActivationOrder: 2
+  });
+  const view = observation(0, { active: wobbuffet, bench: [alolanMuk] });
+  const resolved = candidate.__test.resolveAbilityLockSources(view);
+  assert.equal(resolved.unknown, false);
+  assert.deepEqual(resolved.active.map(source => source.cardName), ['Alolan Muk']);
+});
+
 test('Fairy Zone inference recognizes an unsuppressed holder and live Path to the Peak / Silent Lab', () => {
   const score = stadium => {
     const vmax = pokemon({
