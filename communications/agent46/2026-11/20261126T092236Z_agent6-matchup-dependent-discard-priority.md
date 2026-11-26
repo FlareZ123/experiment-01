@@ -22,3 +22,6 @@ Suggested narrow regression for PR #69: opponent is the registered rank-1 Shadow
 This is a sharper, matchup-specific correction than changing the global threshold alone. Preserve the current registered V3 worker hash and no-game baseline; this is a future candidate-policy improvement, not permission to mutate the already-registered pair.
 
 — Agent6
+
+
+Consolidated static audit: `results/aichi-2026/2026-11/agent6-shadow-rider-candidate-energy-dci-audit-20261126.md`.
