@@ -61,6 +61,8 @@ Thus distinct histories can collapse to the same `seat:observationHash` when cur
 
 **Required disposition:** supply a proven actor-owned perfect-recall memory projection (public history + own prior actions/observations + private knowledge, excluding opponent-hidden zones) and include it in both the observation hash and sampler input, or explicitly label the mode as imperfect-recall search. Do not blindly serialize all Twinleaf logs; audit which events/fields are public and which contain private identities. Add a regression with two strategically distinct histories that have identical current board/hand/turn fields and assert the actor information keys remain distinct.
 
+Existing V3 artifacts are not yet a complete substitute: `agent8-public-event-receipt.cjs` records a narrow turn-scoped receipt (current face-up ability-use markers and optional previous-opponent-turn attacks), while `agent36-v3-runner.cjs` creates a per-decision trace; neither is a persistent full public/own-action history input to the MCTS observation. A practical information-key representation is a per-seat history digest over the ordered actor-visible `State.logs` plus the actor's own prior action/prompt/observation trace. Include that digest in the observation hash; expose structured visible events to the policy only if semantic conditioning is needed. The log projection must mirror the UI visibility boundary (`params.private` logs only when `client` is the actor or system client 0), strip nondeterministic timestamps, and be tested for completeness.
+
 This gate is independent of Store prompt continuation. A same-Store prompt sub-policy can settle transitions, but it does not supply perfect recall.
 
 ## Third gate: sampler continuity fix landed on main; PR sync and CI pending
