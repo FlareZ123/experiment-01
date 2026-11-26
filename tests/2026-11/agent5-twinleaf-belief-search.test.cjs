@@ -426,7 +426,7 @@ test('two-sided decklist priors keep exact own lists bound to physical seats',()
   opponentPriorByActorSeat[0][0].cards[0]='mutated-seat1-prior';
   opponentPriorByActorSeat[1][0].cards[0]='mutated-seat0-prior';
   const publicView={
-    active:{},bench:[],stadium:[],discard:[],lostZone:[],
+    active:null,bench:[],stadium:[],discard:[],lostZone:[],
     resolvingSupporter:[],prizeSlots:[]
   };
   const seat0Observation={actorSeat:0,opponentPublic:publicView};
