@@ -7,19 +7,6 @@ const { execFileSync } = require('node:child_process');
 
 const { EXPECTED_ENGINE_PIN } =
   require('../../simulation/evaluation/2026-11/agent3-known-cap-free-action-enumerator.cjs');
-const { Simulator } =
-  require('../../vendor/twinleaf/ptcg-server/output/game/bots/simulator');
-const { State, GamePhase } =
-  require('../../vendor/twinleaf/ptcg-server/output/game/store/state/state');
-const { Player } =
-  require('../../vendor/twinleaf/ptcg-server/output/game/store/state/player');
-const { ConfirmPrompt } =
-  require('../../vendor/twinleaf/ptcg-server/output/game/store/prompts/confirm-prompt');
-const { ResolvePromptAction } =
-  require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
-const { GameError } =
-  require('../../vendor/twinleaf/ptcg-server/output/game/game-error');
-
 const repositoryRoot = path.resolve(__dirname, '../..');
 const twinleafRoot = path.join(repositoryRoot, 'vendor/twinleaf');
 const compiledSimulator = path.join(
@@ -31,6 +18,19 @@ test('pinned Store retains grouped prompt continuations while State-only Simulat
   skip: !fs.existsSync(compiledSimulator),
   timeout: 30000
 }, () => {
+  const { Simulator } =
+    require('../../vendor/twinleaf/ptcg-server/output/game/bots/simulator');
+  const { State, GamePhase } =
+    require('../../vendor/twinleaf/ptcg-server/output/game/store/state/state');
+  const { Player } =
+    require('../../vendor/twinleaf/ptcg-server/output/game/store/state/player');
+  const { ConfirmPrompt } =
+    require('../../vendor/twinleaf/ptcg-server/output/game/store/prompts/confirm-prompt');
+  const { ResolvePromptAction } =
+    require('../../vendor/twinleaf/ptcg-server/output/game/store/actions/resolve-prompt-action');
+  const { GameError } =
+    require('../../vendor/twinleaf/ptcg-server/output/game/game-error');
+
   const actualEnginePin = execFileSync(
     'git', ['-C', twinleafRoot, 'rev-parse', 'HEAD'], { encoding: 'utf8' }
   ).trim();
