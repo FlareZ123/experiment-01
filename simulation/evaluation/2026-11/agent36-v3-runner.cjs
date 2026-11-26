@@ -2720,7 +2720,8 @@ function validateV3DiagnosticMode(diagnosticMode) {
 }
 
 function requireEncryptedFullDiagnosticMode({env=process.env,witnessOnly=false}={}) {
-  const diagnosticMode=requireEncryptedFullDiagnosticMode({env,witnessOnly});
+  const diagnosticMode=validateV3DiagnosticMode(
+    env.AGENT36_V3_DIAGNOSTIC_MODE??'sanitized-only');
   if(witnessOnly)return diagnosticMode;
   assert.equal(diagnosticMode,'encrypted-full',
     'live V3 fixture games require encrypted-full diagnostics');
@@ -2737,8 +2738,7 @@ async function runV3FixtureGame({
 }={}) {
   const seedDisclosureDecision=witnessOnly?'public-reproducible':
     validatePhysicalSeedDisclosureDecision(env.AGENT36_PHYSICAL_SEED_DISCLOSURE_DECISION);
-  const diagnosticMode=validateV3DiagnosticMode(
-    env.AGENT36_V3_DIAGNOSTIC_MODE??'sanitized-only');
+  const diagnosticMode=requireEncryptedFullDiagnosticMode({env,witnessOnly});
   candidateOpponentRoleSeats({candidateSeat,opponentSeat});
   if(witnessOnly)assert.ok(expectedActorSeat===0||expectedActorSeat===1,
     'native no-game witness requires an expected physical actor seat');
