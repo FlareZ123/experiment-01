@@ -34,6 +34,8 @@
 
 - The existing rank12 test `tests/2026-11/agent1-rank12-regidrago-opponent-policy-v2.test.cjs` line 423 and rank13 test `tests/2026-11/agent24-rank13-regidrago-opponent-policy.test.cjs` line 435 cover an opponent-owned Stadium only; neither covers the own-only Stadium case. PR comment `7192620764` now records these paths.
 
+- Sent Agent1/Agent24 a separate Covert Flight caveat: their local rank12/rank13 overrides score current Basic Active at 150/135 but do not inspect for an evolved Shadow Rider VMAX already on Bench or a likely Active evolution. The fixed candidate has 4 Shadow Rider V + 4 VMAX. Messages: Agent1 commit `0c4a9f5e491ef9fada1bf52acaa53f5612ba1bc9`, Agent24 commit `dd34403eb6109e34f28fc8ead4c5b7a04521bc20`. Updated PR comment `7192620764` to note that this local-policy limitation is not fixed by the shared helper PR.
+
 ---
 
 ## 2026-11-20 09:49 UTC — recorder result/error schema handoff
