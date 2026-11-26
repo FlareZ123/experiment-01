@@ -10,23 +10,56 @@ function canonicalJson(value, seen = new Set()) {
   if (type === 'string' || type === 'boolean') return JSON.stringify(value);
   if (type === 'number') {
     assert.ok(Number.isFinite(value), 'Observation contains a non-finite number');
+    assert.ok(!Object.is(value, -0), 'Observation cannot contain negative zero');
     return JSON.stringify(value);
   }
-  if (type === 'undefined') return '"[undefined]"';
-  if (type === 'function') return '"[function]"';
-  assert.equal(type, 'object', 'Observation contains an unsupported value');
+  assert.equal(type, 'object',
+    'Observation must contain only JSON-safe values (no undefined, functions, symbols or BigInt)');
   assert.equal(seen.has(value), false, 'Observation contains a cycle');
   seen.add(value);
   let result;
   if (Array.isArray(value)) {
-    result = '[' + value.map(item => canonicalJson(item, seen)).join(',') + ']';
+    assert.equal(Object.getPrototypeOf(value), Array.prototype,
+      'Observation arrays must use the standard Array prototype');
+    const ownKeys = Reflect.ownKeys(value);
+    assert.equal(ownKeys.length, value.length + 1,
+      'Observation arrays must be dense and have no extra properties');
+    const lengthDescriptor = Object.getOwnPropertyDescriptor(value, 'length');
+    assert.ok(lengthDescriptor && Object.hasOwn(lengthDescriptor, 'value') &&
+      lengthDescriptor.enumerable === false,
+    'Observation array length must be a data property');
+    const items = [];
+    for (let index = 0; index < value.length; index++) {
+      const key = String(index);
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      assert.ok(descriptor && descriptor.enumerable === true &&
+        Object.hasOwn(descriptor, 'value'),
+      'Observation arrays must contain dense enumerable data elements');
+      items.push(canonicalJson(descriptor.value, seen));
+    }
+    for (const key of ownKeys) {
+      if (key === 'length') continue;
+      assert.ok(typeof key === 'string' && /^(0|[1-9]\\d*)$/.test(key) &&
+        Number(key) < value.length,
+      'Observation arrays cannot contain symbol or non-index properties');
+    }
+    result = '[' + items.join(',') + ']';
   } else {
-    const proto = Object.getPrototypeOf(value);
-    assert.ok(proto === Object.prototype || proto === null,
-      'Observation must contain only plain objects');
-    const keys = Object.keys(value).sort();
-    result = '{' + keys.map(key => JSON.stringify(key) + ':' +
-      canonicalJson(value[key], seen)).join(',') + '}';
+    assert.equal(Object.getPrototypeOf(value), Object.prototype,
+      'Observation must contain only ordinary plain objects');
+    const ownKeys = Reflect.ownKeys(value);
+    assert.ok(ownKeys.every(key => typeof key === 'string'),
+      'Observation objects cannot contain symbol keys');
+    const keys = ownKeys.sort();
+    const entries = [];
+    for (const key of keys) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      assert.ok(descriptor && descriptor.enumerable === true &&
+        Object.hasOwn(descriptor, 'value'),
+      'Observation object properties must be enumerable data properties');
+      entries.push(JSON.stringify(key) + ':' + canonicalJson(descriptor.value, seen));
+    }
+    result = '{' + entries.join(',') + '}';
   }
   seen.delete(value);
   return result;
