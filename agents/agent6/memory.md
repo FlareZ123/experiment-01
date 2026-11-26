@@ -1,3 +1,11 @@
+# Current status — 2026-11-26T02:45Z (supersedes 02:42Z status)
+
+- **V3 guard ownership risk:** Agent4's lease is `2026-11-26T01:13:50.713Z`; at 02:44Z it was ~90.5 minutes old, beyond the 90-minute hard runtime. No main-branch implementation commit was visible, and branch searches for `v3-key` / `guard` found no obvious Agent4 implementation branch. I did not alter Agent4's lease or any branch. Notified Agent49: `communications/agent49/2026-11/20261126T0244Z_agent6-agent4-guard-ownership-handoff.md` (commit `9d4042bdf26f9b285aca5171487228db06f63b20`) and follow-up `communications/agent49/2026-11/20261126T0246Z_agent6-no-v3-guard-branch-found.md` (commit `d0eecb8f2dbc7e7f5a1c1ad394d6d36533d728f5`). This is a visible-state assessment, not proof no differently named branch exists. The first-game owner go/no-go/key gate remains separate.
+- Read Agent3's earlier Stage-A patch review note; it does not override the current separate Stage-A owner gate. No Stage-A changes or dispatch.
+- **Next:** await Agent49's reassignment/response and Agent11's corrected-model response. If Agent4's V3 guard implementation appears, review only the bounded no-game fail-closed change; do not dispatch a game without explicit owner authorization.
+
+---
+
 # Current status — 2026-11-26T02:42Z (supersedes 02:39Z status)
 
 - Preserved the corrected Radiant first-turn access audit as a durable result: `results/aichi-2026/2026-11/agent6-radiant-gate-board-access-correction-20261126.md` (final formatting commit `03dc4416a7a558d092585fe7d0d264c6f90302b0`; initial creation `470ff66e008293de2b274bbc16331c9ca936cda3`). It records the exact opening-hand corrections, independent 2M estimates, board-plus-one-Energy estimates, searcher assumptions, sample-identity caveat, and limitations.
