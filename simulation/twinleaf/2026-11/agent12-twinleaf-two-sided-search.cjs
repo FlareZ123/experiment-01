@@ -564,9 +564,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
 
         const stableState = simulator.store.state;
         for (const event of bufferedPromptEvents) {
-          const successorView = frozenActorView(
-            buildActorView(stableState, event.actorSeat, context)
-          );
+          const successorView = buildActorView(stableState, event.actorSeat, context);
           actionContext.recordPromptEvent({
             transitionActorSeat,
             actorSeat: event.actorSeat,
@@ -647,6 +645,19 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
       assert.equal(stillPending, undefined,
         'Same-Store prompt subcall did not resolve the exact pending prompt');
       transferMetadata(previous, after);
+      appendHistoryEvent(after, actorSeat, {
+        schema: 'agent12-own-decision-history-event-v1',
+        kind: 'player-prompt',
+        actorSeat,
+        actorObservation: resolution.actorObservation,
+        actorObservationDigest: resolution.actorObservationDigest,
+        actorHistorySha256: resolution.actorHistorySha256,
+        promptProjection: resolution.promptProjection,
+        promptProjectionDigest: resolution.promptProjectionDigest,
+        selectedTokens: resolution.selectedTokens,
+        promptPolicyId: resolution.promptPolicyId,
+        nativeValidationSucceeded: true
+      });
       bufferedPromptEvents.push({
         actorSeat,
         promptType: resolution.promptType,
@@ -665,6 +676,9 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     assert.equal(payload.kind, 'native',
       'Competitive same-Store search exposes only native actions; player prompts are fixed sub-policy calls');
     const transitionActorSeat = activeSeat(state);
+    const preDecisionActorView = buildActorView(state, transitionActorSeat, context);
+    const preDecisionObservation = stripHistoryFields(preDecisionActorView);
+    const preDecisionObservationDigest = observationSha256(preDecisionActorView);
     assert.ok(actionContext &&
       actionContext.actorSeat === transitionActorSeat &&
       typeof actionContext.promptRandom === 'function' &&
@@ -680,6 +694,15 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
 
     withRandom(random, () => simulator.store.dispatch(payload.nativeAction));
     transferMetadata(state, simulator.store.state);
+    appendHistoryEvent(simulator.store.state, transitionActorSeat, {
+      schema: 'agent12-own-decision-history-event-v1',
+      kind: 'native-action',
+      actorSeat: transitionActorSeat,
+      actorObservation: preDecisionObservation,
+      actorObservationDigest: preDecisionObservationDigest,
+      actionKey: action.key,
+      publicAction: action.publicAction
+    });
     counters.nativeTransitions += 1;
 
     settlePendingPrompts(
@@ -720,6 +743,11 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
       promptSubPolicyId: promptResolutionMode === 'same-store-subcall' ?
         deps.promptSubPolicyId : null,
       promptDecisionProtocol: 'same-store-player-prompt-subpolicy-plus-host-chance-resolution-v2',
+      historyProtocolId: 'agent12-actor-visible-own-decision-history-v1',
+      historyCompleteBySeat: (latestHistoryMetadata ?? defaultHistoryMetadata()).completeBySeat.slice(),
+      historySourceBySeat: (latestHistoryMetadata ?? defaultHistoryMetadata()).sourceBySeat.slice(),
+      historyEventCountsBySeat: (latestHistoryMetadata ?? defaultHistoryMetadata()).historiesBySeat.map(history => history.length),
+      requireCompleteHistory,
       ...counters
     };
   }
@@ -936,6 +964,9 @@ function createNativeTwinleafPromptCallbacks({
       promptSubPolicyId,
       promptPolicyId: promptSubPolicyId,
       promptType,
+      actorObservation: stripHistoryFields(actorView),
+      actorHistorySha256: actorView.actorHistorySha256 ?? null,
+      promptProjection: cloneActorSafeValue(projection.promptProjection),
       actorObservationDigest,
       promptProjectionDigest,
       selectedTokens: validationReceipt.selectedTokens.slice(),
@@ -986,6 +1017,7 @@ function createTwinleafTwoSidedSearch(deps, options = {}) {
   assert.equal(adapter.audit().promptResolutionMode, 'same-store-subcall',
     'Two-sided competitive search must not promote player prompts to MCTS decision nodes');
   const {
+    initializeHistory,
     resetAudit,
     clearPromptCache,
     audit,
@@ -1008,6 +1040,7 @@ function createTwinleafTwoSidedSearch(deps, options = {}) {
   return Object.freeze({
     search(rootState, rootSeat) {
       resetAudit();
+      initializeHistory(rootState);
       const result = search.search(rootState, rootSeat);
       const adapterAudit = audit();
       clearPromptCache();
