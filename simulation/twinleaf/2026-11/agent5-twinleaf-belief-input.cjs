@@ -334,16 +334,50 @@ function createTwinleafDeterminizationSampler(deps) {
     return deps.rootKnowledgeBySeat({rootSeat:seat,observation});
   }
 
-  function sampleDeterminization(state,actorSeat,random) {
+  function sampleDeterminization(state,actorSeat,random,actorObservation=null) {
     assert.equal(typeof random,'function');
     assert.ok(state?.players?.length===2&&(actorSeat===0||actorSeat===1));
-    const rootBaseObservation=deps.actorObservation(state,actorSeat,{ownerK1Snapshot:null});
-    const rootKnowledge=deps.rootKnowledgeBySeat({
-      rootSeat:actorSeat,observation:rootBaseObservation
-    });
-    const observation=deps.actorObservation(state,actorSeat,{
-      ownerK1Snapshot:rootKnowledge.ownerK1Snapshot??null
-    });
+
+    // When another seat's sampled world is re-determinized, the acting seat's
+    // own private ledger is already authenticated in that state's metadata.
+    // Preserve it directly instead of reconstructing K1/PARTIAL history from
+    // current zones or from a root-relative observation.
+    const previousMetadata=metadataByState.get(state)??null;
+    const previousActorLedger=previousMetadata?.knowledgeBySeat?.[actorSeat]??null;
+    let observation=actorObservation;
+    let rootKnowledge=null;
+    if(previousActorLedger) {
+      assert.ok(observation&&observation.actorSeat===actorSeat,
+        'Actor-relative re-determinization requires the acting seat observation');
+      rootKnowledge=cloneJson(previousActorLedger);
+      if(observation.ownerKnowledgeLedger!==undefined) {
+        assert.deepEqual(observation.ownerKnowledgeLedger,rootKnowledge,
+          'Actor observation changed the acting seat prior private ledger');
+      } else {
+        observation={...observation,ownerKnowledgeLedger:cloneJson(rootKnowledge)};
+      }
+    } else if(observation?.ownerKnowledgeLedger!==undefined) {
+      rootKnowledge=cloneJson(observation.ownerKnowledgeLedger);
+    } else {
+      const rootBaseObservation=observation??deps.actorObservation(state,actorSeat,{
+        ownerK1Snapshot:null
+      });
+      rootKnowledge=deps.rootKnowledgeBySeat({
+        rootSeat:actorSeat,observation:rootBaseObservation
+      });
+      rootKnowledge=cloneJson(rootKnowledge);
+    }
+    if(!observation) {
+      observation=deps.actorObservation(state,actorSeat,{
+        ownerK1Snapshot:rootKnowledge.ownerK1Snapshot??null
+      });
+    }
+    assert.ok(observation&&observation.actorSeat===actorSeat,
+      'Determinization requires an observation for the acting physical seat');
+    assert.deepEqual(observation.ownerK1??null,
+      rootKnowledge.ownerK1Snapshot??null,
+      'Actor observation changed or omitted its exact Prize snapshot');
+
     const decklistInfoBySeat=[0,1].map(seat=>
       deps.decklistForSeat(observation,actorSeat,seat,random));
     for(const info of decklistInfoBySeat) {
@@ -378,9 +412,8 @@ function createTwinleafDeterminizationSampler(deps) {
       });
       return validateSeatKnowledge(ownPrivateZones(detached,seat),knowledge);
     });
-    assert.deepEqual(canonicalKnowledge(knowledgeSnapshots[actorSeat]),
-      canonicalKnowledge(rootKnowledge),
-      'Determinization changed the root actor private ledger');
+    assert.deepEqual(knowledgeSnapshots[actorSeat],rootKnowledge,
+      'Determinization changed the acting seat complete private ledger');
     metadataByState.set(detached,{
       rootSeat:actorSeat,decklistIds:decklistInfoBySeat.map(info=>info.id),
       decklistInfoBySeat:cloneJson(decklistInfoBySeat),
