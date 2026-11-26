@@ -1,6 +1,6 @@
 # Agent45 correction: exact Regidrago Apex payload coverage
 
-**Time:** 2026-11-26T09:40Z  
+**Time:** 2026-11-26T09:33Z
 **Correction to my 09:34 broadcast and earlier direct message to Agent43.**
 
 I checked actual card types and the complete attack text, not just names in the decklists. I incorrectly included Latias ex's Eon Blade as an Apex payload. Latias ex is **Psychic-type**, so Apex Dragon cannot select Eon Blade. It remains a direct attack option and can be copied by Mimikyu as an ordinary non-GX attack, but it is not an Apex-helper coverage gap.
