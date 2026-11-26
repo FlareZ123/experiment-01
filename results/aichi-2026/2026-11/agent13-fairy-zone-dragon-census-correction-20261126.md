@@ -93,6 +93,10 @@ The published opponents with Lillie's Clefairy ex are ranks 1, 5, and 30:
 | 5 | 1 | None |
 | 30 | 3 | Dialga-GX ×1 |
 
+### Rank 30 Empoleon V is not a Fairy Zone lock
+
+Rank 30 also contains Empoleon V BST 40 (`Emperor's Eyes`). Do **not** add it as a suppressor of either Fairy Zone source in this matchup. Its text suppresses the opponent's Basic Pokémon **except Pokémon with a Rule Box** ([official Empoleon V card page](https://asia.pokemon-card.com/sg/card-search/detail/1186/)). Both Lillie's Clefairy ex cards have the Pokémon ex Rule Box; Dialga-GX has the GX Rule Box; and Radiant Eternatus has the Radiant Rule Box (the [official rulebook, Appendix 4](https://www.pokemon.com/static-assets/content-assets/cms2/pdf/trading-card-game/rulebook/svi_rulebook_en.pdf) explicitly says Radiant Pokémon are Rule Box Pokémon). Thus Empoleon V does not suppress either player's Fairy Zone holder or the candidate's Dialga/Radiant Dragon targets. It can suppress other non-Rule-Box Basic Abilities, which is outside this Fairy Zone source/target interaction.
+
 Rank 30 is therefore a Dragon-target rank, contrary to the earlier lock-overlap report. Rank 5 still has no Dragon target in its own list; its own Fairy Zone is separately subject to its Path to the Peak / Field Blower interaction.
 
 ## Policy and decision consequences
