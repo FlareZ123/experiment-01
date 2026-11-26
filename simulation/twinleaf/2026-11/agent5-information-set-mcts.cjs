@@ -75,13 +75,13 @@ const PROMPT_RANDOM_PROTOCOL_ID = 'per-rollout-independent-prompt-policy-rng-v1'
 const PROMPT_EVENT_KEYS = Object.freeze([
   'actorObservationDigest',
   'actorSeat',
-  'transitionActorSeat',
   'nativeValidationSucceeded',
   'promptPolicyId',
   'promptProjectionDigest',
   'promptType',
   'selectedTokens',
-  'stableSuccessorDigest'
+  'stableSuccessorDigest',
+  'transitionActorSeat'
 ]);
 const PROMPT_DIGEST_RE = /^[a-f0-9]{64}$/i;
 const VERSIONED_PROMPT_POLICY_ID_RE = /(?:^|-)v[0-9]+$/;
