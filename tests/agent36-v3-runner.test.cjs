@@ -5,7 +5,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const os=require('node:os');
 const path=require('node:path');
-const {createHash}=require('node:crypto');
+const {createHash,generateKeyPairSync}=require('node:crypto');
 const {evidenceBundleSha256}=require('../simulation/evaluation/canonical-evidence-json.cjs');
 const {
   validateArtifactRef,gitBlobSha,verifyPersistedPreDeal,collectPreDealPersistenceReceipt,
@@ -1147,10 +1147,26 @@ test('live V3 fixture games fail closed without encrypted-full diagnostics and r
   assert.throws(()=>requireEncryptedFullDiagnosticMode({
     env:{AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:'test-public-key'}
   }),/live V3 fixture games require encrypted-full diagnostics/);
+  const rsa=generateKeyPairSync('rsa',{modulusLength:2048});
+  const rsaPem=rsa.publicKey.export({type:'spki',format:'pem'});
   assert.equal(requireEncryptedFullDiagnosticMode({
     env:{AGENT36_V3_DIAGNOSTIC_MODE:'encrypted-full',
-      AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:'test-public-key'}
+      AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:rsaPem}
   }),'encrypted-full');
+  const ec=generateKeyPairSync('ec',{namedCurve:'prime256v1'});
+  assert.throws(()=>requireEncryptedFullDiagnosticMode({
+    env:{AGENT36_V3_DIAGNOSTIC_MODE:'encrypted-full',
+      AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:ec.publicKey.export({type:'spki',format:'pem'})}
+  }),/RSA diagnostic recipient public key/);
+  const weakRsa=generateKeyPairSync('rsa',{modulusLength:1024});
+  assert.throws(()=>requireEncryptedFullDiagnosticMode({
+    env:{AGENT36_V3_DIAGNOSTIC_MODE:'encrypted-full',
+      AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:weakRsa.publicKey.export({type:'spki',format:'pem'})}
+  }),/at least 2048 bits/);
+  assert.throws(()=>requireEncryptedFullDiagnosticMode({
+    env:{AGENT36_V3_DIAGNOSTIC_MODE:'encrypted-full',
+      AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM:'not-a-pem'}
+  }),/valid RSA-2048 diagnostic recipient public key/);
   assert.equal(requireEncryptedFullDiagnosticMode({
     env:{AGENT36_V3_DIAGNOSTIC_MODE:'sanitized-only'},witnessOnly:true
   }),'sanitized-only');
