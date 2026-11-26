@@ -148,7 +148,7 @@ test('two-seat Twinleaf determinizer replaces hidden faces from registered 60s a
   });
   const knowledge={verified:true,mode:'K0',knownTopDeck:[],knownBottomDeck:[],
     knownBottomDeckOrder:false,knownPrizePrintings:[],ownerK1Snapshot:null};
-  const rootKnowledgeCalls=[],beliefCalls=[],seatLedgerCalls=[];
+  const rootKnowledgeCalls=[],beliefCalls=[],seatLedgerCalls=[],transitionEvidenceCalls=[];
   const sampler=createTwinleafDeterminizationSampler({
     actorObservation:(currentState,actorSeat,{ownerK1Snapshot})=>({
       actorSeat,
@@ -172,6 +172,9 @@ test('two-seat Twinleaf determinizer replaces hidden faces from registered 60s a
     },
     seatKnowledgeBySeat:input=>{
       seatLedgerCalls.push(input.seat);
+      transitionEvidenceCalls.push({
+        seat:input.seat,transitionEvidence:input.transitionEvidence??null
+      });
       if(input.previousLedger)return input.previousLedger;
       if(input.seat===0)return k0();
       const prizes=input.state.players[input.seat].prizes
@@ -228,7 +231,24 @@ test('two-seat Twinleaf determinizer replaces hidden faces from registered 60s a
   // ledger. Re-determinizing from seat 1 must preserve that exact metadata,
   // not reconstruct it through the root-knowledge provider.
   const successor=cloneState(sampled);
-  assert.equal(sampler.refreshMetadata(sampled,successor),true);
+  const transitionEvidenceBySeat=[
+    {
+      publicEvents:[{kind:'shuffle',source:'search'}],
+      privateEvents:[{kind:'search-result',printings:['P1']}]
+    },
+    {
+      publicEvents:[{kind:'shuffle',source:'search'}],
+      privateEvents:[]
+    }
+  ];
+  transitionEvidenceCalls.length=0;
+  assert.equal(sampler.refreshMetadata(sampled,successor,transitionEvidenceBySeat),true);
+  assert.deepEqual(transitionEvidenceCalls.sort((a,b)=>a.seat-b.seat),[
+    {seat:0,transitionEvidence:transitionEvidenceBySeat[0]},
+    {seat:1,transitionEvidence:transitionEvidenceBySeat[1]}
+  ]);
+  assert.throws(()=>sampler.refreshMetadata(sampled,cloneState(sampled),[{}]),
+    /exactly two physical-seat entries/);
   const priorSeat1Ledger=sampler.metadataByState.get(successor).knowledgeBySeat[1];
   assert.equal(priorSeat1Ledger.mode,'K1');
   assert.equal(priorSeat1Ledger.ownerK1Snapshot.epoch,1);

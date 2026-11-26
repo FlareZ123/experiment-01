@@ -504,15 +504,27 @@ function createTwinleafDeterminizationSampler(deps) {
     return detached;
   }
 
-  function refreshMetadata(fromState,toState) {
+  /**
+   * Refresh both private ledgers after a native transition. Optional evidence is
+   * partitioned by physical seat: each entry may contain public events plus
+   * only that seat's private prompt/search/reveal evidence.
+   */
+  function refreshMetadata(fromState,toState,transitionEvidenceBySeat=null) {
     const previous=metadataByState.get(fromState);
     if(!previous)return false;
+    if(transitionEvidenceBySeat!==null) {
+      assert.ok(Array.isArray(transitionEvidenceBySeat)&&transitionEvidenceBySeat.length===2,
+        'Transition evidence must contain exactly two physical-seat entries');
+    }
     const knowledgeSnapshots=[0,1].map(seat=>{
+      const transitionEvidence=transitionEvidenceBySeat===null?
+        null:cloneJson(transitionEvidenceBySeat[seat]??null);
       const knowledge=deps.seatKnowledgeBySeat({
         state:toState,seat,rootSeat:previous.rootSeat,
         previousLedger:cloneJson(previous.knowledgeBySeat[seat]),
         previousState:fromState,rootObservation:previous.rootObservation,
-        decklistInfo:cloneJson(previous.decklistInfoBySeat[seat])
+        decklistInfo:cloneJson(previous.decklistInfoBySeat[seat]),
+        transitionEvidence
       });
       return validateSeatKnowledge(ownPrivateZones(toState,seat),knowledge);
     });
