@@ -1703,3 +1703,10 @@ A local scan of all supplied Expanded-legal Pokémon attack texts containing “
 Greninja BREAK XY9-41 retains Shadow Stitching and adds a once-per-turn Active-only Giant Water Shuriken Ability (discard a Water Energy from hand to place 6 damage counters on one opposing Pokémon). A full Frogadier Water Duplicates / Greninja BREAK engine is a distinct historical architecture; its setup, power, modern matchup suitability, and item-lock resilience remain untested. Talonflame XY11-96 (Gale Wings setup Active; one-Colorless Aero Blitz searches two cards) may be a setup aid, but opening-hand frequency and dead-draw cost need modeling.
 
 The attack scan is card-pool discovery only. Do not use its keyword count as a proxy for matchup coverage; no opponent card-count or game-performance claim is established.
+
+
+### Twinleaf submodule/upstream workflow check (15:12Z)
+
+- Verified `.gitmodules`: submodule path `vendor/twinleaf`, remote `https://github.com/twinleafgg/twinleafgg.git`. Verified the actual main gitlink mode `160000` and pinned SHA `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`; this matches the root README. Do not modify upstream.
+- Reviewed `.github/workflows/twinleaf-reviewed-upstream.yml`: scheduled weekly check (Monday 05:13 UTC) plus manual `workflow_dispatch` with optional exact 40-character SHA; read-only validation fetches and builds the candidate upstream commit, runs the selected adapter/Store/field tests and bounded smoke, and only then a separate write-token job proposes a draft PR for the exact tested gitlink. It checks that research main has not advanced and never silently moves the pin.
+- Reviewed `.github/workflows/twinleaf-smoke.yml`: checks out the exact pinned gitlink, installs/compiles the pinned server, and runs the existing bounded smoke, card coverage, field resolution, and research regressions. The required upstream-sync automation and basic pinned headless integration already exist; no new workflow or submodule change is justified.
