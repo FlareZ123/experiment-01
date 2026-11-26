@@ -285,14 +285,48 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
       projectedPrompt.type : (prompt.constructor?.name ?? 'prompt');
     const cachedProjection = promptChoicesByProjection.get(
       canonicalJson(projectedPrompt));
-    const choices = deps.enumeratePromptChoices ?
-      deps.enumeratePromptChoices(projectedPrompt, observation, seat) :
-      (cachedProjection && Array.isArray(projectedPrompt.choices) ?
-        projectedPrompt.choices.map(choice => ({
+    let choices;
+    if (deps.enumeratePromptChoices) {
+      choices = deps.enumeratePromptChoices(projectedPrompt, observation, seat);
+    } else if (cachedProjection && Array.isArray(projectedPrompt.choices)) {
+      const selection = projectedPrompt.publicMetadata ?? {};
+      if (selection.selectionType === 'card-combination') {
+        const itemChoices = projectedPrompt.choices.filter(choice => choice.kind === 'card');
+        const combinations = nativePromptProjection.enumerateCombinations(
+          itemChoices,
+          selection.minimumCount,
+          selection.maximumCount,
+          maxItems
+        );
+        choices = combinations.map(combo => {
+          const tokens = combo.map(choice => choice.token);
+          const result = combo.map(choice =>
+            cachedProjection.choiceByToken.get(choice.token));
+          const key = combo.length === 0 ? 'empty-selection'
+            : combo.length === 1 ? tokens[0]
+              : 'cards:' + canonicalJson(tokens);
+          const label = combo.length === 0 ? 'Choose no items'
+            : combo.map(choice => choice.label).join(' + ');
+          return { key, label, result };
+        });
+        const cancel = projectedPrompt.choices.find(choice => choice.kind === 'cancel');
+        if (cancel) {
+          choices.push({
+            key: cancel.token,
+            label: cancel.label,
+            result: cachedProjection.choiceByToken.get(cancel.token)
+          });
+        }
+      } else {
+        choices = projectedPrompt.choices.map(choice => ({
           key: choice.token,
           label: choice.label,
           result: cachedProjection.choiceByToken.get(choice.token)
-        })) : null);
+        }));
+      }
+    } else {
+      choices = null;
+    }
     assert.ok(Array.isArray(choices) && choices.length > 0,
       'Actor-visible prompt frontier must contain at least one choice');
     const seen = new Set();
