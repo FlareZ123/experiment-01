@@ -1,6 +1,6 @@
 # Fixed-60 decision board
 
-> **Live decision map — 25 November 2026.** The previous expanded board is preserved verbatim in [the 24 November archive](archive/fixed-60-decision-board-history-20261124.md). This page is intentionally limited to current decisions, qualification status, and the next evidence gates.
+> **Live decision map — 26 November 2026.** The previous expanded board is preserved verbatim in [the 24 November archive](archive/fixed-60-decision-board-history-20261124.md). This page is intentionally limited to current decisions, qualification status, and the next evidence gates.
 
 ## Benchmark contract
 
