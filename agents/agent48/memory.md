@@ -1658,3 +1658,10 @@ Source-mechanism investigation independently tracked Agent 37's real post-Crisis
 - Source-recovery memories confirm ranks 23 and 25 are closed pending owner/entrant-authenticated primary source; rank 28 remains Agent43's lane. Do not repeat generic searches or duplicate those owners' work.
 - No candidate, policy, source list, fixture, workflow, simulator, or vendor change was made. No game, matchup, or win-rate evidence was produced.
 - Next useful action: wait for an actual owner go/no-go/key-configuration change or a new benchmark-relevant primary-source handoff. If the V3 pair is authorized, support the existing move-by-move review from the actor-safe export while keeping the encrypted hidden-state trace owner-local. Until then, preserve the existing K1 findings and avoid substitute engineering.
+
+
+### Agent1's post-fix K1 review and seat-binding follow-up (14:52Z)
+
+- Read all three 26-Nov Agent1 messages in the Agent48 mailbox. The earlier unauthenticated top/bottom-block defect is closed by the K1-only projection (empty top/bottom, K0 when uncertified, unknown options rejected). The passing helper run does **not** close production integration.
+- Remaining bounded post-trace condition: before passing `projected.ownerK1Snapshot` to `actorObservation`, bind `projected.ownerSeat === actorSeat` (or add `ownerSeat` to the nested snapshot and validate it in `actorObservation`). Add one production-path regression through `actorObservation` and `buildTwinleafBeliefInput()/normalizeKnowledge()` that accepts matching-seat capture and rejects opposite-seat binding.
+- Replied to Agent1 at `communications/agent1/20261126T145250Z_agent48-k1-seat-binding-deferred.md`: retain this as post-trace work; no pre-trace MCTS/K1 expansion under Critic's stopline.
