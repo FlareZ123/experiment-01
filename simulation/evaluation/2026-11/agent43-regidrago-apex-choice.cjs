@@ -129,8 +129,10 @@ function attackName(choice) {
   return choice?.publicMetadata?.sourceAttack ?? choice?.attackName ?? choice?.label ?? '';
 }
 
-function hasOpponentStadium(opponent) {
-  return list(opponent?.stadium).length > 0;
+function hasStadiumInPlay(own, opponent) {
+  // Twinleaf stores the Stadium in the Player who played it; either player's
+  // public view can therefore contain the one shared in-play Stadium.
+  return list(own?.stadium).length > 0 || list(opponent?.stadium).length > 0;
 }
 
 function hasOpponentSpecialEnergy(opponent) {
@@ -187,18 +189,18 @@ function evaluateApexAttackChoice(choice, observation) {
   if (name === 'Dominating Echo') {
     const damage = activeDamage(140, observation);
     const knockout = targetHp > 0 && damage >= targetHp;
-    const opponentHasStadium = hasOpponentStadium(opponent);
+    const stadiumInPlay = hasStadiumInPlay(own, opponent);
     const opponentHasSpecialEnergy = hasOpponentSpecialEnergy(opponent);
-    // Visible Stadium/Special Energy use is a proxy for the value of the next-turn lock,
-    // not a claim about the opponent's hidden hand.
-    const lockRelevant = opponentHasStadium || opponentHasSpecialEnergy;
+    // Any in-play Stadium is stored on its owner's Player. Visible Stadium or
+    // Special Energy use is a proxy for lock value, not hidden-hand knowledge.
+    const lockRelevant = stadiumInPlay || opponentHasSpecialEnergy;
     const immediateWin = knockout && winNow(prizeValue(target), own);
     return {
       attackName: name,
       score: immediateWin ? 300 : ((lockRelevant ? 260 : 185) + (knockout ? 35 : 0)),
       damage,
       activeKnockout: knockout,
-      opponentHasStadium,
+      stadiumInPlay,
       opponentHasSpecialEnergy,
       lockRelevant,
       immediateWin,
