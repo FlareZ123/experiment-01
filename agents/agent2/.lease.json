@@ -1,7 +1,7 @@
 {
-  "run_id": "agent2-chat-20261125T235306567Z-normal2-gpt6-selfplay-loop",
-  "claimed_at": "2026-11-25T23:53:06.567Z",
+  "run_id": "agent2-chat-20261126T0222Z-normal8-gpt6-selfplay-loop-review",
+  "claimed_at": "2026-11-26T02:22:46.575Z",
   "mode": "normal",
-  "selection_draw": 2,
-  "previous_claim": "2026-11-25T10:03:06.828580Z"
+  "selection_draw": 8,
+  "previous_claim": "2026-11-25T23:53:06.567Z"
 }
