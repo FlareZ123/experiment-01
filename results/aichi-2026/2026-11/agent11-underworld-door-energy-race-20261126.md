@@ -66,6 +66,20 @@ The sensitivity below conditions on Forest Seal Stone already being in play and 
 
 The tutor materially improves this narrow line, but these are conditional probabilities, not the chance of drawing/attaching Forest Seal Stone. The model does not account for the one-Tool-per-Pokémon constraint, the Bench needed to host the Stone separately from Stealthy Hood, the VSTAR Power's competing uses, or Ability-lock exposure. It is not a recommendation to spend Star Alchemy on Energy in every game.
 
+
+### Natural Forest Seal Stone / Arven access
+
+The candidate also contains one Arven (SV1 166). The pinned card pool confirms Arven searches the deck for an Item and a Pokémon Tool, so it can fetch Forest Seal Stone. The new joint model no longer assumes the Stone is already attached: after the post-Gate population is dealt into hand, six Prizes, and deck, it tracks the one FSS and one Arven alongside the 11 Psychic Energy. It allows the player to use FSS if drawn, or use Arven to fetch FSS if Arven is in hand and FSS remains in deck. The one Star Alchemy Energy search is used at the first opportunity on either post-Gate turn when an Energy remains in deck. It also recognizes FSS or Arven drawn by the normal draw or Underworld Door.
+
+| Start state | Five-Energy probability, two Doors/turn | FSS used to search Energy by end of turn 3 | Four-Door ceiling |
+|---|---:|---:|---:|
+| H=6, A=0 | **13.40%** | 34.70% | 20.77% |
+| H=5, A=1 | **16.80%** | 30.79% | 22.94% |
+
+Compared with the no-FSS/Arven baseline (8.10% and 10.66%), this natural-access model improves the five-Energy event by 5.30 and 6.13 percentage points. The conditional “FSS already attached” figures above (17.86% and 23.92%) are a separate upper scenario and should not be conflated with this joint access model.
+
+This is still conditional on Radiant plus two VMAX already being in play. It assumes an available Tool slot on a Pokémon V, no Ability lock, no other Supporter played on either turn (so Arven is always available when drawn), and that spending Star Alchemy on Energy is the chosen policy. It does not model Tapu Lele-GX finding Arven, Arven's second Item search, other Supporter/draw competition, or FSS used before Gate. Those omissions can move the result in either direction. The reported 34.70% / 30.79% is the probability the model actually spends Star Alchemy on Energy, not a standalone FSS access rate.
+
 ## Interpretation
 
 The candidate's five-Energy Max Geist line should not be treated as an early deterministic Regidrago answer merely because four VMAX can theoretically produce four Underworld Door attachments. Even after conditioning on the Radiant-plus-two-VMAX board, the 11-Energy list reaches five total attachments only 8.10–10.66% of the time in the two-Door baseline for the simple turn-one hand states above. The four-Door ceiling reaches 13.19–15.01%.
@@ -81,7 +95,7 @@ It conditions on Radiant Eternatus and two VMAX already being in play. It does n
 - the Active/Bench allocation needed to make a VMAX attack-ready, or the two/three Psychic Energy needed on that specific attacker;
 - Parallel City, Sky Field, Bench-slot contention, the Active Spot, or the switch/retreat route from the Gate turn;
 - Ability lock, Stealthy Hood, Tool removal, Stadium changes, or Energy denial;
-- Lillie's Determination, Iono, Tapu Lele-GX, or other draw engines. Forest Seal Stone is modeled only in the separate conditional-tutor sensitivity above;
+- Lillie's Determination, Iono, Tapu Lele-GX finding Arven, or other draw engines. Forest Seal Stone is modeled in the conditional-tutor and natural FSS/Arven-access sensitivities above, but Tool/Bench constraints, Ability lock, and competing Supporter/VSTAR uses remain omitted;
 - Quick Ball discard costs, Energy recovery, Supporter contention, Prize knowledge after a deck search, or opponent choices;
 - damage modifiers, Weakness prevention, or changes to the 280-HP target.
 
@@ -91,6 +105,6 @@ Those omitted effects can move the full-game probability in either direction. Th
 
 - Implementation: scripts/agent11-underworld-door-energy-race.cjs
 - Tests: tests/agent11-underworld-door-energy-race.test.cjs
-- Local Node v22.16.0 test result: 8/8 passed.
-- The exhaustive small-deck test independently enumerates every hand, six-Prize selection, and ordered deck for a ten-card toy deck, with and without the tutor transition, and matches the dynamic program to within 1e-12.
+- Local Node v22.16.0 test result: 10/10 passed.
+- Exhaustive small-deck tests independently validate the Energy-only transition, the conditional tutor transition, and natural FSS/Arven tutor use to within 1e-12.
 - The registered candidate 60, its policy, Twinleaf pin, workflows, fixtures, and game authorization were not changed. No CI or simulator game was run.

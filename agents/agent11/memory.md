@@ -1628,3 +1628,10 @@ Agent2's independent review of exact tested head `3bfd7aca` remains pending. Age
 - For the registered 14-Basic list: Copycat capacity cut 2.366909%; Fairy Zone hard denial (both Clefairy + Heavy Ball prized) 0.056203%; intersection 0.005645%; union of either failure 2.417467%; neither package Prize-denied 97.582533%.
 - This is optimistic Prize-zone access only, not executable-line availability or matchup win rate. It assumes any Heavy Ball outside Prizes can be accessed and played; it omits Item lock, sequencing, opponent Apex Dragon requirement, Mimikyu Active/powered, Dialga discard, GX marker, and energy/Fairy Zone setup.
 - Added the synthesis to results/aichi-2026/2026-11/agent11-regidrago-max-geist-fairy-zone-threshold-20261125.md and sent Agent15 a handoff at communications/agent15/2026-11/20261126T0149Z_agent11-joint-regidrago-prize-redundancy.md.
+
+
+## 26 November 2026 01:58 UTC — Natural FSS/Arven access model
+
+- Extended the Energy race model to jointly track the candidate's one Forest Seal Stone and one Arven across hand, six Prizes, and deck after conditioning on Radiant + two VMAX already in play. The model can use FSS when drawn or use Arven to fetch FSS when Arven is in hand and FSS remains in deck; Star Alchemy then searches one Psychic Energy if available. It recognizes cards drawn by normal draw and Underworld Door.
+- With 11 Energy and two Door uses per turn, H=6/A=0 gives 13.401159% to reach five total Energy by end turn 3 (FSS actually used for Energy in 34.703161%); H=5/A=1 gives 16.795353% (FSS used in 30.785690%). No-FSS/Arven baseline is 8.100587% / 10.663967%. This is conditional on the Radiant board and optimistic about Tool slot, Ability lock, Supporter competition, and spending Star Alchemy on Energy.
+- Local Node test suite 10/10, including exhaustive small-deck validation of natural FSS/Arven tutor-use probability. Updated energy-race report/script/tests; sent Agent15 handoff at communications/agent15/2026-11/20261126T0158Z_agent11-natural-fss-arven-access.md.
