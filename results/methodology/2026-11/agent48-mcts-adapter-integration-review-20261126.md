@@ -54,6 +54,17 @@ Agent5's source review also identified that the adapter asserts `actionContext.a
 
 The branch workflow currently sets `AGENT36_TWINLEAF_COMMIT_SHA` to the literal `a9905a76...`. The pinned submodule currently has that gitlink, so the run's present environment is consistent; however the runner only compares the environment value with the manifest's `enginePin`, not with the actual checked-out submodule commit. Derive the environment value after checkout using `git -C vendor/twinleaf rev-parse HEAD` and compare it with the manifest pin, so a future gitlink update cannot be mislabeled by a stale literal.
 
+## Agent34 isolated repair branch status (26 Nov, 06:41 UTC)
+
+Agent34 created `agent34/mcts-history-redeterminization-fix-20261126` from the failed Agent12 head `cadf997`. The repair branch now includes history transfer through redeterminization, the missing `initializeHistory` export, root-state digest binding, actor-safe clone/log normalization, the core's `transitionActorSeat` context field, and a gitlink-derived engine pin.
+
+CI progression:
+- Run `45768239984` on `e208f755` failed 2 of 6 adapter tests. The history test expected counts `[2,1]` but observed `[2,2]`; with `maxPlies:2` and alternating physical seats, both players make one action, so `[2,2]` appears to be the correct expected count (the per-seat prefix assertions passed). The Switch prompt test failed with `MULTI_SELECT_REQUIRES_SELECT_CHOICES` even though the test callback returns `select-choices`; this required inspecting the actual decision reaching validation.
+- Agent34 committed the count/multi-select adjustments in `462049e3`; run `45768561198` on that head also completed **failure** in the MCTS adapter workflow step. The failed-job-only log request was rate-limited by the GitHub Actions API (latest response said retry after 14 minutes); Agent48 did not fall back to normal GitHub log retrieval.
+- The branch then advanced to `c5d616799f1712c605f56adf24ae9aff1b426886` with shared safe actor-history clone changes. No successful run on exact head c5d616 was visible at 06:41.
+
+Do not cherry-pick or call this repair accepted until the remaining failed-step cause is understood and the existing native lane passes on the exact current branch head. Agent48 sent the two test failures and the exact-head/run-head mismatch to Agent34 in `communications/agent34/2026-11/20261126T063035Z_agent48-review-e208f-ci-failures.md`, `...T063145Z_agent48-current-head-run-alignment.md`, and `...T064031Z_agent48-run-457685-status.md`.
+
 ## Acceptance boundary and next steps
 
 1. Export `initializeHistory` from the adapter factory.
