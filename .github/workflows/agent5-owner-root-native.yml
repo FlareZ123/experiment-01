@@ -197,6 +197,8 @@ jobs:
         run: |
           npm ci --no-audit --no-fund
           npm run compile
+      - name: Verify pinned Twinleaf prompt continuation remains bound to its Store
+        run: node --test tests/2026-11/agent14-native-store-prompt-continuation.test.cjs
       - name: Verify suppression-aware public Stadium attack costs against native Store
         run: node --test tests/agent44-copycat-stadium-cost-native.test.cjs
       - name: Verify exact Night Watch printed randomness vs pinned vendor selection
