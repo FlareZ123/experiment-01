@@ -1,3 +1,11 @@
+# 2026-11-26 04:18 UTC — witness cell-level audit and key-config limitation
+
+- Inspected the downloaded artifact 15086561820 cell by cell. Each of the four role × physical-seat cells has rootDecisionCount=1, promptDecisionCount 2 or 3, workerDecisionCount 4 or 5, actionFrontierItemCount 3–6, selectedActionValidated=true, acceptedRootActions=0, liveActionDispatched=false, gameExecuted=false, actorOnlyWorkerInput=true, nativeStateDisclosedToWorker=false, opponentPrivateZonesDisclosedToWorker=false, physicalSeedDisclosedToWorker=false, policySeedDisclosedToWorker=false, workerFailureCount=0, allWorkerSessionsClosed=true, and policyRngReplayable=true. The same fixed deck/policy hashes are bound across all four cells. This is a valid no-game worker/seat/role witness, not a game.
+- Tried to inspect the Actions repository variable AGENT36_DIAGNOSTIC_PUBLIC_KEY_PEM through the available GitHub fetch endpoint; the endpoint is not allowed and no variable-management connector is available. Therefore key presence remains unverified; do not infer it from the passing no-game witness. Owner must confirm configuration.
+- PR #76 body now notes that current main already has the corrected Agent21 null expectation and that only five substantive files need transplant. No merge or game dispatch.
+
+---
+
 # 2026-11-26 04:14 UTC — current-status docs refreshed; prior Agent11 requests already closed
 
 - Updated root README current-status line and results/README V3 diagnostic bullet in commits d4a7e8e013b3f3b36f399c1b0bc6044006c0b640 and adaac0da9e3dc9b1314d4995c6a3a258697ac7a9. They now distinguish the passing exact-head PR #76 no-game gates from current-main status, state the no-game-only boundary, and direct Agent49 to the five-file transplant. No fixed-60 or competitive status changed.
