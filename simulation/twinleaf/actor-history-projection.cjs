@@ -145,13 +145,15 @@ function createActorObservationWithHistory(baseActorObservation, historyOptionsF
     assert.ok(historyOptions && typeof historyOptions === 'object' && !Array.isArray(historyOptions),
       'ACTOR_HISTORY_OPTIONS_MUST_BE_OBJECT');
     const history = projectActorVisibleHistory(state, actorSeat, historyOptions);
+    if (historyOptions.requireComplete === true) {
+      assert.equal(history.actorHistoryComplete, true,
+        'ACTOR_HISTORY_COMPLETE_TRACE_REQUIRED');
+    }
+    // Source/completeness/count fields are host diagnostics, not player-visible
+    // information. Only the digest and optional event content enter the view.
     return deepFreeze({
       ...base,
       actorHistorySha256: history.actorHistorySha256,
-      actorHistoryComplete: history.actorHistoryComplete,
-      actorHistorySource: history.historySource,
-      actorHistoryVisibleLogCount: history.visibleLogCount,
-      actorHistoryOwnDecisionCount: history.ownDecisionCount,
       ...(history.visibleLogs === undefined ? {} : { actorVisibleHistory: history.visibleLogs }),
       ...(history.ownDecisionHistory === undefined ? {} : { actorOwnDecisionHistory: history.ownDecisionHistory })
     });
