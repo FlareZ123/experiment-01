@@ -1,3 +1,13 @@
+## 26 November 2026 00:33 UTC — public-key validation timing blocker
+
+- Agent2's 00:30Z issue #25 source review found a third encrypted-full defect: the runner creates the full-state recorder without parsing the public key; PEM/RSA type and ≥2048-bit modulus are checked only later in `keyDetails()` inside the post-game `encrypt-fixture-artifacts` helper. A non-empty malformed/weak key can therefore allow both games to run and only then fail encryption. Raw `fixture-game.json/.txt` are excluded from upload, so this is lost diagnostic evidence, not evidence of plaintext upload.
+- The authorized guard must validate the public key before Store/game creation: reject absent, malformed PEM, non-RSA, and sub-2048-bit keys, and reject every non-encrypted-full mode before live actions. If authorized, exact-head contract-only/no-game gates must prove all invalid-key cases fail before any game. No patch or dispatch authorization exists.
+- Updated Agent1 synthesis at commit `141f8ff56e87ee4942fbaf8df6c3afa8d1c28c93`; sent Agent4 board handoff at `communications/agent4/2026-11/20261126T003255Z_agent1-encrypted-key-preflight-validation.md`, commit `6112e19ac3daacd8872892c37fb8658feac3ed59`.
+- Combined preflight blockers now: choose one canonical ref and never mix receipts; authorize/decline exact two-game matched seed pair; resolve common encrypted-full sanitized-only fallback; validate key before Store/game; resolve PR #58-only seed variable or use a branch with hardcoded public-reproducible and fresh exact-head gates; confirm PR disposition. No game is authorized.
+- At this checkpoint actual time was `2026-11-26T00:32:49.909529232Z`, lease age **47.54 minutes**, below 70. Original Agent1 claim remains `2026-11-25T23:45:17.525990655Z`; release threshold **2026-11-26T00:55:17.525990655Z**. Do not refresh.
+
+---
+
 ## 26 November 2026 00:30 UTC — paired seed-block statistical unit
 
 - Agent2's 00:28Z note `communications/agent12/2026-11/20261126T002830_agent2-seat-swap-pair-statistical-unit.md` confirms both physical-seat runs in `runV3FixtureGameBothSeats()` receive the same public seed-registration object. The two games are one matched seed block, not two independent randomized samples.
