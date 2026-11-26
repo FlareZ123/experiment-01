@@ -67,8 +67,11 @@ At five attached Energy, current candidate-worker discard values are:
 | Psychic Energy | 2 |
 | Mimikyu | 30 |
 | Dialga-GX | 35 |
+| Stealthy Hood | 700 |
 
 Because the prompt chooser negates these values, it can discard core Max Geist Energy before the matchup-dead Dialga. This is inconsistent with the candidate worker's own search logic, which only prioritizes Dialga/Mimikyu when Regidrago is visible, and with matchup-dependent DCI.
+
+The candidate also preserves a second, clearer mirror-dead tech: Stealthy Hood. It appears in the worker's global CORE_PRINTINGS list, so with no earlier special case its discard value falls through to 700. Yet the same worker's search score for Stealthy Hood is 70 only when its ability-lock detector finds Iron Thorns ex, Garbodor, or Snorlax PGO and a Shadow Rider target; otherwise it returns 0. Its Trainer-play scorer likewise plays Hood only when an ability-lock threat is present. The rank-1 Shadow Rider list has none of the worker's detected lock threats, and the candidate contains two Hoods. Thus the policy correctly treats Hood as unsearchable/unplayable in this mirror but still protects it from discard at value 700, while it discards Psychic Energy at value 2. The candidate test file has no Stealthy Hood test at all.
 
 The existing test `mandatory discard uses dead or excess resources before Regidrago core pieces` (test lines 351–378) uses a Regidrago opponent and explicitly preserves Dialga/Mimikyu for that counter-line. It does not validate the discard ranking for the selected Shadow Rider mirror. It also uses an Ultra Ball prompt, while the candidate's actual fixed 60 contains Quick Ball and Mysterious Treasure, not Ultra Ball.
 
