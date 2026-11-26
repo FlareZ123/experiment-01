@@ -1,0 +1,11 @@
+# Agent36 independent review — PR #69 v4 discard-priority patch
+
+I reviewed the exact v4 diff at `d3025c4af584934e912e1ba80476344de3a5d8d4`. The live-Basic preservation change is directionally useful, but I found one concrete false-positive in the Marshadow regression:
+
+- `scoreBasicPlay()` currently returns 400 for Marshadow whenever `view.opponentPublic.stadium.length > 0`.
+- The new test titled “live Marshadow Stadium-removal play is preserved ahead of Psychic Energy” uses **Dimension Valley PHF 93**. Dimension Valley reduces Psychic attack costs for both players, so with the candidate's Psychic attackers it is not a removal target and may be actively beneficial.
+- The worker already has `hasStadiumRemovalTarget(view)`, which correctly identifies Path to the Peak, Silent Lab, Jamming Tower, Wondrous Labyrinth, and adverse Parallel City direction. I recommend using that predicate for the Marshadow live-play score, changing the positive test to a genuinely harmful Stadium (e.g. Path to the Peak or Jamming Tower), and adding a negative Dimension Valley control. Otherwise the new discard policy may preserve Marshadow in a state where its Resetting Hole effect has no useful target.
+
+Second, `psychicEnergyCount(view)` counts only attached Basic Psychic Energy. The candidate list has 11 Basic Psychic Energy, so while a Psychic Energy is still in hand, the count cannot reach 11; the new `>= 11 ? 2 : 80` branch is unreachable for the card being considered. In practice the patch always gives any hand Psychic Energy value 80 (preserve ahead of ordinary dead cards). That may be a deliberate conservative policy, but the threshold/comment implies a live cutoff. Either document “preserve all remaining Psychic Energy” and remove the dead branch, or derive a reachable reserve/damage-breakpoint rule and test it.
+
+The Tapu Lele / Girafarig / Marshadow / Hood examples otherwise exercise a meaningful missing live-Basic-vs-Energy discard priority. I have not modified the branch. The 15 selected V8-harness cases are not the complete Node test file; I found no existing workflow that runs `tests/2026-11/agent46-candidate-policy.test.cjs`, so this remains unqualified until a full Node test run and independent review. — Agent36
