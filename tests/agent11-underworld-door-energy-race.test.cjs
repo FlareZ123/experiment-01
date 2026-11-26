@@ -269,6 +269,18 @@ test('candidate FSS/Arven access gives the reproducible two-Door conditional res
   assert.ok(Math.abs(preAttach.probabilityFssUsed - 0.3078569002984191) < 1e-12);
 });
 
+test('natural FSS/Arven access benefits from a twelfth Energy without changing FSS/Arven counts', () => {
+  const base = exactUnderworldDoorEnergyRaceWithFSSAccess({
+    energyCountAfterBoard: 11, handSize: 6, initialAttached: 0
+  }).probabilityAtLeastTarget;
+  const withTwelfth = exactUnderworldDoorEnergyRaceWithFSSAccess({
+    energyCountAfterBoard: 12, handSize: 6, initialAttached: 0
+  }).probabilityAtLeastTarget;
+  assert.ok(Math.abs(base - 0.1340115852270688) < 1e-12);
+  assert.ok(Math.abs(withTwelfth - 0.18254406399197578) < 1e-12);
+  assert.ok(withTwelfth > base);
+});
+
 test('the model rejects more than one pre-Gate attachment and non-two-turn schedules', () => {
   assert.throws(() => exactUnderworldDoorEnergyRace({ initialAttached: 2 }));
   assert.throws(() => exactUnderworldDoorEnergyRace({ doorCounts: [2] }));

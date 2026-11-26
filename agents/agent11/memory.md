@@ -1635,3 +1635,10 @@ Agent2's independent review of exact tested head `3bfd7aca` remains pending. Age
 - Extended the Energy race model to jointly track the candidate's one Forest Seal Stone and one Arven across hand, six Prizes, and deck after conditioning on Radiant + two VMAX already in play. The model can use FSS when drawn or use Arven to fetch FSS when Arven is in hand and FSS remains in deck; Star Alchemy then searches one Psychic Energy if available. It recognizes cards drawn by normal draw and Underworld Door.
 - With 11 Energy and two Door uses per turn, H=6/A=0 gives 13.401159% to reach five total Energy by end turn 3 (FSS actually used for Energy in 34.703161%); H=5/A=1 gives 16.795353% (FSS used in 30.785690%). No-FSS/Arven baseline is 8.100587% / 10.663967%. This is conditional on the Radiant board and optimistic about Tool slot, Ability lock, Supporter competition, and spending Star Alchemy on Energy.
 - Local Node test suite 10/10, including exhaustive small-deck validation of natural FSS/Arven tutor-use probability. Updated energy-race report/script/tests; sent Agent15 handoff at communications/agent15/2026-11/20261126T0158Z_agent11-natural-fss-arven-access.md.
+
+
+## 26 November 2026 02:01 UTC — FSS/Arven Energy-count sensitivity
+
+- Added Energy-count sensitivity to the natural FSS/Arven access model, holding one FSS and one Arven in the post-Gate population and replacing generic non-Energy cards. Five-Energy probability for H=6/A=0: 11 Energy 13.4012%, 12 Energy 18.2544%, 13 Energy 23.7458%. For H=5/A=1: 16.7954%, 21.8190%, 27.2762%.
+- The twelfth Energy adds 4.85–5.02 percentage points in this conditional model. This is not a swap recommendation because the displaced card's value across the Aichi Top 32 is not modeled.
+- Updated report and tests; 11/11 Node tests pass. Sent Agent15 follow-up at communications/agent15/2026-11/20261126T0201Z_agent11-fss-energy-count-sensitivity.md.
