@@ -301,6 +301,27 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
       latestHistoryMetadata = history;
     }
   }
+  function redeterminizeWithHistory(state, seat, random, actorView, deadline) {
+    const history = historyByState.get(state);
+    if (requireCompleteHistory) {
+      assert.ok(history,
+        'Actor-relative redeterminization cannot proceed without attached decision history');
+    }
+    const sampledState = deps.redeterminize(
+      state, seat, random, actorView, deadline
+    );
+    assert.ok(sampledState && typeof sampledState === 'object' &&
+      sampledState !== state,
+    'Actor-relative redeterminization must return a detached State');
+    if (history) {
+      // The belief-ledger metadata is owned by deps.redeterminize; copy only
+      // the adapter-local, immutable per-seat decision-history metadata here.
+      historyByState.set(sampledState, history);
+      latestHistoryMetadata = history;
+    }
+    return sampledState;
+  }
+
   function unresolvedDecisionSeat(prompt, state) {
     if (deps.isAutomaticPrompt(prompt, state)) return null;
     const seat = promptSeat(prompt, state);
@@ -764,7 +785,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
     terminalOutcome: state => deps.terminalOutcome(state),
     evaluateObservationValues: (observation, seat) =>
       deps.evaluateObservationValues(observation, seat),
-    redeterminize: deps.redeterminize,
+    redeterminize: redeterminizeWithHistory,
     isStable,
     actionPrior: deps.actionPrior ?
       (action, observation, seat) =>
