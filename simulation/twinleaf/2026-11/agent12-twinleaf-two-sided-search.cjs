@@ -135,7 +135,7 @@ function createTwinleafTwoSidedSearchAdapter(deps, options = {}) {
   assert.equal(typeof promptSeat, 'function');
   const maxItems = options.maxActionFrontierItems ?? 256;
   const maxPromptResolutions = options.maxPromptResolutions ?? 64;
-  const requireCompleteHistory = options.requireCompleteHistory === true;
+  const requireCompleteHistory = options.requireCompleteHistory !== false;
   assert.ok(Number.isSafeInteger(maxPromptResolutions) &&
     maxPromptResolutions > 0 && maxPromptResolutions <= 256);
 
