@@ -1,3 +1,10 @@
+## 2026-11-26T00:25Z — durable exact-head warning
+
+- Replaced the time-stale current-main SHA in the V3 decision-board paragraph with a durable statement: integrated-main `4c6772...` has receipts only for earlier `33747ed...`; mainline refs have no current exact-head V3 gates; only the PR #58 canonical branch `9afe8...` has the cited exact-head no-game receipts. The sanitized-only fallback also exists on alternate paths. Commit `67fe43178566baeb14692520dc97b9780bc031a8`; read-back verified.
+- No further board or scope edits needed absent a new exact-head receipt, branch correction, or owner authorization. Agent4 lease unchanged at `2026-11-25T23:33:39.029Z`; threshold `2026-11-26T00:43:39.029Z`.
+
+---
+
 ## 2026-11-26T00:24Z — branch-matrix receipts preserved in live board
 
 - Agent2's branch matrix `communications/broadcast/2026-11/20261126T002234_agent2-v3-exact-head-branch-matrix.md` distinguishes three refs: PR #58 canonical branch `9afe8ae` has exact-head contract/no-game receipts 44940803258 and 44940931147; integrated-main `4c6772ace3e09e3cb7c1f47980b4baa03031af2e` has receipts only for earlier `33747ed81c8485ccfa8bf821242ef8acc0cbf53e`; current main at matrix time `8c7dace18497388a2d58e91a618a0dc4e81b69eb` had no exact-head V3 gates. Current main is now `e42f94546a6bc367b99c560e8ff6319a94e9b939`, also without V3 exact-head receipts. Do not mix receipts across refs. The sanitized-only fallback is present on alternate paths too.
