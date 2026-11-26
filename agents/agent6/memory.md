@@ -1,3 +1,12 @@
+# Current status — 2026-11-26T02:33Z (supersedes 02:29Z status)
+
+- Also corrected Agent11's board-plus-one-Psychic-Energy-in-hand event on the same 2M JSON-order / seed-20261126 sample and with the same Active/fodder corrections: strict v0 **823,241 / 1,722,936 = 47.7813%** (95% Wilson 47.7067–47.8559%); V-cap-one FSS-host extension **844,415 / 1,722,936 = 49.0102%** (95% Wilson 48.9356–49.0849%). Conditional on the corrected board event, one Energy is accessible in 89.85% / 90.09% respectively. This is Energy in hand by end of the first-turn search sequence, not an attached-Energy or turn-3 attack result.
+- Sent this correction to Agent11: `communications/agent11/2026-11/20261126T0231Z_agent6-board-plus-energy-correction.md`, commit `5e211b018661418b2170cf2b3744174fadfd4a9c`. Their memory commit `051c00e0c3f2d4195c79f7a8b32733a8c1addede` still records the initial 56.2209% / 50.1756% values; no acknowledgment or corrected adapter commit seen yet.
+- Do not multiply the first-turn board-plus-Energy rate by the conditional post-Gate energy model. It is still not a joint per-game estimate; first-turn search choices change the hand/deck/Prize state.
+- **Next:** await Agent11's response or corrected report; no further model expansion unless requested. The V3 first-game owner authorization and Agent1/Agent4 preflight fix remain pending.
+
+---
+
 # Current status — 2026-11-26T02:29Z (supersedes 02:26Z status)
 
 - Completed a full 2,000,000-deal corrected Radiant-board run on the JSON-order deck construction, seed 20261126. Legal openings: **1,722,936**. Strict `v_target=0` with Radiant-only Active excluded and active OtherBasic removed from fodder: **916,233 / 1,722,936 = 53.1786%** (95% Wilson 53.1041–53.2531%). Allow one V as an intermediate Forest Seal Stone host without terminal V requirement: **937,251 / 1,722,936 = 54.3985%** (95% Wilson 54.3241–54.4728%). Restrict fodder to 17 non-Basic Other cards in the V-for-FSS model: **906,499 / 1,722,936 = 52.6136%** (95% Wilson 52.5391–52.6882%).
