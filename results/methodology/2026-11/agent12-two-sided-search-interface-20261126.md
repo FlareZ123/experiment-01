@@ -33,6 +33,8 @@ With no fixed opponentActionPolicy, both seats use PUCT nodes in the same search
 
 The adapter has no Flittle/card/deck envelope. It searches native action frontiers for either physical seat and treats actor-owned player prompts as additional search decisions. Engine/chance prompts are handled by explicit trusted-host callbacks. The actor policy/value and prompt-choice callbacks receive actor-visible observations/projections, not native full State. The adapter checks both sampled-seat knowledge ledgers and carries the owner K0/K1/PARTIAL ledger, rules profile, and actor's own deck identity into the observation key.
 
+The exported createNativeTwinleafPromptCallbacks helper binds those callbacks to Agent36's existing agent36-prompt-projection.cjs: player prompts use its actor-only prompt projection and choice map; selected raw choices are decoded/validated by the native prompt validator before dispatch; host-only prompts use its physical-RNG resolver. Card-effect prompts remain fail-closed unless the caller supplies provenanceForPrompt and a mapSourceCard function that maps the typed source card into the cloned State. The generic adapter also passes the current cloned Simulator/Store to host-only resolvers, so they do not need to access or mutate the live Store.
+
 Admission is deliberately fail-closed: the native frontier must be complete under the reviewed pinned enumerator, and any unsupported or truncated action family aborts the search. The current frontier ceiling is 256 actions. A prompt must be classified as automatic or owned by one physical seat; unknown prompt ownership aborts rather than silently delegating it.
 
 The adapter never mutates the live Store. It constructs a cloned native Simulator for each transition, carries sampled belief metadata through the transition hooks, and resolves automatic prompts before returning the successor state. Its returned action is the actor-visible projected action/token, not a native action object; a live caller must bind that token/signature to the exact current live frontier before dispatch.
@@ -48,9 +50,10 @@ The contract tests are appended to the existing MCTS suites:
 - **tests/2026-11/agent5-twinleaf-adapter-search.test.cjs**
   - exercises both physical seats through the generic native frontier;
   - exercises a player-owned prompt as a search node;
-  - checks the actor-relative knowledge metadata contract.
+  - exercises Agent36 native ConfirmPrompt projection and host-only CoinFlipPrompt resolution;
+  - checks the actor-relative knowledge metadata contract and native prompt-result validation.
 
-The first workflow dispatch exposed a prompt-frontier count expectation error; the next exposed a duplicate test-only determinizer overriding its metadata-bearing sampler. Both fixture defects were corrected. Exact-head run **45735503362** on branch head **5fbf2e0a5016ac87f2109737386059ca2ac1ca65** completed with the workflow step **“Information-set MCTS core, belief, adapter, Flittle, and Aichi bridge contract tests” successful**. The overall workflow job was not green: a later, separate step, **“Generic owner-hand Trainer category and shared-action opportunity tests,”** failed three Wondrous Labyrinth assertions in tests/agent8-wondrous-energy-cost-regression.test.cjs. Thus the MCTS/general-sum/generic-adapter contract step passed on the exact head; the broader workflow has an unrelated failure and must not be represented as green.
+The first workflow dispatch exposed a prompt-frontier count expectation error; the next exposed a duplicate test-only determinizer overriding its metadata-bearing sampler. Both fixture defects were corrected. Exact-head run **45736824431** on branch head **f99470cb1ee408a832a0a1bb7384262a34dab88a** completed with the workflow step **“Information-set MCTS core, belief, adapter, Flittle, and Aichi bridge contract tests” successful**. This includes the new native ConfirmPrompt projection, native choice validation, and host-only CoinFlipPrompt resolver tests. The overall workflow job was not green: a later, separate step, **“Generic owner-hand Trainer category and shared-action opportunity tests,”** failed three Wondrous Labyrinth assertions in tests/agent8-wondrous-energy-cost-regression.test.cjs. Thus the MCTS/general-sum/generic-adapter contract step passed on the exact head; the broader workflow has an unrelated failure and must not be represented as green.
 
 ## Integration contract
 
@@ -98,7 +101,7 @@ This is an interface example, not a complete configured runner. maxPlies counts 
 ## Limitations and next actions
 
 - The adapter is tested against synthetic Store fixtures, not yet against a complete actual Twinleaf game. Contract tests do not establish full card-pool support or paper Expanded correctness.
-- Prompt projection/choice mapping and automatic-prompt resolution still need a concrete, audited binding to the pinned engine's actual prompt classes. Unsupported prompts must remain fail-closed.
+- The native prompt helper is contract-tested with synthetic ConfirmPrompt/CoinFlipPrompt fixtures, not yet against the full pinned engine prompt-class population. Card-effect prompts need a provenanceForPrompt callback and source-card remapping into each cloned State; unsupported or provenance-incomplete prompts remain fail-closed.
 - The value evaluator is an injected dependency; no calibrated all-game win-probability model is supplied here. A heuristic or uncalibrated evaluator is not evidence of deck strength.
 - The adapter is not yet connected to the V3 registered two-seat search/review loop. Use the existing V3 runner and full-state recorder; do not add another runner, workflow, or trace serializer.
 - Before any competitive evaluation, run exact-head no-game contracts, integrate the adapter into the existing candidate decision path, capture both seats' complete decision traces, and obtain independent review of meaningful candidate and opponent decisions. No game or matchup result is claimed here.
