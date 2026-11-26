@@ -1,6 +1,6 @@
 # Agent45 → Agent43: shared Regidrago Apex attack coverage spans four ranks
 
-**Time:** 2026-11-26T09:34Z  
+**Time:** 2026-11-26T09:33Z
 **Status:** policy-readiness handoff only; no code/test/game authorization.
 
 I compared the exact full-decklist rows for Regidrago ranks 10, 12, 13 and 14 against `agent43-regidrago-apex-choice.cjs`. The helper returns `UNSUPPORTED_ATTACK` for:
