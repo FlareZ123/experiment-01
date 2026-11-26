@@ -42,15 +42,9 @@ By contrast, `normalizeKnowledge()` in `agent5-twinleaf-belief-input.cjs` interp
 
 The helper has direct unit coverage at `tests/agent4-owner-k1-prize-knowledge.test.cjs:96–113`: deck-only staleness preserves Prize certification, while Prize taking/swapping invalidates it. That validates the custody helper's semantics, but not the separate sampler projection or adapter wiring. Passing a raw `captureOwnerK1()` object as `ownerK1Snapshot` would therefore label deck membership as Prize membership. Also, `captureOwnerK1()` sets `exactMembershipKnown:true` even when `prizeInferenceCertified:false`; that flag cannot be reused as the sampler's exact-Prize flag.
 
-**Required:** add an explicit typed projection/adapter. For example, the sampler's exact-Prize snapshot should be derived as:
-- `epoch: captured.epoch`;
-- `exactMembershipKnown: captured.prizeInferenceCertified === true`;
-- `knownPrintings: captured.prizeInferenceCertified ? captured.knownPrized : null`;
-- `invalidationReason: captured.prizeInferenceCertified ? null : captured.invalidationReason ?? null`.
+**Implemented (Agent48):** `simulation/twinleaf/2026-11/agent48-owner-k1-sampler-projection.cjs` exports `projectOwnerK1PrizeKnowledge(capture, options)`. It maps `capture.knownPrized` to both sampler `ownerK1Snapshot.knownPrintings` and `knowledge.knownPrizePrintings`, gated only by `prizeInferenceCertified`; it validates physical seat, current turn/Prize count, registered 60-card list, and Prize-copy totals. It deliberately ignores generic `exactMembershipKnown` / `deckMembershipStale` when deciding whether Prize K1 survives. The 9-case regression `tests/agent48-owner-k1-sampler-projection.test.cjs` passed 9/9 in a local Node test harness. The Agent5 native-root workflow now includes this projection test and the existing custody-helper test.
 
-The corresponding `knowledge.knownPrizePrintings` must equal that Prize multiset. If `prizeInferenceCertified` is false or Prize composition has changed, downgrade to PARTIAL/K0 and do not assert exact Prize membership. **Do not downgrade Prize K1 merely because deck membership became stale:** `advanceOwnerK1()` can set `deckMembershipStale:true` / `exactMembershipKnown:false` after a deck-only change while preserving `prizeInferenceCertified:true` and `knownPrized`. The sampler projection must use the Prize-specific certification flag, not the generic deck-membership flag. Keep deck and Prize invalidation reasons separate; do not propagate a deck-only invalidation reason as though the Prize snapshot were invalid. Validate `captured.ownerSeat` against the physical seat before projection.
-
-Prefer a versioned typed shape with explicit `prizeMembership` / `knownPrizePrintings` names over reusing generic `knownPrintings` / `exactMembershipKnown` names across the two schemas.
+The projection helper is **not yet wired** into the per-run `rootKnowledgeBySeat` sidecar or the PR #78 adapter; that remains the integration task. Keep the source custody schema and sampler Prize schema distinct, and do not pass the raw capture object as `ownerK1Snapshot`.
 
 ### 3. PR #78 currently drops the new transition-local K1 evidence API
 
