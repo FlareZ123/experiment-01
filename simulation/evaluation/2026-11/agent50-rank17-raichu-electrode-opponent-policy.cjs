@@ -1800,6 +1800,11 @@ function r17FreeRetreat(item,view) {
 // every transient native damage modifier. Only exact known visible
 // printings receive a price/hit estimate; other targets fail closed.
 const R17_TARGET_ROWS=Object.freeze([
+  // Exact field two-Prize attackers: paid Rain can take a meaningful KO
+  // without consuming a self-KO, even when not yet game-terminal.
+  [/^Regidrago VSTAR SIT(?: 136)?$/i,2,false],
+  [/^Regidrago V SIT(?: 135)?$/i,2,false],
+  [/^Iron Thorns ex TWM(?: 77|196)?$/i,2,false],
   [/^Shadow Rider Calyrex VMAX CRE(?: 75)?$/i,3,true],
   [/^Shadow Rider Calyrex V CRE(?: 74)?$/i,2,true],
   // Exact New Moon Lockbreaker English mechanics-proxy printings.
@@ -2495,7 +2500,7 @@ function r17Prompt(request) {
 // already have a paid, legal Electro Rain attack and a fully printed public
 // target board with no attached opponent Tools or live Stadium. A one-turn
 // board-out/Prize-terminal plan is favored over a zero-benefit fallback.
-function r17DirectRainWindow(request,{allowThreePrizePressure=false}={}){
+function r17DirectRainWindow(request,{minimumNonterminalPrizes=null}={}){
   const v=request?.observation,p=active(own(v));
   if(!v||!p||r17Key(p)!=='raichu'||!r17RainWindow(v,p)||
      r17NeedTempleRemoval(v)||list(own(v).stadium).length||
@@ -2537,9 +2542,10 @@ function r17DirectRainWindow(request,{allowThreePrizePressure=false}={}){
     }))
   };
   const plan=r17PlanRainTurn(input);
-  const threePrizePressure=allowThreePrizePressure&&plan?.win!==true&&
-    plan?.prizesTaken>=3&&plan?.netPrizeSwing>=3;
-  if(plan?.status!=='immediate-ko-plan'||(!plan.win&&!threePrizePressure)||
+  const nonterminalPressure=[2,3].includes(minimumNonterminalPrizes)&&
+    plan?.win!==true&&plan?.prizesTaken>=minimumNonterminalPrizes&&
+    plan?.netPrizeSwing>=minimumNonterminalPrizes;
+  if(plan?.status!=='immediate-ko-plan'||(!plan.win&&!nonterminalPressure)||
      plan.bombsUsed!==0||plan.discardTokens.length===0||
      plan.lightningUnits<=0||plan.lightningUnits>512)return null;
   return {action:attack,plan,targets,
@@ -2860,7 +2866,7 @@ function r17CreatePolicy({role,seat,policyVersion,config}) {
       }
       if(rain.stage==='bomb-rain-root'){
         const actual=r17DirectRainWindow(request,{
-          allowThreePrizePressure:rain.allowThreePrizePressure===true
+          minimumNonterminalPrizes:rain.allowThreePrizePressure===true?3:null
         });
         if(!actual){rain=null;return r17Abstain('R17_UNTRUSTED_PROMPT');}
         rain={stage:'discard',turn:rain.turn,sequence:request.sequence,...actual};
@@ -2904,7 +2910,7 @@ function r17CreatePolicy({role,seat,policyVersion,config}) {
     }
     // A paid nonterminal three-Prize Rain saves both Bombs: this dominates
     // paying a two-Prize self-KO for the same attack-level knockout.
-    const directPressure=r17DirectRainWindow(request,{allowThreePrizePressure:true});
+    const directPressure=r17DirectRainWindow(request,{minimumNonterminalPrizes:2});
     if(directPressure?.plan?.win===false){
       rain={stage:'discard',turn:request.observation.globalTurn,
         sequence:request.sequence,...directPressure};
