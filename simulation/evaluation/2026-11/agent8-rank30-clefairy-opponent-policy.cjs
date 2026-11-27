@@ -64,7 +64,9 @@ const PUBLIC_ABORT = Object.freeze({
   R30_PATCH_PROMPT_UNSUPPORTED:'UNSUPPORTED_PROMPT_TYPE',
   R30_PATCH_NO_ELIGIBLE_BENCH:'NO_VISIBLE_POKEMON_TARGET',
   R30_TELEPATH_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
-  R30_TELEPATH_NO_TARGET:'NO_LEGAL_CARD_SET'
+  R30_TELEPATH_NO_TARGET:'NO_LEGAL_CARD_SET',
+  R30_STAR_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
+  R30_STAR_NO_CARD:'NO_LEGAL_CARD_SET'
 });
 const no = reasonCode => ({kind:'abstain',reasonCode:PUBLIC_ABORT[reasonCode]??reasonCode});
 const act = x => ({kind:'select-action',token:x.token});
@@ -181,6 +183,54 @@ function telepathPrompt(request) {
       no('R30_TELEPATH_NO_TARGET');
   }
   return picks(result);
+}
+
+function starNeedsResource(o,{enablePatchProjection=false}={}) {
+  if(o?.ownTurnResources?.vstarUsed!==false)return false;
+  const own=slots(o.ownPublic),hand=arr(o.ownHand);
+  const hasClef=own.some(x=>has(x,P.clefairy))||hand.some(x=>has(x,P.clefairy));
+  if(!hasClef)return true;
+  if(enablePatchProjection&&basicDiscard(o.ownPublic)&&hasBenchedPsychic(o.ownPublic)&&
+    !hand.some(x=>has(x,P.patch)))return true;
+  const active=o.ownPublic?.active;
+  const nextEnergy=o.ownTurnResources?.energyPlayedTurn===0;
+  if(has(active,P.clefairy)&&arr(active.energies).length<2&&nextEnergy&&
+     !hand.some(x=>has(x,P.basicPsychic)||has(x,P.telepathic)))return true;
+  const ro=projectedRondo(o);
+  if(has(active,P.clefairy)&&ro&&ro.remaining>ro.damage&&ro.remaining<=ro.damage+20&&
+    benchCount(o.ownPublic)===5&&!stadium(o)&&hand.some(x=>has(x,P.clefairy)))
+    return true;
+  return false;
+}
+function starAlchemyPrompt(request,{enablePatchProjection=false}={}) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
+    m.sourceZone!=='deck'||m.ownerSeat!=='actor'||m.isOwnerVisible!==true||
+    !safeInt(m.minimumCount)||!safeInt(m.maximumCount)||m.maximumCount!==1)
+    return no('R30_STAR_PROMPT_UNSUPPORTED');
+  const cards=arr(p.choices).filter(c=>c.kind==='card'&&typeof c.token==='string');
+  const own=slots(o.ownPublic),hand=arr(o.ownHand),ro=projectedRondo(o);
+  const seek=pattern=>cards.find(c=>has(c,pattern));
+  let target=null;
+  if(!own.some(x=>has(x,P.clefairy))&&!hand.some(x=>has(x,P.clefairy)))
+    target=seek(P.clefairy)??seek(P.quickBall);
+  if(!target&&enablePatchProjection&&basicDiscard(o.ownPublic)&&
+     hasBenchedPsychic(o.ownPublic))
+    target=seek(P.patch);
+  if(!target&&has(o.ownPublic?.active,P.clefairy)&&ro&&
+     ro.remaining>ro.damage&&ro.remaining<=ro.damage+20&&
+     benchCount(o.ownPublic)===5&&!stadium(o))
+    target=seek(P.sky);
+  if(!target&&has(o.ownPublic?.active,P.clefairy)&&
+     arr(o.ownPublic?.active?.energies).length<2)
+    target=seek(P.telepathic)??seek(P.basicPsychic);
+  if(!target)target=seek(P.guzma)??seek(P.telepathic)??seek(P.basicPsychic)??
+    seek(P.box)??seek(P.sky)??seek(P.clefairy);
+  if(!target && cards.length)target=cards[0];
+  if(target)return picks([target]);
+  const empty=arr(p.choices).find(c=>c.kind==='empty-selection'&&typeof c.token==='string');
+  return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
+    no('R30_STAR_NO_CARD');
 }
 
 function vipPrompt(request) {
@@ -329,12 +379,24 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   if(quick && canStartQuickBall(o))return act(quick);
   const box=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.box));
   if(box && canStartBox(o))return act(box);
+  // Attach the one-use VSTAR Tool to a source Pokémon V; avoid burning the
+  // VSTAR power unless a specific missing attack/setup channel is visible.
+  const vstarV=/^(?:Crobat V DAA(?: 104)?|Empoleon V BST(?: 40)?)\b/i;
+  if(o.ownTurnResources?.vstarUsed===false){
+    const stone=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.fss)&&
+      vstarV.test(text(a.targetPrinting)));
+    if(stone)return act(stone);
+  }
+
   // Hand disruption against the publicly imminent two-Prize reply is a
   // tactical heuristic, not a guarantee that a hidden gust will disappear.
   if(enablePatchProjection && basicDiscard(o.ownPublic) && hasBenchedPsychic(o.ownPublic)){
     const patch=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.patch));
     if(patch)return act(patch);
   }
+  const star=items.find(a=>a.kind==='use-ability'&&
+    a.publicMetadata?.abilityName==='Star Alchemy');
+  if(star && starNeedsResource(o,{enablePatchProjection}))return act(star);
   const marnie=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.marnie));
   if(marnie && threatenSecondTarget(o) &&
     !candidateCanUseBoardHeldStarAlchemy(o))return act(marnie);
@@ -367,6 +429,8 @@ function createPolicy({role,seat,policyVersion,config}) {
       if(sameSource(request.prompt,P.quickBall))return quickBallPrompt(request);
       if(sameSource(request.prompt,P.vip))return vipPrompt(request);
       if(sameSource(request.prompt,P.telepathic))return telepathPrompt(request);
+      if(sameSource(request.prompt,P.fss))return starAlchemyPrompt(request,
+        {enablePatchProjection:config.enablePatchProjection===true});
       if(sameSource(request.prompt,P.patch)&&config.enablePatchProjection===true)
         return patchPrompt(request);
       return no('R30_UNSUPPORTED_PROMPT_FAMILY');
@@ -375,4 +439,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,patchPrompt,projectedRondo,discardScore,candidateCanUseBoardHeldStarAlchemy};
+  rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,patchPrompt,projectedRondo,discardScore,candidateCanUseBoardHeldStarAlchemy};
