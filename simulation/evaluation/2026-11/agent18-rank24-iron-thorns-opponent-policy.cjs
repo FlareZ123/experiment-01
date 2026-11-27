@@ -308,15 +308,20 @@ function discardPriority(value, observation) {
   return 0;
 }
 function trainersMailChoiceScore(value, observation) {
+  const active = ownActive(observation);
+  const dceReady = hasActiveEnergy(active, DOUBLE_COLORLESS) ||
+    list(observation?.ownHand).some(card => matches(card, DOUBLE_COLORLESS));
+  const ghCanCompleteAttack = !voltCycloneFunded(active, observation) &&
+    (dceReady || canPayGuzmaHala(observation));
   if (matches(value, MEGATON_BLOWER)) return 300;
   if (matches(value, ENHANCED_HAMMER)) return opponentSpecialEnergyCount(observation) > 0 ? 275 : 160;
+  if (matches(value, TAG_CALL)) return ghCanCompleteAttack ? 286 : 235;
+  if (matches(value, GUZMA_HALA)) return ghCanCompleteAttack ? 282 : 210;
   if (matches(value, NEST_BALL)) return ownThornsInPlay(observation) < 2 && benchOpen(observation) ? 250 : 80;
-  if (matches(value, TAG_CALL)) return 235;
   if (matches(value, VS_SEEKER)) {
     return hasCard(observation?.ownPublic?.discard, BELLELBA) ? 230 : 125;
   }
   if (matches(value, TOOL_JAMMER)) return opponentActiveHasTool(observation) ? 220 : 95;
-  if (matches(value, GUZMA_HALA)) return 210;
   if (matches(value, PLUMERIA)) return opponentEnergyCount(observation) > 0 ? 205 : 100;
   if (matches(value, TEAM_FLARE_GRUNT)) return list(opponentActive(observation)?.energies).length > 0 ? 200 : 95;
   if (matches(value, FABA)) return 195;
