@@ -1191,7 +1191,7 @@ function scorePlayCard(item, request) {
       !boardHasTool(own, PRINT.toolJammer) &&
       !hand.some(value => matches(value, PRINT.toolJammer)) &&
       ownerK1DeckMayContain(observation, PRINT.toolJammer);
-    const needFallbackStadium =
+    const needFallbackStadium = stadiumsInPlay(observation).length === 0 &&
       ![PRINT.tropicalBeach, PRINT.wondrousLabyrinth].some(pattern =>
         hasStadium(observation, pattern) || hand.some(value => matches(value, pattern))) &&
       [PRINT.tropicalBeach, PRINT.wondrousLabyrinth].some(pattern =>
