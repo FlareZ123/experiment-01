@@ -107,6 +107,16 @@ Reproduce:
 ```
 Source commit `66f1b817965203722cdee2286fbd62c472434843`; no production policy modified.
 
+**Committed search before refresh.** The additional `--presearch-draw` mode commits Fog Crystal or Hisuian Heavy Ball at K0, samples the six-card Prize allocation, and only after the legal inspection chooses the target and either a deterministic continuation or the best bank/refresh choice. The conditional draw calculation is exact. `--presearch-known` supplies the actual target and plan during resolution using known own-zone composition. Heavy Ball exchange updates the Prize multiset, not merely hand size.
+
+For W Active/V Benched with Fog, Psychic, two Other, Lillie and Iono held and unknown Prizes, the exact deterministic-only policy succeeds in 67.528637% of allocations. Immediate Lillie with Psychic banked estimates 44.777869% (1,024 samples, SE 1.300828 pp). A fixed Fog-first policy with the option to refresh afterward estimates **86.375512%** (512 independent Prize samples, SE 1.047666 pp, seed 21062705; 352 deterministic successes). The smaller independent 128-sample pilot estimated 89.165875%. This is the same held hand across policies, not an unconditional opening rate. The planner still permits at most one explicit pre-refresh search before banking (the deterministic continuation may use additional searches). It does not yet tutor a draw Supporter before refreshing or model any opponent intervention. The key actionable improvement is to preserve the option to use a deterministic Arven/Float route and only refresh when necessary.
+
+Reproduce:
+```sh
+./active-choice --extended bench --presearch-draw 0,0,0,0,0,0,0,0,0,0,0,1,0,1,2,1,1 3,4,1,1,1,1,1,1,1,1,1,3,5,10,17,1,0 0 WF 0,0,0,0,0,0,0,0 512 21062705 fog
+```
+Source commit `0183818824a42a382b75a21463681ed80e0187aa`.
+
 ## What a fair whole-game comparison must answer
 
 The current reviewed candidate policy cannot rank these lists fairly: it lacks Wobbuffet/Temple root decisions and complete Bide Barricade hand/discard scope, while it also does not fully realize Hood's Ranger/Item-lock response. It would under-measure both packages. PR #69 and PR #71 remain frozen at their reviewed scopes; this synthesis does not authorize a policy patch, fixture, or game.
