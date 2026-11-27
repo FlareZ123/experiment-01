@@ -119,9 +119,15 @@ function scoreAction(action, request) {
         active?.publicRestrictions?.cannotRetreatNextTurn === true ||
         own.publicTurnRestrictions?.attackLockTurnsRemaining > 0 ? 155 : 0;
     }
-    const temple = list(opp.stadium).some(x=>/^Temple of Sinnoh ASR 155\b/i.test(print(x)));
-    const threatenedDde = temple && slots(own).some(p=>
+    const temple = list(opp.stadium).concat(list(own.stadium))
+      .some(x=>/^Temple of Sinnoh ASR 155\b/i.test(print(x)));
+    const attachedDde = slots(own).some(p=>
       list(p.energies).some(e=>/^Double Dragon Energy ROS 97\b/i.test(print(e))));
+    const pendingDde = list(obs.ownHand).some(e=>
+      /^Double Dragon Energy ROS 97\b/i.test(print(e))) &&
+      slots(own).some(p=>/^Regidrago V(?:STAR)? SIT 13[56]\b/i.test(print(p)) &&
+        apexTypedDeficit(p,obs)>0);
+    const threatenedDde = temple && (attachedDde || pendingDde);
     const ownUnusedBasicSupport = slots(own).some(p =>
       /Dedenne-GX|Crobat V|Tapu Lele-GX|Fezandipiti ex/i.test(print(p)) &&
       list(p?.abilityDetails).length > 0);
