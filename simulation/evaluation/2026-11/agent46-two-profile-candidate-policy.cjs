@@ -3993,7 +3993,8 @@ function harmlessStadiumForDirectPsychicFinal(view,printing){
   const active=view.ownPublic.active;
   const types=active?.printed?.types;
   if(!Array.isArray(types)||types.length!==1||types[0]!=='Psychic')return false;
-  return hasAnyName(printing,['Path to the Peak','Silent Lab','Parallel City']);
+  return hasAnyName(printing,['Path to the Peak','Silent Lab','Parallel City',
+    'Tropical Beach','Thunder Mountain']);
 }
 function cleanPublicTerminalView(view,direct=false,extraHarmlessAbility=null){
   return view.globalTurn>1&&view.ownPublic.active&&view.opponentPublic.active&&
