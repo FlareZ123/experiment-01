@@ -73,6 +73,9 @@ function sample(seat, {legacy=false, used=undefined, temple=false,
 
 test('Legacy public marker is protocol-admitted, boolean and optional',()=>{
   const {view}=sample(0,{legacy:true,used:false});
+  // Isolate the public-player restriction schema from unrelated test Pokémon schemas.
+  view.opponentPublic.active=null;
+  view.opponentPublic.bench=[null];
   assert.doesNotThrow(()=>protocol.validatePublicPlayer(view.opponentPublic,false));
   view.opponentPublic.publicTurnRestrictions.legacyEnergyUsed=true;
   assert.doesNotThrow(()=>protocol.validatePublicPlayer(view.opponentPublic,false));
@@ -84,7 +87,7 @@ test('Legacy public marker is protocol-admitted, boolean and optional',()=>{
 test('Actor projection exposes only an actual boolean Legacy use marker',()=>{
   const emptySlot={getPokemonCard(){return null;},cards:[]};
   const cards={cards:[]};
-  const playerState={active:emptySlot,bench:[],stadium:{cards:[]},discard:cards,
+  const playerState={active:emptySlot,bench:[],stadium:{cards:[]},deck:cards,discard:cards,
     lostzone:cards,supporter:cards,hand:{isPublic:false,cards:[]},
     prizes:[],usedGX:false,usedVSTAR:false,legacyEnergyUsed:true,
     ignoreAttackCostCardTypes:[]};
