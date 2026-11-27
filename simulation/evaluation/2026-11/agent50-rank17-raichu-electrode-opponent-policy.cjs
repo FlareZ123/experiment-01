@@ -1646,6 +1646,11 @@ function r17TrainerNeed(key,view) {
   }
   if(key==='stretcher')return r17CoreAccess(view,{}, {stretcher:1}).stretcherKeys.length||
     r17Discard(view).some(c=>!R17_CORE_KEYS.includes(r17Key(c))&&r17RecoveryValue(r17Key(c),view)>0)?230:70;
+  if(key==='secret'){
+    const payment=r17SecretPayment(hand(view),view,null);
+    if(payment.length<3)return 0;
+    return payment.some(c=>R17_ENERGY.has(r17Key(c)))&&r17RainWindow(view,active(own(view)))?380:250;
+  }
   if(key==='heavy')return r17Missing(view,'voltorb','electrode')||r17Missing(view,'pikachu','raichu')?160:40;
   if(key==='research')return supporterAvailable(view)&&!r17Hand(view,'research')&&r17Deck(view)>=8?190:45;
   if(key==='carmine')return supporterAvailable(view)&&!r17Hand(view,'research')&&r17Deck(view)>=6?145:30;
