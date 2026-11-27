@@ -94,7 +94,7 @@ function root(seat=0,options={}) {
     sequence:1,role:'opponent',seat,
     observationSchema:protocol.OBSERVATION_SCHEMA,
     observation:{
-      actorSeat:seat,globalTurn:4,phase:2,
+      actorSeat:seat,globalTurn:4,phase:options.phase??2,
       decisionKind:prompt?'owner-prompt':'owner-root',
       pendingPromptType:prompt?.promptType??null,
       pendingOwnerDeckSearch:false,ownHand:options.hand??['Grass Energy MEE 9'],
@@ -238,4 +238,81 @@ test('V3 contract clears hostile Temple before attaching suppressed Double Drago
   assert.deepEqual(checked(req),{kind:'select-action',token:'parallel'});
   opponent.stadium=[];
   assert.deepEqual(checked(req),{kind:'select-action',token:'dde'});
+});
+
+
+function enginePrompt(seat,effectName,promptType,choices,metadata) {
+  return {
+    schema:protocol.PROMPT_SCHEMA,actingSeat:seat,promptType,
+    description:effectName,source:{
+      classification:'actor-choice',sourceKind:'engine',
+      sourcePrinting:null,effectName
+    },choices,publicMetadata:metadata
+  };
+}
+function startChoice(token,printing,index) {
+  return {
+    token,kind:'card',printing,label:printing,
+    publicMetadata:{selectionIndex:index,selectedCount:1,
+      sourceZone:'hand',ownerSeat:'actor',isOwnerVisible:true}
+  };
+}
+
+test('V3 setup selects Regidrago V active, preserves one-play Basic draw supports',()=>{
+  for(const seat of [0,1]) {
+    const list=[
+      ['ded','Dedenne-GX UNB 57'],['bud','Budew ASC 16'],
+      ['v','Regidrago V SIT 135'],['tap','Tapu Lele-GX GRI 60'],
+      ['lat','Latias ex SSP 76'],['cr','Crobat V DAA 104']
+    ];
+    const p=enginePrompt(seat,'CHOOSE_STARTING_POKEMONS','ChooseCardsPrompt',
+      list.map(([token,printing],i)=>startChoice(token,printing,i)),{
+        selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+        isOwnerVisible:true,minimumCount:1,maximumCount:6,
+        allowCancel:false,isSecret:false
+      });
+    const own=player({active:null,bench:[]});
+    const req=root(seat,{phase:1,own,prompt:p,items:[],
+      hand:list.map(x=>x[1]),requestId:'rank32-start-seat-'+seat});
+    assert.deepEqual(checked(req),{kind:'select-choices',tokens:['v','lat','bud']});
+    // Two Stage-1-trigger and draw-on-bench Basics remain in hand at setup.
+    assert.equal(p.choices.some(c=>c.token==='ded'),true);
+    assert.equal(p.choices.some(c=>c.token==='tap'),true);
+  }
+});
+
+test('V3 setup after Active placement declines dead on-play Basic helpers on Bench',()=>{
+  const p=enginePrompt(0,'CHOOSE_STARTING_POKEMONS','ChooseCardsPrompt',[
+    startChoice('tap','Tapu Lele-GX GRI 60',0),
+    startChoice('ded','Dedenne-GX UNB 57',1),
+    {token:'none',kind:'empty-selection',label:'Select none'}
+  ],{selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+    isOwnerVisible:true,minimumCount:0,maximumCount:2,
+    allowCancel:false,isSecret:false});
+  const own=player({active:pokemon('Regidrago V SIT 135',{subtypes:['Basic','V']})});
+  const req=root(0,{phase:1,own,prompt:p,items:[],
+    hand:['Tapu Lele-GX GRI 60','Dedenne-GX UNB 57'],
+    requestId:'rank32-extra-bench-none'});
+  assert.deepEqual(checked(req),{kind:'select-choice',token:'none'});
+});
+
+test('V3 setup chooses second for turbo lines and max strictly indexed mulligan draw',()=>{
+  const p=enginePrompt(0,'GO_FIRST','ConfirmPrompt',[
+    {token:'yes',kind:'confirm',label:'Yes'},
+    {token:'no',kind:'confirm',label:'No'}
+  ],{selectionType:'confirm'});
+  const own=player({active:null});
+  const req=root(0,{phase:1,own,prompt:p,items:[],requestId:'rank32-go-second'});
+  assert.deepEqual(checked(req),{kind:'select-choice',token:'no'});
+  p.promptType='SelectPrompt';
+  p.description='WANT_TO_DRAW_CARDS';
+  p.source.effectName='WANT_TO_DRAW_CARDS';
+  p.publicMetadata={selectionType:'option',count:3,allowCancel:false};
+  p.choices=[
+    {token:'two',kind:'option',label:'Draw 2 card(s)',publicMetadata:{choiceIndex:0}},
+    {token:'one',kind:'option',label:'Draw 1 card(s)',publicMetadata:{choiceIndex:1}},
+    {token:'zero',kind:'option',label:'Draw 0 card(s)',publicMetadata:{choiceIndex:2}}
+  ];
+  req.observation.pendingPromptType='SelectPrompt';
+  assert.deepEqual(checked(req),{kind:'select-choice',token:'two'});
 });
