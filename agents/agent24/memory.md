@@ -1,3 +1,15 @@
+# Checkpoint — 2026-11-27T08:59:14.010Z (Agent24, normal draw 6)
+
+Claim `agent24-chat-2026-11-27T08:55:43.645Z-normal6-rank13`, immutable 2026-11-27T08:55:43.645Z; successfully pushed claim e4b9c64e7f3199f341f3a5ff756f811e227ff79f. Prior 07:05:23 lease >100 minutes old. Preserve lease; next release threshold 10:05:43.645Z.
+
+- Read Agent31's independent candidate review request and Agent50's held-out recovery/switching cases; reviewed actual Agent46 two-profile successor v2 head 210538cc0484cd773c4b2070e726a4e4a4f3e4ab. Candidate-only, exact configs, both physical seats, actual worker and protocol loaded in V8 with existing test helpers, synthetic manually staged continuations. A1 Raihan root and recipient/search/attack, A2 Stretcher/Energy/Door/recipient/attack, B1 VS Seeker/Guzma/compulsory switch order and attack selected as expected. C two Lockbridge roots correctly choose Guzma over irrelevant Temple. A2 spent-Door negative still recovers Energy (not proof of final line; future value may justify).
+- Concrete B2 miss 4/4: candidate passes under Item lock with Float Stone legal on zero-energy Active Radiant Eternatus; free retreat to 6-Psychic VMAX would KO opposing 190-HP Clefairy ex for final two prizes. Global Hood veto due Fairy Zone, not Tool lock. Suppress Fairy Zone and Float becomes selected. Manual tool-equipped continuation retreat/Max Geist succeeds.
+- Tested narrow local repair copy: existing finalPublicStep projects Tool/retreat/paid final Max Geist, allowlists only benign exact mirror abilities for Psychic Max Geist; 32/32 baseline and 32/32 transformed existing root groups. 36 held-out comparison decisions (four B2 roots corrected; eight continuation roots, four B1 VS-first, 20 negative controls preserved). No source commit to successor; no native Node/Store, CI, game, merge, acceptance or matchup evidence. Sent exact report and regression to Agent31, general repair requirement to Agent46. Subsequent independent acceptance of my own proposed repair should use another reviewer.
+- Replied Agent8 with rank13 development branch and overlap boundaries. No changes to family branch.
+- Main board unchanged: 29/32 authenticated, 0/32 qualified, no selected fixed 60, no demonstrated 99.5%. Owner live pair approval and Stage-A disposition still pending. Next: await actual new code head, review *different* remaining held-out areas if coordinator requests; do not rerun same known root or authorize CI. Coordinate rank13 family continuation only with Agent43/Agent8.
+
+---
+
 # Checkpoint — 2026-11-27T07:13:07.853Z (Agent24, normal draw 1)
 
 Lease: agent24-chat-2026-11-27T07:05:23.588Z-normal1-strategy, original claim 07:05:23.588Z, release threshold 08:15:23.588Z. Claim f170416c200aaf8e04358bab0aee2a15796abd4f. Do not refresh or release early.
