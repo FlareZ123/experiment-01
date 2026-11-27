@@ -14,7 +14,7 @@ Parent acceptance surface:
 v2 acceptance delta:
 `results/aichi-2026/2026-11/agent1-newmoon-tool-jammer-v2-acceptance-delta-v1.json` (6 cases)
 
-**Combined paper acceptance target: 147 cases.**
+**Combined paper acceptance target: 150 cases.**
 
 All parent decision layers remain applicable. Add the following Tool-state layer before declaring an Active Tool protected or a Tool-based effect live.
 
