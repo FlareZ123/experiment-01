@@ -150,7 +150,24 @@ function safeDiscardPayment(o,choices,count) {
     .map((choice,i)=>({choice,score:discardScore(choice,o),i}))
     .filter(row=>row.score>0)
     .sort((a,b)=>b.score-a.score||a.i-b.i);
-  return options.length>=count ? options.slice(0,count).map(row=>row.choice) : null;
+  const manualAvailable=o.ownTurnResources?.energyPlayedTurn===0;
+  const needClef=has(o.ownPublic?.active,P.clefairy)&&
+    arr(o.ownPublic?.active?.energies).length<2;
+  const needMinior=miniorStallOpportunity(o)?.knockout&&
+    arr(o.ownPublic?.bench).some(c=>has(c,P.minior)&&arr(c.energies).length===0);
+  const reserveBasic=manualAvailable&&copyCount(ownHand,P.telepathic)===0&&
+    (needClef||needMinior)?1:0;
+  const maxBasicSpent=Math.max(0,copyCount(ownHand,P.basicPsychic)-reserveBasic);
+  const result=[];let basicSpent=0;
+  for(const row of options){
+    if(has(row.choice,P.basicPsychic)){
+      if(basicSpent>=maxBasicSpent)continue;
+      basicSpent++;
+    }
+    result.push(row.choice);
+    if(result.length===count)break;
+  }
+  return result.length>=count?result:null;
 }
 function discardPayment(o,choices){return safeDiscardPayment(o,choices,3);}
 function proposedDeckSearch(o,choices) {
