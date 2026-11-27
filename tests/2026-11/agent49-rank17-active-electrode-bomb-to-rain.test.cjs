@@ -637,3 +637,49 @@ test('nonterminal Active-Electrode Bomb converts into an actual three-Prize VMAX
       'our own Prizes are taken only after native damage settlement, not guessed earlier');
   }
 });
+
+
+
+test('already-funded nonterminal Electro Rain chooses three-Prize KO without a needless Bomb',()=>{
+  const T='Shadow Rider Calyrex VMAX CRE';
+  for(const seat of [0,1]){
+    const f=setup(seat,4);
+    const energies=Array.from({length:3},()=>new EnergyCard());
+    f.owner.active=slot(R,energies);f.owner.bench[0]=slot(E);
+    f.enemy.active=slot(T);f.enemy.bench[0]=slot(T);
+    const vmax=()=>({...viewSlot(T,[],'VMAX'),hp:320,damage:60});
+    f.view.ownPublic.active=viewSlot(R,[P,P,P]);
+    f.view.ownPublic.bench=[viewSlot(E),null,null,null,null];
+    f.view.ownPublic.discard=[];
+    f.view.opponentPublic.active=vmax();f.view.opponentPublic.bench=[vmax()];
+    const rain={kind:'attack',token:'rain',actorPrinting:R,
+      attackName:'Electro Rain',publicMetadata:{attackCostPayable:true}};
+    const bomb={kind:'use-ability',token:'bomb',actorPrinting:E,
+      publicMetadata:{abilityName:'Extra Energy Bomb',
+        sourceZone:'bench',sourceIndex:0,abilityLive:true}};
+    const decision=f.decide(1,null,[rain,bomb,{kind:'pass',token:'pass'}]);
+    assert.deepEqual(decision,{kind:'select-action',token:'rain'},
+      'a funded three-Prize attack must not self-KO an otherwise unused Electrode');
+    const e=discardPrompt(f);e.prompt.options.max=3;
+    const ep=f.project(e.prompt,f.owner.active.getPokemonCard(),'Electro Rain');
+    const ed=f.decide(2,ep.promptProjection);
+    assert.equal(ed.kind,'select-choices');assert.equal(ed.tokens.length,3);
+    const payment=f.settle(e.prompt,ep,ed);
+    assert.equal(payment.rawResult.length,3);
+    f.owner.active.cards=[f.owner.active.getPokemonCard()];
+    f.owner.active.energies.cards=[];f.view.ownPublic.active.energies=[];
+    const d=rainPrompt(f,p=>{
+      p.damage=270;p.maxAllowedDamage=[
+        {target:{player:1,slot:0,index:0},damage:270},
+        {target:{player:1,slot:1,index:0},damage:270}
+      ];
+    });
+    const hits=f.decide(3,d.projection.promptProjection);
+    assert.equal(hits.kind,'select-choices');assert.equal(hits.tokens.length,9);
+    protocol.validateDecision(hits,d.projection.promptProjection,new Set());
+    const settled=f.settle(d.prompt,d.projection,hits);
+    assert.equal(settled.rawResult.length,9);
+    assert.ok(settled.rawResult.every(row=>row.damage===30&&row.target.slot===0));
+    assert.equal(f.view.opponentPublic.prizeCount,4,'no own self-KO changed the opponent Prize count');
+  }
+});
