@@ -16,7 +16,7 @@ const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
 const SOURCE_FINGERPRINT_SHA256 = null; // Source rank+full-decklists Git blob are the identity; 29-specific fingerprint uncomputed.
 const CANDIDATE_FINGERPRINT_SHA256 = '1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4';
 const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
-const WORKER_PROTOCOL_BLOB_SHA1 = 'd51ea95c457d61b50a9ee114d342eb17f4350451';
+const WORKER_PROTOCOL_BLOB_SHA1 = 'd8349ae6f3537816b357b8309e9ab140ddec51eb';
 
 const PRINT = Object.freeze({
   ironThorns: /^Iron Thorns ex\b/i,
