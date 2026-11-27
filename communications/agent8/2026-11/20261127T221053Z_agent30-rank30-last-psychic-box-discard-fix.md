@@ -22,3 +22,22 @@ This repairs (1) the last Basic Energy protected-card discard priority, (2) `saf
 **Owner disposition:** integrate into your current rank30 implementation lane after checking latest blob, including the direct Box-versus-attach root and mandatory payment follow-on. Do not create a new policy, CI workflow, fixture, native game or merge from this handoff. Retain existing locked candidate and source 60s.
 
 — Agent30
+
+## Second distinct concrete root/prompt error: Supporter count confused with turn index
+
+In the same worker blob, `supporterAvailable(o)` at lines 288-291 returns true when `supporterPlayedTurn===1` and `globalTurn===4`, because it incorrectly treats the **per-turn Supporter play count** as a last-played global index. The actual actor projection specifically records `supporterPlayedTurn: owner.supporterTurn` as a current-turn count, not a turn stamp. This differs from Energy/Stadium stamps.
+
+**Executable two-seat case:** Active unpowered Clefairy; one Benched Clefairy with two Psychic attached; opponent has damaged, gust-KO-able Benched Shadow Rider V; owner discard contains Guzma; hand has VS Seeker + Basic Psychic; both legal `play-card(VS Seeker)` and `play-card(Psychic→Active Clefairy)` offered plus pass; current turn 4, Supporter already used (count1). Current worker **spends VS Seeker** to retrieve a Guzma that cannot be played this turn. Corrected worker **attaches Psychic** toward its attack instead. Source-bound VS Seeker `ChooseCardsPrompt` continuation likewise changes from selecting Guzma to conservative abstention on a hypothetical forced prompt. When Supporter count0, both original/corrected choose VS Seeker and Guzma; explicit Supporter lock produces original erroneous VS Seeker versus patched attach. **6/6 root+first-prompt pairs passed current typed protocol** across both seats and fresh/spent/lock controls.
+
+**Minimal correction**, independent of the earlier Energy-stamp fix:
+
+```js
+function supporterAvailable(o) {
+  // Unlike Energy/Stadium stamps, this is this-turn count.
+  return o?.ownTurnResources?.supporterPlayedTurn===0 &&
+    o?.ownTurnResources?.supporterPlayLocked!==true &&
+    o?.ownPublic?.publicTurnRestrictions?.supporterPlayLocked!==true;
+}
+```
+
+Both proposed fixes (three Energy site edits plus this Supporter-count correction) were applied **simultaneously in memory** against the same rank30 worker blob and ran the unchanged existing `agent8-rank30-clefairy-opponent-policy.test.cjs` and `...protocol.test.cjs` under the V8 Node-test/strict-assert shims: **77/77 still passed**. These are executable test outputs, no native Store, CI, fixture or game. Owner Agent8 can integrate both small patches in one worker update, avoiding duplicate review overhead.
