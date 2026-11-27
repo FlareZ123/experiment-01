@@ -1,11 +1,8 @@
 'use strict';
 const assert = require('node:assert/strict');
-const {captureOwnerK1,advanceOwnerK1,assessRequiredDeckPrinting} = require('../../twinleaf/owner-k1-prize-knowledge.cjs');
+const {captureOwnerK1,advanceOwnerK1,assessRequiredDeckPrinting,createOwnerPrizeCompositionGuard} = require('../../twinleaf/owner-k1-prize-knowledge.cjs');
 const {projectOwnerK1PrizeKnowledge} = require('../../twinleaf/2026-11/agent48-owner-k1-sampler-projection.cjs');
 const TARGETS = new Set(['Radiant Eternatus','Shadow Rider Calyrex V','Shadow Rider Calyrex VMAX','Forest Seal Stone','Hisuian Heavy Ball','Tapu Lele-GX','Latias ex',"Lillie's Clefairy ex",'Stealthy Hood','Pokémon Ranger','Wobbuffet','Temple of Sinnoh']);
-// Only these source-bound effects are permitted to retain inferred Prize composition.
-// Unknown effects, opposing actions, or Heavy Ball clear the inference, even at unchanged counts.
-const SAFE_SOURCES = new Set(['Fog Crystal','Mysterious Treasure','Quick Ball','Forest Seal Stone','Arven','Tapu Lele-GX','Radiant Eternatus','Night Stretcher','VS Seeker','Raihan','Teammates','Shadow Rider Calyrex V','Shadow Rider Calyrex VMAX',"Lillie's Clefairy ex",'Latias ex','Trevenant & Dusknoir-GX','Marshadow','Girafarig','Mimikyu','Dialga-GX','Wobbuffet','Psychic Energy','Field Blower','Stealthy Hood','Float Stone','Sky Field','Dimension Valley','Temple of Sinnoh','Iono',"Lillie's Determination",'Acerola','Guzma','Pokémon Ranger','Unfair Stamp','Battle Compressor']);
 // Narrow public attack-effect projection. No native object, marker owner,
 // attack source IDs, hidden cards, pending effects, or private attribution.
 function projectPublicDamageEffects(view,state,seat,Stage) {
@@ -48,7 +45,7 @@ function createOwnerPrizeFacts({candidateSeat, resolved, baseObserve, Stage=null
   const rows=Object.freeze(resolved.resolvedRows.map(row=>Object.freeze({
     cardName:row.name,printing:row.engineFullName,copies:row.count
   })));
-  let store=null,hook=null,snapshot=null,lastOrdinal=-1;
+  let store=null,hook=null,snapshot=null,prizeGuard=null,lastOrdinal=-1;
   const captured=new Set();
   function bindStore(s,h) {
     assert.equal(store,null,'one live game per adapter');
@@ -72,8 +69,11 @@ function createOwnerPrizeFacts({candidateSeat, resolved, baseObserve, Stage=null
        prompt.playerId===owner.id && prompt.cards===owner.deck &&
        sourceName(prompt)!==null && !captured.has(state.turn+':'+String(prompt.id))) {
       captured.add(state.turn+':'+String(prompt.id));
-      try { snapshot=captureOwnerK1(state,seat,names,snapshot,()=>view); }
-      catch {
+      try {
+        snapshot=captureOwnerK1(state,seat,names,snapshot,()=>view);
+        prizeGuard=createOwnerPrizeCompositionGuard(state,seat);
+      } catch {
+        prizeGuard=null;
         if(snapshot) snapshot=advanceOwnerK1(snapshot,{currentOwnPrizeCount:view.ownPublic.prizeCount,
           deckMayHaveChanged:true,prizeCompositionMayHaveChanged:true});
       }
@@ -102,12 +102,10 @@ function createOwnerPrizeFacts({candidateSeat, resolved, baseObserve, Stage=null
     if(!snapshot) return;
     const own=context.state.players[candidateSeat];
     const currentOwnPrizeCount=own.prizes.reduce((n,p)=>n+p.cards.length,0);
-    const source=context.pendingPrompt?sourceName(context.pendingPrompt):
-      rows.find(r=>r.printing===record.selectedCardIdentity?.fullName)?.cardName;
-    const safe=record.actingSeat===candidateSeat && SAFE_SOURCES.has(source) &&
-      (record.actionName==='PlayCardAction'||record.actionName==='ResolvePromptAction');
+    const prizeCompositionUnchanged=prizeGuard?.unchanged(context.state)===true;
     snapshot=advanceOwnerK1(snapshot,{currentOwnPrizeCount,deckMayHaveChanged:true,
-      prizeCompositionMayHaveChanged:!safe});
+      prizeCompositionMayHaveChanged:!prizeCompositionUnchanged});
+    if(!prizeCompositionUnchanged)prizeGuard=null;
   }
   return Object.freeze({bindStore,observe,onAction});
 }
