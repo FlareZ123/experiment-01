@@ -1,4 +1,8 @@
 
+## 2026-11-27T02:35:00.983Z — paired setup proxy first field-relevant conditions
+- Fixed T2 lock measurement (loop previously incremented to T3), conservative Arven-to-Stone under Item lock, T1 banked hand retention. 24,000 conserved deals across wide candidate and original rank12, both starts, clean/T2-item/rulebox, wipe-lock goal. Raw results/aichi-2026/2026-11/agent1-apex-lockdown-proxy-first-results.json; all T2-item cases zero Megaton readiness by construction. Intermediate model; test wider variants and repair policy opportunity-cost bias before final recommendation.
+
+
 ## 2026-11-27T02:34:13.884Z — first causal two-turn structural proxy
 - results/aichi-2026/2026-11/agent1-apex-lockdown-setup-proxy.cjs: real mulligan/opening/prize/deck/hand/discard/board zones, fixed causal action policy and legitimate search reveal, two own turns, explicit Item/Ability locks, no native dispatch/opponent damage or actual game. Smoke 500 going-second wipe-goal deals conserved, cost truth table passed. Next audit ordering bugs then paired fixed-list optimization and all known rank response table; do not claim setup proxy as win.
 

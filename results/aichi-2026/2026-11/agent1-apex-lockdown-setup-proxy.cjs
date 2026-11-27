@@ -100,7 +100,7 @@ function one(rows,seed,opts={}){
    if(active()!==b&&b&&!free(active())&&!has(N.FL)&&turn===2&&have(N.GZ)&&cost(b.energy)&&b.name===N.S)return N.GZ;
    if(b&&needsEnergy()&&have(N.CR)&&(possible(N.GR)&&possible(N.FI)))return N.CR;
    if(b&&needsEnergy()&&!has(N.DD)&&!b.energy.includes(N.DD)&&have(N.GH)&&possible(N.DD)&&hand.length>=3)return N.GH;
-   if(have(N.AR)&&canItem()&&((opts.goal==="wipe-lock"&&needACE()&&turn===2&&possible(N.MB))||!b||b.name!==N.S&&turn===2&&!has(N.S)||missingDonor()))return N.AR;
+   if(have(N.AR)&&((canItem()&&((opts.goal==="wipe-lock"&&needACE()&&turn===2&&possible(N.MB))||!b||b.name!==N.S&&turn===2&&!has(N.S)||missingDonor()))||(b&&!vstar&&!b.tool&&possible(N.FS))))return N.AR;
    if(have(N.CA))return N.CA;
    if(have(N.LD))return N.LD;
    if(have(N.RE))return N.RE;if(have(N.SY))return N.SY;
@@ -161,10 +161,12 @@ function one(rows,seed,opts={}){
      let x=targets.find(x=>discard.includes(x)&&!has(x)&&!payload.has(x));if(!x)break;take(discard,x);hand.push(x);note("legacy recover",x)
    }return true;
  }
+ function banked(){let b=reg();return turn===1&&b&&b.energy.length>0&&has(N.S)&&(cost(b.energy)||handE().some(x=>cost([...b.energy,x])))&&!missingDonor()&&!needACE()&&mobility()}
  function step(){
    let b=reg();
    if(turn===2&&b&&b.name===N.V&&b.turn<2&&has(N.S)){take(hand,N.S);b.name=N.S;note("evolve",N.S);return true}
    if(turn===2&&objective())return false;
+   if(banked())return false;
    if(!b&&has(N.V)&&bench(N.V))return true;
    if(!b&&board.length<6&&(ball(N.V)||heavy(N.V)))return true;
    b=reg();
@@ -176,7 +178,7 @@ function one(rows,seed,opts={}){
    if(b&&active()!==b&&!free(active())&&!board.some(x=>x.name===N.L)&&board.length<6&&canAbility(N.L)){
      if(bench(N.L)||ball(N.L))return true;
    }
-   if(canItem()&&has(N.BC)&&missingDonor()){
+   if(canItem()&&has(N.BC)&&missingDonor()&&priority.some(x=>possible(x))){
      play(N.BC);see();let names=priority.filter(x=>deck.includes(x)&&!discard.includes(x)).slice(0,3);
      if(names.length<3&&has(N.VS)&&!supp){let x=chooseSupp(deck.filter(x=>supporter.has(x)));if(x&&!has(x))names.push(x)}
      search(names,discard);return true;
@@ -261,6 +263,7 @@ function one(rows,seed,opts={}){
    }
    conservation()
  }
+ turn=2; // Lock scenario must still apply to the measured T2 frontier.
  const b=reg(),ready=!!b&&b.name===N.S&&active()===b&&cost(b.energy),p=donors(),apex=ready&&p.length>0,ace=has(N.MB)&&canItem(),chaos=p.includes(N.GI),echo=p.includes(N.NO),out={
  mulligans,first,ready,apex,ace,wipeLock:apex&&ace&&(chaos||echo),toolWipeLock:apex&&ace&&chaos,repeatWipe:apex&&p.includes(N.MD),allEnergy:apex&&p.includes(N.PA),basicKO:apex&&p.includes(N.HA),raw330:apex&&p.includes(N.DN),spread:apex&&p.includes(N.DP),timeless:apex&&p.includes(N.DI),lockAttack:apex&&(chaos||echo),vstarSpent:vstar,supportGust:usedGuzma
  };
@@ -274,7 +277,7 @@ function batch(rows,{trials=2000,seed=27112026,...opts}={}){
 }
 function selftest(){
  if(!cost([N.DD,N.GR])||!cost([N.DD,N.FI])||!cost([N.DD,N.DD])||cost([N.GR,N.GR,N.GR])||!cost([N.GR,N.GR,N.FI])||cost([N.GR,N.FI]))throw Error("cost truth table");
- return {costCases:6};
+ return {costCases:6,turnFrontier:"T2 lock retained at outcome"};
 }
 module.exports={N,expand,cost,one,batch,selftest};
 if(typeof require!=="undefined"&&require.main===module){
