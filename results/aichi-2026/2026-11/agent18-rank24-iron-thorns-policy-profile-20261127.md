@@ -4,7 +4,7 @@
 **Date:** 2026-11-27  
 **Branch:** `agent18/rank24-iron-thorns-policy-20261127`  
 **Branch head at synthesis:** `0d39821b6bbaad10edab7d18ceafeafe9535e756`  
-**Current policy blob:** `994da0d92da2a339b18d8b4686d8d55d05a72759`  
+**Current policy blob:** `c11b865612bc5587dd4f76dbf35c3a99c84c4ecb`  
 **Status:** development policy; not merged, registered, natively gamed, or admitted
 
 ## Result
@@ -113,7 +113,7 @@ warn simplistic discard scoring can miss.
 
 Current branch direct decision suite:
 
-- **92 passed, 0 failed** across seven direct decision files plus one durable
+- **93 passed, 0 failed** across seven direct decision files plus one durable
   shared-protocol compatibility file.
 - The suite covers terminal mill/N/attack, both seats where relevant, funding,
   DCE+Thunder math, setup search, control denial, prompt continuation contracts,
@@ -177,7 +177,13 @@ requirement and DCE supplies the two Colorless units.
 The policy now models
 that simultaneous package and also refuses to start the zero-Energy G&H line
 unless the hand can actually pay the two-card expansion cost. The dedicated
-ALS regression is included in the 92/92 passing suite.
+ALS regression is included in the 93/93 passing suite.
+
+Trainers' Mail also received an ALS-aware ordering correction. When a Mail
+reveal contains Nest Ball alongside Tag Call/Guzma & Hala and the hand can
+actually complete the G&H package, attack access now outranks the second-Thorns
+setup pick. If the expansion is not payable, the policy does not manufacture
+that line.
 
 ## Evidence boundary and next gate
 
