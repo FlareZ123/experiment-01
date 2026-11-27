@@ -750,7 +750,8 @@ function blindDisruptionPromptDecision(request, mode) {
   if (mode === 'sidney') {
     return chooseUpToTwo(prompt, choice => {
       const meta = choice?.publicMetadata ?? {};
-      if (meta.energyType === 'Special' || specialEnergyPrinting(choice)) return 100;
+      if (meta.energyType === 'Special' ||
+          (/Energy\b/i.test(textOf(choice)) && specialEnergyPrinting(choice))) return 100;
       if ((meta.cardType ?? '').toLowerCase().includes('tool')) return 90;
       if ((meta.cardType ?? '').toLowerCase().includes('stadium')) return 80;
       return 50;
