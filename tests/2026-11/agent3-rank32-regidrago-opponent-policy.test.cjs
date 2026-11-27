@@ -30,14 +30,14 @@ function pokemon(printing, options = {}) {
 function request({seat=0,active=pokemon(P.regidrago,{energies:[P.energy,P.doubleDragon]}),
   bench=[],discard=[],hand=[],opponentActive=pokemon('Shadow Rider Calyrex VMAX CRE 75',
     {hp:320,printed:{subtypes:['VMAX']}}),opponentBench=[],items=[],prompt=null,
-  ownPrizes=6,gxUsed=false}={}) {
+  ownPrizes=6,gxUsed=false,ownPublic=null,opponentPublic=null}={}) {
   return {
     role:'opponent',seat,prompt,
     observation:{
-      actorSeat:seat,ownHand:hand,ownPublic:{
+      actorSeat:seat,ownHand:hand,ownPublic:ownPublic??{
         active,bench,discard:discard.map(printing=>({printing})),stadium:[],
         prizeCount:ownPrizes,publicTurnRestrictions:{gxUsed,vstarUsed:false}
-      },opponentPublic:{active:opponentActive,bench:opponentBench,stadium:[],
+      },opponentPublic:opponentPublic??{active:opponentActive,bench:opponentBench,stadium:[],
         prizeCount:6}
     },actionFrontier:{items}
   };
