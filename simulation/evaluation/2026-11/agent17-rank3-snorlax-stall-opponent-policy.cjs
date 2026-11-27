@@ -1,7 +1,7 @@
 'use strict';
 
 /*
- * Rank-3 Snorlax Stall opponent-role policy, version 1.2.
+ * Rank-3 Snorlax Stall opponent-role policy, version 1.3 development (unadmitted).
  *
  * This is a deterministic actor-view-only prototype, not a competent-policy
  * attestation. It is bound to the exact rank-3 source inventory and the
@@ -9,7 +9,7 @@
  * Native Store legality remains authoritative.
  */
 
-const POLICY_VERSION = 'agent17-rank3-snorlax-stall-opponent-v1.2';
+const POLICY_VERSION = 'agent17-rank3-snorlax-stall-opponent-v1.3-development';
 const SOURCE_RANK = 3;
 const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
 const SOURCE_FINGERPRINT_SHA256 = '0a2cf5a36c4a8b813cf8e1b8889893356427ac33cd5fa73a576a35590c3da368';
@@ -18,7 +18,9 @@ const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const WORKER_PROTOCOL_BLOB_SHA1 = 'd51ea95c457d61b50a9ee114d342eb17f4350451';
 
 const PRINT = Object.freeze({
-  snorlax: /^Snorlax PGO 55\b/i,
+  snorlax: /^Snorlax PGO(?: 0?55)?$/i,
+  wobbuffet: /^Wobbuffet PHF(?: 0?36)?$/i,
+  dialga: /^Dialga-GX UPR(?: 100)?$/i,
   stunfisk: /^Galarian Stunfisk SSH 132\b/i,
   regirock: /^Regirock XYP 49\b/i,
   mimikyu: /^Mimikyu PAL 97\b/i,
@@ -48,8 +50,8 @@ const PRINT = Object.freeze({
   heavyBall: /^Hisuian Heavy Ball ASR 146\b/i,
   nightStretcher: /^Night Stretcher ASC 196\b/i,
   floatStone: /^Float Stone BKT 137\b/i,
-  stealthyHood: /^Stealthy Hood UNB 186\b/i,
-  toolJammer: /^Tool Jammer BST 136\b/i,
+  stealthyHood: /^Stealthy Hood UNB(?: 186)?$/i,
+  toolJammer: /^Tool Jammer BST(?: 136)?$/i,
   forestSealStone: /^Forest Seal Stone SIT 156\b/i,
   tropicalBeach: /^Tropical Beach BWP 50\b/i,
   playersCeremony: /^Player's Ceremony SP 127\b/i,
@@ -342,9 +344,79 @@ function scorePlayersCeremonyPlay(observation) {
   return useScore > 0 ? Math.max(0, useScore - 10) : 0;
 }
 
+// Rank-3 exact-pair tactical slice. Both fixed candidate 60s contain only
+// Basic Psychic Energy; Dialga-GX UPR 100 requires Metal for every attack.
+// The native frontier remains the authority for action legality. These
+// scores are policy hypotheses, not a proof that the opponent cannot escape.
+function activeTargetIsActorSnorlax(item, observation) {
+  const meta = item.publicMetadata ?? {};
+  return meta.targetSeat === 'actor' && meta.targetZone === 'active' &&
+    matches(item.targetPrinting ?? '', PRINT.snorlax) &&
+    matches(observation.ownPublic?.active?.printing ?? '', PRINT.snorlax);
+}
+
+function opponentWobbuffetActive(observation) {
+  return matches(observation.opponentPublic?.active?.printing ?? '', PRINT.wobbuffet);
+}
+
+function liveToolWindow(observation) {
+  return [observation.ownPublic, observation.opponentPublic].every(player =>
+    !(player?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining > 0));
+}
+
+function snorlaxHoodWindow(observation) {
+  const own = observation.ownPublic?.active;
+  const opposing = observation.opponentPublic?.active;
+  if (!matches(own?.printing ?? '', PRINT.snorlax) ||
+      !opponentWobbuffetActive(observation) ||
+      !liveToolWindow(observation) ||
+      list(own?.tools).length > 0 ||
+      !Number.isFinite(own?.damage) || remainingHp(own) <= 0 ||
+      !slots(observation.opponentPublic).some(row => row.zone === 'bench')) return false;
+  // Do not spend the singleton Hood to trap a Wobbuffet that is already
+  // prevented from retreating by a visible attack/status effect.
+  if (opposing?.publicRestrictions?.cannotRetreat === true ||
+      opposing?.publicRestrictions?.cannotRetreatNextTurn === true ||
+      opposing?.publicRestrictions?.cannotRetreatWhileActive === true) return false;
+  // Psychic Assault: 10 + existing damage (no modifiers in the two fixed
+  // candidate lists for this exact attacker/defender pairing). One ordinary
+  // attachment on the next turn is possible. This is a conservative veto,
+  // not a complete opponent-action prediction.
+  if (energyCount(opposing) >= 1 && 10 + own.damage >= remainingHp(own)) return false;
+  return true;
+}
+
+function accessibleHoodThisTurn(observation) {
+  const hand = list(observation.ownHand);
+  if (hand.some(card => matches(card, PRINT.stealthyHood))) return true;
+  if (sourceCopiesRemaining(observation, PRINT.stealthyHood) === 0 ||
+      !supporterAvailable(observation)) return false;
+  if (hand.some(card => matches(card, PRINT.arven))) return true;
+  return !itemLocked(observation) &&
+    hand.some(card => matches(card, PRINT.vsSeeker)) &&
+    list(observation.ownPublic?.discard).some(card => matches(card, PRINT.arven));
+}
+
+function dialgaTrapAvailable(observation, viaGuzma = false) {
+  const own = observation.ownPublic;
+  const opponent = observation.opponentPublic;
+  if (matches(opponent?.active?.printing ?? '', PRINT.dialga)) return false;
+  const snorlaxReady = viaGuzma
+    ? slots(own).some(row => row.zone === 'bench' && matches(row.pokemon.printing, PRINT.snorlax))
+    : matches(own?.active?.printing ?? '', PRINT.snorlax);
+  return snorlaxReady && slots(opponent).some(row => row.zone === 'bench' &&
+    matches(row.pokemon.printing, PRINT.dialga) &&
+    list(row.pokemon.energies).every(energy => /^(?:Basic )?Psychic Energy\b/i.test(valueText(energy))));
+}
+
 function scoreSearchCard(printing, observation, context = '') {
   const own = observation.ownPublic;
   const opponent = observation.opponentPublic ?? {};
+  if (matches(printing, PRINT.stealthyHood) &&
+      ['arven', 'trainers-mail', 'star-alchemy', 'teammates', ''].includes(context)) {
+    return snorlaxHoodWindow(observation) &&
+      !list(observation.ownHand).some(card => matches(card, PRINT.stealthyHood)) ? 280 : 0;
+  }
   if (context === 'basic-search') return scoreBasicPlay(printing, observation);
   if (context === 'night-stretcher') {
     if ([PRINT.snorlax, PRINT.bunnelby, PRINT.girafarig, PRINT.articuno, PRINT.rotom]
@@ -676,11 +748,19 @@ function scoreAction(item, request) {
     return matches(target, PRINT.rotom) && !boardHasTool(own, PRINT.forestSealStone) ? 180 : 40;
   }
   if (matches(card, PRINT.toolJammer)) {
+    // Jammer cannot restore Block. Preserve the Active Tool slot while a
+    // held or immediately tutor-accessible Hood could do so.
+    if (activeTargetIsActorSnorlax(item, observation) &&
+        snorlaxHoodWindow(observation) && accessibleHoodThisTurn(observation)) return 0;
     return matches(target, PRINT.snorlax) ||
       (!target && matches(own.active?.printing ?? '', PRINT.snorlax)) ? 220 : 105;
   }
   if (matches(card, PRINT.floatStone)) return matches(target, PRINT.snorlax) ? 10 : 95;
-  if (matches(card, PRINT.stealthyHood)) return 45;
+  if (matches(card, PRINT.stealthyHood)) {
+    // No arbitrary attachment: the target must be the specific Active slot.
+    return activeTargetIsActorSnorlax(item, observation) &&
+      snorlaxHoodWindow(observation) ? 250 : 0;
+  }
   if (matches(card, PRINT.tropicalBeach)) {
     return !hasStadium(observation, PRINT.tropicalBeach) && hand.length <= 6 &&
       ownDeckCount(observation) > 7 ? 130 : 15;
@@ -706,6 +786,9 @@ function scoreAction(item, request) {
       return request.publicEventReceipt?.priorOpponentTurnKO?.any === true ? 140 : 0;
     }
     if (matches(card, PRINT.guzma)) {
+      if (dialgaTrapAvailable(observation, true)) return 290;
+      if (matches(opponent.active?.printing ?? '', PRINT.dialga) &&
+          matches(own.active?.printing ?? '', PRINT.snorlax)) return 0;
       if (!slots(opponent).some(row => row.zone === 'bench')) return 0;
       const activeIsSnorlax = matches(own.active?.printing ?? '', PRINT.snorlax);
       const damagedSnorlaxCanRotate = activeIsSnorlax && (own.active.damage ?? 0) >= 100 &&
@@ -751,8 +834,11 @@ function scoreAction(item, request) {
     return hasNightStretcherTargets(observation) ? 90 : 0;
   }
   if (matches(card, PRINT.counterCatcher)) {
-    return own.prizeCount > opponent.prizeCount &&
-      slots(opponent).some(row => row.zone === 'bench') ? 135 : 0;
+    if (!(own.prizeCount > opponent.prizeCount)) return 0;
+    if (dialgaTrapAvailable(observation)) return 300;
+    if (matches(own.active?.printing ?? '', PRINT.snorlax) &&
+        matches(opponent.active?.printing ?? '', PRINT.dialga)) return 0;
+    return slots(opponent).some(row => row.zone === 'bench') ? 135 : 0;
   }
   if (matches(card, PRINT.scoopCyclone)) {
     return slots(own).some(row => row.pokemon.damage >= 80 &&
@@ -841,13 +927,17 @@ function singleChoice(prompt, choices, scoreFn, reasonCode) {
   return { kind: 'select-choice', token: ranked[0].choice.token };
 }
 
-function opponentPokemonScore(choice, observation) {
+function opponentPokemonScore(choice, observation, gustMode = '') {
   if (choiceOwner(choice) !== 'opponent' ||
       !['bench', 'active'].includes(choiceZone(choice))) return 0;
   const printing = valueText(choice);
   const row = slots(observation.opponentPublic).find(item => item.pokemon.printing === printing);
   const pokemon = row?.pokemon;
   if (!pokemon) return 10;
+  if (gustMode && choiceZone(choice) === 'bench' &&
+      matches(printing, PRINT.dialga) &&
+      dialgaTrapAvailable(observation, gustMode === 'guzma') &&
+      list(pokemon.energies).every(energy => /^(?:Basic )?Psychic Energy\b/i.test(valueText(energy)))) return 320;
   return 40 + energyCount(pokemon) * 30 +
     (pokemon.printed?.retreatCost?.length ?? 0) * 8 +
     (pokemon.printed?.stage === 'BASIC' ? 5 : 15);
@@ -1020,14 +1110,14 @@ function promptDecision(request) {
       const opponentChoices = choices.filter(choice => choiceOwner(choice) === 'opponent');
       if (opponentChoices.length) {
         return singleChoice(prompt, opponentChoices,
-          choice => opponentPokemonScore(choice, observation), 'NO_OPPONENT_BENCH_TARGET');
+          choice => opponentPokemonScore(choice, observation, 'guzma'), 'NO_OPPONENT_BENCH_TARGET');
       }
       return singleChoice(prompt, choices,
         choice => ownSwitchScore(choice, observation), 'NO_OWN_SWITCH_TARGET');
     }
     if (/counter catcher/i.test(source)) {
       return singleChoice(prompt, choices,
-        choice => opponentPokemonScore(choice, observation), 'NO_OPPONENT_BENCH_TARGET');
+        choice => opponentPokemonScore(choice, observation, 'counter-catcher'), 'NO_OPPONENT_BENCH_TARGET');
     }
     if (/team flare grunt/i.test(source)) {
       const activeTargets = choices.filter(choice => choiceOwner(choice) === 'opponent' &&

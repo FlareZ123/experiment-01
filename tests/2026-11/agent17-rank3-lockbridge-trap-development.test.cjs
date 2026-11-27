@@ -1,0 +1,118 @@
+'use strict';
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const { POLICY_VERSION, createPolicy, scoreAction, scoreSearchCard, promptDecision } =
+  require('../../simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs');
+
+const S='Snorlax PGO 55', W='Wobbuffet PHF 36', D='Dialga-GX UPR 100',
+  H='Stealthy Hood UNB 186', J='Tool Jammer BST 136', A='Arven OBF 186',
+  C='Counter Catcher PAR 160', G='Guzma BUS 115', V='Shadow Rider Calyrex VMAX CRE 75',
+  E='Psychic Energy MEE 13';
+const mon=(printing, extra={})=>({printing,hp:printing===S?150:printing===W?110:320,
+  damage:0,tools:[],energies:[],printed:{stage:'BASIC',retreatCost:['Colorless']},
+  publicRestrictions:{},...extra});
+const player=(active,bench=[],extra={})=>({active,bench:[...bench,...Array(5-bench.length).fill(null)],
+  discard:[],lostZone:[],stadium:[],resolvingSupporter:[],deckCount:30,handCount:5,
+  prizeCount:6,publicTurnRestrictions:{},...extra});
+function state({seat=0,own=mon(S),opp=mon(W),obench=[mon(V)],bench=[],hand=[H],
+  ownExtra={},oppExtra={},resources={}}={}) {
+  return {actorSeat:seat,ownHand:hand,ownPublic:player(own,bench,ownExtra),
+    opponentPublic:player(opp,obench,{prizeCount:4,...oppExtra}),
+    ownTurnResources:{supporterPlayedTurn:0,...resources}};
+}
+const tool=(token,card,target=S,zone='active',owner='actor')=>({token,kind:'play-card',
+  actorPrinting:card,targetPrinting:target,publicMetadata:{cardType:'trainer',
+    targetSeat:owner,targetZone:zone,targetIndex:0}});
+const root=(token,card)=>({token,kind:'play-card',actorPrinting:card,
+  publicMetadata:{cardType:'trainer'}});
+const pass={token:'pass',kind:'pass'};
+const score=(item,observation)=>scoreAction(item,{observation,publicEventReceipt:null});
+function decide(observation,items) {
+  const policy=createPolicy({role:'opponent',seat:observation.actorSeat,
+    policyVersion:POLICY_VERSION,config:{}});
+  return policy.decide({role:'opponent',seat:observation.actorSeat,observation,prompt:null,
+    actionFrontier:{items},publicEventReceipt:null});
+}
+const choice=(token,printing,owner='opponent',zone='bench')=>({token,kind:'pokemon',
+  printing,publicMetadata:{ownerSeat:owner,targetZone:zone}});
+function prompt(observation,name,choices,type='ChoosePokemonPrompt',metadata={}) {
+  return promptDecision({observation,prompt:{promptType:type,source:{sourcePrinting:name,
+    effectName:name},choices,publicMetadata:metadata}});
+}
+for(const seat of [0,1]) {
+ test('seat '+seat+': Hood beats Jammer and identical benched Snorlax target',()=>{
+   const o=state({seat,hand:[H,J],bench:[mon(S)]});
+   assert.deepEqual(decide(o,[tool('bench',H,S,'bench'),tool('jam',J),tool('hood',H),pass]),
+      {kind:'select-action',token:'hood'});
+ });
+ test('seat '+seat+': Arven before Jammer; actual two-card prompt retrieves Hood',()=>{
+   const o=state({seat,hand:[A,J]});
+   assert.deepEqual(decide(o,[tool('jam',J),root('arven',A),pass]),
+      {kind:'select-action',token:'arven'});
+   const card=(token,printing)=>({token,kind:'card',printing,
+     publicMetadata:{ownerSeat:'actor',sourceZone:'deck'}});
+   assert.deepEqual(prompt(o,A,[card('jam',J),card('hood',H),card('nest','Nest Ball SVI 181')],
+     'ChooseCardsPrompt',{selectionType:'cards',minimumCount:2,maximumCount:2}),
+     {kind:'select-choices',tokens:['nest','hood']});
+ });
+ test('seat '+seat+': gust beats Hood; actual target selection traps Metal-dependent Dialga',()=>{
+   const o=state({seat,hand:[H,C],obench:[mon(V,{energies:[E,E,E,E]}),mon(D,{hp:180})]});
+   assert.deepEqual(decide(o,[tool('hood',H),root('catch',C),pass]),
+      {kind:'select-action',token:'catch'});
+   assert.deepEqual(prompt(o,C,[choice('vm',V),choice('dialga',D)]),
+      {kind:'select-choice',token:'dialga'});
+   const after=state({seat,opp:mon(D,{hp:180}),obench:[mon(W),mon(V)],hand:[H,C]});
+   assert.deepEqual(decide(after,[tool('hood',H),root('catch',C),pass]),
+      {kind:'select-action',token:'pass'});
+ });
+ test('seat '+seat+': Guzma can both gust Dialga and promote Snorlax',()=>{
+   const o=state({seat,own:mon('Rotom V LOR 58'),bench:[mon(S)],
+      obench:[mon(V,{energies:[E,E,E,E]}),mon(D)],hand:[G]});
+   assert.deepEqual(decide(o,[root('guzma',G),pass]),{kind:'select-action',token:'guzma'});
+   assert.deepEqual(prompt(o,G,[choice('vm',V),choice('dialga',D)]),
+      {kind:'select-choice',token:'dialga'});
+   assert.deepEqual(prompt(o,G,[choice('s',S,'actor'),choice('r','Rotom V LOR 58','actor')]),
+      {kind:'select-choice',token:'s'});
+ });
+}
+test('reserve Hood when Wobbuffet is benched, not visible, or the target is ambiguous',()=>{
+  assert.equal(score(tool('h',H),state({opp:mon(V),obench:[mon(W)]})),0);
+  assert.equal(score(tool('h',H,S,'bench'),state({bench:[mon(S)]})),0);
+  assert.equal(score(tool('h',H,S,'active','opponent'),state()),0);
+  assert.equal(score({kind:'play-card',actorPrinting:H,targetPrinting:S},state()),0);
+});
+test('reserve Hood when no opponent bench, Tool suppression, or immediate Psychic Assault KO',()=>{
+  assert.equal(score(tool('h',H),state({obench:[]})),0);
+  assert.equal(score(tool('h',H),state({oppExtra:{publicTurnRestrictions:
+     {stadiumAndToolHaveNoEffectTurnsRemaining:1}}})),0);
+  assert.equal(score(tool('h',H),state({own:mon(S,{damage:70}),opp:mon(W,{energies:[E]})})),0);
+});
+test('do not pre-commit to an occupied Tool slot or already trapped Wobbuffet',()=>{
+  assert.equal(score(tool('h',H),state({own:mon(S,{tools:[J]})})),0);
+  assert.equal(score(tool('h',H),state({opp:mon(W,{publicRestrictions:{cannotRetreatNextTurn:true}})})),0);
+});
+test('Jammer still has baseline utility when Hood is already spent or unavailable',()=>{
+  const o=state({hand:[J,A],ownExtra:{lostZone:[H]}});
+  assert.equal(score(tool('j',J),o),220);
+});
+test('Counter Catcher is unavailable at equal prizes and Guzma cannot promise Block without a benched Snorlax',()=>{
+  const o=state({hand:[C],obench:[mon(D)],oppExtra:{prizeCount:6}});
+  assert.equal(score(root('c',C),o),0);
+  const noSnorlax=state({own:mon('Rotom V LOR 58'),obench:[mon(D)],hand:[G]});
+  assert.equal(score(root('g',G),noSnorlax),0);
+});
+test('Dialga boost is not applied to a non-gust Energy-discard prompt',()=>{
+  const o=state({obench:[mon(V,{energies:[E,E,E,E]}),mon(D)]});
+  assert.deepEqual(prompt(o,'Plumeria BUS 120',[choice('vm',V),choice('dialga',D)]),
+    {kind:'select-choice',token:'vm'});
+});
+test('native set-only aliases are supported for the four touched identities; wrong printings are not',()=>{
+  const o=state({own:mon('Snorlax PGO'),opp:mon('Wobbuffet PHF'),hand:['Stealthy Hood UNB']});
+  assert.equal(score(tool('h','Stealthy Hood UNB','Snorlax PGO'),o),250);
+  assert.equal(score(tool('h','Stealthy Hood UNB 185','Snorlax PGO'),o),0);
+  assert.equal(score(tool('h','Stealthy Hood UNB','Snorlax PGO'),state({opp:mon('Wobbuffet PHF 37')})),0);
+});
+test('a held Hood is not searched a second time; inactive Wobbuffet does not boost search',()=>{
+  assert.equal(scoreSearchCard(H,state(), 'arven'),0);
+  assert.equal(scoreSearchCard(H,state({hand:[A],opp:mon(V),obench:[mon(W)]}),'arven'),0);
+});
