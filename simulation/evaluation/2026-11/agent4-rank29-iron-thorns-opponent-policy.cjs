@@ -487,6 +487,26 @@ function singleChoice(choices, scorer, reasonCode) {
   return { kind: 'select-choice', token: ranked[0].choice.token };
 }
 
+function chooseOneNativePokemon(prompt, choices, scorer) {
+  const meta=prompt.publicMetadata ?? {};
+  if (meta.selectionType !== 'pokemon' ||
+      !Number.isSafeInteger(meta.minimumCount) ||
+      !Number.isSafeInteger(meta.maximumCount) || meta.minimumCount > 1 ||
+      meta.maximumCount !== 1)
+    return {kind:'abstain',reasonCode:'UNSUPPORTED_POKEMON_PROMPT'};
+  return multiSelectDecision(prompt,rankedChoices(choices,scorer,1),
+    meta.minimumCount,1);
+}
+
+function chooseOneNativeEnergy(prompt, choices, scorer) {
+  const meta=prompt.publicMetadata ?? {};
+  if (meta.selectionType !== 'energy-payment' ||
+      !Number.isSafeInteger(meta.energyCount ?? meta.count) ||
+      (meta.energyCount ?? meta.count) < 1)
+    return {kind:'abstain',reasonCode:'UNTRUSTED_ENERGY_SELECTION'};
+  return multiSelectDecision(prompt,rankedChoices(choices,scorer,1),1,1);
+}
+
 function opponentPokemonScore(choice, observation, context) {
   if (choiceOwner(choice) !== 'opponent') return 0;
   const zone = choiceZone(choice);
@@ -829,34 +849,34 @@ function promptDecision(request) {
       const opponentChoices = choices.filter(choice =>
         choiceOwner(choice) === 'opponent' && choiceZone(choice) === 'bench');
       if (opponentChoices.length) {
-        return singleChoice(opponentChoices,
+        return chooseOneNativePokemon(prompt, opponentChoices,
           choice => opponentPokemonScore(choice, observation, 'guzma'),
           'NO_VISIBLE_POKEMON_TARGET');
       }
-      return singleChoice(choices,
+      return chooseOneNativePokemon(prompt, choices,
         choice => ownSwitchScore(choice, observation),
         'NO_VISIBLE_POKEMON_TARGET');
     }
     if (source.includes('plumeria')) {
-      return singleChoice(choices.filter(choice =>
+      return chooseOneNativePokemon(prompt, choices.filter(choice =>
         choiceOwner(choice) === 'opponent'),
       choice => opponentPokemonScore(choice, observation, 'plumeria'),
       'NO_VISIBLE_ENERGY_CHOICE');
     }
     if (source.includes('team flare')) {
-      return singleChoice(choices.filter(choice =>
+      return chooseOneNativePokemon(prompt, choices.filter(choice =>
         choiceOwner(choice) === 'opponent' && choiceZone(choice) === 'active'),
       choice => opponentPokemonScore(choice, observation, 'team-flare'),
       'NO_VISIBLE_POKEMON_TARGET');
     }
     if (source.includes('captivating pok')) {
-      return singleChoice(choices.filter(choice =>
+      return chooseOneNativePokemon(prompt, choices.filter(choice =>
         choiceOwner(choice) === 'opponent' && choiceZone(choice) === 'hand'),
       choice => cardChoiceScore(choice, observation, 'captivating-puff'),
       'NO_USEFUL_CARD_CHOICE');
     }
     if (source.includes('echoing horn')) {
-      return singleChoice(choices.filter(choice =>
+      return chooseOneNativePokemon(prompt, choices.filter(choice =>
         choiceOwner(choice) === 'opponent' &&
           (choiceZone(choice) === 'discard' || choice?.publicMetadata?.sourceZone === 'discard')),
       choice => cardChoiceScore(choice, observation, 'echoing-horn'),
@@ -870,9 +890,8 @@ function promptDecision(request) {
       source.includes('team flare') ? 'team-flare-energy' :
       source.includes('crushing hammer') ? 'crushing-hammer' : 'plumeria-energy';
     const opponentChoices = choices.filter(choice => choiceOwner(choice) === 'opponent');
-    return singleChoice(opponentChoices,
-      choice => cardChoiceScore(choice, observation, context),
-      'NO_VISIBLE_ENERGY_CHOICE');
+    return chooseOneNativeEnergy(prompt, opponentChoices,
+      choice => cardChoiceScore(choice, observation, context));
   }
 
   if (prompt.promptType === 'ChoosePrizePrompt') {
