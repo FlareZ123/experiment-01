@@ -265,7 +265,7 @@ const PROMPT_META_KEYS = [
 const PROMPT_SELECTION_TYPE_TO_PROMPT_TYPES = Object.freeze({
   'card-combination': Object.freeze(['ChooseCardsPrompt', 'NightWatchPrompt']),
   pokemon: Object.freeze(['ChoosePokemonPrompt']),
-  'energy-payment': Object.freeze(['ChooseEnergyPrompt']),
+  'energy-payment': Object.freeze(['ChooseEnergyPrompt','DiscardEnergyPrompt']),
   attack: Object.freeze(['ChooseAttackPrompt']),
   'prize-slots': Object.freeze(['ChoosePrizePrompt']),
   'card-order': Object.freeze(['OrderCardsPrompt']),
