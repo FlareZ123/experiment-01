@@ -1806,16 +1806,21 @@ function r17RainProjection(view,p,options={}) {
   }
   return best;
 }
-function r17TempleAnswerPossible(view) {
-  if(!r17NeedTempleRemoval(view))return true;
+function r17StadiumAnswerPossible(view) {
+  if(!r17NeedStadiumRemoval(view))return true;
   const p=own(view),turn=view.ownTurnResources||{};
   if(r17Hand(view,'pokestop')&&!p.publicTurnRestrictions?.stadiumPlayLocked&&
      turn.stadiumPlayedTurn!==view.globalTurn)return true;
-  if(!r17AbilityBlocked(view,'marshadow')&&
-     (list(p.bench).some(q=>r17Key(q)==='marshadow'&&!r17AbilityBlocked(view,'marshadow',q,'Resetting Hole')&&
-       list(q.energies).length===0&&list(q.tools).length===0)||
-       r17Hand(view,'marshadow')&&r17Space(view)>0))return true;
-  return false;
+  const benched=list(p.bench).some(q=>r17Key(q)==='marshadow'&&
+    !r17AbilityBlocked(view,'marshadow',q,'Resetting Hole')&&
+    list(q.energies).length===0&&list(q.tools).length===0);
+  const canBench=!p.publicTurnRestrictions?.pokemonPlayLocked&&
+    !view.ownTurnResources?.pokemonPlayLocked&&r17Hand(view,'marshadow')&&r17Space(view)>0&&
+    !r17AbilityBlocked(view,'marshadow');
+  return benched||canBench;
+}
+function r17ProjectStadiumRemoved(view) {
+  return {...view,ownPublic:{...own(view),stadium:[]},opponentPublic:{...opponent(view),stadium:[]}};
 }
 function r17ClearDepartedLock(slot,departed) {
   if(!slot||!Array.isArray(slot.abilitySuppressions))return slot;
@@ -1856,10 +1861,13 @@ function r17KlefkiDestinationPlan(view,klefki) {
   const projected=r17SwitchProjection(view,klefki,active(opponent(view)));
   const k=active(own(projected));
   if(!r17LiveKlefki(projected,k)||!r17KlefkiFreeAfter(projected,k)||
-    !r17LiveBombs(projected).length||!r17TempleAnswerPossible(projected))return null;
+    !r17StadiumAnswerPossible(projected))return null;
+  const needAnswer=r17NeedStadiumRemoval(projected),answered=needAnswer?r17ProjectStadiumRemoved(projected):projected;
+  if(!r17LiveBombs(answered).length)return null;
   let best=null;
-  for(const p of list(own(projected).bench).filter(q=>r17Key(q)==='raichu')){
-    const plan=r17FundedRainProjection(projected,p,{ignoreTemple:r17NeedTempleRemoval(projected)});
+  for(const p of list(own(answered).bench).filter(q=>r17Key(q)==='raichu')){
+    const raw=r17FundedRainProjection(answered,p);
+    const plan=raw&&needAnswer?{...raw,needsStadiumAnswer:r17Stadium(projected)}:raw;
     if(plan&&plan.bombs>0&&r17CompareProjection(plan,best?.plan)>0)best={raichu:p,plan};
   }
   return best;
@@ -1906,9 +1914,11 @@ function r17RopeRainPlan(request) {
     // Rope switches our own Pokémon even if the opponent has no Bench.
     // A second Wobbuffet, if available, is a real adversarial alternative.
     for(const next of choices.length?choices:[active(o)]){
-      const projected=r17SwitchProjection(v,raichu,next),nextR=active(own(projected));
-      if(!r17TempleAnswerPossible(projected)){valid=false;break;}
-      const plan=r17FundedRainProjection(projected,nextR,{ignoreTemple:r17NeedTempleRemoval(projected)});
+      const projected=r17SwitchProjection(v,raichu,next);
+      if(!r17StadiumAnswerPossible(projected)){valid=false;break;}
+      const needAnswer=r17NeedStadiumRemoval(projected),answered=needAnswer?r17ProjectStadiumRemoved(projected):projected;
+      const raw=r17FundedRainProjection(answered,active(own(answered)));
+      const plan=raw&&needAnswer?{...raw,needsStadiumAnswer:r17Stadium(projected)}:raw;
       if(!plan){valid=false;break;}
       if(!worst||r17CompareProjection(plan,worst)<0)worst=plan;
     }
@@ -1922,8 +1932,10 @@ function r17RopeRainPlan(request) {
   for(const a of direct){
     const q=r17Slot(v,'bench',metadata(a).targetIndex??metadata(a).benchIndex);
     if(!q)continue;
-    const projected=r17SwitchProjection(v,q,active(o)),attacker=active(own(projected));
-    const plan=r17FundedRainProjection(projected,attacker,{ignoreTemple:r17NeedTempleRemoval(projected)&&r17TempleAnswerPossible(projected)});
+    const projected=r17SwitchProjection(v,q,active(o));
+    if(!r17StadiumAnswerPossible(projected))continue;
+    const answered=r17NeedStadiumRemoval(projected)?r17ProjectStadiumRemoved(projected):projected;
+    const plan=r17FundedRainProjection(answered,active(own(answered)));
     if(plan&&r17CompareProjection(plan,best.plan)>=0)return null;
   }
   return best;
