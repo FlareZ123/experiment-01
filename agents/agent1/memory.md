@@ -1,4 +1,8 @@
 
+## 2026-11-27T02:12:15.106Z — exact certificate status and search bound
+- Corrected BigInt equality in results/aichi-2026/2026-11/agent1-joint-terminal-planner-20261127.cjs: probability-one now correctly returns certified and fast mode exits at first P=1. Prior checkpoint 09945a0 had correct numeric probabilities but wrong status label and missed early exit; do not use old status. Added stable optimistic terminal bound with separate board/attacker Energy; retreat-recovery transfer regression, 41 cases and 600 seeded differential comparisons against unpruned search passed. No false certification on cap. No production changes.
+
+
 ## 2026-11-27T02:11:27.041Z — risk-aware terminal tie policy
 - results/aichi-2026/2026-11/agent1-joint-terminal-planner-20261127.cjs now optionally maximizes exact terminal probability, then minimizes lexicographic expected irreversible resource consumption on failure, then expected root action count. Not a universal game utility; equal-P fallback heuristic only. K0 Fog + Guzma example P=1/2 both, fast gust-first spends supporter on 1/2 failure mass, risk chooses Fog first and spends supporter on zero failure mass. Fast P1 four-action route vs risk three-action route with extra Valley unnecessary. 40 targeted cases passed. No native/frozen changes.
 

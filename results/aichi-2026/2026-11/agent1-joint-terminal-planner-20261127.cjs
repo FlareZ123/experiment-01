@@ -119,7 +119,7 @@ function solve(input,options={}){
  try{s=inputState(input);}catch(e){return {status:'unsupported',reason:e.message};}
  const m=input.model,f=input.flags,risk=options.riskAware===true,limit=options.maxStates??100000,branchLimit=options.maxBranches??2000000;
  if(!valid(limit)||!valid(branchLimit)||!limit||!branchLimit)return {status:'unsupported',reason:'bad budget'};
- const memo=new Map();let states=0,branches=0;
+ const memo=new Map(),boundCache=new Map();let states=0,branches=0,boundPrunes=0;
  const cap=Symbol('cap');
  function tick(){if(++branches>branchLimit)throw cap;}
  function take(s,i,discard=true){
@@ -155,7 +155,7 @@ function solve(input,options={}){
    for(const i of pick){d[i]--;if(spec==='comp')z[i]++;else h[i]++;}
    const r=value({...s,d,h,z});
    if(selection===null||better(r,best,risk)){best=r;selection=pick.map(i=>K[i]);}
-   if(!risk&&cmp(best.p,ONE)===0)break;
+   if(!risk&&cmp(best.p,ONE)===0n)break;
   }
   return {...best,selection};
  }
@@ -173,6 +173,29 @@ function solve(input,options={}){
   const r=weighted(s.d,s.u,prized=>chooseKnown({...s,u:0,d:minus(s.d,prized)},spec));
   return {...r,selection:'observe-own-deck-and-replan'};
  }
+ // Optimistic upper bound: ignore retreat losses, allow every still
+ // available attachment opportunity and all potential movers/targets.
+ // Separate board total from attacker energy because retreat-recovery can
+ // transfer existing board Energy without increasing the total.
+ function couldWin(s){
+  const board=sum(s.es),attach=(s.manual?1:0)+m.own.reduce((n,_,i)=>n+(bit(s.doors,i)?1:0),0)+(s.supporter&&f.priorKO?1:0);
+  let deckEnergy=s.d[E];
+  if(s.mix)deckEnergy=Math.max(...s.mix.worlds.map(w=>w.segments.reduce((n,v)=>n+v[E],0)));
+  const maxBoard=board+Math.min(attach,s.h[E]+s.z[E]+deckEnergy);
+  const ownCandidates=s.retreat||s.supporter&&m.opp.length>1?m.own.map((_,i)=>i):[s.a];
+  const targets=s.supporter?m.opp.map((_,i)=>i):[s.b];
+  const cacheKey=[s.es.join(','),maxBoard,attach,ownCandidates.join(','),targets.join(',')].join('|');
+  if(boundCache.has(cacheKey))return boundCache.get(cacheKey);
+  let yes=false;
+  for(const a of ownCandidates){
+   const es=m.own.map(()=>0);es[a]=Math.min(maxBoard,s.es[a]+attach);
+   const other=m.own.findIndex((_,i)=>i!==a);
+   if(other>=0)es[other]=maxBoard-es[a];else es[a]=maxBoard;
+   for(const b of targets)if(oracle.attacks(m,{a,b,es,discount:1}).attacks.some(x=>x.terminal)){yes=true;break;}
+   if(yes)break;
+  }
+  boundCache.set(cacheKey,yes);return yes;
+ }
  function value(raw){
   const s=canonical(raw),k=key(s);
   if(memo.has(k))return memo.get(k);
@@ -180,8 +203,9 @@ function solve(input,options={}){
   const terminal=oracle.attacks(m,s).attacks.find(x=>x.terminal);
   if(terminal){const r={...score(ONE,ONE),move:{kind:'attack',own:s.a,opp:s.b,...terminal}};memo.set(k,r);return r;}
   let best={...score(),move:null};
+  if(options.disableBound!==true&&!couldWin(s)){boundPrunes++;memo.set(k,best);return best;}
   function consider(move,compute){
-   if(!risk&&cmp(best.p,ONE)===0)return;
+   if(!risk&&cmp(best.p,ONE)===0n)return;
    tick();const r=compute(),paid=payAction(r,move);
    if(better(paid,best,risk))best={...paid,move:{...move,...(r.selection!==undefined?{selection:r.selection}:{})}};
   }
@@ -261,10 +285,10 @@ function solve(input,options={}){
    if(!['fog','arven','comp','team','any'].includes(options.pending))return {status:'unsupported',reason:'bad pending search'};
    const x=search(s,options.pending);r={...x,move:{kind:'choose-search',spec:options.pending,selection:x.selection}};
   }else r=value(s);
-  return {status:cmp(r.p,ONE)===0?'certified':r.p.n?'positive':'no-certificate',probability:str(r.p),first:r.move,states,branches,
+  return {status:cmp(r.p,ONE)===0n?'certified':r.p.n?'positive':'no-certificate',probability:str(r.p),first:r.move,states,branches,boundPrunes,
    objective:risk?'max-terminal-P; min-lex-failure-spend; min-expected-actions':'max-terminal-P',
    failureSpend:Object.fromEntries(LOSS.map((k,i)=>[k,str(r.loss[i])])),expectedActions:str(r.steps)};
- }catch(e){if(e===cap)return {status:'capped',states,branches};throw e;}
+ }catch(e){if(e===cap)return {status:'capped',states,branches,boundPrunes};throw e;}
 }
 function makeInput(own,opp,opts={}){
  const slots=own.map(x=>({kind:x.kind,attacks:oracle.CATALOG[x.kind].map(y=>y[0]),retreat:1,tool:'other',manualOK:true,effectOK:true,psychic:!['dialga','eternatus'].includes(x.kind),door:false,stoneUsable:false,...x}));
@@ -317,7 +341,8 @@ function selfTest(){
  ];
  const results=[];
  for(const [label,input,p,first] of cases){
-  const r=solve(input);if(r.probability!==p||first&&r.first?.kind!==first)throw Error(label+': '+JSON.stringify(r));
+  const r=solve(input),status=p==='1/1'?'certified':p==='0/1'?'no-certificate':'positive';
+  if(r.probability!==p||r.status!==status||first&&r.first?.kind!==first)throw Error(label+': '+JSON.stringify(r));
   results.push({label,p,first:r.first?.kind??null,states:r.states,branches:r.branches});
  }
  const capped=solve(cases[3][1],{maxStates:1});if(capped.status!=='capped'||capped.probability!==undefined)throw Error('cap false certificate');
@@ -333,9 +358,13 @@ function selfTest(){
  const longFast=solve(short),shortRisk=solve(short,{riskAware:true});
  if(shortRisk.probability!=='1/1'||shortRisk.expectedActions!=='3/1'||shortRisk.first.kind!=='manual'||shortRisk.first.target!==1)
    throw Error('minimum action tie '+JSON.stringify({longFast,shortRisk}));
+ // Existing board Energy can be moved via paid retreat -> Stretcher
+ // -> manual. A total-only attachment bound would falsely prune this.
+ const transfer=makeInput([P(1,{retreat:1}),V(2)],[{hp:100},bench],{hand:{stretcher:1},flags:{retreat:true,supporter:false}});
+ const tr=solve(transfer);if(tr.probability!=='1/1')throw Error('retreat recovery falsely pruned '+JSON.stringify(tr));
  const zeroRisk=solve(cases[14][1],{riskAware:true});
  if(zeroRisk.probability!=='0/1'||zeroRisk.first!==null||zeroRisk.expectedActions!=='0/1')throw Error('zero-chance spend');
- return {cases:cases.length+5,results,riskExamples:{fast,risk,longFast,shortRisk}};
+ return {cases:cases.length+6,results,riskExamples:{fast,risk,longFast,shortRisk}};
 }
 module.exports={solve,makeInput,selfTest,eachDraw,K};
 if(require.main===module)console.log(JSON.stringify(selfTest(),null,2));
