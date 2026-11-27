@@ -4002,6 +4002,10 @@ function harmlessStadiumForDirectPsychicFinal(view,printing){
 }
 function cleanPublicTerminalView(view,direct=false,extraHarmlessAbility=null){
   return view.globalTurn>1&&view.ownPublic.active&&view.opponentPublic.active&&
+    // Optional typed public combat-safety flags from the V3 host boundary:
+    // do not certify a final hit with unmodeled outgoing or incoming effects.
+    view.ownPublic.active.publicRestrictions?.outgoingTerminalUncertain!==true&&
+    view.opponentPublic.active.publicRestrictions?.incomingTerminalUncertain!==true&&
     opponentBoard(view).every(slot=>
   (slot.abilities??[]).every(a=>
     (direct&&directTerminalHarmlessAbility(slot,a)) ||
