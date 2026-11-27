@@ -4103,15 +4103,25 @@ function publicAstralFinalAttack(view,items,profile=null) {
       !Number.isFinite(attackScore(attacker,attack,view,view.opponentPublic.active,{
         requirePayable:true,paperAstralBarrageTargets:profile?.paperAstralBarrageTargets
       })))return null;
-  const rows=opponentBoard(view).map(p=>({p,score:astralTargetScore(attacker,p,view)}))
+  const hooked=paperAstralBarrageTargetsEnabled(profile);
+  // Match the actual target surface. Unhooked pinned CRE74 can only choose
+  // Bench targets; the paper hook expands that surface to all opposing Pokémon.
+  const targetPool=hooked?opponentBoard(view):view.opponentPublic.bench.filter(Boolean);
+  const rows=targetPool.map(p=>({p,score:astralTargetScore(attacker,p,view)}))
     .sort((a,b)=>b.score-a.score).slice(0,2);
-  const prizes=rows.reduce((sum,row)=>sum+
-    (row.score>0&&row.p.hp-row.p.damage>0&&row.p.hp-row.p.damage<=50?prizeLiability(row.p):0),0);
-  return prizes>=view.ownPublic.prizeCount?item:null;
+  const koRows=rows.filter(row=>row.score>0&&row.p.hp-row.p.damage>0&&row.p.hp-row.p.damage<=50);
+  const prizes=koRows.reduce((sum,row)=>sum+prizeLiability(row.p),0);
+  const prizeWin=prizes>=view.ownPublic.prizeCount;
+  const board=opponentBoard(view);
+  const boardEmptyWin=hooked&&board.length<=2&&koRows.length===board.length&&
+    board.every(slot=>koRows.some(row=>row.p===slot));
+  if(!prizeWin&&!boardEmptyWin)return null;
+  return {item,winCondition:prizeWin?'prizes':'board-empty'};
 }
 function finalPublicStep(view,items,receipt,profile){
   const astral=publicAstralFinalAttack(view,items,profile);
-  if(astral)return {item:astral,reason:'ROOT_PUBLIC_FINAL_ASTRAL_BARRAGE'};
+  if(astral)return {item:astral.item,reason:astral.winCondition==='board-empty'?
+    'ROOT_PUBLIC_FINAL_ASTRAL_BOARD_EMPTY':'ROOT_PUBLIC_FINAL_ASTRAL_BARRAGE'};
   const current=publicFinalAttack(view,new Set(items.filter(i=>i.kind==='attack').map(i=>i.attackName)));
   if(current){
     const item=items.find(i=>i.kind==='attack'&&i.attackName===current.attack.name);
