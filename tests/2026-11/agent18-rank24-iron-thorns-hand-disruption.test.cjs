@@ -77,6 +77,23 @@ const policy = createPolicy({
   role: 'opponent', seat: 0, policyVersion: POLICY_VERSION, config: {}
 });
 
+test('nonterminal N resets a large opponent hand while improving or preserving ours', () => {
+  const n = { token: 'n', kind: 'play-card', actorPrinting: 'N FCO 105' };
+  assert.deepEqual(policy.decide(root({
+    ownHand: ['N FCO 105', 'Palace Book SMP NAN25'],
+    ownPrizes: 6,
+    opponentHand: 9,
+    items: [n, pass]
+  })), { kind: 'select-action', token: 'n' });
+
+  assert.deepEqual(policy.decide(root({
+    ownHand: ['N FCO 105', 'Eri TEF 146', 'Sidney FST 241', 'Guzma BUS 115'],
+    ownPrizes: 3,
+    opponentHand: 4,
+    items: [n, pass]
+  })), { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ROOT_ACTION' });
+});
+
 test('Xerosic is deterministic at public hand count above 3 and not below', () => {
   const x = { token: 'x', kind: 'play-card', actorPrinting: "Xerosic's Machinations SFA 64" };
   assert.deepEqual(policy.decide(root({
