@@ -54,6 +54,14 @@ function result(t,remaining,damage,extra={},emptyBoard=false){
  const terminal=lethal&&(emptyBoard||Number.isSafeInteger(remaining)&&remaining>0&&t.prizes>=remaining);
  return {damage,lethal,terminal,prizes:lethal?t.prizes:0,score:terminal?10000:lethal?200+t.prizes*100:damage,...extra};
 }
+// Rulebook I.E: simultaneous loss conditions resolve in favor of the player
+// satisfying more win conditions. A tied condition count is not a win.
+function recoilWin(left,foePrizes,t,emptyBoard,own){
+ if(!Number.isSafeInteger(foePrizes)||foePrizes<1||foePrizes>6||!Array.isArray(own.bench))return false;
+ const wins=Number(emptyBoard)+Number(Number.isSafeInteger(left)&&left>0&&t.prizes>=left);
+ const losses=Number(foePrizes<=2)+Number(!own.bench.some(Boolean));
+ return wins>losses;
+}
 // A prospective attack is never used to assert an actual native root's legality.
 function attackOptions(o,own,target,caps){
  const t=targets.target(target),p=own?.active,k=kind(p),temple=bolt.templeMayApply(o);
@@ -67,7 +75,7 @@ function attackOptions(o,own,target,caps){
  const add=(attackName,damage,extra={})=>out.push({attackName,...resolveDamage(damage,extra)});
  if(k==='moltres'&&e.d>=2&&e.total>=3){
   const lethal=190*(t.darkWeak?2:1)>=t.remaining;
-  const safe=p.hp-p.damage>30||(lethal&&(emptyBoard||Number.isSafeInteger(left)&&left>0&&t.prizes>=left)&&o.opponentPublic.prizeCount>2&&list(own.bench).some(Boolean));
+  const safe=p.hp-p.damage>30||(lethal&&recoilWin(left,o.opponentPublic.prizeCount,t,emptyBoard,own));
   if(safe)add('Aura Burn',190*(t.darkWeak?2:1));
  }
  if(k==='bolt'){
