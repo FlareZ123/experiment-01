@@ -1066,6 +1066,18 @@ function getLostPlan(view) {
   if(values.length<2||values[0]<300)return -Infinity;
   return values[0]+values[1]+100;
 }
+function tapuCureValue(view,slot){
+  if(!slot||slot.damage<=0)return 0;
+  const threat=visibleCounterattackThreat(view,slot);
+  const exposed=slot.hp-slot.damage<=threat;
+  return slot.damage*2+prizeLiability(slot)*(exposed?450:100);
+}
+function tapuCureScore(view){
+  const rows=view.ownPublic.bench.filter(p=>p&&p.damage>0).map(p=>tapuCureValue(view,p)).sort((a,b)=>b-a);
+  if(rows.length<2)return -Infinity;
+  const score=rows[0]+rows[1];
+  return score>=1100?score:-Infinity;
+}
 function attackScore(attacker, attack, view, target, options = {}) {
   if (!attacker || !attack || !target) return -Infinity;
   if (attack.gxAttack && view.ownPublic.publicTurnRestrictions.gxUsed) return -Infinity;
@@ -1079,6 +1091,7 @@ function attackScore(attacker, attack, view, target, options = {}) {
     return -Infinity;
   }
 
+  if (attack.name==='Tapu Cure-GX'&&hasName(attacker.printing,'Tapu Lele-GX'))return tapuCureScore(view);
   if (attack.name === 'Copycat') return -Infinity; // separate copied-attack admission required
   if (attack.name==='Get Lost'&&hasName(attacker.printing,'Girafarig')) return getLostPlan(view);
   if (attack.name==='Astral Barrage') return astralBarragePlan(attacker,view);
@@ -1452,6 +1465,57 @@ function raihanNeed(view,receipt) {
   const best=Math.max(-Infinity,...scores);
   return best>=2200?160:best>=800?108:best>=400?75:-Infinity;
 }
+// Exposure is a planning estimate from the public opposing Active only.
+// Unknown/unfunded future draws are not treated as guaranteed retaliation.
+function visibleCounterattackThreat(view,slot){
+  const opponent=view.opponentPublic.active;
+  if(!opponent||!Array.isArray(opponent.energies))return 0;
+  const attached=energyUnitCount(opponent);
+  return Math.max(0,...(opponent.attacks??[]).map(a=>{
+    if(!Array.isArray(a.cost)||attached<a.cost.length)return 0;
+    if(a.name==='Terminal Period'&&slot.damage===60)return slot.hp;
+    if(a.name==='Apex Dragon')return attached>=3?160:0; // unknown copy, heuristic pressure
+    const base=parseDamage(a.damage);
+    if(base===null)return 0;
+    const weakness=(slot.printed?.weaknesses??[]).some(w=>opponent.printed?.types?.includes(w.type));
+    return base*(weakness?2:1);
+  }));
+}
+function acerolaTargetScore(view,slot){
+  if(!slot||slot.damage<=0||!Number.isFinite(slot.hp)||!view.opponentPublic.active)return -Infinity;
+  const remaining=Math.max(0,slot.hp-slot.damage);
+  const active=slot===view.ownPublic.active;
+  const bench=view.ownPublic.bench.filter(Boolean);
+  if(active&&!bench.length)return -Infinity;
+  const current=bestAttackForSlot(view.ownPublic.active,view,view.opponentPublic.active);
+  const currentKO=(current?.damage??0)>=Math.max(1,view.opponentPublic.active.hp-view.opponentPublic.active.damage);
+  if(currentKO&&prizeLiability(view.opponentPublic.active)>=view.ownPublic.prizeCount)return -Infinity;
+  const threat=visibleCounterattackThreat(view,slot);
+  const exposed=remaining<=threat||(remaining<=70&&view.opponentPublic.handCount>=2);
+  if(!exposed)return -Infinity;
+  const others=ownBoard(view).filter(p=>p!==slot);
+  if(active){
+    const follow=bench.map(p=>{
+      const idx=view.ownPublic.bench.indexOf(p);
+      const moved=switchedPublic(view,'ownPublic',idx);
+      const reduced={...moved,ownPublic:{...moved.ownPublic,bench:moved.ownPublic.bench.map((b,j)=>j===idx?null:b)}};
+      return bestAttackForSlot(p,reduced,view.opponentPublic.active);
+    }).filter(Boolean).sort((a,b)=>b.score-a.score)[0];
+    if(!follow||follow.score<=0)return -Infinity;
+    if(currentKO&&follow.damage<Math.max(1,view.opponentPublic.active.hp-view.opponentPublic.active.damage)&&
+      prizeLiability(slot)<view.opponentPublic.prizeCount)return -Infinity;
+  }
+  let score=prizeLiability(slot)*650+slot.damage*3+(active?350:0);
+  if(prizeLiability(slot)>=view.opponentPublic.prizeCount)score+=1500;
+  score-=slotEnergyCount(slot)*180+(isShadowRiderVmax(slot)?500:0);
+  if(others.every(p=>!isShadowRiderVmax(p))&&isShadowRiderVmax(slot))score-=500;
+  if(!active&&ownBoard(view).length<=2)score-=300;
+  return score>=700?score:-Infinity;
+}
+function acerolaNeed(view){
+  const best=Math.max(-Infinity,...ownBoard(view).map(p=>acerolaTargetScore(view,p)));
+  return Number.isFinite(best)?best:-Infinity;
+}
 function supporterNeedScore(view, printing, receipt) {
   const priorOpponentKO = receipt?.priorOpponentTurnKO?.any === true;
   if (hasName(printing, 'Teammates')) return priorOpponentKO ? 100 : -5;
@@ -1465,8 +1529,8 @@ function supporterNeedScore(view, printing, receipt) {
     return forestSealAccessNeed(view) ? 101 : missingV || missingHood ? 90 : 40;
   }
   if (hasName(printing, 'Acerola')) {
-    return ownBoard(view).some(slot =>
-      slot.damage > 0 && slot.hp - slot.damage <= 120) ? 88 : -5;
+    const need=acerolaNeed(view);
+    return Number.isFinite(need)?Math.min(160,75+need/100):-Infinity;
   }
   if (hasName(printing, "Lillie's Determination")) {
     return handResetNeed(view,printing);
@@ -1841,18 +1905,17 @@ function choosePokemonRecipient(view, prompt) {
       minimum===2&&maximum===2&&opponentChoices.length>=2&&actorChoices.length===0&&
       view.opponentPublic.bench.filter(Boolean).length>=2) {
     ranked=opponentChoices.map(row=>({...row,score:astralTargetScore(view.ownPublic.active,row.target.slot,view)}));
+  } else if (effectName==='Tapu Cure-GX'&&hasName(prompt.source?.sourcePrinting,'Tapu Lele-GX')&&actorChoices.length>0){
+    // Pinned reducer permits Active and one damaged target; use only
+    // paper-equivalent two-damaged-Bench admission, never its Active bug.
+    const legal=actorChoices.filter(row=>row.target.zone==='bench'&&row.target.slot.damage>0);
+    if(legal.length<2||maximum!==2)return abstain('NO_PAPER_EQUIVALENT_TAPU_CURE');
+    ranked=legal.map(row=>({...row,score:tapuCureValue(view,row.target.slot)}));
+    const chosen=ranked.sort((a,b)=>b.score-a.score||a.target.index-b.target.index).slice(0,2);
+    for(const row of ranked)recordPolicyAuditScore(row.choice.token,row.score,'TAPU_CURE_BENCH_TARGET');
+    return {kind:'select-choices',tokens:chosen.map(row=>row.choice.token)};
   } else if (effectName === 'Acerola' && actorChoices.length > 0) {
-    ranked = actorChoices.map(row => {
-      const slot = row.target.slot;
-      if (slot.damage <= 0) return { ...row, score: -Infinity };
-      const remaining = Math.max(0, slot.hp - slot.damage);
-      return {
-        ...row,
-        score: 1000 + Math.min(600, slot.damage * 2) +
-          slotEnergyCount(slot) * 80 + (remaining <= 120 ? 400 : 0) +
-          prizeLiability(slot) * 100
-      };
-    });
+    ranked=actorChoices.map(row=>({...row,score:acerolaTargetScore(view,row.target.slot)}));
   } else if (effectName === 'Guzma' && actorChoices.length > 0) {
     const target=view.opponentPublic.active;
     ranked=actorChoices.map(row=>{
@@ -2846,9 +2909,10 @@ function scoreTrainerPlay(item, view, receipt, profile) {
       receipt?.priorOpponentTurnKO?.any === true) return 900;
   if (hasName(name, 'Raihan') && !supporterUsed &&
       Number.isFinite(raihanNeed(view,receipt))) return raihanNeed(view,receipt)>=160?2400:raihanNeed(view,receipt)>=100?960:880;
-  if (hasName(name, 'Acerola') && !supporterUsed &&
-      ownBoard(view).some(slot =>
-        slot.damage > 0 && slot.hp - slot.damage <= 120)) return 850;
+  if (hasName(name,'Acerola')&&!supporterUsed){
+    const need=acerolaNeed(view);
+    return Number.isFinite(need)?Math.min(1600,700+need/4):-Infinity;
+  }
   // Battle Compressor's copied-attack setup is deliberately unsupported.
   const missingBasicV = !knownFullyPrized(view,'Shadow Rider Calyrex V') && !hasBasicShadowRiderV(view) &&
     !handHasBasicShadowRiderV(view) && hasOpenBench(view);
