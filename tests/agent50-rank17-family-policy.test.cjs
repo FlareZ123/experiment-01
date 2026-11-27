@@ -528,6 +528,13 @@ function runCases(policy,protocol) {
         {abilityName:'Sunbeam',suppressed:true,reasonCode:'ABILITY_LOCK',sourcePrinting:'Klefki SVI 96'}]})]}};
     same(policy.rainProjection(suppressedSolrock,suppressedSolrock.ownPublic.active)?.hitsRequired,6,
       tag+'explicit Sunbeam suppression restores printed Lunatone packet count');
+    const klefkiSuppressesSunbeam={...sunbeamBoard,
+      opponentPublic:player({
+        active:slot(A.klefki,{hp:70,abilities:['Mischievous Lock']}),
+        bench:[slot('Lunatone OBF 92',{hp:90,abilities:['New Moon']}),
+          slot('Solrock CES 62',{hp:90,abilities:['Sunbeam']})],prizeCount:6})};
+    same(policy.rainProjection(klefkiSuppressesSunbeam,klefkiSuppressesSunbeam.ownPublic.active)?.hitsRequired,9,
+      tag+'active Klefki suppresses Sunbeam before Lunatone Rain arithmetic');
     const noSight={...loading,ownHand:[full.sight],ownPublic:{...loading.ownPublic,active:{...rain,tools:[]},discard:[R,R,R,R,C,C,C,C,U]}};
     same(runRoot(p,noSight,[play('sight',full.sight,{zone:'active',index:0,printing:A.raichu}),pass]),action('sight'),tag+'Sight crosses two-VMAX threshold');
     const manual={...loading,ownHand:[C,U],ownPublic:{...loading.ownPublic,discard:[R,R,R,R,C,C,C,U]}};
