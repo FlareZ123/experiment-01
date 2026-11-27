@@ -169,3 +169,56 @@ for(const seat of [0,1]){
     }
   });
 }
+
+
+for(const seat of [0,1]){
+  test('pinned Alolan Vulpix Snow Mirage prevents false final-Prize certificate, seat '+seat,()=>{
+    const own=nativePlayer(seat,{own:true});
+    const opponent=nativePlayer(1-seat,{own:false});
+    own.stadium.cards=[]; // Underworld Door remains an actual Ability for Snow Mirage.
+    own.active.energies.cards=Array(8).fill(null).map(()=>card(PSY_ENERGY));
+    opponent.active=nativeSlot({
+      fullName:'Alolan Vulpix VSTAR SIT',name:'Alolan Vulpix VSTAR',
+      types:[3],hp:240,subtypes:['VSTAR'],weakness:[{type:8}],damage:0,
+      attacks:[{name:'Snow Mirage',cost:[3,COLORLESS,COLORLESS],damage:160,
+        text:'prevent damage from Pokémon that have an Ability',
+        gxAttack:false,barrage:false}]
+    });
+    // Actual pinned Snow Mirage implementation calls PREVENT_DAMAGE with a
+    // public sourceHasAbility filter after its damaging hit.
+    opponent.active.preventDamageNextTurn={sourceHasAbility:true};
+    const state={players:seat===0?[own,opponent]:[opponent,own],
+      activePlayer:seat,turn:4,phase:2,prompts:[]};
+    const view=contract.actorObservation(state,seat);
+    assert.equal(view.opponentPublic.active.publicRestrictions.terminalOutcomeUncertain,true);
+    assert.equal(view.ownPublic.active.publicRestrictions.terminalOutcomeUncertain,false);
+    assert.doesNotThrow(()=>protocol.validateActorObservation(view,seat));
+    for(const profile of profiles){
+      const policy=worker.createPolicy({role:'candidate',seat,
+        policyVersion:worker.POLICY_VERSION,config:profile});
+      const protectedResult=policy.decideWithAudit(request(seat,view));
+      assert.deepEqual(protectedResult.decision,{kind:'select-action',token:'fog'});
+      assert.ok(protectedResult.policyAudit.selectionRuleCode!=='ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+      // The old actor projection omitted Snow Mirage's active public effect:
+      // the same worker falsely calls 250 printed Max Geist damage a final KO.
+      const old=JSON.parse(JSON.stringify(view));
+      delete old.opponentPublic.active.publicRestrictions.terminalOutcomeUncertain;
+      const erroneous=policy.decideWithAudit(request(seat,old));
+      assert.deepEqual(erroneous.decision,{kind:'select-action',token:'hit'});
+      assert.equal(erroneous.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+    }
+    // Separate pinned Hisuian Goodra Rolling Iron class of temporary defense:
+    // positive damageReductionNextTurn is also exposed as unsafe.
+    opponent.active.preventDamageNextTurn=null;
+    opponent.active.damageReductionNextTurn=80;
+    const reduced=contract.actorObservation(state,seat);
+    assert.equal(reduced.opponentPublic.active.publicRestrictions.terminalOutcomeUncertain,true);
+    opponent.active.damageReductionNextTurn=0;
+    const unprotected=contract.actorObservation(state,seat);
+    assert.equal(unprotected.opponentPublic.active.publicRestrictions.terminalOutcomeUncertain,false);
+    // Reject structurally invalid/forged terminal safety claims at the worker gate.
+    const malformed=JSON.parse(JSON.stringify(view));
+    malformed.opponentPublic.active.publicRestrictions.terminalOutcomeUncertain='false';
+    assert.throws(()=>protocol.validateActorObservation(malformed,seat));
+  });
+}
