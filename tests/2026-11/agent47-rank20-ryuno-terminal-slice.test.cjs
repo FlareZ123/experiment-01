@@ -281,7 +281,11 @@ test('real V3 Apex provenance is payable only after same-session exact Ryuno cop
  attackerChoice.prompt.source={classification:'actor-choice',sourceKind:'card-effect',
    sourcePrinting:'Regidrago VSTAR SIT',effectName:'Apex Dragon'};
  assert.deepEqual(session.decide(attackerChoice),{kind:'select-choice',token:'ryuno'});
- assert.deepEqual(session.decide(payment),{kind:'select-choices',tokens:['dde']});
+ const afterDamage=copy(payment);
+ afterDamage.observation.opponentPublic.active.damage=330;
+ assert.equal(canTerminalRyuno(afterDamage),false,'KO damage invalidates earlier pre-attack target gate');
+ assert.deepEqual(session.decide(afterDamage),{kind:'select-choices',tokens:['dde']},
+   'mandatory discard must finish an attack that already dealt lethal damage');
  assert.equal(session.decide(payment),null,'same copied-attack decision cannot pay twice');
  assert.deepEqual(session.decide(attackerChoice),{kind:'select-choice',token:'ryuno'});
  const later=copy(payment);later.observation.globalTurn=5;
