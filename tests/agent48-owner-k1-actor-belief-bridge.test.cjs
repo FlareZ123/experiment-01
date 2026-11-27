@@ -190,3 +190,16 @@ test('same-trial K1 custody survives an ordinary action and fails on a same-coun
     expectedSeat:1,currentTurn:7,currentPrizeCount:2
   }).mode,'K0');
 });
+
+test('malformed detached Energy/Tool overlap fails closed before Prize inference',()=>{
+  const {state,owner}=fixture();
+  const energy=card('Psychic Energy SET');
+  owner.active.energies.cards=[energy];
+  assert.throws(()=>captureOwnerK1(state,1,REGISTERED),
+    /Attached Energy must appear/);
+  owner.active.cards.push(energy);
+  owner.active.energies.cards=[];
+  owner.active.tools=[card('Psychic Energy SET')];
+  assert.throws(()=>captureOwnerK1(state,1,REGISTERED),
+    /Attached Tools must not overlap/);
+});

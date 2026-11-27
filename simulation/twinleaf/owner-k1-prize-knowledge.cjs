@@ -37,8 +37,18 @@ function knownOutsideDeck(ownerView) {
   ];
   for (const pokemon of [own.active, ...own.bench]) {
     if (pokemon === null) continue;
-    // PokémonCardList.cards (evolutionPrintings) already includes Energy.
-    // Unlike the gameplay Energy projection, this counts physical cards.
+    // PokémonCardList.cards already includes Energy. Validate the source
+    // geometry before omitting the duplicated Energy projection: otherwise a
+    // future engine/card-view change could silently manufacture Prize facts.
+    const stack=countPrintings(pokemon.evolutionPrintings);
+    for (const [name, copies] of countPrintings(pokemon.energies)) {
+      assert.ok((stack.get(name) ?? 0) >= copies,
+        'Attached Energy must appear in the physical Pokémon card stack');
+    }
+    for (const [name] of countPrintings(pokemon.tools)) {
+      assert.equal(stack.get(name) ?? 0, 0,
+        'Attached Tools must not overlap the physical Pokémon card stack');
+    }
     cards.push(...pokemon.evolutionPrintings, ...pokemon.tools);
   }
   return cards;
