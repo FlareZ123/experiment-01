@@ -354,7 +354,7 @@ for(const seat of [0,1]) {
   test('seat '+seat+' public live Fairy Zone enables 280 Regidrago VSTAR terminal Rondo at six Bench occupants',()=>{
     const r=request(seat);
     r.observation.ownPublic.active={printing:clef,hp:190,damage:0,
-      abilities:['Fairy Zone'],abilitySuppressions:[],energies:[psychic,psychic]};
+      abilities:['Fairy Zone'],abilitySuppressions:[{abilityName:'Fairy Zone',suppressed:false,reasonCode:null,sourcePrinting:null}],energies:[psychic,psychic]};
     r.observation.ownPublic.bench=[b('Unown AOR'),b('Unown AOR'),b('Unown AOR'),
       b('Latias ex SSP'),b('Dedenne-GX UNB')];
     r.observation.opponentPublic.active={printing:'Regidrago VSTAR SIT',hp:280,
@@ -366,10 +366,10 @@ for(const seat of [0,1]) {
       {...root('attack',clef,'rondo'),attackName:'Full Moon Rondo'}];
     assert.deepEqual(projectedRondo(r.observation),{damage:280,remaining:280,total:6});
     assert.equal(policy(seat).decide(r).token,'rondo');
-    r.observation.ownPublic.active.abilitySuppressions=['ABILITY_LOCKED'];
+    r.observation.ownPublic.active.abilitySuppressions=[{abilityName:'Fairy Zone',suppressed:true,reasonCode:'ABILITY_LOCKED',sourcePrinting:'Garbodor DRX'}];
     assert.deepEqual(projectedRondo(r.observation),{damage:140,remaining:280,total:6});
     assert.equal(policy(seat).decide(r).token,'mail');
-    r.observation.ownPublic.active.abilitySuppressions=[];
+    r.observation.ownPublic.active.abilitySuppressions=[{abilityName:'Fairy Zone',suppressed:false,reasonCode:null,sourcePrinting:null}];
     r.observation.opponentPublic.stadium=['Path to the Peak CRE'];
     assert.deepEqual(projectedRondo(r.observation),{damage:140,remaining:280,total:6});
     assert.equal(policy(seat).decide(r).token,'mail');
@@ -378,7 +378,7 @@ for(const seat of [0,1]) {
     const r=request(seat);
     r.observation.ownPublic.active=b('Unown AOR');
     r.observation.ownPublic.bench=[{printing:clef,abilities:['Fairy Zone'],
-      abilitySuppressions:[],energies:[psychic,psychic]},
+      abilitySuppressions:[{abilityName:'Fairy Zone',suppressed:false,reasonCode:null,sourcePrinting:null}],energies:[psychic,psychic]},
       b('Latias ex SSP'),b('Unown AOR')];
     r.observation.opponentPublic.active={printing:'Snorlax PGO',hp:150,damage:0,tools:[]};
     r.observation.opponentPublic.bench=[{
@@ -388,7 +388,7 @@ for(const seat of [0,1]) {
     r.actionFrontier.items=[root('play-card','Guzma BUS','gust')];
     // 20*(1+3+1)*2 = 200; victim has 180 HP left.
     assert.equal(policy(seat).decide(r).token,'gust');
-    r.observation.ownPublic.bench[0].abilitySuppressions=['LOCKED'];
+    r.observation.ownPublic.bench[0].abilitySuppressions=[{abilityName:'Fairy Zone',suppressed:true,reasonCode:'ABILITY_LOCKED',sourcePrinting:'Garbodor DRX'}];
     assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   });
 }
