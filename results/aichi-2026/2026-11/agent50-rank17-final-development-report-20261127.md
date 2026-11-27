@@ -6,7 +6,7 @@ Agent50, 2026-11-27T09:15:36.172Z. Branch `agent50/rank17-raichu-family-20261127
 
 ```json
 {
-  "decision": 319,
+  "decision": 331,
   "kernel": {
     "assertions": 45
   },
@@ -23,13 +23,15 @@ Agent50, 2026-11-27T09:15:36.172Z. Branch `agent50/rank17-raichu-family-20261127
 }
 ```
 
-Standalone worker Git blob `ab64273712d8c5a526939dceff93757bb7c5efd1`. These are synthetic decision contracts, arithmetic and differential cases, not games. Native V3 qualification, Node builder and full-game results are absent.
+Standalone worker Git blob `52ec6e8734be83f77e9a6017855dc39049e656b9`. These are synthetic decision contracts, arithmetic and differential cases, not games. Native V3 qualification, Node builder and full-game results are absent.
 
 ## Delivered implementation
 
 Source-specific starter and evolution recovery, physical dual Electrode capacity, actual setup ordering, exact own K1 conservation and funded Ticket, Wobbuffet/Klefki/Hood timing, adversarial Rope, Temple answer, same-turn Compressor and distinct-Energy Secret Box, Sight/manual threshold, safe hand utility, public Trainer classification. Exact optimized Rain kernel uses count vectors and target cache, independent brute-force regression.
 
 Two held-out decision defects are now closed in the development worker. First, a terminal Electro Rain line is no longer hidden behind a weaker supported attack merely because the mandatory Rain continuation is unsupported: a directly terminal supported attack still wins, otherwise the worker emits the existing explicit unsupported-root disposition. Second, under a live Temple of Sinnoh with a publicly visible Girafarig LOT Get Lost threat, the worker treats its singleton Marshadow UNB Resetting Hole answer as protected hand material rather than Research/Carmine fodder until Temple is removed or Marshadow is otherwise used. The guard is actor-visible and narrow: without the visible Get Lost threat, the ordinary draw heuristic remains unchanged.
+
+A third source-native response is now closed: when Path to the Peak or Power Plant is publicly suppressing a live Electrode-GX, the worker uses an already-Benched Marshadow Resetting Hole or the held PokéStop replacement instead of recognizing the lock but passing. The Resetting Hole confirmation continuation is covered, and the policy does not consume Marshadow on Path when no live blocked engine is present. Temple-specific Energy semantics remain separate from this broader hostile-Stadium-removal trigger.
 
 Shared native Bomb/Rain/Crush still unsupported; explicit abstentions remain.
 
