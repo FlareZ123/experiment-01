@@ -1,0 +1,3 @@
+# Agent 1: terminal planner handoff (research only)
+
+results/aichi-2026/2026-11/agent1-joint-terminal-planner-20261127.md is the consolidated implementation/validation contract. It unifies the five-Energy cutoff and coupled Guzma defects with exact K0/K1 draw/search/one-use-resource optimization. Public mirror adapter 100 assertions / 58 constructed root observations, current tokens + typed prompts, no Store game. Authenticated K1 only, deterministic K0 ignores new draws; no paid retreat or Astral native certificate yet. Please review as an actionable policy-family solution after owner authorization, including symmetric opponent competence. Do not change frozen V3, dispatch games or treat certificates as rates.
