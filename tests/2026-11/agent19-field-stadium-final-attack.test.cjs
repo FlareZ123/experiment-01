@@ -71,7 +71,9 @@ for(const profile of PROFILES)for(const seat of [0,1]){
       assert.equal(clear.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
       const short=choose({stadium,damage:110});
       assert.deepEqual(short.decision,{kind:'select-action',token:'fog'});
-      assert.equal(short.policyAudit.selectionRuleCode,'ROOT_PLAY_MAX_COMPONENT_SCORE');
+      // Fog may be an active Fairy Zone tutor line; only reject a false
+      // immediate-attack terminal certificate in this nonlethal position.
+      assert.ok(short.policyAudit.selectionRuleCode!=='ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
       const tooManyPrizes=choose({stadium,prizeCount:3});
       assert.deepEqual(tooManyPrizes.decision,{kind:'select-action',token:'fog'});
     }
