@@ -136,7 +136,7 @@ function apexCopyChoiceDecision(request) {
     typeof c.token === 'string' && c.token.length > 0);
   return option ? { kind: 'select-choice', token: option.token } : null;
 }
-function paymentDecision(request) {
+function paymentDecision(request, rememberedCopy=null) {
   if (!canTerminalRyuno(request) || request?.prompt?.promptType !== 'ChooseEnergyPrompt') return null;
   const prompt = request.prompt, m = meta(prompt);
   const source = prompt?.source ?? {};
@@ -149,7 +149,21 @@ function paymentDecision(request) {
   // The pinned native Store has accepted one attached Double Dragon card
   // as both units of this exact copied attack's discard.
   const units = m.energyCount ?? m.count;
-  if (m.selectionType !== 'energy-payment' || !copiedRyuno ||
+  // The real V3 provenance of a copied attack remains Apex Dragon, not
+  // Ryuno Glide. A stateful worker session must have chosen the exact donor
+  // in the immediately preceding native ChooseAttackPrompt. Do not infer
+  // donor identity from the ambiguous two-Energy discard prompt alone.
+  const witnessedApexCopy = rememberedCopy?.attack === 'Ryuno Glide' &&
+    rememberedCopy.seat === request?.seat &&
+    source?.classification === 'actor-choice' &&
+    source?.sourceKind === 'card-effect' &&
+    VSTAR.test(source.sourcePrinting) &&
+    source.effectName === 'Apex Dragon' &&
+    prompt.description === 'CHOOSE_ENERGIES_TO_DISCARD' &&
+    m.energyType === '9,9' &&
+    rememberedCopy.turn === (request.observation?.globalTurn ?? null);
+  if (m.selectionType !== 'energy-payment' ||
+      !(copiedRyuno || witnessedApexCopy) ||
       !Number.isSafeInteger(units) || units < 1 ||
       m.allowCancel !== false) return null;
   const choices = arr(prompt.choices).filter(c =>
@@ -174,8 +188,41 @@ function decideRank20RyunoSlice(request) {
   if (request?.prompt == null) return apexRootDecision(request);
   return apexCopyChoiceDecision(request) ?? paymentDecision(request);
 }
+/** One instance per opponent/seat/game. The remembered choice is consumed
+ * once; no global shared state and no ambiguous Apex-only payment guessing.
+ * This helper is optional alongside an existing full source-bound worker.
+ */
+function createRank20RyunoSession({role='opponent',seat}={}) {
+  if(role!=='opponent'||(seat!==0&&seat!==1))
+    throw new Error('RANK20_RYUNO_SESSION_ROLE_SEAT_MISMATCH');
+  let pendingCopy=null;
+  return Object.freeze({
+    decide(request){
+      if(request?.role!==role || request?.seat!==seat ||
+        request?.observation?.actorSeat!==seat){
+        pendingCopy=null;return null;
+      }
+      if(request.prompt?.promptType==='ChooseAttackPrompt'){
+        pendingCopy=null;
+        const decision=apexCopyChoiceDecision(request);
+        if(decision)pendingCopy={
+          attack:'Ryuno Glide',seat,turn:request.observation?.globalTurn??null
+        };
+        return decision;
+      }
+      if(request.prompt?.promptType==='ChooseEnergyPrompt'){
+        const memory=pendingCopy;
+        pendingCopy=null;
+        return paymentDecision(request,memory);
+      }
+      pendingCopy=null;
+      return request.prompt==null?apexRootDecision(request):null;
+    },
+    reset(){pendingCopy=null;}
+  });
+}
 module.exports = {
   SOURCE_RANK, SOURCE_LIST_BLOB_SHA1, ENGINE_PIN, POLICY_SLICE_VERSION,
   canTerminalRyuno, apexRootDecision, apexCopyChoiceDecision, paymentDecision,
-  decideRank20RyunoSlice
+  decideRank20RyunoSlice, createRank20RyunoSession
 };
