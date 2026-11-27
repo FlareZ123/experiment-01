@@ -257,7 +257,29 @@ function targetChoice(target, state, actorSeat, native) {
   };
 }
 
-function makeSource(prompt, state, actorSeat, provenance) {
+function makeSource(prompt, state, actorSeat, provenance, native) {
+  // After a genuine KO the pinned check-effect reducer (not the attacking
+  // card's reducer) creates CHOOSE_NEW_ACTIVE_POKEMON. This exact shape is
+  // an engine decision, not an untrusted missing card-effect provenance.
+  const owner=state.players?.[actorSeat];
+  const koPromotion=prompt?.constructor?.name==='ChoosePokemonPrompt'&&
+    prompt.message==='CHOOSE_NEW_ACTIVE_POKEMON'&&
+    state.phase!==0&&state.phase!==1&&
+    owner?.id===prompt.playerId&&
+    prompt.getPerspectivePlayerId?.()===owner.id&&
+    Array.isArray(owner.active?.cards)&&owner.active.cards.length===0&&
+    Array.isArray(owner.bench)&&owner.bench.some(slot=>
+      Array.isArray(slot?.cards)&&slot.cards.length>0)&&
+    prompt.playerType===native?.PlayerType?.BOTTOM_PLAYER&&
+    Array.isArray(prompt.slots)&&prompt.slots.length===1&&
+    prompt.slots[0]===native?.SlotType?.BENCH&&
+    prompt.options?.min===1&&prompt.options?.max===1&&
+    prompt.options?.allowCancel===false&&
+    Array.isArray(prompt.options.blocked)&&prompt.options.blocked.length===0;
+  if(koPromotion)return {
+    classification:'actor-choice',sourceKind:'engine',
+    sourcePrinting:null,effectName:'CHOOSE_NEW_ACTIVE_POKEMON'
+  };
   if(provenance?.sourceKind==='card-effect') {
     const sourceCard=provenance.sourceCard??null;
     const effectName=provenance.effectName;
@@ -943,7 +965,7 @@ function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook
   const hostOnly = hostOnlyPrompt(prompt, provenance);
   if (hostOnly) return { ...hostOnly, choiceByToken: new Map() };
 
-  const source = makeSource(prompt, state, actorSeat, provenance);
+  const source = makeSource(prompt, state, actorSeat, provenance, native);
   const choices = [];
   const choiceByToken = new Map();
   let publicMetadata = null;
