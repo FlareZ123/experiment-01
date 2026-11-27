@@ -727,3 +727,51 @@ test('nonterminal three-Prize conversion preserves attached Electrode Energy or 
     assert.equal(decision.kind,'abstain');
   }
 });
+
+
+
+test('paid Rain nonterminal two-Prize KOs cover exact Regidrago V/VSTAR and Iron Thorns ex',()=>{
+  const targetCases=[
+    ['Regidrago VSTAR SIT',280,10,'VSTAR'],
+    ['Regidrago V SIT',220,10,'Basic'],
+    ['Iron Thorns ex TWM',230,20,'Basic']
+  ];
+  for(const seat of [0,1])for(const [name,hp,damage,stage] of targetCases){
+    const f=setup(seat,4);
+    const energies=Array.from({length:3},()=>new EnergyCard());
+    f.owner.active=slot(R,energies);
+    f.enemy.active=slot(name);f.enemy.bench[0]=slot(name);
+    f.view.ownPublic.active=viewSlot(R,[P,P,P]);
+    f.view.ownPublic.bench=[null,null,null,null,null];
+    f.view.ownPublic.discard=[];
+    const slotView=old=>({...viewSlot(name,[],stage),hp,damage:old});
+    f.view.opponentPublic.active=slotView(damage);
+    f.view.opponentPublic.bench=[slotView(0)];
+    const rain={kind:'attack',token:'rain',actorPrinting:R,
+      attackName:'Electro Rain',publicMetadata:{attackCostPayable:true}};
+    assert.deepEqual(f.decide(1,null,[rain,{kind:'pass',token:'pass'}]),
+      {kind:'select-action',token:'rain'},
+      'source-bound nonterminal two-Prize targets must have an actually supported attack');
+    const e=discardPrompt(f);e.prompt.options.max=3;
+    const ep=f.project(e.prompt,f.owner.active.getPokemonCard(),'Electro Rain');
+    const ed=f.decide(2,ep.promptProjection);
+    assert.equal(ed.kind,'select-choices');assert.equal(ed.tokens.length,3);
+    const settled=f.settle(e.prompt,ep,ed);
+    assert.equal(settled.rawResult.length,3);
+    f.owner.active.cards=[f.owner.active.getPokemonCard()];
+    f.owner.active.energies.cards=[];f.view.ownPublic.active.energies=[];
+    const d=rainPrompt(f,p=>{
+      p.damage=270;p.maxAllowedDamage=[
+        {target:{player:1,slot:0,index:0},damage:270},
+        {target:{player:1,slot:1,index:0},damage:270}
+      ];
+    });
+    const hits=f.decide(3,d.projection.promptProjection);
+    assert.equal(hits.kind,'select-choices');assert.equal(hits.tokens.length,9);
+    protocol.validateDecision(hits,d.projection.promptProjection,new Set());
+    const resolution=f.settle(d.prompt,d.projection,hits);
+    assert.equal(resolution.rawResult.length,9);
+    assert.ok(resolution.rawResult.every(row=>row.target.slot===0&&row.damage===30));
+    assert.ok(hp-damage<=270&&hp>0);
+  }
+});
