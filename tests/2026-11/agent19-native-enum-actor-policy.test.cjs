@@ -128,3 +128,44 @@ for(const seat of [0,1]){
     }
   });
 }
+
+
+for(const seat of [0,1]){
+  test('pinned omitted Psychic Weakness x2 certifies real Max Geist terminal, seat '+seat,()=>{
+    const own=nativePlayer(seat,{own:true});
+    const opponent=nativePlayer(1-seat,{own:false});
+    own.active.energies.cards=Array(4).fill(null).map(()=>card(PSY_ENERGY));
+    // Exact pinned Medicham V EVS: Fighting, HP 210, Psychic weakness with
+    // Weakness.value OMITTED (pinned PokemonCard means x2).
+    opponent.active=nativeSlot({
+      fullName:'Medicham V EVS',name:'Medicham V',
+      types:[6],hp:210,subtypes:['V'],weakness:[{type:PSY}],damage:0,
+      attacks:[{name:'Yoga Loop',cost:[COLORLESS,COLORLESS],damage:0,
+        text:'',gxAttack:false,barrage:false}]
+    });
+    const state={players:seat===0?[own,opponent]:[opponent,own],
+      activePlayer:seat,turn:4,phase:2,prompts:[]};
+    const view=contract.actorObservation(state,seat);
+    assert.deepEqual(view.opponentPublic.active.printed.weakness,
+      [{type:'Psychic',value:2}]);
+    assert.equal(view.opponentPublic.active.printed.stage,'BASIC');
+    assert.doesNotThrow(()=>protocol.validateActorObservation(view,seat));
+    // With four Psychic, Max Geist deals 130, doubled to 260 by Medicham's
+    // actual x2 Psychic weakness; two Prizes remain and opponent has a Bench.
+    for(const profile of profiles){
+      const policy=worker.createPolicy({role:'candidate',seat,
+        policyVersion:worker.POLICY_VERSION,config:profile});
+      const result=policy.decideWithAudit(request(seat,view));
+      assert.deepEqual(result.decision,{kind:'select-action',token:'hit'});
+      assert.equal(result.policyAudit.selectionRuleCode,
+        'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+      const old=JSON.parse(JSON.stringify(view));
+      // The pre-fix actor adapter wrote null when native Weakness.value was
+      // undefined, falsely removing printed x2 Weakness from the estimate.
+      old.opponentPublic.active.printed.weakness[0].value=null;
+      const previous=policy.decideWithAudit(request(seat,old));
+      assert.deepEqual(previous.decision,{kind:'select-action',token:'fog'});
+      assert.ok(previous.policyAudit.selectionRuleCode!=='ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+    }
+  });
+}
