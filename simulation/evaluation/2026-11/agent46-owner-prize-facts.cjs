@@ -1,0 +1,76 @@
+'use strict';
+const assert = require('node:assert/strict');
+const {captureOwnerK1,advanceOwnerK1,assessRequiredDeckPrinting} = require('../../twinleaf/owner-k1-prize-knowledge.cjs');
+const {projectOwnerK1PrizeKnowledge} = require('../../twinleaf/2026-11/agent48-owner-k1-sampler-projection.cjs');
+const TARGETS = new Set(['Radiant Eternatus','Shadow Rider Calyrex V','Shadow Rider Calyrex VMAX','Forest Seal Stone','Hisuian Heavy Ball','Tapu Lele-GX','Latias ex',"Lillie's Clefairy ex",'Stealthy Hood','Pokémon Ranger','Wobbuffet','Temple of Sinnoh']);
+// Only these source-bound effects are permitted to retain inferred Prize composition.
+// Unknown effects, opposing actions, or Heavy Ball clear the inference, even at unchanged counts.
+const SAFE_SOURCES = new Set(['Fog Crystal','Mysterious Treasure','Quick Ball','Forest Seal Stone','Arven','Tapu Lele-GX','Radiant Eternatus','Night Stretcher','VS Seeker','Raihan','Teammates']);
+function createOwnerPrizeFacts({candidateSeat, resolved, baseObserve}) {
+  assert.ok(candidateSeat===0 || candidateSeat===1);
+  assert.equal(typeof baseObserve,'function');
+  assert.equal(resolved.fullNames.length,60);
+  const names=Object.freeze([...resolved.fullNames]);
+  const rows=Object.freeze(resolved.resolvedRows.map(row=>Object.freeze({
+    cardName:row.name,printing:row.engineFullName,copies:row.count
+  })));
+  let store=null,hook=null,snapshot=null,lastOrdinal=-1;
+  const captured=new WeakSet();
+  function bindStore(s,h) {
+    assert.equal(store,null,'one live game per adapter');
+    assert.equal(typeof h.getPromptProvenance,'function');
+    store=s;hook=h;
+  }
+  function sourceName(prompt) {
+    const provenance=prompt && hook?.getPromptProvenance(prompt);
+    if(provenance?.sourceKind!=='card-effect') return null;
+    const printing=provenance.sourceCard?.fullName;
+    return rows.find(r=>r.printing===printing)?.cardName??null;
+  }
+  function observe(state,seat) {
+    assert.equal(state,store?.state,'prize observations require original live Store');
+    const view=baseObserve(state,seat);
+    if(seat!==candidateSeat) return view;
+    const owner=state.players[seat];
+    const prompt=state.prompts.find(p=>p.result===undefined);
+    if(prompt?.constructor?.name==='ChooseCardsPrompt' &&
+       prompt.playerId===owner.id && prompt.cards===owner.deck &&
+       sourceName(prompt)!==null && !captured.has(prompt)) {
+      captured.add(prompt);
+      try { snapshot=captureOwnerK1(state,seat,names,snapshot,()=>view); }
+      catch { snapshot=null; }
+    }
+    if(!snapshot?.prizeInferenceCertified) return view;
+    try {
+      const projected=projectOwnerK1PrizeKnowledge(snapshot,{
+        expectedSeat:seat,currentTurn:state.turn,currentPrizeCount:view.ownPublic.prizeCount
+      });
+      if(!projected.prizeInferenceCertified) return view;
+      const fullyPrized=Object.freeze(rows.filter(r=>TARGETS.has(r.cardName) &&
+        assessRequiredDeckPrinting(snapshot,r.printing)==='known-prized'));
+      const prizeFacts=Object.freeze({schema:'agent46-owner-fully-prized-v1',
+        actorSeat:seat,epoch:snapshot.epoch,turn:view.globalTurn,
+        prizeCount:view.ownPublic.prizeCount,fullyPrized});
+      return Object.freeze({...view,ownerK1:Object.freeze({epoch:snapshot.epoch,
+        exactMembershipKnown:false,knownPrintings:null,invalidationReason:null,prizeFacts})});
+    } catch { return view; }
+  }
+  function onAction(record,context) {
+    assert.equal(context.store,store);
+    assert.equal(context.state,store.state);
+    assert.equal(record.dispatchStatus,'succeeded');
+    assert.ok(Number.isInteger(record.actionOrdinal)&&record.actionOrdinal>lastOrdinal);
+    lastOrdinal=record.actionOrdinal;
+    if(!snapshot) return;
+    const own=context.state.players[candidateSeat];
+    const currentOwnPrizeCount=own.prizes.reduce((n,p)=>n+p.cards.length,0);
+    const source=context.pendingPrompt?sourceName(context.pendingPrompt):
+      rows.find(r=>r.printing===record.selectedCardIdentity?.fullName)?.cardName;
+    const safe=record.actingSeat===candidateSeat && SAFE_SOURCES.has(source) &&
+      (record.actionName==='PlayCardAction'||record.actionName==='ResolvePromptAction');
+    snapshot=advanceOwnerK1(snapshot,{currentOwnPrizeCount,deckMayHaveChanged:true,
+      prizeCompositionMayHaveChanged:!safe});
+  }
+  return Object.freeze({bindStore,observe,onAction});
+}
+module.exports={createOwnerPrizeFacts};
