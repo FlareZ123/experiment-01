@@ -1,0 +1,76 @@
+{
+  "schema": "agent1-newmoon-tool-jammer-v2-acceptance-delta-v1",
+  "dateUTC": "2026-11-27",
+  "candidate": {
+    "name": "New Moon Tool Jammer v2",
+    "manifest": "results/als/new-moon-tool-jammer-v2-60.json",
+    "identityCountSha256": "aebe9a142e8492be929316bff4b871375e3e478945e01f8c5844037332634fe6",
+    "fixed60": true
+  },
+  "parentPolicyContract": "results/aichi-2026/2026-11/agent1-newmoon-candidate-policy-acceptance-v2.json",
+  "parentCaseCount": 133,
+  "status": "paper actor-visible delta for the v2 one-card structural redesign; no native game or competitive qualification",
+  "cases": [
+    {
+      "id": "V15-JAMMER-LEGAL-UNDER-AOR",
+      "family": "rank15 Lopunny Vileplume",
+      "sourceRanks": [
+        15
+      ],
+      "state": "AOR Vileplume Irritating Pollen is active; Tool Jammer is in candidate hand; candidate has a legal Tool target; no separate Tool lock.",
+      "must": "Allow Tool Jammer attachment because Pokémon Tools are not Items under the current rulebook.",
+      "forbids": "Applying AOR Vileplume Item lock to Tool Jammer."
+    },
+    {
+      "id": "V15-JAMMER-HOOD",
+      "family": "rank15 Lopunny Vileplume",
+      "sourceRanks": [
+        15
+      ],
+      "state": "Candidate Active Pokémon has Tool Jammer; opposing BUS Vileplume is Active with Stealthy Hood.",
+      "must": "Suppress the effect of Stealthy Hood while both positional conditions remain true, enabling opponent-Active Ability effects such as Cursed Blast to affect BUS Vileplume.",
+      "forbids": "Letting Stealthy Hood protect through an active opposing Tool Jammer."
+    },
+    {
+      "id": "V15-JAMMER-DUSCLOPS-SEQUENCE",
+      "family": "rank15 Lopunny Vileplume",
+      "sourceRanks": [
+        15
+      ],
+      "state": "AOR Vileplume is live; Hooded BUS Vileplume is Active at 140 HP; candidate Active Dusclops has Tool Jammer and two Psychic; second Dusclops is in play; both Cursed Blast uses remain.",
+      "must": "Recognize the line: Benched Cursed Blast 50 -> Active Will-O-Wisp 50 -> if BUS stays Active through its turn, Active Cursed Blast 50 next turn for the KO; Special Condition does not remove the final Ability.",
+      "forbids": "Requiring a third attack coin flip or treating Hood as active while Tool Jammer remains active."
+    },
+    {
+      "id": "V15-JAMMER-SOURCE-RETREAT",
+      "family": "rank15 Lopunny Vileplume",
+      "sourceRanks": [
+        15
+      ],
+      "state": "The Tool-Jammer Dusclops line has placed 100 total on BUS Vileplume, and source can legally retreat/switch BUS away before final Cursed Blast.",
+      "must": "Recognize that moving BUS from Active already removes Disgusting Pollen Basic-attack lock; re-plan from the unlocked Active state rather than scoring the line as a failure.",
+      "forbids": "Treating only a KO as successful lockbreak."
+    },
+    {
+      "id": "V15-FSS-JAMMER",
+      "family": "rank15 Lopunny Vileplume",
+      "sourceRanks": [
+        15
+      ],
+      "state": "AOR Item lock active; Galarian Articuno V is in play; Forest Seal Stone is attached/attachable and VSTAR Power unused; Path/Silent Lab or another effect is not currently suppressing Star Alchemy; Tool Jammer remains in deck.",
+      "must": "Permit Star Alchemy to search Tool Jammer as an in-lock non-Item search route.",
+      "forbids": "Calling Tool Jammer inaccessible solely because Items are locked."
+    },
+    {
+      "id": "V2-SKYFIELD-SINGLETON-K1",
+      "family": "v2 opportunity cost",
+      "sourceRanks": [],
+      "state": "K1 shows the sole Sky Field in v2 is Prized.",
+      "must": "Remove Sky-Field-specific neutral-Stadium / Bench-cap continuations until Prize recovery and use Path/other legal Stadium lines instead.",
+      "forbids": "Reasoning with the parent's two-Sky-Field redundancy after adopting v2."
+    }
+  ],
+  "totalCaseCountWithParent": 139,
+  "competitiveQualified": false,
+  "claim99Point5": false
+}
