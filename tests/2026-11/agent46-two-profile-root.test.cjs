@@ -1430,3 +1430,62 @@ test('Agent4 CRE74 capability enables Active plus one Bench Astral final only wh
       config:{...base,paperAstralBarrageTargets:'untrusted-hook'}}));
   }
 });
+
+
+test('paid Wobbuffet terminal projection respects effective Stoutland Hood after retreat',()=>{
+  for(const seat of [0,1]){
+    const profile=profiles[1],guzma='Guzma BUS';
+    const active=v([P,P]);active.printed.retreatCost=['Colorless','Colorless'];
+    const w=wob(),attacker=vmax([P,P,P,P,P]);
+    const stout=pokemon({printing:'Stoutland BCR',name:'Stoutland',hp:140,types:['Colorless'],
+      subtypes:['Stage 2'],abilities:['Sentinel'],suppression:false,tools:['Stealthy Hood UNB']});
+    const pollen=pokemon({printing:'Vileplume AOR',name:'Vileplume',hp:130,types:['Grass'],
+      subtypes:['Stage 2'],abilities:['Irritating Pollen'],suppression:false});
+    const gx=pokemon({printing:'Vileplume-GX CEC',name:'Vileplume-GX',hp:240,damage:90,types:['Grass'],
+      subtypes:['Stage 2','GX'],abilities:['Fragrant Flower Garden'],suppression:false});
+    const view=observation(seat,{active,bench:[w,attacker],opponentActive:stout,opponentBench:[pollen,gx],
+      ownHand:[guzma],globalTurn:15});
+    view.ownPublic.prizeCount=2;
+    view.ownTurnResources.supporterPlayLocked=true;
+    view.ownPublic.publicTurnRestrictions.supporterPlayLocked=true;
+    const retreat={token:'retreat-w',kind:'retreat',targetPrinting:W,publicMetadata:{benchIndex:0}};
+    const mist={token:'mist',kind:'attack',attackName:'Shadow Mist'};
+    assert.deepEqual(decide(profile,root(seat,view,[retreat,mist])),sel('mist'));
+
+    const jammed=JSON.parse(JSON.stringify(view));
+    jammed.ownPublic.active.tools=['Tool Jammer BST'];
+    assert.deepEqual(decide(profile,root(seat,jammed,[retreat,mist])),sel('mist'),
+      'Tool Jammer on the departing Active must not manufacture a post-retreat Hood bypass');
+
+    const disabled=JSON.parse(JSON.stringify(view));
+    disabled.opponentPublic.stadium=['Jamming Tower TWM'];
+    assert.deepEqual(decide(profile,root(seat,disabled,[retreat,mist])),sel('retreat-w'));
+  }
+});
+
+test('hooked Astral Barrage admits the sole opposing Active while unhooked policy stays engine-conservative',()=>{
+  for(const base of profiles)for(const seat of [0,1]){
+    const hooked={...base,paperAstralBarrageTargets:'agent4-cre74-hook-v1'};
+    const regidrago=pokemon({printing:'Regidrago V SIT',name:'Regidrago V',hp:220,damage:180,
+      subtypes:['Basic','V'],types:['Dragon']});
+    const view=observation(seat,{active:v([P,P,P]),opponentActive:regidrago,opponentBench:[]});
+    view.globalTurn=15;view.ownPublic.prizeCount=2;
+    const barrage={token:'barrage',kind:'attack',attackName:'Astral Barrage'};
+    const mist={token:'mist',kind:'attack',attackName:'Shadow Mist'};
+    const hp=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:hooked});
+    const bp=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:base});
+    const got=hp.decideWithAudit(root(seat,view,[barrage,mist]));
+    assert.deepEqual(got.decision,sel('barrage'));
+    assert.equal(got.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_ASTRAL_BARRAGE');
+    assert.notEqual(bp.decide(root(seat,view,[barrage,mist])).token,'barrage');
+
+    const prompt={actingSeat:seat,promptType:'ChoosePokemonPrompt',
+      source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:V,effectName:'Astral Barrage'},
+      publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,allowCancel:false},
+      choices:[{token:'active',kind:'pokemon',printing:regidrago.printing,
+        publicMetadata:{ownerSeat:'opponent',targetZone:'active',isOwnerVisible:true}}]};
+    const req={role:'candidate',seat,observation:{...view,decisionKind:'owner-prompt',pendingPromptType:'ChoosePokemonPrompt'},prompt,publicEventReceipt:null};
+    assert.deepEqual(hp.decide(req),mult('active'));
+    assert.equal(bp.decide(req).kind,'abstain');
+  }
+});
