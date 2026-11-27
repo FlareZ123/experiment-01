@@ -177,9 +177,20 @@ function developmentTerminal(terminal,input,development,options={}){
         // Attach first, then one exact unrestricted tutor. With an empty deck
         // the attachment itself can be the useful part of the effect.
         const choices=x.deckCount===0?[[]]:targets.map(t=>[t]);
+        // A mandatory unrestricted search does not make the attachment
+        // unavailable when K0 lacks target identities, or when K1 has no
+        // modeled target. Take one actual card in the owner prompt, ignore
+        // its identity/value in this deterministic proof, and replan.
+        // Never expose this abstract search to a stochastic deck ledger.
+        const unknownSearch=x.deckCount>0&&targets.length===0&&
+          options.stopBeforeChance!==true&&typeof options.onReachableState!=="function"&&typeof options.onChance!=="function";
+        if(unknownSearch)choices.push([]);
         for(const [i,b] of x.board.entries())for(const ts of choices){
           const take=retrieve(z,ts);if(!take)continue;
-          const action={kind:"raihan",printing:source("raihan"),targets:ts.map(t=>t.printing),attachTarget:b.id};
+          if(unknownSearch&&ts.length===0)take.input={...take.input,deckCount:take.input.deckCount-1,
+            knownDeckPsychic:0};
+          const action={kind:"raihan",printing:source("raihan"),targets:ts.map(t=>t.printing),
+            attachTarget:b.id,...(unknownSearch&&ts.length===0?{unknownSearch:true}:{})};
           push(z,action,{...take,input:{...take.input,supportAvailable:false,discardPsychic:x.discardPsychic-1,
             board:x.board.map((q,j)=>i===j?{...q,energy:q.energy+1}:q)},
             extra:alter(take.extra,"raihan",-1),extraDiscard:alter(z.extraDiscard,"raihan",1)});
@@ -369,6 +380,16 @@ function tutorSelfTest(terminal){
   const r={...input([row("a",M,3),row("b",M,2)],190),discardPsychic:1,manualAvailable:false};
   test("Raihan provides independent attachment",r,dev({raihan:1},{fog:1}),"raihan",z=>z.decision.plan.damage===190);
   test("Raihan unavailable without prior KO",r,dev({raihan:1},{fog:1},{},{},{},{priorKO:false}),null);
+  test("Raihan K0 can fund a terminal attack without a known tutor target",
+    {...r,knownDeckPsychicCertified:false},dev({raihan:1}),"raihan",
+    z=>z.decision.firstAction.unknownSearch===true&&z.decision.firstAction.targets.length===0&&z.decision.plan.damage===190);
+  test("Raihan empty-deck attachment requires no search",{...r,deckCount:0},dev({raihan:1}),"raihan",
+    z=>!z.decision.firstAction.unknownSearch&&z.decision.firstAction.targets.length===0);
+  test("Raihan still requires an eligible discard Energy",{...r,discardPsychic:0},dev({raihan:1}),null);
+  test("Unknown search cannot stand in for a missing attack resource",{...r,opponents:[opp("oa",220),opp("ob0",320)]},dev({raihan:1}),null);
+  const uncertain=developmentTerminal(terminal,r,dev({raihan:1}),{stopBeforeChance:true});
+  if(uncertain.decision)throw Error("abstract unrestricted search entered chance ledger");
+  results.push({name:"abstract unrestricted search excluded from chance ledger",first:null,actions:[],damage:null});
   test("VS retrieves Raihan after KO",{...r,vsSeekerCount:1},dev({}, {fog:1},{},{},{},{discardExtra:{raihan:1}}),"vs-seeker",
     z=>z.decision.prefix.some(a=>a.kind==="raihan"));
   const e=input([row("a",V,2,true),row("b",M,3)],190,0,1);

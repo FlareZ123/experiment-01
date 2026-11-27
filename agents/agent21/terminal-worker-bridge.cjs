@@ -157,13 +157,16 @@ function projectTerminalInput(request,profile,certificate){
         evolutionAllowed:turn>2&&!r.evolutionPlayLocked&&d.evolutionAllowed===true,
         treasureCount:count(hand,p=>isT(p,"Mysterious Treasure")),quickCount:count(hand,p=>isT(p,"Quick Ball")),
         fodder,fodderPrintings,fodderCertified:true,fodderDisjointFromModeledResources:true};
-      if(exact&&d.tutorsCertified===true){
+      if(d.tutorsCertified===true){
         const rolePrintings=profile.tutorRolePrintings;
         check(rolePrintings&&isP(rolePrintings.P)&&Object.entries(rolePrintings).every(([role,print])=>
           role==="P"?isP(print):Object.entries(ROLES).some(([n,k])=>k===role&&isT(print,n))||
             (role==="treasure"&&isT(print,"Mysterious Treasure"))||(role==="quick"&&isT(print,"Quick Ball"))||
             (TUTOR_NAMES[role]&&isT(print,TUTOR_NAMES[role]))),"invalid fixed tutor role printing map");
-        const deck=k.knownPrintings.flatMap(x=>Array(x.copies).fill(x.printing));
+        // K0 has no known deck identities; zero is a certified lower
+        // bound, not an exact count. Only target-independent actions such
+        // as Raihan's attachment can exploit it.
+        const deck=exact?k.knownPrintings.flatMap(x=>Array(x.copies).fill(x.printing)):[];
         // Single printing per modeled role is required by the exact tutor map.
         for(const [role,print] of Object.entries(rolePrintings)){
           const n=role==="treasure"?"Mysterious Treasure":role==="quick"?"Quick Ball":TUTOR_NAMES[role]??
@@ -346,7 +349,17 @@ function continueTerminalPrompt(intent,request){
       src("Raihan");
       if(p.promptType==="ChooseCardsPrompt"&&meta.sourceZone==="discard")return card("P","discard","raihan-energy");
       if(p.promptType==="ChoosePokemonPrompt")return selectPokemon([a.attachTarget],"raihan-pokemon");
-      if(p.promptType==="ChooseCardsPrompt"&&meta.sourceZone==="deck")return deckTargets(a.targets,"raihan-search");
+      if(p.promptType==="ChooseCardsPrompt"&&meta.sourceZone==="deck"){
+        if(a.unknownSearch===true){
+          check(Array.isArray(a.targets)&&a.targets.length===0&&
+            meta.selectionType==="card-combination"&&meta.ownerSeat==="actor"&&meta.isOwnerVisible===true,
+            "wrong unrestricted Raihan search collection");
+          const eligible=p.choices.filter(c=>c.kind==="card"&&typeof c.printing==="string"&&c.printing.length>0&&
+            c.publicMetadata?.ownerSeat==="actor"&&c.publicMetadata.sourceZone==="deck"&&c.publicMetadata.isOwnerVisible===true);
+          return combo([one(eligible)],"raihan-search");
+        }
+        return deckTargets(a.targets,"raihan-search");
+      }
       return fail("unmodeled Raihan prompt");
     }
     if(a.kind==="star-alchemy"){
@@ -377,7 +390,7 @@ function continueTerminalPrompt(intent,request){
     return fail("unmodeled continuation; discard intent and use ordinary policy");
   }catch(e){return fail(e.message)}
 }
-function bridgeSelfTest(terminal,matcher,adaptive){
+function bridgeSelfTest(terminal,matcher,adaptive,developmentTerminal){
   const assert=(b,m)=>{if(!b)throw Error(m)};
   const energy="Psychic Energy SVE",vmax="Shadow Rider Calyrex VMAX CRE";
   const trainerPrintings={"Acerola":["Acerola BUS"],"Guzma":["Guzma BUS"],"Pokémon Ranger":["Pokémon Ranger STS"],
@@ -445,11 +458,50 @@ function bridgeSelfTest(terminal,matcher,adaptive){
   record("K1 supplies exact role multiset",projected.context.deckCounts.P===2&&projected.context.deckCounts.other===1);
   const drawn=chooseTerminalRoot(fresh,profile,{...cert,oldDeckExchangeable:true},terminal,matcher,adaptive,{minimumChance:0.01});
   record("adaptive planner maps Lillie to legal native root",drawn.decision?.token==="refresh"&&drawn.search.lowerBound===1);
+  if(typeof developmentTerminal==="function"){
+    const raihan="Raihan EVS";
+    const rp={...profile,trainerPrintings:{...trainerPrintings,Raihan:[raihan]},
+      tutorRolePrintings:{P:energy,raihan},
+      developmentCatalog:{[vmax]:{printing:vmax,kind:"vmax",basic:false,psychic:true,dragon:false,
+        ruleBox:true,future:false,canAttack:true,canRetreat:false,retreatCost:2,onPlayChoiceRequired:false,
+        hasAbility:true,copyLimit:4,entryCertified:true}}};
+    const rr={...req,observation:{...v,ownHand:[raihan],ownPublic:{...own,discard:[energy],
+      publicTurnRestrictions:{vstarUsed:false}},
+      ownTurnResources:{...v.ownTurnResources,energyPlayedTurn:5,pokemonPlayLocked:false,
+        abilityPokemonPlayLocked:false,evolutionPlayLocked:false}},
+      publicEventReceipt:{...req.publicEventReceipt,priorOpponentTurnKO:{any:true},
+        ownerBench:[null,{printing:vmax,knownAbilityUse:[{name:"Underworld Door",usedThisTurn:true}]}]},
+      actionFrontier:{schema:"aichi-action-frontier-v1",items:[{kind:"play-card",token:"raihan",actorPrinting:raihan,
+        publicMetadata:{cardType:"trainer",handIndex:0}}]}};
+    const rc={...cert,development:{permissionsCertified:true,noBenchCapacityChange:true,maxBench:5,
+      pokemonPlayAllowed:true,abilityPokemonPlayAllowed:true,evolutionAllowed:true,tutorsCertified:true,starAlchemyAllowed:false}};
+    const result=chooseTerminalRoot(rr,rp,rc,terminal,matcher,adaptive,{developmentTerminal});
+    record("K0 Raihan terminal advice binds actual legal root",result.decision?.token==="raihan"&&
+      result.intent.action.unknownSearch===true&&result.search.lowerBound===1);
+    const raip={actingSeat:0,promptType:"ChooseCardsPrompt",
+      source:{classification:"actor-choice",sourceKind:"card-effect",sourcePrinting:raihan,effectName:"Raihan"},
+      publicMetadata:{selectionType:"card-combination",sourceZone:"deck",ownerSeat:"actor",isOwnerVisible:true,
+        minimumCount:1,maximumCount:1},
+      choices:[{kind:"card",token:"opaque",printing:"unknown",publicMetadata:{ownerSeat:"opponent",sourceZone:"deck",isOwnerVisible:false}},
+        {kind:"card",token:"real",printing:"Fog Crystal CRE",publicMetadata:{ownerSeat:"actor",sourceZone:"deck",isOwnerVisible:true}}]};
+    const raiReq={...rr,observation:{...rr.observation,decisionKind:"owner-prompt"},prompt:raip};
+    const raiChoice=continueTerminalPrompt(result.intent,raiReq);
+    record("Unrestricted Raihan search chooses one actual actor-visible card",raiChoice.decision?.tokens?.[0]==="real");
+    record("Raihan unknown search refuses hidden-only collection",!continueTerminalPrompt(result.intent,
+      {...raiReq,prompt:{...raip,choices:[raip.choices[0]]}}).decision);
+    record("Raihan unknown search refuses wrong source",!continueTerminalPrompt(result.intent,
+      {...raiReq,prompt:{...raip,source:{...raip.source,effectName:"Other"}}}).decision);
+    record("Raihan unknown search refuses repeat",!continueTerminalPrompt(raiChoice.intent,raiReq).decision);
+    record("K0 Raihan still requires prior opponent-turn KO",!chooseTerminalRoot({...rr,
+      publicEventReceipt:{...rr.publicEventReceipt,priorOpponentTurnKO:{any:false}}},rp,rc,terminal,matcher,adaptive,
+      {developmentTerminal}).decision);
+  }
   return results;
 }
 module.exports={projectTerminalInput,chooseTerminalRoot,continueTerminalPrompt,bridgeSelfTest};
 if(require.main===module){
  const {acerolaMaxGeist,certificateRootMatcher}=require("./acerola-max-geist-advisory.cjs");
  const {adaptiveTerminal}=require("./refresh-terminal-advisory.cjs");
- console.log(JSON.stringify(bridgeSelfTest(acerolaMaxGeist,certificateRootMatcher,adaptiveTerminal),null,2));
+ const {developmentTerminal}=require("./development-terminal-advisory.cjs");
+ console.log(JSON.stringify(bridgeSelfTest(acerolaMaxGeist,certificateRootMatcher,adaptiveTerminal,developmentTerminal),null,2));
 }
