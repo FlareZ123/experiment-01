@@ -13,7 +13,7 @@ This is not a final-best-deck nomination. Hood Shield and Lockbridge remain unra
 The distinction is structural:
 
 - New Moon is already a complete 60 with an exact English-print proxy that passed the repository's exact-print Expanded/banned-identity screen. Its 17-Basic shell has a **91.6563%** valid-opening-seven rate and a real Energy-card setup engine that works through Item, Supporter, and Pokémon-Ability locks when its attachment conditions are met.
-- Psychic Reserve v3 is not English-Expanded eligible as submitted because it contains Japan-only **Palace Book** and **Palace Belt**. More importantly, those are not two irrelevant legality placeholders: Palace Book is an Item that draws three and ends the turn, while Palace Belt is a persistent Active Tool draw engine. Replacing them changes the control deck's draw/resource model.
+- Psychic Reserve v3 is not English-Expanded eligible as submitted because it contains Japan-only **Palace Book** and **Palace Belt**. A concrete role-adjacent English repair now exists: **Rotom Bike SSH 181** for Palace Book and **Lucky Helmet AOR 77** for Palace Belt, with the other 58 cards unchanged. Both selected prints are Expanded-legal in the bundled English corpus, but neither is text-equivalent, so old v3 policy evidence does not transfer cleanly.
 - Even after any two-slot legality repair, Psychic Reserve remains a five-Basic shell. Its exact valid-opening-seven rate is only **47.4562%**; only **20.9139%** of valid openings have two or more Basics; **15.8172%** of valid openings contain Mimikyu but no Iron Thorns. Across the 29 authenticated source lists, the opponent receives a much larger optional mulligan-draw ceiling in 26/29 matchups. A two-card Trainer/Tool replacement does not touch this liability.
 - Psychic Reserve's earlier 48-attempt native A/B was useful developmental evidence, but the policy was unqualified and the results did not establish a robust competitive advantage. It cannot justify paying the format and setup costs merely because v3 produced more settled Mimikyu lines in some cells.
 
@@ -99,14 +99,14 @@ The same exact 60 must work in both orientations.
 
 ## Why Psychic Reserve is parked instead of “fixed”
 
-### 1. The two illegal promo slots are strategically material
+### 1. The two illegal promo slots can be repaired, but not neutrally
 
-The submitted 60 contains Palace Book and Palace Belt, neither internationally released. The two functions matter to a slow resource-denial deck:
+A complete 60-card English role-repair now exists at [Psychic Reserve v3e](agent13-psychic-reserve-english-v3e.json), with a detailed [repair analysis](agent13-psychic-reserve-english-v3e-repair-20261127.md):
 
-- Palace Book is an Item-based three-card refill that ends the turn; replacing it with an ordinary Supporter changes Supporter contention and lock resilience.
-- Palace Belt gives an Active Pokémon an extra card at the beginning of its turn; replacing it with an ordinary Tool changes the long-game draw cadence.
+- **Palace Book SMP NAN25 → Rotom Bike SSH 181**. Both are Item draw effects that end the turn, but Rotom Bike draws to six rather than exactly three.
+- **Palace Belt BWP 153 → Lucky Helmet AOR 77**. Both are Active-position Tool draw engines, but Lucky Helmet draws two only after the Active holder is damaged by an opponent's attack.
 
-There is no evidence in the existing candidate work that two arbitrary English cards preserve those roles. A legality-only substitution would therefore create a new, unvalidated deck while pretending to preserve the old one.
+This removes the English-format blocker without pretending that the two effects are identical. The repaired list is a real fixed 60, but it needs new policy reasoning because its draw semantics differ from the old v3.
 
 ### 2. The five-Basic shell is the larger problem and survives any two-slot repair
 
@@ -124,7 +124,7 @@ This is not a cosmetic consistency statistic. It means the control deck repeated
 
 The earlier 48-attempt A/B between Safeguard v1 and Psychic Reserve v3 was explicitly developmental and used an unqualified shared policy. It provided useful evidence that the second Psychic Energy could enable more Mimikyu lines, but even its own report records matchup-dependent reversals and zero paper-qualified games. It does not establish that the five-Basic architecture's lock advantage exceeds its setup and draw-engine costs.
 
-**Parking condition:** do not spend the next policy slot on Psychic Reserve. Reopen only if someone supplies a complete English Expanded 60 whose control plan explicitly addresses the five-Basic setup tax (not merely the two promo identities), plus a concrete adversarial line showing why that structural cost is worth paying. A two-card legality substitution is insufficient.
+**Parking condition:** do not spend the next policy slot on Psychic Reserve. The exact English v3e repair already exists, so legality alone is no longer the issue. Reopen only if the control plan explicitly addresses or justifies the five-Basic setup tax, with a concrete adversarial line showing why that structural cost is worth paying. A two-card role repair is insufficient.
 
 ## Policy-investment recommendation
 
