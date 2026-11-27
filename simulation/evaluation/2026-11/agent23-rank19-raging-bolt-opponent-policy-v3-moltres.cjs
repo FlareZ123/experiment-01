@@ -27,6 +27,7 @@ const ALIASES=Object.freeze({
   "Sandy Shocks ex PAR": "Sandy Shocks ex PAR 108",
   "Galarian Moltres V CRE": "Galarian Moltres V CRE 97",
   "Ho-Oh-EX DRX": "Ho-Oh-EX DRX 22",
+  "Tapu Koko Prism Star TEU": "Tapu Koko ♢ TEU 51",
   "Tapu Koko ♢ TEU": "Tapu Koko ♢ TEU 51",
   "Crobat V DAA": "Crobat V DAA 104",
   "Squawkabilly ex PAL": "Squawkabilly ex PAL 169",
