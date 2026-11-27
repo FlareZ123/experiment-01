@@ -15,16 +15,15 @@ const mol=x=>/^Galarian Moltres V CRE(?: 97)?$/.test(name(x));
 const sada=x=>/^Professor Sada's Vitality PAR(?: 170)?$/.test(name(x));
 const board=o=>[{zone:'active',index:0,pokemon:o?.active},...list(o?.bench).map((pokemon,index)=>({zone:'bench',index,pokemon}))].filter(s=>s.pokemon);
 const cmp=(a,b)=>a.some((x,i)=>x<b[i]&&a.slice(0,i).every((y,j)=>y===b[j]));
-function sadaPreservesReserve(r){
+function accelerationPreservesReserve(r,item){
  const o=r.observation.ownPublic,t=r.observation.opponentPublic.active,temple=bolt.templeMayApply(r.observation);
  const before=bolt.plan(o,t,temple);
- if(!before||!before.rank.some(Boolean))return false;
- const sp=accel.spec({effectName:"Professor Sada's Vitality",sourcePrinting:"Professor Sada's Vitality PAR"});
- const recipients=board(o).filter(s=>/^(?:Raging Bolt ex TEF(?: 123)?|Flutter Mane TEF(?: 78)?)$/.test(name(s.pokemon)));
- const groups=list(o.discard).filter(bolt.basic).map((e,i)=>recipients.map(s=>({printing:name(e),token:'hyp-'+i+'-'+s.zone+s.index,slot:s})));
- const after=accel.plan(o,t,temple,sp,groups);
- const p=after&&bolt.plan(after.next,t,temple);
- return !!p&&cmp(p.rank,before.rank);
+ if(!before)return false;
+ const printing=name(item?.actorPrinting),effect=item?.kind==='use-ability'?item.publicMetadata?.abilityName:sada(printing)?"Professor Sada's Vitality":/^Raihan EVS(?: 152)?$/.test(printing)?'Raihan':null;
+ const sp=accel.spec({effectName:effect,sourcePrinting:printing});
+ if(!sp||sp.zone!=='discard')return false;
+ const after=accel.publicPlan(r,sp),p=after&&bolt.plan(after.next,t,temple);
+ return !!p&&(cmp(p.rank,before.rank)||(item.kind==='use-ability'&&after.rank[1]>0));
 }
 function chooseRoot(r,caps){
  const o=r.observation.ownPublic,op=r.observation.opponentPublic,activeTarget=targets.target(op.active),remaining=o.prizeCount;
@@ -43,7 +42,7 @@ function chooseRoot(r,caps){
   if(!bd||!activeTarget||v>=activeTarget.prizes)return md;
  }
  if(bd){
-  if(ad&&sada(ai?.actorPrinting)&&sadaPreservesReserve(r))return ad;
+  if(ad&&accelerationPreservesReserve(r,ai))return ad;
   return bd;
  }
  if(ad){
@@ -71,6 +70,7 @@ function createPolicy({role,seat,policyVersion,config}){
   if(r.prompt){
    if(r.prompt.promptType==='DiscardEnergyPrompt'&&caps.has(DISCARD))return bolt.decideDiscard(r)??{kind:'abstain',reasonCode:'UNSUPPORTED_DISCARD_ENERGY_PROMPT'};
    if(r.prompt.promptType==='AttachEnergyPrompt'&&caps.has(ATTACH))return accel.decide(r)??{kind:'abstain',reasonCode:'UNSUPPORTED_ATTACH_ENERGY_PROMPT'};
+   if(caps.has(ATTACH)&&r.prompt.promptType==='ChooseCardsPrompt'&&r.prompt.source?.effectName==='Raihan')return accel.raihanSearch(r)??{kind:'abstain',reasonCode:'UNSUPPORTED_RAIHAN_ATTACH_ENERGY_PROMPT'};
    return base.decide(r);
   }
   return chooseRoot(r,caps)??base.decide(r);
