@@ -46,7 +46,7 @@ function createOwnerPrizeFacts({candidateSeat, resolved, baseObserve, Stage=null
     cardName:row.name,printing:row.engineFullName,copies:row.count
   })));
   let store=null,hook=null,snapshot=null,prizeGuard=null,lastOrdinal=-1;
-  const captured=new Set();
+  const captured=new WeakSet();
   function bindStore(s,h) {
     assert.equal(store,null,'one live game per adapter');
     assert.equal(typeof h.getPromptProvenance,'function');
@@ -67,8 +67,8 @@ function createOwnerPrizeFacts({candidateSeat, resolved, baseObserve, Stage=null
     const prompt=state.prompts.find(p=>p.result===undefined);
     if(prompt?.constructor?.name==='ChooseCardsPrompt' &&
        prompt.playerId===owner.id && prompt.cards===owner.deck &&
-       sourceName(prompt)!==null && !captured.has(state.turn+':'+String(prompt.id))) {
-      captured.add(state.turn+':'+String(prompt.id));
+       sourceName(prompt)!==null && !captured.has(prompt)) {
+      captured.add(prompt);
       try {
         snapshot=captureOwnerK1(state,seat,names,snapshot,()=>view);
         prizeGuard=createOwnerPrizeCompositionGuard(state,seat);
