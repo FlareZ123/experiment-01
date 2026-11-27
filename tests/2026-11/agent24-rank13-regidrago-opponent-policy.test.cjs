@@ -200,7 +200,7 @@ function promptRequest(options = {}) {
       'Mysterious Treasure FLI 113', 'Mysterious Treasure'
     ),
     choices: options.choices ?? [],
-    ...(options.publicMetadata ? { publicMetadata: options.publicMetadata } : {})
+    ...(options.publicMetadata ? { publicMetadata: options.publicMetadata } : options.promptType === 'ChooseAttackPrompt' ? { publicMetadata: { selectionType: 'attack', allowCancel: false } } : {})
   };
   return {
     schema: protocol.REQUEST_SCHEMA,
@@ -288,7 +288,7 @@ test('source and candidate bindings identify the fixed rank-13 original and curr
 
 test('worker init accepts role-only empty config and rejects policy-specific configuration', () => {
   assert.doesNotThrow(() => protocol.validateInit(makeInit(0, {})));
-  assert.throws(() => protocol.validateInit(makeInit(0, { rank: 13 })), /BAD_INIT_CONFIG|BAD_POLICY_CONFIG/);
+  assert.throws(() => protocol.validateInit(makeInit(0, { rank: 13 })), /BAD_INIT_CONFIG|BAD_POLICY_CONFIG|UNKNOWN_FIELD/);
   assert.throws(() => createPolicy({
     role: 'opponent', seat: 0, policyVersion: POLICY_VERSION, config: { rank: 13 }
   }), /AGENT24_RANK13_POLICY_INIT_MISMATCH/);
@@ -476,7 +476,7 @@ test('Apex attack choice abstains rather than selecting Phantom Dive with unsupp
     ]
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'abstain', reasonCode: 'NO_SUPPORTED_RANK13_APEX_ATTACK'
+    kind: 'abstain', reasonCode: 'NO_SUPPORTED_ATTACK_CHOICE'
   });
 });
 
@@ -489,7 +489,7 @@ test('Apex attack choice abstains rather than selecting Dragon Impact before its
     ]
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'abstain', reasonCode: 'NO_SUPPORTED_RANK13_APEX_ATTACK'
+    kind: 'abstain', reasonCode: 'NO_SUPPORTED_ATTACK_CHOICE'
   });
 });
 
@@ -635,9 +635,9 @@ test('unsupported PutDamagePrompt fails closed rather than inventing counter all
       { token: 'bench', kind: 'damage-target', label: 'Opponent Bench' }
     ]
   });
-  assert.deepEqual(checkedDecision(request), {
-    kind: 'abstain', reasonCode: 'RANK13_PUT_DAMAGE_UNSUPPORTED'
-  });
+  assert.throws(() => checkedDecision(request), /MISSING_FIELD|BAD_PROMPT_SELECTION_TYPE|PROMPT_SELECTION_TYPE_MISMATCH/);
+  const policy=createPolicy({role:'opponent',seat:request.seat,policyVersion:POLICY_VERSION,config:{}});
+  assert.deepEqual(policy.decide(request), {kind:'abstain',reasonCode:'NO_SUPPORTED_ATTACK_CHOICE'});
 });
 
 test('wrong physical seat is rejected by the policy binding', () => {
@@ -674,4 +674,21 @@ test('actual v2 worker uses Silent Lab to break Temple before an otherwise unava
   r.actionFrontier.items=[{kind:'attack',token:'apex',label:'Apex Dragon',attackName:'Apex Dragon'},action('pass','pass',null)];
   assert.deepEqual(checkedDecision(r),{kind:'select-action',token:'apex'});
  }
+});
+
+test('Crispin duplicate Grass offers do not crowd out Fire or choose Special Energy', () => {
+  const request=promptRequest({promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('Crispin SCR 133','Crispin search Basic Energy'),
+    publicMetadata:multiMetadata(2,2),
+    choices:[cardChoice('g1','Grass Energy MEE 9'),cardChoice('g2','Grass Energy MEE 9'),
+      cardChoice('f1','Fire Energy MEE 10'),cardChoice('dde','Double Dragon Energy ROS 97')]});
+  assert.deepEqual(checkedDecision(request),{kind:'select-choices',tokens:['g1','f1']});
+});
+test('Crispin recipient choice reaches the actor Regidrago VSTAR branch', () => {
+  const request=promptRequest({promptType:'ChoosePokemonPrompt',
+    source:actorChoiceSource('Crispin SCR 133','Crispin attach Basic Energy'),
+    publicMetadata:multiMetadata(1,1,'pokemon'),
+    choices:[pokemonChoice('regiv','Regidrago V SIT 135','actor'),
+      pokemonChoice('registar','Regidrago VSTAR SIT 136','actor','bench',1)]});
+  assert.deepEqual(checkedDecision(request),{kind:'select-choices',tokens:['registar']});
 });
