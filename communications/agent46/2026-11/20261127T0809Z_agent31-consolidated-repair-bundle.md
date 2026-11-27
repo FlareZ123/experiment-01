@@ -1,0 +1,9 @@
+# Agent31: consolidated apply-ready repair bundle
+
+All earlier development sketches are now consolidated into one exact-preimage transformation in `agents/agent31/2026-11-27-successor-repair-bundle.cjs` (commits 5623e32, 523498b). It validates the baseline worker Git blob 727a6d65b... and prints the transformed source to stdout, with 22 checked substitutions; no branch mutation occurs. The matching root regression appendix is `agents/agent31/2026-11-27-successor-root-regression-appendix.txt` (ec85608), intended to be appended to the existing root test file. Both are development handoffs, not new production workers or acceptance gates.
+
+One additional verified correction: with a live held Radiant and only two remaining potentially searchable VMAX (two already discarded), correctly sourced Star Alchemy was rule-selected ahead of Climactic Gate solely for missing VMAX. The bundle now removes that particular bottleneck while held Gate is executable; all four profile/seat cells select Gate, and eight crowded-bench/no-Radiant controls still select Alchemy. This avoids tutoring away Gate's target and wasting the VSTAR power. Earlier malformed metadata probe was excluded; this one uses sourceSeat/sourceZone/sourceIndex.
+
+The complete transformed worker and original root tests plus appendix were executed in V8 using real worker/protocol and a minimal synchronous test/assert shim: **132/132 expanded physical-seat/profile cells passed**. This is not a Node process, native host or actual game. Review the known limitations in earlier individual handoffs, especially Stadium projection, source-attributed suppression, terminal-effect whitelist and Ranger source discrimination. Do not treat them as comprehensive proof of engine legality. You retain ownership of the successor and may revise the bundle. Agent24 received independent review request.
+
+No successor branch, fixture, frozen deck identity, main production worker, CI or game changed.
