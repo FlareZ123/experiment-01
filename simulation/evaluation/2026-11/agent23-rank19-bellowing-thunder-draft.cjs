@@ -1,13 +1,12 @@
 'use strict';
 // Prospective rank-19 only Bellowing Thunder planner. Not registered with V3.
+const targets=require('./agent23-rank19-candidate-targets.cjs');
 const PIN='a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const BOLT=/^Raging Bolt ex TEF(?: 123)?$/;
 const MOL=/^Galarian Moltres V CRE(?: 97)?$/;
 const ADP=/^Arceus & Dialga & Palkia-? ?GX CEC(?: 156)?$/;
 const SANDY=/^Sandy Shocks ex PAR(?: 108)?$/;
 const DDE=/^Double Dragon Energy ROS(?: 97)?$/;
-const knownTarget=/^(?:Shadow Rider Calyrex (?:V CRE(?: 74)?|VMAX CRE(?: 75)?)|Lillie's Clefairy ex JTG(?: 56)?|Tapu Lele-GX GRI(?: 60)?|Trevenant & Dusknoir-GX SMP(?: 217)?|Latias ex SSP(?: 76)?|Dialga-GX UPR(?: 100)?|Mimikyu GRI(?: 58)?|Girafarig LOT(?: 94)?|Marshadow UNB(?: 81)?|Radiant Eternatus CRZ(?: 105)?|Wobbuffet PHF(?: 36)?)$/;
-const harmlessTool=/^(?:Stealthy Hood UNB(?: 186)?|Float Stone BKT(?: 137)?|Forest Seal Stone SIT(?: 156)?)$/;
 const name=x=>typeof x==='string'?x:x?.printing??x?.fullName??'';
 const basic=x=>/^(?:Basic )?(Lightning|Fighting|Darkness) Energy(?: [A-Z0-9]+(?: \d+)?)?$/.exec(name(x))?.[1]??null;
 const slots=o=>[{zone:'active',index:0,pokemon:o?.active},...(o?.bench??[]).map((pokemon,index)=>({zone:'bench',index,pokemon}))].filter(s=>s.pokemon);
@@ -26,13 +25,7 @@ function inventory(o){
   for(const t of ['Lightning','Fighting','Darkness'])if(out.filter(e=>e.type===t).length>3)return null;
   return out;
 }
-function knockoutCost(target){
-  if(!knownTarget.test(name(target))||!Array.isArray(target.tools)||target.tools.some(x=>!harmlessTool.test(name(x))))return null;
-  if(!Number.isFinite(target.hp)||!Number.isFinite(target.damage)||target.damage<0||target.hp<=target.damage)return null;
-  // Deliberately omit uncertified Altered Creation and any other damage boost.
-  // Valid for the fixed candidate profiles with no unmodeled damage prevention.
-  return Math.ceil((target.hp-target.damage)/70);
-}
+function knockoutCost(target){return targets.knockoutCost(target);}
 function deficit(s,remove,temple){
   const p=s.pokemon,n=name(p),e=p.energies.filter((x,i)=>!remove.has(key(s,i)));
   const l=e.filter(x=>basic(x)==='Lightning').length,f=e.filter(x=>basic(x)==='Fighting').length,d=e.filter(x=>basic(x)==='Darkness').length;
