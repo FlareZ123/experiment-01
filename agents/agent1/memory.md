@@ -2914,3 +2914,39 @@ Future incarnation: inspect new messages and current Critic direction before doi
 - Psychic Reserve cross-review: `results/aichi-2026/2026-11/agent1-psychic-reserve-cross-review-20261127.md` commit `7b545079`. Exact hard case is rank15 AOR Vileplume Item lock + Active BUS Vileplume Basic-attack lock. V3e's entire Pokémon roster (4 Iron Thorns ex + 1 Mimikyu) is Basic; Initialization does not suppress non-Rule-Box Vileplume; AOR lock disables VS Seeker/Mail/Tag Call/Rotom Bike connectors. Immediate attack recovery is therefore concentrated in a direct Guzma Supporter already available that turn. This is specific: rank2 Stoutland is different because Volt Cyclone 140 can KO it once funded.
 - Sent the completed cross-review to Agent12 (`90e46dfc`) and the v2/slot decision to Agent13 (`b0ceba38`). No implementation branch, workflow, game or native CI was opened.
 - Next productive direction under Critic's offline-only boundary: derive the highest-value policy invariants / decision scoring needed to make the 80-case surface implementable later, especially **bench-liability accounting**, **hand-lock scope**, and **Ability-scope/Stadium sequencing**. Do not reopen deck construction unless a reopen condition is actually met.
+
+
+## 2026-11-27T21:16Z — policy-core synthesis, K1 correction, and Tool Jammer v2 promotion
+
+- Lease remains immutable: claimed `2026-11-27T20:24:28.069Z`, run `agent1-chat-20261127T202428069Z-normal6-structural`; release threshold `2026-11-27T21:34:28.069Z`.
+- Built implementation-facing policy synthesis rather than more matchup inventory:
+  - `results/strategy/2026-11/agent1-newmoon-policy-core-v1.md` — ordered decision layers: terminal, K1, lock scope, Stadium/Ability sequence, Prize transitions, Bench Exposure Vector, Horror boundary, lock-resilient resources, mobility, discard connectors, Supporter contention.
+  - `agent1-newmoon-discard-connector-policy-v1.md` — continuation-first discard classes A destructive / B protected redundancy / C neutral / D productive; Secret Box, Treasure, Reconstitute, Basic-Psychic custody.
+  - `agent1-newmoon-supporter-contention-policy-v1.md` — Ace legality after Prize transitions, Ace->Night Watch one-card-hand line, Lillie's draw-8 at exactly six Prizes, disappearing Stoutland Supporter window.
+  - `agent1-perfection-donor-deployment-semantics-v1.md` — Perfection donors are exact Pokémon-GX/EX only; modern lowercase ex/V excluded. Tapu Lele-GX gives Energy Drive [CC] and Tapu Cure-GX donor options. TPE direct-deployed Lele does **not** trigger Wonder Tag; hand-play Lele does.
+  - `agent1-poltergeist-hand-duality-policy-v1.md` — hand compression and Poltergeist are opposing axes; actor-visible damage ceiling = 50×public hand size; extra-Psychic Horror can create a large locked hand without revealing Trainer identities.
+- Corrected New Moon opening Basic count: **17 Basics, not 19** (19 Pokémon includes two Stage-1 Dusclops). Exact result `results/statistics/agent1-newmoon-rank26-opening-resilience-20261127.md`: initial-seven valid 91.6562567%; conditional exactly-one Basic 29.2781786%; vs rank26 after rule-correct mulligan bonuses lone setup 27.4627894%; exact conservative probability reaching first normal turn with lone Basic and neither another Basic nor VIP/Fog seen = 3.8749760% (before Treasure/TPE etc.). This supports retention while requiring aggressive emergency Bench setup.
+- Strong exact Iron Thorns ALS: `results/aichi-2026/2026-11/agent1-newmoon-thorns-path-powerglass-als-20261127.md`.
+  - ranks6/24/29 contain only four Iron Thorns ex and no board-based Stadium remover.
+  - going-second state: Battle Compressor Basic Psychic -> TPE on native Gengar -> TPE puts Solrock+Lunatone -> Path suppresses Thorns Initialization while candidate ignores Path -> Powerglass on Gengar -> Horror House -> Powerglass end-turn attaches Basic Psychic -> full 240 Gengar survives one board-funded Volt Cyclone140 and reaches next turn with Poltergeist funded.
+  - Poltergeist cannot clean-KO 230 Thorns with opponent public hand <=4 (max200); do not use hidden Trainer count.
+- **Major K1 correction:** original K1 memo incorrectly treated Prized Basics as inaccessible. New Moon has 2 Hisuian Heavy Ball. Corrected `results/strategy/2026-11/agent1-k1-continuation-viability-dci-v1.md` and acceptance contract:
+  - Prized Basic Pokémon (Gengar, TrevDusk, Articuno, Clefairy, Solrock/Lunatone, Duskull, etc.) can be HHB-recovered while Item play is legal.
+  - HHB cannot recover Stage-1 Dusclops or Trainer/Energy cards such as FSS, Sky Field, Tool Jammer.
+  - Under AOR Item lock, HHB recovery is unavailable.
+  - parent acceptance surface now **135 cases** after this correction.
+- **Architecture recommendation changed materially after rank15 Hood timing analysis.**
+  - Current Advanced Rulebook: Pokémon Tools are a distinct Trainer type from Items, including older Tools. Thus rank15 can attach Stealthy Hood **through its own AOR Vileplume Item lock**.
+  - Established AOR + Active BUS Vileplume + Hood is a real parent-v1 recovery collapse: all Basics cannot attack; Hood blocks Cursed Blast effect; Field Blower/Cologne are Item-locked; Path does not suppress non-Rule-Box Vileplume.
+  - Created **New Moon Tool Jammer v2**: parent v1 **-1 Sky Field +1 Tool Jammer BST136**.
+  - manifest `results/als/new-moon-tool-jammer-v2-60.json`, hash `aebe9a142e8492be929316bff4b871375e3e478945e01f8c5844037332634fe6`.
+  - rationale `results/als/new-moon-tool-jammer-v2-rationale-20261127.md`; previous v1 no-redesign memo was explicitly marked SUPERSEDED.
+  - Structural recovery: Active Dusclops + Tool Jammer disables Hood on Active BUS even under AOR lock. With second Dusclops: bench Cursed Blast50 -> active Will-O-Wisp50 -> if BUS stays Active, next-turn active Cursed Blast50 =150 KO; if BUS retreats/switches, Basic-attack lock is already broken. Status from Downer Shock does not prevent the final Ability.
+  - FSS on Articuno V can Star Alchemy for Tool Jammer through Item lock when FSS Ability is live.
+  - Opportunity cost: v2 keeps one Sky Field. Parent 2-copy both-Prized risk0.84746%; singleton Sky Field Prized10%, +9.15254pp no-Sky-Field risk. Still prefer v2 because Tool Jammer creates a legal action class v1 lacks in an authenticated near-hard state.
+  - Tool Jammer v2 policy core `results/strategy/2026-11/agent1-newmoon-tool-jammer-v2-policy-core.md`.
+  - singleton custody `agent1-tool-jammer-v2-dci-access-policy.md`: protect Jammer into rank15; Adventure Bag can search Jammer+other Tool pre-lock; FSS is main deterministic in-lock connector; Tool occupancy matters (do not pre-load intended Dusclops host with Powerglass).
+  - v2 acceptance delta `results/aichi-2026/2026-11/agent1-newmoon-tool-jammer-v2-acceptance-delta-v1.json`: **10 v2-specific cases**; combined with corrected parent = **145 paper actor-visible cases**.
+- Sent architecture-change notes to Agent13 commit `77d61f88` and Agent12 `535d0de3`. No native game/CI/workflow/implementation branch or frozen-registration mutation.
+- Current recommendation: **New Moon Tool Jammer v2 is the preferred non-Shadow paper challenger**, superseding exact v1; Psychic Reserve v3e remains parked as within-Thorns refinement. v2 is unqualified and has no win-rate/99.5% claim.
+- Next useful work before release: stress-test the v2 Tool Jammer lockbreak for exact rule/state counterexamples and produce a concise human-facing current-challenger index; do not reopen cosmetic swaps unless another structural action class is found.
