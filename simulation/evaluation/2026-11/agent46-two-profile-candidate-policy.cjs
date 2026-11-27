@@ -960,24 +960,7 @@ function attackScore(attacker, attack, view, target, options = {}) {
     return -Infinity;
   }
 
-  if (attack.name === 'Copycat') {
-    const receipt = options.publicEventReceipt ?? null;
-    const eligible = receipt?.opponentCopycatChoices;
-    const dialgaReady = discardHas(view, 'Dialga-GX') &&
-      !view.ownPublic.publicTurnRestrictions.gxUsed &&
-      isDragon(target);
-    const apex = Array.isArray(eligible) && eligible.some(row =>
-      row.attackName === 'Apex Dragon' &&
-      hasName(row.sourcePrinting, 'Regidrago VSTAR'));
-    if (!dialgaReady || !apex) return -Infinity;
-    const copiedDamage = estimatedDamage(attacker,
-      { name: 'Timeless-GX', damage: '150' }, view, target);
-    if (copiedDamage === null) return -Infinity;
-    const remainingHp = Math.max(0, target.hp - target.damage);
-    return copiedDamage >= remainingHp
-      ? 50000 + prizeLiability(target) * 500
-      : copiedDamage * 10;
-  }
+  if (attack.name === 'Copycat') return -Infinity; // separate copied-attack admission required
   if (attack.name === 'Pale Moon-GX') {
     return paleMoonScore(attacker, attack, view, target);
   }
@@ -1178,6 +1161,71 @@ function chooseFieldBlowerPokemon(view, prompt) {
   }
   return { kind: 'select-choices', tokens: selected.map(row => row.choice.token) };
 }
+function itemLocked(view) {
+  return view.ownTurnResources?.itemPlayLocked === true ||
+    view.ownPublic.publicTurnRestrictions?.itemPlayLocked === true;
+}
+function supporterAvailable(view) {
+  return view.globalTurn > 1 && view.ownTurnResources?.supporterPlayedTurn === 0 &&
+    view.ownTurnResources?.supporterPlayLocked !== true &&
+    view.ownPublic.publicTurnRestrictions?.supporterPlayLocked !== true;
+}
+function gateAccessNeed(view) {
+  return !boardHas(view, 'Radiant Eternatus') && !handHas(view, 'Radiant Eternatus') &&
+    !discardHas(view, 'Radiant Eternatus') &&
+    !(view.ownPublic.lostZone ?? []).some(p => hasName(p, 'Radiant Eternatus')) &&
+    view.ownPublic.deckCount > 0 && openBenchSlots(view) >= 3 && canPlayRadiantForGate(view);
+}
+function forestSealAccessNeed(view) {
+  return gateAccessNeed(view) && !handHas(view, 'Forest Seal Stone') &&
+    !ownBoard(view).some(slot => (slot.tools ?? []).some(p => hasName(p, 'Forest Seal Stone'))) &&
+    view.ownTurnResources?.vstarUsed !== true &&
+    view.ownPublic.publicTurnRestrictions?.vstarUsed !== true &&
+    ownBoard(view).some(slot => isShadowRiderVTarget(slot) &&
+      Array.isArray(slot.tools) && slot.tools.length === 0 &&
+      toolsEffectiveForRetreat(view, slot, 'actor') === true && !hasStarAlchemyLock(view, slot));
+}
+function usefulRanger(view) {
+  const r = view.ownPublic.publicTurnRestrictions ?? {};
+  const active = view.ownPublic.active;
+  const a = active?.publicRestrictions ?? {};
+  // Native persistent effect flags, not absence of a legal action, support this decision.
+  const unlockItems = itemLocked(view) && view.ownHand.some(isItem);
+  const unlockOther = r.stadiumPlayLocked === true &&
+    view.ownHand.some(p => hasAnyName(p, ['Sky Field','Dimension Valley','Temple of Sinnoh'])) ||
+    r.energyPlayLocked === true && handHas(view, 'Psychic Energy') ||
+    r.evolutionPlayLocked === true && handHas(view, 'Shadow Rider Calyrex VMAX');
+  const unlockAttack = (r.attackLockTurnsRemaining > 0 ||
+    r.attackMaxEnergyTurnsRemaining > 0 || a.cannotAttackNextTurn === true ||
+    (a.cannotUseAttacksNextTurn ?? []).length > 0 || isText(a.blockedAttackNameNextTurn)) &&
+    Array.isArray(active?.attacks) && active.attacks.some(attack => canPayAttack(active, attack, view));
+  return unlockItems || unlockOther || unlockAttack;
+}
+function bestRecoverableSupporter(view, receipt) {
+  if (!supporterAvailable(view)) return -Infinity;
+  const held = Math.max(0, ...view.ownHand.map(p => supporterNeedScore(view, p, receipt)));
+  const recover = Math.max(-Infinity, ...view.ownPublic.discard
+    .filter(p => !view.ownHand.includes(p)).map(p => supporterNeedScore(view, p, receipt)));
+  return recover >= 40 && recover > held ? recover : -Infinity;
+}
+function recoveryNeedScore(view, printing, receipt) {
+  if (hasName(printing, 'Psychic Energy')) {
+    const handEnergy = view.ownHand.filter(p => hasName(p, 'Psychic Energy')).length;
+    return handEnergy === 0 && (view.ownTurnResources?.energyPlayedTurn === false ||
+      boardAbilityStatus(view,'Underworld Door') === true) ? 95 : handEnergy < 2 ? 25 : -5;
+  }
+  if (hasName(printing, 'Dialga-GX')) return -5;
+  if (hasName(printing, 'Radiant Eternatus')) {
+    return !boardHas(view,'Radiant Eternatus') && !handHas(view,'Radiant Eternatus') &&
+      canPlayRadiantForGate(view) ? 100 : -5;
+  }
+  if (hasName(printing, 'Tapu Lele-GX')) {
+    return supporterAvailable(view) && !handHas(view,'Tapu Lele-GX') &&
+      !boardHas(view,'Tapu Lele-GX') && hasOpenBench(view) && !hasWonderTagLock(view) ? 70 : -5;
+  }
+  return hasAnyName(printing, ['Shadow Rider Calyrex V','Mimikyu',"Lillie's Clefairy ex",'Latias ex','Trevenant & Dusknoir-GX','Girafarig','Marshadow','Wobbuffet'])
+    ? searchNeedScore(view, printing, 'recovery', receipt) : -Infinity;
+}
 function supporterNeedScore(view, printing, receipt) {
   const priorOpponentKO = receipt?.priorOpponentTurnKO?.any === true;
   if (hasName(printing, 'Teammates')) return priorOpponentKO ? 100 : -5;
@@ -1189,7 +1237,7 @@ function supporterNeedScore(view, printing, receipt) {
   if (hasName(printing, 'Arven')) {
     const missingV = !hasBasicShadowRiderV(view) && hasOpenBench(view);
     const missingHood = hasStealthyHoodSearchNeed(view);
-    return missingV || missingHood ? 90 : 40;
+    return forestSealAccessNeed(view) ? 101 : missingV || missingHood ? 90 : 40;
   }
   if (hasName(printing, 'Acerola')) {
     return ownBoard(view).some(slot =>
@@ -1201,19 +1249,21 @@ function supporterNeedScore(view, printing, receipt) {
   if (hasName(printing, 'Iono')) {
     return view.opponentPublic.handCount >= 5 && view.ownPublic.handCount >= 4 ? 80 : 25;
   }
-  if (hasName(printing, 'Pokémon Ranger')) return 5;
+  if (hasName(printing, 'Pokémon Ranger')) return usefulRanger(view) ? 110 : -5;
   return -5;
 }
 
 function searchNeedScore(view, printing, effectName = '', receipt = null) {
   if (!isText(printing)) return -Infinity;
-  if (effectName === 'Wonder Tag') return supporterNeedScore(view, printing, receipt);
+  if (effectName === 'Wonder Tag' || effectName === 'VS Seeker') return supporterNeedScore(view, printing, receipt);
   if (effectName === 'Star Alchemy') {
     const ordinary = searchNeedScore(view, printing, '', receipt);
     const supporter = supporterNeedScore(view, printing, receipt);
     const score = Math.max(ordinary, supporter);
     return score > 0 ? score + 10 : score;
   }
+  if (hasName(printing, 'Radiant Eternatus')) return gateAccessNeed(view) ? 120 : -5;
+  if (hasName(printing, 'Forest Seal Stone')) return forestSealAccessNeed(view) ? 115 : 0;
   const regidrago = opponentHasRegidrago(view);
   const dragon = opponentHasDragon(view);
   const board = ownBoard(view);
@@ -1222,13 +1272,9 @@ function searchNeedScore(view, printing, effectName = '', receipt = null) {
   const hasClefairy = board.some(slot => hasName(slot.printing, "Lillie's Clefairy ex"));
   const hasLatias = board.some(slot => hasName(slot.printing, 'Latias ex'));
 
-  if (hasName(printing, 'Dialga-GX')) {
-    if (regidrago && !discardHas(view, 'Dialga-GX') &&
-        !handHas(view, 'Dialga-GX') && !boardHas(view, 'Dialga-GX')) return 98;
-    return -10;
-  }
+  if (hasName(printing, 'Dialga-GX')) return -10; // unsupported copied-attack route
   if (hasName(printing, 'Mimikyu')) {
-    if (regidrago && !hasMimikyu && !handHas(view, 'Mimikyu')) return 96;
+    if (regidrago && !hasMimikyu && !handHas(view, 'Mimikyu')) return 15;
     return -5;
   }
   if (effectName === 'Climactic Gate') {
@@ -1273,15 +1319,12 @@ function searchNeedScore(view, printing, effectName = '', receipt = null) {
     return hasStadiumRemovalTarget(view) || hasOpponentToolRemovalTarget(view) ? 72 : 0;
   }
   if (hasName(printing, 'VS Seeker')) {
-    return view.ownPublic.discard.some(name =>
-      hasAnyName(name, ['Guzma', 'Raihan', 'Acerola', 'Lillie'])) ? 30 : 0;
+    return !itemLocked(view) && Number.isFinite(bestRecoverableSupporter(view,receipt)) ? 85 : 0;
   }
   if (hasName(printing, 'Hisuian Heavy Ball')) {
     return 25;
   }
-  if (hasName(printing, 'Night Stretcher')) {
-    return board.length < 3 ? 20 : 0;
-  }
+  if (hasName(printing, 'Night Stretcher')) return !itemLocked(view) && view.ownPublic.discard.some(p=>recoveryNeedScore(view,p,receipt)>=70) ? 75 : 0;
   if (hasName(printing, 'Unfair Stamp')) {
     return receipt?.priorOpponentTurnKO?.any === true ? 80 : 0;
   }
@@ -1346,7 +1389,12 @@ function searchCandidates(view, prompt, choices, receipt = null) {
     }));
   } else {
     rows = choices.map(choice => ({
-      choice, score: searchNeedScore(view, choice.printing, scoringEffectName, receipt)
+      choice, score: sourceZone === 'discard' && hasName(sourcePrinting,'VS Seeker')
+        ? supporterNeedScore(view,choice.printing,receipt)
+        : (sourceZone === 'discard' && hasName(sourcePrinting,'Night Stretcher') ||
+           sourceZone === 'prizes' && hasName(sourcePrinting,'Hisuian Heavy Ball'))
+          ? recoveryNeedScore(view,choice.printing,receipt)
+          : searchNeedScore(view, choice.printing, scoringEffectName, receipt)
     }));
   }
   for (const row of rows) {
@@ -1450,6 +1498,9 @@ function chooseCardCombination(view, prompt, receipt = null) {
       minimum < 0 || maximum < minimum) return abstain('BAD_CARD_SELECTION_BOUNDS');
 
   if (metadata.sourceZone === 'prizes' && choices.length === 0) {
+    const empty = prompt.choices.find(choice => choice.kind === 'empty-selection');
+    if (minimum === 0 && empty && hasName(prompt.source?.sourcePrinting,'Hisuian Heavy Ball'))
+      return {kind:'select-choice',token:empty.token};
     return abstain('HIDDEN_PRIZE_IDENTITY');
   }
 
@@ -1458,7 +1509,13 @@ function chooseCardCombination(view, prompt, receipt = null) {
       String(a.choice.printing).localeCompare(String(b.choice.printing)));
 
   let selected = [];
-  if (metadata.sourceZone === 'hand' ||
+  if (metadata.sourceZone === 'deck' && hasName(prompt.source?.sourcePrinting,'Arven')) {
+    const item = ranked.find(row => isItem(row.choice.printing));
+    const tool = ranked.find(row => isTool(row.choice.printing));
+    const pair = [item,tool].filter(Boolean).sort((a,b)=>b.score-a.score);
+    selected = pair.filter((row,index)=>row.score>0 || index<minimum)
+      .slice(0,maximum).map(row=>row.choice);
+  } else if (metadata.sourceZone === 'hand' ||
       (metadata.sourceZone === 'deck' && prompt.source?.effectName === 'Battle Compressor')) {
     selected = ranked.slice(0, minimum).filter(row => Number.isFinite(row.score))
       .map(row => row.choice);
@@ -1479,7 +1536,7 @@ function chooseCardCombination(view, prompt, receipt = null) {
     return abstain('NO_LEGAL_CARD_SET');
   }
 
-  if (prompt.source?.effectName === 'Arven' && selected.length >= 2) {
+  if (hasName(prompt.source?.sourcePrinting,'Arven') && selected.length >= 2) {
     const item = selected.find(choice => isItem(choice.printing));
     const tool = selected.find(choice => isTool(choice.printing));
     if (item && tool && item.token !== tool.token) {
@@ -1691,50 +1748,7 @@ function chooseEnergyAttachment(view, prompt) {
 }
 
 function chooseAttackPrompt(view, prompt, receipt) {
-  setPolicyAuditRule('ATTACK_CHOICE_SCORE_DESC', 'SCORE_DESC_TOKEN_ASC');
-  const choices = prompt.choices.filter(choice =>
-    choice.kind === 'attack' && isText(choice.publicMetadata?.sourceAttack));
-  if (choices.length === 0) return abstain('NO_VISIBLE_ATTACK_CHOICE');
-
-  const effectName = prompt.source?.effectName ?? '';
-  const hasDialga = discardHas(view, 'Dialga-GX');
-  const gxUnused = !view.ownPublic.publicTurnRestrictions.gxUsed;
-  const target = view.opponentPublic.active;
-  const dragonTarget = isDragon(target);
-  let ranked = choices.map(choice => {
-    const attackName = choice.publicMetadata.sourceAttack;
-    let score = 0;
-    if (effectName === 'Apex Dragon' && attackName === 'Timeless-GX' &&
-        hasDialga && gxUnused && dragonTarget &&
-        fairyZoneStatus(view) === true) score = 50000;
-    else if (effectName === 'Copycat' && attackName === 'Apex Dragon' &&
-        Array.isArray(receipt?.opponentCopycatChoices) &&
-        receipt.opponentCopycatChoices.some(row =>
-          row.attackName === 'Apex Dragon' &&
-          hasName(row.sourcePrinting, 'Regidrago VSTAR')) &&
-        hasDialga && gxUnused) score = 50000;
-    else if (attackName === 'Power Beam') score = 200;
-    else if (attackName === 'Timeless-GX' && hasDialga && gxUnused) score = 150;
-    else if (attackName === 'Max Geist') score = 10 + 30 * psychicEnergyCount(view);
-    else if (attackName === 'Full Moon Rondo') {
-      score = 20 + 20 * (countBench(view.ownPublic) + countBench(view.opponentPublic));
-    } else if (attackName === 'Night Watch') {
-      score = 150 + Math.min(120, view.opponentPublic.handCount * 20);
-    } else if (attackName === 'Pale Moon-GX') {
-      const attacker = view.ownPublic.active;
-      const attack = attacker?.attacks.find(row => row.name === 'Pale Moon-GX');
-      score = paleMoonScore(attacker, attack, view, view.opponentPublic.active);
-    }
-    else score = parseDamage(attackName);
-    return { choice, score };
-  });
-  for (const row of ranked) recordPolicyAuditScore(row.choice.token, row.score, 'NO_ATTACK_CHOICE_SCORE');
-  ranked.sort((a, b) => b.score - a.score ||
-    a.choice.token.localeCompare(b.choice.token));
-  if (!Number.isFinite(ranked[0]?.score) || ranked[0].score <= 0) {
-    return abstain('NO_SUPPORTED_ATTACK_CHOICE');
-  }
-  return { kind: 'select-choice', token: ranked[0].choice.token };
+  return abstain('NO_SUPPORTED_ATTACK_CHOICE'); // copied-attack path outside successor scope
 }
 
 function choosePrizeSlots(prompt) {
@@ -2027,7 +2041,7 @@ function chooseConfirmPrompt(view, prompt) {
   let useAbility;
   let rule;
   if (hasName(sourcePrinting, 'Radiant Eternatus')) {
-    useAbility = canUseClimacticGate(view);
+    useAbility = canUseClimacticGate(view, true);
     rule = useAbility ? 'RADIANT_CLIMACTIC_GATE_EXPECTED_VALUE_ACCEPT'
       : 'RADIANT_CLIMACTIC_GATE_EXPECTED_VALUE_DECLINE';
   } else if (hasName(sourcePrinting, 'Tapu Lele-GX')) {
@@ -2105,15 +2119,14 @@ function scoreBasicPlay(item, view) {
   if (hasName(printing, 'Tapu Lele-GX') &&
       !boardHas(view, 'Tapu Lele-GX') && hasOpenBench(view) &&
       view.ownPublic.deckCount > 0 && !hasWonderTagLock(view)) {
-    return view.ownTurnResources.supporterPlayedTurn > 0 ? 620 : 720;
+    return supporterAvailable(view) ? 720 : -Infinity;
   }
   if (hasName(printing, 'Trevenant & Dusknoir-GX') &&
       !boardHas(view, 'Trevenant & Dusknoir-GX') && hasOpenBench(view) &&
       view.opponentPublic.handCount >= 4 && canFuelNightWatch(view)) {
     return 700 + Math.min(100, (view.opponentPublic.handCount - 4) * 25);
   }
-  if (hasName(printing, 'Mimikyu') && opponentHasRegidrago(view) &&
-      !boardHas(view, 'Mimikyu')) return 950;
+  // Mimikyu Copycat is not an admitted attack path.
   if (hasName(printing, "Lillie's Clefairy ex") && opponentHasDragon(view) &&
       !boardHas(view, "Lillie's Clefairy ex")) return 900;
   if (hasName(printing, 'Latias ex') && !boardHas(view, 'Latias ex')) return 650;
@@ -2187,12 +2200,12 @@ function expectedClimacticGateTargets(view, maxTargets = 2) {
   return Number.isFinite(expected) ? Math.max(0, Math.min(2, expected)) : null;
 }
 
-function canUseClimacticGate(view) {
+function canUseClimacticGate(view, alreadyBenched = false) {
   // Radiant Eternatus itself occupies one effective Bench slot before Gate
   // resolves. Estimate only the VMAX targets that can fit after that payment.
   const openBench = openBenchSlots(view);
   if (openBench === null) return false;
-  const maxTargets = Math.min(2, Math.max(0, openBench - 1));
+  const maxTargets = Math.min(2, Math.max(0, openBench - (alreadyBenched ? 0 : 1)));
   const expectedTargets = expectedClimacticGateTargets(view, maxTargets);
   return maxTargets > 0 && expectedTargets !== null &&
     expectedTargets >= MIN_EXPECTED_CLIMACTIC_GATE_TARGETS &&
@@ -2209,7 +2222,7 @@ function scoreClimacticGatePlay(item, view) {
   if (!hasName(item.actorPrinting, 'Radiant Eternatus') ||
       !canPlayRadiantForGate(view)) return -Infinity;
   const openBench = openBenchSlots(view);
-  return openBench >= 3 ? 120 : 60;
+  return openBench >= 3 ? 1800 : 850;
 }
 
 function scoreEvolutionPlay(item) {
@@ -2236,8 +2249,11 @@ function scoreEnergyPlay(item, view) {
   return -Infinity;
 }
 
-function hasDiscardableHand(view, required = 1) {
-  const ranked = view.ownHand.map(printing => discardValue(view, printing))
+function hasDiscardableHand(view, required = 1, playedPrinting = null) {
+  const hand = view.ownHand.slice();
+  const index = hand.indexOf(playedPrinting);
+  if (index >= 0) hand.splice(index,1);
+  const ranked = hand.map(printing => discardValue({...view,ownHand:hand}, printing))
     .sort((a, b) => a - b);
   return ranked.length >= required && ranked.slice(0, required).every(value => value < 800);
 }
@@ -2416,7 +2432,8 @@ function hasStarAlchemyBottleneck(view, receipt) {
   const missingStamp = receipt?.priorOpponentTurnKO?.any === true &&
     !handHas(view, 'Unfair Stamp') && !discardHas(view, 'Unfair Stamp');
   const lowHand = view.ownPublic.handCount <= 1 && view.ownPublic.deckCount > 0;
-  const critical = missingBasicV || missingVmax || missingDialga || missingMimikyu ||
+  if (gateAccessNeed(view)) return true;
+  const critical = missingBasicV || missingVmax ||
     missingClefairy || missingStadiumAnswer || missingStamp || lowHand;
   if (!critical) return false;
 
@@ -2428,16 +2445,28 @@ function hasStarAlchemyBottleneck(view, receipt) {
 
 function scoreTrainerPlay(item, view, receipt) {
   const name = item.actorPrinting ?? '';
-  const supporterUsed = view.ownTurnResources.supporterPlayedTurn > 0;
+  const supporterUsed = !supporterAvailable(view);
+  if (isItem(name) && itemLocked(view)) return -Infinity;
+  if (isTool(name) && view.ownTurnResources?.toolPlayLocked === true) return -Infinity;
+  if (hasName(name,'Pokémon Ranger') && !supporterUsed && usefulRanger(view)) return 1100;
+  if (hasName(name,'VS Seeker') && Number.isFinite(bestRecoverableSupporter(view,receipt)))
+    return 700 + bestRecoverableSupporter(view,receipt);
+  if (hasName(name,'Night Stretcher')) {
+    const value = Math.max(-Infinity,...view.ownPublic.discard.map(p=>recoveryNeedScore(view,p,receipt)));
+    if (value>=70) return 770+value;
+  }
+  if (hasName(name,'Hisuian Heavy Ball') && view.ownPublic.prizeCount > 0 &&
+      (!hasBasicShadowRiderV(view) && !handHasBasicShadowRiderV(view) && hasOpenBench(view) || gateAccessNeed(view))) return 675;
   if (hasName(name, 'Unfair Stamp') && receipt?.priorOpponentTurnKO?.any === true) return 980;
   if (hasName(name, 'Forest Seal Stone')) {
     const target = actionTargetSlot(view, item.publicMetadata);
     if (target && isShadowRiderVTarget(target) &&
-        !(target.tools ?? []).some(tool => hasName(tool, 'Forest Seal Stone')) &&
+        Array.isArray(target.tools) && target.tools.length === 0 &&
+        toolsEffectiveForRetreat(view,target,'actor') === true &&
         view.ownTurnResources.vstarUsed !== true &&
         view.ownPublic.publicTurnRestrictions?.vstarUsed !== true &&
         !hasStarAlchemyLock(view, target) &&
-        hasStarAlchemyBottleneck(view, receipt)) return 550;
+        hasStarAlchemyBottleneck(view, receipt)) return gateAccessNeed(view) ? 930 : 550;
   }
   if (hasName(name, 'Field Blower')) {
     if (hasStadiumRemovalTarget(view)) return 950;
@@ -2452,9 +2481,7 @@ function scoreTrainerPlay(item, view, receipt) {
   if (hasName(name, 'Acerola') && !supporterUsed &&
       ownBoard(view).some(slot =>
         slot.damage > 0 && slot.hp - slot.damage <= 120)) return 850;
-  if (hasName(name, 'Battle Compressor') && opponentHasRegidrago(view) &&
-      !discardHas(view, 'Dialga-GX') && !handHas(view, 'Dialga-GX') &&
-      !boardHas(view, 'Dialga-GX') && (boardHas(view, 'Mimikyu') || handHas(view, 'Mimikyu'))) return 860;
+  // Battle Compressor's copied-attack setup is deliberately unsupported.
   const missingBasicV = !hasBasicShadowRiderV(view) &&
     !handHasBasicShadowRiderV(view) && hasOpenBench(view);
   if (hasName(name, 'Fog Crystal') &&
@@ -2466,16 +2493,16 @@ function scoreTrainerPlay(item, view, receipt) {
   const needNightWatch = view.opponentPublic.handCount >= 4 &&
     !boardHas(view, 'Trevenant & Dusknoir-GX') &&
     !handHas(view, 'Trevenant & Dusknoir-GX') && canFuelNightWatch(view);
-  if (hasName(name, 'Mysterious Treasure') && hasDiscardableHand(view, 1) &&
-      (opponentHasRegidrago(view) || missingBasicV || needNightWatch)) return 800;
-  if (hasName(name, 'Quick Ball') && hasDiscardableHand(view, 1) &&
-      (missingBasicV || needNightWatch ||
-       (opponentHasRegidrago(view) && !boardHas(view, 'Mimikyu')))) return 790;
-  if (hasName(name, 'Ultra Ball') && hasDiscardableHand(view, 2) &&
+  if (hasName(name, 'Mysterious Treasure') && hasDiscardableHand(view, 1, name) &&
+      (gateAccessNeed(view) || missingBasicV || needNightWatch)) return 800;
+  if (hasName(name, 'Quick Ball') && hasDiscardableHand(view, 1, name) &&
+      (missingBasicV || needNightWatch || gateAccessNeed(view))) return 790;
+  if (hasName(name, 'Ultra Ball') && hasDiscardableHand(view, 2, name) &&
       hasUnevolvedShadowRiderV(view) &&
       !handHas(view, 'Shadow Rider Calyrex VMAX')) return 780;
   if (hasName(name, 'Arven') && !supporterUsed &&
-      (missingBasicV || hasStealthyHoodSearchNeed(view))) return 760;
+      (missingBasicV || hasStealthyHoodSearchNeed(view) || forestSealAccessNeed(view)))
+    return forestSealAccessNeed(view) ? 925 : 760;
   if (hasName(name, 'Guzma') && !supporterUsed && canGuzmaForAttack(view)) return 750;
   if (hasName(name, 'Iono') && !supporterUsed &&
       view.opponentPublic.handCount >= 5 && view.ownPublic.handCount >= 4) {
@@ -2648,7 +2675,8 @@ function chooseRoot(view, request) {
       return { item, score };
     }).filter(row => Number.isFinite(row.score)).sort((a, b) =>
       b.score - a.score || a.item.token.localeCompare(b.item.token));
-    if (scoredAttacks.length > 0 && scoredAttacks[0].score > 0) {
+    if (scoredAttacks.length > 0 && scoredAttacks[0].score > 0 &&
+        scoredAttacks[0].score >= Math.max(-Infinity,...terminalPlays.map(row=>row.score))) {
       setPolicyAuditRule('ROOT_ATTACK_SCORE', 'SCORE_DESC_TOKEN_ASC');
       return { kind: 'select-action', token: scoredAttacks[0].item.token };
     }
