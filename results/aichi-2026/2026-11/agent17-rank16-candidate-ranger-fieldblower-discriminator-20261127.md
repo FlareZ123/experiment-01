@@ -64,3 +64,34 @@ Both candidates also have **Stealthy Hood ×2**. Under the current rules, Pokém
 Rank16 structurally favors Hood's **post-lock removal tool** more directly than rank22 does: Wobbuffet cannot preempt Budew's zero-Energy attack or Psychic Garbotoxin, whereas Ranger can unlock the candidate's own Field Blower once Itchy Pollen has landed.
 
 That is a candidate-ranking hypothesis requiring paired policy/full-game evidence, not a demonstrated matchup edge. No candidate 60 was changed.
+
+
+## Exact Prize-only capacity comparison
+
+The two candidate answers also have different raw Prize exposure before either policy or matchup frequency is considered.
+
+For Hood Shield's one-turn `Ranger → Field Blower` escape, both singleton Trainers must be outside the six Prizes if no Prize has yet been taken and no alternative removal line substitutes for one of them. With two distinct specified singleton cards in a 60-card deck:
+
+[
+P(\text{Ranger and Blower both unprized})
+= \frac{\binom{58}{6}}{\binom{60}{6}}
+= \frac{477}{590}
+\approx 80.8475\%.
+]
+
+So the raw probability that **at least one of those two exact Trainers is Prized** is **19.1525%**. This is a capacity screen, not a loss rate: later Prize-taking, other lines, or not needing both pieces can erase the consequence.
+
+Lockbridge's preventive card is one singleton Basic Psychic Pokémon, Wobbuffet. If Wobbuffet itself is Prized, the list's singleton Hisuian Heavy Ball can in principle recover it. Under the optimistic Prize-only capacity model where Heavy Ball is usable before the relevant lock window, the only six-Prize configuration that removes both the Wobbuffet and its direct Prize-recovery card is the event that both specified singletons are Prized:
+
+[
+P(\text{Wobbuffet and Heavy Ball both Prized})
+= \frac{6}{60}\frac{5}{59}
+= \frac{1}{118}
+\approx 0.8475\%.
+]
+
+Equivalently, at least one of `Wobbuffet in ordinary zones` or `Heavy Ball available to recover a Prized Wobbuffet` survives the Prize layout in **99.1525%** of six-Prize configurations.
+
+This is intentionally optimistic for Lockbridge: Hisuian Heavy Ball is an Item, so an already-active Itchy Pollen lock can make a Prized Wobbuffet temporarily unrecoverable even when Heavy Ball itself is not Prized. Conversely, Hood's 19.1525% figure is pessimistic if only one piece is needed, if a Tool/Ability-protected alternative line exists, or if either singleton is taken from Prizes before the escape turn.
+
+The quantitative conclusion is therefore narrower than a matchup ranking: **Lockbridge's preventive Wobbuffet axis is substantially less exposed to opening Prize placement than Hood's exact two-Trainer Ranger→Blower escape axis, but timing under Item lock can nullify that recovery advantage.**
