@@ -842,3 +842,19 @@ test('retreat support Active into ready Regidrago VSTAR rather than dead utility
   assert.deepEqual(bestAction(request({ownPublic,items})),
     {kind:'select-action',token:'attack'});
 });
+
+
+test('gust Prize modeling distinguishes Mega Evolution ex and protected Legacy Energy',()=>{
+  const {prizeValue}=require('../../simulation/evaluation/2026-11/agent3-rank32-regidrago-opponent-policy.cjs');
+  assert.equal(prizeValue(pokemon('Mega Lucario ex MEG 77',{
+    printed:{subtypes:['Stage 1','ex']}})),3);
+  assert.equal(prizeValue(pokemon('Mega Lucario ex MEG 77',{
+    printed:{subtypes:['Stage 1','ex']},
+    energies:['Legacy Energy TWM 167']})),2);
+  assert.equal(prizeValue(pokemon('Shadow Rider Calyrex VMAX CRE 75',{
+    printed:{subtypes:['VMAX']}})),3);
+  assert.equal(prizeValue(pokemon('Hisuian Goodra VSTAR LOR 136',{
+    printed:{subtypes:['VSTAR']}})),2);
+  assert.equal(prizeValue(pokemon('Budew ASC 16',{
+    printed:{subtypes:['Basic']}})),1);
+});
