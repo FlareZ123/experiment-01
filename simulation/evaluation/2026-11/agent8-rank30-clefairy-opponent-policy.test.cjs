@@ -206,3 +206,49 @@ test('cross-seat, source and role binding fail closed',()=>{
   assert.throws(()=>createPolicy({role:'opponent',seat:0,policyVersion:POLICY_VERSION,
     config:{sourceRank:29,sourceBlobSha1:SOURCE_LIST_BLOB_SHA1}}));
 });
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' pinned native basename aliases permit VIP, Quick Ball and Rondo roots',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active=b('Unown AOR');
+    r.observation.ownHand=['Battle VIP Pass FST'];
+    r.actionFrontier.items=[root('play-card','Battle VIP Pass FST','vip-native')];
+    assert.equal(policy(seat).decide(r).token,'vip-native');
+    r.observation.ownHand=['Quick Ball FST','Battle VIP Pass FST'];
+    r.actionFrontier.items=[root('play-card','Quick Ball FST','quick-native')];
+    assert.equal(policy(seat).decide(r).token,'quick-native');
+    r.observation.ownPublic.active=b("Lillie's Clefairy ex JTG");
+    r.observation.ownPublic.bench=[b('Unown AOR'),b('Unown AOR'),b('Unown AOR'),
+      b('Dedenne-GX UNB'),b('Crobat V DAA')];
+    r.observation.opponentPublic.active={printing:'Shadow Rider Calyrex VMAX CRE',
+      hp:320,damage:110};
+    r.observation.opponentPublic.bench=Array.from({length:5},(_,i)=>b(
+      i===0?'Shadow Rider Calyrex V CRE':'Radiant Eternatus CRZ'));
+    r.observation.ownPublic.prizeCount=3;
+    r.actionFrontier.items=[{...root('attack',"Lillie's Clefairy ex JTG",'rondo-native'),
+      attackName:'Full Moon Rondo'},root('play-card','Field Blower GRI','blower-native')];
+    assert.equal(policy(seat).decide(r).token,'rondo-native');
+  });
+  test('seat '+seat+' native source aliases handle Secret Box payment and category search',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.bench=[b("Lillie's Clefairy ex JTG"),b('Crobat V DAA')];
+    r.observation.ownHand=['Secret Box TWM','Psychic Energy MEE',
+      'Battle VIP Pass FST','Battle VIP Pass FST'];
+    r.actionFrontier.items=[root('play-card','Secret Box TWM','box-native')];
+    assert.equal(policy(seat).decide(r).token,'box-native');
+    r.prompt={...prompt('hand',[card('Psychic Energy MEE','energy'),
+      card('Battle VIP Pass FST','vip-a'),card('Battle VIP Pass FST','vip-b')],3,3),
+      source:{sourcePrinting:'Secret Box TWM',effectName:'Secret Box'}};
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-choices',
+      tokens:['energy','vip-a','vip-b']});
+    r.observation.ownPublic.discard=['Psychic Energy MEE'];
+    r.observation.ownHand=[];
+    r.prompt={...prompt('deck',[card('Wondrous Patch PFL','patch'),
+      card('Forest Seal Stone SIT','fss'),card('Guzma BUS','guzma'),
+      card('Sky Field ROS','sky')],0,4),
+      source:{sourcePrinting:'Secret Box TWM',effectName:'Secret Box'}};
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-choices',
+      tokens:['patch','fss','guzma','sky']});
+  });
+}
