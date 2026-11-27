@@ -332,6 +332,46 @@ function retreatToAttackerPriority(action,observation) {
       list(target.energies).length>=1)return 115;
   return 0;
 }
+function crispinAccelerationPriority(observation) {
+  const own=observation?.ownPublic??{};
+  const targets=slots(own).filter(p=>
+    /^Regidrago V(?:STAR)? SIT 13[56]\b/i.test(print(p)) &&
+    apexTypedDeficit(p,observation)>0);
+  if(!targets.length)return 0;
+  const desired=targets.some(p=>/^Regidrago VSTAR SIT 136\b/i.test(print(p)));
+  const funding=Math.max(...targets.map(p=>apexTypedDeficit(p,observation)));
+  return 235+(desired?25:0)+Math.min(15,funding*5);
+}
+function crispinDeckEnergyChoice(prompt,observation,choices) {
+  const meta=prompt.publicMetadata??{};
+  const min=meta.minimumCount,max=meta.maximumCount;
+  if(meta.selectionType!=='card-combination' || meta.sourceZone!=='deck' ||
+      !Number.isSafeInteger(min)||!Number.isSafeInteger(max) ||
+      min<0||max<min)return null;
+  const basics=list(choices).filter(c=>
+    c.kind==='card'&&typeof c.token==='string' &&
+    /^(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy\b/i.test(print(c)));
+  const seen=new Set(),selected=[];
+  // Paper Crispin requires different basic types: do not select two Grass
+  // just because both are highly ranked in an untyped search heuristic.
+  const ranked=basics.slice().sort((a,b)=>{
+    const rank=x=>/^Fire Energy\b/i.test(print(x))?3:
+      (/^Grass Energy\b/i.test(print(x))?2:1);
+    return rank(b)-rank(a);
+  });
+  for(const c of ranked){
+    const m=print(c).match(/^(.+?) Energy\b/i);
+    const type=m?.[1]?.toLowerCase();
+    if(!type||seen.has(type))continue;
+    seen.add(type);selected.push(c);
+    if(selected.length>=max)break;
+  }
+  if(selected.length>=Math.max(1,min))
+    return {kind:'select-choices',tokens:selected.map(c=>c.token)};
+  const none=choices.find(c=>c.kind==='empty-selection'&&typeof c.token==='string');
+  return min===0&&none?{kind:'select-choice',token:none.token}:
+    {kind:'abstain',reasonCode:'RANK32_CRISPIN_NO_DISTINCT_BASIC_TYPES'};
+}
 function scoreAction(action, request) {
   const obs = request?.observation ?? {};
   const own = obs.ownPublic ?? {};
@@ -340,6 +380,8 @@ function scoreAction(action, request) {
   const hand = list(obs.ownHand).length;
   const active = own.active;
   const enabledVstar = slots(own).some(p => /^Regidrago VSTAR SIT 136\b/i.test(print(p)));
+  if(action.kind==='play-card'&&/^Crispin SCR 133\b/i.test(name))
+    return crispinAccelerationPriority(obs);
   if(action.kind==='retreat') return retreatToAttackerPriority(action,obs);
   if(action.kind==='play-card'&&/^Regidrago VSTAR SIT 136\b/i.test(name))
     return evolveRegidragoPriority(action,obs);
@@ -719,6 +761,26 @@ function promptDecision(request) {
       return gustTargetPriority(target,obs,attacker);
     },min,Math.min(max,1),'RANK32_GUST_NO_LETHAL_TARGET');
   }
+  if (/crispin/.test(source)) {
+    if(p.promptType==='ChooseCardsPrompt' && meta.sourceZone==='deck') {
+      const picked=crispinDeckEnergyChoice(p,obs,choices);
+      if(picked!==null)return picked;
+    }
+    if(p.promptType==='ChoosePokemonPrompt' && meta.selectionType==='pokemon')
+      return chooseMany(choices,c=>{
+        if(c?.publicMetadata?.ownerSeat!=='actor')return 0;
+        const target=targetFromGustChoice(c,obs);
+        if(!target || !/^Regidrago V(?:STAR)? SIT 13[56]\b/i.test(print(target)))
+          return 0;
+        const deficit=apexTypedDeficit(target,obs);
+        return deficit>0? 220+
+          (/^Regidrago VSTAR SIT 136\b/i.test(print(target))?50:0)
+          -Math.min(20,deficit*4):0;
+      },min,Math.min(max,1),'RANK32_CRISPIN_NO_ENERGY_TARGET');
+    // Do not attempt unknown intermediate energy-to-hand prompt families:
+    // only native-offered, correctly projected token types are supported.
+    return {kind:'abstain',reasonCode:'RANK32_CRISPIN_UNPROJECTED'};
+  }
   if (/cynthia\s*&\s*caitlin/.test(source)) {
     if (p.promptType === 'ChooseCardsPrompt' &&
         meta.selectionType === 'card-combination') {
@@ -850,4 +912,4 @@ module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
   legacyRecoverPriority,canUseLegacyStar,superRodRecoverPriority,estimatedDragonDamage,
   strongestCopiedDamage,canAttackNow,tacticalGustScore,gustTargetPriority,targetFromGustChoice,
   aceSpecBlowerPriority,muscleBandPriority,evolveRegidragoPriority,retreatToAttackerPriority,
-  prizeValue};
+  prizeValue,crispinAccelerationPriority,crispinDeckEnergyChoice};
