@@ -137,7 +137,19 @@ function apexCopyChoiceDecision(request) {
   return option ? { kind: 'select-choice', token: option.token } : null;
 }
 function paymentDecision(request, rememberedCopy=null) {
-  if (!canTerminalRyuno(request) || request?.prompt?.promptType !== 'ChooseEnergyPrompt') return null;
+  if (request?.prompt?.promptType !== 'ChooseEnergyPrompt') return null;
+  const obs=request.observation;
+  // Native copied attack effects can already have dealt their 330 damage
+  // before their mandatory discard prompt is offered. A payment must not
+  // re-test the *pre-attack* target HP/Prize threshold after commitment.
+  // Only a prior same-session exact-donor decision may bypass that gate.
+  const witnessedPending = rememberedCopy?.attack === 'Ryuno Glide' &&
+    rememberedCopy.seat === request?.seat &&
+    localActor(request) &&
+    VSTAR.test(printing(obs?.ownPublic?.active)) &&
+    arr(obs?.ownPublic?.discard).some(c=>DRAGONITE.test(printing(c))) &&
+    Array.isArray(obs?.ownPublic?.active?.energies);
+  if (!witnessedPending && !canTerminalRyuno(request)) return null;
   const prompt = request.prompt, m = meta(prompt);
   const source = prompt?.source ?? {};
   const copiedRyuno = /Ryuno Glide/i.test([
