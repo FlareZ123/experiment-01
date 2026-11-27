@@ -276,6 +276,26 @@ function bestAction(request) {
   return pass ? {kind:'select-action',token:pass.token} :
     {kind:'abstain',reasonCode:'RANK32_NO_SUPPORTED_ACTION'};
 }
+function protocolSafeDecision(decision, request) {
+  if (!decision || decision.kind !== 'abstain') return decision;
+  const reason = decision.reasonCode ?? '';
+  if (reason === 'ROLE_SEAT_BINDING_MISMATCH') return decision;
+  // The production V3 worker has a frozen, finite abstention codebook.
+  // Internal diagnostic reason codes can be source-specific, but the worker
+  // must publish only protocol-enumerated codes.
+  let code = 'UNSUPPORTED_PROMPT_TYPE';
+  if (request?.prompt === null || request?.prompt === undefined)
+    code = 'NO_SUPPORTED_ROOT_ACTION';
+  else if (/PRIZE|HEAVY_BALL/i.test(reason)) code = 'NO_VISIBLE_PRIZE_SLOT';
+  else if (/RYUNO|ENERGY_PAYMENT|ENERGY_PROMPT/i.test(reason))
+    code = 'NO_SUPPORTED_ENERGY_PAYMENT';
+  else if (/APEX|ATTACK/i.test(reason)) code = 'NO_SUPPORTED_ATTACK_CHOICE';
+  else if (/POKEMON|HOOD|SKY_TRANSPORT|GUST/i.test(reason))
+    code = 'NO_SUPPORTED_POKEMON_CHOICE';
+  else if (/CARD|BALL|DISCARD|COMPRESSOR|SUPPORTER|SEARCH/i.test(reason))
+    code = 'NO_SUPPORTED_CARD_SELECTION';
+  return {kind:'abstain',reasonCode:code};
+}
 function createPolicy({role,seat,policyVersion,config,rng}) {
   if (role!=='opponent' || (seat!==0 && seat!==1) ||
       policyVersion!==POLICY_VERSION || !config ||
@@ -289,10 +309,12 @@ function createPolicy({role,seat,policyVersion,config,rng}) {
           request.observation?.actorSeat!==seat) {
         return {kind:'abstain',reasonCode:'ROLE_SEAT_BINDING_MISMATCH'};
       }
-      return request.prompt !== null && request.prompt !== undefined ?
+      const decision = request.prompt !== null && request.prompt !== undefined ?
         promptDecision(request) : bestAction(request);
+      return protocolSafeDecision(decision,request);
     }
   });
 }
 module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
-  createPolicy,scoreAction,promptDecision,bestAction,chooseRank32Apex,donorScore};
+  createPolicy,scoreAction,promptDecision,bestAction,chooseRank32Apex,donorScore,
+  protocolSafeDecision};
