@@ -573,6 +573,20 @@ function runCases(policy,protocol) {
           slot('Solrock CES 62',{hp:90,abilities:['Sunbeam']})],prizeCount:6})};
     same(policy.rainProjection(klefkiSuppressesSunbeam,klefkiSuppressesSunbeam.ownPublic.active)?.hitsRequired,9,
       tag+'active Klefki suppresses Sunbeam before Lunatone Rain arithmetic');
+    const jammingSight=view(seat,{globalTurn:4,
+      ownPublic:player({active:slot(A.raichu,{hp:110,tools:[full.sight]}),bench:[elec],
+        discard:[R,R,R,R,C],prizeCount:6}),
+      opponentPublic:player({active:slot('Duskull VIV 69',{hp:60}),
+        bench:[slot('Gengar & Mimikyu-GX TEU 53',{hp:240})],
+        stadium:['Jamming Tower TWM 153'],prizeCount:6})});
+    same(policy.rainProjection(jammingSight,jammingSight.ownPublic.active)?.hitsRequired,10,
+      tag+'Jamming Tower disables Telescopic Sight Rain modifier');
+    const jammingHood=view(seat,{ownPublic:player({
+        active:slot(A.klefki,{hp:70,abilities:['Mischievous Lock']})}),
+      opponentPublic:player({active:slot('Wobbuffet PHF 36',{hp:110,abilities:['Bide Barricade'],
+        tools:['Stealthy Hood UNB 186']}),stadium:['Jamming Tower TWM 153']})});
+    same(policy.wobbuffetLive(jammingHood),false,
+      tag+'Jamming Tower disables Hood so Klefki suppresses Wobbuffet');
     const noSight={...loading,ownHand:[full.sight],ownPublic:{...loading.ownPublic,active:{...rain,tools:[]},discard:[R,R,R,R,C,C,C,C,U]}};
     same(runRoot(p,noSight,[play('sight',full.sight,{zone:'active',index:0,printing:A.raichu}),pass]),action('sight'),tag+'Sight crosses two-VMAX threshold');
     const manual={...loading,ownHand:[C,U],ownPublic:{...loading.ownPublic,discard:[R,R,R,R,C,C,C,U]}};
