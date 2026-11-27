@@ -1,0 +1,803 @@
+{
+  "runtime": "isolated V8 execution, not native or Node runner",
+  "assertions": 29,
+  "actualBasePolicyBlob": "5c1c1c70678f7c96db41ec74045290c5ea43be73",
+  "actualApexHelperBlob": "65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b",
+  "baseChoice": {
+    "kind": "select-choice",
+    "token": "Dominating Echo"
+  },
+  "five": {
+    "input": {
+      "profile": "hood",
+      "apexPayable": true,
+      "noOtherCombatModifiers": true,
+      "bandLive": true,
+      "gxUnused": true,
+      "nextApexPayable": true,
+      "prizesToWin": 5,
+      "gustBudget": 0,
+      "firstGustReady": false,
+      "secondGustReady": false,
+      "discard": [
+        "Dialga-GX UPR 100",
+        "Kyurem SFA 47",
+        "Noivern ex PAL 153"
+      ],
+      "active": "t",
+      "targets": [
+        {
+          "id": "t",
+          "printing": "Trevenant & Dusknoir-GX SMP 217",
+          "remainingHP": 270
+        },
+        {
+          "id": "m",
+          "printing": "Mimikyu GRI 58",
+          "remainingHP": 70
+        },
+        {
+          "id": "g",
+          "printing": "Girafarig LOT 94",
+          "remainingHP": 90
+        },
+        {
+          "id": "v",
+          "printing": "Shadow Rider Calyrex VMAX CRE 75",
+          "remainingHP": 320
+        },
+        {
+          "id": "l",
+          "printing": "Latias ex SSP 76",
+          "remainingHP": 210
+        }
+      ]
+    },
+    "result": {
+      "selected": "extra-turn",
+      "direct": {
+        "attack": "Trifrost",
+        "active": "t",
+        "targets": [
+          "t",
+          "m",
+          "g"
+        ],
+        "prizes": 2,
+        "win": false,
+        "knockedOut": [
+          "m",
+          "g"
+        ],
+        "remaining": [
+          {
+            "id": "t",
+            "printing": "Trevenant & Dusknoir-GX SMP 217",
+            "hp": 140,
+            "prize": 3
+          },
+          {
+            "id": "v",
+            "printing": "Shadow Rider Calyrex VMAX CRE 75",
+            "hp": 320,
+            "prize": 3
+          },
+          {
+            "id": "l",
+            "printing": "Latias ex SSP 76",
+            "hp": 210,
+            "prize": 2
+          }
+        ],
+        "gust": false
+      },
+      "extraTurn": {
+        "attack": "Timeless-GX",
+        "firstTarget": "t",
+        "firstGust": false,
+        "prizes": 5,
+        "win": true,
+        "firstKnockouts": [],
+        "responses": [
+          {
+            "promoted": "t",
+            "second": {
+              "attack": "Trifrost",
+              "active": "t",
+              "targets": [
+                "t",
+                "m",
+                "g"
+              ],
+              "prizes": 5,
+              "win": true,
+              "knockedOut": [
+                "t",
+                "m",
+                "g"
+              ],
+              "remaining": [
+                {
+                  "id": "v",
+                  "printing": "Shadow Rider Calyrex VMAX CRE 75",
+                  "hp": 320,
+                  "prize": 3
+                },
+                {
+                  "id": "l",
+                  "printing": "Latias ex SSP 76",
+                  "hp": 210,
+                  "prize": 2
+                }
+              ],
+              "gust": false
+            },
+            "prizes": 5,
+            "win": true
+          }
+        ]
+      },
+      "assumptions": "fixed visible payloads and mobility; no opponent turn, no new resources credited; adverse promotion; Prize-only objective"
+    }
+  },
+  "six": {
+    "input": {
+      "profile": "hood",
+      "apexPayable": true,
+      "noOtherCombatModifiers": true,
+      "bandLive": true,
+      "gxUnused": true,
+      "nextApexPayable": true,
+      "prizesToWin": 6,
+      "gustBudget": 0,
+      "firstGustReady": false,
+      "secondGustReady": false,
+      "discard": [
+        "Dialga-GX UPR 100",
+        "Kyurem SFA 47",
+        "Noivern ex PAL 153"
+      ],
+      "active": "v",
+      "targets": [
+        {
+          "id": "v",
+          "printing": "Shadow Rider Calyrex VMAX CRE 75",
+          "remainingHP": 150
+        },
+        {
+          "id": "m",
+          "printing": "Mimikyu GRI 58",
+          "remainingHP": 70
+        },
+        {
+          "id": "g",
+          "printing": "Girafarig LOT 94",
+          "remainingHP": 90
+        },
+        {
+          "id": "s",
+          "printing": "Marshadow UNB 81",
+          "remainingHP": 80
+        },
+        {
+          "id": "l",
+          "printing": "Latias ex SSP 76",
+          "remainingHP": 210
+        }
+      ]
+    },
+    "result": {
+      "selected": "extra-turn",
+      "direct": {
+        "attack": "Trifrost",
+        "active": "v",
+        "targets": [
+          "m",
+          "g",
+          "s"
+        ],
+        "prizes": 3,
+        "win": false,
+        "knockedOut": [
+          "m",
+          "g",
+          "s"
+        ],
+        "remaining": [
+          {
+            "id": "v",
+            "printing": "Shadow Rider Calyrex VMAX CRE 75",
+            "hp": 150,
+            "prize": 3
+          },
+          {
+            "id": "l",
+            "printing": "Latias ex SSP 76",
+            "hp": 210,
+            "prize": 2
+          }
+        ],
+        "gust": false
+      },
+      "extraTurn": {
+        "attack": "Timeless-GX",
+        "firstTarget": "v",
+        "firstGust": false,
+        "prizes": 6,
+        "win": true,
+        "firstKnockouts": [
+          "v"
+        ],
+        "responses": [
+          {
+            "promoted": "m",
+            "second": {
+              "attack": "Trifrost",
+              "active": "m",
+              "targets": [
+                "m",
+                "g",
+                "s"
+              ],
+              "prizes": 3,
+              "win": true,
+              "knockedOut": [
+                "m",
+                "g",
+                "s"
+              ],
+              "remaining": [
+                {
+                  "id": "l",
+                  "printing": "Latias ex SSP 76",
+                  "hp": 210,
+                  "prize": 2
+                }
+              ],
+              "gust": false
+            },
+            "prizes": 6,
+            "win": true
+          },
+          {
+            "promoted": "g",
+            "second": {
+              "attack": "Trifrost",
+              "active": "g",
+              "targets": [
+                "m",
+                "g",
+                "s"
+              ],
+              "prizes": 3,
+              "win": true,
+              "knockedOut": [
+                "m",
+                "g",
+                "s"
+              ],
+              "remaining": [
+                {
+                  "id": "l",
+                  "printing": "Latias ex SSP 76",
+                  "hp": 210,
+                  "prize": 2
+                }
+              ],
+              "gust": false
+            },
+            "prizes": 6,
+            "win": true
+          },
+          {
+            "promoted": "s",
+            "second": {
+              "attack": "Trifrost",
+              "active": "s",
+              "targets": [
+                "m",
+                "g",
+                "s"
+              ],
+              "prizes": 3,
+              "win": true,
+              "knockedOut": [
+                "m",
+                "g",
+                "s"
+              ],
+              "remaining": [
+                {
+                  "id": "l",
+                  "printing": "Latias ex SSP 76",
+                  "hp": 210,
+                  "prize": 2
+                }
+              ],
+              "gust": false
+            },
+            "prizes": 6,
+            "win": true
+          },
+          {
+            "promoted": "l",
+            "second": {
+              "attack": "Trifrost",
+              "active": "l",
+              "targets": [
+                "m",
+                "g",
+                "s"
+              ],
+              "prizes": 3,
+              "win": true,
+              "knockedOut": [
+                "m",
+                "g",
+                "s"
+              ],
+              "remaining": [
+                {
+                  "id": "l",
+                  "printing": "Latias ex SSP 76",
+                  "hp": 210,
+                  "prize": 2
+                }
+              ],
+              "gust": false
+            },
+            "prizes": 6,
+            "win": true
+          }
+        ]
+      },
+      "assumptions": "fixed visible payloads and mobility; no opponent turn, no new resources credited; adverse promotion; Prize-only objective"
+    }
+  },
+  "gust": {
+    "selected": "extra-turn",
+    "direct": {
+      "attack": "Trifrost",
+      "active": "v",
+      "targets": [
+        "t",
+        "m",
+        "g"
+      ],
+      "prizes": 2,
+      "win": false,
+      "knockedOut": [
+        "m",
+        "g"
+      ],
+      "remaining": [
+        {
+          "id": "t",
+          "printing": "Trevenant & Dusknoir-GX SMP 217",
+          "hp": 160,
+          "prize": 3
+        },
+        {
+          "id": "v",
+          "printing": "Shadow Rider Calyrex VMAX CRE 75",
+          "hp": 320,
+          "prize": 3
+        },
+        {
+          "id": "l",
+          "printing": "Latias ex SSP 76",
+          "hp": 210,
+          "prize": 2
+        }
+      ],
+      "gust": false
+    },
+    "extraTurn": {
+      "attack": "Timeless-GX",
+      "firstTarget": "t",
+      "firstGust": true,
+      "prizes": 5,
+      "win": true,
+      "firstKnockouts": [],
+      "responses": [
+        {
+          "promoted": "t",
+          "second": {
+            "attack": "Trifrost",
+            "active": "t",
+            "targets": [
+              "t",
+              "m",
+              "g"
+            ],
+            "prizes": 5,
+            "win": true,
+            "knockedOut": [
+              "t",
+              "m",
+              "g"
+            ],
+            "remaining": [
+              {
+                "id": "v",
+                "printing": "Shadow Rider Calyrex VMAX CRE 75",
+                "hp": 320,
+                "prize": 3
+              },
+              {
+                "id": "l",
+                "printing": "Latias ex SSP 76",
+                "hp": 210,
+                "prize": 2
+              }
+            ],
+            "gust": false
+          },
+          "prizes": 5,
+          "win": true
+        }
+      ]
+    },
+    "assumptions": "fixed visible payloads and mobility; no opponent turn, no new resources credited; adverse promotion; Prize-only objective"
+  },
+  "adverse": {
+    "selected": "single-attack",
+    "direct": {
+      "attack": "Shred",
+      "active": "m",
+      "targets": [
+        "m"
+      ],
+      "prizes": 1,
+      "win": false,
+      "knockedOut": [
+        "m"
+      ],
+      "remaining": [
+        {
+          "id": "g",
+          "printing": "Girafarig LOT 94",
+          "hp": 90,
+          "prize": 1
+        },
+        {
+          "id": "v",
+          "printing": "Shadow Rider Calyrex VMAX CRE 75",
+          "hp": 320,
+          "prize": 3
+        }
+      ],
+      "gust": false
+    },
+    "extraTurn": {
+      "attack": "Timeless-GX",
+      "firstTarget": "m",
+      "firstGust": false,
+      "prizes": 1,
+      "win": false,
+      "firstKnockouts": [
+        "m"
+      ],
+      "responses": [
+        {
+          "promoted": "g",
+          "second": {
+            "attack": "Dominating Echo",
+            "active": "g",
+            "targets": [
+              "g"
+            ],
+            "prizes": 1,
+            "win": false,
+            "knockedOut": [
+              "g"
+            ],
+            "remaining": [
+              {
+                "id": "v",
+                "printing": "Shadow Rider Calyrex VMAX CRE 75",
+                "hp": 320,
+                "prize": 3
+              }
+            ],
+            "gust": false
+          },
+          "prizes": 2,
+          "win": false
+        },
+        {
+          "promoted": "v",
+          "second": {
+            "attack": "Shred",
+            "active": "v",
+            "targets": [
+              "v"
+            ],
+            "prizes": 0,
+            "win": false,
+            "knockedOut": [],
+            "remaining": [
+              {
+                "id": "g",
+                "printing": "Girafarig LOT 94",
+                "hp": 90,
+                "prize": 1
+              },
+              {
+                "id": "v",
+                "printing": "Shadow Rider Calyrex VMAX CRE 75",
+                "hp": 240,
+                "prize": 3
+              }
+            ],
+            "gust": false
+          },
+          "prizes": 1,
+          "win": false
+        }
+      ]
+    },
+    "assumptions": "fixed visible payloads and mobility; no opponent turn, no new resources credited; adverse promotion; Prize-only objective"
+  },
+  "noBand": {
+    "selected": "extra-turn",
+    "direct": {
+      "attack": "Trifrost",
+      "active": "t",
+      "targets": [
+        "t",
+        "m",
+        "g"
+      ],
+      "prizes": 2,
+      "win": false,
+      "knockedOut": [
+        "m",
+        "g"
+      ],
+      "remaining": [
+        {
+          "id": "t",
+          "printing": "Trevenant & Dusknoir-GX SMP 217",
+          "hp": 160,
+          "prize": 3
+        },
+        {
+          "id": "v",
+          "printing": "Shadow Rider Calyrex VMAX CRE 75",
+          "hp": 320,
+          "prize": 3
+        },
+        {
+          "id": "l",
+          "printing": "Latias ex SSP 76",
+          "hp": 210,
+          "prize": 2
+        }
+      ],
+      "gust": false
+    },
+    "extraTurn": {
+      "attack": "Timeless-GX",
+      "firstTarget": "t",
+      "firstGust": false,
+      "prizes": 3,
+      "win": false,
+      "firstKnockouts": [],
+      "responses": [
+        {
+          "promoted": "t",
+          "second": {
+            "attack": "Dominating Echo",
+            "active": "t",
+            "targets": [
+              "t"
+            ],
+            "prizes": 3,
+            "win": false,
+            "knockedOut": [
+              "t"
+            ],
+            "remaining": [
+              {
+                "id": "m",
+                "printing": "Mimikyu GRI 58",
+                "hp": 70,
+                "prize": 1
+              },
+              {
+                "id": "g",
+                "printing": "Girafarig LOT 94",
+                "hp": 90,
+                "prize": 1
+              },
+              {
+                "id": "v",
+                "printing": "Shadow Rider Calyrex VMAX CRE 75",
+                "hp": 320,
+                "prize": 3
+              },
+              {
+                "id": "l",
+                "printing": "Latias ex SSP 76",
+                "hp": 210,
+                "prize": 2
+              }
+            ],
+            "gust": false
+          },
+          "prizes": 3,
+          "win": false
+        }
+      ]
+    },
+    "assumptions": "fixed visible payloads and mobility; no opponent turn, no new resources credited; adverse promotion; Prize-only objective"
+  },
+  "lock": {
+    "selected": "extra-turn",
+    "direct": {
+      "attack": "Trifrost",
+      "active": "v",
+      "targets": [
+        "m",
+        "g",
+        "w"
+      ],
+      "prizes": 3,
+      "win": false,
+      "knockedOut": [
+        "m",
+        "g",
+        "w"
+      ],
+      "remaining": [
+        {
+          "id": "v",
+          "printing": "Shadow Rider Calyrex VMAX CRE 75",
+          "hp": 150,
+          "prize": 3
+        },
+        {
+          "id": "l",
+          "printing": "Latias ex SSP 76",
+          "hp": 210,
+          "prize": 2
+        }
+      ],
+      "gust": false
+    },
+    "extraTurn": {
+      "attack": "Timeless-GX",
+      "firstTarget": "v",
+      "firstGust": false,
+      "prizes": 6,
+      "win": true,
+      "firstKnockouts": [
+        "v"
+      ],
+      "responses": [
+        {
+          "promoted": "m",
+          "second": {
+            "attack": "Trifrost",
+            "active": "m",
+            "targets": [
+              "m",
+              "g",
+              "w"
+            ],
+            "prizes": 3,
+            "win": true,
+            "knockedOut": [
+              "m",
+              "g",
+              "w"
+            ],
+            "remaining": [
+              {
+                "id": "l",
+                "printing": "Latias ex SSP 76",
+                "hp": 210,
+                "prize": 2
+              }
+            ],
+            "gust": false
+          },
+          "prizes": 6,
+          "win": true
+        },
+        {
+          "promoted": "g",
+          "second": {
+            "attack": "Trifrost",
+            "active": "g",
+            "targets": [
+              "m",
+              "g",
+              "w"
+            ],
+            "prizes": 3,
+            "win": true,
+            "knockedOut": [
+              "m",
+              "g",
+              "w"
+            ],
+            "remaining": [
+              {
+                "id": "l",
+                "printing": "Latias ex SSP 76",
+                "hp": 210,
+                "prize": 2
+              }
+            ],
+            "gust": false
+          },
+          "prizes": 6,
+          "win": true
+        },
+        {
+          "promoted": "w",
+          "second": {
+            "attack": "Trifrost",
+            "active": "w",
+            "targets": [
+              "m",
+              "g",
+              "w"
+            ],
+            "prizes": 3,
+            "win": true,
+            "knockedOut": [
+              "m",
+              "g",
+              "w"
+            ],
+            "remaining": [
+              {
+                "id": "l",
+                "printing": "Latias ex SSP 76",
+                "hp": 210,
+                "prize": 2
+              }
+            ],
+            "gust": false
+          },
+          "prizes": 6,
+          "win": true
+        },
+        {
+          "promoted": "l",
+          "second": {
+            "attack": "Trifrost",
+            "active": "l",
+            "targets": [
+              "m",
+              "g",
+              "w"
+            ],
+            "prizes": 3,
+            "win": true,
+            "knockedOut": [
+              "m",
+              "g",
+              "w"
+            ],
+            "remaining": [
+              {
+                "id": "l",
+                "printing": "Latias ex SSP 76",
+                "hp": 210,
+                "prize": 2
+              }
+            ],
+            "gust": false
+          },
+          "prizes": 6,
+          "win": true
+        }
+      ]
+    },
+    "assumptions": "fixed visible payloads and mobility; no opponent turn, no new resources credited; adverse promotion; Prize-only objective"
+  }
+}

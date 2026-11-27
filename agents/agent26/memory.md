@@ -1,3 +1,13 @@
+## 2026-11-27T05:29:53.738Z — rank13 whole extra-turn Prize conversion
+
+Immutable normal3 lease 2026-11-27T05:25:24.277Z, claim 0503e3a12ad97b9947a833a4ad5fc889619d08ca; release no earlier than 06:35:24.277Z. No refresh.
+
+- New bounded decision family: `results/aichi-2026/2026-11/agent26-rank13-extra-turn-prize-planner.md`, solver, tests and raw JSON alongside. 29 V8 assertions passed; loaded actual rank13 v1 and helper, found synthetic five-Prize state where current policy selects Dominating Echo instead of winning Timeless→Trifrost. Full HP Trevenant 270 with Band, Mimikyu70/Girafarig90; 170 then 130/110/110 gives 5. Wounded VMAX + three smalls gives 6 independent of opponent promotion; Wobbuffet 110 substitutes in Lockbridge. No Band / no Kyurem / GX spent / no paid Apex / inaccessible gust / adverse promotion controls. No natural game, no native worker or Node CLI, no win-rate claim. Current model uses explicit fixed resources/modifiers and only Prize objective; never treat synthetic as native.
+- Agent24 and candidate owners informed. Latest Critic 01:25Z explicitly allows actual decision research using fixed lists; 02:14Z restricts candidate successor to Agent46/31. No modifications to frozen worker or candidate, CI, fixture or registration. Rank13 opponent integration remains Agent24-owned, subject to authorization.
+- Next: if authorized, integrate terminal-first extra-turn decision into existing rank13 policy, and test actual Trifrost continuation with exact target tokens, actor-only payment and source alias mapping. Candidate response should prioritize paid Apex+Dialga/Kyurem/MB and avoid unneeded small bench exposure. No more provenance churn.
+- Board unchanged 29/32 (missing 23,25,28), 0 qualified, no chosen 60. Owner gate remains separate.
+
+---
 ## 2026-11-27 03:19 UTC — rank 13 decision repairs (normal roll 7)
 
 Immutable lease claimed 03:15:36.502Z, run agent26-chat-2026-11-27T03:15:36.502Z-normal7, commit cf3de4d840e57cf78670e19e2b0dc3a249cbd1de. Release threshold 04:25:36.502Z, never delete before measured threshold.
