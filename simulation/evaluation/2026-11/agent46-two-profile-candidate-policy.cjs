@@ -1063,10 +1063,133 @@ function getLostValue(view,printing) {
     'Forest Seal Stone','VS Seeker']))return 160;
   return 15;
 }
+// Adapted from Agent26's public prize planners and Get Lost denial cut-set.
+// Runtime input is only the observed opposing Active and public discard;
+// no fixed-field list, rank, concealed hand, or future draw is consulted.
+// This optimistic hazard bound is a policy estimate, not native outcomes.
+const APEX_PAYLOADS=[
+  ['Kyurem SFA','Trifrost',110],['Dragapult ex TWM','Phantom Dive',200],
+  ['Dialga-GX UPR','Timeless-GX',150],['Giratina VSTAR LOR','Lost Impact',280],
+  ['Mega Dragonite ex ASC','Ryuno Glide',330],['Koraidon SSP','Unrelenting Onslaught',180],
+  ['Alolan Exeggutor ex SSP','Tropical Frenzy',150],
+  ['Hisuian Goodra VSTAR LOR','Rolling Iron',200],['Noivern ex PAL','Covert Flight',70],
+  ['Garchomp & Giratina-GX UNM','Calamitous Slash',160],['Garchomp ex PAR','Hydro Lander',160]
+];
+function observedPayloads(discard,view){
+  return APEX_PAYLOADS.filter(([printing,name])=>discard.some(p=>hasName(p,printing))&&
+    (name!=='Timeless-GX'||view.opponentPublic.publicTurnRestrictions?.gxUsed===false));
+}
+function hazardBoard(view){
+  return ownBoard(view).map((slot,index)=>({key:index,printing:slot.printing,
+    hp:Math.max(0,slot.hp-slot.damage),prizes:prizeLiability(slot),
+    basic:isBasicPokemon(slot),isV:modernVOrEx(slot)&&!(/ ex(?: |$)/.test(slot.printing)),
+    damaged:slot.damage>0,slot}));
+}
+function hazardCombinations(rows,max){
+  const out=[[]];
+  for(const row of rows){for(const group of out.slice())if(group.length<max)out.push([...group,row])}
+  return out;
+}
+function hazardModifier(view,row){
+  const tools=view.opponentPublic.active?.tools??[];
+  if(stadiumAndToolEffectsLive(view)!==true)return 0;
+  let damage=0;
+  if(tools.some(p=>hasName(p,'Muscle Band')))damage+=20;
+  if(tools.some(p=>hasName(p,'Choice Belt'))&&row.isV)damage+=30;
+  if(tools.some(p=>hasName(p,'Defiance Band'))&&view.opponentPublic.prizeCount>view.ownPublic.prizeCount)damage+=30;
+  return damage;
+}
+function hazardVariants(view,rows,activeKey,payload){
+  const active=rows.find(r=>r.key===activeKey);if(!active)return [];
+  const [,name,base]=payload;
+  const modified=row=>base+(row.key===activeKey?hazardModifier(view,row):0);
+  if(name==='Trifrost')return hazardCombinations(rows,3).filter(x=>x.length===Math.min(3,rows.length))
+    .map(group=>({name,hits:group.map(row=>[row.key,modified(row)])}));
+  if(name==='Phantom Dive'){
+    const bench=rows.filter(r=>r.key!==activeKey);
+    // 60 damage counters' worth can be allocated in 10-damage increments.
+    // Enumerating KO subsets is enough for immediate prize exposure; include
+    // one-target chip variants for the extra-turn continuation.
+    const variants=[];
+    for(const group of hazardCombinations(bench,6)){
+      const needed=group.reduce((n,r)=>n+Math.ceil(r.hp/10)*10,0);
+      if(needed<=60)variants.push({name,hits:[[active.key,modified(active)],...group.map(r=>[r.key,Math.ceil(r.hp/10)*10])]});
+    }
+    for(const row of bench)variants.push({name,hits:[[active.key,modified(active)],[row.key,60]]});
+    return variants;
+  }
+  if(name==='Calamitous Slash')return [{name,hits:[[active.key,modified(active)+(active.damaged?80:0)]]}];
+  return [{name,hits:[[active.key,modified(active)]]}];
+}
+function hazardResolve(rows,variant){
+  const totals=new Map(variant.hits);
+  const after=[],ko=[];
+  for(const row of rows){
+    const hp=row.hp-(totals.get(row.key)??0);
+    if(hp<=0)ko.push(row);else after.push({...row,hp,damaged:row.damaged||hp<row.hp});
+  }
+  return {after,ko,prizes:ko.reduce((n,r)=>n+r.prizes,0)};
+}
+function apexHazard(view,discard=view.opponentPublic.discard,rows=hazardBoard(view)){
+  const attacker=view.opponentPublic.active;
+  if(!attacker||!hasName(attacker.printing,'Regidrago VSTAR')||!rows.length)return {direct:0,extra:0,maximum:0,known:false};
+  const paid=publicEnergyCanPay(attacker,{name:'Apex Dragon',cost:['Grass','Grass','Fire']},view,templeLive(view));
+  if(paid!==true)return {direct:0,extra:0,maximum:0,known:paid===false};
+  const payloads=observedPayloads(discard,view);
+  const original=rows[0].key;
+  const directFor=(board,key,allowTimeless)=>Math.max(0,...payloads.filter(p=>allowTimeless||p[1]!=='Timeless-GX')
+    .flatMap(payload=>hazardVariants(view,board,key,payload).map(v=>hazardResolve(board,v).prizes)));
+  const one=(keys)=>{
+    let direct=0,extra=0;
+    for(const key of keys){
+      direct=Math.max(direct,directFor(rows,key,true));
+      if(!payloads.some(p=>p[1]==='Timeless-GX'))continue;
+      for(const variant of hazardVariants(view,rows,key,APEX_PAYLOADS.find(p=>p[1]==='Timeless-GX'))){
+        const first=hazardResolve(rows,variant);
+        if(!first.after.length){extra=Math.max(extra,first.prizes);continue;}
+        const survives=first.after.find(r=>r.key===key);
+        const promotions=survives?[survives]:first.after;
+        const second=Math.min(...promotions.map(row=>directFor(first.after,row.key,false)));
+        extra=Math.max(extra,first.prizes+second);
+      }
+    }
+    return {direct,extra,maximum:Math.max(direct,extra)};
+  };
+  const fixed=one([original]);
+  // Gust is a conditional opportunity, not a claim the opponent holds one.
+  const potential=view.opponentPublic.handCount>0&&view.opponentPublic.bench.some(Boolean)?
+    one(rows.map(r=>r.key)):fixed;
+  return {...fixed,potential:potential.maximum,known:true};
+}
+function getLostPairs(view,rows){
+  const before=apexHazard(view);
+  const discarded=view.opponentPublic.discard;
+  let best=null;
+  const cache=new Map();
+  for(let i=0;i<rows.length;i++)for(let j=i+1;j<rows.length;j++){
+    const a=rows[i],b=rows[j],names=[a.printing,b.printing].sort();
+    const key=names.join('\u0000');
+    let after=cache.get(key);
+    if(!after){
+      const remain=discarded.slice();
+      for(const name of names){const k=remain.indexOf(name);if(k>=0)remain.splice(k,1)}
+      after=apexHazard(view,remain);cache.set(key,after);
+    }
+    const needed=view.opponentPublic.prizeCount;
+    const score=(before.maximum>=needed&&after.maximum<needed?5000:0)+
+      (before.maximum-after.maximum)*1800+
+      ((before.potential??before.maximum)-(after.potential??after.maximum))*400+
+      getLostValue(view,a.printing)+getLostValue(view,b.printing);
+    if(!best||score>best.score)best={rows:[a,b],score,after};
+  }
+  return best;
+}
 function getLostPlan(view) {
-  const values=view.opponentPublic.discard.map(p=>getLostValue(view,p)).sort((a,b)=>b-a);
+  const discard=view.opponentPublic.discard;
+  const values=discard.map(p=>getLostValue(view,p)).sort((a,b)=>b-a);
   if(values.length<2||values[0]<300)return -Infinity;
-  return values[0]+values[1]+100;
+  const best=getLostPairs(view,discard.map((printing,index)=>({printing,index})));
+  return (best?.score??values[0]+values[1])+100;
 }
 function tapuCureValue(view,slot){
   if(!slot||slot.damage<=0)return 0;
@@ -2414,8 +2537,9 @@ function choosePrompt(view, prompt, receipt, profile) {
         const rows=prompt.choices.filter(c=>c.kind==='card'&&c.publicMetadata?.ownerSeat==='opponent'&&c.publicMetadata?.isOwnerVisible===true&&view.opponentPublic.discard.includes(c.printing)).map(c=>({choice:c,score:getLostValue(view,c.printing)})).sort((a,b)=>b.score-a.score||a.choice.token.localeCompare(b.choice.token));
         for(const row of rows)recordPolicyAuditScore(row.choice.token,row.score,'GET_LOST_PUBLIC_DISCARD_VALUE');
         if(rows.length<2)return abstain('INSUFFICIENT_SUPPORTED_CARD_CHOICES');
-        setPolicyAuditRule('GET_LOST_PUBLIC_DISCARD','SCORE_DESC_TOKEN_ASC');
-        return {kind:'select-choices',tokens:rows.slice(0,2).map(r=>r.choice.token)};
+        const pair=getLostPairs(view,rows.map(row=>({...row,printing:row.choice.printing})));
+        setPolicyAuditRule('GET_LOST_PUBLIC_DISCARD','PAIR_THREAT_DENIAL');
+        return {kind:'select-choices',tokens:pair.rows.map(r=>r.choice.token)};
       }
       return isFieldBlowerPrompt(prompt) &&
         prompt.publicMetadata?.sourceZone === 'tool'
@@ -2452,11 +2576,25 @@ function choosePrompt(view, prompt, receipt, profile) {
   }
 }
 
+function optionalBenchHazard(view,printing){
+  // Exact HP of the candidate's ordinary one-Prize utility basics; not an
+  // opponent roster lookup. Do not create an exposed third Trifrost target
+  // when an already-funded active Apex can finish the game.
+  const hp=hasName(printing,'Marshadow')?80:hasName(printing,'Mimikyu')?70:
+    hasName(printing,'Girafarig')?90:null;
+  if(hp===null)return false;
+  const before=apexHazard(view);
+  if(!before.known||before.maximum>=view.opponentPublic.prizeCount)return false;
+  const board=hazardBoard(view);
+  board.push({key:board.length,printing,hp,prizes:1,basic:true,isV:false,damaged:false});
+  return apexHazard(view,view.opponentPublic.discard,board).maximum>=view.opponentPublic.prizeCount;
+}
 function scoreBasicPlay(item, view, profile,receipt) {
   const metadata = item.publicMetadata ?? {};
   if (metadata.targetSeat !== 'actor' || metadata.targetZone !== 'bench') return -Infinity;
   const printing = item.actorPrinting ?? '';
   if (!hasOpenBench(view)) return -Infinity;
+  if(optionalBenchHazard(view,printing)&&!(hasName(printing,'Marshadow')&&hasStadiumRemovalTarget(view)))return -Infinity;
   const reserveGate = handHas(view,'Radiant Eternatus') &&
     !boardHas(view,'Radiant Eternatus') && openBenchSlots(view)<=3 &&
     expectedClimacticGateTargets(view,2)>=1;
