@@ -97,6 +97,21 @@ function runCases(policy,protocol) {
     same(runPrompt(p,carrierTemple,cards(carrierTemple,A.carrier,'Rescue Carrier','discard',
       [A.voltorb,A.pikachu,A.marshadow],0,2)),choose('c2','c0'),
       tag+'Carrier reserves one slot for urgent discarded Marshadow');
+
+    const compressMarshadow=view(seat,{globalTurn:4,ownHand:[A.compressor,A.carrier],
+      ownPublic:player({bench:[slot(A.voltorb),slot(A.pikachu)],discard:[],deckCount:30}),
+      opponentPublic:player({active:slot('Shadow Rider Calyrex VMAX CRE',{hp:320}),
+        stadium:['Temple of Sinnoh ASR']})});
+    same(runRoot(p,compressMarshadow,[play('compress-marshadow',A.compressor),play('carrier-later',A.carrier),pass]),
+      action('compress-marshadow'),tag+'Compressor starts deck-to-Carrier Stadium-answer route');
+    same(runPrompt(p,compressMarshadow,cards(compressMarshadow,A.compressor,'Battle Compressor','deck',
+      [A.unown,A.marshadow,R],0,3)),choose('c1'),tag+'Compressor deliberately discards Marshadow for Carrier');
+    const compressedMarshadow={...compressMarshadow,ownHand:[A.carrier],
+      ownPublic:{...compressMarshadow.ownPublic,discard:[A.marshadow]}};
+    same(runRoot(p,compressedMarshadow,[play('carrier-marshadow',A.carrier),pass]),action('carrier-marshadow'),
+      tag+'Carrier completes Compressor Stadium-answer connector');
+    same(runPrompt(p,compressedMarshadow,cards(compressedMarshadow,A.carrier,'Rescue Carrier','discard',
+      [A.marshadow],0,2)),choose('c0'),tag+'Carrier retrieves compressed Marshadow');
     const stretcherTemple={...carrierTemple,ownHand:[A.stretcher,A.raichu],
       ownPublic:{...carrierTemple.ownPublic,discard:[A.raichu,A.marshadow]}};
     same(runPrompt(p,stretcherTemple,cards(stretcherTemple,A.stretcher,'Rescue Stretcher','discard',
