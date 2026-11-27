@@ -490,3 +490,22 @@ test('Ultra Ball deck search prioritizes Minior against visible rank3 Snorlax an
   r.prompt=request(0,[],[],'Ultra Ball MEG','deck',[],0,1).prompt;
   assertValid(0,r,{kind:'select-choice',token:'none'});
 });
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' real shared V3 empty policy config initializes exact source-bound rank30 actor',()=>{
+    const init={schema:protocol.INIT_SCHEMA,type:'init',
+      role:'opponent',seat,policyVersion:POLICY_VERSION,
+      bundleSha256:'a'.repeat(64),config:{}};
+    assert.deepEqual(protocol.validateInit(init),init);
+    const liveWorker=createPolicy({role:init.role,seat:init.seat,
+      policyVersion:init.policyVersion,config:init.config});
+    const r=request(seat,[vip],[],vip,'deck',
+      [[clef,'clef']],0,2);
+    r.prompt=null;r.observation.globalTurn=1;
+    r.actionFrontier.items=[{kind:'play-card',actorPrinting:'Battle VIP Pass FST',token:'vip-root'}];
+    assert.deepEqual(liveWorker.decide(r),{kind:'select-action',token:'vip-root'});
+    assert.throws(()=>protocol.validateInit({...init,config:{
+      sourceRank:30,sourceBlobSha1:SOURCE_LIST_BLOB_SHA1}}));
+  });
+}
