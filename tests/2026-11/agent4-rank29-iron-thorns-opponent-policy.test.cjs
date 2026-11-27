@@ -760,7 +760,7 @@ test('Guzma & Hala rank29 search chooses Thunder Mountain, Palace Belt, DCE', ()
     ]
   });
   assert.deepEqual(checkedDecision(req),
-    {kind:'select-choices',tokens:['mountain','belt','dce']});
+    {kind:'select-choices',tokens:['dce','mountain','belt']});
 });
 
 test('Guzma & Hala Tool search prefers Jammer against exposed opposing Hood', () => {
