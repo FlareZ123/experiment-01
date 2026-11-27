@@ -80,17 +80,28 @@ function scoreAction(action, request) {
         active?.publicRestrictions?.cannotRetreatNextTurn === true ||
         own.publicTurnRestrictions?.attackLockTurnsRemaining > 0 ? 155 : 0;
     }
+    const temple = list(opp.stadium).some(x=>/^Temple of Sinnoh ASR 155\b/i.test(print(x)));
+    const threatenedDde = temple && slots(own).some(p=>
+      list(p.energies).some(e=>/^Double Dragon Energy ROS 97\b/i.test(print(e))));
+    const ownUnusedBasicSupport = slots(own).some(p =>
+      /Dedenne-GX|Crobat V|Tapu Lele-GX|Fezandipiti ex/i.test(print(p)) &&
+      list(p?.abilityDetails).length > 0);
+    // Lockbridge's Temple turns DDE colorless, removing the typed Energy
+    // which funds Apex. Prefer a regular Stadium to consuming our ACE SPEC.
+    if (/^Parallel City BKT 145\b/i.test(name) && threatenedDde) return 270;
     if (/^Silent Lab PRC 140\b/i.test(name)) {
+      if (threatenedDde && !ownUnusedBasicSupport) return 255;
       const opponentBasicAbility = slots(opp).some(p =>
         list(p?.printed?.subtypes).includes('Basic') &&
-        list(p?.abilityDetails).length > 0);
-      const ownUnusedBasicSupport = slots(own).some(p =>
-        /Dedenne-GX|Crobat V|Tapu Lele-GX|Fezandipiti ex/i.test(print(p)) &&
         list(p?.abilityDetails).length > 0);
       return opponentBasicAbility && !ownUnusedBasicSupport ? 115 : 0;
     }
     if (/^Stealthy Hood UNB 186\b/i.test(name)) {
-      return enabledVstar && !list(own.active?.tools).length ? 115 : 10;
+      const enemyWobbuffet = /^Wobbuffet PHF 36\b/i.test(print(opp.active));
+      const unusedVstar = own.publicTurnRestrictions?.vstarUsed === false;
+      const target = slots(own).find(p=>/^Regidrago VSTAR SIT 136\b/i.test(print(p)) &&
+        list(p.tools).length===0);
+      return enemyWobbuffet && unusedVstar && target ? 265 : 0;
     }
     // Stage-2 Mega Dragonite has no evolution chain in the original 60:
     // it is an Apex donor, never proactively benched/evolved by this policy.
@@ -216,6 +227,14 @@ function promptDecision(request) {
     return chooseMany(choices, c => /Grass Energy|Fire Energy/i.test(print(c)) ? 110 :
       (/Double Dragon Energy/i.test(print(c)) ? 50 : 0), min,max,
       'RANK32_RYUNO_NO_SUPPORTED_ENERGY_PAYMENT');
+  }
+  if (/stealthy hood/.test(source) && meta.selectionType === 'pokemon') {
+    const enemyWobbuffet = /^Wobbuffet PHF 36\b/i.test(print(obs?.opponentPublic?.active));
+    if (!enemyWobbuffet || obs?.ownPublic?.publicTurnRestrictions?.vstarUsed !== false) {
+      return {kind:'abstain',reasonCode:'RANK32_HOOD_LOCK_WINDOW_ABSENT'};
+    }
+    return chooseMany(choices,c=>/^Regidrago VSTAR SIT 136\b/i.test(print(c)) ? 250 : 0,
+      min,Math.min(max,1),'RANK32_HOOD_NO_SAFE_VSTAR_TARGET');
   }
   if (/sky transport/.test(source) && meta.selectionType === 'pokemon') {
     const own = obs.ownPublic ?? {};
