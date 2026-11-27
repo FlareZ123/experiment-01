@@ -4,6 +4,7 @@ const assert=require('node:assert/strict');
 const observe=require('../../simulation/twinleaf/actor-observation-contract.cjs');
 const protocol=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const rank3=require('../../simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs');
+const rank6=require('../../simulation/evaluation/2026-11/agent39-rank6-iron-thorns-opponent-policy.cjs');
 
 // Pinned Twinleaf a9905a76 CardType: Psychic=5, Dark=7,
 // Colorless=9, Fairy=10, Dragon=11. Stage: Basic=2, VMAX=5, VSTAR=6.
@@ -147,5 +148,46 @@ for(const seat of [0,1]){
   const previous={...root,observation:rawOld};
   assert.equal(rank3.scoreAction(actions[0],previous),0);
   assert.deepEqual(policy.decide(previous),{kind:'select-action',token:'handi'});
+ });
+}
+
+
+for(const seat of [0,1]){
+ test('native Fairy type flips rank6 Wondrous-vs-Beach Stadium decision, seat '+seat,()=>{
+  const own=player(seat,true),other=player(1-seat,false);
+  own.active=pokemon({fullName:'Iron Thorns ex TWM',name:'Iron Thorns ex',
+    hp:230,stage:2,tags:['ex'],types:[4]});
+  own.hand.cards=[card('Wondrous Labyrinth TEU 158'),card('Tropical Beach BWP 50')];
+  own.deck.cards=Array.from({length:20},(_,i)=>card('owner deck '+i));
+  own.stadium.cards=[];
+  // Pinned Gardevoir-GX BUS is a Fairy Pokémon (CardType.FAIRY=10).
+  other.active=pokemon({fullName:'Gardevoir-GX BUS',name:'Gardevoir-GX',
+    hp:230,stage:4,tags:['GX'],types:[10],energies:[
+      'Fairy Energy SVE','Double Colorless Energy FCO'
+    ]});
+  other.deck.cards=Array.from({length:30},(_,i)=>card('opponent deck '+i));
+  const state={players:seat===0?[own,other]:[other,own],
+    activePlayer:seat,turn:4,phase:2,prompts:[]};
+  const view=observe.actorObservation(state,seat);
+  assert.deepEqual(view.opponentPublic.active.printed.types,['Fairy']);
+  assert.equal(view.opponentPublic.active.printed.stage,'STAGE_2');
+  assert.doesNotThrow(()=>protocol.validateActorObservation(view,seat));
+  const actions=[
+    {token:'wondrous',kind:'play-card',actorPrinting:'Wondrous Labyrinth TEU 158',publicMetadata:{}},
+    {token:'beach',kind:'play-card',actorPrinting:'Tropical Beach BWP 50',publicMetadata:{}},
+    {token:'pass',kind:'pass'}
+  ];
+  const root={role:'opponent',seat,observation:view,prompt:null,
+    publicEventReceipt:null,actionFrontier:{items:actions}};
+  const policy=rank6.createPolicy({role:'opponent',seat,
+    policyVersion:rank6.POLICY_VERSION,config:{}});
+  assert.equal(rank6.scoreAction(actions[0],root),0);
+  assert.equal(rank6.scoreAction(actions[1],root),85);
+  assert.deepEqual(policy.decide(root),{kind:'select-action',token:'beach'});
+  const rawOld=JSON.parse(JSON.stringify(view));
+  rawOld.opponentPublic.active.printed.types=[10];
+  const previous={...root,observation:rawOld};
+  assert.equal(rank6.scoreAction(actions[0],previous),95);
+  assert.deepEqual(policy.decide(previous),{kind:'select-action',token:'wondrous'});
  });
 }
