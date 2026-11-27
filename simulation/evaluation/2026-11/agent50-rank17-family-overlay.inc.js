@@ -1004,7 +1004,7 @@ function r17NewMoonSunbeamLive(view) {
   // Actor projection carries printed HP, not effect-modified max HP. Treat
   // an unresolved suppression state conservatively as live; only an
   // explicit source-attributed suppression can lower Lunatone back to 90.
-  return !r17Suppressed(solrock,'Sunbeam');
+  return !r17Suppressed(solrock,'Sunbeam')&&!r17BasicLock(view);
 }
 function r17VisibleRainTargets(view,p,forceSight=false) {
   const stad=r17Stadium(view);
