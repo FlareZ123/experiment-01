@@ -426,6 +426,37 @@ function runCases(policy,protocol) {
     same(policy.activeLoadPlan({...loading,ownPublic:{...loading.ownPublic,bench:[]}}),null,tag+'do not dump before live Bomb');
     same(policy.activeLoadPlan({...loading,globalTurn:1}),null,tag+'do not expose turn-one Energy');
     same(policy.activeLoadPlan({...loading,opponentPublic:{...double,bench:[slot('Unknown Pokemon XYZ',{hp:320})]}}),null,tag+'unknown target fails closed');
+
+    // Exact New Moon Lockbreaker board: one Bomb gives 14 Lightning units
+    // while behind (4 Reversal + Counter), enough for the published
+    // Sight packet witness: TAG 7 + Lele 5 + 60-HP one-prizer 2.
+    const newMoonWitness=view(seat,{globalTurn:4,
+      ownPublic:player({active:slot(A.raichu,{hp:110,tools:[full.sight]}),bench:[elec],
+        discard:[R,R,R,R,C],prizeCount:6}),
+      opponentPublic:player({active:slot('Unown AOR 30',{hp:60}),
+        bench:[slot('Gengar & Mimikyu-GX TEU 53',{hp:240,tools:['Powerglass SFA']}),
+          slot('Tapu Lele-GX GRI 60',{hp:170})],prizeCount:6})});
+    const newMoonPlan=policy.rainProjection(newMoonWitness,newMoonWitness.ownPublic.active);
+    same(newMoonPlan?.terminalProjection,true,tag+'New Moon exact target family yields terminal Rain projection');
+    same(newMoonPlan?.units,14,tag+'New Moon one-Bomb deficit yields fourteen Lightning units');
+    same(newMoonPlan?.hitsRequired,14,tag+'New Moon Sight witness requires exact fourteen packets');
+    same(newMoonPlan?.prizes,6,tag+'New Moon witness maps TAG plus GX plus one-prizer to six Prizes');
+
+    const oneDusclopsParity={...newMoonWitness,
+      ownPublic:{...newMoonWitness.ownPublic,prizeCount:5}};
+    same(policy.rainProjection(oneDusclopsParity,oneDusclopsParity.ownPublic.active)?.units,14,
+      tag+'one opposing Dusclops self-KO leaves post-Bomb deficit multipliers live');
+    const twoDusclopsParity={...newMoonWitness,
+      ownPublic:{...newMoonWitness.ownPublic,prizeCount:4}};
+    same(policy.rainProjection(twoDusclopsParity,twoDusclopsParity.ownPublic.active),null,
+      tag+'two opposing Dusclops self-KOs force post-Bomb parity and disable multipliers');
+
+    const fundedPath=view(seat,{globalTurn:4,
+      ownPublic:player({active:slot(A.raichu,{hp:110,energies:[R]}),prizeCount:2}),
+      opponentPublic:player({active:slot('Duskull VIV 69',{hp:60}),prizeCount:1,
+        stadium:['Path to the Peak CRE']})});
+    same(policy.rainProjection(fundedPath,fundedPath.ownPublic.active)?.terminalProjection,true,
+      tag+'Path is safe for already-funded zero-Bomb Rain evaluation');
     const noSight={...loading,ownHand:[full.sight],ownPublic:{...loading.ownPublic,active:{...rain,tools:[]},discard:[R,R,R,R,C,C,C,C,U]}};
     same(runRoot(p,noSight,[play('sight',full.sight,{zone:'active',index:0,printing:A.raichu}),pass]),action('sight'),tag+'Sight crosses two-VMAX threshold');
     const manual={...loading,ownHand:[C,U],ownPublic:{...loading.ownPublic,discard:[R,R,R,R,C,C,C,U]}};
