@@ -25,7 +25,7 @@ const P = Object.freeze({
   clefairy: /^Lillie's Clefairy ex JTG 56\b/i,
   box: /^Secret Box TWM 163\b/i,
   basicPsychic: /^(?:Basic )?Psychic Energy MEE 13\b/i,
-  telepathic: /^Telepathic Psychic Energy POR 88\b/i,
+  telepathic: /^(?:Telepathic Psychic Energy POR 88|Telepath \[P\] Energy M3)\b/i,
   sky: /^Sky Field ROS 89\b/i,
   vip: /^Battle VIP Pass FST 225\b/i,
   patch: /^(?:Wondrous Patch PFL 94|Wonder Patch MBD)\b/i,
@@ -59,7 +59,9 @@ const PUBLIC_ABORT = Object.freeze({
   R30_VIP_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
   R30_VIP_NO_TARGET:'NO_LEGAL_CARD_SET',
   R30_PATCH_PROMPT_UNSUPPORTED:'UNSUPPORTED_PROMPT_TYPE',
-  R30_PATCH_NO_ELIGIBLE_BENCH:'NO_VISIBLE_POKEMON_TARGET'
+  R30_PATCH_NO_ELIGIBLE_BENCH:'NO_VISIBLE_POKEMON_TARGET',
+  R30_TELEPATH_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
+  R30_TELEPATH_NO_TARGET:'NO_LEGAL_CARD_SET'
 });
 const no = reasonCode => ({kind:'abstain',reasonCode:PUBLIC_ABORT[reasonCode]??reasonCode});
 const act = x => ({kind:'select-action',token:x.token});
@@ -140,6 +142,43 @@ function boxPrompt(request) {
   }
   return picks(selected);
 }
+function telepathPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
+    m.sourceZone!=='deck'||m.ownerSeat!=='actor'||m.isOwnerVisible!==true||
+    !safeInt(m.minimumCount)||!safeInt(m.maximumCount)||m.maximumCount>2)
+    return no('R30_TELEPATH_PROMPT_UNSUPPORTED');
+  const cards=arr(p.choices).filter(c=>c.kind==='card'&&typeof c.token==='string');
+  const result=[];
+  const get=pattern=>cards.find(c=>has(c,pattern)&&!result.some(x=>x.token===c.token));
+  const own=slots(o.ownPublic);
+  const ownHand=arr(o.ownHand);
+  const clefs=own.filter(x=>has(x,P.clefairy)).length+
+    ownHand.filter(x=>has(x,P.clefairy)).length;
+  if(clefs===0&&result.length<m.maximumCount){
+    const x=get(P.clefairy);if(x)result.push(x);
+  }
+  if(result.length<m.maximumCount&&!own.some(x=>/^Latias ex SSP 76\b/i.test(text(x)))&&
+     !ownHand.some(x=>/^Latias ex SSP 76\b/i.test(text(x)))){
+    const x=get(/^Latias ex SSP 76\b/i);if(x)result.push(x);
+  }
+  if(clefs+result.filter(x=>has(x,P.clefairy)).length<2&&result.length<m.maximumCount){
+    const x=get(P.clefairy);if(x)result.push(x);
+  }
+  if(result.length<m.maximumCount&&result.length===0){
+    const x=get(/^Unown AOR 30\b/i)??get(/^Mimikyu GRI 58\b/i)??
+      get(/^Tapu Lele-GX GRI 60\b/i);
+    if(x)result.push(x);
+  }
+  if(result.length<m.minimumCount)return no('R30_TELEPATH_NO_TARGET');
+  if(result.length===0){
+    const empty=arr(p.choices).find(c=>c.kind==='empty-selection'&&typeof c.token==='string');
+    return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
+      no('R30_TELEPATH_NO_TARGET');
+  }
+  return picks(result);
+}
+
 function vipPrompt(request) {
   const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
   if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
@@ -294,6 +333,10 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   const marnie=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.marnie));
   if(marnie && threatenSecondTarget(o) &&
     !candidateCanUseBoardHeldStarAlchemy(o))return act(marnie);
+  const telepath=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.telepathic)&&
+    [P.clefairy,/^Latias ex SSP 76\b/i,/^Tapu Lele-GX GRI 60\b/i,/^Mimikyu GRI 58\b/i]
+      .some(pattern=>has(a.targetPrinting,pattern)));
+  if(telepath)return act(telepath);
   const attach=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.basicPsychic)&&
     has(a.targetPrinting,P.clefairy));
   if(attach)return act(attach);
@@ -318,6 +361,7 @@ function createPolicy({role,seat,policyVersion,config}) {
       if(sameSource(request.prompt,P.box))return boxPrompt(request);
       if(sameSource(request.prompt,P.quickBall))return quickBallPrompt(request);
       if(sameSource(request.prompt,P.vip))return vipPrompt(request);
+      if(sameSource(request.prompt,P.telepathic))return telepathPrompt(request);
       if(sameSource(request.prompt,P.patch)&&config.enablePatchProjection===true)
         return patchPrompt(request);
       return no('R30_UNSUPPORTED_PROMPT_FAMILY');
@@ -326,4 +370,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  rootDecision,boxPrompt,quickBallPrompt,vipPrompt,patchPrompt,projectedRondo,discardScore,candidateCanUseBoardHeldStarAlchemy};
+  rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,patchPrompt,projectedRondo,discardScore,candidateCanUseBoardHeldStarAlchemy};
