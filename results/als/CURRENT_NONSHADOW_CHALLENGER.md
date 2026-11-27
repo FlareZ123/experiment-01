@@ -90,7 +90,7 @@ Parent policy surface:
 v2-specific delta:
 `results/aichi-2026/2026-11/agent1-newmoon-tool-jammer-v2-acceptance-delta-v1.json` — **12 cases**.
 
-Combined current paper target: **147 actor-visible cases**.
+Combined current paper target: **150 actor-visible cases**.
 
 Core policy:
 `results/strategy/2026-11/agent1-newmoon-tool-jammer-v2-policy-core.md`.
