@@ -67,7 +67,7 @@ for(const seat of [0,1]) {
   });
 }
 test('Sky Field from hand is selected only when next legal Bench would reach Rondo KO',()=>{
-  const r=request();r.observation.ownPublic.bench=Array.from({length:5},()=>b('Unown AOR 30'));
+  const r=request();r.observation.ownPublic.bench=[b('Unown AOR 30'),b('Unown AOR 30'),b('Unown AOR 30'),b('Dedenne-GX UNB 57'),b('Crobat V DAA 104')];
   r.observation.opponentPublic.bench=[b('Shadow Rider Calyrex V CRE 74'),b('Shadow Rider Calyrex V CRE 74'),b('Radiant Eternatus CRZ 105'),b('Tapu Lele-GX GRI 60')];
   r.observation.opponentPublic.active.damage=110;
   r.observation.ownHand=[clef,'Sky Field ROS 89'];
@@ -86,6 +86,19 @@ test('Marnie only when public Prize race is imminent; never claim hidden gust ce
   r.observation.opponentPublic.prizeCount=3;
   assert.equal(policy(0).decide(r).reasonCode,'R30_ROOT_UNSUPPORTED');
 });
+test('Marnie does not beat visible unspent Forest Seal Stone into Star Alchemy gust',()=>{
+  const r=request();
+  r.observation.ownPublic.bench=[b('Crobat V DAA 104')];
+  r.observation.opponentPublic.prizeCount=2;
+  r.observation.ownHand=['Marnie SSH 169'];
+  r.actionFrontier.items=[root('play-card','Marnie SSH 169','marnie')];
+  r.observation.opponentPublic.bench=[{printing:'Shadow Rider Calyrex V CRE 74',
+    tools:['Forest Seal Stone SIT 156']}];
+  assert.equal(policy(0).decide(r).reasonCode,'R30_ROOT_UNSUPPORTED');
+  r.observation.opponentPublic.publicTurnRestrictions={vstarUsed:true};
+  assert.equal(policy(0).decide(r).token,'marnie');
+});
+
 test('Secret Box is not initiated without three safe payments or a Psychic Bench',()=>{
   const r=request();r.observation.ownPublic.bench=[b(clef)];
   r.observation.ownHand=[box,psychic,vip,'Telepathic Psychic Energy POR 88'];
