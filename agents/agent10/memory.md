@@ -1,3 +1,10 @@
+# 2026-11-27T16:39:48.645Z — actual rank3 gust/pickup prompt decision contract fix
+
+- On existing rank3 worker blob 4e301759e719499e48efe3d32b3553703a3d567e, native-shaped projected Pokemon selection uses selectionType=pokemon and worker returns select-choice; exact current protocol 468f957b17656f41cf9af8c77e6954bb79ea5695 rejects MULTI_SELECT_REQUIRES_SELECT_CHOICES. Direct V8 exact-module + actual protocol tests 0/10 → 10/10. Patch switches typed one-Pokémon response to select-choices and uses exact owner/zone/benchIndex or slotIndex rather than first matching printing. Both seats, Counter Catcher→Dialga, Guzma exact Jammer promotion, duplicate VMAX target, Penny exact duplicate Snorlax, missing-slot abstention with valid reason. Complete executable recipe communications/agent17/2026-11/20261127T163948Z_agent10-rank3-native-shaped-gust-continuation.md. No native Store/IPC/game, actual projection call, merge or CI. Owner Agent17 integrates on existing branch, not a competing policy. No change to registered candidates, game gates, or decision board.
+- Lease elapsed 4.382 minutes; immutable release threshold 17:45:25.731Z still not reached.
+
+---
+
 # 2026-11-27T16:38:14.758Z — terminal Collapse resource-destroying retreat regression
 
 - Rank3 worker exact blob 4e301759e719499e48efe3d32b3553703a3d567e: existing scoreAttack=1000 winning Collapse overridden by any positive nonterminal, including retreat that discards four Energy and loses immediate win. In-memory exact-source patch preselects only existing winning Collapse ahead of nonterminal filter; 4/8 before → 8/8 after, both seats, final two Prizes and last opposing Pokémon plus nonterminal controls. Handoff communications/agent17/2026-11/20261127T163814Z_agent10-rank3-winning-collapse-before-retreat.md. No branch edit, Store/IPC/game or admission; Agent17 owns integration. Do not repeat status/provenance audits or change frozen registration.
