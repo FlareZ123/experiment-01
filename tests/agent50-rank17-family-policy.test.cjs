@@ -396,7 +396,7 @@ function runCases(policy,protocol) {
     const klefkiPrompt={...switchPrompt,choices:[
       {...switchPrompt.choices[0],token:'rain',printing:A.raichu},
       {...switchPrompt.choices[1],token:'elec',printing:A.electrode},
-      {...switchPrompt.choices[1],token:'klefki',printing:A.klefki,publicMetadata:{...switchPrompt.choices[1].publicMetadata,targetIndex:2,selectionIndex:2,benchIndex:2}}]};
+      {...switchPrompt.choices[1],token:'klefki',printing:A.klefki,publicMetadata:{...switchPrompt.choices[1].publicMetadata,selectionIndex:2,benchIndex:2}}]};
     same(runPrompt(p,{...klefkiBoard,ownHand:[A.uturn]},klefkiPrompt),choose('klefki'),tag+'Rope continuation into Klefki not blocked Raichu');
     const prepared={...loading,ownTurnResources:{...loading.ownTurnResources,retreatedTurn:0},
       ownPublic:{...loading.ownPublic,active:{...pivot,printed:{retreatCost:[]}},bench:[rain,elec,elec]}};
