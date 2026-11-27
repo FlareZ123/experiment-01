@@ -27,6 +27,12 @@ function withDeterministicCelestialRoar(execute,deps={}) {
   const {EnergyCard}=deps.energyCard??load('game/store/card/energy-card');
   const {CardList}=deps.cardList??load('game/store/state/card-list');
   const {EnergyType}=deps.cardTypes??load('game/store/card/card-types');
+  // Source-bound to the original rank20 Basic/DDE mix. Other restricted
+  // Special Energy requires an explicit paper/native attachability ruling.
+  const isKnownAttachableSpecial=card=>{
+    const id=card.fullName??card.printing??card.name??'';
+    return /^Double Dragon Energy(?: ROS(?: 97)?)?$/i.test(id);
+  };
   assert.equal(typeof WAS_ATTACK_USED,'function');
   assert.equal(typeof MOVE_CARDS,'function');
   const proto=RegidragoV.prototype;
@@ -49,6 +55,8 @@ function withDeterministicCelestialRoar(execute,deps={}) {
     // Snapshot before moving anything: do not iterate a mutating live zone.
     for(const card of moved){
       if(card instanceof EnergyCard){
+        if(card.energyType!==EnergyType.BASIC && !isKnownAttachableSpecial(card))
+          throw new Error('UNVERIFIED_CELESTIAL_SPECIAL_ENERGY_ATTACHABILITY');
         MOVE_CARDS(store,state,temp,player.active,{cards:[card],sourceCard:this});
         if(card.energyType===EnergyType.BASIC)audit.attachedBasic++;
         else audit.attachedSpecial++;
