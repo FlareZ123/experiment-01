@@ -108,7 +108,7 @@ function discardPrompt(f){
     }
     getPerspectivePlayerId(){return this.playerId}
     decode(rows){return rows.map(i=>this.cards.cards[i])}
-    validate(cards){return cards.length<=1&&cards.every(c=>c.superType==='ENERGY')}
+    validate(cards){return cards.length<=this.options.max&&cards.every(c=>c.superType==='ENERGY')}
   }
   const prompt=new ChooseCardsPrompt();f.state.prompts=[prompt];
   return {prompt,projection:f.project(prompt,f.owner.active.getPokemonCard(),'Electro Rain')};
