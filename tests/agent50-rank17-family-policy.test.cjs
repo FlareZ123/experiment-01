@@ -222,6 +222,18 @@ function runCases(policy,protocol) {
     same(runRoot(p,silentIdle,[play('stop-idle',A.pokestop),
       ability('reset-silent',A.marshadow,'Resetting Hole',0),pass]),action('pass'),
       tag+'do not spend Pokestop on Silent Lab without blocked engine line');
+    const silentKlefki=view(seat,{globalTurn:4,ownHand:[A.pokestop],
+      ownPublic:player({active:slot(A.klefki,{hp:70,abilities:['Mischievous Lock']}),
+        bench:[slot(A.electrode,{hp:190,abilities:['Extra Energy Bomb']})],deckCount:5}),
+      opponentPublic:player({active:slot('Wobbuffet PHF 36',{hp:110,abilities:['Bide Barricade']}),
+        stadium:['Silent Lab PRC'],prizeCount:6})});
+    same(runRoot(p,silentKlefki,[play('stop-klefki',A.pokestop),
+      ability('bomb-silent-klefki',A.electrode,'Extra Energy Bomb',0),pass]),action('stop-klefki'),
+      tag+'Pokestop removes Silent Lab to restore Klefki over Wobbuffet');
+    const silentKlefkiCleared={...silentKlefki,
+      opponentPublic:{...silentKlefki.opponentPublic,stadium:[]}};
+    same(policy.liveBombs(silentKlefkiCleared).length,1,
+      tag+'restored Klefki suppresses Wobbuffet and exposes Bomb');
     const dittoPath=view(seat,{globalTurn:4,ownHand:[A.raichu],
       ownPublic:player({bench:[slot(A.marshadow),slot(A.ditto,{abilities:['Almighty Evolution']})]}),
       opponentPublic:player({stadium:['Path to the Peak CRE']})});
