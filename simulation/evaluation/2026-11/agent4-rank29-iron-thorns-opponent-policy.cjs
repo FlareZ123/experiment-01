@@ -471,16 +471,21 @@ function cardChoiceScore(choice, observation, context) {
     return 0;
   }
   if (context === 'eri') {
-    if (/VS Seeker|Battle Compressor|Mysterious Treasure|Fog Crystal|Quick Ball|Nest Ball|Ultra Ball|Field Blower|Unfair Stamp|Night Stretcher/i.test(printing)) return 200;
-    if (/Item\b/i.test(printing)) return 120;
-    return 0;
+    if (/Unfair Stamp/i.test(printing)) return 300; // ACE SPEC
+    if (/VS Seeker|Battle Compressor|Mysterious Treasure|Fog Crystal|Quick Ball|Nest Ball|Ultra Ball|Field Blower|Night Stretcher/i.test(printing)) return 240;
+    // The authenticated native Eri prompt itself filters exactly Items,
+    // including cards without an English "Item" suffix in their printing.
+    return 100;
   }
   if (context === 'sidney') {
-    if (isSpecialEnergy(printing)) return 220;
-    if (/Pok[eé]mon Tool|Tool\b|Float Stone|Stealthy Hood|Forest Seal Stone/i.test(printing)) return 200;
-    return 0;
+    if (isSpecialEnergy(printing)) return 240;
+    if (/Pok[eé]mon Tool|Tool\b|Float Stone|Stealthy Hood|Forest Seal Stone/i.test(printing)) return 220;
+    if (/Sky Field|Dimension Valley|Silent Lab|Tropical Beach|Temple of Sinnoh|Path to the Peak|Thunder Mountain|Wondrous Labyrinth|Jamming Tower/i.test(printing)) return 195;
+    // Every offered option must have passed native Sidney's printed subtype
+    // filter; avoid losing legal, unnamed Tool/Stadium choices.
+    return 90;
   }
-  if (context === 'team-skull') return /Energy/i.test(printing) ? 200 : 0;
+  if (context === 'team-skull') return /Energy/i.test(printing) ? 200 : 100;
   if (context === 'trainers-mail' || context === 'camping-gear') {
     // Mail may select one Trainer from the observed top four. Camping Gear
     // may select any one owner-deck card but ends the turn. In both cases,
@@ -803,12 +808,24 @@ function promptDecision(request) {
         minimum, maximum);
       }
 
-      if (source.includes('eri') || source.includes('sidney') ||
-          source.includes('team skull')) {
-        const context = source.includes('eri') ? 'eri' :
-          source.includes('sidney') ? 'sidney' : 'team-skull';
+      if (matches(sourcePrinting, PRINT.eri) ||
+          matches(sourcePrinting, PRINT.sidney) ||
+          matches(sourcePrinting, PRINT.teamSkull)) {
+        if (metadata.selectionType !== 'card-combination' ||
+            metadata.ownerSeat !== 'opponent' ||
+            metadata.sourceZone !== 'hand' ||
+            metadata.isOwnerVisible !== true ||
+            metadata.isSecret !== false ||
+            metadata.allowCancel !== false ||
+            minimum !== 0 || maximum > 2)
+          return {kind:'abstain',reasonCode:'UNTRUSTED_CARD_CHOICE'};
+        const context = matches(sourcePrinting, PRINT.eri) ? 'eri' :
+          matches(sourcePrinting, PRINT.sidney) ? 'sidney' : 'team-skull';
         const opponentHand = choices.filter(choice =>
-          choiceOwner(choice) === 'opponent' && choiceZone(choice) === 'hand');
+          choice.kind === 'card' &&
+          choiceOwner(choice) === 'opponent' &&
+          choiceZone(choice) === 'hand' &&
+          choice.publicMetadata?.isOwnerVisible === true);
         return multiSelectDecision(prompt, rankedChoices(opponentHand,
           choice => cardChoiceScore(choice, observation, context), maximum),
         minimum, maximum);
