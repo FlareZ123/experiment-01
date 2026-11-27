@@ -23,7 +23,9 @@ function sortedCounts(counts) {
 /**
  * Complete owner-known zones at the instant of an authenticated deck search.
  * All listed cards are in the acting player's own hand or face-up public zones.
- * Card text under Evolutions is preserved through evolutionPrintings.
+ * The actor's evolutionPrintings represents the entire native Pokémon stack,
+ * including attached Energy. The separate energies array projects some of the
+ * same physical cards and must never be counted twice. Tools are separate.
  * @param {object} ownerView Frozen detached actor observation.
  * @returns {string[]}
  */
@@ -35,8 +37,19 @@ function knownOutsideDeck(ownerView) {
   ];
   for (const pokemon of [own.active, ...own.bench]) {
     if (pokemon === null) continue;
-    cards.push(...pokemon.evolutionPrintings, ...pokemon.energies,
-      ...pokemon.tools);
+    // PokémonCardList.cards already includes Energy. Validate the source
+    // geometry before omitting the duplicated Energy projection: otherwise a
+    // future engine/card-view change could silently manufacture Prize facts.
+    const stack=countPrintings(pokemon.evolutionPrintings);
+    for (const [name, copies] of countPrintings(pokemon.energies)) {
+      assert.ok((stack.get(name) ?? 0) >= copies,
+        'Attached Energy must appear in the physical Pokémon card stack');
+    }
+    for (const [name] of countPrintings(pokemon.tools)) {
+      assert.equal(stack.get(name) ?? 0, 0,
+        'Attached Tools must not overlap the physical Pokémon card stack');
+    }
+    cards.push(...pokemon.evolutionPrintings, ...pokemon.tools);
   }
   return cards;
 }
@@ -132,6 +145,57 @@ function advanceOwnerK1(snapshot, transition) {
 }
 
 /**
+ * Create a host-only, fail-closed witness that the owner's *physical Prize
+ * multiset* has remained unchanged across Store mutations. The witness never
+ * reads Prize card names, card IDs, deck order, or opponent concealed zones.
+ * Only the exact original State object and the original Prize-card object
+ * references may satisfy it; detached/redeterminized states are not admitted.
+ *
+ * Store this capability solely in the trusted host adapter. Do not serialize
+ * it or expose native handles to actor observations/worker decisions.
+ *
+ * If the pinned Store re-creates Prize Card objects, this witness safely
+ * declines to certify continuity. It does not assume face identity can change
+ * in place on an existing Card object without a physical Prize-zone mutation.
+ *
+ * @param {object} state Native current Store State, not a sampled clone.
+ * @param {0|1} ownerSeat Owner's fixed physical seat.
+ * @returns {{unchanged:(state:object)=>boolean}|null} Opaque custody proof.
+ */
+function createOwnerPrizeCompositionGuard(state, ownerSeat) {
+  assert.ok(ownerSeat === 0 || ownerSeat === 1, 'Invalid owner seat');
+  assert.ok(state?.players?.length === 2, 'A two-seat native State is required');
+  const owner = state.players[ownerSeat];
+  const collect = () => {
+    if (!Array.isArray(owner?.prizes)) return null;
+    const cards = [];
+    for (const slot of owner.prizes) {
+      if (!Array.isArray(slot?.cards) || slot.cards.length > 1) return null;
+      for (const card of slot.cards) {
+        if (card === null || typeof card !== 'object') return null;
+        cards.push(card);
+      }
+    }
+    if (new Set(cards).size !== cards.length) return null;
+    return cards;
+  };
+  let original;
+  try { original = collect(); } catch { return null; }
+  if (original === null) return null;
+  const originalRefs = new Set(original);
+  return Object.freeze({
+    unchanged(nextState) {
+      if (nextState !== state || nextState.players[ownerSeat] !== owner)
+        return false;
+      let current;
+      try { current = collect(); } catch { return false; }
+      return current !== null && current.length === originalRefs.size &&
+        current.every(card => originalRefs.has(card));
+    }
+  });
+}
+
+/**
  * Refuse an unreachable deck-search line when the actor legitimately knows
  * that every registered copy of its required printing was Prized.
  * Otherwise remain conservative about draws, recovery and search costs.
@@ -150,5 +214,6 @@ function assessRequiredDeckPrinting(snapshot, target) {
 
 module.exports = {
   countPrintings, knownOutsideDeck, captureOwnerK1,
-  advanceOwnerK1, assessRequiredDeckPrinting
+  advanceOwnerK1, assessRequiredDeckPrinting,
+  createOwnerPrizeCompositionGuard
 };
