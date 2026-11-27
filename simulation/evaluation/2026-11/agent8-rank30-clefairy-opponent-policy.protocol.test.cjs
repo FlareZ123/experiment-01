@@ -324,3 +324,81 @@ test('Rescue Carrier never sacrifices existing immediate lethal Rondo to spend I
     {kind:'attack',actorPrinting:clef,attackName:'Full Moon Rondo',token:'rondo'}];
   assert.deepEqual(p(0).decide(r),{kind:'select-action',token:'rondo'});
 });
+
+
+test('printed rank3 Snorlax PGO Block is 4 Colorless retreat, Fighting x2: Minior computes 160 knockout',()=>{
+  const x={opponentPublic:{active:{printing:'Snorlax PGO 55',hp:150,damage:0,tools:[]}}};
+  assert.deepEqual(worker.miniorStallOpportunity(x),{hp:150,projectedDamage:160,knockout:true});
+  x.opponentPublic.active.tools=['Float Stone BKT'];
+  assert.deepEqual(worker.miniorStallOpportunity(x),{hp:150,projectedDamage:null,knockout:false});
+  x.opponentPublic.active.tools=[];
+  x.opponentPublic.active.hp=200;
+  assert.equal(worker.miniorStallOpportunity(x).knockout,false);
+});
+for(const seat of [0,1]){
+  test('seat '+seat+' real rank3 Snorlax counter: VIP -> Minior Bench -> hand Energy -> Far-Flying Meteor switch -> knockout',()=>{
+    const r=request(seat,[vip],[],vip,'deck',
+      [['Minior PAR','minior'],[clef,'clefairy'],['Latias ex SSP','latias']],0,2);
+    r.observation.globalTurn=1;
+    r.observation.ownPublic.active={printing:clef,hp:190,damage:0,energies:[]};
+    r.observation.opponentPublic.active={printing:'Snorlax PGO',hp:150,damage:0,tools:[]};
+    r.prompt=null;
+    r.actionFrontier.items=[{kind:'play-card',actorPrinting:vip,token:'vip'}];
+    assert.deepEqual(p(seat).decide(r),{kind:'select-action',token:'vip'});
+    r.prompt=request(seat,[vip],[],vip,'deck',
+      [['Minior PAR','minior'],[clef,'clefairy'],['Latias ex SSP','latias']],0,2).prompt;
+    r.prompt.source.effectName='Battle VIP Pass';
+    assertValid(seat,r,{kind:'select-choices',tokens:['minior','latias']});
+    r.prompt=null;
+    r.observation.ownPublic.bench=[{printing:'Minior PAR',energies:[]},
+      {printing:'Latias ex SSP',energies:[]}];
+    r.observation.ownHand=['Psychic Energy MEE'];
+    r.actionFrontier.items=[{kind:'play-card',actorPrinting:'Psychic Energy MEE',
+      targetPrinting:'Minior PAR',token:'attach-minior'},
+      {kind:'play-card',actorPrinting:'Psychic Energy MEE',
+      targetPrinting:clef,token:'attach-clefairy'}];
+    assert.deepEqual(p(seat).decide(r),{kind:'select-action',token:'attach-minior'});
+    r.prompt={schema:protocol.PROMPT_SCHEMA,actingSeat:seat,
+      promptType:'ConfirmPrompt',description:'USE_FAR_FLYING_METEOR',
+      source:{classification:'actor-choice',sourceKind:'card-effect',
+        sourcePrinting:'Minior PAR',effectName:'Far-Flying Meteor'},
+      publicMetadata:{selectionType:'confirm'},
+      choices:[{kind:'confirm',token:'yes',label:'Yes'},
+        {kind:'confirm',token:'no',label:'No'}]};
+    assertValid(seat,r,{kind:'select-choice',token:'yes'});
+    r.prompt=null;
+    r.observation.ownPublic.active={printing:'Minior PAR',energies:['Psychic Energy MEE'],
+      hp:70,damage:0};
+    r.actionFrontier.items=[{kind:'attack',actorPrinting:'Minior PAR',
+      attackName:'Gravitational Tackle',token:'gravity'}];
+    assert.deepEqual(p(seat).decide(r),{kind:'select-action',token:'gravity'});
+  });
+  test('seat '+seat+' Quick Ball can search Minior versus Snorlax even if Clefairy already established',()=>{
+    const r=request(seat,['Quick Ball FST','Battle VIP Pass FST'],[],
+      'Quick Ball FST','deck',[[clef,'clefairy'],['Minior PAR','minior']],0,1);
+    r.observation.ownPublic.active={printing:clef,hp:190,damage:0};
+    r.observation.opponentPublic.active={printing:'Snorlax PGO',hp:150,damage:0,tools:[]};
+    r.observation.globalTurn=4;
+    r.prompt=null;
+    r.actionFrontier.items=[{kind:'play-card',actorPrinting:'Quick Ball FST',token:'quick'}];
+    assert.deepEqual(p(seat).decide(r),{kind:'select-action',token:'quick'});
+    r.prompt=request(seat,['Quick Ball FST','Battle VIP Pass FST'],[],
+      'Quick Ball FST','deck',[[clef,'clefairy'],['Minior PAR','minior']],0,1).prompt;
+    r.prompt.source.effectName='Quick Ball';
+    assertValid(seat,r,{kind:'select-choices',tokens:['minior']});
+  });
+}
+test('Minior Far-Flying Meteor optional switch declines after Snorlax obtains retreat-cost modification',()=>{
+  const r=request(0,[],[],'Minior PAR','deck',[],0,1);
+  r.observation.ownPublic.active={printing:clef,hp:190,damage:0};
+  r.observation.ownPublic.bench=[{printing:'Minior PAR',energies:['Psychic Energy MEE']}];
+  r.observation.opponentPublic.active={printing:'Snorlax PGO',hp:150,damage:0,
+    tools:['Float Stone BKT']};
+  r.prompt={schema:protocol.PROMPT_SCHEMA,actingSeat:0,promptType:'ConfirmPrompt',
+    description:'USE_FAR_FLYING_METEOR',
+    source:{classification:'actor-choice',sourceKind:'card-effect',
+      sourcePrinting:'Minior PAR',effectName:'Far-Flying Meteor'},
+    publicMetadata:{selectionType:'confirm'},
+    choices:[{kind:'confirm',token:'yes',label:'Yes'},{kind:'confirm',token:'no',label:'No'}]};
+  assertValid(0,r,{kind:'select-choice',token:'no'});
+});
