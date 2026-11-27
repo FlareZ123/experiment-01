@@ -639,15 +639,20 @@ function slotByPrinting(player, printing) {
   return player.bench.find(slot => slot?.printing === printing) ?? null;
 }
 
+function isBasicEnergyPrinting(name){
+  return /^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy(?: |$)/.test(name??'');
+}
 function prizeLiability(slot) {
   if (!slot) return 1;
   const subtypes = slot.printed?.subtypes ?? [];
   const printing = slot.printing ?? '';
   if (subtypes.some(value => ['VMAX', 'V-UNION', 'TAG TEAM'].includes(value)) ||
       hasName(printing, 'VMAX') || hasName(printing, 'V-UNION') ||
-      hasName(printing, ' & ') && hasName(printing, '-GX')) return 3;
-  if (subtypes.some(value => ['ex', 'GX', 'V', 'VSTAR'].includes(value)) ||
-      hasName(printing, '-GX') || / ex(?: |$)/.test(printing) ||
+      hasName(printing, ' & ') && hasName(printing, '-GX') ||
+      /^Mega .+ ex(?: |$)/.test(printing) ||
+      (subtypes.includes('MEGA')&&subtypes.includes('ex'))) return 3;
+  if (subtypes.some(value => ['ex', 'EX', 'GX', 'V', 'VSTAR'].includes(value)) ||
+      hasName(printing, '-EX') || hasName(printing, '-GX') || / ex(?: |$)/.test(printing) ||
       / V(?: |$)/.test(printing) || / VSTAR(?: |$)/.test(printing)) return 2;
   return 1;
 }
@@ -787,14 +792,84 @@ function attackBaseDamage(attacker, attack, view, target) {
   return parseDamage(attack.damage);
 }
 
+function filterMatchesAttacker(filter,attacker){
+  if(filter==='none')return false;
+  if(filter==='all')return true;
+  if(filter==='basic')return isBasicPokemon(attacker);
+  if(filter==='evolution')return !isBasicPokemon(attacker);
+  return null;
+}
+function modernVOrEx(slot){
+  return (slot?.printed?.subtypes??[]).some(t=>['V','VMAX','VSTAR','V-UNION','ex'].includes(t)) ||
+    / (?:V|VMAX|VSTAR|V-UNION|ex)(?: |$)/.test(slot?.printing??'');
+}
+function cannotAttackPublicly(attacker,target,view){
+  const r=attacker?.publicRestrictions??{};
+  if(r.cannotAttackNextTurn===true)return true;
+  if(isBasicPokemon(attacker)&&hasName(target?.printing,'Vileplume BUS')&&
+    effectiveAbilityStatus(target,'Disgusting Pollen','opponent',view)!==false)return true;
+  return false;
+}
+function damageProtection(attacker, target, view) {
+  if(hasName(target.printing,'Mimikyu PAL')&&modernVOrEx(attacker)){
+    const live=effectiveAbilityStatus(target,'Safeguard','opponent',view);
+    if(live!==false)return live===true?'prevented':'unknown';
+  }
+  // Only an active, normalized public effect is evidence for an attack wall.
+  const d=target.publicDamageEffects;
+  if(!d)return 'none';
+  const applies=filterMatchesAttacker(d.prevention,attacker);
+  if(applies===true)return 'prevented';
+  if(applies===null||d.chancePrevention===true)return 'unknown';
+  return 'none';
+}
+function attackEffectsBlocked(attacker,target,view){
+  const d=target.publicDamageEffects;
+  if(d&&filterMatchesAttacker(d.effectsPrevention,attacker)!==false)return true;
+  if((target.energies??[]).some(e=>hasName(e,'Mist Energy')) &&
+      ![...view.ownPublic.stadium,...view.opponentPublic.stadium].some(e=>hasName(e,'Temple of Sinnoh')))return true;
+  if((target.energies??[]).length&&opponentBoard(view).some(p=>
+    hasName(p.printing,'Espeon VMAX')&&effectiveAbilityStatus(p,'Solar Revelation','opponent',view)!==false))return true;
+  if((view.opponentPublic.active?.tools??[]).some(t=>hasName(t,'Big Parasol'))&&
+    stadiumAndToolEffectsLive(view)!==false&&
+    ![...view.ownPublic.stadium,...view.opponentPublic.stadium].some(e=>hasName(e,'Jamming Tower')))return true;
+  return false;
+}
 function estimatedDamage(attacker, attack, view, target) {
+  if(cannotAttackPublicly(attacker,target,view))return null;
   const base = attackBaseDamage(attacker, attack, view, target);
-  if (base === null) return null;
-  if (attack.name === 'Energy Drive' || attack.name === 'Mind Shock') return Math.max(0,base);
-  const multiplier = weaknessMultiplier(attacker, target, view);
-  const damage = Math.max(0, base * multiplier -
-    resistancePenalty(attacker, target));
-  return Number.isFinite(damage) ? damage : null;
+  if (!Number.isFinite(base)) return null;
+  const protection=damageProtection(attacker,target,view);
+  if(protection==='prevented')return 0;
+  if(protection==='unknown')return null;
+  const a=attacker.publicDamageEffects,d=target.publicDamageEffects;
+  if(a&&(a.chanceAttackFailure!==0||a.outgoingReduction===null||a.outgoingAfterWeaknessReduction===null))return null;
+  if(d&&(d.beforeWeaknessReduction===null||d.reduction===null))return null;
+  const pre=Math.max(0,base-(a?.outgoingReduction??0)-(d?.beforeWeaknessReduction??0));
+  const bypass=attack.name==='Energy Drive'||attack.name==='Mind Shock';
+  const multiplier=bypass?1:weaknessMultiplier(attacker,target,view);
+  if(multiplier===null)return null;
+  let damage=Math.max(0,pre*multiplier-(bypass?0:resistancePenalty(attacker,target))-(a?.outgoingAfterWeaknessReduction??0));
+  if(d?.reduction>0){
+    const applies=d.reductionFilter==='none'?true:filterMatchesAttacker(d.reductionFilter,attacker);
+    if(applies===null)return null;
+    if(applies)damage=Math.max(0,damage-d.reduction);
+  }
+  return Number.isFinite(damage)?damage:null;
+}
+function astralTargetScore(attacker,target,view){
+  if(!target||attackEffectsBlocked(attacker,target,view))return 0;
+  const remaining=Math.max(0,target.hp-target.damage);
+  if(remaining<=0)return 0;
+  return 500+(remaining<=50?10000+500*prizeLiability(target):Math.min(300,target.damage));
+}
+function astralBarragePlan(attacker,view){
+  // Pinned CRE74 reducer requests min(2, bench size) targets rather than
+  // min(2, total opposing Pokemon). Admit only its paper-equivalent >=2 Bench case.
+  if(!isBasicShadowRiderV(attacker)||view.opponentPublic.bench.filter(Boolean).length<2||
+    cannotAttackPublicly(attacker,view.opponentPublic.active,view))return -Infinity;
+  const scores=opponentBoard(view).map(p=>astralTargetScore(attacker,p,view)).sort((a,b)=>b-a);
+  return scores.length>=2&&scores[0]>0?scores[0]+scores[1]:-Infinity;
 }
 
 function canFuelNightWatch(view) {
@@ -983,13 +1058,19 @@ function getLostPlan(view) {
 function attackScore(attacker, attack, view, target, options = {}) {
   if (!attacker || !attack || !target) return -Infinity;
   if (attack.gxAttack && view.ownPublic.publicTurnRestrictions.gxUsed) return -Infinity;
+  if(cannotAttackPublicly(attacker,target,view))return -Infinity;
+  const restrictions=attacker.publicRestrictions??{};
+  if((restrictions.cannotUseAttacksNextTurn??[]).includes(attack.name)||
+      restrictions.blockedAttackNameNextTurn===attack.name||
+      restrictions.blockedAttackNameUntilLeavesActive===attack.name||
+      (restrictions.onlyAllowedAttackNameNextTurn&&restrictions.onlyAllowedAttackNameNextTurn!==attack.name))return -Infinity;
   if (options.requirePayable === true && !canPayAttack(attacker, attack, view)) {
     return -Infinity;
   }
 
   if (attack.name === 'Copycat') return -Infinity; // separate copied-attack admission required
   if (attack.name==='Get Lost'&&hasName(attacker.printing,'Girafarig')) return getLostPlan(view);
-  if (attack.name==='Astral Barrage') return -Infinity; // native target cardinality differs on one-Bench states
+  if (attack.name==='Astral Barrage') return astralBarragePlan(attacker,view);
   if (attack.name === 'Pale Moon-GX') {
     return paleMoonScore(attacker, attack, view, target);
   }
@@ -1015,7 +1096,7 @@ function attackScore(attacker, attack, view, target, options = {}) {
   if (attack.name === 'Shadow Mist' &&
       (view.opponentPublic.stadium.length > 0 ||
        view.opponentPublic.active?.energies?.some(name =>
-         !hasName(name, 'Basic Energy')))) {
+         !isBasicEnergyPrinting(name)))) {
     score += 100;
   }
   return score;
@@ -1745,6 +1826,10 @@ function choosePokemonRecipient(view, prompt) {
       }
       return { ...row, score };
     });
+  } else if (effectName==='Astral Barrage'&&hasName(prompt.source?.sourcePrinting,'Shadow Rider Calyrex V CRE')&&
+      minimum===2&&maximum===2&&opponentChoices.length>=2&&actorChoices.length===0&&
+      view.opponentPublic.bench.filter(Boolean).length>=2) {
+    ranked=opponentChoices.map(row=>({...row,score:astralTargetScore(view.ownPublic.active,row.target.slot,view)}));
   } else if (effectName === 'Acerola' && actorChoices.length > 0) {
     ranked = actorChoices.map(row => {
       const slot = row.target.slot;
