@@ -1,0 +1,35 @@
+// Append to existing Agent46 root test (same helper scope).
+paired('Agent31 public control Get Lost denial',(seat,profile)=>{
+ const gir=pokemon({printing:'Girafarig LOT',name:'Girafarig',hp:90,energies:[P],attacks:[attack('Get Lost',['Colorless'],'0')]});
+ const raichu=pokemon({printing:'Alolan Raichu UNM',name:'Alolan Raichu',hp:110,types:['Lightning'],energies:['Reversal Energy PAL'],attacks:[attack('Electro Rain',['Lightning'],'0')]});
+ const thorns=pokemon({printing:'Iron Thorns ex TWM',name:'Iron Thorns ex',hp:230,types:['Lightning'],energies:[]});
+ const get={kind:'attack',token:'get',attackName:'Get Lost'};
+ function prompt(view,expected){
+  const req=cardPrompt(seat,view,'Girafarig LOT','Get Lost','discard',view.opponentPublic.discard,2,2);
+  req.prompt.publicMetadata.ownerSeat='opponent';
+  for(const c of req.prompt.choices)c.publicMetadata.ownerSeat='opponent';
+  const got=decide(profile,req);
+  assert.deepEqual([...got.tokens].sort(),expected.sort());
+ }
+ const r=observation(seat,{active:gir,opponentActive:raichu,ownStadium:[TEMPLE]});
+ r.opponentPublic.discard=['Marshadow UNB','Rescue Carrier EVS','Secret Box TWM'];
+ assert.deepEqual(decide(profile,root(seat,r,[get])),sel('get'));
+ prompt(r,['card-0','card-2']);
+ r.ownPublic.stadium=[];
+ assert.deepEqual(decide(profile,root(seat,r,[get])),sel('pass'));
+ const t=observation(seat,{active:gir,opponentActive:thorns,ownStadium:[TEMPLE]});
+ t.opponentPublic.discard=['Lusamine CIN','Lusamine CIN','Cynthia & Caitlin CEC','Faba LOT',"Team Rocket's Handiwork FCO"];
+ assert.deepEqual(decide(profile,root(seat,t,[get])),sel('get'));
+ prompt(t,['card-3','card-4']);
+ t.opponentPublic.discard=['Lusamine CIN','Lusamine CIN','Cynthia & Caitlin CEC','Secret Box TWM'];
+ assert.deepEqual(decide(profile,root(seat,t,[get])),sel('get'));
+ prompt(t,['card-0','card-1']);
+ t.opponentPublic.discard=['Lusamine CIN','Cynthia & Caitlin CEC','Secret Box TWM'];
+ assert.deepEqual(decide(profile,root(seat,t,[get])),sel('get'));
+ prompt(t,['card-0','card-1']);
+ t.opponentPublic.discard=['Lusamine CIN','Secret Box TWM'];
+ assert.deepEqual(decide(profile,root(seat,t,[get])),sel('pass'));
+ t.opponentPublic.active=defender();
+ t.opponentPublic.discard=['Lusamine CIN','Lusamine CIN','Cynthia & Caitlin CEC'];
+ assert.deepEqual(decide(profile,root(seat,t,[get])),sel('pass'));
+});
