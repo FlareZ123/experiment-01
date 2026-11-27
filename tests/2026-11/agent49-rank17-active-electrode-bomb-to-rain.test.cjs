@@ -456,3 +456,104 @@ test('second self-KO is refused when new public protection invalidates the first
     assert.notDeepEqual(next,{kind:'select-action',token:'bomb-1'});
   }
 });
+
+
+
+test('Active Electrode first self-KO promotes funded Raichu, then second Benched Bomb, both seats',()=>{
+  const C='Counter Energy CIN',T='Shadow Rider Calyrex VMAX CRE';
+  for(const seat of [0,1]){
+    const f=setup(seat,6);
+    f.owner.active=slot(E);
+    f.owner.bench[0]=slot(R);f.owner.bench[1]=slot(E);
+    f.owner.discard.cards=[...Array.from({length:4},()=>new EnergyCard()),
+      ...Array.from({length:4},()=>Object.assign(new EnergyCard(),
+        {fullName:C,name:'Counter Energy'}))];
+    f.enemy.active=slot(T);f.enemy.bench[0]=slot(T);
+    const vmax=()=>({...viewSlot(T,[],'VMAX'),hp:320,damage:60});
+    f.view.ownPublic.active=viewSlot(E);
+    f.view.ownPublic.bench=[viewSlot(R),viewSlot(E),null,null,null];
+    f.view.ownPublic.discard=f.owner.discard.cards.map(c=>c.fullName);
+    f.view.opponentPublic.active=vmax();
+    f.view.opponentPublic.bench=[vmax()];
+    const source=(index,zone)=>({kind:'use-ability',token:'bomb-'+zone,
+      actorPrinting:E,publicMetadata:{abilityName:'Extra Energy Bomb',
+        sourceZone:zone,sourceIndex:index,abilityLive:true}});
+    const first=f.decide(1,null,[source(0,'active'),source(1,'bench')]);
+    assert.deepEqual(first,{kind:'select-action',token:'bomb-active'});
+    const b=bombPrompt(f,'active');
+    const bs=f.decide(2,b.projection.promptProjection);
+    assert.equal(bs.kind,'select-choices');assert.equal(bs.tokens.length,5);
+    const br=f.settle(b.prompt,b.projection,bs);
+    assert.equal(br.rawResult.length,5);
+    assert.ok(br.rawResult.every(x=>x.to.slot===1&&x.to.index===0));
+    const usedFirst=new Set(br.rawResult.map(x=>x.index));
+    const movedFirst=br.rawResult.map(x=>f.owner.discard.cards[x.index]);
+    for(const card of movedFirst){
+      f.owner.bench[0].cards.push(card);f.owner.bench[0].energies.cards.push(card);
+    }
+    f.owner.discard.cards=f.owner.discard.cards.filter((_,i)=>!usedFirst.has(i));
+    f.owner.active=slot(null);f.view.ownPublic.active=null;
+    f.view.ownPublic.bench[0].energies=movedFirst.map(x=>x.fullName);
+    f.view.ownPublic.discard=f.owner.discard.cards.map(x=>x.fullName);
+    f.view.opponentPublic.prizeCount=4;
+    const promotion=promotePrompt(f),pp=promotion.projection.promptProjection;
+    assert.equal(pp.source.effectName,'CHOOSE_NEW_ACTIVE_POKEMON');
+    const promotionDecision=f.decide(3,pp);
+    assert.equal(promotionDecision.kind,'select-choices');
+    assert.deepEqual(f.settle(promotion.prompt,promotion.projection,promotionDecision).rawResult,
+      [{player:0,slot:1,index:0}]);
+    f.owner.active=f.owner.bench[0];f.owner.bench[0]=slot(null);
+    f.view.ownPublic.active=viewSlot(R,movedFirst.map(x=>x.fullName));
+    f.view.ownPublic.bench[0]=null;
+    const second=f.decide(4,null,[source(1,'bench')]);
+    assert.deepEqual(second,{kind:'select-action',token:'bomb-bench'});
+    const bb=bombPrompt(f,'bench',1),bp=bb.projection.promptProjection;
+    const secondDecision=f.decide(5,bp);
+    assert.equal(secondDecision.kind,'select-choices');
+    assert.equal(secondDecision.tokens.length,3);
+    const settled=f.settle(bb.prompt,bb.projection,secondDecision);
+    assert.equal(settled.rawResult.length,3);
+    assert.ok(settled.rawResult.every(x=>x.to.slot===0));
+    const secondUsed=new Set(settled.rawResult.map(x=>x.index));
+    const movedSecond=settled.rawResult.map(x=>f.owner.discard.cards[x.index]);
+    for(const card of movedSecond){
+      f.owner.active.cards.push(card);f.owner.active.energies.cards.push(card);
+    }
+    f.owner.discard.cards=f.owner.discard.cards.filter((_,i)=>!secondUsed.has(i));
+    f.owner.bench[1]=slot(null);f.view.ownPublic.bench[1]=null;
+    f.view.ownPublic.active.energies=f.owner.active.energies.cards.map(c=>c.fullName);
+    f.view.ownPublic.discard=f.owner.discard.cards.map(c=>c.fullName);
+    f.view.opponentPublic.prizeCount=2;
+    const attack={kind:'attack',token:'rain',actorPrinting:R,
+      attackName:'Electro Rain',publicMetadata:{attackCostPayable:true}};
+    assert.deepEqual(f.decide(6,null,[attack]),{kind:'select-action',token:'rain'});
+    const ep=discardPrompt(f);ep.prompt.options.max=8;
+    const eProjection=f.project(ep.prompt,f.owner.active.getPokemonCard(),'Electro Rain');
+    const ed=f.decide(7,eProjection.promptProjection);
+    assert.equal(ed.kind,'select-choices');assert.equal(ed.tokens.length,7);
+    protocol.validateDecision(ed,eProjection.promptProjection,new Set());
+    const paid=f.settle(ep.prompt,eProjection,ed);
+    assert.equal(paid.rawResult.length,7);
+    const spent=new Set(paid.rawResult);
+    f.owner.active.cards=f.owner.active.cards.filter((_,i)=>!spent.has(i));
+    f.owner.active.energies.cards=f.owner.active.cards.slice(1);
+    f.view.ownPublic.active.energies=f.owner.active.energies.cards.map(c=>c.fullName);
+    const dp=rainPrompt(f,p=>{
+      p.damage=540;
+      p.maxAllowedDamage=[
+        {target:{player:1,slot:0,index:0},damage:540},
+        {target:{player:1,slot:1,index:0},damage:540}
+      ];
+    });
+    const hits=f.decide(8,dp.projection.promptProjection);
+    assert.equal(hits.kind,'select-choices');assert.equal(hits.tokens.length,18);
+    protocol.validateDecision(hits,dp.projection.promptProjection,new Set());
+    const resolved=f.settle(dp.prompt,dp.projection,hits);
+    assert.equal(resolved.rawResult.length,18);
+    const sum=resolved.rawResult.reduce((n,x)=>n+x.damage,0);
+    assert.equal(sum,540);
+    const act=resolved.rawResult.filter(x=>x.target.slot===0).length;
+    const bench=resolved.rawResult.filter(x=>x.target.slot===1).length;
+    assert.equal(act,9);assert.equal(bench,9);
+  }
+});
