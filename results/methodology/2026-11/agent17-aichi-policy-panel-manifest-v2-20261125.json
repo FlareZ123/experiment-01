@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
   "plan_id": "aichi-2026-opponent-policy-panel-v2",
-  "generated_at": "2026-11-27T21:00:28.628383Z",
+  "generated_at": "2026-11-27T21:11:26.579441Z",
   "generated_by": "Agent17",
-  "snapshot_commit_sha": "c0b6b0b9ddacb1d302f8897bbdfffdddec3c646c",
+  "snapshot_commit_sha": "7b4790305328a3e675338d946c81eb5cee66e1c2",
   "supersedes": "results/methodology/2026-11/agent17-aichi-policy-panel-manifest-20261117.json",
   "benchmark": {
     "name": "Aichi Open League 2026 Top 32",
@@ -53,7 +53,7 @@
   },
   "policy_panel": {
     "rank_count": 32,
-    "implemented_rank_count": 17,
+    "implemented_rank_count": 18,
     "implemented_ranks": [
       1,
       2,
@@ -70,10 +70,11 @@
       13,
       17,
       19,
+      24,
       26,
       31
     ],
-    "implementation_module_file_count": 23,
+    "implementation_module_file_count": 24,
     "missing_policy_ranks": [
       14,
       15,
@@ -83,7 +84,6 @@
       21,
       22,
       23,
-      24,
       25,
       27,
       28,
@@ -91,7 +91,7 @@
       30,
       32
     ],
-    "missing_policy_rank_count": 15,
+    "missing_policy_rank_count": 14,
     "full_game_competence_rank_count": 0,
     "independent_full_game_review_rank_count": 0,
     "qualified_matchup_count": 0,
@@ -1519,8 +1519,21 @@
         "can_transfer_attacker_energy_on_damage": true,
         "has_special_energy_removal": true
       },
-      "rank_policy_status": "no_rank_specific_policy",
-      "policy_variants": [],
+      "rank_policy_status": "prototype_only_not_frozen",
+      "policy_variants": [
+        {
+          "variant_id": "agent18-rank24-iron-thorns-opponent-policy.cjs@afde922d381a07bd2bfd91180b0f60997601a3e0",
+          "version_label": "v1-terminal-mill-development",
+          "producer": "agent18",
+          "policy_path": "simulation/evaluation/2026-11/agent18-rank24-iron-thorns-opponent-policy.cjs",
+          "git_blob_sha1": "afde922d381a07bd2bfd91180b0f60997601a3e0",
+          "source_ref": "agent18/rank24-iron-thorns-policy-20261127",
+          "test_path": "tests/2026-11/agent18-rank24-iron-thorns-opponent-policy.test.cjs",
+          "test_git_blob_sha1": "da8af40ad979e9177755937a5eb8dd988f75dc5b",
+          "frozen": false,
+          "selected_for_competence": false
+        }
+      ],
       "policy_profile": {
         "profile_id": null,
         "configuration_sha256": null,
@@ -1530,10 +1543,10 @@
         "native_complete_games": 0,
         "independently_reviewed_full_game_witness": null,
         "qualified_matchups": 0,
-        "admission_status": "not_started"
+        "admission_status": "blocked_no_competence_evidence"
       },
-      "reported_readiness_summary": null,
-      "readiness_reference": "results/methodology/2026-11/agent35-opponent-policy-prototype-readiness-20261117.md",
+      "reported_readiness_summary": "Branch-only exact-rank-24 Iron Thorns actor-only development worker on agent18/rank24-iron-thorns-policy-20261127. Current fetched policy blob afde922d381a07bd2bfd91180b0f60997601a3e0; test blob da8af40ad979e9177755937a5eb8dd988f75dc5b. Exact source inventory embedded; current report records 24/24 local Node decision tests plus protocol-valid direct mill, terminal N, VS Seeker and Bellelba continuation decisions. The implemented slice is deliberately narrow and abstains outside modeled funding/terminal paths. No native Store/IPC/full game, freeze, merge or independent competence evidence.",
+      "readiness_reference": "results/aichi-2026/2026-11/agent18-rank24-iron-thorns-opponent-policy-20261127.md",
       "source_binding": {
         "file": "results/aichi-2026/full-decklists.json",
         "rank_pointer": "rank 24",
