@@ -4026,8 +4026,8 @@ function cleanPublicTerminalView(view,direct=false,extraHarmlessAbility=null){
     // Pinned native public reductions, attack immunity, survival, temporary
     // Weakness/HP, revenge effects or Prize denial invalidate a deterministic
     // printed-damage terminal. The host exposes a typed conservative veto.
-    view.ownPublic.active.publicRestrictions?.terminalOutcomeUncertain!==true&&
-    view.opponentPublic.active.publicRestrictions?.terminalOutcomeUncertain!==true&&
+    view.ownPublic.active.publicRestrictions?.outgoingTerminalUncertain!==true&&
+    view.opponentPublic.active.publicRestrictions?.incomingTerminalUncertain!==true&&
     opponentBoard(view).every(slot=>
   (slot.abilities??[]).every(a=>
     (direct&&directTerminalHarmlessAbility(slot,a)) ||
