@@ -314,6 +314,19 @@ function runCases(policy,protocol) {
     same(runRoot(p,heavyNoTemple,[play('heavy-idle',A.heavy),pass]),action('pass'),
       tag+'do not spend Heavy Ball on Prized Marshadow without Stadium need');
 
+    let ticketTemple=exact(seat,{h:[ticket,A.compressor,A.carrier],bench:[A.voltorb,A.pikachu],
+      prizes:[A.marshadow]});
+    ticketTemple={...ticketTemple,opponentPublic:player({
+      active:slot('Shadow Rider Calyrex VMAX CRE',{hp:320}),stadium:['Temple of Sinnoh ASR']})};
+    same(policy.ticketPlan(ticketTemple),
+      {target:'marshadow',followup:'compressor-carrier',epoch:7},
+      tag+'Ticket rerolls isolated Marshadow only with funded Carrier route');
+    same(runRoot(p,ticketTemple,[play('ticket-marshadow',ticket),play('compress-after-ticket',A.compressor),pass]),
+      action('ticket-marshadow'),tag+'Ticket starts isolated Stadium-answer recovery');
+    const ticketHeavy={...ticketTemple,ownHand:[ticket,A.compressor,A.carrier,A.heavy],
+      ownPublic:{...ticketTemple.ownPublic,handCount:4}};
+    same(policy.ticketPlan(ticketHeavy),null,tag+'Heavy Ball dominates Ticket for still-Prized Marshadow');
+
     v=exact(seat,{h:[ticket,A.compressor,A.stretcher,A.raichu],lost:[A.ditto],prizes:[A.pikachu]});
     same(policy.ticketPlan(v)?.followup,'compressor-stretcher',tag+'single Stretcher can fund held Stage 1 base');
     v=view(seat,{ownHand:[A.compressor,A.stretcher,A.raichu]});
