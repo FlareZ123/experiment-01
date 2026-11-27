@@ -2,7 +2,7 @@
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const protocol=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
-const {decideRank20RyunoSlice:decide,canTerminalRyuno}=require('../../simulation/evaluation/2026-11/agent47-rank20-ryuno-terminal-slice.cjs');
+const {decideRank20RyunoSlice:decide,canTerminalRyuno,createRank20RyunoSession}=require('../../simulation/evaluation/2026-11/agent47-rank20-ryuno-terminal-slice.cjs');
 const copy=x=>JSON.parse(JSON.stringify(x));
 function state(seat=0){
   return {
@@ -256,4 +256,53 @@ test('unknown numerical reprints cannot impersonate the original source VSTAR or
   assert.equal(decide(s),null);
   s.observation.ownPublic.discard=['Mega Dragonite ex ASC 152'];
   assert.deepEqual(decide(s),{kind:'select-action',token:'apex'});
+});
+
+test('real V3 Apex provenance is payable only after same-session exact Ryuno copy',()=>{
+ const session=createRank20RyunoSession({role:'opponent',seat:0});
+ const stateForNative=()=>{
+   const s=energyPrompt(state(0));
+   s.observation.globalTurn=4;
+   s.prompt.description='CHOOSE_ENERGIES_TO_DISCARD';
+   s.prompt.source={classification:'actor-choice',sourceKind:'card-effect',
+     sourcePrinting:'Regidrago VSTAR SIT',effectName:'Apex Dragon'};
+   s.prompt.publicMetadata.energyType='9,9';
+   s.prompt.choices=[{kind:'energy',token:'dde',printing:'Double Dragon Energy ROS',
+     publicMetadata:{sourceZone:'board',ownerSeat:'actor'}},
+     {kind:'energy',token:'grass',printing:'Grass Energy MEE',
+       publicMetadata:{sourceZone:'board',ownerSeat:'actor'}}];
+   return s;
+ };
+ const payment=stateForNative();
+ assert.equal(decide(payment),null,'stateless helper may not guess source Apex');
+ assert.equal(session.decide(payment),null,'unwitnessed source Apex payment rejected');
+ const copy=attackPrompt(state(0));
+ copy.observation.globalTurn=4;
+ copy.prompt.source={classification:'actor-choice',sourceKind:'card-effect',
+   sourcePrinting:'Regidrago VSTAR SIT',effectName:'Apex Dragon'};
+ assert.deepEqual(session.decide(copy),{kind:'select-choice',token:'ryuno'});
+ assert.deepEqual(session.decide(payment),{kind:'select-choices',tokens:['dde']});
+ assert.equal(session.decide(payment),null,'same copied-attack decision cannot pay twice');
+ assert.deepEqual(session.decide(copy),{kind:'select-choice',token:'ryuno'});
+ const later=copy(payment);later.observation.globalTurn=5;
+ assert.equal(session.decide(later),null,'different turn invalidates pending donor');
+});
+test('same-session remembered donor clears on unrelated prompt or actor mismatch',()=>{
+ const session=createRank20RyunoSession({role:'opponent',seat:0});
+ const copyChoice=attackPrompt(state(0));
+ copyChoice.prompt.source={classification:'actor-choice',sourceKind:'card-effect',
+   sourcePrinting:'Regidrago VSTAR SIT',effectName:'Apex Dragon'};
+ assert.deepEqual(session.decide(copyChoice),{kind:'select-choice',token:'ryuno'});
+ const mismatch=copy(copyChoice);mismatch.seat=1;mismatch.observation.actorSeat=1;
+ assert.equal(session.decide(mismatch),null);
+ const pay=energyPrompt(state(0));
+ pay.prompt.source={classification:'actor-choice',sourceKind:'card-effect',
+   sourcePrinting:'Regidrago VSTAR SIT',effectName:'Apex Dragon'};
+ pay.prompt.description='CHOOSE_ENERGIES_TO_DISCARD';
+ pay.prompt.publicMetadata.energyType='9,9';
+ assert.equal(session.decide(pay),null);
+ session.decide(copyChoice);
+ session.reset();
+ assert.equal(session.decide(pay),null);
+ assert.throws(()=>createRank20RyunoSession({role:'candidate',seat:0}),/ROLE_SEAT_MISMATCH/);
 });
