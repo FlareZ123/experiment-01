@@ -967,6 +967,63 @@ function r17SwitchProjection(view,nextOwn,nextOpponent) {
   };
   return {...view,ownPublic:moved(p,nextOwn,oldP),opponentPublic:moved(o,nextOpponent,oldO)};
 }
+// A second mobility line handles an opposing Wobbuffet that Rope cannot
+// remove (e.g. no opposing Bench, or another unhooded Wobbuffet).
+// Rope to Psychic Klefki, use the now-live evolved Electrode, then free
+// retreat to Raichu. The opponent's choice is quantified, not assumed.
+function r17KlefkiFreeAfter(view,p) {
+  const t=view.ownTurnResources?.retreatedTurn,r=p?.publicRestrictions||{};
+  if(!Number.isSafeInteger(t)||t===view.globalTurn||
+    r.cannotRetreat||r.cannotRetreatNextTurn||r.cannotRetreatWhileActive||
+    list(p?.specialConditions).length)return false;
+  const cost=p?.printed?.retreatCost;
+  if(!Array.isArray(cost))return false;
+  if(cost.length===0)return true;
+  if(cost.length!==1||!r17StadiumToolLive(view))return false;
+  if(list(p.tools).some(t=>r17Key(t)==='uturn'))return true;
+  return !list(p.tools).length&&r17Hand(view,'uturn')&&
+    !own(view).publicTurnRestrictions?.toolPlayLocked&&!view.ownTurnResources?.toolPlayLocked;
+}
+function r17KlefkiDestinationPlan(view,klefki) {
+  if(r17Key(klefki)!=='klefki'||r17Key(active(own(view)))==='klefki')return null;
+  const projected=r17SwitchProjection(view,klefki,active(opponent(view)));
+  const k=active(own(projected));
+  if(!r17LiveKlefki(projected,k)||!r17KlefkiFreeAfter(projected,k)||
+    !r17LiveBombs(projected).length||!r17TempleAnswerPossible(projected))return null;
+  let best=null;
+  for(const p of list(own(projected).bench).filter(q=>r17Key(q)==='raichu')){
+    const plan=r17FundedRainProjection(projected,p,{ignoreTemple:r17NeedTempleRemoval(projected)});
+    if(plan&&plan.bombs>0&&r17CompareProjection(plan,best?.plan)>0)best={raichu:p,plan};
+  }
+  return best;
+}
+function r17KlefkiPivotPlan(view,allowHeld=false) {
+  if(!r17Hand(view,'rope')||!itemAvailable(view)||view.globalTurn<2||
+    !r17IsWob(active(opponent(view)))||r17Key(active(own(view)))==='klefki')return null;
+  let board=view,choices=list(own(view).bench).filter(p=>r17Key(p)==='klefki');
+  if(!choices.length&&allowHeld&&r17Hand(view,'klefki')&&r17Space(view)>0){
+    const p={printing:'Klefki SVI',hp:70,damage:0,energies:[],tools:[],
+      printed:{retreatCost:['Colorless']},abilities:['Mischievous Lock'],abilitySuppressions:[]};
+    board={...view,ownPublic:{...own(view),bench:[...list(own(view).bench),p]}};
+    choices=[p];
+  }
+  let best=null;
+  for(const k of choices){
+    let worst=null,valid=true;
+    const opponents=list(opponent(board).bench).filter(Boolean);
+    for(const next of opponents.length?opponents:[active(opponent(board))]){
+      // The opponent's forced switch resolves before our choice.
+      const changed=r17SwitchProjection(board,active(own(board)),next);
+      const liveK=list(own(changed).bench).find(p=>r17Key(p)==='klefki');
+      const plan=r17KlefkiDestinationPlan(changed,liveK);
+      if(!plan){valid=false;break;}
+      if(!worst||r17CompareProjection(plan.plan,worst.plan)<0)worst=plan;
+    }
+    if(valid&&worst&&(!best||r17CompareProjection(worst.plan,best.plan)>0))
+      best={...worst,klefki:k,route:'rope-klefki-bomb-retreat',needsBench:board!==view};
+  }
+  return best;
+}
 function r17RopeRainPlan(request) {
   const v=request.observation,p=own(v),o=opponent(v),old=active(p);
   if(!itemAvailable(v)||v.globalTurn<2||r17Key(old)==='raichu')return null;
@@ -990,6 +1047,8 @@ function r17RopeRainPlan(request) {
     }
     if(valid&&worst&&(!best||r17CompareProjection(worst,best.plan)>0))best={raichu,plan:worst};
   }
+  const pivot=r17KlefkiPivotPlan(v,false);
+  if(pivot&&r17CompareProjection(pivot.plan,best?.plan)>0)best=pivot;
   if(!best)return null;
   // A free direct retreat cannot be worse if it provides the same
   // immediate Prize objective without conceding opponent switch choice.
@@ -1091,7 +1150,18 @@ function r17SwitchValue(p,v) {
   const lightning=energies.some(e=>(r17EnergyProvision(e,own(v).prizeCount,opponent(v).prizeCount,r17NeedTempleRemoval(v))?.lightning||0)>0);
   if(key==='raichu'&&r17FundedRainProjection(v,p,{ignoreTemple:r17NeedTempleRemoval(v)&&r17TempleAnswerPossible(v)}))return 360;
   if(key==='raichu'&&units>=3&&lightning)return 240;
-  if(key==='klefki'&&!r17Board(v,'unown')&&!r17NeedTempleRemoval(v)&&!r17Suppressed(p,'Mischievous Lock'))return 150;
+  if(key==='klefki'){
+    const route=r17KlefkiDestinationPlan(v,p);
+    if(route){
+      const direct=list(own(v).bench).filter(q=>r17Key(q)==='raichu').some(q=>{
+        const projected=r17SwitchProjection(v,q,active(opponent(v)));
+        const plan=r17FundedRainProjection(projected,active(own(projected)),{ignoreTemple:r17NeedTempleRemoval(projected)&&r17TempleAnswerPossible(projected)});
+        return plan&&r17CompareProjection(plan,route.plan)>=0;
+      });
+      if(!direct)return 370;
+    }
+    if(!r17Board(v,'unown')&&!r17NeedTempleRemoval(v)&&!r17Suppressed(p,'Mischievous Lock'))return 150;
+  }
   if(key==='unown')return 110;
   if(key==='marshadow'&&!r17NeedTempleRemoval(v))return 90;
   if(key==='voltorb')return r17Board(v,'electrode')?75:30;
@@ -1185,6 +1255,7 @@ function r17ScorePlay(item,view) {
   if(k==='uturn') {
     if(!r17StadiumToolLive(view)||own(view).publicTurnRestrictions?.toolPlayLocked===true||view.ownTurnResources?.toolPlayLocked===true)return 0;
     const s=r17Slot(view,m.targetZone,m.targetIndex);
+    if(m.targetSeat==='actor'&&m.targetZone==='bench'&&r17Key(s)==='klefki'&&!list(s.tools).length&&r17KlefkiPivotPlan(view,false))return 340;
     return m.targetSeat==='actor'&&m.targetZone==='active'&&s&&list(s.tools).length===0&&
       list(s.printed?.retreatCost).length===1&&benchCount(own(view))>0?130:0;
   }
@@ -1198,7 +1269,7 @@ function r17ScorePlay(item,view) {
     const base=r17LoadPlan(view,p,bounds,capacity),withSight=r17LoadPlan(view,p,bounds,capacity,{forceSight:true});
     return withSight&&r17CompareProjection(withSight.projection,base?.projection)>0?375:0;
   }
-  if(k==='klefki')return 0;
+  if(k==='klefki')return !r17Board(view,'klefki')&&r17KlefkiPivotPlan(view,true)?350:0;
   if(k==='rope')return 0; // do not spend irreversible forced switch without the paired opponent response.
   if(R17_ENERGY.has(k)&&m.targetSeat==='actor') {
     const p=r17Slot(view,m.targetZone,m.targetIndex);
@@ -1553,5 +1624,5 @@ module.exports = Object.freeze({
   SOURCE_ENTRY_JSON_SHA256:R17_PROFILE.sourceEntryJsonSha256,
   ENGINE_PIN:R17_PROFILE.enginePin,PROFILE:R17_PROFILE,createPolicy:r17CreatePolicy,
   scoreAction:r17Score,promptDecision:r17Prompt,bestAction:r17Best,
-  planRainTurn:r17PlanRainTurn,knownOwnZones:r17KnownOwnZones,ticketPlan:r17TicketPlan,planCoreAccess:r17CoreAccess,wobbuffetLive:r17WobLive,abilityBlocked:r17AbilityBlocked,liveBombs:r17LiveBombs,rainProjection:r17RainProjection,ropeRainPlan:r17RopeRainPlan,energyProvision:r17EnergyProvision,loadPlan:r17LoadPlan,activeLoadPlan:r17ActiveLoadPlan,secretPayment:r17SecretPayment,fundedRainProjection:r17FundedRainProjection,readyRainAttackers:r17ReadyRainAttackers,directPressure:r17DirectPressure,publicTrainerCount:r17PublicTrainerCount,drawDiscardScore:r17DrawDiscardScore,handUtility:r17HandUtility
+  planRainTurn:r17PlanRainTurn,knownOwnZones:r17KnownOwnZones,ticketPlan:r17TicketPlan,planCoreAccess:r17CoreAccess,wobbuffetLive:r17WobLive,abilityBlocked:r17AbilityBlocked,liveBombs:r17LiveBombs,rainProjection:r17RainProjection,ropeRainPlan:r17RopeRainPlan,energyProvision:r17EnergyProvision,loadPlan:r17LoadPlan,activeLoadPlan:r17ActiveLoadPlan,secretPayment:r17SecretPayment,fundedRainProjection:r17FundedRainProjection,readyRainAttackers:r17ReadyRainAttackers,directPressure:r17DirectPressure,publicTrainerCount:r17PublicTrainerCount,drawDiscardScore:r17DrawDiscardScore,handUtility:r17HandUtility,klefkiPivotPlan:r17KlefkiPivotPlan
 });
