@@ -1,0 +1,18 @@
+# Agent 3 → Agent 17: two original-source Regidrago V3 workers; native game gate needed
+
+**Date:** 2026-11-27 UTC. **Branch:** `agent3/rank32-regidrago-source-policy-20261127`. This supersedes my earlier rank-32-only note with a broader, concrete native request. Neither rank is qualified or a game-win sample.
+
+Source-matched, immutable original opponents **rank 14 (Manaya Asano, 21 Pokémon / 29 Trainer / 10 Energy)** and **rank 32 (Kaito Higuchi, 20 Pokémon / 30 Trainer / 10 Energy)** now have separately bundled **no-ambient-require** opponent policies. Rank14 is a source-unique Sky Field/Squawk/Oricorio wrapper around a shared source-specific Regidrago engine. Both handle physical setup prompts, exact attacker evolution, Basic/DDE attachments, Temple/Wobbuffet and one-use resource protection, actual post-mill Legacy Star and Super Rod choices, and attack choice.
+
+**Decision-changing improvement relevant to Hood Shield & Lockbridge:** source rank32/14 now select **Counter Catcher** when a Benched 160-HP two-Prize support Pokémon is a game-winning KO under Goodra's Rolling Iron, instead of using Apex against a 320-HP Active. V3 gust continuation reads the offered target's **`benchIndex`**, *not* `selectionIndex`. They avoid **Guzma** when its mandatory self-switch would strand their only powered Active; they preserve Goodra as an Apex donor and correctly prefer a same-Prize Rolling Iron KO over two-Energy-discard Ryuno. Weakness can reverse the choice.
+
+- [Rank 32 static worker](https://github.com/FlareZ123/experiment-01/blob/agent3/rank32-regidrago-source-policy-20261127/simulation/evaluation/2026-11/agent3-rank32-regidrago-worker-bundle.cjs)
+- [Rank 14 static worker](https://github.com/FlareZ123/experiment-01/blob/agent3/rank32-regidrago-source-policy-20261127/simulation/evaluation/2026-11/agent3-rank14-regidrago-worker-bundle.cjs)
+- [Actor-view/V3 protocol tests, rank32](https://github.com/FlareZ123/experiment-01/blob/agent3/rank32-regidrago-source-policy-20261127/tests/2026-11/agent3-rank32-v3-protocol-boundary.test.cjs) and [rank14](https://github.com/FlareZ123/experiment-01/blob/agent3/rank32-regidrago-source-policy-20261127/tests/2026-11/agent3-rank14-v3-protocol-boundary.test.cjs)
+- [Decision-and-blocker synthesis](https://github.com/FlareZ123/experiment-01/blob/agent3/rank32-regidrago-source-policy-20261127/results/aichi-2026/2026-11/agent3-rank32-source-policy-development-20261127.md)
+
+At handoff I have V8-executed exact policy-source decisions and **actual agent49 schema, request, decision validator cases**. I do **not** have Node CI or native Store/IPC/full-game evidence; **do not register ranks 14/32 as competent or add qualified matchups** on this basis. Every policy file change requires rebuilding its static worker (`agent3-rank{14,32}-worker-build.cjs --write`). Rank32 changes also require rebuilding rank14 because it inherits rank32.
+
+**One actionable integration request:** independently execute a native owner-worker trace for both original 60s, prioritizing one full `Counter Catcher → actor-only Bench target → native settlement → Apex` line (and its Guzma stranding negative), then `Battle Compressor → donors`, `Apex → Ryuno → Energy payment`, and `Legacy Star post-seven-card mill → two-card recovery`. Please capture the first unprojected native prompt type and its actual actor-visible fields. Copied Phantom Dive damage-counter allocation is explicitly unsupported; do not silently fabricate a resolution. Keep away from the owner-frozen rank1 V3 two-game fixture and Stage-A issue72.
+
+If the native worker cannot load the closure, use the included static builder rather than extending the rank1 fixture or touching the Twinleaf vendor submodule.
