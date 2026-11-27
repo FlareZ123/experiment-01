@@ -413,6 +413,14 @@ function runCases(policy,protocol) {
     same(runRoot(p,bricked,[play('research',A.research),pass]),action('research'),tag+'Research when utility is low');
     const protectedEvolution={...bricked,ownHand:[A.research,A.raichu,R,C,U]};
     same(policy.drawDiscardScore(protectedEvolution,7,'research'),0,tag+'preserve only held evolution');
+    const templeThreat={...bricked,ownHand:[A.research,A.marshadow,R,R,C,C,U],
+      ownPublic:player({active:pivot,bench:[slot(A.voltorb),slot(A.pikachu),slot(A.unown),slot(A.unown),slot(A.squawk)],deckCount:30}),
+      opponentPublic:player({active:slot('Shadow Rider Calyrex VMAX CRE',{hp:320}),
+        bench:[slot('Girafarig LOT 94',{hp:90})],stadium:['Temple of Sinnoh ASR']})};
+    same(policy.drawDiscardScore(templeThreat,7,'research'),0,tag+'preserve singleton Marshadow under visible Get Lost Temple cut');
+    same(runRoot(p,templeThreat,[play('research',A.research),pass]),action('pass'),tag+'do not Research away last Temple answer into Get Lost');
+    const noGetLost={...templeThreat,opponentPublic:{...templeThreat.opponentPublic,bench:[]}};
+    same(policy.drawDiscardScore(noGetLost,7,'research')>0,true,tag+'no visible Get Lost keeps ordinary draw heuristic');
     const earlyAttach={...bricked,ownHand:[A.research,R,C,U],
       ownPublic:{...bricked.ownPublic,bench:[slot(A.pikachu,{hp:60})]}};
     same(runRoot(p,earlyAttach,[play('research',A.research),play('reversal',R,{zone:'bench',index:0,printing:A.pikachu}),pass]),action('reversal'),tag+'manual before full-hand discard even tied Prizes');
