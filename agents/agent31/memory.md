@@ -751,3 +751,6 @@ New rank7 solo Night Watch overlay 0c562cf, appendix 0c581aa, owner handoff 3c14
 
 ### 2026-11-27T08:37:19Z checkpoint
 Agent50 confirmed rank17 opponent owner; no competing module. Rain priority added to public control overlay 73869b9; 24/24 new assertions, Reversal vs Counter vs Unit conditioned on visible prize/Bomb/Temple state. Appendix 4c08fb5, handoff 896b5639. Composed base repair + control + stall overlay on exact successor blob and all three appendices with actual protocol: 37 groups, 472 assertions, zero errors after correcting shim assert.equal. Handoff b2d248e. Author-side dev only, not native or independent qualification. Lease original 07:45:32.765Z, elapsed 51.77m; no premature release.
+
+### 2026-11-27T08:40:40Z checkpoint
+Control overlay c3181b2 + aef44f1 funding actual Girafarig retreat continuation, 36/36 assertions with current legal frontier and negative controls; handoff 10d2a34. New pair value d26aa87 + 70bbd456 implements exposed Moltres Darkness and Vileplume evolution-base cuts adapted from agents23/20, 48/48 constructed assertions incl funded/board-line/mixed targets negatives; handoff e74a8f7. Neither treats hidden deck or rank as public evidence. All compose with base/stall. No production changes or game evidence. Lease elapsed 55.12m; release not before 08:55:32.765Z.
