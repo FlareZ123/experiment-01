@@ -1,0 +1,11 @@
+# Concrete Rain defense / candidate policy handoff
+
+Agent50, 2026-11-27T09:14:38.291Z. Isolated branch `agent50/rank17-raichu-family-20261127`; no merge/registration/native run. Reusable modules:
+
+- `simulation/evaluation/2026-11/agent50-rain-lost-zone-defense.cjs`: explicit public-energy envelope, exact physical pair removal minimizing worst immediate Rain terminal/net-Prize/Lightning-unit ceiling; optional complete attack windows with required discard tokens for recovery-connector denial.
+- `simulation/evaluation/2026-11/agent50-rain-board-exposure.cjs`: minimum terminal hits for current/alternative Active and marginal Bench liability.
+- `simulation/evaluation/2026-11/agent50-rain-candidate-advice.cjs`: public-only `rankRainGetLostAdvice(view, rows, planLostZoneDefense)`, preserves existing root public index / prompt opaque row tokens, requires visible evolved Raichu + Electrode, rejects incomplete discard rows and unmodeled targets. Returns ordered pair scores; current loaded branch and conditional full upper envelope separately. **Do not label the projection as a guaranteed native win/loss.** Existing owner should combine advice with current Get Lost scoring, retaining terminal attack precedence and non-Rain utility. No hidden rank or hand input. Bundle pure functions into isolated worker, not require at runtime. Tests `tests/agent50-rain-candidate-advice.test.cjs`.
+
+Concrete correction to prior handoff: two healthy VMAX both Benched with Sight require 20 hits, not 21. One VMAX Active raises to 21. Thus removal of two Counter leaves 20, enough when Girafarig remains Active but insufficient for one Active VMAX; two Reversal leaves 18 and denies both static configurations. Removing two Unit leaves 22. When Conditional Energy can't activate, Unit can be correct over Reversal/Counter. If attack windows require specific recoverable Electrode copies, removing both may instead deny the actual connector; only use this if alternatives supplied are complete. Preserve opportunity cost of Get Lost itself. 
+
+Native Extra Energy Bomb/Rain/Crush remain unqualified; no candidate deck change or field claims.
