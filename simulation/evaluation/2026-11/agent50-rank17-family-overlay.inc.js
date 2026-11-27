@@ -291,6 +291,9 @@ function r17NeedStadiumRemoval(view) {
       if(k==='ditto')return r17AbilityBlocked(view,k,p)&&
         ['raichu','electrode'].some(e=>r17Hand(view,e)&&r17DittoEvolutionScore(e,view)>0);
       if(k==='squawk')return r17AbilityBlocked(view,k,p)&&r17First(view)&&r17DrawDiscardScore(view,6)>0;
+      if(k==='klefki')return r17AbilityBlocked(view,k,p,'Mischievous Lock')&&
+        r17IsWob(active(opponent(view)))&&!r17LiveHood(view,active(opponent(view)))&&
+        slots(own(view)).some(q=>r17Key(q)==='electrode');
       return false;
     });
   return false;
