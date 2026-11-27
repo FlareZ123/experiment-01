@@ -41,7 +41,23 @@ const text = value => typeof value === 'string' ? value : value?.printing ?? val
 const has = (value, pattern) => pattern.test(text(value));
 const slots = player => [player?.active,...arr(player?.bench)].filter(p => p && p.concealed !== true);
 const safeInt = v => Number.isSafeInteger(v) && v >= 0;
-const no = reasonCode => ({kind:'abstain',reasonCode});
+// The shared v3 worker protocol admits only its existing fixed reason-code set.
+// Keep source-local diagnostics in code, but map every external abstention onto
+// one accepted public code; never change the shared protocol for this rank.
+const PUBLIC_ABORT = Object.freeze({
+  R30_BOX_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
+  R30_BOX_THREE_SAFE_PAYMENTS_UNAVAILABLE:'NO_LEGAL_CARD_SET',
+  R30_BOX_SEARCH_MINIMUM_UNAVAILABLE:'NO_LEGAL_CARD_SET',
+  R30_BOX_NO_LEGAL_EMPTY_CHOICE:'NO_LEGAL_CARD_SET',
+  R30_QUICKBALL_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
+  R30_QUICKBALL_NO_SAFE_PAYMENT:'NO_USEFUL_CARD_CHOICE',
+  R30_QUICKBALL_NO_VALID_TARGET:'NO_LEGAL_CARD_SET',
+  R30_NO_OFFERED_ROOT:'NO_EXECUTABLE_ACTION',
+  R30_ROOT_UNSUPPORTED:'NO_SUPPORTED_ROOT_ACTION',
+  R30_OBSERVATION_INCOMPLETE:'ROLE_SEAT_OBSERVATION_MISMATCH',
+  R30_UNSUPPORTED_PROMPT_FAMILY:'UNSUPPORTED_PROMPT_TYPE'
+});
+const no = reasonCode => ({kind:'abstain',reasonCode:PUBLIC_ABORT[reasonCode]??reasonCode});
 const act = x => ({kind:'select-action',token:x.token});
 const picks = xs => ({kind:'select-choices',tokens:xs.map(x=>x.token)});
 function sameSource(a,p) {return has(a?.source?.sourcePrinting ?? a?.publicMetadata?.sourcePrinting,p);}
