@@ -13,8 +13,8 @@
     "note": "Agent13 v1 already integrates Agent1's Raichu/Electrode delta. V2 adds uncovered rank2/rank5/rank9/rank19/rank30/rank31 families without changing the fixed 60."
   },
   "status": "actor-visible paper acceptance consolidation; no policy implementation, native game, competitive qualification, or win-rate claim",
-  "addedCaseCount": 55,
-  "totalCaseCount": 94,
+  "addedCaseCount": 59,
+  "totalCaseCount": 98,
   "addedCases": [
     {
       "id": "R2-DUAL-LOCK-RONDO",
@@ -554,6 +554,51 @@
       "state": "Powerglass is attached and the only Energy in discard is Telepathic Psychic Energy.",
       "must": "Reject TPE as a Powerglass target because the Tool specifies Basic Energy.",
       "forbids": "Treating TPE as Basic Psychic just because it provides Psychic Energy."
+    },
+    {
+      "id": "BENCH-UNOWN-CASHOUT",
+      "family": "bench compression",
+      "sourceRanks": [
+        3,
+        4,
+        7,
+        17,
+        30,
+        31
+      ],
+      "state": "Candidate has a nonessential Benched Unown with Farewell Letter live; opponent has an established Bench-punishment axis (spread, Rondo, movable-counter production or Block+gust).",
+      "must": "Compare Farewell Letter before passing, including Prize-packet, Rondo, counter-mass and trap reduction.",
+      "forbids": "Leaving the 60-HP body solely because it was previously useful setup."
+    },
+    {
+      "id": "BENCH-UNOWN-SUPPRESSED",
+      "family": "bench compression",
+      "sourceRanks": [],
+      "state": "Candidate wants to cash out Benched Unown but a live Basic/global Ability suppressor removes Farewell Letter.",
+      "must": "Do not use Farewell Letter; solve or wait out the suppression if the cash-out remains valuable.",
+      "forbids": "Treating the Ability as always available on the Bench."
+    },
+    {
+      "id": "RAI-DUSKULL-HARDEN",
+      "family": "Raichu / Electrode",
+      "sourceRanks": [
+        4,
+        17
+      ],
+      "state": "Opponent has a 14-packet Electro Rain/Sight frontier; candidate Bench includes Gengar & Mimikyu-GX, Tapu Lele-GX and 60-HP Duskull; Duskull can legally evolve to 90-HP Dusclops before the reply.",
+      "must": "Recognize evolution changes the three-target six-Prize packet requirement from 7+5+2=14 to 7+5+3=15 and can deny that exact one-Bomb line.",
+      "forbids": "Treating evolution as irrelevant because Prize value is unchanged."
+    },
+    {
+      "id": "STALL-UNOWN-BEFORE-GUST",
+      "family": "Snorlax Stall",
+      "sourceRanks": [
+        3,
+        7
+      ],
+      "state": "Nonessential Unown remains Benched; Farewell Letter live; opponent has Block plus credible gust capacity.",
+      "must": "Value proactive Farewell Letter before Unown can be gusted Active, where its Ability would no longer be usable.",
+      "forbids": "Waiting until the trap is already active to attempt a Bench-only Ability."
     }
   ],
   "authenticatedFamilyCoverage": {
@@ -608,7 +653,8 @@
     "Ability suppression is scoped, not binary: recompute Basic/Rule-Box/Active/global suppression before and after Stadium replacement; Iron Thorns leaves Lunatone live, while Klefki/Silent Lab/Empoleon can disable the New Moon shield.",
     "Prize state is a transition variable, not a score: settle simultaneous self-KO/effect-KO Prize events before recomputing Ace Trainer, Reversal/Counter Energy, Ursaluna discounts and Altered-Creation Prize modifiers.",
     "A lock deletes only its actual action class: Ability suppression, Basic attack suppression, Item lock, Supporter lock and hand-play lock require different fallback sets; recompute native printed attacks before declaring lockout.",
-    "Lock-resilient search is multi-channel: TPE Energy, Forest Seal Stone Tool/VSTAR search, Powerglass Basic-Energy recursion and Stadium replacement survive different card-type locks; track Tool and Basic-Energy custody explicitly."
+    "Lock-resilient search is multi-channel: TPE Energy, Forest Seal Stone Tool/VSTAR search, Powerglass Basic-Energy recursion and Stadium replacement survive different card-type locks; track Tool and Basic-Energy custody explicitly.",
+    "Before passing into Bench-punishment, compress/harden existing liabilities: Farewell unneeded Unown when legal and evolve Duskull when the HP/Stage change alters opponent reply thresholds."
   ],
   "implementationGate": {
     "required": [
@@ -628,7 +674,8 @@
     "results/strategy/2026-11/agent1-ability-scope-stadium-sequencer-v1.md",
     "results/strategy/2026-11/agent1-prize-state-transition-policy-v1.md",
     "results/strategy/2026-11/agent1-newmoon-lock-matrix-fallback-ladder-v1.md",
-    "results/strategy/2026-11/agent1-lock-resilient-resource-ladder-v1.md"
+    "results/strategy/2026-11/agent1-lock-resilient-resource-ladder-v1.md",
+    "results/strategy/2026-11/agent1-bench-compression-hardening-policy-v1.md"
   ],
   "competitiveQualified": false,
   "claim99Point5": false
