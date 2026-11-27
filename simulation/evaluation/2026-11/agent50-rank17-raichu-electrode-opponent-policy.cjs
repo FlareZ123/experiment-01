@@ -2274,11 +2274,23 @@ function r17ScorePlay(item,view) {
   }
   return 0;
 }
+function r17PokestopUseScore(view) {
+  if(r17Deck(view)<12)return 0;
+  const z=r17KnownOwnZones(view);
+  if(z&&(z.deck.ditto||0)>0&&!r17Board(view,'ditto')&&!r17Hand(view,'ditto')) {
+    const strandedRaichu=r17Hand(view,'raichu')&&!r17Board(view,'raichu')&&
+      !r17Board(view,'pikachu')&&!r17Hand(view,'pikachu')&&(z.deck.pikachu||0)===0;
+    const strandedElectrode=r17Hand(view,'electrode')&&!r17Board(view,'electrode')&&
+      !r17Board(view,'voltorb')&&!r17Hand(view,'voltorb')&&(z.deck.voltorb||0)===0;
+    if(strandedRaichu||strandedElectrode)return 0;
+  }
+  return 125;
+}
 function r17Score(item,request) {
   const view=request.observation,m=metadata(item);
   if(item.kind==='use-ability')return r17ScoreAbility(item,view);
   if(item.kind==='play-card')return r17Key(item)==='rope'?r17RopeScore(request):r17ScorePlay(item,view);
-  if(item.kind==='use-stadium'&&r17Key(item)==='pokestop')return r17Deck(view)>=12&&m.stadiumEffectLive===true?125:0;
+  if(item.kind==='use-stadium'&&r17Key(item)==='pokestop')return m.stadiumEffectLive===true?r17PokestopUseScore(view):0;
   if(item.kind==='attack') {
     const attack=item.attackName||'';
     if(!R17_POKEMON.has(r17Key(item)))return 0;
