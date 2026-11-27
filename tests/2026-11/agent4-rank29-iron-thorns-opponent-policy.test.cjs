@@ -1527,3 +1527,86 @@ test('unrecognized opposing archetype with hidden hand is never granted invented
   });
   assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'pass'});
 });
+
+function nativeRevealedOpponentChoice(token,printing){
+  return {
+    ...cardChoice(token,printing,'hand','opponent'),
+    publicMetadata:{sourceZone:'hand',ownerSeat:'opponent',isOwnerVisible:true,
+      selectionIndex:Number(token.replace(/\D/g,''))||0,selectedCount:1}
+  };
+}
+function revealedHandMetadata(){
+  return {...multiMetadata(0,2),sourceZone:'hand',ownerSeat:'opponent',
+    isOwnerVisible:true};
+}
+
+test('Eri native revealed opponent Items prioritize Unfair Stamp, VS Seeker and preserve zero-count option',()=>{
+  for(const seat of [0,1]){
+    const req=promptRequest({
+      seat,promptType:'ChooseCardsPrompt',
+      source:actorChoiceSource('Eri TEF 146','Eri'),
+      publicMetadata:revealedHandMetadata(),
+      choices:[
+        nativeRevealedOpponentChoice('card0',"Trainer's Mail ROS 92"),
+        nativeRevealedOpponentChoice('card1','Unfair Stamp TWM 165'),
+        nativeRevealedOpponentChoice('card2','VS Seeker PHF 109'),
+        {token:'empty',kind:'empty-selection'}
+      ]
+    });
+    assert.deepEqual(checkedDecision(req,seat),{
+      kind:'select-choices',tokens:['card1','card2']});
+  }
+});
+test('Sidney native opponent-hand effect includes actual Stadium among Special and Tool',()=>{
+  const req=promptRequest({
+    promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('Sidney FST 241','Sidney'),
+    publicMetadata:revealedHandMetadata(),
+    choices:[
+      nativeRevealedOpponentChoice('card0','Sky Field ROS 89'),
+      nativeRevealedOpponentChoice('card1','Float Stone BKT 137'),
+      nativeRevealedOpponentChoice('card2','Double Colorless Energy SUM 136'),
+      {token:'empty',kind:'empty-selection'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-choices',tokens:['card2','card1']});
+});
+test('Team Skull Grunt selects revealed opponent Basic and Special Energy only',()=>{
+  const req=promptRequest({
+    promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('Team Skull Grunt SUM 133','Team Skull Grunt'),
+    publicMetadata:revealedHandMetadata(),
+    choices:[
+      nativeRevealedOpponentChoice('card0','Psychic Energy SVE 5'),
+      nativeRevealedOpponentChoice('card1','Double Colorless Energy SUM 136'),
+      {token:'empty',kind:'empty-selection'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-choices',tokens:['card0','card1']});
+});
+test('unrevealed Eri opponent hand or forged owner-seat and source cannot pass',()=>{
+  const choice=nativeRevealedOpponentChoice('card0','Unfair Stamp TWM 165');
+  const base={
+    promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('Eri TEF 146','Eri'),
+    choices:[choice,{token:'empty',kind:'empty-selection'}]
+  };
+  for(const badMeta of [
+    {...revealedHandMetadata(),isOwnerVisible:false},
+    {...revealedHandMetadata(),ownerSeat:'actor'},
+    {...revealedHandMetadata(),isSecret:true},
+    {...revealedHandMetadata(),sourceZone:'deck'}
+  ]){
+    const req=promptRequest({...base,publicMetadata:badMeta});
+    assert.deepEqual(checkedDecision(req),
+      {kind:'abstain',reasonCode:'UNTRUSTED_CARD_CHOICE'});
+  }
+  const forged=promptRequest({
+    ...base,
+    publicMetadata:revealedHandMetadata(),
+    source:actorChoiceSource('Iono PAL 185','Eri')
+  });
+  assert.notEqual(checkedDecision(forged).kind,'select-choices');
+});
