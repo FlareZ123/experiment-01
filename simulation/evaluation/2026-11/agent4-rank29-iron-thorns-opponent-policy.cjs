@@ -412,9 +412,7 @@ function cardChoiceScore(choice, observation, context) {
       return emptyToolRecipient && opponentHasTool(observation) ? 225 : 0;
     if (matches(printing, PRINT.palaceBelt))
       return emptyToolRecipient && ownDeckCount(observation) >= 6 ? 210 : 0;
-    if (matches(printing, PRINT.handheldFan))
-      return emptyToolRecipient && opponentActiveEnergy(observation) > 0 &&
-        slots(observation.opponentPublic).some(row => row.zone === 'bench') ? 200 : 0;
+    if (matches(printing, PRINT.handheldFan)) return 0; // native prompt unsupported
     if (matches(printing, PRINT.doubleColorless)) return 240;
     if (matches(printing, PRINT.speedLightning)) return 200;
     if (matches(printing, PRINT.spikyEnergy)) return 170;
@@ -1048,11 +1046,10 @@ function scorePlayCard(item, request) {
       matches(target || own.active?.printing, PRINT.ironThorns) ? 75 : 0;
   }
   if (matches(card, PRINT.handheldFan)) {
-    return !toolLocked(observation) &&
-      matches(target || own.active?.printing, PRINT.ironThorns) &&
-      list(own.active?.tools).length === 0 &&
-      opponentActiveEnergy(observation) > 0 &&
-      slots(opponent).some(row => row.zone === 'bench') ? 100 : 0;
+    // The pinned AfterDamage Fan emits AttachEnergyPrompt, but the current
+    // actor projection accepts only Underworld Door. Don't play a Tool that
+    // will deadlock an unqualified native owner-prompt chain.
+    return 0;
   }
   if (matches(card, PRINT.palaceBelt)) {
     const destination = target || own.active?.printing;
