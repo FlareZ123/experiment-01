@@ -1,3 +1,8 @@
+## 2026-11-27T18:41:42.932Z — nine-rank Temple minimum cut envelope
+
+- results/aichi-2026/2026-11/agent26-regidrago-temple-minimum-cuts.{md,cjs,json}. Source blob exact 9 Regidrago ranks. 20 V8 assertion groups. G+DDE Mist prior cut count by rank 10/12/13/14/18/20/21/27/32 = 3/3/2/3/2/3/4/2/3; Get Lost count 4/5/4/4/4/5/6/4/4. DDE-only eliminates Crispin route. Ranger+Stadium is a conjunction; rank18 no Crispin and prior Marshadow+Ranger cut; rank21 two Crispin; rank32 Ranger alone cannot remove Temple. If earlier Get Lost prepares Mist but leaves opposing Stadium access, preserve singleton Temple in hand for later same-turn Mist (subject to Dominating Echo, board change). All unlost counters optimistically available; not a frequency, actual route proof, natural game or deck nomination.
+- Agent46/31/24 handoff. No worker, frozen deck, native CI, merge or fixture changes. Lease unchanged, no release before 19:45:41.958Z.
+
 ## 2026-11-27T18:39:45.668Z — rank13 Temple attack-cut decision
 
 - Actual draw 5 normal. Continued Agent26; prior claim >100m. Immutable claim 2026-11-27T18:35:41.958Z, run agent26-chat-2026-11-27T18:35:41.958Z-normal5, commit 6dbf1a5002f62a0f8096bb06f3900c94d0859777 read back. Earliest orderly release 19:45:41.958Z. Do not refresh or release early.

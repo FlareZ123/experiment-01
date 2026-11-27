@@ -1,0 +1,493 @@
+{
+  "runtime": "isolated V8",
+  "passed": 20,
+  "rows": [
+    {
+      "rank": 10,
+      "counts": {
+        "Marshadow": 1,
+        "Faba": 1,
+        "Parallel City": 1,
+        "Crispin": 1,
+        "Raihan": 1
+      },
+      "grassDDE": {
+        "mist": {
+          "minimum": 3,
+          "cuts": [
+            {
+              "Crispin": 1,
+              "Faba": 1,
+              "Marshadow": 1
+            }
+          ]
+        },
+        "getLost": {
+          "minimum": 4,
+          "cuts": [
+            {
+              "Crispin": 1,
+              "Faba": 1,
+              "Marshadow": 1,
+              "Parallel City": 1
+            }
+          ]
+        }
+      },
+      "DDEOnly": {
+        "mist": {
+          "minimum": 2,
+          "cuts": [
+            {
+              "Faba": 1,
+              "Marshadow": 1
+            }
+          ]
+        },
+        "getLost": {
+          "minimum": 3,
+          "cuts": [
+            {
+              "Faba": 1,
+              "Marshadow": 1,
+              "Parallel City": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "rank": 12,
+      "counts": {
+        "Megaton Blower": 1,
+        "Marshadow": 1,
+        "Parallel City": 1,
+        "Path to the Peak": 1,
+        "Crispin": 1,
+        "Raihan": 2
+      },
+      "grassDDE": {
+        "mist": {
+          "minimum": 3,
+          "cuts": [
+            {
+              "Crispin": 1,
+              "Marshadow": 1,
+              "Megaton Blower": 1
+            }
+          ]
+        },
+        "getLost": {
+          "minimum": 5,
+          "cuts": [
+            {
+              "Crispin": 1,
+              "Marshadow": 1,
+              "Megaton Blower": 1,
+              "Parallel City": 1,
+              "Path to the Peak": 1
+            }
+          ]
+        }
+      },
+      "DDEOnly": {
+        "mist": {
+          "minimum": 2,
+          "cuts": [
+            {
+              "Marshadow": 1,
+              "Megaton Blower": 1
+            }
+          ]
+        },
+        "getLost": {
+          "minimum": 4,
+          "cuts": [
+            {
+              "Marshadow": 1,
+              "Megaton Blower": 1,
+              "Parallel City": 1,
+              "Path to the Peak": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "rank": 13,
+      "counts": {
+        "Megaton Blower": 1,
+        "Silent Lab": 1,
+        "Parallel City": 1,
+        "Crispin": 1,
+        "Raihan": 1
+      },
+      "grassDDE": {
+        "mist": {
+          "minimum": 2,
+          "cuts": [
+            {
+              "Crispin": 1,
+              "Megaton Blower": 1
+            }
+          ]
+        },
+        "getLost": {
+          "minimum": 4,
+          "cuts": [
+            {
+              "Crispin": 1,
+              "Megaton Blower": 1,
+              "Parallel City": 1,
+              "Silent Lab": 1
+            }
+          ]
+        }
+      },
+      "DDEOnly": {
+        "mist": {
+          "minimum": 1,
+          "cuts": [
+            {
+              "Megaton Blower": 1
+            }
+          ]
+        },
+        "getLost": {
+          "minimum": 3,
+          "cuts": [
+            {
+              "Megaton Blower": 1,
+              "Parallel City": 1,
+              "Silent Lab": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "rank": 14,
+      "counts": {
+        "Megaton Blower": 1,
+        "Marshadow": 1,
+        "Sky Field": 1,
+        "Crispin": 1,
+        "Raihan": 2
+      },
+      "grassDDE": {
+        "mist": {
+          "minimum": 3,
+          "cuts": [
+            {
+              "Crispin": 1,
+              "Marshadow": 1,
+              "Megaton Blower": 1
+            }
+          ]
+        },
+        "getLost": {
+          "minimum": 4,
+          "cuts": [
+            {
+              "Crispin": 1,
+              "Marshadow": 1,
+              "Megaton Blower": 1,
+              "Sky Field": 1
+            }
+          ]
+        }
+      },
+      "DDEOnly": {
+        "mist": {
+          "minimum": 2,
+          "cuts": [
+            {
+              "Marshadow": 1,
+              "Megaton Blower": 1
+            }
+          ]
+        },
+        "getLost": {
+          "minimum": 3,
+          "cuts": [
+            {
+              "Marshadow": 1,
+              "Megaton Blower": 1,
+              "Sky Field": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "rank": 18,
+      "counts": {
+        "Marshadow": 1,
+        "Sky Field": 3,
+        "Pokémon Ranger": 1,
+        "Raihan": 1
+      },
+      "grassDDE": {
+        "mist": {
+          "minimum": 2,
+          "cuts": [
+            {
+              "Marshadow": 1,
+              "Pokémon Ranger": 1
+            }
+          ]
+        },
+        "getLost": {
+          "minimum": 4,
+          "cuts": [
+            {
+              "Marshadow": 1,
+              "Sky Field": 3
+            }
+          ]
+        }
+      },
+      "DDEOnly": {
+        "mist": {
+          "minimum": 2,
+          "cuts": [
+            {
+              "Marshadow": 1,
+              "Pokémon Ranger": 1
+            }
+          ]
+        },
+        "getLost": {
+          "minimum": 4,
+          "cuts": [
+            {
+              "Marshadow": 1,
+              "Sky Field": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "rank": 20,
+      "counts": {
+        "Megaton Blower": 1,
+        "Marshadow": 1,
+        "Parallel City": 1,
+        "Path to the Peak": 1,
+        "Crispin": 1,
+        "Raihan": 1
+      },
+      "grassDDE": {
+        "mist": {
+          "minimum": 3,
+          "cuts": [
+            {
+              "Crispin": 1,
+              "Marshadow": 1,
+              "Megaton Blower": 1
+            }
+          ]
+        },
+        "getLost": {
+          "minimum": 5,
+          "cuts": [
+            {
+              "Crispin": 1,
+              "Marshadow": 1,
+              "Megaton Blower": 1,
+              "Parallel City": 1,
+              "Path to the Peak": 1
+            }
+          ]
+        }
+      },
+      "DDEOnly": {
+        "mist": {
+          "minimum": 2,
+          "cuts": [
+            {
+              "Marshadow": 1,
+              "Megaton Blower": 1
+            }
+          ]
+        },
+        "getLost": {
+          "minimum": 4,
+          "cuts": [
+            {
+              "Marshadow": 1,
+              "Megaton Blower": 1,
+              "Parallel City": 1,
+              "Path to the Peak": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "rank": 21,
+      "counts": {
+        "Megaton Blower": 1,
+        "Marshadow": 1,
+        "Parallel City": 1,
+        "Path to the Peak": 1,
+        "Crispin": 2,
+        "Raihan": 1
+      },
+      "grassDDE": {
+        "mist": {
+          "minimum": 4,
+          "cuts": [
+            {
+              "Crispin": 2,
+              "Marshadow": 1,
+              "Megaton Blower": 1
+            }
+          ]
+        },
+        "getLost": {
+          "minimum": 6,
+          "cuts": [
+            {
+              "Crispin": 2,
+              "Marshadow": 1,
+              "Megaton Blower": 1,
+              "Parallel City": 1,
+              "Path to the Peak": 1
+            }
+          ]
+        }
+      },
+      "DDEOnly": {
+        "mist": {
+          "minimum": 2,
+          "cuts": [
+            {
+              "Marshadow": 1,
+              "Megaton Blower": 1
+            }
+          ]
+        },
+        "getLost": {
+          "minimum": 4,
+          "cuts": [
+            {
+              "Marshadow": 1,
+              "Megaton Blower": 1,
+              "Parallel City": 1,
+              "Path to the Peak": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "rank": 27,
+      "counts": {
+        "Marshadow": 1,
+        "Parallel City": 1,
+        "Path to the Peak": 1,
+        "Crispin": 1,
+        "Raihan": 1
+      },
+      "grassDDE": {
+        "mist": {
+          "minimum": 2,
+          "cuts": [
+            {
+              "Crispin": 1,
+              "Marshadow": 1
+            }
+          ]
+        },
+        "getLost": {
+          "minimum": 4,
+          "cuts": [
+            {
+              "Crispin": 1,
+              "Marshadow": 1,
+              "Parallel City": 1,
+              "Path to the Peak": 1
+            }
+          ]
+        }
+      },
+      "DDEOnly": {
+        "mist": {
+          "minimum": 1,
+          "cuts": [
+            {
+              "Marshadow": 1
+            }
+          ]
+        },
+        "getLost": {
+          "minimum": 3,
+          "cuts": [
+            {
+              "Marshadow": 1,
+              "Parallel City": 1,
+              "Path to the Peak": 1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "rank": 32,
+      "counts": {
+        "Megaton Blower": 1,
+        "Silent Lab": 1,
+        "Parallel City": 1,
+        "Crispin": 1,
+        "Pokémon Ranger": 1,
+        "Raihan": 1
+      },
+      "grassDDE": {
+        "mist": {
+          "minimum": 3,
+          "cuts": [
+            {
+              "Crispin": 1,
+              "Megaton Blower": 1,
+              "Pokémon Ranger": 1
+            }
+          ]
+        },
+        "getLost": {
+          "minimum": 4,
+          "cuts": [
+            {
+              "Crispin": 1,
+              "Megaton Blower": 1,
+              "Parallel City": 1,
+              "Silent Lab": 1
+            }
+          ]
+        }
+      },
+      "DDEOnly": {
+        "mist": {
+          "minimum": 2,
+          "cuts": [
+            {
+              "Megaton Blower": 1,
+              "Pokémon Ranger": 1
+            }
+          ]
+        },
+        "getLost": {
+          "minimum": 3,
+          "cuts": [
+            {
+              "Megaton Blower": 1,
+              "Parallel City": 1,
+              "Silent Lab": 1
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
