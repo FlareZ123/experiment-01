@@ -316,3 +316,53 @@ test('V3 setup chooses second for turbo lines and max strictly indexed mulligan 
   req.observation.pendingPromptType='SelectPrompt';
   assert.deepEqual(checked(req),{kind:'select-choice',token:'two'});
 });
+
+
+test('V3 Cynthia & Caitlin recovery follows funded Regidrago need, not first discard option',()=>{
+  const own=player({
+    active:pokemon('Regidrago VSTAR SIT 136',{
+      energies:['Double Dragon Energy ROS 97']}),
+    discard:['Crispin SCR 133','Guzma BUS 115']
+  });
+  const p={
+    schema:protocol.PROMPT_SCHEMA,actingSeat:0,promptType:'ChooseCardsPrompt',
+    description:'Select a Supporter from discard pile',
+    source:{classification:'actor-choice',sourceKind:'card-effect',
+      sourcePrinting:'Cynthia & Caitlin CEC 189',effectName:'Cynthia & Caitlin'},
+    choices:[
+      {token:'guzma',kind:'card',printing:'Guzma BUS 115',label:'Guzma',
+        publicMetadata:{selectionIndex:0,selectedCount:1,
+          sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true}},
+      {token:'crispin',kind:'card',printing:'Crispin SCR 133',label:'Crispin',
+        publicMetadata:{selectionIndex:1,selectedCount:1,
+          sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true}}
+    ],
+    publicMetadata:{selectionType:'card-combination',
+      sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true,
+      minimumCount:1,maximumCount:1,allowCancel:false,isSecret:false}
+  };
+  const req=root(0,{own,phase:2,prompt:p,items:[],requestId:'rank32-cynthia-recovery'});
+  assert.deepEqual(checked(req),{kind:'select-choices',tokens:['crispin']});
+});
+
+test('V3 optional Cynthia hand discard keeps Double Dragon and chooses empty selection',()=>{
+  const p={
+    schema:protocol.PROMPT_SCHEMA,actingSeat:1,promptType:'ChooseCardsPrompt',
+    description:'You may discard a card from hand',
+    source:{classification:'actor-choice',sourceKind:'card-effect',
+      sourcePrinting:'Cynthia & Caitlin CEC 189',effectName:'Cynthia & Caitlin'},
+    choices:[
+      {token:'dde',kind:'card',printing:'Double Dragon Energy ROS 97',
+        label:'Double Dragon Energy',
+        publicMetadata:{selectionIndex:0,selectedCount:1,
+          sourceZone:'hand',ownerSeat:'actor',isOwnerVisible:true}},
+      {token:'none',kind:'empty-selection',label:'Select none'}
+    ],
+    publicMetadata:{selectionType:'card-combination',
+      sourceZone:'hand',ownerSeat:'actor',isOwnerVisible:true,
+      minimumCount:0,maximumCount:1,allowCancel:false,isSecret:false}
+  };
+  const req=root(1,{phase:2,prompt:p,items:[],
+    hand:['Double Dragon Energy ROS 97'],requestId:'rank32-cynthia-preserve-dde'});
+  assert.deepEqual(checked(req),{kind:'select-choice',token:'none'});
+});
