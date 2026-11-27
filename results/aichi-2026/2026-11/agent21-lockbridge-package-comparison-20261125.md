@@ -88,6 +88,25 @@ Reproduce from repo root after compiling the same solver:
 ```
 Banking Float to Wob and manual Psychic to V before refreshing produces a **23.1069 percentage-point** improvement versus immediately playing Lillie in this particular state. This example is not an aggregate opening rate, matchup result or policy performance test. The fallback only enumerates held draw Supporters and banking already-held cards; additional pre-draw tutor sequences and K0 draw-Supporter decisions are not modeled. It assumes no other occupied Tool/Bench slots beyond the declared bank flags and no opposing interference. Tie-break preferences (preserve Stone, fewer discards, avoid Lele, fewer actions) are illustrative resource priorities, not win-rate-calibrated. A tested known-zone continuation avoids reattaching an already-banked Psychic and refuses Gate if banked Lele plus Latias overfill the Bench without Sky. Preserve this implementation for future authorized strategy work; no frozen production policy or game changed.
 
+**Unknown-Prize draw fallback (actor-only posterior).** The same executable now supports `--posterior-plan` and `--known-branch`: for Lillie, posterior weight of a Prize allocation p given the newly observed hand h is C(U,p) C(U-p+R,h), where U is the pre-refresh unknown pool and R the returned hand; for Iono the second factor is C(U-p,h), because returned cards go to the bottom. The first search is selected by maximizing weighted success across all consistent allocations, not by seeing the actual sampled Prizes. Only a subsequent legal search permits branch selection with inspected counts. For one observed eight-card Lillie draw, 10,754 consistent grouped Prize allocations yield a 97.97676117% best modeled continuation.
+
+The `--k0-draw` mode compares immediate held draw Supporters and bank combinations before seeing either Prizes or draw, using exact posterior first-action selection for each observed draw and Monte Carlo integration over draw observations. In the same six-held-card W Active/V Benched example, but with **no prior Fog inspection** and unknown Prizes, a 128-sample pilot was followed by 1,024 independent samples per arm (seed 21062702, paired across options). No deterministic-only funded route exists before refreshing.
+
+| Draw option | Estimated conditional funded Gate | Monte Carlo SE (pp) |
+|---|---:|---:|
+| Lillie, Float + Psychic banked | 60.352453% | 1.301221 |
+| Lillie, Float only | 55.097120% | 1.364147 |
+| Iono, Float + Psychic | 53.131771% | 1.377240 |
+| Lillie, neither | 39.397377% | 1.314516 |
+
+Paired difference for banking both versus neither with Lillie: **20.955076 pp**, paired SE 1.063431 pp. The samples generate observations; no sampled true Prize identities enter the decision. This is conditional setup performance for one specified held hand, not an exact outer enumeration, aggregate opening performance, a qualified game, or a win-rate result. The estimator excludes pre-draw tutors and search-then-draw fallback; preserving resources beyond the immediate funded-Gate goal is not optimized.
+
+Reproduce:
+```sh
+./active-choice --extended bench --k0-draw 0,0,0,0,0,0,1,0,0,0,0,0,0,1,2,1,1 3,4,1,1,1,1,0,1,1,1,1,4,5,10,17,1,0 0 WF 0,0,0,0,0,0,0,0 1024 21062702
+```
+Source commit `66f1b817965203722cdee2286fbd62c472434843`; no production policy modified.
+
 ## What a fair whole-game comparison must answer
 
 The current reviewed candidate policy cannot rank these lists fairly: it lacks Wobbuffet/Temple root decisions and complete Bide Barricade hand/discard scope, while it also does not fully realize Hood's Ranger/Item-lock response. It would under-measure both packages. PR #69 and PR #71 remain frozen at their reviewed scopes; this synthesis does not authorize a policy patch, fixture, or game.
