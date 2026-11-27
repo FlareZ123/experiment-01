@@ -83,7 +83,8 @@ def convert(req,cat):
                 require(names<=OWN_ABILITIES,'unsupported own Ability')
                 require(all(psychic(e) and e in basicenergy for e in p['energies']),'non-basic-Psychic own Energy')
                 require(p['hp']==turn_plan.CARDS[kind][3],'modified or unsupported own HP')
-                r.update(kind=kind,energy=len(p['energies']),attack_blocked=bool(rr.get('cannotAttackNextTurn')),retreat_blocked=any(rr.get(k) for k in ('cannotRetreat','cannotRetreatNextTurn','cannotRetreatWhileActive')))
+                r.update(kind=kind,energy=len(p['energies']),attack_blocked=bool(rr.get('cannotAttackNextTurn')),retreat_blocked=any(rr.get(k) for k in ('cannotRetreat','cannotRetreatNextTurn','cannotRetreatWhileActive')),
+                         evolvable=kind=='v' and turn>2 and isinstance(p.get('lastPlayedOrEvolvedTurn'),int) and p['lastPlayedOrEvolvedTurn']<turn and not rr.get('cannotEvolveNextTurn'))
                 require(receipt is not None and receipt['printing']==printing,'owner slot receipt mismatch')
                 if kind=='vmax':
                     use=[x['usedThisTurn'] for x in receipt['knownAbilityUse'] if x['name']=='Underworld Door']
@@ -115,17 +116,26 @@ def convert(req,cat):
             arr.append(r)
     require(not(any(x['kind']=='wob' for x in ownrows) and any(x['lock']=='klefki' for x in opprows)),'dynamic Klefki/Wobbuffet lock ordering not modeled')
     require(not(any(x['lock']=='garbotoxin' for x in opprows) and any(x['lock'] in {'thorns','klefki'} for x in opprows)),'combined locker precedence not modeled')
-    hand={'psychic':sum(psychic(p) and p in basicenergy for p in v['ownHand']),'stadiums':[]}
+    hand={'psychic':sum(psychic(p) and p in basicenergy for p in v['ownHand']),'stadiums':[],'pokemon':{}}
     for p in v['ownHand']:
         k=prefix(p,TRAINER_PREFIX);st=prefix(p,STADIUM_PREFIX)
         if k:hand[k]=True if k in {'guzma','blower'} else hand.get(k,0)+1
         if st in STADIUM_HELD:hand['stadiums'].append(st)
+        if p in OWN:hand['pokemon'][OWN[p]]=hand['pokemon'].get(OWN[p],0)+1
     discard={'psychic':sum(psychic(p) and p in basicenergy for p in own['discard']),'guzma':any(p.startswith('Guzma ') for p in own['discard'])}
+    discard['pokemon']={}
+    for p in own['discard']:
+        if p in OWN:discard['pokemon'][OWN[p]]=discard['pokemon'].get(OWN[p],0)+1
+    # The planner reserves compact slot IDs; map their first action to actual empty native slots.
+    for j,index in enumerate(i for i,p in enumerate(own['bench']) if p is None):
+        slotmap['new'+str(len(ownrows)+j)]={'zone':'bench','index':index,'owner':True,'printing':None}
     data={'own':ownrows,'opp':opprows,'active':'a','opp_active':'oa','stadium':stadium,'hand':hand,'discard':discard,
           'used':{'manual':res['energyPlayedTurn']==turn,'retreat':res['retreatedTurn']==turn,'support':res['supporterPlayedTurn']>0,'stadium':res['stadiumPlayedTurn']==turn,'gx':own['publicTurnRestrictions']['gxUsed']},
           'deck_remaining':own['deckCount'],'prizes_remaining':own['prizeCount'],'support_allowed':True,
           'item_attack_lock':bool(res['itemPlayLocked']),'support_attack_lock':bool(res['supporterPlayLocked']),
-          'stadium_attack_lock':bool(res['stadiumPlayLocked']),'tool_attack_lock':bool(res['toolPlayLocked']),'energy_attack_lock':bool(res['energyPlayLocked'])}
+          'stadium_attack_lock':bool(res['stadiumPlayLocked']),'tool_attack_lock':bool(res['toolPlayLocked']),'energy_attack_lock':bool(res['energyPlayLocked']),
+          'pokemon_play_lock':bool(res.get('pokemonPlayLocked')),'ability_pokemon_play_lock':bool(res.get('abilityPokemonPlayLocked')),
+          'evolution_lock':turn<=2 or bool(res.get('evolutionPlayLocked'))}
     require(not own['publicTurnRestrictions'].get('cannotUseGXAttacks'),'GX-attack restriction unsupported')
     # Check effective initial Ability states if known; never interpret null as verified live.
     planner=turn_plan.Planner(data)
@@ -145,6 +155,10 @@ def match_root(plan,frontier,slotmap):
     def matches(x):
         meta=x.get('publicMetadata',{});kind=x['kind'];printing=x.get('actorPrinting','')
         if first is None:return kind=='attack' and x.get('attackName')==plan['attack'] and meta.get('attackSource',{}).get('sourceKind')=='active-pokemon' and printing==slotmap['a']['printing']
+        m=re.fullmatch(r'bench (\w+) -> (\w+)',first)
+        if m:return kind=='play-card' and OWN.get(printing)==m[1] and m[2] in slotmap and target(meta,m[2])
+        m=re.fullmatch(r'evolve (\w+) -> vmax',first)
+        if m:return kind=='play-card' and OWN.get(printing)=='vmax' and target(meta,m[1])
         m=re.fullmatch(r'manual Psychic -> (\w+)',first)
         if m:return kind=='play-card' and psychic(printing) and target(meta,m[1])
         m=re.fullmatch(r'Underworld Door (\w+) -> (\w+);.*',first)
@@ -223,6 +237,27 @@ def selftest():
         if mutation=='missingmarker':q['publicEventReceipt']['ownerActive']['knownAbilityUse'][0]['usedThisTurn']=None
         if mutation=='noaction':q['actionFrontier']['items']=[{'kind':'projected-attack','token':'fake','attackName':'Max Geist'}]
         assert advise(q,catalog)['decision'] is None,mutation
+    # Actor-root evolution requires a public eligible turn stamp and exact target slot.
+    q=copy.deepcopy(request);v=q['observation'];p=v['ownPublic'];
+    p['active']=poke('Shadow Rider Calyrex V CRE','v',2);p['active']['lastPlayedOrEvolvedTurn']=3
+    p['bench']=[poke('Shadow Rider Calyrex V CRE','v',1)]+[None]*4
+    p['discard']=[];v['ownHand']=['Psychic Energy SVE']*2+['Shadow Rider Calyrex VMAX CRE']
+    target=thorns();target.update(hp=160,abilities=[],printing='Dedenne-GX UNB');p2=v['opponentPublic'];p2['active']=target;p2['bench']=[None]*5
+    q['publicEventReceipt']['ownerActive']=receipt(p['active']);q['publicEventReceipt']['ownerBench']=[receipt(p['bench'][0])]+[None]*4
+    q['actionFrontier']['items']=[{'token':'evolve','kind':'play-card','actorPrinting':'Shadow Rider Calyrex VMAX CRE','publicMetadata':{'targetSeat':'actor','targetZone':'active','targetIndex':0,'handIndex':2}}]
+    cat=copy.deepcopy(catalog);cat['ruleboxPokemonPrintings'].append('Dedenne-GX UNB')
+    z=advise(q,cat);assert z['decision']=={'kind':'select-action','token':'evolve'},z
+    p['active']['lastPlayedOrEvolvedTurn']=5;assert advise(q,cat)['decision'] is None
+    # A new Basic goes to the actual empty native slot, not an invented compact index.
+    q=copy.deepcopy(request);v=q['observation'];p=v['ownPublic'];p['active']=poke('Shadow Rider Calyrex VMAX CRE','vmax',3,ability='Underworld Door')
+    p['bench']=[None,poke('Shadow Rider Calyrex V CRE','v',1)]+[None]*3;p['discard']=[]
+    q['publicEventReceipt']['ownerActive']=receipt(p['active']);q['publicEventReceipt']['ownerBench']=[None,receipt(p['bench'][1])]+[None]*3
+    v['ownHand']=['Psychic Energy SVE',"Lillie's Clefairy ex JTG"]
+    target=thorns();target.update(hp=280,abilities=[],printing='Regidrago VSTAR SIT');v['opponentPublic']['active']=target;v['opponentPublic']['bench']=[None]*5
+    q['actionFrontier']['items']=[{'token':'clefairy','kind':'play-card','actorPrinting':"Lillie's Clefairy ex JTG",'publicMetadata':{'targetSeat':'actor','targetZone':'bench','targetIndex':0,'handIndex':1}}]
+    cat['ruleboxPokemonPrintings'].append('Regidrago VSTAR SIT');cat['dragonPokemonPrintings'].append('Regidrago VSTAR SIT')
+    z=advise(q,cat);assert z['decision']=={'kind':'select-action','token':'clefairy'},z
+    v['ownTurnResources']['abilityPokemonPlayLocked']=True;assert advise(q,cat)['decision'] is None
     print(json.dumps(result,indent=2));print('Actor bridge tests passed.')
 
 def main():
