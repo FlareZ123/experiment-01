@@ -12,17 +12,25 @@
 
 const POLICY_VERSION = 'agent46-two-profile-v1';
 const PROFILE_SCHEMA = 'agent46-candidate-profile-v1';
+const PAPER_ASTRAL_BARRAGE_TARGETS = 'agent4-cre74-hook-v1';
 const PROFILE_DECKS = Object.freeze({
   'hood-shield-shadow-rider-v1': '1cc3d2080b40c7a9e0c61297439ba5d1ae34f9211ba9b24fcffffb2786a3e924',
   'lockbridge-shadow-rider-v1': '011cb8481b473c8566935d6835fc9a2a5762e4f09349f23c8284ec19b0cac642'
 });
 function isCandidateProfile(config) {
-  return !!config && typeof config === 'object' && !Array.isArray(config) &&
-    Object.keys(config).sort().join(',') === 'deckSha256,profileId,schema' &&
+  if(!config || typeof config !== 'object' || Array.isArray(config))return false;
+  const keys=Object.keys(config).sort().join(',');
+  const base=keys==='deckSha256,profileId,schema';
+  const paper=keys==='deckSha256,paperAstralBarrageTargets,profileId,schema';
+  return (base || paper) &&
     config.schema === PROFILE_SCHEMA &&
     typeof config.profileId === 'string' &&
     Object.prototype.hasOwnProperty.call(PROFILE_DECKS, config.profileId) &&
-    config.deckSha256 === PROFILE_DECKS[config.profileId];
+    config.deckSha256 === PROFILE_DECKS[config.profileId] &&
+    (!paper || config.paperAstralBarrageTargets===PAPER_ASTRAL_BARRAGE_TARGETS);
+}
+function paperAstralBarrageTargetsEnabled(profile){
+  return profile?.paperAstralBarrageTargets===PAPER_ASTRAL_BARRAGE_TARGETS;
 }
 
 let activePolicyAudit = null;
@@ -878,10 +886,13 @@ function astralTargetScore(attacker,target,view){
   if(remaining<=0)return 0;
   return 500+(remaining<=50?10000+500*prizeLiability(target):Math.min(300,target.damage));
 }
-function astralBarragePlan(attacker,view){
-  // Pinned CRE74 reducer requests min(2, bench size) targets rather than
-  // min(2, total opposing Pokemon). Admit only its paper-equivalent >=2 Bench case.
-  if(!isBasicShadowRiderV(attacker)||view.opponentPublic.bench.filter(Boolean).length<2||
+function astralBarragePlan(attacker,view,paperTargetHook=false){
+  // Unhooked pinned CRE74 requests min(2, Bench size), so only >=2 Bench is
+  // paper-equivalent. The exact Agent4 hook repairs this to min(2, all opposing
+  // Pokemon); capability-bound profiles may therefore admit Active + one Bench.
+  const benchCount=view.opponentPublic.bench.filter(Boolean).length;
+  if(!isBasicShadowRiderV(attacker)||
+    (paperTargetHook ? opponentBoard(view).length<2 : benchCount<2)||
     cannotAttackPublicly(attacker,view.opponentPublic.active,view))return -Infinity;
   const scores=opponentBoard(view).map(p=>astralTargetScore(attacker,p,view)).sort((a,b)=>b-a);
   return scores.length>=2&&scores[0]>0?scores[0]+scores[1]:-Infinity;
@@ -1314,7 +1325,8 @@ function attackScore(attacker, attack, view, target, options = {}) {
   if (attack.name==='Tapu Cure-GX'&&hasName(attacker.printing,'Tapu Lele-GX'))return tapuCureScore(view);
   if (attack.name === 'Copycat') return -Infinity; // separate copied-attack admission required
   if (attack.name==='Get Lost'&&hasName(attacker.printing,'Girafarig')) return getLostPlan(view);
-  if (attack.name==='Astral Barrage') return astralBarragePlan(attacker,view);
+  if (attack.name==='Astral Barrage') return astralBarragePlan(attacker,view,
+    options.paperAstralBarrageTargets===PAPER_ASTRAL_BARRAGE_TARGETS);
   if (attack.name === 'Pale Moon-GX') {
     return attackEffectsBlocked(attacker,target,view)?-Infinity:paleMoonScore(attacker, attack, view, target);
   }
@@ -2248,7 +2260,7 @@ function stealthyHoodTargetScore(view,slot,receipt=null) {
   return score;
 }
 
-function choosePokemonRecipient(view, prompt, receipt=null) {
+function choosePokemonRecipient(view, prompt, receipt=null, profile=null) {
   setPolicyAuditRule('POKEMON_TARGET_SCORE', 'SCORE_DESC_NATIVE_TARGET_INDEX');
   const metadata = prompt.publicMetadata;
   if (!metadata || metadata.selectionType !== 'pokemon') {
@@ -2279,7 +2291,8 @@ function choosePokemonRecipient(view, prompt, receipt=null) {
     ranked = actorChoices.map(row => ({...row,score:stealthyHoodTargetScore(view,row.target.slot,receipt)}));
   } else if (effectName==='Astral Barrage'&&hasName(prompt.source?.sourcePrinting,'Shadow Rider Calyrex V CRE')&&
       minimum===2&&maximum===2&&opponentChoices.length>=2&&actorChoices.length===0&&
-      view.opponentPublic.bench.filter(Boolean).length>=2) {
+      (view.opponentPublic.bench.filter(Boolean).length>=2 ||
+       paperAstralBarrageTargetsEnabled(profile))) {
     ranked=opponentChoices.map(row=>({...row,score:astralTargetScore(view.ownPublic.active,row.target.slot,view)}));
   } else if (effectName==='Tapu Cure-GX'&&hasName(prompt.source?.sourcePrinting,'Tapu Lele-GX')&&actorChoices.length>0){
     // Pinned reducer permits Active and one damaged target; use only
@@ -2855,7 +2868,7 @@ function choosePrompt(view, prompt, receipt, profile) {
     case 'ChoosePokemonPrompt':
       return isFieldBlowerPrompt(prompt)
         ? chooseFieldBlowerPokemon(view, prompt)
-        : choosePokemonRecipient(view, prompt, receipt);
+        : choosePokemonRecipient(view, prompt, receipt, profile);
     case 'ChooseEnergyPrompt':
       return chooseEnergyPayment(view, prompt);
     case 'AttachEnergyPrompt':
@@ -3981,14 +3994,17 @@ function benchTerminalCharge(view,item,items){
   return !!(after&&projectedBenchFinalAttack(after,m.targetIndex));
 }
 // A paper-equivalent, two-target Astral Barrage terminal route.
-function publicAstralFinalAttack(view,items) {
+function publicAstralFinalAttack(view,items,profile=null) {
   const item=items.find(i=>i.kind==='attack'&&i.attackName==='Astral Barrage');
   const attacker=view.ownPublic.active;
+  const benchCount=view.opponentPublic.bench.filter(Boolean).length;
   if(!item||!isBasicShadowRiderV(attacker)||!cleanPublicTerminalView(view,true)||
-      view.opponentPublic.bench.filter(Boolean).length<2)return null;
+      (paperAstralBarrageTargetsEnabled(profile) ? opponentBoard(view).length<2 : benchCount<2))return null;
   const attack=attacker.attacks.find(a=>a.name==='Astral Barrage');
   if(!attack||!canPayAttack(attacker,attack,view)||
-      !Number.isFinite(attackScore(attacker,attack,view,view.opponentPublic.active,{requirePayable:true})))return null;
+      !Number.isFinite(attackScore(attacker,attack,view,view.opponentPublic.active,{
+        requirePayable:true,paperAstralBarrageTargets:profile?.paperAstralBarrageTargets
+      })))return null;
   const rows=opponentBoard(view).map(p=>({p,score:astralTargetScore(attacker,p,view)}))
     .sort((a,b)=>b.score-a.score).slice(0,2);
   const prizes=rows.reduce((sum,row)=>sum+
@@ -3996,7 +4012,7 @@ function publicAstralFinalAttack(view,items) {
   return prizes>=view.ownPublic.prizeCount?item:null;
 }
 function finalPublicStep(view,items,receipt,profile){
-  const astral=publicAstralFinalAttack(view,items);
+  const astral=publicAstralFinalAttack(view,items,profile);
   if(astral)return {item:astral,reason:'ROOT_PUBLIC_FINAL_ASTRAL_BARRAGE'};
   const current=publicFinalAttack(view,new Set(items.filter(i=>i.kind==='attack').map(i=>i.attackName)));
   if(current){
@@ -4170,7 +4186,8 @@ function chooseRoot(view, request, profile) {
     const scoredAttacks = attacks.map(item => {
       const attack = active.attacks.find(row => row.name === item.attackName);
       const score = attackScore(active, attack, view, target, {
-        publicEventReceipt: request.publicEventReceipt
+        publicEventReceipt: request.publicEventReceipt,
+        paperAstralBarrageTargets: profile?.paperAstralBarrageTargets
       });
       recordPolicyAuditScore(item.token, score, 'NO_ELIGIBLE_ATTACK_SCORE');
       return { item, score };
