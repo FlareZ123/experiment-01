@@ -878,7 +878,7 @@ function r17SecretChoices(prompt,view) {
   // not independent upgrades. Assess the whole bundle against the
   // presently available line. Energy availability is only a K0 upper
   // bound until the subsequent Compressor search supplies exact choices.
-  const ignoreTemple=r17NeedTempleRemoval(view)&&r17TempleAnswerPossible(view);
+  const ignoreTemple=r17NeedTempleRemoval(view)&&r17StadiumAnswerPossible(view);
   const baseline=r17RainProjection(view,p,{ignoreTemple});
   const bound=r17EnergyDeckBounds(view),held=r17HandCount(view,'compressor');
   let best=null;
@@ -1280,14 +1280,14 @@ function r17SwitchValue(p,v) {
   const key=r17Key(p);
   const energies=list(p?.energies),units=energies.reduce((n,e)=>n+(r17EnergyProvision(e,own(v).prizeCount,opponent(v).prizeCount,r17NeedTempleRemoval(v))?.total||0),0);
   const lightning=energies.some(e=>(r17EnergyProvision(e,own(v).prizeCount,opponent(v).prizeCount,r17NeedTempleRemoval(v))?.lightning||0)>0);
-  if(key==='raichu'&&r17FundedRainProjection(v,p,{ignoreTemple:r17NeedTempleRemoval(v)&&r17TempleAnswerPossible(v)}))return 360;
+  if(key==='raichu'&&r17FundedRainProjection(v,p,{ignoreTemple:r17NeedTempleRemoval(v)&&r17StadiumAnswerPossible(v)}))return 360;
   if(key==='raichu'&&units>=3&&lightning)return 240;
   if(key==='klefki'){
     const route=r17KlefkiDestinationPlan(v,p);
     if(route){
       const direct=list(own(v).bench).filter(q=>r17Key(q)==='raichu').some(q=>{
         const projected=r17SwitchProjection(v,q,active(opponent(v)));
-        const plan=r17FundedRainProjection(projected,active(own(projected)),{ignoreTemple:r17NeedTempleRemoval(projected)&&r17TempleAnswerPossible(projected)});
+        const plan=r17FundedRainProjection(projected,active(own(projected)),{ignoreTemple:r17NeedTempleRemoval(projected)&&r17StadiumAnswerPossible(projected)});
         return plan&&r17CompareProjection(plan,route.plan)>=0;
       });
       if(!direct)return 370;
