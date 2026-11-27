@@ -202,3 +202,12 @@ test('live native short printings and board-zone Energy token are handled',()=>{
   const bad=copy(s);bad.prompt.choices[0].publicMetadata.sourceZone='deck';
   assert.equal(decide(bad),null);
 });
+
+test('unrecognized Colorless side-Energy is not credited as a colored Apex cost',()=>{
+  const s=state();s.observation.ownPublic.active.energies=[
+    'Double Dragon Energy ROS','Colorless Energy UNKNOWN'];
+  assert.equal(decide(s),null);
+  s.observation.ownPublic.active.energies=[
+    'Double Dragon Energy ROS','Double Dragon Energy ROS'];
+  assert.deepEqual(decide(s),{kind:'select-action',token:'apex'});
+});
