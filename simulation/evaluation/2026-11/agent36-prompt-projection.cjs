@@ -636,7 +636,7 @@ function projectRaihanAttachEnergyPrompt({
 }={}){
   const actor=state.players[actorSeat];
   const exactPrompt=source?.sourceKind==='card-effect'&&
-    source.effectName==='Raihan'&&hasName(source.sourcePrinting,'Raihan')&&
+    source.effectName==='Raihan'&&(typeof source.sourcePrinting==='string'&&source.sourcePrinting.toLowerCase().includes('raihan'))&&
     prompt.message==='ATTACH_ENERGY_CARDS'&&prompt.cardList===actor.discard&&
     prompt.playerType===native.PlayerType.BOTTOM_PLAYER&&
     Array.isArray(prompt.slots)&&prompt.slots.length===2&&
@@ -707,7 +707,7 @@ function projectAttachEnergyPrompt({
   prompt,state,actorSeat,native,store,source,choices,choiceByToken
 }={}){
   const actor=state.players[actorSeat];
-  if(source?.sourceKind==='card-effect'&&source.effectName==='Raihan'&&hasName(source.sourcePrinting,'Raihan')){
+  if(source?.sourceKind==='card-effect'&&source.effectName==='Raihan'&&(typeof source.sourcePrinting==='string'&&source.sourcePrinting.toLowerCase().includes('raihan'))){
     return projectRaihanAttachEnergyPrompt({prompt,state,actorSeat,native,source,choices,choiceByToken});
   }
   const supportedSource=source?.sourceKind==='card-effect'&&
