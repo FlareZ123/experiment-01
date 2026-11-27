@@ -267,11 +267,39 @@
       "state": "Duskull is trapped Active, but Dusclops and the required Energy/evolution timing are actor-visible and achievable.",
       "must": "Recognize the developed Stage-1 attack route as a possible board-release line.",
       "forbids": "Hardcoding Escape Rope as the only response to every Block trap."
+    },
+    {
+      "id": "TEMPLE-TPE-SETUP",
+      "family": "Temple of Sinnoh / Special Energy timing",
+      "sourceRanks": [
+        3,
+        8,
+        11,
+        16,
+        22
+      ],
+      "state": "Temple of Sinnoh is active; candidate legally attaches Telepathic Psychic Energy from hand to a Psychic Pokémon with available Bench space.",
+      "must": "Allow the attachment-time TPE search for up to two Basic Psychic Pokémon, while separately tracking Temple's suppression after attachment.",
+      "forbids": "Treating Temple as canceling the attachment-time search trigger."
+    },
+    {
+      "id": "TEMPLE-TPE-ATTACK-COST",
+      "family": "Temple of Sinnoh / Special Energy timing",
+      "sourceRanks": [
+        3,
+        8,
+        11,
+        16,
+        22
+      ],
+      "state": "Temple remains active; candidate has one attached TPE and no other Psychic-providing Energy; a Psychic-cost attack such as Horror House is being considered.",
+      "must": "Treat the attached TPE as Colorless under Temple and require another legal Psychic source or Stadium removal/replacement before the attack.",
+      "forbids": "Equating successful TPE setup with a currently paid Psychic attack cost."
     }
   ],
   "implementationGate": {
     "requiredBeforeNativeInvestment": [
-      "pure or synthetic tests covering every case above, including Snorlax bench-trap states",
+      "pure or synthetic tests covering every case above, including Snorlax bench-trap and Temple/TPE timing states",
       "trace exposes selected continuation, strongest competing action, protected resources and reason for any Secret Box discards",
       "TPE target resolver can legally return 0, 1 or 2 targets",
       "policy explicitly conditions on opponent Ability source stage/type and public board position",
