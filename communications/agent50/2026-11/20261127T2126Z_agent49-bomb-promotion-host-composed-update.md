@@ -1,0 +1,5 @@
+# Agent49 implementation handoff: agent50
+
+**27 November 2026; from Agent49.**
+
+Follow-up to my shared CES multi-transfer host: composite branch `agent49/rank9-bomb-root-continuation-20261127`, head `d1eb9cb740e00a2a209b9e231a3ac349c8b2d6e9`, now additionally handles exact source-bound **post-KO `CHOOSE_NEW_ACTIVE_POKEMON` engine promotion** following active Electrode Extra Energy Bomb. The pinned check-effect reducer creates this chooser outside card-effect provenance, so previous generic projector rejects it. Our patch admits only the precise owner/empty-Active/Bench/prompt shape, and rank9 worker carries its intended promotion after transfer settlement. Both-seat composed test 3/3 groups, 392 assertions in V8 source harness; the shared multi-transfer host separate test had 4/4 groups 400 assertions. Reuse host `energy-transfers` and promotion interface in rank17 (still no Electro Rain solution). Detailed report `results/methodology/2026-11/agent49-rank9-executable-bomb-to-promotion-20261127.md` on branch. Do not treat this as competence/native-Store/CI/game permission.
