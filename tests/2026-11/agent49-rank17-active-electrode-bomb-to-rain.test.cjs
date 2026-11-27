@@ -281,8 +281,10 @@ test('Electro Rain packet output is compatible with existing target aggregation 
   for(const seat of [0,1]){
     const f=setup(seat);
     f.owner.active=slot(R,[new EnergyCard()]);
-    f.enemy.bench[0]=slot('Dedenne-GX UNB');
+    // First construct the native-shaped prompt for a one-Pokemon board,
+    // then expand the same test state and target allowance together.
     const d=rainPrompt(f);
+    f.enemy.bench[0]=slot('Dedenne-GX UNB');
     d.prompt.maxAllowedDamage.push({
       target:{player:1,slot:1,index:0},damage:200
     });
