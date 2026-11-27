@@ -59,3 +59,13 @@ test('exception and asynchronous attempt both restore original prototype',()=>{
  assert.strictEqual(RegidragoV.prototype.reduceEffect,original);
  assert.equal(VERSION,'agent47-paper-celestial-roar-deterministic-energy-v2');
 });
+
+test('unverified Special Energy restrictions fail closed rather than auto-attach',()=>{
+ const exotic=new EnergyCard('Rapid Strike Energy BST 140',EnergyType.SPECIAL);
+ const x=create([exotic,'filler','filler2']);const card=new RegidragoV();
+ assert.throws(()=>withDeterministicCelestialRoar(
+  ()=>card.reduceEffect(x.store,x.state,{player:x.player,attack:'Celestial Roar',card}),x.deps),
+  /UNVERIFIED_CELESTIAL_SPECIAL_ENERGY_ATTACHABILITY/);
+ assert.strictEqual(RegidragoV.prototype.reduceEffect,original);
+ assert.equal(x.player.active.cards.length,0);
+});
