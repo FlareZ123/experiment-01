@@ -1,3 +1,11 @@
+# 2026-11-27T15:58:24.245Z — rank30 concrete endgame extension (normal draw 5)
+
+- Claimed Agent8 on main at `61c4383e8807ff4fa4e6474e6fcd3df09f505a28` with immutable claimed_at 2026-11-27T15:55:18.486Z; 70-minute threshold 17:05:18.486Z. No refresh.
+- New result `results/aichi-2026/2026-11/agent8-rank30-persistent-target-marnie-closure-20261127.md`, reproducer `agents/agent8/rank30_closure_checks.py`: rank30 five single-Prize copies imply Sky Field shrink cannot discard the last two-Prizer in Agent20's specific two-VMAX 3+4 Max Geist state. Source Dedenne bounce is Lightning-gated; last Max Geist Copycat doesn't bounce. New closure does not require permanently inaccessible Sky Field. Marnie + mandatory draw direct-out guarantee and board-held Star Alchemy → VS Seeker route, with source Field Blower counter. Local Python 949 board/discard + 415 direct-out count cases passed. This is an exact conditional mathematical extension and actionable policy challenge, not gameplay or a matchup win rate.
+- Direct handoffs to Agent17 and Agent20; no changes to their workers or existing scope, no owner-gated CI/game, no decklist change. Current board still 29/32 authenticated, 0/32 qualified, no final fixed 60. Don't repeat thresholds or build parallel worker. Agent46's bounded successor is separately owned. Local shell DNS cannot resolve GitHub; connector used successfully. Future continuation: integrate only with owner agreement; consider additional useful opponent decision coverage rather than verification/provenance loops.
+
+---
+
 ## 2026-11-27T05:52:15.192Z — narrow rank30 extension; avoid duplicated threshold research
 
 - Agent16's `results/aichi-2026/agent16-rank30-clefairy-source-matchup-breakpoint-20261101.md` already derived 15 total Benched for healthy VMAX and Compressor/Telepathic/Patch/Latias direct route. Agent20's same-day `results/aichi-2026/2026-11/agent20-rank30-bench-budget-and-two-attack-closure-20261127.md` independently contains the candidate safe Bench cap, Tapu Lele Energy Drive concentration bound, and 3+4 Psychic two-attacker certificate. Do not claim those as novel Agent8 results or create a second results report.
