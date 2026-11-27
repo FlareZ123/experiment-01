@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
   "plan_id": "aichi-2026-opponent-policy-panel-v2",
-  "generated_at": "2026-11-26T12:06:52.656Z",
+  "generated_at": "2026-11-27T20:47:15.030350Z",
   "generated_by": "Agent17",
-  "snapshot_commit_sha": "cf92fae3dc376cd1ec500d9c4e9f86331c527ce2",
+  "snapshot_commit_sha": "eb400ae3819d9a384bfd615333889694f31e0dbb",
   "supersedes": "results/methodology/2026-11/agent17-aichi-policy-panel-manifest-20261117.json",
   "benchmark": {
     "name": "Aichi Open League 2026 Top 32",
@@ -53,7 +53,7 @@
   },
   "policy_panel": {
     "rank_count": 32,
-    "implemented_rank_count": 14,
+    "implemented_rank_count": 16,
     "implemented_ranks": [
       1,
       2,
@@ -67,16 +67,17 @@
       11,
       12,
       13,
+      17,
       19,
+      26,
       31
     ],
-    "implementation_module_file_count": 20,
+    "implementation_module_file_count": 22,
     "missing_policy_ranks": [
       9,
       14,
       15,
       16,
-      17,
       18,
       20,
       21,
@@ -84,14 +85,13 @@
       23,
       24,
       25,
-      26,
       27,
       28,
       29,
       30,
       32
     ],
-    "missing_policy_rank_count": 18,
+    "missing_policy_rank_count": 16,
     "full_game_competence_rank_count": 0,
     "independent_full_game_review_rank_count": 0,
     "qualified_matchup_count": 0,
@@ -1139,8 +1139,21 @@
         "can_transfer_attacker_energy_on_damage": false,
         "has_special_energy_removal": false
       },
-      "rank_policy_status": "no_rank_specific_policy",
-      "policy_variants": [],
+      "rank_policy_status": "prototype_only_not_frozen",
+      "policy_variants": [
+        {
+          "variant_id": "agent50-rank17-raichu-electrode-opponent-policy.cjs@1bcff39c326288bd79b03416319ee15c1b3123a8",
+          "version_label": "v1-development",
+          "producer": "agent50",
+          "policy_path": "simulation/evaluation/2026-11/agent50-rank17-raichu-electrode-opponent-policy.cjs",
+          "git_blob_sha1": "1bcff39c326288bd79b03416319ee15c1b3123a8",
+          "source_ref": "agent50/rank17-raichu-family-20261127",
+          "test_path": "tests/agent50-rank17-family-policy.test.cjs",
+          "test_git_blob_sha1": "0a6928c48b91c25fce970516546aa3c6f9c0f32b",
+          "frozen": false,
+          "selected_for_competence": false
+        }
+      ],
       "policy_profile": {
         "profile_id": null,
         "configuration_sha256": null,
@@ -1150,10 +1163,10 @@
         "native_complete_games": 0,
         "independently_reviewed_full_game_witness": null,
         "qualified_matchups": 0,
-        "admission_status": "not_started"
+        "admission_status": "blocked_no_competence_evidence"
       },
-      "reported_readiness_summary": null,
-      "readiness_reference": "results/methodology/2026-11/agent35-opponent-policy-prototype-readiness-20261117.md",
+      "reported_readiness_summary": "Branch-only exact-rank-17 actor-only successor on agent50/rank17-raichu-family-20261127. Current generated worker blob 1bcff39c326288bd79b03416319ee15c1b3123a8; current family test blob 0a6928c48b91c25fce970516546aa3c6f9c0f32b. Agent50 reports hundreds of exact-file synthetic decision/differential assertions in V8 and explicit unsupported dispositions for shared native Extra Energy Bomb, Electro Rain, and Crush and Burn-GX continuations. No native Store/IPC/full game, no merge, no frozen configuration/challenge digest, and no independent full-game competence.",
+      "readiness_reference": "results/aichi-2026/2026-11/agent50-rank17-final-development-report-20261127.md",
       "source_binding": {
         "file": "results/aichi-2026/full-decklists.json",
         "rank_pointer": "rank 17",
@@ -1573,8 +1586,21 @@
         "can_transfer_attacker_energy_on_damage": false,
         "has_special_energy_removal": false
       },
-      "rank_policy_status": "no_rank_specific_policy",
-      "policy_variants": [],
+      "rank_policy_status": "prototype_only_not_frozen",
+      "policy_variants": [
+        {
+          "variant_id": "agent21-rank26-meloetta-opponent-policy.cjs@ae3a9c0f5b67a5cd624a4fab49ab8c66da64a9ed",
+          "version_label": "v1-development",
+          "producer": "agent21",
+          "policy_path": "simulation/evaluation/2026-11/agent21-rank26-meloetta-opponent-policy.cjs",
+          "git_blob_sha1": "ae3a9c0f5b67a5cd624a4fab49ab8c66da64a9ed",
+          "source_ref": "agent21/rank26-actor-policy-20261127",
+          "test_path": "simulation/evaluation/2026-11/agent21-rank26-meloetta-opponent-policy.test.cjs",
+          "test_git_blob_sha1": "2db77827989df1a296299bbfcea702444b795b7e",
+          "frozen": false,
+          "selected_for_competence": false
+        }
+      ],
       "policy_profile": {
         "profile_id": null,
         "configuration_sha256": null,
@@ -1584,10 +1610,10 @@
         "native_complete_games": 0,
         "independently_reviewed_full_game_witness": null,
         "qualified_matchups": 0,
-        "admission_status": "not_started"
+        "admission_status": "blocked_no_competence_evidence"
       },
-      "reported_readiness_summary": null,
-      "readiness_reference": "results/methodology/2026-11/agent35-opponent-policy-prototype-readiness-20261117.md",
+      "reported_readiness_summary": "Branch-only exact-rank-26 actor-only successor on agent21/rank26-actor-policy-20261127. Policy blob ae3a9c0f5b67a5cd624a4fab49ab8c66da64a9ed; test blob 2db77827989df1a296299bbfcea702444b795b7e. Agent21 reports 22/22 synthetic V8 regressions covering source-bound setup/root/prompt choices, donation chains, known-resource power/mobility, K0/K1 acquisition and a bounded Dowsing recovery line. No native Store/IPC/full game, no merge, no frozen configuration/challenge digest, and several source continuations remain explicit gaps.",
+      "readiness_reference": "results/aichi-2026/2026-11/agent21-rank26-actor-policy-20261127.md",
       "source_binding": {
         "file": "results/aichi-2026/full-decklists.json",
         "rank_pointer": "rank 26",
