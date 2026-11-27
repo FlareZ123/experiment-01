@@ -83,6 +83,39 @@ function bombPrompt(f,sourceZone='active',sourceIndex=0){
     f.owner.bench[sourceIndex].getPokemonCard();
   return {prompt,projection:f.project(prompt,sourceCard,'Extra Energy Bomb')};
 }
+
+function crushBurnPrompt(f){
+  class DiscardEnergyPrompt{
+    constructor(){
+      this.id=1;this.playerId=f.owner.id;this.result=undefined;
+      this.message='CHOOSE_ENERGIES_TO_DISCARD';
+      this.playerType=native.PlayerType.BOTTOM_PLAYER;
+      this.slots=[native.SlotType.ACTIVE,native.SlotType.BENCH];
+      this.filter={superType:'ENERGY'};
+      const slots=[f.owner.active,...f.owner.bench];
+      const count=slots.reduce((n,s)=>n+s.energies.cards.length,0);
+      this.options={min:1,max:count,allowCancel:false,
+        blockedFrom:[],blockedMap:[]};
+    }
+    getPerspectivePlayerId(){return this.playerId}
+    decode(rows){
+      return rows.map(({from,index})=>{
+        const s=from.slot===native.SlotType.ACTIVE?
+          f.owner.active:f.owner.bench[from.index];
+        return {from,index,card:s.cards[index]};
+      });
+    }
+    validate(rows){
+      return rows.length>=1&&rows.length<=this.options.max&&
+        rows.every(r=>r.card?.superType==='ENERGY');
+    }
+  }
+  const prompt=new DiscardEnergyPrompt();
+  f.state.prompts=[prompt];
+  return {prompt,projection:f.project(prompt,
+    f.owner.active.getPokemonCard(),'Crush and Burn-GX')};
+}
+
 function promotePrompt(f){
   class ChoosePokemonPrompt{
     constructor(){
@@ -842,5 +875,147 @@ test('visible Legacy Energy prevents false six-Prize two-Bomb claim with survivi
       actionFrontier:{items:[...bombs,{kind:'pass',token:'pass'}]}
     }),{kind:'select-action',token:'bomb-0'},
       'without Legacy, two 3-Prize VMAX can yield all six Prizes before bench-wide KO');
+  }
+});
+
+
+
+test('printed Crush and Burn-GX: 5 physical attached Energy -> exact terminal VSTAR KO, both seats',()=>{
+  const T='Regidrago VSTAR SIT';
+  for(const seat of [0,1]){
+    const f=setup(seat,4);
+    const energies=Array.from({length:5},()=>new EnergyCard());
+    f.owner.active=slot(E,energies.slice(0,2));
+    f.owner.bench[0]=slot(R,energies.slice(2));
+    f.view.ownPublic.active=viewSlot(E,[P,P]);
+    f.view.ownPublic.bench=[viewSlot(R,[P,P,P]),null,null,null,null];
+    f.view.ownPublic.publicTurnRestrictions.gxUsed=false;
+    f.view.ownPublic.prizeCount=2;
+    f.view.opponentPublic.active={
+      ...viewSlot(T,[],'VSTAR'),hp:280,damage:20
+    };
+    f.view.opponentPublic.bench=[viewSlot(U,[],'Basic')];
+    const attack={kind:'attack',token:'gx',actorPrinting:E,
+      attackName:'Crush and Burn-GX',
+      publicMetadata:{gxAttack:true,attackCostPayable:true}};
+    assert.deepEqual(f.decide(1,null,[attack,{kind:'pass',token:'pass'}]),
+      {kind:'select-action',token:'gx'});
+    const requested=crushBurnPrompt(f);
+    const projection=requested.projection.promptProjection;
+    assert.equal(projection.promptType,'DiscardEnergyPrompt');
+    assert.equal(projection.source.sourcePrinting,E);
+    assert.equal(projection.source.effectName,'Crush and Burn-GX');
+    assert.equal(projection.publicMetadata.selectionType,'energy-payment');
+    assert.equal(projection.publicMetadata.energyCount,5);
+    assert.equal(projection.choices.length,5);
+    assert.equal(projection.choices.filter(c=>
+      c.publicMetadata.zone==='active').length,2);
+    assert.equal(projection.choices.filter(c=>
+      c.publicMetadata.zone==='bench').length,3);
+    const decision=f.decide(2,projection);
+    assert.equal(decision.kind,'select-choices');
+    assert.equal(decision.tokens.length,5);
+    protocol.validateDecision(decision,projection,new Set());
+    const receipt=f.settle(requested.prompt,requested.projection,decision);
+    assert.equal(receipt.rawResult.length,5);
+    const uniques=new Set(receipt.rawResult.map(row=>
+      [row.from.player,row.from.slot,row.from.index,row.index].join('|')));
+    assert.equal(uniques.size,5);
+    assert.ok(receipt.decoded.every(row=>row.card.superType==='ENERGY'));
+    // The separate native CES48 hook mathematically corrects the pinned
+    // 30 + 50*5*5 callback to printed 30 + 50*5=280 damage.
+    assert.equal(30+50*decision.tokens.length,280);
+    assert.ok(280>=280-20);
+  }
+});
+
+test('printed Crush and Burn-GX uses four cards, not four special Energy units',()=>{
+  const T='Iron Thorns ex TWM',C='Counter Energy CIN';
+  for(const seat of [0,1]){
+    const f=setup(seat,4);
+    const one=()=>Object.assign(new EnergyCard(),
+      {fullName:C,name:'Counter Energy'});
+    f.owner.active=slot(E,[one(),one()]);
+    f.owner.bench[0]=slot(R,[one(),one()]);
+    f.view.ownPublic.active=viewSlot(E,[C,C]);
+    f.view.ownPublic.bench=[viewSlot(R,[C,C]),null,null,null,null];
+    f.view.ownPublic.publicTurnRestrictions.gxUsed=false;
+    f.view.ownPublic.prizeCount=2;
+    f.view.opponentPublic.active={
+      ...viewSlot(T,[],'Basic'),hp:230,damage:0
+    };
+    f.view.opponentPublic.bench=[viewSlot(U,[],'Basic')];
+    const attack={kind:'attack',token:'gx',actorPrinting:E,
+      attackName:'Crush and Burn-GX',
+      publicMetadata:{gxAttack:true,attackCostPayable:true}};
+    assert.deepEqual(f.decide(1,null,[attack]),{kind:'select-action',token:'gx'});
+    const x=crushBurnPrompt(f),p=x.projection.promptProjection;
+    const decision=f.decide(2,p);
+    assert.equal(decision.kind,'select-choices');
+    assert.equal(decision.tokens.length,4);
+    assert.equal(30+50*decision.tokens.length,230);
+    assert.equal(f.settle(x.prompt,x.projection,decision).rawResult.length,4);
+  }
+});
+
+test('GX root refuses spent once-per-game marker, insufficient Prizes, unpaid and typo actions',()=>{
+  const T='Regidrago VSTAR SIT';
+  for(const seat of [0,1]){
+    const f=setup(seat,4);
+    f.view.ownPublic.active=viewSlot(E,[P,P,P,P,P]);
+    f.view.ownPublic.bench=[null,null,null,null,null];
+    f.view.ownPublic.prizeCount=2;
+    f.view.opponentPublic.active={
+      ...viewSlot(T,[],'VSTAR'),hp:280,damage:20
+    };
+    f.view.opponentPublic.bench=[viewSlot(U,[],'Basic')];
+    const attack={kind:'attack',token:'gx',actorPrinting:E,
+      attackName:'Crush and Burn-GX',
+      publicMetadata:{gxAttack:true,attackCostPayable:true}};
+    const run=(changeAction=attack)=>{
+      const policy=rank17.createPolicy({role:'opponent',seat,
+        policyVersion:rank17.POLICY_VERSION,config:{}});
+      return policy.decide({
+        role:'opponent',seat,sequence:1,prompt:null,observation:f.view,
+        actionFrontier:{items:[changeAction,{kind:'pass',token:'pass'}]}
+      });
+    };
+    f.view.ownPublic.publicTurnRestrictions.gxUsed=true;
+    assert.notDeepEqual(run(),{kind:'select-action',token:'gx'});
+    f.view.ownPublic.publicTurnRestrictions.gxUsed=false;
+    f.view.ownPublic.prizeCount=3;
+    assert.notDeepEqual(run(),{kind:'select-action',token:'gx'});
+    f.view.ownPublic.prizeCount=2;
+    assert.notDeepEqual(run({...attack,
+      publicMetadata:{gxAttack:true,attackCostPayable:false}}),
+      {kind:'select-action',token:'gx'});
+    assert.notDeepEqual(run({...attack,attackName:'Crash and Burn-GX'}),
+      {kind:'select-action',token:'gx'});
+    f.view.opponentPublic.active.energies=['Legacy Energy TWM 167'];
+    assert.notDeepEqual(run(),{kind:'select-action',token:'gx'},
+      'public Legacy prize prevention makes this one GX KO nonterminal');
+  }
+});
+
+test('CES48 GX physical prompt rejects missing source, blocked energy and count mismatch',()=>{
+  for(const seat of [0,1]){
+    const f=setup(seat,4);
+    f.owner.active=slot(E,[new EnergyCard(),new EnergyCard()]);
+    const good=crushBurnPrompt(f);
+    assert.equal(good.projection.promptProjection.choices.length,2);
+    const malformed=crushBurnPrompt(f);
+    malformed.prompt.options.blockedFrom=[{player:0,slot:0,index:0}];
+    assert.throws(()=>f.project(malformed.prompt,
+      f.owner.active.getPokemonCard(),'Crush and Burn-GX'),
+      /DiscardEnergyPrompt shape changed/);
+    const badSource=crushBurnPrompt(f);
+    assert.throws(()=>f.project(badSource.prompt,
+      f.owner.active.getPokemonCard(),'Crash and Burn-GX'),
+      /source is not printed CES48/);
+    const badCount=crushBurnPrompt(f);
+    badCount.prompt.options.max=3;
+    assert.throws(()=>f.project(badCount.prompt,
+      f.owner.active.getPokemonCard(),'Crush and Burn-GX'),
+      /physical Energy differs/);
   }
 });
