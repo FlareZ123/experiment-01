@@ -13,8 +13,8 @@
     "note": "Agent13 v1 already integrates Agent1's Raichu/Electrode delta. V2 adds uncovered rank2/rank5/rank9/rank19/rank30/rank31 families without changing the fixed 60."
   },
   "status": "actor-visible paper acceptance consolidation; no policy implementation, native game, competitive qualification, or win-rate claim",
-  "addedCaseCount": 48,
-  "totalCaseCount": 87,
+  "addedCaseCount": 51,
+  "totalCaseCount": 90,
   "addedCases": [
     {
       "id": "R2-DUAL-LOCK-RONDO",
@@ -489,6 +489,35 @@
       "state": "Altered Creation extra-Prize effect is live and a KO occurs.",
       "must": "Apply the extra Prize only when the candidate Active is Knocked Out by attack damage from the boosted player's Pokémon.",
       "forbids": "Adding one Prize to Ability/effect KOs, self-KOs, or non-Active KOs."
+    },
+    {
+      "id": "LOCK-PERFECTION-OFF-MEW2-PRINTED-GX",
+      "family": "lock fallback",
+      "sourceRanks": [],
+      "state": "Mewtwo & Mew-GX Perfection is suppressed; Mewtwo itself is able to attack, has Psychic/Psychic/Colorless, and GX is unused.",
+      "must": "Keep printed Miraculous Duo-GX as a legal 200-damage attack and score its optional extra-Energy heal if funded.",
+      "forbids": "Treating Perfection suppression as making Mewtwo attackless."
+    },
+    {
+      "id": "LOCK-BUS-BASIC-ATTACK",
+      "family": "Basic attack lock",
+      "sourceRanks": [
+        15
+      ],
+      "state": "BUS Vileplume Disgusting Pollen is active from the opponent's Active Spot.",
+      "must": "Reject attacks by every candidate Basic Pokémon while preserving Stage-1 Dusclops attack/Cursed Blast and legal lockbreak/gust lines.",
+      "forbids": "Confusing Ability access with permission for a Basic to attack."
+    },
+    {
+      "id": "LOCK-AOR-TOOLS",
+      "family": "Item lock",
+      "sourceRanks": [
+        2,
+        15
+      ],
+      "state": "AOR Vileplume Irritating Pollen is active; candidate has a Pokémon Tool play such as Powerglass and no separate Tool restriction.",
+      "must": "Keep the Tool play legal under the current Advanced Rulebook distinction between Items and Pokémon Tools.",
+      "forbids": "Treating older/current Tools as Items for Vileplume's lock."
     }
   ],
   "authenticatedFamilyCoverage": {
@@ -541,7 +570,8 @@
     "Resolved effects are not rewound: post-Bomb Path does not remove attached Energy; post-Altered-Creation New Moon has no Ranger reset in the fixed 60.",
     "Discrete HP/Prize breakpoints override average-damage heuristics.",
     "Ability suppression is scoped, not binary: recompute Basic/Rule-Box/Active/global suppression before and after Stadium replacement; Iron Thorns leaves Lunatone live, while Klefki/Silent Lab/Empoleon can disable the New Moon shield.",
-    "Prize state is a transition variable, not a score: settle simultaneous self-KO/effect-KO Prize events before recomputing Ace Trainer, Reversal/Counter Energy, Ursaluna discounts and Altered-Creation Prize modifiers."
+    "Prize state is a transition variable, not a score: settle simultaneous self-KO/effect-KO Prize events before recomputing Ace Trainer, Reversal/Counter Energy, Ursaluna discounts and Altered-Creation Prize modifiers.",
+    "A lock deletes only its actual action class: Ability suppression, Basic attack suppression, Item lock, Supporter lock and hand-play lock require different fallback sets; recompute native printed attacks before declaring lockout."
   ],
   "implementationGate": {
     "required": [
@@ -559,7 +589,8 @@
     "results/aichi-2026/2026-11/agent1-newmoon-rank19-adp-bolt-response-20261127.md",
     "results/aichi-2026/2026-11/agent1-newmoon-remaining-family-gates-20261127.md",
     "results/strategy/2026-11/agent1-ability-scope-stadium-sequencer-v1.md",
-    "results/strategy/2026-11/agent1-prize-state-transition-policy-v1.md"
+    "results/strategy/2026-11/agent1-prize-state-transition-policy-v1.md",
+    "results/strategy/2026-11/agent1-newmoon-lock-matrix-fallback-ladder-v1.md"
   ],
   "competitiveQualified": false,
   "claim99Point5": false
