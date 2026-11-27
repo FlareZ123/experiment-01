@@ -58,7 +58,7 @@ function root(r,caps={discard:false,attach:false}){
  if(s.temple&&s.dde){
   // Resetting Hole has no continuation and its Psychic source is exempt
   // from Bide Barricade. Spend it only if the source is an unpowered Bench.
-  const reset=items.find(x=>x.kind==='use-ability'&&md(x).abilityName==='Resetting Hole'&&kind(x.actorPrinting)==='marshadow'&&exactRootSlot(s,x,true)?.zone==='bench'&&list(exactRootSlot(s,x,true)?.pokemon.energies).length===0);
+  const reset=items.find(x=>x.kind==='use-ability'&&md(x).abilityName==='Resetting Hole'&&kind(x.actorPrinting)==='marsh'&&exactRootSlot(s,x,true)?.zone==='bench'&&list(exactRootSlot(s,x,true)?.pokemon.energies).length===0);
   if(reset)return sel(reset);
   if(blower)return sel(blower);
   const sky=items.find(x=>held(x,s,SKY));if(sky)return sel(sky);
