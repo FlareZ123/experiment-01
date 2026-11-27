@@ -203,13 +203,13 @@ test('V3 native frontier attachment is targeted and DDE beats Basic on an unfund
     const items=[
       {token:'dde-wrong',kind:'play-card',actorPrinting:'Double Dragon Energy ROS 97',
         targetPrinting:'Dedenne-GX UNB 57',
-        publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:0}},
+        publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:0,isOwnerVisible:true}},
       {token:'grass',kind:'play-card',actorPrinting:'Grass Energy MEE 9',
         targetPrinting:'Regidrago VSTAR SIT 136',
-        publicMetadata:{targetSeat:'actor',targetZone:'active'}},
+        publicMetadata:{targetSeat:'actor',targetZone:'active',isOwnerVisible:true}},
       {token:'dde',kind:'play-card',actorPrinting:'Double Dragon Energy ROS 97',
         targetPrinting:'Regidrago VSTAR SIT 136',
-        publicMetadata:{targetSeat:'actor',targetZone:'active'}},
+        publicMetadata:{targetSeat:'actor',targetZone:'active',isOwnerVisible:true}},
       {token:'pass',kind:'pass'}
     ];
     const req=root(seat,{own,items,hand:['Grass Energy MEE 9','Double Dragon Energy ROS 97'],
@@ -226,7 +226,7 @@ test('V3 contract clears hostile Temple before attaching suppressed Double Drago
   const items=[
     {token:'dde',kind:'play-card',actorPrinting:'Double Dragon Energy ROS 97',
       targetPrinting:'Regidrago VSTAR SIT 136',
-      publicMetadata:{targetSeat:'actor',targetZone:'active'}},
+      publicMetadata:{targetSeat:'actor',targetZone:'active',isOwnerVisible:true}},
     {token:'parallel',kind:'play-card',actorPrinting:'Parallel City BKT 145'},
     {token:'pass',kind:'pass'}
   ];
