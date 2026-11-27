@@ -1736,7 +1736,7 @@ test('Hisuian Heavy Ball abstains when Prize identities are concealed', () => {
 });
 
 
-test('Mimikyu is not prioritized against Pokémon ex because Safeguard protects only from Pokémon V', () => {
+test('Mimikyu is prioritized against Pokémon ex because PAL 97 Safeguard protects against ex and V', () => {
   const request = rootRequest({
     ownHand: ['Mimikyu PAL 97'],
     ownPublic: player({ active: pokemon('Snorlax PGO 55') }),
@@ -1751,7 +1751,7 @@ test('Mimikyu is not prioritized against Pokémon ex because Safeguard protects 
     ]
   });
   assert.deepEqual(checkedDecision(request), {
-    kind: 'select-action', token: 'pass'
+    kind: 'select-action', token: 'mimikyu'
   });
 });
 

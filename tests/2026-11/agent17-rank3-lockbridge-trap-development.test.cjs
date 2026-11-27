@@ -245,3 +245,29 @@ for(const seat of [0,1]) {
       {kind:'select-choices',tokens:['prize-0']});
   });
 }
+
+
+for(const seat of [0,1]) {
+  const mim={token:'mim',kind:'play-card',actorPrinting:'Mimikyu PAL 97',
+    publicMetadata:{cardType:'pokemon'}};
+  test('seat '+seat+': Safeguard wall bench decision includes candidate Lillie\'s Clefairy ex',()=>{
+    const o=state({seat,opp:mon("Lillie's Clefairy ex JTG 56"),obench:[],
+      hand:['Mimikyu PAL 97']});
+    assert.deepEqual(decide(o,[mim,pass]),{kind:'select-action',token:'mim'});
+  });
+  test('seat '+seat+': Safeguard bench heuristic retains V, VMAX, VSTAR coverage',()=>{
+    for(const printing of ['Shadow Rider Calyrex V CRE 74','Shadow Rider Calyrex VMAX CRE 75','Regidrago VSTAR SIT 136'])
+      assert.deepEqual(decide(state({seat,opp:mon(printing),obench:[]}),[mim,pass]),
+        {kind:'select-action',token:'mim'});
+  });
+  test('seat '+seat+': old EX, GX and ordinary Basic do not trigger Safeguard bench bonus',()=>{
+    for(const printing of ['Mewtwo-EX NXD 54','Dialga-GX UPR 100','Wobbuffet PHF 36'])
+      assert.deepEqual(decide(state({seat,opp:mon(printing),obench:[]}),[mim,pass]),
+        {kind:'select-action',token:'pass'});
+  });
+  test('seat '+seat+': a second Mimikyu is not prioritized merely by ex presence',()=>{
+    const o=state({seat,opp:mon("Lillie's Clefairy ex JTG 56"),obench:[],
+      bench:[mon('Mimikyu PAL 97')]});
+    assert.deepEqual(decide(o,[mim,pass]),{kind:'select-action',token:'pass'});
+  });
+}
