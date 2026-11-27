@@ -606,11 +606,57 @@ function r17SafeDiscards(cards,view,excluded) {
   }
   return picked;
 }
+// Secret Box is both a search connector and a three-card discard outlet.
+// Do not require three duplicates if distinct Special Energy pay for a
+// strictly better immediate exchange. Preserve any needed manual attachment.
+function r17ManualAvailable(view) {
+  const t=view.ownTurnResources?.energyPlayedTurn;
+  return Number.isSafeInteger(t)&&t!==view.globalTurn;
+}
+function r17HandRainProjection(view,p,rows,options={}) {
+  let best=r17RainProjection(view,p,options);
+  if(!r17ManualAvailable(view))return best;
+  for(const k of new Set(rows.map(r17Key).filter(k=>R17_ENERGY.has(k)))){
+    const next=r17RainProjection(view,p,{...options,extraAttached:[...list(options.extraAttached),R17_ENERGY_PRINTING[k]]});
+    if(r17CompareProjection(next,best)>0)best=next;
+  }
+  return best;
+}
+function r17SecretPayment(cards,view,excluded=null) {
+  const ordinary=r17SafeDiscards(cards,view,excluded).slice(0,3);
+  const p=active(own(view));
+  if(!r17RainWindow(view,p)||!r17LiveBombs(view).length||r17NeedTempleRemoval(view))return ordinary;
+  const physical=cards.filter(c=>r17Key(c)&&r17Key(c)!=='secret');
+  if(physical.length<3)return ordinary;
+  const original=hand(view).filter(c=>r17Key(c)!=='secret');
+  const baseline=r17HandRainProjection(view,p,original);
+  const counts=r17CardCounts(original)||{};
+  let best=null;
+  for(const rows of r17Combinations(physical,3)){
+    const spent=r17CardCounts(rows)||{};
+    const energy=rows.filter(c=>R17_ENERGY.has(r17Key(c)));
+    if(!energy.length)continue;
+    // All non-energy payment remains subject to the protected-copy rule.
+    if(Object.entries(spent).some(([k,n])=>!R17_ENERGY.has(k)&&
+      !(k==='vip'&&!r17First(view))&&(!(R17_ITEM.has(k)||R17_SUPPORTER.has(k))||n>=(counts[k]||0))))continue;
+    const remaining={...spent};
+    const held=original.filter(c=>{const k=r17Key(c);if(remaining[k]>0){remaining[k]--;return false;}return true;});
+    const projected=r17HandRainProjection(view,p,held,{extraDiscard:energy});
+    if(!projected||projected.bombs===0||r17CompareProjection(projected,baseline)<=0)continue;
+    const comparison=r17CompareProjection(projected,best?.projection);
+    if(comparison>0||(comparison===0&&energy.length<best.energyCount))
+      best={rows,projection:projected,energyCount:energy.length};
+  }
+  return best?.rows||ordinary;
+}
 function r17TrainerNeed(key,view) {
   if(key==='vip')return r17First(view)&&r17Space(view)>0?240:0;
   if(key==='carrier')return r17CoreAccess(view,{}, {carrier:1}).carrierKeys.length||
     r17Discard(view).some(c=>!R17_CORE_KEYS.includes(r17Key(c))&&r17CarrierValue(r17Key(c),view)>0)?260:90;
-  if(key==='compressor')return r17CompressorUseful(view)?240:25;
+  if(key==='compressor'){
+    const p=active(own(view));
+    return r17LoadPlan(view,p,r17EnergyDeckBounds(view),3)?420:r17CompressorUseful(view)?240:25;
+  }
   if(key==='stretcher')return r17CoreAccess(view,{}, {stretcher:1}).stretcherKeys.length||
     r17Discard(view).some(c=>!R17_CORE_KEYS.includes(r17Key(c))&&r17RecoveryValue(r17Key(c),view)>0)?230:70;
   if(key==='heavy')return r17Missing(view,'voltorb','electrode')||r17Missing(view,'pikachu','raichu')?160:40;
@@ -618,8 +664,12 @@ function r17TrainerNeed(key,view) {
   if(key==='carmine')return supporterAvailable(view)&&!r17Hand(view,'research')&&r17Deck(view)>=6?145:30;
   if(key==='rope')return r17Space(view)<5?90:45;
   if(key==='uturn')return 120;
-  if(key==='sight')return 50;
-  if(key==='pokestop')return r17Deck(view)>=12&&benchCount(own(view))<=5?110:0;
+  if(key==='sight'){
+    const p=active(own(view));
+    const a=r17RainProjection(view,p),b=r17RainProjection(view,p,{forceSight:true});
+    return b&&r17CompareProjection(b,a)>0?420:50;
+  }
+  if(key==='pokestop')return r17NeedTempleRemoval(view)?420:r17Deck(view)>=12&&benchCount(own(view))<=5?110:0;
   return 0;
 }
 function r17SecretChoices(prompt,view) {
@@ -919,7 +969,10 @@ function r17ScorePlay(item,view) {
     r17Discard(view).some(c=>!R17_CORE_KEYS.includes(r17Key(c))&&r17RecoveryValue(r17Key(c),view)>0)?275:0;
   if(k==='mail')return r17Deck(view)>=2?175:0;
   if(k==='heavy')return r17Missing(view,'voltorb','electrode')||r17Missing(view,'pikachu','raichu')?160:0;
-  if(k==='secret')return r17SafeDiscards(hand(view),view,'secret').length>=3?155:0;
+  if(k==='secret'){
+    const payment=r17SecretPayment(hand(view),view,'secret');
+    return payment.length>=3?(payment.some(c=>R17_ENERGY.has(r17Key(c)))&&r17RainWindow(view,active(own(view)))?380:155):0;
+  }
   if(k==='research'||k==='carmine')return !r17ProtectedHand(view)&&handCount(view)<=3&&
     r17Deck(view)>=(k==='research'?8:6)?205:0;
   if(k==='pokestop'&&/^Sky Field\b/i.test(r17Stadium(view))&&benchCount(own(view))>5)return 0;
@@ -1091,7 +1144,7 @@ function r17Prompt(request) {
     if(key==='mail')return r17Multi(p,r17Rank(r17ChoiceCards(p,'deck'),c=>r17TrainerNeed(r17Key(c),v)),1);
     if(key==='secret') {
       const zone=metadata(p).sourceZone;
-      if(zone==='hand')return r17Multi(p,r17SafeDiscards(r17ChoiceCards(p,'hand'),v,null),3);
+      if(zone==='hand')return r17Multi(p,r17SecretPayment(r17ChoiceCards(p,'hand'),v,null),3);
       if(zone==='deck')return r17SecretChoices(p,v);
       return r17Abstain('R17_SECRET_BOX_UNKNOWN_ZONE');
     }
@@ -1289,5 +1342,5 @@ module.exports = Object.freeze({
   SOURCE_ENTRY_JSON_SHA256:R17_PROFILE.sourceEntryJsonSha256,
   ENGINE_PIN:R17_PROFILE.enginePin,PROFILE:R17_PROFILE,createPolicy:r17CreatePolicy,
   scoreAction:r17Score,promptDecision:r17Prompt,bestAction:r17Best,
-  planRainTurn:r17PlanRainTurn,knownOwnZones:r17KnownOwnZones,ticketPlan:r17TicketPlan,planCoreAccess:r17CoreAccess,wobbuffetLive:r17WobLive,abilityBlocked:r17AbilityBlocked,liveBombs:r17LiveBombs,rainProjection:r17RainProjection,ropeRainPlan:r17RopeRainPlan,energyProvision:r17EnergyProvision,loadPlan:r17LoadPlan,activeLoadPlan:r17ActiveLoadPlan
+  planRainTurn:r17PlanRainTurn,knownOwnZones:r17KnownOwnZones,ticketPlan:r17TicketPlan,planCoreAccess:r17CoreAccess,wobbuffetLive:r17WobLive,abilityBlocked:r17AbilityBlocked,liveBombs:r17LiveBombs,rainProjection:r17RainProjection,ropeRainPlan:r17RopeRainPlan,energyProvision:r17EnergyProvision,loadPlan:r17LoadPlan,activeLoadPlan:r17ActiveLoadPlan,secretPayment:r17SecretPayment
 });
