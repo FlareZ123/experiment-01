@@ -106,6 +106,45 @@ function cynthiaRecoverPriority(choice, observation) {
   if (/^Guzma BUS 115\b/i.test(name)) return 130;
   return 30;
 }
+function legacyRecoverPriority(card, observation) {
+  const value=print(card),own=observation?.ownPublic??{};
+  const attackers=slots(own).filter(x=>
+    /^Regidrago V(?:STAR)? SIT 13[56]\b/i.test(print(x)));
+  const needsFunding=attackers.some(x=>apexTypedDeficit(x,observation)>0);
+  const hasActiveVstar=attackers.some(x=>/^Regidrago VSTAR SIT 136\b/i.test(print(x)));
+  const hasBasicV=attackers.some(x=>/^Regidrago V SIT 135\b/i.test(print(x)));
+  if (/^Double Dragon Energy ROS 97\b/i.test(value))
+    return needsFunding?290:175;
+  if (/^Grass Energy|^Fire Energy/i.test(value))
+    return needsFunding?220:75;
+  if (/^Regidrago VSTAR SIT 136\b/i.test(value))
+    return hasBasicV&&!hasActiveVstar?265:0;
+  if (/^Regidrago V SIT 135\b/i.test(value))
+    return attackers.length===0?255:40;
+  if (/^Battle Compressor PHF 92\b/i.test(value))
+    return countDonors(own)===0?245:95;
+  if (/^Guzma BUS 115\b/i.test(value))
+    return slots(observation?.opponentPublic).length>1?235:70;
+  if (/^Crispin SCR 133\b/i.test(value))return needsFunding?205:75;
+  if (/^Lillie's Determination MEG 119\b/i.test(value))
+    return list(observation?.ownHand).length<=3?200:70;
+  if (/^VS Seeker PHF 109\b/i.test(value))
+    return list(own.discard).some(isSourceSupporter)?190:65;
+  if (/^Megaton Blower SSP 182\b/i.test(value))return 150;
+  if (/^Super Rod PAL 188\b/i.test(value))return attackers.length===0?160:50;
+  if (/^Raihan EVS 152\b/i.test(value))return 140;
+  if (isSourceSupporter(card))return 90;
+  // Goodra, Dragonite and other copied attacks must stay in the discard.
+  // Filler is not worth using an optional recovery slot.
+  return 0;
+}
+function canUseLegacyStar(observation) {
+  const own=observation?.ownPublic??{};
+  const deckCount=own.deckCount;
+  if(!Number.isSafeInteger(deckCount)||deckCount<8||
+      own.publicTurnRestrictions?.vstarUsed!==false)return false;
+  return slots(own).some(p=>/^Regidrago VSTAR SIT 136\b/i.test(print(p)));
+}
 function scoreAction(action, request) {
   const obs = request?.observation ?? {};
   const own = obs.ownPublic ?? {};
@@ -117,6 +156,14 @@ function scoreAction(action, request) {
   const enabledV = slots(own).some(p => /^Regidrago V SIT 135\b/i.test(print(p)));
   if (action.kind === 'attack' && /^(Apex Dragon)$/i.test(action.attackName ?? action.label ?? '')) {
     return countDonors(own) ? 230 : 0;
+  }
+  if (action.kind === 'use-ability' &&
+      /Legacy Star/i.test(action?.publicMetadata?.abilityName??action?.label??'')) {
+    if (!canUseLegacyStar(obs)) return 0;
+    const useful=list(own.discard).some(c=>legacyRecoverPriority(c,obs)>0);
+    if (useful && hand<=4) return 275;
+    if (countDonors(own)===0 && own.deckCount>=16) return 210;
+    return 50;
   }
   if (action.kind === 'play-card') {
     const attachScore=scoreEnergyAttachment(action,obs);
@@ -409,6 +456,30 @@ function promptDecision(request) {
   if (p.promptType === 'ChooseAttackPrompt' && /apex dragon/.test(source)) {
     return chooseRank32Apex(choices, obs);
   }
+  if (/legacy star/.test(source)) {
+    if (!canUseLegacyStar(obs) && obs.ownPublic?.publicTurnRestrictions?.vstarUsed===true) {
+      // The VSTAR-use flag can become true before the recovery continuation;
+      // do not re-apply the root gate inside a legitimately ongoing prompt.
+    } else if (!list(obs.ownPublic?.discard).length) {
+      return {kind:'abstain',reasonCode:'RANK32_LEGACY_NO_VISIBLE_RECOVERY'};
+    }
+    if (p.promptType==='ChooseCardsPrompt' &&
+        meta.selectionType==='card-combination'&&
+        meta.sourceZone==='discard') {
+      return chooseMany(choices,c=>legacyRecoverPriority(c,obs),min,Math.min(max,2),
+        'RANK32_LEGACY_NO_SAFE_RECOVERY');
+    }
+    if (p.promptType==='ConfirmPrompt' && meta.selectionType==='confirm') {
+      const useful=list(obs.ownPublic?.discard).some(c=>legacyRecoverPriority(c,obs)>0);
+      const enabled=canUseLegacyStar(obs)&&
+        (useful||countDonors(obs.ownPublic??{})===0);
+      const target=choices.find(c=>c.kind==='confirm' &&
+        new RegExp(enabled?'^yes$':'^no$','i').test(c.label??''));
+      return target?{kind:'select-choice',token:target.token}:
+        {kind:'abstain',reasonCode:'UNRECOGNIZED_SIMPLE_PROMPT'};
+    }
+    return {kind:'abstain',reasonCode:'RANK32_LEGACY_PROMPT_UNPROJECTED'};
+  }
   if (/cynthia\s*&\s*caitlin/.test(source)) {
     if (p.promptType === 'ChooseCardsPrompt' &&
         meta.selectionType === 'card-combination') {
@@ -540,4 +611,5 @@ module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
   createPolicy,scoreAction,promptDecision,bestAction,chooseRank32Apex,donorScore,
   protocolSafeDecision,apexTypedDeficit,scoreEnergyAttachment,nativeOwnerTarget,
   engineSetupDecision,setupActiveScore,setupBenchScore,
-  isSourceSupporter,cynthiaRecoverPriority};
+  isSourceSupporter,cynthiaRecoverPriority,
+  legacyRecoverPriority,canUseLegacyStar};
