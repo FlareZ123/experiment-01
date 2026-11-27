@@ -306,37 +306,101 @@ function r17CarrierChoices(prompt,view,zone='discard') {
 function r17MissingCore(view) {
   return [['voltorb','electrode'],['pikachu','raichu']].filter(([b,e])=>r17Missing(view,b,e)).map(([b])=>b);
 }
-function r17CompressorPlan(view,deckKeys=null) {
-  if(!itemAvailable(view))return [];
-  const discard=new Set(r17Discard(view).map(r17Key));
-  const canSearch=k=>deckKeys===null||deckKeys.has(k);
-  const carrier=r17HandCount(view,'carrier'),stretcher=r17HandCount(view,'stretcher');
-  const bases=r17MissingCore(view);
-  // Recovery capacity is physical: a Carrier retrieves at most two Basics.
-  // Already-discarded starters use the same slots; only search the residual.
-  const baseCapacity=Math.min(2*carrier,r17Space(view),bases.length);
-  const recoveredBases=bases.filter(k=>discard.has(k)).slice(0,baseCapacity);
-  const searchBases=bases.filter(k=>!discard.has(k)&&canSearch(k)).slice(0,baseCapacity-recoveredBases.length);
-  const plannedBases=[...recoveredBases,...searchBases];
-  // Stretcher has a separate one-card recovery budget. A Stage 1 already
-  // in discard consumes that budget before a second Stage 1 is searched.
-  const demand=r17EvolutionDemand(view,plannedBases);
-  const recoveredEvos=demand.filter(k=>discard.has(k)).slice(0,stretcher);
-  const searchEvos=demand.filter(k=>!discard.has(k)&&canSearch(k)).slice(0,stretcher-recoveredEvos.length);
-  // With no Carrier, surplus Stretcher uses may also retrieve a Basic.
-  // Prioritize a missing Basic for an evolution already held. Do not count
-  // the same Stretcher for both an evolution and its Basic.
-  const otherBases=bases.filter(k=>!plannedBases.includes(k)&&!discard.has(k)&&canSearch(k))
-    .sort((a,b)=>Number(r17Hand(view,b==='pikachu'?'raichu':'electrode'))-
-      Number(r17Hand(view,a==='pikachu'?'raichu':'electrode')));
-  const availableStretcher=carrier===0?Math.max(0,stretcher-recoveredEvos.length-searchEvos.length-
-    bases.filter(k=>discard.has(k)).length):0;
-  const extraBases=otherBases.slice(0,Math.min(availableStretcher,Math.max(0,r17Space(view)-plannedBases.length)));
-  // The card searches up to three. Prioritize funded missing Basics, then
-  // funded Stage 1s, then genuinely surplus Stretcher Basic recovery.
-  return [...searchBases,...searchEvos,...extraBases].slice(0,3);
+function r17BoardCount(view,key) {return slots(own(view)).filter(p=>r17Key(p)===key).length;}
+function r17SecondBombUseful(view) {
+  const p=own(view),o=opponent(view);
+  // Two Electrode self-KOs cost four opposing Prize cards. Do not set up
+  // that second liability solely for the simultaneous combo when it would
+  // already lose, or when too little Special Energy remains to benefit.
+  const energyLost=list(p.lostZone).filter(c=>R17_ENERGY.has(r17Key(c))).length;
+  return Number.isSafeInteger(o.prizeCount)&&o.prizeCount>=5&&
+    Number.isSafeInteger(p.prizeCount)&&p.prizeCount>=4&&12-energyLost>=6;
 }
-function r17CompressorGain(view) {const z=r17KnownOwnZones(view);return r17CompressorPlan(view,z?new Set(Object.keys(z.deck)):null).length;}
+const R17_CORE_KEYS=Object.freeze(['voltorb','pikachu','raichu','electrode']);
+function r17CoreSequence(n) {
+  // First distinct species before duplicate copies, then second copies.
+  // This order serves both physical prompt selection and Carrier capacity.
+  const result=[];
+  for(let i=1;i<=3;i++)for(const k of R17_CORE_KEYS)if((n[k]||0)>=i)result.push(k);
+  return result;
+}
+function r17CoreAccess(view,deckCounts={},extra={}) {
+  const desiredE=r17SecondBombUseful(view)?2:1,desiredR=1,space=r17Space(view);
+  const b={},h={},d=r17CardCounts(r17Discard(view))||{};
+  for(const k of [...R17_CORE_KEYS,'ditto']){b[k]=r17BoardCount(view,k);h[k]=r17HandCount(view,k);}
+  const carrier=2*(r17HandCount(view,'carrier')+(extra.carrier||0));
+  const stretcher=r17HandCount(view,'stretcher')+(extra.stretcher||0);
+  const max={
+    voltorb:Math.max(0,desiredE-b.electrode-b.voltorb-h.voltorb),
+    pikachu:Math.max(0,desiredR-b.raichu-b.pikachu-h.pikachu),
+    electrode:Math.max(0,desiredE-b.electrode-h.electrode),
+    raichu:Math.max(0,desiredR-b.raichu-h.raichu)
+  };
+  const budget=Math.min(3,Math.max(0,extra.searchLimit??3));
+  const dittoEnabled=!r17BasicLock(view);
+  let best=null;
+  function compare(a,z){
+    if(!z)return 1;
+    for(let i=0;i<a.length;i++)if(a[i]!==z[i])return a[i]>z[i]?1:-1;
+    return 0;
+  }
+  // Enumerate recovery counts, not card permutations: at most
+  // 3*2*2*3=36 vectors. Derive the minimum Compressor search count and
+  // exact Carrier/Stretcher consumption for each, then enumerate bench
+  // placements and the mutually exclusive assignment of one Ditto.
+  for(let v=0;v<=max.voltorb;v++)for(let p=0;p<=max.pikachu;p++)
+    for(let r=0;r<=max.raichu;r++)for(let e=0;e<=max.electrode;e++){
+      const rec={voltorb:v,pikachu:p,raichu:r,electrode:e},search={};
+      const baseRec=v+p,evoRec=r+e,carrierUsed=Math.min(carrier,baseRec),
+        stretcherUsed=evoRec+baseRec-carrierUsed;
+      if(stretcherUsed>stretcher)continue;
+      let valid=true,totalSearch=0;
+      for(const key of R17_CORE_KEYS){
+        const n=Math.max(0,rec[key]-(d[key]||0));
+        if(n>(deckCounts[key]||0)){valid=false;break;}
+        search[key]=n;totalSearch+=n;
+      }
+      if(!valid||totalSearch>budget)continue;
+      for(let bv=0;bv<=Math.min(h.voltorb+v,space);bv++)
+        for(let bp=0;bp<=Math.min(h.pikachu+p,space-bv);bp++)
+          for(let bd=0;bd<=Math.min(dittoEnabled?h.ditto:0,space-bv-bp);bd++){
+            const ditto=dittoEnabled?Math.min(1,b.ditto+bd):0;
+            for(let de=0;de<=ditto;de++)for(let dr=0;dr<=ditto-de;dr++){
+              const baseE=Math.min(desiredE,b.electrode+b.voltorb+bv+de);
+              const baseR=Math.min(desiredR,b.raichu+b.pikachu+bp+dr);
+              const readyE=Math.min(desiredE,b.electrode+Math.min(b.voltorb+bv+de,h.electrode+e));
+              const readyR=Math.min(desiredR,b.raichu+Math.min(b.pikachu+bp+dr,h.raichu+r));
+              const combo=Number(readyR>=1&&readyE>=1);
+              const objective=[combo,Number(readyR>=1)+Number(readyE>=1),Number(readyR>=1),
+                Number(baseR>=1)+Number(baseE>=1),Number(baseR>=1),
+                Number(readyE>=2),Number(baseE>=2),
+                -totalSearch,-(baseRec+evoRec),-stretcherUsed,-(de+dr),-(bv+bp+bd)];
+              if(compare(objective,best?.objective)<=0)continue;
+              const basicKeys=r17CoreSequence({voltorb:v,pikachu:p});
+              best={objective,desiredE,readyE,readyR,baseE,baseR,
+                searchKeys:r17CoreSequence(search),
+                carrierKeys:basicKeys.slice(0,carrierUsed),
+                stretcherKeys:[...r17CoreSequence({raichu:r,electrode:e}),...basicKeys.slice(carrierUsed)],
+                placements:{voltorb:bv,pikachu:bp,ditto:bd},dittoAssignment:{electrode:de,raichu:dr}};
+            }
+          }
+    }
+  return best||{searchKeys:[],carrierKeys:[],stretcherKeys:[],placements:{voltorb:0,pikachu:0,ditto:0}};
+}
+function r17OptimisticDeck(view) {
+  const z=r17KnownOwnZones(view);if(z)return z.deck;
+  // K0: only upper bounds from own fixed inventory and already visible
+  // copies. An actual deck-search prompt supplies exact available counts.
+  const result={};
+  const d=r17CardCounts(r17Discard(view))||{},lost=r17CardCounts(list(own(view).lostZone))||{};
+  for(const k of R17_CORE_KEYS)result[k]=Math.max(0,R17_COUNTS[k]-r17BoardCount(view,k)-r17HandCount(view,k)-(d[k]||0)-(lost[k]||0));
+  return result;
+}
+function r17CompressorPlan(view,deckCounts=null) {
+  if(!itemAvailable(view))return [];
+  return r17CoreAccess(view,deckCounts||r17OptimisticDeck(view)).searchKeys;
+}
+function r17CompressorGain(view) {return r17CompressorPlan(view).length;}
 function r17CompressorUseful(view) {
   if(!itemAvailable(view))return false;
   if(r17CompressorGain(view)>0)return true;
@@ -347,9 +411,10 @@ function r17CompressorUseful(view) {
 }
 function r17CompressorChoices(prompt,view) {
   const cards=r17ChoiceCards(prompt,'deck');
-  const keys=r17CompressorPlan(view,new Set(cards.map(r17Key)));
+  const keys=r17CompressorPlan(view,r17CardCounts(cards)||{});
   if(keys.length) {
-    const rows=keys.map(k=>cards.find(c=>r17Key(c)===k)).filter(Boolean);
+    const remaining=cards.slice(),rows=[];
+    for(const key of keys){const index=remaining.findIndex(c=>r17Key(c)===key);if(index>=0)rows.push(...remaining.splice(index,1));}
     return r17Multi(prompt,rows,3);
   }
   const canRecycle=r17Hand(view,'carrier')&&r17Space(view)>0&&
@@ -819,5 +884,5 @@ module.exports = Object.freeze({
   SOURCE_ENTRY_JSON_SHA256:R17_PROFILE.sourceEntryJsonSha256,
   ENGINE_PIN:R17_PROFILE.enginePin,PROFILE:R17_PROFILE,createPolicy:r17CreatePolicy,
   scoreAction:r17Score,promptDecision:r17Prompt,bestAction:r17Best,
-  planRainTurn:r17PlanRainTurn,knownOwnZones:r17KnownOwnZones,ticketPlan:r17TicketPlan,energyProvision:r17EnergyProvision
+  planRainTurn:r17PlanRainTurn,knownOwnZones:r17KnownOwnZones,ticketPlan:r17TicketPlan,planCoreAccess:r17CoreAccess,energyProvision:r17EnergyProvision
 });
