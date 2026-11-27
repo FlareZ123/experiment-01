@@ -168,6 +168,29 @@ test('Quick Ball cannot invent a target or use wrong owner; optional no-find use
   assert.equal(policy(0).decide(r).reasonCode,'UNSUPPORTED_CARD_COMBINATION_SOURCE');
 });
 
+for(const seat of [0,1]) {
+  test('seat '+seat+': first-turn VIP places Clefairy and Latias from offered actor deck',()=>{
+    const r=request(seat);
+    r.observation.globalTurn=1;
+    r.observation.ownPublic.active=b('Unown AOR 30');
+    r.observation.ownHand=[vip,'Telepathic Psychic Energy POR 88'];
+    r.actionFrontier.items=[root('play-card',vip,'vip'),root('pass','','pass')];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'vip'});
+    r.prompt={...prompt('deck',[card(clef,'clef-1'),card(clef,'clef-2'),
+      card('Latias ex SSP 76','latias'),{kind:'empty-selection',token:'empty'}],0,2),
+      source:{sourcePrinting:vip,effectName:'Battle VIP Pass'}};
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-choices',tokens:['clef-1','latias']});
+  });
+}
+test('VIP cannot invent a prize-hidden Basic or select from an opponent zone',()=>{
+  const r=request();
+  r.prompt={...prompt('deck',[{kind:'empty-selection',token:'empty'}],0,2),
+    source:{sourcePrinting:vip,effectName:'Battle VIP Pass'}};
+  assert.deepEqual(policy(0).decide(r),{kind:'select-choice',token:'empty'});
+  r.prompt.publicMetadata.ownerSeat='opponent';
+  assert.equal(policy(0).decide(r).reasonCode,'UNSUPPORTED_CARD_COMBINATION_SOURCE');
+});
+
 test('Copycat and Wondrous Patch prompt families remain explicit unsupported',()=>{
   const r=request();r.prompt={promptType:'ChooseCardsPrompt',
     source:{sourcePrinting:'Wondrous Patch PFL 94'},choices:[]};
