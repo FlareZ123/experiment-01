@@ -37,7 +37,7 @@ Local tests were executed in a V8 harness with small Node `test`/`assert` shims.
 
 - **Raihan support is intentionally narrow:** the projection accepts the pinned Raihan card-effect provenance and exact `ATTACH_ENERGY_CARDS` prompt shape, and exposes only Basic Psychic Energy from the actor's discard to occupied own Active/Bench targets. Other `AttachEnergyPrompt` sources or shapes remain fail-closed. The pinned source is `vendor/twinleaf/ptcg-server/src/sets/09-sword-and-shield/set-evolving-skies/raihan.ts` and `.../game/store/prompts/attach-energy-prompt.ts` at submodule revision `a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`. The pinned Raihan call site supplies a Basic-Energy filter but does not pass its locally computed blocked-index list; the projection therefore enforces the Basic Energy type itself rather than relying on `AttachEnergyPrompt.validate` to enforce the UI filter.
 - Special Energy payment, non-Psychic candidate Energy, unknown prompts, and unsupported native card effects remain fail-closed or untested.
-- Host binding/config resolver are implemented, but no Docker worker or native fixture/game was started.
+- The runner's profile-preparation/manifest/bundle-binding helpers are syntax-checked only; they were not invoked against real card-pool assets or a built worker. The async session config resolver was exercised in setup tests, but no Docker worker, native fixture, or game was started.
 - No held-out adversarial games, all-32 matchup results, confidence intervals, or paper-play validation were produced.
 - The 99.5% target remains aspirational. These two candidates are not one nominated final deck.
 
