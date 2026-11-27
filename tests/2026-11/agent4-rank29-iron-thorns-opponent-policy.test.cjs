@@ -1145,3 +1145,73 @@ test('Guzma Hala mode1 can fetch needed Jammer despite held DCE, but no malforme
   assert.deepEqual(checkedDecision(malformed),
     {kind:'abstain',reasonCode:'UNSUPPORTED_CONFIRMATION_SOURCE'});
 });
+
+test('Trainers Mail live top-four prompt picks G&H first-turn connector over Plumeria', () => {
+  const req=promptRequest({
+    promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource("Trainers' Mail ROS 92","Trainers' Mail"),
+    publicMetadata:multiMetadata(0,1),
+    observation:{
+      ownHand:["Trainers' Mail ROS 92",'Camping Gear BST 122',
+        'Double Colorless Energy SUM 136']
+    },
+    choices:[
+      cardChoice('plumeria','Plumeria BUS 120'),
+      cardChoice('gh','Guzma & Hala CEC 193'),
+      cardChoice('hammer','Crushing Hammer POR 71'),
+      {token:'empty',kind:'empty-selection'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-choices',tokens:['gh']
+  });
+});
+
+test('Camping Gear owner-deck single search preserves DCE after G&H and Thunder held', () => {
+  const req=promptRequest({
+    promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('Camping Gear BST 122','Camping Gear'),
+    publicMetadata:multiMetadata(1,1),
+    observation:{ownHand:['Guzma & Hala CEC 193','Thunder Mountain ♢ LOT 191']},
+    choices:[
+      cardChoice('plumeria','Plumeria BUS 120'),
+      cardChoice('dce','Double Colorless Energy SUM 136'),
+      cardChoice('jammer','Tool Jammer BST 136')
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:['dce']});
+});
+
+test('Trainers Mail no eligible remaining card can explicitly skip selection', () => {
+  const req=promptRequest({
+    promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource("Trainers' Mail ROS 92","Trainers' Mail"),
+    publicMetadata:multiMetadata(0,1),
+    choices:[
+      cardChoice('blank','Iron Thorns ex TWM 77'),
+      {token:'empty',kind:'empty-selection'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),{kind:'select-choice',token:'empty'});
+});
+
+test('Faba and Enhanced Hammer typed ChooseCardsPrompt paths choose actual opponent cards', () => {
+  const base={
+    promptType:'ChooseCardsPrompt',publicMetadata:multiMetadata(1,1)
+  };
+  const faba=promptRequest({...base,
+    source:actorChoiceSource('Faba LOT 173','Faba'),
+    choices:[
+      cardChoice('hood','Stealthy Hood UNB 186','attached','opponent'),
+      cardChoice('dce','Double Colorless Energy SUM 136','attached','opponent')
+    ]
+  });
+  assert.deepEqual(checkedDecision(faba),{kind:'select-choices',tokens:['hood']});
+  const hammer=promptRequest({...base,
+    source:actorChoiceSource('Enhanced Hammer GRI 124','Enhanced Hammer'),
+    choices:[
+      cardChoice('dce','Double Colorless Energy SUM 136','attached','opponent')
+    ]
+  });
+  assert.deepEqual(checkedDecision(hammer),{kind:'select-choices',tokens:['dce']});
+});
