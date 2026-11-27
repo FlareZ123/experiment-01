@@ -2008,7 +2008,8 @@ function prepareTwoProfileCandidate({profileId,allCards,repositoryRoot=ROOT,engi
   const config=Object.freeze({schema:'agent46-candidate-profile-v1',profileId,deckSha256:registration.sha});
   const manifestResult=buildFixtureRoleEntryManifest({repositoryRoot,enginePin,runnerRevision,
     commonRuntimeBindings:[...V3_FIXTURE_WORKER_COMMON_BINDINGS,
-      {name:'candidatePrizeFacts',path:TWO_PROFILE_K1_PATH,exportName:'createOwnerPrizeFacts'}],
+      {name:'candidatePrizeFacts',path:TWO_PROFILE_K1_PATH,exportName:'createOwnerPrizeFacts'},
+      {name:'candidatePromptFilter',path:'vendor/twinleaf/ptcg-server/output/game/store/prompts/choose-cards-prompt.js',exportName:'matchesPromptFilter'}],
     orderedPromptChain:V3_FIXTURE_WORKER_PROMPT_CHAIN,
     additionalDataAssetPaths:[registration.deckPath,TWO_PROFILE_POLICY_PATH]});
   return Object.freeze({config,resolved,manifestResult,
@@ -2030,7 +2031,8 @@ function bindTwoProfileCandidate({prepared,candidateIdentity,candidateSeat,nativ
   const {bundle,policySha256}=buildRoleWorkerBundle({repositoryRoot,policyModulePath:prepared.policyModulePath});
   assert.equal(policySha256,prepared.policySha256);
   return Object.freeze({
-    native:Object.freeze({...native,observe:knowledge.observe}),
+    native:Object.freeze({...native,observe:knowledge.observe,candidateSuccessorSeat:candidateSeat,
+      matchesPromptFilter:require('../../../vendor/twinleaf/ptcg-server/output/game/store/prompts/choose-cards-prompt').matchesPromptFilter}),
     onStoreCreated(store){const hook=installPromptProvenanceHook(store);knowledge.bindStore(store,hook);return hook;},
     onAction:knowledge.onAction,
     sessionOptions:Object.freeze({role:'candidate',seat:candidateSeat,policyVersion:prepared.policyVersion,
