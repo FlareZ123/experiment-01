@@ -6,7 +6,41 @@ const TARGETS = new Set(['Radiant Eternatus','Shadow Rider Calyrex V','Shadow Ri
 // Only these source-bound effects are permitted to retain inferred Prize composition.
 // Unknown effects, opposing actions, or Heavy Ball clear the inference, even at unchanged counts.
 const SAFE_SOURCES = new Set(['Fog Crystal','Mysterious Treasure','Quick Ball','Forest Seal Stone','Arven','Tapu Lele-GX','Radiant Eternatus','Night Stretcher','VS Seeker','Raihan','Teammates','Shadow Rider Calyrex V','Shadow Rider Calyrex VMAX',"Lillie's Clefairy ex",'Latias ex','Trevenant & Dusknoir-GX','Marshadow','Girafarig','Mimikyu','Dialga-GX','Wobbuffet','Psychic Energy','Field Blower','Stealthy Hood','Float Stone','Sky Field','Dimension Valley','Temple of Sinnoh','Iono',"Lillie's Determination",'Acerola','Guzma','Pokémon Ranger','Unfair Stamp','Battle Compressor']);
-function createOwnerPrizeFacts({candidateSeat, resolved, baseObserve}) {
+// Narrow public attack-effect projection. No native object, marker owner,
+// attack source IDs, hidden cards, pending effects, or private attribution.
+function projectPublicDamageEffects(view,state,seat,Stage) {
+  if (!Stage) return view;
+  function filter(value) {
+    if (value===null) return 'none';
+    if (!value || typeof value!=='object') return 'unknown';
+    const keys=Object.keys(value);
+    if (!keys.length) return 'all';
+    if (keys.length===1 && value.sourceStage===Stage.BASIC) return 'basic';
+    if (keys.length===1 && value.sourceIsEvolution===true) return 'evolution';
+    return 'unknown';
+  }
+  const integer=value=>Number.isSafeInteger(value)&&value>=0&&value<=10000?value:null;
+  function slot(publicSlot,nativeSlot){
+    if (!publicSlot||publicSlot.concealed===true||!nativeSlot) return publicSlot;
+    return {...publicSlot,publicDamageEffects:{
+      prevention:filter(nativeSlot.preventDamageNextTurn),
+      effectsPrevention:filter(nativeSlot.preventEffectsOfAttacksNextTurn),
+      reduction:integer(nativeSlot.damageReductionNextTurn),
+      reductionFilter:filter(nativeSlot.damageReductionNextTurnFilter),
+      beforeWeaknessReduction:integer(nativeSlot.damageReductionBeforeWeaknessNextTurn),
+      outgoingReduction:integer(nativeSlot.attackDamageReductionNextTurn),
+      outgoingAfterWeaknessReduction:integer(nativeSlot.attackDamageReductionAfterWeaknessNextTurn),
+      chancePrevention:nativeSlot.coinFlipPreventAttackDamageNextTurn===true,
+      chanceAttackFailure:integer(nativeSlot.coinFlipCancelAttackNextTurn)
+    }};
+  }
+  function player(p,n) {
+    return {...p,active:slot(p.active,n.active),bench:p.bench.map((b,i)=>slot(b,n.bench[i]))};
+  }
+  return {...view,ownPublic:player(view.ownPublic,state.players[seat]),
+    opponentPublic:player(view.opponentPublic,state.players[1-seat])};
+}
+function createOwnerPrizeFacts({candidateSeat, resolved, baseObserve, Stage=null}) {
   assert.ok(candidateSeat===0 || candidateSeat===1);
   assert.equal(typeof baseObserve,'function');
   assert.equal(resolved.fullNames.length,60);
@@ -29,8 +63,9 @@ function createOwnerPrizeFacts({candidateSeat, resolved, baseObserve}) {
   }
   function observe(state,seat) {
     assert.equal(state,store?.state,'prize observations require original live Store');
-    const view=baseObserve(state,seat);
-    if(seat!==candidateSeat) return view;
+    const baseView=baseObserve(state,seat);
+    if(seat!==candidateSeat) return baseView;
+    const view=projectPublicDamageEffects(baseView,state,seat,Stage);
     const owner=state.players[seat];
     const prompt=state.prompts.find(p=>p.result===undefined);
     if(prompt?.constructor?.name==='ChooseCardsPrompt' &&
@@ -76,4 +111,4 @@ function createOwnerPrizeFacts({candidateSeat, resolved, baseObserve}) {
   }
   return Object.freeze({bindStore,observe,onAction});
 }
-module.exports={createOwnerPrizeFacts};
+module.exports={createOwnerPrizeFacts,projectPublicDamageEffects};

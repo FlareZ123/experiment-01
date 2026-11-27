@@ -2043,7 +2043,7 @@ function bindTwoProfileCandidate({prepared,candidateIdentity,candidateSeat,nativ
   const asset=prepared.manifestResult.manifest.dataAssets.find(row=>row.path===TWO_PROFILE_POLICY_PATH);
   assert.equal(asset?.sha256,prepared.policySha256,'policy asset not bound to role manifest');
   const {createOwnerPrizeFacts}=require('./agent46-owner-prize-facts.cjs');
-  const knowledge=createOwnerPrizeFacts({candidateSeat,resolved:prepared.resolved,baseObserve:native.observe});
+  const knowledge=createOwnerPrizeFacts({candidateSeat,resolved:prepared.resolved,baseObserve:native.observe,Stage:native.Stage});
   const {bundle,policySha256}=buildRoleWorkerBundle({repositoryRoot,policyModulePath:prepared.policyModulePath});
   assert.equal(policySha256,prepared.policySha256);
   const matchesPromptFilter=require('../../../vendor/twinleaf/ptcg-server/output/game/store/prompts/choose-cards-prompt').matchesPromptFilter;
