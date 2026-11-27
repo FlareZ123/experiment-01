@@ -234,11 +234,11 @@ test('actual projected Sidney and Skull revealed hand triggers rank29 legal choi
     const f=physical({source,hiddenCards:names});
     const projected=rank29Projection.projectPrompt(f);
     const request=actorRequest(projected,0);
-    const validated=checkedActorRequest(request,seat);
+    const validated=checkedActorRequest(request,0);
     const decision=rank29Policy.createPolicy({
       role:'opponent',seat:0,policyVersion:rank29Policy.POLICY_VERSION,config:{}
     }).decide(request);
-    protocol.validateDecision(decision,request);
+    protocol.validateDecision(decision,validated.prompt,validated.actionTokens);
     assert.equal(decision.kind,'select-choices');
     assert.equal(decision.tokens.length,2);
     const selected=decision.tokens.map(token=>
