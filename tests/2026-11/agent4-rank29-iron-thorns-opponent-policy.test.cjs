@@ -147,7 +147,7 @@ function observation(options = {}) {
   return {
     actorSeat: options.actorSeat ?? 0,
     globalTurn: options.globalTurn ?? 3,
-    phase: 2,
+    phase: options.phase ?? 2,
     decisionKind: prompt ? 'owner-prompt' : 'owner-root',
     pendingPromptType: prompt?.promptType ?? null,
     pendingOwnerDeckSearch: false,
@@ -461,3 +461,114 @@ test('common rank-6 denial engine still chooses Crushing Hammer in rank 29', () 
   });
   assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'hammer'});
 });
+
+
+function engineSetupPrompt(seat, {promptType, description, choices, publicMetadata, effectName, phase = 1}) {
+  return promptRequest({
+    seat, promptType, description, choices, publicMetadata,
+    source: {
+      classification:'actor-choice',
+      sourceKind:'engine',
+      sourcePrinting:null,
+      effectName:effectName ?? description
+    },
+    observation:{phase}
+  });
+}
+
+function thornsBasicChoice(token, selectionIndex) {
+  return {
+    token,kind:'card',printing:'Iron Thorns ex TWM 77',
+    label:'Iron Thorns ex TWM 77',
+    publicMetadata:{
+      sourceZone:'hand',ownerSeat:'actor',isOwnerVisible:true,
+      selectionIndex,selectedCount:1
+    }
+  };
+}
+
+function nativeStartingMeta(minimumCount,maximumCount) {
+  return {
+    selectionType:'card-combination',sourceZone:'hand',ownerSeat:'actor',
+    isOwnerVisible:true,isSecret:false,allowCancel:false,minimumCount,maximumCount
+  };
+}
+
+test('initial native starting choice benches exact-source Iron Thorns in legal order on either seat', () => {
+  for(const seat of [0,1]) {
+    const req=engineSetupPrompt(seat,{
+      promptType:'ChooseCardsPrompt',
+      description:'CHOOSE_STARTING_POKEMONS',
+      choices:[thornsBasicChoice('thorn0',0),thornsBasicChoice('thorn2',2)],
+      publicMetadata:nativeStartingMeta(1,6)
+    });
+    assert.deepEqual(checkedDecision(req,seat),
+      {kind:'select-choices',tokens:['thorn0','thorn2']});
+  }
+});
+
+test('post-bonus setup chooses remaining legal Basics or explicit empty-selection', () => {
+  const req=engineSetupPrompt(0,{
+    promptType:'ChooseCardsPrompt',description:'CHOOSE_STARTING_POKEMONS',
+    choices:[thornsBasicChoice('thorn1',1),{token:'empty',kind:'empty-selection',label:'Choose no items'}],
+    publicMetadata:nativeStartingMeta(0,1)
+  });
+  assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:['thorn1']});
+  const empty=engineSetupPrompt(0,{
+    promptType:'ChooseCardsPrompt',description:'CHOOSE_STARTING_POKEMONS',
+    choices:[{token:'empty',kind:'empty-selection',label:'Choose no items'}],
+    publicMetadata:nativeStartingMeta(0,0)
+  });
+  assert.deepEqual(checkedDecision(empty),{kind:'select-choice',token:'empty'});
+});
+
+test('rank-29 GO_FIRST policy elects second for early Guzma & Hala on both seats', () => {
+  for(const seat of [0,1]) {
+    const req=engineSetupPrompt(seat,{
+      promptType:'ConfirmPrompt',description:'GO_FIRST',
+      choices:[
+        {token:'yes',kind:'confirm',label:'Yes'},
+        {token:'no',kind:'confirm',label:'No'}
+      ],
+      publicMetadata:{selectionType:'confirm'}
+    });
+    assert.deepEqual(checkedDecision(req,seat),{kind:'select-choice',token:'no'});
+  }
+});
+
+test('native mulligan bonus selection takes maximum offered bonus draw', () => {
+  for(const seat of [0,1]) {
+    const req=engineSetupPrompt(seat,{
+      promptType:'SelectPrompt',description:'WANT_TO_DRAW_CARDS',
+      choices:[
+        {token:'draw-3',kind:'option',label:'Draw 3 card(s)',publicMetadata:{choiceIndex:0}},
+        {token:'draw-1',kind:'option',label:'Draw 1 card(s)',publicMetadata:{choiceIndex:2}},
+        {token:'draw-0',kind:'option',label:'Draw 0 card(s)',publicMetadata:{choiceIndex:3}}
+      ],
+      publicMetadata:{selectionType:'option',count:4,allowCancel:false}
+    });
+    assert.deepEqual(checkedDecision(req,seat),{kind:'select-choice',token:'draw-3'});
+  }
+});
+
+test('setup rejects phase-two, mismatched effect name and non-Thorns spoofed Basic', () => {
+  const args={
+    promptType:'ConfirmPrompt',description:'GO_FIRST',
+    choices:[{token:'yes',kind:'confirm',label:'Yes'},{token:'no',kind:'confirm',label:'No'}],
+    publicMetadata:{selectionType:'confirm'}
+  };
+  const wrongPhase=engineSetupPrompt(0,{...args,phase:2});
+  assert.deepEqual(checkedDecision(wrongPhase),
+    {kind:'abstain',reasonCode:'UNSUPPORTED_ENGINE_SETUP_PHASE'});
+  const spoof=engineSetupPrompt(0,{...args,effectName:'SPOOFED'});
+  assert.deepEqual(checkedDecision(spoof),
+    {kind:'abstain',reasonCode:'UNTRUSTED_ENGINE_SETUP_PROMPT'});
+  const badBasic=engineSetupPrompt(0,{
+    promptType:'ChooseCardsPrompt',description:'CHOOSE_STARTING_POKEMONS',
+    choices:[{...thornsBasicChoice('fake',0),printing:'Mew V FST 113',label:'Mew V FST 113'}],
+    publicMetadata:nativeStartingMeta(1,6)
+  });
+  assert.deepEqual(checkedDecision(badBasic),
+    {kind:'abstain',reasonCode:'UNTRUSTED_STARTING_POKEMON_CHOICE'});
+});
+
