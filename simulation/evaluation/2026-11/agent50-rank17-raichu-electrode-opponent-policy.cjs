@@ -2616,6 +2616,9 @@ function r17OneBombRainWindow(request,{allowThreePrizePressure=false}={}){
   // to promote an already evolved Raichu; its funded attack must remove at
   // least one three-Prize threat. Never treat this as a terminal projection.
   const threePrizePressure=allowThreePrizePressure&&requiresPromotion&&
+    // A nonterminal self-KO must not silently sacrifice valuable attached
+    // Energy or Tools on the departing Active Electrode.
+    list(a.energies).length===0&&list(a.tools).length===0&&
     plan?.win!==true&&plan?.prizesTaken>=3&&plan?.netPrizeSwing>=1&&
     own(v).prizeCount>=4&&opponent(v).prizeCount>=5;
   if(plan?.status!=='immediate-ko-plan'||(!plan.win&&!threePrizePressure)||
