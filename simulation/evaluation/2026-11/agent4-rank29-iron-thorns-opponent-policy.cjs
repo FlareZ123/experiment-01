@@ -229,6 +229,30 @@ function remainingHp(pokemon) {
   return pokemon.hp - pokemon.damage;
 }
 
+function hiddenHandTargetProbability(observation, targetType) {
+  const opponent = observation?.opponentPublic;
+  if (!opponent || Array.isArray(opponent.publicHand)) return 0;
+  const handCount = opponent.handCount;
+  if (!Number.isSafeInteger(handCount) || handCount < 1) return 0;
+  // Only apply a nonzero prior to the two registered Shadow Rider fixed-60
+  // candidate profiles, recognized from public board printings. All actual
+  // hidden contents remain unknown to the policy.
+  const shadowBoard=slots(opponent).some(row =>
+    /Shadow Rider Calyrex V(?:MAX)?\b|Lillie'?s Clefairy ex\b/i.test(
+      row.pokemon.printing));
+  if (!shadowBoard) return 0;
+  // Conservative proxy count distributions, not a source-specific posterior
+  // over the opponent's actual unobserved remaining hand.
+  const proxy = {item:10,energy:8,toolOrStadium:4};
+  const k=proxy[targetType];
+  if (!k) return 0;
+  let zero=1;
+  const n=Math.min(handCount,60-k);
+  for(let i=0;i<n;i++)zero*=(60-k-i)/(60-i);
+  if (handCount>60-k) return 1;
+  return 1-zero;
+}
+
 function opponentDeckCount(observation) {
   return Number.isSafeInteger(observation?.opponentPublic?.deckCount) ?
     observation.opponentPublic.deckCount : null;
@@ -1269,13 +1293,22 @@ function scorePlayCard(item, request) {
       stadiumsInPlay(observation).length > 0 ? 175 : 0;
   }
   if (matches(card, PRINT.teamSkull)) {
-    return opponentHasVisibleEnergy(observation) ? 145 : 0;
+    if (Array.isArray(opponent.publicHand))
+      return opponentHasVisibleEnergy(observation) ? 145 : 0;
+    const likelihood = hiddenHandTargetProbability(observation,'energy');
+    return likelihood > 0.4 ? Math.round(85+65*likelihood) : 0;
   }
   if (matches(card, PRINT.sidney)) {
-    return opponentHasVisibleToolOrSpecial(observation) ? 145 : 0;
+    if (Array.isArray(opponent.publicHand))
+      return opponentHasVisibleToolOrSpecial(observation) ? 145 : 0;
+    const likelihood = hiddenHandTargetProbability(observation,'toolOrStadium');
+    return likelihood > 0.3 ? Math.round(65+90*likelihood) : 0;
   }
   if (matches(card, PRINT.eri)) {
-    return opponentHasVisibleItem(observation) ? 145 : 0;
+    if (Array.isArray(opponent.publicHand))
+      return opponentHasVisibleItem(observation) ? 145 : 0;
+    const likelihood = hiddenHandTargetProbability(observation,'item');
+    return likelihood > 0.55 ? Math.round(95+60*likelihood) : 0;
   }
   if (matches(card, PRINT.guzma)) {
     const ownBench = slots(own).filter(row => row.zone === 'bench' &&
