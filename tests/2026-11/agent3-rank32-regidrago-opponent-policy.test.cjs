@@ -335,6 +335,11 @@ test('static rank-32 bundle loads with no ambient require, process or code gener
 });
 
 
+function player({active=null,bench=[],discard=[],stadium=[]}={}) {
+  return {active,bench,discard,stadium,publicTurnRestrictions:{
+    gxUsed:false,vstarUsed:false},prizeCount:6};
+}
+
 test('target-bound DDE attachment beats single Basic on unfunded Regidrago VSTAR',()=>{
   const ownActive=pokemon(P.regidrago,{energies:[]});
   const items=[
