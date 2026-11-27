@@ -501,3 +501,29 @@ test('projected Stadium replaces the shared Stadium on both sides without mutati
  assert.deepEqual(projected.opponentPublic.stadium,[]);
  assert.deepEqual(view.opponentPublic.stadium,['Dimension Valley PHF']);
 });
+
+function raihanAttachmentPrompt(seat,view) {
+  const choices=[
+    {token:'raihan-active',kind:'energy',printing:P,label:P,publicMetadata:{
+      sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true,energyType:'BASIC',
+      zone:'active',choiceIndex:0,selectedCount:1
+    }},
+    {token:'raihan-bench',kind:'energy',printing:P,label:P,publicMetadata:{
+      sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true,energyType:'BASIC',
+      zone:'bench',benchIndex:0,choiceIndex:1,selectedCount:1
+    }}
+  ];
+  return {role:'candidate',seat,
+    observation:{...view,decisionKind:'owner-prompt',pendingPromptType:'AttachEnergyPrompt'},
+    prompt:{actingSeat:seat,promptType:'AttachEnergyPrompt',description:'ATTACH_ENERGY_CARDS',
+      source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:'Raihan EVS',effectName:'Raihan'},
+      choices,publicMetadata:{selectionType:'energy-attachment',count:2,minimumCount:1,
+        maximumCount:1,allowCancel:false,sourceZone:'discard',ownerSeat:'actor',
+        isOwnerVisible:true,energyType:'BASIC'}},
+    publicEventReceipt:null};
+}
+paired('Raihan attachment policy chooses one legal occupied own target from Basic Psychic Energy choices',(seat,profile)=>{
+  const view=observation(seat,{active:v([P,P]),bench:[v([P])],opponentActive:defender()});
+  const result=decide(profile,raihanAttachmentPrompt(seat,view));
+  assert.ok(result.kind==='select-choice'&&['raihan-active','raihan-bench'].includes(result.token));
+});
