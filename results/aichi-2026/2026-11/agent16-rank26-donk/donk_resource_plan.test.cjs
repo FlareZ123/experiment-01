@@ -45,3 +45,21 @@ test('one accessible Egg, three Pumps and fresh Unown cannot donate five',()=>{
    unown:[e('u0','H'),e('u1','H')],fixed:[e('m','A',2),e('s','B',2),e('d','B',2)]}));
  assert.equal(r.status,'unreachable-under-model');
 });
+test('Active Egg KO promotes prepowered Meloetta without mobility Trainer',()=>{
+ const r=p(base({promoteAttackerId:'m',pumps:4,carriers:0,eggs:[e('e0','A',0),e('e1','H')],unown:[e('u0','H'),e('u1','H')],fixed:[e('m','B',2),e('s','B',2),e('d','B',2)]}));
+ assert.equal(r.status,'solved');assert.equal(r.donated,5);assert.equal(r.pumpsUsed,4);
+ assert.equal(r.actions.filter(a=>a.promoted==='m').length,1);
+});
+test('Active Unown KO promotes and two double Egg KOs finish with five Pumps',()=>{
+ const r=p(base({promoteAttackerId:'m',pumps:5,carriers:0,eggs:[e('e0','H'),e('e1','H')],unown:[e('u0','A',0),e('u1','H'),e('u2','H'),e('u3','H')],fixed:[e('m','B',2),e('s','B',2),e('d','B',2)]}));
+ assert.equal(r.status,'solved');assert.equal(r.donated,5);assert.equal(r.actions.filter(a=>a.promoted==='m').length,1);
+});
+test('Active Bunnelby can be sacrificed without using Farewell Letter',()=>{
+ const r=p(base({promoteAttackerId:'m',pumps:5,carriers:0,small:[e('b','A',0)],eggs:[e('e0','H'),e('e1','H')],unown:[e('u1','H'),e('u2','H'),e('u3','H')],fixed:[e('m','B',2),e('s','B',2),e('d','B',2)]}));
+ assert.equal(r.status,'solved');assert.equal(r.donated,5);assert.equal(r.actions.filter(a=>a.promoted==='m').length,1);
+ assert.equal(r.actions.filter(a=>a.kind==='farewell-letter'&&a.id==='b').length,0);
+});
+test('unpromoted attacker never falsely certified after reaching one prize',()=>{
+ const r=p(base({opponentPrizes:1,promoteAttackerId:'m',pumps:0,eggs:[e('e0','A'),e('e1','H')],fixed:[e('m','B',2)]}));
+ assert.equal(r.status,'unreachable-under-model');
+});
