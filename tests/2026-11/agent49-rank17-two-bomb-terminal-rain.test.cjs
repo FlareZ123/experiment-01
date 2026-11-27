@@ -95,8 +95,12 @@ function bombPrompt(f,sourceIndex){
       this.options={min:Math.min(5,f.owner.discard.cards.length),
         max:5,allowCancel:false,blocked:[],differentTypes:false,
         sameTarget:false,differentTargets:false,
-        blockedTo:[0,1].filter(i=>f.owner.bench[i].getPokemonCard())
-          .map(index=>({player:0,slot:1,index}))};
+        blockedTo:[
+          ...(f.owner.active.getPokemonCard()?.fullName===E?
+            [{player:0,slot:0,index:0}]:[]),
+          ...[0,1].filter(i=>f.owner.bench[i].getPokemonCard()?.fullName===E)
+            .map(index=>({player:0,slot:1,index}))
+        ]};
     }
     getPerspectivePlayerId(){return this.playerId}
     decode(raw){return raw.map(x=>({
@@ -107,7 +111,8 @@ function bombPrompt(f,sourceIndex){
   }
   const prompt=new AttachEnergyPrompt();f.state.prompts=[prompt];
   return {prompt,projection:f.project(prompt,
-    f.owner.bench[sourceIndex].getPokemonCard(),'Extra Energy Bomb')};
+    sourceIndex==='active'?f.owner.active.getPokemonCard():
+      f.owner.bench[sourceIndex].getPokemonCard(),'Extra Energy Bomb')};
 }
 function chooseEnergy(f){
   class ChooseCardsPrompt{
@@ -161,18 +166,28 @@ function settleBomb(f,index,sequence){
   const settled=f.settle(b.prompt,b.projection,decision);
   assert.equal(settled.rawResult.length,5);
   assert.equal(new Set(settled.rawResult.map(x=>x.index)).size,5);
+  const recipientIsBenched=f.owner.active.getPokemonCard()?.fullName===E;
   assert.ok(settled.rawResult.every(x=>
-    x.to.slot===native.SlotType.ACTIVE&&x.to.index===0));
+    x.to.slot===(recipientIsBenched?native.SlotType.BENCH:native.SlotType.ACTIVE)&&
+    x.to.index===0));
   const indices=settled.rawResult.map(x=>x.index);
   const selected=indices.map(i=>f.owner.discard.cards[i]);
   for(const i of indices.sort((a,b)=>b-a))f.owner.discard.cards.splice(i,1);
+  const recipient=recipientIsBenched?f.owner.bench[0]:f.owner.active;
+  const visible=recipientIsBenched?f.view.ownPublic.bench[0]:
+    f.view.ownPublic.active;
   for(const energy of selected){
-    f.owner.active.energies.cards.push(energy);
-    f.owner.active.cards.push(energy);
-    f.view.ownPublic.active.energies.push(energy.fullName);
+    recipient.energies.cards.push(energy);
+    recipient.cards.push(energy);
+    visible.energies.push(energy.fullName);
   }
-  f.owner.bench[index]=slot(null);
-  f.view.ownPublic.bench[index]=null;
+  if(index==='active'){
+    f.owner.active=slot(null);
+    f.view.ownPublic.active=null;
+  }else{
+    f.owner.bench[index]=slot(null);
+    f.view.ownPublic.bench[index]=null;
+  }
   f.view.ownPublic.discard=f.owner.discard.cards.map(x=>x.fullName);
   f.view.opponentPublic.prizeCount-=2;
 }
@@ -243,5 +258,88 @@ test('two-Bomb branch refuses opponent fatal Prize configuration and missing sec
     const wrong=stale.decide(4,bp);
     assert.equal(wrong.kind,'abstain');
     assert.equal(wrong.reasonCode,'UNTRUSTED_PROMPT_SOURCE');
+  }
+});
+
+function promotePrompt(f){
+  class ChoosePokemonPrompt{
+    constructor(){
+      this.id=1;this.playerId=f.owner.id;this.result=undefined;
+      this.message='CHOOSE_NEW_ACTIVE_POKEMON';
+      this.playerType=native.PlayerType.BOTTOM_PLAYER;
+      this.slots=[native.SlotType.BENCH];
+      this.options={allowCancel:false,min:1,max:1,blocked:[]};
+    }
+    getPerspectivePlayerId(){return this.playerId}
+    decode(rows){return rows.map(x=>f.owner.bench[x.index])}
+    validate(rows){return rows.length===1&&
+      f.owner.bench[rows[0].index]?.getPokemonCard()!=null}
+  }
+  const prompt=new ChoosePokemonPrompt();
+  f.state.prompts=[prompt];
+  const projection=host.projectPrompt({prompt,state:f.state,
+    actorSeat:f.seat,native,store:f.store,
+    provenanceHook:{getPromptProvenance:()=>null}});
+  return {prompt,projection};
+}
+test('Active Electrode first: engine self-KO promotion then second Benched Bomb and 22 packets',()=>{
+  for(const seat of [0,1]){
+    const f=setup(seat);
+    f.owner.active=slot(E);
+    f.owner.bench[0]=slot(R);
+    f.view.ownPublic.active=pub(E);
+    f.view.ownPublic.bench[0]=pub(R);
+    const actions=[
+      {kind:'use-ability',token:'bomb-active',actorPrinting:E,
+        publicMetadata:{abilityName:'Extra Energy Bomb',
+          sourceZone:'active',sourceIndex:0,abilityLive:true}},
+      ability('bomb-bench',1),
+      {kind:'pass',token:'pass'}
+    ];
+    assert.deepEqual(f.decide(1,null,actions),
+      {kind:'select-action',token:'bomb-active'});
+    settleBomb(f,'active',2);
+    assert.equal(f.view.opponentPublic.prizeCount,4);
+    assert.equal(f.view.ownPublic.active,null);
+    assert.equal(f.view.ownPublic.bench[0].energies.length,5);
+    const promote=promotePrompt(f),pp=promote.projection.promptProjection;
+    assert.equal(pp.source.sourceKind,'engine');
+    assert.equal(pp.source.effectName,'CHOOSE_NEW_ACTIVE_POKEMON');
+    assert.equal(pp.publicMetadata.selectionType,'pokemon');
+    const promoteDecision=f.decide(3,pp);
+    assert.equal(promoteDecision.kind,'select-choices');
+    assert.equal(promoteDecision.tokens.length,1);
+    const promoted=f.settle(promote.prompt,promote.projection,promoteDecision);
+    assert.deepEqual(promoted.rawResult,[{player:0,slot:1,index:0}]);
+    f.owner.active=f.owner.bench[0];
+    f.owner.bench[0]=slot(null);
+    f.view.ownPublic.active=f.view.ownPublic.bench[0];
+    f.view.ownPublic.bench[0]=null;
+    assert.deepEqual(f.decide(4,null,actions.slice(1)),
+      {kind:'select-action',token:'bomb-bench'});
+    settleBomb(f,1,5);
+    assert.equal(f.view.opponentPublic.prizeCount,2);
+    assert.equal(f.view.ownPublic.active.energies.length,10);
+    const rain={kind:'attack',token:'rain',actorPrinting:R,
+      attackName:'Electro Rain',publicMetadata:{attackCostPayable:true}};
+    assert.deepEqual(f.decide(6,null,[rain,{kind:'pass',token:'pass'}]),
+      {kind:'select-action',token:'rain'});
+    const cardPrompt=chooseEnergy(f);
+    const pay=f.decide(7,cardPrompt.projection.promptProjection);
+    assert.equal(pay.kind,'select-choices');
+    assert.equal(pay.tokens.length,10);
+    f.settle(cardPrompt.prompt,cardPrompt.projection,pay);
+    f.owner.active.cards.splice(1,10);f.owner.active.energies.cards=[];
+    f.view.ownPublic.active.energies=[];
+    const dmg=damagePrompt(f),dp=dmg.projection.promptProjection;
+    assert.equal(dp.publicMetadata.minimumCount,22);
+    const hits=f.decide(8,dp);
+    assert.equal(hits.kind,'select-choices');
+    assert.equal(hits.tokens.length,22);
+    const settled=f.settle(dmg.prompt,dmg.projection,hits);
+    assert.deepEqual(aggregateDamageTargets(settled.rawResult),[
+      {target:{player:1,slot:0,index:0},damage:330},
+      {target:{player:1,slot:1,index:0},damage:330}
+    ]);
   }
 });
