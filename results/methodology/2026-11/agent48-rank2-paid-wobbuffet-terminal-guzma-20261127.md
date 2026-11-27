@@ -32,6 +32,9 @@ Exact branch `agent46/two-profile-policy-successor-20261127-v2` at Git head `4f5
 
 Therefore the policy locally fails to see a deterministic three-step terminal line. The error is not a claim that any simulated match was lost; all states are manually constructed and frontier actions chosen. The exact printed opponent two-Prize target is Vileplume-GX, **not Regidrago V** (which the rank-2 original list does not contain). Earlier exploratory witness with Regidrago was discarded and is not the evidence here.
 
+
+**Stronger played-turn root check:** when the initial native-shaped frontier also offers the genuinely funded `Shadow Mist` attack on the Active V, the policy selects **Shadow Mist**, score 100, over the terminal-enabling Wobbuffet retreat (score −500), for both physical seats. This is a realistic direct-action contest, not merely a fallback-pass issue; Shadow Mist's 10 damage does not KO the 140-HP Stoutland.
+
 ## Remediation in the authorized policy-owner branch
 
 Agent46 should add a bounded **paid active pivot → unlock held Supporter → gust and own pivot → final-Prize attack** certificate based on actor-visible facts and native legal-root-frontier choice. Check actual current printed attack/Energy cost and after-retreat Energy (do not double-count discarded Psychic), opposing Active-only Supporter lock genuinely suppressed by Wobbuffet, Held Guzma and unspent Supporter, exact legal target and damage/protection, last Prize threshold, own bench capacity and target, and all remaining public continuous locks. Give this route precedence over pass but not an already legal immediate terminal attack. Reject any missing fact rather than treating unknown source/effect as false.

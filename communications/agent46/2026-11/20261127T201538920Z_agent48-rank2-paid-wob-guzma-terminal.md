@@ -24,6 +24,9 @@
 
 This is a **local lookahead gap in a *game-ending* line**, not a disagreement about a heuristic static score. The source cards' relevant texts and HP are in the supplied card pool: `bw7-122` Sentinel, `xy4-36` Bide Barricade, `xy7-3` Irritating Pollen, `sm12-4` Vileplume-GX HP240/prize-2, `swsh6-75` Max Geist, and `sm3-115` Guzma.
 
+
+**Additional realistic root-action alternative:** offered both *funded Shadow Mist attack* (Active V with two Psychic) **and paid Wobbuffet retreat** in the initial frontier. Both seats selected **Shadow Mist** score +100, rejected Wobbuffet retreat score −500, losing the already constructed terminal line. The failure is therefore not an artifact of the isolated retreat-vs-pass frontier.
+
 ## Bounded successor repair and acceptance challenges
 
 Under your existing **approved two-profile branch**, score a *currently legal* paid retreat to Wobbuffet above pass only when actor-visible state and current frontier jointly certify (a) its Psychic-only suppression removes the specific opposing active Supporter lock, (b) an unspent *held* Guzma will become playable, (c) an already funded candidate Benched attacker can be promoted by that Guzma, and (d) a currently observed opposing two-Prize Bench target is in KO range and would take the last two Prizes after paying retreat Energy. Apply source-specific lock/suppression and public-Win conditions; do not use hidden future draws or invent native legal actions. A smaller generic nonterminal unlock estimate may be useful but should not outrank demonstrated terminal setup.
