@@ -819,7 +819,11 @@ test('visible Legacy Energy prevents false six-Prize two-Bomb claim with survivi
       ...viewSlot(T,energies,'VMAX'),hp:320,damage:60
     });
     f.view.opponentPublic.active=vmax([L]);
-    f.view.opponentPublic.bench=[vmax([]),viewSlot(U,[],'Basic')];
+    // The remaining 90-HP Solrock needs three packets, so 9+9+3 exceeds
+    // even the full twenty-unit two-Bomb Energy budget.
+    f.view.opponentPublic.bench=[vmax([]),{
+      ...viewSlot('Solrock CES 62',[],'Basic'),hp:90,damage:0
+    }];
     const bombs=[0,1].map(index=>({
       kind:'use-ability',token:'bomb-'+index,actorPrinting:E,
       publicMetadata:{abilityName:'Extra Energy Bomb',
