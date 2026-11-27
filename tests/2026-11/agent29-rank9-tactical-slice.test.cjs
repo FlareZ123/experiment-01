@@ -243,3 +243,25 @@ console.log('passed '+(function secondary(P,protocol){
  protocol.validatePrompt(pr,0);const d=pol.decide({role:'opponent',seat:0,sequence:2,observation:v,prompt:pr});protocol.validateDecision(d,pr,new Set());a(JSON.stringify(d.tokens)===JSON.stringify(['p']),'protect both Darkness from exposed Get Lost with manual reserve');
  return n;
 })(P,protocol)+' secondary-attack/Stadium assertions');
+
+console.log('passed '+(function search(P,protocol){
+ const Meg='Mega Absol ex MEG 86',Un='Unown AOR 30',Vol='Voltorb ROS 21',Ball='Hisuian Heavy Ball ASR 146',Box='Secret Box TWM 163',D='Darkness Energy MEE 15',VIP='Battle VIP Pass FST 225',Mail="Trainers' Mail ROS 92",Ultra='Ultra Ball MEG 131',Float='Float Stone BKT 137',Muscle='Muscle Band XY 121',I='Iono PAL 185',G='Guzma BUS 115',Lab='Silent Lab PRC 140',Stop='PokéStop PGO 68';
+ const p=(printing,energies=[])=>({printing,energies,hp:60,damage:0,tools:[],specialConditions:[],printed:{stage:'Basic'}});
+ const v={actorSeat:0,globalTurn:5,ownPublic:{active:p(Un),bench:[],discard:[],deckCount:20,prizeCount:6,publicTurnRestrictions:{}},opponentPublic:{active:p(Un),bench:[],prizeCount:6},ownTurnResources:{energyPlayedTurn:false,supporterPlayedTurn:0},ownHand:[Box,VIP,VIP,Mail,Mail,D]};
+ let n=0;function a(ok,l){if(!ok)throw Error(l);n++}
+ const pol=()=>P.createPolicy({role:'opponent',seat:0,policyVersion:P.POLICY_VERSION,config:{}});
+ const ch=(token,printing,sourceZone,visible=true)=>({token,kind:'card',printing,label:printing,publicMetadata:{ownerSeat:'actor',sourceZone,isOwnerVisible:visible}});
+ const empty={token:'empty',kind:'empty-selection',label:'Choose no items'};
+ function run(source,choices,zone,min,max,obs=v){const pr={schema:protocol.PROMPT_SCHEMA,actingSeat:0,promptType:'ChooseCardsPrompt',description:source,source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:source,effectName:source},choices,publicMetadata:{selectionType:'card-combination',sourceZone:zone,ownerSeat:'actor',isOwnerVisible:true,allowCancel:false,isSecret:false,minimumCount:min,maximumCount:max}};protocol.validatePrompt(pr,0);const r=pol().decide({role:'opponent',seat:0,sequence:2,observation:obs,prompt:pr});protocol.validateDecision(r,pr,new Set());return r;}
+ function root(obs,printing){const fr={schema:protocol.FRONTIER_SCHEMA,items:[{kind:'play-card',token:'c',actorPrinting:printing,publicMetadata:{}}]};const r=pol().decide({role:'opponent',seat:0,sequence:1,observation:obs,prompt:null,actionFrontier:fr});protocol.validateDecision(r,null,protocol.validateFrontier(fr));return r;}
+ a(root(v,Box).token==='c','affordable exact three Box cost');
+ a(JSON.stringify(run(Box,[ch('v1',VIP,'hand'),ch('v2',VIP,'hand'),ch('m1',Mail,'hand'),ch('m2',Mail,'hand'),ch('d',D,'hand')],'hand',3,3).tokens)===JSON.stringify(['v1','v2','m1']),'exact Box discard preserve only energy');
+ const cs=[ch('mail',Mail,'deck'),ch('ultra',Ultra,'deck'),ch('float',Float,'deck'),ch('muscle',Muscle,'deck'),ch('iono',I,'deck'),ch('g',G,'deck'),ch('lab',Lab,'deck'),ch('stop',Stop,'deck'),empty];
+ const picked=run(Box,cs,'deck',0,4).tokens;
+ a(picked.length===4&&picked.filter(x=>['mail','ultra'].includes(x)).length===1&&picked.filter(x=>['float','muscle'].includes(x)).length===1&&picked.filter(x=>['iono','g'].includes(x)).length===1&&picked.filter(x=>['lab','stop'].includes(x)).length===1,'one per Box category');
+ const k1={...v,ownHand:[Ball],ownerK1:{epoch:1,exactMembershipKnown:true,knownPrintings:[{printing:Meg,copies:1}],invalidationReason:null}};
+ a(root(k1,Ball).token==='c','known prized Mega warrants Heavy Ball');
+ a(root({...k1,ownerK1:{...k1.ownerK1,knownPrintings:[{printing:D,copies:2}]}},Ball).kind==='abstain','known no useful Basic avoids wasted Ball');
+ a(run(Ball,[ch('vol',Vol,'prizes'),ch('mega',Meg,'prizes'),empty],'prizes',0,1,k1).tokens[0]==='mega','revealed actor Prize choice, not guessed slot');
+ return n;
+})(P,protocol)+' Secret Box/Heavy Ball assertions');

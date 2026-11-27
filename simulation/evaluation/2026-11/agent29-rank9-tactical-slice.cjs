@@ -1,7 +1,7 @@
 'use strict';
 // Development-only actor-visible tactical slice; see accompanying report.
 module.exports = (function build() {
-  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v8';
+  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v9';
   const SOURCE_RANK = 9;
   const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
   const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -499,7 +499,51 @@ function bombPlanner(o,sourceBenchIndex){
     if(iono(c))return L(o.ownHand).length<=3&&Number(o.ownPublic?.prizeCount)>=3?220:0;
     return 0;
   }
+  const heavy=c=>/^Hisuian Heavy Ball ASR 146\b/i.test(name(c));
+  const secret=c=>/^Secret Box TWM 163\b/i.test(name(c));
+  function heavyScore(o){
+    const k=o.ownerK1;
+    if(k?.exactMembershipKnown===true&&Array.isArray(k.knownPrintings)){
+      return Math.max(0,...k.knownPrintings.filter(c=>c.copies>0&&basic(c)).map(c=>pokemonSearch(c,o)));
+    }
+    // K0: inspect Prizes only when there is an actual missing source Basic.
+    return !has(o,mega)||!has(o,isVol)&&!has(o,elec)?160:0;
+  }
+  function secretCategory(c){
+    const s=name(c);
+    if(stadiumCard(c))return 'stadium';
+    if([R.float,R.muscle,R.seal].some(re=>match(c,re)))return 'tool';
+    if(guzma(c)||iono(c)||plumeria(c))return 'supporter';
+    if(heavy(c)||[R.vip,R.mail,R.carrier,R.stretcher,R.ultra,R.compressor,R.vs].some(re=>match(c,re))||/^Escape Rope BST 125\b|^Canceling Cologne ASR 136\b/i.test(s))return 'item';
+    return null;
+  }
+  function secretValue(c,o){
+    const category=secretCategory(c);
+    if(!category)return 0;
+    // A category may be selected even when its effect is not immediately
+    // useful; extracting a future connector costs no extra discard.
+    const live=trainerSearch(c,o);
+    if(live>0)return live;
+    if(L(o.ownHand).some(h=>name(h)===name(c)))return 1;
+    if(category==='stadium'&&darkCutRisk(o))return /^PokéStop/i.test(name(c))?90:65;
+    if(category==='supporter')return iono(c)?75:guzma(c)?70:35;
+    if(category==='tool')return match(c,R.float)?60:match(c,R.seal)?50:45;
+    return match(c,R.vip)&&!first(o)?1:50;
+  }
+  function secretTargets(p,deck,o){
+    const m=M(p),categories=['item','tool','supporter','stadium'],out=[];
+    for(const cat of categories){
+      const c=best(deck.filter(c=>secretCategory(c)===cat),c=>secretValue(c,o));
+      if(c)out.push(c);
+    }
+    out.sort((a,b)=>secretValue(b,o)-secretValue(a,o));
+    const picks=out.slice(0,m.maximumCount);
+    if(picks.length<m.minimumCount)return {kind:'abstain',reasonCode:'NO_LEGAL_CARD_SET'};
+    if(!picks.length){const empty=L(p.choices).find(c=>c.kind==='empty-selection');return empty&&m.minimumCount===0?{kind:'select-choice',token:empty.token}:{kind:'abstain',reasonCode:'NO_USEFUL_CARD_CHOICE'};}
+    return select(p,picks,picks.length,'NO_LEGAL_CARD_SET');
+  }
   function trainerSearch(c,o){
+    if(heavy(c))return heavyScore(o);
     if(stadiumCard(c))return stadiumScore(c,o);
     if(match(c,R.vip))return first(o)&&cap(o)>0&&(!ownHas(o,mega)||!ownHas(o,isVol)&&!ownHas(o,elec))?370:0;
     if(match(c,R.ultra))return !has(o,mega)||has(o,isVol)&&!has(o,elec)||has(o,isToed)&&!has(o,cruel)?300:0;
@@ -535,6 +579,8 @@ function bombPlanner(o,sourceBenchIndex){
     }
     if(item.kind!=='play-card'||m.isLegal===false||m.canPlay===false)return 0;
     if(stadiumCard(x))return stadiumScore(x,o);
+    if(heavy(x))return heavyScore(o);
+    if(secret(x)&&fundCost(h.map(printing=>({printing})),o,3,x).length===3)return 370;
     if(ePred(x)){
       if(!p||o.ownTurnResources?.energyPlayedTurn!==false)return 0;
       const next={...p,energies:[...L(p.energies),x]};
@@ -594,6 +640,17 @@ function bombPlanner(o,sourceBenchIndex){
     }
     if(p.promptType==='ChooseCardsPrompt'&&m.selectionType==='card-combination'){
       const deck=cs.filter(c=>card(c,'deck')),discard=cs.filter(c=>card(c,'discard')),hand=cs.filter(c=>card(c,'hand'));
+      if(heavy(x)){
+        const visible=cs.filter(c=>card(c,'prizes')&&basic(c));
+        const c=best(visible,c=>pokemonSearch(c,o));
+        if(c)return select(p,[c],1,'NO_USEFUL_CARD_CHOICE');
+        const empty=cs.find(c=>c.kind==='empty-selection');
+        return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:no('HIDDEN_PRIZE_IDENTITY');
+      }
+      if(secret(x)){
+        if(hand.length)return select(p,fundCost(hand,o,3,x),3,'NO_LEGAL_CARD_SET');
+        return secretTargets(p,deck,o);
+      }
       if(match(x,R.vip)){
         const out=[],board=slots(o.ownPublic).map(y=>y.p);
         for(const f of [mega,isVol,isToed,isUn,isUn]){
