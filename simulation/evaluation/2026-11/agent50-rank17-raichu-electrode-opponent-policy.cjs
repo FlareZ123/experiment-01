@@ -2543,6 +2543,110 @@ function r17DirectRainWindow(request){
   return {action:attack,plan,targets,
     printedEnergyByToken:new Map(attached.map(c=>[c.token,c.printing]))};
 }
+// One bounded *Active Electrode -> Benched Raichu* route. This resolves the
+// actual self-KO and re-plans the Rain attack after real promotion; projected
+// energy/protection are not treated as a future game-state oracle.
+function r17OneBombRainWindow(request){
+  const v=request?.observation,p=active(own(v));
+  if(!v||r17Key(p)!=='electrode'||!r17LiveBombs(v).includes(p)||
+     r17NeedTempleRemoval(v)||list(own(v).stadium).length||
+     list(opponent(v).stadium).length||
+     !Number.isSafeInteger(own(v).prizeCount)||
+     !Number.isSafeInteger(opponent(v).prizeCount)||
+     opponent(v).prizeCount<=2)return null;
+  const src=list(request.actionFrontier?.items).find(i=>
+    i.kind==='use-ability'&&r17Key(i)==='electrode'&&
+    metadata(i).abilityName==='Extra Energy Bomb'&&
+    metadata(i).sourceZone==='active'&&
+    metadata(i).abilityLive!==false&&metadata(i).abilitySuppressed!==true);
+  if(!src)return null;
+  const bench=list(own(v).bench),matches=bench
+    .map((q,index)=>({q,index}))
+    .filter(x=>r17Key(x.q)==='raichu'&&r17RainWindow(v,x.q));
+  if(matches.length!==1)return null;
+  const {q,index}=matches[0];
+  const disc=list(own(v).discard),discard=disc.map((c,i)=>({
+    printing:printingValue(c),token:'discard-'+i
+  })).filter(c=>R17_ENERGY.has(r17Key(c.printing)));
+  const attached=list(q.energies).map((c,i)=>({
+    printing:printingValue(c),token:'attached-'+i
+  }));
+  if(discard.length<1||discard.length>12||attached.length+discard.length>12||
+     attached.some(c=>!R17_ENERGY.has(r17Key(c.printing))))return null;
+  const targets=r17VisibleRainTargets(v,q);
+  if(!targets||targets.some(t=>{
+    const opp=t.zone==='active'?active(opponent(v)):opponent(v).bench?.[t.index];
+    return !opp||list(opp.tools).length||opp.publicDamageEffects!==undefined&&(
+      opp.publicDamageEffects.prevention!=='none'||
+      opp.publicDamageEffects.effectsPrevention!=='none'||
+      opp.publicDamageEffects.reduction!==0);
+  }))return null;
+  const plan=r17PlanRainTurn({
+    attackWindowKnown:true,modifiersComplete:true,temple:false,
+    ownPrizes:own(v).prizeCount,opponentPrizes:opponent(v).prizeCount,
+    availableBombs:1,attached,discard,
+    targets:targets.map(t=>({
+      id:t.zone+':'+t.index,remainingHp:t.hits*30,
+      prizes:t.prizes,threat:0,damageAllowed:true,
+      flatDamageModifier:0,requiresNoSpecialAttached:false,
+      minRemainingEnergy:0
+    }))
+  });
+  if(plan?.status!=='immediate-ko-plan'||!plan.win||plan.bombsUsed!==1||
+     plan.attachTokens.length!==Math.min(5,discard.length)||plan.lightningUnits<1||
+     plan.opponentPrizesAfterBomb!==opponent(v).prizeCount-2)return null;
+  return {
+    action:src,benchIndex:index,benchPrinting:printingValue(q),plan,
+    discardPrintings:new Map(discard.map(d=>[d.token,d.printing]))
+  };
+}
+function r17BombAttachDecision(req,chain){
+  const p=req.prompt,s=p?.source,m=metadata(p);
+  if(req.sequence!==chain.sequence+1||
+     p?.promptType!=='AttachEnergyPrompt'||
+     s?.sourceKind!=='card-effect'||
+     s.sourcePrinting!=='Electrode-GX CES'||
+     s.effectName!=='Extra Energy Bomb'||
+     m.selectionType!=='energy-transfers'||
+     m.minimumCount!==chain.plan.attachTokens.length||
+     m.maximumCount!==chain.plan.attachTokens.length||
+     m.ownerSeat!=='actor'||m.sourceZone!=='discard')return null;
+  const tokens=[],used=new Set();
+  for(const id of chain.plan.attachTokens){
+    const index=Number(id.replace(/^discard-/,''));
+    if(!Number.isSafeInteger(index)||index<0||
+       !chain.discardPrintings.has(id))return null;
+    const found=list(p.choices).filter(c=>c.kind==='energy'&&
+      metadata(c).sourceZone==='discard'&&
+      metadata(c).ownerSeat==='actor'&&metadata(c).isOwnerVisible===true&&
+      metadata(c).selectionIndex===index&&
+      metadata(c).zone==='bench'&&
+      metadata(c).slotIndex===chain.benchIndex&&
+      r17Key(c)===r17Key(chain.discardPrintings.get(id))&&
+      !used.has(c.token));
+    if(found.length!==1)return null;
+    tokens.push(found[0].token);used.add(found[0].token);
+  }
+  return {kind:'select-choices',tokens};
+}
+function r17BombPromoteDecision(req,chain){
+  const p=req.prompt,m=metadata(p),s=p?.source;
+  if(req.sequence!==chain.sequence+1||
+     p?.promptType!=='ChoosePokemonPrompt'||
+     s?.sourceKind!=='engine'||
+     s.effectName!=='CHOOSE_NEW_ACTIVE_POKEMON'||
+     m.selectionType!=='pokemon'||m.minimumCount!==1||
+     m.maximumCount!==1||m.allowCancel!==false||
+     active(own(req.observation))!==null)return null;
+  const candidates=list(p.choices).filter(c=>c.kind==='pokemon'&&
+    metadata(c).ownerSeat==='actor'&&metadata(c).isOwnerVisible===true&&
+    metadata(c).targetZone==='bench'&&
+    metadata(c).benchIndex===chain.benchIndex&&
+    printingValue(c)===chain.benchPrinting&&
+    printingValue(own(req.observation).bench?.[chain.benchIndex])===chain.benchPrinting);
+  return candidates.length===1?
+    {kind:'select-choices',tokens:[candidates[0].token]}:null;
+}
 function r17RainEnergyDecision(req,chain){
   const p=req.prompt,src=p?.source,m=metadata(p);
   if(req.sequence!==chain.sequence+1||
@@ -2619,15 +2723,28 @@ function r17CreatePolicy({role,seat,policyVersion,config}) {
     if(!request||request.role!==role||request.seat!==seat||request.observation?.actorSeat!==seat)
       return r17Abstain('ROLE_SEAT_BINDING_MISMATCH');
     if(rain){
-      const bad=!request.prompt||rain.turn!==request.observation.globalTurn||
-        !Number.isSafeInteger(request.sequence)||request.sequence!==rain.sequence+1;
+      const bad=rain.turn!==request.observation.globalTurn||
+        !Number.isSafeInteger(request.sequence)||request.sequence!==rain.sequence+1||
+        (rain.stage==='bomb-rain-root'?request.prompt!==null:!request.prompt);
       if(bad){rain=null;return r17Abstain('R17_UNTRUSTED_PROMPT');}
-      const decision=rain.stage==='discard'?
+      if(rain.stage==='bomb-rain-root'){
+        const actual=r17DirectRainWindow(request);
+        if(!actual){rain=null;return r17Abstain('R17_UNTRUSTED_PROMPT');}
+        rain={stage:'discard',turn:rain.turn,sequence:request.sequence,...actual};
+        return {kind:'select-action',token:actual.action.token};
+      }
+      const decision=rain.stage==='bomb-transfer'?
+        r17BombAttachDecision(request,rain):rain.stage==='bomb-promotion'?
+        r17BombPromoteDecision(request,rain):rain.stage==='discard'?
         r17RainEnergyDecision(request,rain):r17RainPacketsDecision(request,rain);
       if(!decision){rain=null;return r17Abstain('R17_UNTRUSTED_PROMPT');}
-      if(rain.stage==='discard'){
+      if(rain.stage==='bomb-transfer')
+        rain={...rain,stage:'bomb-promotion',sequence:request.sequence};
+      else if(rain.stage==='bomb-promotion')
+        rain={...rain,stage:'bomb-rain-root',sequence:request.sequence};
+      else if(rain.stage==='discard')
         rain={...rain,stage:'damage',sequence:request.sequence};
-      }else rain=null;
+      else rain=null;
       return decision;
     }
     if(request.prompt!==null)return r17Prompt(request);
@@ -2636,6 +2753,12 @@ function r17CreatePolicy({role,seat,policyVersion,config}) {
       rain={stage:'discard',turn:request.observation.globalTurn,
         sequence:request.sequence,...candidate};
       return {kind:'select-action',token:candidate.action.token};
+    }
+    const bomb=r17OneBombRainWindow(request);
+    if(bomb){
+      rain={stage:'bomb-transfer',turn:request.observation.globalTurn,
+        sequence:request.sequence,...bomb};
+      return {kind:'select-action',token:bomb.action.token};
     }
     return r17Best(request);
   }});
