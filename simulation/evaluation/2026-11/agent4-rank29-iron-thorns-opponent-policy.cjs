@@ -234,6 +234,16 @@ function opponentDeckCount(observation) {
     observation.opponentPublic.deckCount : null;
 }
 
+function ownerK1DeckMayContain(observation, pattern) {
+  const evidence = observation?.ownerK1;
+  // An unknown, invalidated or non-certified owner deck yields no elimination.
+  if (evidence?.exactMembershipKnown !== true ||
+      !Array.isArray(evidence.knownPrintings)) return true;
+  return evidence.knownPrintings.some(row =>
+    Number.isSafeInteger(row?.copies) && row.copies > 0 &&
+    matches(row.printing, pattern));
+}
+
 function ownDeckCount(observation) {
   return Number.isSafeInteger(observation?.ownPublic?.deckCount) ?
     observation.ownPublic.deckCount : null;
@@ -1172,12 +1182,20 @@ function scorePlayCard(item, request) {
   }
   if (matches(card, PRINT.guzmaHala)) {
     const needDce = !list(own.active?.energies).some(energy => matches(energy, PRINT.doubleColorless)) &&
-      handCopies(hand, PRINT.doubleColorless) === 0;
+      handCopies(hand, PRINT.doubleColorless) === 0 &&
+      ownerK1DeckMayContain(observation, PRINT.doubleColorless);
     const needThunder = !hasStadium(observation, PRINT.thunderMountain) &&
-      !hand.some(value => matches(value, PRINT.thunderMountain));
+      !hand.some(value => matches(value, PRINT.thunderMountain)) &&
+      ownerK1DeckMayContain(observation, PRINT.thunderMountain);
     const needJammer = opponentHasTool(observation) &&
       !boardHasTool(own, PRINT.toolJammer) &&
-      !hand.some(value => matches(value, PRINT.toolJammer));
+      !hand.some(value => matches(value, PRINT.toolJammer)) &&
+      ownerK1DeckMayContain(observation, PRINT.toolJammer);
+    const needFallbackStadium =
+      ![PRINT.tropicalBeach, PRINT.wondrousLabyrinth].some(pattern =>
+        hasStadium(observation, pattern) || hand.some(value => matches(value, pattern))) &&
+      [PRINT.tropicalBeach, PRINT.wondrousLabyrinth].some(pattern =>
+        ownerK1DeckMayContain(observation, pattern));
     const realism = guzmaHalaPaymentRealism(observation);
     const turbo = turboDceAttackWindow(request) && needThunder &&
       (realism > 0 || hand.some(value => matches(value, PRINT.doubleColorless)));
@@ -1185,9 +1203,10 @@ function scorePlayCard(item, request) {
     if (!realism) {
       // The two-card discard is optional: even with protected singleton
       // resources, Guzma & Hala may still take its mandatory Stadium only.
-      return needThunder ? 90 : 0;
+      return needThunder || needFallbackStadium ? 90 : 0;
     }
-    return needDce || needThunder || needJammer ? Math.round(140 * realism) : 0;
+    return needDce || needThunder || needJammer || needFallbackStadium ?
+      Math.round(140 * realism) : 0;
   }
   if (matches(card, PRINT.lusamine)) {
     return hasUsefulDiscardForLusamine(observation) ? 155 : 0;
@@ -1209,7 +1228,10 @@ function scorePlayCard(item, request) {
     return hand.length <= 2 && ownDeckCount(observation) > 7 ? 115 : 0;
   }
   if (matches(card, PRINT.tagCall)) {
-    return !hand.some(value => matches(value, PRINT.guzmaHala)) &&
+    const targetAvailable = ownerK1DeckMayContain(observation, PRINT.guzmaHala) ||
+      ownerK1DeckMayContain(observation, PRINT.cynthiaCaitlin);
+    return targetAvailable &&
+      !hand.some(value => matches(value, PRINT.guzmaHala)) &&
       ownDeckCount(observation) > 0 ? 105 : 0;
   }
   if (matches(card, PRINT.trainersMail)) {
