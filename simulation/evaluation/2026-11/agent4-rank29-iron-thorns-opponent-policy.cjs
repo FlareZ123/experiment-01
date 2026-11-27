@@ -300,6 +300,15 @@ function peoniaSafeReplacementCount(observation) {
       discardPriority(card, observation) >= 80).length;
 }
 
+function guzmaHalaPaymentRealism(observation) {
+  const eligible = ownHand(observation)
+    .filter(card => !matches(card, PRINT.guzmaHala))
+    .map(card => discardPriority(card, observation))
+    .filter(value => value >= 0);
+  if (eligible.length < 2) return 0;
+  return eligible.filter(value => value >= 60).length >= 2 ? 1 : 0.65;
+}
+
 function canPayPlumeria(observation) {
   const hand = ownHand(observation).filter(card => !matches(card, PRINT.plumeria));
   const eligible = hand.filter(card => discardPriority(card, observation) >= 0);
@@ -1152,7 +1161,8 @@ function scorePlayCard(item, request) {
     const needJammer = opponentHasTool(observation) &&
       !boardHasTool(own, PRINT.toolJammer) &&
       !hand.some(value => matches(value, PRINT.toolJammer));
-    return needDce || needThunder || needJammer ? 140 : 0;
+    const realism = guzmaHalaPaymentRealism(observation);
+    return needDce || needThunder || needJammer ? Math.round(140 * realism) : 0;
   }
   if (matches(card, PRINT.lusamine)) {
     return hasUsefulDiscardForLusamine(observation) ? 155 : 0;
