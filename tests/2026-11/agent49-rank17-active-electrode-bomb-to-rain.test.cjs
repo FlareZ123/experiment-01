@@ -128,7 +128,7 @@ function rainPrompt(f,configure=()=>{}){
     }
     getPerspectivePlayerId(){return this.playerId}
     decode(r){return r}
-    validate(rows){return rows.reduce((n,x)=>n+x.damage,0)===90}
+    validate(rows){return rows.reduce((n,x)=>n+x.damage,0)===this.damage}
   }
   const prompt=new PutDamagePrompt();configure(prompt);f.state.prompts=[prompt];
   return {prompt,projection:f.project(prompt,f.owner.active.getPokemonCard(),'Electro Rain')};
