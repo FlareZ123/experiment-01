@@ -683,3 +683,24 @@ test('already-funded nonterminal Electro Rain chooses three-Prize KO without a n
     assert.equal(f.view.opponentPublic.prizeCount,4,'no own self-KO changed the opponent Prize count');
   }
 });
+
+
+
+test('nonterminal three-Prize Bomb pressure is suppressed at opponent four Prizes',()=>{
+  const T='Shadow Rider Calyrex VMAX CRE',C='Counter Energy CIN';
+  for(const seat of [0,1]){
+    const f=setup(seat,4);
+    f.view.ownPublic.active=viewSlot(E);
+    f.view.ownPublic.bench=[viewSlot(R),null,null,null,null];
+    f.view.ownPublic.discard=[P,P,P,P,C];
+    const vmax=()=>({...viewSlot(T,[],'VMAX'),hp:320,damage:60});
+    f.view.opponentPublic.active=vmax();f.view.opponentPublic.bench=[vmax()];
+    const bomb={kind:'use-ability',token:'bomb',actorPrinting:E,
+      publicMetadata:{abilityName:'Extra Energy Bomb',
+        sourceZone:'active',sourceIndex:0,abilityLive:true}};
+    const decision=f.decide(1,null,[bomb,{kind:'pass',token:'pass'}]);
+    assert.notDeepEqual(decision,{kind:'select-action',token:'bomb'});
+    assert.equal(decision.kind,'abstain',
+      'a merely positive 3-Prize swing is not admitted with opponent near the win threshold');
+  }
+});
