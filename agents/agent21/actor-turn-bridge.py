@@ -7,6 +7,7 @@ Only a conservative subset of board effects is admitted. Output is an advisory r
 revalidate each native prompt/observation and replan after draws. Never deploy to a frozen worker.
 """
 import argparse, importlib.util, json, re, sys
+from collections import Counter
 from pathlib import Path
 
 spec=importlib.util.spec_from_file_location('turn_plan',Path(__file__).with_name('turn-plan.py'))
@@ -26,7 +27,8 @@ TOOL_PREFIX={'Stealthy Hood':'hood','Float Stone':'float','Forest Seal Stone':'f
 STADIUM_PREFIX={'Dimension Valley':'valley','Temple of Sinnoh':'temple','Sky Field':'sky',
  'Path to the Peak':'path','Silent Lab':'lab','Jamming Tower':'jamming','Chaotic Swell':'swell','Galar Mine':'mine'}
 STADIUM_HELD={'valley','temple','sky'}
-TRAINER_PREFIX={'Stealthy Hood':'hood','Float Stone':'float','Field Blower':'blower','Guzma':'guzma','VS Seeker':'vs','Night Stretcher':'stretcher'}
+TRAINER_PREFIX={'Stealthy Hood':'hood','Float Stone':'float','Field Blower':'blower','Guzma':'guzma','VS Seeker':'vs','Night Stretcher':'stretcher',
+ 'Fog Crystal':'fog','Mysterious Treasure':'treasure','Quick Ball':'quick','Arven':'arven','Forest Seal Stone':'fss','Raihan':'raihan','Teammates':'teammates'}
 
 class Unsupported(ValueError):pass
 
@@ -36,7 +38,15 @@ def require(test,why):
 def prefix(printing,mapping):
     return next((v for k,v in mapping.items() if printing.startswith(k+' ')),None)
 
-def psychic(p):return p.startswith('Psychic Energy ')
+def psychic(p):return p.startswith(('Psychic Energy ','Basic Psychic Energy '))
+
+def resource(p,basicenergy):
+    if p in OWN:return OWN[p]
+    if psychic(p) and p in basicenergy:return 'psychic'
+    trainer=prefix(p,TRAINER_PREFIX)
+    if trainer:return trainer
+    stadium=prefix(p,STADIUM_PREFIX)
+    return stadium if stadium in STADIUM_HELD else None
 
 def public_guard(x):
     if isinstance(x,dict):
@@ -46,7 +56,7 @@ def public_guard(x):
     elif isinstance(x,list):
         for v in x:public_guard(v)
 
-def convert(req,cat):
+def convert(req,cat,discardable=()):
     public_guard(req)
     require(req.get('schema')=='aichi-policy-request-v2' and req.get('observationSchema')=='aichi-actor-observation-v4-ability-lock-order','wrong actor protocol')
     require(req.get('prompt') is None,'root only; prompt resolver must revalidate intent')
@@ -126,12 +136,27 @@ def convert(req,cat):
     discard['pokemon']={}
     for p in own['discard']:
         if p in OWN:discard['pokemon'][OWN[p]]=discard['pokemon'].get(OWN[p],0)+1
+        k=resource(p,basicenergy)
+        if k in turn_plan.SUPPORT_TARGETS[1:]:discard[k]=discard.get(k,0)+1
+    require(not (Counter(discardable)-Counter(v['ownHand'])) and all(resource(p,basicenergy) is None for p in discardable),'explicit discard fodder must be held, unmodeled printings')
+    hand['discardable']=list(discardable)
+    # Exact membership only from the existing, provenance-checked owner ledger.
+    # A null/invalidated K1 receipt supplies no target identities, not a guessed inventory.
+    known={};k1=v.get('ownerK1')
+    if k1 and k1.get('exactMembershipKnown') is True:
+        entries=k1.get('knownPrintings');require(isinstance(entries,list),'missing K1 membership')
+        require(all(isinstance(row.get('printing'),str) and isinstance(row.get('copies'),int) and row['copies']>0 for row in entries),'malformed K1 rows')
+        require(len(set(row['printing'] for row in entries))==len(entries) and sum(row['copies'] for row in entries)==own['deckCount'],'K1 membership count mismatch')
+        for row in entries:
+            k=resource(row['printing'],basicenergy)
+            if k:known[k]=known.get(k,0)+row['copies']
     # The planner reserves compact slot IDs; map their first action to actual empty native slots.
     for j,index in enumerate(i for i,p in enumerate(own['bench']) if p is None):
         slotmap['new'+str(len(ownrows)+j)]={'zone':'bench','index':index,'owner':True,'printing':None}
     data={'own':ownrows,'opp':opprows,'active':'a','opp_active':'oa','stadium':stadium,'hand':hand,'discard':discard,
-          'used':{'manual':res['energyPlayedTurn']==turn,'retreat':res['retreatedTurn']==turn,'support':res['supporterPlayedTurn']>0,'stadium':res['stadiumPlayedTurn']==turn,'gx':own['publicTurnRestrictions']['gxUsed']},
+          'used':{'manual':res['energyPlayedTurn']==turn,'retreat':res['retreatedTurn']==turn,'support':res['supporterPlayedTurn']>0,'stadium':res['stadiumPlayedTurn']==turn,'gx':own['publicTurnRestrictions']['gxUsed'],'vstar':bool(res.get('vstarUsed'))},
           'deck_remaining':own['deckCount'],'prizes_remaining':own['prizeCount'],'support_allowed':True,
+          'known_deck':known,'prior_ko':event.get('priorOpponentTurnKO',{}).get('any') is True,
           'item_attack_lock':bool(res['itemPlayLocked']),'support_attack_lock':bool(res['supporterPlayLocked']),
           'stadium_attack_lock':bool(res['stadiumPlayLocked']),'tool_attack_lock':bool(res['toolPlayLocked']),'energy_attack_lock':bool(res['energyPlayLocked']),
           'pokemon_play_lock':bool(res.get('pokemonPlayLocked')),'ability_pokemon_play_lock':bool(res.get('abilityPokemonPlayLocked')),
@@ -155,7 +180,7 @@ def match_root(plan,frontier,slotmap):
     def matches(x):
         meta=x.get('publicMetadata',{});kind=x['kind'];printing=x.get('actorPrinting','')
         if first is None:return kind=='attack' and x.get('attackName')==plan['attack'] and meta.get('attackSource',{}).get('sourceKind')=='active-pokemon' and printing==slotmap['a']['printing']
-        m=re.fullmatch(r'bench (\w+) -> (\w+)',first)
+        m=re.fullmatch(r'bench (\w+) -> (\w+)(?:; Wonder Tag -> \w+)?',first)
         if m:return kind=='play-card' and OWN.get(printing)==m[1] and m[2] in slotmap and target(meta,m[2])
         m=re.fullmatch(r'evolve (\w+) -> vmax',first)
         if m:return kind=='play-card' and OWN.get(printing)=='vmax' and target(meta,m[1])
@@ -165,23 +190,27 @@ def match_root(plan,frontier,slotmap):
         if m:return kind=='use-ability' and meta.get('abilityName')=='Underworld Door' and source(meta,m[1])
         m=re.fullmatch(r'retreat \w+ -> (\w+) \(discard \d+ Psychic\)',first)
         if m:return kind=='retreat' and target(meta,m[1])
-        m=re.fullmatch(r'attach (Stealthy Hood|Float Stone) -> (\w+)',first)
+        m=re.fullmatch(r'attach (Stealthy Hood|Float Stone|Forest Seal Stone) -> (\w+)',first)
         if m:return kind=='play-card' and printing.startswith(m[1]+' ') and target(meta,m[2])
         m=re.fullmatch(r'play (\w+) Stadium.*',first)
         if m:return kind=='play-card' and prefix(printing,STADIUM_PREFIX)==m[1]
         m=re.fullmatch(r'Resetting Hole (\w+) .*',first)
         if m:return kind=='use-ability' and meta.get('abilityName')=='Resetting Hole' and source(meta,m[1])
-        for label in ('Guzma','Field Blower','VS Seeker','Night Stretcher'):
+        m=re.fullmatch(r'Star Alchemy (\w+) -> \w+',first)
+        if m:return kind=='use-ability' and meta.get('abilityName')=='Star Alchemy' and source(meta,m[1])
+        for label in ('Guzma','Field Blower','VS Seeker','Night Stretcher','Arven','Raihan','Teammates'):
             if first.startswith(label):return kind=='play-card' and printing.startswith(label+' ')
+        for label,k in (('fog','Fog Crystal'),('treasure','Mysterious Treasure'),('quick','Quick Ball')):
+            if first.startswith(label+' -> '):return kind=='play-card' and printing.startswith(k+' ')
         return False
     matches_=[x for x in items if matches(x)]
     # Duplicate same-printing held cards are interchangeable here; select lowest hand index.
     if len(matches_)>1 and not all(x['kind']=='play-card' and x.get('actorPrinting')==matches_[0].get('actorPrinting') and x.get('publicMetadata',{}).get('targetZone')==matches_[0].get('publicMetadata',{}).get('targetZone') and x.get('publicMetadata',{}).get('targetIndex')==matches_[0].get('publicMetadata',{}).get('targetIndex') for x in matches_):return None
     return min(matches_,key=lambda x:x.get('publicMetadata',{}).get('handIndex',0)) if matches_ else None
 
-def advise(req,cat,max_states=100000):
+def advise(req,cat,max_states=100000,discardable=()):
     try:
-        data,slotmap=convert(req,cat)
+        data,slotmap=convert(req,cat,discardable)
         require(req['actionFrontier']['schema']=='aichi-action-frontier-v1','wrong frontier schema')
         # Enforce the genuine current frontier during expansion, not merely after choosing
         # a representative path; a different route to the same result may start legally.
@@ -258,11 +287,22 @@ def selftest():
     cat['ruleboxPokemonPrintings'].append('Regidrago VSTAR SIT');cat['dragonPokemonPrintings'].append('Regidrago VSTAR SIT')
     z=advise(q,cat);assert z['decision']=={'kind':'select-action','token':'clefairy'},z
     v['ownTurnResources']['abilityPokemonPlayLocked']=True;assert advise(q,cat)['decision'] is None
+    # Existing ownerK1 ledger enables only legitimately known tutor targets.
+    q=copy.deepcopy(request);v=q['observation'];p=v['ownPublic'];p['active']=poke('Shadow Rider Calyrex V CRE','v',2);p['active']['lastPlayedOrEvolvedTurn']=3
+    p['bench']=[poke('Shadow Rider Calyrex V CRE','v',1)]+[None]*4;p['discard']=[];v['ownHand']=['Psychic Energy SVE','Arven SVI']
+    target=thorns();target.update(hp=160,abilities=[],printing='Dedenne-GX UNB');v['opponentPublic']['active']=target;v['opponentPublic']['bench']=[None]*5
+    q['publicEventReceipt']['ownerActive']=receipt(p['active']);q['publicEventReceipt']['ownerBench']=[receipt(p['bench'][0])]+[None]*4
+    q['actionFrontier']['items']=[{'token':'arven','kind':'play-card','actorPrinting':'Arven SVI','publicMetadata':{'handIndex':1}}]
+    v['ownerK1']={'epoch':1,'exactMembershipKnown':True,'knownPrintings':[{'printing':x,'copies':n} for x,n in [('Fog Crystal CRE',1),('Forest Seal Stone SIT',1),('Shadow Rider Calyrex VMAX CRE',1),('Psychic Energy SVE',1),('Unmodeled fixture printing',31)]]}
+    z=advise(q,cat);assert z['decision']=={'kind':'select-action','token':'arven'} and z['plan']['immediate_prizes']==2,z
+    v['ownerK1']['exactMembershipKnown']=False;assert advise(q,cat)['decision'] is None
+    v['ownerK1']['exactMembershipKnown']=True;v['ownTurnResources']['vstarUsed']=True;assert advise(q,cat)['decision'] is None
+    v['ownTurnResources']['vstarUsed']=False;v['ownerK1']['knownPrintings'][-1]['copies']=30;assert advise(q,cat)['decision'] is None
     print(json.dumps(result,indent=2));print('Actor bridge tests passed.')
 
 def main():
     ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('input',nargs='?');ap.add_argument('--test',action='store_true');ap.add_argument('--max-states',type=int,default=100000);a=ap.parse_args()
     if a.test:selftest();return
     if not a.input:ap.error('input required unless --test')
-    envelope=json.load(open(a.input));print(json.dumps(advise(envelope['request'],envelope['catalog'],a.max_states),indent=2))
+    envelope=json.load(open(a.input));print(json.dumps(advise(envelope['request'],envelope['catalog'],a.max_states,envelope.get('discardablePrintings',[])),indent=2))
 if __name__=='__main__':main()
