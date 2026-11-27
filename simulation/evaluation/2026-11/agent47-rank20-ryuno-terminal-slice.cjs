@@ -21,7 +21,7 @@ const SAFE_STADIUM = /^(?:Path to the Peak|Parallel City|Sky Field|Dimension Val
 function arr(x) { return Array.isArray(x) ? x : []; }
 function printing(x) {
   if (typeof x === 'string') return x;
-  return x?.printing ?? x?.fullName ?? x?.publicMetadata?.cardPrinting ?? '';
+  return x?.printing ?? x?.fullName ?? x?.publicMetadata?.cardPrinting ?? x?.publicMetadata?.sourcePrinting ?? '';
 }
 function meta(x) { return x?.publicMetadata ?? {}; }
 function localActor(request) {
@@ -70,12 +70,19 @@ function canTerminalRyuno(request) {
   if (opp.active?.publicRestrictions?.cannotUseAttacksNextTurn === undefined) return false;
   return true;
 }
+function activeBasicCostPayable(energies) {
+  return arr(energies).filter(e=>/^Grass Energy MEE 9\b/i.test(printing(e))).length >= 2 &&
+    arr(energies).filter(e=>/^Fire Energy MEE 10\b/i.test(printing(e))).length >= 1;
+}
 function apexRootDecision(request) {
   if (!canTerminalRyuno(request) || request?.prompt != null) return null;
   const offered = arr(request?.actionFrontier?.items).find(c => c?.kind === 'attack' &&
-    (c.attackName ?? meta(c).sourceAttack) === 'Apex Dragon' &&
+    (c.attackName ?? meta(c).sourceAttack ?? c.label) === 'Apex Dragon' &&
     typeof c.token === 'string' && c.token.length > 0 &&
-    meta(c).attackCostPayable === true && meta(c).hasPrevention !== true &&
+    meta(c).attackCostPayable !== false &&
+    (meta(c).attackCostPayable === true ||
+      activeBasicCostPayable(request.observation.ownPublic.active.energies)) &&
+    meta(c).hasPrevention !== true &&
     meta(c).hasUnmodeledModifier !== true &&
     !(Number(meta(c).damagePrevented) > 0) && !(Number(meta(c).damageReduced) > 0) &&
     meta(c).isLegal !== false);
@@ -84,13 +91,14 @@ function apexRootDecision(request) {
 function apexCopyChoiceDecision(request) {
   if (!canTerminalRyuno(request) || request?.prompt?.promptType !== 'ChooseAttackPrompt') return null;
   const prompt = request.prompt;
-  const origin = [prompt?.source?.sourceAttack, prompt?.description, meta(prompt).sourceAttack]
+  const origin = [prompt?.source?.sourceAttack, prompt?.source?.effectName, prompt?.description, meta(prompt).sourceAttack]
     .filter(Boolean).join(' ');
   if (!/Apex Dragon/i.test(origin)) return null;
   const option = arr(prompt.choices).find(c => c?.kind === 'attack' &&
     (meta(c).sourceAttack ?? c.attackName ?? c.label) === 'Ryuno Glide' &&
     DRAGONITE.test(printing(c)) &&
-    meta(c).sourceZone === 'discard' && meta(c).ownerSeat === 'actor' &&
+    (meta(c).sourceZone === undefined || meta(c).sourceZone === 'discard') &&
+    (meta(c).ownerSeat === undefined || meta(c).ownerSeat === 'actor') &&
     meta(c).eligible !== false && meta(c).attackCostPayable !== false &&
     typeof c.token === 'string' && c.token.length > 0);
   return option ? { kind: 'select-choice', token: option.token } : null;
@@ -99,7 +107,7 @@ function paymentDecision(request) {
   if (!canTerminalRyuno(request) || request?.prompt?.promptType !== 'ChooseEnergyPrompt') return null;
   const prompt = request.prompt, m = meta(prompt);
   if (m.selectionType !== 'energy-payment' ||
-      !/Ryuno Glide/i.test([prompt?.source?.sourceAttack, prompt?.description, m.sourceAttack, m.sourceEffect].filter(Boolean).join(' ')) ||
+      !/Ryuno Glide/i.test([prompt?.source?.sourceAttack, prompt?.source?.effectName, prompt?.description, m.sourceAttack, m.sourceEffect].filter(Boolean).join(' ')) ||
       m.minimumCount !== 2 || m.maximumCount !== 2) return null;
   const available = arr(prompt.choices).filter(c =>
     c && (c.kind === 'card' || c.kind === 'energy') &&
