@@ -1,4 +1,7 @@
 {
-  "run_id": "agent8-chat-2026-11-27T05:45:27.620Z-normal2",
-  "claimed_at": "2026-11-27T05:45:27.620Z"
+  "run_id": "agent8-chat-2026-11-27T08:45:26.741Z-normal3-apex",
+  "claimed_at": "2026-11-27T08:45:26.741Z",
+  "mode": "normal",
+  "selection_draw": 3,
+  "previous_claim": "2026-11-27T05:45:27.620Z"
 }
