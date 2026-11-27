@@ -191,3 +191,57 @@ for(const seat of [0,1]) {
     assert.deepEqual(decide(o,[charge,burrow,star,pass]),{kind:'select-action',token:'star'});
   });
 }
+
+
+const prizeProtocol=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
+function opaqueAward(seat,count,options={}) {
+  const actor=options.ownerSeat??'actor';
+  const make=(i)=>({token:'prize-'+i,kind:'prize',label:'Your Prize slot '+(i+1),
+    publicMetadata:{selectionIndex:i,selectedCount:1,sourceZone:'prizes',ownerSeat:actor,
+      isOwnerVisible:false,requiredCount:count}});
+  const choices=count===0?[{token:'empty',kind:'empty-selection',label:'Choose none'}]:
+    (options.indices??[2,0,1]).map(make);
+  return {schema:prizeProtocol.PROMPT_SCHEMA,actingSeat:seat,promptType:'ChoosePrizePrompt',
+    description:'Choose Prize cards',source:{classification:'actor-choice',sourceKind:'card-effect',
+      sourcePrinting:options.sourcePrinting??S,effectName:options.effectName??'Collapse'},
+    choices,publicMetadata:{count:count===0?0:3,requiredCount:count,allowCancel:false,isSecret:false,
+      sourceZone:'prizes',ownerSeat:actor,isOwnerVisible:false,selectionType:'prize-slots'}};
+}
+function prizeDecision(seat,p,validate=true) {
+  const policy=createPolicy({role:'opponent',seat,policyVersion:POLICY_VERSION,config:{}});
+  if(validate)prizeProtocol.validatePrompt(p,seat);
+  const out=policy.decide({role:'opponent',seat,observation:state({seat}),prompt:p,
+    actionFrontier:{items:[]},publicEventReceipt:null});
+  if(validate)prizeProtocol.validateDecision(out,p,new Set());
+  return out;
+}
+for(const seat of [0,1]) {
+  for(const count of [1,2,3]) test('seat '+seat+': opaque Collapse award selects exact '+count+' distinct slots',()=>{
+    assert.deepEqual(prizeDecision(seat,opaqueAward(seat,count)),
+      {kind:'select-choices',tokens:Array.from({length:count},(_,i)=>'prize-'+i)});
+  });
+  test('seat '+seat+': zero-count award selects explicit empty token',()=>{
+    assert.deepEqual(prizeDecision(seat,opaqueAward(seat,0)),{kind:'select-choice',token:'empty'});
+  });
+  test('seat '+seat+': concealed Gladion and Heavy Ball are not ordinary award prompts',()=>{
+    for(const [sourcePrinting,effectName] of [['Gladion CIN 95','Gladion'],['Hisuian Heavy Ball ASR 146','Hisuian Heavy Ball']])
+      assert.deepEqual(prizeDecision(seat,opaqueAward(seat,1,{sourcePrinting,effectName})),
+        {kind:'abstain',reasonCode:'HIDDEN_PRIZE_IDENTITY'});
+  });
+  test('seat '+seat+': mismatched attack source, non-damaging attack and opponent Prize slots abstain',()=>{
+    for(const opt of [{sourcePrinting:'Bunnelby PRC 121',effectName:'Burrow'},
+      {sourcePrinting:'Shadow Rider Calyrex VMAX CRE 75',effectName:'Collapse'},{ownerSeat:'opponent'}])
+      assert.deepEqual(prizeDecision(seat,opaqueAward(seat,1,opt)),
+        {kind:'abstain',reasonCode:'UNSUPPORTED_PRIZE_SELECTION'});
+  });
+  test('seat '+seat+': duplicate slot index or too few legal slots never produces underpayment',()=>{
+    assert.deepEqual(prizeDecision(seat,opaqueAward(seat,2,{indices:[0,0,1]}),false),
+      {kind:'abstain',reasonCode:'NO_LEGAL_PRIZE_SELECTION'});
+    assert.deepEqual(prizeDecision(seat,opaqueAward(seat,2,{indices:[1]}),false),
+      {kind:'abstain',reasonCode:'NO_LEGAL_PRIZE_SELECTION'});
+  });
+  test('seat '+seat+': Mimikyu damage counter KO source is supported',()=>{
+    assert.deepEqual(prizeDecision(seat,opaqueAward(seat,1,{sourcePrinting:'Mimikyu PAL 97',effectName:'Ghost Eye'})),
+      {kind:'select-choices',tokens:['prize-0']});
+  });
+}

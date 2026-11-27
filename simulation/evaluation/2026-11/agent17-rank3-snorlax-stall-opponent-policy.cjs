@@ -1186,6 +1186,54 @@ function promptDecision(request) {
   }
 
   if (prompt.promptType === 'ChoosePrizePrompt') {
+    if (selectionType === 'prize-slots') {
+      // The native projection deliberately keeps ordinary Prize slots opaque.
+      // Accept only source-bound damaging rank-3 attacks, not a search effect
+      // (Gladion / Hisuian Heavy Ball require actual Prize identities).
+      const provenance = prompt.source ?? {};
+      const awardSources = [
+        [PRINT.snorlax, 'Collapse'], [PRINT.stunfisk, 'Damage Rush'],
+        [PRINT.regirock, 'Stone Edge'], [PRINT.mimikyu, 'Ghost Eye'],
+        [PRINT.girafarig, 'Mind Shock'], [PRINT.articuno, 'Ice Wing'],
+        [PRINT.rotom, 'Scrap Short']
+      ];
+      if (matches(provenance.sourcePrinting, PRINT.gladion) ||
+          matches(provenance.sourcePrinting, PRINT.heavyBall)) {
+        return { kind: 'abstain', reasonCode: 'HIDDEN_PRIZE_IDENTITY' };
+      }
+      if (provenance.classification !== 'actor-choice' ||
+          provenance.sourceKind !== 'card-effect' ||
+          !awardSources.some(([pattern, attack]) =>
+            matches(provenance.sourcePrinting, pattern) && provenance.effectName === attack) ||
+          metadata.ownerSeat !== 'actor' || metadata.sourceZone !== 'prizes' ||
+          metadata.isOwnerVisible !== false) {
+        return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PRIZE_SELECTION' };
+      }
+      const count = metadata.requiredCount;
+      const offered = choices.filter(choice => choice.kind === 'prize');
+      if (!Number.isSafeInteger(count) || count < 0 || count > offered.length ||
+          offered.some(choice => !Number.isSafeInteger(choice.publicMetadata?.selectionIndex) ||
+            choice.publicMetadata.selectionIndex < 0 ||
+            choice.publicMetadata.requiredCount !== count ||
+            choice.publicMetadata.ownerSeat !== 'actor' ||
+            choice.publicMetadata.sourceZone !== 'prizes' ||
+            choice.publicMetadata.isOwnerVisible !== false ||
+            typeof choice.token !== 'string' || !choice.token || choice.printing !== undefined) ||
+          new Set(offered.map(choice => choice.publicMetadata.selectionIndex)).size !== offered.length ||
+          new Set(offered.map(choice => choice.token)).size !== offered.length) {
+        return { kind: 'abstain', reasonCode: 'NO_LEGAL_PRIZE_SELECTION' };
+      }
+      if (count === 0) {
+        const empty = choices.filter(choice => choice.kind === 'empty-selection');
+        return empty.length === 1 && offered.length === 0 ?
+          { kind: 'select-choice', token: empty[0].token } :
+          { kind: 'abstain', reasonCode: 'NO_EMPTY_PRIZE_CHOICE' };
+      }
+      const tokens = offered.slice().sort((a,b) =>
+        a.publicMetadata.selectionIndex - b.publicMetadata.selectionIndex)
+        .slice(0,count).map(choice => choice.token);
+      return { kind: 'select-choices', tokens };
+    }
     return singleChoice(prompt, choices, choice => {
       if (matches(choice, PRINT.snorlax) || matches(choice, PRINT.bunnelby) ||
           matches(choice, PRINT.girafarig) || matches(choice, PRINT.toolJammer) ||
