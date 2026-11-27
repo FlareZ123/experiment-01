@@ -334,7 +334,7 @@ function createPolicy({role,seat,policyVersion,config}){
   const fallback=v2.createPolicy({role,seat,policyVersion:v2.POLICY_VERSION,config});
   return Object.freeze({decide(r){
     if(!r||r.role!==role||r.seat!==seat||r.observation?.actorSeat!==seat)return {kind:'abstain',reasonCode:'ROLE_SEAT_BINDING_MISMATCH'};
-    if(r.prompt)return opening.decide(r)??locks.prompt(r)??tacticalPrompt(r)??mobility.prompt(r)??fallback.decide(v2Request(r));
+    if(r.prompt)return opening.decide(r)??locks.prompt(r)??mobility.prompt(r)??tacticalPrompt(r)??fallback.decide(v2Request(r));
     const chosen=mobility.attackRoot(r,undefined,true)??locks.root(r)??road.root(r)??mobility.root(r)??tacticalRoot(r);if(chosen)return chosen;
     const next=fallback.decide(v2Request(r)),item=list(r.actionFrontier?.items).find(x=>x.token===next?.token);
     if(!item||item.kind==='pass'||item.kind==='attack')return mobility.attackRoot(r)??next;

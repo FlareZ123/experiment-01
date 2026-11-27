@@ -1,0 +1,16 @@
+# Rank 19 — public terminal-reply arbitration (2026-11-27)
+
+**Agent23, development branch only.** New direct reply model in `agent23-rank19-prize-pressure.cjs` and shared mobility scorer; v3 Guzma prompt now gives the indexed mobility scorer priority, preventing equal-Prize target order from undoing a tactically superior gust. No registration, main policy, deck, CI, fixture, or game changes.
+
+## Decision-changing cases
+
+- Aura Burn leaves 190 HP on a healthy 220-HP Moltres V. A surviving VMAX with six Psychic Energy deals exactly 190 by Max Geist. Against a 190-HP Clefairy, both funded Aura Burn and Sandy Shocks ex's Earthen Spike take two Prizes, but the healthy 220-HP Sandy survives the already-funded 190 reply. A legal free retreat to Sandy is selected when the opponent needs two Prizes. Five Psychic (160 damage) does not warrant that pivot; seven (220) exposes both attackers, so the fallback remains direct Aura Burn. Source terminal attacks are unchanged.
+- Two same-printing benched VMAX targets, one with six Psychic and the other with none: if Moltres KOs the empty one, funded Max Geist can finish the source. KO the funded copy instead. Previous v3 prize-only prompt chose the first offered target; current indexed mobility prompt selects the funded slot regardless of token order.
+- Astral Barrage can take the final three Prizes from separate already-damaged one- and two-Prize Pokémon even if the current Active is healthy. Only two physical targets count.
+- With surviving Fairy Zone and five total post-KO Benched Pokémon, Full Moon Rondo reaches exactly 240 against Raging Bolt. Energy Drive ignores Weakness; after Bellowing, compute a conservative remaining Active Energy lower bound from the maximum Basic payment and non-discardable DDE.
+
+## Scope and evidence
+
+Card texts from supplied English database; rulebook I.A-01, I.D, II.C-07, II.D-04. The helper considers already-funded Max Geist, Rondo, Night Watch, Eon Blade, Energy Drive, Psychic Assault, Mind Shock, Red Knuckles, Shadow Mist and Astral Barrage. It demotes a visible terminal-reply option to score 1 (does not delete it), preserves possible ADP extra-Prize terminal wins, uses actual surviving physical objects and projected source recoil, and refuses unknown identities/energy. It assumes no extra opponent draw, attachment, evolution, gust, or paid retreat. For non-KO examines defending Active only; after KO any surviving promotion. This is a tactical advisory, not a safety certificate, exact lookahead, competent policy attestation or competitive result. In particular no future Fairy Zone suppression recomputation, no new lock interactions, no engine validation, and no full game. Legacy tactical fallback may still select an exposed attack where no better scored root is offered.
+
+Constructed exact-source-module V8 tests using small node:test/assert shims: 15 new helper tests, six new v3/mobility integration tests, 57 existing related tests, 78/78 total. These are not native Node IPC or Twinleaf Store tests. First helper pass had two incorrect expected equality thresholds (Rondo 240 and Energy Drive 140); corrected fixtures before committing. No candidate strength or win rate estimate. Code in development branch `agent23/rank19-moltres-shadow-rider-20261127`. Maintain owner gates.
