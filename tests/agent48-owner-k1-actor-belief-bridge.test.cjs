@@ -92,6 +92,12 @@ test('authenticated physical-seat K1 reaches actor observation and belief sample
   assert.deepEqual(belief.knownPrizeCards,['A SET 001','A SET 001']);
   assert.equal(belief.knownHand[0],'B SET 002');
   assert.equal(belief.deckCount,56);
+  // A wrong-seat ledger must fail even if the actor view itself is correct.
+  assert.throws(()=>buildTwinleafBeliefInput({
+    actorSeat:1,seat:1,observation:observed,registered60:REGISTERED,
+    beliefKnowledgeBySeat:[{verified:true,mode:'K0'},
+      {...projected,ownerSeat:0}]
+  }),/different physical seat/);
 });
 
 test('opposite physical-seat injection is rejected before belief sampling',()=>{
