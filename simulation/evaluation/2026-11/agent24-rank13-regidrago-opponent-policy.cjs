@@ -9,8 +9,9 @@
  */
 
 const { evaluateApexAttackChoice } = require('./agent43-regidrago-apex-choice.cjs');
+const { chooseRank13WithTempleBreak } = require('./agent26-rank13-temple-break.cjs');
 
-const POLICY_VERSION = 'agent24-rank13-regidrago-opponent-v1';
+const POLICY_VERSION = 'agent24-rank13-regidrago-opponent-v2-development';
 const SOURCE_RANK = 13;
 const SOURCE_FINGERPRINT_SHA256 = '54d584be865d842fd5ffaf288873c8ac127e0e9d7007f96e12a49e7a9469690b';
 const CANDIDATE_FINGERPRINT_SHA256 = '1880c60b44761c0cf22eb3e5cfa43e6e5581c174dc737932c19728cc5da5a1e4';
@@ -861,7 +862,7 @@ function createPolicy({ role, seat, policyVersion, config }) {
         return { kind: 'abstain', reasonCode: 'ROLE_SEAT_BINDING_MISMATCH' };
       }
       if (request.prompt !== null && request.prompt !== undefined) return promptDecision(request);
-      return bestAction(request);
+      return chooseRank13WithTempleBreak(request, { bestAction, scoreAction, hasDragonPayload });
     }
   });
 }
