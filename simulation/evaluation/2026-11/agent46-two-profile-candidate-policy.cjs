@@ -723,6 +723,27 @@ function dimensionValleyStatus(view) {
   return true;
 }
 
+// Wondrous Labyrinth increases the attack cost of a non-Fairy Pokémon by one
+// Colorless. The pinned native rule uses CheckAttackCostEffect; root attack
+// availability remains controlled by the native frontier. When Stadium
+// suppression or a possible New Moon source cannot be proven, fail closed.
+function wondrousLabyrinthCostTax(view, slot) {
+  const stadiums=[...(view.ownPublic.stadium??[]),...(view.opponentPublic.stadium??[])];
+  if(!stadiums.some(s=>hasName(s,'Wondrous Labyrinth')))return 0;
+  const status=stadiumAndToolEffectsLive(view);
+  if(status===null)return null;
+  if(status===false)return 0;
+  for(const [side,board] of [['actor',ownBoard(view)],['opponent',opponentBoard(view)]]){
+    for(const holder of board){
+      if(!(holder.abilities??[]).includes('New Moon'))continue;
+      const active=effectiveAbilityStatus(holder,'New Moon',side,view);
+      if(active===true)return 0;
+      if(active===null)return null;
+    }
+  }
+  if(!Array.isArray(slot?.printed?.types))return null;
+  return slot.printed.types.includes('Fairy')?0:1;
+}
 function effectiveAttackCost(slot, attack, view) {
   const cost = Array.isArray(attack?.cost) ? attack.cost : [];
   let required = cost.length;
@@ -731,6 +752,9 @@ function effectiveAttackCost(slot, attack, view) {
       dimensionValleyStatus(view) === true) {
     required -= 1;
   }
+  const wondrousTax=wondrousLabyrinthCostTax(view,slot);
+  if(wondrousTax===null)return null;
+  required+=wondrousTax;
   if(Number.isSafeInteger(slot?.publicRestrictions?.attackCostIncreaseWhileActive)&&
      (slot===view.ownPublic.active||slot===view.opponentPublic.active))
     required+=Math.max(0,slot.publicRestrictions.attackCostIncreaseWhileActive);
@@ -744,7 +768,8 @@ function canPayAttack(slot, attack, view) {
   if (!slot || !Array.isArray(slot.energies) || !Array.isArray(attack?.cost)) return false;
   if (slot.energies.some(p => !hasName(p,'Psychic Energy'))) return false;
   if (attack.cost.some(c => c !== 'Psychic' && c !== 'Colorless')) return false;
-  return slot.energies.length >= effectiveAttackCost(slot,attack,view);
+  const cost=effectiveAttackCost(slot,attack,view);
+  return Number.isSafeInteger(cost)&&slot.energies.length>=cost;
 }
 
 function isPokemonV(slot) {
@@ -3994,7 +4019,7 @@ function harmlessStadiumForDirectPsychicFinal(view,printing){
   const types=active?.printed?.types;
   if(!Array.isArray(types)||types.length!==1||types[0]!=='Psychic')return false;
   return hasAnyName(printing,['Path to the Peak','Silent Lab','Parallel City',
-    'Tropical Beach','Thunder Mountain']);
+    'Tropical Beach','Thunder Mountain','Wondrous Labyrinth']);
 }
 function cleanPublicTerminalView(view,direct=false,extraHarmlessAbility=null){
   return view.globalTurn>1&&view.ownPublic.active&&view.opponentPublic.active&&
