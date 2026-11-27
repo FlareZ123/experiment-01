@@ -421,6 +421,11 @@ test('second self-KO is refused when new public protection invalidates the first
   const T='Shadow Rider Calyrex VMAX CRE',C='Counter Energy CIN';
   for(const seat of [0,1]){
     const f=setup(seat,6);
+    f.owner.active=slot(R);
+    f.owner.bench[0]=slot(E);f.owner.bench[1]=slot(E);
+    f.owner.discard.cards=[...Array.from({length:4},()=>new EnergyCard()),
+      ...Array.from({length:4},()=>Object.assign(new EnergyCard(),
+        {fullName:C,name:'Counter Energy'}))];
     f.view.ownPublic.active=viewSlot(R);
     f.view.ownPublic.bench=[viewSlot(E),viewSlot(E),null,null,null];
     f.view.ownPublic.discard=[...Array(4).fill(P),...Array(4).fill(C)];
