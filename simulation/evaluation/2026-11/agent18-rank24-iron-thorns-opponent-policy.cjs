@@ -52,6 +52,7 @@ const SOURCE_CARD_COUNTS = Object.freeze({
 
 const BELLELBA = /^Bellelba & Brycen-Man\b/i;
 const VS_SEEKER = /^VS Seeker\b/i;
+const N_SUPPORTER = /^N(?:\s+FCO\s+105)?$/i;
 const PALE_MOON = /^Pale Moon-GX$/i;
 
 function list(value) {
