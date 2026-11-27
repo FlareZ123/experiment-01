@@ -79,7 +79,7 @@ function r17Stadium(view) {
   return [...list(own(view).stadium),...list(opponent(view).stadium)].map(printingValue).find(Boolean)||'';
 }
 function r17BasicLock(view) {
-  if (/^Silent Lab\b/i.test(r17Stadium(view))) return true;
+  if (r17StadiumToolLive(view)&&/^Silent Lab\b/i.test(r17Stadium(view))) return true;
   for (const player of [own(view),opponent(view)]) {
     if (r17Key(active(player))==='klefki'&&!r17Suppressed(active(player),'Mischievous Lock')) return true;
     if (slots(player).some(p=>/^Garbodor\b/i.test(printingValue(p))&&
@@ -101,11 +101,36 @@ function r17CarrierValue(key,view) {
   if (key==='marshadow'&&r17NeedTempleRemoval(view)&&!r17Board(view,key)&&!r17Hand(view,key)) return 210;
   return 0; // Ditto is Lost Zone on discard; never assume it is recoverable.
 }
+function r17HandCount(view,key) { return hand(view).filter(c=>r17Key(c)===key).length; }
+function r17CoreBaseReady(view,key) {
+  return r17Board(view,key)||(r17Hand(view,key)&&r17Space(view)>0);
+}
+function r17EvolutionDemand(view,plannedBasics=[]) {
+  const demand=[];
+  const ditto=r17CoreBaseReady(view,'ditto')&&!r17BasicLock(view);
+  let dittoUsed=false;
+  // First reserve an actual species-compatible base. Only the remaining
+  // demand may consume a single Ditto; one Ditto never supplies two Stage 1s.
+  for(const [e,b] of [['raichu','pikachu'],['electrode','voltorb']]) {
+    if(r17Board(view,e)||r17Hand(view,e))continue;
+    if(r17CoreBaseReady(view,b)||plannedBasics.includes(b))demand.push(e);
+  }
+  for(const [e,b] of [['raichu','pikachu'],['electrode','voltorb']]) {
+    if(!ditto||dittoUsed||r17Board(view,e)||r17Hand(view,e)||demand.includes(e))continue;
+    demand.push(e);dittoUsed=true;
+  }
+  return demand;
+}
 function r17RecoveryValue(key,view) {
-  if (key==='electrode'&&!r17Board(view,key)&&!r17Hand(view,key)&&r17Board(view,'voltorb')) return 320;
-  if (key==='raichu'&&!r17Board(view,key)&&!r17Hand(view,key)&&r17Board(view,'pikachu')) return 320;
-  if (key==='gengar'&&!r17Board(view,key)&&!r17Hand(view,key)&&!gxUsed(view)) return 120;
-  return r17CarrierValue(key,view);
+  const evolutions=r17EvolutionDemand(view);
+  if(evolutions.includes(key))return key==='raichu'?335:330;
+  if(key==='gengar'&&!r17Board(view,key)&&!r17Hand(view,key)&&!gxUsed(view))return 120;
+  // A Carrier already in hand can retrieve low-HP Basics for two slots.
+  // Do not spend the scarce one-card Stretcher on the same target if
+  // Carrier is available; its future role is Stage 1 recovery.
+  const basic=r17CarrierValue(key,view);
+  if(basic>0&&r17Hand(view,'carrier'))return 0;
+  return basic;
 }
 function r17ChoiceCards(prompt,zone) {
   return list(prompt.choices).filter(c=>c.kind==='card'&&typeof c.token==='string'&&
@@ -163,30 +188,45 @@ function r17CarrierChoices(prompt,view,zone='discard') {
 function r17MissingCore(view) {
   return [['voltorb','electrode'],['pikachu','raichu']].filter(([b,e])=>r17Missing(view,b,e)).map(([b])=>b);
 }
-function r17CompressorGain(view) {
-  if(!itemAvailable(view)||!r17Hand(view,'carrier')||r17Space(view)===0)return 0;
-  const missing=r17MissingCore(view),available=new Set(r17Discard(view).map(r17Key));
-  const needed=Math.min(2,r17Space(view),missing.length);
-  const already=missing.filter(k=>available.has(k)).length;
-  return Math.max(0,needed-already);
+function r17CompressorPlan(view,deckKeys=null) {
+  if(!itemAvailable(view))return [];
+  const discard=new Set(r17Discard(view).map(r17Key));
+  const canSearch=k=>deckKeys===null||deckKeys.has(k);
+  const carrier=r17HandCount(view,'carrier'),stretcher=r17HandCount(view,'stretcher');
+  const bases=r17MissingCore(view);
+  // Recovery capacity is physical: a Carrier retrieves at most two Basics.
+  // Already-discarded starters use the same slots; only search the residual.
+  const baseCapacity=Math.min(2*carrier,r17Space(view),bases.length);
+  const recoveredBases=bases.filter(k=>discard.has(k)).slice(0,baseCapacity);
+  const searchBases=bases.filter(k=>!discard.has(k)&&canSearch(k)).slice(0,baseCapacity-recoveredBases.length);
+  const plannedBases=[...recoveredBases,...searchBases];
+  // Stretcher has a separate one-card recovery budget. A Stage 1 already
+  // in discard consumes that budget before a second Stage 1 is searched.
+  const demand=r17EvolutionDemand(view,plannedBases);
+  const recoveredEvos=demand.filter(k=>discard.has(k)).slice(0,stretcher);
+  const searchEvos=demand.filter(k=>!discard.has(k)&&canSearch(k)).slice(0,stretcher-recoveredEvos.length);
+  // The card searches up to three. Prioritize funded missing Basics, then
+  // funded Stage 1s. The prompt can restrict the actual deck card identities.
+  return [...searchBases,...searchEvos].slice(0,3);
 }
+function r17CompressorGain(view) {return r17CompressorPlan(view).length;}
 function r17CompressorUseful(view) {
-  if(!itemAvailable(view)||!r17Hand(view,'carrier')||r17Space(view)===0)return false;
+  if(!itemAvailable(view))return false;
   if(r17CompressorGain(view)>0)return true;
+  if(!r17Hand(view,'carrier')||r17Space(view)===0)return false;
   if(r17Discard(view).some(c=>r17CarrierValue(r17Key(c),view)>0))return false;
   return r17UnownUseful(view)&&!r17Hand(view,'unown')&&!r17Board(view,'unown');
 }
 function r17CompressorChoices(prompt,view) {
-  const discardKeys=new Set(r17Discard(view).map(r17Key)),gain=r17CompressorGain(view);
-  if(gain>0){
-    const missing=new Set(r17MissingCore(view));
-    const rows=r17UniqueCore(r17Rank(r17ChoiceCards(prompt,'deck'),c=>{
-      const k=r17Key(c);
-      return missing.has(k)&&!discardKeys.has(k)?r17CarrierValue(k,view):0;
-    }));
-    return r17Multi(prompt,rows,gain);
+  const cards=r17ChoiceCards(prompt,'deck');
+  const keys=r17CompressorPlan(view,new Set(cards.map(r17Key)));
+  if(keys.length) {
+    const rows=keys.map(k=>cards.find(c=>r17Key(c)===k)).filter(Boolean);
+    return r17Multi(prompt,rows,3);
   }
-  return r17Multi(prompt,r17Rank(r17ChoiceCards(prompt,'deck'),c=>
+  const canRecycle=r17Hand(view,'carrier')&&r17Space(view)>0&&
+    !r17Discard(view).some(c=>r17CarrierValue(r17Key(c),view)>0);
+  return r17Multi(prompt,r17Rank(cards,c=>canRecycle&&
     r17Key(c)==='unown'&&r17UnownUseful(view)?150:0),2);
 }
 function r17VipValue(key,view) {
