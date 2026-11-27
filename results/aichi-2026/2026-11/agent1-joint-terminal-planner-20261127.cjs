@@ -114,7 +114,9 @@ function inputState(input,guarantee){
   stones:mask(m.own,x=>x.tool==='stone'&&x.stoneUsable),floats:0};
 }
 function solve(input,options={}){
- const guarantee=options.guaranteeOnly===true;
+ const guarantee=options.guaranteeOnly===true, deterministic=options.deterministicOnly===true;
+ const deterministicKinds=new Set(['attack','manual','retreat','guzma','door','stretcher','seeker','float','valley']);
+ if(deterministic&&(!guarantee||options.pending!==undefined))return {status:'unsupported',reason:'deterministic witness requires guarantee-only root'};
  if(guarantee&&options.riskAware===true)return {status:'unsupported',reason:'probability-based risk objective incompatible with support-only guarantee'};
  if(options.firstAllowed!==undefined&&typeof options.firstAllowed!=='function')return {status:'unsupported',reason:'bad first action filter'};
  let s;
@@ -220,13 +222,13 @@ function solve(input,options={}){
   if(memo.has(k))return memo.get(k);
   if(++states>limit)throw cap;
   const terminal=oracle.attacks(m,s).attacks.filter(x=>x.terminal).map(x=>({kind:'attack',own:s.a,opp:s.b,...x})).find(firstAllowed);
-  if(terminal){const r={...score(ONE,ONE),move:terminal};memo.set(k,r);return r;}
+  if(terminal){const r={...score(ONE,ONE),move:terminal,...(deterministic?{path:[terminal]}:{})};memo.set(k,r);return r;}
   let best={...score(),move:null};
   if(options.disableBound!==true&&!couldWin(s)){boundPrunes++;memo.set(k,best);return best;}
   function consider(move,compute){
-   if(!risk&&cmp(best.p,ONE)===0n||!firstAllowed(move))return;
+   if(!risk&&cmp(best.p,ONE)===0n||!firstAllowed(move)||deterministic&&!deterministicKinds.has(move.kind))return;
    tick();const r=compute(),paid=payAction(r,move);
-   if(better(paid,best,risk))best={...paid,move:{...move,...(r.selection!==undefined?{selection:r.selection}:{})}};
+   if(better(paid,best,risk))best={...paid,move:{...move,...(r.selection!==undefined?{selection:r.selection}:{})},...(deterministic?{path:[move,...(r.path??[])]}:{})};
   }
   function det(move,next){consider(move,()=>value(next));}
   // In fast mode a probability-one route establishes the maximum. In
@@ -246,7 +248,11 @@ function solve(input,options={}){
   }
   if(s.h[E]&&s.doors)for(let source=0;source<m.own.length;source++)if(bit(s.doors,source))
    for(let i=0;i<m.own.length;i++)if(i!==s.a&&m.own[i].psychic&&m.own[i].effectOK)
-    consider({kind:'door',source,target:i},()=>draw({...take(s,E,false),doors:clear(s.doors,source),es:change(s.es,i,1)},2));
+    consider({kind:'door',source,target:i},()=>{const next={...take(s,E,false),doors:clear(s.doors,source),es:change(s.es,i,1)};
+     // Ignore every drawn card in a deterministic witness. This is a
+     // conservative abstraction: neither those cards nor latent deck
+     // knowledge can be used, and no mid-turn deck-out loss is modeled.
+     return deterministic?value(next):draw(next,2);});
   if(f.items){
    if(s.h[I.stretcher]&&s.z[E])
     det({kind:'stretcher',card:'energy'},{...take(s,I.stretcher),h:change(change(s.h,I.stretcher,-1),E,1),z:change(change(s.z,I.stretcher,1),E,-1)});
@@ -305,7 +311,7 @@ function solve(input,options={}){
    const x=search(s,options.pending);r={...x,move:{kind:'choose-search',spec:options.pending,selection:x.selection}};
   }else r=value(s);
   if(guarantee)return {status:cmp(r.p,ONE)===0n?'certified':'no-guarantee',first:r.move,states,branches,boundPrunes,
-   objective:'universal-terminal-certificate-over-declared-support',...(cmp(r.p,ONE)===0n?{worstCaseActions:str(r.steps)}:{})};
+   objective:deterministic?'deterministic-public-witness-ignoring-draw-benefits':'universal-terminal-certificate-over-declared-support',...(cmp(r.p,ONE)===0n?{worstCaseActions:str(r.steps),...(deterministic?{witness:r.path}:{})}:{})};
   return {status:cmp(r.p,ONE)===0n?'certified':r.p.n?'positive':'no-certificate',probability:str(r.p),first:r.move,states,branches,boundPrunes,
    objective:risk?'max-terminal-P; min-lex-failure-spend; min-expected-actions':'max-terminal-P',
    failureSpend:Object.fromEntries(LOSS.map((k,i)=>[k,str(r.loss[i])])),expectedActions:str(r.steps)};
@@ -398,7 +404,16 @@ function selfTest(){
   const out=solve(input,{guaranteeOnly:true});
   if(out.status!==(p==='1/1'?'certified':'no-guarantee'))throw Error('guarantee/exact disagreement '+label+JSON.stringify(out));
  }
- return {cases:cases.length+6+3+cases.length,results,riskExamples:{fast,risk,longFast,shortRisk},guaranteeExamples:{g,ng,g2}};
+ const deterministicRoute=solve(cases[1][1],{guaranteeOnly:true,deterministicOnly:true});
+ if(deterministicRoute.status!=='certified'||deterministicRoute.witness.map(x=>x.kind).join(',')!=='manual,guzma,attack')throw Error('deterministic witness '+JSON.stringify(deterministicRoute));
+ const drawNeeded=solve(cases[5][1],{guaranteeOnly:true,deterministicOnly:true});
+ if(drawNeeded.status!=='no-guarantee')throw Error('deterministic witness used chance');
+ const ignoredDraw=makeInput([V(3,{door:true}),V(2)],[low,bench],{hand:{energy:1},flags:{manual:false}});
+ const dw=solve(ignoredDraw,{guaranteeOnly:true,deterministicOnly:true});
+ if(dw.status!=='certified'||dw.witness.map(x=>x.kind).join(',')!=='door,attack')throw Error('known Door attachment '+JSON.stringify(dw));
+ const searchNeeded=solve(cases[2][1],{guaranteeOnly:true,deterministicOnly:true});
+ if(searchNeeded.status!=='no-guarantee')throw Error('deterministic witness used search');
+ return {cases:cases.length+6+3+cases.length+4,results,riskExamples:{fast,risk,longFast,shortRisk},guaranteeExamples:{g,ng,g2,deterministicRoute,dw}};
 }
 module.exports={solve,makeInput,selfTest,eachDraw,K};
 if(require.main===module)console.log(JSON.stringify(selfTest(),null,2));

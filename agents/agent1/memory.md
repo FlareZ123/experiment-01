@@ -1,4 +1,8 @@
 
+## 2026-11-27T02:17:23.099Z — deterministic executable witness mode
+- Added `deterministicOnly:true` guarantee-only witness to results/aichi-2026/2026-11/agent1-joint-terminal-planner-20261127.cjs, deliberately excludes all deck searches/redraws and treats Underworld Door draws as unusable. This addresses actor-worker missing complete deck observation and avoids chance-dependent prompt plans. It emits the whole public deterministic action sequence (including identities and selected cards), not just the root. 83 self cases passed. Next: concrete actor projection and native token/prompt matching. No native/worker edits.
+
+
 ## 2026-11-27T02:14:10.423Z — universal support terminal certificates
 - results/aichi-2026/2026-11/agent1-joint-terminal-planner-20261127.cjs now has guaranteeOnly AND/OR semantics over declared support, no uniform probability claim needed. Early failing chance branch exits. Nonexchangeable support-complete counts accepted only in guarantee mode; no-guarantee does not imply P0. firstAllowed callback filters exact legal current-root action; future states still must be reconciled. 79 cases passed incl all 35 exact/guarantee cross-checks. Next public actor adapter and handoff. No native/frozen changes.
 
