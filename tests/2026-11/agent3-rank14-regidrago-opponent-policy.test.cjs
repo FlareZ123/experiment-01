@@ -94,12 +94,12 @@ test('turn-one Squawkabilly play and Squawk and Seize beat pass only on low hand
     {kind:'select-action',token:'squawk'});
 });
 
-test('turn-one Squawk protected DDE hand vetoes indiscriminate discard',()=>{
+test('turn-one Squawk setup and activation both preserve protected DDE',()=>{
   const options=[action('sq','play-card','Squawkabilly ex PAL 169'),
     action('pass','pass')];
   const protectedHand=[E,'Quick Ball FST 237'];
   assert.deepEqual(rank14.bestAction(request({turn:1,hand:protectedHand,items:options})),
-    {kind:'select-action',token:'sq'});
+    {kind:'select-action',token:'pass'});
   const cp=confirm('Squawk and Seize');
   assert.deepEqual(rank14.promptDecision(request({turn:1,hand:protectedHand,prompt:cp})),
     {kind:'select-choice',token:'no'});
@@ -138,7 +138,7 @@ test('Professor Research not chosen if initial hand large',()=>{
   assert.deepEqual(rank14.bestAction(request({hand:['one','two','three','four','five'],items:options})),
     {kind:'select-action',token:'research'});
   // Remains a legal option, but has low urgency when the hand is already healthy.
-  assert.equal(rank14.rank14RootScore(options[0],request({hand:[E,'one','two']})),110);
+  assert.equal(rank14.rank14RootScore(options[0],request({hand:[E,'one','two']})),0);
 });
 
 test('identical Regidrago donor root works on rank14 after Goodra is discarded',()=>{
