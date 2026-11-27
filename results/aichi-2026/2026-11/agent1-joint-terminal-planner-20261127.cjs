@@ -14,6 +14,31 @@ const sum=a=>a.reduce((x,y)=>x+y,0), valid=n=>Number.isSafeInteger(n)&&n>=0;
 const gcd=(a,b)=>b===0n?a:gcd(b,a%b);
 function frac(n,d=1n){if(d<=0n||n<0n)throw Error('bad fraction');const g=gcd(n,d);return {n:n/g,d:d/g};}
 const ZERO=frac(0n),ONE=frac(1n),add=(a,b)=>frac(a.n*b.d+b.n*a.d,a.d*b.d),mul=(a,b)=>frac(a.n*b.n,a.d*b.d),cmp=(a,b)=>a.n*b.d-b.n*a.d,str=p=>p.n+'/'+p.d;
+const LOSS=['vstar','ace','supporter','retreatEnergy','manual','retreat','door','items','tools','stadium'];
+const score=(p=ZERO,steps=ZERO)=>({p,loss:LOSS.map(()=>ZERO),steps});
+function combine(a,w,b){
+ return {p:add(a.p,mul(w,b.p)),loss:a.loss.map((x,i)=>add(x,mul(w,b.loss[i]))),steps:add(a.steps,mul(w,b.steps))};
+}
+function payAction(s,m){
+ const costs={};
+ if(m.kind==='star-alchemy')costs.vstar=1;
+ if(m.kind==='stamp')costs.ace=1;
+ if(['guzma','raihan','teammates','arven','lillie','iono'].includes(m.kind))costs.supporter=1;
+ if(m.kind==='retreat'){costs.retreat=1;costs.retreatEnergy=m.pay;}
+ if(m.kind==='manual')costs.manual=1;
+ if(m.kind==='door')costs.door=1;
+ if(['fog','stretcher','seeker','compressor'].includes(m.kind))costs.items=1;
+ if(['float','stone'].includes(m.kind))costs.tools=1;
+ if(m.kind==='valley')costs.stadium=1;
+ const fail=frac(s.p.d-s.p.n,s.p.d);
+ return {p:s.p,loss:s.loss.map((x,i)=>add(x,mul(fail,frac(BigInt(costs[LOSS[i]]??0))))),steps:add(s.steps,ONE)};
+}
+function better(a,b,risk){
+ const p=cmp(a.p,b.p);if(p)return p>0n;
+ if(!risk)return false;
+ for(let i=0;i<LOSS.length;i++){const c=cmp(a.loss[i],b.loss[i]);if(c)return c<0n;}
+ return cmp(a.steps,b.steps)<0n;
+}
 function C(n,k){if(k<0||k>n)return 0n;let r=1n;for(let j=1;j<=Math.min(k,n-k);j++)r=r*BigInt(n-j+1)/BigInt(j);return r;}
 function vector(o){
  if(!o||typeof o!=='object'||Array.isArray(o)||Object.keys(o).some(k=>!Object.hasOwn(I,k)||!valid(o[k])))throw Error('bad count vector');
@@ -92,7 +117,7 @@ function inputState(input){
 function solve(input,options={}){
  let s;
  try{s=inputState(input);}catch(e){return {status:'unsupported',reason:e.message};}
- const m=input.model,f=input.flags,limit=options.maxStates??100000,branchLimit=options.maxBranches??2000000;
+ const m=input.model,f=input.flags,risk=options.riskAware===true,limit=options.maxStates??100000,branchLimit=options.maxBranches??2000000;
  if(!valid(limit)||!valid(branchLimit)||!limit||!branchLimit)return {status:'unsupported',reason:'bad budget'};
  const memo=new Map();let states=0,branches=0;
  const cap=Symbol('cap');
@@ -109,59 +134,60 @@ function solve(input,options={}){
  }
  function key(s){return [s.a,s.b,s.es.join(','),s.discount,s.h.join(','),s.mix?belief.key(s.mix):s.d.join(','),s.z.join(','),s.u,+s.manual,+s.retreat,+s.supporter,+s.stadium,+s.vstar,s.doors,s.open,s.stones,s.floats].join('|');}
  function weighted(counts,n,fn){
-  let out=ZERO;const denom=C(sum(counts),n);
-  eachDraw(counts,n,(v,w)=>{tick();out=add(out,mul(frac(w,denom),fn(v)));});
+  let out=score();const denom=C(sum(counts),n);
+  eachDraw(counts,n,(v,w)=>{tick();out=combine(out,frac(w,denom),fn(v));});
   return out;
  }
  function draw(s,n){
   n=Math.min(n,deckSize(s));
   if(s.mix){
-   let out=ZERO;
+   let out=score();
    for(const row of belief.draw(s.mix,n,tick))
-    out=add(out,mul(row.p,value(canonical({...s,mix:row.posterior,h:plus(s.h,row.drawn)})).p));
+    out=combine(out,row.p,value(canonical({...s,mix:row.posterior,h:plus(s.h,row.drawn)})));
    return out;
   }
-  return weighted(s.d,n,v=>value(canonical({...s,d:minus(s.d,v),h:plus(s.h,v)})).p);
+  return weighted(s.d,n,v=>value(canonical({...s,d:minus(s.d,v),h:plus(s.h,v)})));
  }
  function chooseKnown(s,spec){
-  let best=ZERO,selection=null;
+  let best=score(),selection=null;
   for(const pick of searchPicks(s.d,spec)){
    tick();let d=s.d.slice(),h=s.h.slice(),z=s.z.slice();
    for(const i of pick){d[i]--;if(spec==='comp')z[i]++;else h[i]++;}
-   const p=value({...s,d,h,z}).p;
-   if(selection===null||cmp(p,best)>0){best=p;selection=pick.map(i=>K[i]);}
-   if(cmp(best,ONE)===0)break;
+   const r=value({...s,d,h,z});
+   if(selection===null||better(r,best,risk)){best=r;selection=pick.map(i=>K[i]);}
+   if(!risk&&cmp(best.p,ONE)===0)break;
   }
-  return {p:best,selection};
+  return {...best,selection};
  }
  function search(s,spec){
   if(s.mix){
-   let p=ZERO;
+   let r=score();
    for(const row of belief.reveal(s.mix,tick))
-    p=add(p,mul(row.p,chooseKnown({...s,mix:null,u:0,d:row.counts},spec).p));
-   return {p,selection:'observe-own-deck-and-replan'};
+    r=combine(r,row.p,chooseKnown({...s,mix:null,u:0,d:row.counts},spec));
+   return {...r,selection:'observe-own-deck-and-replan'};
   }
   if(!s.u)return chooseKnown(s,spec);
   // Search reveals the entire own deck before the card-choice action.
   // Enumerate Prize multiset only as a belief; never select using latent
   // identities before the legitimate observation.
-  const p=weighted(s.d,s.u,prized=>chooseKnown({...s,u:0,d:minus(s.d,prized)},spec).p);
-  return {p,selection:'observe-own-deck-and-replan'};
+  const r=weighted(s.d,s.u,prized=>chooseKnown({...s,u:0,d:minus(s.d,prized)},spec));
+  return {...r,selection:'observe-own-deck-and-replan'};
  }
  function value(raw){
   const s=canonical(raw),k=key(s);
   if(memo.has(k))return memo.get(k);
   if(++states>limit)throw cap;
   const terminal=oracle.attacks(m,s).attacks.find(x=>x.terminal);
-  if(terminal){const r={p:ONE,move:{kind:'attack',own:s.a,opp:s.b,...terminal}};memo.set(k,r);return r;}
-  let best={p:ZERO,move:null};
+  if(terminal){const r={...score(ONE,ONE),move:{kind:'attack',own:s.a,opp:s.b,...terminal}};memo.set(k,r);return r;}
+  let best={...score(),move:null};
   function consider(move,compute){
-   if(cmp(best.p,ONE)===0)return;
-   tick();const r=compute(),p=r.p??r;
-   if(cmp(p,best.p)>0)best={p,move:{...move,...(r.selection!==undefined?{selection:r.selection}:{})}};
+   if(!risk&&cmp(best.p,ONE)===0)return;
+   tick();const r=compute(),paid=payAction(r,move);
+   if(better(paid,best,risk))best={...paid,move:{...move,...(r.selection!==undefined?{selection:r.selection}:{})}};
   }
   function det(move,next){consider(move,()=>value(next));}
-  // Once any route has probability one, later actions are unnecessary.
+  // In fast mode a probability-one route establishes the maximum. In
+  // risk-aware mode compare every equal-P route on failure losses and steps.
   if(s.manual&&s.h[E])for(let i=0;i<m.own.length;i++)if(m.own[i].manualOK){
    det({kind:'manual',target:i},{...take(s,E,false),manual:false,es:change(s.es,i,1)});
   }
@@ -233,9 +259,11 @@ function solve(input,options={}){
   let r;
   if(options.pending!==undefined){
    if(!['fog','arven','comp','team','any'].includes(options.pending))return {status:'unsupported',reason:'bad pending search'};
-   const x=search(s,options.pending);r={p:x.p,move:{kind:'choose-search',spec:options.pending,selection:x.selection}};
+   const x=search(s,options.pending);r={...x,move:{kind:'choose-search',spec:options.pending,selection:x.selection}};
   }else r=value(s);
-  return {status:cmp(r.p,ONE)===0?'certified':r.p.n?'positive':'no-certificate',probability:str(r.p),first:r.move,states,branches};
+  return {status:cmp(r.p,ONE)===0?'certified':r.p.n?'positive':'no-certificate',probability:str(r.p),first:r.move,states,branches,
+   objective:risk?'max-terminal-P; min-lex-failure-spend; min-expected-actions':'max-terminal-P',
+   failureSpend:Object.fromEntries(LOSS.map((k,i)=>[k,str(r.loss[i])])),expectedActions:str(r.steps)};
  }catch(e){if(e===cap)return {status:'capped',states,branches};throw e;}
 }
 function makeInput(own,opp,opts={}){
@@ -295,7 +323,19 @@ function selfTest(){
  const capped=solve(cases[3][1],{maxStates:1});if(capped.status!=='capped'||capped.probability!==undefined)throw Error('cap false certificate');
  const pending=solve(makeInput([V(5)],[low,bench],{deck:{energy:1,other:2}}),{pending:'any'});
  if(pending.probability!=='1/1'||pending.first.selection.join(',')!=='energy')throw Error('pending search');
- return {cases:cases.length+2,results};
+ // Exact secondary objective: equal terminal chance, but avoid
+ // consuming irreversible resources on the branches which fail.
+ const riskInput=cases[3][1],fast=solve(riskInput),risk=solve(riskInput,{riskAware:true});
+ if(fast.probability!=='1/2'||risk.probability!=='1/2'||fast.first.kind!=='guzma'||risk.first.kind!=='fog'||
+  fast.failureSpend.supporter!=='1/2'||risk.failureSpend.supporter!=='0/1')
+   throw Error('information-first objective '+JSON.stringify({fast,risk}));
+ const short=makeInput([P(3),V(2)],[high,low],{hand:{energy:1,guzma:1,valley:1}});
+ const longFast=solve(short),shortRisk=solve(short,{riskAware:true});
+ if(shortRisk.probability!=='1/1'||shortRisk.expectedActions!=='3/1'||shortRisk.first.kind!=='manual'||shortRisk.first.target!==1)
+   throw Error('minimum action tie '+JSON.stringify({longFast,shortRisk}));
+ const zeroRisk=solve(cases[14][1],{riskAware:true});
+ if(zeroRisk.probability!=='0/1'||zeroRisk.first!==null||zeroRisk.expectedActions!=='0/1')throw Error('zero-chance spend');
+ return {cases:cases.length+5,results,riskExamples:{fast,risk,longFast,shortRisk}};
 }
 module.exports={solve,makeInput,selfTest,eachDraw,K};
 if(require.main===module)console.log(JSON.stringify(selfTest(),null,2));
