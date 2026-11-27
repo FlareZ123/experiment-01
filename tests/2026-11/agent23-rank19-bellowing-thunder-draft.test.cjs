@@ -11,7 +11,7 @@ const own=(active,bench=[])=>({active,bench,stadium:[]});
 const request=(seat,o,t,items=[])=>({role:'opponent',seat,observation:{actorSeat:seat,ownPublic:o,opponentPublic:{active:t,stadium:[]}},actionFrontier:{items}});
 const attack={kind:'attack',token:'attack',actorPrinting:'Raging Bolt ex TEF',attackName:'Bellowing Thunder',publicMetadata:{attackCostPayable:true}};
 const metadata=e=>({ownerSeat:'actor',sourceZone:'play',isOwnerVisible:true,energyType:'BASIC',zone:e.slot.zone,...(e.slot.zone==='bench'?{benchIndex:e.slot.index}:{}),slotIndex:e.energyIndex});
-const prompt=o=>({promptType:'DiscardEnergyPrompt',source:{effectName:'Bellowing Thunder',sourcePrinting:'Raging Bolt ex TEF'},choices:[...m.inventory(o).map((e,i)=>({kind:'energy',token:'e'+i,printing:e.printing,publicMetadata:metadata(e)})),{kind:'empty-selection',token:'empty'}],publicMetadata:{selectionType:'energy-discard',minimumCount:0,maximumCount:m.inventory(o).length,allowCancel:false}});
+const prompt=o=>({promptType:'DiscardEnergyPrompt',source:{sourceKind:'card-effect',effectName:'Bellowing Thunder',sourcePrinting:'Raging Bolt ex TEF'},choices:[...m.inventory(o).map((e,i)=>({kind:'energy',token:'e'+i,printing:e.printing,publicMetadata:metadata(e)})),{kind:'empty-selection',token:'empty'}],publicMetadata:{selectionType:'energy-discard',minimumCount:0,maximumCount:m.inventory(o).length,allowCancel:false}});
 for(const seat of [0,1]){
  test('seat '+seat+' exact minimum lethal consumes five and preserves Moltres readiness',()=>{
   const o=own(bolt([X]),[mol([D,D,L]),ho([L,F,D,F,L])]);
@@ -56,13 +56,13 @@ class DiscardEnergyPrompt{
  validate(result){return Array.isArray(result)&&result.length<=this.options.max&&result.every(x=>x.card?.superType===1);}
 }
 const slot=(fullName,e)=>{const pokemon={fullName,superType:0};return {cards:[pokemon,...e],energies:{cards:e.slice()},getPokemonCard:()=>pokemon};};
-const source={effectName:'Bellowing Thunder',sourcePrinting:'Raging Bolt ex TEF'};
+const source={sourceKind:'card-effect',effectName:'Bellowing Thunder',sourcePrinting:'Raging Bolt ex TEF'};
 for(const seat of [0,1]){
  test('host seat '+seat+' maps actor energy-list indexes to native raw card-list indexes',()=>{
   const a=new native.EnergyCard(L),d=new native.EnergyCard(D),x=new native.EnergyCard(X,1),f=new native.EnergyCard(F);
   const actor={id:40,active:slot('Raging Bolt ex TEF',[x,a]),bench:[slot('Ho-Oh-EX DRX',[d,f])]};
   const other={id:41,active:slot('Shadow Rider Calyrex VMAX CRE',[new native.EnergyCard(D)]),bench:[]};
-  const state={players:seat===0?[actor,other]:[other,actor]},prompt=new DiscardEnergyPrompt(actor,3);
+  const prompt=new DiscardEnergyPrompt(actor,3),state={players:seat===0?[actor,other]:[other,actor],prompts:[prompt]};
   const args={pin:m.PIN,native,state,prompt,actorSeat:seat,source};
   const p=m.project(args);
   assert.equal(p.prompt.choices.length,4);
