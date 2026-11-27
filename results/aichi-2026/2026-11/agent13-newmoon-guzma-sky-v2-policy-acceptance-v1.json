@@ -667,6 +667,16 @@
       "state": "Opponent can attack with Lillie's Clefairy ex Full Moon Rondo and candidate is deciding whether to add optional Bench bodies.",
       "must": "Price each added Bench Pokémon as +20 damage to opposing Full Moon Rondo as well as its candidate-side setup value; permit a narrower Bench when the extra body does not advance a concrete line.",
       "forbids": "Scoring Bench expansion only by candidate connectivity when the opponent's attack scales with total Benched Pokémon on both sides."
+    },
+    {
+      "id": "V2-R15-GUZMA-UDP-K1",
+      "family": "rank15 Lopunny Vileplume",
+      "sourceRanks": [
+        15
+      ],
+      "state": "K1 shows both Dusclops are Prized; rank15's AOR + BUS lock line remains reachable; Guzma is in candidate hand or otherwise presently available for the intended lock-escape continuation.",
+      "must": "Treat Guzma as hard-protected for that continuation: do not discard it to Secret Box or another discretionary cost unless the policy explicitly abandons the Guzma escape for a stronger coherent line.",
+      "forbids": "Applying a static high-DCI label to Guzma merely because it is a singleton Supporter, or discarding it before pricing the both-Dusclops-Prized lock state."
     }
   ],
   "implementationGate": {
