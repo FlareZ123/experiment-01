@@ -413,3 +413,21 @@ console.log('passed '+(function activeBomb(P,protocol){
  const d=pcy.decide({role:'opponent',seat:0,sequence:1,observation:o(),prompt:null,actionFrontier:f});protocol.validateDecision(d,null,protocol.validateFrontier(f));a(d.kind==='abstain','actual root still exposes missing transfer adapter');
  return n;
 })(P,protocol)+' active-source Bomb and promotion assertions');
+
+console.log('passed '+(function compressorTiming(P,protocol){
+ const M='Mega Absol ex MEG 86',V='Voltorb ROS 21',E='Electrode-GX CES 48',C='Battle Compressor PHF 92',G='Girafarig LOT 94',D='Darkness Energy MEE 15',Pr='Prism Energy ASC 216',Mail="Trainers' Mail ROS 92",U='Unown AOR 30';
+ const mk=(printing)=>({printing,hp:90,damage:0,energies:[],tools:[],printed:{stage:'Basic'},specialConditions:[],publicRestrictions:{}});
+ const obs=(seat=0,turn=2,foe=mk(G))=>({actorSeat:seat,globalTurn:turn,ownHand:[C],ownPublic:{active:mk(M),bench:[mk(V)],discard:[],deckCount:30,prizeCount:6,publicTurnRestrictions:{}},opponentPublic:{active:foe,bench:[],prizeCount:6,publicTurnRestrictions:{}},ownTurnResources:{energyPlayedTurn:false,supporterPlayedTurn:0}});
+ const root=(o,items=[{kind:'play-card',token:'comp',actorPrinting:C,publicMetadata:{}},{kind:'pass',token:'pass'}])=>{const f={schema:protocol.FRONTIER_SCHEMA,items};const r=P.createPolicy({role:'opponent',seat:o.actorSeat,policyVersion:P.POLICY_VERSION,config:{}}).decide({role:'opponent',seat:o.actorSeat,sequence:1,observation:o,prompt:null,actionFrontier:f});protocol.validateDecision(r,null,protocol.validateFrontier(f));return r};
+ const choose=(o)=>{const cards=[C,Mail].map((printing,i)=>({kind:'card',token:'t'+i,printing,label:printing,publicMetadata:{ownerSeat:'actor',sourceZone:'deck',isOwnerVisible:true}}));const p={schema:protocol.PROMPT_SCHEMA,actingSeat:o.actorSeat,promptType:'ChooseCardsPrompt',description:Mail,source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:Mail,effectName:Mail},choices:[...cards,{kind:'empty-selection',token:'empty',label:'Choose no items'}],publicMetadata:{selectionType:'card-combination',sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true,allowCancel:false,isSecret:false,minimumCount:0,maximumCount:1}};protocol.validatePrompt(p,o.actorSeat);const r=P.createPolicy({role:'opponent',seat:o.actorSeat,policyVersion:P.POLICY_VERSION,config:{}}).decide({role:'opponent',seat:o.actorSeat,sequence:2,observation:o,prompt:p});protocol.validateDecision(r,p,new Set());return r};
+ let n=0;function a(x,l){if(!x)throw Error(l);n++}
+ let o=obs();a(P.deferCompressor(o)&&root(o).token==='pass','defer before visible Active Get Lost');
+ o=obs(1,1,mk(U));o.opponentPublic.bench=[mk(G)];a(root(o).token==='pass','visible Benched Girafarig and opposite seat');
+ o=obs(0,2,mk(U));a(!P.deferCompressor(o)&&root(o).token==='comp','no visible Girafarig, retain eager line');
+ o=obs(0,4);o.ownPublic.bench=[mk(E)];a(!P.deferCompressor(o)&&root(o).token==='comp','release after opening with Electrode established');
+ o=obs(1,3);a(!P.deferCompressor(o)&&root(o).token==='comp','no blanket late-turn freeze');
+ o=obs();o.opponentPublic.active={concealed:true,printing:G};a(!P.deferCompressor(o),'concealed slot not used');
+ o=obs();o.ownHand=[];a(choose(o).tokens?.[0]==='t1','do not route Mail into premature Compressor');
+ o=obs(0,4);o.ownHand=[];a(choose(o).tokens?.[0]==='t0','resume Compressor search next own turn');
+ return n;
+})(P,protocol)+' conditional Compressor timing assertions');

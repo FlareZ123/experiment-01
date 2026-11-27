@@ -1,7 +1,7 @@
 'use strict';
 // Development-only actor-visible tactical slice; see accompanying report.
 module.exports = (function build() {
-  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v15';
+  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v16';
   const SOURCE_RANK = 9;
   const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
   const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -468,6 +468,14 @@ function bombPlanner(o,sourceBenchIndex){
   const stadiumCard=x=>/^(?:Silent Lab PRC 140|Path to the Peak CRE 148|PokéStop PGO 68)\b/i.test(name(x));
   const basicDark=x=>/^Darkness Energy MEE 15\b/i.test(name(x));
   const darkCutRisk=o=>liveStadium(o,/Temple of Sinnoh/i)||slots(o.opponentPublic).some(x=>/^Girafarig LOT 94\b/i.test(name(x.p)));
+  // The paired two-turn restricted opening model found a material cost to
+  // exposing Compressor fuel before an opponent's Get Lost turn. Apply the
+  // conditional decision only to the first own turn and public Girafarig,
+  // not to unseen opponent cards or generic matchup assumptions.
+  function deferCompressor(o){
+    return first(o)&&slots(o.opponentPublic).some(x=>/^Girafarig LOT 94\b/i.test(name(x.p)))&&
+      !slots(o.ownPublic).some(x=>elec(x.p)&&abilityLive(x.p,'Extra Energy Bomb')&&!liveStadium(o,/Path to the Peak/i));
+  }
   function stadiumScore(c,o){
     if(!stadiumCard(c)||activeStadium(o).includes(name(c)))return 0;
     const next={...o,ownPublic:{...o.ownPublic,stadium:[name(c)]},opponentPublic:{...o.opponentPublic,stadium:[]}};
@@ -635,7 +643,7 @@ function bombPlanner(o,sourceBenchIndex){
     if(match(c,R.mail))return Number(o.ownPublic?.deckCount)>8?185:0;
     if(match(c,R.carrier))return L(o.ownPublic?.discard).some(x=>[isVol,isToed,isUn].some(f=>f(x))&&pokemonSearch(x,o)>0)?280:0;
     if(match(c,R.stretcher))return L(o.ownPublic?.discard).some(x=>pokemonSearch(x,o)>0)?260:0;
-    if(match(c,R.compressor))return bombPossible(o)&&L(o.ownPublic?.discard).filter(ePred).length<3?315:0;
+    if(match(c,R.compressor))return !deferCompressor(o)&&bombPossible(o)&&L(o.ownPublic?.discard).filter(ePred).length<3?315:0;
     if(match(c,R.vs))return L(o.ownPublic?.discard).some(x=>supporterSearch(x,o)>0)?230:0;
     if(match(c,R.float))return slots(o.ownPublic).some(x=>x.zone==='bench'&&bestAttackAgainst(o,x.p,o.opponentPublic?.active)>0)&&!L(o.ownPublic?.active?.tools).length?330:0;
     if(match(c,R.muscle))return ownHas(o,mega)?140:0;
@@ -729,7 +737,7 @@ function bombPlanner(o,sourceBenchIndex){
     if(match(x,R.mail)&&Number(o.ownPublic?.deckCount)>0)return 330;
     if(match(x,R.carrier)&&cap(o)>0&&d.some(c=>[isVol,isToed,isUn].some(f=>f(c))&&pokemonSearch(c,o)>0))return 320;
     if(match(x,R.stretcher)&&d.some(c=>pokemonSearch(c,o)>0))return 305;
-    if(match(x,R.compressor)&&bombPossible(o)&&d.filter(ePred).length<5&&Number(o.ownPublic?.deckCount)>4)return 325;
+    if(match(x,R.compressor)&&!deferCompressor(o)&&bombPossible(o)&&d.filter(ePred).length<5&&Number(o.ownPublic?.deckCount)>4)return 325;
     if(match(x,R.ultra)&&fundCost(h.map(printing=>({printing})),o,2,x).length===2&&(!has(o,mega)||has(o,isVol)&&!has(o,elec)||has(o,isToed)&&!has(o,cruel)||!has(o,isGengar)&&horrorDesired(o)))return 335;
     if(match(x,R.vs)&&o.ownTurnResources?.supporterPlayedTurn===0&&!o.ownTurnResources?.supporterPlayLocked&&d.some(c=>supporterSearch(c,o)>0))return 240;
     if(match(x,R.float)&&p&&p===o.ownPublic?.active&&!L(p.tools).length&&slots(o.ownPublic).some(y=>y.zone==='bench'&&bestAttackAgainst(o,y.p,o.opponentPublic?.active)>0))return 360;
@@ -1093,5 +1101,5 @@ function bombPlanner(o,sourceBenchIndex){
       return r.prompt===null?root(r):prompt(r);
     }});
   }
-  return {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,createPolicy,printedDamage,payable,rootAttack,denial,prize,safeCosts,bombPlanner,stadiumScore,bombMobility,ropePlan,defensiveSwitch,horrorDesired,protectedReset,ionoScore,pokeStopScore,knownSafeDecline};
+  return {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,createPolicy,printedDamage,payable,rootAttack,denial,prize,safeCosts,bombPlanner,stadiumScore,bombMobility,ropePlan,defensiveSwitch,horrorDesired,protectedReset,ionoScore,pokeStopScore,knownSafeDecline,deferCompressor};
 })();
