@@ -178,3 +178,27 @@ test('actual V3 validator accepts root→copied donor→one DDE card for two Ryu
   assert.deepEqual(paid,{kind:'select-choices',tokens:['dde']});
   assert.deepEqual(protocol.validateDecision(paid,energy,new Set()),paid);
 });
+
+test('live native short printings and board-zone Energy token are handled',()=>{
+  const s=state();
+  s.observation.ownPublic.active.printing='Regidrago VSTAR SIT';
+  s.observation.opponentPublic.active.printing='Shadow Rider Calyrex VMAX CRE';
+  s.observation.ownPublic.discard=['Mega Dragonite ex M2a'];
+  s.observation.ownPublic.active.energies=['Double Dragon Energy ROS','Grass Energy MEE'];
+  assert.deepEqual(decide(s),{kind:'select-action',token:'apex'});
+  attackPrompt(s);
+  s.prompt.source={classification:'actor-choice',sourceKind:'card-effect',
+    sourcePrinting:'Regidrago VSTAR SIT',effectName:'Apex Dragon'};
+  s.prompt.choices[1].printing='Mega Dragonite ex M2a';
+  assert.deepEqual(decide(s),{kind:'select-choice',token:'ryuno'});
+  energyPrompt(s);
+  s.prompt.choices=[
+    {kind:'energy',token:'native-dde',printing:'Double Dragon Energy ROS',
+      publicMetadata:{sourceZone:'board',ownerSeat:'actor',eligible:true}},
+    {kind:'energy',token:'native-grass',printing:'Grass Energy MEE',
+      publicMetadata:{sourceZone:'board',ownerSeat:'actor',eligible:true}}
+  ];
+  assert.deepEqual(decide(s),{kind:'select-choices',tokens:['native-dde']});
+  const bad=copy(s);bad.prompt.choices[0].publicMetadata.sourceZone='deck';
+  assert.equal(decide(bad),null);
+});
