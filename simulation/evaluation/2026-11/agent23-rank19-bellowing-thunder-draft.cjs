@@ -143,4 +143,4 @@ function project({pin,native,state,prompt,actorSeat,source}){
     try {return prompt.validate(prompt.decode(result,state))?result:null;}catch{return null;}
   }};
 }
-module.exports={PIN,inventory,knockoutCost,plan,root,decideDiscard,project};
+module.exports={PIN,inventory,knockoutCost,plan,root,decideDiscard,project,deficit,templeMayApply,basic};
