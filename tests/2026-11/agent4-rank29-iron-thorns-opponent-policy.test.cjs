@@ -1265,3 +1265,76 @@ test('one Speed outside turbo window remains protected, opposing Hood protects T
   });
   assert.deepEqual(checkedDecision(req),{kind:'abstain',reasonCode:'NO_LEGAL_CARD_SET'});
 });
+
+test('identical DCE printing targets choose Active not Bench under Thunder Mountain', () => {
+  const meta=(targetZone,index)=>({
+    cardType:'energy',targetSeat:'actor',targetZone,targetIndex:index,
+    isOwnerVisible:true
+  });
+  const req=rootRequest({
+    ownHand:['Double Colorless Energy SUM 136'],
+    ownPublic:player({
+      active:pokemon('Iron Thorns ex TWM 77'),
+      bench:[pokemon('Iron Thorns ex TWM 77')],
+      stadium:['Thunder Mountain ♢ LOT 191']
+    }),
+    items:[
+      action('bench-energy','play-card','Double Colorless Energy SUM 136',
+        meta('bench',0),{targetPrinting:'Iron Thorns ex TWM 77'}),
+      action('active-energy','play-card','Double Colorless Energy SUM 136',
+        meta('active',0),{targetPrinting:'Iron Thorns ex TWM 77'}),
+      {token:'pass',kind:'pass'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),
+    {kind:'select-action',token:'active-energy'});
+});
+
+test('identical Speed Energy printing targets prioritize Active attachment', () => {
+  const req=rootRequest({
+    ownHand:['Speed Lightning Energy RCL 173'],
+    ownPublic:player({
+      active:pokemon('Iron Thorns ex TWM 77'),
+      bench:[pokemon('Iron Thorns ex TWM 77')]
+    }),
+    items:[
+      action('bench-energy','play-card','Speed Lightning Energy RCL 173',
+        {cardType:'energy',targetSeat:'actor',targetZone:'bench',targetIndex:0,isOwnerVisible:true},
+        {targetPrinting:'Iron Thorns ex TWM 77'}),
+      action('active-energy','play-card','Speed Lightning Energy RCL 173',
+        {cardType:'energy',targetSeat:'actor',targetZone:'active',targetIndex:0,isOwnerVisible:true},
+        {targetPrinting:'Iron Thorns ex TWM 77'}),
+      {token:'pass',kind:'pass'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),
+    {kind:'select-action',token:'active-energy'});
+});
+
+test('Tool Jammer and Palace Belt are not prematurely attached to Bench when Active needed', () => {
+  const playerWithBench=player({
+    active:pokemon('Iron Thorns ex TWM 77'),
+    bench:[pokemon('Iron Thorns ex TWM 77')]
+  });
+  for(const [tool,opponent] of [
+    ['Tool Jammer BST 136',player({
+      active:pokemon('Shadow Rider Calyrex VMAX CRE 75',
+        {tools:['Stealthy Hood UNB 186']})})],
+    ['Palace Belt BWP 153',player({active:pokemon('Shadow Rider Calyrex VMAX CRE 75')})]
+  ]) {
+    const req=rootRequest({
+      ownPublic:playerWithBench,opponentPublic:opponent,ownHand:[tool],
+      items:[
+        action('bench-tool','play-card',tool,
+          {cardType:'tool',targetZone:'bench',targetSeat:'actor',targetIndex:0,isOwnerVisible:true},
+          {targetPrinting:'Iron Thorns ex TWM 77'}),
+        action('active-tool','play-card',tool,
+          {cardType:'tool',targetZone:'active',targetSeat:'actor',targetIndex:0,isOwnerVisible:true},
+          {targetPrinting:'Iron Thorns ex TWM 77'}),
+        {token:'pass',kind:'pass'}
+      ]
+    });
+    assert.deepEqual(checkedDecision(req),
+      {kind:'select-action',token:'active-tool'});
+  }
+});
