@@ -664,6 +664,7 @@ function voltCyclonePromptDecision(request) {
       matches(choice, SPEED_LIGHTNING) ? 90 :
       matches(choice, DOUBLE_COLORLESS) ? 60 : 80;
     const index = choice?.publicMetadata?.targetIndex ??
+      choice?.publicMetadata?.benchIndex ??
       choice?.publicMetadata?.selectionIndex;
     if (Number.isSafeInteger(index)) {
       score -= list(bench[index]?.energies).length * 5;
@@ -715,7 +716,8 @@ function promptDecision(request) {
   if (ENHANCED_HAMMER.test(source)) return enhancedHammerPromptDecision(request);
   if (TEAM_FLARE_GRUNT.test(source)) return teamFlarePromptDecision(request);
   if (FABA.test(source)) return fabaPromptDecision(request);
-  if (VOLT_CYCLONE.test(prompt?.source?.sourceAttack ?? '') || VOLT_CYCLONE.test(source)) {
+  if (VOLT_CYCLONE.test(prompt?.source?.effectName ?? '') ||
+      VOLT_CYCLONE.test(prompt?.publicMetadata?.sourceAttack ?? '')) {
     return voltCyclonePromptDecision(request);
   }
   if (NEST_BALL.test(source) || HEAVY_BALL.test(source) || CAPTURE_ENERGY.test(source)) {
