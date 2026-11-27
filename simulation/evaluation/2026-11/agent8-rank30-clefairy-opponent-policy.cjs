@@ -57,8 +57,10 @@ function hasBenchedPsychic(own) {
 }
 function availableCards(request) {return arr(request?.actionFrontier?.items).filter(a=>typeof a?.token==='string'&&a.token.length>0);}
 function isLaterTurn(observation) {
-  const n = observation?.ownTurnResources?.ownTurnNumber ?? observation?.ownPublic?.turnNumber ?? observation?.globalTurn;
-  return safeInt(n) && n >= 2;
+  const ownTurn = observation?.ownTurnResources?.ownTurnNumber ?? observation?.ownPublic?.turnNumber;
+  if(safeInt(ownTurn))return ownTurn>=2;
+  const globalTurn=observation?.globalTurn;
+  return safeInt(globalTurn) && globalTurn>=3;
 }
 // Scores are only local discard preferences. Preserve Telepathic, Clefairy,
 // ACE SPEC, Forest Seal Stone and live gust; never discard them here.
@@ -111,8 +113,46 @@ function boxPrompt(request) {
     selected=proposedDeckSearch(o,p.choices).slice(0,m.maximumCount);
     if(selected.length<m.minimumCount)return no('R30_BOX_SEARCH_MINIMUM_UNAVAILABLE');
   } else return no('R30_BOX_PROMPT_UNSUPPORTED');
+  if(!selected.length){
+    const empty=arr(p.choices).find(x=>x.kind==='empty-selection'&&typeof x.token==='string');
+    return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
+      no('R30_BOX_NO_LEGAL_EMPTY_CHOICE');
+  }
   return picks(selected);
 }
+function canStartQuickBall(o) {
+  if(!o||!Array.isArray(o.ownHand)||!safeInt(o.ownPublic?.deckCount)||
+    o.ownPublic.deckCount<1)return false;
+  if(slots(o.ownPublic).some(x=>has(x,P.clefairy))||
+     o.ownHand.some(x=>has(x,P.clefairy)))return false;
+  const capacity=stadium(o)?8:5;
+  if(benchCount(o.ownPublic)>=capacity)return false;
+  return o.ownHand.some(x=>discardScore(x,o)>0);
+}
+function quickBallPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
+    m.ownerSeat!=='actor'||m.isOwnerVisible!==true||
+    !safeInt(m.minimumCount)||!safeInt(m.maximumCount)||
+    m.maximumCount!==1||m.minimumCount>1)
+    return no('R30_QUICKBALL_PROMPT_UNSUPPORTED');
+  const offered=arr(p.choices).filter(x=>x.kind==='card'&&typeof x.token==='string');
+  if(m.sourceZone==='hand'&&m.minimumCount===1){
+    const choices=offered.filter(x=>o.ownHand.some(h=>text(h)===text(x)))
+      .map((x,i)=>({x,score:discardScore(x,o),i}))
+      .filter(v=>v.score>0).sort((a,b)=>b.score-a.score||a.i-b.i);
+    return choices.length?picks([choices[0].x]):no('R30_QUICKBALL_NO_SAFE_PAYMENT');
+  }
+  if(m.sourceZone==='deck'){
+    const choice=offered.find(x=>has(x,P.clefairy))??offered.find(x=>/^Latias ex SSP 76\b/i.test(text(x)));
+    if(choice)return picks([choice]);
+    const empty=arr(p.choices).find(x=>x.kind==='empty-selection'&&typeof x.token==='string');
+    return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
+      no('R30_QUICKBALL_NO_VALID_TARGET');
+  }
+  return no('R30_QUICKBALL_PROMPT_UNSUPPORTED');
+}
+
 function canStartBox(o) {
   if(!o||!Array.isArray(o.ownHand)||o.ownHand.length<4||!hasBenchedPsychic(o.ownPublic))return false;
   const tokened=o.ownHand.map((c,i)=>({kind:'card',printing:text(c),token:'hand-'+i}));
@@ -162,6 +202,8 @@ function rootDecision(request) {
   if(sky && !stadium(o) && ro && benchCount(o.ownPublic)===5 &&
     o.ownHand.some(c=>has(c,P.clefairy)) && ro.damage<ro.remaining &&
     ro.damage+20>=ro.remaining)return act(sky);
+  const quick=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.quickBall));
+  if(quick && canStartQuickBall(o))return act(quick);
   const box=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.box));
   if(box && canStartBox(o))return act(box);
   // Hand disruption against the publicly imminent two-Prize reply is a
@@ -189,10 +231,11 @@ function createPolicy({role,seat,policyVersion,config}) {
        !Array.isArray(request.observation?.ownHand))return no('R30_OBSERVATION_INCOMPLETE');
     if(request.prompt!==null){
       if(sameSource(request.prompt,P.box))return boxPrompt(request);
+      if(sameSource(request.prompt,P.quickBall))return quickBallPrompt(request);
       return no('R30_UNSUPPORTED_PROMPT_FAMILY');
     }
     return rootDecision(request);
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  rootDecision,boxPrompt,projectedRondo,discardScore,candidateCanUseBoardHeldStarAlchemy};
+  rootDecision,boxPrompt,quickBallPrompt,projectedRondo,discardScore,candidateCanUseBoardHeldStarAlchemy};
