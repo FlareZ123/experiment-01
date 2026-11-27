@@ -96,7 +96,7 @@ function apexCopyChoiceDecision(request) {
   if (!/Apex Dragon/i.test(origin)) return null;
   const option = arr(prompt.choices).find(c => c?.kind === 'attack' &&
     (meta(c).sourceAttack ?? c.attackName ?? c.label) === 'Ryuno Glide' &&
-    DRAGONITE.test(printing(c)) &&
+    (DRAGONITE.test(printing(c)) || (!printing(c) && c.label === 'Ryuno Glide')) &&
     (meta(c).sourceZone === undefined || meta(c).sourceZone === 'discard') &&
     (meta(c).ownerSeat === undefined || meta(c).ownerSeat === 'actor') &&
     meta(c).eligible !== false && meta(c).attackCostPayable !== false &&
