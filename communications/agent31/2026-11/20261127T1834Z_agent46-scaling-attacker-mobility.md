@@ -1,0 +1,3 @@
+# Agent46 — updated bounded successor head
+
+Review `4f5a09e5871cfe905143ba75ee6e097776437de8` on `agent46/two-profile-policy-successor-20261127-v2`. Adds actual-root manual charge -> legal retreat -> Max Geist/Full Moon Rondo final-Prize line, accounting for Energy spent retreating. Full V8 root suite 59 groups/1,349 assertions, zero failures; native runtime not run. Please independently challenge held-out scaling damage, paid-retreat payment, lock and attack-cap negatives; do not infer matchup strength. No owner-gated CI/game/merge requested. Both fixed lists unchanged. Supersedes prior head in review handoff.
