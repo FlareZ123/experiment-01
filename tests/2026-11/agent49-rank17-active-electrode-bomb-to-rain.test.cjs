@@ -775,3 +775,68 @@ test('paid Rain nonterminal two-Prize KOs cover exact Regidrago V/VSTAR and Iron
     assert.ok(hp-damage<=270&&hp>0);
   }
 });
+
+
+
+test('visible Legacy Energy removes a nominal two-Prize paid Rain that cannot finish game',()=>{
+  const L='Legacy Energy TWM 167',T='Regidrago VSTAR SIT';
+  for(const seat of [0,1]){
+    const f=setup(seat,4);
+    f.view.ownPublic.active=viewSlot(R,[P,P,P]);
+    f.view.ownPublic.bench=[null,null,null,null,null];
+    f.view.opponentPublic.active={
+      ...viewSlot(T,[L],'VSTAR'),hp:280,damage:10
+    };
+    f.view.opponentPublic.bench=[viewSlot(U,[],'Basic')];
+    const attack={kind:'attack',token:'rain',actorPrinting:R,
+      attackName:'Electro Rain',publicMetadata:{attackCostPayable:true}};
+    const selected=f.decide(1,null,[attack,{kind:'pass',token:'pass'}]);
+    assert.notDeepEqual(selected,{kind:'select-action',token:'rain'},
+      'an unspent or unknown Legacy Energy removes one Prize from a nonterminal two-Prize KO');
+    assert.equal(selected.kind,'abstain');
+    // Without the visible Prize reduction, the exact same public attacking
+    // state admits a nonterminal two-Prize KO on Regidrago VSTAR.
+    f.view.opponentPublic.active.energies=[];
+    const newPolicy=rank17.createPolicy({
+      role:'opponent',seat,policyVersion:rank17.POLICY_VERSION,config:{}
+    });
+    assert.deepEqual(newPolicy.decide({
+      role:'opponent',seat,sequence:1,prompt:null,observation:f.view,
+      actionFrontier:{items:[attack,{kind:'pass',token:'pass'}]}
+    }),{kind:'select-action',token:'rain'});
+  }
+});
+
+test('visible Legacy Energy prevents false six-Prize two-Bomb claim with surviving Bench',()=>{
+  const L='Legacy Energy TWM 167',T='Shadow Rider Calyrex VMAX CRE';
+  for(const seat of [0,1]){
+    const f=setup(seat,6);
+    f.view.ownPublic.active=viewSlot(R);
+    f.view.ownPublic.bench=[viewSlot(E),viewSlot(E),null,null,null];
+    f.view.ownPublic.discard=[...Array(4).fill(P),
+      ...Array(4).fill('Counter Energy CIN')];
+    const vmax=energies=>({
+      ...viewSlot(T,energies,'VMAX'),hp:320,damage:60
+    });
+    f.view.opponentPublic.active=vmax([L]);
+    f.view.opponentPublic.bench=[vmax([]),viewSlot(U,[],'Basic')];
+    const bombs=[0,1].map(index=>({
+      kind:'use-ability',token:'bomb-'+index,actorPrinting:E,
+      publicMetadata:{abilityName:'Extra Energy Bomb',
+        sourceZone:'bench',sourceIndex:index,abilityLive:true}
+    }));
+    const first=f.decide(1,null,[...bombs,{kind:'pass',token:'pass'}]);
+    assert.notDeepEqual(first,{kind:'select-action',token:'bomb-0'},
+      'the third Benched Pokémon survives, and Legacy Energy cuts the two VMAX total to five Prizes');
+    assert.equal(first.kind,'abstain');
+    const fresh=rank17.createPolicy({
+      role:'opponent',seat,policyVersion:rank17.POLICY_VERSION,config:{}
+    });
+    f.view.opponentPublic.active.energies=[];
+    assert.deepEqual(fresh.decide({
+      role:'opponent',seat,sequence:1,prompt:null,observation:f.view,
+      actionFrontier:{items:[...bombs,{kind:'pass',token:'pass'}]}
+    }),{kind:'select-action',token:'bomb-0'},
+      'without Legacy, two 3-Prize VMAX can yield all six Prizes before bench-wide KO');
+  }
+});
