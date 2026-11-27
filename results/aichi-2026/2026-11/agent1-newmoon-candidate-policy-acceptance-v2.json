@@ -13,8 +13,8 @@
     "note": "Agent13 v1 already integrates Agent1's Raichu/Electrode delta. V2 adds uncovered rank2/rank5/rank9/rank19/rank30/rank31 families without changing the fixed 60."
   },
   "status": "actor-visible paper acceptance consolidation; no policy implementation, native game, competitive qualification, or win-rate claim",
-  "addedCaseCount": 84,
-  "totalCaseCount": 123,
+  "addedCaseCount": 89,
+  "totalCaseCount": 128,
   "addedCases": [
     {
       "id": "R2-DUAL-LOCK-RONDO",
@@ -810,6 +810,46 @@
       "state": "Bell of Silence restriction is active; TPE can legally put Tapu Lele-GX from deck onto Bench.",
       "must": "Permit the direct TPE deployment but do not trigger Wonder Tag; reject playing Lele from hand while the restriction applies.",
       "forbids": "Either turning Bell into universal Bench-entry denial or inventing Wonder Tag on direct deployment."
+    },
+    {
+      "id": "POLT-CEILING-PRUNE",
+      "family": "Poltergeist hand control",
+      "sourceRanks": [],
+      "state": "Poltergeist is legal but target remaining HP exceeds 50 times the public opponent hand size and no damage modifier changes that ceiling.",
+      "must": "Reject Poltergeist as an immediate KO line regardless of hidden hand composition.",
+      "forbids": "Using hidden Trainer count or treating hand size as unlimited damage."
+    },
+    {
+      "id": "HORROR-EXTRA-POLT",
+      "family": "Poltergeist hand control",
+      "sourceRanks": [],
+      "state": "GX unused; extra-Psychic Horror House is legal; candidate survives the strongest actor-visible board-only reply; opponent hand is below seven; next-turn Poltergeist is selected.",
+      "must": "Credit the draw-to-seven plus hand-play lock as a large-hand setup while keeping Trainer identities uncertain and updating any board-only hand modifiers.",
+      "forbids": "Treating the large hand as a guaranteed Trainer count or ignoring the opponent's legal board-only reply."
+    },
+    {
+      "id": "ACE-NIGHTWATCH-POLT-CONTENTION",
+      "family": "Poltergeist hand control",
+      "sourceRanks": [],
+      "state": "Candidate selects Ace Trainer followed by Night Watch; future Poltergeist is also being evaluated.",
+      "must": "Reduce future Poltergeist ceiling according to the compressed opponent hand rather than simultaneously crediting large-hand Poltergeist value.",
+      "forbids": "Scoring opposite hand-size objectives as if both happen."
+    },
+    {
+      "id": "POLT-KNOWN-LOWER-BOUND",
+      "family": "Poltergeist hand control",
+      "sourceRanks": [],
+      "state": "A legal reveal effect established one or more Trainer identities that are known to remain in the opponent's current hand.",
+      "must": "Maintain only persistent known Trainers as a deterministic Poltergeist lower bound; clear identities when hand-reset/movement destroys continuity.",
+      "forbids": "Promoting old revealed cards to permanent hand knowledge."
+    },
+    {
+      "id": "HORROR-BOARD-HAND-MODIFIER",
+      "family": "Horror House / Poltergeist",
+      "sourceRanks": [],
+      "state": "Opponent is under Horror House but has a legal already-in-play effect that changes its hand.",
+      "must": "Resolve the board-only hand change and update public hand size before evaluating next-turn Poltergeist.",
+      "forbids": "Freezing the hand size solely because cards cannot be played from hand."
     }
   ],
   "authenticatedFamilyCoverage": {
@@ -871,7 +911,8 @@
     "Discard-paying connectors are continuation transactions, not raw access: select the line first, classify payments dynamically, then compare the whole post-payment continuation against not using the connector.",
     "Supporter value is continuation-specific: settle Prize legality first, preserve deterministic hands, exploit disappearing Supporter windows, and score Ace Trainer's opponent reset together with Night Watch rather than as draw volume.",
     "New Moon has 17 Basics (not 19 Pokémon-as-Basics); rank26 setup policy must distinguish lone-Active exposure from actual donk exposure and spend first-turn Bench access aggressively before returning to ordinary Bench-liability minimization.",
-    "Connector routes preserve exact movement semantics: destination alone does not determine triggers; TPE direct deployment can bypass hand-play locks while forfeiting Wonder Tag, and Perfection donors are exact Pokémon-GX/EX rather than generic Rule Box bodies."
+    "Connector routes preserve exact movement semantics: destination alone does not determine triggers; TPE direct deployment can bypass hand-play locks while forfeiting Wonder Tag, and Perfection donors are exact Pokémon-GX/EX rather than generic Rule Box bodies.",
+    "Opponent hand size is dual-use: compression improves denial but reduces Poltergeist ceiling; extra-Psychic Horror can enlarge/freeze the hand for Poltergeist, but hidden Trainer identities remain uncertain."
   ],
   "implementationGate": {
     "required": [
@@ -898,7 +939,8 @@
     "results/strategy/2026-11/agent1-newmoon-discard-connector-policy-v1.md",
     "results/strategy/2026-11/agent1-newmoon-supporter-contention-policy-v1.md",
     "results/statistics/agent1-newmoon-rank26-opening-resilience-20261127.md",
-    "results/strategy/2026-11/agent1-perfection-donor-deployment-semantics-v1.md"
+    "results/strategy/2026-11/agent1-perfection-donor-deployment-semantics-v1.md",
+    "results/strategy/2026-11/agent1-poltergeist-hand-duality-policy-v1.md"
   ],
   "competitiveQualified": false,
   "claim99Point5": false
