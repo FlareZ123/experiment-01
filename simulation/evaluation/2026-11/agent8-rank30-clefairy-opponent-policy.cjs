@@ -55,7 +55,9 @@ const PUBLIC_ABORT = Object.freeze({
   R30_NO_OFFERED_ROOT:'NO_EXECUTABLE_ACTION',
   R30_ROOT_UNSUPPORTED:'NO_SUPPORTED_ROOT_ACTION',
   R30_OBSERVATION_INCOMPLETE:'ROLE_SEAT_OBSERVATION_MISMATCH',
-  R30_UNSUPPORTED_PROMPT_FAMILY:'UNSUPPORTED_PROMPT_TYPE'
+  R30_UNSUPPORTED_PROMPT_FAMILY:'UNSUPPORTED_PROMPT_TYPE',
+  R30_VIP_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
+  R30_VIP_NO_TARGET:'NO_LEGAL_CARD_SET'
 });
 const no = reasonCode => ({kind:'abstain',reasonCode:PUBLIC_ABORT[reasonCode]??reasonCode});
 const act = x => ({kind:'select-action',token:x.token});
@@ -136,6 +138,37 @@ function boxPrompt(request) {
   }
   return picks(selected);
 }
+function vipPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
+    m.ownerSeat!=='actor'||m.isOwnerVisible!==true||m.sourceZone!=='deck'||
+    !safeInt(m.minimumCount)||!safeInt(m.maximumCount)||m.maximumCount>2)
+    return no('R30_VIP_PROMPT_UNSUPPORTED');
+  const offered=arr(p.choices).filter(x=>x.kind==='card'&&typeof x.token==='string');
+  const picked=[];
+  const find=pattern=>offered.find(x=>has(x,pattern)&&!picked.some(y=>y.token===x.token));
+  const clefsAlready=slots(o.ownPublic).filter(x=>has(x,P.clefairy)).length+
+    o.ownHand.filter(x=>has(x,P.clefairy)).length;
+  const availableClefs=offered.filter(x=>has(x,P.clefairy));
+  for(let i=0;i<Math.min(2-clefsAlready,availableClefs.length,m.maximumCount);i++){
+    const x=find(P.clefairy);if(x)picked.push(x);
+  }
+  if(picked.length<m.maximumCount&&!slots(o.ownPublic).some(x=>/^Latias ex SSP 76\b/i.test(text(x)))){
+    const x=find(/^Latias ex SSP 76\b/i);if(x)picked.push(x);
+  }
+  if(picked.length<m.maximumCount && picked.length===0){
+    const x=find(/^Mimikyu GRI 58\b/i)??find(/^Unown AOR 30\b/i);
+    if(x)picked.push(x);
+  }
+  if(picked.length<m.minimumCount)return no('R30_VIP_NO_TARGET');
+  if(picked.length===0){
+    const empty=arr(p.choices).find(x=>x.kind==='empty-selection'&&typeof x.token==='string');
+    return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
+      no('R30_VIP_NO_TARGET');
+  }
+  return picks(picked);
+}
+
 function canStartQuickBall(o) {
   if(!o||!Array.isArray(o.ownHand)||!safeInt(o.ownPublic?.deckCount)||
     o.ownPublic.deckCount<1)return false;
@@ -218,6 +251,8 @@ function rootDecision(request) {
   if(sky && !stadium(o) && ro && benchCount(o.ownPublic)===5 &&
     o.ownHand.some(c=>has(c,P.clefairy)) && ro.damage<ro.remaining &&
     ro.damage+20>=ro.remaining)return act(sky);
+  const vip=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.vip));
+  if(vip && benchCount(o.ownPublic)<(stadium(o)?8:5))return act(vip);
   const quick=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.quickBall));
   if(quick && canStartQuickBall(o))return act(quick);
   const box=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.box));
@@ -248,10 +283,11 @@ function createPolicy({role,seat,policyVersion,config}) {
     if(request.prompt!==null){
       if(sameSource(request.prompt,P.box))return boxPrompt(request);
       if(sameSource(request.prompt,P.quickBall))return quickBallPrompt(request);
+      if(sameSource(request.prompt,P.vip))return vipPrompt(request);
       return no('R30_UNSUPPORTED_PROMPT_FAMILY');
     }
     return rootDecision(request);
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  rootDecision,boxPrompt,quickBallPrompt,projectedRondo,discardScore,candidateCanUseBoardHeldStarAlchemy};
+  rootDecision,boxPrompt,quickBallPrompt,vipPrompt,projectedRondo,discardScore,candidateCanUseBoardHeldStarAlchemy};
