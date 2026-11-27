@@ -680,14 +680,7 @@ function promptDecision(request) {
         minimum, maximum);
       }
 
-      if (matches(sourcePrinting, PRINT.vsSeeker)) {
-      const targets = choices.filter(choice => choiceOwner(choice) === 'actor' &&
-        (choiceZone(choice) === 'discard' || choice?.publicMetadata?.sourceZone === 'discard'));
-      return singleChoice(targets,
-        choice => cardChoiceScore(choice, observation, 'vs-seeker'),
-        'NO_USEFUL_CARD_CHOICE');
-    }
-    if (matches(sourcePrinting, PRINT.fieldBlower)) {
+      if (matches(sourcePrinting, PRINT.fieldBlower)) {
         const targets = choices.filter(choice =>
           choiceOwner(choice) === 'opponent' || choiceZone(choice) === 'stadium' ||
           choice.kind === 'stadium');
@@ -732,6 +725,13 @@ function promptDecision(request) {
       return { kind: 'abstain', reasonCode: 'UNSUPPORTED_CARD_COMBINATION_SOURCE' };
     }
 
+    if (matches(sourcePrinting, PRINT.vsSeeker)) {
+      const targets = choices.filter(choice => choiceOwner(choice) === 'actor' &&
+        (choiceZone(choice) === 'discard' || choice?.publicMetadata?.sourceZone === 'discard'));
+      return singleChoice(targets,
+        choice => cardChoiceScore(choice, observation, 'vs-seeker'),
+        'NO_USEFUL_CARD_CHOICE');
+    }
     if (matches(sourcePrinting, PRINT.fieldBlower)) {
       return singleChoice(choices, choice =>
         cardChoiceScore(choice, observation, 'field-blower'), 'NO_USEFUL_CARD_CHOICE');
