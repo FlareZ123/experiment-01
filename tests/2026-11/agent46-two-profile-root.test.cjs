@@ -330,6 +330,11 @@ paired('Sky Field opens only a real three-slot Gate; Dimension Valley needs a fu
   const opponentPsychic=pokemon({printing:'Opponent Psychic Attacker',name:'Opponent Psychic Attacker',types:['Psychic'],energies:[P,P],attacks:[attack('Triple Colorless',['Colorless','Colorless','Colorless'],'120')]});
   const mirror=observation(seat,{active:v(),opponentActive:opponentPsychic,ownHand:[dv]});
   assert.deepEqual(decide(profile,root(seat,mirror,[play('dv',dv)])),sel('pass'));
+  const unknownOpponent=pokemon({printing:'Unknown Energy Attacker',name:'Unknown Energy Attacker',types:['Psychic'],
+    energies:[],attacks:[attack('Triple Colorless',['Colorless','Colorless','Colorless'],'120')]});
+  unknownOpponent.energies=null;
+  const unknown=observation(seat,{active:v(),opponentActive:unknownOpponent,ownHand:[dv]});
+  assert.deepEqual(decide(profile,root(seat,unknown,[play('dv',dv)])),sel('pass'));
 });
 paired('final-prize public attack precedes optional draw or bench expenditure',(seat,profile)=>{
   const view=observation(seat,{active:vmax([P,P,P,P,P,P,P,P,P]),opponentActive:defender({hp:250}),ownHand:["Lillie's Determination MEG"]});
