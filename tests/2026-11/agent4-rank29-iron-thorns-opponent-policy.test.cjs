@@ -1601,7 +1601,7 @@ test('unrevealed Eri opponent hand or forged owner-seat and source cannot pass',
   ]){
     const req=promptRequest({...base,publicMetadata:badMeta});
     assert.deepEqual(checkedDecision(req),
-      {kind:'abstain',reasonCode:'UNTRUSTED_CARD_CHOICE'});
+      {kind:'abstain',reasonCode:'UNTRUSTED_CARD_SELECTION'});
   }
   const forged=promptRequest({
     ...base,
