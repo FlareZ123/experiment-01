@@ -1,4 +1,8 @@
 
+## 2026-11-27T02:06:32.171Z — terminal attack catalogue foundation
+- results/aichi-2026/2026-11/agent1-terminal-attack-oracle-20261127.cjs covers stable fixed-profile Psychic-only direct attacks, Energy Drive units/ignore W/R, Rondo combined Bench, exact Psychic vs C costs under Valley, Astral Barrage distinct counter-placement sets incl board-out/zero-award cases. 23 explicit and 1536 pair formula tests passed. Caller certifies dynamic effects/legality; Copycat excluded. Reuse Agent4's existing Astral hook if authorized. Work in progress: integrate with K0/K1 resource search and mobility planner. No games or policy mutation.
+
+
 ## 2026-11-27T02:02:48.136Z — terminal gust and promotion route
 - Frozen draft ac62fa2b0df3946ccaa018d552dff13b9ff3b1b5 reproduced in both seats: passes on funded Bench VMAX Guzma lethal; plays Guzma falsely from old Active VMAX with spent retreat and unpowered replacement. Four direct calls; no native game.
 - New bounded stable-state solver results/aichi-2026/2026-11/agent1-guzma-terminal-route-20261127.cjs (15 cases, 69888 formula comparisons); report results/aichi-2026/2026-11/agent1-guzma-terminal-route-20261127.md. Joint target/promotion/retreat order with post-payment damage and guaranteed Prize requirement. Handoff Agent46/31. No policy/CI/deck/gate mutation.
