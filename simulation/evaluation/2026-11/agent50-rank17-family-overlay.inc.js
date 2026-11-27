@@ -253,11 +253,24 @@ function r17StadiumToolLive(view) {
 function r17NeedTempleRemoval(view) {
   return r17StadiumToolLive(view)&&/^Temple of Sinnoh\b/i.test(r17Stadium(view));
 }
+function r17NeedStadiumRemoval(view) {
+  if(!r17StadiumToolLive(view))return false;
+  const stadium=r17Stadium(view);
+  if(/^Temple of Sinnoh\b/i.test(stadium))return true;
+  if(/^Path to the Peak\b/i.test(stadium))
+    return slots(own(view)).some(p=>{
+      const k=r17Key(p);
+      return (k==='electrode'||k==='squawk')&&r17AbilityBlocked(view,k,p);
+    });
+  if(/^Power Plant\b/i.test(stadium))
+    return slots(own(view)).some(p=>r17Key(p)==='electrode'&&r17AbilityBlocked(view,'electrode',p));
+  return false;
+}
 function r17CarrierValue(key,view) {
   if (key==='voltorb'&&r17Missing(view,'voltorb','electrode')) return 300;
   if (key==='pikachu'&&r17Missing(view,'pikachu','raichu')) return 290;
   if (key==='unown'&&r17UnownUseful(view)&&r17Space(view)>0) return 150;
-  if (key==='marshadow'&&r17NeedTempleRemoval(view)&&!r17Board(view,key)&&!r17Hand(view,key)) return 210;
+  if (key==='marshadow'&&r17NeedStadiumRemoval(view)&&!r17Board(view,key)&&!r17Hand(view,key)) return 210;
   return 0; // Ditto is Lost Zone on discard; never assume it is recoverable.
 }
 function r17HandCount(view,key) { return hand(view).filter(c=>r17Key(c)===key).length; }
@@ -591,7 +604,7 @@ function r17VipValue(key,view) {
     if(r17SecondBombUseful(view)&&r17BoardCount(view,'voltorb')+r17BoardCount(view,'electrode')+r17HandCount(view,'voltorb')<2)return 165;
   }
   if(key==='unown'&&r17UnownUseful(view))return 150;
-  if(key==='marshadow'&&r17NeedTempleRemoval(view)&&!r17Board(view,key))return 210;
+  if(key==='marshadow'&&r17NeedStadiumRemoval(view)&&!r17Board(view,key))return 210;
   // Squawk and Seize is usable from play on own first turn, not a hand-play trigger.
   if(key==='squawk'&&r17First(view)&&!r17AbilityBlocked(view,'squawk')&&!r17Board(view,key)&&
      !r17Hand(view,key)&&handCount(view)<=2&&r17Deck(view)>=7)return 140;
@@ -776,7 +789,7 @@ function r17TrainerNeed(key,view) {
     const a=r17RainProjection(view,p),b=r17RainProjection(view,p,{forceSight:true});
     return b&&r17CompareProjection(b,a)>0?420:50;
   }
-  if(key==='pokestop')return r17NeedTempleRemoval(view)?420:r17Deck(view)>=12&&benchCount(own(view))<=5?110:0;
+  if(key==='pokestop')return r17NeedStadiumRemoval(view)?420:r17Deck(view)>=12&&benchCount(own(view))<=5?110:0;
   return 0;
 }
 function r17SecretChoices(prompt,view) {
@@ -1211,7 +1224,7 @@ function r17ScoreAbility(item,view) {
   }
   if(key==='marshadow'&&name==='Resetting Hole') {
     const slot=r17OwnAbilitySlot(item,view);
-    return slot&&r17NeedTempleRemoval(view)&&!r17AbilityBlocked(view,'marshadow',slot,name)&&
+    return slot&&r17NeedStadiumRemoval(view)&&!r17AbilityBlocked(view,'marshadow',slot,name)&&
       list(slot.energies).length===0&&list(slot.tools).length===0?410:0;
   }
   if(key==='squawk'&&name==='Squawk and Seize'){
@@ -1244,7 +1257,7 @@ function r17ScorePlay(item,view) {
   if(k==='electrode'||k==='raichu')return m.targetSeat==='actor'&&
     (k==='electrode'?t==='voltorb'&&r17BoardCount(view,'electrode')<(r17SecondBombUseful(view)?2:1):
       t==='pikachu'&&!r17Board(view,'raichu'))?340:0;
-  if(k==='marshadow')return r17Space(view)>0&&r17NeedTempleRemoval(view)&&!r17AbilityBlocked(view,'marshadow')?300:0;
+  if(k==='marshadow')return r17Space(view)>0&&r17NeedStadiumRemoval(view)&&!r17AbilityBlocked(view,'marshadow')?300:0;
   if(k==='squawk')return r17Space(view)>0&&r17First(view)&&!r17AbilityBlocked(view,'squawk')&&
     !r17Hand(view,'research')&&!r17Hand(view,'carmine')&&r17DrawDiscardScore(view,6,'squawk')>0?190:0;
   if(k==='gengar')return r17Space(view)>0&&!r17Board(view,k)&&!gxUsed(view)&&r17Hand(view,'unit')?145:0;
@@ -1262,8 +1275,8 @@ function r17ScorePlay(item,view) {
   }
   if(k==='research'||k==='carmine')return r17DrawDiscardScore(view,k==='research'?7:5,k);
   if(k==='pokestop'&&/^Sky Field\b/i.test(r17Stadium(view))&&benchCount(own(view))>5)return 0;
-  if(k==='pokestop')return r17Deck(view)>=12&&!r17NeedTempleRemoval(view)&&
-    !/^Pok[eé]Stop\b/i.test(r17Stadium(view))?110:r17NeedTempleRemoval(view)?300:0;
+  if(k==='pokestop')return r17Deck(view)>=12&&!r17NeedStadiumRemoval(view)&&
+    !/^Pok[eé]Stop\b/i.test(r17Stadium(view))?110:r17NeedStadiumRemoval(view)?300:0;
   if(k==='uturn') {
     if(!r17StadiumToolLive(view)||own(view).publicTurnRestrictions?.toolPlayLocked===true||view.ownTurnResources?.toolPlayLocked===true)return 0;
     const s=r17Slot(view,m.targetZone,m.targetIndex);
@@ -1468,7 +1481,7 @@ function r17Prompt(request) {
   }
   if((key==='unown'&&effect==='Farewell Letter'||key==='marshadow'&&effect==='Resetting Hole'||
       key==='squawk'&&effect==='Squawk and Seize')&&type==='ConfirmPrompt') {
-    const ok=key==='unown'?r17UnownUseful(v):key==='marshadow'?r17NeedTempleRemoval(v):
+    const ok=key==='unown'?r17UnownUseful(v):key==='marshadow'?r17NeedStadiumRemoval(v):
       r17First(v)&&r17DrawDiscardScore(v,6)>0;
     const c=list(p.choices).find(x=>x.kind==='confirm'&&x.label===(ok?'Yes':'No'));
     return c?{kind:'select-choice',token:c.token}:r17Abstain('R17_CONFIRM_OPTION_MISSING');
