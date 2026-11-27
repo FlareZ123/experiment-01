@@ -698,6 +698,9 @@ function effectiveAttackCost(slot, attack, view) {
       dimensionValleyStatus(view) === true) {
     required -= 1;
   }
+  if(Number.isSafeInteger(slot?.publicRestrictions?.attackCostIncreaseWhileActive)&&
+     (slot===view.ownPublic.active||slot===view.opponentPublic.active))
+    required+=Math.max(0,slot.publicRestrictions.attackCostIncreaseWhileActive);
   return required;
 }
 
@@ -774,7 +777,12 @@ function attackBaseDamage(attacker, attack, view, target) {
     return 10 + 30 * psychicEnergyCount(view);
   }
   if (attack.name === 'Psychic Assault') return 10 + Math.max(0,target.damage);
-  if (attack.name === 'Energy Drive') return 20*(slotEnergyCount(attacker)+slotEnergyCount(target));
+  if (attack.name === 'Energy Drive') {
+    const specialSuppressed=[...view.ownPublic.stadium,...view.opponentPublic.stadium].some(p=>hasName(p,'Temple of Sinnoh')) &&
+      stadiumAndToolEffectsLive(view)===true;
+    const units=slot=>slot.energies.reduce((sum,p)=>sum+(specialSuppressed&&!isBasicEnergyPrinting(p)?1:energyCardUnits(slot,p)),0);
+    return 20*(units(attacker)+units(target));
+  }
   if (attack.name === 'Full Moon Rondo') {
     return 20 + 20 * (
       countBench(view.ownPublic) + countBench(view.opponentPublic)
@@ -805,7 +813,10 @@ function modernVOrEx(slot){
 }
 function cannotAttackPublicly(attacker,target,view){
   const r=attacker?.publicRestrictions??{};
+  const status=normalizeSpecialConditionNames(attacker?.specialConditions??[]);
+  if(status===null||status.includes('asleep')||status.includes('paralyzed'))return true;
   if(r.cannotAttackNextTurn===true)return true;
+  if(view.ownPublic.publicTurnRestrictions?.attackLockTurnsRemaining>0)return true;
   if(isBasicPokemon(attacker)&&hasName(target?.printing,'Vileplume BUS')&&
     effectiveAbilityStatus(target,'Disgusting Pollen','opponent',view)!==false)return true;
   return false;
@@ -1072,7 +1083,7 @@ function attackScore(attacker, attack, view, target, options = {}) {
   if (attack.name==='Get Lost'&&hasName(attacker.printing,'Girafarig')) return getLostPlan(view);
   if (attack.name==='Astral Barrage') return astralBarragePlan(attacker,view);
   if (attack.name === 'Pale Moon-GX') {
-    return paleMoonScore(attacker, attack, view, target);
+    return attackEffectsBlocked(attacker,target,view)?-Infinity:paleMoonScore(attacker, attack, view, target);
   }
 
   const damage = estimatedDamage(attacker, attack, view, target);
@@ -1966,6 +1977,10 @@ function chooseEnergyAttachment(view, prompt) {
 
     const attached = slotEnergyCount(target);
     let score = 100 - attached * 20;
+    const attachedView=viewAfterPsychicAttachment(view,'bench',index,choice.printing);
+    const now=bestAttackForSlot(view.ownPublic.active,view,view.opponentPublic.active);
+    const next=bestAttackForSlot(attachedView?.ownPublic.active,attachedView??view,view.opponentPublic.active);
+    if((next?.score??0)>=10000&&(now?.score??0)<10000)score+=6000;
     // Copycat remains unadmitted. Mimikyu receives only residual Filch value.
     if (opponentHasDragon(view) && hasName(target.printing, "Lillie's Clefairy ex") &&
         attached < 2) score += 900;
@@ -2518,6 +2533,16 @@ function scoreEvolutionPlay(item) {
   return -Infinity;
 }
 
+function viewAfterPsychicAttachment(view,zone,index,printing){
+  if(!hasName(printing,'Psychic Energy'))return null;
+  const target=zone==='active'?view.ownPublic.active:
+    zone==='bench'?view.ownPublic.bench[index]:null;
+  if(!target)return null;
+  const charged={...target,energies:[...target.energies,printing]};
+  return {...view,ownPublic:{...view.ownPublic,
+    active:zone==='active'?charged:view.ownPublic.active,
+    bench:view.ownPublic.bench.map((slot,i)=>zone==='bench'&&i===index?charged:slot)}};
+}
 function scoreEnergyPlay(item, view) {
   const metadata = item.publicMetadata ?? {};
   if (view.ownTurnResources?.energyPlayedTurn !== false ||
@@ -2530,15 +2555,11 @@ function scoreEnergyPlay(item, view) {
     ? view.ownPublic.active : view.ownPublic.bench[metadata.targetIndex];
   if (!target || (item.targetPrinting && target.printing !== item.targetPrinting)) return -Infinity;
   const count = slotEnergyCount(target);
-  const charged = {...target,energies:[...target.energies,item.actorPrinting]};
-  const chargedView = {...view,ownPublic:{...view.ownPublic,
-    active:metadata.targetZone==='active'?charged:view.ownPublic.active,
-    bench:view.ownPublic.bench.map((slot,index)=>metadata.targetZone==='bench' &&
-      index===metadata.targetIndex?charged:slot)}};
+  const chargedView=viewAfterPsychicAttachment(view,metadata.targetZone,metadata.targetIndex,item.actorPrinting);
   const defender=view.opponentPublic.active;
-  if (defender && metadata.targetZone==='active' && view.globalTurn>1) {
-    const before=bestAttackForSlot(target,view,defender);
-    const after=bestAttackForSlot(charged,chargedView,defender);
+  if (defender && chargedView?.ownPublic.active && view.globalTurn>1) {
+    const before=bestAttackForSlot(view.ownPublic.active,view,defender);
+    const after=bestAttackForSlot(chargedView.ownPublic.active,chargedView,defender);
     if (after && after.score>=10000 && (before?.score??0)<10000) return 2200;
     if (after && after.score>Math.max(700,(before?.score??0)+200)) return 1050;
   }
@@ -3051,27 +3072,93 @@ function canUseStarAlchemy(view, item, receipt, profile) {
     hasStarAlchemyBottleneck(view, receipt,profile);
 }
 
+// A deliberately narrow deterministic tactical layer. It doesn't predict
+// hidden draws, use an opponent list, dispatch native actions, or replace
+// the actor's legal frontier. Only a proven direct public final-Prize
+// opportunity overrides general resource heuristics.
+const FINAL_ATTACKS=new Set(['Max Geist','Night Watch','Full Moon Rondo','Psychic Assault','Power Beam','Shadow Mist','Energy Drive','Mind Shock','Eon Blade']);
+function cleanPublicTerminalView(view){
+  return view.globalTurn>1&&view.ownPublic.active&&view.opponentPublic.active&&
+    opponentBoard(view).every(slot=>!(slot.abilities??[]).length&&!(slot.tools??[]).length&&
+      (slot.energies??[]).every(isBasicEnergyPrinting))&&
+    !(view.ownPublic.active.specialConditions??[]).length&&
+    !(view.opponentPublic.active.specialConditions??[]).length&&
+    [...view.ownPublic.stadium,...view.opponentPublic.stadium].every(p=>hasAnyName(p,['Sky Field','Dimension Valley','Temple of Sinnoh']));
+}
+function publicFinalAttack(view,allowedNames=null){
+  if(!cleanPublicTerminalView(view))return null;
+  const attacker=view.ownPublic.active,target=view.opponentPublic.active;
+  const remaining=Math.max(0,target.hp-target.damage);
+  if(prizeLiability(target)<view.ownPublic.prizeCount||remaining<=0)return null;
+  const candidates=(attacker.attacks??[]).filter(a=>
+    FINAL_ATTACKS.has(a.name)&&(!allowedNames||allowedNames.has(a.name))&&
+    canPayAttack(attacker,a,view)&&Number.isFinite(attackScore(attacker,a,view,target,{requirePayable:true})))
+    .map(attack=>({attack,damage:estimatedDamage(attacker,attack,view,target)}))
+    .filter(row=>row.damage!==null&&row.damage>=remaining)
+    .sort((a,b)=>a.damage-b.damage||a.attack.name.localeCompare(b.attack.name));
+  return candidates[0]??null;
+}
+function finalPublicStep(view,items,receipt,profile){
+  const current=publicFinalAttack(view,new Set(items.filter(i=>i.kind==='attack').map(i=>i.attackName)));
+  if(current){
+    const item=items.find(i=>i.kind==='attack'&&i.attackName===current.attack.name);
+    return {item,reason:'ROOT_PUBLIC_FINAL_PRIZE_ATTACK'};
+  }
+  if(!view.ownPublic.active||view.globalTurn<=1)return null;
+  const options=[];
+  const offer=(item,next,priority,reason)=>{
+    if(next&&publicFinalAttack(next))options.push({item,priority,reason});
+  };
+  // Door is an extra attachment. Use an explicitly unspent source and an
+  // eligible Psychic bench recipient; its continuation uses the same KO score.
+  for(const item of items){
+    if(item.kind==='use-ability'&&canUseUnderworldDoor(view,item,receipt)){
+      for(const [index,slot] of view.ownPublic.bench.entries()){
+        if(!slot?.printed?.types?.includes('Psychic'))continue;
+        const energy=view.ownHand.find(p=>hasName(p,'Psychic Energy'));
+        offer(item,viewAfterPsychicAttachment(view,'bench',index,energy),500,'ROOT_FINAL_BY_UNDERWORLD_DOOR');
+      }
+    }
+    if(item.kind==='play-card'&&hasName(item.actorPrinting,'Psychic Energy')&&
+      Number.isFinite(scoreEnergyPlay(item,view))){
+      const m=item.publicMetadata;
+      offer(item,viewAfterPsychicAttachment(view,m.targetZone,m.targetIndex,item.actorPrinting),
+        400,'ROOT_FINAL_BY_MANUAL_ENERGY');
+    }
+    if(item.kind==='retreat'){
+      const index=item.publicMetadata?.benchIndex,cost=ownRetreatCost(view),slot=view.ownPublic.bench[index];
+      if(Number.isInteger(index)&&slot&&cost!==null&&slotEnergyCount(view.ownPublic.active)>=cost){
+        const old={...view.ownPublic.active,energies:view.ownPublic.active.energies.slice(cost)};
+        const moved={...view,ownPublic:{...view.ownPublic,active:slot,
+          bench:view.ownPublic.bench.map((p,i)=>i===index?old:p)}};
+        offer(item,moved,300-cost*25,'ROOT_FINAL_BY_RETREAT');
+      }
+    }
+    if(item.kind==='play-card'&&hasAnyName(item.actorPrinting,['Dimension Valley','Sky Field'])&&
+      Number.isFinite(usefulCandidateStadium(view,item.actorPrinting))){
+      offer(item,projectedStadium(view,item.actorPrinting),250,'ROOT_FINAL_BY_STADIUM');
+    }
+    if(item.kind==='play-card'&&hasName(item.actorPrinting,'Guzma')&&supporterAvailable(view)&&
+      Number.isFinite(usefulGuzma(view))){
+      for(const plan of guzmaPlans(view)){
+        const gusted=switchedPublic(view,'opponentPublic',plan.targetIndex);
+        const moved=plan.ownIndex<0?gusted:switchedPublic(gusted,'ownPublic',plan.ownIndex);
+        offer(item,moved,200,'ROOT_FINAL_BY_GUZMA');
+      }
+    }
+  }
+  return options.sort((a,b)=>b.priority-a.priority||a.item.token.localeCompare(b.item.token))[0]??null;
+}
 function chooseRoot(view, request, profile) {
   const items = request.actionFrontier.items.filter(item =>
     ['play-card', 'attack', 'retreat', 'use-ability', 'use-stadium', 'pass'].includes(item.kind));
   const pass = items.find(item => item.kind === 'pass');
   const active=view.ownPublic.active,target=view.opponentPublic.active;
-  if(active&&target&&view.ownPublic.prizeCount<=prizeLiability(target)&&
-    opponentBoard(view).every(slot=>!(slot.abilities??[]).length&&!(slot.tools??[]).length&&
-      (slot.energies??[]).every(p=>/^(Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy(?: |$)/.test(p)))&&
-    !(active.specialConditions??[]).length&&!(target.specialConditions??[]).length&&
-    [...view.ownPublic.stadium,...view.opponentPublic.stadium].every(p=>hasAnyName(p,['Sky Field','Dimension Valley','Temple of Sinnoh']))){
-    const wins=items.filter(i=>i.kind==='attack').map(item=>{
-      const attack=active.attacks.find(a=>a.name===item.attackName);
-      if(!attack||!['Max Geist','Night Watch','Full Moon Rondo','Psychic Assault','Power Beam','Shadow Mist'].includes(attack.name))return null;
-      const damage=estimatedDamage(active,attack,view,target);
-      return damage!==null&&damage>=target.hp-target.damage?{item,damage}:null;
-    }).filter(Boolean).sort((a,b)=>b.damage-a.damage||a.item.token.localeCompare(b.item.token));
-    if(wins.length){
-      setPolicyAuditRule('ROOT_PUBLIC_FINAL_PRIZE_ATTACK','DAMAGE_DESC_TOKEN_ASC');
-      recordPolicyAuditRule(wins[0].item.token,'NO_FURTHER_RESOURCE_SPEND_ON_PUBLIC_TERMINAL_LINE');
-      return {kind:'select-action',token:wins[0].item.token};
-    }
+  const finalStep=finalPublicStep(view,items,request.publicEventReceipt,profile);
+  if(finalStep){
+    setPolicyAuditRule(finalStep.reason,'PUBLIC_TERMINAL_PRIORITY');
+    recordPolicyAuditRule(finalStep.item.token,'PUBLIC_DETERMINISTIC_FINAL_PRIZE_LINE');
+    return {kind:'select-action',token:finalStep.item.token};
   }
 
   const plays = items.filter(item => item.kind === 'play-card');
