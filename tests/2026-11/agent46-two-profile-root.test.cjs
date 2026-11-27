@@ -1716,3 +1716,39 @@ paired('Altered Creation extra Prize enters Apex hazard only through an Active a
   assert.equal(triBoost-triBase,0,
     'Trifrost maximum can take three Benched VMAX without KOing Active, so no extra Prize applies');
 });
+
+test('native public-damage projection survives candidate protocol, rejects legacy and malformed data',()=>{
+  const {projectPublicDamageEffects}=require('../../simulation/evaluation/2026-11/agent46-owner-prize-facts.cjs');
+  const clean={
+    preventDamageNextTurn:null,preventEffectsOfAttacksNextTurn:null,
+    damageReductionNextTurn:0,damageReductionNextTurnFilter:null,
+    damageReductionBeforeWeaknessNextTurn:0,attackDamageReductionNextTurn:0,
+    attackDamageReductionAfterWeaknessNextTurn:0,
+    coinFlipPreventAttackDamageNextTurn:false,coinFlipCancelAttackNextTurn:0
+  };
+  for(const seat of [0,1]){
+    const view=observation(seat,{active:v(),opponentActive:defender()});
+    const mine={active:clean,bench:[null,null,null,null,null]};
+    const theirs={active:{...clean,preventDamageNextTurn:{sourceStage:'BASIC'}},
+      bench:[null,null,null,null,null]};
+    const players=seat===0?[mine,theirs]:[theirs,mine];
+    const enriched=projectPublicDamageEffects(view,{players},seat,{BASIC:'BASIC'});
+    assert.equal(enriched.opponentPublic.active.publicDamageEffects.prevention,'basic');
+    assert.doesNotThrow(()=>protocol.validateActorObservation(enriched,seat,profiles[0]));
+    assert.doesNotThrow(()=>protocol.validateActorObservation(enriched,seat,profiles[1]));
+    assert.throws(()=>protocol.validateActorObservation(enriched,seat),
+      /UNKNOWN_FIELD/,'unconfigured legacy role must not gain new schema fields');
+    const bad={...enriched,opponentPublic:{...enriched.opponentPublic,
+      active:{...enriched.opponentPublic.active,
+        publicDamageEffects:{...enriched.opponentPublic.active.publicDamageEffects,
+          prevention:'opponent-secret'}}}};
+    assert.throws(()=>protocol.validateActorObservation(bad,seat,profiles[0]),
+      /BAD_PUBLIC_DAMAGE_EFFECT/,'unrecognized filter claims must fail closed');
+    const badNumber={...enriched,ownPublic:{...enriched.ownPublic,
+      active:{...enriched.ownPublic.active,
+        publicDamageEffects:{...enriched.ownPublic.active.publicDamageEffects,
+          reduction:-1}}}};
+    assert.throws(()=>protocol.validateActorObservation(badNumber,seat,profiles[0]),
+      /BAD_PUBLIC_DAMAGE_EFFECT/,'invalid native reduction cannot pass');
+  }
+});
