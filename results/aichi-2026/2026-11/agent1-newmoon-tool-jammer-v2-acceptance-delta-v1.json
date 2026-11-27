@@ -68,9 +68,52 @@
       "state": "K1 shows the sole Sky Field in v2 is Prized.",
       "must": "Remove Sky-Field-specific neutral-Stadium / Bench-cap continuations until Prize recovery and use Path/other legal Stadium lines instead.",
       "forbids": "Reasoning with the parent's two-Sky-Field redundancy after adopting v2."
+    },
+    {
+      "id": "V2-JAMMER-DISCARD-PROTECT",
+      "family": "v2 singleton custody",
+      "sourceRanks": [
+        15
+      ],
+      "state": "Rank15 Hooded BUS threat remains live; Tool Jammer is accessible; Secret Box or Reconstitute requires discard payment.",
+      "must": "Treat Tool Jammer as continuation-critical and protect it unless explicitly abandoning the post-AOR Hood lockbreak.",
+      "forbids": "Discarding the singleton merely because it has no immediate current-turn effect."
+    },
+    {
+      "id": "V2-JAMMER-TOOL-OCCUPANCY",
+      "family": "v2 singleton custody",
+      "sourceRanks": [
+        15
+      ],
+      "state": "The Dusclops intended to become Active Tool Jammer host already has Powerglass or another Tool attached.",
+      "must": "Respect one-Tool-per-Pokémon occupancy and choose a different host/Tool plan or avoid the earlier attachment.",
+      "forbids": "Stacking Tool Jammer and Powerglass on the same Pokémon."
+    },
+    {
+      "id": "V2-ADVENTURE-BAG-JAMMER",
+      "family": "v2 access",
+      "sourceRanks": [
+        15
+      ],
+      "state": "Items are still legal and Adventure Bag is playable while Tool Jammer plus another Tool role are relevant.",
+      "must": "Permit Adventure Bag to search Tool Jammer plus one other Pokémon Tool, scoring both continuation roles.",
+      "forbids": "Hardcoding Adventure Bag as only Powerglass/FSS access."
+    },
+    {
+      "id": "V2-FSS-JAMMER-PRIZED",
+      "family": "v2 K1 / access",
+      "sourceRanks": [
+        15
+      ],
+      "state": "K1 shows Tool Jammer itself Prized while Forest Seal Stone/Star Alchemy is live.",
+      "must": "Do not let Star Alchemy search the Trainer from Prizes; remove Jammer continuation until Tool Jammer is naturally recovered.",
+      "forbids": "Confusing deck search with Prize search."
     }
   ],
-  "totalCaseCountWithParent": 141,
+  "totalCaseCountWithParent": 145,
   "competitiveQualified": false,
-  "claim99Point5": false
+  "claim99Point5": false,
+  "supportingResults": [
+    "results/strategy/2026-11/agent1-tool-jammer-v2-dci-access-policy.md"
+  ]
 }
