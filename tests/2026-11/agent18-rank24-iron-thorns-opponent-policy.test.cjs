@@ -18,7 +18,7 @@ function active({ specialConditions = [] } = {}) {
   };
 }
 
-function observation({ seat = 0, opponentDeck = 2, ownHand = [], discard = [],
+function observation({ seat = 0, opponentDeck = 2, opponentHand = 0, opponentPrizes = 6, ownHand = [], discard = [],
   supporterPlayedTurn = 0, supporterPlayLocked = false, itemPlayLocked = false,
   specialConditions = [] } = {}) {
   return {
@@ -29,7 +29,7 @@ function observation({ seat = 0, opponentDeck = 2, ownHand = [], discard = [],
       discard,
       publicTurnRestrictions: { supporterPlayLocked: false, itemPlayLocked: false }
     },
-    opponentPublic: { deckCount: opponentDeck },
+    opponentPublic: { deckCount: opponentDeck, handCount: opponentHand, prizeCount: opponentPrizes },
     ownTurnResources: { supporterPlayedTurn, supporterPlayLocked, itemPlayLocked }
   };
 }
@@ -71,6 +71,7 @@ function policy(seat = 0) {
 const pass = { token: 'pass', kind: 'pass' };
 const mill = { token: 'mill', kind: 'play-card', actorPrinting: 'Bellelba & Brycen-Man CEC 186' };
 const seeker = { token: 'seek', kind: 'play-card', actorPrinting: 'VS Seeker PHF 109' };
+const nAction = { token: 'n', kind: 'play-card', actorPrinting: 'N FCO 105' };
 
 test('source identity is exact rank 24 and inventory totals 60 without rank-6-only cards', () => {
   assert.equal(SOURCE_RANK, 24);
@@ -141,6 +142,31 @@ test('nonterminal opponent deck count does not trigger this narrow direct-mill s
   assert.deepEqual(policy().decide(req), { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ROOT_ACTION' });
 });
 
+
+test('N is selected when public deck plus hand is no greater than opponent remaining Prizes', () => {
+  const req = root({ opponentDeck: 4, opponentHand: 1, opponentPrizes: 6,
+    ownHand: ['N FCO 105'], items: [nAction, pass] });
+  assert.deepEqual(policy().decide(req), { kind: 'select-action', token: 'n' });
+});
+
+test('N terminal line includes exact equality and rejects one-card-above boundary', () => {
+  const equality = root({ opponentDeck: 5, opponentHand: 1, opponentPrizes: 6,
+    ownHand: ['N FCO 105'], items: [nAction, pass] });
+  assert.deepEqual(policy().decide(equality), { kind: 'select-action', token: 'n' });
+  const above = root({ opponentDeck: 5, opponentHand: 2, opponentPrizes: 6,
+    ownHand: ['N FCO 105'], items: [nAction, pass] });
+  assert.deepEqual(policy().decide(above), { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ROOT_ACTION' });
+});
+
+test('Pale Moon and spent Supporter slot block otherwise-terminal N', () => {
+  const pale = root({ opponentDeck: 4, opponentHand: 1, opponentPrizes: 6,
+    ownHand: ['N FCO 105'], items: [nAction, pass], publicEventReceipt: receipt({ paleMoon: true }) });
+  assert.deepEqual(policy().decide(pale), { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ROOT_ACTION' });
+  const spent = root({ opponentDeck: 4, opponentHand: 1, opponentPrizes: 6,
+    ownHand: ['N FCO 105'], items: [nAction, pass], supporterPlayedTurn: 1 });
+  assert.deepEqual(policy().decide(spent), { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ROOT_ACTION' });
+});
+
 test('VS Seeker is selected only for visible Bellelba recovery inside the terminal window', () => {
   const req = root({ opponentDeck: 3, ownHand: ['VS Seeker PHF 109'],
     discard: ['Bellelba & Brycen-Man CEC 186'], items: [seeker, pass] });
@@ -187,9 +213,9 @@ test('Bellelba optional payment is also declined on an explicit confirmation pro
 });
 
 test('unrelated rank24 roots and prompts remain explicit abstentions', () => {
-  const rootReq = root({ opponentDeck: 20, ownHand: ['N FCO 105'],
-    items: [{ token: 'n', kind: 'play-card', actorPrinting: 'N FCO 105' }, pass] });
+  const rootReq = root({ opponentDeck: 20, ownHand: ["Xerosic's Machinations SFA 64"],
+    items: [{ token: 'x', kind: 'play-card', actorPrinting: "Xerosic's Machinations SFA 64" }, pass] });
   assert.deepEqual(policy().decide(rootReq), { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ROOT_ACTION' });
-  const promptReq = prompt({ sourcePrinting: 'N FCO 105', promptType: 'ChooseCardsPrompt', choices: [] });
+  const promptReq = prompt({ sourcePrinting: "Xerosic's Machinations SFA 64", promptType: 'ChooseCardsPrompt', choices: [] });
   assert.deepEqual(policy().decide(promptReq), { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' });
 });
