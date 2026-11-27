@@ -59,6 +59,12 @@ function scoreAction(action, request) {
     return countDonors(own) ? 230 : 0;
   }
   if (action.kind === 'play-card') {
+    if (/^(Ultra Ball MEG 131|Mysterious Treasure FLI 113|Quick Ball FST 237)\b/i.test(name)) {
+      const required = /^Ultra Ball\b/i.test(name) ? 2 : 1;
+      const safe = list(obs.ownHand).filter(card=>print(card)!==name)
+        .filter(card=>safeBallCost(card,obs)>0).length;
+      if (safe < required) return 0;
+    }
     if (/^Battle Compressor(?: Team Flare Gear)? PHF 92\b/i.test(name)) {
       // Not an unconditional burn: a non-Regidrago board should prioritize setup.
       return enabledVstar && countDonors(own) < 3 ? 255 :
@@ -163,6 +169,25 @@ function donorScore(card, observation, aggressive) {
       slots(own).filter(p=>/^Regidrago V SIT 135\b/i.test(print(p))).length >= 2) return 15;
   return 0;
 }
+function safeBallCost(card, observation) {
+  const own = observation?.ownPublic ?? {};
+  const name = print(card);
+  const donor = donorScore(card, observation, false);
+  if (donor > 0) return donor;
+  const energyAttached = slots(own).reduce((n,p)=>n+list(p.energies).length,0);
+  const handBasicEnergy = list(observation?.ownHand)
+    .filter(x=>/^Grass Energy|^Fire Energy/i.test(print(x))).length;
+  // Keep basic energy while the attacker is still unfunded. DDE is protected.
+  if (/^Grass Energy|^Fire Energy/i.test(name) &&
+      energyAttached >= 3 && handBasicEnergy >= 2) return 25;
+  if (/^Regidrago V SIT 135\b/i.test(name) &&
+      slots(own).filter(x=>/^Regidrago V SIT 135\b/i.test(print(x))).length >= 2)
+    return 30;
+  if (/^Stealthy Hood UNB 186\b/i.test(name) &&
+      slots(own).some(x=>list(x.tools).some(t=>/^Stealthy Hood UNB 186\b/i.test(print(t)))))
+    return 20;
+  return 0;
+}
 function promptDecision(request) {
   const p = request?.prompt ?? {};
   const choices = list(p.choices);
@@ -181,8 +206,7 @@ function promptDecision(request) {
   }
   if (/mysterious treasure|quick ball|ultra ball/.test(source) && /discard/.test(source) &&
       p.promptType === 'ChooseCardsPrompt') {
-    return chooseMany(choices,c=>donorScore(c,obs,false) ||
-      (/^Grass Energy|^Fire Energy/i.test(print(c)) ? 15 : 0), min,max,
+    return chooseMany(choices,c=>safeBallCost(c,obs), min,max,
       'RANK32_BALL_NO_SAFE_DISCARD');
   }
   if (/ryuno glide/.test(source) && p.promptType === 'DiscardEnergyPrompt') {
