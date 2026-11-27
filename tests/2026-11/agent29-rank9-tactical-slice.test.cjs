@@ -56,12 +56,15 @@ const count=(function runChecks(P) {
   eq(policy(0).decide(root(o,[action('p','play-card',Pl),attack('c','Claw of Darkness')])),{kind:'select-action',token:'c'},'surplus Energy defeats denial');
   o=obs(player(mega()),player(threat),[Pl,dead,mail,mail]);
   const p2=policy(0);p2.decide(root(o,[action('p','play-card',Pl)]));p2.decide(prompt(o,2,Pl,'ChooseCardsPrompt',h,2));p2.decide(prompt(o,3,Pl,'ChoosePokemonPrompt',[choice('opp',threat.printing,'opponent','active')]));
-  eq(p2.decide(prompt(o,5,Pl,'ChooseCardsPrompt',[choice('d',D,'opponent','active',0,'card')])).reasonCode,'RANK9_UNBOUND_PROMPT_CHAIN','reject stale sequence');
+  eq(p2.decide(prompt(o,5,Pl,'ChooseCardsPrompt',[choice('d',D,'opponent','active',0,'card')])).reasonCode,'UNTRUSTED_PROMPT_SOURCE','reject stale sequence');
   eq(policy(0).decide(root(o,[action('project','projected-attack','',{attackName:'Claw of Darkness'})])).kind,'abstain','not authorized analysis token');
-  eq(policy(0).decide(root(o,[action('bomb','use-ability','Electrode-GX CES 48',{publicMetadata:{abilityName:'Extra Energy Bomb'}})])).reasonCode,'RANK9_UNIMPLEMENTED_ROOT_FAMILY','Bomb intentionally not falsely executable');
+  eq(policy(0).decide(root(o,[action('bomb','use-ability','Electrode-GX CES 48',{publicMetadata:{abilityName:'Extra Energy Bomb'}})])).reasonCode,'NO_SUPPORTED_ROOT_ACTION','Bomb intentionally not falsely executable');
   const o1={...o,actorSeat:1};
   eq(policy(1).decide(root(o1,[action('p','play-card',Pl)])).token,'p','seat one same relative behavior');
   eq(policy(0).decide(root(o1,[action('p','play-card',Pl)])).reasonCode,'ROLE_SEAT_BINDING_MISMATCH','seat mismatch fails closed');
   return count;
 })(P);
 console.log('passed '+count+' synthetic assertions');
+
+const protocol=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
+for(const code of ["BAD_CARD_SELECTION_BOUNDS","UNTRUSTED_PROMPT_SOURCE","UNSUPPORTED_POKEMON_PROMPT","NO_VISIBLE_POKEMON_TARGET","NO_LEGAL_CARD_SET","UNTRUSTED_ENERGY_SELECTION","NO_VISIBLE_ENERGY_CHOICE","UNSUPPORTED_PROMPT_TYPE","NO_SUPPORTED_ROOT_ACTION","ROLE_SEAT_BINDING_MISMATCH"])if(!protocol.isAbstentionReasonCode(code))throw Error('invalid abstention code '+code);

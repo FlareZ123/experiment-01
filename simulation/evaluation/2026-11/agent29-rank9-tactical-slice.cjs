@@ -1,7 +1,7 @@
 'use strict';
 // Development-only actor-visible tactical slice; see accompanying report.
 module.exports = (function build() {
-  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v1';
+  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v2';
   const SOURCE_RANK = 9;
   const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
   const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -171,10 +171,10 @@ module.exports = (function build() {
     if(!choices.length||choices.length!==n)return {kind:'abstain',reasonCode:reason};
     const m=M(prompt), multi=['pokemon','card-combination','prize-slots','energy-payment','card-order'].includes(m.selectionType);
     if(multi) {
-      if(!Number.isSafeInteger(m.minimumCount)||!Number.isSafeInteger(m.maximumCount)||n<m.minimumCount||n>m.maximumCount)return {kind:'abstain',reasonCode:'UNSUPPORTED_SELECTION_BOUNDS'};
+      if(!Number.isSafeInteger(m.minimumCount)||!Number.isSafeInteger(m.maximumCount)||n<m.minimumCount||n>m.maximumCount)return {kind:'abstain',reasonCode:'BAD_CARD_SELECTION_BOUNDS'};
       return {kind:'select-choices',tokens:choices.map(c=>c.token)};
     }
-    return n===1?{kind:'select-choice',token:choices[0].token}:{kind:'abstain',reasonCode:'UNSUPPORTED_MULTI_SELECT'};
+    return n===1?{kind:'select-choice',token:choices[0].token}:{kind:'abstain',reasonCode:'BAD_CARD_SELECTION_BOUNDS'};
   }
   function best(rows,score) {
     let win=null,v=0;
@@ -222,38 +222,38 @@ module.exports = (function build() {
       const i=items.find(x=>x.kind==='play-card'&&iono(x));
       if(i&&supporterFree&&L(o.ownHand).length<=2&&Number(own?.prizeCount)>=3&&Number(own?.deckCount)>=Number(own?.prizeCount)&&directScore<400)return {kind:'select-action',token:i.token};
       if(direct)return {kind:'select-action',token:direct.token};
-      return {kind:'abstain',reasonCode:'RANK9_UNIMPLEMENTED_ROOT_FAMILY'};
+      return {kind:'abstain',reasonCode:'NO_SUPPORTED_ROOT_ACTION'};
     }
     function prompt(r) {
       const o=r.observation,p=r.prompt,source=name(p.source?.sourcePrinting);
       const choices=L(p.choices).filter(x=>typeof x.token==='string');
       const fail=code=>{chain=null;return {kind:'abstain',reasonCode:code};};
       if(!chain||chain.turn!==o.globalTurn||r.sequence!==chain.sequence+1||
-         !(chain.kind==='guzma'?guzma(source):plumeria(source)))return fail('RANK9_UNBOUND_PROMPT_CHAIN');
+         !(chain.kind==='guzma'?guzma(source):plumeria(source)))return fail('UNTRUSTED_PROMPT_SOURCE');
       chain.sequence=r.sequence;
       if(chain.kind==='guzma'){
-        if(p.promptType!=='ChoosePokemonPrompt')return fail('GUZMA_UNSUPPORTED_PROMPT');
+        if(p.promptType!=='ChoosePokemonPrompt')return fail('UNSUPPORTED_POKEMON_PROMPT');
         if(chain.stage===1){
           const target=choices.find(c=>{const x=opponentChoice(o,c);return x?.zone==='bench'&&x.index===chain.target&&x.p&&name(x.p)===name(c);});
-          if(!target)return fail('GUZMA_TARGET_CHANGED');
-          chain.stage=2;return select(p,[target],1,'GUZMA_TARGET_MISSING');
+          if(!target)return fail('NO_VISIBLE_POKEMON_TARGET');
+          chain.stage=2;return select(p,[target],1,'NO_VISIBLE_POKEMON_TARGET');
         }
         const ownTarget=choices.find(c=>M(c).ownerSeat==='actor'&&(M(c).targetZone??M(c).sourceZone)==='bench'&&(M(c).benchIndex??M(c).slotIndex)===chain.attacker&&name(ownChoice(o,c))===chain.attackerPrinting&&name(c)===chain.attackerPrinting);
-        if(!ownTarget)return fail('GUZMA_ATTACKER_CHANGED');
-        chain=null;return select(p,[ownTarget],1,'GUZMA_ATTACKER_MISSING');
+        if(!ownTarget)return fail('NO_VISIBLE_POKEMON_TARGET');
+        chain=null;return select(p,[ownTarget],1,'NO_VISIBLE_POKEMON_TARGET');
       }
       if(chain.stage===1&&p.promptType==='ChooseCardsPrompt'){
         const cards=choices.filter(c=>M(c).ownerSeat==='actor'&&M(c).sourceZone==='hand');
         const cost=safeCosts(cards,o,2,'Plumeria BUS 120');
-        if(cost.length!==2)return fail('PLUMERIA_SAFE_COST_UNAVAILABLE');
-        chain.stage=2;return select(p,cost,2,'PLUMERIA_COST_MISSING');
+        if(cost.length!==2)return fail('NO_LEGAL_CARD_SET');
+        chain.stage=2;return select(p,cost,2,'NO_LEGAL_CARD_SET');
       }
       if(chain.stage===2&&p.promptType==='ChoosePokemonPrompt'){
         const choice=best(choices,c=>denial(o,opponentChoice(o,c))?.score??0);
         const d=choice?denial(o,opponentChoice(o,choice)):null;
-        if(!d)return fail('PLUMERIA_DENIAL_TARGET_UNAVAILABLE');
+        if(!d)return fail('NO_VISIBLE_POKEMON_TARGET');
         chain={...chain,stage:3,energy:d.energy,energies:L(d.row.p.energies).map(name)};
-        return select(p,[choice],1,'PLUMERIA_TARGET_MISSING');
+        return select(p,[choice],1,'NO_VISIBLE_POKEMON_TARGET');
       }
       if(chain.stage===3&&p.promptType==='ChooseCardsPrompt'){
         // Step 3 lacks a board-slot field. The exact prior selection and
@@ -261,10 +261,10 @@ module.exports = (function build() {
         // exposed Energy choices in the selected Pokémon's visible multiset.
         const exposed=choices.filter(c=>M(c).ownerSeat==='opponent'&&/energy/i.test(String(M(c).cardType??name(c)))&&chain.energies.includes(name(c)));
         const e=exposed.find(c=>name(c)===chain.energy);
-        if(!e)return fail('PLUMERIA_ENERGY_CUSTODY_UNCONFIRMED');
-        chain=null;return select(p,[e],1,'PLUMERIA_ENERGY_MISSING');
+        if(!e)return fail('UNTRUSTED_ENERGY_SELECTION');
+        chain=null;return select(p,[e],1,'NO_VISIBLE_ENERGY_CHOICE');
       }
-      return fail('PLUMERIA_UNSUPPORTED_PROMPT_STAGE');
+      return fail('UNSUPPORTED_PROMPT_TYPE');
     }
     return Object.freeze({decide(r){
       if(!r||r.role!=='opponent'||r.seat!==seat||r.observation?.actorSeat!==seat){chain=null;return {kind:'abstain',reasonCode:'ROLE_SEAT_BINDING_MISMATCH'};}
