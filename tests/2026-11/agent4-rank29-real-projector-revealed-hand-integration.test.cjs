@@ -1,0 +1,133 @@
+'use strict';
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const protocol=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
+const {projectPrompt}=require('../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
+const {projectRank29RevealedHandPrompt}=require(
+  '../../simulation/evaluation/2026-11/agent4-rank29-revealed-hand-projection.cjs');
+
+class ChooseCardsPrompt{
+  constructor(id,hand,sourceCard){
+    this.playerId=id;
+    this.cards=hand;
+    this.sourceCard=sourceCard;
+    this.message='CHOOSE_CARD_TO_DISCARD';
+    this.options={min:0,max:2,allowCancel:false,isSecret:false};
+    this.result=undefined;
+  }
+  getPerspectivePlayerId(){return this.playerId;}
+  decode(selected){return selected;}
+  validate(selected){
+    if(!Array.isArray(selected)||selected.length>2)return false;
+    return selected.every(c=>{
+      if(this.sourceCard.fullName.startsWith('Eri '))
+        return /VS Seeker|Unfair Stamp|Fog Crystal/i.test(c.fullName);
+      if(this.sourceCard.fullName.startsWith('Sidney '))
+        return /Double Colorless Energy|Sky Field|Float Stone/i.test(c.fullName);
+      return /Psychic Energy|Double Colorless Energy/i.test(c.fullName);
+    });
+  }
+}
+function player(id){
+  return {id,
+    hand:{cards:[]},deck:{cards:[]},discard:{cards:[]},
+    lostzone:{cards:[]},stadium:{cards:[]},supporter:{cards:[]},
+    active:null,bench:[],prizes:[]};
+}
+function physical({seat=0,source='Eri TEF',hiddenCards=[
+  'Unfair Stamp TWM 165','VS Seeker PHF 109','Iono PAL 185'
+]}={}){
+  const players=[player(37),player(59)];
+  const src={fullName:source};
+  players[seat].supporter.cards.push(src);
+  players[1-seat].hand.cards.push(...hiddenCards.map(fullName=>({fullName})));
+  const prompt=new ChooseCardsPrompt(players[seat].id,players[1-seat].hand,src);
+  const state={phase:2,players};
+  const provenanceHook={getPromptProvenance(p){
+    if(p!==prompt)throw Error('INVALID_PROVENANCE_OBJECT');
+    return {sourceKind:'card-effect',sourceCard:src,effectName:source.split(' ')[0]};
+  }};
+  return {prompt,state,actorSeat:seat,native:{},provenanceHook};
+}
+
+test('production projection rejects identical private Eri prompt without authentic reveal bridge',()=>{
+  for(const seat of [0,1]){
+    const f=physical({seat});
+    assert.throws(()=>projectPrompt(f),/not visible to the acting player/);
+    assert.notEqual(f.state.players[1-seat].hand.isPublic,true);
+  }
+});
+
+test('exact authentic Eri projection uses production code to show only native-valid Items',()=>{
+  for(const seat of [0,1]){
+    const f=physical({seat});
+    const hand=f.state.players[1-seat].hand;
+    const result=projectRank29RevealedHandPrompt({
+      ...f,baseProjectPrompt:projectPrompt
+    });
+    protocol.validatePrompt(result.promptProjection,seat);
+    assert.equal(hand.isPublic,undefined);
+    assert.equal(result.promptProjection.publicMetadata.ownerSeat,'opponent');
+    assert.equal(result.promptProjection.publicMetadata.isOwnerVisible,true);
+    assert.equal(result.promptProjection.publicMetadata.maximumCount,2);
+    assert.deepEqual(result.promptProjection.choices.filter(c=>c.kind==='card')
+      .map(c=>c.printing),['Unfair Stamp TWM 165','VS Seeker PHF 109']);
+    assert.equal(result.promptProjection.choices.length,3);
+    assert.equal(result.choiceByToken.size,3);
+    assert.equal(result.rank29RevealedHandEvidence.eligibleNativeCards,2);
+  }
+});
+
+test('Sidney and Team Skull project only cards their physical validators admit',()=>{
+  for(const [source,names,expected] of [
+    ['Sidney FST 241',['Sky Field ROS 89','Iono PAL 185',
+      'Float Stone BKT 137','Iron Thorns ex TWM 77'],['Sky Field ROS 89','Float Stone BKT 137']],
+    ['Team Skull Grunt SUM',['Psychic Energy SVE 5','Iono PAL 185',
+      'Double Colorless Energy SUM 136'],['Psychic Energy SVE 5','Double Colorless Energy SUM 136']]
+  ])for(const seat of [0,1]){
+    const f=physical({seat,source,hiddenCards:names});
+    const result=projectRank29RevealedHandPrompt({
+      ...f,baseProjectPrompt:projectPrompt
+    });
+    protocol.validatePrompt(result.promptProjection,seat);
+    assert.deepEqual(result.promptProjection.choices.filter(c=>c.kind==='card')
+      .map(c=>c.printing),expected);
+    assert.equal(f.state.players[1-seat].hand.isPublic,undefined);
+  }
+});
+
+test('native zero legal target returns only explicit empty selection with maximumCount zero',()=>{
+  const f=physical({hiddenCards:['Iono PAL 185','Shadow Rider Calyrex V CRE 74']});
+  const result=projectRank29RevealedHandPrompt({...f,baseProjectPrompt:projectPrompt});
+  protocol.validatePrompt(result.promptProjection,0);
+  assert.equal(result.promptProjection.publicMetadata.maximumCount,0);
+  assert.deepEqual(result.promptProjection.choices.map(c=>c.kind),['empty-selection']);
+  assert.equal(result.choiceByToken.size,1);
+});
+
+test('native legal filtering handles duplicate printed Items without conflating tokens',()=>{
+  const f=physical({hiddenCards:['VS Seeker PHF 109','VS Seeker PHF 109',
+    'Double Colorless Energy SUM 136']});
+  const result=projectRank29RevealedHandPrompt({...f,baseProjectPrompt:projectPrompt});
+  protocol.validatePrompt(result.promptProjection,0);
+  const cards=result.promptProjection.choices.filter(c=>c.kind==='card');
+  assert.equal(cards.length,2);
+  assert.notEqual(cards[0].token,cards[1].token);
+  assert.notEqual(cards[0].publicMetadata.selectionIndex,cards[1].publicMetadata.selectionIndex);
+});
+
+test('source identity or physical prompt owner mismatch never makes private hand public',()=>{
+  for(const mutate of [
+    f=>{f.prompt.cards={cards:f.state.players[1].hand.cards};},
+    f=>{f.prompt.playerId=1000;},
+    f=>{f.state.players[0].supporter.cards=[];},
+    f=>{f.prompt.message='CHOOSE_TOP_DECK_CARD';}
+  ]){
+    const f=physical();
+    mutate(f);
+    assert.throws(()=>projectRank29RevealedHandPrompt({
+      ...f,baseProjectPrompt:projectPrompt
+    }));
+    assert.equal(f.state.players[1].hand.isPublic,undefined);
+  }
+});
