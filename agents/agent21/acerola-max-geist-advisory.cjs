@@ -88,6 +88,10 @@ function acerolaMaxGeist(input, maxStates = 40000, firstActionAllowed = () => tr
   function push(s,changes,action){
     if(!s.path.length&&!firstActionAllowed(action))return;
     const next={...s,...changes,path:[...s.path,action]},k=key(next);
+    if(options.stopBeforeChance===true&&action.kind==='underworld-door'){
+      if(typeof options.onChance==='function')options.onChance({input:snapshot(next),path:next.path,drawCount:action.drawIgnored});
+      return;
+    }
     if(seen.has(k))return;
     if(seen.size>=maxStates){capped=true;return;}
     seen.add(k);queue.push(next);
@@ -105,6 +109,21 @@ function acerolaMaxGeist(input, maxStates = 40000, firstActionAllowed = () => tr
     (board[s.a].basic&&living(s).some(i=>board[i].latias&&ownAbilityLive(s,i))))?0:board[s.a].retreatCost;
   const weakness=s=>dynamic&&targets[s.o].dragon&&!(s.oppHood&bit(s.o))&&
     living(s).some(i=>board[i].fairyZone&&ownAbilityLive(s,i))?2:targets[s.o].weaknessMultiplier;
+  // Snapshot after a deterministic prefix, or immediately after committing
+  // a Door attachment with its draw still unresolved by the stochastic caller.
+  // IDs are stable within this advisory turn, not engine prompt tokens.
+  function snapshot(s){
+    const own=living(s),newBoard=own.map(i=>({...board[i],energy:s.e[i],
+      doorAvailable:board[i].doorAvailable&&!(s.d&bit(i)),
+      ...(dynamic?{tool:(s.hood&bit(i))?'hood':(s.flt&bit(i))?'float':(s.otherTool&bit(i))?'other':'none'}:{})}));
+    return {...input,board:newBoard,active:own.indexOf(s.a),
+      ...(input.opponents?{opponents:targets.map((t,i)=>({...t,...(dynamic?{hood:!!(s.oppHood&bit(i))}:{})})),activeOpponent:s.o}:{}),
+      handPsychic:s.h,discardPsychic:s.dp,deckCount:s.deck,knownDeckPsychic:s.kp,knownDeckPsychicCertified:true,
+      manualAvailable:!s.m,retreatAvailable:!s.r,supportAvailable:input.supportAvailable&&!s.sup,
+      acerolaHeld:s.ha,guzmaHeld:s.hg,rangerHeld:s.hr,acerolaDiscard:s.da,guzmaDiscard:s.dg,rangerDiscard:s.dr,
+      vsSeekerCount:s.vs,fogCount:s.fog,nightStretcherCount:s.ns,itemPlayAllowed:s.item,dimensionValley:s.valley,
+      ...(dynamic?{hoodCount:s.hc,floatStoneCount:s.fc,fieldBlowerCount:s.bc,valleyHeld:s.heldValley}:{})};
+  }
   function record(s){
     const attacker=board[s.a];
     if(!attacker.canAttack)return;
@@ -165,6 +184,7 @@ function acerolaMaxGeist(input, maxStates = 40000, firstActionAllowed = () => tr
   while(head<queue.length){
     const s=queue[head++],own=living(s),bench=own.filter(i=>i!==s.a);
     record(s);
+    if(typeof options.onReachableState==='function')options.onReachableState({input:snapshot(s),path:s.path});
     if(options.witnessOnly===true&&foundWitness){stoppedEarly=true;break;}
     if(s.h>0&&!s.m&&input.manualAttachmentAllowed){
       for(const i of own)push(s,{e:setEnergy(s,i,s.e[i]+1),h:s.h-1,m:true},
@@ -643,5 +663,26 @@ function attackSelfTest(){
   return checks;
 }
 
-module.exports={acerolaMaxGeist,selfTest,trainerSelfTest,selectCertificateRoot,frontierSelfTest,dynamicSelfTest,attackSelfTest};
-if(require.main===module)console.log(JSON.stringify({base:selfTest(),trainers:trainerSelfTest(),frontier:frontierSelfTest(),dynamic:dynamicSelfTest(),attacks:attackSelfTest()},null,2));
+
+function transitionSelfTest(){
+  const assert=(c,m)=>{if(!c)throw Error(m)};
+  const v=(id,e,d=false)=>({id,energy:e,damage:0,psychic:true,vmax:true,doorAvailable:d,retreatCost:2,canRetreat:false,canAttack:true});
+  const input={stablePublicEffects:true,noUnmodeledTerminalEffects:true,board:[v('a',3),v('b',1,true)],
+    active:0,handPsychic:1,knownDeckPsychic:1,knownDeckPsychicCertified:true,deckCount:5,manualAvailable:true,
+    retreatAvailable:true,supportAvailable:true,acerolaHeld:false,manualAttachmentAllowed:true,dimensionValley:false,
+    prizesRemaining:2,target:{remainingHP:190,prizesOnKO:2,opponentBoardCount:2,weaknessMultiplier:1,resistance:0,damageReduction:0}};
+  const draws=[],states=[];
+  const r=acerolaMaxGeist(input,4000,()=>true,{stopBeforeChance:true,
+    onChance:x=>draws.push(x),onReachableState:x=>states.push(x)});
+  assert(!r.decision&&r.completeWithinModel,'no deterministic 190 with one held P');
+  assert(draws.length===1&&draws[0].drawCount===2&&draws[0].input.handPsychic===0&&
+    draws[0].input.board[1].energy===2&&!draws[0].input.board[1].doorAvailable&&draws[0].input.manualAvailable,
+    'Door continuation state incorrect '+JSON.stringify(draws));
+  assert(states.every(x=>x.path.every(a=>a.kind!=='underworld-door')),'unobserved chance cannot enter deterministic reachable states');
+  const observed={...draws[0].input,handPsychic:1,knownDeckPsychic:0,deckCount:3};
+  assert(acerolaMaxGeist(observed).decision?.plan.damage===190,'actual draw P supplies winning manual');
+  return [{name:'Door chance separated from deterministic prefixes',states:states.length,chances:draws.length}];
+}
+
+module.exports={acerolaMaxGeist,selfTest,trainerSelfTest,selectCertificateRoot,frontierSelfTest,dynamicSelfTest,attackSelfTest,transitionSelfTest};
+if(require.main===module)console.log(JSON.stringify({base:selfTest(),trainers:trainerSelfTest(),frontier:frontierSelfTest(),dynamic:dynamicSelfTest(),attacks:attackSelfTest(),transitions:transitionSelfTest()},null,2));
