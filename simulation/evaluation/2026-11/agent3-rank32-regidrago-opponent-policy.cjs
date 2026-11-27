@@ -246,6 +246,9 @@ function promptDecision(request) {
     return chooseMany(choices,c=>/^Regidrago VSTAR SIT 136\b/i.test(print(c)) ? 250 : 0,
       min,Math.min(max,1),'RANK32_HOOD_NO_SAFE_VSTAR_TARGET');
   }
+  if (/ryuno glide/.test(source)) {
+    return {kind:'abstain',reasonCode:'RANK32_RYUNO_ENERGY_PROMPT_UNPROJECTED'};
+  }
   if (/sky transport/.test(source) && meta.selectionType === 'pokemon') {
     const own = obs.ownPublic ?? {};
     const active = own.active;
