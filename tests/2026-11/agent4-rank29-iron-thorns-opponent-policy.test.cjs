@@ -969,3 +969,58 @@ test('locked Pokemon play and full Bench never select Thorns Bench', () => {
   });
   assert.deepEqual(checkedDecision(full),{kind:'select-action',token:'pass'});
 });
+
+test('first-turn DCE plus held Thunder Mountain line precedes Speed Lightning draw', () => {
+  const opening=[
+    action('speed','play-card','Speed Lightning Energy RCL 173',{cardType:'energy'}),
+    action('dce','play-card','Double Colorless Energy SUM 136',{cardType:'energy'}),
+    action('mountain','play-card','Thunder Mountain ♢ LOT 191',{cardType:'stadium'}),
+    {token:'pass',kind:'pass'}
+  ];
+  const req=rootRequest({
+    ownHand:['Speed Lightning Energy RCL 173','Double Colorless Energy SUM 136',
+      'Thunder Mountain ♢ LOT 191'],
+    ownPublic:player({active:pokemon('Iron Thorns ex TWM 77')}),
+    items:opening
+  });
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'mountain'});
+  const after=rootRequest({
+    ownHand:['Speed Lightning Energy RCL 173','Double Colorless Energy SUM 136'],
+    ownPublic:player({active:pokemon('Iron Thorns ex TWM 77'),
+      stadium:['Thunder Mountain ♢ LOT 191']}),
+    items:opening.filter(item=>item.token!=='mountain')
+  });
+  assert.deepEqual(checkedDecision(after),{kind:'select-action',token:'dce'});
+});
+
+test('payable Guzma Hala beats Speed attachment when it can find Thunder and DCE', () => {
+  const req=rootRequest({
+    ownHand:['Guzma & Hala CEC 193','Speed Lightning Energy RCL 173',
+      "Trainers' Mail ROS 92",'Camping Gear BST 122'],
+    ownPublic:player({active:pokemon('Iron Thorns ex TWM 77')}),
+    items:[
+      action('gh','play-card','Guzma & Hala CEC 193',{cardType:'supporter'}),
+      action('speed','play-card','Speed Lightning Energy RCL 173',{cardType:'energy'}),
+      {token:'pass',kind:'pass'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'gh'});
+});
+
+test('already legal immediate Volt Cyclone still outranks setting up another Thunder', () => {
+  const req=rootRequest({
+    ownHand:['Guzma & Hala CEC 193','Double Colorless Energy SUM 136',
+      'Thunder Mountain ♢ LOT 191'],
+    ownPublic:player({active:pokemon('Iron Thorns ex TWM 77',{
+      energies:['Speed Lightning Energy RCL 173','Double Colorless Energy SUM 136']})}),
+    opponentPublic:player({active:pokemon('Shadow Rider Calyrex V CRE 74',{hp:140})}),
+    items:[
+      action('attack','attack','Iron Thorns ex TWM 77',
+        {damage:140,targetHp:140},{attackName:'Volt Cyclone'}),
+      action('gh','play-card','Guzma & Hala CEC 193',{cardType:'supporter'}),
+      action('mountain','play-card','Thunder Mountain ♢ LOT 191',{cardType:'stadium'}),
+      {token:'pass',kind:'pass'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'attack'});
+});
