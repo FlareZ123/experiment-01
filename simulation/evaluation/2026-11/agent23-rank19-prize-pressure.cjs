@@ -1,11 +1,10 @@
 'use strict';
 // Actor-visible, already-funded terminal reply advisory. Not a game solver.
-const targets=require('./agent23-rank19-candidate-targets.cjs');
+const movement=require('./agent23-rank19-funded-reply-routes.cjs');
 const list=x=>Array.isArray(x)?x:[];
 const name=x=>typeof x==='string'?x:x?.printing??x?.fullName??'';
 const is=(x,re)=>re.test(name(x));
 const board=x=>[x?.active,...list(x?.bench)].filter(Boolean);
-const PSY=/^(?:Basic )?Psychic Energy(?: [A-Z0-9]+(?: \d+)?)?$/;
 const BASIC=/^(?:Basic )?(?:Darkness|Fighting|Lightning) Energy(?: [A-Z0-9]+(?: \d+)?)?$/;
 const DDE=/^Double Dragon Energy ROS(?: 97)?$/;
 const VAL=/^Dimension Valley PHF(?: 93)?$/;
@@ -23,7 +22,7 @@ const attacks=new Set(['Aura Burn','Bellowing Thunder','Burst Roar','Altered Cre
 function hp(p){return Number.isFinite(p?.hp)&&Number.isFinite(p?.damage)&&p.damage>=0&&p.hp>p.damage?p.hp-p.damage:null;}
 function sourcePrize(p){return is(p,ADP)?3:is(p,TWO)?2:is(p,ONE)?1:0;}
 function sourceKnown(p){return sourcePrize(p)>0&&hp(p)!==null&&Array.isArray(p.tools)&&p.tools.every(t=>is(t,TOOL));}
-function psychic(p){return Array.isArray(p?.energies)&&p.energies.every(e=>is(e,PSY))?p.energies.length:null;}
+const psychic=movement.psychic;
 function permitted(p,foe,attack){
  const r=p.publicRestrictions??{};
  return Array.isArray(p.specialConditions)&&!p.specialConditions.length&&!r.cannotAttackNextTurn&&!(r.attackCostIncreaseNextTurn>0)&&!(r.attackCostIncreaseWhileActive>0)&&!list(r.cannotUseAttacksNextTurn).includes(attack)&&r.blockedAttackNameNextTurn!==attack&&r.blockedAttackNameUntilLeavesActive!==attack&&(!r.onlyAllowedAttackNameNextTurn||r.onlyAllowedAttackNameNextTurn===attack)&&!(foe.publicTurnRestrictions?.attackLockTurnsRemaining>0);
@@ -34,19 +33,16 @@ function reply(o,own,defender,attack){
  // Do not disfavor a possibly terminal source attack when ADP bonus is unknown.
  const extra=own.publicTurnRestrictions?.gxUsed===false?0:1;
  if(attack.lethal&&own.prizeCount<=attack.prizes+extra)return null;
- const before=board(foe),src=board(own);
- if(before.filter(p=>p===defender).length!==1||before.some(p=>!targets.target(p)||psychic(p)===null)||new Set(before).size!==before.length||new Set(src).size!==src.length)return null;
- const survivors=attack.lethal?before.filter(p=>p!==defender):before;
- if(!survivors.length||!Array.isArray(own.stadium)||!Array.isArray(foe.stadium))return null;
+ const src=board(own),movementPlan=movement.routes(o,own,defender,attack);
+ if(!movementPlan||new Set(src).size!==src.length)return null;
+ const {survivors,options}=movementPlan;
  const recoil=attack.attackName==='Aura Burn'&&is(source,MOL)?30:0,remaining=hp(source)-recoil;
  if(remaining<=0)return null;
- // A KO permits any survivor's promotion. Otherwise evaluate defender only.
- const options=attack.lethal?survivors:[defender];
  const stadium=[...own.stadium,...foe.stadium],stadiumLive=!(foe.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining>0);
  const valley=stadiumLive&&stadium.some(x=>is(x,VAL));
  const fairy=survivors.some(p=>is(p,CLEF)&&list(p.abilitySuppressions).some(a=>a.abilityName==='Fairy Zone'&&a.suppressed===false));
  const weakness=fairy&&is(source,DRAGON)?2:1;
- const total=survivors.reduce((n,p)=>n+psychic(p),0),benches=survivors.length-1+src.length-1;
+ const benches=survivors.length-1+src.length-1;
  const prizes=sourcePrize(source),need=foe.prizeCount;
  // All Basic discards may come from Active; DDE is not a Basic.
  const physical=Array.isArray(source.energies)&&source.energies.every(e=>is(e,BASIC)||is(e,DDE)&&is(source,DRAGON));
@@ -57,9 +53,10 @@ function reply(o,own,defender,attack){
   if(psychic(p)<c||!permitted(p,foe,a)||prizes<need||d*(ignore?1:weakness)<remaining)return null;
   return {kind:'visible-terminal-native-attack-reply',printing:name(p),attackName:a,damage:d*(ignore?1:weakness),prizes,remaining};
  };
- for(const p of options){
+ for(const option of options){
+  const p=option.pokemon;
   let r=null;
-  if(is(p,VMAX))r=hit(p,'Max Geist',valley?2:3,10+30*total);
+  if(is(p,VMAX))r=hit(p,'Max Geist',valley?2:3,10+30*option.totalPsychic);
   else if(is(p,CLEF))r=hit(p,'Full Moon Rondo',valley?1:2,20+20*benches);
   else if(is(p,/^Trevenant & Dusknoir-GX SMP(?: (?:SM)?217)?$/))r=hit(p,'Night Watch',3,150);
   else if(is(p,/^Latias ex SSP(?: 76)?$/))r=hit(p,'Eon Blade',valley?2:3,200);
@@ -75,7 +72,7 @@ function reply(o,own,defender,attack){
     if(taken>=need)r={kind:'visible-terminal-native-attack-reply',printing:name(p),attackName:'Astral Barrage',prizes:taken,targets:kos};
    }
   }
-  if(r)return Object.freeze(r);
+  if(r)return Object.freeze({...r,replyRoute:option.route,paidRetreat:option.paidRetreat});
  }
  return null;
 }

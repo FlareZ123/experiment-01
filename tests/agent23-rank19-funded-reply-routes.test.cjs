@@ -1,0 +1,24 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict');
+const {reply}=require('../simulation/evaluation/2026-11/agent23-rank19-prize-pressure.cjs');
+const {routes}=require('../simulation/evaluation/2026-11/agent23-rank19-funded-reply-routes.cjs');
+const P='Psychic Energy MEE 13';
+const mon=(printing,hp,n=0,extra={})=>({printing,hp,damage:0,energies:Array(n).fill(P),tools:[],specialConditions:[],publicRestrictions:{},...extra});
+const sandy=()=>mon('Sandy Shocks ex PAR 108',220,0,{energies:['Fighting Energy','Fighting Energy','Darkness Energy']});
+const adp=()=>mon('Arceus & Dialga & Palkia-GX CEC 156',280,0,{energies:['Double Dragon Energy ROS 97']});
+const vm=(n=0,extra={})=>mon('Shadow Rider Calyrex VMAX CRE 75',320,n,extra);
+const lat=(suppressed=false)=>mon('Latias ex SSP 76',210,0,{abilitySuppressions:[{abilityName:'Skyliner',suppressed}]});
+const clef=()=>mon("Lillie's Clefairy ex JTG 56",190,0,{abilitySuppressions:[{abilityName:'Fairy Zone',suppressed:false}]});
+const gira=()=>mon('Girafarig LOT 94',90);
+const ear={attackName:'Earthen Spike',lethal:false,prizes:0,terminal:false,damage:170,score:170};
+const gx={attackName:'Altered Creation-GX',lethal:false,prizes:0,terminal:false,damage:0,score:190};
+function ctx(active,bench,source=sandy(),need=2,stadium=[]){return {ownPublic:{active:source,bench:[],stadium:[],prizeCount:6,publicTurnRestrictions:{gxUsed:false}},opponentPublic:{active,bench,stadium,prizeCount:need,publicTurnRestrictions:{}}}}
+const ask=(o,a=ear)=>reply(o,o.ownPublic,o.opponentPublic.active,a);
+test('paid retreat subtracts exactly two Psychic before Max Geist',()=>{const o=ctx(vm(2),[vm(7)]),r=ask(o);assert.equal(r.attackName,'Max Geist');assert.equal(r.damage,220);assert.equal(r.paidRetreat,2);assert.equal(r.replyRoute,'retreat');});
+test('one fewer survivor Energy makes the same paid retreat nonlethal',()=>{const o=ctx(vm(2),[vm(6)]);assert.equal(ask(o),null);});
+test('active zero-energy VMAX with live Float Stone can pivot',()=>{const o=ctx(vm(0,{tools:['Float Stone BKT 137']}),[vm(7)]);assert.equal(ask(o).damage,220);assert.equal(ask(o).paidRetreat,0);});
+test('suppressed Float Stone cannot provide that pivot',()=>{const o=ctx(vm(0,{tools:['Float Stone BKT 137']}),[vm(7)],sandy(),2,['Jamming Tower TWM 153']);assert.equal(ask(o),null);});
+test('Skyliner permits Basic pivot into a funded Dragon-KO',()=>{const o=ctx(gira(),[vm(5),lat(),clef()],adp(),3);assert.equal(ask(o,gx).damage,320);assert.equal(ask(o,gx).paidRetreat,0);});
+test('Skyliner cannot move a VMAX or be inferred when suppressed',()=>{assert.equal(ask(ctx(vm(0),[vm(5),lat(),clef()],adp(),3),gx),null);assert.equal(ask(ctx(gira(),[vm(5),lat(true),clef()],adp(),3),gx),null);});
+test('retreat prohibition and disagreement with printed cost block modeled movement',()=>{assert.equal(ask(ctx(vm(2,{publicRestrictions:{cannotRetreat:true}}),[vm(7)])),null);assert.equal(ask(ctx(vm(2,{printed:{retreatCost:['Colorless']}}),[vm(7)])),null);});
+test('KO promotion never discards retreat energy',()=>{const o=ctx(vm(2),[vm(7)]);const r=routes(o,o.ownPublic,o.opponentPublic.active,{...ear,lethal:true});assert.equal(r.options[0].paidRetreat,0);assert.equal(r.options[0].totalPsychic,7);assert.equal(r.options[0].route,'promote-after-ko');});
