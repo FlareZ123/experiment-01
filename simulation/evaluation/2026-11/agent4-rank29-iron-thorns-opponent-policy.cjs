@@ -52,6 +52,7 @@ const PRINT = Object.freeze({
   teamSkull: /^Team Skull Grunt\b/i,
   gladion: /^Gladion\b/i,
   trainersMail: /^Trainers'? Mail\b/i,
+  vsSeeker: /^VS Seeker\b/i,
   campingGear: /^Camping Gear\b/i,
   captivatingPuff: /^Captivating Pok[eé] Puff\b/i,
   echoingHorn: /^Echoing Horn\b/i,
@@ -302,6 +303,21 @@ function cardChoiceScore(choice, observation, context) {
   if (context === 'plumeria-cost') {
     const priority = discardPriority(printing, observation);
     return priority < 0 ? -100 : priority;
+  }
+  if (context === 'vs-seeker') {
+    if (choiceOwner(choice) !== 'actor' ||
+        (choiceZone(choice) !== 'discard' && choice?.publicMetadata?.sourceZone !== 'discard')) return 0;
+    if (matches(printing, PRINT.teamFlare) && opponentActiveEnergy(observation) > 0) return 290;
+    if (matches(printing, PRINT.plumeria) && opponentHasAnyEnergy(observation) &&
+        canPayPlumeria(observation)) return 275;
+    if (matches(printing, PRINT.lusamine) && hasUsefulDiscardForLusamine(observation)) return 265;
+    if (matches(printing, PRINT.handiwork)) return 215;
+    if (matches(printing, PRINT.guzma)) return 200;
+    if (matches(printing, PRINT.guzmaHala)) return 190;
+    if (matches(printing, PRINT.lillie) && ownHand(observation).length <= 2) return 180;
+    if ([PRINT.cynthiaCaitlin, PRINT.eri, PRINT.sidney, PRINT.teamSkull,
+        PRINT.faba].some(pattern => matches(printing,pattern))) return 125;
+    return 0;
   }
   if (context === 'field-blower') {
     if (choiceOwner(choice) !== 'opponent' && choiceZone(choice) !== 'stadium' &&
@@ -656,7 +672,22 @@ function promptDecision(request) {
         minimum, maximum);
       }
 
-      if (matches(sourcePrinting, PRINT.fieldBlower)) {
+      if (matches(sourcePrinting, PRINT.vsSeeker)) {
+        const targets = choices.filter(choice => choiceOwner(choice) === 'actor' &&
+          (choiceZone(choice) === 'discard' || choice?.publicMetadata?.sourceZone === 'discard'));
+        return multiSelectDecision(prompt, rankedChoices(targets,
+          choice => cardChoiceScore(choice, observation, 'vs-seeker'), maximum),
+        minimum, maximum);
+      }
+
+      if (matches(sourcePrinting, PRINT.vsSeeker)) {
+      const targets = choices.filter(choice => choiceOwner(choice) === 'actor' &&
+        (choiceZone(choice) === 'discard' || choice?.publicMetadata?.sourceZone === 'discard'));
+      return singleChoice(targets,
+        choice => cardChoiceScore(choice, observation, 'vs-seeker'),
+        'NO_USEFUL_CARD_CHOICE');
+    }
+    if (matches(sourcePrinting, PRINT.fieldBlower)) {
         const targets = choices.filter(choice =>
           choiceOwner(choice) === 'opponent' || choiceZone(choice) === 'stadium' ||
           choice.kind === 'stadium');
@@ -866,7 +897,8 @@ function scorePlayCard(item, request) {
   const itemCard = [
     PRINT.crushingHammer, PRINT.enhancedHammer, PRINT.megatonBlower,
     PRINT.trainersMail, PRINT.campingGear, PRINT.tagCall,
-    PRINT.captivatingPuff, PRINT.echoingHorn, PRINT.targetWhistle, PRINT.fieldBlower
+    PRINT.captivatingPuff, PRINT.echoingHorn, PRINT.targetWhistle, PRINT.fieldBlower,
+    PRINT.vsSeeker
   ].some(pattern => matches(card, pattern));
   if (supporter && !supporterAvailable(observation)) return 0;
   if (itemCard && itemLocked(observation)) return 0;
@@ -922,6 +954,15 @@ function scorePlayCard(item, request) {
       hand.length <= 4 && ownDeckCount(observation) > 4 ? 85 : 0;
   }
 
+  if (matches(card, PRINT.vsSeeker)) {
+    const inDiscard = list(own.discard).some(supporter =>
+      [PRINT.plumeria,PRINT.teamFlare,PRINT.guzma,PRINT.guzmaHala,PRINT.lusamine,
+       PRINT.handiwork,PRINT.cynthiaCaitlin,PRINT.lillie,PRINT.faba,PRINT.eri,
+       PRINT.sidney,PRINT.teamSkull].some(pattern => matches(supporter,pattern)));
+    // VS Seeker is itself an Item: value derives from a visible Supporter
+    // resource in public discard, not an unconstrained generic connector.
+    return inDiscard && ownDeckCount(observation) > 0 ? 95 : 0;
+  }
   if (matches(card, PRINT.fieldBlower)) {
     const opponentHood = slots(opponent).some(row =>
       list(row.pokemon.tools).some(t => /Stealthy Hood/i.test(valueText(t))));
