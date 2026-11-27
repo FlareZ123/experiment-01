@@ -8,7 +8,7 @@
     "fixed60": true
   },
   "parentPolicyContract": "results/aichi-2026/2026-11/agent1-newmoon-candidate-policy-acceptance-v2.json",
-  "parentCaseCount": 133,
+  "parentCaseCount": 135,
   "status": "paper actor-visible delta for the v2 one-card structural redesign; no native game or competitive qualification",
   "cases": [
     {
@@ -70,7 +70,7 @@
       "forbids": "Reasoning with the parent's two-Sky-Field redundancy after adopting v2."
     }
   ],
-  "totalCaseCountWithParent": 139,
+  "totalCaseCountWithParent": 141,
   "competitiveQualified": false,
   "claim99Point5": false
 }
