@@ -1466,12 +1466,20 @@ function r17VipChoices(prompt,view) {
   }
   return r17Multi(prompt,rows,limit);
 }
+function r17PublicGetLostThreat(view) {
+  return slots(opponent(view)).some(p=>/^Girafarig LOT(?: 94)?$/i.test(printingValue(p)));
+}
 function r17ProtectedHand(view) {
   return hand(view).some(c=>{
     const k=r17Key(c);
     return (k==='pikachu'&&!r17Board(view,'pikachu')&&!r17Board(view,'raichu'))||
       (k==='voltorb'&&!r17Board(view,'voltorb')&&!r17Board(view,'electrode'))||
-      (k==='raichu'&&!r17Board(view,'raichu'))||(k==='electrode'&&!r17Board(view,'electrode'));
+      (k==='raichu'&&!r17Board(view,'raichu'))||(k==='electrode'&&!r17Board(view,'electrode'))||
+      // With live Temple, a visible Get Lost threat can turn the singleton
+      // Resetting Hole answer into an unrecoverable Lost Zone resource after
+      // a hand-discard Supporter. Preserve it until it can be used or Temple
+      // is otherwise removed. This uses only actor-visible board identities.
+      (k==='marshadow'&&r17NeedTempleRemoval(view)&&!r17Board(view,'marshadow')&&r17PublicGetLostThreat(view));
   });
 }
 // Value the hand's actual remaining connectors, not its raw size.
