@@ -362,7 +362,7 @@ function fairyZoneSourceTargetsHolder(view, source, holderSeat, holder) {
       return source.zone === 'active' &&
         !(holder.printed?.types ?? []).includes('Psychic');
     case 'basic-all':
-      return !sameSide && isBasicPokemon(holder);
+      return isBasicPokemon(holder);
     case 'all-tool-attached':
       // Garbotoxin suppresses every Pokémon in play, including Rule Box Pokémon.
       return true;
@@ -749,10 +749,12 @@ function hasEffectiveStealthyHood(target, view, targetSeat) {
   return true;
 }
 
-function weaknessMultiplier(attacker, target, view) {
-  if (isDragon(target) && fairyZoneStatus(view) === true &&
-      hasEffectiveStealthyHood(target, view, 'opponent') === false) return 2;
+function weaknessMultiplier(attacker, target, view, attackerSeat='actor') {
   const types = attacker?.printed?.types ?? [];
+  const targetSeat=attackerSeat==='actor'?'opponent':'actor';
+  if (isDragon(target) && fairyZoneStatusForSeat(view,attackerSeat) === true &&
+      hasEffectiveStealthyHood(target, view, targetSeat) === false)
+    return types.includes('Psychic')?2:1;
   const weakness = (target?.printed?.weakness ?? []).find(row =>
     types.includes(row.type));
   if (!weakness || weakness.value === null) return 1;
@@ -1769,9 +1771,8 @@ function visibleCounterattackThreat(view,slot){
     }
     if(base===null)return 0;
     if(!temple)base=Math.max(0,base-20*opponent.energies.filter(e=>hasName(e,'Double Turbo Energy')).length);
-    const weakness=(slot.printed?.weakness??[]).some(w=>opponent.printed?.types?.includes(w.type));
     const bypass=a.name==='Energy Drive'||a.name==='Mind Shock';
-    return Math.max(0,base*(weakness&&!bypass?2:1)-(bypass?0:resistancePenalty(opponent,slot)));
+    return Math.max(0,base*(bypass?1:weaknessMultiplier(opponent,slot,view,'opponent'))-(bypass?0:resistancePenalty(opponent,slot)));
   }));
 }
 function acerolaTargetScore(view,slot){
@@ -2192,6 +2193,47 @@ function chooseCardCombination(view, prompt, receipt = null) {
   return { kind: 'select-choices', tokens: selected.map(choice => choice.token) };
 }
 
+// Project one legal Tool recipient, not the existence of a useful Tool somewhere.
+// Strip only effects attributable to a live opposing source Hood actually blocks.
+function stealthyHoodTargetScore(view,slot,receipt=null) {
+  if(!slot||!Array.isArray(slot.tools)||slot.tools.length!==0||
+      view.ownTurnResources?.toolPlayLocked===true||
+      view.ownPublic.publicTurnRestrictions?.toolPlayLocked===true)return -Infinity;
+  const resolved=resolveAbilityLockSources(view);
+  const sources=resolved.active.filter(source=>source.seat==='opponent'&&
+    abilityLockSourceSuppressesTarget(source,'actor',slot,view)===true);
+  const equipped={...slot,tools:['Stealthy Hood UNB'],
+    abilitySuppressions:(slot.abilitySuppressions??[]).filter(row=>
+      !(row.suppressed===true&&sources.some(s=>hasName(row.sourcePrinting??'',s.cardName))))};
+  const projected={...view,ownPublic:{...view.ownPublic,
+    active:view.ownPublic.active===slot?equipped:view.ownPublic.active,
+    bench:view.ownPublic.bench.map(p=>p===slot?equipped:p)}};
+  if(hasEffectiveStealthyHood(equipped,projected,'actor')!==true)return -Infinity;
+  let score=-Infinity;
+  if(slot===view.ownPublic.active&&hasActiveStealthyHoodThreat(view))score=1250;
+  if(isDragon(slot)&&opponentFairyZoneStatus(view)===true)score=Math.max(score,750);
+  if(!sources.length||resolved.unknown)return score;
+  const restored=ability=>effectiveAbilityStatus(slot,ability,'actor',view)===false&&
+    effectiveAbilityStatus(equipped,ability,'actor',projected)===true&&
+    abilityLockSourceStadiumSuppression({slot:equipped},projected)===false&&
+    !resolveAbilityLockSources(projected).active.some(s=>
+      abilityLockSourceSuppressesTarget(s,'actor',equipped,projected)!==false);
+  if(opponentHasDragon(view)&&restored('Fairy Zone')){
+    const before=bestAttackForSlot(view.ownPublic.active,view,view.opponentPublic.active);
+    const after=bestAttackForSlot(projected.ownPublic.active,projected,projected.opponentPublic.active);
+    score=Math.max(score,(after?.score??0)>=(10000)&&(before?.score??0)<10000?1850:1050);
+  }
+  if(isShadowRiderVmax(slot)&&restored('Underworld Door')){
+    const zone=slot===view.ownPublic.active?'active':'bench';
+    const index=zone==='active'?0:view.ownPublic.bench.indexOf(slot);
+    const now=underworldDoorSourceIsUnspent(receipt,{sourceZone:zone,sourceIndex:index},slot)&&
+      handHas(view,'Psychic Energy')&&view.ownPublic.deckCount>2&&
+      view.ownPublic.bench.some(p=>p?.printed?.types?.includes('Psychic'));
+    score=Math.max(score,now?1450:800);
+  }
+  return score;
+}
+
 function choosePokemonRecipient(view, prompt, receipt=null) {
   setPolicyAuditRule('POKEMON_TARGET_SCORE', 'SCORE_DESC_NATIVE_TARGET_INDEX');
   const metadata = prompt.publicMetadata;
@@ -2220,22 +2262,7 @@ function choosePokemonRecipient(view, prompt, receipt=null) {
   let ranked;
   if ((hasName(prompt.source?.sourcePrinting, 'Stealthy Hood') ||
        effectName === 'Stealthy Hood') && actorChoices.length > 0) {
-    ranked = actorChoices.map(row => {
-      const slot = row.target.slot;
-      let score = -Infinity;
-      if (hasOpponentAbilityLockOnFairyZoneHolder(view, slot)) score = 2400;
-      if (row.target.zone === 'active' &&
-          (isShadowRiderVmax(slot) || isBasicShadowRiderV(slot)) &&
-          hasActiveStealthyHoodThreat(view) &&
-          Array.isArray(slot.tools) && slot.tools.length === 0) {
-        score = Math.max(score, 1800);
-      }
-      if (isDragon(slot) && hasOpponentFairyZoneThreat(view) &&
-          Array.isArray(slot.tools) && slot.tools.length === 0) {
-        score = Math.max(score, 1700);
-      }
-      return { ...row, score };
-    });
+    ranked = actorChoices.map(row => ({...row,score:stealthyHoodTargetScore(view,row.target.slot,receipt)}));
   } else if (effectName==='Astral Barrage'&&hasName(prompt.source?.sourcePrinting,'Shadow Rider Calyrex V CRE')&&
       minimum===2&&maximum===2&&opponentChoices.length>=2&&actorChoices.length===0&&
       view.opponentPublic.bench.filter(Boolean).length>=2) {
@@ -3443,8 +3470,11 @@ function scoreTrainerPlay(item, view, receipt, profile) {
     if(Number.isFinite(need))return 650+need;
   }
   if(hasAnyName(name,['Sky Field','Dimension Valley']))return usefulCandidateStadium(view,name);
-  if (isTool(name) && hasName(name, 'Stealthy Hood') &&
-      hasStealthyHoodSearchNeed(view)) return 580;
+  if (isTool(name) && hasName(name, 'Stealthy Hood')) {
+    const target=actionTargetSlot(view,item.publicMetadata);
+    if(!target||(item.targetPrinting&&item.targetPrinting!==target.printing))return -Infinity;
+    return stealthyHoodTargetScore(view,target,receipt);
+  }
   return -Infinity;
 }
 
@@ -4008,6 +4038,6 @@ Object.defineProperty(module.exports, '__test', {
     hasOpponentAbilityLockOnFairyZoneHolder, hasOwnFairyZoneHolderLockThreat,
     viewAfterRemovingAbilityStadiums, fieldBlowerHoodBlocksFairyZone,
     paleMoonExtraPsychicAvailable, paleMoonRetreatStatus, paleMoonScore,
-    projectedStadium, usefulCandidateStadium, chooseEnergyPayment
+    projectedStadium, usefulCandidateStadium, chooseEnergyPayment, weaknessMultiplier, stealthyHoodTargetScore
   })
 });

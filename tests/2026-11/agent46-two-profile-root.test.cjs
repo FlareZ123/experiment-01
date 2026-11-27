@@ -1050,3 +1050,36 @@ paired('Guzma breaks an Active-only Ability lock only for a productive post-swit
   gateView.opponentPublic.stadium=['Path to the Peak CRE'];
   assert.deepEqual(decide(profile,root(seat,gateView,[play('guzma',guzma),play('gate',R,null,target('bench',1))])),sel('pass'));
 });
+
+paired('Hood recipient restores a blocked engine, not an arbitrary legal attachment',(seat,profile)=>{
+  const H='Stealthy Hood UNB', thorns=pokemon({printing:'Iron Thorns ex TWM',name:'Iron Thorns ex',hp:230,subtypes:['Basic','ex','Future'],types:['Lightning'],abilities:['Initialization'],suppression:false});
+  const engine=vmax([P,P],true);
+  engine.abilitySuppressions[0].sourcePrinting=thorns.printing;
+  const view=observation(seat,{active:v([P]),bench:[engine,v()],opponentActive:thorns,ownHand:[H,P]});
+  const items=[play('a-useless',H,V,target('active',0)),play('z-engine',H,M,target('bench',0))];
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('z-engine'));
+  view.opponentPublic.stadium=['Jamming Tower TWM'];
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('pass'));
+  view.opponentPublic.stadium=['Path to the Peak CES'];
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('pass'));
+});
+paired('Fairy Zone replaces weakness with Psychic, and Muk suppresses both sides',(seat,profile)=>{
+  const f=pokemon({printing:"Lillie's Clefairy ex JTG",name:"Lillie's Clefairy ex",hp:190,subtypes:['Basic','ex'],types:['Psychic'],abilities:['Fairy Zone'],suppression:false});
+  const dragon=pokemon({printing:'Dragonite V EVS',name:'Dragonite V',hp:230,subtypes:['Basic','V'],types:['Dragon']});
+  dragon.printed.weakness=[{type:'Lightning',value:'×2'}];
+  const lightning=pokemon({printing:'Pikachu SVI',name:'Pikachu',types:['Lightning']});
+  const view=observation(seat,{active:v([P]),bench:[f],opponentActive:dragon});
+  const core=require('../../simulation/evaluation/2026-11/agent46-two-profile-candidate-policy.cjs').__test;
+  assert.equal(core.weaknessMultiplier(view.ownPublic.active,dragon,view),2);
+  assert.equal(core.weaknessMultiplier(lightning,dragon,view),1);
+  dragon.tools=['Stealthy Hood UNB'];
+  assert.equal(core.weaknessMultiplier(view.ownPublic.active,dragon,view),1);
+  assert.equal(core.weaknessMultiplier(lightning,dragon,view),2);
+  dragon.tools=[];
+  const muk=pokemon({printing:'Alolan Muk SUM',name:'Alolan Muk',subtypes:['Stage 1'],abilities:['Power of Alchemy'],suppression:false});
+  view.ownPublic.bench.push(muk);
+  f.abilitySuppressions=[];
+  assert.equal(core.fairyZoneStatusForSeat(view,'actor'),false);
+  f.tools=['Stealthy Hood UNB'];
+  assert.equal(core.fairyZoneStatusForSeat(view,'actor'),false);
+});
