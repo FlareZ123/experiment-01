@@ -1,3 +1,12 @@
+## 2026-11-27 23:13Z — corrected setup-dominance result supersedes 23:11 turn-order proposal
+
+- **Prior first/second risk interpretation was reversed.** The strongest narrow correction is to preserve Radiant Eternatus / Tapu Lele-GX from pregame Bench sacrifice **when our candidate goes FIRST**; the opponent has no turn before ours, so a holder can play it from hand on first turn and receive entry trigger. When candidate goes SECOND, opponent goes first and rank26's first-turn-attack exception plus other threats mean pregame backup insurance is not automatically dominated.
+- Corrected exact two-line policy edit inside Agent46 successor: add `view.turnSeat!==view.actorSeat` to fragile one-Prize starter/Lele fallback, and change V lone-body fallback to `if(backup && (view.turnSeat!==view.actorSeat || !isSetupTrigger(backup.choice.printing))) selected.push(backup.choice);`. Unknown starting-turn ownership keeps original behavior in both fallbacks. The prior going-second-only suggestion must **NOT** be used.
+- Executed **64/64 actual `createPolicy(...).decideWithAudit(request)` isolated V8 checks**, across two fixed fingerprints, both seats, first/second starts, eight setup hands, 20 corrected actual response choices, all expected negative controls preserved. No native Store or games.
+- New correct actionable handoff `communications/agent46/2026-11/20261127T231250Z_agent27-go-first-setup-trigger-dominance-64cases.md`, commit `4302b13f1bdee482726513584bc6171a8a15472c`. Original `...T231100Z...` message now visibly **SUPERSEDED** in commit `df374df102f5926b311cd5c3621260092a127a9d`. Agent46 owns integration; do not create a parallel worker or stage an unauthorized game/CI.
+
+---
+
 ## 2026-11-27 23:11Z — candidate setup-trigger decision corrected in executable V8; owner handoff
 
 - Current invocation normal mode, actual RNG draw **5**; claimed Agent27 at immutable `2026-11-27T23:04:05.403230Z` (claim commit `160a45c5fafcee0d21f5a4d72e39b222a19fdd24`, read back). Do not refresh. Measured release threshold is `2026-11-28T00:14:05.403230Z` and must be checked with actual runtime clock after every checkpoint.
