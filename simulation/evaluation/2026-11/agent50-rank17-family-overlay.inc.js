@@ -963,8 +963,72 @@ function r17RopeScore(request) {
     r17GengarReady(v,r17Slot(v,'bench',metadata(a).targetIndex??metadata(a).benchIndex))&&r17FreeRetreat(a,v));
   return hasFree?0:230;
 }
+// Static public card-type classification, never rank/deck/hidden-hand
+// inference. A revealed card from any opponent is treated identically.
+const R17_KNOWN_TRAINERS=new Set(["Acerola BUS","Adventure Bag LOT","Artazon PAL","Arven OBF","Arven SVI","Battle Compressor PHF","Battle VIP Pass FST","Bellelba & Brycen-Man CEC","Bicycle PLS","Boost Shake EVS","Buddy-Buddy Poffin TEF","Camping Gear BST","Canceling Cologne ASR","Captivating Poké Puff STS","Carmine TWM","Cassius XY","Chaotic Swell CEC","Cherish Ball UNM","Choice Belt PAL","Counter Catcher PAR","Counter Gain SSP","Crispin SCR","Crushing Hammer POR","Cynthia & Caitlin CEC","Damage Pump LOR","Dark Patch ASR","Dimension Valley PHF","Dowsing Machine PLS","Echoing Horn CRE","Enhanced Hammer TWM","Eri TEF","Escape Rope BST","Faba LOT","Field Blower GRI","Float Stone BKT","Fog Crystal CRE","Forest Seal Stone SIT","Gladion CIN","Grand Tree SCR","Guzma & Hala CEC","Guzma BUS","Handheld Fan TWM","Heavy Ball BKT","Hisuian Heavy Ball ASR","Iono PAL","Karen XYP","Lillie's Determination MEG","Lillie's Poké Doll CEC","Lost Vacuum LOR","Lusamine CIN","Marnie SSH","Megaton Blower SSP","Muscle Band XY","Mysterious Treasure FLI","N FCO","Nest Ball SVI","Net Ball LOT","Night Stretcher ASC","Order Pad UPR","Palace Belt BWP","Palace Book SMP","Parallel City BKT","Path to the Peak CRE","Penny SVI","Peonia CRE","Player's Ceremony SP","Plumeria BUS","PokéStop PGO","Pokémon Communication TEU","Pokémon Ranger STS","Prime Catcher TEF","Professor Sada's Vitality PAR","Professor Sycamore BKP","Professor's Letter BKT","Professor's Research JTG","Quick Ball FST","Raihan EVS","Random Receiver FCO","Rare Candy MEG","Redeemable Ticket JTG","Rescue Carrier EVS","Rescue Stretcher GRI","Risky Ruins MEG","Robo Substitute PHF","Roxanne ASR","Roxie CEC","Scoop Up Cyclone TWM","Secret Box TWM","Shopping Center EVS","Sidney FST","Silent Lab PRC","Sky Field ROS","Special Charge STS","Special Red Card CRI","Stadium Nav UNM","Stealthy Hood UNB","Steven's Resolve CES","Super Rod PAL","Tag Call CEC","Target Whistle PHF","Team Flare Grunt XY","Team Rocket's Handiwork FCO","Team Skull Grunt SUM","Team Yell Grunt SSH","Team Yell's Cheer BRS","Teammates PRC","Technical Machine: Crisis Punch PAF","Technical Machine: Evolution PAR","Telescopic Sight VIV","Temple of Sinnoh ASR","Thunder Mountain ♢ LOT","Tool Jammer BST","Town Map BKT","Trainers' Mail ROS","Tropical Beach BWP","Tulip PAR","U-Turn Board UNM","Ultra Ball MEG","Unfair Stamp TWM","VS Seeker PHF","Wait and See Hammer LOT","Wally ROS","Wondrous Labyrinth ♢ TEU","Wondrous Patch PFL","Xerosic's Machinations SFA","Xtransceiver NVI"]);
+function r17PublicTrainerCount(view) {
+  const rows=opponent(view).publicHand;
+  if(!Array.isArray(rows))return null;
+  return rows.filter(c=>{
+    const name=printingValue(c);return R17_KNOWN_TRAINERS.has(name)||R17_KNOWN_TRAINERS.has(name.replace(/\s+\d+$/,''));
+  }).length;
+}
+function r17GengarPsychic(view,p) {
+  if(r17Key(p)!=='gengar'||r17NeedTempleRemoval(view))return 0;
+  return list(p.energies).filter(e=>r17Key(e)==='unit').length;
+}
+function r17GengarDirect(view,p) {
+  if(r17GengarPsychic(view,p)<2||view.globalTurn<2)return null;
+  const r=p.publicRestrictions||{};
+  if(r.cannotAttackNextTurn||r.attackCostIncreaseNextTurn>0||r.attackCostIncreaseWhileActive>0||
+    list(p.specialConditions).length||list(r.cannotUseAttacksNextTurn).includes('Poltergeist')||
+    r.blockedAttackNameNextTurn==='Poltergeist'||r.blockedAttackNameUntilLeavesActive==='Poltergeist'||
+    r.onlyAllowedAttackNameNextTurn&&r.onlyAllowedAttackNameNextTurn!=='Poltergeist'||
+    own(view).publicTurnRestrictions?.attackLockTurnsRemaining>0)return null;
+  const t=r17PublicTrainerCount(view);
+  return {known:t!==null,trainers:t,handCount:opponent(view).handCount};
+}
+function r17DirectPressure(view,item) {
+  const p=active(own(view)),q=active(opponent(view)),key=r17Key(p),attack=item.attackName||'';
+  if(r17Key(item)!==key||!q||!Number.isSafeInteger(q.hp)||!Number.isSafeInteger(q.damage)||q.damage>=q.hp)return null;
+  const targets=r17VisibleRainTargets(view,p);
+  if(!targets)return null;
+  const target=targets.find(t=>t.zone==='active');if(!target)return null;
+  let damage=null,psychic=false;
+  if(key==='raichu'&&attack==='Electric Ball')damage=90;
+  else if(key==='electrode'&&attack==='Electro Ball')damage=50;
+  else if(key==='klefki'&&attack==='Joust'){damage=10;psychic=true;}
+  else if(key==='unown'&&attack==='Hidden Power'){damage=10;psychic=true;}
+  else if(key==='marshadow'&&attack==='Red Knuckles'){damage=10;psychic=true;}
+  else if(key==='pikachu'&&attack==='Quick Attack')damage=20;
+  else if(key==='squawk'&&attack==='Motivate')damage=20;
+  else if(key==='gengar'&&attack==='Poltergeist'){
+    const count=r17PublicTrainerCount(view);if(count===null)return null;
+    damage=50*count;psychic=true;
+  }
+  if(damage===null||damage<=0)return null;
+  // The visible target family has no Lightning or Colorless W/R.
+  // Psychic weakness applies exactly to these two printed targets.
+  if(psychic&&/^(Girafarig LOT|Wobbuffet PHF)(?: \d+)?$/i.test(printingValue(q)))damage*=2;
+  if(metadata(item).hasPrevention===true)return null;
+  const ko=damage>=q.hp-q.damage;
+  return {damage,ko,prizes:ko?target.prizes:0,
+    terminalProjection:ko&&(target.prizes>=own(view).prizeCount||!list(opponent(view).bench).some(Boolean)),
+    assumption:'visible-printed-damage-only'};
+}
+function r17GengarAttackThreat(view,p) {
+  const q=active(opponent(view));
+  if(!/^Shadow Rider Calyrex VMAX CRE(?: 75)?$/i.test(printingValue(q)))return false;
+  const total=slots(opponent(view)).reduce((n,s)=>n+list(s.energies).filter(e=>/^Psychic Energy(?:\b|$)/i.test(printingValue(e))).length,0);
+  const activeEnergy=list(q.energies).filter(e=>/^Psychic Energy(?:\b|$)/i.test(printingValue(e))).length;
+  const cost=/^Dimension Valley PHF(?: \d+)?$/i.test(r17Stadium(view))&&r17StadiumToolLive(view)?2:3;
+  return activeEnergy>=cost&&10+30*total>=p.hp-p.damage;
+}
 function r17SwitchValue(p,v) {
-  if(r17GengarReady(v,p))return 300;
+  if(r17GengarReady(v,p)&&!r17GengarAttackThreat(v,p))return 300;
+  const gengar=r17GengarDirect(v,p);
+  if(gengar&&(gengar.known&&gengar.trainers>=3||!gengar.known&&gengar.handCount>=5)&&
+    (opponent(v).prizeCount>3||gengar.known&&gengar.trainers*50>=active(opponent(v))?.hp-active(opponent(v))?.damage))return 280;
   const key=r17Key(p);
   const energies=list(p?.energies),units=energies.reduce((n,e)=>n+(r17EnergyProvision(e,own(v).prizeCount,opponent(v).prizeCount,r17NeedTempleRemoval(v))?.total||0),0);
   const lightning=energies.some(e=>(r17EnergyProvision(e,own(v).prizeCount,opponent(v).prizeCount,r17NeedTempleRemoval(v))?.lightning||0)>0);
@@ -1093,7 +1157,7 @@ function r17ScorePlay(item,view) {
     if(t==='klefki'&&m.targetZone==='active'&&r17Key(p)==='klefki'&&
       r17IsWob(active(opponent(view)))&&r17LiveHood(view,active(opponent(view)))&&
       list(p.energies).length===0)return 260+({unit:3,counter:2,reversal:1}[k]);
-    if(k==='unit'&&t==='gengar')return 210;
+    if(k==='unit'&&t==='gengar')return r17GengarPsychic(view,p)<2?210:0;
     if(t==='raichu'||t==='pikachu')return k==='unit'?190:
       Number.isSafeInteger(own(view).prizeCount)&&Number.isSafeInteger(opponent(view).prizeCount)&&
       own(view).prizeCount>opponent(view).prizeCount?180:0;
@@ -1110,14 +1174,23 @@ function r17Score(item,request) {
     if(!R17_POKEMON.has(r17Key(item)))return 0;
     if(/^(Electro Rain|Crush and Burn-GX)$/i.test(attack))return -1000;
     // Only these shared rank-4 attacks have an existing decision heuristic.
-    if(/^(Horror House-GX|Poltergeist|Electric Ball|Electro Ball|Joust)$/i.test(attack))return scoreAttack(item,view);
+    const direct=r17DirectPressure(view,item);
+    if(direct?.terminalProjection)return 850;
+    if(direct?.ko)return 285+20*direct.prizes;
+    if(attack==='Horror House-GX'&&r17GengarAttackThreat(view,active(own(view))))return 35;
+    if(attack==='Poltergeist'){
+      const count=r17PublicTrainerCount(view);
+      return count!==null?Math.min(190,40+20*count):scoreAttack(item,view);
+    }
+    if(/^(Horror House-GX|Electric Ball|Electro Ball|Joust)$/i.test(attack))return scoreAttack(item,view);
+    if(attack==='Motivate')return 35;
     if(/^(Hidden Power|Quick Attack|Nuzzle|Thunder Wave|Red Knuckles|Big Explosion)$/i.test(attack))
       return attack==='Big Explosion'?0:35;
     return 0;
   }
   if(item.kind==='retreat'&&m.targetSeat==='actor'&&m.targetZone==='bench'&&r17FreeRetreat(item,view)) {
     const s=r17Slot(view,'bench',m.targetIndex??m.benchIndex);
-    if(r17GengarReady(view,s)&&!r17GengarReady(view,active(own(view))))return 240;
+    if(r17Key(s)==='gengar'&&r17SwitchValue(s,view)>=280&&r17SwitchValue(active(own(view)),view)<240)return 240;
     if(s&&r17Key(s)==='raichu'&&r17SwitchValue(s,view)>=240&&r17SwitchValue(active(own(view)),view)<240){
       // Departing Klefki would reactivate opposing Wob before Bomb.
       // Preserve the live connector if it can supply additional Energy.
@@ -1426,5 +1499,5 @@ module.exports = Object.freeze({
   SOURCE_ENTRY_JSON_SHA256:R17_PROFILE.sourceEntryJsonSha256,
   ENGINE_PIN:R17_PROFILE.enginePin,PROFILE:R17_PROFILE,createPolicy:r17CreatePolicy,
   scoreAction:r17Score,promptDecision:r17Prompt,bestAction:r17Best,
-  planRainTurn:r17PlanRainTurn,knownOwnZones:r17KnownOwnZones,ticketPlan:r17TicketPlan,planCoreAccess:r17CoreAccess,wobbuffetLive:r17WobLive,abilityBlocked:r17AbilityBlocked,liveBombs:r17LiveBombs,rainProjection:r17RainProjection,ropeRainPlan:r17RopeRainPlan,energyProvision:r17EnergyProvision,loadPlan:r17LoadPlan,activeLoadPlan:r17ActiveLoadPlan,secretPayment:r17SecretPayment,fundedRainProjection:r17FundedRainProjection,readyRainAttackers:r17ReadyRainAttackers
+  planRainTurn:r17PlanRainTurn,knownOwnZones:r17KnownOwnZones,ticketPlan:r17TicketPlan,planCoreAccess:r17CoreAccess,wobbuffetLive:r17WobLive,abilityBlocked:r17AbilityBlocked,liveBombs:r17LiveBombs,rainProjection:r17RainProjection,ropeRainPlan:r17RopeRainPlan,energyProvision:r17EnergyProvision,loadPlan:r17LoadPlan,activeLoadPlan:r17ActiveLoadPlan,secretPayment:r17SecretPayment,fundedRainProjection:r17FundedRainProjection,readyRainAttackers:r17ReadyRainAttackers,directPressure:r17DirectPressure,publicTrainerCount:r17PublicTrainerCount
 });
