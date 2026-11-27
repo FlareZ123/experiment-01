@@ -5,6 +5,7 @@
 const bolt=require('./agent23-rank19-bellowing-thunder-draft.cjs');
 const targets=require('./agent23-rank19-candidate-targets.cjs');
 const opening=require('./agent23-rank19-opening.cjs');
+const copycat=require('./agent23-rank19-copycat-reply.cjs');
 const list=x=>Array.isArray(x)?x:[];
 const name=x=>typeof x==='string'?x:x?.printing??x?.fullName??'';
 const kind=opening.kind, md=x=>x?.publicMetadata??{};
@@ -82,7 +83,7 @@ function bestAttack(o,own,target,caps){
  if(k==='bird'&&e.total>=3)add('Rainbow Burn',20+20*[e.l,e.f,e.d].filter(n=>n>0).length);
  if(k==='lele'&&e.total>=2&&Array.isArray(target.energies)&&target.energies.every(x=>/^(?:Basic )?Psychic Energy(?: [A-Z0-9]+(?: \d+)?)?$/.test(name(x))))add('Energy Drive',20*(e.total+target.energies.length));
  if(k==='sudo'&&e.f>=1&&e.total>=2)add('Rock Throw',Math.max(0,40-fightingResistance(target)));
- return out.filter(x=>x.score>0).sort((a,b)=>b.score-a.score)[0]??null;
+ return out.map(x=>copycat.adjust(o,own,target,x)).filter(x=>x.score>0).sort((a,b)=>b.score-a.score)[0]??null;
 }
 function direct(r,caps){
  const o=r.observation,own=o.ownPublic;

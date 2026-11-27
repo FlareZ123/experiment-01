@@ -1,0 +1,38 @@
+'use strict';
+const test=require('node:test'),assert=require('node:assert/strict');
+const {reply,adjust}=require('../simulation/evaluation/2026-11/agent23-rank19-copycat-reply.cjs');
+const P='Psychic Energy MEE 13';
+const mon=(printing,hp,energies=[],damage=0,extra={})=>({printing,hp,damage,energies,tools:[],specialConditions:[],publicRestrictions:{},...extra});
+const m=(n=1,damage=0,extra={})=>mon('Mimikyu GRI 58',70,Array(n).fill(P),damage,extra);
+const clef=(live=true,n=0)=>mon("Lillie's Clefairy ex JTG 56",190,Array(n).fill(P),0,{abilitySuppressions:[{abilityName:'Fairy Zone',suppressed:!live}]});
+const vmax=(n=3)=>mon('Shadow Rider Calyrex VMAX CRE 75',320,Array(n).fill(P));
+const a=(attackName,prizes=3)=>({attackName,lethal:true,terminal:false,prizes,score:500});
+function fixture(source,bench,{target=vmax(),our=5,their=2,valley=true,gxUsed=false}={}){
+ const own={active:source,bench:[],prizeCount:our,stadium:[],publicTurnRestrictions:{gxUsed}};
+ const opponentPublic={active:target,bench,prizeCount:their,stadium:valley?['Dimension Valley PHF 93']:[],publicTurnRestrictions:{}};
+ return {o:{ownPublic:own,opponentPublic},own,target};
+}
+const mol=()=>mon('Galarian Moltres V CRE 97',220);
+const adp=()=>mon('Arceus & Dialga & Palkia GX CEC 156',280);
+const bolt=()=>mon('Raging Bolt ex TEF 123',240);
+const r=(f,x)=>reply(f.o,f.own,f.target,x);
+test('Aura Burn recoil permits 190 Copycat KO at one Psychic under Valley',()=>{const x=r(fixture(mol(),[m()]),a('Aura Burn'));assert.equal(x.damage,190);assert.equal(x.remaining,190);assert.equal(x.prizes,2);assert.equal(x.copycatCost,1);});
+test('without Valley one energy is not a paid counter',()=>assert.equal(r(fixture(mol(),[m()],{valley:false}),a('Aura Burn')),null));
+test('without Valley two Psychic are sufficient',()=>assert.equal(r(fixture(mol(),[m(2)],{valley:false}),a('Aura Burn')).copycatCost,2));
+test('Mimikyu with 30 remaining not certified to survive copied recoil',()=>assert.equal(r(fixture(mol(),[m(1,40)]),a('Aura Burn')),null));
+test('source attack actually terminal takes precedence',()=>assert.equal(r(fixture(mol(),[m()],{our:3}),a('Aura Burn')),null));
+test('possible unresolved extra Prize terminal takes precedence',()=>assert.equal(r(fixture(mol(),[m()],{our:4,gxUsed:true}),a('Aura Burn')),null));
+test('unspent GX proves no extra Prize; 4 remaining not terminal for base 3',()=>assert.ok(r(fixture(mol(),[m()],{our:4,gxUsed:false}),a('Aura Burn'))));
+test('candidate needs more prizes than Moltres provides',()=>assert.equal(r(fixture(mol(),[m()],{their:3}),a('Aura Burn')),null));
+test('Ultimate Ray with surviving live Fairy Zone takes three ADP prizes',()=>{const x=r(fixture(adp(),[m(),clef()],{their:3}),a('Ultimate Ray'));assert.equal(x.damage,300);assert.equal(x.prizes,3);});
+test('suppressed Clefairy not counted',()=>assert.equal(r(fixture(adp(),[m(),clef(false)]),a('Ultimate Ray')),null));
+test('Clefairy KO removes Fairy Zone from reply',()=>assert.equal(r(fixture(adp(),[m()],{target:clef()}),a('Ultimate Ray',2)),null));
+test('Bellowing under live Fairy Zone uses exactly two surviving Basics',()=>{const x=r(fixture(bolt(),[m(),clef(true,1)]),a('Bellowing Thunder'));assert.equal(x.minimumBasics,2);assert.equal(x.damage,280);});
+test('energy on KO target is excluded',()=>assert.equal(r(fixture(bolt(),[m(),clef()],{target:vmax(10)}),a('Bellowing Thunder')),null));
+test('without Fairy Zone four surviving Basics produce 280',()=>{const x=r(fixture(bolt(),[m(2),vmax(2)],{valley:false}),a('Bellowing Thunder'));assert.equal(x.minimumBasics,4);assert.equal(x.damage,280);});
+test('Guzma of visible benched Mimikyu removes the candidate counter',()=>{const f=fixture(mol(),[m()]);f.target=f.o.opponentPublic.bench[0];assert.equal(r(f,a('Aura Burn',1)),null);});
+test('Guzma of a different exact bench object retains old active and Mimikyu',()=>{const f=fixture(mol(),[m(),vmax()]);f.target=f.o.opponentPublic.bench[1];assert.ok(r(f,a('Aura Burn')));});
+test('copied GX attack is not evaluated',()=>assert.equal(r(fixture(adp(),[m(),clef()]),a('Altered Creation-GX')),null));
+test('attack restriction defeats visible payment',()=>assert.equal(r(fixture(mol(),[m(2,0,{publicRestrictions:{blockedAttackNameNextTurn:'Copycat'}})]),a('Aura Burn')),null));
+test('no synthetic veto of sole option; demote score to positive 1',()=>{const f=fixture(mol(),[m()]),x=a('Aura Burn');const y=adjust(f.o,f.own,f.target,x);assert.equal(y.score,1);assert.equal(x.score,500);assert.equal(y.copycatReply.kind,'visible-terminal-copycat-reply');});
+test('nonlethal attack does not imply free promotion',()=>assert.equal(r(fixture(mol(),[m()]),{...a('Aura Burn'),lethal:false}),null));
