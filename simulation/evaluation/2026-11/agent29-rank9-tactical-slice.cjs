@@ -255,7 +255,7 @@ module.exports = (function build() {
   }
   function select(prompt,choices,n,reason) {
     if(!choices.length||choices.length!==n)return {kind:'abstain',reasonCode:reason};
-    const m=M(prompt), multi=['pokemon','card-combination','prize-slots','energy-payment','card-order'].includes(m.selectionType);
+    const m=M(prompt), multi=['pokemon','card-combination','prize-slots','energy-payment','energy-transfers','card-order'].includes(m.selectionType);
     if(multi) {
       if(!Number.isSafeInteger(m.minimumCount)||!Number.isSafeInteger(m.maximumCount)||n<m.minimumCount||n>m.maximumCount)return {kind:'abstain',reasonCode:'BAD_CARD_SELECTION_BOUNDS'};
       return {kind:'select-choices',tokens:choices.map(c=>c.token)};
@@ -1053,6 +1053,29 @@ function bombPlanner(o,sourceBenchIndex){
       const supporterFree=o.ownTurnResources?.supporterPlayedTurn===0&&!o.ownTurnResources?.supporterPlayLocked&&!own?.publicTurnRestrictions?.supporterPlayLocked;
       const rope=items.find(x=>x.kind==='play-card'&&ropeCard(x)),rp=rope?ropePlan(o):null,ropeScore=rp?.score??0;
       const prep=best(items,x=>prospectivePreparation(o,x)),prepScore=prep?prospectivePreparation(o,prep):0;
+      // This is an executable continuation, not the earlier unsupported
+      // Bomb opportunity proxy. Each live root action must identify the
+      // actual Electrode-GX slot whose own Prize liability will be paid.
+      const bombOptions=items.filter(x=>x.kind==='use-ability'&&
+        M(x).abilityName==='Extra Energy Bomb'&&
+        /^Electrode-GX CES 48\b/i.test(name(x))&&
+        ['bench','active'].includes(M(x).sourceZone))
+        .map(action=>{
+          const m=M(action),idx=m.sourceZone==='active'?-1:
+            Number.isSafeInteger(m.sourceIndex)?m.sourceIndex:null;
+          const plan=idx===null?null:bombPlanner(o,idx);
+          return {action,plan,score:plan?.score??0};
+        });
+      const bomb=best(bombOptions,x=>x.score);
+      const bombScore=bomb?.score??0;
+      if(bomb&&bomb.plan&&prepScore<1000&&
+        bombScore>Math.max(directScore,retScore,ropeScore,
+          supporterFree&&g?pair?.score??0:0,prepScore,400)){
+        chain={kind:'bomb',turn:o.globalTurn,sequence:r.sequence,
+          required:bomb.plan.required,
+          assignments:bomb.plan.assignments.map(a=>({...a}))};
+        return {kind:'select-action',token:bomb.action.token};
+      }
       if(prepScore>=1000&&Math.max(retScore,ropeScore,supporterFree&&g?pair?.score??0:0)<1000)return {kind:'select-action',token:prep.token};
       const hh=best(items,x=>horrorPreparation(o,x)),hhScore=hh?horrorPreparation(o,hh):0;
       if(hhScore>0&&Math.max(directScore,retScore,ropeScore,supporterFree&&g?pair?.score??0:0)<400)return {kind:'select-action',token:hh.token};
@@ -1106,6 +1129,32 @@ function bombPlanner(o,sourceBenchIndex){
       if(chain?.kind==='retreat'){
         const d=retreatPayment(r,chain);chain=null;
         return d??{kind:'abstain',reasonCode:'UNTRUSTED_ENERGY_SELECTION'};
+      }
+      if(chain?.kind==='bomb'){
+        const m=M(p),source=p.source;
+        if(chain.turn!==o.globalTurn||r.sequence!==chain.sequence+1||
+           p.promptType!=='AttachEnergyPrompt'||source?.sourceKind!=='card-effect'||
+           source.classification!=='actor-choice'||
+           name(source.sourcePrinting)!=='Electrode-GX CES 48'||
+           source.effectName!=='Extra Energy Bomb'||m.selectionType!=='energy-transfers'||
+           m.minimumCount!==chain.required||m.maximumCount!==chain.required||
+           !Array.isArray(chain.assignments)||chain.assignments.length!==chain.required)
+          return fail('UNTRUSTED_PROMPT_SOURCE');
+        const selected=[];
+        for(const assignment of chain.assignments){
+          const found=choices.filter(c=>c.kind==='energy'&&
+            M(c).ownerSeat==='actor'&&M(c).isOwnerVisible===true&&
+            M(c).sourceZone==='discard'&&
+            M(c).selectionIndex===assignment.discardIndex&&
+            M(c).zone===assignment.zone&&M(c).slotIndex===assignment.index&&
+            name(c)===assignment.printing);
+          if(found.length!==1)return fail('UNTRUSTED_ENERGY_SELECTION');
+          selected.push(found[0]);
+        }
+        if(new Set(selected.map(c=>c.token)).size!==chain.required)
+          return fail('UNTRUSTED_ENERGY_SELECTION');
+        chain=null;
+        return select(p,selected,selected.length,'UNTRUSTED_ENERGY_SELECTION');
       }
       if(!chain){const setup=chooseSetup(r);if(setup)return setup;const claw=chooseClaw(r);if(claw)return claw;const d=chooseDevelopment(r);if(d)return d;}
       if(!chain||chain.turn!==o.globalTurn||r.sequence!==chain.sequence+1||
