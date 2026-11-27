@@ -1,0 +1,111 @@
+{
+  "version": "agent4-rank29-opening-ghala-mc-v1",
+  "sourceRank": 29,
+  "sourceBlobSha1": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "seed": 20261127,
+  "trials": 150000,
+  "mulliganMean": 1.5014466666666666,
+  "connectorCount": {
+    "held-gh": 34423,
+    "tag-gh": 27269,
+    "none": 88308
+  },
+  "probability": {
+    "dcePrized": {
+      "successes": 15167,
+      "trials": 150000,
+      "p": 0.10111333333333333,
+      "wilson95": [
+        0.09959786892335798,
+        0.102649227976151
+      ]
+    },
+    "mountainPrized": {
+      "successes": 15119,
+      "trials": 150000,
+      "p": 0.10079333333333333,
+      "wilson95": [
+        0.09928002197558025,
+        0.1023270913137333
+      ]
+    },
+    "firstTurnHandBoth": {
+      "successes": 1906,
+      "trials": 150000,
+      "p": 0.012706666666666666,
+      "wilson95": [
+        0.012152200634516072,
+        0.013286090956624445
+      ]
+    },
+    "reachableRelaxed": {
+      "successes": 50918,
+      "trials": 150000,
+      "p": 0.33945333333333333,
+      "wilson95": [
+        0.33706115502783635,
+        0.34185373454036133
+      ]
+    },
+    "reachableCheap": {
+      "successes": 32894,
+      "trials": 150000,
+      "p": 0.21929333333333334,
+      "wilson95": [
+        0.21720662109500158,
+        0.22139442284480962
+      ]
+    },
+    "unaffordableRelaxed": {
+      "successes": 0,
+      "trials": 150000,
+      "p": 0,
+      "wilson95": [
+        0,
+        0.00002560906963004995
+      ]
+    },
+    "unaffordableCheap": {
+      "successes": 18024,
+      "trials": 150000,
+      "p": 0.12016,
+      "wilson95": [
+        0.11852427124764098,
+        0.12181518345037556
+      ]
+    },
+    "missingTarget": {
+      "successes": 28964,
+      "trials": 150000,
+      "p": 0.19309333333333334,
+      "wilson95": [
+        0.19110365260891196,
+        0.19509873324614788
+      ]
+    },
+    "noConnector": {
+      "successes": 70118,
+      "trials": 150000,
+      "p": 0.46745333333333333,
+      "wilson95": [
+        0.4649292627090057,
+        0.4699790709373667
+      ]
+    }
+  },
+  "scope": {
+    "startingHand": "Seven cards redraw whole opening until >=1 Iron Thorns ex",
+    "prizePlacement": "Six cards after the accepted seven",
+    "firstTurn": "One normal turn draw after Prize placement; no opposing mulligan bonuses",
+    "reachable": "Both DCE and Thunder held; or G&H held/Tag Call fetchable, mandatory Stadium search, optional two-card discard if DCE not in hand",
+    "cheapPayment": "Hand-picked cheap repeated Item/Energy proxy; not empirical player decision",
+    "relaxedPayment": "Any two non-reserved cards after active/bench placement and connector use",
+    "excluded": "Trainers Mail, Speed draw, Camping Gear, opposing locks and counterplay, game turns and outcomes",
+    "qualifiedGames": 0
+  },
+  "explanatoryCaveat": "MC estimates source-list opening reachability only, not wins, policy optimality, native game legality, or 99.5 target.",
+  "exec": {
+    "method": "JS V8 tool runtime exact branch source via new Function; reproducible Node script",
+    "script": "simulation/evaluation/2026-11/agent4-rank29-opening-line-montecarlo.cjs"
+  }
+}
