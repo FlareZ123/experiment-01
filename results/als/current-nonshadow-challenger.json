@@ -1,0 +1,39 @@
+{
+  "schema": "current-nonshadow-challenger",
+  "as_of": "2026-11-27",
+  "selected": {
+    "name": "New Moon Tool Jammer v2",
+    "manifest": "results/als/new-moon-tool-jammer-v2-60.json",
+    "identityCountSha256": "aebe9a142e8492be929316bff4b871375e3e478945e01f8c5844037332634fe6",
+    "humanIndex": "results/als/CURRENT_NONSHADOW_CHALLENGER.md"
+  },
+  "supersedes": {
+    "name": "New Moon Lockbreaker v1",
+    "manifest": "results/als/new-moon-lockbreak-english-proxy-60.json",
+    "reason": "Rank15 Hooded BUS Vileplume under AOR Item lock exposed a Tool-class recovery gap; v2 swaps Sky Field #2 for Tool Jammer."
+  },
+  "paperGate": {
+    "parentContract": "results/aichi-2026/2026-11/agent1-newmoon-candidate-policy-acceptance-v2.json",
+    "parentCases": 135,
+    "v2Delta": "results/aichi-2026/2026-11/agent1-newmoon-tool-jammer-v2-acceptance-delta-v1.json",
+    "v2Cases": 15,
+    "combinedCases": 150
+  },
+  "evidenceStatus": {
+    "authenticatedSourceLists": 29,
+    "missingExactRanks": [
+      23,
+      25,
+      28
+    ],
+    "nativeGames": 0,
+    "competitivelyQualifiedMatchups": 0,
+    "claim99Point5": false,
+    "finalFixedDeck": false
+  },
+  "nextRequired": [
+    "Implement/pass the 150 actor-visible paper cases or document intentional failures.",
+    "Test rank15 temporary-unlock conversion against strongest Guzma/Jet/retreat re-lock play.",
+    "Only when permitted, run native/full-game evidence across the authenticated field."
+  ]
+}
