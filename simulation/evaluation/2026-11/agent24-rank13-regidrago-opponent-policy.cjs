@@ -408,6 +408,33 @@ function scoreDirectAttackChoice(choice, observation) {
   return -1;
 }
 
+function wideBlastTerminal(observation) {
+  const own = observation?.ownPublic ?? {};
+  const opponent = observation?.opponentPublic ?? {};
+  const needed = own.prizeCount;
+  if (!Number.isSafeInteger(needed) || needed < 1 || needed > 6 ||
+      !matches(own.active, PRINT.regidragoVstar)) return false;
+  // These are the fixed Hood profile's printings; the printed deck has no
+  // Bench-damage protection ability. A tool-bearing target is not credited,
+  // since the projected HP may not fully describe modifier resolution.
+  const fixedPrizes = {
+    'Shadow Rider Calyrex V CRE 74':2,'Shadow Rider Calyrex VMAX CRE 75':3,
+    "Lillie's Clefairy ex JTG 56":2,'Tapu Lele-GX GRI 60':2,
+    'Trevenant & Dusknoir-GX SMP 217':3,'Latias ex SSP 76':2,
+    'Dialga-GX UPR 100':2,'Mimikyu GRI 58':1,'Girafarig LOT 94':1,
+    'Marshadow UNB 81':1,'Radiant Eternatus CRZ 105':1
+  };
+  const board=boardSlots(opponent);
+  if (!opponent.active || board.some(p=>!Object.hasOwn(fixedPrizes,printingValue(p)))) return false;
+  // Only claim actual bench KOs under the printed ordinary-damage model.
+  // Unknown/modified targets and off-profile boards are not counted.
+  const prizes=list(opponent.bench).filter(Boolean).reduce((sum,p)=>{
+    const hp=remainingHp(p);
+    return sum+(hp>0&&hp<=50&&Array.isArray(p.tools)&&p.tools.length===0?fixedPrizes[printingValue(p)]:0);
+  },0);
+  return prizes>=needed;
+}
+
 function chooseRank13ApexAttack(choices, observation) {
   const own = observation?.ownPublic ?? {};
   const opponent = observation?.opponentPublic ?? {};
@@ -433,6 +460,9 @@ function chooseRank13ApexAttack(choices, observation) {
       return { choice, index, score: list(target?.printed?.subtypes).includes('Basic') ? 135 : 55 };
     }
     if (name === 'Wide Blast') {
+      if (matches(choice, PRINT.salamence) && meta.sourceZone === 'discard' &&
+          meta.ownerSeat === 'actor' && discardHas(own, PRINT.salamence) &&
+          wideBlastTerminal(observation)) return {choice,index,score:400};
       const lowBench = list(opponent.bench).filter(pokemon => {
         const hp = remainingHp(pokemon);
         return hp > 0 && hp <= 50;
@@ -492,7 +522,10 @@ function scoreAttack(item, observation) {
   const name = item?.attackName ?? metadata(item).sourceAttack ?? item?.label ?? '';
   const own = observation?.ownPublic ?? {};
   const opponent = observation?.opponentPublic ?? {};
-  if (name === 'Apex Dragon') return hasDragonPayload(observation) ? 235 : 0;
+  if (name === 'Apex Dragon') {
+    if (discardHas(own,PRINT.salamence) && wideBlastTerminal(observation)) return 400;
+    return hasDragonPayload(observation) ? 235 : 0;
+  }
   if (name === 'Itchy Pollen') return Number(opponent.handCount ?? 0) > 0 ? 225 : 190;
   if (name === 'Celestial Roar') {
     return Number(own.deckCount ?? 0) >= 3 && ownEnergyCount(observation) < 4 ? 135 : 65;

@@ -735,3 +735,35 @@ test('rank13 Trifrost selects actual lethal targets before nonlethal priority, b
     }
   }
 });
+
+test('rank13 terminal Wide Blast outranks lock/setup but never credits Active or Band on Bench', () => {
+  const S='Regidrago VSTAR SIT 136', SAL='Salamence ex JTG 114', NO='Noivern ex PAL 153';
+  const full=pokemon('Trevenant & Dusknoir-GX SMP 217',{hp:270,types:['Psychic'],subtypes:['Basic','TAG TEAM','GX']});
+  const wounded=pokemon('Shadow Rider Calyrex VMAX CRE 75',{hp:320,damage:270,types:['Psychic'],subtypes:['VMAX']});
+  const outside=pokemon('Shadow Rider Calyrex VMAX CRE 75',{hp:320,damage:260,types:['Psychic'],subtypes:['VMAX']});
+  const tool=pokemon('Shadow Rider Calyrex VMAX CRE 75',{hp:320,damage:270,types:['Psychic'],subtypes:['VMAX'],tools:['Big Charm SSH 158']});
+  for(const seat of [0,1]){
+    for(const c of [
+      {name:'final three',active:full,bench:[wounded],expected:'wide',root:'apex',sal:true},
+      {name:'sixty remaining',active:full,bench:[outside],expected:'echo',root:'legacy',sal:true},
+      {name:'Active not hit',active:wounded,bench:[full],expected:'echo',root:'legacy',sal:true},
+      {name:'unknown tool modifier',active:full,bench:[tool],expected:'echo',root:'legacy',sal:true},
+      {name:'payload absent',active:full,bench:[wounded],expected:'echo',root:'legacy',sal:false},
+    ]){
+      const ownPlayer={active:pokemon(S,{subtypes:['VSTAR'],abilities:['Legacy Star'],energies:['Double Dragon Energy ROS 97','Grass Energy MEE 9'],tools:['Muscle Band XY 121']}),discard:c.sal?[SAL,NO]:[NO],prizeCount:3};
+      const opponentPlayer={active:c.active,bench:c.bench,stadium:['Dimension Valley XY 80']};
+      const choices=[
+        {token:'wide',kind:'attack',printing:SAL,label:SAL+' — Wide Blast',publicMetadata:{choiceIndex:0,sourceAttack:'Wide Blast',sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true}},
+        {token:'echo',kind:'attack',printing:NO,label:NO+' — Dominating Echo',publicMetadata:{choiceIndex:1,sourceAttack:'Dominating Echo',sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true}}
+      ];
+      const req=promptRequest({seat,promptType:'ChooseAttackPrompt',source:actorChoiceSource(S,'Apex Dragon'),choices,observation:{ownPlayer,opponentPlayer}});
+      assert.deepEqual(checkedDecision(req),{kind:'select-choice',token:c.expected},c.name+' prompt seat '+seat);
+      const root=rootRequest({seat,ownPlayer,opponentPlayer,items:[
+        action('legacy','use-ability',S,{abilityName:'Legacy Star'}),
+        {token:'apex',kind:'attack',label:'Apex Dragon',attackName:'Apex Dragon'},
+        action('pass','pass',null)
+      ]});
+      assert.deepEqual(checkedDecision(root),{kind:'select-action',token:c.root},c.name+' root seat '+seat);
+    }
+  }
+});
