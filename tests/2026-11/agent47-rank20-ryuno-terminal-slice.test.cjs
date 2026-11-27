@@ -70,6 +70,12 @@ test('pinned native-receipt DDE+Grass attack, one-DDE payment, Temple negative',
   assert.deepEqual(decide(s),{kind:'select-choices',tokens:['dde']});
   s.observation.opponentPublic.stadium=['Temple of Sinnoh ASR 155'];assert.equal(decide(s),null);
 });
+test('ASC152 native manager printing M2a identifies exact source donor',()=>{
+  const s=attackPrompt(state());s.observation.ownPublic.discard=['Mega Dragonite ex M2a'];
+  s.prompt.source={classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:'Regidrago VSTAR SIT 136',effectName:'Apex Dragon'};
+  s.prompt.choices[1].printing='Mega Dragonite ex M2a';
+  assert.deepEqual(decide(s),{kind:'select-choice',token:'ryuno'});
+});
 test('actual existing Regidrago worker label-only attack-choice offers Ryuno',()=>{
   const s=attackPrompt(state());
   s.prompt.source={classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:'Regidrago VSTAR SIT 136',effectName:'Apex Dragon'};
