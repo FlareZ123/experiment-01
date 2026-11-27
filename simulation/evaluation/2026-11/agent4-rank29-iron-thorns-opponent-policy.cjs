@@ -1157,6 +1157,11 @@ function scorePlayCard(item, request) {
       !boardHasTool(own, PRINT.toolJammer) &&
       !hand.some(value => matches(value, PRINT.toolJammer));
     const realism = guzmaHalaPaymentRealism(observation);
+    if (!realism) {
+      // The two-card discard is optional: even with protected singleton
+      // resources, Guzma & Hala may still take its mandatory Stadium only.
+      return needThunder ? 90 : 0;
+    }
     return needDce || needThunder || needJammer ? Math.round(140 * realism) : 0;
   }
   if (matches(card, PRINT.lusamine)) {
