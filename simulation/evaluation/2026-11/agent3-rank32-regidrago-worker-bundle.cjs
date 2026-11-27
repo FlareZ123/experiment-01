@@ -5,7 +5,7 @@
  * Pin the bundle blob after independent review before any native worker use.
  * agent43-regidrago-apex-choice.cjs 65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b
  * agent1-rank12-regidrago-opponent-policy-v2.cjs bfaee2205ea9d0c3b618948fe24ff81075d4ccda
- * agent3-rank32-regidrago-opponent-policy.cjs 088652dedb66b7043600d4b55dbf7203ed73ca69
+ * agent3-rank32-regidrago-opponent-policy.cjs 9f33693b3eeb18a2976546249bbf7a8762bd96b9
  */
 const __rank32Modules = Object.freeze({
 "./agent43-regidrago-apex-choice.cjs": function(require, module, exports) {
@@ -1050,6 +1050,43 @@ function context(prompt) {
     prompt?.publicMetadata?.sourceEffect, prompt?.publicMetadata?.effectName]
     .filter(Boolean).join(' ').toLowerCase();
 }
+function nativeOwnerTarget(action, observation) {
+  const meta=action?.publicMetadata ?? {};
+  if (meta.targetSeat !== 'actor' || typeof action.targetPrinting !== 'string') return null;
+  const target=meta.targetZone === 'active' ? observation?.ownPublic?.active :
+    (meta.targetZone === 'bench' && Number.isSafeInteger(meta.targetIndex) ?
+      list(observation?.ownPublic?.bench)[meta.targetIndex] : null);
+  return target && print(target) === action.targetPrinting ? target : null;
+}
+function apexTypedDeficit(pokemon, observation) {
+  const energies=list(pokemon?.energies);
+  const basicsGrass=energies.filter(e=>/^Grass Energy\b/i.test(print(e))).length;
+  const basicsFire=energies.filter(e=>/^Fire Energy\b/i.test(print(e))).length;
+  const temple=list(observation?.opponentPublic?.stadium)
+    .concat(list(observation?.ownPublic?.stadium))
+    .some(s=>/^Temple of Sinnoh ASR 155\b/i.test(print(s)));
+  const specialDde=temple?0:energies.filter(e=>/^Double Dragon Energy ROS 97\b/i.test(print(e))).length;
+  return Math.max(0,Math.max(0,2-basicsGrass)+Math.max(0,1-basicsFire)-2*specialDde);
+}
+function scoreEnergyAttachment(action, observation) {
+  const card=print(action);
+  if (!/^(?:Grass Energy|Fire Energy|Double Dragon Energy)\b/i.test(card)) return null;
+  const target=nativeOwnerTarget(action,observation);
+  if (!target || !/^Regidrago V(?:STAR)? SIT 13[56]\b/i.test(print(target))) return 0;
+  const own=observation?.ownPublic ?? {};
+  const isVstar=/^Regidrago VSTAR SIT 136\b/i.test(print(target));
+  if (!isVstar && slots(own).some(p=>/^Regidrago VSTAR SIT 136\b/i.test(print(p))))
+    return 0;
+  const before=apexTypedDeficit(target,observation);
+  const after=apexTypedDeficit({...target,energies:[...list(target.energies),card]},observation);
+  if (after >= before) return 0;
+  // Regidrago requires Grass+Grass+Fire. DDE counts as two flexible typed
+  // Energy only while Temple of Sinnoh is not suppressing its effect.
+  const reduction=before-after;
+  const isActive=target===own.active;
+  return 220 + (reduction*20) + (isVstar?22:0) +
+    (isActive?10:0) + (after===0?30:0);
+}
 function scoreAction(action, request) {
   const obs = request?.observation ?? {};
   const own = obs.ownPublic ?? {};
@@ -1063,6 +1100,8 @@ function scoreAction(action, request) {
     return countDonors(own) ? 230 : 0;
   }
   if (action.kind === 'play-card') {
+    const attachScore=scoreEnergyAttachment(action,obs);
+    if (attachScore !== null) return attachScore;
     if (/^(Ultra Ball MEG 131|Mysterious Treasure FLI 113|Quick Ball FST 237)\b/i.test(name)) {
       const required = /^Ultra Ball\b/i.test(name) ? 2 : 1;
       const safe = list(obs.ownHand).filter(card=>print(card)!==name)
@@ -1084,9 +1123,15 @@ function scoreAction(action, request) {
         active?.publicRestrictions?.cannotRetreatNextTurn === true ||
         own.publicTurnRestrictions?.attackLockTurnsRemaining > 0 ? 155 : 0;
     }
-    const temple = list(opp.stadium).some(x=>/^Temple of Sinnoh ASR 155\b/i.test(print(x)));
-    const threatenedDde = temple && slots(own).some(p=>
+    const temple = list(opp.stadium).concat(list(own.stadium))
+      .some(x=>/^Temple of Sinnoh ASR 155\b/i.test(print(x)));
+    const attachedDde = slots(own).some(p=>
       list(p.energies).some(e=>/^Double Dragon Energy ROS 97\b/i.test(print(e))));
+    const pendingDde = list(obs.ownHand).some(e=>
+      /^Double Dragon Energy ROS 97\b/i.test(print(e))) &&
+      slots(own).some(p=>/^Regidrago V(?:STAR)? SIT 13[56]\b/i.test(print(p)) &&
+        apexTypedDeficit(p,obs)>0);
+    const threatenedDde = temple && (attachedDde || pendingDde);
     const ownUnusedBasicSupport = slots(own).some(p =>
       /Dedenne-GX|Crobat V|Tapu Lele-GX|Fezandipiti ex/i.test(print(p)) &&
       list(p?.abilityDetails).length > 0);
@@ -1333,7 +1378,7 @@ function createPolicy({role,seat,policyVersion,config,rng}) {
 }
 module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
   createPolicy,scoreAction,promptDecision,bestAction,chooseRank32Apex,donorScore,
-  protocolSafeDecision};
+  protocolSafeDecision,apexTypedDeficit,scoreEnergyAttachment,nativeOwnerTarget};
 
 }
 });
