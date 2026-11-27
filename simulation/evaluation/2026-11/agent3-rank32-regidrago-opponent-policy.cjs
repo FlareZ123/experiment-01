@@ -228,9 +228,12 @@ function targetFromGustChoice(choice,observation) {
   const meta=choice?.publicMetadata??{};
   const player=meta.ownerSeat==='opponent'?observation?.opponentPublic:
     (meta.ownerSeat==='actor'?observation?.ownPublic:null);
-  const index=Number.isSafeInteger(meta.selectionIndex)?meta.selectionIndex:
-    (Number.isSafeInteger(meta.targetIndex)?meta.targetIndex:null);
-  const zone=meta.sourceZone??meta.targetZone;
+  // V3 ChoosePokemon projection's selectionIndex is the ordinal in
+  // currently offered choices, not the real board's bench slot.
+  const index=Number.isSafeInteger(meta.benchIndex)?meta.benchIndex:
+    (Number.isSafeInteger(meta.targetIndex)?meta.targetIndex:
+      (Number.isSafeInteger(meta.slotIndex)?meta.slotIndex:null));
+  const zone=meta.targetZone??meta.sourceZone;
   if(player&&zone==='bench'&&index!==null)
     return list(player.bench)[index]??null;
   if(player&&zone==='active')return player.active;
