@@ -348,3 +348,47 @@ test('Sky Field setup for lethal attack recognizes Unown, not just Clefairy, as 
   r.observation.opponentPublic.active.damage=135; // remaining 185
   assert.equal(policy(0).decide(r).token,'sky');
 });
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' public live Fairy Zone enables 280 Regidrago VSTAR terminal Rondo at six Bench occupants',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active={printing:clef,hp:190,damage:0,
+      abilities:['Fairy Zone'],abilitySuppressions:[],energies:[psychic,psychic]};
+    r.observation.ownPublic.bench=[b('Unown AOR'),b('Unown AOR'),b('Unown AOR'),
+      b('Latias ex SSP'),b('Dedenne-GX UNB')];
+    r.observation.opponentPublic.active={printing:'Regidrago VSTAR SIT',hp:280,
+      damage:0,printed:{types:['DRAGON'],weakness:[]}};
+    r.observation.opponentPublic.bench=[b('Regidrago V SIT')];
+    r.observation.ownPublic.prizeCount=2;
+    r.observation.ownPublic.deckCount=25;
+    r.actionFrontier.items=[root('play-card',"Trainers' Mail ROS",'mail'),
+      {...root('attack',clef,'rondo'),attackName:'Full Moon Rondo'}];
+    assert.deepEqual(projectedRondo(r.observation),{damage:280,remaining:280,total:6});
+    assert.equal(policy(seat).decide(r).token,'rondo');
+    r.observation.ownPublic.active.abilitySuppressions=['ABILITY_LOCKED'];
+    assert.deepEqual(projectedRondo(r.observation),{damage:140,remaining:280,total:6});
+    assert.equal(policy(seat).decide(r).token,'mail');
+    r.observation.ownPublic.active.abilitySuppressions=[];
+    r.observation.opponentPublic.stadium=['Path to the Peak CRE'];
+    assert.deepEqual(projectedRondo(r.observation),{damage:140,remaining:280,total:6});
+    assert.equal(policy(seat).decide(r).token,'mail');
+  });
+  test('seat '+seat+' live Fairy Zone boosts 3-Prize Dragon gust threshold but not when locked',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active=b('Unown AOR');
+    r.observation.ownPublic.bench=[{printing:clef,abilities:['Fairy Zone'],
+      abilitySuppressions:[],energies:[psychic,psychic]},
+      b('Latias ex SSP'),b('Unown AOR')];
+    r.observation.opponentPublic.active={printing:'Snorlax PGO',hp:150,damage:0,tools:[]};
+    r.observation.opponentPublic.bench=[{
+      printing:'Regidrago VSTAR SIT',hp:280,damage:100,
+      printed:{types:['DRAGON'],weakness:[]}}];
+    r.observation.ownHand=['Guzma BUS'];
+    r.actionFrontier.items=[root('play-card','Guzma BUS','gust')];
+    // 20*(1+3+1)*2 = 200; victim has 180 HP left.
+    assert.equal(policy(seat).decide(r).token,'gust');
+    r.observation.ownPublic.bench[0].abilitySuppressions=['LOCKED'];
+    assert.equal(policy(seat).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
+  });
+}
