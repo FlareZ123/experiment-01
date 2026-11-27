@@ -1,4 +1,8 @@
 
+## 2026-11-27T02:24:44.441Z — K1 adapter fixtures and prompt lifecycle
+- results/aichi-2026/2026-11/agent1-mirror-public-witness-tests-20261127.cjs expanded to 98 assertions / 58 root observations; K1 Fog, Compressor→Seeker→Guzma, Star, Arven two-category/filtered prompts, Teammates prior-KO, malformed/stale K1. Added root sequence binding, require later prompt sequence same actor/turn. Caller must clear intent after action's mandatory prompt chain. Native runner remains untouched.
+
+
 ## 2026-11-27T02:24:07.907Z — shortest deterministic terminal witnesses
 - Optional `shortestWitness:true` minimizes root actions in a fully explored deterministic model; adapter `optimizeWitness:true` first obtains fast certificate, then bounded optimization, preserving the original certificate if optimization caps. This fixes valid but wasteful Arven→Fog+Stone→Star→Float 8-action route versus Arven→Fog+Float 6 actions. 87 planner cases passed. No production changes.
 

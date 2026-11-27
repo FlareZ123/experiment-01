@@ -97,7 +97,7 @@ function knownDoor(req,row){
 function project(req,profile,opts={}){
  try{
   const v=req?.observation,t=v?.ownTurnResources;
-  requireTrue(req?.prompt===null&&v?.decisionKind==='owner-root'&&v.phase===2&&integer(v.globalTurn)&&v.globalTurn>=2&&v.actorSeat===req.seat&&v.turnSeat===req.seat,'not normal actor turn root');
+  requireTrue(integer(req?.sequence)&&req.prompt===null&&v?.decisionKind==='owner-root'&&v.phase===2&&integer(v.globalTurn)&&v.globalTurn>=2&&v.actorSeat===req.seat&&v.turnSeat===req.seat,'not normal actor turn root');
   requireTrue(t&&integer(t.supporterPlayedTurn)&&[0,1,false,true].includes(t.retreatedTurn)&&typeof t.energyPlayedTurn==='boolean'&&typeof t.stadiumPlayedTurn==='boolean'&&typeof t.vstarUsed==='boolean','unknown turn-resource flags');
   requireTrue(opts.mirrorHistoryCertified===true,'mirror-only public-history model not certified');
   const own=v.ownPublic,opp=v.opponentPublic;
@@ -148,7 +148,7 @@ function project(req,profile,opts={}){
    flags:{manual:!t.energyPlayedTurn&&!lock('energyPlayLocked'),retreat:t.retreatedTurn===0||t.retreatedTurn===false,supporter:t.supporterPlayedTurn===0&&!lock('supporterPlayLocked'),items:!lock('itemPlayLocked'),tools:!lock('toolPlayLocked'),stadium:!t.stadiumPlayedTurn&&!lock('stadiumPlayLocked'),vstar:!t.vstarUsed&&!r.vstarUsed,priorKO:req.publicEventReceipt?.version==='agent8-public-event-receipt-v3-turn-stamped'&&req.publicEventReceipt.actorSeat===req.seat&&req.publicEventReceipt.turn===v.globalTurn&&req.publicEventReceipt.priorOpponentTurnKO?.any===true,safeValley:a.length<=6&&b.length<=6,safeFloat:true,safeStone:knowledge.mode==='K1',safeRedraw:false,oppHandNonempty:opp.handCount>0},
    hand:countCategories(v.ownHand),discard:countCategories(own.discard),
    belief:knowledge};
-  return {status:'ok',input,own:a,opp:b,actorSeat:req.seat,turn:v.globalTurn};
+  return {status:'ok',input,own:a,opp:b,actorSeat:req.seat,turn:v.globalTurn,sequence:req.sequence};
  }catch(e){return {status:'unsupported',reason:e.message};}
 }
 function matchesAddress(m,row,prefix){
@@ -177,7 +177,7 @@ function matchRoot(req,proj,move){
 }
 function rootIntent(proj,move,rootToken){
  const ref=(rows,i)=>({zone:rows[i].zone,index:rows[i].index,printing:rows[i].slot.printing});
- const out={actorSeat:proj.actorSeat,turn:proj.turn,kind:move.kind,rootToken};
+ const out={actorSeat:proj.actorSeat,turn:proj.turn,rootSequence:proj.sequence,kind:move.kind,rootToken};
  if(move.kind==='guzma'){out.opponent=ref(proj.opp,move.opp);out.promote=ref(proj.own,move.promote);}
  if(move.kind==='door'){out.source=ref(proj.own,move.source);out.target=ref(proj.own,move.target);}
  if(move.kind==='retreat')out.pay=move.pay;
@@ -204,7 +204,7 @@ function resolvePrompt(req,intent){
  // Actor-visible exact choices only. This is a proposal for a pure
  // policy integration, not authority to execute a native Store action.
  const p=req?.prompt,v=req?.observation;
- if(!intent||!p||req.seat!==intent.actorSeat||v?.actorSeat!==req.seat||v.globalTurn!==intent.turn||p.actingSeat!==req.seat||v.decisionKind!=='owner-prompt')return null;
+ if(!intent||!p||req.seat!==intent.actorSeat||v?.actorSeat!==req.seat||v.globalTurn!==intent.turn||!integer(req.sequence)||req.sequence<=intent.rootSequence||p.actingSeat!==req.seat||v.decisionKind!=='owner-prompt')return null;
  const meta=p.publicMetadata??{},source=p.source??{},choices=p.choices;
  if(source.classification!=='actor-choice'||!Array.isArray(choices)||meta.isSecret===true||!integer(meta.minimumCount)||!integer(meta.maximumCount))return null;
  const validChoice=c=>typeof c.token==='string'&&c.publicMetadata?.isOwnerVisible===true;

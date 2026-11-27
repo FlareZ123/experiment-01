@@ -32,17 +32,34 @@ function receipt(r,used){
  const one=(s,z,i)=>s?{printing:s.printing,movedFromBenchToActiveThisTurn:null,knownAbilityUse:s.abilities.includes('Underworld Door')?[{name:'Underworld Door',usedThisTurn:used(z,i)}]:[]}:null;
  r.publicEventReceipt={version:'agent8-public-event-receipt-v3-turn-stamped',actorSeat:r.seat,turn:r.observation.globalTurn,ownerActive:one(r.observation.ownPublic.active,'active',0),ownerBench:r.observation.ownPublic.bench.map((s,i)=>one(s,'bench',i)),priorOpponentTurnKO:{any:null,byAttack:null},opponentLastTurnAttack:null,opponentLastTurnTurn:null,opponentLastTurnAttacks:null};
 }
-const run=(r,profile='hood')=>adapter.recommend(r,profile,{mirrorHistoryCertified:true});
+const run=(r,profile='hood',opts={})=>adapter.recommend(r,profile,{mirrorHistoryCertified:true,...opts});
+function known(r,profile='hood',prizedNames=null){
+ const counts=adapter.counts(profile),v=r.observation,own=v.ownPublic;
+ const seen=[...v.ownHand,...own.discard,...own.lostZone,...own.stadium,...own.resolvingSupporter,...[own.active,...own.bench.filter(Boolean)].flatMap(s=>[...s.evolutionPrintings,...s.energies,...s.tools])];
+ for(const p of seen)counts[adapter.card(p).name]--;
+ for(const n of prizedNames??Array(own.prizeCount).fill('Mysterious Treasure')){if(counts[n]<=0)throw Error('bad test prize assignment');counts[n]--;}
+ const knownPrintings=[];
+ for(const [n,k] of Object.entries(counts))if(k>0){
+  const p=adapter.PK.find(x=>x[0]===n)??adapter.TR.find(x=>x[0]===n);
+  knownPrintings.push({printing:n==='Psychic Energy'?E:n+' '+p[1]+' '+p[2],copies:k});
+ }
+ v.ownerK1={epoch:4,exactMembershipKnown:true,knownPrintings,invalidationReason:null};
+ return r;
+}
+function deckChoice(printing,token,index){return {kind:'card',token,printing,label:printing,publicMetadata:{selectionIndex:index,selectedCount:1,sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true}};}
+function searchPrompt(r,source,effect,printingList,min=1,max=1){
+ return prompt(r,'ChooseCardsPrompt',source,effect,[...printingList.map((p,i)=>deckChoice(p,'deck-'+i,i)),...(min===0?[{kind:'empty-selection',token:'empty',label:'none'}]:[])],{selectionType:'card-combination',sourceZone:'deck',ownerSeat:'actor',isOwnerVisible:true,minimumCount:min,maximumCount:max,allowCancel:false,isSecret:false});
+}
 function prompt(r,type,sourcePrinting,effectName,choices,meta){
  const observation={...r.observation,decisionKind:'owner-prompt',pendingPromptType:type};
- return {...r,observation,prompt:{schema:'aichi-owner-prompt-projection-v3',actingSeat:r.seat,promptType:type,description:null,source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting,effectName},choices,publicMetadata:meta},actionFrontier:{schema:'aichi-action-frontier-v1',items:[]}};
+ return {...r,sequence:r.sequence+1,observation,prompt:{schema:'aichi-owner-prompt-projection-v3',actingSeat:r.seat,promptType:type,description:null,source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting,effectName},choices,publicMetadata:meta},actionFrontier:{schema:'aichi-action-frontier-v1',items:[]}};
 }
 const pokeChoice=(r,seat,index,token)=>({kind:'pokemon',token,printing:(seat==='actor'?r.observation.ownPublic:r.observation.opponentPublic).bench[index].printing,label:'choice',publicMetadata:{ownerSeat:seat,targetZone:'bench',benchIndex:index,selectionIndex:index,selectedCount:1,isOwnerVisible:true}});
 function selfTest(protocol,profiles){
  let cases=0;const out=[];
  function assert(p,msg){if(!p)throw Error(msg);cases++;}
- function check(r,status,token,profile='hood'){
-  const x=run(r,profile);
+ function check(r,status,token,profile='hood',opts={}){
+  const x=run(r,profile,opts);
   assert(x.status===status&&(!token||x.decision?.token===token),'wanted '+status+' '+token+': '+JSON.stringify(x));
   if(protocol&&token)protocol.validateDecision(x.decision,null,new Set(r.actionFrontier.items.map(z=>z.token)));
   out.push({seat:r.seat,status:x.status,token:x.decision?.token??null,first:x.first?.kind??null});return x;
@@ -84,6 +101,26 @@ function selfTest(protocol,profiles){
   r=req(seat,{active:pokemon(GI),bench:[pokemon(M,6)],target:pokemon(M),targetBench:[pokemon(L)],hand:[SE],discard:[G]});r.actionFrontier.items.push(play(r,0,null,0,'seeker'));check(r,'certified','seeker');
   r.observation.ownPublic.publicTurnRestrictions.itemPlayLocked=true;check(r,'no-guarantee');
   r=req(seat,{active:pokemon(M,5),hand:[E]});assert(adapter.recommend(r,'hood').status==='unsupported','caller history gate');
+  const K1={knownSearchCertified:true},fog='Fog Crystal CRE 140',bc='Battle Compressor PHF 92',seal='Forest Seal Stone SIT 156',ar='Arven SVI 166',team='Teammates PRC 141';
+  r=req(seat,{active:pokemon(M,5),hand:[fog]});known(r);r.actionFrontier.items.push(play(r,0,null,0,'fog'));
+  check(r,'no-guarantee');const fs=check(r,'certified','fog','hood',K1);assert(fs.intent.selection.join(',')==='energy','Fog selection');
+  const fp=searchPrompt(r,fog,'Fog Crystal',[E,V]);const fd=adapter.resolvePrompt(fp,fs.intent);assert(fd?.tokens?.[0]==='deck-0','Fog prompt');if(protocol)protocol.validateDecision(fd,fp.prompt,new Set());
+  fp.sequence=r.sequence;assert(adapter.resolvePrompt(fp,fs.intent)===null,'stale same-sequence prompt');
+  r.observation.ownerK1.invalidationReason='contradiction';check(r,'unsupported',null,'hood',K1);
+  r=req(seat,{active:pokemon(GI),bench:[pokemon(M,6)],target:pokemon(M),targetBench:[pokemon(L)],hand:[bc,SE]});known(r);r.actionFrontier.items.push(play(r,0,null,0,'compressor'),play(r,1,null,0,'seeker'));
+  const cs=check(r,'certified','compressor','hood',K1);assert(cs.intent.selection.includes('guzma'),'Compressor to Guzma');
+  const deck=Array.from(r.observation.ownerK1.knownPrintings).flatMap(x=>Array(x.copies).fill(x.printing));
+  const cprompt=searchPrompt(r,bc,'Battle Compressor',deck,0,3);const cd=adapter.resolvePrompt(cprompt,cs.intent);assert(cd?.tokens?.some(x=>cprompt.prompt.choices.find(c=>c.token===x)?.printing===G),'Compressor prompt');if(protocol)protocol.validateDecision(cd,cprompt.prompt,new Set());
+  r=req(seat,{active:pokemon(M,5,0,[seal]),hand:[]});known(r);r.actionFrontier.items.push({kind:'use-ability',token:'star',actorPrinting:M,publicMetadata:{sourceSeat:'actor',sourceZone:'active',sourceIndex:0,abilityName:'Star Alchemy'}});
+  const ss=check(r,'certified','star','hood',K1);assert(ss.intent.selection.join(',')==='energy','Star choice');
+  const sp=searchPrompt(r,seal,'Star Alchemy',[G,E]);const sd=adapter.resolvePrompt(sp,ss.intent);assert(sd?.tokens?.[0]==='deck-1','Star prompt');if(protocol)protocol.validateDecision(sd,sp.prompt,new Set());
+  r=req(seat,{active:pokemon(GI),bench:[pokemon(M,5)],hand:[ar]});known(r,'hood',['Forest Seal Stone','Mysterious Treasure']);r.actionFrontier.items.push(play(r,0,null,0,'arven'));
+  const av=check(r,'certified','arven','hood',K1);assert(av.intent.selection.includes('fog')&&av.intent.selection.includes('float'),'Arven joint Item/Tool route '+JSON.stringify(av.intent));
+  const ap=searchPrompt(r,ar,'Arven',[fog,FL],0,2);const ad=adapter.resolvePrompt(ap,av.intent);assert(ad?.tokens?.length===2,'Arven combined prompt');if(protocol)protocol.validateDecision(ad,ap.prompt,new Set());
+  const ai=searchPrompt(r,ar,'Arven',[fog],0,1),at=searchPrompt(r,ar,'Arven',[FL],0,1);assert(adapter.resolvePrompt(ai,av.intent)?.tokens?.[0]==='deck-0'&&adapter.resolvePrompt(at,av.intent)?.tokens?.[0]==='deck-0','Arven split filtered prompts');
+  r=req(seat,{active:pokemon(GI),bench:[pokemon(M,5)],hand:[team]});known(r,'hood',['Forest Seal Stone','Mysterious Treasure']);r.actionFrontier.items.push(play(r,0,null,0,'team'));check(r,'no-guarantee',null,'hood',K1);receipt(r,()=>true);r.publicEventReceipt.priorOpponentTurnKO.any=true;
+  const tm=check(r,'certified','team','hood',{...K1,optimizeWitness:true});assert(tm.intent.selection.includes('energy')&&tm.intent.selection.includes('float'),'Teammates joint closure '+JSON.stringify(tm.intent));
+  r=req(seat,{active:pokemon(M,5),hand:[fog]});known(r,'hood',['Psychic Energy','Psychic Energy']);r.actionFrontier.items.push(play(r,0,null,0,'fog'));r.observation.ownerK1.knownPrintings[0].copies++;check(r,'unsupported',null,'hood',K1);
  }
  return {cases,observations:out.length,results:out};
 }
