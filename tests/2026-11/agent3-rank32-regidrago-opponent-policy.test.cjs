@@ -640,3 +640,81 @@ test('a native-ineligible Rolling Iron must not suppress a legal Ryuno active KO
   assert.deepEqual(promptDecision(request({ownPublic,opponentPublic,prompt:p})),
     {kind:'select-choice',token:'ryuno'});
 });
+
+
+test('Counter Catcher beats attacking a nonlethal Active to win on 2-Prize Bench KO',()=>{
+  const ownPublic=player({
+    active:pokemon(P.regidrago,{energies:[P.doubleDragon,P.energy]}),
+    discard:[{printing:P.goodra}]
+  });
+  ownPublic.prizeCount=2;
+  const opponentPublic=player({
+    active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{
+      hp:320,damage:0,printed:{subtypes:['VMAX'],weakness:[],resistance:[]}}),
+    bench:[pokemon('Dedenne-GX UNB 57',{hp:160,damage:0,
+      printed:{subtypes:['GX'],weakness:[],resistance:[]}})]
+  });
+  const items=[
+    action('attack','attack',P.regidrago,{attackName:'Apex Dragon'}),
+    action('counter','play-card','Counter Catcher PAR 160'),
+    action('pass','pass')
+  ];
+  assert.deepEqual(bestAction(request({ownPublic,opponentPublic,items})),
+    {kind:'select-action',token:'counter'});
+  opponentPublic.bench=[];
+  assert.deepEqual(bestAction(request({ownPublic,opponentPublic,items})),
+    {kind:'select-action',token:'attack'});
+});
+
+test('native gust prompt benchIndex beats shuffled presentation selectionIndex',()=>{
+  const ownPublic=player({
+    active:pokemon(P.regidrago,{energies:[P.doubleDragon,P.energy]}),
+    discard:[{printing:P.goodra}]
+  });
+  ownPublic.prizeCount=2;
+  const opponentPublic=player({
+    active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{
+      hp:320,damage:0,printed:{subtypes:['VMAX'],weakness:[],resistance:[]}}),
+    bench:[
+      pokemon('Shadow Rider Calyrex VMAX CRE 75',{hp:320,damage:0,
+        printed:{subtypes:['VMAX'],weakness:[],resistance:[]}}),
+      pokemon('Dedenne-GX UNB 57',{hp:160,damage:0,
+        printed:{subtypes:['GX'],weakness:[],resistance:[]}})
+    ]
+  });
+  const p=prompt('Counter Catcher PAR 160','Counter Catcher',[
+    {token:'den',kind:'pokemon',printing:'Dedenne-GX UNB 57',
+      publicMetadata:{ownerSeat:'opponent',targetZone:'bench',
+        benchIndex:1,selectionIndex:0}},
+    {token:'tank',kind:'pokemon',printing:'Shadow Rider Calyrex VMAX CRE 75',
+      publicMetadata:{ownerSeat:'opponent',targetZone:'bench',
+        benchIndex:0,selectionIndex:1}}
+  ],'ChoosePokemonPrompt',[1,1]);
+  p.publicMetadata.selectionType='pokemon';
+  assert.deepEqual(promptDecision(request({ownPublic,opponentPublic,prompt:p})),
+    {kind:'select-choices',tokens:['den']});
+});
+
+test('Guzma does not strand a sole powered Active VSTAR on the Bench',()=>{
+  const ownPublic=player({
+    active:pokemon(P.regidrago,{energies:[P.doubleDragon,P.energy]}),
+    bench:[pokemon('Latias ex SSP 76')],
+    discard:[{printing:P.goodra}]
+  });
+  const opponentPublic=player({
+    active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{
+      hp:320,damage:0,printed:{subtypes:['VMAX'],weakness:[],resistance:[]}}),
+    bench:[pokemon('Dedenne-GX UNB 57',{hp:160,damage:0,
+      printed:{subtypes:['GX'],weakness:[],resistance:[]}})]
+  });
+  const items=[
+    action('attack','attack',P.regidrago,{attackName:'Apex Dragon'}),
+    action('guzma','play-card','Guzma BUS 115'),
+    action('pass','pass')
+  ];
+  assert.deepEqual(bestAction(request({ownPublic,opponentPublic,items})),
+    {kind:'select-action',token:'attack'});
+  ownPublic.bench=[pokemon(P.regidrago,{energies:[P.doubleDragon,P.energy]})];
+  assert.deepEqual(bestAction(request({ownPublic,opponentPublic,items})),
+    {kind:'select-action',token:'guzma'});
+});
