@@ -101,7 +101,16 @@ for(const seat of [0,1]){
     for(const profile of profiles){
       const policy=worker.createPolicy({role:'candidate',seat,
         policyVersion:worker.POLICY_VERSION,config:profile});
-      const result=policy.decideWithAudit(request(seat,view));
+      const root=request(seat,view);
+      const envelope={...root,schema:protocol.REQUEST_SCHEMA,type:'decision',
+        requestId:'native-shape-'+seat+'-'+profile.profileId,sequence:0,
+        observationSchema:protocol.OBSERVATION_SCHEMA,
+        actionFrontier:{...root.actionFrontier,schema:protocol.FRONTIER_SCHEMA}};
+      const registered={role:'candidate',seat,policyVersion:worker.POLICY_VERSION,
+        config:profile};
+      const admissible=protocol.validateRequest(envelope,registered,0,new Set());
+      assert.deepEqual([...admissible.actionTokens].sort(),['fog','hit','pass']);
+      const result=policy.decideWithAudit(root);
       assert.deepEqual(result.decision,{kind:'select-action',token:'hit'});
       assert.equal(result.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
       // Explicit comparison to the previously emitted raw numeric enums:
