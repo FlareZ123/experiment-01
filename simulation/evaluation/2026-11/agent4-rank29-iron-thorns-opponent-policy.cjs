@@ -314,7 +314,8 @@ function cardChoiceScore(choice, observation, context) {
     return 0;
   }
   if (context === 'target-whistle') {
-    if (choiceOwner(choice) !== 'opponent' || choiceZone(choice) !== 'discard') return 0;
+    if (choiceOwner(choice) !== 'opponent' ||
+        (choiceZone(choice) !== 'discard' && choice?.publicMetadata?.sourceZone !== 'discard')) return 0;
     if (/Radiant Eternatus|Tapu Lele-GX|Latias ex/i.test(printing)) return 180;
     if (/Shadow Rider Calyrex V(?!MAX)|Regidrago V(?!STAR)/i.test(printing)) return 160;
     return choice.kind === 'pokemon' || /\\b(?:V|ex|GX)\\b/i.test(printing) ? 120 : 30;
@@ -495,7 +496,7 @@ function promptDecision(request) {
   const metadata = prompt?.publicMetadata ?? {};
   const selectionType = metadata.selectionType ?? null;
 
-  if (source.includes('peonia')) {
+  if (matches(sourcePrinting, PRINT.peonia)) {
     return { kind: 'abstain', reasonCode: 'PEONIA_PRIZE_EXCHANGE_UNSUPPORTED' };
   }
   if (/player'?s ceremony|palace book|handheld fan|gladion/i.test(source) ||
@@ -563,7 +564,7 @@ function promptDecision(request) {
         minimum, maximum);
       }
 
-      if (source.includes('field blower')) {
+      if (matches(sourcePrinting, PRINT.fieldBlower)) {
         const targets = choices.filter(choice =>
           choiceOwner(choice) === 'opponent' || choiceZone(choice) === 'stadium' ||
           choice.kind === 'stadium');
@@ -572,7 +573,7 @@ function promptDecision(request) {
         minimum, maximum);
       }
 
-      if (source.includes('target whistle')) {
+      if (matches(sourcePrinting, PRINT.targetWhistle)) {
         const targets = choices.filter(choice =>
           choiceOwner(choice) === 'opponent' && choiceZone(choice) === 'discard');
         return multiSelectDecision(prompt, rankedChoices(targets,
@@ -606,11 +607,11 @@ function promptDecision(request) {
       return { kind: 'abstain', reasonCode: 'UNSUPPORTED_RANK29_MULTI_SELECT_SOURCE' };
     }
 
-    if (source.includes('field blower')) {
+    if (matches(sourcePrinting, PRINT.fieldBlower)) {
       return singleChoice(choices, choice =>
         cardChoiceScore(choice, observation, 'field-blower'), 'NO_FIELD_BLOWER_TARGET');
     }
-    if (source.includes('target whistle')) {
+    if (matches(sourcePrinting, PRINT.targetWhistle)) {
       return singleChoice(choices, choice =>
         cardChoiceScore(choice, observation, 'target-whistle'), 'NO_TARGET_WHISTLE_TARGET');
     }
@@ -633,7 +634,7 @@ function promptDecision(request) {
       return singleChoice(choices, choice =>
         cardChoiceScore(choice, observation, 'camping-gear'), 'NO_CAMPING_GEAR_TARGET');
     }
-    if (source.includes('target whistle')) {
+    if (matches(sourcePrinting, PRINT.targetWhistle)) {
       return singleChoice(choices.filter(choice =>
         choiceOwner(choice) === 'opponent' && choiceZone(choice) === 'discard'),
       choice => cardChoiceScore(choice, observation, 'target-whistle'),
