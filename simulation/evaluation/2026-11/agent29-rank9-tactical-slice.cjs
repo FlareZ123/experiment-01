@@ -1,7 +1,7 @@
 'use strict';
 // Development-only actor-visible tactical slice; see accompanying report.
 module.exports = (function build() {
-  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v11';
+  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v12';
   const SOURCE_RANK = 9;
   const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
   const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -343,7 +343,8 @@ function bombPlanner(o,sourceBenchIndex){
       const board=slots(o.ownPublic).map(x=>x.p),out=[];
       if(min===1){
         if(o.ownPublic?.active!==null)return no('INVALID_STARTING_POKEMON_PROMPT');
-        const a=best(candidates,c=>mega(c)?100:isUn(c)?80:isGengar(c)?70:sableye(c)?60:isToed(c)?40:isSquawk(c)?30:isDedenne(c)?20:isVol(c)?10:0);
+        const secondKnown=[0,1].includes(o.turnSeat)&&o.turnSeat!==o.actorSeat,earlyFuel=L(o.ownHand).some(x=>match(x,R.psychic));
+        const a=best(candidates,c=>isGengar(c)&&secondKnown&&earlyFuel?150:mega(c)?100:isUn(c)?80:isGengar(c)?70:sableye(c)?60:isToed(c)?40:isSquawk(c)?30:isDedenne(c)?20:isVol(c)?10:0);
         if(!a)return no('NO_VISIBLE_STARTING_POKEMON');
         out.push(a);board.push(a);
       }else if(!o.ownPublic?.active)return no('MISSING_ACTIVE_FOR_EXTRA_BENCH');
@@ -517,6 +518,7 @@ function bombPlanner(o,sourceBenchIndex){
     return [];
   }
   function pokemonSearch(c,o){
+    if(isGengar(c)&&!has(o,isGengar)&&horrorDesired(o))return 460;
     if(mega(c))return has(o,mega)?0:420;
     if(elec(c))return has(o,isVol)&&!has(o,elec)?365:0;
     if(isVol(c))return !has(o,isVol)&&!has(o,elec)?385:0;
@@ -653,7 +655,7 @@ function bombPlanner(o,sourceBenchIndex){
     if(match(x,R.carrier)&&cap(o)>0&&d.some(c=>[isVol,isToed,isUn].some(f=>f(c))&&pokemonSearch(c,o)>0))return 320;
     if(match(x,R.stretcher)&&d.some(c=>pokemonSearch(c,o)>0))return 305;
     if(match(x,R.compressor)&&bombPossible(o)&&d.filter(ePred).length<5&&Number(o.ownPublic?.deckCount)>4)return 325;
-    if(match(x,R.ultra)&&fundCost(h.map(printing=>({printing})),o,2,x).length===2&&(!has(o,mega)||has(o,isVol)&&!has(o,elec)||has(o,isToed)&&!has(o,cruel)))return 335;
+    if(match(x,R.ultra)&&fundCost(h.map(printing=>({printing})),o,2,x).length===2&&(!has(o,mega)||has(o,isVol)&&!has(o,elec)||has(o,isToed)&&!has(o,cruel)||!has(o,isGengar)&&horrorDesired(o)))return 335;
     if(match(x,R.vs)&&o.ownTurnResources?.supporterPlayedTurn===0&&!o.ownTurnResources?.supporterPlayLocked&&d.some(c=>supporterSearch(c,o)>0))return 240;
     if(match(x,R.float)&&p&&p===o.ownPublic?.active&&!L(p.tools).length&&slots(o.ownPublic).some(y=>y.zone==='bench'&&bestAttackAgainst(o,y.p,o.opponentPublic?.active)>0))return 360;
     if(match(x,R.muscle)&&p&&mega(p)&&!L(p.tools).length){
@@ -692,7 +694,8 @@ function bombPlanner(o,sourceBenchIndex){
       }
       if(match(x,R.vip)){
         const out=[],board=slots(o.ownPublic).map(y=>y.p);
-        for(const f of [mega,isVol,isToed,isUn,isUn]){
+        const order=horrorDesired(o)&&!has(o,isGengar)?[isGengar,mega,isVol,isToed,isUn,isUn]:[mega,isVol,isToed,isUn,isUn];
+        for(const f of order){
           if(out.length>=Math.min(m.maximumCount,cap(o)))break;
           if(board.filter(f).length>=(f===isUn?2:1))continue;
           if(f===isVol&&board.some(elec)||f===isToed&&board.some(cruel))continue;
@@ -762,7 +765,7 @@ function bombPlanner(o,sourceBenchIndex){
   function retreatPlan(o,item){
     const m=M(item),i=m.targetIndex??m.benchIndex,p=o.ownPublic?.bench?.[i],cost=retreatCost(o,item);
     if(!Number.isSafeInteger(i)||!p||cost===null||m.targetSeat!==undefined&&m.targetSeat!=='actor'||m.targetZone!==undefined&&m.targetZone!=='bench')return null;
-    const ko=bestAttackAgainst(o,p,o.opponentPublic?.active);
+    const ko=switchAttackScore(o,p,o.opponentPublic?.active);
     if(!ko)return null;
     return {cost,score:ko>=1000?ko:Math.max(0,ko-35*cost),index:i};
   }
@@ -792,10 +795,10 @@ function bombPlanner(o,sourceBenchIndex){
     const own=slots(o.ownPublic).filter(x=>x.zone==='bench'),enemy=slots(o.opponentPublic).filter(x=>x.zone==='bench');
     const targets=enemy.length?enemy:[{zone:'active',index:0,p:o.opponentPublic?.active}];
     if(!own.length)return null;
-    const replies=targets.map(t=>({t,a:best(own,x=>bestAttackAgainst(o,x.p,t.p))}));
+    const replies=targets.map(t=>({t,a:best(own,x=>switchAttackScore(o,x.p,t.p))}));
     if(replies.some(x=>!x.a))return null;
-    const scores=replies.map(({t,a})=>bestAttackAgainst(o,a.p,t.p));
-    if(scores.some(x=>x<400))return null;
+    const scores=replies.map(({t,a})=>switchAttackScore(o,a.p,t.p));
+    if(scores.some(x=>x<250))return null;
     return {score:Math.min(...scores),responses:replies.map(({t,a})=>({targetZone:t.zone,targetIndex:t.index,index:a.index,printing:name(a.p)}))};
   }
   function defensiveSwitch(o,p){
@@ -815,12 +818,50 @@ function bombPlanner(o,sourceBenchIndex){
     if(!cs.length)return {kind:'abstain',reasonCode:'NO_VISIBLE_POKEMON_TARGET'};
     if(chain){
       if(chain.kind!=='rope'||chain.turn!==o.globalTurn||chain.sequence+1!==r.sequence)return {kind:'abstain',reasonCode:'UNTRUSTED_PROMPT_SOURCE'};
-      const c=best(cs,c=>bestAttackAgainst(o,ownChoice(o,c),o.opponentPublic?.active));
+      const c=best(cs,c=>switchAttackScore(o,ownChoice(o,c),o.opponentPublic?.active));
       return c?select(p,[c],1,'NO_VISIBLE_POKEMON_TARGET'):{kind:'abstain',reasonCode:'NO_VISIBLE_POKEMON_TARGET'};
     }
     if(o.turnSeat===undefined||o.turnSeat===o.actorSeat)return {kind:'abstain',reasonCode:'UNTRUSTED_PROMPT_SOURCE'};
     const c=best(cs,c=>defensiveSwitch(o,ownChoice(o,c)));
     return c?select(p,[c],1,'NO_VISIBLE_POKEMON_TARGET'):{kind:'abstain',reasonCode:'NO_VISIBLE_POKEMON_TARGET'};
+  }
+  function earlyHorrorScore(o,p,target){
+    if(o.globalTurn!==2||!isGengar(p)||o.ownPublic?.publicTurnRestrictions?.gxUsed===true||L(p.specialConditions).some(x=>/asleep|paralyzed|confused|unknown/i.test(condition(x))))return 0;
+    const r=p.publicRestrictions??{};
+    if(r.cannotAttackNextTurn||r.attackCostIncreaseNextTurn||r.attackCostIncreaseWhileActive||L(r.cannotUseAttacksNextTurn).includes('Horror House-GX')||r.blockedAttackNameNextTurn==='Horror House-GX'||r.blockedAttackNameUntilLeavesActive==='Horror House-GX'||r.onlyAllowedAttackNameNextTurn&&r.onlyAllowedAttackNameNextTurn!=='Horror House-GX')return 0;
+    return secondaryAttackScore({...o,ownPublic:{...o.ownPublic,active:p},opponentPublic:{...o.opponentPublic,active:target}},{attackName:'Horror House-GX',publicMetadata:{}});
+  }
+  function switchAttackScore(o,p,target){return Math.max(bestAttackAgainst(o,p,target),earlyHorrorScore(o,p,target));}
+  function horrorDesired(o){
+    if(o.globalTurn!==2||o.ownPublic?.publicTurnRestrictions?.gxUsed===true||Number(o.opponentPublic?.handCount)<=0)return false;
+    const own=o.ownPublic,opp=o.opponentPublic,a=own?.active;
+    const stadiumAnswer=liveStadium(o,/Temple of Sinnoh/i)&&!o.ownTurnResources?.stadiumPlayedTurn&&!o.ownTurnResources?.stadiumPlayLocked&&handHas(o,stadiumCard);
+    if(liveStadium(o,/Temple of Sinnoh/i)&&!stadiumAnswer)return false;
+    const candidate=slots(own).find(x=>isGengar(x.p))?.p??{printing:'Gengar & Mimikyu-GX TEU 53',hp:240,damage:0,energies:[],specialConditions:[],printed:{stage:'Basic',types:['Psychic'],weakness:[{type:'Darkness',value:'×2'}],resistance:[]}};
+    const fuel=L(o.ownHand).filter(c=>match(c,R.psychic));
+    const context=stadiumAnswer?{...o,ownPublic:{...own,stadium:['PokéStop PGO 68']},opponentPublic:{...opp,stadium:[]}}:o;
+    const powered=payable(candidate,['psychic'],-1,context)===true;
+    if(!powered&&(o.ownTurnResources?.energyPlayedTurn!==false||!fuel.length))return false;
+    if(earlyHorrorScore(context,powered?candidate:{...candidate,energies:[...L(candidate.energies),name(fuel[0])]},opp?.active)<250)return false;
+    if(isGengar(a))return true;
+    if(!ownHas(o,isGengar)&&cap(o)<=0)return false;
+    const canRetreat=o.ownTurnResources?.retreatedTurn!==true&&(!Number.isInteger(o.ownTurnResources?.retreatedTurn)||o.ownTurnResources.retreatedTurn!==o.globalTurn);
+    const free=canRetreat&&retreatCost(context,{publicMetadata:{}})===0;
+    const float=canRetreat&&!o.ownTurnResources?.toolPlayLocked&&!L(a?.tools).length&&!liveStadium(context,/Jamming Tower/i)&&handHas(o,x=>match(x,R.float));
+    const rope=!o.ownTurnResources?.itemPlayLocked&&handHas(o,ropeCard);
+    const gust=o.ownTurnResources?.supporterPlayedTurn===0&&!o.ownTurnResources?.supporterPlayLocked&&handHas(o,guzma)&&slots(opp).some(x=>x.zone==='bench');
+    return free||float||rope||gust||powered&&canRetreat&&retreatCost(context,{publicMetadata:{}})!==null;
+  }
+  function horrorPreparation(o,item){
+    if(!horrorDesired(o)||item.kind!=='play-card')return 0;
+    const x=name(item),p=targetSlot(o,item);
+    if(stadiumCard(x)&&liveStadium(o,/Temple of Sinnoh/i))return /^PokéStop/i.test(x)?570:560;
+    if(ePred(x)&&p&&isGengar(p)&&o.ownTurnResources?.energyPlayedTurn===false&&payable(p,['psychic'],-1,o)!==true&&payable({...p,energies:[...L(p.energies),x]},['psychic'],-1,o)===true)return 550;
+    if(isGengar(x)&&!ownHas(o,isGengar)&&cap(o)>0)return 540;
+    if(match(x,R.vip)&&!has(o,isGengar)&&cap(o)>0)return 530;
+    if(match(x,R.ultra)&&!has(o,isGengar)&&fundCost(L(o.ownHand).map(printing=>({printing})),o,2,x).length===2)return 520;
+    if(match(x,R.float)&&p&&p===o.ownPublic?.active&&!isGengar(p)&&!L(p.tools).length&&ownHas(o,isGengar))return 510;
+    return 0;
   }
   function prospectivePreparation(o,item){
     if(item.kind!=='play-card')return 0;
@@ -850,12 +891,14 @@ function bombPlanner(o,sourceBenchIndex){
       const g=items.find(x=>x.kind==='play-card'&&guzma(x));
       const targets=slots(opp).filter(x=>x.zone==='bench');
       const ownBench=slots(own).filter(x=>x.zone==='bench');
-      const pairs=targets.flatMap(t=>ownBench.map(a=>({t,a,score:bestAttackAgainst(o,a.p,t.p)})));
+      const pairs=targets.flatMap(t=>ownBench.map(a=>({t,a,score:switchAttackScore(o,a.p,t.p)})));
       const pair=best(pairs,x=>x.score);
       const supporterFree=o.ownTurnResources?.supporterPlayedTurn===0&&!o.ownTurnResources?.supporterPlayLocked&&!own?.publicTurnRestrictions?.supporterPlayLocked;
       const rope=items.find(x=>x.kind==='play-card'&&ropeCard(x)),rp=rope?ropePlan(o):null,ropeScore=rp?.score??0;
       const prep=best(items,x=>prospectivePreparation(o,x)),prepScore=prep?prospectivePreparation(o,prep):0;
       if(prepScore>=1000&&Math.max(retScore,ropeScore,supporterFree&&g?pair?.score??0:0)<1000)return {kind:'select-action',token:prep.token};
+      const hh=best(items,x=>horrorPreparation(o,x)),hhScore=hh?horrorPreparation(o,hh):0;
+      if(hhScore>0&&Math.max(directScore,retScore,ropeScore,supporterFree&&g?pair?.score??0:0)<400)return {kind:'select-action',token:hh.token};
       if(rope&&ropeScore>Math.max(directScore,retScore,supporterFree&&g?pair?.score??0:0)){
         chain={kind:'rope',turn:o.globalTurn,sequence:r.sequence};
         return {kind:'select-action',token:rope.token};
@@ -874,6 +917,10 @@ function bombPlanner(o,sourceBenchIndex){
       // discard/draw reset ahead of an existing non-final KO.
       if(directScore>=400){
         if(development&&developmentScore>=375&&(development.kind==='use-ability'&&M(development).abilityName==='Farewell Letter'||development.kind==='play-card'&&(mega(development)||isVol(development)||elec(development)||cruel(development))))return {kind:'select-action',token:development.token};
+        return {kind:'select-action',token:direct.token};
+      }
+      if(direct&&(direct.attackName??M(direct).attackName)==='Horror House-GX'&&o.globalTurn===2&&directScore>=250){
+        if(development&&developmentScore>=375&&development.kind==='play-card'&&(mega(development)||isVol(development)))return {kind:'select-action',token:development.token};
         return {kind:'select-action',token:direct.token};
       }
       if(development&&developmentScore>=280)return {kind:'select-action',token:development.token};
@@ -947,5 +994,5 @@ function bombPlanner(o,sourceBenchIndex){
       return r.prompt===null?root(r):prompt(r);
     }});
   }
-  return {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,createPolicy,printedDamage,payable,rootAttack,denial,prize,safeCosts,bombPlanner,stadiumScore,bombMobility,ropePlan,defensiveSwitch};
+  return {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,createPolicy,printedDamage,payable,rootAttack,denial,prize,safeCosts,bombPlanner,stadiumScore,bombMobility,ropePlan,defensiveSwitch,horrorDesired};
 })();

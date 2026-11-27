@@ -311,3 +311,37 @@ console.log('passed '+(function ropeTests(P,protocol){
  a(root(pol(),prep,{schema:protocol.FRONTIER_SCHEMA,items:[item,attach]}).token==='attach','prepare Benched winning Rope line before switch');
  return n;
 })(P,protocol)+' Rope/one-step winning-line assertions');
+
+console.log('passed '+(function horrorOpening(P,protocol){
+ const G='Gengar & Mimikyu-GX TEU 53',Meg='Mega Absol ex MEG 86',Un='Unown AOR 30',Pr='Prism Energy ASC 216',VIP='Battle VIP Pass FST 225',Float='Float Stone BKT 137',Rope='Escape Rope BST 125',Temple='Temple of Sinnoh ASR 155',Stop='PokéStop PGO 68',Opp='Shadow Rider Calyrex V CRE 74';
+ const mk=(printing,energies=[],extra={})=>({printing,energies,hp:240,damage:0,tools:[],printed:{stage:'Basic',types:['Psychic'],retreatCost:['Colorless'],weakness:[],resistance:[]},specialConditions:[],publicRestrictions:{},...extra});
+ const v={actorSeat:0,turnSeat:0,globalTurn:2,ownPublic:{active:mk(Un),bench:[mk(Meg),mk(G)],prizeCount:6,publicTurnRestrictions:{}},opponentPublic:{active:mk(Opp),bench:[],prizeCount:6,handCount:6,publicTurnRestrictions:{}},ownTurnResources:{supporterPlayedTurn:0,retreatedTurn:false,energyPlayedTurn:false,stadiumPlayedTurn:false},ownHand:[Pr,Float,VIP]};
+ const pol=()=>P.createPolicy({role:'opponent',seat:0,policyVersion:P.POLICY_VERSION,config:{}});
+ function root(o,items){const f={schema:protocol.FRONTIER_SCHEMA,items};const d=pol().decide({role:'opponent',seat:0,sequence:1,observation:o,prompt:null,actionFrontier:f});protocol.validateDecision(d,null,protocol.validateFrontier(f));return d;}
+ const target=(token,printing,zone,index)=>({kind:'play-card',actorPrinting:printing,token,publicMetadata:{targetSeat:'actor',targetZone:zone,targetIndex:index,isOwnerVisible:true}});
+ const card=(token,printing,sourceZone)=>({token,kind:'card',printing,label:printing,publicMetadata:{ownerSeat:'actor',sourceZone,isOwnerVisible:true}});
+ const empty={token:'empty',kind:'empty-selection',label:'Choose no items'};
+ const prompt=(source,choices,zone,min,max,engine=false)=>({schema:protocol.PROMPT_SCHEMA,actingSeat:0,promptType:'ChooseCardsPrompt',description:engine?'CHOOSE_STARTING_POKEMONS':source,source:{classification:'actor-choice',sourceKind:engine?'engine':'card-effect',sourcePrinting:engine?null:source,effectName:engine?'CHOOSE_STARTING_POKEMONS':source},choices,publicMetadata:{selectionType:'card-combination',sourceZone:zone,ownerSeat:'actor',isOwnerVisible:true,allowCancel:false,isSecret:false,minimumCount:min,maximumCount:max}});
+ function respond(o,p){protocol.validatePrompt(p,0);const d=pol().decide({role:'opponent',seat:0,sequence:2,observation:o,prompt:p});protocol.validateDecision(d,p,new Set());return d;}
+ let n=0;function a(v,l){if(!v)throw Error(l);n++}
+ const setup={...v,phase:1,turnSeat:1,globalTurn:0,ownHand:[G,Meg,Pr],ownPublic:{...v.ownPublic,active:null,bench:[]}};
+ const sp=prompt(null,[card('g',G,'hand'),card('m',Meg,'hand')],'hand',1,5,true);
+ a(respond(setup,sp).tokens?.[0]==='g','forced second with visible fuel picks Gengar');
+ a(respond({...setup,turnSeat:0},sp).tokens?.[0]==='m','first player retains normal setup preference');
+ const before={...v,ownPublic:{...v.ownPublic,bench:[]}};
+ a(P.horrorDesired(before),'visible first-turn fuel and mobility establish search opportunity');
+ const vip=prompt(VIP,[card('g',G,'deck'),card('m',Meg,'deck'),card('u',Un,'deck'),empty],'deck',0,2);
+ a(respond(before,vip).tokens?.[0]==='g','VIP targets Gengar on actual route');
+ a(root(v,[target('m',Pr,'bench',0),target('g',Pr,'bench',1)]).token==='g','reserve manual attach for actual Horror House line');
+ const powered={...v,ownPublic:{...v.ownPublic,bench:[mk(Meg),mk(G,[Pr])]},ownTurnResources:{...v.ownTurnResources,energyPlayedTurn:true},ownHand:[Float,VIP]};
+ a(root(powered,[target('float',Float,'active',0),{kind:'play-card',token:'vip',actorPrinting:VIP,publicMetadata:{}}]).token==='float','enable free retreat to powered Gengar');
+ const ready={...powered,ownPublic:{...powered.ownPublic,active:{...powered.ownPublic.active,tools:[Float]}},ownHand:[VIP]};
+ const ret={kind:'retreat',token:'r',actorPrinting:Un,targetPrinting:G,publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:1,benchIndex:1,isOwnerVisible:true}};
+ a(root(ready,[ret]).token==='r','free switch to first-turn Horror House');
+ const ropeReady={...powered,ownHand:[Rope]};
+ a(root(ropeReady,[{kind:'play-card',token:'rope',actorPrinting:Rope,publicMetadata:{}}]).token==='rope','Rope promotes powered Gengar without opponent bench');
+ const temple={...v,ownHand:[Pr,Float,Stop],opponentPublic:{...v.opponentPublic,stadium:[Temple]}};
+ a(root(temple,[target('g',Pr,'bench',1),{kind:'play-card',token:'stop',actorPrinting:Stop,publicMetadata:{}}]).token==='stop','Temple answer precedes Psychic attachment');
+ a(!P.horrorDesired({...before,ownTurnResources:{...before.ownTurnResources,energyPlayedTurn:true}}),'spent manual attachment prevents false route');
+ return n;
+})(P,protocol)+' first-turn Horror House route assertions');
