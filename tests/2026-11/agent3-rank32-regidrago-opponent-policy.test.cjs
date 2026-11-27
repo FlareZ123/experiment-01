@@ -398,10 +398,10 @@ test('Temple of Sinnoh blocks DDE typed value until stadium is replaced',()=>{
     active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{subtypes:['VMAX']}),
     stadium:[{printing:'Temple of Sinnoh ASR 155'}]
   });
-  assert.deepEqual(bestAction(request({ownPublic,opponentPublic,items})),
+  assert.deepEqual(bestAction(request({ownPublic,opponentPublic,items,hand:[P.doubleDragon]})),
     {kind:'select-action',token:'parallel'});
   opponentPublic.stadium=[];
-  assert.deepEqual(bestAction(request({ownPublic,opponentPublic,items})),
+  assert.deepEqual(bestAction(request({ownPublic,opponentPublic,items,hand:[P.doubleDragon]})),
     {kind:'select-action',token:'dde'});
 });
 
