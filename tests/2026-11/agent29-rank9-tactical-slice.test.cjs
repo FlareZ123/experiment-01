@@ -367,3 +367,29 @@ console.log('passed '+(function boardout(P){
  a(P.bombPlanner(o(vmax,[mk(Un,[],60)],4),0)!==null,'nonfinal three-prize Bomb when no known reply');
  return n;
 })(P)+' board-out and Prize-trade assertions');
+
+console.log('passed '+(function drawAndDecline(P,protocol){
+ const Meg='Mega Absol ex MEG 86',Vol='Voltorb ROS 21',El='Electrode-GX CES 48',Un='Unown AOR 30',I='Iono PAL 185',D='Darkness Energy MEE 15',Pr='Prism Energy ASC 216',Vip='Battle VIP Pass FST 225',Stop='PokéStop PGO 68',Rc='Rescue Carrier EVS 154',V='Shadow Rider Calyrex V CRE 74',VM='Shadow Rider Calyrex VMAX CRE 75';
+ const mk=(printing,energies=[],hp=280)=>({printing,energies,hp,damage:0,tools:[],specialConditions:[],printed:{stage:'Basic',types:['Darkness'],weakness:[],resistance:[]},publicRestrictions:{}});
+ const o=(hand=[])=>({actorSeat:0,globalTurn:6,ownHand:hand,ownPublic:{active:mk(Meg),bench:[mk(El)],prizeCount:4,deckCount:25,discard:[],stadium:[Stop],publicTurnRestrictions:{}},opponentPublic:{active:mk(V),bench:[mk(Un,[],60)],prizeCount:2,handCount:8,publicTurnRestrictions:{}},ownTurnResources:{supporterPlayedTurn:0,energyPlayedTurn:true,retreatedTurn:false}});
+ const p=()=>P.createPolicy({role:'opponent',seat:0,policyVersion:P.POLICY_VERSION,config:{}});
+ const decide=(o,items)=>{const f={schema:protocol.FRONTIER_SCHEMA,items},d=p().decide({role:'opponent',seat:0,sequence:1,observation:o,prompt:null,actionFrontier:f});protocol.validateDecision(d,null,protocol.validateFrontier(f));return d};
+ const play=(token,printing)=>({kind:'play-card',token,actorPrinting:printing,publicMetadata:{}});
+ const pass={kind:'pass',token:'pass'};
+ let n=0;function a(v,l){if(!v)throw Error(l);n++}
+ a(P.protectedReset(o([Vip,Vip,Vip,Vip])),'reset four expired VIP');
+ a(!P.protectedReset({...o([D]),ownTurnResources:{energyPlayedTurn:false}}),'do not throw sole manual Energy');
+ a(!P.protectedReset({...o([Vol]),ownPublic:{...o().ownPublic,bench:[]}}),'protect missing sole Voltorb');
+ a(P.ionoScore(o([I,Vip,Vip,Vip]),I)>300,'late disruption can justify equal hand');
+ a(decide(o([I,Vip,Vip,Vip]),[pass,play('iono',I)]).token==='iono','choose Iono to shrink opponent eight to two');
+ a(decide(o([Vip]),[pass,play('dead-vip',Vip)]).token==='pass','decline known dead Item');
+ a(decide(o(),[pass,{kind:'use-ability',token:'unknown',actorPrinting:Meg,publicMetadata:{abilityName:'Unknown'}}]).kind==='abstain','unmodeled ability remains visible');
+ const bomb={kind:'use-ability',token:'bomb',actorPrinting:El,publicMetadata:{sourceSeat:'actor',sourceZone:'bench',sourceIndex:0,abilityName:'Extra Energy Bomb'}};
+ a(decide(o(),[pass,bomb]).token==='pass','decline Bomb losing final two prizes');
+ const ready=o();ready.opponentPublic.prizeCount=6;ready.opponentPublic.active={...mk(VM,[],320),printed:{weakness:[{type:'Darkness',value:'×2'}]} };ready.ownPublic.discard=[Pr,Pr,Pr];a(decide(ready,[pass,bomb]).kind==='abstain','do not hide meaningful unsupported Bomb transfer');
+ const stop={kind:'use-stadium',token:'stop',actorPrinting:Stop,publicMetadata:{stadiumEffectLive:true}};
+ a(decide(o([Vip]),[pass,stop]).token==='stop','productive PokéStop before pass');
+ const blocked=o();blocked.opponentPublic.bench=[mk('Toedscruel PAR 17')];a(decide(blocked,[pass,stop]).token==='pass','avoid Slime Mold discard-to-hand denial');
+ const thin=o();thin.ownPublic.deckCount=4;a(decide(thin,[pass,stop]).token==='pass','avoid near-deckout PokéStop');
+ return n;
+})(P,protocol)+' draw-reset, disruption, and intentional-decline assertions');

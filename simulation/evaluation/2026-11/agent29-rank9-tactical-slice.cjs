@@ -1,7 +1,7 @@
 'use strict';
 // Development-only actor-visible tactical slice; see accompanying report.
 module.exports = (function build() {
-  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v13';
+  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v14';
   const SOURCE_RANK = 9;
   const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
   const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -569,7 +569,7 @@ function bombPlanner(o,sourceBenchIndex){
       const d=best(slots(o.opponentPublic),row=>denial(o,row)?.score??0);
       return d&&safeCosts(L(o.ownHand).map(printing=>({printing})),o,2,name(c)).length===2?denial(o,d).score:0;
     }
-    if(iono(c))return L(o.ownHand).length<=3&&Number(o.ownPublic?.prizeCount)>=3?220:0;
+    if(iono(c))return ionoScore(o,name(c));
     return 0;
   }
   const heavy=c=>/^Hisuian Heavy Ball ASR 146\b/i.test(name(c));
@@ -629,9 +629,39 @@ function bombPlanner(o,sourceBenchIndex){
     if(match(c,R.muscle))return ownHas(o,mega)?140:0;
     return supporterSearch(c,o);
   }
+  function handAfter(o,exclude){
+    const h=L(o.ownHand).map(name),index=h.indexOf(exclude);
+    if(index>=0)h.splice(index,1);
+    return h;
+  }
   function protectedReset(o,exclude=''){
-    const h=L(o.ownHand).map(name).filter(x=>x!==exclude);
-    return h.length<=3&&!h.some(x=>mega(x)||isVol(x)||elec(x)||isToed(x)||cruel(x)||ePred(x)||match(x,R.vip)&&first(o)||/^Secret Box\b/i.test(x));
+    const h=handAfter(o,exclude),energy=h.filter(ePred),manual=o.ownTurnResources?.energyPlayedTurn===false;
+    const core=h.some(x=>mega(x)&&!ownHas(o,mega)||isVol(x)&&!ownHas(o,isVol)&&!ownHas(o,elec)||elec(x)&&ownHas(o,isVol)&&!ownHas(o,elec)||isToed(x)&&!ownHas(o,isToed)&&!ownHas(o,cruel)||cruel(x)&&ownHas(o,isToed)&&!ownHas(o,cruel)||match(x,R.vip)&&first(o)&&cap(o)>0||secret(x)||isGengar(x)&&horrorDesired(o));
+    if(core||h.length>=6||energy.length&&(manual||!bombPossible(o)||energy.some(x=>darkCutRisk(o)&&basicDark(x))))return false;
+    if(energy.length+L(o.ownPublic?.discard).filter(ePred).length>5)return false;
+    const costly=h.filter(x=>!ePred(x)&&!(match(x,R.vip)&&!first(o))&&trainerSearch(x,o)>=250);
+    return costly.length<=1&&h.length<=5;
+  }
+  function ionoScore(o,exclude=''){
+    const own=o.ownPublic,opp=o.opponentPublic,h=handAfter(o,exclude);
+    const p=Number(own?.prizeCount),q=Number(opp?.prizeCount),other=Number(opp?.handCount);
+    if(!Number.isInteger(p)||p<1||p>6||!Number.isFinite(other)||!Number.isInteger(q)||q<1||q>6||Number(own?.deckCount)+h.length<p)return 0;
+    if(horrorDesired(o))return 0;
+    const protectedHand=h.some(x=>mega(x)&&!ownHas(o,mega)||isVol(x)&&!ownHas(o,isVol)&&!ownHas(o,elec)||elec(x)&&ownHas(o,isVol)&&!ownHas(o,elec)||cruel(x)&&ownHas(o,isToed)&&!ownHas(o,cruel)||secret(x)||ePred(x)&&o.ownTurnResources?.energyPlayedTurn===false);
+    const gain=p-h.length,denial=Math.max(0,other-q);
+    if(protectedHand&&gain<3)return 0;
+    if(gain<1&&denial<3)return 0;
+    if(gain< -2)return 0;
+    return Math.max(0,120+40*gain+35*denial-(protectedHand?70:0));
+  }
+  function pokeStopScore(o){
+    if(!liveStadium(o,/^PokéStop PGO 68\b/i)||Number(o.ownPublic?.deckCount)<7)return 0;
+    if(slots(o.opponentPublic).some(x=>cruel(x.p)&&abilityLive(x.p,'Slime Mold Colony')))return 0;
+    const h=L(o.ownHand),recovery=h.some(c=>match(c,R.carrier)||match(c,R.stretcher));
+    if(!ownHas(o,mega)&&!recovery||!has(o,isVol)&&!ownHas(o,elec)&&!recovery)return 0;
+    if(horrorDesired(o))return 0;
+    const fuel=L(o.ownPublic?.discard).filter(ePred).length;
+    return 155+Math.max(0,4-h.length)*25+(bombPossible(o)&&fuel<3?40:0);
   }
   function targetSlot(o,item){
     const m=M(item);
@@ -642,6 +672,7 @@ function bombPlanner(o,sourceBenchIndex){
   }
   function devScore(item,o){
     const m=M(item),x=name(item),p=targetSlot(o,item),d=L(o.ownPublic?.discard),h=L(o.ownHand);
+    if(item.kind==='use-stadium'&&m.stadiumEffectLive===true&&/^PokéStop PGO 68\b/i.test(x))return pokeStopScore(o);
     if(item.kind==='use-ability'){
       const src=m.sourceZone==='active'?o.ownPublic?.active:m.sourceZone==='bench'&&Number.isSafeInteger(m.sourceIndex)?o.ownPublic?.bench?.[m.sourceIndex]:null;
       if(m.sourceSeat!=='actor'||!src||name(src)!==x||!abilityLive(src,m.abilityName))return 0;
@@ -907,6 +938,29 @@ function bombPlanner(o,sourceBenchIndex){
     const previous=bombMobility(o,null)?.score??0,after=bombMobility(next,null)?.score??0;
     return after>=1000&&previous<1000?1000:after>previous&&after>=400?after:0;
   }
+  function knownSafeDecline(x,o){
+    const n=name(x),m=M(x),a=x.attackName??m.attackName;
+    if(x.kind==='pass'||x.kind==='projected-attack'||x.kind==='retreat')return true;
+    if(x.kind==='play-card')return basic(n)||elec(n)||cruel(n)||ePred(n)||secret(n)||secretCategory(n)!==null;
+    if(x.kind==='use-stadium')return /^PokéStop PGO 68\b/i.test(n);
+    if(x.kind==='use-ability'){
+      if(['Farewell Letter','Squawk and Seize','Star Alchemy'].includes(m.abilityName))return true;
+      if(elec(n)&&m.abilityName==='Extra Energy Bomb'){
+        // Never relabel a feasible but unsupported native transfer as a
+        // strategic pass. Active Electrode's Bomb is not modeled either.
+        if(m.sourceZone==='active'||!Number.isInteger(m.sourceIndex))return false;
+        return bombPlanner(o,m.sourceIndex)===null;
+      }
+      return false;
+    }
+    if(x.kind==='attack'){
+      if(isSquawk(n)&&a==='Motivate')return false;
+      if(elec(n)&&['Electro Ball','Crush and Burn-GX'].includes(a))return payable(o.ownPublic?.active,['lightning','colorless'],-1,o)===false;
+      if(cruel(n)&&a==='Mushroom Drain')return payable(o.ownPublic?.active,['grass','colorless','colorless'],-1,o)===false;
+      return ['Terminal Period','Claw of Darkness','Lode Search','Crazy Claws','Horror House-GX','Poltergeist','Static Shock','Tingly Return-GX','Hidden Power','Kick','Absorb','Thunder Wave','Big Explosion'].includes(a);
+    }
+    return false;
+  }
   function createPolicy({role,seat,policyVersion,config}) {
     if(role!=='opponent'||![0,1].includes(seat)||policyVersion!==POLICY_VERSION||!config||Array.isArray(config)||Object.keys(config).length)throw Error('RANK9_INIT_MISMATCH');
     let chain=null;
@@ -964,10 +1018,10 @@ function bombPlanner(o,sourceBenchIndex){
         return {kind:'select-action',token:p.token};
       }
       const i=items.find(x=>x.kind==='play-card'&&iono(x));
-      if(i&&supporterFree&&L(o.ownHand).length<=2&&Number(own?.prizeCount)>=3&&Number(own?.deckCount)>=Number(own?.prizeCount)&&directScore<400)return {kind:'select-action',token:i.token};
+      if(i&&supporterFree&&ionoScore(o,name(i))>Math.max(directScore,developmentScore))return {kind:'select-action',token:i.token};
       if(development&&developmentScore>directScore)return {kind:'select-action',token:development.token};
       if(direct)return {kind:'select-action',token:direct.token};
-      const pass=items.find(x=>x.kind==='pass');if(pass&&items.every(x=>x.kind==='pass'||x.kind==='projected-attack'))return {kind:'select-action',token:pass.token};
+      const pass=items.find(x=>x.kind==='pass');if(pass&&items.every(x=>knownSafeDecline(x,o)))return {kind:'select-action',token:pass.token};
       return {kind:'abstain',reasonCode:'NO_SUPPORTED_ROOT_ACTION'};
     }
     function prompt(r) {
@@ -1026,5 +1080,5 @@ function bombPlanner(o,sourceBenchIndex){
       return r.prompt===null?root(r):prompt(r);
     }});
   }
-  return {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,createPolicy,printedDamage,payable,rootAttack,denial,prize,safeCosts,bombPlanner,stadiumScore,bombMobility,ropePlan,defensiveSwitch,horrorDesired};
+  return {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,createPolicy,printedDamage,payable,rootAttack,denial,prize,safeCosts,bombPlanner,stadiumScore,bombMobility,ropePlan,defensiveSwitch,horrorDesired,protectedReset,ionoScore,pokeStopScore,knownSafeDecline};
 })();
