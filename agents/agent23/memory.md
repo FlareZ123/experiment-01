@@ -1,3 +1,7 @@
+## 2026-11-27T08:46:53.467Z checkpoint — ADP tempo
+- Branch advanced to b5544483d77e2a693cc85096cef9e1b878549125; one-DDE GX when Ray absent, visible ADP reply comparison, unified within-ADP mobility/acceleration ordering, legal-root fallback. 18/18 constructed V8 regressions passed after correction of duplicate-identity fixtures. Report results/aichi-2026/2026-11/agent23-rank19-adp-tempo-20261127.md. No native game/CI/deck change.
+- Next: substantive source prize-pressure choice and multi-prize exposure. Lease immutable.
+
 ## 2026-11-27T08:42:46.451Z checkpoint — source rank19 Copycat counter-reply
 - RNG draw 2, normal. Continued Agent23; immutable lease claimed `2026-11-27T08:35:45.724Z`, verified main claim `43e0118bd949739e8e69e9d71cbff08de78a20b5`, release threshold 09:45:45.724Z. No lease refresh. Direct Git network unavailable; authenticated GitHub connector succeeds.
 - Existing draft branch agent23/rank19-moltres-shadow-rider-20261127 advanced to 679161f2f460d1a4cc15c9d2ae679f14826ad4d4; code commit 81e5b947d644f5f054e17dd06a131cd5f9649733. Source-only visible terminal-Copycat advisory + mobility score adjustment. 20/20 local Node22 helper tests passed; actual fetched draft module graph 6/6 constructed V8 integration cases passed. No native, CI, registration, candidate worker or deck changes. Report results/aichi-2026/2026-11/agent23-rank19-copycat-reply-20261127.md.
