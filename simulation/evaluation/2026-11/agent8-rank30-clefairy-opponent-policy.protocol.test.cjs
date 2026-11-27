@@ -234,3 +234,50 @@ for(const seat of [0,1]) {
     assert.deepEqual(p(seat).decide(r),{kind:'abstain',reasonCode:'NO_SUPPORTED_ROOT_ACTION'});
   });
 }
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' source Compressor → VS Seeker → Guzma prepares reachable 3-Prize knockout',()=>{
+    const hand=['Battle Compressor PHF','VS Seeker PHF'];
+    const r=request(seat,hand,[],'Battle Compressor PHF','deck',
+      [['Guzma BUS','guzma-available'],['Psychic Energy MEE','not-needed']],0,3);
+    r.observation.ownTurnResources={supporterPlayedTurn:0,vstarUsed:false};
+    r.observation.ownPublic.active={printing:'Unown AOR',hp:60,damage:0};
+    r.observation.ownPublic.bench=[{printing:clef,
+      energies:['Psychic Energy MEE','Telepath [P] Energy M3']}];
+    r.observation.opponentPublic.bench=[{
+      printing:'Shadow Rider Calyrex VMAX CRE',hp:320,damage:260}];
+    r.prompt=null;r.actionFrontier.items=[{kind:'play-card',
+      actorPrinting:'Battle Compressor PHF',token:'compressor'}];
+    assert.deepEqual(p(seat).decide(r),{kind:'select-action',token:'compressor'});
+    r.prompt=request(seat,hand,[],'Battle Compressor PHF','deck',
+      [['Guzma BUS','guzma-available'],['Psychic Energy MEE','not-needed']],0,3).prompt;
+    r.prompt.source.effectName='Battle Compressor';
+    assertValid(seat,r,{kind:'select-choices',tokens:['guzma-available']});
+    r.prompt=null;
+    r.observation.ownPublic.discard=['Guzma BUS'];
+    r.observation.ownHand=['VS Seeker PHF'];
+    r.actionFrontier.items=[{kind:'play-card',actorPrinting:'VS Seeker PHF',token:'seeker'}];
+    assert.deepEqual(p(seat).decide(r),{kind:'select-action',token:'seeker'});
+    r.prompt=request(seat,['VS Seeker PHF'],[],'VS Seeker PHF','discard',
+      [['Guzma BUS','recover-guzma']],1,1).prompt;
+    r.prompt.source.effectName='VS Seeker';
+    assertValid(seat,r,{kind:'select-choices',tokens:['recover-guzma']});
+    r.prompt=null;
+    r.observation.ownHand=['Guzma BUS'];
+    r.actionFrontier.items=[{kind:'play-card',actorPrinting:'Guzma BUS',token:'gust'}];
+    assert.deepEqual(p(seat).decide(r),{kind:'select-action',token:'gust'});
+  });
+}
+test('Compressor does not bury an essential Guzma without a VS Seeker or alternate Patch purpose',()=>{
+  const r=request(0,['Battle Compressor PHF'],[],'Battle Compressor PHF','deck',[],0,3);
+  r.observation.ownPublic.active={printing:'Unown AOR'};
+  r.observation.ownPublic.bench=[{printing:clef,
+    energies:['Psychic Energy MEE','Telepath [P] Energy M3']}];
+  r.observation.opponentPublic.bench=[{
+    printing:'Shadow Rider Calyrex VMAX CRE',hp:320,damage:260}];
+  r.observation.ownTurnResources={supporterPlayedTurn:0,vstarUsed:false};
+  r.prompt=null;r.actionFrontier.items=[{kind:'play-card',
+    actorPrinting:'Battle Compressor PHF',token:'compressor'}];
+  assert.deepEqual(p(0).decide(r),{kind:'abstain',reasonCode:'NO_SUPPORTED_ROOT_ACTION'});
+});
