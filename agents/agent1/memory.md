@@ -1,4 +1,8 @@
 
+## 2026-11-27T02:38:11.955Z — joint support/manual timing policy arm
+- Added opt-in joint policy that reserves manual attachment before deterministic energy Supporter, prioritizes Guzma & Hala when DDE plus another Energy closes attack, and delays FSS when T1 Supporter can close. 32,000 conserved trials with fixed seed and four scenarios; raw results/aichi-2026/2026-11/agent1-apex-lockdown-policy-screen.json. This is a heuristic comparison, not full native play. Next independent holdout and crossfield response synthesis.
+
+
 ## 2026-11-27T02:36:46.047Z — multi-slot structural engine screening
 - Added causal Max Elixir (Basic Benched only, pre-evolution), Energy Loto (partial view), Colress Tenacity and Tag Call. 11 variants × both starts × 3 scenarios × 700 deals = 46,200 conserved policy trials, independent screening seed 27112027. Raw results/aichi-2026/2026-11/agent1-apex-lockdown-engine-screen.json. Holdout next; do not pick solely on proxy (Wobb, Raihan etc may matter in real games).
 

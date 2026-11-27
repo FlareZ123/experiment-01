@@ -98,6 +98,7 @@ function one(rows,seed,opts={}){
    let b=reg(),a=available.filter(x=>canSupp(x));
    const have=x=>a.includes(x);
    if(active()!==b&&b&&!free(active())&&!has(N.FL)&&turn===2&&have(N.GZ)&&cost(b.energy)&&b.name===N.S)return N.GZ;
+   if(opts.policy==="joint"&&b&&needsEnergy()&&have(N.GH)&&!b.energy.includes(N.DD)&&!has(N.DD)&&possible(N.DD)&&hand.length>=3&&(b.energy.length||handE().length))return N.GH;
    if(b&&needsEnergy()&&have(N.CR)&&(possible(N.GR)&&possible(N.FI)))return N.CR;
    if(b&&needsEnergy()&&!has(N.DD)&&!b.energy.includes(N.DD)&&have(N.GH)&&possible(N.DD)&&hand.length>=3)return N.GH;
    if(b&&needsEnergy()&&have(N.CT)&&[N.DD,N.GR,N.FI].some(possible))return N.CT;
@@ -184,7 +185,13 @@ function one(rows,seed,opts={}){
    if(b&&canItem()&&has(N.TC)&&(!has(N.GH)&&needsEnergy()||missingDonor()&&possible(N.GG))&&(possible(N.GH)||possible(N.GG))){
      play(N.TC);see();let names=[];if(deck.includes(N.GH)&&!has(N.GH))names.push(N.GH);if(deck.includes(N.GG)&&!has(N.GG)&&!discard.includes(N.GG))names.push(N.GG);if(names.length<2&&deck.filter(x=>x===N.GH).length>names.filter(x=>x===N.GH).length)names.push(N.GH);search(names);return true;
    }
-   if(b&&manual&&handE().length&&!cost(b.energy)){let e=chooseEnergy(b.energy,handE());attach(b,e);manual=false;return true}
+   if(b&&manual&&handE().length&&!cost(b.energy)){
+     const future=opts.policy==="joint"&&canSupp(N.CR)&&!handE().some(x=>cost([...b.energy,x]))&&(
+       has(N.CR)&&possible(N.GR)&&possible(N.FI)||
+       has(N.GH)&&hand.length>=3&&possible(N.DD)&&!b.energy.includes(N.DD)&&!has(N.DD)||
+       N.CT&&has(N.CT)&&possible(N.DD)&&!b.energy.includes(N.DD)&&!has(N.DD));
+     if(!future){let e=chooseEnergy(b.energy,handE());attach(b,e);manual=false;return true}
+   }
    if(b&&active()!==b&&free(active())&&!retreated&&!(turn===1&&second&&active().name===N.B)){retreated=true;swap(b);return true}
    if(b&&active()!==b&&!free(active())&&!active().tool&&has(N.FL)){active().tool=take(hand,N.FL);note("tool",[active().name,N.FL]);return true}
    if(b&&has(N.FS)&&!vstar&&!b.tool){b.tool=take(hand,N.FS);note("tool",[b.name,N.FS]);return true}
@@ -209,11 +216,13 @@ function one(rows,seed,opts={}){
    }
    // Preserve the one VSTAR power until the actor can identify a specific
    // need. Star is deterministic; Legacy may close two needs but mills.
-   if(b&&b.tool===N.FS&&!vstar&&!allOff()&&(turn===2||!handE().length&&!cost(b.energy))){
+   if(b&&b.tool===N.FS&&!vstar&&!allOff()&&(turn===2||!handE().length&&!cost(b.energy))&&
+      !(opts.policy==="joint"&&turn===1&&chooseSupp(hand.filter(x=>supporter.has(x)))&&[N.GH,N.CR,N.AR,N.CT].includes(chooseSupp(hand.filter(x=>supporter.has(x)))))){
      let x=targetForSearch();if(x&&possible(x)){
        // If a usable Legacy Star can recover discarded ACE/energy, prefer
        // it instead of spending Star on a card that may be prized.
-       if(!(turn===2&&b.name===N.S&&canAbility(N.S)&&((needACE()&&discard.includes(N.MB))||(needsEnergy()&&!handE().length&&discard.some(y=>energy.has(y)))))){
+       if(!(turn===2&&b.name===N.S&&canAbility(N.S)&&((needACE()&&discard.includes(N.MB))||(needsEnergy()&&!handE().length&&discard.some(y=>energy.has(y)))||
+          opts.policy==="joint"&&missingDonor()&&needACE()&&!possible(N.BC)))){
          vstar=true;search([x]);note("star",x);return true;
        }
      }
