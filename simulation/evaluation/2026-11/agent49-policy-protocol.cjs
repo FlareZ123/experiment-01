@@ -220,7 +220,7 @@ const PLAYER_RESTRICTION_KEYS = [
   'stadiumAndToolHaveNoEffectTurnsRemaining'
 ];
 const PLAYER_RESTRICTION_OPTIONAL_KEYS = [
-  'alteredCreationDamage', 'usedAlteredCreation'
+  'alteredCreationDamage', 'usedAlteredCreation', 'legacyEnergyUsed'
 ];
 const TURN_RESOURCE_KEYS = [
   'supporterPlayedTurn', 'retreatedTurn', 'extraTurnActive', 'energyPlayedTurn',
