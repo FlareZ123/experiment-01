@@ -872,3 +872,62 @@ paired('Direct terminal Max Geist precedes further setup despite nondefensive op
     abilities:['Safeguard'],suppression:false});
   assert.deepEqual(decide(profile,root(seat,view,items)),sel('attach'));
 });
+
+
+paired('Mandatory KO promotion selects funded counterattacker and rejects wrong prompt shape',(seat,profile)=>{
+  const funded=vmax([P,P,P,P,P,P]);funded.hp=320;
+  const bait=v();bait.hp=210;
+  const view=observation(seat,{bench:[bait,funded],opponentActive:defender({hp:190}),decisionKind:'owner-prompt',promptType:'ChoosePokemonPrompt'});
+  view.phase=3;view.ownPublic.prizeCount=2;
+  const req={role:'candidate',seat,observation:view,publicEventReceipt:null,
+    prompt:{actingSeat:seat,promptType:'ChoosePokemonPrompt',description:'CHOOSE_NEW_ACTIVE_POKEMON',
+      source:{classification:'actor-choice',sourceKind:'engine',sourcePrinting:null,effectName:'CHOOSE_NEW_ACTIVE_POKEMON'},
+      choices:[bait,funded].map((p,i)=>({token:'bench-'+i,kind:'pokemon',printing:p.printing,label:'Your bench '+(i+1),
+        publicMetadata:{selectionIndex:i,selectedCount:1,selectionType:'pokemon',ownerSeat:'actor',targetZone:'bench',benchIndex:i,isOwnerVisible:true}})),
+      publicMetadata:{minimumCount:1,maximumCount:1,allowCancel:false,isSecret:false,selectionType:'pokemon',targetZone:'bench'}}};
+  assert.deepEqual(decide(profile,req),mult('bench-1'));
+  // An engine promotion has no Active to replace. Do not mistake a switching
+  // or arbitrary target prompt for mandatory replacement.
+  view.ownPublic.active=bait;
+  assert.equal(decide(profile,req).kind,'abstain');
+  view.ownPublic.active=null;
+  req.prompt.choices[1].publicMetadata.ownerSeat='opponent';
+  assert.equal(decide(profile,req).kind,'abstain');
+  req.prompt.choices[1].publicMetadata.ownerSeat='actor';
+  req.prompt.publicMetadata.allowCancel=true;
+  assert.equal(decide(profile,req).kind,'abstain');
+  req.prompt.publicMetadata.allowCancel=false;
+  req.prompt.choices=[req.prompt.choices[0]];
+  assert.deepEqual(decide(profile,req),mult('bench-0'));
+});
+
+test('Candidate-only native promotion projection admits strict owner Bench choices in both physical seats',()=>{
+  const {projectPrompt}=require('../../simulation/evaluation/2026-11/agent36-prompt-projection.cjs');
+  const native={GamePhase:{ATTACK:3},PlayerType:{BOTTOM_PLAYER:0,TOP_PLAYER:1},SlotType:{ACTIVE:0,BENCH:1}};
+  const slot=(printing)=>({cards:printing?[{fullName:printing}]:[],getPokemonCard(){return this.cards[0]??null}});
+  class ChoosePokemonPrompt{
+    getPerspectivePlayerId(){return this.playerId;}
+  }
+  for(const seat of [0,1]){
+    const players=[0,1].map(i=>({id:i,active:slot(i===seat?null:V),bench:i===seat?[slot(V),slot(M),slot(null)]:[slot(D)]}));
+    const state={players,phase:3};
+    const prompt=Object.assign(new ChoosePokemonPrompt(),{playerId:seat,message:'CHOOSE_NEW_ACTIVE_POKEMON',playerType:0,slots:[1],
+      options:{min:1,max:1,allowCancel:false,blocked:[]}});
+    const args={prompt,state,actorSeat:seat,native,candidatePromotion:true};
+    const result=projectPrompt(args);
+    assert.equal(result.promptProjection.source.sourceKind,'engine');
+    assert.deepEqual(result.promptProjection.choices.map(c=>c.printing),[V,M]);
+    assert.ok(result.promptProjection.choices.every(c=>c.publicMetadata.ownerSeat==='actor'));
+    assert.equal(result.choiceByToken.size,2);
+    assert.throws(()=>projectPrompt({...args,candidatePromotion:false}),/trusted/);
+    players[seat].active=slot(V);
+    assert.throws(()=>projectPrompt(args),/trusted/);
+    players[seat].active=slot(null);
+    prompt.options.allowCancel=true;
+    assert.throws(()=>projectPrompt(args),/trusted/);
+    prompt.options.allowCancel=false;prompt.playerType=1;
+    assert.throws(()=>projectPrompt(args),/trusted/);
+    prompt.playerType=0;state.phase=2;
+    assert.throws(()=>projectPrompt(args),/trusted/);
+  }
+});

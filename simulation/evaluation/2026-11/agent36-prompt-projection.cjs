@@ -257,7 +257,23 @@ function targetChoice(target, state, actorSeat, native) {
   };
 }
 
-function makeSource(prompt, state, actorSeat, provenance) {
+function makeSource(prompt, state, actorSeat, provenance, native, candidatePromotion=false) {
+  // This opt-in is limited to the successor candidate role. The shape matches
+  // the existing native forced-single-Bench promotion witness; multi-Bench
+  // selection uses the same native-validated choice frontier.
+  const owner=state.players[actorSeat];
+  if(candidatePromotion===true&&state.phase===native.GamePhase?.ATTACK&&
+     prompt?.constructor?.name==='ChoosePokemonPrompt'&&
+     prompt.message==='CHOOSE_NEW_ACTIVE_POKEMON'&&
+     prompt.playerType===native.PlayerType.BOTTOM_PLAYER&&
+     Array.isArray(prompt.slots)&&prompt.slots.length===1&&prompt.slots[0]===native.SlotType.BENCH&&
+     prompt.options?.min===1&&prompt.options.max===1&&prompt.options.allowCancel===false&&
+     Array.isArray(prompt.options.blocked)&&prompt.options.blocked.length===0&&
+     Array.isArray(owner?.active?.cards)&&owner.active.cards.length===0&&
+     owner.bench.some(s=>Array.isArray(s?.cards)&&s.cards.length>0)){
+    return {classification:'actor-choice',sourceKind:'engine',sourcePrinting:null,
+      effectName:'CHOOSE_NEW_ACTIVE_POKEMON'};
+  }
   if(provenance?.sourceKind==='card-effect') {
     const sourceCard=provenance.sourceCard??null;
     const effectName=provenance.effectName;
@@ -944,7 +960,7 @@ function resolveHostOnlyPrompt({
   };
 }
 
-function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook } = {}) {
+function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook, candidatePromotion=false } = {}) {
   assert.ok(prompt && state && native);
   assert.ok(actorSeat === 0 || actorSeat === 1);
   const actor = state.players[actorSeat];
@@ -957,7 +973,7 @@ function projectPrompt({ prompt, state, actorSeat, native, store, provenanceHook
   const hostOnly = hostOnlyPrompt(prompt, provenance);
   if (hostOnly) return { ...hostOnly, choiceByToken: new Map() };
 
-  const source = makeSource(prompt, state, actorSeat, provenance);
+  const source = makeSource(prompt, state, actorSeat, provenance, native, candidatePromotion);
   const choices = [];
   const choiceByToken = new Map();
   let publicMetadata = null;

@@ -2692,12 +2692,53 @@ function chooseConfirmPrompt(view, prompt) {
   return { kind: 'select-choice', token: choice.token };
 }
 
+// Mandatory replacement after a Knock Out. Every target is a visible owner Bench
+// slot; rank funded counterattacks above generic setup and avoid needless prize exposure.
+function chooseKnockoutPromotion(view,prompt) {
+  const m=prompt.publicMetadata;
+  if(view.phase!==3||view.ownPublic.active!==null||
+      prompt.promptType!=='ChoosePokemonPrompt'||prompt.description!=='CHOOSE_NEW_ACTIVE_POKEMON'||
+      prompt.source.sourcePrinting!==null||prompt.source.effectName!==prompt.description||
+      m?.selectionType!=='pokemon'||m.targetZone!=='bench'||m.minimumCount!==1||
+      m.maximumCount!==1||m.allowCancel!==false)
+    return abstain('UNSUPPORTED_ENGINE_SETUP_PROMPT');
+  const rows=[];
+  for(const c of prompt.choices){
+    if(c.kind!=='pokemon'||c.publicMetadata?.ownerSeat!=='actor'||
+       c.publicMetadata?.targetZone!=='bench'||!c.printing)
+      return abstain('NO_VISIBLE_POKEMON_TARGET');
+    const t=slotForPokemonChoice(view,c);
+    if(!t||rows.some(r=>r.index===t.index))return abstain('NO_VISIBLE_POKEMON_TARGET');
+    const moved=switchedPublic(view,'ownPublic',t.index);
+    const s=moved.ownPublic.active,opp=moved.opponentPublic.active;
+    const attack=bestAttackForSlot(s,moved,opp);
+    const hp=Math.max(0,s.hp-s.damage);
+    if(hp===0)return abstain('NO_VISIBLE_POKEMON_TARGET');
+    const cost=ownRetreatCost(moved);
+    const exposed=visibleCounterattackThreat(moved,s)>=hp;
+    const terminal=opp&&Number.isFinite(attack?.damage)&&attack.damage>=opp.hp-opp.damage&&
+      prizeLiability(opp)>=view.ownPublic.prizeCount;
+    const score=(terminal?30000:0)+(attack?.score??0)+hp+
+      Math.min(5,s.energies.length)*80+
+      (cost===0?350:cost===null?-100:-cost*80)+wobLockValue(view,t.slot)-
+      prizeLiability(s)*120-(exposed&&!terminal?
+        (prizeLiability(s)>=view.opponentPublic.prizeCount?9000:1500):0);
+    rows.push({choice:c,index:t.index,score});
+    recordPolicyAuditScore(c.token,score);
+  }
+  if(rows.length===0)return abstain('NO_VISIBLE_POKEMON_TARGET');
+  rows.sort((a,b)=>b.score-a.score||a.index-b.index);
+  setPolicyAuditRule('KO_PROMOTION_COUNTERATTACK_AND_PRIZE_RISK','SCORE_DESC_NATIVE_TARGET_INDEX');
+  return {kind:'select-choices',tokens:[rows[0].choice.token]};
+}
+
 function choosePrompt(view, prompt, receipt, profile) {
   if (!prompt || prompt.actingSeat !== view.actorSeat ||
       prompt.source?.classification !== 'actor-choice') {
     return abstain('UNTRUSTED_PROMPT');
   }
   if (prompt.source.sourceKind === 'engine') {
+    if(prompt.description==='CHOOSE_NEW_ACTIVE_POKEMON')return chooseKnockoutPromotion(view,prompt);
     return chooseEngineSetupPrompt(view, prompt, profile);
   }
   if (prompt.source.sourceKind !== 'card-effect') {
