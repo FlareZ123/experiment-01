@@ -5,7 +5,7 @@ const M='Galarian Moltres V CRE',V='Shadow Rider Calyrex V CRE',MAX='Shadow Ride
 const mon=(printing,hp,energies=[],damage=0,tools=[])=>({printing,hp,damage,energies,tools,printed:{retreatCost:['Colorless']},abilitySuppressions:[]});
 const molt=(energies=[D,D,L],damage=0)=>mon(M,220,energies,damage);
 const vmax=()=>mon(MAX,320), v=()=>mon(V,210);
-const adp=()=>mon('Arceus & Dialga & Palkia-GX CEC',280);
+const adp=()=>mon('Arceus & Dialga & Palkia GX CEC',280);
 const latias=()=>({...mon('Latias ex SSP',210),abilitySuppressions:[{abilityName:'Skyliner',suppressed:false}]});
 const root=(token,kind,fields={})=>({token,kind,...fields});
 const burn=root('burn','attack',{actorPrinting:M,attackName:'Aura Burn',publicMetadata:{attackCostPayable:true}});
@@ -18,7 +18,7 @@ function request(seat,active,bench,defender,oppBench,items,extra={}){
 }
 function wing(seat,index=0){return root('wings','use-ability',{actorPrinting:M,publicMetadata:{abilityName:'Direflame Wings',sourceSeat:seat,sourceZone:'bench',sourceIndex:index}});}
 function attach(token,seat,energy,index=0){return root(token,'play-card',{actorPrinting:energy,targetPrinting:M,publicMetadata:{targetSeat:seat,targetZone:'bench',targetIndex:index}});}
-function retreat(seat,index=0){return root('pivot','retreat',{actorPrinting:'Arceus & Dialga & Palkia-GX CEC',targetPrinting:M,publicMetadata:{targetSeat:seat,targetZone:'bench',targetIndex:index}});}
+function retreat(seat,index=0){return root('pivot','retreat',{actorPrinting:'Arceus & Dialga & Palkia GX CEC',targetPrinting:M,publicMetadata:{targetSeat:seat,targetZone:'bench',targetIndex:index}});}
 const pick=(token,printing,ownerSeat,benchIndex)=>({kind:'pokemon',token,printing,publicMetadata:{ownerSeat,targetZone:'bench',benchIndex,isOwnerVisible:true}});
 function prompt(type,effect,printing,choices){return {promptType:type,source:{effectName:effect,sourcePrinting:printing},choices,publicMetadata:{minimumCount:1,maximumCount:1}};}
 const sel=token=>({kind:'select-action',token}), choices=token=>({kind:'select-choices',tokens:[token]});
@@ -55,6 +55,7 @@ for(const seat of [0,1]){
    const r=request(seat,adp(),benchSlot(molt([D])),vmax(),[],[]);
    const c=(token,printing,ownerSeat,sourceZone)=>({token,kind:'card',printing,publicMetadata:{ownerSeat,sourceZone,isOwnerVisible:true}});
    r.prompt=prompt('ChooseCardsPrompt','Direflame Wings',M,[c('wrong','Darkness Energy MEE','opponent','discard'),c('hand',D,'actor','hand'),c('light',L,'actor','discard'),c('good',D,'actor','discard')]);
+   r.prompt.publicMetadata={minimumCount:0,maximumCount:1,allowCancel:true};
    assert.deepEqual(mod.tacticalPrompt(r),choices('good'));
  });
  test('seat '+seat+' wrong seat/index, unknown tool, self-KO, or no paid attack suppress tactical override',()=>{
@@ -113,7 +114,7 @@ for(const seat of [0,1]){
    assert.deepEqual(mod.tacticalRoot(r),sel('burn'));
  });
  test('seat '+seat+' fixed-source set-only printing adapter activates historical roots without mutating request',()=>{
-   const r=request(seat,adp(),[],v(),[],[root('dde','play-card',{actorPrinting:'Double Dragon Energy ROS',targetPrinting:'Arceus & Dialga & Palkia-GX CEC',publicMetadata:{targetSeat:seat,targetZone:'active',targetIndex:0}}),pass]);
+   const r=request(seat,adp(),[],v(),[],[root('dde','play-card',{actorPrinting:'Double Dragon Energy ROS',targetPrinting:'Arceus & Dialga & Palkia GX CEC',publicMetadata:{targetSeat:seat,targetZone:'active',targetIndex:0}}),pass]);
    const snapshot=JSON.stringify(r);
    const mapped=mod.v2Request(r);
    assert.equal(mapped.actionFrontier.items[0].actorPrinting,'Double Dragon Energy ROS 97');
