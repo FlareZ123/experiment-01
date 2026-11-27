@@ -139,3 +139,47 @@ test('rank14 V3 setup keeps when-played-from-hand Squawk and Tapu Lele dormant',
     hand:choices.map(c=>c.printing),prompt:p,id:'rank14-start-actor1'});
   assert.deepEqual(checked(req),{kind:'select-choices',tokens:['v','lat']});
 });
+
+
+function withPublicKOReceipt(req,any){
+  const eventPokemon=p=>p===null?null:{
+    printing:p.printing,movedFromBenchToActiveThisTurn:null,knownAbilityUse:[]
+  };
+  req.publicEventReceipt={
+    version:protocol.EVENT_RECEIPT_VERSION,
+    actorSeat:req.seat,turn:req.observation.globalTurn,
+    ownerActive:eventPokemon(req.observation.ownPublic.active),
+    ownerBench:req.observation.ownPublic.bench.map(eventPokemon),
+    priorOpponentTurnKO:{any,byAttack:any},
+    opponentLastTurnAttack:null,opponentLastTurnTurn:null,
+    opponentLastTurnAttacks:null
+  };
+  return req;
+}
+test('rank14 V3 visible prior-turn KO makes Oricorio-GX Dance of Tribute realistic',()=>{
+  const own=player({
+    active:pokemon('Regidrago VSTAR SIT 136'),
+    bench:[pokemon('Regidrago V SIT 135')]
+  });
+  const items=[rootItem('ori','Oricorio-GX CEC 95'),{token:'pass',kind:'pass'}];
+  const req=request({seat:0,own,items,turn:8,id:'rank14-ko-ori-root'});
+  withPublicKOReceipt(req,true);
+  assert.deepEqual(checked(req),{kind:'select-action',token:'ori'});
+  req.publicEventReceipt.priorOpponentTurnKO={any:false,byAttack:false};
+  assert.deepEqual(checked(req),{kind:'select-action',token:'pass'});
+  const prompt={
+    schema:protocol.PROMPT_SCHEMA,actingSeat:0,
+    promptType:'ConfirmPrompt',description:'Dance of Tribute',
+    source:{classification:'actor-choice',sourceKind:'card-effect',
+      sourcePrinting:'Oricorio-GX CEC 95',effectName:'Dance of Tribute'},
+    choices:[{token:'yes',kind:'confirm',label:'Yes'},
+      {token:'no',kind:'confirm',label:'No'}],
+    publicMetadata:{selectionType:'confirm'}
+  };
+  req.prompt=prompt;
+  req.observation.pendingPromptType='ConfirmPrompt';
+  req.observation.decisionKind='owner-prompt';
+  assert.deepEqual(checked(req),{kind:'select-choice',token:'no'});
+  req.publicEventReceipt.priorOpponentTurnKO={any:true,byAttack:true};
+  assert.deepEqual(checked(req),{kind:'select-choice',token:'yes'});
+});
