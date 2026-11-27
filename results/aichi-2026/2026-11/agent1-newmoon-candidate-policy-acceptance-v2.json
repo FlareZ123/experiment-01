@@ -13,8 +13,8 @@
     "note": "Agent13 v1 already integrates Agent1's Raichu/Electrode delta. V2 adds uncovered rank2/rank5/rank9/rank19/rank30/rank31 families without changing the fixed 60."
   },
   "status": "actor-visible paper acceptance consolidation; no policy implementation, native game, competitive qualification, or win-rate claim",
-  "addedCaseCount": 62,
-  "totalCaseCount": 101,
+  "addedCaseCount": 66,
+  "totalCaseCount": 105,
   "addedCases": [
     {
       "id": "R2-DUAL-LOCK-RONDO",
@@ -623,6 +623,38 @@
       "state": "Opponent Defending Pokémon carries Pale Moon-GX delayed-KO effect and has no actor-visible legal route to leave Active before turn end.",
       "must": "Credit the delayed KO unless a prior game-ending event intervenes.",
       "forbids": "Discounting Pale Moon solely because switching is theoretically possible in other states."
+    },
+    {
+      "id": "K1-FSS-HOST-PRIZED",
+      "family": "K1 / dynamic DCI",
+      "sourceRanks": [],
+      "state": "After first deck search, K1 shows Galarian Articuno V is Prized; Forest Seal Stone remains accessible and no other Pokémon V exists in the fixed 60.",
+      "must": "Remove Star Alchemy continuation from the live line set and re-evaluate FSS discardability.",
+      "forbids": "Protecting FSS as a usable universal search card when it has no legal host."
+    },
+    {
+      "id": "K1-NEWMOON-PAIR-COLLAPSE",
+      "family": "K1 / dynamic DCI",
+      "sourceRanks": [],
+      "state": "K1 shows exactly one of Solrock or Lunatone is Prized.",
+      "must": "Remove asymmetric-Path continuation that requires the pair and re-evaluate the surviving singleton's role/DCI.",
+      "forbids": "Crediting New Moon Stadium protection from a single member of the pair."
+    },
+    {
+      "id": "K1-GENGAR-PRIZED",
+      "family": "K1 / dynamic DCI",
+      "sourceRanks": [],
+      "state": "K1 shows singleton Gengar & Mimikyu-GX is Prized.",
+      "must": "Remove native/Perfection Horror House and Poltergeist continuations until that Prize is taken.",
+      "forbids": "Searching/discard-planning around a Gengar donor that is not accessible."
+    },
+    {
+      "id": "K1-DUSKULL-ALL-PRIZED",
+      "family": "K1 / dynamic DCI",
+      "sourceRanks": [],
+      "state": "K1 shows both Duskull copies are Prized while Dusclops remains outside Prizes.",
+      "must": "Mark ordinary Dusclops evolution/Cursed-Blast line unavailable and raise DCI of stranded Dusclops unless another legal deployment route exists.",
+      "forbids": "Treating Stage-1 copies as live with no Basic stage available."
     }
   ],
   "authenticatedFamilyCoverage": {
@@ -679,7 +711,8 @@
     "A lock deletes only its actual action class: Ability suppression, Basic attack suppression, Item lock, Supporter lock and hand-play lock require different fallback sets; recompute native printed attacks before declaring lockout.",
     "Lock-resilient search is multi-channel: TPE Energy, Forest Seal Stone Tool/VSTAR search, Powerglass Basic-Energy recursion and Stadium replacement survive different card-type locks; track Tool and Basic-Energy custody explicitly.",
     "Before passing into Bench-punishment, compress/harden existing liabilities: Farewell unneeded Unown when legal and evolve Duskull when the HP/Stage change alters opponent reply thresholds.",
-    "Attack effects persist only while their target remains in the relevant state: explicitly score retreat/switch/evolution before treating copied Techno Blast, Eon Blade or Pale Moon as future-turn guarantees."
+    "Attack effects persist only while their target remains in the relevant state: explicitly score retreat/switch/evolution before treating copied Techno Blast, Eon Blade or Pale Moon as future-turn guarantees.",
+    "At K1, exact Prize knowledge must recompute continuation viability and DCI; do not preserve singleton/pair pieces for lines whose prerequisite is Prized or discard the only surviving redundancy."
   ],
   "implementationGate": {
     "required": [
@@ -701,7 +734,8 @@
     "results/strategy/2026-11/agent1-newmoon-lock-matrix-fallback-ladder-v1.md",
     "results/strategy/2026-11/agent1-lock-resilient-resource-ladder-v1.md",
     "results/strategy/2026-11/agent1-bench-compression-hardening-policy-v1.md",
-    "results/strategy/2026-11/agent1-attack-effect-mobility-policy-v1.md"
+    "results/strategy/2026-11/agent1-attack-effect-mobility-policy-v1.md",
+    "results/strategy/2026-11/agent1-k1-continuation-viability-dci-v1.md"
   ],
   "competitiveQualified": false,
   "claim99Point5": false
