@@ -463,9 +463,56 @@ function r17OptimisticDeck(view) {
   for(const k of R17_CORE_KEYS)result[k]=Math.max(0,R17_COUNTS[k]-r17BoardCount(view,k)-r17HandCount(view,k)-(d[k]||0)-(lost[k]||0));
   return result;
 }
-function r17CompressorPlan(view,deckCounts=null) {
+// Same-turn Energy search is evaluated against the immediate Prize exchange,
+// not the number of cards discarded. K0 deck counts are upper bounds only;
+// the actual search prompt re-solves against its legal physical choices.
+const R17_ENERGY_PRINTING=Object.freeze({reversal:'Reversal Energy PAL',counter:'Counter Energy CIN',unit:'Unit Energy LPM UPR'});
+function r17EnergyDeckBounds(view) {
+  const z=r17KnownOwnZones(view);if(z)return z.deck;
+  const counts={...R17_COUNTS};
+  for(const c of [...hand(view),...r17Discard(view),...list(own(view).lostZone),
+    ...slots(own(view)).flatMap(p=>list(p.energies))]){
+    const key=r17Key(c);if(R17_ENERGY.has(key))counts[key]--;
+  }
+  return Object.fromEntries([...R17_ENERGY].map(k=>[k,Math.max(0,counts[k]||0)]));
+}
+function r17LoadPlan(view,p,deckCounts,maxLoad=3,options={}) {
+  if(!r17RainWindow(view,p)||!r17LiveBombs(view).length||
+    r17NeedTempleRemoval(view)&&!options.ignoreTemple)return null;
+  const baseline=r17RainProjection(view,p,options);
+  let best=null;
+  const bound=k=>Math.max(0,Math.min(4,deckCounts[k]||0,maxLoad));
+  for(let r=0;r<=bound('reversal');r++)for(let c=0;c<=bound('counter');c++)
+    for(let u=0;u<=bound('unit');u++){
+      const n=r+c+u;if(n===0||n>maxLoad)continue;
+      const keys=[...Array(r).fill('reversal'),...Array(c).fill('counter'),...Array(u).fill('unit')];
+      const projected=r17RainProjection(view,p,{...options,
+        extraDiscard:[...list(options.extraDiscard),...keys.map(k=>R17_ENERGY_PRINTING[k])]});
+      if(!projected||projected.bombs===0||r17CompareProjection(projected,baseline)<=0)continue;
+      const compare=r17CompareProjection(projected,best?.projection);
+      if(compare>0||(compare===0&&n<best.keys.length))best={keys,projection:projected};
+    }
+  return best;
+}
+function r17ActiveLoadPlan(view,deckCounts=null,searching=false) {
+  const p=active(own(view));
+  if(r17Key(p)!=='raichu'||!itemAvailable(view))return null;
+  // During the choice prompt the current Compressor has left the hand.
+  // Plan across distinct held copies, but spend at most three cards now.
+  const copies=r17HandCount(view,'compressor')+Number(searching);
+  if(copies<1)return null;
+  const known=deckCounts||r17EnergyDeckBounds(view);
+  const plan=r17LoadPlan(view,p,known,Math.min(12,copies*3));
+  return plan?{...plan,now:plan.keys.slice(0,3)}:null;
+}
+function r17CompressorPlan(view,deckCounts=null,searching=false) {
   if(!itemAvailable(view))return [];
-  return r17CoreAccess(view,deckCounts||r17OptimisticDeck(view)).searchKeys;
+  const core=r17CoreAccess(view,deckCounts||r17OptimisticDeck(view)).searchKeys;
+  const load=r17ActiveLoadPlan(view,deckCounts,searching);
+  if(!load)return core;
+  // A projected same-turn terminal or positive Prize trade precedes future
+  // development only when Raichu and Bomb are already ready.
+  return [...load.now,...core].slice(0,3);
 }
 function r17CompressorGain(view) {return r17CompressorPlan(view).length;}
 function r17CompressorUseful(view) {
@@ -478,7 +525,7 @@ function r17CompressorUseful(view) {
 }
 function r17CompressorChoices(prompt,view) {
   const cards=r17ChoiceCards(prompt,'deck');
-  const keys=r17CompressorPlan(view,r17CardCounts(cards)||{});
+  const keys=r17CompressorPlan(view,r17CardCounts(cards)||{},true);
   if(keys.length) {
     const remaining=cards.slice(),rows=[];
     for(const key of keys){const index=remaining.findIndex(c=>r17Key(c)===key);if(index>=0)rows.push(...remaining.splice(index,1));}
@@ -867,7 +914,7 @@ function r17ScorePlay(item,view) {
   if(k==='vip'){const z=r17KnownOwnZones(view);return r17First(view)&&r17Space(view)>0&&(!z||Object.keys(z.deck).some(k=>r17VipValue(k,view)>0))?350:0;}
   if(k==='carrier')return r17CoreAccess(view).carrierKeys.length||
     r17Discard(view).some(c=>!R17_CORE_KEYS.includes(r17Key(c))&&r17CarrierValue(r17Key(c),view)>0)?290:0;
-  if(k==='compressor')return r17CompressorUseful(view)?(r17CompressorGain(view)>0?305:250):0;
+  if(k==='compressor')return r17ActiveLoadPlan(view)?395:r17CompressorUseful(view)?(r17CompressorGain(view)>0?305:250):0;
   if(k==='stretcher')return r17CoreAccess(view).stretcherKeys.length||
     r17Discard(view).some(c=>!R17_CORE_KEYS.includes(r17Key(c))&&r17RecoveryValue(r17Key(c),view)>0)?275:0;
   if(k==='mail')return r17Deck(view)>=2?175:0;
@@ -885,9 +932,30 @@ function r17ScorePlay(item,view) {
       list(s.printed?.retreatCost).length===1&&benchCount(own(view))>0?130:0;
   }
   if(k==='ticket')return r17TicketPlan(view)?390:0;
-  if(k==='sight'||k==='klefki')return 0; // tactical paths not yet implemented.
+  if(k==='sight'){
+    const p=r17Slot(view,m.targetZone,m.targetIndex);
+    if(m.targetSeat!=='actor'||r17Key(p)!=='raichu'||list(p.tools).length||!r17StadiumToolLive(view)||own(view).publicTurnRestrictions?.toolPlayLocked||view.ownTurnResources?.toolPlayLocked)return 0;
+    const baseline=r17RainProjection(view,p),boosted=r17RainProjection(view,p,{forceSight:true});
+    if(boosted&&r17CompareProjection(boosted,baseline)>0)return 400;
+    const bounds=r17EnergyDeckBounds(view),capacity=Math.min(12,3*r17HandCount(view,'compressor'));
+    const base=r17LoadPlan(view,p,bounds,capacity),withSight=r17LoadPlan(view,p,bounds,capacity,{forceSight:true});
+    return withSight&&r17CompareProjection(withSight.projection,base?.projection)>0?375:0;
+  }
+  if(k==='klefki')return 0;
   if(k==='rope')return 0; // do not spend irreversible forced switch without the paired opponent response.
   if(R17_ENERGY.has(k)&&m.targetSeat==='actor') {
+    const p=r17Slot(view,m.targetZone,m.targetIndex);
+    if(t==='raichu'&&r17Key(p)==='raichu'&&r17RainWindow(view,p)&&!r17NeedTempleRemoval(view)){
+      const extraAttached=[R17_ENERGY_PRINTING[k]],baseline=r17RainProjection(view,p);
+      const immediate=r17RainProjection(view,p,{extraAttached});
+      if(immediate&&r17CompareProjection(immediate,baseline)>0)return 390+({reversal:3,counter:2,unit:1}[k]);
+      const bounds=r17EnergyDeckBounds(view),capacity=Math.min(12,3*r17HandCount(view,'compressor'));
+      const before=r17LoadPlan(view,p,bounds,capacity),after=r17LoadPlan(view,p,bounds,capacity,{extraAttached});
+      if(after&&r17CompareProjection(after.projection,before?.projection)>0)return 365+({reversal:3,counter:2,unit:1}[k]);
+    }
+    if(t==='klefki'&&m.targetZone==='active'&&r17Key(p)==='klefki'&&
+      r17IsWob(active(opponent(view)))&&r17LiveHood(view,active(opponent(view)))&&
+      list(p.energies).length===0)return 260+({unit:3,counter:2,reversal:1}[k]);
     if(k==='unit'&&t==='gengar')return 210;
     if(t==='raichu'||t==='pikachu')return k==='unit'?190:
       Number.isSafeInteger(own(view).prizeCount)&&Number.isSafeInteger(opponent(view).prizeCount)&&
@@ -1206,5 +1274,5 @@ module.exports = Object.freeze({
   SOURCE_ENTRY_JSON_SHA256:R17_PROFILE.sourceEntryJsonSha256,
   ENGINE_PIN:R17_PROFILE.enginePin,PROFILE:R17_PROFILE,createPolicy:r17CreatePolicy,
   scoreAction:r17Score,promptDecision:r17Prompt,bestAction:r17Best,
-  planRainTurn:r17PlanRainTurn,knownOwnZones:r17KnownOwnZones,ticketPlan:r17TicketPlan,planCoreAccess:r17CoreAccess,wobbuffetLive:r17WobLive,abilityBlocked:r17AbilityBlocked,liveBombs:r17LiveBombs,rainProjection:r17RainProjection,ropeRainPlan:r17RopeRainPlan,energyProvision:r17EnergyProvision
+  planRainTurn:r17PlanRainTurn,knownOwnZones:r17KnownOwnZones,ticketPlan:r17TicketPlan,planCoreAccess:r17CoreAccess,wobbuffetLive:r17WobLive,abilityBlocked:r17AbilityBlocked,liveBombs:r17LiveBombs,rainProjection:r17RainProjection,ropeRainPlan:r17RopeRainPlan,energyProvision:r17EnergyProvision,loadPlan:r17LoadPlan,activeLoadPlan:r17ActiveLoadPlan
 });
