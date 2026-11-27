@@ -13,8 +13,8 @@
 **Minimal patch, without changing the worker interface**:
 
 ```diff
- const WONDROUS_LABYRINTH = /^Wondrous Labyrinth(?: ♢| Prism Star)?\\b/i;
-+const TEMPLE_OF_SINNOH = /^Temple of Sinnoh\\b/i;
+ const WONDROUS_LABYRINTH = /^Wondrous Labyrinth(?: ♢| Prism Star)?\b/i;
++const TEMPLE_OF_SINNOH = /^Temple of Sinnoh\b/i;
 
  function voltCycloneFunded(pokemon, observation) {
    if (!pokemon || !IRON_THORNS.test(pokemon.printing ?? '')) return false;
