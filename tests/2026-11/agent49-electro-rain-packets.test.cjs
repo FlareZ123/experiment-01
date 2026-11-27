@@ -126,7 +126,7 @@ test('targets must remain occupied and source/shape must match pinned UNM',()=>{
 test('large legal-looking packet frontier fails closed rather than truncating',()=>{
   for(const seat of [0,1]){
     const f=fixture(seat,6);
-    f.prompt.damage=300*10;
+    f.prompt.damage=300*30;
     assert.throws(()=>f.project(),/Electro Rain packet target frontier is not bounded/);
   }
 });
