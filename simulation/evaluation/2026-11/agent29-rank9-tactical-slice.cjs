@@ -1073,7 +1073,12 @@ function bombPlanner(o,sourceBenchIndex){
           supporterFree&&g?pair?.score??0:0,prepScore,400)){
         chain={kind:'bomb',turn:o.globalTurn,sequence:r.sequence,
           required:bomb.plan.required,
-          assignments:bomb.plan.assignments.map(a=>({...a}))};
+          assignments:bomb.plan.assignments.map(a=>({...a})),
+          sourceActive:bomb.plan.sourceZone==='active',
+          promotionIndex:bomb.plan.sourceZone==='active'?
+            bomb.plan.mobility?.promotionIndex:null,
+          promotionPrinting:bomb.plan.sourceZone==='active'?
+            bomb.plan.mobility?.promotionPrinting:null};
         return {kind:'select-action',token:bomb.action.token};
       }
       if(prepScore>=1000&&Math.max(retScore,ropeScore,supporterFree&&g?pair?.score??0:0)<1000)return {kind:'select-action',token:prep.token};
@@ -1153,8 +1158,32 @@ function bombPlanner(o,sourceBenchIndex){
         }
         if(new Set(selected.map(c=>c.token)).size!==chain.required)
           return fail('UNTRUSTED_ENERGY_SELECTION');
-        chain=null;
+        const next=chain.sourceActive?{
+          kind:'bomb-promotion',turn:chain.turn,sequence:r.sequence,
+          index:chain.promotionIndex,printing:chain.promotionPrinting
+        }:null;
+        chain=next;
         return select(p,selected,selected.length,'UNTRUSTED_ENERGY_SELECTION');
+      }
+      if(chain?.kind==='bomb-promotion'){
+        if(chain.turn!==o.globalTurn||r.sequence!==chain.sequence+1||
+           p.promptType!=='ChoosePokemonPrompt'||
+           p.source?.sourceKind!=='engine'||
+           p.source?.effectName!=='CHOOSE_NEW_ACTIVE_POKEMON'||
+           M(p).selectionType!=='pokemon'||M(p).minimumCount!==1||
+           M(p).maximumCount!==1||M(p).allowCancel!==false||
+           !Number.isSafeInteger(chain.index)||chain.index<0||
+           typeof chain.printing!=='string'||!chain.printing)
+          return fail('UNTRUSTED_PROMPT_SOURCE');
+        const candidates=choices.filter(c=>c.kind==='pokemon'&&
+          M(c).ownerSeat==='actor'&&M(c).isOwnerVisible===true&&
+          M(c).targetZone==='bench'&&M(c).benchIndex===chain.index&&
+          name(c)===chain.printing&&
+          o.ownPublic?.bench?.[chain.index]&&
+          name(o.ownPublic.bench[chain.index])===chain.printing);
+        if(candidates.length!==1)return fail('NO_VISIBLE_POKEMON_TARGET');
+        chain=null;
+        return select(p,candidates,1,'NO_VISIBLE_POKEMON_TARGET');
       }
       if(!chain){const setup=chooseSetup(r);if(setup)return setup;const claw=chooseClaw(r);if(claw)return claw;const d=chooseDevelopment(r);if(d)return d;}
       if(!chain||chain.turn!==o.globalTurn||r.sequence!==chain.sequence+1||
