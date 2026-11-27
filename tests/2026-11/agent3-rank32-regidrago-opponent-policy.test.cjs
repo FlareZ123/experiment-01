@@ -3,6 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const list = require('../../results/aichi-2026/full-decklists.json');
+const workerProtocol = require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
 const {
   POLICY_VERSION, SOURCE_RANK, SOURCE_LIST_BLOB_SHA1, ENGINE_PIN,
   createPolicy, bestAction, promptDecision
@@ -265,4 +266,37 @@ test('Stealthy Hood attachment targets the VSTAR only within active Wobbuffet lo
   const noLock=request({prompt:p});
   assert.deepEqual(promptDecision(noLock),
     {kind:'abstain',reasonCode:'RANK32_HOOD_LOCK_WINDOW_ABSENT'});
+});
+
+
+test('production V3 codebook accepts worker abstentions, never internal RANK32 codes',()=>{
+  const policy=createPolicy({role:'opponent',seat:0,policyVersion:POLICY_VERSION,
+    config:{},rng:()=>0.5});
+  const rp=request({items:[action('ball','play-card','Ultra Ball MEG 131')]});
+  assert.deepEqual(policy.decide(rp),
+    {kind:'abstain',reasonCode:'NO_SUPPORTED_ROOT_ACTION'});
+  assert.ok(workerProtocol.isAbstentionReasonCode(policy.decide(rp).reasonCode));
+  assert.deepEqual(workerProtocol.validateDecision(policy.decide(rp),null,new Set(['ball'])),
+    {kind:'abstain',reasonCode:'NO_SUPPORTED_ROOT_ACTION'});
+  const pp=request({prompt:prompt(P.regidrago,'Apex Dragon',
+    [{token:'phantom',kind:'attack',publicMetadata:{sourceAttack:'Phantom Dive'}}],
+    'ChooseAttackPrompt')});
+  const result=policy.decide(pp);
+  assert.deepEqual(result,{kind:'abstain',reasonCode:'NO_SUPPORTED_ATTACK_CHOICE'});
+  assert.deepEqual(workerProtocol.validateDecision(result,pp.prompt,new Set()),result);
+});
+
+test('production V3 validates a copied Ryuno ChooseEnergyPrompt selection',()=>{
+  const p=prompt(P.dragonite,'Ryuno Glide',[
+    {token:'dde',kind:'energy',printing:P.doubleDragon},
+    {token:'g',kind:'energy',printing:P.energy},
+    {token:'f',kind:'energy',printing:'Fire Energy MEE 10'}],
+    'ChooseEnergyPrompt');
+  p.publicMetadata={selectionType:'energy-payment',energyCount:3,count:3};
+  const req=request({prompt:p});
+  const policy=createPolicy({role:'opponent',seat:0,policyVersion:POLICY_VERSION,
+    config:{},rng:()=>0.5});
+  const decision=policy.decide(req);
+  assert.deepEqual(decision,{kind:'select-choices',tokens:['g','f']});
+  assert.deepEqual(workerProtocol.validateDecision(decision,p,new Set()),decision);
 });
