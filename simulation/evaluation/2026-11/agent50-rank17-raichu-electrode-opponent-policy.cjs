@@ -1001,6 +1001,17 @@ function r17TicketPlan(view) {
     if(isolated(key)&&compressor&&stretcher>existingEvos)
       return {target:key,followup:'compressor-stretcher',epoch:zones.epoch};
   }
+  // A singleton Marshadow can be just as strategically isolated as a
+  // starter when a hostile Stadium blocks the engine. Ticket only becomes
+  // useful if the rerolled card has a funded deck->discard->hand route.
+  if(r17NeedStadiumRemoval(view)&&isolated('marshadow')&&!r17Hand(view,'heavy')&&
+     !r17Board(view,'marshadow')&&!r17Hand(view,'marshadow')) {
+    const carrierDemand=r17CoreAccess(view).carrierKeys.length;
+    if(vip&&r17Space(view)>0)
+      return {target:'marshadow',followup:'vip',epoch:zones.epoch};
+    if(compressor&&2*carrier>carrierDemand)
+      return {target:'marshadow',followup:'compressor-carrier',epoch:zones.epoch};
+  }
   const missing=r17MissingCore(view),existingBases=missing.filter(k=>discard.has(k)).length;
   if(r17Space(view)>existingBases&&!r17Hand(view,'heavy')&&
      (!r17CoreBaseReady(view,'ditto')||r17AbilityBlocked(view,'ditto'))&&
