@@ -5,7 +5,7 @@
  * Pin the bundle blob after independent review before any native worker use.
  * agent43-regidrago-apex-choice.cjs 65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b
  * agent1-rank12-regidrago-opponent-policy-v2.cjs bfaee2205ea9d0c3b618948fe24ff81075d4ccda
- * agent3-rank32-regidrago-opponent-policy.cjs 76859d8f0b75e18ef0455e516c2e14447a18e1c6
+ * agent3-rank32-regidrago-opponent-policy.cjs 088652dedb66b7043600d4b55dbf7203ed73ca69
  */
 const __rank32Modules = Object.freeze({
 "./agent43-regidrago-apex-choice.cjs": function(require, module, exports) {
@@ -1103,9 +1103,21 @@ function scoreAction(action, request) {
     if (/^Stealthy Hood UNB 186\b/i.test(name)) {
       const enemyWobbuffet = /^Wobbuffet PHF 36\b/i.test(print(opp.active));
       const unusedVstar = own.publicTurnRestrictions?.vstarUsed === false;
-      const target = slots(own).find(p=>/^Regidrago VSTAR SIT 136\b/i.test(print(p)) &&
-        list(p.tools).length===0);
-      return enemyWobbuffet && unusedVstar && target ? 265 : 0;
+      // Play-card root items carry their actual targetPrinting and targetSeat.
+      // An otherwise strong Hood line must never choose a token that attaches
+      // the Tool to a utility Basic instead of the threatened Regidrago VSTAR.
+      const targetPrinting = action?.targetPrinting ?? '';
+      const targetSeat = action?.publicMetadata?.targetSeat;
+      const targetZone = action?.publicMetadata?.targetZone;
+      const targetIndex = action?.publicMetadata?.targetIndex;
+      const exactTarget = targetZone === 'active' ? own.active :
+        (targetZone === 'bench' && Number.isSafeInteger(targetIndex) ?
+          list(own.bench)[targetIndex] : null);
+      const aligned = exactTarget &&
+        /^Regidrago VSTAR SIT 136\b/i.test(targetPrinting) &&
+        targetSeat === 'actor' && print(exactTarget) === targetPrinting &&
+        list(exactTarget.tools).length === 0;
+      return enemyWobbuffet && unusedVstar && aligned ? 265 : 0;
     }
     // Stage-2 Mega Dragonite has no evolution chain in the original 60:
     // it is an Apex donor, never proactively benched/evolved by this policy.
@@ -1280,6 +1292,26 @@ function bestAction(request) {
   return pass ? {kind:'select-action',token:pass.token} :
     {kind:'abstain',reasonCode:'RANK32_NO_SUPPORTED_ACTION'};
 }
+function protocolSafeDecision(decision, request) {
+  if (!decision || decision.kind !== 'abstain') return decision;
+  const reason = decision.reasonCode ?? '';
+  if (reason === 'ROLE_SEAT_BINDING_MISMATCH') return decision;
+  // The production V3 worker has a frozen, finite abstention codebook.
+  // Internal diagnostic reason codes can be source-specific, but the worker
+  // must publish only protocol-enumerated codes.
+  let code = 'UNSUPPORTED_PROMPT_TYPE';
+  if (request?.prompt === null || request?.prompt === undefined)
+    code = 'NO_SUPPORTED_ROOT_ACTION';
+  else if (/PRIZE|HEAVY_BALL/i.test(reason)) code = 'NO_VISIBLE_PRIZE_SLOT';
+  else if (/RYUNO|ENERGY_PAYMENT|ENERGY_PROMPT/i.test(reason))
+    code = 'NO_SUPPORTED_ENERGY_PAYMENT';
+  else if (/APEX|ATTACK/i.test(reason)) code = 'NO_SUPPORTED_ATTACK_CHOICE';
+  else if (/POKEMON|HOOD|SKY_TRANSPORT|GUST/i.test(reason))
+    code = 'NO_SUPPORTED_POKEMON_CHOICE';
+  else if (/CARD|BALL|DISCARD|COMPRESSOR|SUPPORTER|SEARCH/i.test(reason))
+    code = 'NO_SUPPORTED_CARD_SELECTION';
+  return {kind:'abstain',reasonCode:code};
+}
 function createPolicy({role,seat,policyVersion,config,rng}) {
   if (role!=='opponent' || (seat!==0 && seat!==1) ||
       policyVersion!==POLICY_VERSION || !config ||
@@ -1293,13 +1325,15 @@ function createPolicy({role,seat,policyVersion,config,rng}) {
           request.observation?.actorSeat!==seat) {
         return {kind:'abstain',reasonCode:'ROLE_SEAT_BINDING_MISMATCH'};
       }
-      return request.prompt !== null && request.prompt !== undefined ?
+      const decision = request.prompt !== null && request.prompt !== undefined ?
         promptDecision(request) : bestAction(request);
+      return protocolSafeDecision(decision,request);
     }
   });
 }
 module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
-  createPolicy,scoreAction,promptDecision,bestAction,chooseRank32Apex,donorScore};
+  createPolicy,scoreAction,promptDecision,bestAction,chooseRank32Apex,donorScore,
+  protocolSafeDecision};
 
 }
 });
