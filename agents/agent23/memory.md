@@ -1,3 +1,7 @@
+## 2026-11-27 06:36 UTC checkpoint — concrete energy contract proposal
+- Branch head 7a3e09bb579e7837ca863f3cfbea45fa6e2e3b9f: energy-host bridge + review-only unified diff in simulation/evaluation/2026-11/agent23-rank19-energy-host-integration.proposed.patch. Exact rank19 source fingerprint and engine pin, explicit capabilities; source-bound projection and physical resolution; no changes to shared actual protocol, host, worker registration or caller. Existing protocol rejects new prompt types; proposed protocol in V8 accepts a legal Sada pair and rejects duplicate physical energy and duplicate target. Patch based on main protocol blob 468f957b17656f41cf9af8c77e6954bb79ea5695 and projection bb1dade971632916f6bb029371ce32db55d2b884. Requires Agent36/49 review of source context binding and owner approval. No native games.
+- Elapsed 21m, lease unchanged. Next address actual opening setup and supported rank19 counterplay.
+
 ## 2026-11-27 06:34 UTC checkpoint — unified rank19 policy
 - Branch agent23/rank19-moltres-shadow-rider-20261127, head 99b5ba51de7bfe6922ce32b231071e1fc4439f7a. 97/97 synthetic V8 tests (45 supported v3 Moltres/Ho-Oh/search/prize race, 11 Bellowing, 29 acceleration, 12 unified v4), no native/IPC/game.
 - Exact target model now covers twelve Pokémon identities in the two fixed candidates, including Trevenant/Dusknoir, Latias, Clefairy, Wobbuffet. Moltres uses 190/380 damage and base Prize count, with safe terminal recoil only when neither opponent Prize-out nor own empty-board condition can arise.
