@@ -1,5 +1,58 @@
 "use strict";
 
+const OWN={
+ "Shadow Rider Calyrex V CRE":"v","Shadow Rider Calyrex VMAX CRE":"vmax",
+ "Wobbuffet PHF":"wob","Lillie's Clefairy ex JTG":"clefairy","Tapu Lele-GX GRI":"lele",
+ "Trevenant & Dusknoir-GX SMP":"trev","Latias ex SSP":"latias","Dialga-GX UPR":"dialga",
+ "Mimikyu GRI":"mimikyu","Girafarig LOT":"girafarig","Marshadow UNB":"marshadow","Radiant Eternatus CRZ":"radiant"
+};
+
+// A K0 lower bound is not a deck reconstruction. Every counted physical
+// card is demonstrably outside the deck; all other outside-deck slots may
+// adversarially contain the desired printing. Ignore Tools (some can be
+// attached by an opponent), resolving cards and duplicate public hand views.
+function guaranteedDeckLowerBounds(view,inventory){
+  const check=(ok,m)=>{if(!ok)throw Error(m)};
+  const int=(n,l,h)=>Number.isSafeInteger(n)&&n>=l&&n<=h;
+  const own=view.ownPublic;
+  check(inventory&&typeof inventory==="object"&&!Array.isArray(inventory)&&
+    Object.entries(inventory).every(([p,n])=>typeof p==="string"&&p.length>0&&int(n,1,60))&&
+    Object.values(inventory).reduce((a,n)=>a+n,0)===60,"fixed 60 inventory required");
+  check(int(own.deckCount,0,60)&&int(own.prizeCount,0,6)&&Array.isArray(view.ownHand)&&
+    (own.handCount==null||own.handCount===view.ownHand.length),"invalid public counts");
+  const outside=Object.create(null);
+  const add=p=>{
+    check(typeof p==="string"&&Object.prototype.hasOwnProperty.call(inventory,p),"visible card outside certified inventory: "+p);
+    outside[p]=(outside[p]??0)+1;
+    check(outside[p]<=inventory[p],"visible copies exceed fixed inventory: "+p);
+  };
+  for(const xs of [view.ownHand,own.discard,own.lostZone??[],own.stadium??[]]){
+    check(Array.isArray(xs),"invalid public zone");xs.forEach(add);
+  }
+  for(const slot of [own.active,...own.bench].filter(Boolean)){
+    check(!slot.concealed&&Array.isArray(slot.evolutionPrintings)&&Array.isArray(slot.energies),"unavailable own board");
+    // Some engine views include attachments in the stack: count only
+    // Pokémon there, then Energy separately. Ignore cross-owner Tools.
+    slot.evolutionPrintings.filter(p=>Object.prototype.hasOwnProperty.call(OWN,p)).forEach(add);
+    slot.energies.forEach(add);
+  }
+  if(own.prizeSlots!=null){
+    check(Array.isArray(own.prizeSlots)&&own.prizeSlots.length===own.prizeCount&&
+      own.prizeSlots.every(q=>int(q.index,0,5))&&new Set(own.prizeSlots.map(q=>q.index)).size===own.prizeCount,
+      "malformed public Prize slots");
+    own.prizeSlots.forEach(q=>{if(q.printing!=null)add(q.printing)});
+  }
+  const visible=Object.values(outside).reduce((a,n)=>a+n,0),unknownOutside=60-own.deckCount-visible;
+  check(int(unknownOutside,0,60),"visible zones exceed outside-deck capacity");
+  function bound(predicate){
+    const unresolved=Object.entries(inventory).reduce((a,[p,n])=>a+(predicate(p)?n-(outside[p]??0):0),0);
+    return Math.max(0,unresolved-unknownOutside);
+  }
+  const cards=Object.keys(inventory).flatMap(p=>Array(bound(q=>q===p)).fill(p));
+  check(cards.length<=own.deckCount,"inconsistent lower bounds");
+  return {cards,visible,unknownOutside,bound};
+}
+
 // Agent21 advisory for approved common two-profile successor; detached verified actor resources only.
 function acerolaMaxGeist(input, maxStates = 40000, firstActionAllowed = () => true, options = {}) {
   // Positive known-resource certificates only. Public permissions and damage modifiers
@@ -426,12 +479,18 @@ function certificateRootMatcher(request,input,binding){
     const kp=input.knownDeckPsychic??0;
     if(kp){
       const k=v.ownerK1,rows=k?.knownPrintings;
-      check(k?.exactMembershipKnown===true&&Array.isArray(rows)&&
-        rows.every(x=>typeof x.printing==="string"&&Number.isSafeInteger(x.copies)&&x.copies>0)&&
-        new Set(rows.map(x=>x.printing)).size===rows.length&&
-        rows.reduce((a,x)=>a+x.copies,0)===own.deckCount&&
-        rows.reduce((a,x)=>a+(isP(x.printing)?x.copies:0),0)>=kp,
-        "certified K1 lower bound absent");
+      if(k?.exactMembershipKnown===true){
+        check(Array.isArray(rows)&&
+          rows.every(x=>typeof x.printing==="string"&&Number.isSafeInteger(x.copies)&&x.copies>0)&&
+          new Set(rows.map(x=>x.printing)).size===rows.length&&
+          rows.reduce((a,x)=>a+x.copies,0)===own.deckCount&&
+          rows.reduce((a,x)=>a+(isP(x.printing)?x.copies:0),0)>=kp,
+          "certified K1 lower bound absent");
+      }else{
+        check(binding.fixed60InventoryCertified===true,"K0 fixed inventory not certified");
+        const lb=guaranteedDeckLowerBounds(v,binding.inventoryPrintings);
+        check(lb.bound(isP)>=kp,"K0 guarantee exceeds public-card lower bound");
+      }
     }
     const targets=input.opponents??[{id:"active",...input.target}];
     function bind(rows,actual,owner,activeIndex){
@@ -689,5 +748,5 @@ function transitionSelfTest(){
   return [{name:'Door chance separated from deterministic prefixes',states:states.length,chances:draws.length}];
 }
 
-module.exports={certificateRootMatcher,acerolaMaxGeist,selfTest,trainerSelfTest,selectCertificateRoot,frontierSelfTest,dynamicSelfTest,attackSelfTest,transitionSelfTest};
+module.exports={certificateRootMatcher,acerolaMaxGeist,selfTest,trainerSelfTest,selectCertificateRoot,frontierSelfTest,dynamicSelfTest,attackSelfTest,transitionSelfTest,guaranteedDeckLowerBounds,OWN};
 if(require.main===module)console.log(JSON.stringify({base:selfTest(),trainers:trainerSelfTest(),frontier:frontierSelfTest(),dynamic:dynamicSelfTest(),attacks:attackSelfTest(),transitions:transitionSelfTest()},null,2));

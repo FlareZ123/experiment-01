@@ -2,12 +2,7 @@
 
 // Advisory only. A caller must supply actor-visible residual effect certificates.
 // The bridge deliberately does not derive hidden state or certify unknown card effects.
-const OWN={
- "Shadow Rider Calyrex V CRE":"v","Shadow Rider Calyrex VMAX CRE":"vmax",
- "Wobbuffet PHF":"wob","Lillie's Clefairy ex JTG":"clefairy","Tapu Lele-GX GRI":"lele",
- "Trevenant & Dusknoir-GX SMP":"trev","Latias ex SSP":"latias","Dialga-GX UPR":"dialga",
- "Mimikyu GRI":"mimikyu","Girafarig LOT":"girafarig","Marshadow UNB":"marshadow","Radiant Eternatus CRZ":"radiant"
-};
+const {guaranteedDeckLowerBounds,OWN}=require("./acerola-max-geist-advisory.cjs");
 const ROLES={"Acerola":"acerola","Guzma":"guzma","Pokémon Ranger":"ranger","VS Seeker":"vs",
  "Night Stretcher":"stretcher","Fog Crystal":"fog","Lillie's Determination":"lillie","Iono":"iono",
  "Unfair Stamp":"stamp","Stealthy Hood":"hood","Float Stone":"float","Field Blower":"blower","Dimension Valley":"valley"};
@@ -111,10 +106,13 @@ function projectTerminalInput(request,profile,certificate){
       exact=true;
       known=roleCount(rows.flatMap(x=>Array(x.copies).fill(x.printing)));
     }
+    const k0=!exact&&certificate.fixed60InventoryCertified===true?
+      guaranteedDeckLowerBounds(v,profile.inventoryPrintings):null;
+    const lowerDeck=k0?.cards??[];
     const input={stablePublicEffects:true,noUnmodeledTerminalEffects:true,attackModel:"candidate-printed-v1",
       dynamicEffects:{kind:"thorns-wobbuffet-v1",otherEffectsStable:true,toolsEffective:true},
       board,active:0,opponents,activeOpponent:0,handPsychic:counts.P??0,discardPsychic:dc.P??0,
-      deckCount:own.deckCount,knownDeckPsychic:known.P??0,knownDeckPsychicCertified:exact,
+      deckCount:own.deckCount,knownDeckPsychic:exact?(known.P??0):(k0?.bound(isP)??0),knownDeckPsychicCertified:exact||!!k0,
       prizesRemaining:own.prizeCount,manualAvailable:r.energyPlayedTurn!==turn,retreatAvailable:r.retreatedTurn!==turn,
       supportAvailable:r.supporterPlayedTurn===0&&!r.supporterPlayLocked&&certificate.supportAllowed,
       manualAttachmentAllowed:!r.energyPlayLocked&&certificate.manualAttachmentAllowed,
@@ -150,8 +148,8 @@ function projectTerminalInput(request,profile,certificate){
         !isT(p,"Mysterious Treasure")&&!isT(p,"Quick Ball")&&!Object.values(TUTOR_NAMES).some(n=>isT(p,n)))&&fodder.every(p=>fodderPrintings.includes(p)),"future fodder roles not disjoint");
       check(["pokemonPlayLocked","abilityPokemonPlayLocked","evolutionPlayLocked"].every(k=>typeof r[k]==="boolean"),"development locks unknown");
       development={permissionsCertified:true,noBenchCapacityChange:d.noBenchCapacityChange===true,maxBench:d.maxBench,catalog:devCat,
-        handPokemon:pokCounts(hand),knownDeckPokemon:exact?pokCounts(k.knownPrintings.flatMap(x=>Array(x.copies).fill(x.printing))):{},
-        knownDeckPokemonCertified:exact,discardPokemon:pokCounts(discard),
+        handPokemon:pokCounts(hand),knownDeckPokemon:exact?pokCounts(k.knownPrintings.flatMap(x=>Array(x.copies).fill(x.printing))):pokCounts(lowerDeck),
+        knownDeckPokemonCertified:exact||!!k0,discardPokemon:pokCounts(discard),
         pokemonPlayAllowed:!r.pokemonPlayLocked&&d.pokemonPlayAllowed===true,
         abilityPokemonPlayAllowed:!r.abilityPokemonPlayLocked&&d.abilityPokemonPlayAllowed===true,
         evolutionAllowed:turn>2&&!r.evolutionPlayLocked&&d.evolutionAllowed===true,
@@ -166,7 +164,7 @@ function projectTerminalInput(request,profile,certificate){
         // K0 has no known deck identities; zero is a certified lower
         // bound, not an exact count. Only target-independent actions such
         // as Raihan's attachment can exploit it.
-        const deck=exact?k.knownPrintings.flatMap(x=>Array(x.copies).fill(x.printing)):[];
+        const deck=exact?k.knownPrintings.flatMap(x=>Array(x.copies).fill(x.printing)):lowerDeck;
         // Single printing per modeled role is required by the exact tutor map.
         for(const [role,print] of Object.entries(rolePrintings)){
           const n=role==="treasure"?"Mysterious Treasure":role==="quick"?"Quick Ball":TUTOR_NAMES[role]??
@@ -191,7 +189,10 @@ function projectTerminalInput(request,profile,certificate){
         context.development=development;
       }
     }
-    return {input,context,development,binding:{basicPsychicPrintings:profile.basicPsychicPrintings,trainerPrintings:cat,slots}};
+    return {input,context,development,k0Bounds:k0?{visibleOutside:k0.visible,unknownOutside:k0.unknownOutside,
+      guaranteedCopies:lowerDeck.length,guaranteedPsychic:input.knownDeckPsychic}:null,
+      binding:{basicPsychicPrintings:profile.basicPsychicPrintings,trainerPrintings:cat,slots,
+        ...(k0?{fixed60InventoryCertified:true,inventoryPrintings:profile.inventoryPrintings}:{})}};
   }catch(e){return fail(e.message)}
 }
 // Only the first committed action gets an intent. Replan at every next root.
@@ -458,6 +459,52 @@ function bridgeSelfTest(terminal,matcher,adaptive,developmentTerminal){
   record("K1 supplies exact role multiset",projected.context.deckCounts.P===2&&projected.context.deckCounts.other===1);
   const drawn=chooseTerminalRoot(fresh,profile,{...cert,oldDeckExchangeable:true},terminal,matcher,adaptive,{minimumChance:0.01});
   record("adaptive planner maps Lillie to legal native root",drawn.decision?.token==="refresh"&&drawn.search.lowerBound===1);
+  // Source-shaped fixed 60: the energy alias is synthetic, as in this
+  // bridge fixture; this is not a claim about its actual MEE printing.
+  const inventoryPrintings={
+    "Shadow Rider Calyrex V CRE":4,[vmax]:4,"Lillie's Clefairy ex JTG":2,
+    "Tapu Lele-GX GRI":1,"Trevenant & Dusknoir-GX SMP":1,"Latias ex SSP":1,"Dialga-GX UPR":1,
+    "Mimikyu GRI":1,"Girafarig LOT":1,"Marshadow UNB":1,"Radiant Eternatus CRZ":1,
+    "Lillie's Determination MEG":2,"Iono PAL":1,"Teammates PRC":1,"Raihan EVS":1,
+    "Acerola BUS":1,"Guzma BUS":1,"Mysterious Treasure FLI":4,"Fog Crystal CRE":4,
+    "VS Seeker PHF":2,"Quick Ball FST":1,"Hisuian Heavy Ball ASR":1,"Battle Compressor PHF":1,
+    "Field Blower GRI":1,"Night Stretcher ASC":1,"Unfair Stamp TWM":1,"Float Stone BKT":1,
+    "Forest Seal Stone SIT":1,"Sky Field ROS":1,"Dimension Valley PHF":1,[energy]:11,
+    "Pokémon Ranger STS":1,"Stealthy Hood UNB":2,"Arven SVI":1
+  };
+  const baseV="Shadow Rider Calyrex V CRE",fogPrint="Fog Crystal CRE";
+  const knownDiscard=["Lillie's Determination MEG","Lillie's Determination MEG","Iono PAL","Teammates PRC",
+    "Raihan EVS","Acerola BUS","Guzma BUS","Mysterious Treasure FLI"];
+  const fogReq={...req,observation:{...v,ownHand:[fogPrint],ownPublic:{...own,
+    active:{...A,evolutionPrintings:[baseV,vmax,...A.energies]},
+    bench:[null,{...B,evolutionPrintings:[baseV,vmax,...B.energies]}],
+    handCount:1,deckCount:40,prizeCount:2,prizeSlots:[{index:0},{index:1}],discard:knownDiscard,lostZone:[]}},
+    actionFrontier:{schema:"aichi-action-frontier-v1",items:[{kind:"play-card",token:"fog",actorPrinting:fogPrint,
+      publicMetadata:{cardType:"trainer",handIndex:0}}]}};
+  const dedup=guaranteedDeckLowerBounds(fogReq.observation,inventoryPrintings);
+  record("K0 duplicate attached-energy views do not inflate visible counts",dedup.visible===18&&dedup.unknownOutside===2&&dedup.bound(p=>p===energy)===4);
+  const cleanFog={...fogReq,observation:{...fogReq.observation,ownPublic:{...fogReq.observation.ownPublic,
+    active:{...A,evolutionPrintings:[baseV,vmax]},bench:[null,{...B,evolutionPrintings:[baseV,vmax]}]}}};
+  const k0Profile={...profile,inventoryPrintings};
+  const k0Cert={...cert,fixed60InventoryCertified:true};
+  const kp=projectTerminalInput(cleanFog,k0Profile,k0Cert);
+  record("K0 lower bounds do not claim exact membership",kp.input.knownDeckPsychic===4&&kp.input.knownDeckPsychicCertified&&
+    kp.context.exactMembershipKnown===false&&Object.keys(kp.context.deckCounts).length===0);
+  const rootFog=chooseTerminalRoot(cleanFog,k0Profile,k0Cert,terminal,matcher,adaptive);
+  if(rootFog.decision?.token!=="fog")throw Error("K0 Fog root: "+JSON.stringify(rootFog));
+  record("K0 guaranteed Psychic makes Fog a legal terminal root",true);
+  record("No inventory certificate retains conservative K0 abstention",
+    !chooseTerminalRoot(cleanFog,k0Profile,cert,terminal,matcher,adaptive).decision);
+  const wide={...cleanFog,observation:{...cleanFog.observation,ownPublic:{...cleanFog.observation.ownPublic,deckCount:36}}};
+  record("K0 all remaining Energy may be outside deck",
+    projectTerminalInput(wide,k0Profile,k0Cert).input.knownDeckPsychic===0&&
+    !chooseTerminalRoot(wide,k0Profile,k0Cert,terminal,matcher,adaptive).decision);
+  record("K0 wrong inventory fails closed",!projectTerminalInput(cleanFog,
+    {...k0Profile,inventoryPrintings:{...inventoryPrintings,[energy]:10}},k0Cert).input);
+  const badCopies={...cleanFog,observation:{...cleanFog.observation,ownPublic:{...cleanFog.observation.ownPublic,
+    discard:[...knownDiscard,"Guzma BUS"]}}};
+  record("K0 impossible visible multiplicity fails closed",!projectTerminalInput(badCopies,k0Profile,k0Cert).input);
+  record("K0 matcher independently rejects inflated Psychic count",!matcher(cleanFog,{...kp.input,knownDeckPsychic:5},kp.binding).match);
   if(typeof developmentTerminal==="function"){
     const raihan="Raihan EVS";
     const rp={...profile,trainerPrintings:{...trainerPrintings,Raihan:[raihan]},
