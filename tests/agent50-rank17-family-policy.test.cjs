@@ -363,6 +363,20 @@ function runCases(policy,protocol) {
     const temple={...rainV,opponentPublic:{...opp,stadium:[T]}};
     same(policy.ropeRainPlan({observation:temple}),null,tag+'Temple requires distinct answer');
     same(policy.ropeRainPlan({observation:{...temple,ownHand:[rope,A.pokestop]}})?.plan.prizes,5,tag+'Temple with stadium answer');
+    const pathKlefki={...rainV,ownHand:[rope],
+      ownPublic:player({active:pivot,bench:[rain,elec,slot(A.marshadow,{abilities:['Resetting Hole']})],discard:[R,R,R,R,C]}),
+      opponentPublic:player({active:klef,bench:[slot(D,{hp:270}),slot(L,{hp:170})],stadium:['Path to the Peak CRE']})};
+    same(policy.ropeRainPlan({observation:pathKlefki})?.plan.needsStadiumAnswer,'Path to the Peak CRE',tag+'Rope plans Klefki removal then Path answer');
+    same(runRoot(p,pathKlefki,[play('rope',rope),pass]),action('rope'),tag+'Rope starts Klefki plus Path unlock line');
+    const pathAfterRope={...pathKlefki,
+      ownPublic:player({active:rain,bench:[pivot,elec,slot(A.marshadow,{abilities:['Resetting Hole']})],discard:[R,R,R,R,C]}),
+      opponentPublic:player({active:slot(D,{hp:270}),bench:[klef,slot(L,{hp:170})],stadium:['Path to the Peak CRE']})};
+    same(runRoot(p,pathAfterRope,[ability('reset-path',A.marshadow,'Resetting Hole',2),ability('bomb-path',A.electrode,'Extra Energy Bomb',1),pass]),action('reset-path'),tag+'after Rope clear Path before Bomb');
+    same(runPrompt(p,pathAfterRope,resetConfirm),single('yes'),tag+'Klefki Path line confirms Resetting Hole');
+    const pathCleared={...pathAfterRope,opponentPublic:{...pathAfterRope.opponentPublic,stadium:[]}};
+    same(runRoot(p,pathCleared,[ability('bomb-path',A.electrode,'Extra Energy Bomb',1),pass]),abstain('NO_SUPPORTED_ROOT_ACTION'),tag+'after Path removal reach explicit Bomb boundary');
+    const doubleKlefkiPath={...pathKlefki,opponentPublic:player({active:klef,bench:[klef,slot(D,{hp:270})],stadium:['Path to the Peak CRE']})};
+    same(policy.ropeRainPlan({observation:doubleKlefkiPath}),null,tag+'second Klefki preserves Marshadow lock after Rope');
     const rainRetreat={...free,targetPrinting:A.raichu,publicMetadata:{...free.publicMetadata,targetIndex:0}};
     same(runRoot(p,kView,[rainRetreat,ability('bomb',A.electrode,'Extra Energy Bomb',1),pass]),abstain('NO_SUPPORTED_ROOT_ACTION'),tag+'keep Klefki active until Bomb resolves');
     const switched={...rainV,opponentPublic:{...opp,active:opp.bench[0],bench:[wob,opp.bench[1]]}};
