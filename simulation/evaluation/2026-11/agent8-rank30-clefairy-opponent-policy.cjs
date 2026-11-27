@@ -39,7 +39,11 @@ const P = Object.freeze({
   quickBall: /^Quick Ball FST(?: 237)?\b/i,
   blower: /^Field Blower GRI(?: 125)?\b/i,
   compressor: /^Battle Compressor PHF(?: 92)?\b/i,
-  vsSeeker: /^VS Seeker PHF(?: 109)?\b/i
+  vsSeeker: /^VS Seeker PHF(?: 109)?\b/i,
+  carrier: /^Rescue Carrier EVS(?: 154)?\b/i,
+  unown: /^Unown AOR(?: 30)?\b/i,
+  mimikyu: /^Mimikyu GRI(?: 58)?\b/i,
+  minior: /^Minior PAR(?: 99)?\b/i
 });
 const arr = value => Array.isArray(value) ? value : [];
 const text = value => typeof value === 'string' ? value : value?.printing ?? value?.fullName ?? value?.label ?? '';
@@ -74,7 +78,9 @@ const PUBLIC_ABORT = Object.freeze({
   R30_COMPRESSOR_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
   R30_COMPRESSOR_NO_TARGET:'NO_LEGAL_CARD_SET',
   R30_VSSEEKER_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
-  R30_VSSEEKER_NO_GUZMA:'NO_LEGAL_CARD_SET'
+  R30_VSSEEKER_NO_GUZMA:'NO_LEGAL_CARD_SET',
+  R30_CARRIER_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
+  R30_CARRIER_NO_TARGET:'NO_LEGAL_CARD_SET'
 });
 const no = reasonCode => ({kind:'abstain',reasonCode:PUBLIC_ABORT[reasonCode]??reasonCode});
 const act = x => ({kind:'select-action',token:x.token});
@@ -286,6 +292,44 @@ function vsSeekerPrompt(request) {
     if(empty)return {kind:'select-choice',token:empty.token};
   }
   return no('R30_VSSEEKER_NO_GUZMA');
+}
+
+function carrierOpportunity(o) {
+  const own=o?.ownPublic;
+  if(!own||!arr(own.discard).some(x=>has(x,P.unown)))return false;
+  const cap=stadium(o)?8:5;
+  const room=benchCount(own)<cap;
+  const active=own.active;
+  const ro=projectedRondo(o);
+  if(ro&&ro.damage>=ro.remaining)return false;
+  // Self-discarded 60HP Unown is recyclable, refills Rondo's one-prize Bench
+  // and can draw later. Do not recover if all slots are already occupied.
+  return room||arr(own.bench).some(x=>has(x,P.unown)&&
+    arr(o.ownHand).length<=2);
+}
+function rescueCarrierPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
+    m.sourceZone!=='discard'||m.ownerSeat!=='actor'||m.isOwnerVisible!==true||
+    !safeInt(m.minimumCount)||!safeInt(m.maximumCount)||m.maximumCount>2)
+    return no('R30_CARRIER_PROMPT_UNSUPPORTED');
+  const offered=arr(p.choices).filter(c=>c.kind==='card'&&typeof c.token==='string');
+  const picked=[];
+  const choose=pat=>offered.find(c=>has(c,pat)&&!picked.some(x=>x.token===c.token));
+  while(picked.length<m.maximumCount){
+    const x=choose(P.unown);if(!x)break;picked.push(x);
+  }
+  const enemy=slots(o.opponentPublic).some(x=>/^Regidrago V(?:STAR)? SIT\b/i.test(text(x)));
+  if(enemy&&picked.length<m.maximumCount&&!slots(o.ownPublic).some(x=>has(x,P.mimikyu))){
+    const x=choose(P.mimikyu);if(x)picked.push(x);
+  }
+  if(picked.length<m.minimumCount)return no('R30_CARRIER_NO_TARGET');
+  if(!picked.length) {
+    const empty=arr(p.choices).find(c=>c.kind==='empty-selection'&&typeof c.token==='string');
+    return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
+      no('R30_CARRIER_NO_TARGET');
+  }
+  return picks(picked);
 }
 
 function starNeedsResource(o,{enablePatchProjection=false}={}) {
@@ -541,6 +585,8 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   if(vip && benchCount(o.ownPublic)<(stadium(o)?8:5))return act(vip);
   const quick=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.quickBall));
   if(quick && canStartQuickBall(o))return act(quick);
+  const carrier=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.carrier));
+  if(carrier&&carrierOpportunity(o))return act(carrier);
   const box=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.box));
   if(box && canStartBox(o))return act(box);
   const discard=arr(o.ownPublic?.discard);
@@ -606,6 +652,7 @@ function createPolicy({role,seat,policyVersion,config}) {
       if(sameSource(request.prompt,P.quickBall))return quickBallPrompt(request);
       if(sameSource(request.prompt,P.vip))return vipPrompt(request);
       if(sameSource(request.prompt,P.telepathic))return telepathPrompt(request);
+      if(sameSource(request.prompt,P.carrier))return rescueCarrierPrompt(request);
       if(sameSource(request.prompt,P.guzma))return guzmaPrompt(request);
       if(sameSource(request.prompt,P.compressor))return battleCompressorPrompt(request,
         {enablePatchProjection:config.enablePatchProjection===true});
@@ -620,4 +667,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,candidateCanUseBoardHeldStarAlchemy};
+  rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,carrierOpportunity,rescueCarrierPrompt,candidateCanUseBoardHeldStarAlchemy};
