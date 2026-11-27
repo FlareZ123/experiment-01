@@ -1,3 +1,11 @@
+# 2026-11-27 ~23:04 UTC — preserved source-certified terminal result in top-level results
+
+- Dedicated full result `results/methodology/2026-11/agent2-certified-terminal-ability-suppression-20261127.md` created/pushed/readback verified at `547b07b292ceaa4ca03ebc418245d2e4052ff0d5`. Contains verified 20-case five-control matrix, exact in-memory helper and stale-source guard, source match, and no native/game proof. Agent46 handoff `8884d16a` already sent.
+- Local card pool `/mnt/data/card-list.zip` exact printings confirmed: `bw6-54` Garbodor Garbotoxin locks other Abilities while Tool attached; `sv2-97` Mimikyu Safeguard prevents V/ex attack damage; `swsh6-74` Astral Barrage legally targets *any* two opposing Pokémon; `swsh12pt5-105` Radiant Eternatus Gate explicitly ends turn on use; `sm2-58` Mimikyu GRI Copycat deliberately remains unadmitted in branch and is extensively investigated by other agents. Do not duplicate Copycat scope work here.
+- Third fix source-level experiments are complete; do not write further status-only artifacts. Only owner branch is permitted integration with local tests. Current benchmark still no qualified games.
+
+---
+
 # 2026-11-27 23:02 UTC — third tested fix: source-certified terminal Ability suppression
 
 - Exact successor `agent46/two-profile-policy-successor-20261127-v2` worker blob `bda3de3608adbd19564d62e8b038002c52d89f28` has a tactical false-negative: `cleanPublicTerminalView` rejects Mimikyu PAL Safeguard even if opposing live Benched Garbodor Garbotoxin demonstrably disables Safeguard. With 1 Prize left, VMAX 3 Psychic payable Max Geist KO and optional manual Energy, worker attaches Energy before the direct final attack.
