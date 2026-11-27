@@ -11,6 +11,7 @@ const OWN={
 const ROLES={"Acerola":"acerola","Guzma":"guzma","Pokémon Ranger":"ranger","VS Seeker":"vs",
  "Night Stretcher":"stretcher","Fog Crystal":"fog","Lillie's Determination":"lillie","Iono":"iono",
  "Unfair Stamp":"stamp","Stealthy Hood":"hood","Float Stone":"float","Field Blower":"blower","Dimension Valley":"valley"};
+const TUTOR_NAMES={arven:"Arven",raihan:"Raihan",teammates:"Teammates",forest:"Forest Seal Stone"};
 const count=(xs,p)=>xs.filter(p).length;
 const isInt=(x,min,max)=>Number.isSafeInteger(x)&&x>=min&&x<=max;
 const check=(ok,msg)=>{if(!ok)throw Error(msg)};
@@ -77,7 +78,7 @@ function projectTerminalInput(request,profile,certificate){
           wobbuffet:k==="wob",latias:k==="latias",fairyZone:k==="clefairy",basic:k!=="vmax",
           ruleBox:["v","vmax","clefairy","lele","trev","latias","dialga","radiant"].includes(k),future:false,
           tool:p.tools.length?(isT(p.tools[0],"Stealthy Hood")?"hood":isT(p.tools[0],"Float Stone")?"float":"other"):"none",
-          stackCount:p.evolutionPrintings.length,stackPrintings:[...p.evolutionPrintings],printing:p.printing,
+          stackCount:p.evolutionPrintings.length,stackPrintings:[...p.evolutionPrintings],printing:p.printing,toolPrinting:p.tools[0]??null,
           evolutionEligible:k==="v"&&turn>2&&Number.isSafeInteger(p.lastPlayedOrEvolvedTurn)&&p.lastPlayedOrEvolvedTurn<turn&&!rr.cannotEvolveNextTurn});
       }else{
         const c=targetCert[id];
@@ -143,10 +144,10 @@ function projectTerminalInput(request,profile,certificate){
       const fodder=d.fodder??[];
       const fodderPrintings=d.fodderPrintings??[...new Set(fodder)];
       check(Array.isArray(fodder)&&fodder.every(p=>typeof p==="string"&&!devCat[p]&&!isP(p)&&exactRole(p)==="other"&&
-        !isT(p,"Mysterious Treasure")&&!isT(p,"Quick Ball")&&count(fodder,x=>x===p)<=count(hand,x=>x===p)),
+        !isT(p,"Mysterious Treasure")&&!isT(p,"Quick Ball")&&!Object.values(TUTOR_NAMES).some(n=>isT(p,n))&&count(fodder,x=>x===p)<=count(hand,x=>x===p)),
         "development fodder not disjoint or not held");
       check(Array.isArray(fodderPrintings)&&fodderPrintings.every(p=>typeof p==="string"&&!devCat[p]&&!isP(p)&&exactRole(p)==="other"&&
-        !isT(p,"Mysterious Treasure")&&!isT(p,"Quick Ball"))&&fodder.every(p=>fodderPrintings.includes(p)),"future fodder roles not disjoint");
+        !isT(p,"Mysterious Treasure")&&!isT(p,"Quick Ball")&&!Object.values(TUTOR_NAMES).some(n=>isT(p,n)))&&fodder.every(p=>fodderPrintings.includes(p)),"future fodder roles not disjoint");
       check(["pokemonPlayLocked","abilityPokemonPlayLocked","evolutionPlayLocked"].every(k=>typeof r[k]==="boolean"),"development locks unknown");
       development={permissionsCertified:true,noBenchCapacityChange:d.noBenchCapacityChange===true,maxBench:d.maxBench,catalog:devCat,
         handPokemon:pokCounts(hand),knownDeckPokemon:exact?pokCounts(k.knownPrintings.flatMap(x=>Array(x.copies).fill(x.printing))):{},
@@ -156,9 +157,32 @@ function projectTerminalInput(request,profile,certificate){
         evolutionAllowed:turn>2&&!r.evolutionPlayLocked&&d.evolutionAllowed===true,
         treasureCount:count(hand,p=>isT(p,"Mysterious Treasure")),quickCount:count(hand,p=>isT(p,"Quick Ball")),
         fodder,fodderPrintings,fodderCertified:true,fodderDisjointFromModeledResources:true};
+      if(exact&&d.tutorsCertified===true){
+        const rolePrintings=profile.tutorRolePrintings;
+        check(rolePrintings&&isP(rolePrintings.P)&&Object.entries(rolePrintings).every(([role,print])=>
+          role==="P"?isP(print):Object.entries(ROLES).some(([n,k])=>k===role&&isT(print,n))||
+            (role==="treasure"&&isT(print,"Mysterious Treasure"))||(role==="quick"&&isT(print,"Quick Ball"))||
+            (TUTOR_NAMES[role]&&isT(print,TUTOR_NAMES[role]))),"invalid fixed tutor role printing map");
+        const deck=k.knownPrintings.flatMap(x=>Array(x.copies).fill(x.printing));
+        // Single printing per modeled role is required by the exact tutor map.
+        for(const [role,print] of Object.entries(rolePrintings)){
+          const n=role==="treasure"?"Mysterious Treasure":role==="quick"?"Quick Ball":TUTOR_NAMES[role]??
+            Object.keys(ROLES).find(n=>ROLES[n]===role);
+          const match=role==="P"?isP:x=>isT(x,n);
+          check([...hand,...deck,...discard].filter(match).every(x=>x===print),"multiple printings for tutor role "+role);
+        }
+        const used=own.publicTurnRestrictions?.vstarUsed;
+        check(typeof used==="boolean"&&typeof d.starAlchemyAllowed==="boolean","VSTAR usage/permission unknown");
+        const extraRoles=Object.keys(TUTOR_NAMES).filter(role=>rolePrintings[role]);
+        development.tutors={certified:true,knownDeckRolesCertified:true,rolePrintings,
+          heldExtra:Object.fromEntries(extraRoles.map(role=>[role,count(hand,p=>p===rolePrintings[role])])),
+          discardExtra:Object.fromEntries(extraRoles.map(role=>[role,count(discard,p=>p===rolePrintings[role])])),
+          knownDeckRoles:Object.fromEntries(Object.keys(rolePrintings).filter(role=>role!=="P").map(role=>[role,count(deck,p=>p===rolePrintings[role])])),
+          priorKO:e.priorOpponentTurnKO?.any===true,starAlchemyAllowed:d.starAlchemyAllowed,vstarAvailable:!used};
+      }
       if(exact&&d.adaptiveDevelopmentCertified===true){
         const extRole=p=>devCat[p]?"pk:"+p:isT(p,"Mysterious Treasure")?"treasure":isT(p,"Quick Ball")?"quick":
-          fodderPrintings.includes(p)?"fd:"+p:exactRole(p);
+          Object.keys(TUTOR_NAMES).find(role=>development.tutors&&p===development.tutors.rolePrintings[role])??(fodderPrintings.includes(p)?"fd:"+p:exactRole(p));
         const rc=xs=>{const out={};for(const p of xs){const k=extRole(p);out[k]=(out[k]??0)+1;}return out;};
         context.handCounts=rc(hand);context.deckCounts=rc(k.knownPrintings.flatMap(x=>Array(x.copies).fill(x.printing)));
         context.development=development;
@@ -174,16 +198,27 @@ function chooseTerminalRoot(request,profile,certificate,terminal,matcher,adaptiv
   const m=matcher(request,p.input,p.binding);
   if(!m.match)return m;
   function match(a){
-    if(!["bench-pokemon","evolve-pokemon","mysterious-treasure","quick-ball"].includes(a.kind))return m.match(a);
+    if(!["bench-pokemon","evolve-pokemon","mysterious-treasure","quick-ball","arven","raihan","teammates","attach-forest-seal","star-alchemy"].includes(a.kind))return m.match(a);
     if(!p.development)return null;
     const v=request.observation,slots=p.binding.slots;
-    const ts=a.kind==="mysterious-treasure"?"Mysterious Treasure":a.kind==="quick-ball"?"Quick Ball":null;
+    if(a.kind==="star-alchemy"){
+      const loc=slots[a.source];
+      if(!loc?.owner)return null;
+      const items=request.actionFrontier.items.filter(it=>{
+        const md=it.publicMetadata??{};
+        return it.kind==="use-ability"&&md.abilityName==="Star Alchemy"&&md.sourceSeat==="actor"&&
+          md.sourceZone===loc.zone&&(md.sourceIndex??0)===loc.index;
+      });
+      return items.length===1?items[0]:null;
+    }
+    const ts=a.kind==="mysterious-treasure"?"Mysterious Treasure":a.kind==="quick-ball"?"Quick Ball":TUTOR_NAMES[a.kind]??null;
     const wanted=ts?p.binding.trainerPrintings[ts]:[a.printing];
     if(!wanted)return null;
     const items=request.actionFrontier.items.filter(it=>{
       const md=it.publicMetadata??{},print=it.actorPrinting;
       if(it.kind!=="play-card"||!wanted.includes(print)||!Number.isSafeInteger(md.handIndex)||v.ownHand[md.handIndex]!==print)return false;
       if(ts)return md.cardType==="trainer";
+      if(a.kind==="attach-forest-seal"){const loc=slots[a.target];return md.cardType==="trainer"&&loc?.owner&&md.targetSeat==="actor"&&md.targetZone===loc.zone&&(md.targetIndex??0)===loc.index&&it.targetPrinting===loc.printing;}
       if(md.cardType!=="pokemon"||md.targetSeat!=="actor")return false;
       if(a.kind==="bench-pokemon")return md.targetZone==="bench"&&Number.isSafeInteger(md.targetIndex)&&
         md.targetIndex>=0&&md.targetIndex<v.ownPublic.bench.length&&v.ownPublic.bench[md.targetIndex]===null;
@@ -282,7 +317,48 @@ function continueTerminalPrompt(intent,request){
       src(a.kind==="mysterious-treasure"?"Mysterious Treasure":"Quick Ball");
       return !stages.includes("cost")?card(null,"hand","cost",a.discardPrinting):card(null,"deck","tutor",a.targetPrinting);
     }
-    if(a.kind==="vs-seeker"){src("VS Seeker");return card(a.target,"discard","vs")}
+    if(a.kind==="vs-seeker"){src("VS Seeker");return card(a.target,"discard","vs",a.targetPrinting??null)}
+    // For unrestricted multi-card tutors, every selected physical token
+    // must occur in the actual actor-owned deck prompt.
+    const deckTargets=(prints,name)=>{
+      check(p.promptType==="ChooseCardsPrompt"&&meta.selectionType==="card-combination"&&meta.sourceZone==="deck"&&
+        meta.ownerSeat==="actor"&&meta.isOwnerVisible===true,"wrong tutor collection");
+      const picked=[];
+      for(const print of prints){
+        const c=one(p.choices.filter(c=>c.kind==="card"&&c.printing===print&&!picked.some(x=>x.token===c.token)&&
+          c.publicMetadata?.ownerSeat==="actor"&&c.publicMetadata.sourceZone==="deck"&&c.publicMetadata.isOwnerVisible===true));
+        picked.push(c);
+      }
+      return combo(picked,name);
+    };
+    if(a.kind==="teammates"){src("Teammates");return deckTargets(a.targets,"teammates")}
+    if(a.kind==="arven"){
+      src("Arven");
+      const remaining=a.targets.filter(print=>!stages.includes("arven:"+print));
+      const offered=remaining.filter(print=>p.choices.some(c=>c.printing===print));
+      check(offered.length>0,"Arven target unavailable");
+      const d=deckTargets(offered,"arven:"+offered.join("|"));
+      // Mark each exact printing, not merely the prompt ordinal.
+      d.intent.promptStages=[...stages,...offered.map(print=>"arven:"+print)];
+      return d;
+    }
+    if(a.kind==="raihan"){
+      src("Raihan");
+      if(p.promptType==="ChooseCardsPrompt"&&meta.sourceZone==="discard")return card("P","discard","raihan-energy");
+      if(p.promptType==="ChoosePokemonPrompt")return selectPokemon([a.attachTarget],"raihan-pokemon");
+      if(p.promptType==="ChooseCardsPrompt"&&meta.sourceZone==="deck")return deckTargets(a.targets,"raihan-search");
+      return fail("unmodeled Raihan prompt");
+    }
+    if(a.kind==="star-alchemy"){
+      check(s.sourceKind==="card-effect"&&s.effectName==="Star Alchemy","unexpected Star Alchemy provenance");
+      check(s.sourcePrinting===intent.rootPrinting||profile.trainerPrintings["Forest Seal Stone"]?.includes(s.sourcePrinting),"wrong Star Alchemy source");
+      return deckTargets([a.targetPrinting],"star-alchemy");
+    }
+    if(a.kind==="bench-pokemon"&&a.wonderTagTarget){
+      src("Wonder Tag");
+      if(p.promptType==="ChooseCardsPrompt")return deckTargets([a.wonderTagTarget],"wonder-tag");
+      return fail("unmodeled Wonder Tag confirmation");
+    }
     if(a.kind==="guzma"){
       src("Guzma");
       return !stages.includes("gust")?selectPokemon([a.opponentTarget],"gust"):
