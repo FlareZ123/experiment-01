@@ -449,7 +449,9 @@ return module.exports;})();
     if(k==='R')return !ruins(o)&&!has(stadium(o),'R')?650:0;
     if(ITEM.has(k)&&!itemOpen(o))return 0;
     if(k==='DP'||k==='HB'||k==='TK')return 0; // Damage Pump is selected only by a certified donation path; other two prompts remain unsupported.
-    if(k==='COL')return activeOpponentLock(o)&&g?.zone==='bench'&&has(discard(o),'L')&&find(o,'K')?150:0;
+    if(k==='COL')return lockLive(o)&&g&&targetSpec(opp(o).active)&&(
+      (g.zone==='bench'&&has(discard(o),'L')&&find(o,'K'))||suppression(g.p,'Debut Performance')===true||
+      (terminalReady(o)&&opp(o).prizeCount>1))?1850:0;
     if(k==='BC')return needLightning(o)||needEgg(o)&&!activeOpponentLock(o)?590:0;
     if(k==='QB'&&room>0&&h.some(x=>discardValue(o,kind(x))>0)&&(!find(o,'M')&&!has(h,'M')||!find(o,'K')&&!has(h,'K')||h.length<=3))return 570;
     if(k==='VIP'&&Number(o.globalTurn)<=2&&room>0&&(!find(o,'M')&&!has(h,'M')||!find(o,'K')&&!has(h,'K')))return 600;
@@ -467,21 +469,47 @@ return module.exports;})();
 
   const coord=x=>x.zone+':'+x.index;
   const lockLive=o=>activeOpponentLock(o)&&!arr(opp(o).active?.abilitySuppressions).some(x=>x.suppressed===true&&['Bide Barricade','Neutralizing Gas','Initialization','Mischievous Lock','Midnight Fluttering'].includes(x.abilityName));
+  // Exact candidate basic starters, plus the previously staged Iron Thorns case.
+  // The attached card pool confirms none resists Psychic or has a damage/KO-prevention Ability.
+  // Never extend by name alone: each key is the pinned native printing.
+  const targetSpecs={
+    'Shadow Rider Calyrex V CRE':[210,2,[]],
+    'Wobbuffet PHF':[110,1,['Bide Barricade']],
+    'Girafarig LOT':[90,1,[]],
+    'Tapu Lele-GX GRI':[170,2,['Wonder Tag']],
+    'Radiant Eternatus CRZ':[170,1,['Climactic Gate']],
+    'Marshadow UNB':[80,1,['Resetting Hole']],
+    "Lillie's Clefairy ex JTG":[190,2,['Fairy Zone']],
+    'Trevenant & Dusknoir-GX SMP':[270,3,[]],
+    'Latias ex SSP':[210,2,['Skyliner']],
+    'Dialga-GX UPR':[180,2,[]],
+    'Mimikyu GRI':[70,1,[]],
+    'Iron Thorns ex TWM':[230,2,['Initialization']]
+  };
+  function targetSpec(p){
+    const name=printing(p).replace(/\s+\d+$/,'');
+    const spec=targetSpecs[name];
+    if(!spec||p.hp!==spec[0]||arr(p.tools).length||
+      arr(p.abilities).some(x=>!spec[2].includes(typeof x==='string'?x:x?.name))||
+      arr(p.abilityDetails).some(x=>!spec[2].includes(x.name)))return null;
+    return spec;
+  }
   function terminalReady(o){
     const a=find(o,'M'), t=opp(o).active, rem=publicRemaining(t);
     if(Number(o.globalTurn)!==1||!a||!t||slots(opp(o)).length!==1||!itemOpen(o)||!ruins(o)||!toolLive(o)||
       !has(a.p.tools,'TM')||energy(a.p)<3||arr(a.p.specialConditions).length||arr(t.tools).length||
       suppression(a.p,'Debut Performance')!==false||!Number.isSafeInteger(rem)||rem<=0)return null;
-    // Restrict first-turn certificate to exact recognizable, non-preventing basic targets.
-    if(!/^(Shadow Rider Calyrex V CRE|Wobbuffet PHF|Girafarig LOT|Tapu Lele-GX GRI|Radiant Eternatus CRZ|Marshadow UNB)(?:\s\d+)?$/.test(printing(t)))return null;
-    if(arr(t.abilities).some(x=>!['Bide Barricade','Wonder Tag','Climactic Gate','Resetting Hole'].includes(typeof x==='string'?x:x?.name)))return null;
-    const resistance=arr(t.printed?.resistance);
-    if(resistance.some(x=>!x||!Number.isFinite(Number(x.value))))return null;
-    const damage=280-Math.max(0,...resistance.map(x=>Math.abs(Number(x.value))));
-    if(rem>damage)return null;
+    const spec=targetSpec(t);
+    if(!spec||rem>280)return null;
+    const damage=280;
     // The host does not yet project mandatory engine promotion after a self-KO.
     if(a.zone!=='active')return null;
-    return {a,damage};
+    const input={attacker:'Meloetta ex BLK 44',attackerId:coord(a),attackReady:true,
+      toolEffective:true,stableAttackConditions:true,energyUnits:energy(a.p),ownPrizes:own(o).prizeCount,
+      firstTurnGoingFirst:true,debutEffective:true,opponentBench:[],
+      opponentActive:{id:'opponent-active',hpRemaining:rem,damagePerPunch:damage,prizes:spec[1]}};
+    const certificate=__terminal.certifyCrisisPunchTerminal(input);
+    return certificate.terminal?{a,damage,input,certificate}:null;
   }
   function donationPlan(o){
     const terminal=terminalReady(o);
@@ -508,7 +536,7 @@ return module.exports;})();
     const plan=__donation.planDonationResources({finishReady:true,itemsPlayable:true,riskyRuinsActive:true,opponentBenchCount:0,
       propagationAvailable:!lockLive(o),farewellAvailable:!lockLive(o)||/^Wobbuffet PHF/.test(printing(opp(o).active)),
       opponentPrizes:opp(o).prizeCount,pumps:n(hand(o),'DP'),carriers:n(hand(o),'RC'),drawCapacity:own(o).deckCount,
-      eggs,unown,fixed,handDonors,small,allowUnownKO:true,maxStates:30000,
+      eggs,unown,fixed,handDonors,small,allowUnownKO:true,maxStates:30000,terminalAttack:terminal.input,
       ...(terminal.a.zone==='bench'?{promoteAttackerId:aid}:{})});
     return plan.status==='solved'?{plan,map}:null;
   }
@@ -563,7 +591,7 @@ return module.exports;})();
     // and do not spend Dowsing resources needed for the donation search.
     if(Number(o.globalTurn)!==1||slots(opp(o)).length!==1||!itemOpen(o))return null;
     const t=opp(o).active;
-    if(!/^(Shadow Rider Calyrex V CRE|Wobbuffet PHF|Girafarig LOT|Tapu Lele-GX GRI|Radiant Eternatus CRZ|Marshadow UNB)(?:\s\d+)?$/.test(printing(t)))return null;
+    if(!targetSpec(t))return null;
     const h=hand(o),tr=o.ownTurnResources??{}, map=new Map(), bs=[],hs=[];
     const toolCode={TM:'tm',FLOAT:'float',FSS:'fss'};
     for(const x of board(o)){
