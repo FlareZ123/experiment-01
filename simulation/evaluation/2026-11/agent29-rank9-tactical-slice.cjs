@@ -1,7 +1,7 @@
 'use strict';
 // Development-only actor-visible tactical slice; see accompanying report.
 module.exports = (function build() {
-  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v16';
+  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v17';
   const SOURCE_RANK = 9;
   const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
   const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -463,7 +463,22 @@ function bombPlanner(o,sourceBenchIndex){
   const cap=o=>Math.max(0,5-benchCount(o));
   const first=o=>Number.isInteger(o.globalTurn)&&o.globalTurn<=2;
   const liveStadium=(o,re)=>activeStadium(o).some(x=>re.test(x))&&!o.ownPublic?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining&&!o.opponentPublic?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
-  const drawEngineLive=o=>!liveStadium(o,/Silent Lab|Path to the Peak/i)&&Number(o.ownPublic?.deckCount)>6;
+  const cologne=x=>/^Canceling Cologne ASR 136\b/i.test(name(x));
+  const activeWob=o=>{const p=o.opponentPublic?.active;return p&&!p.concealed&&/^Wobbuffet PHF 36\b/i.test(name(p))?p:null;};
+  const bideState=o=>{const p=activeWob(o);return p?L(p.abilitySuppressions).find(s=>s.abilityName==='Bide Barricade')?.suppressed??null:true;};
+  const drawEngineLive=o=>!liveStadium(o,/Silent Lab|Path to the Peak/i)&&bideState(o)===true&&Number(o.ownPublic?.deckCount)>6;
+  function cologneDrawScore(o){
+    // Only spend the singleton to enable a supported hand-to-Bench Dedechange
+    // continuation. Never speculate that the unsupported Bomb will resolve.
+    if(!activeWob(o)||bideState(o)!==false||liveStadium(o,/Silent Lab|Path to the Peak/i)||
+       o.ownTurnResources?.itemPlayLocked||o.ownPublic?.publicTurnRestrictions?.itemPlayLocked||
+       o.ownTurnResources?.abilityPokemonPlayLocked||o.ownPublic?.publicTurnRestrictions?.abilityPokemonPlayLocked||
+       cap(o)<1||!handHas(o,isDedenne)||ownHas(o,isDedenne)||L(o.ownPublic?.discard).some(isDedenne)||
+       Number(o.ownPublic?.deckCount)<=6)return 0;
+    const h=L(o.ownHand).filter(x=>!cologne(x)),d=h.find(isDedenne);
+    if(!d||h.length>4||!protectedReset({...o,ownHand:h},name(d)))return 0;
+    return 415;
+  }
   const abilityLive=(p,a)=>p&&!L(p.abilitySuppressions).some(x=>x.abilityName===a&&x.suppressed===true);
   const stadiumCard=x=>/^(?:Silent Lab PRC 140|Path to the Peak CRE 148|PokéStop PGO 68)\b/i.test(name(x));
   const basicDark=x=>/^Darkness Energy MEE 15\b/i.test(name(x));
@@ -702,6 +717,7 @@ function bombPlanner(o,sourceBenchIndex){
       return 0;
     }
     if(item.kind!=='play-card'||m.isLegal===false||m.canPlay===false)return 0;
+    if(cologne(x))return cologneDrawScore(o);
     if(stadiumCard(x))return stadiumScore(x,o);
     if(heavy(x))return heavyScore(o);
     if(secret(x)&&fundCost(h.map(printing=>({printing})),o,3,x).length===3)return 370;
@@ -1101,5 +1117,5 @@ function bombPlanner(o,sourceBenchIndex){
       return r.prompt===null?root(r):prompt(r);
     }});
   }
-  return {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,createPolicy,printedDamage,payable,rootAttack,denial,prize,safeCosts,bombPlanner,stadiumScore,bombMobility,ropePlan,defensiveSwitch,horrorDesired,protectedReset,ionoScore,pokeStopScore,knownSafeDecline,deferCompressor};
+  return {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,createPolicy,printedDamage,payable,rootAttack,denial,prize,safeCosts,bombPlanner,stadiumScore,bombMobility,ropePlan,defensiveSwitch,horrorDesired,protectedReset,ionoScore,pokeStopScore,knownSafeDecline,deferCompressor,cologneDrawScore};
 })();
