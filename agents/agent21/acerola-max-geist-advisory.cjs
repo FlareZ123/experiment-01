@@ -364,7 +364,7 @@ function trainerSelfTest(){
  * and searches only through first actions that the engine offered.
  * Does not dispatch a command, carry a token to a later prompt, or resolve prompts.
  */
-function selectCertificateRoot(request,input,binding,maxStates=40000){
+function certificateRootMatcher(request,input,binding){
   const reject=reason=>({advisory:true,decision:null,reason});
   try{
     const v=request?.observation,f=request?.actionFrontier;
@@ -393,7 +393,7 @@ function selectCertificateRoot(request,input,binding,maxStates=40000){
       ...(input.dynamicEffects?{"attach-hood":"Stealthy Hood","attach-float":"Float Stone","field-blower":"Field Blower","play-valley":"Dimension Valley"}:{})};
     const printMap=binding.trainerPrintings;
     check(printMap&&Object.values(trainers).every(n=>Array.isArray(printMap[n])&&printMap[n].every(x=>typeof x==="string")),"missing exact trainer printing whitelist");
-    const isT=(p,n)=>printMap[n].includes(p);
+    const isT=(p,n)=>Array.isArray(printMap[n])&&printMap[n].includes(p);
     const count=(xs,pred)=>xs.filter(pred).length;
     const hand=v.ownHand,discard=own.discard;
     check(Array.isArray(hand)&&Array.isArray(discard)&&hand.every(x=>typeof x==="string")&&discard.every(x=>typeof x==="string"),"invalid owner zones");
@@ -498,7 +498,7 @@ function selectCertificateRoot(request,input,binding,maxStates=40000){
       if(item.kind!=="play-card"||!Number.isSafeInteger(m.handIndex)||hand[m.handIndex]!==p)return false;
       if(a.kind==="manual-attach")return isP(p)&&m.cardType==="energy"&&slotMatch(m,"target",a.target)&&
         item.targetPrinting===map.get(a.target)?.printing;
-      const n=trainers[a.kind];
+      const n=a.kind==="refresh"&&["Lillie's Determination","Iono","Unfair Stamp"].includes(a.card)?a.card:trainers[a.kind];
       if(!n||!isT(p,n)||m.cardType!=="trainer")return false;
       if(a.kind==="attach-hood"||a.kind==="attach-float")return slotMatch(m,"target",a.target)&&item.targetPrinting===map.get(a.target)?.printing;
       return true;
@@ -513,13 +513,18 @@ function selectCertificateRoot(request,input,binding,maxStates=40000){
         return found.sort((a,b)=>a.publicMetadata.handIndex-b.publicMetadata.handIndex)[0];
       return null;
     };
-    const result=acerolaMaxGeist(input,maxStates,a=>!!match(a));
-    if(!result.decision)return result;
-    const root=match(result.decision.firstAction);
-    if(!root)return reject("no legal root token");
-    return {...result,root:{kind:root.kind,token:root.token},sourceTurn:v.globalTurn,
-      continuation:"Intent only: validate the exact subsequent prompt and replan from fresh actor observations; never reuse this root token."};
+    return {match,sourceTurn:v.globalTurn};
   }catch(e){return reject(String(e.message??e));}
+}
+function selectCertificateRoot(request,input,binding,maxStates=40000){
+  const matcher=certificateRootMatcher(request,input,binding);
+  if(!matcher.match)return matcher;
+  const result=acerolaMaxGeist(input,maxStates,a=>!!matcher.match(a));
+  if(!result.decision)return result;
+  const root=matcher.match(result.decision.firstAction);
+  if(!root)return {advisory:true,decision:null,reason:"no legal root token"};
+  return {...result,root:{kind:root.kind,token:root.token},sourceTurn:matcher.sourceTurn,
+      continuation:"Intent only: validate the exact subsequent prompt and replan from fresh actor observations; never reuse this root token."};
 }
 function frontierSelfTest(){
   const assert=(c,m)=>{if(!c)throw Error(m)};
@@ -684,5 +689,5 @@ function transitionSelfTest(){
   return [{name:'Door chance separated from deterministic prefixes',states:states.length,chances:draws.length}];
 }
 
-module.exports={acerolaMaxGeist,selfTest,trainerSelfTest,selectCertificateRoot,frontierSelfTest,dynamicSelfTest,attackSelfTest,transitionSelfTest};
+module.exports={certificateRootMatcher,acerolaMaxGeist,selfTest,trainerSelfTest,selectCertificateRoot,frontierSelfTest,dynamicSelfTest,attackSelfTest,transitionSelfTest};
 if(require.main===module)console.log(JSON.stringify({base:selfTest(),trainers:trainerSelfTest(),frontier:frontierSelfTest(),dynamic:dynamicSelfTest(),attacks:attackSelfTest(),transitions:transitionSelfTest()},null,2));
