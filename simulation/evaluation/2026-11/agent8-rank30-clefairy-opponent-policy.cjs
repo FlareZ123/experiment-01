@@ -28,7 +28,7 @@ const P = Object.freeze({
   telepathic: /^Telepathic Psychic Energy POR 88\b/i,
   sky: /^Sky Field ROS 89\b/i,
   vip: /^Battle VIP Pass FST 225\b/i,
-  patch: /^Wondrous Patch PFL 94\b/i,
+  patch: /^(?:Wondrous Patch PFL 94|Wonder Patch MBD)\b/i,
   fss: /^Forest Seal Stone SIT 156\b/i,
   float: /^Float Stone BKT 137\b/i,
   guzma: /^Guzma BUS 115\b/i,
@@ -57,7 +57,9 @@ const PUBLIC_ABORT = Object.freeze({
   R30_OBSERVATION_INCOMPLETE:'ROLE_SEAT_OBSERVATION_MISMATCH',
   R30_UNSUPPORTED_PROMPT_FAMILY:'UNSUPPORTED_PROMPT_TYPE',
   R30_VIP_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
-  R30_VIP_NO_TARGET:'NO_LEGAL_CARD_SET'
+  R30_VIP_NO_TARGET:'NO_LEGAL_CARD_SET',
+  R30_PATCH_PROMPT_UNSUPPORTED:'UNSUPPORTED_PROMPT_TYPE',
+  R30_PATCH_NO_ELIGIBLE_BENCH:'NO_VISIBLE_POKEMON_TARGET'
 });
 const no = reasonCode => ({kind:'abstain',reasonCode:PUBLIC_ABORT[reasonCode]??reasonCode});
 const act = x => ({kind:'select-action',token:x.token});
@@ -176,6 +178,25 @@ function vipPrompt(request) {
   return picks(picked);
 }
 
+function patchPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='AttachEnergyPrompt'||m.selectionType!=='energy-attachment'||
+    m.ownerSeat!=='actor'||m.isOwnerVisible!==true||m.sourceZone!=='discard')
+    return no('R30_PATCH_PROMPT_UNSUPPORTED');
+  const options=arr(p.choices).filter(c=>c.kind==='energy'&&
+    typeof c.token==='string'&&c.publicMetadata?.sourceZone==='discard'&&
+    c.publicMetadata?.ownerSeat==='actor'&&
+    safeInt(c.publicMetadata?.benchIndex));
+  const best=options.map(c=>{
+    const target=o.ownPublic?.bench?.[c.publicMetadata.benchIndex];
+    return {c,score:has(target,P.clefairy)?3:
+      /^Tapu Lele-GX GRI 60\b/i.test(text(target))?2:
+      /^Mimikyu GRI 58\b/i.test(text(target))?1:0};
+  }).filter(r=>r.score>0).sort((a,b)=>b.score-a.score)[0];
+  return best?{kind:'select-choice',token:best.c.token}:
+    no('R30_PATCH_NO_ELIGIBLE_BENCH');
+}
+
 function canStartQuickBall(o) {
   if(!o||!Array.isArray(o.ownHand)||!safeInt(o.ownPublic?.deckCount)||
     o.ownPublic.deckCount<1)return false;
@@ -245,7 +266,7 @@ function candidateCanUseBoardHeldStarAlchemy(observation) {
   return slots(opponent).some(p=>arr(p.tools).some(t=>has(t,P.fss)));
 }
 
-function rootDecision(request) {
+function rootDecision(request,{enablePatchProjection=false}={}) {
   const o=request.observation, items=availableCards(request);
   if(!items.length)return no('R30_NO_OFFERED_ROOT');
   const attack=items.find(a=>a.kind==='attack' && a.attackName==='Full Moon Rondo' &&
@@ -266,6 +287,10 @@ function rootDecision(request) {
   if(box && canStartBox(o))return act(box);
   // Hand disruption against the publicly imminent two-Prize reply is a
   // tactical heuristic, not a guarantee that a hidden gust will disappear.
+  if(enablePatchProjection && basicDiscard(o.ownPublic) && hasBenchedPsychic(o.ownPublic)){
+    const patch=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.patch));
+    if(patch)return act(patch);
+  }
   const marnie=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.marnie));
   if(marnie && threatenSecondTarget(o) &&
     !candidateCanUseBoardHeldStarAlchemy(o))return act(marnie);
@@ -279,8 +304,10 @@ function rootDecision(request) {
 }
 function createPolicy({role,seat,policyVersion,config}) {
   if(role!=='opponent'||![0,1].includes(seat)||policyVersion!==POLICY_VERSION||
-     !config||Object.keys(config).length!==2||config.sourceRank!==SOURCE_RANK||
-     config.sourceBlobSha1!==SOURCE_LIST_BLOB_SHA1)
+     !config||![2,3].includes(Object.keys(config).length)||
+     Object.keys(config).some(k=>!['sourceRank','sourceBlobSha1','enablePatchProjection'].includes(k))||
+     (Object.keys(config).length===3&&config.enablePatchProjection!==true)||
+     config.sourceRank!==SOURCE_RANK||config.sourceBlobSha1!==SOURCE_LIST_BLOB_SHA1)
     throw new Error('R30_SOURCE_ROLE_CONFIG_MISMATCH');
   return Object.freeze({decide(request){
     if(request?.role!==role||request.seat!==seat||request.observation?.actorSeat!==seat)
@@ -291,10 +318,12 @@ function createPolicy({role,seat,policyVersion,config}) {
       if(sameSource(request.prompt,P.box))return boxPrompt(request);
       if(sameSource(request.prompt,P.quickBall))return quickBallPrompt(request);
       if(sameSource(request.prompt,P.vip))return vipPrompt(request);
+      if(sameSource(request.prompt,P.patch)&&config.enablePatchProjection===true)
+        return patchPrompt(request);
       return no('R30_UNSUPPORTED_PROMPT_FAMILY');
     }
-    return rootDecision(request);
+    return rootDecision(request,{enablePatchProjection:config.enablePatchProjection===true});
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  rootDecision,boxPrompt,quickBallPrompt,vipPrompt,projectedRondo,discardScore,candidateCanUseBoardHeldStarAlchemy};
+  rootDecision,boxPrompt,quickBallPrompt,vipPrompt,patchPrompt,projectedRondo,discardScore,candidateCanUseBoardHeldStarAlchemy};
