@@ -37,8 +37,8 @@ test('source inventory is an exact 60-card static profile with its own source co
 for(const seat of [0,1]) {
   test('seat '+seat+': lethal 220 Rondo wins before Field Blower or Secret Box',()=>{
     const r=request(seat);
-    r.observation.ownPublic.bench=Array.from({length:5},()=>b('Unown AOR 30'));
-    r.observation.opponentPublic.bench=Array.from({length:5},()=>b('Shadow Rider Calyrex V CRE 74'));
+    r.observation.ownPublic.bench=[b('Unown AOR 30'),b('Unown AOR 30'),b('Unown AOR 30'),b('Dedenne-GX UNB 57'),b('Crobat V DAA 104')];
+    r.observation.opponentPublic.bench=[b('Shadow Rider Calyrex V CRE 74'),b('Shadow Rider Calyrex V CRE 74'),b('Shadow Rider Calyrex VMAX CRE 75'),b('Radiant Eternatus CRZ 105'),b('Tapu Lele-GX GRI 60')];
     r.observation.opponentPublic.active.damage=110;
     r.observation.ownHand=[box,psychic,vip,vip];
     r.actionFrontier.items=[root('play-card',box,'box'),
@@ -68,7 +68,7 @@ for(const seat of [0,1]) {
 }
 test('Sky Field from hand is selected only when next legal Bench would reach Rondo KO',()=>{
   const r=request();r.observation.ownPublic.bench=Array.from({length:5},()=>b('Unown AOR 30'));
-  r.observation.opponentPublic.bench=Array.from({length:4},()=>b('Shadow Rider Calyrex V CRE 74'));
+  r.observation.opponentPublic.bench=[b('Shadow Rider Calyrex V CRE 74'),b('Shadow Rider Calyrex V CRE 74'),b('Radiant Eternatus CRZ 105'),b('Tapu Lele-GX GRI 60')];
   r.observation.opponentPublic.active.damage=110;
   r.observation.ownHand=[clef,'Sky Field ROS 89'];
   r.actionFrontier.items=[root('play-card','Sky Field ROS 89','sky'),
