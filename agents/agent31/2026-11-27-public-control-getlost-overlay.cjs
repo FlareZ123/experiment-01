@@ -65,6 +65,21 @@ const edits=[
     "rain access",
     "if(!observedThornsControl(view)&&!publicTempleResettingHoleRisk(view))return false;",
     "if(!observedThornsControl(view)&&!observedElectroRainThreat(view))return false;"
+  ],
+  [
+    "fund control pivot helper",
+    "function scoreEnergyPlay(item, view) {",
+    "function controlGetLostChargeValue(view,index,printing,items){\n if(!observedThornsControl(view)&&!observedElectroRainThreat(view))return -Infinity;\n const own=view.ownPublic,target=view.opponentPublic.active,gir=own.bench[index];\n if(!target||!gir||!hasName(gir.printing,'Girafarig')||\n   view.globalTurn<=1||view.ownTurnResources.retreatedTurn!==0||\n   !items.some(x=>x.kind==='retreat'&&x.publicMetadata?.benchIndex===index&&\n      (!x.targetPrinting||x.targetPrinting===gir.printing)))return -Infinity;\n const cost=ownRetreatCost(view);\n if(cost===null||cost>1||slotEnergyCount(own.active)<cost)return -Infinity;\n const old={...own.active,energies:own.active.energies.slice(cost)};\n const movedView={...view,ownPublic:{...own,active:gir,bench:own.bench.map((p,i)=>i===index?old:p)}};\n const attack=gir.attacks.find(a=>a.name==='Get Lost');\n if(!attack||canPayAttack(gir,attack,movedView))return -Infinity;\n const charged={...gir,energies:[...gir.energies,printing]};\n const after={...movedView,ownPublic:{...movedView.ownPublic,active:charged}};\n const score=attackScore(charged,attack,after,target,{requirePayable:true});\n const current=bestAttackForSlot(own.active,view,target)?.score??0;\n if(!Number.isFinite(score)||score<=current+cost*350+100)return -Infinity;\n for(const ret of items.filter(x=>x.kind==='retreat')){\n   const i=ret.publicMetadata?.benchIndex,b=own.bench[i];\n   if(i===index||!b||!Number.isSafeInteger(i)||(ret.targetPrinting&&ret.targetPrinting!==b.printing))continue;\n   const alt={...view,ownPublic:{...own,active:b,bench:own.bench.map((p,j)=>j===i?old:p)}};\n   if((bestAttackForSlot(b,alt,target)?.score??0)>score)return -Infinity;\n }\n return 1250;\n}\nfunction scoreEnergyPlay(item, view, items = []) {"
+  ],
+  [
+    "fund control pivot charge",
+    "  const chargedView=viewAfterPsychicAttachment(view,metadata.targetZone,metadata.targetIndex,item.actorPrinting);\n  const defender=view.opponentPublic.active;",
+    "  const chargedView=viewAfterPsychicAttachment(view,metadata.targetZone,metadata.targetIndex,item.actorPrinting);\n  const defender=view.opponentPublic.active;\n  if(metadata.targetZone==='bench'){\n    const denial=controlGetLostChargeValue(view,metadata.targetIndex,item.actorPrinting,items);\n    if(Number.isFinite(denial))return denial;\n  }"
+  ],
+  [
+    "pass legal retreat frontier",
+    "    const energy = scoreEnergyPlay(item, view);",
+    "    const energy = scoreEnergyPlay(item, view, items);"
   ]
 ];
 module.exports={edits,apply(source){for(const [label,a,b] of edits){if(source.split(a).length!==2)throw Error(label);source=source.replace(a,b)}return source}};
