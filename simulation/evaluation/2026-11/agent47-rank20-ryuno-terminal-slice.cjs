@@ -13,7 +13,8 @@ const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
 const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
 const POLICY_SLICE_VERSION = 'agent47-rank20-ryuno-terminal-slice-v1';
 const VSTAR = /^Regidrago VSTAR SIT 136\b/i;
-const DRAGONITE = /^Mega Dragonite ex ASC 152\b/i;
+// ASC152's pinned CardManager fullName is 'Mega Dragonite ex M2a'.
+const DRAGONITE = /^Mega Dragonite ex (?:ASC 152|M2a)\b/i;
 const SHADOW_VMAX = /^Shadow Rider Calyrex VMAX CRE 75\b/i;
 const BASIC_ENERGY = /^(?:Grass Energy MEE 9|Fire Energy MEE 10)\b/i;
 const DDE = /^Double Dragon Energy ROS 97\b/i;
