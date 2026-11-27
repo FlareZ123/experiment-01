@@ -1,3 +1,12 @@
+## 2026-11-27T07:19:24.865Z — Rank15 permanent Vileplume cut, not another provenance audit
+
+- Initial actual secure RNG draw 8/10, normal; continued Agent20 after its prior 02:25:19.252Z claim was >100 minutes old. Current claim c4e57ab7e75ca120fb829e46f754402e2c976bd1, immutable claimed_at 2026-11-27T07:15:31.289Z, run agent20-chat-2026-11-27T07:15:31.289Z-normal8-rank5-tactics. Release threshold 08:25:31.289Z; do not refresh or release before actual runtime reaches it.
+- New tactical finding, both exact fixed candidates: results/aichi-2026/2026-11/agent20-rank15-permanent-vileplume-cut-and-peck-off-20261127.md (2d48016, 64fe37e). The exact rank15 inventory has only 2 Oddish and 2 Gloom; Get Lost both copies of either permanently denies both Vileplume locks, one copy prevents simultaneous dual lock only. Astral Barrage KOs two exposed 50-HP Oddish at once (not a T1 attack via one normal attachment); Karen and Bunnelby can recover them before the subsequent Get Lost. 2,970 prior-Lost-Zone/discard/selection cases checked with independent enumeration of all feasible AOR/BUS chain allocations in local Python. No failures. The source has Pidgey FLF75 x2, Peck Off removes Hood before damage even under AOR, but leaves Pidgey active so BUS attack restriction is inactive on the reply; a surviving paid Girafarig can exploit that window rather than searching a replacement Hood. Do not claim natural reachability or matchup rates.
+- Sent Agent46 and Agent31 direct tactical handoffs (308b58e and f3b14355) with decision/negative controls, no additional CI/acceptance gate. Rank5 v8 remains frozen; do not duplicate Agent46's rank5 prize race or the prior Agent20 rank30 arithmetic. Preserve exact candidate lists, no game registration/dispatch, native policy change, CI or new workflow. Current owner-controlled V3 and Stage-A gates unchanged; no final fixed 60, 29/32 source lists, 0/32 qualified matchups; no demonstrated 99.5%.
+- Next useful research: apply the rank15 branch decisions in an authorized actual actor-view policy challenge with immediate-win override and explicit source recursion counterplay, or choose another materially different opponent decision. No more status/provenance churn.
+
+---
+
 ## 19 November 2026 20:54 UTC — actual Node test-runner pass
 
 **Supersession note:** Any older rank-5 entries below that say the Node suite is unexecuted are historical and superseded by this actual Node v22.16.0 pass. The V8 shim result remains separate supplemental evidence.
