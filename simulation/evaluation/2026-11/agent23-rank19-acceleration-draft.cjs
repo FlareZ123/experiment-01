@@ -92,7 +92,7 @@ function root(r,capability){
  for(const a of items.filter(a=>a.kind==='use-ability')){
   const sp=spec(abilitySource(a));
   if(!sp||!['sandy','koko'].includes(sp.id))continue;
-  if(sp.id==='sandy'&&(Number(r.observation.opponentPublic?.prizeCount)>4||slots(o).filter(s=>SANDY.test(name(s.pokemon))).length!==1))continue;
+  if(sp.id==='sandy'&&(!Number.isSafeInteger(r.observation.opponentPublic?.prizeCount)||r.observation.opponentPublic.prizeCount>4||slots(o).filter(s=>SANDY.test(name(s.pokemon))).length!==1))continue;
   if(sp.id==='koko'&&slots(o).filter(s=>s.zone==='bench'&&KOKO.test(name(s.pokemon))).length!==1)continue;
   const p=publicPlan(r,sp);
   // At least one meaningful readiness improvement, or fuel for an immediate
@@ -147,6 +147,49 @@ function decide(r){
  if(!b)return null;
  return b.assignments.length?{kind:'select-choices',tokens:b.assignments.map(a=>a.token)}:{kind:'select-choice',token:empty.token};
 }
+function manualUnused(o){const n=o.ownTurnResources?.energyPlayedTurn,t=o.globalTurn;return Number.isSafeInteger(n)&&Number.isSafeInteger(t)&&n<t;}
+function raihanSearch(r){
+ const p=r?.prompt,m=p?.publicMetadata,o=r?.observation,own=o?.ownPublic;
+ if(r?.role!=='opponent'||o?.actorSeat!==r.seat||p?.promptType!=='ChooseCardsPrompt'||p.source?.sourceKind!=='card-effect'||!RAIHAN.test(name(p.source.sourcePrinting))||p.source.effectName!=='Raihan'||m?.minimumCount!==1||m.maximumCount!==1||!Array.isArray(p.choices)||!Array.isArray(own?.bench))return null;
+ const choices=p.choices.filter(c=>c.kind==='card'&&typeof c.token==='string'&&c.publicMetadata?.ownerSeat==='actor'&&c.publicMetadata?.sourceZone==='deck'&&c.publicMetadata?.isOwnerVisible===true);
+ if(!choices.length)return null;
+ const hand=o.ownHand??[],temple=bolt.templeMayApply(o),t=o.opponentPublic?.active,unused=manualUnused(o);
+ const all=slots(own),active=all.find(s=>s.zone==='active'),readyBench=all.some(s=>s.zone==='bench'&&bolt.deficit(s,new Set(),temple)===0);
+ function energyGain(value){
+  if(!unused||(!basic(value)&&!DDE.test(value))||hand.some(e=>name(e)===value))return 0;
+  let best=0;
+  for(const s of all){
+   if(DDE.test(value)&&(!BOLT.test(name(s.pokemon))&&!ADP.test(name(s.pokemon))||temple))continue;
+   const before=bolt.deficit(s,new Set(),temple);
+   if(before===null||before===0)continue;
+   const after={...s,pokemon:{...s.pokemon,energies:[...s.pokemon.energies,value]}};
+   const d=bolt.deficit(after,new Set(),temple);
+   if(d===null||d>=before)continue;
+   let score=100+20*(before-d)+(d===0?40:0)+(s.zone==='active'?30:0);
+   if(s.zone==='active'&&MOL.test(name(s.pokemon))&&d===0&&targets.auraPrizeValue(t))score+=200;
+   if(s.zone==='active'&&BOLT.test(name(s.pokemon))&&d===0){
+    const n={...own,active:after.pokemon};
+    if(bolt.plan(n,t,temple))score+=200;
+   }
+   best=Math.max(best,score);
+  }
+  return best;
+ }
+ function score(c){
+  const v=name(c),energy=energyGain(v);if(energy)return energy;
+  if(/^Float Stone BKT(?: 137)?$/.test(v)&&active&&readyBench&&Array.isArray(active.pokemon.tools)&&!active.pokemon.tools.length&&!hand.some(e=>/^Float Stone BKT/.test(name(e)))&&Number.isSafeInteger(o.ownTurnResources?.retreatedTurn)&&o.ownTurnResources.retreatedTurn<o.globalTurn)return 180;
+  if(MOL.test(v)&&!all.some(s=>MOL.test(name(s.pokemon)))&&!hand.some(e=>MOL.test(name(e)))&&own.bench.filter(Boolean).length<5&&targets.auraPrizeValue(t)&&[...hand,...own.discard].some(e=>basic(e)==='Darkness'))return 170;
+  if(/^Battle Compressor PHF(?: 92)?$/.test(v)&&!hand.some(e=>/^Battle Compressor PHF/.test(name(e))))return 90;
+  if(/^VS Seeker PHF(?: 109)?$/.test(v)&&!hand.some(e=>/^VS Seeker PHF/.test(name(e))))return 80;
+  if(/^Night Stretcher ASC(?: 196)?$/.test(v)&&own.discard.some(e=>BOLT.test(name(e))||MOL.test(name(e))))return 75;
+  if(/^Quick Ball FST(?: 237)?$/.test(v)&&own.bench.filter(Boolean).length<5)return 60;
+  if(DDE.test(v)&&all.some(s=>BOLT.test(name(s.pokemon))||ADP.test(name(s.pokemon))))return 50;
+  if(basic(v))return 40;
+  return 1;
+ }
+ const ranked=choices.map((c,i)=>({c,i,s:score(c)})).sort((a,b)=>b.s-a.s||a.i-b.i);
+ return {kind:'select-choices',tokens:[ranked[0].c.token]};
+}
 function project({pin,native,state,prompt,actorSeat,source}){
  const sp=spec(source);
  if(pin!==bolt.PIN||!sp||source?.sourceKind!=='card-effect'||!native||!state||![0,1].includes(actorSeat)||prompt?.constructor?.name!=='AttachEnergyPrompt'||!state.prompts?.includes(prompt)||prompt.result!==undefined)return null;
@@ -199,4 +242,4 @@ function project({pin,native,state,prompt,actorSeat,source}){
   try{return prompt.validate(prompt.decode(result,state))?result:null;}catch{return null;}
  }};
 }
-module.exports={spec,plan,publicPlan,root,decide,project};
+module.exports={spec,plan,publicPlan,root,decide,project,raihanSearch};
