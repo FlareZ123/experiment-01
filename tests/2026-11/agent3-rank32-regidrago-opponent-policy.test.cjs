@@ -786,3 +786,59 @@ test('Muscle Band must target real ready VSTAR and cross a KO threshold',()=>{
   assert.deepEqual(bestAction(request({ownPublic,opponentPublic,items})),
     {kind:'select-action',token:'attack'});
 });
+
+
+test('evolve the powered Regidrago V instead of the empty copy via native Bench slot',()=>{
+  const ownPublic=player({
+    active:pokemon('Budew ASC 16'),
+    bench:[
+      pokemon('Regidrago V SIT 135',{energies:[]}),
+      pokemon('Regidrago V SIT 135',{energies:[P.doubleDragon,P.energy]})
+    ],
+    discard:[{printing:P.goodra}]
+  });
+  const items=[
+    action('bad','play-card',P.regidrago,{
+      targetPrinting:'Regidrago V SIT 135',
+      publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:0}
+    }),
+    action('ready','play-card',P.regidrago,{
+      targetPrinting:'Regidrago V SIT 135',
+      publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:1}
+    }),
+    action('pass','pass')
+  ];
+  assert.deepEqual(bestAction(request({ownPublic,items})),
+    {kind:'select-action',token:'ready'});
+  items[1].publicMetadata.targetIndex=4;
+  assert.deepEqual(bestAction(request({ownPublic,items})),
+    {kind:'select-action',token:'bad'});
+});
+
+test('retreat support Active into ready Regidrago VSTAR rather than dead utility',()=>{
+  const ownPublic=player({
+    active:pokemon('Budew ASC 16'),
+    bench:[
+      pokemon('Latias ex SSP 76'),
+      pokemon(P.regidrago,{energies:[P.doubleDragon,P.energy]})
+    ],
+    discard:[{printing:P.goodra}]
+  });
+  const items=[
+    action('latias','retreat','Budew ASC 16',{
+      targetPrinting:'Latias ex SSP 76',
+      publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:0}
+    }),
+    action('regidrago','retreat','Budew ASC 16',{
+      targetPrinting:P.regidrago,
+      publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:1}
+    }),
+    action('pass','pass')
+  ];
+  assert.deepEqual(bestAction(request({ownPublic,items})),
+    {kind:'select-action',token:'regidrago'});
+  ownPublic.active=pokemon(P.regidrago,{energies:[P.doubleDragon,P.energy]});
+  items.push(action('attack','attack',P.regidrago,{attackName:'Apex Dragon'}));
+  assert.deepEqual(bestAction(request({ownPublic,items})),
+    {kind:'select-action',token:'attack'});
+});
