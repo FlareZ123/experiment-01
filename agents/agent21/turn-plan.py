@@ -38,6 +38,8 @@ class State:
     manual: bool; retreat: bool; support: bool; stadium_used: bool; doors: int
     attack_block: int; retreat_block: int; deck: int; discarded: int = 0
     draws: int = 0; played_guzma: bool = False; played_blower: bool = False
+    vs: int = 0; stretcher: int = 0; discard_p: int = 0; discard_guzma: bool = False
+    played_recovery: int = 0
     played_stadium: bool = False; used_marshadow: bool = False; tools_played: int = 0
 
 class Planner:
@@ -69,6 +71,9 @@ class Planner:
         self.stadium_attack_lock = data.get('stadium_attack_lock',False)
         self.klefki_blocks_wob = data.get('klefki_blocks_wob',True)
         self.no_retreat = data.get('no_retreat',False)
+        self.tool_attack_lock = data.get('tool_attack_lock',False)
+        self.energy_attack_lock = data.get('energy_attack_lock',False)
+        discard = data.get('discard',{})
         self.first = State(self.ids.index(data['active']), self.eids.index(data['opp_active']),
             tuple(x.get('energy',0) for x in self.own), tuple(x.get('tool','') for x in self.own),
             tuple(x.get('tool','') for x in self.opp), (1<<self.n)-1, stadium,
@@ -76,8 +81,12 @@ class Planner:
             hand.get('blower',False), hand.get('guzma',False), stad,
             used.get('manual',False), used.get('retreat',False), used.get('support',False), used.get('stadium',False),
             mask(lambda x:x.get('door_used',False)), mask(lambda x:x.get('attack_blocked',False)),
-            mask(lambda x:x.get('retreat_blocked',False)), data.get('deck_remaining',40))
-        assert self.first.hand_p >= 0 and sum(self.first.energy)+self.first.hand_p <= 11
+            mask(lambda x:x.get('retreat_blocked',False)), data.get('deck_remaining',40),
+            vs=hand.get('vs',0),stretcher=hand.get('stretcher',0),
+            discard_p=discard.get('psychic',0),discard_guzma=discard.get('guzma',False))
+        assert self.first.hand_p >= 0 and self.first.discard_p >= 0 and sum(self.first.energy)+self.first.hand_p+self.first.discard_p <= 11
+        assert 0<=self.first.vs<=4 and 0<=self.first.stretcher<=4
+        assert not (self.first.guzma and self.first.discard_guzma)  # single Guzma in the candidate
         assert 0 <= self.first.hood <= 2 and 0 <= self.first.flt <= 1 and self.first.deck >= 0
         assert len(self.own)<= (9 if stadium=='sky' else 6) and len(self.opp)<= (9 if stadium=='sky' else 6)
         self.unsupported = set()
@@ -159,7 +168,7 @@ class Planner:
     def actions(self,s):
         own=self.own_indices(s); bench=[i for i in own if i!=s.a]
         if s.hand_p:
-            if not s.manual:
+            if not s.manual and not self.energy_attack_lock:
                 for i in own:
                     yield f'manual Psychic -> {self.ids[i]}',replace(s,energy=self.setv(s.energy,i,s.energy[i]+1),hand_p=s.hand_p-1,manual=True)
             for j in own:
@@ -172,20 +181,25 @@ class Planner:
         if cost is not None and cost<=s.energy[s.a]:
             for i in bench:
                 q=self.switch(s,i)
-                yield f'retreat {self.ids[s.a]} -> {self.ids[i]} (discard {cost} Psychic)',replace(q,energy=self.setv(s.energy,s.a,s.energy[s.a]-cost),retreat=True,discarded=s.discarded+cost)
+                yield f'retreat {self.ids[s.a]} -> {self.ids[i]} (discard {cost} Psychic)',replace(q,energy=self.setv(s.energy,s.a,s.energy[s.a]-cost),retreat=True,discarded=s.discarded+cost,discard_p=s.discard_p+cost)
         if s.guzma and self.support_ok(s):
             for j in range(self.m):
                 if j==s.o: continue
                 for i in bench or [s.a]:
                     q=self.switch(s,i,j)
-                    yield f'Guzma: opponent {self.eids[j]}, own {self.ids[i]}',replace(q,guzma=False,support=True,played_guzma=True)
+                    yield f'Guzma: opponent {self.eids[j]}, own {self.ids[i]}',replace(q,guzma=False,support=True,played_guzma=True,discard_guzma=True)
+        if self.item_ok(s):
+            if s.vs and s.discard_guzma and not s.guzma:
+                yield 'VS Seeker -> Guzma',replace(s,vs=s.vs-1,discard_guzma=False,guzma=True,played_recovery=s.played_recovery+1)
+            if s.stretcher and s.discard_p:
+                yield 'Night Stretcher -> Psychic Energy',replace(s,stretcher=s.stretcher-1,discard_p=s.discard_p-1,hand_p=s.hand_p+1,played_recovery=s.played_recovery+1)
         if not s.stadium_used and not self.stadium_attack_lock:
             for name in s.stadiums:
                 if name==s.stadium or (s.stadium!='none' and not self.stadium_removable(s)): continue
                 result='none' if s.stadium=='swell' else name
                 yield f'play {name} Stadium'+(' (Chaotic Swell discards both)' if result=='none' else ''),replace(s,stadium=result,stadiums=tuple(x for x in s.stadiums if x!=name),stadium_used=True,played_stadium=True)
         for i in own:
-            if s.ot[i]:continue
+            if s.ot[i] or self.tool_attack_lock:continue
             if s.hood:
                 yield f'attach Stealthy Hood -> {self.ids[i]}',replace(s,ot=self.setv(s.ot,i,'hood'),hood=s.hood-1,tools_played=s.tools_played+1)
             if s.flt:
@@ -204,7 +218,7 @@ class Planner:
         if self.stadium_removable(s):
             for i in bench:
                 if self.kind(i)=='marshadow' and self.own_ability(s,i):
-                    yield f'Resetting Hole {self.ids[i]} (discard Stadium and this Pokémon)',replace(s,alive=s.alive&~(1<<i),energy=self.setv(s.energy,i,0),ot=self.setv(s.ot,i,''),stadium='none',discarded=s.discarded+s.energy[i],used_marshadow=True)
+                    yield f'Resetting Hole {self.ids[i]} (discard Stadium and this Pokémon)',replace(s,alive=s.alive&~(1<<i),energy=self.setv(s.energy,i,0),ot=self.setv(s.ot,i,''),stadium='none',discarded=s.discarded+s.energy[i],discard_p=s.discard_p+s.energy[i],used_marshadow=True)
 
     def effective_opp_energy(self,s,i):
         x=self.opp[i]
@@ -295,7 +309,7 @@ class Planner:
                 capped=sum(min(d,hp) for d,hp in zip(damages,remain))
                 # Transparent representative ranking per same attack/target, not global win-rate utility.
                 score=(prizes,capped,heal,-s.discarded,-int(s.played_guzma),-int(s.played_blower),
-                       -int(s.played_stadium),-int(s.used_marshadow),-s.tools_played,s.draws,s.hand_p)
+                       -int(s.played_stadium),-int(s.used_marshadow),-s.tools_played,-s.played_recovery,s.draws,s.hand_p)
                 key=(s.a,attack,targets,effect)
                 old=best.get(key)
                 if old is None or score>old[0]:best[key]=(score,s,damages,ko,prizes,effect,gx,heal,cost)
@@ -309,7 +323,8 @@ class Planner:
                 'damage_or_counters':list(damages),'ko':[self.eids[j] for j in ko],'immediate_prizes':prizes,
                 'attack_cost':cost,'effect':effect,'gx':gx,'heal':heal,'actions':path(s),
                 'board_psychic':{self.ids[j]:s.energy[j] for j in self.own_indices(s)},'known_hand_psychic':s.hand_p,
-                'discarded_psychic':s.discarded,'door_draws':s.draws,'stadium':s.stadium})
+                'discarded_psychic':s.discarded,'door_draws':s.draws,'stadium':s.stadium,
+                'recovery_items_used':s.played_recovery})
         results.sort(key=lambda x:(-x['immediate_prizes'],-sum(x['damage_or_counters']),-x['heal'],x['discarded_psychic'],len(x['actions']),x['attack']))
         return {'states':len(paths),'complete_within_model':not incomplete,'distinct_attack_target_options':len(results),
                 'options':results[:limit],'omitted_options':max(0,len(results)-limit),'unsupported':sorted(self.unsupported),
@@ -344,11 +359,12 @@ class Planner:
             x=dict(x0);x.update(damage=x.get('damage',0)+dealt.get(i,0),tool=s.et[i]);opp.append(x)
         data=dict(self.data);data.pop('copycat_recipe',None)
         data.update(own=own,opp=opp,active=self.ids[s.a],opp_active=self.eids[promotion],stadium=s.stadium,
-             hand={'psychic':s.hand_p,'hood':s.hood,'float':s.flt,'blower':s.blower,'guzma':s.guzma,'stadiums':list(s.stadiums)},
+             hand={'psychic':s.hand_p,'hood':s.hood,'float':s.flt,'blower':s.blower,'guzma':s.guzma,'stadiums':list(s.stadiums),'vs':s.vs,'stretcher':s.stretcher},
+             discard={'psychic':s.discard_p,'guzma':s.discard_guzma},
              used={'gx':self.gx_used or gx},deck_remaining=s.deck-1,can_attack=True,support_allowed=True,
              prizes_remaining=self.data['prizes_remaining']-prizes)
         if self.data.get('attack_locks_expire_after_turn',True):
-            data.update(item_attack_lock=False,support_attack_lock=False,stadium_attack_lock=False)
+            data.update(item_attack_lock=False,support_attack_lock=False,stadium_attack_lock=False,tool_attack_lock=False,energy_attack_lock=False)
         return Planner(data)
 
     def find_lethal(self,max_states=200000,max_followup=128,allow_extra=True):
@@ -452,6 +468,13 @@ def selftest():
     no=dict(q);no['used']={'gx':True};assert not Planner(no).find_lethal()['found']
     no=dict(q);no['deck_remaining']=0;assert not Planner(no).find_lethal()['found']
     no=dict(q);no['no_unmodeled_terminal_triggers']=False;assert not Planner(no).find_lethal()['found']
+    # Recover spent Guzma or discarded Psychic only from the known public discard.
+    q=dict(f['thorns_cycle']);q['hand']={'psychic':1,'vs':1,'stretcher':1};q['discard']={'guzma':True,'psychic':1}
+    r=Planner(q).solve();p=next(x for x in r['options'] if x['immediate_prizes']==2);assert 'VS Seeker -> Guzma' in p['actions'] and 'Night Stretcher -> Psychic Energy' in p['actions']
+    assert p['recovery_items_used']==2 and p['door_draws']==4
+    q['item_attack_lock']=True;assert not any(x['immediate_prizes'] for x in Planner(q).solve()['options'])
+    q=dict(f['basic_attack_lock']);q['tool_attack_lock']=True;assert not any(x['attack']=='Eon Blade' for x in Planner(q).solve()['options'])
+    q=dict(f['protected_vileplume']);q['energy_attack_lock']=True;assert any(x['attack']=='Eon Blade' and x['immediate_prizes']==1 for x in Planner(q).solve()['options']) # Door still works
     print('All focused actor-visible tactical tests passed.')
 
 def main():
