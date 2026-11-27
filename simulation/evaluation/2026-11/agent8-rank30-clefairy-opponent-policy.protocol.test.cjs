@@ -402,3 +402,34 @@ test('Minior Far-Flying Meteor optional switch declines after Snorlax obtains re
     choices:[{kind:'confirm',token:'yes',label:'Yes'},{kind:'confirm',token:'no',label:'No'}]};
   assertValid(0,r,{kind:'select-choice',token:'no'});
 });
+
+
+for(const seat of [0,1]) {
+  test('seat '+seat+' source Trainers Mail prioritizes first-turn VIP over dead Mail and noncritical Stadium',()=>{
+    const r=request(seat,["Trainers' Mail ROS"],[],
+      "Trainers' Mail ROS",'deck',
+      [['Sky Field ROS','sky'],['Battle VIP Pass FST','vip'],
+        ["Trainers' Mail ROS",'mail-again'],['Marnie SSH','marnie']],0,1);
+    r.observation.globalTurn=1;
+    r.observation.ownPublic.active={printing:clef,hp:190,damage:0};
+    r.prompt=null;
+    r.actionFrontier.items=[{kind:'play-card',actorPrinting:"Trainers' Mail ROS",token:'play-mail'}];
+    assert.deepEqual(p(seat).decide(r),{kind:'select-action',token:'play-mail'});
+    r.prompt=request(seat,["Trainers' Mail ROS"],[],
+      "Trainers' Mail ROS",'deck',
+      [['Sky Field ROS','sky'],['Battle VIP Pass FST','vip'],
+        ["Trainers' Mail ROS",'mail-again'],['Marnie SSH','marnie']],0,1).prompt;
+    r.prompt.source.effectName="Trainers' Mail";
+    assertValid(seat,r,{kind:'select-choices',tokens:['vip']});
+    // After first turn, VIP is unplayable and must never be selected.
+    r.observation.globalTurn=4;
+    assertValid(seat,r,{kind:'select-choices',tokens:['sky']});
+  });
+}
+test('Trainers Mail optional no-Trainer and source owner gate fail closed',()=>{
+  const r=request(0,[],[],"Trainers' Mail ROS",'deck',
+    [["Trainers' Mail ROS",'mail-again'],['Psychic Energy MEE','energy']],0,1);
+  assertValid(0,r,{kind:'select-choice',token:'none'});
+  r.prompt.publicMetadata.sourceZone='opponentDeck';
+  assertValid(0,r,{kind:'abstain',reasonCode:'UNSUPPORTED_CARD_COMBINATION_SOURCE'});
+});
