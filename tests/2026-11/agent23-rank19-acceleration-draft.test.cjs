@@ -26,7 +26,7 @@ for(const seat of [0,1]){
   assert.deepEqual(mod.decide(r),{kind:'select-choices',tokens:['e0-bench0','e1-active0']});
  });
  test('seat '+seat+' Sada retains lone Darkness for Moltres if no extra readiness gained',()=>{
-  const o=own(mon(B,[L,F]),[mon(FL),mon(M,[D])],[F,D]),r=request(seat,o,[sada]);r.prompt=draftPrompt(o,sourceS,[F,D]);
+  const o=own(mon(B,[L,F]),[mon(FL),mon(M,[])],[F,D]),r=request(seat,o,[sada]);r.prompt=draftPrompt(o,sourceS,[F,D]);
   const d=mod.decide(r);
   assert.equal(d.tokens.length,1);assert.equal(d.tokens[0].startsWith('e0-'),true);
  });
@@ -91,3 +91,8 @@ for(const seat of [0,1]){
   assert.equal(p.resolve({kind:'select-choices',tokens:['attach-0','attach-1']}),null);
  });
 }
+
+test('immediate five-energy knockout can override the Darkness reserve',()=>{
+ const o=own(mon(B,[L,F]),[mon(FL),mon(M,[D])],[F,D]),r=request(0,o,[sada]);r.prompt=draftPrompt(o,sourceS,[F,D]);
+ assert.equal(mod.decide(r).tokens.length,2);
+});
