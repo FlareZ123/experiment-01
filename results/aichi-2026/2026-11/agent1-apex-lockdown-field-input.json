@@ -1,0 +1,300 @@
+{
+  "source": "results/aichi-2026/full-decklists.json",
+  "missingRanks": [
+    23,
+    25,
+    28
+  ],
+  "field": [
+    {
+      "rank": 1,
+      "archetype": "Shadow Rider Calyrex",
+      "basicEnergy": 11,
+      "specialEnergy": 0,
+      "ranger": 0,
+      "electrodeGX": 0,
+      "garbodor": 0,
+      "megaton": false
+    },
+    {
+      "rank": 2,
+      "archetype": "Vileplume Control",
+      "basicEnergy": 1,
+      "specialEnergy": 5,
+      "ranger": 0,
+      "electrodeGX": 0,
+      "garbodor": 0,
+      "megaton": false
+    },
+    {
+      "rank": 3,
+      "archetype": "Snorlax Stall",
+      "basicEnergy": 2,
+      "specialEnergy": 3,
+      "ranger": 0,
+      "electrodeGX": 0,
+      "garbodor": 0,
+      "megaton": false
+    },
+    {
+      "rank": 4,
+      "archetype": "Raichu Electrode Combo",
+      "basicEnergy": 0,
+      "specialEnergy": 12,
+      "ranger": 1,
+      "electrodeGX": 3,
+      "garbodor": 0,
+      "megaton": false
+    },
+    {
+      "rank": 5,
+      "archetype": "Mew Genesect",
+      "basicEnergy": 0,
+      "specialEnergy": 4,
+      "ranger": 1,
+      "electrodeGX": 0,
+      "garbodor": 0,
+      "megaton": false
+    },
+    {
+      "rank": 6,
+      "archetype": "Iron Thorns",
+      "basicEnergy": 0,
+      "specialEnergy": 8,
+      "ranger": 0,
+      "electrodeGX": 0,
+      "garbodor": 0,
+      "megaton": true
+    },
+    {
+      "rank": 7,
+      "archetype": "Snorlax Stall",
+      "basicEnergy": 0,
+      "specialEnergy": 4,
+      "ranger": 1,
+      "electrodeGX": 0,
+      "garbodor": 0,
+      "megaton": true
+    },
+    {
+      "rank": 8,
+      "archetype": "Absol Garbodor",
+      "basicEnergy": 7,
+      "specialEnergy": 0,
+      "ranger": 0,
+      "electrodeGX": 0,
+      "garbodor": 2,
+      "megaton": false
+    },
+    {
+      "rank": 9,
+      "archetype": "Absol Electrode",
+      "basicEnergy": 2,
+      "specialEnergy": 5,
+      "ranger": 0,
+      "electrodeGX": 2,
+      "garbodor": 0,
+      "megaton": false
+    },
+    {
+      "rank": 10,
+      "archetype": "Regidrago",
+      "basicEnergy": 6,
+      "specialEnergy": 4,
+      "ranger": 0,
+      "electrodeGX": 0,
+      "garbodor": 0,
+      "megaton": false
+    },
+    {
+      "rank": 11,
+      "archetype": "Absol Garbodor",
+      "basicEnergy": 8,
+      "specialEnergy": 0,
+      "ranger": 0,
+      "electrodeGX": 0,
+      "garbodor": 2,
+      "megaton": false
+    },
+    {
+      "rank": 12,
+      "archetype": "Regidrago",
+      "basicEnergy": 6,
+      "specialEnergy": 4,
+      "ranger": 0,
+      "electrodeGX": 0,
+      "garbodor": 0,
+      "megaton": true
+    },
+    {
+      "rank": 13,
+      "archetype": "Regidrago",
+      "basicEnergy": 7,
+      "specialEnergy": 3,
+      "ranger": 0,
+      "electrodeGX": 0,
+      "garbodor": 0,
+      "megaton": true
+    },
+    {
+      "rank": 14,
+      "archetype": "Regidrago",
+      "basicEnergy": 6,
+      "specialEnergy": 4,
+      "ranger": 0,
+      "electrodeGX": 0,
+      "garbodor": 0,
+      "megaton": true
+    },
+    {
+      "rank": 15,
+      "archetype": "Lopunny Vileplume",
+      "basicEnergy": 2,
+      "specialEnergy": 5,
+      "ranger": 0,
+      "electrodeGX": 0,
+      "garbodor": 0,
+      "megaton": false
+    },
+    {
+      "rank": 16,
+      "archetype": "Absol Garbodor",
+      "basicEnergy": 7,
+      "specialEnergy": 0,
+      "ranger": 0,
+      "electrodeGX": 0,
+      "garbodor": 3,
+      "megaton": false
+    },
+    {
+      "rank": 17,
+      "archetype": "Raichu Electrode Combo",
+      "basicEnergy": 0,
+      "specialEnergy": 12,
+      "ranger": 0,
+      "electrodeGX": 3,
+      "garbodor": 0,
+      "megaton": false
+    },
+    {
+      "rank": 18,
+      "archetype": "Regidrago",
+      "basicEnergy": 4,
+      "specialEnergy": 4,
+      "ranger": 1,
+      "electrodeGX": 0,
+      "garbodor": 0,
+      "megaton": false
+    },
+    {
+      "rank": 19,
+      "archetype": "Raging Bolt",
+      "basicEnergy": 9,
+      "specialEnergy": 4,
+      "ranger": 0,
+      "electrodeGX": 0,
+      "garbodor": 0,
+      "megaton": false
+    },
+    {
+      "rank": 20,
+      "archetype": "Regidrago",
+      "basicEnergy": 6,
+      "specialEnergy": 4,
+      "ranger": 0,
+      "electrodeGX": 0,
+      "garbodor": 0,
+      "megaton": true
+    },
+    {
+      "rank": 21,
+      "archetype": "Regidrago",
+      "basicEnergy": 7,
+      "specialEnergy": 3,
+      "ranger": 0,
+      "electrodeGX": 0,
+      "garbodor": 0,
+      "megaton": true
+    },
+    {
+      "rank": 22,
+      "archetype": "Absol Garbodor",
+      "basicEnergy": 8,
+      "specialEnergy": 0,
+      "ranger": 0,
+      "electrodeGX": 0,
+      "garbodor": 2,
+      "megaton": false
+    },
+    {
+      "rank": 24,
+      "archetype": "Iron Thorns",
+      "basicEnergy": 0,
+      "specialEnergy": 8,
+      "ranger": 0,
+      "electrodeGX": 0,
+      "garbodor": 0,
+      "megaton": true
+    },
+    {
+      "rank": 26,
+      "archetype": "Meloetta Donk",
+      "basicEnergy": 2,
+      "specialEnergy": 1,
+      "ranger": 0,
+      "electrodeGX": 0,
+      "garbodor": 0,
+      "megaton": false
+    },
+    {
+      "rank": 27,
+      "archetype": "Regidrago",
+      "basicEnergy": 6,
+      "specialEnergy": 4,
+      "ranger": 0,
+      "electrodeGX": 0,
+      "garbodor": 0,
+      "megaton": false
+    },
+    {
+      "rank": 29,
+      "archetype": "Iron Thorns",
+      "basicEnergy": 0,
+      "specialEnergy": 8,
+      "ranger": 0,
+      "electrodeGX": 0,
+      "garbodor": 0,
+      "megaton": true
+    },
+    {
+      "rank": 30,
+      "archetype": "Lillie's Clefairy",
+      "basicEnergy": 5,
+      "specialEnergy": 2,
+      "ranger": 0,
+      "electrodeGX": 0,
+      "garbodor": 0,
+      "megaton": false
+    },
+    {
+      "rank": 31,
+      "archetype": "Dusknoir Chimecho",
+      "basicEnergy": 2,
+      "specialEnergy": 3,
+      "ranger": 0,
+      "electrodeGX": 0,
+      "garbodor": 0,
+      "megaton": false
+    },
+    {
+      "rank": 32,
+      "archetype": "Regidrago",
+      "basicEnergy": 6,
+      "specialEnergy": 4,
+      "ranger": 1,
+      "electrodeGX": 0,
+      "garbodor": 0,
+      "megaton": true
+    }
+  ]
+}

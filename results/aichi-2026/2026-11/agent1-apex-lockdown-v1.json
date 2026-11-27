@@ -1,0 +1,435 @@
+{
+  "schema": "agent1-apex-lockdown-v1",
+  "status": "research-only fixed-60 structural challenger; not nominated or admitted; zero native games",
+  "source": "candidate composed from English printed card pool against original Japanese Aichi 2026 field",
+  "deck_identity_canonicalization": "sha256(UTF8(alphabetically sorted `cardId:count\\n`))",
+  "deck_identity_sha256": "f04a8793b11b8a76e414e0f4d21ff77be38820a63801b142edb048b85dddf8d6",
+  "archetype": "Regidrago VSTAR / Megaton Blower / repeatable resource denial and prize conversion",
+  "category_counts": {
+    "Pokémon": 22,
+    "Trainer": 28,
+    "Energy": 10
+  },
+  "total_cards": 60,
+  "paper_legality_claim": "All exact IDs Expanded Legal in supplied card database; basic/ACE SPEC/name limits checked, no names on official Expanded banned list inspected 2026-11-27. Current English paper pool hypothesis, not claimed eligible at historical Japanese event.",
+  "cards": [
+    {
+      "category": "Pokémon",
+      "count": 4,
+      "name": "Regidrago V",
+      "printing": {
+        "set": "SIT",
+        "number": "135",
+        "language": "en"
+      },
+      "cardId": "swsh12-135"
+    },
+    {
+      "category": "Pokémon",
+      "count": 3,
+      "name": "Regidrago VSTAR",
+      "printing": {
+        "set": "SIT",
+        "number": "136",
+        "language": "en"
+      },
+      "cardId": "swsh12-136"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Budew",
+      "printing": {
+        "set": "PRE",
+        "number": "4",
+        "language": "en"
+      },
+      "cardId": "sv8pt5-4"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Latias ex",
+      "printing": {
+        "set": "SSP",
+        "number": "76",
+        "language": "en"
+      },
+      "cardId": "sv8-76"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Tapu Lele-GX",
+      "printing": {
+        "set": "GRI",
+        "number": "60",
+        "language": "en"
+      },
+      "cardId": "sm2-60"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Dedenne-GX",
+      "printing": {
+        "set": "UNB",
+        "number": "57",
+        "language": "en"
+      },
+      "cardId": "sm10-57"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Squawkabilly ex",
+      "printing": {
+        "set": "PAL",
+        "number": "169",
+        "language": "en"
+      },
+      "cardId": "sv2-169"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Wobbuffet",
+      "printing": {
+        "set": "PHF",
+        "number": "36",
+        "language": "en"
+      },
+      "cardId": "xy4-36"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Dragapult ex",
+      "printing": {
+        "set": "TWM",
+        "number": "130",
+        "language": "en"
+      },
+      "cardId": "sv6-130"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Dialga-GX",
+      "printing": {
+        "set": "UPR",
+        "number": "100",
+        "language": "en"
+      },
+      "cardId": "sm5-100"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Noivern ex",
+      "printing": {
+        "set": "PAL",
+        "number": "153",
+        "language": "en"
+      },
+      "cardId": "sv2-153"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Haxorus",
+      "printing": {
+        "set": "BLK",
+        "number": "70",
+        "language": "en"
+      },
+      "cardId": "zsv10pt5-70"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Mega Dragalge ex",
+      "printing": {
+        "set": "CRI",
+        "number": "65",
+        "language": "en"
+      },
+      "cardId": "me4-65"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Giratina-EX",
+      "printing": {
+        "set": "AOR",
+        "number": "57",
+        "language": "en"
+      },
+      "cardId": "xy7-57"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Hisuian Goodra VSTAR",
+      "printing": {
+        "set": "LOR",
+        "number": "136",
+        "language": "en"
+      },
+      "cardId": "swsh11-136"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Palkia-GX",
+      "printing": {
+        "set": "UPR",
+        "number": "101",
+        "language": "en"
+      },
+      "cardId": "sm5-101"
+    },
+    {
+      "category": "Pokémon",
+      "count": 1,
+      "name": "Mega Dragonite ex",
+      "printing": {
+        "set": "ASC",
+        "number": "152",
+        "language": "en"
+      },
+      "cardId": "me2pt5-152"
+    },
+    {
+      "category": "Trainer",
+      "count": 4,
+      "name": "Mysterious Treasure",
+      "printing": {
+        "set": "FLI",
+        "number": "113",
+        "language": "en"
+      },
+      "cardId": "sm6-113"
+    },
+    {
+      "category": "Trainer",
+      "count": 3,
+      "name": "Quick Ball",
+      "printing": {
+        "set": "SSH",
+        "number": "179",
+        "language": "en"
+      },
+      "cardId": "swsh1-179"
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Battle Compressor Team Flare Gear",
+      "printing": {
+        "set": "PHF",
+        "number": "92",
+        "language": "en"
+      },
+      "cardId": "xy4-92"
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "VS Seeker",
+      "printing": {
+        "set": "PHF",
+        "number": "109",
+        "language": "en"
+      },
+      "cardId": "xy4-109"
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Guzma & Hala",
+      "printing": {
+        "set": "CEC",
+        "number": "193",
+        "language": "en"
+      },
+      "cardId": "sm12-193"
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Guzma",
+      "printing": {
+        "set": "BUS",
+        "number": "115",
+        "language": "en"
+      },
+      "cardId": "sm3-115"
+    },
+    {
+      "category": "Trainer",
+      "count": 2,
+      "name": "Crispin",
+      "printing": {
+        "set": "SCR",
+        "number": "133",
+        "language": "en"
+      },
+      "cardId": "sv7-133"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Professor's Research",
+      "printing": {
+        "set": "PGO",
+        "number": "78",
+        "language": "en"
+      },
+      "cardId": "pgo-78"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Carmine",
+      "printing": {
+        "set": "TWM",
+        "number": "145",
+        "language": "en"
+      },
+      "cardId": "sv6-145"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Iono",
+      "printing": {
+        "set": "PAL",
+        "number": "185",
+        "language": "en"
+      },
+      "cardId": "sv2-185"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Raihan",
+      "printing": {
+        "set": "EVS",
+        "number": "152",
+        "language": "en"
+      },
+      "cardId": "swsh7-152"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Arven",
+      "printing": {
+        "set": "SVI",
+        "number": "166",
+        "language": "en"
+      },
+      "cardId": "sv1-166"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Megaton Blower",
+      "printing": {
+        "set": "SSP",
+        "number": "182",
+        "language": "en"
+      },
+      "cardId": "sv8-182"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Float Stone",
+      "printing": {
+        "set": "PLF",
+        "number": "99",
+        "language": "en"
+      },
+      "cardId": "bw9-99"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Forest Seal Stone",
+      "printing": {
+        "set": "SIT",
+        "number": "156",
+        "language": "en"
+      },
+      "cardId": "swsh12-156"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Field Blower",
+      "printing": {
+        "set": "GRI",
+        "number": "125",
+        "language": "en"
+      },
+      "cardId": "sm2-125"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Giant Hearth",
+      "printing": {
+        "set": "UNM",
+        "number": "197",
+        "language": "en"
+      },
+      "cardId": "sm11-197"
+    },
+    {
+      "category": "Trainer",
+      "count": 1,
+      "name": "Chaotic Swell",
+      "printing": {
+        "set": "CEC",
+        "number": "187",
+        "language": "en"
+      },
+      "cardId": "sm12-187"
+    },
+    {
+      "category": "Energy",
+      "count": 4,
+      "name": "Double Dragon Energy",
+      "printing": {
+        "set": "ROS",
+        "number": "97",
+        "language": "en"
+      },
+      "cardId": "xy6-97"
+    },
+    {
+      "category": "Energy",
+      "count": 4,
+      "name": "Basic Grass Energy",
+      "printing": {
+        "set": "SVE",
+        "number": "1",
+        "language": "en"
+      },
+      "cardId": "sve-1"
+    },
+    {
+      "category": "Energy",
+      "count": 2,
+      "name": "Basic Fire Energy",
+      "printing": {
+        "set": "SVE",
+        "number": "2",
+        "language": "en"
+      },
+      "cardId": "sve-2"
+    }
+  ]
+}
