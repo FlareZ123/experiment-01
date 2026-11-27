@@ -7,6 +7,7 @@ const targets=require('./agent23-rank19-candidate-targets.cjs');
 const opening=require('./agent23-rank19-opening.cjs');
 const copycat=require('./agent23-rank19-copycat-reply.cjs');
 const tempo=require('./agent23-rank19-adp-tempo.cjs');
+const pressure=require('./agent23-rank19-prize-pressure.cjs');
 const list=x=>Array.isArray(x)?x:[];
 const name=x=>typeof x==='string'?x:x?.printing??x?.fullName??'';
 const kind=opening.kind, md=x=>x?.publicMetadata??{};
@@ -84,7 +85,7 @@ function attackOptions(o,own,target,caps){
  if(k==='bird'&&e.total>=3)add('Rainbow Burn',20+20*[e.l,e.f,e.d].filter(n=>n>0).length);
  if(k==='lele'&&e.total>=2&&Array.isArray(target.energies)&&target.energies.every(x=>/^(?:Basic )?Psychic Energy(?: [A-Z0-9]+(?: \d+)?)?$/.test(name(x))))add('Energy Drive',20*(e.total+target.energies.length));
  if(k==='sudo'&&e.f>=1&&e.total>=2)add('Rock Throw',Math.max(0,40-fightingResistance(target)));
- const scored=out.map(x=>copycat.adjust(o,own,target,x));
+ const scored=out.map(x=>pressure.adjust(o,own,target,copycat.adjust(o,own,target,x)));
  const gx=scored.find(a=>a.attackName==='Altered Creation-GX'),ray=scored.find(a=>a.attackName==='Ultimate Ray');
  if(gx&&ray){
   if(tempo.preferRay(o,own,target))gx.score=Math.max(1,Math.min(gx.score,ray.score-1));
