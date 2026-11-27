@@ -1,7 +1,7 @@
 'use strict';
 // Development-only actor-visible tactical slice; see accompanying report.
 module.exports = (function build() {
-  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v9';
+  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v10';
   const SOURCE_RANK = 9;
   const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
   const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -238,28 +238,31 @@ function bombPlanner(o,sourceBenchIndex){
   if(L(source.abilitySuppressions).some(x=>x.abilityName==='Extra Energy Bomb'&&x.suppressed===true))return null;
   if(liveStadium(o,/Path to the Peak/i))return null;
   const active=own.active,target=opp.active;
-  if(!(mega(active)||sableye(active))||!target)return null;
-  const recipients=slots(own).filter(({p})=>mega(p)||sableye(p));
+  if(!active||!target)return null;
+  const recipients=slots(own).filter(({p})=>mega(p)||sableye(p)||isUn(p)||isVol(p)||isToed(p)||cruel(p)||isSquawk(p));
+  if(!recipients.some(r=>mega(r.p)||sableye(r.p)))return null;
   const available=L(own.discard).map((printing,index)=>({printing:name(printing),index})).filter(x=>/^(?:Prism Energy ASC 216|Darkness Energy MEE 15|Telepathic Psychic Energy POR 88)\b/i.test(x.printing));
   // Source-bound deck has at most seven Energy cards. An unexpected public
   // Energy printing, or excess copies, invalidates this model's count.
   if(L(own.discard).some(x=>/\bEnergy\b/i.test(name(x))&&!available.some(y=>y.printing===name(x))&&!/Energy (?:Switch|Retrieval|Recycler|Search|Loto|Spinner|Stadium|Reset|Recycle|Restore)\b/i.test(name(x))))return null;
   if(available.length<1||available.length>7)return null;
   for(const [pattern,cap] of [[/^Prism Energy\b/i,4],[/^Darkness Energy\b/i,2],[/^Telepathic Psychic Energy\b/i,1]])if(available.filter(e=>pattern.test(e.printing)).length>cap)return null;
-  const n=Math.min(5,available.length),baseline=bestAttackAgainst(o,active,target);
-  if(baseline>=400)return null;
+  const n=Math.min(5,available.length),baseline=bombMobility(o,null)?.score??0;
+  if(baseline>=1000)return null;
   const assignments=[],byRecipient=recipients.map(()=>[]);let bestPlan=null;
   const compare=(a,b)=>!b||a.score>b.score||a.score===b.score&&a.activeCount<b.activeCount;
   function examine(){
     const upgraded=recipients.map((r,i)=>({...r,p:{...r.p,energies:[...L(r.p.energies),...byRecipient[i].map(x=>x.printing)]}}));
-    const a=upgraded.find(x=>x.zone==='active'),score=bestAttackAgainst(o,a.p,target);
-    if(score<400||score<=baseline)return;
-    // Spending two Prizes just to take one is not a conservative immediate
-    // gain; if it ends the game the trade is irrelevant.
-    if(score<1000&&(prize(target)<3||opp.prizeCount===3))return;
-    const backup=upgraded.filter(x=>x.zone==='bench').reduce((sum,x)=>sum+(mega(x.p)&&usable(x.p,'Claw of Darkness',o)||sableye(x.p)&&usable(x.p,'Crazy Claws',o)?25:0),0);
-    const activeCount=assignments.filter(x=>x.zone==='active').length;
-    const plan={sourceBenchIndex,required:n,score:score+backup,activeCount,immediateWin:score>=1000,assignments:assignments.map(x=>({...x}))};
+    const next={...o,ownPublic:{...own,active:upgraded.find(x=>x.zone==='active')?.p??active,bench:L(own.bench).map((p,j)=>j===sourceBenchIndex?null:upgraded.find(x=>x.zone==='bench'&&x.index===j)?.p??p)}};
+    const move=bombMobility(next,sourceBenchIndex);
+    if(!move||move.score<400||move.score<=baseline)return;
+    if(move.score<1000&&(move.minPrizes<3||opp.prizeCount===3))return;
+    const backup=upgraded.filter(x=>!(x.zone===move.zone&&x.index===move.index)).reduce((sum,x)=>sum+(mega(x.p)&&usable(x.p,'Claw of Darkness',o)||sableye(x.p)&&usable(x.p,'Crazy Claws',o)?25:0),0);
+    const activeCount=assignments.filter(x=>x.zone===move.zone&&x.index===move.index).length;
+    // A successful direct KO is preferred to an equivalent paid switch. The
+    // worst-case Prize return, not a favorable opponent Rope choice, drives
+    // the mobility decision.
+    const plan={sourceBenchIndex,required:n,score:move.score+backup,activeCount,immediateWin:move.score>=1000,mobility:move,assignments:assignments.map(x=>({...x}))};
     if(compare(plan,bestPlan))bestPlan=plan;
   }
   function visit(i,used){
@@ -275,6 +278,42 @@ function bombPlanner(o,sourceBenchIndex){
   visit(0,0);return bestPlan;
 }
 
+  function bombMobility(o,excludedBenchIndex){
+    const own=o.ownPublic,opp=o.opponentPublic,active=own?.active,target=opp?.active;
+    const activeScore=bestAttackAgainst(o,active,target);
+    const out=[];
+    if(activeScore>=400)out.push({kind:'direct',zone:'active',index:0,score:activeScore,minPrizes:prize(target),cost:0});
+    const attackers=slots(own).filter(x=>x.zone==='bench'&&x.index!==excludedBenchIndex&&(mega(x.p)||sableye(x.p)));
+    const canRetreat=o.ownTurnResources?.retreatedTurn!==true&&(!Number.isInteger(o.ownTurnResources?.retreatedTurn)||o.ownTurnResources.retreatedTurn!==o.globalTurn);
+    const rc=canRetreat?retreatCost(o,{publicMetadata:{}}):null;
+    const canFloat=canRetreat&&!o.ownTurnResources?.toolPlayLocked&&!own?.publicTurnRestrictions?.toolPlayLocked&&!L(active?.tools).length&&handHas(o,x=>match(x,R.float))&&!liveStadium(o,/Jamming Tower/i)&&!own?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining&&!opp?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
+    const floated=canFloat?{...o,ownPublic:{...own,active:{...active,tools:['Float Stone BKT 137']}}}:null;
+    const floatCost=floated?retreatCost(floated,{publicMetadata:{}}):null;
+    const support=o.ownTurnResources?.supporterPlayedTurn===0&&!o.ownTurnResources?.supporterPlayLocked&&!own?.publicTurnRestrictions?.supporterPlayLocked&&handHas(o,guzma);
+    const rope=!o.ownTurnResources?.itemPlayLocked&&!own?.publicTurnRestrictions?.itemPlayLocked&&handHas(o,x=>/^Escape Rope BST 125\b/i.test(name(x)));
+    const enemyBench=slots(opp).filter(x=>x.zone==='bench');
+    const oppRope=enemyBench.length?enemyBench:[{zone:'active',index:0,p:target}];
+    const scoreMove=(kind,a,t,fee=0,extra={})=>{
+      const k=bestAttackAgainst(o,a.p,t.p);
+      if(k<400)return null;
+      return {kind,zone:'bench',index:a.index,targetZone:t.zone,targetIndex:t.index,minPrizes:prize(t.p),score:k>=1000?1000:Math.max(0,k-fee),cost:fee,...extra};
+    };
+    for(const a of attackers){
+      if(rc!==null){const m=scoreMove('retreat',a,{zone:'active',index:0,p:target},35*rc,{payment:rc});if(m)out.push(m);}
+      if(floatCost!==null){const m=scoreMove('float-retreat',a,{zone:'active',index:0,p:target},25+35*floatCost,{payment:floatCost});if(m)out.push(m);}
+      if(support)for(const t of enemyBench){const m=scoreMove('guzma',a,t,45);if(m)out.push(m);}
+    }
+    if(rope&&attackers.length){
+      // Opponent selects first. We may adapt our own promotion to that
+      // public target, but do not assume their most favorable choice.
+      const replies=oppRope.map(t=>best(attackers,a=>scoreMove('rope',a,t,30)?.score??0)).map((a,i)=>a?scoreMove('rope',a,oppRope[i],30):null);
+      if(replies.every(Boolean)){
+        const worst=replies.reduce((a,b)=>a.score<=b.score?a:b);
+        out.push({...worst,kind:'rope',responses:replies.map(m=>({targetZone:m.targetZone,targetIndex:m.targetIndex,ownBenchIndex:m.index,score:m.score})),minPrizes:Math.min(...replies.map(m=>m.minPrizes))});
+      }
+    }
+    return best(out,m=>m.score);
+  }
   const isVol=x=>/^Voltorb ROS 21\b/i.test(name(x));
   const isToed=x=>/^Toedscool PAR 16\b/i.test(name(x));
   const isUn=x=>/^Unown AOR 30\b/i.test(name(x));
@@ -850,5 +889,5 @@ function bombPlanner(o,sourceBenchIndex){
       return r.prompt===null?root(r):prompt(r);
     }});
   }
-  return {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,createPolicy,printedDamage,payable,rootAttack,denial,prize,safeCosts,bombPlanner,stadiumScore};
+  return {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,createPolicy,printedDamage,payable,rootAttack,denial,prize,safeCosts,bombPlanner,stadiumScore,bombMobility};
 })();

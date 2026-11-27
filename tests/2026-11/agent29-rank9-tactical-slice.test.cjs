@@ -265,3 +265,22 @@ console.log('passed '+(function search(P,protocol){
  a(run(Ball,[ch('vol',Vol,'prizes'),ch('mega',Meg,'prizes'),empty],'prizes',0,1,k1).tokens[0]==='mega','revealed actor Prize choice, not guessed slot');
  return n;
 })(P,protocol)+' Secret Box/Heavy Ball assertions');
+
+console.log('passed '+(function mobilityBomb(P){
+ const Meg='Mega Absol ex MEG 86',Sab='Sableye V SSH 120',El='Electrode-GX CES 48',Un='Unown AOR 30',Pr='Prism Energy ASC 216',D='Darkness Energy MEE 15',T='Telepathic Psychic Energy POR 88',Rope='Escape Rope BST 125',Float='Float Stone BKT 137',G='Guzma BUS 115',Vmax='Shadow Rider Calyrex VMAX CRE 75';
+ const mk=(printing,energies=[],extra={})=>({printing,energies,hp:280,damage:0,printed:{stage:'Basic',retreatCost:['Colorless'],weakness:[],resistance:[]},tools:[],specialConditions:[],publicRestrictions:{},...extra});
+ const target=mk(Vmax,[],{hp:320,printed:{stage:'VMAX',weakness:[{type:'Darkness',value:'×2'}],resistance:[]}});
+ const o=(hand=[],discard=[Pr,Pr,Pr,Pr],ownPrize=3)=>({ownHand:hand,globalTurn:4,ownTurnResources:{supporterPlayedTurn:0,retreatedTurn:false},ownPublic:{active:mk(Un),bench:[mk(El),mk(Meg),mk(Sab)],discard,prizeCount:ownPrize,publicTurnRestrictions:{}},opponentPublic:{active:target,bench:[],prizeCount:6,publicTurnRestrictions:{}}});
+ let n=0;function a(v,l){if(!v)throw Error(l);n++}
+ let v=o(),p=P.bombPlanner(v,0);
+ a(p?.immediateWin&&p.mobility.kind==='retreat'&&p.mobility.payment===1,'Bomb can fund both pivot fee and Benched Mega');
+ a(p.assignments.filter(x=>x.zone==='active').length===1&&p.assignments.filter(x=>x.zone==='bench'&&x.index===1).length===3,'allocate exact four to pivot and attacker');
+ v=o([Float],[Pr,Pr,Pr]);p=P.bombPlanner(v,0);a(p?.mobility.kind==='float-retreat','Float Stone saves missing fourth Energy');
+ v=o([Rope],[Pr,Pr,Pr]);p=P.bombPlanner(v,0);a(p?.mobility.kind==='rope'&&p.immediateWin,'no opposing Bench Rope retains lethal target');
+ v.opponentPublic.bench=[mk('Unown AOR 30',[],{hp:60})];a(P.bombPlanner(v,0)===null,'adversarial Rope switches to one-Prize nonfinal target');
+ v=o([G],[Pr,Pr,Pr]);v.opponentPublic.active=mk(Un,[],{hp:60});v.opponentPublic.bench=[target];a(P.bombPlanner(v,0)?.mobility.kind==='guzma','Guzma finds guaranteed three-Prize target');
+ v=o([Rope],[Pr,Pr,Pr]);v.opponentPublic.bench=[target,target];a(P.bombPlanner(v,0)?.mobility.responses.length===2,'adaptive Rope replies include all opponent choices');
+ v=o([], [Pr,Pr,Pr]);v.ownPublic.bench[1].energies=[Pr,Pr,Pr];v.ownPublic.active.energies=[D];a(P.bombPlanner(v,0)===null,'existing paid retreat final win dominates Bomb');
+ v=o([Float],[Pr,Pr,Pr]);v.opponentPublic.stadium=['Jamming Tower TWM 153'];a(P.bombPlanner(v,0)===null,'suppressed Float Stone invalidates prospective mobility');
+ return n;
+})(P)+' Bomb-to-mobility plan assertions');
