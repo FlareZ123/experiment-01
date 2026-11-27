@@ -18,8 +18,14 @@ const load=name=>require(path.join(root,name));
  * actual engine, but this hook's fidelity must be separately native-tested.
  * Must wrap a SYNCHRONOUS test / game step; never await inside execute().
  */
-function withDeterministicCelestialRoar(execute,deps={}) {
-  assert.equal(typeof execute,'function');
+const activeHookByPrototype=new WeakMap();
+
+/**
+ * Scoped serial native Store installer, including asynchronous owner prompts.
+ * The pinned reducer is on a shared class prototype: never run two native
+ * games concurrently in the same process while this patch is installed.
+ */
+function installDeterministicCelestialRoar(deps={}) {
   const RegidragoV=deps.RegidragoV??load(
     'sets/09-sword-and-shield/set-silver-tempest/regidrago-v').RegidragoV;
   const prefabs=deps.prefabs??load('game/store/prefabs/prefabs');
@@ -27,18 +33,20 @@ function withDeterministicCelestialRoar(execute,deps={}) {
   const {EnergyCard}=deps.energyCard??load('game/store/card/energy-card');
   const {CardList}=deps.cardList??load('game/store/state/card-list');
   const {EnergyType}=deps.cardTypes??load('game/store/card/card-types');
-  // Source-bound to the original rank20 Basic/DDE mix. Other restricted
-  // Special Energy requires an explicit paper/native attachability ruling.
+  assert.equal(typeof WAS_ATTACK_USED,'function');
+  assert.equal(typeof MOVE_CARDS,'function');
+  const proto=RegidragoV.prototype;
+  assert.ok(!activeHookByPrototype.has(proto),
+    'CELESTIAL_HOOK_ALREADY_INSTALLED: use separate native processes for concurrency');
+  const original=Object.getOwnPropertyDescriptor(proto,'reduceEffect');
+  assert.equal(typeof original?.value,'function');
+  assert.equal(original.configurable!==false,true,'Celestial Roar reducer must be restorable');
+  // Source-bound to original rank20 Basic/DDE. Any other restricted Special
+  // Energy requires explicit paper/native attachment proof.
   const isKnownAttachableSpecial=card=>{
     const id=card.fullName??card.printing??card.name??'';
     return /^Double Dragon Energy(?: ROS(?: 97)?)?$/i.test(id);
   };
-  assert.equal(typeof WAS_ATTACK_USED,'function');
-  assert.equal(typeof MOVE_CARDS,'function');
-  const proto=RegidragoV.prototype;
-  const original=Object.getOwnPropertyDescriptor(proto,'reduceEffect');
-  assert.equal(typeof original?.value,'function');
-  assert.equal(original.configurable!==false,true,'Celestial Roar reducer must be restorable');
   const audit={version:VERSION,attacksIntercepted:0,topCardsMoved:0,
     attachedBasic:0,attachedSpecial:0,discardedNonEnergy:0,
     nativePromptsCreated:0,completeSettlements:0,competitiveQualified:false};
@@ -52,7 +60,6 @@ function withDeterministicCelestialRoar(execute,deps={}) {
     MOVE_CARDS(store,state,player.deck,temp,{count:3,sourceCard:this});
     const moved=[...temp.cards];
     audit.topCardsMoved+=moved.length;
-    // Snapshot before moving anything: do not iterate a mutating live zone.
     for(const card of moved){
       if(card instanceof EnergyCard){
         if(card.energyType!==EnergyType.BASIC && !isKnownAttachableSpecial(card))
@@ -70,17 +77,44 @@ function withDeterministicCelestialRoar(execute,deps={}) {
     return state;
   }
   Object.defineProperty(proto,'reduceEffect',{...original,value:patched});
-  try{
+  let restored=false;
+  const installed=Object.freeze({
+    audit,
+    restore(){
+      if(restored)return;
+      assert.strictEqual(proto.reduceEffect,patched,'Celestial Roar reducer was replaced concurrently');
+      Object.defineProperty(proto,'reduceEffect',original);
+      restored=true;
+      activeHookByPrototype.delete(proto);
+    },
+    get restored(){return restored;}
+  });
+  activeHookByPrototype.set(proto,installed);
+  return installed;
+}
+/** Synchronous owner scope: always restore the original native reducer. */
+function withDeterministicCelestialRoar(execute,deps={}) {
+  assert.equal(typeof execute,'function');
+  const hook=installDeterministicCelestialRoar(deps);
+  try {
     const result=execute();
     if(result&&typeof result.then==='function')
       throw new TypeError('withDeterministicCelestialRoar requires synchronous execute');
-    return {result,audit};
+    return {result,audit:hook.audit};
   }catch(error){
-    if(error&&typeof error==='object')error.celestialRoarDeterministicAudit=audit;
+    if(error&&typeof error==='object')error.celestialRoarDeterministicAudit=hook.audit;
     throw error;
-  }finally{
-    assert.strictEqual(proto.reduceEffect,patched,'Celestial Roar reducer was replaced concurrently');
-    Object.defineProperty(proto,'reduceEffect',original);
-  }
+  }finally{hook.restore();}
 }
-module.exports={VERSION,withDeterministicCelestialRoar};
+/** Asynchronous scoped owner run, SERIAL; no parallel games in this process. */
+async function withDeterministicCelestialRoarAsync(execute,deps={}) {
+  assert.equal(typeof execute,'function');
+  const hook=installDeterministicCelestialRoar(deps);
+  try{return {result:await execute(),audit:hook.audit};}
+  catch(error){
+    if(error&&typeof error==='object')error.celestialRoarDeterministicAudit=hook.audit;
+    throw error;
+  }finally{hook.restore();}
+}
+module.exports={VERSION,installDeterministicCelestialRoar,
+  withDeterministicCelestialRoar,withDeterministicCelestialRoarAsync};
