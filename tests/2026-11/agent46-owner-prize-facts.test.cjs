@@ -80,7 +80,8 @@ test('duplicate prompt identity does not recapture and a failed search cannot re
   for(const seat of [0,1]){
     const f=fixture(seat);const p=f.search();
     const first=f.adapter.observe(f.state,seat).ownerK1.epoch;
-    f.search();
+    // Re-observe the same pending native prompt object. A different object
+    // with the same recycled ID is not a duplicate native prompt.
     assert.equal(f.adapter.observe(f.state,seat).ownerK1.epoch,first);
     f.after(p,1);
     f.owner.deck.cards.push({fullName:HB});
@@ -89,5 +90,35 @@ test('duplicate prompt identity does not recapture and a failed search cannot re
     f.owner.deck.cards.pop();
     f.search(FOG,true,'fresh');
     assert.ok(f.adapter.observe(f.state,seat).ownerK1.epoch>first+1);
+  }
+});
+
+test('distinct same-turn searches can reuse a native prompt ID and must recertify K1',()=>{
+  for(const seat of [0,1]) {
+    const f=fixture(seat);
+    const first=f.search(FOG,true,1);
+    const old=f.adapter.observe(f.state,seat).ownerK1;
+    assert.ok(old?.prizeFacts?.fullyPrized.some(x=>x.printing===R));
+    assert.equal(f.adapter.observe(f.state,seat).ownerK1.epoch,old.epoch,
+      'observing the same live prompt must not recapture');
+    f.after(first,1);
+    // Model a Prize/deck identity exchange that leaves the Prize *count* at 6:
+    // the formerly Prized singleton moves into the deck, a Psychic Energy
+    // becomes Prized, and the physical Prize card reference changes.
+    f.owner.prizes[0].cards=[{}];
+    f.owner.deck.cards[0]={fullName:R};
+    f.after(null,2,R,seat,'ResolvePromptAction');
+    assert.equal(f.adapter.observe(f.state,seat).ownerK1,null,
+      'stale Prize composition must fail closed until a fresh search');
+    const second=f.search(FOG,true,1);
+    assert.notEqual(second,first);
+    assert.equal(second.id,first.id,'pinned Store can recycle numeric prompt IDs');
+    const refreshed=f.adapter.observe(f.state,seat).ownerK1;
+    assert.ok(refreshed,'new live prompt must recapture despite same turn/ID');
+    assert.ok(refreshed.epoch>old.epoch);
+    assert.deepEqual(refreshed.prizeFacts.fullyPrized,[],
+      'singleton moved from Prize to deck must no longer be marked fully Prized');
+    assert.equal(f.adapter.observe(f.state,seat).ownerK1.epoch,refreshed.epoch,
+      'second observation of the new prompt remains idempotent');
   }
 });

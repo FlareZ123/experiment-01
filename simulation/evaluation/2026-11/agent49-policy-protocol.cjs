@@ -458,14 +458,32 @@ function validateActionMetadata(value) {
   }
   return value;
 }
-function validatePokemonSlot(slot, allowConcealed) {
+const PUBLIC_DAMAGE_EFFECT_FILTERS = new Set(['none', 'unknown', 'all', 'basic', 'evolution']);
+function validatePublicDamageEffects(d) {
+  const keys = ['prevention','effectsPrevention','reduction','reductionFilter',
+    'beforeWeaknessReduction','outgoingReduction','outgoingAfterWeaknessReduction',
+    'chancePrevention','chanceAttackFailure'];
+  exactKeys(d, keys);
+  for (const key of ['prevention','effectsPrevention','reductionFilter']) {
+    if (!PUBLIC_DAMAGE_EFFECT_FILTERS.has(d[key])) fail('BAD_PUBLIC_DAMAGE_EFFECT');
+  }
+  for (const key of ['reduction','beforeWeaknessReduction','outgoingReduction',
+    'outgoingAfterWeaknessReduction','chanceAttackFailure']) {
+    if (d[key] !== null && (!Number.isSafeInteger(d[key]) || d[key] < 0 || d[key] > 10000))
+      fail('BAD_PUBLIC_DAMAGE_EFFECT');
+  }
+  if (typeof d.chancePrevention !== 'boolean') fail('BAD_PUBLIC_DAMAGE_EFFECT');
+}
+function validatePokemonSlot(slot, allowConcealed, allowPublicDamageEffects = false) {
   if (slot === null) return;
   if (!isRecord(slot)) fail('BAD_POKEMON_SLOT');
   if (allowConcealed && slot.concealed === true) {
     exactKeys(slot, ['concealed']);
     return;
   }
-  exactKeys(slot, POKEMON_KEYS, POKEMON_OPTIONAL_KEYS);
+  exactKeys(slot, POKEMON_KEYS, allowPublicDamageEffects
+    ? [...POKEMON_OPTIONAL_KEYS, 'publicDamageEffects'] : POKEMON_OPTIONAL_KEYS);
+  if (slot.publicDamageEffects !== undefined) validatePublicDamageEffects(slot.publicDamageEffects);
   if (slot.abilityLockActivationOrder !== undefined &&
       !(slot.abilityLockActivationOrder === null || Number.isSafeInteger(slot.abilityLockActivationOrder))) {
     fail('BAD_ABILITY_LOCK_ACTIVATION_ORDER');
@@ -533,11 +551,11 @@ function validatePokemonSlot(slot, allowConcealed) {
     if (seen.size !== knownAbilityNames.size) fail('INCOMPLETE_ABILITY_SUPPRESSION_VIEW');
   }
 }
-function validatePublicPlayer(player, allowConcealed) {
+function validatePublicPlayer(player, allowConcealed, allowPublicDamageEffects = false) {
   exactKeys(player, PLAYER_KEYS, ['stadiumDirection']);
-  validatePokemonSlot(player.active, allowConcealed);
+  validatePokemonSlot(player.active, allowConcealed, allowPublicDamageEffects);
   if (!Array.isArray(player.bench) || player.bench.length > 10) fail('BAD_BENCH');
-  for (const slot of player.bench) validatePokemonSlot(slot, allowConcealed);
+  for (const slot of player.bench) validatePokemonSlot(slot, allowConcealed, allowPublicDamageEffects);
   for (const key of ['stadium', 'discard', 'lostZone', 'resolvingSupporter']) stringArray(player[key]);
   if (!(player.stadiumDirection === undefined || player.stadiumDirection === null || player.stadiumDirection === 'up' || player.stadiumDirection === 'down')) fail('BAD_STADIUM_DIRECTION');
   if (player.publicHand !== null) stringArray(player.publicHand);
@@ -617,8 +635,9 @@ function validateActorObservation(view, seat, profile = null) {
   if (view.decisionKind === 'owner-prompt' && view.pendingPromptType === null) fail('PROMPT_TYPE_MISSING');
   if (view.pendingOwnerDeckSearch && (view.decisionKind !== 'owner-prompt' || view.pendingPromptType !== 'ChooseCardsPrompt')) fail('BAD_OWNER_DECK_SEARCH_FLAG');
   stringArray(view.ownHand);
-  validatePublicPlayer(view.ownPublic, false);
-  validatePublicPlayer(view.opponentPublic, view.phase === 0 || view.phase === 1);
+  const allowPublicDamageEffects = profile !== null;
+  validatePublicPlayer(view.ownPublic, false, allowPublicDamageEffects);
+  validatePublicPlayer(view.opponentPublic, view.phase === 0 || view.phase === 1, allowPublicDamageEffects);
   exactKeys(view.ownTurnResources, TURN_RESOURCE_KEYS);
   assertBoundedJson(view.ownTurnResources);
   if (view.ownerK1 !== null) {
