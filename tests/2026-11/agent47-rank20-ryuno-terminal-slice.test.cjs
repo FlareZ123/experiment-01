@@ -211,3 +211,36 @@ test('unrecognized Colorless side-Energy is not credited as a colored Apex cost'
     'Double Dragon Energy ROS','Double Dragon Energy ROS'];
   assert.deepEqual(decide(s),{kind:'select-action',token:'apex'});
 });
+
+test('all Hood source-target printings yield correct direct terminal Prize thresholds',()=>{
+ const targets=[
+  ['Shadow Rider Calyrex V CRE',210,2],
+  ['Shadow Rider Calyrex VMAX CRE',320,3],
+  ["Lillie's Clefairy ex JTG",190,2],
+  ['Tapu Lele-GX GRI',170,2],
+  ['Trevenant & Dusknoir-GX SMP',270,3],
+  ['Latias ex SSP',210,2],
+  ['Dialga-GX UPR',180,2],
+  ['Mimikyu GRI',70,1],
+  ['Girafarig LOT',90,1],
+  ['Marshadow UNB',80,1],
+  ['Radiant Eternatus CRZ',170,1]
+ ];
+ for(const [name,hp,prizes] of targets){
+  const s=state(),x=s.observation.opponentPublic.active;
+  x.printing=name;x.hp=hp;s.observation.ownPublic.prizeCount=prizes;
+  assert.deepEqual(decide(s),{kind:'select-action',token:'apex'},name);
+  s.observation.ownPublic.prizeCount=prizes+1;
+  s.observation.opponentPublic.bench=[{printing:'Marshadow UNB',hp:80,damage:0}];
+  assert.equal(decide(s),null,name+' prize-short');
+ }
+});
+test('final opposing Active is a terminal win even when its Prizes are fewer',()=>{
+ const s=state();s.observation.opponentPublic.active.printing='Mimikyu GRI';
+ s.observation.opponentPublic.active.hp=70;
+ s.observation.opponentPublic.bench=[null,null,null,null,null];
+ s.observation.ownPublic.prizeCount=5;
+ assert.deepEqual(decide(s),{kind:'select-action',token:'apex'});
+ s.observation.opponentPublic.bench[0]={printing:'Marshadow UNB',hp:80};
+ assert.equal(decide(s),null);
+});
