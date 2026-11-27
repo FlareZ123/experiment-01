@@ -572,3 +572,71 @@ test('setup rejects phase-two, mismatched effect name and non-Thorns spoofed Bas
     {kind:'abstain',reasonCode:'UNTRUSTED_STARTING_POKEMON_CHOICE'});
 });
 
+
+test('VS Seeker is a live Item access edge only with a visible recoverable Supporter', () => {
+  const hand=['VS Seeker PHF 109'];
+  const actions=[
+    action('seeker','play-card','VS Seeker PHF 109',{cardType:'item',handIndex:0}),
+    {token:'pass',kind:'pass'}
+  ];
+  const found=rootRequest({
+    ownHand:hand,ownPublic:player({active:pokemon(),discard:['Team Flare Grunt XY 129']}),
+    items:actions
+  });
+  assert.deepEqual(checkedDecision(found),{kind:'select-action',token:'seeker'});
+  const absent=rootRequest({
+    ownHand:hand,ownPublic:player({active:pokemon(),discard:['Speed Lightning Energy RCL 173']}),
+    items:actions
+  });
+  assert.deepEqual(checkedDecision(absent),{kind:'select-action',token:'pass'});
+  const locked=rootRequest({
+    ownHand:hand,ownPublic:player({active:pokemon(),discard:['Team Flare Grunt XY 129']}),
+    ownTurnResources:turnResources({itemPlayLocked:true}),items:actions
+  });
+  assert.deepEqual(checkedDecision(locked),{kind:'select-action',token:'pass'});
+});
+
+test('VS Seeker continuation prefers accessible Active Energy denial over generic mill', () => {
+  const req=promptRequest({
+    promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('VS Seeker PHF 109','VS Seeker'),
+    publicMetadata:multiMetadata(1,1),
+    observation:{
+      opponentPublic:player({
+        active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{energies:['Psychic Energy CRE 232']})
+      })
+    },
+    choices:[
+      cardChoice('mill',"Team Rocket's Handiwork FCO 112",'discard','actor'),
+      cardChoice('flare','Team Flare Grunt XY 129','discard','actor')
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:['flare']});
+});
+
+test('VS Seeker single-choice continuation respects original discard source zone', () => {
+  const req=promptRequest({
+    promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('VS Seeker PHF 109','VS Seeker'),
+    choices:[
+      cardChoice('mill',"Team Rocket's Handiwork FCO 112",'discard','actor','card','hand'),
+      cardChoice('energy','Speed Lightning Energy RCL 173','discard','actor','card','hand')
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),{kind:'select-choice',token:'mill'});
+});
+
+test('Target Whistle does not spend itself on a discard containing only Trainers', () => {
+  const req=rootRequest({
+    ownHand:['Target Whistle Team Flare Gear PHF 106'],
+    opponentPublic:player({
+      active:pokemon('Shadow Rider Calyrex VMAX CRE 75'),
+      discard:['Guzma BUS 115','Fog Crystal CRE 140','Psychic Energy CRE 232']
+    }),
+    items:[
+      action('whistle','play-card','Target Whistle Team Flare Gear PHF 106',{cardType:'item'}),
+      {token:'pass',kind:'pass'}
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),{kind:'select-action',token:'pass'});
+});
