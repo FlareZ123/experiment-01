@@ -105,7 +105,7 @@ function runCases(policy,protocol) {
     same(runRoot(p,compressMarshadow,[play('compress-marshadow',A.compressor),play('carrier-later',A.carrier),pass]),
       action('compress-marshadow'),tag+'Compressor starts deck-to-Carrier Stadium-answer route');
     same(runPrompt(p,compressMarshadow,cards(compressMarshadow,A.compressor,'Battle Compressor','deck',
-      [A.unown,A.marshadow,R],0,3)),choose('c1'),tag+'Compressor deliberately discards Marshadow for Carrier');
+      [A.unown,A.marshadow,A.unit],0,3)),choose('c1'),tag+'Compressor deliberately discards Marshadow for Carrier');
     const compressedMarshadow={...compressMarshadow,ownHand:[A.carrier],
       ownPublic:{...compressMarshadow.ownPublic,discard:[A.marshadow]}};
     same(runRoot(p,compressedMarshadow,[play('carrier-marshadow',A.carrier),pass]),action('carrier-marshadow'),
