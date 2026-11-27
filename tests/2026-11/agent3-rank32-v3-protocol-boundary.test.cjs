@@ -496,3 +496,52 @@ test('V3 Apex chooses no-discard Rolling Iron KO but Ryuno for otherwise unkilla
     hp:320,damage:0,subtypes:['VMAX'],stage:'STAGE_1'});
   assert.deepEqual(checked(req),{kind:'select-choice',token:'ryuno'});
 });
+
+
+test('V3 Counter Catcher chooses a visible game-winning bench KO through real slot metadata',()=>{
+  const own=player({
+    active:pokemon('Regidrago VSTAR SIT 136',{subtypes:['VSTAR'],
+      stage:'STAGE_1',energies:['Double Dragon Energy ROS 97','Grass Energy MEE 9']}),
+    discard:['Hisuian Goodra VSTAR LOR 136']
+  });
+  own.prizeCount=2;
+  const opponent=player({
+    active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{
+      hp:320,subtypes:['VMAX'],stage:'STAGE_1'}),
+    bench:[
+      pokemon('Shadow Rider Calyrex VMAX CRE 75',{
+        hp:320,subtypes:['VMAX'],stage:'STAGE_1'}),
+      pokemon('Dedenne-GX UNB 57',{hp:160,subtypes:['Basic','GX']})
+    ]
+  });
+  const rootItems=[
+    {token:'attack',kind:'attack',actorPrinting:'Regidrago VSTAR SIT 136',
+      attackName:'Apex Dragon'},
+    {token:'counter',kind:'play-card',actorPrinting:'Counter Catcher PAR 160'},
+    {token:'pass',kind:'pass'}
+  ];
+  const req=root(0,{own,opponent,items:rootItems,
+    requestId:'rank32-counter-winning-root'});
+  assert.deepEqual(checked(req),{kind:'select-action',token:'counter'});
+  const choice=(token,printing,selectionIndex,benchIndex)=>({
+    token,kind:'pokemon',printing,label:printing,
+    publicMetadata:{selectionIndex,selectedCount:1,selectionType:'pokemon',
+      ownerSeat:'opponent',targetZone:'bench',benchIndex,
+      isOwnerVisible:true}
+  });
+  req.prompt={
+    schema:protocol.PROMPT_SCHEMA,actingSeat:0,
+    promptType:'ChoosePokemonPrompt',description:'Choose opponent Bench target',
+    source:{classification:'actor-choice',sourceKind:'card-effect',
+      sourcePrinting:'Counter Catcher PAR 160',effectName:'Counter Catcher'},
+    choices:[
+      choice('den','Dedenne-GX UNB 57',0,1),
+      choice('tank','Shadow Rider Calyrex VMAX CRE 75',1,0)
+    ],publicMetadata:{selectionType:'pokemon',minimumCount:1,
+      maximumCount:1,targetZone:'bench',allowCancel:false,isSecret:false}
+  };
+  req.observation.decisionKind='owner-prompt';
+  req.observation.pendingPromptType='ChoosePokemonPrompt';
+  req.actionFrontier.items=[];
+  assert.deepEqual(checked(req),{kind:'select-choices',tokens:['den']});
+});
