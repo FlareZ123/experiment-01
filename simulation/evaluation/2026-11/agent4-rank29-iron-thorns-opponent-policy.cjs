@@ -575,7 +575,8 @@ function promptDecision(request) {
 
       if (matches(sourcePrinting, PRINT.targetWhistle)) {
         const targets = choices.filter(choice =>
-          choiceOwner(choice) === 'opponent' && choiceZone(choice) === 'discard');
+          choiceOwner(choice) === 'opponent' &&
+          (choiceZone(choice) === 'discard' || choice?.publicMetadata?.sourceZone === 'discard'));
         return multiSelectDecision(prompt, rankedChoices(targets,
           choice => cardChoiceScore(choice, observation, 'target-whistle'), maximum),
         minimum, maximum);
@@ -598,7 +599,8 @@ function promptDecision(request) {
 
       if (source.includes('echoing horn')) {
         const targets = choices.filter(choice =>
-          choiceOwner(choice) === 'opponent' && choiceZone(choice) === 'discard');
+          choiceOwner(choice) === 'opponent' &&
+          (choiceZone(choice) === 'discard' || choice?.publicMetadata?.sourceZone === 'discard'));
         return multiSelectDecision(prompt, rankedChoices(targets,
           choice => cardChoiceScore(choice, observation, 'echoing-horn'), maximum),
         minimum, maximum);
@@ -636,13 +638,15 @@ function promptDecision(request) {
     }
     if (matches(sourcePrinting, PRINT.targetWhistle)) {
       return singleChoice(choices.filter(choice =>
-        choiceOwner(choice) === 'opponent' && choiceZone(choice) === 'discard'),
+        choiceOwner(choice) === 'opponent' &&
+          (choiceZone(choice) === 'discard' || choice?.publicMetadata?.sourceZone === 'discard')),
       choice => cardChoiceScore(choice, observation, 'target-whistle'),
       'NO_TARGET_WHISTLE_TARGET');
     }
     if (source.includes('echoing horn')) {
       return singleChoice(choices.filter(choice =>
-        choiceOwner(choice) === 'opponent' && choiceZone(choice) === 'discard'),
+        choiceOwner(choice) === 'opponent' &&
+          (choiceZone(choice) === 'discard' || choice?.publicMetadata?.sourceZone === 'discard')),
       choice => cardChoiceScore(choice, observation, 'echoing-horn'),
       'NO_ECHOING_HORN_TARGET');
     }
@@ -682,7 +686,8 @@ function promptDecision(request) {
     }
     if (source.includes('echoing horn')) {
       return singleChoice(choices.filter(choice =>
-        choiceOwner(choice) === 'opponent' && choiceZone(choice) === 'discard'),
+        choiceOwner(choice) === 'opponent' &&
+          (choiceZone(choice) === 'discard' || choice?.publicMetadata?.sourceZone === 'discard')),
       choice => cardChoiceScore(choice, observation, 'echoing-horn'),
       'NO_ECHOING_HORN_TARGET');
     }
