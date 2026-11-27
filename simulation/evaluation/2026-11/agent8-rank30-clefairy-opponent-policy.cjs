@@ -632,7 +632,9 @@ function liveFairyZone(o) {
   // Unknown/suppressed Abilities do not justify a ×2 prediction.
   return slots(o?.ownPublic).some(p=>has(p,P.clefairy)&&
     Array.isArray(p?.abilities)&&p.abilities.includes('Fairy Zone')&&
-    Array.isArray(p?.abilitySuppressions)&&p.abilitySuppressions.length===0);
+    Array.isArray(p?.abilitySuppressions)&&
+    p.abilitySuppressions.some(row=>row?.abilityName==='Fairy Zone'&&
+      row.suppressed===false&&row.reasonCode===null&&row.sourcePrinting===null));
 }
 function isDragonPokemon(p) {
   return arr(p?.printed?.types).some(x=>String(x).toUpperCase()==='DRAGON')||
