@@ -43,17 +43,36 @@ function acerolaMaxGeist(input, maxStates = 40000, firstActionAllowed = () => tr
      (input.acerolaHeld&&input.acerolaDiscard)||(input.guzmaHeld&&input.guzmaDiscard)||
      (input.rangerHeld&&input.rangerDiscard))
     return fail("resource conservation or K1 evidence failure");
+  const dynamic=input.dynamicEffects?.kind==='thorns-wobbuffet-v1';
+  if(input.dynamicEffects&&!dynamic)return fail('unknown dynamic effect model');
+  if(dynamic&&(!input.dynamicEffects.otherEffectsStable||input.dynamicEffects.toolsEffective!==true||
+    board.some(x=>!['wobbuffet','latias','fairyZone','basic','ruleBox','future'].every(k=>bool(x[k]))||
+      !['none','hood','float','other'].includes(x.tool)||
+      (x.wobbuffet&&(!x.basic||x.ruleBox||!x.psychic))||
+      ((x.latias||x.fairyZone)&&(!x.basic||!x.ruleBox||!x.psychic)))||
+    targets.some(x=>!['thorns','dragon','hood'].every(k=>bool(x[k])))))
+    return fail('unverified dynamic lock envelope');
+  const hoodCount=input.hoodCount??0,floatCount=input.floatStoneCount??0,blowerCount=input.fieldBlowerCount??0;
+  if(!int(hoodCount,0,2)||!int(floatCount,0,1)||!int(blowerCount,0,1)||
+    ['toolPlayAllowed','valleyHeld','valleyPlayAllowed'].some(k=>input[k]!==undefined&&!bool(input[k]))||
+    (!dynamic&&(hoodCount||floatCount||blowerCount||input.valleyHeld))||
+    (dynamic&&(hoodCount+board.filter(x=>x.tool==='hood').length>2||floatCount+board.filter(x=>x.tool==='float').length>1)))
+    return fail('unverified Tool/Stadium resources');
   const n=board.length,ids=board.map(x=>x.id),bit=i=>1<<i;
+  const mask=(xs,p)=>xs.reduce((m,x,i)=>p(x)?m|bit(i):m,0);
   const initial={live:(1<<n)-1,a:active,o:startOpponent,e:board.map(x=>x.energy),
     h:input.handPsychic,m:!input.manualAvailable,r:!input.retreatAvailable,d:0,
     sup:"",b:-1,deck:input.deckCount,draws:0,dp,kp,vs,fog,ns,
     ha:input.acerolaHeld,hg:!!input.guzmaHeld,hr:!!input.rangerHeld,
     da:!!input.acerolaDiscard,dg:!!input.guzmaDiscard,dr:!!input.rangerDiscard,
-    item:input.itemPlayAllowed===true,path:[]};
+    item:input.itemPlayAllowed===true,valley:input.dimensionValley,heldValley:!!input.valleyHeld,
+    hood:mask(board,x=>x.tool==='hood'),flt:mask(board,x=>x.tool==='float'),otherTool:mask(board,x=>x.tool==='other'),
+    oppHood:mask(targets,x=>x.hood),hc:hoodCount,fc:floatCount,bc:blowerCount,path:[]};
   const live=(s,i)=>Boolean(s.live&bit(i));
   const living=s=>board.map((_,i)=>i).filter(i=>live(s,i));
   const key=s=>[s.live,s.a,s.o,s.e.join(","),s.h,+s.m,+s.r,s.d,s.sup,s.b,s.deck,s.draws,
-     s.dp,s.kp,s.vs,s.fog,s.ns,+s.ha,+s.hg,+s.hr,+s.da,+s.dg,+s.dr,+s.item].join("|");
+     s.dp,s.kp,s.vs,s.fog,s.ns,+s.ha,+s.hg,+s.hr,+s.da,+s.dg,+s.dr,+s.item,+s.valley,+s.heldValley,
+     s.hood,s.flt,s.otherTool,s.oppHood,s.hc,s.fc,s.bc].join("|");
   const queue=[initial],seen=new Set([key(initial)]),best=new Map();
   let capped=false,head=0,stoppedEarly=false,foundWitness=false;
   function push(s,changes,action){
@@ -65,12 +84,23 @@ function acerolaMaxGeist(input, maxStates = 40000, firstActionAllowed = () => tr
   }
   function setEnergy(s,i,value){const e=s.e.slice();e[i]=value;return e;}
   const totalEnergy=s=>living(s).reduce((sum,i)=>sum+s.e[i],0);
+  // Named dynamic model only: no other lock source or damage effect may change
+  // across the planned transitions. Wobbuffet is Psychic and non-Rule Box;
+  // it suppresses non-Psychic opposing Thorns unless the latter has live Hood.
+  const thornsLive=s=>dynamic&&targets[s.o].thorns&&
+    (!board[s.a].wobbuffet||!!(s.oppHood&bit(s.o)));
+  const ownAbilityLive=(s,i)=>live(s,i)&&(!dynamic||!thornsLive(s)||!board[i].ruleBox||
+    board[i].future||!!(s.hood&bit(i)));
+  const retreatCost=s=>dynamic&&((s.flt&bit(s.a))||
+    (board[s.a].basic&&living(s).some(i=>board[i].latias&&ownAbilityLive(s,i))))?0:board[s.a].retreatCost;
+  const weakness=s=>dynamic&&targets[s.o].dragon&&!(s.oppHood&bit(s.o))&&
+    living(s).some(i=>board[i].fairyZone&&ownAbilityLive(s,i))?2:targets[s.o].weaknessMultiplier;
   function record(s){
-    if(!board[s.a].vmax||!board[s.a].canAttack||s.e[s.a]<(input.dimensionValley?2:3))return;
+    if(!board[s.a].vmax||!board[s.a].canAttack||s.e[s.a]<(s.valley?2:3))return;
     const t=targets[s.o],total=totalEnergy(s),raw=10+30*total;
     const attack={kind:"attack",name:"Max Geist",source:ids[s.a],target:t.id};
     if(!s.path.length&&!firstActionAllowed(attack))return;
-    const damage=Math.max(0,Math.max(0,raw*t.weaknessMultiplier-t.resistance)-t.damageReduction);
+    const damage=Math.max(0,Math.max(0,raw*weakness(s)-t.resistance)-t.damageReduction);
     const ko=damage>=t.remainingHP,prizes=ko?t.prizesOnKO:0;
     const wins=ko&&(prizes>=prizesRemaining||t.opponentBoardCount===1);
     const score=[+wins,prizes,Math.min(damage,t.remainingHP),-s.path.length,total,s.h];
@@ -93,7 +123,7 @@ function acerolaMaxGeist(input, maxStates = 40000, firstActionAllowed = () => tr
     }
     if(s.h>0){
       for(const j of own){
-        if(!board[j].doorAvailable||(s.d&bit(j)))continue;
+        if(!board[j].doorAvailable||(s.d&bit(j))||!ownAbilityLive(s,j))continue;
         for(const i of bench){
           if(!board[i].psychic)continue;
           const count=Math.min(2,s.deck);
@@ -104,10 +134,28 @@ function acerolaMaxGeist(input, maxStates = 40000, firstActionAllowed = () => tr
         }
       }
     }
-    if(!s.r&&board[s.a].canRetreat&&s.e[s.a]>=board[s.a].retreatCost){
-      const cost=board[s.a].retreatCost;
+    if(!s.r&&board[s.a].canRetreat&&s.e[s.a]>=retreatCost(s)){
+      const cost=retreatCost(s);
       for(const i of bench)push(s,{a:i,r:true,e:setEnergy(s,s.a,s.e[s.a]-cost),dp:s.dp+cost},
         {kind:"retreat",source:ids[s.a],target:ids[i],discardPsychic:cost});
+    }
+    if(dynamic){
+      if(input.toolPlayAllowed===true&&(s.hc||s.fc))for(const i of own){
+        if((s.hood|s.flt|s.otherTool)&bit(i))continue;
+        if(s.hc)push(s,{hc:s.hc-1,hood:s.hood|bit(i)},{kind:'attach-hood',target:ids[i]});
+        if(s.fc)push(s,{fc:s.fc-1,flt:s.flt|bit(i)},{kind:'attach-float',target:ids[i]});
+      }
+      if(s.heldValley&&!s.valley&&input.valleyPlayAllowed===true)
+        push(s,{heldValley:false,valley:true},{kind:'play-valley'});
+      if(s.item&&s.bc){
+        // A single opposing Hood or own occupied Tool is a sufficient modeled
+        // Field Blower choice; the broader up-to-two effect is not assumed.
+        for(let j=0;j<targets.length;j++)if(s.oppHood&bit(j))
+          push(s,{bc:s.bc-1,oppHood:s.oppHood&~bit(j)},{kind:'field-blower',targetSeat:'opponent',target:targets[j].id,tool:'hood'});
+        for(const i of own)if((s.hood|s.flt|s.otherTool)&bit(i))
+          push(s,{bc:s.bc-1,hood:s.hood&~bit(i),flt:s.flt&~bit(i),otherTool:s.otherTool&~bit(i)},
+            {kind:'field-blower',targetSeat:'actor',target:ids[i],tool:(s.hood&bit(i))?'hood':(s.flt&bit(i))?'float':'other'});
+      }
     }
     if(s.item){
       if(s.ns&&s.dp)push(s,{ns:s.ns-1,dp:s.dp-1,h:s.h+1},{kind:"night-stretcher",target:"Basic Psychic Energy"});
@@ -124,7 +172,9 @@ function acerolaMaxGeist(input, maxStates = 40000, firstActionAllowed = () => tr
         for(const i of own){
           if(board[i].damage===0)continue;
           for(const promotion of i===s.a?bench:[s.a]){
-            push(s,{live:s.live&~bit(i),a:promotion,sup:"acerola",b:i,ha:false,da:true,h:s.h+s.e[i],e:setEnergy(s,i,0)},
+            push(s,{live:s.live&~bit(i),a:promotion,sup:"acerola",b:i,ha:false,da:true,h:s.h+s.e[i],e:setEnergy(s,i,0),
+                hood:s.hood&~bit(i),flt:s.flt&~bit(i),otherTool:s.otherTool&~bit(i),
+                hc:s.hc+((s.hood&bit(i))?1:0),fc:s.fc+((s.flt&bit(i))?1:0)},
               {kind:"acerola",target:ids[i],promotion:i===s.a?ids[promotion]:null,returnedPsychic:s.e[i]});
           }
         }
@@ -151,7 +201,7 @@ function acerolaMaxGeist(input, maxStates = 40000, firstActionAllowed = () => tr
   const winner=baseline||supportWin;
   return {advisory:true,states:seen.size,completeWithinModel:!capped&&!stoppedEarly,witnessSearchStopped:stoppedEarly,
     decision:winner?{kind:"immediate-win-certificate",firstAction:winner.actions[0],plan:winner}:null,plans,
-    boundary:"Positive known-resource certificate only. No opponent turn, other Trainers/attacks, returned Pokémon/Tools replay, new draw identities, or dynamic lock/status/cost changes beyond certified Ranger Item unlock. Revalidate every actual native root/prompt and replan after draws. Absence of a certificate does not prove absence of a winning line."};
+    boundary:"Positive known-resource certificate only. No opponent turn, other Trainers/attacks, returned Pokémon/Tools replay, new draw identities, or dynamic lock/status/cost changes outside the optional named Thorns/Wobbuffet/Hood/Skyliner/Fairy Zone/Valley model and certified Ranger Item unlock. Revalidate every actual native root/prompt and replan after draws. Absence of a certificate does not prove absence of a winning line."};
 }
 
 function selfTest() {
@@ -270,7 +320,8 @@ function selectCertificateRoot(request,input,binding,maxStates=40000){
     check(Array.isArray(catalog)&&catalog.length&&catalog.every(x=>typeof x==="string"&&x.length),"missing exact Psychic printing whitelist");
     const isP=x=>catalog.includes(x);
     const trainers={"acerola":"Acerola","guzma":"Guzma","pokemon-ranger":"Pokémon Ranger",
-      "vs-seeker":"VS Seeker","night-stretcher":"Night Stretcher","fog-crystal":"Fog Crystal"};
+      "vs-seeker":"VS Seeker","night-stretcher":"Night Stretcher","fog-crystal":"Fog Crystal",
+      ...(input.dynamicEffects?{"attach-hood":"Stealthy Hood","attach-float":"Float Stone","field-blower":"Field Blower","play-valley":"Dimension Valley"}:{})};
     const printMap=binding.trainerPrintings;
     check(printMap&&Object.values(trainers).every(n=>Array.isArray(printMap[n])&&printMap[n].every(x=>typeof x==="string")),"missing exact trainer printing whitelist");
     const isT=(p,n)=>printMap[n].includes(p);
@@ -287,6 +338,13 @@ function selectCertificateRoot(request,input,binding,maxStates=40000){
     }
     for(const [prop,n] of [["vsSeekerCount","VS Seeker"],["nightStretcherCount","Night Stretcher"],["fogCount","Fog Crystal"]]){
       check((input[prop]??0)===count(hand,x=>isT(x,n)),"Item count mismatch "+n);
+    }
+    if(input.dynamicEffects){
+      for(const [prop,n] of [["hoodCount","Stealthy Hood"],["floatStoneCount","Float Stone"],["fieldBlowerCount","Field Blower"]])
+        check((input[prop]??0)===count(hand,x=>isT(x,n)),"dynamic Tool/Item count mismatch "+n);
+      check(!!input.valleyHeld===(count(hand,x=>isT(x,"Dimension Valley"))>0),"held Valley mismatch");
+      check(!input.toolPlayAllowed||!res.toolPlayLocked,"Tool play forbidden");
+      check(!input.valleyPlayAllowed||(!res.stadiumPlayLocked&&res.stadiumPlayedTurn!==v.globalTurn),"Stadium unavailable");
     }
     check(input.deckCount===own.deckCount&&input.prizesRemaining===own.prizeCount,"owner deck/prize mismatch");
     check(Number.isSafeInteger(res.energyPlayedTurn)&&Number.isSafeInteger(res.retreatedTurn)&&Number.isSafeInteger(res.supporterPlayedTurn),
@@ -321,6 +379,13 @@ function selectCertificateRoot(request,input,binding,maxStates=40000){
           check(Array.isArray(a.p.energies)&&a.p.energies.every(isP)&&row.energy===a.p.energies.length&&row.damage===a.p.damage,
             "own board energy/damage mismatch");
           check(row.vmax===a.p.printing.startsWith("Shadow Rider Calyrex VMAX "),"VMAX identity mismatch");
+          if(input.dynamicEffects){
+            check(row.wobbuffet===a.p.printing.startsWith("Wobbuffet ")&&
+              row.latias===a.p.printing.startsWith("Latias ex ")&&
+              row.fairyZone===a.p.printing.startsWith("Lillie\'s Clefairy ex "),"dynamic own identity mismatch");
+            const tool=a.p.tools??[];
+            check(tool.length<=1&&row.tool===(tool.length?(isT(tool[0],"Stealthy Hood")?"hood":isT(tool[0],"Float Stone")?"float":"other"):"none"),"own Tool mismatch");
+          }
           if(row.doorAvailable){
             const rec=loc.zone==="active"?event.ownerActive:event.ownerBench?.[loc.index];
             const use=rec?.knownAbilityUse?.filter(x=>x.name==="Underworld Door");
@@ -329,6 +394,8 @@ function selectCertificateRoot(request,input,binding,maxStates=40000){
           }
         }else{
           check(row.remainingHP===a.p.hp-a.p.damage,"opponent HP mismatch");
+          if(input.dynamicEffects)check(row.thorns===a.p.printing.startsWith("Iron Thorns ex ")&&
+            row.hood===(a.p.tools??[]).some(x=>isT(x,"Stealthy Hood")),"opponent lock/Tool mismatch");
         }
       }
       check(map.get(rows[activeIndex].id)?.zone==="active","wrong active binding");
@@ -356,7 +423,9 @@ function selectCertificateRoot(request,input,binding,maxStates=40000){
       if(a.kind==="manual-attach")return isP(p)&&m.cardType==="energy"&&slotMatch(m,"target",a.target)&&
         item.targetPrinting===map.get(a.target)?.printing;
       const n=trainers[a.kind];
-      return !!n&&isT(p,n)&&m.cardType==="trainer";
+      if(!n||!isT(p,n)||m.cardType!=="trainer")return false;
+      if(a.kind==="attach-hood"||a.kind==="attach-float")return slotMatch(m,"target",a.target)&&item.targetPrinting===map.get(a.target)?.printing;
+      return true;
     }
     const match=a=>{
       const found=f.items.filter(i=>matches(a,i));
@@ -427,5 +496,51 @@ function frontierSelfTest(){
   return checks;
 }
 
-module.exports={acerolaMaxGeist,selfTest,trainerSelfTest,selectCertificateRoot,frontierSelfTest};
-if(require.main===module)console.log(JSON.stringify({base:selfTest(),trainers:trainerSelfTest(),frontier:frontierSelfTest()},null,2));
+
+function dynamicSelfTest(){
+  const assert=(c,m)=>{if(!c)throw Error(m)};
+  const v=(id,e,door=true,extra={})=>({id,energy:e,damage:0,psychic:true,vmax:true,doorAvailable:door,retreatCost:2,canRetreat:true,canAttack:true,
+    wobbuffet:false,latias:false,fairyZone:false,basic:false,ruleBox:true,future:false,tool:"none",...extra});
+  const w=(id,extra={})=>v(id,0,false,{vmax:false,basic:true,ruleBox:false,wobbuffet:true,...extra});
+  const l=(id,extra={})=>v(id,0,false,{vmax:false,basic:true,latias:true,...extra});
+  const c=(id,extra={})=>v(id,0,false,{vmax:false,basic:true,fairyZone:true,retreatCost:1,...extra});
+  const th=(id,hood=false)=>({id,remainingHP:230,prizesOnKO:2,opponentBoardCount:2,weaknessMultiplier:1,
+    resistance:0,damageReduction:0,thorns:true,dragon:false,hood});
+  const f=(board,extra={})=>({stablePublicEffects:true,noUnmodeledTerminalEffects:true,
+    dynamicEffects:{kind:"thorns-wobbuffet-v1",toolsEffective:true,otherEffectsStable:true},board,active:0,handPsychic:2,deckCount:20,
+    manualAvailable:true,retreatAvailable:true,supportAvailable:true,acerolaHeld:false,guzmaHeld:true,manualAttachmentAllowed:true,
+    dimensionValley:false,itemPlayAllowed:true,toolPlayAllowed:true,prizesRemaining:2,opponents:[th("oa"),th("ob")],...extra});
+  const checks=[];
+  function check(name,input,expected,extra=()=>true){
+    const r=acerolaMaxGeist(input);
+    assert((r.decision?.plan.branch??null)===expected&&extra(r),name+": "+JSON.stringify(r));
+    checks.push({name,branch:expected,damage:r.decision?.plan.damage??null,actions:r.decision?.plan.actions??[]});
+  }
+  const lock=f([v("a",3),v("b",3),w("w",{tool:"float"})]);
+  check("Lockbridge Wob pivot turns on both Doors through Thorns",lock,"guzma:ob",
+    r=>r.decision.plan.actions.some(x=>x.kind==="guzma"&&x.ownPromotion==="w")&&
+      r.decision.plan.actions.filter(x=>x.kind==="underworld-door").length>=1&&
+      r.decision.plan.actions.some(x=>x.kind==="retreat"&&x.source==="w"&&x.discardPsychic===0)&&
+      r.decision.plan.damage===250);
+  check("no Wob pivot without Float or live Skyliner",f([v("a",3),v("b",3),w("w")]),null);
+  check("Skyliner reactivates when Wob suppresses Thorns",f([v("a",3),v("b",3),w("w"),l("l")]),"guzma:ob",
+    r=>r.decision.plan.actions.some(x=>x.kind==="retreat"&&x.source==="w"&&x.discardPsychic===0));
+  check("protected opposing Thorns cannot be switched off by Wob",f(lock.board,{opponents:[th("oa",true),th("ob",true)]}),null);
+  check("Field Blower removes opposing target Hood before Door",f(lock.board,{opponents:[th("oa",true),th("ob",true)],fieldBlowerCount:1}),"guzma:ob",
+    r=>r.decision.plan.actions.some(x=>x.kind==="field-blower"&&x.target==="ob"));
+  check("Item lock removes protected-Thorns Blower route",f(lock.board,{opponents:[th("oa",true),th("ob",true)],fieldBlowerCount:1,itemPlayAllowed:false}),null);
+  check("held Hood unlocks one Door and a manual P without Wob",f([v("a",3),v("b",3)],{hoodCount:1,guzmaHeld:false}),"no-acerola",
+    r=>r.decision.plan.actions.some(x=>x.kind==="attach-hood")&&r.decision.plan.damage===250);
+  check("Tool play lock removes held-Hood route",f([v("a",3),v("b",3)],{hoodCount:1,guzmaHeld:false,toolPlayAllowed:false}),null);
+  const dr={...th("oa"),thorns:false,dragon:true,remainingHP:280}, drb={...th("ob"),thorns:false,dragon:true};
+  check("Fairy Zone live gives Dragon weakness",f([v("a",3),v("b",2),c("c",{damage:90})],{handPsychic:0,guzmaHeld:false,acerolaHeld:true,opponents:[dr,drb]}),"no-acerola",
+    r=>r.decision.plan.damage===320&&r.plans.find(x=>x.branch==="c")?.wins===false);
+  check("opponent Hood prevents Fairy Zone",f([v("a",3),v("b",2),c("c")],{handPsychic:0,guzmaHeld:false,opponents:[{...dr,hood:true},drb]}),null);
+  check("held Valley makes two-energy VMAX attack payable",f([v("a",2,false),v("b",3,false,{canAttack:false})],{handPsychic:0,guzmaHeld:false,
+    valleyHeld:true,valleyPlayAllowed:true,opponents:[{...dr,dragon:false,remainingHP:160},drb]}),"no-acerola",
+    r=>r.decision.plan.actions[0].kind==="play-valley");
+  return checks;
+}
+
+module.exports={acerolaMaxGeist,selfTest,trainerSelfTest,selectCertificateRoot,frontierSelfTest,dynamicSelfTest};
+if(require.main===module)console.log(JSON.stringify({base:selfTest(),trainers:trainerSelfTest(),frontier:frontierSelfTest(),dynamic:dynamicSelfTest()},null,2));
