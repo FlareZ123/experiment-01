@@ -295,6 +295,42 @@
       "state": "Temple remains active; candidate has one attached TPE and no other Psychic-providing Energy; a Psychic-cost attack such as Horror House is being considered.",
       "must": "Treat the attached TPE as Colorless under Temple and require another legal Psychic source or Stadium removal/replacement before the attack.",
       "forbids": "Equating successful TPE setup with a currently paid Psychic attack cost."
+    },
+    {
+      "id": "LAB-NEWMoon-SELF-DISABLE",
+      "family": "Silent Lab",
+      "sourceRanks": [
+        9,
+        13,
+        15,
+        32
+      ],
+      "state": "Silent Lab is active and candidate has Solrock + Lunatone OBF in play; Mewtwo & Mew-GX Perfection is relevant.",
+      "must": "Treat Lunatone's Basic Ability New Moon as removed by Silent Lab and Perfection as suppressed.",
+      "forbids": "Generalizing the Path-to-the-Peak asymmetry to Silent Lab."
+    },
+    {
+      "id": "LAB-REPLACE-FIRST",
+      "family": "Silent Lab",
+      "sourceRanks": [
+        9,
+        13,
+        15,
+        32
+      ],
+      "state": "Silent Lab is active; candidate has a legal own-Stadium replacement and an Ability-dependent attack continuation.",
+      "must": "Price Stadium replacement/removal as a prerequisite to the Ability-dependent line.",
+      "forbids": "Spending resources on Solrock/Lunatone as if the pair alone clears Silent Lab."
+    },
+    {
+      "id": "LAB-ITEMLOCK-COMPOUND",
+      "family": "rank15 Lopunny Vileplume",
+      "sourceRanks": [
+        15
+      ],
+      "state": "Silent Lab and AOR Vileplume Item lock are simultaneously active.",
+      "must": "Treat Field Blower as inaccessible while Item lock holds and search for a legal non-Item/pre-lock Stadium solution.",
+      "forbids": "Hallucinating a live Field Blower answer under Item lock."
     }
   ],
   "implementationGate": {
