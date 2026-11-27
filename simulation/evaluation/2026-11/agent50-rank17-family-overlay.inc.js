@@ -1212,56 +1212,71 @@ function r17ValidateRainInput(input) {
   }
   return true;
 }
+// Physically distinct tokens are retained, but identical printings are
+// interchangeable for this immediate all-to-one-Raichu calculation.
+// Enumerate three type counts instead of every permutation of copies.
+function r17EnergySubsets(cards,minimum,maximum) {
+  const types=['reversal','counter','unit'],counts=types.map(k=>cards.filter(c=>r17Key(c.printing)===k).length),rows=[];
+  for(let r=0;r<=counts[0];r++)for(let c=0;c<=counts[1];c++)for(let u=0;u<=counts[2];u++){
+    const n=r+c+u;if(n<minimum||n>maximum)continue;
+    const left={reversal:r,counter:c,unit:u};
+    rows.push(cards.filter(card=>{const k=r17Key(card.printing);if(left[k]<=0)return false;left[k]--;return true;}));
+  }
+  return rows;
+}
+function r17BestTargetSubset(targets,ownPrizes,bombs,units,remain,special) {
+  const costs=targets.map(t=>r17RainTargetCost(t,remain,special));
+  let best=null;
+  // 9 targets maximum. Each mask describes one attainable set of KOs;
+  // unavoidable surplus selections go onto an already defeated target.
+  for(let tm=1;tm<(1<<targets.length);tm++){
+    let needed=0,prizes=0,threat=0;
+    const hitRows=[];
+    for(let i=0;i<targets.length;i++)if(tm&(1<<i)){
+      needed+=costs[i];if(needed>units)break;
+      prizes+=targets[i].prizes;threat+=targets[i].threat;
+      hitRows.push({targetId:targets[i].id,hits:costs[i]});
+    }
+    if(needed>units)continue;
+    const win=prizes>=ownPrizes||hitRows.length===targets.length;
+    if(!win&&prizes<=2*bombs)continue;
+    const candidate={win,prizesTaken:Math.min(ownPrizes,prizes),threatRemoved:threat,
+      netPrizeSwing:Math.min(ownPrizes,prizes)-2*bombs,
+      allocation:hitRows.map((row,i)=>({...row,hits:row.hits+(i===0?units-needed:0)}))};
+    if(!best||Number(candidate.win)>Number(best.win)||
+      candidate.win===best.win&&(candidate.prizesTaken>best.prizesTaken||
+        candidate.prizesTaken===best.prizesTaken&&candidate.threatRemoved>best.threatRemoved))best=candidate;
+  }
+  return best;
+}
 function r17PlanRainTurn(input) {
   if(!r17ValidateRainInput(input))return {status:'unsupported-public-window'};
   const {ownPrizes,opponentPrizes,temple,attached,discard,targets}=input;
   if(temple)return {status:'no-lightning-under-temple'};
   let best=null;
-  // An optional Bomb cannot be used if its own KO would end the game.
-  // Each Bomb moves exactly min(5, available eligible Energy cards).
-  // All moved cards are assigned to the single ready Raichu: this solves
-  // immediate Rain only, not a future-turn allocation across attackers.
+  // The same target DP is shared across load/discard vectors with equal
+  // resulting unit budget and post-discard protection state.
   for(let bombs=0;bombs<=input.availableBombs;bombs++){
     const enemyAfter=opponentPrizes-2*bombs;
     if(enemyAfter<=0)break;
     const nAttach=Math.min(discard.length,5*bombs);
-    if(bombs>0&&(nAttach<=5*(bombs-1)))break;
-    for(const load of r17Combinations(discard,nAttach)){
+    if(bombs>0&&nAttach<=5*(bombs-1))break;
+    const cache=new Map();
+    for(const load of r17EnergySubsets(discard,nAttach,nAttach)){
       const all=[...attached,...load].map(card=>({...card,...r17EnergyProvision(card.printing,ownPrizes,enemyAfter,temple)}));
       const lightning=all.filter(c=>c.lightning>0);
-      if(!lightning.length)continue;
       const totalEnergy=all.reduce((n,c)=>n+c.total,0);
-      // Bound: at most 12 exact Energy cards, 2^12 discard subsets and
-      // at most 9 opposing Pokemon. Enumerate all feasible card subsets;
-      // discard is in cards while Rain's available selections are units.
-      for(let em=1;em<(1<<lightning.length);em++){
-        const used=lightning.filter((_,i)=>em&(1<<i));
+      for(const used of r17EnergySubsets(lightning,1,lightning.length)){
         const units=used.reduce((n,c)=>n+c.lightning,0);
         const remain=totalEnergy-used.reduce((n,c)=>n+c.total,0);
         const special=all.length-used.length;
-        const costs=targets.map(t=>r17RainTargetCost(t,remain,special));
-        for(let tm=1;tm<(1<<targets.length);tm++){
-          let needed=0,prizes=0,threat=0;
-          const hitRows=[];
-          for(let i=0;i<targets.length;i++)if(tm&(1<<i)){
-            needed+=costs[i];
-            if(needed>units)break;
-            prizes+=targets[i].prizes;threat+=targets[i].threat;
-            hitRows.push({targetId:targets[i].id,hits:costs[i]});
-          }
-          if(needed>units)continue;
-          const win=prizes>=ownPrizes||hitRows.length===targets.length;
-          // A merely tied/lost Prize trade is not a recommended Bomb line.
-          if(!win&&prizes<=2*bombs)continue;
-          // All selected Lightning units must be assigned. Extra unavoidable
-          // hits go to an already-KO target; never infer a new hidden effect.
-          const plan={status:'immediate-ko-plan',win,bombsUsed:bombs,
-            opponentPrizesAfterBomb:enemyAfter,attachTokens:load.map(c=>c.token),
-            discardTokens:used.map(c=>c.token),lightningUnits:units,
-            prizesTaken:Math.min(ownPrizes,prizes),netPrizeSwing:Math.min(ownPrizes,prizes)-2*bombs,
-            threatRemoved:threat,allocation:hitRows.map((row,i)=>({...row,hits:row.hits+(i===0?units-needed:0)}))};
-          if(r17RainCmp(plan,best)>0)best=plan;
-        }
+        const key=units+'/'+remain+'/'+special;
+        if(!cache.has(key))cache.set(key,r17BestTargetSubset(targets,ownPrizes,bombs,units,remain,special));
+        const targetPlan=cache.get(key);if(!targetPlan)continue;
+        const plan={status:'immediate-ko-plan',...targetPlan,bombsUsed:bombs,
+          opponentPrizesAfterBomb:enemyAfter,attachTokens:load.map(c=>c.token),
+          discardTokens:used.map(c=>c.token),lightningUnits:units};
+        if(r17RainCmp(plan,best)>0)best=plan;
       }
     }
   }
