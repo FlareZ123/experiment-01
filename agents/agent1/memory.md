@@ -1,4 +1,8 @@
 
+## 2026-11-27T02:18:46.996Z — mirror actor-visible terminal adapter (implementation checkpoint)
+- results/aichi-2026/2026-11/agent1-mirror-public-witness-20261127.cjs projects the fixed candidate list minus visible zones, exact occupied slot/evolution stacks, static mirror conditions, and native root token matching. Conservative deterministic witness ignores draw benefits, excludes full deck searches and Astral Barrage until prompt hook admitted. Research-only; requires caller-certified mirror history, root revalidation, and real prompt semantics. Syntax compiled; test fixture and report next, no production changes.
+
+
 ## 2026-11-27T02:17:23.099Z — deterministic executable witness mode
 - Added `deterministicOnly:true` guarantee-only witness to results/aichi-2026/2026-11/agent1-joint-terminal-planner-20261127.cjs, deliberately excludes all deck searches/redraws and treats Underworld Door draws as unusable. This addresses actor-worker missing complete deck observation and avoids chance-dependent prompt plans. It emits the whole public deterministic action sequence (including identities and selected cards), not just the root. 83 self cases passed. Next: concrete actor projection and native token/prompt matching. No native/worker edits.
 
