@@ -33,8 +33,9 @@ function payAction(s,m){
  const fail=frac(s.p.d-s.p.n,s.p.d);
  return {p:s.p,loss:s.loss.map((x,i)=>add(x,mul(fail,frac(BigInt(costs[LOSS[i]]??0))))),steps:add(s.steps,ONE)};
 }
-function better(a,b,risk){
+function better(a,b,risk,shortest=false){
  const p=cmp(a.p,b.p);if(p)return p>0n;
+ if(shortest)return a.p.n>0n&&cmp(a.steps,b.steps)<0n;
  if(!risk)return false;
  for(let i=0;i<LOSS.length;i++){const c=cmp(a.loss[i],b.loss[i]);if(c)return c<0n;}
  return cmp(a.steps,b.steps)<0n;
@@ -114,7 +115,8 @@ function inputState(input,guarantee){
   stones:mask(m.own,x=>x.tool==='stone'&&x.stoneUsable),floats:0,searchOpen:true};
 }
 function solve(input,options={}){
- const guarantee=options.guaranteeOnly===true, deterministic=options.deterministicOnly===true;
+ const guarantee=options.guaranteeOnly===true, deterministic=options.deterministicOnly===true,shortest=options.shortestWitness===true;
+ if(shortest&&!deterministic)return {status:'unsupported',reason:'shortest witness requires deterministic mode'};
  const deterministicKinds=new Set(['attack','manual','retreat','guzma','door','stretcher','seeker','float','valley']);
  const knownSearch=options.knownSearchOnly===true;
  const searchKinds=new Set(['fog','compressor','arven','teammates','star-alchemy','stone']);
@@ -174,8 +176,8 @@ function solve(input,options={}){
    tick();let d=s.d.slice(),h=s.h.slice(),z=s.z.slice();
    for(const i of pick){d[i]--;if(spec==='comp')z[i]++;else h[i]++;}
    const r=value({...s,d,h,z});
-   if(selection===null||better(r,best,risk)){best=r;selection=pick.map(i=>K[i]);}
-   if(!risk&&cmp(best.p,ONE)===0n)break;
+   if(selection===null||better(r,best,risk,shortest)){best=r;selection=pick.map(i=>K[i]);}
+   if(!risk&&cmp(best.p,ONE)===0n&&(!shortest||cmp(best.steps,ONE)===0n))break;
   }
   return {...best,selection};
  }
@@ -230,9 +232,9 @@ function solve(input,options={}){
   let best={...score(),move:null};
   if(options.disableBound!==true&&!couldWin(s)){boundPrunes++;memo.set(k,best);return best;}
   function consider(move,compute){
-   if(!risk&&cmp(best.p,ONE)===0n||!firstAllowed(move)||deterministic&&!deterministicKinds.has(move.kind)||knownSearch&&!s.searchOpen&&searchKinds.has(move.kind))return;
+   if(!risk&&cmp(best.p,ONE)===0n&&(!shortest||cmp(best.steps,frac(2n))<=0n)||!firstAllowed(move)||deterministic&&!deterministicKinds.has(move.kind)||knownSearch&&!s.searchOpen&&searchKinds.has(move.kind))return;
    tick();const r=compute(),paid=payAction(r,move),selected={...move,...(r.selection!==undefined?{selection:r.selection}:{})};
-   if(better(paid,best,risk))best={...paid,move:selected,...(deterministic?{path:[selected,...(r.path??[])]}:{})};
+   if(better(paid,best,risk,shortest))best={...paid,move:selected,...(deterministic?{path:[selected,...(r.path??[])]}:{})};
   }
   function det(move,next){consider(move,()=>value(next));}
   // In fast mode a probability-one route establishes the maximum. In
@@ -315,7 +317,7 @@ function solve(input,options={}){
    const x=search(s,options.pending);r={...x,move:{kind:'choose-search',spec:options.pending,selection:x.selection}};
   }else r=value(s);
   if(guarantee)return {status:cmp(r.p,ONE)===0n?'certified':'no-guarantee',first:r.move,states,branches,boundPrunes,
-   objective:deterministic?(knownSearch?'deterministic-K1-search-witness-no-search-after-opaque-draw':'deterministic-public-witness-ignoring-draw-benefits'):'universal-terminal-certificate-over-declared-support',...(cmp(r.p,ONE)===0n?{worstCaseActions:str(r.steps),...(deterministic?{witness:r.path}:{})}:{})};
+   objective:deterministic?(knownSearch?'deterministic-K1-search-witness-no-search-after-opaque-draw':'deterministic-public-witness-ignoring-draw-benefits'):'universal-terminal-certificate-over-declared-support',...(cmp(r.p,ONE)===0n?{worstCaseActions:str(r.steps),...(deterministic?{witness:r.path,...(shortest?{shortestProven:true}:{})}:{})}:{})};
   return {status:cmp(r.p,ONE)===0n?'certified':r.p.n?'positive':'no-certificate',probability:str(r.p),first:r.move,states,branches,boundPrunes,
    objective:risk?'max-terminal-P; min-lex-failure-spend; min-expected-actions':'max-terminal-P',
    failureSpend:Object.fromEntries(LOSS.map((k,i)=>[k,str(r.loss[i])])),expectedActions:str(r.steps)};
@@ -425,7 +427,10 @@ function selfTest(){
  const noPostDoor=solve(afterDoor,{guaranteeOnly:true,deterministicOnly:true,knownSearchOnly:true,firstAllowed:m=>m.kind==='door'});
  const yesPreDoor=solve(afterDoor,{guaranteeOnly:true,deterministicOnly:true,knownSearchOnly:true});
  if(noPostDoor.status!=='no-guarantee'||yesPreDoor.status!=='certified')throw Error('opaque draw sequencing '+JSON.stringify({noPostDoor,yesPreDoor}));
- return {cases:cases.length+6+3+cases.length+7,results,riskExamples:{fast,risk,longFast,shortRisk},guaranteeExamples:{g,ng,g2,deterministicRoute,dw}};
+ const shortKnown=makeInput([P(0,{tool:'open'}),V(5,{tool:'open',stoneUsable:true})],[low,bench],{hand:{arven:1},deck:{fog:1,energy:1,float:1,stone:1},flags:{retreat:true,safeStone:true}});
+ const shortestResult=solve(shortKnown,{guaranteeOnly:true,deterministicOnly:true,knownSearchOnly:true,shortestWitness:true});
+ if(shortestResult.status!=='certified'||shortestResult.worstCaseActions!=='6/1'||!shortestResult.shortestProven||!shortestResult.witness[0].selection.includes('float'))throw Error('shortest known search '+JSON.stringify(shortestResult));
+ return {cases:cases.length+6+3+cases.length+8,results,riskExamples:{fast,risk,longFast,shortRisk},guaranteeExamples:{g,ng,g2,deterministicRoute,dw}};
 }
 module.exports={solve,makeInput,selfTest,eachDraw,K};
 if(require.main===module)console.log(JSON.stringify(selfTest(),null,2));

@@ -187,8 +187,14 @@ function rootIntent(proj,move,rootToken){
 }
 function recommend(req,profile,opts={}){
  const p=project(req,profile,opts);if(p.status!=='ok')return p;
- const solve=planner.solve(p.input,{guaranteeOnly:true,deterministicOnly:true,knownSearchOnly:p.input.belief.mode==='K1',freeRetreatOnly:true,maxStates:opts.maxStates??10000,maxBranches:opts.maxBranches??50000,firstAllowed:m=>matchRoot(req,p,m)!==null});
+ const options={guaranteeOnly:true,deterministicOnly:true,knownSearchOnly:p.input.belief.mode==='K1',freeRetreatOnly:true,maxStates:opts.maxStates??10000,maxBranches:opts.maxBranches??50000,firstAllowed:m=>matchRoot(req,p,m)!==null};
+ let solve=planner.solve(p.input,options);
  if(solve.status!=='certified')return solve;
+ if(opts.optimizeWitness===true&&solve.witness.length>2){
+  const shorter=planner.solve(p.input,{...options,shortestWitness:true,maxStates:opts.optimizationMaxStates??20000,maxBranches:opts.optimizationMaxBranches??100000});
+  if(shorter.status==='certified')solve=shorter;
+  else solve={...solve,shortestProven:false,optimizationStatus:shorter.status};
+ }
  const token=matchRoot(req,p,solve.first);
  if(!token)return {status:'unsupported',reason:'certificate has no current root token'};
  return {...solve,decision:{kind:'select-action',token},intent:rootIntent(p,solve.first,token),

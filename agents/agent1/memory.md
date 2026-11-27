@@ -1,4 +1,8 @@
 
+## 2026-11-27T02:24:07.907Z — shortest deterministic terminal witnesses
+- Optional `shortestWitness:true` minimizes root actions in a fully explored deterministic model; adapter `optimizeWitness:true` first obtains fast certificate, then bounded optimization, preserving the original certificate if optimization caps. This fixes valid but wasteful Arven→Fog+Stone→Star→Float 8-action route versus Arven→Fog+Float 6 actions. 87 planner cases passed. No production changes.
+
+
 ## 2026-11-27T02:22:41.552Z — authenticated K1 fixed search witnesses
 - Extended deterministic planner with exact owner-K1 search choices for Fog, Compressor, Arven, Teammates, Forest Seal Stone/Star Alchemy. Reject K0 and any search after a Door whose drawn cards are intentionally ignored (no stale deck-membership plan). 86 planner cases passed. Adapter consumes only authenticated `ownerK1.knownPrintings` with explicit caller opt-in and fixed-list conservation; emits search intent and maps eligible actor-deck tokens. No Raihan prompt guess. Concrete adapter K1 fixtures/report next.
 
