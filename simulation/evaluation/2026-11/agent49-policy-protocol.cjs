@@ -219,7 +219,9 @@ const PLAYER_RESTRICTION_KEYS = [
   'energyPlayLocked', 'specialEnergyPlayLocked',
   'stadiumAndToolHaveNoEffectTurnsRemaining'
 ];
-const PLAYER_RESTRICTION_OPTIONAL_KEYS = [];
+const PLAYER_RESTRICTION_OPTIONAL_KEYS = [
+  'alteredCreationDamage', 'usedAlteredCreation'
+];
 const TURN_RESOURCE_KEYS = [
   'supporterPlayedTurn', 'retreatedTurn', 'extraTurnActive', 'energyPlayedTurn',
   'stadiumPlayedTurn', 'stadiumUsedTurn', 'vstarUsed', 'pokemonPlayLocked',
