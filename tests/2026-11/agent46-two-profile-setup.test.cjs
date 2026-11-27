@@ -65,11 +65,15 @@ test('host options are bound to exact role/deck/definition hash and cannot be si
   }
   assert.deepEqual(resolveWorkerConfig({role:'opponent',policyVersion:'legacy'}),{});
 });
-test('initial Active choice preserves both triggers, avoids Dialga, and keeps three Gate slots',()=>{
+test('initial Active choice preserves triggers unless a lone Shadow Rider needs a legal backup',()=>{
   for(const profile of profiles)for(const seat of [0,1]){
     assert.deepEqual(choose(profile,setup(seat,[D,R,L,V,V,V,A])),multi('card-3','card-4','card-5'));
     assert.deepEqual(choose(profile,setup(seat,[R])),multi('card-0'));
-    assert.deepEqual(choose(profile,setup(seat,[D,V])),multi('card-1'));
+    assert.deepEqual(choose(profile,setup(seat,[D,V])),multi('card-1','card-0'));
+    assert.deepEqual(choose(profile,setup(seat,[V,L])),multi('card-0','card-1'));
+    assert.deepEqual(choose(profile,setup(seat,[V,R])),multi('card-0','card-1'));
+    assert.deepEqual(choose(profile,setup(seat,[V,D,L,R])),multi('card-0','card-1'));
+    assert.deepEqual(choose(profile,setup(seat,[V,'Mimikyu GRI',D,L,R])),multi('card-0','card-1'));
   }
 });
 test('Lockbridge Wobbuffet/Gate fork changes with observed pivot and Radiant',()=>{
@@ -82,12 +86,14 @@ test('Lockbridge Wobbuffet/Gate fork changes with observed pivot and Radiant',()
 test('post-bonus placement has actual capacity, retains triggers, and can decline all',()=>{
   for(const profile of profiles)for(const seat of [0,1]){
     const o={extra:true,active:V};
-    assert.deepEqual(choose(profile,setup(seat,[R,L],o)),none);
-    assert.deepEqual(choose(profile,setup(seat,[R],o)),none);
-    assert.deepEqual(choose(profile,setup(seat,[L],o)),none);
+    assert.deepEqual(choose(profile,setup(seat,[R,L],o)),multi('card-1'));
+    assert.deepEqual(choose(profile,setup(seat,[R],o)),multi('card-0'));
+    assert.deepEqual(choose(profile,setup(seat,[L],o)),multi('card-0'));
+    assert.deepEqual(choose(profile,setup(seat,[D,R,L],o)),multi('card-0'));
     assert.deepEqual(choose(profile,setup(seat,[],o)),none);
     assert.deepEqual(choose(profile,setup(seat,[R,L,V],o)),multi('card-2'));
     assert.deepEqual(choose(profile,setup(seat,[R,L,V],{...o,bench:[V,V]})),none);
+    assert.deepEqual(choose(profile,setup(seat,[R,L],{...o,bench:['Mimikyu GRI']})),none);
     assert.deepEqual(choose(profile,setup(seat,[V],{...o,bench:[V,V,V,V,V]})),none);
     assert.deepEqual(choose(profile,setup(seat,[L],{...o,active:'Girafarig LOT'})),multi('card-0'));
   }
