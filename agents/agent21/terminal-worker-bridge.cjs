@@ -141,9 +141,12 @@ function projectTerminalInput(request,profile,certificate){
       check(devCat&&Object.entries(devCat).every(([p,c])=>OWN[p]===c.kind&&c.printing===p),"unknown development catalog printing");
       const pokCounts=xs=>Object.fromEntries(Object.keys(devCat).map(p=>[p,count(xs,x=>x===p)]).filter(([,n])=>n));
       const fodder=d.fodder??[];
+      const fodderPrintings=d.fodderPrintings??[...new Set(fodder)];
       check(Array.isArray(fodder)&&fodder.every(p=>typeof p==="string"&&!devCat[p]&&!isP(p)&&exactRole(p)==="other"&&
         !isT(p,"Mysterious Treasure")&&!isT(p,"Quick Ball")&&count(fodder,x=>x===p)<=count(hand,x=>x===p)),
         "development fodder not disjoint or not held");
+      check(Array.isArray(fodderPrintings)&&fodderPrintings.every(p=>typeof p==="string"&&!devCat[p]&&!isP(p)&&exactRole(p)==="other"&&
+        !isT(p,"Mysterious Treasure")&&!isT(p,"Quick Ball"))&&fodder.every(p=>fodderPrintings.includes(p)),"future fodder roles not disjoint");
       check(["pokemonPlayLocked","abilityPokemonPlayLocked","evolutionPlayLocked"].every(k=>typeof r[k]==="boolean"),"development locks unknown");
       development={permissionsCertified:true,noBenchCapacityChange:d.noBenchCapacityChange===true,maxBench:d.maxBench,catalog:devCat,
         handPokemon:pokCounts(hand),knownDeckPokemon:exact?pokCounts(k.knownPrintings.flatMap(x=>Array(x.copies).fill(x.printing))):{},
@@ -152,7 +155,14 @@ function projectTerminalInput(request,profile,certificate){
         abilityPokemonPlayAllowed:!r.abilityPokemonPlayLocked&&d.abilityPokemonPlayAllowed===true,
         evolutionAllowed:turn>2&&!r.evolutionPlayLocked&&d.evolutionAllowed===true,
         treasureCount:count(hand,p=>isT(p,"Mysterious Treasure")),quickCount:count(hand,p=>isT(p,"Quick Ball")),
-        fodder,fodderCertified:true,fodderDisjointFromModeledResources:true};
+        fodder,fodderPrintings,fodderCertified:true,fodderDisjointFromModeledResources:true};
+      if(exact&&d.adaptiveDevelopmentCertified===true){
+        const extRole=p=>devCat[p]?"pk:"+p:isT(p,"Mysterious Treasure")?"treasure":isT(p,"Quick Ball")?"quick":
+          fodderPrintings.includes(p)?"fd:"+p:exactRole(p);
+        const rc=xs=>{const out={};for(const p of xs){const k=extRole(p);out[k]=(out[k]??0)+1;}return out;};
+        context.handCounts=rc(hand);context.deckCounts=rc(k.knownPrintings.flatMap(x=>Array(x.copies).fill(x.printing)));
+        context.development=development;
+      }
     }
     return {input,context,development,binding:{basicPsychicPrintings:profile.basicPsychicPrintings,trainerPrintings:cat,slots}};
   }catch(e){return fail(e.message)}
