@@ -935,6 +935,35 @@ function promptDecision(request) {
     return { kind:'abstain', reasonCode:'UNSUPPORTED_CARD_ORDER' };
   }
 
+  if (prompt.promptType === 'SelectOptionPrompt' &&
+      matches(sourcePrinting, PRINT.guzmaHala)) {
+    const meta=prompt.publicMetadata ?? {};
+    if (meta.selectionType !== 'option' || meta.count !== 2 ||
+        meta.allowCancel !== false ||
+        choices.length !== 2 || choices.some(choice =>
+          choice.kind !== 'option' ||
+          ![0,1].includes(choice.publicMetadata?.choiceIndex)) ||
+        new Set(choices.map(choice=>choice.publicMetadata.choiceIndex)).size !== 2)
+      return {kind:'abstain',reasonCode:'UNSUPPORTED_CONFIRMATION_SOURCE'};
+    // Pinned Store choice index 1 is G&H's optional exactly-two discard,
+    // which unlocks the additional Tool and Special Energy search. Index 0
+    // is Stadium only. Do not burn protected resources just for theoretical
+    // search reachability.
+    const needSpecial = !ownHand(observation).some(card =>
+      matches(card, PRINT.doubleColorless)) &&
+      ownerK1DeckMayContain(observation, PRINT.doubleColorless) &&
+      !list(observation.ownPublic?.active?.energies).some(energy =>
+        matches(energy, PRINT.doubleColorless));
+    const needTool = opponentHasTool(observation) &&
+      !boardHasTool(observation.ownPublic, PRINT.toolJammer) &&
+      ownerK1DeckMayContain(observation, PRINT.toolJammer);
+    const shouldPay = guzmaHalaPaymentRealism(observation) > 0 &&
+      (needSpecial || needTool);
+    const selected=choices.find(choice=>choice.publicMetadata.choiceIndex ===
+      (shouldPay ? 1 : 0));
+    return {kind:'select-choice',token:selected.token};
+  }
+
   if (prompt.promptType === 'ConfirmPrompt' ||
       prompt.promptType === 'SelectPrompt' ||
       prompt.promptType === 'SelectOptionPrompt') {
