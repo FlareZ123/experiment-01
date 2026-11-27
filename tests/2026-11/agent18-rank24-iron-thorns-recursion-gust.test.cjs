@@ -193,7 +193,7 @@ test('Cynthia & Caitlin uses draw option only when it has a disposable card', ()
     ],
     publicMetadata: { selectionType: 'option' },
     observationOptions: {
-      ownHand: ['Cynthia & Caitlin CEC 189', "Player's Ceremony SP 127"]
+      ownHand: ['Cynthia & Caitlin CEC 189', 'Handheld Fan TWM 150']
     }
   });
   assert.deepEqual(policy.decide(req), { kind: 'select-choice', token: 'draw' });
@@ -288,6 +288,18 @@ test('Handheld Fan reactive prompt moves DCE before single-unit Energy', () => {
     observationOptions: { opponentBench: [mon('Target B')] }
   });
   assert.deepEqual(policy.decide(req), { kind: 'select-choice', token: 'dce' });
+});
+
+test("Player's Ceremony is protected in low-hand no-attack states and its live effect is used late", () => {
+  const play = { token: 'ceremony-play', kind: 'play-card', actorPrinting: "Player's Ceremony SP 127" };
+  assert.deepEqual(policy.decide(root({
+    ownHand: ["Player's Ceremony SP 127"], items: [play, pass]
+  })), { kind: 'select-action', token: 'ceremony-play' });
+
+  const use = { token: 'ceremony-use', kind: 'use-stadium', actorPrinting: "Player's Ceremony SP 127" };
+  assert.deepEqual(policy.decide(root({
+    ownHand: ['N FCO 105'], ownStadium: ["Player's Ceremony SP 127"], items: [use, pass]
+  })), { kind: 'select-action', token: 'ceremony-use' });
 });
 
 test('Palace Book is a late safe draw line only when no Volt Cyclone is available', () => {
