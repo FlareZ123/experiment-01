@@ -14,7 +14,7 @@ for(const dna of [true,false]){
 for(const opts of [
   {valley:false},{fairy:false},{skyliner:false},
   {guzma:false},{vs:false},{items:false},
-  {thirdVstar:false},{fourthDragonV:false},
+  {secondGustDragon:false},{finalGustDragon:false},
   {replies:['phantom','covert']},{replies:['covert','phantom']},
   {replies:['ryuno','covert']},{initialLatiasDamage:100}
 ]) assert.equal(evaluate(opts).success,false,JSON.stringify(opts));
