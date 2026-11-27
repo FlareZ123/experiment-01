@@ -62,6 +62,13 @@ test('existing worker Apex effectName and source-unannotated choice remain execu
   assert.deepEqual(decide(s),{kind:'select-choice',token:'ryuno'});
   s.prompt.choices[1].publicMetadata.ownerSeat='opponent';assert.equal(decide(s),null);
 });
+test('actual existing Regidrago worker label-only attack-choice offers Ryuno',()=>{
+  const s=attackPrompt(state());
+  s.prompt.source={classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:'Regidrago VSTAR SIT 136',effectName:'Apex Dragon'};
+  s.prompt.choices[1]={token:'ryuno',kind:'attack',label:'Ryuno Glide',publicMetadata:{sourceAttack:'Ryuno Glide'}};
+  assert.deepEqual(decide(s),{kind:'select-choice',token:'ryuno'});
+  s.observation.ownPublic.discard=[];assert.equal(decide(s),null);
+});
 test('copy exact source Mega Dragonite Ryuno over Dominating Echo; reject wrong source',()=>{
   const s=attackPrompt(state());assert.deepEqual(decide(s),{kind:'select-choice',token:'ryuno'});
   const bad=copy(s);bad.prompt.choices[1].publicMetadata.sourceZone='deck';assert.equal(decide(bad),null);
