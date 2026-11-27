@@ -125,6 +125,24 @@ Exact no-interference **going-first** run (Supporters not permitted, 6,031 same 
 ```
 The going-first result is setup-only; it does not include opposing second-player first attack, Wobbuffet denial value, or a game outcome. No production policy changed.
 
+## Executable public-board attack and lethal planner
+
+Agent-owned `agents/agent21/turn-plan.py` (commit `baa02fd430d003aed4f0e4945aaa9812035e4bdc`) enumerates known-resource preattack action states, including one manual attachment, each live Underworld Door to a Benched Psychic, retreat, Guzma, held Hood/Float, Field Blower, held candidate Stadiums, and Benched Marshadow's Resetting Hole. It recomputes supported public lock conditions after movement/removal, rather than assuming a lock is invariant. Attack options cover printed payable Psychic-energy attacks, distinct counter placement, weakness/resistance, and explicit caller-supplied defense and Copycat recipe flags. No unknown draw is used. After every actual Door draw, replan from the new observation. It is an offline policy-development tool, not the production worker or a full game engine. Focused self-tests pass.
+
+**Concrete known-resource decisions:**
+
+- `--fixture thorns_cycle`: two VMAX with three Psychic each, Wobbuffet Benched with Float, active Iron Thorns and a second Benched Thorns, two Psychic + Guzma held, Valley active. Direct manual attachment gives Max Geist 220 against 230 HP; Door is initially locked. Guzma another Thorns + own Wobbuffet, use both Doors (four draws, attach to a Benched Psychic), retreat Wobbuffet for zero into a VMAX, Max Geist 250 for two Prizes. With no Guzma the restricted known-resource search finds no KO. This is a concrete re-entry lock window, not merely the existing initial-Wobbuffet timing statement.
+- `--fixture protected_vileplume`: W Active/Float, Latias with one Psychic, VMAX with one, Hooded AOR Vileplume Active, Valley and one held Psychic. Field Blower is illegal under the protected Item lock. Door to Latias, retreat, Eon Blade 200 instead of waiting for five total Psychic for Max Geist. Separate `basic_attack_lock` fixture models a Hooded BUS Vileplume's Basic-attack prohibition: the attached Stealthy Hood on a Basic attacker is a card-text-derived counter to that opponent Ability effect on the attacker, not a player-based Item/Supporter lock. This specific Hood interaction is not engine-validated.
+- `--fixture timeless_lethal --lethal`: conditional on the established legal Mimikyu Copycat→Apex Dragon→Timeless-GX recipe (prior opposing Apex Dragon, own Dialga-GX in discard, GX unused), active Mimikyu with one Psychic, live Fairy Zone + Skyliner, Benched VMAX with three Psychic, Valley, one held Psychic, four Prizes remaining. Opponent Regidrago VSTAR Active and Regidrago V + Dedenne-GX Benched. Copycat for one Psychic deals 300 to VSTAR, two Prizes and another turn. The lethal solver checks **both** possible promotions: retreat to VMAX and Max Geist 260 vs V, or attach the held Psychic, retreat and Max Geist 160 vs Dedenne. No unknown Prize/draw card is required. Without that held Psychic, the Dedenne promotion prevents a guaranteed four-Prize finish in this restricted model. With GX already used or no card left for the extra-turn mandatory draw, the line is rejected. Extra-turn proof requires explicit caller certification of no unmodeled terminal triggers and recipe legality.
+
+```sh
+python agents/agent21/turn-plan.py --test
+python agents/agent21/turn-plan.py --fixture thorns_cycle
+python agents/agent21/turn-plan.py --fixture timeless_lethal --lethal
+```
+
+Arbitrary actor-known JSON boards may be supplied. The normal mode returns representative best immediate Prize/damage lines per distinct attack/target/effect, with transparent resource tie-breaks (not win-rate utility). The lethal mode searches direct wins or a conditional contingent extra-turn win against every legal promotion, ignores newly drawn cards and returns explicit incompleteness on search caps. It omits evolving/Benching/search/VS Seeker/recovery, complex copy/attack resolution, HP-modifying Tool removals, Sky Field shrink discard choices, unsupported lock-order or defense interactions, on-KO effects and actual opponent actions. These fixtures are constructed card-text calculations, **not source-dealt engine games, matchups or admission tests**. Do not treat them as authorization to modify frozen production policy or expand the pending scope.
+
 ## What a fair whole-game comparison must answer
 
 The current reviewed candidate policy cannot rank these lists fairly: it lacks Wobbuffet/Temple root decisions and complete Bide Barricade hand/discard scope, while it also does not fully realize Hood's Ranger/Item-lock response. It would under-measure both packages. PR #69 and PR #71 remain frozen at their reviewed scopes; this synthesis does not authorize a policy patch, fixture, or game.
