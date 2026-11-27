@@ -718,3 +718,71 @@ test('Guzma does not strand a sole powered Active VSTAR on the Bench',()=>{
   assert.deepEqual(bestAction(request({ownPublic,opponentPublic,items})),
     {kind:'select-action',token:'guzma'});
 });
+
+
+test('one weak opponent Special Energy is not worth a singleton Megaton Blower',()=>{
+  const ownPublic=player({
+    active:pokemon(P.regidrago,{energies:[P.doubleDragon,P.energy]}),
+    discard:[{printing:P.goodra}]
+  });
+  const opponentPublic=player({active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{
+    hp:320,damage:0,energies:[P.doubleDragon],
+    printed:{subtypes:['VMAX'],weakness:[],resistance:[]}})});
+  const items=[
+    action('blower','play-card','Megaton Blower SSP 182'),
+    action('apex','attack',P.regidrago,{attackName:'Apex Dragon'}),
+    action('pass','pass')
+  ];
+  assert.deepEqual(bestAction(request({ownPublic,opponentPublic,items})),
+    {kind:'select-action',token:'apex'});
+  opponentPublic.active.energies=[P.doubleDragon,P.doubleDragon,P.doubleDragon];
+  assert.deepEqual(bestAction(request({ownPublic,opponentPublic,items})),
+    {kind:'select-action',token:'blower'});
+  ownPublic.prizeCount=2;
+  opponentPublic.active.hp=180;
+  assert.deepEqual(bestAction(request({ownPublic,opponentPublic,items})),
+    {kind:'select-action',token:'apex'});
+});
+
+test('Temple suppressing own Double Dragon justifies single-use Megaton when no Stadium replacement',()=>{
+  const ownPublic=player({
+    active:pokemon(P.regidrago,{energies:[P.doubleDragon]}),
+    discard:[{printing:P.goodra}]
+  });
+  const opponentPublic=player({
+    active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{hp:320}),
+    stadium:[{printing:'Temple of Sinnoh ASR 155'}]
+  });
+  const items=[
+    action('blower','play-card','Megaton Blower SSP 182'),action('pass','pass')
+  ];
+  assert.deepEqual(bestAction(request({ownPublic,opponentPublic,items})),
+    {kind:'select-action',token:'blower'});
+});
+
+test('Muscle Band must target real ready VSTAR and cross a KO threshold',()=>{
+  const ownPublic=player({
+    active:pokemon(P.regidrago,{energies:[P.doubleDragon,P.energy]}),
+    bench:[pokemon('Dedenne-GX UNB 57')],
+    discard:[{printing:P.goodra}]
+  });
+  const opponentPublic=player({active:pokemon('Wobbuffet PHF 36',{
+    hp:210,damage:0,printed:{subtypes:['Basic'],weakness:[],resistance:[]}})});
+  const items=[
+    action('wrong','play-card','Muscle Band XY 121',{
+      targetPrinting:'Dedenne-GX UNB 57',
+      publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:0}
+    }),
+    action('band','play-card','Muscle Band XY 121',{
+      targetPrinting:P.regidrago,
+      publicMetadata:{targetSeat:'actor',targetZone:'active'}
+    }),
+    action('attack','attack',P.regidrago,{attackName:'Apex Dragon'}),
+    action('pass','pass')
+  ];
+  assert.deepEqual(bestAction(request({ownPublic,opponentPublic,items})),
+    {kind:'select-action',token:'band'});
+  opponentPublic.active.hp=180;
+  assert.deepEqual(bestAction(request({ownPublic,opponentPublic,items})),
+    {kind:'select-action',token:'attack'});
+});
