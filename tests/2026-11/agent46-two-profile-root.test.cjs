@@ -237,3 +237,24 @@ paired('unadmitted Copycat is refused even when it appears in the supplied front
   assert.deepEqual(decide(profile,root(seat,view,[{token:'copy',kind:'attack',attackName:'Copycat'}],
     {opponentCopycatChoices:[{attackName:'Apex Dragon',sourcePrinting:'Regidrago VSTAR SIT'}]})),sel('pass'));
 });
+
+paired('certified fully Prized Radiant prefers Heavy Ball over the dead tutor', (seat,profile)=>{
+  const mt='Mysterious Treasure FLI';
+  const view=observation(seat,{active:v(),ownHand:[HB,mt,P],opponentActive:defender()});
+  const actions=[play('heavy',HB),play('treasure',mt)];
+  assert.deepEqual(decide(profile,root(seat,view,actions)),sel('treasure'));
+  view.ownerK1={epoch:1,exactMembershipKnown:false,knownPrintings:null,invalidationReason:null,
+    prizeFacts:{schema:'agent46-owner-fully-prized-v1',actorSeat:seat,epoch:1,turn:view.globalTurn,
+      prizeCount:6,fullyPrized:[{cardName:'Radiant Eternatus',printing:R,copies:1}]}};
+  protocol.validateActorObservation(view,seat,profile);
+  assert.deepEqual(decide(profile,root(seat,view,actions)),sel('heavy'));
+  const prompt=cardPrompt(seat,view,HB,'Hisuian Heavy Ball','prizes',[D,R],0,1);
+  assert.deepEqual(decide(profile,prompt),mult('card-1'));
+  view.ownerK1.prizeFacts.epoch=0;
+  assert.throws(()=>protocol.validateActorObservation(view,seat,profile));
+  assert.deepEqual(decide(profile,root(seat,view,actions)),sel('treasure'));
+  view.ownerK1.prizeFacts.epoch=1;
+  assert.throws(()=>protocol.validateActorObservation(view,seat));
+  view.ownerK1.prizeFacts.fullyPrized[0].copies=2;
+  assert.throws(()=>protocol.validateActorObservation(view,seat,profile));
+});
