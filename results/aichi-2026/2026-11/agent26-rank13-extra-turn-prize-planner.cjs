@@ -21,9 +21,12 @@ const PAYLOADS=Object.freeze({
  'Kyurem SFA 47':['Trifrost'],
  'Salamence ex JTG 114':['Wide Blast','Dragon Impact'],
  'Noivern ex PAL 153':['Dominating Echo','Covert Flight'],
- 'Regidrago V SIT 135':['Dragon Laser']
+ 'Regidrago V SIT 135':['Dragon Laser'],
+ 'Koraidon ex TEF 120':['Kaiser Tackle','Retribution Strike'],
+ 'Hisuian Goodra VSTAR LOR 136':['Rolling Iron'],
+ 'Mega Dragonite ex ASC 152':['Ryuno Glide']
 });
-const DIRECT=Object.freeze({'Shred':80,'Dragon Impact':300,'Dominating Echo':140,'Covert Flight':70,'Jet Headbutt':70});
+const DIRECT=Object.freeze({'Shred':80,'Dragon Impact':300,'Dominating Echo':140,'Covert Flight':70,'Jet Headbutt':70,'Kaiser Tackle':280,'Rolling Iron':200,'Ryuno Glide':330});
 const assert=(condition,message)=>{if(!condition)throw Error(message);};
 const sum=rows=>rows.reduce((a,b)=>a+b,0);
 const combinations=(rows,n)=>{
@@ -43,6 +46,9 @@ function validate(s){
  assert(Number.isInteger(s.gustBudget)&&s.gustBudget>=0&&s.gustBudget<=2,'invalid committed Guzma budget');
  assert(typeof s.firstGustReady==='boolean'&&typeof s.secondGustReady==='boolean','gust mobility must be established per turn');
  assert(Array.isArray(s.discard)&&s.discard.every(x=>typeof x==='string'),'invalid visible discard');
+ // For Koraidon, require known damage on 280-HP Regidrago and exclude self-KO
+ // geometries: Kaiser Tackle's self-damage can change simultaneous win/loss.
+ if(s.discard.includes('Koraidon ex TEF 120'))assert(Number.isInteger(s.attackerDamage)&&s.attackerDamage>=0&&s.attackerDamage<=210&&s.attackerDamage%10===0,'Koraidon requires known surviving attacker (at least 70 HP)');
  assert(Array.isArray(s.targets)&&s.targets.length>=1&&s.targets.length<=9,'invalid board size');
  const seen=new Set(),counts={};
  const rows=s.targets.map(t=>{
@@ -68,8 +74,11 @@ function effect(rows,amounts,prizesToWin){
  const prizes=sum(ko.map(t=>t.prize));
  return {prizes,win:prizes>=prizesToWin||remaining.length===0,knockedOut:ko.map(t=>t.id),remaining};
 }
-function attackVariants(name,rows,active,band,needed){
+function attackVariants(name,rows,active,band,needed,attackerDamage=0){
  const bonus=band?20:0,bench=rows.filter(t=>t.id!==active);
+ if(name==='Retribution Strike'){
+  return [{attack:name,active,targets:[active],...effect(rows,{[active]:20+attackerDamage+bonus},needed)}];
+ }
  if(Object.hasOwn(DIRECT,name)){
   return [{attack:name,active,targets:[active],...effect(rows,{[active]:DIRECT[name]+bonus},needed)}];
  }
@@ -102,13 +111,13 @@ function attackVariants(name,rows,active,band,needed){
 function actions(rows,active,canGust){
  return [active,...(canGust?rows.filter(t=>t.id!==active).map(t=>t.id):[])].map(target=>({active:target,gust:target!==active}));
 }
-function bestSingle(rows,active,attacks,band,needed,canGust){
+function bestSingle(rows,active,attacks,band,needed,canGust,attackerDamage=0){
  return best(actions(rows,active,canGust).flatMap(a=>attacks.filter(n=>n!=='Timeless-GX').flatMap(n=>
-   attackVariants(n,rows,a.active,band,needed).map(r=>({...r,gust:a.gust})))));
+   attackVariants(n,rows,a.active,band,needed,attackerDamage).map(r=>({...r,gust:a.gust})))));
 }
 function plan(s){
  const board=validate(s), attacks=available(s.discard);
- const direct=bestSingle(board,s.active,attacks,s.bandLive,s.prizesToWin,s.gustBudget>0&&s.firstGustReady);
+ const direct=bestSingle(board,s.active,attacks,s.bandLive,s.prizesToWin,s.gustBudget>0&&s.firstGustReady,s.attackerDamage??0);
  const extra=[];
  if(s.gxUnused&&attacks.includes('Timeless-GX')){
   for(const a of actions(board,s.active,s.gustBudget>0&&s.firstGustReady)){
@@ -121,7 +130,7 @@ function plan(s){
    const promoted=first.knockedOut.includes(a.active)?first.remaining.map(t=>t.id):[a.active];
    const responses=promoted.map(active=>{
     const response=bestSingle(first.remaining,active,attacks,s.bandLive,s.prizesToWin-first.prizes,
-      s.secondGustReady&&s.gustBudget-Number(a.gust)>0);
+      s.secondGustReady&&s.gustBudget-Number(a.gust)>0,s.attackerDamage??0);
     return {promoted:active,second:response,prizes:first.prizes+(response?.prizes||0),win:response?.win===true};
    });
    const floor=worst(responses);

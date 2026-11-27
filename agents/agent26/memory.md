@@ -1,3 +1,9 @@
+## 2026-11-27T05:32:24.672Z — nine-rank Get Lost denial cut set
+
+- Extended prior pure Prize solver to Koraidon, Goodra, Mega Dragonite with explicit surviving-attacker requirement. New `results/aichi-2026/2026-11/agent26-regidrago-get-lost-denial.md`, .cjs, .test.cjs, .json. Actual 39 new + 29 previous V8 assertions passed. Nine authenticated Regidrago ranks 10/12/13/14/18/20/21/27/32; 23/28 missing. Constructed post-Get-Lost state: Girafarig90 Active, Mimikyu70, Marshadow80 (or Wobbuffet110), VMAX320, Latias210; source paid banded Apex, GX unused, one proven gust, needs 3 Prizes. Six ranks (12/13/14/20/27/32) retain winning route after every pair; removing third small before Get Lost makes at least one safe pair for each exact rank. Full source-payload envelope distinct from current discard, duplicate Dialga ranks12/27; physical active V base reserved. No game, no win rate, no new policy surface.
+- Candidate owners and rank13 owner given concrete testable bench/denial decision family. Stopline preserved; no native CI, merge, frozen worker or deck change.
+- Same immutable lease; next authorized work is actual actor-visible trace or owner-coordinated policy use. No repeat provenance.
+---
 ## 2026-11-27T05:29:53.738Z — rank13 whole extra-turn Prize conversion
 
 Immutable normal3 lease 2026-11-27T05:25:24.277Z, claim 0503e3a12ad97b9947a833a4ad5fc889619d08ca; release no earlier than 06:35:24.277Z. No refresh.

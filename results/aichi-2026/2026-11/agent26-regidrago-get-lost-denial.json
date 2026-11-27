@@ -1,0 +1,984 @@
+{
+  "sourceBlob": "ae773f6201d7aa69d31914dbfee66f3fba692200",
+  "runtime": "isolated V8; not native or Node CLI",
+  "assertions": 39,
+  "previousAssertions": 29,
+  "inventory": {
+    "10": {
+      "Regidrago V SIT 135": 4,
+      "Dragapult ex TWM 130": 1,
+      "Dialga-GX UPR 100": 1,
+      "Koraidon ex TEF 120": 1,
+      "Kyurem SFA 47": 1,
+      "Hisuian Goodra VSTAR LOR 136": 1
+    },
+    "12": {
+      "Regidrago V SIT 135": 4,
+      "Dialga-GX UPR 100": 2,
+      "Dragapult ex TWM 130": 1,
+      "Noivern ex PAL 153": 1,
+      "Koraidon ex TEF 120": 1,
+      "Kyurem SFA 47": 1
+    },
+    "13": {
+      "Regidrago V SIT 135": 4,
+      "Salamence ex JTG 114": 1,
+      "Dragapult ex TWM 130": 1,
+      "Noivern ex PAL 153": 1,
+      "Dialga-GX UPR 100": 1,
+      "Kyurem SFA 47": 1
+    },
+    "14": {
+      "Regidrago V SIT 135": 4,
+      "Dialga-GX UPR 100": 1,
+      "Mega Dragonite ex ASC 152": 1,
+      "Dragapult ex TWM 130": 1,
+      "Noivern ex PAL 153": 1,
+      "Hisuian Goodra VSTAR LOR 136": 1,
+      "Kyurem SFA 47": 1
+    },
+    "18": {
+      "Regidrago V SIT 135": 3,
+      "Dialga-GX UPR 100": 1,
+      "Dragapult ex TWM 130": 1,
+      "Hisuian Goodra VSTAR LOR 136": 1,
+      "Koraidon ex TEF 120": 1,
+      "Kyurem SFA 47": 1
+    },
+    "20": {
+      "Regidrago V SIT 135": 4,
+      "Dialga-GX UPR 100": 1,
+      "Dragapult ex TWM 130": 1,
+      "Mega Dragonite ex ASC 152": 1,
+      "Noivern ex PAL 153": 1,
+      "Kyurem SFA 47": 1
+    },
+    "21": {
+      "Regidrago V SIT 135": 3,
+      "Dialga-GX UPR 100": 1,
+      "Dragapult ex TWM 130": 1,
+      "Hisuian Goodra VSTAR LOR 136": 1,
+      "Noivern ex PAL 153": 1,
+      "Koraidon ex TEF 120": 1,
+      "Kyurem SFA 47": 1
+    },
+    "27": {
+      "Regidrago V SIT 135": 4,
+      "Dialga-GX UPR 100": 2,
+      "Dragapult ex TWM 130": 1,
+      "Koraidon ex TEF 120": 1,
+      "Noivern ex PAL 153": 1,
+      "Kyurem SFA 47": 1
+    },
+    "32": {
+      "Regidrago V SIT 135": 4,
+      "Dialga-GX UPR 100": 1,
+      "Noivern ex PAL 153": 1,
+      "Dragapult ex TWM 130": 1,
+      "Hisuian Goodra VSTAR LOR 136": 1,
+      "Kyurem SFA 47": 1,
+      "Mega Dragonite ex ASC 152": 1
+    }
+  },
+  "matrix": [
+    {
+      "rank": 10,
+      "overPairs": 16,
+      "overSafe": [
+        "Dialga-GX UPR 100 + Kyurem SFA 47"
+      ],
+      "trimSafe": [
+        "Dragapult ex TWM 130 + Dialga-GX UPR 100",
+        "Dialga-GX UPR 100 + Koraidon ex TEF 120",
+        "Dialga-GX UPR 100 + Kyurem SFA 47",
+        "Dialga-GX UPR 100 + Hisuian Goodra VSTAR LOR 136",
+        "Regidrago V SIT 135 + Dialga-GX UPR 100"
+      ],
+      "lockSafeCount": 1,
+      "overBaseline": {
+        "win": true,
+        "potentialPrizes": 3,
+        "selected": "single-attack",
+        "attack": "Trifrost",
+        "target": "g",
+        "targets": [
+          "g",
+          "m",
+          "s"
+        ],
+        "gust": false
+      },
+      "trimBaseline": {
+        "win": true,
+        "potentialPrizes": 4,
+        "selected": "extra-turn",
+        "attack": "Timeless-GX",
+        "firstTarget": "l",
+        "firstGust": true,
+        "responses": [
+          {
+            "promoted": "l",
+            "attack": "Trifrost",
+            "targets": [
+              "g",
+              "m",
+              "l"
+            ],
+            "gust": false,
+            "potentialPrizes": 4,
+            "win": true
+          }
+        ]
+      }
+    },
+    {
+      "rank": 12,
+      "overPairs": 17,
+      "overSafe": [],
+      "trimSafe": [
+        "Dialga-GX UPR 100 + Dialga-GX UPR 100"
+      ],
+      "lockSafeCount": 0,
+      "overBaseline": {
+        "win": true,
+        "potentialPrizes": 3,
+        "selected": "single-attack",
+        "attack": "Trifrost",
+        "target": "g",
+        "targets": [
+          "g",
+          "m",
+          "s"
+        ],
+        "gust": false
+      },
+      "trimBaseline": {
+        "win": true,
+        "potentialPrizes": 4,
+        "selected": "extra-turn",
+        "attack": "Timeless-GX",
+        "firstTarget": "l",
+        "firstGust": true,
+        "responses": [
+          {
+            "promoted": "l",
+            "attack": "Trifrost",
+            "targets": [
+              "g",
+              "m",
+              "l"
+            ],
+            "gust": false,
+            "potentialPrizes": 4,
+            "win": true
+          }
+        ]
+      }
+    },
+    {
+      "rank": 13,
+      "overPairs": 16,
+      "overSafe": [],
+      "trimSafe": [
+        "Salamence ex JTG 114 + Dialga-GX UPR 100"
+      ],
+      "lockSafeCount": 0,
+      "overBaseline": {
+        "win": true,
+        "potentialPrizes": 3,
+        "selected": "single-attack",
+        "attack": "Trifrost",
+        "target": "g",
+        "targets": [
+          "g",
+          "m",
+          "s"
+        ],
+        "gust": false
+      },
+      "trimBaseline": {
+        "win": true,
+        "potentialPrizes": 3,
+        "selected": "single-attack",
+        "attack": "Dragon Impact",
+        "target": "v",
+        "targets": [
+          "v"
+        ],
+        "gust": true
+      }
+    },
+    {
+      "rank": 14,
+      "overPairs": 22,
+      "overSafe": [],
+      "trimSafe": [
+        "Dialga-GX UPR 100 + Mega Dragonite ex ASC 152"
+      ],
+      "lockSafeCount": 0,
+      "overBaseline": {
+        "win": true,
+        "potentialPrizes": 3,
+        "selected": "single-attack",
+        "attack": "Trifrost",
+        "target": "g",
+        "targets": [
+          "g",
+          "m",
+          "s"
+        ],
+        "gust": false
+      },
+      "trimBaseline": {
+        "win": true,
+        "potentialPrizes": 3,
+        "selected": "single-attack",
+        "attack": "Ryuno Glide",
+        "target": "v",
+        "targets": [
+          "v"
+        ],
+        "gust": true
+      }
+    },
+    {
+      "rank": 18,
+      "overPairs": 16,
+      "overSafe": [
+        "Dialga-GX UPR 100 + Kyurem SFA 47"
+      ],
+      "trimSafe": [
+        "Dialga-GX UPR 100 + Dragapult ex TWM 130",
+        "Dialga-GX UPR 100 + Hisuian Goodra VSTAR LOR 136",
+        "Dialga-GX UPR 100 + Koraidon ex TEF 120",
+        "Dialga-GX UPR 100 + Kyurem SFA 47",
+        "Regidrago V SIT 135 + Dialga-GX UPR 100"
+      ],
+      "lockSafeCount": 1,
+      "overBaseline": {
+        "win": true,
+        "potentialPrizes": 3,
+        "selected": "single-attack",
+        "attack": "Trifrost",
+        "target": "g",
+        "targets": [
+          "g",
+          "m",
+          "s"
+        ],
+        "gust": false
+      },
+      "trimBaseline": {
+        "win": true,
+        "potentialPrizes": 4,
+        "selected": "extra-turn",
+        "attack": "Timeless-GX",
+        "firstTarget": "l",
+        "firstGust": true,
+        "responses": [
+          {
+            "promoted": "l",
+            "attack": "Trifrost",
+            "targets": [
+              "g",
+              "m",
+              "l"
+            ],
+            "gust": false,
+            "potentialPrizes": 4,
+            "win": true
+          }
+        ]
+      }
+    },
+    {
+      "rank": 20,
+      "overPairs": 16,
+      "overSafe": [],
+      "trimSafe": [
+        "Dialga-GX UPR 100 + Mega Dragonite ex ASC 152"
+      ],
+      "lockSafeCount": 0,
+      "overBaseline": {
+        "win": true,
+        "potentialPrizes": 3,
+        "selected": "single-attack",
+        "attack": "Trifrost",
+        "target": "g",
+        "targets": [
+          "g",
+          "m",
+          "s"
+        ],
+        "gust": false
+      },
+      "trimBaseline": {
+        "win": true,
+        "potentialPrizes": 3,
+        "selected": "single-attack",
+        "attack": "Ryuno Glide",
+        "target": "v",
+        "targets": [
+          "v"
+        ],
+        "gust": true
+      }
+    },
+    {
+      "rank": 21,
+      "overPairs": 22,
+      "overSafe": [
+        "Dialga-GX UPR 100 + Kyurem SFA 47"
+      ],
+      "trimSafe": [
+        "Dialga-GX UPR 100 + Dragapult ex TWM 130",
+        "Dialga-GX UPR 100 + Hisuian Goodra VSTAR LOR 136",
+        "Dialga-GX UPR 100 + Noivern ex PAL 153",
+        "Dialga-GX UPR 100 + Koraidon ex TEF 120",
+        "Dialga-GX UPR 100 + Kyurem SFA 47",
+        "Regidrago V SIT 135 + Dialga-GX UPR 100"
+      ],
+      "lockSafeCount": 1,
+      "overBaseline": {
+        "win": true,
+        "potentialPrizes": 3,
+        "selected": "single-attack",
+        "attack": "Trifrost",
+        "target": "g",
+        "targets": [
+          "g",
+          "m",
+          "s"
+        ],
+        "gust": false
+      },
+      "trimBaseline": {
+        "win": true,
+        "potentialPrizes": 4,
+        "selected": "extra-turn",
+        "attack": "Timeless-GX",
+        "firstTarget": "l",
+        "firstGust": true,
+        "responses": [
+          {
+            "promoted": "l",
+            "attack": "Trifrost",
+            "targets": [
+              "g",
+              "m",
+              "l"
+            ],
+            "gust": false,
+            "potentialPrizes": 4,
+            "win": true
+          }
+        ]
+      }
+    },
+    {
+      "rank": 27,
+      "overPairs": 17,
+      "overSafe": [],
+      "trimSafe": [
+        "Dialga-GX UPR 100 + Dialga-GX UPR 100"
+      ],
+      "lockSafeCount": 0,
+      "overBaseline": {
+        "win": true,
+        "potentialPrizes": 3,
+        "selected": "single-attack",
+        "attack": "Trifrost",
+        "target": "g",
+        "targets": [
+          "g",
+          "m",
+          "s"
+        ],
+        "gust": false
+      },
+      "trimBaseline": {
+        "win": true,
+        "potentialPrizes": 4,
+        "selected": "extra-turn",
+        "attack": "Timeless-GX",
+        "firstTarget": "l",
+        "firstGust": true,
+        "responses": [
+          {
+            "promoted": "l",
+            "attack": "Trifrost",
+            "targets": [
+              "g",
+              "m",
+              "l"
+            ],
+            "gust": false,
+            "potentialPrizes": 4,
+            "win": true
+          }
+        ]
+      }
+    },
+    {
+      "rank": 32,
+      "overPairs": 22,
+      "overSafe": [],
+      "trimSafe": [
+        "Dialga-GX UPR 100 + Mega Dragonite ex ASC 152"
+      ],
+      "lockSafeCount": 0,
+      "overBaseline": {
+        "win": true,
+        "potentialPrizes": 3,
+        "selected": "single-attack",
+        "attack": "Trifrost",
+        "target": "g",
+        "targets": [
+          "g",
+          "m",
+          "s"
+        ],
+        "gust": false
+      },
+      "trimBaseline": {
+        "win": true,
+        "potentialPrizes": 3,
+        "selected": "single-attack",
+        "attack": "Ryuno Glide",
+        "target": "v",
+        "targets": [
+          "v"
+        ],
+        "gust": true
+      }
+    }
+  ],
+  "scenario": {
+    "profile": "hood",
+    "apexPayable": true,
+    "noOtherCombatModifiers": true,
+    "bandLive": true,
+    "gxUnused": true,
+    "nextApexPayable": true,
+    "attackerDamage": 0,
+    "prizesToWin": 3,
+    "gustBudget": 1,
+    "firstGustReady": true,
+    "secondGustReady": true,
+    "active": "g",
+    "targets": [
+      {
+        "id": "g",
+        "printing": "Girafarig LOT 94",
+        "remainingHP": 90
+      },
+      {
+        "id": "m",
+        "printing": "Mimikyu GRI 58",
+        "remainingHP": 70
+      },
+      {
+        "id": "s",
+        "printing": "Marshadow UNB 81",
+        "remainingHP": 80
+      },
+      {
+        "id": "v",
+        "printing": "Shadow Rider Calyrex VMAX CRE 75",
+        "remainingHP": 320
+      },
+      {
+        "id": "l",
+        "printing": "Latias ex SSP 76",
+        "remainingHP": 210
+      }
+    ]
+  },
+  "partial": {
+    "rank": 12,
+    "baseline": {
+      "current": {
+        "win": true,
+        "potentialPrizes": 4,
+        "selected": "extra-turn",
+        "attack": "Timeless-GX",
+        "firstTarget": "l",
+        "firstGust": true,
+        "responses": [
+          {
+            "promoted": "l",
+            "attack": "Trifrost",
+            "targets": [
+              "g",
+              "m",
+              "l"
+            ],
+            "gust": false,
+            "potentialPrizes": 4,
+            "win": true
+          }
+        ]
+      },
+      "envelope": {
+        "win": true,
+        "potentialPrizes": 4,
+        "selected": "extra-turn",
+        "attack": "Timeless-GX",
+        "firstTarget": "l",
+        "firstGust": true,
+        "responses": [
+          {
+            "promoted": "l",
+            "attack": "Trifrost",
+            "targets": [
+              "g",
+              "m",
+              "l"
+            ],
+            "gust": false,
+            "potentialPrizes": 4,
+            "win": true
+          }
+        ]
+      }
+    },
+    "totalDistinctPairs": 3,
+    "safeCurrent": [
+      {
+        "indices": [
+          1,
+          2
+        ],
+        "cards": [
+          "Kyurem SFA 47",
+          "Dragapult ex TWM 130"
+        ],
+        "current": {
+          "win": false,
+          "potentialPrizes": 2,
+          "selected": "extra-turn",
+          "attack": "Timeless-GX",
+          "firstTarget": "g",
+          "firstGust": false,
+          "responses": [
+            {
+              "promoted": "m",
+              "attack": "Shred",
+              "targets": [
+                "m"
+              ],
+              "gust": false,
+              "potentialPrizes": 2,
+              "win": false
+            },
+            {
+              "promoted": "v",
+              "attack": "Shred",
+              "targets": [
+                "m"
+              ],
+              "gust": true,
+              "potentialPrizes": 2,
+              "win": false
+            },
+            {
+              "promoted": "l",
+              "attack": "Shred",
+              "targets": [
+                "m"
+              ],
+              "gust": true,
+              "potentialPrizes": 2,
+              "win": false
+            }
+          ]
+        },
+        "envelope": {
+          "win": true,
+          "potentialPrizes": 3,
+          "selected": "extra-turn",
+          "attack": "Timeless-GX",
+          "firstTarget": "g",
+          "firstGust": false,
+          "responses": [
+            {
+              "promoted": "m",
+              "attack": "Kaiser Tackle",
+              "targets": [
+                "l"
+              ],
+              "gust": true,
+              "potentialPrizes": 3,
+              "win": true
+            },
+            {
+              "promoted": "v",
+              "attack": "Kaiser Tackle",
+              "targets": [
+                "l"
+              ],
+              "gust": true,
+              "potentialPrizes": 3,
+              "win": true
+            },
+            {
+              "promoted": "l",
+              "attack": "Kaiser Tackle",
+              "targets": [
+                "l"
+              ],
+              "gust": false,
+              "potentialPrizes": 3,
+              "win": true
+            }
+          ]
+        },
+        "permanentlyExhausted": [
+          "Dragapult ex TWM 130",
+          "Kyurem SFA 47"
+        ]
+      },
+      {
+        "indices": [
+          0,
+          1
+        ],
+        "cards": [
+          "Dialga-GX UPR 100",
+          "Kyurem SFA 47"
+        ],
+        "current": {
+          "win": false,
+          "potentialPrizes": 2,
+          "selected": "single-attack",
+          "attack": "Phantom Dive",
+          "target": "l",
+          "targets": [
+            "l"
+          ],
+          "gust": true
+        },
+        "envelope": {
+          "win": true,
+          "potentialPrizes": 3,
+          "selected": "extra-turn",
+          "attack": "Timeless-GX",
+          "firstTarget": "g",
+          "firstGust": false,
+          "responses": [
+            {
+              "promoted": "m",
+              "attack": "Phantom Dive",
+              "targets": [
+                "l"
+              ],
+              "gust": true,
+              "potentialPrizes": 3,
+              "win": true
+            },
+            {
+              "promoted": "v",
+              "attack": "Phantom Dive",
+              "targets": [
+                "l"
+              ],
+              "gust": true,
+              "potentialPrizes": 3,
+              "win": true
+            },
+            {
+              "promoted": "l",
+              "attack": "Phantom Dive",
+              "targets": [
+                "l"
+              ],
+              "gust": false,
+              "potentialPrizes": 3,
+              "win": true
+            }
+          ]
+        },
+        "permanentlyExhausted": [
+          "Kyurem SFA 47"
+        ]
+      },
+      {
+        "indices": [
+          0,
+          2
+        ],
+        "cards": [
+          "Dialga-GX UPR 100",
+          "Dragapult ex TWM 130"
+        ],
+        "current": {
+          "win": false,
+          "potentialPrizes": 2,
+          "selected": "single-attack",
+          "attack": "Trifrost",
+          "target": "g",
+          "targets": [
+            "g",
+            "m",
+            "v"
+          ],
+          "gust": false
+        },
+        "envelope": {
+          "win": true,
+          "potentialPrizes": 4,
+          "selected": "extra-turn",
+          "attack": "Timeless-GX",
+          "firstTarget": "l",
+          "firstGust": true,
+          "responses": [
+            {
+              "promoted": "l",
+              "attack": "Trifrost",
+              "targets": [
+                "g",
+                "m",
+                "l"
+              ],
+              "gust": false,
+              "potentialPrizes": 4,
+              "win": true
+            }
+          ]
+        },
+        "permanentlyExhausted": [
+          "Dragapult ex TWM 130"
+        ]
+      }
+    ],
+    "safeEnvelope": [],
+    "rows": [
+      {
+        "indices": [
+          1,
+          2
+        ],
+        "cards": [
+          "Kyurem SFA 47",
+          "Dragapult ex TWM 130"
+        ],
+        "current": {
+          "win": false,
+          "potentialPrizes": 2,
+          "selected": "extra-turn",
+          "attack": "Timeless-GX",
+          "firstTarget": "g",
+          "firstGust": false,
+          "responses": [
+            {
+              "promoted": "m",
+              "attack": "Shred",
+              "targets": [
+                "m"
+              ],
+              "gust": false,
+              "potentialPrizes": 2,
+              "win": false
+            },
+            {
+              "promoted": "v",
+              "attack": "Shred",
+              "targets": [
+                "m"
+              ],
+              "gust": true,
+              "potentialPrizes": 2,
+              "win": false
+            },
+            {
+              "promoted": "l",
+              "attack": "Shred",
+              "targets": [
+                "m"
+              ],
+              "gust": true,
+              "potentialPrizes": 2,
+              "win": false
+            }
+          ]
+        },
+        "envelope": {
+          "win": true,
+          "potentialPrizes": 3,
+          "selected": "extra-turn",
+          "attack": "Timeless-GX",
+          "firstTarget": "g",
+          "firstGust": false,
+          "responses": [
+            {
+              "promoted": "m",
+              "attack": "Kaiser Tackle",
+              "targets": [
+                "l"
+              ],
+              "gust": true,
+              "potentialPrizes": 3,
+              "win": true
+            },
+            {
+              "promoted": "v",
+              "attack": "Kaiser Tackle",
+              "targets": [
+                "l"
+              ],
+              "gust": true,
+              "potentialPrizes": 3,
+              "win": true
+            },
+            {
+              "promoted": "l",
+              "attack": "Kaiser Tackle",
+              "targets": [
+                "l"
+              ],
+              "gust": false,
+              "potentialPrizes": 3,
+              "win": true
+            }
+          ]
+        },
+        "permanentlyExhausted": [
+          "Dragapult ex TWM 130",
+          "Kyurem SFA 47"
+        ]
+      },
+      {
+        "indices": [
+          0,
+          1
+        ],
+        "cards": [
+          "Dialga-GX UPR 100",
+          "Kyurem SFA 47"
+        ],
+        "current": {
+          "win": false,
+          "potentialPrizes": 2,
+          "selected": "single-attack",
+          "attack": "Phantom Dive",
+          "target": "l",
+          "targets": [
+            "l"
+          ],
+          "gust": true
+        },
+        "envelope": {
+          "win": true,
+          "potentialPrizes": 3,
+          "selected": "extra-turn",
+          "attack": "Timeless-GX",
+          "firstTarget": "g",
+          "firstGust": false,
+          "responses": [
+            {
+              "promoted": "m",
+              "attack": "Phantom Dive",
+              "targets": [
+                "l"
+              ],
+              "gust": true,
+              "potentialPrizes": 3,
+              "win": true
+            },
+            {
+              "promoted": "v",
+              "attack": "Phantom Dive",
+              "targets": [
+                "l"
+              ],
+              "gust": true,
+              "potentialPrizes": 3,
+              "win": true
+            },
+            {
+              "promoted": "l",
+              "attack": "Phantom Dive",
+              "targets": [
+                "l"
+              ],
+              "gust": false,
+              "potentialPrizes": 3,
+              "win": true
+            }
+          ]
+        },
+        "permanentlyExhausted": [
+          "Kyurem SFA 47"
+        ]
+      },
+      {
+        "indices": [
+          0,
+          2
+        ],
+        "cards": [
+          "Dialga-GX UPR 100",
+          "Dragapult ex TWM 130"
+        ],
+        "current": {
+          "win": false,
+          "potentialPrizes": 2,
+          "selected": "single-attack",
+          "attack": "Trifrost",
+          "target": "g",
+          "targets": [
+            "g",
+            "m",
+            "v"
+          ],
+          "gust": false
+        },
+        "envelope": {
+          "win": true,
+          "potentialPrizes": 4,
+          "selected": "extra-turn",
+          "attack": "Timeless-GX",
+          "firstTarget": "l",
+          "firstGust": true,
+          "responses": [
+            {
+              "promoted": "l",
+              "attack": "Trifrost",
+              "targets": [
+                "g",
+                "m",
+                "l"
+              ],
+              "gust": false,
+              "potentialPrizes": 4,
+              "win": true
+            }
+          ]
+        },
+        "permanentlyExhausted": [
+          "Dragapult ex TWM 130"
+        ]
+      }
+    ],
+    "qualification": "constructed post-Get-Lost board; envelope grants all nonlost/unreserved payloads, NOT a probability or full opponent-turn solver"
+  },
+  "noGust": {
+    "safe": [
+      "Salamence ex JTG 114 + Kyurem SFA 47",
+      "Dialga-GX UPR 100 + Kyurem SFA 47",
+      "Dragapult ex TWM 130 + Kyurem SFA 47",
+      "Noivern ex PAL 153 + Kyurem SFA 47",
+      "Regidrago V SIT 135 + Kyurem SFA 47"
+    ]
+  },
+  "noBand": {
+    "safe": [
+      "Dialga-GX UPR 100 + Kyurem SFA 47"
+    ]
+  },
+  "alreadyLost": {
+    "safe": [
+      "Salamence ex JTG 114 + Kyurem SFA 47"
+    ]
+  }
+}
