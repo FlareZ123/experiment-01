@@ -70,10 +70,10 @@
 
 ## Required evidence before any competitive promotion
 
-Use the linked 45-case actor-visible policy contract. The policy must pass the source-specific hard states before any native/full-game investment, and any later native run remains subject to the repository's owner/CI gates.
+Use the linked 54-case actor-visible policy contract. The policy must pass the source-specific hard states before any native/full-game investment, and any later native run remains subject to the repository's owner/CI gates.
 
 - [Structural repair selection](agent13-newmoon-structural-repair-selection-20261127.md)
-- [45-case v2 acceptance contract](agent13-newmoon-guzma-sky-v2-policy-acceptance-v1.json)
+- [54-case v2 acceptance contract](agent13-newmoon-guzma-sky-v2-policy-acceptance-v1.json)
 - [v1 evidence baseline](../../als/new-moon-lockbreak-60-candidate.md)
 
 Three Aichi Top-32 lists (ranks 23, 25, 28) remain unpublished; no full-32 claim is possible from the current exact source set.
