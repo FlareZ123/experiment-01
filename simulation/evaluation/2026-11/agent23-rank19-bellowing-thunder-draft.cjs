@@ -77,7 +77,7 @@ function root(request,capability){
 }
 function decideDiscard(request){
   const p=request?.prompt,m=p?.publicMetadata,o=request?.observation;
-  if(request?.role!=='opponent'||o?.actorSeat!==request.seat||p?.promptType!=='DiscardEnergyPrompt'||p.source?.effectName!=='Bellowing Thunder'||!BOLT.test(name(p.source.sourcePrinting))||m?.selectionType!=='energy-discard'||m.minimumCount!==0||m.allowCancel!==false)return null;
+  if(request?.role!=='opponent'||o?.actorSeat!==request.seat||p?.promptType!=='DiscardEnergyPrompt'||p.source?.sourceKind!=='card-effect'||p.source?.effectName!=='Bellowing Thunder'||!BOLT.test(name(p.source.sourcePrinting))||m?.selectionType!=='energy-discard'||m.minimumCount!==0||m.allowCancel!==false)return null;
   const inv=inventory(o.ownPublic);
   if(!inv||m.maximumCount!==inv.length||!Array.isArray(p.choices))return null;
   const choices=new Map(),tokens=new Set();let empty=null;
@@ -100,7 +100,7 @@ function decideDiscard(request){
 // adapter at the exact engine pin; the current shared worker rejects this draft
 // selectionType and must NOT be bypassed.
 function project({pin,native,state,prompt,actorSeat,source}){
-  if(pin!==PIN||!native||!state||![0,1].includes(actorSeat)||prompt?.constructor?.name!=='DiscardEnergyPrompt'||source?.effectName!=='Bellowing Thunder'||!BOLT.test(name(source.sourcePrinting)))return null;
+  if(pin!==PIN||!native||!state||![0,1].includes(actorSeat)||prompt?.constructor?.name!=='DiscardEnergyPrompt'||!state.prompts?.includes(prompt)||prompt.result!==undefined||source?.sourceKind!=='card-effect'||source?.effectName!=='Bellowing Thunder'||!BOLT.test(name(source.sourcePrinting)))return null;
   const actor=state.players?.[actorSeat],p=prompt.options;
   if(!actor||prompt.getPerspectivePlayerId()!==actor.id||prompt.playerId!==actor.id||prompt.message!=='CHOOSE_ENERGIES_TO_DISCARD'||prompt.playerType!==native.PlayerType.BOTTOM_PLAYER||prompt.slots?.length!==2||!prompt.slots.includes(native.SlotType.ACTIVE)||!prompt.slots.includes(native.SlotType.BENCH)||prompt.filter?.superType!==native.SuperType.ENERGY||prompt.filter?.energyType!==native.EnergyType.BASIC||p?.min!==0||p.allowCancel!==false||p.blockedFrom?.length!==0||p.blockedMap?.length!==0||!BOLT.test(name(actor.active?.getPokemonCard?.())))return null;
   const choices=[],raw=new Map(),expected=new Map(),objects=new Set();
@@ -123,6 +123,7 @@ function project({pin,native,state,prompt,actorSeat,source}){
   if(!choices.length||choices.length>9||p.max!==choices.length)return null;
   choices.push({kind:'empty-selection',token:'bolt-empty',label:'Discard no energy'});
   return {prompt:{promptType:'DiscardEnergyPrompt',source,choices,publicMetadata:{selectionType:'energy-discard',minimumCount:0,maximumCount:raw.size,allowCancel:false}},resolve(decision){
+    if(!state.prompts?.includes(prompt)||prompt.result!==undefined)return null;
     let result;
     if(decision?.kind==='select-choice'&&decision.token==='bolt-empty')result=[];
     else if(decision?.kind==='select-choices'&&Array.isArray(decision.tokens)&&decision.tokens.length&&new Set(decision.tokens).size===decision.tokens.length&&decision.tokens.every(t=>raw.has(t)))result=decision.tokens.map(t=>raw.get(t));
