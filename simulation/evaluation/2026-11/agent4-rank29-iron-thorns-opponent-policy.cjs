@@ -259,9 +259,17 @@ function discardPriority(card, observation) {
   const hand = ownHand(observation);
   const critical = [
     PRINT.lusamine, PRINT.handiwork, PRINT.guzmaHala, PRINT.gladion,
-    PRINT.doubleColorless, PRINT.speedLightning, PRINT.captureEnergy
+    PRINT.doubleColorless, PRINT.speedLightning, PRINT.captureEnergy,
+    PRINT.megatonBlower, PRINT.thunderMountain, PRINT.wondrousLabyrinth
   ];
   if (critical.some(pattern => matches(card, pattern))) return -100;
+  if (matches(card, PRINT.ironThorns) &&
+      slots(observation.ownPublic).filter(row=>matches(row.pokemon.printing,PRINT.ironThorns)).length < 2) return -90;
+  if (matches(card, PRINT.fieldBlower))
+    return opponentHasTool(observation) ? -85 : 70;
+  if (matches(card, PRINT.targetWhistle))
+    return hasBasicBenchSpace(observation.opponentPublic) &&
+      list(observation.opponentPublic?.discard).some(isRegisteredCandidateBasic) ? -80 : 85;
   if (matches(card, PRINT.tagCall) && handCopies(hand, PRINT.guzmaHala) === 0) return -90;
   if (matches(card, PRINT.lillie) && hand.length <= 3) return -80;
   if (matches(card, PRINT.plumeria) && handCopies(hand, PRINT.plumeria) <= 1) return -40;
@@ -284,6 +292,12 @@ function discardPriority(card, observation) {
       matches(card, PRINT.teamFlare) || matches(card, PRINT.guzma)) return 45;
   if (/Energy/i.test(valueText(card))) return 10;
   return 30;
+}
+
+function peoniaSafeReplacementCount(observation) {
+  return ownHand(observation)
+    .filter(card => !matches(card, PRINT.peonia) &&
+      discardPriority(card, observation) >= 80).length;
 }
 
 function canPayPlumeria(observation) {
@@ -640,9 +654,6 @@ function promptDecision(request) {
   const metadata = prompt?.publicMetadata ?? {};
   const selectionType = metadata.selectionType ?? null;
 
-  if (matches(sourcePrinting, PRINT.peonia)) {
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PRIZE_SELECTION' };
-  }
   if (/palace book|gladion/i.test(source) ||
       selectionType === 'prize-slots') {
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
@@ -657,6 +668,20 @@ function promptDecision(request) {
           (Number.isSafeInteger(metadata.count) ? metadata.count : minimum)) :
         (Number.isSafeInteger(metadata.maximumCount) ? metadata.maximumCount :
           (Number.isSafeInteger(metadata.count) ? metadata.count : minimum));
+
+      if (matches(sourcePrinting, PRINT.peonia)) {
+        // Printed up-to-three selection is buggy in the pinned native
+        // checker at counts 1/2. Only exact-three is replayed here.
+        if (minimum !== 3 || maximum !== 3) {
+          return { kind:'abstain', reasonCode:'UNSUPPORTED_CARD_COMBINATION_SOURCE' };
+        }
+        const handChoices = choices.filter(choice =>
+          choiceOwner(choice) === 'actor' &&
+          (choiceZone(choice) === 'hand' || choice?.publicMetadata?.sourceZone === 'hand'));
+        return multiSelectDecision(prompt, rankedChoices(handChoices,
+          choice => discardPriority(choicePrinting(choice), observation), 3),
+        3, 3);
+      }
 
       if (source.includes('plumeria') &&
           choices.some(choice => choiceOwner(choice) === 'actor' && choiceZone(choice) === 'hand')) {
@@ -880,7 +905,34 @@ function promptDecision(request) {
   }
 
   if (prompt.promptType === 'ChoosePrizePrompt') {
+    if (matches(sourcePrinting, PRINT.peonia) &&
+        prompt.publicMetadata?.selectionType === 'prize-slots' &&
+        prompt.publicMetadata?.requiredCount === 3) {
+      const slots = choices.filter(choice => choice.kind === 'prize' &&
+        choiceOwner(choice) === 'actor' && (
+          choiceZone(choice) === 'prize' ||
+          choice?.publicMetadata?.sourceZone === 'prize'));
+      return multiSelectDecision(prompt, rankedChoices(slots, choice => {
+        const index = choice?.publicMetadata?.slotIndex;
+        return Number.isSafeInteger(index) && index >= 0 && index < 6 ?
+          100 - index : 0;
+      }, 3), 3, 3);
+    }
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PRIZE_SELECTION' };
+  }
+
+  if (prompt.promptType === 'OrderCardsPrompt') {
+    if (matches(sourcePrinting, PRINT.peonia) &&
+        prompt.publicMetadata?.selectionType === 'card-order' &&
+        prompt.publicMetadata?.count === 3) {
+      return multiSelectDecision(prompt, rankedChoices(choices, choice => {
+        if (choice.kind !== 'card-order-item') return 0;
+        const index = choice?.publicMetadata?.selectionIndex ??
+          choice?.publicMetadata?.choiceIndex;
+        return Number.isSafeInteger(index) && index >= 0 ? 100 - index : 0;
+      }, 3), 3, 3);
+    }
+    return { kind:'abstain', reasonCode:'UNSUPPORTED_CARD_ORDER' };
   }
 
   if (prompt.promptType === 'ConfirmPrompt' ||
@@ -956,7 +1008,8 @@ function scorePlayCard(item, request) {
   const supporter = [
     PRINT.plumeria, PRINT.teamFlare, PRINT.guzma, PRINT.guzmaHala,
     PRINT.lusamine, PRINT.handiwork, PRINT.cynthiaCaitlin, PRINT.lillie,
-    PRINT.eri, PRINT.sidney, PRINT.teamSkull, PRINT.faba, PRINT.gladion
+    PRINT.eri, PRINT.sidney, PRINT.teamSkull, PRINT.faba, PRINT.gladion,
+    PRINT.peonia
   ].some(pattern => matches(card, pattern));
   const itemCard = [
     PRINT.crushingHammer, PRINT.enhancedHammer, PRINT.megatonBlower,
@@ -967,7 +1020,7 @@ function scorePlayCard(item, request) {
   if (supporter && !supporterAvailable(observation)) return 0;
   if (itemCard && itemLocked(observation)) return 0;
 
-  if (matches(card, PRINT.peonia) || matches(card, PRINT.gladion) ||
+  if (matches(card, PRINT.gladion) ||
       matches(card, PRINT.palaceBook)) return 0;
 
   if (matches(card, PRINT.speedLightning)) {
@@ -1029,6 +1082,12 @@ function scorePlayCard(item, request) {
       hand.length <= 4 && ownDeckCount(observation) > 4 ? 85 : 0;
   }
 
+  if (matches(card, PRINT.peonia)) {
+    return supporterAvailable(observation) &&
+      observation.ownerK1?.exactMembershipKnown === true &&
+      own.prizeCount >= 3 &&
+      peoniaSafeReplacementCount(observation) >= 3 ? 75 : 0;
+  }
   if (matches(card, PRINT.vsSeeker)) {
     const inDiscard = list(own.discard).some(supporter =>
       [PRINT.plumeria,PRINT.teamFlare,PRINT.guzma,PRINT.guzmaHala,PRINT.lusamine,
