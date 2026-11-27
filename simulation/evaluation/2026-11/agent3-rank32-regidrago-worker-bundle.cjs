@@ -5,7 +5,7 @@
  * Pin the bundle blob after independent review before any native worker use.
  * agent43-regidrago-apex-choice.cjs 65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b
  * agent1-rank12-regidrago-opponent-policy-v2.cjs bfaee2205ea9d0c3b618948fe24ff81075d4ccda
- * agent3-rank32-regidrago-opponent-policy.cjs b98a84f48e22c991d5df645b527bd7892a051119
+ * agent3-rank32-regidrago-opponent-policy.cjs feddbc02d5e769d6320d4cfad72114bd8a66b804
  */
 const __rank32Modules = Object.freeze({
 "./agent43-regidrago-apex-choice.cjs": function(require, module, exports) {
@@ -1087,6 +1087,29 @@ function scoreEnergyAttachment(action, observation) {
   return 220 + (reduction*20) + (isVstar?22:0) +
     (isActive?10:0) + (after===0?30:0);
 }
+function isSourceSupporter(value) {
+  return /^(?:Guzma BUS 115|Crispin SCR 133|Raihan EVS 152|Professor Sycamore BKP 107|Lillie's Determination MEG 119|N FCO 105|Marnie SSH 169|Pokémon Ranger STS 104|Cynthia & Caitlin CEC 189)\b/i.test(print(value));
+}
+function cynthiaRecoverPriority(choice, observation) {
+  const name=print(choice),own=observation?.ownPublic??{};
+  if (!isSourceSupporter(choice) || /^Cynthia & Caitlin CEC 189\b/i.test(name)) return 0;
+  if (/^Guzma BUS 115\b/i.test(name) &&
+      slots(observation?.opponentPublic).length>1) return 240;
+  if (/^Crispin SCR 133\b/i.test(name) &&
+      slots(own).some(p=>/^Regidrago V(?:STAR)? SIT 13[56]\b/i.test(print(p)) &&
+        apexTypedDeficit(p,observation)>0)) return 230;
+  if (/^Raihan EVS 152\b/i.test(name)) return 175;
+  if (/^Lillie's Determination MEG 119\b/i.test(name))
+    return list(observation?.ownHand).length<=4?205:155;
+  if (/^Professor Sycamore BKP 107\b/i.test(name))
+    return list(observation?.ownHand).length<=3?190:135;
+  if (/^Pokémon Ranger STS 104\b/i.test(name))
+    return own.publicTurnRestrictions?.attackLockTurnsRemaining>0?225:90;
+  if (/^N FCO 105\b/i.test(name)) return 150;
+  if (/^Marnie SSH 169\b/i.test(name)) return 145;
+  if (/^Guzma BUS 115\b/i.test(name)) return 130;
+  return 30;
+}
 function scoreAction(action, request) {
   const obs = request?.observation ?? {};
   const own = obs.ownPublic ?? {};
@@ -1117,7 +1140,10 @@ function scoreAction(action, request) {
     if (/^N FCO 105\b/i.test(name)) {
       return hand <= 3 ? 165 : (Number(own.prizeCount ?? 6) > Number(opp.prizeCount ?? 6) ? 135 : 25);
     }
-    if (/^Cynthia & Caitlin CEC 189\b/i.test(name)) return hand <= 4 ? 145 : 40;
+    if (/^Cynthia & Caitlin CEC 189\b/i.test(name)) {
+      const available=list(own.discard).some(isSourceSupporter);
+      return available && hand<=4?155:(available?40:0);
+    }
     if (/^Pokémon Ranger STS 104\b/i.test(name)) {
       return active?.publicRestrictions?.cannotAttackNextTurn === true ||
         active?.publicRestrictions?.cannotRetreatNextTurn === true ||
@@ -1387,6 +1413,28 @@ function promptDecision(request) {
   if (p.promptType === 'ChooseAttackPrompt' && /apex dragon/.test(source)) {
     return chooseRank32Apex(choices, obs);
   }
+  if (/cynthia\s*&\s*caitlin/.test(source)) {
+    if (p.promptType === 'ChooseCardsPrompt' &&
+        meta.selectionType === 'card-combination') {
+      if (meta.sourceZone === 'discard') {
+        return chooseMany(choices,c=>cynthiaRecoverPriority(c,obs),min,Math.min(max,1),
+          'RANK32_CYNTHIA_NO_SUPPORTER_TO_RECOVER');
+      }
+      if (meta.sourceZone === 'hand') {
+        return chooseMany(choices,c=>donorScore(c,obs,false),min,Math.min(max,1),
+          'RANK32_CYNTHIA_NO_SAFE_DRAW_DISCARD');
+      }
+    }
+    if (p.promptType === 'ConfirmPrompt' && meta.selectionType === 'confirm') {
+      const safe=list(obs.ownHand).some(c=>donorScore(c,obs,false)>0);
+      const desired=choices.find(c=>c.kind==='confirm'&&
+        new RegExp(safe?'^yes$':'^no$','i').test(c.label??''));
+      return desired?
+        {kind:'select-choice',token:desired.token}:
+        {kind:'abstain',reasonCode:'UNRECOGNIZED_SIMPLE_PROMPT'};
+    }
+    return {kind:'abstain',reasonCode:'RANK32_CYNTHIA_PROMPT_UNPROJECTED'};
+  }
   if (/battle compressor/.test(source) && p.promptType === 'ChooseCardsPrompt') {
     return chooseMany(choices, c=>donorScore(c,obs,true), min, Math.min(max,3),
       'RANK32_COMPRESSOR_NO_SAFE_PAYLOAD');
@@ -1495,7 +1543,8 @@ function createPolicy({role,seat,policyVersion,config,rng}) {
 module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
   createPolicy,scoreAction,promptDecision,bestAction,chooseRank32Apex,donorScore,
   protocolSafeDecision,apexTypedDeficit,scoreEnergyAttachment,nativeOwnerTarget,
-  engineSetupDecision,setupActiveScore,setupBenchScore};
+  engineSetupDecision,setupActiveScore,setupBenchScore,
+  isSourceSupporter,cynthiaRecoverPriority};
 
 }
 });
