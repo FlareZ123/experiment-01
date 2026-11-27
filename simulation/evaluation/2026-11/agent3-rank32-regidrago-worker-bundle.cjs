@@ -5,7 +5,7 @@
  * Pin the bundle blob after independent review before any native worker use.
  * agent43-regidrago-apex-choice.cjs 65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b
  * agent1-rank12-regidrago-opponent-policy-v2.cjs bfaee2205ea9d0c3b618948fe24ff81075d4ccda
- * agent3-rank32-regidrago-opponent-policy.cjs 0ec03a3b05e9380476b9d438852b6a020fdc26ca
+ * agent3-rank32-regidrago-opponent-policy.cjs 9c3fecc32600c44c6757f1553d1d56e00d1e0f15
  */
 const __rank32Modules = Object.freeze({
 "./agent43-regidrago-apex-choice.cjs": function(require, module, exports) {
@@ -1142,6 +1142,26 @@ function legacyRecoverPriority(card, observation) {
   // Filler is not worth using an optional recovery slot.
   return 0;
 }
+function superRodRecoverPriority(card, observation) {
+  const value=print(card),own=observation?.ownPublic??{};
+  const attackers=slots(own).filter(p=>
+    /^Regidrago V(?:STAR)? SIT 13[56]\b/i.test(print(p)));
+  const vstar=attackers.some(p=>/^Regidrago VSTAR SIT 136\b/i.test(print(p)));
+  const basic=attackers.some(p=>/^Regidrago V SIT 135\b/i.test(print(p)));
+  if (/^(?:Hisuian Goodra VSTAR LOR 136|Mega Dragonite ex ASC 152|Dialga-GX UPR 100|Noivern ex PAL 153|Kyurem SFA 47|Dragapult ex TWM 130)\b/i.test(value))
+    return 0; // Apex donors should stay discarded, not shuffled into deck.
+  if (/^Regidrago VSTAR SIT 136\b/i.test(value))return basic&&!vstar?260:105;
+  if (/^Regidrago V SIT 135\b/i.test(value))return attackers.length<2?250:110;
+  if (/^Grass Energy|^Fire Energy/i.test(value)) {
+    const needs=attackers.some(p=>apexTypedDeficit(p,observation)>0);
+    return needs?210:125;
+  }
+  if (/^Budew ASC 16\b/i.test(value))
+    return slots(own).some(p=>/^Budew ASC 16\b/i.test(print(p)))?0:150;
+  if (/^Dedenne-GX UNB 57|^Tapu Lele-GX GRI 60\b/i.test(value))
+    return slots(own).length<4?85:0;
+  return 0;
+}
 function canUseLegacyStar(observation) {
   const own=observation?.ownPublic??{};
   const deckCount=own.deckCount;
@@ -1177,6 +1197,12 @@ function scoreAction(action, request) {
       const safe = list(obs.ownHand).filter(card=>print(card)!==name)
         .filter(card=>safeBallCost(card,obs)>0).length;
       if (safe < required) return 0;
+    }
+    if (/^Super Rod PAL 188\b/i.test(name)) {
+      const useful=list(own.discard).filter(c=>superRodRecoverPriority(c,obs)>0).length;
+      const underdeveloped=slots(own).filter(p=>
+        /^Regidrago V(?:STAR)? SIT 13[56]\b/i.test(print(p))).length<2;
+      return useful? (underdeveloped?170:125):0;
     }
     if (/^Battle Compressor(?: Team Flare Gear)? PHF 92\b/i.test(name)) {
       // Not an unconditional burn: a non-Regidrago board should prioritize setup.
@@ -1240,10 +1266,6 @@ function scoreAction(action, request) {
     // Stage-2 Mega Dragonite has no evolution chain in the original 60:
     // it is an Apex donor, never proactively benched/evolved by this policy.
     if (DONOR.dragonite.test(name) || DONOR.goodra.test(name)) return 0;
-  }
-  if (action.kind === 'use-ability' && /sky transport/i.test(
-    action?.publicMetadata?.abilityName ?? action.label ?? '')) {
-    return enabledVstar && !/^Regidrago VSTAR SIT 136\b/i.test(print(active)) ? 165 : 0;
   }
   return family.scoreAction(action, request);
 }
@@ -1503,6 +1525,13 @@ function promptDecision(request) {
     }
     return {kind:'abstain',reasonCode:'RANK32_CYNTHIA_PROMPT_UNPROJECTED'};
   }
+  if (/super rod/.test(source)) {
+    if (p.promptType==='ChooseCardsPrompt' &&
+        meta.selectionType==='card-combination' && meta.sourceZone==='discard')
+      return chooseMany(choices,c=>superRodRecoverPriority(c,obs),min,Math.min(max,3),
+        'RANK32_SUPER_ROD_NO_SAFE_RECOVERY');
+    return {kind:'abstain',reasonCode:'RANK32_SUPER_ROD_PROMPT_UNPROJECTED'};
+  }
   if (/battle compressor/.test(source) && p.promptType === 'ChooseCardsPrompt') {
     return chooseMany(choices, c=>donorScore(c,obs,true), min, Math.min(max,3),
       'RANK32_COMPRESSOR_NO_SAFE_PAYLOAD');
@@ -1541,17 +1570,6 @@ function promptDecision(request) {
   }
   if (/ryuno glide/.test(source)) {
     return {kind:'abstain',reasonCode:'RANK32_RYUNO_ENERGY_PROMPT_UNPROJECTED'};
-  }
-  if (/sky transport/.test(source) && meta.selectionType === 'pokemon') {
-    const own = obs.ownPublic ?? {};
-    const active = own.active;
-    return chooseMany(choices, choice=>{
-      const name = print(choice);
-      if (/^Regidrago VSTAR SIT 136\b/i.test(name) &&
-          !/^Regidrago VSTAR SIT 136\b/i.test(print(active))) return 220;
-      if (/^Regidrago V SIT 135\b/i.test(name)) return 105;
-      return 0;
-    },min,Math.min(max,1),'RANK32_SKY_TRANSPORT_NO_ATTACKER');
   }
   const inherited = family.promptDecision(request);
   if (inherited?.kind === 'abstain' && typeof inherited.reasonCode === 'string') {
@@ -1613,7 +1631,7 @@ module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
   protocolSafeDecision,apexTypedDeficit,scoreEnergyAttachment,nativeOwnerTarget,
   engineSetupDecision,setupActiveScore,setupBenchScore,
   isSourceSupporter,cynthiaRecoverPriority,
-  legacyRecoverPriority,canUseLegacyStar};
+  legacyRecoverPriority,canUseLegacyStar,superRodRecoverPriority};
 
 }
 });
