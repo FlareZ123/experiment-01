@@ -258,3 +258,36 @@ paired('certified fully Prized Radiant prefers Heavy Ball over the dead tutor', 
   view.ownerK1.prizeFacts.fullyPrized[0].copies=2;
   assert.throws(()=>protocol.validateActorObservation(view,seat,profile));
 });
+
+paired('Raihan after manual attachment funds the Active, not the unfundable Metal attacker',(seat,profile)=>{
+  const name='Raihan EVS',view=observation(seat,{active:vmax([P,P]),bench:[dialga()],ownHand:[name],ownDiscard:[P],opponentActive:defender({damage:180})});
+  view.ownTurnResources.energyPlayedTurn=true;
+  const receipt={priorOpponentTurnKO:{any:true}};
+  assert.deepEqual(decide(profile,root(seat,view,[play('raihan',name)],receipt)),sel('raihan'));
+  const m={sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true,energyType:'BASIC'};
+  const prompt={actingSeat:seat,promptType:'AttachEnergyPrompt',description:'ATTACH_ENERGY_CARDS',
+    source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:name,effectName:'Raihan'},
+    choices:[{kind:'energy',token:'active',printing:P,publicMetadata:{...m,zone:'active',slotIndex:0}},
+      {kind:'energy',token:'dialga',printing:P,publicMetadata:{...m,zone:'bench',benchIndex:0}}],
+    publicMetadata:{...m,selectionType:'energy-attachment',minimumCount:1,maximumCount:1,allowCancel:false,zone:'active,bench',count:2}};
+  assert.deepEqual(decide(profile,{role:'candidate',seat,observation:{...view,decisionKind:'owner-prompt',pendingPromptType:'AttachEnergyPrompt'},prompt,publicEventReceipt:receipt}),choice('active'));
+});
+paired('Guzma evaluates the compulsory own switch before committing the Supporter',(seat,profile)=>{
+  const name='Guzma BUS',fragile=defender({hp:70}),view=observation(seat,{active:vmax([P,P,P,P]),bench:[dialga()],ownHand:[name],opponentActive:defender(),opponentBench:[fragile]});
+  assert.deepEqual(decide(profile,root(seat,view,[play('guzma',name)])),sel('pass'));
+  view.ownPublic.bench[0]=vmax([P,P,P]);
+  assert.deepEqual(decide(profile,root(seat,view,[play('guzma',name)])),sel('guzma'));
+});
+paired('Girafarig targets public Regidrago payloads but not hidden hand or arbitrary cards',(seat,profile)=>{
+  const name='Girafarig LOT',active=pokemon({printing:name,name:'Girafarig',hp:90,energies:[P],attacks:[attack('Get Lost',['Colorless'],0)]});
+  const view=observation(seat,{active,opponentActive:defender()});
+  view.opponentPublic.discard=['Psychic Energy SVE','Dialga-GX UPR','Dragapult ex TWM'];
+  const move={kind:'attack',token:'lost',attackName:'Get Lost'};
+  assert.deepEqual(decide(profile,root(seat,view,[move])),sel('lost'));
+  const q=cardPrompt(seat,view,name,'Get Lost','discard',view.opponentPublic.discard,2,2);
+  q.prompt.publicMetadata.ownerSeat='opponent';
+  for(const c of q.prompt.choices)c.publicMetadata.ownerSeat='opponent';
+  assert.deepEqual(decide(profile,q),mult('card-1','card-2'));
+  view.opponentPublic.discard=['Psychic Energy SVE'];
+  assert.deepEqual(decide(profile,root(seat,view,[move])),sel('pass'));
+});
