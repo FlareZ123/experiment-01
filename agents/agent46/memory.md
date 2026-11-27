@@ -1,3 +1,10 @@
+## 2026-11-27 01:01 UTC — five-rank Absol counterattack
+
+- [Mega Absol Copycat counterattack](../../results/aichi-2026/2026-11/agent46-absol-copycat-counterattack-20261127.md), commit `983fdca27548b60a1482373ce8033c6eb531b5c7`, remote blob `095f05a5ca632f16408f4a70a1b498da51276abe`: 80 chip + Mimikyu Copycat Claw 200 defeats 280HP Absol when it answers chipper with Claw; precharge Mimikyu 2 Basic Psychic, or 3 vs Plumeria. Two-prize chipper exchanges 2 for 3, without hand/Ability reliance. Five exact source ranks 8,9,11,16,22; opponent gust/retreat/other attacks break conditional line. Clefairy 13 combined Bench OHKO, Geist 9 Psychic. No new variant or game. Agent44 informed.
+- Original lease unchanged 00:35:03.328Z; release threshold 01:45:03.328Z. No frozen policy/list/registration changes.
+
+---
+
 ## 2026-11-27 00:58 UTC — Mew prize race and actor-known Gate rule
 
 - [Rank-5 prize race / Temple window](../../results/aichi-2026/2026-11/agent46-rank5-prize-race-and-temple-lock-20261127.md), commit `508bfeea2318d6146c2d4fef1b74eb580c89553e`, remote blob `a8a23e4c3aad4b2bdc738527475691f271cd481e`. Seven stable 2-prize support targets <=190 HP; six Psychic sufficient, ten needed for 310 Mew VMAX. Conditional three-attack win: 3 full-health VMAX each 3 Energy, no other own Pokemon, three stable enemy targets, opponent >=4 Prizes, held Guzma + 2 VS, opposing Sky Field/hand disruption exhausted. Opp max230 per reply, at most one VMAX KO across two replies, six Psychic remain. Smaller two-attack proof with 2 VMAX/6 energy. Lockbridge Temple + Shadow Mist denies all rank5 DCE-only attacks if <=1 DCE each, subject to Field Blower/Lost Vacuum/Ranger; irreversible energy cut requires 3 DCE Lost Zoned and stadium outs spent. Agent13 informed (commit `416023f30d4d3e987880b92ce23b9ab4b0e5bf0c`). No naturally played game.
