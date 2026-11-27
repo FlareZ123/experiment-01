@@ -62,6 +62,29 @@ The prior escape audits (Agent11/Agent21, 25 November) identify conditional Guzm
 
 **Asymmetry:** the rank-1 list has no Ranger. Hood Shield does have one, so against the reverse Pale Moon line it can remove the pending KO even when it cannot switch. This does not restore discarded Energy or allow a second Supporter that turn: a zero-Energy Active VMAX still cannot attack after one manual attachment, even under Dimension Valley; plan a real pivot or accept a non-attacking turn. Lockbridge lacks this particular escape. No new deck variant or policy modification is required to make these lines available to a human pilot.
 
+### Constructed adversarial endgame: two-turn winning strategy, not a played game
+
+The conversion can be strengthened to a conditional winning strategy **starting at the Get Lost decision**, not merely starting at the final GX attack. The following is an intentionally constructed, inventory-compatible paper state; it is not an authenticated natural trace or a claim that the state is common.
+
+- Candidate has exactly three Prizes left and rank 1 exactly two. No pending loss, KO, Special Condition, or other effects; ordinary clock-free game. Candidate deck has at least one card for its next draw.
+- Candidate Active is Girafarig with one Psychic Energy, Bench includes Trevenant & Dusknoir-GX with **three Psychic Energy** and a Shadow Rider Calyrex V with an attached unused Forest Seal Stone. Both have >50 remaining HP (as does every other own Benched Pokémon); Bench is within five. Candidate GX unused; own unique Guzma is in hand or deck (not Prized or discard). No opponent effect currently suppresses Star Alchemy. These pieces can coexist in either frozen 60.
+- Rank 1 has an undamaged Shadow Rider VMAX in play, initially Active; both its Sky Field copies, sole Float Stone and sole Field Blower are in discard/Lost Zone. Its sole Guzma and at least one Psychic Energy are in discard. No Sky Field currently in play. No existing effect would cause the VMAX to leave play or prevent Get Lost/Pale Moon. The source inventory has no way to recover Stadiums, Tools or Items from discard and no independent switching card besides Guzma. One example compatible Prize history is an opposing VMAX previously Knocked Out (candidate took three), and a candidate VMAX plus Radiant Eternatus previously Knocked Out (opponent took four); those discarded stacks do not conflict with this constructed board.
+
+**Strategy:** Get Lost opposing Guzma + Psychic Energy. This leaves no direct opposing gust and prevents a same-turn two-Prize or larger KO: the only targetable Bench damage is Astral Barrage's 50 counters per target; the targetable Active Girafarig is worth one. All own Benched pieces survive even if damaged. If rank 1 responds with Girafarig or Mimikyu copying Get Lost, own Guzma remains in hand/deck, not discard. Iono or Night Watch can shuffle it away but cannot place it into discard/Prizes. Opponent Field Blower is unavailable, so the unused attached Forest Seal Stone survives. Opponent cannot remove its full-HP VMAX with Acerola and cannot voluntarily discard it through a Sky Field contraction because both Sky Fields are unavailable. Its VMAX can remain Active or move to Bench, but remains in play.
+
+Next candidate turn, draw normally. The contingency table covers the opponent's relevant choices:
+
+| Rank-1 VMAX after reply | Girafarig survived? | Candidate action |
+|---|---|---|
+| Active | Yes | Pay one-Energy retreat to charged Tag Team (if an ordinary retreat is blocked by a prior effect, check the actual reply; in this exact state the Active VMAX's only attack is Max Geist, which does not impose such a restriction) |
+| Active | No | Promote charged Tag Team after KO |
+| Benched | Yes | Guzma that VMAX, switching Girafarig to charged Tag Team |
+| Benched | No | Promote the V/FSS host or another disposable pivot after KO, then Guzma that VMAX and switch to charged Tag Team |
+
+In either Guzma branch, if the candidate no longer holds its Guzma, use the surviving unused Forest Seal Stone to fetch it from the deck. Candidate still has the normal Supporter available. Its Tag Team retains three Psychic Energy because rank 1's printed attacks cannot discard Energy from the candidate Bench. If the target stayed Active, rank 1 could not have used another attacker without leaving that target on the Bench (a single attack ends the turn, and the spent direct gust/Float Stone paths cannot bring it back after attacking). No target retreat restriction or attack damage prevention is introduced in this exact state. Use enhanced Pale Moon-GX on the undamaged opposing VMAX. The earlier forced-KO argument applies, awarding the last three Prizes at the end of the next opposing turn.
+
+This gives a genuine conditional tactical winning strategy, robust to the specified reply classes including Iono/Night Watch and reciprocal Get Lost, not a statistical strength claim. If any public-zone exclusion fails (especially Field Blower, Float Stone, Sky Field, or only-accessible Guzma), or the candidate GX/Star Alchemy was spent, do not claim this two-turn certificate. A different clock adjudication can also override the clock-free proof. The state is deliberately favorable and its reach frequency is unknown; the actionable lesson is to preserve the Tag Team charge, unused FSS, own Guzma, and a one-Energy pivot while denying rank 1's remaining escape resources. No claim is made that this line is preferable in ordinary states where Max Geist wins sooner.
+
 ### Reproduction (local Python, executed)
 
 The conservative bound was exhaustively checked across 7,776 parameter tuples (six damage levels, 0..11 Energy lost, 0..8 own Bench, 0..11 own Active Energy) and all enumerated opposing total-Energy, Active-Energy and Bench counts. The algebra matched the enumerated maximum in every tuple. Counts are independent conservative upper bounds, not reachable board or game probabilities.
