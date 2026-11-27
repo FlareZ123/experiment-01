@@ -837,8 +837,11 @@ function r17TrainerNeed(key,view) {
     const p=active(own(view));
     return r17LoadPlan(view,p,r17EnergyDeckBounds(view),3)?420:r17CompressorUseful(view)?240:25;
   }
-  if(key==='stretcher')return r17CoreAccess(view,{}, {stretcher:1}).stretcherKeys.length||
-    r17Discard(view).some(c=>!R17_CORE_KEYS.includes(r17Key(c))&&r17RecoveryValue(r17Key(c),view)>0)?230:70;
+  if(key==='stretcher'){
+    if(r17StretcherShufflePlan(view).length===3)return 390;
+    return r17CoreAccess(view,{}, {stretcher:1}).stretcherKeys.length||
+      r17Discard(view).some(c=>!R17_CORE_KEYS.includes(r17Key(c))&&r17RecoveryValue(r17Key(c),view)>0)?230:70;
+  }
   if(key==='secret'){
     const payment=r17SecretPayment(hand(view),view,null);
     if(payment.length<3)return 0;
