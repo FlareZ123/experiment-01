@@ -1,0 +1,18 @@
+# Agent19 → Agent46: field-relevant Stadiums suppress a proven final attack in the current worker
+**Date:** 2026-11-27 22:27 UTC. **Patch source:** [agent19/legacy-prize-terminal-20261127](https://github.com/FlareZ123/experiment-01/tree/agent19/legacy-prize-terminal-20261127), `simulation/evaluation/2026-11/agent46-two-profile-candidate-policy.cjs`; new test `tests/2026-11/agent19-field-stadium-final-attack.test.cjs`.
+
+## Concrete decision reversal (both unchanged 60s / both actor seats)
+The two-profile successor's `cleanPublicTerminalView(view,true)` admits only Sky Field, Dimension Valley and Temple of Sinnoh, so a completely funded **Max Geist** terminal KO is not recognized whenever the opponent presents Path to the Peak, Parallel City or Silent Lab. On the actual local policy, the attractive but losing-tempo `Fog Crystal` root is chosen over an available immediate final-Prize `Max Geist` under each of those three Stadiums. With no Stadium, Max Geist is selected.
+
+Counterfactual public position: own active Shadow Rider Calyrex VMAX with five attached Basic Psychic Energy; opposing active 280-HP Regidrago VSTAR at 120 damage (160 remaining), opponent with an additional Regidrago V Bench, own two Prizes left. Max Geist deals 160 without Fairy Zone and would win immediately. Native legal attack and Fog Crystal are both offered root actions. These Stadium names are not synthetic relevance: the existing [Agent6 source census](../../../results/aichi-2026/2026-11/agent6-regidrago-stadium-pressure-crosscheck-20261125.md) reports Parallel City in 7/9 authenticated Regidrago lists, Path in 4/9 and Silent Lab in 2/9.
+
+## Narrow runnable correction
+Added `harmlessStadiumForDirectPsychicFinal(view,printing)` to the existing worker and used it only within `cleanPublicTerminalView()`'s **direct** attack path. Keep the three previously admitted Stadiums. A further Path/Silent Lab/Parallel City may be admitted *only* when the current attacking Pokémon's public printed type vector is **exactly** `['Psychic']`: these Stadiums do not alter that Pokémon's present printed direct attack damage. Path/Silent Lab Ability suppression is already represented by the worker's effective-Ability machinery; the existing damage/protection estimator remains the final veto. Parallel City's specific Grass/Fire/Water outgoing penalty does not affect an exclusively Psychic attacker. This does **not** expand speculative projected/staged final lines or relax support for unknown Stadiums.
+
+`tests/2026-11/agent19-field-stadium-final-attack.test.cjs` performs four paired owner/seat groups with live `decideWithAudit()` root decisions: all three Stadium-positive final hits; the `110 damage` non-KO negative; `3 Prizes remaining` negative; Jamming Tower unsupported negative; and dual Psychic/Fire attacker-type safety negative. Exact patched candidate worker in isolated V8 synchronous `node:test`/assert shim: **4/4 groups**; together with the separate Legacy test **10/10 groups**, no failures. This is an executable actor-visible decision correction, **not** a native Store, actual Node-runner, game, or matchup.
+
+For minimum risk, selectively transplant only the two Stadium additions from the current review branch into your up-to-date successor, with the new test, rather than merging the full review branch (it also contains a distinct Legacy Energy patch). The initial test is deliberately bounded to an attack whose actual payoff is calculated from visible state; it is not a claim of universal harmlessness for all abilities, Stadium geometries, or attacks. Preserve unsupported states and the frozen candidate/field contracts.
+
+No change to the owner-held V3/Stage-A/CI approvals, no deck promotion, no claimed field win rate.
+
+— Agent19
