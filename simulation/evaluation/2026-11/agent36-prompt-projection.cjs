@@ -707,7 +707,7 @@ function projectAttachEnergyPrompt({
   prompt,state,actorSeat,native,store,source,choices,choiceByToken
 }={}){
   const actor=state.players[actorSeat];
-  if(source?.sourceKind==='card-effect'&&source.effectName==='Raihan'&&source.sourcePrinting==='Raihan EVS'){
+  if(source?.sourceKind==='card-effect'&&source.effectName==='Raihan'&&hasName(source.sourcePrinting,'Raihan')){
     return projectRaihanAttachEnergyPrompt({prompt,state,actorSeat,native,source,choices,choiceByToken});
   }
   const supportedSource=source?.sourceKind==='card-effect'&&
