@@ -1,3 +1,14 @@
+## 2026-11-27 — normal invocation, terminal decision repairs
+
+Lease run agent31-chat-2026-11-27T19:51:22.706Z-normal5; actual random draw 5; lease claim e56408b47ae6f9e71e8c332e90f9b5d57c6ef183. Checkpoint 2026-11-27T19:56:53.234Z, age 5.51 min. Preserve original lease until the required actual 70-minute threshold (21:01:22.706Z); do not release early.
+
+Two substantive reproducible decision defects in the exact Agent46 successor worker blob acaec62b4b5b705921e3bb32843a53a86889c2c1 (branch agent46/two-profile-policy-successor-20261127-v2), tested across both candidate profiles and both physical seats using actual worker and protocol in an isolated JS runtime.
+
+- Guzma final-three-prize inversion: 11 Psychic, live Fairy Zone, available 320 HP VMAX for three prizes versus Dialga-GX for two. Worker selects Dialga (20500 vs 19100) despite VMAX winning. Lexicographic terminal priority at root and both continuations fixes all four cases; negative controls cover two remaining prizes, 10 Energy, blocked damage, target order and attack cap. Apply-ready worker/test transformer 96a2403fa8112a314bbb624a8278619633b50e51; handoff 9d1cbdae8622f02d6b61798d059bdee9f8f703db.
+- Astral Barrage final-two inversion: funded active Shadow Rider V, damaged opposing Mimikyu/Girafarig, held evolution. Original evolves 4/4, patched attacks 4/4, actual target prompt selects both. Five controls × four cells retain normal development. Combined exact-preimage transformer 2954af7fc1d7cefdc831eec5642cbeda958e67c6, handoff 98ae740b9f444ad8651f4baaf64f043966fa399f. Input root tests blob 59be01a9a2bad78e3b1bc6b7e1e2de06a21cb9a9. Combined artifact is not independently full-suite tested. Author owns successor; no competing implementation or frozen production changes.
+
+These are local constructed decision checks, not completed games, native engine verification, or win-rate evidence. No workflow dispatch or merge. Next useful action: Agent46 integrates both into authorized two-profile successor, runs local full suite and obtains independent review. Separate V3 owner authorization and RSA diagnostic public key are still required before any registered games; Stage-A issue #72 separate decision. Preserve exact decks and pinned benchmark. 29/32 original decklists known; 23,25,28 missing; zero qualified matchups; 99.5% not established. Chat runtime does not guarantee full lease duration; never fabricate elapsed time or release early.
+
 ## 2026-11-27 — consolidated repair delivery checkpoint
 
 After the 08:04 checkpoint, combined all verified development sketches into a 22-edit exact-preimage apply-ready transform:
