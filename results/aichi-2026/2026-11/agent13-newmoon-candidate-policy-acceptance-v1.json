@@ -331,11 +331,88 @@
       "state": "Silent Lab and AOR Vileplume Item lock are simultaneously active.",
       "must": "Treat Field Blower as inaccessible while Item lock holds and search for a legal non-Item/pre-lock Stadium solution.",
       "forbids": "Hallucinating a live Field Blower answer under Item lock."
+    },
+    {
+      "id": "RAI-KLEFKI-STAGE1",
+      "state": "Opposing Klefki is Active; opposing Electrode-GX is Benched and otherwise able to use Extra Energy Bomb; candidate Mewtwo & Mew-GX and Lunatone Abilities are relevant.",
+      "must": "Recognize Klefki suppresses Basic Perfection and Basic New Moon, but does not suppress Stage-1 Electrode-GX.",
+      "forbids": "Treating opposing Klefki as symmetrical shutdown of Electrode-GX or treating Lunatone as active under Klefki.",
+      "family": "Raichu / Electrode",
+      "sourceRanks": [
+        4,
+        17
+      ]
+    },
+    {
+      "id": "RAI-PATH-NATIVE-HORROR",
+      "state": "Native Gengar & Mimikyu-GX is attack-ready with GX unused; Path to the Peak is playable; opposing Electrode-GX is live; no actor-visible board-only Stadium removal is established.",
+      "must": "Compare Path -> native Horror House-GX against Cologne/Perfection, crediting Path's suppression of Electrode and Horror House's denial of hand-played Stadium/evolution answers.",
+      "forbids": "Requiring Perfection or Cologne merely because opposing Klefki suppresses Mewtwo.",
+      "family": "Raichu / Electrode",
+      "sourceRanks": [
+        4,
+        17
+      ]
+    },
+    {
+      "id": "RAI-R17-MARSHADOW",
+      "state": "Rank-17 Marshadow UNB 81 is already on the Bench while Path/Horror House is being considered.",
+      "must": "Expect Resetting Hole to remain a board Ability that can discard Path despite Horror House.",
+      "forbids": "Conflating hand lock with in-play Ability lock.",
+      "family": "Raichu / Electrode",
+      "sourceRanks": [
+        4,
+        17
+      ]
+    },
+    {
+      "id": "RAI-BENCH-FRONTIER",
+      "state": "A legal TPE/Bench choice would add unnecessary low-HP or multi-Prize bodies while the source can plausibly reach a Telescopic-Sight Electro Rain Bomb turn.",
+      "must": "Allow 0/1 TPE targets and price each Bench body by Electro Rain packets-to-KO plus Prize yield; prefer discard-zone Gengar donor over an unnecessary Benched donor when legal.",
+      "forbids": "Maximizing Bench/search connectivity without scoring distributed Prize conversion.",
+      "family": "Raichu / Electrode",
+      "sourceRanks": [
+        4,
+        17
+      ]
+    },
+    {
+      "id": "RAI-PARITY-TWO-DUSCLOPS",
+      "state": "No Prize changes yet; both candidate Dusclops can use Cursed Blast and self-KO before the opponent's first Electrode Bomb; their counter placement does not take an opposing Prize.",
+      "must": "Recognize two self-KOs make the first Bomb restore 4-4 Prize parity, so Reversal/Counter Energy Prize-deficit multipliers are off after that Bomb unless another Prize change occurs.",
+      "forbids": "Assuming the first Bomb always activates Reversal/Counter multipliers.",
+      "family": "Raichu / Electrode",
+      "sourceRanks": [
+        4,
+        17
+      ]
+    },
+    {
+      "id": "RAI-PARITY-ONE-DUSCLOPS",
+      "state": "Exactly one candidate Cursed Blast self-KO occurred before the opponent's first Electrode Bomb and no other Prize changes occurred.",
+      "must": "Recognize the post-Bomb state is candidate 4 Prizes remaining vs Raichu 5, so Raichu is still behind and Reversal/Counter multipliers remain live.",
+      "forbids": "Treating one self-KO as sufficient Prize-parity control.",
+      "family": "Raichu / Electrode",
+      "sourceRanks": [
+        4,
+        17
+      ]
+    },
+    {
+      "id": "RAI-GOING-SECOND-PREEVOLUTION",
+      "state": "Candidate goes second on its first turn; Horror House-GX is legal; opponent has not yet legally evolved Voltorb/Pikachu on its first turn.",
+      "must": "Value Horror House as denial of the next hand-play evolution/Bomb-combo turn, not merely generic hand disruption.",
+      "forbids": "Waiting for Electrode/Raichu to exist before valuing the lock.",
+      "family": "Raichu / Electrode",
+      "sourceRanks": [
+        4,
+        17
+      ]
     }
   ],
   "implementationGate": {
     "requiredBeforeNativeInvestment": [
-      "pure or synthetic tests covering every case above, including Snorlax bench-trap and Temple/TPE timing states",
+      "pure or synthetic tests covering every case above, including Raichu/Electrode, Snorlax, Temple/TPE and Silent Lab states",
       "trace exposes selected continuation, strongest competing action, protected resources and reason for any Secret Box discards",
       "TPE target resolver can legally return 0, 1 or 2 targets",
       "policy explicitly conditions on opponent Ability source stage/type and public board position",
@@ -349,5 +426,20 @@
     ]
   },
   "competitiveQualified": false,
-  "claim99Point5": false
+  "claim99Point5": false,
+  "crossAgentDeltas": [
+    {
+      "path": "results/aichi-2026/2026-11/agent1-newmoon-raichu-acceptance-delta-v1.json",
+      "author": "Agent1",
+      "integratedCases": [
+        "RAI-KLEFKI-STAGE1",
+        "RAI-PATH-NATIVE-HORROR",
+        "RAI-R17-MARSHADOW",
+        "RAI-BENCH-FRONTIER",
+        "RAI-PARITY-TWO-DUSCLOPS",
+        "RAI-PARITY-ONE-DUSCLOPS",
+        "RAI-GOING-SECOND-PREEVOLUTION"
+      ]
+    }
+  ]
 }
