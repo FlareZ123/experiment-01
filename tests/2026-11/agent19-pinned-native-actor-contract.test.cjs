@@ -3,6 +3,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const observe=require('../../simulation/twinleaf/actor-observation-contract.cjs');
 const protocol=require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
+const rank3=require('../../simulation/evaluation/2026-11/agent17-rank3-snorlax-stall-opponent-policy.cjs');
 
 // Pinned Twinleaf a9905a76 CardType: Psychic=5, Dark=7,
 // Colorless=9, Fairy=10, Dragon=11. Stage: Basic=2, VMAX=5, VSTAR=6.
@@ -106,5 +107,45 @@ for(const seat of [0,1]){
   assert.equal(beforeFix.ownPublic.active.printed.types.includes('Psychic'),false);
   assert.equal(beforeFix.ownPublic.active.attacks[0].cost.every(c=>
     c==='Colorless'||c==='Psychic'),false);
+ });
+}
+
+
+for(const seat of [0,1]){
+ test('native BASIC Stage flips a real rank3 Snorlax policy from Handiwork to Penny, seat '+seat,()=>{
+  const own=player(seat,true);
+  const other=player(1-seat,false);
+  own.active=pokemon({fullName:'Snorlax PGO 55',name:'Snorlax',
+    hp:150,stage:2,tags:[],types:[9],retreat:[9,9,9,9],damage:70});
+  own.hand.cards=[card('Penny SVI 183'),card("Team Rocket's Handiwork FCO 112")];
+  own.deck.cards=Array.from({length:20},(_,i)=>card('owner deck '+i));
+  other.deck.cards=Array.from({length:30},(_,i)=>card('opponent deck '+i));
+  const state={players:seat===0?[own,other]:[other,own],
+    activePlayer:seat,turn:4,phase:2,prompts:[]};
+  const view=observe.actorObservation(state,seat);
+  assert.equal(view.ownPublic.active.printed.stage,'BASIC');
+  assert.equal(view.ownPublic.active.damage,70);
+  assert.deepEqual(view.ownPublic.active.printed.subtypes,['Basic']);
+  assert.doesNotThrow(()=>protocol.validateActorObservation(view,seat));
+  const actions=[
+    {token:'penny',kind:'play-card',actorPrinting:'Penny SVI 183',publicMetadata:{}},
+    {token:'handi',kind:'play-card',actorPrinting:"Team Rocket's Handiwork FCO 112",publicMetadata:{}},
+    {token:'pass',kind:'pass'}
+  ];
+  const root={role:'opponent',seat,observation:view,prompt:null,
+    publicEventReceipt:null,actionFrontier:{items:actions}};
+  const policy=rank3.createPolicy({role:'opponent',seat,
+    policyVersion:rank3.POLICY_VERSION,config:{}});
+  assert.equal(rank3.scoreAction(actions[0],root),90);
+  assert.equal(rank3.scoreAction(actions[1],root),65);
+  assert.deepEqual(policy.decide(root),{kind:'select-action',token:'penny'});
+  // Exact previous native numeric Stage (=2) did not satisfy the rank3
+  // policy's "printed.stage === 'BASIC'" premise. Demonstrate the actual
+  // game-action error, not merely a projection-shape mismatch.
+  const rawOld=JSON.parse(JSON.stringify(view));
+  rawOld.ownPublic.active.printed.stage=2;
+  const previous={...root,observation:rawOld};
+  assert.equal(rank3.scoreAction(actions[0],previous),0);
+  assert.deepEqual(policy.decide(previous),{kind:'select-action',token:'handi'});
  });
 }
