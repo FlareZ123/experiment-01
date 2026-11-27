@@ -650,6 +650,13 @@ function adaptiveDevelopmentSelfTest(terminal,developmentTerminal){
  const z={...input([row("a",M,3),row("b",V,1)],320,10,0,1,true),fogCount:1};
  const a=run("bank either Energy or Clefairy before Lillie",z,ctx({fog:1,lillie:1},{["pk:"+C]:1,P:1,other:8}),2/3,"fog-crystal");
  assert(a.rootOptions.some(o=>o.path[0].kind==="refresh"&&Math.abs(o.lo-266/462)<1e-12),"immediate Lillie alternative wrong");
+ const tutorSpec={certified:true,knownDeckRolesCertified:true,rolePrintings:{P:"Psychic Energy SVE",teammates:"Teammates PRC",forest:"Forest Seal Stone SIT"},
+   heldExtra:{},knownDeckRoles:{},discardExtra:{},priorKO:true,starAlchemyAllowed:true,vstarAvailable:true};
+ const tc=(h,d)=>({...ctx(h,d),ownPokemonKOdLastOpponentTurn:true,development:{...dev,tutors:tutorSpec}});
+ const tx=input([row("a",V,2,true),row("b",M,3)],190,10,0,1);
+ run("Stamp preserves drawn Teammates for both missing channels",tx,tc({stamp:1},{teammates:1,["pk:"+M]:1,P:1,other:7}),.5+35/252,"refresh");
+ run("Lillie consumes the drawn Teammates Supporter action",tx,tc({lillie:1},{teammates:1,["pk:"+M]:1,P:1,other:7}),70/210,"refresh");
+ run("Lillie draws either evolution or Forest Seal Stone",{...x,toolPlayAllowed:true},tc({lillie:1},{forest:1,["pk:"+M]:1,other:8}),1-28/210,"refresh");
  const k=adaptiveTerminal(terminal,z,{...ctx({fog:1,lillie:1},{["pk:"+C]:1,P:1,other:8}),exactMembershipKnown:false},opt);
  assert(k.decision===null,"K0 fabricated exact deck");
  return cases;
