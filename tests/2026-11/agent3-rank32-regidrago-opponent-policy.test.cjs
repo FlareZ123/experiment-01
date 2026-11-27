@@ -4,6 +4,9 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const list = require('../../results/aichi-2026/full-decklists.json');
 const workerProtocol = require('../../simulation/evaluation/2026-11/agent49-policy-protocol.cjs');
+const vm = require('node:vm');
+const fs = require('node:fs');
+const path = require('node:path');
 const {
   POLICY_VERSION, SOURCE_RANK, SOURCE_LIST_BLOB_SHA1, ENGINE_PIN,
   createPolicy, bestAction, promptDecision
@@ -306,4 +309,27 @@ test('production V3 validates a copied Ryuno ChooseEnergyPrompt selection',()=>{
   const decision=policy.decide(req);
   assert.deepEqual(decision,{kind:'select-choices',tokens:['g','f']});
   assert.deepEqual(workerProtocol.validateDecision(decision,p,new Set()),decision);
+});
+
+
+test('static rank-32 bundle loads with no ambient require, process or code generation',()=>{
+  const source=fs.readFileSync(path.join(__dirname,
+    '../../simulation/evaluation/2026-11/agent3-rank32-regidrago-worker-bundle.cjs'),
+  'utf8');
+  const sandbox={module:{exports:{}},require:undefined,process:undefined,
+    eval:undefined,Function:undefined,console:undefined};
+  const ctx=vm.createContext(sandbox,{codeGeneration:{strings:false,wasm:false}});
+  vm.runInContext(source,ctx,{timeout:4000});
+  assert.equal(ctx.module.exports.POLICY_VERSION,POLICY_VERSION);
+  const policy=ctx.module.exports.createPolicy({role:'opponent',seat:0,
+    policyVersion:POLICY_VERSION,config:{},rng:()=>{throw Error('RNG_USED');}});
+  const req=request({items:[action('pass','pass')]});
+  assert.equal(JSON.stringify(policy.decide(req)),
+    JSON.stringify({kind:'select-action',token:'pass'}));
+  const p=prompt(P.regidrago,'Apex Dragon',
+    [{token:'phantom',kind:'attack',publicMetadata:{sourceAttack:'Phantom Dive'}}],
+    'ChooseAttackPrompt');
+  const blocked=policy.decide(request({prompt:p}));
+  assert.equal(workerProtocol.isAbstentionReasonCode(blocked.reasonCode),true);
+  assert.equal(blocked.reasonCode,'NO_SUPPORTED_ATTACK_CHOICE');
 });
