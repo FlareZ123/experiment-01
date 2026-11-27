@@ -696,7 +696,13 @@ function effectiveAttackCost(slot, attack, view) {
 }
 
 function canPayAttack(slot, attack, view) {
-  return slotEnergyCount(slot) >= effectiveAttackCost(slot, attack, view);
+  // Both exact candidate decks have ONLY basic Psychic Energy. Refuse to
+  // model foreign energy as equivalent to Psychic, or count Metal/Fire/
+  // Darkness costs as generic units. Native frontier remains authoritative.
+  if (!slot || !Array.isArray(slot.energies) || !Array.isArray(attack?.cost)) return false;
+  if (slot.energies.some(p => !hasName(p,'Psychic Energy'))) return false;
+  if (attack.cost.some(c => c !== 'Psychic' && c !== 'Colorless')) return false;
+  return slot.energies.length >= effectiveAttackCost(slot,attack,view);
 }
 
 function isPokemonV(slot) {
@@ -761,6 +767,8 @@ function attackBaseDamage(attacker, attack, view, target) {
   if (attack.name === 'Max Geist') {
     return 10 + 30 * psychicEnergyCount(view);
   }
+  if (attack.name === 'Psychic Assault') return 10 + Math.max(0,target.damage);
+  if (attack.name === 'Energy Drive') return 20*(slotEnergyCount(attacker)+slotEnergyCount(target));
   if (attack.name === 'Full Moon Rondo') {
     return 20 + 20 * (
       countBench(view.ownPublic) + countBench(view.opponentPublic)
@@ -781,6 +789,7 @@ function attackBaseDamage(attacker, attack, view, target) {
 function estimatedDamage(attacker, attack, view, target) {
   const base = attackBaseDamage(attacker, attack, view, target);
   if (base === null) return null;
+  if (attack.name === 'Energy Drive' || attack.name === 'Mind Shock') return Math.max(0,base);
   const multiplier = weaknessMultiplier(attacker, target, view);
   const damage = Math.max(0, base * multiplier -
     resistancePenalty(attacker, target));
@@ -1685,8 +1694,11 @@ function chooseEnergyPayment(view, prompt) {
   for (const row of ranked) recordPolicyAuditScore(row.choice.token, row.score, 'NO_DISCARD_VALUE_SCORE');
   ranked.sort((a, b) => a.score - b.score ||
     String(a.choice.printing).localeCompare(String(b.choice.printing)));
-  const selected = ranked.slice(0, Math.min(1, maximum));
-  if (selected.length < minimum) return abstain('NO_VISIBLE_ENERGY_CHOICE');
+  const requested = metadata.energyCount ?? metadata.count;
+  if (!Number.isSafeInteger(requested) || requested < 1 || requested > maximum)
+    return abstain('NO_VISIBLE_ENERGY_CHOICE');
+  const selected = ranked.slice(0, requested);
+  if (selected.length !== requested) return abstain('NO_VISIBLE_ENERGY_CHOICE');
   return { kind: 'select-choices', tokens: selected.map(row => row.choice.token) };
 }
 
@@ -1712,13 +1724,12 @@ function chooseEnergyAttachment(view, prompt) {
       hasName(choice.printing, 'Psychic Energy') &&
       item?.sourceZone === 'hand' && item?.ownerSeat === 'actor' &&
       item?.isOwnerVisible === true && item?.energyType === 'BASIC' &&
-      item?.zone === 'bench' && target;
+      item?.zone === 'bench' && target && target.printed?.types?.includes('Psychic');
     if (!valid) return { choice, index: Number.MAX_SAFE_INTEGER, score: -Infinity };
 
     const attached = slotEnergyCount(target);
     let score = 100 - attached * 20;
-    if (opponentHasRegidrago(view) && hasName(target.printing, 'Mimikyu') &&
-        attached < 2) score += 1000;
+    // Copycat remains unadmitted. Mimikyu receives only residual Filch value.
     if (opponentHasDragon(view) && hasName(target.printing, "Lillie's Clefairy ex") &&
         attached < 2) score += 900;
     if (hasName(target.printing, 'Trevenant & Dusknoir-GX') &&
@@ -2110,12 +2121,23 @@ function choosePrompt(view, prompt, receipt, profile) {
   }
 }
 
-function scoreBasicPlay(item, view) {
+function scoreBasicPlay(item, view, profile) {
   const metadata = item.publicMetadata ?? {};
   if (metadata.targetSeat !== 'actor' || metadata.targetZone !== 'bench') return -Infinity;
   const printing = item.actorPrinting ?? '';
+  if (!hasOpenBench(view)) return -Infinity;
+  const reserveGate = handHas(view,'Radiant Eternatus') &&
+    !boardHas(view,'Radiant Eternatus') && openBenchSlots(view)<=3 &&
+    expectedClimacticGateTargets(view,2)>=1;
+  if (reserveGate && !hasName(printing,'Latias ex')) return -Infinity;
   if (isBasicShadowRiderVPrinting(printing) &&
-      !hasBasicShadowRiderV(view) && hasOpenBench(view)) return 1000;
+      !hasBasicShadowRiderV(view)) return 1000;
+  if (isBasicShadowRiderVPrinting(printing) &&
+      ownBoard(view).filter(isShadowRiderVTarget).length<2 && !reserveGate) return 780;
+  if (hasName(printing,'Wobbuffet') && profile?.profileId==='lockbridge-shadow-rider-v1' &&
+      !boardHas(view,'Wobbuffet') && !reserveGate &&
+      opponentBoard(view).some(p=>hasName(p.printing,'Regidrago') ||
+        (!(p.printed?.types??[]).includes('Psychic') && (p.abilities??[]).length>0))) return 660;
   if (hasName(printing, 'Tapu Lele-GX') &&
       !boardHas(view, 'Tapu Lele-GX') && hasOpenBench(view) &&
       view.ownPublic.deckCount > 0 && !hasWonderTagLock(view)) {
@@ -2233,19 +2255,41 @@ function scoreEvolutionPlay(item) {
 
 function scoreEnergyPlay(item, view) {
   const metadata = item.publicMetadata ?? {};
-  if (metadata.targetSeat !== 'actor' ||
+  if (view.ownTurnResources?.energyPlayedTurn !== false ||
+      view.ownTurnResources?.energyPlayLocked === true ||
+      view.ownPublic.publicTurnRestrictions?.energyPlayLocked === true ||
+      metadata.targetSeat !== 'actor' ||
       !['active', 'bench'].includes(metadata.targetZone) ||
       !hasName(item.actorPrinting, 'Psychic Energy')) return -Infinity;
   const target = metadata.targetZone === 'active'
     ? view.ownPublic.active : view.ownPublic.bench[metadata.targetIndex];
   if (!target || (item.targetPrinting && target.printing !== item.targetPrinting)) return -Infinity;
   const count = slotEnergyCount(target);
-  if (opponentHasRegidrago(view) && hasName(target.printing, 'Mimikyu') && count < 2) return 920;
-  if (isShadowRiderVmax(target) &&
-      psychicEnergyCount(view) < 5 && count < 5) return 880;
-  if (opponentHasDragon(view) && hasName(target.printing, "Lillie's Clefairy ex") &&
-      count < 2) return 840;
-  if (isBasicShadowRiderV(target) && count < 3) return 600;
+  const charged = {...target,energies:[...target.energies,item.actorPrinting]};
+  const chargedView = {...view,ownPublic:{...view.ownPublic,
+    active:metadata.targetZone==='active'?charged:view.ownPublic.active,
+    bench:view.ownPublic.bench.map((slot,index)=>metadata.targetZone==='bench' &&
+      index===metadata.targetIndex?charged:slot)}};
+  const defender=view.opponentPublic.active;
+  if (defender && metadata.targetZone==='active' && view.globalTurn>1) {
+    const before=bestAttackForSlot(target,view,defender);
+    const after=bestAttackForSlot(charged,chargedView,defender);
+    if (after && after.score>=10000 && (before?.score??0)<10000) return 2200;
+    if (after && after.score>Math.max(700,(before?.score??0)+200)) return 1050;
+  }
+  if (hasName(target.printing,'Trevenant & Dusknoir-GX') &&
+      view.opponentPublic.handCount>=4 && count<3) return 930-count*20;
+  if (isShadowRiderVmax(target) && count<3) return 910-count*20;
+  if (opponentHasDragon(view) && hasName(target.printing,"Lillie's Clefairy ex") && count<2) return 890;
+  if (isBasicShadowRiderV(target) && count<3) return 760-count*20;
+  if (hasName(target.printing,'Latias ex') && count<3) return 510-count*30;
+  if (hasName(target.printing,'Tapu Lele-GX') && count<2) return 480;
+  if (hasName(target.printing,'Wobbuffet') && count<2) return 460;
+  if (hasName(target.printing,'Girafarig') && count<3) return 400;
+  if (hasName(target.printing,'Marshadow') && count<1) return 340;
+  if (hasName(target.printing,'Mimikyu') && count<1 && view.ownPublic.handCount<=3) return 320;
+  // Do not strand manual energy on a Metal-only Dialga or Dragon Radiant.
+  if (isShadowRiderVmax(target)) return 330-count;
   return -Infinity;
 }
 
@@ -2443,12 +2487,24 @@ function hasStarAlchemyBottleneck(view, receipt) {
   return !alternativeTrainerPlay;
 }
 
-function scoreTrainerPlay(item, view, receipt) {
+function scoreTrainerPlay(item, view, receipt, profile) {
   const name = item.actorPrinting ?? '';
   const supporterUsed = !supporterAvailable(view);
   if (isItem(name) && itemLocked(view)) return -Infinity;
   if (isTool(name) && view.ownTurnResources?.toolPlayLocked === true) return -Infinity;
-  if (hasName(name,'Pokémon Ranger') && !supporterUsed && usefulRanger(view)) return 1100;
+  if (hasName(name,'Pokémon Ranger') && profile?.profileId==='hood-shield-shadow-rider-v1' && !supporterUsed && usefulRanger(view)) return 1100;
+  if (hasName(name,'Temple of Sinnoh') && profile?.profileId==='lockbridge-shadow-rider-v1') return usefulTemple(view);
+  if (hasName(name,'Float Stone')) {
+    const target=actionTargetSlot(view,item.publicMetadata);
+    if (!target || target.tools?.length!==0 || toolsEffectiveForRetreat(view,target,'actor')!==true ||
+        !view.ownPublic.bench.some(Boolean) || hasStealthyHoodSearchNeed(view)) return -Infinity;
+    if (target.printed?.subtypes?.includes('Basic') && skylinerStatus(view)===true) return -Infinity;
+    if (target===view.ownPublic.active && (ownRetreatCost(view)??0)>0 &&
+        (handHas(view,'Radiant Eternatus') && hasName(target.printing,'Wobbuffet') ||
+         view.ownPublic.bench.some(slot=>slot && bestAttackForSlot(slot,view,view.opponentPublic.active)?.score>
+           (bestAttackForSlot(target,view,view.opponentPublic.active)?.score??0)))) return 870;
+    return -Infinity;
+  }
   if (hasName(name,'VS Seeker') && Number.isFinite(bestRecoverableSupporter(view,receipt)))
     return 700 + bestRecoverableSupporter(view,receipt);
   if (hasName(name,'Night Stretcher')) {
@@ -2521,45 +2577,99 @@ function scoreTrainerPlay(item, view, receipt) {
   return -Infinity;
 }
 
-function freeRetreatKnown(view) {
-  const active = view.ownPublic.active;
-  if (!active) return false;
-  const hasFloatStone = active.tools.some(tool => hasName(tool, 'Float Stone'));
-  if (hasFloatStone) {
-    const ownSuppression =
-      view.ownPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining;
-    const opponentSuppression =
-      view.opponentPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining;
-    if (ownSuppression === 0 && opponentSuppression === 0) return true;
+function templePressure(view) {
+  const special = opponentBoard(view).flatMap(slot=>slot.energies??[])
+    .filter(p=>hasAnyName(p,['Double Dragon Energy','Double Colorless Energy','Twin Energy',
+      'Double Turbo Energy','Reversal Energy','Rainbow Energy','Aurora Energy','Prism Energy',
+      'Luminous Energy','Mist Energy','Jet Energy','Legacy Energy','Capture Energy','Gift Energy',
+      'Powerful Colorless Energy','Rapid Strike Energy','Single Strike Energy']));
+  const double = special.filter(p=>hasAnyName(p,['Double Dragon Energy','Double Colorless Energy',
+      'Twin Energy','Double Turbo Energy','Reversal Energy','Rapid Strike Energy'])).length;
+  return Math.min(1200,double*750 + (special.length-double)*250);
+}
+function usefulTemple(view) {
+  if (view.ownTurnResources?.stadiumPlayedTurn === true ||
+      view.ownTurnResources?.stadiumPlayLocked === true ||
+      stadiumAndToolEffectsLive(view)!==true ||
+      [...view.ownPublic.stadium,...view.opponentPublic.stadium].some(p=>hasName(p,'Temple of Sinnoh'))) return -Infinity;
+  // Never force a discard of own occupied Sky Field bench in this slice.
+  if (countBench(view.ownPublic)>5) return -Infinity;
+  let pressure=templePressure(view);
+  if (opponentBoard(view).some(slot=>hasName(slot.printing,'Marshadow') &&
+      abilityStatus(slot,'Resetting Hole')===true)) pressure-=250;
+  if (view.ownPublic.stadium.some(p=>hasName(p,'Dimension Valley')) &&
+      ownBoard(view).some(slot=>slot.printed?.types?.includes('Psychic') &&
+        (slot.attacks??[]).some(a=>a.cost?.includes('Colorless') &&
+          canPayAttack(slot,a,view) && slotEnergyCount(slot)<a.cost.length))) pressure-=500;
+  return pressure>=300 ? 660+pressure/4 : -Infinity;
+}
+function wobLockValue(view, slot) {
+  if (!slot || !hasName(slot.printing,'Wobbuffet') || abilityStatus(slot,'Bide Barricade')===false)
+    return 0;
+  const board=opponentBoard(view);
+  // Known active Klefki and equipped Garbotoxin can suppress Bide Barricade.
+  if (hasName(view.opponentPublic.active?.printing,'Klefki') &&
+      abilityStatus(view.opponentPublic.active,'Mischievous Lock')!==false) return 0;
+  if (hasActiveGarbotoxin(view)) return 0;
+  const abilities=board.filter(p=>!(p.printed?.types??[]).includes('Psychic') &&
+    (p.abilities??[]).length>0 && p.abilities.some(a=>abilityStatus(p,a)!==false));
+  return Math.min(1300,abilities.length*400+
+    (board.some(p=>hasName(p.printing,'Regidrago'))?500:0));
+}
+function ownRetreatCost(view) {
+  const active=view.ownPublic.active;
+  if (!active || !Array.isArray(active.printed?.retreatCost)) return null;
+  const flags=active.publicRestrictions??{};
+  const status=normalizeSpecialConditionNames(active.specialConditions??[]);
+  if (status===null || status.includes('asleep') || status.includes('paralyzed') ||
+      flags.cannotRetreat===true || flags.cannotRetreatNextTurn===true ||
+      flags.cannotRetreatWhileActive===true) return null;
+  if (active.printed?.subtypes?.includes('Basic') && skylinerStatus(view)===true) return 0;
+  const tools=toolsEffectiveForRetreat(view,active,'actor');
+  if (tools===true && active.tools?.some(p=>hasName(p,'Float Stone'))) return 0;
+  if (tools===null && active.tools?.length) return null;
+  let cost=active.printed.retreatCost.length;
+  const stadium=[...view.ownPublic.stadium,...view.opponentPublic.stadium];
+  if (stadiumAndToolEffectsLive(view)===true) {
+    if(stadium.some(p=>hasName(p,'Galar Mine'))) cost+=2;
+    if(active.printed?.subtypes?.includes('Basic') &&
+      stadium.some(p=>hasName(p,'Skyarrow Bridge'))) cost--;
   }
-  const isBasic = active.printed.subtypes.includes('Basic');
-  return isBasic && skylinerStatus(view) === true;
+  return Math.max(0,cost);
+}
+function freeRetreatKnown(view) {
+  return ownRetreatCost(view)===0;
 }
 
-function chooseRetreat(view, items) {
-  if (!freeRetreatKnown(view) || !view.opponentPublic.active) return null;
-  const current = bestAttackForSlot(view.ownPublic.active, view, view.opponentPublic.active);
-  const retreats = items.filter(item => item.kind === 'retreat');
-  let best = null;
+function chooseRetreat(view, items, profile) {
+  const cost=ownRetreatCost(view);
+  if (cost===null || !view.opponentPublic.active || slotEnergyCount(view.ownPublic.active)<cost) return null;
+  const current=bestAttackForSlot(view.ownPublic.active,view,view.opponentPublic.active);
+  const retreats=items.filter(item=>item.kind==='retreat');
+  let best=null;
   for (const item of retreats) {
-    const index = item.publicMetadata?.benchIndex;
+    const index=item.publicMetadata?.benchIndex;
     if (!Number.isSafeInteger(index)) continue;
-    const target = view.ownPublic.bench[index];
-    if (!target || (item.targetPrinting && item.targetPrinting !== target.printing)) {
-      recordPolicyAuditUnscored(item.token, 'RETREAT_TARGET_UNAVAILABLE');
-      continue;
+    const target=view.ownPublic.bench[index];
+    if (!target || (item.targetPrinting && item.targetPrinting!==target.printing)) {
+      recordPolicyAuditUnscored(item.token,'RETREAT_TARGET_UNAVAILABLE');continue;
     }
-    const attack = bestAttackForSlot(target, view, view.opponentPublic.active);
-    if (!attack) {
-      recordPolicyAuditUnscored(item.token, 'RETREAT_ATTACK_NOT_PAYABLE');
-      continue;
+    const old=view.ownPublic.active;
+    const moved={...old,energies:old.energies.slice(cost)};
+    const movedView={...view,ownPublic:{...view.ownPublic,active:target,
+      bench:view.ownPublic.bench.map((p,i)=>i===index?moved:p)}};
+    const attack=bestAttackForSlot(target,movedView,view.opponentPublic.active);
+    let score=(attack?.score??0)-(current?.score??0)-cost*350;
+    if (profile?.profileId==='lockbridge-shadow-rider-v1') {
+      const gate=hasName(old.printing,'Wobbuffet') && handHas(view,'Radiant Eternatus') &&
+        !hasName(target.printing,'Wobbuffet') && canPlayRadiantForGate(movedView);
+      if (gate && (current?.score??0)<10000) score=Math.max(score,1800-cost*350);
+      if (!handHas(view,'Radiant Eternatus')) score+=wobLockValue(view,target)-wobLockValue(view,old);
     }
-    const improvement = attack.score - (current?.score ?? 0);
-    const score = attack.score + improvement;
-    recordPolicyAuditScore(item.token, score, 'RETREAT_SCORE_NOT_FINITE');
-    if (score > (best?.score ?? -Infinity)) best = { item, score };
+    recordPolicyAuditScore(item.token,score,'RETREAT_SCORE_NOT_FINITE');
+    if (score>(best?.score??-Infinity)) best={item,score};
   }
-  return best && best.score > 0 ? best.item : null;
+  return best && best.score>100 ? best.item : null;
 }
 
 function abilitySourceSlot(view, item) {
@@ -2572,13 +2682,25 @@ function abilitySourceSlot(view, item) {
   return null;
 }
 
-function canUseUnderworldDoor(view, item) {
+function underworldDoorSourceIsUnspent(receipt, metadata, source) {
+  if (receipt?.version !== 'agent8-public-event-receipt-v3-turn-stamped') return false;
+  const ownerSource = metadata.sourceZone === 'active'
+    ? receipt.ownerActive
+    : metadata.sourceZone === 'bench' && Number.isSafeInteger(metadata.sourceIndex)
+      ? receipt.ownerBench?.[metadata.sourceIndex] : null;
+  if (!ownerSource || ownerSource.printing !== source.printing ||
+      !Array.isArray(ownerSource.knownAbilityUse)) return false;
+  const markers = ownerSource.knownAbilityUse.filter(row => row?.name === 'Underworld Door');
+  return markers.length === 1 && markers[0].usedThisTurn === false;
+}
+function canUseUnderworldDoor(view, item, receipt) {
   const metadata = item.publicMetadata ?? {};
   const source = abilitySourceSlot(view, item);
   return metadata.abilityName === 'Underworld Door' &&
     source !== null && isShadowRiderVmax(source) &&
     (!item.actorPrinting || item.actorPrinting === source.printing) &&
     abilityStatus(source, 'Underworld Door') === true &&
+    underworldDoorSourceIsUnspent(receipt, metadata, source) &&
     handHas(view, 'Psychic Energy') &&
     view.ownPublic.bench.some(slot =>
       slot && slot.printed?.types?.includes('Psychic'));
@@ -2597,7 +2719,7 @@ function canUseStarAlchemy(view, item, receipt) {
     hasStarAlchemyBottleneck(view, receipt);
 }
 
-function chooseRoot(view, request) {
+function chooseRoot(view, request, profile) {
   const items = request.actionFrontier.items.filter(item =>
     ['play-card', 'attack', 'retreat', 'use-ability', 'use-stadium', 'pass'].includes(item.kind));
   const pass = items.find(item => item.kind === 'pass');
@@ -2605,10 +2727,10 @@ function chooseRoot(view, request) {
   const plays = items.filter(item => item.kind === 'play-card');
   const terminalPlays = [];
   const scoredPlays = plays.map(item => {
-    const basic = scoreBasicPlay(item, view);
+    const basic = scoreBasicPlay(item, view, profile);
     const evolution = scoreEvolutionPlay(item);
     const energy = scoreEnergyPlay(item, view);
-    const trainer = scoreTrainerPlay(item, view, request.publicEventReceipt);
+    const trainer = scoreTrainerPlay(item, view, request.publicEventReceipt, profile);
     const terminal = scoreClimacticGatePlay(item, view);
     const score = Math.max(basic, evolution, energy, trainer, terminal);
     recordPolicyAuditScore(item.token, score, 'NO_ELIGIBLE_PLAY_COMPONENT', [
@@ -2630,7 +2752,7 @@ function chooseRoot(view, request) {
     return { kind: 'select-action', token: scoredPlays[0].item.token };
   }
 
-  const retreat = chooseRetreat(view, items);
+  const retreat = chooseRetreat(view, items, profile);
   if (retreat) {
     setPolicyAuditRule('ROOT_RETREAT_ATTACK_IMPROVEMENT', 'SCORE_DESC_NATIVE_FRONTIER_ORDER');
     return { kind: 'select-action', token: retreat.token };
@@ -2640,7 +2762,7 @@ function chooseRoot(view, request) {
   const resettingHole = abilities.find(item =>
     item.publicMetadata?.abilityName === 'Resetting Hole' &&
     hasStadiumRemovalTarget(view));
-  const underworldDoor = abilities.find(item => canUseUnderworldDoor(view, item));
+  const underworldDoor = abilities.find(item => canUseUnderworldDoor(view, item, request.publicEventReceipt));
   const starAlchemy = abilities.find(item =>
     canUseStarAlchemy(view, item, request.publicEventReceipt));
   const usefulAbility = resettingHole ?? underworldDoor ?? starAlchemy;
@@ -2711,7 +2833,7 @@ function createPolicy({ role, seat, policyVersion, config }) {
     }
     const view = request.observation;
     if (request.prompt === null && view.decisionKind === 'owner-root') {
-      return chooseRoot(view, request);
+      return chooseRoot(view, request, config);
     }
     if (request.prompt && view.decisionKind === 'owner-prompt' &&
         request.prompt.actingSeat === seat) {
