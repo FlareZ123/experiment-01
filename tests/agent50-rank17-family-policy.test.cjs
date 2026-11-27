@@ -379,6 +379,54 @@ function runCases(policy,protocol) {
     const search=cards(fundedSearch,A.secret,'Secret Box','deck',[A.carrier,A.compressor,A.uturn,full.sight,A.research,A.pokestop],0,4);
     same(runPrompt(p,fundedSearch,search),choose('c1','c3','c4','c5'),tag+'joint Compressor and Sight search crosses threshold');
 
+    // A lone Wobbuffet cannot be forced away. The distinct legal pivot
+    // is Rope into Klefki, Bomb while Wob is suppressed, free retreat.
+    const klefkiBoard={...rainV,ownHand:[rope,A.uturn],
+      ownTurnResources:{...rainV.ownTurnResources,retreatedTurn:0},
+      ownPublic:{...rainV.ownPublic,bench:[rain,elec,{...klef,tools:[],printed:{retreatCost:['Colorless']}}]},
+      opponentPublic:{...opp,bench:[]}};
+    same(policy.klefkiPivotPlan(klefkiBoard)?.route,'rope-klefki-bomb-retreat',tag+'lone Wob pivot via distinct Klefki');
+    same(policy.ropeRainPlan({observation:klefkiBoard})?.plan.terminalProjection,true,tag+'board-out projection through pivot');
+    same(runRoot(p,klefkiBoard,[play('uturn',A.uturn,{zone:'bench',index:2,printing:A.klefki}),play('rope',rope),pass]),action('uturn'),tag+'attach retreat Tool before pivot');
+    same(runRoot(p,{...klefkiBoard,ownHand:[rope],ownPublic:{...klefkiBoard.ownPublic,bench:[rain,elec,{...klef,printed:{retreatCost:['Colorless']}}]}},[play('rope',rope),pass]),action('rope'),tag+'Rope starts Klefki route');
+    same(policy.klefkiPivotPlan({...klefkiBoard,ownTurnResources:{...klefkiBoard.ownTurnResources,retreatedTurn:4}}),null,tag+'spent retreat blocks pivot');
+    same(policy.klefkiPivotPlan({...klefkiBoard,opponentPublic:{...klefkiBoard.opponentPublic,active:{...wob,tools:[H]}}}),null,tag+'Hood blocks Klefki route');
+    const heldK={...klefkiBoard,ownHand:[rope,A.uturn,A.klefki],ownPublic:{...klefkiBoard.ownPublic,bench:[rain,elec]}};
+    same(runRoot(p,heldK,[play('klefki',A.klefki),play('rope',rope),pass]),action('klefki'),tag+'bench Klefki only for funded route');
+    const klefkiPrompt={...switchPrompt,choices:[
+      {...switchPrompt.choices[0],token:'rain',printing:A.raichu},
+      {...switchPrompt.choices[1],token:'elec',printing:A.electrode},
+      {...switchPrompt.choices[1],token:'klefki',printing:A.klefki,publicMetadata:{...switchPrompt.choices[1].publicMetadata,targetIndex:2}}]};
+    same(runPrompt(p,{...klefkiBoard,ownHand:[A.uturn]},klefkiPrompt),choose('klefki'),tag+'Rope continuation into Klefki not blocked Raichu');
+    const prepared={...loading,ownTurnResources:{...loading.ownTurnResources,retreatedTurn:0},
+      ownPublic:{...loading.ownPublic,active:{...pivot,printed:{retreatCost:[]}},bench:[rain,elec,elec]}};
+    same(policy.readyRainAttackers(prepared).length,1,tag+'funded free pivot supports same-turn loader');
+    same(policy.activeLoadPlan(prepared)?.now,['counter','unit'],tag+'load before free pivot');
+    const deadPivot={...prepared,ownTurnResources:{...prepared.ownTurnResources,retreatedTurn:4}};
+    same(policy.activeLoadPlan(deadPivot),null,tag+'spent retreat prevents speculative load');
+
+    // Raw hand size is not hand utility: discard redundant Energy to
+    // rebuild, but never discard the only held Stage 1 by default.
+    const bricked=view(seat,{globalTurn:4,ownHand:[A.research,R,R,C,C,U,U],
+      ownPublic:player({active:pivot,deckCount:30}),opponentPublic:double});
+    same(policy.drawDiscardScore(bricked,7,'research')>0,true,tag+'draw from seven-card bricked hand');
+    same(runRoot(p,bricked,[play('research',A.research),pass]),action('research'),tag+'Research when utility is low');
+    const protectedEvolution={...bricked,ownHand:[A.research,A.raichu,R,C,U]};
+    same(policy.drawDiscardScore(protectedEvolution,7,'research'),0,tag+'preserve only held evolution');
+    const earlyAttach={...bricked,ownHand:[A.research,R,C,U],
+      ownPublic:{...bricked.ownPublic,bench:[slot(A.pikachu,{hp:60})]}};
+    same(runRoot(p,earlyAttach,[play('research',A.research),play('reversal',R,{zone:'bench',index:0,printing:A.pikachu}),pass]),action('reversal'),tag+'manual before full-hand discard even tied Prizes');
+    const gengar=slot(A.gengar,{hp:240,energies:[U,U]});
+    const knownHand={...bricked,ownPublic:player({active:gengar,prizeCount:2}),
+      opponentPublic:player({active:slot(L,{hp:170}),bench:[slot(V,{hp:320})],
+        handCount:4,publicHand:['VS Seeker PHF','Quick Ball SSH','Boss\'s Orders RCL','Professor\'s Research SSH']})};
+    const polt={kind:'attack',token:'polt',actorPrinting:A.gengar,attackName:'Poltergeist'};
+    same(policy.publicTrainerCount(knownHand),4,tag+'only revealed Trainer identities counted');
+    same(policy.directPressure(knownHand,polt)?.terminalProjection,true,tag+'revealed hand lethal Poltergeist');
+    same(runRoot(p,knownHand,[polt,play('research',A.research),pass]),action('polt'),tag+'take final Prizes instead of setup');
+    const hidden={...knownHand,opponentPublic:{...knownHand.opponentPublic,publicHand:null}};
+    same(policy.directPressure(hidden,polt),null,tag+'hidden hand never becomes exact lethal');
+
     // Distinct support and setup provenance, never a foreign role.
     same(p.decide({role:'opponent',seat:1-seat,observation:v,prompt:null}),abstain('ROLE_SEAT_BINDING_MISMATCH'),tag+'seat bound');
   }
