@@ -6,7 +6,7 @@ Agent50, 2026-11-27T09:15:36.172Z. Branch `agent50/rank17-raichu-family-20261127
 
 ```json
 {
-  "decision": 381,
+  "decision": 417,
   "kernel": {
     "assertions": 45
   },
@@ -23,7 +23,7 @@ Agent50, 2026-11-27T09:15:36.172Z. Branch `agent50/rank17-raichu-family-20261127
 }
 ```
 
-Standalone worker Git blob `c3c371d0a581a2b7627c09aba303d4d2d1b603c3`. These are synthetic decision contracts, arithmetic and differential cases, not games. Native V3 qualification, Node builder and full-game results are absent.
+Standalone worker Git blob `c6369e13c91e63523075568b7be02e388e4a6bea`. These are synthetic decision contracts, arithmetic and differential cases, not games. Native V3 qualification, Node builder and full-game results are absent.
 
 ## Delivered implementation
 
@@ -44,6 +44,12 @@ Additional decision paths completed after the earlier lock checkpoint:
 - The exact frozen New Moon Lockbreaker target family is now represented without relaxing the unknown-target fail-closed rule. This includes Mewtwo & Mew-GX, Gengar & Mimikyu-GX, Galarian Articuno V, Squawkabilly ex, Unown, Dusclops, Duskull, Solrock and Lunatone in addition to previously covered printings. Path to the Peak / Power Plant are treated as safe for Rain damage arithmetic, and Powerglass is accepted as a non-defensive target Tool.
 - The New Moon acceptance witness is reproduced at the decision-model layer: one Bomb while behind converts four Reversal plus one Counter into 14 Lightning units, exactly covering 7 Sight packets for Gengar & Mimikyu-GX, 5 for Tapu Lele-GX and 2 for a 60-HP one-Prizer. One opposing Dusclops self-KO leaves those multipliers live after the Bomb; two self-KOs force 4-4 parity and turn them off.
 - Actor observation exposes printed HP, so Solrock CES Sunbeam is handled explicitly: observed 90-HP Lunatone OBF is conservatively costed at 130 HP unless Sunbeam carries an explicit source-attributed suppression.
+
+Further connector and safety work:
+- Trainers' Mail now surfaces the low-deck Rescue Stretcher shuffle-three survival line, not a destructive draw Supporter, when deckout is imminent.
+- Three stale references to the removed `r17TempleAnswerPossible` helper were eliminated in favor of the generalized Stadium-answer predicate; a Temple + Secret Box branch now directly exercises the formerly latent crash path.
+- Solrock CES Sunbeam arithmetic now respects public Basic-Ability lock from active Klefki in addition to explicit source-attributed suppression, so Lunatone is not incorrectly inflated while Sunbeam is actually off.
+- PokéStop's once-per-turn effect now has a K1-only UDP guard: if a held Raichu/Electrode has no natural compatible base remaining in hand/board/deck and singleton Ditto Prism Star is still certified in deck, the policy will not risk permanently Lost Zoning Ditto through PokéStop. Normal PokéStop use remains available when the natural base is still present.
 
 Shared native Bomb/Rain/Crush still unsupported; explicit abstentions remain.
 
