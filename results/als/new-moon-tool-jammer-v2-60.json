@@ -1,0 +1,239 @@
+{
+  "schema": "new-moon-tool-jammer-v2-fixed60",
+  "as_of": "2026-11-27",
+  "parent": "results/als/new-moon-lockbreak-english-proxy-60.json",
+  "parent_hash": "a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4",
+  "canonical_id_count_sha256": "aebe9a142e8492be929316bff4b871375e3e478945e01f8c5844037332634fe6",
+  "hash_spec": "SHA-256 of sorted UTF-8 lines id:count followed by newline",
+  "status": "Paper Expanded challenger created after full-family adversarial review. One structurally material change: Sky Field #2 -> Tool Jammer, specifically to create a non-Item Stealthy-Hood answer through AOR Vileplume Item lock. No native/game qualification or win-rate claim.",
+  "change_from_parent": {
+    "Sky Field ROS 89": -1,
+    "Tool Jammer BST 136": 1
+  },
+  "counts": {
+    "total": 60,
+    "unique": 35,
+    "Pokémon": 19,
+    "Trainer": 35,
+    "Energy": 6
+  },
+  "entries": [
+    {
+      "id": "sm11-71",
+      "name": "Mewtwo & Mew-GX",
+      "count": 2,
+      "type": "Pokémon"
+    },
+    {
+      "id": "sm9-53",
+      "name": "Gengar & Mimikyu-GX",
+      "count": 1,
+      "type": "Pokémon"
+    },
+    {
+      "id": "smp-SM217",
+      "name": "Trevenant & Dusknoir-GX",
+      "count": 1,
+      "type": "Pokémon"
+    },
+    {
+      "id": "sm2-60",
+      "name": "Tapu Lele-GX",
+      "count": 1,
+      "type": "Pokémon"
+    },
+    {
+      "id": "swsh6-58",
+      "name": "Galarian Articuno V",
+      "count": 1,
+      "type": "Pokémon"
+    },
+    {
+      "id": "sv8-76",
+      "name": "Latias ex",
+      "count": 1,
+      "type": "Pokémon"
+    },
+    {
+      "id": "sv9-56",
+      "name": "Lillie's Clefairy ex",
+      "count": 1,
+      "type": "Pokémon"
+    },
+    {
+      "id": "sv2-169",
+      "name": "Squawkabilly ex",
+      "count": 1,
+      "type": "Pokémon"
+    },
+    {
+      "id": "xy7-30",
+      "name": "Unown",
+      "count": 3,
+      "type": "Pokémon"
+    },
+    {
+      "id": "sv6pt5-19",
+      "name": "Dusclops",
+      "count": 2,
+      "type": "Pokémon"
+    },
+    {
+      "id": "swsh4-69",
+      "name": "Duskull",
+      "count": 2,
+      "type": "Pokémon"
+    },
+    {
+      "id": "sm7-62",
+      "name": "Solrock",
+      "count": 1,
+      "type": "Pokémon"
+    },
+    {
+      "id": "sv3-92",
+      "name": "Lunatone",
+      "count": 1,
+      "type": "Pokémon"
+    },
+    {
+      "id": "sv1-96",
+      "name": "Klefki",
+      "count": 1,
+      "type": "Pokémon"
+    },
+    {
+      "id": "swsh8-225",
+      "name": "Battle VIP Pass",
+      "count": 4,
+      "type": "Trainer"
+    },
+    {
+      "id": "swsh6-140",
+      "name": "Fog Crystal",
+      "count": 4,
+      "type": "Trainer"
+    },
+    {
+      "id": "sm6-113",
+      "name": "Mysterious Treasure",
+      "count": 2,
+      "type": "Trainer"
+    },
+    {
+      "id": "swsh10-146",
+      "name": "Hisuian Heavy Ball",
+      "count": 2,
+      "type": "Trainer"
+    },
+    {
+      "id": "swsh7-154",
+      "name": "Rescue Carrier",
+      "count": 2,
+      "type": "Trainer"
+    },
+    {
+      "id": "xy4-92",
+      "name": "Battle Compressor Team Flare Gear",
+      "count": 2,
+      "type": "Trainer"
+    },
+    {
+      "id": "sm8-167",
+      "name": "Adventure Bag",
+      "count": 1,
+      "type": "Trainer"
+    },
+    {
+      "id": "swsh5-125",
+      "name": "Escape Rope",
+      "count": 1,
+      "type": "Trainer"
+    },
+    {
+      "id": "sv4-160",
+      "name": "Counter Catcher",
+      "count": 1,
+      "type": "Trainer"
+    },
+    {
+      "id": "sv6-163",
+      "name": "Secret Box",
+      "count": 1,
+      "type": "Trainer"
+    },
+    {
+      "id": "sv6pt5-63",
+      "name": "Powerglass",
+      "count": 2,
+      "type": "Trainer"
+    },
+    {
+      "id": "swsh12-156",
+      "name": "Forest Seal Stone",
+      "count": 1,
+      "type": "Trainer"
+    },
+    {
+      "id": "me1-119",
+      "name": "Lillie's Determination",
+      "count": 2,
+      "type": "Trainer"
+    },
+    {
+      "id": "xy7-69",
+      "name": "Ace Trainer",
+      "count": 2,
+      "type": "Trainer"
+    },
+    {
+      "id": "xy6-89",
+      "name": "Sky Field",
+      "count": 1,
+      "type": "Trainer"
+    },
+    {
+      "id": "swsh6-148",
+      "name": "Path to the Peak",
+      "count": 2,
+      "type": "Trainer"
+    },
+    {
+      "id": "sm2-125",
+      "name": "Field Blower",
+      "count": 2,
+      "type": "Trainer"
+    },
+    {
+      "id": "swsh10-136",
+      "name": "Canceling Cologne",
+      "count": 2,
+      "type": "Trainer"
+    },
+    {
+      "id": "swsh5-136",
+      "name": "Tool Jammer",
+      "count": 1,
+      "type": "Trainer"
+    },
+    {
+      "id": "me3-88",
+      "name": "Telepathic Psychic Energy",
+      "count": 3,
+      "type": "Energy"
+    },
+    {
+      "id": "swsh12pt5-156",
+      "name": "Basic Psychic Energy",
+      "count": 3,
+      "type": "Energy"
+    }
+  ],
+  "legality": {
+    "format": "paper Expanded, Black & White onward",
+    "tool_jammer": "BST 136 is Expanded-legal in bundled English card corpus",
+    "note": "Full list inherits parent legality assumptions; this artifact changes only one Expanded-legal Tool for one Expanded-legal Stadium."
+  },
+  "competitiveQualified": false,
+  "claim99Point5": false
+}
