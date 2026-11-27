@@ -13,8 +13,8 @@
     "note": "Agent13 v1 already integrates Agent1's Raichu/Electrode delta. V2 adds uncovered rank2/rank5/rank9/rank19/rank30/rank31 families without changing the fixed 60."
   },
   "status": "actor-visible paper acceptance consolidation; no policy implementation, native game, competitive qualification, or win-rate claim",
-  "addedCaseCount": 43,
-  "totalCaseCount": 82,
+  "addedCaseCount": 48,
+  "totalCaseCount": 87,
   "addedCases": [
     {
       "id": "R2-DUAL-LOCK-RONDO",
@@ -445,6 +445,50 @@
       "state": "Candidate Klefki is Active with Mischievous Lock; Solrock + Lunatone and Mewtwo are in play; candidate wants an asymmetric Path/Perfection line.",
       "must": "Treat Lunatone New Moon and Mewtwo Perfection as suppressed while Klefki stays Active; include switching/retreating Klefki before crediting the Path shield.",
       "forbids": "Simultaneously treating active candidate Klefki lock and Lunatone New Moon as live."
+    },
+    {
+      "id": "ACE-CURSE-NONKO",
+      "family": "candidate Prize-state / Ace Trainer",
+      "sourceRanks": [],
+      "state": "Prize state tied; candidate Dusclops uses Cursed Blast, self-KOs, and the selected opposing target survives.",
+      "must": "Update to candidate having one more Prize remaining than opponent and make Ace Trainer legal.",
+      "forbids": "Checking Ace Trainer from the pre-Blast Prize state."
+    },
+    {
+      "id": "ACE-CURSE-KO1",
+      "family": "candidate Prize-state / Ace Trainer",
+      "sourceRanks": [],
+      "state": "Prize state tied; candidate Dusclops Cursed Blast self-KOs and also KOs a one-Prize opposing Pokémon.",
+      "must": "Resolve both Prize events to parity and keep Ace Trainer illegal.",
+      "forbids": "Treating every candidate self-KO as Ace Trainer enablement."
+    },
+    {
+      "id": "ACE-CURSE-KO2",
+      "family": "candidate Prize-state / Ace Trainer",
+      "sourceRanks": [],
+      "state": "Prize state tied; candidate Dusclops Cursed Blast self-KOs and also KOs a two-Prize opposing Pokémon.",
+      "must": "Resolve candidate taking two while opponent takes one; candidate is ahead and Ace Trainer remains illegal.",
+      "forbids": "Ignoring opposing KO Prize value when evaluating the Supporter continuation."
+    },
+    {
+      "id": "R31-GIFTED-PRIZE-DUAL-EFFECT",
+      "family": "rank31 Dusknoir Chimecho",
+      "sourceRanks": [
+        31
+      ],
+      "state": "Source PRE Dusknoir self-KOs with Cursed Blast while Bloodmoon Ursaluna ex is a live continuation.",
+      "must": "Advance candidate Prize progress and reduce Blood Moon cost by one in the same transition.",
+      "forbids": "Scoring the gifted Prize without the Ursaluna discount."
+    },
+    {
+      "id": "R19-ALTERED-CREATION-CAUSE",
+      "family": "rank19 Raging Bolt / ADP",
+      "sourceRanks": [
+        19
+      ],
+      "state": "Altered Creation extra-Prize effect is live and a KO occurs.",
+      "must": "Apply the extra Prize only when the candidate Active is Knocked Out by attack damage from the boosted player's Pokémon.",
+      "forbids": "Adding one Prize to Ability/effect KOs, self-KOs, or non-Active KOs."
     }
   ],
   "authenticatedFamilyCoverage": {
@@ -496,7 +540,8 @@
     "Native/direct attackers must remain available when Basic Ability suppression turns off Perfection.",
     "Resolved effects are not rewound: post-Bomb Path does not remove attached Energy; post-Altered-Creation New Moon has no Ranger reset in the fixed 60.",
     "Discrete HP/Prize breakpoints override average-damage heuristics.",
-    "Ability suppression is scoped, not binary: recompute Basic/Rule-Box/Active/global suppression before and after Stadium replacement; Iron Thorns leaves Lunatone live, while Klefki/Silent Lab/Empoleon can disable the New Moon shield."
+    "Ability suppression is scoped, not binary: recompute Basic/Rule-Box/Active/global suppression before and after Stadium replacement; Iron Thorns leaves Lunatone live, while Klefki/Silent Lab/Empoleon can disable the New Moon shield.",
+    "Prize state is a transition variable, not a score: settle simultaneous self-KO/effect-KO Prize events before recomputing Ace Trainer, Reversal/Counter Energy, Ursaluna discounts and Altered-Creation Prize modifiers."
   ],
   "implementationGate": {
     "required": [
@@ -513,7 +558,8 @@
     "results/aichi-2026/2026-11/agent1-newmoon-rank2-duallock-response-20261127.md",
     "results/aichi-2026/2026-11/agent1-newmoon-rank19-adp-bolt-response-20261127.md",
     "results/aichi-2026/2026-11/agent1-newmoon-remaining-family-gates-20261127.md",
-    "results/strategy/2026-11/agent1-ability-scope-stadium-sequencer-v1.md"
+    "results/strategy/2026-11/agent1-ability-scope-stadium-sequencer-v1.md",
+    "results/strategy/2026-11/agent1-prize-state-transition-policy-v1.md"
   ],
   "competitiveQualified": false,
   "claim99Point5": false
