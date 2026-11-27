@@ -331,10 +331,18 @@ function trainersMailChoiceScore(value, observation) {
 
 function usefulGuzmaHalaTargets(observation) {
   const active = ownActive(observation);
+  const dceInHand = list(observation?.ownHand).some(x => matches(x, DOUBLE_COLORLESS));
+  const needDce = !hasActiveEnergy(active, DOUBLE_COLORLESS) && !dceInHand;
+  // G&H can obtain Thunder Mountain and DCE in the same resolution. Therefore
+  // zero currently attached Energy does not make Thunder irrelevant: the
+  // fetched DCE supplies the two Colorless units after Thunder removes the
+  // Lightning requirement from Volt Cyclone.
+  const canPairThunderWithDce = hasActiveEnergy(active, DOUBLE_COLORLESS) ||
+    dceInHand || needDce;
   return {
-    needThunder: !hasStadium(observation, THUNDER_MOUNTAIN) && energyUnits(active) >= 2,
-    needDce: !hasActiveEnergy(active, DOUBLE_COLORLESS) &&
-      !list(observation?.ownHand).some(x => matches(x, DOUBLE_COLORLESS)),
+    needThunder: !hasStadium(observation, THUNDER_MOUNTAIN) &&
+      (energyUnits(active) >= 2 || canPairThunderWithDce),
+    needDce,
     needJammer: opponentActiveHasTool(observation) && !activeHasTool(observation) &&
       !list(observation?.ownHand).some(x => matches(x, TOOL_JAMMER))
   };
