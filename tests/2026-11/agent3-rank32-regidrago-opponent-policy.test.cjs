@@ -858,3 +858,29 @@ test('gust Prize modeling distinguishes Mega Evolution ex and protected Legacy E
   assert.equal(prizeValue(pokemon('Budew ASC 16',{
     printed:{subtypes:['Basic']}})),1);
 });
+
+
+test('Megaton Blower strips Legacy Energy to turn same-turn VMAX KO into final 3 Prizes',()=>{
+  const ownPublic=player({
+    active:pokemon(P.regidrago,{energies:[P.doubleDragon,P.energy]}),
+    discard:[{printing:P.dragonite}]
+  });
+  ownPublic.prizeCount=3;
+  const opponentPublic=player({active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{
+    hp:320,damage:0,energies:['Legacy Energy TWM 167'],
+    printed:{subtypes:['VMAX'],weakness:[],resistance:[]}})});
+  const items=[
+    action('blower','play-card','Megaton Blower SSP 182'),
+    action('apex','attack',P.regidrago,{attackName:'Apex Dragon'}),
+    action('pass','pass')
+  ];
+  assert.deepEqual(bestAction(request({ownPublic,opponentPublic,items})),
+    {kind:'select-action',token:'blower'});
+  opponentPublic.active.energies=[];
+  assert.deepEqual(bestAction(request({ownPublic,opponentPublic,items})),
+    {kind:'select-action',token:'apex'});
+  opponentPublic.active.energies=['Legacy Energy TWM 167'];
+  ownPublic.prizeCount=2;
+  assert.deepEqual(bestAction(request({ownPublic,opponentPublic,items})),
+    {kind:'select-action',token:'apex'});
+});
