@@ -7,6 +7,7 @@ const {projectRank29RevealedHandPrompt}=require(
   '../../simulation/evaluation/2026-11/agent4-rank29-revealed-hand-projection.cjs');
 const rank29Projection=require(
   '../../simulation/evaluation/2026-11/agent4-rank29-prompt-projection-adapter.cjs');
+const rank29Policy=require('../../simulation/evaluation/2026-11/agent4-rank29-iron-thorns-opponent-policy.cjs');
 
 class ChooseCardsPrompt{
   constructor(id,hand,sourceCard){
@@ -146,4 +147,94 @@ test('rank29 projection is a real drop-in canonical dependency with unmodified d
   protocol.validatePrompt(result.promptProjection,0);
   assert.equal(result.promptProjection.choices.filter(x=>x.kind==='card').length,2);
   assert.equal(f.state.players[1].hand.isPublic,undefined);
+});
+
+function publicPlayer(){
+  return {
+    active:null,bench:[null,null,null,null,null],stadium:[],discard:[],
+    lostZone:[],resolvingSupporter:[],publicHand:null,prizeSlots:null,
+    handCount:4,deckCount:32,prizeCount:6,
+    publicTurnRestrictions:{
+      gxUsed:false,vstarUsed:false,attackLockTurnsRemaining:0,
+      attackMaxEnergy:null,attackMaxEnergyTurnsRemaining:0,
+      ignoreAttackCostCardTypes:[],ignoreAttackCostTurnsRemaining:0,
+      cannotUseGXAttacks:false,pokemonPlayLocked:false,
+      abilityPokemonPlayLocked:false,evolutionPlayLocked:false,
+      itemPlayLocked:false,supporterPlayLocked:false,
+      stadiumPlayLocked:false,toolPlayLocked:false,
+      energyPlayLocked:false,specialEnergyPlayLocked:false,
+      stadiumAndToolHaveNoEffectTurnsRemaining:0
+    }
+  };
+}
+function turnResources(){
+  return {
+    supporterPlayedTurn:1,retreatedTurn:false,extraTurnActive:false,
+    energyPlayedTurn:false,stadiumPlayedTurn:false,stadiumUsedTurn:false,
+    vstarUsed:false,pokemonPlayLocked:false,
+    abilityPokemonPlayLocked:false,evolutionPlayLocked:false,
+    itemPlayLocked:false,supporterPlayLocked:false,
+    stadiumPlayLocked:false,toolPlayLocked:false,
+    energyPlayLocked:false,specialEnergyPlayLocked:false
+  };
+}
+function actorRequest(projected,seat){
+  return {
+    schema:protocol.REQUEST_SCHEMA,requestId:'reveal-1',
+    sequence:1,role:'opponent',seat,
+    observationSchema:protocol.OBSERVATION_SCHEMA,
+    observation:{
+      actorSeat:seat,globalTurn:3,phase:2,
+      decisionKind:'owner-prompt',
+      pendingPromptType:'ChooseCardsPrompt',
+      pendingOwnerDeckSearch:false,ownHand:[],
+      ownPublic:publicPlayer(),opponentPublic:publicPlayer(),
+      ownTurnResources:turnResources(),ownerK1:null
+    },
+    actionFrontier:null,prompt:projected.promptProjection,
+    publicEventReceipt:null
+  };
+}
+
+test('actual projector → filtered worker request → rank29 decision resolves Eri across both physical seats',()=>{
+  for(const seat of [0,1]){
+    const f=physical({seat,source:'Eri TEF'});
+    const projected=rank29Projection.projectPrompt(f);
+    const request=actorRequest(projected,seat);
+    protocol.validateRequest(request);
+    const policy=rank29Policy.createPolicy({
+      role:'opponent',seat,policyVersion:rank29Policy.POLICY_VERSION,config:{}
+    });
+    const decision=policy.decide(request);
+    protocol.validateDecision(decision,request);
+    assert.equal(decision.kind,'select-choices');
+    assert.equal(decision.tokens.length,2);
+    const selected=decision.tokens.map(token=>
+      request.prompt.choices.find(choice=>choice.token===token).printing);
+    assert.deepEqual(selected,['Unfair Stamp TWM 165','VS Seeker PHF 109']);
+    assert.equal(f.state.players[1-seat].hand.isPublic,undefined);
+  }
+});
+
+test('actual projected Sidney and Skull revealed hand triggers rank29 legal choices with real protocol',()=>{
+  for(const [source,names] of [
+    ['Sidney FST 241',['Sky Field ROS 89','Double Colorless Energy SUM 136','Iono PAL 185']],
+    ['Team Skull Grunt SUM',['Psychic Energy SVE 5','Double Colorless Energy SUM 136','Iono PAL 185']]
+  ]){
+    const f=physical({source,hiddenCards:names});
+    const projected=rank29Projection.projectPrompt(f);
+    const request=actorRequest(projected,0);
+    protocol.validateRequest(request);
+    const decision=rank29Policy.createPolicy({
+      role:'opponent',seat:0,policyVersion:rank29Policy.POLICY_VERSION,config:{}
+    }).decide(request);
+    protocol.validateDecision(decision,request);
+    assert.equal(decision.kind,'select-choices');
+    assert.equal(decision.tokens.length,2);
+    const selected=decision.tokens.map(token=>
+      request.prompt.choices.find(choice=>choice.token===token).printing);
+    assert.deepEqual(selected,source.startsWith('Sidney')?
+      ['Double Colorless Energy SUM 136','Sky Field ROS 89']:
+      ['Psychic Energy SVE 5','Double Colorless Energy SUM 136']);
+  }
 });
