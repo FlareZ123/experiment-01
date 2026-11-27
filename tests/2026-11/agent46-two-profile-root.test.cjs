@@ -1681,3 +1681,38 @@ paired('public Altered Creation damage and extra-Prize flags feed Acerola exposu
   assert.deepEqual(decide(profile,root(seat,view,items)),sel('acerola'),
     'once the public attack is lethal, the conditional extra Prize raises exposed liability');
 });
+
+
+paired('Altered Creation extra Prize enters Apex hazard only through an Active attack-damage KO',(seat,profile)=>{
+  const get={kind:'attack',token:'get',attackName:'Get Lost'};
+  const policy=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile});
+  const score=view=>policy.decideWithAudit(root(seat,view,[get])).policyAudit.evaluations
+    .find(row=>row.token==='get')?.score;
+
+  const gir=pokemon({printing:'Girafarig LOT',name:'Girafarig',hp:90,energies:[P],
+    attacks:[attack('Get Lost',['Colorless'],'0')]});
+  const reg=defender({energies:['Grass Energy SVE','Grass Energy SVE','Fire Energy SVE']});
+  const victim=vmax([P]);victim.hp=320;victim.damage=130;
+  const phantom=observation(seat,{active:gir,bench:[victim],opponentActive:reg,globalTurn:9});
+  phantom.opponentPublic.discard=['Dragapult ex TWM','Psychic Energy SVE','Psychic Energy SVE'];
+  phantom.opponentPublic.publicTurnRestrictions.alteredCreationDamage=false;
+  phantom.opponentPublic.publicTurnRestrictions.usedAlteredCreation=false;
+  const phantomBase=score(phantom);
+  phantom.opponentPublic.publicTurnRestrictions.usedAlteredCreation=true;
+  const phantomBoost=score(phantom);
+  assert.equal(phantomBoost-phantomBase,2200,
+    'one Active attack-damage Prize raises maximum-cut by 1800 and gust-potential cut by 400');
+
+  const b1=vmax();b1.hp=320;b1.damage=220;
+  const b2=vmax();b2.hp=320;b2.damage=220;
+  const b3=vmax();b3.hp=320;b3.damage=220;
+  const tri=observation(seat,{active:gir,bench:[b1,b2,b3],opponentActive:reg,globalTurn:9});
+  tri.opponentPublic.discard=['Kyurem SFA','Psychic Energy SVE'];
+  tri.opponentPublic.publicTurnRestrictions.alteredCreationDamage=false;
+  tri.opponentPublic.publicTurnRestrictions.usedAlteredCreation=false;
+  const triBase=score(tri);
+  tri.opponentPublic.publicTurnRestrictions.usedAlteredCreation=true;
+  const triBoost=score(tri);
+  assert.equal(triBoost-triBase,0,
+    'Trifrost maximum can take three Benched VMAX without KOing Active, so no extra Prize applies');
+});
