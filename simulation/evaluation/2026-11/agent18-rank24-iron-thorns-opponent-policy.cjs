@@ -571,7 +571,7 @@ function opponentPokemonChoice(prompt, observation, mode = 'energy') {
     }
     if (score > bestScore) { best = choice; bestScore = score; }
   }
-  return best ? { kind: 'select-choice', token: best.token } :
+  return best ? { kind: 'select-choices', tokens: [best.token] } :
     { kind: 'abstain', reasonCode: 'NO_USEFUL_CARD_CHOICE' };
 }
 function attachedCardChoice(prompt, preferSpecial = false) {
