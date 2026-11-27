@@ -13,8 +13,8 @@
     "note": "Agent13 v1 already integrates Agent1's Raichu/Electrode delta. V2 adds uncovered rank2/rank5/rank9/rank19/rank30/rank31 families without changing the fixed 60."
   },
   "status": "actor-visible paper acceptance consolidation; no policy implementation, native game, competitive qualification, or win-rate claim",
-  "addedCaseCount": 59,
-  "totalCaseCount": 98,
+  "addedCaseCount": 62,
+  "totalCaseCount": 101,
   "addedCases": [
     {
       "id": "R2-DUAL-LOCK-RONDO",
@@ -599,6 +599,30 @@
       "state": "Nonessential Unown remains Benched; Farewell Letter live; opponent has Block plus credible gust capacity.",
       "must": "Value proactive Farewell Letter before Unown can be gusted Active, where its Ability would no longer be usable.",
       "forbids": "Waiting until the trap is already active to attempt a Bench-only Ability."
+    },
+    {
+      "id": "LATIAS-EON-ROTATE",
+      "family": "attack-effect mobility",
+      "sourceRanks": [],
+      "state": "Candidate Latias ex is under its prior Eon Blade 'can't attack' effect; Skyliner is live; a second attacker is Benched; normal retreat is legal.",
+      "must": "Permit zero-cost retreat to Bench, remove the attack effect, and continue with the promoted attacker.",
+      "forbids": "Treating Eon Blade as a whole-turn attack lock on the candidate."
+    },
+    {
+      "id": "PALEMOON-MOBILITY",
+      "family": "attack-effect mobility",
+      "sourceRanks": [],
+      "state": "Opponent Defending Pokémon carries Pale Moon-GX delayed-KO effect but has a legal actor-visible retreat/switch/evolution route before turn end.",
+      "must": "Price that mobility and do not score the delayed KO as guaranteed.",
+      "forbids": "Treating Pale Moon text as unconditional once declared."
+    },
+    {
+      "id": "PALEMOON-LOCKED-MOBILITY",
+      "family": "attack-effect mobility",
+      "sourceRanks": [],
+      "state": "Opponent Defending Pokémon carries Pale Moon-GX delayed-KO effect and has no actor-visible legal route to leave Active before turn end.",
+      "must": "Credit the delayed KO unless a prior game-ending event intervenes.",
+      "forbids": "Discounting Pale Moon solely because switching is theoretically possible in other states."
     }
   ],
   "authenticatedFamilyCoverage": {
@@ -654,7 +678,8 @@
     "Prize state is a transition variable, not a score: settle simultaneous self-KO/effect-KO Prize events before recomputing Ace Trainer, Reversal/Counter Energy, Ursaluna discounts and Altered-Creation Prize modifiers.",
     "A lock deletes only its actual action class: Ability suppression, Basic attack suppression, Item lock, Supporter lock and hand-play lock require different fallback sets; recompute native printed attacks before declaring lockout.",
     "Lock-resilient search is multi-channel: TPE Energy, Forest Seal Stone Tool/VSTAR search, Powerglass Basic-Energy recursion and Stadium replacement survive different card-type locks; track Tool and Basic-Energy custody explicitly.",
-    "Before passing into Bench-punishment, compress/harden existing liabilities: Farewell unneeded Unown when legal and evolve Duskull when the HP/Stage change alters opponent reply thresholds."
+    "Before passing into Bench-punishment, compress/harden existing liabilities: Farewell unneeded Unown when legal and evolve Duskull when the HP/Stage change alters opponent reply thresholds.",
+    "Attack effects persist only while their target remains in the relevant state: explicitly score retreat/switch/evolution before treating copied Techno Blast, Eon Blade or Pale Moon as future-turn guarantees."
   ],
   "implementationGate": {
     "required": [
@@ -675,7 +700,8 @@
     "results/strategy/2026-11/agent1-prize-state-transition-policy-v1.md",
     "results/strategy/2026-11/agent1-newmoon-lock-matrix-fallback-ladder-v1.md",
     "results/strategy/2026-11/agent1-lock-resilient-resource-ladder-v1.md",
-    "results/strategy/2026-11/agent1-bench-compression-hardening-policy-v1.md"
+    "results/strategy/2026-11/agent1-bench-compression-hardening-policy-v1.md",
+    "results/strategy/2026-11/agent1-attack-effect-mobility-policy-v1.md"
   ],
   "competitiveQualified": false,
   "claim99Point5": false
