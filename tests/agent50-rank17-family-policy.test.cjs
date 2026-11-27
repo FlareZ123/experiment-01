@@ -143,12 +143,16 @@ function runCases(policy,protocol) {
     same(runRoot(p,nearDeckout,[ability('letter',A.unown,'Farewell Letter',0),pass]),action('pass'),tag+'preserve next mandatory draw');
     const useStop={kind:'use-stadium',token:'use-stop',actorPrinting:A.pokestop,
       publicMetadata:{stadiumEffectLive:true}};
-    let stopDitto=exact(seat,{h:[A.raichu],lost:[A.pikachu]});
-    stopDitto={...stopDitto,ownPublic:{...stopDitto.ownPublic,stadium:[A.pokestop]}};
+    const certifyStop=v=>{
+      const known=v.ownerK1.knownPrintings.flatMap(row=>row.printing===A.pokestop?
+        (row.copies>1?[{...row,copies:row.copies-1}]:[]):[row]);
+      return {...v,ownerK1:{...v.ownerK1,knownPrintings:known},
+        ownPublic:{...v.ownPublic,stadium:[A.pokestop],deckCount:v.ownPublic.deckCount-1}};
+    };
+    let stopDitto=certifyStop(exact(seat,{h:[A.raichu],lost:[A.pikachu]}));
     same(runRoot(p,stopDitto,[useStop,pass]),action('pass'),
       tag+'Pokestop preserves only compatible Ditto evolution path');
-    let stopNatural=exact(seat,{h:[A.raichu]});
-    stopNatural={...stopNatural,ownPublic:{...stopNatural.ownPublic,stadium:[A.pokestop]}};
+    let stopNatural=certifyStop(exact(seat,{h:[A.raichu]}));
     same(runRoot(p,stopNatural,[useStop,pass]),action('use-stop'),
       tag+'Pokestop remains usable while natural base remains in deck');
     const wrongActor={...ability('letter',A.unown,'Farewell Letter',2),publicMetadata:{abilityName:'Farewell Letter',sourceSeat:'opponent',sourceZone:'bench',sourceIndex:2}};
