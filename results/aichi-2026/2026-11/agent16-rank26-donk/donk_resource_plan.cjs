@@ -26,36 +26,44 @@ function planDonationResources(input) {
   if(!integer(opponentPrizes,1,6)||!integer(pumps,0,5)||!integer(carriers,0,2)||
       !integer(drawCapacity,0,60)||!integer(maxStates,1,1000000))return invalid('RESOURCE_RANGE');
   if(!Array.isArray(input.eggs)||input.eggs.length!==2||!Array.isArray(input.unown)||input.unown.length>4||
-     !Array.isArray(input.fixed)||input.fixed.length>6||!Array.isArray(input.handDonors)||input.handDonors.length>7)
+     !Array.isArray(input.fixed)||input.fixed.length>6||!Array.isArray(input.handDonors)||input.handDonors.length>7||
+     (input.small!==undefined&&(!Array.isArray(input.small)||input.small.length>1)))
     return invalid('CARD_COUNTS');
   const eggs=input.eggs.map(x=>({...x})), unown=input.unown.map(x=>({...x})),
-    fixed=input.fixed.map(x=>({...x})), handDonors=input.handDonors.map(x=>({...x}));
-  const all=[...eggs,...unown,...fixed,...handDonors];
+    fixed=input.fixed.map(x=>({...x})), handDonors=input.handDonors.map(x=>({...x})),small=(input.small??[]).map(x=>({...x}));
+  const all=[...eggs,...unown,...fixed,...handDonors,...small];
   const ids=all.map(x=>x.id);
-  const reusableOk=(x,max)=>['H','D','B','X'].includes(x.zone)&&integer(x.counters,0,max)&&
-    (x.zone==='B'||x.counters===0);
+  const reusableOk=(x,max)=>['H','D','B','X','A'].includes(x.zone)&&integer(x.counters,0,max)&&
+    (['A','B'].includes(x.zone)||x.counters===0);
   if(all.length>12||ids.some(x=>typeof x!=='string'||!x)||new Set(ids).size!==ids.length||
-     eggs.some(x=>!reusableOk(x,2))||unown.some(x=>!reusableOk(x,5))||
+     eggs.some(x=>!reusableOk(x,2))||unown.some(x=>!reusableOk(x,5))||small.some(x=>!reusableOk(x,5))||
      fixed.some(x=>!['A','B'].includes(x.zone)||!integer(x.counters,0,40))||
      handDonors.some(x=>!['H','B','X'].includes(x.zone)||!integer(x.counters,0,40)||
-       (x.zone!=='B'&&x.counters!==0)||typeof x.darkness!=='boolean')||fixed.filter(x=>x.zone==='A').length!==1)
+       (x.zone!=='B'&&x.counters!==0)||typeof x.darkness!=='boolean')||all.filter(x=>x.zone==='A').length!==1)
     return invalid('CARD_STATE');
-  if(certificate&&input.terminalAttack.attackerId!==fixed.find(x=>x.zone==='A').id)return invalid('ATTACKER_ID_MISMATCH');
-  const boardCount=s=>[...s.eggs,...s.unown,...s.fixed,...s.handDonors].filter(x=>x.zone==='B').length;
-  const start={eggs,unown,fixed,handDonors,prizes:opponentPrizes,pumps,carriers,drawCapacity};
+  // If the current Active is sacrificial, caller certifies the intended Benched
+  // attacker is fully powered and can legally attack once promoted. Its only
+  // missing precondition is promotion after the modeled own Active KO.
+  const attackerId=input.promoteAttackerId??fixed.find(x=>x.zone==='A')?.id;
+  const attacker=fixed.find(x=>x.id===attackerId);
+  if(!attacker||!['A','B'].includes(attacker.zone)||
+     (attacker.zone==='B'&&(!input.promoteAttackerId||fixed.some(x=>x.zone==='A'))))return invalid('PROMOTION_PRECONDITION');
+  if(certificate&&input.terminalAttack.attackerId!==attackerId)return invalid('ATTACKER_ID_MISMATCH');
+  const boardCount=s=>[...s.eggs,...s.unown,...s.fixed,...s.handDonors,...s.small].filter(x=>x.zone==='B').length;
+  const start={eggs,unown,fixed,handDonors,small,prizes:opponentPrizes,pumps,carriers,drawCapacity};
   if(boardCount(start)>5)return invalid('BENCH_OVERFLOW');
   const key=s=>JSON.stringify([s.prizes,s.pumps,s.carriers,s.drawCapacity,
       s.eggs.map(x=>[x.zone,x.counters]).sort(),s.unown.map(x=>[x.zone,x.counters]).sort(),
-      s.fixed.map(x=>x.counters),s.handDonors.map(x=>[x.zone,x.counters,x.darkness]).sort()]);
+      s.fixed.map(x=>[x.zone,x.counters]),s.handDonors.map(x=>[x.zone,x.counters,x.darkness]).sort(),s.small.map(x=>[x.zone,x.counters])]);
   const copy=s=>({...s,eggs:s.eggs.map(x=>({...x})),unown:s.unown.map(x=>({...x})),
-      fixed:s.fixed.map(x=>({...x})),handDonors:s.handDonors.map(x=>({...x}))});
+      fixed:s.fixed.map(x=>({...x})),handDonors:s.handDonors.map(x=>({...x})),small:s.small.map(x=>({...x}))});
   // BFS shortest number of known actions. Prune paths that cannot supply the
   // remaining Prize donation even if every Pump achieves two KOs.
   const queue=[{s:start,parent:-1,action:null}];const seen=new Set([key(start)]);
   let capped=false;
   for(let pos=0;pos<queue.length;pos++){
     const {s}=queue[pos];
-    if(s.prizes===1){const actions=[];for(let j=pos;j>0;j=queue[j].parent)actions.push(queue[j].action);actions.reverse();
+    if(s.prizes===1&&s.fixed.some(x=>x.id===attackerId&&x.zone==='A')){const actions=[];for(let j=pos;j>0;j=queue[j].parent)actions.push(queue[j].action);actions.reverse();
       return {status:'solved',actions,pumpsUsed:pumps-s.pumps,carriersUsed:carriers-s.carriers,
         drawsIgnored:drawCapacity-s.drawCapacity,donated:opponentPrizes-1,explored:pos+1,certificate};}
     if(s.prizes-1>2*s.pumps)continue;
@@ -66,7 +74,7 @@ function planDonationResources(input) {
       seen.add(k);queue.push({s:n,parent:pos,action});
     };
     const bench=boardCount(s);
-    for(const field of ['eggs','unown','handDonors'])for(let j=0;j<s[field].length;j++){
+    for(const field of ['eggs','unown','small','handDonors'])for(let j=0;j<s[field].length;j++){
       const card=s[field][j];
       if(card.zone==='H'&&bench<5){const n=copy(s);n[field][j].zone='B';
         n[field][j].counters=field==='handDonors'&&card.darkness?0:2;
@@ -78,7 +86,7 @@ function planDonationResources(input) {
         enqueue(n,{kind:'farewell-letter',id:card.id});}
     }
     if(s.carriers){
-      const targets=['eggs','unown'].flatMap(field=>s[field].map((x,j)=>({field,j,x})).filter(y=>y.x.zone==='D'));
+      const targets=['eggs','unown','small'].flatMap(field=>s[field].map((x,j)=>({field,j,x})).filter(y=>y.x.zone==='D'));
       for(let i=0;i<targets.length;i++)for(let j=i;j<targets.length;j++){
         const selected=j===i?[targets[i]]:[targets[i],targets[j]];
         const n=copy(s);n.carriers--;for(const t of selected)n[t.field][t.j].zone='H';
@@ -86,12 +94,12 @@ function planDonationResources(input) {
       }
     }
     if(!s.pumps)continue;
-    const sources=['eggs','unown','fixed','handDonors'].flatMap(field=>s[field].map((x,j)=>({field,j,x})))
+    const sources=['eggs','unown','small','fixed','handDonors'].flatMap(field=>s[field].map((x,j)=>({field,j,x})))
       .filter(t=>['A','B'].includes(t.x.zone)&&t.x.counters>0);
     for(const from of sources){
-      const targetFields=input.allowUnownKO===true?['eggs','unown']:['eggs'];
+      const targetFields=input.allowUnownKO===true||input.promoteAttackerId?['eggs','unown','small']:['eggs'];
       const targets=targetFields.flatMap(field=>s[field].map((x,j)=>({field,x,j})))
-        .filter(t=>t.x.zone==='B'&&!(from.field===t.field&&from.j===t.j));
+        .filter(t=>['A','B'].includes(t.x.zone)&&!(from.field===t.field&&from.j===t.j));
       const distributions=[];
       for(let i=0;i<targets.length;i++){
         distributions.push([[i,1]]);
@@ -103,14 +111,14 @@ function planDonationResources(input) {
       for(const distribution of distributions){
         const cost=distribution.reduce((a,[,count])=>a+count,0);
         const n=copy(s);n.pumps--;n[from.field][from.j].counters-=cost;
-        const moves=[],knocked=[];
+        const moves=[],knocked=[];let promoted=null;
         for(const [i,count] of distribution){
           const t=targets[i], card=n[t.field][t.j];
           card.counters+=count;moves.push({id:card.id,counters:count});
-          if(card.counters>=(t.field==='eggs'?3:6)){knocked.push(card.id);card.zone='D';card.counters=0;}
+          if(card.counters>=(t.field==='eggs'?3:6)){knocked.push(card.id);if(card.zone==='A'){promoted=attackerId;n.fixed.find(x=>x.id===attackerId).zone='A';}card.zone='D';card.counters=0;}
         }
         n.prizes-=knocked.length;
-        enqueue(n,{kind:'damage-pump',from:from.x.id,moves,knocked});
+        enqueue(n,{kind:'damage-pump',from:from.x.id,moves,knocked,...(promoted?{promoted}:{})});
       }
     }
   }
