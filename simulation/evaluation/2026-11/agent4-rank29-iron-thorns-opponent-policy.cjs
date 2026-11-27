@@ -988,6 +988,18 @@ function scoreAttack(item, request) {
   return 25;
 }
 
+function turboDceAttackWindow(request) {
+  const observation = request.observation;
+  if (!ownActiveIsThorns(observation) ||
+      !energyAvailable(observation) ||
+      specialEnergyLocked(observation) ||
+      energyCount(observation.ownPublic?.active) !== 0) return false;
+  // No need to construct the line if the engine already offers a legal
+  // Volt Cyclone action in the live frontier.
+  return !list(request.actionFrontier?.items).some(item =>
+    item.kind === 'attack' && /Volt Cyclone/i.test(item.attackName ?? ''));
+}
+
 function scorePlayCard(item, request) {
   const observation = request.observation;
   const own = observation.ownPublic;
@@ -1032,12 +1044,19 @@ function scorePlayCard(item, request) {
       matches(target || own.active?.printing, PRINT.ironThorns) &&
       !hasStadium(observation, /Temple of Sinnoh/i) &&
       !list(own.active?.energies).some(energy => matches(energy, PRINT.speedLightning)) ?
-      155 : 0;
+      (turboDceAttackWindow(request) &&
+       (hasStadium(observation, PRINT.thunderMountain) ||
+        hand.some(value => matches(value, PRINT.thunderMountain)) ||
+        (hand.some(value => matches(value, PRINT.guzmaHala)) &&
+         guzmaHalaPaymentRealism(observation) > 0)) &&
+       hand.some(value => matches(value, PRINT.doubleColorless)) ? 85 : 155) : 0;
   }
   if (matches(card, PRINT.doubleColorless)) {
     const activeHasDce = list(own.active?.energies).some(energy => matches(energy, PRINT.doubleColorless));
     return energyAvailable(observation) && !specialEnergyLocked(observation) &&
-      matches(target || own.active?.printing, PRINT.ironThorns) && !activeHasDce ? 125 : 0;
+      matches(target || own.active?.printing, PRINT.ironThorns) && !activeHasDce ?
+      (turboDceAttackWindow(request) &&
+       hasStadium(observation, PRINT.thunderMountain) ? 230 : 125) : 0;
   }
   if (matches(card, PRINT.spikyEnergy) || matches(card, PRINT.captureEnergy)) {
     return energyAvailable(observation) && !specialEnergyLocked(observation) &&
@@ -1067,10 +1086,13 @@ function scorePlayCard(item, request) {
   }
   if (matches(card, PRINT.thunderMountain)) {
     const activeEnergy = energyCount(own.active);
+    const turbo = turboDceAttackWindow(request) &&
+      hand.some(value => matches(value, PRINT.doubleColorless));
     return !stadiumLocked(observation) &&
       !hasStadium(observation, PRINT.thunderMountain) &&
-      (activeEnergy >= 2 || list(request.actionFrontier.items).some(action =>
-        action.kind === 'attack' && /Volt Cyclone/i.test(action.attackName ?? ''))) ? 115 : 0;
+      (turbo || activeEnergy >= 2 || list(request.actionFrontier.items).some(action =>
+        action.kind === 'attack' && /Volt Cyclone/i.test(action.attackName ?? ''))) ?
+      (turbo ? 240 : 115) : 0;
   }
   if (matches(card, PRINT.wondrousLabyrinth)) {
     const opponentActive = opponent.active;
@@ -1157,6 +1179,9 @@ function scorePlayCard(item, request) {
       !boardHasTool(own, PRINT.toolJammer) &&
       !hand.some(value => matches(value, PRINT.toolJammer));
     const realism = guzmaHalaPaymentRealism(observation);
+    const turbo = turboDceAttackWindow(request) && needThunder &&
+      (realism > 0 || hand.some(value => matches(value, PRINT.doubleColorless)));
+    if (turbo) return 210;
     if (!realism) {
       // The two-card discard is optional: even with protected singleton
       // resources, Guzma & Hala may still take its mandatory Stadium only.
