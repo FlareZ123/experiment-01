@@ -4,7 +4,7 @@
  * Generated from exact sources; do not edit this bundle directly.
  * agent43-regidrago-apex-choice.cjs 65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b
  * agent1-rank12-regidrago-opponent-policy-v2.cjs bfaee2205ea9d0c3b618948fe24ff81075d4ccda
- * agent3-rank32-regidrago-opponent-policy.cjs f5192e7ed66bbce1b5ffe531aedfb7bf31d57ea2
+ * agent3-rank32-regidrago-opponent-policy.cjs c6d6b59b2dadde9492cef8cfbd9f6a195ea59adf
  * agent3-rank14-regidrago-opponent-policy.cjs 86a1afe73c632dfccb8ad0d388615d9a7679ff6c
  */
 const __rank14Modules = Object.freeze({
@@ -1245,6 +1245,75 @@ function targetFromGustChoice(choice,observation) {
   if(!player||typeof printing!=='string')return null;
   return slots(player).find(p=>print(p)===printing)??null;
 }
+function aceSpecBlowerPriority(observation) {
+  const own=observation?.ownPublic??{},opp=observation?.opponentPublic??{};
+  const active=own.active,target=opp.active;
+  if(canAttackNow(active,observation)&&remainingHP(target)>0 &&
+      strongestCopiedDamage(observation,target)>=remainingHP(target) &&
+      prizeValue(target)>=Number(own.prizeCount??6))
+    return 0; // Already have immediate game-winning Prize, save the ACE SPEC.
+  const energy=list(opp.active?.energies)
+    .concat(list(opp.bench).flatMap(p=>list(p?.energies)));
+  const special=energy.filter(e=>
+    /^(?:Double Dragon Energy|Double Colorless Energy|Triple Acceleration Energy|Mystery Energy|Prism Energy|Aurora Energy|Rapid Strike Energy|Fusion Strike Energy)\b/i.test(print(e)) ||
+    /Special Energy/i.test(print(e))).length;
+  const tools=slots(opp).reduce((n,p)=>n+list(p.tools).length,0);
+  const temple=list(opp.stadium).concat(list(own.stadium))
+    .some(st=>/^Temple of Sinnoh ASR 155\b/i.test(print(st)));
+  const impededDde=slots(own).some(p=>
+    list(p.energies).some(e=>/^Double Dragon Energy ROS 97\b/i.test(print(e)))) ||
+    list(observation?.ownHand).some(e=>/^Double Dragon Energy ROS 97\b/i.test(print(e)));
+  if(temple&&impededDde)return 265;
+  if(special>=3)return 285;
+  if(special>=2)return 245;
+  if(tools>=3)return 245;
+  if(tools>=2)return 225;
+  if(special===1)return 145;
+  if(tools===1)return 75;
+  if(list(opp.stadium).length)return 90;
+  return 0;
+}
+function muscleBandPriority(action,observation) {
+  const target=nativeOwnerTarget(action,observation);
+  if(!target || !/^Regidrago V(?:STAR)? SIT 13[56]\b/i.test(print(target)) ||
+      list(target.tools).length>0)return 0;
+  const own=observation?.ownPublic??{},opp=observation?.opponentPublic??{};
+  const targetIsActive=own.active===target;
+  const realTarget=opp.active,remaining=remainingHP(realTarget);
+  const projected={...target,tools:[...list(target.tools),{printing:'Muscle Band XY 121'}]};
+  const before=strongestCopiedDamage({...observation,
+    ownPublic:{...own,active:target}},realTarget);
+  const after=strongestCopiedDamage({...observation,
+    ownPublic:{...own,active:projected}},realTarget);
+  if(targetIsActive&&canAttackNow(target,observation) &&
+      Number.isFinite(remaining)&&remaining>before&&remaining<=after)
+    return 310; // Exact threshold-crossing for immediate KO
+  if(targetIsActive&&canAttackNow(target,observation) &&
+      Number.isFinite(remaining)&&remaining>0&&remaining<=before)
+    return 30;
+  return targetIsActive?135:95;
+}
+function evolveRegidragoPriority(action,observation) {
+  const target=nativeOwnerTarget(action,observation);
+  if(!target||!/^Regidrago V SIT 135\b/i.test(print(target)))return 0;
+  const own=observation?.ownPublic??{};
+  const energies=list(target.energies);
+  const hasAttack=apexTypedDeficit(target,observation)===0&&countDonors(own)>0;
+  const attached=energies.length;
+  const base=265+Math.min(55,attached*18)+(own.active===target?15:0);
+  return hasAttack?Math.min(365,base+60):base;
+}
+function retreatToAttackerPriority(action,observation) {
+  const target=nativeOwnerTarget(action,observation),own=observation?.ownPublic??{};
+  if(!target||own.active===target)return 0;
+  if(canAttackNow(own.active,observation))return 0;
+  if(canAttackNow(target,observation))return 330;
+  if(/^Regidrago VSTAR SIT 136\b/i.test(print(target)) &&
+      apexTypedDeficit(target,observation)<=1)return 175;
+  if(/^Regidrago V SIT 135\b/i.test(print(target)) &&
+      list(target.energies).length>=1)return 115;
+  return 0;
+}
 function scoreAction(action, request) {
   const obs = request?.observation ?? {};
   const own = obs.ownPublic ?? {};
@@ -1253,8 +1322,15 @@ function scoreAction(action, request) {
   const hand = list(obs.ownHand).length;
   const active = own.active;
   const enabledVstar = slots(own).some(p => /^Regidrago VSTAR SIT 136\b/i.test(print(p)));
+  if(action.kind==='retreat') return retreatToAttackerPriority(action,obs);
+  if(action.kind==='play-card'&&/^Regidrago VSTAR SIT 136\b/i.test(name))
+    return evolveRegidragoPriority(action,obs);
   const gustScore=tacticalGustScore(action,obs);
   if(gustScore !== null) return gustScore;
+  if(action.kind==='play-card'&&/^Megaton Blower SSP 182\b/i.test(name))
+    return aceSpecBlowerPriority(obs);
+  if(action.kind==='play-card'&&/^Muscle Band XY 121\b/i.test(name))
+    return muscleBandPriority(action,obs);
   const enabledV = slots(own).some(p => /^Regidrago V SIT 135\b/i.test(print(p)));
   if (action.kind === 'attack' && /^(Apex Dragon)$/i.test(action.attackName ?? action.label ?? '')) {
     return countDonors(own) ? 230 : 0;
@@ -1754,7 +1830,8 @@ module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
   engineSetupDecision,setupActiveScore,setupBenchScore,
   isSourceSupporter,cynthiaRecoverPriority,
   legacyRecoverPriority,canUseLegacyStar,superRodRecoverPriority,estimatedDragonDamage,
-  strongestCopiedDamage,canAttackNow,tacticalGustScore,gustTargetPriority,targetFromGustChoice};
+  strongestCopiedDamage,canAttackNow,tacticalGustScore,gustTargetPriority,targetFromGustChoice,
+  aceSpecBlowerPriority,muscleBandPriority,evolveRegidragoPriority,retreatToAttackerPriority};
 
 },
 "./agent3-rank14-regidrago-opponent-policy.cjs": function(require, module, exports) {
