@@ -1,0 +1,48 @@
+{
+  "n": 100000,
+  "seed": 20261127,
+  "count": {
+    "old": {
+      "not certified": 91966,
+      "active": 4540,
+      "VIP+Float Stone": 1491,
+      "VIP+Escape Rope": 1344,
+      "hand+Float Stone": 327,
+      "hand+Escape Rope": 332
+    },
+    "adaptive": {
+      "not certified": 89946,
+      "active": 7011,
+      "VIP+Float Stone": 1491,
+      "VIP+Escape Rope": 1344,
+      "hand+Float Stone": 111,
+      "hand+Escape Rope": 97
+    },
+    "templeOld": {
+      "not certified": 97179,
+      "active": 1763,
+      "VIP+Escape Rope": 413,
+      "VIP+Float Stone": 447,
+      "hand+Escape Rope": 100,
+      "hand+Float Stone": 98
+    },
+    "templeAdaptive": {
+      "not certified": 96502,
+      "active": 2581,
+      "VIP+Escape Rope": 413,
+      "VIP+Float Stone": 447,
+      "hand+Escape Rope": 28,
+      "hand+Float Stone": 29
+    }
+  },
+  "improved": 2020,
+  "worsened": 0,
+  "initialGenFuel": 6543,
+  "allGenFuel8": 7352,
+  "exact": {
+    "basicCount": 11,
+    "legal": 0.7775788585041408,
+    "allGengarActiveDirect": 0.0721491071037542,
+    "adaptiveGuaranteedInitialFuel": 0.06403564192531723
+  }
+}

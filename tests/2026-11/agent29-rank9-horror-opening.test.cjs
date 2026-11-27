@@ -1,0 +1,14 @@
+'use strict';
+const assert=require('node:assert/strict'),P=require('../../simulation/evaluation/2026-11/agent29-rank9-horror-opening.cjs');
+const G='Gengar & Mimikyu-GX',D='Darkness Energy',E='Prism Energy',M='Mega Absol ex',U='Unown',V='Battle VIP Pass',F='Float Stone',S='Silent Lab';
+const deal=(h,draw,prizes=[],deck=[])=>({h,draw,prizes,deck});
+assert.equal(P.deck.length,60);
+assert.equal(P.exactDirect().basicCount,11);
+assert.equal(P.oldSetup([G,M,E]),M);assert.equal(P.adaptiveSetup([G,M,E]),G);
+assert.equal(P.classify(deal([G,M,E],D)),null);assert.equal(P.classify(deal([G,M,E],D),true),'active');
+assert.equal(P.classify(deal([U,V,F,E],D,[],[G])),'VIP+Float Stone');
+assert.equal(P.classify(deal([U,V,F,E],D,[G],[])),null);
+assert.equal(P.classify(deal([G,M,E],D),true,true),null);
+assert.equal(P.classify(deal([G,M,E,S],D),true,true),'active');
+const r=P.simulate(2000,20261127);assert.equal(r.worsened,0);assert.ok(r.improved>0);
+assert.deepEqual(r,P.simulate(2000,20261127));console.log('13 opening model assertions passed');
