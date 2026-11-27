@@ -179,6 +179,37 @@ test('Team Skull prompt prefers revealed Special Energy over Basic Energy', () =
     { kind: 'select-choices', tokens: ['dce', 'basic'] });
 });
 
+test("Trainers' Mail prioritizes Tag Call/G&H over Nest Ball when the attack ALS is payable", () => {
+  const req = prompt({
+    sourcePrinting: "Trainers' Mail ROS 92",
+    choices: [
+      empty,
+      {
+        token: 'nest', kind: 'card', printing: 'Nest Ball SVI 181', label: 'Nest Ball SVI 181',
+        publicMetadata: { ownerSeat: 'actor', sourceZone: 'deck' }
+      },
+      {
+        token: 'tag', kind: 'card', printing: 'Tag Call CEC 206', label: 'Tag Call CEC 206',
+        publicMetadata: { ownerSeat: 'actor', sourceZone: 'deck' }
+      },
+      {
+        token: 'gh', kind: 'card', printing: 'Guzma & Hala CEC 193', label: 'Guzma & Hala CEC 193',
+        publicMetadata: { ownerSeat: 'actor', sourceZone: 'deck' }
+      }
+    ],
+    observationOptions: {
+      ownHand: [
+        'Handheld Fan TWM 150',
+        'Palace Book SMP NAN25',
+        'N FCO 105',
+        'Eri TEF 146'
+      ]
+    }
+  });
+  assert.deepEqual(policy.decide(req),
+    { kind: 'select-choices', tokens: ['tag'] });
+});
+
 test("Trainers' Mail takes the highest-ranked revealed Trainer and can choose empty", () => {
   const req = prompt({
     sourcePrinting: "Trainers' Mail ROS 92",
