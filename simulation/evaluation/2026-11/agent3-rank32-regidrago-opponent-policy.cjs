@@ -252,10 +252,22 @@ function targetFromGustChoice(choice,observation) {
 function aceSpecBlowerPriority(observation) {
   const own=observation?.ownPublic??{},opp=observation?.opponentPublic??{};
   const active=own.active,target=opp.active;
-  if(canAttackNow(active,observation)&&remainingHP(target)>0 &&
-      strongestCopiedDamage(observation,target)>=remainingHP(target) &&
-      prizeValue(target)>=Number(own.prizeCount??6))
-    return 0; // Already have immediate game-winning Prize, save the ACE SPEC.
+  const canOHKO=canAttackNow(active,observation)&&remainingHP(target)>0 &&
+    strongestCopiedDamage(observation,target)>=remainingHP(target);
+  const prizeNeed=Number(own.prizeCount??6);
+  const protection=list(target?.energies).filter(e=>
+    /^Legacy Energy TWM 167\b/i.test(print(e)));
+  if(canOHKO&&protection.length) {
+    const cleared={...target,energies:list(target.energies).filter(e=>
+      !/^Legacy Energy TWM 167\b/i.test(print(e)))};
+    // Megaton's all-Special-Energy removal can convert an otherwise
+    // nonterminal KO into a same-turn Prize win. This discrete win line
+    // dominates saving the ACE SPEC or attacking through Legacy Energy.
+    if(prizeValue(target)<prizeNeed&&prizeValue(cleared)>=prizeNeed)
+      return 385;
+  }
+  if(canOHKO&&prizeValue(target)>=prizeNeed)
+    return 0; // Already winning; save the ACE SPEC.
   const energy=list(opp.active?.energies)
     .concat(list(opp.bench).flatMap(p=>list(p?.energies)));
   // Basic Energy has exactly one of the nine canonical type names; unlike
