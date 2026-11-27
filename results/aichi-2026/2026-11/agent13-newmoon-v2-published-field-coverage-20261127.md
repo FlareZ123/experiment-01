@@ -4,7 +4,7 @@
 
 **Purpose:** verify that every authenticated Aichi Top-32 source list maps to at least one explicit actor-visible policy family before implementation. This is **coverage of decision classes**, not evidence that the matchup is solved.
 
-Preferred fixed list: [New Moon Guzma/Sky v2](agent13-newmoon-lockbreaker-guzma-sky-v2.md)  
+Challenger list only: [New Moon Guzma/Sky v2](agent13-newmoon-lockbreaker-guzma-sky-v2.md). Preferred fixed New Moon list after cross-review is v1.  
 Policy gate: [v2 actor-visible acceptance contract](agent13-newmoon-guzma-sky-v2-policy-acceptance-v1.json)
 
 ## Coverage
@@ -42,6 +42,6 @@ The repository still lacks exact published lists for ranks **23, 25, and 28**. T
 
 ## Implementation consequence
 
-The next New Moon policy worker should begin from the fixed v2 hash and the 65-case contract, not from archetype-name heuristics. The contract now has a named state transition for every authenticated rank; failures should therefore be reported as **case-level policy failures or genuinely new mechanisms**, rather than another broad statement that a matchup is 'uncovered'.
+If the frozen v2 challenger is revisited, use its fixed hash and 65-case contract, not from archetype-name heuristics. The contract now has a named state transition for every authenticated rank; failures should therefore be reported as **case-level policy failures or genuinely new mechanisms**, rather than another broad statement that a matchup is 'uncovered'.
 
 Full-field competitive qualification remains **0 / 32** and the 99.5% target remains unproven.
