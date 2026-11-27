@@ -79,7 +79,7 @@ class AttachEnergyPrompt {
   validate(result){return Array.isArray(result)&&result.length===1&&result[0].to.player===0&&[0,1].includes(result[0].to.slot)&&Number.isSafeInteger(result[0].index);}
 }
 class EnergyCard {
-  constructor(fullName,name,energyType){Object.assign(this,{fullName,name,energyType});}
+  constructor(fullName,name,energyType){Object.assign(this,{fullName,name,superType:2,energyType});}
 }
 test('Raihan EVS projects only owner-discard Basic Psychic Energy to occupied own Active/Bench targets',()=>{
   for(const seat of [0,1]){
