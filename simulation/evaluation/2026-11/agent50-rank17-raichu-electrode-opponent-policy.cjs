@@ -2899,7 +2899,15 @@ function r17CreatePolicy({role,seat,policyVersion,config}) {
         sequence:request.sequence,...two};
       return {kind:'select-action',token:two.action.token};
     }
-    // Lower priority than any terminal one-/two-Bomb window.
+    // A paid nonterminal three-Prize Rain saves both Bombs: this dominates
+    // paying a two-Prize self-KO for the same attack-level knockout.
+    const directPressure=r17DirectRainWindow(request,{allowThreePrizePressure:true});
+    if(directPressure?.plan?.win===false){
+      rain={stage:'discard',turn:request.observation.globalTurn,
+        sequence:request.sequence,...directPressure};
+      return {kind:'select-action',token:directPressure.action.token};
+    }
+    // Lower priority than any terminal one-/two-Bomb or paid direct window.
     const pressure=r17OneBombRainWindow(request,{allowThreePrizePressure:true});
     if(pressure?.allowThreePrizePressure===true){
       rain={stage:'bomb-transfer',turn:request.observation.globalTurn,
