@@ -1,4 +1,8 @@
 
+## 2026-11-27T02:36:46.047Z — multi-slot structural engine screening
+- Added causal Max Elixir (Basic Benched only, pre-evolution), Energy Loto (partial view), Colress Tenacity and Tag Call. 11 variants × both starts × 3 scenarios × 700 deals = 46,200 conserved policy trials, independent screening seed 27112027. Raw results/aichi-2026/2026-11/agent1-apex-lockdown-engine-screen.json. Holdout next; do not pick solely on proxy (Wobb, Raihan etc may matter in real games).
+
+
 ## 2026-11-27T02:35:00.983Z — paired setup proxy first field-relevant conditions
 - Fixed T2 lock measurement (loop previously incremented to T3), conservative Arven-to-Stone under Item lock, T1 banked hand retention. 24,000 conserved deals across wide candidate and original rank12, both starts, clean/T2-item/rulebox, wipe-lock goal. Raw results/aichi-2026/2026-11/agent1-apex-lockdown-proxy-first-results.json; all T2-item cases zero Megaton readiness by construction. Intermediate model; test wider variants and repair policy opportunity-cost bias before final recommendation.
 

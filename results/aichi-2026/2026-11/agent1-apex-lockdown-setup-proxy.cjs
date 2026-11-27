@@ -5,20 +5,20 @@
 // Search reveals actual own deck membership only AFTER the action is paid.
 const N={
  V:"Regidrago V", S:"Regidrago VSTAR", B:"Budew", L:"Latias ex", T:"Tapu Lele-GX", D:"Dedenne-GX", Q:"Squawkabilly ex", W:"Wobbuffet", C:"Crobat V", M:"Marshadow", Z:"Fezandipiti ex",
- DP:"Dragapult ex", DI:"Dialga-GX", NO:"Noivern ex", HA:"Haxorus", MD:"Mega Dragalge ex", GI:"Giratina-EX", GO:"Hisuian Goodra VSTAR", PA:"Palkia-GX", DN:"Mega Dragonite ex", KY:"Kyurem", KO:"Koraidon ex",
- MT:"Mysterious Treasure", QB:"Quick Ball", UB:"Ultra Ball", BC:"Battle Compressor Team Flare Gear", VS:"VS Seeker", HB:"Hisuian Heavy Ball", SR:"Super Rod", AR:"Arven", GH:"Guzma & Hala", GZ:"Guzma", CR:"Crispin", RE:"Professor's Research", SY:"Professor Sycamore", CA:"Carmine", IO:"Iono", MA:"Marnie", RA:"Raihan", LD:"Lillie's Determination", MB:"Megaton Blower", FS:"Forest Seal Stone", FL:"Float Stone", HE:"Giant Hearth", SW:"Chaotic Swell", DD:"Double Dragon Energy", GR:"Basic Grass Energy", FI:"Basic Fire Energy"
+ DP:"Dragapult ex", DI:"Dialga-GX", NO:"Noivern ex", HA:"Haxorus", MD:"Mega Dragalge ex", GI:"Giratina-EX", GO:"Hisuian Goodra VSTAR", PA:"Palkia-GX", DN:"Mega Dragonite ex", KY:"Kyurem", KO:"Koraidon ex", GG:"Garchomp & Giratina-GX",
+ MT:"Mysterious Treasure", QB:"Quick Ball", UB:"Ultra Ball", BC:"Battle Compressor Team Flare Gear", VS:"VS Seeker", HB:"Hisuian Heavy Ball", SR:"Super Rod", AR:"Arven", GH:"Guzma & Hala", GZ:"Guzma", CR:"Crispin", RE:"Professor's Research", SY:"Professor Sycamore", CA:"Carmine", IO:"Iono", MA:"Marnie", RA:"Raihan", LD:"Lillie's Determination", CT:"Colress's Tenacity", EL:"Max Elixir", LO:"Energy Loto", TC:"Tag Call", MB:"Megaton Blower", FS:"Forest Seal Stone", FL:"Float Stone", HE:"Giant Hearth", SW:"Chaotic Swell", DD:"Double Dragon Energy", GR:"Basic Grass Energy", FI:"Basic Fire Energy"
 };
-const basic=new Set([N.V,N.B,N.L,N.T,N.D,N.Q,N.W,N.C,N.M,N.Z,N.DI,N.GI,N.PA,N.KY,N.KO]);
-const payload=new Set([N.DP,N.DI,N.NO,N.HA,N.MD,N.GI,N.GO,N.PA,N.DN,N.KY,N.KO]);
+const basic=new Set([N.V,N.B,N.L,N.T,N.D,N.Q,N.W,N.C,N.M,N.Z,N.DI,N.GI,N.PA,N.KY,N.KO,N.GG]);
+const payload=new Set([N.DP,N.DI,N.NO,N.HA,N.MD,N.GI,N.GO,N.PA,N.DN,N.KY,N.KO,N.GG]);
 const psychic=new Set([N.L,N.T,N.W,N.M]);
 const dragon=new Set([N.V,N.S,...payload]);
-const rb=new Set([N.V,N.S,N.L,N.T,N.D,N.Q,N.C,N.Z,N.DP,N.DI,N.NO,N.MD,N.GI,N.GO,N.PA,N.DN,N.KO]);
-const supporter=new Set([N.AR,N.GH,N.GZ,N.CR,N.RE,N.SY,N.CA,N.IO,N.MA,N.RA,N.LD]);
+const rb=new Set([N.V,N.S,N.L,N.T,N.D,N.Q,N.C,N.Z,N.DP,N.DI,N.NO,N.MD,N.GI,N.GO,N.PA,N.DN,N.KO,N.GG]);
+const supporter=new Set([N.AR,N.GH,N.GZ,N.CR,N.RE,N.SY,N.CA,N.IO,N.MA,N.RA,N.LD,N.CT]);
 const energy=new Set([N.DD,N.GR,N.FI]);
 const stadium=new Set([N.HE,N.SW,"Parallel City","Path to the Peak"]);
 const tool=new Set([N.FL,N.FS,"Muscle Band"]);
-const items=new Set([N.MT,N.QB,N.UB,N.BC,N.VS,N.HB,N.SR,N.MB,"Counter Catcher","Field Blower","Echoing Horn"]);
-const R={[N.V]:2,[N.S]:2,[N.B]:0,[N.L]:1,[N.T]:1,[N.D]:1,[N.Q]:1,[N.W]:2,[N.C]:1,[N.M]:1,[N.Z]:1,[N.DI]:3,[N.GI]:3,[N.PA]:3,[N.KY]:2,[N.KO]:2};
+const items=new Set([N.MT,N.QB,N.UB,N.BC,N.VS,N.HB,N.SR,N.EL,N.LO,N.TC,N.MB,"Counter Catcher","Field Blower","Echoing Horn"]);
+const R={[N.V]:2,[N.S]:2,[N.B]:0,[N.L]:1,[N.T]:1,[N.D]:1,[N.Q]:1,[N.W]:2,[N.C]:1,[N.M]:1,[N.Z]:1,[N.DI]:3,[N.GI]:3,[N.PA]:3,[N.KY]:2,[N.KO]:2,[N.GG]:3};
 function norm(n){if(n==="Grass Energy")return N.GR;if(n==="Fire Energy")return N.FI;if(n==="Battle Compressor")return N.BC;return n}
 function expand(rows){let out=[];for(const c of rows){if(!Number.isInteger(c.count)||c.count<1)throw Error("bad count");for(let i=0;i<c.count;i++)out.push(norm(c.name));}if(out.length!==60)throw Error("not 60");if(!out.some(x=>basic.has(x)))throw Error("no Basic");return out}
 function mulberry(seed){return ()=>{let t=seed+=0x6D2B79F5;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296}}
@@ -30,7 +30,7 @@ function cost(es){let d=count(es,N.DD),g=count(es,N.GR),f=count(es,N.FI);return 
 function units(es){return es.reduce((s,x)=>s+(x===N.DD?2:1),0)}
 function level(es){return Math.min(3,units(es))+(cost(es)?3:0)}
 function chooseEnergy(es,candidates){return candidates.slice().sort((a,b)=>level([...es,b])-level([...es,a])||(a===N.DD?-1:0)||(b===N.DD?1:0)||(a===N.GR?-1:1))[0]}
-function starter(hand,second){const p=second?[N.B,N.V,N.W,N.L,N.T,N.D,N.Q,N.C,N.M,N.Z,N.DI,N.GI,N.PA,N.KO,N.KY]:[N.V,N.B,N.L,N.W,N.T,N.D,N.Q,N.C,N.M,N.Z,N.DI,N.GI,N.PA,N.KO,N.KY];return p.find(x=>hand.includes(x))||hand.find(x=>basic.has(x))}
+function starter(hand,second,initial){if(initial.includes(N.EL)&&hand.includes(N.V)){if(hand.includes(N.B))return N.B;if(hand.includes(N.L))return N.L;}const p=second?[N.B,N.V,N.W,N.L,N.T,N.D,N.Q,N.C,N.M,N.Z,N.DI,N.GI,N.PA,N.KO,N.KY]:[N.V,N.B,N.L,N.W,N.T,N.D,N.Q,N.C,N.M,N.Z,N.DI,N.GI,N.PA,N.KO,N.KY];return p.find(x=>hand.includes(x))||hand.find(x=>basic.has(x))}
 const strategies={
  "wipe-lock":[N.GI,N.NO,N.MD,N.PA,N.HA,N.DP,N.DI,N.DN,N.GO,N.KO,N.KY],
  "basic-ko":[N.HA,N.DP,N.DI,N.DN,N.GO,N.KO,N.NO,N.GI,N.KY,N.MD,N.PA],
@@ -42,7 +42,7 @@ function one(rows,seed,opts={}){
  const rng=mulberry(seed>>>0),initial=expand(rows),priority=(strategies[opts.goal||"general"]||strategies.general).filter(x=>initial.includes(x)),second=!!opts.second,scenario=opts.scenario||"clean";
  let deck,hand,mulligans=0;
  do{deck=shuffle(initial.slice(),rng);hand=deck.splice(0,7);if(!hand.some(x=>basic.has(x)))mulligans++}while(!hand.some(x=>basic.has(x)));
- const prizes=deck.splice(0,6),discard=[],board=[slot(take(hand,starter(hand,second)),0)],log=[];
+ const prizes=deck.splice(0,6),discard=[],board=[slot(take(hand,starter(hand,second,initial)),0)],log=[];
  let known=false,turn=0,manual=false,supp=false,retreated=false,stadiumPlayed=false,hearthUsed=false,vstar=false,stad=null,squawkUsed=false,dedeUsed=false,crobatUsed=false,usedGuzma=false,loops=0;
  const has=x=>hand.includes(x), reg=()=>board.find(x=>x.name===N.V||x.name===N.S), active=()=>board[0], handE=()=>hand.filter(x=>energy.has(x)), donors=()=>priority.filter(x=>discard.includes(x)), isLock=()=>scenario==="all-item"||((scenario==="t2-item"||scenario==="t2-both")&&turn===2), canItem=()=>!isLock(), canSupp=x=>!supp&&(turn>1||second||x===N.CA), ruleOff=()=>scenario==="rulebox"||scenario==="t2-both"&&turn===2, allOff=()=>scenario==="garbotoxin"&&turn===2, canAbility=x=>!allOff()&&!(ruleOff()&&rb.has(x))&&!(active().name===N.W&&!psychic.has(x)&&x!==N.W);
  function note(a,x){if(opts.trace)log.push([turn,a,x])}
@@ -75,7 +75,7 @@ function one(rows,seed,opts={}){
    if(n===N.FL)return mobility()?22:65;
    if(n===N.FS)return vstar?2:58;
    if(n===N.MT||n===N.QB||n===N.UB)return count(hand,n)>1?24:50;
-   if(n===N.BC)return missingDonor()?65:20;
+   if(n===N.BC)return missingDonor()?65:20;if(n===N.EL)return b?.name===N.V&&active()!==b&&needsEnergy()?65:9;if(n===N.LO)return needsEnergy()?46:15;if(n===N.TC)return needsEnergy()?48:15;
    if(n===N.T||n===N.L||n===N.D||n===N.Q||n===N.C)return 38;
    if(n===N.GZ)return active()!==reg()&&!free(active())?59:18;
    if(supporter.has(n))return supp?12:45;
@@ -100,6 +100,7 @@ function one(rows,seed,opts={}){
    if(active()!==b&&b&&!free(active())&&!has(N.FL)&&turn===2&&have(N.GZ)&&cost(b.energy)&&b.name===N.S)return N.GZ;
    if(b&&needsEnergy()&&have(N.CR)&&(possible(N.GR)&&possible(N.FI)))return N.CR;
    if(b&&needsEnergy()&&!has(N.DD)&&!b.energy.includes(N.DD)&&have(N.GH)&&possible(N.DD)&&hand.length>=3)return N.GH;
+   if(b&&needsEnergy()&&have(N.CT)&&[N.DD,N.GR,N.FI].some(possible))return N.CT;
    if(have(N.AR)&&((canItem()&&((opts.goal==="wipe-lock"&&needACE()&&turn===2&&possible(N.MB))||!b||b.name!==N.S&&turn===2&&!has(N.S)||missingDonor()))||(b&&!vstar&&!b.tool&&possible(N.FS))))return N.AR;
    if(have(N.CA))return N.CA;
    if(have(N.LD))return N.LD;
@@ -113,6 +114,8 @@ function one(rows,seed,opts={}){
    if(!b){return [N.MT,N.QB,N.UB].find(possible)}
    if(turn===2&&b.name!==N.S&&!has(N.S)){return [N.MT,N.UB].find(possible)}
    if(opts.goal==="wipe-lock"&&needACE()&&possible(N.MB))return N.MB;
+   if(needsEnergy()&&b.name===N.V&&active()!==b&&possible(N.EL))return N.EL;
+   if(needsEnergy()&&!handE().length&&possible(N.LO))return N.LO;
    if(missingDonor()&&possible(N.BC))return N.BC;
    return [N.MT,N.QB,N.UB,N.VS,N.MB].find(possible);
  }
@@ -129,6 +132,7 @@ function one(rows,seed,opts={}){
        hand.push(take(deck,g?N.GR:N.FI));note("crispin one",g?N.GR:N.FI)
      }shuffle(deck,rng);return true}
    if(n===N.AR){play(n);supp=true;see();let i=findItem(),t=findTool();search([i,t].filter(Boolean));return true}
+   if(n===N.CT){play(n);supp=true;see();const st=[N.HE,N.SW,"Path to the Peak","Parallel City"].find(x=>deck.includes(x));let e=chooseEnergy(b?.energy??[],[N.DD,N.GR,N.FI].filter(x=>deck.includes(x)));search([st,e].filter(Boolean));return true}
    if([N.RE,N.SY,N.CA,N.IO,N.MA,N.LD].includes(n)){
      play(n);supp=true;
      if([N.IO,N.MA].includes(n)){shuffle(hand,rng);deck.push(...hand.splice(0));draw(n===N.IO?6:5)}
@@ -164,6 +168,9 @@ function one(rows,seed,opts={}){
  function banked(){let b=reg();return turn===1&&b&&b.energy.length>0&&has(N.S)&&(cost(b.energy)||handE().some(x=>cost([...b.energy,x])))&&!missingDonor()&&!needACE()&&mobility()}
  function step(){
    let b=reg();
+   if(b&&b.name===N.V&&active()!==b&&canItem()&&has(N.EL)&&needsEnergy()&&(turn===1||!manual||!handE().some(x=>cost([...b.energy,x])))){
+     play(N.EL);let top=deck.splice(0,6),es=top.filter(x=>x===N.GR||x===N.FI),e=chooseEnergy(b.energy,es);if(e)b.energy.push(take(top,e));deck.push(...top);shuffle(deck,rng);note("elixir",e??null);return true;
+   }
    if(turn===2&&b&&b.name===N.V&&b.turn<2&&has(N.S)){take(hand,N.S);b.name=N.S;note("evolve",N.S);return true}
    if(turn===2&&objective())return false;
    if(banked())return false;
@@ -171,6 +178,12 @@ function one(rows,seed,opts={}){
    if(!b&&board.length<6&&(ball(N.V)||heavy(N.V)))return true;
    b=reg();
    if(turn===2&&b?.name===N.V&&b.turn<2&&!has(N.S)&&ball(N.S))return true;
+   if(b&&canItem()&&has(N.LO)&&needsEnergy()&&!handE().some(x=>cost([...b.energy,x]))&&(!handE().length||turn===2)){
+     play(N.LO);let top=deck.splice(0,7),e=chooseEnergy(b.energy,top.filter(x=>energy.has(x)));if(e)hand.push(take(top,e));deck.push(...top);shuffle(deck,rng);note("energy loto",e??null);return true;
+   }
+   if(b&&canItem()&&has(N.TC)&&(!has(N.GH)&&needsEnergy()||missingDonor()&&possible(N.GG))&&(possible(N.GH)||possible(N.GG))){
+     play(N.TC);see();let names=[];if(deck.includes(N.GH)&&!has(N.GH))names.push(N.GH);if(deck.includes(N.GG)&&!has(N.GG)&&!discard.includes(N.GG))names.push(N.GG);if(names.length<2&&deck.filter(x=>x===N.GH).length>names.filter(x=>x===N.GH).length)names.push(N.GH);search(names);return true;
+   }
    if(b&&manual&&handE().length&&!cost(b.energy)){let e=chooseEnergy(b.energy,handE());attach(b,e);manual=false;return true}
    if(b&&active()!==b&&free(active())&&!retreated&&!(turn===1&&second&&active().name===N.B)){retreated=true;swap(b);return true}
    if(b&&active()!==b&&!free(active())&&!active().tool&&has(N.FL)){active().tool=take(hand,N.FL);note("tool",[active().name,N.FL]);return true}
@@ -209,10 +222,10 @@ function one(rows,seed,opts={}){
    // Do not discard a held ACE under an Ability lock with no recovery,
    // unless already impossible to meet the requested wipe objective.
    if(s&&[N.RE,N.SY,N.CA].includes(s)&&has(N.MB)&&opts.goal==="wipe-lock"&&(vstar||ruleOff()||allOff()))s=null;
-   if(s&&[N.GH,N.CR,N.AR,N.GZ].includes(s)&&suppAction(s))return true;
+   if(s&&[N.GH,N.CR,N.AR,N.GZ,N.CT].includes(s)&&suppAction(s))return true;
    if(!supp&&canItem()&&has(N.VS)){
      let n=chooseSupp(discard.filter(x=>supporter.has(x)&&!has(x)));
-     if(n&&(s===null||[N.GH,N.CR,N.AR,N.GZ].includes(n)&&![N.GH,N.CR,N.AR,N.GZ].includes(s))){play(N.VS);take(discard,n);hand.push(n);return true}
+     if(n&&(s===null||[N.GH,N.CR,N.AR,N.GZ,N.CT].includes(n)&&![N.GH,N.CR,N.AR,N.GZ,N.CT].includes(s))){play(N.VS);take(discard,n);hand.push(n);return true}
    }
    if(b&&turn===2&&!vstar&&b.name===N.S&&canAbility(N.S)&&retrieveLegacy())return true;
    if(s&&suppAction(s))return true;

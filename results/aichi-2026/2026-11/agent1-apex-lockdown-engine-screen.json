@@ -1,0 +1,2785 @@
+{
+  "variants": [
+    [
+      "wide",
+      [],
+      []
+    ],
+    [
+      "arven-crobat",
+      [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      [
+        "Crobat V",
+        "Arven"
+      ]
+    ],
+    [
+      "arven-lillie",
+      [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      [
+        "Arven",
+        "Lillie's Determination"
+      ]
+    ],
+    [
+      "tenacity-arven",
+      [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      [
+        "Colress's Tenacity",
+        "Arven"
+      ]
+    ],
+    [
+      "noivern-to-arven",
+      [
+        "Noivern ex",
+        "Wobbuffet"
+      ],
+      [
+        "Arven",
+        "Crobat V"
+      ]
+    ],
+    [
+      "elixir-ramp",
+      [
+        "Wobbuffet",
+        "Noivern ex",
+        "Guzma & Hala",
+        "Raihan",
+        "Guzma"
+      ],
+      [
+        "Max Elixir",
+        "Max Elixir",
+        "Max Elixir",
+        "Basic Grass Energy",
+        "Basic Fire Energy"
+      ]
+    ],
+    [
+      "elixir-ramp2",
+      [
+        "Wobbuffet",
+        "Raihan",
+        "Guzma & Hala",
+        "Guzma",
+        "Chaotic Swell"
+      ],
+      [
+        "Max Elixir",
+        "Max Elixir",
+        "Max Elixir",
+        "Basic Grass Energy",
+        "Basic Fire Energy"
+      ]
+    ],
+    [
+      "loto-tenacity",
+      [
+        "Wobbuffet",
+        "Raihan",
+        "Guzma & Hala"
+      ],
+      [
+        "Energy Loto",
+        "Energy Loto",
+        "Colress's Tenacity"
+      ]
+    ],
+    [
+      "tag-ggend",
+      [
+        "Wobbuffet",
+        "Noivern ex",
+        "Guzma"
+      ],
+      [
+        "Tag Call",
+        "Tag Call",
+        "Garchomp & Giratina-GX"
+      ]
+    ],
+    [
+      "heavy-arven",
+      [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      [
+        "Hisuian Heavy Ball",
+        "Arven"
+      ]
+    ],
+    [
+      "compressor-arven",
+      [
+        "Wobbuffet",
+        "Raihan",
+        "Guzma"
+      ],
+      [
+        "Battle Compressor Team Flare Gear",
+        "Arven",
+        "Quick Ball"
+      ]
+    ]
+  ],
+  "out": [
+    {
+      "label": "wide",
+      "minus": [],
+      "plus": [],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "clean",
+        "second": false
+      },
+      "counts": {
+        "ready": 335,
+        "apex": 313,
+        "ace": 256,
+        "wipeLock": 127,
+        "toolWipeLock": 97,
+        "repeatWipe": 170,
+        "allEnergy": 130,
+        "basicKO": 93,
+        "raw330": 86,
+        "spread": 91,
+        "timeless": 72,
+        "lockAttack": 253,
+        "vstarSpent": 494,
+        "supportGust": 9,
+        "t1_reg": 618,
+        "t1_energy": 567,
+        "t1_active": 530,
+        "t1_donor": 509
+      },
+      "meanMulligans": 0.20285714285714285
+    },
+    {
+      "label": "wide",
+      "minus": [],
+      "plus": [],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "rulebox",
+        "second": false
+      },
+      "counts": {
+        "ready": 223,
+        "apex": 180,
+        "ace": 189,
+        "wipeLock": 46,
+        "toolWipeLock": 32,
+        "repeatWipe": 81,
+        "allEnergy": 49,
+        "basicKO": 31,
+        "raw330": 14,
+        "spread": 30,
+        "timeless": 23,
+        "lockAttack": 112,
+        "vstarSpent": 195,
+        "supportGust": 21,
+        "t1_reg": 597,
+        "t1_energy": 511,
+        "t1_active": 418,
+        "t1_donor": 439
+      },
+      "meanMulligans": 0.20285714285714285
+    },
+    {
+      "label": "wide",
+      "minus": [],
+      "plus": [],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "t2-item",
+        "second": false
+      },
+      "counts": {
+        "ready": 260,
+        "apex": 223,
+        "ace": 0,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "repeatWipe": 100,
+        "allEnergy": 78,
+        "basicKO": 62,
+        "raw330": 56,
+        "spread": 54,
+        "timeless": 43,
+        "lockAttack": 150,
+        "vstarSpent": 432,
+        "supportGust": 8,
+        "t1_reg": 618,
+        "t1_energy": 567,
+        "t1_active": 530,
+        "t1_donor": 509
+      },
+      "meanMulligans": 0.20285714285714285
+    },
+    {
+      "label": "wide",
+      "minus": [],
+      "plus": [],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "clean",
+        "second": true
+      },
+      "counts": {
+        "ready": 455,
+        "apex": 436,
+        "ace": 320,
+        "wipeLock": 194,
+        "toolWipeLock": 131,
+        "repeatWipe": 238,
+        "allEnergy": 192,
+        "basicKO": 148,
+        "raw330": 113,
+        "spread": 151,
+        "timeless": 124,
+        "lockAttack": 351,
+        "vstarSpent": 518,
+        "supportGust": 9,
+        "t1_reg": 648,
+        "t1_energy": 633,
+        "t1_active": 502,
+        "t1_donor": 586
+      },
+      "meanMulligans": 0.20285714285714285
+    },
+    {
+      "label": "wide",
+      "minus": [],
+      "plus": [],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "rulebox",
+        "second": true
+      },
+      "counts": {
+        "ready": 340,
+        "apex": 306,
+        "ace": 203,
+        "wipeLock": 65,
+        "toolWipeLock": 43,
+        "repeatWipe": 123,
+        "allEnergy": 95,
+        "basicKO": 58,
+        "raw330": 44,
+        "spread": 67,
+        "timeless": 54,
+        "lockAttack": 189,
+        "vstarSpent": 224,
+        "supportGust": 31,
+        "t1_reg": 632,
+        "t1_energy": 595,
+        "t1_active": 398,
+        "t1_donor": 541
+      },
+      "meanMulligans": 0.20285714285714285
+    },
+    {
+      "label": "wide",
+      "minus": [],
+      "plus": [],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "t2-item",
+        "second": true
+      },
+      "counts": {
+        "ready": 353,
+        "apex": 316,
+        "ace": 0,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "repeatWipe": 134,
+        "allEnergy": 113,
+        "basicKO": 91,
+        "raw330": 74,
+        "spread": 92,
+        "timeless": 79,
+        "lockAttack": 203,
+        "vstarSpent": 466,
+        "supportGust": 11,
+        "t1_reg": 648,
+        "t1_energy": 633,
+        "t1_active": 502,
+        "t1_donor": 586
+      },
+      "meanMulligans": 0.20285714285714285
+    },
+    {
+      "label": "arven-crobat",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Crobat V",
+        "Arven"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "clean",
+        "second": false
+      },
+      "counts": {
+        "ready": 347,
+        "apex": 329,
+        "ace": 323,
+        "wipeLock": 158,
+        "toolWipeLock": 121,
+        "repeatWipe": 175,
+        "allEnergy": 133,
+        "basicKO": 99,
+        "raw330": 88,
+        "spread": 78,
+        "timeless": 84,
+        "lockAttack": 261,
+        "vstarSpent": 508,
+        "supportGust": 16,
+        "t1_reg": 631,
+        "t1_energy": 584,
+        "t1_active": 541,
+        "t1_donor": 538
+      },
+      "meanMulligans": 0.19
+    },
+    {
+      "label": "arven-crobat",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Crobat V",
+        "Arven"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "rulebox",
+        "second": false
+      },
+      "counts": {
+        "ready": 241,
+        "apex": 192,
+        "ace": 228,
+        "wipeLock": 61,
+        "toolWipeLock": 50,
+        "repeatWipe": 81,
+        "allEnergy": 51,
+        "basicKO": 32,
+        "raw330": 29,
+        "spread": 26,
+        "timeless": 27,
+        "lockAttack": 126,
+        "vstarSpent": 223,
+        "supportGust": 28,
+        "t1_reg": 615,
+        "t1_energy": 537,
+        "t1_active": 409,
+        "t1_donor": 467
+      },
+      "meanMulligans": 0.19
+    },
+    {
+      "label": "arven-crobat",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Crobat V",
+        "Arven"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "t2-item",
+        "second": false
+      },
+      "counts": {
+        "ready": 265,
+        "apex": 239,
+        "ace": 0,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "repeatWipe": 94,
+        "allEnergy": 71,
+        "basicKO": 64,
+        "raw330": 59,
+        "spread": 55,
+        "timeless": 53,
+        "lockAttack": 147,
+        "vstarSpent": 447,
+        "supportGust": 16,
+        "t1_reg": 631,
+        "t1_energy": 584,
+        "t1_active": 541,
+        "t1_donor": 538
+      },
+      "meanMulligans": 0.19
+    },
+    {
+      "label": "arven-crobat",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Crobat V",
+        "Arven"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "clean",
+        "second": true
+      },
+      "counts": {
+        "ready": 481,
+        "apex": 464,
+        "ace": 386,
+        "wipeLock": 246,
+        "toolWipeLock": 184,
+        "repeatWipe": 253,
+        "allEnergy": 197,
+        "basicKO": 142,
+        "raw330": 117,
+        "spread": 135,
+        "timeless": 127,
+        "lockAttack": 377,
+        "vstarSpent": 542,
+        "supportGust": 13,
+        "t1_reg": 663,
+        "t1_energy": 648,
+        "t1_active": 518,
+        "t1_donor": 609
+      },
+      "meanMulligans": 0.19
+    },
+    {
+      "label": "arven-crobat",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Crobat V",
+        "Arven"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "rulebox",
+        "second": true
+      },
+      "counts": {
+        "ready": 338,
+        "apex": 304,
+        "ace": 279,
+        "wipeLock": 111,
+        "toolWipeLock": 77,
+        "repeatWipe": 141,
+        "allEnergy": 108,
+        "basicKO": 62,
+        "raw330": 57,
+        "spread": 54,
+        "timeless": 48,
+        "lockAttack": 211,
+        "vstarSpent": 279,
+        "supportGust": 31,
+        "t1_reg": 651,
+        "t1_energy": 612,
+        "t1_active": 407,
+        "t1_donor": 567
+      },
+      "meanMulligans": 0.19
+    },
+    {
+      "label": "arven-crobat",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Crobat V",
+        "Arven"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "t2-item",
+        "second": true
+      },
+      "counts": {
+        "ready": 393,
+        "apex": 363,
+        "ace": 0,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "repeatWipe": 158,
+        "allEnergy": 133,
+        "basicKO": 100,
+        "raw330": 91,
+        "spread": 106,
+        "timeless": 87,
+        "lockAttack": 238,
+        "vstarSpent": 510,
+        "supportGust": 16,
+        "t1_reg": 663,
+        "t1_energy": 648,
+        "t1_active": 518,
+        "t1_donor": 609
+      },
+      "meanMulligans": 0.19
+    },
+    {
+      "label": "arven-lillie",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Arven",
+        "Lillie's Determination"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "clean",
+        "second": false
+      },
+      "counts": {
+        "ready": 360,
+        "apex": 338,
+        "ace": 317,
+        "wipeLock": 155,
+        "toolWipeLock": 116,
+        "repeatWipe": 174,
+        "allEnergy": 133,
+        "basicKO": 95,
+        "raw330": 87,
+        "spread": 79,
+        "timeless": 85,
+        "lockAttack": 268,
+        "vstarSpent": 522,
+        "supportGust": 12,
+        "t1_reg": 631,
+        "t1_energy": 580,
+        "t1_active": 548,
+        "t1_donor": 533
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "arven-lillie",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Arven",
+        "Lillie's Determination"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "rulebox",
+        "second": false
+      },
+      "counts": {
+        "ready": 252,
+        "apex": 204,
+        "ace": 226,
+        "wipeLock": 61,
+        "toolWipeLock": 50,
+        "repeatWipe": 86,
+        "allEnergy": 56,
+        "basicKO": 34,
+        "raw330": 30,
+        "spread": 28,
+        "timeless": 30,
+        "lockAttack": 135,
+        "vstarSpent": 226,
+        "supportGust": 22,
+        "t1_reg": 614,
+        "t1_energy": 534,
+        "t1_active": 423,
+        "t1_donor": 460
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "arven-lillie",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Arven",
+        "Lillie's Determination"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "t2-item",
+        "second": false
+      },
+      "counts": {
+        "ready": 278,
+        "apex": 247,
+        "ace": 0,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "repeatWipe": 92,
+        "allEnergy": 72,
+        "basicKO": 62,
+        "raw330": 59,
+        "spread": 53,
+        "timeless": 52,
+        "lockAttack": 153,
+        "vstarSpent": 464,
+        "supportGust": 14,
+        "t1_reg": 631,
+        "t1_energy": 580,
+        "t1_active": 548,
+        "t1_donor": 533
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "arven-lillie",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Arven",
+        "Lillie's Determination"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "clean",
+        "second": true
+      },
+      "counts": {
+        "ready": 495,
+        "apex": 482,
+        "ace": 394,
+        "wipeLock": 263,
+        "toolWipeLock": 194,
+        "repeatWipe": 259,
+        "allEnergy": 216,
+        "basicKO": 142,
+        "raw330": 119,
+        "spread": 135,
+        "timeless": 129,
+        "lockAttack": 397,
+        "vstarSpent": 561,
+        "supportGust": 11,
+        "t1_reg": 671,
+        "t1_energy": 656,
+        "t1_active": 530,
+        "t1_donor": 610
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "arven-lillie",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Arven",
+        "Lillie's Determination"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "rulebox",
+        "second": true
+      },
+      "counts": {
+        "ready": 361,
+        "apex": 329,
+        "ace": 280,
+        "wipeLock": 120,
+        "toolWipeLock": 82,
+        "repeatWipe": 154,
+        "allEnergy": 117,
+        "basicKO": 62,
+        "raw330": 60,
+        "spread": 55,
+        "timeless": 59,
+        "lockAttack": 234,
+        "vstarSpent": 285,
+        "supportGust": 28,
+        "t1_reg": 657,
+        "t1_energy": 619,
+        "t1_active": 417,
+        "t1_donor": 572
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "arven-lillie",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Arven",
+        "Lillie's Determination"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "t2-item",
+        "second": true
+      },
+      "counts": {
+        "ready": 411,
+        "apex": 382,
+        "ace": 0,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "repeatWipe": 165,
+        "allEnergy": 147,
+        "basicKO": 100,
+        "raw330": 96,
+        "spread": 102,
+        "timeless": 89,
+        "lockAttack": 251,
+        "vstarSpent": 529,
+        "supportGust": 13,
+        "t1_reg": 671,
+        "t1_energy": 656,
+        "t1_active": 530,
+        "t1_donor": 610
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "tenacity-arven",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Colress's Tenacity",
+        "Arven"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "clean",
+        "second": false
+      },
+      "counts": {
+        "ready": 354,
+        "apex": 334,
+        "ace": 308,
+        "wipeLock": 153,
+        "toolWipeLock": 115,
+        "repeatWipe": 175,
+        "allEnergy": 129,
+        "basicKO": 93,
+        "raw330": 88,
+        "spread": 82,
+        "timeless": 86,
+        "lockAttack": 265,
+        "vstarSpent": 508,
+        "supportGust": 12,
+        "t1_reg": 631,
+        "t1_energy": 580,
+        "t1_active": 548,
+        "t1_donor": 533
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "tenacity-arven",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Colress's Tenacity",
+        "Arven"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "rulebox",
+        "second": false
+      },
+      "counts": {
+        "ready": 249,
+        "apex": 197,
+        "ace": 223,
+        "wipeLock": 61,
+        "toolWipeLock": 51,
+        "repeatWipe": 80,
+        "allEnergy": 52,
+        "basicKO": 32,
+        "raw330": 30,
+        "spread": 28,
+        "timeless": 29,
+        "lockAttack": 128,
+        "vstarSpent": 220,
+        "supportGust": 23,
+        "t1_reg": 614,
+        "t1_energy": 534,
+        "t1_active": 423,
+        "t1_donor": 460
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "tenacity-arven",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Colress's Tenacity",
+        "Arven"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "t2-item",
+        "second": false
+      },
+      "counts": {
+        "ready": 270,
+        "apex": 241,
+        "ace": 0,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "repeatWipe": 92,
+        "allEnergy": 71,
+        "basicKO": 59,
+        "raw330": 60,
+        "spread": 58,
+        "timeless": 54,
+        "lockAttack": 148,
+        "vstarSpent": 450,
+        "supportGust": 14,
+        "t1_reg": 631,
+        "t1_energy": 580,
+        "t1_active": 548,
+        "t1_donor": 533
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "tenacity-arven",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Colress's Tenacity",
+        "Arven"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "clean",
+        "second": true
+      },
+      "counts": {
+        "ready": 484,
+        "apex": 468,
+        "ace": 380,
+        "wipeLock": 246,
+        "toolWipeLock": 180,
+        "repeatWipe": 249,
+        "allEnergy": 203,
+        "basicKO": 142,
+        "raw330": 107,
+        "spread": 138,
+        "timeless": 123,
+        "lockAttack": 382,
+        "vstarSpent": 547,
+        "supportGust": 11,
+        "t1_reg": 662,
+        "t1_energy": 648,
+        "t1_active": 522,
+        "t1_donor": 602
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "tenacity-arven",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Colress's Tenacity",
+        "Arven"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "rulebox",
+        "second": true
+      },
+      "counts": {
+        "ready": 353,
+        "apex": 314,
+        "ace": 274,
+        "wipeLock": 109,
+        "toolWipeLock": 77,
+        "repeatWipe": 142,
+        "allEnergy": 110,
+        "basicKO": 63,
+        "raw330": 56,
+        "spread": 58,
+        "timeless": 53,
+        "lockAttack": 216,
+        "vstarSpent": 275,
+        "supportGust": 27,
+        "t1_reg": 648,
+        "t1_energy": 614,
+        "t1_active": 415,
+        "t1_donor": 560
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "tenacity-arven",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Colress's Tenacity",
+        "Arven"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "t2-item",
+        "second": true
+      },
+      "counts": {
+        "ready": 394,
+        "apex": 363,
+        "ace": 0,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "repeatWipe": 153,
+        "allEnergy": 133,
+        "basicKO": 96,
+        "raw330": 84,
+        "spread": 104,
+        "timeless": 84,
+        "lockAttack": 233,
+        "vstarSpent": 507,
+        "supportGust": 14,
+        "t1_reg": 662,
+        "t1_energy": 648,
+        "t1_active": 522,
+        "t1_donor": 602
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "noivern-to-arven",
+      "minus": [
+        "Noivern ex",
+        "Wobbuffet"
+      ],
+      "plus": [
+        "Arven",
+        "Crobat V"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "clean",
+        "second": false
+      },
+      "counts": {
+        "ready": 376,
+        "apex": 366,
+        "ace": 301,
+        "wipeLock": 134,
+        "toolWipeLock": 134,
+        "repeatWipe": 209,
+        "allEnergy": 217,
+        "basicKO": 173,
+        "raw330": 111,
+        "spread": 141,
+        "timeless": 109,
+        "lockAttack": 237,
+        "vstarSpent": 530,
+        "supportGust": 17,
+        "t1_reg": 629,
+        "t1_energy": 573,
+        "t1_active": 532,
+        "t1_donor": 535
+      },
+      "meanMulligans": 0.2042857142857143
+    },
+    {
+      "label": "noivern-to-arven",
+      "minus": [
+        "Noivern ex",
+        "Wobbuffet"
+      ],
+      "plus": [
+        "Arven",
+        "Crobat V"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "rulebox",
+        "second": false
+      },
+      "counts": {
+        "ready": 245,
+        "apex": 200,
+        "ace": 210,
+        "wipeLock": 37,
+        "toolWipeLock": 37,
+        "repeatWipe": 84,
+        "allEnergy": 94,
+        "basicKO": 49,
+        "raw330": 28,
+        "spread": 45,
+        "timeless": 26,
+        "lockAttack": 98,
+        "vstarSpent": 217,
+        "supportGust": 23,
+        "t1_reg": 611,
+        "t1_energy": 526,
+        "t1_active": 410,
+        "t1_donor": 458
+      },
+      "meanMulligans": 0.2042857142857143
+    },
+    {
+      "label": "noivern-to-arven",
+      "minus": [
+        "Noivern ex",
+        "Wobbuffet"
+      ],
+      "plus": [
+        "Arven",
+        "Crobat V"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "t2-item",
+        "second": false
+      },
+      "counts": {
+        "ready": 286,
+        "apex": 269,
+        "ace": 0,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "repeatWipe": 121,
+        "allEnergy": 136,
+        "basicKO": 105,
+        "raw330": 60,
+        "spread": 77,
+        "timeless": 69,
+        "lockAttack": 126,
+        "vstarSpent": 464,
+        "supportGust": 14,
+        "t1_reg": 629,
+        "t1_energy": 573,
+        "t1_active": 532,
+        "t1_donor": 535
+      },
+      "meanMulligans": 0.2042857142857143
+    },
+    {
+      "label": "noivern-to-arven",
+      "minus": [
+        "Noivern ex",
+        "Wobbuffet"
+      ],
+      "plus": [
+        "Arven",
+        "Crobat V"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "clean",
+        "second": true
+      },
+      "counts": {
+        "ready": 469,
+        "apex": 459,
+        "ace": 386,
+        "wipeLock": 209,
+        "toolWipeLock": 209,
+        "repeatWipe": 281,
+        "allEnergy": 285,
+        "basicKO": 242,
+        "raw330": 153,
+        "spread": 182,
+        "timeless": 148,
+        "lockAttack": 309,
+        "vstarSpent": 538,
+        "supportGust": 14,
+        "t1_reg": 664,
+        "t1_energy": 648,
+        "t1_active": 519,
+        "t1_donor": 609
+      },
+      "meanMulligans": 0.2042857142857143
+    },
+    {
+      "label": "noivern-to-arven",
+      "minus": [
+        "Noivern ex",
+        "Wobbuffet"
+      ],
+      "plus": [
+        "Arven",
+        "Crobat V"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "rulebox",
+        "second": true
+      },
+      "counts": {
+        "ready": 326,
+        "apex": 295,
+        "ace": 278,
+        "wipeLock": 71,
+        "toolWipeLock": 71,
+        "repeatWipe": 150,
+        "allEnergy": 145,
+        "basicKO": 108,
+        "raw330": 62,
+        "spread": 76,
+        "timeless": 57,
+        "lockAttack": 148,
+        "vstarSpent": 259,
+        "supportGust": 25,
+        "t1_reg": 651,
+        "t1_energy": 613,
+        "t1_active": 421,
+        "t1_donor": 567
+      },
+      "meanMulligans": 0.2042857142857143
+    },
+    {
+      "label": "noivern-to-arven",
+      "minus": [
+        "Noivern ex",
+        "Wobbuffet"
+      ],
+      "plus": [
+        "Arven",
+        "Crobat V"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "t2-item",
+        "second": true
+      },
+      "counts": {
+        "ready": 376,
+        "apex": 354,
+        "ace": 0,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "repeatWipe": 164,
+        "allEnergy": 171,
+        "basicKO": 154,
+        "raw330": 104,
+        "spread": 117,
+        "timeless": 102,
+        "lockAttack": 168,
+        "vstarSpent": 510,
+        "supportGust": 13,
+        "t1_reg": 664,
+        "t1_energy": 648,
+        "t1_active": 519,
+        "t1_donor": 609
+      },
+      "meanMulligans": 0.2042857142857143
+    },
+    {
+      "label": "elixir-ramp",
+      "minus": [
+        "Wobbuffet",
+        "Noivern ex",
+        "Guzma & Hala",
+        "Raihan",
+        "Guzma"
+      ],
+      "plus": [
+        "Max Elixir",
+        "Max Elixir",
+        "Max Elixir",
+        "Basic Grass Energy",
+        "Basic Fire Energy"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "clean",
+        "second": false
+      },
+      "counts": {
+        "ready": 334,
+        "apex": 321,
+        "ace": 288,
+        "wipeLock": 111,
+        "toolWipeLock": 111,
+        "repeatWipe": 192,
+        "allEnergy": 190,
+        "basicKO": 153,
+        "raw330": 100,
+        "spread": 127,
+        "timeless": 97,
+        "lockAttack": 205,
+        "vstarSpent": 511,
+        "supportGust": 8,
+        "t1_reg": 633,
+        "t1_energy": 595,
+        "t1_active": 542,
+        "t1_donor": 526
+      },
+      "meanMulligans": 0.24857142857142858
+    },
+    {
+      "label": "elixir-ramp",
+      "minus": [
+        "Wobbuffet",
+        "Noivern ex",
+        "Guzma & Hala",
+        "Raihan",
+        "Guzma"
+      ],
+      "plus": [
+        "Max Elixir",
+        "Max Elixir",
+        "Max Elixir",
+        "Basic Grass Energy",
+        "Basic Fire Energy"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "rulebox",
+        "second": false
+      },
+      "counts": {
+        "ready": 203,
+        "apex": 161,
+        "ace": 176,
+        "wipeLock": 29,
+        "toolWipeLock": 29,
+        "repeatWipe": 76,
+        "allEnergy": 73,
+        "basicKO": 50,
+        "raw330": 26,
+        "spread": 33,
+        "timeless": 28,
+        "lockAttack": 80,
+        "vstarSpent": 168,
+        "supportGust": 22,
+        "t1_reg": 616,
+        "t1_energy": 554,
+        "t1_active": 395,
+        "t1_donor": 463
+      },
+      "meanMulligans": 0.24857142857142858
+    },
+    {
+      "label": "elixir-ramp",
+      "minus": [
+        "Wobbuffet",
+        "Noivern ex",
+        "Guzma & Hala",
+        "Raihan",
+        "Guzma"
+      ],
+      "plus": [
+        "Max Elixir",
+        "Max Elixir",
+        "Max Elixir",
+        "Basic Grass Energy",
+        "Basic Fire Energy"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "t2-item",
+        "second": false
+      },
+      "counts": {
+        "ready": 246,
+        "apex": 224,
+        "ace": 0,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "repeatWipe": 103,
+        "allEnergy": 110,
+        "basicKO": 84,
+        "raw330": 54,
+        "spread": 67,
+        "timeless": 49,
+        "lockAttack": 97,
+        "vstarSpent": 440,
+        "supportGust": 9,
+        "t1_reg": 633,
+        "t1_energy": 595,
+        "t1_active": 542,
+        "t1_donor": 526
+      },
+      "meanMulligans": 0.24857142857142858
+    },
+    {
+      "label": "elixir-ramp",
+      "minus": [
+        "Wobbuffet",
+        "Noivern ex",
+        "Guzma & Hala",
+        "Raihan",
+        "Guzma"
+      ],
+      "plus": [
+        "Max Elixir",
+        "Max Elixir",
+        "Max Elixir",
+        "Basic Grass Energy",
+        "Basic Fire Energy"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "clean",
+        "second": true
+      },
+      "counts": {
+        "ready": 441,
+        "apex": 431,
+        "ace": 330,
+        "wipeLock": 163,
+        "toolWipeLock": 163,
+        "repeatWipe": 249,
+        "allEnergy": 261,
+        "basicKO": 218,
+        "raw330": 129,
+        "spread": 190,
+        "timeless": 139,
+        "lockAttack": 288,
+        "vstarSpent": 528,
+        "supportGust": 11,
+        "t1_reg": 659,
+        "t1_energy": 651,
+        "t1_active": 512,
+        "t1_donor": 583
+      },
+      "meanMulligans": 0.24857142857142858
+    },
+    {
+      "label": "elixir-ramp",
+      "minus": [
+        "Wobbuffet",
+        "Noivern ex",
+        "Guzma & Hala",
+        "Raihan",
+        "Guzma"
+      ],
+      "plus": [
+        "Max Elixir",
+        "Max Elixir",
+        "Max Elixir",
+        "Basic Grass Energy",
+        "Basic Fire Energy"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "rulebox",
+        "second": true
+      },
+      "counts": {
+        "ready": 297,
+        "apex": 256,
+        "ace": 212,
+        "wipeLock": 47,
+        "toolWipeLock": 47,
+        "repeatWipe": 116,
+        "allEnergy": 127,
+        "basicKO": 91,
+        "raw330": 41,
+        "spread": 68,
+        "timeless": 46,
+        "lockAttack": 134,
+        "vstarSpent": 202,
+        "supportGust": 25,
+        "t1_reg": 645,
+        "t1_energy": 618,
+        "t1_active": 366,
+        "t1_donor": 532
+      },
+      "meanMulligans": 0.24857142857142858
+    },
+    {
+      "label": "elixir-ramp",
+      "minus": [
+        "Wobbuffet",
+        "Noivern ex",
+        "Guzma & Hala",
+        "Raihan",
+        "Guzma"
+      ],
+      "plus": [
+        "Max Elixir",
+        "Max Elixir",
+        "Max Elixir",
+        "Basic Grass Energy",
+        "Basic Fire Energy"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "t2-item",
+        "second": true
+      },
+      "counts": {
+        "ready": 363,
+        "apex": 341,
+        "ace": 0,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "repeatWipe": 141,
+        "allEnergy": 166,
+        "basicKO": 133,
+        "raw330": 90,
+        "spread": 117,
+        "timeless": 90,
+        "lockAttack": 162,
+        "vstarSpent": 491,
+        "supportGust": 11,
+        "t1_reg": 659,
+        "t1_energy": 651,
+        "t1_active": 512,
+        "t1_donor": 583
+      },
+      "meanMulligans": 0.24857142857142858
+    },
+    {
+      "label": "elixir-ramp2",
+      "minus": [
+        "Wobbuffet",
+        "Raihan",
+        "Guzma & Hala",
+        "Guzma",
+        "Chaotic Swell"
+      ],
+      "plus": [
+        "Max Elixir",
+        "Max Elixir",
+        "Max Elixir",
+        "Basic Grass Energy",
+        "Basic Fire Energy"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "clean",
+        "second": false
+      },
+      "counts": {
+        "ready": 331,
+        "apex": 317,
+        "ace": 284,
+        "wipeLock": 127,
+        "toolWipeLock": 97,
+        "repeatWipe": 168,
+        "allEnergy": 128,
+        "basicKO": 92,
+        "raw330": 67,
+        "spread": 82,
+        "timeless": 74,
+        "lockAttack": 248,
+        "vstarSpent": 498,
+        "supportGust": 7,
+        "t1_reg": 622,
+        "t1_energy": 587,
+        "t1_active": 554,
+        "t1_donor": 542
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "elixir-ramp2",
+      "minus": [
+        "Wobbuffet",
+        "Raihan",
+        "Guzma & Hala",
+        "Guzma",
+        "Chaotic Swell"
+      ],
+      "plus": [
+        "Max Elixir",
+        "Max Elixir",
+        "Max Elixir",
+        "Basic Grass Energy",
+        "Basic Fire Energy"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "rulebox",
+        "second": false
+      },
+      "counts": {
+        "ready": 204,
+        "apex": 165,
+        "ace": 160,
+        "wipeLock": 28,
+        "toolWipeLock": 22,
+        "repeatWipe": 65,
+        "allEnergy": 37,
+        "basicKO": 16,
+        "raw330": 20,
+        "spread": 22,
+        "timeless": 18,
+        "lockAttack": 101,
+        "vstarSpent": 170,
+        "supportGust": 22,
+        "t1_reg": 609,
+        "t1_energy": 552,
+        "t1_active": 400,
+        "t1_donor": 477
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "elixir-ramp2",
+      "minus": [
+        "Wobbuffet",
+        "Raihan",
+        "Guzma & Hala",
+        "Guzma",
+        "Chaotic Swell"
+      ],
+      "plus": [
+        "Max Elixir",
+        "Max Elixir",
+        "Max Elixir",
+        "Basic Grass Energy",
+        "Basic Fire Energy"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "t2-item",
+        "second": false
+      },
+      "counts": {
+        "ready": 252,
+        "apex": 228,
+        "ace": 0,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "repeatWipe": 95,
+        "allEnergy": 78,
+        "basicKO": 46,
+        "raw330": 47,
+        "spread": 51,
+        "timeless": 46,
+        "lockAttack": 138,
+        "vstarSpent": 433,
+        "supportGust": 7,
+        "t1_reg": 622,
+        "t1_energy": 587,
+        "t1_active": 554,
+        "t1_donor": 542
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "elixir-ramp2",
+      "minus": [
+        "Wobbuffet",
+        "Raihan",
+        "Guzma & Hala",
+        "Guzma",
+        "Chaotic Swell"
+      ],
+      "plus": [
+        "Max Elixir",
+        "Max Elixir",
+        "Max Elixir",
+        "Basic Grass Energy",
+        "Basic Fire Energy"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "clean",
+        "second": true
+      },
+      "counts": {
+        "ready": 429,
+        "apex": 416,
+        "ace": 323,
+        "wipeLock": 191,
+        "toolWipeLock": 133,
+        "repeatWipe": 210,
+        "allEnergy": 186,
+        "basicKO": 140,
+        "raw330": 128,
+        "spread": 149,
+        "timeless": 128,
+        "lockAttack": 341,
+        "vstarSpent": 491,
+        "supportGust": 7,
+        "t1_reg": 649,
+        "t1_energy": 642,
+        "t1_active": 518,
+        "t1_donor": 612
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "elixir-ramp2",
+      "minus": [
+        "Wobbuffet",
+        "Raihan",
+        "Guzma & Hala",
+        "Guzma",
+        "Chaotic Swell"
+      ],
+      "plus": [
+        "Max Elixir",
+        "Max Elixir",
+        "Max Elixir",
+        "Basic Grass Energy",
+        "Basic Fire Energy"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "rulebox",
+        "second": true
+      },
+      "counts": {
+        "ready": 294,
+        "apex": 258,
+        "ace": 198,
+        "wipeLock": 50,
+        "toolWipeLock": 36,
+        "repeatWipe": 103,
+        "allEnergy": 78,
+        "basicKO": 50,
+        "raw330": 50,
+        "spread": 56,
+        "timeless": 41,
+        "lockAttack": 158,
+        "vstarSpent": 186,
+        "supportGust": 29,
+        "t1_reg": 637,
+        "t1_energy": 611,
+        "t1_active": 368,
+        "t1_donor": 558
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "elixir-ramp2",
+      "minus": [
+        "Wobbuffet",
+        "Raihan",
+        "Guzma & Hala",
+        "Guzma",
+        "Chaotic Swell"
+      ],
+      "plus": [
+        "Max Elixir",
+        "Max Elixir",
+        "Max Elixir",
+        "Basic Grass Energy",
+        "Basic Fire Energy"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "t2-item",
+        "second": true
+      },
+      "counts": {
+        "ready": 338,
+        "apex": 319,
+        "ace": 0,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "repeatWipe": 134,
+        "allEnergy": 114,
+        "basicKO": 91,
+        "raw330": 97,
+        "spread": 97,
+        "timeless": 93,
+        "lockAttack": 219,
+        "vstarSpent": 442,
+        "supportGust": 8,
+        "t1_reg": 649,
+        "t1_energy": 642,
+        "t1_active": 518,
+        "t1_donor": 612
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "loto-tenacity",
+      "minus": [
+        "Wobbuffet",
+        "Raihan",
+        "Guzma & Hala"
+      ],
+      "plus": [
+        "Energy Loto",
+        "Energy Loto",
+        "Colress's Tenacity"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "clean",
+        "second": false
+      },
+      "counts": {
+        "ready": 356,
+        "apex": 339,
+        "ace": 284,
+        "wipeLock": 152,
+        "toolWipeLock": 108,
+        "repeatWipe": 184,
+        "allEnergy": 135,
+        "basicKO": 108,
+        "raw330": 79,
+        "spread": 93,
+        "timeless": 86,
+        "lockAttack": 282,
+        "vstarSpent": 492,
+        "supportGust": 14,
+        "t1_reg": 628,
+        "t1_energy": 583,
+        "t1_active": 552,
+        "t1_donor": 529
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "loto-tenacity",
+      "minus": [
+        "Wobbuffet",
+        "Raihan",
+        "Guzma & Hala"
+      ],
+      "plus": [
+        "Energy Loto",
+        "Energy Loto",
+        "Colress's Tenacity"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "rulebox",
+        "second": false
+      },
+      "counts": {
+        "ready": 227,
+        "apex": 174,
+        "ace": 180,
+        "wipeLock": 35,
+        "toolWipeLock": 22,
+        "repeatWipe": 69,
+        "allEnergy": 43,
+        "basicKO": 28,
+        "raw330": 15,
+        "spread": 24,
+        "timeless": 18,
+        "lockAttack": 112,
+        "vstarSpent": 154,
+        "supportGust": 29,
+        "t1_reg": 610,
+        "t1_energy": 543,
+        "t1_active": 422,
+        "t1_donor": 457
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "loto-tenacity",
+      "minus": [
+        "Wobbuffet",
+        "Raihan",
+        "Guzma & Hala"
+      ],
+      "plus": [
+        "Energy Loto",
+        "Energy Loto",
+        "Colress's Tenacity"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "t2-item",
+        "second": false
+      },
+      "counts": {
+        "ready": 279,
+        "apex": 248,
+        "ace": 0,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "repeatWipe": 101,
+        "allEnergy": 85,
+        "basicKO": 72,
+        "raw330": 51,
+        "spread": 66,
+        "timeless": 56,
+        "lockAttack": 169,
+        "vstarSpent": 432,
+        "supportGust": 15,
+        "t1_reg": 628,
+        "t1_energy": 583,
+        "t1_active": 552,
+        "t1_donor": 529
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "loto-tenacity",
+      "minus": [
+        "Wobbuffet",
+        "Raihan",
+        "Guzma & Hala"
+      ],
+      "plus": [
+        "Energy Loto",
+        "Energy Loto",
+        "Colress's Tenacity"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "clean",
+        "second": true
+      },
+      "counts": {
+        "ready": 448,
+        "apex": 434,
+        "ace": 328,
+        "wipeLock": 212,
+        "toolWipeLock": 161,
+        "repeatWipe": 234,
+        "allEnergy": 192,
+        "basicKO": 163,
+        "raw330": 126,
+        "spread": 143,
+        "timeless": 120,
+        "lockAttack": 359,
+        "vstarSpent": 496,
+        "supportGust": 18,
+        "t1_reg": 652,
+        "t1_energy": 641,
+        "t1_active": 502,
+        "t1_donor": 591
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "loto-tenacity",
+      "minus": [
+        "Wobbuffet",
+        "Raihan",
+        "Guzma & Hala"
+      ],
+      "plus": [
+        "Energy Loto",
+        "Energy Loto",
+        "Colress's Tenacity"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "rulebox",
+        "second": true
+      },
+      "counts": {
+        "ready": 325,
+        "apex": 282,
+        "ace": 218,
+        "wipeLock": 76,
+        "toolWipeLock": 51,
+        "repeatWipe": 117,
+        "allEnergy": 78,
+        "basicKO": 60,
+        "raw330": 44,
+        "spread": 61,
+        "timeless": 45,
+        "lockAttack": 176,
+        "vstarSpent": 181,
+        "supportGust": 37,
+        "t1_reg": 639,
+        "t1_energy": 613,
+        "t1_active": 383,
+        "t1_donor": 550
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "loto-tenacity",
+      "minus": [
+        "Wobbuffet",
+        "Raihan",
+        "Guzma & Hala"
+      ],
+      "plus": [
+        "Energy Loto",
+        "Energy Loto",
+        "Colress's Tenacity"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "t2-item",
+        "second": true
+      },
+      "counts": {
+        "ready": 358,
+        "apex": 328,
+        "ace": 0,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "repeatWipe": 139,
+        "allEnergy": 124,
+        "basicKO": 108,
+        "raw330": 83,
+        "spread": 101,
+        "timeless": 88,
+        "lockAttack": 214,
+        "vstarSpent": 459,
+        "supportGust": 21,
+        "t1_reg": 652,
+        "t1_energy": 641,
+        "t1_active": 502,
+        "t1_donor": 591
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "tag-ggend",
+      "minus": [
+        "Wobbuffet",
+        "Noivern ex",
+        "Guzma"
+      ],
+      "plus": [
+        "Tag Call",
+        "Tag Call",
+        "Garchomp & Giratina-GX"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "clean",
+        "second": false
+      },
+      "counts": {
+        "ready": 350,
+        "apex": 325,
+        "ace": 264,
+        "wipeLock": 95,
+        "toolWipeLock": 95,
+        "repeatWipe": 203,
+        "allEnergy": 182,
+        "basicKO": 165,
+        "raw330": 98,
+        "spread": 107,
+        "timeless": 102,
+        "lockAttack": 201,
+        "vstarSpent": 541,
+        "supportGust": 8,
+        "t1_reg": 630,
+        "t1_energy": 572,
+        "t1_active": 535,
+        "t1_donor": 529
+      },
+      "meanMulligans": 0.2042857142857143
+    },
+    {
+      "label": "tag-ggend",
+      "minus": [
+        "Wobbuffet",
+        "Noivern ex",
+        "Guzma"
+      ],
+      "plus": [
+        "Tag Call",
+        "Tag Call",
+        "Garchomp & Giratina-GX"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "rulebox",
+        "second": false
+      },
+      "counts": {
+        "ready": 233,
+        "apex": 180,
+        "ace": 195,
+        "wipeLock": 35,
+        "toolWipeLock": 35,
+        "repeatWipe": 97,
+        "allEnergy": 89,
+        "basicKO": 61,
+        "raw330": 29,
+        "spread": 33,
+        "timeless": 31,
+        "lockAttack": 91,
+        "vstarSpent": 235,
+        "supportGust": 15,
+        "t1_reg": 614,
+        "t1_energy": 519,
+        "t1_active": 416,
+        "t1_donor": 473
+      },
+      "meanMulligans": 0.2042857142857143
+    },
+    {
+      "label": "tag-ggend",
+      "minus": [
+        "Wobbuffet",
+        "Noivern ex",
+        "Guzma"
+      ],
+      "plus": [
+        "Tag Call",
+        "Tag Call",
+        "Garchomp & Giratina-GX"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "t2-item",
+        "second": false
+      },
+      "counts": {
+        "ready": 274,
+        "apex": 243,
+        "ace": 0,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "repeatWipe": 124,
+        "allEnergy": 117,
+        "basicKO": 94,
+        "raw330": 63,
+        "spread": 58,
+        "timeless": 61,
+        "lockAttack": 111,
+        "vstarSpent": 469,
+        "supportGust": 8,
+        "t1_reg": 630,
+        "t1_energy": 572,
+        "t1_active": 535,
+        "t1_donor": 529
+      },
+      "meanMulligans": 0.2042857142857143
+    },
+    {
+      "label": "tag-ggend",
+      "minus": [
+        "Wobbuffet",
+        "Noivern ex",
+        "Guzma"
+      ],
+      "plus": [
+        "Tag Call",
+        "Tag Call",
+        "Garchomp & Giratina-GX"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "clean",
+        "second": true
+      },
+      "counts": {
+        "ready": 461,
+        "apex": 443,
+        "ace": 342,
+        "wipeLock": 166,
+        "toolWipeLock": 166,
+        "repeatWipe": 274,
+        "allEnergy": 257,
+        "basicKO": 219,
+        "raw330": 129,
+        "spread": 175,
+        "timeless": 139,
+        "lockAttack": 294,
+        "vstarSpent": 556,
+        "supportGust": 5,
+        "t1_reg": 653,
+        "t1_energy": 643,
+        "t1_active": 518,
+        "t1_donor": 599
+      },
+      "meanMulligans": 0.2042857142857143
+    },
+    {
+      "label": "tag-ggend",
+      "minus": [
+        "Wobbuffet",
+        "Noivern ex",
+        "Guzma"
+      ],
+      "plus": [
+        "Tag Call",
+        "Tag Call",
+        "Garchomp & Giratina-GX"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "rulebox",
+        "second": true
+      },
+      "counts": {
+        "ready": 351,
+        "apex": 315,
+        "ace": 232,
+        "wipeLock": 58,
+        "toolWipeLock": 58,
+        "repeatWipe": 161,
+        "allEnergy": 151,
+        "basicKO": 108,
+        "raw330": 54,
+        "spread": 86,
+        "timeless": 61,
+        "lockAttack": 164,
+        "vstarSpent": 283,
+        "supportGust": 15,
+        "t1_reg": 642,
+        "t1_energy": 616,
+        "t1_active": 423,
+        "t1_donor": 563
+      },
+      "meanMulligans": 0.2042857142857143
+    },
+    {
+      "label": "tag-ggend",
+      "minus": [
+        "Wobbuffet",
+        "Noivern ex",
+        "Guzma"
+      ],
+      "plus": [
+        "Tag Call",
+        "Tag Call",
+        "Garchomp & Giratina-GX"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "t2-item",
+        "second": true
+      },
+      "counts": {
+        "ready": 393,
+        "apex": 363,
+        "ace": 0,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "repeatWipe": 183,
+        "allEnergy": 176,
+        "basicKO": 145,
+        "raw330": 95,
+        "spread": 113,
+        "timeless": 108,
+        "lockAttack": 184,
+        "vstarSpent": 516,
+        "supportGust": 7,
+        "t1_reg": 653,
+        "t1_energy": 643,
+        "t1_active": 518,
+        "t1_donor": 599
+      },
+      "meanMulligans": 0.2042857142857143
+    },
+    {
+      "label": "heavy-arven",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Hisuian Heavy Ball",
+        "Arven"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "clean",
+        "second": false
+      },
+      "counts": {
+        "ready": 357,
+        "apex": 336,
+        "ace": 317,
+        "wipeLock": 155,
+        "toolWipeLock": 117,
+        "repeatWipe": 176,
+        "allEnergy": 129,
+        "basicKO": 95,
+        "raw330": 88,
+        "spread": 83,
+        "timeless": 85,
+        "lockAttack": 263,
+        "vstarSpent": 514,
+        "supportGust": 12,
+        "t1_reg": 640,
+        "t1_energy": 588,
+        "t1_active": 555,
+        "t1_donor": 532
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "heavy-arven",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Hisuian Heavy Ball",
+        "Arven"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "rulebox",
+        "second": false
+      },
+      "counts": {
+        "ready": 249,
+        "apex": 196,
+        "ace": 230,
+        "wipeLock": 62,
+        "toolWipeLock": 51,
+        "repeatWipe": 81,
+        "allEnergy": 52,
+        "basicKO": 33,
+        "raw330": 29,
+        "spread": 28,
+        "timeless": 30,
+        "lockAttack": 127,
+        "vstarSpent": 227,
+        "supportGust": 24,
+        "t1_reg": 621,
+        "t1_energy": 541,
+        "t1_active": 425,
+        "t1_donor": 460
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "heavy-arven",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Hisuian Heavy Ball",
+        "Arven"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "t2-item",
+        "second": false
+      },
+      "counts": {
+        "ready": 275,
+        "apex": 245,
+        "ace": 0,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "repeatWipe": 95,
+        "allEnergy": 72,
+        "basicKO": 61,
+        "raw330": 61,
+        "spread": 59,
+        "timeless": 53,
+        "lockAttack": 149,
+        "vstarSpent": 457,
+        "supportGust": 14,
+        "t1_reg": 640,
+        "t1_energy": 588,
+        "t1_active": 555,
+        "t1_donor": 532
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "heavy-arven",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Hisuian Heavy Ball",
+        "Arven"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "clean",
+        "second": true
+      },
+      "counts": {
+        "ready": 487,
+        "apex": 472,
+        "ace": 386,
+        "wipeLock": 249,
+        "toolWipeLock": 185,
+        "repeatWipe": 253,
+        "allEnergy": 203,
+        "basicKO": 143,
+        "raw330": 109,
+        "spread": 139,
+        "timeless": 125,
+        "lockAttack": 384,
+        "vstarSpent": 556,
+        "supportGust": 12,
+        "t1_reg": 669,
+        "t1_energy": 654,
+        "t1_active": 527,
+        "t1_donor": 604
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "heavy-arven",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Hisuian Heavy Ball",
+        "Arven"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "rulebox",
+        "second": true
+      },
+      "counts": {
+        "ready": 344,
+        "apex": 308,
+        "ace": 282,
+        "wipeLock": 111,
+        "toolWipeLock": 76,
+        "repeatWipe": 142,
+        "allEnergy": 110,
+        "basicKO": 61,
+        "raw330": 56,
+        "spread": 56,
+        "timeless": 51,
+        "lockAttack": 212,
+        "vstarSpent": 283,
+        "supportGust": 29,
+        "t1_reg": 652,
+        "t1_energy": 613,
+        "t1_active": 418,
+        "t1_donor": 561
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "heavy-arven",
+      "minus": [
+        "Wobbuffet",
+        "Raihan"
+      ],
+      "plus": [
+        "Hisuian Heavy Ball",
+        "Arven"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "t2-item",
+        "second": true
+      },
+      "counts": {
+        "ready": 399,
+        "apex": 368,
+        "ace": 0,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "repeatWipe": 157,
+        "allEnergy": 137,
+        "basicKO": 96,
+        "raw330": 90,
+        "spread": 106,
+        "timeless": 85,
+        "lockAttack": 240,
+        "vstarSpent": 520,
+        "supportGust": 14,
+        "t1_reg": 669,
+        "t1_energy": 654,
+        "t1_active": 527,
+        "t1_donor": 604
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "compressor-arven",
+      "minus": [
+        "Wobbuffet",
+        "Raihan",
+        "Guzma"
+      ],
+      "plus": [
+        "Battle Compressor Team Flare Gear",
+        "Arven",
+        "Quick Ball"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "clean",
+        "second": false
+      },
+      "counts": {
+        "ready": 371,
+        "apex": 360,
+        "ace": 314,
+        "wipeLock": 166,
+        "toolWipeLock": 140,
+        "repeatWipe": 215,
+        "allEnergy": 151,
+        "basicKO": 112,
+        "raw330": 82,
+        "spread": 112,
+        "timeless": 90,
+        "lockAttack": 299,
+        "vstarSpent": 523,
+        "supportGust": 8,
+        "t1_reg": 631,
+        "t1_energy": 580,
+        "t1_active": 558,
+        "t1_donor": 566
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "compressor-arven",
+      "minus": [
+        "Wobbuffet",
+        "Raihan",
+        "Guzma"
+      ],
+      "plus": [
+        "Battle Compressor Team Flare Gear",
+        "Arven",
+        "Quick Ball"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "rulebox",
+        "second": false
+      },
+      "counts": {
+        "ready": 235,
+        "apex": 204,
+        "ace": 220,
+        "wipeLock": 60,
+        "toolWipeLock": 50,
+        "repeatWipe": 98,
+        "allEnergy": 67,
+        "basicKO": 28,
+        "raw330": 19,
+        "spread": 31,
+        "timeless": 24,
+        "lockAttack": 142,
+        "vstarSpent": 215,
+        "supportGust": 10,
+        "t1_reg": 615,
+        "t1_energy": 530,
+        "t1_active": 431,
+        "t1_donor": 492
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "compressor-arven",
+      "minus": [
+        "Wobbuffet",
+        "Raihan",
+        "Guzma"
+      ],
+      "plus": [
+        "Battle Compressor Team Flare Gear",
+        "Arven",
+        "Quick Ball"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "t2-item",
+        "second": false
+      },
+      "counts": {
+        "ready": 289,
+        "apex": 258,
+        "ace": 0,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "repeatWipe": 123,
+        "allEnergy": 90,
+        "basicKO": 78,
+        "raw330": 63,
+        "spread": 69,
+        "timeless": 60,
+        "lockAttack": 168,
+        "vstarSpent": 463,
+        "supportGust": 9,
+        "t1_reg": 631,
+        "t1_energy": 580,
+        "t1_active": 558,
+        "t1_donor": 566
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "compressor-arven",
+      "minus": [
+        "Wobbuffet",
+        "Raihan",
+        "Guzma"
+      ],
+      "plus": [
+        "Battle Compressor Team Flare Gear",
+        "Arven",
+        "Quick Ball"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "clean",
+        "second": true
+      },
+      "counts": {
+        "ready": 481,
+        "apex": 472,
+        "ace": 379,
+        "wipeLock": 251,
+        "toolWipeLock": 192,
+        "repeatWipe": 279,
+        "allEnergy": 218,
+        "basicKO": 173,
+        "raw330": 132,
+        "spread": 165,
+        "timeless": 130,
+        "lockAttack": 401,
+        "vstarSpent": 546,
+        "supportGust": 10,
+        "t1_reg": 670,
+        "t1_energy": 656,
+        "t1_active": 525,
+        "t1_donor": 625
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "compressor-arven",
+      "minus": [
+        "Wobbuffet",
+        "Raihan",
+        "Guzma"
+      ],
+      "plus": [
+        "Battle Compressor Team Flare Gear",
+        "Arven",
+        "Quick Ball"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "rulebox",
+        "second": true
+      },
+      "counts": {
+        "ready": 353,
+        "apex": 318,
+        "ace": 261,
+        "wipeLock": 109,
+        "toolWipeLock": 84,
+        "repeatWipe": 155,
+        "allEnergy": 111,
+        "basicKO": 67,
+        "raw330": 52,
+        "spread": 71,
+        "timeless": 62,
+        "lockAttack": 228,
+        "vstarSpent": 262,
+        "supportGust": 13,
+        "t1_reg": 661,
+        "t1_energy": 624,
+        "t1_active": 427,
+        "t1_donor": 587
+      },
+      "meanMulligans": 0.22285714285714286
+    },
+    {
+      "label": "compressor-arven",
+      "minus": [
+        "Wobbuffet",
+        "Raihan",
+        "Guzma"
+      ],
+      "plus": [
+        "Battle Compressor Team Flare Gear",
+        "Arven",
+        "Quick Ball"
+      ],
+      "trials": 700,
+      "seed": 27112027,
+      "opts": {
+        "goal": "wipe-lock",
+        "scenario": "t2-item",
+        "second": true
+      },
+      "counts": {
+        "ready": 378,
+        "apex": 356,
+        "ace": 0,
+        "wipeLock": 0,
+        "toolWipeLock": 0,
+        "repeatWipe": 164,
+        "allEnergy": 135,
+        "basicKO": 112,
+        "raw330": 102,
+        "spread": 118,
+        "timeless": 95,
+        "lockAttack": 244,
+        "vstarSpent": 508,
+        "supportGust": 11,
+        "t1_reg": 670,
+        "t1_energy": 656,
+        "t1_active": 525,
+        "t1_donor": 625
+      },
+      "meanMulligans": 0.22285714285714286
+    }
+  ]
+}
