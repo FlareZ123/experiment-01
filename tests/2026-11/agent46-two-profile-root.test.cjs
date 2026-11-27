@@ -1489,3 +1489,46 @@ test('hooked Astral Barrage admits the sole opposing Active while unhooked polic
     assert.equal(bp.decide(req).kind,'abstain');
   }
 });
+
+
+test('hooded Stoutland terminal line is certified only through held Field Blower after Wobbuffet suppresses Vileplume',()=>{
+  for(const seat of [0,1]){
+    const profile=profiles[1],guzma='Guzma BUS',blower='Field Blower GRI';
+    const active=v([P,P]);active.printed.retreatCost=['Colorless','Colorless'];
+    const w=wob(),attacker=vmax([P,P,P,P,P]);
+    const stout=pokemon({printing:'Stoutland BCR',name:'Stoutland',hp:140,types:['Colorless'],
+      subtypes:['Stage 2'],abilities:['Sentinel'],suppression:false,tools:['Stealthy Hood UNB']});
+    const pollen=pokemon({printing:'Vileplume AOR',name:'Vileplume',hp:130,types:['Grass'],
+      subtypes:['Stage 2'],abilities:['Irritating Pollen'],suppression:false});
+    const gx=pokemon({printing:'Vileplume-GX CEC',name:'Vileplume-GX',hp:240,damage:90,types:['Grass'],
+      subtypes:['Stage 2','GX'],abilities:['Fragrant Flower Garden'],suppression:false});
+    const view=observation(seat,{active,bench:[w,attacker],opponentActive:stout,opponentBench:[pollen,gx],
+      ownHand:[guzma,blower],globalTurn:15});
+    view.ownPublic.prizeCount=2;
+    view.ownTurnResources.supporterPlayLocked=true;
+    view.ownPublic.publicTurnRestrictions.supporterPlayLocked=true;
+    const retreat={token:'retreat-w',kind:'retreat',targetPrinting:W,publicMetadata:{benchIndex:0}};
+    const mist={token:'mist',kind:'attack',attackName:'Shadow Mist'};
+    assert.deepEqual(decide(profile,root(seat,view,[retreat,mist])),sel('retreat-w'));
+
+    const noBlower=JSON.parse(JSON.stringify(view));noBlower.ownHand=[guzma];
+    assert.deepEqual(decide(profile,root(seat,noBlower,[retreat,mist])),sel('mist'));
+
+    const hoodedPlume=JSON.parse(JSON.stringify(view));
+    hoodedPlume.opponentPublic.bench[0].tools=['Stealthy Hood UNB'];
+    assert.deepEqual(decide(profile,root(seat,hoodedPlume,[retreat,mist])),sel('mist'));
+
+    const independentLock=JSON.parse(JSON.stringify(view));
+    independentLock.ownTurnResources.itemPlayLocked=true;
+    independentLock.ownPublic.publicTurnRestrictions.itemPlayLocked=true;
+    assert.deepEqual(decide(profile,root(seat,independentLock,[retreat,mist])),sel('mist'));
+
+    const extraTool=JSON.parse(JSON.stringify(view));
+    extraTool.opponentPublic.active.tools=['Stealthy Hood UNB','Float Stone BKT'];
+    assert.deepEqual(decide(profile,root(seat,extraTool,[retreat,mist])),sel('mist'));
+
+    const unfunded=JSON.parse(JSON.stringify(view));
+    unfunded.ownPublic.bench[1].energies=[P,P,P,P];
+    assert.deepEqual(decide(profile,root(seat,unfunded,[retreat,mist])),sel('mist'));
+  }
+});
