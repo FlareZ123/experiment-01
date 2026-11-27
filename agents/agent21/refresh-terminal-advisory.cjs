@@ -592,8 +592,53 @@ function adaptiveSelfTest(terminal){
   return results;
 }
 
-module.exports={exactRefreshTerminal,refreshSelfTest,drawVectors,chooseBig,adaptiveTerminal,adaptiveSelfTest};
+function adaptiveDevelopmentSelfTest(terminal,developmentTerminal){
+ const assert=(c,m)=>{if(!c)throw Error(m)};
+ const V="Shadow Rider Calyrex V CRE",M="Shadow Rider Calyrex VMAX CRE",C="Lillie's Clefairy ex JTG";
+ const c=(printing,kind,basic,retreatCost)=>({printing,kind,basic,retreatCost,ruleBox:true,psychic:true,dragon:false,future:false,
+  canAttack:true,canRetreat:true,onPlayChoiceRequired:false,hasAbility:kind!=="v",copyLimit:kind==="clefairy"?1:4,entryCertified:true});
+ const catalog={[V]:c(V,"v",true,2),[M]:c(M,"vmax",false,2),[C]:c(C,"clefairy",true,1)};
+ const row=(id,p,n,eligible=false)=>({id,printing:p,kind:catalog[p].kind,energy:n,damage:0,psychic:true,vmax:p===M,
+  doorAvailable:false,retreatCost:2,canAttack:true,canRetreat:false,wobbuffet:false,latias:false,fairyZone:p===C,basic:p!==M,
+  ruleBox:true,future:false,tool:"none",stackCount:1,stackPrintings:[p],evolutionEligible:eligible});
+ const opp=(id,hp,dragon=false)=>({id,remainingHP:hp,damage:0,energyUnits:0,ultraBeast:false,prizesOnKO:2,counterPrizesOnKO:2,
+  opponentBoardCount:2,weaknessMultiplier:1,resistance:0,damageReduction:0,damageReductionAllKindsCertified:true,
+  counterBlockedActive:false,counterBlockedBench:false,thorns:false,dragon,hood:false});
+ const input=(board,hp,n,p=0,kp=0,dragon=false)=>({stablePublicEffects:true,noUnmodeledTerminalEffects:true,
+  attackModel:"candidate-printed-v1",dynamicEffects:{kind:"thorns-wobbuffet-v1",otherEffectsStable:true,toolsEffective:true},
+  board,active:0,opponents:[opp("oa",hp,dragon),opp("ob0",320)],activeOpponent:0,handPsychic:p,deckCount:n,
+  knownDeckPsychic:kp,knownDeckPsychicCertified:true,prizesRemaining:2,manualAvailable:true,retreatAvailable:false,
+  supportAvailable:true,manualAttachmentAllowed:true,itemPlayAllowed:true,acerolaHeld:false,dimensionValley:false});
+ const dev={permissionsCertified:true,noBenchCapacityChange:true,maxBench:5,catalog,fodderPrintings:[],discardPokemon:{},
+  pokemonPlayAllowed:true,abilityPokemonPlayAllowed:true,evolutionAllowed:true};
+ const ctx=(h,deck)=>({exactMembershipKnown:true,rolesAreExact:true,handCounts:h,deckCounts:deck,oldDeckExchangeable:true,
+  refreshLegal:{lillie:true,iono:true,stamp:true},development:dev});
+ const opt={developmentTerminal,maxNodes:10000,maxDevelopmentNodes:100,maxDevelopmentDepth:4,maxChanceDepth:4};
+ const cases=[];
+ function run(name,x,ct,p,kind,extra={}){
+  const z=adaptiveTerminal(terminal,x,ct,{...opt,...extra});
+  assert(Math.abs(z.lowerBound-p)<1e-12&&Math.abs(z.upperBound-p)<1e-12,name+" wrong probability: "+JSON.stringify(z));
+  assert((z.decision?.firstAction.kind??null)===kind,name+" wrong action");
+  cases.push({name,probability:p,action:z.decision?.firstAction??null,rootOptions:z.rootOptions,stats:z.stats});return z;
+ }
+ const x=input([row("a",V,3,true),row("b",M,3)],190,10);
+ run("draw VMAX, evolve into lethal",x,ctx({lillie:1},{["pk:"+M]:1,other:9}),.6,"refresh");
+ run("same VMAX ineligible until next turn",{...x,board:[row("a",V,3,false),row("b",M,3)]},
+  ctx({lillie:1},{["pk:"+M]:1,other:9}),0,null);
+ const y=input([row("a",M,3),row("b",V,1,true)],190,5,1,1);
+ run("evolve a fresh Door before chance",y,ctx({P:1,["pk:"+M]:1},{P:1,other:4}),.4,"evolve-pokemon");
+ run("no native evolution root",y,ctx({P:1,["pk:"+M]:1},{P:1,other:4}),0,null,{firstActionAllowed:a=>a.kind!=="evolve-pokemon"});
+ const z={...input([row("a",M,3),row("b",V,1)],320,10,0,1,true),fogCount:1};
+ const a=run("bank either Energy or Clefairy before Lillie",z,ctx({fog:1,lillie:1},{["pk:"+C]:1,P:1,other:8}),2/3,"fog-crystal");
+ assert(a.rootOptions.some(o=>o.path[0].kind==="refresh"&&Math.abs(o.lo-266/462)<1e-12),"immediate Lillie alternative wrong");
+ const k=adaptiveTerminal(terminal,z,{...ctx({fog:1,lillie:1},{["pk:"+C]:1,P:1,other:8}),exactMembershipKnown:false},opt);
+ assert(k.decision===null,"K0 fabricated exact deck");
+ return cases;
+}
+
+module.exports={exactRefreshTerminal,refreshSelfTest,drawVectors,chooseBig,adaptiveTerminal,adaptiveSelfTest,adaptiveDevelopmentSelfTest};
 if(require.main===module){
   const {acerolaMaxGeist}=require("./acerola-max-geist-advisory.cjs");
-  console.log(JSON.stringify({refresh:refreshSelfTest(acerolaMaxGeist),adaptive:adaptiveSelfTest(acerolaMaxGeist)},null,2));
+  const {developmentTerminal}=require("./development-terminal-advisory.cjs");
+  console.log(JSON.stringify({refresh:refreshSelfTest(acerolaMaxGeist),adaptive:adaptiveSelfTest(acerolaMaxGeist),development:adaptiveDevelopmentSelfTest(acerolaMaxGeist,developmentTerminal)},null,2));
 }
