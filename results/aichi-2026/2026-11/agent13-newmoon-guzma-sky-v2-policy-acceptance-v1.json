@@ -627,6 +627,46 @@
       "state": "Opposing Dusknoir PRE 37 can use Cursed Blast for 13 damage counters and self-KO; candidate is choosing whether to Bench a 60-HP support Basic for generic future value.",
       "must": "Price the support Basic as an immediate damage-counter KO target and update the Prize map for both the Dusknoir self-KO and any candidate KO; prefer a narrower Bench when the extra body has no concrete near-term role.",
       "forbids": "Treating Stage-2 damage-counter Ability pressure as ordinary attack spread or as free opponent self-KO value."
+    },
+    {
+      "id": "R5-PATH-GENESECT-NOT-ATTACKLOCK",
+      "family": "rank5 Mew Genesect",
+      "sourceRanks": [
+        5
+      ],
+      "state": "Candidate has a legal asymmetric Path setup; opponent has Genesect V draw engine and an already attack-capable Mew VMAX.",
+      "must": "Credit Path with suppressing Rule-Box Genesect V Fusion Strike System while separately recognizing that Mew VMAX's printed attacks remain usable if funded.",
+      "forbids": "Treating draw-engine Ability suppression as a blanket attack lock."
+    },
+    {
+      "id": "R9-LAB-TO-PATH-ELECTRODE",
+      "family": "rank9 Absol Electrode",
+      "sourceRanks": [
+        9
+      ],
+      "state": "Silent Lab is active, suppressing candidate Basic Abilities; opponent Stage-1 Electrode-GX is live; candidate can replace Lab with Path and has Solrock + Lunatone available.",
+      "must": "Re-evaluate continuous effects after Stadium replacement: Silent Lab leaves play, candidate Basic Abilities can return, New Moon can shield candidate Pokémon from Path, and Path can suppress Rule-Box Electrode-GX.",
+      "forbids": "Treating Silent Lab as if it also suppresses Stage-1 Electrode-GX or freezing the pre-replacement candidate Ability state."
+    },
+    {
+      "id": "R19-PATH-ACCEL-NOT-BELLOWLOCK",
+      "family": "rank19 Raging Bolt",
+      "sourceRanks": [
+        19
+      ],
+      "state": "Candidate has asymmetric Path available; opponent uses Rule-Box acceleration/utility such as Sandy Shocks ex or Galarian Moltres V, while Raging Bolt ex itself is already attack-capable.",
+      "must": "Credit Path with suppressing the Rule-Box Ability engine, but still score the funded Bellowing Thunder attack from Raging Bolt ex.",
+      "forbids": "Treating acceleration suppression as preventing an already-funded attack."
+    },
+    {
+      "id": "R30-RONDO-BENCH-DAMAGE",
+      "family": "rank30 Lillie's Clefairy",
+      "sourceRanks": [
+        30
+      ],
+      "state": "Opponent can attack with Lillie's Clefairy ex Full Moon Rondo and candidate is deciding whether to add optional Bench bodies.",
+      "must": "Price each added Bench Pokémon as +20 damage to opposing Full Moon Rondo as well as its candidate-side setup value; permit a narrower Bench when the extra body does not advance a concrete line.",
+      "forbids": "Scoring Bench expansion only by candidate connectivity when the opponent's attack scales with total Benched Pokémon on both sides."
     }
   ],
   "implementationGate": {
