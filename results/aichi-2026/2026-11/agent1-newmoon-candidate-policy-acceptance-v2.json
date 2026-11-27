@@ -13,8 +13,8 @@
     "note": "Agent13 v1 already integrates Agent1's Raichu/Electrode delta. V2 adds uncovered rank2/rank5/rank9/rank19/rank30/rank31 families without changing the fixed 60."
   },
   "status": "actor-visible paper acceptance consolidation; no policy implementation, native game, competitive qualification, or win-rate claim",
-  "addedCaseCount": 41,
-  "totalCaseCount": 80,
+  "addedCaseCount": 43,
+  "totalCaseCount": 82,
   "addedCases": [
     {
       "id": "R2-DUAL-LOCK-RONDO",
@@ -425,6 +425,26 @@
       "state": "Grand Tree already in play before candidate Horror House.",
       "must": "Do not credit hand lock with disabling the Stadium's in-play evolution effect; compare Stadium replacement first.",
       "forbids": "Treating Horror House as Stadium-effect lock."
+    },
+    {
+      "id": "THR-ASYMMETRIC-PATH",
+      "family": "Iron Thorns",
+      "sourceRanks": [
+        6,
+        24,
+        29
+      ],
+      "state": "Opposing Iron Thorns ex Initialization is active; candidate has Solrock + Lunatone in play; Path is playable; no separate effect suppresses Lunatone.",
+      "must": "Recognize Lunatone remains live because Initialization targets Rule-Box Abilities; candidate Path can be asymmetric, suppress opposing Initialization and restore Perfection.",
+      "forbids": "Treating Initialization as suppression of Lunatone or Path as automatically self-locking in this state."
+    },
+    {
+      "id": "SELF-KLEFKI-NEWMOON-CONTENTION",
+      "family": "candidate self-contention",
+      "sourceRanks": [],
+      "state": "Candidate Klefki is Active with Mischievous Lock; Solrock + Lunatone and Mewtwo are in play; candidate wants an asymmetric Path/Perfection line.",
+      "must": "Treat Lunatone New Moon and Mewtwo Perfection as suppressed while Klefki stays Active; include switching/retreating Klefki before crediting the Path shield.",
+      "forbids": "Simultaneously treating active candidate Klefki lock and Lunatone New Moon as live."
     }
   ],
   "authenticatedFamilyCoverage": {
@@ -475,7 +495,8 @@
     "Path to the Peak has matchup-specific jobs and can be dominated by its self-suppression cost unless New Moon is actually active.",
     "Native/direct attackers must remain available when Basic Ability suppression turns off Perfection.",
     "Resolved effects are not rewound: post-Bomb Path does not remove attached Energy; post-Altered-Creation New Moon has no Ranger reset in the fixed 60.",
-    "Discrete HP/Prize breakpoints override average-damage heuristics."
+    "Discrete HP/Prize breakpoints override average-damage heuristics.",
+    "Ability suppression is scoped, not binary: recompute Basic/Rule-Box/Active/global suppression before and after Stadium replacement; Iron Thorns leaves Lunatone live, while Klefki/Silent Lab/Empoleon can disable the New Moon shield."
   ],
   "implementationGate": {
     "required": [
@@ -491,7 +512,8 @@
     "results/aichi-2026/2026-11/agent1-newmoon-raichu-adversarial-review-20261127.md",
     "results/aichi-2026/2026-11/agent1-newmoon-rank2-duallock-response-20261127.md",
     "results/aichi-2026/2026-11/agent1-newmoon-rank19-adp-bolt-response-20261127.md",
-    "results/aichi-2026/2026-11/agent1-newmoon-remaining-family-gates-20261127.md"
+    "results/aichi-2026/2026-11/agent1-newmoon-remaining-family-gates-20261127.md",
+    "results/strategy/2026-11/agent1-ability-scope-stadium-sequencer-v1.md"
   ],
   "competitiveQualified": false,
   "claim99Point5": false
