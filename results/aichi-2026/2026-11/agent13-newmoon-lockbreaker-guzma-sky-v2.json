@@ -5,7 +5,7 @@
   "source_id_count_sha256": "4dd537adbf73d89e50215b3d056a9f40d474f05b79e33774c281a30079e1ce95",
   "canonical_id_count_sha256": "f3bfed3a82cbddd4acb89ad0f0ff488673fd38c7be16efac0d54ab228d5ca82f",
   "hash_spec": "SHA-256 of sorted UTF-8 lines id:count followed by newline",
-  "status": "Proposed fixed-60 structural challenger for policy implementation review; -1 Sky Field +1 Guzma from New Moon Lockbreaker v1. Unqualified, zero competitive games, no 99.5% claim.",
+  "status": "frozen material challenger; NOT preferred fixed 60 after cross-review. Preferred New Moon target reverted to v1 hash a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4 with Agent1 80-case v1 contract.",
   "change_from_source": {
     "Trainers' Mail ROS": -2,
     "Rescue Carrier EVS": -2,
@@ -395,5 +395,11 @@
     "No policy/native evidence yet establishes that the multi-family lock/switch benefit exceeds the lost second Sky Field."
   ],
   "competitiveQualifiedGames": 0,
-  "claim99Point5": false
+  "claim99Point5": false,
+  "supersededPreferredBy": {
+    "manifest": "results/als/new-moon-lockbreak-english-proxy-60.json",
+    "hash": "a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4",
+    "policyContract": "results/aichi-2026/2026-11/agent1-newmoon-candidate-policy-acceptance-v2.json",
+    "reason": "Cross-review showed second Sky Field has cross-family Stadium/Rondo roles; rank15 both-Dusclops-Prized raw 0.8475% is a one-opponent structural configuration and does not alone justify material list cost."
+  }
 }
