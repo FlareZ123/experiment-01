@@ -273,10 +273,12 @@ function adaptiveTerminal(terminal,input,context,options={}){
     const dev=context.development??null,devProvider=options.developmentTerminal;
     require(!dev||(typeof devProvider==="function"&&dev.permissionsCertified===true&&dev.catalog&&
       Array.isArray(dev.fodderPrintings??[])),"development prefix provider absent");
+    const tutor=dev?.tutors??null,tutorExtras=tutor?["arven","raihan","teammates","forest"]:[];
+    require(!tutor||tutor.certified===true&&tutor.knownDeckRolesCertified===true,"uncertified tutor roles");
     const pokemonRoles=dev?Object.keys(dev.catalog).sort().map(p=>"pk:"+p):[];
     const fodderRoles=dev?[...new Set(dev.fodderPrintings??[])].sort().map(p=>"fd:"+p):[];
-    const roles=[...REFRESH_ROLES,...(dev?["treasure","quick",...pokemonRoles,...fodderRoles]:[])];
-    const roleLimits={...ROLE_LIMITS,...(dev?{treasure:4,quick:1,
+    const roles=[...REFRESH_ROLES,...(dev?["treasure","quick",...tutorExtras,...pokemonRoles,...fodderRoles]:[])];
+    const roleLimits={...ROLE_LIMITS,...(dev?{treasure:4,quick:1,...Object.fromEntries(tutorExtras.map(k=>[k,1])),
       ...Object.fromEntries(pokemonRoles.map(k=>[k,dev.catalog[k.slice(3)].copyLimit])),
       ...Object.fromEntries(fodderRoles.map(k=>[k,4]))}:{})};
     const ix=k=>roles.indexOf(k);
@@ -298,11 +300,12 @@ function adaptiveTerminal(terminal,input,context,options={}){
       const k=roles[i];
       const disc=k==='P'?(input.discardPsychic??0):
         k==='acerola'?+!!input.acerolaDiscard:k==='guzma'?+!!input.guzmaDiscard:
-        k==='ranger'?+!!input.rangerDiscard:k.startsWith('pk:')?(dev?.discardPokemon?.[k.slice(3)]??0):(discard0[k]??0);
+        k==='ranger'?+!!input.rangerDiscard:k.startsWith('pk:')?(dev?.discardPokemon?.[k.slice(3)]??0):tutorExtras.includes(k)?(tutor.discardExtra?.[k]??0):(discard0[k]??0);
       const attached=k==='P'?input.board.reduce((a,x)=>a+x.energy,0):
         k==='hood'?input.board.filter(x=>x.tool==='hood').length:
         k==='float'?input.board.filter(x=>x.tool==='float').length:k==='valley'?+!!input.dimensionValley:
-        k.startsWith('pk:')?input.board.reduce((n,x)=>n+(x.stackPrintings??[]).filter(p=>p===k.slice(3)).length,0):0;
+        k.startsWith('pk:')?input.board.reduce((n,x)=>n+(x.stackPrintings??[]).filter(p=>p===k.slice(3)).length,0):
+        k==='forest'?input.board.filter(x=>x.tool==='other'&&x.toolPrinting===tutor?.rolePrintings?.forest).length:0;
       require(h0[i]+d0[i]+disc+attached<=roleLimits[k],"role copy conservation "+k);
     }
     const expected=applyRoles(input,h0,d0,false);
@@ -360,6 +363,7 @@ function adaptiveTerminal(terminal,input,context,options={}){
         for(const k of fodderRoles)hand[ix(k)]=developmentState.fodder.filter(p=>p===k.slice(3)).length;
         hand[ix("treasure")]=developmentState.treasure;
         hand[ix("quick")]=developmentState.quick;
+        if(tutor)for(const k of tutorExtras)hand[ix(k)]=developmentState.extra[k]??0;
         hand[idx("other")]+=developmentState.otherReturned??0;
       }
       if(!dev)for(const a of path)if(a.kind==='acerola'){
@@ -377,25 +381,37 @@ function adaptiveTerminal(terminal,input,context,options={}){
         }
       }
       let outBlocks=blocks;
-      const searches=path.filter(a=>["fog-crystal","mysterious-treasure","quick-ball"].includes(a.kind));
+      const searches=[];
+      const roleOfPrinting=p=>{
+        if(dev?.catalog?.[p])return "pk:"+p;
+        const match=Object.entries(tutor?.rolePrintings??{}).find(([k,x])=>x===p);
+        return match?.[0]??null;
+      };
+      for(const a of path){
+        if(["fog-crystal","mysterious-treasure","quick-ball"].includes(a.kind))
+          searches.push(a.targetPrinting?roleOfPrinting(a.targetPrinting):"P");
+        else if(["arven","teammates","raihan"].includes(a.kind))for(const p of a.targets??[])searches.push(roleOfPrinting(p));
+        else if(a.kind==="star-alchemy")searches.push(roleOfPrinting(a.targetPrinting));
+        else if(a.kind==="bench-pokemon"&&a.wonderTagTarget)searches.push(roleOfPrinting(a.wonderTagTarget));
+      }
       if(searches.length){
         let total=totalBlocks(blocks);
-        for(const a of searches){
-          const role=a.targetPrinting?"pk:"+a.targetPrinting:"P";
+        for(const role of searches){
           if(ix(role)<0||total[ix(role)]<1)return null;
           total=shift(total,role,-1);
         }
         outBlocks=shuffled(total);
       }
-      return {h:hand,blocks:outBlocks,devDiscard:developmentState?.discard??null};
+      return {h:hand,blocks:outBlocks,devDiscard:developmentState?.discard??null,
+        tutorState:tutor?{discardExtra:developmentState.extraDiscard,starUsed:developmentState.starUsed}:null};
     }
-    function stateKey(base,h,blocks,disc,oppPositive,depth,devDiscard){
-      return JSON.stringify([base,h,blocks,disc,oppPositive,depth,devDiscard]);
+    function stateKey(base,h,blocks,disc,oppPositive,depth,devDiscard,tutorState){
+      return JSON.stringify([base,h,blocks,disc,oppPositive,depth,devDiscard,tutorState]);
     }
-    function solve(base,h,blocks,disc,oppPositive,depth,isRoot=false,devDiscard=null){
+    function solve(base,h,blocks,disc,oppPositive,depth,isRoot=false,devDiscard=null,tutorState=null){
       const exactDeck=totalBlocks(blocks);
       base=applyRoles(base,h,exactDeck,false);
-      const key=stateKey(base,h,blocks,disc,oppPositive,depth,devDiscard);
+      const key=stateKey(base,h,blocks,disc,oppPositive,depth,devDiscard,tutorState);
       if(!isRoot&&memo.has(key)){stats.memoHits++;return memo.get(key);}
       if(stats.nodes>=limits.nodes){stats.cappedNodes++;return unknown("node budget");}
       stats.nodes++;
@@ -411,7 +427,7 @@ function adaptiveTerminal(terminal,input,context,options={}){
       let omitted=false,unknownGeometry=false;
       function addCandidate(c){
         if(!c.path.length)return;
-        const k=JSON.stringify([c.kind,c.input,c.h,c.blocks,c.disc,c.oppPositive,c.drawCount,c.devDiscard]);
+        const k=JSON.stringify([c.kind,c.input,c.h,c.blocks,c.disc,c.oppPositive,c.drawCount,c.devDiscard,c.tutorState]);
         const old=candidates.get(k);
         if(old){
           if(c.path.length<old.path.length)candidates.set(k,c);
@@ -455,7 +471,7 @@ function adaptiveTerminal(terminal,input,context,options={}){
               oppPositive===false&&context.opponentDeckPositive===false?false:null;
           }
           addCandidate({kind,path:route,input:{...snap,supportAvailable:snap.supportAvailable&&kind==='stamp'},
-            h:zero(),blocks:nextBlocks,disc:discard,oppPositive:nextOppPositive,drawCount:count,devDiscard:resources.devDiscard});
+            h:zero(),blocks:nextBlocks,disc:discard,oppPositive:nextOppPositive,drawCount:count,devDiscard:resources.devDiscard,tutorState:resources.tutorState});
         }
       }
       stats.terminalCalls++;
@@ -465,7 +481,7 @@ function adaptiveTerminal(terminal,input,context,options={}){
           const resources=recoverPrefix(base,h,blocks,snap,path,developmentState);
           if(!resources){unknownGeometry=true;return;}
           addCandidate({kind:'door',path,input:snap,h:resources.h,blocks:resources.blocks,
-            disc,oppPositive,drawCount,devDiscard:resources.devDiscard});
+            disc,oppPositive,drawCount,devDiscard:resources.devDiscard,tutorState:resources.tutorState});
         }};
       const developmentInput=dev?{...dev,
         handPokemon:Object.fromEntries(pokemonRoles.map(k=>[k.slice(3),h[ix(k)]])),
@@ -473,7 +489,10 @@ function adaptiveTerminal(terminal,input,context,options={}){
         knownDeckPokemonCertified:true,discardPokemon:devDiscard??{},
         treasureCount:h[ix("treasure")],quickCount:h[ix("quick")],
         fodder:fodderRoles.flatMap(k=>Array(h[ix(k)]).fill(k.slice(3))),
-        fodderCertified:true,fodderDisjointFromModeledResources:true}:null;
+        fodderCertified:true,fodderDisjointFromModeledResources:true,
+        ...(tutor?{tutors:{...tutor,knownDeckRoles:Object.fromEntries(Object.keys(tutor.rolePrintings).filter(k=>k!=="P").map(k=>[k,exactDeck[ix(k)]??0])),
+          heldExtra:Object.fromEntries(tutorExtras.map(k=>[k,h[ix(k)]])),
+          discardExtra:tutorState?.discardExtra??{},vstarAvailable:!tutorState?.starUsed}}:{})}:null;
       const prefixes=dev?devProvider(terminal,base,developmentInput,{...options,...callbacks,
         maxDevelopmentNodes:options.maxDevelopmentNodes??100,maxDevelopmentDepth:options.maxDevelopmentDepth??3,
         maxStatesPerNode:limits.states,firstActionAllowed:allowed}):
@@ -503,7 +522,7 @@ function adaptiveTerminal(terminal,input,context,options={}){
             examined++;stats.chanceOutcomes++;visited+=weight;
             const observed=add(c.h,add(spec.fixed,draw));
             const remainder=compact([{counts:sub(spec.pool,draw),exchangeable:true},...spec.tail]);
-            const child=solve(c.input,observed,remainder,c.disc,c.oppPositive,depth-1,false,c.devDiscard);
+            const child=solve(c.input,observed,remainder,c.disc,c.oppPositive,depth-1,false,c.devDiscard,c.tutorState);
             const p=Number(weight)/Number(spec.denom);
             lo+=p*child.lo;hi+=p*child.hi;
             if(!example&&child.lo>0)example={draw:Object.fromEntries(roles.map((k,i)=>[k,observed[i]])),
@@ -526,7 +545,7 @@ function adaptiveTerminal(terminal,input,context,options={}){
       return result;
     }
     const oppPositive=typeof context.opponentHandPositive==="boolean"?context.opponentHandPositive:null;
-    const result=solve(input,h0,blocks0,discard0,oppPositive,limits.depth,true,dev?.discardPokemon??null);
+    const result=solve(input,h0,blocks0,discard0,oppPositive,limits.depth,true,dev?.discardPokemon??null,tutor?{discardExtra:tutor.discardExtra??{},starUsed:!tutor.vstarAvailable}:null);
     return {advisory:true,decision:result.lo>0&&result.path?.length?{kind:result.certain?'adaptive-certain-witness':'adaptive-terminal-choice',
       firstAction:result.path[0],prefix:result.path,nextChance:result.kind??null,example:result.example??null}:null,
       lowerBound:result.lo,upperBound:result.hi,exactWithinRestrictedModel:Math.abs(result.lo-result.hi)<1e-12,
