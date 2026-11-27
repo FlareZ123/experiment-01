@@ -238,7 +238,7 @@ function solve(input,options={}){
   }
   if(s.retreat&&m.own.length>1){
    const cost=bit(s.floats,s.a)?0:m.own[s.a].retreat;
-   if(cost!==null&&s.es[s.a]>=cost)for(let i=0;i<m.own.length;i++)if(i!==s.a)
+   if(cost!==null&&s.es[s.a]>=cost&&(!options.freeRetreatOnly||cost===0))for(let i=0;i<m.own.length;i++)if(i!==s.a)
     det({kind:'retreat',from:s.a,to:i,pay:cost},{...s,a:i,retreat:false,es:change(s.es,s.a,-cost),z:change(s.z,E,cost)});
   }
   if(s.supporter&&s.h[I.guzma]&&m.opp.length>1){

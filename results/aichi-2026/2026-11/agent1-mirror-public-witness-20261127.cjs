@@ -170,7 +170,7 @@ function rootIntent(proj,move,rootToken){
 }
 function recommend(req,profile,opts={}){
  const p=project(req,profile,opts);if(p.status!=='ok')return p;
- const solve=planner.solve(p.input,{guaranteeOnly:true,deterministicOnly:true,maxStates:opts.maxStates??10000,maxBranches:opts.maxBranches??50000,firstAllowed:m=>matchRoot(req,p,m)!==null});
+ const solve=planner.solve(p.input,{guaranteeOnly:true,deterministicOnly:true,freeRetreatOnly:true,maxStates:opts.maxStates??10000,maxBranches:opts.maxBranches??50000,firstAllowed:m=>matchRoot(req,p,m)!==null});
  if(solve.status!=='certified')return solve;
  const token=matchRoot(req,p,solve.first);
  if(!token)return {status:'unsupported',reason:'certificate has no current root token'};
@@ -199,12 +199,11 @@ function resolvePrompt(req,intent){
   if(seats.size!==1)return null;
   return seats.has('actor')?pokemon(intent.promote,'actor'):seats.has('opponent')?pokemon(intent.opponent,'opponent'):null;
  }
- if(intent.kind==='door'&&sourceIs('Shadow Rider Calyrex VMAX')&&source.effectName==='Underworld Door'){
-  if(p.promptType==='ChoosePokemonPrompt')return pokemon(intent.target,'actor');
-  if(p.promptType==='ChooseCardsPrompt'&&meta.sourceZone==='hand'){
-   const xs=choices.filter(c=>validChoice(c)&&c.kind==='card'&&c.publicMetadata.ownerSeat==='actor'&&c.publicMetadata.sourceZone==='hand'&&Object.hasOwn(P,c.printing)&&P[c.printing].category==='energy');
-   return xs.length?choose(xs.slice(0,1)):null;
-  }
+ if(intent.kind==='door'&&source.sourceKind==='card-effect'&&sourceIs('Shadow Rider Calyrex VMAX')&&source.effectName==='Underworld Door'&&p.promptType==='AttachEnergyPrompt'&&meta.selectionType==='energy-attachment'&&meta.sourceZone==='hand'&&meta.ownerSeat==='actor'&&meta.zone==='bench'&&meta.minimumCount===1&&meta.maximumCount===1){
+  const ref=intent.target;
+  if(ref?.zone!=='bench'||v.ownPublic.bench[ref.index]?.printing!==ref.printing)return null;
+  const xs=choices.filter(c=>validChoice(c)&&c.kind==='energy'&&c.publicMetadata.ownerSeat==='actor'&&c.publicMetadata.sourceZone==='hand'&&c.publicMetadata.zone==='bench'&&c.publicMetadata.benchIndex===ref.index&&c.publicMetadata.energyType==='BASIC'&&Object.hasOwn(P,c.printing)&&P[c.printing].category==='energy');
+  return xs.length?{kind:'select-choice',token:xs[0].token}:null;
  }
  if((intent.kind==='stretcher'||intent.kind==='seeker')&&sourceIs(intent.kind==='stretcher'?'Night Stretcher':'VS Seeker')&&p.promptType==='ChooseCardsPrompt'&&meta.sourceZone==='discard'){
   const xs=choices.filter(c=>validChoice(c)&&c.kind==='card'&&c.publicMetadata.ownerSeat==='actor'&&c.publicMetadata.sourceZone==='discard'&&Object.hasOwn(P,c.printing)&&P[c.printing].category===intent.card);
