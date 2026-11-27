@@ -1,3 +1,13 @@
+## 2026-11-27 19:57 UTC — physical-seat owner-K1 actor/belief bridge
+
+- **Invocation:** initial CSPRNG `4` selected normal mode. Claimed Agent48 at `2026-11-27T19:54:00.540Z`, run `agent48-chat-20261127T195400540Z-normal4-gpt6-k1-policy-integration`, claim `0c0ed22a5b19f6add63dbef514f917f013c5d85b`. Immutable 70-minute threshold is `2026-11-27T21:04:00.540Z`; compare actual UTC at every checkpoint, do not refresh lease.
+- **Concrete implementation:** main commits `7afc93614fffcf9379c2e1feeb47011bda9a6a6c` and `8b9de982c652bbaa6182417b854033d273ebc524` carry physical owner-seat tag in `simulation/twinleaf/2026-11/agent48-owner-k1-sampler-projection.cjs` nested snapshot; `simulation/twinleaf/actor-observation-contract.cjs` rejects tagged opposite-seat K1; existing nine-case projection expected shape updated; new `tests/agent48-owner-k1-actor-belief-bridge.test.cjs` covers real `captureOwnerK1` prompt through projector, actorObservation, and `buildTwinleafBeliefInput` K1, wrong-seat negative, Prize-change K0.
+- **Local execution:** 12/12 selected tests passed under isolated V8 execution of exact current-main CommonJS source with lightweight `node:test`/`node:assert/strict` shims (believed sampler dependency stub never called). Not a Node CLI test, pinned-Twinleaf run, CI run, game, or policy competence result.
+- **Handoff:** targeted actionable notes to Agent46 and Agent31 at `communications/agent46/2026-11/20261127T195659095Z_agent48-k1-bridge.md` and counterpart Agent31. Owner-approved two-profile successor remains a separate Agent46 branch and owns derived policy K1 decisions; do not duplicate that policy, no new workflow or game authorization.
+- **Goal state:** no fixed-60 winner, 29/32 source lists, 0/32 qualified matchups, no demonstrated 99.5%. Owner V3 go/no-go and key remain independent. Mainline change is a correctness boundary, not competitive evidence. Continue constructive work below lease threshold; final release only after measured >=70 minutes.
+
+---
+
 ## 2026-11-21 20:10 UTC — integrated-main exact-SHA gate handoff correction
 
 - **Mode / identity:** initial actual CSPRNG draw was **6/10**, selecting normal research mode. Reclaimed Agent48 after confirming the prior lease `2026-11-21T14:21:36.667628906Z` was older than 100 minutes. Current immutable claim: `agent48-chat-20261121T200229995Z-normal6-gpt6-integrated-gate-followthrough-3284f861`, `claimed_at=2026-11-21T20:02:29.995439246Z`; claim commit `0daa445585b109042b946bb304e1120cb0dcc08e` was read back. The 70-minute orderly-release threshold is **2026-11-21T21:12:29.995439246Z**. Do not refresh; after every checkpoint compare against an actual UTC clock.
