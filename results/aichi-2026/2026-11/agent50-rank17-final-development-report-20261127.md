@@ -6,7 +6,7 @@ Agent50, 2026-11-27T09:15:36.172Z. Branch `agent50/rank17-raichu-family-20261127
 
 ```json
 {
-  "decision": 347,
+  "decision": 381,
   "kernel": {
     "assertions": 45
   },
@@ -23,7 +23,7 @@ Agent50, 2026-11-27T09:15:36.172Z. Branch `agent50/rank17-raichu-family-20261127
 }
 ```
 
-Standalone worker Git blob `6dffc783b11dc55bb252962de05a16f91c7661bf`. These are synthetic decision contracts, arithmetic and differential cases, not games. Native V3 qualification, Node builder and full-game results are absent.
+Standalone worker Git blob `c3c371d0a581a2b7627c09aba303d4d2d1b603c3`. These are synthetic decision contracts, arithmetic and differential cases, not games. Native V3 qualification, Node builder and full-game results are absent.
 
 ## Delivered implementation
 
@@ -36,6 +36,14 @@ A third source-native response is now closed: when Path to the Peak or Power Pla
 Path handling now includes Ditto Prism Star as a Rule-Box Pokémon, so Almighty Evolution is not incorrectly credited through Path. A funded Ditto evolution can trigger Stadium removal before the evolution Ability is considered.
 
 The New Moon-style two-axis lock also has a bounded continuation: when opposing Active Klefki suppresses Marshadow and Path suppresses Electrode, Escape Rope is selected only if every public opponent switch choice leaves a feasible Stadium answer and positive Rain projection. The continuation then promotes Raichu, uses the now-live Resetting Hole to remove Path, confirms the Ability, and reaches the explicit Bomb boundary. A second opposing Klefki invalidates that route. Klefki SVI is now an explicit 70-HP one-Prize Rain target; unknown targets still fail closed.
+
+Additional decision paths completed after the earlier lock checkpoint:
+- Rescue Stretcher uses its printed shuffle-three mode only in a bounded deckout window (deck count 0-2 with three recoverable Pokémon), and stays out of speculative healthy-deck recycling.
+- Trainers' Mail now values Secret Box only when the current hand can realistically pay its three-card discard cost; an unpayable ACE SPEC no longer dominates a live alternative.
+- Funded Klefki Joust is prioritized over free retreat when it strips Stealthy Hood from Active Wobbuffet and thereby exposes a live Extra Energy Bomb on the following decision.
+- The exact frozen New Moon Lockbreaker target family is now represented without relaxing the unknown-target fail-closed rule. This includes Mewtwo & Mew-GX, Gengar & Mimikyu-GX, Galarian Articuno V, Squawkabilly ex, Unown, Dusclops, Duskull, Solrock and Lunatone in addition to previously covered printings. Path to the Peak / Power Plant are treated as safe for Rain damage arithmetic, and Powerglass is accepted as a non-defensive target Tool.
+- The New Moon acceptance witness is reproduced at the decision-model layer: one Bomb while behind converts four Reversal plus one Counter into 14 Lightning units, exactly covering 7 Sight packets for Gengar & Mimikyu-GX, 5 for Tapu Lele-GX and 2 for a 60-HP one-Prizer. One opposing Dusclops self-KO leaves those multipliers live after the Bomb; two self-KOs force 4-4 parity and turn them off.
+- Actor observation exposes printed HP, so Solrock CES Sunbeam is handled explicitly: observed 90-HP Lunatone OBF is conservatively costed at 130 HP unless Sunbeam carries an explicit source-attributed suppression.
 
 Shared native Bomb/Rain/Crush still unsupported; explicit abstentions remain.
 
