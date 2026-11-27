@@ -333,3 +333,83 @@ test('static rank-32 bundle loads with no ambient require, process or code gener
   assert.equal(workerProtocol.isAbstentionReasonCode(blocked.reasonCode),true);
   assert.equal(blocked.reasonCode,'NO_SUPPORTED_ATTACK_CHOICE');
 });
+
+
+test('target-bound DDE attachment beats single Basic on unfunded Regidrago VSTAR',()=>{
+  const ownActive=pokemon(P.regidrago,{energies:[]});
+  const items=[
+    action('wrong-dde','play-card',P.doubleDragon,{
+      targetPrinting:'Dedenne-GX UNB 57',
+      publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:0}
+    }),
+    action('grass','play-card',P.energy,{
+      targetPrinting:P.regidrago,
+      publicMetadata:{targetSeat:'actor',targetZone:'active'}
+    }),
+    action('dde','play-card',P.doubleDragon,{
+      targetPrinting:P.regidrago,
+      publicMetadata:{targetSeat:'actor',targetZone:'active'}
+    }),
+    action('pass','pass')
+  ];
+  const ownPublic=player({
+    active:ownActive,bench:[pokemon('Dedenne-GX UNB 57',{subtypes:['Basic','GX']})]
+  });
+  assert.deepEqual(bestAction(request({ownPublic,items})),
+    {kind:'select-action',token:'dde'});
+});
+
+test('a single Basic Energy completes Apex typed cost after one DDE',()=>{
+  const items=[
+    action('grass','play-card',P.energy,{
+      targetPrinting:P.regidrago,
+      publicMetadata:{targetSeat:'actor',targetZone:'active'}
+    }),
+    action('pass','pass'),
+    action('apex','attack',P.regidrago,{attackName:'Apex Dragon'})
+  ];
+  const ownPublic=player({
+    active:pokemon(P.regidrago,{energies:[P.doubleDragon]}),
+    discard:[{printing:P.goodra}]
+  });
+  assert.deepEqual(bestAction(request({ownPublic,items})),
+    {kind:'select-action',token:'grass'});
+  ownPublic.active.energies.push(P.energy);
+  assert.deepEqual(bestAction(request({ownPublic,items})),
+    {kind:'select-action',token:'apex'});
+});
+
+test('Temple of Sinnoh blocks DDE typed value until stadium is replaced',()=>{
+  const items=[
+    action('dde','play-card',P.doubleDragon,{
+      targetPrinting:P.regidrago,
+      publicMetadata:{targetSeat:'actor',targetZone:'active'}
+    }),
+    action('parallel','play-card','Parallel City BKT 145'),
+    action('pass','pass')
+  ];
+  const ownPublic=player({active:pokemon(P.regidrago,{energies:[P.energy]})});
+  const opponentPublic=player({
+    active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{subtypes:['VMAX']}),
+    stadium:[{printing:'Temple of Sinnoh ASR 155'}]
+  });
+  assert.deepEqual(bestAction(request({ownPublic,opponentPublic,items})),
+    {kind:'select-action',token:'parallel'});
+  opponentPublic.stadium=[];
+  assert.deepEqual(bestAction(request({ownPublic,opponentPublic,items})),
+    {kind:'select-action',token:'dde'});
+});
+
+test('unsafe Energy root without exact target metadata never attaches blindly',()=>{
+  const ownPublic=player({active:pokemon(P.regidrago,{energies:[]})});
+  const items=[
+    action('unbound','play-card',P.doubleDragon),
+    action('fake-target','play-card',P.doubleDragon,{
+      targetPrinting:P.regidrago,
+      publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:3}
+    }),
+    action('pass','pass')
+  ];
+  assert.deepEqual(bestAction(request({ownPublic,items})),
+    {kind:'select-action',token:'pass'});
+});
