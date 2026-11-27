@@ -418,3 +418,56 @@ test('unsafe Energy root without exact target metadata never attaches blindly',(
   assert.deepEqual(bestAction(request({ownPublic,items})),
     {kind:'select-action',token:'pass'});
 });
+
+
+test('Cynthia root starts only when a real source Supporter can be recovered',()=>{
+  const items=[
+    action('cc','play-card','Cynthia & Caitlin CEC 189'),
+    action('pass','pass')
+  ];
+  const ownPublic=player({
+    active:pokemon(P.regidrago,{energies:[P.doubleDragon]}),
+    discard:[{printing:'Crispin SCR 133'}]
+  });
+  assert.deepEqual(bestAction(request({ownPublic,items,hand:['Cynthia & Caitlin CEC 189']})),
+    {kind:'select-action',token:'cc'});
+  ownPublic.discard=[];
+  assert.deepEqual(bestAction(request({ownPublic,items,hand:['Cynthia & Caitlin CEC 189']})),
+    {kind:'select-action',token:'pass'});
+});
+
+test('Cynthia recovery selects only native offered useful Supporter token',()=>{
+  const ownPublic=player({active:pokemon(P.regidrago,{energies:[P.doubleDragon]})});
+  const p=prompt('Cynthia & Caitlin CEC 189','Cynthia & Caitlin',
+    [choice('self','Cynthia & Caitlin CEC 189'),
+      choice('crispin','Crispin SCR 133'),
+      choice('guzma','Guzma BUS 115')],'ChooseCardsPrompt',[1,1]);
+  p.publicMetadata.sourceZone='discard';
+  assert.deepEqual(promptDecision(request({ownPublic,prompt:p})),
+    {kind:'select-choices',tokens:['crispin']});
+});
+
+test('Cynthia optional hand discard chooses Dragon donor and never needed Double Dragon',()=>{
+  const p=prompt('Cynthia & Caitlin CEC 189','Cynthia & Caitlin',
+    [choice('dde',P.doubleDragon),choice('g',P.goodra),
+      {token:'none',kind:'empty-selection',label:'Select none'}],
+    'ChooseCardsPrompt',[0,1]);
+  p.publicMetadata.sourceZone='hand';
+  assert.deepEqual(promptDecision(request({prompt:p})),
+    {kind:'select-choices',tokens:['g']});
+  p.choices=[choice('dde',P.doubleDragon),
+    {token:'none',kind:'empty-selection',label:'Select none'}];
+  assert.deepEqual(promptDecision(request({prompt:p})),
+    {kind:'select-choice',token:'none'});
+});
+
+test('Cynthia optional confirmation defers card discard if no donor is in hand',()=>{
+  const p=prompt('Cynthia & Caitlin CEC 189','Cynthia & Caitlin',
+    [{token:'yes',kind:'confirm',label:'Yes'},
+      {token:'no',kind:'confirm',label:'No'}],'ConfirmPrompt');
+  p.publicMetadata.selectionType='confirm';
+  assert.deepEqual(promptDecision(request({prompt:p,hand:[P.doubleDragon]})),
+    {kind:'select-choice',token:'no'});
+  assert.deepEqual(promptDecision(request({prompt:p,hand:[P.goodra]})),
+    {kind:'select-choice',token:'yes'});
+});
