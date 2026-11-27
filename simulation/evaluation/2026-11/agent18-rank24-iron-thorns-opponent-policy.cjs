@@ -696,9 +696,13 @@ function fundingScore(item, request) {
   if (item.kind === 'play-card' && matches(card, GUZMA_HALA)) {
     if (!supporterAvailable(observation) || (ownDeckCount(observation) ?? 0) <= 0) return 0;
     const needs = usefulGuzmaHalaTargets(observation);
-    if (needs.needThunder && canPayGuzmaHala(observation)) return 200;
-    if ((needs.needDce || needs.needJammer) && canPayGuzmaHala(observation)) return 190;
-    if (needs.needThunder) return 145;
+    const canPay = canPayGuzmaHala(observation);
+    if (needs.needThunder && canPay) return 200;
+    if ((needs.needDce || needs.needJammer) && canPay) return 190;
+    // Stadium-only G&H is useful only if the hand/board already supplies the
+    // Energy package. If DCE itself is still needed, starting G&H without the
+    // two-card expansion payment cannot complete the ALS.
+    if (needs.needThunder && !needs.needDce) return 145;
   }
   return 0;
 }
