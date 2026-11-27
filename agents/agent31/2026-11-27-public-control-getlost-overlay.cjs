@@ -50,6 +50,21 @@ const edits=[
     "preserve required denial body",
     "  const duplicates = view.ownHand.filter(item => item === printing).length;",
     "  if(hasName(printing,'Girafarig')&&affordableControlGetLostAccess(view))return 900;\n  const duplicates = view.ownHand.filter(item => item === printing).length;"
+  ],
+  [
+    "rain potential",
+    "function publicTempleResettingHoleRisk(view) {",
+    "function observedElectroRainThreat(view){\n return opponentBoard(view).some(p=>hasAnyName(p.printing,['Alolan Raichu UNM','Electrode-GX CES']));\n}\nfunction rainDiscardEnergyValue(view,printing){\n if(!observedElectroRainThreat(view)||\n   !hasAnyName(printing,['Reversal Energy','Counter Energy','Unit Energy LPM']))return null;\n if(hasActiveStadiumLock(view,'Temple of Sinnoh'))return 100;\n const bombs=opponentBoard(view).filter(p=>hasName(p.printing,'Electrode-GX CES')).length;\n const own=view.ownPublic.prizeCount,opp=view.opponentPublic.prizeCount;\n const usable=Math.min(bombs,Math.floor((own-1)/2));\n const behind=opp>own-2*usable;\n if(hasName(printing,'Reversal Energy'))return behind?900:180;\n if(hasName(printing,'Counter Energy'))return behind?600:180;\n return 300;\n}\nfunction publicTempleResettingHoleRisk(view) {"
+  ],
+  [
+    "rain discard value",
+    "  if(hasName(printing,'Marshadow UNB')&&publicTempleResettingHoleRisk(view))return 950;",
+    "  if(hasName(printing,'Marshadow UNB')&&publicTempleResettingHoleRisk(view))return 950;\n  const rain=rainDiscardEnergyValue(view,printing);if(rain!==null)return rain;"
+  ],
+  [
+    "rain access",
+    "if(!observedThornsControl(view)&&!publicTempleResettingHoleRisk(view))return false;",
+    "if(!observedThornsControl(view)&&!observedElectroRainThreat(view))return false;"
   ]
 ];
 module.exports={edits,apply(source){for(const [label,a,b] of edits){if(source.split(a).length!==2)throw Error(label);source=source.replace(a,b)}return source}};
