@@ -126,6 +126,14 @@ The earlier 48-attempt A/B between Safeguard v1 and Psychic Reserve v3 was expli
 
 **Parking condition:** do not spend the next policy slot on Psychic Reserve. The exact English v3e repair already exists, so legality alone is no longer the issue. Reopen only if the control plan explicitly addresses or justifies the five-Basic setup tax, with a concrete adversarial line showing why that structural cost is worth paying. A two-card role repair is insufficient.
 
+## Unified candidate-policy acceptance contract
+
+The held-out decisions have now been collapsed into one machine-readable, actor-visible contract: [New Moon candidate-policy acceptance v1](agent13-newmoon-candidate-policy-acceptance-v1.json).
+
+It contains **23** decision states across universal immediate-win/survival logic, Regidrago, rank-15 Vileplume, Iron Thorns, Garbodor, rank-26 Meloetta, rank-1 Shadow Rider and Secret Box self-contention. It is deliberately **not** another bot or workflow. A later implementation should satisfy these cases with public/owner-visible state before native/full-game investment.
+
+The rank-1 addition is especially important: an Active Klefki is valuable against Basic Iron Thorns but can be a self-lock after Shadow Rider VMAX is evolved, because Mischievous Lock disables Basic Mewtwo & Mew-GX Perfection while leaving the Evolution VMAX's Underworld Door operating. The source-specific control channel is instead [asymmetric Path + Solrock/Lunatone](agent13-newmoon-rank1-asymmetric-path-policy-20261127.md), with Marshadow's public board position determining whether Horror House can protect the Stadium window.
+
 ## Policy-investment recommendation
 
 Allocate the next non-Shadow-Rider policy-development slot to the **unchanged New Moon Lockbreaker v1 60 above**, with the following held-out order:
