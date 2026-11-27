@@ -2902,7 +2902,8 @@ function r17CrushBurnTerminalWindow(request){
   const needed=Math.max(1,Math.ceil((remaining-30)/50));
   const inventory=new Map(),all=[];
   const append=(p,zone,slotIndex)=>{
-    if(!p)return;
+    // Empty Bench slots have no Energy; they are not an unknown resource.
+    if(!p)return true;
     for(const energy of list(p.energies)){
       const name=printingValue(energy);
       if(!name)return false;
