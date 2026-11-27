@@ -163,6 +163,11 @@ function runCases(policy,protocol) {
     same(runRoot(p,pathNoBomb,[ability('reset',A.marshadow,'Resetting Hole',0),pass]),action('pass'),tag+'do not spend Marshadow on Path without live blocked engine');
     const powerLock={...pathLock,opponentPublic:player({stadium:['Power Plant UNB']})};
     same(runRoot(p,powerLock,[ability('reset',A.marshadow,'Resetting Hole',0),pass]),action('reset'),tag+'Resetting Hole removes Power Plant blocking Electrode');
+    const dittoPath=view(seat,{globalTurn:4,ownHand:[A.raichu],
+      ownPublic:player({bench:[slot(A.marshadow),slot(A.ditto,{abilities:['Almighty Evolution']})]}),
+      opponentPublic:player({stadium:['Path to the Peak CRE']})});
+    same(policy.abilityBlocked(dittoPath,'ditto',dittoPath.ownPublic.bench[1],'Almighty Evolution'),true,tag+'Path blocks Prism Star Ditto Rule Box Ability');
+    same(runRoot(p,dittoPath,[ability('reset',A.marshadow,'Resetting Hole',0),ability('ditto-evo',A.ditto,'Almighty Evolution',1),pass]),action('reset'),tag+'remove Path before funded Ditto evolution');
     const sky={...v,ownPublic:player({bench:Array.from({length:6},()=>slot(A.unown))}),opponentPublic:player({stadium:['Sky Field ROS']})};
     same(runRoot(p,sky,[play('pokestop',A.pokestop),pass]),action('pass'),tag+'do not collapse own six-Bench Sky Field');
     // Exact current protocol, including multi-select and empty token semantics.
