@@ -315,6 +315,100 @@ class Planner:
                 'options':results[:limit],'omitted_options':max(0,len(results)-limit),'unsupported':sorted(self.unsupported),
                 'boundary':'Known-resource plan only; replan after observed Door draws. No bench/evolution/search/hidden order, opponent future action, full copy or defense resolver. Caller supplies effective public flags. Representative ranking is not a game-win policy.'}
 
+    def lethal_option(self,s,attack,path):
+        name,targets,damages,effect,gx,heal,cost=attack
+        ko=[i for i,d in zip(targets,damages) if d>=self.opp[i]['hp']-self.opp[i].get('damage',0)]
+        prizes=sum(self.prizes_for(s,i,name=='Astral Barrage') for i in ko)
+        return {'attacker':self.ids[s.a],'attack':name,'targets':[self.eids[i] for i in targets],
+                'damage_or_counters':list(damages),'ko':[self.eids[i] for i in ko],
+                'immediate_prizes':prizes,'actions':path,'effect':effect,'gx':gx,'attack_cost':cost,
+                'board_psychic':{self.ids[i]:s.energy[i] for i in self.own_indices(s)},
+                'known_hand_psychic':s.hand_p,'door_draws':s.draws,'stadium':s.stadium},ko
+
+    def followup(self,s,attack,ko,prizes,promotion):
+        """Construct one no-opponent-action extra-turn information state.
+
+        Unknown newly taken Prize cards and mandatory draw are deliberately ignored. Caller
+        must certify there are no unmodeled KO/attack/turn-start triggers; no Checkup occurs.
+        """
+        name,targets,damages,effect,gx,heal,cost=attack
+        if s.deck<1:return None
+        own=[]
+        for i in self.own_indices(s):
+            x=dict(self.own[i]);x.update(energy=s.energy[i],tool=s.ot[i],door_used=False,
+                attack_blocked=bool(s.attack_block&(1<<i)),retreat_blocked=bool(s.retreat_block&(1<<i)))
+            own.append(x)
+        dealt=dict(zip(targets,damages));opp=[]
+        for i,x0 in enumerate(self.opp):
+            if i in ko:continue
+            x=dict(x0);x.update(damage=x.get('damage',0)+dealt.get(i,0),tool=s.et[i]);opp.append(x)
+        data=dict(self.data);data.pop('copycat_recipe',None)
+        data.update(own=own,opp=opp,active=self.ids[s.a],opp_active=self.eids[promotion],stadium=s.stadium,
+             hand={'psychic':s.hand_p,'hood':s.hood,'float':s.flt,'blower':s.blower,'guzma':s.guzma,'stadiums':list(s.stadiums)},
+             used={'gx':self.gx_used or gx},deck_remaining=s.deck-1,can_attack=True,support_allowed=True,
+             prizes_remaining=self.data['prizes_remaining']-prizes)
+        if self.data.get('attack_locks_expire_after_turn',True):
+            data.update(item_attack_lock=False,support_attack_lock=False,stadium_attack_lock=False)
+        return Planner(data)
+
+    def find_lethal(self,max_states=200000,max_followup=128,allow_extra=True):
+        """Find a direct win, or a contingent extra-turn win for every legal promotion.
+
+        This proves existence in the restricted known-resource model, not game-engine legality.
+        Unknown drawn cards are not used. A capped search can establish a found path, not absence.
+        """
+        remaining=self.data.get('prizes_remaining');assert isinstance(remaining,int) and 1<=remaining<=6
+        certified=bool(self.data.get('no_unmodeled_terminal_triggers',False))
+        paths={self.first:None};queue=deque([self.first]);incomplete=False;checks=0;follow_states=0;pending=[]
+        def path(s):
+            p=[]
+            while paths[s] is not None:
+                prev,act=paths[s];p.append(act);s=prev
+            return list(reversed(p))
+        recipe=self.data.get('copycat_recipe',{})
+        while queue:
+            s=queue.popleft()
+            for attack in self.attacks(s) or ():
+                name,targets,damages,*_=attack
+                ko=[i for i,d in zip(targets,damages) if d>=self.opp[i]['hp']-self.opp[i].get('damage',0)]
+                prizes=sum(self.prizes_for(s,i,name=='Astral Barrage') for i in ko)
+                if prizes>=remaining or len(ko)==self.m:
+                    opt,_=self.lethal_option(s,attack,path(s))
+                    return {'found':True,'kind':'immediate','conditional_on_no_unmodeled_triggers':not certified,
+                        'first':opt,'states':len(paths),'followup_checks':checks,'followup_states':follow_states}
+                if (allow_extra and recipe.get('legal') and recipe.get('extra_turn') and recipe.get('gx')
+                        and name=='Copycat: '+recipe['name'] and s.deck>=1):
+                    pending.append((prizes,s,attack,ko))
+            for act,q in self.actions(s):
+                if q in paths:continue
+                if len(paths)>=max_states:incomplete=True;continue
+                paths[q]=(s,act);queue.append(q)
+        # Prefer higher first-attack prizes, then more unspent resources and fewer discarded energy.
+        pending.sort(key=lambda x:(-x[0],x[1].discarded,-x[1].hand_p,-x[1].guzma,-sum(x[1].energy)))
+        if pending and not certified:
+            return {'found':False,'complete_within_model':False,'states':len(paths),'reason':'Extra-turn guarantee requires explicit no_unmodeled_terminal_triggers certification','extra_candidates':len(pending)}
+        for prizes,s,attack,ko in pending:
+            if checks>=max_followup:incomplete=True;break
+            checks+=1;branches={};ok=True
+            promotions=[i for i in range(self.m) if i not in ko] if s.o in ko else [s.o]
+            for i in promotions:
+                nxt=self.followup(s,attack,ko,prizes,i)
+                if nxt is None:ok=False;break
+                res=nxt.find_lethal(max_states=max_states,max_followup=0,allow_extra=False)
+                follow_states+=res.get('states',0)
+                if not res['found']:
+                    if not res.get('complete_within_model',True):incomplete=True
+                    ok=False;break
+                branches[self.eids[i]]=res['first']
+            if ok:
+                opt,_=self.lethal_option(s,attack,path(s))
+                return {'found':True,'kind':'extra_turn','first':opt,'after_every_legal_promotion':branches,
+                    'states':len(paths),'followup_checks':checks,'followup_states':follow_states,
+                    'conditional_on_no_unmodeled_triggers':False,
+                    'boundary':'No opponent turn or Checkup; unknown Prize cards and next draw ignored. Copycat recipe legality must be independently established.'}
+        return {'found':False,'complete_within_model':not incomplete,'states':len(paths),'extra_candidates':len(pending),
+            'followup_checks':checks,'followup_states':follow_states}
+
 
 def fixtures():
     thorns=lambda id:{'id':id,'type':'Lightning','hp':230,'prizes':2,'rulebox':True,'basic':True,'future':True,'lock':'thorns','energy':2}
@@ -329,6 +423,10 @@ def fixtures():
             'active':'wob','opp_active':'vile','stadium':'valley','hand':{'hood':1}},
         'astral_double':{'own':[{'id':'v','kind':'v','energy':2}], 'opp':[{'id':'a','type':'Grass','hp':50},{'id':'b','type':'Grass','hp':50}],
             'active':'v','opp_active':'a','stadium':'valley'},
+        'timeless_lethal':{'own':[{'id':'mimikyu','kind':'mimikyu','energy':1},{'id':'vmax','kind':'vmax','energy':3},{'id':'clefairy','kind':'clefairy'},{'id':'latias','kind':'latias'}],
+            'opp':[{'id':'drago-star','type':'Dragon','hp':280,'prizes':2,'rulebox':True,'basic':False},{'id':'drago-v','type':'Dragon','hp':220,'prizes':2,'rulebox':True},{'id':'dedenne','type':'Lightning','hp':160,'prizes':2,'rulebox':True}],
+            'active':'mimikyu','opp_active':'drago-star','stadium':'valley','hand':{'psychic':1},'prizes_remaining':4,
+            'no_unmodeled_terminal_triggers':True,'copycat_recipe':{'name':'Apex Dragon / Timeless-GX','legal':True,'damage':150,'effect':'take another turn; skip Checkup','gx':True,'extra_turn':True}},
         'garbo_remove':{'own':[{'id':'vmax','kind':'vmax','energy':1},{'id':'latias','kind':'latias','energy':1}],
             'opp':[{'id':'target','type':'Grass','hp':100},{'id':'garbo','type':'Psychic','hp':100,'basic':False,'lock':'garbotoxin','tool':'generic'}],
             'active':'latias','opp_active':'target','stadium':'valley','hand':{'psychic':1,'blower':True}},
@@ -349,12 +447,18 @@ def selftest():
     # Mist Energy stops counters, Temple restores the effect. A counters-only prevention does not block Pale Moon.
     q=dict(f['astral_double']);q['opp']=[dict(x,mist_energy=True) for x in q['opp']];p=Planner(q);assert not p.counters_allowed(p.first,0);assert p.counters_allowed(replace(p.first,stadium='temple'),0)
     q['opp']=[dict(x,mist_energy=False,prevent_counters=True) for x in q['opp']];p=Planner(q);assert not p.counters_allowed(p.first,0) and p.attack_effect_allowed(p.first,0)
+    q=f['timeless_lethal'];r=Planner(q).find_lethal();assert r['found'] and r['kind']=='extra_turn' and set(r['after_every_legal_promotion'])=={'drago-v','dedenne'}
+    no=dict(q);no['hand']={};r=Planner(no).find_lethal();assert not r['found'] and r['complete_within_model']
+    no=dict(q);no['used']={'gx':True};assert not Planner(no).find_lethal()['found']
+    no=dict(q);no['deck_remaining']=0;assert not Planner(no).find_lethal()['found']
+    no=dict(q);no['no_unmodeled_terminal_triggers']=False;assert not Planner(no).find_lethal()['found']
     print('All focused actor-visible tactical tests passed.')
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('state',nargs='?');p.add_argument('--test',action='store_true');p.add_argument('--fixture',choices=fixtures());p.add_argument('--max-states',type=int,default=200000);p.add_argument('--limit',type=int,default=30);a=p.parse_args()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('state',nargs='?');p.add_argument('--test',action='store_true');p.add_argument('--fixture',choices=fixtures());p.add_argument('--max-states',type=int,default=200000);p.add_argument('--limit',type=int,default=30);p.add_argument('--lethal',action='store_true');p.add_argument('--max-followup',type=int,default=128);a=p.parse_args()
     if a.test:selftest();return
     if not a.state and not a.fixture:p.error('supply state JSON or --fixture')
     data=fixtures()[a.fixture] if a.fixture else json.load(open(a.state))
-    print(json.dumps(Planner(data).solve(a.max_states,a.limit),indent=2))
+    planner=Planner(data);result=planner.find_lethal(a.max_states,a.max_followup) if a.lethal else planner.solve(a.max_states,a.limit)
+    print(json.dumps(result,indent=2))
 if __name__=='__main__':main()
