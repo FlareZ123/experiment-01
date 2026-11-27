@@ -227,13 +227,14 @@ function runCases(policy,protocol) {
         bench:[slot(A.electrode,{hp:190,abilities:['Extra Energy Bomb']})],deckCount:5}),
       opponentPublic:player({active:slot('Wobbuffet PHF 36',{hp:110,abilities:['Bide Barricade']}),
         stadium:['Silent Lab PRC'],prizeCount:6})});
-    same(runRoot(p,silentKlefki,[play('stop-klefki',A.pokestop),
-      ability('bomb-silent-klefki',A.electrode,'Extra Energy Bomb',0),pass]),action('stop-klefki'),
-      tag+'Pokestop removes Silent Lab to restore Klefki over Wobbuffet');
+    same(policy.liveBombs(silentKlefki).length,1,
+      tag+'Silent Lab already suppresses Wobbuffet and exposes Bomb');
+    same(runRoot(p,silentKlefki,[play('stop-klefki',A.pokestop),pass]),action('pass'),
+      tag+'do not replace Silent Lab solely for Klefki Wobbuffet interaction');
     const silentKlefkiCleared={...silentKlefki,
       opponentPublic:{...silentKlefki.opponentPublic,stadium:[]}};
     same(policy.liveBombs(silentKlefkiCleared).length,1,
-      tag+'restored Klefki suppresses Wobbuffet and exposes Bomb');
+      tag+'after Silent Lab leaves Klefki itself suppresses Wobbuffet');
     const dittoPath=view(seat,{globalTurn:4,ownHand:[A.raichu],
       ownPublic:player({bench:[slot(A.marshadow),slot(A.ditto,{abilities:['Almighty Evolution']})]}),
       opponentPublic:player({stadium:['Path to the Peak CRE']})});
