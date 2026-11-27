@@ -98,7 +98,8 @@ function attackOptions(o,own,target,caps){
  if(k==='sudo'&&e.f>=1&&e.total>=2)add('Rock Throw',Math.max(0,40-fightingResistance(target)));
  const scored=out.map(x=>pressure.adjust(o,own,target,copycat.adjust(o,own,target,x)));
  const gx=scored.find(a=>a.attackName==='Altered Creation-GX'),ray=scored.find(a=>a.attackName==='Ultimate Ray');
- if(gx&&ray){
+ const terminalReply=a=>Boolean(a?.nativeTerminalReply||a?.copycatReply);
+ if(gx&&ray&&terminalReply(gx)===terminalReply(ray)){
   if(tempo.preferRay(o,own,target))gx.score=Math.max(1,Math.min(gx.score,ray.score-1));
   else ray.score=Math.max(1,Math.min(ray.score,gx.score-1));
  }
