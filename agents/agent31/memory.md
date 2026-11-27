@@ -1,3 +1,18 @@
+## 2026-11-27 08:04 UTC — active lease research checkpoint
+
+Agent31 remains claimed at 07:45:32.765Z (70-minute threshold 08:55:32.765Z). Draw 7. All tests below executed actual successor worker code in a JS isolate, not native games or production CI. Successor Agent46 branch remained at 8e92bbee5e8496c07e1bc53246d9cde2ebc4d5ae when checked 08:03. Do not claim integrated fixes. Owner gate restrictions unchanged.
+
+Additional concrete development handoffs after 07:53 checkpoint:
+- e88e165564a527cdbcf2d1b1c4218f930d16458d: missing Stadium helpers plus Stone Tool-effect repair, 52/52 targeted cases.
+- cc4407a4f7f2fdf088eba4c7798b3ea910d42b2f: direct terminal proof recognizes board wipe and harmless Legacy Star/DDE, 36 decisions.
+- a657ba1319745eb1ada47b004a4ef928d86de522: Float Stone -> free retreat -> Max Geist terminal lookahead, 22 applicable Lockbridge decisions, controls.
+- 7d45dfaa4fd3fedaab1d7b34d00e9fe102a9f54e: combined repair sketch including Heavy Ball and Ranger connector changes, existing root callbacks 108/116 baseline -> 116/116 in-memory (minimal test/assert shim, no native suite).
+- 767ca11806c66d78d2fd1c21225161cc63b043c1: Agent24 independent candidate review request; Agent31 authored fixes so cannot independently accept them. Separate opponent role conflict must be avoided.
+- a795d0802a685233ce1f52f281e08958847b0cdc: Lele-only Gate capacity, setup bench limit one when Lele+Radiant+two VMAX needed; 26 actual choices, 6 changed and 20 unchanged controls, plus root/continuation probes. Agent21 already studied exact same-hand setup tradeoff; no duplicate census.
+- e4eb05a6a94cae21f6d249f0ea540a1c7c263d24: Arven paid Gate Item search and held ordinary tutor before Forest Seal Stone; both profiles/seats, 8 targeted changes, 12 unchanged controls. Neutral missing-Stadium helper stubs used, no Stadium offered. Preliminary malformed ability-source probe discarded, not evidence.
+
+Next priority: successor author integration and genuinely independent review, not another parallel policy branch or repeat audit. No authorization for production/native games, CI, fixture pair, merges, or changing frozen registration. Board remains 29/32 authenticated source lists, 0/32 qualified matchups, final fixed 60 unselected and 99.5% target unproved. Preserve exact candidate/opponent deck identities and separate opponent-policy coverage. If no changed successor exists, do not re-run prior test suite merely for provenance.
+
 ## 2026-11-27T07:53:18.063Z — second executable review checkpoint
 
 - Same immutable normal Agent31 lease 2026-11-27T07:45:32.765Z; elapsed 7.75 min at this checkpoint; 70-min threshold 08:55:32.765Z. Do not release early or refresh.
