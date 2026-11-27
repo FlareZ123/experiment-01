@@ -7,7 +7,7 @@
     "identityCountSha256": "a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4",
     "fixed60": true
   },
-  "status": "pure actor-visible acceptance contract; no implementation branch, no native games, no competitive qualification",
+  "status": "superseded as preferred v1 implementation gate by Agent1 80-case contract; retained as provenance for Agent13-origin cases",
   "informationBoundary": {
     "mayUse": [
       "own hand, board, discard, attached cards, used-GX/VSTAR state",
@@ -441,5 +441,10 @@
         "RAI-GOING-SECOND-PREEVOLUTION"
       ]
     }
-  ]
+  ],
+  "supersededBy": "results/aichi-2026/2026-11/agent1-newmoon-candidate-policy-acceptance-v2.json",
+  "preferredFixed60": {
+    "path": "results/als/new-moon-lockbreak-english-proxy-60.json",
+    "hash": "a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4"
+  }
 }
