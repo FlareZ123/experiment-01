@@ -191,3 +191,71 @@ for(const seat of [0,1]){
   assert.deepEqual(policy.decide(previous),{kind:'select-action',token:'wondrous'});
  });
 }
+
+
+for(const seat of [0,1]){
+ test('pinned Snow Mirage guard is public, typed, and direction-scoped, seat '+seat,()=>{
+  const own=player(seat,true),other=player(1-seat,false);
+  own.stadium.cards=[];
+  const shield=pokemon({fullName:'Alolan Vulpix VSTAR SIT',
+    name:'Alolan Vulpix VSTAR',hp:240,stage:6,tags:['VSTAR'],
+    types:[3],retreat:[9],weakness:[{type:8}],
+    attacks:[{name:'Snow Mirage',damage:160,cost:[3,9,9],
+      text:'Prevent attack damage from Pokémon with an Ability'}]});
+  // Pinned Vulpix VSTAR Snow Mirage applies PREVENT_DAMAGE with the
+  // public sourceHasAbility filter; only its Boolean existence is projected.
+  shield.preventDamageNextTurn={sourceHasAbility:true};
+  other.active=shield;
+  const state={players:seat===0?[own,other]:[other,own],
+    activePlayer:seat,turn:4,phase:2,prompts:[]};
+  const projected=()=>observe.actorObservation(state,seat);
+  const view=projected();
+  assert.equal(view.ownPublic.active.publicRestrictions.outgoingTerminalUncertain,false);
+  assert.equal(view.opponentPublic.active.publicRestrictions.incomingTerminalUncertain,true);
+  assert.equal(view.opponentPublic.active.publicRestrictions.outgoingTerminalUncertain,false);
+  assert.doesNotThrow(()=>protocol.validateActorObservation(view,seat));
+  // A separate Rolling Iron-like reduction is also an incoming modifier.
+  shield.preventDamageNextTurn=null;
+  shield.damageReductionNextTurn=80;
+  assert.equal(projected().opponentPublic.active.publicRestrictions.incomingTerminalUncertain,true);
+  shield.damageReductionNextTurn=0;
+  assert.equal(projected().opponentPublic.active.publicRestrictions.incomingTerminalUncertain,false);
+  // These two modifiers are real but directionally irrelevant to an outgoing
+  // attack from our side. No over-conservative false terminal veto.
+  own.active.hpBonus=70;
+  shield.attackDamageReductionNextTurn=40;
+  const orthogonal=projected();
+  assert.equal(orthogonal.ownPublic.active.publicRestrictions.incomingTerminalUncertain,true);
+  assert.equal(orthogonal.ownPublic.active.publicRestrictions.outgoingTerminalUncertain,false);
+  assert.equal(orthogonal.opponentPublic.active.publicRestrictions.incomingTerminalUncertain,false);
+  assert.equal(orthogonal.opponentPublic.active.publicRestrictions.outgoingTerminalUncertain,true);
+  assert.doesNotThrow(()=>protocol.validateActorObservation(orthogonal,seat));
+  const forged=JSON.parse(JSON.stringify(view));
+  forged.opponentPublic.active.publicRestrictions.incomingTerminalUncertain='false';
+  assert.throws(()=>protocol.validateActorObservation(forged,seat));
+ });
+}
+
+
+for(const seat of [0,1]){
+ test('pinned once-per-game Legacy Energy used marker is public and optional, seat '+seat,()=>{
+  const own=player(seat,true),other=player(1-seat,false);
+  own.legacyEnergyUsed=true;
+  other.legacyEnergyUsed=false;
+  const state={players:seat===0?[own,other]:[other,own],
+    activePlayer:seat,turn:4,phase:2,prompts:[]};
+  const view=observe.actorObservation(state,seat);
+  assert.equal(view.ownPublic.publicTurnRestrictions.legacyEnergyUsed,true);
+  assert.equal(view.opponentPublic.publicTurnRestrictions.legacyEnergyUsed,false);
+  assert.doesNotThrow(()=>protocol.validateActorObservation(view,seat));
+  const bad=JSON.parse(JSON.stringify(view));
+  bad.opponentPublic.publicTurnRestrictions.legacyEnergyUsed='false';
+  assert.throws(()=>protocol.validateActorObservation(bad,seat));
+  // Future unsupported engine revisions must be treated as unknown rather
+  // than falsely asserting that the reduction has not yet been spent.
+  delete other.legacyEnergyUsed;
+  const unknown=observe.actorObservation(state,seat);
+  assert.equal(Object.hasOwn(unknown.opponentPublic.publicTurnRestrictions,'legacyEnergyUsed'),false);
+  assert.doesNotThrow(()=>protocol.validateActorObservation(unknown,seat));
+ });
+}

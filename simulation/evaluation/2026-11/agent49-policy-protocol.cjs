@@ -210,6 +210,9 @@ const PUBLIC_RESTRICTION_KEYS = [
   'attackCostIncreaseNextTurn', 'attackCostIncreaseWhileActive', 'cannotRetreat',
   'cannotRetreatNextTurn', 'cannotRetreatWhileActive', 'cannotEvolveNextTurn'
 ];
+const PUBLIC_RESTRICTION_OPTIONAL_KEYS = [
+  'incomingTerminalUncertain','outgoingTerminalUncertain'
+];
 const PLAYER_RESTRICTION_KEYS = [
   'gxUsed', 'vstarUsed', 'attackLockTurnsRemaining', 'attackMaxEnergy',
   'attackMaxEnergyTurnsRemaining', 'ignoreAttackCostCardTypes',
@@ -220,7 +223,7 @@ const PLAYER_RESTRICTION_KEYS = [
   'stadiumAndToolHaveNoEffectTurnsRemaining'
 ];
 const PLAYER_RESTRICTION_OPTIONAL_KEYS = [
-  'alteredCreationDamage', 'usedAlteredCreation'
+  'alteredCreationDamage', 'usedAlteredCreation', 'legacyEnergyUsed'
 ];
 const TURN_RESOURCE_KEYS = [
   'supporterPlayedTurn', 'retreatedTurn', 'extraTurnActive', 'energyPlayedTurn',
@@ -487,7 +490,14 @@ function validatePokemonSlot(slot, allowConcealed) {
     }
   }
   specialConditionArray(slot.specialConditions);
-  exactKeys(slot.publicRestrictions, PUBLIC_RESTRICTION_KEYS);
+  exactKeys(slot.publicRestrictions,PUBLIC_RESTRICTION_KEYS,
+    PUBLIC_RESTRICTION_OPTIONAL_KEYS);
+  for(const key of PUBLIC_RESTRICTION_OPTIONAL_KEYS){
+    if(slot.publicRestrictions[key]!==undefined &&
+       typeof slot.publicRestrictions[key]!=='boolean'){
+      fail('BAD_POKEMON_RESTRICTION');
+    }
+  }
   for (const key of ['cannotAttackNextTurn', 'cannotRetreat', 'cannotRetreatNextTurn', 'cannotRetreatWhileActive', 'cannotEvolveNextTurn']) {
     if (typeof slot.publicRestrictions[key] !== 'boolean') fail('BAD_POKEMON_RESTRICTION');
   }
