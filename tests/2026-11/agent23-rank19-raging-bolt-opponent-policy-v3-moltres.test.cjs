@@ -126,3 +126,40 @@ for(const seat of [0,1]){
    assert.deepEqual(policy.decide(r),sel('dde'));
  });
 }
+
+for(const seat of [0,1]){
+ const qb=root('qb','play-card',{actorPrinting:'Quick Ball FST'});
+ const bc=root('bc','play-card',{actorPrinting:'Battle Compressor PHF'});
+ const vip=root('vip','play-card',{actorPrinting:'Battle VIP Pass FST'});
+ const card=(token,printing,sourceZone,ownerSeat='actor')=>({kind:'card',token,printing,publicMetadata:{sourceZone,ownerSeat,isOwnerVisible:true}});
+ test('seat '+seat+' Compressor seeds Darkness before manual attachment',()=>{
+   const r=request(seat,adp(),benchSlot(molt([D])),vmax(),[],[bc,attach('manual',seat,D),pass],{hand:[D]});
+   assert.deepEqual(mod.tacticalRoot(r),sel('bc'));
+   r.prompt=prompt('ChooseCardsPrompt','Battle Compressor','Battle Compressor PHF',[card('foreign',D,'deck','opponent'),card('l',L,'deck'),card('d',D,'deck'),card('d2',D,'deck'),card('f',F,'deck')]);
+   r.prompt.publicMetadata={minimumCount:0,maximumCount:3};
+   assert.deepEqual(mod.tacticalPrompt(r),{kind:'select-choices',tokens:['d','l','f']});
+ });
+ test('seat '+seat+' Quick Ball turns Darkness into Wings fuel then finds Moltres',()=>{
+   const r=request(seat,adp(),benchSlot(),vmax(),[],[qb,pass],{hand:[D,L]});
+   assert.deepEqual(mod.tacticalRoot(r),sel('qb'));
+   r.prompt=prompt('ChooseCardsPrompt','Quick Ball','Quick Ball FST',[card('l',L,'hand'),card('foreign',D,'hand','opponent'),card('d',D,'hand')]);
+   assert.deepEqual(mod.tacticalPrompt(r),choices('d'));
+   r.observation.ownPublic.discard=[D];
+   r.prompt=prompt('ChooseCardsPrompt','Quick Ball','Quick Ball FST',[card('bolt','Raging Bolt ex TEF','deck'),card('mol',M,'deck')]);
+   r.prompt.publicMetadata={minimumCount:0,maximumCount:1};
+   assert.deepEqual(mod.tacticalPrompt(r),choices('mol'));
+ });
+ test('seat '+seat+' VIP obtains Moltres and Latias rather than two unrelated attackers',()=>{
+   const r=request(seat,adp(),benchSlot(),vmax(),[],[vip,pass],{discard:[D]});
+   assert.deepEqual(mod.tacticalRoot(r),sel('vip'));
+   r.prompt=prompt('ChooseCardsPrompt','Battle VIP Pass','Battle VIP Pass FST',[card('bolt','Raging Bolt ex TEF','deck'),card('mol',M,'deck'),card('latias','Latias ex SSP','deck')]);
+   r.prompt.publicMetadata={minimumCount:0,maximumCount:2};
+   assert.deepEqual(mod.tacticalPrompt(r),{kind:'select-choices',tokens:['mol','latias']});
+ });
+ test('seat '+seat+' do not discard additional Darkness once Moltres has fuel',()=>{
+   const r=request(seat,adp(),benchSlot(molt([D])),vmax(),[],[qb,pass],{hand:[D],discard:[D]});
+   assert.equal(mod.tacticalRoot(r),null);
+   r.prompt=prompt('ChooseCardsPrompt','Quick Ball','Quick Ball FST',[card('d',D,'hand')]);
+   assert.equal(mod.tacticalPrompt(r),null);
+ });
+}
