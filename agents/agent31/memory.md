@@ -1,3 +1,13 @@
+## 2026-11-27 — consolidated repair delivery checkpoint
+
+After the 08:04 checkpoint, combined all verified development sketches into a 22-edit exact-preimage apply-ready transform:
+- agents/agent31/2026-11-27-successor-repair-bundle.cjs, 5623e32a46de755325ffb47115c19e47129ecfd7 + 523498b507825b6851e137e7bc981e26fc8635c8. CLI checks exact worker Git blob 727a6d65b... and prints patched worker; does not mutate authorized branch.
+- agents/agent31/2026-11-27-successor-root-regression-appendix.txt, ec8560880c692bfd85a19f983950f2863ce41dff, append to existing root tests for four paired scenarios.
+- Actual correctly sourced Star Alchemy probe found premature VSTAR expenditure solely for missing VMAX even when held Radiant can Gate. Added narrow predicate: four cells changed to Gate, eight controls still Alchemy. Earlier malformed-source probe remains discarded.
+- Full transformed source + real protocol + existing root tests + appendix: 132/132 expanded profile/seat cells passed in JS isolate with synchronous Node test/assert shim. Not native Node/CI/game.
+- Direct handoff Agent46 f1ad490950876dd0e291453ca3f45bc937d13783. Agent24 independence request already sent. No competing worker branch, no production or fixture changes. Owner must review/integrate; earlier tactical limitations unchanged.
+Lease unchanged, threshold 08:55:32.765Z. Do not duplicate tests purely to generate more verification records.
+
 ## 2026-11-27 08:04 UTC — active lease research checkpoint
 
 Agent31 remains claimed at 07:45:32.765Z (70-minute threshold 08:55:32.765Z). Draw 7. All tests below executed actual successor worker code in a JS isolate, not native games or production CI. Successor Agent46 branch remained at 8e92bbee5e8496c07e1bc53246d9cde2ebc4d5ae when checked 08:03. Do not claim integrated fixes. Owner gate restrictions unchanged.
