@@ -856,3 +856,55 @@ test('actual Fan AttachEnergyPrompt is explicitly unsupported, not fabricated as
     kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'
   });
 });
+
+test('Guzma native ChoosePokemonPrompt returns select-choices for one trapped Bench target', () => {
+  for (const seat of [0,1]) {
+    const req=promptRequest({
+      seat,promptType:'ChoosePokemonPrompt',
+      source:actorChoiceSource('Guzma BUS 115','Guzma'),
+      publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:1,
+        allowCancel:false,isSecret:false},
+      observation:{opponentPublic:player({
+        active:pokemon('Shadow Rider Calyrex VMAX CRE 75'),
+        bench:[
+          pokemon('Tapu Lele-GX GRI 60',{energies:[]}),
+          pokemon('Regidrago V SIT 135',{energies:['Basic Grass Energy SVI 278']})
+        ]})},
+      choices:[
+        pokemonChoice('lelex','Tapu Lele-GX GRI 60','opponent','bench',0),
+        pokemonChoice('regix','Regidrago V SIT 135','opponent','bench',1)
+      ]
+    });
+    const choice=checkedDecision(req,seat);
+    assert.equal(choice.kind,'select-choices');
+    assert.equal(choice.tokens.length,1);
+    assert.ok(['lelex','regix'].includes(choice.tokens[0]));
+  }
+});
+
+test('Team Flare Grunt native ChooseEnergyPrompt uses required energy-payment multiselect', () => {
+  const req=promptRequest({
+    promptType:'ChooseEnergyPrompt',
+    source:actorChoiceSource('Team Flare Grunt XY 129','Team Flare Grunt'),
+    publicMetadata:{selectionType:'energy-payment',count:1,energyCount:1,
+      allowCancel:false,isSecret:false},
+    choices:[
+      energyChoice('basic','Basic Psychic Energy CRE 232','active','opponent'),
+      energyChoice('special','Double Colorless Energy SUM 136','active','opponent')
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),
+    {kind:'select-choices',tokens:['special']});
+});
+
+test('Guzma and Energy denial reject malformed native selection contracts before fake single choice', () => {
+  const wrongGuzma=promptRequest({
+    promptType:'ChoosePokemonPrompt',
+    source:actorChoiceSource('Guzma BUS 115','Guzma'),
+    publicMetadata:{selectionType:'pokemon',minimumCount:1,maximumCount:2,
+      allowCancel:false,isSecret:false},
+    choices:[pokemonChoice('x','Tapu Lele-GX GRI 60','opponent','bench',0)]
+  });
+  assert.deepEqual(checkedDecision(wrongGuzma),
+    {kind:'abstain',reasonCode:'UNSUPPORTED_POKEMON_PROMPT'});
+});
