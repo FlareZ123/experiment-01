@@ -431,3 +431,28 @@ console.log('passed '+(function compressorTiming(P,protocol){
  o=obs(0,4);o.ownHand=[];a(choose(o).tokens?.[0]==='t0','resume Compressor search next own turn');
  return n;
 })(P,protocol)+' conditional Compressor timing assertions');
+
+console.log('passed '+(function cologneDraw(P,protocol){
+ const C='Canceling Cologne ASR 136',D='Dedenne-GX UNB 57',W='Wobbuffet PHF 36',M='Mega Absol ex MEG 86',V='Voltorb ROS 21',Pr='Prism Energy ASC 216',Dark='Darkness Energy MEE 15',E='Electrode-GX CES 48',U='Unown AOR 30',Vip='Battle VIP Pass FST 225';
+ const mk=(printing,extra={})=>({printing,hp:280,damage:0,energies:[],tools:[],specialConditions:[],publicRestrictions:{},abilityDetails:[],printed:{stage:'Basic',types:['Darkness'],weakness:[],resistance:[]},...extra});
+ const wob=(suppressed=false)=>mk(W,{hp:110,abilityDetails:[{name:'Bide Barricade',text:'Active non-Psychic Ability lock'}],abilitySuppressions:[{abilityName:'Bide Barricade',suppressed,reasonCode:suppressed?'CANCELING_COLOGNE':null,sourcePrinting:suppressed?C:null}]});
+ const obs=(seat=0)=>({actorSeat:seat,globalTurn:4,ownHand:[C,D,Vip],ownPublic:{active:mk(M),bench:[mk(V)],discard:[],deckCount:25,prizeCount:6,stadium:[],publicTurnRestrictions:{}},opponentPublic:{active:wob(),bench:[mk(U)],prizeCount:6,stadium:[],publicTurnRestrictions:{}},ownTurnResources:{energyPlayedTurn:true,supporterPlayedTurn:0}});
+ const col={kind:'play-card',token:'cologne',actorPrinting:C,publicMetadata:{}},den={kind:'play-card',token:'dedenne',actorPrinting:D,publicMetadata:{}},pass={kind:'pass',token:'pass'};
+ const decide=(o,items=[col,den,pass])=>{const f={schema:protocol.FRONTIER_SCHEMA,items};const d=P.createPolicy({role:'opponent',seat:o.actorSeat,policyVersion:P.POLICY_VERSION,config:{}}).decide({role:'opponent',seat:o.actorSeat,sequence:1,observation:o,prompt:null,actionFrontier:f});protocol.validateDecision(d,null,protocol.validateFrontier(f));return d};
+ let n=0;function a(v,l){if(!v)throw Error(l);n++}
+ for(const seat of [0,1]){
+   let o=obs(seat);a(decide(o).token==='cologne','unlock supported Dedechange before bench, seat '+seat);
+   a(decide(o,[den,pass]).token==='pass','do not bench Dedenne into Bide Barricade, seat '+seat);
+   o.ownHand=[D,Vip];o.opponentPublic.active=wob(true);a(decide(o,[den,pass]).token==='dedenne','post-Cologne observed suppression enables bench, seat '+seat);
+ }
+ let o=obs();o.opponentPublic.active.abilitySuppressions=null;a(decide(o).token==='pass','unknown suppression status does not justify spending singleton or blind bench');
+ o=obs();o.ownTurnResources.itemPlayLocked=true;a(decide(o).token==='pass','Item lock prevents Cologne');
+ o=obs();o.ownTurnResources.abilityPokemonPlayLocked=true;a(decide(o).token==='pass','independent hand-play restriction remains');
+ o=obs();o.opponentPublic.stadium=['Path to the Peak CRE 148'];a(decide(o).token==='pass','Path still blocks Dedechange');
+ o=obs();o.ownPublic.stadium=['Silent Lab PRC 140'];a(decide(o).token==='pass','Silent Lab still blocks Dedechange');
+ o=obs();o.ownPublic.bench=Array(5).fill(mk(U));a(decide(o).token==='pass','full Bench');
+ o=obs();o.ownHand=[C,D,E];a(decide(o).token==='pass','preserve essential evolution');
+ o=obs();o.ownHand=[C,Vip];o.ownPublic.bench.push(mk(E));o.ownPublic.discard=[Pr,Pr,Pr];a(decide(o,[col,pass]).token==='pass','do not spend Cologne for unsupported Bomb alone');
+ o=obs();o.ownPublic.active.energies=[Dark,Pr,Pr];o.ownPublic.prizeCount=1;const atk={kind:'attack',token:'claw',actorPrinting:M,attackName:'Claw of Darkness',publicMetadata:{attackCostPayable:true}};a(decide(o,[col,den,atk,pass]).token==='claw','immediate win precedes setup');
+ return n;
+})(P,protocol)+' Cologne Dedechange assertions');
