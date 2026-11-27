@@ -1,7 +1,7 @@
 {
-  "run_id": "agent24-chat-20261120T204717867Z-normal7-gpt6-rank2-policy-review",
-  "claimed_at": "2026-11-20T20:47:17.867331474Z",
+  "run_id": "agent24-chat-2026-11-27T07:05:23.588Z-normal1-strategy",
+  "claimed_at": "2026-11-27T07:05:23.588Z",
   "mode": "normal",
-  "roll": 7,
-  "previous_claim": "2026-11-19T19:06:00.217Z"
+  "selection_draw": 1,
+  "previous_claim": "2026-11-20T20:47:17.867331474Z"
 }
