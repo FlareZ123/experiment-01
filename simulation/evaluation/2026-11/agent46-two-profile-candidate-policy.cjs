@@ -848,7 +848,7 @@ function attackEffectsBlocked(attacker,target,view){
     ![...view.ownPublic.stadium,...view.opponentPublic.stadium].some(e=>hasName(e,'Jamming Tower')))return true;
   return false;
 }
-function estimatedDamage(attacker, attack, view, target) {
+function estimatedDamage(attacker, attack, view, target, ignoreWeakness=false) {
   if(cannotAttackPublicly(attacker,target,view))return null;
   const base = attackBaseDamage(attacker, attack, view, target);
   if (!Number.isFinite(base)) return null;
@@ -860,7 +860,7 @@ function estimatedDamage(attacker, attack, view, target) {
   if(d&&(d.beforeWeaknessReduction===null||d.reduction===null))return null;
   const pre=Math.max(0,base-(a?.outgoingReduction??0)-(d?.beforeWeaknessReduction??0));
   const bypass=attack.name==='Energy Drive'||attack.name==='Mind Shock';
-  const multiplier=bypass?1:weaknessMultiplier(attacker,target,view);
+  const multiplier=bypass||ignoreWeakness?1:weaknessMultiplier(attacker,target,view);
   if(multiplier===null)return null;
   let damage=Math.max(0,pre*multiplier-(bypass?0:resistancePenalty(attacker,target))-(a?.outgoingAfterWeaknessReduction??0));
   if(d?.reduction>0){
@@ -1457,6 +1457,16 @@ function heavyBallNeed(view) {
 }
 // Evaluate the actual post-pivot state: leaving Bide Barricade can also
 // reactivate the opponent's Initialization, so a pivot is not sufficient.
+function invalidateDepartedWobbuffet(view, old) {
+  if (!hasName(old?.printing,'Wobbuffet') ||
+      hasName(view.ownPublic.active?.printing,'Wobbuffet') ||
+      hasName(view.opponentPublic.active?.printing,'Wobbuffet')) return view;
+  const clear = slot => !slot || !Array.isArray(slot.abilitySuppressions) ? slot :
+    {...slot, abilitySuppressions:slot.abilitySuppressions.filter(row =>
+      !(row.suppressed===true && hasName(row.sourcePrinting??row.sourceName??'','Wobbuffet')))};
+  const player = p => ({...p,active:clear(p.active),bench:p.bench.map(clear)});
+  return {...view,ownPublic:player(view.ownPublic),opponentPublic:player(view.opponentPublic)};
+}
 function gatePivotView(view) {
   if(!hasName(view.ownPublic.active?.printing,'Wobbuffet') ||
       view.ownTurnResources?.retreatedTurn>0) return null;
@@ -1471,7 +1481,7 @@ function gatePivotView(view) {
     if(!slot)continue;
     const moved={...view,ownPublic:{...view.ownPublic,active:slot,
       bench:view.ownPublic.bench.map((p,i)=>i===index?active:p)}};
-    if(canPlayRadiantForGate(moved))return moved;
+    const projected=invalidateDepartedWobbuffet(moved,active); if(canPlayRadiantForGate(projected))return projected;
   }
   return null;
 }
@@ -1493,12 +1503,23 @@ function forestSealAccessNeed(view) {
       Array.isArray(slot.tools) && slot.tools.length === 0 &&
       toolsEffectiveForRetreat(view, slot, 'actor') === true && !hasStarAlchemyLock(view, slot));
 }
-function usefulRanger(view) {
+function rangerUnlocksUsefulItem(view,receipt) {
+  if(!itemLocked(view)||!view.ownHand.some(isItem))return false;
+  const hand=view.ownHand.slice();
+  const rangerIndex=hand.findIndex(p=>hasName(p,'Pokémon Ranger'));
+  const ranger=rangerIndex>=0?hand.splice(rangerIndex,1)[0]:'Pokémon Ranger STS';
+  const after={...view,ownHand:hand,ownTurnResources:{...view.ownTurnResources,itemPlayLocked:false,supporterPlayedTurn:1},
+    ownPublic:{...view.ownPublic,handCount:hand.length,discard:[...view.ownPublic.discard,ranger],
+      publicTurnRestrictions:{...view.ownPublic.publicTurnRestrictions,itemPlayLocked:false}}};
+  return hand.some(p=>isItem(p)&&!hasName(p,'VS Seeker')&&
+    Number.isFinite(scoreTrainerPlay({actorPrinting:p,publicMetadata:{}},after,receipt,null)));
+}
+function usefulRanger(view,receipt=null) {
   const r = view.ownPublic.publicTurnRestrictions ?? {};
   const active = view.ownPublic.active;
   const a = active?.publicRestrictions ?? {};
   // Native persistent effect flags, not absence of a legal action, support this decision.
-  const unlockItems = itemLocked(view) && view.ownHand.some(isItem);
+  const unlockItems = rangerUnlocksUsefulItem(view,receipt);
   const unlockOther = r.stadiumPlayLocked === true &&
     view.ownHand.some(p => hasAnyName(p, ['Sky Field','Dimension Valley','Temple of Sinnoh'])) ||
     r.energyPlayLocked === true && handHas(view, 'Psychic Energy') ||
@@ -1509,8 +1530,21 @@ function usefulRanger(view) {
     Array.isArray(active?.attacks) && active.attacks.some(attack => canPayAttack(active, attack, view));
   return unlockItems || unlockOther || unlockAttack;
 }
+function rangerReserveNeed(view,printing) {
+  if(!hasName(printing,'Pokémon Ranger')||itemLocked(view)||
+     view.ownTurnResources?.supporterPlayedTurn!==1||handHas(view,'Pokémon Ranger'))return -Infinity;
+  const target=view.opponentPublic.active;
+  if(!hasName(target?.printing,'Budew'))return -Infinity;
+  const another=view.opponentPublic.bench.some(p=>hasName(p?.printing,'Budew'));
+  const best=bestAttackForSlot(view.ownPublic.active,view,target);
+  if(!another&&Number.isFinite(best?.damage)&&best.damage>=target.hp-target.damage)return -Infinity;
+  return 85;
+}
+function seekerTargetNeed(view,printing,receipt) {
+  return supporterAvailable(view)?supporterNeedScore(view,printing,receipt):rangerReserveNeed(view,printing);
+}
 function bestRecoverableSupporter(view, receipt) {
-  if (!supporterAvailable(view)) return -Infinity;
+  if(!supporterAvailable(view))return Math.max(-Infinity,...view.ownPublic.discard.map(p=>rangerReserveNeed(view,p)));
   const held = Math.max(0, ...view.ownHand.map(p => supporterNeedScore(view, p, receipt)));
   const recover = Math.max(-Infinity, ...view.ownPublic.discard
     .filter(p => !view.ownHand.includes(p)).map(p => supporterNeedScore(view, p, receipt)));
@@ -1525,7 +1559,7 @@ function recoveryNeedScore(view, printing, receipt) {
   if (hasName(printing, 'Dialga-GX')) return -5;
   if (hasName(printing, 'Radiant Eternatus')) {
     return !boardHas(view,'Radiant Eternatus') && !handHas(view,'Radiant Eternatus') &&
-      canPlayRadiantForGate(view) ? 100 : -5;
+  (canPlayRadiantForGate(view)||gatePivotView(view)!==null) ? 100 : -5;
   }
   if (hasName(printing, 'Tapu Lele-GX')) {
     return supporterAvailable(view) && !handHas(view,'Tapu Lele-GX') &&
@@ -1663,18 +1697,23 @@ function supporterNeedScore(view, printing, receipt) {
   if (hasName(printing, 'Iono')) {
     return handResetNeed(view,printing);
   }
-  if (hasName(printing, 'Pokémon Ranger')) return usefulRanger(view) ? 110 : -5;
+  if (hasName(printing, 'Pokémon Ranger')) return usefulRanger(view,receipt) ? 110 : -5;
   return -5;
 }
 
 function searchNeedScore(view, printing, effectName = '', receipt = null) {
   if (!isText(printing)) return -Infinity;
-  if (effectName === 'Wonder Tag' || effectName === 'VS Seeker') return supporterNeedScore(view, printing, receipt);
+  if(effectName==='VS Seeker')return seekerTargetNeed(view,printing,receipt);
+  if(effectName==='Wonder Tag')return supporterNeedScore(view,printing,receipt);
   if (effectName === 'Star Alchemy') {
     const ordinary = searchNeedScore(view, printing, '', receipt);
     const supporter = supporterNeedScore(view, printing, receipt);
     const score = Math.max(ordinary, supporter);
     return score > 0 ? score + 10 : score;
+  }
+  if (effectName === 'Arven' && hasAnyName(printing,['Mysterious Treasure','Quick Ball']) && gateAccessNeed(view) && !itemLocked(view)) {
+    const next={...view,ownHand:[...view.ownHand,printing],ownPublic:{...view.ownPublic,handCount:view.ownPublic.handCount+1,deckCount:view.ownPublic.deckCount-1}};
+    if(hasDiscardableHand(next,1,printing))return 112;
   }
   if (hasName(printing, 'Radiant Eternatus')) return gateAccessNeed(view) ? 120 : -5;
   if (hasName(printing, 'Forest Seal Stone')) return forestSealAccessNeed(view) ? 115 : 0;
@@ -1807,7 +1846,7 @@ function searchCandidates(view, prompt, choices, receipt = null) {
   } else {
     rows = choices.map(choice => ({
       choice, score: sourceZone === 'discard' && hasName(sourcePrinting,'VS Seeker')
-        ? supporterNeedScore(view,choice.printing,receipt)
+        ? seekerTargetNeed(view,choice.printing,receipt)
         : (sourceZone === 'discard' && hasName(sourcePrinting,'Night Stretcher') ||
            sourceZone === 'prizes' && hasName(sourcePrinting,'Hisuian Heavy Ball'))
           ? recoveryNeedScore(view,choice.printing,receipt)
@@ -2333,7 +2372,13 @@ function chooseStartingPokemonSetup(view, prompt, profile) {
     (hasV&&hand.some(p=>hasAnyName(p,['Forest Seal Stone','Arven','Tapu Lele-GX'])));
   const pivotAvailable = visible.some(p => hasAnyName(p, ['Latias ex', 'Float Stone'])) ||
     bench.some(slot => hasName(slot.printing, 'Latias ex'));
-  const context = { lockbridge, radiantAvailable, pivotAvailable };
+const directRadiant = visible.some(p=>hasName(p,'Radiant Eternatus')) ||
+  (payment&&hand.some(p=>hasAnyName(p,['Mysterious Treasure','Quick Ball']))) ||
+  (hasV&&hand.some(p=>hasAnyName(p,['Forest Seal Stone','Arven'])));
+const leleOnlyGate = hasV && visible.some(p=>hasName(p,'Tapu Lele-GX')) && !directRadiant &&
+  !hand.some(p=>hasName(p,'Sky Field'));
+const heldFloat = hand.some(p=>hasName(p,'Float Stone'));
+  const context = {lockbridge,radiantAvailable,pivotAvailable:pivotAvailable&&!(leleOnlyGate&&!heldFloat&&hasV)};
   const nativeIndex = row => row.choice.publicMetadata.selectionIndex;
   const ranked = cardChoices.map(choice => ({
     choice, score: openingActiveScore(choice.printing, context)
@@ -2351,7 +2396,7 @@ function chooseStartingPokemonSetup(view, prompt, profile) {
   // Keep three empty Bench slots for Radiant + two VMAX unless its trigger is already spent.
   const radiantSpent = [activePrinting, ...bench.map(slot => slot.printing)]
     .some(p => hasName(p, 'Radiant Eternatus'));
-  const benchLimit = radiantSpent ? 4 : 2;
+  const benchLimit = radiantSpent ? 4 : leleOnlyGate ? 1 : 2;
   const room = Math.max(0, Math.min(5-bench.length, benchLimit-bench.length,
     metadata.maximumCount-selected.length));
   const benchScore = printing => {
@@ -2605,7 +2650,7 @@ function scoreBasicPlay(item, view, profile,receipt) {
     if(!supporterAvailable(view))return -Infinity;
     const held=Math.max(-Infinity,...view.ownHand.map(p=>supporterNeedScore(view,p,receipt)));
     const rangerAccess=profile?.profileId==='hood-shield-shadow-rider-v1' &&
-      usefulRanger(view)&&!knownFullyPrized(view,'Pokémon Ranger')&&!handHas(view,'Pokémon Ranger');
+      usefulRanger(view,receipt)&&!knownFullyPrized(view,'Pokémon Ranger')&&!handHas(view,'Pokémon Ranger');
     const arvenAccess=forestSealAccessNeed(view)&&!handHas(view,'Arven')&&openBenchSlots(view)>=4;
     if(rangerAccess)return held>=110?-Infinity:1120;
     if(arvenAccess)return held>=101?-Infinity:950;
@@ -2958,12 +3003,7 @@ function isShadowRiderVTarget(slot) {
 }
 
 function hasStarAlchemyLock(view, target) {
-  if (hasActiveStadiumLock(view, 'Path to the Peak')) return true;
-  if (hasActiveGarbotoxin(view)) return true;
-  if (isShadowRiderVTarget(target) && hasActiveIronThorns(view)) return true;
-  if (isBasicShadowRiderV(target) &&
-      hasActiveStadiumLock(view, 'Silent Lab')) return true;
-  return false;
+  return toolsEffectiveForRetreat(view,target,'actor')!==true;
 }
 
 function hasStarAlchemyBottleneck(view, receipt, profile) {
@@ -2972,7 +3012,7 @@ function hasStarAlchemyBottleneck(view, receipt, profile) {
   const missingBasicV = !knownFullyPrized(view,'Shadow Rider Calyrex V') && !hasBasicShadowRiderV(view) &&
     !handHasBasicShadowRiderV(view) && hasOpenBench(view);
   const missingVmax = !knownFullyPrized(view,'Shadow Rider Calyrex VMAX') && hasUnevolvedShadowRiderV(view) &&
-    !handHas(view, 'Shadow Rider Calyrex VMAX');
+    !handHas(view, 'Shadow Rider Calyrex VMAX') && !(handHas(view,'Radiant Eternatus') && canPlayRadiantForGate(view));
   const missingDialga = opponentHasRegidrago(view) &&
     !boardHas(view, 'Dialga-GX') && !handHas(view, 'Dialga-GX') &&
     !discardHas(view, 'Dialga-GX');
@@ -2986,7 +3026,8 @@ function hasStarAlchemyBottleneck(view, receipt, profile) {
   const missingStamp = receipt?.priorOpponentTurnKO?.any === true &&
     !handHas(view, 'Unfair Stamp') && !discardHas(view, 'Unfair Stamp');
   const lowHand = view.ownPublic.handCount <= 1 && view.ownPublic.deckCount > 0;
-  if (gateAccessNeed(view) || (heavyBallNeed(view)>=1000 && !handHas(view,'Hisuian Heavy Ball') && !knownFullyPrized(view,'Hisuian Heavy Ball'))) return true;
+  const paidGateTutor = !itemLocked(view) && view.ownHand.some(p=>hasAnyName(p,['Mysterious Treasure','Quick Ball'])&&hasDiscardableHand(view,1,p));
+  if ((gateAccessNeed(view)&&!paidGateTutor) || (heavyBallNeed(view)>=1000 && !handHas(view,'Hisuian Heavy Ball') && !knownFullyPrized(view,'Hisuian Heavy Ball'))) return true;
   const critical = missingBasicV || missingVmax ||
     missingClefairy || missingStadiumAnswer || missingStamp || lowHand;
   if (!critical) return false;
@@ -3002,7 +3043,7 @@ function scoreTrainerPlay(item, view, receipt, profile) {
   const supporterUsed = !supporterAvailable(view);
   if (isItem(name) && itemLocked(view)) return -Infinity;
   if (isTool(name) && view.ownTurnResources?.toolPlayLocked === true) return -Infinity;
-  if (hasName(name,'Pokémon Ranger') && profile?.profileId==='hood-shield-shadow-rider-v1' && !supporterUsed && usefulRanger(view)) return 1100;
+  if (hasName(name,'Pokémon Ranger') && profile?.profileId==='hood-shield-shadow-rider-v1' && !supporterUsed && usefulRanger(view,receipt)) return 1100;
   if (hasName(name,'Temple of Sinnoh') && profile?.profileId==='lockbridge-shadow-rider-v1') return usefulTemple(view);
   if (hasName(name,'Float Stone')) {
     const target=actionTargetSlot(view,item.publicMetadata);
@@ -3175,7 +3216,8 @@ function projectedStadium(view, printing) {
   if (!view || !isText(printing) || !hasAnyName(printing, ['Sky Field','Dimension Valley','Temple of Sinnoh']) || !view.ownPublic || !view.opponentPublic || !Array.isArray(view.ownPublic.stadium) || !Array.isArray(view.opponentPublic.stadium)) return null;
   const current=[...view.ownPublic.stadium,...view.opponentPublic.stadium];
   if(current.length>1||current.some(card=>hasName(card,printing)))return null;
-  return {...view,ownPublic:{...view.ownPublic,stadium:[printing],stadiumDirection:null},opponentPublic:{...view.opponentPublic,stadium:[],stadiumDirection:null}};
+  const next=viewAfterRemovingAbilityStadiums(view);
+  return {...next,ownPublic:{...next.ownPublic,stadium:[printing],stadiumDirection:null}};
 }
 function opponentAttackUnlockRisk(view,projected){
   for(const slot of opponentBoard(view))for(const attack of slot.attacks??[]){
@@ -3186,6 +3228,7 @@ function opponentAttackUnlockRisk(view,projected){
 function usefulCandidateStadium(view,printing){
   if(!isText(printing)||view.ownTurnResources?.stadiumPlayedTurn===true||view.ownTurnResources?.stadiumPlayLocked===true||view.ownPublic.publicTurnRestrictions?.stadiumPlayLocked===true||stadiumAndToolEffectsLive(view)!==true)return -Infinity;
   const projected=projectedStadium(view,printing);if(!projected)return -Infinity;
+  if(!hasName(printing,'Sky Field')&&(countBench(view.ownPublic)>5||countBench(view.opponentPublic)>5))return -Infinity;
   const beforeFinal=publicFinalAttack(view),afterFinal=publicFinalAttack(projected);if(beforeFinal&&!afterFinal)return -Infinity;
   const beforeActive=bestAttackForSlot(view.ownPublic.active,view,view.opponentPublic.active),afterActive=bestAttackForSlot(projected.ownPublic.active,projected,projected.opponentPublic.active);
   if((beforeActive?.score??0)>=10000&&(afterActive?.score??0)<10000)return -Infinity;
@@ -3210,7 +3253,7 @@ function usefulTemple(view) {
       stadiumAndToolEffectsLive(view)!==true ||
       [...view.ownPublic.stadium,...view.opponentPublic.stadium].some(p=>hasName(p,'Temple of Sinnoh'))) return -Infinity;
   // Never force a discard of own occupied Sky Field bench in this slice.
-  if (countBench(view.ownPublic)>5) return -Infinity;
+  if (countBench(view.ownPublic)>5||countBench(view.opponentPublic)>5) return -Infinity;
   let pressure=templePressure(view);
   if (opponentBoard(view).some(slot=>hasName(slot.printing,'Marshadow') &&
       effectiveAbilityStatus(slot,'Resetting Hole','opponent',view)===true)) pressure-=250;
@@ -3221,7 +3264,8 @@ function usefulTemple(view) {
   const target=view.opponentPublic.active,attacker=view.ownPublic.active;
   if(target&&attacker){
     const before=bestAttackForSlot(attacker,view,target);
-    const after=bestAttackForSlot(attacker,projectedStadium(view,'Temple of Sinnoh ASR'),target);
+    const next=projectedStadium(view,'Temple of Sinnoh ASR');
+const after=bestAttackForSlot(next.ownPublic.active,next,next.opponentPublic.active);
     if((before?.score??0)>=10000&&(after?.score??0)<10000)return -Infinity;
   }
   return pressure>=300 ? 660+pressure/4 : -Infinity;
@@ -3302,7 +3346,7 @@ function chooseRetreat(view, items, profile) {
     let score=(attack?.score??0)-(current?.score??0)-cost*350;
     if (profile?.profileId==='lockbridge-shadow-rider-v1') {
       const gate=hasName(old.printing,'Wobbuffet') && handHas(view,'Radiant Eternatus') &&
-        !hasName(target.printing,'Wobbuffet') && canPlayRadiantForGate(movedView);
+        !hasName(target.printing,'Wobbuffet') && canPlayRadiantForGate(invalidateDepartedWobbuffet(movedView,old));
       if (gate && (current?.score??0)<10000) score=Math.max(score,1800-cost*350-wobLockValue(view,old)/2);
       if (!handHas(view,'Radiant Eternatus')) score+=wobLockValue(view,target)-wobLockValue(view,old);
     }
@@ -3364,23 +3408,29 @@ function canUseStarAlchemy(view, item, receipt, profile) {
 // the actor's legal frontier. Only a proven direct public final-Prize
 // opportunity overrides general resource heuristics.
 const FINAL_ATTACKS=new Set(['Max Geist','Night Watch','Full Moon Rondo','Psychic Assault','Power Beam','Shadow Mist','Energy Drive','Mind Shock','Eon Blade']);
-function cleanPublicTerminalView(view){
+function cleanPublicTerminalView(view,direct=false){
   return view.globalTurn>1&&view.ownPublic.active&&view.opponentPublic.active&&
-    opponentBoard(view).every(slot=>!(slot.abilities??[]).length&&!(slot.tools??[]).length&&
-      (slot.energies??[]).every(isBasicEnergyPrinting))&&
+    opponentBoard(view).every(slot=>
+  (slot.abilities??[]).every(a=>
+    (direct&&a==='Legacy Star'&&hasName(slot.printing,'Regidrago VSTAR')) ||
+    (a==='Garbotoxin'&&hasName(slot.printing,'Garbodor'))) &&
+  (slot.tools??[]).every(t=>hasName(t,'Float Stone')) &&
+  (slot.energies??[]).every(p=>
+    isBasicEnergyPrinting(p) ||
+    (direct&&hasName(p,'Double Dragon Energy')&&isDragon(slot))))&&
     !(view.ownPublic.active.specialConditions??[]).length&&
     !(view.opponentPublic.active.specialConditions??[]).length&&
     [...view.ownPublic.stadium,...view.opponentPublic.stadium].every(p=>hasAnyName(p,['Sky Field','Dimension Valley','Temple of Sinnoh']));
 }
 function publicFinalAttack(view,allowedNames=null){
-  if(!cleanPublicTerminalView(view))return null;
+  if(!cleanPublicTerminalView(view,allowedNames!==null))return null;
   const attacker=view.ownPublic.active,target=view.opponentPublic.active;
   const remaining=Math.max(0,target.hp-target.damage);
-  if(prizeLiability(target)<view.ownPublic.prizeCount||remaining<=0)return null;
+  if((prizeLiability(target)<view.ownPublic.prizeCount&&view.opponentPublic.bench.some(Boolean))||remaining<=0)return null;
   const candidates=(attacker.attacks??[]).filter(a=>
     FINAL_ATTACKS.has(a.name)&&(!allowedNames||allowedNames.has(a.name))&&
     canPayAttack(attacker,a,view)&&Number.isFinite(attackScore(attacker,a,view,target,{requirePayable:true})))
-    .map(attack=>({attack,damage:estimatedDamage(attacker,attack,view,target)}))
+    .map(attack=>({attack,damage:estimatedDamage(attacker,attack,view,target,allowedNames===null&&opponentBoard(view).some(slot=>(slot.abilities??[]).includes('Garbotoxin')))}))
     .filter(row=>row.damage!==null&&row.damage>=remaining)
     .sort((a,b)=>a.damage-b.damage||a.attack.name.localeCompare(b.attack.name));
   return candidates[0]??null;
@@ -3412,6 +3462,20 @@ function finalPublicStep(view,items,receipt,profile){
       offer(item,viewAfterPsychicAttachment(view,m.targetZone,m.targetIndex,item.actorPrinting),
         400,'ROOT_FINAL_BY_MANUAL_ENERGY');
     }
+if(item.kind==='play-card'&&hasName(item.actorPrinting,'Float Stone')&&
+    actionTargetSlot(view,item.publicMetadata)===view.ownPublic.active&&
+    view.ownPublic.active.tools?.length===0&&
+    view.ownTurnResources?.retreatedTurn===0&&
+    view.ownTurnResources?.toolPlayLocked!==true&&
+    view.ownPublic.publicTurnRestrictions?.toolPlayLocked!==true&&
+    (ownRetreatCost(view)??0)>0&&
+    toolsEffectiveForRetreat(view,view.ownPublic.active,'actor')===true){
+  const equipped={...view.ownPublic.active,tools:[item.actorPrinting]};
+  const withTool={...view,ownPublic:{...view.ownPublic,active:equipped}};
+  if(ownRetreatCost(withTool)===0)for(const [index,slot] of withTool.ownPublic.bench.entries()){
+    if(slot)offer(item,switchedPublic(withTool,'ownPublic',index),225,'ROOT_FINAL_BY_FLOAT_STONE_RETREAT');
+  }
+}
     if(item.kind==='retreat'){
       const index=item.publicMetadata?.benchIndex,cost=ownRetreatCost(view),slot=view.ownPublic.bench[index];
       if(Number.isInteger(index)&&slot&&cost!==null&&slotEnergyCount(view.ownPublic.active)>=cost){

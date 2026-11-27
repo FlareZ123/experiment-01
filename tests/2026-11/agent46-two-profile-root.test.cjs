@@ -527,3 +527,82 @@ paired('Raihan attachment policy chooses one legal occupied own target from Basi
   const result=decide(profile,raihanAttachmentPrompt(seat,view));
   assert.ok(result.kind==='select-choice'&&['raihan-active','raihan-bench'].includes(result.token));
 });
+
+// Append to existing agent46-two-profile-root.test.cjs; helper names are defined there.
+
+paired('Agent31: ordinary paid Gate tutor preserves Forest Seal Stone',(seat,profile)=>{
+  const MT='Mysterious Treasure FLI',Q='Quick Ball SSH',H='Stealthy Hood UNB',AR='Arven SVI';
+  const view=observation(seat,{active:v([P]),bench:[v()],opponentActive:pokemon({printing:'Budew PRE',name:'Budew',types:['Grass']}),ownHand:[P,H]});
+  view.ownTurnResources.supporterPlayedTurn=1;view.ownTurnResources.energyPlayedTurn=true;
+  const prompt=v0=>decide(profile,cardPrompt(seat,v0,AR,'Arven','deck',[MT,Q,FSS],0,2));
+  assert.deepEqual(prompt(view),mult('card-0','card-2'));
+  const locked=lockItems(JSON.parse(JSON.stringify(view)));
+  assert.deepEqual(prompt(locked),mult('card-2'));
+  const empty={...view,ownHand:[],ownPublic:{...view.ownPublic,handCount:0}};
+  assert.deepEqual(prompt(empty),mult('card-2'));
+  const held={...view,ownHand:[MT,P,FSS],ownPublic:{...view.ownPublic,handCount:3}};
+  assert.deepEqual(decide(profile,root(seat,held,[play('mt',MT),play('stone',FSS,V,target('active',0))])),sel('mt'));
+});
+paired('Agent31: held Gate supplies VMAX before spending Star Alchemy',(seat,profile)=>{
+  const opp=pokemon({printing:'Budew PRE',name:'Budew',types:['Grass']});
+  const H='Stealthy Hood UNB';
+  const stone={token:'alchemy',kind:'use-ability',actorPrinting:V,publicMetadata:{sourceSeat:'actor',sourceZone:'active',sourceIndex:0,abilityName:'Star Alchemy'}};
+  const view=observation(seat,{active:{...v([P]),tools:[FSS]},bench:[v()],opponentActive:opp,ownHand:[R,H],ownDiscard:[M,M],globalTurn:2});
+  view.ownTurnResources.energyPlayedTurn=true;
+  assert.deepEqual(decide(profile,root(seat,view,[stone,play('gate',R)])),sel('gate'));
+  view.ownPublic.bench=[v(),v(),v(),v(),null];
+  assert.deepEqual(decide(profile,root(seat,view,[stone,play('gate',R)])),sel('alchemy'));
+});
+paired('Agent31: Stone survives Pokemon Ability lock but not Tool lock',(seat,profile)=>{
+  for(const [stadium,want] of [['Path to the Peak CES','stone'],['Silent Lab PRC','stone'],['Jamming Tower TWM','pass']]){
+    const view=observation(seat,{active:v(),bench:[v()],opponentActive:defender(),ownHand:[FSS],opponentStadium:[stadium]});
+    assert.deepEqual(decide(profile,root(seat,view,[play('stone',FSS,V,target('active',0))])),sel(want));
+    view.ownPublic.active.tools=[FSS];view.ownHand=[];view.ownPublic.handCount=0;
+    const alchemy={token:'stone',kind:'use-ability',actorPrinting:V,publicMetadata:{sourceSeat:'actor',sourceZone:'active',sourceIndex:0,abilityName:'Star Alchemy'}};
+    assert.deepEqual(decide(profile,root(seat,view,[alchemy])),sel(want));
+  }
+});
+paired('Agent31: public direct win outranks Get Lost hazard denial',(seat,profile)=>{
+  const active=pokemon({printing:'Girafarig LOT',name:'Girafarig',hp:90,energies:[P,P,P],attacks:[attack('Get Lost',['Colorless'],0),attack('Mind Shock',['Colorless','Colorless','Colorless'],70)]});
+  const opp=defender({damage:210,abilities:['Legacy Star'],energies:['Double Dragon Energy ROS','Grass Energy SVE']});
+  const view=observation(seat,{active,bench:[{...vmax(),hp:320,damage:220},{...vmax(),hp:320,damage:220}],opponentActive:opp,opponentBench:[pokemon({printing:'Regidrago V SIT',name:'Regidrago V',types:['Dragon'],subtypes:['Basic','V']})]});
+  view.ownPublic.prizeCount=2;view.opponentPublic.prizeCount=5;view.opponentPublic.discard=['Kyurem SFA','VS Seeker PHF'];
+  const actions=[{kind:'attack',token:'lost',attackName:'Get Lost'},{kind:'attack',token:'mind',attackName:'Mind Shock'}];
+  const p=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile});
+  const rule=()=>p.decideWithAudit(root(seat,view,actions)).policyAudit.selectionRuleCode;
+  assert.deepEqual(decide(profile,root(seat,view,actions)),sel('mind'));
+  assert.equal(rule(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+  view.ownPublic.prizeCount=3;view.opponentPublic.bench=[null,null,null,null,null];
+  assert.equal(rule(),'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+  opp.damage=200;
+  assert.ok(rule()!=='ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+});
+
+test('Hood Ranger spends its Supporter only for a productive unlocked Item (Agent2)',()=>{
+  const arven='Arven SVI';
+  for(const seat of [0,1])for(const [items,discard,expected] of [
+    [[VS],[],'arven'],[['Battle Compressor PHF'],[],'arven'],[[NS],[],'arven'],
+    [[FOG],[],'ranger'],[[NS],[P],'ranger'],[['Quick Ball FST',P],[],'ranger']
+  ]){
+    const view=lockItems(observation(seat,{active:v(),ownHand:[RANGER,arven,...items],ownDiscard:discard,opponentActive:defender()}));
+    const actions=[play('ranger',RANGER),play('arven',arven),...items.filter(p=>p!==P).map((p,i)=>play('item-'+i,p))];
+    assert.deepEqual(decide(profiles[0],root(seat,view,actions)),sel(expected));
+  }
+});
+test('Hood VS Seeker reserves spent Ranger only for a plausible second Budew turn (Agent2)',()=>{
+  const budew=()=>pokemon({printing:'Budew PRE',name:'Budew',hp:30,types:['Grass']});
+  const lillie="Lillie's Determination MEG";
+  for(const seat of [0,1])for(const [active,opp,bench,hand,locked,expected] of [
+    [v(),budew(),[],[VS],false,'seeker'],
+    [v(),budew(),[],[VS],true,'pass'],
+    [v(),defender(),[],[VS],false,'pass'],
+    [v(),budew(),[],[VS,RANGER],false,'pass'],
+    [vmax([P,P,P]),budew(),[],[VS],false,'pass'],
+    [vmax([P,P,P]),budew(),[budew()],[VS],false,'seeker']
+  ]){
+    const view=observation(seat,{active,opponentActive:opp,opponentBench:bench,ownHand:hand,ownDiscard:[lillie,RANGER]});
+    view.ownTurnResources.supporterPlayedTurn=1;if(locked)lockItems(view);
+    assert.deepEqual(decide(profiles[0],root(seat,view,[play('seeker',VS)])),sel(expected));
+    if(expected==='seeker')assert.deepEqual(decide(profiles[0],cardPrompt(seat,view,VS,'VS Seeker','discard',[lillie,RANGER])),mult('card-1'));
+  }
+});
