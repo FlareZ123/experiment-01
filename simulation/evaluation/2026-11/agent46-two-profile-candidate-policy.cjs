@@ -3984,6 +3984,17 @@ function astralTerminalHarmlessAbility(slot,name){
   return (name==='Safeguard'&&hasName(slot.printing,'Mimikyu PAL')) ||
     (name==='Block'&&hasName(slot.printing,'Snorlax PGO'));
 }
+// These Stadiums do not modify a Psychic attack's current direct damage.
+// Path/Silent Lab suppress Abilities (already accounted for by the effective
+// Ability evaluator), while Parallel City's type penalty only applies to
+// Grass/Fire/Water attackers. Unknown Stadium effects remain excluded.
+function harmlessStadiumForDirectPsychicFinal(view,printing){
+  if(hasAnyName(printing,['Sky Field','Dimension Valley','Temple of Sinnoh']))return true;
+  const active=view.ownPublic.active;
+  const types=active?.printed?.types;
+  if(!Array.isArray(types)||types.length!==1||types[0]!=='Psychic')return false;
+  return hasAnyName(printing,['Path to the Peak','Silent Lab','Parallel City']);
+}
 function cleanPublicTerminalView(view,direct=false,extraHarmlessAbility=null){
   return view.globalTurn>1&&view.ownPublic.active&&view.opponentPublic.active&&
     opponentBoard(view).every(slot=>
@@ -3999,7 +4010,9 @@ function cleanPublicTerminalView(view,direct=false,extraHarmlessAbility=null){
     hasName(p,'Legacy Energy')))&&
     !(view.ownPublic.active.specialConditions??[]).length&&
     !(view.opponentPublic.active.specialConditions??[]).length&&
-    [...view.ownPublic.stadium,...view.opponentPublic.stadium].every(p=>hasAnyName(p,['Sky Field','Dimension Valley','Temple of Sinnoh']));
+    [...view.ownPublic.stadium,...view.opponentPublic.stadium].every(p=>
+      direct?harmlessStadiumForDirectPsychicFinal(view,p):
+        hasAnyName(p,['Sky Field','Dimension Valley','Temple of Sinnoh']));
 }
 function publicFinalAttack(view,allowedNames=null){
   if(!cleanPublicTerminalView(view,allowedNames!==null))return null;
