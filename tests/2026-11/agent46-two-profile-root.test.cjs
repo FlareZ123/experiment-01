@@ -1620,3 +1620,32 @@ test('Astral terminal treats damage-only Safeguard and retreat-only Block as ben
     assert.notEqual(unhookedGot.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_ASTRAL_BARRAGE');
   }
 });
+
+
+test('Astral terminal target surface matches hook semantics and recognizes zero-Prize board-empty wins',()=>{
+  for(const base of profiles)for(const seat of [0,1]){
+    const hooked={...base,paperAstralBarrageTargets:'agent4-cre74-hook-v1'};
+    const barrage={token:'barrage',kind:'attack',attackName:'Astral Barrage'};
+    const mist={token:'mist',kind:'attack',attackName:'Shadow Mist'};
+
+    const doll=pokemon({printing:"Lillie's Poké Doll CEC",name:"Lillie's Poké Doll",
+      hp:30,damage:0,types:['Colorless'],subtypes:['Basic']});
+    const sole=observation(seat,{active:v([P,P,P]),opponentActive:doll,opponentBench:[],globalTurn:9});
+    sole.ownPublic.prizeCount=6;
+    const hp=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:hooked});
+    const soleGot=hp.decideWithAudit(root(seat,sole,[barrage,mist]));
+    assert.deepEqual(soleGot.decision,sel('barrage'));
+    assert.equal(soleGot.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_ASTRAL_BOARD_EMPTY');
+
+    const activeV=pokemon({printing:'Regidrago V SIT',name:'Regidrago V',hp:220,damage:180,
+      types:['Dragon'],subtypes:['Basic','V']});
+    const b1=pokemon({printing:'Snorlax PGO',name:'Snorlax',hp:150,damage:0,types:['Colorless'],subtypes:['Basic']});
+    const b2=pokemon({printing:'Mimikyu PAL',name:'Mimikyu',hp:70,damage:0,types:['Psychic'],subtypes:['Basic']});
+    const unhooked=observation(seat,{active:v([P,P,P]),opponentActive:activeV,opponentBench:[b1,b2],globalTurn:9});
+    unhooked.ownPublic.prizeCount=2;
+    const bp=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:base});
+    const baseGot=bp.decideWithAudit(root(seat,unhooked,[barrage,mist]));
+    assert.notEqual(baseGot.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_ASTRAL_BARRAGE',
+      'unhooked CRE74 cannot count an Active target it never receives in its target prompt');
+  }
+});
