@@ -270,7 +270,24 @@ function adaptiveTerminal(terminal,input,context,options={}){
       "stable terminal envelope required");
     require(context?.exactMembershipKnown===true&&context.rolesAreExact===true,
       "exact actor-known role membership required");
-    const h0=roleVector(context.handCounts),d0=roleVector(context.deckCounts);
+    const dev=context.development??null,devProvider=options.developmentTerminal;
+    require(!dev||(typeof devProvider==="function"&&dev.permissionsCertified===true&&dev.catalog&&
+      Array.isArray(dev.fodderPrintings??[])),"development prefix provider absent");
+    const pokemonRoles=dev?Object.keys(dev.catalog).sort().map(p=>"pk:"+p):[];
+    const fodderRoles=dev?[...new Set(dev.fodderPrintings??[])].sort().map(p=>"fd:"+p):[];
+    const roles=[...REFRESH_ROLES,...(dev?["treasure","quick",...pokemonRoles,...fodderRoles]:[])];
+    const roleLimits={...ROLE_LIMITS,...(dev?{treasure:4,quick:1,
+      ...Object.fromEntries(pokemonRoles.map(k=>[k,dev.catalog[k.slice(3)].copyLimit])),
+      ...Object.fromEntries(fodderRoles.map(k=>[k,4]))}:{})};
+    const ix=k=>roles.indexOf(k);
+    const vec=x=>{
+      require(x&&typeof x==="object"&&Object.keys(x).every(k=>roles.includes(k)),"unknown exact role");
+      const out=roles.map(k=>x[k]??0);
+      require(out.every((n,i)=>Number.isSafeInteger(n)&&n>=0&&n<=roleLimits[roles[i]]),"invalid exact role count");
+      return out;
+    };
+    const shift=(a,k,n)=>a.map((x,i)=>i===ix(k)?x+n:x);
+    const h0=vec(context.handCounts),d0=vec(context.deckCounts);
     const discard0={lillie:context.refreshDiscard?.lillie??0,iono:context.refreshDiscard?.iono??0};
     const checkCount=(x,max)=>Number.isSafeInteger(x)&&x>=0&&x<=max;
     require(checkCount(discard0.lillie,2)&&checkCount(discard0.iono,1),"invalid refresh discard counts");
@@ -278,14 +295,15 @@ function adaptiveTerminal(terminal,input,context,options={}){
       d0[idx("P")]===(input.knownDeckPsychic??0)&&(!d0[idx("P")]||input.knownDeckPsychicCertified===true),
       "inconsistent exact hand/deck");
     for(let i=0;i<h0.length;i++){
-      const k=REFRESH_ROLES[i];
+      const k=roles[i];
       const disc=k==='P'?(input.discardPsychic??0):
         k==='acerola'?+!!input.acerolaDiscard:k==='guzma'?+!!input.guzmaDiscard:
-        k==='ranger'?+!!input.rangerDiscard:(discard0[k]??0);
+        k==='ranger'?+!!input.rangerDiscard:k.startsWith('pk:')?(dev?.discardPokemon?.[k.slice(3)]??0):(discard0[k]??0);
       const attached=k==='P'?input.board.reduce((a,x)=>a+x.energy,0):
         k==='hood'?input.board.filter(x=>x.tool==='hood').length:
-        k==='float'?input.board.filter(x=>x.tool==='float').length:k==='valley'?+!!input.dimensionValley:0;
-      require(h0[i]+d0[i]+disc+attached<=ROLE_LIMITS[k],"role copy conservation "+k);
+        k==='float'?input.board.filter(x=>x.tool==='float').length:k==='valley'?+!!input.dimensionValley:
+        k.startsWith('pk:')?input.board.reduce((n,x)=>n+(x.stackPrintings??[]).filter(p=>p===k.slice(3)).length,0):0;
+      require(h0[i]+d0[i]+disc+attached<=roleLimits[k],"role copy conservation "+k);
     }
     const expected=applyRoles(input,h0,d0,false);
     for(const k of ["acerolaHeld","guzmaHeld","rangerHeld","vsSeekerCount","fogCount","nightStretcherCount",
@@ -300,7 +318,7 @@ function adaptiveTerminal(terminal,input,context,options={}){
     require(Object.entries(limits).every(([k,x])=>checkCount(x,k==="depth"?10:100000)&&
       (k==="depth"||x>0)),"invalid adaptive limits");
     const firstAllowed=options.firstActionAllowed??(()=>true);
-    const zero=()=>Array(REFRESH_ROLES.length).fill(0);
+    const zero=()=>Array(roles.length).fill(0);
     const totalBlocks=blocks=>blocks.reduce((a,b)=>add(a,b.counts),zero());
     const compact=blocks=>blocks.filter(b=>sum(b.counts)>0);
     const shuffled=counts=>compact([{counts,exchangeable:true}]);
@@ -308,7 +326,7 @@ function adaptiveTerminal(terminal,input,context,options={}){
     if(context.deckBlocks!==undefined){
       require(context.deckBlocksActorCertified===true&&Array.isArray(context.deckBlocks)&&
         context.deckBlocks.every(b=>typeof b.exchangeable==="boolean"),"uncertified deck segment representation");
-      blocks0=compact(context.deckBlocks.map(b=>({counts:roleVector(b.counts),exchangeable:b.exchangeable})));
+      blocks0=compact(context.deckBlocks.map(b=>({counts:vec(b.counts),exchangeable:b.exchangeable})));
       require(totalBlocks(blocks0).every((n,i)=>n===d0[i]),"deck blocks do not match K1 membership");
     }
     // Full preceding blocks are observed in their entirety. At most one
@@ -330,13 +348,21 @@ function adaptiveTerminal(terminal,input,context,options={}){
     // Convert deterministic prefix snapshot to the full hand and deck blocks.
     // The deterministic helper never uses refresh cards and never resolves
     // a random draw in this prefix mode.
-    function recoverPrefix(base,h,blocks,snap,path){
+    function recoverPrefix(base,h,blocks,snap,path,developmentState=null){
       let hand=h.slice();
       const roleFields={P:'handPsychic',fog:'fogCount',stretcher:'nightStretcherCount',vs:'vsSeekerCount',
         acerola:'acerolaHeld',guzma:'guzmaHeld',ranger:'rangerHeld',
         ...(base.dynamicEffects?{hood:'hoodCount',float:'floatStoneCount',blower:'fieldBlowerCount',valley:'valleyHeld'}:{})};
       for(const [role,field] of Object.entries(roleFields))hand[idx(role)]=Number(snap[field]??0);
-      for(const a of path)if(a.kind==='acerola'){
+      if(dev){
+        if(!developmentState)return null;
+        for(const k of pokemonRoles)hand[ix(k)]=developmentState.hand[k.slice(3)]??0;
+        for(const k of fodderRoles)hand[ix(k)]=developmentState.fodder.filter(p=>p===k.slice(3)).length;
+        hand[ix("treasure")]=developmentState.treasure;
+        hand[ix("quick")]=developmentState.quick;
+        hand[idx("other")]+=developmentState.otherReturned??0;
+      }
+      if(!dev)for(const a of path)if(a.kind==='acerola'){
         const row=base.board.find(x=>x.id===a.target);
         // Exact actor projection must supply returned evolution stack size;
         // the candidate's attached P and modeled Tools are already tracked.
@@ -350,23 +376,26 @@ function adaptiveTerminal(terminal,input,context,options={}){
           hand[idx('other')]+=row.returnedOtherCount;
         }
       }
-      const fogSpent=h[idx('fog')]-hand[idx('fog')];
-      if(fogSpent<0)return null;
       let outBlocks=blocks;
-      if(fogSpent>0){
-        const total=totalBlocks(blocks);
-        if(total[idx('P')]<fogSpent)return null;
-        outBlocks=shuffled(change(total,'P',-fogSpent));
+      const searches=path.filter(a=>["fog-crystal","mysterious-treasure","quick-ball"].includes(a.kind));
+      if(searches.length){
+        let total=totalBlocks(blocks);
+        for(const a of searches){
+          const role=a.targetPrinting?"pk:"+a.targetPrinting:"P";
+          if(ix(role)<0||total[ix(role)]<1)return null;
+          total=shift(total,role,-1);
+        }
+        outBlocks=shuffled(total);
       }
-      return {h:hand,blocks:outBlocks};
+      return {h:hand,blocks:outBlocks,devDiscard:developmentState?.discard??null};
     }
-    function stateKey(base,h,blocks,disc,oppPositive,depth){
-      return JSON.stringify([base,h,blocks,disc,oppPositive,depth]);
+    function stateKey(base,h,blocks,disc,oppPositive,depth,devDiscard){
+      return JSON.stringify([base,h,blocks,disc,oppPositive,depth,devDiscard]);
     }
-    function solve(base,h,blocks,disc,oppPositive,depth,isRoot=false){
+    function solve(base,h,blocks,disc,oppPositive,depth,isRoot=false,devDiscard=null){
       const exactDeck=totalBlocks(blocks);
       base=applyRoles(base,h,exactDeck,false);
-      const key=stateKey(base,h,blocks,disc,oppPositive,depth);
+      const key=stateKey(base,h,blocks,disc,oppPositive,depth,devDiscard);
       if(!isRoot&&memo.has(key)){stats.memoHits++;return memo.get(key);}
       if(stats.nodes>=limits.nodes){stats.cappedNodes++;return unknown("node budget");}
       stats.nodes++;
@@ -382,7 +411,7 @@ function adaptiveTerminal(terminal,input,context,options={}){
       let omitted=false,unknownGeometry=false;
       function addCandidate(c){
         if(!c.path.length)return;
-        const k=JSON.stringify([c.kind,c.input,c.h,c.blocks,c.disc,c.oppPositive,c.drawCount]);
+        const k=JSON.stringify([c.kind,c.input,c.h,c.blocks,c.disc,c.oppPositive,c.drawCount,c.devDiscard]);
         const old=candidates.get(k);
         if(old){
           if(c.path.length<old.path.length)candidates.set(k,c);
@@ -391,8 +420,8 @@ function adaptiveTerminal(terminal,input,context,options={}){
         if(candidates.size>=limits.routes){omitted=true;return;}
         candidates.set(k,c);
       }
-      function generateRefresh(snap,path){
-        const resources=recoverPrefix(base,h,blocks,snap,path);
+      function generateRefresh(snap,path,developmentState=null){
+        const resources=recoverPrefix(base,h,blocks,snap,path,developmentState);
         if(!resources){unknownGeometry=true;return;}
         for(const kind of ['lillie','iono','stamp']){
           if(!context.refreshLegal[kind]||
@@ -426,18 +455,29 @@ function adaptiveTerminal(terminal,input,context,options={}){
               oppPositive===false&&context.opponentDeckPositive===false?false:null;
           }
           addCandidate({kind,path:route,input:{...snap,supportAvailable:snap.supportAvailable&&kind==='stamp'},
-            h:zero(),blocks:nextBlocks,disc:discard,oppPositive:nextOppPositive,drawCount:count});
+            h:zero(),blocks:nextBlocks,disc:discard,oppPositive:nextOppPositive,drawCount:count,devDiscard:resources.devDiscard});
         }
       }
       stats.terminalCalls++;
-      const prefixes=terminal(base,limits.states,allowed,{stopBeforeChance:true,
-        onReachableState:({input:snap,path})=>{stats.prefixStates++;generateRefresh(snap,path);},
-        onChance:({input:snap,path,drawCount})=>{
-          const resources=recoverPrefix(base,h,blocks,snap,path);
+      const callbacks={stopBeforeChance:true,
+        onReachableState:({input:snap,path,developmentState})=>{stats.prefixStates++;generateRefresh(snap,path,developmentState);},
+        onChance:({input:snap,path,drawCount,developmentState})=>{
+          const resources=recoverPrefix(base,h,blocks,snap,path,developmentState);
           if(!resources){unknownGeometry=true;return;}
           addCandidate({kind:'door',path,input:snap,h:resources.h,blocks:resources.blocks,
-            disc,oppPositive,drawCount});
-        }});
+            disc,oppPositive,drawCount,devDiscard:resources.devDiscard});
+        }};
+      const developmentInput=dev?{...dev,
+        handPokemon:Object.fromEntries(pokemonRoles.map(k=>[k.slice(3),h[ix(k)]])),
+        knownDeckPokemon:Object.fromEntries(pokemonRoles.map(k=>[k.slice(3),exactDeck[ix(k)]])),
+        knownDeckPokemonCertified:true,discardPokemon:devDiscard??{},
+        treasureCount:h[ix("treasure")],quickCount:h[ix("quick")],
+        fodder:fodderRoles.flatMap(k=>Array(h[ix(k)]).fill(k.slice(3))),
+        fodderCertified:true,fodderDisjointFromModeledResources:true}:null;
+      const prefixes=dev?devProvider(terminal,base,developmentInput,{...options,...callbacks,
+        maxDevelopmentNodes:options.maxDevelopmentNodes??100,maxDevelopmentDepth:options.maxDevelopmentDepth??3,
+        maxStatesPerNode:limits.states,firstActionAllowed:allowed}):
+        terminal(base,limits.states,allowed,callbacks);
       if(prefixes.decision){
         const result={lo:1,hi:1,path:prefixes.decision.plan.actions,certain:true};
         if(!isRoot)memo.set(key,result);
@@ -463,10 +503,10 @@ function adaptiveTerminal(terminal,input,context,options={}){
             examined++;stats.chanceOutcomes++;visited+=weight;
             const observed=add(c.h,add(spec.fixed,draw));
             const remainder=compact([{counts:sub(spec.pool,draw),exchangeable:true},...spec.tail]);
-            const child=solve(c.input,observed,remainder,c.disc,c.oppPositive,depth-1,false);
+            const child=solve(c.input,observed,remainder,c.disc,c.oppPositive,depth-1,false,c.devDiscard);
             const p=Number(weight)/Number(spec.denom);
             lo+=p*child.lo;hi+=p*child.hi;
-            if(!example&&child.lo>0)example={draw:Object.fromEntries(REFRESH_ROLES.map((k,i)=>[k,observed[i]])),
+            if(!example&&child.lo>0)example={draw:Object.fromEntries(roles.map((k,i)=>[k,observed[i]])),
               continuation:child.path,conditionalLower:child.lo};
           }
           hi+=Number(spec.denom-visited)/Number(spec.denom);
@@ -486,7 +526,7 @@ function adaptiveTerminal(terminal,input,context,options={}){
       return result;
     }
     const oppPositive=typeof context.opponentHandPositive==="boolean"?context.opponentHandPositive:null;
-    const result=solve(input,h0,blocks0,discard0,oppPositive,limits.depth,true);
+    const result=solve(input,h0,blocks0,discard0,oppPositive,limits.depth,true,dev?.discardPokemon??null);
     return {advisory:true,decision:result.lo>0&&result.path?.length?{kind:result.certain?'adaptive-certain-witness':'adaptive-terminal-choice',
       firstAction:result.path[0],prefix:result.path,nextChance:result.kind??null,example:result.example??null}:null,
       lowerBound:result.lo,upperBound:result.hi,exactWithinRestrictedModel:Math.abs(result.lo-result.hi)<1e-12,
