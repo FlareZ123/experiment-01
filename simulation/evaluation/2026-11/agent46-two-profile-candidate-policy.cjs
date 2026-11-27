@@ -1221,24 +1221,29 @@ function hazardModifier(view,row){
 function hazardVariants(view,rows,activeKey,payload){
   const active=rows.find(r=>r.key===activeKey);if(!active)return [];
   const [,name,base]=payload;
+  const alteredPrizeKey=view.opponentPublic.publicTurnRestrictions?.usedAlteredCreation===true?activeKey:null;
   const modified=row=>base+(row.key===activeKey?hazardModifier(view,row):0);
   if(name==='Trifrost')return hazardCombinations(rows,3).filter(x=>x.length===Math.min(3,rows.length))
-    .map(group=>({name,hits:group.map(row=>[row.key,modified(row)])}));
+    .map(group=>({name,hits:group.map(row=>[row.key,modified(row)]),
+      alteredPrizeKey:group.some(row=>row.key===activeKey)?alteredPrizeKey:null}));
   if(name==='Phantom Dive'){
     const bench=rows.filter(r=>r.key!==activeKey);
     // 60 damage counters' worth can be allocated in 10-damage increments.
-    // Enumerating KO subsets is enough for immediate prize exposure; include
-    // one-target chip variants for the extra-turn continuation.
+    // Only the Active 200 is attack damage; bench counters never receive the
+    // Altered Creation extra-Prize modifier.
     const variants=[];
     for(const group of hazardCombinations(bench,6)){
       const needed=group.reduce((n,r)=>n+Math.ceil(r.hp/10)*10,0);
-      if(needed<=60)variants.push({name,hits:[[active.key,modified(active)],...group.map(r=>[r.key,Math.ceil(r.hp/10)*10])]});
+      if(needed<=60)variants.push({name,alteredPrizeKey,
+        hits:[[active.key,modified(active)],...group.map(r=>[r.key,Math.ceil(r.hp/10)*10])]});
     }
-    for(const row of bench)variants.push({name,hits:[[active.key,modified(active)],[row.key,60]]});
+    for(const row of bench)variants.push({name,alteredPrizeKey,
+      hits:[[active.key,modified(active)],[row.key,60]]});
     return variants;
   }
-  if(name==='Calamitous Slash')return [{name,hits:[[active.key,modified(active)+(active.damaged?80:0)]]}];
-  return [{name,hits:[[active.key,modified(active)]]}];
+  if(name==='Calamitous Slash')return [{name,alteredPrizeKey,
+    hits:[[active.key,modified(active)+(active.damaged?80:0)]]}];
+  return [{name,alteredPrizeKey,hits:[[active.key,modified(active)]]}];
 }
 function hazardResolve(rows,variant){
   const totals=new Map(variant.hits);
@@ -1247,7 +1252,9 @@ function hazardResolve(rows,variant){
     const hp=row.hp-(totals.get(row.key)??0);
     if(hp<=0)ko.push(row);else after.push({...row,hp,damaged:row.damaged||hp<row.hp});
   }
-  return {after,ko,prizes:ko.reduce((n,r)=>n+r.prizes,0)};
+  const alteredPrize=variant.alteredPrizeKey!==null&&variant.alteredPrizeKey!==undefined&&
+    ko.some(row=>row.key===variant.alteredPrizeKey)?1:0;
+  return {after,ko,prizes:ko.reduce((n,r)=>n+r.prizes,0)+alteredPrize};
 }
 function apexHazard(view,discard=view.opponentPublic.discard,rows=hazardBoard(view)){
   const attacker=view.opponentPublic.active;
