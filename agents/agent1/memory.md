@@ -1,4 +1,8 @@
 
+## 2026-11-27T02:09:55.662Z — exact actor-owned segmented deck belief
+- results/aichi-2026/2026-11/agent1-actor-deck-belief-20261127.cjs: Bayesian mixture of latent deck compositions and exchangeable segments. Derive only from K0 unseen counts + Prize count or K1 known segments, no native Prize identity. Known returned hand shuffle (Lillie/Stamp) and bottom (Iono) handled separately; observations aggregate by observed category multiset before posterior optimization. 9 explicit tests and 460 independent marginal/posterior comparisons passed. Next integrate into terminal planner. No production/native changes.
+
+
 ## 2026-11-27T02:08:24.160Z — combined terminal turn planner
 - results/aichi-2026/2026-11/agent1-joint-terminal-planner-20261127.cjs combines stable attack oracle, physical-index gust/promote/retreat, manual, Door draw, Fog, Stretcher, VS Seeker, Compressor, Float, Forest Seal Stone, Star Alchemy, Valley, Raihan, Teammates, Arven, K1 Lillie/Stamp. Exact rational DP for K1 and exchangeable K0, observes deck membership only on searches. 31 constructed cases passed. Research-only; unsupported dynamic effects and capped search return no proof. Next: independent small-state comparison/strategy result and concrete handoff. No native games/frozen changes.
 
