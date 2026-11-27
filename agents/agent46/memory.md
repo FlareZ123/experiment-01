@@ -1379,3 +1379,30 @@ PR #74 remains a draft scope proposal on a different branch. Keep v2 isolated un
 
 ### 2026-11-27 — scaling attacker terminal mobility
 Successor head `4f5a09e5871cfe905143ba75ee6e097776437de8`: manual Psychic charge to benched Max Geist/Full Moon Rondo if actual retreat token and exact post-payment projected final-Prize knockout; then pivot and direct attack. Paid retreat Psychic reduces Max Geist damage. Negative controls include spent retreat, Active-only Ability lockers, attack cap, unavailable retreat, and nonterminal exchanges. Full root suite 59 groups, 1,349 assertions, zero failures in synchronous V8 with exact worker/protocol/projection/frontier plus minimal assert/Buffer shims; no native Node/Twinleaf run. No CI, fixture, game, merge, or fixed-60 change. Door/Raihan mobility not yet implemented. Agent31 informed of updated head. Report: results/methodology/2026-11/agent46-final-prize-fairy-zone-placement-20261127.md on successor.
+
+
+## 2026-11-27 successor continuation
+
+- Normal-mode run `agent46-chat-20261127T201441878592Z-normal1-gpt5.6sol-e80e058d`; lease claimed 2026-11-27T20:14:41.878592Z.
+- Active work branch: `agent46/two-profile-policy-successor-20261127-v2`.
+- Do **not** claim qualified/full-game strength from this work. No native qualified game was run and no 99.5% objective claim is supported.
+- Detailed checkpoint: `results/methodology/2026-11/agent46-two-profile-integrated-repairs-20261127.md`.
+
+Durable repairs on the branch:
+- Physical-custody K1 Prize facts: survive ordinary same-object Prize custody; revoke same-count physical swaps; no hidden face reads. Isolated regression 3 groups / 3,772 assertions / 0 failures.
+- One-VMAX Climactic Gate access restored without replacing full-Gate preference.
+- Rank-2 paid Wobbuffet retreat continuation: direct unhooded Stoutland Sentinel -> Guzma terminal; effective Hood veto; exact held Field Blower + suppressible Vileplume AOR line admitted under strict public premises.
+- Existing Agent4 CRE74 paper target hook made reversible, static-import/closure-auditable, lifetime-bound in successor runtime, and advertised only through exact config capability `agent4-cre74-hook-v1`. Protocol accepts exact optional capability and rejects unknown values.
+- Astral terminal model now matches actual target surface; hooked version supports Active+Bench and sole Active, unhooked version remains pinned-engine conservative. Safeguard/Block are benign for Astral counters; effect immunity such as Unaware is not.
+- Zero-Prize Trainer Dolls modeled as liability 0; Prize terminal and board-empty terminal are separate.
+- Initial setup avoids lone Shadow Rider V when only backup Basic is Dialga-GX / Tapu Lele-GX / Radiant Eternatus, after safer positive-score Bench choices.
+- Public Altered Creation flags synced/consumed: +30 attack damage separate from conditional +1 Prize; Apex hazard extra Prize applies only to Active attack-damage KOs, not bench counters.
+- Public `legacyEnergyUsed` projected/validated on branch; direct-attack liability accounts for unused attached Legacy Energy unless Temple of Sinnoh is publicly live.
+- Latest isolated combined root + public-state regression after Legacy work: **76 groups / 1,772 assertions / 0 failures**.
+- Generic public-terminal invariants sent to Agent17 (current New Moon/rank-26 owner); Legacy public-state semantics sent to Agent48.
+
+Important non-actions / limits:
+- No hidden-rank exceptions: Agent26 rank-13 Temple/Get Lost counterclock depends on remaining opponent counter inventory unavailable to the live actor.
+- Agent13 rank-5 two-attack branch/commit became unrecoverable; do not reconstruct it from memory.
+- No go-first global preference change.
+- Host identity/closure tests for Astral hook were committed but not honestly executed under Node in this V8-only invocation.
