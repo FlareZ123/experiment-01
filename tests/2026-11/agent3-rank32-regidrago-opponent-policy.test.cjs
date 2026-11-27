@@ -240,7 +240,14 @@ test('no Temple threat means rank-32 does not waste a singleton Stadium',()=>{
 
 test('Active Wobbuffet lock merits Hood on unused Regidrago VSTAR',()=>{
   const items=[
-    action('hood','play-card','Stealthy Hood UNB 186'),
+    action('wrong-hood','play-card','Stealthy Hood UNB 186',{
+      targetPrinting:'Dedenne-GX UNB 57',
+      publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:0}
+    }),
+    action('hood','play-card','Stealthy Hood UNB 186',{
+      targetPrinting:P.regidrago,
+      publicMetadata:{targetSeat:'actor',targetZone:'active'}
+    }),
     action('lillie','play-card',"Lillie's Determination MEG 119"),
     action('pass','pass')
   ];
