@@ -422,3 +422,44 @@ test('V3 Legacy Star recovery preserves copied Goodra and Dragonite donors',()=>
   p.choices=p.choices.filter(c=>c.token!=='dde');
   assert.deepEqual(checked(req),{kind:'select-choice',token:'none'});
 });
+
+
+test('V3 Super Rod only selects attacker/Energy recovery, never Apex donor payloads',()=>{
+  const p={
+    schema:protocol.PROMPT_SCHEMA,actingSeat:1,
+    promptType:'ChooseCardsPrompt',description:'Shuffle up to 3 Pokemon or Basic Energy into deck',
+    source:{classification:'actor-choice',sourceKind:'card-effect',
+      sourcePrinting:'Super Rod PAL 188',effectName:'Super Rod'},
+    choices:[
+      {token:'goodra',kind:'card',printing:'Hisuian Goodra VSTAR LOR 136',
+        label:'Goodra',publicMetadata:{selectionIndex:0,selectedCount:1,
+          sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true}},
+      {token:'basic',kind:'card',printing:'Regidrago V SIT 135',
+        label:'Regidrago V',publicMetadata:{selectionIndex:1,selectedCount:1,
+          sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true}},
+      {token:'fire',kind:'card',printing:'Fire Energy MEE 10',
+        label:'Basic Fire',publicMetadata:{selectionIndex:2,selectedCount:1,
+          sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true}},
+      {token:'dragonite',kind:'card',printing:'Mega Dragonite ex ASC 152',
+        label:'Mega Dragonite',publicMetadata:{selectionIndex:3,selectedCount:1,
+          sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true}},
+      {token:'none',kind:'empty-selection',label:'Select none'}
+    ],
+    publicMetadata:{
+      selectionType:'card-combination',sourceZone:'discard',ownerSeat:'actor',
+      isOwnerVisible:true,minimumCount:0,maximumCount:3,
+      allowCancel:false,isSecret:false
+    }
+  };
+  const own=player({
+    active:pokemon('Regidrago VSTAR SIT 136'),
+    discard:['Hisuian Goodra VSTAR LOR 136','Regidrago V SIT 135',
+      'Fire Energy MEE 10','Mega Dragonite ex ASC 152']
+  });
+  const req=root(1,{own,prompt:p,items:[],requestId:'rank32-v3-superrod'});
+  const decision=checked(req);
+  assert.equal(decision.kind,'select-choices');
+  assert.deepEqual(decision.tokens.slice().sort(),['basic','fire']);
+  p.choices=p.choices.filter(c=>!['basic','fire'].includes(c.token));
+  assert.deepEqual(checked(req),{kind:'select-choice',token:'none'});
+});
