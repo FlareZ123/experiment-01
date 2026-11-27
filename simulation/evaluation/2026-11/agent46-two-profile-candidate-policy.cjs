@@ -650,8 +650,20 @@ function slotByPrinting(player, printing) {
 function isBasicEnergyPrinting(name){
   return /^(?:Basic )?(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy(?: |$)/.test(name??'');
 }
+const ZERO_PRIZE_TRAINER_DOLL_NAMES=new Set([
+  'Robo Substitute','Robo Substitute Team Flare Gear',"Lillie's Poké Doll",'Snorlax Doll'
+]);
+function zeroPrizeTrainerDoll(slot){
+  if(!slot)return false;
+  if(ZERO_PRIZE_TRAINER_DOLL_NAMES.has(slot.name))return true;
+  const printing=slot.printing??'';
+  return /^Robo Substitute(?: Team Flare Gear)? PHF(?: |$)/.test(printing)||
+    /^Lillie's Poké Doll CEC(?: |$)/.test(printing)||
+    /^Snorlax Doll PAR(?: |$)/.test(printing);
+}
 function prizeLiability(slot) {
   if (!slot) return 1;
+  if(zeroPrizeTrainerDoll(slot))return 0;
   const subtypes = slot.printed?.subtypes ?? [];
   const printing = slot.printing ?? '';
   if (subtypes.some(value => ['VMAX', 'V-UNION', 'TAG TEAM'].includes(value)) ||
@@ -3951,11 +3963,15 @@ function publicFinalAttack(view,allowedNames=null){
   if(!cleanPublicTerminalView(view,allowedNames!==null))return null;
   const attacker=view.ownPublic.active,target=view.opponentPublic.active;
   const remaining=Math.max(0,target.hp-target.damage);
-  if((prizeLiability(target)<view.ownPublic.prizeCount&&view.opponentPublic.bench.some(Boolean))||remaining<=0)return null;
+  const liability=prizeLiability(target);
+  const prizeWin=liability>=view.ownPublic.prizeCount;
+  const boardEmptyWin=!view.opponentPublic.bench.some(Boolean);
+  if((!prizeWin&&!boardEmptyWin)||remaining<=0)return null;
   const candidates=(attacker.attacks??[]).filter(a=>
     FINAL_ATTACKS.has(a.name)&&(!allowedNames||allowedNames.has(a.name))&&
     canPayAttack(attacker,a,view)&&Number.isFinite(attackScore(attacker,a,view,target,{requirePayable:true})))
-    .map(attack=>({attack,damage:estimatedDamage(attacker,attack,view,target,allowedNames===null&&opponentBoard(view).some(slot=>(slot.abilities??[]).includes('Garbotoxin')))}))
+    .map(attack=>({attack,damage:estimatedDamage(attacker,attack,view,target,allowedNames===null&&opponentBoard(view).some(slot=>(slot.abilities??[]).includes('Garbotoxin'))),
+      winCondition:prizeWin?'prizes':'board-empty'}))
     .filter(row=>row.damage!==null&&row.damage>=remaining)
     .sort((a,b)=>a.damage-b.damage||a.attack.name.localeCompare(b.attack.name));
   return candidates[0]??null;
@@ -4081,7 +4097,8 @@ function finalPublicStep(view,items,receipt,profile){
   const current=publicFinalAttack(view,new Set(items.filter(i=>i.kind==='attack').map(i=>i.attackName)));
   if(current){
     const item=items.find(i=>i.kind==='attack'&&i.attackName===current.attack.name);
-    return {item,reason:'ROOT_PUBLIC_FINAL_PRIZE_ATTACK'};
+    return {item,reason:current.winCondition==='board-empty'?
+      'ROOT_PUBLIC_FINAL_BOARD_EMPTY_ATTACK':'ROOT_PUBLIC_FINAL_PRIZE_ATTACK'};
   }
   if(!view.ownPublic.active||view.globalTurn<=1)return null;
   const attackNames=new Set(items.filter(i=>i.kind==='attack').map(i=>i.attackName));
