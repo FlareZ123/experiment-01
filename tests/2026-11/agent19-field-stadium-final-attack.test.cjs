@@ -15,7 +15,9 @@ const FOG='Fog Crystal CRE 140';
 const STADIUMS=[
   'Path to the Peak CRE 148',
   'Parallel City BKT 145',
-  'Silent Lab PRC 140'
+  'Silent Lab PRC 140',
+  'Tropical Beach PR-BW 28',
+  'Thunder Mountain ♢ LOT 191'
 ];
 const UNKNOWN='Jamming Tower TWM 153';
 
