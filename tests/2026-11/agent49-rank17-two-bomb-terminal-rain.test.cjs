@@ -272,8 +272,8 @@ function promotePrompt(f){
     }
     getPerspectivePlayerId(){return this.playerId}
     decode(rows){return rows.map(x=>f.owner.bench[x.index])}
-    validate(rows){return rows.length===1&&
-      f.owner.bench[rows[0].index]?.getPokemonCard()!=null}
+    validate(decoded){return decoded.length===1&&
+      decoded[0]?.getPokemonCard()!=null}
   }
   const prompt=new ChoosePokemonPrompt();
   f.state.prompts=[prompt];
