@@ -199,24 +199,24 @@ test('G&H option chooses discard-two branch with two disposable cards', () => {
     ],
     publicMetadata: { selectionType: 'option' },
     observationOptions: {
-      ownHand: ['Guzma & Hala CEC 193', "Player's Ceremony SP 127", 'Palace Book SMP NAN25']
+      ownHand: ['Guzma & Hala CEC 193', 'Handheld Fan TWM 150', "Trainers' Mail ROS 92", "Trainers' Mail ROS 92"]
     }
   });
   assert.deepEqual(policy.decide(request),
     { kind: 'select-choice', token: 'discard' });
 });
 
-test('G&H payment protects N and spends Ceremony plus Palace Book', () => {
+test('G&H payment protects N and spends expendable Handheld Fan plus duplicate Mail', () => {
   const request = prompt({
     sourcePrinting: 'Guzma & Hala CEC 193',
     promptType: 'ChooseCardsPrompt',
     choices: [
       {
-        token: 'ceremony', kind: 'card', printing: "Player's Ceremony SP 127",
+        token: 'fan', kind: 'card', printing: 'Handheld Fan TWM 150',
         publicMetadata: { ownerSeat: 'actor', sourceZone: 'hand' }
       },
       {
-        token: 'book', kind: 'card', printing: 'Palace Book SMP NAN25',
+        token: 'mail', kind: 'card', printing: "Trainers' Mail ROS 92",
         publicMetadata: { ownerSeat: 'actor', sourceZone: 'hand' }
       },
       {
@@ -230,14 +230,15 @@ test('G&H payment protects N and spends Ceremony plus Palace Book', () => {
     observationOptions: {
       ownHand: [
         'Guzma & Hala CEC 193',
-        "Player's Ceremony SP 127",
-        'Palace Book SMP NAN25',
+        'Handheld Fan TWM 150',
+        "Trainers' Mail ROS 92",
+        "Trainers' Mail ROS 92",
         'N FCO 105'
       ]
     }
   });
   assert.deepEqual(policy.decide(request),
-    { kind: 'select-choices', tokens: ['ceremony', 'book'] });
+    { kind: 'select-choices', tokens: ['fan', 'mail'] });
 });
 
 test('G&H search chooses needed Thunder and Jammer, not redundant attached DCE', () => {
