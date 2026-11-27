@@ -276,3 +276,75 @@ test('native Latias ex is Psychic: payable Box and opt-in Wondrous Patch can tar
       publicMetadata:{ownerSeat:'actor',sourceZone:'discard',benchIndex:0}}]};
   assert.deepEqual(optIn.decide(r),{kind:'select-choice',token:'to-latias'});
 });
+
+
+test('one-prize Unown Bench filler adds required 20 Rondo damage before a nonlethal attack',()=>{
+  const r=request();
+  r.observation.ownPublic.active={printing:clef,hp:190,damage:0,energies:[psychic,psychic]};
+  r.observation.ownPublic.bench=[b('Unown AOR'),b('Unown AOR'),b('Dedenne-GX UNB'),b('Crobat V DAA')];
+  r.observation.opponentPublic.active={printing:'Shadow Rider Calyrex VMAX CRE',hp:320,damage:130};
+  r.observation.opponentPublic.bench=[b('Shadow Rider Calyrex V CRE'),b('Radiant Eternatus CRZ')];
+  r.observation.ownHand=['Unown AOR'];
+  r.actionFrontier.items=[{...root('attack',clef,'rondo'),attackName:'Full Moon Rondo'},
+    root('play-card','Unown AOR','play-unown')];
+  const ro=projectedRondo(r.observation);
+  assert.deepEqual(ro,{damage:140,remaining:190,total:6});
+  // Basic still improves Rondo even when +20 does not yet KO.
+  assert.equal(policy(0).decide(r).token,'play-unown');
+});
+for(const seat of [0,1]) {
+  test('seat '+seat+' full-Bench Farewell Letter cycles Unown into second Clefairy without giving up damage',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active=b(clef);
+    r.observation.ownPublic.bench=[b('Unown AOR'),b('Unown AOR'),
+      b('Dedenne-GX UNB'),b('Crobat V DAA'),b('Latias ex SSP')];
+    r.observation.opponentPublic.active={printing:'Shadow Rider Calyrex VMAX CRE',
+      hp:320,damage:0};
+    r.observation.ownHand=[clef,psychic,psychic, 'Guzma BUS'];
+    r.actionFrontier.items=[root('use-ability','Unown AOR','farewell',
+      {abilityName:'Farewell Letter'}),{...root('attack',clef,'rondo'),
+      attackName:'Full Moon Rondo'}];
+    assert.equal(policy(seat).decide(r).token,'farewell');
+    r.observation.ownPublic.bench.shift();
+    r.actionFrontier.items=[root('play-card',clef,'second-clefairy')];
+    assert.equal(policy(seat).decide(r).token,'second-clefairy');
+    assert.equal(r.observation.ownPublic.bench.length,4);
+  });
+  test('seat '+seat+' Farewell does not remove Unown when active Rondo already scores a 3-Prize KO',()=>{
+    const r=request(seat);
+    r.observation.ownPublic.active=b(clef);
+    r.observation.ownPublic.bench=[b('Unown AOR'),b('Unown AOR'),
+      b('Dedenne-GX UNB'),b('Crobat V DAA'),b('Latias ex SSP')];
+    r.observation.opponentPublic.bench=[b('Shadow Rider Calyrex V CRE'),
+      b('Radiant Eternatus CRZ'),b('Gengar & Mimikyu-GX TEU'),b('Tapu Lele-GX GRI'),
+      b('Dedenne-GX UNB')];
+    r.observation.opponentPublic.active={printing:'Shadow Rider Calyrex VMAX CRE',
+      hp:320,damage:110};
+    r.observation.ownHand=[clef,psychic,'Guzma BUS'];
+    r.actionFrontier.items=[root('use-ability','Unown AOR','farewell',
+      {abilityName:'Farewell Letter'}),{...root('attack',clef,'rondo'),
+      attackName:'Full Moon Rondo'}];
+    assert.equal(policy(seat).decide(r).token,'rondo');
+    r.observation.ownPublic.prizeCount=5;
+    // A nonterminal 3-Prize KO is still protected from Farewell damage loss.
+    assert.equal(policy(seat).decide(r).token,'rondo');
+  });
+}
+test('Sky Field setup for lethal attack recognizes Unown, not just Clefairy, as replacement Basic',()=>{
+  const r=request();
+  r.observation.ownPublic.active=b(clef);
+  r.observation.ownPublic.bench=[b('Unown AOR'),b('Unown AOR'),
+    b('Dedenne-GX UNB'),b('Crobat V DAA'),b('Latias ex SSP')];
+  r.observation.opponentPublic.bench=[b('Shadow Rider Calyrex V CRE'),
+    b('Radiant Eternatus CRZ'),b('Tapu Lele-GX GRI')];
+  r.observation.opponentPublic.active={printing:'Shadow Rider Calyrex VMAX CRE',
+    hp:320,damage:145};
+  r.observation.ownHand=['Unown AOR','Sky Field ROS'];
+  r.actionFrontier.items=[root('play-card','Sky Field ROS','sky'),
+    {...root('attack',clef,'rondo'),attackName:'Full Moon Rondo'}];
+  assert.equal(projectedRondo(r.observation).damage,180);
+  // 180 is already lethal to remaining 175, so do not waste Sky Field.
+  assert.equal(policy(0).decide(r).token,'rondo');
+  r.observation.opponentPublic.active.damage=135; // remaining 185
+  assert.equal(policy(0).decide(r).token,'sky');
+});
