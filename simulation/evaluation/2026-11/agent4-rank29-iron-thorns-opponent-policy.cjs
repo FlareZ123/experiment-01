@@ -1115,6 +1115,9 @@ function scorePlayCard(item, request) {
   const card = item.actorPrinting ?? '';
   const target = item.targetPrinting ?? '';
   const hand = ownHand(observation);
+  const targetZone = item.publicMetadata?.targetZone ?? null;
+  const toBench = targetZone === 'bench';
+  const toActive = !targetZone || targetZone === 'active';
   const supporter = [
     PRINT.plumeria, PRINT.teamFlare, PRINT.guzma, PRINT.guzmaHala,
     PRINT.lusamine, PRINT.handiwork, PRINT.cynthiaCaitlin, PRINT.lillie,
@@ -1152,23 +1155,26 @@ function scorePlayCard(item, request) {
       matches(target || own.active?.printing, PRINT.ironThorns) &&
       !hasStadium(observation, /Temple of Sinnoh/i) &&
       !list(own.active?.energies).some(energy => matches(energy, PRINT.speedLightning)) ?
-      (turboDceAttackWindow(request) &&
+      (toBench ? (energyCount(own.active) === 0 ? 65 : 115) :
+        (turboDceAttackWindow(request) &&
        (hasStadium(observation, PRINT.thunderMountain) ||
         hand.some(value => matches(value, PRINT.thunderMountain)) ||
         (hand.some(value => matches(value, PRINT.guzmaHala)) &&
          guzmaHalaPaymentRealism(observation) > 0)) &&
-       hand.some(value => matches(value, PRINT.doubleColorless)) ? 85 : 155) : 0;
+       hand.some(value => matches(value, PRINT.doubleColorless)) ? 85 : 155)) : 0;
   }
   if (matches(card, PRINT.doubleColorless)) {
     const activeHasDce = list(own.active?.energies).some(energy => matches(energy, PRINT.doubleColorless));
     return energyAvailable(observation) && !specialEnergyLocked(observation) &&
       matches(target || own.active?.printing, PRINT.ironThorns) && !activeHasDce ?
-      (turboDceAttackWindow(request) &&
+      (toBench ? (energyCount(own.active) >= 2 ? 90 : 0) :
+       turboDceAttackWindow(request) &&
        hasStadium(observation, PRINT.thunderMountain) ? 230 : 125) : 0;
   }
   if (matches(card, PRINT.spikyEnergy) || matches(card, PRINT.captureEnergy)) {
     return energyAvailable(observation) && !specialEnergyLocked(observation) &&
-      matches(target || own.active?.printing, PRINT.ironThorns) ? 75 : 0;
+      matches(target || own.active?.printing, PRINT.ironThorns) ?
+      (toBench ? 30 : 75) : 0;
   }
   if (matches(card, PRINT.handheldFan)) {
     // The pinned AfterDamage Fan emits AttachEnergyPrompt, but the current
@@ -1179,11 +1185,12 @@ function scorePlayCard(item, request) {
   if (matches(card, PRINT.palaceBelt)) {
     const destination = target || own.active?.printing;
     const activeHasTool = list(own.active?.tools).length > 0;
-    return !toolLocked(observation) && !activeHasTool &&
+    return !toolLocked(observation) && toActive && !activeHasTool &&
       matches(destination, PRINT.ironThorns) && ownDeckCount(observation) > 2 ? 125 : 0;
   }
   if (matches(card, PRINT.toolJammer)) {
-    return !toolLocked(observation) && !boardHasTool(own, PRINT.toolJammer) &&
+    return !toolLocked(observation) && toActive &&
+      !boardHasTool(own, PRINT.toolJammer) &&
       matches(target || own.active?.printing, PRINT.ironThorns) &&
       (opponentHasTool(observation) || opponentActiveEnergy(observation) > 0) ? 135 : 0;
   }
