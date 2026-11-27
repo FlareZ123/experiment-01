@@ -119,7 +119,7 @@ function chooseEnergy(f){
     }
     getPerspectivePlayerId(){return this.playerId}
     decode(indices){return indices.map(i=>this.cards.cards[i])}
-    validate(decoded){return decoded.length===10&&
+    validate(decoded){return decoded.length<=10&&
       decoded.every(x=>x.superType==='ENERGY')}
   }
   const prompt=new ChooseCardsPrompt();f.state.prompts=[prompt];
