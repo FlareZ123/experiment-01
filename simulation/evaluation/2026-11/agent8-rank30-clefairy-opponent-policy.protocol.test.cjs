@@ -40,10 +40,10 @@ for(const seat of [0,1]) {
   test('seat '+seat+' Secret Box 3-card payment and four-category search pass actual worker schema',()=>{
     const energy='Psychic Energy MEE 13';
     const r=request(seat,[box,energy,vip,vip,'Telepathic Psychic Energy POR 88'],
-      [clef],'Secret Box TWM 163','hand',
+      [clef,'Crobat V DAA 104'],'Secret Box TWM 163','hand',
       [[energy,'psy'],[vip,'vip-a'],[vip,'vip-b'],
       ['Telepathic Psychic Energy POR 88','protected']],3,3);
-    assertValid(seat,r,{kind:'select-choices',tokens:['vip-a','vip-b','psy']});
+    assertValid(seat,r,{kind:'select-choices',tokens:['psy','vip-a','vip-b']});
     r.observation.ownHand=['Telepathic Psychic Energy POR 88'];
     r.observation.ownPublic.discard=[energy];
     r.prompt=request(seat,[],[],box,'deck',[
