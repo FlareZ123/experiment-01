@@ -165,6 +165,77 @@ function retreatUnused(r){
 }
 function bestBenchTarget(r){return Math.max(0,...list(opp(r).bench).map(targetValue));}
 function remainingPrizes(r){const n=own(r).prizeCount;return Number.isSafeInteger(n)&&n>0&&n<=6?n:null;}
+const quick=x=>/^Quick Ball FST(?: 237)?$/.test(p(x));
+const compressor=x=>/^Battle Compressor PHF(?: 92)?$/.test(p(x));
+const vip=x=>/^Battle VIP Pass FST(?: 225)?$/.test(p(x));
+const latias=x=>/^Latias ex SSP(?: 76)?$/.test(p(x));
+const bolt=x=>/^Raging Bolt ex TEF(?: 123)?$/.test(p(x));
+const adp=x=>/^Arceus & Dialga & Palkia-? ?GX CEC(?: 156)?$/.test(p(x));
+function boardMol(r){return slots(own(r)).find(s=>mol(s.pokemon))?.pokemon??null;}
+function handMol(r){return list(view(r).ownHand).some(mol);}
+function darkFuelNeeded(r){const m=boardMol(r);return (!m||needs(m))&&!list(own(r).discard).some(dark);}
+function benchRoom(r){
+  const count=list(own(r).bench).filter(Boolean).length;
+  const sky=[...list(own(r).stadium),...list(opp(r).stadium)].some(x=>/^Sky Field ROS(?: 89)?$/.test(p(x)));
+  return count<(sky?8:5);
+}
+function setupRoot(r,items){
+  const m=boardMol(r),fuel=darkFuelNeeded(r),h=list(view(r).ownHand);
+  if(fuel&&(m||handMol(r))){
+    const comp=items.find(x=>x.kind==='play-card'&&compressor(x.actorPrinting));
+    if(comp)return root(comp);
+  }
+  if(fuel&&h.some(dark)&&benchRoom(r)){
+    const qb=items.find(x=>x.kind==='play-card'&&quick(x.actorPrinting));
+    if(qb)return root(qb);
+  }
+  if(!m&&!handMol(r)&&benchRoom(r)&&list(own(r).discard).some(dark)){
+    const search=items.find(x=>x.kind==='play-card'&&(vip(x.actorPrinting)||quick(x.actorPrinting)));
+    if(search)return root(search);
+  }
+  return null;
+}
+function visibleCards(options,zone){
+  return options.filter(x=>x.kind==='card'&&typeof x.token==='string'&&md(x).ownerSeat==='actor'&&md(x).sourceZone===zone&&md(x).isOwnerVisible===true);
+}
+function setupPrompt(r,prompt,options,m){
+  if(prompt.promptType!=='ChooseCardsPrompt')return null;
+  const max=m.maximumCount;
+  if(!Number.isSafeInteger(max)||max<1||max>3)return null;
+  const hand=visibleCards(options,'hand'),deck=visibleCards(options,'deck');
+  const fuel=darkFuelNeeded(r),molt=boardMol(r);
+  if(sourceIs(prompt,'Quick Ball',quick)&&max===1&&m.minimumCount===1&&fuel&&hand.length){
+    const d=hand.find(dark);
+    if(d&&(molt||handMol(r)||benchRoom(r)))return choice(d);
+  }
+  if(sourceIs(prompt,'Battle Compressor',compressor)&&max<=3&&m.minimumCount===0&&fuel&&(molt||handMol(r))){
+    const d=deck.find(dark);
+    if(!d)return null;
+    // Preserve the other copies of Darkness for manual payment. Fill distinct
+    // missing types for Ho-Oh, never a second copy of the same energy type.
+    const typ=x=>/^(?:Basic )?(Lightning|Fighting|Darkness) Energy/.exec(p(x))?.[1]??null;
+    const seen=new Set(list(own(r).discard).map(typ).filter(Boolean));seen.add('Darkness');
+    const chosen=[d];
+    for(const x of deck){
+      const t=typ(x);
+      if(chosen.length<max&&t&&!seen.has(t)){chosen.push(x);seen.add(t);}
+    }
+    return {kind:'select-choices',tokens:chosen.map(x=>x.token)};
+  }
+  if((sourceIs(prompt,'Quick Ball',quick)||sourceIs(prompt,'Battle VIP Pass',vip))&&m.minimumCount===0&&!molt&&!handMol(r)&&benchRoom(r)&&deck.length){
+    const d=deck.find(mol);
+    if(d&&(list(own(r).discard).some(dark)||list(view(r).ownHand).some(dark))){
+      const chosen=[d];
+      if(sourceIs(prompt,'Battle VIP Pass',vip)&&max>1){
+        const present=slots(own(r)).map(s=>s.pokemon);
+        const second=[latias,adp,bolt].filter(f=>!present.some(f)&&!list(view(r).ownHand).some(f)).map(f=>deck.find(f)).find(Boolean);
+        if(second)chosen.push(second);
+      }
+      return {kind:'select-choices',tokens:chosen.map(x=>x.token)};
+    }
+  }
+  return null;
+}
 function tacticalRoot(r) {
   const items=list(r.actionFrontier?.items);
   const active=own(r).active, defender=opp(r).active;
@@ -190,6 +261,7 @@ function tacticalRoot(r) {
   // actual legal root and available discard material.
   const wing=items.find(a=>a.kind==='use-ability'&&md(a).abilityName==='Direflame Wings'&&needs(resolveRootSlot(r,a,true)));
   if(wing&&list(own(r).discard).some(dark))return root(wing);
+  const setup=setupRoot(r,items);if(setup)return setup;
   const payments=items.filter(a=>a.kind==='play-card'&&basic(a.actorPrinting)&&needs(resolveRootSlot(r,a)));
   // Prioritize missing Darkness, then preserve Darkness when filling Colorless.
   const ranked=payments.map(a=>{const e=energy(resolveRootSlot(r,a));return {a,s:e.dark<2?(dark(a.actorPrinting)?4:0):(e.total<3?(dark(a.actorPrinting)?1:3):0)};}).filter(a=>a.s>0).sort((a,b)=>b.s-a.s);
@@ -204,6 +276,7 @@ function sourceIs(prompt,name,pattern) {
 function tacticalPrompt(r) {
   const prompt=r.prompt, options=list(prompt?.choices), m=md(prompt);
   if(!prompt || !slots(opp(r)).some(s=>targetValue(s.pokemon)>0))return null;
+  const setup=setupPrompt(r,prompt,options,m);if(setup)return setup;
   if(prompt.promptType==='ChooseCardsPrompt' && sourceIs(prompt,'Direflame Wings',mol)){
     if(m.minimumCount!==0||m.maximumCount!==1||m.allowCancel!==true)return null;
     const c=options.find(x=>x.kind==='card'&&md(x).ownerSeat==='actor'&&md(x).sourceZone==='discard'&&md(x).isOwnerVisible===true&&dark(x));
