@@ -569,7 +569,7 @@ function fundingScore(item, request) {
       hand <= 3 && deck >= Math.min(targetDraw, 4) ? 178 : 0;
   }
   if (item.kind === 'play-card' && matches(card, VS_SEEKER)) {
-    if (!itemAvailable(observation)) return 0;
+    if (!itemAvailable(observation) || !supporterAvailable(observation)) return 0;
     const best = list(observation?.ownPublic?.discard)
       .filter(isRank24Supporter)
       .map(value => recoveryScore(value, observation))
