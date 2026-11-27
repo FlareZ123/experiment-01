@@ -1082,3 +1082,65 @@ test('Tag Call connector precedes Speed Lightning when it can assemble G&H DCE t
   });
   assert.deepEqual(checkedDecision(directDce),{kind:'select-action',token:'mountain'});
 });
+
+test('Guzma Hala actual two-option native mode takes paid Special Energy search only when hand can pay', () => {
+  const options={
+    promptType:'SelectOptionPrompt',
+    source:actorChoiceSource('Guzma & Hala CEC 193','Guzma & Hala'),
+    publicMetadata:{selectionType:'option',count:2,allowCancel:false},
+    choices:[
+      {token:'stadium',kind:'option',label:'Stadium only',
+        publicMetadata:{choiceIndex:0}},
+      {token:'paid',kind:'option',label:'Discard two, also Tool and Special Energy',
+        publicMetadata:{choiceIndex:1}}
+    ]
+  };
+  const cheap=promptRequest({...options,observation:{
+    ownHand:["Trainers' Mail ROS 92",'Camping Gear BST 122']
+  }});
+  assert.deepEqual(checkedDecision(cheap),{kind:'select-choice',token:'paid'});
+  const protectedHand=promptRequest({...options,observation:{
+    ownHand:['Lusamine CIN 96','Megaton Blower SSP 182']
+  }});
+  assert.deepEqual(checkedDecision(protectedHand),{kind:'select-choice',token:'stadium'});
+  const dceHeld=promptRequest({...options,observation:{
+    ownHand:['Double Colorless Energy SUM 136',"Trainers' Mail ROS 92",
+      'Camping Gear BST 122']
+  }});
+  assert.deepEqual(checkedDecision(dceHeld),{kind:'select-choice',token:'stadium'});
+});
+
+test('Guzma Hala mode1 can fetch needed Jammer despite held DCE, but no malformed mode switch', () => {
+  const source=actorChoiceSource('Guzma & Hala CEC 193','Guzma & Hala');
+  const options=[
+    {token:'mode0',kind:'option',label:'Stadium only',publicMetadata:{choiceIndex:0}},
+    {token:'mode1',kind:'option',label:'Discard 2',publicMetadata:{choiceIndex:1}}
+  ];
+  const req=promptRequest({
+    promptType:'SelectOptionPrompt',source,
+    publicMetadata:{selectionType:'option',count:2,allowCancel:false},
+    observation:{
+      ownHand:['Double Colorless Energy SUM 136',"Trainers' Mail ROS 92",
+        'Camping Gear BST 122'],
+      opponentPublic:player({
+        active:pokemon('Shadow Rider Calyrex VMAX CRE 75',
+          {tools:['Stealthy Hood UNB 186']})
+      })
+    },choices:options
+  });
+  assert.deepEqual(checkedDecision(req),{kind:'select-choice',token:'mode1'});
+  const spoof=promptRequest({
+    promptType:'SelectOptionPrompt',
+    source:actorChoiceSource('Camping Gear BST 122','Guzma & Hala'),
+    publicMetadata:{selectionType:'option',count:2,allowCancel:false},
+    choices:options
+  });
+  const response=checkedDecision(spoof);
+  assert.notEqual(response.token,'mode1');
+  const malformed=promptRequest({
+    promptType:'SelectOptionPrompt',source,
+    publicMetadata:{selectionType:'option',count:2,allowCancel:false},
+    choices:[options[0],{...options[1],publicMetadata:{choiceIndex:0}}]
+  });
+  assert.throws(()=>checkedDecision(malformed),/BAD_(MULTI|OPTION)|choiceIndex|DUPLICATE/);
+});
