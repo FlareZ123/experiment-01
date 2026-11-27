@@ -892,10 +892,10 @@ function astralBarragePlan(attacker,view,paperTargetHook=false){
   // Pokemon); capability-bound profiles may therefore admit Active + one Bench.
   const benchCount=view.opponentPublic.bench.filter(Boolean).length;
   if(!isBasicShadowRiderV(attacker)||
-    (paperTargetHook ? opponentBoard(view).length<2 : benchCount<2)||
+    (paperTargetHook ? opponentBoard(view).length<1 : benchCount<2)||
     cannotAttackPublicly(attacker,view.opponentPublic.active,view))return -Infinity;
   const scores=opponentBoard(view).map(p=>astralTargetScore(attacker,p,view)).sort((a,b)=>b-a);
-  return scores.length>=2&&scores[0]>0?scores[0]+scores[1]:-Infinity;
+  return scores.length>=1&&scores[0]>0?scores[0]+(scores[1]??0):-Infinity;
 }
 
 function canFuelNightWatch(view) {
@@ -2290,9 +2290,13 @@ function choosePokemonRecipient(view, prompt, receipt=null, profile=null) {
        effectName === 'Stealthy Hood') && actorChoices.length > 0) {
     ranked = actorChoices.map(row => ({...row,score:stealthyHoodTargetScore(view,row.target.slot,receipt)}));
   } else if (effectName==='Astral Barrage'&&hasName(prompt.source?.sourcePrinting,'Shadow Rider Calyrex V CRE')&&
-      minimum===2&&maximum===2&&opponentChoices.length>=2&&actorChoices.length===0&&
-      (view.opponentPublic.bench.filter(Boolean).length>=2 ||
-       paperAstralBarrageTargetsEnabled(profile))) {
+      actorChoices.length===0&&(
+        (minimum===2&&maximum===2&&opponentChoices.length>=2&&
+          (view.opponentPublic.bench.filter(Boolean).length>=2 ||
+           paperAstralBarrageTargetsEnabled(profile))) ||
+        (paperAstralBarrageTargetsEnabled(profile)&&minimum===1&&maximum===1&&
+          opponentChoices.length===1&&opponentBoard(view).length===1)
+      )) {
     ranked=opponentChoices.map(row=>({...row,score:astralTargetScore(view.ownPublic.active,row.target.slot,view)}));
   } else if (effectName==='Tapu Cure-GX'&&hasName(prompt.source?.sourcePrinting,'Tapu Lele-GX')&&actorChoices.length>0){
     // Pinned reducer permits Active and one damaged target; use only
@@ -3740,6 +3744,10 @@ function projectWobbuffetSentinelUnlock(view,movedView,target) {
       !(sentinel.abilities??[]).includes('Sentinel') ||
       effectiveAbilityStatus(sentinel,'Sentinel','opponent',view)!==true ||
       (sentinel.printed?.types??[]).includes('Psychic'))return null;
+  // Evaluate protection after the retreat. An outgoing Tool Jammer can make
+  // Hood look inactive in the pre-retreat state but cease suppressing it once
+  // Wobbuffet becomes Active.
+  if(hasEffectiveStealthyHood(sentinel,movedView,'opponent')!==false)return null;
   const suppress=slot=>{
     if(!slot||(slot.printed?.types??[]).includes('Psychic')||!(slot.abilities??[]).length)return slot;
     const prior=new Map((slot.abilitySuppressions??[]).map(row=>[row.abilityName,row]));
@@ -3999,7 +4007,7 @@ function publicAstralFinalAttack(view,items,profile=null) {
   const attacker=view.ownPublic.active;
   const benchCount=view.opponentPublic.bench.filter(Boolean).length;
   if(!item||!isBasicShadowRiderV(attacker)||!cleanPublicTerminalView(view,true)||
-      (paperAstralBarrageTargetsEnabled(profile) ? opponentBoard(view).length<2 : benchCount<2))return null;
+      (paperAstralBarrageTargetsEnabled(profile) ? opponentBoard(view).length<1 : benchCount<2))return null;
   const attack=attacker.attacks.find(a=>a.name==='Astral Barrage');
   if(!attack||!canPayAttack(attacker,attack,view)||
       !Number.isFinite(attackScore(attacker,attack,view,view.opponentPublic.active,{
