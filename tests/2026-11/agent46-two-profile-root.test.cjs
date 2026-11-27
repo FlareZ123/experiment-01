@@ -1329,3 +1329,26 @@ paired('Agent31: take final two prizes with Astral Barrage before evolution',(se
  assert.equal(get([evo,mist]).decision.token,'evolve');
  view.ownPublic.prizeCount=3;negative();
 });
+
+
+paired('one-VMAX Gate access remains reachable with two free Bench slots but below the full Gate score',(seat,profile)=>{
+  const quick='Quick Ball FST';
+  const filler=pokemon({printing:'Marshadow UNB',name:'Marshadow',hp:80});
+  const view=observation(seat,{active:v(),bench:[vmax(),latias(),filler],ownHand:[P],opponentActive:defender()});
+  const policy=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile});
+  const request=cardPrompt(seat,view,quick,'Quick Ball','deck',[R,V],0,1);
+  let got=policy.decideWithAudit(request);
+  assert.deepEqual(got.decision,mult('card-0'));
+  assert.equal(got.policyAudit.evaluations.find(row=>row.token==='card-0').score,100);
+
+  const full=observation(seat,{active:v(),bench:[vmax(),filler],ownHand:[P],opponentActive:defender()});
+  got=policy.decideWithAudit(cardPrompt(seat,full,quick,'Quick Ball','deck',[R,V],0,1));
+  assert.deepEqual(got.decision,mult('card-0'));
+  assert.equal(got.policyAudit.evaluations.find(row=>row.token==='card-0').score,120);
+
+  const locked=observation(seat,{active:latias(),bench:[vmax(),filler,latias()],ownHand:[P],
+    opponentActive:defender(),opponentStadium:['Path to the Peak CRE']});
+  got=policy.decideWithAudit(cardPrompt(seat,locked,quick,'Quick Ball','deck',[R,V],0,1));
+  assert.deepEqual(got.decision,mult('card-1'));
+  assert.equal(got.policyAudit.evaluations.find(row=>row.token==='card-0').score,-5);
+});
