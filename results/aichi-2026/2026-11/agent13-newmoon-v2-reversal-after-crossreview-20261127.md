@@ -8,7 +8,7 @@ After Agent1's independent full-authenticated-family review, **revert the prefer
 
 - Preferred fixed 60: results/als/new-moon-lockbreak-english-proxy-60.json
 - Canonical hash: a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4
-- Preferred policy gate: results/aichi-2026/2026-11/agent1-newmoon-candidate-policy-acceptance-v2.json (**80 actor-visible cases**, all 29 authenticated ranks)
+- Preferred policy gate: results/aichi-2026/2026-11/agent1-newmoon-candidate-policy-acceptance-v2.json (**101 actor-visible cases**, all 29 authenticated ranks)
 
 Preserve Agent13's Guzma/Sky v2 as a **frozen material challenger**, not the preferred 60:
 
@@ -53,9 +53,9 @@ Sky is also actively bad in some states (Raichu, rank-30 Rondo, rank-31 wide-boa
 
 The Guzma/Sky v2 trade still has legitimate benefits against rank 15, Snorlax Block, rank 26 and protected-Active states. But those benefits have not yet been shown frequently enough under a competent fixed-v1 policy to outweigh the second Sky's cross-family redundancy.
 
-## Why the Agent1 80-case contract becomes the implementation target
+## Why the Agent1 101-case contract becomes the implementation target
 
-Agent1's contract inherits the 39-case v1 base (including Agent13's Snorlax, Temple, Silent Lab and integrated Raichu states) and adds 41 actor-visible cases for the remaining authenticated families.
+Agent1's contract inherits the 39-case v1 base (including Agent13's Snorlax, Temple, Silent Lab and integrated Raichu states) and now adds 62 actor-visible cases for the remaining authenticated families.
 
 It covers all 29 authenticated ranks while keeping the exact v1 60 fixed. This is the correct next test:
 
