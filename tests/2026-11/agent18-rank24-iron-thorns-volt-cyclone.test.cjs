@@ -89,21 +89,20 @@ test('Volt Cyclone transfer prefers Capture, then Speed, over DCE', () => {
       promptType: 'AttachEnergyPrompt',
       source: {
         sourcePrinting: 'Iron Thorns ex TWM 77',
-        sourceAttack: 'Volt Cyclone',
         effectName: 'Volt Cyclone'
       },
       choices: [
         {
           token: 'dce', kind: 'energy', printing: 'Double Colorless Energy SUM 136',
-          publicMetadata: { targetIndex: 0 }
+          publicMetadata: { benchIndex: 0 }
         },
         {
           token: 'speed', kind: 'energy', printing: 'Speed Lightning Energy RCL 173',
-          publicMetadata: { targetIndex: 0 }
+          publicMetadata: { benchIndex: 0 }
         },
         {
           token: 'capture', kind: 'energy', printing: 'Capture Energy RCL 171',
-          publicMetadata: { targetIndex: 0 }
+          publicMetadata: { benchIndex: 0 }
         }
       ],
       publicMetadata: { selectionType: 'energy-attachment' }
@@ -131,11 +130,11 @@ test('Volt Cyclone tie goes to the less-funded bench target', () => {
       choices: [
         {
           token: 'speed0', kind: 'energy', printing: 'Speed Lightning Energy RCL 173',
-          publicMetadata: { targetIndex: 0 }
+          publicMetadata: { benchIndex: 0 }
         },
         {
           token: 'speed1', kind: 'energy', printing: 'Speed Lightning Energy RCL 173',
-          publicMetadata: { targetIndex: 1 }
+          publicMetadata: { benchIndex: 1 }
         }
       ],
       publicMetadata: { selectionType: 'energy-attachment' }
