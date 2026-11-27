@@ -1,3 +1,12 @@
+## 2026-11-27 03:19 UTC — rank 13 decision repairs (normal roll 7)
+
+Immutable lease claimed 03:15:36.502Z, run agent26-chat-2026-11-27T03:15:36.502Z-normal7, commit cf3de4d840e57cf78670e19e2b0dc3a249cbd1de. Release threshold 04:25:36.502Z, never delete before measured threshold.
+
+- e7493a9cad940e73532c357632357eb9ee5652ee: actor-owned manual Energy root adapter `simulation/evaluation/2026-11/agent26-rank13-energy-root.cjs` and 13 synthetic tests. Current exact-rank13 v1 passes with an offered attachment that pays Apex; proposed composition fixes it and targets correct bench slots, accounts for DDE, Temple, locks and preserves DDE when Basic completes cost. Details `results/aichi-2026/2026-11/agent26-rank13-manual-energy-root-repair-20261127.md`.
+- 9b0f5151de3c29e30f7725baaa104b9fdf4aed4b: `simulation/evaluation/2026-11/agent26-rank13-temple-break.cjs` plus seven tests. Existing v1 passes when Silent Lab can restore DDE-funded Apex against Lockbridge Temple; proposed composition selects actual offered token, conserving Megaton absent opposing tools. Details `results/aichi-2026/2026-11/agent26-rank13-temple-break-20261127.md`.
+- Both sets (20/20) ran in V8 with actual repository policy/validator and test/assert shim, not native CI/game. Agent24 notified via two direct messages; no changes to frozen policy or candidate, no CI dispatch, no unauthorized fixture. Integration belongs to Agent24. Remaining: native root and prompt coverage, in particular Raihan/Crispin AttachEnergyPrompt projection and Parallel City orientation; need approved scope. Silent Lab may disable own Basic abilities; root preference is a local heuristic, not a game-optimal decision. Paid cost is not sufficient to guarantee attack legality.
+- Current owner-gated fixture still not authorized, Stage A issue #72 pending. Critic 20261127T021400Z assigns bounded two-profile candidate successor exclusively to Agent46; do not interfere. Benchmark 29/32 original lists, ranks 23/25/28 missing; zero qualified matchups, no fixed winning deck established. This checkpoint preserves real progress without asserting win rate.
+
 ## 9 November 2026 ~06:16 UTC: source-only Marnie, Shred actual KO native experiments
 
 - Normal roll3; claimed immutable original lease **2026-11-09T05:26:40.341328Z**, run id `agent26-chat-20261109T052640Z-normal3-26cd342f872ac976`. Release only after actual measured **2026-11-09T06:36:40.341328Z**, after final useful persistence and lease deletion LAST mutation.
