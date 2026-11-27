@@ -5,6 +5,7 @@ const v3=require('./agent23-rank19-raging-bolt-opponent-policy-v3-moltres.cjs');
 const bolt=require('./agent23-rank19-bellowing-thunder-draft.cjs');
 const accel=require('./agent23-rank19-acceleration-draft.cjs');
 const targets=require('./agent23-rank19-candidate-targets.cjs');
+const mobility=require('./agent23-rank19-mobility.cjs');
 const POLICY_VERSION='agent23-rank19-raging-bolt-opponent-v4-draft';
 const DISCARD='rank19-bellowing-discard-v1',ATTACH='rank19-attachment-set-v1';
 const allowed=new Set([DISCARD,ATTACH]);
@@ -31,8 +32,11 @@ function chooseRoot(r,caps){
  const bd=caps.has(DISCARD)?bolt.root(r,DISCARD):null;
  const ad=caps.has(ATTACH)?accel.root(r,ATTACH):null,ai=rootItem(r,ad);
  const directAura=mi?.kind==='attack'&&mi.attackName==='Aura Burn';
- if(directAura)return md;
+ if(directAura&&activeTarget&&Number.isSafeInteger(remaining)&&activeTarget.prizes>=remaining)return md;
  if(bd&&activeTarget&&Number.isSafeInteger(remaining)&&activeTarget.prizes>=remaining)return bd;
+ const move=mobility.root(r,{discard:caps.has(DISCARD),attach:caps.has(ATTACH)});
+ if(move)return move;
+ if(directAura)return md;
  const viaGuzma=mi?.kind==='play-card'&&/^Guzma BUS(?: 115)?$/.test(name(mi.actorPrinting));
  const viaPivot=mi?.kind==='retreat'&&mol(mi.targetPrinting);
  // A ready, zero-discard Moltres route is preferable at the same Prize
@@ -71,7 +75,7 @@ function createPolicy({role,seat,policyVersion,config}){
    if(r.prompt.promptType==='DiscardEnergyPrompt'&&caps.has(DISCARD))return bolt.decideDiscard(r)??{kind:'abstain',reasonCode:'UNSUPPORTED_DISCARD_ENERGY_PROMPT'};
    if(r.prompt.promptType==='AttachEnergyPrompt'&&caps.has(ATTACH))return accel.decide(r)??{kind:'abstain',reasonCode:'UNSUPPORTED_ATTACH_ENERGY_PROMPT'};
    if(caps.has(ATTACH)&&r.prompt.promptType==='ChooseCardsPrompt'&&r.prompt.source?.effectName==='Raihan')return accel.raihanSearch(r)??{kind:'abstain',reasonCode:'UNSUPPORTED_RAIHAN_ATTACH_ENERGY_PROMPT'};
-   return base.decide(r);
+   return mobility.prompt(r,{discard:caps.has(DISCARD),attach:caps.has(ATTACH)})??base.decide(r);
   }
   return chooseRoot(r,caps)??base.decide(r);
  }});
