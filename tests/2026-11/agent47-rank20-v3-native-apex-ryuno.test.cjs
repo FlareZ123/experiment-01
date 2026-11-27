@@ -52,7 +52,7 @@ function actorBoard(x,seat){
   stadiumAndToolHaveNoEffectTurnsRemaining:t.stadiumAndToolHaveNoEffectTurnsRemaining??0
  };
  return {
-   actorSeat:seat,
+   actorSeat:seat,globalTurn:x.state.turn,
    ownPublic:{prizeCount:p.prizes.filter(s=>s.cards.length).length,
      discard:p.discard.cards.map(print),
      stadium:stadium(p.stadium),
@@ -89,9 +89,10 @@ function single(seat){
    prompt
  });
  const native={PlayerType,SlotType,ResolvePromptAction};
+ const session=policy.createRank20RyunoSession({role:'opponent',seat});
  const rootRequest=request(null);
  const rootFrontier=protocol.validateFrontier(rootRequest.actionFrontier);
- const rootChoice=policy.decideRank20RyunoSlice(rootRequest);
+ const rootChoice=session.decide(rootRequest);
  assert.deepEqual(rootChoice,{kind:'select-action',token:'native-apex'});
  protocol.validateDecision(rootChoice,null,rootFrontier);
  const hook=installPromptProvenanceHook(x.store);
@@ -103,7 +104,7 @@ function single(seat){
   const choices=getPending(x.state,'ChooseAttackPrompt');
   assert.equal(choices.length,1,'Paid Apex must produce exactly one native attack-copy prompt');
   const copied=projectPrompt({prompt:choices[0],state:x.state,actorSeat:seat,native,store:x.store,provenanceHook:hook});
-  const donorDecision=policy.decideRank20RyunoSlice(request(copied.promptProjection));
+  const donorDecision=session.decide(request(copied.promptProjection));
   assert.ok(donorDecision,'Source-bound opponent policy declined native Apex copy prompt: '+JSON.stringify(copied.promptProjection));
   assert.equal(copied.promptProjection.choices.find(c=>c.token===donorDecision.token)?.printing,mega.fullName);
   reports.push({type:'ChooseAttackPrompt',source:copied.promptProjection.source,
@@ -113,7 +114,7 @@ function single(seat){
   const energy=getPending(x.state,'ChooseEnergyPrompt');
   assert.equal(energy.length,1,'Ryuno must produce one genuine native energy-payment prompt');
   const projected=projectPrompt({prompt:energy[0],state:x.state,actorSeat:seat,native,store:x.store,provenanceHook:hook});
-  const paid=policy.decideRank20RyunoSlice(request(projected.promptProjection));
+  const paid=session.decide(request(projected.promptProjection));
   assert.ok(paid,'Source-bound policy declined native Ryuno payment prompt: '+JSON.stringify(projected.promptProjection));
   assert.equal(paid.kind,'select-choices');
   assert.equal(paid.tokens.length,1);
