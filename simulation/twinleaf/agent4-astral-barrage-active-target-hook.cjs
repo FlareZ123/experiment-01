@@ -20,8 +20,7 @@ const native=modulePath=>require(path.join(output,modulePath));
  * @param {()=>T} execute Original native Store experiment.
  * @returns {T}
  */
-function withPaperAstralBarrageTargets(execute){
-  assert.equal(typeof execute,'function');
+function installPaperAstralBarrageTargets(){
   const {ShadowRiderCalyrexV}=
     native('sets/09-sword-and-shield/set-chilling-reign/shadow-rider-calyrex-v');
   const {WAS_ATTACK_USED}=native('game/store/prefabs/prefabs');
@@ -106,12 +105,27 @@ function withPaperAstralBarrageTargets(execute){
     {...original,value:paperAstralBarrage});
   Object.defineProperty(Store.prototype,'dispatch',
     {...previousDispatch,value:guardAstralReply});
-  try{return execute();}
-  finally{
-    assert.strictEqual(proto.reduceEffect,paperAstralBarrage);
-    assert.strictEqual(Store.prototype.dispatch,guardAstralReply);
-    Object.defineProperty(Store.prototype,'dispatch',previousDispatch);
-    Object.defineProperty(proto,'reduceEffect',original);
-  }
+  let restored=false;
+  return {
+    restore(){
+      if(restored)return;
+      assert.strictEqual(proto.reduceEffect,paperAstralBarrage);
+      assert.strictEqual(Store.prototype.dispatch,guardAstralReply);
+      Object.defineProperty(Store.prototype,'dispatch',previousDispatch);
+      Object.defineProperty(proto,'reduceEffect',original);
+      restored=true;
+    },
+    get installed(){
+      return !restored&&proto.reduceEffect===paperAstralBarrage&&
+        Store.prototype.dispatch===guardAstralReply;
+    },
+    get restored(){return restored;}
+  };
 }
-module.exports={withPaperAstralBarrageTargets};
+function withPaperAstralBarrageTargets(execute){
+  assert.equal(typeof execute,'function');
+  const hook=installPaperAstralBarrageTargets();
+  try{return execute();}
+  finally{hook.restore();}
+}
+module.exports={withPaperAstralBarrageTargets,installPaperAstralBarrageTargets};
