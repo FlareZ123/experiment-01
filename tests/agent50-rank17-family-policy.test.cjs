@@ -27,7 +27,7 @@ function runCases(policy,protocol) {
     ownPublic:player(),opponentPublic:player({active:slot('Shadow Rider Calyrex VMAX CRE',{hp:320})}),...over});
   const play=(token,printing,target=null)=>({kind:'play-card',token,actorPrinting:printing,
     publicMetadata:{cardType:'trainer',...(target?{targetSeat:'actor',targetZone:target.zone,
-      targetIndex:target.index}: {})},...(target?{targetPrinting:target.printing}: {})});
+      targetIndex:target.index,isOwnerVisible:true}: {})},...(target?{targetPrinting:target.printing}: {})});
   const ability=(token,printing,abilityName,index=0)=>({kind:'use-ability',token,actorPrinting:printing,
     publicMetadata:{abilityName,sourceSeat:'actor',sourceZone:'bench',sourceIndex:index}});
   const pass={kind:'pass',token:'pass'};
