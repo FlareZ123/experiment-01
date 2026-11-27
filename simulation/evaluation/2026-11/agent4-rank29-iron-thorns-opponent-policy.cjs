@@ -818,7 +818,7 @@ function promptDecision(request) {
             metadata.isSecret !== false ||
             metadata.allowCancel !== false ||
             minimum !== 0 || maximum > 2)
-          return {kind:'abstain',reasonCode:'UNTRUSTED_CARD_CHOICE'};
+          return {kind:'abstain',reasonCode:'UNTRUSTED_CARD_SELECTION'};
         const context = matches(sourcePrinting, PRINT.eri) ? 'eri' :
           matches(sourcePrinting, PRINT.sidney) ? 'sidney' : 'team-skull';
         const opponentHand = choices.filter(choice =>
