@@ -160,9 +160,8 @@ function chooseTerminalRoot(request,profile,certificate,terminal,matcher,adaptiv
 const sameSlot=(v,loc)=>{
   const p=(loc.owner?v.ownPublic:v.opponentPublic);
   const q=loc.zone==="active"?p.active:p.bench[loc.index];
-  return q?.printing===loc.printing&&!q.concealed;
+  return q?.printing===loc.printing&&!q.concealed&&q.damage===loc.damage&&eq(q.energies,loc.energies)&&eq(q.tools,loc.tools)&&eq(q.evolutionPrintings??[],loc.stack)&&(q.lastPlayedOrEvolvedTurn??null)===loc.lastPlayedOrEvolvedTurn;
 };
-const choiceSeat=(c)=>c.publicMetadata?.ownerSeat;
 function pokemonChoice(c,v,loc){
   const m=c.publicMetadata;
   return c.kind==="pokemon"&&m?.isOwnerVisible===true&&m.ownerSeat===(loc.owner?"actor":"opponent")&&
@@ -213,6 +212,7 @@ function continueTerminalPrompt(intent,request){
         meta.ownerSeat==="actor"&&meta.isOwnerVisible===true&&meta.minimumCount===1&&meta.maximumCount===1&&
         meta.energyType==="BASIC"&&meta.zone==="bench","wrong Door prompt");
       const t=loc(a.target);
+      check(sameSlot(v,loc(a.source)),"Door source moved");
       check(t.owner&&t.zone==="bench"&&sameSlot(v,t),"Door target moved");
       const c=one(p.choices.filter(c=>c.kind==="energy"&&profile.basicPsychicPrintings.includes(c.printing)&&
         v.ownHand.includes(c.printing)&&c.publicMetadata?.ownerSeat==="actor"&&c.publicMetadata.sourceZone==="hand"&&
@@ -241,4 +241,79 @@ function continueTerminalPrompt(intent,request){
     return fail("unmodeled continuation; discard intent and use ordinary policy");
   }catch(e){return fail(e.message)}
 }
-module.exports={projectTerminalInput,chooseTerminalRoot,continueTerminalPrompt};
+function bridgeSelfTest(terminal,matcher,adaptive){
+  const assert=(b,m)=>{if(!b)throw Error(m)};
+  const energy="Psychic Energy SVE",vmax="Shadow Rider Calyrex VMAX CRE";
+  const trainerPrintings={"Acerola":["Acerola BUS"],"Guzma":["Guzma BUS"],"Pokémon Ranger":["Pokémon Ranger STS"],
+    "VS Seeker":["VS Seeker PHF"],"Night Stretcher":["Night Stretcher ASC"],"Fog Crystal":["Fog Crystal CRE"],
+    "Lillie's Determination":["Lillie's Determination MEG"],"Iono":["Iono PAL"],"Unfair Stamp":["Unfair Stamp TWM"],
+    "Stealthy Hood":["Stealthy Hood UNB"],"Float Stone":["Float Stone BKT"],"Field Blower":["Field Blower GRI"],"Dimension Valley":["Dimension Valley PHF"]};
+  const profile={basicPsychicPrintings:[energy],trainerPrintings};
+  const poke=(printing,hp,n,abilities=[])=>({printing,hp,damage:0,energies:Array(n).fill(energy),tools:[],
+    evolutionPrintings:[printing],specialConditions:[],publicRestrictions:{},abilities});
+  const A=poke(vmax,320,3,["Underworld Door"]),B=poke(vmax,320,2,["Underworld Door"]),X=poke("Dedenne-GX UNB",190,0);
+  const own={active:A,bench:[null,B],discard:[],stadium:[],prizeCount:2,deckCount:10},
+    opp={active:X,bench:[poke("Iron Thorns ex TWM",230,0,["Initialization"])],handCount:2,deckCount:30,stadium:[]};
+  const v={actorSeat:0,turnSeat:0,globalTurn:5,decisionKind:"owner-root",ownHand:[energy],ownPublic:own,opponentPublic:opp,
+    ownTurnResources:{energyPlayedTurn:3,retreatedTurn:3,supporterPlayedTurn:0,stadiumPlayedTurn:3,
+    itemPlayLocked:false,supporterPlayLocked:false,energyPlayLocked:false,toolPlayLocked:false,stadiumPlayLocked:false}};
+  const req={schema:"aichi-policy-request-v2",observationSchema:"aichi-actor-observation-v4-ability-lock-order",seat:0,prompt:null,observation:v,
+    publicEventReceipt:{version:"agent8-public-event-receipt-v3-turn-stamped",actorSeat:0,turn:5,
+    ownerActive:{printing:vmax,knownAbilityUse:[{name:"Underworld Door",usedThisTurn:true}]},
+    ownerBench:[null,{printing:vmax,knownAbilityUse:[{name:"Underworld Door",usedThisTurn:false}]}]},
+    actionFrontier:{schema:"aichi-action-frontier-v1",items:[{kind:"use-ability",token:"door",actorPrinting:vmax,
+      publicMetadata:{abilityName:"Underworld Door",sourceSeat:"actor",sourceZone:"bench",sourceIndex:1}}]}};
+  const ownC={printing:vmax,attackPermissionCertified:true,retreatPermissionCertified:true,canAttack:true,canRetreat:false,retreatCost:2};
+  const targetC=p=>({printing:p.printing,damageAndPrizeGeometryCertified:true,remainingHP:p.hp,
+    prizesOnKO:2,counterPrizesOnKO:2,weaknessMultiplier:1,resistance:0,energyUnits:0,ultraBeast:false,dragon:false,
+    counterBlockedActive:false,counterBlockedBench:false,damageReduction:0,damageReductionAllKindsCertified:true});
+  const cert={actorSeat:0,turn:5,stablePublicEffects:true,noUnmodeledTerminalEffects:true,dynamic:true,otherEffectsStable:true,toolsEffective:true,
+    ownSlots:{a:ownC,b1:ownC},targets:{oa:targetC(X),ob0:targetC(opp.bench[0])},
+    itemPlayAllowed:true,supportAllowed:true,manualAttachmentAllowed:true,toolPlayAllowed:true,valleyPlayAllowed:true,
+    dimensionValley:false,itemPlayAllowedAfterRanger:false,guzmaWithoutOwnBenchAllowed:false,
+    refreshLegal:{lillie:true,iono:true,stamp:true}};
+  const results=[];
+  const record=(name,ok)=>{assert(ok,name);results.push({name,passed:true})};
+  const d=chooseTerminalRoot(req,profile,cert,terminal,matcher,adaptive);
+  record("native actor projection -> Door root",d.decision?.token==="door"&&d.search.lowerBound===1);
+  record("missing residual effects fail closed",!chooseTerminalRoot(req,profile,{...cert,noUnmodeledTerminalEffects:false},terminal,matcher,adaptive).decision);
+  record("stale effect certificate fail closed",!projectTerminalInput(req,profile,{...cert,turn:3}).input);
+  record("K0 does not fabricate deck identities",projectTerminalInput(req,profile,cert).input.knownDeckPsychic===0);
+  const choice={kind:"energy",token:"attachment",printing:energy,publicMetadata:{ownerSeat:"actor",isOwnerVisible:true,sourceZone:"hand",energyType:"BASIC",zone:"bench",benchIndex:1}};
+  const prompt={actingSeat:0,promptType:"AttachEnergyPrompt",source:{classification:"actor-choice",sourceKind:"card-effect",sourcePrinting:vmax,effectName:"Underworld Door"},
+    publicMetadata:{selectionType:"energy-attachment",sourceZone:"hand",ownerSeat:"actor",isOwnerVisible:true,minimumCount:1,maximumCount:1,energyType:"BASIC",zone:"bench"},
+    choices:[{...choice,token:"bad",publicMetadata:{...choice.publicMetadata,benchIndex:0}},choice]};
+  const preq={...req,observation:{...v,decisionKind:"owner-prompt"},prompt};
+  const c=continueTerminalPrompt(d.intent,preq);
+  record("Door binds exact assignment instead of root token",c.decision?.token==="attachment");
+  record("wrong source rejected",!continueTerminalPrompt(d.intent,{...preq,prompt:{...prompt,source:{...prompt.source,effectName:"Other"}}}).decision);
+  record("stale prompt rejected",!continueTerminalPrompt(d.intent,{...preq,observation:{...preq.observation,globalTurn:7}}).decision);
+  record("same-printing changed target rejected",!continueTerminalPrompt(d.intent,{...preq,observation:{...preq.observation,
+    ownPublic:{...own,bench:[null,{...B,damage:10}]}}}).decision);
+  record("repeated stage rejected",!continueTerminalPrompt(c.intent,preq).decision);
+  const guzma={...d.intent,action:{kind:"guzma",opponentTarget:"ob0",ownPromotion:"b1"},rootPrinting:"Guzma BUS"};
+  const pc=(loc,token)=>({kind:"pokemon",token,printing:loc.printing,publicMetadata:{ownerSeat:loc.owner?"actor":"opponent",
+    isOwnerVisible:true,targetZone:loc.zone,...(loc.zone==="bench"?{benchIndex:loc.index}:{slotIndex:0})}});
+  const pp={actingSeat:0,promptType:"ChoosePokemonPrompt",source:{classification:"actor-choice",sourceKind:"card-effect",
+    sourcePrinting:"Guzma BUS",effectName:"Guzma"},publicMetadata:{selectionType:"pokemon",minimumCount:1,maximumCount:1},
+    choices:[pc(guzma.slots.ob0,"gust")]};
+  const gust=continueTerminalPrompt(guzma,{...preq,prompt:pp});
+  record("Guzma first selects opposing slot",gust.decision?.tokens?.[0]==="gust");
+  const ownG=continueTerminalPrompt(gust.intent,{...preq,prompt:{...pp,choices:[pc(guzma.slots.b1,"pivot")]}});
+  record("Guzma then selects own intended pivot",ownG.decision?.tokens?.[0]==="pivot");
+  const fresh={...req,observation:{...v,ownHand:["Lillie's Determination MEG"],ownPublic:{...own,active:{...A,energies:[energy,energy]},deckCount:3},
+    ownerK1:{exactMembershipKnown:true,knownPrintings:[{printing:energy,copies:2},{printing:"Other",copies:1}]}},
+    actionFrontier:{schema:"aichi-action-frontier-v1",items:[{kind:"play-card",token:"refresh",actorPrinting:"Lillie's Determination MEG",
+      publicMetadata:{cardType:"trainer",handIndex:0}}]}};
+  const projected=projectTerminalInput(fresh,profile,{...cert,oldDeckExchangeable:true});
+  record("K1 supplies exact role multiset",projected.context.deckCounts.P===2&&projected.context.deckCounts.other===1);
+  const drawn=chooseTerminalRoot(fresh,profile,{...cert,oldDeckExchangeable:true},terminal,matcher,adaptive,{minimumChance:0.01});
+  record("adaptive planner maps Lillie to legal native root",drawn.decision?.token==="refresh"&&drawn.search.lowerBound===1);
+  return results;
+}
+module.exports={projectTerminalInput,chooseTerminalRoot,continueTerminalPrompt,bridgeSelfTest};
+if(require.main===module){
+ const {acerolaMaxGeist,certificateRootMatcher}=require("./acerola-max-geist-advisory.cjs");
+ const {adaptiveTerminal}=require("./refresh-terminal-advisory.cjs");
+ console.log(JSON.stringify(bridgeSelfTest(acerolaMaxGeist,certificateRootMatcher,adaptiveTerminal),null,2));
+}
