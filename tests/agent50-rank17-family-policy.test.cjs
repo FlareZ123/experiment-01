@@ -185,7 +185,7 @@ function runCases(policy,protocol) {
     v=view(seat,{ownHand:[A.compressor,A.stretcher,A.stretcher],ownPublic:player({bench:[slot(A.ditto)]})});
     same(runPrompt(p,v,cards(v,A.compressor,'Battle Compressor','deck',[A.raichu,A.electrode],0,3)),choose('c0'),tag+'single Ditto cannot supply two evolutions');
     v={...v,ownPublic:player({active:slot(A.klefki),bench:[slot(A.ditto)]})};
-    same(runPrompt(p,v,cards(v,A.compressor,'Battle Compressor','deck',[A.raichu,A.electrode,A.voltorb,A.pikachu],0,3)),choose('c2','c3'),tag+'locked Ditto cannot fund evolution, only basic recovery');
+    same(runPrompt(p,v,cards(v,A.compressor,'Battle Compressor','deck',[A.raichu,A.electrode,A.voltorb,A.pikachu],0,3)),choose('c3','c0'),tag+'locked Ditto cannot supply a base; recover actual Pikachu and Raichu');
     v=view(seat,{ownHand:[A.carrier,A.stretcher],ownPublic:player({discard:[A.pikachu]})});
     same(runRoot(p,v,[play('recover',A.stretcher),play('carrier',A.carrier),pass]),action('carrier'),tag+'reserve Stretcher when Carrier can recover Basic');
     // Certified own inventory permits aggregate Prize inference, never slot mapping.
