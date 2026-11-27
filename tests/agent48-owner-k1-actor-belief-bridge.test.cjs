@@ -2,7 +2,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const {captureOwnerK1, advanceOwnerK1} =
+const {captureOwnerK1, advanceOwnerK1, createOwnerPrizeCompositionGuard} =
   require('../simulation/twinleaf/owner-k1-prize-knowledge.cjs');
 const {projectOwnerK1PrizeKnowledge} =
   require('../simulation/twinleaf/2026-11/agent48-owner-k1-sampler-projection.cjs');
@@ -154,4 +154,39 @@ test('attached Energy in both native stack and Energy view counts once at K1',()
   assert.equal(captured.prizeInferenceCertified,true,
     'a fully accounted source deck search must remain certified');
   assert.deepEqual(captured.knownPrized,[{printing:'A SET 001',copies:2}]);
+});
+
+test('same-trial K1 custody survives an ordinary action and fails on a same-count Prize swap',()=>{
+  const {state,owner}=fixture();
+  const captured=captureOwnerK1(state,1,REGISTERED);
+  const guard=createOwnerPrizeCompositionGuard(state,1);
+  assert.ok(guard);
+  assert.equal(guard.unchanged(state),true);
+
+  // The actor finishes a search, then performs a non-Prize action.
+  state.prompts=[];
+  state.turn=7;
+  owner.hand.cards.push(card('B SET 002'));
+  assert.equal(guard.unchanged(state),true);
+  const kept=advanceOwnerK1(captured,{
+    currentOwnPrizeCount:2,deckMayHaveChanged:true,
+    prizeCompositionMayHaveChanged:!guard.unchanged(state)
+  });
+  assert.equal(kept.prizeInferenceCertified,true);
+  assert.equal(projectOwnerK1PrizeKnowledge(kept,{
+    expectedSeat:1,currentTurn:7,currentPrizeCount:2
+  }).mode,'K1');
+
+  // Physical card exchange changes which unseen card is Prized,
+  // even though the number of Prizes remains exactly two.
+  owner.prizes[0].cards=[owner.deck.cards.pop()];
+  assert.equal(guard.unchanged(state),false);
+  const revoked=advanceOwnerK1(kept,{
+    currentOwnPrizeCount:2,deckMayHaveChanged:true,
+    prizeCompositionMayHaveChanged:!guard.unchanged(state)
+  });
+  assert.equal(revoked.prizeInferenceCertified,false);
+  assert.equal(projectOwnerK1PrizeKnowledge(revoked,{
+    expectedSeat:1,currentTurn:7,currentPrizeCount:2
+  }).mode,'K0');
 });
