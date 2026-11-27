@@ -68,6 +68,8 @@ const TRAINERS_MAIL = /^Trainers['’] Mail\b/i;
 const PLAYER_CEREMONY = /^Player['’]s Ceremony\b/i;
 const PALACE_BOOK = /^Palace Book\b/i;
 const HANDHELD_FAN = /^Handheld Fan\b/i;
+const NEST_BALL = /^Nest Ball\b/i;
+const HEAVY_BALL = /^Heavy Ball\b/i;
 
 function list(value) {
   return Array.isArray(value) ? value : [];
@@ -141,6 +143,17 @@ function hasStadium(observation, pattern) {
 }
 function opponentActiveHasTool(observation) { return list(opponentActive(observation)?.tools).length > 0; }
 function activeHasTool(observation) { return list(ownActive(observation)?.tools).length > 0; }
+function benchOpen(observation) {
+  const bench = list(observation?.ownPublic?.bench);
+  return bench.length < 5 || bench.some(slot => slot === null);
+}
+function ownThornsInPlay(observation) {
+  let count = IRON_THORNS.test(ownActive(observation)?.printing ?? '') ? 1 : 0;
+  for (const slot of list(observation?.ownPublic?.bench)) {
+    if (slot && IRON_THORNS.test(slot.printing ?? '')) count += 1;
+  }
+  return count;
+}
 function hasVoltCycloneFrontier(request) {
   return list(request?.actionFrontier?.items).some(item =>
     item?.kind === 'attack' && /Volt Cyclone/i.test(item.attackName ?? ''));
@@ -255,6 +268,21 @@ function fundingScore(item, request) {
   const card = item?.actorPrinting ?? '';
   if (!IRON_THORNS.test(active?.printing ?? '')) return 0;
 
+  if (item.kind === 'play-card' && matches(card, IRON_THORNS)) {
+    return benchOpen(observation) && ownThornsInPlay(observation) < 2 ? 235 : 0;
+  }
+  if (item.kind === 'play-card' && matches(card, NEST_BALL)) {
+    return itemAvailable(observation) && (ownDeckCount(observation) ?? 0) > 0 &&
+      benchOpen(observation) && ownThornsInPlay(observation) < 2 ? 210 : 0;
+  }
+  if (item.kind === 'play-card' && matches(card, HEAVY_BALL)) {
+    return itemAvailable(observation) && (ownDeckCount(observation) ?? 0) > 0 &&
+      benchOpen(observation) && ownThornsInPlay(observation) < 2 ? 185 : 0;
+  }
+  if (item.kind === 'play-card' && matches(card, CAPTURE_ENERGY)) {
+    if (!specialEnergyAvailable(observation) || !targetIsOwnIronThorns(item, observation)) return 0;
+    return benchOpen(observation) && ownThornsInPlay(observation) < 2 ? 175 : 105;
+  }
   if (item.kind === 'play-card' && matches(card, SPEED_LIGHTNING)) {
     return specialEnergyAvailable(observation) && targetIsOwnIronThorns(item, observation) &&
       !hasActiveEnergy(active, SPEED_LIGHTNING) ? 220 : 0;
@@ -455,6 +483,19 @@ function guzmaHalaPromptDecision(request) {
   return { kind: 'select-choices', tokens: selected.map(choice => choice.token) };
 }
 
+function ironThornsSearchPromptDecision(prompt) {
+  if (prompt?.promptType !== 'ChooseCardsPrompt') {
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
+  }
+  const row = list(prompt.choices).find(choice =>
+    choiceOwner(choice) === 'actor' && choiceZone(choice) === 'deck' &&
+    matches(choice, IRON_THORNS));
+  if (row) return { kind: 'select-choices', tokens: [row.token] };
+  const empty = list(prompt.choices).find(choice => choice?.kind === 'empty-selection');
+  if (empty) return { kind: 'select-choice', token: empty.token };
+  return { kind: 'abstain', reasonCode: 'NO_USEFUL_CARD_CHOICE' };
+}
+
 function tagCallPromptDecision(prompt) {
   if (prompt?.promptType !== 'ChooseCardsPrompt') {
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
@@ -479,6 +520,9 @@ function promptDecision(request) {
   if (VS_SEEKER.test(source)) return vsSeekerPromptDecision(prompt);
   if (GUZMA_HALA.test(source)) return guzmaHalaPromptDecision(request);
   if (TAG_CALL.test(source)) return tagCallPromptDecision(prompt);
+  if (NEST_BALL.test(source) || HEAVY_BALL.test(source) || CAPTURE_ENERGY.test(source)) {
+    return ironThornsSearchPromptDecision(prompt);
+  }
   return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
 }
 
@@ -519,5 +563,8 @@ module.exports = {
   fundingDecision,
   guzmaHalaPromptDecision,
   tagCallPromptDecision,
-  energyUnits
+  energyUnits,
+  ironThornsSearchPromptDecision,
+  ownThornsInPlay,
+  benchOpen
 };
