@@ -4,7 +4,7 @@
  * Generated from exact sources; do not edit this bundle directly.
  * agent43-regidrago-apex-choice.cjs 65b299d6d1eccc4dfaa1a8fafe777cbdc9a1511b
  * agent1-rank12-regidrago-opponent-policy-v2.cjs bfaee2205ea9d0c3b618948fe24ff81075d4ccda
- * agent3-rank32-regidrago-opponent-policy.cjs c6d6b59b2dadde9492cef8cfbd9f6a195ea59adf
+ * agent3-rank32-regidrago-opponent-policy.cjs 78b1271e7f19a88ccd12afd060d0ba5c86d29290
  * agent3-rank14-regidrago-opponent-policy.cjs 86a1afe73c632dfccb8ad0d388615d9a7679ff6c
  */
 const __rank14Modules = Object.freeze({
@@ -1171,9 +1171,17 @@ function canUseLegacyStar(observation) {
 }
 function prizeValue(pokemon) {
   const types=list(pokemon?.printed?.subtypes);
-  if(types.some(x=>['VMAX','TAG TEAM','V-UNION'].includes(x))) return 3;
-  if(types.some(x=>['V','VSTAR','GX','ex'].includes(x))) return 2;
-  return 1;
+  const name=print(pokemon);
+  let prizes=1;
+  if(types.some(x=>['VMAX','TAG TEAM','V-UNION'].includes(x)) ||
+      /^Mega .+ ex\b/i.test(name) ||
+      types.some(x=>/MEGA.*EX|MEGA_EVOLUTION_EX/i.test(x)))prizes=3;
+  else if(types.some(x=>['V','VSTAR','GX','ex','EX'].includes(x)))prizes=2;
+  // Treat unobserved once-per-game Legacy Energy consumption conservatively.
+  // One fewer Prize on a KO is not a terminal Prize condition.
+  if(list(pokemon?.energies).some(e=>/^Legacy Energy TWM 167\b/i.test(print(e))))
+    prizes=Math.max(1,prizes-1);
+  return prizes;
 }
 function remainingHP(pokemon) {
   return Number.isFinite(pokemon?.hp)&&Number.isFinite(pokemon?.damage)?
@@ -1248,15 +1256,29 @@ function targetFromGustChoice(choice,observation) {
 function aceSpecBlowerPriority(observation) {
   const own=observation?.ownPublic??{},opp=observation?.opponentPublic??{};
   const active=own.active,target=opp.active;
-  if(canAttackNow(active,observation)&&remainingHP(target)>0 &&
-      strongestCopiedDamage(observation,target)>=remainingHP(target) &&
-      prizeValue(target)>=Number(own.prizeCount??6))
-    return 0; // Already have immediate game-winning Prize, save the ACE SPEC.
+  const canOHKO=canAttackNow(active,observation)&&remainingHP(target)>0 &&
+    strongestCopiedDamage(observation,target)>=remainingHP(target);
+  const prizeNeed=Number(own.prizeCount??6);
+  const protection=list(target?.energies).filter(e=>
+    /^Legacy Energy TWM 167\b/i.test(print(e)));
+  if(canOHKO&&protection.length) {
+    const cleared={...target,energies:list(target.energies).filter(e=>
+      !/^Legacy Energy TWM 167\b/i.test(print(e)))};
+    // Megaton's all-Special-Energy removal can convert an otherwise
+    // nonterminal KO into a same-turn Prize win. This discrete win line
+    // dominates saving the ACE SPEC or attacking through Legacy Energy.
+    if(prizeValue(target)<prizeNeed&&prizeValue(cleared)>=prizeNeed)
+      return 385;
+  }
+  if(canOHKO&&prizeValue(target)>=prizeNeed)
+    return 0; // Already winning; save the ACE SPEC.
   const energy=list(opp.active?.energies)
     .concat(list(opp.bench).flatMap(p=>list(p?.energies)));
-  const special=energy.filter(e=>
-    /^(?:Double Dragon Energy|Double Colorless Energy|Triple Acceleration Energy|Mystery Energy|Prism Energy|Aurora Energy|Rapid Strike Energy|Fusion Strike Energy)\b/i.test(print(e)) ||
-    /Special Energy/i.test(print(e))).length;
+  // Basic Energy has exactly one of the nine canonical type names; unlike
+  // a finite handpicked list this detects Jet, Strong, Legacy, Double Dragon,
+  // etc. as Special Energy from the actor-visible printing alone.
+  const basicEnergyName=/^(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy\b/i;
+  const special=energy.filter(e=>print(e)!=='' && !basicEnergyName.test(print(e))).length;
   const tools=slots(opp).reduce((n,p)=>n+list(p.tools).length,0);
   const temple=list(opp.stadium).concat(list(own.stadium))
     .some(st=>/^Temple of Sinnoh ASR 155\b/i.test(print(st)));
@@ -1314,6 +1336,46 @@ function retreatToAttackerPriority(action,observation) {
       list(target.energies).length>=1)return 115;
   return 0;
 }
+function crispinAccelerationPriority(observation) {
+  const own=observation?.ownPublic??{};
+  const targets=slots(own).filter(p=>
+    /^Regidrago V(?:STAR)? SIT 13[56]\b/i.test(print(p)) &&
+    apexTypedDeficit(p,observation)>0);
+  if(!targets.length)return 0;
+  const desired=targets.some(p=>/^Regidrago VSTAR SIT 136\b/i.test(print(p)));
+  const funding=Math.max(...targets.map(p=>apexTypedDeficit(p,observation)));
+  return 235+(desired?25:0)+Math.min(15,funding*5);
+}
+function crispinDeckEnergyChoice(prompt,observation,choices) {
+  const meta=prompt.publicMetadata??{};
+  const min=meta.minimumCount,max=meta.maximumCount;
+  if(meta.selectionType!=='card-combination' || meta.sourceZone!=='deck' ||
+      !Number.isSafeInteger(min)||!Number.isSafeInteger(max) ||
+      min<0||max<min)return null;
+  const basics=list(choices).filter(c=>
+    c.kind==='card'&&typeof c.token==='string' &&
+    /^(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy\b/i.test(print(c)));
+  const seen=new Set(),selected=[];
+  // Paper Crispin requires different basic types: do not select two Grass
+  // just because both are highly ranked in an untyped search heuristic.
+  const ranked=basics.slice().sort((a,b)=>{
+    const rank=x=>/^Fire Energy\b/i.test(print(x))?3:
+      (/^Grass Energy\b/i.test(print(x))?2:1);
+    return rank(b)-rank(a);
+  });
+  for(const c of ranked){
+    const m=print(c).match(/^(.+?) Energy\b/i);
+    const type=m?.[1]?.toLowerCase();
+    if(!type||seen.has(type))continue;
+    seen.add(type);selected.push(c);
+    if(selected.length>=max)break;
+  }
+  if(selected.length>=Math.max(1,min))
+    return {kind:'select-choices',tokens:selected.map(c=>c.token)};
+  const none=choices.find(c=>c.kind==='empty-selection'&&typeof c.token==='string');
+  return min===0&&none?{kind:'select-choice',token:none.token}:
+    {kind:'abstain',reasonCode:'RANK32_CRISPIN_NO_DISTINCT_BASIC_TYPES'};
+}
 function scoreAction(action, request) {
   const obs = request?.observation ?? {};
   const own = obs.ownPublic ?? {};
@@ -1322,6 +1384,8 @@ function scoreAction(action, request) {
   const hand = list(obs.ownHand).length;
   const active = own.active;
   const enabledVstar = slots(own).some(p => /^Regidrago VSTAR SIT 136\b/i.test(print(p)));
+  if(action.kind==='play-card'&&/^Crispin SCR 133\b/i.test(name))
+    return crispinAccelerationPriority(obs);
   if(action.kind==='retreat') return retreatToAttackerPriority(action,obs);
   if(action.kind==='play-card'&&/^Regidrago VSTAR SIT 136\b/i.test(name))
     return evolveRegidragoPriority(action,obs);
@@ -1701,6 +1765,26 @@ function promptDecision(request) {
       return gustTargetPriority(target,obs,attacker);
     },min,Math.min(max,1),'RANK32_GUST_NO_LETHAL_TARGET');
   }
+  if (/crispin/.test(source)) {
+    if(p.promptType==='ChooseCardsPrompt' && meta.sourceZone==='deck') {
+      const picked=crispinDeckEnergyChoice(p,obs,choices);
+      if(picked!==null)return picked;
+    }
+    if(p.promptType==='ChoosePokemonPrompt' && meta.selectionType==='pokemon')
+      return chooseMany(choices,c=>{
+        if(c?.publicMetadata?.ownerSeat!=='actor')return 0;
+        const target=targetFromGustChoice(c,obs);
+        if(!target || !/^Regidrago V(?:STAR)? SIT 13[56]\b/i.test(print(target)))
+          return 0;
+        const deficit=apexTypedDeficit(target,obs);
+        return deficit>0? 220+
+          (/^Regidrago VSTAR SIT 136\b/i.test(print(target))?50:0)
+          -Math.min(20,deficit*4):0;
+      },min,Math.min(max,1),'RANK32_CRISPIN_NO_ENERGY_TARGET');
+    // Do not attempt unknown intermediate energy-to-hand prompt families:
+    // only native-offered, correctly projected token types are supported.
+    return {kind:'abstain',reasonCode:'RANK32_CRISPIN_UNPROJECTED'};
+  }
   if (/cynthia\s*&\s*caitlin/.test(source)) {
     if (p.promptType === 'ChooseCardsPrompt' &&
         meta.selectionType === 'card-combination') {
@@ -1831,7 +1915,8 @@ module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
   isSourceSupporter,cynthiaRecoverPriority,
   legacyRecoverPriority,canUseLegacyStar,superRodRecoverPriority,estimatedDragonDamage,
   strongestCopiedDamage,canAttackNow,tacticalGustScore,gustTargetPriority,targetFromGustChoice,
-  aceSpecBlowerPriority,muscleBandPriority,evolveRegidragoPriority,retreatToAttackerPriority};
+  aceSpecBlowerPriority,muscleBandPriority,evolveRegidragoPriority,retreatToAttackerPriority,
+  prizeValue,crispinAccelerationPriority,crispinDeckEnergyChoice};
 
 },
 "./agent3-rank14-regidrago-opponent-policy.cjs": function(require, module, exports) {
