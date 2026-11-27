@@ -190,8 +190,8 @@ for(const seat of [0,1]){
     const state={players:seat===0?[own,opponent]:[opponent,own],
       activePlayer:seat,turn:4,phase:2,prompts:[]};
     const view=contract.actorObservation(state,seat);
-    assert.equal(view.opponentPublic.active.publicRestrictions.terminalOutcomeUncertain,true);
-    assert.equal(view.ownPublic.active.publicRestrictions.terminalOutcomeUncertain,false);
+    assert.equal(view.opponentPublic.active.publicRestrictions.incomingTerminalUncertain,true);
+    assert.equal(view.ownPublic.active.publicRestrictions.outgoingTerminalUncertain,false);
     assert.doesNotThrow(()=>protocol.validateActorObservation(view,seat));
     for(const profile of profiles){
       const policy=worker.createPolicy({role:'candidate',seat,
@@ -202,7 +202,7 @@ for(const seat of [0,1]){
       // The old actor projection omitted Snow Mirage's active public effect:
       // the same worker falsely calls 250 printed Max Geist damage a final KO.
       const old=JSON.parse(JSON.stringify(view));
-      delete old.opponentPublic.active.publicRestrictions.terminalOutcomeUncertain;
+      delete old.opponentPublic.active.publicRestrictions.incomingTerminalUncertain;
       const erroneous=policy.decideWithAudit(request(seat,old));
       assert.deepEqual(erroneous.decision,{kind:'select-action',token:'hit'});
       assert.equal(erroneous.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
@@ -212,13 +212,31 @@ for(const seat of [0,1]){
     opponent.active.preventDamageNextTurn=null;
     opponent.active.damageReductionNextTurn=80;
     const reduced=contract.actorObservation(state,seat);
-    assert.equal(reduced.opponentPublic.active.publicRestrictions.terminalOutcomeUncertain,true);
+    assert.equal(reduced.opponentPublic.active.publicRestrictions.incomingTerminalUncertain,true);
     opponent.active.damageReductionNextTurn=0;
     const unprotected=contract.actorObservation(state,seat);
-    assert.equal(unprotected.opponentPublic.active.publicRestrictions.terminalOutcomeUncertain,false);
+    assert.equal(unprotected.opponentPublic.active.publicRestrictions.incomingTerminalUncertain,false);
+    // Guard direction matters: an HP buff on the attacker and a Growl-like
+    // outgoing damage reduction on the defender do not prevent our KO.
+    own.active.hpBonus=70;
+    opponent.active.attackDamageReductionNextTurn=40;
+    const orthogonal=contract.actorObservation(state,seat);
+    assert.equal(orthogonal.ownPublic.active.publicRestrictions.incomingTerminalUncertain,true);
+    assert.equal(orthogonal.ownPublic.active.publicRestrictions.outgoingTerminalUncertain,false);
+    assert.equal(orthogonal.opponentPublic.active.publicRestrictions.outgoingTerminalUncertain,true);
+    assert.equal(orthogonal.opponentPublic.active.publicRestrictions.incomingTerminalUncertain,false);
+    for(const profile of profiles){
+      const policy=worker.createPolicy({role:'candidate',seat,
+        policyVersion:worker.POLICY_VERSION,config:profile});
+      const result=policy.decideWithAudit(request(seat,orthogonal));
+      assert.deepEqual(result.decision,{kind:'select-action',token:'hit'});
+      assert.equal(result.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+    }
+    own.active.hpBonus=0;
+    opponent.active.attackDamageReductionNextTurn=0;
     // Reject structurally invalid/forged terminal safety claims at the worker gate.
     const malformed=JSON.parse(JSON.stringify(view));
-    malformed.opponentPublic.active.publicRestrictions.terminalOutcomeUncertain='false';
+    malformed.opponentPublic.active.publicRestrictions.incomingTerminalUncertain='false';
     assert.throws(()=>protocol.validateActorObservation(malformed,seat));
   });
 }
