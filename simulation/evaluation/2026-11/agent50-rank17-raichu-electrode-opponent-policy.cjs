@@ -2626,34 +2626,51 @@ function r17OneBombRainWindow(request){
 // state change. Avoids stacking two Abilities into a fictitious root action.
 function r17TwoBombRainWindow(request){
   const v=request?.observation,a=active(own(v));
-  if(!v||r17Key(a)!=='raichu'||
-     r17NeedTempleRemoval(v)||list(own(v).stadium).length||
+  if(!v||r17NeedTempleRemoval(v)||list(own(v).stadium).length||
      list(opponent(v).stadium).length||
      !Number.isSafeInteger(own(v).prizeCount)||
      !Number.isSafeInteger(opponent(v).prizeCount)||
-     opponent(v).prizeCount<=4||!r17RainWindow(v,a))return null;
+     opponent(v).prizeCount<=4)return null;
   const bench=list(own(v).bench),live=r17LiveBombs(v);
-  const sources=bench.map((q,index)=>({q,index})).filter(
+  const raichuActive=r17Key(a)==='raichu';
+  const electrodeActive=r17Key(a)==='electrode';
+  if(!raichuActive&&!electrodeActive)return null;
+  const benchElectrodes=bench.map((q,index)=>({q,index})).filter(
     entry=>r17Key(entry.q)==='electrode');
-  if(sources.length!==2||sources.some(x=>!live.includes(x.q)))return null;
+  const benchRaichus=bench.map((q,index)=>({q,index})).filter(
+    entry=>r17Key(entry.q)==='raichu');
+  // Active Raichu + two Benched Electrode need no promotion. If Electrode
+  // is Active, exactly one further Benched Electrode and one Benched
+  // Raichu are required; promote that Raichu after the first self-KO.
+  const sources=raichuActive?
+    benchElectrodes.map(row=>({...row,zone:'bench'})):
+    [{q:a,index:0,zone:'active'},
+      ...benchElectrodes.map(row=>({...row,zone:'bench'}))];
+  const target=raichuActive?{q:a,index:0,zone:'active'}:
+    benchRaichus.length===1?{...benchRaichus[0],zone:'bench'}:null;
+  if(!target||!r17RainWindow(v,target.q)||sources.length!==2||
+     (raichuActive?benchElectrodes.length!==2:
+       benchElectrodes.length!==1||benchRaichus.length!==1)||
+     sources.some(x=>!live.includes(x.q)))return null;
   const items=list(request.actionFrontier?.items);
-  const actions=sources.map(({q,index})=>items.find(x=>
+  const actions=sources.map(({q,index,zone})=>items.find(x=>
     x.kind==='use-ability'&&r17Key(x)==='electrode'&&
     metadata(x).abilityName==='Extra Energy Bomb'&&
-    metadata(x).sourceZone==='bench'&&metadata(x).sourceIndex===index&&
+    metadata(x).sourceZone===zone&&
+    (zone==='active'||metadata(x).sourceIndex===index)&&
     metadata(x).abilityLive!==false&&metadata(x).abilitySuppressed!==true));
   if(actions.some(x=>!x))return null;
   const disc=list(own(v).discard);
   const discard=disc.map((c,index)=>({
     printing:printingValue(c),token:'discard-'+index
   })).filter(x=>R17_ENERGY.has(r17Key(x.printing)));
-  const attached=list(a.energies).map((c,index)=>({
+  const attached=list(target.q.energies).map((c,index)=>({
     printing:printingValue(c),token:'attached-'+index
   }));
   if(discard.length<6||discard.length>12||
      attached.length+discard.length>12||
      attached.some(x=>!R17_ENERGY.has(r17Key(x.printing))))return null;
-  const targets=r17VisibleRainTargets(v,a);
+  const targets=r17VisibleRainTargets(v,target.q);
   if(!targets||targets.length>9||targets.some(t=>{
     const q=t.zone==='active'?active(opponent(v)):opponent(v).bench?.[t.index];
     return !q||list(q.tools).length||q.publicDamageEffects!==undefined&&(
@@ -2679,8 +2696,8 @@ function r17TwoBombRainWindow(request){
      full.attachTokens.length<6)return null;
   const first=full.attachTokens.slice(0,5);
   return {
-    action:actions[0],benchIndex:0,targetZone:'active',
-    benchPrinting:printingValue(a),requiresPromotion:false,
+    action:actions[0],benchIndex:target.index,targetZone:target.zone,
+    benchPrinting:printingValue(target.q),requiresPromotion:electrodeActive,
     plan:{...full,attachTokens:first},
     discardPrintings:new Map(discard.map(d=>[d.token,d.printing]))
   };
@@ -2826,12 +2843,16 @@ function r17CreatePolicy({role,seat,policyVersion,config}) {
         return {kind:'select-action',token:actual.action.token};
       }
       const decision=rain.stage==='two-bomb-transfer'?
-        r17BombAttachDecision(request,rain):rain.stage==='bomb-transfer'?
+        r17BombAttachDecision(request,rain):rain.stage==='two-bomb-promotion'?
+        r17BombPromoteDecision(request,rain):rain.stage==='bomb-transfer'?
         r17BombAttachDecision(request,rain):rain.stage==='bomb-promotion'?
         r17BombPromoteDecision(request,rain):rain.stage==='discard'?
         r17RainEnergyDecision(request,rain):r17RainPacketsDecision(request,rain);
       if(!decision){rain=null;return r17Abstain('R17_UNTRUSTED_PROMPT');}
       if(rain.stage==='two-bomb-transfer')
+        rain={...rain,stage:rain.requiresPromotion?
+          'two-bomb-promotion':'two-bomb-next-root',sequence:request.sequence};
+      else if(rain.stage==='two-bomb-promotion')
         rain={...rain,stage:'two-bomb-next-root',sequence:request.sequence};
       else if(rain.stage==='bomb-transfer')
         rain={...rain,stage:rain.requiresPromotion?
