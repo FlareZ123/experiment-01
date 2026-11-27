@@ -366,3 +366,59 @@ test('V3 optional Cynthia hand discard keeps Double Dragon and chooses empty sel
     hand:['Double Dragon Energy ROS 97'],requestId:'rank32-cynthia-preserve-dde'});
   assert.deepEqual(checked(req),{kind:'select-choice',token:'none'});
 });
+
+
+test('V3 Legacy Star root checks deck safety before consuming one-use VSTAR Power',()=>{
+  const own=player({
+    active:pokemon('Regidrago VSTAR SIT 136',{
+      subtypes:['VSTAR'],stage:'STAGE_1'
+    }),
+    discard:['Double Dragon Energy ROS 97']
+  });
+  const items=[
+    {token:'star',kind:'use-ability',actorPrinting:'Regidrago VSTAR SIT 136',
+      publicMetadata:{abilityName:'Legacy Star',isOwnerVisible:true}},
+    {token:'pass',kind:'pass'}
+  ];
+  const req=root(0,{own,items,hand:['Grass Energy MEE 9'],requestId:'rank32-vstar-deck'});
+  assert.deepEqual(checked(req),{kind:'select-action',token:'star'});
+  own.deckCount=6;
+  assert.deepEqual(checked(req),{kind:'select-action',token:'pass'});
+});
+
+test('V3 Legacy Star recovery preserves copied Goodra and Dragonite donors',()=>{
+  const p={
+    schema:protocol.PROMPT_SCHEMA,actingSeat:0,promptType:'ChooseCardsPrompt',
+    description:'Choose up to two cards from discard pile',
+    source:{classification:'actor-choice',sourceKind:'card-effect',
+      sourcePrinting:'Regidrago VSTAR SIT 136',effectName:'Legacy Star'},
+    choices:[
+      {token:'goodra',kind:'card',printing:'Hisuian Goodra VSTAR LOR 136',
+        label:'Hisuian Goodra VSTAR',publicMetadata:{
+          selectionIndex:0,selectedCount:1,sourceZone:'discard',
+          ownerSeat:'actor',isOwnerVisible:true}},
+      {token:'dde',kind:'card',printing:'Double Dragon Energy ROS 97',
+        label:'Double Dragon Energy',publicMetadata:{
+          selectionIndex:1,selectedCount:1,sourceZone:'discard',
+          ownerSeat:'actor',isOwnerVisible:true}},
+      {token:'dragonite',kind:'card',printing:'Mega Dragonite ex ASC 152',
+        label:'Mega Dragonite ex',publicMetadata:{
+          selectionIndex:2,selectedCount:1,sourceZone:'discard',
+          ownerSeat:'actor',isOwnerVisible:true}},
+      {token:'none',kind:'empty-selection',label:'Select none'}
+    ],publicMetadata:{
+      selectionType:'card-combination',sourceZone:'discard',ownerSeat:'actor',
+      isOwnerVisible:true,minimumCount:0,maximumCount:2,
+      allowCancel:false,isSecret:false
+    }
+  };
+  const own=player({
+    active:pokemon('Regidrago VSTAR SIT 136',{energies:['Grass Energy MEE 9']}),
+    discard:['Double Dragon Energy ROS 97',
+      'Hisuian Goodra VSTAR LOR 136','Mega Dragonite ex ASC 152']
+  });
+  const req=root(0,{own,prompt:p,items:[],requestId:'rank32-vstar-recovery'});
+  assert.deepEqual(checked(req),{kind:'select-choices',tokens:['dde']});
+  p.choices=p.choices.filter(c=>c.token!=='dde');
+  assert.deepEqual(checked(req),{kind:'select-choice',token:'none'});
+});
