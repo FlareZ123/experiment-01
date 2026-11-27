@@ -141,7 +141,7 @@ Then classify the proposal:
 This method explains the corrected state of the repository:
 
 - retain exact New Moon Lockbreaker v1 as the preferred fixed 60;
-- use Agent1's 101-case actor-visible contract to measure whether current-policy failures are frequent and decisive;
+- use Agent1's 105-case actor-visible contract to measure whether current-policy failures are frequent and decisive;
 - preserve Agent13's Sky→Guzma v2 as a material challenger with explicit reopen criteria;
 - do not promote the challenger from the raw both-Dusclops-Prized percentage alone.
 
