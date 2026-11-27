@@ -452,8 +452,10 @@ function r17VipValue(key,view) {
        (r17CoreBaseReady(view,'pikachu')||r17Board(view,'raichu')||r17CoreBaseReady(view,'ditto')))return 180;
   }
   if(key==='pikachu'&&!r17Board(view,'pikachu')&&!r17Board(view,'raichu')&&!r17Hand(view,'pikachu'))return 290;
-  if(key==='ditto'&&!r17Board(view,'ditto')&&!r17Hand(view,'ditto')&&!r17BasicLock(view)&&
-    r17MissingCore(view).length>0)return 190;
+  if(key==='ditto'&&!r17Board(view,'ditto')&&!r17Hand(view,'ditto')&&!r17BasicLock(view)){
+    if(r17MissingCore(view).length>0)return 190;
+    if(r17SecondBombUseful(view)&&r17BoardCount(view,'voltorb')+r17BoardCount(view,'electrode')+r17HandCount(view,'voltorb')<2)return 165;
+  }
   if(key==='unown'&&r17UnownUseful(view))return 150;
   if(key==='marshadow'&&r17NeedTempleRemoval(view)&&!r17Board(view,key))return 210;
   // Squawk and Seize is usable from play on own first turn, not a hand-play trigger.
@@ -476,7 +478,8 @@ function r17VipChoices(prompt,view) {
     const p=r17BoardCount(view,'pikachu')+r17BoardCount(view,'raichu')+heldP+picked('pikachu');
     if(key==='voltorb')return v===0?300:v===1&&r17SecondBombUseful(view)&&(p>0||picked('ditto')>0||r17Board(view,'ditto'))?180:0;
     if(key==='pikachu')return p===0?290:0;
-    if(key==='ditto')return !picked(key)&&!r17Board(view,key)&&!r17Hand(view,key)&&!r17BasicLock(view)&&(p===0||v===0)?190:0;
+    if(key==='ditto')return !picked(key)&&!r17Board(view,key)&&!r17Hand(view,key)&&!r17BasicLock(view)?
+      (p===0||v===0?190:r17SecondBombUseful(view)&&v<2?165:0):0;
     if(key!=='unown'&&picked(key))return 0;
     return r17VipValue(key,view);
   };
@@ -654,8 +657,8 @@ function r17ScorePlay(item,view) {
     return n===1&&r17SecondBombUseful(view)&&r17Space(view)>missingP?185:0;
   }
   if(k==='pikachu')return r17Space(view)>0&&!r17Board(view,'pikachu')&&!r17Board(view,'raichu')?310:0;
-  if(k==='ditto')return r17Space(view)>0&&!r17Board(view,k)&&!r17BasicLock(view)&&
-    r17MissingCore(view).length>0?190:0;
+  if(k==='ditto')return r17Space(view)>0&&!r17Board(view,k)&&!r17BasicLock(view)?
+    (r17MissingCore(view).length>0?190:r17SecondBombUseful(view)&&r17BoardCount(view,'voltorb')+r17BoardCount(view,'electrode')+r17HandCount(view,'voltorb')<2?165:0):0;
   if(k==='electrode'||k==='raichu')return m.targetSeat==='actor'&&
     (k==='electrode'?t==='voltorb'&&r17BoardCount(view,'electrode')<(r17SecondBombUseful(view)?2:1):
       t==='pikachu'&&!r17Board(view,'raichu'))?340:0;
@@ -728,6 +731,62 @@ function r17Option(prompt,index) {
   const c=list(prompt.choices).find(x=>x.kind==='option'&&metadata(x).choiceIndex===index);
   return c?{kind:'select-choice',token:c.token}:r17Abstain('R17_OPTION_UNAVAILABLE');
 }
+function r17SetupActiveValue(key,view) {
+  const goingSecond=Number.isSafeInteger(view.turnSeat)&&view.turnSeat!==view.actorSeat;
+  if(key==='gengar'&&goingSecond&&r17Hand(view,'unit'))return 1000;
+  if(key==='klefki'){
+    const mobility=r17Hand(view,'rope')||r17Hand(view,'uturn');
+    const selfLock=r17Hand(view,'unown')||r17Hand(view,'squawk')||r17Hand(view,'ditto');
+    if(mobility||!selfLock)return 800;
+    return 400; // avoid trapping the own draw engine behind Basic lock
+  }
+  if(key==='unown')return 650;
+  if(key==='marshadow')return 600;
+  // Protect scarce species-compatible bases and multi-Prize support bodies.
+  if(key==='voltorb')return 350;
+  if(key==='ditto')return 300;
+  if(key==='pikachu')return 250;
+  if(key==='squawk')return 150;
+  if(key==='gengar')return 100;
+  return 0;
+}
+function r17SetupChoices(prompt,view) {
+  const cards=r17ChoiceCards(prompt,'hand').filter(c=>R17_BASIC.has(r17Key(c)));
+  const m=metadata(prompt),initial=m.minimumCount===1;
+  const rows=[],used=new Set();
+  const add=c=>{if(c&&!used.has(c.token)){rows.push(c);used.add(c.token);return true;}return false;};
+  if(initial){
+    if(!add(r17Rank(cards,c=>r17SetupActiveValue(r17Key(c),view))[0]))return r17Abstain('R17_BAD_SETUP');
+  }
+  const cap=Math.min(m.maximumCount,(initial?1:0)+r17Space(view));
+  const count=k=>r17BoardCount(view,k)+rows.filter(c=>r17Key(c)===k).length;
+  const find=k=>cards.find(c=>!used.has(c.token)&&r17Key(c)===k);
+  const take=k=>rows.length<cap&&add(find(k));
+  // Both natural core bases, then a second Electrode base when the four
+  // Prize self-KO budget remains viable. A Ditto only fills one deficit.
+  if(count('pikachu')+count('raichu')===0)take('pikachu');
+  if(count('voltorb')+count('electrode')===0)take('voltorb');
+  const needE=r17SecondBombUseful(view)?2:1;
+  if(count('voltorb')+count('electrode')<needE&&
+     (count('pikachu')+count('raichu')+count('ditto')>0))take('voltorb');
+  if(count('ditto')===0&&
+    (count('pikachu')+count('raichu')===0||count('voltorb')+count('electrode')<needE))take('ditto');
+  const activeKey=initial?r17Key(rows[0]):r17Key(active(own(view)));
+  // Keep space for a missing line rather than fill all five Bench slots.
+  const reserve=Number(count('pikachu')+count('raichu')===0&&count('ditto')===0)+
+    Number(count('voltorb')+count('electrode')===0);
+  if(activeKey!=='klefki'){
+    while(rows.length<cap-reserve&&count('unown')-(activeKey==='unown'?1:0)<2&&take('unown')){}
+  }
+  // If there is an actual second Basic available, do not begin with a
+  // gratuitously sole Active. Prefer a one-Prize backup to support ex/GX.
+  const alreadyBench=benchCount(own(view))+rows.length-(initial?1:0);
+  if(alreadyBench===0&&rows.length<cap){
+    for(const key of ['unown','marshadow','klefki','voltorb','pikachu','ditto','squawk','gengar'])
+      if(take(key))break;
+  }
+  return r17Multi(prompt,rows);
+}
 function r17Setup(request) {
   const p=request.prompt,v=request.observation,s=p.source;
   if(v.phase!==1||s.sourcePrinting!==null||s.effectName!==p.description)return r17Abstain('R17_BAD_SETUP');
@@ -741,12 +800,7 @@ function r17Setup(request) {
     return Number.isSafeInteger(count)&&count>0&&c?{kind:'select-choice',token:c.token}:r17Abstain('R17_BAD_MULLIGAN_OPTION');
   }
   if(s.effectName==='CHOOSE_STARTING_POKEMONS'&&p.promptType==='ChooseCardsPrompt') {
-    const rows=r17ChoiceCards(p,'hand').filter(c=>R17_BASIC.has(r17Key(c)));
-    // Native order, not an assertion of optimal Active selection. Avoid
-    // setup-only overcommitment of multi-Prize bodies; initial minimum=1.
-    let picked=rows.filter(c=>!['gengar','squawk','klefki'].includes(r17Key(c)));
-    if(metadata(p).minimumCount===1&&picked.length===0)picked=rows.slice(0,1);
-    return r17Multi(p,picked);
+    return r17SetupChoices(p,v);
   }
   return r17Abstain('R17_UNSUPPORTED_SETUP');
 }
