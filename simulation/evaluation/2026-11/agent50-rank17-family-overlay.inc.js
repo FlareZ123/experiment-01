@@ -632,6 +632,63 @@ function r17ProtectedHand(view) {
       (k==='raichu'&&!r17Board(view,'raichu'))||(k==='electrode'&&!r17Board(view,'electrode'));
   });
 }
+// Value the hand's actual remaining connectors, not its raw size.
+// Draw-discard is a fallback after funded evolution/recovery and manual
+// attachment, but a seven-card hand of redundant Energy is not "healthy".
+function r17HandUtility(view,excluded=null) {
+  const counts=r17CardCounts(hand(view))||{};
+  if(excluded)counts[excluded]=Math.max(0,(counts[excluded]||0)-1);
+  let value=0;
+  for(const [key,n] of Object.entries(counts)){
+    if(!n)continue;
+    if(R17_ENERGY.has(key)){value+=Math.min(n,1)*0.5;continue;}
+    if(R17_CORE_KEYS.includes(key)){
+      value+=Math.min(n,2)*((key==='voltorb'||key==='pikachu')?1.4:1.7);continue;
+    }
+    if(key==='vip'){if(r17First(view)&&r17Space(view)>0)value+=Math.min(n,2)*1.5;continue;}
+    if(key==='compressor'){value+=r17CompressorGain(view)>0?Math.min(n,2)*1.5:0.3;continue;}
+    if(key==='carrier'){value+=r17CoreAccess(view,{}, {carrier:1}).carrierKeys.length?1.6:0.6;continue;}
+    if(key==='stretcher'){value+=r17CoreAccess(view,{}, {stretcher:1}).stretcherKeys.length?1.6:0.6;continue;}
+    if(key==='secret'){value+=r17SafeDiscards(hand(view),view,'secret').length>=3?2:0.6;continue;}
+    if(key==='mail'){value+=1.1;continue;}
+    if(key==='unown'){value+=r17Space(view)>0&&r17UnownUseful(view)?Math.min(n,2)*0.8:0.3;continue;}
+    if(key==='ditto'){value+=r17MissingCore(view).length&&!r17AbilityBlocked(view,'ditto')?1.5:0.3;continue;}
+    if(key==='heavy'){value+=r17MissingCore(view).length?1:0.3;continue;}
+    if(key==='rope'||key==='sight'||key==='pokestop'){value+=0.7;continue;}
+    if(key==='research'||key==='carmine'){value+=0.4;continue;}
+    value+=0.5;
+  }
+  return value;
+}
+function r17DrawDiscardScore(view,draw,excluded=null) {
+  if(r17Deck(view)<=draw||r17ProtectedHand(view))return 0;
+  // Do not discard a held singleton Ditto that is the only current base
+  // alternative, even when the rest of the hand has little value.
+  if(r17Hand(view,'ditto')&&r17MissingCore(view).length&&!r17Board(view,'ditto'))return 0;
+  const p=active(own(view)),pressure=r17RainProjection(view,p);
+  if(pressure?.terminalProjection)return 0;
+  const utility=r17HandUtility(view,excluded);
+  const handAfter=Math.max(0,hand(view).length-Number(excluded!==null));
+  const benefit=draw*0.72-utility;
+  if(benefit<=0.6&&handAfter>=4)return 0;
+  return Math.max(0,Math.min(205,Math.round(95+25*benefit)));
+}
+function r17EarlyEnergyScore(key,target,view,p) {
+  if(!R17_ENERGY.has(key)||!p||list(p.energies).length>=2)return 0;
+  if(target==='gengar')return key==='unit'&&r17GengarPsychic(view,p)<2?210:0;
+  if(target!=='raichu'&&target!=='pikachu')return 0;
+  const ownP=own(view).prizeCount,oppP=opponent(view).prizeCount;
+  if(!Number.isSafeInteger(ownP)||!Number.isSafeInteger(oppP))return 0;
+  const safeBombs=Math.min(2,Math.max(0,Math.floor((oppP-1)/2)));
+  const canActivate=ownP>oppP||safeBombs>0&&ownP>oppP-2*safeBombs;
+  if(key!=='unit'&&!canActivate)return 0;
+  const base=key==='reversal'?225:key==='counter'?215:205;
+  // Reserve Psychic Unit for a credible first-turn Gengar attack if that
+  // alternative is already established. Otherwise preserve a manual card
+  // on the actual attacker before a full-hand discard.
+  if(key==='unit'&&r17First(view)&&slots(own(view)).some(q=>r17Key(q)==='gengar'&&r17GengarPsychic(view,q)<1))return 170;
+  return base;
+}
 function r17SafeDiscards(cards,view,excluded) {
   const counts=new Map();
   for(const c of hand(view)) {const k=r17Key(c);if(k)counts.set(k,(counts.get(k)||0)+1);}
@@ -1077,8 +1134,8 @@ function r17ScoreAbility(item,view) {
   }
   if(key==='squawk'&&name==='Squawk and Seize'){
     const p=r17OwnAbilitySlot(item,view,false);
-    return p&&!r17Suppressed(p,name)&&r17First(view)&&r17Deck(view)>=7&&
-      handCount(view)<=2&&!r17ProtectedHand(view)&&!r17AbilityBlocked(view,'squawk',p,name)?210:0;
+    return p&&!r17Suppressed(p,name)&&r17First(view)&&!r17AbilityBlocked(view,'squawk',p,name)?
+      r17DrawDiscardScore(view,6):0;
   }
   if(key==='ditto'&&name==='Almighty Evolution') {
     const p=r17OwnAbilitySlot(item,view,false);
@@ -1106,8 +1163,8 @@ function r17ScorePlay(item,view) {
     (k==='electrode'?t==='voltorb'&&r17BoardCount(view,'electrode')<(r17SecondBombUseful(view)?2:1):
       t==='pikachu'&&!r17Board(view,'raichu'))?340:0;
   if(k==='marshadow')return r17Space(view)>0&&r17NeedTempleRemoval(view)&&!r17AbilityBlocked(view,'marshadow')?300:0;
-  if(k==='squawk')return r17Space(view)>0&&r17First(view)&&r17Deck(view)>=7&&
-    handCount(view)<=3&&!r17ProtectedHand(view)&&!r17AbilityBlocked(view,'squawk')?190:0;
+  if(k==='squawk')return r17Space(view)>0&&r17First(view)&&!r17AbilityBlocked(view,'squawk')&&
+    !r17Hand(view,'research')&&!r17Hand(view,'carmine')&&r17DrawDiscardScore(view,6,'squawk')>0?190:0;
   if(k==='gengar')return r17Space(view)>0&&!r17Board(view,k)&&!gxUsed(view)&&r17Hand(view,'unit')?145:0;
   if(k==='vip'){const z=r17KnownOwnZones(view);return r17First(view)&&r17Space(view)>0&&(!z||Object.keys(z.deck).some(k=>r17VipValue(k,view)>0))?350:0;}
   if(k==='carrier')return r17CoreAccess(view).carrierKeys.length||
@@ -1121,8 +1178,7 @@ function r17ScorePlay(item,view) {
     const payment=r17SecretPayment(hand(view),view,'secret');
     return payment.length>=3?(payment.some(c=>R17_ENERGY.has(r17Key(c)))&&r17RainWindow(view,active(own(view)))?380:155):0;
   }
-  if(k==='research'||k==='carmine')return !r17ProtectedHand(view)&&handCount(view)<=3&&
-    r17Deck(view)>=(k==='research'?8:6)?205:0;
+  if(k==='research'||k==='carmine')return r17DrawDiscardScore(view,k==='research'?7:5,k);
   if(k==='pokestop'&&/^Sky Field\b/i.test(r17Stadium(view))&&benchCount(own(view))>5)return 0;
   if(k==='pokestop')return r17Deck(view)>=12&&!r17NeedTempleRemoval(view)&&
     !/^Pok[eé]Stop\b/i.test(r17Stadium(view))?110:r17NeedTempleRemoval(view)?300:0;
@@ -1157,10 +1213,8 @@ function r17ScorePlay(item,view) {
     if(t==='klefki'&&m.targetZone==='active'&&r17Key(p)==='klefki'&&
       r17IsWob(active(opponent(view)))&&r17LiveHood(view,active(opponent(view)))&&
       list(p.energies).length===0)return 260+({unit:3,counter:2,reversal:1}[k]);
-    if(k==='unit'&&t==='gengar')return r17GengarPsychic(view,p)<2?210:0;
-    if(t==='raichu'||t==='pikachu')return k==='unit'?190:
-      Number.isSafeInteger(own(view).prizeCount)&&Number.isSafeInteger(opponent(view).prizeCount)&&
-      own(view).prizeCount>opponent(view).prizeCount?180:0;
+    const early=r17EarlyEnergyScore(k,t,view,p);
+    if(early>0)return early;
   }
   return 0;
 }
@@ -1322,7 +1376,7 @@ function r17Prompt(request) {
   if((key==='unown'&&effect==='Farewell Letter'||key==='marshadow'&&effect==='Resetting Hole'||
       key==='squawk'&&effect==='Squawk and Seize')&&type==='ConfirmPrompt') {
     const ok=key==='unown'?r17UnownUseful(v):key==='marshadow'?r17NeedTempleRemoval(v):
-      r17First(v)&&r17Deck(v)>=7&&!r17ProtectedHand(v);
+      r17First(v)&&r17DrawDiscardScore(v,6)>0;
     const c=list(p.choices).find(x=>x.kind==='confirm'&&x.label===(ok?'Yes':'No'));
     return c?{kind:'select-choice',token:c.token}:r17Abstain('R17_CONFIRM_OPTION_MISSING');
   }
@@ -1499,5 +1553,5 @@ module.exports = Object.freeze({
   SOURCE_ENTRY_JSON_SHA256:R17_PROFILE.sourceEntryJsonSha256,
   ENGINE_PIN:R17_PROFILE.enginePin,PROFILE:R17_PROFILE,createPolicy:r17CreatePolicy,
   scoreAction:r17Score,promptDecision:r17Prompt,bestAction:r17Best,
-  planRainTurn:r17PlanRainTurn,knownOwnZones:r17KnownOwnZones,ticketPlan:r17TicketPlan,planCoreAccess:r17CoreAccess,wobbuffetLive:r17WobLive,abilityBlocked:r17AbilityBlocked,liveBombs:r17LiveBombs,rainProjection:r17RainProjection,ropeRainPlan:r17RopeRainPlan,energyProvision:r17EnergyProvision,loadPlan:r17LoadPlan,activeLoadPlan:r17ActiveLoadPlan,secretPayment:r17SecretPayment,fundedRainProjection:r17FundedRainProjection,readyRainAttackers:r17ReadyRainAttackers,directPressure:r17DirectPressure,publicTrainerCount:r17PublicTrainerCount
+  planRainTurn:r17PlanRainTurn,knownOwnZones:r17KnownOwnZones,ticketPlan:r17TicketPlan,planCoreAccess:r17CoreAccess,wobbuffetLive:r17WobLive,abilityBlocked:r17AbilityBlocked,liveBombs:r17LiveBombs,rainProjection:r17RainProjection,ropeRainPlan:r17RopeRainPlan,energyProvision:r17EnergyProvision,loadPlan:r17LoadPlan,activeLoadPlan:r17ActiveLoadPlan,secretPayment:r17SecretPayment,fundedRainProjection:r17FundedRainProjection,readyRainAttackers:r17ReadyRainAttackers,directPressure:r17DirectPressure,publicTrainerCount:r17PublicTrainerCount,drawDiscardScore:r17DrawDiscardScore,handUtility:r17HandUtility
 });
