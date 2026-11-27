@@ -38,7 +38,7 @@ function activeScore(k,hand,all,second){
  if(k==='sudo')return 42;
  if(k==='koko')return 40;
  if(k==='marsh')return 30;
- if(k==='bird')return 25;
+ if(k==='bird')return 15; // Preserve Rebirth and avoid a costly Active retreat.
  if(k==='lele')return 22;
  if(k==='crobat')return 21;
  if(k==='dedenne')return 20;
