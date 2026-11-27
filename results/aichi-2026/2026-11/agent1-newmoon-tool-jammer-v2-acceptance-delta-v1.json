@@ -128,13 +128,44 @@
       "state": "Source uses Guzma to move BUS Vileplume off Active and replace candidate Tool-Jammer Dusclops with a chosen Benched Pokémon.",
       "must": "Recompute candidate Active, Latias/free-retreat or normal-retreat options, newly legal Basic attacks, and the source's future BUS re-lock.",
       "forbids": "Keeping Tool Jammer suppression active after its holder leaves Active or ignoring the one-turn unlock."
+    },
+    {
+      "id": "V15-JAMMER-CURSE-ACE",
+      "family": "rank15 Lopunny Vileplume",
+      "sourceRanks": [
+        15
+      ],
+      "state": "Prize state tied; full-HP BUS Vileplume Active with Hood; candidate Active Dusclops has Tool Jammer and two Psychic; second Dusclops and Ace Trainer are available.",
+      "must": "Use first Cursed Blast for 50 without target KO, settle Dusclops self-KO so Ace becomes legal, then compare Ace->Will-O-Wisp as a hand-compression lockbreak line.",
+      "forbids": "Checking Ace legality before the self-KO or assuming the 50 counters KO full BUS."
+    },
+    {
+      "id": "V15-JAMMER-ACE-RETREAT",
+      "family": "rank15 Lopunny Vileplume",
+      "sourceRanks": [
+        15
+      ],
+      "state": "Candidate executed Cursed Blast -> Ace Trainer -> Will-O-Wisp, but BUS Vileplume already has enough attached Energy to pay ordinary retreat.",
+      "must": "Keep ordinary retreat as a legal board-only dodge; Ace only compresses hand-based Guzma/Jet/resource routes.",
+      "forbids": "Treating the opponent's three-/four-card hand as preventing board-funded retreat."
+    },
+    {
+      "id": "V15-JAMMER-CURSE-KO-NOACE",
+      "family": "rank15 Lopunny Vileplume",
+      "sourceRanks": [
+        15
+      ],
+      "state": "From tied Prizes, the first Tool-Jammer-enabled Cursed Blast itself KOs an already-damaged BUS Vileplume.",
+      "must": "Settle candidate taking the BUS Prize and source taking the Dusclops Prize; do not force Ace if the resulting Prize relation makes it illegal; recognize the Basic-attack lock is already removed.",
+      "forbids": "Applying the full-HP Curse->Ace script to a KOing Blast."
     }
   ],
-  "totalCaseCountWithParent": 147,
+  "totalCaseCountWithParent": 150,
   "competitiveQualified": false,
   "claim99Point5": false,
   "supportingResults": [
     "results/strategy/2026-11/agent1-tool-jammer-v2-dci-access-policy.md",
-    "results/aichi-2026/2026-11/agent1-tool-jammer-v2-rank15-counterplay-stress-20261127.md"
+    "results/aichi-2026/2026-11/agent1-tool-jammer-v2-rank15-counterplay-stress-20261127.md",
+    "results/aichi-2026/2026-11/agent1-tool-jammer-v2-rank15-curse-ace-als-20261127.md"
   ]
 }
