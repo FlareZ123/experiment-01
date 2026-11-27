@@ -13,8 +13,8 @@
     "note": "Agent13 v1 already integrates Agent1's Raichu/Electrode delta. V2 adds uncovered rank2/rank5/rank9/rank19/rank30/rank31 families without changing the fixed 60."
   },
   "status": "actor-visible paper acceptance consolidation; no policy implementation, native game, competitive qualification, or win-rate claim",
-  "addedCaseCount": 89,
-  "totalCaseCount": 128,
+  "addedCaseCount": 94,
+  "totalCaseCount": 133,
   "addedCases": [
     {
       "id": "R2-DUAL-LOCK-RONDO",
@@ -850,6 +850,66 @@
       "state": "Opponent is under Horror House but has a legal already-in-play effect that changes its hand.",
       "must": "Resolve the board-only hand change and update public hand size before evaluating next-turn Poltergeist.",
       "forbids": "Freezing the hand size solely because cards cannot be played from hand."
+    },
+    {
+      "id": "THR-TPE-PAIR-PATH",
+      "family": "Iron Thorns",
+      "sourceRanks": [
+        6,
+        24,
+        29
+      ],
+      "state": "Iron Thorns Initialization active; candidate TPE can put Solrock+Lunatone onto Bench; Path is available; no separate Basic Ability suppressor is active.",
+      "must": "Recognize both pair Abilities remain live under Initialization and Path can then suppress opposing Initialization while candidate ignores the Stadium.",
+      "forbids": "Treating Initialization as suppression of Solrock/Lunatone."
+    },
+    {
+      "id": "THR-HORROR-POWERGLASS",
+      "family": "Iron Thorns",
+      "sourceRanks": [
+        6,
+        24,
+        29
+      ],
+      "state": "Fresh native Gengar has one Psychic, Powerglass attached, Basic Psychic in discard, GX unused and Horror House legal.",
+      "must": "After Horror House, resolve Powerglass end-turn attachment of the Basic Psychic to Gengar, leaving Poltergeist funded for the next candidate turn.",
+      "forbids": "Waiting for the next normal attachment or trying to attach TPE through Powerglass."
+    },
+    {
+      "id": "THR-LOCKED-VOLT140",
+      "family": "Iron Thorns",
+      "sourceRanks": [
+        6,
+        24,
+        29
+      ],
+      "state": "Opponent is under Horror House but has a currently funded Active Iron Thorns ex; candidate Gengar is full 240 HP.",
+      "must": "Allow the board-funded Volt Cyclone 140 during the locked turn and recognize Gengar survives one clean hit with 100 HP.",
+      "forbids": "Treating Horror House as an attack skip or treating one clean 140 as a KO."
+    },
+    {
+      "id": "THR-POLT-HAND-CEILING",
+      "family": "Iron Thorns",
+      "sourceRanks": [
+        6,
+        24,
+        29
+      ],
+      "state": "Candidate follow-up Gengar can use Poltergeist against 230-HP Iron Thorns; public opponent hand size is at most four and no damage modifier changes the ceiling.",
+      "must": "Reject a clean Poltergeist KO because maximum damage is at most 200.",
+      "forbids": "Using hidden Trainer identities or assuming trainer-heavy deck composition guarantees 250."
+    },
+    {
+      "id": "THR-GOING-FIRST-DAMAGED-POWERGLASS",
+      "family": "Iron Thorns",
+      "sourceRanks": [
+        6,
+        24,
+        29
+      ],
+      "state": "Candidate Gengar already took 140 before its Horror House turn; opponent retains a funded Thorns able to Volt Cyclone during the locked turn.",
+      "must": "Treat the second clean 140 as lethal and reject Horror/Powerglass as a survival line on that damaged Gengar.",
+      "forbids": "Transplanting the fresh-Gengar going-second line onto a damaged going-first state."
     }
   ],
   "authenticatedFamilyCoverage": {
@@ -912,7 +972,8 @@
     "Supporter value is continuation-specific: settle Prize legality first, preserve deterministic hands, exploit disappearing Supporter windows, and score Ace Trainer's opponent reset together with Night Watch rather than as draw volume.",
     "New Moon has 17 Basics (not 19 Pokémon-as-Basics); rank26 setup policy must distinguish lone-Active exposure from actual donk exposure and spend first-turn Bench access aggressively before returning to ordinary Bench-liability minimization.",
     "Connector routes preserve exact movement semantics: destination alone does not determine triggers; TPE direct deployment can bypass hand-play locks while forfeiting Wonder Tag, and Perfection donors are exact Pokémon-GX/EX rather than generic Rule Box bodies.",
-    "Opponent hand size is dual-use: compression improves denial but reduces Poltergeist ceiling; extra-Psychic Horror can enlarge/freeze the hand for Poltergeist, but hidden Trainer identities remain uncertain."
+    "Opponent hand size is dual-use: compression improves denial but reduces Poltergeist ceiling; extra-Psychic Horror can enlarge/freeze the hand for Poltergeist, but hidden Trainer identities remain uncertain.",
+    "Against exact Iron Thorns lists, TPE->Solrock/Lunatone->Path plus native Horror House can create a protected lock turn, and Powerglass can attach the second Basic Psychic after the attack; survival still depends on full-HP Gengar and actor-visible board attack damage."
   ],
   "implementationGate": {
     "required": [
@@ -940,7 +1001,8 @@
     "results/strategy/2026-11/agent1-newmoon-supporter-contention-policy-v1.md",
     "results/statistics/agent1-newmoon-rank26-opening-resilience-20261127.md",
     "results/strategy/2026-11/agent1-perfection-donor-deployment-semantics-v1.md",
-    "results/strategy/2026-11/agent1-poltergeist-hand-duality-policy-v1.md"
+    "results/strategy/2026-11/agent1-poltergeist-hand-duality-policy-v1.md",
+    "results/aichi-2026/2026-11/agent1-newmoon-thorns-path-powerglass-als-20261127.md"
   ],
   "competitiveQualified": false,
   "claim99Point5": false
