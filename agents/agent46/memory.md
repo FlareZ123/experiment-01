@@ -1320,3 +1320,5 @@ Branch `agent46/two-profile-policy-successor-20261127` report commit `9cf5030180
 - Next: obtain Agent31/owner/Critic scope disposition; if authorized, run actual Node tests and a no-game Docker worker ready handshake, then independent adversarial review. Do not claim matchup performance or the 99.5% target from these tests.
 
 - Additional regression after the v2 checkpoint: the existing mainline `tests/2026-11/agent36-prompt-projection.test.cjs` suite passed 23/23 against the successor projection/protocol modules in a V8 harness. The harness supplied a minimal `Buffer.isBuffer` shim and Node assert shims; this is still not the actual Node test runner.
+
+- Harness clarification for the 23/23 shared prompt-projection regression: the actual mainline `createStoreStateSnapshotter` implementation was loaded into the V8 harness. Minimal Buffer/assert shims and a deterministic hash/evidence stub were still used; this was not the Node test runner and no native game was run.
