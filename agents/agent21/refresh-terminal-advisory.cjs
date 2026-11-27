@@ -491,7 +491,7 @@ function adaptiveTerminal(terminal,input,context,options={}){
         fodder:fodderRoles.flatMap(k=>Array(h[ix(k)]).fill(k.slice(3))),
         fodderCertified:true,fodderDisjointFromModeledResources:true,
         ...(tutor?{tutors:{...tutor,knownDeckRoles:Object.fromEntries(Object.keys(tutor.rolePrintings).filter(k=>k!=="P").map(k=>[k,exactDeck[ix(k)]??0])),
-          heldExtra:Object.fromEntries(tutorExtras.map(k=>[k,h[ix(k)]])),
+          heldExtra:Object.fromEntries(tutorExtras.filter(k=>tutor.rolePrintings[k]).map(k=>[k,h[ix(k)]])),
           discardExtra:tutorState?.discardExtra??{},vstarAvailable:!tutorState?.starUsed}}:{})}:null;
       const prefixes=dev?devProvider(terminal,base,developmentInput,{...options,...callbacks,
         maxDevelopmentNodes:options.maxDevelopmentNodes??100,maxDevelopmentDepth:options.maxDevelopmentDepth??3,
@@ -502,7 +502,7 @@ function adaptiveTerminal(terminal,input,context,options={}){
         if(!isRoot)memo.set(key,result);
         return result;
       }
-      if(!prefixes.completeWithinModel){stats.cappedPrefixes++;omitted=true;}
+      if(!prefixes.completeWithinModel){stats.cappedPrefixes++;omitted=true;if(prefixes.reason)stats.lastPrefixRejection=prefixes.reason;}
       if(unknownGeometry){stats.unknownReturns++;omitted=true;}
       if(candidates.size>=limits.routes&&omitted)stats.cappedRoutes++;
       let best={lo:0,hi:0,path:null},upper=omitted?1:0;
