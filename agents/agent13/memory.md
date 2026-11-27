@@ -556,3 +556,32 @@ Next: finish v2 native effect audit and report, then consider selective integrat
 - Do not regress to “low Basic count proves Psychic Reserve weak.” A future v3e worker should optimize it as a Thorns-family branch, not redo the cross-architecture selection.
 - Current New Moon contract has 27 actor-visible cases at `results/aichi-2026/2026-11/agent13-newmoon-candidate-policy-acceptance-v1.json` (latest `9583eb69...`), plus individual reports for rank1, Regidrago, rank15, Thorns, Garbodor, rank26, Snorlax, and Secret Box.
 - Next task: adversarially audit the contract for impossible/mutually incompatible requirements on the **unchanged fixed 60**, prioritizing contradictions that could reverse retention rather than increasing case count.
+
+
+## 2026-11-27 — New Moon structural-repair checkpoint
+
+- Integrated Agent1's same-day Raichu/Electrode adversarial review rather than duplicating it. Added all 7 cases from `results/aichi-2026/2026-11/agent1-newmoon-raichu-acceptance-delta-v1.json` into Agent13's v1 acceptance contract at commit `640157291f4fc7640413acf6983899f124310620`; v1 contract reached **39** actor-visible cases.
+- Added Temple/TPE timing result `agent13-newmoon-temple-tpe-timing-20261127.md` (commit `32051a57...`): Temple of Sinnoh does not cancel TPE's attachment-time search, but attached TPE is Colorless/no-effect while Temple applies. Setup access != Psychic attack funding.
+- Added Silent Lab distinction `agent13-newmoon-silentlab-self-disable-20261127.md` (commit `14afbeea...`): Silent Lab removes Basic Lunatone's New Moon itself, so the pair cannot bootstrap through Lab. This differs from Path asymmetry. Added cases, bringing v1 contract to **32 before Raichu**, then 39 after Raichu.
+- Added cross-family policy priority synthesis `agent13-newmoon-cross-family-priority-resolution-20261127.md` (commit `e2c9fafc...`): immediate win/survival > legality > disappearing window > strongest opponent reply > reserve selected continuation > discrete tactical/Prize value > generic efficiency.
+- Structural v1 failure discovered: only two non-Basic Pokémon are Dusclops. Under rank15 BUS Active + AOR Item lock, if **both Dusclops are Prized**, all remaining attackers are Basic and Item switch/gust is unavailable. Raw both-specific-Dusclops six-Prize probability = **0.8474576%** (not matchup-loss probability).
+- First repair experiment `Counter Catcher -> Guzma` was frozen at `agent13-newmoon-lockbreaker-guzma-v2.json` (old hash fd6d0968...) then **rejected** at commit `5d14b762...`: it destroys the important Cursed Blast -> Ace Trainer + Counter Catcher same-turn comeback axis (Supporter + Item under the same behind-on-Prizes condition). Do not promote this rejected file.
+- Repair alternatives compared:
+  - third Dusclops: reduces all-Dusclops-Prized risk but does not solve own switching/positioning;
+  - Gladion: can recover Prized Dusclops but still does not move BUS or a trapped Active and consumes Supporter;
+  - adding Guzma while KEEPING Counter Catcher gives an independent Supporter switch/gust across rank15, Snorlax, rank26 and protected-Active states.
+- Preferred cut is the **second Sky Field**, not a Basic:
+  - cutting Unown would drop Basics 17->16, valid opener **91.6563%->90.0777%** and rank26 lone-Active-after-bonuses **27.4628%->30.5977%** (+3.1349pp immediate-loss exposure);
+  - cutting second Sky preserves all 17 Basics and every catch-up/lockbreak role, but own-Stadium direct visibility falls from **38.8285% to 30.5779%** in a valid seven and **43.4453% to 34.5075%** by first mandatory draw. This is the primary v2 cost.
+- **Preferred exact New Moon fixed 60 for future policy implementation is now Guzma/Sky v2**:
+  - manifest `results/aichi-2026/2026-11/agent13-newmoon-lockbreaker-guzma-sky-v2.json`
+  - commit `8205b799...`
+  - hash `f3bfed3a82cbddd4acb89ad0f0ff488673fd38c7be16efac0d54ab228d5ca82f`
+  - delta only: **Sky Field xy6-89 2->1; Guzma sm3-115 0->1**.
+- Structural repair selection report `agent13-newmoon-structural-repair-selection-20261127.md`, commit `5924fa88...`. It promotes this v2 within the New Moon architecture, not to final-best deck; zero qualified games and no 99.5 claim.
+- v2 Prize-collapse independent-channel bound: raw event both Dusclops + singleton Guzma all Prized = **0.0584454%**; only a configuration bound, not loss rate.
+- v2 actor-visible policy contract `agent13-newmoon-guzma-sky-v2-policy-acceptance-v1.json`, commit `d0803a43...`, **45 cases** = 39 integrated v1/Raichu cases + 6 v2-specific cases (rank15 both-Dusclops-Prized Guzma escape, Ace+Counter preservation, rank26 ahead-on-Prizes gust, Snorlax Block, Silent-Lab Guzma access, actual 1-Sky count).
+- Architecture memo updated to prefer exact v2 (commit `662e7af8...`); results/README live candidate row updated to v2 and 45-case contract (commit `0a7553b4...`).
+- Sent exact v2 refutation target to Agent1 (`bc829624...`) and Agent35 (`d70faa93...`). The requested reversal criterion is a source-consistent state where the lost second Sky is structurally more important than Guzma, not generic one-card churn.
+- Psychic Reserve disposition remains: exact English v3e is legitimate within-Thorns refinement, but parked from the next **cross-architecture** slot; do not regress to low-Basic-count rejection because rank6 Thorns placed 6th with 4 Basics.
+- No native games, workflow dispatch, Twinleaf changes, V3 owner-gate changes, or qualified matchup claims were made.
