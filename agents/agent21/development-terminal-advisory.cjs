@@ -46,12 +46,13 @@ function developmentTerminal(terminal,input,development,options={}){
     const alter=(inv,p,d)=>({...inv,[p]:(inv[p]??0)+d});
     const norm=x=>Object.fromEntries(Object.entries(x).filter(([,v])=>v).sort((a,b)=>a[0].localeCompare(b[0])));
     const start={input,hand:development.handPokemon??{},known:development.knownDeckPokemon??{},discard:development.discardPokemon??{},
-      treasure:development.treasureCount??0,quick:development.quickCount??0,fodder:development.fodder??[],path:[],depth:0,serial:0};
+      treasure:development.treasureCount??0,quick:development.quickCount??0,fodder:development.fodder??[],path:[],depth:0,serial:0,otherReturned:0};
     const stats={nodes:0,boardStates:0,expanded:0,duplicate:0,capped:false,ignoredDraws:0};
     const queue=[start],seen=new Set();
     const key=z=>JSON.stringify([z.input,norm(z.hand),norm(z.known),norm(z.discard),z.treasure,z.quick,[...z.fodder].sort(),z.depth]);
     seen.add(key(start));
     let head=0;
+    const callbackState=z=>({input:z.input,path:z.path,developmentState:{hand:z.hand,known:z.known,discard:z.discard,treasure:z.treasure,quick:z.quick,fodder:z.fodder,otherReturned:z.otherReturned}});
     function push(z,action,next){
       if(!z.path.length&&!firstAllowed(action))return;
       const n={...z,...next,path:[...z.path,action],depth:z.depth+1},k=key(n);
@@ -64,15 +65,16 @@ function developmentTerminal(terminal,input,development,options={}){
     function afterCore(z,snapshot,path){
       const draws=path.reduce((n,a)=>n+(a.drawIgnored??0),0);
       const known=Object.fromEntries(Object.entries(z.known).map(([p,n])=>[p,Math.max(0,n-draws)]));
-      let hand={...z.hand};
+      let hand={...z.hand},otherReturned=z.otherReturned;
       // Acerola returns the whole visible Pokémon stack. Keep only explicitly
       // known stack identities, excluding any unmodeled other cards.
       for(const a of path)if(a.kind==="acerola"){
         const old=z.input.board.find(b=>b.id===a.target);
-        for(const p of old?.stackPrintings??[])if(cat[p])hand=alter(hand,p,1);
+        for(const p of old?.stackPrintings??[])if(cat[p])hand=alter(hand,p,1);else otherReturned++;
+        if(old?.tool==="other"&&!path.slice(0,path.indexOf(a)).some(q=>q.kind==="field-blower"&&q.targetSeat==="actor"&&q.target===a.target))otherReturned++;
       }
       // Core snapshot preserves actual identities of remaining Pokémon.
-      return {...z,input:snapshot,known,hand,path:[...z.path,...path]};
+      return {...z,input:snapshot,known,hand,otherReturned,path:[...z.path,...path]};
     }
     function develop(z){
       if(z.depth>=maxDepth){stats.capped=true;return}
@@ -121,7 +123,11 @@ function developmentTerminal(terminal,input,development,options={}){
       // If a direct win appears, no external development is necessary.
       const prefixStates=[];
       const result=terminal(z.input,maxStates,z.path.length?()=>true:firstAllowed,
-        {witnessOnly:true,onReachableState:({input:snapshot,path})=>prefixStates.push({snapshot,path})});
+        {witnessOnly:true,stopBeforeChance:options.stopBeforeChance===true,
+          onReachableState:({input:snapshot,path})=>prefixStates.push({snapshot,path}),
+          onChance:({input:snapshot,path,drawCount})=>{
+            if(typeof options.onChance==="function")options.onChance({...callbackState(afterCore(z,snapshot,path)),drawCount});
+          }});
       stats.boardStates+=result.states??0;
       if(result.decision){
         const path=[...z.path,...result.decision.plan.actions];
@@ -132,10 +138,11 @@ function developmentTerminal(terminal,input,development,options={}){
       if(result.completeWithinModel!==true)stats.capped=true;
       for(const {snapshot,path} of prefixStates){
         const next=afterCore(z,snapshot,path);
+        if(typeof options.onReachableState==="function")options.onReachableState(callbackState(next));
         develop(next);
       }
     }
-    return {advisory:true,decision:null,stats,lowerBound:0,upperBound:stats.capped?1:0,
+    return {advisory:true,decision:null,stats,completeWithinModel:!stats.capped,lowerBound:0,upperBound:stats.capped?1:0,
       boundary:"No positive witness in bounded development model; does not rule out legal wins."};
   }catch(e){return reject(e.message)}
 }
