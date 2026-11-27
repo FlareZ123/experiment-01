@@ -57,6 +57,23 @@ function runCases(policy,protocol) {
         publicMetadata:{selectionIndex:i,selectedCount:1,sourceZone:zone,ownerSeat:'actor',isOwnerVisible:true}})),
         ...(min===0?[{token:'empty',kind:'empty-selection',label:'Choose no items'}]:[])],...extra};
   }
+  // Synthetic certified own-deck membership; face-down slots stay opaque.
+  const full={...A,rope:'Escape Rope BST',ticket:'Redeemable Ticket JTG',sight:'Telescopic Sight VIV',reversal:'Reversal Energy PAL',counter:'Counter Energy CIN'};
+  const counts={unown:4,voltorb:2,electrode:3,pikachu:1,raichu:2,squawk:2,gengar:1,marshadow:1,klefki:1,ditto:1,research:3,carmine:1,vip:4,compressor:4,carrier:4,stretcher:3,rope:3,mail:2,ticket:1,secret:1,heavy:1,uturn:1,sight:1,pokestop:1,reversal:4,counter:4,unit:4};
+  const allCards=Object.entries(counts).flatMap(([k,n])=>Array(n).fill(full[k]));
+  function exact(seat,{h=[],bench=[],activeCard=A.gengar,discard=[],lost=[],prizes=[],activeOver={}}={}){
+    const a=slot(activeCard,{evolutionPrintings:[activeCard],...activeOver});
+    const b=bench.map(c=>typeof c==='string'?slot(c,{evolutionPrintings:[c]}):c);
+    const remaining=allCards.slice();
+    for(const c of [...h,...discard,...lost,...prizes,...[a,...b].flatMap(p=>[...p.evolutionPrintings,...p.energies.filter(c=>!p.evolutionPrintings.includes(c)),...p.tools.filter(c=>!p.evolutionPrintings.includes(c))])]){
+      const i=remaining.indexOf(c);if(i<0)throw Error('fixture exceeds inventory: '+c);remaining.splice(i,1);
+    }
+    const unique=[...new Set(remaining)].map(printing=>({printing,copies:remaining.filter(c=>c===printing).length}));
+    return view(seat,{decisionKind:'owner-root',pendingPromptType:null,ownHand:h,
+      ownerK1:{exactMembershipKnown:true,invalidationReason:null,epoch:7,knownPrintings:unique},
+      ownPublic:player({active:a,bench:b,discard,lostZone:lost,resolvingSupporter:[],stadium:[],
+        handCount:h.length,deckCount:remaining.length,prizeCount:prizes.length,prizeSlots:prizes.map((_,index)=>({index}))})});
+  }
   same(policy.SOURCE_RANK,17,'profile rank');
   same(policy.PROFILE.familyBaseBlobSha1,'6897cd7f73ad8be8c01eafb97295fed6d74d376e','base identity');
   same(policy.PROFILE.sourceEntryJsonSha256,'41743dd93f080bff72981d0245b24df7615be3b1d3a03900e673a0dc2b6a2083','source identity');
@@ -168,9 +185,48 @@ function runCases(policy,protocol) {
     v=view(seat,{ownHand:[A.compressor,A.stretcher,A.stretcher],ownPublic:player({bench:[slot(A.ditto)]})});
     same(runPrompt(p,v,cards(v,A.compressor,'Battle Compressor','deck',[A.raichu,A.electrode],0,3)),choose('c0'),tag+'single Ditto cannot supply two evolutions');
     v={...v,ownPublic:player({active:slot(A.klefki),bench:[slot(A.ditto)]})};
-    same(runRoot(p,v,[play('compress',A.compressor),pass]),action('pass'),tag+'locked Ditto cannot fund evolution');
+    same(runPrompt(p,v,cards(v,A.compressor,'Battle Compressor','deck',[A.raichu,A.electrode,A.voltorb,A.pikachu],0,3)),choose('c2','c3'),tag+'locked Ditto cannot fund evolution, only basic recovery');
     v=view(seat,{ownHand:[A.carrier,A.stretcher],ownPublic:player({discard:[A.pikachu]})});
     same(runRoot(p,v,[play('recover',A.stretcher),play('carrier',A.carrier),pass]),action('carrier'),tag+'reserve Stretcher when Carrier can recover Basic');
+    // Certified own inventory permits aggregate Prize inference, never slot mapping.
+    const ticket=full.ticket;
+    v=exact(seat,{h:[ticket,A.compressor,A.stretcher],bench:[A.pikachu],prizes:[A.raichu,A.raichu,A.unown,A.unit,A.vip,A.research]});
+    const known=policy.knownOwnZones(v);
+    same(known.prizes.raichu,2,tag+'two copies inferred in own Prizes');
+    same(known.deck.raichu||0,0,tag+'no Raichu in known deck');
+    same(policy.ticketPlan(v),{target:'raichu',followup:'compressor-stretcher',epoch:7},tag+'Ticket recovers blocked Stage 1 with funded route');
+    same(runRoot(p,v,[play('ticket',ticket),play('compress',A.compressor),pass]),action('ticket'),tag+'Ticket precedes otherwise empty evolution search');
+    const noCert={...v,ownerK1:null};
+    same(policy.knownOwnZones(noCert),null,tag+'no K0 inference');
+    same(runRoot(p,noCert,[play('ticket',ticket),pass]),action('pass'),tag+'K0 cannot spend Ticket');
+    const stale={...v,ownerK1:{...v.ownerK1,invalidationReason:'draw'}};
+    same(policy.ticketPlan(stale),null,tag+'invalidated membership cannot fund Ticket');
+    const partial={...v,ownerK1:{...v.ownerK1,knownPrintings:v.ownerK1.knownPrintings.slice(1)}};
+    same(policy.knownOwnZones(partial),null,tag+'deck count mismatch fails closed');
+    const dupSlot={...v,ownPublic:{...v.ownPublic,prizeSlots:[{index:0},{index:0},...v.ownPublic.prizeSlots.slice(2)]}};
+    same(policy.knownOwnZones(dupSlot),null,tag+'duplicate prize index rejected');
+    const wrongFace={...v,ownPublic:{...v.ownPublic,prizeSlots:[{index:0,printing:A.voltorb},...v.ownPublic.prizeSlots.slice(1)]}};
+    same(policy.knownOwnZones(wrongFace),null,tag+'face-up contradiction fails closed');
+    v=exact(seat,{h:[ticket,A.compressor],bench:[A.pikachu],prizes:[A.raichu,A.raichu]});
+    same(policy.ticketPlan(v),null,tag+'Ticket not draw-to-hand; no Stretcher');
+    v=exact(seat,{h:[ticket,A.compressor,A.stretcher],bench:[A.pikachu,A.voltorb],discard:[A.electrode],prizes:[A.raichu,A.raichu]});
+    same(policy.ticketPlan(v),null,tag+'existing evolution recovery reserves Stretcher');
+    v=exact(seat,{h:[ticket,A.compressor,A.stretcher,A.stretcher],bench:[A.pikachu,A.voltorb],discard:[A.electrode],prizes:[A.raichu,A.raichu]});
+    same(policy.ticketPlan(v)?.target,'raichu',tag+'second Stretcher funds isolated Stage 1');
+    v=exact(seat,{h:[ticket,A.compressor,A.carrier],lost:[A.ditto],prizes:[A.pikachu]});
+    same(policy.ticketPlan(v)?.followup,'compressor-carrier',tag+'singleton Pikachu rescue with funded Carrier');
+    v=exact(seat,{h:[ticket,A.compressor,A.carrier,A.heavy],lost:[A.ditto],prizes:[A.pikachu]});
+    same(policy.ticketPlan(v),null,tag+'Heavy Ball cheaper than rerolling Prizes');
+    v=exact(seat,{h:[ticket,A.compressor,A.stretcher,A.raichu],lost:[A.ditto],prizes:[A.pikachu]});
+    same(policy.ticketPlan(v)?.followup,'compressor-stretcher',tag+'single Stretcher can fund held Stage 1 base');
+    v=view(seat,{ownHand:[A.compressor,A.stretcher,A.raichu]});
+    same(runPrompt(p,v,cards(v,A.compressor,'Battle Compressor','deck',[A.voltorb,A.pikachu,A.electrode],0,3)),choose('c1'),tag+'surplus Stretcher prefers Basic for held evolution');
+    v=view(seat,{ownHand:[A.compressor,A.stretcher,A.raichu],ownPublic:player({bench:[slot(A.ditto)]})});
+    same(runPrompt(p,v,cards(v,A.compressor,'Battle Compressor','deck',[A.electrode,A.voltorb],0,3)),choose('c1'),tag+'held evolution reserves Ditto, search alternative base');
+    v=exact(seat,{h:[ticket],activeCard:A.gengar,activeOver:{evolutionPrintings:[A.gengar,A.unit,A.uturn],energies:[A.unit],tools:[A.uturn]},prizes:[A.pikachu]});
+    same(policy.knownOwnZones(v)?.prizes.pikachu,1,tag+'count duplicate attachment projections once');
+    const inconsistent={...v,ownPublic:{...v.ownPublic,active:{...v.ownPublic.active,energies:[full.counter]}}};
+    same(policy.knownOwnZones(inconsistent),null,tag+'contradictory attachment projection fails closed');
     // First-turn Horror House route: the energy-bearing Gengar is on the
     // Bench and the Active cannot retreat for free. Rope first, opponent
     // switches (external), then own correctly scoped target prompt.
