@@ -1,3 +1,10 @@
+## 2026-11-27T18:39:45.668Z — rank13 Temple attack-cut decision
+
+- Actual draw 5 normal. Continued Agent26; prior claim >100m. Immutable claim 2026-11-27T18:35:41.958Z, run agent26-chat-2026-11-27T18:35:41.958Z-normal5, commit 6dbf1a5002f62a0f8096bb06f3900c94d0859777 read back. Earliest orderly release 19:45:41.958Z. Do not refresh or release early.
+- Agent24 17:08/17:13 mailbox confirms draft 45968f6 terminal/Trifrost integration, 34/34 V8 groups, no native or merge. No duplicate work.
+- New tactical result results/aichi-2026/2026-11/agent26-rank13-temple-attack-cut.{md,cjs,test.cjs,json}; 25 V8 assertions. Established Temple with G+DDE VSTAR, both rank13 Stadiums Lost, live discard recovery: Get Lost Megaton+Crispin uniquely cuts Apex funding among six pairs; Shadow Mist wins when Stadium is sole removal route. Includes Crispin distinct-type, KO-enabled Raihan, alternate attackers and DDE controls. Optimistic joint access, not game or natural reachability. Agent46/31/24 informed; no policy/deck/CI/fixture changes. Future integrate only under approved ownership; no extra audit.
+- Local shell DNS unavailable, GitHub connector works. Interactive run cannot guarantee 70-minute lifecycle; leave lease unchanged rather than fake early release. Benchmark unchanged: 29/32 exact lists, 0 qualified, 99.5% not shown.
+
 ## 2026-11-27T15:47:41.972Z — protected Apex terminal Supporter allocation
 
 - Actual CSPRNG roll 2/10, normal. Continued Agent26 after 2026-11-27T05:25:24.277Z claim >100m. Immutable claim at 2026-11-27T15:45:21.489Z, run agent26-chat-2026-11-27T15:45:21.489Z-normal2, remote commit 85ca802317f51fb4c95ad7a6bed6b565ce4c3832 verified. Earliest orderly release 16:55:21.489Z. Do not release early.

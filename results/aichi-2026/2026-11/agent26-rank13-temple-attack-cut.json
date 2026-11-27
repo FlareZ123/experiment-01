@@ -1,0 +1,673 @@
+{
+  "runtime": "isolated V8 direct assertions",
+  "checks": [
+    "unique dual cut",
+    "Mist allows Megaton",
+    "payload pair fails",
+    "Megaton cut alone permits Crispin",
+    "Mist uniquely blocks unspent Stadium",
+    "both removal channels defeat either attack",
+    "both actions deny with exhausted routes",
+    "two Grass permit manual Fire",
+    "zero colored Basics only Megaton cut required",
+    "Crispin cannot fetch two Grass",
+    "independent Grass permits double Grass",
+    "one attached Grass and Crispin pay GGF",
+    "one Basic type cannot accelerate",
+    "spent Legacy and absent VS cut both recoveries",
+    "VS alone recovers Crispin",
+    "Mist KO enables Raihan on survivor",
+    "Raihan off after nonKO",
+    "second attacker defeats cut",
+    "unoffered Get Lost excluded",
+    "unoffered Mist excluded",
+    "single discard target",
+    "Mist blocks new DDE",
+    "new DDE under Temple cannot pay colors",
+    "unseen singleton remains possible",
+    "no Temple fails closed"
+  ],
+  "caseA": {
+    "options": [
+      {
+        "action": "Shadow Mist",
+        "picks": [],
+        "cards": [],
+        "deniesApex": false,
+        "escapes": [
+          {
+            "target": "drago",
+            "removal": "none",
+            "supporter": "Crispin",
+            "extraBasic": "G",
+            "manual": "F",
+            "energy": {
+              "G": 2,
+              "F": 1,
+              "D": 1
+            }
+          },
+          {
+            "target": "drago",
+            "removal": "Megaton Blower",
+            "supporter": "none",
+            "extraBasic": null,
+            "manual": null,
+            "energy": {
+              "G": 1,
+              "F": 0,
+              "D": 1
+            }
+          }
+        ]
+      },
+      {
+        "action": "Get Lost",
+        "picks": [
+          0,
+          1
+        ],
+        "cards": [
+          "Megaton Blower",
+          "Crispin"
+        ],
+        "deniesApex": true,
+        "escapes": []
+      },
+      {
+        "action": "Get Lost",
+        "picks": [
+          0,
+          2
+        ],
+        "cards": [
+          "Megaton Blower",
+          "Dialga-GX"
+        ],
+        "deniesApex": false,
+        "escapes": [
+          {
+            "target": "drago",
+            "removal": "none",
+            "supporter": "Crispin",
+            "extraBasic": "G",
+            "manual": "F",
+            "energy": {
+              "G": 2,
+              "F": 1,
+              "D": 1
+            }
+          }
+        ]
+      },
+      {
+        "action": "Get Lost",
+        "picks": [
+          0,
+          3
+        ],
+        "cards": [
+          "Megaton Blower",
+          "Kyurem"
+        ],
+        "deniesApex": false,
+        "escapes": [
+          {
+            "target": "drago",
+            "removal": "none",
+            "supporter": "Crispin",
+            "extraBasic": "G",
+            "manual": "F",
+            "energy": {
+              "G": 2,
+              "F": 1,
+              "D": 1
+            }
+          }
+        ]
+      },
+      {
+        "action": "Get Lost",
+        "picks": [
+          1,
+          2
+        ],
+        "cards": [
+          "Crispin",
+          "Dialga-GX"
+        ],
+        "deniesApex": false,
+        "escapes": [
+          {
+            "target": "drago",
+            "removal": "Megaton Blower",
+            "supporter": "none",
+            "extraBasic": null,
+            "manual": null,
+            "energy": {
+              "G": 1,
+              "F": 0,
+              "D": 1
+            }
+          }
+        ]
+      },
+      {
+        "action": "Get Lost",
+        "picks": [
+          1,
+          3
+        ],
+        "cards": [
+          "Crispin",
+          "Kyurem"
+        ],
+        "deniesApex": false,
+        "escapes": [
+          {
+            "target": "drago",
+            "removal": "Megaton Blower",
+            "supporter": "none",
+            "extraBasic": null,
+            "manual": null,
+            "energy": {
+              "G": 1,
+              "F": 0,
+              "D": 1
+            }
+          }
+        ]
+      },
+      {
+        "action": "Get Lost",
+        "picks": [
+          2,
+          3
+        ],
+        "cards": [
+          "Dialga-GX",
+          "Kyurem"
+        ],
+        "deniesApex": false,
+        "escapes": [
+          {
+            "target": "drago",
+            "removal": "none",
+            "supporter": "Crispin",
+            "extraBasic": "G",
+            "manual": "F",
+            "energy": {
+              "G": 2,
+              "F": 1,
+              "D": 1
+            }
+          },
+          {
+            "target": "drago",
+            "removal": "Megaton Blower",
+            "supporter": "none",
+            "extraBasic": null,
+            "manual": null,
+            "energy": {
+              "G": 1,
+              "F": 0,
+              "D": 1
+            }
+          }
+        ]
+      }
+    ],
+    "denying": [
+      {
+        "action": "Get Lost",
+        "picks": [
+          0,
+          1
+        ],
+        "cards": [
+          "Megaton Blower",
+          "Crispin"
+        ],
+        "deniesApex": true,
+        "escapes": []
+      }
+    ]
+  },
+  "caseB": {
+    "options": [
+      {
+        "action": "Shadow Mist",
+        "picks": [],
+        "cards": [],
+        "deniesApex": true,
+        "escapes": []
+      },
+      {
+        "action": "Get Lost",
+        "picks": [
+          0,
+          1
+        ],
+        "cards": [
+          "Dialga-GX",
+          "Kyurem"
+        ],
+        "deniesApex": false,
+        "escapes": [
+          {
+            "target": "drago",
+            "removal": "Parallel City",
+            "supporter": "none",
+            "extraBasic": null,
+            "manual": null,
+            "energy": {
+              "G": 1,
+              "F": 0,
+              "D": 1
+            }
+          }
+        ]
+      }
+    ],
+    "denying": [
+      {
+        "action": "Shadow Mist",
+        "picks": [],
+        "cards": [],
+        "deniesApex": true,
+        "escapes": []
+      }
+    ]
+  },
+  "caseC": {
+    "options": [
+      {
+        "action": "Shadow Mist",
+        "picks": [],
+        "cards": [],
+        "deniesApex": false,
+        "escapes": [
+          {
+            "target": "drago",
+            "removal": "none",
+            "supporter": "Crispin",
+            "extraBasic": "G",
+            "manual": "F",
+            "energy": {
+              "G": 2,
+              "F": 1,
+              "D": 1
+            }
+          },
+          {
+            "target": "drago",
+            "removal": "Megaton Blower",
+            "supporter": "none",
+            "extraBasic": null,
+            "manual": null,
+            "energy": {
+              "G": 1,
+              "F": 0,
+              "D": 1
+            }
+          }
+        ]
+      },
+      {
+        "action": "Get Lost",
+        "picks": [
+          0,
+          1
+        ],
+        "cards": [
+          "Megaton Blower",
+          "Dialga-GX"
+        ],
+        "deniesApex": false,
+        "escapes": [
+          {
+            "target": "drago",
+            "removal": "none",
+            "supporter": "Crispin",
+            "extraBasic": "G",
+            "manual": "F",
+            "energy": {
+              "G": 2,
+              "F": 1,
+              "D": 1
+            }
+          },
+          {
+            "target": "drago",
+            "removal": "Parallel City",
+            "supporter": "none",
+            "extraBasic": null,
+            "manual": null,
+            "energy": {
+              "G": 1,
+              "F": 0,
+              "D": 1
+            }
+          }
+        ]
+      },
+      {
+        "action": "Get Lost",
+        "picks": [
+          0,
+          2
+        ],
+        "cards": [
+          "Megaton Blower",
+          "Kyurem"
+        ],
+        "deniesApex": false,
+        "escapes": [
+          {
+            "target": "drago",
+            "removal": "none",
+            "supporter": "Crispin",
+            "extraBasic": "G",
+            "manual": "F",
+            "energy": {
+              "G": 2,
+              "F": 1,
+              "D": 1
+            }
+          },
+          {
+            "target": "drago",
+            "removal": "Parallel City",
+            "supporter": "none",
+            "extraBasic": null,
+            "manual": null,
+            "energy": {
+              "G": 1,
+              "F": 0,
+              "D": 1
+            }
+          }
+        ]
+      },
+      {
+        "action": "Get Lost",
+        "picks": [
+          1,
+          2
+        ],
+        "cards": [
+          "Dialga-GX",
+          "Kyurem"
+        ],
+        "deniesApex": false,
+        "escapes": [
+          {
+            "target": "drago",
+            "removal": "none",
+            "supporter": "Crispin",
+            "extraBasic": "G",
+            "manual": "F",
+            "energy": {
+              "G": 2,
+              "F": 1,
+              "D": 1
+            }
+          },
+          {
+            "target": "drago",
+            "removal": "Megaton Blower",
+            "supporter": "none",
+            "extraBasic": null,
+            "manual": null,
+            "energy": {
+              "G": 1,
+              "F": 0,
+              "D": 1
+            }
+          },
+          {
+            "target": "drago",
+            "removal": "Parallel City",
+            "supporter": "none",
+            "extraBasic": null,
+            "manual": null,
+            "energy": {
+              "G": 1,
+              "F": 0,
+              "D": 1
+            }
+          }
+        ]
+      }
+    ],
+    "denying": []
+  },
+  "caseD": {
+    "options": [
+      {
+        "action": "Shadow Mist",
+        "picks": [],
+        "cards": [],
+        "deniesApex": true,
+        "escapes": []
+      },
+      {
+        "action": "Get Lost",
+        "picks": [
+          0,
+          1
+        ],
+        "cards": [
+          "Dialga-GX",
+          "Kyurem"
+        ],
+        "deniesApex": true,
+        "escapes": []
+      }
+    ],
+    "denying": [
+      {
+        "action": "Shadow Mist",
+        "picks": [],
+        "cards": [],
+        "deniesApex": true,
+        "escapes": []
+      },
+      {
+        "action": "Get Lost",
+        "picks": [
+          0,
+          1
+        ],
+        "cards": [
+          "Dialga-GX",
+          "Kyurem"
+        ],
+        "deniesApex": true,
+        "escapes": []
+      }
+    ]
+  },
+  "caseE": {
+    "options": [
+      {
+        "action": "Shadow Mist",
+        "picks": [],
+        "cards": [],
+        "deniesApex": false,
+        "escapes": [
+          {
+            "target": null,
+            "removal": "Megaton Blower",
+            "supporter": "none",
+            "extraBasic": null,
+            "manual": "G",
+            "energy": {
+              "G": 1,
+              "F": 0,
+              "D": 1
+            }
+          }
+        ]
+      },
+      {
+        "action": "Get Lost",
+        "picks": [
+          0,
+          1
+        ],
+        "cards": [
+          "Megaton Blower",
+          "Crispin"
+        ],
+        "deniesApex": true,
+        "escapes": []
+      },
+      {
+        "action": "Get Lost",
+        "picks": [
+          0,
+          2
+        ],
+        "cards": [
+          "Megaton Blower",
+          "Dialga-GX"
+        ],
+        "deniesApex": true,
+        "escapes": []
+      },
+      {
+        "action": "Get Lost",
+        "picks": [
+          0,
+          3
+        ],
+        "cards": [
+          "Megaton Blower",
+          "Kyurem"
+        ],
+        "deniesApex": true,
+        "escapes": []
+      },
+      {
+        "action": "Get Lost",
+        "picks": [
+          1,
+          2
+        ],
+        "cards": [
+          "Crispin",
+          "Dialga-GX"
+        ],
+        "deniesApex": false,
+        "escapes": [
+          {
+            "target": null,
+            "removal": "Megaton Blower",
+            "supporter": "none",
+            "extraBasic": null,
+            "manual": "G",
+            "energy": {
+              "G": 1,
+              "F": 0,
+              "D": 1
+            }
+          }
+        ]
+      },
+      {
+        "action": "Get Lost",
+        "picks": [
+          1,
+          3
+        ],
+        "cards": [
+          "Crispin",
+          "Kyurem"
+        ],
+        "deniesApex": false,
+        "escapes": [
+          {
+            "target": null,
+            "removal": "Megaton Blower",
+            "supporter": "none",
+            "extraBasic": null,
+            "manual": "G",
+            "energy": {
+              "G": 1,
+              "F": 0,
+              "D": 1
+            }
+          }
+        ]
+      },
+      {
+        "action": "Get Lost",
+        "picks": [
+          2,
+          3
+        ],
+        "cards": [
+          "Dialga-GX",
+          "Kyurem"
+        ],
+        "deniesApex": false,
+        "escapes": [
+          {
+            "target": null,
+            "removal": "Megaton Blower",
+            "supporter": "none",
+            "extraBasic": null,
+            "manual": "G",
+            "energy": {
+              "G": 1,
+              "F": 0,
+              "D": 1
+            }
+          }
+        ]
+      }
+    ],
+    "denying": [
+      {
+        "action": "Get Lost",
+        "picks": [
+          0,
+          1
+        ],
+        "cards": [
+          "Megaton Blower",
+          "Crispin"
+        ],
+        "deniesApex": true,
+        "escapes": []
+      },
+      {
+        "action": "Get Lost",
+        "picks": [
+          0,
+          2
+        ],
+        "cards": [
+          "Megaton Blower",
+          "Dialga-GX"
+        ],
+        "deniesApex": true,
+        "escapes": []
+      },
+      {
+        "action": "Get Lost",
+        "picks": [
+          0,
+          3
+        ],
+        "cards": [
+          "Megaton Blower",
+          "Kyurem"
+        ],
+        "deniesApex": true,
+        "escapes": []
+      }
+    ]
+  }
+}
