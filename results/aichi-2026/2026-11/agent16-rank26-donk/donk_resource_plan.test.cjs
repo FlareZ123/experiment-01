@@ -34,3 +34,14 @@ test('certificate must match board size and actual attacker ID',()=>{
  assert.equal(p(base({opponentBenchCount:1,terminalAttack:cert({opponentBench:[]})})).status,'invalid');
  assert.equal(p(base({opponentBenchCount:1,terminalAttack:cert({attackerId:'other'})})).status,'invalid');
 });
+test('one accessible Egg, four Pumps and one Unown KO can donate five',()=>{
+ const r=p(base({allowUnownKO:true,pumps:4,carriers:0,eggs:[e('e0','H'),e('e1','X')],
+   unown:[e('u0','H'),e('u1','H')],fixed:[e('m','A',2),e('s','B',2),e('d','B',2)]}));
+ assert.equal(r.status,'solved');assert.equal(r.pumpsUsed,4);assert.equal(r.donated,5);
+ assert.equal(r.actions.filter(a=>a.kind==='damage-pump').flatMap(a=>a.knocked).filter(id=>id.startsWith('u')).length,1);
+});
+test('one accessible Egg, three Pumps and fresh Unown cannot donate five',()=>{
+ const r=p(base({allowUnownKO:true,pumps:3,carriers:0,eggs:[e('e0','H'),e('e1','X')],
+   unown:[e('u0','H'),e('u1','H')],fixed:[e('m','A',2),e('s','B',2),e('d','B',2)]}));
+ assert.equal(r.status,'unreachable-under-model');
+});
