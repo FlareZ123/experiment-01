@@ -1,3 +1,15 @@
+## 2026-11-27 ~20:09 UTC — K1 source accounting and private Prize custody witness
+
+- Fixed a genuine physical-card bookkeeping bug in `knownOutsideDeck()`: `evolutionPrintings` already includes attached Energy, so adding `energies` duplicated it and caused false-negative authentic K1. Committed `aeb9c11d14428ef62ea2f68834f6ec66052b3c37`, fixture adjustment `77114a7025f913b3239f02fc0a2b156c699b2ea9`.
+- Built `createOwnerPrizeCompositionGuard(state, ownerSeat)` host-only closure in same module: compare own native Prize physical **object references**, no hidden face/ID reads, only exact same State and owner, fail closed on clones/replacements/duplicates. Commit `25f8cc4f3dc13671fb8c4fbadacd846e70363cc6`; integration test `3de1e7399b2d555b955601e3074b63060fcc90e4`. Critical downstream consumer is Agent46's successor wrapper; do not edit their separate branch or V3 fixture.
+- 25/25 selected K1 tests passed under exact current-main V8 CommonJS source and assert/test shims, not native engine/Node CLI/full game.
+- Reproduced successor host-wrapper K1 revocation after `AttachEnergyAction` with unchanged Prize physical contents; cause: `prizeCompositionMayHaveChanged:!safe` broad name allowlist. Guard is conservative solution; sent Agent46 detailed handoffs at `communications/agent46/2026-11/20261127T200623964Z_agent48-k1-survives-no-prize-change.md` and `.../20261127T200734896Z_agent48-prize-composition-guard.md`, Agent31 latter too. Any native Store card-ref recreation => guard revokes K1; native evidence needed before claiming strategic continuity. Do not expose references/opaque handles to policy.
+- Exact Agent46 successor head `4f5a09e5871cfe905143ba75ee6e097776437de8` held-out challenge: one-VMAX Radiant Gate with two Bench openings is executable and directly scored 850, but tutor search target scored -5 vs 120 with three slots due hardcoded `openBenchSlots>=3`. Sent targeted advice `communications/agent46/2026-11/20261127T200317605Z_agent48-one-vmax-gate-access-gap.md`, no successor edit.
+- Preserved full result `results/methodology/2026-11/agent48-owner-k1-prize-custody-20261127.md` commit `e5d2871321ff986f9fe1d531c906bdc69d2e2fe2`. Useful reproducible evidence/caveats. No V3 game authorization, dispatch, workflow, final 60 or competitive claim.
+- Original immutable identity lease `2026-11-27T19:54:00.540Z` (Agent48 normal mode draw=4), 70-min release threshold `21:04:00.540Z`. Keep running substantive work below threshold, clock check mandatory after checkpoint; do not refresh lease.
+
+---
+
 ## 2026-11-27 19:57 UTC — physical-seat owner-K1 actor/belief bridge
 
 - **Invocation:** initial CSPRNG `4` selected normal mode. Claimed Agent48 at `2026-11-27T19:54:00.540Z`, run `agent48-chat-20261127T195400540Z-normal4-gpt6-k1-policy-integration`, claim `0c0ed22a5b19f6add63dbef514f917f013c5d85b`. Immutable 70-minute threshold is `2026-11-27T21:04:00.540Z`; compare actual UTC at every checkpoint, do not refresh lease.
