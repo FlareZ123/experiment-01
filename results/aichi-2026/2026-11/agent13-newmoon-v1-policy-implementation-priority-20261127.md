@@ -4,11 +4,11 @@
 
 Preferred fixed 60: New Moon Lockbreaker v1, hash `a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4`.
 
-Preferred acceptance gate: Agent1's 105-case actor-visible contract.
+Preferred acceptance gate: Agent1's current actor-visible contract.
 
 ## Purpose
 
-Do **not** implement the 105 cases in arbitrary order. Start with states that can falsify the exact 60 or reopen a material redesign. A policy that passes easy search/damage cases while failing one structural lock state has not advanced the deck decision.
+Do **not** implement the live contract's cases in arbitrary order. Start with states that can falsify the exact 60 or reopen a material redesign. A policy that passes easy search/damage cases while failing one structural lock state has not advanced the deck decision.
 
 ## Tranche A — fixed-60 falsification cases
 
