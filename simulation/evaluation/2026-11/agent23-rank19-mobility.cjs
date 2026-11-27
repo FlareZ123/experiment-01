@@ -32,7 +32,7 @@ function fixedOpponent(o){
 }
 function attackBlocked(p){
  const r=p?.publicRestrictions??{};
- return r.cannotAttackNextTurn===true||r.cannotUseAttacksNextTurn===true||r.blockedAttackNameNextTurn!==undefined&&r.blockedAttackNameNextTurn!==null&&r.blockedAttackNameNextTurn!==''||r.blockedAttackNameUntilLeavesActive!==undefined&&r.blockedAttackNameUntilLeavesActive!==null&&r.blockedAttackNameUntilLeavesActive!==''||r.onlyAllowedAttackNameNextTurn!==undefined&&r.onlyAllowedAttackNameNextTurn!==null&&r.onlyAllowedAttackNameNextTurn!=='';
+ return r.cannotAttackNextTurn===true||list(r.cannotUseAttacksNextTurn).length>0||r.attackCostIncreaseNextTurn>0||r.attackCostIncreaseWhileActive>0||r.blockedAttackNameNextTurn!==undefined&&r.blockedAttackNameNextTurn!==null&&r.blockedAttackNameNextTurn!==''||r.blockedAttackNameUntilLeavesActive!==undefined&&r.blockedAttackNameUntilLeavesActive!==null&&r.blockedAttackNameUntilLeavesActive!==''||r.onlyAllowedAttackNameNextTurn!==undefined&&r.onlyAllowedAttackNameNextTurn!==null&&r.onlyAllowedAttackNameNextTurn!=='';
 }
 function fightingResistance(target){
  const n=name(target);
@@ -66,13 +66,13 @@ function bestAttack(o,own,target,caps){
  }
  if(k==='bolt'){
   if(caps.discard&&(!temple&&e.dde>0||e.l>=1&&e.f>=1)){
-   const plan=bolt.plan(own,target,temple);
+   const plan=bolt.plan(own,target,temple,bolt.threatPolicy(o));
    if(plan)add('Bellowing Thunder',plan.damage,{donors:plan.minimumCards,score:result(t,left,plan.damage).score-(result(t,left,plan.damage).terminal?0:plan.minimumCards*5)});
   }
   if(e.total>=1&&handSize(o)<=2&&o.globalTurn<=3)out.push({attackName:'Burst Roar',score:70,damage:0,lethal:false,terminal:false,prizes:0});
  }
  if(k==='adp'&&!temple&&e.dde>=1){
-  if(own.publicTurnRestrictions?.gxUsed===false)out.push({attackName:'Altered Creation-GX',score:190,damage:0,lethal:false,terminal:false,prizes:0});
+  if(own.publicTurnRestrictions?.gxUsed===false&&own.publicTurnRestrictions?.cannotUseGXAttacks!==true)out.push({attackName:'Altered Creation-GX',score:190,damage:0,lethal:false,terminal:false,prizes:0});
   if(caps.attach&&e.total>=3){
    const ray=result(t,left,150);
    add('Ultimate Ray',150,{score:ray.score+(ray.terminal?0:60)});
@@ -89,6 +89,12 @@ function direct(r,caps){
  const x=bestAttack(o,own,o.opponentPublic.active,caps);
  if(!x)return null;
  return list(r.actionFrontier?.items).some(a=>a.kind==='attack'&&a.attackName===x.attackName&&same(a.actorPrinting,own.active)&&md(a).attackCostPayable===true)?x:null;
+}
+function attackRoot(r,caps={discard:false,attach:false},terminalOnly=false){
+ const p=direct(r,caps);
+ if(!p||terminalOnly&&!p.terminal)return null;
+ const a=list(r.actionFrontier?.items).find(x=>x.kind==='attack'&&x.attackName===p.attackName&&same(x.actorPrinting,r.observation.ownPublic.active)&&md(x).attackCostPayable===true);
+ return a?sel(a):null;
 }
 function mobilityAllowed(o,active){
  const r=o.ownTurnResources,p=active?.publicRestrictions??{};
@@ -147,7 +153,7 @@ function root(r,caps={discard:false,attach:false}){
   }
  }
  if(supporter&&worthwhile(gust?.bench))return sel(supporter);
- if(worthwhile(gust?.bench)&&list(own.discard).some(x=>GUZ.test(name(x)))&&own.publicTurnRestrictions?.supporterPlayed!==true&&o.ownTurnResources?.supporterTurn!==o.globalTurn&&!list(o.ownHand).some(x=>GUZ.test(name(x)))){
+ if(worthwhile(gust?.bench)&&list(own.discard).some(x=>GUZ.test(name(x)))&&own.publicTurnRestrictions?.supporterPlayLocked!==true&&Number.isSafeInteger(o.ownTurnResources?.supporterPlayedTurn)&&o.ownTurnResources.supporterPlayedTurn<o.globalTurn&&!list(o.ownHand).some(x=>GUZ.test(name(x)))){
   const seeker=items.find(a=>playHeld(a,o,VS));if(seeker)return sel(seeker);
  }
  return null;
@@ -178,4 +184,4 @@ function prompt(r,caps={discard:false,attach:false}){
  if(!ranked.length||new Set(ranked.map(x=>x.seat)).size!==1)return null;
  ranked.sort((a,b)=>b.score-a.score);return choose(ranked[0].c);
 }
-module.exports={root,prompt,bestAttack,bestBench,bestGust,physicalEnergy,freeRetreat,fightingResistance};
+module.exports={root,prompt,attackRoot,bestAttack,bestBench,bestGust,physicalEnergy,freeRetreat,fightingResistance};
