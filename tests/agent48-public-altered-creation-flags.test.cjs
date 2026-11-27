@@ -42,7 +42,7 @@ test('Altered Creation +30 and conditional extra Prize remain distinct and actor
     assert.equal(own.usedAlteredCreation,seat===1);
     assert.equal(opp.usedAlteredCreation,seat===0);
     assert.equal(Object.isFrozen(own),true);
-    validateActorObservation(view);
+    validateActorObservation(view,seat);
   }
 });
 test('absence of native flags projects inactive, but malformed worker-facing flags are rejected',()=>{
@@ -50,14 +50,14 @@ test('absence of native flags projects inactive, but malformed worker-facing fla
   const view=actorObservation(state,0);
   assert.equal(view.ownPublic.publicTurnRestrictions.alteredCreationDamage,false);
   assert.equal(view.ownPublic.publicTurnRestrictions.usedAlteredCreation,false);
-  validateActorObservation(view);
+  validateActorObservation(view,0);
   const malformed=JSON.parse(JSON.stringify(view));
   malformed.opponentPublic.publicTurnRestrictions.usedAlteredCreation='yes';
-  assert.throws(()=>validateActorObservation(malformed));
+  assert.throws(()=>validateActorObservation(malformed,0));
   const omitted=JSON.parse(JSON.stringify(view));
   delete omitted.ownPublic.publicTurnRestrictions.alteredCreationDamage;
   delete omitted.opponentPublic.publicTurnRestrictions.usedAlteredCreation;
-  validateActorObservation(omitted); // optional for legacy worker fixtures
+  validateActorObservation(omitted,0); // optional for legacy worker fixtures
 });
 test('public Altered Creation flags do not expose or depend on opponent concealed identities',()=>{
   const a=fixture(),b=fixture();
