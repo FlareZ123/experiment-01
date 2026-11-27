@@ -627,8 +627,9 @@ return module.exports;})();
     const certificate=__terminal.certifyCrisisPunchTerminal(input);
     return certificate.terminal?{a,damage,input,certificate}:null;
   }
-  function donationPlan(o){
+  function donationPlan(o,extraPump=0){
     const terminal=terminalReady(o);
+    if(![0,1].includes(extraPump))return null;
     if(!terminal||!Number.isSafeInteger(opp(o).prizeCount)||opp(o).prizeCount<=1)return null;
     const map=new Map(), eggs=[],unown=[],fixed=[],handDonors=[],small=[];
     function add(k,id,zone,counters,detail){
@@ -651,13 +652,34 @@ return module.exports;})();
     const aid=coord(terminal.a);
     const plan=__donation.planDonationResources({finishReady:true,itemsPlayable:true,riskyRuinsActive:true,opponentBenchCount:0,
       propagationAvailable:!lockLive(o),farewellAvailable:!lockLive(o)||/^Wobbuffet PHF/.test(printing(opp(o).active)),
-      opponentPrizes:opp(o).prizeCount,pumps:n(hand(o),'DP'),carriers:n(hand(o),'RC'),drawCapacity:own(o).deckCount,
+      opponentPrizes:opp(o).prizeCount,pumps:n(hand(o),'DP')+extraPump,carriers:n(hand(o),'RC'),drawCapacity:own(o).deckCount,
       eggs,unown,fixed,handDonors,small,allowUnownKO:true,maxStates:30000,terminalAttack:terminal.input,
       ...(terminal.a.zone==='bench'?{promoteAttackerId:aid}:{})});
     return plan.status==='solved'?{plan,map}:null;
   }
+  // A fully funded terminal line has no use for spare non-donation Trainers.
+  // Reserve two distinct physical cards without counting the ACE SPEC itself,
+  // a pump, a carrier, lock removal, Energy, or any potential Pokemon donor.
+  function dowsingFodder(o){
+    if(!terminalReady(o)||!has(hand(o),'DM'))return null;
+    const safe=hand(o).filter(x=>{const k=kind(x);return (ITEM.has(k)&&!['DM','DP','RC','COL'].includes(k))||['R','TM','FLOAT','FSS','CAR','IONO'].includes(k);});
+    return safe.length>=2?safe.slice(0,2).map(printing):null;
+  }
   function donationAction(o,rows){
-    const line=donationPlan(o);if(!line||!line.plan.actions.length)return null;
+    let line=donationPlan(o);
+    if(!line){
+      const cost=dowsingFodder(o);
+      if(cost&&(has(discard(o),'DP')||has(hand(o),'DP'))){
+        line=donationPlan(o,1);
+        if(line&&has(discard(o),'DP')){
+          const a=rows.find(x=>x.kind==='play-card'&&kind(x.actorPrinting)==='DM');
+          return a?{action:a,intent:{type:'dowsing-pump',cost,phase:'pay'}}:null;
+        }
+        // If no Pump is in discard yet, the first real Pump creates the
+        // recovery target. The two reserved cards are not modeled donations.
+      }
+    }
+    if(!line||!line.plan.actions.length)return null;
     const step=line.plan.actions[0], loc=line.map.get(step.id);
     const play=k=>rows.find(x=>x.kind==='play-card'&&kind(x.actorPrinting)===k);
     let a=null,intent=null;
@@ -785,6 +807,20 @@ return module.exports;})();
     if(p.promptType==='ChooseCardsPrompt'){
       const z=m.sourceZone;
       if(m.ownerSeat!=='actor'||m.isOwnerVisible!==true)return abstain('UNTRUSTED_CARD_SELECTION');
+      if(sk==='DM'&&context.intent?.type==='dowsing-pump'){
+        const intent=context.intent;
+        if(z==='hand'&&intent.phase==='pay'){
+          const wanted=intent.cost.slice(),selected=[];
+          for(const c of arr(p.choices)){const i=wanted.indexOf(printing(c));if(i>=0&&visible(c,'hand')){wanted.splice(i,1);selected.push(c.token);}}
+          if(wanted.length||selected.length!==2||m.minimumCount!==2||m.maximumCount!==2)return abstain('NO_LEGAL_CARD_SET');
+          intent.phase='recover';return chooseChoices(selected);
+        }
+        if(z==='discard'&&intent.phase==='recover'){
+          const choice=arr(p.choices).find(c=>visible(c,'discard')&&kind(c)==='DP');
+          return choice&&m.minimumCount===1&&m.maximumCount===1?chooseChoices([choice.token]):abstain('NO_LEGAL_CARD_SET');
+        }
+        return abstain('UNSUPPORTED_PROMPT_TYPE');
+      }
       if((sk==='QB'||sk==='DM')&&z==='hand')return pick(p,c=>visible(c,'hand')?discardValue(o,kind(c)):0,{want:sk==='QB'?1:2});
       if(sk==='QB'&&z==='deck')return pick(p,c=>visible(c,'deck')?basicScore(o,kind(c)):0,{want:1,allowEmpty:true});
       if(sk==='VIP'&&z==='deck')return pick(p,c=>visible(c,'deck')?basicScore(o,kind(c),true):0,{want:Math.min(2,benchRoom(o)),allowEmpty:true});
@@ -857,5 +893,5 @@ return module.exports;})();
       return req.prompt?prompt(req,context):root(req,context);
     }});
   }
-  module.exports={POLICY_VERSION:VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,WORKER_PROTOCOL_BLOB_SHA1:PROTOCOL_BLOB,createPolicy,scoreRoot,scoreAttack,kind,root,prompt,donationPlan,terminalReady,powerPlan,acquisitionInventory,resourceNeeds,expectedUseful,expectedDrawValue,resetValue};
+  module.exports={POLICY_VERSION:VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,WORKER_PROTOCOL_BLOB_SHA1:PROTOCOL_BLOB,createPolicy,scoreRoot,scoreAttack,kind,root,prompt,donationPlan,terminalReady,powerPlan,dowsingFodder,acquisitionInventory,resourceNeeds,expectedUseful,expectedDrawValue,resetValue};
 })(module);
