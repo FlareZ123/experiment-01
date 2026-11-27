@@ -119,15 +119,35 @@ function passAction(request) {
  * treated as unsafe in this narrow terminal slice rather than trying to infer
  * Checkup lethality from incomplete condition metadata.
  */
+function damagingSpecialCondition(condition) {
+  if (typeof condition === 'string') {
+    return /^(?:POISONED|BURNED)$/i.test(condition);
+  }
+  // Pinned Twinleaf SpecialCondition enum: 0 PARALYZED, 1 CONFUSED,
+  // 2 ASLEEP, 3 POISONED, 4 BURNED.
+  return condition === 3 || condition === 4;
+}
+
+function activeKoWouldEndGame(observation) {
+  const hasBackup = list(observation?.ownPublic?.bench).some(Boolean);
+  const opponentPrizes = observation?.opponentPublic?.prizeCount;
+  // Rank 24 contains only Iron Thorns ex, so an Active KO yields 2 Prizes.
+  return !hasBackup || !Number.isSafeInteger(opponentPrizes) || opponentPrizes <= 2;
+}
+
 function terminalEndTurnSafety(request) {
   const observation = request?.observation;
   const active = observation?.ownPublic?.active;
   const receipt = request?.publicEventReceipt;
   if (!active || !receipt || !Array.isArray(receipt.opponentLastTurnAttacks)) return false;
-  if (list(active.specialConditions).length > 0) return false;
-  if (receipt.opponentLastTurnAttacks.some(row => PALE_MOON.test(row?.attackName ?? ''))) {
-    return false;
-  }
+
+  // Poison/Burn can cause Checkup KOs, and their damage can be modified by other
+  // public effects that this first slice does not yet normalize. Fail closed.
+  if (list(active.specialConditions).some(damagingSpecialCondition)) return false;
+
+  const paleMoonPending = receipt.opponentLastTurnAttacks.some(row =>
+    PALE_MOON.test(row?.attackName ?? ''));
+  if (paleMoonPending && activeKoWouldEndGame(observation)) return false;
   return true;
 }
 
@@ -268,5 +288,7 @@ module.exports = {
   promptDecision,
   terminalEndTurnSafety,
   terminalWindow,
-  nForcesOpponentDeckZero
+  nForcesOpponentDeckZero,
+  activeKoWouldEndGame,
+  damagingSpecialCondition
 };
