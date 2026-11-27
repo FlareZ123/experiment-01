@@ -365,6 +365,20 @@ function runCases(policy,protocol) {
     const toK=(token,energy)=>play(token,energy,{zone:'active',index:0,printing:A.klefki});
     same(runRoot(p,joust,[toK('reversal',R),toK('counter',C),toK('unit',U),pass]),action('unit'),tag+'cheap Unit funds Hood-removing Joust');
 
+    // Three distinct Energy can be the correct Secret Box payment when
+    // they cross a real same-turn Prize threshold. This is not a generic
+    // permission to expose the singleton manual attachment.
+    const secretView={...loading,ownHand:[A.secret,R,C,U],
+      ownPublic:{...loading.ownPublic,discard:[R,R,R,C,C,C,U]}};
+    same(policy.secretPayment(secretView.ownHand,secretView,'secret'),[R,C,U],tag+'distinct Energy payment funds terminal line');
+    same(runRoot(p,secretView,[play('secret',A.secret),pass]),action('secret'),tag+'tactical Secret Box root');
+    same(runPrompt(p,{...secretView,ownHand:[R,C,U]},cards(secretView,A.secret,'Secret Box','hand',[R,C,U],3,3)),choose('c0','c1','c2'),tag+'exact three-card payment');
+    const secretEarly={...secretView,globalTurn:1};
+    same(policy.secretPayment(secretEarly.ownHand,secretEarly,'secret'),[],tag+'no speculative distinct early Energy payment');
+    const fundedSearch={...noSight,ownHand:[],ownPublic:{...noSight.ownPublic,discard:[R,R,R,R,C,C,C]}};
+    const search=cards(fundedSearch,A.secret,'Secret Box','deck',[A.carrier,A.compressor,A.uturn,full.sight,A.research,A.pokestop],0,4);
+    same(runPrompt(p,fundedSearch,search),choose('c1','c3','c4','c5'),tag+'joint Compressor and Sight search crosses threshold');
+
     // Distinct support and setup provenance, never a foreign role.
     same(p.decide({role:'opponent',seat:1-seat,observation:v,prompt:null}),abstain('ROLE_SEAT_BINDING_MISMATCH'),tag+'seat bound');
   }
