@@ -1,6 +1,6 @@
 {
   "schema": "agent13-newmoon-lockbreaker-guzma-v2",
-  "status": "proposed fixed-60 structural challenger; unqualified; pending adversarial allocation decision",
+  "status": "rejected/superseded structural experiment; do not promote",
   "paperFormat": "English/international paper Expanded, Black & White onward",
   "parent": "results/als/new-moon-lockbreak-english-proxy-60.json",
   "parentIdentityCountSha256": "a693748bc4fc4326142f2dfec26570b9f1e1f7139790d36a089de1137d1cb4c4",
@@ -369,5 +369,7 @@
     "energy": 6
   },
   "competitiveQualifiedGames": 0,
-  "claim99Point5": false
+  "claim99Point5": false,
+  "rejectionReason": "Counter Catcher is an Item sharing the same behind-on-Prizes activation window as Ace Trainer. After Dusclops Cursed Blast self-KOs, v1 can use Ace Trainer plus Counter Catcher in the same turn; replacing Counter Catcher with Guzma makes gust consume the Supporter action and destroys that multi-axis comeback line.",
+  "supersededBy": "Keep Counter Catcher; compare adding an independent escape/recovery card from another slot."
 }
