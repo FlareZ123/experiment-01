@@ -59,6 +59,112 @@ function r17Key(value) {
   for (const [key, re] of Object.entries(R17_PRINT)) if (re.test(text)) return key;
   return null;
 }
+// Fixed own inventory only. K1 inference never consumes opponent hidden
+// state, RNG, Prize order, or a native object. Missing/invalid certificate
+// and any unresolved ownership discrepancy fail closed.
+const R17_COUNTS=Object.freeze({
+  unown:4,voltorb:2,electrode:3,pikachu:1,raichu:2,squawk:2,gengar:1,
+  marshadow:1,klefki:1,ditto:1,research:3,carmine:1,vip:4,compressor:4,
+  carrier:4,stretcher:3,rope:3,mail:2,ticket:1,secret:1,heavy:1,uturn:1,
+  sight:1,pokestop:1,reversal:4,counter:4,unit:4
+});
+function r17CardCounts(rows) {
+  if(!Array.isArray(rows))return null;
+  const out={};
+  for(const c of rows){const k=r17Key(c);if(!k)return null;out[k]=(out[k]||0)+1;}
+  return out;
+}
+function r17SameCounts(a,b) {
+  return Object.keys(R17_COUNTS).every(k=>(a[k]||0)===(b[k]||0));
+}
+function r17KnownOwnZones(view) {
+  const p=own(view),k1=view.ownerK1;
+  if(view.decisionKind!=='owner-root'||view.pendingPromptType!=null||
+     !k1||k1.exactMembershipKnown!==true||k1.invalidationReason!==null||
+     !Number.isSafeInteger(k1.epoch)||k1.epoch<0||!Array.isArray(k1.knownPrintings)||
+     !Array.isArray(view.ownHand)||!Array.isArray(p.bench)||!Array.isArray(p.prizeSlots)||
+     !Number.isSafeInteger(p.deckCount)||p.deckCount<0||
+     !Number.isSafeInteger(p.prizeCount)||p.prizeCount<0||p.prizeCount>6||
+     p.prizeSlots.length!==p.prizeCount||view.ownHand.length!==p.handCount||
+     !Array.isArray(p.resolvingSupporter)||p.resolvingSupporter.length!==0)return null;
+  const deck={},publicCounts={},lost={},prizes={...R17_COUNTS},faceUp={};
+  function add(into,key,n=1){into[key]=(into[key]||0)+n;}
+  function addRows(into,rows){
+    const counts=r17CardCounts(rows);if(!counts)return false;
+    for(const [k,n] of Object.entries(counts))add(into,k,n);
+    return true;
+  }
+  for(const row of k1.knownPrintings){
+    const key=r17Key(row?.printing);
+    if(!key||!Number.isSafeInteger(row.copies)||row.copies<=0||
+       Object.hasOwn(deck,key))return null;
+    deck[key]=row.copies;
+  }
+  if(Object.values(deck).reduce((n,c)=>n+c,0)!==p.deckCount)return null;
+  for(const zone of [view.ownHand,p.discard,p.stadium])
+    if(!addRows(publicCounts,zone))return null;
+  if(!addRows(lost,p.lostZone))return null;
+  for(const slot of [p.active,...p.bench]){
+    if(slot===null||slot===undefined)continue;
+    const top=r17Key(slot),stack=r17CardCounts(slot.evolutionPrintings),
+      energies=r17CardCounts(slot.energies),tools=r17CardCounts(slot.tools);
+    if(!R17_POKEMON.has(top)||!stack||!energies||!tools||!(stack[top]>0))return null;
+    const pokemon={},stackEnergy={},stackTools={};
+    for(const [key,n] of Object.entries(stack)) {
+      if(R17_POKEMON.has(key))pokemon[key]=n;
+      else if(R17_ENERGY.has(key))stackEnergy[key]=n;
+      else if(R17_TOOL.has(key))stackTools[key]=n;
+      else return null;
+    }
+    const depth=Object.values(pokemon).reduce((n,c)=>n+c,0);
+    if(depth<1||depth>2||
+       Object.keys(energies).some(k=>!R17_ENERGY.has(k))||
+       Object.keys(tools).some(k=>!R17_TOOL.has(k))||
+       (Object.keys(stackEnergy).length&&!r17SameCounts(stackEnergy,energies))||
+       (Object.keys(stackTools).length&&!r17SameCounts(stackTools,tools)))return null;
+    // Evolution stack may duplicate attachment projections; count each
+    // physical Pokémon and the authoritative attachment lists exactly once.
+    for(const counts of [pokemon,energies,tools])
+      for(const [key,n] of Object.entries(counts))add(publicCounts,key,n);
+  }
+  for(const key of Object.keys(R17_COUNTS)){
+    prizes[key]-=(deck[key]||0)+(publicCounts[key]||0)+(lost[key]||0);
+    if(prizes[key]<0)return null;
+  }
+  if(Object.values(prizes).reduce((n,c)=>n+c,0)!==p.prizeCount)return null;
+  const indices=new Set();
+  for(const slot of p.prizeSlots){
+    if(!Number.isSafeInteger(slot?.index)||slot.index<0||slot.index>=6||indices.has(slot.index))return null;
+    indices.add(slot.index);
+    if(slot.printing!=null){
+      const key=r17Key(slot.printing);if(!key)return null;add(faceUp,key);
+    }
+  }
+  if(Object.entries(faceUp).some(([key,n])=>n>prizes[key]))return null;
+  return {epoch:k1.epoch,deck,prizes,publicCounts,lost};
+}
+function r17TicketPlan(view) {
+  const zones=r17KnownOwnZones(view),p=own(view);
+  if(!zones||!itemAvailable(view)||!r17Hand(view,'ticket')||
+     p.prizeCount===0||p.deckCount<p.prizeCount)return null;
+  const isolated=key=>zones.prizes[key]>0&&(zones.deck[key]||0)===0&&
+    (zones.publicCounts[key]||0)===0;
+  const compressor=r17Hand(view,'compressor'),stretcher=r17Hand(view,'stretcher'),
+    carrier=r17Hand(view,'carrier'),vip=r17First(view)&&r17Hand(view,'vip');
+  // Ticket puts old Prizes at the bottom, NOT into hand. Require an
+  // already-funded subsequent whole-deck search/recovery route.
+  for(const key of r17EvolutionDemand(view)){
+    if(isolated(key)&&compressor&&stretcher)return {target:key,followup:'compressor-stretcher',epoch:zones.epoch};
+  }
+  if(r17Space(view)>0&&!r17Hand(view,'heavy')&&
+     !r17CoreBaseReady(view,'ditto')&&(zones.deck.ditto||0)===0){
+    for(const key of r17MissingCore(view)){
+      if(isolated(key)&&(vip||compressor&&(carrier||stretcher)))
+        return {target:key,followup:vip?'vip':carrier?'compressor-carrier':'compressor-stretcher',epoch:zones.epoch};
+    }
+  }
+  return null;
+}
 function r17Board(view,key) { return slots(own(view)).some(p=>r17Key(p)===key); }
 function r17Hand(view,key) { return hand(view).some(p=>r17Key(p)===key); }
 function r17Discard(view) { return list(own(view).discard); }
@@ -423,7 +529,8 @@ function r17ScorePlay(item,view) {
     return m.targetSeat==='actor'&&m.targetZone==='active'&&s&&list(s.tools).length===0&&
       list(s.printed?.retreatCost).length===1&&benchCount(own(view))>0?130:0;
   }
-  if(k==='sight'||k==='ticket'||k==='klefki')return 0; // tactical paths not yet implemented.
+  if(k==='ticket')return r17TicketPlan(view)?390:0;
+  if(k==='sight'||k==='klefki')return 0; // tactical paths not yet implemented.
   if(k==='rope')return 0; // do not spend irreversible forced switch without the paired opponent response.
   if(R17_ENERGY.has(k)&&m.targetSeat==='actor') {
     if(k==='unit'&&t==='gengar')return 210;
@@ -690,5 +797,5 @@ module.exports = Object.freeze({
   SOURCE_ENTRY_JSON_SHA256:R17_PROFILE.sourceEntryJsonSha256,
   ENGINE_PIN:R17_PROFILE.enginePin,PROFILE:R17_PROFILE,createPolicy:r17CreatePolicy,
   scoreAction:r17Score,promptDecision:r17Prompt,bestAction:r17Best,
-  planRainTurn:r17PlanRainTurn,energyProvision:r17EnergyProvision
+  planRainTurn:r17PlanRainTurn,knownOwnZones:r17KnownOwnZones,ticketPlan:r17TicketPlan,energyProvision:r17EnergyProvision
 });
