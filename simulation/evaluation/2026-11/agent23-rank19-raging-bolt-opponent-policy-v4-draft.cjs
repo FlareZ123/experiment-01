@@ -7,6 +7,7 @@ const accel=require('./agent23-rank19-acceleration-draft.cjs');
 const targets=require('./agent23-rank19-candidate-targets.cjs');
 const mobility=require('./agent23-rank19-mobility.cjs');
 const locks=require('./agent23-rank19-lock-counterplay.cjs');
+const road=require('./agent23-rank19-roadblock.cjs');
 const POLICY_VERSION='agent23-rank19-raging-bolt-opponent-v4-draft';
 const DISCARD='rank19-bellowing-discard-v1',ATTACH='rank19-attachment-set-v1';
 const allowed=new Set([DISCARD,ATTACH]);
@@ -32,6 +33,7 @@ function chooseRoot(r,caps){
  const cfg={discard:caps.has(DISCARD),attach:caps.has(ATTACH)};
  const terminal=mobility.attackRoot(r,cfg,true);if(terminal)return terminal;
  const unlock=locks.root(r,cfg);if(unlock)return unlock;
+ const block=road.root(r);if(block)return block;
  const md=v3.tacticalRoot(r),mi=rootItem(r,md);
  const bd=caps.has(DISCARD)?bolt.root(r,DISCARD):null;
  const ad=caps.has(ATTACH)?accel.root(r,ATTACH):null,ai=rootItem(r,ad);
