@@ -37,7 +37,9 @@ const P = Object.freeze({
   guzma: /^Guzma BUS(?: 115)?\b/i,
   marnie: /^Marnie SSH(?: 169)?\b/i,
   quickBall: /^Quick Ball FST(?: 237)?\b/i,
-  blower: /^Field Blower GRI(?: 125)?\b/i
+  blower: /^Field Blower GRI(?: 125)?\b/i,
+  compressor: /^Battle Compressor PHF(?: 92)?\b/i,
+  vsSeeker: /^VS Seeker PHF(?: 109)?\b/i
 });
 const arr = value => Array.isArray(value) ? value : [];
 const text = value => typeof value === 'string' ? value : value?.printing ?? value?.fullName ?? value?.label ?? '';
@@ -68,7 +70,11 @@ const PUBLIC_ABORT = Object.freeze({
   R30_STAR_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
   R30_STAR_NO_CARD:'NO_LEGAL_CARD_SET',
   R30_GUZMA_PROMPT_UNSUPPORTED:'UNSUPPORTED_POKEMON_PROMPT',
-  R30_GUZMA_NO_LEGAL_TARGET:'NO_VISIBLE_POKEMON_TARGET'
+  R30_GUZMA_NO_LEGAL_TARGET:'NO_VISIBLE_POKEMON_TARGET',
+  R30_COMPRESSOR_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
+  R30_COMPRESSOR_NO_TARGET:'NO_LEGAL_CARD_SET',
+  R30_VSSEEKER_PROMPT_UNSUPPORTED:'UNSUPPORTED_CARD_COMBINATION_SOURCE',
+  R30_VSSEEKER_NO_GUZMA:'NO_LEGAL_CARD_SET'
 });
 const no = reasonCode => ({kind:'abstain',reasonCode:PUBLIC_ABORT[reasonCode]??reasonCode});
 const act = x => ({kind:'select-action',token:x.token});
@@ -224,6 +230,62 @@ function guzmaPrompt(request) {
     return target?picks([target]):no('R30_GUZMA_NO_LEGAL_TARGET');
   }
   return no('R30_GUZMA_NO_LEGAL_TARGET');
+}
+
+function supporterAvailable(o) {
+  const used=o?.ownTurnResources?.supporterPlayedTurn;
+  const turn=o?.globalTurn;
+  return used===0 || (safeInt(used)&&safeInt(turn)&&used<turn);
+}
+function compressorOpportunity(o,{enablePatchProjection=false}={}) {
+  const hand=arr(o?.ownHand),discard=arr(o?.ownPublic?.discard);
+  const needsGuzma=Boolean(guzmaOpportunity(o)) && supporterAvailable(o) &&
+    hand.some(c=>has(c,P.vsSeeker)) &&
+    !hand.some(c=>has(c,P.guzma))&&!discard.some(c=>has(c,P.guzma));
+  const needsPsychic=enablePatchProjection&&hand.some(c=>has(c,P.patch))&&
+    hasBenchedPsychic(o.ownPublic)&&!discard.some(c=>has(c,P.basicPsychic));
+  return {needsGuzma,needsPsychic,active:needsGuzma||needsPsychic};
+}
+function battleCompressorPrompt(request,{enablePatchProjection=false}={}) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
+     m.sourceZone!=='deck'||m.ownerSeat!=='actor'||m.isOwnerVisible!==true||
+     !safeInt(m.minimumCount)||!safeInt(m.maximumCount)||m.maximumCount>3)
+    return no('R30_COMPRESSOR_PROMPT_UNSUPPORTED');
+  const goal=compressorOpportunity(o,{enablePatchProjection});
+  const offered=arr(p.choices).filter(c=>c.kind==='card'&&typeof c.token==='string');
+  const selected=[];
+  if(goal.needsGuzma){
+    const guzma=offered.find(x=>has(x,P.guzma));if(guzma)selected.push(guzma);
+  }
+  if(goal.needsPsychic&&selected.length<m.maximumCount){
+    const energy=offered.find(x=>has(x,P.basicPsychic)&&
+      !selected.some(y=>y.token===x.token));
+    if(energy)selected.push(energy);
+  }
+  if(selected.length<m.minimumCount)return no('R30_COMPRESSOR_NO_TARGET');
+  if(!selected.length){
+    const empty=arr(p.choices).find(c=>c.kind==='empty-selection'&&typeof c.token==='string');
+    return m.minimumCount===0&&empty?{kind:'select-choice',token:empty.token}:
+      no('R30_COMPRESSOR_NO_TARGET');
+  }
+  return picks(selected);
+}
+function vsSeekerPrompt(request) {
+  const p=request.prompt,m=p.publicMetadata??{},o=request.observation;
+  if(p.promptType!=='ChooseCardsPrompt'||m.selectionType!=='card-combination'||
+     m.sourceZone!=='discard'||m.ownerSeat!=='actor'||m.isOwnerVisible!==true||
+     !safeInt(m.minimumCount)||!safeInt(m.maximumCount)||m.maximumCount!==1)
+    return no('R30_VSSEEKER_PROMPT_UNSUPPORTED');
+  const choices=arr(p.choices).filter(c=>c.kind==='card'&&typeof c.token==='string');
+  const needsGuzma=Boolean(guzmaOpportunity(o))&&supporterAvailable(o);
+  const guzma=needsGuzma?choices.find(c=>has(c,P.guzma)):null;
+  if(guzma)return picks([guzma]);
+  if(m.minimumCount===0){
+    const empty=arr(p.choices).find(c=>c.kind==='empty-selection'&&typeof c.token==='string');
+    if(empty)return {kind:'select-choice',token:empty.token};
+  }
+  return no('R30_VSSEEKER_NO_GUZMA');
 }
 
 function starNeedsResource(o,{enablePatchProjection=false}={}) {
@@ -425,6 +487,14 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   if(quick && canStartQuickBall(o))return act(quick);
   const box=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.box));
   if(box && canStartBox(o))return act(box);
+  const discard=arr(o.ownPublic?.discard);
+  const seeker=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.vsSeeker));
+  if(seeker&&guzmaOpportunity(o)&&supporterAvailable(o)&&
+     discard.some(c=>has(c,P.guzma)))return act(seeker);
+  const compressor=items.find(a=>a.kind==='play-card'&&has(ownPrinting(a),P.compressor));
+  if(compressor&&compressorOpportunity(o,{enablePatchProjection}).active)
+    return act(compressor);
+
   // Attach the one-use VSTAR Tool to a source Pokémon V; avoid burning the
   // VSTAR power unless a specific missing attack/setup channel is visible.
   const vstarV=/^(?:Crobat V DAA(?: 104)?|Empoleon V BST(?: 40)?)\b/i;
@@ -478,6 +548,9 @@ function createPolicy({role,seat,policyVersion,config}) {
       if(sameSource(request.prompt,P.vip))return vipPrompt(request);
       if(sameSource(request.prompt,P.telepathic))return telepathPrompt(request);
       if(sameSource(request.prompt,P.guzma))return guzmaPrompt(request);
+      if(sameSource(request.prompt,P.compressor))return battleCompressorPrompt(request,
+        {enablePatchProjection:config.enablePatchProjection===true});
+      if(sameSource(request.prompt,P.vsSeeker))return vsSeekerPrompt(request);
       if(sameSource(request.prompt,P.fss))return starAlchemyPrompt(request,
         {enablePatchProjection:config.enablePatchProjection===true});
       if(sameSource(request.prompt,P.patch)&&config.enablePatchProjection===true)
@@ -488,4 +561,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,candidateCanUseBoardHeldStarAlchemy};
+  rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,candidateCanUseBoardHeldStarAlchemy};
