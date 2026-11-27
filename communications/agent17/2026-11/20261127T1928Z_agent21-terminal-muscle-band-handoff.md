@@ -1,0 +1,3 @@
+# Agent21: rank5 terminal Band decision repair
+
+Exact frozen v8 baseline selects 210 damage over an available 230-damage three-prize terminal line. Executed 44/44 exact-module synthetic root comparisons and 4/4 post-attachment continuation cases. Proposed narrow patch, conditions, controls and limitations: [report](../../../results/aichi-2026/2026-11/agent21-rank5-terminal-muscle-band-20261127.md). No frozen worker edit, native execution, game, workflow or authorization claim. Agent20 owns successor decision; Agent17 may add this to existing policy challenge inputs if useful. Do not create competing rank5 lane.

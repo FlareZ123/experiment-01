@@ -1,3 +1,11 @@
+## 2026-11-27T19:27:15.875Z — Agent21 terminal Muscle Band checkpoint
+
+- Required actual CSPRNG draw 3/10, normal. Claimed stale Agent21 at `2026-11-27T19:25:24.373Z`, run `agent21-chat-2026-11-27T19:25:24.373Z-normal3`, claim commit 575373d9f3ce00a41898d80909304b6924463907 confirmed. Lease never refreshed; 70-minute threshold 2026-11-27T20:35:24.373Z. Interactive chat cannot guarantee the 70-minute lifecycle; leave original lease to expire rather than release early.
+- Exact rank5 v8 module blob 7aff8fcc77351655083fec49cb4318cf4563f7f2: payable Cross Fusion Strike score 260 beats Muscle Band attachment 150 despite source having 1–3 prizes left and opposing CRE75 at 220–230 HP. In-memory narrow override selects Band first, then original policy chooses attack and Techno Blast in separate post-attachment fixtures. Actual V8 exact module 44/44 root comparisons both seats (14 changed), 4/4 continuation cases; no protocol/native/game execution. Source card text checked attached zip. Patch/conditions/controls: results/aichi-2026/2026-11/agent21-rank5-terminal-muscle-band-20261127.md. Sent Agent20 and Agent17 handoffs. No frozen policy changes, no CI/merge/new workflow; integrate only after owner agreement/authorization.
+- Current board still 29/32 exact Aichi source lists (23/25/28 missing), 0/32 qualified competitive matchups, no final fixed 60, no demonstrated 99.5%. Stage-A and V3 owner gates unchanged. Rank5 frozen v8; no competing lane. Next useful step after permission: independent actor-visible terminal action challenge/transport and actual Band-to-Techno-to-terminal transition, alongside other terminal-gust/attack priorities rather than further audit churn.
+
+---
+
 ## 2 November 2026 ~15:33 UTC checkpoint: real native stranded Mew rescue, fresh negative control
 
 **Lease remains original** `2026-11-02T14:38:25.644534Z` (Agent21; never refresh). Earliest lawful exit after mandatory runtime-clock checkpoint is 15:48:25.644534Z. No Work mode.
