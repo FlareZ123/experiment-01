@@ -1887,7 +1887,16 @@ function r17VisibleRainTargets(view,p,forceSight=false) {
       const modifier=zone==='bench'&&sight&&row[2]?30:0;
       const maxHp=/^Lunatone OBF(?: 92)?$/i.test(printingValue(q))&&r17NewMoonSunbeamLive(view)?
         Math.max(q.hp,130):q.hp;
-      targets.push({zone,index,printing:printingValue(q),prizes:row[1],
+      // Legacy Energy TWM 167's once-per-game reduced Prize award is
+      // public while attached. The actor observation cannot certify
+      // whether that once-per-game protection was spent previously, so
+      // conservatively assume it remains available: a nominal six-Prize
+      // Rain must not fabricate a terminal attack when it actually takes
+      // five Prizes and an opposing Bench survivor remains.
+      const legacyPrizeGuard=list(q.energies).some(energy=>
+        /^Legacy Energy TWM(?: 167)?$/i.test(printingValue(energy)));
+      targets.push({zone,index,printing:printingValue(q),
+        prizes:Math.max(0,row[1]-(legacyPrizeGuard?1:0)),
         hits:Math.max(1,Math.ceil((maxHp-q.damage-modifier)/30))});
     }
   }
