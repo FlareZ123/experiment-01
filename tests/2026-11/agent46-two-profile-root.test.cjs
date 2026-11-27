@@ -1580,3 +1580,43 @@ test('zero-Prize Trainer dolls never masquerade as final Prize KOs while sole-do
     assert.equal(twoGot.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
   }
 });
+
+
+test('Astral terminal treats damage-only Safeguard and retreat-only Block as benign but not effect immunity',()=>{
+  for(const base of profiles)for(const seat of [0,1]){
+    const hooked={...base,paperAstralBarrageTargets:'agent4-cre74-hook-v1'};
+    const attacker=v([P,P,P]);attacker.printed.retreatCost=['Colorless','Colorless'];
+    const vmaxer=vmax([P,P,P,P,P]);
+    const girafarig=pokemon({printing:'Girafarig LOT',name:'Girafarig',hp:90,damage:60,
+      types:['Psychic'],subtypes:['Basic']});
+    const mimikyu=pokemon({printing:'Mimikyu PAL',name:'Mimikyu',hp:70,damage:30,
+      types:['Psychic'],subtypes:['Basic'],abilities:['Safeguard'],suppression:false});
+    const snorlax=pokemon({printing:'Snorlax PGO',name:'Snorlax',hp:150,damage:120,
+      types:['Colorless'],subtypes:['Basic'],abilities:['Block'],suppression:false});
+    const barrage={token:'barrage',kind:'attack',attackName:'Astral Barrage'};
+    const mist={token:'mist',kind:'attack',attackName:'Shadow Mist'};
+    const retreat={token:'retreat-vmax',kind:'retreat',targetPrinting:'Shadow Rider Calyrex VMAX CRE',publicMetadata:{benchIndex:0}};
+    const policy=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:hooked});
+
+    for(const [active,bench] of [[girafarig,mimikyu],[snorlax,girafarig],[snorlax,mimikyu]]){
+      const view=observation(seat,{active:attacker,bench:[vmaxer],opponentActive:active,opponentBench:[bench],globalTurn:11});
+      view.ownPublic.prizeCount=2;
+      const got=policy.decideWithAudit(root(seat,view,[barrage,mist,retreat]));
+      assert.deepEqual(got.decision,sel('barrage'));
+      assert.equal(got.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_ASTRAL_BARRAGE');
+    }
+
+    const unaware=pokemon({printing:'Skeledirge SSP',name:'Skeledirge',hp:180,damage:140,
+      types:['Fire'],subtypes:['Stage 2'],abilities:['Unaware'],suppression:false});
+    const blocked=observation(seat,{active:attacker,bench:[vmaxer],opponentActive:girafarig,opponentBench:[unaware],globalTurn:11});
+    blocked.ownPublic.prizeCount=2;
+    const blockedGot=policy.decideWithAudit(root(seat,blocked,[barrage,mist,retreat]));
+    assert.notEqual(blockedGot.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_ASTRAL_BARRAGE');
+
+    const basePolicy=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:base});
+    const unhooked=observation(seat,{active:attacker,bench:[vmaxer],opponentActive:girafarig,opponentBench:[mimikyu],globalTurn:11});
+    unhooked.ownPublic.prizeCount=2;
+    const unhookedGot=basePolicy.decideWithAudit(root(seat,unhooked,[barrage,mist,retreat]));
+    assert.notEqual(unhookedGot.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_ASTRAL_BARRAGE');
+  }
+});
