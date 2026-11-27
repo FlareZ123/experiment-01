@@ -3,8 +3,8 @@
 // Detached actor-visible, exact K1 role-multiset refresh planner.
 // The terminal helper is injected so this can be bundled into a pure worker;
 // no Store, hidden order, opponent hand, native dispatch, or engine imports.
-const REFRESH_ROLES=["P","fog","stretcher","vs","acerola","guzma","ranger","lillie","iono","stamp","other"];
-const ROLE_LIMITS={P:11,fog:4,stretcher:1,vs:2,acerola:1,guzma:1,ranger:1,lillie:2,iono:1,stamp:1,other:60};
+const REFRESH_ROLES=["P","fog","stretcher","vs","acerola","guzma","ranger","lillie","iono","stamp","hood","float","blower","valley","other"];
+const ROLE_LIMITS={P:11,fog:4,stretcher:1,vs:2,acerola:1,guzma:1,ranger:1,lillie:2,iono:1,stamp:1,hood:2,float:1,blower:1,valley:1,other:60};
 function roleVector(x){
   if(!x||typeof x!=="object"||Object.keys(x).some(k=>!REFRESH_ROLES.includes(k)))throw Error("unknown role");
   const a=REFRESH_ROLES.map(k=>x[k]??0);
@@ -46,6 +46,8 @@ function applyRoles(base,h,d,supportSpent){
     knownDeckPsychicCertified:true,deckCount:sum(d),
     acerolaHeld:h[idx("acerola")]>0,guzmaHeld:h[idx("guzma")]>0,rangerHeld:h[idx("ranger")]>0,
     vsSeekerCount:h[idx("vs")],fogCount:h[idx("fog")],nightStretcherCount:h[idx("stretcher")],
+    ...(base.dynamicEffects?{hoodCount:h[idx('hood')],floatStoneCount:h[idx('float')],
+      fieldBlowerCount:h[idx('blower')],valleyHeld:h[idx('valley')]>0}:{}),
     supportAvailable:base.supportAvailable&&!supportSpent};
 }
 function exactRefreshTerminal(terminal,input,context,options={}){
@@ -69,13 +71,20 @@ function exactRefreshTerminal(terminal,input,context,options={}){
       const discarded=k==="P"?(input.discardPsychic??0):
         k==="acerola"?+!!input.acerolaDiscard:k==="guzma"?+!!input.guzmaDiscard:
         k==="ranger"?+!!input.rangerDiscard:(refreshDiscard[k]??0);
-      const attached=k==="P"?input.board.reduce((a,x)=>a+x.energy,0):0;
+      const attached=k==='P'?input.board.reduce((a,x)=>a+x.energy,0):
+        k==='hood'?input.board.filter(x=>x.tool==='hood').length:k==='float'?input.board.filter(x=>x.tool==='float').length:
+        k==='valley'?+!!input.dimensionValley:0;
       require(h[i]+d[i]+discarded+attached<=ROLE_LIMITS[k],"role copy conservation: "+k);
     }
     require(input.acerolaHeld===(h[idx("acerola")]>0)&&
       !!input.guzmaHeld===(h[idx("guzma")]>0)&&!!input.rangerHeld===(h[idx("ranger")]>0)&&
       (input.vsSeekerCount??0)===h[idx("vs")]&&(input.fogCount??0)===h[idx("fog")]&&
       (input.nightStretcherCount??0)===h[idx("stretcher")],"terminal hand roles inconsistent");
+    if(input.dynamicEffects)require((input.hoodCount??0)===h[idx('hood')]&&
+      (input.floatStoneCount??0)===h[idx('float')]&&(input.fieldBlowerCount??0)===h[idx('blower')]&&
+      !!input.valleyHeld===(h[idx('valley')]>0),"dynamic held roles inconsistent");
+    else require(['hood','float','blower','valley'].every(k=>h[idx(k)]===0&&d[idx(k)]===0),
+      "Tool/Stadium roles must be classified Other in static envelope");
     require(["lillie","iono","stamp"].every(k=>typeof context.refreshLegal?.[k]==="boolean"),"refresh legality must be certified");
     const maxStates=options.maxStatesPerOutcome??4000,maxOutcomes=options.maxOutcomesPerRoute??10000;
     require(Number.isSafeInteger(maxStates)&&maxStates>0&&maxStates<=1000000&&
@@ -233,6 +242,17 @@ function refreshSelfTest(terminal){
   q=exactRefreshTerminal(terminal,input,c(h,d));
   assert(q.decision.kind==="immediate-win-certificate"||q.decision.kind==="deterministic","deterministic win should skip refresh");
   results.push({name:"already certain win skips refresh",kind:q.decision.kind});
+  // A shuffle must not retain a held Hood that the draw did not return.
+  h={hood:1,lillie:1};d={P:2,other:8};
+  const dynV=(id,e)=>({...v(id,e,true),wobbuffet:false,latias:false,fairyZone:false,basic:false,ruleBox:true,future:false,tool:'none'});
+  const thorns=id=>({...t(id,230),thorns:true,dragon:false,hood:false});
+  input=b([dynV("a",3),dynV("b",3)],h,d,{dynamicEffects:{kind:"thorns-wobbuffet-v1",toolsEffective:true,otherEffectsStable:true},
+    hoodCount:1,toolPlayAllowed:true,opponents:[thorns("oa"),thorns("ob")]});
+  r=exactRefreshTerminal(terminal,input,c(h,d));
+  const hoodRoute=route(r,"lillie",false),hoodExpected=Number(chooseBig(8,3))/Number(chooseBig(11,6));
+  // Need both deck P and the shuffled Hood; no resource is duplicated.
+  assert(Math.abs(hoodRoute.lowerBound-hoodExpected)<1e-12,"shuffled Hood is not retained "+JSON.stringify({hoodRoute,hoodExpected}));
+  results.push({name:"dynamic Hood drawn after shuffle rather than retained",p:hoodRoute.lowerBound});
   return results;
 }
 module.exports={exactRefreshTerminal,refreshSelfTest,drawVectors,chooseBig};
