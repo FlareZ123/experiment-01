@@ -70,6 +70,11 @@ const PALACE_BOOK = /^Palace Book\b/i;
 const HANDHELD_FAN = /^Handheld Fan\b/i;
 const NEST_BALL = /^Nest Ball\b/i;
 const HEAVY_BALL = /^Heavy Ball\b/i;
+const ENHANCED_HAMMER = /^Enhanced Hammer\b/i;
+const TEAM_FLARE_GRUNT = /^Team Flare Grunt\b/i;
+const PLUMERIA = /^Plumeria\b/i;
+const FABA = /^Faba\b/i;
+const MEGATON_BLOWER = /^Megaton Blower\b/i;
 
 function list(value) {
   return Array.isArray(value) ? value : [];
@@ -153,6 +158,38 @@ function ownThornsInPlay(observation) {
     if (slot && IRON_THORNS.test(slot.printing ?? '')) count += 1;
   }
   return count;
+}
+function basicEnergyPrinting(value) {
+  return /^(?:Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy(?:\b|$)/i
+    .test(textOf(value));
+}
+function specialEnergyPrinting(value) {
+  return !!textOf(value) && !basicEnergyPrinting(value);
+}
+function opponentPokemon(observation) {
+  const out = [];
+  const active = opponentActive(observation);
+  if (active) out.push({ zone: 'active', index: 0, pokemon: active });
+  list(observation?.opponentPublic?.bench).forEach((pokemon, index) => {
+    if (pokemon) out.push({ zone: 'bench', index, pokemon });
+  });
+  return out;
+}
+function opponentSpecialEnergyCount(observation) {
+  return opponentPokemon(observation).reduce((sum, row) =>
+    sum + list(row.pokemon?.energies).filter(specialEnergyPrinting).length, 0);
+}
+function opponentToolCount(observation) {
+  return opponentPokemon(observation).reduce((sum, row) =>
+    sum + list(row.pokemon?.tools).length, 0);
+}
+function opponentEnergyCount(observation) {
+  return opponentPokemon(observation).reduce((sum, row) =>
+    sum + list(row.pokemon?.energies).length, 0);
+}
+function canPayPlumeria(observation) {
+  const hand = list(observation?.ownHand).filter(card => !matches(card, PLUMERIA));
+  return hand.filter(card => discardPriority(card, observation) >= 60).length >= 2;
 }
 function hasVoltCycloneFrontier(request) {
   return list(request?.actionFrontier?.items).some(item =>
@@ -267,6 +304,29 @@ function fundingScore(item, request) {
   const active = ownActive(observation);
   const card = item?.actorPrinting ?? '';
   if (!IRON_THORNS.test(active?.printing ?? '')) return 0;
+
+  if (item.kind === 'play-card' && matches(card, MEGATON_BLOWER)) {
+    return itemAvailable(observation) &&
+      (opponentSpecialEnergyCount(observation) > 0 || opponentToolCount(observation) > 0) ? 300 : 0;
+  }
+  if (item.kind === 'play-card' && matches(card, ENHANCED_HAMMER)) {
+    return itemAvailable(observation) && opponentSpecialEnergyCount(observation) > 0 ? 270 : 0;
+  }
+  if (item.kind === 'play-card' && matches(card, PLUMERIA)) {
+    return supporterAvailable(observation) && opponentEnergyCount(observation) > 0 &&
+      canPayPlumeria(observation) ? 260 : 0;
+  }
+  if (item.kind === 'play-card' && matches(card, TEAM_FLARE_GRUNT)) {
+    return supporterAvailable(observation) &&
+      list(opponentActive(observation)?.energies).length > 0 ? 250 : 0;
+  }
+  if (item.kind === 'play-card' && matches(card, FABA)) {
+    const stadiumVisible = list(observation?.ownPublic?.stadium).length > 0 ||
+      list(observation?.opponentPublic?.stadium).length > 0;
+    return supporterAvailable(observation) &&
+      (opponentSpecialEnergyCount(observation) > 0 || opponentToolCount(observation) > 0 ||
+       stadiumVisible) ? 240 : 0;
+  }
 
   if (item.kind === 'play-card' && matches(card, IRON_THORNS)) {
     return benchOpen(observation) && ownThornsInPlay(observation) < 2 ? 235 : 0;
@@ -427,7 +487,8 @@ function vsSeekerPromptDecision(prompt) {
 
 function choiceOwner(choice) { return choice?.publicMetadata?.ownerSeat ?? null; }
 function choiceZone(choice) {
-  return choice?.publicMetadata?.sourceZone ?? choice?.publicMetadata?.zone ?? null;
+  return choice?.publicMetadata?.sourceZone ?? choice?.publicMetadata?.targetZone ??
+    choice?.publicMetadata?.zone ?? null;
 }
 function promptMaximum(prompt) {
   const m = prompt?.publicMetadata?.maximumCount;
@@ -483,6 +544,101 @@ function guzmaHalaPromptDecision(request) {
   return { kind: 'select-choices', tokens: selected.map(choice => choice.token) };
 }
 
+function pokemonFromChoice(choice, observation) {
+  if (choiceOwner(choice) !== 'opponent') return null;
+  const zone = choice?.publicMetadata?.targetZone ?? choiceZone(choice);
+  const index = choice?.publicMetadata?.selectionIndex ??
+    choice?.publicMetadata?.targetIndex ?? 0;
+  if (zone === 'active') return opponentActive(observation);
+  if (zone === 'bench' && Number.isSafeInteger(index)) {
+    return list(observation?.opponentPublic?.bench)[index] ?? null;
+  }
+  return null;
+}
+function opponentPokemonChoice(prompt, observation, mode = 'energy') {
+  const rows = list(prompt?.choices).filter(choice => choiceOwner(choice) === 'opponent');
+  let best = null;
+  let bestScore = -1;
+  for (const choice of rows) {
+    const pokemon = pokemonFromChoice(choice, observation);
+    let score = choice?.publicMetadata?.targetZone === 'active' ? 2 : 0;
+    if (mode === 'special') {
+      score += list(pokemon?.energies).filter(specialEnergyPrinting).length * 20;
+    } else if (mode === 'tool') {
+      score += list(pokemon?.tools).length * 20;
+    } else {
+      score += list(pokemon?.energies).length * 10;
+    }
+    if (score > bestScore) { best = choice; bestScore = score; }
+  }
+  return best ? { kind: 'select-choice', token: best.token } :
+    { kind: 'abstain', reasonCode: 'NO_USEFUL_CARD_CHOICE' };
+}
+function attachedCardChoice(prompt, preferSpecial = false) {
+  const cards = list(prompt?.choices).filter(choice =>
+    choice?.kind !== 'empty-selection' && choice?.kind !== 'cancel');
+  const preferred = preferSpecial ? cards.find(choice => specialEnergyPrinting(choice)) : null;
+  const row = preferred ?? cards.find(choice => specialEnergyPrinting(choice)) ?? cards[0];
+  return row ? { kind: 'select-choice', token: row.token } :
+    { kind: 'abstain', reasonCode: 'NO_USEFUL_CARD_CHOICE' };
+}
+function plumeriaPromptDecision(request) {
+  const prompt = request.prompt;
+  const observation = request.observation;
+  if (prompt?.promptType === 'ChoosePokemonPrompt') {
+    return opponentPokemonChoice(prompt, observation, 'energy');
+  }
+  if (prompt?.promptType !== 'ChooseCardsPrompt') {
+    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
+  }
+  const hand = list(prompt.choices).filter(choice =>
+    choiceOwner(choice) === 'actor' && choiceZone(choice) === 'hand');
+  if (hand.length) {
+    const ranked = hand
+      .map(choice => ({ choice, score: discardPriority(choice, observation) }))
+      .filter(row => row.score > 0)
+      .sort((a, b) => b.score - a.score ||
+        String(a.choice.token).localeCompare(String(b.choice.token)));
+    if (ranked.length < 2) {
+      return { kind: 'abstain', reasonCode: 'NO_USEFUL_CARD_CHOICE' };
+    }
+    return { kind: 'select-choices', tokens: ranked.slice(0, 2).map(row => row.choice.token) };
+  }
+  return attachedCardChoice(prompt, true);
+}
+function enhancedHammerPromptDecision(request) {
+  if (request.prompt?.promptType === 'ChoosePokemonPrompt') {
+    return opponentPokemonChoice(request.prompt, request.observation, 'special');
+  }
+  if (request.prompt?.promptType === 'ChooseCardsPrompt') {
+    return attachedCardChoice(request.prompt, true);
+  }
+  return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
+}
+function teamFlarePromptDecision(request) {
+  if (request.prompt?.promptType === 'ChooseCardsPrompt') {
+    return attachedCardChoice(request.prompt, true);
+  }
+  return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
+}
+function fabaPromptDecision(request) {
+  const prompt = request.prompt;
+  if (prompt?.promptType === 'SelectPrompt' || prompt?.promptType === 'SelectOptionPrompt') {
+    return chooseOption(prompt, /Special Energy/i) ?? chooseOption(prompt, /Tool/i) ??
+      chooseOption(prompt, /Stadium/i) ??
+      { kind: 'abstain', reasonCode: 'NO_USEFUL_CARD_CHOICE' };
+  }
+  if (prompt?.promptType === 'ChoosePokemonPrompt') {
+    const special = opponentPokemonChoice(prompt, request.observation, 'special');
+    if (special.kind === 'select-choice') return special;
+    return opponentPokemonChoice(prompt, request.observation, 'tool');
+  }
+  if (prompt?.promptType === 'ChooseCardsPrompt') {
+    return attachedCardChoice(prompt, true);
+  }
+  return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
+}
+
 function ironThornsSearchPromptDecision(prompt) {
   if (prompt?.promptType !== 'ChooseCardsPrompt') {
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
@@ -520,6 +676,10 @@ function promptDecision(request) {
   if (VS_SEEKER.test(source)) return vsSeekerPromptDecision(prompt);
   if (GUZMA_HALA.test(source)) return guzmaHalaPromptDecision(request);
   if (TAG_CALL.test(source)) return tagCallPromptDecision(prompt);
+  if (PLUMERIA.test(source)) return plumeriaPromptDecision(request);
+  if (ENHANCED_HAMMER.test(source)) return enhancedHammerPromptDecision(request);
+  if (TEAM_FLARE_GRUNT.test(source)) return teamFlarePromptDecision(request);
+  if (FABA.test(source)) return fabaPromptDecision(request);
   if (NEST_BALL.test(source) || HEAVY_BALL.test(source) || CAPTURE_ENERGY.test(source)) {
     return ironThornsSearchPromptDecision(prompt);
   }
@@ -566,5 +726,11 @@ module.exports = {
   energyUnits,
   ironThornsSearchPromptDecision,
   ownThornsInPlay,
-  benchOpen
+  benchOpen,
+  specialEnergyPrinting,
+  opponentSpecialEnergyCount,
+  plumeriaPromptDecision,
+  enhancedHammerPromptDecision,
+  teamFlarePromptDecision,
+  fabaPromptDecision
 };
