@@ -29,6 +29,20 @@ function valid(input){
   const k=key(c);if(k)counts[k]++;else if(input.attached.includes(c))return false;
  }
  if(KEYS.some(k=>counts[k]>4))return false;
+ if(input.attackWindows!==undefined){
+  if(input.attackWindowsComplete!==true||!Array.isArray(input.attackWindows)||input.attackWindows.length>64)return false;
+  const publicTokens=new Set(input.discard.map(c=>c.token));
+  for(const w of input.attackWindows){
+   if(!w||!Array.isArray(w.requiresDiscardTokens)||!Array.isArray(w.consumedEnergyTokens)||
+    new Set(w.requiresDiscardTokens).size!==w.requiresDiscardTokens.length||
+    new Set(w.consumedEnergyTokens).size!==w.consumedEnergyTokens.length||
+    w.requiresDiscardTokens.some(t=>!publicTokens.has(t))||
+    w.consumedEnergyTokens.some(t=>!w.requiresDiscardTokens.includes(t)||!key(input.discard.find(c=>c.token===t)))||
+    !Number.isInteger(w.availableBombs)||w.availableBombs<0||w.availableBombs>input.availableBombs||
+    !Number.isInteger(w.additionalDiscardCapacity)||w.additionalDiscardCapacity<0||w.additionalDiscardCapacity>input.additionalDiscardCapacity||
+    typeof w.manualAvailable!=='boolean'||w.manualAvailable&&!input.manualAvailable)return false;
+  }
+ }
  const ids=new Set();
  for(const t of input.targets){
   if(!t||typeof t.id!=='string'||ids.has(t.id)||!Number.isInteger(t.remainingHp)||t.remainingHp<1||
@@ -78,9 +92,24 @@ function worst(input,discard,targets){
  }
  return best;
 }
+function worstWindow(input,discard,targets){
+ if(input.attackWindows===undefined)return worst(input,discard,targets);
+ const visible=new Set(discard.map(c=>c.token));
+ let best={terminal:false,net:0,prizes:0,bombs:0,units:0,targets:[],objective:[0,0,0,0]};
+ for(let i=0;i<input.attackWindows.length;i++){
+  const w=input.attackWindows[i];
+  if(w.requiresDiscardTokens.some(t=>!visible.has(t)))continue;
+  const reserved=new Set(w.consumedEnergyTokens);
+  const result=worst({...input,availableBombs:w.availableBombs,
+   additionalDiscardCapacity:w.additionalDiscardCapacity,manualAvailable:w.manualAvailable},
+   discard.filter(c=>!reserved.has(c.token)),targets);
+  if(cmp(result.objective,best.objective)>0)best={...result,windowIndex:i};
+ }
+ return best;
+}
 function planLostZoneDefense(input){
  if(!valid(input))return {status:'unsupported-public-envelope'};
- const targets=targetRows(input.targets),baseline=worst(input,input.discard,targets);
+ const targets=targetRows(input.targets),baseline=worstWindow(input,input.discard,targets);
  // Get Lost chooses up to two physical cards. Non-Energy alternatives
  // remain legal but have no modeled effect on this narrow damage ceiling.
  const n=Math.min(2,input.discard.length),rows=[];
@@ -89,7 +118,7 @@ function planLostZoneDefense(input){
  for(let i=0;i<input.discard.length;i++)for(let j=n===1?i:i+1;j<input.discard.length;j++){
   const chosen=n===1?[input.discard[i]]:[input.discard[i],input.discard[j]];
   const removed=new Set(chosen.map(c=>c.token));
-  const after=worst(input,input.discard.filter(c=>!removed.has(c.token)),targets);
+  const after=worstWindow(input,input.discard.filter(c=>!removed.has(c.token)),targets);
   const activeWeight=chosen.reduce((s,c)=>s+(key(c)?1:0),0);
   const row={tokens:[...removed],after,removedEnergyCount:activeWeight};rows.push(row);
   if(!best||cmp(after.objective,best.after.objective)<0||
