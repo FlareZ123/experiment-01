@@ -117,9 +117,57 @@ test('Secret Box payment and search reject ambiguous, non-actor and unpayable pr
   assert.equal(policy(0).decide(r).reasonCode,'R30_BOX_SEARCH_MINIMUM_UNAVAILABLE');
   r.prompt.publicMetadata.ownerSeat='opponent';
   assert.equal(policy(0).decide(r).reasonCode,'R30_BOX_PROMPT_UNSUPPORTED');
-  r.prompt=prompt('deck',[],0,4);
-  assert.deepEqual(policy(0).decide(r),{kind:'select-choices',tokens:[]});
+  r.prompt=prompt('deck',[{kind:'empty-selection',token:'empty'}],0,4);
+  assert.deepEqual(policy(0).decide(r),{kind:'select-choice',token:'empty'});
+  r.prompt.choices=[];
+  assert.equal(policy(0).decide(r).reasonCode,'R30_BOX_NO_LEGAL_EMPTY_CHOICE');
 });
+for(const seat of [0,1]) {
+  test('seat '+seat+': source Quick Ball safely discards expired VIP, retrieves Clefairy, benches it',()=>{
+    const r=request(seat);r.observation.ownPublic.active=b('Unown AOR 30');
+    r.observation.ownPublic.bench=[b('Dedenne-GX UNB 57')];
+    r.observation.ownHand=['Quick Ball FST 237',vip,
+      'Telepathic Psychic Energy POR 88',psychic];
+    r.actionFrontier.items=[root('play-card','Quick Ball FST 237','qb'),
+      root('play-card','Marnie SSH 169','m'),root('pass','','pass')];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'qb'});
+    r.prompt={...prompt('hand',[card(vip,'paid-vip'),
+      card('Telepathic Psychic Energy POR 88','protected'),card(psychic,'basic')],1,1),
+      source:{sourcePrinting:'Quick Ball FST 237',effectName:'Quick Ball'}};
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-choices',tokens:['paid-vip']});
+    r.observation.ownHand.splice(1,1);
+    r.prompt={...prompt('deck',[card(clef,'clefairy'),
+      card('Latias ex SSP 76','latias')],0,1),
+      source:{sourcePrinting:'Quick Ball FST 237',effectName:'Quick Ball'}};
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-choices',tokens:['clefairy']});
+    r.prompt=null;r.observation.ownHand.push(clef);
+    r.actionFrontier.items=[root('play-card',clef,'bench-clefairy')];
+    assert.deepEqual(policy(seat).decide(r),{kind:'select-action',token:'bench-clefairy'});
+  });
+}
+test('Quick Ball does not spend an unprotected first-turn VIP or discard protected Energy',()=>{
+  const r=request();
+  r.observation.globalTurn=2;
+  r.observation.ownPublic.active=b('Unown AOR 30');
+  r.observation.ownHand=['Quick Ball FST 237',vip,'Telepathic Psychic Energy POR 88'];
+  r.actionFrontier.items=[root('play-card','Quick Ball FST 237','qb')];
+  assert.equal(policy(0).decide(r).reasonCode,'R30_ROOT_UNSUPPORTED');
+  r.observation.globalTurn=4;
+  r.observation.ownHand=['Quick Ball FST 237','Telepathic Psychic Energy POR 88','Guzma BUS 115'];
+  assert.equal(policy(0).decide(r).reasonCode,'R30_ROOT_UNSUPPORTED');
+});
+test('Quick Ball cannot invent a target or use wrong owner; optional no-find uses projected empty token',()=>{
+  const r=request();r.observation.ownPublic.active=b('Unown AOR 30');
+  r.observation.ownHand=['Quick Ball FST 237',vip];
+  r.prompt={...prompt('deck',[{kind:'empty-selection',token:'empty'}],0,1),
+    source:{sourcePrinting:'Quick Ball FST 237',effectName:'Quick Ball'}};
+  assert.deepEqual(policy(0).decide(r),{kind:'select-choice',token:'empty'});
+  r.prompt.choices=[];
+  assert.equal(policy(0).decide(r).reasonCode,'R30_QUICKBALL_NO_VALID_TARGET');
+  r.prompt.publicMetadata.ownerSeat='opponent';
+  assert.equal(policy(0).decide(r).reasonCode,'R30_QUICKBALL_PROMPT_UNSUPPORTED');
+});
+
 test('Copycat and Wondrous Patch prompt families remain explicit unsupported',()=>{
   const r=request();r.prompt={promptType:'ChooseCardsPrompt',
     source:{sourcePrinting:'Wondrous Patch PFL 94'},choices:[]};
