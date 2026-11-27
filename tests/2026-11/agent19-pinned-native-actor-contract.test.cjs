@@ -235,3 +235,27 @@ for(const seat of [0,1]){
   assert.throws(()=>protocol.validateActorObservation(forged,seat));
  });
 }
+
+
+for(const seat of [0,1]){
+ test('pinned once-per-game Legacy Energy used marker is public and optional, seat '+seat,()=>{
+  const own=player(seat,true),other=player(1-seat,false);
+  own.legacyEnergyUsed=true;
+  other.legacyEnergyUsed=false;
+  const state={players:seat===0?[own,other]:[other,own],
+    activePlayer:seat,turn:4,phase:2,prompts:[]};
+  const view=observe.actorObservation(state,seat);
+  assert.equal(view.ownPublic.publicTurnRestrictions.legacyEnergyUsed,true);
+  assert.equal(view.opponentPublic.publicTurnRestrictions.legacyEnergyUsed,false);
+  assert.doesNotThrow(()=>protocol.validateActorObservation(view,seat));
+  const bad=JSON.parse(JSON.stringify(view));
+  bad.opponentPublic.publicTurnRestrictions.legacyEnergyUsed='false';
+  assert.throws(()=>protocol.validateActorObservation(bad,seat));
+  // Future unsupported engine revisions must be treated as unknown rather
+  // than falsely asserting that the reduction has not yet been spent.
+  delete other.legacyEnergyUsed;
+  const unknown=observe.actorObservation(state,seat);
+  assert.equal(Object.hasOwn(unknown.opponentPublic.publicTurnRestrictions,'legacyEnergyUsed'),false);
+  assert.doesNotThrow(()=>protocol.validateActorObservation(unknown,seat));
+ });
+}
