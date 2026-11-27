@@ -1847,7 +1847,7 @@ function searchNeedScore(view, printing, effectName = '', receipt = null) {
   }
   if (effectName === 'Arven' && hasAnyName(printing,['Mysterious Treasure','Quick Ball']) && gateAccessNeed(view) && !itemLocked(view)) {
     const next={...view,ownHand:[...view.ownHand,printing],ownPublic:{...view.ownPublic,handCount:view.ownPublic.handCount+1,deckCount:view.ownPublic.deckCount-1}};
-    if(hasDiscardableHand(next,1,printing))return 112;
+    if(hasDiscardableHand(next,1,printing,receipt))return 112;
   }
   if(hasName(printing,'Girafarig')&&needControlGirafarig(view))return 106;
   if(preserveStallSoloNightWatch(view)&&hasAnyName(printing,['Radiant Eternatus','Latias ex','Tapu Lele-GX','Shadow Rider Calyrex V','Girafarig','Wobbuffet','Marshadow',"Lillie's Clefairy ex",'Mimikyu','Dialga-GX']))return -5;
@@ -1924,14 +1924,34 @@ function searchNeedScore(view, printing, effectName = '', receipt = null) {
   return 0;
 }
 
-function discardValue(view, printing) {
+function discardValue(view, printing, receipt=null) {
   if (!isText(printing)) return 1000;
   if(hasName(printing,'Girafarig')&&affordableControlGetLostAccess(view))return 900;
   const duplicates = view.ownHand.filter(item => item === printing).length;
   if (hasName(printing, 'Battle VIP Pass') && view.globalTurn > 1) return 1;
   if (hasName(printing, 'Psychic Energy')) {
-    return psychicEnergyCount(view) >= 5 ? 2 : 80;
+    const demand=energyDemand(view,receipt);
+    // Existing board Energy does not make the last held attachment surplus.
+    // Keep the price below the hard preservation threshold: a two-VMAX Gate
+    // route may still justify one Energy if no cheaper payment is available.
+    if(demand.current>0&&demand.held<=demand.current)return 650;
+    return psychicEnergyCount(view)>=5?2:80;
   }
+  if(hasName(printing,'Battle Compressor'))return 5; // copied route unadmitted
+  if(hasName(printing,'Radiant Eternatus')&&!boardHas(view,'Radiant Eternatus')&&
+     (canPlayRadiantForGate(view)||gatePivotView(view)!==null))return 1000;
+  if(hasName(printing,'Forest Seal Stone')&&
+     (view.ownTurnResources?.vstarUsed===true||view.ownPublic.publicTurnRestrictions?.vstarUsed===true))return 5;
+  if(hasName(printing,'Stealthy Hood')&&duplicates<=1&&hasStealthyHoodSearchNeed(view))return 900;
+  if(hasName(printing,'Marshadow')&&hasStadiumRemovalTarget(view)&&
+      !boardHas(view,'Marshadow')&&(!handHas(view,'Field Blower')||itemLocked(view)))return 900;
+  if(hasName(printing,'Field Blower')&&hasStadiumRemovalTarget(view)&&
+      !boardHas(view,'Marshadow')&&!handHas(view,'Marshadow'))return 900;
+  if(hasName(printing,'Hisuian Heavy Ball')&&heavyBallNeed(view)>=870)return 950;
+  if(hasName(printing,'Tapu Lele-GX')&&supporterAvailable(view)&&hasOpenBench(view)&&
+      !hasWonderTagLock(view)&&!boardHas(view,'Tapu Lele-GX')&&
+      !view.ownHand.some(p=>hasAnyName(p,["Lillie's Determination",'Iono','Arven','Teammates','Raihan','Guzma','Acerola','Pokémon Ranger'])))return 850;
+  if(hasName(printing,'Pokémon Ranger')&&itemLocked(view)&&!hasContinuousItemLock(view))return 850;
   if (hasName(printing, 'Dialga-GX')) {
     return 10; // no executable copied-attack path in this release
   }
@@ -1944,7 +1964,7 @@ function discardValue(view, printing) {
       !boardHas(view, "Lillie's Clefairy ex")) return 900;
   if (hasName(printing, 'Unfair Stamp') || hasName(printing, 'Forest Seal Stone') ||
       hasName(printing, 'Computer Search')) return 1000;
-  if (hasAnyName(printing, ['Guzma', 'Raihan', 'Acerola', 'Teammates', 'Lillie'])) return 850;
+  if (hasAnyName(printing, ['Guzma', 'Raihan', 'Acerola', 'Teammates', "Lillie's Determination"])) return 850;
   if (hasAnyName(printing, ['Fog Crystal', 'Quick Ball', 'Mysterious Treasure']) &&
       duplicates > 1) return 10;
   if (duplicates > 1 && !hasAnyName(printing, CORE_PRINTINGS)) return 15;
@@ -1974,11 +1994,11 @@ function searchCandidates(view, prompt, choices, receipt = null) {
       choice,
       score: hasName(choice.printing, 'Dialga-GX') &&
         opponentHasRegidrago(view) && !discardHas(view, 'Dialga-GX') ? 1000 :
-        -discardValue(view, choice.printing)
+        -discardValue(view, choice.printing,receipt)
     }));
   } else if (sourceZone === 'hand') {
     rows = choices.map(choice => ({
-      choice, score: -discardValue(view, choice.printing)
+      choice, score: -discardValue(view, choice.printing,receipt)
     }));
   } else {
     rows = choices.map(choice => ({
@@ -2124,8 +2144,22 @@ function chooseCardCombination(view, prompt, receipt = null) {
         ownPublic:{...projected.ownPublic,handCount:projected.ownPublic.handCount+1,
           deckCount:Math.max(0,projected.ownPublic.deckCount-1)}};
     }
-  } else if (metadata.sourceZone === 'hand' ||
-      (metadata.sourceZone === 'deck' && prompt.source?.effectName === 'Battle Compressor')) {
+  } else if(metadata.sourceZone==='hand'){
+    // Reprice after each paid card: two individually redundant copies are
+    // not necessarily jointly redundant.
+    let hand=view.ownHand.slice();
+    const available=ranked.slice();
+    for(let i=0;i<minimum&&available.length;i++){
+      const projected={...view,ownHand:hand,ownPublic:{...view.ownPublic,handCount:hand.length}};
+      const rows=available.map(row=>({...row,score:-discardValue(projected,row.choice.printing,receipt)}))
+        .sort((a,b)=>b.score-a.score||String(a.choice.printing).localeCompare(String(b.choice.printing)));
+      const row=rows[0];
+      if(!Number.isFinite(row.score))break;
+      selected.push(row.choice);
+      available.splice(available.findIndex(x=>x.choice.token===row.choice.token),1);
+      const at=hand.indexOf(row.choice.printing);if(at>=0)hand.splice(at,1);
+    }
+  } else if (metadata.sourceZone === 'deck' && prompt.source?.effectName === 'Battle Compressor') {
     selected = ranked.slice(0, minimum).filter(row => Number.isFinite(row.score))
       .map(row => row.choice);
   } else {
@@ -3047,13 +3081,19 @@ function scoreEnergyPlay(item, view, items = []) {
   return -Infinity;
 }
 
-function hasDiscardableHand(view, required = 1, playedPrinting = null) {
-  const hand = view.ownHand.slice();
-  const index = hand.indexOf(playedPrinting);
-  if (index >= 0) hand.splice(index,1);
-  const ranked = hand.map(printing => discardValue({...view,ownHand:hand}, printing))
-    .sort((a, b) => a - b);
-  return ranked.length >= required && ranked.slice(0, required).every(value => value < 800);
+function hasDiscardableHand(view, required = 1, playedPrinting = null, receipt=null) {
+  const hand=view.ownHand.slice();
+  const index=hand.indexOf(playedPrinting);
+  if(index>=0)hand.splice(index,1);
+  if(hand.length<required)return false;
+  for(let i=0;i<required;i++){
+    const projected={...view,ownHand:hand,ownPublic:{...view.ownPublic,handCount:hand.length}};
+    const best=hand.map((printing,index)=>({index,value:discardValue(projected,printing,receipt)}))
+      .sort((a,b)=>a.value-b.value||a.index-b.index)[0];
+    if(!best||best.value>=800)return false;
+    hand.splice(best.index,1);
+  }
+  return true;
 }
 
 function abilityMayBeActive(slot, abilityName) {
@@ -3254,7 +3294,7 @@ function hasStarAlchemyBottleneck(view, receipt, profile) {
   const missingStamp = receipt?.priorOpponentTurnKO?.any === true &&
     !handHas(view, 'Unfair Stamp') && !discardHas(view, 'Unfair Stamp');
   const lowHand = view.ownPublic.handCount <= 1 && view.ownPublic.deckCount > 0;
-  const paidGateTutor = !itemLocked(view) && view.ownHand.some(p=>hasAnyName(p,['Mysterious Treasure','Quick Ball'])&&hasDiscardableHand(view,1,p));
+  const paidGateTutor = !itemLocked(view) && view.ownHand.some(p=>hasAnyName(p,['Mysterious Treasure','Quick Ball'])&&hasDiscardableHand(view,1,p,receipt));
   if ((gateAccessNeed(view)&&!paidGateTutor) || (heavyBallNeed(view)>=1000 && !handHas(view,'Hisuian Heavy Ball') && !knownFullyPrized(view,'Hisuian Heavy Ball'))) return true;
   const critical = missingBasicV || missingVmax ||
     missingClefairy || missingStadiumAnswer || missingStamp || lowHand;
@@ -3326,12 +3366,12 @@ function scoreTrainerPlay(item, view, receipt, profile) {
   const needNightWatch = view.opponentPublic.handCount >= 4 &&
     !boardHas(view, 'Trevenant & Dusknoir-GX') &&
     !handHas(view, 'Trevenant & Dusknoir-GX') && canFuelNightWatch(view);
-  if (hasName(name, 'Mysterious Treasure') && hasDiscardableHand(view, 1, name) &&
+  if (hasName(name, 'Mysterious Treasure') && hasDiscardableHand(view, 1, name,receipt) &&
       (gateAccessNeed(view) || missingBasicV || needNightWatch || needControlGirafarig(view) ||
        (hasUnevolvedShadowRiderV(view)&&!handHas(view,'Shadow Rider Calyrex VMAX')&&!knownFullyPrized(view,'Shadow Rider Calyrex VMAX')))) return 800;
-  if (hasName(name, 'Quick Ball') && hasDiscardableHand(view, 1, name) &&
+  if (hasName(name, 'Quick Ball') && hasDiscardableHand(view, 1, name,receipt) &&
       (missingBasicV || needNightWatch || gateAccessNeed(view) || needControlGirafarig(view))) return 790;
-  if (hasName(name, 'Ultra Ball') && hasDiscardableHand(view, 2, name) &&
+  if (hasName(name, 'Ultra Ball') && hasDiscardableHand(view, 2, name,receipt) &&
       hasUnevolvedShadowRiderV(view) &&
       !handHas(view, 'Shadow Rider Calyrex VMAX')) return 780;
   if (hasName(name, 'Arven') && !supporterUsed &&
@@ -3779,13 +3819,14 @@ function chooseRoot(view, request, profile) {
   // Do not spend the last basic Psychic manually before a live Door can
   // attach it and draw two. Preserve the immediate active-KO exception.
   const bestPlay=scoredPlays[0];
-  const doorBeforeManual=bestPlay && hasName(bestPlay.item.actorPrinting,'Psychic Energy') &&
-    bestPlay.score<2200 && items.find(item=>item.kind==='use-ability' &&
+  const reset=bestPlay&&hasAnyName(bestPlay.item.actorPrinting,["Lillie's Determination",'Iono','Unfair Stamp']);
+  const manual=bestPlay&&hasName(bestPlay.item.actorPrinting,'Psychic Energy')&&bestPlay.score<2200;
+  const doorFirst=(reset||manual)&&view.ownPublic.deckCount>2&&items.find(item=>item.kind==='use-ability'&&
       canUseUnderworldDoor(view,item,request.publicEventReceipt));
-  if(doorBeforeManual) {
-    setPolicyAuditRule('ROOT_UNDERWORLD_DOOR_BEFORE_MANUAL','FIRST_FRONTIER_MATCH');
-    recordPolicyAuditRule(doorBeforeManual.token,'DOOR_PRESERVES_MANUAL_ATTACHMENT_AND_DRAWS');
-    return {kind:'select-action',token:doorBeforeManual.token};
+  if(doorFirst) {
+    setPolicyAuditRule(reset?'ROOT_UNDERWORLD_DOOR_BEFORE_HAND_RESET':'ROOT_UNDERWORLD_DOOR_BEFORE_MANUAL','FIRST_FRONTIER_MATCH');
+    recordPolicyAuditRule(doorFirst.token,reset?'DOOR_PRESERVES_ENERGY_AND_SUPPORTER_OPTION':'DOOR_PRESERVES_MANUAL_ATTACHMENT_AND_DRAWS');
+    return {kind:'select-action',token:doorFirst.token};
   }
   if (scoredPlays.length > 0) {
     setPolicyAuditRule('ROOT_PLAY_MAX_COMPONENT_SCORE', 'SCORE_DESC_TOKEN_ASC');
@@ -3802,7 +3843,7 @@ function chooseRoot(view, request, profile) {
   const resettingHole = abilities.find(item =>
     item.publicMetadata?.abilityName === 'Resetting Hole' &&
     hasStadiumRemovalTarget(view));
-  const underworldDoor = abilities.find(item => canUseUnderworldDoor(view, item, request.publicEventReceipt));
+  const underworldDoor = view.ownPublic.deckCount>2?abilities.find(item => canUseUnderworldDoor(view, item, request.publicEventReceipt)):null;
   const starAlchemy = abilities.find(item =>
     canUseStarAlchemy(view, item, request.publicEventReceipt,profile));
   const usefulAbility = resettingHole ?? underworldDoor ?? starAlchemy;

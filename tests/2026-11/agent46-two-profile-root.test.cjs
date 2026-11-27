@@ -979,3 +979,41 @@ paired('Mandatory owner-hand Prize selection uses occupied indices and no hidden
   corrupted.choices[0].publicMetadata.selectionIndex=corrupted.choices[1].publicMetadata.selectionIndex;
   assert.equal(decide(profile,{...req,prompt:corrupted}).kind,'abstain');
 });
+
+
+paired('Discard payment preserves live Energy, Gate, and lock answers; spent Stone becomes payment',(seat,profile)=>{
+  const compressor='Battle Compressor PHF',treasure='Mysterious Treasure FLI',marshadow='Marshadow UNB';
+  const view=observation(seat,{active:vmax([P,P,P,P,P]),bench:[v()],opponentActive:defender(),ownHand:[P,compressor]});
+  assert.deepEqual(decide(profile,cardPrompt(seat,view,treasure,'Mysterious Treasure','hand',[P,compressor])),mult('card-1'));
+  view.ownHand=[P,FSS];view.ownPublic.handCount=2;
+  assert.deepEqual(decide(profile,cardPrompt(seat,view,treasure,'Mysterious Treasure','hand',[P,FSS])),mult('card-0'));
+  view.ownTurnResources.vstarUsed=true;
+  assert.deepEqual(decide(profile,cardPrompt(seat,view,treasure,'Mysterious Treasure','hand',[P,FSS])),mult('card-1'));
+  const gateView=observation(seat,{active:v(),opponentActive:defender(),ownHand:[treasure,R]});
+  const gateActions=[play('treasure',treasure),play('gate',R,null,target('bench',0))];
+  assert.deepEqual(decide(profile,root(seat,gateView,gateActions)),sel('gate'));
+  gateView.opponentPublic.stadium=['Silent Lab PRC'];
+  assert.deepEqual(decide(profile,root(seat,gateView,gateActions)),sel('treasure'));
+  const lockView=observation(seat,{active:v(),opponentActive:defender(),ownHand:[P,marshadow],
+    opponentStadium:['Path to the Peak CRE']});
+  assert.deepEqual(decide(profile,cardPrompt(seat,lockView,treasure,'Mysterious Treasure','hand',[P,marshadow])),mult('card-0'));
+  lockView.opponentPublic.stadium=[];
+  assert.deepEqual(decide(profile,cardPrompt(seat,lockView,treasure,'Mysterious Treasure','hand',[P,marshadow])),mult('card-1'));
+});
+
+paired('A live Door consumes held Energy before hand reset, but never draws through last cards speculatively',(seat,profile)=>{
+  const lillie="Lillie's Determination MEG";
+  const view=observation(seat,{active:vmax([P,P,P]),bench:[v()],opponentActive:defender(),ownHand:[P,lillie]});
+  view.ownTurnResources.energyPlayedTurn=true;
+  const door={token:'door',kind:'use-ability',actorPrinting:M,publicMetadata:{abilityName:'Underworld Door',sourceSeat:'actor',sourceZone:'active'}};
+  const receipt={version:'agent8-public-event-receipt-v3-turn-stamped',ownerActive:{printing:M,knownAbilityUse:[{name:'Underworld Door',usedThisTurn:false}]}};
+  const actions=[door,play('lillie',lillie)];
+  assert.deepEqual(decide(profile,root(seat,view,actions,receipt)),sel('door'));
+  receipt.ownerActive.knownAbilityUse[0].usedThisTurn=true;
+  assert.deepEqual(decide(profile,root(seat,view,actions,receipt)),sel('lillie'));
+  receipt.ownerActive.knownAbilityUse[0].usedThisTurn=false;
+  view.ownPublic.deckCount=2;
+  assert.deepEqual(decide(profile,root(seat,view,[door],receipt)),sel('pass'));
+  view.ownPublic.deckCount=3;
+  assert.deepEqual(decide(profile,root(seat,view,[door],receipt)),sel('door'));
+});
