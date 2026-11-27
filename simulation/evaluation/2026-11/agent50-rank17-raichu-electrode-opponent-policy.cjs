@@ -2547,24 +2547,42 @@ function r17DirectRainWindow(request){
 // actual self-KO and re-plans the Rain attack after real promotion; projected
 // energy/protection are not treated as a future game-state oracle.
 function r17OneBombRainWindow(request){
-  const v=request?.observation,p=active(own(v));
-  if(!v||r17Key(p)!=='electrode'||!r17LiveBombs(v).includes(p)||
-     r17NeedTempleRemoval(v)||list(own(v).stadium).length||
+  const v=request?.observation,a=active(own(v));
+  if(!v||r17NeedTempleRemoval(v)||list(own(v).stadium).length||
      list(opponent(v).stadium).length||
      !Number.isSafeInteger(own(v).prizeCount)||
      !Number.isSafeInteger(opponent(v).prizeCount)||
      opponent(v).prizeCount<=2)return null;
-  const src=list(request.actionFrontier?.items).find(i=>
-    i.kind==='use-ability'&&r17Key(i)==='electrode'&&
-    metadata(i).abilityName==='Extra Energy Bomb'&&
-    metadata(i).sourceZone==='active'&&
-    metadata(i).abilityLive!==false&&metadata(i).abilitySuppressed!==true);
-  if(!src)return null;
-  const bench=list(own(v).bench),matches=bench
-    .map((q,index)=>({q,index}))
-    .filter(x=>r17Key(x.q)==='raichu'&&r17RainWindow(v,x.q));
-  if(matches.length!==1)return null;
-  const {q,index}=matches[0];
+  const live=r17LiveBombs(v),bench=list(own(v).bench);
+  const activeElectrode=r17Key(a)==='electrode';
+  const activeRaichu=r17Key(a)==='raichu';
+  if(!activeElectrode&&!activeRaichu)return null;
+  const eligible=activeElectrode?
+    [{source:a,sourceZone:'active',sourceIndex:0,targetZone:'bench',
+      targetCandidates:bench.map((q,index)=>({q,index}))}]:
+    bench.map((source,index)=>({
+      source,sourceZone:'bench',sourceIndex:index,targetZone:'active',
+      targetCandidates:[{q:a,index:0}]
+    })).filter(x=>r17Key(x.source)==='electrode');
+  const actionList=list(request.actionFrontier?.items);
+  const pairs=[];
+  for(const row of eligible){
+    if(!live.includes(row.source))continue;
+    const action=actionList.find(i=>i.kind==='use-ability'&&
+      r17Key(i)==='electrode'&&metadata(i).abilityName==='Extra Energy Bomb'&&
+      metadata(i).sourceZone===row.sourceZone&&
+      (row.sourceZone==='active'||metadata(i).sourceIndex===row.sourceIndex)&&
+      metadata(i).abilityLive!==false&&metadata(i).abilitySuppressed!==true);
+    const targets=row.targetCandidates.filter(x=>r17Key(x.q)==='raichu'&&
+      r17RainWindow(v,x.q));
+    if(action&&targets.length===1){
+      const t=targets[0];
+      pairs.push({action,q:t.q,index:t.index,
+        targetZone:row.targetZone,requiresPromotion:activeElectrode});
+    }
+  }
+  if(pairs.length!==1)return null;
+  const {action:src,q,index,targetZone,requiresPromotion}=pairs[0];
   const disc=list(own(v).discard),discard=disc.map((c,i)=>({
     printing:printingValue(c),token:'discard-'+i
   })).filter(c=>R17_ENERGY.has(r17Key(c.printing)));
@@ -2596,7 +2614,8 @@ function r17OneBombRainWindow(request){
      plan.attachTokens.length!==Math.min(5,discard.length)||plan.lightningUnits<1||
      plan.opponentPrizesAfterBomb!==opponent(v).prizeCount-2)return null;
   return {
-    action:src,benchIndex:index,benchPrinting:printingValue(q),plan,
+    action:src,benchIndex:index,benchPrinting:printingValue(q),
+    targetZone,requiresPromotion,plan,
     discardPrintings:new Map(discard.map(d=>[d.token,d.printing]))
   };
 }
@@ -2620,7 +2639,7 @@ function r17BombAttachDecision(req,chain){
       metadata(c).sourceZone==='discard'&&
       metadata(c).ownerSeat==='actor'&&metadata(c).isOwnerVisible===true&&
       metadata(c).selectionIndex===index&&
-      metadata(c).zone==='bench'&&
+      metadata(c).zone===chain.targetZone&&
       metadata(c).slotIndex===chain.benchIndex&&
       r17Key(c)===r17Key(chain.discardPrintings.get(id))&&
       !used.has(c.token));
@@ -2739,7 +2758,8 @@ function r17CreatePolicy({role,seat,policyVersion,config}) {
         r17RainEnergyDecision(request,rain):r17RainPacketsDecision(request,rain);
       if(!decision){rain=null;return r17Abstain('R17_UNTRUSTED_PROMPT');}
       if(rain.stage==='bomb-transfer')
-        rain={...rain,stage:'bomb-promotion',sequence:request.sequence};
+        rain={...rain,stage:rain.requiresPromotion?
+          'bomb-promotion':'bomb-rain-root',sequence:request.sequence};
       else if(rain.stage==='bomb-promotion')
         rain={...rain,stage:'bomb-rain-root',sequence:request.sequence};
       else if(rain.stage==='discard')
