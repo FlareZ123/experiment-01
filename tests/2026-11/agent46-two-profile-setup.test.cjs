@@ -102,3 +102,10 @@ test('pre-deal GO_FIRST chooses second in either seat without reading a future h
     assert.deepEqual(choose(profile,req),{kind:'select-choice',token:'no'});
   }
 });
+
+test('Lockbridge opening recognizes a paid tutor Gate without a held pivot',()=>{
+  for(const seat of [0,1]){
+    assert.deepEqual(choose(profiles[1],setup(seat,[W,V],{ownHand:[W,V,'Mysterious Treasure FLI','Psychic Energy SVE']})),multi('card-1','card-0'));
+    assert.deepEqual(choose(profiles[1],setup(seat,[W,V],{ownHand:[W,V,'Mysterious Treasure FLI','Psychic Energy SVE','Float Stone BKT']})),multi('card-0','card-1'));
+  }
+});

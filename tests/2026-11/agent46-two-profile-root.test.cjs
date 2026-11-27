@@ -315,3 +315,27 @@ paired('Do not reset a nearly empty deck or throw away a live Gate hand for no g
   view.ownPublic.deckCount=3;
   assert.deepEqual(decide(profile,root(seat,view,[play('draw',name)])),sel('pass'));
 });
+
+paired('Sky Field opens a blocked three-slot Gate; Dimension Valley is not a speculative replacement',(seat,profile)=>{
+  const sky='Sky Field ROS',dv='Dimension Valley PHF';
+  const view=observation(seat,{active:v(),bench:[v(),v(),v(),v()],opponentActive:defender(),ownHand:[R,sky,dv]});
+  assert.deepEqual(decide(profile,root(seat,view,[play('sky',sky),play('dv',dv)])),sel('sky'));
+  const open=observation(seat,{active:v(),opponentActive:defender(),ownHand:[dv]});
+  assert.deepEqual(decide(profile,root(seat,open,[play('dv',dv)])),sel('pass'));
+});
+paired('final-prize public attack precedes optional draw or bench expenditure',(seat,profile)=>{
+  const view=observation(seat,{active:vmax([P,P,P,P,P,P,P,P,P]),opponentActive:defender({hp:250}),ownHand:["Lillie's Determination MEG"]});
+  view.ownPublic.prizeCount=2;
+  assert.deepEqual(decide(profile,root(seat,view,[play('draw',"Lillie's Determination MEG"),{token:'ko',kind:'attack',attackName:'Max Geist'}])),sel('ko'));
+});
+paired('Wobbuffet pivot pressure comes from live relevant non-Psychic abilities, not all boards',(seat,profile,i)=>{
+  const thorns=pokemon({printing:'Iron Thorns ex TWM',name:'Iron Thorns ex',types:['Lightning'],subtypes:['Basic','ex'],abilities:['Initialization'],suppression:false});
+  const view=observation(seat,{active:v(),bench:[wob()],opponentActive:thorns});
+  const retreat={token:'wob',kind:'retreat',targetPrinting:W,publicMetadata:{benchIndex:0}};
+  assert.deepEqual(decide(profile,root(seat,view,[retreat])),sel(i===1?'wob':'pass'));
+  view.opponentPublic.active=pokemon({printing:'Shadow Rider Calyrex VMAX CRE',name:'Shadow Rider Calyrex VMAX',subtypes:['VMAX','V'],abilities:['Underworld Door'],suppression:false});
+  assert.deepEqual(decide(profile,root(seat,view,[retreat])),sel('pass'));
+  view.opponentPublic.active=pokemon({printing:'Klefki SVI',name:'Klefki',abilities:['Mischievous Lock'],suppression:false});
+  view.opponentPublic.bench[0]=thorns;
+  assert.deepEqual(decide(profile,root(seat,view,[retreat])),sel('pass'));
+});

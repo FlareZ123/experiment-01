@@ -2045,7 +2045,12 @@ function chooseStartingPokemonSetup(view, prompt, profile) {
   const visible = [...view.ownHand, ...cardChoices.map(choice => choice.printing)];
   const bench = view.ownPublic.bench.filter(Boolean);
   const lockbridge = profile.profileId === 'lockbridge-shadow-rider-v1';
-  const radiantAvailable = visible.some(p => hasName(p, 'Radiant Eternatus'));
+  const hand=view.ownHand.length?view.ownHand:cardChoices.map(c=>c.printing);
+  const hasV=visible.some(isBasicShadowRiderVPrinting);
+  const payment=hand.some(p=>!hasAnyName(p,['Radiant Eternatus','Latias ex','Float Stone','Mysterious Treasure','Quick Ball','Forest Seal Stone','Wobbuffet'])&&!isBasicShadowRiderVPrinting(p));
+  const radiantAvailable = visible.some(p => hasName(p, 'Radiant Eternatus')) ||
+    (payment&&hand.some(p=>hasAnyName(p,['Mysterious Treasure','Quick Ball']))) ||
+    (hasV&&hand.some(p=>hasAnyName(p,['Forest Seal Stone','Arven','Tapu Lele-GX'])));
   const pivotAvailable = visible.some(p => hasAnyName(p, ['Latias ex', 'Float Stone'])) ||
     bench.some(slot => hasName(slot.printing, 'Latias ex'));
   const context = { lockbridge, radiantAvailable, pivotAvailable };
@@ -2282,7 +2287,7 @@ function choosePrompt(view, prompt, receipt, profile) {
   }
 }
 
-function scoreBasicPlay(item, view, profile) {
+function scoreBasicPlay(item, view, profile,receipt) {
   const metadata = item.publicMetadata ?? {};
   if (metadata.targetSeat !== 'actor' || metadata.targetZone !== 'bench') return -Infinity;
   const printing = item.actorPrinting ?? '';
@@ -2302,7 +2307,14 @@ function scoreBasicPlay(item, view, profile) {
   if (hasName(printing, 'Tapu Lele-GX') &&
       !boardHas(view, 'Tapu Lele-GX') && hasOpenBench(view) &&
       view.ownPublic.deckCount > 0 && !hasWonderTagLock(view)) {
-    return supporterAvailable(view) ? 720 : -Infinity;
+    if(!supporterAvailable(view))return -Infinity;
+    const held=Math.max(-Infinity,...view.ownHand.map(p=>supporterNeedScore(view,p,receipt)));
+    const rangerAccess=profile?.profileId==='hood-shield-shadow-rider-v1' &&
+      usefulRanger(view)&&!knownFullyPrized(view,'Pokémon Ranger')&&!handHas(view,'Pokémon Ranger');
+    const arvenAccess=forestSealAccessNeed(view)&&!handHas(view,'Arven')&&openBenchSlots(view)>=4;
+    if(rangerAccess)return held>=110?-Infinity:1120;
+    if(arvenAccess)return held>=101?-Infinity:950;
+    return held>=75?-Infinity:720;
   }
   if (hasName(printing, 'Trevenant & Dusknoir-GX') &&
       !boardHas(view, 'Trevenant & Dusknoir-GX') && hasOpenBench(view) &&
@@ -2314,13 +2326,16 @@ function scoreBasicPlay(item, view, profile) {
       !boardHas(view, "Lillie's Clefairy ex")) return 900;
   if (hasName(printing, 'Latias ex') && !boardHas(view, 'Latias ex')) {
     if(reserveGate && !hasName(view.ownPublic.active?.printing,'Wobbuffet')) return -Infinity;
-    if(reserveGate && openBenchSlots(view)<4) return -Infinity;
+    if(reserveGate && openBenchSlots(view)<3)return -Infinity;
+    if(hasName(view.ownPublic.active?.printing,'Wobbuffet')&&
+      handHas(view,'Radiant Eternatus')&&gatePivotView(view)===null &&
+      !hasActiveStadiumLock(view,'Silent Lab') && !hasActiveStadiumLock(view,'Path to the Peak'))return 1050;
     return 650;
   }
   if (hasName(printing, 'Girafarig') && opponentHasRegidrago(view) &&
       !boardHas(view, 'Girafarig')) return 450;
   if (hasName(printing, 'Marshadow') &&
-      view.opponentPublic.stadium.length > 0 && !boardHas(view, 'Marshadow')) return 400;
+      hasStadiumRemovalTarget(view) && !boardHas(view, 'Marshadow')) return 850;
   return -Infinity;
 }
 
@@ -2756,12 +2771,7 @@ function scoreTrainerPlay(item, view, receipt, profile) {
     const need=handResetNeed(view,name);
     if(Number.isFinite(need))return 650+need;
   }
-  if (hasName(name, 'Sky Field') && !view.ownPublic.stadium.some(s => hasName(s, 'Sky Field')) &&
-      countBench(view.ownPublic) + countBench(view.opponentPublic) < 6 &&
-      boardHas(view, "Lillie's Clefairy ex")) return 620;
-  if (hasName(name, 'Dimension Valley') &&
-      dimensionValleyStatus(view) === false &&
-      ownBoard(view).some(slot => slot.printed.types.includes('Psychic'))) return 600;
+  if(hasAnyName(name,['Sky Field','Dimension Valley']))return usefulCandidateStadium(view,name);
   if (isTool(name) && hasName(name, 'Stealthy Hood') &&
       hasStealthyHoodSearchNeed(view)) return 580;
   return -Infinity;
@@ -2777,6 +2787,30 @@ function templePressure(view) {
       'Twin Energy','Double Turbo Energy','Reversal Energy','Rapid Strike Energy'])).length;
   return Math.min(1200,double*750 + (special.length-double)*250);
 }
+function projectedStadium(view,name) {
+  const after=viewAfterRemovingAbilityStadiums(view);
+  return {...after,ownPublic:{...after.ownPublic,stadium:[name]}};
+}
+function usefulCandidateStadium(view,name) {
+  const all=[...view.ownPublic.stadium,...view.opponentPublic.stadium];
+  if(view.ownTurnResources?.stadiumPlayedTurn===true||view.ownTurnResources?.stadiumPlayLocked===true||
+    view.ownPublic.publicTurnRestrictions?.stadiumPlayLocked===true||stadiumAndToolEffectsLive(view)!==true||
+    all.some(p=>hasName(p,hasName(name,'Sky Field')?'Sky Field':'Dimension Valley')))return -Infinity;
+  if(hasName(name,'Dimension Valley')&&countBench(view.ownPublic)>5)return -Infinity;
+  const after=projectedStadium(view,name);
+  if(handHas(view,'Radiant Eternatus')&&!canPlayRadiantForGate(view)&&canPlayRadiantForGate(after))return 1150;
+  if(!gateAccessNeed(view)&&gateAccessNeed(after))return 980;
+  if(hasStadiumRemovalTarget(view))return 880;
+  const attacker=view.ownPublic.active,target=view.opponentPublic.active;
+  if(attacker&&target){
+    const before=bestAttackForSlot(attacker,view,target);
+    const next=bestAttackForSlot(after.ownPublic.active,after,target);
+    if(next&&next.score>Math.max(0,before?.score??0)+200)return next.score>=10000?1900:850;
+  }
+  if(hasName(name,'Sky Field')&&boardHas(view,"Lillie's Clefairy ex")&&
+    countBench(view.ownPublic)>=4&&view.ownHand.some(p=>isBasicShadowRiderVPrinting(p)))return 720;
+  return -Infinity;
+}
 function usefulTemple(view) {
   if (view.ownTurnResources?.stadiumPlayedTurn === true ||
       view.ownTurnResources?.stadiumPlayLocked === true ||
@@ -2787,25 +2821,48 @@ function usefulTemple(view) {
   let pressure=templePressure(view);
   if (opponentBoard(view).some(slot=>hasName(slot.printing,'Marshadow') &&
       effectiveAbilityStatus(slot,'Resetting Hole','opponent',view)===true)) pressure-=250;
-  if (view.ownPublic.stadium.some(p=>hasName(p,'Dimension Valley')) &&
+  if ([...view.ownPublic.stadium,...view.opponentPublic.stadium].some(p=>hasName(p,'Dimension Valley')) &&
       ownBoard(view).some(slot=>slot.printed?.types?.includes('Psychic') &&
         (slot.attacks??[]).some(a=>a.cost?.includes('Colorless') &&
           canPayAttack(slot,a,view) && slotEnergyCount(slot)<a.cost.length))) pressure-=500;
+  const target=view.opponentPublic.active,attacker=view.ownPublic.active;
+  if(target&&attacker){
+    const before=bestAttackForSlot(attacker,view,target);
+    const after=bestAttackForSlot(attacker,projectedStadium(view,'Temple of Sinnoh ASR'),target);
+    if((before?.score??0)>=10000&&(after?.score??0)<10000)return -Infinity;
+  }
   return pressure>=300 ? 660+pressure/4 : -Infinity;
 }
 function wobLockValue(view, slot) {
-  if (!slot || !hasName(slot.printing,'Wobbuffet') || abilityStatus(slot,'Bide Barricade')===false)
-    return 0;
-  const board=opponentBoard(view);
-  // Known active Klefki and equipped Garbotoxin can suppress Bide Barricade.
-  if (hasName(view.opponentPublic.active?.printing,'Klefki') &&
-      abilityStatus(view.opponentPublic.active,'Mischievous Lock')!==false) return 0;
-  if (hasActiveGarbotoxin(view)) return 0;
-  const abilities=board.filter(p=>!(p.printed?.types??[]).includes('Psychic') &&
-    (p.abilities??[]).length>0 && p.abilities.some(a=>abilityStatus(p,a)!==false));
-  return Math.min(1300,abilities.length*400+
-    (board.some(p=>hasName(p.printing,'Regidrago'))?500:0));
+  if(!slot||!hasName(slot.printing,'Wobbuffet')||!slot.abilities?.includes('Bide Barricade'))return 0;
+  if(hasActiveStadiumLock(view,'Silent Lab'))return 0;
+  const active=slot===view.ownPublic.active;
+  if(active&&effectiveAbilityStatus(slot,'Bide Barricade','actor',view)!==true)return 0;
+  if(!active){
+    const index=view.ownPublic.bench.indexOf(slot);
+    if(index<0)return 0;
+    const incoming={...slot,abilitySuppressions:[]};
+    const moved={...view,ownPublic:{...view.ownPublic,active:incoming,
+      bench:view.ownPublic.bench.map((p,i)=>i===index?view.ownPublic.active:p)}};
+    const sources=resolveAbilityLockSources(view);
+    if(sources.unknown||sources.active.some(source=>
+      source.slot!==view.ownPublic.active&&abilityLockSourceSuppressesTarget(source,'actor',incoming,moved)!==false))return 0;
+  }
+  const entryOnly=['Dedechange','Dark Asset','Set Up','Wonder Tag','Squawk and Seize'];
+  let value=0;
+  for(const target of opponentBoard(view)){
+    if(target.printed?.types?.includes('Psychic')||hasEffectiveStealthyHood(target,view,'opponent')!==false)continue;
+    for(const name of target.abilities??[]){
+      if(entryOnly.includes(name))continue;
+      if(name==='Legacy Star'&&view.opponentPublic.publicTurnRestrictions?.vstarUsed===true)continue;
+      if(name==='Initialization')value+=900;
+      else if(name==='Legacy Star'||name==='Teal Dance'||name==='Fusion Strike System')value+=450;
+      else value+=150;
+    }
+  }
+  return Math.min(1500,value);
 }
+
 function ownRetreatCost(view) {
   const active=view.ownPublic.active;
   if (!active || !Array.isArray(active.printed?.retreatCost)) return null;
@@ -2853,7 +2910,7 @@ function chooseRetreat(view, items, profile) {
     if (profile?.profileId==='lockbridge-shadow-rider-v1') {
       const gate=hasName(old.printing,'Wobbuffet') && handHas(view,'Radiant Eternatus') &&
         !hasName(target.printing,'Wobbuffet') && canPlayRadiantForGate(movedView);
-      if (gate && (current?.score??0)<10000) score=Math.max(score,1800-cost*350);
+      if (gate && (current?.score??0)<10000) score=Math.max(score,1800-cost*350-wobLockValue(view,old)/2);
       if (!handHas(view,'Radiant Eternatus')) score+=wobLockValue(view,target)-wobLockValue(view,old);
     }
     recordPolicyAuditScore(item.token,score,'RETREAT_SCORE_NOT_FINITE');
@@ -2913,11 +2970,29 @@ function chooseRoot(view, request, profile) {
   const items = request.actionFrontier.items.filter(item =>
     ['play-card', 'attack', 'retreat', 'use-ability', 'use-stadium', 'pass'].includes(item.kind));
   const pass = items.find(item => item.kind === 'pass');
+  const active=view.ownPublic.active,target=view.opponentPublic.active;
+  if(active&&target&&view.ownPublic.prizeCount<=prizeLiability(target)&&
+    opponentBoard(view).every(slot=>!(slot.abilities??[]).length&&!(slot.tools??[]).length&&
+      (slot.energies??[]).every(p=>/^(Grass|Fire|Water|Lightning|Psychic|Fighting|Darkness|Metal|Fairy) Energy(?: |$)/.test(p)))&&
+    !(active.specialConditions??[]).length&&!(target.specialConditions??[]).length&&
+    [...view.ownPublic.stadium,...view.opponentPublic.stadium].every(p=>hasAnyName(p,['Sky Field','Dimension Valley','Temple of Sinnoh']))){
+    const wins=items.filter(i=>i.kind==='attack').map(item=>{
+      const attack=active.attacks.find(a=>a.name===item.attackName);
+      if(!attack||!['Max Geist','Night Watch','Full Moon Rondo','Psychic Assault','Power Beam','Shadow Mist'].includes(attack.name))return null;
+      const damage=estimatedDamage(active,attack,view,target);
+      return damage!==null&&damage>=target.hp-target.damage?{item,damage}:null;
+    }).filter(Boolean).sort((a,b)=>b.damage-a.damage||a.item.token.localeCompare(b.item.token));
+    if(wins.length){
+      setPolicyAuditRule('ROOT_PUBLIC_FINAL_PRIZE_ATTACK','DAMAGE_DESC_TOKEN_ASC');
+      recordPolicyAuditRule(wins[0].item.token,'NO_FURTHER_RESOURCE_SPEND_ON_PUBLIC_TERMINAL_LINE');
+      return {kind:'select-action',token:wins[0].item.token};
+    }
+  }
 
   const plays = items.filter(item => item.kind === 'play-card');
   const terminalPlays = [];
   const scoredPlays = plays.map(item => {
-    const basic = scoreBasicPlay(item, view, profile);
+    const basic = scoreBasicPlay(item, view, profile,request.publicEventReceipt);
     const evolution = scoreEvolutionPlay(item);
     const energy = scoreEnergyPlay(item, view);
     const trainer = scoreTrainerPlay(item, view, request.publicEventReceipt, profile);
@@ -2985,8 +3060,6 @@ function chooseRoot(view, request, profile) {
     return { kind: 'select-action', token: usefulAbility.token };
   }
 
-  const active = view.ownPublic.active;
-  const target = view.opponentPublic.active;
   if (active && target) {
     const attacks = items.filter(item => item.kind === 'attack' && item.attackName);
     const scoredAttacks = attacks.map(item => {
