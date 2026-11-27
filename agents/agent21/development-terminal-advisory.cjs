@@ -336,8 +336,65 @@ function developmentSelfTest(terminal){
   fodderCertified:true,fodderDisjointFromModeledResources:true}),null,undefined,{firstActionAllowed:a=>a.kind==="underworld-door"});
  return cases;
 }
-module.exports={developmentTerminal,developmentSelfTest};
+
+function tutorSelfTest(terminal){
+  const V="Shadow Rider Calyrex V CRE",M="Shadow Rider Calyrex VMAX CRE",L="Tapu Lele-GX GRI";
+  const c=(printing,kind,basic,retreatCost,onPlayChoiceRequired=false)=>({printing,kind,basic,retreatCost,ruleBox:true,psychic:true,
+    dragon:false,future:false,canAttack:true,canRetreat:false,onPlayChoiceRequired,hasAbility:kind!=="v",copyLimit:kind==="lele"?1:4,entryCertified:true});
+  const catalog={[V]:c(V,"v",true,2),[M]:c(M,"vmax",false,2),[L]:c(L,"lele",true,1,true)};
+  const row=(id,p,energy,eligible=false,door=false)=>({id,printing:p,kind:catalog[p].kind,energy,damage:0,psychic:true,
+    vmax:p===M,doorAvailable:door,retreatCost:2,canAttack:true,canRetreat:false,wobbuffet:false,latias:false,fairyZone:false,
+    basic:p!==M,ruleBox:true,future:false,tool:"none",stackCount:1,stackPrintings:[p],evolutionEligible:eligible});
+  const opp=(id,hp,thorns=false)=>({id,remainingHP:hp,damage:0,energyUnits:0,ultraBeast:false,prizesOnKO:2,counterPrizesOnKO:2,
+    opponentBoardCount:2,weaknessMultiplier:1,resistance:0,damageReduction:0,damageReductionAllKindsCertified:true,
+    counterBlockedActive:false,counterBlockedBench:false,thorns,dragon:false,hood:false});
+  const input=(board,hp,p=0,kp=0)=>({stablePublicEffects:true,noUnmodeledTerminalEffects:true,attackModel:"candidate-printed-v1",
+    dynamicEffects:{kind:"thorns-wobbuffet-v1",otherEffectsStable:true,toolsEffective:true},board,active:0,
+    opponents:[opp("oa",hp),opp("ob0",320)],activeOpponent:0,handPsychic:p,deckCount:10,knownDeckPsychic:kp,
+    knownDeckPsychicCertified:true,prizesRemaining:2,manualAvailable:true,retreatAvailable:false,supportAvailable:true,
+    manualAttachmentAllowed:true,itemPlayAllowed:true,toolPlayAllowed:true,acerolaHeld:false,dimensionValley:false});
+  const rolePrintings={P:"Psychic Energy SVE",fog:"Fog Crystal CRE",hood:"Stealthy Hood UNB",guzma:"Guzma BUS",
+    arven:"Arven SVI",raihan:"Raihan EVS",teammates:"Teammates PRC",forest:"Forest Seal Stone SIT"};
+  const dev=(heldExtra={},knownDeckRoles={},handPokemon={},knownDeckPokemon={},extra={},tutorExtra={})=>({
+    permissionsCertified:true,noBenchCapacityChange:true,maxBench:5,catalog,handPokemon,knownDeckPokemon,knownDeckPokemonCertified:true,
+    discardPokemon:{},pokemonPlayAllowed:true,abilityPokemonPlayAllowed:true,evolutionAllowed:true,...extra,
+    tutors:{certified:true,knownDeckRolesCertified:true,rolePrintings,heldExtra,knownDeckRoles,discardExtra:{},priorKO:true,
+      starAlchemyAllowed:true,vstarAvailable:true,...tutorExtra}});
+  const results=[];
+  function test(name,x,y,kind,expect){
+    const z=developmentTerminal(terminal,x,y,{maxDevelopmentNodes:1000,maxDevelopmentDepth:6});
+    if((z.decision?.firstAction.kind??null)!==kind||expect&&!expect(z))throw Error(name+": "+JSON.stringify(z));
+    results.push({name,first:z.decision?.firstAction??null,actions:z.decision?.prefix??[],damage:z.decision?.plan.damage??null});
+  }
+  const r={...input([row("a",M,3),row("b",M,2)],190),discardPsychic:1,manualAvailable:false};
+  test("Raihan provides independent attachment",r,dev({raihan:1},{fog:1}),"raihan",z=>z.decision.plan.damage===190);
+  test("Raihan unavailable without prior KO",r,dev({raihan:1},{fog:1},{},{},{},{priorKO:false}),null);
+  test("VS retrieves Raihan after KO",{...r,vsSeekerCount:1},dev({}, {fog:1},{},{},{},{discardExtra:{raihan:1}}),"vs-seeker",
+    z=>z.decision.prefix.some(a=>a.kind==="raihan"));
+  const e=input([row("a",V,2,true),row("b",M,3)],190,0,1);
+  test("Teammates jointly finds VMAX and P",e,dev({teammates:1},{},{},{[M]:1}),"teammates",
+    z=>z.decision.firstAction.targets.length===2&&z.decision.firstAction.targets.includes(M)&&z.decision.plan.damage===190);
+  test("Teammates cannot fill two channels with only VMAX",{...e,knownDeckPsychic:0},dev({teammates:1},{},{},{[M]:1}),null);
+  const th={...input([row("a",M,3),row("b",M,3,false,true)],230,1,1),opponents:[opp("oa",230,true),opp("ob0",320)]};
+  test("Arven jointly accesses Fog and Hood under Thorns",th,dev({arven:1},{fog:1,hood:1}),"arven",
+    z=>z.decision.firstAction.targets.length===2&&z.decision.plan.damage===250);
+  test("Arven without Hood cannot enable Door",th,dev({arven:1},{fog:1}),null);
+  const star=input([row("a",V,3,true),row("b",M,3)],190);
+  test("attach Forest Seal then search VMAX",star,dev({forest:1},{},{},{[M]:1}),"attach-forest-seal",
+    z=>z.decision.prefix.some(a=>a.kind==="star-alchemy"));
+  test("spent VSTAR Power excludes Forest Seal route",star,dev({forest:1},{},{},{[M]:1},{},{vstarAvailable:false}),null);
+  const attached={...star,board:[{...star.board[0],tool:"other",toolPrinting:rolePrintings.forest},star.board[1]]};
+  test("attached Forest Seal directly finds VMAX",attached,dev({}, {},{}, {[M]:1}),"star-alchemy",
+    z=>z.decision.plan.damage===190);
+  const lele={...input([row("a",M,3),row("b",M,3)],320),opponents:[opp("oa",320),opp("ob0",190)]};
+  test("Wonder Tag finds Guzma without spending Supporter",lele,dev({}, {guzma:1},{[L]:1}),"bench-pokemon",
+    z=>z.decision.firstAction.wonderTagTarget===rolePrintings.guzma&&z.decision.prefix.some(a=>a.kind==="guzma"));
+  test("Initialization suppresses fresh Wonder Tag",{...lele,opponents:[opp("oa",320,true),opp("ob0",190)]},dev({}, {guzma:1},{[L]:1}),null);
+  return results;
+}
+
+module.exports={developmentTerminal,developmentSelfTest,tutorSelfTest};
 if(require.main===module){
  const {acerolaMaxGeist}=require("./acerola-max-geist-advisory.cjs");
- console.log(JSON.stringify(developmentSelfTest(acerolaMaxGeist),null,2));
+ console.log(JSON.stringify({development:developmentSelfTest(acerolaMaxGeist),tutors:tutorSelfTest(acerolaMaxGeist)},null,2));
 }
