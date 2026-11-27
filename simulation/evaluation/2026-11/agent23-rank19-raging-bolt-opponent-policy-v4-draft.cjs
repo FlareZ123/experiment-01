@@ -6,6 +6,7 @@ const bolt=require('./agent23-rank19-bellowing-thunder-draft.cjs');
 const accel=require('./agent23-rank19-acceleration-draft.cjs');
 const targets=require('./agent23-rank19-candidate-targets.cjs');
 const mobility=require('./agent23-rank19-mobility.cjs');
+const locks=require('./agent23-rank19-lock-counterplay.cjs');
 const POLICY_VERSION='agent23-rank19-raging-bolt-opponent-v4-draft';
 const DISCARD='rank19-bellowing-discard-v1',ATTACH='rank19-attachment-set-v1';
 const allowed=new Set([DISCARD,ATTACH]);
@@ -30,6 +31,7 @@ function chooseRoot(r,caps){
  const o=r.observation.ownPublic,op=r.observation.opponentPublic,activeTarget=targets.target(op.active),remaining=o.prizeCount;
  const cfg={discard:caps.has(DISCARD),attach:caps.has(ATTACH)};
  const terminal=mobility.attackRoot(r,cfg,true);if(terminal)return terminal;
+ const unlock=locks.root(r,cfg);if(unlock)return unlock;
  const md=v3.tacticalRoot(r),mi=rootItem(r,md);
  const bd=caps.has(DISCARD)?bolt.root(r,DISCARD):null;
  const ad=caps.has(ATTACH)?accel.root(r,ATTACH):null,ai=rootItem(r,ad);
@@ -77,7 +79,7 @@ function createPolicy({role,seat,policyVersion,config}){
    if(r.prompt.promptType==='DiscardEnergyPrompt'&&caps.has(DISCARD))return bolt.decideDiscard(r)??{kind:'abstain',reasonCode:'UNSUPPORTED_DISCARD_ENERGY_PROMPT'};
    if(r.prompt.promptType==='AttachEnergyPrompt'&&caps.has(ATTACH))return accel.decide(r)??{kind:'abstain',reasonCode:'UNSUPPORTED_ATTACH_ENERGY_PROMPT'};
    if(caps.has(ATTACH)&&r.prompt.promptType==='ChooseCardsPrompt'&&r.prompt.source?.effectName==='Raihan')return accel.raihanSearch(r)??{kind:'abstain',reasonCode:'UNSUPPORTED_RAIHAN_ATTACH_ENERGY_PROMPT'};
-   return mobility.prompt(r,{discard:caps.has(DISCARD),attach:caps.has(ATTACH)})??base.decide(r);
+   return locks.prompt(r)??mobility.prompt(r,{discard:caps.has(DISCARD),attach:caps.has(ATTACH)})??base.decide(r);
   }
   const chosen=chooseRoot(r,caps);if(chosen)return chosen;
   const fallback=base.decide(r),item=rootItem(r,fallback);
