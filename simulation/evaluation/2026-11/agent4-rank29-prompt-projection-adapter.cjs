@@ -17,13 +17,24 @@ const {
   projectRank29RevealedHandPrompt
 }=require('./agent4-rank29-revealed-hand-projection.cjs');
 
-const adapter=Object.freeze({
-  ...base,
-  projectPrompt(args){
-    return projectRank29RevealedHandPrompt({
-      ...args,baseProjectPrompt:base.projectPrompt
-    });
-  },
+function createRank29ProjectionAdapter({opponentSeat}={}){
+  if(opponentSeat!==0 && opponentSeat!==1)
+    throw Error('RANK29_ADAPTER_REQUIRES_EXACT_OPPONENT_SEAT');
+  return Object.freeze({
+    ...base,
+    projectPrompt(args){
+      if(args?.actorSeat!==opponentSeat)return base.projectPrompt(args);
+      return projectRank29RevealedHandPrompt({
+        ...args,baseProjectPrompt:base.projectPrompt
+      });
+    },
+    rank29RevealAdapterVersion:VERSION,
+    rank29OpponentSeat:opponentSeat
+  });
+}
+// Importing this module alone never changes the canonical implementation.
+// The owning runner must explicitly create and pass a role/seat-bound adapter.
+module.exports=Object.freeze({
+  ...base,createRank29ProjectionAdapter,
   rank29RevealAdapterVersion:VERSION
 });
-module.exports=adapter;
