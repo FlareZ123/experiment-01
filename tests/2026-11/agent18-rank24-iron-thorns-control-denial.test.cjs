@@ -112,7 +112,7 @@ test('Enhanced Hammer is selected when Special Energy is visible', () => {
 
 test('Plumeria starts only with two safe discard costs', () => {
   assert.deepEqual(policy.decide(root({
-    ownHand: ['Plumeria BUS 120', "Player's Ceremony SP 127", 'Palace Book SMP NAN25'],
+    ownHand: ['Plumeria BUS 120', 'Handheld Fan TWM 150', "Trainers' Mail ROS 92", "Trainers' Mail ROS 92"],
     opponentActive: activeSpecial,
     items: [plumeria, pass]
   })), { kind: 'select-action', token: 'plume' });
@@ -189,11 +189,11 @@ test('Plumeria payment spends disposable cards and protects N', () => {
     promptType: 'ChooseCardsPrompt',
     choices: [
       {
-        token: 'ceremony', kind: 'card', printing: "Player's Ceremony SP 127",
+        token: 'fan', kind: 'card', printing: 'Handheld Fan TWM 150',
         publicMetadata: { ownerSeat: 'actor', sourceZone: 'hand' }
       },
       {
-        token: 'book', kind: 'card', printing: 'Palace Book SMP NAN25',
+        token: 'mail', kind: 'card', printing: "Trainers' Mail ROS 92",
         publicMetadata: { ownerSeat: 'actor', sourceZone: 'hand' }
       },
       {
@@ -212,7 +212,7 @@ test('Plumeria payment spends disposable cards and protects N', () => {
     }
   });
   assert.deepEqual(policy.decide(request),
-    { kind: 'select-choices', tokens: ['ceremony', 'book'] });
+    { kind: 'select-choices', tokens: ['fan', 'mail'] });
 });
 
 test('Plumeria target prompt chooses the more energized Pokemon', () => {
