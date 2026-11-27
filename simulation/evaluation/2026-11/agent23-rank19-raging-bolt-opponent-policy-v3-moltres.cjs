@@ -4,6 +4,7 @@
 const v2 = require('./agent23-rank19-raging-bolt-opponent-policy-v2.cjs');
 const targets=require('./agent23-rank19-candidate-targets.cjs');
 const opening=require('./agent23-rank19-opening.cjs');
+const mobility=require('./agent23-rank19-mobility.cjs');
 const POLICY_VERSION = 'agent23-rank19-raging-bolt-opponent-v3-moltres';
 const list = x => Array.isArray(x) ? x : [];
 const p = x => typeof x === 'string' ? x : x?.printing ?? x?.fullName ?? '';
@@ -329,7 +330,7 @@ function createPolicy({role,seat,policyVersion,config}){
   const fallback=v2.createPolicy({role,seat,policyVersion:v2.POLICY_VERSION,config});
   return Object.freeze({decide(r){
     if(!r||r.role!==role||r.seat!==seat||r.observation?.actorSeat!==seat)return {kind:'abstain',reasonCode:'ROLE_SEAT_BINDING_MISMATCH'};
-    return (r.prompt?(opening.decide(r)??tacticalPrompt(r)):tacticalRoot(r))??fallback.decide(v2Request(r));
+    return (r.prompt?(opening.decide(r)??tacticalPrompt(r)??mobility.prompt(r)):(mobility.root(r)??tacticalRoot(r)))??fallback.decide(v2Request(r));
   }});
 }
 module.exports={POLICY_VERSION,createPolicy,tacticalRoot,tacticalPrompt,targetValue,ready,v2Request};
