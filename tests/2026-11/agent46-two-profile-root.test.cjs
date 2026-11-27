@@ -1649,3 +1649,35 @@ test('Astral terminal target surface matches hook semantics and recognizes zero-
       'unhooked CRE74 cannot count an Active target it never receives in its target prompt');
   }
 });
+
+
+paired('public Altered Creation damage and extra-Prize flags feed Acerola exposure without conflating them',(seat,profile)=>{
+  const ace='Acerola BUS';
+  const victim=vmax([P]);victim.hp=320;victim.damage=140;
+  const backup=vmax([P,P,P]);backup.hp=320;
+  const threat=pokemon({printing:'Arceus & Dialga & Palkia-GX CEC',name:'Arceus & Dialga & Palkia-GX',
+    hp:280,subtypes:['Basic','GX'],types:['Dragon'],energies:[],
+    attacks:[attack('Public Threat',[],'150')]});
+  const view=observation(seat,{active:victim,bench:[backup],opponentActive:threat,ownHand:[ace],globalTurn:9});
+  view.opponentPublic.prizeCount=4;
+  const items=[play('acerola',ace),{kind:'attack',token:'hit',attackName:'Max Geist'}];
+
+  view.opponentPublic.publicTurnRestrictions.alteredCreationDamage=false;
+  view.opponentPublic.publicTurnRestrictions.usedAlteredCreation=false;
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('hit'));
+
+  view.opponentPublic.publicTurnRestrictions.alteredCreationDamage=true;
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('acerola'),
+    'public +30 turns 150 into a funded 180-damage KO threat');
+
+  view.opponentPublic.publicTurnRestrictions.alteredCreationDamage=false;
+  view.opponentPublic.publicTurnRestrictions.usedAlteredCreation=true;
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('hit'),
+    'extra-Prize flag alone must not fabricate damage exposure');
+
+  view.opponentPublic.publicTurnRestrictions.alteredCreationDamage=true;
+  view.opponentPublic.publicTurnRestrictions.usedAlteredCreation=true;
+  view.opponentPublic.prizeCount=4;
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('acerola'),
+    'once the public attack is lethal, the conditional extra Prize raises exposed liability');
+});
