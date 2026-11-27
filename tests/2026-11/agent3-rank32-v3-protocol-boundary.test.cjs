@@ -192,3 +192,50 @@ test('real V3 request rejects hidden opponent hand and seed under rank-32 worker
     ...req,observation:{...req.observation,rngSeed:12}
   },start,1,new Set()),/FIELD|FORBIDDEN|RANDOM/);
 });
+
+
+test('V3 native frontier attachment is targeted and DDE beats Basic on an unfunded VSTAR',()=>{
+  for(const seat of [0,1]) {
+    const own=player({
+      active:pokemon('Regidrago VSTAR SIT 136',{energies:[],subtypes:['VSTAR']}),
+      bench:[pokemon('Dedenne-GX UNB 57',{subtypes:['Basic','GX']})]
+    });
+    const items=[
+      {token:'dde-wrong',kind:'play-card',actorPrinting:'Double Dragon Energy ROS 97',
+        targetPrinting:'Dedenne-GX UNB 57',
+        publicMetadata:{targetSeat:'actor',targetZone:'bench',targetIndex:0}},
+      {token:'grass',kind:'play-card',actorPrinting:'Grass Energy MEE 9',
+        targetPrinting:'Regidrago VSTAR SIT 136',
+        publicMetadata:{targetSeat:'actor',targetZone:'active'}},
+      {token:'dde',kind:'play-card',actorPrinting:'Double Dragon Energy ROS 97',
+        targetPrinting:'Regidrago VSTAR SIT 136',
+        publicMetadata:{targetSeat:'actor',targetZone:'active'}},
+      {token:'pass',kind:'pass'}
+    ];
+    const req=root(seat,{own,items,hand:['Grass Energy MEE 9','Double Dragon Energy ROS 97'],
+      requestId:'rank32-native-energy-seat-'+seat});
+    assert.deepEqual(checked(req),{kind:'select-action',token:'dde'});
+  }
+});
+
+test('V3 contract clears hostile Temple before attaching suppressed Double Dragon',()=>{
+  const opponent=player({
+    active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{subtypes:['VMAX']}),
+    stadium:['Temple of Sinnoh ASR 155']
+  });
+  const items=[
+    {token:'dde',kind:'play-card',actorPrinting:'Double Dragon Energy ROS 97',
+      targetPrinting:'Regidrago VSTAR SIT 136',
+      publicMetadata:{targetSeat:'actor',targetZone:'active'}},
+    {token:'parallel',kind:'play-card',actorPrinting:'Parallel City BKT 145'},
+    {token:'pass',kind:'pass'}
+  ];
+  const own=player({
+    active:pokemon('Regidrago VSTAR SIT 136',{energies:['Grass Energy MEE 9']})
+  });
+  const req=root(0,{own,opponent,hand:['Double Dragon Energy ROS 97'],items,
+    requestId:'rank32-native-temple'});
+  assert.deepEqual(checked(req),{kind:'select-action',token:'parallel'});
+  opponent.stadium=[];
+  assert.deepEqual(checked(req),{kind:'select-action',token:'dde'});
+});
