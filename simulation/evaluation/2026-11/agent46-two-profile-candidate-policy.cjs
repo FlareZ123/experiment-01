@@ -282,8 +282,8 @@ function boardAbilityStatus(view, abilityName) {
   const holders = ownBoard(view).filter(slot =>
     Array.isArray(slot.abilities) && slot.abilities.includes(abilityName));
   if (holders.length === 0) return false;
-  if (holders.some(slot => abilityStatus(slot, abilityName) === true)) return true;
-  if (holders.some(slot => abilityStatus(slot, abilityName) === null)) return null;
+  if (holders.some(slot => effectiveAbilityStatus(slot, abilityName, 'actor',view) === true)) return true;
+  if (holders.some(slot => effectiveAbilityStatus(slot, abilityName, 'actor',view) === null)) return null;
   return false;
 }
 
@@ -2724,7 +2724,7 @@ function canUseUnderworldDoor(view, item, receipt) {
   return metadata.abilityName === 'Underworld Door' &&
     source !== null && isShadowRiderVmax(source) &&
     (!item.actorPrinting || item.actorPrinting === source.printing) &&
-    abilityStatus(source, 'Underworld Door') === true &&
+    effectiveAbilityStatus(source, 'Underworld Door','actor',view) === true &&
     underworldDoorSourceIsUnspent(receipt, metadata, source) &&
     handHas(view, 'Psychic Energy') &&
     view.ownPublic.bench.some(slot =>
@@ -2772,6 +2772,17 @@ function chooseRoot(view, request, profile) {
     return { item, score };
   }).filter(row => row && Number.isFinite(row.score)).sort((a, b) =>
     b.score - a.score || a.item.token.localeCompare(b.item.token));
+  // Do not spend the last basic Psychic manually before a live Door can
+  // attach it and draw two. Preserve the immediate active-KO exception.
+  const bestPlay=scoredPlays[0];
+  const doorBeforeManual=bestPlay && hasName(bestPlay.item.actorPrinting,'Psychic Energy') &&
+    bestPlay.score<2200 && items.find(item=>item.kind==='use-ability' &&
+      canUseUnderworldDoor(view,item,request.publicEventReceipt));
+  if(doorBeforeManual) {
+    setPolicyAuditRule('ROOT_UNDERWORLD_DOOR_BEFORE_MANUAL','FIRST_FRONTIER_MATCH');
+    recordPolicyAuditRule(doorBeforeManual.token,'DOOR_PRESERVES_MANUAL_ATTACHMENT_AND_DRAWS');
+    return {kind:'select-action',token:doorBeforeManual.token};
+  }
   if (scoredPlays.length > 0) {
     setPolicyAuditRule('ROOT_PLAY_MAX_COMPONENT_SCORE', 'SCORE_DESC_TOKEN_ASC');
     return { kind: 'select-action', token: scoredPlays[0].item.token };
