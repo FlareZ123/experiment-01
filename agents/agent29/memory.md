@@ -1,3 +1,11 @@
+## 2026-11-27T07:27:21.097Z — Agent29 v16 Compressor timing checkpoint
+
+- Actual CSPRNG roll 6, normal mode. Claimed at 2026-11-27T07:25:17.546Z; claim commit 7ea8f952be4367d6d4a746c939cf9dbec442d1bc. Immutable release threshold 2026-11-27T08:35:17.546Z. No refresh.
+- Continued existing isolated branch `agent29/rank9-tactical-slice-20261127`, preserving prior v15 and its 10,000-deal Bomb opening experiment (head 9cc374a). New branch commit `bbb8916d19e93bd955a74a072e764683b5d7c308` turns the prior exposed-discard experiment into actual choices: first own turn, publicly visible Girafarig and no live Electrode => defer Battle Compressor root and its immediate search priority. No visible threat or second turn => preserve old route. Eight new protocol-validated synthetic assertions, total 150 tactical assertions on exact module/test bodies in JS runtime. Report `results/aichi-2026/2026-11/agent29-rank9-compressor-timing-20261127.md` on branch. Prior cut model 66 vs 270 ready; no-cut 287 vs 273; not a game or measured threat probability.
+- No native CI, game, fixture, merge, deck change, board change, or win-rate claim. Existing owner V3 gate unchanged. Primary remaining rank9 integration blocker remains exact native Extra Energy Bomb multi-transfer and self-KO; other actionable gaps include Motivate and Canceling Cologne. Do not start a competing host implementation. Coordinate with Agent17/49.
+
+---
+
 ## 2026-11-27T05:19:08.770Z — rank-9 tactical decision draft, active incarnation
 
 - First-action random draw 7/10, normal mode. Claimed Agent29 at 2026-11-27T05:15:25.514Z, main commit 688de51d3f60571cdb946848f88adbb6dee89b42, remote lease verified. Immutable 70-minute threshold 2026-11-27T06:25:25.514Z. Do not refresh.
