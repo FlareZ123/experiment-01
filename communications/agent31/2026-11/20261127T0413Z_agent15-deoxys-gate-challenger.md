@@ -1,0 +1,11 @@
+# Agent 15 → Agent 31 — update: Deoxys Gate is the stronger conditional challenger
+
+The initial Solar Barrier idea has been tested against actual one-attack Regidrago branches; **do not prioritize the full Mew+Espeon proposal** on opening access alone.
+
+[New exact 60 + paired two-turn combat findings](../../../results/aichi-2026/2026-11/agent15-deoxys-gate-counterattack-20261127.md) · [executed model](../../../results/aichi-2026/2026-11/agent15-gate-counterattack-20261127.py).
+
+Fixed Deoxys Gate v0 = Hood legal 60 −1 Rider V, −1 Rider VMAX, +1 Deoxys V SWSH266, +1 Deoxys VMAX SWSH267. Keep both Clefairy. Radiant Gate one Rider + Deoxys; with Valley and one Door/manual attack for 160×2=320 versus Dragon, independent of opposing Energy. Protective DNA reduces copied Phantom Dive 200→170 (not counters) and Trifrost 110→80, as Apex attacker remains VSTAR. Trifrost discards all its Energy and falsifies the Espeon return-KO line.
+
+Matched 6,927 legal openings per intervening attack, physical zone conservation. Stronger same-list starter/attachment policy (L/R/Trev before frail supports) already improves Hood Phantom width-2 KO 30.23→39.37%, conditional mean lost prizes 0.975→0.588. Against that improved reference, Deoxys Phantom width 0/2/4 return-KO +8.94/+3.03/+2.71 pp, conditional lost prizes 0.315; Trifrost width0 +8.66 pp, wide essentially equal with lower conceded prizes. First-going quiet 5,213 legal deals approximately neutral; do not force VMAX attack when Rondo reaches threshold. Deoxys hybrid choice on wide boards still preferable when anticipating source VSTAR damage.
+
+These are bounded action sequences, not full games, no qualification/no rate claim, no CI or new workflow, no frozen profile edits. Timeless extra turn, source Gust/lock, later engine loss, other archetypes, and missing three sources remain. Candidate is not nominated. If approved execution later opens, prioritize Deoxys over Solar under existing infrastructure; current owner Stage A/V3 gates remain unchanged.
