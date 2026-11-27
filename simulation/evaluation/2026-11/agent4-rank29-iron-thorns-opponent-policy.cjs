@@ -269,10 +269,26 @@ function discardPriority(card, observation) {
   const hand = ownHand(observation);
   const critical = [
     PRINT.lusamine, PRINT.handiwork, PRINT.guzmaHala, PRINT.gladion,
-    PRINT.doubleColorless, PRINT.speedLightning, PRINT.captureEnergy,
-    PRINT.megatonBlower, PRINT.thunderMountain, PRINT.wondrousLabyrinth
+    PRINT.doubleColorless, PRINT.megatonBlower, PRINT.thunderMountain,
+    PRINT.wondrousLabyrinth
   ];
   if (critical.some(pattern => matches(card, pattern))) return -100;
+  if (matches(card, PRINT.speedLightning)) {
+    const turbo = ownActiveIsThorns(observation) &&
+      energyAvailable(observation) && !specialEnergyLocked(observation) &&
+      energyCount(observation.ownPublic?.active) === 0 &&
+      (ownerK1DeckMayContain(observation, PRINT.doubleColorless) ||
+       hand.some(other=>matches(other,PRINT.doubleColorless))) &&
+      (ownerK1DeckMayContain(observation, PRINT.thunderMountain) ||
+       hand.some(other=>matches(other,PRINT.thunderMountain)));
+    // Speed has draw value, but cannot be the same turn's DCE attachment.
+    // Discard one to pay G&H when it creates a legal immediate attack.
+    return turbo ? 85 : handCopies(hand,PRINT.speedLightning)>1 ? 60 : -100;
+  }
+  if (matches(card, PRINT.captureEnergy))
+    return handCopies(hand,PRINT.captureEnergy)>1 ? 65 : -65;
+  if (matches(card,PRINT.toolJammer) && opponentHasTool(observation) &&
+      !boardHasTool(observation.ownPublic,PRINT.toolJammer)) return -85;
   if (matches(card, PRINT.ironThorns) &&
       slots(observation.ownPublic).filter(row=>matches(row.pokemon.printing,PRINT.ironThorns)).length < 2) return -90;
   if (matches(card, PRINT.fieldBlower))
