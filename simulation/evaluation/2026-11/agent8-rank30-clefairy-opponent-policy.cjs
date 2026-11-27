@@ -468,6 +468,62 @@ function candidateCanUseBoardHeldStarAlchemy(observation) {
   return slots(opponent).some(p=>arr(p.tools).some(t=>has(t,P.fss)));
 }
 
+const BENCH_BASIC = Object.freeze([
+  {pattern:P.clefairy,kind:'clefairy'},
+  {pattern:/^Latias ex SSP(?: 76)?\b/i,kind:'latias'},
+  {pattern:/^Unown AOR(?: 30)?\b/i,kind:'unown'},
+  {pattern:/^Crobat V DAA(?: 104)?\b/i,kind:'crobat'},
+  {pattern:/^Dedenne-GX UNB(?: 57)?\b/i,kind:'dedenne'},
+  {pattern:/^Squawkabilly ex PAL(?: 169)?\b/i,kind:'squawk'},
+  {pattern:/^Fezandipiti ex ASC(?: 142)?\b/i,kind:'fez'}
+]);
+function benchBasicRole(value) {
+  const row=BENCH_BASIC.find(r=>has(value,r.pattern));
+  return row?.kind??null;
+}
+function valuableBasicReplacement(o) {
+  const inPlay=slots(o?.ownPublic);
+  const hand=arr(o?.ownHand);
+  const clefs=inPlay.filter(x=>has(x,P.clefairy)).length;
+  return (clefs<2 && hand.some(x=>has(x,P.clefairy)))||
+    (!inPlay.some(x=>/^Latias ex SSP(?: 76)?\b/i.test(text(x))) &&
+       hand.some(x=>/^Latias ex SSP(?: 76)?\b/i.test(text(x))));
+}
+function farewellOpportunity(o) {
+  const own=o?.ownPublic;
+  if(!own||!arr(own.bench).some(x=>/^Unown AOR(?: 30)?\b/i.test(text(x))))return false;
+  const ro=projectedRondo(o);
+  if(ro && ro.damage>=ro.remaining)return false;
+  const cap=stadium(o)?8:5;
+  if(benchCount(own)>=cap && valuableBasicReplacement(o))return true;
+  if(arr(o.ownHand).length<=2 && (!has(own.active,P.clefairy)||
+     arr(own.active.energies).length<2) && benchCount(own)<cap)return true;
+  return false;
+}
+function selectBasicBenchRoot(items,o) {
+  const own=o.ownPublic, ownBoard=slots(own);
+  const offered=items.filter(a=>a.kind==='play-card'&&benchBasicRole(ownPrinting(a)));
+  if(!offered.length)return null;
+  const clefs=ownBoard.filter(x=>has(x,P.clefairy)).length;
+  const ro=projectedRondo(o);
+  const makesKo=ro && ro.damage<ro.remaining && ro.damage+20>=ro.remaining;
+  const smallHand=arr(o.ownHand).length<=3;
+  const priority=({kind})=>{
+    if(kind==='clefairy')return clefs===0?115:clefs===1?95:30;
+    if(kind==='unown')return makesKo?105:smallHand?85:70;
+    if(kind==='latias')return ownBoard.some(x=>/^Latias ex SSP(?: 76)?\b/i.test(text(x)))?0:
+      own.active&&arr(own.active.energies).length>=2?88:68;
+    if(kind==='crobat')return smallHand&&!ownBoard.some(x=>/^Crobat V DAA(?: 104)?\b/i.test(text(x)))?80:0;
+    if(kind==='dedenne')return smallHand&&arr(o.ownHand).length<=2?55:0;
+    if(kind==='squawk')return !isLaterTurn(o)&&smallHand?65:0;
+    if(kind==='fez')return ownBoard.some(x=>/^Fezandipiti ex ASC(?: 142)?\b/i.test(text(x)))?0:50;
+    return 0;
+  };
+  const candidates=offered.map((item,index)=>({item,index,score:priority({kind:benchBasicRole(ownPrinting(item))})}))
+    .filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.index-b.index);
+  return candidates[0]?.item??null;
+}
+
 function rootDecision(request,{enablePatchProjection=false}={}) {
   const o=request.observation, items=availableCards(request);
   if(!items.length)return no('R30_NO_OFFERED_ROOT');
@@ -479,7 +535,7 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   const sky=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.sky));
   const ro=projectedRondo(o);
   if(sky && !stadium(o) && ro && benchCount(o.ownPublic)===5 &&
-    o.ownHand.some(c=>has(c,P.clefairy)) && ro.damage<ro.remaining &&
+    o.ownHand.some(c=>benchBasicRole(c)!==null) && ro.damage<ro.remaining &&
     ro.damage+20>=ro.remaining)return act(sky);
   const vip=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.vip));
   if(vip && benchCount(o.ownPublic)<(stadium(o)?8:5))return act(vip);
@@ -525,9 +581,12 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   const attach=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.basicPsychic)&&
     has(a.targetPrinting,P.clefairy));
   if(attach)return act(attach);
-  const bench=items.find(a=>a.kind==='play-card' && has(ownPrinting(a),P.clefairy) &&
-    !slots(o.ownPublic).some(c=>has(c,P.clefairy)));
-  if(bench)return act(bench);
+  const basic=selectBasicBenchRoot(items,o);
+  if(basic)return act(basic);
+  const farewell=items.find(a=>a.kind==='use-ability'&&
+    a.publicMetadata?.abilityName==='Farewell Letter'&&
+    /^Unown AOR(?: 30)?\b/i.test(text(ownPrinting(a))));
+  if(farewell&&farewellOpportunity(o))return act(farewell);
   return attack ? act(attack) : no('R30_ROOT_UNSUPPORTED');
 }
 function createPolicy({role,seat,policyVersion,config}) {
@@ -561,4 +620,4 @@ function createPolicy({role,seat,policyVersion,config}) {
   }});
 }
 module.exports={POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,SOURCE_COUNTS,createPolicy,
-  rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,candidateCanUseBoardHeldStarAlchemy};
+  rootDecision,boxPrompt,quickBallPrompt,vipPrompt,telepathPrompt,starAlchemyPrompt,starNeedsResource,guzmaPrompt,guzmaOpportunity,battleCompressorPrompt,vsSeekerPrompt,compressorOpportunity,sourcePrizeTarget,patchPrompt,projectedRondo,discardScore,benchBasicRole,selectBasicBenchRoot,farewellOpportunity,candidateCanUseBoardHeldStarAlchemy};
