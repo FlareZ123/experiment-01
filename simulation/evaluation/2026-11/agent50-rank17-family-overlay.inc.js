@@ -494,16 +494,58 @@ function r17LoadPlan(view,p,deckCounts,maxLoad=3,options={}) {
     }
   return best;
 }
+function r17PublicFreePivot(view) {
+  const a=active(own(view)),t=view.ownTurnResources?.retreatedTurn,r=a?.publicRestrictions||{};
+  if(!a||!Number.isSafeInteger(t)||t===view.globalTurn||
+    r.cannotRetreat||r.cannotRetreatNextTurn||r.cannotRetreatWhileActive||
+    list(a.specialConditions).length)return false;
+  const cost=a.printed?.retreatCost;
+  if(!Array.isArray(cost))return false;
+  return cost.length===0||cost.length===1&&r17StadiumToolLive(view)&&list(a.tools).some(t=>r17Key(t)==='uturn');
+}
+function r17ReadyRainAttackers(view) {
+  const a=active(own(view));
+  if(r17RainWindow(view,a))return [a];
+  // An Active Electrode may KO itself and promote a Benched attacker.
+  // Otherwise a known free retreat is required. When Klefki suppresses
+  // Wobbuffet, that retreat must occur only after Bomb resolves.
+  const selfKO=r17Key(a)==='electrode'&&r17LiveBombs(view).includes(a);
+  if(!selfKO&&!r17PublicFreePivot(view))return [];
+  return list(own(view).bench).filter(p=>r17RainWindow(view,p));
+}
+function r17FundedRainProjection(view,p,options={}) {
+  let best=null;
+  const held=hand(view),bounds=r17EnergyDeckBounds(view),copies=r17HandCount(view,'compressor');
+  const manual=[null,...(r17ManualAvailable(view)?[...new Set(held.map(r17Key).filter(k=>R17_ENERGY.has(k)))]:[])];
+  const sight=[false,...(r17Hand(view,'sight')&&list(p.tools).length===0&&r17StadiumToolLive(view)&&
+    !own(view).publicTurnRestrictions?.toolPlayLocked&&!view.ownTurnResources?.toolPlayLocked?[true]:[])];
+  for(const energy of manual)for(const forceSight of sight){
+    const opts={...options,forceSight:options.forceSight||forceSight,
+      extraAttached:[...list(options.extraAttached),...(energy?[R17_ENERGY_PRINTING[energy]]:[])]};
+    const direct=r17RainProjection(view,p,opts);
+    const loading=copies&&itemAvailable(view)?r17LoadPlan(view,p,bounds,Math.min(12,3*copies),opts):null;
+    const plan=loading&&r17CompareProjection(loading.projection,direct)>0?loading.projection:direct;
+    if(plan&&r17CompareProjection(plan,best)>0)
+      best={...plan,needsManual:energy,needsSight:forceSight,needsLoad:loading&&plan===loading.projection?loading.keys:[],
+        deckSearchOptimistic:Boolean(loading&&plan===loading.projection&&!r17KnownOwnZones(view))};
+  }
+  return best;
+}
 function r17ActiveLoadPlan(view,deckCounts=null,searching=false) {
-  const p=active(own(view));
-  if(r17Key(p)!=='raichu'||!itemAvailable(view))return null;
+  if(!itemAvailable(view))return null;
+  const attackers=r17ReadyRainAttackers(view);
+  if(!attackers.length)return null;
   // During the choice prompt the current Compressor has left the hand.
   // Plan across distinct held copies, but spend at most three cards now.
   const copies=r17HandCount(view,'compressor')+Number(searching);
   if(copies<1)return null;
   const known=deckCounts||r17EnergyDeckBounds(view);
-  const plan=r17LoadPlan(view,p,known,Math.min(12,copies*3));
-  return plan?{...plan,now:plan.keys.slice(0,3)}:null;
+  let best=null;
+  for(const p of attackers){
+    const plan=r17LoadPlan(view,p,known,Math.min(12,copies*3));
+    if(plan&&r17CompareProjection(plan.projection,best?.projection)>0)best=plan;
+  }
+  return best?{...best,now:best.keys.slice(0,3)}:null;
 }
 function r17CompressorPlan(view,deckCounts=null,searching=false) {
   if(!itemAvailable(view))return [];
@@ -870,28 +912,40 @@ function r17SwitchProjection(view,nextOwn,nextOpponent) {
 }
 function r17RopeRainPlan(request) {
   const v=request.observation,p=own(v),o=opponent(v),old=active(p);
-  if(!itemAvailable(v)||v.globalTurn<2||r17Key(old)==='raichu'||
-     !r17IsWob(active(o))||!list(o.bench).some(Boolean))return null;
-  // If current Klefki is the only thing keeping Bomb live and a direct
-  // free retreat is already available, preserve the lock until Bomb.
-  if(r17DepartingKlefkiRelocks(v)&&list(request.actionFrontier?.items).some(a=>
-    a.kind==='retreat'&&r17FreeRetreat(a,v)&&r17Key(a.targetPrinting)==='raichu'))return null;
+  if(!itemAvailable(v)||v.globalTurn<2||r17Key(old)==='raichu')return null;
+  const direct=list(request.actionFrontier?.items).filter(a=>
+    a.kind==='retreat'&&metadata(a).targetSeat==='actor'&&r17FreeRetreat(a,v)&&r17Key(a.targetPrinting)==='raichu');
+  // Retain the protected live Bomb connector and promote after self-KO,
+  // or after Bomb through a free retreat, when available.
+  if(r17DepartingKlefkiRelocks(v)&&direct.length)return null;
   let best=null;
   for(const raichu of list(p.bench).filter(q=>r17Key(q)==='raichu')){
     let worst=null,valid=true;
-    // Opponent chooses their own replacement. Do not assume they choose
-    // the convenient one: every visible legal bench alternative must work.
-    for(const next of list(o.bench).filter(Boolean)){
+    const choices=list(o.bench).filter(Boolean);
+    // Rope switches our own Pokémon even if the opponent has no Bench.
+    // A second Wobbuffet, if available, is a real adversarial alternative.
+    for(const next of choices.length?choices:[active(o)]){
       const projected=r17SwitchProjection(v,raichu,next),nextR=active(own(projected));
-      if(!r17LiveBombs(projected).length||!r17TempleAnswerPossible(projected)){valid=false;break;}
-      const plan=r17RainProjection(projected,nextR,{ignoreTemple:r17NeedTempleRemoval(projected)});
+      if(!r17TempleAnswerPossible(projected)){valid=false;break;}
+      const plan=r17FundedRainProjection(projected,nextR,{ignoreTemple:r17NeedTempleRemoval(projected)});
       if(!plan){valid=false;break;}
       if(!worst||r17CompareProjection(plan,worst)<0)worst=plan;
     }
     if(valid&&worst&&(!best||r17CompareProjection(worst,best.plan)>0))best={raichu,plan:worst};
   }
+  if(!best)return null;
+  // A free direct retreat cannot be worse if it provides the same
+  // immediate Prize objective without conceding opponent switch choice.
+  for(const a of direct){
+    const q=r17Slot(v,'bench',metadata(a).targetIndex??metadata(a).benchIndex);
+    if(!q)continue;
+    const projected=r17SwitchProjection(v,q,active(o)),attacker=active(own(projected));
+    const plan=r17FundedRainProjection(projected,attacker,{ignoreTemple:r17NeedTempleRemoval(projected)&&r17TempleAnswerPossible(projected)});
+    if(plan&&r17CompareProjection(plan,best.plan)>=0)return null;
+  }
   return best;
 }
+
 function r17RopeScore(request) {
   const v=request.observation;
   const rain=r17RopeRainPlan(request);if(rain)return 315;
@@ -914,7 +968,7 @@ function r17SwitchValue(p,v) {
   const key=r17Key(p);
   const energies=list(p?.energies),units=energies.reduce((n,e)=>n+(r17EnergyProvision(e,own(v).prizeCount,opponent(v).prizeCount,r17NeedTempleRemoval(v))?.total||0),0);
   const lightning=energies.some(e=>(r17EnergyProvision(e,own(v).prizeCount,opponent(v).prizeCount,r17NeedTempleRemoval(v))?.lightning||0)>0);
-  if(key==='raichu'&&r17RainProjection(v,p,{ignoreTemple:r17NeedTempleRemoval(v)&&r17TempleAnswerPossible(v)}))return 360;
+  if(key==='raichu'&&r17FundedRainProjection(v,p,{ignoreTemple:r17NeedTempleRemoval(v)&&r17TempleAnswerPossible(v)}))return 360;
   if(key==='raichu'&&units>=3&&lightning)return 240;
   if(key==='klefki'&&!r17Board(v,'unown')&&!r17NeedTempleRemoval(v)&&!r17Suppressed(p,'Mischievous Lock'))return 150;
   if(key==='unown')return 110;
@@ -1067,7 +1121,7 @@ function r17Score(item,request) {
     if(s&&r17Key(s)==='raichu'&&r17SwitchValue(s,view)>=240&&r17SwitchValue(active(own(view)),view)<240){
       // Departing Klefki would reactivate opposing Wob before Bomb.
       // Preserve the live connector if it can supply additional Energy.
-      if(r17DepartingKlefkiRelocks(view)&&r17Discard(view).some(c=>R17_ENERGY.has(r17Key(c))))return 0;
+      if(r17DepartingKlefkiRelocks(view)&&(r17Discard(view).some(c=>R17_ENERGY.has(r17Key(c)))||r17ActiveLoadPlan(view)))return 0;
       return 115;
     }
   }
@@ -1372,5 +1426,5 @@ module.exports = Object.freeze({
   SOURCE_ENTRY_JSON_SHA256:R17_PROFILE.sourceEntryJsonSha256,
   ENGINE_PIN:R17_PROFILE.enginePin,PROFILE:R17_PROFILE,createPolicy:r17CreatePolicy,
   scoreAction:r17Score,promptDecision:r17Prompt,bestAction:r17Best,
-  planRainTurn:r17PlanRainTurn,knownOwnZones:r17KnownOwnZones,ticketPlan:r17TicketPlan,planCoreAccess:r17CoreAccess,wobbuffetLive:r17WobLive,abilityBlocked:r17AbilityBlocked,liveBombs:r17LiveBombs,rainProjection:r17RainProjection,ropeRainPlan:r17RopeRainPlan,energyProvision:r17EnergyProvision,loadPlan:r17LoadPlan,activeLoadPlan:r17ActiveLoadPlan,secretPayment:r17SecretPayment
+  planRainTurn:r17PlanRainTurn,knownOwnZones:r17KnownOwnZones,ticketPlan:r17TicketPlan,planCoreAccess:r17CoreAccess,wobbuffetLive:r17WobLive,abilityBlocked:r17AbilityBlocked,liveBombs:r17LiveBombs,rainProjection:r17RainProjection,ropeRainPlan:r17RopeRainPlan,energyProvision:r17EnergyProvision,loadPlan:r17LoadPlan,activeLoadPlan:r17ActiveLoadPlan,secretPayment:r17SecretPayment,fundedRainProjection:r17FundedRainProjection,readyRainAttackers:r17ReadyRainAttackers
 });
