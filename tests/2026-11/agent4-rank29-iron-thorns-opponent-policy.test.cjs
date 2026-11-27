@@ -161,7 +161,7 @@ function observation(options = {}) {
       ...(options.opponentPlayer ?? {})
     }),
     ownTurnResources: options.ownTurnResources ?? turnResources(),
-    ownerK1: null
+    ownerK1: options.ownerK1 ?? null
   };
 }
 
@@ -781,4 +781,79 @@ test('Guzma & Hala Tool search prefers Jammer against exposed opposing Hood', ()
   });
   assert.deepEqual(checkedDecision(req),
     {kind:'select-choices',tokens:['jammer']});
+});
+
+const positiveK1={
+  epoch:1,exactMembershipKnown:true,knownPrintings:[],
+  invalidationReason:null
+};
+
+test('Peonia becomes a last-resort live Supporter only with K1 and three low-cost replacements', () => {
+  const base={
+    ownHand:['Peonia CRE 149',"Trainers' Mail ROS 92",'Camping Gear BST 122',
+      'Captivating Poké Puff STS 99'],
+    ownPublic:player({active:pokemon('Iron Thorns ex TWM 77'),prizeCount:6}),
+    items:[
+      action('peonia','play-card','Peonia CRE 149',{cardType:'supporter'}),
+      {token:'pass',kind:'pass'}
+    ]
+  };
+  assert.deepEqual(checkedDecision(rootRequest({...base,ownerK1:positiveK1})),
+    {kind:'select-action',token:'peonia'});
+  assert.deepEqual(checkedDecision(rootRequest(base)),{kind:'select-action',token:'pass'});
+  const scarce={...base,ownHand:['Peonia CRE 149','Lusamine CIN 96',
+    'Double Colorless Energy SUM 136','Camping Gear BST 122']};
+  assert.deepEqual(checkedDecision(rootRequest({...scarce,ownerK1:positiveK1})),
+    {kind:'select-action',token:'pass'});
+});
+
+test('Peonia exact-three Prize slots choose owned physical indices, not hidden card identities', () => {
+  const req=promptRequest({
+    promptType:'ChoosePrizePrompt',
+    source:actorChoiceSource('Peonia CRE 149','Peonia'),
+    publicMetadata:multiMetadata(3,3,'prize-slots'),
+    choices:[5,2,0,1,4,3].map(i=>({
+      token:'slot'+i,kind:'prize',label:'Prize slot '+i,
+      publicMetadata:{ownerSeat:'actor',sourceZone:'prize',slotIndex:i}
+    }))
+  });
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-choices',tokens:['slot0','slot1','slot2']
+  });
+});
+
+test('Peonia replacement selects high-DCI actor hand cards not recovered Lusamine', () => {
+  const req=promptRequest({
+    promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('Peonia CRE 149','Peonia'),
+    publicMetadata:multiMetadata(3,3),
+    observation:{
+      ownHand:['Lusamine CIN 96',"Trainers' Mail ROS 92",'Camping Gear BST 122',
+        'Captivating Poké Puff STS 99']
+    },
+    choices:[
+      cardChoice('lusamine','Lusamine CIN 96','hand','actor','card','prize'),
+      cardChoice('mail',"Trainers' Mail ROS 92",'hand','actor','card','prize'),
+      cardChoice('camp','Camping Gear BST 122','hand','actor','card','prize'),
+      cardChoice('puff','Captivating Poké Puff STS 99','hand','actor','card','prize')
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-choices',tokens:['mail','camp','puff']
+  });
+});
+
+test('Peonia final Prize-order prompt resolves exactly three actor-visible ordered tokens', () => {
+  const req=promptRequest({
+    promptType:'OrderCardsPrompt',
+    source:actorChoiceSource('Peonia CRE 149','Peonia'),
+    publicMetadata:{selectionType:'card-order',count:3,allowCancel:false,isSecret:false},
+    choices:[2,0,1].map(i=>({
+      token:'order'+i,kind:'card-order-item',label:'Original hand replacement '+i,
+      publicMetadata:{ownerSeat:'actor',sourceZone:'hand',selectionIndex:i}
+    }))
+  });
+  assert.deepEqual(checkedDecision(req),{
+    kind:'select-choices',tokens:['order0','order1','order2']
+  });
 });
