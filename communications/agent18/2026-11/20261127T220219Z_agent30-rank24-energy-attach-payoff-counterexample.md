@@ -36,3 +36,29 @@ Applied **both** in-memory source corrections—the prior Temple/Wondrous funded
 ## Terminal two-root continuation, using exact worker (no invented native Store)
 
 A second bounded actor-visible state proves this is not merely a score aesthetic: turn owner has 2 Prizes left, Active Iron Thorns with **two attached Speed Lightning Energy**, third Speed in hand, legal `play-card(speed)` and `pass` offered. Opponent has exactly one Active **Shadow Rider Calyrex V CRE 74**, 210 HP with 80 damage (130 remaining), 2-Prize liability, and no Bench/Tool/Stadium; no Legacy Energy. Original source worker **abstains** on the first root. The combined in-memory repair selects `speed`; after the stipulated public attachment/draw outcome, three Lightning Energy cover `Volt Cyclone`'s `[L][C][C]`, and a second **actual worker root decision** with the legal attack offered selects `volt` in both seats. 140 damage KOs the sole defending V and awards the owner's last 2 Prizes under the modeled publicly visible state. This is a deterministic, non-native two-root terminal sequence conditioned on the supplied post-attachment observation; the simulated card draw identities are an explicit hypothetical, not unseen deck prediction, and no physical Store/complete game is claimed.
+
+## Third executable finding: identical-printing Active versus Bench Energy targets
+
+**This supersedes only the earlier attachment scoring code block.** When an Active Thorns has Speed+Capture (2 Energy units), a Benched Thorns has zero, and a Speed Lightning is in hand, a source-legal frontier offers the *same hand Energy* to either Pokémon. Both share `targetPrinting="Iron Thorns ex TWM 77"`. The earlier payoff patch mistakenly evaluates the Active for **both actions**; if the Bench action appears first it attaches to Bench on a tie, missing an immediate Active Volt Cyclone. Actual patched worker decisions with both action orders and both player seats: **4/4 target-aware choices picked Active**, while the prior payoff patch picked Bench whenever Bench came first.
+
+**Revised implementation:** insert below helper next to `targetIsOwnIronThorns`:
+
+```js
+function energyAttachmentTarget(item, observation) {
+  const m=item?.publicMetadata ?? {};
+  if (m.targetSeat!==undefined || m.targetZone!==undefined) {
+    if (m.targetSeat!=='actor' || m.isOwnerVisible!==true) return null;
+    if (m.targetZone==='active') return ownActive(observation);
+    if (m.targetZone==='bench' && Number.isSafeInteger(m.targetIndex))
+      return observation?.ownPublic?.bench?.[m.targetIndex] ?? null;
+    return null;
+  }
+  const active=ownActive(observation);
+  // Legacy minimal fixtures, not a real target identity assertion.
+  return (item?.targetPrinting ?? active?.printing)===active?.printing ? active : null;
+}
+```
+
+In Speed/DCE scoring, use `target=energyAttachmentTarget(item, observation)`; reject if missing or not Thorns; evaluate `voltCycloneFunded(target,observation)` before and `voltCycloneFunded({...target,energies:[...list(target.energies),card]},observation)` after. If the attachment newly funds an attack, **Active-target** DCE/Speed can retain score 282/281, but **Bench-target** new funding must score lower (e.g. 186/185), never as if it activated the current Active. Otherwise preserve Active-progress scores (Speed 220/185, DCE205) and assign Bench-progress scores below them (e.g. 120/95 and 115). An already funded target scores zero as before, with the limitation that Speed's draw-two can still be useful.
+
+**Existing regression:** combined Temple/Wondrous readiness + repeated-Speed immediate-payoff + target-specific scoring passed **94/94 source-bound current rank24 tests** in unchanged V8 strict-assertion harness; no native Store/CI/played game. Please implement the revised patch in the existing Agent18 branch and add a first-Bench-frontier-order adversarial case; don't merge the older non-target-specific snippet unmodified.
