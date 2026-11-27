@@ -1,5 +1,5 @@
 'use strict';
-// Optional actor-visible valuation overlay. Apply after approved Agent31 repair bundle.
+// Optional actor-visible control denial overlay. Apply after Agent31 repair bundle.
 const edits=[
   [
     "control helpers",
@@ -15,6 +15,41 @@ const edits=[
     "pair eligibility",
     "if(values.length<2||values[0]<300)return -Infinity;\n  const best=getLostPairs(view,discard.map((printing,index)=>({printing,index})));",
     "if(values.length<2)return -Infinity;\n  const best=getLostPairs(view,discard.map((printing,index)=>({printing,index})));\n  if(values[0]<300&&(!best||controlPairBonus(view,best.rows.map(r=>r.printing))===0))return -Infinity;"
+  ],
+  [
+    "access feasibility",
+    "function getLostValue(view,printing) {",
+    "function affordableControlGetLostAccess(view){\n  if(!observedThornsControl(view)&&!publicTempleResettingHoleRisk(view))return false;\n  if(!hasOpenBench(view)||boardHas(view,'Girafarig')||\n     view.ownTurnResources.retreatedTurn!==0||view.globalTurn<=1||\n     view.ownTurnResources.pokemonPlayLocked||\n     view.ownPublic.publicTurnRestrictions?.attackLockTurnsRemaining!==0)return false;\n  const cost=ownRetreatCost(view);\n  if(cost===null||cost>1||slotEnergyCount(view.ownPublic.active)<cost)return false;\n  if(dimensionValleyStatus(view)!==true&&\n     (view.ownTurnResources.energyPlayedTurn!==false||view.ownTurnResources.energyPlayLocked||!handHas(view,'Psychic Energy')))return false;\n  const plan=getLostPlan(view);\n  if(!Number.isFinite(plan))return false;\n  const current=bestAttackForSlot(view.ownPublic.active,view,view.opponentPublic.active);\n  return plan>(current?.score??0)+cost*350+100;\n}\nfunction needControlGirafarig(view){\n return affordableControlGetLostAccess(view)&&!handHas(view,'Girafarig')&&\n    !knownFullyPrized(view,'Girafarig');\n}\nfunction getLostValue(view,printing) {"
+  ],
+  [
+    "search target",
+    "  if (hasName(printing, 'Radiant Eternatus')) return gateAccessNeed(view) ? 120 : -5;",
+    "  if(hasName(printing,'Girafarig')&&needControlGirafarig(view))return 106;\n  if (hasName(printing, 'Radiant Eternatus')) return gateAccessNeed(view) ? 120 : -5;"
+  ],
+  [
+    "bench only when immediately feasible",
+    "  const reserveGate = handHas(view,'Radiant Eternatus') &&",
+    "  if(hasName(printing,'Girafarig')&&affordableControlGetLostAccess(view))return 1080;\n  const reserveGate = handHas(view,'Radiant Eternatus') &&"
+  ],
+  [
+    "search root Fog",
+    "(missingBasicV ||\n       (opponentHasDragon(view)",
+    "(missingBasicV || needControlGirafarig(view) ||\n       (opponentHasDragon(view)"
+  ],
+  [
+    "search root MT",
+    "(gateAccessNeed(view) || missingBasicV || needNightWatch ||",
+    "(gateAccessNeed(view) || missingBasicV || needNightWatch || needControlGirafarig(view) ||"
+  ],
+  [
+    "search root Quick",
+    "(missingBasicV || needNightWatch || gateAccessNeed(view)))",
+    "(missingBasicV || needNightWatch || gateAccessNeed(view) || needControlGirafarig(view)))"
+  ],
+  [
+    "preserve required denial body",
+    "  const duplicates = view.ownHand.filter(item => item === printing).length;",
+    "  if(hasName(printing,'Girafarig')&&affordableControlGetLostAccess(view))return 900;\n  const duplicates = view.ownHand.filter(item => item === printing).length;"
   ]
 ];
 module.exports={edits,apply(source){for(const [label,a,b] of edits){if(source.split(a).length!==2)throw Error(label);source=source.replace(a,b)}return source}};
