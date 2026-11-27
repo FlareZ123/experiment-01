@@ -109,6 +109,38 @@ test('Gladion prize prompt takes the highest-valued revealed prize', () => {
   assert.deepEqual(policy.decide(req), { kind: 'select-choices', tokens: ['p1'] });
 });
 
+test('VS Seeker recovers the best useful Supporter outside terminal mill states', () => {
+  const vs = { token: 'vs', kind: 'play-card', actorPrinting: 'VS Seeker PHF 109' };
+  assert.deepEqual(policy.decide(root({
+    ownHand: ['VS Seeker PHF 109'],
+    ownDiscard: ['Eri TEF 146', 'Plumeria BUS 120'],
+    opponentActive: mon('Target ex ABC 1', { energies: ['Double Colorless Energy SUM 136'] }),
+    items: [vs, pass]
+  })), { kind: 'select-action', token: 'vs' });
+
+  const req = prompt({
+    sourcePrinting: 'VS Seeker PHF 109', effectName: 'VS Seeker',
+    promptType: 'ChooseCardsPrompt',
+    choices: [
+      {
+        token: 'eri', kind: 'card', printing: 'Eri TEF 146', label: 'Eri',
+        publicMetadata: { ownerSeat: 'actor', sourceZone: 'discard' }
+      },
+      {
+        token: 'plume', kind: 'card', printing: 'Plumeria BUS 120', label: 'Plumeria',
+        publicMetadata: { ownerSeat: 'actor', sourceZone: 'discard' }
+      }
+    ],
+    publicMetadata: {
+      selectionType: 'card-combination', minimumCount: 1, maximumCount: 1
+    },
+    observationOptions: {
+      opponentActive: mon('Target ex ABC 1', { energies: ['Double Colorless Energy SUM 136'] })
+    }
+  });
+  assert.deepEqual(policy.decide(req), { kind: 'select-choices', tokens: ['plume'] });
+});
+
 test('Lusamine starts when a high-value Supporter or Stadium is recoverable', () => {
   const l = { token: 'l', kind: 'play-card', actorPrinting: 'Lusamine CIN 96' };
   assert.deepEqual(policy.decide(root({
