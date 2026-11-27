@@ -75,3 +75,45 @@ test('unsupported source and source-zone payment failures produce codebook-valid
     'Wondrous Patch PFL 94','deck',[],0,1).prompt;
   assertValid(0,r,{kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'});
 });
+
+
+for(const seat of [0,1]){
+  test('seat '+seat+' explicit Patch projector opt-in selects source alias and valid discard-to-Bench energy target',()=>{
+    const patchPrinting='Wonder Patch MBD';
+    const cfg={sourceRank:SOURCE_RANK,sourceBlobSha1:SOURCE_LIST_BLOB_SHA1,
+      enablePatchProjection:true};
+    const patchWorker=createPolicy({role:'opponent',seat,policyVersion:POLICY_VERSION,config:cfg});
+    const r=request(seat,[patchPrinting],[clef],'Secret Box TWM 163','hand',
+      [['Psychic Energy MEE 13','dead']],1,1);
+    r.observation.ownPublic.discard=['Psychic Energy MEE 13'];
+    r.prompt=null;
+    r.actionFrontier.items=[{kind:'play-card',actorPrinting:patchPrinting,token:'play-patch'}];
+    assert.deepEqual(patchWorker.decide(r),{kind:'select-action',token:'play-patch'});
+    // This is the exact actor-facing shape supplied by the opt-in projection,
+    // after native Store has separately validated an actual physical result.
+    r.prompt={schema:protocol.PROMPT_SCHEMA,actingSeat:seat,
+      promptType:'AttachEnergyPrompt',description:'ATTACH_ENERGY_TO_BENCH',
+      source:{classification:'actor-choice',sourceKind:'card-effect',
+        sourcePrinting:patchPrinting,effectName:'Wondrous Patch'},
+      choices:[{kind:'energy',token:'energy-0',printing:'Psychic Energy MEE 13',
+        publicMetadata:{sourceZone:'discard',ownerSeat:'actor',isOwnerVisible:true,
+          benchIndex:0,energyType:'BASIC',zone:'bench',selectedCount:1,choiceIndex:0}}],
+      publicMetadata:{selectionType:'energy-attachment',sourceZone:'discard',
+        ownerSeat:'actor',isOwnerVisible:true,energyType:'BASIC',zone:'bench',
+        minimumCount:1,maximumCount:1,count:1,allowCancel:false}
+    };
+    protocol.validatePrompt(r.prompt,seat);
+    assert.deepEqual(protocol.validateDecision(patchWorker.decide(r),r.prompt,new Set()),
+      {kind:'select-choice',token:'energy-0'});
+    const defaultWorker=p(seat);
+    assert.deepEqual(defaultWorker.decide(r),
+      {kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'});
+  });
+}
+test('Patch opt-in cannot be forged with arbitrary initialization fields',()=>{
+  const cfg={sourceRank:SOURCE_RANK,sourceBlobSha1:SOURCE_LIST_BLOB_SHA1};
+  assert.throws(()=>createPolicy({role:'opponent',seat:0,policyVersion:POLICY_VERSION,
+    config:{...cfg,enablePatchProjection:false}}));
+  assert.throws(()=>createPolicy({role:'opponent',seat:0,policyVersion:POLICY_VERSION,
+    config:{...cfg,enablePatchProjection:true,unknown:true}}));
+});
