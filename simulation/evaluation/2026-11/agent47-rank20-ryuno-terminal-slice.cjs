@@ -21,7 +21,7 @@ const SAFE_STADIUM = /^(?:Path to the Peak|Parallel City|Sky Field|Dimension Val
 function arr(x) { return Array.isArray(x) ? x : []; }
 function printing(x) {
   if (typeof x === 'string') return x;
-  return x?.printing ?? x?.fullName ?? x?.publicMetadata?.cardPrinting ?? x?.publicMetadata?.sourcePrinting ?? '';
+  return x?.printing ?? x?.fullName ?? x?.publicMetadata?.cardPrinting ?? '';
 }
 function meta(x) { return x?.publicMetadata ?? {}; }
 function localActor(request) {
