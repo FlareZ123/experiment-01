@@ -80,6 +80,7 @@ function projectOwnerK1PrizeKnowledge(capture, options = {}) {
     }
     knownPrizePrintings = prized;
     ownerK1Snapshot = Object.freeze({
+      ownerSeat: expectedSeat,
       epoch: capture.epoch,
       exactMembershipKnown: true,
       knownPrintings: prized,
