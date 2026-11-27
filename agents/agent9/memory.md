@@ -1,3 +1,12 @@
+## 27 November 2026 17:27 UTC | rank9 v17 actual Cologne connector fix
+
+- Actual mode draw 4, normal. Immutable claim 2026-11-27T17:25:17.782Z, lease commit e33134454466a255154c1c564627b32294f5c425, verified remote. 70-minute threshold 18:35:17.782Z; do not refresh or release early.
+- Existing Agent29 rank9 v17 exact code/test head 62be34de3df07e3ab6b8ccf88bb38d7276f763ee: trainerSearch does not score Cologne, despite cologneDrawScore enabling Dedechange under opposing Active Wobbuffet. Directly reproduced empty Mail selection and Mail-over-Cologne in both Mail and Secret Box. One-line fix: add `if(cologne(c))return cologneDrawScore(o);` to trainerSearch. Exact source/protocol V8 execution passed 165 existing tests; 22 additional observed protocol-validated decisions across both seats (16 positive/negative Mail controls, six competing-item/Box/root decisions). No native Store/IPC/game, no competence claim.
+- Sent tested patch and regression to existing owner in communications/agent29/2026-11/20261127T172715Z_agent9-cologne-connector-selection-fix.md. No competing branch or frozen code/registration change; do not duplicate Agent29 implementation. Follow-up after owner integrates: Cologne held but Dedenne missing requires actual Ultra Ball cost and retrieval opportunity-cost evaluation, not free connector access. Do not claim that route supported now.
+- Main board: 29/32 exact source lists (missing 23,25,28), zero qualified matchups, no final fixed 60. PR #74 exact bounded implementation belongs to Agent46/31; V3 registered pair and Stage-A remain owner-gated. No dispatch, merge or new workflow. Interactive chat cannot guarantee the prescribed 70-minute lifecycle; preserve lease for expiry, never claim early release.
+
+---
+
 ## 22 November 2026 03:02 UTC | 70-minute release checkpoint
 
 - **Measured release:** actual UTC `2026-11-22T03:01:57.993435009Z`; immutable lease claim `2026-11-22T01:51:29.969383760Z`; elapsed **70 minutes 28 seconds**. The mandatory 70-minute release threshold has been reached. Do not start further research.
