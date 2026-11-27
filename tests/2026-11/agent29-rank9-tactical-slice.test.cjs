@@ -166,3 +166,30 @@ const devCount=(function developmentTests(P,protocol){
  return n;
 })(P,protocol);
 console.log('passed '+devCount+' protocol-validated development assertions');
+
+console.log('passed '+(function templeTests(P,protocol){
+ const Meg='Mega Absol ex MEG 86',Un='Unown AOR 30',Vol='Voltorb ROS 21',El='Electrode-GX CES 48',D='Darkness Energy MEE 15',Pr='Prism Energy ASC 216',Psy='Psychic Energy MEE 13',Temple='Temple of Sinnoh ASR 155',Opp='Shadow Rider Calyrex VMAX CRE 75',Pl='Plumeria BUS 120',mail="Trainers' Mail ROS 92";
+ const mk=(printing,energies=[],hp=280,extra={})=>({printing,energies,hp,damage:0,printed:{stage:'Basic',types:['Darkness'],weakness:[],resistance:[]},tools:[],specialConditions:[],publicRestrictions:{},...extra});
+ const vmax=(count)=>mk(Opp,Array(count).fill(Psy),320,{printed:{stage:'VMAX',types:['Psychic'],weakness:[{type:'Darkness',value:'×2'}],resistance:[]},attacks:[{name:'Max Geist',damage:'10+',cost:['Colorless','Colorless','Colorless']}]});
+ const obs=(own,opp,hand=[])=>({actorSeat:0,globalTurn:5,ownPublic:{active:own,bench:[],discard:[],prizeCount:6,deckCount:20,publicTurnRestrictions:{}},opponentPublic:{active:opp,bench:[],prizeCount:6,publicTurnRestrictions:{}},ownHand:hand,ownTurnResources:{supporterPlayedTurn:0,energyPlayedTurn:false}});
+ const pol=()=>P.createPolicy({role:'opponent',seat:0,policyVersion:P.POLICY_VERSION,config:{}});
+ let n=0;function a(x,label){if(!x)throw Error(label);n++}
+ let o=obs(mk(Meg,[D,Pr,Pr]),vmax(3));o.opponentPublic.stadium=[Temple];
+ a(P.payable(o.ownPublic.active,['darkness','darkness','colorless'],-1,o)===false,'Prism under Temple not dark');
+ a(P.payable(o.ownPublic.active,['darkness','colorless'],-1,o)===true,'one Dark still Terminal');
+ o.ownPublic.active.energies=[D,D,Pr];a(P.payable(o.ownPublic.active,['darkness','darkness','colorless'],-1,o)===true,'two Dark + C under Temple');
+ o.ownPublic.active.energies=[];o.ownPublic.bench=[mk(El),mk('Sableye V SSH 120')];o.ownPublic.discard=[D,D,Pr];
+ a(P.bombPlanner(o,0)?.required===3,'Temple Bomb can use real Darkness + C');
+ o=obs(mk(Meg,[D,Pr,Pr]),vmax(3));o.ownPublic.active.specialConditions=[1];const attack={token:'a',kind:'attack',actorPrinting:Meg,attackName:'Claw of Darkness',publicMetadata:{attackCostPayable:true}};
+ a(P.rootAttack(attack,o)<400,'numeric confused not guaranteed KO');
+ o.ownPublic.active.specialConditions=[0];a(P.rootAttack(attack,o)===0,'numeric paralysis rejected');
+ o=obs(mk(Meg),vmax(4),[Pl,mail,mail,mail]);o.opponentPublic.bench=[vmax(5)];
+ a(P.denial(o,{zone:'bench',index:0,p:o.opponentPublic.bench[0]})?.score>300,'off-active Psychic removes Max Geist lethal');
+ o.opponentPublic.bench=[vmax(6)];a(P.denial(o,{zone:'bench',index:0,p:o.opponentPublic.bench[0]})===null,'spare pool stays lethal');
+ o=obs(mk(Meg,[D,Pr]),vmax(3),[D]);o.opponentPublic.stadium=[Temple];
+ const attach={token:'dark',kind:'play-card',actorPrinting:D,publicMetadata:{targetSeat:'actor',targetZone:'active',targetIndex:0,isOwnerVisible:true}};
+ const fr={schema:protocol.FRONTIER_SCHEMA,items:[attach]},tokens=protocol.validateFrontier(fr);
+ const dec=pol().decide({role:'opponent',seat:0,sequence:1,observation:o,prompt:null,actionFrontier:fr});
+ protocol.validateDecision(dec,null,tokens);a(dec.token==='dark','manual Dark restores Claw under Temple');
+ return n;
+})(P,protocol)+' Temple/payment/Max Geist threat assertions');

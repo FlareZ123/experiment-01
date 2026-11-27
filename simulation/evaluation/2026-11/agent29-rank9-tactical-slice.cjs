@@ -1,7 +1,7 @@
 'use strict';
 // Development-only actor-visible tactical slice; see accompanying report.
 module.exports = (function build() {
-  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v5';
+  const POLICY_VERSION = 'agent29-rank9-tactical-slice-v6';
   const SOURCE_RANK = 9;
   const SOURCE_LIST_BLOB_SHA1 = 'ae773f6201d7aa69d31914dbfee66f3fba692200';
   const ENGINE_PIN = 'a9905a76a6c4103ba4b6cb9a49e86bad795c5c05';
@@ -40,8 +40,9 @@ module.exports = (function build() {
       attachments.some(x=>/Eviolite|Resistance Vest|Protective Goggles|Metal Core Barrier|Stone Fighting Energy|Hard Charm|Lucky Helmet|Rock Guard|Survival Brace/i.test(x)) ||
       activeStadium(o).some(x=>/Granite Cave|Lake Acuity|Full Metal Wall/i.test(x));
   }
-  function energyUnits(e,p) {
+  function energyUnits(e,p,o=null) {
     const s=name(e);
+    if(o&&liveStadium(o,/Temple of Sinnoh/i)&&/^(?:Prism|Telepathic Psychic|Double Colorless|Twin|Jet|Gift|Mist|Guard|Double Dragon|Double Turbo|Rainbow|Aurora|Luminous|Reversal|Legacy|Rapid Strike|Single Strike|Capture|Powerful Colorless) Energy\b/i.test(s))return ['colorless'];
     if (/^Prism Energy\b/i.test(s)) {
       const basic=/basic/i.test(String(p?.printed?.stage))||L(p?.printed?.subtypes).some(x=>/^basic$/i.test(x));
       return [basic?'any':'colorless'];
@@ -53,11 +54,12 @@ module.exports = (function build() {
     if (/^Jet Energy\b|^Gift Energy\b|^Mist Energy\b|^Guard Energy\b/i.test(s)) return ['colorless'];
     return null;
   }
-  function payable(p,cost,removed=-1) {
-    if(!Array.isArray(cost)||cost.length===0) return null;
+  function payable(p,cost,removed=-1,o=null) {
+    if(!Array.isArray(cost))return null;
+    if(cost.length===0)return true;
     const req=cost.map(type);
     if(req.some(x=>!['darkness','psychic','colorless','lightning','grass','fire','water','fighting','metal','fairy','dragon'].includes(x))) return null;
-    const parts=L(p?.energies).filter((_,i)=>i!==removed).map(e=>energyUnits(e,p));
+    const parts=L(p?.energies).filter((_,i)=>i!==removed).map(e=>energyUnits(e,p,o));
     if(parts.some(x=>x===null)) return null;
     const units=parts.flat(), ordered=req.sort((a,b)=>(a==='colorless')-(b==='colorless'));
     function dfs(i,used) {
@@ -84,14 +86,15 @@ module.exports = (function build() {
     for(const r of resist) {if(!/^-\d+$/.test(String(r.value)))return null;raw+=Number(r.value);}
     return Math.max(0,raw);
   }
-  function usable(p,attack) {
+  const condition=(x)=>typeof x==='number'?(['paralyzed','confused','asleep','poisoned','burned'][x]??'unknown'):String(x).toLowerCase();
+  function usable(p,attack,o=null) {
     if(!p)return false;
-    if(L(p.specialConditions).some(x=>/asleep|paralyzed|confused/i.test(String(x))))return false;
+    if(L(p.specialConditions).some(x=>/asleep|paralyzed|confused|unknown/i.test(condition(x))))return false;
     const a=p.publicRestrictions??{};
     if(a.cannotAttackNextTurn||L(a.cannotUseAttacksNextTurn).includes(attack)||a.blockedAttackNameNextTurn===attack||a.blockedAttackNameUntilLeavesActive===attack||a.onlyAllowedAttackNameNextTurn&&a.onlyAllowedAttackNameNextTurn!==attack)return false;
     if(a.attackCostIncreaseNextTurn||a.attackCostIncreaseWhileActive)return false;
     const cost=attack==='Terminal Period'?['darkness','colorless']:attack==='Claw of Darkness'?['darkness','darkness','colorless']:attack==='Crazy Claws'?['darkness','darkness']:null;
-    return cost!==null&&payable(p,cost)===true;
+    return cost!==null&&payable(p,cost,-1,o)===true;
   }
   function knockoutScore(o,attacker,target,attack) {
     const d=printedDamage(o,attacker,target,attack);
@@ -101,19 +104,21 @@ module.exports = (function build() {
   }
   function bestAttackAgainst(o,attacker,target) {
     const names=mega(attacker)?['Terminal Period','Claw of Darkness']:sableye(attacker)?['Crazy Claws']:[];
-    return Math.max(0,...names.filter(a=>usable(attacker,a)).map(a=>knockoutScore(o,attacker,target,a)));
+    return Math.max(0,...names.filter(a=>usable(attacker,a,o)).map(a=>knockoutScore(o,attacker,target,a)));
   }
   function rootAttack(item,o) {
     if(item.kind!=='attack'||M(item).attackCostPayable===false||M(item).hasUnmodeledModifier===true)return 0;
     const a=item.attackName??M(item).attackName;
     const own=o.ownPublic?.active, opp=o.opponentPublic?.active;
+    if(L(own?.specialConditions).some(x=>/asleep|paralyzed|unknown/i.test(condition(x))))return 0;
+    const confused=L(own?.specialConditions).some(x=>condition(x)==='confused');
     if(!(mega(own)&&['Terminal Period','Claw of Darkness'].includes(a)||sableye(own)&&a==='Crazy Claws'))return 0;
     if(a==='Terminal Period'&&opp?.damage!==60)return 0;
     if(a!=='Terminal Period'&&(M(item).hasPrevention===true||Number(M(item).damagePrevented)>0))return 0;
     const ko=knockoutScore(o,own,opp,a);
-    if(ko)return ko+(a==='Claw of Darkness'?2:a==='Terminal Period'?1:0);
+    if(ko)return (ko+(a==='Claw of Darkness'?2:a==='Terminal Period'?1:0))*(confused?.5:1);
     const d=printedDamage(o,own,opp,a);
-    return a!=='Terminal Period'&&d>0?100+Math.min(d,300)/10:0;
+    return a!=='Terminal Period'&&d>0?(100+Math.min(d,300)/10)*(confused?.5:1):0;
   }
   function opponentChoice(o,choice) {
     const m=M(choice);
@@ -145,27 +150,70 @@ module.exports = (function build() {
     }
     return out.length===n?out:[];
   }
+  function currentAttackCost(o,p,a){
+    if(!Array.isArray(a.cost)||p.publicRestrictions?.attackCostIncreaseNextTurn||p.publicRestrictions?.attackCostIncreaseWhileActive)return null;
+    const c=a.cost.slice();
+    if(L(p.printed?.types).some(t=>type(t)==='psychic')&&liveStadium(o,/Dimension Valley/i)){
+      const i=c.findIndex(t=>type(t)==='colorless');if(i>=0)c.splice(i,1);
+    }
+    return c;
+  }
+  function publicOpponentDamage(o,p,target,a){
+    let damage=Number(a.damage);
+    if(/^Max Geist$/i.test(a.name??'')&&/^Shadow Rider Calyrex VMAX\b/i.test(name(p))){
+      let psychic=0;
+      for(const {p:q} of slots(o.opponentPublic)){
+        for(const e of L(q.energies)){
+          const u=energyUnits(e,q,o);
+          if(u===null)return null;
+          psychic+=u.filter(x=>x==='psychic'||x==='any').length;
+        }
+      }
+      damage=10+30*psychic;
+    }
+    if(!Number.isFinite(damage)||damage<=0)return null;
+    const types=L(p.printed?.types).map(type);
+    if(types.length===1){
+      for(const w of L(target?.printed?.weakness).filter(x=>type(x.type)===types[0])){
+        const v=String(w.value);
+        if(/^[×x]\s*2$/i.test(v))damage*=2;else if(/^\+\d+$/.test(v))damage+=Number(v);else return null;
+      }
+      for(const r of L(target?.printed?.resistance).filter(x=>type(x.type)===types[0])){
+        if(!/^-\d+$/.test(String(r.value)))return null;damage+=Number(r.value);
+      }
+    }
+    return Math.max(0,damage);
+  }
   function threatAttacks(o,p) {
-    if(!p||L(p.specialConditions).some(x=>/asleep|paralyzed/i.test(String(x))))return [];
+    if(!p||L(p.specialConditions).some(x=>/asleep|paralyzed|unknown/i.test(condition(x))))return [];
     const hp=remaining(o.ownPublic?.active);
     return L(p.attacks).filter(a=>!a.gxAttack||!o.opponentPublic?.publicTurnRestrictions?.gxUsed)
-      .filter(a=>{
-        const n=Number(a.damage);
-        // Only direct printed numerical lethal attacks. Scaling and effects
-        // require a separate model; never treat an unknown as proven denied.
-        return Number.isFinite(n)&&n>0&&n>=hp;
-      }).filter(a=>payable(p,a.cost)===true);
+      .map(a=>({...a,effectiveCost:currentAttackCost(o,p,a)}))
+      .filter(a=>{const d=publicOpponentDamage(o,p,o.ownPublic?.active,a);return d!==null&&d>=hp;})
+      .filter(a=>a.effectiveCost!==null&&payable(p,a.effectiveCost,-1,o)===true);
+  }
+  function withoutOpponentEnergy(o,row,i){
+    const p={...row.p,energies:L(row.p.energies).filter((_,j)=>j!==i)};
+    const opp=o.opponentPublic;
+    return {...o,opponentPublic:row.zone==='active'?{...opp,active:p}:{...opp,bench:L(opp.bench).map((q,j)=>j===row.index?p:q)}};
   }
   function denial(o,row) {
     const p=row?.p;
     if(!p||!L(p.energies).length)return null;
-    const attacks=threatAttacks(o,p);
-    if(!attacks.length)return null;
-    // Do not call removal a guaranteed turn denial: fresh attachments,
-    // acceleration, switches and hand contents remain unknown.
-    const eligible=L(p.energies).map((e,i)=>({printing:name(e),i})).filter(({i})=>attacks.every(a=>payable(p,a.cost,i)===false));
-    if(!eligible.length)return null;
-    return {row,energy:eligible[0].printing,score:(row.zone==='active'?220:150)+20*prize(o.ownPublic?.active)};
+    const immediate=threatAttacks(o,o.opponentPublic?.active);
+    const local=threatAttacks(o,p);
+    if(!immediate.length&&!local.length)return null;
+    const eligible=L(p.energies).map((e,i)=>({printing:name(e),i})).map(e=>{
+      const next=withoutOpponentEnergy(o,row,e.i);
+      const reduced=row.zone==='active'?next.opponentPublic.active:next.opponentPublic.bench[row.index];
+      const shutsActive=immediate.length>0&&threatAttacks(next,next.opponentPublic.active).length===0;
+      const shutsLocal=local.length>0&&threatAttacks(next,reduced).length===0;
+      return {...e,score:shutsActive?260+20*prize(o.ownPublic?.active):shutsLocal?150+20*prize(o.ownPublic?.active):0};
+    });
+    const selected=best(eligible,e=>e.score);
+    // Present threat denied, not proof against a fresh attachment, gust or
+    // Underworld Door next turn. Max Geist pool loss can matter off Active.
+    return selected?{row,energy:selected.printing,score:selected.score}:null;
   }
   function select(prompt,choices,n,reason) {
     if(!choices.length||choices.length!==n)return {kind:'abstain',reasonCode:reason};
@@ -188,7 +236,7 @@ function bombPlanner(o,sourceBenchIndex){
   if(!Number.isInteger(sourceBenchIndex)||!/^Electrode-GX CES 48\b/i.test(name(source)))return null;
   if(!Number.isSafeInteger(opp?.prizeCount)||opp.prizeCount<=2||!Number.isSafeInteger(own?.prizeCount)||own.prizeCount<1)return null;
   if(L(source.abilitySuppressions).some(x=>x.abilityName==='Extra Energy Bomb'&&x.suppressed===true))return null;
-  if(activeStadium(o).some(x=>/Path to the Peak|Temple of Sinnoh/i.test(x)))return null;
+  if(liveStadium(o,/Path to the Peak/i))return null;
   const active=own.active,target=opp.active;
   if(!(mega(active)||sableye(active))||!target)return null;
   const recipients=slots(own).filter(({p})=>mega(p)||sableye(p));
@@ -209,7 +257,7 @@ function bombPlanner(o,sourceBenchIndex){
     // Spending two Prizes just to take one is not a conservative immediate
     // gain; if it ends the game the trade is irrelevant.
     if(score<1000&&(prize(target)<3||opp.prizeCount===3))return;
-    const backup=upgraded.filter(x=>x.zone==='bench').reduce((sum,x)=>sum+(mega(x.p)&&usable(x.p,'Claw of Darkness')||sableye(x.p)&&usable(x.p,'Crazy Claws')?25:0),0);
+    const backup=upgraded.filter(x=>x.zone==='bench').reduce((sum,x)=>sum+(mega(x.p)&&usable(x.p,'Claw of Darkness',o)||sableye(x.p)&&usable(x.p,'Crazy Claws',o)?25:0),0);
     const activeCount=assignments.filter(x=>x.zone==='active').length;
     const plan={sourceBenchIndex,required:n,score:score+backup,activeCount,immediateWin:score>=1000,assignments:assignments.map(x=>({...x}))};
     if(compare(plan,bestPlan))bestPlan=plan;
@@ -284,7 +332,7 @@ function bombPlanner(o,sourceBenchIndex){
         const q=ownChoice(o,c);if(!q)return 0;
         const ko=bestAttackAgainst(o,q,o.opponentPublic?.active);
         if(ko)return 1000+ko;
-        if(mega(q)&&usable(q,'Claw of Darkness'))return 400;
+        if(mega(q)&&usable(q,'Claw of Darkness',o))return 400;
         if(isUn(q)&&!L(q.energies).length)return 150;
         if(isVol(q))return 10;
         return 60/prize(q);
@@ -330,7 +378,7 @@ function bombPlanner(o,sourceBenchIndex){
   const cruel=x=>match(x,R.cruel);
   const cap=o=>Math.max(0,5-benchCount(o));
   const first=o=>Number.isInteger(o.globalTurn)&&o.globalTurn<=2;
-  const liveStadium=(o,re)=>activeStadium(o).some(x=>re.test(x))&&!o.ownPublic?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
+  const liveStadium=(o,re)=>activeStadium(o).some(x=>re.test(x))&&!o.ownPublic?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining&&!o.opponentPublic?.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining;
   const drawEngineLive=o=>!liveStadium(o,/Silent Lab|Path to the Peak/i)&&Number(o.ownPublic?.deckCount)>6;
   const abilityLive=(p,a)=>p&&!L(p.abilitySuppressions).some(x=>x.abilityName===a&&x.suppressed===true);
   function bombPossible(o){
@@ -413,17 +461,18 @@ function bombPlanner(o,sourceBenchIndex){
     }
     if(item.kind!=='play-card'||m.isLegal===false||m.canPlay===false)return 0;
     if(ePred(x)){
-      if(!p||o.ownTurnResources?.energyPlayedTurn!==false||liveStadium(o,/Temple of Sinnoh/i))return 0;
+      if(!p||o.ownTurnResources?.energyPlayedTurn!==false)return 0;
       const next={...p,energies:[...L(p.energies),x]};
       if(mega(p)||sableye(p)){
         const cost=mega(p)?['darkness','darkness','colorless']:['darkness','darkness'];
-        const before=payable(p,cost),after=payable(next,cost);
+        const before=payable(p,cost,-1,o),after=payable(next,cost,-1,o);
         if(before===true||after===null)return 0;
         if(after===true)return 350+Math.min(100,bestAttackAgainst(o,next,o.opponentPublic?.active)/10);
-        if(!match(x,R.dark)&&L(p.energies).filter(e=>match(e,R.dark)).length<2)return 0;
+        const newUnits=energyUnits(x,p,o),priorDark=L(p.energies).filter(e=>L(energyUnits(e,p,o)).some(x=>x==='darkness'||x==='any')).length;
+        if(!L(newUnits).some(x=>x==='darkness'||x==='any')&&priorDark<2)return 0;
         return mega(p)?315:200;
       }
-      if(isGengar(p)&&first(o)&&o.ownPublic?.publicTurnRestrictions?.gxUsed!==true&&payable(p,['psychic'])!==true&&match(x,R.psychic))return 300;
+      if(isGengar(p)&&first(o)&&o.ownPublic?.publicTurnRestrictions?.gxUsed!==true&&payable(p,['psychic'],-1,o)!==true&&payable(next,['psychic'],-1,o)===true)return 300;
       return 0;
     }
     if(elec(x)&&p&&isVol(p))return 380;
