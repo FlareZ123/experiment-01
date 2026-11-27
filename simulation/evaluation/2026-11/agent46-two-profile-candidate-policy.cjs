@@ -3973,6 +3973,12 @@ function astralTerminalHarmlessAbility(slot,name){
 }
 function cleanPublicTerminalView(view,direct=false,extraHarmlessAbility=null){
   return view.globalTurn>1&&view.ownPublic.active&&view.opponentPublic.active&&
+    // Only certify a final KO when the acting Pokémon has no unmodeled
+    // outgoing modifier and the defender has no unmodeled incoming
+    // damage/prevention/HP/Prize modifier. These optional public booleans
+    // are provided by the pinned actor adapter in draft PR #87.
+    view.ownPublic.active.publicRestrictions?.outgoingTerminalUncertain!==true&&
+    view.opponentPublic.active.publicRestrictions?.incomingTerminalUncertain!==true&&
     opponentBoard(view).every(slot=>
   (slot.abilities??[]).every(a=>
     (direct&&directTerminalHarmlessAbility(slot,a)) ||
