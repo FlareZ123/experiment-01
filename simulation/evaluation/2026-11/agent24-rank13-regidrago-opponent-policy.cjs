@@ -458,7 +458,7 @@ function chooseRank13ApexAttack(choices, observation) {
     .sort((a, b) => b.score - a.score || a.index - b.index);
   const best = ranked.find(row => row.score > 0);
   return best ? { kind: 'select-choice', token: best.choice.token } :
-    { kind: 'abstain', reasonCode: 'NO_SUPPORTED_RANK13_APEX_ATTACK' };
+    { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ATTACK_CHOICE' };
 }
 
 function chooseAttack(choices, observation, context) {
@@ -485,7 +485,7 @@ function chooseAttack(choices, observation, context) {
     .sort((a, b) => b.score - a.score || a.index - b.index);
   const best = ranked.find(row => row.score > 0);
   return best ? { kind: 'select-choice', token: best.choice.token } :
-    { kind: 'abstain', reasonCode: 'NO_SUPPORTED_RANK13_ATTACK' };
+    { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ATTACK_CHOICE' };
 }
 
 function scoreAttack(item, observation) {
@@ -637,7 +637,7 @@ function promptDecision(request) {
     (Number.isSafeInteger(meta.count) ? meta.count : minimum);
 
   if (prompt.promptType === 'PutDamagePrompt') {
-    return { kind: 'abstain', reasonCode: 'RANK13_PUT_DAMAGE_UNSUPPORTED' };
+    return { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ATTACK_CHOICE' };
   }
 
   if (prompt.promptType === 'ChooseAttackPrompt') {
@@ -657,22 +657,22 @@ function promptDecision(request) {
         if (PRINT.dragapult.test(value) && !discardHas(own, PRINT.dragapult)) return 40;
         return 0;
       };
-      return selectMany(choices, priority, minimum, maximum, 'NO_RANK13_COMPRESSOR_PAYLOAD');
+      return selectMany(choices, priority, minimum, maximum, 'NO_SUPPORTED_CARD_SELECTION');
     }
 
     if (/quick ball|mysterious treasure/i.test(context) && /discard/i.test(context)) {
       return selectMany(choices, choice => discardCostPriority(choice, observation), minimum, maximum,
-        'NO_RANK13_SAFE_DISCARD');
+        'NO_SUPPORTED_CARD_SELECTION');
     }
 
     if (/battle vip pass|quick ball|mysterious treasure/i.test(context) && /search|basic|dragon|psychic/i.test(context)) {
       return selectMany(choices, choice => searchPriority(choice, observation, request, context), minimum, maximum,
-        'NO_RANK13_SEARCH_TARGET');
+        'NO_SUPPORTED_CARD_SELECTION');
     }
 
     if (/legacy star/i.test(context)) {
       return selectMany(choices, choice => legacyStarPriority(choice, observation), minimum, maximum,
-        'NO_RANK13_LEGACY_STAR_TARGET');
+        'NO_SUPPORTED_CARD_SELECTION');
     }
 
     if (/vs seeker/i.test(context)) {
@@ -684,23 +684,23 @@ function promptDecision(request) {
         if (PRINT.marnie.test(value) || PRINT.iono.test(value)) return 150;
         if (PRINT.crispin.test(value)) return 135;
         return 10;
-      }, minimum, maximum, 'NO_RANK13_SUPPORTER_RECOVERY');
+      }, minimum, maximum, 'NO_SUPPORTED_CARD_SELECTION');
     }
 
     if (/super rod/i.test(context)) {
       return selectMany(choices, choice => superRodPriority(choice, observation), minimum, maximum,
-        'NO_RANK13_SUPER_ROD_TARGET');
+        'NO_SUPPORTED_CARD_SELECTION');
     }
 
     if (/guzma/i.test(context) && meta.selectionType === 'pokemon') {
       return selectMany(choices, choice => gustChoicePriority(choice, observation), minimum, maximum,
-        'NO_RANK13_GUZMA_TARGET');
+        'NO_SUPPORTED_POKEMON_CHOICE');
     }
 
     if (/echoing horn/i.test(context) && meta.selectionType === 'pokemon') {
       return selectMany(choices, choice =>
         candidateTargetPriority(targetPokemonFromChoice(choice, observation), observation),
-      minimum, maximum, 'NO_RANK13_ECHOING_HORN_TARGET');
+      minimum, maximum, 'NO_SUPPORTED_POKEMON_CHOICE');
     }
 
     if (/hisuian heavy ball/i.test(context) && meta.selectionType === 'prize-slots') {
@@ -710,22 +710,38 @@ function promptDecision(request) {
         if (PRINT.regidragoV.test(value) || PRINT.dedenne.test(value) ||
             PRINT.tapuLele.test(value) || PRINT.latias.test(value) || PRINT.budew.test(value)) return 230;
         return 40;
-      }, minimum, maximum, 'RANK13_PRIZE_IDENTITY_NOT_VISIBLE');
+      }, minimum, maximum, 'HIDDEN_PRIZE_IDENTITY');
     }
 
     if (/parallel city/i.test(context)) {
       return selectMany(choices, choice =>
         /opponent.*bench|bench.*3|three/i.test(choice.label ?? '') ? 220 : 0,
-      minimum, maximum, 'NO_RANK13_PARALLEL_CITY_MODE');
+      minimum, maximum, 'NO_SUPPORTED_CARD_SELECTION');
     }
 
-    if (/crispin/i.test(context)) {
+    if (/crispin/i.test(context) && meta.selectionType === 'pokemon') {
       return selectMany(choices, choice => {
+        if (metadata(choice).ownerSeat !== 'actor') return 0;
+        const value = printingValue(choice);
+        if (PRINT.regidragoVstar.test(value)) return 240;
+        if (PRINT.regidragoV.test(value)) return 225;
+        return 20;
+      }, minimum, maximum, 'NO_SUPPORTED_POKEMON_CHOICE');
+    }
+
+    if (/crispin/i.test(context) && meta.selectionType === 'card-combination') {
+      // One offered token per basic Energy type in the exact rank-13 list.
+      const candidates = choices.filter(choice => choice.kind === 'card' &&
+        metadata(choice).ownerSeat === 'actor');
+      const grass = candidates.find(choice => PRINT.grassEnergy.test(printingValue(choice)));
+      const fire = candidates.find(choice => PRINT.fireEnergy.test(printingValue(choice)));
+      return selectMany([...choices.filter(choice => choice.kind === 'empty-selection'),
+        ...[grass, fire].filter(Boolean)], choice => {
         const value = printingValue(choice);
         if (PRINT.grassEnergy.test(value)) return 210;
         if (PRINT.fireEnergy.test(value)) return 200;
         return 0;
-      }, minimum, maximum, 'NO_RANK13_CRISPIN_ENERGY');
+      }, minimum, maximum, 'NO_SUPPORTED_CARD_SELECTION');
     }
 
     if (/raihan/i.test(context)) {
@@ -735,7 +751,7 @@ function promptDecision(request) {
           if (PRINT.regidragoVstar.test(value)) return 240;
           if (PRINT.regidragoV.test(value)) return 225;
           return 20;
-        }, minimum, maximum, 'NO_RANK13_RAIHAN_ATTACH_TARGET');
+        }, minimum, maximum, 'NO_SUPPORTED_POKEMON_CHOICE');
       }
       const isSearch = meta.sourceZone === 'deck' || meta.zone === 'deck' ||
         choices.some(choice => PRINT.regidragoVstar.test(printingValue(choice)) ||
@@ -751,22 +767,13 @@ function promptDecision(request) {
           if (PRINT.regidragoV.test(value) && !boardHas(own, PRINT.regidragoV)) return 220;
           if (PRINT.guzma.test(value)) return 175;
           return 20;
-        }, minimum, maximum, 'NO_RANK13_RAIHAN_SEARCH_TARGET');
+        }, minimum, maximum, 'NO_SUPPORTED_CARD_SELECTION');
       }
       return selectMany(choices, choice => {
         const value = printingValue(choice);
         if (PRINT.grassEnergy.test(value) || PRINT.fireEnergy.test(value)) return 210;
         return 0;
-      }, minimum, maximum, 'NO_RANK13_RAIHAN_ENERGY');
-    }
-
-    if (/crispin/i.test(context) && meta.selectionType === 'pokemon') {
-      return selectMany(choices, choice => {
-        const value = printingValue(choice);
-        if (PRINT.regidragoVstar.test(value)) return 240;
-        if (PRINT.regidragoV.test(value)) return 225;
-        return 20;
-      }, minimum, maximum, 'NO_RANK13_CRISPIN_ATTACH_TARGET');
+      }, minimum, maximum, 'NO_SUPPORTED_CARD_SELECTION');
     }
 
     if (/dragon impact/i.test(context)) {
@@ -775,7 +782,7 @@ function promptDecision(request) {
         if (PRINT.grassEnergy.test(value) || PRINT.fireEnergy.test(value)) return 220;
         if (PRINT.doubleDragon.test(value)) return 90;
         return 0;
-      }, minimum, maximum, 'NO_RANK13_DRAGON_IMPACT_ENERGY');
+      }, minimum, maximum, 'NO_SUPPORTED_CARD_SELECTION');
     }
 
     if (/trifrost/i.test(context) && meta.selectionType === 'pokemon') {
@@ -783,7 +790,7 @@ function promptDecision(request) {
         const pokemon = targetPokemonFromChoice(choice, observation);
         const hp = remainingHp(pokemon);
         return hp > 0 ? 220 - hp / 10 + candidateTargetPriority(pokemon, observation) / 10 : 0;
-      }, minimum, maximum, 'NO_RANK13_TRIFROST_TARGET');
+      }, minimum, maximum, 'NO_SUPPORTED_POKEMON_CHOICE');
     }
 
     if (/wonder tag/i.test(context)) {
@@ -794,12 +801,12 @@ function promptDecision(request) {
         if (PRINT.guzma.test(value) && list(observation?.opponentPublic?.bench).some(Boolean)) return 210;
         if (PRINT.marnie.test(value) || PRINT.iono.test(value)) return 170;
         return 20;
-      }, minimum, maximum, 'NO_RANK13_WONDER_TAG_SUPPORTER');
+      }, minimum, maximum, 'NO_SUPPORTED_CARD_SELECTION');
     }
 
     if (/mysterious treasure|quick ball|battle vip pass|search/i.test(context)) {
       return selectMany(choices, choice => searchPriority(choice, observation, request, context), minimum, maximum,
-        'NO_RANK13_SEARCH_TARGET');
+        'NO_SUPPORTED_CARD_SELECTION');
     }
 
     if (meta.selectionType === 'energy-payment') {
@@ -808,10 +815,10 @@ function promptDecision(request) {
         if (PRINT.grassEnergy.test(value) || PRINT.fireEnergy.test(value)) return 160;
         if (PRINT.doubleDragon.test(value)) return 100;
         return 20;
-      }, minimum, maximum, 'NO_RANK13_ENERGY_PAYMENT');
+      }, minimum, maximum, 'NO_SUPPORTED_ENERGY_PAYMENT');
     }
 
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_RANK13_MULTI_SELECT_SOURCE' };
+    return { kind: 'abstain', reasonCode: 'NO_SUPPORTED_CARD_SELECTION' };
   }
 
   if (prompt.promptType === 'ConfirmPrompt' || prompt.promptType === 'SelectPrompt' ||
@@ -819,7 +826,7 @@ function promptDecision(request) {
     if (/parallel city/i.test(context)) {
       return selectOne(choices, choice =>
         /opponent.*bench|bench.*3|three/i.test(choice.label ?? '') ? 220 : 0,
-      'NO_RANK13_PARALLEL_CITY_MODE');
+      'NO_SUPPORTED_CARD_SELECTION');
     }
     const yes = choices.find(choice => /^(yes|true|confirm)$/i.test(choice.label ?? ''));
     const no = choices.find(choice => /^(no|false|decline|cancel)$/i.test(choice.label ?? ''));
@@ -830,22 +837,22 @@ function promptDecision(request) {
       return { kind: 'select-choice', token: yes.token };
     }
     if (no) return { kind: 'select-choice', token: no.token };
-    return { kind: 'abstain', reasonCode: 'UNSUPPORTED_RANK13_OPTIONAL_PROMPT' };
+    return { kind: 'abstain', reasonCode: 'AMBIGUOUS_SIMPLE_PROMPT' };
   }
 
-  return { kind: 'abstain', reasonCode: 'UNSUPPORTED_RANK13_PROMPT_TYPE' };
+  return { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ACTION' };
 }
 
 function bestAction(request) {
   const items = list(request.actionFrontier?.items).filter(item => EXECUTABLE.has(item.kind));
-  if (items.length === 0) return { kind: 'abstain', reasonCode: 'NO_RANK13_EXECUTABLE_ACTION' };
+  if (items.length === 0) return { kind: 'abstain', reasonCode: 'NO_EXECUTABLE_ACTION' };
   const ranked = items.map((item, index) => ({
     item, index, score: scoreAction(item, request)
   })).sort((a, b) => b.score - a.score || a.index - b.index);
   if (ranked[0]?.score > 0) return { kind: 'select-action', token: ranked[0].item.token };
   const pass = items.find(item => item.kind === 'pass');
   return pass ? { kind: 'select-action', token: pass.token } :
-    { kind: 'abstain', reasonCode: 'NO_SUPPORTED_RANK13_ACTION' };
+    { kind: 'abstain', reasonCode: 'NO_SUPPORTED_ROOT_ACTION' };
 }
 
 function createPolicy({ role, seat, policyVersion, config }) {
