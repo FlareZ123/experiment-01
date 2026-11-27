@@ -83,6 +83,29 @@ function scoreEnergyAttachment(action, observation) {
   return 220 + (reduction*20) + (isVstar?22:0) +
     (isActive?10:0) + (after===0?30:0);
 }
+function isSourceSupporter(value) {
+  return /^(?:Guzma BUS 115|Crispin SCR 133|Raihan EVS 152|Professor Sycamore BKP 107|Lillie's Determination MEG 119|N FCO 105|Marnie SSH 169|Pokémon Ranger STS 104|Cynthia & Caitlin CEC 189)\b/i.test(print(value));
+}
+function cynthiaRecoverPriority(choice, observation) {
+  const name=print(choice),own=observation?.ownPublic??{};
+  if (!isSourceSupporter(choice) || /^Cynthia & Caitlin CEC 189\b/i.test(name)) return 0;
+  if (/^Guzma BUS 115\b/i.test(name) &&
+      slots(observation?.opponentPublic).length>1) return 240;
+  if (/^Crispin SCR 133\b/i.test(name) &&
+      slots(own).some(p=>/^Regidrago V(?:STAR)? SIT 13[56]\b/i.test(print(p)) &&
+        apexTypedDeficit(p,observation)>0)) return 230;
+  if (/^Raihan EVS 152\b/i.test(name)) return 175;
+  if (/^Lillie's Determination MEG 119\b/i.test(name))
+    return list(observation?.ownHand).length<=4?205:155;
+  if (/^Professor Sycamore BKP 107\b/i.test(name))
+    return list(observation?.ownHand).length<=3?190:135;
+  if (/^Pokémon Ranger STS 104\b/i.test(name))
+    return own.publicTurnRestrictions?.attackLockTurnsRemaining>0?225:90;
+  if (/^N FCO 105\b/i.test(name)) return 150;
+  if (/^Marnie SSH 169\b/i.test(name)) return 145;
+  if (/^Guzma BUS 115\b/i.test(name)) return 130;
+  return 30;
+}
 function scoreAction(action, request) {
   const obs = request?.observation ?? {};
   const own = obs.ownPublic ?? {};
@@ -113,7 +136,10 @@ function scoreAction(action, request) {
     if (/^N FCO 105\b/i.test(name)) {
       return hand <= 3 ? 165 : (Number(own.prizeCount ?? 6) > Number(opp.prizeCount ?? 6) ? 135 : 25);
     }
-    if (/^Cynthia & Caitlin CEC 189\b/i.test(name)) return hand <= 4 ? 145 : 40;
+    if (/^Cynthia & Caitlin CEC 189\b/i.test(name)) {
+      const available=list(own.discard).some(isSourceSupporter);
+      return available && hand<=4?155:(available?40:0);
+    }
     if (/^Pokémon Ranger STS 104\b/i.test(name)) {
       return active?.publicRestrictions?.cannotAttackNextTurn === true ||
         active?.publicRestrictions?.cannotRetreatNextTurn === true ||
@@ -382,6 +408,247 @@ function promptDecision(request) {
     (Number.isSafeInteger(meta.count) ? meta.count : Math.max(1,min));
   if (p.promptType === 'ChooseAttackPrompt' && /apex dragon/.test(source)) {
     return chooseRank32Apex(choices, obs);
+  }
+  if (/cynthia\s*&\s*caitlin/.test(source)) {
+    if (p.promptType === 'ChooseCardsPrompt' &&
+        meta.selectionType === 'card-combination') {
+      if (meta.sourceZone === 'discard') {
+        return chooseMany(choices,c=>cynthiaRecoverPriority(c,obs),min,Math.min(max,1),
+          'RANK32_CYNTHIA_NO_SUPPORTER_TO_RECOVER');
+      }
+      if (meta.sourceZone === 'hand') {
+        return chooseMany(choices,c=>donorScore(c,obs,false),min,Math.min(max,1),
+          'RANK32_CYNTHIA_NO_SAFE_DRAW_DISCARD');
+      }
+    }
+    if (p.promptType === 'ConfirmPrompt' && meta.selectionType === 'confirm') {
+      const safe=list(obs.ownHand).some(c=>donorScore(c,obs,false)>0);
+      const desired=choices.find(c=>c.kind==='confirm'&&
+        new RegExp(safe?'^yes
+    return chooseMany(choices, c=>donorScore(c,obs,true), min, Math.min(max,3),
+      'RANK32_COMPRESSOR_NO_SAFE_PAYLOAD');
+  }
+  if (/mysterious treasure|quick ball|ultra ball/.test(source) && /discard/.test(source) &&
+      p.promptType === 'ChooseCardsPrompt') {
+    return chooseMany(choices,c=>safeBallCost(c,obs), min,max,
+      'RANK32_BALL_NO_SAFE_DISCARD');
+  }
+  if (/ryuno glide/.test(source) && p.promptType === 'ChooseEnergyPrompt') {
+    // V3 protocol represents energy-payment as ChooseEnergyPrompt, not
+    // DiscardEnergyPrompt. Its cardinality is 1..energyCount, NOT min/max.
+    if (meta.selectionType !== 'energy-payment' ||
+        !Number.isSafeInteger(meta.energyCount) || meta.energyCount < 1 ||
+        meta.energyCount > choices.length ||
+        choices.some(c=>c.kind !== 'energy' || typeof c.token !== 'string')) {
+      return {kind:'abstain',reasonCode:'RANK32_RYUNO_ENERGY_PROMPT_UNPROJECTED'};
+    }
+    const basic = choices.filter(c=>/^Grass Energy|^Fire Energy/i.test(print(c)));
+    const dde = choices.filter(c=>/^Double Dragon Energy/i.test(print(c)));
+    // Two separate Basic Energy cards pay a two-Energy discard without
+    // sacrificing DDE; one DDE may provide two Energy if needed.
+    if (basic.length >= 2) {
+      return {kind:'select-choices',tokens:basic.slice(0,2).map(c=>c.token)};
+    }
+    if (dde.length) return {kind:'select-choices',tokens:[dde[0].token]};
+    return {kind:'abstain',reasonCode:'RANK32_RYUNO_NO_SUPPORTED_ENERGY_PAYMENT'};
+  }
+  if (/stealthy hood/.test(source) && meta.selectionType === 'pokemon') {
+    const enemyWobbuffet = /^Wobbuffet PHF 36\b/i.test(print(obs?.opponentPublic?.active));
+    if (!enemyWobbuffet || obs?.ownPublic?.publicTurnRestrictions?.vstarUsed !== false) {
+      return {kind:'abstain',reasonCode:'RANK32_HOOD_LOCK_WINDOW_ABSENT'};
+    }
+    return chooseMany(choices,c=>/^Regidrago VSTAR SIT 136\b/i.test(print(c)) ? 250 : 0,
+      min,Math.min(max,1),'RANK32_HOOD_NO_SAFE_VSTAR_TARGET');
+  }
+  if (/ryuno glide/.test(source)) {
+    return {kind:'abstain',reasonCode:'RANK32_RYUNO_ENERGY_PROMPT_UNPROJECTED'};
+  }
+  if (/sky transport/.test(source) && meta.selectionType === 'pokemon') {
+    const own = obs.ownPublic ?? {};
+    const active = own.active;
+    return chooseMany(choices, choice=>{
+      const name = print(choice);
+      if (/^Regidrago VSTAR SIT 136\b/i.test(name) &&
+          !/^Regidrago VSTAR SIT 136\b/i.test(print(active))) return 220;
+      if (/^Regidrago V SIT 135\b/i.test(name)) return 105;
+      return 0;
+    },min,Math.min(max,1),'RANK32_SKY_TRANSPORT_NO_ATTACKER');
+  }
+  const inherited = family.promptDecision(request);
+  if (inherited?.kind === 'abstain' && typeof inherited.reasonCode === 'string') {
+    return {...inherited, reasonCode:inherited.reasonCode.replaceAll('RANK12','RANK32')};
+  }
+  return inherited;
+}
+function bestAction(request) {
+  const actions = list(request?.actionFrontier?.items).filter(a=>EXECUTABLE.has(a.kind));
+  if (!actions.length) return {kind:'abstain',reasonCode:'RANK32_NO_EXECUTABLE_ACTION'};
+  const ranked = actions.map((a,index)=>({a,index,score:scoreAction(a,request)}))
+    .sort((a,b)=>b.score-a.score || a.index-b.index);
+  if (ranked[0].score > 0) return {kind:'select-action',token:ranked[0].a.token};
+  const pass = actions.find(a=>a.kind==='pass');
+  return pass ? {kind:'select-action',token:pass.token} :
+    {kind:'abstain',reasonCode:'RANK32_NO_SUPPORTED_ACTION'};
+}
+function protocolSafeDecision(decision, request) {
+  if (!decision || decision.kind !== 'abstain') return decision;
+  const reason = decision.reasonCode ?? '';
+  if (reason === 'ROLE_SEAT_BINDING_MISMATCH') return decision;
+  // The production V3 worker has a frozen, finite abstention codebook.
+  // Internal diagnostic reason codes can be source-specific, but the worker
+  // must publish only protocol-enumerated codes.
+  let code = 'UNSUPPORTED_PROMPT_TYPE';
+  if (request?.prompt === null || request?.prompt === undefined)
+    code = 'NO_SUPPORTED_ROOT_ACTION';
+  else if (/PRIZE|HEAVY_BALL/i.test(reason)) code = 'NO_VISIBLE_PRIZE_SLOT';
+  else if (/RYUNO|ENERGY_PAYMENT|ENERGY_PROMPT/i.test(reason))
+    code = 'NO_SUPPORTED_ENERGY_PAYMENT';
+  else if (/APEX|ATTACK/i.test(reason)) code = 'NO_SUPPORTED_ATTACK_CHOICE';
+  else if (/POKEMON|HOOD|SKY_TRANSPORT|GUST/i.test(reason))
+    code = 'NO_SUPPORTED_POKEMON_CHOICE';
+  else if (/CARD|BALL|DISCARD|COMPRESSOR|SUPPORTER|SEARCH/i.test(reason))
+    code = 'NO_SUPPORTED_CARD_SELECTION';
+  return {kind:'abstain',reasonCode:code};
+}
+function createPolicy({role,seat,policyVersion,config,rng}) {
+  if (role!=='opponent' || (seat!==0 && seat!==1) ||
+      policyVersion!==POLICY_VERSION || !config ||
+      typeof config!=='object' || Array.isArray(config) ||
+      Object.keys(config).length!==0 || typeof rng!=='function') {
+    throw Error('AGENT3_RANK32_POLICY_INIT_MISMATCH');
+  }
+  return Object.freeze({
+    decide(request) {
+      if (!request || request.role!=='opponent' || request.seat!==seat ||
+          request.observation?.actorSeat!==seat) {
+        return {kind:'abstain',reasonCode:'ROLE_SEAT_BINDING_MISMATCH'};
+      }
+      const decision = request.prompt !== null && request.prompt !== undefined ?
+        promptDecision(request) : bestAction(request);
+      return protocolSafeDecision(decision,request);
+    }
+  });
+}
+module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
+  createPolicy,scoreAction,promptDecision,bestAction,chooseRank32Apex,donorScore,
+  protocolSafeDecision,apexTypedDeficit,scoreEnergyAttachment,nativeOwnerTarget,
+  engineSetupDecision,setupActiveScore,setupBenchScore,
+  isSourceSupporter,cynthiaRecoverPriority};
+:'^no
+    return chooseMany(choices, c=>donorScore(c,obs,true), min, Math.min(max,3),
+      'RANK32_COMPRESSOR_NO_SAFE_PAYLOAD');
+  }
+  if (/mysterious treasure|quick ball|ultra ball/.test(source) && /discard/.test(source) &&
+      p.promptType === 'ChooseCardsPrompt') {
+    return chooseMany(choices,c=>safeBallCost(c,obs), min,max,
+      'RANK32_BALL_NO_SAFE_DISCARD');
+  }
+  if (/ryuno glide/.test(source) && p.promptType === 'ChooseEnergyPrompt') {
+    // V3 protocol represents energy-payment as ChooseEnergyPrompt, not
+    // DiscardEnergyPrompt. Its cardinality is 1..energyCount, NOT min/max.
+    if (meta.selectionType !== 'energy-payment' ||
+        !Number.isSafeInteger(meta.energyCount) || meta.energyCount < 1 ||
+        meta.energyCount > choices.length ||
+        choices.some(c=>c.kind !== 'energy' || typeof c.token !== 'string')) {
+      return {kind:'abstain',reasonCode:'RANK32_RYUNO_ENERGY_PROMPT_UNPROJECTED'};
+    }
+    const basic = choices.filter(c=>/^Grass Energy|^Fire Energy/i.test(print(c)));
+    const dde = choices.filter(c=>/^Double Dragon Energy/i.test(print(c)));
+    // Two separate Basic Energy cards pay a two-Energy discard without
+    // sacrificing DDE; one DDE may provide two Energy if needed.
+    if (basic.length >= 2) {
+      return {kind:'select-choices',tokens:basic.slice(0,2).map(c=>c.token)};
+    }
+    if (dde.length) return {kind:'select-choices',tokens:[dde[0].token]};
+    return {kind:'abstain',reasonCode:'RANK32_RYUNO_NO_SUPPORTED_ENERGY_PAYMENT'};
+  }
+  if (/stealthy hood/.test(source) && meta.selectionType === 'pokemon') {
+    const enemyWobbuffet = /^Wobbuffet PHF 36\b/i.test(print(obs?.opponentPublic?.active));
+    if (!enemyWobbuffet || obs?.ownPublic?.publicTurnRestrictions?.vstarUsed !== false) {
+      return {kind:'abstain',reasonCode:'RANK32_HOOD_LOCK_WINDOW_ABSENT'};
+    }
+    return chooseMany(choices,c=>/^Regidrago VSTAR SIT 136\b/i.test(print(c)) ? 250 : 0,
+      min,Math.min(max,1),'RANK32_HOOD_NO_SAFE_VSTAR_TARGET');
+  }
+  if (/ryuno glide/.test(source)) {
+    return {kind:'abstain',reasonCode:'RANK32_RYUNO_ENERGY_PROMPT_UNPROJECTED'};
+  }
+  if (/sky transport/.test(source) && meta.selectionType === 'pokemon') {
+    const own = obs.ownPublic ?? {};
+    const active = own.active;
+    return chooseMany(choices, choice=>{
+      const name = print(choice);
+      if (/^Regidrago VSTAR SIT 136\b/i.test(name) &&
+          !/^Regidrago VSTAR SIT 136\b/i.test(print(active))) return 220;
+      if (/^Regidrago V SIT 135\b/i.test(name)) return 105;
+      return 0;
+    },min,Math.min(max,1),'RANK32_SKY_TRANSPORT_NO_ATTACKER');
+  }
+  const inherited = family.promptDecision(request);
+  if (inherited?.kind === 'abstain' && typeof inherited.reasonCode === 'string') {
+    return {...inherited, reasonCode:inherited.reasonCode.replaceAll('RANK12','RANK32')};
+  }
+  return inherited;
+}
+function bestAction(request) {
+  const actions = list(request?.actionFrontier?.items).filter(a=>EXECUTABLE.has(a.kind));
+  if (!actions.length) return {kind:'abstain',reasonCode:'RANK32_NO_EXECUTABLE_ACTION'};
+  const ranked = actions.map((a,index)=>({a,index,score:scoreAction(a,request)}))
+    .sort((a,b)=>b.score-a.score || a.index-b.index);
+  if (ranked[0].score > 0) return {kind:'select-action',token:ranked[0].a.token};
+  const pass = actions.find(a=>a.kind==='pass');
+  return pass ? {kind:'select-action',token:pass.token} :
+    {kind:'abstain',reasonCode:'RANK32_NO_SUPPORTED_ACTION'};
+}
+function protocolSafeDecision(decision, request) {
+  if (!decision || decision.kind !== 'abstain') return decision;
+  const reason = decision.reasonCode ?? '';
+  if (reason === 'ROLE_SEAT_BINDING_MISMATCH') return decision;
+  // The production V3 worker has a frozen, finite abstention codebook.
+  // Internal diagnostic reason codes can be source-specific, but the worker
+  // must publish only protocol-enumerated codes.
+  let code = 'UNSUPPORTED_PROMPT_TYPE';
+  if (request?.prompt === null || request?.prompt === undefined)
+    code = 'NO_SUPPORTED_ROOT_ACTION';
+  else if (/PRIZE|HEAVY_BALL/i.test(reason)) code = 'NO_VISIBLE_PRIZE_SLOT';
+  else if (/RYUNO|ENERGY_PAYMENT|ENERGY_PROMPT/i.test(reason))
+    code = 'NO_SUPPORTED_ENERGY_PAYMENT';
+  else if (/APEX|ATTACK/i.test(reason)) code = 'NO_SUPPORTED_ATTACK_CHOICE';
+  else if (/POKEMON|HOOD|SKY_TRANSPORT|GUST/i.test(reason))
+    code = 'NO_SUPPORTED_POKEMON_CHOICE';
+  else if (/CARD|BALL|DISCARD|COMPRESSOR|SUPPORTER|SEARCH/i.test(reason))
+    code = 'NO_SUPPORTED_CARD_SELECTION';
+  return {kind:'abstain',reasonCode:code};
+}
+function createPolicy({role,seat,policyVersion,config,rng}) {
+  if (role!=='opponent' || (seat!==0 && seat!==1) ||
+      policyVersion!==POLICY_VERSION || !config ||
+      typeof config!=='object' || Array.isArray(config) ||
+      Object.keys(config).length!==0 || typeof rng!=='function') {
+    throw Error('AGENT3_RANK32_POLICY_INIT_MISMATCH');
+  }
+  return Object.freeze({
+    decide(request) {
+      if (!request || request.role!=='opponent' || request.seat!==seat ||
+          request.observation?.actorSeat!==seat) {
+        return {kind:'abstain',reasonCode:'ROLE_SEAT_BINDING_MISMATCH'};
+      }
+      const decision = request.prompt !== null && request.prompt !== undefined ?
+        promptDecision(request) : bestAction(request);
+      return protocolSafeDecision(decision,request);
+    }
+  });
+}
+module.exports = {POLICY_VERSION,SOURCE_RANK,SOURCE_LIST_BLOB_SHA1,ENGINE_PIN,
+  createPolicy,scoreAction,promptDecision,bestAction,chooseRank32Apex,donorScore,
+  protocolSafeDecision,apexTypedDeficit,scoreEnergyAttachment,nativeOwnerTarget,
+  engineSetupDecision,setupActiveScore,setupBenchScore};
+,'i').test(c.label??''));
+      return desired?
+        {kind:'select-choice',token:desired.token}:
+        {kind:'abstain',reasonCode:'UNRECOGNIZED_SIMPLE_PROMPT'};
+    }
+    return {kind:'abstain',reasonCode:'RANK32_CYNTHIA_PROMPT_UNPROJECTED'};
   }
   if (/battle compressor/.test(source) && p.promptType === 'ChooseCardsPrompt') {
     return chooseMany(choices, c=>donorScore(c,obs,true), min, Math.min(max,3),
