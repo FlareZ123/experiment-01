@@ -805,3 +805,43 @@ test('Hood Ranger does not spend its Supporter against a continuous Item lock',(
     }
   }
 });
+
+
+paired('Acerola responds to publicly funded Rondo and typed weakness exposure, not nominal Energy count',(seat,profile)=>{
+  const ace='Acerola BUS', dark='Darkness Energy SVE', clefairy="Lillie's Clefairy ex JTG";
+  const victim=vmax([P]);victim.hp=320;victim.damage=180;
+  const active=vmax([P,P,P]);active.hp=320;
+  const threat=pokemon({printing:clefairy,name:"Lillie's Clefairy ex",hp:190,subtypes:['Basic','ex'],
+    energies:[P,P],attacks:[attack('Full Moon Rondo',['Psychic','Colorless'],'20+')]});
+  const filler=()=>pokemon({printing:'Unown AOR',name:'Unown',hp:60});
+  const view=observation(seat,{active,bench:[victim],opponentActive:threat,
+    opponentBench:Array.from({length:5},filler),ownHand:[ace]});
+  const items=[play('acerola',ace),{kind:'attack',token:'hit',attackName:'Max Geist'}];
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('acerola')); // 140 against 140 HP
+  view.opponentPublic.bench[4]=null;
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('hit')); // 120, no rescue
+  view.opponentPublic.bench[4]=filler();
+  threat.energies=[dark,dark];
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('hit')); // wrong colored cost
+  threat.energies=[P];view.ownPublic.stadium=['Dimension Valley PHF'];
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('acerola')); // reduced cost
+  view.ownPublic.stadium=[];
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('hit'));
+  threat.energies=[P,'Double Turbo Energy BRS'];
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('hit')); // 20 less damage
+  view.ownPublic.stadium=[TEMPLE];
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('acerola')); // Temple blanks penalty, still paid
+  view.ownPublic.stadium=[];
+  view.opponentPublic.active=pokemon({printing:'Galarian Moltres V CRE',name:'Galarian Moltres V',hp:220,
+    subtypes:['Basic','V'],types:['Darkness'],energies:[dark,dark,dark],
+    attacks:[attack('Aura Burn',['Darkness','Darkness','Colorless'],'190')]});
+  victim.damage=20;victim.printed.weakness=[{type:'Darkness',value:'×2'}];
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('acerola')); // 380 against 300 HP
+  victim.printed.weakness=[];
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('hit'));
+  victim.damage=180;view.opponentPublic.active=vmax([P,P,P]);
+  view.opponentPublic.bench=[vmax([P,P]),null,null,null,null];
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('acerola')); // 160 against 140 HP
+  view.opponentPublic.bench[0].energies=[dark,dark];
+  assert.deepEqual(decide(profile,root(seat,view,items)),sel('hit')); // only 3 Psychic, 100 damage
+});

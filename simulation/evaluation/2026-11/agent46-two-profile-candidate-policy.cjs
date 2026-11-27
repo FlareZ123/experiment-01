@@ -1752,15 +1752,26 @@ function raihanNeed(view,receipt) {
 function visibleCounterattackThreat(view,slot){
   const opponent=view.opponentPublic.active;
   if(!opponent||!Array.isArray(opponent.energies))return 0;
-  const attached=energyUnitCount(opponent);
+  // This is an exposure heuristic, not a prediction of gust or future draws.
+  // Reuse the typed public supply instead of treating every Energy as wild.
+  const temple=templeLive(view);
   return Math.max(0,...(opponent.attacks??[]).map(a=>{
-    if(!Array.isArray(a.cost)||attached<a.cost.length)return 0;
+    if(publicEnergyCanPay(opponent,a,view,temple,'opponent')!==true)return 0;
     if(a.name==='Terminal Period'&&slot.damage===60)return slot.hp;
-    if(a.name==='Apex Dragon')return attached>=3?160:0; // unknown copy, heuristic pressure
-    const base=parseDamage(a.damage);
+    if(a.name==='Apex Dragon')return 160; // unknown copy, heuristic pressure
+    let base=parseDamage(a.damage);
+    if(a.name==='Full Moon Rondo'&&hasName(opponent.printing,"Lillie's Clefairy ex"))
+      base=20+20*(countBench(view.ownPublic)+countBench(view.opponentPublic));
+    if(a.name==='Max Geist'&&isShadowRiderVmax(opponent)){
+      const supplies=opponentBoard(view).map(p=>publicEnergySupply(p,view,temple,'opponent'));
+      if(supplies.every(Array.isArray))
+        base=10+30*supplies.flat().filter(unit=>unit.includes('Psychic')).length;
+    }
     if(base===null)return 0;
-    const weakness=(slot.printed?.weaknesses??[]).some(w=>opponent.printed?.types?.includes(w.type));
-    return base*(weakness?2:1);
+    if(!temple)base=Math.max(0,base-20*opponent.energies.filter(e=>hasName(e,'Double Turbo Energy')).length);
+    const weakness=(slot.printed?.weakness??[]).some(w=>opponent.printed?.types?.includes(w.type));
+    const bypass=a.name==='Energy Drive'||a.name==='Mind Shock';
+    return Math.max(0,base*(weakness&&!bypass?2:1)-(bypass?0:resistancePenalty(opponent,slot)));
   }));
 }
 function acerolaTargetScore(view,slot){
