@@ -1,4 +1,8 @@
 
+## 2026-11-27T02:34:13.884Z — first causal two-turn structural proxy
+- results/aichi-2026/2026-11/agent1-apex-lockdown-setup-proxy.cjs: real mulligan/opening/prize/deck/hand/discard/board zones, fixed causal action policy and legitimate search reveal, two own turns, explicit Item/Ability locks, no native dispatch/opponent damage or actual game. Smoke 500 going-second wipe-goal deals conserved, cost truth table passed. Next audit ordering bugs then paired fixed-list optimization and all known rank response table; do not claim setup proxy as win.
+
+
 ## 2026-11-27T02:32:31.858Z — distinct structural challenger under analysis
 - results/aichi-2026/2026-11/agent1-apex-lockdown-v1.json: 60-card English print-locked Regidrago with Megaton + Giratina Chaos Wheel (Tool/Special/Stadium lock), Noivern Dominating Echo, Haxorus Basic autoKO, Mega Dragalge repeatable wipe and Palkia all-Energy shuffle GX. 22P/28T/10E, 13 Basics; SHA f04a8793… verified locally from ZIP. Not event-era or qualified claim. Two-turn paid attack/wipe-lock causal proxy and whole-field response analysis next. Preserve Hood/Lockbridge frozen gate.
 
