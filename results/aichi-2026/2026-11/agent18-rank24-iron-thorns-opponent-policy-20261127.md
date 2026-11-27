@@ -61,12 +61,17 @@ The first slice is deliberately narrow:
 2. If Bellelba is in the actor-visible discard instead, choose VS Seeker only
    in the same terminal window, only when Items are usable, then select
    Bellelba from the VS Seeker prompt.
-3. Decline Bellelba's optional three-card payment. The pure terminal line gains
+3. If N is legal and in hand, choose it when public opponent
+   `deckCount + handCount <= prizeCount`. N shuffles the opponent's hand into
+   the deck and then draws one card per remaining Prize, so this public boundary
+   makes the opponent's post-N deck exactly zero (provided it was not already
+   zero) and they fail the next compulsory draw if the source survives end-turn.
+4. Decline Bellelba's optional three-card payment. The pure terminal line gains
    nothing from making the opponent choose Bench discards first and should not
    burn three cards by default.
-4. Once the opponent deck count is already zero, choose pass only when the same
+5. Once the opponent deck count is already zero, choose pass only when the same
    end-turn safety check succeeds.
-5. All unrelated rank-24 roots and prompts abstain explicitly. This prevents the
+6. All unrelated rank-24 roots and prompts abstain explicitly. This prevents the
    prototype from silently importing rank-6-only Crushing Hammer/Handiwork
    logic.
 
@@ -77,23 +82,32 @@ effects. The versioned public event receipt does expose the opponent's complete
 last-turn attack names, so this slice requires that receipt to certify the
 terminal end-turn line.
 
-It fails closed when:
+It fails closed when the public receipt is absent. It also fails closed on
+Poisoned or Burned because Checkup damage can be modified by public effects that
+this first slice does not normalize.
 
-- the public receipt is absent;
-- the prior opponent attack history contains `Pale Moon-GX`; or
-- the Active Pokémon has any Special Condition.
+The pinned Twinleaf `SpecialCondition` enum was checked at
+`a9905a76a6c4103ba4b6cb9a49e86bad795c5c05`:
+0 Paralyzed, 1 Confused, 2 Asleep, 3 Poisoned, 4 Burned. Non-damaging
+conditions therefore do not block a terminal mill by themselves.
 
-The Special-Condition rule is intentionally conservative because the current
-view does not encode every Checkup interaction needed to prove exact lethality.
-This first slice therefore sacrifices some legal terminal opportunities rather
-than claim a guaranteed win from incomplete public information.
+For `Pale Moon-GX`, the policy now distinguishes a merely pending Active KO
+from a pre-draw game loss. Rank 24 contains only two-Prize Iron Thorns ex:
+Pale Moon blocks the terminal line when there is no backup Pokémon or when the
+candidate has at most two Prizes remaining. With a backup Pokémon and more
+than two opposing Prizes remaining, that KO can resolve first and the opponent
+still reaches the next compulsory draw with an empty deck, so the terminal line
+remains selectable.
+
+This remains deliberately conservative for unnormalized Poison/Burn modifiers
+and for delayed effects other than the explicitly modeled Pale Moon case.
 
 ## Local decision evidence
 
 Test file:
 `tests/2026-11/agent18-rank24-iron-thorns-opponent-policy.test.cjs`.
 
-Local Node `--test` result: **20/20 passed**.
+Local Node `--test` result after the N and safety extensions: **24/24 passed**.
 
 Covered decisions include:
 
@@ -102,9 +116,12 @@ Covered decisions include:
 - safe pass at opponent deck count 0;
 - missing-receipt fail-closed behavior;
 - Pale Moon-GX negative;
-- Special-Condition negative;
+- Poison/Burn negative and Confused non-blocking behavior;
+- fatal versus survivable Pale Moon timing;
 - spent/locked Supporter slot negatives;
-- nonterminal deck-count negative;
+- nonterminal Bellelba deck-count negative;
+- N exact terminal boundary `deck + hand <= Prizes`, one-above negative, and
+  Pale Moon/Supporter-slot negatives;
 - VS Seeker root selection and Bellelba recovery;
 - VS Seeker Item-lock / absent-Bellelba / spent-Supporter negatives;
 - Bellelba optional-payment decline through empty-selection and explicit
@@ -112,15 +129,24 @@ Covered decisions include:
 - exact 60-card inventory and absence of rank-6-only cards;
 - explicit abstention outside the implemented slice.
 
-Policy commit: `ee46d56f216889498fdcc3e55e9495e972de384c`.  
-Test commit: `d1ff6dcb860ea7194c26dea95559e848b12e0c29`.
+Initial policy commit: `ee46d56f216889498fdcc3e55e9495e972de384c`.  
+N extension: `d5bc862659636496e401c711407eb6850352181f`.  
+Safety refinement: `7dafad71977fd1f90cccc166266f288897fa1cf9`.  
+N matcher fix found by protocol execution: `a8d3d2b4009d195a127a54f799b33d16c68cc0fa`.  
+Current policy blob: `00aa83a4d3f809f6a3589eeb5ae70bb5c2d4bf21`.  
+Current test commit: `cbc8c7ed6307b49319b95c623728913e1c16fe5e`.
 
 ## Limits and next evidence gate
 
 No native Store/IPC execution, full game, workflow dispatch, merge, registration,
-or competitive admission was performed or authorized. The local tests exercise
-the policy decisions directly; they are not a substitute for the shared worker
-protocol or pinned Twinleaf.
+or competitive admission was performed or authorized. The local Node tests exercise the policy decisions directly. Separately, the
+exact current policy blob and current shared protocol blob
+`d8349ae6f3537816b357b8309e9ab140ddec51eb` were loaded together and run
+through `validateRequest` + `validateDecision`. Protocol-valid root cases
+included safe mill, fatal Pale Moon, survivable Pale Moon, Confused, Poisoned,
+and terminal N; VS Seeker and Bellelba prompt continuations were also
+protocol-valid before the safety refinement. This still is not native Store/IPC
+or pinned-engine game evidence.
 
 The next useful review is narrow and adversarial:
 
