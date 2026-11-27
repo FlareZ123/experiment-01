@@ -173,6 +173,23 @@ function runCases(policy,protocol) {
     // Exact current protocol, including multi-select and empty token semantics.
     v=view(seat,{ownPublic:player({discard:[A.ditto]})});
     same(runPrompt(p,v,cards(v,A.carrier,'Rescue Carrier','discard',[A.ditto],0,2)),single('empty'),tag+'empty token not zero-length multiselect');
+    // Rescue Stretcher shuffle-three is reserved for a real low-deck
+    // survival window, not speculative midgame recycling.
+    const lowDeck=view(seat,{ownHand:[A.stretcher],
+      ownPublic:player({active:slot(A.unown),discard:[A.squawk,A.klefki,A.marshadow],deckCount:1})});
+    same(runRoot(p,lowDeck,[play('stretcher-low',A.stretcher),pass]),action('stretcher-low'),tag+'low deck plays Stretcher to prevent deckout');
+    const stretcherMode={schema:protocol.PROMPT_SCHEMA,actingSeat:seat,promptType:'SelectOptionPrompt',
+      description:'Rescue Stretcher',source:{classification:'actor-choice',sourceKind:'card-effect',
+        sourcePrinting:A.stretcher,effectName:'Rescue Stretcher'},
+      publicMetadata:{selectionType:'option',allowCancel:false,isSecret:false},
+      choices:[{token:'to-hand',kind:'option',label:'Put 1 Pokémon into your hand',publicMetadata:{choiceIndex:0}},
+        {token:'shuffle-three',kind:'option',label:'Shuffle 3 Pokémon into your deck',publicMetadata:{choiceIndex:1}}]};
+    same(runPrompt(p,lowDeck,stretcherMode),single('shuffle-three'),tag+'low deck chooses Stretcher shuffle-three mode');
+    const shufflePrompt=cards(lowDeck,A.stretcher,'Rescue Stretcher','discard',
+      [A.squawk,A.klefki,A.marshadow],3,3);
+    same(runPrompt(p,lowDeck,shufflePrompt),choose('c2','c1','c0'),tag+'shuffle exactly three recoverable Pokémon');
+    const safeDeck={...lowDeck,ownPublic:{...lowDeck.ownPublic,deckCount:12}};
+    same(runRoot(p,safeDeck,[play('stretcher-safe',A.stretcher),pass]),action('pass'),tag+'do not speculative shuffle-three with healthy deck');
     // Secret Box must not burn unique core or count itself as payment.
     v=view(seat,{globalTurn:4,ownHand:[A.secret,A.vip,A.vip,A.unit,A.pikachu]});
     same(runRoot(p,v,[play('secret',A.secret),pass]),action('pass'),tag+'cannot pay three safe discards');
