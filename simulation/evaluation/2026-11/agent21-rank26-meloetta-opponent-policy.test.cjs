@@ -112,3 +112,20 @@ test('Acquisition: physically consistent complete K1 membership excludes a prize
  const k1=A.acquisitionInventory(o);assert.equal(k1.status,'K1');assert.equal(k1.size,42);assert.equal(k1.pool.K,0);assert.equal(k1.pool.DP,0);assert.equal(k1.pool.QB,0);
  o.ownerK1.knownPrintings[0].copies++;assert.equal(A.acquisitionInventory(o).status,'K0');
 });
+
+function oneEggDowsing(){
+ const o=funded();o.ownPublic.active.damage=20;o.ownPublic.bench=[card('Exeggcute PLF',20,30),card('Dedenne-GX UNB',20,160),card('Squawkabilly ex PAL',20,160)];
+ o.ownHand=[...Array(4).fill('Damage Pump LOR'),'Dowsing Machine PLS','Order Pad UPR','Bicycle PLS'];return o;
+}
+test('Single Egg: four real Pumps plus reserved Dowsing can begin five-Pump line',()=>{
+ const o=oneEggDowsing();assert.equal(A.donationPlan(o),null);assert.equal(A.donationPlan(o,1).plan.pumpsUsed,5);
+ assert.deepEqual(A.dowsingFodder(o),['Order Pad UPR','Bicycle PLS']);assert.equal(policy().decide(req(o,rootRows(o))).token,'h0');
+ o.ownHand.pop();assert.equal(A.dowsingFodder(o),null);assert.ok(policy().decide(req(o,rootRows(o))).token!=='h0');
+});
+test('Dowsing: five-Pump resource proof binds exact payment and recovery prompts',()=>{
+ const o=oneEggDowsing(),w=policy();o.ownHand.shift();o.ownPublic.discard=['Damage Pump LOR'];o.ownPublic.active.damage=10;o.ownPublic.bench[0]=null;o.ownPublic.discard.push('Exeggcute PLF');o.opponentPublic.prizeCount=5;
+ assert.equal(w.decide(req(o,rootRows(o))).token,'h3');
+ const mk=(z,min,max,printings)=>({actingSeat:0,promptType:'ChooseCardsPrompt',source:{sourceKind:'card-effect',sourcePrinting:'Dowsing Machine PLS'},publicMetadata:{ownerSeat:'actor',isOwnerVisible:true,sourceZone:z,minimumCount:min,maximumCount:max},choices:printings.map((printing,i)=>({kind:'card',token:z+i,printing,publicMetadata:{ownerSeat:'actor',isOwnerVisible:true,sourceZone:z,selectionIndex:i}}))});
+ const pay=mk('hand',2,2,['Damage Pump LOR','Bicycle PLS','Order Pad UPR']);const d=w.decide(req(o,[],pay));assert.deepEqual(d.tokens,['hand1','hand2']);
+ const recover=mk('discard',1,1,['Battle Compressor PHF','Damage Pump LOR']);assert.deepEqual(w.decide(req(o,[],recover)).tokens,['discard1']);
+});
