@@ -15,7 +15,7 @@ function state(seat=0){
           printed:{types:['Psychic'],subtypes:['VMAX'],weakness:[{type:'Darkness',value:'×2'}],resistance:[{type:'Fighting',value:'-30'}]},
           publicRestrictions:{cannotUseAttacksNextTurn:[]}}}},
     prompt:null,actionFrontier:{items:[
-      {kind:'attack',token:'budew',attackName:'Itchy Pollen',publicMetadata:{attackCostPayable:true}},
+      {kind:'use-ability',token:'legacy',actorPrinting:'Regidrago VSTAR SIT 136',label:'Legacy Star',publicMetadata:{abilityName:'Legacy Star'}},
       {kind:'attack',token:'apex',attackName:'Apex Dragon',publicMetadata:{attackCostPayable:true,hasPrevention:false,hasUnmodeledModifier:false,damagePrevented:0,damageReduced:0,isLegal:true}},
       {kind:'pass',token:'pass'}
     ]}
