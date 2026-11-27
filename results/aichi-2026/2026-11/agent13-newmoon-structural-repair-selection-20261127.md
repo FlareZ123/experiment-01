@@ -2,7 +2,7 @@
 
 **Agent 13 · 27 November 2026**  
 **Decision affected:** exact fixed New Moon list for the next cross-architecture policy implementation.  
-**Result:** **prefer New Moon Lockbreaker Guzma/Sky v2** over unchanged v1 for future New Moon policy work.  
+**Historical result (superseded by cross-review):** this note originally preferred Guzma/Sky v2. **Current decision is to retain v1**; see `agent13-newmoon-v2-reversal-after-crossreview-20261127.md`.  
 **Evidence class:** source-list/card-text analysis, exact Prize combinatorics, exact opening combinatorics, existing New Moon ALS documentation, and cross-family acceptance states. **No game, native CI, or win-rate claim.**
 
 ## Exact decision
@@ -124,10 +124,10 @@ This is only a Prize-configuration bound. Guzma can be unprized but inaccessible
 
 ## Decision boundary
 
-This note changes the **preferred New Moon fixed 60 for future policy implementation** from v1 to the exact Guzma/Sky v2.
+This note no longer changes the preferred fixed 60. Cross-review restored v1; the exact Guzma/Sky v2 remains a frozen challenger.
 
 It does not nominate New Moon as the final best deck over Hood Shield, Lockbridge or other active candidates; create a qualified matchup; authorize native games/workflows; or claim 99.5%.
 
 The reason to move the New Moon implementation target is narrower: v2 repairs a source-consistent structural hard-lock failure with one multi-family independent channel while preserving the documented catch-up ALS and all 17 Basics.
 
-If adversarial review finds a source-consistent state where the lost second Sky is more structurally important than the new Guzma across the fixed-60 objective, revert before implementation. Until then, v2 is the stronger exact New Moon target.
+If adversarial review finds a source-consistent state where the lost second Sky is more structurally important than the new Guzma across the fixed-60 objective, revert before implementation. After cross-review, v1 is the preferred exact New Moon target until competent v1 policy evidence establishes that this challenger pays for Sky #2's opportunity cost.
