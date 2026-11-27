@@ -339,3 +339,57 @@ paired('Wobbuffet pivot pressure comes from live relevant non-Psychic abilities,
   view.opponentPublic.bench[0]=thorns;
   assert.deepEqual(decide(profile,root(seat,view,[retreat])),sel('pass'));
 });
+function damageEffects(overrides={}){
+  return {prevention:'none',effectsPrevention:'none',reduction:0,reductionFilter:'none',
+    beforeWeaknessReduction:0,outgoingReduction:0,outgoingAfterWeaknessReduction:0,
+    chancePrevention:false,chanceAttackFailure:0,...overrides};
+}
+paired('Safeguard wall blocks V damage but not GX or counter placement',(seat,profile)=>{
+  const wall=pokemon({printing:'Mimikyu PAL',name:'Mimikyu',hp:70,damage:20,
+    abilities:['Safeguard'],suppression:false});
+  const bench1=pokemon({printing:'Comfey LOR',name:'Comfey',hp:70,damage:20});
+  const bench2=pokemon({printing:'Snorlax PGO',name:'Snorlax',hp:150});
+  const view=observation(seat,{active:v([P,P,P]),opponentActive:wall,opponentBench:[bench1,bench2]});
+  const mist={kind:'attack',token:'mist',attackName:'Shadow Mist'};
+  const barrage={kind:'attack',token:'barrage',attackName:'Astral Barrage'};
+  assert.deepEqual(decide(profile,root(seat,view,[mist,barrage])),sel('barrage'));
+  const prompt={actingSeat:seat,promptType:'ChoosePokemonPrompt',
+    source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:V,effectName:'Astral Barrage'},
+    publicMetadata:{selectionType:'pokemon',minimumCount:2,maximumCount:2,allowCancel:false},
+    choices:[{token:'wall',kind:'pokemon',printing:wall.printing,publicMetadata:{ownerSeat:'opponent',targetZone:'active',isOwnerVisible:true}},
+      {token:'bench1',kind:'pokemon',printing:bench1.printing,publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:0,isOwnerVisible:true}},
+      {token:'bench2',kind:'pokemon',printing:bench2.printing,publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:1,isOwnerVisible:true}}]};
+  const req={role:'candidate',seat,observation:{...view,decisionKind:'owner-prompt',pendingPromptType:'ChoosePokemonPrompt'},prompt,publicEventReceipt:null};
+  assert.deepEqual(decide(profile,req),mult('wall','bench1'));
+  bench1.publicDamageEffects=damageEffects({effectsPrevention:'all'});
+  assert.deepEqual(decide(profile,req),mult('wall','bench2'));
+  view.opponentPublic.bench=[bench1,null,null,null,null];
+  assert.deepEqual(decide(profile,root(seat,view,[mist,barrage])),sel('pass'));
+  const lele=pokemon({printing:L,name:'Tapu Lele-GX',subtypes:['Basic','GX'],energies:[P,P,P],
+    attacks:[attack('Energy Drive',['Colorless','Colorless'],'20×')]});
+  view.ownPublic.active=lele;
+  assert.deepEqual(decide(profile,root(seat,view,[{kind:'attack',token:'drive',attackName:'Energy Drive'}])),sel('drive'));
+});
+paired('public Covert Flight and Rolling Iron change direct KO choices, uncertain effects do not fabricate KO',(seat,profile)=>{
+  const noivern=pokemon({printing:'Noivern ex PAL',name:'Noivern ex',hp:260,damage:190,
+    subtypes:['Stage 1','ex'],types:['Dragon']});
+  const lele=pokemon({printing:L,name:'Tapu Lele-GX',subtypes:['Basic','GX'],energies:[P,P,P,P],
+    attacks:[attack('Energy Drive',['Colorless','Colorless'],'20×')]});
+  noivern.publicDamageEffects=damageEffects({prevention:'basic'});
+  const view=observation(seat,{active:lele,opponentActive:noivern});
+  const drive={kind:'attack',token:'drive',attackName:'Energy Drive'};
+  assert.deepEqual(decide(profile,root(seat,view,[drive])),sel('pass'));
+  noivern.publicDamageEffects=damageEffects({reduction:80});
+  assert.deepEqual(decide(profile,root(seat,view,[drive])),sel('pass'));
+  noivern.publicDamageEffects=damageEffects({prevention:'unknown'});
+  assert.deepEqual(decide(profile,root(seat,view,[drive])),sel('pass'));
+  noivern.publicDamageEffects=damageEffects();
+  assert.deepEqual(decide(profile,root(seat,view,[drive])),sel('drive'));
+});
+paired('three-prize Mega KO precedes optional expenditure at three prizes remaining',(seat,profile)=>{
+  const mega=pokemon({printing:'Mega Absol ex MEG',name:'Mega Absol ex',hp:280,damage:220,
+    subtypes:['Basic','MEGA','ex'],types:['Darkness']});
+  const view=observation(seat,{active:vmax([P,P,P]),opponentActive:mega,ownHand:[P]});
+  view.ownPublic.prizeCount=3;
+  assert.deepEqual(decide(profile,root(seat,view,[play('attach',P,M,target('active',0)),{kind:'attack',token:'ko',attackName:'Max Geist'}])),sel('ko'));
+});
