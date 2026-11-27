@@ -22,7 +22,13 @@ function normalizeElectrodeGXPrintedAttack(card,replacements){
      attacks[1]?.gxAttack!==true||typeof attacks[1]?.name!=='string')
     throw new TypeError('Unexpected pinned CES48 attack shape');
   const old=attacks[1].name;
-  if(old===PAPER_ATTACK)return false;
+  if(old===PAPER_ATTACK){
+    // Cloning an already-normalized CardManager template inherits the paper
+    // spelling without passing through our mutation. Track that clone too
+    // so uninstall restores EVERY live object, not just manager templates.
+    if(!replacements.has(card))replacements.set(card,NATIVE_ATTACK);
+    return false;
+  }
   if(old!==NATIVE_ATTACK)throw new TypeError('Unexpected pinned CES48 GX attack name');
   if(replacements.has(card))throw new TypeError('Duplicate mutable card registration');
   replacements.set(card,old);
@@ -88,13 +94,14 @@ function wrapElectrodeGXCrushBurnReducer(
  * but BEFORE constructing game deck clones. Uninstall after the game.
  * Restoration must be LIFO with other patches to CES48's reducer.
  */
-function installElectrodeGXCrushBurnPaperHook(){
+function installElectrodeGXCrushBurnWithDependencies({
+  ElectrodeGX,CardManager,AttackEffect,DiscardEnergyPrompt,GameMessage
+}){
   if(activeRestore)return activeRestore;
-  const {ElectrodeGX}=native('sets/08-sun-and-moon/set-celestial-storm/electrode-gx');
-  const {CardManager}=native('game/cards/card-manager');
-  const {AttackEffect}=native('game/store/effects/game-effects');
-  const {DiscardEnergyPrompt}=native('game/store/prompts/discard-energy-prompt');
-  const {GameMessage}=native('game/game-message');
+  if(typeof ElectrodeGX?.prototype?.reduceEffect!=='function'||
+     typeof CardManager?.prototype?.getCardByName!=='function'||
+     typeof CardManager?.getInstance!=='function')
+    throw new TypeError('Native CES48 CardManager integration unavailable');
   const beforeReducer=ElectrodeGX.prototype.reduceEffect;
   const beforeGetCard=CardManager.prototype.getCardByName;
   const replacements=new Map();
@@ -124,9 +131,20 @@ function installElectrodeGXCrushBurnPaperHook(){
   return activeRestore;
 }
 
+function installElectrodeGXCrushBurnPaperHook(){
+  return installElectrodeGXCrushBurnWithDependencies({
+    ElectrodeGX:native('sets/08-sun-and-moon/set-celestial-storm/electrode-gx').ElectrodeGX,
+    CardManager:native('game/cards/card-manager').CardManager,
+    AttackEffect:native('game/store/effects/game-effects').AttackEffect,
+    DiscardEnergyPrompt:native('game/store/prompts/discard-energy-prompt').DiscardEnergyPrompt,
+    GameMessage:native('game/game-message').GameMessage
+  });
+}
+
 module.exports={
   PINNED_COMMIT,PRINTING,NATIVE_ATTACK,PAPER_ATTACK,
   normalizeElectrodeGXPrintedAttack,
   wrapElectrodeGXCrushBurnReducer,
+  installElectrodeGXCrushBurnWithDependencies,
   installElectrodeGXCrushBurnPaperHook
 };
