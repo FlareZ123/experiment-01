@@ -557,3 +557,83 @@ test('Active Electrode first self-KO promotes funded Raichu, then second Benched
     assert.equal(act,9);assert.equal(bench,9);
   }
 });
+
+
+
+test('nonterminal Active-Electrode Bomb converts into an actual three-Prize VMAX knockout, both seats',()=>{
+  const C='Counter Energy CIN',T='Shadow Rider Calyrex VMAX CRE';
+  for(const seat of [0,1]){
+    const f=setup(seat,6);
+    f.owner.active=slot(E);f.owner.bench[0]=slot(R);
+    f.owner.discard.cards=[...Array.from({length:4},()=>new EnergyCard()),
+      Object.assign(new EnergyCard(),{fullName:C,name:'Counter Energy'})];
+    f.enemy.active=slot(T);f.enemy.bench[0]=slot(T);
+    const vmax=()=>({...viewSlot(T,[],'VMAX'),hp:320,damage:60});
+    f.view.ownPublic.active=viewSlot(E);
+    f.view.ownPublic.bench=[viewSlot(R),null,null,null,null];
+    f.view.ownPublic.discard=f.owner.discard.cards.map(x=>x.fullName);
+    f.view.opponentPublic.active=vmax();f.view.opponentPublic.bench=[vmax()];
+    const bomb={kind:'use-ability',token:'bomb',actorPrinting:E,
+      publicMetadata:{abilityName:'Extra Energy Bomb',
+        sourceZone:'active',sourceIndex:0,abilityLive:true}};
+    assert.deepEqual(f.decide(1,null,[bomb,{kind:'pass',token:'pass'}]),
+      {kind:'select-action',token:'bomb'},
+      'a profitable three-Prize conversion may proceed although it is not yet game-terminal');
+    const ap=bombPrompt(f,'active'),bp=ap.projection.promptProjection;
+    const choice=f.decide(2,bp);
+    assert.equal(choice.kind,'select-choices');
+    assert.equal(choice.tokens.length,5);
+    const moved=f.settle(ap.prompt,ap.projection,choice);
+    assert.equal(moved.rawResult.length,5);
+    assert.ok(moved.rawResult.every(x=>x.to.slot===1&&x.to.index===0));
+    const physical=moved.rawResult.map(row=>f.owner.discard.cards[row.index]);
+    for(const e of physical){
+      f.owner.bench[0].cards.push(e);f.owner.bench[0].energies.cards.push(e);
+    }
+    f.owner.discard.cards=[];
+    f.owner.active=slot(null);f.view.ownPublic.active=null;
+    f.view.ownPublic.bench[0].energies=physical.map(e=>e.fullName);
+    f.view.ownPublic.discard=[];
+    f.view.opponentPublic.prizeCount=4;
+    const promotion=promotePrompt(f),promoted=f.decide(3,promotion.projection.promptProjection);
+    assert.equal(promoted.kind,'select-choices');
+    assert.deepEqual(f.settle(promotion.prompt,promotion.projection,promoted).rawResult,
+      [{player:0,slot:1,index:0}]);
+    f.owner.active=f.owner.bench[0];f.owner.bench[0]=slot(null);
+    f.view.ownPublic.active=viewSlot(R,physical.map(e=>e.fullName));
+    f.view.ownPublic.bench[0]=null;
+    const rain={kind:'attack',token:'rain',actorPrinting:R,
+      attackName:'Electro Rain',publicMetadata:{attackCostPayable:true}};
+    assert.deepEqual(f.decide(4,null,[rain,{kind:'pass',token:'pass'}]),
+      {kind:'select-action',token:'rain'},
+      'post-KO actual active root must independently revalidate the funded attack');
+    const discard=discardPrompt(f);discard.prompt.options.max=5;
+    const ep=f.project(discard.prompt,f.owner.active.getPokemonCard(),'Electro Rain');
+    const ed=f.decide(5,ep.promptProjection);
+    assert.equal(ed.kind,'select-choices');
+    assert.equal(ed.tokens.length,3,'three Reversal cards provide nine Lightning units');
+    const payment=f.settle(discard.prompt,ep,ed);
+    assert.equal(payment.rawResult.length,3);
+    const removed=new Set(payment.rawResult);
+    f.owner.active.cards=f.owner.active.cards.filter((_,i)=>!removed.has(i));
+    f.owner.active.energies.cards=f.owner.active.cards.slice(1);
+    f.view.ownPublic.active.energies=f.owner.active.energies.cards.map(x=>x.fullName);
+    const dp=rainPrompt(f,p=>{
+      p.damage=270;p.maxAllowedDamage=[
+        {target:{player:1,slot:0,index:0},damage:270},
+        {target:{player:1,slot:1,index:0},damage:270}
+      ];
+    });
+    const hits=f.decide(6,dp.projection.promptProjection);
+    assert.equal(hits.kind,'select-choices');assert.equal(hits.tokens.length,9);
+    protocol.validateDecision(hits,dp.projection.promptProjection,new Set());
+    const resolved=f.settle(dp.prompt,dp.projection,hits);
+    assert.equal(resolved.rawResult.length,9);
+    assert.ok(resolved.rawResult.every(x=>x.target.slot===0&&x.damage===30),
+      'the one-Bomb pressure plan knocks out one three-Prize VMAX, not both');
+    assert.equal(f.view.opponentPublic.prizeCount,4,
+      'the opponent retains four Prizes after the one self-KO');
+    assert.equal(f.view.ownPublic.prizeCount,6,
+      'our own Prizes are taken only after native damage settlement, not guessed earlier');
+  }
+});
