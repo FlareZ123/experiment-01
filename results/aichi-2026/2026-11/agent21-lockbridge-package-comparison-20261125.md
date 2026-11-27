@@ -117,6 +117,14 @@ Reproduce:
 ```
 Source commit `0183818824a42a382b75a21463681ed80e0187aa`.
 
+**Public action permissions and first-player opening.** Source commit `807303f3049687ef15c27a1ec0e8732799db998a` adds optional `--context` with ten actor-supplied Boolean permissions: Supporter, Item, Wonder Tag, Star Alchemy, Float effect, Skyliner, Sky Field play, direct V Gate, Gate after retreat, Gate after a specific legal Guzma target. All default true for the earlier no-interference estimates. This does not infer locks from archetype or implement lock transitions/removal automatically; it is a constrained planner that must be driven by actual public legality. E.g. if an opposing Ability lock returns after Wobbuffet retreats and the only alternative target is another Iron Thorns, both Gate-after-pivot flags are false; do not expend a tutor seeking an impossible Gate. If a legal Guzma target removes the lock but ordinary retreat does not, only the Guzma pivot is emitted. Under Item lock with Arven/Float/Psychic held, FSS and Radiant in deck, and live Supporter/Tool/Ability/pivot permissions, tested continuation is Arven→FSS→Star Alchemy→Radiant→Float/retreat→manual Psychic→Gate. Disabling Star Alchemy eliminates that restricted route. Arven's Item selection may be left unused. No code derives permissions from hidden data.
+
+Exact no-interference **going-first** run (Supporters not permitted, 6,031 same original overlap hand classes, 92,310,910 grouped allocations): funded Gate 42.71195002% V vs 22.29641389% W; two-VMAX Gate without energy 50.72729716% V vs 29.32563512% W. Conditional on initial Float or Latias, both starter arms have identical modeled probabilities because no Lele→Supporter route is used. No-support run:
+```sh
+./active-choice --extended bench --context 0,1,1,1,1,1,1,1,1,1
+```
+The going-first result is setup-only; it does not include opposing second-player first attack, Wobbuffet denial value, or a game outcome. No production policy changed.
+
 ## What a fair whole-game comparison must answer
 
 The current reviewed candidate policy cannot rank these lists fairly: it lacks Wobbuffet/Temple root decisions and complete Bide Barricade hand/discard scope, while it also does not fully realize Hood's Ranger/Item-lock response. It would under-measure both packages. PR #69 and PR #71 remain frozen at their reviewed scopes; this synthesis does not authorize a policy patch, fixture, or game.
