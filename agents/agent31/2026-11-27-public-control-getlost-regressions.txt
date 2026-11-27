@@ -33,3 +33,26 @@ paired('Agent31 public control Get Lost denial',(seat,profile)=>{
  t.opponentPublic.discard=['Lusamine CIN','Lusamine CIN','Cynthia & Caitlin CEC'];
  assert.deepEqual(decide(profile,root(seat,t,[get])),sel('pass'));
 });
+
+paired('Agent31: executable public control Girafarig access',(seat,profile)=>{
+const gir='Girafarig LOT';const thorns=pokemon({printing:'Iron Thorns ex TWM',name:'Iron Thorns ex',hp:230,types:['Lightning']});
+const active=v([P]);active.printed.retreatCost=['Colorless'];
+const view=observation(seat,{active,opponentActive:thorns,ownHand:[gir,P]});
+view.opponentPublic.discard=['Lusamine CIN','Lusamine CIN','Cynthia & Caitlin CEC'];
+const bench=play('gir',gir,null,target('bench',0));
+assert.deepEqual(decide(profile,root(seat,view,[bench])),sel('gir'));
+view.ownHand=[FOG,P];
+assert.deepEqual(decide(profile,root(seat,view,[play('fog',FOG)])),sel('fog'));
+assert.deepEqual(decide(profile,cardPrompt(seat,view,FOG,'Fog Crystal','deck',[gir,P],0,1)),mult('card-0'));
+view.ownTurnResources.energyPlayedTurn=true;
+view.ownHand=[gir,P];
+assert.deepEqual(decide(profile,root(seat,view,[bench])),sel('pass'));
+view.ownTurnResources.energyPlayedTurn=false;
+view.ownTurnResources.retreatedTurn=view.globalTurn;
+assert.deepEqual(decide(profile,root(seat,view,[bench])),sel('pass'));
+view.ownTurnResources.retreatedTurn=0;
+active.publicRestrictions.cannotRetreat=true;
+assert.deepEqual(decide(profile,root(seat,view,[bench])),sel('pass'));
+active.publicRestrictions.cannotRetreat=false;view.opponentPublic.discard=['Lusamine CIN','Secret Box TWM'];
+assert.deepEqual(decide(profile,root(seat,view,[bench])),sel('pass'));
+});
