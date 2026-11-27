@@ -738,3 +738,47 @@ test('Handheld Fan typed recipient chooses unenergized support Bench over VMAX',
   });
   assert.deepEqual(checkedDecision(req),{kind:'select-choices',tokens:['support']});
 });
+
+test('Guzma & Hala rank29 search chooses Thunder Mountain, Palace Belt, DCE', () => {
+  const req=promptRequest({
+    promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('Guzma & Hala CEC 193','Guzma & Hala'),
+    publicMetadata:multiMetadata(3,3),
+    ownHand:['Guzma & Hala CEC 193'],
+    observation:{
+      ownPublic:player({active:pokemon('Iron Thorns ex TWM 77'),deckCount:30}),
+      opponentPublic:player({
+        active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{energies:['Psychic Energy CRE 232']}),
+        bench:[pokemon('Tapu Lele-GX GRI 60')]
+      })
+    },
+    choices:[
+      cardChoice('mountain','Thunder Mountain ♢ LOT 191'),
+      cardChoice('fan','Handheld Fan TWM 150'),
+      cardChoice('belt','Palace Belt BWP 153'),
+      cardChoice('dce','Double Colorless Energy SUM 136')
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),
+    {kind:'select-choices',tokens:['mountain','belt','dce']});
+});
+
+test('Guzma & Hala Tool search prefers Jammer against exposed opposing Hood', () => {
+  const req=promptRequest({
+    promptType:'ChooseCardsPrompt',
+    source:actorChoiceSource('Guzma & Hala CEC 193','Guzma & Hala'),
+    publicMetadata:multiMetadata(1,1),
+    observation:{
+      ownPublic:player({active:pokemon('Iron Thorns ex TWM 77'),deckCount:30}),
+      opponentPublic:player({
+        active:pokemon('Shadow Rider Calyrex VMAX CRE 75',{tools:['Stealthy Hood UNB 186']})
+      })
+    },
+    choices:[
+      cardChoice('belt','Palace Belt BWP 153'),
+      cardChoice('jammer','Tool Jammer BST 136')
+    ]
+  });
+  assert.deepEqual(checkedDecision(req),
+    {kind:'select-choices',tokens:['jammer']});
+});
