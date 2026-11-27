@@ -1257,3 +1257,75 @@ paired('Manual Psychic funds a final-Prize bench Rondo before a legal pivot; pai
   assert.deepEqual(paidGet().decision,sel('energy'));
   assert.equal(paidGet().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_BENCH_CHARGE_RETREAT');
 });
+
+
+paired('Agent31: Guzma mirror final-three prize route beats double damage at both continuations',(seat,profile)=>{
+ const guzma='Guzma BUS';
+ const c=pokemon({printing:"Lillie's Clefairy ex JTG",name:"Lillie's Clefairy ex",hp:190,subtypes:['Basic','ex'],abilities:['Fairy Zone'],suppression:false,attacks:[attack('Full Moon Rondo',['Psychic','Colorless'],'20+')]});
+ const a=vmax([P,P,P]);a.hp=320;
+ const b=vmax([P,P,P,P]);b.hp=320;
+ const d=vmax([P,P,P,P]);d.hp=320;
+ const oppV=vmax([P,P,P]);oppV.hp=320;oppV.printed.weakness=[{type:'Darkness',value:'×2'}];
+ const oppD=pokemon({printing:D,name:'Dialga-GX',hp:180,subtypes:['Basic','GX'],types:['Dragon'],weakness:[{type:'Fairy',value:'×2'}],attacks:[attack('Overclock',['Metal'],''),attack('Shred',['Metal','Colorless','Colorless'],'80'),attack('Timeless-GX',['Metal','Metal','Metal','Colorless','Colorless'],'150',{gxAttack:true})]});
+ const oppA=pokemon({printing:'Girafarig LOT',name:'Girafarig',hp:90,attacks:[attack('Get Lost',['Colorless'],0),attack('Mind Shock',['Colorless','Colorless','Colorless'],'70')]});
+ const ownA=pokemon({printing:'Mimikyu GRI',name:'Mimikyu',hp:70,attacks:[attack('Filch',['Colorless'],0),attack('Copycat',['Psychic','Colorless'],0)]});
+ const view=observation(seat,{active:ownA,bench:[a,b,d,c],opponentActive:oppA,opponentBench:[oppV,oppD],ownHand:[guzma]});
+ view.globalTurn=15;view.ownPublic.prizeCount=3;view.opponentPublic.prizeCount=2;
+ const policy=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile});
+ function prompt(v,side){
+ const choices=v[side==='actor'?'ownPublic':'opponentPublic'].bench.flatMap((p,i)=>p?[{token:side+'-'+i,kind:'pokemon',label:'Bench '+(i+1),printing:p.printing,publicMetadata:{selectionIndex:i,selectedCount:1,selectionType:'pokemon',ownerSeat:side,targetZone:'bench',benchIndex:i,isOwnerVisible:true}}]:[]);
+ return {role:'candidate',seat,observation:{...v,decisionKind:'owner-prompt',pendingPromptType:'ChoosePokemonPrompt'},publicEventReceipt:null,
+ prompt:{actingSeat:seat,promptType:'ChoosePokemonPrompt',description:null,source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:guzma,effectName:'Guzma'},
+ choices,publicMetadata:{minimumCount:1,maximumCount:1,allowCancel:false,isSecret:false,selectionType:'pokemon',targetZone:'bench'}}};
+ }
+ const rootResult=policy.decideWithAudit(root(seat,view,[play('guzma',guzma)]));
+ assert.deepEqual(rootResult.decision,sel('guzma'));
+ assert.equal(rootResult.policyAudit.selectionRuleCode,'ROOT_FINAL_BY_GUZMA');
+ assert.deepEqual(decide(profile,prompt(view,'opponent')),mult('opponent-0'));
+ const afterGust={...view,opponentPublic:{...view.opponentPublic,active:oppV,bench:[oppA,oppD,null,null,null]}};
+ const pivot=decide(profile,prompt(afterGust,'actor'));
+ assert.deepEqual(pivot,mult('actor-0'));
+ const pivotIndex=Number(pivot.tokens[0].split('-')[1]);
+ const afterPivot={...afterGust,ownPublic:{...view.ownPublic,active:view.ownPublic.bench[pivotIndex],bench:view.ownPublic.bench.map((x,i)=>i===pivotIndex?ownA:x)}};
+ const final=policy.decideWithAudit(root(seat,afterPivot,[{token:'max',kind:'attack',attackName:'Max Geist'}]));
+ assert.deepEqual(final.decision,sel('max'));
+ assert.equal(final.policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+ view.ownPublic.prizeCount=2;assert.deepEqual(decide(profile,prompt(view,'opponent')),mult('opponent-1'));view.ownPublic.prizeCount=3;
+ d.energies.pop();assert.deepEqual(decide(profile,prompt(view,'opponent')),mult('opponent-1'));d.energies.push(P);
+ view.opponentPublic.bench=[oppD,oppV,null,null,null];assert.deepEqual(decide(profile,prompt(view,'opponent')),mult('opponent-1'));view.opponentPublic.bench=[oppV,oppD,null,null,null];
+ oppV.publicDamageEffects={prevention:'all',effectsPrevention:'none',reduction:0,reductionFilter:'none',beforeWeaknessReduction:0,outgoingReduction:0,outgoingAfterWeaknessReduction:0,chancePrevention:false,chanceAttackFailure:0};
+ assert.deepEqual(decide(profile,prompt(view,'opponent')),mult('opponent-1'));delete oppV.publicDamageEffects;
+ view.ownPublic.publicTurnRestrictions.attackMaxEnergyTurnsRemaining=1;
+ const uncertain=policy.decideWithAudit(root(seat,view,[play('guzma',guzma)]));
+ assert.notEqual(uncertain.policyAudit.selectionRuleCode,'ROOT_FINAL_BY_GUZMA');
+});
+
+
+paired('Agent31: take final two prizes with Astral Barrage before evolution',(seat,profile)=>{
+ const active=v([P,P,P]);active.hp=210;
+ const opponent=vmax(Array(11).fill(P));opponent.hp=320;opponent.printed.weakness=[{type:'Darkness',value:'×2'}];
+ const mm=pokemon({printing:'Mimikyu GRI',name:'Mimikyu',hp:70,damage:50,attacks:[attack('Filch',['Colorless'],0),attack('Copycat',['Psychic','Colorless'],0)]});
+ const gf=pokemon({printing:'Girafarig LOT',name:'Girafarig',hp:90,damage:50,attacks:[attack('Get Lost',['Colorless'],0),attack('Mind Shock',['Colorless','Colorless','Colorless'],'70')]});
+ const view=observation(seat,{active,opponentActive:opponent,opponentBench:[mm,gf],ownHand:[M]});
+ view.globalTurn=15;view.ownPublic.prizeCount=2;view.opponentPublic.prizeCount=2;view.ownTurnResources.energyPlayedTurn=true;
+ const evo=play('evolve',M,V,target('active',0)),barrage={token:'barrage',kind:'attack',attackName:'Astral Barrage'},mist={token:'mist',kind:'attack',attackName:'Shadow Mist'};
+ const policy=worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile});
+ const get=(items=[evo,barrage,mist])=>policy.decideWithAudit(root(seat,view,items));
+ assert.equal(get().decision.token,'barrage');
+ assert.equal(get().policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_ASTRAL_BARRAGE');
+ const prompt={actingSeat:seat,promptType:'ChoosePokemonPrompt',source:{classification:'actor-choice',sourceKind:'card-effect',sourcePrinting:V,effectName:'Astral Barrage'},
+ publicMetadata:{selectionType:'pokemon',minimumCount:2,maximumCount:2,allowCancel:false},
+ choices:[{token:'active',kind:'pokemon',printing:opponent.printing,publicMetadata:{ownerSeat:'opponent',targetZone:'active',isOwnerVisible:true}},
+ {token:'mimikyu',kind:'pokemon',printing:mm.printing,publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:0,isOwnerVisible:true}},
+ {token:'girafarig',kind:'pokemon',printing:gf.printing,publicMetadata:{ownerSeat:'opponent',targetZone:'bench',benchIndex:1,isOwnerVisible:true}}]};
+ const q={role:'candidate',seat,observation:{...view,decisionKind:'owner-prompt',pendingPromptType:'ChoosePokemonPrompt'},prompt,publicEventReceipt:null};
+ const chosen=decide(profile,q);
+ assert.deepEqual(chosen.tokens.slice().sort(),['girafarig','mimikyu']);
+ const negative=()=>{assert.equal(get().decision.token,'evolve');assert.notEqual(get().policyAudit.selectionRuleCode,'ROOT_PUBLIC_FINAL_ASTRAL_BARRAGE');};
+ gf.damage=30;negative();gf.damage=50;
+ gf.publicDamageEffects={prevention:'none',effectsPrevention:'all',reduction:0,reductionFilter:'none',beforeWeaknessReduction:0,outgoingReduction:0,outgoingAfterWeaknessReduction:0,chancePrevention:false,chanceAttackFailure:0};
+ negative();delete gf.publicDamageEffects;
+ view.opponentPublic.bench[1]=null;negative();view.opponentPublic.bench[1]=gf;
+ assert.equal(get([evo,mist]).decision.token,'evolve');
+ view.ownPublic.prizeCount=3;negative();
+});
