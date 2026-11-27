@@ -293,8 +293,11 @@ function canPayGuzmaHala(observation) {
   return hand.filter(card => discardPriority(card, observation) >= 60).length >= 2;
 }
 function discardPriority(value, observation) {
-  if (matches(value, PLAYER_CEREMONY)) return 100;
-  if (matches(value, PALACE_BOOK)) return 95;
+  const lowHandNoAttack = list(observation?.ownHand).length <= 3 &&
+    !list(observation?.ownPublic?.active?.attacks).some(attack =>
+      VOLT_CYCLONE.test(attack?.name ?? '') && voltCycloneFunded(ownActive(observation), observation));
+  if (matches(value, PLAYER_CEREMONY)) return lowHandNoAttack ? 0 : 100;
+  if (matches(value, PALACE_BOOK)) return lowHandNoAttack ? 0 : 95;
   if (matches(value, HANDHELD_FAN)) return 90;
   if (matches(value, TRAINERS_MAIL) &&
       list(observation?.ownHand).filter(x => matches(x, TRAINERS_MAIL)).length > 1) return 82;
@@ -452,6 +455,17 @@ function fundingScore(item, request) {
   if (item.kind === 'attack' && VOLT_CYCLONE.test(item?.attackName ?? '')) {
     const hp = remainingHp(opponentActive(observation));
     return Number.isFinite(hp) && hp <= 140 ? 290 : 120;
+  }
+
+  if (item.kind === 'play-card' && matches(card, PLAYER_CEREMONY)) {
+    const hand = list(observation?.ownHand).length;
+    return stadiumAvailable(observation) && !hasVoltCycloneFrontier(request) &&
+      hand <= 3 && (ownDeckCount(observation) ?? 0) > 0 ? 142 : 0;
+  }
+  if (item.kind === 'use-stadium' && matches(card, PLAYER_CEREMONY)) {
+    const hand = list(observation?.ownHand).length;
+    return !hasVoltCycloneFrontier(request) && hand <= 2 &&
+      (ownDeckCount(observation) ?? 0) > 0 && terminalEndTurnSafety(request) ? 96 : 0;
   }
 
   if (item.kind === 'play-card' && matches(card, MEGATON_BLOWER)) {
