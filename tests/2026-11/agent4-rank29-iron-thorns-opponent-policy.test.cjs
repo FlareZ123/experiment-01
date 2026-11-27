@@ -685,7 +685,7 @@ test('typed Player Ceremony confirmation chooses draw only if hand and deck just
   assert.deepEqual(checkedDecision(rich),{kind:'select-choice',token:'no'});
 });
 
-test('Handheld Fan is attached only with Active Thorns, open Tool slot and moving target', () => {
+test('Handheld Fan root is withheld until native AttachEnergyPrompt owner projection is supported', () => {
   const items=[
     action('fan','play-card','Handheld Fan TWM 150',{cardType:'tool'},
       {targetPrinting:'Iron Thorns ex TWM 77'}),
@@ -697,7 +697,7 @@ test('Handheld Fan is attached only with Active Thorns, open Tool slot and movin
   });
   assert.deepEqual(checkedDecision(rootRequest({
     ownHand:['Handheld Fan TWM 150'],opponentPublic:opponent,items
-  })),{kind:'select-action',token:'fan'});
+  })),{kind:'select-action',token:'pass'});
   assert.deepEqual(checkedDecision(rootRequest({
     ownHand:['Handheld Fan TWM 150'],opponentPublic:opponent,items,
     ownPublic:player({active:pokemon('Iron Thorns ex TWM 77',{tools:['Palace Belt BWP 153']})})
@@ -872,4 +872,22 @@ test('Guzma & Hala root does not spend Supporter when no affordable two-card pay
     'Camping Gear BST 122','Double Colorless Energy SUM 136'];
   assert.deepEqual(checkedDecision(rootRequest({ownHand:disposableHand,items})),
     {kind:'select-action',token:'gh'});
+});
+
+test('actual Fan AttachEnergyPrompt is explicitly unsupported, not fabricated as ChooseEnergyPrompt', () => {
+  const req=promptRequest({
+    promptType:'AttachEnergyPrompt',
+    source:actorChoiceSource('Handheld Fan TWM 150','Handheld Fan'),
+    publicMetadata:{selectionType:'energy-attachment',count:1,
+      minimumCount:1,maximumCount:1,allowCancel:false,
+      sourceZone:'active',ownerSeat:'opponent',isOwnerVisible:true,
+      zone:'bench'},
+    choices:[{token:'unsafe-synthetic-assignment',kind:'energy',
+      printing:'Psychic Energy CRE 232',
+      publicMetadata:{ownerSeat:'opponent',sourceZone:'active',
+        targetZone:'bench',benchIndex:0}}]
+  });
+  assert.deepEqual(checkedDecision(req),{
+    kind:'abstain',reasonCode:'UNSUPPORTED_PROMPT_TYPE'
+  });
 });
