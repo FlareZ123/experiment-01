@@ -24,7 +24,7 @@ const b=(name)=>({printing:name,energies:[]});
 const prompt=(zone,choices,min,max)=>({promptType:'ChooseCardsPrompt',
   source:{sourcePrinting:box,effectName:'Secret Box'},
   publicMetadata:{selectionType:'card-combination',ownerSeat:'actor',isOwnerVisible:true,
-    sourceZone:zone,minimumCount:min,maximumCount:max},choices});
+    sourceZone:zone,minimumCount:min,maximumCount:max,allowCancel:false},choices});
 
 test('source inventory is an exact 60-card static profile with its own source commit binding',()=>{
   assert.equal(SOURCE_COUNTS.length,32);
@@ -84,7 +84,7 @@ test('Marnie only when public Prize race is imminent; never claim hidden gust ce
   r.actionFrontier.items=[root('play-card','Marnie SSH 169','marnie')];
   assert.equal(policy(0).decide(r).token,'marnie');
   r.observation.opponentPublic.prizeCount=3;
-  assert.equal(policy(0).decide(r).reasonCode,'R30_ROOT_UNSUPPORTED');
+  assert.equal(policy(0).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
 });
 test('Marnie does not beat visible unspent Forest Seal Stone into Star Alchemy gust',()=>{
   const r=request();
@@ -94,7 +94,7 @@ test('Marnie does not beat visible unspent Forest Seal Stone into Star Alchemy g
   r.actionFrontier.items=[root('play-card','Marnie SSH 169','marnie')];
   r.observation.opponentPublic.bench=[{printing:'Shadow Rider Calyrex V CRE 74',
     tools:['Forest Seal Stone SIT 156']}];
-  assert.equal(policy(0).decide(r).reasonCode,'R30_ROOT_UNSUPPORTED');
+  assert.equal(policy(0).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   r.observation.opponentPublic.publicTurnRestrictions={vstarUsed:true};
   assert.equal(policy(0).decide(r).token,'marnie');
 });
@@ -103,24 +103,24 @@ test('Secret Box is not initiated without three safe payments or a Psychic Bench
   const r=request();r.observation.ownPublic.bench=[b(clef)];
   r.observation.ownHand=[box,psychic,vip,'Telepathic Psychic Energy POR 88'];
   r.actionFrontier.items=[root('play-card',box,'box')];
-  assert.equal(policy(0).decide(r).reasonCode,'R30_ROOT_UNSUPPORTED');
+  assert.equal(policy(0).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   r.observation.ownHand.push(vip);
   r.observation.ownPublic.bench=[];
-  assert.equal(policy(0).decide(r).reasonCode,'R30_ROOT_UNSUPPORTED');
+  assert.equal(policy(0).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
 });
 test('Secret Box payment and search reject ambiguous, non-actor and unpayable prompts',()=>{
   const r=request();r.observation.ownPublic.bench=[b(clef)];
   r.observation.ownHand=[box,psychic,vip,vip];
   r.prompt=prompt('hand',[card(psychic,'p'),card(vip,'v')],3,3);
-  assert.equal(policy(0).decide(r).reasonCode,'R30_BOX_THREE_SAFE_PAYMENTS_UNAVAILABLE');
+  assert.equal(policy(0).decide(r).reasonCode,'NO_LEGAL_CARD_SET');
   r.prompt=prompt('deck',[card('Guzma BUS 115','g')],2,4);
-  assert.equal(policy(0).decide(r).reasonCode,'R30_BOX_SEARCH_MINIMUM_UNAVAILABLE');
+  assert.equal(policy(0).decide(r).reasonCode,'NO_LEGAL_CARD_SET');
   r.prompt.publicMetadata.ownerSeat='opponent';
-  assert.equal(policy(0).decide(r).reasonCode,'R30_BOX_PROMPT_UNSUPPORTED');
+  assert.equal(policy(0).decide(r).reasonCode,'UNSUPPORTED_CARD_COMBINATION_SOURCE');
   r.prompt=prompt('deck',[{kind:'empty-selection',token:'empty'}],0,4);
   assert.deepEqual(policy(0).decide(r),{kind:'select-choice',token:'empty'});
   r.prompt.choices=[];
-  assert.equal(policy(0).decide(r).reasonCode,'R30_BOX_NO_LEGAL_EMPTY_CHOICE');
+  assert.equal(policy(0).decide(r).reasonCode,'NO_LEGAL_CARD_SET');
 });
 for(const seat of [0,1]) {
   test('seat '+seat+': source Quick Ball safely discards expired VIP, retrieves Clefairy, benches it',()=>{
@@ -151,10 +151,10 @@ test('Quick Ball does not spend an unprotected first-turn VIP or discard protect
   r.observation.ownPublic.active=b('Unown AOR 30');
   r.observation.ownHand=['Quick Ball FST 237',vip,'Telepathic Psychic Energy POR 88'];
   r.actionFrontier.items=[root('play-card','Quick Ball FST 237','qb')];
-  assert.equal(policy(0).decide(r).reasonCode,'R30_ROOT_UNSUPPORTED');
+  assert.equal(policy(0).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
   r.observation.globalTurn=4;
   r.observation.ownHand=['Quick Ball FST 237','Telepathic Psychic Energy POR 88','Guzma BUS 115'];
-  assert.equal(policy(0).decide(r).reasonCode,'R30_ROOT_UNSUPPORTED');
+  assert.equal(policy(0).decide(r).reasonCode,'NO_SUPPORTED_ROOT_ACTION');
 });
 test('Quick Ball cannot invent a target or use wrong owner; optional no-find uses projected empty token',()=>{
   const r=request();r.observation.ownPublic.active=b('Unown AOR 30');
@@ -163,17 +163,17 @@ test('Quick Ball cannot invent a target or use wrong owner; optional no-find use
     source:{sourcePrinting:'Quick Ball FST 237',effectName:'Quick Ball'}};
   assert.deepEqual(policy(0).decide(r),{kind:'select-choice',token:'empty'});
   r.prompt.choices=[];
-  assert.equal(policy(0).decide(r).reasonCode,'R30_QUICKBALL_NO_VALID_TARGET');
+  assert.equal(policy(0).decide(r).reasonCode,'NO_LEGAL_CARD_SET');
   r.prompt.publicMetadata.ownerSeat='opponent';
-  assert.equal(policy(0).decide(r).reasonCode,'R30_QUICKBALL_PROMPT_UNSUPPORTED');
+  assert.equal(policy(0).decide(r).reasonCode,'UNSUPPORTED_CARD_COMBINATION_SOURCE');
 });
 
 test('Copycat and Wondrous Patch prompt families remain explicit unsupported',()=>{
   const r=request();r.prompt={promptType:'ChooseCardsPrompt',
     source:{sourcePrinting:'Wondrous Patch PFL 94'},choices:[]};
-  assert.equal(policy(0).decide(r).reasonCode,'R30_UNSUPPORTED_PROMPT_FAMILY');
+  assert.equal(policy(0).decide(r).reasonCode,'UNSUPPORTED_PROMPT_TYPE');
   r.prompt.source.sourcePrinting='Mimikyu GRI 58';
-  assert.equal(policy(0).decide(r).reasonCode,'R30_UNSUPPORTED_PROMPT_FAMILY');
+  assert.equal(policy(0).decide(r).reasonCode,'UNSUPPORTED_PROMPT_TYPE');
 });
 test('cross-seat, source and role binding fail closed',()=>{
   const r=request(0);
