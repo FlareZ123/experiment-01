@@ -53,15 +53,14 @@ function set(mask,i){return mask|(1<<i);}
 function mask(own,p){return own.reduce((m,x,i)=>p(x)?set(m,i):m,0);}
 // Enumerate unordered multiset draws with exact multiplicities.
 function eachDraw(counts,n,emit){
- const selection=Array(counts.length).fill(0);
- const suffix=counts.map((_,i)=>sum(counts.slice(i)));
+ const selection=Array(counts.length).fill(0),suffix=counts.map((_,i)=>sum(counts.slice(i)));
  function rec(i,left,ways){
-  if(i===counts.length){if(!left)emit(selection.slice(),ways);return;}
+  if(i===counts.length)return left!==0||emit(selection.slice(),ways)!==false;
   const lo=Math.max(0,left-(suffix[i+1]??0)),hi=Math.min(left,counts[i]);
-  for(let x=lo;x<=hi;x++){selection[i]=x;rec(i+1,left-x,ways*C(counts[i],x));}
-  selection[i]=0;
+  for(let x=lo;x<=hi;x++){selection[i]=x;if(!rec(i+1,left-x,ways*C(counts[i],x)))return false;}
+  selection[i]=0;return true;
  }
- rec(0,n,1n);
+ return rec(0,n,1n);
 }
 function* picks(d,n,min=1,start=0,prefix=[]){
  if(prefix.length>=min)yield prefix;
@@ -83,10 +82,10 @@ function* searchPicks(d,spec){
  if(spec==='any'){yield* picks(d,1);return;}
  throw Error('unknown search spec');
 }
-function inputState(input){
+function inputState(input,guarantee){
  const m=input?.model,p=input?.position,f=input?.flags,b=input?.belief;
  if(!oracle.validate(m)||oracle.attacks(m,p).status!=='ok'||!f||!b||
-  !['K0','K1'].includes(b.mode)||b.exchangeable!==true||
+  !['K0','K1'].includes(b.mode)||!(b.exchangeable===true||guarantee&&b.supportComplete===true)||
   !valid(b.unknownPrizes)||b.unknownPrizes!==(b.mode==='K0'?m.remaining:0))
   throw Error('unsupported model/belief');
  for(const k of ['manual','retreat','supporter','items','tools','stadium','vstar','priorKO','safeValley','safeFloat','safeStone','safeRedraw','oppHandNonempty'])
@@ -115,8 +114,11 @@ function inputState(input){
   stones:mask(m.own,x=>x.tool==='stone'&&x.stoneUsable),floats:0};
 }
 function solve(input,options={}){
+ const guarantee=options.guaranteeOnly===true;
+ if(guarantee&&options.riskAware===true)return {status:'unsupported',reason:'probability-based risk objective incompatible with support-only guarantee'};
+ if(options.firstAllowed!==undefined&&typeof options.firstAllowed!=='function')return {status:'unsupported',reason:'bad first action filter'};
  let s;
- try{s=inputState(input);}catch(e){return {status:'unsupported',reason:e.message};}
+ try{s=inputState(input,guarantee);}catch(e){return {status:'unsupported',reason:e.message};}
  const m=input.model,f=input.flags,risk=options.riskAware===true,limit=options.maxStates??100000,branchLimit=options.maxBranches??2000000;
  if(!valid(limit)||!valid(branchLimit)||!limit||!branchLimit)return {status:'unsupported',reason:'bad budget'};
  const memo=new Map(),boundCache=new Map();let states=0,branches=0,boundPrunes=0;
@@ -133,7 +135,16 @@ function solve(input,options={}){
   return s;
  }
  function key(s){return [s.a,s.b,s.es.join(','),s.discount,s.h.join(','),s.mix?belief.key(s.mix):s.d.join(','),s.z.join(','),s.u,+s.manual,+s.retreat,+s.supporter,+s.stadium,+s.vstar,s.doors,s.open,s.stones,s.floats].join('|');}
+ function worst(a,b){return cmp(a.steps,b.steps)>=0?a.steps:b.steps;}
  function weighted(counts,n,fn){
+  if(guarantee){
+   let out=score(ONE);
+   eachDraw(counts,n,v=>{
+    tick();const r=fn(v);
+    if(cmp(r.p,ONE)!==0n){out=score();return false;}
+    out.steps=worst(out,r);return true;
+   });return out;
+  }
   let out=score();const denom=C(sum(counts),n);
   eachDraw(counts,n,(v,w)=>{tick();out=combine(out,frac(w,denom),fn(v));});
   return out;
@@ -141,9 +152,12 @@ function solve(input,options={}){
  function draw(s,n){
   n=Math.min(n,deckSize(s));
   if(s.mix){
-   let out=score();
-   for(const row of belief.draw(s.mix,n,tick))
-    out=combine(out,row.p,value(canonical({...s,mix:row.posterior,h:plus(s.h,row.drawn)})));
+   let out=score(guarantee?ONE:ZERO);
+   for(const row of belief.draw(s.mix,n,tick)){
+    const r=value(canonical({...s,mix:row.posterior,h:plus(s.h,row.drawn)}));
+    if(guarantee){if(cmp(r.p,ONE)!==0n)return score();out.steps=worst(out,r);}
+    else out=combine(out,row.p,r);
+   }
    return out;
   }
   return weighted(s.d,n,v=>value(canonical({...s,d:minus(s.d,v),h:plus(s.h,v)})));
@@ -161,9 +175,12 @@ function solve(input,options={}){
  }
  function search(s,spec){
   if(s.mix){
-   let r=score();
-   for(const row of belief.reveal(s.mix,tick))
-    r=combine(r,row.p,chooseKnown({...s,mix:null,u:0,d:row.counts},spec));
+   let r=score(guarantee?ONE:ZERO);
+   for(const row of belief.reveal(s.mix,tick)){
+    const child=chooseKnown({...s,mix:null,u:0,d:row.counts},spec);
+    if(guarantee){if(cmp(child.p,ONE)!==0n){r=score();break;}r.steps=worst(r,child);}
+    else r=combine(r,row.p,child);
+   }
    return {...r,selection:'observe-own-deck-and-replan'};
   }
   if(!s.u)return chooseKnown(s,spec);
@@ -196,16 +213,18 @@ function solve(input,options={}){
   }
   boundCache.set(cacheKey,yes);return yes;
  }
+ const rootKey=options.pending===undefined?key(canonical(s)):null;
  function value(raw){
   const s=canonical(raw),k=key(s);
+  const firstAllowed=move=>k!==rootKey||options.firstAllowed===undefined||options.firstAllowed(move)===true;
   if(memo.has(k))return memo.get(k);
   if(++states>limit)throw cap;
-  const terminal=oracle.attacks(m,s).attacks.find(x=>x.terminal);
-  if(terminal){const r={...score(ONE,ONE),move:{kind:'attack',own:s.a,opp:s.b,...terminal}};memo.set(k,r);return r;}
+  const terminal=oracle.attacks(m,s).attacks.filter(x=>x.terminal).map(x=>({kind:'attack',own:s.a,opp:s.b,...x})).find(firstAllowed);
+  if(terminal){const r={...score(ONE,ONE),move:terminal};memo.set(k,r);return r;}
   let best={...score(),move:null};
   if(options.disableBound!==true&&!couldWin(s)){boundPrunes++;memo.set(k,best);return best;}
   function consider(move,compute){
-   if(!risk&&cmp(best.p,ONE)===0n)return;
+   if(!risk&&cmp(best.p,ONE)===0n||!firstAllowed(move))return;
    tick();const r=compute(),paid=payAction(r,move);
    if(better(paid,best,risk))best={...paid,move:{...move,...(r.selection!==undefined?{selection:r.selection}:{})}};
   }
@@ -285,6 +304,8 @@ function solve(input,options={}){
    if(!['fog','arven','comp','team','any'].includes(options.pending))return {status:'unsupported',reason:'bad pending search'};
    const x=search(s,options.pending);r={...x,move:{kind:'choose-search',spec:options.pending,selection:x.selection}};
   }else r=value(s);
+  if(guarantee)return {status:cmp(r.p,ONE)===0n?'certified':'no-guarantee',first:r.move,states,branches,boundPrunes,
+   objective:'universal-terminal-certificate-over-declared-support',...(cmp(r.p,ONE)===0n?{worstCaseActions:str(r.steps)}:{})};
   return {status:cmp(r.p,ONE)===0n?'certified':r.p.n?'positive':'no-certificate',probability:str(r.p),first:r.move,states,branches,boundPrunes,
    objective:risk?'max-terminal-P; min-lex-failure-spend; min-expected-actions':'max-terminal-P',
    failureSpend:Object.fromEntries(LOSS.map((k,i)=>[k,str(r.loss[i])])),expectedActions:str(r.steps)};
@@ -364,7 +385,20 @@ function selfTest(){
  const tr=solve(transfer);if(tr.probability!=='1/1')throw Error('retreat recovery falsely pruned '+JSON.stringify(tr));
  const zeroRisk=solve(cases[14][1],{riskAware:true});
  if(zeroRisk.probability!=='0/1'||zeroRisk.first!==null||zeroRisk.expectedActions!=='0/1')throw Error('zero-chance spend');
- return {cases:cases.length+6,results,riskExamples:{fast,risk,longFast,shortRisk}};
+ const support=makeInput([P(3),V(2)],[high,low],{hand:{fog:1,guzma:1},deck:{energy:3,other:1},mode:'K0'});
+ support.belief.exchangeable=false;support.belief.supportComplete=true;
+ const g=solve(support,{guaranteeOnly:true});
+ if(g.status!=='certified'||g.probability!==undefined||solve(support).status!=='unsupported')throw Error('support-only admission '+JSON.stringify(g));
+ const ng=solve(cases[3][1],{guaranteeOnly:true});
+ if(ng.status!=='no-guarantee'||ng.probability!==undefined)throw Error('no-guarantee not probability zero');
+ const filtered=makeInput([V(3),V(3)],[{hp:170},{hp:170}],{hand:{guzma:1}});
+ const g2=solve(filtered,{guaranteeOnly:true,firstAllowed:m=>m.kind==='guzma'});
+ if(g2.status!=='certified'||g2.first.kind!=='guzma')throw Error('root native filter');
+ for(const [label,input,p] of cases){
+  const out=solve(input,{guaranteeOnly:true});
+  if(out.status!==(p==='1/1'?'certified':'no-guarantee'))throw Error('guarantee/exact disagreement '+label+JSON.stringify(out));
+ }
+ return {cases:cases.length+6+3+cases.length,results,riskExamples:{fast,risk,longFast,shortRisk},guaranteeExamples:{g,ng,g2}};
 }
 module.exports={solve,makeInput,selfTest,eachDraw,K};
 if(require.main===module)console.log(JSON.stringify(selfTest(),null,2));
