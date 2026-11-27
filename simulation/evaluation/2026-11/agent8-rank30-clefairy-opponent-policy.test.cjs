@@ -252,3 +252,27 @@ for(const seat of [0,1]) {
       tokens:['patch','fss','guzma','sky']});
   });
 }
+
+
+test('native Latias ex is Psychic: payable Box and opt-in Wondrous Patch can target sole Latias Bench',()=>{
+  const r=request();
+  r.observation.ownPublic.active=b('Unown AOR');
+  r.observation.ownPublic.bench=[b('Latias ex SSP')];
+  r.observation.ownHand=['Secret Box TWM','Psychic Energy MEE',
+    'Battle VIP Pass FST','Battle VIP Pass FST'];
+  r.actionFrontier.items=[root('play-card','Secret Box TWM','box')];
+  assert.equal(policy(0).decide(r).token,'box');
+  r.observation.ownHand=['Wonder Patch MBD'];
+  r.observation.ownPublic.discard=['Psychic Energy MEE'];
+  r.actionFrontier.items=[root('play-card','Wonder Patch MBD','patch')];
+  const optIn=createPolicy({role:'opponent',seat:0,policyVersion:POLICY_VERSION,
+    config:{sourceRank:30,sourceBlobSha1:SOURCE_LIST_BLOB_SHA1,enablePatchProjection:true}});
+  assert.equal(optIn.decide(r).token,'patch');
+  r.prompt={promptType:'AttachEnergyPrompt',
+    source:{sourcePrinting:'Wonder Patch MBD',effectName:'Wondrous Patch'},
+    publicMetadata:{selectionType:'energy-attachment',ownerSeat:'actor',
+      isOwnerVisible:true,sourceZone:'discard'},
+    choices:[{kind:'energy',token:'to-latias',
+      publicMetadata:{ownerSeat:'actor',sourceZone:'discard',benchIndex:0}}]};
+  assert.deepEqual(optIn.decide(r),{kind:'select-choice',token:'to-latias'});
+});
