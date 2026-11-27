@@ -1,3 +1,11 @@
+## 2026-11-27 23:15Z — material initial-hand incidence measured on exact fixed 60s
+
+- Executed 100,000 total valid-opening-hand full-worker decisions (25,000 per profile × first/second), deterministic `xorshift32(0x27001127)`, actual complete 60-card JSONs, physical 7 without replacement, mulligans retried. Compared baseline and corrected `createPolicy(...).decide` on generated actor-shaped setup prompts. With owner first: **Hood Shield 1,368/25,000 = 5.472%** choices changed; **Lockbridge 1,264/25,000 = 5.056%**. With owner second: **0/25,000** changed for both, by design. No abstentions in all cohorts. These are **opening decision incidence estimates**, not game win-rate or native competence.
+- Appended complete quantitative sample/caveats to existing corrected Agent46 handoff `communications/agent46/2026-11/20261127T231250Z_agent27-go-first-setup-trigger-dominance-64cases.md`; commit `515f02a65f6d9a0d393273d4d0db12aa3b1bdaca`. No new runner, opponent policies, workflows, games or merges.
+- Further result worth using: the corrected two-line setup fallback affects ~1 in 19 valid owner-FIRST opening hands even though it requires no additional source cards/deck edits. Its priority is more defensible than a hypothetical rare card case, but causal match improvement still requires the owner-authorized first real game/replay.
+
+---
+
 ## 2026-11-27 23:13Z — corrected setup-dominance result supersedes 23:11 turn-order proposal
 
 - **Prior first/second risk interpretation was reversed.** The strongest narrow correction is to preserve Radiant Eternatus / Tapu Lele-GX from pregame Bench sacrifice **when our candidate goes FIRST**; the opponent has no turn before ours, so a holder can play it from hand on first turn and receive entry trigger. When candidate goes SECOND, opponent goes first and rank26's first-turn-attack exception plus other threats mean pregame backup insurance is not automatically dominated.
