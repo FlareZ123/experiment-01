@@ -854,11 +854,20 @@ function rootDecision(request,{enablePatchProjection=false}={}) {
   return attack ? act(attack) : no('R30_ROOT_UNSUPPORTED');
 }
 function createPolicy({role,seat,policyVersion,config}) {
+  const keys=config&&typeof config==='object'&&!Array.isArray(config)?
+    Object.keys(config):null;
+  // Real shared V3 init accepts ONLY config={}. Rank/source are immutable
+  // in this signed policy bundle, not caller-provided settings. The legacy
+  // two-key form and explicit three-key Patch opt-in remain developer-only
+  // direct-call compatibility and are rejected by V3 validateInit.
+  const isV3Config=keys!==null&&keys.length===0;
+  const isAnnotatedDevConfig=keys!==null&&[2,3].includes(keys.length)&&
+    keys.every(k=>['sourceRank','sourceBlobSha1','enablePatchProjection'].includes(k))&&
+    (keys.length!==3||config.enablePatchProjection===true)&&
+    config.sourceRank===SOURCE_RANK&&
+    config.sourceBlobSha1===SOURCE_LIST_BLOB_SHA1;
   if(role!=='opponent'||![0,1].includes(seat)||policyVersion!==POLICY_VERSION||
-     !config||![2,3].includes(Object.keys(config).length)||
-     Object.keys(config).some(k=>!['sourceRank','sourceBlobSha1','enablePatchProjection'].includes(k))||
-     (Object.keys(config).length===3&&config.enablePatchProjection!==true)||
-     config.sourceRank!==SOURCE_RANK||config.sourceBlobSha1!==SOURCE_LIST_BLOB_SHA1)
+    !(isV3Config||isAnnotatedDevConfig))
     throw new Error('R30_SOURCE_ROLE_CONFIG_MISMATCH');
   return Object.freeze({decide(request){
     if(request?.role!==role||request.seat!==seat||request.observation?.actorSeat!==seat)
