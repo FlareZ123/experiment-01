@@ -246,6 +246,12 @@ function r17DepartingKlefkiRelocks(view) {
   return r17LiveKlefki(view,a)&&r17IsWob(w)&&!r17LiveHood(view,w)&&
     !r17WobLive(view)&&r17LiveBombs(view).length>0;
 }
+function r17JoustUnlocksBomb(view) {
+  const a=active(own(view)),w=active(opponent(view));
+  if(!r17LiveKlefki(view,a)||!r17IsWob(w)||!r17LiveHood(view,w))return false;
+  const stripped={...view,opponentPublic:{...opponent(view),active:{...w,tools:[]}}};
+  return r17LiveBombs(stripped).length>0;
+}
 function r17UnownUseful(view) { return r17Deck(view)>=2&&!r17AbilityBlocked(view,'unown'); }
 function r17StadiumToolLive(view) {
   return ![own(view),opponent(view)].some(p=>Number(p.publicTurnRestrictions?.stadiumAndToolHaveNoEffectTurnsRemaining)>0);
@@ -1379,6 +1385,7 @@ function r17Score(item,request) {
       const count=r17PublicTrainerCount(view);
       return count!==null?Math.min(190,40+20*count):scoreAttack(item,view);
     }
+    if(attack==='Joust'&&r17JoustUnlocksBomb(view))return 235;
     if(/^(Horror House-GX|Electric Ball|Electro Ball|Joust)$/i.test(attack))return scoreAttack(item,view);
     if(attack==='Motivate')return 35;
     if(/^(Hidden Power|Quick Attack|Nuzzle|Thunder Wave|Red Knuckles|Big Explosion)$/i.test(attack))
@@ -1389,8 +1396,9 @@ function r17Score(item,request) {
     const s=r17Slot(view,'bench',m.targetIndex??m.benchIndex);
     if(r17Key(s)==='gengar'&&r17SwitchValue(s,view)>=280&&r17SwitchValue(active(own(view)),view)<240)return 240;
     if(s&&r17Key(s)==='raichu'&&r17SwitchValue(s,view)>=240&&r17SwitchValue(active(own(view)),view)<240){
-      // Departing Klefki would reactivate opposing Wob before Bomb.
-      // Preserve the live connector if it can supply additional Energy.
+      // Departing Klefki can either reactivate an unhooded Wob or abandon
+      // the funded Joust line that removes Hood. Preserve that connector.
+      if(r17JoustUnlocksBomb(view))return 0;
       if(r17DepartingKlefkiRelocks(view)&&(r17Discard(view).some(c=>R17_ENERGY.has(r17Key(c)))||r17ActiveLoadPlan(view)))return 0;
       return 115;
     }
