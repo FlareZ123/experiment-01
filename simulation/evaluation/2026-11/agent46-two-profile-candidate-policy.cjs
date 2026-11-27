@@ -3880,6 +3880,40 @@ function fieldBlowerHoodFinal(view,items,attackNames){
     return {item,reason:'ROOT_FINAL_BY_FIELD_BLOWER_HOOD'};
   return null;
 }
+// A known legal retreat target can be funded before the pivot. Restrict
+// speculative attacks to the two exact scaling attackers and account for
+// Energy paid by the outgoing Active (which reduces Max Geist).
+function projectedBenchFinalAttack(view,index){
+  const old=view.ownPublic.active,slot=view.ownPublic.bench[index];
+  if(!old||!slot||view.ownTurnResources?.retreatedTurn!==0||
+     activeOnlyLockSource(view,'ownPublic')||
+     view.ownPublic.publicTurnRestrictions?.attackMaxEnergyTurnsRemaining>0||
+     slot.publicRestrictions?.attackCostIncreaseNextTurn>0)return null;
+  const cost=ownRetreatCost(view);
+  if(cost===null||slotEnergyCount(old)<cost||
+      old.energies.some(p=>!hasName(p,'Psychic Energy')))return null;
+  const moved={...view,ownPublic:{...view.ownPublic,active:slot,
+    bench:view.ownPublic.bench.map((p,i)=>i===index?{...old,energies:old.energies.slice(cost)}:p)}};
+  if(activeOnlyLockSource(moved,'ownPublic'))return null;
+  const names=new Set(isShadowRiderVmax(slot)?['Max Geist']:
+    hasName(slot.printing,"Lillie's Clefairy ex")?['Full Moon Rondo']:[]);
+  return names.size?publicFinalAttack(moved,names):null;
+}
+function benchTerminalCharge(view,item,items){
+  const m=item.publicMetadata??{},slot=view.ownPublic.bench[m.targetIndex];
+  if(item.kind!=='play-card'||!hasName(item.actorPrinting,'Psychic Energy')||
+     !view.ownHand.includes(item.actorPrinting)||m.targetSeat!=='actor'||m.targetZone!=='bench'||
+     !Number.isSafeInteger(m.targetIndex)||!slot||
+     (item.targetPrinting&&item.targetPrinting!==slot.printing)||
+     view.ownTurnResources?.energyPlayedTurn!==false||
+     view.ownTurnResources?.energyPlayLocked===true||
+     view.ownPublic.publicTurnRestrictions?.energyPlayLocked===true||
+     !items.some(r=>r.kind==='retreat'&&r.publicMetadata?.benchIndex===m.targetIndex&&
+       (!r.targetPrinting||r.targetPrinting===slot.printing)))return false;
+  if(projectedBenchFinalAttack(view,m.targetIndex))return false;
+  const after=viewAfterPsychicAttachment(view,'bench',m.targetIndex,item.actorPrinting);
+  return !!(after&&projectedBenchFinalAttack(after,m.targetIndex));
+}
 function finalPublicStep(view,items,receipt,profile){
   const current=publicFinalAttack(view,new Set(items.filter(i=>i.kind==='attack').map(i=>i.attackName)));
   if(current){
@@ -3902,6 +3936,8 @@ function finalPublicStep(view,items,receipt,profile){
   // Door is an extra attachment. Use an explicitly unspent source and an
   // eligible Psychic bench recipient; its continuation uses the same KO score.
   for(const item of items){
+    if(benchTerminalCharge(view,item,items))
+      options.push({item,priority:350,reason:'ROOT_FINAL_BY_BENCH_CHARGE_RETREAT'});
     if(item.kind==='use-ability'&&canUseUnderworldDoor(view,item,receipt)){
       for(const [index,slot] of view.ownPublic.bench.entries()){
         if(!slot?.printed?.types?.includes('Psychic'))continue;
@@ -3931,7 +3967,10 @@ if(item.kind==='play-card'&&hasName(item.actorPrinting,'Float Stone')&&
 }
     if(item.kind==='retreat'){
       const index=item.publicMetadata?.benchIndex,cost=ownRetreatCost(view),slot=view.ownPublic.bench[index];
-      if(Number.isInteger(index)&&slot&&cost!==null&&slotEnergyCount(view.ownPublic.active)>=cost){
+      if(Number.isInteger(index)&&slot&&(!item.targetPrinting||item.targetPrinting===slot.printing)&&
+          projectedBenchFinalAttack(view,index))
+        options.push({item,priority:325-cost*25,reason:'ROOT_FINAL_BY_FUNDED_BENCH_RETREAT'});
+      if(Number.isInteger(index)&&slot&&(!item.targetPrinting||item.targetPrinting===slot.printing)&&cost!==null&&slotEnergyCount(view.ownPublic.active)>=cost){
         const old={...view.ownPublic.active,energies:view.ownPublic.active.energies.slice(cost)};
         const moved={...view,ownPublic:{...view.ownPublic,active:slot,
           bench:view.ownPublic.bench.map((p,i)=>i===index?old:p)}};

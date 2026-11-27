@@ -1217,3 +1217,43 @@ paired('Final-Prize Field Blower removes the actual Active Hood before Fairy Zon
   dragon.tools=[];
   assert.deepEqual(get().decision,sel('max'));
 });
+
+paired('Manual Psychic funds a final-Prize bench Rondo before a legal pivot; paid retreat reduces Max Geist',(seat,profile)=>{
+  const c="Lillie's Clefairy ex JTG",lillie="Lillie's Determination MEG";
+  const clefairy=pokemon({printing:c,name:"Lillie's Clefairy ex",hp:190,subtypes:['Basic','ex'],types:['Psychic'],abilities:['Fairy Zone'],suppression:false,energies:[P],
+    attacks:[attack('Full Moon Rondo',['Psychic','Colorless'],'20+')]});
+  const mew=pokemon({printing:'Mew V FST',name:'Mew V',hp:180,subtypes:['Basic','V'],types:['Psychic']});
+  const view=observation(seat,{active:latias(),bench:[clefairy,v(),radiant()],opponentActive:mew,
+    opponentBench:Array.from({length:5},()=>pokemon({printing:'Genesect V FST',name:'Genesect V',types:['Metal'],subtypes:['Basic','V']})),
+    ownHand:[P,lillie]});
+  view.ownPublic.prizeCount=2;
+  const ret={token:'retreat',kind:'retreat',targetPrinting:c,publicMetadata:{benchIndex:0}};
+  const attach=play('charge',P,c,target('bench',0)),reset=play('reset',lillie);
+  const get=(xs=[attach,ret,reset])=>worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile}).decideWithAudit(root(seat,view,xs));
+  assert.deepEqual(get().decision,sel('charge'));
+  assert.equal(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_BENCH_CHARGE_RETREAT');
+  assert.notEqual(get([attach,reset]).policyAudit.selectionRuleCode,'ROOT_FINAL_BY_BENCH_CHARGE_RETREAT');
+  view.ownTurnResources.retreatedTurn=1;
+  assert.notEqual(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_BENCH_CHARGE_RETREAT');
+  view.ownTurnResources.retreatedTurn=0;
+  view.ownPublic.prizeCount=3;
+  assert.notEqual(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_BENCH_CHARGE_RETREAT');
+  view.ownPublic.prizeCount=2;
+  view.ownPublic.bench[0].energies.push(P);view.ownTurnResources.energyPlayedTurn=true;
+  assert.deepEqual(get().decision,sel('retreat'));
+  assert.equal(get().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_FUNDED_BENCH_RETREAT');
+  view.ownPublic.active=view.ownPublic.bench[0];view.ownPublic.bench[0]=latias();
+  assert.deepEqual(get([{token:'rondo',kind:'attack',attackName:'Full Moon Rondo'},reset]).decision,sel('rondo'));
+  // Paid retreat spends a Psychic and changes the Max Geist damage total.
+  const old=v([P]);old.printed.retreatCost=['Colorless'];
+  const benched=vmax([P,P]),v2=v([P]);
+  const targetPokemon=pokemon({printing:'Tapu Lele-GX GRI',name:'Tapu Lele-GX',hp:150,subtypes:['Basic','GX'],types:['Psychic']});
+  const paid=observation(seat,{active:old,bench:[benched,v2],opponentActive:targetPokemon,opponentBench:[v()],ownHand:[P,lillie]});
+  paid.ownPublic.prizeCount=2;
+  const paidActions=[play('energy',P,M,target('bench',0)),{token:'retreat',kind:'retreat',targetPrinting:M,publicMetadata:{benchIndex:0}},reset];
+  const paidGet=()=>worker.createPolicy({role:'candidate',seat,policyVersion:worker.POLICY_VERSION,config:profile}).decideWithAudit(root(seat,paid,paidActions));
+  assert.notEqual(paidGet().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_BENCH_CHARGE_RETREAT');
+  old.printed.retreatCost=[];
+  assert.deepEqual(paidGet().decision,sel('energy'));
+  assert.equal(paidGet().policyAudit.selectionRuleCode,'ROOT_FINAL_BY_BENCH_CHARGE_RETREAT');
+});
