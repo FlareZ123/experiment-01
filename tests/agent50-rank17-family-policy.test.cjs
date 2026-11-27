@@ -151,6 +151,26 @@ function runCases(policy,protocol) {
       [A.unown,A.voltorb,A.pikachu,A.electrode],0,3)),choose('c2'),tag+'do not discard duplicate already-recoverable starter');
     v={...v,ownPublic:player({discard:[A.voltorb,A.pikachu,A.unown]})};
     same(runRoot(p,v,[play('compress',A.compressor),play('carrier',A.carrier),pass]),action('carrier'),tag+'already funded Carrier dominates Compressor');
+    // Stage 1 access is a separate funded route from Carrier. A complete
+    // Compressor prompt can establish both Basics and one evolution.
+    v=view(seat,{ownHand:[A.compressor,A.stretcher],ownPublic:player({bench:[slot(A.pikachu)]})});
+    same(runRoot(p,v,[play('compress',A.compressor),play('recover',A.stretcher),pass]),action('compress'),tag+'Stretcher-funded evolution root');
+    same(runPrompt(p,v,cards(v,A.compressor,'Battle Compressor','deck',[A.voltorb,A.raichu,A.electrode],0,3)),choose('c1'),tag+'search only funded evolution');
+    v={...v,ownHand:[A.stretcher],ownPublic:player({bench:[slot(A.pikachu)],discard:[A.raichu]})};
+    same(runRoot(p,v,[play('recover',A.stretcher),pass]),action('recover'),tag+'funded evolution recovery root');
+    same(runPrompt(p,v,cards(v,A.stretcher,'Rescue Stretcher','discard',[A.electrode,A.raichu,A.unown],0,1)),choose('c1'),tag+'recover compatible evolution');
+    v=view(seat,{ownHand:[A.compressor,A.carrier,A.stretcher]});
+    same(runPrompt(p,v,cards(v,A.compressor,'Battle Compressor','deck',[A.voltorb,A.pikachu,A.electrode,A.raichu],0,3)),choose('c0','c1','c3'),tag+'two separate recovery budgets');
+    v=view(seat,{ownHand:[A.compressor,A.stretcher],ownPublic:player({bench:[slot(A.pikachu),slot(A.voltorb)],discard:[A.raichu]})});
+    same(runRoot(p,v,[play('compress',A.compressor),play('recover',A.stretcher),pass]),action('recover'),tag+'existing Stage 1 consumes sole Stretcher capacity');
+    v={...v,ownHand:[A.compressor,A.stretcher,A.stretcher]};
+    same(runPrompt(p,v,cards(v,A.compressor,'Battle Compressor','deck',[A.raichu,A.electrode,A.pikachu],0,3)),choose('c1'),tag+'second Stretcher funds missing second evolution');
+    v=view(seat,{ownHand:[A.compressor,A.stretcher,A.stretcher],ownPublic:player({bench:[slot(A.ditto)]})});
+    same(runPrompt(p,v,cards(v,A.compressor,'Battle Compressor','deck',[A.raichu,A.electrode],0,3)),choose('c0'),tag+'single Ditto cannot supply two evolutions');
+    v={...v,ownPublic:player({active:slot(A.klefki),bench:[slot(A.ditto)]})};
+    same(runRoot(p,v,[play('compress',A.compressor),pass]),action('pass'),tag+'locked Ditto cannot fund evolution');
+    v=view(seat,{ownHand:[A.carrier,A.stretcher],ownPublic:player({discard:[A.pikachu]})});
+    same(runRoot(p,v,[play('recover',A.stretcher),play('carrier',A.carrier),pass]),action('carrier'),tag+'reserve Stretcher when Carrier can recover Basic');
     // First-turn Horror House route: the energy-bearing Gengar is on the
     // Bench and the Active cannot retreat for free. Rope first, opponent
     // switches (external), then own correctly scoped target prompt.
