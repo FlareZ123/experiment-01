@@ -3,6 +3,7 @@
 // Uses the same token/owner/public-metadata shape as the current projection;
 // energy-attachment-set requires a separately reviewed protocol extension.
 const bolt=require('./agent23-rank19-bellowing-thunder-draft.cjs');
+const targets=require('./agent23-rank19-candidate-targets.cjs');
 const SADA=/^Professor Sada's Vitality PAR(?: 170)?$/;
 const ADP=/^Arceus & Dialga & Palkia-? ?GX CEC(?: 156)?$/;
 const BOLT=/^Raging Bolt ex TEF(?: 123)?$/;
@@ -76,8 +77,8 @@ function root(r,capability){
  const ray=items.find(a=>a.kind==='attack'&&a.attackName==='Ultimate Ray'&&ADP.test(name(a.actorPrinting))&&a.publicMetadata?.attackCostPayable===true);
  if(ray&&ADP.test(name(o.active))){
   const gx=items.find(a=>a.kind==='attack'&&a.attackName==='Altered Creation-GX'&&a.publicMetadata?.attackCostPayable===true);
-  const prizeValue=/VMAX|Trevenant & Dusknoir-GX/.test(name(p))?3:/\b(?:ex|V|GX)\b/.test(name(p))?2:1;
-  if(bolt.knockoutCost(p)&&p.hp-p.damage<=150&&Number.isSafeInteger(o.prizeCount)&&o.prizeCount<=prizeValue)return {kind:'select-action',token:ray.token};
+  const t=targets.target(p);
+  if(t&&t.remaining<=150&&Number.isSafeInteger(o.prizeCount)&&o.prizeCount<=t.prizes)return {kind:'select-action',token:ray.token};
   if(gx&&o.publicTurnRestrictions?.gxUsed===false)return {kind:'select-action',token:gx.token};
   return {kind:'select-action',token:ray.token};
  }
