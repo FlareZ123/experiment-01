@@ -17,7 +17,8 @@ const STADIUMS=[
   'Parallel City BKT 145',
   'Silent Lab PRC 140',
   'Tropical Beach PR-BW 28',
-  'Thunder Mountain ♢ LOT 191'
+  'Thunder Mountain ♢ LOT 191',
+  'Wondrous Labyrinth ♢ TEU 158'
 ];
 const UNKNOWN='Jamming Tower TWM 153';
 
@@ -36,12 +37,13 @@ function publicPlayer(active,bench,prizes,stadium=[]) {
     publicTurnRestrictions:{stadiumAndToolHaveNoEffectTurnsRemaining:0}};
 }
 function setup(seat,{stadium='',damage=120,prizeCount=2,
-  attackerTypes=['Psychic'],oppBench=true,fairyZone=false}={}) {
+  attackerTypes=['Psychic'],oppBench=true,fairyZone=false,energyCount=5,
+  stadiumSuppressed=false,stadiumUnknown=false}={}) {
   // Real Aichi opponent family: Regidrago VSTAR 280 HP, attack-copy engine.
   // Five Psychic Energy: Max Geist = 160 without Fairy Zone; 120 pre-damage
   // leaves exactly 160 HP. Opponent Bench prevents a board-empty shortcut.
   const active=mon('Shadow Rider Calyrex VMAX CRE 75',320,attackerTypes,['VMAX','V'],
-    Array(5).fill(PSY),[['Max Geist','10+',['Colorless','Colorless','Colorless']]]);
+    Array(energyCount).fill(PSY),[['Max Geist','10+',['Colorless','Colorless','Colorless']]]);
   const target=mon('Regidrago VSTAR SIT 136',280,['Dragon'],['VSTAR'],[],[],damage,['Legacy Star']);
   const bench=mon('Regidrago V SIT 135',220,['Dragon'],['V']);
   const clefairy=mon("Lillie's Clefairy ex JTG 56",190,['Psychic'],['Basic','ex'],[],[],0,['Fairy Zone']);
@@ -50,6 +52,14 @@ function setup(seat,{stadium='',damage=120,prizeCount=2,
     opponentPublic:publicPlayer(target,oppBench?[bench]:[],6),ownTurnResources:{
       supporterPlayedTurn:0,retreatedTurn:0,energyPlayedTurn:false,
       stadiumPlayedTurn:false}};
+  if(stadiumSuppressed){
+    view.ownPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining=1;
+    view.opponentPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining=1;
+  }
+  if(stadiumUnknown){
+    view.ownPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining=null;
+    view.opponentPublic.publicTurnRestrictions.stadiumAndToolHaveNoEffectTurnsRemaining=null;
+  }
   return {role:'candidate',seat,observation:view,prompt:null,publicEventReceipt:null,
     actionFrontier:{items:[
       {token:'fog',kind:'play-card',actorPrinting:FOG,publicMetadata:{}},
@@ -87,6 +97,19 @@ for(const profile of PROFILES)for(const seat of [0,1]){
       assert.deepEqual(got.decision,{kind:'select-action',token:
         stadium.includes('Path to the Peak')||stadium.includes('Silent Lab')?'fog':'hit'});
     }
+    // Pinned Wondrous adds a Colorless cost to non-Fairy attackers: three
+    // Psychic can support a 100-damage Max Geist without the Stadium, but
+    // not under the +1 cost even if a synthetic frontier still offers it.
+    const wondrous='Wondrous Labyrinth ♢ TEU 158';
+    assert.deepEqual(choose({energyCount:3,damage:180}).decision,
+      {kind:'select-action',token:'hit'});
+    const underfunded=choose({stadium:wondrous,energyCount:3,damage:180});
+    assert.deepEqual(underfunded.decision,{kind:'select-action',token:'fog'});
+    assert.ok(underfunded.policyAudit.selectionRuleCode!=='ROOT_PUBLIC_FINAL_PRIZE_ATTACK');
+    assert.deepEqual(choose({stadium:wondrous,energyCount:3,damage:180,stadiumSuppressed:true}).decision,
+      {kind:'select-action',token:'hit'});
+    assert.deepEqual(choose({stadium:wondrous,energyCount:4,damage:150,stadiumUnknown:true}).decision,
+      {kind:'select-action',token:'fog'});
     const unknown=choose({stadium:UNKNOWN});
     assert.deepEqual(unknown.decision,{kind:'select-action',token:'fog'});
     assert.equal(unknown.policyAudit.selectionRuleCode,'ROOT_PLAY_MAX_COMPONENT_SCORE');
