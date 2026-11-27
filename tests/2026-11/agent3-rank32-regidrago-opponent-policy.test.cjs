@@ -884,3 +884,50 @@ test('Megaton Blower strips Legacy Energy to turn same-turn VMAX KO into final 3
   assert.deepEqual(bestAction(request({ownPublic,opponentPublic,items})),
     {kind:'select-action',token:'apex'});
 });
+
+
+test('Crispin on unfunded VSTAR uses distinct Basic Fire and Grass, not two Grass',()=>{
+  const ownPublic=player({
+    active:pokemon(P.regidrago,{energies:[]}),
+    discard:[{printing:P.goodra}]
+  });
+  const items=[action('crispin','play-card','Crispin SCR 133'),
+    action('pass','pass')];
+  assert.deepEqual(bestAction(request({ownPublic,items})),
+    {kind:'select-action',token:'crispin'});
+  ownPublic.active.energies=[P.doubleDragon,P.energy];
+  assert.deepEqual(bestAction(request({ownPublic,items})),
+    {kind:'select-action',token:'pass'});
+  const p=prompt('Crispin SCR 133','Crispin',[
+    choice('grass1',P.energy),choice('grass2',P.energy),
+    choice('fire','Fire Energy MEE 10'),choice('metal','Metal Energy MEE 8')
+  ],'ChooseCardsPrompt',[1,2]);
+  p.publicMetadata.sourceZone='deck';
+  assert.deepEqual(promptDecision(request({ownPublic,prompt:p})),
+    {kind:'select-choices',tokens:['fire','grass1']});
+  p.publicMetadata.minimumCount=2;
+  p.choices=[choice('g1',P.energy),choice('g2',P.energy)];
+  assert.deepEqual(promptDecision(request({ownPublic,prompt:p})),
+    {kind:'abstain',reasonCode:'RANK32_CRISPIN_NO_DISTINCT_BASIC_TYPES'});
+});
+
+test('Crispin Native Pokemon target resolves benchIndex, not selectionIndex',()=>{
+  const ownPublic=player({
+    active:pokemon('Budew ASC 16'),
+    bench:[
+      pokemon('Latias ex SSP 76'),
+      pokemon(P.regidrago,{energies:[]})
+    ]
+  });
+  const p=prompt('Crispin SCR 133','Crispin',[
+    {token:'regi',kind:'pokemon',printing:P.regidrago,
+      publicMetadata:{ownerSeat:'actor',targetZone:'bench',
+        benchIndex:1,selectionIndex:0}},
+    {token:'lat',kind:'pokemon',printing:'Latias ex SSP 76',
+      publicMetadata:{ownerSeat:'actor',targetZone:'bench',
+        benchIndex:0,selectionIndex:1}}
+  ],'ChoosePokemonPrompt',[1,1]);
+  p.publicMetadata.selectionType='pokemon';
+  assert.deepEqual(promptDecision(request({ownPublic,prompt:p})),
+    {kind:'select-choices',tokens:['regi']});
+});
