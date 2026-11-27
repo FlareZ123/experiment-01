@@ -6,7 +6,7 @@
  * This is a deterministic, actor-view-only policy for the original rank-29
  * 60-card source list. The common rank-6 engine was copied as a frozen base;
  * rank-29 differences add Field Blower, Target Whistle and Palace Belt.
- * Peonia Prize exchanges remain explicitly unsupported. It is not installed in Agent49's ./policy.cjs loader,
+ * Peonia uses only the native-accepted three-card exchange when K1 and safe hand resources exist. It is not installed in Agent49's ./policy.cjs loader,
  * is not a Twinleaf bot, and has no native-game or competitive evidence.
  */
 
@@ -654,8 +654,7 @@ function promptDecision(request) {
   const metadata = prompt?.publicMetadata ?? {};
   const selectionType = metadata.selectionType ?? null;
 
-  if (/palace book|gladion/i.test(source) ||
-      selectionType === 'prize-slots') {
+  if (/palace book|gladion/i.test(source)) {
     return { kind: 'abstain', reasonCode: 'UNSUPPORTED_PROMPT_TYPE' };
   }
 
