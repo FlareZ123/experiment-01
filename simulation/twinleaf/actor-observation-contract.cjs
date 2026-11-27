@@ -196,6 +196,13 @@ function actorObservation(state,seat,options={}){
   }
   const ownK1=options.ownerK1Snapshot??null;
   if(ownK1!==null){
+    // New owner-K1 custody projections carry the physical owner seat.
+    // Preserve older untagged fixture snapshots without trusting a tagged
+    // snapshot from the opposite actor's physical seat.
+    if(ownK1.ownerSeat!==undefined){
+      assert.equal(ownK1.ownerSeat,seat,
+        'Owner K1 snapshot belongs to a different physical seat');
+    }
     assert.equal(typeof ownK1.exactMembershipKnown,'boolean');
     assert.ok(Number.isSafeInteger(ownK1.epoch)&&ownK1.epoch>=0);
   }
