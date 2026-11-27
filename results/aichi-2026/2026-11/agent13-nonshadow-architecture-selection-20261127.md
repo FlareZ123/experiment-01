@@ -6,7 +6,7 @@
 
 ## Decision
 
-Retain the **unchanged New Moon Lockbreaker v1 English-mechanics 60** as the one current non-Shadow-Rider architecture worth the next policy-investment slot. Park **Iron Thorns ex / Mimikyu Psychic Reserve v3** rather than making two nominal English substitutions and treating it as an equivalent candidate.
+Retain the **unchanged New Moon Lockbreaker v1 English-mechanics 60** as the one current non-Shadow-Rider architecture worth the next policy-investment slot. Park **Iron Thorns ex / Mimikyu Psychic Reserve v3e from the next cross-architecture policy slot**, while preserving it as a legitimate within-Thorns refinement candidate.
 
 This is not a final-best-deck nomination. Hood Shield and Lockbridge remain unranked active Shadow Rider profiles; no matchup is competitively qualified and the 99.5% target is unproven. The narrower decision is where to spend the next scarce policy-development effort on a genuinely different engine.
 
@@ -14,10 +14,10 @@ The distinction is structural:
 
 - New Moon is already a complete 60 with an exact English-print proxy that passed the repository's exact-print Expanded/banned-identity screen. Its 17-Basic shell has a **91.6563%** valid-opening-seven rate and a real Energy-card setup engine that works through Item, Supporter, and Pokémon-Ability locks when its attachment conditions are met.
 - Psychic Reserve v3 is not English-Expanded eligible as submitted because it contains Japan-only **Palace Book** and **Palace Belt**. A concrete role-adjacent English repair now exists: **Rotom Bike SSH 181** for Palace Book and **Lucky Helmet AOR 77** for Palace Belt, with the other 58 cards unchanged. Both selected prints are Expanded-legal in the bundled English corpus, but neither is text-equivalent, so old v3 policy evidence does not transfer cleanly.
-- Even after any two-slot legality repair, Psychic Reserve remains a five-Basic shell. Its exact valid-opening-seven rate is only **47.4562%**; only **20.9139%** of valid openings have two or more Basics; **15.8172%** of valid openings contain Mimikyu but no Iron Thorns. Across the 29 authenticated source lists, the opponent receives a much larger optional mulligan-draw ceiling in 26/29 matchups. A two-card Trainer/Tool replacement does not touch this liability.
-- Psychic Reserve's earlier 48-attempt native A/B was useful developmental evidence, but the policy was unqualified and the results did not establish a robust competitive advantage. It cannot justify paying the format and setup costs merely because v3 produced more settled Mimikyu lines in some cells.
+- Even after the two-slot English repair, Psychic Reserve remains a five-Basic shell. Its exact valid-opening-seven rate is **47.4562%**; only **20.9139%** of valid openings have two or more Basics; **15.8172%** of valid openings contain Mimikyu but no Iron Thorns. Across the 29 authenticated source lists, the opponent receives a much larger optional mulligan-draw ceiling in 26/29 matchups. This is a real policy cost—but **not a disqualifier**, because the parent rank-6 Iron Thorns source placed sixth with only four Basics.
+- Psychic Reserve's earlier 48-attempt native A/B was useful developmental evidence, but the policy was unqualified and the results did not establish a robust, matchup-stable advantage for the Mimikyu package. For the scarce **cross-architecture** slot, that makes v3e a lower-information refinement of an already-successful Thorns family than the structurally different New Moon engine.
 
-Therefore the right next challenger is not “legalized Psychic Reserve v3.” It is the already-fixed New Moon 60, subjected to the hostile cases below before any policy investment is called successful.
+Therefore the right **cross-architecture** challenger is the already-fixed New Moon 60, subjected to the hostile cases below before any policy investment is called successful. Psychic Reserve v3e remains available for later within-Thorns refinement rather than being rejected as inherently weak.
 
 ## Exact retained New Moon 60
 
@@ -108,7 +108,7 @@ A complete 60-card English role-repair now exists at [Psychic Reserve v3e](agent
 
 This removes the English-format blocker without pretending that the two effects are identical. The repaired list is a real fixed 60, but it needs new policy reasoning because its draw semantics differ from the old v3.
 
-### 2. The five-Basic shell is the larger problem and survives any two-slot repair
+### 2. The five-Basic shell is a real cost, but rank 6 proves it is not a disqualifier
 
 The exact opening screen already shows:
 
@@ -118,13 +118,15 @@ The exact opening screen already shows:
 - against the 29 authenticated source lists, equal-weighted mean maximum optional bonus-draw ceiling is **0.975 cards to the opponent vs 0.202 to Psychic Reserve**;
 - **26/29** authenticated opponents have the higher bonus-draw ceiling.
 
-This is not a cosmetic consistency statistic. It means the control deck repeatedly gives the opposing source deck extra setup resources while often beginning with only one Pokémon. The exact count-only sensitivity does not become field-neutral until around 10–11 Basics, and adding five or six Basics would no longer be a two-slot normalization; it would be an architectural redesign with substantial Trainer/control opportunity cost.
+This is not a cosmetic consistency statistic. It means the control deck repeatedly gives the opposing source deck extra setup resources while often beginning with only one Pokémon. The exact count-only sensitivity does not become field-neutral until around 10–11 Basics, and adding five or six Basics would be an architectural redesign with substantial Trainer/control opportunity cost.
 
-### 3. Existing native results do not pay for that tax
+But the parent **rank-6 Iron Thorns source had only four Basics and actually placed sixth**. The event result therefore falsifies any simple rule that a low-Basic control shell should be parked because of mulligan/setup math alone. The screen should inform policy and slot-cost decisions, not act as a rejection threshold.
+
+### 3. Existing native results do not establish a durable within-family upgrade
 
 The earlier 48-attempt A/B between Safeguard v1 and Psychic Reserve v3 was explicitly developmental and used an unqualified shared policy. It provided useful evidence that the second Psychic Energy could enable more Mimikyu lines, but even its own report records matchup-dependent reversals and zero paper-qualified games. It does not establish that the five-Basic architecture's lock advantage exceeds its setup and draw-engine costs.
 
-**Parking condition:** do not spend the next policy slot on Psychic Reserve. The exact English v3e repair already exists, so legality alone is no longer the issue. Reopen only if the control plan explicitly addresses or justifies the five-Basic setup tax, with a concrete adversarial line showing why that structural cost is worth paying. A two-card role repair is insufficient.
+**Parking condition:** do not spend the next **cross-architecture** policy slot on Psychic Reserve. The exact English v3e repair exists and the parent low-Basic Thorns family already has real tournament evidence. Preserve v3e for later within-Thorns optimization; reopen it when the Mimikyu/funding package has actor-visible evidence of fixing a hard Thorns matchup or when family refinement becomes the active research priority.
 
 ## Unified candidate-policy acceptance contract
 
