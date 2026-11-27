@@ -83,7 +83,7 @@ for(const profile of PROFILES)for(const seat of [0,1]){
     for(const stadium of STADIUMS){
       const got=choose({stadium,fairyZone:true,damage:0});
       assert.deepEqual(got.decision,{kind:'select-action',token:
-        stadium.includes('Parallel City')?'hit':'fog'});
+        stadium.includes('Path to the Peak')||stadium.includes('Silent Lab')?'fog':'hit'});
     }
     const unknown=choose({stadium:UNKNOWN});
     assert.deepEqual(unknown.decision,{kind:'select-action',token:'fog'});
